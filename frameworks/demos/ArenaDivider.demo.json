@@ -1,0 +1,5 @@
+{
+  "component": "ArenaDivider",
+  "seed": {},
+  "note": "A rule with no air of its own: the stack or the row around it decides the spacing. Set the label to draw the word between two rules."
+}

@@ -1,23 +1,24 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { renderToStaticMarkup } from 'react-dom/server';
+import { renderIcons, symbols } from '../../../test/IconsHarness.tsx';
 import React from 'react';
 import { ArenaEmptyState } from './ArenaEmptyState.tsx';
 
-test('ArenaEmptyState renders the icon as an aria-hidden <i> Arena draws, from a Phosphor class name', () => {
-  const html = renderToStaticMarkup(
+test('ArenaEmptyState renders the icon as an aria-hidden svg Arena draws, from a Phosphor class name', () => {
+  const html = renderIcons(
     <ArenaEmptyState icon="ph-duotone ph-folder-open" title="No projects yet" />
   );
-  assert.match(html, /<i class="ph-duotone ph-folder-open" aria-hidden="true">/);
+  assert.deepEqual(symbols(html), ['duotone-folder-open']);
+  assert.match(html, /<svg[^>]*aria-hidden="true"/);
 });
 
-test('ArenaEmptyState with no icon renders no <i> at all', () => {
-  const html = renderToStaticMarkup(<ArenaEmptyState title="No projects yet" />);
-  assert.doesNotMatch(html, /<i /);
+test('ArenaEmptyState with no icon renders no svg at all', () => {
+  const html = renderIcons(<ArenaEmptyState title="No projects yet" />);
+  assert.doesNotMatch(html, /<svg/);
 });
 
 test('ArenaEmptyState renders the title and message text', () => {
-  const html = renderToStaticMarkup(
+  const html = renderIcons(
     <ArenaEmptyState title="No projects yet" message="Create your first project to start deploying." />
   );
   assert.match(html, /No projects yet/);
@@ -27,7 +28,7 @@ test('ArenaEmptyState renders the title and message text', () => {
 test('ArenaEmptyState throws when title is absent -- the fail-hard guard', () => {
   assert.throws(
     // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    () => renderToStaticMarkup(<ArenaEmptyState />),
+    () => renderIcons(<ArenaEmptyState />),
     /ArenaEmptyState: `title` is required/,
   );
 });

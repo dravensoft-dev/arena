@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -23,7 +24,7 @@ import { domainsOf } from '../../ci/arena/changed-layers.ts';
 import { jobBlocks } from './check-portability.ts';
 import {
   testStep, summarize, summaryLine, stepStatus, GATES, DOMAINS, SUITES, gatesFor, parseCheckArgs, testFilesUnder,
-  keptButFailed, ANGULAR_EMIT, typeSteps, planSteps, runSteps, collate, exitCode, stepOutcome, block, poolProblems,
+  keptButFailed, ANGULAR_EMIT, TEST_CASE, typeSteps, planSteps, runSteps, collate, exitCode, stepOutcome, block, poolProblems,
   slotsLine, type Planned, type Result,
 } from './check-all.ts';
 
@@ -33,17 +34,22 @@ const INTERRUPTED: Deadline = deadline('check-all:interrupted', 20_000,
   'four bun processes start, each writes its pid, and the runner is signalled; a cold bun start on '
   + 'a loaded machine takes most of a second, and the bound only ends a hang');
 
-const BUDGET = budgetFor(COLLECTION, INTERRUPTED, TERM_GRACE, ABORT_GRACE);
+const PAST_DEFAULT: Deadline = deadline('check-all-test:past-default', 5_500,
+  'half a second past bun\'s own per-case default, so the case outlives it and nothing else');
+
+const BUDGET = budgetFor(COLLECTION, INTERRUPTED, TERM_GRACE, ABORT_GRACE, PAST_DEFAULT, TEST_CASE);
 
 const MEASURED_HEAVY = new Map([
-  ['check:pixel-parity', 'browser'], ['check:target-size', 'browser'], ['check:proximity', 'browser'],
-  ['check:focus-trap', 'browser'], ['check:script-types', 'compiler'],
-  ['check:react-types', 'compiler'],
+  ['check:pixel-parity', 'browser'], ['check:target-size', 'browser'], ['check:contained-parts', 'browser'], ['check:proximity', 'browser'],
+  ['check:palette-islands', 'browser'],
+  ['check:focus-trap', 'browser'], ['check:anchoring', 'browser'], ['check:script-types', 'compiler'],
+  ['check:react-types', 'compiler'], ['check:consumer', 'browser'],
 ]);
 
 const MEASURED_COST = new Map([
-  ['check:pixel-parity', 34], ['check:script-types', 13.5], ['check:react-types', 12.7],
-  ['check:target-size', 11.9], ['check:proximity', 10.2], ['check:focus-trap', 4.1],
+  ['check:pixel-parity', 52], ['check:script-types', 13.5], ['check:react-types', 12.7],
+  ['check:target-size', 20.3], ['check:contained-parts', 12.6], ['check:proximity', 10.2], ['check:palette-islands', 4.7], ['check:focus-trap', 4.1], ['check:anchoring', 6.3],
+  ['check:consumer', 15.3],
 ]);
 
 const TEST_COST = new Map([
@@ -55,10 +61,10 @@ const SPLIT_TESTS = ['build (ngc emit of the Angular layer)', 'test (scripts)', 
   'test (react-dom)', 'test (angular)'];
 
 test('GATES lists every check gate', () => {
-  assert.equal(GATES.length, 89);
+  assert.equal(GATES.length, 95);
   assert.deepEqual(
     GATES.map((g) => g.name),
-    ['check:docs', 'check:graph', 'check:portability', 'check:workflow-scripts', 'check:generated', 'check:skill-spec', 'check:skills', 'check:support', 'check:prompts', 'check:rules', 'check:register', 'check:routes', 'check:vocabulary', 'check:families', 'check:architecture', 'check:duplication', 'check:dtcg', 'check:user-scale', 'check:catalogue', 'check:style-plugin', 'check:style-plugin-coverage', 'check:role-contract', 'check:compat-aliases', 'check:polarity', 'check:tokens', 'check:token-collisions', 'check:script-tokens', 'check:duplicate-constants', 'check:deadlines', 'check:ramp', 'check:boundary-contrast', 'check:text-contrast', 'check:tailwind', 'check:tailwind-generated', 'check:coverage', 'check:radius', 'check:roles', 'check:arbitrary', 'check:safe-area', 'check:component-css', 'check:channels', 'check:dimensions', 'check:states', 'check:measured-box', 'check:intrinsic-width', 'check:appearance', 'check:parts', 'check:boundaries', 'check:layer-independence', 'check:structure', 'check:contracts', 'check:contracts-package', 'check:mcp', 'check:contracts-neutrality', 'check:contracts-resolve', 'check:behaviour', 'check:compliance', 'check:api', 'check:playgrounds', 'check:kitchen-sink', 'check:citations', 'check:agents', 'check:agents-spec', 'check:community', 'check:site', 'check:icons', 'check:fonts', 'check:intro', 'check:vendor', 'check:demos', 'check:react-barrel', 'check:react-types', 'check:text-runs', 'check:script-types', 'check:script-reach', 'check:focus-trap', 'check:target-size', 'check:pixel-parity', 'check:proximity', 'check:shared-arithmetic', 'check:packages', 'check:consumer', 'check:exports', 'check:classes', 'check:angular-demos', 'check:assertions', 'check:cdk', 'check:boolean-inputs', 'check:optional-inputs'],
+    ['check:docs', 'check:graph', 'check:portability', 'check:workflow-scripts', 'check:generated', 'check:skill-spec', 'check:skills', 'check:support', 'check:prompts', 'check:rules', 'check:register', 'check:routes', 'check:vocabulary', 'check:families', 'check:architecture', 'check:duplication', 'check:dtcg', 'check:user-scale', 'check:catalogue', 'check:style-plugin', 'check:style-plugin-coverage', 'check:plugin-css', 'check:role-contract', 'check:compat-aliases', 'check:polarity', 'check:tokens', 'check:token-collisions', 'check:script-tokens', 'check:duplicate-constants', 'check:deadlines', 'check:ramp', 'check:boundary-contrast', 'check:text-contrast', 'check:tailwind', 'check:tailwind-generated', 'check:coverage', 'check:radius', 'check:roles', 'check:arbitrary', 'check:safe-area', 'check:hidden-parts', 'check:component-css', 'check:channels', 'check:dimensions', 'check:states', 'check:measured-box', 'check:intrinsic-width', 'check:appearance', 'check:parts', 'check:boundaries', 'check:layer-independence', 'check:structure', 'check:contracts', 'check:contracts-package', 'check:mcp', 'check:contracts-neutrality', 'check:contracts-resolve', 'check:behaviour', 'check:compliance', 'check:api', 'check:playgrounds', 'check:kitchen-sink', 'check:citations', 'check:agents', 'check:agents-spec', 'check:community', 'check:site', 'check:icons', 'check:fonts', 'check:intro', 'check:vendor', 'check:demos', 'check:react-barrel', 'check:react-types', 'check:text-runs', 'check:script-types', 'check:script-reach', 'check:focus-trap', 'check:anchoring', 'check:target-size', 'check:contained-parts', 'check:pixel-parity', 'check:proximity', 'check:palette-islands', 'check:shared-arithmetic', 'check:packages', 'check:consumer', 'check:weight', 'check:exports', 'check:classes', 'check:angular-demos', 'check:assertions', 'check:cdk', 'check:boolean-inputs', 'check:optional-inputs'],
   );
 });
 
@@ -146,6 +152,7 @@ test('verify.yml runs the gates of the domains its caller selects in one job, so
   const selection = verify();
   assert.deepEqual(selection.problems, []);
   assert.equal(selection.gates.length, 1, 'one job runs check-all, on the domains the caller hands it');
+  assert.deepEqual(selection.audits, ['audit']);
   const names = gatesFor(DOMAINS).map((g) => g.name);
   assert.equal(new Set(names).size, names.length);
   assert.deepEqual([...names].sort(), GATES.map((g) => g.name).sort());
@@ -248,14 +255,38 @@ test('testStep runs the emit and each suite in its own process, the Angular suit
   const steps = testStep({ isBun: true, testFiles: ['a.test.mjs', 'b.test.mjs'] });
   assert.deepEqual(steps, [
     { name: 'build (ngc emit of the Angular layer)', args: ['run', 'build:angular-tests'], pool: 'compiler', cost: 21.2 },
-    { name: 'test (scripts)', args: ['test', 'scripts'], pool: 'compiler', cost: 38.1 },
-    { name: 'test (react)', args: ['test', 'frameworks/react', '--path-ignore-patterns=**/*.dom.test.*'], pool: 'compiler', cost: 0.7 },
-    { name: 'test (react-dom)', args: ['test', '--preload', './frameworks/react/test/Preload.js', '.dom.test.'], pool: 'compiler', cost: 6.9 },
-    { name: 'test (angular)', args: ['test', 'frameworks/angular/build/test'], pool: 'compiler', cost: 5.4,
+    { name: 'test (scripts)', args: ['test', 'scripts', `--timeout=${TEST_CASE.ms}`], pool: 'compiler', cost: 38.1 },
+    { name: 'test (react)', args: ['test', 'frameworks/react', '--path-ignore-patterns=**/*.dom.test.*', `--timeout=${TEST_CASE.ms}`], pool: 'compiler', cost: 0.7 },
+    { name: 'test (react-dom)', args: ['test', '--preload', './frameworks/react/test/Preload.js', '.dom.test.', `--timeout=${TEST_CASE.ms}`], pool: 'compiler', cost: 6.9 },
+    { name: 'test (angular)', args: ['test', 'frameworks/angular/build/test', `--timeout=${TEST_CASE.ms}`], pool: 'compiler', cost: 5.4,
       after: ['build (ngc emit of the Angular layer)'] },
   ]);
   assert.equal(steps[0], ANGULAR_EMIT);
 });
+
+test('every suite gives a case the test-case deadline rather than bun\'s default', () => {
+  for (const [name, suite] of Object.entries(SUITES))
+    assert.equal(suite.args.at(-1), `--timeout=${TEST_CASE.ms}`, name);
+});
+
+test('a case running past bun\'s default passes under a suite\'s arguments, fails without them, and ends under a shorter deadline',
+  { timeout: budgetFor(PAST_DEFAULT, PAST_DEFAULT, TEST_CASE) }, () => {
+    const root = mkdtempSync(join(tmpdir(), 'arena-test-case-'));
+    try {
+      writeFileSync(join(root, 'slow.test.ts'),
+        `import { test } from 'bun:test';\ntest('slow', async () => { await Bun.sleep(${PAST_DEFAULT.ms}); });\n`);
+      const run = (extra: string[]) => {
+        const done = spawnSync(process.execPath, ['test', root, ...extra], { cwd: root, encoding: 'utf8' });
+        return { status: done.status, output: `${done.stdout}${done.stderr}` };
+      };
+      const ended = run([]);
+      assert.equal(ended.status, 1, `bun's default ends the case: ${ended.output}`);
+      const finished = run([`--timeout=${TEST_CASE.ms}`]);
+      assert.equal(finished.status, 0, `the suite deadline lets it finish: ${finished.output}`);
+      const hung = run(['--timeout=1000']);
+      assert.equal(hung.status, 1, `a deadline below the case still ends it, so a hung case ends: ${hung.output}`);
+    } finally { rmSync(root, { recursive: true, force: true }); }
+  });
 
 test('bun is pointed at the tree ngc actually emits, so a rootDir edit cannot run zero Angular suites', () => {
   const emitted = relPosix(repoRoot, angularEmitRoot(join(repoRoot, 'frameworks', 'angular', 'tsconfig.test.json')));
@@ -327,7 +358,7 @@ test('a failure the graph would have run anyway is the gate\'s own, and says not
 });
 
 test('every gate measured as a browser or a compiler declares that pool, and no other gate declares one', () => {
-  assert.equal(MEASURED_HEAVY.size, 6);
+  assert.equal(MEASURED_HEAVY.size, 10);
   const declared = new Map(GATES.filter((g) => g.pool !== undefined).map((g) => [g.name, g.pool]));
   for (const name of MEASURED_HEAVY.keys()) assert.ok(GATES.some((g) => g.name === name), `${name} is not in GATES`);
   assert.deepEqual([...declared].sort(), [...MEASURED_HEAVY].sort(),
@@ -430,7 +461,7 @@ test('the plan holds every gate once and every suite step once, and a kept gate 
   assert.deepEqual(all.kept, []);
   const pixel = all.planned.find((one) => one.name === 'check:pixel-parity');
   assert.equal(pixel?.pool, 'browser');
-  assert.equal(pixel?.cost, 34);
+  assert.equal(pixel?.cost, 52);
   assert.equal(pixel?.command, '/bin/bun');
   assert.match(pixel?.args[0] ?? '', /check-pixel-parity\.ts$/);
 
@@ -569,28 +600,31 @@ test('an interrupt ends every running child, kills one that ignores SIGTERM, sta
     try {
       const hold = join(dir, 'hold.mjs');
       writeFileSync(hold, [
-        "import { writeFileSync } from 'node:fs';",
-        'writeFileSync(process.argv[2], String(process.pid));',
+        "import { renameSync, writeFileSync } from 'node:fs';",
+        'writeFileSync(`${process.argv[2]}.part`, String(process.pid));',
+        'renameSync(`${process.argv[2]}.part`, process.argv[2]);',
         'setInterval(() => {}, 1_000);',
       ].join('\n'));
       const stubborn = join(dir, 'stubborn.mjs');
       writeFileSync(stubborn, [
-        "import { writeFileSync } from 'node:fs';",
+        "import { renameSync, writeFileSync } from 'node:fs';",
         "process.on('SIGTERM', () => {});",
-        'writeFileSync(process.argv[2], String(process.pid));',
+        'writeFileSync(`${process.argv[2]}.part`, String(process.pid));',
+        'renameSync(`${process.argv[2]}.part`, process.argv[2]);',
         'setInterval(() => {}, 1_000);',
       ].join('\n'));
       const harness = join(dir, 'harness.ts');
       const url = (...parts: string[]) => JSON.stringify(pathToFileURL(join(repoRoot, ...parts)).href);
       writeFileSync(harness, [
-        "import { writeFileSync } from 'node:fs';",
+        "import { renameSync, writeFileSync } from 'node:fs';",
         `import { runSteps } from ${url('scripts', 'check', 'arena', 'check-all.ts')};`,
         `import { interruptOn } from ${url('scripts', 'graph', 'scheduler.ts')};`,
         `const dir = ${JSON.stringify(dir)};`,
         `const hold = ${JSON.stringify(hold)};`,
         `const stubborn = ${JSON.stringify(stubborn)};`,
-        "writeFileSync(`${dir}/harness.pid`, String(process.pid));",
         'const signal = interruptOn();',
+        "writeFileSync(`${dir}/harness.pid.part`, String(process.pid));",
+        "renameSync(`${dir}/harness.pid.part`, `${dir}/harness.pid`);",
         'const step = (name, file = hold) => ({ name, command: process.execPath, args: [file, `${dir}/${name}.pid`] });',
         "const { finished, notStarted } = await runSteps([step('a'), step('b'), step('c', stubborn), step('d')],",
         '  { total: 3, heavy: 1, browser: 1 }, { signal, print: () => {} });',
@@ -638,3 +672,67 @@ test('runSteps hands each step its cost, so with one heavy slot the longest heav
     { print: () => {} });
   assert.deepEqual(finished.map((one) => one.name), ['long', 'short']);
 });
+
+test('a test step runs under a temp root of its own that is gone when it ends, and a gate keeps the inherited one',
+  { timeout: BUDGET }, async () => {
+    const log = mkdtempSync(join(tmpdir(), 'arena-check-all-log-'));
+    try {
+      const file = (name: string) => join(log, name.replace(/\W+/g, '_'));
+      const probe = (name: string, code: number, scratch: boolean): Planned => ({
+        name, command: process.execPath, scratch,
+        args: ['-e', [
+          "const { appendFileSync } = require('node:fs');",
+          `appendFileSync(${JSON.stringify(file(name))}, String(process.env.TMPDIR));`,
+          `process.exit(${code});`,
+        ].join('\n')],
+      });
+      const { finished } = await runSteps(
+        [probe('test (passes)', 0, true), probe('test (fails)', 1, true), probe('check:gate', 0, false)],
+        { total: 3, heavy: 1, browser: 1 }, { print: () => {} });
+      assert.deepEqual(finished.map((one) => [one.name, one.status]).sort(),
+        [['check:gate', 'pass'], ['test (fails)', 'fail'], ['test (passes)', 'pass']]);
+      for (const name of ['test (passes)', 'test (fails)']) {
+        const root = readFileSync(file(name), 'utf8');
+        assert.notEqual(root, String(process.env.TMPDIR), `${name} ran under the inherited temp directory`);
+        assert.equal(existsSync(root), false, `${name} left its temp root behind`);
+      }
+      assert.equal(readFileSync(file('check:gate'), 'utf8'), String(process.env.TMPDIR),
+        'a gate step is handed the environment it inherited');
+      const planned = planSteps([{ name: 'check:docs', file: 'arena/check-docs.ts' }], new Map(),
+        testStep({ isBun: true, testFiles: [] }), '/bin/bun').planned;
+      assert.deepEqual(planned.filter((one) => one.scratch).map((one) => one.name.startsWith('test (')),
+        planned.filter((one) => one.name.startsWith('test (')).map(() => true),
+        'every test step, and only a test step, is planned with a temp root');
+    } finally {
+      rmSync(log, { recursive: true, force: true });
+    }
+  });
+
+test('a test step that leaves something in its temp root fails, naming the entry, and the root is gone',
+  { timeout: BUDGET }, async () => {
+    const log = mkdtempSync(join(tmpdir(), 'arena-check-all-log-'));
+    try {
+      const probe = (name: string, code: number): Planned => ({
+        name, command: process.execPath, scratch: true,
+        args: ['-e', [
+          "const { appendFileSync, writeFileSync } = require('node:fs');",
+          "const { join } = require('node:path');",
+          "writeFileSync(join(process.env.TMPDIR, 'arena-leak-probe'), 'x');",
+          `appendFileSync(${JSON.stringify(join(log, 'seen'))}, process.env.TMPDIR + '\\n');`,
+          `process.exit(${code});`,
+        ].join('\n')],
+      });
+      let printed = '';
+      const { finished } = await runSteps([probe('test (leaks)', 0), probe('test (fails and leaks)', 1)],
+        { total: 2, heavy: 2, browser: 1 }, { print: (text) => { printed += text; } });
+      assert.deepEqual(finished.map((one) => [one.name, one.status]).sort(),
+        [['test (fails and leaks)', 'fail'], ['test (leaks)', 'fail']]);
+      assert.match(printed, /test \(leaks\) left 1 entry in its temp root: arena-leak-probe/);
+      assert.match(printed, /test \(fails and leaks\) left 1 entry in its temp root: arena-leak-probe/);
+      for (const root of readFileSync(join(log, 'seen'), 'utf8').trim().split('\n')) {
+        assert.equal(existsSync(root), false, 'a step that left something kept its temp root');
+      }
+    } finally {
+      rmSync(log, { recursive: true, force: true });
+    }
+  });

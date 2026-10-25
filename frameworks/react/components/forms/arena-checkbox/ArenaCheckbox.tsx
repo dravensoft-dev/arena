@@ -11,8 +11,11 @@ export interface ArenaCheckboxProps {
   /** Whether it is ticked. */
   checked?: boolean;
 
-  /** Text beside the box. */
-  label?: string;
+  /** The checkbox's accessible name, and the text beside the box unless `showLabel` is false. Required, and guarded at runtime after trimming: a checkbox with no name is announced as an unlabelled checkbox. */
+  label: string;
+
+  /** Whether the label is drawn beside the box. False keeps the name on the input for assistive technology and draws nothing, for a row-selection box with no room for text. */
+  showLabel?: boolean;
 
   /** Blocks toggling and dims it. */
   disabled?: boolean;
@@ -26,17 +29,18 @@ export interface ArenaCheckboxProps {
   /** The value submitted under `name` when checked. */
   value?: string;
 
-  /** Toggled; carries the new checked state. */
-  onChange?: (checked: boolean) => void;
+  /** Toggled; carries the new checked state. The native change of the inner box is never stopped, so a listener on the document hears it; this event carries the value. */
+  onValueChange?: (checked: boolean) => void;
 }
 
 
 const arenaCheckboxStyles = arenaStyles(manifest);
 
-export function ArenaCheckbox({ className, checked = false, onChange, label, disabled = false, required = false, name, value }: ArenaCheckboxProps) {
+export function ArenaCheckbox({ className, checked = false, onValueChange, label, showLabel = true, disabled = false, required = false, name, value }: ArenaCheckboxProps) {
+  if (!label?.trim()) throw new Error('ArenaCheckbox: `label` is required, and names the checkbox');
   const styles = arenaCheckboxStyles({ checked, disabled });
   return (
-    <label className={arenaClassName('ArenaCheckbox', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+    <label className={arenaClassName('ArenaCheckbox', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       <span className={styles.box()} data-arena-part={manifest.parts.box} {...styles.$data.box()}>
         {checked && (
           <svg className={styles.check()} data-arena-part={manifest.parts.check} {...styles.$data.check()} viewBox="0 0 12 12" fill="none">
@@ -44,9 +48,9 @@ export function ArenaCheckbox({ className, checked = false, onChange, label, dis
           </svg>
         )}
       </span>
-      {label && <span className={styles.label()} data-arena-part={manifest.parts.label} {...styles.$data.label()}>{label}</span>}
-      <input type="checkbox" checked={checked} name={name} value={value} required={required}
-        onChange={(e) => onChange && onChange(e.target.checked)} disabled={disabled}
+      {showLabel && <span className={styles.label()} data-arena-part={manifest.parts.label} {...styles.$data.label()}>{label}</span>}
+      <input type="checkbox" checked={checked} name={name} value={value} required={required} aria-label={showLabel ? undefined : label}
+        onChange={(e) => onValueChange && onValueChange(e.target.checked)} disabled={disabled}
         className={styles.input()} data-arena-part={manifest.parts.input} {...styles.$data.input()} />
     </label>
   );

@@ -1,0 +1,40 @@
+<!-- @dsCard group="Tailwind" viewport="760x300" name="ArenaDivider" subtitle="A rule, a labelled rule and a vertical rule in a row, rendered from ArenaDivider.manifest.json" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../../intro/styles.css">
+<link rel="stylesheet" href="../../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../../consume/components/layout/arena-divider/ArenaDivider.styles.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/Orientation.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/Row.generated.css">
+<link rel="stylesheet" href="../../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
+
+const manifest = await (await fetch('./ArenaDivider.manifest.json')).json();
+
+function rule(cls = '') {
+  const c = arenaClassesFor(manifest, { labelled: false });
+  const d = arenaSlotDataFor(manifest, { labelled: false });
+  return el('hr', { class: cls ? `${c.root} ${cls}` : c.root, ...d.root });
+}
+
+function labelled(word, cls = '') {
+  const c = arenaClassesFor(manifest, { labelled: true });
+  const d = arenaSlotDataFor(manifest, { labelled: true });
+  return el('div', { class: cls ? `${c.root} ${cls}` : c.root, ...d.root },
+    el('span', { class: c.rule, ...d.rule, 'aria-hidden': 'true' }),
+    el('span', { class: c.label, ...d.label, text: word }),
+    el('span', { class: c.rule, ...d.rule, 'aria-hidden': 'true' }));
+}
+
+const word = (text) => el('span', { class: 'font-body text-sm', text });
+
+mountSpecimen({ sections: [
+  section('A rule, which is one hr', [rule()], { stack: true }),
+  section('A labelled rule: two decorative rules and the word between them', [labelled('or')], { stack: true }),
+  section('arena-orientation-vertical inside an arena-row: it stretches to the row', [
+    el('div', { class: 'arena-row' }, word('Draft'), rule('arena-orientation-vertical'), word('12 changes'),
+      rule('arena-orientation-vertical'), word('Saved 2 min ago')),
+  ], { stack: true }),
+]});
+</script></body></html>

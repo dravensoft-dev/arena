@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useId, useState } from 'react';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaSegmentedControl.classes.generated.ts';
 
@@ -24,31 +24,31 @@ export interface ArenaSegmentedControlProps {
   /** Names what is being filtered: "Time range", not "Filter". A radio group with no accessible name is announced unlabelled. */
   ariaLabel: string;
 
-  /** Shared name for the underlying radios; generated when omitted. */
+  /** Shared name for the underlying radios; generated when omitted or blank. */
   name?: string;
 
-  /** A different option was chosen; carries its value. */
-  onChange?: (value: string) => void;
+  /** A different option was chosen; carries its value. The native change of the inner radio is never stopped, so a listener on the document hears it; this event carries the value. */
+  onValueChange?: (value: string) => void;
 }
 
 
 const segmentedStyles = arenaStyles(manifest);
 
 export function ArenaSegmentedControl({ className, 
-  options, value, defaultValue, onChange,
+  options, value, defaultValue, onValueChange,
   ariaLabel, name,
 }: ArenaSegmentedControlProps) {
   if (options == null) throw new Error('ArenaSegmentedControl: `options` is required');
   if (!ariaLabel) throw new Error('ArenaSegmentedControl: `ariaLabel` is required');
   const [internal, setInternal] = useState(defaultValue ?? (options[0] && options[0].value));
-  const [autoName] = useState(() => 'sc-' + Math.random().toString(36).slice(2, 7));
+  const autoName = `sc-${useId().replace(/:/g, '')}`;
 
   const selected = value ?? internal;
   const gname = name || autoName;
-  const select = (v: string) => { setInternal(v); onChange && onChange(v); };
+  const select = (v: string) => { setInternal(v); onValueChange && onValueChange(v); };
 
   return (
-    <div role="radiogroup" aria-label={ariaLabel} className={arenaClassName('ArenaSegmentedControl', segmentedStyles({}).track(), className)} data-arena-part={manifest.parts.track} {...segmentedStyles({}).$data.track()}>
+    <div role="radiogroup" aria-label={ariaLabel} className={arenaClassName('ArenaSegmentedControl', segmentedStyles({}).track(), className, manifest.vocabulary)} data-arena-part={manifest.parts.track} {...segmentedStyles({}).$data.track()}>
       {options.map((o) => {
         const v = o.value;
         const on = v === selected;

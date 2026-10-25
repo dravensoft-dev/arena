@@ -5,11 +5,12 @@ import { tmpdir } from 'node:os';
 import { join, basename } from 'node:path';
 import {
   componentMap, angularComponentMap, reactComponentMap, sheetOf, close, MAP_FILE,
-  markerAttributes, MARKERS_FILE,
+  markerAttributes, MARKERS_FILE, reactSheetless, LAYER_IMPORT, QUERIED_MARKER,
 } from './component-map.ts';
 import { manifestFiles } from '../tailwind/tailwind-compile.ts';
 import { kebab } from '../../utils/case.ts';
 import { repoRoot } from './repo-root.ts';
+import { captured } from '../../utils/captures.ts';
 
 const shipped = manifestFiles(join(repoRoot, 'frameworks', 'tailwind', 'components'))
   .map((file) => kebab(basename(file).split('.')[0] ?? ''));
@@ -42,8 +43,8 @@ for (const [layer, match] of [['angular', 'selector'], ['react', 'symbol']] as [
 
   test(`${layer} closes what Arena draws for the consumer, and a table is the case that proves it`, () => {
     const { needs } = componentMap(layer, repoRoot);
-    assert.deepEqual(needs['arena-table'], ['arena-pagination', 'arena-select'],
-      'a table renders both, and a subset naming table alone is a paginated table with no pagination');
+    assert.deepEqual(needs['arena-table'], ['arena-icon', 'arena-pagination', 'arena-select'],
+      'a table renders all three, and a subset naming table alone is a paginated table with no pagination or caret');
     for (const [sheet, pulled] of Object.entries(needs) as [string, string[]][]) {
       assert.ok(!pulled.includes(sheet), `${sheet} needs itself, so the closure did not drop the self edge`);
     }
@@ -70,8 +71,8 @@ test('a map is derived per layer, and the two agree where the two layers compose
   const angular = componentMap('angular', repoRoot);
   const react = componentMap('react', repoRoot);
   for (const map of [react, angular]) {
-    assert.deepEqual(map.needs['arena-confirm-dialog'], ['arena-button'],
-      'the cancel action IS an ArenaButton, so both layers render one and the sheet follows');
+    assert.deepEqual(map.needs['arena-confirm-dialog'], ['arena-button', 'arena-icon'],
+      'the cancel action IS an ArenaButton, which draws a glyph, so both layers render both and the sheet follows');
   }
 });
 
@@ -115,4 +116,53 @@ test('a marker whose class is not its attribute capitalised is carried, not gues
   assert.equal(declared.get('ArenaFigureSlot'), 'figure',
     'ArenaFigure is the component that holds the slot, so guessing the directive from the '
     + 'attribute names the wrong symbol');
+});
+
+test('the React map names the index exports a consumer opens as a tag and that draw no sheet', () => {
+  const map = componentMap('react', repoRoot);
+  assert.deepEqual(map.sheetless, ['ArenaIconsProvider', 'ArenaLocaleProvider']);
+  assert.deepEqual((map.sheetless ?? []).filter((name) => name in map.draws), [],
+    'a name that draws a sheet is a component, and is placed by draws');
+  assert.equal('sheetless' in componentMap('angular', repoRoot), false,
+    'Angular exports no element selector outside its components');
+});
+
+test('a provider added to a helper module the index re-exports is placed without editing a list', () => {
+  const root = mkdtempSync(join(tmpdir(), 'arena-sheetless-'));
+  try {
+    const react = join(root, 'frameworks', 'react');
+    mkdirSync(join(react, 'components'), { recursive: true });
+    writeFileSync(join(react, 'Index.generated.ts'),
+      "export * from './components/Thing.ts';\nexport * from './Foo.ts';\n");
+    writeFileSync(join(react, 'components', 'Thing.ts'), 'export function ArenaThing() { return null; }\n');
+    writeFileSync(join(react, 'Foo.ts'), 'export function FooProvider() { return null; }\nexport const useFoo = 1;\n');
+    assert.deepEqual(reactSheetless({}, root), ['FooProvider']);
+    assert.deepEqual(reactSheetless({ FooProvider: null }, root), []);
+    writeFileSync(join(react, 'Index.generated.ts'), "export * from './Gone.ts';\n");
+    assert.throws(() => reactSheetless({}, root), /component-map: .*Gone\.ts/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('both layers close the same needs for every sheet both draw', () => {
+  const angular = componentMap('angular', repoRoot);
+  const react = componentMap('react', repoRoot);
+  const both = [...new Set(Object.values(angular.draws))]
+    .filter((s): s is string => Boolean(s))
+    .filter((s) => Object.values(react.draws).includes(s));
+  for (const sheet of both) {
+    assert.deepEqual(react.needs[sheet] ?? [], angular.needs[sheet] ?? [], sheet);
+  }
+});
+
+test('a relative import from the same category is a use, as one from another category is', () => {
+  const source = "import { ArenaCard } from '../arena-card/ArenaCard.tsx';\nimport { ArenaIcon } from '../../display/arena-icon/ArenaIcon.tsx';";
+  assert.deepEqual([...source.matchAll(LAYER_IMPORT)].map((m) => captured(m)), ['ArenaCard', 'ArenaIcon']);
+  assert.deepEqual([..."from '../MainRegion.ts'".matchAll(LAYER_IMPORT)], []);
+});
+
+test('a marker query is read with or without options', () => {
+  const source = 'contentChild(ArenaFooter)\ncontentChild(ArenaActions, { descendants: false })';
+  assert.deepEqual([...source.matchAll(QUERIED_MARKER)].map((m) => captured(m)), ['ArenaFooter', 'ArenaActions']);
 });

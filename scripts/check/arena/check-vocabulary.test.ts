@@ -3,9 +3,9 @@
  * asserted by name and in both directions: an entry that stops being needed fails as a stale
  * allowance, which is the property that keeps an exception list from outliving its exception. */
 
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, win32 } from 'node:path';
 import {
@@ -15,8 +15,14 @@ import {
   zeroScanProblems, vocabularyProblems, MODELS_A_FAILURE, fixtureProblems,
 } from './check-vocabulary.ts';
 
+const made: string[] = [];
+const track = (dir: string) => { made.push(dir); return dir; };
+after(() => {
+  for (const dir of made) rmSync(dir, { recursive: true, force: true });
+});
+
 function tree(files: Record<string, string>) {
-  const base = mkdtempSync(join(tmpdir(), 'arena-vocabulary-'));
+  const base = track(mkdtempSync(join(tmpdir(), 'arena-vocabulary-')));
   for (const [rel, text] of Object.entries(files)) {
     const path = join(base, rel);
     mkdirSync(join(path, '..'), { recursive: true });

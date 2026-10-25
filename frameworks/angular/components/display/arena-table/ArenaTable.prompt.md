@@ -7,7 +7,7 @@ Cells are **positional**: the nth cell takes the nth column.
 ```html
 <arena-table [label]="'Recent deployments'" [columns]="columns">
   @for (d of deploys(); track d.build) {
-    <tr arena-table-row interactive (click)="openDeploy(d)">
+    <tr arena-table-row interactive (activate)="openDeploy(d)">
       <td arena-table-cell>{{ d.build }}</td>
       <td arena-table-cell>{{ d.project }}</td>
       <td arena-table-cell><arena-badge [tone]="d.tone" dot>{{ d.status }}</arena-badge></td>
@@ -36,20 +36,23 @@ Cells are **positional**: the nth cell takes the nth column.
 |---|---|---|---|---|
 | `label*` | primitive | `string` |  | Names the grid for assistive technology. Required, and guarded at runtime: nothing can derive it; ArenaCalendar names its grid from the range it is showing, and a data table's subject is editorial. Say what the rows are, never "ArenaTable". |
 | `columns*` | array | `readonly ArenaTableColumn[]` |  | The columns, in order. A column heads and sets its cells; it never says what goes in them. |
-| `content` | slot |  |  | The rows. One ArenaTableRow per row. Where a row sits, the columns its cells are set against and how the keyboard reaches them are ArenaTable's to decide and no row's to declare; how that reaches a row is each layer's own idiom. |
-| `empty` | slot |  |  | What shows when no row is written. In that state NO grid is drawn at all, header row included: a column head over a "no results" sentence describes a table that is not there, and a role="grid" holding neither a header nor a row is a degenerate render, the same judgement ArenaTabs makes when it draws no panel for a tab that does not exist. Absent, the provided locale's tableEmpty answers it. Unlike ArenaTable.label this one IS derivable: a sentence saying the list is empty states what happened rather than what the component is, which is the distinction that makes a fallback useful here and useless there. A consumer with a better sentence, what to do next or why the list is empty, projects it. |
+| `content` | slot |  |  | The rows. One ArenaTableRow per row. Where a row sits, the columns its cells are set against and how the keyboard reaches them are ArenaTable's to decide and no row's to declare. How that reaches a row is each layer's own idiom. |
+| `empty` | slot |  |  | What shows when no row is written. In that state NO grid is drawn at all, header row included. A column head over a "no results" sentence describes a table that is not there. A role="grid" holding neither a header nor a row is a degenerate render, the same judgement ArenaTabs makes when it draws no panel for a tab that does not exist. Absent, the provided locale's tableEmpty answers it. Unlike ArenaTable.label this one IS derivable. A sentence saying the list is empty states what happened rather than what the component is, which is the distinction that makes a fallback useful here and useless there. A consumer with a better sentence, what to do next or why the list is empty, projects it. |
 | `sort` | object | `ArenaTableSort` |  | Which column the rows are ordered by and which way. Controlled: ArenaTable draws the caret and the aria-sort, and the consumer does the ordering, because ArenaTable does not hold the rows. Absent, no header is a sort target. |
-| `sortChange` | event | `ArenaTableSort` |  | A sortable header was activated, carrying the column and the direction it should become: the same column flips, a different one starts ascending. ArenaTable never reorders anything itself, so a consumer who ignores this event gets a caret that moves and rows that do not, which is why the member is controlled rather than a starting value. |
+| `sortChange` | event | `ArenaTableSort` |  | A sortable header was activated, carrying the column and the direction it should become: the same column flips, a different one starts ascending. ArenaTable never reorders anything itself, so a consumer who ignores this event gets a caret that moves and rows that do not. For that reason the member is controlled rather than a starting value. |
 | `page` | object | `ArenaTablePage` |  | Which page of a longer list is on screen. Present, ArenaTable draws its own ArenaPagination below the grid and names it from `label`, which is what gives that required name its uniqueness on a page with two paged tables. Absent, no pager is drawn and the projected rows are the whole list. |
-| `slice` | object | `ArenaTableSlice` |  | Where the projected rows sit inside a longer list, which is what `aria-rowcount` and `aria-rowindex` carry on the grid. Absent with `page` bound, both are derived from the page, so a paged table needs nothing here. Bind it when the projection is not a page: a window a scroller renders, an infinite list that grows, or a page inside which you render less again. It is a separate member from `page` because the two answer separate questions, the same split `page` and `pageControl` make: `page` is the model the pager draws, and this is where the rows in the DOM sit in the list they came from. Bound together, this one answers the two attributes whole rather than composing with the page, because a reader is told one position and two sources for it is how they disagree. |
-| `pageChange` | event | `number` |  | A page was chosen, carrying the new 1-based page. It also fires with 1 when the current page has gone PAST THE END, which is the only reset ArenaTable performs; a filter that leaves the page in range is silent, so returning the reader to page one on a change of criterion stays the consumer's, beside the criterion they hold. |
-| `pageControl` | enum | `ArenaTablePageControl` | `"auto"` | Whether ArenaTable draws the pager below the grid. 'auto' draws it whenever `page` is bound, which is what a table showing one list of its own wants; 'none' draws nothing and leaves the consumer to place an ArenaPagination themselves, over this table or over two of them at once. It is a separate member from `page` because the two are separate facts: `page` is what the table KNOWS about a longer list, and this is what it DRAWS about it. Bound together, a consumer who wants the control elsewhere would have to withhold `page` and leave the table knowing nothing about paging at all, which is a member deliberately unbound and a comment explaining why. The same split, and the same reasoning, as `sort` and `sortControl`. |
-| `sortControl` | enum | `ArenaTableSortControl` | `"auto"` | How the sort affordance is reached in CARD MODE, where there is no header row to activate and a `sortable` column therefore has no control under it at all. 'auto' draws one compact select above the cards, listing every sortable column in each direction, which is the shape a phone has room for; 'none' leaves card mode unsorted by hand, for a table whose order is the document's rather than the reader's. Above --bp-md the header row is the control and this member draws nothing. The header row does NOT come back below the breakpoint, because card mode exists for the one reason a grid does not fit. It is a member rather than something a consumer draws for themselves because the state it edits, ArenaTableSort, is Arena's: left to each consumer, the label, the option order and the way a direction is worded are invented once per project over a model they did not define. |
+| `slice` | object | `ArenaTableSlice` |  | Where the projected rows sit inside a longer list, which is what `aria-rowcount` and `aria-rowindex` carry on the grid. Absent with `page` bound, both are derived from the page, so a paged table needs nothing here. Bind it when the projection is not a page: a window a scroller renders, an infinite list that grows, or a page inside which you render less again. The member is separate from `page` because the two answer separate questions, the same split `page` and `pageControl` make. `page` is the model the pager draws. The slice member says where the rows in the DOM sit in the list they came from. Bound together, this member answers the two attributes whole rather than composing with the page. Composing is avoided because a reader is told one position, and two sources for it is how they disagree. |
+| `pageChange` | event | `number` |  | A page was chosen, carrying the new 1-based page. The event also fires with 1 when the current page has gone PAST THE END, which is the only reset ArenaTable performs. A filter that leaves the page in range is silent, so returning the reader to page one on a change of criterion stays the consumer's, beside the criterion they hold. |
+| `rowRequest` | event | `number` |  | The keyboard asked for a row that is not in the projected window, carrying its 0-based index in the whole list, counted as `ArenaTableSlice.offset` counts. The consumer scrolls so that row is projected, and the table focuses it when it arrives. The event never fires for a row already projected, and never fires without `slice.view`. |
+| `pageControl` | enum | `ArenaTablePageControl` | `"auto"` | Whether ArenaTable draws the pager below the grid. 'auto' draws it whenever `page` is bound, which is what a table showing one list of its own wants. 'none' draws nothing and leaves the consumer to place an ArenaPagination themselves, over this table or over two of them at once. The member is separate from `page` because the two are separate facts. `page` is what the table KNOWS about a longer list, and this member is what it DRAWS about it. Bound together, a consumer who wants the control elsewhere would have to withhold `page` and leave the table knowing nothing about paging at all. The result is a member deliberately unbound and a comment explaining why. `sort` and `sortControl` make the same split, with the same reasoning. |
+| `sortControl` | enum | `ArenaTableSortControl` | `"auto"` | How the sort affordance is reached in CARD MODE, where there is no header row to activate. A `sortable` column therefore has no control under it at all. 'auto' draws one compact select above the cards, listing every sortable column in each direction, which is the shape a phone has room for. 'none' leaves card mode unsorted by hand, for a table whose order is the document's rather than the reader's. Above --bp-md the header row is the control and this member draws nothing. The header row does NOT come back below the breakpoint, because card mode exists for the one reason a grid does not fit. The control is a member rather than something a consumer draws for themselves, because the state it edits, ArenaTableSort, is Arena's. Left to each consumer, the label, the option order and the way a direction is worded are invented once per project over a model they did not define. |
 | `responsive` | primitive | `boolean` | `true` | ArenaCard mode below --bp-md. Set false only when the columns are meaningless apart. |
 
 <!-- @api end -->
 
 <!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers** [`sticky`](../../../../VOCABULARY.md#sticky): `arena-sticky-head`, `arena-sticky-none` (default). Write one as `class="arena-sticky-head"` on the component, or on a container whose components should all take it.
 
 **Answers** [`column`](../../../../VOCABULARY.md#column): keyed by each column's `key`, as `--arena-column-<key>-width` and `--arena-column-<key>-align`, set on the component or a container of yours.
 
@@ -60,6 +63,10 @@ Cells are **positional**: the nth cell takes the nth column.
 - `ArrowKeys`: moves focus one cell in the arrow's direction; focus does not move past the grid's edge.
 - `Home`: moves focus to the first cell in the current row.
 - `End`: moves focus to the last cell in the current row.
+- `PageUp`: an addition of this component, see its binding.
+- `PageDown`: an addition of this component, see its binding.
+- `ControlHome`: an addition of this component, see its binding.
+- `ControlEnd`: an addition of this component, see its binding.
 <!-- @keys end -->
 
 **Do / Don't** - **A grid showing part of a list owes its true size.** `page` pays that on its own. Bind `slice` when the rows in the DOM are a window rather than a page, and count `offset` from 0. A windowed grid that states neither tells a reader the list is as long as the rows it happens to have rendered.
@@ -73,7 +80,16 @@ Cells are **positional**: the nth cell takes the nth column.
 - Mark the actions column `mobileLayout: 'block'`. The column's buttons name themselves, and pairing them with an "ACTIONS" label reads as a mistake.
 - Don't set `responsive="false"` to "keep it looking like a table" on a phone. A table
   narrower than its content is unreadable; card mode is the honest fallback.
-- Row activation is `(click)` on the row, and it carries no payload. You wrote that element inside your own `@for`, so you already hold the row it is about.
+- Don't make the table slice its children or hold the rows. Your data is the window, and `arena-table` renders what it is given.
+- Don't give the table a scroll container, a height or a vertical scroller of its own. The box that scrolls is yours.
+- Don't pass a pixel row height as a fixed value. The window measures every mounted row, and a density class changes the heights it reads.
+- Don't add a virtual-scroll library for this. The directive is the window, and it needs no `@angular/cdk/scrolling`.
+- Don't give the scroll box a `tabindex` or bind a scrollable-region pattern to it. The grid is the one tab stop, and focusing a cell scrolls the box.
+- Don't window a list of unknown length, and don't pass `total: -1` to the window. An infinite loader is outside this shape.
+- Don't bind `page` to a windowed table. `slice` wins over it, and the pager would draw a second position.
+- Leave `slice.view` unset unless the table is windowed. A table without it keeps the page's own PageUp and PageDown.
+- Bind `(rowRequest)` whenever you bind the directive's `slice`. Without it the four keys stop at the edge of the window.
+- Row activation is `(activate)` on the row, and it carries no payload. You wrote that element inside your own `@for`, so you already hold the row it is about.
 
 ### Responsive
 
@@ -108,14 +124,14 @@ The empty state is still a block **beside** the table rather than a cell spannin
 left behind is presentational. One measured cost stands. The `<table>` sits inside the bordered frame, so the measured `contentRect` excludes that border and the narrow threshold trips a couple of pixels earlier than the declared breakpoint. The host itself is a plain block.
 
 **By hand, in a real browser** (`bun run demos`, then
-`frameworks/angular/components/display/arena-table/ArenaTable.demo.generated.html`). Steps 1 to 5 are checked in real Chromium. One Tab in, then the gold inset ring on the focused cell. Then the arrow walk, `Home` and `End` inside the row, `Enter` on a data row, and one Tab out onto the actions button. And zero grid roles and zero tab stops in the squeezed card shape. Step 6 and every judgement about how
+`frameworks/angular/components/display/arena-table/ArenaTable.demo.generated.html`). Steps 1 to 5 are checked in real Chromium. One Tab in, then the focus ring's inset on the focused cell. Then the arrow walk, `Home` and `End` inside the row, `Enter` on a data row, and one Tab out onto the actions button. And zero grid roles and zero tab stops in the squeezed card shape. Step 6 and every judgement about how
 it *looks* were not, and are why this list stays:
 1. Tab reaches the grid ONCE, and one more Tab leaves it. No cell is a stop of its own.
 2. From a cell, Tab reaches a control inside a cell in **one** press, not two. Two means the
    grid pulled focus back onto the cell, since `focusin` bubbles and only a real browser shows it.
 3. Arrows clamp at all four edges and focus never leaves the grid. Walk a middle row for
    `Home` and `End`, not only the first: they never leave the row.
-4. `Enter` activates a row with `(click)` and does nothing on the header row or on the
+4. `Enter` activates a row with `(activate)` and does nothing on the header row or on the
    disabled row; the page logs what was activated.
 5. The squeezed container is already in card mode on load. Confirm nothing there took a
    role, a tabindex or a key handler by accident.
@@ -161,6 +177,39 @@ Bind `slice` when the projection is not a page, which is what a scroller renders
 `offset` counts from 0, and it is the number of rows before the first one you projected. The header row takes index 1 and `arena-table` does that arithmetic. An offset that already counted from 1 tells the reader they are one row further on than they are. `total: -1` is the answer for a list whose
 length nobody knows yet, and it reaches the attribute unchanged. Bound beside `page`, `slice` is
 what answers, because one position with two sources is a position two things can disagree about.
+
+### A long list in a window
+
+`ArenaTable` never holds the rows and never scrolls, so a long list is windowed by the box you own. The `arenaRowWindow` directive on the box measures the rows the table mounted and offers the `slice` to bind, the padding for a wrapper, and the visible range as signals.
+
+```html
+<div arenaRowWindow #w="arenaRowWindow" [total]="records.length" style="block-size: 32rem; overflow-y: auto">
+  <div [style.padding-top.px]="w.padTop()" [style.padding-bottom.px]="w.padBottom()">
+    <arena-table label="Deployments" [columns]="columns" class="arena-sticky-head"
+                 [slice]="w.slice()" (rowRequest)="w.onRowRequest($event)">
+      @for (r of records.slice(w.offset(), w.offset() + w.count()); track r.id) {
+        <tr arena-table-row>...</tr>
+      }
+    </arena-table>
+  </div>
+</div>
+```
+
+The box needs a bounded block size from your own layout. The wrapper's padding keeps the scrollbar the height of the whole list, and `slice` keeps `aria-rowcount` and `aria-rowindex` true at every offset.
+
+A table below `--bp-md` is windowed too. The measurement reads a card the same way as a row. Cards may differ in height, and `responsive` keeps its default.
+
+The directive sets `slice.view` once it has measured. With it, four keys reach any row of the list. PageUp and PageDown move by one viewport of rows, and Control plus Home and Control plus End go to the first and last row. A target that is projected moves the cursor there. A target that is not projected calls `(rowRequest)` once. The table holds the target until a later render projects that row. The cursor then moves there and the cell takes focus. Any other handled key, and a click or focus on a cell, cancels the held target.
+
+Bind `(rowRequest)` together with `slice`. The directive's `slice` turns the four keys on, and `(rowRequest)` lets them leave the window.
+
+Without `view` the table emits nothing and leaves PageUp and PageDown to the page. Control plus Home and Control plus End then act as Home and End within the row. Card mode answers none of the four keys, because a card is reached with Tab.
+
+`arena-sticky-head` keeps the header row in view inside your box, on the table or on a container of it. The box takes `scroll-padding-top` equal to the head's height, so a focus move never leaves the row under the head. The directive writes that padding for you.
+
+**A focused row that unmounts loses focus to the page.** That happens only when the reader scrolls by pointer or scrollbar far from the cursor. Tab then re-enters the grid at the nearest projected row, and the cursor resumes on its own row when the window returns.
+
+Call `scrollToRow(0)` when a new sort or criterion changes the list. Row 0 scrolls to the very top of the box, so the header row shows.
 
 ### `ArenaTableSort.column` is an index, and a column that moves takes the order with it
 

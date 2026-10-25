@@ -9,13 +9,14 @@ import { join, posix } from 'node:path';
 import { platform } from '../../lib/arena/platform.ts';
 import { budgetFor } from '../../lib/arena/deadline.ts';
 import { TERM_GRACE } from '../../lib/arena/child-output.ts';
-import { PROBE_ENDED, PROBE_SPAWNED, assertCompilerEnded, probeInterrupt } from '../../lib/arena/forwarding-probe.ts';
+import { PROBE_ENDED, PROBE_IMPORTED, PROBE_SPAWNED, assertCompilerEnded, probeInterrupt } from '../../lib/arena/forwarding-probe.ts';
 import {
   manifest, ngPackageConfig, libTsconfig, withAssets, ngPackagrBin, annotatePure,
   NAME, RUNTIME_DEPENDENCIES, STAGING, LAYER, VARIANTS, SECONDARY_ENTRY_POINTS, rewriteEntryImports,
   normalNpmignore,
 } from './build-angular-package.ts';
-import { version, collectFiles, CLI_BINS } from '../../lib/arena/package-assembly.ts';
+import { CLI_DEPENDENCIES } from '../../lib/arena/support-matrix.ts';
+import { version, collectFiles, CLI_BINS, PALETTE_ENTRY } from '../../lib/arena/package-assembly.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 
 test('ng-packagr is pointed at the entry file and told where the package lands', () => {
@@ -35,7 +36,7 @@ test('the schema is named at the depth the staging tree sits at, so an editor re
 });
 
 test('the one runtime dependency is allowed by name, or ng-packagr refuses to write', () => {
-  assert.deepEqual(ngPackageConfig().allowedNonPeerDependencies, Object.keys(RUNTIME_DEPENDENCIES));
+  assert.deepEqual(ngPackageConfig().allowedNonPeerDependencies, [...Object.keys(RUNTIME_DEPENDENCIES), ...Object.keys(CLI_DEPENDENCIES)]);
   assert.deepEqual(Object.keys(RUNTIME_DEPENDENCIES).sort(), ['tslib'],
     'a component composes its own class names, so no recipe library ships here; '
     + 'tslib is Angular\'s own helper import and is the only one left');
@@ -53,16 +54,16 @@ test('the manifest names the package and takes its version from plugin.json', ()
   assert.equal(m.version, version(repoRoot));
 });
 
-test('Angular, the CDK and Phosphor are the peers; tslib is the only real dependency', () => {
+test('Angular and the CDK are the peers, Phosphor is none; tslib and the three of the arena command are the dependencies', () => {
   const m = manifest(repoRoot);
   assert.deepEqual(Object.keys(m.peerDependencies).sort(),
     ['@angular/cdk', '@angular/common', '@angular/core', '@angular/forms', '@angular/platform-browser',
-     '@angular/router', '@phosphor-icons/web']);
+     '@angular/router']);
   assert.deepEqual(m.peerDependenciesMeta, { '@angular/router': { optional: true }, '@angular/forms': { optional: true } },
     'the router and forms are each reachable only through their own entry point, so a project that '
     + 'never imports that subpath must install cleanly without it and be told nothing');
-  assert.deepEqual(m.dependencies, RUNTIME_DEPENDENCIES,
-    'a slot class is composed from the names the build emits, with no runtime dependency a consumer would have to bring');
+  assert.deepEqual(m.dependencies, { ...RUNTIME_DEPENDENCIES, ...CLI_DEPENDENCIES },
+    'a slot class is composed from the names the build emits; the only others are the arena command\'s three, which no component imports');
 });
 
 test('the assets are added to what ng-packagr wrote without losing its own entry', () => {
@@ -71,6 +72,7 @@ test('the assets are added to what ng-packagr wrote without losing its own entry
   assert.deepEqual(final.exports['.'], emitted.exports['.']);
   assert.deepEqual(final.exports['./arena.css'], { default: './arena.css' });
   assert.deepEqual(final.exports['./css/*'], { default: './css/*' });
+  assert.deepEqual(final.exports['./fonts/*'], { default: './fonts/*' });
   assert.deepEqual(final.bin, CLI_BINS, 'ng-packagr emits no bin, so this is the only place the commands survive');
 });
 
@@ -156,7 +158,7 @@ test('a set of lines that differs from the entry points is refused with a senten
 });
 
 test('an interrupt of the package step ends the ng-packagr it spawned and prints what it wrote', {
-  timeout: budgetFor(PROBE_SPAWNED, PROBE_ENDED, TERM_GRACE),
+  timeout: budgetFor(PROBE_IMPORTED, PROBE_SPAWNED, PROBE_ENDED, TERM_GRACE),
   skip: platform === 'win32' ? 'a signal sent to a process is a POSIX idea' : false,
 }, async () => {
   const probed = await probeInterrupt({
@@ -164,4 +166,10 @@ test('an interrupt of the package step ends the ng-packagr it spawned and prints
     body: 'await step.runNgPackagr(stub, root);',
   });
   assertCompilerEnded(probed, true);
+});
+
+test('withAssets exports ./palette', () => {
+  const entry = withAssets({ exports: {} }).exports['./palette'] as object;
+  assert.deepEqual(entry, { types: PALETTE_ENTRY.types, default: PALETTE_ENTRY.module });
+  assert.equal(Object.keys(entry)[0], 'types', 'types leads the conditions, or a resolver takes the module first');
 });

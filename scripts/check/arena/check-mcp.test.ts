@@ -1,18 +1,28 @@
-import test from 'node:test';
+import test, { after } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { spawnSync } from 'node:child_process';
+import { pathToFileURL } from 'node:url';
 import {
-  collect, dependencyProblems, importedPackages, binProblems, corpusProblems, catalogueProblems,
+  collect, unassembled, dependencyProblems, importedPackages, binProblems, corpusProblems, catalogueProblems,
   unresolvedTarget, targetsIn, registryProblems, SITE_BASE, REGISTRY_SCHEMA,
   REGISTRY_DESCRIPTION_LIMIT, flatProblems, ESCAPING_SPECIFIER, vocabularyProblems,
-  styleStoreProblems,
+  styleStoreProblems, identityProblems,
 } from './check-mcp.ts';
 import {
-  RUNTIME_DEPENDENCIES, ENTRY, NAME, LAYERS, DIST, REGISTRY_NAME, manifest,
+  RUNTIME_DEPENDENCIES, ENTRY, NAME, LAYERS, DIST, REGISTRY_NAME, manifest, buildMcpPackage,
 } from '../../build/arena/build-mcp-package.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
+import { IDENTITY_DIR as PAYLOAD_IDENTITY_DIR } from '../../lib/arena/agent-payload.ts';
+import { IDENTITY_DIR } from '../../generate/core/arena-mcp/catalogue.ts';
+
+const made: string[] = [];
+const track = (dir: string) => { made.push(dir); return dir; };
+after(() => {
+  for (const dir of made) rmSync(dir, { recursive: true, force: true });
+});
 
 const MANIFEST = JSON.stringify({
   name: 'arena', description: 'd', homepage: 'h', version: '0.0.0',
@@ -20,7 +30,7 @@ const MANIFEST = JSON.stringify({
 });
 
 function corpus(files: Record<string, string>) {
-  const dir = mkdtempSync(join(tmpdir(), 'arena-mcp-pkg-'));
+  const dir = track(mkdtempSync(join(tmpdir(), 'arena-mcp-pkg-')));
   for (const [path, body] of Object.entries(files)) {
     const full = join(dir, path);
     mkdirSync(join(full, '..'), { recursive: true });
@@ -29,9 +39,32 @@ function corpus(files: Record<string, string>) {
   return dir;
 }
 
-test('the tree passes its own claims', () => {
-  const { problems } = collect();
-  assert.deepEqual(problems, []);
+const assembly = track(mkdtempSync(join(tmpdir(), 'arena-mcp-asm-')));
+buildMcpPackage(root, assembly);
+
+test('the tree passes its own claims, and an empty assembly does not', () => {
+  assert.deepEqual(collect(root, assembly).problems, []);
+  const empty = corpus({});
+  assert.ok(collect(root, empty).problems.length > 0, 'an assembly holding no file cannot pass in vacuum');
+});
+
+const refusal = (base: string, strict: string) => spawnSync(process.execPath, ['-e', [
+  `const { refuseUnassembled } = await import(${JSON.stringify(pathToFileURL(join(root, 'scripts', 'check', 'arena', 'check-mcp.ts')).href)});`,
+  `refuseUnassembled(${JSON.stringify(base)}, { ARENA_CHECK_STRICT: ${JSON.stringify(strict)} });`,
+  "console.log('went on');",
+].join('\n')], { encoding: 'utf8' });
+
+test('check:mcp refuses a tree with no dist/mcp and names the step that assembles it', () => {
+  assert.match(unassembled('/nowhere-at-all') ?? '', new RegExp(`${DIST} is not assembled.*run bun run build:packages first`));
+  const soft = refusal('/nowhere-at-all', '0');
+  assert.equal(soft.status, 2, soft.stderr);
+  assert.match(soft.stderr, /check:mcp: SKIPPED/);
+  assert.doesNotMatch(soft.stdout, /went on/);
+  assert.equal(refusal('/nowhere-at-all', '1').status, 1);
+  const base = track(mkdtempSync(join(tmpdir(), 'check-mcp-assembled-')));
+  mkdirSync(join(base, ...DIST.split('/')), { recursive: true });
+  assert.equal(unassembled(base), null);
+  assert.match(refusal(base, '1').stdout, /went on/);
 });
 
 test('the gate read a real result set rather than an empty one', () => {
@@ -51,7 +84,7 @@ test('a dependency nothing imports is one every consumer installs for nothing', 
 });
 
 test('a bin the package declares and does not carry is a command an editor cannot spawn', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'arena-mcp-pkg-'));
+  const dir = track(mkdtempSync(join(tmpdir(), 'arena-mcp-pkg-')));
   assert.match(binProblems(dir)[0] ?? '', /is declared as the bin and is not there/);
   mkdirSync(join(dir, 'bin'), { recursive: true });
   writeFileSync(join(dir, ...ENTRY.split('/')), '');
@@ -133,7 +166,7 @@ test('a link, a relative inline path and an absolute one are all targets; prose 
 });
 
 test('the catalogue claim is measured against what the tree declares, and it names the package', () => {
-  assert.deepEqual(catalogueProblems(join(root, ...DIST.split('/'))), []);
+  assert.deepEqual(catalogueProblems(assembly), []);
   assert.equal(NAME, '@dravensoft/arena-mcp');
 });
 
@@ -225,9 +258,10 @@ test('a schema that is not the one this tree is written against is refused by th
 
 
 test('a specifier that escapes the flat bin is reported, since bin/ has no directory above it', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'arena-mcp-flat-'));
+  const dir = track(mkdtempSync(join(tmpdir(), 'arena-mcp-flat-')));
   try {
     mkdirSync(join(dir, 'bin'), { recursive: true });
+    writeFileSync(join(dir, 'bin', 'audit.mjs'), 'export const x = 1;\n');
     writeFileSync(join(dir, 'bin', 'clean.mjs'), "import { x } from './audit.mjs';\n");
     assert.deepEqual(flatProblems(dir), []);
 
@@ -236,6 +270,22 @@ test('a specifier that escapes the flat bin is reported, since bin/ has no direc
     assert.equal(problems.length, 1);
     assert.match(problems[0] ?? '', /escaping\.mjs/);
     assert.match(problems[0] ?? '', /bin\/ is flat/);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('a specifier beside the module that names no file in bin is reported, since it throws at spawn', () => {
+  const dir = track(mkdtempSync(join(tmpdir(), 'arena-mcp-beside-')));
+  try {
+    mkdirSync(join(dir, 'bin'), { recursive: true });
+    writeFileSync(join(dir, 'bin', 'audit.mjs'), "import { scan } from './icon-css.mjs';\n");
+    const problems = flatProblems(dir);
+    assert.equal(problems.length, 1);
+    assert.match(problems[0] ?? '', /audit\.mjs imports \.\/icon-css\.mjs/);
+
+    writeFileSync(join(dir, 'bin', 'icon-css.mjs'), 'export const scan = 1;\n');
+    assert.deepEqual(flatProblems(dir), []);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
@@ -265,6 +315,7 @@ test('a default plugin or a catalogue entry missing from the assembled corpus is
   ])));
   const whole = bundle(store);
   const without = bundle(store);
+  const noManifest = corpus(Object.fromEntries(LAYERS.map((layer) => [`agent/${layer}/support.json`, '{}'])));
   const noEntry = bundle(Object.fromEntries(Object.entries(store)
     .filter(([rel]) => !rel.includes('booking/plugin.css'))));
   try {
@@ -272,7 +323,47 @@ test('a default plugin or a catalogue entry missing from the assembled corpus is
     assert.match(styleStoreProblems(noEntry, base).join('\n'), /style\/catalogue\/booking\/plugin\.css/);
     rmSync(join(without, 'agent', 'react', 'plugin-style-store', 'default'), { recursive: true });
     assert.match(styleStoreProblems(without, base).join('\n'), /style\/default\/plugin\.tokens\.json/);
+    assert.match(styleStoreProblems(corpus({}), base).join('\n'), /layer has no corpus, so the style store/);
+    assert.match(styleStoreProblems(noManifest, base).join('\n'), /layer has no corpus, so the style store/);
   } finally {
-    for (const dir of [base, whole, without, noEntry]) rmSync(dir, { recursive: true, force: true });
+    for (const dir of [base, whole, without, noEntry, noManifest]) rmSync(dir, { recursive: true, force: true });
   }
+});
+
+test('an identity page the corpus is specified to carry and the catalogue does not serve is reported', () => {
+  const pages = {
+    'arena-from-scratch/identity.html': '<!doctype html>',
+    'arena-from-scratch/identity.example.html': '<!doctype html>',
+  };
+  const base = corpus(pages);
+  const bundle = (files: Record<string, string>) => corpus(Object.fromEntries(LAYERS.flatMap((layer) => [
+    [`agent/${layer}/skill.json`, MANIFEST.replace('react', layer)],
+    [`agent/${layer}/skills/design/ROUTER.md`, '# r\n'],
+    [`agent/${layer}/support.json`, '{}'],
+    [`agent/${layer}/frameworks/${layer}/components/a/ArenaA.prompt.md`, 'a\n'],
+    ...Object.entries(files).map(([rel, body]) => [`agent/${layer}/${rel}`, body]),
+  ])));
+  const whole = bundle(pages);
+  const lacking = bundle({ 'arena-from-scratch/identity.html': '<!doctype html>' });
+  const bare = corpus({ 'README.md': 'x' });
+  const onePage = corpus({ 'arena-from-scratch/identity.html': '<!doctype html>' });
+  try {
+    assert.deepEqual(identityProblems(whole, base), []);
+    assert.match(identityProblems(lacking, base).join('\n'), /identity\/identity\.example\.html/);
+    assert.match(identityProblems(whole, bare).join('\n'), /carries neither/);
+    assert.match(identityProblems(corpus({}), base).join('\n'), /layer has no corpus, so the identity template/);
+    assert.match(identityProblems(whole, onePage).join('\n'), /carries only some/);
+    assert.match(identityProblems(whole, onePage).join('\n'), /identity\.example\.html and carries only some/);
+  } finally {
+    for (const dir of [base, whole, lacking, bare, onePage]) rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('the identity directory the payload list names is the one the served catalogue reads', () => {
+  assert.equal(PAYLOAD_IDENTITY_DIR, IDENTITY_DIR);
+});
+
+test('a pattern in a code span is not a target, and a link beside it is', () => {
+  const span = '`' + String.raw`/node_modules[\\/](a|b)[\\/]/` + '`';
+  assert.deepEqual(targetsIn(`${span} [x](./b.md)`), ['./b.md']);
 });

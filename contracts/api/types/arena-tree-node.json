@@ -1,0 +1,41 @@
+{
+  "name": "ArenaTreeNode",
+  "kind": "object",
+  "description": "One node of an ArenaTreeView. The tree is one flat array in which each node names its parent. The order of the array is the order of siblings, and the hierarchy is data, never nesting. Visible order, level, set size and position are derived from the array.",
+  "fields": {
+    "id": {
+      "form": "primitive",
+      "type": "string",
+      "required": true,
+      "description": "Names the node for `parent`, for the open set, for the selection and for `activate`. Required, unique and falsy-guarded: a blank id throws, and a duplicate warns once and drops the later node, because two nodes under one id would open and select together."
+    },
+    "label": {
+      "form": "primitive",
+      "type": "string",
+      "required": true,
+      "description": "What the row reads, and the node's accessible name. Required and falsy-guarded: nothing can derive what a node is."
+    },
+    "parent": {
+      "form": "primitive",
+      "type": "string",
+      "description": "The `id` of the node this one sits under. Absent, the node is a root. An id naming no node warns once and the node is drawn as a root."
+    },
+    "icon": {
+      "form": "primitive",
+      "type": "string",
+      "description": "A Phosphor class name drawn before the label through ArenaIcon. The icon is decorative: the name of the node is its label."
+    },
+    "disabled": {
+      "form": "primitive",
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the node refuses selection and activation. A disabled node stays focusable, and its caret still opens it, because its children may be enabled."
+    },
+    "expandable": {
+      "form": "primitive",
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the node is a branch whose children are not in `nodes` yet. The node draws a caret, and the consumer loads the children when `expandedChange` reports it open."
+    }
+  }
+}

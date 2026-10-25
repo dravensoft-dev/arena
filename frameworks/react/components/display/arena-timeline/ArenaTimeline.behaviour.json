@@ -1,0 +1,4 @@
+{
+  "pattern": "none",
+  "reason": "The component renders a named ordered list a user cannot act on: no element inside it takes focus, no key does anything, and the list, its items and aria-current=\"step\" come from the platform and ARIA. It does not bind feed, which requires an article per row with aria-posinset, a tab stop per article and the paging keys, none of which a list of milestones has. The suites assert the list role, the name, the words and that nothing is focusable."
+}

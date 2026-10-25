@@ -8,7 +8,7 @@
 import { useTestEnvironment } from '../../../test/TestbedEnv';
 useTestEnvironment();
 
-import test from 'node:test';
+import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { Component, signal } from '@angular/core';
 import { TestBed, type ComponentFixture } from '@angular/core/testing';
@@ -18,8 +18,15 @@ import { forgetArenaWarnings } from '../../../WarnOnce';
 import { ArenaTableRow } from '../arena-table-row/ArenaTableRow';
 import { ArenaTableCell } from '../arena-table-cell/ArenaTableCell';
 
+const root = document.documentElement;
+before(() => {
+  root.style.setProperty('--bp-md', '768px');
+});
+after(() => {
+  root.style.removeProperty('--bp-md');
+});
+
 const LABEL = 'Recent sales';
-const BP_MD = '768px';
 const NARROW_WIDTH = 390;
 
 const COLUMNS: ArenaTableColumn[] = [
@@ -91,7 +98,6 @@ test('the option value round-trips, so the control edits the same ArenaTableSort
 });
 
 test('card mode draws a sort control, and picking one emits the same sortChange a header would', async () => {
-  document.documentElement.style.setProperty('--bp-md', BP_MD);
   const restore = stubResize(NARROW_WIDTH);
   let fixture: ComponentFixture<SortControlHost> | null = null;
   try {
@@ -118,12 +124,10 @@ test('card mode draws a sort control, and picking one emits the same sortChange 
   } finally {
     fixture?.destroy();
     restore();
-    document.documentElement.style.removeProperty('--bp-md');
   }
 });
 
 test('sortControl="none" draws nothing, and neither does a table with no sort at all', async () => {
-  document.documentElement.style.setProperty('--bp-md', BP_MD);
   const restore = stubResize(NARROW_WIDTH);
   let off: ComponentFixture<SortControlHost> | null = null;
   let unsorted: ComponentFixture<SortControlHost> | null = null;
@@ -142,7 +146,6 @@ test('sortControl="none" draws nothing, and neither does a table with no sort at
     off?.destroy();
     unsorted?.destroy();
     restore();
-    document.documentElement.style.removeProperty('--bp-md');
   }
 });
 

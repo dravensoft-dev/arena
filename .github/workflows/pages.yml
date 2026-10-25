@@ -21,13 +21,16 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  BUN_VERSION: 1.3.14
+  BUN_VERSION: 1.4.0
+  NODE_VERSION: 26.7.0
+  CHROME_VERSION: 155.0.8059.79
 
 jobs:
   build:
     name: assemble the site
     if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
         with:
@@ -37,6 +40,9 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: ${{ env.BUN_VERSION }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
       - uses: actions/cache@v6
         with:
           path: ~/.bun/install/cache
@@ -48,7 +54,9 @@ jobs:
       # browser. CHROME_PATH is deliberately not exported: check:portability fails when a second
       # workflow names it, and Arena main is the one that may, so this exercises the PATH branch.
       - name: a browser, and CHROME_PATH is deliberately not exported
-        uses: browser-actions/setup-chrome@v1
+        uses: browser-actions/setup-chrome@v2
+        with:
+          chrome-version: ${{ env.CHROME_VERSION }}
 
       # Arena main built this exact commit and saved the result under this key. There are no
       # restore-keys: a prefix fallback would publish the assembled tree of another commit.
@@ -74,33 +82,68 @@ jobs:
 
       # The ref is a branch, so what is built is that repository's main at this moment rather than
       # a revision pinned here; AGENTS.md beside this file says what that buys and what it costs.
-      # actions/checkout writes only under the workspace, so the second repository lands inside
-      # this one; nothing build:site or check:site walks reaches the root, and .gitignore keeps a
-      # local rehearsal of these four steps from dirtying the tree.
-      - name: the benches, at their main
+      # actions/checkout writes only under the workspace, so the adopter lands inside this
+      # repository; nothing build:site or check:site walks reaches the root, and .gitignore keeps a
+      # local rehearsal of these steps from dirtying the tree. A checkout that fails leaves the
+      # steps after it skipped and the site without the adopter.
+      - name: the adopter's repository, at its main
+        id: checkout
+        continue-on-error: true
         uses: actions/checkout@v7
         with:
           repository: dravensoft-dev/arena-web-benches
           ref: main
-          path: web-benches
+          path: adopter
 
-      - name: one install resolves the sixteen
-        run: bun install --frozen-lockfile
-        working-directory: web-benches
+      # The same function build:site calls decides: the adopter is built only when its
+      # arena-adopter.json declares the version of this tree. Nothing is built otherwise.
+      - name: does the adopter declare this Arena
+        id: adopter
+        if: steps.checkout.outcome == 'success'
+        continue-on-error: true
+        run: bun scripts/build/arena/build-site.ts --adopter-declares adopter
 
-      # Sixteen or none: this exits non-zero on the first half that does not build, and leaves
-      # nothing behind for build:site to find.
-      - name: the sixteen halves, into one shape
+      # The adopter's dependencies are the adopter's business: this job installs nothing in it and
+      # runs the build the adopter declares, which installs what the adopter needs first.
+      - name: build the adopter
+        id: adopter-build
+        if: steps.adopter.outputs.publish == 'true'
+        continue-on-error: true
         run: bun run build
-        working-directory: web-benches
+        working-directory: adopter
 
+      - name: an adopter that did not arrive leaves the site without it
+        if: steps.checkout.outcome != 'success' || steps.adopter.outcome == 'failure' || (steps.adopter.outputs.publish == 'true' && steps.adopter-build.outcome != 'success')
+        run: echo "::warning::the adopter build did not arrive, so the site is published without it"
+
+      # An unset ARENA_ADOPTER_BUILD is the site a clone builds: the directory is named only when
+      # the adopter built. build:site then writes adopter=published or adopter=refused to this
+      # step's outputs, the refusal being its own (a version it does not hold, a path the site
+      # already holds, an index.html of its own, a copy that failed), and writes nothing when no
+      # adopter was named.
       - name: assemble what gets served
+        id: assemble
         run: bun run build:site
         env:
-          ARENA_BENCHES: ${{ github.workspace }}/web-benches/dist
+          ARENA_ADOPTER_BUILD: ${{ steps.adopter-build.outcome == 'success' && format('{0}/adopter/dist', github.workspace) || '' }}
 
+      - name: an adopter the site refused leaves it without
+        if: steps.assemble.outputs.adopter == 'refused'
+        run: echo "::warning::build:site refused the adopter build, so the site is published without it"
+
+      # With the adopter in, a red here is not the end: the next step publishes the site without
+      # it and holds that one to the same gate. Without it, a red stops the run.
       - name: hold every link, every declared page and the domain it is built for
+        id: check
+        continue-on-error: ${{ steps.assemble.outputs.adopter == 'published' }}
         run: bun run check:site
+
+      - name: a site the adopter broke goes out without it
+        if: steps.check.outcome == 'failure'
+        run: |
+          echo "::warning::check:site failed with the adopter build in the site, so it is published without it"
+          bun run build:site
+          bun run check:site
 
       - uses: actions/upload-pages-artifact@v4
         with:
@@ -110,6 +153,7 @@ jobs:
     name: serve it
     needs: [build]
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     environment:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}

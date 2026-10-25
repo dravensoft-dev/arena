@@ -4,18 +4,19 @@ import { arenaPaginationStyles } from './ArenaPagination.variants';
 import manifest from './ArenaPagination.classes.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
 import { ArenaSlotAttributes } from '../../../SlotData';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
 
 @Component({
   selector: 'arena-pagination',
   standalone: true,
-  imports: [ArenaSlotAttributes],
+  imports: [ArenaIcon, ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: contents' },
   template: `
     <nav [class]="styles().root()" [attr.data-arena-part]="parts.root" [attr.aria-label]="label()">
       <button type="button" [class]="styles().nav()" [attr.data-arena-part]="parts.nav" [disabled]="page() <= 1"
               [attr.aria-label]="locale.paginationPrevious" (click)="go(page() - 1)">
-        <i class="ph-bold ph-caret-left" aria-hidden="true"></i>
+        <arena-icon icon="ph-bold ph-caret-left" />
       </button>
       @for (slot of slots(); track $index) {
         @if (slot === '…') {
@@ -28,7 +29,7 @@ import { ArenaSlotAttributes } from '../../../SlotData';
       }
       <button type="button" [class]="styles().nav()" [attr.data-arena-part]="parts.nav" [disabled]="page() >= pageCount()"
               [attr.aria-label]="locale.paginationNext" (click)="go(page() + 1)">
-        <i class="ph-bold ph-caret-right" aria-hidden="true"></i>
+        <arena-icon icon="ph-bold ph-caret-right" />
       </button>
     </nav>
   `,
@@ -44,7 +45,7 @@ export class ArenaPagination {
   /** Names this navigation landmark. Required, and guarded at runtime: two paginated tables in one dashboard is a routine layout, and a shared constant name leaves them indistinguishable while satisfying the requirement mechanically. A default name would narrow the gap rather than close it: a name the caller omits is still the constant. Say what is being paged: "Deployments", not "Pages". */
   readonly ariaLabel = input.required<string>();
   /** A page was chosen; carries the new 1-based page. Never fires for the current page, nor for a page outside 1..pageCount. */
-  readonly change = output<number>();
+  readonly valueChange = output<number>();
 
   protected readonly label = computed(() => {
     const name = this.ariaLabel();
@@ -70,6 +71,6 @@ export class ArenaPagination {
 
   protected go(page: number): void {
     if (page < 1 || page > this.pageCount() || page === this.page()) return;
-    this.change.emit(page);
+    this.valueChange.emit(page);
   }
 }

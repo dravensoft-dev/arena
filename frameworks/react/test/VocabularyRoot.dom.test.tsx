@@ -6,9 +6,14 @@
  * a chart draws its plot by hand and owns a manifest for its legend and tooltip only, so its root is held to one element without a part on it. */
 import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
+import React from 'react';
 import { mount, cleanup } from './Harness.tsx';
+import { ArenaIconsProvider } from '../ArenaIcons.ts';
 import { element } from './FixtureRender.tsx';
-import { ARENA_VOCABULARY } from '../Vocabulary.generated.ts';
+import { readdirSync } from 'node:fs';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { ARENA_CONTEXT_VOCABULARY } from '../Vocabulary.generated.ts';
 import { loadDemos } from '../../../scripts/generate/arena/generate-kitchen-sink.ts';
 import { instanceNode } from '../../../scripts/lib/arena/kitchen-sink-model.ts';
 import { OWN_ELEMENTLESS } from '../../../scripts/lib/arena/elementless.ts';
@@ -17,7 +22,17 @@ import { manifestFor, HAND_DRAWN } from '../../../scripts/lib/tailwind/manifest-
 afterEach(cleanup);
 
 const PROBE = 'arena-root-probe';
-const allowed = ARENA_VOCABULARY as Record<string, readonly string[]>;
+const COMPONENTS = fileURLToPath(new URL('../components/', import.meta.url));
+const modules = new Map<string, string>();
+for (const group of readdirSync(COMPONENTS, { withFileTypes: true })) {
+  if (!group.isDirectory()) continue;
+  for (const dir of readdirSync(join(COMPONENTS, group.name), { withFileTypes: true })) {
+    if (!dir.isDirectory()) continue;
+    for (const file of readdirSync(join(COMPONENTS, group.name, dir.name))) {
+      if (file.endsWith('.classes.generated.ts')) modules.set(file.slice(0, -'.classes.generated.ts'.length), join(COMPONENTS, group.name, dir.name, file));
+    }
+  }
+}
 const demos = [...loadDemos()].filter(([component]) => !OWN_ELEMENTLESS.has(component));
 
 test('the sweep found components to measure', () => {
@@ -25,16 +40,18 @@ test('the sweep found components to measure', () => {
 });
 
 for (const [component, fixture] of demos) {
-  test(`${component}: a vocabulary class lands on exactly one element it draws`, () => {
-    const before = allowed[component];
-    allowed[component] = [PROBE];
+  test(`${component}: a vocabulary class lands on exactly one element it draws`, async () => {
+    const file = modules.get(component);
+    const list = (file ? (await import(file)).default.vocabulary : ARENA_CONTEXT_VOCABULARY) as string[];
+    const before = [...list];
+    list.splice(0, list.length, PROBE);
     try {
-      const root = mount(element(instanceNode({ ...fixture, seed: { ...(fixture.seed ?? {}), className: PROBE } })));
+      const root = mount(<ArenaIconsProvider href="/icons.svg">{element(instanceNode({ ...fixture, seed: { ...(fixture.seed ?? {}), className: PROBE } }))}</ArenaIconsProvider>);
       const carriers = [...root.querySelectorAll(`.${PROBE}`)];
       assert.equal(carriers.length, 1, `${component} put the class on ${carriers.length} element(s)`);
       if (manifestFor(component) && !HAND_DRAWN.has(component)) assert.ok(carriers[0]?.hasAttribute('data-arena-part'), `${component} put the class on an element that is no drawn part`);
     } finally {
-      allowed[component] = before ?? [];
+      list.splice(0, list.length, ...before);
     }
   });
 }

@@ -3,9 +3,9 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
-  selector, hook, componentTags, typeExpr, importPath, markerNames, collectFields, escapeText,
+  selector, hook, bindingName, componentTags, typeExpr, importPath, markerNames, collectFields, escapeText,
   renderSubject, renderTree,
-  knobsInterface, angularEntry, angularPage, renderNode, slotBlock, attributeText, MARKERS_SOURCE,
+  knobsInterface, angularEntry, angularPage, renderNode, slotBlock, attributeText, MARKERS_SOURCE, validatorTable,
 } from './playground-angular.ts';
 import { repoRoot as root } from '../arena/repo-root.ts';
 import { placeOf } from '../arena/playground-model.ts';
@@ -73,6 +73,19 @@ test('an attribute selector opens with the element and its hook, and closes with
   assert.equal(selector('ArenaCard', tags), 'arena-card');
   assert.equal(hook('ArenaCard', tags), '',
     'an element selector carries no hook, or every tag would open with its own name written twice');
+});
+
+test('a bare attribute selector opens a div, binds the input under its alias and writes the hook once', () => {
+  const tags = componentTags(new Map([
+    ['ArenaPaletteScope', "@Component({\n  selector: '[arenaPalette]',\n})\nexport class ArenaPaletteScope {\n  readonly palette = input.required<string>({ alias: 'arenaPalette' });\n  readonly other = input<string>();\n}"],
+  ]));
+  assert.deepEqual(tags.get('ArenaPaletteScope'), { element: '', hook: 'arenaPalette', aliases: { palette: 'arenaPalette' } });
+  assert.equal(selector('ArenaPaletteScope', tags), 'div');
+  assert.equal(bindingName('ArenaPaletteScope', 'palette', tags), 'arenaPalette');
+  assert.equal(bindingName('ArenaPaletteScope', 'other', tags), 'other');
+  assert.equal(hook('ArenaPaletteScope', tags), ' arenaPalette');
+  assert.equal(hook('ArenaPaletteScope', tags, ' [arenaPalette]="k().palette"'), '');
+  assert.equal(hook('ArenaPaletteScope', tags, ' arenaPalette="light"'), '');
 });
 
 test('a component the sources do not reach still gets a tag, so a missing read is not a silent empty tag', () => {
@@ -163,6 +176,24 @@ test('a host wraps the subject where the placeholder marks', () => {
   assert.match(out, /<\/arena-table>$/);
 });
 
+test('a component holding one text node draws it flush, so an inline component underlines no space around its words', () => {
+  const node = renderNode({ component: 'ArenaBadge', slots: { content: [{ text: 'Live' }] } }, places, [], new Map(), new Map(), 0, new Set());
+  assert.match(node, /^<arena-badge[^>]*>Live<\/arena-badge>$/);
+  const text = renderSubject(model, places, [], new Map(), new Map(), 0, new Set());
+  assert.match(text, /<ng-container>\{\{ k\(\)\.content \}\}<\/ng-container>/,
+    'a text knob bare on its own line is projected with the spaces around it, which an inline anchor underlines');
+});
+
+test('a host element holds the subject among its children, with the text around it kept as written', () => {
+  const hosted = { ...model, host: { element: 'p', children: [{ text: 'Read ' }, '$subject' as const, { text: ' first.' }] } };
+  const out = renderTree(hosted, places, [], new Map(), new Map(), 0, new Set());
+  assert.match(out, /^<p>\n {2}Read \n {2}<arena-card[\s\S]*<\/arena-card>\n {2} first\.\n<\/p>$/);
+  const fields = collectFields({ element: 'p', children: [{ component: 'ArenaBadge', members: { tone: 'success' } }] } as any, contracts, [], 'host');
+  assert.equal(fields.length, 0, 'a string member is written as a static attribute and needs no field');
+  assert.match(renderNode({ element: 'p', children: [{ text: 'a' }, { component: 'ArenaBadge' }] }, places, [], new Map(), new Map(), 0, new Set()),
+    /^<p>\n {2}a\n {2}<arena-badge[^>]*><\/arena-badge>\n<\/p>$/);
+});
+
 test('a required member is not optional in the interface', () => {
   assert.match(knobsInterface(model), /^ {2}title: string;$/m);
   assert.match(knobsInterface(model), /^ {2}content\?: string;$/m);
@@ -178,7 +209,7 @@ test('the entry opens with the compiler import and bootstraps zoneless, which th
   assert.ok(out.indexOf("Reflect.set(globalThis, 'arenaAngularJitCompiler'") < out.indexOf('bootstrapApplication('),
     'the compiler has to be registered before anything asks the injector for an injectable that '
     + 'was only partially compiled, which is the first thing bootstrap does');
-  assert.match(out, /bootstrapApplication\(Demo, \{ providers: \[provideZonelessChangeDetection\(\)\] \}\)/);
+  assert.match(out, /bootstrapApplication\(Demo, \{\s*providers: \[provideZonelessChangeDetection\(\), provideArenaIcons\(/);
   assert.match(out, /const MODEL: KnobModel = \{/);
 });
 
@@ -235,4 +266,19 @@ test('a class on the subject and on a node is written as class on the tag', () =
   const node = renderNode({ component: 'ArenaBadge', class: 'arena-fill' }, places, [], new Map(), tags, 0, new Set());
   assert.match(node, /class="arena-fill"/);
   assert.doesNotMatch(renderSubject(model, places, [], new Map(), tags, 0, new Set()), /class=/);
+});
+
+test('the named validators follow the type a function input reads, so a number never meets a text check', () => {
+  assert.equal(validatorTable({ knobs: [] }), '');
+  assert.match(validatorTable({ knobs: [knob({ form: 'functionInput', params: { value: 'string' } })] }), /nonEmpty/);
+  const numeric = validatorTable({ knobs: [knob({ form: 'functionInput', params: { value: 'number' } })] });
+  assert.match(numeric, /\(value: number\) => string/);
+  assert.doesNotMatch(numeric, /nonEmpty|trim/);
+});
+
+test('a playground page hands the repo sprite to the layer\'s provider', () => {
+  const out = entry();
+  assert.match(out, /import \{ provideArenaIcons \} from '\.\.\/\.\.\/\.\.\/ArenaIcons';/);
+  assert.match(out, /provideArenaIcons\("\.\.\/\.\.\/\.\.\/\.\.\/\.\.\/assets\/Icons\.generated\.svg"\)/,
+    'without the provider ArenaIcon has no sprite and paints nothing');
 });

@@ -1,5 +1,5 @@
 import {
-  booleanAttribute, ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal,
+  booleanAttribute, ChangeDetectionStrategy, Component, computed, effect, ElementRef, inject, input, output, signal,
 } from '@angular/core';
 import { ArenaRadioGroupState } from './ArenaRadioGroupState';
 import { arenaRadioGroupStyles } from './ArenaRadioGroup.variants';
@@ -30,12 +30,12 @@ export class ArenaRadioGroup {
   readonly ariaLabel = input.required<string>();
   /** The selected option's value. */
   readonly value = input<string>();
-  /** Shared name for the underlying radios; generated when omitted. */
+  /** Shared name for the underlying radios; generated when omitted or blank. */
   readonly name = input<string>();
   /** Whether the whole group is unavailable. Every radio it holds is disabled whatever its own disabled says, and the group reflects aria-disabled. */
   readonly disabled = input(false, { transform: booleanAttribute });
-  /** A different option was chosen; carries its value. */
-  readonly change = output<string>();
+  /** A different option was chosen; carries its value. The native change of the inner radio is never stopped, so a listener on the document hears it; this event carries the value. */
+  readonly valueChange = output<string>();
 
   protected readonly label = computed(() => {
     const name = this.ariaLabel();
@@ -50,6 +50,7 @@ export class ArenaRadioGroup {
   private readonly fallbackName = inject(ArenaIdGenerator).next('arena-radio-group');
   private readonly chosen = signal<string | undefined>(undefined);
   private readonly state = inject(ArenaRadioGroupState);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly binding = inject(ArenaControlBinding);
   protected readonly off = computed(() => this.disabled() || this.binding.disabled());
   private readonly warned = effect(() => {
@@ -57,13 +58,20 @@ export class ArenaRadioGroup {
   });
 
   constructor() {
-    this.state.groupName = computed(() => this.name() ?? this.fallbackName);
+    this.state.groupName = computed(() => this.name() || this.fallbackName);
     this.state.selected = computed(() => (this.binding.bound() ? (this.binding.value() as string | undefined) : this.value() ?? this.chosen()));
     this.state.disabled = this.off;
     this.state.choose = (value: string) => {
       this.chosen.set(value);
-      this.change.emit(value);
+      if (this.binding.bound()) this.binding.value.set(value);
+      this.valueChange.emit(value);
       this.binding.onChange(value);
+    };
+    this.state.resync = () => {
+      const selected = this.state.selected();
+      for (const input of this.host.nativeElement.querySelectorAll<HTMLInputElement>('input[type="radio"]')) {
+        input.checked = input.value === selected;
+      }
     };
   }
 }

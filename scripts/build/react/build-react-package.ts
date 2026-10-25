@@ -21,7 +21,7 @@ import {
   collectFiles, reset, write, copy, writeCssChain, componentSheets, copyCli, baseManifest, report,
   CATALOGUE_FILE, tokenCatalogue,
   writeComponentMap, writeIconManifest, keywords,
-  copyBehaviourContracts,
+  copyBehaviourContracts, copyFonts, PALETTE_ENTRY,
 } from '../../lib/arena/package-assembly.ts';
 import { PEERS } from '../../lib/arena/support-matrix.ts';
 import { splitCompiledSheet } from '../../lib/tailwind/sheet-split.ts';
@@ -35,7 +35,7 @@ export const LAYER = 'frameworks/react';
 export const LAYER_NAME = 'react';
 
 export const ROOT_JS = ['Tokens.generated.js'];
-export const ROOT_TS = ['AnchorActivation.ts', 'DataVisuals.ts', 'UseArenaContainerWidth.ts', 'UseDialogModal.ts', 'UseArenaToasts.ts', 'UseArenaConfirm.ts', 'ToastClock.ts', 'StructuredData.ts', 'Theme.ts', 'WarnOnce.ts', 'VocabularyClass.ts', 'Vocabulary.generated.ts', 'Phrase.ts', 'ArenaLocale.ts', 'LocaleDefaults.generated.ts', 'Api.generated.ts', 'ArenaStyles.generated.ts', 'Index.generated.ts'];
+export const ROOT_TS = ['AnchorActivation.ts', 'DataVisuals.ts', 'UseArenaContainerWidth.ts', 'UseDialogModal.ts', 'AnchoredPanel.ts', 'UseAnchoredPanel.ts', 'UseArenaToasts.ts', 'UseArenaConfirm.ts', 'UseArenaRowWindow.ts', 'RowWindowMeasure.ts', 'ToastClock.ts', 'TypeAhead.ts', 'StructuredData.ts', 'Theme.ts', 'ThemeState.ts', 'WarnOnce.ts', 'VocabularyClass.ts', 'Vocabulary.generated.ts', 'Phrase.ts', 'Thresholds.ts', 'ArenaLocale.ts', 'ArenaIcons.ts', 'LocaleDefaults.generated.ts', 'Api.generated.ts', 'ArenaStyles.generated.ts', 'Index.generated.ts'];
 export const DIST_PROJECT = 'frameworks/react/tsconfig.dist.json';
 
 export const node = {
@@ -55,6 +55,7 @@ export const node = {
     'check:consumer',
     'check:packages',
     'check:react-types',
+    'check:weight',
   ],
   releaseOnly: 'the declaration emit costs more than a development loop should pay for an artefact only a '
     + 'release ships, so bun run build leaves it out and bun run build:packages runs it',
@@ -166,13 +167,16 @@ export function manifest(root = repoRoot) {
     type: 'module',
     sideEffects: ['*.css'],
     ...baseManifest(root),
+    module: './Index.generated.js',
     types: './Index.generated.d.ts',
     exports: {
       '.': { types: './Index.generated.d.ts', import: './Index.generated.js' },
+      './palette': { types: PALETTE_ENTRY.types, import: PALETTE_ENTRY.module },
       './arena.css': './arena.css',
       './css/*': './css/*',
       './css/components/*': './css/components/*',
       './css/vocabulary/*': './css/vocabulary/*',
+      './fonts/*': './fonts/*',
       './arena.config.example.json': './arena.config.example.json',
       './arena.tokens.json': './arena.tokens.json',
       './arena.vocabulary.json': './arena.vocabulary.json',
@@ -210,6 +214,7 @@ export async function buildReactPackage(root = repoRoot) {
   written.push(write(dir, CATALOGUE_FILE, `${JSON.stringify(tokenCatalogue(root), null, 2)}\n`));
   written.push(copy(join(layer, 'PACKAGE.md'), dir, 'README.md'));
   written.push(...copyBehaviourContracts(dir, root));
+  written.push(...copyFonts(dir, root));
   written.push(copy(join(root, 'LICENSE'), dir, 'LICENSE'));
   written.push(write(dir, 'package.json', `${JSON.stringify(manifest(root), null, 2)}\n`));
 

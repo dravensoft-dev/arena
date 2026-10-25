@@ -11,9 +11,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { assertNoNode } from '../../../test/NodeAssert';
 import { join } from 'node:path';
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ArenaTooltip } from './ArenaTooltip';
+import { ArenaPopover } from '../arena-popover/ArenaPopover';
 import { assertPattern, ANGULAR_COMPONENTS, isFocusable } from '../../../test/Compliance';
 import { disposeOverlays, overlayContainers } from '../../../test/Overlays';
 
@@ -164,6 +165,44 @@ test('arena-tooltip meets the tooltip pattern', () => {
       subjects: { default: bubble, 'roles.describedby': trigger },
       behavioural: { 'keyboard.Escape': true, 'focus.never': true },
     });
+  } finally {
+    fixture.destroy();
+    disposeOverlays();
+  }
+});
+
+@Component({
+  standalone: true,
+  imports: [ArenaPopover, ArenaTooltip],
+  template: `
+    <arena-popover label="Filters" [open]="open()" (openChange)="open.set($event)">
+      <button trigger type="button" class="filters">Filters</button>
+      <arena-tooltip label="Rebuilds the index"><button type="button" class="reindex">Reindex</button></arena-tooltip>
+    </arena-popover>
+  `,
+})
+class TooltipInPopoverHost {
+  readonly open = signal(false);
+}
+
+test('a tooltip inside a popover is the topmost panel, so Escape closes it and leaves the popover', () => {
+  const fixture = TestBed.createComponent(TooltipInPopoverHost);
+  const dialog = () => document.body.querySelector<HTMLElement>('.cdk-overlay-container [role="dialog"]');
+  try {
+    fixture.detectChanges();
+    (fixture.nativeElement.querySelector('.filters') as HTMLElement).click();
+    fixture.detectChanges();
+    const inner = dialog()!.querySelector<HTMLElement>('.reindex')!;
+    inner.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+    fixture.detectChanges();
+    assert.ok(document.body.querySelector('[role="tooltip"]'), 'focus did not reveal the tooltip');
+    inner.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+    assertNoNode(document.body.querySelector('[role="tooltip"]'), 'Escape did not close the tooltip');
+    assert.ok(dialog(), 'Escape closed the popover under the tooltip as well');
+    inner.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+    assert.equal(dialog(), null, 'a second Escape did not reach the popover, so the tooltip stayed on the stack');
   } finally {
     fixture.destroy();
     disposeOverlays();

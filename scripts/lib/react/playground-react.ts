@@ -8,9 +8,9 @@
  * builders place their items there, so spelling it the first way nests a container in a
  * container and the file stops parsing. */
 
-import { playgroundPage, sheetLinks, UP } from '../arena/playground-page.ts';
+import { playgroundPage, sheetLinks, spriteHref, UP } from '../arena/playground-page.ts';
 import { bindingName } from '../arena/api-surface.ts';
-import { placeOf, SUBJECT } from '../arena/playground-model.ts';
+import { childLists, placeOf, SUBJECT } from '../arena/playground-model.ts';
 import type { FixtureChild, FixtureNode, Knob, Place, Places, PlaygroundEvent, PlaygroundModel }
   from '../arena/playground-model.ts';
 
@@ -23,6 +23,16 @@ const VALIDATORS: Record<string, (value: string) => string> = {
 };
 
 function validatorFor(name: string | undefined): ((value: string) => string) | undefined {
+  return name === undefined ? undefined : VALIDATORS[name];
+}
+`;
+
+export const NUMBER_VALIDATOR_TABLE = `
+const VALIDATORS: Record<string, (value: number) => string> = {
+  alwaysInvalid: () => 'Never valid, on purpose.',
+};
+
+function validatorFor(name: string | undefined): ((value: number) => string) | undefined {
   return name === undefined ? undefined : VALIDATORS[name];
 }
 `;
@@ -68,6 +78,11 @@ export function renderNode(node: FixtureNode, places: Places, depth: number): st
   if (typeof node.element === 'string' || typeof node.text === 'string') {
     const tag = node.element ?? 'span';
     const attrs = attributes(node.attrs, `${pad}  `);
+    if (Array.isArray(node.children) && node.children.length > 0) {
+      const inner = (node.children as FixtureNode[]).filter((one) => one !== null)
+        .map((one) => renderNode(one, places, depth + 1)).join('\n');
+      return `${pad}<${tag}${attrs}>\n${inner}\n${pad}</${tag}>`;
+    }
     if (node.text === undefined) return `${pad}<${tag}${attrs} />`;
     return `${pad}<${tag}${attrs}>{${JSON.stringify(node.text)}}</${tag}>`;
   }
@@ -153,7 +168,7 @@ export function renderSubject(model: PlaygroundModel, places: Places, depth: num
 export function holdsSubject(node: FixtureChild): boolean {
   if (node === '$subject') return true;
   if (node === null || typeof node !== 'object') return false;
-  return (Object.values(node.slots ?? {}) as any[][]).some((list) => list.some((one) => holdsSubject(one)));
+  return childLists(node).some((list) => list.some((one) => holdsSubject(one)));
 }
 
 export function renderTree(model: PlaygroundModel, places: Places, depth: number) {
@@ -162,6 +177,13 @@ export function renderTree(model: PlaygroundModel, places: Places, depth: number
     const pad = '  '.repeat(level);
     if (node === '$subject') return renderSubject(model, places, level);
     if (!holdsSubject(node)) return renderNode(node, places, level);
+    if (typeof node.component !== 'string') {
+      const tag = node.element ?? 'span';
+      const inner = ((node.children ?? []) as FixtureChild[])
+        .filter((one): one is FixtureNode | typeof SUBJECT => one !== null)
+        .map((one) => wrap(one, level + 1)).join('\n');
+      return `${pad}<${tag}${attributes(node.attrs, `${pad}  `)}>\n${inner}\n${pad}</${tag}>`;
+    }
     const place = placeOf(places, node.component);
     const slots = node.slots ?? {};
     const named = (Object.entries(slots) as [string, FixtureNode[]][])
@@ -187,7 +209,9 @@ export function knobsInterface(model: { knobs: Knob[] }) {
 }
 
 export function validatorTable(model: { knobs: Knob[] }) {
-  return model.knobs.some((knob) => knob.form === 'functionInput') ? VALIDATOR_TABLE : '';
+  const knob = model.knobs.find((one) => one.form === 'functionInput');
+  if (!knob) return '';
+  return knob.params?.value === 'number' ? NUMBER_VALIDATOR_TABLE : VALIDATOR_TABLE;
 }
 
 export function reactEntry(model: PlaygroundModel, places: Places, banner: string) {
@@ -203,6 +227,7 @@ export function reactEntry(model: PlaygroundModel, places: Places, banner: strin
     "import { createRoot } from 'react-dom/client';",
     "import { Playground } from '../../../playground/Playground.tsx';",
     "import { usePlayground } from '../../../playground/PlaygroundState.ts';",
+    "import { ArenaIconsProvider } from '../../../ArenaIcons.ts';",
     "import type { KnobModel } from '../../../playground/PlaygroundCodec.generated.ts';",
     types.length > 0 ? `import type { ${types.join(', ')} } from '../../../Api.generated.ts';` : '',
     ...components,
@@ -225,7 +250,11 @@ ${renderTree(model, places, 3)}
   );
 }
 
-createRoot(document.getElementById('root')!).render(<Demo />);
+createRoot(document.getElementById('root')!).render(
+  <ArenaIconsProvider href="${spriteHref(UP)}">
+    <Demo />
+  </ArenaIconsProvider>,
+);
 `;
 }
 

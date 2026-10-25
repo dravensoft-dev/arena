@@ -1,13 +1,21 @@
 /* arena audit against throwaway projects: a rule break, a restated declaration, the strict set and the
  * summary line. A project is a temp directory, so every case reads real files and nothing else. */
-import test from 'node:test';
+import test, { after } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { run } from './command-audit.ts';
-import { captureIo, hostRoot, readable } from './cli-fixtures.ts';
+import { captureIo, hostRoot, readable, removeFixtures } from './cli-fixtures.ts';
 import { strictNames } from './reports.ts';
+
+after(removeFixtures);
+
+const made: string[] = [];
+const track = (dir: string) => { made.push(dir); return dir; };
+after(() => {
+  for (const dir of made) rmSync(dir, { recursive: true, force: true });
+});
 
 const BREAK = '<div style={{ color: "#b52a20" }} />';
 const CARD = '.arena-card__title {\n  color: var(--ink-muted);\n}\n';
@@ -19,7 +27,7 @@ function tree(root: string): string[] {
 }
 
 function setup(files: Record<string, string>, plugin = false) {
-  const root = mkdtempSync(join(tmpdir(), 'arena-audit-'));
+  const root = track(mkdtempSync(join(tmpdir(), 'arena-audit-')));
   mkdirSync(join(root, 'src'), { recursive: true });
   writeFileSync(join(root, 'arena.config.json'),
     JSON.stringify(plugin ? { ...readable, stylePlugins: ['plugin'] } : readable));
@@ -136,4 +144,16 @@ test('a stale allowance is held by the list init writes', () => {
   const result = audit(root, arena, [`--strict=${strictNames('audit').join(',')}`]);
   assert.equal(result.code, 1);
   assert.match(result.err.join('\n'), /reports 1 of them: audit:stale-allowance$/m);
+});
+
+test('a plugin rule reading a property nothing declares is reported, and held by its name', () => {
+  const { root } = setup({ 'src/App.tsx': '<p />', 'plugin/rules.css': '[data-arena-part="card.title"] { color: var(--arena-nothing, transparent); }\n' }, true);
+  const arena = hostRoot('@dravensoft/arena-react', '1.0.0', {
+    'arena.tokens.json': JSON.stringify({ tokens: {}, roles: {}, aliases: {}, channels: ['--spacing-row'] }),
+  });
+  const run = (argv: string[]) => audit(root, arena, argv);
+  const reported = run([]);
+  assert.equal(reported.code, 0);
+  assert.match(reported.err.join('\n'), /\[audit\] .*rules\.css:1: reads var\(--arena-nothing\).*\(unknown-property\)/);
+  assert.equal(run(['--strict=audit:unknown-property']).code, 1);
 });

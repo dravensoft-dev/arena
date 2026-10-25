@@ -1,4 +1,4 @@
-<!-- @dsCard group="Colors" viewport="700x221" name="Categorical" subtitle="8-slot chart ramp — identity, never meaning" -->
+<!-- @dsCard group="Colors" viewport="700x221" name="Categorical" subtitle="8-slot chart ramp: identity, never meaning" -->
 <!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../styles.css">
 <style>
 body{margin:0;background:var(--bg);color:var(--text-strong);font-family:var(--font-body);padding:var(--sp-5)}
@@ -20,10 +20,11 @@ body{margin:0;background:var(--bg);color:var(--text-strong);font-family:var(--fo
   <div class="slot"><div class="chip" style="background:var(--color-cat-8)"></div><div class="n">8 · Orchid</div></div>
 </div>
 <div class="note">
-  Fixed order — slot N is always slot N, assigned in order, never cycled. A ninth series folds to "Other",
+  Fixed order: slot N is always slot N. A chart assigns slots in order from its <code>colorStart</code>
+  (slot 1 by default) and wraps after the last. A ninth series folds to "Other",
   small multiples, or direct labels; it is never a generated hue. These carry <strong>identity only</strong>:
   when a series <em>is</em> a state, use the chart's <code>tone</code> instead. Both themes clear every gate
-  (CVD 13.3 dark / 16.4 light, all slots above 3:1 on the card surface) — re-check with
+  (CVD 13.3 dark / 16.4 light, all slots above 3:1 on the card surface). Re-check with
   <code>bun scripts/check/core/check-ramp.ts</code>.
 </div>
 </body></html>

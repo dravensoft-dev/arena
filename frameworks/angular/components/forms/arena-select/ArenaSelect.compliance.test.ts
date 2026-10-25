@@ -1,10 +1,9 @@
 /* Both requirements of `select` are decidable from the element, so this file has no
  * `behavioural` map at all: the browser owns the popup, the keys and the focus, which
  * is the whole reason ArenaSelect binds `select` rather than `combobox`. What is NOT free is
- * containment — `change` is an Arena output whose name a native <select> event already
- * carries, so the second test measures that the native one never leaves the host
- * instead of arguing that it cannot. */
-import { useTestEnvironment } from '../../../test/TestbedEnv';
+ * containment: the native `change` of a <select> bubbles to the page, and the Arena
+ * output `valueChange` carries the chosen value once, which the second test measures. */
+import { useTestEnvironment, glyphIds, symbol } from '../../../test/TestbedEnv';
 useTestEnvironment();
 
 import test from 'node:test';
@@ -29,7 +28,7 @@ const OPTIONS: ArenaSelectOption[] = [
   template: `
     <div id="outside">
       <arena-select label="Environment" [options]="options" value="staging" name="env"
-                    (change)="chosen.push($event)" />
+                    (valueChange)="chosen.push($event)" />
     </div>
   `,
 })
@@ -57,7 +56,7 @@ test('arena-select meets the select pattern it binds', () => {
   }
 });
 
-test('the native change event never leaves the host, so a consumer sees the Arena output once and the DOM event never', () => {
+test('the native change event reaches an ancestor, and the Arena output carries the chosen value once', () => {
   const fixture = TestBed.createComponent(SelectHost);
   const seen: Event[] = [];
   try {
@@ -72,9 +71,7 @@ test('the native change event never leaves the host, so a consumer sees the Aren
 
     assert.deepEqual(fixture.componentInstance.chosen, ['production'],
       'the Arena output must carry the chosen value exactly once');
-    assert.equal(seen.length, 0,
-      'the native change must be stopped inside the host: it shares a name with the contracted output, ' +
-      'so a consumer listening on an ancestor would otherwise be told twice');
+    assert.equal(seen.length, 1, 'the native change did not reach the ancestor');
   } finally {
     fixture.destroy();
   }
@@ -160,7 +157,7 @@ test('error wins over hint, which is the same state order ArenaInput declares', 
 test('a hint alone is neutral, and is still named to the control', () => {
   const { fixture, host, field } = noted({ hint: 'Start typing' });
   try {
-    assert.equal(field.getAttribute('aria-invalid'), 'false', 'a hint is help, not a failure');
+    assert.equal(field.getAttribute('aria-invalid'), null, 'a hint is help, not a failure, so it writes no aria-invalid');
     assert.ok(field.getAttribute('aria-describedby'), 'the hint is not named to the control');
     assert.match(host.textContent ?? '', /Start typing/);
   } finally {
@@ -197,12 +194,22 @@ test('placeholder is a disabled empty first option, so "nothing chosen" is not t
   }
 });
 
+test('a placeholder with no value starts the select on the placeholder and submits an empty value', () => {
+  const { fixture, field } = noted({ placeholder: 'Any region' });
+  try {
+    assert.equal(field.selectedOptions[0]?.textContent?.trim(), 'Any region');
+    assert.equal(field.value, '');
+  } finally {
+    fixture.destroy();
+  }
+});
+
 test('icon is drawn hidden and pushes the text clear of it', () => {
   const { fixture, host, field } = noted({ icon: 'ph-bold ph-user' });
   try {
-    const glyph = host.querySelector('i') as HTMLElement;
-    assert.ok(glyph, 'no <i> was drawn for the icon');
-    assert.match(glyph.getAttribute('class') ?? '', /ph-bold ph-user/);
+    const glyph = host.querySelector('svg') as SVGElement;
+    assert.ok(glyph, 'no glyph was drawn for the icon');
+    assert.deepEqual(glyphIds(host).slice(0, 1), [symbol('bold', 'user')]);
     assert.equal(glyph.getAttribute('aria-hidden'), 'true');
     assert.equal(field.getAttribute('data-arena-has-icon'), '', 'the text runs under the glyph');
   } finally {

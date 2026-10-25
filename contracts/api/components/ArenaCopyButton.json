@@ -1,0 +1,19 @@
+{
+  "component": "ArenaCopyButton",
+  "description": "An icon button that writes a string to the clipboard, confirms in place with a glyph and a spoken word, and reverts on its own. A failed write is reported the same way, never hidden.",
+  "affordances": [],
+  "api": {
+    "text": { "form": "primitive", "type": "string", "required": true,
+              "description": "What is written to the clipboard, exactly as given. A blank text draws the button disabled, because there is nothing to copy. The text is data, so it is not guarded." },
+    "label": { "form": "primitive", "type": "string",
+               "description": "The button's accessible name, the same in every state. Absent or blank, the provided locale's copyButtonLabel answers it, which reads Copy by default. Name what is copied when a page holds more than one." },
+    "showLabel": { "form": "primitive", "type": "boolean", "default": false,
+                   "description": "Draws the name beside the glyph, as ArenaIconButton.showLabel does." },
+    "disabled": { "form": "primitive", "type": "boolean", "default": false,
+                  "description": "Blocks the copy." },
+    "copied": { "form": "event",
+                "description": "The clipboard took the text. No payload, because the consumer already holds the text." },
+    "copyFailed": { "form": "event",
+                    "description": "The clipboard refused the text, or the page has none, as on an insecure origin. No payload and never an error object." }
+  }
+}

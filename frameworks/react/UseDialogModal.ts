@@ -13,13 +13,59 @@ const FOCUSABLE_SELECTOR = [
   `[tabindex]${REACHABLE_BY_TAB}`,
 ].join(', ');
 
-export function arenaFocusableElements(container: Element): HTMLElement[] {
+function isRadio(el: Element): el is HTMLInputElement {
+  return el instanceof HTMLInputElement && el.type === 'radio';
+}
+
+function sameRadioGroup(a: HTMLInputElement, b: HTMLInputElement): boolean {
+  return a.name !== '' && a.name === b.name && a.form === b.form;
+}
+
+function reachableElements(container: Element): HTMLElement[] {
   return Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR));
+}
+
+export function arenaFocusableElements(container: Element): HTMLElement[] {
+  const reachable = reachableElements(container);
+  return reachable.filter((el) => {
+    if (!isRadio(el) || el.name === '') return true;
+    const group = reachable.filter((one): one is HTMLInputElement => isRadio(one) && sameRadioGroup(one, el));
+    return el === (group.find((one) => one.checked) ?? group[0]);
+  });
+}
+
+export function arenaTabStopOf(focusables: readonly HTMLElement[], el: Element | null): Element | null {
+  if (el === null || !isRadio(el) || focusables.includes(el as HTMLElement)) return el;
+  const stop = focusables.find((one) => isRadio(one) && sameRadioGroup(one, el));
+  return stop ?? el;
+}
+
+function lastStop(container: Element, stop: HTMLElement): HTMLElement {
+  if (!isRadio(stop) || stop.name === '' || stop.checked) return stop;
+  const group = reachableElements(container).filter((one): one is HTMLInputElement => isRadio(one) && sameRadioGroup(one, stop));
+  return group[group.length - 1] ?? stop;
 }
 
 export function arenaFocusFirstFocusable(container: HTMLElement): void {
   const [first] = arenaFocusableElements(container);
   (first ?? container).focus();
+}
+
+function focusIsAdrift(active: Element | null, body: HTMLElement | null): boolean {
+  return active === null || active === body || !active.isConnected;
+}
+
+export function arenaReclaimFocus(panel: HTMLElement): void {
+  const doc = panel.ownerDocument;
+  if (focusIsAdrift(doc.activeElement, doc.body)) arenaFocusFirstFocusable(panel);
+}
+
+export function arenaRestoreOnTeardown(invoker: Element | null, panel: Element | null, active: Element | null): boolean {
+  if (!(invoker instanceof HTMLElement) || !invoker.isConnected) return false;
+  const body = invoker.ownerDocument.body;
+  if (!focusIsAdrift(active, body) && !(panel !== null && active !== null && panel.contains(active))) return false;
+  invoker.focus();
+  return true;
 }
 
 export function arenaTrapTabKey(
@@ -28,11 +74,12 @@ export function arenaTrapTabKey(
   activeElement: Element | null,
 ): void {
   const focusables = arenaFocusableElements(container);
+  const stopNow = arenaTabStopOf(focusables, activeElement);
   const first = focusables[0];
   const last = focusables[focusables.length - 1];
   if (first === undefined || last === undefined) { event.preventDefault(); return; }
-  if (event.shiftKey && activeElement === first) { event.preventDefault(); last.focus(); }
-  else if (!event.shiftKey && activeElement === last) { event.preventDefault(); first.focus(); }
+  if (event.shiftKey && stopNow === first) { event.preventDefault(); lastStop(container, last).focus(); }
+  else if (!event.shiftKey && stopNow === last) { event.preventDefault(); first.focus(); }
 }
 
 export interface ArenaDialogModalOptions {
@@ -44,6 +91,16 @@ export interface ArenaDialogModalOptions {
 export function useArenaDialogModal({ open, panelRef, onDismiss }: ArenaDialogModalOptions):
 (event: React.KeyboardEvent) => void {
   const restoreTo = useRef<Element | null>(null);
+  const openPanel = useRef<HTMLElement | null>(null);
+
+  useEffect(() => () => {
+    const invoker = restoreTo.current;
+    const panel = openPanel.current;
+    if (invoker === null || (panel !== null && panel.isConnected)) return;
+    restoreTo.current = null;
+    openPanel.current = null;
+    arenaRestoreOnTeardown(invoker, panel, invoker.ownerDocument.activeElement);
+  }, []);
 
   useEffect(() => {
     if (open) {
@@ -51,9 +108,11 @@ export function useArenaDialogModal({ open, panelRef, onDismiss }: ArenaDialogMo
         restoreTo.current = typeof document === 'undefined' ? null : document.activeElement;
       }
       const panel = panelRef.current;
+      openPanel.current = panel;
       if (panel) arenaFocusFirstFocusable(panel);
       return undefined;
     }
+    openPanel.current = null;
     const target = restoreTo.current;
     restoreTo.current = null;
     if (target instanceof HTMLElement) target.focus();

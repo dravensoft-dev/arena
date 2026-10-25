@@ -1,12 +1,14 @@
 /* arena usage: it names what the sources draw and what the plugins paint, writes nothing, and
  * holds no report, so its only failures are the ones where it cannot run. */
 
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { run } from './command-usage.ts';
-import { MAP, captureIo, project, readable } from './cli-fixtures.ts';
+import { MAP, captureIo, project, readable, removeFixtures } from './cli-fixtures.ts';
+
+after(removeFixtures);
 
 const environment = { arena: null, packageName: '@dravensoft/arena-react', map: MAP, phosphor: null };
 
@@ -117,5 +119,20 @@ test('a named list leaves what usage counts as drawn to the sources alone', () =
     const { io, out } = captureIo(root, environment);
     assert.equal(run([], io), 0);
     assert.ok(out.some((line) => line.endsWith('2 drawn nowhere: arena-bar-chart, arena-table')), out.join('\n'));
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test('usage counts as painted only the parts of components the sources draw, and names the rest', () => {
+  const root = project({ ...readable, stylePlugins: ['plugin'] }, { 'app.html': '<arena-button></arena-button>' });
+  try {
+    mkdirSync(join(root, 'plugin'));
+    writeFileSync(join(root, 'plugin', 'skin.css'),
+      '[data-arena-part="button"] { color: red; }\n[data-arena-part="menu.item"] { color: red; }\n');
+    const vocabulary = { page: 'p', classes: {}, answers: {}, options: {},
+      parts: { ArenaButton: { button: [] }, ArenaMenu: { menu: [], 'menu.item': [] } } };
+    const map = { match: 'selector' as const, draws: { 'arena-button': 'arena-button', 'arena-menu': 'arena-menu' }, needs: {} };
+    const { io, out } = captureIo(root, { ...environment, map, vocabulary });
+    assert.equal(run([], io), 0);
+    assert.match(out.find((line) => line.startsWith('arena usage: your style plugin'))!, /^arena usage: your style plugin\(s\) paint 1 part\(s\): button\. 1 rule\(s\) reach nothing this project draws: menu\.item\. /);
   } finally { rmSync(root, { recursive: true, force: true }); }
 });

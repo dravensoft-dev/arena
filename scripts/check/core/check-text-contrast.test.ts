@@ -9,6 +9,7 @@ import {
 import { paletteBlock } from '../../lib/core/palette-read.ts';
 import { resolvedFor } from './check-style-plugin.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
+import { unlayeredColors } from '../../lib/core/colors-fixtures.ts';
 import {
   derivedLevels, levelDefaults, levelReports, levelsIn, raisedReports, STATUS_HUES,
 } from '../../generate/core/arena-cli/levels.ts';
@@ -22,8 +23,9 @@ test('this gate and the shipped command hold the same fills legible', () => {
     + 'is the half nobody reads');
 });
 
+const SELECTORS = [':root', '.arena-dark', '.arena-light'];
 const structure = structureOf([
-  ':root, .arena-light {',
+  ':root, .arena-dark, .arena-light {',
   '  --text-strong: var(--color-base-content);',
   '  --text-body: color-mix(in oklab, var(--color-base-content) 82%, transparent);',
   '  --text-muted: var(--mute);',
@@ -32,7 +34,13 @@ const structure = structureOf([
   '  --loop-b: var(--loop-a);',
   '  --painted: #ff0000;',
   '}',
-].join('\n'));
+].join('\n'), SELECTORS);
+
+test('an alias block whose selector lacks a palette the palette sheet declares is refused, naming it', () => {
+  assert.throws(() => structureOf(':root, .arena-light { --text-strong: var(--color-base-content); }', SELECTORS),
+    /does not carry \.arena-dark/);
+  assert.throws(() => structureOf(':root,.arena-dark{ --picker-invert:1; }', SELECTORS), /no block declares the aliases/);
+});
 
 test('a level that is base-content itself is the whole of it', () => {
   assert.equal(resolvePercent(structure, 'text-strong'), 100);
@@ -61,6 +69,42 @@ test('a level that is a colour rather than a derivation of base-content is refus
     /--painted resolves to "#ff0000", which is neither base-content, a color-mix of it, nor a var\(\) alias/,
     'the gate measures levels derived from one content colour, so a pinned hex is outside what it '
     + 'can compose and is reported instead of silently skipped');
+});
+
+test('a held-back alias that reads a level resolves at the level the block declares', () => {
+  const mix = '--mute:color-mix(in oklab,var(--color-base-content) var(--level-ink-muted),transparent);';
+  assert.equal(resolvePercent(`--level-ink-muted:62%;${mix}`, 'mute'), 62);
+  assert.throws(() => resolvePercent(mix, 'mute'), /level-ink-muted/);
+  assert.throws(() => resolvePercent(mix, 'mute'), /--mute/);
+});
+
+function literalAliases(block: string) {
+  const bare = (value: string) => {
+    let out = value;
+    for (let before = ''; before !== out;) { before = out; out = out.replace(/var\([^()]*\)/g, ''); }
+    return out;
+  };
+  return [...block.matchAll(/--([\w-]+)\s*:\s*([^;]+);/g)]
+    .filter(([, name, value]) => !(name ?? '').startsWith('level-') && /\d%/.test(bare(value ?? '')))
+    .map(([, name]) => name);
+}
+
+test('the disabled text and the scrim are the two aliases in colors.css that hold a fixed percentage, with no level', () => {
+  const block = structureOf(readFileSync(join(repoRoot, 'contracts/design/colors.css'), 'utf8'), SELECTORS)
+    .replace(/\/\*[\s\S]*?\*\//g, '');
+  assert.deepEqual(literalAliases(block), ['mute-2-disabled', 'scrim']);
+});
+
+test('a percentage inside a var() fallback is not a literal the alias holds', () => {
+  assert.deepEqual(literalAliases('--x:color-mix(in oklab,var(--c) var(--level-x,62%),transparent);--y:color-mix(in oklab,var(--c) 40%,transparent);'), ['y']);
+});
+
+test('colors.css held in the defaults layer reads as the same alias block as its unlayered body', () => {
+  const css = readFileSync(join(repoRoot, 'contracts/design/colors.css'), 'utf8');
+  const body = unlayeredColors(css);
+  assert.ok(css.includes('@layer arena-defaults {') && !body.includes('@layer'), 'the body is the layer\'s contents');
+  assert.equal(structureOf(css, SELECTORS), structureOf(body, SELECTORS));
+  assert.ok(structureOf(css, SELECTORS).includes('--text-strong'));
 });
 
 test('a retired token carries the token that replaces it, so the failure is actionable', () => {

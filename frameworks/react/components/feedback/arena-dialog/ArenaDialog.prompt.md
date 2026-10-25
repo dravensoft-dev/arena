@@ -2,7 +2,7 @@ Modal for confirmations and short forms. Overlay with blur.
 
 ```tsx
 <ArenaDialog open={o} onClose={close} className="arena-dialog-width-lg" eyebrow="Confirm" title="Deploy to production"
-  footer={<><ArenaButton onClick={close} className="arena-emphasis-ghost">Cancel</ArenaButton><ArenaButton onClick={go}>Deploy</ArenaButton></>}>
+  footer={<><ArenaButton onActivate={close} className="arena-emphasis-ghost">Cancel</ArenaButton><ArenaButton onActivate={go}>Deploy</ArenaButton></>}>
   This action publishes build #4821 for all users.
 </ArenaDialog>
 ```
@@ -18,7 +18,7 @@ Modal for confirmations and short forms. Overlay with blur.
 | `eyebrow` | primitive | `string` |  | A short kicker above the title. |
 | `children` | slot |  |  | The dialog's body. |
 | `footer` | slot |  |  | The action row, right-aligned. |
-| `fillBelow` | enum | `ArenaBreakpoint` |  | Below this breakpoint the panel fills the screen: full width and height, no radius and no shadow, the title bar pinned to the top and the footer to the bottom, the body scrolling between them, and every edge inset by the device's safe area. The measurement is the dialog's own box, which covers the viewport while open. Absent, the dialog never fills. The width is ignored while filling. |
+| `fillBelow` | enum | `ArenaBreakpoint` |  | Below this breakpoint the panel fills the screen: full width and height, no radius and no shadow. The title bar is pinned to the top and the footer to the bottom, the body scrolls between them, and every edge is inset by the device's safe area. The measurement is the dialog's own box, which covers the viewport while open. Absent, the dialog never fills. The width is ignored while filling. |
 | `onClose` | event |  |  | The dialog was dismissed -- by Escape or by a scrim click. No payload. |
 
 <!-- @api end -->
@@ -30,7 +30,7 @@ Modal for confirmations and short forms. Overlay with blur.
 <!-- @answers end -->
 
 <!-- @keys GENERATED from the binding. -->
-**Keys**, from [`dialog-modal`](../../../../../contracts/behaviour/dialog-modal.json):
+**Keys**, from [`modal-focus`](../../../../../contracts/behaviour/modal-focus.json):
 - `Escape`: close.
 <!-- @keys end -->
 
@@ -41,9 +41,17 @@ not an absence.
 The dialog's width is the `arena-dialog-width` class, `sm`, `md` or `lg`, and `--arena-dialog-width` on a container takes a **CSS length** for a width no step names. Write a token expression such as `calc(var(--sp-1) * 200)`, never a bare `520`. A class on the dialog wins over a property on its container, and a dialog that fills the screen ignores both. Write `className="arena-dialog-width-lg"` on a form's dialog for the wide panel. A value that is not a width, such as `md` written as the property, sets a declaration the browser drops and leaves the panel at its default. Arena reports that once at runtime rather than letting it pass in silence. The panel is capped at
 `92vw` regardless, so a wide dialog still fits a narrow viewport.
 
-Arena dismisses the dialog two ways, and both report through `onClose`: **Escape**
-and a click on the backdrop. A third path is yours rather than Arena's: a button in `footer` wired to the same handler. The third path is worth naming only so the count is not mistaken. `onClose` is one event with two sources inside the component, which is what `contracts/api/components/ArenaDialog.json` declares. Opening moves focus to the first focusable element inside the panel. Closing returns it to whatever had focus before, so a keyboard user lands back on the control that opened the dialog. Tab and Shift+Tab wrap at the panel's edges rather than
-walking out into the page behind the scrim.
+Arena dismisses the dialog two ways, and both report through `onClose`: **Escape** and a
+click on the backdrop. A third path is yours rather than Arena's: a button in `footer`
+wired to the same handler. The third path is worth naming only so the count is not
+mistaken. `onClose` is one event with two sources inside the component, which is what
+`contracts/api/components/ArenaDialog.json` declares. Opening moves focus to the first
+focusable element inside the panel. Closing returns it to whatever had focus before, so a
+keyboard user lands back on the control that opened the dialog. Removing the dialog while
+it is open counts as closing it for focus, though the removal reports no `onClose`. The
+rule holds only while focus is inside the dialog or nowhere and the element that opened
+it is still on the page. Tab and Shift+Tab wrap at the panel's edges rather than walking
+out into the page behind the scrim.
 
 - **Do** give every dialog a `title` that says what it is about, not what it is
   ("Delete project", never "Dialog").

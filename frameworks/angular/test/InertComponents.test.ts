@@ -10,7 +10,7 @@
 import { useTestEnvironment } from './TestbedEnv';
 useTestEnvironment();
 
-import test from 'node:test';
+import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
 import { Component } from '@angular/core';
@@ -26,6 +26,14 @@ import { ArenaSideNav } from '../components/navigation/arena-side-nav/ArenaSideN
 import { ArenaSideNavItem } from '../components/navigation/arena-side-nav-item/ArenaSideNavItem';
 import { ArenaSideNavSection } from '../components/navigation/arena-side-nav-section/ArenaSideNavSection';
 import { assertPattern, ANGULAR_COMPONENTS } from './Compliance';
+
+const root = document.documentElement;
+before(() => {
+  root.style.setProperty('--bp-sm', '480px');
+});
+after(() => {
+  root.style.removeProperty('--bp-sm');
+});
 
 const FOCUSABLE = 'a[href], button, input, select, textarea, [tabindex], [contenteditable]';
 const INTERACTIVE_ROLE = [

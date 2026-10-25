@@ -6,8 +6,8 @@
  * consumer's last stop and, through RULE_OWNERS, a rule off the branch that does not own it,
  * FOREIGN_CODE, which keeps another design system out of the examples a reader copies, and
  * the claim a consumer page makes about what SHIPS: how many components, and a GitHub address
- * for a link into this repository. SIZE_ALLOWANCE is empty, and that emptiness is the claim: a
- * document falling back inside the shared limit fails. */
+ * for a link into this repository. SIZE_ALLOWANCE names the one document that outgrew the shared
+ * limit, and a document falling back inside it fails. */
 
 import { readFileSync, existsSync } from 'node:fs';
 import { join, basename } from 'node:path';
@@ -20,6 +20,8 @@ import { repoRoot as ROOT } from '../../lib/arena/repo-root.ts';
 import { emittedTree } from '../../lib/arena/layers.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 import { withForeignTrees } from '../../lib/arena/foreign-trees.ts';
+import { REGION_OPENS, REGION_CLOSES } from './check-duplication.ts';
+import { strands } from './check-contracts-neutrality.ts';
 
 export const MAX_DOCUMENT_CHARS = 60_000;
 export const MAX_CELL_CHARS = 2_000;
@@ -38,7 +40,15 @@ export const PROSE_EXEMPT = {
     'a spec or a plan is deleted once executed, so its prose never becomes documentation',
 };
 
-export const SIZE_ALLOWANCE = new Map<string, { limit: number; reason: string }>([]);
+export const SIZE_ALLOWANCE = new Map<string, { limit: number; reason: string }>([
+  ['scripts/check/arena/AGENTS.md', {
+    limit: 62_000,
+    reason: 'the domain table of the arena gates, one row per gate, where a row states the claim and the '
+      + 'failure its gate exists for and the table cell cap keeps each row from becoming a page; the '
+      + 'real-browser gates (target size, contained parts) carry the longest rows because the reason a '
+      + 'unit tier cannot answer them is part of what each one claims',
+  }],
+]);
 
 export function limitFor(rel: string) {
   return SIZE_ALLOWANCE.get(rel)?.limit ?? MAX_DOCUMENT_CHARS;
@@ -130,15 +140,30 @@ export const CONSUMER_OWN_OUTPUT = new Map([
    + 'from the arena command each package ships. It carries the .generated. infix and is nothing this repository '
    + 'builds, so the build-product rule below reads it backwards: a reader of the npm page has '
    + 'this file and is being told to make it.'],
-  ['icons.generated.css',
-   'the Phosphor subset the CONSUMER generates, in their own project, by the same run of '
-   + 'arena build. Same reading as arena.generated.css above: the infix is theirs '
-   + 'and not this repository\'s, and the name is the one the npm page tells them to write.'],
+  ['arena.icons.generated.js',
+   'the module the CONSUMER generates, in their own project, by the same run of arena build, exporting the file '
+   + 'name of the Phosphor sprite it wrote beside it. Same reading as arena.generated.css above: the infix is '
+   + 'theirs and not this repository\'s, and the name is the one the npm page tells them to import.'],
+  ['arena.icons.generated.ts',
+   'the module the Angular package\'s arena build writes in the CONSUMER\'s project, as TypeScript so that every Angular '
+   + 'compiler emits it, exporting the file name of the Phosphor sprite. Same reading as arena.icons.generated.js above: '
+   + 'the infix is theirs and not this repository\'s.'],
+  ['arena.icons.generated.d.ts',
+   'the declaration file written beside arena.icons.generated.js in the CONSUMER\'s project by the same run of '
+   + 'arena build. Same reading as arena.generated.css above: the infix is theirs and not this repository\'s.'],
+  ['package.generated.css',
+   'the stylesheet of Arena\'s rules the CONSUMER generates, in their own project, by the same run of arena build. '
+   + 'Same reading as arena.generated.css above: the infix is theirs and not this repository\'s, and a consumer '
+   + 'imports it before arena.generated.css, so the npm page has to name it.'],
   ['plugin.generated.css',
    'the style plugin\'s own CSS, wrapped in the reserved layer, written into the CONSUMER\'s '
    + 'project by the same run of arena build. The third of the three and the only one that is '
    + 'conditional, since it exists when a declared plugin carries a plugin.css. Named on the npm '
    + 'page for the reason the other two are: a consumer cannot import a file nobody told them about.'],
+  ['runtime.generated.json',
+   'the data the CONSUMER\'s runtime palette functions read, written into their own project by the same run of '
+   + 'arena build when the config sets "runtimePalettes": true. Same reading as arena.generated.css above: the '
+   + 'infix is theirs and not this repository\'s, and a consumer cannot pass a file nobody told them about.'],
 ]);
 
 export const CONTRIBUTOR_PATHS = [
@@ -399,7 +424,7 @@ export function consumerBranchProblems(root = ROOT) {
     for (const [pattern, reason] of CONTRIBUTOR_PATHS) {
       if (!pattern) continue;
       for (const hit of source.match(pattern) ?? []) {
-        if ([...CONSUMER_OWN_OUTPUT.keys()].some((name) => name.startsWith(hit))) continue;
+        if ([...CONSUMER_OWN_OUTPUT.keys()].some((name) => name.startsWith(hit) || name.includes(`.${hit}`))) continue;
         problems.push(
           `${rel}: cites "${hit}", ${reason}. A consumer document is a stop on the way to writing `
           + 'a component: state the consequence here, and leave the reason on the contributor branch',
@@ -509,6 +534,68 @@ export function branchSwitchProblems(root = ROOT) {
     .map((rel) => `BRANCH_SWITCH exempts ${rel}, which is not there -- a stale exemption is worse than none`);
 }
 
+export const HUE_WORDS = ['crimson', 'gold', 'green', 'amber', 'bone', 'red'];
+export const HUE_TOKENS = /--(crimson|gold|bone)\b[\w-]*/;
+
+const HUE_WORD = new RegExp(`\\b(${HUE_WORDS.join('|')})\\b`, 'gi');
+const HUE_TOKEN = new RegExp(HUE_TOKENS.source, 'g');
+const CODE_SPAN = /(`+)[^\n]*?\1/g;
+
+function blankKeepingLines(text: string) {
+  return text.replace(/[^\n]/g, ' ');
+}
+
+function withoutRegions(source: string) {
+  let inside = false;
+  return source.split('\n').map((line) => {
+    if (!inside && REGION_OPENS.test(line)) { inside = true; return ''; }
+    if (inside) { inside = !REGION_CLOSES.test(line); return ''; }
+    return line;
+  }).join('\n');
+}
+
+function filesUnder(root: string, tree: string) {
+  const dir = join(root, tree);
+  return existsSync(dir) ? walkFiles(dir, { skip: (name) => SKIPPED_DIRECTORIES.has(name) }) : [];
+}
+
+function hueFindings(text: string, where: (offset: number) => string) {
+  const found: string[] = [];
+  for (const m of text.matchAll(HUE_TOKEN)) {
+    found.push(
+      `${where(m.index)}: names ${m[0]}, a compatibility alias no component reads; `
+      + 'name the role the part reads',
+    );
+  }
+  const plain = text.replace(CODE_SPAN, blankKeepingLines).replace(HUE_TOKEN, blankKeepingLines);
+  for (const m of plain.matchAll(HUE_WORD)) {
+    found.push(
+      `${where(m.index)}: names the default skin's hue "${m[0].toLowerCase()}", which another skin `
+      + 'paints in another colour; name the slot it paints (the primary fill, the focus ring, '
+      + 'the danger tone)',
+    );
+  }
+  return found;
+}
+
+export function hueProblems(root = ROOT) {
+  const problems: string[] = [];
+  for (const path of filesUnder(root, 'frameworks')) {
+    if (!path.endsWith('.prompt.md')) continue;
+    const rel = relPosix(root, path);
+    const text = unfenced(withoutRegions(readFileSync(path, 'utf8')));
+    problems.push(...hueFindings(text, (at) => `${rel}:${text.slice(0, at).split('\n').length}`));
+  }
+  for (const path of filesUnder(root, 'contracts/api')) {
+    if (!path.endsWith('.json')) continue;
+    const rel = relPosix(root, path);
+    for (const strand of strands(rel, readJson(path))) {
+      if (strand.prose) problems.push(...hueFindings(strand.text, () => `${rel}:${strand.path}`));
+    }
+  }
+  return problems;
+}
+
 function main() {
   const sizes = documentSizeProblems();
   const punctuation = punctuationProblems();
@@ -525,7 +612,7 @@ function main() {
   const problems = [
     ...empty, ...branchSwitchProblems(), ...sizes.problems, ...cells.problems, ...punctuation.problems,
     ...comments.problems, ...branch.problems, ...ruleOwnerProblems(), ...foreign.problems,
-    ...counts.problems, ...blobLinkProblems(),
+    ...counts.problems, ...blobLinkProblems(), ...hueProblems(),
   ];
 
   if (problems.length > 0) {

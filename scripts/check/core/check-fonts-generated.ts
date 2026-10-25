@@ -1,15 +1,16 @@
 /* Two claims about the same contract. That every family typography.json declares has a
- * self-hosted face and a binary matching its record, and that the URL the example config
- * points a consumer at is one Google answers. The second needs the network, so a status
- * that is not 200 fails and a request that never completes prints a skip: conflating the
- * two turns an outage into a pass, which is the one outcome a gate must never produce. */
+ * self-hosted face, a licence text and binaries matching their records, that the example config
+ * names those files, and that any URL it points a consumer at is one Google answers. The URL
+ * claim needs the network, so a status that is not 200 fails and a request that never completes
+ * prints a skip: conflating the two turns an outage into a pass, which is the one outcome a
+ * gate must never produce. */
 
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { isMainModule } from '../../utils/main-module.ts';
 import { readJson } from '../../utils/read-file.ts';
-import { families, FONTS, recordProblems, UA } from '../../generate/core/fetch-fonts.ts';
+import { families, FONTS, licenceFile, recordProblems, UA } from '../../generate/core/fetch-fonts.ts';
 import { arenaConfig } from '../../lib/core/arena-config.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { captured } from '../../utils/captures.ts';
@@ -29,6 +30,24 @@ export function checkFonts(declared: string[], faces: Set<string>) {
   return declared
     .filter((fam) => !faces.has(fam))
     .map((fam) => `"${fam}" is declared in contracts/design/typography.json but contracts/design-generated/fonts.generated.css has no @font-face for it — run bun scripts/generate/core/fetch-fonts.ts`);
+}
+
+export function remoteFonts(fonts: Record<string, { family: string; src: string }>) {
+  return Object.fromEntries(Object.entries(fonts).filter(([, font]) => /^https?:\/\//.test(font.src)));
+}
+
+export function exampleProblems(fonts: Record<string, { family: string; src: string }>, record: Record<string, unknown>) {
+  const problems: string[] = [];
+  for (const [role, { src }] of Object.entries(fonts)) {
+    if (/^https?:\/\//.test(src)) continue;
+    const file = src.replace(/^\.\/fonts\//, '');
+    if (!(file in record)) {
+      problems.push(`fonts.${role} points at ${src}, which ${FONTS} does not record -- the example config names a file the packages do not carry`);
+    } else if (!(licenceFile(file) in record)) {
+      problems.push(`fonts.${role} points at ${src}, and ${FONTS} records no ${licenceFile(file)} beside it -- the packages carry every font with its OFL text`);
+    }
+  }
+  return problems;
 }
 
 export async function askGoogle(
@@ -63,17 +82,19 @@ async function main() {
   const css = readFileSync(join(root, 'contracts', 'design-generated', 'fonts.generated.css'), 'utf8');
   const errs = checkFonts(declared, facesIn(css));
 
-  const present = readdirSync(join(root, 'assets', 'fonts')).filter((f) => f.endsWith('.woff2'));
+  const present = readdirSync(join(root, 'assets', 'fonts')).filter((f) => f.endsWith('.woff2') || f.endsWith('.OFL.txt'));
   if (present.length === 0) {
     errs.push('found 0 .woff2 under assets/fonts -- an empty result set is a failure, not a clean pass; check the discovery path');
   } else {
     const recorded = readJson(join(root, FONTS));
     const hashOf = (file: string) => createHash('sha256').update(readFileSync(join(root, 'assets', 'fonts', file))).digest('hex');
     errs.push(...recordProblems(recorded, present, hashOf));
+    errs.push(...exampleProblems(arenaConfig(root).fonts, recorded));
   }
 
-  const answers = await askGoogle(arenaConfig(root).fonts);
-  errs.push(...urlProblems(answers));
+  const remote = remoteFonts(arenaConfig(root).fonts);
+  const answers = Object.keys(remote).length > 0 ? await askGoogle(remote) : [];
+  if (answers.length > 0) errs.push(...urlProblems(answers));
   const unreachable = answers.filter((a) => a.unreachable !== undefined);
 
   if (errs.length) {
@@ -87,7 +108,7 @@ async function main() {
   const answered = answers.length - unreachable.length;
   console.log(
     `check-fonts-generated: ${declared.length} famil${declared.length === 1 ? 'y' : 'ies'} declared, every one has a face in `
-    + `contracts/design-generated/fonts.generated.css; ${present.length} variable binar${present.length === 1 ? 'y' : 'ies'} match `
+    + `contracts/design-generated/fonts.generated.css; ${present.length} file(s) (binaries and OFL texts) match `
     + 'their recorded sha256 and weight range -- one file per family, because each covers its whole range; '
     + `${answered} of ${answers.length} example-config font URL(s) answered 200`,
   );

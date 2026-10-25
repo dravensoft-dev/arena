@@ -171,3 +171,55 @@ test('restamp over specs that reach nothing on disk drops what they reached and 
     assert.equal(stamps.size, 0);
   });
 });
+
+const vanishing = (vanish: string) => (at: string, options: WalkOptions) =>
+  walkFiles(at, {
+    skip: (name, path, isDirectory) => {
+      if (name === vanish) rmSync(path, { recursive: true, force: true });
+      return options.skip?.(name, path, isDirectory) ?? false;
+    },
+  });
+
+test('restamp never enters a directory every spec exclusion removes, so one rewritten during the walk raises nothing', () => {
+  withTree((dir) => {
+    mkdirSync(join(dir, 'frameworks', 'x', 'dist'), { recursive: true });
+    mkdirSync(join(dir, 'frameworks', 'x', 'src'), { recursive: true });
+    writeFileSync(join(dir, 'frameworks', 'x', 'dist', 'out.js'), 'o');
+    writeFileSync(join(dir, 'frameworks', 'x', 'src', 'INDEX.md'), 'i');
+  }, (dir) => {
+    const entered: string[] = [];
+    const recording = (at: string, options: WalkOptions) => walkFiles(at, {
+      skip: (name, path, isDirectory) => {
+        const skipped = options.skip?.(name, path, isDirectory) ?? false;
+        if (!skipped) entered.push(relPosix(dir, path));
+        return skipped;
+      },
+    });
+    const next = restamp(dir, ['frameworks/**', '!frameworks/*/dist/**'], [], new Map(), recording);
+    assert.deepEqual(next, ['frameworks/x/src/INDEX.md']);
+    assert.deepEqual(entered.filter((p) => p.startsWith('frameworks/x/dist')), [], 'the walk entered an excluded directory');
+  });
+});
+
+test('restamp keeps a file at the path of an excluded directory, because the exclusion names only what is below it', () => {
+  withTree((dir) => {
+    mkdirSync(join(dir, 'frameworks', 'x'), { recursive: true });
+    writeFileSync(join(dir, 'frameworks', 'x', 'dist'), 'f');
+  }, (dir) => {
+    const next = restamp(dir, ['frameworks/**', '!frameworks/*/dist/**'], [], new Map());
+    assert.deepEqual(next, ['frameworks/x/dist']);
+  });
+});
+
+test('restamp reads a directory that vanishes during the walk as absent, and keeps the files beside it', () => {
+  withTree((dir) => {
+    mkdirSync(join(dir, 'frameworks', 'x', 'tmp'), { recursive: true });
+    mkdirSync(join(dir, 'frameworks', 'x', 'src'), { recursive: true });
+    writeFileSync(join(dir, 'frameworks', 'x', 'tmp', 'part.js'), 'p');
+    writeFileSync(join(dir, 'frameworks', 'x', 'src', 'INDEX.md'), 'i');
+  }, (dir) => {
+    const stamps = new Map();
+    const next = restamp(dir, ['frameworks/**'], [], stamps, vanishing('tmp'));
+    assert.deepEqual(next, ['frameworks/x/src/INDEX.md']);
+  });
+});

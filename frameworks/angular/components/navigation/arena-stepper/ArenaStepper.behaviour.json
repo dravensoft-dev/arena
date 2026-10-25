@@ -1,0 +1,19 @@
+{
+  "component": "ArenaStepper",
+  "cases": [
+    {
+      "name": "readonly",
+      "when": "interactive is false",
+      "pattern": "none",
+      "reason": "The component renders an ordered list a user cannot act on: the list and its items are native, the current item carries aria-current=\"step\", and every state is a word in the item's own text. No pattern describes a named list of steps, and navigation would claim a landmark for the progress of one task. The suites assert the list role, the name and the words directly.",
+      "exceptions": []
+    },
+    {
+      "name": "interactive",
+      "when": "interactive is true",
+      "pattern": "none",
+      "reason": "The steps behind the current one are native buttons, so their role, Enter, Space and focus are the platform's. Every other step stays text, so no control is dead. No pattern adds a claim the platform does not already make, and which steps are buttons is Arena's own rule, proved by the suites.",
+      "exceptions": []
+    }
+  ]
+}

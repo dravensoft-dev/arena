@@ -24,6 +24,17 @@ jobs:
         env:
           DOMAINS: \${{ inputs.domains }}
         run: bun scripts/check/arena/check-all.ts --no-tests --domain="$DOMAINS"
+  audit:
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: arena-build-\${{ github.run_id }}
+      - name: every traced node opens only what it declares
+        run: bun scripts/check/arena/check-graph.ts --audit
+      - name: the audit rewrote nothing tracked
+        run: git diff --exit-code
   suites-scripts:
     needs: [build]
     runs-on: ubuntu-latest
@@ -52,6 +63,9 @@ jobs:
       - run: bun run ci:summarize --join --domains="$DOMAINS"
 `;
 
+const A = '      - name: every traced node opens only what it declares\n        run: bun scripts/check/arena/check-graph.ts --audit\n';
+const D = '      - name: the audit rewrote nothing tracked\n        run: git diff --exit-code\n';
+
 const only = (text: string) => verifySelection(text).problems;
 
 test('a run: is read on one line and as a block, and a block ends where its indent does', () => {
@@ -74,6 +88,7 @@ test('the gates job, each suite and its domain, and the join are read off the wo
   assert.deepEqual(selection.problems, []);
   assert.deepEqual(selection.gates, ['gates']);
   assert.deepEqual(selection.joins, ['summarize']);
+  assert.deepEqual(selection.audits, ['audit']);
   assert.deepEqual([...selection.suites], [
     ['scripts', { job: 'suites-scripts', domain: null }],
     ['react', { job: 'suites-react', domain: 'react' }],
@@ -102,9 +117,35 @@ test('each rule fails on its own mutation, naming what it found', () => {
     'a suite step with an if of its own': [VERIFY.replace('      - run: bun run ci:summarize --suite=scripts', "      - name: scripts\n        if: github.event_name == 'push'\n        run: bun run ci:summarize --suite=scripts"), /step of suites-scripts carries an if:/],
     'a join that merges nothing': [VERIFY.replace('          merge-multiple: true\n', ''), /downloads the reports without merge-multiple: true/],
     'a join that reads another pattern': [VERIFY.replace('pattern: junit-*', 'pattern: reports-*'), /downloads the reports without pattern: junit-\*/],
-    'a join that downloads nothing': [VERIFY.replace('actions/download-artifact@v8', 'actions/checkout@v7'), /downloads the reports without/],
+    'a join that downloads nothing': [VERIFY.replaceAll('actions/download-artifact@v8', 'actions/checkout@v7'), /downloads the reports without/],
     'a second suite that a red first one skips': [VERIFY.replace('      - if: ${{ !cancelled() }}\n        run: bun run ci:summarize --suite=react-dom', '      - run: bun run ci:summarize --suite=react-dom'), /suite react-dom of suites-react runs after another suite/],
     'two suites in one step': [VERIFY.replace('      - if: ${{ !cancelled() }}\n        run: bun run ci:summarize --suite=react-dom', '        run: bun run ci:summarize --suite=react-dom'), /two suites in one step/],
+    'no audit job': [VERIFY.replace('bun scripts/check/arena/check-graph.ts --audit', 'echo none'), /0 job\(s\) run the graph audit/],
+    'two audit jobs': [VERIFY.replace('bun run build:release', 'bun scripts/check/arena/check-graph.ts --audit'), /2 job\(s\) run the graph audit/],
+    'an audit with an if': [VERIFY.replace('  audit:\n', "  audit:\n    if: contains(format(',{0},', inputs.domains), ',react,')\n"), /job audit carries an if:/],
+    'an audit that needs nothing': [VERIFY.replace('  audit:\n    needs: [build]\n', '  audit:\n'), /job audit does not need build/],
+    'an audit that needs more than build': [VERIFY.replace('  audit:\n    needs: [build]\n', '  audit:\n    needs: [build, gates]\n'), /job audit does not need build/],
+    'an audit that cannot be read for needs': [VERIFY.replace('  audit:\n    needs: [build]\n', '  audit:\n    needs: [build, "x"]\n'), /job audit has a needs this reader cannot follow/],
+    'an audit before the download': [VERIFY.replace('      - uses: actions/download-artifact@v8\n        with:\n          name: arena-build-${{ github.run_id }}\n', '').replace('        run: bun scripts/check/arena/check-graph.ts --audit\n', '        run: bun scripts/check/arena/check-graph.ts --audit\n      - uses: actions/download-artifact@v8\n        with:\n          name: arena-build-${{ github.run_id }}\n'), /runs the graph audit before it downloads/],
+    'an audit with no download': [VERIFY.replace('name: arena-build-${{ github.run_id }}', 'name: other'), /runs the graph audit before it downloads/],
+    'an audit with no diff step': [VERIFY.replace('        run: git diff --exit-code\n', '        run: echo done\n'), /no git diff --exit-code step after it/],
+    'an audit with extra flags': [VERIFY.replace('check-graph.ts --audit', 'check-graph.ts --json --audit'), /runs the graph audit as .* a shape this reader cannot follow/],
+    'an audit through the package script': [VERIFY.replace('bun scripts/check/arena/check-graph.ts --audit', 'bun run check:graph -- --audit'), /runs the graph audit as .* a shape this reader cannot follow/],
+    'an audit on a later line of a block': [VERIFY.replace('        run: bun scripts/check/arena/check-graph.ts --audit\n', '        run: |\n          echo start\n          bun scripts/check/arena/check-graph.ts --audit --json\n'), /runs the graph audit as "bun scripts\/check\/arena\/check-graph\.ts --audit --json"/],
+    'a second audit through the package script': [VERIFY.replace('bun run build:release', 'bun run check:graph -- --audit'), /2 job\(s\) run the graph audit/],
+    'an audit and check-all on one line': [VERIFY.replace('bun scripts/check/arena/check-graph.ts --audit', 'bun scripts/check/arena/check-graph.ts --audit && bun scripts/check/arena/check-all.ts'), /job audit runs check-all without --no-tests/],
+    'an audit step with an if': [VERIFY.replace('      - name: every traced node opens only what it declares\n', "      - name: every traced node opens only what it declares\n        if: github.event_name == 'push'\n"), /audit step of audit carries an if: or continue-on-error:/],
+    'an audit step that continues on error': [VERIFY.replace('      - name: every traced node opens only what it declares\n', '      - name: every traced node opens only what it declares\n        continue-on-error: true\n'), /audit step of audit carries an if: or continue-on-error:/],
+    'a download step that continues on error': [VERIFY.replace('      - uses: actions/download-artifact@v8\n        with:\n          name: arena-build', '      - uses: actions/download-artifact@v8\n        continue-on-error: true\n        with:\n          name: arena-build'), /download step of audit carries an if: or continue-on-error:/],
+    'a diff step that continues on error': [VERIFY.replace('      - name: the audit rewrote nothing tracked\n', '      - name: the audit rewrote nothing tracked\n        continue-on-error: true\n'), /diff step of audit carries an if: or continue-on-error:/],
+    'a diff step with an if': [VERIFY.replace('      - name: the audit rewrote nothing tracked\n', '      - name: the audit rewrote nothing tracked\n        if: ${{ always() }}\n'), /diff step of audit carries an if: or continue-on-error:/],
+    'an audit job that continues on error': [VERIFY.replace('  audit:\n', '  audit:\n    continue-on-error: true\n'), /job audit sets continue-on-error: at the job/],
+    'a gates job that continues on error': [VERIFY.replace('  gates:\n', '  gates:\n    continue-on-error: true\n'), /job gates sets continue-on-error: at the job/],
+    'a suite job that continues on error': [VERIFY.replace('  suites-scripts:\n', '  suites-scripts:\n    continue-on-error: ${{ true }}\n'), /job suites-scripts sets continue-on-error: at the job/],
+    'a step whose first key is continue-on-error': [VERIFY.replace('      - name: the audit rewrote nothing tracked\n        run: git diff --exit-code\n', '      - continue-on-error: true\n        name: the audit rewrote nothing tracked\n        run: git diff --exit-code\n'), /diff step of audit carries an if: or continue-on-error:/],
+    'a diff step before the audit': [VERIFY.replace('', '').replace(A, '__A__').replace(D, '').replace('__A__', D + A), /no git diff --exit-code step after it audits/],
+    'a diff step that tolerates a difference': [VERIFY.replace('run: git diff --exit-code', 'run: git diff --exit-code || true'), /no git diff --exit-code step after it audits/],
+    'a download named for the build whose artifact is another': [VERIFY.replace('        with:\n          name: arena-build-${{ github.run_id }}\n', '        with:\n          name: other\n').replace('      - uses: actions/download-artifact@v8\n        with:\n          name: other', '      - name: arena-build-${{ github.run_id }}\n        uses: actions/download-artifact@v8\n        with:\n          name: other'), /before it downloads/],
     'a job it cannot read': [VERIFY.replace('  suites-scripts:', '  "suites-scripts":'), /sits where a job key goes/],
   };
   for (const [name, [text, pattern]] of Object.entries(mutations)) {

@@ -54,7 +54,7 @@ change touches how a component reaches the document.
 
 **The files under `theme/` keep their lowercase names, and they do not share one reason.**
 `arena-cdk.css` is named **inside an adopter's own source, verbatim**, as
-`@dravensoft/arena-angular/css/arena-cdk.css`: the assembly copies it under that name and the npm
+`@dravensoft/arena-angular/css/arena-cdk.css`: the assembly copies it under that name, with the text of the installed `@angular/cdk/overlay-prebuilt.css` in place of its `@import` (the source keeps the import; `check:cdk` holds the published copy to the installed sheet), and the npm
 page tells a reader to `@import` it, so the lowercase stem is load-bearing outside this tree.
 **`arena-tailwind.css` and `no-fouc.html` are not instances of that, and neither reaches an
 adopter at all**: the assembly copies neither, `arena-tailwind.css` imports this repository's own
@@ -67,7 +67,7 @@ adopter writes.
 - `theme/ArenaThemeService.ts` and `theme/no-fouc.html`: the signal theme service and the
   pre-paint snippet. It switches between **any number of named palettes**, because a
   consumer's `arena.config.json` declares as many as they like: the default palette sits on
-  `:root` and wears no class, and every other one wears `.arena-<name>`. Declare them with
+  `:root` and the page theme leaves `<html>` bare for it, and every palette is a class `.arena-<name>`. Declare them with
   `provideArenaThemes({palettes, default})`; with no providers it answers `dark` and
   `light`, which is what an adopter on the package has. `set()` **throws** on a name no
   palette declares, since a silently ignored theme switch looks like a broken toggle.
@@ -107,12 +107,8 @@ is every internal table element -- `display: contents` fixes the box tree and no
 server render makes it worse rather than better, because the markup is serialized and re-parsed and
 the HTML parser foster-parents a non-table element straight out of the table. So `ArenaTableRow` is
 `tr[arena-table-row]` and `ArenaTableCell` is `td[arena-table-cell]`, the prefix is unchanged, and the
-role the element already maps to is not written back onto it. Two consequences travel with the shape.
-An **output named after a native DOM event cannot be listened to from the `host` block**: the listener
-is wired to that output and `emit()` re-enters its own handler, so the listener is added to the host
-element in the constructor, which also puts it ahead of the one Angular adds for the consumer's
-binding and lets `stopImmediatePropagation()` refuse the duplicate. And **the demo emitters read the
-declared selector** from the layer's own source, so a tag opens with its element and its hook and
+role the element already maps to is not written back onto it. One consequence travels with the shape:
+**the demo emitters read the declared selector** from the layer's own source, so a tag opens with its element and its hook and
 closes with the element alone, with nothing to list anywhere.
 
 **A compound family pushes nothing, so its recursive case costs no helper.** `ArenaSideNav` nests to
@@ -170,7 +166,9 @@ between; `test/Barrels.test.ts` carries the reason in `ROOT_PRIVATE`. `DataVisua
 axis domain) sits at the layer root beside them, and the rule puts it there in both layers now:
 its consumers are every chart **and** `arena-calendar-event`, which reads `arenaCatIndex` for a
 chip's `colorId`. The name matches the placement: a module a schedule grid consumes is
-not "chart internals". The geometry that only the charts read went the other way, down to
+not "chart internals". `Thresholds.ts` (a region keeps its lower edge, read by
+`arena-meter`) sits at the root because a banded chart scale asks the same question and no chart
+imports from `feedback/`; `test/Barrels.test.ts` names it in `ROOT_PRIVATE`. The geometry that only the charts read went the other way, down to
 `components/charts/`, and `frameworks/AGENTS.md` records why.
 
 `kitchen-sink/<arrangement>/` is emitted, never written: one page per arrangement holding
@@ -207,13 +205,18 @@ reads take the border box with no transform, so a padding or transform a branch 
 never reaches the number. A chart measures an element of its own template,
 so a consumer class on its host cannot move its plot. So a branch may restyle the padding and border of the measured element and nothing else of its outer box, as `check:measured-box` holds.
 
-**One component exposes a method, and it is the only one.** `arena-input` has `focus()` and
-`select()`, because none of the nine contract forms is imperative and returning focus after each
-completed transaction is what lets a till chain sales without the mouse; `autoFocus` fires once
-at mount and answers a different question. `IMPERATIVE_HANDLES` in
+**A component exposes a method only where `IMPERATIVE_HANDLES` names it.** None of the nine
+contract forms is imperative. `arena-input` has `focus()` and `select()`, because returning focus
+after each completed transaction is what lets a till chain sales without the mouse; `autoFocus`
+fires once at mount and answers a different question. `arena-number-field` has the same two, for
+the same reason, because a wizard returns focus to a number after each step. `arena-pin-input` has
+`focus()` alone, on its first cell, because after a wrong code the host empties the code and asks
+for it again. `arena-file-input` has `files()` and
+`clear()`, because a `File` is a platform type no member or payload may carry, and a host that
+uploads without a form still reads the files and empties the field. `IMPERATIVE_HANDLES` in
 `scripts/lib/arena/api-surface.ts` is what lets `check:api` read a public method on a component
-class at all, it names these two and no others with a reason each, and any other public method
-still fails the gate as an undeclared surface.
+class at all, it names each method with a reason, and any other public method still fails the
+gate as an undeclared surface.
 
 A primitive defines no styling of its own. Its appearance is authored one layer over, as
 `frameworks/tailwind/components/<category>/<component-kebab>/<Component>.manifest.json`, and
@@ -285,7 +288,7 @@ written down there binding `absent`.
 **Arena writes the markup, the ARIA and the styling, and `@angular/cdk` supplies only what
 Arena should not hand-roll**: overlay positioning for a surface anchored to a trigger, and
 the roving-focus key managers. Focus trapping stays Arena's own `FocusTrap.ts`, which implements
-`contracts/behaviour/dialog-modal.json` for this layer, and `arena-dialog` consumes it rather
+`contracts/behaviour/modal-focus.json` for this layer, and `arena-dialog` consumes it rather
 than `cdk/dialog`.
 
 **The CDK earns its place on an anchored surface and nowhere else, so count its users rather
@@ -294,8 +297,15 @@ a modal centres in flow and a toast is a card the host places, and neither goes 
 A styled **native** control does not either: `arena-select` is a real `<select>`, so the popup,
 its keyboard and its type-ahead are the user agent's.
 
-**`ArenaTooltip` and `ArenaMenu` pass `anchored: true` to their recipe**, because the CDK overlay
-positions them and the recipe has to say so.
+**An anchored panel is attached through `AnchoredOverlay.ts:ArenaAnchoredOverlay`**, which a component
+constructs in its own injection context. It attaches the panel's template to a CDK pane placed by
+the connected positions `arenaConnectedPositions(align, prefer, offset)` returns. They try the
+preferred side at the alignment, then at the opposite alignment, then the other side the same way;
+when none fits, the pane is pushed inside the viewport at the alignment that overflows least. The
+overlay also keeps the stack Escape and an outside press consult. Focus on open, focus restore
+and Tab-out are options it takes. The pane wears the palette, plugin and density classes the anchor resolves: it reads
+`arenaScopeDress(anchor, theme)` on each open and again whenever `ArenaThemeService.theme` changes or a runtime palette is registered while it is open. A runtime palette gives the pane its polarity hook in place of `arena-<name>`, and its properties through `style.setProperty`. `ArenaMenu`,
+`ArenaTooltip`, `ArenaPopover`, `ArenaCombobox` and `ArenaMultiSelect` stand on it.
 
 **A style binding may interpolate the name of the property it reads.** The table's cells bind
 `[style.--arena-column-width]` to `var(--arena-column-<key>-width)`, or to `initial` when the
@@ -330,7 +340,7 @@ so a bridge that has stopped being a bridge cannot pass by having nothing left t
 
 **What the gate does not cover** is whether an override's *value* is the right one for the
 class it lands on: the gate reads names and selectors, never paint, so only a real render
-catches that. `ArenaTooltip.demo.generated.html` and `ArenaMenu.demo.generated.html` are that render: both open a real CDK
+catches that. `ArenaTooltip.demo.generated.html`, `ArenaMenu.demo.generated.html` and `ArenaPopover.demo.generated.html` are that render: each opens a real CDK
 overlay in a real browser, which is where a z-index that stacks wrongly is visible at all.
 `check:cdk` fails the moment the bridge and the installed package disagree.
 
@@ -394,13 +404,15 @@ finds it.
 **The component still cannot detect it**, because it cannot distinguish "the marker was not imported"
 from "nothing was projected", which is the case the query exists for. What is checked is every
 consumer *inside this repository*: `test/ProjectionMarkers.test.ts` walks the layer, pairs each
-marker use with the **nearest enclosing** `arena-*` element, and fails when that host gates the
+marker use with the **innermost enclosing** element, and fails when that host gates the
 slot by a `contentChild` query and the consumer does not import the directive. Two refinements answer real false
 positives and both make the rule more honest: marker words inside an
 **attribute value** are stripped before matching, and a slot gated by an **input** rather than by
 a query owes no import. The real rule is *"you projected into a slot whose host gates it on a
-query"*, not *"you used a marker attribute"*, and the nearest-enclosing walk is what expresses
-it, since `contentChild` reaches direct content only.
+query"*, not *"you used a marker attribute"*, and the innermost-enclosing walk is what expresses
+it: `contentChild` matches descendants unless `descendants: false` is passed, and every marker query here
+passes it, so the query and `<ng-content select>` agree on what fills a slot. An `<ng-container>` does not
+carry a marker into a named slot (`ngProjectAs` does).
 
 **What stays uncovered is every consumer outside this repository.** A gate here cannot reach an
 adopter's app; it can only stop Arena's own pages from shipping the example.
@@ -466,8 +478,9 @@ error anywhere in the test surface, a template diagnostic in an inline `template
 included, fails the *build* step, and no test in that run executes at all. Staleness is prevented
 by the build always running ahead of the tests that read it, and `build-angular-tests.ts` prunes
 output whose source is gone, because `ngc` does not. **The compile itself is skipped when no input
-differs from what the last one compiled**, which is what keeps a step that costs around seventeen seconds
-ahead of suites that cost around twelve; `--force` compiles anyway, and the rule it decides by is
+differs from what the last one compiled**, which is what keeps the emit, a step
+with a `cost` of its own in `scripts/check/arena/check-all.ts:ANGULAR_EMIT`, from recompiling ahead of
+every suite that reads it; `--force` compiles anyway, and the rule it decides by is
 its own document's.
 
 **A green compile is a claim about TYPES, and never about behaviour.**
@@ -526,35 +539,25 @@ grep -Lr "'\[class\]':" --include='[A-Z]*.ts' frameworks/angular/components/*/*/
   | grep -vE '\.(test|variants|card\.entry)\.ts$|(State|Window)\.ts$'
 ```
 
-They fall into **four** groups, each with its own reason. The **SVG charts** are boxless
+They fall into **three** groups, each with its own reason. The **SVG charts** are boxless
 (`display: contents`) and draw their frame as an inner slot, so there is no `root` slot to bind. The **form controls** each need their own
 `<button>`, `<input>` or `<label>`. Some **keep a specific semantic or structural element**: a
-real `<ul>` for a feed, a `<div role="tablist">` whose panels are siblings outside it, a real
+real `<ul>` for a feed, a real `<ol>` for the steps of a stepper and the milestones of a
+timeline, a `<div role="tablist">` whose panels are siblings outside it, a real
+`<fieldset>` because the platform's `disabled` cascade exists on no other element, and a real
 `<nav>` for a navigation landmark, since the `navigation` pattern offers `role="navigation"` only
-for when a `<nav>` cannot be used. The fourth group has a reason unlike the other three:
-**a component that owns an output named after a DOM event it must be able to refuse needs an inner
-element to stop the event at.** An Angular output named after a native DOM event is
-delivered twice, once as the output and once as the bubbled DOM event Angular also listens for
-on the host, so with `stopPropagation()` removed one pointer click reaches the consumer twice and a
-disabled row activates. A host listener cannot fix it: `stopPropagation` does not reach a sibling
-listener on the same element, and `stopImmediatePropagation` would depend on registration order.
-So the rule has a second clause: **host-bind unless the root must be a specific element, or unless
-the component owns an output named after a DOM event it must be able to refuse.** The suites
-assert the delivery count, so a wrapper cannot be optimised away without a red run.
-
-**`arena-card` is in that fourth group and shows how far the defect goes.** A host that both
-listens for `click` and emits an output of that name does not merely double-deliver: each emission
-re-enters the host's own listener, and one measured press reached the consumer 7609 times before
-the run gave up. So the wrapper is not a tidiness question there either.
+for when a `<nav>` cannot be used. The element itself is the meaning for `arena-divider`, whose
+`<hr>` a reader meets as a separator, `arena-kbd`, whose `<kbd>` is keyboard input, and `arena-link`,
+whose `<a href>` is the focusable link. The rule has one clause: **host-bind unless the root must be a specific element.**
 
 **The consequence a carve-out pays** is that a consumer attribute written on `<arena-x>`, a
 static `class` or an ARIA attribute, lands on the inert host and never on the styled element
 inside it, and neither layer offers a second route to it. That follows from the carve-out, not
 from anything a contract could restate, and it is the argument for host-binding being the default.
 
-## Four traps this layer's idiom sets
+## Three traps this layer's idiom sets
 
-All four are layer-wide and silent.
+All three are layer-wide and silent.
 
 **A resolving transform spells the default twice, and only one of the two runs for any given
 caller.** `input(X, { transform: (value) => value ?? Y })` is the layer's shape for an optional
@@ -585,44 +588,13 @@ does not clear it fails, and so does one that clears an attribute it takes no in
 the guard, not a count**: the defect does not depend on host-binding, so any figure derived from
 the host-bound primitives alone undercounts.
 
-**`(click)` on an element of a primitive fires for the DOM event AND for the primitive's `click`
-output.** Angular installs both: a native listener on the host element, and a subscription to the
-`output()` of the same name. The counts below are **measured with a probe component** across all four
-combinations, because the reading that Angular binds one or the other is equally plausible and
-being wrong about which is undetectable by eye:
-
-| the primitive | what a consumer's `(click)` counts |
-| --- | --- |
-| emits and stops propagation | 1 |
-| emits, does not stop propagation | **2** |
-| does not emit, does not stop propagation | **1, a phantom** |
-| does not emit and stops propagation | 0 |
-
-**So a primitive declaring a `click` output stops propagation on every click it handles**, or a
-consumer's handler is called twice for one press. Every primitive that declares one does, in every
-branch, including the ones that deliberately do not emit, which is what turns the third row into
-the fourth and keeps a chip the consumer declared non-interactive from reporting an activation
-nobody made. Derive the set with the command below rather than reading a list here.
-
-**And a suite counting activations through a `(click)` binding is measuring the sum**, so it
-cannot tell an emit from a bubble and would read a doubled call as a passing one. Their suites
-assert **both** numbers, the output on the component instance and what a template
-binding hears, because either alone is blind: the instance count cannot see a native event
-escaping to the consumer, and the binding count cannot see the output going silent.
+**No output shares the name of a DOM event that bubbles out of the component.** A native `click` or
+`change` from an inner element reaches the consumer's `(click)` or `(change)` binding as the DOM event.
+An output of the same name would reach the same binding a second time. So a component reports an activation
+through `activate` and a value through `valueChange`, and `check:api` refuses an event member
+named `click` or `change`. A suite counting activations asserts both numbers, the output on the
+component instance and what a template `(activate)` binding hears, because either alone is blind.
 `ArenaCalendarEvent.cases.test.ts` is the shape.
-
-**`click` is not the only output named after a native event, and the rest are unaudited.**
-Derive the set rather than trusting a list:
-
-```bash
-grep -rhoE 'readonly (blur|cancel|change|click|close|focus|input|select|submit|toggle) = output<' \
-    --include='*.ts' components | sort | uniq -c
-```
-
-Every one of them carries the same double-fire risk, and only the `click` ones are measured.
-`change` is the widest family, and `ArenaCheckbox.compliance.test.ts` and
-`ArenaRadioGroup.compliance.test.ts` assert their consumer hears it exactly once, which is half
-the pair above; the rest of that family asserts nothing about it.
 
 ## Two roots, two projections, one template
 

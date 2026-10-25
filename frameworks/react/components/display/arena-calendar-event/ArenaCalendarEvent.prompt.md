@@ -4,7 +4,7 @@ One event on an `ArenaCalendar`'s schedule. The chip is a child of `ArenaCalenda
 <ArenaCalendar timeZone="Europe/Madrid">
   {classes.map((c) => (
     <ArenaCalendarEvent key={c.id} id={c.id} title={c.name} start={c.start} end={c.end}
-      colorId={c.room} onClick={() => open(c)} />
+      colorId={c.room} onActivate={() => open(c)} />
   ))}
 </ArenaCalendar>
 ```
@@ -21,11 +21,11 @@ One event on an `ArenaCalendar`'s schedule. The chip is a child of `ArenaCalenda
 | `end*` | primitive | `string` |  | ISO datetime the event ends. |
 | `colorId` | enum | `ArenaCatSlot` |  | Identity colour. Give the same entity the same slot everywhere and it keeps its colour across views. |
 | `details` | array | `readonly string[]` | `[]` | Lines drawn under the time label, one per entry, each truncated to a single line: the people involved, a room, a capacity. Arena decides how many fit, shedding the last first and then the time label, and every entry reaches what the chip announces whether it is drawn or shed. |
-| `interactive` | primitive | `boolean` | `false` | Whether the chip can be activated. A boolean rather than "is `onClick` bound?", because Arena never derives what it draws from what a consumer listens for, and the same member `ArenaTableRow.interactive` is for the same reason. An interactive chip is a <button> a keyboard user reaches with Enter from the hour cell it overlaps; a non-interactive one draws the same chip with no role and no activation, so a read-only schedule announces events rather than a screenful of buttons that do nothing. |
-| `actionsEnabled` | primitive | `boolean` | `false` | Whether the chip shows its action button. A boolean rather than "is the actions slot filled?": Arena never derives what it draws from what a consumer listens for, because projected content is not inspectable in at least one platform, so gating the drawing on it is a divergence waiting to happen. |
+| `interactive` | primitive | `boolean` | `false` | Whether the chip can be activated. A boolean rather than "is `onActivate` bound?", because Arena never derives what it draws from what a consumer listens for. `ArenaTableRow.interactive` is a member for the same reason. An interactive chip is a <button> a keyboard user reaches with Enter from the hour cell it overlaps. A non-interactive one draws the same chip with no role and no activation, so a read-only schedule announces events rather than a screenful of buttons that do nothing. |
+| `actionsEnabled` | primitive | `boolean` | `false` | Whether the chip shows its action button. A boolean rather than "is the actions slot filled?": Arena never derives what it draws from what a consumer listens for. Projected content is not inspectable in at least one platform, so gating the drawing on it is a divergence waiting to happen. |
 | `actions` | slot |  |  | The action panel's content, revealed by the chip's action button. Rendered only while the panel is open, so a consumer's own controls never sit permanently in the grid's Tab sequence. |
-| `disabled` | primitive | `boolean` | `false` | Whether the chip is drawn but cannot be activated: an event a consumer's rules lock, such as one already past or owned by someone else. It reflects through `aria-disabled` rather than the native `disabled` attribute, so the chip keeps its place in the grid's roving Tab sequence and is announced as unavailable instead of disappearing from it. With `interactive` false there is nothing to activate and the chip is inert already. |
-| `onClick` | event |  |  | The chip was activated. No payload: the consumer wrote this element, so they already hold the event this is about. Never emitted while `disabled`. |
+| `disabled` | primitive | `boolean` | `false` | Whether the chip is drawn but cannot be activated: an event a consumer's rules lock, such as one already past or owned by someone else. The state reflects through `aria-disabled` rather than the native `disabled` attribute. The chip keeps its place in the grid's roving Tab sequence and is announced as unavailable instead of disappearing from it. With `interactive` false there is nothing to activate and the chip is inert already. |
+| `onActivate` | event |  |  | The chip was activated. No payload: the consumer wrote this element, so they already hold the event this is about. Never emitted while `disabled`. A click on the chip's body stops there in both layers, so a listener on the document does not hear it. The kebab and the panel's controls reach the document as native clicks. |
 
 <!-- @api end -->
 
@@ -43,9 +43,11 @@ One event on an `ArenaCalendar`'s schedule. The chip is a child of `ArenaCalenda
 
 `id`, `title`, `start` and `end` are all required and **throw** when absent. `start` and `end` are ISO datetimes, read in the calendar's `timeZone` and never the reader's.
 
-**`onClick` carries no payload, deliberately.** You wrote this element, so your handler already closes over the record it came from. `onClick={() => open(c)}` reaches the whole of `c` with no id-to-object lookup. A payload would have handed back the five fields you had just passed in.
+**`onActivate` carries no payload, deliberately.** You wrote this element, so your handler already closes over the record it came from. `onActivate={() => open(c)}` reaches the whole of `c` with no id-to-object lookup. A payload would have handed back the five fields you had just passed in.
 
-**Passing `onClick` is what makes the chip interactive.** With it the chip renders as a real `<button>` with an accessible name of "title, date, time range". Without it the chip is an inert `<div>`, and there is nothing for a keyboard or a screen reader to act on. `ArenaTag` has the same conditional shape, and it is recorded as a limitation of the behaviour layer rather than hidden. The binding claims the `button` pattern unconditionally, because the schema cannot say "only when `onClick` is passed".
+**An interactive chip is a real `<button>`.** With `interactive` the chip renders as a `<button>` with an accessible name of "title, date, time range". Without it the chip is an inert `<div>`, and there is nothing for a keyboard or a screen reader to act on. `ArenaTag` has the same conditional shape, and it is recorded as a limitation of the behaviour layer rather than hidden. The binding claims the `button` pattern unconditionally, because the schema cannot say "only when `interactive` is set".
+
+**A click on the chip's body stops there, alike in both layers.** A listener on an ancestor does not hear it, and `onActivate` reports the press of an interactive chip. A press on the kebab or on a control in the panel reaches the page as a native click and calls no `onActivate`. Each of those is a control of its own.
 
 **An interactive chip is not a page-level tab stop, and that is on purpose.** The grid is one tab stop. Enter from the hour cell an event overlaps steps into the chip, and Escape steps back out to the cell. Do not try to restore a `tabIndex`: `ArenaCalendar` injects `-1` and would overwrite it anyway, and a chip per tab stop is what the grid pattern exists to prevent.
 
@@ -56,7 +58,7 @@ What "into the chip" means depends on the shape. A chip with no action panel *is
 **`actionsEnabled` draws a kebab on the chip; `actions` is what the panel behind it holds.**
 
 ```tsx
-<ArenaCalendarEvent id={c.id} title={c.name} start={c.start} end={c.end} onClick={() => open(c)}
+<ArenaCalendarEvent id={c.id} title={c.name} start={c.start} end={c.end} onActivate={() => open(c)}
   actionsEnabled
   actions={<>
     <ArenaButton icon="ph-bold ph-pencil" className="arena-emphasis-ghost arena-size-sm">Edit</ArenaButton>
@@ -66,7 +68,7 @@ What "into the chip" means depends on the shape. A chip with no action panel *is
 
 **The boolean is what draws the kebab, not the slot being filled.** `actionsEnabled` with an empty `actions` draws a kebab over an empty panel. An empty panel is a consumer mistake rather than a state Arena hides, and it is deliberate. Nothing here is derived from whether a slot was filled or a listener was bound, which is the same reason `ArenaAlert.dismissible` and `ArenaToast.dismissible` are booleans.
 
-**`interactive` is what makes the chip a button, not `onClick`.** The rendered element never depends on whether anything is listening, so activation is a member you declare. `ArenaTableRow` carries the same member for the same reason, so the two families have one shape. **Pass `interactive` alongside `onClick`, or the chip is inert.** An inert chip is a `<div>` with no role, nothing to activate and nothing to disable. An inert chip is exactly what a read-only schedule wants. An inert chip makes the schedule announce events rather than a screenful of buttons that do nothing.
+**`interactive` is what makes the chip a button, not `onActivate`.** The rendered element never depends on whether anything is listening, so activation is a member you declare. `ArenaTableRow` carries the same member for the same reason, so the two families have one shape. **Pass `interactive` alongside `onActivate`, or the chip is inert.** An inert chip is a `<div>` with no role, nothing to activate and nothing to disable. An inert chip is exactly what a read-only schedule wants. An inert chip makes the schedule announce events rather than a screenful of buttons that do nothing.
 
 **The panel's content is in the tree only while the panel is open.** Unmounting is what keeps the grid at one tab stop. Your buttons are yours and Arena cannot silence them. A permanently rendered row of them would be a permanent set of tab stops inside a grid that is supposed to have one. The panel is therefore not a place to keep state, because it is unmounted and remounted with every open.
 
@@ -76,12 +78,12 @@ What "into the chip" means depends on the shape. A chip with no action panel *is
 - Let the chip be inert when nothing happens on activation. An interactive-looking chip that does nothing is worse than a plain one.
 - Keep the panel to a couple of controls. The panel opens over the schedule at the chip's own width. A panel wider than the day column it hangs from covers the events beside it.
 - Pass `actions` whenever you pass `actionsEnabled`. The two travel together; the boolean alone draws a button onto an empty panel.
-- Reach for `disabled` when the event is drawn but must not be opened, whether one already past or one owned by someone else. The member reflects through `aria-disabled`, so the chip keeps its place in the grid's roving Tab sequence and is announced as unavailable instead of disappearing from it. `onClick` is never called while it is set.
+- Reach for `disabled` when the event is drawn but must not be opened, whether one already past or one owned by someone else. The member reflects through `aria-disabled`, so the chip keeps its place in the grid's roving Tab sequence and is announced as unavailable instead of disappearing from it. `onActivate` is never called while it is set.
 
 **Don't**
 - Don't put children inside it. The chip takes none. The title and the time line are the chip body, and Arena draws both.
 - Don't render one outside an `ArenaCalendar`. The chip has no position of its own, and no useful meaning without the grid around it.
-- Don't use `disabled` to make a chip inert. Omit `onClick` for that: an inert chip is a `<div>` with nothing to press, where a disabled one is a button that announces it cannot be pressed right now. The two read differently to a screen reader on purpose.
+- Don't use `disabled` to make a chip inert. Leave `interactive` off for that: an inert chip is a `<div>` with nothing to press, where a disabled one is a button that announces it cannot be pressed right now. The two read differently to a screen reader on purpose.
 - Don't reach past `colorId: 8`. There are eight ramp slots and they never cycle; a ninth entity wrapping to slot 1 claims two different things are the same thing.
 - Don't reach for `style` or `className`. The component takes neither, the same as every other Arena component under the API contract.
 - Don't write `defaultPanelOpen`. The prop is reachable and it is not API. The prop exists so a static render can assert the open branch, since `renderToStaticMarkup` cannot click. The prop is in no contract and in no exported interface, and it can be removed without a major.

@@ -11,7 +11,7 @@
 import { spawnSync } from 'node:child_process';
 import {
   mkdtempSync, mkdirSync, writeFileSync, readFileSync, copyFileSync, existsSync, readdirSync, rmSync,
-  symlinkSync,
+  statSync, symlinkSync, cpSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -22,15 +22,21 @@ import { hostBinary } from '../../lib/arena/host-binary.ts';
 import { linkDir } from '../../lib/arena/platform.ts';
 import { isForeignTree } from '../../lib/arena/foreign-trees.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
-import { PACKAGES, distDir } from './check-packages.ts';
+import { PACKAGES, distDir, refuseUnassembled as refuseUnassembledPackages } from './check-packages.ts';
 import {
-  THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET, PLUGIN_CSS, PLUGIN_LAYER, PLUGIN_LAYER_ORDER,
+  THEME_SHEET, PACKAGE_SHEET, PLUGIN_SHEET, RUNTIME_DATA, PLUGIN_CSS, PLUGIN_LAYER, PLUGIN_LAYER_ORDER,
 } from '../../generate/core/arena-cli/sheets.ts';
+import { spriteModuleFiles } from '../../generate/core/arena-cli/sprite.ts';
+import { RETIRED_ICONS_SHEET, spriteFilesIn } from '../../generate/core/arena-cli/sources.ts';
 import { DEFAULT_PLUGIN, PLUGIN_TOKENS, pluginName } from '../../generate/core/arena-cli/theme-css.ts';
 import { ROOT_PLUGIN } from '../core/check-style-plugin.ts';
-import { WEIGHT_CLASSES } from '../../generate/core/arena-cli/icon-css.ts';
 import { RULE_TAGS } from '../../generate/core/arena-cli/audit.ts';
 import { captured } from '../../utils/captures.ts';
+import { parseDecls } from '../../lib/arena/css-decls.ts';
+import { browserOrExit, launchChromium } from '../../lib/arena/chromium.ts';
+import { connect, type Cdp } from '../../lib/arena/cdp.ts';
+import { networkChangedProblem } from '../../lib/arena/page-load.ts';
+import { contrastProblems, readContrast } from '../../lib/arena/consumer-contrast.ts';
 
 export const node = {
   name: 'check:consumer',
@@ -42,24 +48,32 @@ export const node = {
 
 export const CLI = 'bin/arena.mjs';
 export const GLYPH = 'ph-bell';
-export const FILL = `.${WEIGHT_CLASSES.fill}`;
+export const NAV_GLYPH = 'ph-house';
+export const GLYPH_SYMBOL = 'ph-bold-bell';
+export const NAV_SYMBOL = 'ph-fill-house';
+export const REGULAR_SYMBOL = 'ph-regular-star';
 
 export const SOURCES: Record<string, Record<string, string>> = {
   react: {
     'src/App.tsx': "import { ArenaButton, ArenaTable } from '@dravensoft/arena-react';\n"
-      + "export const App = () => <ArenaButton icon=\"ph-bold ph-bell\">Go</ArenaButton>;\n",
+      + "export const App = () => <><ArenaButton icon=\"ph-bold ph-bell\">Go</ArenaButton><ArenaButton className=\"arena-emphasis-secondary\" icon=\"ph ph-star\">Star</ArenaButton></>;\n",
+    'src/Nav.tsx': "import { ArenaSideNavItem } from '@dravensoft/arena-react';\n"
+      + "export const Nav = () => <ArenaSideNavItem icon=\"ph-bold ph-house\" active />;\n",
     'src/Old.txt': 'not a source extension, so the walk never reads it\n',
   },
   angular: {
-    'src/app.html': '<arena-button icon="ph-bold ph-bell">Go</arena-button>\n<arena-table></arena-table>\n',
+    'src/app.html': '<arena-button icon="ph-bold ph-bell">Go</arena-button>\n<arena-button class="arena-emphasis-secondary" icon="ph ph-star">Star</arena-button>\n<arena-table></arena-table>\n',
+    'src/nav.html': '<arena-side-nav-item icon="ph-bold ph-house" [active]="true"></arena-side-nav-item>\n',
   },
 };
+
+export const PROVIDER = 'ArenaIconsProvider';
 
 export const UNPLACED: Record<string, { files: Record<string, string>; name: string }> = {
   react: {
     files: {
-      'src/App.tsx': "import { ArenaButton, ArenaWidget } from '@dravensoft/arena-react';\n"
-        + 'export const App = () => (<><ArenaButton>Go</ArenaButton><ArenaWidget /></>);\n',
+      'src/App.tsx': `import { ArenaButton, ${PROVIDER}, ArenaWidget } from '@dravensoft/arena-react';\n`
+        + `export const App = () => (<${PROVIDER} href="/icons.svg"><ArenaButton>Go</ArenaButton><ArenaWidget /></${PROVIDER}>);\n`,
     },
     name: 'ArenaWidget',
   },
@@ -76,12 +90,13 @@ export const BREAKING: Record<string, { files: Record<string, string>; rules: st
         + "import { Link } from 'react-router-dom';\n"
         + 'export const App = () => (<div style={{ padding: \'16px\', color: \'#b52a20\' }}>\n'
         + '  <ArenaButton\n'
-        + '    onClick={() => go()}\n'
+        + '    onActivate={() => go()}\n'
         + '    className="mine arena-emphasis-primary"\n'
         + '    icon={<Plus />}\n'
         + '  >\n'
         + '    Go \u{1F680}\n'
         + '  </ArenaButton>\n'
+        + '  <i className="ph-bold ph-x" />\n'
         + '  <ArenaButton className="arena-emphasis-primary">Publish</ArenaButton>\n'
         + '  <Link to="/x">\n'
         + '    <ArenaCard>c</ArenaCard>\n'
@@ -90,7 +105,7 @@ export const BREAKING: Record<string, { files: Record<string, string>; rules: st
       'src/app.css': '.arena-button__label { color: #fff; }\n'
         + '.mine { background: var(--danger); }\n',
     },
-    rules: ['own-class', 'router-link', 'raw-value', 'icon-element', 'emoji', 'one-primary',
+    rules: ['own-class', 'router-link', 'raw-value', 'icon-element', 'raw-glyph', 'emoji', 'one-primary',
       'danger-fill'],
   },
   angular: {
@@ -99,6 +114,7 @@ export const BREAKING: Record<string, { files: Record<string, string>; rules: st
         + '  class="mine arena-emphasis-primary"\n'
         + '  icon="ph-bold ph-bell"\n'
         + '>Go \u{1F680}</arena-button>\n'
+        + '<i class="ph-bold ph-x"></i>\n'
         + '<arena-button class="arena-emphasis-primary">Publish</arena-button>\n'
         + '<a\n'
         + '  routerLink="/x"\n'
@@ -108,7 +124,7 @@ export const BREAKING: Record<string, { files: Record<string, string>; rules: st
       'src/app.css': '.arena-card__body { color: #fff; padding: 16px; }\n'
         + '.mine { background: var(--color-error-fill); }\n',
     },
-    rules: ['own-class', 'router-link', 'raw-value', 'emoji', 'one-primary', 'danger-fill'],
+    rules: ['own-class', 'router-link', 'raw-value', 'raw-glyph', 'emoji', 'one-primary', 'danger-fill'],
   },
 };
 
@@ -117,34 +133,29 @@ export const UNKNOWN: Record<string, Record<string, string>> = {
   angular: { 'src/app.html': '<arena-nothing-at-all></arena-nothing-at-all>\n' },
 };
 
-export function assembled(layer: string, base = root) {
-  return existsSync(join(distDir(layer, base), 'package.json'));
-}
-
-export function unassembled(base = root) {
-  const missing = PACKAGES.filter(({ layer }) => !assembled(layer, base)).map(({ layer }) => layer);
-  if (missing.length === 0) return null;
-  return `${missing.join(' and ')} is not assembled, so there is no package to install; run bun run `
-    + 'build:packages first. A gate that built what it judges would rewrite dist/ under every gate '
-    + 'running beside it';
+export function appOnlyEdit(layer: string, sources: Record<string, string>) {
+  return Object.fromEntries(Object.entries(sources).map(([rel, body]) => [rel, /\.(tsx|html)$/.test(rel)
+    ? `${body}${layer === 'react' ? 'export const Title = () => <h1>Panel de ventas</h1>;\n' : '<h1>Panel de ventas</h1>\n'}` : body]));
 }
 
 export function refuseUnassembled(base = root, env = arenaEnv()) {
-  const reason = unassembled(base);
-  if (reason) cannotRun('check:consumer', reason, env);
+  refuseUnassembledPackages('check:consumer', base, env);
 }
 
 export type CliRun = {
   status: number | null; stdout: string; stderr: string;
-  theme: string | null; icons: string | null; plugin: string | null;
+  theme: string | null; pkg: string | null; sprites: Record<string, string>; module: string | null; retired: boolean;
+  plugin: string | null; runtime: string | null; fonts: Record<string, number>;
 };
 
 export function fixture(
-  layer: string, files: Record<string, string>, stylesheet: Record<string, unknown>, base = root,
+  layer: string, files: Record<string, string>, stylesheet: Record<string, unknown> | null, base = root,
 ) {
   const dir = mkdtempSync(join(tmpdir(), `arena-consumer-${layer}-`));
   const example = readJson(join(distDir(layer, base), 'arena.config.example.json'));
-  writeFileSync(join(dir, 'arena.config.json'), JSON.stringify({ ...example, stylesheet }, null, 2));
+  writeFileSync(join(dir, 'arena.config.json'), JSON.stringify(stylesheet === null ? example : { ...example, stylesheet }, null, 2));
+  const fonts = join(distDir(layer, base), 'fonts');
+  if (existsSync(fonts)) cpSync(fonts, join(dir, 'fonts'), { recursive: true });
   for (const [rel, body] of Object.entries(files) as [string, string][]) {
     mkdirSync(join(dir, rel, '..'), { recursive: true });
     writeFileSync(join(dir, rel), body);
@@ -205,7 +216,7 @@ export function stylePluginProblems(layer: string, valid: CliRun, partial: CliRu
       problems.push(`${layer}: the second plugin reached no scope class of its own, so a build carrying `
         + 'two registers carries one');
     }
-    if (theme.includes('/arena.css')) {
+    if ((valid.pkg ?? '').includes('/arena.css')) {
       problems.push(`${layer}: the theme still imports the barrel, and the barrel carries the sheet the `
         + 'package assembles, so the appearance this config replaced is loaded beside the one it wrote');
     }
@@ -263,9 +274,10 @@ export function scopeProblems(layer: string, audited: CliRun, used: CliRun) {
       + 'own stylesheet whatever the token tier says, so the norm records it as a report rather than a '
       + 'floor and --strict may not refuse what the norm permits');
   }
-  if (!used.stdout.includes(`paint 2 part(s): ${PAINTED}, ${RESTATED}`)) {
-    problems.push(`${layer}: arena usage does not name the parts the plugin paints, and that note is where the `
-      + `evidence for promoting a role comes from:\n    ${used.stdout.trim()}`);
+  if (!used.stdout.includes(`paint no part(s). 2 rule(s) reach nothing this project draws: ${PAINTED}, ${RESTATED}`)) {
+    problems.push(`${layer}: arena usage does not name the plugin's rules for a component the project never draws `
+      + 'as rules that reach nothing. That note is where the evidence for promoting a role comes from, and a part '
+      + `nothing draws is no evidence:\n    ${used.stdout.trim()}`);
   }
   const restated = audited.stderr.split('\n').filter((line) => line.includes('changes nothing'));
   if (!restated.some((line) => line.includes(RESTATED))) {
@@ -291,8 +303,9 @@ export function installed(layer: string, dir: string, base = root) {
 
 export const THIRD_PALETTE = { name: 'dusk', polarity: 'dark' };
 
-export const POLARITY_SCOPES: [string, string][] = [
-  [':root', 'dark'], ['.arena-light', 'light'], [`.arena-${THIRD_PALETTE.name}`, 'dark'],
+export const POLARITY_SCOPES: [string, string, string][] = [
+  [':root', 'dark', 'dark'], ['.arena-dark', 'dark', 'dark'], ['.arena-light', 'light', 'light'],
+  [`.arena-${THIRD_PALETTE.name}`, 'dark', THIRD_PALETTE.name],
 ];
 
 export function palettesFixture(layer: string, base = root) {
@@ -315,7 +328,7 @@ export function palettesProblems(layer: string, run: CliRun) {
       + 'that carries more than the classic pair is one no project can spend'];
   }
   const problems = [];
-  for (const [selector, polarity] of POLARITY_SCOPES) {
+  for (const [selector, polarity, name] of POLARITY_SCOPES) {
     const block = blockIn(run.theme ?? '', selector);
     if (block === null) {
       problems.push(`${layer}: ${THEME_SHEET} carries no ${selector} block, so one of three declared `
@@ -327,9 +340,129 @@ export function palettesProblems(layer: string, run: CliRun) {
         + 'the furniture Arena never draws against the wrong polarity: its scrollbars, its native '
         + 'controls, its autofill and the canvas it paints wherever nothing else does');
     }
+    if (!block.includes(`--arena-palette:${name};`)) {
+      problems.push(`${layer}: ${selector} declares no --arena-palette:${name}, so an overlay lifted `
+        + 'out of this palette\'s subtree cannot find the palette to wear');
+    }
+    if (!block.includes('--focus-ring:')) {
+      problems.push(`${layer}: ${selector} carries no --focus-ring, so the alias block never reached `
+        + 'this palette and a ring would resolve against the page\'s colours instead of its own');
+    }
   }
   return problems;
 }
+
+export function runtimeFixture(layer: string, base = root) {
+  const dir = palettesFixture(layer, base);
+  const written = readJson(join(dir, 'arena.config.json'));
+  writeFileSync(join(dir, 'arena.config.json'), JSON.stringify({ ...written, runtimePalettes: true }, null, 2));
+  return dir;
+}
+
+export type Shipped = { declarations: Record<string, string>; refusals: Record<string, string | null> };
+
+const PROBE = `import * as m from '@PKG@/palette';
+const chunks = [];
+for await (const c of process.stdin) chunks.push(c);
+const { input, data, names } = JSON.parse(Buffer.concat(chunks).toString('utf8'));
+const refusals = {};
+for (const n of names) {
+  try { m.arenaRuntimePalette(n, input, data); refusals[n] = null; } catch (e) { refusals[n] = String(e.message); }
+}
+process.stdout.write(JSON.stringify({ declarations: m.arenaPaletteDeclarations(input, data), refusals }));
+`;
+
+export async function installedPalette(
+  layer: string, dir: string, input: unknown, data: unknown, names: string[],
+): Promise<Shipped> {
+  const name = PACKAGES.find((p) => p.layer === layer)?.name ?? '';
+  const node = hostBinary('node', 'to import the shipped palette module the way a consumer imports it');
+  const probe = join(dir, 'arena-palette-probe.mjs');
+  writeFileSync(probe, PROBE.replace('@PKG@', name));
+  let run;
+  try {
+    run = spawnSync(node, [probe], { cwd: dir, encoding: 'utf8', input: JSON.stringify({ input, data, names }) });
+  } finally {
+    rmSync(probe, { force: true });
+  }
+  if (run.status !== 0) throw new Error(`${name}/palette did not import from a consumer's directory:\n${run.stderr}`);
+  try {
+    return JSON.parse(run.stdout) as Shipped;
+  } catch {
+    throw new Error(`${name}/palette probe exited 0 but wrote no JSON.\nstdout: ${run.stdout}\nstderr: ${run.stderr}`);
+  }
+}
+
+const SAME_KEYS_APART = ['arena-palette'];
+
+export const RUNTIME_PALETTES = [THIRD_PALETTE, { name: 'light', polarity: 'light' }];
+
+export async function runtimeProblems(
+  layer: string, run: CliRun, dir: string, load = installedPalette,
+): Promise<string[]> {
+  if (run.status !== 0) {
+    return [`${layer}: a configuration with "runtimePalettes": true exited ${run.status}, so the field `
+      + 'that lets a page declare a palette after the build is one no project can spend'];
+  }
+  if (run.runtime === null) {
+    return [`${layer}: "runtimePalettes": true wrote no ${RUNTIME_DATA}, so the shipped module has no `
+      + 'build data to check a palette against'];
+  }
+  if (!blockIn(run.theme ?? '', ':root')?.includes('--arena-runtime-palettes:1;')) {
+    return [`${layer}: ${THEME_SHEET} carries no --arena-runtime-palettes:1 on :root, so a page cannot `
+      + 'tell a build that expects a runtime palette from one that does not'];
+  }
+  const data = JSON.parse(run.runtime);
+  const problems: string[] = [];
+  for (const held of RUNTIME_PALETTES) {
+    const input = readJson(join(dir, 'arena.config.json')).palettes.find((p: { name: string }) => p.name === held.name);
+    const free = `${held.name}-runtime`;
+    const mod = await load(layer, dir, input, data, [held.name, free]);
+    problems.push(...heldAgainstClass(layer, run, held, mod, free));
+  }
+  return problems;
+}
+
+function heldAgainstClass(
+  layer: string, run: CliRun, held: { name: string; polarity: string }, mod: Shipped, free: string,
+): string[] {
+  const css = parseDecls(run.theme ?? '');
+  const built = css.get(`.arena-${held.name}`) as Map<string, string> | undefined;
+  const hook = css.get(`.arena-polarity-${held.polarity}`) as Map<string, string> | undefined;
+  const schemeOf = (selector: string) => /color-scheme:([^;}]+)/.exec(blockIn(run.theme ?? '', selector) ?? '')?.[1];
+  const builtScheme = schemeOf(`.arena-${held.name}`);
+  const hookScheme = schemeOf(`.arena-polarity-${held.polarity}`);
+  if (!built || !hook) {
+    return [`${layer}: ${THEME_SHEET} carries no .arena-${held.name} or no `
+      + `.arena-polarity-${held.polarity} block to hold the shipped module against`];
+  }
+  const builtAll = new Map(built);
+  if (builtScheme !== undefined) builtAll.set('color-scheme', builtScheme);
+  const shipped = new Map<string, string>(Object.entries({
+    ...mod.declarations, ...Object.fromEntries(hook),
+  }).map(([key, value]) => [key.replace(/^--/, ''), value]));
+  if (hookScheme !== undefined) shipped.set('color-scheme', hookScheme);
+  const problems = [];
+  for (const key of new Set([...builtAll.keys(), ...shipped.keys()])) {
+    if (SAME_KEYS_APART.includes(key) || builtAll.get(key) === shipped.get(key)) continue;
+    problems.push(`${layer}: ${key === 'color-scheme' ? key : `--${key}`} is ${builtAll.get(key) ?? 'absent'} in the class the CLI built for `
+      + `${held.name} and ${shipped.get(key) ?? 'absent'} from the shipped ./palette module, so a palette `
+      + 'declared at runtime paints differently from the same one declared at build');
+  }
+  const said = mod.refusals[held.name];
+  if (said === null || said === undefined) {
+    problems.push(`${layer}: arenaRuntimePalette accepted "${held.name}", a palette the build already declares`);
+  } else if (!said.includes('is a palette the build declares')) {
+    problems.push(`${layer}: arenaRuntimePalette refused "${held.name}" for another reason: ${said}`);
+  }
+  if (mod.refusals[free] !== null) {
+    problems.push(`${layer}: arenaRuntimePalette refused "${free}", a free name: ${mod.refusals[free]}`);
+  }
+  return problems;
+}
+
+export const spriteModuleNames = (layer: string): string[] =>
+  spriteModuleFiles('x', PACKAGES.find((p) => p.layer === layer)?.name ?? '').map((file) => file.name);
 
 export const COMMAND_FLAGS: Record<string, string[]> = {
   build: ['--src', 'src', '--out', 'out'],
@@ -356,12 +489,25 @@ export function runCli(
     stdout: run.stdout ?? '',
     stderr: run.stderr ?? '',
     theme: read(THEME_SHEET),
-    icons: read(ICONS_SHEET),
+    pkg: read(PACKAGE_SHEET),
+    sprites: Object.fromEntries(spriteFilesIn(join(dir, 'out')).map((name) => [name, read(name) ?? ''])),
+    module: read(spriteModuleNames(layer)[0]!),
+    retired: existsSync(join(dir, 'out', RETIRED_ICONS_SHEET)),
     plugin: read(PLUGIN_SHEET),
+    runtime: read(RUNTIME_DATA),
+    fonts: cutFontsIn(join(dir, 'out')),
   };
 }
 
-const BARE: CliRun = { status: null, stdout: '', stderr: '', theme: null, icons: null, plugin: null };
+export const CUT_FONT = /^[\w-]+-[0-9a-f]{10}\.woff2$/;
+
+export function cutFontsIn(out: string): Record<string, number> {
+  if (!existsSync(out)) return {};
+  return Object.fromEntries(readdirSync(out).filter((name) => CUT_FONT.test(name)).sort()
+    .map((name) => [name, statSync(join(out, name)).size]));
+}
+
+const BARE: CliRun = { status: null, stdout: '', stderr: '', theme: null, pkg: null, sprites: {}, module: null, retired: false, plugin: null, runtime: null, fonts: {} };
 
 export function snapshot(dir: string) {
   const seen = new Map<string, string>();
@@ -437,8 +583,11 @@ export function subcommandProblems(layer: string, base = root, dirs: string[] = 
   dirs.push(plugged);
   run(plugged, ['build']);
   writeFileSync(join(plugged, 'out', 'keep.txt'), 'not a sheet\n');
-  const sheets = [THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET];
+  const cutFonts = Object.keys(cutFontsIn(join(plugged, 'out')));
+  const sheets = [THEME_SHEET, PACKAGE_SHEET, PLUGIN_SHEET, ...spriteModuleNames(layer), ...spriteFilesIn(join(plugged, 'out')), ...cutFonts];
   const absent = sheets.filter((name) => !existsSync(join(plugged, 'out', name)));
+  const fixed = 3 + spriteModuleNames(layer).length;
+  if (sheets.length - cutFonts.length !== fixed + 1) problems.push(`${layer}: the build the clean case starts from wrote ${sheets.length - cutFonts.length - fixed} sprite file(s) where it promises one`);
   if (absent.length > 0) problems.push(`${layer}: the build the clean case starts from wrote no ${absent.join(', ')}`);
   const beforeClean = snapshot(plugged);
   problems.push(...exitProblem(layer, 'arena clean', run(plugged, ['clean']), 0));
@@ -514,7 +663,7 @@ export function cleanAuditProblems(layer: string, clean: CliRun) {
 }
 
 export function importedSheets(css: string | null) {
-  return [...(css ?? '').matchAll(/@import '[^']*\/css\/components\/([^']+)\.css';/g)].map((m) => m[1]).sort();
+  return [...(css ?? '').matchAll(/\/\* \S+\/css\/components\/([^\s*]+)\.css \*\//g)].map((m) => m[1]).sort();
 }
 
 export function binProblems(layer: string, bin: Record<string, string> | undefined) {
@@ -538,21 +687,105 @@ export function mergeProblems(layer: string, result: CliRun, base = root) {
     return problems;
   }
   if (!result.theme) problems.push(`${layer}: one invocation wrote no ${THEME_SHEET}`);
-  problems.push(...iconProblems(layer, result.icons));
+  problems.push(...spriteProblems(layer, result));
+  problems.push(...fontCutProblems(layer, result, base));
   if (bins.length === 0) problems.push(`${layer}: bin/ ships no command`);
   return problems;
 }
 
-export function iconProblems(layer: string, icons: string | null) {
-  if (!icons) return [`${layer}: one invocation wrote no ${ICONS_SHEET}, so the icon half of the merge is gone`];
+export function spriteProblems(layer: string, run: CliRun) {
   const problems = [];
-  if (!icons.includes(GLYPH)) {
-    problems.push(`${layer}: ${ICONS_SHEET} names no ${GLYPH}, so the icon scan stopped reading consumer sources`);
+  if (run.retired) {
+    problems.push(`${layer}: ${RETIRED_ICONS_SHEET} is still there after a build, though the build writes the glyphs as a sprite and removes the sheet`);
   }
-  if (!icons.includes(`${FILL}.${GLYPH}`)) {
-    problems.push(`${layer}: the source names ${GLYPH} beside the bold weight alone and ${ICONS_SHEET} carries `
-      + `no ${FILL}.${GLYPH} rule. The navigation swaps its active destination to the filled weight with no `
-      + 'member for it, so a sheet without that rule loses the icon of the item the user just pressed');
+  const names = Object.keys(run.sprites);
+  if (names.length === 0) return [...problems, `${layer}: one invocation wrote no icons-*.svg, so the icon half of the merge is gone`];
+  if (names.length > 1) {
+    return [...problems, `${layer}: one invocation left ${names.length} icons-*.svg (${names.join(', ')}), where a build keeps only the one it wrote`];
+  }
+  const [name = ''] = names;
+  const sprite = run.sprites[name] ?? '';
+  const has = (id: string) => sprite.includes(`id="${id}"`);
+  if (!has(GLYPH_SYMBOL)) {
+    problems.push(`${layer}: ${name} holds no #${GLYPH_SYMBOL}, so the icon scan stopped reading consumer sources`);
+  }
+  if (has(`ph-fill-${GLYPH.replace(/^ph-/, '')}`)) {
+    problems.push(`${layer}: ${name} holds #ph-fill-${GLYPH.replace(/^ph-/, '')}, a glyph named beside a button, which cannot `
+      + 'draw filled. The filled weight takes only what a component that swaps to it can ask for');
+  }
+  if (!has(REGULAR_SYMBOL)) {
+    problems.push(`${layer}: the source names ph-star with no weight beside a button and ${name} holds no #${REGULAR_SYMBOL}, `
+      + 'so a glyph named bare, which Phosphor draws regular, reaches no symbol');
+  }
+  if (!has(NAV_SYMBOL)) {
+    problems.push(`${layer}: the source names ${NAV_GLYPH} beside the bold weight on a navigation item and ${name} `
+      + `holds no #${NAV_SYMBOL}. The navigation swaps its active destination to the filled weight `
+      + 'with no member for it, so a sprite without that symbol loses the icon of the item the user just pressed');
+  }
+  if (run.module === null) {
+    problems.push(`${layer}: one invocation wrote no ${spriteModuleNames(layer)[0]}, so the app has no name to serve the sprite under`);
+  } else {
+    const named = /ARENA_SPRITE\s*=\s*'([^']+)'/.exec(run.module)?.[1] ?? '';
+    if (named !== name) {
+      problems.push(`${layer}: the module names ${named || 'no file'} and the sprite written is ${name}, so the app would fetch a file that is not there`);
+    }
+  }
+  return problems;
+}
+
+export const CLOSED_IMPORTS = ['colors', 'prelude', 'style-plugin-default'];
+
+export function packageSheetProblems(layer: string, run: CliRun, edited: CliRun, packageName: string) {
+  if (run.pkg === null) {
+    return [`${layer}: one invocation wrote no ${PACKAGE_SHEET}, so Arena's half of the stylesheet reaches no page`];
+  }
+  const problems = [];
+  for (const name of CLOSED_IMPORTS) {
+    if (!run.pkg.includes(`/* ${packageName}/css/${name}.css */`)) {
+      problems.push(`${layer}: ${PACKAGE_SHEET} carries no ${packageName}/css/${name}.css, so the closed list is short of a sheet every page needs`);
+    }
+  }
+  if (!run.pkg.includes(`/* ${packageName}/css/vocabulary/`)) {
+    problems.push(`${layer}: ${PACKAGE_SHEET} carries no vocabulary sheet`);
+  }
+  if (/@import\b/.test(run.pkg)) {
+    problems.push(`${layer}: ${PACKAGE_SHEET} holds an @import, so a page that links it would request a package specifier relative to itself`);
+  }
+  if ((run.theme ?? '').includes(`@import '${packageName}/`)) {
+    problems.push(`${layer}: ${THEME_SHEET} imports the package; ${PACKAGE_SHEET} is the one place Arena's half lives, `
+      + 'and the app half would change with every Arena release');
+  }
+  if (edited.pkg !== run.pkg) {
+    problems.push(`${layer}: an edit that touched only the app changed the package sheet, so the cache the split exists for is lost`);
+  }
+  return problems;
+}
+
+export function fontCutProblems(layer: string, run: CliRun, base = root) {
+  const dist = distDir(layer, base);
+  const example = readJson(join(dist, 'arena.config.example.json')) as { fonts: Record<string, { src: string }> };
+  const problems = [];
+  for (const { src } of Object.values(example.fonts)) {
+    const stem = (src.split('/').pop() ?? '').replace(/\.woff2$/, '');
+    const source = statSync(join(dist, src.replace(/^\.\//, ''))).size;
+    const cut = Object.entries(run.fonts).filter(([name]) => name.startsWith(`${stem}-`) && CUT_FONT.test(name));
+    if (cut.length === 0) {
+      problems.push(`${layer}: one invocation wrote no ${stem}-<hash>.woff2, so the font the example config names is served uncut or not at all`);
+    }
+    for (const [name, size] of cut) {
+      if (size >= source) {
+        problems.push(`${layer}: ${name} is not smaller than its source (${size} bytes against ${source}), so the cut to Latin-1 and the painted weights saved nothing`);
+      }
+      if (!(run.theme ?? '').includes(`url('./${name}')`)) {
+        problems.push(`${layer}: ${THEME_SHEET} does not name ${name}, so the page would fetch a font that is not the one the build wrote`);
+      }
+    }
+  }
+  if (/font-weight:100 900;/.test(run.theme ?? '')) {
+    problems.push(`${layer}: ${THEME_SHEET} declares a face over the whole 100-900 axis, so a font nobody paints was not cut to the weights the config declares`);
+  }
+  if (/url\('\.\/fonts\//.test(run.theme ?? '')) {
+    problems.push(`${layer}: ${THEME_SHEET} still points at the source under ./fonts, so the build served the font it was meant to cut`);
   }
   return problems;
 }
@@ -566,7 +799,7 @@ export function stemProblems(layer: string, result: CliRun, expected: string[], 
     problems.push(`${layer}: css/components/arena-button.css defines no .arena-button__root. A sheet's stem `
       + 'and the class inside it are one name, which is what lets a consumer name a component and reach its CSS');
   }
-  const drawn = importedSheets(result.theme);
+  const drawn = importedSheets(result.pkg);
   for (const name of expected) {
     if (!drawn.includes(name)) {
       problems.push(`${layer}: "components": "auto" resolved [${drawn.join(', ')}] and not ${name}, `
@@ -578,6 +811,9 @@ export function stemProblems(layer: string, result: CliRun, expected: string[], 
 
 export function unplacedProblems(layer: string, result: CliRun, name: string) {
   if (result.status !== 0) return [`${layer}: the run naming ${name} exited ${result.status} instead of reporting it`];
+  if (result.stderr.includes(`${PROVIDER} is not a component`)) {
+    return [`${layer}: ${PROVIDER} is a provider this package exports, and the run reported it as a component it does not ship`];
+  }
   if (result.stderr.includes(`${name} is not a component this package ships`)) return [];
   return [`${layer}: a source names ${name}, which this package does not ship, and the run said nothing `
     + 'about it. A name the scan cannot place is the one warning that separates a typo from a component '
@@ -585,9 +821,9 @@ export function unplacedProblems(layer: string, result: CliRun, name: string) {
 }
 
 export function unknownSymbolProblems(layer: string, result: CliRun) {
-  if (result.status === 0 && importedSheets(result.theme).length > 0) {
+  if (result.status === 0 && importedSheets(result.pkg).length > 0) {
     return [`${layer}: a source naming a symbol this package does not export still resolved `
-      + `[${importedSheets(result.theme).join(', ')}]. Nothing answers to a name Arena does not ship: there is `
+      + `[${importedSheets(result.pkg).join(', ')}]. Nothing answers to a name Arena does not ship: there is `
       + 'no alias and no re-export, and a consumer hears it from the command rather than from a blank screen'];
   }
   return [];
@@ -610,14 +846,14 @@ export function listProblems(layer: string, named: CliRun, unknown: CliRun, list
 
 export const CLOSED_LIST = ['arena-table'];
 
-export const CLOSED_PULLS = ['arena-pagination', 'arena-select'];
+export const CLOSED_PULLS = ['arena-icon', 'arena-pagination', 'arena-select'];
 
 export function closedListProblems(layer: string, result: CliRun) {
   const named = CLOSED_LIST.join(', ');
   if (result.status !== 0) {
     return [`${layer}: a stylesheet.components naming ${named} alone exited ${result.status}:\n    ${result.stderr.trim()}`];
   }
-  const drawn = importedSheets(result.theme);
+  const drawn = importedSheets(result.pkg);
   const missing = CLOSED_PULLS.filter((one) => !drawn.includes(one));
   if (missing.length) {
     return [`${layer}: a stylesheet.components naming ${named} alone imported [${drawn.join(', ')}] and not `
@@ -627,6 +863,24 @@ export function closedListProblems(layer: string, result: CliRun) {
     ? []
     : [`${layer}: the run naming ${named} alone added ${CLOSED_PULLS.join(', ')} and said nothing about it, `
       + 'so a project cannot tell what its list costs'];
+}
+
+export function defaultListProblems(layer: string, result: CliRun) {
+  if (result.status !== 0) {
+    return [`${layer}: a config naming no stylesheet exited ${result.status}:\n    ${result.stderr.trim()}`];
+  }
+  const problems = [];
+  if (/\/arena\.css \*\//.test(result.pkg ?? '')) {
+    problems.push(`${layer}: a config naming no stylesheet imports the barrel, so the project pays for every component `
+      + 'whether its sources draw it or not');
+  }
+  const drawn = importedSheets(result.pkg);
+  const missing = ['arena-button', 'arena-table'].filter((one) => !drawn.includes(one));
+  if (missing.length) {
+    problems.push(`${layer}: a config naming no stylesheet imported [${drawn.join(', ')}] and not ${missing.join(', ')}, `
+      + 'so a component the sources draw renders with no sheet of its own');
+  }
+  return problems;
 }
 
 const AUTO = { components: 'auto', preflight: false };
@@ -642,9 +896,16 @@ export function documented(page: string) {
   return { lists: 1, names };
 }
 
-export function collect(base = root) {
+export async function collect(base = root) {
   const problems = [];
   const dirs = [];
+  const exe = browserOrExit('check-consumer');
+  const open: { chrome?: Awaited<ReturnType<typeof launchChromium>>; cdp?: Cdp } = {};
+  const opened = async () => {
+    open.chrome ??= await launchChromium(exe);
+    open.cdp ??= await connect(open.chrome.wsUrl);
+    return open.cdp;
+  };
   const { lists, names: list } = documented(readFileSync(join(base, ...CONFIG_REFERENCE.split('/')), 'utf8'));
   try {
     for (const { layer } of PACKAGES) {
@@ -656,6 +917,7 @@ export function collect(base = root) {
           + 'so the example a consumer copies is either absent or shadowed by another');
         continue;
       }
+      const unnamed = fixture(layer, sources, null, base);
       const named = fixture(layer, sources, { components: list }, base);
       const closed = fixture(layer, sources, { components: CLOSED_LIST }, base);
       const unknown = fixture(layer, sources, { components: ['button'] }, base);
@@ -665,15 +927,20 @@ export function collect(base = root) {
       const broken = fixture(layer, breaking?.files ?? {}, AUTO, base);
       const plugged = pluginFixture(layer, [PLUGINS.total, PLUGINS.partial], base);
       const partialRoot = pluginFixture(layer, [PLUGINS.partial], base);
+      const edited = fixture(layer, appOnlyEdit(layer, sources), AUTO, base);
       const palettes = palettesFixture(layer, base);
-      dirs.push(auto, unexported, named, closed, unknown, unplaced, broken, plugged, partialRoot, palettes);
+      const runtime = runtimeFixture(layer, base);
+      dirs.push(auto, edited, unexported, unnamed, named, closed, unknown, unplaced, broken, plugged, partialRoot, palettes, runtime);
 
       const result = runCli(layer, auto, base);
       problems.push(...mergeProblems(layer, result, base));
+      problems.push(...packageSheetProblems(layer, result, runCli(layer, edited, base),
+        PACKAGES.find((p) => p.layer === layer)?.name ?? ''));
       problems.push(...stemProblems(layer, result, ['arena-button', 'arena-table'], base));
       problems.push(...unknownSymbolProblems(layer, runCli(layer, unexported, base)));
       problems.push(...listProblems(layer, runCli(layer, named, base), runCli(layer, unknown, base), list));
       problems.push(...closedListProblems(layer, runCli(layer, closed, base)));
+      problems.push(...defaultListProblems(layer, runCli(layer, unnamed, base)));
       problems.push(...unplacedProblems(layer, runCli(layer, unplaced, base, ['check']), strange?.name ?? ''));
       problems.push(...auditProblems(
         layer,
@@ -685,22 +952,31 @@ export function collect(base = root) {
       const valid = runCli(layer, plugged, base);
       problems.push(...stylePluginProblems(layer, valid, runCli(layer, partialRoot, base)));
       problems.push(...layerProblems(layer, valid));
+      if (valid.status === 0) {
+        const name = PACKAGES.find((p) => p.layer === layer)?.name ?? '';
+        const { readings, lost } = await readContrast(plugged, name, await opened(), pluginName(PLUGINS.partial));
+        if (lost.length > 0) problems.push(networkChangedProblem(`${layer} contrast card page`, lost));
+        else problems.push(...contrastProblems(layer, readings));
+      }
       problems.push(...exitProblem(layer, 'arena check --strict over two valid style plugins',
         runCli(layer, plugged, base, ['check'], ['--strict']), 0));
       problems.push(...scopeProblems(layer, runCli(layer, plugged, base, ['audit']),
         runCli(layer, plugged, base, ['usage'])));
       problems.push(...palettesProblems(layer, runCli(layer, palettes, base)));
+      problems.push(...await runtimeProblems(layer, runCli(layer, runtime, base), runtime));
       problems.push(...subcommandProblems(layer, base, dirs));
     }
   } finally {
+    open.cdp?.close();
+    await open.chrome?.kill();
     for (const dir of dirs) rmSync(dir, { recursive: true, force: true });
   }
   return { problems };
 }
 
-function main() {
+async function main() {
   refuseUnassembled();
-  const { problems } = collect();
+  const { problems } = await collect();
   if (problems.length > 0) {
     console.error(`check-consumer: ${problems.length} problem(s)\n`);
     for (const one of problems) console.error(`  ${one}`);
@@ -708,9 +984,11 @@ function main() {
   }
   console.log(`check-consumer: both packages run ${CLI} from a node_modules/ path, resolve "auto" to the sheets `
     + `a consumer's sources name, close a named list over what its components draw, `
-    + `scope a style plugin of the project's own, emit a block carrying `
-    + `its own polarity for each of three palettes, and every subcommand leaves the tree and the exit code `
+    + `scope a style plugin of the project's own, widen the boundaries of a card under Increase Contrast `
+    + `in Chromium, emit a block carrying `
+    + `its own polarity for each of three palettes, hold a runtime palette from the shipped module equal to `
+    + `the class the CLI builds, and every subcommand leaves the tree and the exit code `
     + `it promises`);
 }
 
-if (isMainModule(import.meta.url)) main();
+if (isMainModule(import.meta.url)) await main();

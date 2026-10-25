@@ -8,10 +8,10 @@
     "key": { "form": "primitive", "type": "string",
              "description": "The name this column's width and alignment are set under, as --arena-column-<key>-width and --arena-column-<key>-align on the table or a container of yours. Letters, digits, hyphens and underscores; a column without one takes the table's own layout." },
     "numeric": { "form": "primitive", "type": "boolean", "default": false,
-                 "description": "The column holds figures: the mono face, tabular numerals and the gold ink, and figure-aligned in the card layout." },
+                 "description": "The column holds figures: the mono face, tabular numerals and the figure ink, and figure-aligned in the card layout." },
     "sortable": { "form": "primitive", "type": "boolean", "default": false,
-                  "description": "Whether this column's header is an activation target. A declared boolean rather than \"is sortChange bound?\", because Arena never derives what it draws from what a consumer listens for, the same reason ArenaTableRow.interactive is one. It costs no tab stop: the header row is already row 0 of the grid's roving cursor, so a sortable header is activated with Enter or Space on the cell the user is already on. Without ArenaTable.sort no header is a target however many columns declare it, because a control that draws a direction it does not know is worse than no control." },
+                  "description": "Whether this column's header is an activation target. A declared boolean rather than \"is sortChange bound?\", because Arena never derives what it draws from what a consumer listens for. ArenaTableRow.interactive is a declared boolean for the same reason. A sortable header costs no tab stop. The header row is already row 0 of the grid's roving cursor, so a sortable header is activated with Enter or Space on the cell the user is already on. Without ArenaTable.sort no header is a target however many columns declare it, because a control that draws a direction it does not know is worse than no control." },
     "mobileLayout": { "form": "enum", "type": "ArenaTableCellLayout", "default": "row",
-                      "description": "How this column renders in card mode: a label/value pair, or a full-width strip with no label whose contents sit at its end, which suits an actions cell rather than a long value." }
+                      "description": "How this column renders in card mode: a label/value pair, or a full-width strip with no label whose contents sit at its end. The strip suits an actions cell rather than a long value." }
   }
 }

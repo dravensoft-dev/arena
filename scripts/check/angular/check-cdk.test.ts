@@ -5,7 +5,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { bridgeSelectors, cdkClasses, importedSheets, checkBridge } from './check-cdk.ts';
+import { bridgeSelectors, cdkClasses, importedSheets, checkBridge, publishedBridgeProblems } from './check-cdk.ts';
+import { inlineCdkPrebuilt } from '../../lib/arena/package-assembly.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 
 const PREBUILT = readFileSync(
@@ -76,4 +77,26 @@ test('a bridge that stops importing the prebuilt sheet fails', () => {
 
 test('the oracle sees the container class the bridge exists to override', () => {
   assert.ok(cdkClasses(PREBUILT).has('cdk-overlay-container'));
+});
+
+const SOURCE_BRIDGE = readFileSync(join(repoRoot, 'frameworks', 'angular', 'theme', 'arena-cdk.css'), 'utf8');
+
+const VERSION = '1.2.3';
+
+test('publishedBridgeProblems accepts the inlined bridge and names each way a copy goes wrong', () => {
+  const good = inlineCdkPrebuilt(SOURCE_BRIDGE, PREBUILT, VERSION);
+  const problems = (copy: string) => publishedBridgeProblems(copy, SOURCE_BRIDGE, PREBUILT, VERSION);
+  assert.deepEqual(problems(good), []);
+  assert.ok(problems(SOURCE_BRIDGE).some((p) => p.includes('@import')), 'the raw source bridge');
+  const drift = inlineCdkPrebuilt(SOURCE_BRIDGE, PREBUILT.replace('z-index: 1000', 'z-index: 999'), VERSION);
+  assert.equal(problems(drift).length, 1, 'a prebuilt with one rule changed');
+  const noOverride = good.replace('calc(var(--z-toast) - 10)', '1000');
+  assert.equal(problems(noOverride).length, 1, 'the override removed');
+  const reordered = `${PREBUILT}\n${SOURCE_BRIDGE.replace(/@import[^\n]*\n/, '')}`;
+  assert.equal(problems(reordered).length, 1, 'the override ahead of the CDK rules');
+  const withImport = `${good}\n@import '@angular/cdk/overlay-prebuilt.css';\n`;
+  const both = problems(withImport);
+  assert.equal(both.length, 2, 'prebuilt inlined and a bare @import left in');
+  assert.ok(both.some((p) => p.includes('bare specifier')));
+  assert.equal(problems(good.replace(VERSION, '9.9.9')).length, 1, 'an attribution naming another version');
 });

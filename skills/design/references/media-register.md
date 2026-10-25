@@ -20,8 +20,9 @@ markup can be held to:
   `aria-posinset` and `aria-setsize` on each, `aria-busy` while a page loads, and the keys that
   move between articles. A feed of your own that binds none of this is a feed only a
   mouse can read.
-- **`contracts/behaviour/dialog-modal.json`** for a lightbox or a viewer: `aria-modal`, focus taken
-  on open, focus restored to the invoker on close, Tab trapped inside, Escape out.
+- **`contracts/behaviour/dialog-modal.json`** and **`contracts/behaviour/modal-focus.json`** for a
+  lightbox or a viewer. The first asks for the role, its name and `aria-modal`. The second asks for
+  focus taken on open, focus restored to the invoker on close, Tab trapped inside and Escape out.
 
 Read the one your element is, and bind what it requires. These files are the same source Arena's
 own components are held to, so what you write is held to the standard the components are.
@@ -117,6 +118,17 @@ galleries and shops. If your product is media, those four are not a detail of yo
 The four are most of what a viewer will notice, so answer them first and look at the result
 before you answer anything else.
 
+```json
+{
+  "aspect-media":  { "$type": "number",    "$value": 0.8 },
+  "fit-media":     { "$type": "keyword",   "$value": "cover" },
+  "r-media":       { "$type": "dimension", "$value": { "value": 0, "unit": "px" } },
+  "overlay-media": { "$type": "color",     "$value": "{color.base-100}" }
+}
+```
+
+The fragment goes in `design/<name>/plugin.tokens.json`. Each `$type` is the one `contracts/design/roles.json` gives the role.
+
 `r-media` is also where the boundary is stated in the kernel's own words. A card is a container
 the reader looks past, and a figure is the thing being looked at. If your post is the thing being
 looked at, it is not a card.
@@ -124,6 +136,10 @@ looked at, it is not a card.
 **Two component names will look like your answer and are not.** `ArenaActivityFeed` is an event
 log with a fixed row, and `ArenaCard` is the container above. Both are the first thing a search for your screen returns. Reaching for either is how a product in
 this register ends up fighting a component instead of writing six lines.
+
+## Video and illustration
+
+A video and an illustration sit in `ArenaFigure` and take the four roles above. A wall of clips and a wall of photographs then share one shape, one corner and one wash. The controls, the captions and the art stay the project's.
 
 ## The viewer that opens a picture at full size
 
@@ -153,8 +169,8 @@ it needs is already a token, so the only thing you are inventing is the box:
   the rest.
 - **`--pad-safe-top` and `--pad-safe-right`** hold that control off a phone's cutout, composed with
   a step of the spacing scale.
-- **Bind `contracts/behaviour/dialog-modal.json`** and take the focus trap your layer exports
-  rather than writing one. A viewer with no name, no Tab trap or no focus restored to the
+- **Bind `contracts/behaviour/dialog-modal.json` and `contracts/behaviour/modal-focus.json`** and
+  take the focus trap your layer exports rather than writing one. A viewer with no name, no Tab trap or no focus restored to the
   control that opened it carries the same defect in your markup. The contract exists to stop that
   defect in Arena's.
 

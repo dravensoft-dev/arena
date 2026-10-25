@@ -19,12 +19,15 @@ import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { COMPAT_ALIASES } from '../../generate/core/arena-cli/audit.ts';
 import { withForeignTrees } from '../../lib/arena/foreign-trees.ts';
 
+export const CHART_DATA_VISUALS = ['frameworks/react/DataVisuals.ts', 'frameworks/angular/DataVisuals.ts'];
+
 export const node = {
   name: 'check:appearance',
   reads: [
     'frameworks/Components.json',
     'frameworks/react/components/**', 'frameworks/angular/components/**',
     'frameworks/tailwind/components/**',
+    ...CHART_DATA_VISUALS,
   ],
   writes: [],
   feeds: [],
@@ -210,8 +213,6 @@ export const CHART_ALIASES_KEPT = new Map<string, string>([
   ['level-ink-body', 'the intensity the neutral ink composes over var(--ink-body); a level is no colour'],
   ['level-ink-muted', 'the intensity the muted ink composes over var(--ink-muted); a level is no colour'],
 ]);
-
-export const CHART_DATA_VISUALS = ['frameworks/react/DataVisuals.ts', 'frameworks/angular/DataVisuals.ts'];
 
 const VAR_READ = /var\(\s*--([A-Za-z0-9_-]+)/g;
 

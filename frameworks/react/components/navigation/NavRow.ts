@@ -7,7 +7,7 @@ export function arenaActiveWeight(icon: string): string {
   return replaced.includes('ph-fill') ? replaced.join(' ') : ['ph-fill', ...replaced].join(' ');
 }
 
-export function arenaBadgeCount(badge: number | undefined): string | null {
-  if (badge === undefined || !(badge > 0)) return null;
+export function arenaBadgeCount(badge: unknown): string | null {
+  if (typeof badge !== 'number' || !(badge > 0)) return null;
   return badge > 99 ? '99+' : String(Math.floor(badge));
 }

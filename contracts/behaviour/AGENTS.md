@@ -30,12 +30,12 @@ pattern is added (`ls *.json | wc -l` for the total, run from this
 directory, and `grep -l 'apg/' *.json | wc -l` for the APG-derived share; note
 `navigation` cites an APG *practices* page rather than a *patterns* one, so a
 grep on `apg/patterns` alone undercounts by one). The exceptions are not a fixed
-list and must not be written as one: `progressbar`, `status` and `textbox` cite
-the ARIA 1.2 role reference instead, because APG has no pattern page for any of
-those roles; `figure-with-data-table` cites WCAG because APG has no chart
-pattern; `none` and `absent` cite nothing, because there is nothing to adopt
-from when the claim is that no pattern applies. See below for why those two are
-two patterns and not one.
+list and must not be written as one: `progressbar`, `status`, `textbox`,
+`dialog-nonmodal` and `group` cite the ARIA 1.2 role reference instead, because
+APG has no pattern page for any of those; `figure-with-data-table` cites WCAG
+because APG has no chart pattern; `none` and `absent` cite nothing, because
+there is nothing to adopt from when the claim is that no pattern applies. See
+below for why those two are two patterns and not one.
 
 **A pattern requiring `roles.element` also names that role as a field of its own**, `element`,
 beside the requires map. The requirement's value is prose a person reads, and six of them wrap
@@ -158,7 +158,10 @@ directory opens with. A pattern saying which roles a component carries, which ke
 where focus goes or what dismisses it is an answer to *what must this component do*, and there is
 exactly one such answer per render: two of them would contradict, with no way to report which of
 the two a layer broke. That is why an ordinary pattern may not be added to another, and why an
-additive one may require nothing in the `roles` family. `validatePattern` and `validateBinding`
+additive one may require nothing in the `roles` family. An additive pattern may answer focus and
+keys, as `modal-focus` does for every dialog binding: where focus goes and what dismisses a modal
+surface is the same answer whichever role the surface carries. What it may never answer is the
+roles. `validatePattern` and `validateBinding`
 hold both halves.
 
 A pattern declares itself with `"additive": true`, in its own file rather than in a list here,
@@ -301,7 +304,7 @@ supported way to make the state true, whether or not a determined consumer
 could force it through.
 
 **What it does not assert is whether the component actually behaves as it says.**
-A component can bind `dialog-modal` here and trap no focus at all.
+A component can bind `modal-focus` here and trap no focus at all.
 
 `check:behaviour` still proves only that a declaration is well formed. What proves
 a declaration is *true* is a render suite: for a component listed in `COVERED`

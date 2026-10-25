@@ -4,7 +4,7 @@
 import { useTestEnvironment } from '../../../test/TestbedEnv';
 useTestEnvironment();
 
-import test, { afterEach, beforeEach } from 'node:test';
+import test, { after, afterEach, before, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { Component } from '@angular/core';
 import { TestBed, type ComponentFixture } from '@angular/core/testing';
@@ -23,6 +23,14 @@ const WIDTH = '--arena-column-width';
 const ALIGN = '--arena-column-align';
 const warnings: string[] = [];
 const savedWarn = console.warn;
+const root = document.documentElement;
+
+before(() => {
+  root.style.setProperty('--bp-md', '768px');
+});
+after(() => {
+  root.style.removeProperty('--bp-md');
+});
 
 beforeEach(() => {
   forgetArenaWarnings();
@@ -110,7 +118,6 @@ test('a column with no key writes initial on both channels and warns nothing', a
 });
 
 test('a narrow (card) table writes initial on both channels of every cell', async () => {
-  document.documentElement.style.setProperty('--bp-md', '768px');
   const restore = stubResize(300);
   try {
     const fixture = await render('status', true);

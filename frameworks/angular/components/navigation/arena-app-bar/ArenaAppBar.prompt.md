@@ -10,9 +10,7 @@ banner landmark has to be that element.
   <nav nav aria-label="Shop sections">
     @for (d of destinations(); track d.id) { <a [routerLink]="d.href">{{ d.label }}</a> }
   </nav>
-  <div actions>
-    <arena-icon-button icon="ph-bold ph-magnifying-glass" label="Search the catalogue" (click)="openSearch()" />
-  </div>
+  <arena-icon-button actions icon="ph-bold ph-magnifying-glass" label="Search the catalogue" (activate)="openSearch()" />
 </arena-app-bar>
 ```
 
@@ -22,10 +20,10 @@ banner landmark has to be that element.
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `brand` | slot |  |  | The identity, at the start edge: an ArenaAppLogo, a wordmark, a mark. Wrap it in your own link if it should lead home; the bar draws no anchor of its own, which is what keeps a router's link out of a component that would have to swallow it. |
-| `nav` | slot |  |  | The way through the site, between the brand and the actions. It is a slot and not a list of destinations because the links are the consumer's: they are their router's, and the navigation landmark around them is theirs to name, since a page with a side nav as well needs the two told apart. |
+| `brand` | slot |  |  | The identity, at the start edge: an ArenaAppLogo, a wordmark, a mark. Wrap it in your own link if it should lead home. The bar draws no anchor of its own, which is what keeps a router's link out of a component that would have to swallow it. |
+| `nav` | slot |  |  | The way through the site, between the brand and the actions. The slot is not a list of destinations because the links are the consumer's: they are their router's. The navigation landmark around them is theirs to name, since a page with a side nav as well needs the two told apart. |
 | `actions` | slot |  |  | What follows the reader everywhere, at the end edge: search, theme, basket, account. Arena draws the row; the consumer draws what sits in it. |
-| `sticky` | primitive | `boolean` | `true` | Whether the bar stays at the top edge as the page scrolls. True by default, because a bar that carries the way through a site and scrolls away with the content is a bar the reader has to go back for. It takes the navigation layer of the stacking order, so a dialog and a sheet still cover it. |
+| `sticky` | primitive | `boolean` | `true` | Whether the bar stays at the top edge as the page scrolls. True by default, because a bar that carries the way through a site and scrolls away with the content is a bar the reader has to go back for. The bar takes the navigation layer of the stacking order, so a dialog and a sheet still cover it. |
 
 <!-- @api end -->
 
@@ -39,8 +37,16 @@ banner landmark has to be that element.
 **Keys:** none (`banner`).
 <!-- @keys end -->
 
-**The three slots are attributes**, `brand`, `nav` and `actions`, projected through the marker
-directives. Each takes one element, so wrap a row of controls in a container of your own.
+<!-- @markers GENERATED from the projection markers the component queries. -->
+**Markers**, one directive per slot:
+- `[actions]` is `ArenaActions`.
+- `[brand]` is `ArenaBrand`.
+- `[nav]` is `ArenaNav`.
+
+Put each marker your template writes in your own component's `imports`. An un-imported marker leaves its slot empty with no error, and `arena check` reports it. [Which markers must I import?](../../../../../skills/design/references/exports.md#which-angular-projection-markers-must-i-import)
+<!-- @markers end -->
+
+**The three slots are attributes**, `brand`, `nav` and `actions`. Put `actions` on each control, as siblings, and the bar lays them out in a row. A wrapper of your own around several controls is one flex item, and the row cannot wrap what sits inside it. `brand` takes your link, and `nav` takes your `<nav>` element, which stays one landmark.
 
 **The bar spans the viewport and the band inside it does not.** The fill and the hairline run edge to edge. The contents stop at the page width with a gutter either side, so they line up with everything under them. Both lengths are the roles a style plugin re-answers, the same pair `.arena-band`
 carries for markup you wrote yourself.

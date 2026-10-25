@@ -1,7 +1,7 @@
 Jumps between pages of a large set (accompanies `ArenaTable` or long lists). Collapses with "…" when there are many pages.
 
 ```tsx
-<ArenaPagination page={p} pageCount={12} ariaLabel="Deployments" onChange={setP} />
+<ArenaPagination page={p} pageCount={12} ariaLabel="Deployments" onValueChange={setP} />
 ```
 
 <!-- @api GENERATED from contracts/api/components/ArenaPagination.json. Edit the contract, not this table. -->
@@ -13,7 +13,7 @@ Jumps between pages of a large set (accompanies `ArenaTable` or long lists). Col
 | `page*` | primitive | `number` |  | The current page, 1-based. |
 | `pageCount*` | primitive | `number` |  | How many pages there are. Required, and guarded at runtime: an ArenaPagination with no page count renders a window over nothing. |
 | `ariaLabel*` | primitive | `string` |  | Names this navigation landmark. Required, and guarded at runtime: two paginated tables in one dashboard is a routine layout, and a shared constant name leaves them indistinguishable while satisfying the requirement mechanically. A default name would narrow the gap rather than close it: a name the caller omits is still the constant. Say what is being paged: "Deployments", not "Pages". |
-| `onChange` | event | `number` |  | A page was chosen; carries the new 1-based page. Never fires for the current page, nor for a page outside 1..pageCount. |
+| `onValueChange` | event | `number` |  | A page was chosen; carries the new 1-based page. Never fires for the current page, nor for a page outside 1..pageCount. |
 
 <!-- @api end -->
 

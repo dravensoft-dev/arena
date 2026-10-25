@@ -1,0 +1,61 @@
+<!-- @dsCard group="Tailwind" viewport="760x460" name="ArenaFilterBar" subtitle="Controls, applied chips and Clear all, wide and narrow, rendered from ArenaFilterBar.manifest.json" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../../intro/styles.css">
+<link rel="stylesheet" href="../../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../../consume/components/navigation/arena-filter-bar/ArenaFilterBar.styles.generated.css">
+<link rel="stylesheet" href="../../../consume/components/display/arena-tag/ArenaTag.styles.generated.css">
+<link rel="stylesheet" href="../../../consume/components/forms/arena-select/ArenaSelect.styles.generated.css">
+<link rel="stylesheet" href="../../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor, glyph } from '../../../Specimen.js';
+
+const manifest = await (await fetch('./ArenaFilterBar.manifest.json')).json();
+const tag = await (await fetch('../../display/arena-tag/ArenaTag.manifest.json')).json();
+const select = await (await fetch('../../forms/arena-select/ArenaSelect.manifest.json')).json();
+
+function control(label, value) {
+  const c = arenaClassesFor(select, { disabled: 'false' });
+  const root = el('div', { class: c.root });
+  root.style.width = '200px';
+  root.append(el('label', { class: c.label, text: label }));
+  const field = el('select', { class: c.field }, el('option', { text: value }));
+  root.append(el('div', { class: c.wrap }, field, el('span', { class: c.caret }, glyph('ph-bold ph-caret-down'))));
+  return root;
+}
+
+function chip(text) {
+  const c = arenaClassesFor(tag, { tone: 'neutral', disabled: 'false' });
+  return el('span', { class: c.root },
+    el('span', { text }),
+    el('button', { type: 'button', class: c.close, 'aria-label': `Remove ${text}` }, glyph('ph-bold ph-x')));
+}
+
+function bar({ width, narrow, applied = [], clearable = true }) {
+  const v = { narrow: String(Boolean(narrow)) };
+  const c = arenaClassesFor(manifest, v);
+  const d = arenaSlotDataFor(manifest, v);
+  const root = el('div', { role: 'group', 'aria-label': 'Deployment filters', class: c.root, ...d.root });
+  root.style.width = width;
+  const controls = el('div', { class: c.controls, ...d.controls });
+  controls.append(control('Region', 'Europe West'), control('Environment', 'Production'));
+  root.append(controls);
+  if (applied.length) {
+    const list = el('ul', { role: 'list', 'aria-label': 'Applied filters', class: c.applied, ...d.applied });
+    for (const text of applied) list.append(el('li', { class: c.chip, ...d.chip }, chip(text)));
+    root.append(list);
+    if (clearable) root.append(el('button', { type: 'button', class: c.clear, ...d.clear, 'aria-label': 'Clear all filters', text: 'Clear all' }));
+  }
+  return root;
+}
+
+mountSpecimen({ sections: [
+  section('Wide: controls in a row, the chips and Clear all under them', [
+    bar({ width: '640px', applied: ['Region: Europe West', 'Environment: Production', 'Status: Failed'] }),
+    bar({ width: '640px' }),
+  ]),
+  section('Narrow: one column, the same order', [
+    bar({ width: '300px', narrow: true, applied: ['Region: Europe West', 'Status: Failed'] }),
+  ]),
+]});
+</script></body></html>

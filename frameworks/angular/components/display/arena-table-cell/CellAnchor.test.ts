@@ -7,7 +7,7 @@
 import { useTestEnvironment } from '../../../test/TestbedEnv';
 useTestEnvironment();
 
-import test from 'node:test';
+import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { Component } from '@angular/core';
 import { TestBed, type ComponentFixture } from '@angular/core/testing';
@@ -17,6 +17,14 @@ import { ArenaTable } from '../arena-table/ArenaTable';
 import { ArenaTableRow } from '../arena-table-row/ArenaTableRow';
 import { ArenaTableCell } from './ArenaTableCell';
 
+const root = document.documentElement;
+before(() => {
+  root.style.setProperty('--bp-md', '768px');
+});
+after(() => {
+  root.style.removeProperty('--bp-md');
+});
+
 const COLUMNS: ArenaTableColumn[] = [{ header: 'Sale' }, { header: 'Customer' }];
 
 @Component({
@@ -24,7 +32,7 @@ const COLUMNS: ArenaTableColumn[] = [{ header: 'Sale' }, { header: 'Customer' }]
   imports: [ArenaTable, ArenaTableRow, ArenaTableCell],
   template: `
     <arena-table label="Recent sales" [columns]="columns" [responsive]="false">
-      <tr arena-table-row [interactive]="interactive" (click)="rows = rows + 1">
+      <tr arena-table-row [interactive]="interactive" (activate)="rows = rows + 1">
         <td arena-table-cell href="/sales/4f2a1c9" (navigate)="went = went + 1">4f2a1c9</td>
         <td arena-table-cell>Nestor</td>
       </tr>

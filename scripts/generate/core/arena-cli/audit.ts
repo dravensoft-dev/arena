@@ -6,15 +6,37 @@
  * visible from outside, and a filled danger surface is visible only where a project paints one
  * of its own. A line carrying an allow marker is exempt, and a marker over a line with nothing
  * to exempt is stale. Every rule is read in a SCOPE: a declared plugin directory may select a
- * part hook and paint a gradient, and a source may not. */
+ * part hook and paint a gradient, and a source may not. A bracket may also carry em, which has no
+ * token to name; the dimension gate still reports it, because tracking is expressed in em. */
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { SYMBOL_REF, WEIGHT_CLASSES, glyphNames, scan } from './icon-css.ts';
 
 export const RULE_TAGS = ['compat-alias', 'danger-fill', 'emoji', 'icon-element',
-  'one-primary', 'outline-gap', 'own-class', 'raw-value', 'router-link', 'stale-allowance', 'unknown-input'] as const;
+  'one-primary', 'outline-gap', 'own-class', 'raw-glyph', 'raw-value', 'router-link', 'stale-allowance', 'unknown-input', 'unknown-part', 'unknown-property', 'wrapped-link'] as const;
+
+export const RULE_DESCRIPTIONS: Record<(typeof RULE_TAGS)[number], string> = {
+  'compat-alias': 'A stylesheet in a style plugin directory reads one of Arena\'s compatibility aliases through `var()`, which names a step of the ramp instead of a role.',
+  'danger-fill': 'A background declaration outside a style plugin directory reads a danger token not mixed with transparent, which fills a surface where Arena draws danger as an outline.',
+  emoji: 'A line of a source holds an emoji character.',
+  'icon-element': 'An `icon` or `iconRight` attribute is given an element in braces, where Arena takes a Phosphor class-name string.',
+  'one-primary': 'A second action in one view, or in one modal, takes the primary emphasis by class or by leaving a primary-default component without one.',
+  'outline-gap': 'A source draws Arena headings at two levels with a level missing between them, such as an h1 and an h3 with no h2.',
+  'own-class': 'A component carries a class outside its vocabulary or a computed one, or a stylesheet targets an `arena-` class anywhere or a `data-arena-part` hook outside a style plugin.',
+  'raw-glyph': 'An element other than `ArenaIcon` holds a Phosphor glyph class, or binds its class to a non-literal value in a file naming one; Arena ships no icon font.',
+  'raw-value': 'A style holds a hex, colour or bare pixel length, or a gradient outside a style plugin unless `gradientMark` is set, or a class holds a non-token bracket value.',
+  'router-link': 'A link of your own, such as `a`, `Link` or `routerLink`, directly wraps an Arena card, side nav item, bottom nav item or table cell.',
+  'stale-allowance': 'An `arena-audit allow` marker sits on a line with nothing to exempt.',
+  'unknown-input': 'A static attribute on an `arena-` element in an Angular template names no input or output of that component.',
+  'unknown-part': 'A style plugin rule names a `data-arena-part` no component declares.',
+  'unknown-property': 'A style plugin rule reads a `var()` that names no role, token, alias, channel, palette colour or property your sources declare.',
+  'wrapped-link': 'A link of your own, such as `a`, `Link` or `routerLink`, directly wraps an Arena link, which is already an anchor.',
+};
 
 export const UNMODELLED_UNITS = ['%', 'ch', 'fr', 'vh', 'vw', 'vmin', 'vmax', 'deg'];
+
+const BRACKET_UNITS = [...UNMODELLED_UNITS, 'em'];
 
 export const ALLOW_MARKER = /arena-audit allow\b/;
 
@@ -22,7 +44,7 @@ const CANDIDATE = /(?<![\w-])(-?[a-z][a-z0-9]*(?:-[a-z0-9]+)*-\[([^\]\s"']+)\])/
 const MARKER = /<!--\s*check-arbitrary-values allow:\s*([^>]*?)\s*-->/g;
 const HINT = /^(?:length|color|number|percentage|integer|angle|time|url|image|family-name):/;
 const TOKEN = /var\(\s*--[a-z0-9-]+\s*\)/g;
-const UNMODELLED = new RegExp(`^-?\\d*\\.?\\d+(?:${UNMODELLED_UNITS.join('|')})$`);
+const UNMODELLED = new RegExp(`^-?\\d*\\.?\\d+(?:${BRACKET_UNITS.join('|')})$`);
 const UNIT_LITERAL = /\d*\.?\d+\s*([a-z%]+)\b(?!\()/g;
 const ZERO_RUN = /(?<![\w.])-?0(?:px|rem|em|%)?(?![\w.])/g;
 const BARE_NUMBER = /(?<![\w.])-?\d*\.?\d+(?![\w.%])/g;
@@ -80,7 +102,7 @@ export function isLegalBracket(content: string) {
 
   const rest = value.replace(TOKEN, ' ').replace(ZERO_RUN, ' ');
   for (const m of rest.matchAll(UNIT_LITERAL))
-    if (!UNMODELLED_UNITS.includes(group(m))) return false;
+    if (!BRACKET_UNITS.includes(group(m))) return false;
 
   for (const m of rest.matchAll(BARE_NUMBER))
     if (!insideMathParens(rest, m.index)) return false;
@@ -238,7 +260,7 @@ export const COMPAT_ALIASES = [
   'gold-strong', 'gold-soft', 'success', 'success-soft', 'warning', 'warning-soft', 'danger',
   'danger-strong', 'danger-soft', 'danger-fill', 'info', 'info-soft', 'bg', 'bg-raised',
   'surface-card', 'surface-input', 'text-strong', 'text-body', 'text-muted', 'border',
-  'border-strong', 'accent', 'accent-press', 'accent-soft', 'focus-ring', 'on-accent',
+  'border-strong', 'accent', 'accent-press', 'accent-soft', 'focus-ring', 'on-accent', 'scrim',
 ];
 
 export const COMPAT_ALIAS_MESSAGE = 'a value read through one of Arena\'s own compatibility '
@@ -313,6 +335,14 @@ export function paintedParts(css: string) {
   return [...new Set([...css.matchAll(PAINTED_PART)].map((m) => group(m)))].sort();
 }
 
+const WEIGHT_WORDS = Object.values(WEIGHT_CLASSES).map((token) => token.replace(/^ph-?/, '')).filter(Boolean).join('|');
+const WEIGHT_TOKEN = /(?<![\w-])ph(?:-(?:thin|light|bold|fill|duotone))?(?![\w-])/;
+const GLYPH_TOKEN = new RegExp(`(?<![\\w-])ph-(?!(?:${WEIGHT_WORDS})(?![\\w-]))[a-z0-9]+(?:-[a-z0-9]+)*`);
+const RAW_GLYPH_MESSAGE = 'an element drawn with a Phosphor class, which paints nothing because Arena ships no icon '
+  + 'font. Draw it through ArenaIcon (arena-icon in Angular), as icon="ph-bold ph-plus"';
+export const RAW_GLYPH_BOUND_MESSAGE = 'an element whose class is bound to a value, in a file that names a Phosphor glyph, so it may hold '
+  + 'a Phosphor class, which paints nothing because Arena ships no icon font. Draw it through ArenaIcon (arena-icon in Angular), '
+  + 'handing it the value as icon';
 const ICON_ELEMENT = /\bicon(?:Right)?\s*=\s*\{\s*</;
 
 const EMOJI = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/u;
@@ -336,6 +366,7 @@ export type VocabularyIndex = {
   defaults?: Record<string, Record<string, string>>;
   modals?: string[];
   inputs?: Record<string, string[]>;
+  parts?: Record<string, Record<string, string[]>>;
 };
 
 export const VOCABULARY_INDEX = 'arena.vocabulary.json';
@@ -445,6 +476,10 @@ export const ROUTER_LINK_MESSAGE = 'an Arena component wrapped in a link of your
   + 'an anchor inside an anchor and in Angular does not bind at all. Pass the href to the '
   + 'component and route from the event it reports';
 
+export const WRAPPED_LINK_MESSAGE = 'an ArenaLink wrapped in a link of your own, which nests an anchor inside '
+  + 'an anchor, and in Angular the outer link swallows the click. ArenaLink is already the anchor: pass the href to '
+  + 'it and route from its navigate event';
+
 export const UNKNOWN_INPUT_MESSAGE = (name: string, tag: string) => `an attribute ${name} that ${tag} takes as no input `
   + 'or output, so no Arena component reads it. Write the class or input the component reads instead, or mark the '
   + 'line arena-audit allow when a directive of your own reads it';
@@ -471,6 +506,7 @@ export const HEADING_RUNGS: Record<string, number> = {
   'arena-page-head': 1,
   'arena-section': 2,
   'arena-unauth-card': 2,
+  'arena-accordion': 3,
   'arena-board-column': 3,
   'arena-card': 3,
   'arena-empty-state': 3,
@@ -498,7 +534,7 @@ const BRANCH_LEAD = /(?:\?\??|:|&&|\|\|)\s*(?:\(\s*|<>\s*)*$/;
 const STRING_CONTEXT = /[=:,(\[?&|]\s*$|\breturn\s*$/;
 const INLINE_TEMPLATE = /\btemplate\s*:\s*$/;
 const STATEMENT_BRANCH = /(?<![\w$.@])(?:if\s*\(|else\b|case\b[^:\n]*:|default\s*:)/g;
-const CLASS_VALUE = /(?:^|\s)(?:className|class|\[class\]|\[ngClass\]|\[attr\.class\])\s*=\s*/g;
+const CLASS_VALUE = /(?<=^|\s)(?:className|class|\[class\]|\[ngClass\]|\[attr\.class\])\s*=\s*/g;
 const TAG_LEAD = /[\w$.]/;
 
 function closing(text: string, from: number, open: string, close: string) {
@@ -542,8 +578,141 @@ export function elementEnd(text: string, name: string, ends: number) {
   return text.length;
 }
 
+function ownAttributeStarts(raw: string, pattern = CLASS_VALUE) {
+  return [...ownAttributes(raw).matchAll(pattern)].map((m) => {
+    let from = (m.index ?? 0) + m[0].trimEnd().length;
+    while (/\s/.test(raw[from] ?? '')) from += 1;
+    return { name: m[0], from };
+  });
+}
+
 export function classValues(raw: string) {
-  return [...raw.matchAll(CLASS_VALUE)].map((m) => attributeValueAt(raw, (m.index ?? 0) + m[0].length)).join(' ');
+  return ownAttributeStarts(raw).map(({ from }) => attributeValueAt(raw, from)).join(' ');
+}
+
+function closeOf(text: string, from: number): number {
+  const quote = text[from];
+  for (let i = from + 1; i < text.length; i += 1) {
+    const c = text[i];
+    if (c === '\\') i += 1;
+    else if (c === quote) return i;
+    else if (quote === '`' && c === '$' && text[i + 1] === '{') {
+      let depth = 0;
+      for (i += 1; i < text.length; i += 1) {
+        const e = text[i];
+        if (e === '"' || e === "'" || e === '`') i = closeOf(text, i);
+        else if (e === '{') depth += 1;
+        else if (e === '}') { depth -= 1; if (depth === 0) break; }
+      }
+    }
+  }
+  return text.length;
+}
+
+function topLevel(text: string): number[] {
+  const at: number[] = [];
+  let depth = 0;
+  for (let i = 0; i < text.length; i += 1) {
+    const c = text[i] ?? '';
+    if (c === '"' || c === "'" || c === '`') i = closeOf(text, i);
+    else if ('([{'.includes(c)) depth += 1;
+    else if (')]}'.includes(c)) depth -= 1;
+    else if (depth === 0) at.push(i);
+  }
+  return at;
+}
+
+function wrapsWhole(text: string): boolean {
+  let depth = 0;
+  for (let i = 0; i < text.length; i += 1) {
+    const c = text[i] ?? '';
+    if (c === '"' || c === "'" || c === '`') i = closeOf(text, i);
+    else if ('([{'.includes(c)) depth += 1;
+    else if (')]}'.includes(c)) { depth -= 1; if (depth === 0) return i === text.length - 1; }
+  }
+  return false;
+}
+
+function splitAt(text: string, marks: number[], width: number): string[] {
+  const parts: string[] = [];
+  let from = 0;
+  for (const mark of marks) {
+    parts.push(text.slice(from, mark));
+    from = mark + width;
+  }
+  return [...parts, text.slice(from)];
+}
+
+function joined(parts: (string[] | null)[]): string[] | null {
+  return parts.some((part) => part === null) ? null : parts.flat() as string[];
+}
+
+export function valueResults(expression: string, keys = false): string[] | null {
+  const bare = expression.trim();
+  const first = bare[0] ?? '';
+  const body = first === '{' && !keys ? bare.slice(1, -1)
+    : (first === '"' || first === "'") && closeOf(bare, 0) === bare.length - 1 ? bare.slice(1, -1) : bare;
+  return readResults(body, keys);
+}
+
+export function resultTerms(source: string): string[] | null {
+  let text = source.trim();
+  while (text.startsWith('(') && wrapsWhole(text)) text = text.slice(1, -1).trim();
+  const marks = topLevel(text);
+  const lone = (i: number) => text[i + 1] !== '?' && text[i - 1] !== '?' && text[i + 1] !== '.';
+  const ask = marks.find((i) => text[i] === '?' && lone(i));
+  if (ask !== undefined) {
+    let nested = 0;
+    const colon = marks.find((i) => {
+      if (i < ask) return false;
+      if (text[i] === '?' && i > ask && lone(i)) nested += 1;
+      else if (text[i] === ':') { if (nested === 0) return true; nested -= 1; }
+      return false;
+    });
+    if (colon === undefined) return null;
+    return joined([resultTerms(text.slice(ask + 1, colon)), resultTerms(text.slice(colon + 1))]);
+  }
+  const either = marks.filter((i) => (text[i] === '|' && text[i + 1] === '|') || (text[i] === '?' && text[i + 1] === '?'));
+  if (either.length) return joined(splitAt(text, either, 2).map(resultTerms));
+  const both = marks.filter((i) => text[i] === '&' && text[i + 1] === '&' && text[i - 1] !== '&');
+  if (both.length) return resultTerms(splitAt(text, both, 2).at(-1) ?? '');
+  return [text];
+}
+
+function readResults(source: string, keys: boolean): string[] | null {
+  const terms = resultTerms(source);
+  return terms && joined(terms.map((term) => readTerm(term, keys)));
+}
+
+export const emptyTerm = (term: string) => readTerm(term, false)?.length === 0;
+
+function readTerm(text: string, keys: boolean): string[] | null {
+  if (['', 'undefined', 'null', 'false'].includes(text)) return [];
+  const opener = text[0] ?? '';
+  if ((opener === '"' || opener === "'" || opener === '`') && closeOf(text, 0) === text.length - 1) {
+    const inner = text.slice(1, -1);
+    if (opener === '`' && inner.includes('${')) return null;
+    return inner.trim() === '' ? [] : [inner];
+  }
+  if (keys && text.startsWith('{') && wrapsWhole(text)) {
+    const inner = text.slice(1, -1);
+    const names = splitAt(inner, topLevel(inner).filter((i) => inner[i] === ','), 1)
+      .map((entry) => entry.trim()).filter(Boolean).map((entry) => {
+        if (entry.startsWith('...') || entry.startsWith('[')) return null;
+        if (/^["'`]/.test(entry)) return entry.slice(1, closeOf(entry, 0));
+        return entry.split(':')[0]?.trim() ?? '';
+      });
+    return joined(names.map((name) => (name === null ? null : name === '' ? [] : [name])));
+  }
+  return null;
+}
+
+function boundClass(raw: string): boolean {
+  return ownAttributeStarts(raw).some(({ name, from }) => {
+    const value = attributeValueAt(raw, from);
+    if (/^(?:className|class)\s*=\s*$/.test(name) && !value.startsWith('{')) return value.includes('{{');
+    return valueResults(value, /^\[(?:ngClass|class)\]/.test(name)) === null;
+  });
 }
 
 export function inBranch(text: string, start: number, attributes: string, openBranches: { name: string; end: number }[]) {
@@ -597,6 +766,8 @@ export function primaryMessage(first: number) {
 export const LINKABLE_TAGS = new Set([
   'arena-bottom-nav-item', 'arena-card', 'arena-side-nav-item', 'arena-table-cell',
 ]);
+
+export const WRAPPED_LINK_TAGS = new Set(['arena-link']);
 
 export function outlineGap(drawn: number[]): [number, number] | null {
   const rungs = [...new Set(drawn)].sort((a, b) => a - b);
@@ -676,12 +847,19 @@ export function ownAttributes(attributes: string) {
   return out;
 }
 
+export function branchPrimaryMessage(outside: number): string {
+  return `a primary action in a branch, and the view around it already draws one on line ${outside}, so whenever the branch is taken the view holds two. `
+    + 'Write arena-emphasis-secondary or arena-emphasis-ghost on this one unless it is the action the view is for. A button with no emphasis class is primary too';
+}
+
 export function structuralFindings(text: string, vocabulary: VocabularyIndex | null = null, source = text): Finding[] {
   const found: Finding[] = [];
+  const namesGlyph = glyphNames(scan(text)).size > 0;
   const rungs: number[] = [];
   let firstRung = 0;
-  const primaries: { scope: number; line: number }[] = [];
+  const primaries: { scope: number; line: number; conditional: boolean }[] = [];
   const bare: { scope: number; line: number }[] = [];
+  const branchBare: { scope: number; line: number }[] = [];
   const branches: { name: string; end: number }[] = [];
   const modals: { start: number; end: number }[] = [];
   const statements = vocabulary?.defaults ? statementBranches(text) : [];
@@ -716,16 +894,27 @@ export function structuralFindings(text: string, vocabulary: VocabularyIndex | n
     for (const attribute of unknownInputs(name, attributes, vocabulary))
       found.push(at(lineAt(text, start), 'unknown-input', UNKNOWN_INPUT_MESSAGE(attribute, name)));
 
-    if (ARENA_TAG.test(name) && STATED_PRIMARY.test(attributes)) primaries.push({ scope, line: lineAt(text, start) });
+    if (kebabTag(name) !== 'arena-icon') {
+      const toggled = [...ownAttributes(raw).matchAll(CLASS_TOGGLE)].map((m) => group(m)).join(' ');
+      const classes = `${classValues(raw)} ${toggled}`;
+      if (WEIGHT_TOKEN.test(classes) && GLYPH_TOKEN.test(classes))
+        found.push(at(lineAt(text, start), 'raw-glyph', RAW_GLYPH_MESSAGE));
+      else if (namesGlyph && boundClass(raw))
+        found.push(at(lineAt(text, start), 'raw-glyph', RAW_GLYPH_BOUND_MESSAGE));
+    }
+
+    if (ARENA_TAG.test(name) && STATED_PRIMARY.test(attributes)) {
+      primaries.push({ scope, line: lineAt(text, start), conditional: inBranch(text, start, attributes, branches) });
+    }
     const emphasis = EMPHASIS_OPTION.test(attributes) || EMPHASIS_OPTION.test(classValues(raw));
     if (ARENA_TAG.test(name) || emphasis) {
       const component = pascalTag(name);
       const answersEmphasis = (vocabulary?.answers[component] ?? []).includes('emphasis');
       if (emphasis && !answersEmphasis) contextEmphasis = true;
-      if (vocabulary?.defaults?.[component]?.emphasis === 'arena-emphasis-primary' && bareOfEmphasis(raw)
-        && !inBranch(text, start, attributes, branches)) {
-        if (statements.some(([from, to]) => from < start && start < to)) statementBranch = true;
-        bare.push({ scope, line: lineAt(text, start) });
+      if (vocabulary?.defaults?.[component]?.emphasis === 'arena-emphasis-primary' && bareOfEmphasis(raw)) {
+        const branch = inBranch(text, start, attributes, branches);
+        if (!branch && statements.some(([from, to]) => from < start && start < to)) statementBranch = true;
+        (branch ? branchBare : bare).push({ scope, line: lineAt(text, start) });
       }
       if (vocabulary?.modals?.includes(component))
         modals.push({ start, end: raw.trimEnd().endsWith('/') ? ends : elementEnd(source, name, ends) });
@@ -739,6 +928,8 @@ export function structuralFindings(text: string, vocabulary: VocabularyIndex | n
     const wrapped = /^<(Arena[A-Za-z0-9]*|arena-[a-z0-9-]+)\b/.exec(inside)?.[1];
     if (wrapped !== undefined && LINKABLE_TAGS.has(kebabTag(wrapped)))
       found.push(at(lineAt(text, start), 'router-link', ROUTER_LINK_MESSAGE));
+    if (wrapped !== undefined && WRAPPED_LINK_TAGS.has(kebabTag(wrapped)))
+      found.push(at(lineAt(text, start), 'wrapped-link', WRAPPED_LINK_MESSAGE));
   }
   const gap = outlineGap(rungs);
   if (gap) found.push(at(firstRung, 'outline-gap', outlineMessage(gap[0], gap[1])));
@@ -748,6 +939,12 @@ export function structuralFindings(text: string, vocabulary: VocabularyIndex | n
     for (const line of counted.slice(1))
       found.push(at(line, 'one-primary', primaryMessage(counted[0] as number)));
   }
+  if (!contextEmphasis && !statementBranch)
+    for (const entry of branchBare) {
+      const outside = [...primaries.filter((one) => !one.conditional), ...bare]
+        .filter((one) => one.scope === entry.scope).map((one) => one.line).sort((a, b) => a - b)[0];
+      if (outside !== undefined) found.push(at(entry.line, 'one-primary', branchPrimaryMessage(outside)));
+    }
   return found;
 }
 
@@ -887,4 +1084,45 @@ export function auditFindings(relPath: string, text: string, scope: Scope = 'app
 export function auditText(relPath: string, text: string, scope: Scope = 'app',
   gradientMark = false, vocabulary: VocabularyIndex | null = null): string[] {
   return auditFindings(relPath, text, scope, gradientMark, vocabulary).map((one) => one.text);
+}
+
+const ICON_TAG = /^(?:ArenaIcon|arena-icon)$/;
+const ICON_ATTRIBUTE = /(?<=^|\s)\[?(?:icon|iconRight)\]?\s*=\s*/g;
+const ANY_ATTRIBUTE = /(?<=^|\s)[[(]?[\w.:@-]+[\])]?\s*=\s*/g;
+
+function withoutElements(value: string) {
+  let out = '';
+  let quote = '';
+  for (let i = 0; i < value.length; i += 1) {
+    const c = value[i] ?? '';
+    if (quote) { out += c; if (c === quote) quote = ''; continue; }
+    if (c === '"' || c === "'" || c === '`') { quote = c; out += c; continue; }
+    const name = c === '<' ? /^[A-Za-z][\w.-]*/.exec(value.slice(i + 1))?.[0] : undefined;
+    if (!name) { out += c; continue; }
+    const opened = tagEnd(value, i);
+    const ends = opened === -1 ? value.length : value[opened - 2] === '/' ? opened
+      : Math.max(opened, value.indexOf('>', elementEnd(value, name, opened)) + 1);
+    out += ' '.repeat(ends - i);
+    i = ends - 1;
+  }
+  return out;
+}
+
+export function iconMemberGlyphs(text: string): Set<string> {
+  const found = scan(text.match(new RegExp(SYMBOL_REF.source, 'g'))?.join(' ') ?? '');
+  for (const m of text.matchAll(OPEN_TAG)) {
+    const name = m[1] ?? '';
+    const start = m.index ?? 0;
+    if (start > 0 && TAG_LEAD.test(text[start - 1] ?? '')) continue;
+    const ends = tagEnd(text, start);
+    if (ends === -1) continue;
+    const raw = text.slice(start + name.length + 1, ends - 1);
+    const named = ICON_TAG.test(name) ? ANY_ATTRIBUTE : ARENA_TAG.test(name) ? ICON_ATTRIBUTE : null;
+    if (named === null) continue;
+    for (const { from } of ownAttributeStarts(raw, named)) {
+      const value = attributeValueAt(raw, from);
+      scan(named === ICON_ATTRIBUTE ? withoutElements(value) : value, found);
+    }
+  }
+  return glyphNames(found);
 }

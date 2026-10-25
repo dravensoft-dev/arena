@@ -1,0 +1,71 @@
+{
+  "component": "ArenaMeter",
+  "answers": [
+    {
+      "family": "size",
+      "options": [
+        "arena-size-sm",
+        "arena-size-md",
+        "arena-size-lg"
+      ],
+      "default": "arena-size-md"
+    },
+    {
+      "family": "accent",
+      "options": [
+        "arena-accent-primary",
+        "arena-accent-gold"
+      ],
+      "default": "arena-accent-primary"
+    }
+  ],
+  "slots": {
+    "root": "grid w-full",
+    "head": "flex items-baseline gap-items mb-2",
+    "label": "flex-1 min-w-0 font-body text-ctl-md text-ink-body/(--level-ink-body)",
+    "value": "font-mono text-ctl-sm text-ink-muted/(--level-ink-muted)",
+    "standing": "font-face-label text-ctl-xs tracking-label-role case-label text-ink-muted/(--level-ink-muted)",
+    "track": "relative rounded-pill bg-track overflow-hidden h-[var(--arena-size-meter,var(--size-md-meter))] text-[color:var(--arena-accent-ink,var(--accent-primary-ink))]",
+    "fill": "absolute inset-0 bg-current rounded-[inherit]"
+  },
+  "kind": {
+    "root": "none",
+    "head": "none",
+    "label": "none",
+    "value": "none",
+    "standing": "none",
+    "track": "none",
+    "fill": "none"
+  },
+  "variants": {
+    "standing": {
+      "optimum": {
+        "standing": "text-[color:var(--arena-hue-ink)]",
+        "track": "text-[color:var(--arena-hue-fill-strong)]"
+      },
+      "fair": {
+        "standing": "text-[color:var(--arena-hue-ink)]",
+        "track": "text-[color:var(--arena-hue-fill-strong)]"
+      },
+      "poor": {
+        "standing": "text-[color:var(--arena-hue-ink)]",
+        "track": "text-[color:var(--arena-hue-ink)]"
+      },
+      "none": {}
+    }
+  },
+  "defaultVariants": {
+    "standing": "none"
+  },
+  "internal": {
+    "standing": "derived from low, high and optimum by the component: the region holding the value against the region holding the optimum"
+  },
+  "hues": {
+    "standing": {
+      "optimum": "success",
+      "fair": "warning",
+      "poor": "danger",
+      "none": null
+    }
+  }
+}

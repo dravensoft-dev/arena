@@ -9,3 +9,7 @@
 | `check-optional-inputs.ts` | a defaulted signal input carries no transform, so its write type excludes `undefined` and a consumer holding an optional value has to restate the default the component already owns. The remedy is one shape, `{ transform: (value) => value ?? <default> }`, which widens what may be bound and leaves what is read alone. `TAKES_NO_ABSENCE` is empty, and that emptiness is the claim: no member in the layer needs a bound absence to mean something other than its default. |
 
 Every `X.test.ts` beside a gate covers that gate.
+
+**The Angular emit is this layer's type verdict.** `check-all` runs it (`ANGULAR_EMIT`) whenever the
+`angular` domain is selected, `--no-tests` included, so a type error in the layer or its test
+surface fails a gates-only run even though no gate here compiles anything.

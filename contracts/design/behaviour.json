@@ -1,7 +1,7 @@
 {
   "delay": {
     "$type": "duration",
-    "$description": "Pointer intent: how long a pointer must rest on a target before a\ndeferred affordance appears, and how long it may leave before that affordance\nwithdraws. Deliberately not part of dur: dur measures how long a transition\ntakes once it has been decided, delay measures how long we wait before\ndeciding. These apply to the POINTER only. A keyboard focus must reveal its\ntooltip immediately: a delay there reads as an unresponsive control, and a\nfuture plan adding focus support must not route it through these.",
+    "$description": "Pointer intent: how long a pointer must rest on a target before a\ndeferred affordance appears, and how long it may leave before that affordance\nwithdraws. Deliberately not part of dur: dur measures how long a transition\ntakes once it has been decided, delay measures how long we wait before\ndeciding. These apply to the POINTER only, except typeahead, which times typed characters. A keyboard focus must reveal its\ntooltip immediately: a delay there reads as an unresponsive control, and a\nfuture plan adding focus support must not route it through these.",
     "open": {
       "$value": { "value": 400, "unit": "ms" },
       "$description": "Rest time before a tooltip appears. Long enough that crossing a toolbar reveals nothing.",
@@ -11,11 +11,16 @@
       "$value": { "value": 120, "unit": "ms" },
       "$description": "Grace period after the pointer leaves. Short, and much shorter than open:\nit exists so travelling between a trigger and its own tooltip does not dismiss it,\nnot to keep the tooltip around.",
       "$extensions": { "com.dravensoft.arena": { "script": true } }
+    },
+    "typeahead": {
+      "$value": { "value": 500, "unit": "ms" },
+      "$description": "The window in which characters typed in succession accumulate into one prefix.\nLong enough to type a short word at an ordinary pace, and short enough that a\npause starts a new search.",
+      "$extensions": { "com.dravensoft.arena": { "script": true } }
     }
   },
   "dismiss": {
     "$type": "duration",
-    "$description": "Automatic permanence: how long a transient notice remains before it\nwithdraws itself. The HOST owns dismissal, not ArenaToast: ArenaToast renders and exposes\npersist, the host runs the clock.",
+    "$description": "Automatic permanence: how long a transient notice remains before it\nwithdraws itself. The HOST owns a toast's dismissal, not ArenaToast: ArenaToast renders and\nexposes persist, the host runs the clock. A confirmation drawn in place is withdrawn by the\ncomponent that drew it, which runs its own clock.",
     "default": {
       "$value": { "value": 4200, "unit": "ms" },
       "$description": "A toast that only has to be read. This is the value the Delivery Console\nshipped hard-coded before it was a token.",
@@ -25,6 +30,11 @@
       "$value": { "value": 7000, "unit": "ms" },
       "$description": "A toast carrying a button. WCAG 2.2.1: it asks the reader to DECIDE, not\nonly to read, and 4.2s is enough for the second task only if they were already\nlooking. persist (README H1) still overrides both and stays mandatory in\ncritical states.",
       "$extensions": { "com.dravensoft.arena": { "script": true } }
+    },
+    "confirmation": {
+      "$value": { "value": 2000, "unit": "ms" },
+      "$description": "A confirmation drawn in place of a control's own glyph, such as a copy button's\ncheck. Long enough to see the glyph and hear one word, and short enough that the\ncontrol is back at rest before the reader reaches for it again.",
+      "$extensions": { "com.dravensoft.arena": { "script": true } }
     }
   },
   "limit": {
@@ -33,6 +43,16 @@
     "pagination-siblings": {
       "$value": 1,
       "$description": "How many page numbers flank the current one before the list elides. The\nwindow's total width is a CONSEQUENCE and is derived at the point of use, never\nauthored: first + last + (2 * siblings + 1) + two ellipses.",
+      "$extensions": { "com.dravensoft.arena": { "script": true } }
+    },
+    "window-overscan": {
+      "$value": 6,
+      "$description": "How many rows a windowed list mounts beyond the viewport on each side, so a focus\nmove or a Tab press finds the next row already mounted. The mounted total is a\nCONSEQUENCE: the rows the viewport meets + 2 * overscan.",
+      "$extensions": { "com.dravensoft.arena": { "script": true } }
+    },
+    "window-initial": {
+      "$value": 30,
+      "$description": "How many rows a windowed list projects before any row is measured: the window a\nserver render and the first client render draw. Once a row is measured, the window\nderives from the viewport and this number no longer applies.",
       "$extensions": { "com.dravensoft.arena": { "script": true } }
     }
   }

@@ -6,11 +6,12 @@ import type { ArenaButtonType } from '../../../Api.generated';
 import { arenaButtonStyles } from './ArenaButton.variants';
 import manifest from './ArenaButton.classes.generated';
 import { ArenaSlotAttributes } from '../../../SlotData';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
 
 @Component({
   selector: 'arena-button',
   standalone: true,
-  imports: [ArenaSlotAttributes],
+  imports: [ArenaIcon, ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     style: 'display: contents',
@@ -19,15 +20,15 @@ import { ArenaSlotAttributes } from '../../../SlotData';
   template: `
     <button #control [class]="styles().root()" [arenaSlotData]="styles().$data.root()" [attr.data-arena-part]="parts.root" data-arena-boundary [attr.type]="type()" [disabled]="inert()"
             [attr.name]="name()" [attr.value]="value()" [attr.form]="form()"
-            [attr.tabindex]="tabStop() ? null : -1" (click)="onClick($event)">
+            [attr.tabindex]="tabStop() ? null : -1" (click)="onClick()">
       @if (loading()) {
         <span [class]="styles().spinner()" [attr.data-arena-part]="parts.spinner" aria-hidden="true"></span>
       } @else if (icon(); as glyph) {
-        <i [class]="glyph" aria-hidden="true"></i>
+        <arena-icon [icon]="glyph" />
       }
       <ng-content />
       @if (iconRight(); as glyph) {
-        <i [class]="glyph" aria-hidden="true"></i>
+        <arena-icon [icon]="glyph" />
       }
     </button>
   `,
@@ -37,9 +38,9 @@ export class ArenaButton {
 
   /** Whether the action destroys or removes something. Destructive draws the danger outline whatever emphasis the button is given: danger is never filled outside ArenaConfirmDialog's final confirmation. */
   readonly destructive = input(false, { transform: booleanAttribute });
-  /** Phosphor class name drawn before the label. Replaced by the spinner while loading. */
+  /** Phosphor class name drawn before the label through ArenaIcon. Replaced by the spinner while loading. */
   readonly icon = input<string>();
-  /** Phosphor class name drawn after the label: a caret on a menu trigger, an arrow on a next action. */
+  /** Phosphor class name drawn after the label through ArenaIcon: a caret on a menu trigger, an arrow on a next action. */
   readonly iconRight = input<string>();
   /** Replaces the leading icon with a spinner and blocks activation. The spin slows under reduced motion rather than stopping: a frozen spinner reads as a hung process. */
   readonly loading = input(false, { transform: booleanAttribute });
@@ -58,10 +59,10 @@ export class ArenaButton {
   readonly autoFocus = input(false, { transform: booleanAttribute });
   /** The id of the form this button belongs to, when it is not a descendant of it. */
   readonly form = input<string>();
-  /** Whether the control is reached from the page's Tab sequence. Set false when it lives inside a composite that manages its own focus (a grid with a roving tab stop, a menu), where reaching it by Tab would be a second way in. Arena writes tabindex="-1" and the control stays programmatically focusable; a positive tab order is not expressible and never should be. Arena's own table is NOT that composite: its grid deliberately has no step-in, so a control in a cell keeps its place in the page Tab sequence and setting this false there takes away its only keyboard route, since the cursor moves by cell and Enter activates the row. */
+  /** Whether the control is reached from the page's Tab sequence. Set false when it lives inside a composite that manages its own focus (a grid with a roving tab stop, a menu). Reaching it by Tab there would be a second way in. Arena writes tabindex="-1" and the control stays programmatically focusable; a positive tab order is not expressible and never should be. Arena's own table is NOT that composite: its grid deliberately has no step-in, so a control in a cell keeps its place in the page Tab sequence. Setting this false there takes away its only keyboard route, since the cursor moves by cell and Enter activates the row. */
   readonly tabStop = input(true, { transform: booleanAttribute });
-  /** The button was activated, by pointer or by keyboard. */
-  readonly click = output<void>();
+  /** The button was activated, by pointer or by keyboard. The native click is never stopped, so a listener on the document hears every click inside the button; this event reports only the activation. */
+  readonly activate = output<void>();
 
   protected readonly inert = computed(() => this.disabled() || this.loading());
   protected readonly styles = computed(() => arenaButtonStyles({ destructive: this.destructive() }));
@@ -74,8 +75,7 @@ export class ArenaButton {
     });
   }
 
-  protected onClick(event: MouseEvent): void {
-    event.stopPropagation();
-    if (!this.inert()) this.click.emit();
+  protected onClick(): void {
+    if (!this.inert()) this.activate.emit();
   }
 }

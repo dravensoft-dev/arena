@@ -1,4 +1,6 @@
 import test from 'node:test';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import assert from 'node:assert/strict';
 import {
   INTERACTIVE, PHONE, SCOPES, UNSIZED, measureExpression, staleUnsizedProblems, undersized,
@@ -21,7 +23,6 @@ test('each scope is measured against its own floor', () => {
   assert.deepEqual(undersized([at({ scope: 'base', width: 30, height: 30 })]), [],
     'the base density owes the minimum level and not the enhanced one');
   assert.equal(undersized([at({ scope: 'comfortable', width: 30, height: 30 })]).length, 1);
-  assert.deepEqual(SCOPES.map((s) => s.floor), [24, 44]);
 });
 
 test('one line per part per scope, naming the smallest instance and how many there were', () => {
@@ -42,10 +43,10 @@ test('a recorded exception is not a failure, and one nothing matched is', () => 
   assert.match(stale[0] ?? '', /outlived what it excused/);
 });
 
-test('a sweep measuring nothing, or rendering one scope, is a failure rather than a clean pass', () => {
-  assert.deepEqual(zeroMeasuredProblems(1, 2), []);
-  assert.match(zeroMeasuredProblems(0, 2)[0] ?? '', /failure rather than a clean pass/);
-  assert.match(zeroMeasuredProblems(1, 1)[0] ?? '', /the second is the whole point/);
+test('a sweep measuring nothing, or rendering two scopes, is a failure rather than a clean pass', () => {
+  assert.deepEqual(zeroMeasuredProblems(1, 3), []);
+  assert.match(zeroMeasuredProblems(0, 3)[0] ?? '', /failure rather than a clean pass/);
+  assert.match(zeroMeasuredProblems(1, 2)[0] ?? '', /fewer density scopes were rendered than SCOPES declares/);
 });
 
 test('the sweep is phone-shaped and touch-emulating, because that is who the floor is for', () => {
@@ -62,11 +63,23 @@ test('the page script measures only what carries an Arena part, and unions a pse
   assert.match(expression, /classList\.remove/);
 });
 
-test('the one exception on the record is a geometry rather than a control that was left small', () => {
-  assert.equal(UNSIZED.size, 1);
+test('the two exceptions on the record are a geometry and the inline link, never a control left small', () => {
+  assert.equal(UNSIZED.size, 2);
+  const inline = UNSIZED.get('prose-inline') ?? '';
+  assert.match(inline, /WCAG 2\.5\.8/, 'the inline exception cites the criterion that grants it');
+  assert.match(inline, /line height/, 'and the constraint a floor would break');
   const why = UNSIZED.get('calendar.cell') ?? '';
   assert.match(why, /seventh of the width/);
   assert.match(why, /308px/, 'the reason carries the measurement that produced it');
+});
+
+test('an inline link in prose is excused only while the entry is on the record, and the entry is stale with none measured', () => {
+  const link = at({ exempt: 'prose-inline', part: 'link', tag: 'a', width: 96, height: 18 });
+  assert.deepEqual(undersized([link], SCOPES, new Map([['prose-inline', 'r']])), []);
+  assert.equal(undersized([link], SCOPES, new Map()).length, 1, 'the exemption the sweep computes is honoured only through UNSIZED');
+  assert.deepEqual(staleUnsizedProblems([link], new Map([['prose-inline', 'r']])), []);
+  assert.equal(staleUnsizedProblems([at({ part: 'x.y' })], new Map([['prose-inline', 'r']])).length, 1,
+    'an entry nothing measures is a stale excuse');
 });
 
 const tied = (over = {}) => new Map(
@@ -74,7 +87,7 @@ const tied = (over = {}) => new Map(
 );
 
 test('the tie to a token file holds on this tree, so the floor and the density say one thing', () => {
-  assert.equal(ARGUED.size, 1);
+  assert.equal(ARGUED.size, 2);
   const one = ARGUED.get('comfortable');
   assert.ok(one, 'the enhanced floor is the one a token file argues about');
   assert.equal(one?.floor, SCOPES.find((s) => s.name === 'comfortable')?.floor,
@@ -126,4 +139,24 @@ test('a density that never painted after the network changed says the host chang
     { painted: { ready: false, waitedMs: 40_000 }, silence, changed: [] });
   assert.match(plain ?? '', /never signalled that it had painted, within/);
   assert.equal(unmeasuredProblem('x', { painted: { ready: true, waitedMs: 1 }, silence, changed: [] }), null);
+});
+
+const root = join(import.meta.dirname, '../../..');
+
+test('three scopes, each at its own floor and class', () => {
+  assert.deepEqual(SCOPES.map((s) => [s.name, s.klass, s.floor]),
+    [['base', '', 24], ['comfortable', 'arena-comfortable', 44], ['compact', 'arena-compact', 24]]);
+});
+
+test('compact is tied to its bottom rung, so a rung under the floor fails without a component to show it', () => {
+  const read = (file: string) => (file.endsWith('density.compact.json')
+    ? { dz: { 'ctl-h-sm': { $value: { value: 22, unit: 'px' } } } }
+    : JSON.parse(readFileSync(join(root, file), 'utf8')));
+  assert.deepEqual(arguedProblems(SCOPES, ARGUED, read).filter((p) => p.includes('compact')),
+    ['contracts/design/density.compact.json sets dz.ctl-h-sm to 22px and compact\'s floor is 24px, so the density\'s smallest control no longer clears the floor this gate measures against'
+      + `: ${ARGUED.get('compact')?.why}`]);
+});
+
+test('the sweep draws compact', () => {
+  assert.match(measureExpression(INTERACTIVE, 'arena-compact'), /arena-compact/);
 });

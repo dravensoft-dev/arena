@@ -12,9 +12,9 @@ Phosphor class name Arena draws (not a node); absent renders no glyph at all.
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `icon` | primitive | `string` |  | A Phosphor class name for the glyph Arena draws, muted. |
+| `icon` | primitive | `string` |  | A Phosphor class name for the glyph ArenaIcon draws, muted. |
 | `title*` | primitive | `string` |  | The headline: what is empty. |
-| `headingLevel` | enum | `ArenaHeadingLevel` | `"h3"` | Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. It defaults to `h3`, the card rung of the title ladder, because an empty state fills the body of a region something above it already names, so its headline sits under that name rather than beside it. `none` is refused at runtime, the rule every component whose `title` is required follows: a title required because it names the thing it draws cannot also be told that the name is not one. |
+| `headingLevel` | enum | `ArenaHeadingLevel` | `"h3"` | Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. The default is `h3`, the card rung of the title ladder, because an empty state fills the body of a region something above it already names. The headline sits under that name rather than beside it. `none` is refused at runtime, the rule every component whose `title` is required follows. A title required because it names the thing it draws cannot also be told that the name is not one. |
 | `message` | primitive | `string` |  | A sentence of guidance under the title. |
 | `action` | slot |  |  | A single call-to-action control, centred under the message. |
 

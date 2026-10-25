@@ -1,12 +1,13 @@
 /* The Angular half of the boundary sweep: the same derived cases, rendered through the template
  * the playground generator writes for a fixture node, compiled at runtime with every component
  * and projection marker it names. The rule each case is held to is read from the shared module
- * every layer's suite applies. */
+ * every layer's suite applies. Sites are read from the whole document, because a slot projected
+ * into an overlay lands in a pane on the body and not inside the fixture. */
 import { useTestEnvironment } from './TestbedEnv';
 useTestEnvironment();
 
 import '@angular/compiler';
-import test from 'node:test';
+import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -15,6 +16,7 @@ import { Component, type Type } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import * as ArenaNg from '../index';
 import { LIB, REPO } from './Compliance';
+import { disposeOverlays } from './Overlays';
 import { ArenaDialog } from '../components/feedback/arena-dialog/ArenaDialog';
 import { ArenaConfirmDialog } from '../components/feedback/arena-confirm-dialog/ArenaConfirmDialog';
 import { ArenaSheet } from '../components/feedback/arena-sheet/ArenaSheet';
@@ -23,7 +25,18 @@ import { ArenaCommandPalette } from '../components/navigation/arena-command-pale
 import { ArenaToastHost } from '../components/feedback/arena-toast-host/ArenaToastHost';
 import { ArenaMenu } from '../components/navigation/arena-menu/ArenaMenu';
 import { ArenaTooltip } from '../components/feedback/arena-tooltip/ArenaTooltip';
+import { ArenaCombobox } from '../components/forms/arena-combobox/ArenaCombobox';
 import { ArenaButton } from '../components/forms/arena-button/ArenaButton';
+
+const root = document.documentElement;
+before(() => {
+  root.style.setProperty('--bp-md', '768px');
+  root.style.setProperty('--bp-sm', '480px');
+});
+after(() => {
+  root.style.removeProperty('--bp-md');
+  root.style.removeProperty('--bp-sm');
+});
 
 const cases = await import(pathToFileURL(join(LIB, 'arena', 'boundary-cases.ts')).href);
 const playgrounds = await import(pathToFileURL(join(REPO, 'scripts', 'generate', 'arena', 'generate-playgrounds.ts')).href);
@@ -35,7 +48,7 @@ const tags = angular.componentTags(playgrounds.loadAngularSources(REPO, places))
 const markers = angular.markerNames(readFileSync(join(REPO, angular.MARKERS_SOURCE), 'utf8'));
 const registry = ArenaNg as unknown as Record<string, Type<unknown>>;
 
-function host(node: unknown): Type<unknown> {
+function host(node: unknown, label: string): Type<unknown> {
   const fields = angular.collectFields(node, contracts, [], 'f');
   const imports = new Set<string>();
   const template = angular.renderNode(node, places, fields, markers, tags, 0, imports);
@@ -47,7 +60,7 @@ function host(node: unknown): Type<unknown> {
   class Host {}
   for (const field of fields as { name: string; value: unknown }[])
     (Host.prototype as Record<string, unknown>)[field.name] = field.value;
-  return Component({ standalone: true, imports: resolved, template })(Host) as Type<unknown>;
+  return Component({ selector: `boundaries-${label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}-host`, standalone: true, imports: resolved, template })(Host) as Type<unknown>;
 }
 
 const all = cases.boundaryCases(REPO);
@@ -59,18 +72,19 @@ test('the sweep found slots to measure', () => {
 
 for (const kase of all) {
   test(`${kase.label}: every slot it projects is a boundary or declared transparent`, () => {
-    const fixture = TestBed.createComponent(host(kase.node));
+    const fixture = TestBed.createComponent(host(kase.node, kase.label));
     try {
       fixture.detectChanges();
       if (kase.press) {
         (fixture.nativeElement.querySelector(kase.press) as HTMLElement | null)?.click();
         fixture.detectChanges();
       }
-      const { problems, spent: used } = cases.siteProblems(kase, cases.readSites(fixture.nativeElement, kase), 'angular');
+      const { problems, spent: used } = cases.siteProblems(kase, cases.readSites(fixture.nativeElement.ownerDocument.body, kase), 'angular');
       for (const key of used) spent.add(key);
       assert.deepEqual(problems, []);
     } finally {
       fixture.destroy();
+      disposeOverlays();
     }
   });
 }
@@ -82,12 +96,13 @@ test('every transparent slot is one a render projected into', () => {
 const FLOATING: Record<string, string> = {
   'arena-dialog': 'scrim', 'arena-confirm-dialog': 'root', 'arena-sheet': 'root', 'arena-onboarding': 'root',
   'arena-command-palette': 'root', 'arena-toast-host': 'root', 'arena-menu': 'panel', 'arena-tooltip': 'bubble',
+  'arena-combobox': 'panel',
 };
 
 test('every floating slot of a T9 component carries data-arena-surface="floating"', () => {
   @Component({
     standalone: true,
-    imports: [ArenaDialog, ArenaConfirmDialog, ArenaSheet, ArenaOnboarding, ArenaCommandPalette, ArenaToastHost, ArenaMenu, ArenaTooltip, ArenaButton],
+    imports: [ArenaDialog, ArenaConfirmDialog, ArenaSheet, ArenaOnboarding, ArenaCommandPalette, ArenaToastHost, ArenaMenu, ArenaTooltip, ArenaButton, ArenaCombobox],
     template: `
       <arena-dialog [open]="true" title="T" label="L"><p>x</p></arena-dialog>
       <arena-confirm-dialog [open]="true" title="T" />
@@ -97,6 +112,7 @@ test('every floating slot of a T9 component carries data-arena-surface="floating
       <arena-toast-host />
       <arena-menu [items]="[]"><arena-button trigger>Open</arena-button></arena-menu>
       <arena-tooltip label="Copy"><arena-button>Copy</arena-button></arena-tooltip>
+      <arena-combobox label="Region" [options]="[{ value: 'eu', label: 'Europe' }]" />
     `,
   })
   class Surfaces {}
@@ -106,6 +122,7 @@ test('every floating slot of a T9 component carries data-arena-surface="floating
     const root = fixture.nativeElement as Element;
     (root.querySelector('arena-menu button') as HTMLElement).click();
     root.querySelector('arena-tooltip button')?.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+    root.querySelector('arena-combobox [role="combobox"]')?.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
     fixture.detectChanges();
     for (const [tag, slot] of Object.entries(FLOATING)) {
       const component = root.querySelector(tag) as HTMLElement | null;

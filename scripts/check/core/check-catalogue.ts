@@ -18,12 +18,13 @@ import {
   POLARITIES, FONT_ROLES, requiredKeys,
 } from '../../generate/core/arena-cli/palette-keys.ts';
 import { CSS_TARGETS } from '../../generate/arena/generate-tokens.ts';
-import { tokenCatalogue } from '../../lib/arena/package-assembly.ts';
+import { ALIAS_SOURCE, CHANNEL_SOURCES, tokenCatalogue } from '../../lib/arena/package-assembly.ts';
 import { readPlugin, resolvedPlugin } from '../../generate/core/arena-cli/theme-css.ts';
 import type { TokenCatalogue } from '../../generate/core/arena-cli/theme-css.ts';
 import { ROLES, movedTokens } from './check-style-plugin.ts';
 import {
   ARENA_EXT, floorProblems, nameProblems, totalityProblems, valueProblems,
+  type KnownAnswers,
 } from '../../generate/core/arena-cli/style-plugin-rules.ts';
 
 export const CATALOGUE = 'plugin-style-store/catalogue';
@@ -40,7 +41,7 @@ export const CARRIES = [TOKENS, SHEET, CONFIG, CARD];
 
 export const node = {
   name: 'check:catalogue',
-  reads: [ROLES, ...CSS_TARGETS, `${CATALOGUE}/**`],
+  reads: [ROLES, ALIAS_SOURCE, ...CSS_TARGETS, ...CHANNEL_SOURCES, `${CATALOGUE}/**`],
   writes: [],
   feeds: [],
 };
@@ -88,10 +89,15 @@ export function tokenProblems(name: string, roles: Record<string, unknown>, base
   const tokens = readJson(join(base, where)) as Record<string, unknown>;
   const problems = [...nameProblems(name, POLARITIES, where)];
 
+  let shipped: Record<string, string> | undefined;
+  const known: KnownAnswers = {
+    colourRoles: (named) => (roles[named] as { $type?: string } | undefined)?.$type === 'color',
+    resolve: (flat) => (shipped ??= tokenCatalogue().tokens as Record<string, string>)[flat],
+  };
   for (const { key, token } of movedTokens(tokens)) {
     const role = roles[key] as Parameters<typeof valueProblems>[3] | undefined;
     problems.push(...shapeProblems(where, key, token, role));
-    if (role) problems.push(...valueProblems(where, key, token, role));
+    if (role) problems.push(...valueProblems(where, key, token, role, known));
   }
 
   const asked = Object.entries(roles as Record<string, { $extensions?: Record<string, { default?: unknown }> }>)

@@ -26,8 +26,8 @@ export const SCRIPTS = join(REPO, 'scripts');
 export const LIB = join(SCRIPTS, 'lib');
 export const UTILS = join(SCRIPTS, 'utils');
 export const CHECKS = join(SCRIPTS, 'check');
-const { comparePattern, isFocusable } = await import(pathToFileURL(join(LIB, 'core', 'behaviour-compliance.ts')).href);
-const { loadBinding, loadPatterns, bindingCases } = await import(pathToFileURL(join(LIB, 'arena', 'behaviour-contracts.ts')).href);
+const { comparePatterns, isFocusable } = await import(pathToFileURL(join(LIB, 'core', 'behaviour-compliance.ts')).href);
+const { loadBinding, loadPatterns, bindingCases, bindingAlso } = await import(pathToFileURL(join(LIB, 'arena', 'behaviour-contracts.ts')).href);
 
 export { isFocusable };
 
@@ -70,7 +70,8 @@ interface CompareOneOptions {
   subjects: Record<string, Element | Element[] | null>;
   behavioural: Record<string, boolean>;
   pattern: PatternFile;
-  binding: { exceptions?: unknown[] };
+  exceptions: unknown[] | undefined;
+  binding: unknown;
 }
 
 function labelResolverFor(root: Element): (el: Element) => Element | null {
@@ -85,12 +86,24 @@ function labelResolverFor(root: Element): (el: Element) => Element | null {
   };
 }
 
-function compareOne({ root, subjects, behavioural, pattern, binding }: CompareOneOptions): string[] {
+function alsoEntries(binding: unknown, bindingPath: string): { pattern: PatternFile; exceptions?: unknown[] }[] {
+  patternCache ??= loadPatterns(REPO) as Map<string, PatternFile>;
+  return (bindingAlso(binding) as { pattern?: string; exceptions?: unknown[] }[]).map((entry) => {
+    const pattern = patternCache!.get(entry.pattern ?? '');
+    if (!pattern) {
+      throw new Error(`${bindingPath}\n  names pattern "${entry.pattern}" in \`also\`, which has no file in ${PATTERN_DIR}`);
+    }
+    return { pattern, exceptions: entry.exceptions };
+  });
+}
+
+function compareOne(
+  { root, subjects, behavioural, pattern, exceptions, binding }: CompareOneOptions, bindingPath: string,
+): string[] {
   const { default: fallbackSubject, ...perRequirement } = subjects;
   const fallback = 'default' in subjects ? fallbackSubject : root;
-  return comparePattern({
-    pattern,
-    binding,
+  return comparePatterns({
+    entries: [{ pattern, exceptions }, ...alsoEntries(binding, bindingPath)],
     subjects: perRequirement,
     fallback,
     behavioural,
@@ -107,7 +120,7 @@ export function assertPattern({ root, bindingPath, subjects = {}, behavioural = 
 
     throw new Error(`${bindingPath}\n  names pattern "${binding.pattern}", which has no file in ${PATTERN_DIR}`);
   }
-  const problems = compareOne({ root, subjects, behavioural, pattern, binding });
+  const problems = compareOne({ root, subjects, behavioural, pattern, exceptions: binding.exceptions, binding }, bindingPath);
 
   if (problems.length) {
     throw new Error(`${bindingPath}\n  pattern: ${pattern.name}\n  - ${problems.join('\n  - ')}`);
@@ -168,7 +181,7 @@ export function assertPatternCases({ bindingPath, cases }: AssertPatternCasesOpt
     }
 
     const { root, subjects = {}, behavioural = {} } = cases[c.name as string]();
-    const found = compareOne({ root, subjects, behavioural, pattern, binding: { exceptions: c.exceptions } });
+    const found = compareOne({ root, subjects, behavioural, pattern, exceptions: c.exceptions, binding }, bindingPath);
     for (const p of found) problems.push(`case "${c.name}" (${c.when}): ${p}`);
   }
   if (problems.length) {

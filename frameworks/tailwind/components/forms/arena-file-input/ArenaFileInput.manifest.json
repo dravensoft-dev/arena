@@ -1,0 +1,108 @@
+{
+  "component": "ArenaFileInput",
+  "answers": [
+    {
+      "family": "emphasis",
+      "options": [
+        "arena-emphasis-secondary",
+        "arena-emphasis-ghost"
+      ],
+      "default": "arena-emphasis-secondary"
+    },
+    {
+      "family": "size",
+      "options": [
+        "arena-size-sm",
+        "arena-size-md",
+        "arena-size-lg"
+      ],
+      "default": "arena-size-md"
+    }
+  ],
+  "slots": {
+    "root": "relative flex flex-col gap-1.5",
+    "label": "font-face-label text-ctl-xs tracking-label-role case-label text-ink-muted/(--level-ink-muted)",
+    "required": "text-primary ml-1",
+    "requiredLabel": "sr-only",
+    "zone": "relative grid justify-start items-center gap-inline transition-[background] duration-[var(--dur-state)] ease-state",
+    "trigger": "col-start-1 row-start-1 inline-flex items-center justify-center gap-control w-fit rounded-control font-body font-control tracking-normal border-[length:var(--bw-control)] cursor-pointer [transition:background_var(--dur-hover)_var(--ease-hover),translate_var(--dur-hover)_var(--ease-hover),scale_var(--dur-hover)_var(--ease-hover),box-shadow_var(--dur-state)_var(--ease-state)] active:scale-[var(--press-scale)] motion-reduce:active:scale-100 disabled:cursor-not-allowed shadow-control-rest outline-none focus-visible:shadow-[inset_0_0_0_var(--focus-width)_var(--focus-ring)] h-[var(--arena-size-control-h,var(--size-md-control-h))] px-[var(--arena-size-control-pad-x,var(--size-md-control-pad-x))] text-[length:var(--arena-size-control-step,var(--size-md-control-step))] bg-[color:var(--arena-emphasis-fill,var(--emphasis-secondary-fill))] text-[color:var(--arena-emphasis-ink,var(--emphasis-secondary-ink))] border-[color:var(--arena-emphasis-edge,var(--emphasis-secondary-edge))]",
+    "icon": "inline-flex text-[length:var(--icon-md)]",
+    "prompt": "col-start-2 row-start-1 min-w-0 font-body text-ctl-sm text-ink-muted/(--level-ink-muted)",
+    "files": "flex flex-wrap items-center gap-inline",
+    "file": "inline-flex items-center gap-inline min-w-0 max-w-full",
+    "size": "font-mono tabular-nums text-ctl-xs text-ink-muted/(--level-ink-muted)",
+    "rejected": "flex flex-col gap-inline",
+    "rejection": "font-body text-ctl-sm text-[color:var(--arena-hue-ink)]",
+    "status": "sr-only",
+    "input": "absolute inset-0 size-full col-start-1 col-end-2 row-start-1 row-end-2 opacity-0 pointer-events-none",
+    "hint": "font-body text-ctl-sm text-ink-muted/(--level-ink-muted)",
+    "error": "font-body text-ctl-sm text-[color:var(--arena-hue-ink)]"
+  },
+  "kind": {
+    "root": "none",
+    "label": "none",
+    "required": "none",
+    "requiredLabel": "none",
+    "zone": "surface",
+    "trigger": "control",
+    "icon": "none",
+    "prompt": "none",
+    "files": "none",
+    "file": "none",
+    "size": "none",
+    "rejected": "none",
+    "rejection": "none",
+    "status": "none",
+    "input": "none",
+    "hint": "none",
+    "error": "none"
+  },
+  "internal": {
+    "dragging": "a drag carrying files is over the zone, set by the layer's own drag handlers",
+    "state": "error while an error shows, from error"
+  },
+  "variants": {
+    "droppable": {
+      "true": {
+        "zone": "p-surface rounded-surface bg-surface border-[length:var(--bw-surface)] border-dashed border-edge-surface shadow-surface-rest"
+      },
+      "false": {}
+    },
+    "dragging": {
+      "true": {
+        "zone": "bg-hover"
+      },
+      "false": {}
+    },
+    "state": {
+      "neutral": {},
+      "error": {
+        "zone": "border-[color:var(--arena-hue-edge)]"
+      }
+    },
+    "disabled": {
+      "true": {
+        "root": "opacity-50"
+      },
+      "false": {
+        "trigger": "hover:-translate-y-[var(--lift-control)] hover:bg-[color:var(--arena-emphasis-fill-hover,var(--emphasis-secondary-fill-hover))] hover:shadow-[var(--arena-emphasis-shadow-hover,var(--shadow-control-rest))] focus-visible:shadow-[inset_0_0_0_var(--focus-width)_var(--focus-ring)]"
+      }
+    }
+  },
+  "defaultVariants": {
+    "droppable": false,
+    "dragging": false,
+    "state": "neutral",
+    "disabled": false
+  },
+  "hues": {
+    "always": {
+      "rejection": "danger",
+      "error": "danger"
+    },
+    "state": {
+      "neutral": null,
+      "error": "danger"
+    }
+  }
+}

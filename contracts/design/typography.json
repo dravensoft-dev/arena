@@ -231,5 +231,14 @@
       },
       "$description": "eyebrows"
     }
+  },
+  "case": {
+    "$type": "keyword",
+    "$extensions": { "com.dravensoft.arena": { "values": ["none", "uppercase", "lowercase", "capitalize"] } },
+    "$description": "Text transforms a role can name as its kernel default. A keyword token is a word the package emits, so a keyword role silent in a root plugin follows it the way a dimension role follows an sp step.",
+    "none": {
+      "$value": "none",
+      "$description": "No transform: the text is drawn as written. tt-key names it, because a key cap shows the key's own spelling."
+    }
   }
 }

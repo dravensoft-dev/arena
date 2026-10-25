@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { componentMap, roleReferencesIn, pluginCss, COMPONENT_MAP, PLUGIN_LAYER_ORDER } from './sheets.ts';
+import { componentMap, roleReferencesIn, aliasesIn, pluginCss, COMPONENT_MAP, PLUGIN_LAYER_ORDER } from './sheets.ts';
 import { LAYER_ORDER } from '../../../lib/tailwind/component-sheets.ts';
 import { repoRoot } from '../../../lib/arena/repo-root.ts';
 import { tokenCatalogue } from '../../../lib/arena/package-assembly.ts';
@@ -33,6 +33,12 @@ test('a colour reference is derived from the catalogue, because a consumer palet
   assert.deepEqual(roleReferencesIn(null), []);
 });
 
+test('the aliases are written as declarations in the catalogue\'s order', () => {
+  assert.deepEqual(aliasesIn({ tokens: {}, roles: {}, aliases: { ink: 'var(--color-base-100)', scrim: 'x' } }),
+    ['--ink:var(--color-base-100);', '--scrim:x;']);
+  assert.deepEqual(aliasesIn(null), []);
+});
+
 test('the shipped catalogue is the one this build actually assembles, not only a fixture', () => {
   const catalogue = tokenCatalogue(repoRoot);
   assert.ok(Object.keys(catalogue.roles).length > 0, 'found 0 roles, so nothing could be answered');
@@ -56,7 +62,7 @@ test('the sheet declares the layer order itself, so where a bundler puts it cann
   const css = pluginCss([{ name: 'shop', css: '.x{}', root: true }]) ?? '';
   assert.ok(css.startsWith(PLUGIN_LAYER_ORDER), 'the order leads the file');
   assert.ok(
-    css.indexOf('@layer theme, base, components, utilities, arena-plugin;')
+    css.indexOf('@layer arena-defaults, theme, base, components, utilities, arena-plugin;')
     < css.indexOf('@layer arena-plugin {'),
     'a bare @layer arena-plugin block met before the order statement registers that name as the '
     + 'LOWEST layer, and every plugin rule contesting a component rule then loses in silence',

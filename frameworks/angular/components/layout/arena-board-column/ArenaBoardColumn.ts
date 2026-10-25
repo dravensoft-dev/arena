@@ -46,17 +46,17 @@ import { ArenaSlotAttributes } from '../../../SlotData';
 export class ArenaBoardColumn {
   protected readonly parts = manifest.parts;
 
-  /** What this column is: a status, a stage, a person, a day. It is the head's text and the column's accessible name at once. Required and guarded at runtime rather than defaulted, because a column of a board is only ever read by what it groups, and an unnamed one is a pile. */
+  /** What this column is: a status, a stage, a person, a day. The title is the head's text and the column's accessible name at once. Required and guarded at runtime rather than defaulted, because a column of a board is only ever read by what it groups, and an unnamed one is a pile. */
   readonly title = input.required<string>();
-  /** Which rung of the document outline the head's text takes. Only the element changes: its class is the same at every value, so the render is identical and no appearance follows from it. It defaults to `h3`, the card rung of the title ladder, because a board sits inside the region a section names and a column sits inside the board. The column's accessible name is separate and is unaffected, since it is the group's own and is carried whatever the head is drawn as. `none` is refused at runtime, the rule every component whose `title` is required follows: a title required because it names the thing it draws cannot also be told that the name is not one. */
+  /** Which rung of the document outline the head's text takes. Only the element changes: its class is the same at every value, so the render is identical and no appearance follows from it. The default is `h3`, the card rung of the title ladder, because a board sits inside the region a section names and a column sits inside the board. The column's accessible name is separate and is unaffected, since it is the group's own and is carried whatever the head is drawn as. `none` is refused at runtime, following the rule of every component whose `title` is required. A title required because it names the thing it draws cannot also be told that the name is not one. */
   readonly headingLevel = input<ArenaHeadingLevel, ArenaHeadingLevel | undefined>(
     'h3', { transform: (value) => value ?? 'h3' },
   );
-  /** How many things are in the column, drawn beside the title in the numeric register. It is passed rather than counted, because Arena never derives what it draws from what a consumer projected: the column holds the consumer's own elements, one of which may be a placeholder and none of which Arena can read. */
+  /** How many things are in the column, drawn beside the title in the numeric register. The count is passed rather than counted, because Arena never derives what it draws from what a consumer projected. The column holds the consumer's own elements, one of which may be a placeholder and none of which Arena can read. */
   readonly count = input<number>();
   /** One line under the head: the total the column adds up to, an estimate, a limit. A string rather than a number because the unit travels with it, and a column reading "19 pts" is one value and not two. */
   readonly summary = input<string>();
-  /** An identity colour for the column, from the same categorical ramp ArenaTag and the charts read, so a status keeps its colour between a board, a table and a chart. It inks the head's mark and reaches the column as `data-arena-color-id` and the hue channels (`--arena-hue-ink`, `--arena-hue-edge`, `--arena-hue-fill-strong`, `--arena-hue-fill-soft`), so an appearance that fills the whole head with it is a style plugin's to write and needs no member here. */
+  /** An identity colour for the column, from the same categorical ramp ArenaTag and the charts read, so a status keeps its colour between a board, a table and a chart. The colour inks the head's mark and reaches the column as `data-arena-color-id` and the hue channels (`--arena-hue-ink`, `--arena-hue-edge`, `--arena-hue-fill-strong`, `--arena-hue-fill-soft`). An appearance that fills the whole head with it is therefore a style plugin's to write and needs no member here. */
   readonly colorId = input<ArenaCatSlot>();
 
   protected readonly level = computed(() => {

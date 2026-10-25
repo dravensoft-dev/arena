@@ -1,0 +1,30 @@
+<!-- @dsCard group="Tailwind" viewport="700x200" name="ArenaSparkline" subtitle="The frame and tooltip of the sparkline, rendered from ArenaSparkline.manifest.json" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../../intro/styles.css">
+<link rel="stylesheet" href="../../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../../consume/components/charts/arena-sparkline/ArenaSparkline.styles.generated.css">
+<link rel="stylesheet" href="../../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+
+const manifest = await (await fetch('./ArenaSparkline.manifest.json')).json();
+const c = arenaClassesFor(manifest);
+
+/* The line is hand drawn and is not rendered here; the placeholder stands where it goes. */
+function plot() {
+  const frame = el('div', { class: `${c.frame} bg-base-300 rounded-sm` });
+  frame.style.height = '20px';
+  frame.style.marginTop = '64px';
+  const tip = el('div', { class: c.tooltip }, el('div', { class: c.tooltipLabel, text: 'Fri' }), el('div', { class: c.tooltipValue, text: '190' }));
+  tip.style.left = '70%';
+  tip.style.setProperty('--arena-sparkline-shift', '0.7');
+  tip.style.top = '0';
+  frame.append(tip);
+  return frame;
+}
+
+mountSpecimen({ sections: [
+  section('Frame and tooltip', [el('div', { class: 'flex flex-col gap-4', style: 'width:200px' }, plot())], { align: 'start' }),
+]});
+</script></body></html>

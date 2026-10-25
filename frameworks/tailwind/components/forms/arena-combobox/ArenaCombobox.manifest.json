@@ -1,0 +1,119 @@
+{
+  "component": "ArenaCombobox",
+  "slots": {
+    "root": "relative flex flex-col gap-1.5",
+    "label": "font-face-label text-ctl-xs tracking-label-role case-label text-ink-muted/(--level-ink-muted)",
+    "field": "flex items-center gap-control min-h-ctl-h px-control-x bg-field border-[length:var(--bw-field)] rounded-field transition-[border-color,box-shadow] duration-[var(--dur-hover)] ease-hover",
+    "icon": "inline-flex text-ink-muted/(--level-ink-muted) text-[length:var(--icon-md)]",
+    "chips": "flex flex-1 flex-wrap items-center gap-inline py-1 min-w-0",
+    "more": "inline-flex items-center rounded-marker border-[length:var(--bw-marker)] border-edge-marker px-marker-x py-marker-y text-ctl-xs font-semibold text-ink-muted/(--level-ink-muted)",
+    "input": "flex-1 min-w-0 bg-transparent border-none outline-none text-ink-body placeholder:text-ink-muted/(--level-ink-muted) font-body text-ctl",
+    "statusIcon": "text-[length:var(--icon-md)]",
+    "clear": "inline-flex items-center justify-center min-h-ctl-h-sm min-w-ctl-h-sm bg-transparent border-none cursor-pointer text-ink-muted/(--level-ink-muted) text-[length:var(--icon-sm)]",
+    "caret": "inline-flex pointer-events-none text-ink-muted/(--level-ink-muted) text-[length:var(--icon-sm)]",
+    "hint": "font-body text-ctl-sm text-ink-muted/(--level-ink-muted)",
+    "error": "font-body text-ctl-sm text-[color:var(--arena-hue-ink)]",
+    "announcement": "sr-only",
+    "panel": "grow z-dropdown max-h-80 overflow-auto p-1.5 bg-surface-floating border-[length:var(--bw-surface)] border-edge-surface-floating rounded-surface-floating shadow-surface-floating",
+    "list": "flex flex-col",
+    "option": "flex items-center gap-row-floating w-full min-h-row-min text-left px-row-floating-x py-row-floating-y rounded-control font-body text-md",
+    "optionLabel": "flex-1",
+    "optionMark": "inline-flex text-[length:var(--icon-sm)]",
+    "empty": "px-row-floating-x py-row-floating-y font-body text-md text-ink-muted/(--level-ink-muted)",
+    "status": "px-row-floating-x py-row-floating-y font-body text-md text-ink-muted/(--level-ink-muted)"
+  },
+  "kind": {
+    "root": "none",
+    "label": "none",
+    "field": "field",
+    "icon": "none",
+    "chips": "none",
+    "more": "marker",
+    "input": "none",
+    "statusIcon": "none",
+    "clear": "none",
+    "caret": "none",
+    "hint": "none",
+    "error": "none",
+    "announcement": "none",
+    "panel": "floating",
+    "list": "none",
+    "option": "row",
+    "optionLabel": "none",
+    "optionMark": "none",
+    "empty": "row",
+    "status": "row"
+  },
+  "floating": {
+    "panel": "a list panel floats over the page, so the form holding its field does not decide its rows"
+  },
+  "internal": {
+    "state": "error when error is given, valid when valid holds",
+    "active": "the row the keyboard cursor is on",
+    "selected": "the row whose value is chosen",
+    "blocked": "a row that cannot be chosen because the cap is reached"
+  },
+  "variants": {
+    "state": {
+      "neutral": {
+        "field": "border-edge-field focus-within:border-secondary focus-within:ring-[length:var(--focus-width)] focus-within:ring-secondary/16"
+      },
+      "error": {
+        "field": "border-[color:var(--arena-hue-edge)] ring-[length:var(--focus-width)] ring-[color:var(--arena-hue-fill-soft)]",
+        "statusIcon": "text-[color:var(--arena-hue-ink)]"
+      },
+      "valid": {
+        "field": "border-[color:var(--arena-hue-edge)] ring-[length:var(--focus-width)] ring-[color:var(--arena-hue-fill-soft)] focus-within:border-secondary focus-within:ring-[length:var(--focus-width)] focus-within:ring-secondary/16",
+        "statusIcon": "text-[color:var(--arena-hue-ink)]"
+      }
+    },
+    "disabled": {
+      "true": {
+        "root": "opacity-50",
+        "input": "cursor-not-allowed"
+      },
+      "false": {}
+    },
+    "active": {
+      "true": {
+        "option": "bg-primary/14 text-ink-body/(--level-ink-body)"
+      },
+      "false": {
+        "option": "bg-transparent text-ink-body/(--level-ink-body)"
+      }
+    },
+    "selected": {
+      "true": {
+        "optionLabel": "font-control"
+      },
+      "false": {
+        "optionLabel": "font-medium"
+      }
+    },
+    "blocked": {
+      "true": {
+        "option": "opacity-60 cursor-not-allowed"
+      },
+      "false": {
+        "option": "cursor-pointer"
+      }
+    }
+  },
+  "defaultVariants": {
+    "state": "neutral",
+    "disabled": false,
+    "active": false,
+    "selected": false,
+    "blocked": false
+  },
+  "hues": {
+    "always": {
+      "error": "danger"
+    },
+    "state": {
+      "neutral": null,
+      "error": "danger",
+      "valid": "success"
+    }
+  }
+}

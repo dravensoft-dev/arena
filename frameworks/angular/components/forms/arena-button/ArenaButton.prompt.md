@@ -2,9 +2,9 @@ Arena action button, one primary per view, and danger stays outline. Standalone,
 signal I/O. The host stays bare and unstyled, and Arena's own styling lands on a real `<button>` inside it. The element carrying the behaviour contract must be the element the browser already knows how to focus, activate and disable.
 
 ```html
-<arena-button (click)="save()">Save changes</arena-button>
+<arena-button (activate)="save()">Save changes</arena-button>
 <arena-button class="arena-emphasis-secondary arena-size-sm">Cancel</arena-button>
-<arena-button destructive icon="ph-bold ph-trash" (click)="confirmDelete()">Delete project</arena-button>
+<arena-button destructive icon="ph-bold ph-trash" (activate)="confirmDelete()">Delete project</arena-button>
 <arena-button iconRight="ph-bold ph-caret-down" class="arena-emphasis-ghost">More</arena-button>
 <arena-button loading class="arena-emphasis-secondary">Deploying</arena-button>
 <arena-button type="submit" form="project-form" class="arena-emphasis-secondary arena-fill">Create project</arena-button>
@@ -18,8 +18,8 @@ signal I/O. The host stays bare and unstyled, and Arena's own styling lands on a
 |---|---|---|---|---|
 | `content` | slot |  |  | The button's label. Sits between the two icons when both are given. |
 | `destructive` | primitive | `boolean` | `false` | Whether the action destroys or removes something. Destructive draws the danger outline whatever emphasis the button is given: danger is never filled outside ArenaConfirmDialog's final confirmation. |
-| `icon` | primitive | `string` |  | Phosphor class name drawn before the label. Replaced by the spinner while loading. |
-| `iconRight` | primitive | `string` |  | Phosphor class name drawn after the label: a caret on a menu trigger, an arrow on a next action. |
+| `icon` | primitive | `string` |  | Phosphor class name drawn before the label through ArenaIcon. Replaced by the spinner while loading. |
+| `iconRight` | primitive | `string` |  | Phosphor class name drawn after the label through ArenaIcon: a caret on a menu trigger, an arrow on a next action. |
 | `loading` | primitive | `boolean` | `false` | Replaces the leading icon with a spinner and blocks activation. The spin slows under reduced motion rather than stopping: a frozen spinner reads as a hung process. |
 | `disabled` | primitive | `boolean` | `false` | Blocks activation and dims the control. Implied by loading. |
 | `type` | enum | `ArenaButtonType` | `"button"` | Native button behaviour. Defaults to 'button' so a button inside a form does not submit it by accident. |
@@ -27,8 +27,8 @@ signal I/O. The host stays bare and unstyled, and Arena's own styling lands on a
 | `value` | primitive | `string` |  | The value submitted under `name`. |
 | `autoFocus` | primitive | `boolean` | `false` | Focused on mount. |
 | `form` | primitive | `string` |  | The id of the form this button belongs to, when it is not a descendant of it. |
-| `tabStop` | primitive | `boolean` | `true` | Whether the control is reached from the page's Tab sequence. Set false when it lives inside a composite that manages its own focus (a grid with a roving tab stop, a menu), where reaching it by Tab would be a second way in. Arena writes tabindex="-1" and the control stays programmatically focusable; a positive tab order is not expressible and never should be. Arena's own table is NOT that composite: its grid deliberately has no step-in, so a control in a cell keeps its place in the page Tab sequence and setting this false there takes away its only keyboard route, since the cursor moves by cell and Enter activates the row. |
-| `click` | event |  |  | The button was activated, by pointer or by keyboard. |
+| `tabStop` | primitive | `boolean` | `true` | Whether the control is reached from the page's Tab sequence. Set false when it lives inside a composite that manages its own focus (a grid with a roving tab stop, a menu). Reaching it by Tab there would be a second way in. Arena writes tabindex="-1" and the control stays programmatically focusable; a positive tab order is not expressible and never should be. Arena's own table is NOT that composite: its grid deliberately has no step-in, so a control in a cell keeps its place in the page Tab sequence. Setting this false there takes away its only keyboard route, since the cursor moves by cell and Enter activates the row. |
+| `activate` | event |  |  | The button was activated, by pointer or by keyboard. The native click is never stopped, so a listener on the document hears every click inside the button; this event reports only the activation. |
 
 <!-- @api end -->
 
@@ -48,6 +48,8 @@ signal I/O. The host stays bare and unstyled, and Arena's own styling lands on a
 - `Enter`: activate.
 <!-- @keys end -->
 
+**Arena's popover and menu write the popup state onto the inner `<button>`.** ARIA written on `<arena-button>` itself names nothing, since the host draws no box.
+
 **Do / Don't**
 - Use `destructive` for a destructive action, at every emphasis: transparent background, border and text in
   `--error`. The outline is the danger convention. The only filled danger surface in Arena is `ArenaConfirmDialog`'s final confirmation.
@@ -64,16 +66,13 @@ signal I/O. The host stays bare and unstyled, and Arena's own styling lands on a
   discover. A disabled button is unreachable by Tab and announces nothing about why; prefer
   keeping it enabled and reporting the reason on activation.
 - Don't wrap `<arena-button>` in another button or an anchor. The component renders a real `<button>`, and nesting interactive elements is invalid regardless of how it looks.
-- Don't rely on click delegation from an ancestor. `click` is an output named after a native DOM event. Angular then registers **both** the output subscription and a host DOM listener, so a consumer's `(click)` would fire twice on every press. The inner button calls
-  `stopPropagation()` to make it fire once, which is the whole reason the event does not reach
-  ancestors. Bind `(click)` on the `<arena-button>` itself. `type="submit"` still submits: the
-  default action is untouched, only propagation is.
+- Bind `(activate)` on the `<arena-button>` itself. The inner button's native click reaches every ancestor, and `activate` reports only a press the button accepts: never while `disabled` or `loading`. `type="submit"` still submits, because the default action is untouched.
 
 **By hand, in real Chromium**: none of these is provable in happy-dom. Run `bun run demos` and
 open `/frameworks/angular/components/forms/arena-button/ArenaButton.demo.generated.html`:
 - With `loading` set, the spinner turns; with `prefers-reduced-motion: reduce` forced in
   DevTools' Rendering pane, it keeps turning and only slows.
-- `active:scale-98` gives a real press response. The gold focus ring is visible on
+- `active:scale-98` gives a real press response. The focus ring is visible on
   keyboard focus at every emphasis, including `arena-emphasis-ghost`, whose border is
   transparent. The ring draws over any hover shadow.
 - `arena-fill` on the host spans the row. The host carries `display: contents`, so the class scopes over the button it draws. Without that the host would blockify to shrink-to-fit as a flex item, and the button would measure the host instead of the row.

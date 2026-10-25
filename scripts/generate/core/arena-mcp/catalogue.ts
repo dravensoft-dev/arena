@@ -10,6 +10,7 @@
  * spends a call to be told the server has no such thing. */
 
 import { walk, relPosix, readIn, SUPPORT, type Manifest } from './payload.ts';
+import { replaceOutsideCode } from './code-spans.ts';
 import { byCodeUnit, dirPosix, resolvePosix } from './posix.ts';
 
 export const SCHEME = 'arena';
@@ -39,15 +40,30 @@ export const STYLE_MIME: Record<string, string> = {
   '.md': 'text/markdown', '.json': 'application/json', '.css': 'text/css',
 };
 
-export function styleMime(rel: string) {
+export const IDENTITY_DIR = 'arena-from-scratch';
+export const IDENTITY_PREFIX = `${SCHEME}://identity/`;
+export const IDENTITY_MIME: Record<string, string> = { '.html': 'text/html' };
+
+function mimeIn(table: Record<string, string>, rel: string) {
   const dot = rel.lastIndexOf('.');
-  return dot === -1 ? undefined : STYLE_MIME[rel.slice(dot)];
+  return dot === -1 ? undefined : table[rel.slice(dot)];
+}
+
+export function styleMime(rel: string) {
+  return mimeIn(STYLE_MIME, rel);
+}
+
+export function identityMime(rel: string) {
+  return mimeIn(IDENTITY_MIME, rel);
 }
 
 const jsonIn = (rel: string, dir: string) => dirPosix(rel) === dir && rel.endsWith('.json');
 const jsonName = (rel: string) => (rel.split('/').at(-1) ?? '').replace(/\.json$/, '');
 
 export const FAMILY_PREFIX = `${SCHEME}://family/`;
+export const REFERENCE_PREFIX = `${SCHEME}://reference/`;
+export const CATEGORY_PREFIX = `${SCHEME}://category/`;
+export const COMPONENT_PREFIX = `${SCHEME}://component/`;
 
 export type Entry = { uri: string; rel: string; title: string; mime: string };
 
@@ -73,6 +89,10 @@ export function extractFamilies(text: string): Array<{ name: string; description
 export function nameOf(rel: string) {
   const last = rel.split('/').at(-1) ?? '';
   return last.replace(PROMPT_SUFFIX, '').replace(/\.md$/, '');
+}
+
+export function referenceName(rel: string) {
+  return relPosix(REFERENCE_DIR, rel).replace(/\.md$/, '').replace(/\/index$/, '');
 }
 
 export function categoryOf(rel: string) {
@@ -131,6 +151,15 @@ export function entries(payload: string, manifest: Manifest): Entry[] {
       }
       continue;
     }
+    if (rel.startsWith(`${IDENTITY_DIR}/`)) {
+      const under = relPosix(IDENTITY_DIR, rel);
+      const mime = identityMime(rel);
+      if (mime !== undefined) {
+        found.push({ uri: `${IDENTITY_PREFIX}${under}`, rel, mime,
+          title: `Identity document: ${under}` });
+      }
+      continue;
+    }
     if (jsonIn(rel, TOKENS_DIR) && rel !== ROLES) {
       found.push({ uri: `${TOKENS_PREFIX}${jsonName(rel)}`, rel, mime: 'application/json',
         title: `Tokens: ${jsonName(rel)}` });
@@ -142,17 +171,17 @@ export function entries(payload: string, manifest: Manifest): Entry[] {
       continue;
     }
     if (rel.startsWith(`${REFERENCE_DIR}/`) && rel.endsWith('.md')) {
-      found.push({ uri: `${SCHEME}://reference/${nameOf(rel)}`, rel, mime: 'text/markdown',
-        title: `Reference: ${nameOf(rel)}` });
+      found.push({ uri: `${REFERENCE_PREFIX}${referenceName(rel)}`, rel, mime: 'text/markdown',
+        title: `Reference: ${referenceName(rel)}` });
       continue;
     }
     if (rel.endsWith(`/${INDEX}`) && rel.includes('/components/')) {
-      found.push({ uri: `${SCHEME}://category/${categoryOf(rel)}`, rel, mime: 'text/markdown',
+      found.push({ uri: `${CATEGORY_PREFIX}${categoryOf(rel)}`, rel, mime: 'text/markdown',
         title: `Every ${layer} component filed under ${categoryOf(rel)}` });
       continue;
     }
     if (rel.endsWith(PROMPT_SUFFIX)) {
-      found.push({ uri: `${SCHEME}://component/${nameOf(rel)}`, rel, mime: 'text/markdown',
+      found.push({ uri: `${COMPONENT_PREFIX}${nameOf(rel)}`, rel, mime: 'text/markdown',
         title: `${nameOf(rel)}: its members, its examples and its Do and Don't` });
     }
   }
@@ -161,7 +190,7 @@ export function entries(payload: string, manifest: Manifest): Entry[] {
 
 export function catalogue(payload: string, manifest: Manifest) {
   const found = entries(payload, manifest);
-  const components = found.filter((one) => one.uri.startsWith(`${SCHEME}://component/`));
+  const components = found.filter((one) => one.uri.startsWith(COMPONENT_PREFIX));
   if (components.length === 0) {
     throw new Error('arena-mcp: the payload carries no component document, so every question about '
       + 'a component would be answered with silence. Check that the Arena package it came from is '
@@ -184,7 +213,7 @@ export function relIndex(found: Entry[]) {
 }
 
 export function withUris(text: string, rel: string, byRel: Map<string, string>) {
-  return text.replace(MARKDOWN_LINK, (whole, target: string) => {
+  return replaceOutsideCode(text, MARKDOWN_LINK, (whole, target = '') => {
     if (ADDRESSED.test(target)) return whole;
     const cut = target.indexOf('#');
     const path = cut === -1 ? target : target.slice(0, cut);
@@ -211,8 +240,9 @@ export function words(text: string) {
 }
 
 export function nameFor(entry: Entry) {
-  if (!entry.uri.startsWith(STYLE_PREFIX)) return nameOf(entry.rel);
-  return entry.uri.slice(STYLE_PREFIX.length).replace(/\.[a-z]+$/, '').replace(/\//g, ' ');
+  const prefix = [STYLE_PREFIX, IDENTITY_PREFIX].find((one) => entry.uri.startsWith(one));
+  if (prefix === undefined) return nameOf(entry.rel);
+  return entry.uri.slice(prefix.length).replace(/\.[a-z]+$/, '').replace(/\//g, ' ');
 }
 
 export function score(entry: Entry, wanted: Set<string>, summary: string) {

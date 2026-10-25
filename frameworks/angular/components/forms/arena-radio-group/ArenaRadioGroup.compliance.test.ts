@@ -26,7 +26,7 @@ const RADIO_BINDING = join(ANGULAR_COMPONENTS, 'forms/arena-radio/ArenaRadio.beh
   imports: [ArenaRadioGroup, ArenaRadio],
   template: `
     <arena-radio-group [ariaLabel]="ariaLabel" [name]="name" [value]="value"
-                       (change)="chosen.push($event)">
+                       (valueChange)="chosen.push($event)">
       <arena-radio value="production" label="Production" hint="Serves real traffic" />
       <arena-radio value="staging" label="Staging" />
       <arena-radio value="qa" label="QA" [disabled]="qaDisabled" />
@@ -93,6 +93,17 @@ test('an omitted name is generated, still shared, and never collides with a seco
   } finally {
     first.fixture.destroy();
     second.fixture.destroy();
+  }
+});
+
+test('a blank name is generated like an omitted one, because a radio named "" belongs to no group', () => {
+  const { fixture, radios } = render({ name: '' });
+  try {
+    const names = new Set(radios.map((r) => r.getAttribute('name')));
+    assert.equal(names.size, 1);
+    assert.notEqual([...names][0], '');
+  } finally {
+    fixture.destroy();
   }
 });
 

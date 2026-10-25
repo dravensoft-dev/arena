@@ -1,10 +1,10 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaOnboarding.classes.generated.ts';
 import { onboardingWidth, onboardingHeightReserve, sp3, sp4 } from '../../../Tokens.generated.js';
 
 const SSR_VIEWPORT_H = 900;
-import { useArenaDialogModal } from '../../../UseDialogModal.ts';
+import { arenaReclaimFocus, useArenaDialogModal } from '../../../UseDialogModal.ts';
 
 import type { ArenaOnboardingStep, ArenaOnboardingAnchor } from '../../../Api.generated';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
@@ -53,7 +53,11 @@ export function ArenaOnboarding({ className, open, steps, index = 0, onNext, onB
 
   const panelRef = useRef<HTMLDivElement | null>(null);
   const onKeyDown = useArenaDialogModal({ open, panelRef, onDismiss: onSkip });
-  if (!open || !steps.length) return null;
+  const shown = open && steps.length > 0;
+  useEffect(() => {
+    if (shown && panelRef.current) arenaReclaimFocus(panelRef.current);
+  });
+  if (!shown) return null;
   const step = steps[index] || {};
   const last = index === steps.length - 1;
 
@@ -74,7 +78,7 @@ export function ArenaOnboarding({ className, open, steps, index = 0, onNext, onB
   const styles = arenaOnboardingStyles({ placement: anchor ? 'anchored' : 'floating', open: true });
   const currentDot = arenaOnboardingStyles({ placement: anchor ? 'anchored' : 'floating', open: true, current: true });
   return (
-    <div onClick={onSkip} className={arenaClassName('ArenaOnboarding', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()} data-arena-surface="floating">
+    <div onClick={onSkip} className={arenaClassName('ArenaOnboarding', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()} data-arena-surface="floating">
       <div role="dialog" aria-modal="true" aria-label={label}
         ref={panelRef} tabIndex={-1} onKeyDown={onKeyDown} onClick={(e) => e.stopPropagation()}
         className={styles.panel()} data-arena-part={manifest.parts.panel} {...styles.$data.panel()} style={pos}>
@@ -88,9 +92,9 @@ export function ArenaOnboarding({ className, open, steps, index = 0, onNext, onB
                 data-arena-part={manifest.parts.dot} {...(i === index ? currentDot : styles).$data.dot()} />
             ))}
           </div>
-          {index > 0 && <button onClick={onBack} className={styles.text()} data-arena-part={manifest.parts.text} {...styles.$data.text()}>{locale.onboardingBack}</button>}
-          {!last && <button onClick={onSkip} className={styles.text()} data-arena-part={manifest.parts.text} {...styles.$data.text()}>{locale.onboardingSkip}</button>}
-          <button onClick={last ? onDone : onNext} className={styles.next()} data-arena-part={manifest.parts.next} {...styles.$data.next()}>
+          {index > 0 && <button type="button" onClick={onBack} className={styles.text()} data-arena-part={manifest.parts.text} {...styles.$data.text()}>{locale.onboardingBack}</button>}
+          {!last && <button type="button" onClick={onSkip} className={styles.text()} data-arena-part={manifest.parts.text} {...styles.$data.text()}>{locale.onboardingSkip}</button>}
+          <button type="button" onClick={last ? onDone : onNext} className={styles.next()} data-arena-part={manifest.parts.next} {...styles.$data.next()}>
             {last ? locale.onboardingDone : locale.onboardingNext}
           </button>
         </div>

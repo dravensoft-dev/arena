@@ -109,6 +109,10 @@ test('a control and its codec are decided by form and type together', () => {
   assert.equal(controlFor({ form: 'array', of: 'number' }, types).control, 'lines');
   assert.equal(controlFor({ form: 'array', of: 'ArenaTableColumn' }, types).control, 'json');
   assert.equal(controlFor({ form: 'object', type: 'ArenaTableSort' }, types).control, 'fields');
+  assert.deepEqual(controlFor({ form: 'functionInput', params: { value: 'string' }, returns: 'string' }, types).options,
+    ['none', 'nonEmpty', 'alwaysInvalid']);
+  assert.deepEqual(controlFor({ form: 'functionInput', params: { value: 'number' }, returns: 'string' }, types).options,
+    ['none', 'alwaysInvalid']);
 });
 
 test('consumerData is refused by name rather than dropped', () => {
@@ -211,6 +215,8 @@ test('countSubjects reaches through nested slots', () => {
   assert.equal(countSubjects(null), 0);
   assert.equal(countSubjects({ component: 'ArenaTable', slots: { content: [{ component: 'ArenaTableRow', slots: { content: [SUBJECT] } }] } }), 1);
   assert.equal(countSubjects({ component: 'ArenaTable', slots: { content: [SUBJECT, SUBJECT] } }), 2);
+  assert.equal(countSubjects({ element: 'p', children: [{ text: 'Read ' }, SUBJECT] }), 1);
+  assert.deepEqual(collectUses({ element: 'p', children: [{ component: 'ArenaBadge' }, SUBJECT] }), ['ArenaBadge']);
 });
 
 test('a host with anything but one placeholder throws, naming how many it found', () => {

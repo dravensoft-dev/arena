@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 import {
   LLMS_INDEX, ROUTER, INDEX, REFERENCE_DIR, LAYER_INDEX, BUILD_INTERMEDIATE, layerFile, docUrl,
   summary, categoryIndexes, prompts, layerDocs, servedDocs, references, headline, blurb, index,
-  corpus, nameOf, categoryOf, opening, when, sentenceEnd, balance, lift,
+  corpus, nameOf, categoryOf, opening, when, sentenceEnd, balance, lift, onSite, sectionPages,
 } from './llms-index.ts';
 import { DOMAIN, LAYERS } from './site-pages.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
@@ -95,6 +95,14 @@ test('a reference the router does not link is a reference nothing serves, so the
     'a reference off the router is published nowhere, and one the router names and the tree lacks is a dead link');
 });
 
+test('a section the router links by its index is served whole, the index first and its pages after it', () => {
+  const section = `${REFERENCE_DIR}/bundlers`;
+  const pages = sectionPages(`${section}/index.md`);
+  assert.equal(pages[0], `${section}/index.md`);
+  assert.ok(pages.length > 1 && pages.slice(1).every((rel) => rel.startsWith(`${section}/`) && !rel.endsWith('/index.md')));
+  assert.deepEqual(sectionPages(`${REFERENCE_DIR}/page.md`), [`${REFERENCE_DIR}/page.md`]);
+});
+
 test('a reference names itself and says when it is read, so no second copy of either is written here', () => {
   for (const rel of references()) {
     assert.ok(headline(rel).length > 10, `${rel} carries no heading to be named by`);
@@ -121,6 +129,15 @@ test('a blurb is lifted whole, so it closes every span it opens and links to not
     assert.ok(!/\[[^\]]*$/.test(text), `${rel} is described by an unclosed link label: ${text}`);
   }
   assert.ok(index().includes(blurb(references()[0] ?? '')), 'the index publishes what this reads');
+});
+
+test('a blurb says its "Read this" sentence once, even when the opening already carries it', () => {
+  for (const rel of references()) {
+    const text = blurb(rel);
+    const read = /Read this [^.]*\./.exec(text)?.[0];
+    if (read !== undefined) assert.equal(text.split(read).length - 1, 1, `${rel} is described twice over: ${text}`);
+  }
+  assert.ok(blurb('skills/design/references/environments.md').length > 0);
 });
 
 test('a full stop inside a span, a link or an emphasis is punctuation rather than an ending', () => {
@@ -167,4 +184,9 @@ test('a URL is spelled once, from the domain the site is built for', () => {
 test('a document is named by what it is, not by the path it sits at', () => {
   assert.equal(nameOf('frameworks/react/components/forms/arena-button/ArenaButton.prompt.md'), 'ArenaButton');
   assert.equal(categoryOf('frameworks/react/components/forms/INDEX.md'), 'forms');
+});
+
+test('a pattern in a code span is not a relative link, and a link beside it is', () => {
+  const span = '`' + String.raw`/node_modules[\\/](a|b)[\\/]/` + '`';
+  assert.equal(onSite(`${span} [x](b.md)`, 'skills/design/a.md'), `${span} [x](${docUrl('skills/design/b.md')})`);
 });

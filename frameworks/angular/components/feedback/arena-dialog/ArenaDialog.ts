@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   DOCUMENT,
+  DestroyRef,
   ElementRef,
   Injector,
   afterRenderEffect,
@@ -20,7 +21,7 @@ import { ArenaFooter } from '../../../ProjectionMarkers';
 import { arenaWarnOnce } from '../../../WarnOnce';
 import { arenaDialogStyles } from './ArenaDialog.variants';
 import manifest from './ArenaDialog.classes.generated';
-import { type FocusTrapState, arenaHandleOpenTransition, arenaTrapTabKey } from '../../../FocusTrap';
+import { type FocusTrapState, arenaHandleOpenTransition, arenaHandleTeardown, arenaTrapTabKey } from '../../../FocusTrap';
 import { ArenaIdGenerator } from '../../../ArenaIds';
 import { arenaContainerWidth, arenaReadBreakpoint } from '../../../ContainerSize';
 import type { ArenaBreakpoint } from '../../../Api.generated';
@@ -70,7 +71,7 @@ export class ArenaDialog {
   readonly title = input.required<string>();
   /** A short kicker above the title. */
   readonly eyebrow = input<string>();
-  /** Below this breakpoint the panel fills the screen: full width and height, no radius and no shadow, the title bar pinned to the top and the footer to the bottom, the body scrolling between them, and every edge inset by the device's safe area. The measurement is the dialog's own box, which covers the viewport while open. Absent, the dialog never fills. The width is ignored while filling. */
+  /** Below this breakpoint the panel fills the screen: full width and height, no radius and no shadow. The title bar is pinned to the top and the footer to the bottom, the body scrolls between them, and every edge is inset by the device's safe area. The measurement is the dialog's own box, which covers the viewport while open. Absent, the dialog never fills. The width is ignored while filling. */
   readonly fillBelow = input<ArenaBreakpoint>();
   /** The dialog was dismissed -- by Escape or by a scrim click. No payload. */
   readonly close = output<void>();
@@ -79,7 +80,7 @@ export class ArenaDialog {
   private readonly panel = viewChild<ElementRef<HTMLElement>>('panel');
 
   protected readonly titleId = `${inject(ArenaIdGenerator).next('arena-dialog')}-title`;
-  protected readonly footer = contentChild(ArenaFooter);
+  protected readonly footer = contentChild(ArenaFooter, { descendants: false });
   private readonly measured = arenaContainerWidth();
   private readonly injector = inject(Injector);
   protected readonly fill = computed(() => {
@@ -93,6 +94,9 @@ export class ArenaDialog {
   private readonly focusTrap: FocusTrapState = { wasOpen: false, restoreTo: null };
 
   constructor() {
+    inject(DestroyRef).onDestroy(() => {
+      arenaHandleTeardown(this.focusTrap, this.panel()?.nativeElement ?? null, this.doc.activeElement);
+    });
     effect(() => {
       const panel = this.panel()?.nativeElement;
       if (!this.open() || this.fill() || !panel) return;

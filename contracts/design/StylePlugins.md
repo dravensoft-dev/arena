@@ -34,10 +34,10 @@ with no `$value` is not a DTCG token, so it leaves `check:dtcg` by name and
 for a keyword, and no value. That is the statement rather than a side effect. It holds the one
 answer a role may carry as well: `$extensions["com.dravensoft.arena"].default` is a `{…}` alias to
 a role or to a token the package emits, of the role's own `$type`, and
-`scripts/check/core/check-role-contract.ts:defaultProblems(roles, emitted)` fails a literal, an
-alias naming nothing, a type that disagrees, a keyword whose target can take a word outside its
-set, and a chain that leads back to itself. **The question belongs to the kernel and the answer
-never does.**
+`scripts/check/core/check-role-contract.ts:defaultProblems(roles, emitted, words)` fails a literal,
+an alias naming nothing, a type that disagrees, a keyword whose target can take a word outside its
+set, a keyword token whose word the role refuses, and a chain that leads back to itself. **The
+question belongs to the kernel and the answer never does.**
 
 The scales stay, and they stay with values, because a manifest never names one. They reach a page
 only through a role, so what they are is a shared repertoire a plugin picks from. A plugin answers
@@ -54,10 +54,12 @@ of the plugin's own, written against the part hooks; the build wraps it in the r
 its author never spells `@layer arena-plugin`.
 
 **Colour stays an assignment and never an authorship.** A colour role takes one of the consumer's
-palette colours as a `{color.*}` alias, and a plugin writing a hex would be authoring a skin it
-does not own. It is mechanical as well as doctrinal: the emitter turns a bare colour alias into a
-`var()` it restates under every palette, and anything else resolves to one theme's hex and
-inherits it into the other.
+palette colours as a `{color.*}` alias, or follows another colour role as `{ink-muted}`, and a plugin
+writing a hex would be authoring a skin it does not own. A keyword role takes a word of its set or
+an alias that resolves to one, such as `{case.none}`. Colour roles that name each other in a ring
+are refused, because the page would resolve none of them. It is mechanical as well as doctrinal: the
+emitter turns a bare colour alias, or a role named as an alias, into a `var()` it restates under
+every palette, and anything else resolves to one theme's hex and inherits it into the other.
 
 **The alias layer is the route around that, and it had nothing watching it.**
 [`colors.css`](./colors.css) maps Arena's own names onto the palette and ships with the packages,
@@ -84,6 +86,10 @@ answers every declared role**. `scripts/check/core/check-style-plugin.ts` fails 
 question unanswered, and the reason is sharper than tidiness: a custom property with no value is
 invalid at computed-value time, so the declaration reading it is dropped and the whole property
 disappears. A partial root plugin is not a poorer appearance. It is a page with no borders.
+
+**What a plugin may read.** The `tokens`, `roles`, `aliases` and `channels` of the `arena.tokens.json`
+each package ships, the palette colours its config declares (`--color-<name>`), and any property its
+own sources declare. `arena audit` reports any other name as `unknown-property`.
 
 **Total means answered by the plugin or by a kernel default.** Which roles carry one is written
 beside each role's type, in `roles.json` and in the `arena.tokens.json` each package ships, and a
@@ -151,7 +157,7 @@ describes. A plugin answers each role once and every slot of the kind follows.
 | `floating` | `pad-floating-x`, `pad-floating-y`, `pad-floating-edge-x` | the kind-free rhythm, `gap-actions` | `rounded-surface-floating` |
 | `control` | `pad-control-x`, `pad-control-y`, `pad-control-text-y` | `gap-control` | `rounded-control`, `rounded-control-sm` |
 | `field` | `pad-control-x`, `pad-control-y`, `pad-control-text-y` | `gap-control` | `rounded-field` |
-| `marker` | `pad-marker-x`, `pad-marker-y` | `gap-marker` | `rounded-marker` |
+| `marker` | `pad-marker-x`, `pad-marker-y`, and `pad-key-y` on a key cap | `gap-marker` | `rounded-marker` |
 | `status` | `pad-status-x`, `pad-status-y` | the kind-free rhythm | `rounded-surface-floating` |
 | `row` | `pad-row-x`, `pad-row-y`, `pad-nav-row-x`, `pad-nav-row-y`, `pad-row-indent`, `pad-row-floating-x`, `pad-row-floating-y`, and the table's `--dz-row-px` and `--dz-row-py` | `gap-row`, `gap-row-floating` | `rounded-control` |
 | `band` | `pad-band-y`, and `pad-band-x` inside the band's ceiling of 7% of its width | the kind-free rhythm | the kind-free shapes only |

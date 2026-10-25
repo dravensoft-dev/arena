@@ -27,7 +27,7 @@ export interface ArenaDialogProps {
   /** The action row, right-aligned. */
   footer?: React.ReactNode;
 
-  /** Below this breakpoint the panel fills the screen: full width and height, no radius and no shadow, the title bar pinned to the top and the footer to the bottom, the body scrolling between them, and every edge inset by the device's safe area. The measurement is the dialog's own box, which covers the viewport while open. Absent, the dialog never fills. The width is ignored while filling. */
+  /** Below this breakpoint the panel fills the screen: full width and height, no radius and no shadow. The title bar is pinned to the top and the footer to the bottom, the body scrolls between them, and every edge is inset by the device's safe area. The measurement is the dialog's own box, which covers the viewport while open. Absent, the dialog never fills. The width is ignored while filling. */
   fillBelow?: ArenaBreakpoint;
 
   /** The dialog was dismissed -- by Escape or by a scrim click. No payload. */
@@ -90,7 +90,7 @@ function DialogFrame({ className, onClose, onKeyDown, panelRef, titleId, title, 
   }, [fill, fillBelow, measured, panelRef]);
 
   return (
-    <div ref={scrimRef} onClick={onClose} className={arenaClassName('ArenaDialog', styles.scrim(), className)} data-arena-part={manifest.parts.scrim} {...styles.$data.scrim()} data-arena-surface="floating">
+    <div ref={scrimRef} onClick={onClose} className={arenaClassName('ArenaDialog', styles.scrim(), className, manifest.vocabulary)} data-arena-part={manifest.parts.scrim} {...styles.$data.scrim()} data-arena-surface="floating">
       <div onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true"
         ref={panelRef} tabIndex={-1} onKeyDown={onKeyDown} aria-labelledby={titleId}
         className={styles.panel()} data-arena-part={manifest.parts.panel} {...styles.$data.panel()}>

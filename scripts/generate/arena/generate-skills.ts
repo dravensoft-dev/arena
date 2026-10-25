@@ -56,7 +56,7 @@ export const node = {
     'check:catalogue',
     'build:angular-package',
     'build:react-package',
-    'build:mcp-package',
+    'build:mcp-package', 'check:mcp',
     'check:appearance',
     'check:parts',
     'check:arbitrary',
@@ -67,6 +67,7 @@ export const node = {
     'check:dimensions',
     'check:duplicate-constants',
     'check:focus-trap',
+    'check:anchoring',
     'check:generated',
     'check:icons',
     'check:layer-independence',
@@ -77,7 +78,7 @@ export const node = {
     'check:skills',
     'check:states',
     'build:site',
-    'check:register'],
+    'check:register', 'check:site'],
 };
 
 const GENERATED = '<!-- GENERATED from the contracts by bun run generate:skills.'
@@ -99,7 +100,7 @@ import { ArenaButton, ArenaTag } from '${PACKAGES.react}';
 \`\`\`
 
 A member is a prop. The main slot is \`children\`, a named slot is a prop taking a node, and an
-event is an \`on\`-prefixed handler. An icon is a Phosphor class-name string, never an element.`,
+event is an \`on\`-prefixed handler. An icon is a Phosphor class-name string, drawn by Arena's components or by ArenaIcon; a raw ph-* element paints nothing.`,
   angular: `\`\`\`ts
 import { ArenaButton, ArenaTag } from '${PACKAGES.angular}';
 \`\`\`
@@ -107,7 +108,7 @@ import { ArenaButton, ArenaTag } from '${PACKAGES.angular}';
 Every component is standalone: put its class in the host component's \`imports\`, then write its
 \`arena-\` element. A member is a signal input, an event is an output under the name the contract
 gives it, and the main slot is content projection. A named slot is a marker directive, and it goes
-in \`imports\` as well. A component cannot tell an un-imported marker from an unfilled slot. An icon is a Phosphor class-name string, never an element.`,
+in \`imports\` as well. A component cannot tell an un-imported marker from an unfilled slot. An icon is a Phosphor class-name string, drawn by Arena's components or by ArenaIcon; a raw ph-* element paints nothing.`,
 };
 
 const INDEX_HEADER = `${GENERATED}
@@ -413,9 +414,11 @@ export function renderCatalogueIndex(base = root) {
     '# The catalogue of measured registers',
     '',
     'Each row is one style plugin measured on a real product. Match a short description of the app '
-      + 'against the second column, open only the entry it fits, and copy that entry\'s three files '
-      + 'into `design/<entry>/` of your project. Node 4 of '
-      + '[`cold-start.md`](../../skills/design/references/cold-start.md) is where this choice is made.',
+      + 'against the second column and open only the entry it fits. Copy that entry\'s two style plugin '
+      + 'files into `design/<entry>/` of your project, where they become yours as they are. '
+      + '`arena.config.json` is a starting file for the root of your project. With no config there, copy it '
+      + 'and replace the palette and the fonts. With one already there, take only its `stylePlugins` entry and make it the first one in the list, since a catalogue entry answers every role. '
+      + 'Node 4 of [`cold-start.md`](../../skills/design/references/cold-start.md) is where this choice is made.',
     '',
     '| Entry | Take this entry when | Files to copy |',
     '|---|---|---|',

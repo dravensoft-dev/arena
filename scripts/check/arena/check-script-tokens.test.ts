@@ -63,6 +63,12 @@ test('catSlots is derived from the ramp and equals its slot count', async () => 
   assert.match(body ?? '', /^export const catSlots = 8;$/m);
 });
 
+test('heatSteps is derived from the heat ladder and equals its step count', async () => {
+  const modules = await buildScriptModules();
+  const body = modules.get('frameworks/react/Tokens.generated.js');
+  assert.match(body ?? '', /^export const heatSteps = 5;$/m);
+});
+
 test('catSlotEnumProblems accepts 1..N in order', () => {
   assert.deepEqual(catSlotEnumProblems(8, [1, 2, 3, 4, 5, 6, 7, 8]), []);
 });

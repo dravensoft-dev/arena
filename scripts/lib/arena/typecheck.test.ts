@@ -3,11 +3,12 @@
  * would do the same one level up, a listing read past a line it cannot place would answer
  * for files it never saw, and a held verdict handed no candidate would answer for a tree a
  * new file joined after it. The spawning cases compile a project of two files under a
- * temporary root, so none of them pays for a real project or writes into the tree. */
+ * temporary root, so none of them pays for a real project or writes into the tree, and tsc runs
+ * with Node's compile cache off, so it writes nothing into the temp directory either. */
 
-import test from 'node:test';
+import test, { after } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readdirSync, rmSync, rmdirSync, unlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { repoRoot } from './repo-root.ts';
@@ -16,14 +17,26 @@ import {
 } from './typecheck.ts';
 import { budgetFor } from './deadline.ts';
 import { TERM_GRACE, childOutput } from './child-output.ts';
-import { platform } from './platform.ts';
-import { PROBE_ENDED, PROBE_SPAWNED, assertCompilerEnded, probeInterrupt } from './forwarding-probe.ts';
+import { linkDir, platform } from './platform.ts';
+import { PROBE_ENDED, PROBE_IMPORTED, PROBE_SPAWNED, assertCompilerEnded, probeInterrupt } from './forwarding-probe.ts';
 
-const BUDGET_MS = budgetFor(TSC_SPAWN, PROBE_SPAWNED, PROBE_ENDED, TERM_GRACE);
+const cacheWas = process.env.NODE_DISABLE_COMPILE_CACHE;
+process.env.NODE_DISABLE_COMPILE_CACHE = '1';
+after(() => {
+  if (cacheWas === undefined) delete process.env.NODE_DISABLE_COMPILE_CACHE;
+  else process.env.NODE_DISABLE_COMPILE_CACHE = cacheWas;
+});
+
+const BUDGET_MS = budgetFor(TSC_SPAWN, PROBE_IMPORTED, PROBE_SPAWNED, PROBE_ENDED, TERM_GRACE);
 
 function project(b: string) {
   const root = mkdtempSync(join(tmpdir(), 'arena-typecheck-'));
-  symlinkSync(join(repoRoot, 'node_modules'), join(root, 'node_modules'), 'dir');
+  try {
+    linkDir(join(repoRoot, 'node_modules'), join(root, 'node_modules'));
+  } catch (error) {
+    rmSync(root, { recursive: true, force: true });
+    throw error;
+  }
   writeFileSync(join(root, 'tsconfig.json'), JSON.stringify({
     compilerOptions: {
       strict: true, module: 'preserve', lib: ['ES2022'], types: [], skipLibCheck: true,
@@ -33,6 +46,11 @@ function project(b: string) {
   writeFileSync(join(root, 'a.ts'), 'export const a = 1;\n');
   writeFileSync(join(root, 'b.ts'), b);
   return root;
+}
+
+function dispose(root: string) {
+  try { if (platform === 'win32') rmdirSync(join(root, 'node_modules')); else unlinkSync(join(root, 'node_modules')); } catch {  }
+  rmSync(root, { recursive: true, force: true });
 }
 
 test('tsc runs under plain node, so a gate built on this has no skip path to take', () => {
@@ -54,7 +72,7 @@ test('a project tsc cannot read is an error rather than an empty file list',
     await assert.rejects(compileListing({ root, project: 'tsconfig.does-not-exist.json' }),
       /tsc could not read/);
   } finally {
-    rmSync(root, { recursive: true, force: true });
+    dispose(root);
   }
 });
 
@@ -69,7 +87,7 @@ test('a tsc killed from outside is named by its signal rather than read as a red
     await assert.rejects(compileListing({ root, project: 'tsconfig.json' }),
       /tsc ended on SIGKILL, which nothing here sent/);
   } finally {
-    rmSync(root, { recursive: true, force: true });
+    dispose(root);
   }
 });
 
@@ -88,7 +106,7 @@ test('one spawn reports what the project read and what it found wrong, and write
     assert.deepEqual(readdirSync(root).sort(), ['a.ts', 'b.ts', 'node_modules', 'tsconfig.json'],
       'a check that emitted would shadow the tree it checks');
   } finally {
-    rmSync(root, { recursive: true, force: true });
+    dispose(root);
   }
 });
 
@@ -104,7 +122,7 @@ test('a clean project lists the same files --listFilesOnly lists, with no diagno
     assert.ok(listed.length > 2);
     assert.deepEqual([...files].sort(), listed.sort());
   } finally {
-    rmSync(root, { recursive: true, force: true });
+    dispose(root);
   }
 });
 

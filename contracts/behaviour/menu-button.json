@@ -1,7 +1,7 @@
 {
   "name": "menu-button",
   "source": "https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/",
-  "description": "A button that opens a menu rather than acting immediately. Its own role/state contract is small; Escape and arrow-key behavior inside the open menu come from the Menu and Menubar pattern the source page defers to.",
+  "description": "A button that opens a menu rather than acting immediately. The pattern holds the button and the menu it opens: the rows' roles, roving focus and keys are the Menu and Menubar pattern the source page defers to, held here because nothing draws one without the other.",
   "element": "button",
   "requires": {
     "roles.element": "button",
@@ -10,6 +10,14 @@
     "keyboard.Enter": "opens the menu and moves focus to its first item",
     "keyboard.Space": "opens the menu and moves focus to its first item",
     "keyboard.Escape": "closes the menu and returns focus to the button",
-    "focus.onOpen": "first menu item"
+    "focus.onOpen": "first menu item",
+    "roles.item": "menuitem, on every row the menu draws",
+    "roles.separator": "separator, on every divider the menu draws",
+    "focus.roving": "every row has tabindex -1 and focus moves between rows by key; a disabled row is skipped, and Tab closes the menu",
+    "keyboard.ArrowDown": "moves focus to the next enabled row, wrapping from the last to the first",
+    "keyboard.ArrowUp": "moves focus to the previous enabled row, wrapping from the first to the last",
+    "keyboard.Home": "moves focus to the first enabled row",
+    "keyboard.End": "moves focus to the last enabled row",
+    "keyboard.TypeAhead": "typing a character moves focus to the next enabled row whose label starts with it; characters typed in rapid succession match on the accumulated string"
   }
 }

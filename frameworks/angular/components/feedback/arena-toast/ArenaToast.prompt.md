@@ -28,7 +28,7 @@ taken away on a timer.
 | `tone` | enum | `ArenaToastTone` | `"neutral"` | The side bar's colour: neutral reports no outcome, success and danger report one. Whether the toast announces assertively. |
 | `actionLabel` | primitive | `string` |  | The label of the single inline action: Undo, Retry, View logs. Absent renders no action. |
 | `action` | event |  |  | The inline action was activated. |
-| `persist` | primitive | `boolean` | `false` | Disables the host's auto-dismiss and shows the Pinned marker. **Implied by `tone: "danger"`, which ignores `false`**: a critical message that vanishes on a timer is one a user can miss entirely, so an error state makes the pin mandatory and the layers enforce it rather than leave it to documentation. Set it explicitly for any other tone that must not disappear on its own. |
+| `persist` | primitive | `boolean` | `false` | Disables the host's auto-dismiss and shows the Pinned marker. **Implied by `tone: "danger"`, which ignores `false`.** A critical message that vanishes on a timer is one a user can miss entirely. An error state therefore makes the pin mandatory, and the layers enforce it rather than leave it to documentation. Set it explicitly for any other tone that must not disappear on its own. |
 | `dismissible` | primitive | `boolean` | `false` | Whether the × is shown. Every layer gates the × on this member and never on whether anything listens for `close`, because Arena never derives what it draws from what a consumer listens for. |
 | `close` | event |  |  | The × was activated. |
 
@@ -63,7 +63,7 @@ taken away on a timer.
 this page shows is the rest. Run `bun run demos` and open
 `/frameworks/angular/components/feedback/arena-toast/ArenaToast.demo.generated.html`:
 - Each tone's left bar takes its own colour and the card surface never does; danger is
-  **outline**, never a filled red panel.
+  **outline**, never a panel in the danger fill.
 - A danger toast shows `Pinned` even when the host passed `persist="false"`, and the demo's
   clock leaves it alone while every other toast expires.
 - The action and the × are two separate controls, both reachable by Tab, and the × sits outside

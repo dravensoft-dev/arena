@@ -15,14 +15,14 @@ import { manifestFiles } from '../../lib/tailwind/tailwind-compile.ts';
 import { classStringsBySlot } from '../arena/check-manifest-states.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { join } from 'node:path';
-import { readFamilies, channelPrefix } from '../../lib/tailwind/vocabulary.ts';
+import { readFamilies, channelPrefix, VOCABULARY_DIR, FAMILY_SUFFIX } from '../../lib/tailwind/vocabulary.ts';
 import type { Family } from '../../lib/tailwind/vocabulary.ts';
 
 export const COMPONENTS_DIR = join(repoRoot, 'frameworks/tailwind/components');
 
 export const node = {
   name: 'check:safe-area',
-  reads: ['frameworks/tailwind/components/**'],
+  reads: ['frameworks/tailwind/components/**', `${VOCABULARY_DIR}/**/*${FAMILY_SUFFIX}`],
   writes: [],
   feeds: [],
 };

@@ -7,6 +7,7 @@ import { basename, join } from 'node:path';
 import { bindingAlso, bindingCases, type BehaviourBinding } from './behaviour-contracts.ts';
 import { answerOf, answeredFamilies, axesOf, readFamilies, targetOf, type Family } from '../tailwind/vocabulary.ts';
 import { layerManifests } from '../tailwind/tailwind-compile.ts';
+import { classesManifest, dataAttribute } from '../tailwind/component-css.ts';
 import { kebab } from '../../utils/case.ts';
 import { markerAttributes } from './component-map.ts';
 import { DOMAIN } from './site-pages.ts';
@@ -70,7 +71,7 @@ export function layerInputs(root = repoRoot): Record<string, string[]> {
   return out;
 }
 
-export function vocabularyIndexOf(families: Family[], manifests: Iterable<Pick<ComponentManifest, 'component' | 'answers'>>, page: string,
+export function vocabularyIndexOf(families: Family[], manifests: Iterable<Pick<ComponentManifest, 'component'> & Partial<ComponentManifest>>, page: string,
   bindings: Iterable<[string, BehaviourBinding]> = [], inputs: Record<string, string[]> = {}): VocabularyIndex {
   const classes: VocabularyIndex['classes'] = {};
   const axes: NonNullable<VocabularyIndex['axes']> = {};
@@ -84,7 +85,8 @@ export function vocabularyIndexOf(families: Family[], manifests: Iterable<Pick<C
   const answers: VocabularyIndex['answers'] = {};
   const options: VocabularyIndex['options'] = {};
   const defaults: NonNullable<VocabularyIndex['defaults']> = {};
-  for (const manifest of manifests) {
+  const all = [...manifests];
+  for (const manifest of all) {
     if (!manifest.answers?.length) continue;
     answers[manifest.component] = answeredFamilies(manifest);
     options[manifest.component] = families.flatMap((family) => answerOf(manifest as ComponentManifest, family)?.options ?? []);
@@ -95,8 +97,16 @@ export function vocabularyIndexOf(families: Family[], manifests: Iterable<Pick<C
     }
     if (Object.keys(own).length > 0) defaults[manifest.component] = own;
   }
+  const parts: NonNullable<VocabularyIndex['parts']> = {};
+  for (const manifest of all) {
+    const shape = classesManifest(manifest as ComponentManifest);
+    const named = Object.entries(shape.parts ?? {});
+    if (named.length === 0) continue;
+    parts[manifest.component] = Object.fromEntries(named.map(([slot, part]) => [part,
+      Object.entries(shape.attributes ?? {}).filter(([, slots]) => slots.includes(slot)).map(([group]) => dataAttribute(group)).sort()]));
+  }
   const modals = [...new Set([...bindings].filter(([, binding]) => bindsModal(binding)).map(([component]) => component))].sort();
-  return { page, classes, answers, options, axes, defaults, modals, inputs };
+  return { page, classes, answers, options, axes, defaults, modals, inputs, ...(Object.keys(parts).length > 0 ? { parts } : {}) };
 }
 
 export function vocabularyIndex(root = repoRoot) {

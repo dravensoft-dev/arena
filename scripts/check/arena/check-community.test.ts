@@ -4,9 +4,9 @@
  * document Context7 would index, and a rule that has drifted from the router. The last pair is
  * the reason the file exists: neither failure is visible in a browser or in a build. */
 
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
@@ -17,8 +17,14 @@ import {
 } from './check-community.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 
+const made: string[] = [];
+const track = (dir: string) => { made.push(dir); return dir; };
+after(() => {
+  for (const dir of made) rmSync(dir, { recursive: true, force: true });
+});
+
 function tree(files: Record<string, string>) {
-  const base = mkdtempSync(join(tmpdir(), 'arena-community-'));
+  const base = track(mkdtempSync(join(tmpdir(), 'arena-community-')));
   for (const [rel, text] of Object.entries(files) as [string, string][]) {
     const path = join(base, rel);
     mkdirSync(join(path, '..'), { recursive: true });

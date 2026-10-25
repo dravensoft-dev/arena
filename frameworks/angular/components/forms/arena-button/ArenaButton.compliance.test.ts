@@ -3,10 +3,8 @@
  * activates it on both keys, and no test here can prove that because happy-dom synthesizes
  * no click from a keydown. So the assertion is that the element is the one the browser
  * already knows how to activate -- which is the whole reason the host stays bare.
- * `clicks` counts what a CONSUMER hears: Angular installs BOTH a DOM listener and an output
- * subscription for a native event name, so a template (click) binding counts the sum and one
- * is the only passing number. `emitted` counts the OUTPUT, on the component instance, because
- * the sum alone cannot tell an emit from a bubble. Both are asserted; either alone is blind. */
+ * `clicks` counts what a CONSUMER hears through the (activate) binding, and `emitted` counts the
+ * output on the component instance. Both are asserted; either alone is blind. */
 
 import { useTestEnvironment } from '../../../test/TestbedEnv';
 useTestEnvironment();
@@ -25,7 +23,7 @@ const BINDING = join(ANGULAR_COMPONENTS, 'forms/arena-button/ArenaButton.behavio
 @Component({
   standalone: true,
   imports: [ArenaButton],
-  template: `<arena-button [disabled]="disabled" [loading]="loading" (click)="clicks = clicks + 1">Save changes</arena-button>`,
+  template: `<arena-button [disabled]="disabled" [loading]="loading" (activate)="clicks = clicks + 1">Save changes</arena-button>`,
 })
 class ButtonHost {
   disabled = false;
@@ -41,7 +39,7 @@ function render(patch: Partial<ButtonHost> = {}) {
   const control = host.querySelector('button') as HTMLButtonElement;
   const emitted = { count: 0 };
   const instance = fixture.debugElement.query(By.directive(ArenaButton)).componentInstance as ArenaButton;
-  instance.click.subscribe(() => { emitted.count += 1; });
+  instance.activate.subscribe(() => { emitted.count += 1; });
   return { fixture, host, control, emitted };
 }
 
@@ -69,7 +67,7 @@ test('the host stays bare -- the recipe classes land on the <button> inside it, 
   }
 });
 
-test('a click on the control emits click exactly once, and the projected label names it', () => {
+test('a click on the control emits activate exactly once, and the projected label names it', () => {
   const { fixture, control, emitted } = render();
   try {
     assert.equal(control.textContent?.trim(), 'Save changes',
@@ -77,10 +75,9 @@ test('a click on the control emits click exactly once, and the projected label n
 
     control.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     fixture.detectChanges();
-    assert.equal(emitted.count, 1, 'the click output did not emit');
+    assert.equal(emitted.count, 1, 'the activate output did not emit');
     assert.equal(fixture.componentInstance.clicks, 1,
-      'a consumer binding (click) must hear it exactly once -- two would be the emit plus the native '
-      + 'event reaching them as well, and zero would be neither');
+      'a consumer binding (activate) must hear it exactly once -- two would be a double emit, and zero none');
   } finally {
     fixture.destroy();
   }
@@ -95,9 +92,9 @@ test('disabled reflects onto the native attribute and blocks the emission', () =
 
     control.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     fixture.detectChanges();
-    assert.equal(emitted.count, 0, 'a disabled button emitted click');
+    assert.equal(emitted.count, 0, 'a disabled button emitted activate');
     assert.equal(fixture.componentInstance.clicks, 0,
-      'and nothing reached the consumer, so the native event did not escape either');
+      'and the consumer binding heard nothing');
   } finally {
     fixture.destroy();
   }

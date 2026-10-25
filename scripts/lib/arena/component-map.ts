@@ -22,12 +22,12 @@ export const SKIPPED_SOURCE = /\.(test|spec|demo|entry|prompt|card)\.|\.generate
 
 export const MANIFEST_IMPORT = /import manifest from '[^']*?([A-Za-z0-9]+)\.classes\.generated[^']*'/;
 export const VARIANTS_IMPORT = /from '(\.[^']*\.variants)'/;
-export const SELECTOR = /selector: '[a-z]*\[?(arena-[a-z0-9-]+)\]?'/g;
+export const SELECTOR = /selector: '[a-z]*\[?(arena(?:-[a-z0-9-]+|[A-Z][A-Za-z0-9]*))\]?'/g;
 export const DECORATOR_IMPORTS = /imports: \[([^\]]*)\]/g;
 export const EXPORTED = /export (?:function|const) ([A-Za-z0-9_]+)/g;
 export const COMPONENT_NAME = /^[A-Z][A-Za-z0-9]*[a-z][A-Za-z0-9]*$/;
-export const LAYER_IMPORT = /from '\.\.\/\.\.\/[a-z-]+\/[a-z-]+\/([A-Z][A-Za-z0-9]*)\.tsx?'/g;
-export const QUERIED_MARKER = /contentChild\((Arena[A-Za-z0-9]*)\)/g;
+export const LAYER_IMPORT = /from '\.\.\/(?:\.\.\/[a-z-]+\/)?[a-z-]+\/([A-Z][A-Za-z0-9]*)\.tsx?'/g;
+export const QUERIED_MARKER = /contentChild\((Arena[A-Za-z0-9]*)(?:\s*,[^)]*)?\)/g;
 export const MARKERS_FILE = 'frameworks/angular/ProjectionMarkers.ts';
 
 export const DECLARED_MARKER = /@Directive\(\{\s*selector:\s*'\[([A-Za-z][\w-]*)\]'[^}]*\}\)\s*export class (Arena[A-Za-z0-9]*)/g;
@@ -118,9 +118,8 @@ function mapFrom(
   return { match: edges, draws, needs: close(needs), markers };
 }
 
-export function angularComponentMap(root = repoRoot) {
-  const attributes = markerAttributes(root);
-  const entries = componentFiles('angular', '.ts', root).map(({ file, symbol }) => {
+function angularEntries(root: string, attributes: Map<string, string>) {
+  return componentFiles('angular', '.ts', root).map(({ file, symbol }) => {
     const source = readFileSync(file, 'utf8');
     return {
       symbol,
@@ -134,8 +133,39 @@ export function angularComponentMap(root = repoRoot) {
         .filter((attribute): attribute is string => Boolean(attribute)))],
     };
   });
+}
+
+export function shippedComponents(layer: string, root = repoRoot): string[] {
+  if (layer !== 'angular') return Object.keys(componentMap(layer, root).draws);
+  return angularEntries(root, markerAttributes(root)).filter((e) => e.keys.length).map((e) => e.symbol);
+}
+
+export function angularComponentMap(root = repoRoot) {
+  const attributes = markerAttributes(root);
+  const entries = angularEntries(root, attributes);
   const map = mapFrom(entries.filter((e) => e.keys.length), 'selector');
   return { ...map, markerDirectives: Object.fromEntries([...attributes].map(([c, a]) => [a, c])) };
+}
+
+export const REACT_INDEX = 'frameworks/react/Index.generated.ts';
+
+export function reactSheetless(draws: Record<string, string | null>, root = repoRoot): string[] {
+  const index = readFileSync(join(root, REACT_INDEX), 'utf8');
+  const found = new Set<string>();
+  for (const m of index.matchAll(/export \* from '\.\/([^']+)'/g)) {
+    const path = captured(m);
+    if (path.startsWith('components/')) continue;
+    const file = join(root, 'frameworks', 'react', path);
+    if (!existsSync(file)) {
+      throw new Error(`component-map: ${REACT_INDEX} re-exports ./${path}, which does not exist, so the `
+        + 'providers it holds would go unplaced and arena check would report each as a missing component');
+    }
+    for (const name of readFileSync(file, 'utf8').matchAll(EXPORTED)) {
+      const one = captured(name);
+      if (COMPONENT_NAME.test(one) && !(one in draws)) found.add(one);
+    }
+  }
+  return [...found].sort();
 }
 
 export function reactComponentMap(root = repoRoot) {
@@ -148,7 +178,20 @@ export function reactComponentMap(root = repoRoot) {
       uses: [...source.matchAll(LAYER_IMPORT)].map((m) => captured(m)),
     };
   });
-  return mapFrom(entries.filter((e) => e.keys.length), 'symbol');
+  const map = mapFrom(entries.filter((e) => e.keys.length), 'symbol');
+  return { ...map, sheetless: reactSheetless(map.draws, root) };
+}
+
+export function keysByDirectory(layer: string, root = repoRoot) {
+  const react = layer === 'react';
+  const pattern = react ? EXPORTED : SELECTOR;
+  const byDirectory = new Map<string, string[]>();
+  for (const { at, file } of componentFiles(layer, react ? '.tsx' : '.ts', root)) {
+    const keys = [...readFileSync(file, 'utf8').matchAll(pattern)].map((m) => captured(m))
+      .filter((name) => !react || COMPONENT_NAME.test(name));
+    if (keys.length) byDirectory.set(at, [...(byDirectory.get(at) ?? []), ...keys]);
+  }
+  return byDirectory;
 }
 
 export type ComponentSheetMap = {
@@ -157,6 +200,7 @@ export type ComponentSheetMap = {
   needs: Record<string, string[]>;
   markers: Record<string, string[]>;
   markerDirectives?: Record<string, string>;
+  sheetless?: string[];
 };
 
 export function componentMap(layer: string, root = repoRoot): ComponentSheetMap {

@@ -4,10 +4,10 @@
  * painted one: a checkbox's target is the label around its 20px tick, and a dense control answers a
  * thumb through an absolutely-positioned pseudo-element rather than by growing, so both are unioned
  * in. Only an element inside a data-arena-part is measured, since check:parts already asserts every
- * painted slot carries one and an unnamed control is the harness's own chrome. Two renders, and the
- * second is the point: nothing else here draws .arena-comfortable, the density Arena names as its
- * answer to WCAG 2.5.8. UNSIZED excepts a geometry and not a control left small; ARGUED ties a
- * floor to the token file arguing it. Each carries a reason, and a stale entry of either fails. */
+ * painted slot carries one and an unnamed control is the harness's own chrome. Three renders, and
+ * no other gate measures an activation target under .arena-comfortable (WCAG 2.5.5) or
+ * .arena-compact (the 2.5.8 floor). UNSIZED excepts a geometry and not a control left small; ARGUED
+ * ties a floor to the token file arguing it. Each carries a reason; a stale entry fails. */
 
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
@@ -37,7 +37,8 @@ export const node = {
     'frameworks/react/vendor/**', 'frameworks/angular/build/demo/**',
     'frameworks/tailwind/consume/**', 'contracts/design-generated/**',
     'contracts/design/*.css', 'contracts/design/density.comfortable.json',
-    'assets/fonts/**', 'assets/rotor-crimson.svg',
+    'contracts/design/density.compact.json',
+    'assets/fonts/**', 'assets/Icons.generated.svg', 'assets/rotor-crimson.svg',
     'intro/kitchen-sink.css', 'intro/styles.css', 'intro/toggle.css', 'intro/theme.js',
     'plugin-style-store/**/plugin.css',
   ],
@@ -61,12 +62,15 @@ export type Scope = { name: string; klass: string; floor: number; why: string };
 
 export const SCOPES: Scope[] = [
   { name: 'base', klass: '', floor: 24,
-    why: 'WCAG 2.5.8 at its minimum level, which is what the 40px base control height is sized past '
-      + 'and what everything smaller than a control still owes' },
+    why: 'WCAG 2.5.8, Level AA, 24 by 24 CSS pixels, which the 40px base control height is sized past '
+      + 'and everything smaller than a control still owes' },
   { name: 'comfortable', klass: 'arena-comfortable', floor: 44,
-    why: 'WCAG 2.5.8 at its enhanced level, and the number Apple asks for a tappable area. '
-      + 'density.comfortable.json argues its own 48px against exactly this figure, and this is the '
-      + 'scope where that argument is drawn rather than only written' },
+    why: 'WCAG 2.5.5, Level AAA, 44 by 44 CSS pixels, and the area Apple asks for a tappable control. '
+      + 'density.comfortable.json argues its own 48px against this figure, and this is the '
+      + 'scope where that argument is drawn' },
+  { name: 'compact', klass: 'arena-compact', floor: 24,
+    why: 'WCAG 2.5.8 binds every density, and compact\'s smallest rung is ctl-h-sm, so this is the '
+      + 'scope nearest the floor' },
 ];
 
 export const INTERACTIVE = [
@@ -83,6 +87,10 @@ export const UNSIZED = new Map<string, string>([
     + 'container hands the grid inside a padded surface is under 280. Removing this entry means '
     + 'deciding that the month scrolls sideways below that width rather than shrinking, which is a '
     + 'decision about the calendar and not about the floor'],
+  ['prose-inline', 'an anchor inside a paragraph or an .arena-prose block is the inline target WCAG 2.5.8 exempts: '
+    + 'its box is the line of text it sits in, and a floor on it would set the line height of the prose. The '
+    + 'exemption is blanket, so any a[href] under p or .arena-prose goes unmeasured in all three scopes, Arena\'s own '
+    + 'included, and the sinks hold ArenaLink inside a paragraph so the entry stays measured'],
 ]);
 
 export type Argued = { file: string; token: string; floor: number; why: string };
@@ -95,6 +103,10 @@ export const ARGUED = new Map<string, Argued>([
       + 'above argues for is a ladder that does not hold it" -- and the rung is ctl-h-sm. Lower it '
       + 'and the density stops answering the floor this gate measures against, everywhere no '
       + 'component happens to render small enough for the browser sweep to catch it' }],
+  ['compact', { file: 'contracts/design/density.compact.json', token: 'dz.ctl-h-sm', floor: 24,
+    why: 'the 2.5.8 floor binds the bottom rung of the densest ladder, and nothing but this entry ties '
+      + 'the two: lower ctl-h-sm and compact stops answering the floor this gate measures, wherever no '
+      + 'component renders small enough for the sweep to catch it' }],
 ]);
 
 export function dimensionAt(json: unknown, token: string): number | null {
@@ -233,16 +245,15 @@ export function staleUnsizedProblems(measured: Measured[], unsized = UNSIZED) {
       + 'exception outlived what it excused, or the walk stopped reaching it');
 }
 
-export function zeroMeasuredProblems(count: number, scopes: number) {
+export function zeroMeasuredProblems(count: number, scopes: number, declared = SCOPES.length) {
   const problems: string[] = [];
   if (count === 0) {
     problems.push('measured 0 activation targets, so every floor below was compared against '
       + 'nothing; a sweep that finds no control is a failure rather than a clean pass');
   }
-  if (scopes < 2) {
-    problems.push('fewer than two density scopes were rendered, and the second is the whole point: '
-      + 'the density Arena names as its answer to WCAG 2.5.8 is the one nothing else in this '
-      + 'repository ever draws');
+  if (scopes < declared) {
+    problems.push('fewer density scopes were rendered than SCOPES declares, and each is a floor '
+      + 'nothing else in this repository draws');
   }
   return problems;
 }

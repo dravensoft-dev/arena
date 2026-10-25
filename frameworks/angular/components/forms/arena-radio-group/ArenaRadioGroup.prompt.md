@@ -4,7 +4,7 @@ the accessible name and the column layout, so there is no wrapper inside it.
 
 ```html
 <arena-radio-group ariaLabel="Deployment target" name="env" [value]="target()"
-                   (change)="target.set($event)">
+                   (valueChange)="target.set($event)">
   <arena-radio value="production" label="Production" hint="Serves real traffic" />
   <arena-radio value="staging" label="Staging" />
   <arena-radio value="qa" label="QA" [disabled]="!canReachQa()" />
@@ -20,9 +20,9 @@ the accessible name and the column layout, so there is no wrapper inside it.
 | `ariaLabel*` | primitive | `string` |  | Names the group: what is being chosen, not that it is a choice. Required, and guarded at runtime: a radiogroup with no accessible name is announced unlabelled, and each option's own label says what that option is, never what the set is for. "Deployment target", not "Options". Distinct from `name`, which is the radios' shared form name and never reaches a screen reader. |
 | `content` | slot |  |  | The Radios. An option never holds a selected state of its own -- the group owns it, and how the two are wired is each layer's business rather than this contract's. |
 | `value` | primitive | `string` |  | The selected option's value. |
-| `name` | primitive | `string` |  | Shared name for the underlying radios; generated when omitted. |
+| `name` | primitive | `string` |  | Shared name for the underlying radios; generated when omitted or blank. |
 | `disabled` | primitive | `boolean` | `false` | Whether the whole group is unavailable. Every radio it holds is disabled whatever its own disabled says, and the group reflects aria-disabled. |
-| `change` | event | `string` |  | A different option was chosen; carries its value. |
+| `valueChange` | event | `string` |  | A different option was chosen; carries its value. The native change of the inner radio is never stopped, so a listener on the document hears it; this event carries the value. |
 
 <!-- @api end -->
 
@@ -47,7 +47,7 @@ the accessible name and the column layout, so there is no wrapper inside it.
 - `ariaLabel` is not `name`. `name` is the radios' shared form name and never reaches a screen reader. The name is generated per instance when omitted, which matters because **two groups sharing one name rove as a single group**.
 - **The roving tab stop, the arrow keys and Space are the platform's, not Arena's.** The options are native `<input type="radio">` sharing one `name`, and that is the entire mechanism. The browser gives the group one tab stop, lands focus on the checked option, and moves selection with the arrows. Arena authors **no `tabindex` anywhere**: doing so would fight it.
 - The group works controlled or not. Pass `value` and it is yours; omit it and the group remembers the
-  last choice itself. `change` fires either way.
+  last choice itself. `valueChange` fires either way.
 - Wrapping an `arena-radio` in your own component or a `@for` block is fine, because projection reaches it however deep. The child resolves the group through DI rather than by being a direct child. Nothing here inspects its own children, so nothing between them can break it.
 - Don't put a lone `arena-radio` outside a group. A single radio is a checkbox with worse
   semantics, and this one will throw for want of its provider.
@@ -59,7 +59,7 @@ so this is the only place it is checked at all. Run `bun run demos` and open
   entirely rather than walking the other options.
 - Arrow Down/Right and Up/Left move the selection and wrap at both ends.
 - The disabled option is skipped while arrowing, and cannot be reached by Tab.
-- Tab in and the focused option's **ring** takes a gold focus ring, though the focused element
+- Tab in and the focused option's **ring** takes the focus ring, though the focused element
   is the `opacity-0 size-0` native input. The `ring` slot carries `[&:has(~input:focus-visible)]:shadow-[…]`, which reaches the input as a later sibling. The input must stay after the ring in the template, and moving it removes the ring silently.
   `arena-checkbox` draws the identical ring the identical way.
 

@@ -58,17 +58,29 @@ test('a zero walk is a failure and not a clean pass', () => {
   assert.deepEqual(zeroBoundaryProblems(BOUNDARIES.length), []);
 });
 
-test('an axis that measures fainter than the separator on base-100 is one problem naming the plugin and the theme', () => {
+test('an axis with no more contrast than the separator on base-100 is one problem naming the plugin and the theme', () => {
   const problems = axisProblems('probe/plugin.tokens.json', 'light',
     { axis: '#999999', separator: '#555555', page: '#ffffff' });
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /probe\/plugin\.tokens\.json/);
   assert.match(problems[0] ?? '', /light/);
+  assert.match(problems[0] ?? '', /answers --edge-axis with no more contrast than/);
+  assert.doesNotMatch(problems[0] ?? '', /lighter/);
+});
+
+test('an axis darker than the separator on a dark base-100 that still has no more contrast is one problem in the same words', () => {
+  const problems = axisProblems('probe', 'dark', { axis: '#222222', separator: '#444444', page: '#111111' });
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /with no more contrast than/);
+  assert.doesNotMatch(problems[0] ?? '', /lighter/);
 });
 
 test('an axis heavier than the separator passes, and one equal to it does not', () => {
   assert.deepEqual(axisProblems('probe', 'light', { axis: '#555555', separator: '#999999', page: '#ffffff' }), []);
-  assert.equal(axisProblems('probe', 'dark', { axis: '#555555', separator: '#555555', page: '#ffffff' }).length, 1);
+  const equal = axisProblems('probe', 'dark', { axis: '#555555', separator: '#555555', page: '#ffffff' });
+  assert.equal(equal.length, 1);
+  assert.match(equal[0] ?? '', /with the same contrast as/);
+  assert.doesNotMatch(equal[0] ?? '', /lighter/);
 });
 
 test('the real tree holds: every plugin Arena ships draws the axis heavier than the grid in both themes', () => {

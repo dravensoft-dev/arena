@@ -7,7 +7,7 @@
     "maxLength": 280
   },
   "bind": {
-    "change": "value"
+    "valueChange": "value"
   },
   "note": "With counter on, maxLength is what the count counts against."
 }

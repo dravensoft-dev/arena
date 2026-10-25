@@ -1,6 +1,6 @@
 Arena bar chart. One axis, hand-written SVG, every colour a token, so it re-themes
 with the rest of Arena and costs no dependency. The chart takes series, and a series names itself. Identity comes from a series' `colorId` (one colour for the whole series) or its
-`colorIds` (a colour per bar, **in ramp order, never cycled**); meaning comes from its
+`colorIds` (a colour per bar, **in ramp order**); meaning comes from its
 `tone`. Passing both warns and `tone` wins, because a chart carries identity or meaning,
 never both. A series with no identity of its own takes the slot its position gives it,
 so two series are never the same colour by accident.
@@ -27,14 +27,15 @@ readonly health = computed<ArenaSeries[]>(() => [{ label: 'Errors', values: this
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
 | `labels*` | array | `readonly string[]` |  | One label per category, in the same order as every series' `values`. A category with no value in a series is drawn for the series that do have one. |
-| `series*` | array | `readonly ArenaSeries[]` |  | The plotted series, drawn as one group of bars per category. One series is the common case and draws exactly what it drew before; two or more share each category's band, so the bars of one category stand side by side and the reader compares within a category before comparing across. The ramp clamps at its last slot rather than cycling, so a ninth series folds into "Other" upstream, never into a colour already spent. |
-| `label*` | primitive | `string` |  | Names the chart for its accessible name and for the caption of its data table. This is the CHART's name, not a series': a series names itself. Required and guarded rather than defaulted, because a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing, so two charts on one page announce identically. |
-| `stack` | primitive | `boolean` | `false` | Sit each series on the one below it inside a single band per category, rather than standing them side by side. Stack when the series are parts of one total and that total is the thing being read; leave it off when the comparison is between the series, because a segment that does not start at zero is one a reader cannot measure against its neighbours. Positive and negative values stack on their own runs, so a category holding both grows in both directions from the zero line and the axis is sized from the two sums rather than from the largest single value. A series with no value at a category contributes no segment, and the segment above it sits on the one below rather than floating over a gap: a missing number is not a zero here either. Only the outermost segment of each direction is rounded, so the joints inside a bar stay square and read as joints. |
+| `series*` | array | `readonly ArenaSeries[]` |  | The plotted series, drawn as one group of bars per category. One series is the common case and draws one bar per category. Two or more share each category's band, so the bars of one category stand side by side and the reader compares within a category before comparing across. After the last slot the positional count starts again at the first, so fold a ninth series into "Other" upstream. |
+| `colorStart` | enum | `ArenaCatSlot` | `1` | The ramp slot the first series takes when it names no colour of its own. Each later series takes the next slot, and after the last slot the count starts again at the first. A series' `colorId` or `colorIds` keeps the slot it names. Absent, 1. |
+| `label*` | primitive | `string` |  | Names the chart for its accessible name and for the caption of its data table. The label names the CHART, not a series: a series names itself. Required and guarded rather than defaulted, because a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing. Two charts on one page then announce identically. |
+| `stack` | primitive | `boolean` | `false` | Sit each series on the one below it inside a single band per category, rather than standing them side by side. Stack when the series are parts of one total and that total is the thing being read. Leave it off when the comparison is between the series, because a segment that does not start at zero is one a reader cannot measure against its neighbours. Positive and negative values stack on their own runs. A category holding both grows in both directions from the zero line, and the axis is sized from the two sums rather than from the largest single value. A series with no value at a category contributes no segment. The segment above it sits on the one below rather than floating over a gap: a missing number is not a zero here either. Only the outermost segment of each direction is rounded, so the joints inside a bar stay square and read as joints. |
 | `valueSuffix` | primitive | `string` |  | Appended verbatim to every number the chart draws: the axis ticks, the tooltip and the accessible table. Carries its own leading space if one is wanted. |
 | `valuePrefix` | primitive | `string` |  | Drawn verbatim before every number the chart writes, as valueSuffix is drawn after it. A currency that precedes its amount is the majority case worldwide, and a suffix alone cannot say it: "1234.5 Bs." would disagree with the table beside it reading "Bs. 1.234,50", and the accessible table would inherit the disagreement. |
 | `valueFormat` | object | `ArenaNumberFormat` |  | How each number is written before the prefix and suffix are added: which locale, how many fraction digits, whether thousands are grouped, whether large numbers are compacted. Absent, the raw JavaScript number, which is what this chart drew before the member existed. |
-| `height` | primitive | `number` | `280` | The plot's height in px, the --chart-height token by default. A number rather than a dimension string, because the chart does arithmetic with it to place every mark, and a caller-supplied "20rem" is neither a token nor a derivation of one. |
-| `minPointSpacing` | primitive | `number` |  | The narrowest gap, in px, the chart draws between two adjacent points. Below it the chart stops compressing and overflows its container horizontally instead, scrolled and anchored to the most recent point: marker spacing is a legibility constant, not something that yields to the viewport, and thirty days in 390px is unreadable at any font size. Absent, the chart fits whatever width it is given. The rail it scrolls in is the same region the data cursor lives in, and it is keyboard-reachable whether it overflows or not. |
+| `height` | primitive | `number` | `280` | The plot's height in px, the --chart-height token by default. A number rather than a dimension string, because the chart does arithmetic with it to place every mark. A caller-supplied "20rem" is neither a token nor a derivation of one. |
+| `minPointSpacing` | primitive | `number` |  | The narrowest gap, in px, the chart draws between two adjacent points. Below it the chart stops compressing and overflows its container horizontally instead, scrolled and anchored to the most recent point. Marker spacing is a legibility constant, not something that yields to the viewport, and thirty days in 390px is unreadable at any font size. Absent, the chart fits whatever width it is given. The rail it scrolls in is the same region the data cursor lives in, and it is keyboard-reachable whether it overflows or not. |
 
 <!-- @api end -->
 
@@ -79,10 +80,13 @@ tooltip is positioned against.
 - Give `label`, because it names the chart for a screen reader and captions the numbers
   table underneath. Give every series its own `label` too: that one heads the series' own
   column in the same table, and the two names are different things.
-- Use `tone` only when the series genuinely *is* a state. A red bar means "bad", and a
-  red bar that just means "the second category" makes the chart lie.
+- Use `tone` only when the series genuinely *is* a state. A bar in the danger tone means "bad", and a
+  bar in the danger tone that just means "the second category" makes the chart lie.
+- Use `colorStart` to move where the positional count begins. A series' `colorId` and
+  `colorIds` keep the slot they name.
 - Don't pass a ninth `colorIds` entry expecting a ninth colour. The ramp is eight, in
-  order; a ninth series folds into "Other" or becomes small multiples.
+  order. Past the last slot the count starts again, so a ninth series repeats the first
+  colour; fold it into "Other" or make small multiples.
 - Don't add a second axis. Arena's charts are one axis, always. Several series on one
   scale is what `series` is for; several that do not share a scale are several charts.
 - Don't omit `labels`, `series` or `label`. All three are required inputs, and Angular
@@ -111,7 +115,7 @@ Arena computes the minimum width from its own axis padding, so nothing outside n
 ### Reading the bars without a pointer
 
 The rail is one keyboard region and it is the plot's only tab stop. Inside the plot, Arrow Left and Arrow Right move a data cursor from bar to bar, clamping at the ends rather than wrapping. Home and End jump to the first and the last, and Escape clears the cursor. The cursor drives exactly
-what hover drives: the emphasised bar and its tooltip.
+what hover drives: the emphasised bar and its tooltip. When the rail scrolls, the cursor moves the rail to keep the current bar in view.
 
 Nothing inside the graphic is focusable, and that is deliberate rather than an omission. A
 `role="img"` subtree is presentational, so no ARIA on a mark inside it reaches a screen reader

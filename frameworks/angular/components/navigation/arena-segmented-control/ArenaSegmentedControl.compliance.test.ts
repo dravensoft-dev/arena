@@ -29,7 +29,7 @@ const RANGES: ArenaSegmentOption[] = [
   imports: [ArenaSegmentedControl],
   template: `<arena-segmented-control [options]="options" [ariaLabel]="ariaLabel" [name]="name"
                                       [value]="value" [defaultValue]="defaultValue"
-                                      (change)="chosen.push($event)" />`,
+                                      (valueChange)="chosen.push($event)" />`,
 })
 class SegmentedControlHost {
   options: readonly ArenaSegmentOption[] = RANGES;
@@ -86,6 +86,17 @@ test('one native radio per option, one shared name, and no authored tabindex', (
   }
 });
 
+test('a blank name is generated like an omitted one, because a radio named "" belongs to no group', () => {
+  const { fixture, radios } = render({ name: '' });
+  try {
+    const names = new Set(radios.map((r) => r.getAttribute('name')));
+    assert.equal(names.size, 1);
+    assert.notEqual([...names][0], '');
+  } finally {
+    fixture.destroy();
+  }
+});
+
 test('exactly one segment is checked, and it is the one matching value', () => {
   const { fixture, radios } = render();
   try {
@@ -126,7 +137,7 @@ test('choosing emits once, carrying the value rather than the event', () => {
     radios[2].dispatchEvent(new Event('change', { bubbles: true }));
     fixture.detectChanges();
     assert.deepEqual(fixture.componentInstance.chosen, ['30d'],
-      'change is an output named after a native DOM event -- twice would mean the native one escaped too');
+      'valueChange runs once for one choice');
   } finally {
     fixture.destroy();
   }

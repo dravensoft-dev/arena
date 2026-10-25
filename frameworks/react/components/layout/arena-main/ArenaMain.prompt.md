@@ -3,9 +3,11 @@ The page's principal landmark and nothing else. The component returns the `<main
 ```tsx
 <ArenaSkipLink label="Skip to content" />
 <Header />
-<ArenaMain>
-  <Outlet />
-</ArenaMain>
+<div className="arena-shell__main">
+  <ArenaMain>
+    <Outlet />
+  </ArenaMain>
+</div>
 ```
 
 <!-- @api GENERATED from contracts/api/components/ArenaMain.json. Edit the contract, not this table. -->
@@ -14,7 +16,7 @@ The page's principal landmark and nothing else. The component returns the `<main
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `children` | slot |  |  | What the page is for, once the furniture around it is taken away. It is optional and unguarded rather than required: a router that has not resolved its route yet renders nothing, and a landmark that threw during that frame would fail on the ordinary case rather than on a mistake. |
+| `children` | slot |  |  | What the page is for, once the furniture around it is taken away. The slot is optional and unguarded rather than required. A router that has not resolved its route yet renders nothing, and a landmark that threw during that frame would fail on the ordinary case rather than on a mistake. |
 
 <!-- @api end -->
 
@@ -37,6 +39,8 @@ What it says is only what the region IS.
 class on the wrapper, and the shell has a child that can take the slack. Omitting the class
 because the component refuses it is the shape that gets shipped, and it reads as a footer floating
 halfway up a short page.
+
+On a page with a rail beside the main column, the class goes on the row that holds both. [`shell.md`](../../../../../skills/design/references/shell.md) shows that frame.
 
 **One per page.** A landmark that appears twice is two answers to "where does the content start",
 and a reader jumping by landmark gets the first one. The landmark carries no name, for the reason `ArenaAppBar` carries none and `ArenaSideNav` requires one. A page has one main and a reader reaches it by its role, while a page has several navs and each needs saying which.

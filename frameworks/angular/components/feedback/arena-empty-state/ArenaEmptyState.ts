@@ -3,10 +3,12 @@ import type { ArenaHeadingLevel } from '../../../Api.generated';
 import { ArenaAction } from '../../../ProjectionMarkers';
 import { arenaEmptyStateStyles } from './ArenaEmptyState.variants';
 import manifest from './ArenaEmptyState.classes.generated';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
 
 @Component({
   selector: 'arena-empty-state',
   standalone: true,
+  imports: [ArenaIcon],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
@@ -15,7 +17,7 @@ import manifest from './ArenaEmptyState.classes.generated';
   },
   template: `
     @if (icon(); as glyph) {
-      <div [class]="styles().icon()" [attr.data-arena-part]="parts.icon"><i [class]="glyph" aria-hidden="true"></i></div>
+      <div [class]="styles().icon()" [attr.data-arena-part]="parts.icon"><arena-icon [icon]="glyph" /></div>
     }
     @if (title(); as heading) {
       @switch (level()) {
@@ -36,18 +38,18 @@ import manifest from './ArenaEmptyState.classes.generated';
 export class ArenaEmptyState {
   protected readonly parts = manifest.parts;
 
-  /** A Phosphor class name for the glyph Arena draws, muted. */
+  /** A Phosphor class name for the glyph ArenaIcon draws, muted. */
   readonly icon = input<string>();
   /** The headline: what is empty. */
   readonly title = input.required<string>();
-  /** Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. It defaults to `h3`, the card rung of the title ladder, because an empty state fills the body of a region something above it already names, so its headline sits under that name rather than beside it. `none` is refused at runtime, the rule every component whose `title` is required follows: a title required because it names the thing it draws cannot also be told that the name is not one. */
+  /** Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. The default is `h3`, the card rung of the title ladder, because an empty state fills the body of a region something above it already names. The headline sits under that name rather than beside it. `none` is refused at runtime, the rule every component whose `title` is required follows. A title required because it names the thing it draws cannot also be told that the name is not one. */
   readonly headingLevel = input<ArenaHeadingLevel, ArenaHeadingLevel | undefined>(
     'h3', { transform: (value) => value ?? 'h3' },
   );
   /** A sentence of guidance under the title. */
   readonly message = input<string>();
 
-  protected readonly action = contentChild(ArenaAction);
+  protected readonly action = contentChild(ArenaAction, { descendants: false });
 
   protected readonly level = computed(() => {
     const level = this.headingLevel();

@@ -1,10 +1,5 @@
-/* The root slot is NOT host-bound here, and that is forced rather than chosen: `click` is an
- * output whose name is also a native DOM event, and Angular installs both a DOM listener and an
- * output subscription for such a name. On a host that both listens and emits, each emission
- * re-enters the listener, so one real press was measured at 7609. The recipe therefore lands on
- * an inner <div> that stopPropagation()s, which is the shape ArenaSideNavItem and ArenaTableRow already
- * take, and the host goes display: contents. `activated` counts what a CONSUMER hears, and one
- * is the only passing number. */
+/* `activated` counts what a CONSUMER hears through (activate), and one is the only passing
+ * number. The root slot lands on an inner <div> and the host goes display: contents. */
 
 import { useTestEnvironment } from '../../../test/TestbedEnv';
 useTestEnvironment();
@@ -27,7 +22,7 @@ const BINDING = join(ANGULAR_COMPONENTS, 'display/arena-card/ArenaCard.behaviour
   template: `
     <arena-card [title]="title" [eyebrow]="eyebrow"
                 [interactive]="interactive" [disabled]="disabled" [href]="href"
-                (click)="activated = activated + 1">
+                (activate)="activated = activated + 1">
       @if (withAction) {
         <button action type="button">Open</button>
       }
@@ -109,8 +104,7 @@ test('arena-card meets both of its declared shapes', () => {
           el.dispatchEvent(new MouseEvent('click', { bubbles: true }));
           live.detectChanges();
           assert.equal(live.componentInstance.activated, 1,
-            'a consumer binding (click) must hear one press exactly once -- two would be the emit plus '
-            + 'the native event reaching them as well, and a runaway count would be the emission re-entering');
+            'a consumer binding (activate) must hear one press exactly once');
 
           const enter = press(el, 'Enter');
           live.detectChanges();
@@ -247,6 +241,30 @@ test('a pointer click on the card itself still activates it, whatever it was ren
     assert.equal(fixture.componentInstance.activated, 1,
       'a click on the card\'s own content is the card being pressed: guarding on target !== '
       + 'currentTarget instead would refuse every press, since a pointer never lands on the root');
+  } finally {
+    fixture.destroy();
+  }
+});
+
+@Component({
+  standalone: true,
+  imports: [ArenaCard],
+  template: `<div (click)="outer = outer + 1"><arena-card title="Plain" (activate)="seen = seen + 1">Body</arena-card></div>`,
+})
+class PlainCardHost {
+  seen = 0;
+  outer = 0;
+}
+
+test('a non-interactive card lets every click reach an ancestor, and a host (activate) never runs', () => {
+  const fixture = TestBed.createComponent(PlainCardHost);
+  fixture.detectChanges();
+  try {
+    const body = (fixture.nativeElement as HTMLElement).querySelector('arena-card')!.firstElementChild!.lastElementChild as HTMLElement;
+    click(body);
+    fixture.detectChanges();
+    assert.equal(fixture.componentInstance.seen, 0, 'a plain card reported a press it does not own');
+    assert.equal(fixture.componentInstance.outer, 1, 'a click delegated from an ancestor did not see the press on a card');
   } finally {
     fixture.destroy();
   }

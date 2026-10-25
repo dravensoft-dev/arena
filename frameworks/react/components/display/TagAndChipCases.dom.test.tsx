@@ -69,25 +69,25 @@ test('ArenaCalendarEvent meets all three of its declared shapes, and `interactiv
       clickable: () => {
         let clicked = false;
         const root = mount(<ArenaCalendarEvent id="a" title="Standup" start="2026-07-20T09:00:00Z"
-          end="2026-07-20T09:30:00Z" interactive onClick={() => { clicked = true; }} {...CHIP} />);
+          end="2026-07-20T09:30:00Z" interactive onActivate={() => { clicked = true; }} {...CHIP} />);
         assertKeysUnintercepted(root.firstElementChild!);
         assert.equal(root.firstElementChild!.hasAttribute('aria-disabled'), false,
           'an activatable chip must not announce itself as disabled');
         act(() => { (root.firstElementChild as HTMLElement).click(); });
-        assert.equal(clicked, true, 'sanity: a real click must reach onClick');
+        assert.equal(clicked, true, 'sanity: a real click must reach onActivate');
 
         let blocked = false;
         const off = mount(<ArenaCalendarEvent id="a-off" title="Standup" start="2026-07-20T09:00:00Z"
-          end="2026-07-20T09:30:00Z" interactive disabled onClick={() => { blocked = true; }} {...CHIP} />);
+          end="2026-07-20T09:30:00Z" interactive disabled onActivate={() => { blocked = true; }} {...CHIP} />);
         assert.equal(off.firstElementChild!.getAttribute('aria-disabled'), 'true',
           'a disabled chip must say so through aria-disabled, keeping its place in the grid\'s Tab sequence');
         act(() => { (off.firstElementChild as HTMLElement).click(); });
-        assert.equal(blocked, false, 'a disabled chip still reported through onClick');
+        assert.equal(blocked, false, 'a disabled chip still reported through onActivate');
 
         const unbound = mount(<ArenaCalendarEvent id="a-unbound" title="Standup" start="2026-07-20T09:00:00Z"
           end="2026-07-20T09:30:00Z" interactive {...CHIP} />);
         assert.equal(unbound.firstElementChild!.tagName, 'BUTTON',
-          'the shape follows `interactive` and never whether onClick was passed -- R6');
+          'the shape follows `interactive` and never whether onActivate was passed -- R6');
         act(() => { (unbound.firstElementChild as HTMLElement).click(); });
 
         return {
@@ -99,7 +99,7 @@ test('ArenaCalendarEvent meets all three of its declared shapes, and `interactiv
       'clickable-with-actions': () => {
         let clicked = false;
         const root = mount(<ArenaCalendarEvent id="b" title="Standup" start="2026-07-20T09:00:00Z"
-          end="2026-07-20T09:30:00Z" interactive onClick={() => { clicked = true; }} actionsEnabled
+          end="2026-07-20T09:30:00Z" interactive onActivate={() => { clicked = true; }} actionsEnabled
           actions={<button type="button">Delete</button>} {...CHIP} />);
         const body = [...root.querySelectorAll<HTMLElement>('button')]
           .find((b) => /^Standup,/.test(b.getAttribute('aria-label') || ''));
@@ -108,18 +108,18 @@ test('ArenaCalendarEvent meets all three of its declared shapes, and `interactiv
         assert.equal(body!.hasAttribute('aria-disabled'), false,
           'an activatable chip body must not announce itself as disabled');
         act(() => { body!.click(); });
-        assert.equal(clicked, true, 'sanity: a real click must reach onClick');
+        assert.equal(clicked, true, 'sanity: a real click must reach onActivate');
 
         let blocked = false;
         const off = mount(<ArenaCalendarEvent id="b-off" title="Standup" start="2026-07-20T09:00:00Z"
-          end="2026-07-20T09:30:00Z" interactive disabled onClick={() => { blocked = true; }} actionsEnabled
+          end="2026-07-20T09:30:00Z" interactive disabled onActivate={() => { blocked = true; }} actionsEnabled
           actions={<button type="button">Delete</button>} {...CHIP} />);
         const offBody = [...off.querySelectorAll<HTMLElement>('button')]
           .find((b) => /^Standup,/.test(b.getAttribute('aria-label') || ''));
         assert.equal(offBody!.getAttribute('aria-disabled'), 'true',
           'the disabled state must reach the BODY button, which is where the interactivity moved');
         act(() => { offBody!.click(); });
-        assert.equal(blocked, false, 'a disabled chip body still reported through onClick');
+        assert.equal(blocked, false, 'a disabled chip body still reported through onActivate');
 
         return {
           root,
@@ -132,9 +132,9 @@ test('ArenaCalendarEvent meets all three of its declared shapes, and `interactiv
       inert: () => {
         let clicked = false;
         const plain = mount(<ArenaCalendarEvent id="c" title="Standup" start="2026-07-20T09:00:00Z"
-          end="2026-07-20T09:30:00Z" onClick={() => { clicked = true; }} {...CHIP} />);
+          end="2026-07-20T09:30:00Z" onActivate={() => { clicked = true; }} {...CHIP} />);
         assert.equal(plain.firstElementChild!.tagName, 'DIV',
-          'a chip the consumer declared non-interactive is a div, even with onClick bound -- '
+          'a chip the consumer declared non-interactive is a div, even with onActivate bound -- '
           + '`interactive` decides the shape, which is the whole point of it being a member');
         assert.equal(plain.querySelector<HTMLElement>('button')!, null, 'and it renders no button at all');
         act(() => { (plain.firstElementChild as HTMLElement).click(); });

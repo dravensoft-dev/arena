@@ -1,13 +1,12 @@
-/* The boundary wrap of a trap is Arena's own .focus() and happy-dom honours it; the INTERIOR
- * is native sequential focus navigation, which happy-dom lacks, so a suite asserting it there
- * passes identically against a perfect trap and against none. This gate drives real Chromium
- * over CDP and presses a real Tab, the only one that does. TRAPS names a page per layer binding
- * dialog-modal, each opening its panel from its own fixture, so no button is found by its text.
- * No wait here is a span: a sleep guesses at machine speed and reports a slow runner as a
- * component that rendered nothing. A keypress barrier is armed BEFORE the key, since CDP acks
- * one only once handled and a snapshot taken after is the moved element already; and where a
- * panel holds ONE stop, no move is possible and the subject is containment. FOCUSABLE repeats
- * :not([tabindex="-1"]) per clause because a list is OR'd: loose once, it failed a combobox. */
+/* The boundary wrap of a trap is Arena's own .focus() and happy-dom honours it; the INTERIOR is
+ * native sequential focus navigation, which happy-dom lacks, so this drives real Chromium over CDP
+ * and presses a real Tab. TRAPS names a page per layer binding modal-focus, each opening its panel
+ * from its own fixture. HANDOFFS names a page per layer whose hidden native control hands focus to
+ * the trigger it lies under when the browser refuses it, and the box the browser anchors its
+ * message on, which a DOM without layout cannot show. No wait here is a span: a keypress barrier
+ * is armed BEFORE the key, since CDP acks one only once handled, and where a panel holds ONE stop
+ * the subject is containment. FOCUSABLE repeats :not([tabindex="-1"]) per clause because a list
+ * is OR'd: loose once, it failed a combobox. */
 
 import { withTimeout } from '../../utils/with-timeout.ts';
 import { deadline, type Deadline } from '../../lib/arena/deadline.ts';
@@ -93,6 +92,18 @@ export const FOCUSABLE = [
 
 export const PANEL = '[role="dialog"], [role="alertdialog"]';
 
+export const SILENCE = `{
+      readyState: document.readyState,
+      elements: document.body ? document.body.getElementsByTagName('*').length : 0,
+      errors: (window.__arenaTrapErrors || []).slice(0, 5),
+      scripts: performance.getEntriesByType('resource')
+        .filter((r) => r.name.endsWith('.js'))
+        .map((r) => new URL(r.name).pathname.split('/').pop()
+          + ' ' + (r.responseStatus === undefined ? '?' : r.responseStatus)
+          + ' ' + r.decodedBodySize + 'B')
+        .slice(0, 8),
+    }`;
+
 export const COLLECT_ERRORS = `window.__arenaTrapErrors = [];
 addEventListener('error', (e) => window.__arenaTrapErrors.push(
   String((e.target && e.target.src) ? 'failed to load ' + e.target.src : e.message)), true);
@@ -106,6 +117,97 @@ export const TRAPS = [
   { name: 'ArenaDialog:angular', page: 'frameworks/angular/components/feedback/arena-dialog/ArenaDialog.demo.generated.html' },
   { name: 'ArenaCommandPalette:angular', page: 'frameworks/angular/components/navigation/arena-command-palette/ArenaCommandPalette.demo.generated.html' },
 ];
+
+export const HANDOFFS = [
+  { name: 'ArenaFileInput:react', page: 'frameworks/react/components/forms/arena-file-input/ArenaFileInput.demo.generated.html', query: '?required=1' },
+  { name: 'ArenaFileInput:angular', page: 'frameworks/angular/components/forms/arena-file-input/ArenaFileInput.demo.generated.html', query: '?required=1' },
+];
+
+export const HANDOFF_INPUT = '[data-arena-part="file-input.input"]';
+export const HANDOFF_TRIGGER = '[data-arena-part="file-input.trigger"]';
+
+export const HANDOFF_SEEN: Deadline = deadline('focus-trap:handoff-seen', 20_000,
+  'the field mounts from the page fixture after the framework has, so this covers a bundle parse and '
+  + 'a hydration on a runner with no GPU, the same work a panel waits for');
+
+export const ALIGN_PX = 1;
+
+export type Box = { left: number; top: number; width: number; height: number };
+
+export type Handoff = {
+  seen: boolean;
+  expired?: boolean;
+  waitedMs?: number;
+  threw?: string;
+  silence?: Silence;
+  changed?: Lost[];
+  input?: Box;
+  trigger?: Box;
+  pointerEvents?: string;
+  opacity?: string;
+  hit?: boolean;
+  valid?: boolean;
+  landed?: boolean;
+};
+
+export function handoffExpression(seen: Deadline, moved: Deadline) {
+  return `new Promise((resolve) => {
+    const started = Date.now();
+    const until = started + ${seen.ms};
+    const box = (el) => { const r = el.getBoundingClientRect(); return { left: r.left, top: r.top, width: r.width, height: r.height }; };
+    const measure = (input, trigger) => {
+      const style = getComputedStyle(input);
+      const t = trigger.getBoundingClientRect();
+      const at = document.elementFromPoint(t.left + t.width / 2, t.top + t.height / 2);
+      const valid = input.checkValidity();
+      if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+      input.reportValidity();
+      const settle = Date.now() + ${moved.ms};
+      const done = () => resolve({ seen: true, waitedMs: Date.now() - started, input: box(input), trigger: box(trigger),
+        pointerEvents: style.pointerEvents, opacity: style.opacity, hit: Boolean(at && trigger.contains(at)), valid,
+        landed: document.activeElement === trigger });
+      const wait = () => (document.activeElement === trigger || Date.now() >= settle ? done() : setTimeout(wait, ${POLL_MS}));
+      wait();
+    };
+    const tick = () => {
+      const input = document.querySelector(${JSON.stringify(HANDOFF_INPUT)});
+      const trigger = document.querySelector(${JSON.stringify(HANDOFF_TRIGGER)});
+      if (input && trigger) measure(input, trigger);
+      else if (Date.now() >= until) resolve({ seen: false, expired: true, waitedMs: Date.now() - started });
+      else setTimeout(tick, ${POLL_MS});
+    };
+    tick();
+  })`;
+}
+
+export function handoffProblems(name: string, walk: Handoff) {
+  if (walk.threw !== undefined) return [threwProblem(`${name}: the page`, walk.threw, walk.silence)];
+  if (walk.expired && (walk.changed?.length ?? 0) > 0) return [networkChangedProblem(`${name}: the page`, walk.changed ?? [])];
+  if (!walk.seen || !walk.input || !walk.trigger) {
+    return [`${name}: ${HANDOFF_SEEN.name} saw no hidden input beside a trigger within ${HANDOFF_SEEN.ms}ms, `
+      + `which is that size because ${HANDOFF_SEEN.why}. Nothing was refused and nothing was measured`
+      + silenceOf(walk.silence)];
+  }
+  const problems: string[] = [];
+  const input = walk.input;
+  const trigger = walk.trigger;
+  const off = (['left', 'top', 'width', 'height'] as const).filter((edge) => Math.abs(input[edge] - trigger[edge]) > ALIGN_PX);
+  if (off.length > 0) {
+    problems.push(`${name}: the hidden input does not lie over the trigger (${off.join(', ')} differ by more than `
+      + `${ALIGN_PX}px), so the browser anchors a refused field's message away from the control it names`);
+  }
+  if (walk.pointerEvents !== 'none') {
+    problems.push(`${name}: the hidden input takes pointer events (${walk.pointerEvents}), so a press over the trigger reaches the input instead`);
+  }
+  if (walk.opacity !== '0') problems.push(`${name}: the hidden input is painted (opacity ${walk.opacity}), so the browser's own control shows over the trigger`);
+  if (!walk.hit) problems.push(`${name}: the point at the trigger's centre is not the trigger, so a press there opens nothing the label names`);
+  if (walk.valid) problems.push(`${name}: an empty field marked required checked valid, so required never reached the hidden input`);
+  if (!walk.landed) {
+    problems.push(`${name}: after the browser refused the empty field, focus was not on the trigger, so a keyboard `
+      + 'user is left on an element nobody can see');
+  }
+  return problems;
+}
 
 export type Silence = {
   readyState: string;
@@ -192,12 +294,16 @@ async function walkOnce(cdp: Cdp, url: string): Promise<TrapWalk> {
   return { ...result, changed };
 }
 
-async function walkIn(cdp: Cdp, sessionId: string, url: string): Promise<TrapWalk> {
+export async function openPage(cdp: Cdp, sessionId: string, url: string): Promise<void> {
   await cdp.send('Emulation.setDeviceMetricsOverride', { width: 1000, height: 760, deviceScaleFactor: 1, mobile: false }, sessionId);
   await cdp.send('Page.enable', {}, sessionId);
   await cdp.send('Page.addScriptToEvaluateOnNewDocument', { source: COLLECT_ERRORS }, sessionId);
   await withTimeout(cdp.send('Page.navigate', { url }, sessionId), NAVIGATE.ms,
     `${url}: navigate timed out after ${NAVIGATE.ms}ms, which is that size because ${NAVIGATE.why}`);
+}
+
+async function walkIn(cdp: Cdp, sessionId: string, url: string): Promise<TrapWalk> {
+  await openPage(cdp, sessionId, url);
 
   const ev = (expression: string) => evaluate(cdp, expression, sessionId);
   const tab = async (shift: boolean, canMove: boolean) => {
@@ -213,17 +319,7 @@ async function walkIn(cdp: Cdp, sessionId: string, url: string): Promise<TrapWal
 
   const seen = await ev(`(() => {
     const panel = document.querySelector(${JSON.stringify(PANEL)});
-    if (!panel) return { panel: false, focusables: 0, startsInside: false, silence: {
-      readyState: document.readyState,
-      elements: document.body ? document.body.getElementsByTagName('*').length : 0,
-      errors: (window.__arenaTrapErrors || []).slice(0, 5),
-      scripts: performance.getEntriesByType('resource')
-        .filter((r) => r.name.endsWith('.js'))
-        .map((r) => new URL(r.name).pathname.split('/').pop()
-          + ' ' + (r.responseStatus === undefined ? '?' : r.responseStatus)
-          + ' ' + r.decodedBodySize + 'B')
-        .slice(0, 8),
-    } };
+    if (!panel) return { panel: false, focusables: 0, startsInside: false, silence: ${SILENCE} };
     const list = [...panel.querySelectorAll(${JSON.stringify(FOCUSABLE)})];
     list.forEach((el, i) => { el.dataset.arenaTrapIndex = String(i); });
     return { panel: true, focusables: list.length, startsInside: panel.contains(document.activeElement) };
@@ -266,6 +362,36 @@ async function walkIn(cdp: Cdp, sessionId: string, url: string): Promise<TrapWal
   };
 }
 
+async function walkHandoff(cdp: Cdp, url: string): Promise<Handoff> {
+  try {
+    const { result, changed } = await loadInFreshTab(cdp,
+      (sessionId) => handoffIn(cdp, sessionId, url),
+      (walk) => walk.expired === true);
+    return { ...result, changed };
+  } catch (error) {
+    if (!(error instanceof PageThrew)) throw error;
+    return { seen: false, threw: error.message };
+  }
+}
+
+async function handoffIn(cdp: Cdp, sessionId: string, url: string): Promise<Handoff> {
+  await openPage(cdp, sessionId, url);
+  const walk = await evaluate(cdp, handoffExpression(HANDOFF_SEEN, FOCUS_MOVED), sessionId) as Handoff;
+  if (walk.seen) return walk;
+  return { ...walk, silence: await evaluate(cdp, `(${SILENCE})`, sessionId) as Silence };
+}
+
+export function summaryLine(
+  traps: number, handoffs: number, slowestTrap: number, slowestHandoff: number,
+  panelHeld: Deadline = PANEL_HELD, handoffSeen: Deadline = HANDOFF_SEEN,
+): string {
+  return `check-focus-trap: ${traps} trap(s) walked with real Tab presses. Focus `
+    + 'stayed inside, reached every control and wrapped both ways. '
+    + `${handoffs} refused field(s) lay under their trigger and handed it focus. The slowest panel `
+    + `was held after ${slowestTrap}ms of the ${panelHeld.ms}ms allowed, and the slowest handoff was seen `
+    + `after ${slowestHandoff}ms of the ${handoffSeen.ms}ms allowed`;
+}
+
 const skip: (reason: string) => never = (reason) => cannotRun('check-focus-trap', reason);
 
 async function main() {
@@ -276,12 +402,18 @@ async function main() {
   const chrome = await launchChromium(exe);
   const cdp = await connect(chrome.wsUrl);
   const problems = [];
-  let slowest = 0;
+  let slowestTrap = 0;
+  let slowestHandoff = 0;
   try {
     for (const trap of TRAPS) {
       const walk = await walkTrap(cdp, `http://127.0.0.1:${server.port}/${trap.page}`);
-      slowest = Math.max(slowest, Number(walk.waitedMs ?? 0));
+      slowestTrap = Math.max(slowestTrap, Number(walk.waitedMs ?? 0));
       problems.push(...walkProblems(trap.name, walk));
+    }
+    for (const handoff of HANDOFFS) {
+      const walk = await walkHandoff(cdp, `http://127.0.0.1:${server.port}/${handoff.page}${handoff.query}`);
+      slowestHandoff = Math.max(slowestHandoff, Number(walk.waitedMs ?? 0));
+      problems.push(...handoffProblems(handoff.name, walk));
     }
   } finally {
     await chrome.kill?.();
@@ -293,9 +425,7 @@ async function main() {
     for (const p of problems) console.error(`  ${p}`);
     process.exit(1);
   }
-  console.log(`check-focus-trap: ${TRAPS.length} trap(s) walked with real Tab presses. Focus `
-    + 'stayed inside, reached every control and wrapped both ways. The slowest panel was seen '
-    + `after ${slowest}ms of the ${PANEL_HELD.ms}ms allowed`);
+  console.log(summaryLine(TRAPS.length, HANDOFFS.length, slowestTrap, slowestHandoff));
 }
 
 if (isMainModule(import.meta.url)) await main();

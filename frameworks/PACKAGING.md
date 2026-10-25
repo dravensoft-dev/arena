@@ -26,6 +26,9 @@ bun run build:release   # every source, and both packages assembled from them
 bun run check:packages  # the manifests, and the CLI against the token pipeline
 ```
 
+A job that assembles one package runs `bun run check:packages --layer=react` or
+`--layer=angular`, which requires and judges that package alone.
+
 Each package's own `README.md` is what a consumer reads. They are authored here as
 [`react/PACKAGE.md`](./react/PACKAGE.md) and [`angular/PACKAGE.md`](./angular/PACKAGE.md),
 and the assembly copies each into its `dist/` as `README.md`. They live in the tree rather
@@ -74,17 +77,19 @@ It does the two jobs a project always did together, and a failure in the first s
   [`scripts/lib/arena/component-map.ts`](../scripts/lib/arena/component-map.ts) derives from the
   layer: what a consumer writes is not what dresses it, since there are fewer sheets than components, and
   the closure matters more than the mapping because Arena draws components nobody named.
-- **The icons** write the Phosphor subset a project draws, `icons.generated.css`, reading the
-  consumer's sources and the package it ships in, since a component renders icons the consumer
-  never names.
+- **The icons** write the Phosphor subset a project draws, `icons-<hash>.svg` with
+  `arena.icons.generated.js` (React, with its declaration file) or `arena.icons.generated.ts` (Angular) naming it, reading the consumer's sources and the package it ships
+  in, since a component renders icons the consumer never names.
+- **The fonts** write each local `src` cut to Latin-1 and the weights the build paints, as
+  `<stem>-<hash>.woff2`, so the name changes exactly when the bytes do.
 
-**Import order is what makes it work.** The consumer's generated file comes last, and its
-first line is an `@import` of the package's own `arena.css`. Both files declare into `:root`,
-equal specificity, so source order decides and the consumer's values win.
+**A cascade layer is what makes it work.** The package declares its colour and type defaults in
+`arena-defaults`, the first layer the order statement names. The consumer's generated file
+declares into `:root` unlayered, so the consumer's values win whatever order the two sheets load in.
 
-**Phosphor is never bundled.** Arena's single-icon convention is a class name a component
-renders, so the icons are a peer dependency in both packages. Bundling them would ship a
-font the consumer may already have and cannot swap.
+**The Phosphor web font is never bundled.** Arena's single-icon convention is a class name a
+component hands to `ArenaIcon`, which draws a symbol of the sprite the consumer's build
+writes. No font reaches a page through Arena, and `@phosphor-icons/web` is no peer.
 
 ## One coupling, and it is part of the contract
 
@@ -92,9 +97,11 @@ font the consumer may already have and cannot swap.
 quietly swaps, and it is worth saying plainly, because an adopter budgets for a dependency they
 were told about and resents one they find.
 
-- **Phosphor** travels as a **peer dependency** of both packages. Every `icon` member is a
-  class name the consumer supplies and a component renders, so the font has to be installed
-  and the names have to be Phosphor's. `check:icons` holds the names Arena itself writes.
+- **Phosphor** travels as a **dependency of the `arena` command**, in both packages:
+  `@phosphor-icons/core`, whose SVGs the build cuts into the sprite, beside `harfbuzzjs` and
+  `wawoff2`, which cut the fonts. No component imports them, so none reaches a bundle. Every
+  `icon` member is a class name the consumer supplies and `ArenaIcon` draws, so the names have
+  to be Phosphor's. `check:icons` holds the names Arena itself writes.
 
 **Two more peers exist and both are optional, which is a different kind of thing.** The Angular
 package declares `@angular/router` and `@angular/forms` under `peerDependenciesMeta` as optional,
@@ -108,7 +115,7 @@ before it eliminates it, so a router named anywhere in the primary graph is a ro
 adopter has to have installed, whether or not they call the thing that needs it. So the coupling
 is opt-in at the import site, and an adopter pays for it by asking for it.
 
-**That claim is held at both ends now, and the two halves fail at different times.** The grep above
+**That claim is held at both ends, and the two halves fail at different times.** The grep above
 re-derives it against the assembled package, which is what a released tarball actually promises;
 `check:architecture` holds it against the sources, failing an import of either peer from outside
 its entry point or from the root's import closure, and failing an optional declaration being
@@ -125,14 +132,19 @@ package's `exports` map.
 **Tailwind is not one.** It is how Arena's CSS is *authored*, and it stops there: a
 manifest's class string is compiled through `@apply`, stripped of every Tailwind theme
 indirection, and emitted as plain declarations under Arena's own class names. Nothing a package
-ships names a Tailwind utility, and neither package declares a runtime dependency of any kind
-except `tslib`, which is Angular's own helper import. A project that runs its own Tailwind can
+ships names a Tailwind utility, and no component of either package imports a runtime dependency. The
+manifests declare the three the `arena` command reads at build, and the Angular one
+`tslib`, which is Angular's own helper import. A project that runs its own Tailwind can
 declare whatever `--spacing` it likes and nothing of Arena's moves.
 
-**That indirection is the reason the strip exists rather than an optimisation.** `@apply` emits
-`gap: calc(var(--spacing, var(--sp-1)) * 1.5)`, not the Arena token: the adopter's own
-`--spacing` on an unlayered `:root` wins, the fallback is never reached, and every component
-rescales with nothing in the DOM to point at. Compiling to CSS without stripping would move the
+**That indirection is the reason the strip exists rather than an optimisation.** A key Theme.css
+declares under the token's own name, such as `--color-base-100`, compiles through `@apply` to
+`var(--color-base-100, var(--color-base-100))`: the adopter's own value on an unlayered `:root` wins,
+and every component recolours with nothing in the DOM to point at. The strip collapses each such
+pair to the Arena token and refuses an indirection Theme.css does not explain. A key that names a
+different token sits in the `@theme inline` block, so Tailwind writes the Arena token itself into the
+declaration: `gap-1.5` compiles to `calc(var(--sp-1) * 1.5)` and `bg-surface` to `var(--fill-surface)`,
+and an adopter's `--spacing` is never read. Compiling to CSS without stripping would move the
 collision from class names to custom properties rather than remove it.
 
 **What ships is a tree, and an adopter picks their depth.** `css/prelude.css` carries the layer
@@ -316,7 +328,7 @@ name is not the API" above before treating a manifest edit as a break.
 
 ## What `check:packages` holds
 
-**That the two palette emitters agree.** There are now two things that turn a palette into
+**That the two palette emitters agree.** There are two things that turn a palette into
 CSS: Style Dictionary, which serves this repository, and `arena build`, which serves a
 consumer who has no repository. The gate builds a config out of Arena's own skin, runs the
 CLI over it, and asserts every `--color-*` declaration matches
@@ -325,7 +337,7 @@ at nothing is an explicit failure, not a vacuous pass.
 
 **That an assembled package is registry-standard.** The version comes from `plugin.json`,
 every `exports` target was actually emitted, there is no install script, there is a README,
-and Phosphor is a peer rather than a dependency. `dist/` is ignored, so on a fresh clone that
+and Phosphor is a dependency of the command and no peer. `dist/` is ignored, so on a fresh clone that
 half is skipped and the run says which.
 
 The palette half runs anywhere. Neither half says anything about whether a component behaves
@@ -346,7 +358,7 @@ git tag -a vX.Y.Z -m "Arena vX.Y.Z"
 git push origin main --follow-tags
 ```
 
-`--follow-tags` matters here for a second reason now: the workflow runs `check-release.ts`
+`--follow-tags` matters here for a second reason: the workflow runs `check-release.ts`
 before it publishes anything, and that gate refuses a version whose tag does not exist and
 does not serve it. A version bump pushed without its tag is rejected loudly rather than
 published quietly.
@@ -371,7 +383,7 @@ Three things about the publish itself, each of which has a way of going wrong:
 
 Still possible, and the fallback when the workflow cannot run. **It is the publish and not the
 release**: the version bump that has to precede the build, the tag, the branch the tag lands on
-and the benches that are packed after it are all in
+and the adopter builds attached after it are all in
 [`../versioning_steps.md`](../versioning_steps.md), and this block replaces none of them. Its
 first command **fails by design** on a tree whose tag does not exist yet, which is the expected
 output there and a red herring here, so read that page's step 1 before running anything below:

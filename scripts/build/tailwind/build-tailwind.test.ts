@@ -11,11 +11,11 @@ import test from 'node:test';
 import ts from 'typescript';
 import assert from 'node:assert/strict';
 import { join, win32 } from 'node:path';
-import { relPosix } from '../../utils/posix-path.ts';
+import { relPosix, toPosix } from '../../utils/posix-path.ts';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import {
-  CONSUME, PRELUDE, preludeSpecifier, sheetPath, buildVocabularyCss, vocabularyImports, vocabularyTypes,
+  CONSUME, PRELUDE, preludeSpecifier, sheetPath, buildVocabularyCss, vocabularyImports, vocabularyTypes, buildClassModules, componentVocabulary,
 } from './build-tailwind.ts';
 import type { Family } from '../../lib/tailwind/vocabulary.ts';
 
@@ -125,8 +125,9 @@ test('each component gets every context class and the box classes its manifest a
   assert.match(text, /export type ArenaFillFamilyClass = 'arena-fill' \| 'arena-fit';/);
   assert.match(text, /export type ArenaButtonClass = ArenaClassList<ArenaContextClass \| ArenaFillFamilyClass>;/);
   assert.match(text, /export type ArenaCardClass = ArenaClassList<ArenaContextClass>;/);
-  assert.match(text, /"ArenaButton": \["arena-witness-off", "arena-witness-on", "arena-fill", "arena-fit"\]/);
-  assert.match(text, /"ArenaCard": \["arena-witness-off", "arena-witness-on"\]/);
+  assert.deepEqual(componentVocabulary([...families], new Map([['ArenaButton', ['fill']]]), 'ArenaButton'),
+    ['arena-witness-off', 'arena-witness-on', 'arena-fill', 'arena-fit']);
+  assert.deepEqual(componentVocabulary([...families], new Map(), 'ArenaCard'), ['arena-witness-off', 'arena-witness-on']);
 });
 
 test('with no context family the context union is never, so a component answering nothing takes no class', () => {
@@ -140,7 +141,7 @@ test('a markup box family is offered to no component, and a markup context famil
   const text = vocabularyTypes([stack, density], new Map(), ['ArenaCard'], 'p');
   assert.match(text, /export type ArenaContextClass = 'arena-comfortable' \| 'arena-compact';/);
   assert.doesNotMatch(text, /ArenaStackFamilyClass|arena-stack/);
-  assert.match(text, /"ArenaCard": \["arena-comfortable", "arena-compact"\]/);
+  assert.deepEqual(componentVocabulary([stack, density], new Map(), 'ArenaCard'), ['arena-comfortable', 'arena-compact']);
 });
 
 test('a component takes a list of its vocabulary classes, and a box family contributes only the options it answers', () => {
@@ -154,8 +155,9 @@ test('a component takes a list of its vocabulary classes, and a box family contr
   ]), ['ArenaButton', 'ArenaTag'], 'p');
   assert.match(text, /export type ArenaClassList<T extends string> = T \| `\${T} \${T}` \| `\${T} \${T} \${T}`;/);
   assert.match(text, /export type ArenaTagClass = ArenaClassList<ArenaContextClass \| 'arena-fit'>;/);
-  assert.match(text, /"ArenaTag": \["arena-compact", "arena-fit"\]/);
-  assert.match(text, /"ArenaButton": \["arena-compact", "arena-fill", "arena-fit"\]/);
+  const answers = new Map<string, any>([['ArenaTag', [{ family: 'fill', options: ['arena-fit'], default: 'arena-fit' }]], ['ArenaButton', ['fill']]]);
+  assert.deepEqual(componentVocabulary(families, answers, 'ArenaTag'), ['arena-compact', 'arena-fit']);
+  assert.deepEqual(componentVocabulary(families, answers, 'ArenaButton'), ['arena-compact', 'arena-fill', 'arena-fit']);
 });
 
 test('the emitted ArenaButtonClass accepts a list of classes, and refuses a token no family writes', () => {
@@ -186,5 +188,17 @@ test('a component that renders no element of its own gets no class type and no v
     new Map([['ArenaTabs', 'renders a fragment']]));
   assert.match(out, /export type ArenaButtonClass =/);
   assert.doesNotMatch(out, /ArenaTabsClass/);
-  assert.doesNotMatch(out, /"ArenaTabs":/);
+});
+
+test('each component\'s classes module carries its own vocabulary, and the vocabulary module carries no runtime map', () => {
+  const text = vocabularyTypes([], new Map(), ['ArenaButton'], 'p');
+  assert.doesNotMatch(text, /export const ARENA_VOCABULARY\b/);
+  assert.match(text, /export const ARENA_CONTEXT_VOCABULARY: readonly ArenaContextClass\[\] = \[/);
+  assert.match(text, /export const ARENA_VOCABULARY_PAGE = /);
+  const modules = buildClassModules();
+  const react = [...modules].filter(([file]) => toPosix(file).includes('/frameworks/react/') && file.endsWith('ArenaButton.classes.generated.ts'));
+  assert.equal(react.length, 1);
+  assert.match(react[0]![1], /"vocabulary": \[/);
+  const angular = [...modules].filter(([file]) => toPosix(file).includes('/frameworks/angular/') && file.endsWith('ArenaButton.classes.generated.ts'));
+  for (const [, body] of angular) assert.doesNotMatch(body, /"vocabulary"/, 'Angular filters nothing at runtime, so its module carries no list');
 });

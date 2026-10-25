@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { ARENA_CHART_HEIGHT, ARENA_PAD, arenaValueWriter } from '../../DataVisuals';
-import { arenaPlotBox, arenaAxisTicks, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY, arenaDoughnutRadii, arenaValueGutter } from './ChartAxis';
+import { arenaPlotBox, arenaSparkBox, arenaTooltipShift, arenaSparkTooltipTop, arenaAxisTicks, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY, arenaDoughnutRadii, arenaValueGutter, arenaTextGutter, arenaFunnelBox, arenaHeatmapHeight, arenaHeatmapBox, arenaHeatmapWidth, arenaLabelStride } from './ChartAxis';
 import { arenaLinearScale, arenaNiceDomain, arenaDomainTicks } from './ChartScales';
-import { chartTickChar, chartLabelGap } from '../../Tokens.generated';
+import { chartTickChar, chartLabelGap, chartPadCategory, chartHeatmapRowH, chartLegendStrip, chartPointR, chartPointRHover, chartSparklineHeight } from '../../Tokens.generated';
 
 test('the tick label ends one label gap left of the plot, inside the left pad', () => {
   assert.equal(arenaTickLabelX(), ARENA_PAD.l - 8);
@@ -60,6 +60,61 @@ test('the plot box floors at 1px on both axes, so an unmeasured container still 
     assert.ok(arenaPlotBox(width, 280).w >= 1, `width ${width}`);
   for (const height of [0, ARENA_PAD.t + ARENA_PAD.b, -100])
     assert.ok(arenaPlotBox(600, height).h >= 1, `height ${height}`);
+});
+
+test('the spark box insets the point radius on every side, so the end dot is never cut at an edge', () => {
+  const box = arenaSparkBox(200, chartSparklineHeight);
+  assert.equal(box.x, chartPointR);
+  assert.equal(box.y, chartPointR);
+  assert.equal(box.x + box.w, 200 - chartPointR, 'the last point sits one radius in from the right edge');
+  assert.equal(box.y + box.h, chartSparklineHeight - chartPointR, 'the lowest value sits one radius above the floor');
+});
+
+test('the spark box draws no gutter and no label row, because a sparkline has no axis to hold', () => {
+  const spark = arenaSparkBox(200, chartSparklineHeight);
+  const plot = arenaPlotBox(200, chartSparklineHeight);
+  assert.ok(spark.w > plot.w, 'the value gutter is not reserved');
+  assert.ok(spark.h > 1 && plot.h === 1, 'the label row would leave the line no room at all');
+});
+
+test('the enlarged dot overhangs the spark box by the hover delta alone', () => {
+  assert.equal(chartPointRHover - chartPointR, 1, 'the cursor dot leaves the box by one pixel, into the overflow the plot draws visible');
+});
+
+test('the spark box floors at 1px on both axes, so an unmeasured cell still lays out', () => {
+  for (const width of [0, chartPointR * 2, -100]) assert.ok(arenaSparkBox(width, chartSparklineHeight).w >= 1, `width ${width}`);
+  for (const height of [0, chartPointR * 2, -100]) assert.ok(arenaSparkBox(200, height).h >= 1, `height ${height}`);
+});
+
+test('the tooltip shift is 0 on the first point of the spark box and 1 on the last, so the readout slides with the point', () => {
+  const box = arenaSparkBox(200, chartSparklineHeight);
+  assert.equal(arenaTooltipShift(box.x, box), 0, 'on the first point the readout starts at the point');
+  assert.equal(arenaTooltipShift(box.x + box.w, box), 1, 'on the last point the readout ends at the point');
+  assert.equal(arenaTooltipShift(box.x + box.w / 2, box), 0.5, 'in the middle the readout is centred');
+});
+
+test('a readout no wider than the spark box stays inside the frame at every point', () => {
+  const box = arenaSparkBox(200, chartSparklineHeight);
+  for (const readout of [0, 46, 70, box.w]) {
+    for (let i = 0; i <= 10; i++) {
+      const x = box.x + (box.w * i) / 10;
+      const left = x - arenaTooltipShift(x, box) * readout;
+      assert.ok(left >= 0 && left + readout <= 200, `readout ${readout} at x ${x} spans ${left}..${left + readout}`);
+    }
+  }
+});
+
+test('the tooltip shift clamps to 0..1 outside the spark box', () => {
+  const box = arenaSparkBox(200, chartSparklineHeight);
+  assert.equal(arenaTooltipShift(-50, box), 0);
+  assert.equal(arenaTooltipShift(400, box), 1);
+});
+
+test('the spark tooltip stands on the point measured from the middle of the frame, where the plot is centred', () => {
+  assert.equal(arenaSparkTooltipTop(4, chartSparklineHeight), 'calc(50% + -6px - var(--chart-tooltip-offset))',
+    'the ceiling of a 20px plot is 6px above the middle of whatever region holds it');
+  assert.equal(arenaSparkTooltipTop(chartSparklineHeight / 2, chartSparklineHeight), 'calc(50% + 0px - var(--chart-tooltip-offset))',
+    'the middle of the plot is the middle of the frame');
 });
 
 test('an axis tick carries its value, its position on the scale and the written label', () => {
@@ -150,3 +205,63 @@ test('the hole is the shape and never a caller-supplied ratio, so only the two s
   }
 });
 
+test('the text gutter is floored at the left pad and grows with the widest text', () => {
+  assert.equal(arenaTextGutter([]), ARENA_PAD.l);
+  assert.equal(arenaTextGutter(['1']), ARENA_PAD.l, 'a short text keeps the pad');
+  const wide = arenaTextGutter(['12,480', '1,234,567,890,123']);
+  assert.equal(wide, Math.ceil(17 * chartTickChar) + chartLabelGap);
+  assert.ok(wide > ARENA_PAD.l);
+  assert.equal(arenaTextGutter(['12,480', '1,234,567,890,123']), arenaTextGutter(['1,234,567,890,123']), 'the widest decides, not the count');
+  assert.ok(arenaTextGutter(['x'.repeat(30)]) > arenaTextGutter(['x'.repeat(20)]));
+});
+
+test('the funnel box leaves the category gutter on the left and the measured gutter and right pad on the right', () => {
+  const box = arenaFunnelBox(600, 280, 60);
+  assert.equal(box.x, chartPadCategory);
+  assert.equal(box.y, ARENA_PAD.t);
+  assert.equal(box.x + box.w + 60 + ARENA_PAD.r, 600, 'the box and its gutters add to the width');
+  assert.equal(box.h, 280 - ARENA_PAD.t * 2, 'no axis below the plot');
+  assert.ok(arenaFunnelBox(600, 280, 120).w < box.w, 'a wider gutter takes from the box');
+  assert.equal(arenaFunnelBox(10, 5, 400).w, 1, 'never below one pixel');
+  assert.equal(arenaFunnelBox(10, 5, 400).h, 1);
+});
+
+test('a heatmap grows by one row pitch a row and is never shorter than one row', () => {
+  for (let rows = 1; rows < 12; rows += 1) assert.equal(arenaHeatmapHeight(rows + 1) - arenaHeatmapHeight(rows), chartHeatmapRowH);
+  assert.equal(arenaHeatmapHeight(0), arenaHeatmapHeight(1), 'no rows is one row of room');
+  assert.equal(arenaHeatmapHeight(3), 3 * chartHeatmapRowH + ARENA_PAD.t + ARENA_PAD.b + chartLegendStrip);
+});
+
+test('the heatmap box leaves the category gutter, the pads and nothing below the plot but the pad', () => {
+  const box = arenaHeatmapBox(600, 200);
+  assert.equal(box.x, chartPadCategory);
+  assert.equal(box.y, ARENA_PAD.t);
+  assert.equal(box.x + box.w + ARENA_PAD.r, 600);
+  assert.equal(box.y + box.h + ARENA_PAD.b, 200);
+  assert.equal(arenaHeatmapBox(10, 5).w, 1, 'never below one pixel');
+  assert.equal(arenaHeatmapBox(10, 5).h, 1);
+});
+
+test('the heatmap fills the available width without a cell minimum and is never narrower than the minimum asks', () => {
+  for (const minimum of [undefined, 0, -4, Number.NaN]) assert.equal(arenaHeatmapWidth(320, 24, minimum), 320);
+  assert.equal(arenaHeatmapWidth(320, 24, 40), chartPadCategory + ARENA_PAD.r + 40 * 24);
+  assert.equal(arenaHeatmapWidth(2000, 24, 40), 2000, 'room to spare is kept');
+  for (const cols of [3, 12, 24, 60]) assert.ok(arenaHeatmapWidth(300, cols, 30) >= 300);
+});
+
+test('the label stride is one while the step fits the widest label and grows as the step shrinks', () => {
+  const texts = ['00', '07', '23'];
+  const room = Math.ceil(2 * chartTickChar) + chartLabelGap;
+  assert.equal(arenaLabelStride(room, texts), 1);
+  assert.equal(arenaLabelStride(room * 4, texts), 1);
+  assert.equal(arenaLabelStride(room / 2, texts), 2);
+  let previous = 1;
+  for (let step = room; step > 0.5; step -= 0.5) {
+    const stride = arenaLabelStride(step, texts);
+    assert.ok(stride >= previous, `stride ${stride} after ${previous} at step ${step}`);
+    assert.ok(stride * step >= room, 'the labels drawn have the room the widest one needs');
+    previous = stride;
+  }
+  assert.equal(arenaLabelStride(10, []), 1, 'no text is never more than one');
+  assert.ok(arenaLabelStride(10, ['x'.repeat(12)]) > arenaLabelStride(10, ['xx']), 'the widest label decides');
+});

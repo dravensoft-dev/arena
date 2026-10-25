@@ -36,6 +36,11 @@ unpositioned.
 - `Enter`: opens the menu and moves focus to its first item.
 - `Space`: opens the menu and moves focus to its first item.
 - `Escape`: closes the menu and returns focus to the button.
+- `ArrowDown`: moves focus to the next enabled row, wrapping from the last to the first.
+- `ArrowUp`: moves focus to the previous enabled row, wrapping from the first to the last.
+- `Home`: moves focus to the first enabled row.
+- `End`: moves focus to the last enabled row.
+- `TypeAhead`: typing a character moves focus to the next enabled row whose label starts with it; characters typed in rapid succession match on the accumulated string.
 <!-- @keys end -->
 
 ```ts
@@ -57,11 +62,15 @@ on it would reach nobody. The menu also stops its own native click, so the activ
 Enter and Space are intercepted on the trigger and `preventDefault()`ed, so the platform does not
 also synthesize a click and open the menu twice. Escape closes and returns focus to the trigger;
 a pointer press outside the host **and** outside the pane closes without moving focus. Opening
-moves focus to the first enabled row.
+moves focus to the first enabled row. Tab from any row closes the menu and returns focus to the trigger, as Escape does. Escape closes the topmost open panel, so a menu inside a popover or a dialog closes alone.
 
 `select` carries the **whole item**, not a key, since `ArenaMenuItem` deliberately has no `id`. A divider
 and a header are not rows at all and render no `menuitem`; a disabled row renders one and reports
 nothing.
+
+**Focus moves by key inside the open menu.** The arrows move between enabled rows and wrap, and Home and End go to the first and the last row. Typing a character moves to the next row whose label starts with it. A space typed inside a run of characters belongs to the run, so it never activates the row. A disabled row is skipped. A header names the rows under it, so a reader hears the group before its first row.
+
+**The server render carries the popup state.** Arena writes `aria-haspopup="menu"` and `aria-expanded="false"` onto the trigger's focusable element before the page is interactive.
 
 **Do / Don't**
 - **Do** mark exactly one element with `trigger`, and one that is or contains a focusable
@@ -79,6 +88,8 @@ nothing.
   hangs inward instead of off the page. The CDK will flip it above the trigger near the bottom of
   the viewport on its own.
 - **Don't** use `shortcut` expecting Arena to bind the key. The member is display only, and the contract says so. The host binds it or nothing does.
+- **Don't** use it to choose a form value. A short list is `arena-select`, and a long one the user
+  searches is `arena-combobox`.
 - **Don't** put a form, a submenu or anything focusable beyond the rows into `items`. `ArenaMenuItem`
   is three shapes and none of them projects content; a menu that needs more is a dialog.
 

@@ -21,6 +21,7 @@ says how it is known.
 | held by a gate | proved on every run of Arena's own board. If it broke, a build here would fail before a release went out |
 | exercised by Arena's own suites | the code path runs here, repeatedly, against this version |
 | verified by hand once | somebody installed it that way and it worked. Nothing revalidates it, so it is a record rather than a guarantee |
+| measured on a date | an adopter repository built an app with the bundler version named and checked the claim, on the Arena version named. A run draws eight of ten entries at random, including the two the run before left out. A row its latest run did not build keeps the date of the run that measured it |
 | allowed by the manifest, not exercised | the declared range resolves it and nothing is known against it. Nobody has run it |
 | does not work | with the reason, so you can plan around it instead of discovering it |
 
@@ -37,7 +38,7 @@ need one of those rows to be certain, run it early and small rather than late an
 | You may choose | Evidence | What is true |
 |---|---|---|
 | npm | verified by hand once | the packages declare their peers rather than assuming a flat tree, so no hoisting flag is needed |
-| pnpm | verified by hand once | the strict layout is the one worth naming, because it is the one that would break a package assuming otherwise. Installed under pnpm, the command still resolves the icon font through the symlinked store |
+| pnpm | verified by hand once | the strict layout is the one worth naming, because it is the one that would break a package assuming otherwise. Installed under pnpm, the command still resolves the three packages it reads at build through the symlinked store |
 | bun | verified by hand once | the install npm takes, unchanged. Bun is also what Arena is built with, which is a fact about Arena rather than a requirement on you |
 | yarn | allowed by the manifest, not exercised | nothing here works against it: the peers are declared, there is no install script to trust, and no flat tree is assumed. Nobody has run it, which is why it says allowed rather than yes |
 
@@ -95,26 +96,45 @@ installs nothing that draws**, and an Arena package with a peer missing fails at
 |---|---|---|---|
 | `@dravensoft/arena-react` | `react` | `^18 \|\| ^19` | required |
 | `@dravensoft/arena-react` | `react-dom` | `^18 \|\| ^19` | required |
-| `@dravensoft/arena-react` | `@phosphor-icons/web` | `^2.1.2` | required |
 | `@dravensoft/arena-angular` | `@angular/core` | `>=20` | required |
 | `@dravensoft/arena-angular` | `@angular/common` | `>=20` | required |
 | `@dravensoft/arena-angular` | `@angular/platform-browser` | `>=20` | required |
 | `@dravensoft/arena-angular` | `@angular/cdk` | `>=20` | required |
 | `@dravensoft/arena-angular` | `@angular/router` | `>=20` | optional, add it when you reach what needs it |
 | `@dravensoft/arena-angular` | `@angular/forms` | `>=20` | optional, add it when you reach what needs it |
-| `@dravensoft/arena-angular` | `@phosphor-icons/web` | `^2.1.2` | required |
 
 <!-- @support peers end -->
 
 Two of those rows carry more than a number.
 
-**The icon font is a peer in both layers.** Icons are Phosphor class-name strings a component
-renders, and no package bundles the font. A project that skips this peer renders components with
-empty squares where the icons go, and nothing reports it.
+**No icon font is a peer.** Icons are Phosphor class-name strings that `ArenaIcon` draws from the
+sprite `arena build` writes, so no package asks for `@phosphor-icons/web`. A project that hands
+`ArenaIcon` no sprite URL gets a warning, once. Both layers render nothing where the icon goes;
+[`install.md`](./install.md) says how the URL is handed over.
 
 **Two peers are optional.** `@angular/router` and `@angular/forms` are declared in `peerDependenciesMeta` as optional, so no manager installs them for you. The router is needed once a project reaches the entry point that writes the document head, and the forms package once it reaches the forms entry point. A project that never reaches either never installs what it does not use. [`seo.md`](./seo.md) is where the router decision is made, and node 8 of [`cold-start.md`](./cold-start.md) is where it is reached. [`install.md`](./install.md) gives the install command per layer, optional peers included.
 
-**The framework is the project's.** A peer named with a range on the command line is an explicit install. So [`install.md`](./install.md) names the package and the add-ons a project lacks: the icon font, and `@angular/cdk` at your Angular major.
+**The framework is the project's.** A peer named with a range on the command line is an explicit install. So [`install.md`](./install.md) names the package and the add-on a project lacks: `@angular/cdk` at your Angular major.
+
+## How does Arena sit in the bundle?
+
+**Arena's own JS belongs in a chunk of its own, under a content-hashed name, and the package sheet
+in a file apart from `arena.generated.css`.** Arena's modules change when the Arena version changes
+and never when your app does. In a file of its own, Arena keeps its name until Arena changes, and
+a visitor's cache serves it. No bundler is required, and a bundler that cannot do this still builds
+the app. [`bundlers/index.md`](./bundlers/index.md) says why each half matters, and its table names
+the page holding your bundler's config and what that bundler does differently.
+[`environments.md`](./environments.md) holds the figures each row was measured with.
+
+| Bundler | Arena's JS in a chunk of its own | Page |
+|---|---|---|
+| rollup | held by a gate, and measured on 2026-10-25 with rollup 4.65.0, on the tree that becomes 13.0.0 (`40c82585b`) | [rollup family](./bundlers/rollup.md) |
+| Vite 7, Vite 8, rolldown | measured on 2026-10-25 with Vite 7.3.7, Vite 8.3.5 and rolldown 1.2.15 (rolldown by the run before the latest), on the tree that becomes 13.0.0 (`40c82585b`) | [rollup family](./bundlers/rollup.md) |
+| webpack, rspack | measured on 2026-10-25 with webpack 5.112.2 and rspack 2.2.9, on the tree that becomes 13.0.0 (`40c82585b`) | [webpack family](./bundlers/webpack.md) |
+| Parcel | measured on 2026-10-25 by the run before the latest, with Parcel 2.16.4, on the tree that becomes 13.0.0 (`40c82585b`) | [Parcel](./bundlers/parcel.md) |
+| Angular `application` builder | does not work, measured on 2026-10-25 with `@angular/build` 22.2.4, on the tree that becomes 13.0.0 (`40c82585b`) | [Angular builder](./bundlers/angular.md) |
+| Bun, esbuild | does not work, measured on 2026-10-25 with Bun 1.4.0 and esbuild 0.28.2, on the tree that becomes 13.0.0 (`40c82585b`) | [Bun and esbuild](./bundlers/bun-esbuild.md) |
+| Next.js | no chunk holds Arena alone, measured on 2026-10-25 with Next.js 16.4.3, on the tree that becomes 13.0.0 (`40c82585b`); `next build --webpack` was not exercised | [Next.js](./bundlers/next.md) |
 
 ## What this page does not decide
 

@@ -1,0 +1,21 @@
+{
+  "name": "slider",
+  "source": "https://www.w3.org/WAI/ARIA/apg/patterns/slider/",
+  "description": "An input that chooses one value inside a range by moving a thumb along a track, or two values with two thumbs, which APG describes on the same page. Each thumb is the focusable element and carries the slider role, so a two-thumb slider is two sliders whose bounds follow each other: the lower thumb's maximum is the upper thumb's value and the reverse, and neither passes the other. APG states the four arrows, Home and End as the keys and Page Up and Page Down as optional, so the optional keys are not requirements here. A component that answers them proves that in its own suites.",
+  "element": "slider",
+  "requires": {
+    "roles.element": "slider, on each thumb",
+    "roles.label": "an accessible name on each thumb, from aria-labelledby or aria-label",
+    "keyboard.ArrowRight": "increases the value by one step, and decreases it where the slider is drawn right to left",
+    "keyboard.ArrowUp": "increases the value by one step",
+    "keyboard.ArrowLeft": "decreases the value by one step, and increases it where the slider is drawn right to left",
+    "keyboard.ArrowDown": "decreases the value by one step",
+    "keyboard.Home": "sets the thumb to its minimum, which for the upper of two thumbs is the lower thumb's value",
+    "keyboard.End": "sets the thumb to its maximum, which for the lower of two thumbs is the upper thumb's value",
+    "states.valuenow": "aria-valuenow set to the thumb's current value",
+    "states.valuemin": "aria-valuemin set to the thumb's minimum, which moves with the other thumb when there are two",
+    "states.valuemax": "aria-valuemax set to the thumb's maximum, which moves with the other thumb when there are two",
+    "states.valuetext": "aria-valuetext set when the number alone is not what a reader should hear, as a formatted, prefixed or suffixed value is",
+    "states.orientation": "aria-orientation set to vertical when the slider stands vertically, and absent or horizontal when it lies along the line"
+  }
+}

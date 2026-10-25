@@ -12,15 +12,42 @@ how wide the content column gets, and how much space goes between one component 
 ## The floor, and Arena does not paint it
 
 **`--fill-page` is the floor of the page**, and it is yours to apply. Put it on the element that
-owns the whole viewport. A page with no floor shows the browser's own canvas below the first
+owns the whole viewport.
+
+```css
+body {
+  background: var(--fill-page);
+  font-family: var(--font-body);
+  color: var(--ink-body);
+}
+```
+
+In React it goes in the stylesheet your entry imports after Arena's sheets. In Angular it goes in the global stylesheet `angular.json` lists under `styles`. `css/reset.css`, which `arena.css` imports first, already sets the root line height and `box-sizing`.
+
+A page with no floor shows the browser's own canvas below the first
 screenful. That canvas is white under a dark palette, and it is the most common way a correctly
 built Arena screen looks broken.
 
-**`--font-body` is the body face, and the document does not take it.** Components read their faces through roles and your markup does not. Put `font-family: var(--font-body)` on the floor's element, and your copy is in the face `arena.config.json` names.
+**`--font-body` is the body face, and the document does not take it.** Components read their faces through roles and your markup does not. The `font-family` line in the rule above puts your copy in the face `arena.config.json` names.
 
 **What Arena does declare is `color-scheme`, from the palette's polarity.** Scrollbars, native
 controls and autofill point the way the palette does, so a palette states whether it is dark or
 light rather than leaving it inferred.
+
+Arena paints neither the selection nor the scrollbars, and the browser draws both from `color-scheme`.
+A project that wants its own colours writes the rule, and the rule below is the project's, not Arena's.
+
+```css
+:root {
+  scrollbar-color: var(--mute-2-disabled) transparent;
+}
+::selection {
+  background: var(--gold-soft);
+  color: var(--bone);
+}
+```
+
+The page canvas follows the palette of the root element alone, whether that is `:root`, `.arena-dark` or `.arena-light`. A `color-scheme` set on `body` or on a wrapper leaves the canvas as it was. A palette island paints its own ground through `ArenaPaletteScope`.
 
 ## Which colour your own markup takes
 
@@ -31,15 +58,16 @@ resolves to a palette colour and follows the palette instead.
 
 **Markup of yours written with Tailwind v4 reads the same tokens.** Import the package's
 `css/tailwind-theme.css` right after `tailwindcss`, and `bg-base-100` or `p-4` on your own
-element resolves to the token a component reads. Tailwind's own defaults stop resolving at all.
+element resolves to the token a component reads. Where the sheet resets a Tailwind scale, a default utility such as `shadow-md` emits nothing and reports nothing, and [the token tables](./tokens.md) name the utilities that resolve.
 
-**A page's frame is chosen by the viewport, and a component by its own box.** Mark a wide
-screen's rail `max-md:hidden` and a phone's drawer `md:hidden`: CSS is right at the first paint, a
-server's included. `display: none` keeps the hidden frame out of the accessibility tree, so
-both may carry one navigation name. Both are instantiated, so branch a heavy frame on your
-layer's viewport helper instead, right at the first client render and wide in a server's HTML.
-The `md:hidden` pair also chooses a side nav or a bottom nav, and an app bar's `nav` slot or its phone toggle.
-Arena's components narrow before the client's first paint and are wide in a server's HTML.
+**A page's frame is chosen by the viewport, and a component by its own box.** Wrap a wide screen's
+rail in an element of your own marked `max-md:hidden`, and a phone's drawer in one marked
+`md:hidden`. CSS is right at the first paint, a server's included. `display: none` keeps the hidden
+frame out of the accessibility tree, so both may carry one navigation name. Both are instantiated,
+so branch a heavy frame on your layer's viewport helper instead, right at the first client render
+and wide in a server's HTML. The `md:hidden` pair also chooses a side nav or a bottom nav, and an
+app bar's `nav` slot or its phone toggle. Arena's components narrow before the client's first paint
+and are wide in a server's HTML.
 
 **The colour roles below are what a page of yours reaches for**; the kernel has more, each for a surface Arena draws.
 Each role's full description is one entry in
@@ -60,10 +88,13 @@ Each role's full description is one entry in
 | text held back: a caption, a hint, a timestamp | `--ink-muted` |
 | a figure a reader compares: a price, a total, a column of numbers of yours | `--ink-figure` |
 | an action set as text rather than drawn as a button: an undo, a retry | `--ink-action` |
+| a key a reader presses, spelled in a cap or at a row's edge | `--ink-key` |
+| a link in running text, underlined however it is coloured | `--ink-link` |
 | the line enclosing a surface, and the default ground line | `--edge-surface` |
 | the line around a floating surface | `--edge-surface-floating` |
 | the line around a control, a quiet control, a field, a marker | `--edge-control`, `--edge-control-quiet`, `--edge-field`, `--edge-marker` |
 | the rule dividing one thing from the next inside a surface | `--edge-separator` |
+| the rule under the selected tab | `--edge-tab-selected` |
 | the wash a media frame draws under anything laid over it | `--overlay-media` |
 
 Each edge role has a width beside it: `--bw-surface`, `--bw-control`, `--bw-field`,
@@ -88,7 +119,8 @@ palette it was written against.
 **The aliases are in [`contracts/design/colors.css`](../../../contracts/design/colors.css)**:
 `--crimson` and `--gold` are the two accents, with a soft wash beside each. `--danger`,
 `--success`, `--warning` and `--info` are the four status colours, with the same. `--bone` and
-`--mute` are text at full strength and text held back.
+`--mute` are text at full strength and text held back. The aliases that hold text back and the soft washes read the levels, so they follow a level `arena build` raises for a palette. `--mute-2-disabled` holds a fixed 40%, because the disabled level is the one the scale never raises.
+Each key of a palette's `colors` becomes `--color-<key>`, so `base-100` is `--color-base-100`. [config.md](./config.md#declare-your-skin) lists the keys.
 
 ## Meaning and identity are two different colour sets
 
@@ -107,7 +139,7 @@ way. Otherwise a reader learns that green is sometimes a category.
 
 **`--sp-*` is the spacing scale**, and everything the rhythm classes do not cover reads it. A bare length is a bug, and this scale makes it unnecessary. [`contracts/design/Scales.md`](../../../contracts/design/Scales.md) says what each step is for.
 
-**Every other group reads the same way.** [`tokens.md`](./tokens.md) tables the steps above and the radius, border, shadow, motion, layer and breakpoint values. Your package's `arena.tokens.json` lists every value, nested under `tokens` beside `roles`, with the type and density groups. The file's keys drop the leading `--`, so `sp-4` there is `--sp-4` here. A media query takes no `var()`, so a frame uses the `md:` variants or the breakpoint helper, `useArenaViewportBelow` in React and `arenaViewportBelow` in Angular, in [`exports.md`](./exports.md).
+**Every other group reads the same way.** [`tokens.md`](./tokens.md) tables the steps above and the radius, border, shadow, motion, layer, breakpoint, density and type scale values. Your package's `arena.tokens.json` lists every value, nested under `tokens` beside `roles`, with the type and density groups. The file's keys drop the leading `--`, so `sp-4` there is `--sp-4` here. A media query takes no `var()`, so a frame uses the `md:` variants or the breakpoint helper, `useArenaViewportBelow` in React and `arenaViewportBelow` in Angular, in [`exports.md`](./exports.md).
 
 **`--pad-safe-top`, `--pad-safe-right`, `--pad-safe-bottom` and `--pad-safe-left`** compose the
 device's own insets with that scale, in

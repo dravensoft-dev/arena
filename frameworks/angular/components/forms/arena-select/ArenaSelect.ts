@@ -7,11 +7,12 @@ import manifest from './ArenaSelect.classes.generated';
 import { ArenaIdGenerator } from '../../../ArenaIds';
 import { ArenaControlBinding, arenaWarnDoubleBinding } from '../../../ControlBinding';
 import { ArenaSlotAttributes } from '../../../SlotData';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
 
 @Component({
   selector: 'arena-select',
   standalone: true,
-  imports: [ArenaSlotAttributes],
+  imports: [ArenaIcon, ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ArenaControlBinding],
   host: {
@@ -26,11 +27,11 @@ import { ArenaSlotAttributes } from '../../../SlotData';
     }
     <div [class]="styles().wrap()" [attr.data-arena-part]="parts.wrap">
       @if (icon(); as glyph) {
-        <i [class]="styles().iconWrap() + ' ' + glyph" [attr.data-arena-part]="parts.iconWrap" aria-hidden="true"></i>
+        <span [class]="styles().iconWrap()" [attr.data-arena-part]="parts.iconWrap" aria-hidden="true"><arena-icon [icon]="glyph" /></span>
       }
       <select [class]="styles().field()" [arenaSlotData]="styles().$data.field()" [attr.data-arena-part]="parts.field" [attr.id]="selectId" [disabled]="off()"
               [required]="required()" [attr.name]="name()"
-              [attr.aria-invalid]="hasError()" [attr.aria-describedby]="describedBy()"
+              [attr.aria-invalid]="hasError() ? 'true' : null" [attr.aria-describedby]="describedBy()"
               (change)="onChange($event)">
         @if (placeholder(); as text) {
           <option value="" [disabled]="true" [selected]="!drawn()">{{ text }}</option>
@@ -59,7 +60,7 @@ export class ArenaSelect {
 
   /** Field label above the control. */
   readonly label = input<string>();
-  /** An empty-valued first option, drawn before the choices and unselectable once a real one is made -- "Choose a customer". It is an option rather than an attribute because a native select has no placeholder, and it is what makes "nothing chosen yet" distinguishable from "the first choice". */
+  /** An empty-valued first option, drawn before the choices and unselectable once a real one is made -- "Choose a customer". The placeholder is an option rather than an attribute, because a native select has no placeholder. The option makes "nothing chosen yet" distinguishable from "the first choice". */
   readonly placeholder = input<string>();
   /** The choices, drawn as native options. */
   readonly options = input<readonly ArenaSelectOption[], readonly ArenaSelectOption[] | undefined>(
@@ -74,16 +75,16 @@ export class ArenaSelect {
   readonly required = input(false, { transform: booleanAttribute });
   /** A line of help under the field. */
   readonly hint = input<string>();
-  /** Controlled error message. It is the whole validation surface here, unlike ArenaInput, which also takes a `validate` function: a native select offers a closed list, so there is no value to parse and nothing for a validator to reject that the options did not already prevent. */
+  /** Controlled error message. The message is the whole validation surface here, unlike ArenaInput, which also takes a `validate` function. A native select offers a closed list, so there is no value to parse and nothing for a validator to reject that the options did not already prevent. */
   readonly error = input<string>();
-  /** Force the valid (green check) state. */
+  /** Force the valid (success-tone check) state. */
   readonly valid = input(false, { transform: booleanAttribute });
-  /** Phosphor class name drawn at the field's start. */
+  /** Phosphor class name drawn at the field's start through ArenaIcon. */
   readonly icon = input<string>();
   /** Submitted with the form. */
   readonly name = input<string>();
-  /** A different option was chosen; carries its value. */
-  readonly change = output<string>();
+  /** A different option was chosen; carries its value. The native change of the inner select is never stopped, so a listener on the document hears it; this event carries the value. */
+  readonly valueChange = output<string>();
 
   protected readonly selectId = inject(ArenaIdGenerator).next('arena-select');
   protected readonly noteId = `${this.selectId}-note`;
@@ -99,9 +100,8 @@ export class ArenaSelect {
   }));
 
   protected onChange(event: Event): void {
-    event.stopPropagation();
     const value = (event.target as HTMLSelectElement).value;
-    this.change.emit(value);
+    this.valueChange.emit(value);
     this.binding.onChange(value);
   }
 }

@@ -8,6 +8,7 @@ import assert from 'node:assert/strict';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { arenaPlotWidth, ARENA_PAD } from '../../DataVisuals.ts';
+import { arenaRailReveal } from './ChartRailView.ts';
 import { ArenaLineChart } from './arena-line-chart/ArenaLineChart.tsx';
 
 test('with no minPointSpacing the plot is exactly the width it was given', () => {
@@ -50,4 +51,29 @@ test('the region is exactly one tab stop, however many marks the plot holds', ()
   const html = rail(35);
   assert.equal((html.match(/tabindex="0"/g) ?? []).length, 1,
     'thirty points must not be thirty stops: the cursor moves inside the region, it does not add to it');
+});
+
+test('a span inside the rail\'s view leaves the scroll position as it is', () => {
+  assert.equal(arenaRailReveal(120, 180, 100, 200), 100);
+});
+
+test('a span that begins before the view scrolls to its start', () => {
+  assert.equal(arenaRailReveal(40, 90, 100, 200), 40);
+});
+
+test('a span that ends past the view scrolls so its end meets the view\'s edge', () => {
+  assert.equal(arenaRailReveal(260, 340, 100, 200), 140);
+});
+
+test('a span wider than the view that begins before it shows its start', () => {
+  assert.equal(arenaRailReveal(40, 500, 100, 200), 40);
+});
+
+test('a span wider than the view that begins inside it is scrolled to its end', () => {
+  assert.equal(arenaRailReveal(150, 500, 100, 200), 300);
+});
+
+test('a line rail that does not scroll lets the end label overhang, and one that scrolls clips', () => {
+  assert.match(rail(undefined), /overflow-x:visible/);
+  assert.match(rail(35), /overflow-x:auto/);
 });

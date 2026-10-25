@@ -9,6 +9,7 @@ import {
   promptPaths, writePromptApis, openLine, CLOSE_LINE, CONSUMER_DATA,
   renderAnswersRegion, applyAnswersRegion, renderRulesRegion, ANSWERS_CLOSE_LINE, ANSWERS_OPEN_LINE, answeredFamilies,
   renderKeysRegion, applyKeysRegion, KEYS_CLOSE_LINE,
+  renderMarkersRegion, applyMarkersRegion, markersOf, MARKERS_OPEN, MARKERS_CLOSE_LINE,
 } from './generate-prompt-api.ts';
 
 test('an array names what it holds, and consumer data keeps its one spelling', () => {
@@ -59,11 +60,11 @@ test('an event a description names in a code span is written under the layer\'s 
 
 test('a named component\'s event is translated in the dotted and the "event of" forms, and a non-event is left alone', () => {
   const contract = { component: 'ArenaX', api: { nav: { form: 'event', payload: 'string' } } };
-  const spec = { form: 'primitive', type: 'string', description: 'Same as ArenaTableRow.click and `ArenaTableRow.click`, the `change` event of ArenaTabs, not ArenaCard.href, the `nav` event of ArenaSideNav, and own `nav`.' };
+  const spec = { form: 'primitive', type: 'string', description: 'Same as ArenaTableRow.activate and `ArenaTableRow.activate`, the `valueChange` event of ArenaTabs, not ArenaCard.href, the `nav` event of ArenaSideNav, and own `nav`.' };
   assert.equal(memberRow('href', spec, 'react', contract),
-    '| `href` | primitive | `string` |  | Same as ArenaTableRow.onClick and `ArenaTableRow.onClick`, the `onChange` event of ArenaTabs, not ArenaCard.href, the `onNav` event of ArenaSideNav, and own `onNav`. |');
+    '| `href` | primitive | `string` |  | Same as ArenaTableRow.onActivate and `ArenaTableRow.onActivate`, the `onValueChange` event of ArenaTabs, not ArenaCard.href, the `onNav` event of ArenaSideNav, and own `onNav`. |');
   assert.equal(memberRow('href', spec, 'angular', contract),
-    '| `href` | primitive | `string` |  | Same as ArenaTableRow.click and `ArenaTableRow.click`, the `change` event of ArenaTabs, not ArenaCard.href, the `nav` event of ArenaSideNav, and own `nav`. |');
+    '| `href` | primitive | `string` |  | Same as ArenaTableRow.activate and `ArenaTableRow.activate`, the `valueChange` event of ArenaTabs, not ArenaCard.href, the `nav` event of ArenaSideNav, and own `nav`. |');
 });
 
 test('a description spanning lines becomes one cell, and a pipe cannot split the row', () => {
@@ -260,4 +261,78 @@ test('a cases binding lists the keys of every case once, and a case exception re
   assert.equal((region.match(/`Home`/g) ?? []).length, 1);
   assert.match(region, /`Home`: moves to the start/);
   assert.match(renderKeysRegion({ cases: [{ pattern: 'none' }] }, [none]), /\*\*Keys:\*\* none\./);
+});
+
+test('the keys region lists the keys of an also pattern, under its own exceptions', () => {
+  const primary = { name: 'p', requires: { 'roles.element': 'dialog' } };
+  const added = { name: 'q', requires: { 'keyboard.Escape': 'closes it' } };
+  const region = renderKeysRegion({ pattern: 'p', also: [{ pattern: 'q', exceptions: [] }] }, [primary, added]);
+  assert.match(region, /- `Escape`: closes it\./);
+  assert.match(region, /\[`q`\]\(\.\.\/\.\.\/\.\.\/\.\.\/\.\.\/contracts\/behaviour\/q\.json\)/);
+  const excused = renderKeysRegion(
+    { pattern: 'p', also: [{ pattern: 'q', exceptions: [{ requirement: 'keyboard.Escape' }] }] }, [primary, added]);
+  assert.match(excused, /\*\*Keys:\*\* none/);
+  assert.doesNotMatch(excused, /Escape/);
+});
+
+const markersAt = (layer: string, component: string) => {
+  const found = promptPaths().find((one) => one.layer === layer && one.component === component);
+  assert.ok(found, `${layer} ${component} has no prompt`);
+  return markersOf(found.path, found.layer);
+};
+
+const regionIn = (layer: string, component: string) => {
+  const found = promptPaths().find((one) => one.layer === layer && one.component === component);
+  assert.ok(found, `${layer} ${component} has no prompt`);
+  const source = readFileSync(join(repoRoot, found.path), 'utf8');
+  const from = source.indexOf(MARKERS_OPEN);
+  return from === -1 ? null : source.slice(from, source.indexOf(MARKERS_CLOSE_LINE, from) + MARKERS_CLOSE_LINE.length);
+};
+
+test('an Angular prompt whose component queries a marker carries a @markers region naming each directive by its attribute', () => {
+  const region = regionIn('angular', 'ArenaAppBar');
+  assert.ok(region, 'ArenaAppBar carries no @markers region');
+  assert.match(region, /`\[brand\]` is `ArenaBrand`/);
+  assert.match(region, /`\[nav\]` is `ArenaNav`/);
+  assert.match(region, /`\[actions\]` is `ArenaActions`/);
+  assert.match(region, /in your own component's `imports`/);
+  assert.equal((region.match(/which-angular-projection-markers-must-i-import/g) ?? []).length, 1);
+  assert.deepEqual(markersAt('angular', 'ArenaAppBar'), ['actions', 'brand', 'nav']);
+});
+
+test('a component that queries one marker gets a region naming that one', () => {
+  const region = regionIn('angular', 'ArenaSection');
+  assert.ok(region, 'ArenaSection carries no @markers region');
+  assert.match(region, /`\[action\]` is `ArenaAction`/);
+  assert.equal((region.match(/^- /gm) ?? []).length, 1);
+});
+
+test('a component that queries no marker gets no @markers region', () => {
+  assert.deepEqual(markersAt('angular', 'ArenaButton'), []);
+  assert.equal(regionIn('angular', 'ArenaButton'), null);
+});
+
+test('no React prompt gets a @markers region', () => {
+  const react = promptPaths().filter((one) => one.layer === 'react');
+  assert.ok(react.length > 0);
+  for (const { component, layer, path } of react) {
+    assert.deepEqual(markersOf(path, layer), [], component);
+    assert.equal(readFileSync(join(repoRoot, path), 'utf8').includes('@markers'), false, component);
+  }
+});
+
+test('the region reads every attribute through the directive map, and an attribute with no directive throws', () => {
+  const region = renderMarkersRegion(['nav'], { nav: 'ArenaNav' });
+  assert.match(region, /`\[nav\]` is `ArenaNav`/);
+  assert.ok(region.startsWith(MARKERS_OPEN) && region.endsWith(MARKERS_CLOSE_LINE));
+  assert.throws(() => renderMarkersRegion(['nav', 'ghost'], { nav: 'ArenaNav' }), /ghost/);
+});
+
+test('the markers region goes after the keys region and replaces itself on a second run', () => {
+  const region = renderMarkersRegion(['nav'], { nav: 'ArenaNav' });
+  const source = `# X\n\n${KEYS_CLOSE_LINE}\n\ntail\n`;
+  const once = applyMarkersRegion(source, region);
+  assert.ok(once.indexOf(KEYS_CLOSE_LINE) < once.indexOf('@markers'));
+  assert.equal(applyMarkersRegion(once, region), once);
+  assert.equal(applyMarkersRegion(once, null), source);
 });

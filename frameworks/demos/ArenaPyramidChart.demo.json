@@ -32,5 +32,19 @@
     ],
     "label": "Population by age band"
   },
+  "variants": {
+    "empty-side": {
+      "series": [{"label": "Women", "values": [0, 0, 0, 0, 0]}, {"label": "Men", "values": [268, 581, 742, 705, 561]}]
+    },
+    "one-series": {
+      "series": [{"label": "Women", "values": [312, 604, 731, 688, 542]}]
+    },
+    "three-series": {
+      "series": [{"label": "Women", "values": [312, 604, 731, 688, 542]}, {"label": "Men", "values": [268, 581, 742, 705, 561]}, {"label": "Other", "values": [4, 9, 12, 10, 7]}]
+    },
+    "tone-and-color-id": {
+      "series": [{"label": "Women", "values": [312, 604, 731, 688, 542], "tone": "success", "colorId": 2}, {"label": "Men", "values": [268, 581, 742, 705, 561]}]
+    }
+  },
   "note": "Both sides carry counts. The left one is negated when it is drawn and never in the table."
 }

@@ -5,6 +5,7 @@ import manifest from './ArenaInput.classes.generated.ts';
 import type { ArenaInputType, ArenaValidateOn } from '../../../Api.generated';
 import type { ArenaInputClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon.tsx';
 
 export interface ArenaInputProps {
   className?: ArenaInputClass;
@@ -13,7 +14,7 @@ export interface ArenaInputProps {
   /** Field label above the control. */
   label?: string;
 
-  /** The control's id, and what the label's `for` points at. Generated from `label` when omitted, as `in-` followed by the label with each run of whitespace replaced by a single hyphen and the whole lowercased. The derivation is normative, and the prefix differs per component on purpose: the same markup must get the same id in every layer, and an ArenaInput and an ArenaTextarea sharing a label must not collide. */
+  /** The control's id, and what the label's `for` points at. Generated from `label` when omitted, as `in-` followed by the label with each run of whitespace replaced by a single hyphen and the whole lowercased. The derivation is normative, and the prefix differs per component on purpose. Identical markup must get an identical id in every layer, and an ArenaInput and an ArenaTextarea sharing a label must not collide. The hint or the error takes it followed by `-note`. */
   id?: string;
 
   /** A line of help under the field. */
@@ -22,14 +23,14 @@ export interface ArenaInputProps {
   /** Controlled error message; wins over `validate`. */
   error?: string;
 
-  /** Force the valid (green check) state. */
+  /** Force the valid (success-tone check) state. */
   valid?: boolean;
 
   /** Marks the label and the control required. */
   required?: boolean;
 
   /** Called on the value; returns the error message, or empty for valid. */
-  validate?: (value: string) => string | null | undefined;
+  validate?: (value: string) => string;
 
   /** When `validate` runs. */
   validateOn?: ArenaValidateOn;
@@ -37,7 +38,7 @@ export interface ArenaInputProps {
   /** Native input type. */
   type?: ArenaInputType;
 
-  /** Phosphor class name drawn at the field's start. */
+  /** Phosphor class name drawn at the field's start through ArenaIcon. */
   icon?: string;
 
   /** Static text Arena draws before the value, e.g. `git@`. */
@@ -76,8 +77,8 @@ export interface ArenaInputProps {
   /** A regex the value must match. */
   pattern?: string;
 
-  /** Edited; carries the new value. */
-  onChange?: (value: string) => void;
+  /** Edited; carries the new value. The native change of the inner field is never stopped, so a listener on the document hears it; this event carries the value. */
+  onValueChange?: (value: string) => void;
 
   /** Left the field; carries the value. */
   onBlur?: (value: string) => void;
@@ -96,7 +97,7 @@ export const ArenaInput = forwardRef<ArenaInputHandle, ArenaInputProps>(function
   validate, validateOn = 'blur', type = 'text',
   icon, prefix, value, disabled = false, readOnly = false,
   placeholder, name, autoComplete, min, max, step, maxLength, pattern,
-  onChange, onBlur,
+  onValueChange, onBlur,
 }: ArenaInputProps, handle) {
   const control = useRef<HTMLInputElement>(null);
   useImperativeHandle(handle, () => ({
@@ -108,10 +109,11 @@ export const ArenaInput = forwardRef<ArenaInputHandle, ArenaInputProps>(function
   const inputId = id || (label ? 'in-' + label.replace(/\s+/g, '-').toLowerCase() : undefined);
 
   const shownError = error != null ? error : (touched ? localErr : null);
+  const noteId = inputId && (shownError || hint) ? `${inputId}-note` : undefined;
   const isValid = !shownError && (valid || (touched && validate && localErr === null));
 
   const runValidate = (v: string) => { if (validate) setLocalErr(validate(v) || null); };
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => { onChange && onChange(e.target.value); if (validateOn === 'change') { setTouched(true); runValidate(e.target.value); } };
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => { onValueChange && onValueChange(e.target.value); if (validateOn === 'change') { setTouched(true); runValidate(e.target.value); } };
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => { setTouched(true); runValidate(e.target.value); onBlur && onBlur(e.target.value); };
 
   const styles = arenaInputStyles({
@@ -121,25 +123,25 @@ export const ArenaInput = forwardRef<ArenaInputHandle, ArenaInputProps>(function
   });
 
   return (
-    <div className={arenaClassName('ArenaInput', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+    <div className={arenaClassName('ArenaInput', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       {label && (
         <label htmlFor={inputId} className={styles.label()} data-arena-part={manifest.parts.label} {...styles.$data.label()}>
           {label}{required && <span className={styles.required()} data-arena-part={manifest.parts.required} {...styles.$data.required()}>*</span>}
         </label>
       )}
       <div className={styles.field()} data-arena-part={manifest.parts.field} {...styles.$data.field()}>
-        {icon && <i className={`${icon} ${styles.icon()}`} data-arena-part={manifest.parts.icon} {...styles.$data.icon()} aria-hidden="true" />}
+        {icon && <span className={styles.icon()} data-arena-part={manifest.parts.icon} {...styles.$data.icon()} aria-hidden="true"><ArenaIcon icon={icon} /></span>}
         {prefix && <span className={styles.prefix()} data-arena-part={manifest.parts.prefix} {...styles.$data.prefix()}>{prefix}</span>}
         <input ref={control} id={inputId} type={type} value={value} disabled={disabled} readOnly={readOnly}
-          required={required} aria-invalid={!!shownError} className={styles.input()} data-arena-part={manifest.parts.input} {...styles.$data.input()}
+          required={required} aria-invalid={!!shownError} aria-describedby={noteId} className={styles.input()} data-arena-part={manifest.parts.input} {...styles.$data.input()}
           placeholder={placeholder} name={name} autoComplete={autoComplete}
           min={min} max={max} step={step} maxLength={maxLength} pattern={pattern}
           onBlur={handleBlur} onChange={handleChange} />
-        {shownError && <i className={`ph-fill ph-warning-circle ${styles.statusIcon()}`} data-arena-part={manifest.parts.statusIcon} {...styles.$data.statusIcon()} aria-hidden="true" />}
-        {isValid && <i className={`ph-fill ph-check-circle ${styles.statusIcon()}`} data-arena-part={manifest.parts.statusIcon} {...styles.$data.statusIcon()} aria-hidden="true" />}
+        {shownError && <span className={styles.statusIcon()} data-arena-part={manifest.parts.statusIcon} {...styles.$data.statusIcon()} aria-hidden="true"><ArenaIcon icon="ph-fill ph-warning-circle" /></span>}
+        {isValid && <span className={styles.statusIcon()} data-arena-part={manifest.parts.statusIcon} {...styles.$data.statusIcon()} aria-hidden="true"><ArenaIcon icon="ph-fill ph-check-circle" /></span>}
       </div>
-      {shownError ? <span className={styles.error()} data-arena-part={manifest.parts.error} {...styles.$data.error()}>{shownError}</span>
-        : hint && <span className={styles.hint()} data-arena-part={manifest.parts.hint} {...styles.$data.hint()}>{hint}</span>}
+      {shownError ? <span id={noteId} className={styles.error()} data-arena-part={manifest.parts.error} {...styles.$data.error()}>{shownError}</span>
+        : hint && <span id={noteId} className={styles.hint()} data-arena-part={manifest.parts.hint} {...styles.$data.hint()}>{hint}</span>}
     </div>
   );
 });

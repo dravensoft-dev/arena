@@ -7,6 +7,7 @@ import {
   bindingName, validateTypes, validateContract, compareSurface, docProblems,
   resolveAngularImplementations, resolveReactImplementations, zeroContractProblems,
   angularImplementationProblems, implementationDefaultProblems, staleDerivedProblems, DERIVED_DEFAULT, leakProblems,
+  staleTriggerProblems,
 } from './check-api.ts';
 import { pascal } from '../../utils/case.ts';
 import { buildApiModules } from '../../generate/arena/generate-api-types.ts';
@@ -514,14 +515,14 @@ test('a contract member with a form outside the eight encoded values fails', () 
 
 test('validateContract accepts an event payload that is a primitive type name', () => {
   const problems = validateContract(
-    { component: 'X', api: { change: { form: 'event', payload: 'string' } } }, TYPES,
+    { component: 'X', api: { valueChange: { form: 'event', payload: 'string' } } }, TYPES,
   );
   assert.deepEqual(problems, []);
 });
 
 test('an event payload naming an undeclared, non-primitive type still fails', () => {
   const problems = validateContract(
-    { component: 'X', api: { change: { form: 'event', payload: 'Widget' } } }, TYPES,
+    { component: 'X', api: { valueChange: { form: 'event', payload: 'Widget' } } }, TYPES,
   );
   assert.ok(problems.some((p) => /Widget/.test(p)));
 });
@@ -655,6 +656,20 @@ test('a functionInput whose layer return differs from the contract is reported',
   assert.match(problems[0] ?? '', /validate/);
   assert.match(problems[0] ?? '', /boolean/);
   assert.match(problems[0] ?? '', /string/);
+});
+
+test('a functionInput whose implementation returns string | null differs from a contract returning string', () => {
+  const contract = {
+    component: 'ArenaInput', kind: 'input',
+    api: { validate: { form: 'functionInput', params: { value: 'string' }, returns: 'string' } },
+  };
+  const problems = compareSurface(
+    contract,
+    [{ name: 'validate', form: 'functionInput', params: { value: 'string' }, returns: 'string | null', required: false }],
+    'react',
+  );
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /validate: returns string \| null, contract says string/);
 });
 
 test('a functionInput matching the contract exactly reports nothing, and binds to a prop of the same name', () => {
@@ -846,13 +861,14 @@ test('a DERIVED_DEFAULT entry no layer reaches fails as stale', () => {
   assert.match(problems[0] ?? '', /DERIVED_DEFAULT names ArenaGhost\.height/);
 });
 
-test('DERIVED_DEFAULT is the six chart heights, and each entry carries the reason as a value', () => {
+test('DERIVED_DEFAULT is the nine chart heights, and each entry carries the reason as a value', () => {
   assert.deepEqual([...DERIVED_DEFAULT.keys()].sort(), [
-    'ArenaBarChart.height', 'ArenaHorizontalBarChart.height', 'ArenaLineChart.height',
-    'ArenaPyramidChart.height', 'ArenaRadarChart.height', 'ArenaScatterChart.height',
+    'ArenaBarChart.height', 'ArenaFunnelChart.height', 'ArenaGaugeChart.height', 'ArenaHorizontalBarChart.height', 'ArenaLineChart.height',
+    'ArenaPyramidChart.height', 'ArenaRadarChart.height', 'ArenaScatterChart.height', 'ArenaSparkline.height',
   ]);
   for (const [key, why] of DERIVED_DEFAULT) {
-    assert.ok(why.includes('--chart-height'), `${key}: the reason names the token the value comes from`);
+    const token = key === 'ArenaSparkline.height' ? '--chart-sparkline-height' : key === 'ArenaGaugeChart.height' ? '--chart-gauge-height' : '--chart-height';
+    assert.ok(why.includes(token), `${key}: the reason names the token the value comes from`);
     assert.ok(why.length > 80, `${key}: a reason short enough to be a label is not a reason`);
   }
 });
@@ -976,4 +992,56 @@ test('validateTypes reports an object field whose description leaks a path or a 
 test('validateTypes reports a type whose description leaks a path', () => {
   const problems = validateTypes([{ name: 'ArenaX', kind: 'enum', values: [1], description: 'See contracts/design/x.' }]);
   assert.equal(problems.length, 1);
+});
+
+const BUTTON = { component: 'ArenaButton', api: { content: { form: 'slot' } } };
+const trigger = new Map([['ArenaButton', { names: ['aria-haspopup'], why: 'test' }]]);
+
+test('a trigger attribute the allowance names passes in the React layer', () => {
+  const allowed = new Set<string>();
+  const members = [{ name: 'children', required: false, form: 'slot' }, { name: 'aria-haspopup', required: false, form: 'primitive', type: 'string' }];
+  assert.deepEqual(compareSurface(BUTTON, members, 'react', new Map(), trigger, allowed), []);
+  assert.deepEqual(staleTriggerProblems(allowed, trigger), []);
+});
+
+test('an ARIA name the allowance does not hold is still undeclared', () => {
+  const members = [{ name: 'children', required: false, form: 'slot' }, { name: 'aria-label', required: false, form: 'primitive', type: 'string' }];
+  assert.match(compareSurface(BUTTON, members, 'react', new Map(), trigger).join('\n'), /aria-label: declared, but the contract does not name it/);
+});
+
+test('an allowance naming a prop the React surface does not declare is stale', () => {
+  assert.match(staleTriggerProblems(new Set(), trigger).join('\n'), /ArenaButton\.aria-haspopup/);
+});
+
+test('the allowance is the React layer\'s alone', () => {
+  const members = [{ name: 'aria-haspopup', required: false, form: 'primitive', type: 'string' }];
+  assert.match(compareSurface(BUTTON, members, 'angular', new Map(), trigger).join('\n'), /declared, but the contract does not name it/);
+});
+
+test('a contract that names a trigger attribute reads it as a member, and the allowance is reported unneeded', () => {
+  const adopted = { component: 'ArenaButton', api: { content: { form: 'slot' }, 'aria-haspopup': { form: 'primitive', type: 'string' } } };
+  const allowed = new Set<string>();
+  const members = [{ name: 'children', required: false, form: 'slot' }, { name: 'aria-haspopup', required: false, form: 'primitive', type: 'string' }];
+  assert.deepEqual(compareSurface(adopted, members, 'react', new Map(), trigger, allowed), []);
+  assert.deepEqual([...allowed], []);
+  assert.match(staleTriggerProblems(allowed, trigger).join('\n'), /ArenaButton\.aria-haspopup/);
+  const wrong = [{ name: 'children', required: false, form: 'slot' }, { name: 'aria-haspopup', required: false, form: 'slot' }];
+  assert.match(compareSurface(adopted, wrong, 'react', new Map(), trigger, allowed).join('\n'), /declared as slot, contract says primitive/);
+});
+
+test('docProblems skips a doc on an allowed trigger name', () => {
+  const docs = new Map([['aria-haspopup', 'Written by a composer.']]);
+  assert.deepEqual(docProblems(BUTTON, docs, 'react', trigger), []);
+  assert.match(docProblems(BUTTON, docs, 'angular', trigger).join('\n'), /no contracted member/);
+});
+
+test('an event named after the native click or change is refused, whatever it reports', () => {
+  for (const name of ['click', 'change']) {
+    const problems = validateContract({ component: 'ArenaX', api: { [name]: { form: 'event', description: 'Reported.' } } }, new Map());
+    assert.ok(problems.some((p) => p.startsWith(`ArenaX.${name}: `) && p.includes('activate') && p.includes('valueChange')), problems.join('\n'));
+  }
+  for (const name of ['activate', 'valueChange', 'select', 'toggle']) {
+    const problems = validateContract({ component: 'ArenaX', api: { [name]: { form: 'event', description: 'Reported.' } } }, new Map());
+    assert.deepEqual(problems.filter((p) => p.startsWith(`ArenaX.${name}: an event named`)), []);
+  }
 });

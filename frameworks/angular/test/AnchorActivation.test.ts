@@ -54,7 +54,7 @@ function assertConvention(name: string, anchor: () => Element, reported: () => n
 @Component({
   standalone: true,
   imports: [ArenaCard],
-  template: '<arena-card href="/clients/acme" title="Acme Corp" (click)="hits.set(hits() + 1)" />',
+  template: '<arena-card href="/clients/acme" title="Acme Corp" (activate)="hits.set(hits() + 1)" />',
 })
 class CardHost { readonly hits = signal(0); }
 
@@ -62,7 +62,7 @@ class CardHost { readonly hits = signal(0); }
   standalone: true,
   imports: [ArenaCard],
   template: '<arena-card href="/clients/acme" title="Acme Corp" disabled'
-    + ' (click)="hits.set(hits() + 1)" />',
+    + ' (activate)="hits.set(hits() + 1)" />',
 })
 class DisabledCardHost { readonly hits = signal(0); }
 
@@ -117,15 +117,18 @@ test('ArenaCard.href reports the primary click and leaves every other one to the
   } finally { destroy(); }
 });
 
-test('an href ArenaCard reports ONCE, because `click` is also the name of the DOM event', () => {
+test('an href ArenaCard reports ONCE, and the native click still reaches the page', () => {
   const { host, instance, destroy } = render(CardHost);
+  let heard = 0;
+  const count = (): void => { heard += 1; };
+  document.addEventListener('click', count);
   try {
     const event = click(host.querySelector('a')!);
     assert.equal(instance.hits(), 1,
-      'the anchor stops propagation, or the native click reaches the host binding as well and '
-      + 'every (click) handler on an href card runs twice');
-    assert.equal(event.cancelBubble, true);
-  } finally { destroy(); }
+      'an (activate) handler on an href card must run once for one press');
+    assert.equal(heard, 1, 'the native click must reach the document');
+    assert.equal(event.cancelBubble, false);
+  } finally { document.removeEventListener('click', count); destroy(); }
 });
 
 test('a disabled href ArenaCard reports nothing at all', () => {

@@ -1,23 +1,26 @@
-/* Every requirement of `menu-button` is about the TRIGGER, which is projected content the
- * primitive does not own -- so `subjects.default` is the resolved trigger and not the host.
- * Resolution is the interesting part: an <arena-button> is display:contents and stops its own
- * click, so the wrapping node is neither focusable nor reachable, and writing the attributes
- * onto it is the defect the delegated entry named. keyboard.Enter, keyboard.Space,
- * keyboard.Escape and focus.onOpen are each earned by a named assertion below. */
+/* The requirements of `menu-button` without a subject of their own are about the TRIGGER, which
+ * is projected content the primitive does not own -- so `subjects.default` is the resolved
+ * trigger and not the host. Resolution is the interesting part: an <arena-button> is
+ * display:contents and stops its own click, so the wrapping node is neither focusable nor
+ * reachable, and writing the attributes onto it is the defect the delegated entry named.
+ * roles.item and roles.separator are the rows and dividers the panel draws. Every focus.* and
+ * keyboard.* verdict is earned by a named test below that presses the key and reads focus. */
 import { useTestEnvironment } from '../../../test/TestbedEnv';
 useTestEnvironment();
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { assertNoNode, assertSameNode } from '../../../test/NodeAssert';
+import { assertNoNode, assertNotSameNode, assertSameNode } from '../../../test/NodeAssert';
 import { assertPattern, ANGULAR_COMPONENTS } from '../../../test/Compliance';
 import { disposeOverlays } from '../../../test/Overlays';
 import type { ArenaMenuItem } from '../../../Api.generated';
 import { ArenaButton } from '../../forms/arena-button/ArenaButton';
+import { delayTypeahead } from '../../../Tokens.generated';
 import { ArenaMenu } from './ArenaMenu';
+import { ArenaPopover } from '../../feedback/arena-popover/ArenaPopover';
 
 const BINDING = join(ANGULAR_COMPONENTS, 'navigation/arena-menu/ArenaMenu.behaviour.json');
 
@@ -40,6 +43,7 @@ class MenuHost {
 }
 
 @Component({
+  selector: 'arena-menu-compliance-wrapped-trigger-host',
   standalone: true,
   imports: [ArenaButton, ArenaMenu],
   template: `<arena-menu [items]="items"><arena-button trigger>More actions</arena-button></arena-menu>`,
@@ -47,6 +51,51 @@ class MenuHost {
 class WrappedTriggerHost {
   readonly items = ITEMS;
 }
+
+@Component({
+  selector: 'arena-menu-compliance-items-host',
+  standalone: true,
+  imports: [ArenaMenu],
+  template: `<arena-menu [items]="items()"><button trigger type="button">More actions</button></arena-menu>`,
+})
+class ItemsHost {
+  readonly items = signal<readonly ArenaMenuItem[]>([]);
+}
+
+let restoreClock: (() => void) | null = null;
+
+function captureClock(): Array<() => void> {
+  const fires: Array<() => void> = [];
+  const savedSet = globalThis.setTimeout;
+  const own = new Set<number>();
+  (globalThis as { setTimeout: unknown }).setTimeout = ((fn: () => void, ms?: number, ...rest: unknown[]) => {
+    if (ms !== delayTypeahead) return savedSet(fn, ms, ...rest);
+    fires.push(fn);
+    own.add(fires.length);
+    return fires.length as unknown as ReturnType<typeof setTimeout>;
+  });
+  const savedClear = globalThis.clearTimeout;
+  (globalThis as { clearTimeout: unknown }).clearTimeout = ((handle: unknown) => {
+    if (typeof handle === 'number' && own.has(handle)) return;
+    savedClear(handle as ReturnType<typeof setTimeout>);
+  });
+  restoreClock = () => { globalThis.setTimeout = savedSet; globalThis.clearTimeout = savedClear; };
+  return fires;
+}
+
+function opened(items: readonly ArenaMenuItem[]) {
+  const fixture = TestBed.createComponent(ItemsHost);
+  fixture.componentInstance.items.set(items);
+  fixture.detectChanges();
+  (fixture.nativeElement.querySelector('button') as HTMLElement).click();
+  fixture.detectChanges();
+  const menu = panel()!;
+  const rows = [...menu.querySelectorAll<HTMLElement>('[role="menuitem"]')];
+  const finish = () => { fixture.destroy(); disposeOverlays(); restoreClock?.(); restoreClock = null; };
+  return { fixture, menu, rows, finish };
+}
+
+const ROWS: ArenaMenuItem[] = [{ label: 'Rename' }, { label: 'Duplicate', disabled: true }, { label: 'Delete' }];
 
 function render() {
   const fixture = TestBed.createComponent(MenuHost);
@@ -84,15 +133,26 @@ test('arena-menu meets the menu-button pattern it binds', () => {
     assertSameNode(document.activeElement, first,
       'focus.onOpen: opening did not move focus to the first enabled item');
 
+    const rowsDrawn = [...panel()!.querySelectorAll<HTMLElement>('[role="menuitem"]')];
     assertPattern({
       root: document.body,
       bindingPath: BINDING,
-      subjects: { default: trigger },
+      subjects: {
+        default: trigger,
+        'roles.item': rowsDrawn,
+        'roles.separator': [...panel()!.querySelectorAll<HTMLElement>('[data-arena-part="menu.divider"]')],
+      },
       behavioural: {
         'keyboard.Enter': true,
         'keyboard.Space': true,
         'keyboard.Escape': true,
         'focus.onOpen': true,
+        'focus.roving': true,
+        'keyboard.ArrowDown': true,
+        'keyboard.ArrowUp': true,
+        'keyboard.Home': true,
+        'keyboard.End': true,
+        'keyboard.TypeAhead': true,
       },
     });
 
@@ -216,4 +276,224 @@ test('the trigger is resolved to the focusable control, never to a display:conte
     fixture.destroy();
     disposeOverlays();
   }
+});
+
+test('Tab from any row closes the menu and returns focus to the trigger', () => {
+  const { fixture, trigger } = render();
+  try {
+    for (const which of ['first', 'last'] as const) {
+      trigger.click();
+      fixture.detectChanges();
+      const rows = [...panel()!.querySelectorAll<HTMLElement>('[role="menuitem"]:not([disabled])')];
+      const row = which === 'first' ? rows[0]! : rows[rows.length - 1]!;
+      row.focus();
+      assert.equal(press(row, 'Tab').defaultPrevented, true);
+      fixture.detectChanges();
+      assertNoNode(panel(), `Tab from the ${which} row left the menu open`);
+      assertSameNode(document.activeElement, trigger, 'Tab out did not return focus to the trigger');
+    }
+  } finally {
+    fixture.destroy();
+    disposeOverlays();
+  }
+});
+
+@Component({
+  standalone: true,
+  imports: [ArenaPopover, ArenaMenu],
+  template: `
+    <arena-popover label="Filters" [open]="open()" (openChange)="open.set($event)">
+      <button trigger type="button" class="filters">Filters</button>
+      <arena-menu [items]="[{ label: 'Reset' }]"><button trigger type="button" class="more">More</button></arena-menu>
+    </arena-popover>
+  `,
+})
+class MenuInPopoverHost {
+  readonly open = signal(false);
+}
+
+test('a menu inside a popover closes alone on Escape, and a press on its row stays inside the popover', () => {
+  const fixture = TestBed.createComponent(MenuInPopoverHost);
+  const dialog = () => document.body.querySelector<HTMLElement>('.cdk-overlay-container [role="dialog"]');
+  try {
+    fixture.detectChanges();
+    (fixture.nativeElement.querySelector('.filters') as HTMLElement).click();
+    fixture.detectChanges();
+    const more = dialog()!.querySelector<HTMLElement>('.more')!;
+    more.click();
+    fixture.detectChanges();
+    const row = panel()!.querySelector<HTMLElement>('[role="menuitem"]')!;
+    row.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+    assert.ok(dialog(), 'a press on a row of the nested menu closed the popover');
+    press(row, 'Escape');
+    fixture.detectChanges();
+    assertNoNode(panel(), 'Escape did not close the menu');
+    assert.ok(dialog(), 'Escape closed the popover under the menu as well');
+    assertSameNode(document.activeElement, more, 'closing the menu did not return focus to its own trigger');
+    press(more, 'Escape');
+    fixture.detectChanges();
+    assertNoNode(dialog(), 'the second Escape did not reach the popover');
+  } finally {
+    fixture.destroy();
+    disposeOverlays();
+  }
+});
+
+test('a shortcut hint is a kbd, so a reader meets keyboard input rather than loose text', () => {
+  const { fixture, trigger } = render();
+  try {
+    press(trigger, 'Enter');
+    fixture.detectChanges();
+    const hint = panel()!.querySelector<HTMLElement>('[data-arena-part="menu.shortcut"]')!;
+    assert.equal(hint.tagName, 'KBD', 'the hint is printed as a span, the same fact the palette and arena-kbd print as a kbd');
+    assert.equal(hint.textContent, 'P', 'the string is printed as given, never split into keys');
+  } finally {
+    fixture.destroy();
+    disposeOverlays();
+  }
+});
+
+test('ArrowDown and ArrowUp move between enabled rows and wrap at the ends', () => {
+  const { fixture, rows, finish } = opened(ROWS);
+  try {
+    const [rename, , remove] = rows as [HTMLElement, HTMLElement, HTMLElement];
+    assertSameNode(document.activeElement, rename);
+    assert.equal(press(rename, 'ArrowDown').defaultPrevented, true);
+    assertSameNode(document.activeElement, remove, 'ArrowDown stopped on a disabled row');
+    assert.equal(press(remove, 'ArrowDown').defaultPrevented, true);
+    assertSameNode(document.activeElement, rename, 'ArrowDown did not wrap from the last row to the first');
+    assert.equal(press(rename, 'ArrowUp').defaultPrevented, true);
+    assertSameNode(document.activeElement, remove, 'ArrowUp did not wrap from the first row to the last');
+    press(remove, 'ArrowUp');
+    assertSameNode(document.activeElement, rename, 'ArrowUp stopped on a disabled row');
+    fixture.detectChanges();
+  } finally { finish(); }
+});
+
+test('Home and End move to the first and the last enabled row', () => {
+  const { rows, finish } = opened([{ label: 'Archive', disabled: true }, ...ROWS, { label: 'Zip', disabled: true }]);
+  try {
+    const enabled = rows.filter((row) => !row.hasAttribute('disabled'));
+    assertSameNode(document.activeElement, enabled[0]!);
+    assert.equal(press(enabled[0]!, 'End').defaultPrevented, true);
+    assertSameNode(document.activeElement, enabled[1]!, 'End did not reach the last enabled row');
+    assert.equal(press(enabled[1]!, 'Home').defaultPrevented, true);
+    assertSameNode(document.activeElement, enabled[0]!, 'Home did not reach the first enabled row');
+  } finally { finish(); }
+});
+
+test('a typed character moves to the next row starting with it, and a run of characters matches the string', () => {
+  const clock = captureClock();
+  const { rows, finish } = opened([{ label: 'Rename' }, { label: 'Remove' }, { label: 'Archive' }]);
+  try {
+    const [rename, remove, archive] = rows as [HTMLElement, HTMLElement, HTMLElement];
+    press(rename, 'r');
+    assertSameNode(document.activeElement, remove, 'r did not move to the next row starting with r');
+    clock.at(-1)?.();
+    press(remove, 'a');
+    assertSameNode(document.activeElement, archive);
+    clock.at(-1)?.();
+    press(archive, 'r');
+    press(archive, 'e');
+    press(archive, 'm');
+    assertSameNode(document.activeElement, remove, 'a run of characters did not match on the accumulated string');
+  } finally { finish(); }
+});
+
+test('a character no row starts with leaves focus where it is, and one character repeated cycles', () => {
+  const clock = captureClock();
+  const { rows, finish } = opened([{ label: 'Rename' }, { label: 'Remove' }, { label: 'Archive' }]);
+  try {
+    const [rename, remove] = rows as [HTMLElement, HTMLElement, HTMLElement];
+    press(rename, 'r');
+    assertSameNode(document.activeElement, remove);
+    press(remove, 'r');
+    assertSameNode(document.activeElement, rename, 'one character repeated did not cycle through the rows that start with it');
+    press(rename, 'r');
+    assertSameNode(document.activeElement, remove);
+    const appended = press(remove, 'q');
+    assertSameNode(document.activeElement, remove, 'a run no row starts with moved focus');
+    assert.equal(appended.defaultPrevented, false);
+    clock.at(-1)?.();
+    const fresh = press(remove, 'q');
+    assertSameNode(document.activeElement, remove, 'a character no row starts with moved focus');
+    assert.equal(fresh.defaultPrevented, false);
+  } finally { finish(); }
+});
+
+test('a space inside a run of typed characters belongs to the run, and a space alone is the row\'s own', () => {
+  const clock = captureClock();
+  const first = opened([{ label: 'Save as' }, { label: 'Save' }, { label: 'Delete' }]);
+  try {
+    const [saveAs, save] = first.rows as [HTMLElement, HTMLElement, HTMLElement];
+    for (const key of ['s', 'a', 'v', 'e']) press(document.activeElement!, key);
+    assertSameNode(document.activeElement, save);
+    assert.equal(press(save, ' ').defaultPrevented, true);
+    assertSameNode(document.activeElement, saveAs, 'the run with its space did not match on the whole string');
+  } finally { first.finish(); }
+  const clockAgain = captureClock();
+  const { rows, finish } = opened([{ label: 'Rename' }, { label: 'Delete' }]);
+  try {
+    const [, remove] = rows as [HTMLElement, HTMLElement];
+    press(document.activeElement!, 'd');
+    assertSameNode(document.activeElement, remove);
+    assert.equal(press(remove, ' ').defaultPrevented, true, 'a space inside a run reached the row, which it would activate');
+    assertSameNode(document.activeElement, remove);
+    clockAgain.at(-1)?.();
+    assert.equal(press(remove, ' ').defaultPrevented, false, 'a space alone was taken from the row it activates');
+    assertSameNode(document.activeElement, remove);
+  } finally { finish(); }
+});
+
+test('a character outside the basic plane is one typed character, and reaches the row it starts', () => {
+  captureClock();
+  const { rows, finish } = opened([{ label: 'Rename' }, { label: '\u{1F680} Launch' }]);
+  try {
+    const [rename, launch] = rows as [HTMLElement, HTMLElement];
+    assertSameNode(document.activeElement, rename);
+    assert.equal(press(rename, '\u{1F680}').defaultPrevented, true);
+    assertSameNode(document.activeElement, launch, 'a character of two code units was not read as one typed character');
+  } finally { finish(); }
+});
+
+test('every row sits at tabindex -1', () => {
+  const { rows, finish } = opened(ROWS);
+  try {
+    assert.equal(rows.length, 3);
+    for (const row of rows) assert.equal(row.getAttribute('tabindex'), '-1');
+  } finally { finish(); }
+});
+
+test('a header names the group of rows under it, and a divider is a separator', () => {
+  const { menu, rows, finish } = opened([{ header: 'File' }, { label: 'Rename' }, { label: 'Delete' }, { divider: true }, { label: 'Archive' }]);
+  try {
+    const groups = menu.querySelectorAll<HTMLElement>('[role="group"]');
+    assert.equal(groups.length, 1);
+    const name = document.getElementById(groups[0]!.getAttribute('aria-labelledby')!);
+    assert.equal(name?.textContent, 'File');
+    assert.deepEqual(rows.map((row) => groups[0]!.contains(row)), [true, true, false]);
+    assertNoNode(rows[2]!.closest('[role="group"]'), 'a row after the divider sits in the group');
+    assert.equal(menu.querySelectorAll('[role="separator"]').length, 1);
+  } finally { finish(); }
+});
+
+test('the first enabled row takes focus on open, and a menu of disabled rows answers keys without throwing', () => {
+  const first = opened([{ label: 'Archive', disabled: true }, { label: 'Rename' }]);
+  try {
+    assertSameNode(document.activeElement, first.rows[1]!, 'opening did not skip the disabled first row');
+  } finally { first.finish(); }
+  const { menu, rows, finish } = opened([{ label: 'Archive', disabled: true }, { label: 'Zip', disabled: true }]);
+  try {
+    assert.equal(rows.length, 2);
+    const before = document.activeElement;
+    for (const key of ['ArrowDown', 'ArrowUp', 'Home', 'End']) {
+      let event: KeyboardEvent | undefined;
+      assert.doesNotThrow(() => { event = press(menu, key); }, key);
+      assert.equal(event?.defaultPrevented, true, `${key} in a menu of disabled rows reached the page`);
+      assertSameNode(document.activeElement, before, `${key} moved focus in a menu of disabled rows`);
+    }
+    assert.doesNotThrow(() => press(menu, 'a'), 'a');
+    assertSameNode(document.activeElement, before, 'type-ahead moved focus in a menu of disabled rows');
+    for (const row of rows) assertNotSameNode(document.activeElement, row, 'a disabled row took focus');
+  } finally { finish(); }
 });

@@ -9,6 +9,8 @@ import assert from 'node:assert/strict';
 import React from 'react';
 import { mount, cleanup, act } from '../../../test/Harness.tsx';
 import { ArenaDoughnutChart } from './ArenaDoughnutChart.tsx';
+import { arenaToneColor } from '../../../DataVisuals.ts';
+import { forgetArenaWarnings } from '../../../WarnOnce.ts';
 import type { ArenaChartLegendLayout } from '../../../Api.generated';
 
 afterEach(cleanup);
@@ -128,7 +130,7 @@ test('a pie draws no centre figure, because filling the hole is what took the pl
   const root = pie({ shape: 'pie' });
   hover(root.querySelectorAll('path')[0]!);
   assert.equal(root.querySelector('text'), null,
-    'over a wedge the figure would put --bone on a --color-cat slot, a pair no gate checks because nothing drew it');
+    'over a wedge the figure would put the heading ink on a --color-cat slot, a pair no gate checks because nothing drew it');
 
   const table = root.querySelector('table');
   assert.ok((table?.textContent ?? '').includes('40'), 'the number is not lost: the accessible table still carries it');
@@ -148,4 +150,33 @@ test('a pie announces as one, rather than inheriting the name of the shape it is
   assert.equal(root.querySelector('svg')?.getAttribute('aria-label'), 'Revenue by channel — pie chart');
   assert.equal(root.querySelector('caption')?.textContent, 'Revenue by channel — pie chart');
   assert.equal(root.querySelector('[role="group"]')?.getAttribute('aria-label'), 'Pie chart legend');
+});
+
+function captureWarnings<T>(body: () => T): { result: T; messages: string[] } {
+  const messages: string[] = [];
+  const original = console.warn;
+  console.warn = (...args: unknown[]) => { messages.push(args.map(String).join(' ')); };
+  try {
+    return { result: body(), messages };
+  } finally {
+    console.warn = original;
+  }
+}
+
+test('a toned doughnut is coloured by its tone and warns about nothing it was not given', () => {
+  forgetArenaWarnings();
+  const { result: root, messages } = captureWarnings(() => mount(
+    <ArenaDoughnutChart labels={LABELS} series={[{ label: 'Revenue by channel', values: VALUES, tone: 'success' }]}
+      label="Revenue by channel" />,
+  ));
+  assert.deepEqual(messages.filter((m) => /mutually exclusive/.test(m)), []);
+  const tone = arenaToneColor('success');
+  const paths = [...root.querySelectorAll('path')];
+  assert.equal(paths.length, VALUES.filter((value) => value > 0).length, 'a zero-valued slice paints no path');
+  for (const path of paths) assert.equal(path.getAttribute('fill'), tone);
+  const swatches = [...root.querySelectorAll<HTMLElement>('[data-arena-part="doughnut-chart.legend-swatch"]')];
+  assert.equal(swatches.length, VALUES.length);
+  for (const swatch of swatches) {
+    assert.equal(swatch.getAttribute('data-arena-tone'), 'success');
+  }
 });

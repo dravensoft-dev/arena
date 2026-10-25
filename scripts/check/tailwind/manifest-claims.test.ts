@@ -71,11 +71,18 @@ const HUES = {
   ArenaProgressBar: { tone: { success: 'success', danger: 'danger', info: 'info' } },
   ArenaToast: { tone: { success: 'success', danger: 'danger' } },
   ArenaButton: { destructive: { true: 'danger' } },
+  ArenaSplitButton: { destructive: { true: 'danger' } },
   ArenaInput: { state: { error: 'danger', valid: 'success' } },
+  ArenaNumberField: { state: { error: 'danger', valid: 'success' } },
+  ArenaPinInput: { state: { error: 'danger', valid: 'success' } },
+  ArenaCombobox: { state: { error: 'danger', valid: 'success' } },
+  ArenaFileInput: { state: { error: 'danger' } },
   ArenaSelect: { state: { error: 'danger', valid: 'success' } },
   ArenaTextarea: { state: { error: 'danger' }, near: { true: 'warning' } },
   ArenaBulkActionBar: { destructive: { true: 'danger' } },
   ArenaMenu: { destructive: { true: 'danger' } },
+  ArenaStepper: { error: { true: 'danger' } },
+  ArenaTimeline: { tone: { success: 'success', warning: 'warning', danger: 'danger', info: 'info' } },
 } as Record<string, Record<string, Record<string, string>>>;
 
 test('every status value maps to its own hue, and a neutral or editorial value to none', () => {
@@ -95,6 +102,7 @@ test('every status value maps to its own hue, and a neutral or editorial value t
     ['ArenaAlert', 'tone', ['neutral']], ['ArenaBadge', 'tone', ['neutral']],
     ['ArenaToast', 'tone', ['neutral']], ['ArenaAvatar', 'status', ['none', 'offline']],
     ['ArenaConfirmDialog', 'destructive', ['false']], ['ArenaTextarea', 'near', ['false']], ['ArenaTag', 'tone', ['neutral']],
+    ['ArenaFileInput', 'state', ['neutral']], ['ArenaStepper', 'error', ['false']], ['ArenaTimeline', 'tone', ['neutral']],
   ] as [string, string, string[]][])
     for (const value of values)
       assert.equal(manifests.get(component)?.hues?.[group]?.[value], null, `${component}.hues.${group}.${value} is not mapped to no hue`);
@@ -102,7 +110,12 @@ test('every status value maps to its own hue, and a neutral or editorial value t
 
 const ALWAYS_HUES = {
   ArenaErrorState: { root: 'danger', icon: 'danger' },
+  ArenaCombobox: { error: 'danger' },
+  ArenaFieldset: { error: 'danger' },
   ArenaInput: { error: 'danger' },
+  ArenaNumberField: { error: 'danger' },
+  ArenaPinInput: { error: 'danger' },
+  ArenaFileInput: { error: 'danger', rejection: 'danger' },
   ArenaSelect: { error: 'danger' },
   ArenaTextarea: { error: 'danger' },
   ArenaConfirmDialog: { input: 'danger' },
@@ -116,6 +129,12 @@ test('a slot whose meaning no value varies names its hue under always, and no ot
 test('every manifest claim holds', () => {
   const problems = claimProblems(CLAIMS as unknown as Record<string, Claim[]>);
   assert.deepEqual(problems, [], problems.join('\n'));
+});
+
+test('the sticky family writes the position and the isolation channels the table reads', () => {
+  const family = readJson(join(repoRoot, 'frameworks/tailwind/vocabulary/arena-sticky/Sticky.family.json')) as any;
+  assert.equal(family.variants['arena-sticky-head'], '[--arena-sticky-position:sticky] [--arena-sticky-isolation:isolate]');
+  assert.equal(family.variants['arena-sticky-none'], '[--arena-sticky-position:static] [--arena-sticky-isolation:auto]');
 });
 
 test('the band ceiling compiles to the declaration the band family gives .arena-band', () => {
@@ -285,7 +304,9 @@ export const CLAIMS = {
     { chosen: { numeric: true }, slot: 'td', has: ['font-mono', 'tabular-nums'], hasNot: ['font-body'], why: 'a figure column aligns by digit, and the figure treatment replaces the prose face rather than stacking on it' },
     { chosen: { numeric: false }, slot: 'td', has: ['font-body'], hasNot: ['font-mono'], why: 'a prose column keeps the body face' },
     { slot: 'root', has: ['block'], why: 'a host-bound root is never the UA-default inline box' },
-    { chosen: { narrow: false }, slot: 'root', has: ['rounded-surface', 'overflow-hidden'], hasNot: ['flex-col'], why: 'the wide shape is the framed grid, and it is the default because nothing has been measured yet' },
+    { chosen: { narrow: false }, slot: 'root', has: ['rounded-surface', 'overflow-clip'], hasNot: ['flex-col', 'overflow-hidden'], why: 'the wide shape is the framed grid, and it is the default because nothing has been measured yet; it clips the corners without becoming a scroll container, or a sticky head would stick to a root that never scrolls' },
+    { slot: 'root', has: ['[isolation:var(--arena-sticky-isolation,auto)]'], hasNot: ['isolate'], why: 'the table keeps its own layer only while its head sticks, so the stuck head never competes with a layering token a menu or a tooltip draws at and the default table paints as before' },
+    { slot: 'th', has: ['[position:var(--arena-sticky-position,static)]', 'top-0', 'z-1', 'bg-track'], why: 'a head cell reads the sticky channel with the default written as its fallback, and carries its own fill so a stuck head is opaque over the rows that pass under it' },
     { chosen: { narrow: false }, slot: 'grid', has: ['table'], why: 'the wide shape is the framed grid' },
     { chosen: { narrow: true }, slot: 'root', has: ['flex', 'flex-col'], hasNot: ['rounded-surface', 'overflow-hidden'], why: 'below the breakpoint the frame goes away and the rows become a stack of cards' },
     { chosen: { narrow: true }, slot: 'grid', has: ['table', 'contents'], why: 'below the breakpoint the frame goes away and the rows become a stack of cards: the base table and the branch contents are both present and the branch is emitted later' },
@@ -303,6 +324,11 @@ export const CLAIMS = {
       chosen: { tone }, slot: 'root', has: ['rounded-marker', 'text-ctl-xs'],
       why: 'every tone keeps the shared marker base and its control font size, which an unregistered suffix would lose to the tone colour',
     })),
+    { slot: 'close', has: ['relative', "before:content-['']", 'before:absolute', 'before:w-ctl-h-sm', 'before:h-ctl-h-sm'], hasNot: ['min-h-ctl-h-sm', 'min-w-ctl-h-sm'],
+      why: 'the remove control answers a thumb through a hit area centred on the glyph, so the chip keeps its own height' },
+    { slot: 'closeLabel', has: ['sr-only'], why: 'the remove word is read and never seen' },
+    { slot: 'root', has: ['wrap-anywhere'],
+      why: 'a label with no break opportunity, such as a long file name, wraps inside the chip and never pushes its field or the page sideways' },
   ],
   ArenaUnauthCard: [
     { slot: 'root', has: ['block', 'shadow-surface-deep', 'max-w-[calc(var(--sp-1)*95+var(--sp-1)*18+var(--bw-surface)*2)]'], why: 'the width is the derivation and never the literal it computes to' },
@@ -405,11 +431,10 @@ export const CLAIMS = {
     { slot: 'root', has: ['flex', 'z-toast'], why: 'the root sits on --z-toast, the one slot above every other overlay' },
   ],
   ArenaTooltip: [
-    ...[true, false].map((anchored) => ({ chosen: { anchored }, slot: 'bubble',
-      has: ['arena-fade', 'z-tooltip', 'whitespace-nowrap', 'rounded-control', 'shadow-surface-floating', 'bg-base-content', 'text-base-100', 'font-mono', 'text-ctl-xs'],
-      why: 'the appearance is identical in both models and only the position moves' })),
-    { chosen: { anchored: false }, slot: 'root', has: ['relative', 'inline-flex'], why: 'in flow the bubble is positioned against a relative root' },
-    { chosen: { anchored: true }, slot: 'root', has: ['inline-flex'], hasNot: ['relative'], why: 'anchored, the overlay pane owns the position and every wrapper-relative utility is gone' },
+    { slot: 'bubble', has: ['arena-fade', 'z-tooltip', 'whitespace-nowrap', 'rounded-control', 'shadow-surface-floating', 'bg-base-content', 'text-base-100', 'font-mono', 'text-ctl-xs'],
+      hasNot: ['absolute', 'bottom-full', 'left-1/2', '-translate-x-1/2', '-translate-y-2'],
+      why: 'the bubble is the inverted overlay and nothing in the manifest positions it: each layer places it over its trigger' },
+    { slot: 'root', has: ['inline-flex'], hasNot: ['relative'], why: 'the bubble leaves the wrapper when it is shown, so nothing is positioned against the root' },
   ],
   ArenaButton: [
     { chosen: { destructive: true }, slot: 'root', has: [EDGE, INK, STRONG], hasNot: ['bg-error', 'bg-error-fill'], why: 'destructive is outline: border and text in the danger hue, and its fill channel is closed to transparent, so its only error fill is a hover wash' },
@@ -423,6 +448,28 @@ export const CLAIMS = {
     { slot: 'root', has: ['w-[var(--arena-fill-width,fit-content)]'], hasNot: ['w-auto', 'w-full', 'w-fit'], why: 'the width is the fill channel, which fits the content until a vocabulary class says otherwise, in a column as in a row' },
     { slot: 'spinner', has: ['arena-btn-spin'], why: 'the spinner slot carries the reduced-motion-aware utility, which is where that answer lives' },
   ],
+  ArenaSplitButton: [
+    { slot: 'root', has: ['hover:-translate-y-[var(--lift-control)]', 'active:scale-[var(--press-scale)]', 'motion-reduce:active:scale-100'],
+      why: 'the lift and the press sit on the root once, so the two halves move as one control' },
+    { slot: 'primary', hasNot: ['hover:-translate-y-[var(--lift-control)]', 'active:scale-[var(--press-scale)]', 'rounded-control'],
+      why: 'a half that lifted or scaled on its own would part from the other half at the joint' },
+    { slot: 'caret', hasNot: ['hover:-translate-y-[var(--lift-control)]', 'active:scale-[var(--press-scale)]', 'rounded-control'],
+      why: 'the same reason, on the other half' },
+    { slot: 'primary', has: ['rounded-s-control', 'border-e-0'], why: 'the primary half rounds its start corners only and draws no end edge, so the joint is one line and never two' },
+    { slot: 'caret', has: ['rounded-e-control', 'w-[var(--arena-size-control-h,var(--size-md-control-h))]'], why: 'the caret rounds its end corners only and is a square of the control height' },
+    { chosen: { destructive: false }, slot: 'caret', has: ['border-s-[color:color-mix(in_oklab,var(--arena-emphasis-ink,var(--emphasis-primary-ink))_var(--level-ink-muted),transparent)]'], hasNot: ['border-s-[color:var(--arena-emphasis-edge,var(--emphasis-primary-edge))]'],
+      why: 'the joint is the emphasis ink at the muted level, because the primary edge is the primary fill and the ghost edge is transparent, so an edge-coloured joint draws nothing' },
+    { chosen: { destructive: true }, slot: 'caret', has: ['border-s-[color:color-mix(in_oklab,var(--arena-hue-ink)_var(--level-ink-muted),transparent)]'], hasNot: ['border-s-[color:color-mix(in_oklab,var(--arena-emphasis-ink,var(--emphasis-primary-ink))_var(--level-ink-muted),transparent)]'],
+      why: 'a destructive split draws its joint in the danger ink the same way' },
+    { chosen: { destructive: true }, slot: 'primary', has: [EDGE, INK, STRONG], why: 'destructive is the danger outline on the primary half, as on a button' },
+    { chosen: { destructive: true }, slot: 'caret', has: [EDGE, INK, STRONG], why: 'and on the caret half, so the split is one danger control' },
+    { chosen: { destructive: false }, slot: 'caret',
+      has: ['aria-expanded:bg-[color:var(--arena-emphasis-fill-hover,var(--emphasis-primary-fill))]', 'aria-expanded:shadow-[var(--arena-emphasis-shadow-hover,var(--emphasis-primary-shadow-hover))]'],
+      why: 'an open caret holds the half\'s own hover look while its menu is shown, read through the emphasis channel' },
+    { chosen: { destructive: true }, slot: 'caret', has: ['aria-expanded:bg-hover'],
+      why: 'a destructive caret holds its hover wash while its menu is shown, the same way' },
+    { slot: 'spinner', has: ['arena-btn-spin'], why: 'the spinner is the button spinner, reduced-motion answer included' },
+  ],
   ArenaCheckbox: [
     { slot: 'box', has: ['[&:has(~input:focus-visible)]:shadow-[0_0_0_var(--focus-width)_var(--focus-ring)]'], why: 'the focus ring is a selector on the box, so nothing injects a stylesheet and no hook class survives, and it is the full-strength role because the accent at 16% is a wash rather than an edge' },
     { chosen: { checked: true }, slot: 'box', has: ['bg-primary-fill', 'border-primary-fill'], why: 'checked fills with the brand; unchecked is the input surface behind a neutral hairline' },
@@ -435,6 +482,29 @@ export const CLAIMS = {
       chosen: { checked }, slot: 'box', has: ['size-5', 'rounded-control-sm', 'inline-flex'],
       why: 'the box keeps its geometry through the merge, in both states',
     })),
+    { slot: 'group', has: ['flex', 'flex-col', 'gap-items'], why: 'the group is a column, and it is a display utility because the host binds it' },
+  ],
+  ArenaCombobox: [
+    { slot: 'root', has: ['flex', 'flex-col'], why: 'a host-bound root is never the UA-default inline box' },
+    { slot: 'error', has: [INK], hasNot: ['text-error'], why: 'the field error message reads the ink of the danger hue always gives its slot, so a plugin moving the danger ink moves the message with the ring' },
+    { chosen: { state: 'neutral' }, slot: 'field', has: ['focus-within:border-secondary'], why: 'focus stays in the input, so the field rings on focus-within, and neutral rings only then' },
+    { chosen: { state: 'error' }, slot: 'statusIcon', has: [INK], why: 'error and valid ring at rest and say which they are, with a glyph as the second channel' },
+    { slot: 'field', has: ['min-h-ctl-h'], hasNot: ['h-ctl-h'], why: 'the field is a floor and never a fixed height, so a row of chips can wrap inside it' },
+    { slot: 'caret', has: ['pointer-events-none'], why: 'the caret is decoration and must not swallow the press meant for the field' },
+    { slot: 'announcement', has: ['sr-only'], why: 'the count is spoken and never seen' },
+    { slot: 'panel', has: ['z-dropdown', 'max-h-80', 'overflow-auto'], hasNot: ['absolute', 'fixed', 'relative'], why: 'the panel scrolls its own rows and leaves its position to the layer' },
+    { slot: 'option', has: ['min-h-row-min', 'px-row-floating-x', 'py-row-floating-y'], why: 'a row of a floating list spends the floating row roles, and its floor reads the density' },
+    { chosen: { active: true }, slot: 'option', has: ['bg-primary/14'], why: 'the cursor row is washed, and a chosen row carries a glyph, so neither is told by colour alone' },
+    { chosen: { blocked: true }, slot: 'option', has: ['opacity-60', 'cursor-not-allowed'], hasNot: ['cursor-pointer'], why: 'a row the cap blocks dims and refuses the pointer, and only an available row offers it' },
+    { slot: 'clear', has: ['min-h-ctl-h-sm', 'min-w-ctl-h-sm'], why: 'the clear control is a small control box, which clears the floor of every density' },
+    { slot: 'chips', has: ['flex-wrap', 'gap-inline', 'py-1'], why: 'chips wrap inside the field, keep the gap between siblings on one line and leave air above and below so a second row never touches the border' },
+  ],
+  ArenaFieldset: [
+    { slot: 'root', has: ['block', 'border-0', 'p-0', 'm-0', 'min-w-0'], why: 'a fieldset is a plain grouping, so the platform border, padding and minimum width are taken away and the root keeps a display utility of its own' },
+    { slot: 'body', has: ['flex', 'flex-col', 'gap-items'], why: 'the fields of a set are spaced by the role named for them, and the legend sits outside that column' },
+    { slot: 'error', has: [INK], hasNot: ['text-error'], why: 'the set error reads the ink of the danger hue always gives its slot, the same as a field error' },
+    { chosen: { state: 'error' }, slot: 'statusIcon', has: [INK], why: 'the glyph is the second channel of the set error, in the danger ink' },
+    { chosen: { disabled: true }, slot: 'root', has: ['opacity-50'], why: 'a disabled set dims as a whole, as a disabled field does' },
   ],
   ArenaIconButton: [
     { chosen: { pressed: false }, slot: 'root', has: ['hover:bg-[color:var(--arena-emphasis-fill-hover,var(--emphasis-ghost-fill-hover))]'],
@@ -457,6 +527,20 @@ export const CLAIMS = {
     { chosen: { readOnly: true }, slot: 'input', has: ['cursor-default'], why: 'disabled dims the whole field group and readonly changes the surface, not the border' },
     { slot: 'required', has: ['text-primary'], why: 'the required marker is the brand, so a label reads as required without the word' },
   ],
+  ArenaFileInput: [
+    { slot: 'error', has: [INK], hasNot: ['text-error'], why: 'the field error message reads the ink of the danger hue always gives its slot, so a plugin moving the danger ink moves the message with the zone' },
+    { slot: 'rejection', has: [INK], hasNot: ['text-error'], why: 'a refused file is said in the ink of the danger hue always gives its slot, and danger is an outline, never a fill' },
+    { chosen: { state: 'error' }, slot: 'zone', has: [EDGE], why: 'an error turns the zone\'s edge to the danger hue, read from the channel the hue sheet writes' },
+    { chosen: { droppable: 'true' }, slot: 'zone', has: ['border-dashed', 'border-edge-surface', 'border-[length:var(--bw-surface)]', 'p-surface', 'rounded-surface'], why: 'a drop zone is a surface with a dashed edge, drawn literally as the empty state draws its own, and every other property a role' },
+    { chosen: { droppable: 'false' }, slot: 'zone', hasNot: ['border-dashed', 'p-surface'], why: 'a field that takes no drop draws no frame, so the trigger stands on the page as a button would' },
+    { chosen: { dragging: 'true' }, slot: 'zone', has: ['bg-hover'], why: 'a drag over the zone is the surface answering, which is the fill-hover role, and a colour crossfade stays under reduced motion' },
+    { slot: 'input', has: ['absolute', 'inset-0', 'size-full', 'col-start-1', 'col-end-2', 'row-start-1', 'row-end-2', 'opacity-0', 'pointer-events-none'], why: 'the hidden input lies over the trigger\'s grid cell, so the browser anchors a required field\'s message at the trigger, and it takes no pointer event, so every press reaches the trigger' },
+    { slot: 'trigger', has: ['col-start-1', 'row-start-1'], why: 'the trigger owns the grid cell the hidden input is placed over' },
+    { chosen: { disabled: 'true' }, slot: 'root', has: ['opacity-50'], why: 'disabled dims the whole field once, so the trigger carries no dimming of its own to compound with it' },
+    { chosen: { disabled: 'true' }, slot: 'trigger', hasNot: ['hover:-translate-y-[var(--lift-control)]'], why: 'a disabled trigger answers no pointer, so its hover lives in the enabled branch' },
+    { slot: 'status', has: ['sr-only'], why: 'the count is announced and never drawn, because the chips already show it' },
+    { slot: 'size', has: ['font-mono', 'tabular-nums'], why: 'a byte count is a figure, and figures set in tabular digits' },
+  ],
   ArenaRadio: [
     { slot: 'ring', has: ['[&:has(~input:focus-visible)]:shadow-[0_0_0_var(--focus-width)_var(--focus-ring)]'], why: 'the ring finds its own focus through an arbitrary variant, so nothing injects a stylesheet and no hook class survives, and it is the full-strength role because the accent at 16% is a wash rather than an edge' },
     { slot: 'group', has: ['flex', 'flex-col', 'gap-items'], why: 'the group is a column, and it is a display utility because the host binds it' },
@@ -464,9 +548,15 @@ export const CLAIMS = {
   ArenaMenu: [
     { chosen: { destructive: true, disabled: false }, slot: 'item', has: [INK, 'hover:bg-hover'], hasNot: ['text-error'], why: HUE_WHY },
     { slot: 'root', has: ['inline-flex'], why: 'a host-bound root is never the UA-default inline box' },
-    { chosen: { anchored: true }, slot: 'panel', hasNot: ['absolute', 'top-full', 'left-0', 'mt-1.5'], why: 'anchored, the CDK positions the pane, so every in-flow positioning class is gone' },
-    { chosen: { anchored: true }, slot: 'root', hasNot: ['relative'], why: 'nothing is positioned against the host once the panel has left it' },
-    { chosen: { anchored: false }, slot: 'panel', has: ['absolute', 'top-full', 'left-0', 'mt-1.5'], why: 'in flow, the panel positions itself against the host, which is the shape the specimen renders' },
+    { slot: 'panel', hasNot: ['absolute', 'top-full', 'left-0', 'mt-1.5', 'left-auto', 'right-0'],
+      why: 'each layer places the panel and lines it up with the trigger, so no positioning class is left for either edge' },
+    { slot: 'root', hasNot: ['relative'], why: 'nothing is positioned against the host once the panel has left it' },
+    { slot: 'panel', has: ['text-ink-body/(--level-ink-body)'], why: 'the panel writes its own ink over the platform default a top-layer panel starts from, and its rows inherit it' },
+  ],
+  ArenaPopover: [
+    { slot: 'root', has: ['inline-flex', 'w-[var(--arena-fill-width,fit-content)]'], why: 'a host-bound root is never the UA-default inline box, and the fill channel sizes the wrapper as it does the trigger' },
+    { slot: 'panel', has: ['w-max', 'max-w-[92vw]', 'z-dropdown', 'text-ink-body/(--level-ink-body)'], hasNot: ['absolute', 'fixed', 'relative'],
+      why: 'the panel takes its content\'s width up to the viewport bound, writes its own ink over the platform default a top-layer panel starts from, and leaves its position to the layer' },
   ],
   ArenaPageHead: [
     ...[true, false].map((narrow) => ({ chosen: { narrow }, slot: 'actions', has: ['flex-wrap'],
@@ -518,7 +608,7 @@ export const CLAIMS = {
   ],
   ArenaTabs: [
     { slot: 'root', has: ['flex', 'border-b-[length:var(--bw-separator)]', 'border-edge-separator'], why: 'the tablist sits on a hairline rule that the selected tab overdraws' },
-    { chosen: { selected: true }, slot: 'tab', has: ['font-control', 'text-ink-body', 'shadow-[inset_0_calc(var(--bw-strong)*-1)_0_var(--crimson)]'], why: 'the selected tab is marked by an inset underline rather than a fill' },
+    { chosen: { selected: true }, slot: 'tab', has: ['font-control', 'text-ink-body', 'shadow-[inset_0_calc(var(--bw-strong)*-1)_0_var(--edge-tab-selected)]'], why: 'the selected tab is marked by an inset rule in the colour role edge-tab-selected rather than a fill' },
     { chosen: { selected: false }, slot: 'tab', has: ['font-medium', 'text-ink-muted/(--level-ink-muted)', 'shadow-none'], why: 'an unselected tab is muted and carries no underline' },
     { slot: 'tab', has: ['focus-visible:outline-none'], why: 'a directly focused slot removes the browser\'s own outline or that is what a keyboard user sees instead of Arena\'s' },
     {
@@ -560,6 +650,14 @@ const READS: [component: string, slot: string, question: string, reads: string[]
   ['ArenaIconButton', 'root', 'size.control-h', ['h-[var(--arena-size-control-h,var(--size-md-control-h))]', 'min-w-[var(--arena-size-control-h,var(--size-md-control-h))]']],
   ['ArenaButton', 'root', 'size.control-pad-x', ['px-[var(--arena-size-control-pad-x,var(--size-md-control-pad-x))]']],
   ['ArenaButton', 'root', 'size.control-step', ['text-[length:var(--arena-size-control-step,var(--size-md-control-step))]']],
+  ['ArenaFileInput', 'trigger', 'size.control-h', ['h-[var(--arena-size-control-h,var(--size-md-control-h))]']],
+  ['ArenaFileInput', 'trigger', 'size.control-pad-x', ['px-[var(--arena-size-control-pad-x,var(--size-md-control-pad-x))]']],
+  ['ArenaFileInput', 'trigger', 'size.control-step', ['text-[length:var(--arena-size-control-step,var(--size-md-control-step))]']],
+  ['ArenaFileInput', 'trigger', 'emphasis.fill', ['bg-[color:var(--arena-emphasis-fill,var(--emphasis-secondary-fill))]']],
+  ['ArenaFileInput', 'trigger', 'emphasis.ink', ['text-[color:var(--arena-emphasis-ink,var(--emphasis-secondary-ink))]']],
+  ['ArenaFileInput', 'trigger', 'emphasis.edge', ['border-[color:var(--arena-emphasis-edge,var(--emphasis-secondary-edge))]']],
+  ['ArenaFileInput', 'trigger', 'emphasis.fill-hover', ['hover:bg-[color:var(--arena-emphasis-fill-hover,var(--emphasis-secondary-fill-hover))]']],
+  ['ArenaFileInput', 'trigger', 'emphasis.shadow-hover', ['hover:shadow-[var(--arena-emphasis-shadow-hover,var(--shadow-control-rest))]']],
   ['ArenaSegmentedControl', 'segment', 'size.segment-h', ['h-[var(--arena-size-segment-h,var(--size-md-segment-h))]']],
   ['ArenaSegmentedControl', 'segment', 'size.segment-pad-x', ['px-[var(--arena-size-segment-pad-x,var(--size-md-segment-pad-x))]']],
   ['ArenaSegmentedControl', 'segment', 'size.segment-step', ['text-[length:var(--arena-size-segment-step,var(--size-md-segment-step))]']],
@@ -567,6 +665,9 @@ const READS: [component: string, slot: string, question: string, reads: string[]
   ['ArenaSwitch', 'icon', 'size.switch-icon', ['text-[length:var(--arena-size-switch-icon,var(--size-md-switch-icon))]']],
   ['ArenaSpinner', 'circle', 'size.spinner', ['size-[var(--arena-size-spinner,var(--size-md-spinner))]']],
   ['ArenaProgressBar', 'track', 'size.meter', ['h-[var(--arena-size-meter,var(--size-md-meter))]']],
+  ['ArenaSlider', 'rail', 'size.meter', ['h-[var(--arena-size-meter,var(--size-md-meter))]']],
+  ['ArenaSlider', 'fill', 'size.meter', ['h-[var(--arena-size-meter,var(--size-md-meter))]']],
+  ['ArenaSlider', 'rail', 'size.meter', ['w-[var(--arena-size-meter,var(--size-md-meter))]'], { orientation: 'vertical' }],
   ['ArenaProgressBar', 'ringTrack', 'size.meter', ['[stroke-width:var(--arena-size-meter,var(--size-md-meter))]']],
   ['ArenaProgressBar', 'ringFill', 'size.meter', ['[stroke-width:var(--arena-size-meter,var(--size-md-meter))]']],
   ['ArenaProgressBar', 'ring', 'size.ring', ['size-[var(--arena-size-ring,var(--size-md-ring))]']],
@@ -590,6 +691,19 @@ const READS: [component: string, slot: string, question: string, reads: string[]
   ['ArenaAppLogo', 'root', 'orientation.direction', ['[flex-direction:var(--arena-orientation-direction,row)]']],
   ['ArenaSwitch', 'track', 'orientation.direction', ['[flex-direction:var(--arena-orientation-direction,row)]']],
   ['ArenaAppLogo', 'root', 'orientation.logo-gap', ['gap-[var(--arena-orientation-logo-gap,calc(var(--sp-1)*2.5))]']],
+  ['ArenaDivider', 'root', 'orientation.direction', ['[flex-direction:var(--arena-orientation-direction,row)]'], { labelled: 'true' }],
+  ['ArenaDivider', 'root', 'orientation.rule-w', ['w-[var(--arena-orientation-rule-w,100%)]', 'h-[var(--arena-orientation-rule-h,var(--bw-separator))]'], { labelled: 'false' }],
+  ['ArenaDivider', 'rule', 'orientation.rule-w', ['w-[var(--arena-orientation-rule-w,100%)]', 'h-[var(--arena-orientation-rule-h,var(--bw-separator))]'], { labelled: 'true' }],
+  ['ArenaStepper', 'root', 'orientation.direction', ['[flex-direction:var(--arena-orientation-direction,row)]']],
+  ['ArenaStepper', 'rail', 'orientation.direction', ['[flex-direction:var(--arena-orientation-direction,row)]']],
+  ['ArenaStepper', 'rail', 'orientation.rule-w', ['basis-[var(--arena-orientation-rule-w,100%)]']],
+  ['ArenaStepper', 'text', 'orientation.rule-w', ['basis-[var(--arena-orientation-rule-w,100%)]']],
+  ['ArenaTimeline', 'root', 'orientation.direction', ['[flex-direction:var(--arena-orientation-direction,column)]']],
+  ['ArenaTimeline', 'rail', 'orientation.direction', ['[flex-direction:var(--arena-orientation-direction,column)]']],
+  ['ArenaTimeline', 'rail', 'orientation.rule-w', ['basis-[var(--arena-orientation-rule-w,var(--bw-separator))]']],
+  ['ArenaTimeline', 'content', 'orientation.rule-w', ['basis-[var(--arena-orientation-rule-w,var(--bw-separator))]']],
+  ['ArenaTimeline', 'connector', 'orientation.rule-w', ['w-[var(--arena-orientation-rule-w,var(--bw-separator))]', 'h-[var(--arena-orientation-rule-h,auto)]']],
+  ['ArenaStepper', 'connector', 'orientation.rule-w', ['w-[var(--arena-orientation-rule-w,100%)]', 'h-[var(--arena-orientation-rule-h,var(--bw-separator))]']],
   ['ArenaSwitch', 'track', 'orientation.track-w', ['w-[var(--arena-orientation-track-w,var(--arena-size-switch-long,var(--size-md-switch-long)))]', 'h-[var(--arena-orientation-track-h,var(--arena-size-switch-short,var(--size-md-switch-short)))]']],
   ['ArenaButton', 'root', 'emphasis.fill', ['bg-[color:var(--arena-emphasis-fill,var(--emphasis-primary-fill))]']],
   ['ArenaIconButton', 'root', 'emphasis.fill', ['bg-[color:var(--arena-emphasis-fill,transparent)]']],
@@ -604,6 +718,7 @@ const READS: [component: string, slot: string, question: string, reads: string[]
   ['ArenaBadge', 'root', 'mark.ink', [MARK_INK]],
   ['ArenaStatCard', 'value', 'accent.ink', ['text-[color:var(--arena-accent-ink,var(--accent-plain-ink))]']],
   ['ArenaProgressBar', 'track', 'accent.ink', ['text-[color:var(--arena-accent-ink,var(--accent-primary-ink))]']],
+  ['ArenaSlider', 'track', 'accent.ink', ['text-[color:var(--arena-accent-ink,var(--accent-primary-ink))]']],
   ['ArenaProgressBar', 'ring', 'accent.ink', ['text-[color:var(--arena-accent-ink,var(--accent-primary-ink))]']],
   ['ArenaActivityFeed', 'dot', 'accent.ink', ['text-[color:var(--arena-accent-ink,var(--accent-primary-ink))]']],
   ['ArenaSpinner', 'root', 'accent.ink', ['text-[color:var(--arena-accent-ink,var(--accent-primary-ink))]']],
@@ -624,6 +739,21 @@ const READS: [component: string, slot: string, question: string, reads: string[]
   ['ArenaSheet', 'root', 'placement.top', ['top-[var(--arena-placement-top,auto)]', 'bottom-[var(--arena-placement-bottom,0)]', 'start-[var(--arena-placement-start,0)]', 'end-[var(--arena-placement-end,0)]', 'w-[var(--arena-placement-width,auto)]', 'max-w-[var(--arena-placement-max-width,none)]', 'max-h-[var(--arena-placement-max-height,80vh)]', 'rounded-ss-[var(--arena-placement-radius-ss,var(--r-lg))]', 'rounded-se-[var(--arena-placement-radius-se,var(--r-lg))]', 'rounded-es-[var(--arena-placement-radius-es,0)]', 'rounded-ee-[var(--arena-placement-radius-ee,0)]', 'pt-[var(--arena-placement-pad-top,0)]', 'pb-[var(--pad-safe-bottom)]']],
   ['ArenaToastHost', 'root', 'placement.top', ['top-[var(--arena-placement-top,auto)]', 'bottom-[var(--arena-placement-bottom,max(var(--sp-6),var(--pad-safe-bottom)))]', 'start-[var(--arena-placement-start,auto)]', 'end-[var(--arena-placement-end,var(--sp-6))]']],
   ['ArenaButton', 'root', 'emphasis.shadow-hover', ['hover:shadow-[var(--arena-emphasis-shadow-hover,var(--emphasis-primary-shadow-hover))]']],
+  ['ArenaSplitButton', 'primary', 'size.control-h', ['h-[var(--arena-size-control-h,var(--size-md-control-h))]']],
+  ['ArenaSplitButton', 'caret', 'size.control-h', ['h-[var(--arena-size-control-h,var(--size-md-control-h))]']],
+  ['ArenaSplitButton', 'primary', 'size.control-pad-x', ['px-[var(--arena-size-control-pad-x,var(--size-md-control-pad-x))]']],
+  ['ArenaSplitButton', 'primary', 'size.control-step', ['text-[length:var(--arena-size-control-step,var(--size-md-control-step))]']],
+  ['ArenaSplitButton', 'primary', 'emphasis.fill', ['bg-[color:var(--arena-emphasis-fill,var(--emphasis-primary-fill))]']],
+  ['ArenaSplitButton', 'primary', 'emphasis.ink', ['text-[color:var(--arena-emphasis-ink,var(--emphasis-primary-ink))]']],
+  ['ArenaSplitButton', 'primary', 'emphasis.edge', ['border-[color:var(--arena-emphasis-edge,var(--emphasis-primary-edge))]']],
+  ['ArenaSplitButton', 'primary', 'emphasis.fill-hover', ['hover:bg-[color:var(--arena-emphasis-fill-hover,var(--emphasis-primary-fill))]'], { destructive: 'false' }],
+  ['ArenaSplitButton', 'primary', 'emphasis.shadow-hover', ['hover:shadow-[var(--arena-emphasis-shadow-hover,var(--emphasis-primary-shadow-hover))]'], { destructive: 'false' }],
+  ['ArenaSplitButton', 'caret', 'size.control-step', ['text-[length:var(--arena-size-control-step,var(--size-md-control-step))]']],
+  ['ArenaSplitButton', 'caret', 'emphasis.fill', ['bg-[color:var(--arena-emphasis-fill,var(--emphasis-primary-fill))]']],
+  ['ArenaSplitButton', 'caret', 'emphasis.ink', ['text-[color:var(--arena-emphasis-ink,var(--emphasis-primary-ink))]']],
+  ['ArenaSplitButton', 'caret', 'emphasis.edge', ['border-[color:var(--arena-emphasis-edge,var(--emphasis-primary-edge))]']],
+  ['ArenaSplitButton', 'caret', 'emphasis.fill-hover', ['hover:bg-[color:var(--arena-emphasis-fill-hover,var(--emphasis-primary-fill))]'], { destructive: 'false' }],
+  ['ArenaSplitButton', 'caret', 'emphasis.shadow-hover', ['hover:shadow-[var(--arena-emphasis-shadow-hover,var(--emphasis-primary-shadow-hover))]'], { destructive: 'false' }],
 ];
 
 const mutable = CLAIMS as unknown as Record<string, Claim[]>;
@@ -647,8 +777,10 @@ test('every slot that takes a placeholder colours it, rather than inheriting pre
   const wanted = 'placeholder:text-ink-muted/(--level-ink-muted)';
   for (const [component, slot] of [
     ['ArenaInput', 'input'],
+    ['ArenaNumberField', 'input'],
     ['ArenaTextarea', 'field'],
     ['ArenaCommandPalette', 'input'],
+    ['ArenaCombobox', 'input'],
   ] as const) {
     assert.ok(resolve(component, {}, slot).includes(wanted),
       `${component}.${slot} takes a placeholder and colours none, so Tailwind's preflight paints `
@@ -705,4 +837,17 @@ test('a filling dialog panel is 100% wide after its family width rule at no lowe
   assert.match(familyRule, /width: var\(--arena-dialog-width-size,/);
   const swapped = '.arena-dialog__panel:where([data-arena-fill]) {\n width: 100%;\n}\n.arena-dialog__panel {\n width: var(--arena-dialog-width-size,x);\n}';
   assert.equal(fillOutranksFamilyWidth(swapped), false, 'a fill rule before the family rule must fail the check');
+});
+
+test('a key cap is drawn one way wherever it appears, so a plugin answers every cap through the key roles', () => {
+  const cap = resolve('ArenaKbd', {}, 'key');
+  assert.deepEqual(resolve('ArenaCommandPalette', {}, 'esc'), cap,
+    'the escape cap and an ArenaKbd cap drifted apart, so a plugin moving the key register moves one of them');
+  for (const role of ['font-face-key', 'case-key', 'text-ink-key/', 'py-key-y'])
+    assert.ok(cap.some((one) => one.startsWith(role)), `the cap reads no ${role}, so a plugin cannot reach that part of it`);
+  for (const [component, slot] of [['ArenaMenu', 'shortcut'], ['ArenaCommandPalette', 'shortcut'], ['ArenaKbd', 'separator']] as const) {
+    const bare = resolve(component, {}, slot);
+    assert.ok(bare.includes('font-face-key') && bare.some((one) => one.startsWith('text-ink-key/')),
+      `${component}.${slot} prints a key outside the key register, in a face or an ink no key role answers`);
+  }
 });

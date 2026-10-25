@@ -7,7 +7,7 @@ Week or day schedule on a time grid: a toolbar, one column per day, events posit
   <arena-button actions class="arena-emphasis-secondary arena-size-sm">New class</arena-button>
   @for (c of classes(); track c.id) {
     <arena-calendar-event [id]="c.id" [title]="c.name" [start]="c.start" [end]="c.end"
-                          [colorId]="c.room" (click)="open(c)" />
+                          [colorId]="c.room" (activate)="open(c)" />
   }
 </arena-calendar>
 ```
@@ -26,7 +26,7 @@ Week or day schedule on a time grid: a toolbar, one column per day, events posit
 | `dayEnd` | primitive | `string` | `"23:00"` | HH:MM the grid ends at. |
 | `weekStartsOn` | primitive | `number` | `1` | 0 = Sunday … 6 = Saturday. |
 | `hideEmptyWeekend` | primitive | `boolean` | `true` | Drop Sunday from the week unless an event falls on it. |
-| `dayInteractive` | primitive | `boolean` | `false` | Whether a day can be activated. A boolean rather than "is `dateClick` bound?", because Arena never derives what it draws from what a consumer listens for, and the same member `ArenaTableRow.interactive` and `ArenaCalendarEvent.interactive` are for the same reason; here the derived render would be the day's own cursor, which a layer whose subscriber list is private would draw differently from the other. With it on, the day header is a <button> (the keyboard's route to the date, and the one element that already names it), and the column background takes a pointer cursor; with it off both are inert and the cursor says so. The default is false because a schedule someone only reads is the ordinary calendar, and a pointer cursor over days that answer nothing is the defect this member exists to end. |
+| `dayInteractive` | primitive | `boolean` | `false` | Whether a day can be activated. A boolean rather than "is `dateClick` bound?", because Arena never derives what it draws from what a consumer listens for. `ArenaTableRow.interactive` and `ArenaCalendarEvent.interactive` are members for the same reason. Here the derived render would be the day's own cursor, which a layer whose subscriber list is private would draw differently from the other. With it on, the day header is a <button> (the keyboard's route to the date, and the one element that already names it). With it on, the column background also takes a pointer cursor. With it off both are inert and the cursor says so. The default is false because a schedule someone only reads is the ordinary calendar. A pointer cursor over days that answer nothing is the defect this member exists to end. |
 | `dateClick` | event | `string` |  | A day header or column background was activated; carries the ISO date. Never emitted unless `dayInteractive`. |
 | `rangeChange` | event | `string` |  | The anchor moved via prev/Today/next; carries the new ISO date. A date rather than a delta, because Today is not a delta. |
 | `actions` | slot |  |  | Right-aligned in the toolbar, beside the range title. |
@@ -46,11 +46,16 @@ Week or day schedule on a time grid: a toolbar, one column per day, events posit
 - `End`: moves focus to the last cell in the current row.
 <!-- @keys end -->
 
+<!-- @markers GENERATED from the projection markers the component queries. -->
+**Markers**, one directive per slot:
+- `[actions]` is `ArenaActions`.
+
+Put each marker your template writes in your own component's `imports`. An un-imported marker leaves its slot empty with no error, and `arena check` reports it. [Which markers must I import?](../../../../../skills/design/references/exports.md#which-angular-projection-markers-must-i-import)
+<!-- @markers end -->
+
 `timeZone` is optional and defaults to the reader's own resolved zone, which is right whenever the schedule belongs to whoever is looking at it. **Pass it when the calendar has a zone of its own.** A class at 09:00 in Madrid must stay at 09:00 for a student loading the page from Lima. Only an explicit `timeZone="Europe/Madrid"` says so. The default is also **not safe under server rendering**. On a server it resolves to the *server's* zone, and then to the client's on hydration.
 
 The anchor is internal, so prev/Today/next work with nothing wired. `rangeChange` reports the new anchor date; take it as the cue to refetch. Bind `anchorDate` only when you want to drive the date yourself: it is a `linkedSignal` source, so it wins whenever it changes and resets any navigation the reader had done.
-
-**The toolbar's actions slot needs its marker directive.** `<ng-content select="[actions]">` is drawn only when `contentChild(ArenaActions)` resolves. A consumer who writes `actions` on an element without importing `ArenaActions` from the layer root gets no toolbar actions and no error. The silent miss is the one failure mode of every marker slot in this layer.
 
 **The range in the toolbar is a label, not a heading.** The caption says which dates are on screen, and it is rewritten every time the reader steps a week. A document outline built on it would carry "13 – 15 Jul 2026" where the name of a region belongs. The region is named already: the grid takes
 an `aria-label` composed from the same range, which is what a reader arriving by name lands on.

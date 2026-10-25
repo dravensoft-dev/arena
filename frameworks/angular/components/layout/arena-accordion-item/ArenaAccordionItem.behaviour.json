@@ -1,0 +1,5 @@
+{
+  "component": "ArenaAccordionItem",
+  "pattern": "none",
+  "reason": "Every requirement that applies to a section is a clause of the `accordion` pattern its enclosing accordion binds: which panels are open, the heading level, the ids wiring each header to its panel and the press that toggles one are all settled by the parent, because the parent is what decides the state the header draws. This component draws a header and a panel from what it is handed and adds no interactive affordance the parent's pattern does not already hold, so binding the pattern here would claim a stack of sections one section does not render."
+}

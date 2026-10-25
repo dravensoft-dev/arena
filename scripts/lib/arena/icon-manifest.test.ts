@@ -3,10 +3,14 @@
  * comment ships inside the package, so a consumer scanning it was sent a rule for it. */
 
 import test from 'node:test';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { repoRoot } from './repo-root.ts';
 import assert from 'node:assert/strict';
 import { withoutComments, serialise, iconManifest, MANIFEST_FILE } from './icon-manifest.ts';
+import { kebab } from '../../utils/case.ts';
 import { scan } from '../../generate/core/arena-cli/icon-css.ts';
-import { shippedNames } from '../../generate/core/arena-cli/icon-css.ts';
+import { shippedNames, iconNames } from '../../generate/core/arena-cli/icon-css.ts';
 
 const scanned = (source: string) => serialise(scan(withoutComments(source, 'A.ts')));
 
@@ -31,10 +35,23 @@ test('the shape is sorted, so a file walked in another order emits the same byte
   assert.deepEqual(once.pairs.bold, ['ph-bell', 'ph-sun']);
 });
 
+test('the manifest is keyed by component', () => {
+  const react = iconManifest('react');
+  assert.ok(react.components['ArenaAlert']?.pairs['fill']?.includes('ph-info'));
+  assert.deepEqual(react.components['ArenaTag']?.pairs['bold'], ['ph-x']);
+  assert.ok(!react.components['ArenaButton']?.pairs['fill']?.includes('ph-info'), 'a glyph one component draws is not another\'s');
+  assert.deepEqual(react.fills, ['ArenaBottomNavItem', 'ArenaSideNavItem']);
+  const angular = iconManifest('angular');
+  assert.ok(angular.components['arena-alert']?.pairs['fill']?.includes('ph-info'));
+  assert.deepEqual(angular.fills, ['arena-bottom-nav-item', 'arena-side-nav-item']);
+});
+
 test('both layers draw the same glyphs, which is the claim a consumer sheet rests on', () => {
   const react = iconManifest('react');
   const angular = iconManifest('angular');
-  assert.deepEqual(react, angular,
+  const byName = (map: ReturnType<typeof iconManifest>) => Object.fromEntries(Object.entries(map.components)
+    .map(([key, icons]) => [kebab(key), icons]));
+  assert.deepEqual(byName(react), byName(angular),
     'a glyph one layer draws and the other does not is a component that differs, and a consumer '
     + 'swapping layers would be sent a different subset for the same screens');
   assert.ok(shippedNames(react).size > 0, 'an empty manifest is a failure rather than a clean pass');
@@ -42,7 +59,7 @@ test('both layers draw the same glyphs, which is the claim a consumer sheet rest
 
 test('Arena names a weight beside every glyph it draws, so loose is the consumer\'s alone', () => {
   for (const layer of ['react', 'angular']) {
-    assert.deepEqual(iconManifest(layer).loose, [],
+    assert.deepEqual(Object.values(iconManifest(layer).components).flatMap((one) => one.loose), [],
       `${layer}: a render here spells the weight class beside the glyph, which is what lets a `
       + 'consumer\'s own loose names stay the only ones broadcast into every weight in use');
   }
@@ -50,4 +67,19 @@ test('Arena names a weight beside every glyph it draws, so loose is the consumer
 
 test('the file name is the one arena build looks for, spelled once', () => {
   assert.equal(MANIFEST_FILE, 'icons.json');
+});
+
+test('a file directly under a category that names a glyph throws, and one that names none is skipped', () => {
+  const root = join(repoRoot, '.cache', 'plan-1.29', 'manifest-stray');
+  const category = join(root, 'frameworks', 'react', 'components', 'display');
+  rmSync(root, { recursive: true, force: true });
+  mkdirSync(category, { recursive: true });
+  try {
+    writeFileSync(join(category, 'Quiet.tsx'), "export const quiet = 'no glyph here';\n");
+    assert.deepEqual(iconManifest('react', root), { components: {}, fills: [] });
+    writeFileSync(join(category, 'Stray.tsx'), "export const stray = 'ph-bold ph-bell';\n");
+    assert.throws(() => iconManifest('react', root), /display\/Stray\.tsx names glyphs and sits directly under its category/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });

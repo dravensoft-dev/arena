@@ -7,6 +7,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { renderToStaticMarkup } from 'react-dom/server';
 import React from 'react';
+import { ArenaAccordion } from './components/layout/arena-accordion/ArenaAccordion.tsx';
 import { ArenaActivityFeed } from './components/display/arena-activity-feed/ArenaActivityFeed.tsx';
 import { ArenaBarChart } from './components/charts/arena-bar-chart/ArenaBarChart.tsx';
 import { ArenaBreadcrumbs } from './components/navigation/arena-breadcrumbs/ArenaBreadcrumbs.tsx';
@@ -15,9 +16,11 @@ import { ArenaDoughnutChart } from './components/charts/arena-doughnut-chart/Are
 import { ArenaLineChart } from './components/charts/arena-line-chart/ArenaLineChart.tsx';
 import { ArenaSegmentedControl } from './components/navigation/arena-segmented-control/ArenaSegmentedControl.tsx';
 import { ArenaSelect } from './components/forms/arena-select/ArenaSelect.tsx';
+import { ArenaStepper } from './components/navigation/arena-stepper/ArenaStepper.tsx';
 import { ArenaTable } from './components/display/arena-table/ArenaTable.tsx';
+import { ArenaTimeline } from './components/display/arena-timeline/ArenaTimeline.tsx';
 import type {
-  ArenaActivityItem, ArenaBulkAction, ArenaCrumb, ArenaSegmentOption, ArenaSelectOption, ArenaTableColumn,
+  ArenaActivityItem, ArenaBulkAction, ArenaCrumb, ArenaSegmentOption, ArenaSelectOption, ArenaStepperStep, ArenaTableColumn, ArenaTimelineItem,
 } from './Api.generated.ts';
 
 const LABELS: readonly string[] = Object.freeze(['Mon', 'Tue']);
@@ -28,15 +31,20 @@ const CRUMBS: readonly ArenaCrumb[] = Object.freeze([{ label: 'Clients', href: '
 const ACTIONS: readonly ArenaBulkAction[] = Object.freeze([{ id: 'archive', label: 'Archive' }]);
 const SEGMENTS: readonly ArenaSegmentOption[] = Object.freeze([{ value: 'grid', label: 'Grid' }]);
 const OPTIONS: readonly ArenaSelectOption[] = Object.freeze([{ value: 'a', label: 'A' }]);
+const STEPS: readonly ArenaStepperStep[] = Object.freeze([{ label: 'Account' }, { label: 'Review' }]);
+const MILESTONES: readonly ArenaTimelineItem[] = Object.freeze([{ title: 'Placed' }, { title: 'Shipped' }]);
 const COLUMNS: readonly ArenaTableColumn[] = Object.freeze([{ header: 'Build' }]);
 
 test('every collection prop takes data the consumer holds as readonly, and nothing writes to it', () => {
   const markup = [
+    renderToStaticMarkup(<ArenaAccordion multiple defaultValues={LABELS} values={LABELS} />),
     renderToStaticMarkup(<ArenaActivityFeed label="Activity" items={ITEMS} />),
     renderToStaticMarkup(<ArenaBreadcrumbs ariaLabel="Trail" items={CRUMBS} />),
     renderToStaticMarkup(<ArenaBulkActionBar count={1} actions={ACTIONS} />),
-    renderToStaticMarkup(<ArenaSegmentedControl ariaLabel="View" options={SEGMENTS} value="grid" onChange={() => {}} />),
+    renderToStaticMarkup(<ArenaSegmentedControl ariaLabel="View" options={SEGMENTS} value="grid" onValueChange={() => {}} />),
     renderToStaticMarkup(<ArenaSelect options={OPTIONS} />),
+    renderToStaticMarkup(<ArenaStepper ariaLabel="Checkout" steps={STEPS} index={1} interactive />),
+    renderToStaticMarkup(<ArenaTimeline label="Order 4821" items={MILESTONES} index={1} />),
     renderToStaticMarkup(<ArenaTable label="Deployments" columns={COLUMNS} />),
     renderToStaticMarkup(<ArenaBarChart label="Deploys" labels={LABELS} series={[{ label: 'Deploys', values: VALUES, colorIds: SLOTS }]} />),
     renderToStaticMarkup(<ArenaDoughnutChart label="Traffic" labels={LABELS} series={[{ label: 'Traffic', values: VALUES, colorIds: SLOTS }]} />),

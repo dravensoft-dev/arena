@@ -25,7 +25,7 @@ function typeInto(el: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
 
 test('ArenaCheckbox change hands the consumer a boolean, not the DOM event', () => {
   const seen: unknown[] = [];
-  const root = mount(<ArenaCheckbox label="Notify" checked={false} onChange={(v) => seen.push(v)} />);
+  const root = mount(<ArenaCheckbox label="Notify" checked={false} onValueChange={(v) => seen.push(v)} />);
   const box = root.querySelector<HTMLElement>('input[type="checkbox"]');
   act(() => { box!.click(); });
   assert.equal(seen.length, 1, 'the change handler did not fire');
@@ -35,7 +35,7 @@ test('ArenaCheckbox change hands the consumer a boolean, not the DOM event', () 
 
 test('ArenaInput change hands the consumer the string value, not the DOM event', () => {
   const seen: unknown[] = [];
-  const root = mount(<ArenaInput label="Email" value="" onChange={(v) => seen.push(v)} />);
+  const root = mount(<ArenaInput label="Email" value="" onValueChange={(v) => seen.push(v)} />);
   typeInto(root!.querySelector<HTMLInputElement>('input')!, 'ana@dravensoft.dev');
   assert.equal(seen.length, 1, 'the change handler did not fire');
   assert.equal(typeof seen[0], 'string', 'the payload is not a string -- a DOM event is travelling');
@@ -62,7 +62,7 @@ test('ArenaSelect change hands the consumer the chosen value as a string', () =>
   const root = mount(
     <ArenaSelect label="Environment" value="prod"
       options={[{ value: 'prod', label: 'Production' }, { value: 'stage', label: 'Staging' }]}
-      onChange={(v) => seen.push(v)} />,
+      onValueChange={(v) => seen.push(v)} />,
   );
   const select = root.querySelector<HTMLSelectElement>('select');
   act(() => {
@@ -76,7 +76,7 @@ test('ArenaSelect change hands the consumer the chosen value as a string', () =>
 
 test('ArenaTextarea change hands the consumer the new text as a string', () => {
   const seen: unknown[] = [];
-  const root = mount(<ArenaTextarea label="Notes" value="" onChange={(v) => seen.push(v)} />);
+  const root = mount(<ArenaTextarea label="Notes" value="" onValueChange={(v) => seen.push(v)} />);
   typeInto(root!.querySelector<HTMLTextAreaElement>('textarea')!, 'Shipped on Friday.');
   assert.equal(seen.length, 1, 'the change handler did not fire');
   assert.equal(typeof seen[0], 'string', 'the payload is not a string -- a DOM event is travelling');
@@ -86,7 +86,7 @@ test('ArenaTextarea change hands the consumer the new text as a string', () => {
 test("ArenaRadioGroup change hands the consumer the selected option's value as a string", () => {
   const seen: unknown[] = [];
   const root = mount(
-    <ArenaRadioGroup ariaLabel="Deployment target" value="prod" name="env" onChange={(v) => seen.push(v)}>
+    <ArenaRadioGroup ariaLabel="Deployment target" value="prod" name="env" onValueChange={(v) => seen.push(v)}>
       <ArenaRadio value="prod" label="Production" />
       <ArenaRadio value="stage" label="Staging" />
     </ArenaRadioGroup>,

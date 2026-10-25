@@ -1,0 +1,13 @@
+{
+  "name": "ArenaFileSelection",
+  "kind": "object",
+  "description": "What a file input holds, as metadata: three parallel arrays in held order, so the file at one index in each is one file. Replaced whole on every change and never a delta. Parallel arrays are what an object of primitives can say about a list, so read them by index.",
+  "fields": {
+    "names": { "form": "array", "of": "string", "required": true,
+               "description": "Each held file's name, as the platform reports it." },
+    "sizes": { "form": "array", "of": "number", "required": true,
+               "description": "Each held file's size in bytes." },
+    "types": { "form": "array", "of": "string", "required": true,
+               "description": "Each held file's media type, or an empty string when the platform reports none." }
+  }
+}

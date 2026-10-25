@@ -10,7 +10,7 @@ import {
 } from '../../lib/tailwind/theme-namespaces.ts';
 
 const themeCssPath = new URL('../../../frameworks/tailwind/Theme.css', import.meta.url);
-const [themeDecls] = [...parseDecls(readFileSync(themeCssPath, 'utf8')).values()];
+const themeDecls = new Map<string, string>([...parseDecls(readFileSync(themeCssPath, 'utf8')).values()].flatMap((decls) => [...decls]));
 const namespaces = deriveNamespaces(themeDecls);
 
 const UNATTRIBUTED = new Map([

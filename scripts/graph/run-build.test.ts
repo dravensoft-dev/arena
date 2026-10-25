@@ -415,9 +415,9 @@ const WIDE: Slots = { total: 4, heavy: 2, browser: 1 };
 const SERIAL: Slots = { total: 1, heavy: 1, browser: 1 };
 
 const PRELUDE = [
-  "import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';",
+  "import { copyFileSync, existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';",
   "import { dirname } from 'node:path';",
-  'const put = (path, text) => { mkdirSync(dirname(path), { recursive: true }); writeFileSync(path, text); };',
+  'const put = (path, text) => { mkdirSync(dirname(path), { recursive: true }); writeFileSync(`${path}.part`, text); renameSync(`${path}.part`, path); };',
 ];
 
 type Spec = { name: string; reads?: string[]; writes: string[]; feeds?: string[]; body: string[] };

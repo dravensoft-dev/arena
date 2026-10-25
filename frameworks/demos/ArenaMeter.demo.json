@@ -1,0 +1,12 @@
+{
+  "component": "ArenaMeter",
+  "seed": {
+    "label": "Storage used",
+    "value": 72,
+    "low": 50,
+    "high": 80,
+    "optimum": 0,
+    "valueText": "72 of 100 GB"
+  },
+  "note": "Lower is better here, so 72 sits beside the good region and reads Fair. Clear low, high and optimum and no standing is drawn: the fill paints the accent."
+}

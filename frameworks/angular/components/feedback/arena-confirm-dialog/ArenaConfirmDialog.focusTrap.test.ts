@@ -4,6 +4,7 @@ ensureDom();
 import test, { beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { assertNotSameNode, assertSameNode } from '../../../test/NodeAssert';
+import { disposeStrays } from '../../../test/Overlays';
 import {
   type FocusTrapState,
   arenaFocusFirstFocusable,
@@ -35,11 +36,7 @@ function keydownTab(shiftKey: boolean): KeyboardEvent {
   return new KeyboardEvent('keydown', { key: 'Tab', shiftKey, cancelable: true, bubbles: true });
 }
 
-beforeEach(() => {
-  for (const node of [...document.body.children]) {
-    if (!node.classList.contains('cdk-overlay-container')) node.remove();
-  }
-});
+beforeEach(() => disposeStrays(document));
 
 test('arenaFocusableElements finds only real, enabled, tabbable elements, in DOM order, skipping a disabled button and a plain div', () => {
   const { panel, input, cancel, confirm } = buildPanel();

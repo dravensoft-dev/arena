@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { themeKeys, checkCompiled, transitionProblems } from './check-tailwind.ts';
+import { themeKeys, inlineThemeKeys, checkCompiled, transitionProblems } from './check-tailwind.ts';
 
 const TOKENS = new Set(['color-primary', 'sp-1', 'sp-4', 'r-sm']);
 
@@ -102,4 +102,11 @@ test('refuses a calc over an unknown var or with a px literal operand', () => {
   assert.match(checkCompiled(unknown, new Map(), new Set(['pad-row-x'])).join('\n'), /--dz-nope is no such Arena token/);
   const literal = compiled('    --spacing-row-x: calc(var(--pad-row-x) + 4px);', '');
   assert.match(checkCompiled(literal, new Map(), new Set(['pad-row-x'])).join('\n'), /not a derivation of Arena tokens/);
+});
+
+test('an inline key never reaches the compiled layer, so it is read where it is written and held to the same rule', () => {
+  const inline = inlineThemeKeys("@theme { --color-primary: var(--color-primary); }\n@theme inline {\n  /* roles */\n  --spacing-4: var(--sp-4);\n  --radius-nope: var(--r-nope);\n}\n");
+  assert.deepEqual([...inline.keys()], ['spacing-4', 'radius-nope']);
+  assert.deepEqual(checkCompiled(compiled('', '.x {}'), new Map([['X.manifest.json', { slots: {} }]]), TOKENS, new Map([['spacing-4', 'var(--sp-4)']])), []);
+  assert.match(checkCompiled(compiled('', '.x {}'), new Map([['X.manifest.json', { slots: {} }]]), TOKENS, inline).join('\n'), /--radius-nope: --r-nope is no such Arena token/);
 });

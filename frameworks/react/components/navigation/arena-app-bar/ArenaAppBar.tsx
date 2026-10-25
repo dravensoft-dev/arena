@@ -8,16 +8,16 @@ export interface ArenaAppBarProps {
   className?: ArenaAppBarClass;
 
 
-  /** The identity, at the start edge: an ArenaAppLogo, a wordmark, a mark. Wrap it in your own link if it should lead home; the bar draws no anchor of its own, which is what keeps a router's link out of a component that would have to swallow it. */
+  /** The identity, at the start edge: an ArenaAppLogo, a wordmark, a mark. Wrap it in your own link if it should lead home. The bar draws no anchor of its own, which is what keeps a router's link out of a component that would have to swallow it. */
   brand?: React.ReactNode;
 
-  /** The way through the site, between the brand and the actions. It is a slot and not a list of destinations because the links are the consumer's: they are their router's, and the navigation landmark around them is theirs to name, since a page with a side nav as well needs the two told apart. */
+  /** The way through the site, between the brand and the actions. The slot is not a list of destinations because the links are the consumer's: they are their router's. The navigation landmark around them is theirs to name, since a page with a side nav as well needs the two told apart. */
   nav?: React.ReactNode;
 
   /** What follows the reader everywhere, at the end edge: search, theme, basket, account. Arena draws the row; the consumer draws what sits in it. */
   actions?: React.ReactNode;
 
-  /** Whether the bar stays at the top edge as the page scrolls. True by default, because a bar that carries the way through a site and scrolls away with the content is a bar the reader has to go back for. It takes the navigation layer of the stacking order, so a dialog and a sheet still cover it. */
+  /** Whether the bar stays at the top edge as the page scrolls. True by default, because a bar that carries the way through a site and scrolls away with the content is a bar the reader has to go back for. The bar takes the navigation layer of the stacking order, so a dialog and a sheet still cover it. */
   sticky?: boolean;
 }
 
@@ -28,7 +28,7 @@ export function ArenaAppBar({ className, brand, nav, actions, sticky = true }: A
   const styles = arenaAppBarStyles({ sticky });
 
   return (
-    <header className={arenaClassName('ArenaAppBar', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+    <header className={arenaClassName('ArenaAppBar', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       <div className={styles.band()} data-arena-part={manifest.parts.band} {...styles.$data.band()} style={{ maxWidth: PAGE }}>
         {brand && <div className={styles.brand()} data-arena-part={manifest.parts.brand} {...styles.$data.brand()} data-arena-boundary="">{brand}</div>}
         {nav && <div className={styles.nav()} data-arena-part={manifest.parts.nav} {...styles.$data.nav()} data-arena-boundary="">{nav}</div>}

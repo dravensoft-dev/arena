@@ -3,30 +3,26 @@
  * the specimen with no <title>, and the URL of a page whose name carries a space. The absence
  * check is the reason the module exists, so it is asserted against the tree rather than a stub. */
 
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { repoRoot } from './repo-root.ts';
 import {
-  DOMAIN, SITE_DIR, LAYERS, PHOSPHOR_KEEP, phosphorKeeps, sinkNames, entryPoints, components,
+  DOMAIN, SITE_DIR, LAYERS, sinkNames, entryPoints, components,
   playgroundsOnDisk, missingPlaygrounds, playgroundSections, sinkPages, pages, indexedDirectories,
   modules, missingModules, titleOf, url, directoryUrl,
-  BENCHES_DIR, BENCHES_MANIFEST, benchPairs, benchPages, benchDirectories, phosphorDrops, treePages,
+  treePages,
+  COPIED_FILES, variantSinkNames, COPIED, SPRITE_FILE,
+  adopterVerdict, publishedAdopter, adopterPages, adopterDirectories,
 } from './site-pages.ts';
 
-function benchOut(products: string[]) {
-  const out = mkdtempSync(join(tmpdir(), 'arena-benches-'));
-  if (products.length > 0) {
-    mkdirSync(join(out, BENCHES_DIR), { recursive: true });
-    writeFileSync(join(out, BENCHES_DIR, BENCHES_MANIFEST), JSON.stringify({
-      arena: '10.2.1',
-      pairs: products.map((product) => ({ product, label: product, skin: product })),
-    }));
-  }
-  return out;
-}
+const made: string[] = [];
+const track = (dir: string) => { made.push(dir); return dir; };
+after(() => {
+  for (const dir of made) rmSync(dir, { recursive: true, force: true });
+});
 
 test('the site is built for one domain, named once, and every URL is spelled from it', () => {
   assert.equal(DOMAIN, 'arena.dravensoft.org');
@@ -95,30 +91,31 @@ test('a sink stands for every layer times every fixture, and the list has no rep
 });
 
 test('no page is published twice, which would put a repeat in the sitemap', () => {
-  const all = pages();
+  const all = pages(repoRoot, adopterOut(null));
   assert.equal(new Set(all).size, all.length);
 });
 
 test('a directory a visitor can land on gets an index, since serve.ts lists it and a host does not', () => {
-  const directories = indexedDirectories();
+  const directories = indexedDirectories(repoRoot, adopterOut(null));
   assert.ok(directories.includes(''), 'the site root is one of them');
   assert.ok(directories.includes('intro/guidelines'));
   assert.equal(new Set(directories).size, directories.length);
 });
 
 test('a specimen with no title is named by its @dsCard header rather than by its filename', () => {
-  const specimen = pages().find((rel) => rel.startsWith('intro/guidelines/'));
+  const specimen = pages(repoRoot, adopterOut(null)).find((rel) => rel.startsWith('intro/guidelines/'));
   assert.ok(specimen, 'the guidelines publish at least one specimen');
   assert.ok(!titleOf(specimen).endsWith('.html'), `${specimen} fell back to its filename`);
 });
 
-test('only the sheet and the font binaries of a Phosphor weight travel, never the sources', () => {
-  assert.deepEqual(PHOSPHOR_KEEP, ['style.css', '.woff2', '.woff']);
-  assert.ok(phosphorKeeps('style.css'));
-  assert.ok(phosphorKeeps('Phosphor-Bold.woff2'));
-  assert.ok(!phosphorKeeps('Phosphor-Bold.ttf'));
-  assert.ok(!phosphorKeeps('selection.json'));
-  assert.ok(!phosphorKeeps('style.css.map'));
+test('the site ships the repo sprite and no Phosphor font', async () => {
+  const site = await import('./site-pages.ts');
+  for (const gone of ['PHOSPHOR', 'PHOSPHOR_KEEP', 'PHOSPHOR_FORMATS', 'phosphorKeeps', 'phosphorDrops', 'phosphorFiles']) {
+    assert.ok(!(gone in site), `${gone} is the site's Phosphor copy, which D20 removes`);
+  }
+  assert.equal(SPRITE_FILE, 'assets/Icons.generated.svg');
+  assert.ok(COPIED.includes('assets') || COPIED_FILES.includes(SPRITE_FILE) || existsSync(join(repoRoot, SPRITE_FILE)),
+    'the sprite travels with the site');
 });
 
 test('the index of a layer names every playground it publishes, exactly once', () => {
@@ -152,8 +149,9 @@ test('a section is a category the tree already has, headed and never empty', () 
 });
 
 test('every public entry point lands on a page the site publishes or a directory it indexes', () => {
-  const published = new Set(pages().map((rel) => `/${rel}`));
-  const indexed = new Set(indexedDirectories().map((dir) => (dir === '' ? '/' : `/${dir}/`)));
+  const bare = adopterOut(null);
+  const published = new Set(pages(repoRoot, bare).map((rel) => `/${rel}`));
+  const indexed = new Set(indexedDirectories(repoRoot, bare).map((dir) => (dir === '' ? '/' : `/${dir}/`)));
   for (const { label, path } of entryPoints().filter((entry) => entry.public)) {
     const target = decodeURIComponent(path);
     assert.ok(published.has(target) || indexed.has(target),
@@ -165,59 +163,153 @@ test('every public entry point lands on a page the site publishes or a directory
 test('a directory is addressed with the trailing slash a host serves its index at', () => {
   assert.equal(directoryUrl(''), `https://${DOMAIN}/`);
   assert.equal(directoryUrl('intro/guidelines'), `https://${DOMAIN}/intro/guidelines/`);
-  for (const directory of indexedDirectories()) assert.match(directoryUrl(directory), /\/$/);
+  for (const directory of indexedDirectories(repoRoot, adopterOut(null))) assert.match(directoryUrl(directory), /\/$/);
 });
 
-test('a manifest beside the applications declares the pairs, and no manifest declares nothing', () => {
-  const empty = benchOut([]);
-  assert.deepEqual(benchPairs(empty), []);
-  assert.deepEqual(benchPages(empty), []);
-  assert.deepEqual(benchDirectories(empty), [],
-    'a clone builds a site without benches, so the absent case has to be the quiet one');
-
-  const out = benchOut(['notion', 'etsy']);
-  assert.deepEqual(benchPages(out), [
-    'web-benches/etsy/angular/index.html', 'web-benches/etsy/react/index.html',
-    'web-benches/notion/angular/index.html', 'web-benches/notion/react/index.html',
-  ]);
-  assert.deepEqual(benchDirectories(out), [BENCHES_DIR]);
-});
-
-test('a bench page is declared beside the tree pages and never instead of one', () => {
-  const out = benchOut(['etsy']);
-  assert.deepEqual(pages(repoRoot, out), [...treePages(repoRoot), ...benchPages(out)]);
-  assert.deepEqual(pages(repoRoot, benchOut([])), treePages(repoRoot),
+test('an adopter page is declared beside the tree pages and never instead of one', () => {
+  const out = adopterOut(adopterManifest());
+  assert.deepEqual(pages(repoRoot, out), [...treePages(repoRoot), ...adopterPages(out)]);
+  assert.deepEqual(pages(repoRoot, adopterOut(null)), treePages(repoRoot),
     'with no manifest the declaration is the tree\'s own, which is what a developer run builds');
-  assert.ok(indexedDirectories(repoRoot, out).includes(BENCHES_DIR));
+  assert.deepEqual(indexedDirectories(repoRoot, out).slice(-1), ['gallery']);
 });
 
-test('a half is a page and never an indexed directory, or the build overwrites it', () => {
-  for (const directory of indexedDirectories(repoRoot, benchOut(['etsy', 'notion']))) {
-    assert.equal(/^web-benches\/[^/]+\/[^/]+$/.test(directory), false,
-      'an indexed directory is handed a generated index.html, and that file is the half\'s own');
-  }
-});
-
-test('the module graph is walked from the tree alone, since a bench arrives only in CI', () => {
-  for (const rel of modules()) {
-    assert.ok(!rel.startsWith(`${BENCHES_DIR}/`),
-      'moduleGraph is memoised by base, so a declaration varying with the output cannot enter it');
+test('an adopter\'s own subdirectories are not indexed, or the build overwrites a page of its own', () => {
+  const out = adopterOut(adopterManifest());
+  for (const directory of indexedDirectories(repoRoot, out)) {
+    assert.equal(/^gallery\/./.test(directory), false,
+      'an indexed directory is handed a generated index.html, and that file is the adopter\'s own');
   }
 });
 
-test('the Phosphor drop is the site\'s own trade, read off the name and never the directory', () => {
-  for (const kept of ['Phosphor-jz52g8q4.woff2', 'Phosphor-Bold-548r3k1w.woff2',
-    'Phosphor-KLBJTFWE.woff', 'Phosphor-9pk63hq0.woff', 'Phosphor-Fill-5QWK7REW.woff2']) {
-    assert.equal(phosphorDrops(kept), false, `${kept} is a format a browser fetches`);
+test('the identity template and its worked answer are pages the site declares, and no other file beside them', () => {
+  assert.deepEqual(COPIED_FILES, [
+    'arena-from-scratch/identity.html', 'arena-from-scratch/identity.example.html',
+  ]);
+  const base = track(mkdtempSync(join(tmpdir(), 'arena-identity-')));
+  try {
+    mkdirSync(join(base, 'arena-from-scratch'), { recursive: true });
+    for (const rel of [...COPIED_FILES, 'arena-from-scratch/AGENTS.md']) writeFileSync(join(base, rel), 'x');
+    const declared = treePages(base);
+    for (const rel of COPIED_FILES) assert.ok(declared.includes(rel), `${rel} is declared`);
+    assert.equal(declared.includes('arena-from-scratch/AGENTS.md'), false);
+  } finally {
+    rmSync(base, { recursive: true, force: true });
   }
-  for (const dropped of ['Phosphor-znwj6k7p.ttf', 'Phosphor-Bold-m0yxxyn4.svg',
-    'Phosphor-2TTV6TYS.ttf', 'Phosphor-Fill-65SPMP3X.svg', 'Phosphor-Y4JO5C3F.svg']) {
-    assert.equal(phosphorDrops(dropped), true, `${dropped} is fetched by nothing`);
+});
+
+test('the tree carries each page the site declares from arena-from-scratch', () => {
+  for (const rel of COPIED_FILES) assert.ok(existsSync(join(repoRoot, rel)), `${rel} exists`);
+});
+
+test('the arrangement of chart variants is told from the style plugins by its items, and only it', () => {
+  assert.deepEqual(variantSinkNames(), ['charts', 'palettes']);
+  assert.ok(sinkNames().includes('charts') && sinkNames().includes('default'));
+});
+
+test('pages and indexedDirectories require the output they read and default to none', () => {
+  assert.equal(pages.length, 2);
+  assert.equal(indexedDirectories.length, 2);
+});
+
+test('the site copies the repo sprite, since a page hands it to ArenaIcon by a path relative to itself', () => {
+  assert.equal(SPRITE_FILE, 'assets/Icons.generated.svg');
+  assert.ok(COPIED.some((tree) => SPRITE_FILE.startsWith(`${tree}/`)), 'no copied tree holds the sprite');
+});
+
+const adopterManifest = (over: object = {}) => ({
+  arena: '12.1.1', name: 'gallery', title: 'Gallery', description: 'A gallery', repository: 'https://example.org/gallery',
+  sections: [{ heading: 'Pages', links: [{ label: 'First', href: 'first/' }] }], ...over,
+});
+
+function adopterOut(manifest: object | null, name = 'gallery') {
+  const out = track(mkdtempSync(join(tmpdir(), 'arena-adopter-')));
+  mkdirSync(join(out, name), { recursive: true });
+  if (manifest !== null) writeFileSync(join(out, name, 'arena-adopter.json'), JSON.stringify(manifest));
+  return out;
+}
+
+test('the module graph is walked from the tree alone, so an adopter page loading a module changes nothing', () => {
+  const before = [...modules()];
+  const out = adopterOut(adopterManifest());
+  mkdirSync(join(out, 'gallery', 'first'), { recursive: true });
+  writeFileSync(join(out, 'gallery', 'first', 'index.html'), '<script type="module" src="./entry.js"></script>');
+  assert.ok(pages(repoRoot, out).includes('gallery/first/index.html'), 'the output holds the adopter');
+  assert.deepEqual(modules(), before);
+});
+
+test('an adopter build declaring this tree\'s version is published, and one declaring another is not', () => {
+  const dir = join(adopterOut(adopterManifest()), 'gallery');
+  assert.equal(adopterVerdict(dir, '12.1.1').publish, true);
+  const other = adopterVerdict(dir, '13.0.0');
+  assert.equal(other.publish, false);
+  assert.match(other.line, /12\.1\.1/);
+  assert.match(other.line, /13\.0\.0/);
+});
+
+test('no manifest, broken JSON or a missing field is a refusal with a line, never a throw', () => {
+  const none = join(adopterOut(null), 'gallery');
+  const broken = track(mkdtempSync(join(tmpdir(), 'arena-adopter-')));
+  writeFileSync(join(broken, 'arena-adopter.json'), '{ not json');
+  const { title: _title, ...missing } = adopterManifest();
+  const lacking = join(adopterOut(missing), 'gallery');
+  for (const dir of [none, broken, lacking]) {
+    const verdict = adopterVerdict(dir, '12.1.1');
+    assert.equal(verdict.publish, false);
+    assert.ok(verdict.line.includes(dir), verdict.line);
   }
-  for (const spared of ['index-87jrphe1.css', 'main-CRTIYFBW.js', 'styles-XD7IFMRJ.css', 'p1.jpg']) {
-    assert.equal(phosphorDrops(spared), false, `${spared} is not a Phosphor binary`);
+});
+
+test('an href outside the adopter\'s own directory is refused', () => {
+  for (const href of ['/abs/', '../up/', 'x', 'a/./', 'a?b/']) {
+    const dir = join(adopterOut(adopterManifest({ sections: [{ heading: 'Pages', links: [{ label: 'L', href }] }] })), 'gallery');
+    assert.equal(adopterVerdict(dir, '12.1.1').publish, false, href);
   }
-  assert.equal(phosphorDrops('Phosphor.json'), false,
-    'a React half hashes these at the top level and an Angular one under media/, so the rule reads '
-    + 'the name; it reads the four font formats and leaves everything else where it is');
+});
+
+test('a repository that is not an http(s) address is refused', () => {
+  for (const repository of ['', 'javascript:alert(1)', 'example.org/gallery', 'file:///x']) {
+    const dir = join(adopterOut(adopterManifest({ repository })), 'gallery');
+    assert.equal(adopterVerdict(dir, '12.1.1').publish, false, repository);
+  }
+});
+
+test('a name that is not a plain directory name is refused', () => {
+  for (const name of ['Web Gallery', 'a/b', '']) {
+    const dir = join(adopterOut(adopterManifest({ name })), 'gallery');
+    assert.equal(adopterVerdict(dir, '12.1.1').publish, false, name);
+  }
+});
+
+test('the published adopter is read off the output alone', () => {
+  assert.equal(publishedAdopter(adopterOut(adopterManifest()))?.name, 'gallery');
+  assert.equal(publishedAdopter(adopterOut(adopterManifest({ name: 'other' }))), null);
+  assert.equal(publishedAdopter(track(mkdtempSync(join(tmpdir(), 'arena-adopter-')))), null);
+  assert.equal(publishedAdopter(join(tmpdir(), 'arena-adopter-absent')), null);
+});
+
+test('a directory named for a name the pattern refuses is not a published adopter', () => {
+  const out = track(mkdtempSync(join(tmpdir(), 'arena-adopter-')));
+  mkdirSync(join(out, 'Web Gallery'), { recursive: true });
+  writeFileSync(join(out, 'Web Gallery', 'arena-adopter.json'), JSON.stringify(adopterManifest({ name: 'Web Gallery' })));
+  assert.equal(publishedAdopter(out), null);
+});
+
+test('an output that is a file, not a directory, publishes no adopter and does not throw', () => {
+  const out = track(mkdtempSync(join(tmpdir(), 'arena-adopter-')));
+  const file = join(out, 'plain');
+  writeFileSync(file, 'x');
+  assert.equal(publishedAdopter(file), null);
+  assert.deepEqual(adopterPages(file), []);
+});
+
+test('an adopter\'s declared pages are its links under its name', () => {
+  const out = adopterOut(adopterManifest({
+    sections: [{ heading: 'Pages', links: [{ label: 'B', href: 'second/deep/' }, { label: 'A', href: 'first/' }, { label: 'A again', href: 'first/' }] }],
+  }));
+  assert.deepEqual(adopterPages(out), ['gallery/first/index.html', 'gallery/second/deep/index.html']);
+  assert.deepEqual(adopterDirectories(out), ['gallery']);
+  const empty = track(mkdtempSync(join(tmpdir(), 'arena-adopter-')));
+  assert.deepEqual(adopterPages(empty), []);
+  assert.deepEqual(adopterDirectories(empty), []);
 });

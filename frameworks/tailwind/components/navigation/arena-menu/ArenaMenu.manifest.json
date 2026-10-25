@@ -8,11 +8,12 @@
   ],
   "slots": {
     "root": "inline-flex w-[var(--arena-fill-width,fit-content)]",
-    "panel": "arena-menu z-dropdown min-w-50 p-1.5 bg-surface-floating border-[length:var(--bw-surface)] border-edge-surface-floating rounded-surface-floating shadow-surface-floating",
+    "panel": "arena-menu z-dropdown min-w-50 p-1.5 text-ink-body/(--level-ink-body) bg-surface-floating border-[length:var(--bw-surface)] border-edge-surface-floating rounded-surface-floating shadow-surface-floating",
     "item": "flex items-center gap-row-floating w-full min-h-row-min text-left px-row-floating-x py-row-floating-y border-none rounded-control bg-transparent font-body text-md shadow-control-rest active:scale-[var(--press-scale)] motion-reduce:active:scale-100",
+    "group": "block",
     "icon": "inline-flex text-[length:var(--icon-md)]",
     "label": "flex-1",
-    "shortcut": "font-mono text-ctl-xs text-ink-muted/(--level-ink-muted)",
+    "shortcut": "font-face-key text-ctl-xs text-ink-key/(--level-ink-muted)",
     "divider": "h-px my-1 bg-edge-separator",
     "header": "font-face-label text-label tracking-label-role case-label text-ink-muted/(--level-ink-muted) px-row-floating-x pt-[calc(var(--sp-1)*2*var(--dz-row-scale-y))] pb-[calc(var(--sp-1)*var(--dz-row-scale-y))]"
   },
@@ -20,6 +21,7 @@
     "root": "none",
     "panel": "floating",
     "item": "row",
+    "group": "none",
     "icon": "none",
     "label": "none",
     "shortcut": "none",
@@ -29,23 +31,7 @@
   "floating": {
     "panel": "a menu panel floats over the page, so the toolbar holding its trigger does not decide its rows"
   },
-  "internal": {
-    "anchored": "the panel is positioned by the layer's overlay rather than by CSS"
-  },
   "variants": {
-    "anchored": {
-      "false": {
-        "root": "relative",
-        "panel": "absolute top-full left-0 mt-1.5"
-      },
-      "true": {}
-    },
-    "align": {
-      "start": {},
-      "end": {
-        "panel": "left-auto right-0"
-      }
-    },
     "disabled": {
       "true": {},
       "false": {}
@@ -78,8 +64,6 @@
     }
   ],
   "defaultVariants": {
-    "anchored": false,
-    "align": "start",
     "disabled": false,
     "destructive": false
   },

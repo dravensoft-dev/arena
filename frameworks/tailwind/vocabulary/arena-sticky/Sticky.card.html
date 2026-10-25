@@ -1,0 +1,45 @@
+<!-- @dsCard group="Tailwind" viewport="700x420" name="sticky" subtitle="A box family: arena-sticky-none is the default, arena-sticky-head keeps a table's header row in view" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../intro/styles.css">
+<link rel="stylesheet" href="../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../consume/components/display/arena-table/ArenaTable.styles.generated.css">
+<link rel="stylesheet" href="../../consume/vocabulary/Sticky.generated.css">
+<link rel="stylesheet" href="../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor } from '../../Specimen.js';
+
+const manifest = await (await fetch('../../components/display/arena-table/ArenaTable.manifest.json')).json();
+const c = arenaClassesFor(manifest);
+
+function part(name, cls, ...children) {
+  const node = el('div', { class: cls }, ...children);
+  node.setAttribute('data-arena-part', name);
+  return node;
+}
+
+function cell(name, cls, text) {
+  const node = el('div', { class: cls, text });
+  node.setAttribute('data-arena-part', name);
+  return node;
+}
+
+function scrolled(option) {
+  const head = part('table.head-row', c.headRow, cell('table.th', c.th, 'Order'), cell('table.th', c.th, 'Customer'));
+  const rows = Array.from({ length: 12 }, (_, i) =>
+    part('table.row', c.row, cell('table.td', c.td, `#${1000 + i}`), cell('table.td', c.td, `Customer ${i + 1}`)));
+  const grid = part('table.grid', c.grid, head, part('table.body', c.body, ...rows));
+  const root = part('table', `${c.root} ${option}`, grid);
+  const box = el('div', {}, root);
+  box.style.height = '168px';
+  box.style.overflow = 'auto';
+  box.style.width = '320px';
+  requestAnimationFrame(() => { box.scrollTop = 96; });
+  return box;
+}
+
+mountSpecimen({ sections: [
+  section('arena-sticky-none, the default: the header row scrolls away with the rows', [scrolled('arena-sticky-none')]),
+  section('arena-sticky-head: the header row stays at the top of the box that scrolls', [scrolled('arena-sticky-head')]),
+]});
+</script></body></html>

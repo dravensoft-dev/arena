@@ -4,8 +4,8 @@
  * vocabulary index per layer, since a package with the transport and no documents answers every
  * question with silence. Every path inside it resolves to something the package carries or the
  * site publishes. The catalogue reaches every component the tree declares. And server.json states
- * this tree's own name and version. dist/ is git-ignored, so the three that read it skip against
- * an unassembled tree. */
+ * this tree's own name and version. dist/ is git-ignored, so an unassembled tree stops the gate
+ * through cannotRun. */
 
 import { existsSync, readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
@@ -14,17 +14,21 @@ import { walkFiles } from '../../utils/walk-files.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
+import { arenaEnv, refuseWhen, unassembledReason } from '../../lib/arena/arena-scripts-vars.ts';
 import {
   DIST, SOURCE, ENTRY, BIN, NAME, REGISTRY_NAME, RUNTIME_DEPENDENCIES, manifest, sources,
+  node as mcpPackageNode,
 } from '../../build/arena/build-mcp-package.ts';
 import { loadVocabulary } from '../../generate/core/arena-cli/audit.ts';
 import {
   catalogue, textOf, MARKDOWN_LINK, ADDRESSED, STYLE_PREFIX, STYLE_DIR,
+  IDENTITY_PREFIX, IDENTITY_DIR, COMPONENT_PREFIX,
 } from '../../generate/core/arena-mcp/catalogue.ts';
 import { manifestIn, bundledPayload } from '../../generate/core/arena-mcp/payload.ts';
 import { servedDocs, writtenPages } from '../../lib/arena/llms-index.ts';
 import { PAGE_FILE } from '../../lib/arena/kitchen-sink-page.ts';
-import { LINK, INLINE, isRepoPath, inPayload } from '../../lib/arena/agent-payload.ts';
+import { matchOutsideCode } from '../../generate/core/arena-mcp/code-spans.ts';
+import { LINK, INLINE, isRepoPath, inPayload, IDENTITY_PAGES } from '../../lib/arena/agent-payload.ts';
 import { LAYERS as BUILT_LAYERS } from '../../build/arena/build-mcp-package.ts';
 
 export const REGISTRY_FILE = 'server.json';
@@ -48,6 +52,8 @@ export const node = {
       `frameworks/${layer}/components/**/*.demo.generated.html`,
       `frameworks/${layer}/kitchen-sink/**/${PAGE_FILE}`,
     ]),
+    ...mcpPackageNode.reads, 'contracts/design/*.md', 'contracts/design/*.css', 'intro/styles.css',
+    'frameworks/angular/theme/arena-cdk.css',
   ],
   writes: [],
   feeds: [],
@@ -93,6 +99,14 @@ export function assembled(base = root) {
   return join(base, ...DIST.split('/'));
 }
 
+export function unassembled(base = root) {
+  return existsSync(assembled(base)) ? null : unassembledReason([DIST]);
+}
+
+export function refuseUnassembled(base = root, env = arenaEnv()) {
+  refuseWhen('check:mcp', unassembled(base), env);
+}
+
 export function binProblems(dir: string) {
   const declared = manifest().bin?.[BIN];
   if (declared !== `./${ENTRY}`) {
@@ -105,9 +119,11 @@ export function binProblems(dir: string) {
 }
 
 export const ESCAPING_SPECIFIER = /\bfrom\s+'(\.\.\/[^']*)'/g;
+export const BESIDE_SPECIFIER = /\bfrom\s+'(\.\/[^']*)'/g;
 
 export function flatProblems(dir: string) {
-  const problems = [];
+  const problems: string[] = [];
+  if (!existsSync(join(dir, 'bin'))) return problems;
   for (const file of walkFiles(join(dir, 'bin')).filter((path) => path.endsWith('.mjs'))) {
     const escaping = [...readFileSync(file, 'utf8').matchAll(ESCAPING_SPECIFIER)].map((m) => m[1]);
     for (const specifier of escaping) {
@@ -116,6 +132,13 @@ export function flatProblems(dir: string) {
         + 'module is copied beside the server rather than referenced where it lives, and a '
         + 'specifier that escaped the copy is a command that throws at its first spawn');
     }
+    const beside = [...readFileSync(file, 'utf8').matchAll(BESIDE_SPECIFIER)].map((m) => m[1] ?? '');
+    for (const specifier of beside) {
+      if (existsSync(join(dirname(file), specifier))) continue;
+      problems.push(`${NAME}: ${relPosix(dir, file)} imports ${specifier}, and no such file was `
+        + 'assembled beside it, so the command throws at its first spawn. A module the rule '
+        + 'module imports travels with it, or nothing the server reads at start resolves');
+    }
   }
   return problems;
 }
@@ -123,7 +146,7 @@ export function flatProblems(dir: string) {
 export const SITE_BASE = 'https://arena.dravensoft.org/';
 
 export function targetsIn(text: string) {
-  const targets = [...text.matchAll(LINK)].map((one) => one[1] ?? '');
+  const targets = matchOutsideCode(text, LINK).map((one) => one[1] ?? '');
   for (const one of text.matchAll(INLINE)) {
     const inner = one[1] ?? '';
     if (inner.startsWith('http') || inner.startsWith('./') || inner.startsWith('../')) targets.push(inner);
@@ -270,7 +293,7 @@ export function servedLinkProblems(dir: string) {
     if (manifest === null) continue;
     const { entries, byRel } = catalogue(payload, manifest);
     for (const entry of entries) {
-      for (const link of (textOf(payload, entry, byRel) ?? '').matchAll(MARKDOWN_LINK)) {
+      for (const link of matchOutsideCode(textOf(payload, entry, byRel) ?? '', MARKDOWN_LINK)) {
         const target = link[1] ?? '';
         if (ADDRESSED.test(target)) continue;
         problems.push(`${NAME}: ${layer} serves ${entry.uri} carrying the link ${target}, which is a `
@@ -293,7 +316,7 @@ export function catalogueProblems(dir: string, base = root) {
     const found = manifestIn(payload);
     if (found === null) { problems.push(`${payload} carries no manifest`); continue; }
     const served = catalogue(payload, found).entries
-      .filter((one) => one.uri.startsWith('arena://component/')).length;
+      .filter((one) => one.uri.startsWith(COMPONENT_PREFIX)).length;
     if (served === expected) continue;
     problems.push(`${NAME} would serve ${served} component document(s) of the ${layer} layer against `
       + `the ${expected} the tree declares. A server that serves half the library answers the other `
@@ -304,15 +327,26 @@ export function catalogueProblems(dir: string, base = root) {
 
 export const DEFAULT_PLUGIN = `${STYLE_DIR}/default/plugin.tokens.json`;
 
+function servedUris(dir: string, layer: string, what: string, problems: string[]) {
+  const payload = bundledPayload(layer, dir);
+  if (payload === null) {
+    problems.push(`${NAME}: the ${layer} layer has no corpus, so ${what} it is specified to serve cannot be read`);
+    return null;
+  }
+  const found = manifestIn(payload);
+  if (found === null) {
+    problems.push(`${NAME}: the ${layer} corpus at ${payload} carries no manifest, so ${what} it is specified to serve cannot be read`);
+    return null;
+  }
+  return new Set(catalogue(payload, found).entries.map((one) => one.uri));
+}
+
 export function styleStoreProblems(dir: string, base = root) {
   const wanted = walkFiles(join(base, STYLE_DIR)).map((file) => relPosix(base, file));
-  const problems = [];
+  const problems: string[] = [];
   for (const layer of BUILT_LAYERS) {
-    const payload = bundledPayload(layer, dir);
-    if (payload === null) continue;
-    const found = manifestIn(payload);
-    if (found === null) continue;
-    const served = new Set(catalogue(payload, found).entries.map((one) => one.uri));
+    const served = servedUris(dir, layer, 'the style store', problems);
+    if (served === null) continue;
     const expected = wanted.filter((rel) => inPayload(rel, layer));
     if (!expected.includes(DEFAULT_PLUGIN)) {
       problems.push(`${NAME}: ${DEFAULT_PLUGIN} is not among the files the corpus is specified to carry`);
@@ -332,22 +366,40 @@ export function styleStoreProblems(dir: string, base = root) {
   return problems;
 }
 
-export function collect(base = root) {
-  const dir = assembled(base);
-  const problems = [...dependencyProblems(base), ...registryProblems(base)];
-  if (!existsSync(dir)) return { problems, assembled: false };
+export function identityProblems(dir: string, base = root) {
+  const problems: string[] = [];
+  for (const layer of BUILT_LAYERS) {
+    const served = servedUris(dir, layer, 'the identity template', problems);
+    if (served === null) continue;
+    const expected = IDENTITY_PAGES.filter((rel) => existsSync(join(base, rel)));
+    if (expected.length !== IDENTITY_PAGES.length) {
+      problems.push(`${NAME}: the tree declares ${IDENTITY_PAGES.join(' and ')} and carries `
+        + `${expected.length === 0 ? 'neither' : 'only some'}, so the corpus has no identity template to serve`);
+    }
+    for (const rel of expected) {
+      const uri = `${IDENTITY_PREFIX}${relPosix(IDENTITY_DIR, rel)}`;
+      if (served.has(uri)) continue;
+      problems.push(`${NAME}: the ${layer} corpus does not serve ${uri} for ${rel}. The identity `
+        + 'template is what an agent with no clone fills in before its first screen, and a page '
+        + 'missing here is one it has to write from nothing');
+    }
+  }
+  return problems;
+}
+
+export function collect(base = root, dir = assembled(base)) {
   return {
     problems: [
-      ...problems, ...binProblems(dir), ...flatProblems(dir), ...corpusProblems(dir),
-      ...vocabularyProblems(dir), ...servedLinkProblems(dir), ...catalogueProblems(dir, base),
-      ...styleStoreProblems(dir, base),
+      ...dependencyProblems(base), ...registryProblems(base), ...binProblems(dir), ...flatProblems(dir),
+      ...corpusProblems(dir), ...vocabularyProblems(dir), ...servedLinkProblems(dir),
+      ...catalogueProblems(dir, base), ...styleStoreProblems(dir, base), ...identityProblems(dir, base),
     ],
-    assembled: true,
   };
 }
 
 function main() {
-  const { problems, assembled: built } = collect();
+  refuseUnassembled();
+  const { problems } = collect();
   if (problems.length > 0) {
     console.error(`check-mcp: ${problems.length} problem(s)\n`);
     for (const problem of problems) console.error(`  ${problem}`);
@@ -355,10 +407,9 @@ function main() {
   }
   console.log(`check-mcp: ${NAME} declares the ${Object.keys(RUNTIME_DEPENDENCIES).length} dependency `
     + `it imports and states ${REGISTRY_NAME} at the version ${PLUGIN_MANIFEST} hands out`
-    + `${built ? ', ships its bin, carries one corpus per layer whose every path resolves, serves '
+    + ', ships its bin, carries one corpus per layer whose every path resolves, serves '
     + 'every one of them with its links addressed as this server answers them, '
-    + 'and would serve every component the tree declares' : ', and is not assembled, so the bin and '
-    + 'the corpus rules went unread'}`);
+    + 'and would serve every component the tree declares');
 }
 
 if (isMainModule(import.meta.url)) main();

@@ -1,4 +1,4 @@
-import test from 'node:test';
+import test, { after } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -7,16 +7,20 @@ import {
   parseArgs, listing, opening, build, isProgram, USAGE, NAME, checked, CHECKED_AS, vocabularyOf,
 } from './arena-mcp.ts';
 import { manifestIn, bundledPayload } from './payload.ts';
-import { catalogue, entries, search, SCHEME, ROUTER_URI } from './catalogue.ts';
+import { catalogue, entries, search, SCHEME, ROUTER_URI, COMPONENT_PREFIX } from './catalogue.ts';
 import { walkFiles } from '../../../utils/walk-files.ts';
 import { relPosix } from '../../../utils/posix-path.ts';
 import { repoRoot } from '../../../lib/arena/repo-root.ts';
 import { vocabularyIndex, writeVocabularyIndex } from '../../../lib/arena/vocabulary-index.ts';
+import { buildMcpPackage } from '../../../build/arena/build-mcp-package.ts';
 
 const manifest = { name: 'arena', description: 'd', homepage: 'h', version: '12.0.0',
   package: '@dravensoft/arena-react', layer: 'react', router: 'skills/design/ROUTER.md' };
 
-const PAYLOAD = bundledPayload('react', join(repoRoot, 'dist', 'mcp')) ?? '';
+const temp = mkdtempSync(join(tmpdir(), 'arena-mcp-asm-'));
+after(() => rmSync(temp, { recursive: true, force: true }));
+buildMcpPackage(repoRoot, temp);
+const PAYLOAD = bundledPayload('react', temp) ?? '';
 
 test('the arguments are a layer, a payload, help, or an error naming what was not understood', () => {
   assert.deepEqual(parseArgs([]), { payload: null, layer: null });
@@ -46,7 +50,7 @@ test('the opening names what is installed and sends a reader to the router first
   const manifest = { name: 'arena', description: 'd', homepage: 'h', version: '1.0.0',
     package: '@dravensoft/arena-react', layer: 'react', router: 'skills/design/ROUTER.md' };
   const text = opening(manifest, [
-    { uri: `${SCHEME}://component/A`, rel: 'a', title: 'A', mime: 'text/markdown' },
+    { uri: `${COMPONENT_PREFIX}A`, rel: 'a', title: 'A', mime: 'text/markdown' },
     { uri: ROUTER_URI, rel: 'r', title: 'R', mime: 'text/markdown' },
   ]);
   assert.match(text, /1 component document/);
@@ -57,7 +61,7 @@ test('the opening names what is installed and sends a reader to the router first
 test('a corpus older than the components beside it says so in the first thing a client reads', () => {
   const manifest = { name: 'arena', description: 'd', homepage: 'h', version: '11.0.0',
     package: '@dravensoft/arena-mcp', layer: 'react', router: 'skills/design/ROUTER.md' };
-  const entries = [{ uri: `${SCHEME}://component/A`, rel: 'a', title: 'A', mime: 'text/markdown' }];
+  const entries = [{ uri: `${COMPONENT_PREFIX}A`, rel: 'a', title: 'A', mime: 'text/markdown' }];
   const agreed = opening(manifest, entries,
     { package: '@dravensoft/arena-react', layer: 'react', version: '11.0.0', dir: '/x' });
   assert.doesNotMatch(agreed, /the components are right/);
@@ -71,22 +75,20 @@ test('the listing names every document with what it answers', () => {
   assert.equal(text, 'arena://x\n  what x answers');
 });
 
-test('the server registers a resource per document and the four tools, over the real corpus', {
-  skip: PAYLOAD !== '' && existsSync(PAYLOAD) ? false : 'dist/mcp is not assembled',
-}, () => {
+test('the server registers a resource per document and the four tools, over the real corpus', () => {
+  assert.ok(PAYLOAD !== '' && existsSync(PAYLOAD), 'the assembly carries a react payload');
   const manifest = manifestIn(PAYLOAD);
   assert.ok(manifest, 'the assembled payload carries a manifest');
   const { server, entries } = build(PAYLOAD, manifest);
   assert.equal(server.server.getClientCapabilities(), undefined, 'nothing is connected yet');
-  const components = entries.filter((one) => one.uri.startsWith(`${SCHEME}://component/`));
+  const components = entries.filter((one) => one.uri.startsWith(COMPONENT_PREFIX));
   assert.ok(components.length > 40, `${components.length} component(s) is not the whole library`);
   assert.ok(entries.some((one) => one.uri === ROUTER_URI), 'the router is offered');
   assert.equal(NAME, 'arena');
 });
 
-test('the catalogue built from the assembled payload reaches every kind of document', {
-  skip: existsSync(PAYLOAD) ? false : 'frameworks/react/dist/agent is not assembled',
-}, () => {
+test('the catalogue built from the assembled payload reaches every kind of document', () => {
+  assert.ok(PAYLOAD !== '' && existsSync(PAYLOAD), 'the assembly carries a react payload');
   const manifest = manifestIn(PAYLOAD);
   assert.ok(manifest);
   const { entries } = catalogue(PAYLOAD, manifest);

@@ -22,8 +22,8 @@ implementation is the other's record. `bun run check:layer-independence` fails a
 cites a sibling layer, by import or in prose.
 
 **It also reaches nothing outside `react`, `react-dom` and the two vendored styling utilities**,
-and `check:architecture` holds that list. The manifest therefore declares no runtime dependency at
-all, which is the whole of why a consumer may drop this layer into a single-page application, a
+and `check:architecture` holds that list. The components therefore import no runtime dependency (the manifest declares three that the
+`arena` command reads at build), which is the whole of why a consumer may drop this layer into a single-page application, a
 server-rendered one, a static build or a fragment of somebody else's page without being handed a
 framework decision. A router, a store or a data client imported here is that decision made for
 them, and they meet it as a package they did not choose. Where a capability seems to need one,
@@ -94,8 +94,13 @@ keeps a `useState` to paint one.
 valid key, a card layout included. The value is a `var(--…)` with no literal operand, so it is not a
 computation the gate lists.
 
-**`ArenaTooltip` and `ArenaMenu` leave `anchored` unset and position themselves in CSS**, since
-nothing in this layer positions a surface from script.
+**An anchored panel is a manual `popover`, placed by script.** `UseAnchoredPanel.ts:useArenaAnchoredPanel(options)`
+shows the panel in the top layer, so no `overflow: hidden` or transformed ancestor clips it, and
+writes its `left` and `top` from `AnchoredPanel.ts:arenaPlacePanel(anchor, panel, viewport, align, offset, prefer)`
+on open, on scroll and on resize. The same hook keeps the stack Escape and an outside press
+consult, and moves focus where its options ask. `ArenaMenu`, `ArenaTooltip` and `ArenaPopover`
+stand on it, and the panel mounts only once the page has hydrated, so a server render draws the
+trigger alone. `ArenaOnboarding` places its coachmark from script too, by its own clamp, and it does not stand on the hook, as the calendar event's actions panel does not: that panel stays an in-flow surface on `--z-dropdown`.
 
 **A variant key the manifest does not declare resolves to no classes at all**, rather than
 falling back through a lookup table's `|| TONES.neutral`, which paints a value nobody asked for. Where a member can carry a value the
@@ -127,7 +132,8 @@ one of them can see.
 `ArenaConfirmDialog` draws its cancel as `<ArenaButton className="arena-emphasis-ghost">`, the
 same class an adopter writes, and no inner component has a prop for it. The class is held to the
 inner component's vocabulary by `frameworks/react/VocabularyClass.ts:arenaClassName(component, base, own, allowed)`,
-so a class outside that vocabulary is dropped with a warning. A context option the inner component
+so a class outside that vocabulary is dropped with a warning. The list is `manifest.vocabulary`, held by the
+component's own `<Name>.classes.generated.ts`, and a part with no manifest passes `ARENA_CONTEXT_VOCABULARY`. A context option the inner component
 does not answer reaches the DOM and changes nothing on it.
 
 **An injected internal prop is how a component hands an inner component what no adopter chooses.**
@@ -141,6 +147,21 @@ of what an adopter sees.
 element its manifest declares `floating`, as the tooltip's bubble, the toast stack and the dialogs
 do. A context class written above the trigger stops there, which is what lets a toolbar's
 `arena-size-sm` reach its buttons and leave the dialog they open alone.
+
+## A method a caller needs at a moment of its own choosing is a handle on a forwarded ref
+
+**None of the nine contract forms is imperative, so a component that needs a method forwards a ref
+carrying it.** `ArenaInput` forwards `focus()` and `select()`, because returning focus after each
+completed transaction is what lets a till chain sales without the mouse, and `autoFocus` fires once
+at mount. `ArenaNumberField` forwards the same two for the same reason, since a wizard returns
+focus to a number after each step. `ArenaPinInput` forwards `focus()` alone, which focuses its first
+cell, because after a wrong code the host empties the code and asks for it again. `ArenaFileInput` forwards `files()` and `clear()`, because a `File` is a platform type no
+member or payload may carry, and a host that uploads without a form still reads the files and
+empties the field. The handle's interface is exported beside the component as `<Name>Handle`, and
+`check:api` never reads it, since it reads a component through `<Name>Props` alone
+(`scripts/lib/arena/api-surface.ts:reactSurface(source, interfaceName)`). **`IMPERATIVE_HANDLES` in
+that file is the record of every handle**, each method with its reason and the list asserted by
+literal value in its suite, so a method is named there before a ref forwards it here.
 
 ## Every animation answers `prefers-reduced-motion`
 
@@ -170,7 +191,9 @@ consumers, and a compound family counts as its parent rather than as the categor
 layer root holds the generated modules plus the shared internals, which
 `ls *.ts *.tsx | grep -v generated` lists. `UseDialogModal.ts` is the one whose placement needs
 explaining: its three component consumers are all in `feedback/`, so the rule would put it
-there, and its suite counts as a consumer too.
+there, and its suite counts as a consumer too. `Thresholds.ts` is the other: `ArenaMeter` is its one
+consumer, so the rule would put it in `feedback/arena-meter/`. A banded chart scale asks the same
+question, that a region keeps its lower edge, and no chart imports from `feedback/`.
 
 `playground/` sits beside them and is the one directory here that is **not** part of the
 package: `tsconfig.dist.json` excludes it and no barrel exports it. It holds the harness every
@@ -233,9 +256,9 @@ guard passes the commonest conditional-render idiom, `{isAdmin && <ArenaSideNavI
 condition false, straight through to the empty render the guard exists to refuse. Use
 `toArray().length`.
 
-**`UseDialogModal.js` implements `contracts/behaviour/dialog-modal.json` for this layer, and
-that contract is its only authority**, covering `focus.trap`, `focus.onOpen`, `focus.onClose` and
-`keyboard.Escape`, in one hook because all three consumers need all four. Escape always reports
+**`UseDialogModal.js` implements `contracts/behaviour/modal-focus.json` for this layer, and that
+contract is its only authority**, covering `focus.trap`, `focus.onOpen`, `focus.onClose` and
+`keyboard.Escape`, in one hook because every consumer needs all four. Escape always reports
 through the component's **own** dismissal channel (`onClose`, `onCancel`, `onSkip`), so meeting
 the pattern adds no member to any contract.
 

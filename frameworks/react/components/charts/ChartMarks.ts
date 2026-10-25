@@ -118,3 +118,19 @@ export function arenaCurveAreaPath(points: readonly ArenaLinePoint[], baseline: 
   if (!first || !last) return '';
   return `M${first.x},${baseline} L${first.x},${first.y}${arenaCurveSegments(points)} L${last.x},${baseline} Z`;
 }
+
+export interface ArenaFunnelEdge {
+  y: number;
+  width: number;
+}
+
+export function arenaFunnelRect(
+  cx: number, y: number, h: number, width: number,
+): { x: number; y: number; width: number; height: number } {
+  return { x: cx - width / 2, y, width, height: h };
+}
+
+export function arenaFunnelConnector(cx: number, a: ArenaFunnelEdge, b: ArenaFunnelEdge): string {
+  return `M${cx - a.width / 2},${a.y} L${cx + a.width / 2},${a.y}`
+    + ` L${cx + b.width / 2},${b.y} L${cx - b.width / 2},${b.y} Z`;
+}

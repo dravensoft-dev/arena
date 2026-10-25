@@ -6,7 +6,7 @@ import { useTestEnvironment } from './TestbedEnv';
 useTestEnvironment();
 
 import '@angular/compiler';
-import test from 'node:test';
+import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -15,6 +15,7 @@ import { TestBed } from '@angular/core/testing';
 import { ArenaButton } from '../components/forms/arena-button/ArenaButton';
 import { ArenaTooltip } from '../components/feedback/arena-tooltip/ArenaTooltip';
 import { ArenaMenu } from '../components/navigation/arena-menu/ArenaMenu';
+import { ArenaPopover } from '../components/feedback/arena-popover/ArenaPopover';
 import { ArenaIconButton } from '../components/forms/arena-icon-button/ArenaIconButton';
 import { ArenaDialog } from '../components/feedback/arena-dialog/ArenaDialog';
 import { ArenaAppLogo } from '../components/brand/arena-app-logo/ArenaAppLogo';
@@ -29,8 +30,19 @@ import { ArenaScrollerItem } from '../components/layout/arena-scroller-item/Aren
 import { ArenaSkeleton } from '../components/display/arena-skeleton/ArenaSkeleton';
 import { ArenaCalendar } from '../components/display/arena-calendar/ArenaCalendar';
 import { ArenaTag } from '../components/display/arena-tag/ArenaTag';
+import { ArenaPinInput } from '../components/forms/arena-pin-input/ArenaPinInput';
+import { ArenaTimeline } from '../components/display/arena-timeline/ArenaTimeline';
+import { ArenaPaletteScope } from '../components/layout/arena-palette-scope/ArenaPaletteScope';
 import { ArenaFooter } from '../ProjectionMarkers';
 import { LIB } from './Compliance';
+
+const root = document.documentElement;
+before(() => {
+  root.style.setProperty('--bp-md', '768px');
+});
+after(() => {
+  root.style.removeProperty('--bp-md');
+});
 
 const proximity = await import(pathToFileURL(join(LIB, 'arena', 'proximity.ts')).href);
 
@@ -39,6 +51,7 @@ const TEMPLATES: Record<string, string> = {
   'nearer-fit-beats-ancestor-fill': '<arena-button class="arena-fit">Save</arena-button>',
   'class-on-tooltip-reaches-its-trigger': '<arena-tooltip class="arena-fill" label="Copy"><arena-button>Save</arena-button></arena-tooltip>',
   'class-on-menu-reaches-its-trigger': '<arena-menu class="arena-fill" [items]="[]"><arena-button trigger>Save</arena-button></arena-menu>',
+  'class-on-popover-reaches-its-trigger': '<arena-popover class="arena-fill" label="Filters"><arena-button trigger>Save</arena-button></arena-popover>',
   'ancestor-reaches-through-the-transparent-trigger': '<arena-tooltip label="Copy"><arena-button>Save</arena-button></arena-tooltip>',
   'class-on-trigger-alone-fills-the-wrapper-box': '<arena-tooltip label="Copy"><arena-button class="arena-fill">Save</arena-button></arena-tooltip>',
   'box-class-stops-at-a-boundary': '<arena-card><arena-button>Save</arena-button></arena-card>',
@@ -76,6 +89,14 @@ const TEMPLATES: Record<string, string> = {
   'skeleton-circle-height-wins': '<div style="--arena-skeleton-width: 40px; --arena-skeleton-height: 64px"><arena-skeleton class="arena-skeleton-circle" /></div>',
   'skeleton-radius-is-read-by-block-only': '<div style="--arena-skeleton-radius: 12px"><arena-skeleton class="arena-skeleton-line" /></div>',
   'day-head-clears-the-comfortable-row': '<arena-calendar view="week" anchorDate="2025-03-03" dayInteractive />',
+  'pin-input-root-shrinks': '<arena-pin-input label="Code" />',
+  'tag-keeps-its-word-in-a-row': '<arena-tag>Draft</arena-tag>',
+  'timeline-connector-reaches-next-dot': '<arena-timeline label="Order" [items]="[{ title: \'Placed\' }, { title: \'Shipped\' }]" />',
+  'timeline-connector-reaches-next-dot-comfortable': '<arena-timeline label="Order" [items]="[{ title: \'Placed\' }, { title: \'Shipped\' }]" />',
+  'timeline-connector-horizontal': '<arena-timeline label="Order" [items]="[{ title: \'Placed\' }, { title: \'Shipped\' }]" />',
+  'timeline-connector-horizontal-keeps-block-margin': '<arena-timeline label="Order" [items]="[{ title: \'Placed\' }, { title: \'Shipped\' }]" />',
+  'tag-breaks-a-label-wider-than-its-container': '<arena-tag>InternationalisationInternationalisationInternationalisationInternationalisationInternationalisationInternationalisation</arena-tag>',
+  'palette-scope-takes-the-surface-radius': '<div arenaPalette="light"><span>Light</span></div>',
 };
 
 const BARE = new Set(['meaning-wins-over-accent', 'accent-stops-at-the-card-body', 'small-badge-compacts-itself', 'small-badge-tightens-its-block', 'small-badge-tightens-its-ends']);
@@ -103,6 +124,14 @@ const SUBJECT: Record<string, { part: string; index: number }> = {
   'skeleton-circle-height-wins': { part: 'skeleton', index: 0 },
   'skeleton-radius-is-read-by-block-only': { part: 'skeleton', index: 0 },
   'day-head-clears-the-comfortable-row': { part: 'calendar.day-head', index: 0 },
+  'pin-input-root-shrinks': { part: 'pin-input', index: 0 },
+  'tag-keeps-its-word-in-a-row': { part: 'tag', index: 0 },
+  'timeline-connector-reaches-next-dot': { part: 'timeline.connector', index: 0 },
+  'timeline-connector-reaches-next-dot-comfortable': { part: 'timeline.connector', index: 0 },
+  'timeline-connector-horizontal': { part: 'timeline.connector', index: 0 },
+  'timeline-connector-horizontal-keeps-block-margin': { part: 'timeline.connector', index: 0 },
+  'tag-breaks-a-label-wider-than-its-container': { part: 'tag', index: 0 },
+  'palette-scope-takes-the-surface-radius': { part: 'palette-scope', index: 0 },
 };
 
 const { families, cases } = proximity.readProximity();
@@ -115,8 +144,9 @@ test('every case has an Angular template, and every template a case', () => {
 for (const kase of cases) {
   test(`${kase.name}: Angular renders the tree the gate measures`, () => {
     const Host = Component({
+      selector: `proximity-${kase.name}-host`,
       standalone: true,
-      imports: [ArenaButton, ArenaTooltip, ArenaMenu, ArenaCard, ArenaIconButton, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaFooter, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar],
+      imports: [ArenaButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaIconButton, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaFooter, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope],
       template: BARE.has(kase.name) ? TEMPLATES[kase.name] : `<div class="${kase.container}">${TEMPLATES[kase.name]}</div>`,
     })(class {});
     const fixture = TestBed.createComponent(Host);

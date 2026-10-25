@@ -1,14 +1,15 @@
 /* Five claims. First, that the CLI shipped inside both packages emits what Style Dictionary
- * emits: a second emitter exists, so something has to hold the two together. Second, when
- * dist/ has been assembled, that each package is registry-standard: the version comes from
- * plugin.json, every exports target resolves, the entry declaration is advertised at the root,
- * and no peer leaked into dependencies. Third, that the stylesheets resolve and each is named in
- * its layer's stylesheet and install references. Fourth, that the component map reaches every
- * sheet both ways. Fifth is the one the ASSEMBLED CSS is the only honest subject for, since what
- * a consumer installs is this and not an intermediate: supports-blocks.ts states both halves of
- * it. dist/ is git-ignored, so all but the first skip. */
+ * emits: a second emitter exists, so something has to hold the two together. Second, that each
+ * package is registry-standard: the version comes from plugin.json, every exports target resolves,
+ * the entry declaration is advertised at the root, and no peer leaked into dependencies. Third,
+ * that the stylesheets resolve and each is named in its layer's stylesheet and install references.
+ * Fourth, that the component map reaches every sheet both ways. Fifth is the one the ASSEMBLED CSS
+ * is the only honest subject for: supports-blocks.ts states both halves of it. dist/ is
+ * git-ignored, so an unassembled tree stops the gate through cannotRun, and --layer=<name> judges
+ * and requires that one package, as a publish job that assembles only its own does. */
 
 import { readFileSync, existsSync, readdirSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { join, dirname, basename } from 'node:path';
 import { globToRegExp } from '../../utils/text.ts';
 import { relPosix, toPosix } from '../../utils/posix-path.ts';
@@ -16,15 +17,19 @@ import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
+import { CLI_DEPENDENCIES } from '../../lib/arena/support-matrix.ts';
+import { arenaEnv, refuseWhen, unassembledReason } from '../../lib/arena/arena-scripts-vars.ts';
 import { parseDecls } from '../../lib/arena/css-decls.ts';
 import { arenaConfig } from '../../lib/core/arena-config.ts';
-import { themeCss } from '../../generate/core/arena-cli/theme-css.ts';
+import { themeCss, ALWAYS_THEMED } from '../../generate/core/arena-cli/theme-css.ts';
+import { THEME_SHEET as GENERATED_SHEET } from '../../generate/core/arena-cli/sheets.ts';
+import { DEFAULTS_LAYER, LAYER_ORDER } from '../../lib/tailwind/component-sheets.ts';
 import { MAP_FILE } from '../../lib/arena/component-map.ts';
 import { iconManifest, MANIFEST_FILE } from '../../lib/arena/icon-manifest.ts';
 import { shippedNames } from '../../generate/core/arena-cli/icon-css.ts';
 import { AGENT_DIR, BEHAVIOUR, matchesSpec } from '../../lib/arena/agent-payload.ts';
 import { blindFallbacks, repeatedSupports } from '../../lib/tailwind/supports-blocks.ts';
-import { SECONDARY_ENTRY_POINTS } from '../../build/angular/build-angular-package.ts';
+import { SECONDARY_ENTRY_POINTS, RUNTIME_DEPENDENCIES as ANGULAR_RUNTIME_DEPENDENCIES } from '../../build/angular/build-angular-package.ts';
 import { THEME_SOURCES, tailwindThemeSheet, topLevelBlocks } from '../../lib/tailwind/theme-sheet.ts';
 import { compileEntry } from '../../lib/tailwind/tailwind-compile.ts';
 import { REFERENCES, referenceText } from '../../lib/arena/consumer-references.ts';
@@ -52,6 +57,9 @@ export type PackageManifest = {
   scripts?: Record<string, string>;
   dependencies?: Record<string, string>;
   peerDependencies?: Record<string, string>;
+  devDependencies?: Record<string, string>;
+  optionalDependencies?: Record<string, string>;
+  peerDependenciesMeta?: Record<string, unknown>;
   exports?: unknown;
   types?: string;
   typings?: string;
@@ -66,6 +74,32 @@ export const PACKAGES = [
 export const GENERATED_PALETTE = 'contracts/design-generated/palette.generated.css';
 
 export const distDir = (layer: string, base = root) => join(base, 'frameworks', layer, 'dist');
+
+export function assembled(layer: string, base = root) {
+  return existsSync(join(distDir(layer, base), 'package.json'));
+}
+
+export const LAYERS = PACKAGES.map(({ layer }) => layer);
+
+export function unassembled(base = root, layers = LAYERS) {
+  const missing = layers.filter((layer) => !assembled(layer, base));
+  return missing.length === 0 ? null : unassembledReason(missing);
+}
+
+export function refuseUnassembled(gate: string, base = root, env = arenaEnv(), layers = LAYERS) {
+  refuseWhen(gate, unassembled(base, layers), env);
+}
+
+export function layersOf(args: string[]) {
+  const given = args.filter((arg) => arg.startsWith('--layer='));
+  const stray = args.filter((arg) => !arg.startsWith('--layer='));
+  if (stray.length > 0) throw new Error(`check-packages: unknown argument ${stray.join(' ')}; the one flag is --layer=${LAYERS.join('|')}`);
+  if (given.length === 0) return LAYERS;
+  const named = given.map((arg) => arg.slice('--layer='.length));
+  const unknown = named.filter((layer) => !LAYERS.includes(layer));
+  if (unknown.length > 0) throw new Error(`check-packages: unknown layer ${unknown.join(', ')}; the layers are ${LAYERS.join(', ')}`);
+  return named;
+}
 
 const isColour = (name: string) => name.startsWith('color-');
 
@@ -121,10 +155,25 @@ export function manifestProblems(pkg: { layer: string; name: string }, manifest:
       problems.push(`${at}: ${name} is both a dependency and a peer`);
     }
     if (name.startsWith('@dravensoft/')) problems.push(`${at}: ${name} is a dependency; an Arena package is always a peer`);
-    if (name === '@phosphor-icons/web') problems.push(`${at}: Phosphor is the consumer's to install, never a dependency`);
   }
-  if (!Object.hasOwn(manifest.peerDependencies ?? {}, '@phosphor-icons/web')) {
-    problems.push(`${at}: no peer on @phosphor-icons/web, and every component renders ph-* classes`);
+  const declared = manifest.dependencies ?? {};
+  const wanted: Record<string, string> = { ...CLI_DEPENDENCIES, ...(pkg.layer === 'angular' ? ANGULAR_RUNTIME_DEPENDENCIES : {}) };
+  for (const [name, range] of Object.entries(wanted)) {
+    if (!Object.hasOwn(declared, name)) {
+      problems.push(Object.hasOwn(CLI_DEPENDENCIES, name)
+        ? `${at}: dependencies lack ${name}, which the arena command needs at build time`
+        : `${at}: dependencies lack ${name}, which the layer's own code imports at run time`);
+    } else if (declared[name] !== range) {
+      problems.push(`${at}: dependencies hold ${name} at ${declared[name]}, and Arena pins ${range}`);
+    }
+  }
+  for (const name of Object.keys(declared)) {
+    if (!Object.hasOwn(wanted, name)) problems.push(`${at}: dependencies hold ${name}, which is not one of the arena command's`);
+  }
+  for (const field of ['dependencies', 'peerDependencies', 'devDependencies', 'optionalDependencies', 'peerDependenciesMeta'] as const) {
+    if (Object.hasOwn(manifest[field] ?? {}, '@phosphor-icons/web')) {
+      problems.push(`${at}: ${field} names @phosphor-icons/web; the components draw from a sprite, so a project that draws a raw ph-* element installs it itself`);
+    }
   }
   return problems;
 }
@@ -229,6 +278,11 @@ export function iconManifestProblems(pkg: { layer: string; name: string }, dir: 
     return [`${pkg.name}: a fresh read of the renders under frameworks/${pkg.layer}/components names no `
       + 'glyph at all, and an empty result is a failure rather than a clean pass'];
   }
+  const keyed = shipped as { components?: unknown; fills?: unknown };
+  if (!keyed || typeof keyed.components !== 'object' || !Array.isArray(keyed.fills)) {
+    return [`${pkg.name}: ${MANIFEST_FILE} is not keyed by component, so a build cannot carry only the glyphs of `
+      + 'the components it draws or give the filled weight only what can draw filled: run bun run build:packages'];
+  }
   if (JSON.stringify(shipped) !== JSON.stringify(fresh)) {
     return [`${pkg.name}: ${MANIFEST_FILE} is not what the renders say today. It carries `
       + `${shippedNames(shipped as never).size} glyph(s) and the components draw ${shippedNames(fresh).size}. `
@@ -236,6 +290,29 @@ export function iconManifestProblems(pkg: { layer: string; name: string }, dir: 
       + 'the wrong set: run bun run build:packages'];
   }
   return [];
+}
+
+export function fontProblems(pkg: { layer: string; name: string }, dir: string, base = root) {
+  const at = join(dir, 'fonts');
+  if (!existsSync(at)) {
+    return [`${pkg.name}: no fonts/ directory, so the example config names fonts the package does not carry and `
+      + 'arena init has none to copy: run bun run build:packages'];
+  }
+  const record = readJson(join(base, 'assets', 'fonts', 'Fonts.generated.json')) as Record<string, { sha256: string }>;
+  const present = readdirSync(at);
+  const problems = [];
+  for (const [file, { sha256 }] of Object.entries(record)) {
+    if (!present.includes(file)) {
+      problems.push(`${pkg.name}: ${file}: recorded in assets/fonts/Fonts.generated.json and not in the package's fonts/`);
+      continue;
+    }
+    const actual = createHash('sha256').update(readFileSync(join(at, file))).digest('hex');
+    if (actual !== sha256) problems.push(`${pkg.name}: ${file}: sha256 ${actual} in the package, recorded ${sha256}`);
+  }
+  for (const file of present.filter((one) => !(one in record))) {
+    problems.push(`${pkg.name}: ${file}: in the package and not recorded in assets/fonts/Fonts.generated.json`);
+  }
+  return problems;
 }
 
 export const CARRIED_BY_PACKAGE = ['arena.tokens.json', BEHAVIOUR];
@@ -356,11 +433,21 @@ export function themeSheetProblems(pkg: { layer: string; name: string }, dir: st
   return [`${pkg.name}: ${THEME_SHEET} is stale against frameworks/tailwind/Theme.css; run bun run build:packages`];
 }
 
+export const COLORS_SHEET = 'css/colors.css';
+
 export function consumerEntry(dir: string) {
-  return "@import 'tailwindcss' source(none);\n"
+  return LAYER_ORDER
+    + "@import 'tailwindcss' source(none);\n"
     + `@import '${toPosix(join(dir, THEME_SHEET))}';\n`
+    + `@import '${toPosix(join(dir, COLORS_SHEET))}';\n`
     + '@theme { --color-brand: var(--color-primary); }\n'
-    + '@source inline("bg-base-100 p-4 bg-brand bg-red-500");\n';
+    + '@source inline("bg-base-100 p-4 bg-surface bg-brand bg-red-500");\n';
+}
+
+export function layerRanking(css: string) {
+  const named = [...css.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/@layer\s+([\w\s,-]+?)\s*[;{]/g)]
+    .flatMap((m) => (m[1] ?? '').split(',').map((one) => one.trim()));
+  return [...new Set(named)];
 }
 
 export function themeCompileProblems(
@@ -372,8 +459,12 @@ export function themeCompileProblems(
   if (!/var\(--color-base-100\)/.test(rule('bg-base-100') ?? '')) {
     problems.push(`${pkg.name}: a consumer's bg-base-100 does not resolve to --color-base-100 through ${THEME_SHEET}`);
   }
-  if (!/--spacing/.test(rule('p-4') ?? '')) {
+  if (!/var\(--sp-4\)/.test(rule('p-4') ?? '')) {
     problems.push(`${pkg.name}: a consumer's p-4 does not resolve to Arena's spacing scale through ${THEME_SHEET}`);
+  }
+  if (!/var\(--fill-surface\)/.test(rule('bg-surface') ?? '')) {
+    problems.push(`${pkg.name}: a consumer's bg-surface does not read --fill-surface where it is painted through ${THEME_SHEET}, `
+      + 'so a utility would not follow the subtree that re-answers the role');
   }
   if (rule('bg-brand') === null) {
     problems.push(`${pkg.name}: a key a consumer declares below the import of ${THEME_SHEET} does not survive, `
@@ -382,6 +473,11 @@ export function themeCompileProblems(
   if (rule('bg-red-500') !== null) {
     problems.push(`${pkg.name}: bg-red-500 compiles through ${THEME_SHEET}, so Tailwind's own palette is still `
       + 'reachable and a namespace was not cleared');
+  }
+  const ranked = layerRanking(css);
+  if (!ranked.includes(DEFAULTS_LAYER) || ranked.indexOf(DEFAULTS_LAYER) > ranked.indexOf('base')) {
+    problems.push(`${pkg.name}: a Tailwind entry that leads with Arena's layer order ranks ${ranked.join(', ')}, so `
+      + `${DEFAULTS_LAYER} is not the lowest layer and a project's own layered rule loses to a package default`);
   }
   if (!/@layer theme\s*\{[\s\S]*--color-base-100:\s*var\(--color-base-100\)/.test(css)) {
     problems.push(`${pkg.name}: the theme's self-reference is not emitted inside @layer theme, so it no longer loses `
@@ -392,6 +488,12 @@ export function themeCompileProblems(
 
 export function unlayeredTokenProblems(pkg: { layer: string; name: string }, dir: string) {
   const problems = [];
+  const themePath = join(dir, THEME_SHEET);
+  const emitted = existsSync(themePath)
+    ? topLevelBlocks(readFileSync(themePath, 'utf8'), '@theme').filter((block) => /^@theme\s*\{/.test(block))
+    : [];
+  const selfReferenced = new Set(emitted.flatMap((block) =>
+    [...block.matchAll(/(--[\w-]+)\s*:\s*var\(\1\)/g)].map((m) => m[1] as string)));
   const seen = new Set<string>();
   const queue = ['arena.css'];
   while (queue.length) {
@@ -403,11 +505,21 @@ export function unlayeredTokenProblems(pkg: { layer: string; name: string }, dir
     const css = readFileSync(full, 'utf8');
     for (const specifier of importsIn(css)) queue.push(toPosix(join(dirname(from), specifier ?? '')));
     for (const block of topLevelBlocks(css, '@layer')) {
-      if (/--(?!tw-|arena-)[\w-]+\s*:/.test(block.slice(block.indexOf('{')))) {
-        problems.push(`${pkg.name}: ${from} declares an Arena custom property inside a cascade layer, and the theme's `
-          + `self-reference in ${THEME_SHEET} resolves to Arena's value only while the token sheets load unlayered`);
-        break;
+      const body = block.slice(block.indexOf('{'));
+      if (!/--(?!tw-|arena-)[\w-]+\s*:/.test(body)) continue;
+      if (new RegExp(`^@layer\\s+${DEFAULTS_LAYER}\\s*\\{`).test(block)) {
+        const stray = [...body.matchAll(/(--(?!tw-|arena-)[\w-]+)\s*:/g)].map((m) => m[1] as string)
+          .filter((name) => selfReferenced.has(name) && !ALWAYS_THEMED.includes(name));
+        for (const name of new Set(stray)) {
+          problems.push(`${pkg.name}: ${from} declares ${name} inside @layer ${DEFAULTS_LAYER}, and ${THEME_SHEET} declares it `
+            + `as a self-reference in @layer theme, which outranks the defaults, so only an unlayered declaration in `
+            + `${GENERATED_SHEET} keeps it from resolving against itself, and arena build does not always write ${name}`);
+        }
+        continue;
       }
+      problems.push(`${pkg.name}: ${from} declares an Arena custom property inside a cascade layer, and the theme's `
+        + `self-reference in ${THEME_SHEET} resolves to Arena's value only while the token sheets load unlayered`);
+      break;
     }
   }
   return problems;
@@ -460,11 +572,11 @@ export function componentReachProblems(pkg: { layer: string; name: string }, dir
     + 'Run bun run build:packages'];
 }
 
-export function collect(base = root) {
+export function collect(base = root, dirOf = distDir, layers = LAYERS) {
   const version = readJson(join(base, '.claude-plugin/plugin.json')).version;
   const problems = [];
 
-  const cli = themeCss(arenaConfig(base), { importHeader: false });
+  const cli = themeCss(arenaConfig(base));
   const generated = readFileSync(join(base, GENERATED_PALETTE), 'utf8');
   const equivalence = paletteEquivalenceProblems(generated, cli);
   problems.push(...equivalence.problems);
@@ -472,8 +584,8 @@ export function collect(base = root) {
   const assembled = [];
   const declared = declaredComponents(base);
   let sheets = 0;
-  for (const pkg of PACKAGES) {
-    const dir = distDir(pkg.layer, base);
+  for (const pkg of PACKAGES.filter(({ layer }) => layers.includes(layer))) {
+    const dir = dirOf(pkg.layer, base);
     const manifestPath = join(dir, 'package.json');
     if (!existsSync(manifestPath)) continue;
     assembled.push(pkg.name);
@@ -483,6 +595,7 @@ export function collect(base = root) {
     problems.push(...entryPointProblems(pkg, manifest));
     problems.push(...componentMapProblems(pkg, dir));
     problems.push(...iconManifestProblems(pkg, dir));
+    problems.push(...fontProblems(pkg, dir, base));
     problems.push(...componentReachProblems(pkg, dir, declared));
     problems.push(...payloadProblems(pkg, dir));
     problems.push(...styleProblems(pkg, dir).problems);
@@ -498,8 +611,16 @@ export function collect(base = root) {
   return { problems, compared: equivalence.compared, assembled, version, sheets };
 }
 
-function main() {
-  const { problems, compared, assembled, version, sheets } = collect();
+function main(args: string[]) {
+  let layers: string[];
+  try {
+    layers = layersOf(args);
+  } catch (error) {
+    console.error((error as Error).message);
+    process.exit(1);
+  }
+  refuseUnassembled('check:packages', root, arenaEnv(), layers);
+  const { problems, compared, assembled, version, sheets } = collect(root, distDir, layers);
   for (const problem of problems) console.error(`check-packages: ${problem}`);
 
   if (problems.length) {
@@ -507,12 +628,10 @@ function main() {
     process.exit(1);
   }
 
-  const built = assembled.length
-    ? `${assembled.length} package(s) assembled at ${version}: ${assembled.join(', ')}, whose `
-      + `${sheets} stylesheet(s) carry no fallback painting an ink in its own colour and state `
-      + 'each condition once per rule'
-    : 'no package assembled; run bun run build:packages to check the manifests too';
+  const built = `${assembled.length} package(s) assembled at ${version}: ${assembled.join(', ')}, whose `
+    + `${sheets} stylesheet(s) carry no fallback painting an ink in its own colour and state `
+    + 'each condition once per rule';
   console.log(`check-packages: arena build matches ${GENERATED_PALETTE} across ${compared} declaration(s); ${built}`);
 }
 
-if (isMainModule(import.meta.url)) main();
+if (isMainModule(import.meta.url)) main(process.argv.slice(2));

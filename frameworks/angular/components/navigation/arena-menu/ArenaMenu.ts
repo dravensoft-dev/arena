@@ -1,33 +1,63 @@
+import { NgTemplateOutlet } from '@angular/common';
 import {
-  ChangeDetectionStrategy, Component, DOCUMENT, DestroyRef, ElementRef, Injector, TemplateRef,
-  ViewContainerRef, afterNextRender, afterRenderEffect, computed, inject, input, output, signal,
-  untracked, viewChild,
+  ChangeDetectionStrategy, Component, DestroyRef, ElementRef, Injector, TemplateRef,
+  afterNextRender, afterRenderEffect, computed, inject, input, output, untracked, viewChild,
 } from '@angular/core';
-import {
-  type ConnectedPosition, type OverlayRef, createFlexibleConnectedPositionStrategy,
-  createOverlayRef, createRepositionScrollStrategy,
-} from '@angular/cdk/overlay';
-import { TemplatePortal } from '@angular/cdk/portal';
+import type { ConnectedPosition } from '@angular/cdk/overlay';
 import type { ArenaMenuAlign, ArenaMenuItem } from '../../../Api.generated';
-import { sp1 } from '../../../Tokens.generated';
+import { delayTypeahead, sp1 } from '../../../Tokens.generated';
+import { ArenaIdGenerator } from '../../../ArenaIds';
+import { arenaTypeAheadBuffer, arenaTypeAheadNext } from '../../../TypeAhead';
 import { arenaWarnOnce } from '../../../WarnOnce';
+import { ArenaAnchoredOverlay, arenaConnectedPositions } from '../../../AnchoredOverlay';
 import { arenaMenuStyles } from './ArenaMenu.variants';
 import manifest from './ArenaMenu.classes.generated';
 import { ArenaSlotAttributes } from '../../../SlotData';
+import { ARENA_MENU_ANCHOR } from './MenuAnchor';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
 
 const TRIGGER_SELECTOR =
   'button:not([tabindex="-1"]), a[href]:not([tabindex="-1"]), [role="button"]:not([tabindex="-1"]), [tabindex]:not([tabindex="-1"])';
 
 export const ARENA_MENU_POSITIONS: Record<ArenaMenuAlign, ConnectedPosition[]> = {
-  start: [
-    { originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top', offsetY: sp1 * 1.5 },
-    { originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom', offsetY: -sp1 * 1.5 },
-  ],
-  end: [
-    { originX: 'end', originY: 'bottom', overlayX: 'end', overlayY: 'top', offsetY: sp1 * 1.5 },
-    { originX: 'end', originY: 'top', overlayX: 'end', overlayY: 'bottom', offsetY: -sp1 * 1.5 },
-  ],
+  start: arenaConnectedPositions('start', 'below', sp1 * 1.5),
+  end: arenaConnectedPositions('end', 'below', sp1 * 1.5),
 };
+
+export type ArenaMenuBlock =
+  | { kind: 'divider'; index: number }
+  | { kind: 'rows'; header: number | null; rows: number[] };
+
+/** Splits the entries into what the panel draws: rows before the first header form a block with no header, and a divider or a header ends a block. */
+export function arenaMenuBlocks(items: readonly ArenaMenuItem[]): ArenaMenuBlock[] {
+  const blocks: ArenaMenuBlock[] = [];
+  let current: { kind: 'rows'; header: number | null; rows: number[] } | null = null;
+  items.forEach((it, index) => {
+    if (it.divider) {
+      current = null;
+      blocks.push({ kind: 'divider', index });
+    } else if (it.header) {
+      current = { kind: 'rows', header: index, rows: [] };
+      blocks.push(current);
+    } else {
+      if (current === null) {
+        current = { kind: 'rows', header: null, rows: [] };
+        blocks.push(current);
+      }
+      current.rows.push(index);
+    }
+  });
+  return blocks.filter((block) => block.kind === 'divider' || block.header !== null || block.rows.length > 0);
+}
+
+/** The row a roving key moves to: null for a key the menu does not answer, -1 when no row is enabled. */
+function arenaMenuStep(key: string, at: number, total: number): number | null {
+  if (key !== 'ArrowDown' && key !== 'ArrowUp' && key !== 'Home' && key !== 'End') return null;
+  if (total === 0) return -1;
+  if (key === 'ArrowDown') return (at + 1) % total;
+  if (key === 'ArrowUp') return at <= 0 ? total - 1 : at - 1;
+  return key === 'Home' ? 0 : total - 1;
+}
 
 export function isArenaActivatable(item: ArenaMenuItem): boolean {
   return !item.divider && item.header === undefined;
@@ -36,34 +66,43 @@ export function isArenaActivatable(item: ArenaMenuItem): boolean {
 @Component({
   selector: 'arena-menu',
   standalone: true,
-  imports: [ArenaSlotAttributes],
+  imports: [ArenaIcon, ArenaSlotAttributes, NgTemplateOutlet],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
-    '[attr.data-arena-anchored]': "styles().$data.root()['data-arena-anchored'] ?? null",
     '[attr.data-arena-part]': 'parts.root',
     '[attr.align]': 'null',
   },
   template: `
     <ng-content select="[trigger]" />
+    <ng-template #row let-item>
+      <button type="button" role="menuitem" tabindex="-1" [class]="rowStyles(item).item()" [arenaSlotData]="rowStyles(item).$data.item()" [attr.data-arena-part]="parts.item" [disabled]="item.disabled"
+              (click)="run(item)">
+        @if (item.icon; as glyph) {
+          <span [class]="styles().icon()" [attr.data-arena-part]="parts.icon" aria-hidden="true"><arena-icon [icon]="glyph" /></span>
+        }
+        <span [class]="styles().label()" [attr.data-arena-part]="parts.label">{{ item.label }}</span>
+        @if (item.shortcut; as keys) {
+          <kbd [class]="styles().shortcut()" [attr.data-arena-part]="parts.shortcut">{{ keys }}</kbd>
+        }
+      </button>
+    </ng-template>
     <ng-template #panel>
-      <div role="menu" [class]="styles().panel()" [attr.data-arena-surface]="'floating'" [arenaSlotData]="styles().$data.panel()" [attr.data-arena-part]="parts.panel">
-        @for (item of items(); track $index) {
-          @if (item.divider) {
-            <div [class]="styles().divider()" [attr.data-arena-part]="parts.divider"></div>
-          } @else if (item.header; as heading) {
-            <div [class]="styles().header()" [attr.data-arena-part]="parts.header">{{ heading }}</div>
+      <div role="menu" (keydown)="onKeydown($event)" [class]="styles().panel()" [attr.data-arena-surface]="'floating'" [arenaSlotData]="styles().$data.panel()" [attr.data-arena-part]="parts.panel">
+        @for (block of blocks(); track $index) {
+          @if (block.kind === 'divider') {
+            <div role="separator" [class]="styles().divider()" [attr.data-arena-part]="parts.divider"></div>
+          } @else if (block.header !== null) {
+            <div role="group" [attr.aria-labelledby]="headerId(block.header)" [class]="styles().group()" [attr.data-arena-part]="parts.group">
+              <div [id]="headerId(block.header)" [class]="styles().header()" [attr.data-arena-part]="parts.header">{{ items()[block.header]!.header }}</div>
+              @for (at of block.rows; track at) {
+                <ng-container [ngTemplateOutlet]="row" [ngTemplateOutletContext]="{ $implicit: items()[at]! }" />
+              }
+            </div>
           } @else {
-            <button type="button" role="menuitem" [class]="rowStyles(item).item()" [arenaSlotData]="rowStyles(item).$data.item()" [attr.data-arena-part]="parts.item" [disabled]="item.disabled"
-                    (click)="run(item)">
-              @if (item.icon; as glyph) {
-                <i [class]="styles().icon() + ' ' + glyph" [attr.data-arena-part]="parts.icon" aria-hidden="true"></i>
-              }
-              <span [class]="styles().label()" [attr.data-arena-part]="parts.label">{{ item.label }}</span>
-              @if (item.shortcut; as keys) {
-                <span [class]="styles().shortcut()" [attr.data-arena-part]="parts.shortcut">{{ keys }}</span>
-              }
-            </button>
+            @for (at of block.rows; track at) {
+              <ng-container [ngTemplateOutlet]="row" [ngTemplateOutletContext]="{ $implicit: items()[at]! }" />
+            }
           }
         }
       </div>
@@ -83,39 +122,81 @@ export class ArenaMenu {
   /** An entry was activated; carries the whole item. A disabled entry reports nothing, and a divider or a header cannot be activated at all. */
   readonly select = output<ArenaMenuItem>();
 
-  protected readonly styles = computed(() => arenaMenuStyles({ anchored: true, align: this.align() }));
+  protected readonly styles = computed(() => arenaMenuStyles());
+  protected readonly blocks = computed(() => arenaMenuBlocks(this.items()));
 
-  private readonly open = signal(false);
+  private readonly idBase = inject(ArenaIdGenerator).next('arena-menu');
+  private buffer = '';
+  private clock: ReturnType<typeof setTimeout> | null = null;
+
   private readonly panel = viewChild.required<TemplateRef<unknown>>('panel');
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly injector = inject(Injector);
-  private readonly viewContainer = inject(ViewContainerRef);
-  private readonly doc = inject(DOCUMENT);
+  private readonly composed = inject(ARENA_MENU_ANCHOR, { optional: true });
 
-  private ref: OverlayRef | null = null;
   private detachTrigger: (() => void) | null = null;
-  private detachDocument: (() => void) | null = null;
+
+  private readonly overlay = new ArenaAnchoredOverlay({
+    anchor: () => (this.composed ? this.composed() : this.host.nativeElement),
+    trigger: () => this.trigger(),
+    panel: () => this.panel(),
+    positions: () => ARENA_MENU_POSITIONS[this.align()],
+    onDismiss: () => this.overlay.close(),
+    focusOnOpen: (panel) => panel.querySelector<HTMLElement>('[role="menuitem"]:not([disabled])'),
+    restoreFocus: true,
+    tabOut: true,
+    anchorPressDismisses: this.composed !== null,
+  });
 
   constructor() {
     afterNextRender(() => this.bindTrigger(), { injector: this.injector });
     afterRenderEffect(() => {
-      const isOpen = this.open();
+      const isOpen = this.overlay.isOpen();
       untracked(() => this.describeTrigger(isOpen));
     });
     inject(DestroyRef).onDestroy(() => {
       this.detachTrigger?.();
-      this.teardown();
+      if (this.clock !== null) clearTimeout(this.clock);
     });
   }
 
+  protected headerId(index: number): string {
+    return `${this.idBase}-h${index}`;
+  }
+
+  protected onKeydown(event: KeyboardEvent): void {
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
+    const menu = event.currentTarget as HTMLElement;
+    const rows = [...menu.querySelectorAll<HTMLElement>('[role="menuitem"]:not([disabled])')];
+    const at = rows.findIndex((row) => row === menu.ownerDocument.activeElement);
+    if (Array.from(event.key).length === 1 && (event.key !== ' ' || this.buffer !== '')) {
+      this.buffer = arenaTypeAheadBuffer(this.buffer, event.key);
+      if (this.clock !== null) clearTimeout(this.clock);
+      this.clock = setTimeout(() => { this.buffer = ''; this.clock = null; }, delayTypeahead);
+      const labels = rows.map((row) => row.querySelector('[data-arena-part="menu.label"]')?.textContent ?? '');
+      const found = arenaTypeAheadNext(labels, at, this.buffer);
+      if (found >= 0 || event.key === ' ') event.preventDefault();
+      if (found >= 0) rows[found]!.focus();
+      return;
+    }
+    const target = arenaMenuStep(event.key, at, rows.length);
+    if (target === null) return;
+    event.preventDefault();
+    if (target >= 0) rows[target]!.focus();
+  }
+
   protected rowStyles(item: ArenaMenuItem) {
-    return arenaMenuStyles({ anchored: true, disabled: !!item.disabled, destructive: !!item.destructive });
+    return arenaMenuStyles({ disabled: !!item.disabled, destructive: !!item.destructive });
   }
 
   protected run(item: ArenaMenuItem): void {
     if (item.disabled) return;
-    this.close(true);
+    this.close();
     this.select.emit(item);
+  }
+
+  protected ngAfterViewInit(): void {
+    this.describeTrigger(false);
   }
 
   private trigger(): HTMLElement | null {
@@ -166,60 +247,13 @@ export class ArenaMenu {
   }
 
   private toggle(): void {
-    if (this.open()) this.close(true);
-    else this.attach();
+    if (this.overlay.isOpen()) this.close();
+    else this.overlay.open();
   }
 
-  private attach(): void {
-    if (this.ref) return;
-    const ref = createOverlayRef(this.injector, {
-      positionStrategy: createFlexibleConnectedPositionStrategy(this.injector, this.host)
-        .withPositions(ARENA_MENU_POSITIONS[this.align()])
-        .withPush(false),
-      scrollStrategy: createRepositionScrollStrategy(this.injector),
-    });
-    ref.attach(new TemplatePortal(this.panel(), this.viewContainer));
-    this.ref = ref;
-    this.open.set(true);
-    this.listenForDismissal();
-    afterNextRender(() => this.focusFirstItem(), { injector: this.injector });
-  }
-
-  private close(restoreFocus: boolean): void {
-    if (!this.ref) return;
-    this.teardown();
-    this.open.set(false);
-    if (restoreFocus) this.trigger()?.focus();
-  }
-
-  private teardown(): void {
-    this.detachDocument?.();
-    this.detachDocument = null;
-    this.ref?.dispose();
-    this.ref = null;
-  }
-
-  private focusFirstItem(): void {
-    const first = this.ref?.overlayElement.querySelector<HTMLElement>('[role="menuitem"]:not([disabled])');
-    first?.focus();
-  }
-
-  private listenForDismissal(): void {
-    const onKeydown = (event: Event): void => {
-      if (event instanceof KeyboardEvent && event.key === 'Escape') this.close(true);
-    };
-    const onPointerDown = (event: Event): void => {
-      const target = event.target;
-      if (!(target instanceof Node)) return;
-      if (this.host.nativeElement.contains(target)) return;
-      if (this.ref?.overlayElement.contains(target)) return;
-      this.close(false);
-    };
-    this.doc.addEventListener('keydown', onKeydown);
-    this.doc.addEventListener('mousedown', onPointerDown);
-    this.detachDocument = () => {
-      this.doc.removeEventListener('keydown', onKeydown);
-      this.doc.removeEventListener('mousedown', onPointerDown);
-    };
+  private close(): void {
+    if (!this.overlay.isOpen()) return;
+    this.overlay.close();
+    this.trigger()?.focus();
   }
 }

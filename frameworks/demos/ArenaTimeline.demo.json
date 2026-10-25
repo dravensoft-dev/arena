@@ -1,0 +1,15 @@
+{
+  "component": "ArenaTimeline",
+  "seed": {
+    "label": "Order 4821",
+    "items": [
+      { "id": "placed", "title": "Order placed", "time": "Mar 3, 09:12", "dateTime": "2026-03-03T09:12:00Z" },
+      { "id": "paid", "title": "Payment captured", "description": "Charged to the card ending 4417.", "time": "Mar 3, 09:13", "tone": "success" },
+      { "id": "held", "title": "Held at customs", "description": "Two days over the usual clearance.", "time": "Mar 5", "tone": "warning" },
+      { "id": "transit", "title": "In transit", "description": "With the carrier since this morning.", "time": "Mar 8", "tone": "info" },
+      { "id": "delivered", "title": "Delivery", "description": "No one was home at the first attempt.", "tone": "danger" }
+    ],
+    "index": 3
+  },
+  "note": "A timeline is one thing moving through stages; someone doing something to something is a feed row, which is ArenaActivityFeed."
+}

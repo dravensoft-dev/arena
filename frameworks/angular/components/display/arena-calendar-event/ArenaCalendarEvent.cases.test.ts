@@ -1,15 +1,13 @@
 /* Every chip is mounted INSIDE a calendar: ArenaCalendarState is a non-optional injection, so a
  * bare chip throws NG0201, and that is asserted here rather than designed away. The three
- * cases are picked by `interactive` and by `actionsEnabled`, never by whether (click) is
- * subscribed. `heard` counts what a CONSUMER hears through a template (click) binding, and
- * emissionsOf() counts the OUTPUT on the instance: Angular installs both a DOM listener and an
- * output subscription for a native event name, so the binding counts the sum and one is the
- * only passing number, while the sum alone cannot tell an emit from a bubble. */
+ * cases are picked by `interactive` and by `actionsEnabled`, never by whether (activate) is
+ * subscribed. `heard` counts what a CONSUMER hears through a template (activate) binding, and
+ * emissionsOf() counts the OUTPUT on the instance. One is the only passing number for each. */
 
 import { useTestEnvironment } from '../../../test/TestbedEnv';
 useTestEnvironment();
 
-import test from 'node:test';
+import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
 import { Component, signal } from '@angular/core';
@@ -20,6 +18,14 @@ import { assertPatternCases, ANGULAR_COMPONENTS } from '../../../test/Compliance
 import type { ArenaCatSlot } from '../../../Api.generated';
 import { ArenaCalendar } from '../arena-calendar/ArenaCalendar';
 import { ArenaCalendarEvent } from './ArenaCalendarEvent';
+
+const root = document.documentElement;
+before(() => {
+  root.style.setProperty('--bp-md', '768px');
+});
+after(() => {
+  root.style.removeProperty('--bp-md');
+});
 
 const BINDING = join(ANGULAR_COMPONENTS, 'display/arena-calendar-event/ArenaCalendarEvent.behaviour.json');
 
@@ -32,7 +38,7 @@ const BINDING = join(ANGULAR_COMPONENTS, 'display/arena-calendar-event/ArenaCale
       <arena-calendar-event id="a" title="Standup" start="2027-03-15T09:00:00Z"
                             end="2027-03-15T10:00:00Z" [colorId]="1"
                             [disabled]="locked()" [actionsEnabled]="withActions()"
-                            [interactive]="live()" (click)="heard = heard + 1">
+                            [interactive]="live()" (activate)="heard = heard + 1">
         <button actions type="button">Delete</button>
       </arena-calendar-event>
     </arena-calendar>
@@ -60,7 +66,7 @@ function render(patch: { locked?: boolean; withActions?: boolean; live?: boolean
 function emissionsOf(fixture: ComponentFixture<ChipHost>): { count: number } {
   const seen = { count: 0 };
   const chip = fixture.debugElement.query(By.directive(ArenaCalendarEvent)).componentInstance as ArenaCalendarEvent;
-  chip.click.subscribe(() => { seen.count += 1; });
+  chip.activate.subscribe(() => { seen.count += 1; });
   return seen;
 }
 
@@ -111,7 +117,7 @@ test('arena-calendar-event meets all three of its declared shapes, and `interact
           fixture.detectChanges();
           assert.equal(emitted.count, 1, 'sanity: a real click must reach the output');
           assert.equal(fixture.componentInstance.heard, 1,
-            'a consumer must hear it exactly once -- two would be the emit plus the native event');
+            'a consumer must hear it exactly once');
 
           const off = render({ locked: true });
           const offEmitted = emissionsOf(off);
@@ -122,9 +128,9 @@ test('arena-calendar-event meets all three of its declared shapes, and `interact
             'the chip reflects through aria-disabled, never the native attribute');
           locked.dispatchEvent(new MouseEvent('click', { bubbles: true }));
           off.detectChanges();
-          assert.equal(offEmitted.count, 0, 'a disabled chip still emitted click');
+          assert.equal(offEmitted.count, 0, 'a disabled chip still emitted activate');
           assert.equal(off.componentInstance.heard, 0,
-            'and nothing reached the consumer, so the native event did not escape either');
+            'and the consumer heard nothing');
 
           return {
             root: chip,
@@ -146,7 +152,7 @@ test('arena-calendar-event meets all three of its declared shapes, and `interact
           fixture.detectChanges();
           assert.equal(emitted.count, 1, 'sanity: a click on the body reaches the output');
           assert.equal(fixture.componentInstance.heard, 1,
-            'a consumer must hear it exactly once -- two would be the emit plus the native event');
+            'a consumer must hear it exactly once');
 
           const off = render({ withActions: true, locked: true });
           const offEmitted = emissionsOf(off);
@@ -155,9 +161,9 @@ test('arena-calendar-event meets all three of its declared shapes, and `interact
             'the disabled state must reach the BODY button, which is where the interactivity moved');
           offBody.dispatchEvent(new MouseEvent('click', { bubbles: true }));
           off.detectChanges();
-          assert.equal(offEmitted.count, 0, 'a disabled chip body still emitted click');
+          assert.equal(offEmitted.count, 0, 'a disabled chip body still emitted activate');
           assert.equal(off.componentInstance.heard, 0,
-            'and nothing reached the consumer, so the native event did not escape either');
+            'and the consumer heard nothing');
 
           return {
             root: chip,
@@ -171,15 +177,14 @@ test('arena-calendar-event meets all three of its declared shapes, and `interact
           const emitted = emissionsOf(fixture);
           const chip = chipOf(fixture);
           assert.equal(chip.tagName, 'DIV',
-            'a chip the consumer declared non-interactive is a div, even with (click) subscribed -- '
+            'a chip the consumer declared non-interactive is a div, even with (activate) subscribed -- '
             + '`interactive` decides the shape, which is the whole point of it being a member');
           assertNoNode(chip.querySelector('button'), 'an inert chip rendered a button');
           chip.dispatchEvent(new MouseEvent('click', { bubbles: true }));
           fixture.detectChanges();
-          assert.equal(emitted.count, 0, 'a non-interactive chip must not emit click');
+          assert.equal(emitted.count, 0, 'a non-interactive chip must not emit activate');
           assert.equal(fixture.componentInstance.heard, 0,
-            'and the consumer heard nothing either: an inert chip stops the click, or the native '
-            + 'event would reach them as an activation nobody made');
+            'and the consumer heard nothing either: an inert chip reports no activation');
 
           const withActions = render({ live: false, withActions: true });
           const root = chipOf(withActions);

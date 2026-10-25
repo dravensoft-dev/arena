@@ -4,16 +4,16 @@ the column its parent lays out. The control is a real `<input>`, named by a real
 `<label for>`.
 
 ```html
-<arena-input label="Project name" [value]="name()" (change)="name.set($event)"
+<arena-input label="Project name" [value]="name()" (valueChange)="name.set($event)"
              hint="Lowercase, no spaces" required />
 
 <arena-input label="Repository" icon="ph-bold ph-git-branch" prefix="git@"
-             [value]="repo()" (change)="repo.set($event)" />
+             [value]="repo()" (valueChange)="repo.set($event)" />
 
-<arena-input label="Contact email" type="email" [value]="email()" (change)="email.set($event)"
+<arena-input label="Contact email" type="email" [value]="email()" (valueChange)="email.set($event)"
              [validate]="notEmpty" validateOn="change" />
 
-<arena-input label="Slug" [value]="slug()" [error]="serverError()" (change)="slug.set($event)" />
+<arena-input label="Slug" [value]="slug()" [error]="serverError()" (valueChange)="slug.set($event)" />
 <arena-input label="Created" type="date" [value]="created()" readOnly />
 ```
 
@@ -24,15 +24,15 @@ the column its parent lays out. The control is a real `<input>`, named by a real
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
 | `label` | primitive | `string` |  | Field label above the control. |
-| `id` | primitive | `string` |  | The control's id, and what the label's `for` points at. Generated from `label` when omitted, as `in-` followed by the label with each run of whitespace replaced by a single hyphen and the whole lowercased. The derivation is normative, and the prefix differs per component on purpose: the same markup must get the same id in every layer, and an ArenaInput and an ArenaTextarea sharing a label must not collide. |
+| `id` | primitive | `string` |  | The control's id, and what the label's `for` points at. Generated from `label` when omitted, as `in-` followed by the label with each run of whitespace replaced by a single hyphen and the whole lowercased. The derivation is normative, and the prefix differs per component on purpose. Identical markup must get an identical id in every layer, and an ArenaInput and an ArenaTextarea sharing a label must not collide. The hint or the error takes it followed by `-note`. |
 | `hint` | primitive | `string` |  | A line of help under the field. |
 | `error` | primitive | `string` |  | Controlled error message; wins over `validate`. |
-| `valid` | primitive | `boolean` | `false` | Force the valid (green check) state. |
+| `valid` | primitive | `boolean` | `false` | Force the valid (success-tone check) state. |
 | `required` | primitive | `boolean` | `false` | Marks the label and the control required. |
 | `validate` | functionInput | `(value: string) => string` |  | Called on the value; returns the error message, or empty for valid. |
 | `validateOn` | enum | `ArenaValidateOn` | `"blur"` | When `validate` runs. |
 | `type` | enum | `ArenaInputType` | `"text"` | Native input type. |
-| `icon` | primitive | `string` |  | Phosphor class name drawn at the field's start. |
+| `icon` | primitive | `string` |  | Phosphor class name drawn at the field's start through ArenaIcon. |
 | `prefix` | primitive | `string` |  | Static text Arena draws before the value, e.g. `git@`. |
 | `value` | primitive | `string` |  | The controlled text. |
 | `disabled` | primitive | `boolean` | `false` | Blocks editing and dims it. |
@@ -45,7 +45,7 @@ the column its parent lays out. The control is a real `<input>`, named by a real
 | `step` | primitive | `string` |  | Step, for number/date types. |
 | `maxLength` | primitive | `number` |  | Caps the length. |
 | `pattern` | primitive | `string` |  | A regex the value must match. |
-| `change` | event | `string` |  | Edited; carries the new value. |
+| `valueChange` | event | `string` |  | Edited; carries the new value. The native change of the inner field is never stopped, so a listener on the document hears it; this event carries the value. |
 | `blur` | event | `string` |  | Left the field; carries the value. |
 
 <!-- @api end -->
@@ -72,8 +72,8 @@ readonly validate = input<(value: string) => string>();
 Return the message, or the empty string when the value is good.
 
 **Do / Don't**
-- It is **controlled**. `value` is what the consumer owns; `change` fires on every keystroke and
-  carries the text. **Angular will not force the DOM back**: ignore `change` and the box keeps
+- It is **controlled**. `value` is what the consumer owns; `valueChange` fires on every keystroke and
+  carries the text. **Angular will not force the DOM back**: ignore `valueChange` and the box keeps
   what the user typed. Wire the signal.
 - `error` **wins over `validate`**, and it wins even when it is the empty string: a controlled
   error that is present-and-blank suppresses the validator and shows the hint. Every use of the
@@ -81,7 +81,7 @@ Return the message, or the empty string when the value is good.
   `ArenaInput.json` contracts. Pass `undefined`, not `''`, to mean "no controlled error".
 - `validate` runs on blur by default. The message appears only once the field is **touched**, so an untouched form never accuses the user of anything. `validateOn="change"` touches on the
   first keystroke instead; reach for it on a field with a cheap, obvious rule.
-- The valid state (green ring, check) is either `valid` set by the consumer, or a touched field
+- The valid state (success-tone ring, check) is either `valid` set by the consumer, or a touched field
   whose validator returned nothing. The member is not "the field has a value".
 - The focus ring is the field's, not the control's: the `field` slot carries `focus-within:`,
   so there is no focus signal to keep in sync with the DOM.
@@ -96,16 +96,20 @@ Return the message, or the empty string when the value is good.
 - The error line **replaces** the hint rather than stacking under it. Two lines of guidance under
   one field is one too many.
 - `type` is the `ArenaInputType` enum. `checkbox` and `radio` are not among them: those are
-  `<arena-checkbox>` and `ArenaRadio`, their own components.
-- Don't reach for `change` to run an expensive query. The output fires per keystroke by design. Debounce in the consumer, where the interval is a decision about that query rather than about the field.
+  `<arena-checkbox>` and `ArenaRadio`, their own components. `file` is not among them: that is
+  `<arena-file-input>`, because a chosen file is a platform object and no input or output of this
+  component can carry one. `range` is not among them: that is `<arena-slider>`. `number` stays a
+  type here: it keeps the browser's spinner and a string value, and `<arena-number-field>` is a
+  number Arena owns.
+- Don't reach for `valueChange` to run an expensive query. The output fires per keystroke by design. Debounce in the consumer, where the interval is a decision about that query rather than about the field.
 
 **By hand, in real Chromium**: none of these is provable in happy-dom. Run `bun run demos` and
 open `/frameworks/angular/components/forms/arena-input/ArenaInput.demo.generated.html`:
 - `type="date"`: the picker indicator is **visible** on the dark field and brightens on hover.
   Arena's own `[&::-webkit-calendar-picker-indicator]:` styling reads `--picker-invert` for that. Without it the browser draws a black glyph on a dark surface. Toggle
   `.arena-light` on `<html>` and it must invert with the theme.
-- The gold focus ring appears on the field group, not on the input, and a valid field keeps its
-  green border while showing that ring.
+- The focus ring appears on the field group, not on the input, and a valid field keeps its
+  success-tone border while showing that ring.
 - The error border and ring appear at rest, with no focus needed.
 - Typing into the validated field and leaving it produces the message on blur, and the
   `validateOn="change"` one produces it while typing and clears it again.

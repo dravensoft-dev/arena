@@ -1,0 +1,34 @@
+{
+  "component": "ArenaSplitButton",
+  "seed": {
+    "label": "Deployment",
+    "menuLabel": "More deploy options",
+    "icon": "ph-bold ph-rocket-launch",
+    "items": [
+      {
+        "label": "Deploy to staging",
+        "icon": "ph-bold ph-cloud-arrow-up"
+      },
+      {
+        "label": "Schedule deploy",
+        "icon": "ph-bold ph-clock"
+      },
+      {
+        "divider": true
+      },
+      {
+        "label": "Roll back",
+        "icon": "ph-bold ph-arrow-counter-clockwise",
+        "destructive": true
+      }
+    ]
+  },
+  "slots": {
+    "content": [
+      {
+        "text": "Deploy"
+      }
+    ]
+  },
+  "note": "The primary half runs the action; the caret opens the alternatives."
+}

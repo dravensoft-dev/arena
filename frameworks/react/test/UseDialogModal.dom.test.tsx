@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import React, { StrictMode, createRef, useState } from 'react';
 import { mount, cleanup, act } from './Harness.tsx';
-import { arenaFocusableElements, arenaFocusFirstFocusable, arenaTrapTabKey, useArenaDialogModal } from '../UseDialogModal.ts';
+import { arenaFocusableElements, arenaFocusFirstFocusable, arenaReclaimFocus, arenaRestoreOnTeardown, arenaTabStopOf, arenaTrapTabKey, useArenaDialogModal } from '../UseDialogModal.ts';
 
 function panelWith(html: string) {
   const el = document.createElement('div');
@@ -86,4 +86,119 @@ test('the invoker is remembered once, so a double-invoked effect does not restor
   cleanup();
   invoker.remove();
   panel.remove();
+});
+
+const ids = (list: readonly Element[]) => list.map((e) => e.id || e.textContent);
+const tab = (p: HTMLElement, active: Element | null, shiftKey: boolean) => {
+  let prevented = false;
+  arenaTrapTabKey(p, { key: 'Tab', shiftKey, preventDefault: () => { prevented = true; } }, active);
+  return prevented;
+};
+
+test('one stop per radio group: the checked radio, or the first', () => {
+  const p = panelWith('<button id="a">a</button>'
+    + '<input type="radio" name="g" id="g1"><input type="radio" name="g" id="g2" checked>'
+    + '<input type="radio" name="h" id="h1"><input type="radio" name="h" id="h2">'
+    + '<input type="radio" id="u1"><input type="radio" id="u2">');
+  assert.deepEqual(ids(arenaFocusableElements(p)), ['a', 'g2', 'h1', 'u1', 'u2']);
+  p.remove();
+});
+
+test('one name in two forms is two groups', () => {
+  const p = panelWith('<form><input type="radio" name="g" id="f1"></form>'
+    + '<form><input type="radio" name="g" id="f2"></form>'
+    + '<input type="radio" name="g" id="loose">');
+  assert.deepEqual(ids(arenaFocusableElements(p)), ['f1', 'f2', 'loose']);
+  p.remove();
+});
+
+test('a radio the form attribute gives to a form joins that form\'s group', () => {
+  const p = panelWith('<form id="owner"><input type="radio" name="g" id="inside"></form>'
+    + '<input type="radio" name="g" id="owned" form="owner" checked>'
+    + '<input type="radio" name="g" id="loose">');
+  assert.deepEqual(ids(arenaFocusableElements(p)), ['owned', 'loose']);
+  p.remove();
+});
+
+test('a disabled checked radio leaves its group entered on the first enabled radio', () => {
+  const p = panelWith('<input type="radio" name="g" id="r1"><input type="radio" name="g" id="r2" checked disabled>'
+    + '<input type="radio" name="g" id="r3">');
+  assert.deepEqual(ids(arenaFocusableElements(p)), ['r1']);
+  p.remove();
+});
+
+test('Shift+Tab from the first stop lands on the last radio of an unchecked last group', () => {
+  const p = panelWith('<button id="first">x</button><input type="radio" name="g" id="r1"><input type="radio" name="g" id="r2">');
+  const first = p.querySelector<HTMLElement>('#first')!;
+  first.focus();
+  assert.equal(tab(p, first, true), true, 'the key at a boundary must be consumed');
+  assert.equal(document.activeElement, p.querySelector('#r2'), 'Shift+Tab did not reach the last radio of the group');
+  p.remove();
+});
+
+test('Tab from any radio of the last group wraps to the first stop', () => {
+  const p = panelWith('<button id="first">x</button><input type="radio" name="g" id="r1"><input type="radio" name="g" id="r2">');
+  const r2 = p.querySelector<HTMLElement>('#r2')!;
+  r2.focus();
+  assert.equal(tab(p, r2, false), true, 'the key at a boundary must be consumed');
+  assert.equal(document.activeElement, p.querySelector('#first'), 'Tab from the last group did not wrap');
+  p.remove();
+});
+
+test('arenaTabStopOf maps a radio to its group stop and leaves anything else alone', () => {
+  const p = panelWith('<button id="a">a</button><input type="radio" name="g" id="g1"><input type="radio" name="g" id="g2" checked>'
+    + '<input type="radio" name="x" id="x1" disabled>');
+  const list = arenaFocusableElements(p);
+  const at = (id: string) => p.querySelector(`#${id}`)!;
+  assert.equal(arenaTabStopOf(list, at('g1')), at('g2'));
+  assert.equal(arenaTabStopOf(list, at('g2')), at('g2'));
+  assert.equal(arenaTabStopOf(list, at('a')), at('a'));
+  assert.equal(arenaTabStopOf(list, at('x1')), at('x1'));
+  assert.equal(arenaTabStopOf(list, null), null);
+  p.remove();
+});
+
+test('arenaReclaimFocus moves focus into the panel when it was dropped on the body', () => {
+  const p = panelWith('<button id="a">a</button><button id="b">b</button>');
+  (document.activeElement as HTMLElement | null)?.blur();
+  arenaReclaimFocus(p);
+  assert.equal(document.activeElement, p.querySelector('#a'), 'focus dropped on the body must come back to the first control');
+  p.remove();
+});
+
+test('arenaReclaimFocus leaves focus on a live control outside the panel', () => {
+  const p = panelWith('<button id="a">a</button>');
+  const popover = document.createElement('button');
+  document.body.appendChild(popover);
+  popover.focus();
+  arenaReclaimFocus(p);
+  assert.equal(document.activeElement, popover, 'a live control outside the panel keeps focus');
+  p.remove();
+  popover.remove();
+});
+
+test('arenaRestoreOnTeardown restores only from inside the panel or nowhere, and only to a connected invoker', () => {
+  const invoker = document.createElement('button');
+  const outside = document.createElement('button');
+  const p = panelWith('<button id="in">in</button>');
+  document.body.append(invoker, outside);
+  const inner = p.querySelector<HTMLElement>('#in')!;
+
+  inner.focus();
+  assert.equal(arenaRestoreOnTeardown(invoker, p, inner), true, 'focus inside the panel returns to the invoker');
+  assert.equal(document.activeElement, invoker);
+
+  outside.focus();
+  assert.equal(arenaRestoreOnTeardown(invoker, p, outside), false, 'a live control outside the panel keeps focus');
+  assert.equal(document.activeElement, outside);
+
+  (document.activeElement as HTMLElement).blur();
+  assert.equal(arenaRestoreOnTeardown(invoker, p, document.body), true, 'focus on the body returns to the invoker');
+  assert.equal(arenaRestoreOnTeardown(invoker, p, null), true, 'no active element returns to the invoker');
+
+  invoker.remove();
+  assert.equal(arenaRestoreOnTeardown(invoker, p, null), false, 'a disconnected invoker is not focused');
+  assert.equal(arenaRestoreOnTeardown(null, p, null), false, 'no invoker restores nothing');
+  outside.remove();
+  p.remove();
 });

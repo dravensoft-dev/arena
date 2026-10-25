@@ -1,7 +1,9 @@
-/* Both requirements of `navigation` are decidable from one element, so there is
- * no behavioural map. The landmark is a real <nav> INSIDE the fixture, taking the
- * carve-out the host rule provides for a root that must be a specific semantic
- * element -- so the subject is that element and not the fixture's own. */
+/* Both requirements of `navigation` are decidable from one element, so the only
+ * behavioural verdict is the `structured-data` one, `alternative.jsonLd`, earned
+ * beside it by the JSON-LD tests in this file. The landmark is a real <nav> INSIDE
+ * the fixture, taking the carve-out the host rule provides for a root that must be
+ * a specific semantic element -- so the subject is that element and not the
+ * fixture's own. */
 import { useTestEnvironment } from '../../../test/TestbedEnv';
 useTestEnvironment();
 
@@ -42,7 +44,12 @@ test('arena-breadcrumbs is a named nav landmark, and two of them are told apart'
     assert.notEqual(landmark(other).getAttribute('aria-label'), nav.getAttribute('aria-label'),
       'two trails on one page must be distinguishable, which a hardcoded label makes impossible');
 
-    assertPattern({ root: fixture.nativeElement as Element, bindingPath: BINDING, subjects: { default: nav } });
+    assertPattern({
+      root: fixture.nativeElement as Element,
+      bindingPath: BINDING,
+      subjects: { default: nav },
+      behavioural: { 'alternative.jsonLd': true },
+    });
   } finally {
     fixture.destroy();
     other.destroy();

@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { renderToStaticMarkup } from 'react-dom/server';
+import { renderIcons, symbols } from '../../../test/IconsHarness.tsx';
 import React from 'react';
 import { ArenaInput } from './ArenaInput.tsx';
 
 test('validate is accepted and shows no message before the field has been touched', () => {
-  const html = renderToStaticMarkup(
+  const html = renderIcons(
     <ArenaInput label="Email" validate={() => 'Bad email'} value="x" />,
   );
   assert.match(html, /Email/);
@@ -13,23 +13,22 @@ test('validate is accepted and shows no message before the field has been touche
 });
 
 test('type reaches the native control as its type attribute', () => {
-  assert.match(renderToStaticMarkup(<ArenaInput label="When" type="date" />), /type="date"/);
+  assert.match(renderIcons(<ArenaInput label="When" type="date" />), /type="date"/);
 });
 
-test('the icon class is drawn on an <i> and hidden from assistive tech', () => {
-  const html = renderToStaticMarkup(<ArenaInput label="Search" icon="ph-bold ph-magnifying-glass" />);
-  assert.match(html, /<i[^>]*class="ph-bold ph-magnifying-glass [^"]*"/,
-    "the Phosphor class the consumer named leads, and the manifest's icon slot follows it");
-  assert.match(html, /<i[^>]*aria-hidden="true"/);
+test('the icon class is drawn as an svg and hidden from assistive tech', () => {
+  const html = renderIcons(<ArenaInput label="Search" icon="ph-bold ph-magnifying-glass" />);
+  assert.deepEqual(symbols(html), ['bold-magnifying-glass'], 'the Phosphor class the consumer named is drawn as its sprite symbol');
+  assert.match(html, /data-arena-part="input.icon"[^>]*><svg[^>]*aria-hidden="true"/, "inside the manifest's icon slot");
 });
 
 test('prefix renders its string before the control', () => {
-  const html = renderToStaticMarkup(<ArenaInput label="Repository" prefix="git@" />);
+  const html = renderIcons(<ArenaInput label="Repository" prefix="git@" />);
   assert.match(html, /<span[^>]*>git@<\/span>/);
 });
 
 test('placeholder, name and autoComplete each reach the native input', () => {
-  const html = renderToStaticMarkup(
+  const html = renderIcons(
     <ArenaInput label="Email" placeholder="you@example.com" name="email" autoComplete="email" />,
   );
   assert.match(html, /placeholder="you@example.com"/);
@@ -39,7 +38,7 @@ test('placeholder, name and autoComplete each reach the native input', () => {
 });
 
 test('min, max, step, maxLength and pattern each reach the native input', () => {
-  const html = renderToStaticMarkup(
+  const html = renderIcons(
     <ArenaInput label="Count" type="number" min="1" max="9" step="2" maxLength={20} pattern="[0-9]+" />,
   );
   assert.match(html, /min="1"/);
@@ -50,24 +49,24 @@ test('min, max, step, maxLength and pattern each reach the native input', () => 
 });
 
 test('readOnly, disabled and required each reach the native input', () => {
-  const html = renderToStaticMarkup(<ArenaInput label="Slug" readOnly disabled required />);
+  const html = renderIcons(<ArenaInput label="Slug" readOnly disabled required />);
   assert.match(html, /readonly=""/);
   assert.match(html, /disabled=""/);
   assert.match(html, /required=""/);
 });
 
 test('value reaches the native input as the controlled text', () => {
-  assert.match(renderToStaticMarkup(<ArenaInput label="Slug" value="customer-portal" />), /value="customer-portal"/);
+  assert.match(renderIcons(<ArenaInput label="Slug" value="customer-portal" />), /value="customer-portal"/);
 });
 
 test('the label wires htmlFor to the id the component generates from the label text', () => {
-  const html = renderToStaticMarkup(<ArenaInput label="Deploy date" />);
+  const html = renderIcons(<ArenaInput label="Deploy date" />);
   assert.match(html, /<label for="in-deploy-date"/);
   assert.match(html, /<input id="in-deploy-date"/);
 });
 
 test('error renders below the field and marks the control invalid', () => {
-  const html = renderToStaticMarkup(<ArenaInput label="Email" error="Invalid format" hint="Ignored" />);
+  const html = renderIcons(<ArenaInput label="Email" error="Invalid format" hint="Ignored" />);
   assert.match(html, /aria-invalid="true"/);
   assert.match(html, /Invalid format/);
   assert.doesNotMatch(html, /Ignored/);
@@ -75,58 +74,82 @@ test('error renders below the field and marks the control invalid', () => {
 
 test('a consumer className does not reach the input -- its class is the manifest\'s and nothing else', () => {
   // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  const html = renderToStaticMarkup(<ArenaInput label="A" className="mine" />);
+  const html = renderIcons(<ArenaInput label="A" className="mine" />);
   assert.match(html, /<input[^>]*class="[^"]*\barena-input__input\b[^"]*"/);
   assert.doesNotMatch(html, /mine/, 'a consumer className was merged into the input class');
 });
 
 test('the picker indicator is styled by the manifest, so nothing injects a stylesheet for it', () => {
-  const html = renderToStaticMarkup(<ArenaInput label="When" type="date" />);
+  const html = renderIcons(<ArenaInput label="When" type="date" />);
   assert.match(html, /arena-input__input/,
     'the vendor pseudo-element is an arbitrary variant of the manifest now');
   assert.doesNotMatch(html, /\barena-input\b/, 'the hook class the injected sheet needed is gone with it');
 });
 
 test('the three field states are three branches of one recipe', () => {
-  const neutral = renderToStaticMarkup(<ArenaInput label="A" />);
+  const neutral = renderIcons(<ArenaInput label="A" />);
   assert.match(neutral, /data-arena-part="input.field"[^>]*\bdata-arena-state="neutral"/);
 
-  const bad = renderToStaticMarkup(<ArenaInput label="A" error="Nope" />);
+  const bad = renderIcons(<ArenaInput label="A" error="Nope" />);
   assert.match(bad, /data-arena-part="input.field"[^>]*\bdata-arena-state="error"/);
   assert.match(bad, /\barena-input__error\b/);
 
-  const good = renderToStaticMarkup(<ArenaInput label="A" valid />);
+  const good = renderIcons(<ArenaInput label="A" valid />);
   assert.match(good, /data-arena-part="input.field"[^>]*\bdata-arena-state="valid"/);
   assert.match(good, /data-arena-part="input.status-icon"[^>]*\bdata-arena-state="valid"/);
 });
 
 test('ArenaInput drops a consumer style object -- the ...style escape is gone', () => {
   // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  const html = renderToStaticMarkup(<ArenaInput label="A" style={{ color: '#ff00ff' }} />);
+  const html = renderIcons(<ArenaInput label="A" style={{ color: '#ff00ff' }} />);
   assert.doesNotMatch(html, /#ff00ff/, 'a consumer style reached the rendered root -- the R4 escape is back');
 });
 
 test('ArenaInput drops a consumer attribute -- the {...rest} escape is gone', () => {
-  const html = renderToStaticMarkup(<ArenaInput label="A" data-stray="x" />);
+  const html = renderIcons(<ArenaInput label="A" data-stray="x" />);
   assert.doesNotMatch(html, /data-stray/, 'a consumer attribute reached the rendered input -- the {...rest} escape is back');
 });
 
 test('a consumer id overrides the one generated from the label', () => {
-  const html = renderToStaticMarkup(<ArenaInput label="Email" id="signup-email" />);
+  const html = renderIcons(<ArenaInput label="Email" id="signup-email" />);
   assert.match(html, /id="signup-email"/);
   assert.match(html, /for="signup-email"/);
   assert.doesNotMatch(html, /in-email/, 'the generated id is still being used despite an explicit one');
 });
 
 test('without a consumer id the label-derived one is still generated', () => {
-  const html = renderToStaticMarkup(<ArenaInput label="Email" />);
+  const html = renderIcons(<ArenaInput label="Email" />);
   assert.match(html, /id="in-email"/);
   assert.match(html, /for="in-email"/);
 });
 
 test('readOnly is a group on the field and the input', () => {
-  const on = renderToStaticMarkup(<ArenaInput label="Slug" readOnly />);
+  const on = renderIcons(<ArenaInput label="Slug" readOnly />);
   assert.match(on, /data-arena-part="input.field"[^>]*\bdata-arena-read-only=""/);
   assert.match(on, /data-arena-part="input.input"[^>]*\bdata-arena-read-only=""/);
-  assert.doesNotMatch(renderToStaticMarkup(<ArenaInput label="Slug" />), /read-only-true/);
+  assert.doesNotMatch(renderIcons(<ArenaInput label="Slug" />), /read-only-true/);
+});
+
+test('a hint is named by the field and carries the id followed by -note', () => {
+  const html = renderIcons(<ArenaInput label="Slug" hint="Lowercase only." />);
+  assert.match(html, /<input[^>]*aria-describedby="in-slug-note"/);
+  assert.match(html, /<span id="in-slug-note"[^>]*>Lowercase only\.<\/span>/);
+});
+
+test('an error replaces the hint under the same note id', () => {
+  const html = renderIcons(<ArenaInput label="Slug" hint="Lowercase only." error="Taken." />);
+  assert.match(html, /<input[^>]*aria-describedby="in-slug-note"/);
+  assert.match(html, /<span id="in-slug-note"[^>]*>Taken\.<\/span>/);
+  assert.doesNotMatch(html, /Lowercase only/);
+});
+
+test('a note takes the id the consumer gives, and a field with neither carries no aria-describedby', () => {
+  assert.match(renderIcons(<ArenaInput id="slug" hint="Help." />), /aria-describedby="slug-note"/);
+  assert.doesNotMatch(renderIcons(<ArenaInput label="Slug" />), /aria-describedby/);
+});
+
+test('validate returns the message or an empty string, never null', () => {
+  renderIcons(<ArenaInput label="N" validate={() => ''} />);
+  // @ts-expect-error a validator returns a string, empty for valid
+  renderIcons(<ArenaInput label="N" validate={() => null} />);
 });

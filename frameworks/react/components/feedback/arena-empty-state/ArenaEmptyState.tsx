@@ -5,18 +5,19 @@ import manifest from './ArenaEmptyState.classes.generated.ts';
 import type { ArenaHeadingLevel } from '../../../Api.generated';
 import type { ArenaEmptyStateClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon.tsx';
 
 export interface ArenaEmptyStateProps {
   className?: ArenaEmptyStateClass;
 
 
-  /** A Phosphor class name for the glyph Arena draws, muted. */
+  /** A Phosphor class name for the glyph ArenaIcon draws, muted. */
   icon?: string;
 
   /** The headline: what is empty. */
   title: string;
 
-  /** Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. It defaults to `h3`, the card rung of the title ladder, because an empty state fills the body of a region something above it already names, so its headline sits under that name rather than beside it. `none` is refused at runtime, the rule every component whose `title` is required follows: a title required because it names the thing it draws cannot also be told that the name is not one. */
+  /** Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. The default is `h3`, the card rung of the title ladder, because an empty state fills the body of a region something above it already names. The headline sits under that name rather than beside it. `none` is refused at runtime, the rule every component whose `title` is required follows. A title required because it names the thing it draws cannot also be told that the name is not one. */
   headingLevel?: ArenaHeadingLevel;
   /** A sentence of guidance under the title. */
   message?: string;
@@ -35,8 +36,8 @@ export function ArenaEmptyState({ className, icon, title, headingLevel = 'h3', m
   const styles = emptyStyles();
   const Heading = headingLevel;
   return (
-    <div className={arenaClassName('ArenaEmptyState', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
-      {icon && <div className={styles.icon()} data-arena-part={manifest.parts.icon} {...styles.$data.icon()}><i className={icon} aria-hidden="true" /></div>}
+    <div className={arenaClassName('ArenaEmptyState', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+      {icon && <div className={styles.icon()} data-arena-part={manifest.parts.icon} {...styles.$data.icon()}><ArenaIcon icon={icon} /></div>}
       {title && <Heading className={styles.title()} data-arena-part={manifest.parts.title} {...styles.$data.title()}>{title}</Heading>}
       {message && <div className={styles.message()} data-arena-part={manifest.parts.message} {...styles.$data.message()}>{message}</div>}
       {action && <div className={styles.action()} data-arena-part={manifest.parts.action} {...styles.$data.action()} data-arena-boundary="">{action}</div>}

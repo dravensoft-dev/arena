@@ -9,8 +9,8 @@ import { ArenaTab } from '../arena-tab/ArenaTab.tsx';
 
 afterEach(cleanup);
 
-const three = (props: { onChange?: (value: string) => void } = {}) => (
-  <ArenaTabs defaultValue="ov" onChange={props.onChange}>
+const three = (props: { onValueChange?: (value: string) => void } = {}) => (
+  <ArenaTabs defaultValue="ov" onValueChange={props.onValueChange}>
     <ArenaTab value="ov" label="Overview"><p>overview body</p></ArenaTab>
     <ArenaTab value="dp" label="Deployments"><p>deployments body</p></ArenaTab>
     <ArenaTab value="ac" label="Activity"><p>activity body</p></ArenaTab>
@@ -44,12 +44,26 @@ test('clicking a tab selects it: aria-selected, the tab stop and the panel all m
   assert.match(panelOf(root)!.textContent, /deployments body/);
 });
 
-test('change reported exactly one value per selection', () => {
+test('a selection reports exactly one value', () => {
   const seen: unknown[] = [];
-  const root = mount(three({ onChange: (v: string) => seen.push(v) }));
+  const root = mount(three({ onValueChange: (v: string) => seen.push(v) }));
   act(() => { tabsOf(root)[1]!.click(); });
   act(() => { tabsOf(root)[2]!.click(); });
   assert.deepEqual(seen, ['dp', 'ac']);
+});
+
+test('a native change inside a panel is not heard as a tab choice, and choosing a tab is heard once', () => {
+  const seen: unknown[] = [];
+  const root = mount(
+    <ArenaTabs value="ov" onValueChange={(v) => seen.push(v)}>
+      <ArenaTab value="ov" label="Overview"><select><option>one</option><option>two</option></select></ArenaTab>
+      <ArenaTab value="dp" label="Deployments"><p>deployments body</p></ArenaTab>
+    </ArenaTabs>,
+  );
+  act(() => { root.querySelector('select')!.dispatchEvent(new Event('change', { bubbles: true })); });
+  assert.deepEqual(seen, [], 'a field inside a panel reported a tab choice');
+  act(() => { tabsOf(root)[1]!.click(); });
+  assert.deepEqual(seen, ['dp'], 'choosing a tab did not report exactly once');
 });
 
 test('exactly one tab is in the tab sequence, before and after a move', () => {
@@ -63,7 +77,7 @@ test('exactly one tab is in the tab sequence, before and after a move', () => {
 test('a value naming no tab is still operable: an arrow moves from the tab stop', () => {
   const seen: unknown[] = [];
   const root = mount(
-    <ArenaTabs value="nope" onChange={(v) => seen.push(v)}>
+    <ArenaTabs value="nope" onValueChange={(v) => seen.push(v)}>
       <ArenaTab value="ov" label="Overview"><p>overview body</p></ArenaTab>
       <ArenaTab value="dp" label="Deployments"><p>deployments body</p></ArenaTab>
     </ArenaTabs>,

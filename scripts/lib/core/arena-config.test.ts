@@ -5,6 +5,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { arenaConfig, fontEntries, fontWeights, googleFontsUrl, GOOGLE_FONTS } from './arena-config.ts';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
+import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../arena/repo-root.ts';
 
 test('a family is asked for the weights Arena declares, one by one', () => {
@@ -17,25 +20,25 @@ test('a family is asked for the weights Arena declares, one by one', () => {
 test('the weight query is a list and never a range, because a range outside a family\'s axis is a 400', () => {
   const weights = fontWeights(repoRoot);
   assert.ok(weights.length > 1, 'typography.json declares one weight or none, so the query proves nothing');
-
-  for (const { src } of Object.values(fontEntries(repoRoot)) as { family: string; src: string }[]) {
-    assert.doesNotMatch(src, /wght@\d+\.\.\d+/,
-      `${src} spells the weights as a range. Google serves a range only when it lies inside the `
-      + "family's own wght axis and answers 400 otherwise, while a list is clamped to the nearest "
-      + 'weight the family has, so it holds for every family Arena declares.');
-    assert.ok(src.includes(`wght@${weights.join(';')}`), `${src} does not carry the declared weights`);
-  }
+  assert.doesNotMatch(googleFontsUrl('Archivo', weights), /wght@\d+\.\.\d+/,
+    'Google serves a range only when it lies inside the family\'s own wght axis and answers 400 otherwise, '
+    + 'while a list is clamped to the nearest weight the family has, so it holds for every family Arena declares.');
+  assert.ok(googleFontsUrl('Archivo', weights).includes(`wght@${weights.join(';')}`));
 });
 
-test('every font the example config names is asked for over the same Google endpoint', () => {
+test('every font the example config names is a woff2 beside the config, with the weights its record holds', () => {
   const { fonts } = arenaConfig(repoRoot);
   const roles = Object.keys(fonts);
   assert.ok(roles.length > 0, 'the example config names no font at all');
+  const record = readJson(join(repoRoot, 'assets', 'fonts', 'Fonts.generated.json'));
 
   for (const role of roles) {
-    assert.ok(fonts[role]?.family, `fonts.${role} has no family`);
-    assert.ok(fonts[role]?.src.startsWith(`${GOOGLE_FONTS}?family=`), `fonts.${role}.src is not a Google Fonts URL`);
-    assert.ok(fonts[role]?.src.includes(fonts[role]?.family.replace(/ /g, '+')),
-      `fonts.${role}.src asks for a different family than fonts.${role}.family names`);
+    const font = fonts[role] as { family: string; src: string; weight: string };
+    assert.ok(font.family, `fonts.${role} has no family`);
+    assert.match(font.src, /^\.\/fonts\/[\w-]+\.woff2$/, `fonts.${role}.src is not a path under ./fonts`);
+    const file = font.src.slice('./fonts/'.length);
+    assert.ok(existsSync(join(repoRoot, 'assets', 'fonts', file)), `${file} is not in assets/fonts`);
+    assert.equal(record[file].family, font.family);
+    assert.equal(font.weight, record[file].weights.join(' '));
   }
 });

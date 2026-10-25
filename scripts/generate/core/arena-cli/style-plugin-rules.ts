@@ -1,13 +1,14 @@
 /* The floors a reader is owed and the shape a moved token takes, stated once and run in two
- * places. Arena runs it over what it ships; a consumer's build runs it over what they wrote, and
- * the two have to agree or one would be held to a weaker rule than the other. It lives inside the
- * command's own directory because that is the only tree a package carries: a module under scripts/
- * is a specifier that resolves here and to nothing beside a consumer's node_modules, so the shared
- * half goes in and the gates import upward, which is what audit.ts and palette-keys.ts already do.
- * Everything here is a function of plain data, reads no file and knows no path, since the
- * repository hands it CSS off disk and the CLI hands it CSS out of a package. scopeOn spells how
- * a scope class crosses a selector, and it is here for the same reason: the generator and the
- * emitter both write that selector, and two spellings of one cascade rule drift. */
+ * places: Arena runs it over what it ships, a consumer's build over what they wrote, and the two
+ * must agree. It lives inside the command's own directory because that is the only tree a package
+ * carries; the gates import upward, as audit.ts and palette-keys.ts do. Everything here is a
+ * function of plain data and reads no file. scopeOn, scopeKey and crossKeys spell how a scope class
+ * crosses a selector and where a reader finds it, since generator and emitter both write that rule.
+ * rootOnlyFor restates what :root alone computes (the contrast widths, the hero fit) on a plugin's
+ * class after its own block: both weigh the same, so order wins. highContrastFor does the same for
+ * the widths alone, on :root, after a project's own root answers. */
+
+import { POLARITIES } from './palette-keys.ts';
 
 export const ARENA_EXT = 'com.dravensoft.arena';
 
@@ -27,36 +28,49 @@ export const MAX_PROSE_MEASURE = 90;
 
 export const DANGER_FLOOR = 'hue-danger-fill-strong';
 
-export const RESERVED = new Map<string, string>([
-  ['divider', 'ArenaDivider, a rule between two regions (spec 01)'],
-  ['kbd', 'ArenaKbd, a key or a key combination (spec 02)'],
-  ['fieldset', 'ArenaFieldset, a labelled group of form controls (spec 03)'],
-  ['link', 'ArenaLink, an inline link (spec 04)'],
-  ['copy-button', 'ArenaCopyButton, a button that copies a value (spec 05)'],
-  ['meter', 'ArenaMeter, a value inside a known range (spec 06)'],
-  ['accordion', 'ArenaAccordion, a stack of disclosure sections (spec 10)'],
-  ['stepper', 'ArenaStepper, the steps of a process and where it stands (spec 11)'],
-  ['timeline', 'ArenaTimeline, milestones in order (spec 12)'],
-  ['number-field', 'ArenaNumberField, a formatted number input (spec 13)'],
-  ['pin-input', 'ArenaPinInput, a code entered one character per cell (spec 14)'],
-  ['file-input', 'ArenaFileInput, a file picker with a drop zone (spec 15)'],
-  ['slider', 'ArenaSlider, a number chosen inside a range (spec 16)'],
-  ['sparkline', 'ArenaSparkline, a small inline trend chart (spec 17)'],
-  ['gauge-chart', 'ArenaGaugeChart, one value against banded thresholds (spec 18)'],
-  ['filter-bar', 'ArenaFilterBar, the filters applied to a collection (spec 19)'],
-  ['funnel-chart', 'ArenaFunnelChart, the stages a count narrows through (spec 20)'],
-  ['popover', 'ArenaPopover, an anchored panel (spec 21)'],
-  ['combobox', 'ArenaCombobox, a text input that filters a list of options (spec 22)'],
-  ['split-button', 'ArenaSplitButton, an action with a menu of alternatives (spec 24)'],
-  ['tree-view', 'ArenaTreeView, a hierarchy that expands and collapses (spec 25)'],
-  ['heatmap-chart', 'ArenaHeatmapChart, values on a grid of two categories (spec 26)'],
-  ['sticky-head', 'the sticky family option that keeps a table head in view (spec 27)'],
-  ['sticky-none', 'the sticky family option that lets a table head scroll away (spec 27)'],
-]);
+export const RESERVED = new Map<string, string>();
 
-export const scopeOn = (className: string) => (selector: string) => (selector === ':root'
-  ? className
-  : `${className}${selector}, ${className} ${selector}, ${selector} ${className}`);
+export const POLARITY_HOOKS: ReadonlySet<string> = new Set(POLARITIES.map((polarity) => `polarity-${polarity}`));
+
+export const scopeOn = (className: string) => (selector: string, body: string) => (selector === ':root'
+  ? `${className}{${body}}`
+  : `@scope (${className}) {\n:where(:scope)${selector}, ${selector}{${body}}\n}\n@scope (${selector}) {\n${className}{${body}}\n}`);
+
+export const scopeKey = (root: string, selector: string) => `@scope (${root}) ${selector}`;
+
+export const crossKeys = (className: string, selector: string) =>
+  [scopeKey(className, selector), scopeKey(selector, className)];
+
+const HIGH_CONTRAST = /@media\s*\(prefers-contrast:\s*more\)\s*\{/;
+
+const rootDecls = (css: string, within?: RegExp) => {
+  const text = css.replace(/\/\*[\s\S]*?\*\//g, '');
+  const from = within ? within.exec(text) : null;
+  const scope = within ? (from ? text.slice(from.index + from[0].length) : '') : text;
+  const found = /:root\s*\{([^}]*)\}/.exec(scope);
+  if (!found && text.trim()) {
+    throw new Error(`rootOnlyFor: no :root block${within ? ' inside @media (prefers-contrast: more)' : ''} in a sheet that has `
+      + 'content, so the widths or the hero fit it computes would not reach a style plugin');
+  }
+  return [...(found?.[1] ?? '').matchAll(/(--[\w-]+)\s*:\s*([^;]+);/g)].map((m) => ({ name: m[1] as string, value: (m[2] as string).trim() }));
+};
+
+const linesOf = (decls: { name: string; value: string }[]) => decls.map((d) => `  ${d.name}:${d.value};`).join('\n');
+
+export const highContrastNames = (contrast: string) => rootDecls(contrast, HIGH_CONTRAST).map((d) => d.name);
+
+export function highContrastFor(className: string, sources: { contrast: string; environment: string }) {
+  const widened = rootDecls(sources.contrast, HIGH_CONTRAST);
+  return widened.length ? `@media (prefers-contrast: more) {\n${className}{\n${linesOf(widened)}\n}\n}` : '';
+}
+
+export function rootOnlyFor(className: string, sources: { contrast: string; environment: string }) {
+  const fit = rootDecls(sources.environment).filter((d) => d.name === '--title-hero-fit');
+  return [
+    highContrastFor(className, sources),
+    fit.length ? `${className}{\n${linesOf(fit)}\n}` : '',
+  ].filter(Boolean).join('\n');
+}
 
 export type RoleShape = { $type?: string; $extensions?: Record<string, { values?: unknown }> };
 
@@ -97,23 +111,47 @@ export function floorProblems(at: Map<string, string>, scope: string, where: str
 
 const COLOUR_ALIAS = /^\{color\.[a-z0-9-]+\}$/;
 
-export function valueProblems(where: string, key: string, token: MovedToken, role: RoleShape) {
+const ANY_ALIAS = /^\{([a-z][\w-]*(?:\.[\w-]+)*)\}$/;
+
+export type KnownAnswers = {
+  colourRoles?: (name: string) => boolean;
+  resolve?: (flat: string) => string | undefined;
+};
+
+export const aliasName = (value: string) => ANY_ALIAS.exec(value.trim())?.[1] ?? null;
+
+export function colourAnswer(value: string, self: string, known: KnownAnswers = {}) {
+  if (COLOUR_ALIAS.test(value.trim())) return true;
+  const named = aliasName(value);
+  return named !== null && named !== self && known.colourRoles?.(named) === true;
+}
+
+export function keywordAnswer(value: string, allowed: readonly unknown[], known: KnownAnswers = {}) {
+  if (allowed.includes(value)) return true;
+  const named = aliasName(value);
+  const resolved = named === null ? undefined : known.resolve?.(named.replace(/\./g, '-'));
+  return resolved !== undefined && allowed.includes(resolved);
+}
+
+export function valueProblems(
+  where: string, key: string, token: MovedToken, role: RoleShape, known: KnownAnswers = {},
+) {
   if (role.$type === 'color') {
     const value = token?.$value;
     if (typeof value !== 'string')
       return [`${where}: --${key} authors a colour outright. A style plugin assigns a colour and never authors one: `
         + 'the palette is the consumer\'s, and what a style plugin may say is WHICH of them a surface takes.'];
-    if (!COLOUR_ALIAS.test(value.trim()))
-      return [`${where}: --${key} is ${value}, and a colour role takes a {color.*} alias only. It is mechanical `
-        + 'as well as doctrinal: the emitter turns a bare colour alias into a var() it restates under every '
-        + 'theme, and anything else resolves to one theme\'s hex and inherits it into the other.'];
+    if (!colourAnswer(value, key, known))
+      return [`${where}: --${key} is ${value}, and a colour role takes a {color.*} alias or another colour role. `
+        + 'It is mechanical as well as doctrinal: the emitter turns a bare colour alias into a var() it restates '
+        + 'under every theme, and anything else resolves to one theme\'s hex and inherits it into the other.'];
     return [];
   }
   if (role.$type === 'keyword') {
     const allowed = role.$extensions?.[ARENA_EXT]?.values;
     if (!Array.isArray(allowed)) return [];
     const value = token?.$value;
-    if (typeof value !== 'string' || !allowed.includes(value))
+    if (typeof value !== 'string' || !keywordAnswer(value, allowed, known))
       return [`${where}: --${key} is ${JSON.stringify(value)}, not one of ${allowed.join(', ')}. `
         + 'The closed set is what makes a keyword a type rather than a string, and roles.json is where '
         + 'it is declared: a style plugin re-answers the question and does not widen it.'];
@@ -128,8 +166,6 @@ export function totalityProblems(declared: string[], answered: string[]) {
     + 'computed-value time, so the declaration reading it is dropped and the property disappears: '
     + 'an unanswered role is not a plainer appearance, it is a missing border.');
 }
-
-const ALIAS_PATH = /^\{([a-z][\w-]*(?:\.[\w-]+)*)\}$/;
 
 type Answers = { tokens: Record<string, unknown>; light: Record<string, unknown> };
 
@@ -146,7 +182,7 @@ export function withDefaults<P extends Answers>(
     const lightOnly = later !== undefined && Object.hasOwn(light, role);
     const alias = Object.hasOwn(roles, role) ? roles[role]?.default : undefined;
     if (typeof alias !== 'string' || open.includes(role) || rootSaid(role)) return lightOnly;
-    const target = ALIAS_PATH.exec(alias.trim())?.[1]?.replace(/\./g, '-');
+    const target = ANY_ALIAS.exec(alias.trim())?.[1]?.replace(/\./g, '-');
     if (target === undefined) return lightOnly;
     if (Object.hasOwn(roles, target)) {
       if (!answer(target, [...open, role])) return lightOnly;
@@ -165,6 +201,9 @@ export function withDefaults<P extends Answers>(
 }
 
 export function reservedProblems(name: string, where: string) {
+  if (POLARITY_HOOKS.has(name))
+    return [`${where}: "${name}" is the polarity hook a runtime palette wears, the class .arena-${name} every `
+      + 'build with "runtimePalettes": true emits, so a palette or plugin of that name would collide with it.'];
   const reason = RESERVED.get(name);
   if (reason === undefined) return [];
   return [`${where}: "${name}" is held for ${reason}, which Arena is going to ship as the class .arena-${name}. `
@@ -192,7 +231,9 @@ export function nameProblems(
   return problems;
 }
 
-export function keyProblems(where: string, key: string, token: MovedToken, role: RoleShape | undefined) {
+export function keyProblems(
+  where: string, key: string, token: MovedToken, role: RoleShape | undefined, known: KnownAnswers = {},
+) {
   const problems = [];
   const named = FS_STEP.test(key) ? 'an fs step' : RHYTHM_STEP.test(key) ? 'a rhythm step' : null;
   if (named) {
@@ -212,6 +253,6 @@ export function keyProblems(where: string, key: string, token: MovedToken, role:
     problems.push(`${where}: --${key} is a ${token?.$type} here and a ${role.$type} in roles.json, and the two cannot disagree`);
   if (!token?.$description)
     problems.push(`${where}: --${key} carries no $description, and a style plugin is a set of decisions rather than a set of values`);
-  problems.push(...valueProblems(where, key, token, role));
+  problems.push(...valueProblems(where, key, token, role, known));
   return problems;
 }

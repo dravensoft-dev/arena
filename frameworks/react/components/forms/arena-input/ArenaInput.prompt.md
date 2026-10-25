@@ -1,10 +1,10 @@
-Text field with validation (H5). Focus = gold ring, error = crimson with icon, valid = green with check. Requires the Phosphor sheets loaded for the state icons.
+Text field with validation (H5). Focus = the focus ring, error = the danger tone with icon, valid = the success tone with check. Requires the Phosphor sheets loaded for the state icons.
 
 ```tsx
 <ArenaInput label="Repository" required prefix="git@" placeholder="org/project" />
-<ArenaInput label="Email" validateOn="change" value={email} onChange={setEmail}
+<ArenaInput label="Email" validateOn="change" value={email} onValueChange={setEmail}
   validate={(v) => /.+@.+\..+/.test(v) ? null : 'Invalid email format'} />
-<ArenaInput label="Slug" valid value={slug} onChange={setSlug} hint="Available" />
+<ArenaInput label="Slug" valid value={slug} onValueChange={setSlug} hint="Available" />
 ```
 
 <!-- @api GENERATED from contracts/api/components/ArenaInput.json. Edit the contract, not this table. -->
@@ -14,15 +14,15 @@ Text field with validation (H5). Focus = gold ring, error = crimson with icon, v
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
 | `label` | primitive | `string` |  | Field label above the control. |
-| `id` | primitive | `string` |  | The control's id, and what the label's `for` points at. Generated from `label` when omitted, as `in-` followed by the label with each run of whitespace replaced by a single hyphen and the whole lowercased. The derivation is normative, and the prefix differs per component on purpose: the same markup must get the same id in every layer, and an ArenaInput and an ArenaTextarea sharing a label must not collide. |
+| `id` | primitive | `string` |  | The control's id, and what the label's `for` points at. Generated from `label` when omitted, as `in-` followed by the label with each run of whitespace replaced by a single hyphen and the whole lowercased. The derivation is normative, and the prefix differs per component on purpose. Identical markup must get an identical id in every layer, and an ArenaInput and an ArenaTextarea sharing a label must not collide. The hint or the error takes it followed by `-note`. |
 | `hint` | primitive | `string` |  | A line of help under the field. |
 | `error` | primitive | `string` |  | Controlled error message; wins over `validate`. |
-| `valid` | primitive | `boolean` | `false` | Force the valid (green check) state. |
+| `valid` | primitive | `boolean` | `false` | Force the valid (success-tone check) state. |
 | `required` | primitive | `boolean` | `false` | Marks the label and the control required. |
 | `validate` | functionInput | `(value: string) => string` |  | Called on the value; returns the error message, or empty for valid. |
 | `validateOn` | enum | `ArenaValidateOn` | `"blur"` | When `validate` runs. |
 | `type` | enum | `ArenaInputType` | `"text"` | Native input type. |
-| `icon` | primitive | `string` |  | Phosphor class name drawn at the field's start. |
+| `icon` | primitive | `string` |  | Phosphor class name drawn at the field's start through ArenaIcon. |
 | `prefix` | primitive | `string` |  | Static text Arena draws before the value, e.g. `git@`. |
 | `value` | primitive | `string` |  | The controlled text. |
 | `disabled` | primitive | `boolean` | `false` | Blocks editing and dims it. |
@@ -35,7 +35,7 @@ Text field with validation (H5). Focus = gold ring, error = crimson with icon, v
 | `step` | primitive | `string` |  | Step, for number/date types. |
 | `maxLength` | primitive | `number` |  | Caps the length. |
 | `pattern` | primitive | `string` |  | A regex the value must match. |
-| `onChange` | event | `string` |  | Edited; carries the new value. |
+| `onValueChange` | event | `string` |  | Edited; carries the new value. The native change of the inner field is never stopped, so a listener on the document hears it; this event carries the value. |
 | `onBlur` | event | `string` |  | Left the field; carries the value. |
 
 <!-- @api end -->
@@ -54,11 +54,11 @@ Rules: validates on `blur` by default; use `validateOn="change"` only for live f
 
 `validate` is the **ninth form**, a `functionInput`: the consumer hands Arena a function it calls on the field's value and whose result it uses. The function takes the value as a string, and returns the error message or nothing when the value is valid. The function is the only inbound one in the library, and it is legal only because `ArenaInput` is a data-entry control.
 
-`onChange` and `onBlur` carry the **value as a string** rather than the `ChangeEvent` or `FocusEvent`. A platform's own event type never travels in a payload, so the event does not reach you. Read the value directly (`onChange={setEmail}`); there is no `e.target` and no `preventDefault()`.
+`onValueChange` and `onBlur` carry the **value as a string** rather than the `ChangeEvent` or `FocusEvent`. A platform's own event type never travels in a payload, so the event does not reach you. Read the value directly (`onValueChange={setEmail}`); there is no `e.target` and no `preventDefault()`.
 
 `icon` is a **Phosphor class name Arena draws** (`icon="ph-bold ph-magnifying-glass"`), not a node you pass in; Arena renders the `<i>` and hides it from assistive tech. `prefix` is likewise **static text Arena draws** before the value (`prefix="git@"`).
 
-The members are `label`, `id`, `hint`, `error`, `valid`, `required`, `validate`, `validateOn`, `type`, `icon`, `prefix`, `value`, `disabled`, `readOnly`, `placeholder`, `name`, `autoComplete`, `min`, `max`, `step`, `maxLength` and `pattern`, plus `onChange` and `onBlur`. The members above are the whole API. There is no `InputHTMLAttributes` heritage clause and no `{...rest}` spread. Global attributes do not reach the `<input>`, which covers `className`, `dir`, `tabIndex`, ARIA and `data-*`, and neither does a consumer `style` object. **There is no `defaultValue` either**: the contract is about a controlled value, so give the field `value` and an `onChange`.
+The members are `label`, `id`, `hint`, `error`, `valid`, `required`, `validate`, `validateOn`, `type`, `icon`, `prefix`, `value`, `disabled`, `readOnly`, `placeholder`, `name`, `autoComplete`, `min`, `max`, `step`, `maxLength` and `pattern`, plus `onValueChange` and `onBlur`. The members above are the whole API. There is no `InputHTMLAttributes` heritage clause and no `{...rest}` spread. Global attributes do not reach the `<input>`, which covers `className`, `dir`, `tabIndex`, ARIA and `data-*`, and neither does a consumer `style` object. **There is no `defaultValue` either**: the contract is about a controlled value, so give the field `value` and an `onValueChange`.
 
 **`id` is the one global attribute that is a member.** The component generates one from `label` to wire the label's `htmlFor`. With no way to override it, an external `<label>`, an `aria-describedby` or a form library addressing the field by name would have no path at all. Pass it and it wins; omit it and the label-derived value is still generated.
 
@@ -74,7 +74,7 @@ Use the native types. Arena deliberately ships **no `DatePicker` and no `TimePic
 <ArenaInput label="Cutover" type="datetime-local" error="Pick a date in the future" />
 ```
 
-`type` is the `ArenaInputType` enum: `text`, `email`, `password`, `search`, `tel`, `url`, `number`, `date`, `time`, `datetime-local`. `checkbox` and `radio` are not among them: those are `ArenaCheckbox` and `ArenaRadio`, their own components.
+`type` is the `ArenaInputType` enum: `text`, `email`, `password`, `search`, `tel`, `url`, `number`, `date`, `time`, `datetime-local`. `checkbox` and `radio` are not among them: those are `ArenaCheckbox` and `ArenaRadio`, their own components. `file` is not among them: that is `ArenaFileInput`, because a chosen file is a platform object and no member or event of this component can carry one. `range` is not among them: that is `ArenaSlider`. `number` stays a type here: it keeps the browser's spinner and a string value, and `ArenaNumberField` is a number Arena owns.
 
 **Do**
 - Use `type="date"` / `"time"` / `"datetime-local"`. Label, focus ring, error and valid states all work on them.
@@ -99,7 +99,7 @@ function completeSale() {
   search.current?.select();
 }
 
-<ArenaInput ref={search} label="Search" value={query} onChange={setQuery} />
+<ArenaInput ref={search} label="Search" value={query} onValueChange={setQuery} />
 ```
 
 The two are a handle rather than props, because no member is imperative. An `autoFocus` prop would answer a different question: it fires once at mount, and chaining sales needs focus back after **every** completion. These two are the whole handle; `ArenaInput` exposes nothing else.

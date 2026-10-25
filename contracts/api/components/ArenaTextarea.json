@@ -5,9 +5,9 @@
   "api": {
     "label": { "form": "primitive", "type": "string", "description": "Field label; the counter and error sit under the field." },
     "id": { "form": "primitive", "type": "string",
-            "description": "The control's id, and what the label's `for` points at. Generated from `label` when omitted, as `ta-` followed by the label with each run of whitespace replaced by a single hyphen and the whole lowercased: the derivation ArenaInput.id states, under this component's own prefix." },
+            "description": "The control's id, and what the label's `for` points at. Generated from `label` when omitted, as `ta-` followed by the label with each run of whitespace replaced by a single hyphen and the whole lowercased. The derivation is the one ArenaInput.id states, under this component's own prefix. The hint or the error takes it followed by `-note`." },
     "hint": { "form": "primitive", "type": "string", "description": "A line of help under the field." },
-    "error": { "form": "primitive", "type": "string", "description": "Error message; turns the border crimson and shows below." },
+    "error": { "form": "primitive", "type": "string", "description": "Error message; turns the border to the danger tone and shows below." },
     "required": { "form": "primitive", "type": "boolean", "default": false, "description": "Marks the label and the control required." },
     "counter": { "form": "primitive", "type": "boolean", "default": false, "description": "Shows a live length/maxLength count, which warns once the length is STRICTLY past nine tenths of `maxLength`; exactly at the share is not yet near the limit." },
     "autoResize": { "form": "primitive", "type": "boolean", "default": false, "description": "Grows with the content instead of scrolling." },
@@ -18,6 +18,6 @@
     "name": { "form": "primitive", "type": "string", "description": "Submitted with the form." },
     "maxLength": { "form": "primitive", "type": "number", "description": "Caps the length; feeds the counter." },
     "rows": { "form": "primitive", "type": "number", "default": 4, "description": "Initial visible rows." },
-    "change": { "form": "event", "payload": "string", "description": "Edited; carries the new text." }
+    "valueChange": { "form": "event", "payload": "string", "description": "Edited; carries the new text. The native change of the inner field is never stopped, so a listener on the document hears it; this event carries the value." }
   }
 }

@@ -7,6 +7,7 @@ import { arenaInputStyles } from './ArenaInput.variants';
 import manifest from './ArenaInput.classes.generated';
 import { ArenaControlBinding, arenaWarnDoubleBinding } from '../../../ControlBinding';
 import { ArenaSlotAttributes } from '../../../SlotData';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
 
 export function arenaInputIdFor(id: string | undefined, label: string | undefined): string | null {
   if (id) return id;
@@ -16,7 +17,7 @@ export function arenaInputIdFor(id: string | undefined, label: string | undefine
 @Component({
   selector: 'arena-input',
   standalone: true,
-  imports: [ArenaSlotAttributes],
+  imports: [ArenaIcon, ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ArenaControlBinding],
   host: {
@@ -34,28 +35,28 @@ export function arenaInputIdFor(id: string | undefined, label: string | undefine
     }
     <div [class]="styles().field()" [arenaSlotData]="styles().$data.field()" [attr.data-arena-part]="parts.field">
       @if (icon()) {
-        <i [class]="iconClass()" [attr.data-arena-part]="parts.icon" aria-hidden="true"></i>
+        <span [class]="styles().icon()" [attr.data-arena-part]="parts.icon" aria-hidden="true"><arena-icon [icon]="icon()!" /></span>
       }
       @if (prefix(); as text) {
         <span [class]="styles().prefix()" [attr.data-arena-part]="parts.prefix">{{ text }}</span>
       }
       <input #control [class]="styles().input()" [arenaSlotData]="styles().$data.input()" [attr.data-arena-part]="parts.input" [attr.id]="controlId()" [attr.type]="type()"
              [value]="drawn() ?? ''" [disabled]="off()" [readOnly]="readOnly()"
-             [required]="required()" [attr.aria-invalid]="hasError()"
+             [required]="required()" [attr.aria-invalid]="hasError()" [attr.aria-describedby]="noteId()"
              [attr.placeholder]="placeholder()" [attr.name]="name()"
              [attr.autocomplete]="autoComplete()" [attr.min]="min()" [attr.max]="max()"
              [attr.step]="step()" [attr.maxlength]="maxLength()" [attr.pattern]="pattern()"
-             (input)="onInput($event)" (change)="onNativeChange($event)" (blur)="onBlur($event)" />
+             (input)="onInput($event)" (blur)="onBlur($event)" />
       @if (hasError()) {
-        <i [class]="statusIconClass('ph-fill ph-warning-circle')" [arenaSlotData]="styles().$data.statusIcon()" [attr.data-arena-part]="parts.statusIcon" aria-hidden="true"></i>
+        <span [class]="styles().statusIcon()" [arenaSlotData]="styles().$data.statusIcon()" [attr.data-arena-part]="parts.statusIcon" aria-hidden="true"><arena-icon icon="ph-fill ph-warning-circle" /></span>
       } @else if (isValid()) {
-        <i [class]="statusIconClass('ph-fill ph-check-circle')" [arenaSlotData]="styles().$data.statusIcon()" [attr.data-arena-part]="parts.statusIcon" aria-hidden="true"></i>
+        <span [class]="styles().statusIcon()" [arenaSlotData]="styles().$data.statusIcon()" [attr.data-arena-part]="parts.statusIcon" aria-hidden="true"><arena-icon icon="ph-fill ph-check-circle" /></span>
       }
     </div>
     @if (shownError(); as message) {
-      <span [class]="styles().error()" [attr.data-arena-part]="parts.error">{{ message }}</span>
+      <span [attr.id]="noteId()" [class]="styles().error()" [attr.data-arena-part]="parts.error">{{ message }}</span>
     } @else if (hint(); as text) {
-      <span [class]="styles().hint()" [attr.data-arena-part]="parts.hint">{{ text }}</span>
+      <span [attr.id]="noteId()" [class]="styles().hint()" [attr.data-arena-part]="parts.hint">{{ text }}</span>
     }
   `,
 })
@@ -70,13 +71,13 @@ export class ArenaInput {
 
   /** Field label above the control. */
   readonly label = input<string>();
-  /** The control's id, and what the label's `for` points at. Generated from `label` when omitted, as `in-` followed by the label with each run of whitespace replaced by a single hyphen and the whole lowercased. The derivation is normative, and the prefix differs per component on purpose: the same markup must get the same id in every layer, and an ArenaInput and an ArenaTextarea sharing a label must not collide. */
+  /** The control's id, and what the label's `for` points at. Generated from `label` when omitted, as `in-` followed by the label with each run of whitespace replaced by a single hyphen and the whole lowercased. The derivation is normative, and the prefix differs per component on purpose. Identical markup must get an identical id in every layer, and an ArenaInput and an ArenaTextarea sharing a label must not collide. The hint or the error takes it followed by `-note`. */
   readonly id = input<string>();
   /** A line of help under the field. */
   readonly hint = input<string>();
   /** Controlled error message; wins over `validate`. */
   readonly error = input<string>();
-  /** Force the valid (green check) state. */
+  /** Force the valid (success-tone check) state. */
   readonly valid = input(false, { transform: booleanAttribute });
   /** Marks the label and the control required. */
   readonly required = input(false, { transform: booleanAttribute });
@@ -92,7 +93,7 @@ export class ArenaInput {
     'text',
     { transform: (value) => value ?? 'text' },
   );
-  /** Phosphor class name drawn at the field's start. */
+  /** Phosphor class name drawn at the field's start through ArenaIcon. */
   readonly icon = input<string>();
   /** Static text Arena draws before the value, e.g. `git@`. */
   readonly prefix = input<string>();
@@ -118,8 +119,8 @@ export class ArenaInput {
   readonly maxLength = input<number>();
   /** A regex the value must match. */
   readonly pattern = input<string>();
-  /** Edited; carries the new value. */
-  readonly change = output<string>();
+  /** Edited; carries the new value. The native change of the inner field is never stopped, so a listener on the document hears it; this event carries the value. */
+  readonly valueChange = output<string>();
   /** Left the field; carries the value. */
   readonly blur = output<string>();
 
@@ -127,6 +128,10 @@ export class ArenaInput {
   private readonly touched = signal(false);
 
   protected readonly controlId = computed(() => arenaInputIdFor(this.id(), this.label()));
+  protected readonly noteId = computed(() => {
+    const control = this.controlId();
+    return control && (this.shownError() || this.hint()) ? `${control}-note` : null;
+  });
 
   protected readonly shownError = computed(() => {
     const controlled = this.error();
@@ -145,24 +150,14 @@ export class ArenaInput {
     readOnly: this.readOnly(),
   }));
 
-  protected readonly iconClass = computed(() => `${this.styles().icon()} ${this.icon() ?? ''}`.trim());
-
-  protected statusIconClass(glyph: string): string {
-    return `${glyph} ${this.styles().statusIcon()}`;
-  }
-
   protected onInput(event: Event): void {
     const text = (event.target as HTMLInputElement).value;
-    this.change.emit(text);
+    this.valueChange.emit(text);
     this.binding.onChange(text);
     if (this.validateOn() === 'change') {
       this.touched.set(true);
       this.runValidate(text);
     }
-  }
-
-  protected onNativeChange(event: Event): void {
-    event.stopPropagation();
   }
 
   protected onBlur(event: Event): void {

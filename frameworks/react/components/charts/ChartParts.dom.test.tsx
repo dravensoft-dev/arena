@@ -12,6 +12,10 @@ import { ArenaHorizontalBarChart } from './arena-horizontal-bar-chart/ArenaHoriz
 import { ArenaPyramidChart } from './arena-pyramid-chart/ArenaPyramidChart.tsx';
 import { ArenaRadarChart } from './arena-radar-chart/ArenaRadarChart.tsx';
 import { ArenaScatterChart } from './arena-scatter-chart/ArenaScatterChart.tsx';
+import { ArenaSparkline } from './arena-sparkline/ArenaSparkline.tsx';
+import { ArenaGaugeChart } from './arena-gauge-chart/ArenaGaugeChart.tsx';
+import { ArenaFunnelChart } from './arena-funnel-chart/ArenaFunnelChart.tsx';
+import { ArenaHeatmapChart } from './arena-heatmap-chart/ArenaHeatmapChart.tsx';
 
 if (!globalThis.document) {
   throw new Error('A .dom.test. suite needs its DOM installed before react-dom is evaluated; run it with the React preload.');
@@ -33,6 +37,7 @@ const SERIES_CHARTS: [string, string, () => React.ReactElement][] = [
   ['ArenaPyramidChart', 'pyramid-chart', () => <ArenaPyramidChart labels={LABELS} series={TWO} label="Deliveries" />],
   ['ArenaRadarChart', 'radar-chart', () => <ArenaRadarChart labels={LABELS} series={TWO} label="Deliveries" />],
   ['ArenaScatterChart', 'scatter-chart', () => <ArenaScatterChart series={CLOUD} label="Latency" xLabel="Requests" yLabel="p95" />],
+  ['ArenaHeatmapChart', 'heatmap-chart', () => <ArenaHeatmapChart labels={LABELS} series={TWO} label="Deliveries" />],
 ];
 
 for (const [name, part, render] of SERIES_CHARTS) {
@@ -103,6 +108,9 @@ test('ArenaDoughnutChart draws its legend row from the manifest', () => {
 const FRAME_CHARTS: [string, string, () => React.ReactElement][] = [
   ...SERIES_CHARTS,
   ['ArenaDoughnutChart', 'doughnut-chart', () => <ArenaDoughnutChart labels={LABELS} series={[{ label: 'North', values: [12, 30, 7] }]} label="Deliveries" />],
+  ['ArenaSparkline', 'sparkline', () => <ArenaSparkline labels={LABELS} series={[{ label: 'North', values: [12, 30, 7] }]} label="Deliveries" />],
+  ['ArenaGaugeChart', 'gauge-chart', () => <ArenaGaugeChart value={72} label="CPU load" />],
+  ['ArenaFunnelChart', 'funnel-chart', () => <ArenaFunnelChart labels={LABELS} series={[{ label: 'North', values: [12, 30, 7] }]} label="Deliveries" />],
 ];
 
 for (const [name, part, render] of FRAME_CHARTS) {
@@ -116,3 +124,45 @@ for (const [name, part, render] of FRAME_CHARTS) {
     if (part === 'doughnut-chart') assert.equal(frame.getAttribute('style'), null, 'the doughnut frame carries no inline style');
   });
 }
+
+test('ArenaSparkline draws its tooltip from the manifest once the cursor lands, and no legend at all', () => {
+  const root = mount(<ArenaSparkline labels={LABELS} series={[{ label: 'North', values: [12, 30, 7] }]} label="Deliveries" interactive />);
+  assert.equal(root.querySelector('[data-arena-part^="sparkline.legend"]'), null, 'one series is named by label, so no legend is drawn');
+  const region = root.querySelector<HTMLElement>('[role="group"]')!;
+  act(() => {
+    region.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true }));
+  });
+  const tooltip = root.querySelector<HTMLElement>('[data-arena-part="sparkline.tooltip"]');
+  assert.ok(tooltip, 'ArenaSparkline draws no tooltip part');
+  assert.ok(tooltip.className.split(' ').includes('arena-sparkline__tooltip'), 'the tooltip carries its generated class');
+  assert.equal(tooltip.style.padding, '', 'the tooltip carries no inline padding');
+  assert.equal(tooltip.style.background, '', 'the tooltip carries no inline background');
+  assert.ok(root.querySelector('[data-arena-part="sparkline.tooltip-label"]'), 'the label part is drawn');
+  assert.ok(root.querySelector('[data-arena-part="sparkline.tooltip-value"]'), 'the value part is drawn');
+});
+
+test('ArenaFunnelChart draws its tooltip from the manifest once the cursor lands, and no legend at all', () => {
+  const root = mount(<ArenaFunnelChart labels={LABELS} series={[{ label: 'North', values: [12, 30, 7] }]} label="Deliveries" />);
+  assert.equal(root.querySelector('[data-arena-part^="funnel-chart.legend"]'), null, 'one series is named by label, so no legend is drawn');
+  const region = root.querySelector<HTMLElement>('[role="group"]')!;
+  act(() => {
+    region.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true }));
+  });
+  const tooltip = root.querySelector<HTMLElement>('[data-arena-part="funnel-chart.tooltip"]');
+  assert.ok(tooltip, 'ArenaFunnelChart draws no tooltip part');
+  assert.ok(tooltip.className.split(' ').includes('arena-funnel-chart__tooltip'), 'the tooltip carries its generated class');
+  assert.equal(tooltip.style.padding, '', 'the tooltip carries no inline padding');
+  assert.equal(tooltip.style.background, '', 'the tooltip carries no inline background');
+  assert.ok(root.querySelector('[data-arena-part="funnel-chart.tooltip-label"]'), 'the label part is drawn');
+  assert.ok(root.querySelector('[data-arena-part="funnel-chart.tooltip-value"]'), 'the value part is drawn');
+});
+
+test('ArenaHeatmapChart paints each legend swatch inline from the step it keys, the one colour the render computes', () => {
+  const root = mount(<ArenaHeatmapChart labels={LABELS} series={TWO} label="Deliveries" />);
+  const swatches = [...root.querySelectorAll<HTMLElement>('[data-arena-part="heatmap-chart.legend-swatch"]')];
+  assert.deepEqual(swatches.map((one) => one.style.background), [1, 2, 3, 4, 5].map((n) => `var(--color-heat-${n})`));
+  for (const one of swatches) {
+    assert.equal(one.hasAttribute('data-arena-tone'), false, 'a step is not a state');
+    assert.equal(one.hasAttribute('data-arena-color-id'), false, 'a step is not an identity');
+  }
+});

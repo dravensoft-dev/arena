@@ -1,0 +1,9 @@
+{
+  "component": "ArenaDivider",
+  "description": "A rule between two regions, drawn with the separator's own edge and width. Absent a label it is one <hr>, which a reader meets as a separator. With a label it is two decorative rules and the word between them, kept as text. The class arena-orientation-vertical stands it across the line it sits in. A vertical rule stretches to the height of a flex row, such as an arena-row, and is still announced as a separator. The divider owns no spacing: the stack or the row it sits in decides the air on either side.",
+  "affordances": [],
+  "api": {
+    "label": { "form": "primitive", "type": "string",
+               "description": "The word drawn between two rules, plain text and never markup. Absent or blank, the divider is one <hr>. Arena draws it in the label register, so it is data rather than a slot." }
+  }
+}

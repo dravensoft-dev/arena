@@ -76,3 +76,43 @@ test('the content is projected once, not duplicated into both branches', () => {
     assert.equal((host.textContent ?? '').split('Everything shipped this week.').length - 1, 1);
   } finally { fixture.destroy(); }
 });
+
+@Component({
+  standalone: true,
+  imports: [ArenaCard, ArenaAction],
+  template: `<arena-card><ng-container><button action type="button">Go</button></ng-container></arena-card>`,
+})
+class ContainerHost {}
+
+@Component({
+  standalone: true,
+  imports: [ArenaCard, ArenaAction],
+  template: `<arena-card>@if (on) {<button action type="button">Go</button>}</arena-card>`,
+})
+class GuardedHost { on = true; }
+
+test('a marker inside an @if block directly in the card fills the card\'s head part', () => {
+  const fixture = TestBed.createComponent(GuardedHost);
+  try {
+    fixture.detectChanges();
+    const head = (fixture.nativeElement as Element).querySelector('[data-arena-part="card.head"]');
+    assert.ok(head, 'the card drew no head part for its action');
+    assert.ok(head.querySelector('button[action]'), 'the button is not inside the head part');
+  } finally {
+    fixture.destroy();
+  }
+});
+
+test('a marker inside an ng-container lands in the card\'s body, not its action part', () => {
+  const fixture = TestBed.createComponent(ContainerHost);
+  try {
+    fixture.detectChanges();
+    const host = fixture.nativeElement as Element;
+    const button = host.querySelector('button[action]');
+    assert.ok(button, 'the button inside the container did not render');
+    assertNoNode(host.querySelector('[data-arena-part="card.head"] button[action]'), 'the container carried the marker into the head');
+    assert.ok(button.closest('[data-arena-part="card.body"]'), 'the button is not in the default slot');
+  } finally {
+    fixture.destroy();
+  }
+});

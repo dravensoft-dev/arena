@@ -3,9 +3,9 @@
  * masking pair is asserted both ways round, since the one pass that reads a string and the passes
  * that must not are the shape this gate got wrong first. */
 
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
@@ -14,8 +14,14 @@ import {
   optionalPeerProblems, packageOf, rootClosureProblems, shipped, topLevelStatements, withoutComments, zeroScanProblems,
 } from './check-architecture.ts';
 
+const made: string[] = [];
+const track = (dir: string) => { made.push(dir); return dir; };
+after(() => {
+  for (const dir of made) rmSync(dir, { recursive: true, force: true });
+});
+
 function tree(files: Record<string, string>) {
-  const base = mkdtempSync(join(tmpdir(), 'arena-architecture-'));
+  const base = track(mkdtempSync(join(tmpdir(), 'arena-architecture-')));
   for (const [rel, text] of Object.entries(files)) {
     const path = join(base, rel);
     mkdirSync(join(path, '..'), { recursive: true });

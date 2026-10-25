@@ -76,7 +76,7 @@ export const elementRoles = memoBy(
   },
 );
 
-export const LABEL_ACCEPTS_TEXT = new Set(['button', 'checkbox', 'disclosure', 'switch']);
+export const LABEL_ACCEPTS_TEXT = new Set(['accordion', 'button', 'checkbox', 'disclosure', 'switch']);
 
 export function roleOf(el: GenericElement, resolveId?: IdResolver) {
   const explicit = el.getAttribute('role');
@@ -143,6 +143,7 @@ export const ATTRIBUTE_FOR: Record<string, string> = {
   'roles.activedescendant': 'aria-activedescendant',
   'roles.describedby': 'aria-describedby',
   'states.selected': 'aria-selected',
+  'states.level': 'aria-level',
 };
 
 export const IDREF_ATTRIBUTES = new Map([
@@ -160,7 +161,7 @@ export const IDREF_ATTRIBUTES = new Map([
   }],
   ['aria-describedby', {
     match: 'some',
-    reason: "the one exception: ArenaTooltip merges the consumer's own description with Arena's bubble id, and the consumer's may name an element outside the component's rendered tree, so demanding that every id resolve would fail a correct component.",
+    reason: "a consumer's own description may name an element outside the component's rendered tree, as the tooltip's merged description does, so demanding that every id resolve would fail a correct component. A description that is the component's own id, as a confirmation's body is, resolves under either rule.",
   }],
 ]);
 
@@ -192,6 +193,9 @@ const ROLE_NAMED_BY_KEY: Record<string, string | string[]> = {
   'roles.group': ['group', 'radiogroup'],
   'roles.item': ['radio', 'menuitem', 'option'],
   'roles.graphic': 'img',
+  'roles.heading': 'heading',
+  'roles.treeitem': 'treeitem',
+  'roles.separator': 'separator',
 };
 
 export const DECIDABLE = new Set([
@@ -222,8 +226,8 @@ export const BEHAVIOURAL = new Set([
   'alternative.table', 'alternative.jsonLd',
 
   'states.disabled', 'states.required', 'states.readonly',
-  'states.multiselectable', 'states.busy', 'states.posinset',
-  'states.valuenow', 'states.valuemin', 'states.valuemax',
+  'states.multiselectable', 'states.busy', 'states.posinset', 'states.setsize',
+  'states.valuenow', 'states.valuemin', 'states.valuemax', 'states.valuetext', 'states.orientation',
 ]);
 
 export function evaluate(
@@ -304,16 +308,28 @@ export function evaluate(
 }
 
 export const QUANTIFIED = new Map([
+  ['accordion:roles.controls',
+    'each header button references its own panel, and every panel mounts whether shown or not, so a header whose panel id drifted is unmet however correct the first header is -- the idiom tabs:roles.controls states.'],
   ['feed:roles.article',
     'one article per unit of content, so a feed whose third row lost its role is unmet however correct the first row is. Decidable per element through ROLE_NAMED_BY_KEY, and quantified over elements the component renders itself -- which is what separates it from the two entries in NOT_QUANTIFIED below.'],
   ['listbox:states.selected',
     'aria-selected is true on each selected option and false on the rest, so one option cannot answer for the list.'],
+  ['menu-button:roles.item',
+    'every row the menu draws is a menuitem, so a menu whose third row lost its role is unmet however correct the first row is -- the idiom tree:roles.treeitem states, one requirement key over.'],
+  ['menu-button:roles.separator',
+    'every divider the menu draws is a separator, so a menu whose second divider lost its role is unmet however correct the first is -- the idiom tree:roles.treeitem states, one requirement key over.'],
   ['radiogroup:states.checked',
     'true on the checked button and false on the rest -- verbatim the idiom that quantifies tabs:states.selected, one requirement key over.'],
   ['tabs:roles.controls',
     'each tab references its own tabpanel; checking only the selected one is exactly the defect 8C6 shipped.'],
   ['tabs:states.selected',
     'true on the active tab and false on the rest -- the same quantification listbox states, written as "the rest".'],
+  ['tree:roles.treeitem',
+    'every node the tree draws is a treeitem, so a tree whose fourth row lost its role is unmet however correct the first row is -- the idiom feed:roles.article states, one requirement key over.'],
+  ['tree:states.level',
+    'aria-level is written on every node, 1 for a root, so a tree whose fourth row lost its level is unmet however correct the first row is -- the idiom feed:roles.article states, one requirement key over.'],
+  ['tree:states.selected',
+    'aria-selected is true on each selected node and false on the rest, so one node cannot answer for the tree -- verbatim the idiom listbox:states.selected states.'],
 ]);
 
 export const NOT_QUANTIFIED = new Map([
@@ -407,6 +423,38 @@ export function comparePattern({
       : `${key}: declared behavioural but never reached. ` +
         'Either the pattern no longer requires it, or it is now decidable from the DOM — ' +
         'remove it from `behavioural`.');
+  }
+  return problems;
+}
+
+export function comparePatterns({
+  entries, ...rest
+}: {
+  entries: { pattern: any; exceptions?: { requirement: string; reason?: string }[] }[];
+  subjects?: Record<string, any>;
+  fallback?: any;
+  behavioural?: Record<string, any>;
+  resolveId?: (id: string) => any;
+  resolveLabel?: (el: any) => any;
+}) {
+  const [only, ...others] = entries;
+  if (only && !others.length) {
+    return comparePattern({ pattern: only.pattern, binding: { exceptions: only.exceptions }, ...rest });
+  }
+  const behavioural = rest.behavioural ?? {};
+  const problems: string[] = [];
+  for (const { pattern, exceptions } of entries) {
+    const held = Object.fromEntries(Object.entries(behavioural).filter(([key]) => key in pattern.requires));
+    for (const problem of comparePattern({
+      pattern, binding: { exceptions }, ...rest, behavioural: held,
+    })) problems.push(`${pattern.name}: ${problem}`);
+  }
+  const names = entries.map((entry) => entry.pattern.name).join(', ');
+  for (const key of Object.keys(behavioural)) {
+    if (entries.some((entry) => key in entry.pattern.requires)) continue;
+    problems.push(
+      `${key}: declared behavioural, and no compared pattern requires it (${names}). ` +
+      'Remove it from `behavioural`.');
   }
   return problems;
 }

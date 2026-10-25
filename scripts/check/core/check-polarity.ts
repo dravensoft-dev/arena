@@ -55,7 +55,7 @@ export function vocabularyProblems(themes: typeof THEMES) {
 
 export function scopeOf(blocks: Map<string, string>, theme: { selector: string }) {
   const answers = new RegExp(`^${theme.selector}$`);
-  return [...blocks.keys()].find((selector) => answers.test(selector)) ?? null;
+  return [...blocks.keys()].find((selector) => selector.split(',').some((one) => answers.test(one.trim()))) ?? null;
 }
 
 export function declaredProblems(blocks: Map<string, string>, themes: typeof THEMES) {

@@ -2,23 +2,38 @@
  * frameworks/react/dist. That tree is git-ignored and emitted only by build:release, so pointed at
  * the real one these asserted a fact about the machine rather than about the code: green wherever
  * someone had built it, ENOENT out of walkFiles everywhere else, and never once a claim this file
- * makes. The real dist is checked by the gate, which is the caller that guards for it: collect()
- * runs the same functions over it and skips a package whose manifest is not there. */
+ * makes. The package half over the real dist is the gate's, which refuses a tree where either
+ * manifest is not there. */
 
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
+import { spawnSync } from 'node:child_process';
+import { pathToFileURL } from 'node:url';
 import { iconManifest } from '../../lib/arena/icon-manifest.ts';
 import {
-  GENERATED_PALETTE, PACKAGES, collect, componentMapProblems, componentReachProblems, bundledCssProblems, declaredComponents, distDir, exportProblems, globMatches, manifestProblems, paletteEquivalenceProblems, stripAtStatements, styleProblems,
-  payloadProblems, CARRIED_BY_PACKAGE, iconManifestProblems, entryPointProblems, COMPILED_BY_CONSUMER, cssListProblems, CSS_HOMES, directiveProblems, themeSheetProblems, themeCompileProblems, unlayeredTokenProblems
+  GENERATED_PALETTE, PACKAGES, collect, unassembled, layersOf, LAYERS, componentMapProblems, componentReachProblems, bundledCssProblems, declaredComponents, distDir, exportProblems, globMatches, manifestProblems, paletteEquivalenceProblems, stripAtStatements, styleProblems,
+  payloadProblems, CARRIED_BY_PACKAGE, iconManifestProblems, fontProblems, entryPointProblems, COMPILED_BY_CONSUMER, cssListProblems, CSS_HOMES, directiveProblems, themeSheetProblems, themeCompileProblems, unlayeredTokenProblems, consumerEntry
 } from './check-packages.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { budgetFor, deadline, type Deadline } from '../../lib/arena/deadline.ts';
 import { TERM_GRACE } from '../../lib/arena/child-output.ts';
 import { referenceText } from '../../lib/arena/consumer-references.ts';
+import { CLI_DEPENDENCIES } from '../../lib/arena/support-matrix.ts';
+import { RUNTIME_DEPENDENCIES as ANGULAR_RUNTIME_DEPENDENCIES } from '../../build/angular/build-angular-package.ts';
+import { toPosix } from '../../utils/posix-path.ts';
+import { LAYER_ORDER } from '../../lib/tailwind/component-sheets.ts';
+import { tailwindThemeSheet } from '../../lib/tailwind/theme-sheet.ts';
+import { compileEntry } from '../../lib/tailwind/tailwind-compile.ts';
+
+const made: string[] = [];
+const track = (dir: string) => { made.push(dir); return dir; };
+after(() => {
+  for (const dir of made) rmSync(dir, { recursive: true, force: true });
+});
 
 const [REACT_PACKAGE, ANGULAR_PACKAGE] = PACKAGES;
 if (!REACT_PACKAGE || !ANGULAR_PACKAGE) throw new Error('PACKAGES no longer declares both layers');
@@ -87,7 +102,8 @@ const manifest = (overrides = {}) => ({
   name: '@dravensoft/arena-react',
   version: '4.1.0',
   types: './Index.d.ts',
-  peerDependencies: { react: '>=18', '@phosphor-icons/web': '^2.1.2' },
+  dependencies: { ...CLI_DEPENDENCIES },
+  peerDependencies: { react: '>=18' },
   ...overrides,
 });
 
@@ -113,12 +129,38 @@ test('an install script is refused, whichever of the three names it takes', () =
   }
 });
 
-test('Phosphor is the consumer\'s, so bundling it or omitting the peer are both problems', () => {
-  const bundled = manifestProblems(REACT_PACKAGE, manifest({ dependencies: { '@phosphor-icons/web': '^2.1.2' } }), '4.1.0');
-  assert.ok(bundled.some((p) => /never a dependency/.test(p)));
+test('a manifest naming @phosphor-icons/web is a problem in any field, and one naming it nowhere is not', () => {
+  for (const field of ['dependencies', 'peerDependencies', 'devDependencies', 'optionalDependencies', 'peerDependenciesMeta']) {
+    const base = field === 'dependencies' ? { ...CLI_DEPENDENCIES } : {};
+    const named = manifestProblems(REACT_PACKAGE, manifest({ [field]: { ...base, '@phosphor-icons/web': field.endsWith('Meta') ? { optional: true } : '^2.1.2' } }), '4.1.0');
+    assert.ok(named.some((p) => p.includes('@phosphor-icons/web') && p.includes(field)), `${field}: ${named.join(' | ')}`);
+  }
+  assert.deepEqual(manifestProblems(REACT_PACKAGE, manifest(), '4.1.0'), []);
+});
 
-  const missing = manifestProblems(REACT_PACKAGE, manifest({ peerDependencies: { react: '>=18' } }), '4.1.0');
-  assert.deepEqual(missing, ['@dravensoft/arena-react: no peer on @phosphor-icons/web, and every component renders ph-* classes']);
+test('a layer manifest declares exactly the CLI\'s dependencies', () => {
+  const [first, ...rest] = Object.keys(CLI_DEPENDENCIES) as [string, ...string[]];
+  const without = Object.fromEntries(rest.map((name) => [name, CLI_DEPENDENCIES[name]]));
+  const missing = manifestProblems(REACT_PACKAGE, manifest({ dependencies: without }), '4.1.0');
+  assert.deepEqual(missing, [`@dravensoft/arena-react: dependencies lack ${first}, which the arena command needs at build time`]);
+
+  const extra = manifestProblems(REACT_PACKAGE, manifest({ dependencies: { ...CLI_DEPENDENCIES, lodash: '^4' } }), '4.1.0');
+  assert.deepEqual(extra, ['@dravensoft/arena-react: dependencies hold lodash, which is not one of the arena command\'s']);
+
+  assert.deepEqual(manifestProblems(REACT_PACKAGE, manifest({ dependencies: { ...CLI_DEPENDENCIES } }), '4.1.0'), []);
+  assert.deepEqual(manifestProblems(ANGULAR_PACKAGE,
+    manifest({ name: ANGULAR_PACKAGE.name, dependencies: { ...CLI_DEPENDENCIES, ...ANGULAR_RUNTIME_DEPENDENCIES } }), '4.1.0'), []);
+
+  const [name, range] = Object.entries(CLI_DEPENDENCIES)[0] as [string, string];
+  assert.deepEqual(manifestProblems(REACT_PACKAGE, manifest({ dependencies: { ...CLI_DEPENDENCIES, [name]: '^0.0.1' } }), '4.1.0'),
+    [`@dravensoft/arena-react: dependencies hold ${name} at ^0.0.1, and Arena pins ${range}`]);
+  const [runtimeName, runtimeRange] = Object.entries(ANGULAR_RUNTIME_DEPENDENCIES)[0] as [string, string];
+  assert.deepEqual(manifestProblems(ANGULAR_PACKAGE,
+    manifest({ name: ANGULAR_PACKAGE.name, dependencies: { ...CLI_DEPENDENCIES } }), '4.1.0'),
+    [`${ANGULAR_PACKAGE.name}: dependencies lack ${runtimeName}, which the layer's own code imports at run time`]);
+  assert.deepEqual(manifestProblems(ANGULAR_PACKAGE,
+    manifest({ name: ANGULAR_PACKAGE.name, dependencies: { ...CLI_DEPENDENCIES, [runtimeName]: '^0.0.1' } }), '4.1.0'),
+    [`${ANGULAR_PACKAGE.name}: dependencies hold ${runtimeName} at ^0.0.1, and Arena pins ${runtimeRange}`]);
 });
 
 test('an Arena package is always a peer, never a dependency', () => {
@@ -127,7 +169,7 @@ test('an Arena package is always a peer, never a dependency', () => {
 });
 
 function assembled(files: Record<string, string>) {
-  const dir = mkdtempSync(join(tmpdir(), 'arena-pkg-'));
+  const dir = track(mkdtempSync(join(tmpdir(), 'arena-pkg-')));
   for (const [path, body] of Object.entries(files) as [string, string][]) {
     const full = join(dir, path);
     mkdirSync(join(full, '..'), { recursive: true });
@@ -244,9 +286,64 @@ test('the two packages are named, and each dist sits under its own layer', () =>
   assert.equal(distDir('react', '/x'), join('/x', 'frameworks', 'react', 'dist'));
 });
 
+const refusal = (base: string, strict: string, layers?: string[]) => spawnSync(process.execPath, ['-e', [
+  `const { refuseUnassembled } = await import(${JSON.stringify(pathToFileURL(join(root, 'scripts', 'check', 'arena', 'check-packages.ts')).href)});`,
+  `refuseUnassembled('check:packages', ${JSON.stringify(base)}, { ARENA_CHECK_STRICT: ${JSON.stringify(strict)} }${layers ? `, ${JSON.stringify(layers)}` : ''});`,
+  "console.log('went on');",
+].join('\n')], { encoding: 'utf8' });
+
+test('check:packages refuses when either package is missing, naming the layers', () => {
+  assert.match(unassembled('/nowhere-at-all') ?? '', /react and angular is not assembled.*run bun run build:packages first/);
+  const base = track(mkdtempSync(join(tmpdir(), 'check-packages-one-')));
+  mkdirSync(distDir('react', base), { recursive: true });
+  writeFileSync(join(distDir('react', base), 'package.json'), '{}\n');
+  const reason = unassembled(base) ?? '';
+  assert.match(reason, /^angular is not assembled/);
+  assert.doesNotMatch(reason, /react/);
+  const soft = refusal(base, '0');
+  assert.equal(soft.status, 2, soft.stderr);
+  assert.match(soft.stderr, /check:packages: SKIPPED/);
+  assert.doesNotMatch(soft.stdout, /went on/);
+  assert.equal(refusal(base, '1').status, 1);
+  mkdirSync(distDir('angular', base), { recursive: true });
+  writeFileSync(join(distDir('angular', base), 'package.json'), '{}\n');
+  assert.equal(unassembled(base), null);
+  assert.match(refusal(base, '1').stdout, /went on/);
+});
+
+test('check:packages --layer requires and judges the one package it names, whatever the other is', () => {
+  const base = track(mkdtempSync(join(tmpdir(), 'check-packages-layer-')));
+  mkdirSync(distDir('react', base), { recursive: true });
+  writeFileSync(join(distDir('react', base), 'package.json'), '{}\n');
+  assert.equal(unassembled(base, ['react']), null);
+  assert.match(unassembled(base, ['angular']) ?? '', /^angular is not assembled/);
+  assert.match(refusal(base, '1', ['react']).stdout, /went on/);
+  assert.equal(refusal(base, '1', ['angular']).status, 1);
+  assert.deepEqual(collect(root, (layer) => distDir(layer, base), ['angular']).assembled, []);
+  assert.throws(() => collect(root, (layer) => distDir(layer, base), ['react']),
+    (error: Error) => error.message.includes(toPosix(join(distDir('react', base), 'css', 'tailwind-theme.css'))));
+});
+
+test('check:packages with no layer requires both packages, and a layer it does not know is refused', () => {
+  assert.deepEqual(layersOf([]), LAYERS);
+  assert.deepEqual(LAYERS, ['react', 'angular']);
+  assert.deepEqual(layersOf(['--layer=angular']), ['angular']);
+  assert.throws(() => layersOf(['--layer=vue']), /unknown layer vue; the layers are react, angular/);
+  assert.throws(() => layersOf(['--layers=react']), /unknown argument --layers=react/);
+  assert.throws(() => layersOf(['react']), /unknown argument react/);
+  const run = (arg: string) => spawnSync(process.execPath,
+    [join(root, 'scripts', 'check', 'arena', 'check-packages.ts'), arg], { encoding: 'utf8' });
+  const vue = run('--layer=vue');
+  assert.equal(vue.status, 1, vue.stderr);
+  assert.match(vue.stderr, /unknown layer vue/);
+  assert.match(run('--bogus').stderr, /unknown argument --bogus/);
+});
+
 test('the repository passes its own equivalence claim, over more than nothing', { timeout: BUDGET }, () => {
-  const { problems, compared } = collect(root);
+  const none = track(mkdtempSync(join(tmpdir(), 'arena-no-dist-')));
+  const { problems, compared, assembled } = collect(root, () => none);
   assert.deepEqual(problems, []);
+  assert.deepEqual(assembled, []);
   assert.ok(compared > 0, `${GENERATED_PALETTE} yielded no declaration to compare`);
 });
 
@@ -418,14 +515,14 @@ test('a wash of a colour the ink is not, stated once, is what a clean package lo
 });
 
 test('a package with no icons.json cannot tell a consumer what Arena draws for them', () => {
-  const problems = iconManifestProblems(PKG, mkdtempSync(join(tmpdir(), 'arena-pkg-')));
+  const problems = iconManifestProblems(PKG, track(mkdtempSync(join(tmpdir(), 'arena-pkg-'))));
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /no icons\.json/);
   assert.match(problems[0] ?? '', /reading this package as text/);
 });
 
 test('an icons.json that does not parse says so rather than reading as an empty list', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'arena-pkg-'));
+  const dir = track(mkdtempSync(join(tmpdir(), 'arena-pkg-')));
   writeFileSync(join(dir, 'icons.json'), '{ not json');
   const problems = iconManifestProblems(PKG, dir);
   assert.equal(problems.length, 1);
@@ -433,15 +530,32 @@ test('an icons.json that does not parse says so rather than reading as an empty 
 });
 
 test('an icons.json that outlived its renders fails, which is what keeps the list honest', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'arena-pkg-'));
-  writeFileSync(join(dir, 'icons.json'), JSON.stringify({ pairs: { bold: ['ph-ghost'] }, loose: [] }));
+  const dir = track(mkdtempSync(join(tmpdir(), 'arena-pkg-')));
+  writeFileSync(join(dir, 'icons.json'),
+    JSON.stringify({ components: { ArenaGhost: { pairs: { bold: ['ph-ghost'] }, loose: [] } }, fills: [] }));
+  const problems = iconManifestProblems(PKG, dir);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /is not what the renders say today/);
+});
+
+test('an icons.json that is one list for the whole package is not keyed by component and fails', () => {
+  const dir = track(mkdtempSync(join(tmpdir(), 'arena-pkg-')));
+  writeFileSync(join(dir, 'icons.json'), JSON.stringify({ pairs: { bold: ['ph-bell'] }, loose: [] }));
+  const problems = iconManifestProblems(PKG, dir);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /not keyed by component/);
+});
+
+test('an icons.json whose filled components drifted from the renders fails', () => {
+  const dir = track(mkdtempSync(join(tmpdir(), 'arena-pkg-')));
+  writeFileSync(join(dir, 'icons.json'), JSON.stringify({ ...iconManifest('react'), fills: [] }));
   const problems = iconManifestProblems(PKG, dir);
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /is not what the renders say today/);
 });
 
 test('a list assembled from the renders it was derived from is the passing case', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'arena-pkg-'));
+  const dir = track(mkdtempSync(join(tmpdir(), 'arena-pkg-')));
   writeFileSync(join(dir, 'icons.json'), `${JSON.stringify(iconManifest('react'), null, 2)}\n`);
   assert.deepEqual(iconManifestProblems(PKG, dir), []);
   rmSync(dir, { recursive: true });
@@ -455,7 +569,7 @@ test('every secondary entry point is an exports key of the assembled Angular pac
 });
 
 function distTree(files: Record<string, string>) {
-  const dir = mkdtempSync(join(tmpdir(), 'arena-pkg-'));
+  const dir = track(mkdtempSync(join(tmpdir(), 'arena-pkg-')));
   for (const [rel, text] of Object.entries(files)) {
     mkdirSync(join(dir, rel, '..'), { recursive: true });
     writeFileSync(join(dir, rel), text);
@@ -483,16 +597,56 @@ test('the packaged theme equals a fresh assembly', () => {
 });
 
 test('a consumer compile resolves Arena\'s scale, keeps a later key, and reaches none of Tailwind\'s defaults', () => {
-  const compiled = '@layer theme{:root{--color-base-100:var(--color-base-100)}}.bg-base-100{background-color:var(--color-base-100)}.p-4{padding:var(--spacing-4)}.bg-brand{background-color:var(--color-brand)}';
+  const compiled = LAYER_ORDER + '@layer theme{:root{--color-base-100:var(--color-base-100)}}.bg-base-100{background-color:var(--color-base-100)}.p-4{padding:var(--sp-4)}.bg-surface{background-color:var(--fill-surface)}.bg-brand{background-color:var(--color-brand)}';
   const dir = distTree({ 'css/tailwind-theme.css': '' });
   assert.deepEqual(themeCompileProblems(REACT_PKG, dir, () => compiled), []);
   assert.match(themeCompileProblems(REACT_PKG, dir, () => `${compiled}.bg-red-500{color:red}`).join('\n'), /bg-red-500/);
   assert.match(themeCompileProblems(REACT_PKG, dir, () => compiled.replace('.bg-brand', '.bg-other')).join('\n'), /below the import/);
+  assert.match(themeCompileProblems(REACT_PKG, dir, () => compiled.replace('var(--fill-surface)', 'var(--color-surface)')).join('\n'), /bg-surface does not read --fill-surface/);
+  assert.match(themeCompileProblems(REACT_PKG, dir, () => `@layer theme, base, components, utilities;\n${compiled}`).join('\n'), /arena-defaults is not the lowest layer/);
+});
+
+const firstSeen = (css: string) => [...new Set([...css.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/@layer\s+([\w\s,-]+?)\s*[;{]/g)]
+  .flatMap((m) => (m[1] ?? '').split(',').map((one) => one.trim())))];
+
+test('in the Tailwind entry a project compiles, arena-defaults ranks below base, so a layered rule of the project beats a package default', () => {
+  const dir = distTree({
+    'css/tailwind-theme.css': tailwindThemeSheet(),
+    'css/colors.css': readFileSync(join(root, 'contracts/design/colors.css'), 'utf8'),
+  });
+  const order = firstSeen(compileEntry(consumerEntry(dir)));
+  assert.ok(order.includes('arena-defaults'), `the entry reaches no arena-defaults layer: ${order.join(', ')}`);
+  assert.ok(order.indexOf('arena-defaults') < order.indexOf('base'), `the compiled order is ${order.join(', ')}`);
 });
 
 test('the token sheets arena.css reaches declare their custom properties outside any cascade layer', () => {
   assert.deepEqual(unlayeredTokenProblems(REACT_PKG, distTree({ 'arena.css': "@import './css/colors.css';", 'css/colors.css': ':root{--color-base-100:#141010}' })), []);
   assert.match(unlayeredTokenProblems(REACT_PKG, distTree({ 'arena.css': "@import './css/colors.css';", 'css/colors.css': '@layer x{:root{--color-base-100:#141010}}' })).join('\n'), /css\/colors\.css/);
+});
+
+const selfReferences = (...names: string[]) => `@theme { ${names.map((n) => `${n}: var(${n});`).join(' ')} }`;
+
+const inline = (...names: string[]) => `@theme inline { ${names.map((n) => `${n}: var(${n});`).join(' ')} }`;
+
+function defaultsTree(declarations: string, layer = 'arena-defaults', theme = `${selfReferences('--font-body', '--x-made')}\n${inline('--x-inline')}`) {
+  return distTree({
+    'arena.css': "@import './css/typography.css';",
+    'css/typography.css': `${LAYER_ORDER}@layer ${layer} {\n:root{${declarations}}\n}\n`,
+    'css/tailwind-theme.css': theme,
+  });
+}
+
+test('a name the theme always declares may sit in the defaults layer, and one it does not may not', () => {
+  assert.deepEqual(unlayeredTokenProblems(REACT_PKG, defaultsTree('--font-body:x')), []);
+  const made = unlayeredTokenProblems(REACT_PKG, defaultsTree('--x-made:1')).join('\n');
+  assert.match(made, /--x-made/);
+  assert.match(made, /arena build does not always write --x-made/);
+  const other = unlayeredTokenProblems(REACT_PKG, defaultsTree('--font-body:x', 'base')).join('\n');
+  assert.match(other, /inside a cascade layer/);
+});
+
+test('a self-reference in an inline theme block emits no variable, so the defaults layer may hold that name', () => {
+  assert.deepEqual(unlayeredTokenProblems(REACT_PKG, defaultsTree('--x-inline:1')), []);
 });
 
 test('a family channel declared inside a layer is not a token, and a token beside it still is', () => {
@@ -502,7 +656,7 @@ test('a family channel declared inside a layer is not a token, and a token besid
 });
 
 test('a shipped css file the page never names fails, and a css path the page names that does not ship fails', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'pkg-'));
+  const dir = track(mkdtempSync(join(tmpdir(), 'pkg-')));
   for (const rel of ['css/base.css', 'css/vocabulary/stack.css', 'css/components/arena-button.css']) {
     mkdirSync(dirname(join(dir, rel)), { recursive: true });
     writeFileSync(join(dir, rel), '');
@@ -515,7 +669,7 @@ test('a shipped css file the page never names fails, and a css path the page nam
 });
 
 test('the css/hues pattern row covers a shipped hue sheet, and without it the sheet fails', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'pkg-'));
+  const dir = track(mkdtempSync(join(tmpdir(), 'pkg-')));
   for (const rel of ['css/base.css', 'css/hues/arena-button.css']) {
     mkdirSync(dirname(join(dir, rel)), { recursive: true });
     writeFileSync(join(dir, rel), '');
@@ -529,10 +683,10 @@ test('the css/hues pattern row covers a shipped hue sheet, and without it the sh
 });
 
 test('a sheet only the other layer\'s section names does not count, and one naming an unshipped sheet fails', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'pkg-'));
+  const dir = track(mkdtempSync(join(tmpdir(), 'pkg-')));
   mkdirSync(join(dir, 'css'), { recursive: true });
   writeFileSync(join(dir, 'css/base.css'), '');
-  const base = mkdtempSync(join(tmpdir(), 'refs-'));
+  const base = track(mkdtempSync(join(tmpdir(), 'refs-')));
   mkdirSync(join(base, 'skills/design/references'), { recursive: true });
   writeFileSync(join(base, 'skills/design/references/stylesheets.md'),
     '| `css/base.css` | x |\n\n## Which sheet re-bases the Angular CDK overlay?\n\n`css/arena-cdk.css` ships here.\n');
@@ -543,4 +697,37 @@ test('a sheet only the other layer\'s section names does not count, and one nami
   assert.doesNotMatch(cssListProblems(pkg, dir, text('react')).join('\n'), /arena-cdk/);
   rmSync(dir, { recursive: true, force: true });
   rmSync(base, { recursive: true, force: true });
+});
+
+function fontsTree(files: Record<string, string>, record: Record<string, { sha256: string }>) {
+  const base = track(mkdtempSync(join(tmpdir(), 'arena-fontbase-')));
+  mkdirSync(join(base, 'assets', 'fonts'), { recursive: true });
+  writeFileSync(join(base, 'assets', 'fonts', 'Fonts.generated.json'), JSON.stringify(record));
+  const dir = track(mkdtempSync(join(tmpdir(), 'arena-pkg-')));
+  mkdirSync(join(dir, 'fonts'));
+  for (const [file, body] of Object.entries(files)) writeFileSync(join(dir, 'fonts', file), body);
+  return { base, dir };
+}
+
+const sha = (text: string) => createHash('sha256').update(text).digest('hex');
+
+test('a package carrying every recorded font and licence, byte for byte, has no font problem', () => {
+  const { base, dir } = fontsTree({ 'a.woff2': 'one', 'a.OFL.txt': 'two' }, { 'a.woff2': { sha256: sha('one') }, 'a.OFL.txt': { sha256: sha('two') } });
+  assert.deepEqual(fontProblems(PKG, dir, base), []);
+});
+
+test('a package missing a font, carrying a changed one or one the record does not name fails, naming the file', () => {
+  const record = { 'a.woff2': { sha256: sha('one') }, 'a.OFL.txt': { sha256: sha('two') } };
+  const missing = fontsTree({ 'a.woff2': 'one' }, record);
+  assert.match(fontProblems(PKG, missing.dir, missing.base).join('\n'), /a\.OFL\.txt: recorded in assets\/fonts\/Fonts\.generated\.json and not in the package/);
+  const changed = fontsTree({ 'a.woff2': 'other', 'a.OFL.txt': 'two' }, record);
+  assert.match(fontProblems(PKG, changed.dir, changed.base).join('\n'), /a\.woff2: sha256 .* in the package, recorded /);
+  const extra = fontsTree({ 'a.woff2': 'one', 'a.OFL.txt': 'two', 'b.woff2': 'x' }, record);
+  assert.match(fontProblems(PKG, extra.dir, extra.base).join('\n'), /b\.woff2: in the package and not recorded/);
+});
+
+test('a package with no fonts directory says so once, and the real packages carry the fonts they assemble', () => {
+  const bare = track(mkdtempSync(join(tmpdir(), 'arena-pkg-')));
+  assert.equal(fontProblems(PKG, bare, root).length, 1);
+  assert.match(fontProblems(PKG, bare, root)[0] ?? '', /no fonts\/ directory/);
 });

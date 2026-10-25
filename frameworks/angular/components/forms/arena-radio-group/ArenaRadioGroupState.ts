@@ -6,4 +6,5 @@ export class ArenaRadioGroupState {
   selected: Signal<string | undefined> = signal(undefined);
   disabled: Signal<boolean> = signal(false);
   choose: (value: string) => void = () => {};
+  resync: () => void = () => {};
 }

@@ -7,7 +7,7 @@
  * that prefix, and a native one does not, so the sheet would be looked for beside the manifest. */
 
 import { readFileSync, writeFileSync, mkdirSync, copyFileSync, rmSync, existsSync, statSync } from 'node:fs';
-import { ModuleKind, ScriptTarget, transpileModule } from 'typescript';
+import { preProcessFile, ModuleKind, ScriptTarget, transpileModule, transpileDeclaration, flattenDiagnosticMessageText } from 'typescript';
 import { join, dirname, relative, basename } from 'node:path';
 import { relPosix } from '../../utils/posix-path.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
@@ -18,6 +18,7 @@ import { componentMap, MAP_FILE } from './component-map.ts';
 import { iconManifest, MANIFEST_FILE } from './icon-manifest.ts';
 import { shippedNames } from '../../generate/core/arena-cli/icon-css.ts';
 import { manifestFiles } from '../tailwind/tailwind-compile.ts';
+import { tailwindThemeSheet, THEME_SOURCES } from '../tailwind/theme-sheet.ts';
 import { preflightSheet } from '../tailwind/component-sheets.ts';
 import { huePath } from '../tailwind/hue-sheet.ts';
 import { CONSUME, sheetPath } from '../../build/tailwind/build-tailwind.ts';
@@ -29,8 +30,7 @@ import { CSS_TARGETS } from '../../generate/arena/generate-tokens.ts';
 import { ARENA_EXT } from '../core/dtcg-shapes.ts';
 import { EXCLUDED_NAMES, EXCLUDED_PATTERNS, excluded } from './package-exclusions.ts';
 import { RULES } from './language-rules.ts';
-import { NODE_ENGINE } from './support-matrix.ts';
-import { AXES, PEERS, OPTIONAL_PEERS, BUILT_AGAINST, NODE_ENGINE as ENGINE } from './support-matrix.ts';
+import { AXES, CLI_DEPENDENCIES, PEERS, OPTIONAL_PEERS, BUILT_AGAINST, NODE_ENGINE, NODE_ENGINE as ENGINE } from './support-matrix.ts';
 import {
   ROUTER_SOURCE, ROUTER_FILE, MANIFEST_FILE as AGENT_MANIFEST, RULES_FILE as AGENT_RULES,
   SUPPORT_FILE, carriedSpecs, matchesSpec, payloadDir,
@@ -51,6 +51,34 @@ export const CSS_CHAIN: CssChainEntry[] = [
   { from: 'contracts/design/contrast.css', to: 'css/contrast.css' },
   { from: 'contracts/design/environment.css', to: 'css/environment.css' },
 ];
+
+export const BASE_SHEET = 'css/base.css';
+export const PRELUDE_SHEET = 'css/prelude.css';
+export const COMPONENTS_BARREL = 'css/components.css';
+export const ANGULAR_EXTRA: CssChainEntry[] = [{ from: 'frameworks/angular/theme/arena-cdk.css', to: 'css/arena-cdk.css' }];
+
+const CDK_IMPORT = "@import '@angular/cdk/overlay-prebuilt.css';";
+const CDK_PREBUILT = 'node_modules/@angular/cdk/overlay-prebuilt.css';
+const CDK_PACKAGE = 'node_modules/@angular/cdk/package.json';
+
+export const cdkAttribution = (version: string) =>
+  `/* @angular/cdk ${version}/overlay-prebuilt.css, (c) Google LLC, MIT: https://angular.dev/license */\n`;
+
+export function inlineCdkPrebuilt(bridge: string, prebuilt: string, version: string) {
+  if (!bridge.includes(CDK_IMPORT)) throw new Error(`inlineCdkPrebuilt: the bridge holds no ${CDK_IMPORT}`);
+  return bridge.replace(CDK_IMPORT, () => cdkAttribution(version) + prebuilt.trimEnd());
+}
+
+export const cdkVersion = (root = repoRoot) =>
+  (JSON.parse(readFileSync(join(root, CDK_PACKAGE), 'utf8')) as { version: string }).version;
+
+export function angularExtra(root = repoRoot): CssChainEntry[] {
+  const version = cdkVersion(root);
+  return ANGULAR_EXTRA.map((entry) => entry.from === undefined ? entry : {
+    to: entry.to,
+    content: inlineCdkPrebuilt(readFileSync(join(root, entry.from), 'utf8'), readFileSync(join(root, CDK_PREBUILT), 'utf8'), version),
+  });
+}
 
 export const arenaCssHeader = (name: string) => [
   `/* ${name} -- the invariant half of Arena's stylesheet.`,
@@ -125,6 +153,11 @@ export const SHEET_BANNERS = {
   ].join('\n'),
 };
 
+export function arenaCssLayers(extra: CssChainEntry[] = [], root = repoRoot) {
+  const families = sheetFamilies(root).map((one) => one.family).sort().map(packageSheetName);
+  return [...CSS_CHAIN.map(({ to }) => to), BASE_SHEET, PRELUDE_SHEET, COMPONENTS_BARREL, ...families, ...extra.map(({ to }) => to)];
+}
+
 export function componentSheets(css: string, split: (css: string) => { base: string }, root = repoRoot) {
   const { base } = split(css);
   const dir = join(root, 'frameworks', 'tailwind');
@@ -154,11 +187,11 @@ export function componentSheets(css: string, split: (css: string) => { base: str
   });
   const barrel = named.map(({ to }) => `@import './components/${basename(to)}';`).join('\n');
   return [
-    { to: 'css/base.css', content: `${SHEET_BANNERS.base}\n${preflightSheet(base)}` },
-    { to: 'css/prelude.css', content: readFileSync(join(consume, 'Prelude.generated.css'), 'utf8') },
+    { to: BASE_SHEET, content: `${SHEET_BANNERS.base}\n${preflightSheet(base)}` },
+    { to: PRELUDE_SHEET, content: readFileSync(join(consume, 'Prelude.generated.css'), 'utf8') },
     ...named,
     ...hueSheets,
-    { to: 'css/components.css', content: `${SHEET_BANNERS.components}\n${barrel}\n` },
+    { to: COMPONENTS_BARREL, content: `${SHEET_BANNERS.components}\n${barrel}\n` },
     ...sheetFamilies(root).map((one) => one.family).sort().map((family) => ({
       to: packageSheetName(family),
       content: readFileSync(join(root, ...VOCABULARY_SHEETS.split('/'), sheetName(family)), 'utf8'),
@@ -245,6 +278,30 @@ export function copyAgentPayload(dir: string, layer: string, name: string, root 
   return written;
 }
 
+export const FONTS_PACKAGE_DIR = 'fonts';
+
+export function copyFonts(dir: string, root = repoRoot) {
+  const record = readJson(join(root, 'assets', 'fonts', 'Fonts.generated.json')) as Record<string, unknown>;
+  const files = Object.keys(record);
+  const faces = files.filter((file) => file.endsWith('.woff2'));
+  if (faces.length === 0) {
+    throw new Error('package-assembly: the font record names no woff2, so the example config would point at fonts '
+      + 'the package does not carry and arena build could not cut any of them');
+  }
+  for (const face of faces) {
+    const licence = face.replace(/\.woff2$/, '.OFL.txt');
+    if (!files.includes(licence)) {
+      throw new Error(`package-assembly: ${face} has no ${licence} in the font record, and the package would `
+        + 'ship the font without the licence that lets anyone redistribute it');
+    }
+  }
+  return files.map((file) => {
+    const from = join(root, 'assets', 'fonts', file);
+    if (!existsSync(from)) throw new Error(`package-assembly: the font record names ${file} and assets/fonts holds none`);
+    return copy(from, dir, `${FONTS_PACKAGE_DIR}/${file}`);
+  });
+}
+
 export const BEHAVIOUR_DIR = 'contracts/behaviour';
 
 export function copyBehaviourContracts(dir: string, root = repoRoot) {
@@ -269,6 +326,43 @@ export function catalogueRole(role: Record<string, any>) {
   };
 }
 
+export const ALIAS_SOURCE = 'contracts/design/colors.css';
+export const ALIAS_BLOCK = ':root,.arena-dark,.arena-light';
+
+export function aliasDeclarations(root = repoRoot) {
+  const block = parseDecls(readFileSync(join(root, ALIAS_SOURCE), 'utf8')).get(ALIAS_BLOCK);
+  if (!block) {
+    throw new Error(`package-assembly: ${ALIAS_SOURCE} holds no ${ALIAS_BLOCK} block, so every palette arena build `
+      + 'writes would carry no alias and a component reading var(--focus-ring) would resolve to nothing');
+  }
+  return Object.fromEntries([...block].filter(([name]) => !name.startsWith('level-')));
+}
+
+const DECLARED_PROPERTY = /(?:^|[;{}\s])(--[A-Za-z0-9_-]+)\s*:/g;
+
+export function declaredProperties(css: string) {
+  const bare = css.replace(/\/\*[\s\S]*?\*\//g, '').replace(/"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'/g, '""');
+  return [...bare.matchAll(DECLARED_PROPERTY)].map(([, name = '']) => name);
+}
+
+export const CHANNEL_SOURCES = [
+  ...CSS_CHAIN.flatMap(({ from }) => (from === undefined ? [] : [from])),
+  'frameworks/tailwind/Utilities.generated.css', `${CONSUME}/**/*.css`,
+  ...THEME_SOURCES.theme, ...THEME_SOURCES.utilities,
+];
+
+export function shippedChannels(root = repoRoot) {
+  const sources = [
+    ...CSS_CHAIN.flatMap(({ from }) => (from === undefined ? [] : [readFileSync(join(root, from), 'utf8')])),
+    readFileSync(join(root, 'frameworks/tailwind/Utilities.generated.css'), 'utf8'),
+    ...walkFiles(join(root, CONSUME)).filter((file) => file.endsWith('.css')).map((file) => readFileSync(file, 'utf8')),
+    tailwindThemeSheet(root),
+  ];
+  const names = new Set<string>();
+  for (const source of sources) for (const name of declaredProperties(source)) names.add(name);
+  return [...names];
+}
+
 export function tokenCatalogue(root = repoRoot) {
   const decls = new Map<string, Map<string, string>>();
   for (const target of CSS_TARGETS) {
@@ -280,10 +374,16 @@ export function tokenCatalogue(root = repoRoot) {
   const roleFile = readJson(join(root, 'contracts', 'design', 'roles.json')) as Record<string, any>;
   const roles = Object.fromEntries(Object.entries(roleFile).map(([name, role]) => [name, catalogueRole(role)]));
 
-  return { tokens, roles };
+  const aliases = aliasDeclarations(root);
+  const listed = new Set([...Object.keys(tokens), ...Object.keys(roles), ...Object.keys(aliases)].map((name) => `--${name.replace(/^--/, '')}`));
+  const channels = shippedChannels(root).filter((name) => !listed.has(name) && !name.startsWith('--tw-')).sort();
+
+  return { tokens, roles, aliases, channels };
 }
 
 export const CLI_BINS = { arena: './bin/arena.mjs' };
+
+export const PALETTE_ENTRY = { types: './bin/palette.d.mts', module: './bin/palette.mjs' };
 
 export const CLI_SOURCES = ['arena-cli'];
 
@@ -294,6 +394,21 @@ export function emitCli(source: string) {
     compilerOptions: { target: ScriptTarget.ES2022, module: ModuleKind.ESNext, verbatimModuleSyntax: true },
   });
   return outputText.replace(SHIPPED_SPECIFIER, '$1$2.mjs$3');
+}
+
+export const declarationReach = (declared: string) => preProcessFile(declared, true, true).importedFiles.map((one) => one.fileName);
+
+export function emitDeclaration(source: string, name: string) {
+  const { outputText, diagnostics = [] } = transpileDeclaration(source, {
+    reportDiagnostics: true,
+    fileName: name,
+    compilerOptions: { target: ScriptTarget.ES2022, module: ModuleKind.ESNext, isolatedDeclarations: true, declaration: true },
+  });
+  if (diagnostics.length > 0) {
+    throw new Error(`package-assembly: ${name} has no declaration: `
+      + diagnostics.map((one) => flattenDiagnosticMessageText(one.messageText, '\n')).join('; '));
+  }
+  return outputText;
 }
 
 export function copyCli(dir: string, root = repoRoot) {
@@ -315,6 +430,16 @@ export function copyCli(dir: string, root = repoRoot) {
       written.push(one);
     }
   }
+  if (!written.includes(PALETTE_ENTRY.module)) {
+    throw new Error(`package-assembly: the manifest exports ${PALETTE_ENTRY.module} and nothing was copied there`);
+  }
+  const palette = join(root, 'scripts', 'generate', 'core', 'arena-cli', 'palette.ts');
+  const declared = emitDeclaration(readFileSync(palette, 'utf8'), 'palette.ts');
+  const reached = declarationReach(declared);
+  if (reached.length > 0) {
+    throw new Error(`package-assembly: palette.d.mts reaches ${reached.join(', ')}, and a consumer resolves only palette`);
+  }
+  write(dir, PALETTE_ENTRY.types.slice(2), declared);
   for (const [name, target] of Object.entries(CLI_BINS)) {
     if (!written.includes(target)) {
       throw new Error(`package-assembly: the manifest declares ${name} at ${target} and nothing was copied there`);
@@ -374,6 +499,7 @@ export function baseManifest(root = repoRoot) {
     ...pluginIdentity(root),
     bin: { ...CLI_BINS },
     engines: { node: NODE_ENGINE },
+    dependencies: { ...CLI_DEPENDENCIES },
   };
 }
 

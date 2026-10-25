@@ -1,15 +1,17 @@
 /* Covers check-icons.ts. The weight map is a fixture rather than the installed package, so a
  * case states a name and a weight without 1500 real ones behind it, and the vacuous-pass guard
- * is asserted directly: a gate that finds no stylesheet must fail rather than report clean. */
+ * is asserted directly: a gate that finds no glyph directory must fail rather than report clean. */
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { relPosix } from '../../utils/posix-path.ts';
 import {
-  EXEMPT, ICON_TOKEN, SCANNED_ROOTS, everyGlyph, scannedFiles, staleExemptions, tokenProblems,
+  EXEMPT, ICON_TOKEN, SCANNED_ROOTS, everyGlyph, untrackedRoots, scannedFiles, staleExemptions, tokenProblems,
   weightsFrom, zeroWeightProblems,
 } from './check-icons.ts';
 
@@ -21,11 +23,17 @@ const ARENA_WEIGHTS = new Map([
 
 function tree(files: Record<string, string>) {
   const root = mkdtempSync(join(tmpdir(), 'arena-icons-'));
+  const git = (...args: string[]) => {
+    const done = spawnSync('git', args, { cwd: root, encoding: 'utf8' });
+    assert.equal(done.status, 0, `git ${args.join(' ')}: ${done.stderr}`);
+  };
+  git('init', '-q');
   for (const [rel, body] of Object.entries(files) as [string, string][]) {
     const path = join(root, rel);
     mkdirSync(dirname(path), { recursive: true });
     writeFileSync(path, body);
   }
+  git('add', '-A');
   return root;
 }
 
@@ -65,7 +73,7 @@ test('the line number is the line the name is on', () => {
   assert.match(problems[0] ?? '', /a\.html:3/);
 });
 
-test('no stylesheet at all is a failure, not a clean pass over nothing', () => {
+test('no glyph directory at all is a failure, not a clean pass over nothing', () => {
   assert.deepEqual(zeroWeightProblems(ARENA_WEIGHTS), []);
   const problems = zeroWeightProblems(new Map());
   assert.equal(problems.length, 1);
@@ -103,8 +111,21 @@ test('the walk skips the directories that hold copies, and takes the roots by na
   rmSync(root, { recursive: true });
 });
 
+test('a scanned root that holds no tracked file never reaches a verdict, whoever ignores it', () => {
+  const root = tree({
+    '.gitignore': 'intro/\n',
+    'intro/plan.html': 'ph-bold ph-nope',
+    'frameworks/react/A.tsx': 'ph-bold ph-house',
+  });
+  assert.deepEqual([...untrackedRoots(root)], ['intro']);
+  const found = scannedFiles(root).map((p) => relPosix(root, p));
+  assert.deepEqual(found, ['frameworks/react/A.tsx'],
+    'a directory only this machine holds would otherwise fail the gate here and pass on a clone');
+  rmSync(root, { recursive: true });
+});
+
 test('the scanned roots are named by literal value', () => {
-  assert.deepEqual([...SCANNED_ROOTS].sort(), ['contracts', 'docs', 'frameworks', 'intro'],
+  assert.deepEqual([...SCANNED_ROOTS].sort(), ['contracts', 'frameworks', 'intro'],
     'adding a root is a decision: a tree nobody scans is a tree where a typo lives forever');
 });
 
@@ -117,4 +138,42 @@ test('the installed package yields every weight, each with a real glyph set', ()
     assert.ok(glyphs.size > 1000, `${name} yielded ${glyphs.size} glyphs, which is a parse failure`);
     assert.ok(glyphs.has('ph-house'), `${name} is missing a glyph every weight has`);
   }
+});
+
+test('a sprite symbol reference is checked as its glyph at its weight', () => {
+  assert.deepEqual(tokenProblems('<use href="../a.svg#ph-bold-house"></use>', 'a.html', ARENA_WEIGHTS), []);
+  assert.deepEqual(tokenProblems('<use href="#ph-regular-acorn"></use>', 'a.html', ARENA_WEIGHTS), []);
+  const missing = tokenProblems('<use href="a.svg#ph-fill-not-a-glyph"></use>', 'a.html', ARENA_WEIGHTS);
+  assert.equal(missing.length, 1);
+  assert.match(missing[0] ?? '', /a\.html:1/);
+  assert.match(missing[0] ?? '', /"ph-not-a-glyph" is not a Phosphor glyph in the "fill" weight/);
+  const wrongWeight = tokenProblems('<use href="a.svg#ph-fill-acorn"></use>', 'a.html', ARENA_WEIGHTS);
+  assert.equal(wrongWeight.length, 1);
+  assert.match(wrongWeight[0] ?? '', /"ph-acorn" is not a Phosphor glyph in the "fill" weight/);
+});
+
+test('a symbol id is not read as the bare glyph weight-name', () => {
+  assert.doesNotMatch(tokenProblems('<use href="#ph-bold-nope"></use>', 'a.html', ARENA_WEIGHTS).join('\n'),
+    /"ph-bold-nope"/);
+});
+
+test('glyph names resolve against @phosphor-icons/core', () => {
+  const cache = join(repoRoot, '.cache', 'plan-1.29');
+  mkdirSync(cache, { recursive: true });
+  const root = mkdtempSync(join(cache, 'icons-core-'));
+  const assets = join(root, 'node_modules', '@phosphor-icons', 'core', 'assets');
+  const lay = (weight: string, file: string) => {
+    mkdirSync(join(assets, weight), { recursive: true });
+    writeFileSync(join(assets, weight, file), '<svg/>');
+  };
+  lay('regular', 'house.svg'); lay('regular', 'acorn.svg');
+  lay('bold', 'house-bold.svg'); lay('fill', 'house-fill.svg');
+  lay('duotone', 'house-duotone.svg');
+  const weights = weightsFrom(root);
+  assert.deepEqual([...weights.keys()].sort(), ['ph', 'ph-bold', 'ph-duotone', 'ph-fill']);
+  assert.deepEqual([...(weights.get('ph') ?? [])].sort(), ['ph-acorn', 'ph-house']);
+  assert.deepEqual([...(weights.get('ph-bold') ?? [])], ['ph-house']);
+  assert.deepEqual([...(weights.get('ph-duotone') ?? [])], ['ph-house']);
+  assert.throws(() => weightsFrom(join(root, 'nowhere')), /ENOENT/, 'a missing assets directory fails on purpose');
+  rmSync(root, { recursive: true });
 });

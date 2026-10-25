@@ -2,9 +2,9 @@
  * takes: a level no chain of links reaches, a level reached through a sibling rather than a
  * parent, a README.md back on the branch, and a SURVIVORS entry whose file has gone. */
 
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
@@ -14,8 +14,14 @@ import {
 } from './check-agents.ts';
 import { trackedPages } from './check-agents-spec.ts';
 
+const made: string[] = [];
+const track = (dir: string) => { made.push(dir); return dir; };
+after(() => {
+  for (const dir of made) rmSync(dir, { recursive: true, force: true });
+});
+
 function tree(files: Record<string, string>) {
-  const base = mkdtempSync(join(tmpdir(), 'arena-agents-'));
+  const base = track(mkdtempSync(join(tmpdir(), 'arena-agents-')));
   for (const [rel, text] of Object.entries(files) as [string, string][]) {
     const path = join(base, rel);
     mkdirSync(join(path, '..'), { recursive: true });
@@ -130,4 +136,10 @@ test('an empty walk is a failure, because it reports every level reachable and e
   assert.equal(zeroScanProblems([]).length, 1);
   assert.match(zeroScanProblems([])[0] ?? '', /clean-looking pass over a tree it never opened/);
   assert.deepEqual(zeroScanProblems(['AGENTS.md']), []);
+});
+
+test('a pattern in a code span is not a link between routers', () => {
+  const known = new Set(['AGENTS.md', 'scripts/AGENTS.md', 'react\\|x']);
+  const span = '`' + String.raw`/node_modules[\\/](a|b)[\\/]/` + '`';
+  assert.deepEqual(linkedRouters('AGENTS.md', `${span} [s](./scripts/AGENTS.md)`, known), ['scripts/AGENTS.md']);
 });

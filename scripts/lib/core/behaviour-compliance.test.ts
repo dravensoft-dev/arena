@@ -6,7 +6,7 @@ import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../arena/repo-root.ts';
 import {
   roleOf, hasAccessibleName, isFocusable, evaluate,
-  DECIDABLE, BEHAVIOURAL, elementRoles, LABEL_ACCEPTS_TEXT, comparePattern,
+  DECIDABLE, BEHAVIOURAL, elementRoles, LABEL_ACCEPTS_TEXT, comparePattern, comparePatterns,
   QUANTIFIED, NOT_QUANTIFIED, IDREF, IDREF_ATTRIBUTES, ATTRIBUTE_FOR,
 } from './behaviour-compliance.ts';
 
@@ -281,6 +281,15 @@ test('evaluate resolves the role-named-by-key requirements, single and array', (
   assert.equal(evaluate(el('div'), 'roles.item', '', 'radiogroup'), false);
 });
 
+test('a header is decided by its heading role, native or explicit, and a styled div is not one', () => {
+  for (const tag of ['h2', 'h3', 'h6']) {
+    assert.equal(evaluate(el(tag), 'roles.heading', '', 'accordion'), true, tag);
+  }
+  assert.equal(evaluate(el('div', { role: 'heading', 'aria-level': '3' }), 'roles.heading', '', 'accordion'), true);
+  assert.equal(evaluate(el('div'), 'roles.heading', '', 'accordion'), false);
+  assert.equal(evaluate(el('button'), 'roles.heading', '', 'accordion'), false, 'the trigger is not its own heading');
+});
+
 test('evaluate credits native checked-ness for states.checked', () => {
 
   assert.equal(evaluate(el('input', { type: 'checkbox' }), 'states.checked', '', 'checkbox'), true);
@@ -352,7 +361,7 @@ test('evaluate returns null for a requirement no single element can decide', () 
 test('evaluate treats the conditional states as behavioural, not as presence', () => {
 
   assert.equal(evaluate(el('button', {}, 'Save'), 'states.disabled', '', 'button'), null);
-  for (const key of ['states.required', 'states.readonly', 'states.multiselectable', 'states.busy', 'states.posinset']) {
+  for (const key of ['states.required', 'states.readonly', 'states.multiselectable', 'states.busy', 'states.posinset', 'states.valuetext', 'states.orientation']) {
     assert.equal(evaluate(el('div'), key, '', 'textbox'), null, key);
   }
 });
@@ -803,4 +812,69 @@ test('every entry carries a reason', () => {
       assert.ok(typeof reason === 'string' && reason.length > 20, `${key}: no reason on file`);
     }
   }
+});
+
+const PRIMARY = { name: 'p', requires: { 'focus.onOpen': 'x' } };
+const ADDED = { name: 'q', additive: true, requires: { 'alternative.jsonLd': 'y' } };
+const target = el('div');
+
+test('comparePatterns holds an also pattern to its own requirements', () => {
+  const problems = comparePatterns({
+    entries: [{ pattern: PRIMARY }, { pattern: ADDED }],
+    fallback: target,
+    behavioural: { 'focus.onOpen': true },
+  });
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /q: alternative\.jsonLd: undecidable from the DOM and not declared behavioural/);
+});
+
+test('an exception on an also entry excuses that pattern alone', () => {
+  const problems = comparePatterns({
+    entries: [
+      { pattern: PRIMARY },
+      { pattern: ADDED, exceptions: [{ requirement: 'alternative.jsonLd', reason: 'not drawn here' }] },
+    ],
+    fallback: target,
+    behavioural: { 'focus.onOpen': true, 'alternative.jsonLd': false },
+  });
+  assert.deepEqual(problems, []);
+});
+
+test('a behavioural key no compared pattern requires is reported', () => {
+  const problems = comparePatterns({
+    entries: [{ pattern: PRIMARY }, { pattern: ADDED }],
+    fallback: target,
+    behavioural: { 'focus.onOpen': true, 'alternative.jsonLd': true, 'keyboard.Home': true },
+  });
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /keyboard\.Home: declared behavioural, and no compared pattern requires it/);
+});
+
+test('a key two compared patterns require is judged in each by the one verdict', () => {
+  const both = { name: 'r', additive: true, requires: { 'keyboard.Escape': 'z' } };
+  const first = { name: 'p', requires: { 'keyboard.Escape': 'x', 'focus.onOpen': 'x' } };
+  assert.deepEqual(comparePatterns({
+    entries: [{ pattern: first }, { pattern: both }],
+    fallback: target,
+    behavioural: { 'keyboard.Escape': true, 'focus.onOpen': true },
+  }), []);
+  const failing = comparePatterns({
+    entries: [{ pattern: first }, { pattern: both }],
+    fallback: target,
+    behavioural: { 'keyboard.Escape': false, 'focus.onOpen': true },
+  });
+  assert.equal(failing.length, 2);
+});
+
+test('one entry reports as a lone pattern does: unprefixed, and an unrequired key as never reached', () => {
+  const met = comparePatterns({ entries: [{ pattern: PRIMARY }], fallback: target, behavioural: { 'focus.onOpen': true } });
+  assert.deepEqual(met, []);
+  const undeclared = comparePatterns({ entries: [{ pattern: PRIMARY }], fallback: target, behavioural: {} });
+  assert.equal(undeclared.length, 1);
+  assert.match(undeclared[0] ?? '', /^focus\.onOpen: undecidable from the DOM and not declared behavioural/,
+    'a lone pattern names no pattern before the key');
+  const never = comparePatterns({ entries: [{ pattern: PRIMARY }], fallback: target, behavioural: { 'keyboard.Home': true, 'focus.onOpen': true } });
+  assert.equal(never.length, 1);
+  assert.match(never[0] ?? '', /^keyboard\.Home: declared behavioural but never reached/);
+  assert.doesNotMatch(never[0] ?? '', /no compared pattern requires it/);
 });

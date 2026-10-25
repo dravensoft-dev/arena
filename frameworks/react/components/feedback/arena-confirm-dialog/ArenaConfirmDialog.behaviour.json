@@ -1,4 +1,10 @@
 {
   "pattern": "alertdialog",
-  "exceptions": []
+  "exceptions": [],
+  "also": [
+    {
+      "pattern": "modal-focus",
+      "exceptions": []
+    }
+  ]
 }

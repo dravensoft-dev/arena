@@ -30,9 +30,9 @@ const ROLES = {
 test('the rules module carries floors, shape checks and the kernel defaults, and no design theory', () => {
   assert.deepEqual(Object.keys(rules).sort(), [
     'ARENA_EXT', 'DANGER_FLOOR', 'FS_STEP', 'KEBAB', 'MAX_PROSE_MEASURE', 'MIN_HEADING_LEADING',
-    'MIN_PROSE_LEADING', 'MIN_PROSE_MEASURE', 'RESERVED', 'RHYTHM_STEP',
-    'floorProblems', 'keyProblems', 'nameProblems', 'reservedProblems', 'scopeOn', 'totalityProblems', 'valueProblems',
-    'withDefaults',
+    'MIN_PROSE_LEADING', 'MIN_PROSE_MEASURE', 'POLARITY_HOOKS', 'RESERVED', 'RHYTHM_STEP',
+    'aliasName', 'colourAnswer', 'crossKeys', 'floorProblems', 'highContrastFor', 'highContrastNames', 'keyProblems', 'keywordAnswer', 'nameProblems', 'reservedProblems', 'rootOnlyFor', 'scopeKey', 'scopeOn',
+    'totalityProblems', 'valueProblems', 'withDefaults',
   ], 'a rule that keeps a catalogue coherent is Arena design theory, and a floor is a claim about '
   + 'a reader: only the second one has any business binding somebody else\'s product');
 });
@@ -132,6 +132,23 @@ test('a colour role may not point outside the palette, since only a colour alias
   assert.match(problems[0] ?? '', /\{color\./);
 });
 
+test('a colour role may name another colour role, and a keyword role an alias resolving to one of its words', () => {
+  const known = {
+    colourRoles: (name: string) => name === 'ink-muted' || name === 'ink-key',
+    resolve: (flat: string) => (flat === 'case-none' ? 'none' : flat === 'fs-h3' ? '24px' : undefined),
+  };
+  const colour = (value: string) => valueProblems('at', 'ink-key',
+    { $type: 'color', $value: value, $description: 'why' }, { $type: 'color' }, known);
+  assert.deepEqual(colour('{ink-muted}'), []);
+  assert.equal(colour('{ink-key}').length, 1, 'a role may not name itself');
+  assert.equal(colour('{tt-key}').length, 1, 'a keyword role is not a colour');
+  const role = { $type: 'keyword', $extensions: { 'com.dravensoft.arena': { values: ['none', 'uppercase'] } } };
+  const word = (value: string) => valueProblems('at', 'tt-key',
+    { $type: 'keyword', $value: value, $description: 'why' }, role, known);
+  assert.deepEqual(word('{case.none}'), []);
+  assert.equal(word('{fs.h3}').length, 1);
+});
+
 test('a keyword role is held to the set its own role declares', () => {
   const role = { $type: 'keyword', $extensions: { 'com.dravensoft.arena': { values: ['none', 'uppercase'] } } };
   assert.deepEqual(valueProblems('at', 'tt-eyebrow',
@@ -178,10 +195,21 @@ test('a role nothing moves resolves to what it inherits, and one that is moved t
 test('a theme block overrides the base one, and the base one is the dark answer because :root is dark', () => {
   const css = ':root{--shadow-surface-rest:none}\n'
     + '.arena-showcase{--shadow-surface-rest:RIM}\n'
-    + '.arena-light.arena-showcase, .arena-light .arena-showcase, .arena-showcase .arena-light'
-    + '{--shadow-surface-rest:DROP}';
+    + rules.scopeOn('.arena-light')('.arena-showcase', '--shadow-surface-rest:DROP');
   assert.equal(resolvedFor(css, 'showcase', 'dark').get('shadow-surface-rest'), 'RIM');
   assert.equal(resolvedFor(css, 'showcase', 'light').get('shadow-surface-rest'), 'DROP');
+});
+
+test('a cross written by scopeOn resolves for the light scope and not for the dark one', () => {
+  const css = ':root{--a:dark}\n.arena-showcase{--a:rim}\n' + rules.scopeOn('.arena-light')('.arena-showcase', '--a:drop');
+  assert.equal(resolvedFor(css, 'showcase', 'light').get('a'), 'drop');
+  assert.equal(resolvedFor(css, 'showcase', 'dark').get('a'), 'rim');
+});
+
+test('the plugin own answers are not read from its high-contrast block', () => {
+  const css = readFileSync(join(repoRoot, 'contracts/design-generated/style-plugin.complete.generated.css'), 'utf8');
+  assert.equal(resolvedFor(css, 'complete', 'light').get('bw-surface'), '2px');
+  assert.equal(resolvedFor('.arena-p{--bw:2px}\n@media (prefers-contrast: more) {\n.arena-p{--bw:9px}\n}', 'p').get('bw'), '2px');
 });
 
 test('a theme group is flattened to the tokens it holds, each labelled with the scope it overrides in', () => {
@@ -297,6 +325,15 @@ test('the default plugin answers a role with a kernel default the way the defaul
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '',
     /--ink-link is "\{color\.base-200\}" and its kernel default \{ink-eyebrow\} comes to "\{color\.secondary\}"/);
+});
+
+test('a keyword default that names an emitted keyword token is held to that token\'s word', () => {
+  const kernel = { 'tt-key': { $extensions: { 'com.dravensoft.arena': { default: '{case.none}' } } } };
+  const words = new Map([['case-none', 'none']]);
+  assert.deepEqual(defaultAnswerProblems(kernel, { 'tt-key': { $type: 'keyword', $value: 'none' } }, words), []);
+  const problems = defaultAnswerProblems(kernel, { 'tt-key': { $type: 'keyword', $value: 'uppercase' } }, words);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /--tt-key is "uppercase" and its kernel default \{case\.none\} comes to "none"/);
 });
 
 test('a light answer is held too, and a role the default plugin is silent on is totality\'s to report', () => {

@@ -12,8 +12,8 @@ import { contrast } from './validate-palette.mjs';
 import { parseBlocks, selectorPath, COLOUR_VAR, MIXED_VAR } from './css-blocks.ts';
 import type { CssBlock } from './css-blocks.ts';
 import { composite } from './oklab.ts';
-import { report } from './reports.ts';
-import type { Report } from './reports.ts';
+import { report } from './report.ts';
+import type { Report } from './report.ts';
 
 export type Level = {
   selector: string;
@@ -382,6 +382,10 @@ export function raisedReports(
 
 export const STATUS_HUES = ['danger', 'success', 'warning', 'info'];
 
+export function axisComparison(axis: number, separator: number) {
+  return axis.toFixed(2) === separator.toFixed(2) ? 'the same contrast as' : 'no more contrast than';
+}
+
 export function axisReports(roles: Map<string, string>, colors: Record<string, string>, theme: string) {
   const colour = (role: string) => colors[paletteKey(roles.get(role)) ?? ''];
   const axis = colour('edge-axis');
@@ -391,9 +395,9 @@ export function axisReports(roles: Map<string, string>, colors: Record<string, s
   const heavy = contrast(axis, page);
   const light = contrast(separator, page);
   if (heavy > light) return [];
-  return [report('contrast', `--edge-axis is lighter than --edge-separator in the ${theme} theme `
+  return [report('contrast', `--edge-axis has ${axisComparison(heavy, light)} --edge-separator in the ${theme} theme `
     + `(${heavy.toFixed(2)}:1 against ${light.toFixed(2)}:1 on base-100), so a chart's axis reads `
-    + 'fainter than its grid')];
+    + 'no heavier than its grid')];
 }
 
 export const EMPHASIS_PAIRS = ['primary', 'solid'];

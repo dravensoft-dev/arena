@@ -15,9 +15,9 @@ because a `<figcaption>` outside a `<figure>` is associated with nothing.
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `media` | slot |  |  | The picture itself, as the element you wrote: an img, a video, a canvas. It is clipped to the frame and meets its edges the way the style plugin says, which is why nothing here takes a source or an alternative text. Those belong to your element, and an image's alternative is editorial in a way nothing can derive. |
+| `media` | slot |  |  | The picture itself, as the element you wrote: an img, a video, a canvas. The picture is clipped to the frame and meets its edges the way the style plugin says, which is why nothing here takes a source or an alternative text. Those belong to your element, and an image's alternative is editorial in a way nothing can derive. |
 | `fallback` | slot |  |  | What the frame shows when there is no media, drawn centred and at rest rather than as an error: an icon standing for a category, a monogram, a shape. Absent along with media, the frame is an empty box of the right shape, which is what a loading wall wants. |
-| `overlay` | slot |  |  | Content laid over the media, on the wash the overlay role paints, so a mark or a line of text stays readable against a picture nobody chose. It is inside the frame and the caption is under it, which is the whole difference between the two. |
+| `overlay` | slot |  |  | Content laid over the media, on the wash the overlay role paints, so a mark or a line of text stays readable against a picture nobody chose. The overlay is inside the frame and the caption is under it, which is the whole difference between the two. |
 | `caption` | primitive | `string` |  | A line under the frame, rendered as a real figcaption inside a real figure, so the association is the platform's rather than a class name's. Absent, the figure renders no caption element at all rather than an empty one. |
 
 <!-- @api end -->
@@ -32,8 +32,16 @@ because a `<figcaption>` outside a `<figure>` is associated with nothing.
 **Keys:** none.
 <!-- @keys end -->
 
-**The three slots are attributes**, `media`, `fallback` and `overlay`, projected through the marker
-directives every Arena component with named slots uses.
+<!-- @markers GENERATED from the projection markers the component queries. -->
+**Markers**, one directive per slot:
+- `[fallback]` is `ArenaFallback`.
+- `[media]` is `ArenaMedia`.
+- `[overlay]` is `ArenaOverlay`.
+
+Put each marker your template writes in your own component's `imports`. An un-imported marker leaves its slot empty with no error, and `arena check` reports it. [Which markers must I import?](../../../../../skills/design/references/exports.md#which-angular-projection-markers-must-i-import)
+<!-- @markers end -->
+
+**The three slots are attributes**, `media`, `fallback` and `overlay`.
 
 **Nothing here takes a source or an alternative text**, and that is the point. The picture is the
 element you wrote, so `src`, `srcset`, `loading` and `alt` stay where the platform already asks for

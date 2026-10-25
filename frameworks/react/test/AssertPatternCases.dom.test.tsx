@@ -1,12 +1,18 @@
-import test from 'node:test';
+import test, { after } from 'node:test';
 import assert from 'node:assert/strict';
-import { writeFileSync, mkdtempSync } from 'node:fs';
+import { writeFileSync, mkdtempSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { assertPatternCases } from './AssertPattern.tsx';
 
+const made: string[] = [];
+const track = (dir: string) => { made.push(dir); return dir; };
+after(() => {
+  for (const dir of made) rmSync(dir, { recursive: true, force: true });
+});
+
 function bindingFile(binding: unknown) {
-  const dir = mkdtempSync(join(tmpdir(), 'arena-cases-'));
+  const dir = track(mkdtempSync(join(tmpdir(), 'arena-cases-')));
   const p = join(dir, 'X.behaviour.json');
   writeFileSync(p, JSON.stringify(binding));
   return p;

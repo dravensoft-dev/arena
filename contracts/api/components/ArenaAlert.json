@@ -10,7 +10,7 @@
     "content": { "form": "slot",
                  "description": "The message body." },
     "icon": { "form": "primitive", "type": "string",
-              "description": "A Phosphor class name overriding the tone's default glyph. Arena draws it." },
+              "description": "A Phosphor class name overriding the tone's default glyph. ArenaIcon draws it." },
     "actionLabel": { "form": "primitive", "type": "string",
                      "description": "The label of a single inline action button. Absent renders no action." },
     "action": { "form": "event",

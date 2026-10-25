@@ -6,14 +6,14 @@
  * of the consumer's own may wear the prefix. React is read through the import naming the package AND the JSX
  * opening the tag, and is unplaced only when both agree and the map still does not know it: an import alone is
  * a type or a helper as often as a component, and a tag alone belongs to whoever wrote it -- half this library
- * is called ArenaCard or ArenaTable in somebody's code. A list the consumer names is closed through the same
+ * is called ArenaCard or ArenaTable in somebody's code. A provider the index exports draws no sheet, as a chart does. A list the consumer names is closed through the same
  * pulledBy, so a sheet a component needs reaches a project that names its sheets as surely as one that scans. */
 
 export const AUTO = 'auto';
 
 export const SELECTOR_LIKE = /<(arena-[a-z0-9-]+)[\s/>]/g;
 
-export const HOOK_LIKE = /<[a-z][a-z0-9]*(?:\s(?:"[^"]*"|'[^']*'|[^<>"'])*?)?\s(arena-[a-z0-9-]+)(?=[\s/>=])/g;
+export const HOOK_LIKE = /<[a-z][a-z0-9]*(?:\s(?:"[^"]*"|'[^']*'|[^<>"'])*?)?\s\[?(arena-[a-z0-9-]+|arena[A-Z][A-Za-z0-9]*)(?=[\]\s/>=])/g;
 
 export type ComponentMap = {
   match: string;
@@ -21,6 +21,7 @@ export type ComponentMap = {
   needs: Record<string, string[]>;
   markers?: Record<string, string[]>;
   markerDirectives?: Record<string, string>;
+  sheetless?: string[];
 };
 
 export function selectorKeys(map: ComponentMap, sources: string[]) {
@@ -62,10 +63,11 @@ export function symbolKeys(map: ComponentMap, sources: string[], packageName: st
       opened.add(name);
     }
   }
+  const sheetless = new Set(map.sheetless ?? []);
   return {
     drawn: [...written].filter((key) => key in map.draws).sort(),
     unplaced: [...imported]
-      .filter((key) => opened.has(key) && !(key in map.draws))
+      .filter((key) => opened.has(key) && !(key in map.draws) && !sheetless.has(key))
       .sort(),
   };
 }

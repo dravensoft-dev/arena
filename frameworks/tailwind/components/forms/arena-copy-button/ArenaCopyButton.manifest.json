@@ -1,0 +1,38 @@
+{
+  "component": "ArenaCopyButton",
+  "answers": [
+    {
+      "family": "emphasis",
+      "options": [
+        "arena-emphasis-ghost",
+        "arena-emphasis-solid"
+      ],
+      "default": "arena-emphasis-ghost"
+    },
+    {
+      "family": "size",
+      "options": [
+        "arena-size-sm",
+        "arena-size-md",
+        "arena-size-lg"
+      ],
+      "default": "arena-size-md"
+    }
+  ],
+  "slots": {
+    "root": "relative inline-flex items-center w-fit",
+    "announcement": "sr-only"
+  },
+  "kind": {
+    "root": "none",
+    "announcement": "none"
+  },
+  "bound": {
+    "--arena-size-control-h": "read by the icon button the wrapper draws, which a size class on the wrapper reaches because a context option selects every answering part inside it",
+    "--arena-emphasis-fill": "read by the icon button the wrapper draws, for its ground, which an emphasis class on the wrapper reaches the same way",
+    "--arena-emphasis-fill-hover": "read by the icon button the wrapper draws, for its ground under the pointer",
+    "--arena-emphasis-ink": "read by the icon button the wrapper draws, for its glyph",
+    "--arena-emphasis-icon-edge": "read by the icon button the wrapper draws, for its edge",
+    "--arena-emphasis-edge-style": "read by the icon button the wrapper draws, for the style of its edge"
+  }
+}

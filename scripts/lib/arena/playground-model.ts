@@ -6,8 +6,8 @@
  * look identical on a page. The bind classes are not cosmetic: an Angular input() bound to
  * undefined holds undefined rather than falling back, so a member carrying a default may
  * never unbind, and a seed outranks a contract default. A Control's fields vary by form, so
- * it spreads into a Knob; a slot list holds nodes and a HOST's may also hold $subject,
- * which wrap() answers before any renderer recurses. */
+ * it spreads into a Knob; a node's lists are a component's slots and an element's children,
+ * walked by childLists(), and a HOST's may hold $subject, which wrap() answers first. */
 import { memberEntries, fieldEntries } from './contract-shapes.ts';
 import type { ComponentContract, MemberSpec, TypeContract, Types } from './contract-shapes.ts';
 
@@ -45,7 +45,7 @@ export type Knob = Control & {
 export type PlaygroundEvent = {
   name: string;
   payload: string | null;
-  bind: string | null;
+  bind: string | Record<string, unknown> | null;
   doc: string;
 };
 
@@ -56,10 +56,16 @@ export type FixtureNode = {
   members?: Record<string, any>;
   class?: string;
   slots?: Record<string, FixtureChild[]>;
+  children?: FixtureChild[];
   [other: string]: any;
 };
 
 export type FixtureChild = FixtureNode | typeof SUBJECT | null;
+
+export function childLists(node: FixtureNode): FixtureChild[][] {
+  const lists = Object.values(node.slots ?? {}) as FixtureChild[][];
+  return Array.isArray(node.children) ? [...lists, node.children] : lists;
+}
 
 export type Fixture = {
   component: string;
@@ -70,7 +76,21 @@ export type Fixture = {
   bind?: Record<string, any>;
   host?: FixtureChild;
   vars?: Record<string, string>;
+  variants?: Record<string, Record<string, any>>;
 };
+
+export function variantSeed(fixture: Pick<Fixture, 'component' | 'seed' | 'variants'>, name: string) {
+  const variant = fixture.variants?.[name];
+  if (!variant) {
+    throw new Error(`${fixture.component}.demo.json declares no variant "${name}", so there is no seed to draw it from`);
+  }
+  const merged: Record<string, any> = { ...(fixture.seed ?? {}) };
+  for (const [member, value] of Object.entries(variant)) {
+    if (value === null) delete merged[member];
+    else merged[member] = value;
+  }
+  return merged;
+}
 
 export type Place = { name: string; category: string; dir: string; self?: boolean };
 
@@ -172,7 +192,8 @@ export function controlFor(spec: MemberSpec, types: Types, nodes?: FixtureChild[
   }
   if (spec.form === 'object') return { control: 'fields', codec: 'json', fields: objectFields(typeOf(types, spec.type), types) };
   if (spec.form === 'functionInput') {
-    return { control: 'select', codec: 'raw', options: ['none', 'nonEmpty', 'alwaysInvalid'], params: spec.params, returns: spec.returns };
+    const options = spec.params?.value === 'number' ? ['none', 'alwaysInvalid'] : ['none', 'nonEmpty', 'alwaysInvalid'];
+    return { control: 'select', codec: 'raw', options, params: spec.params, returns: spec.returns };
   }
   if (spec.form === 'slot') {
     return isTextNodes(nodes) ? { control: 'slotText', codec: 'raw' } : { control: 'slotPresence', codec: 'flag' };
@@ -242,7 +263,7 @@ export function collectUses(node: FixtureChild, into: string[] = []): string[] {
   if (Array.isArray(node)) { for (const one of node) collectUses(one, into); return into; }
   if (typeof node !== 'object') return into;
   if (node.component && !into.includes(node.component)) into.push(node.component);
-  for (const list of Object.values(node.slots ?? {})) collectUses(list, into);
+  for (const list of childLists(node)) collectUses(list, into);
   return into;
 }
 
@@ -250,7 +271,7 @@ export function countSubjects(node: FixtureChild): number {
   if (node === SUBJECT) return 1;
   if (Array.isArray(node)) return node.reduce((n, one) => n + countSubjects(one), 0);
   if (node === null || typeof node !== 'object') return 0;
-  return Object.values(node.slots ?? {}).reduce((n, list) => n + countSubjects(list), 0);
+  return childLists(node).reduce((n, list) => n + countSubjects(list), 0);
 }
 
 export function playgroundModel(contract: ComponentContract,

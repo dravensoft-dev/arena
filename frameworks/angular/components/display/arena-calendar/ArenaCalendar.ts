@@ -17,13 +17,14 @@ import {
 import { arenaCalendarStyles } from './ArenaCalendar.variants';
 import manifest from './ArenaCalendar.classes.generated';
 import { ArenaSlotAttributes } from '../../../SlotData';
+import { ArenaIcon } from '../arena-icon/ArenaIcon';
 
 const MINUTE = 60000;
 
 @Component({
   selector: 'arena-calendar',
   standalone: true,
-  imports: [ArenaSlotAttributes],
+  imports: [ArenaIcon, ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ArenaCalendarState],
   host: { style: 'display: contents' },
@@ -31,11 +32,11 @@ const MINUTE = 60000;
     <section #frame [class]="styles().root()" [attr.data-arena-part]="parts.root" [attr.aria-label]="regionName()">
       <div [class]="styles().toolbar()" [attr.data-arena-part]="parts.toolbar">
         <button type="button" [class]="styles().nav()" [attr.data-arena-part]="parts.nav" [attr.aria-label]="locale.calendarPrevious" (click)="step(-1)">
-          <i class="ph-bold ph-caret-left" aria-hidden="true"></i>
+          <arena-icon icon="ph-bold ph-caret-left" />
         </button>
         <button type="button" [class]="styles().today()" [attr.data-arena-part]="parts.today" (click)="goto(today())">{{ locale.calendarToday }}</button>
         <button type="button" [class]="styles().nav()" [attr.data-arena-part]="parts.nav" [attr.aria-label]="locale.calendarNext" (click)="step(1)">
-          <i class="ph-bold ph-caret-right" aria-hidden="true"></i>
+          <arena-icon icon="ph-bold ph-caret-right" />
         </button>
         <div [class]="styles().heading()" [attr.data-arena-part]="parts.heading">{{ title() }}</div>
         @if (actionsSlot()) {
@@ -117,7 +118,7 @@ export class ArenaCalendar {
   readonly weekStartsOn = input(1, { transform: numberAttribute });
   /** Drop Sunday from the week unless an event falls on it. */
   readonly hideEmptyWeekend = input(true, { transform: booleanAttribute });
-  /** Whether a day can be activated. A boolean rather than "is `dateClick` bound?", because Arena never derives what it draws from what a consumer listens for, and the same member `ArenaTableRow.interactive` and `ArenaCalendarEvent.interactive` are for the same reason; here the derived render would be the day's own cursor, which a layer whose subscriber list is private would draw differently from the other. With it on, the day header is a <button> (the keyboard's route to the date, and the one element that already names it), and the column background takes a pointer cursor; with it off both are inert and the cursor says so. The default is false because a schedule someone only reads is the ordinary calendar, and a pointer cursor over days that answer nothing is the defect this member exists to end. */
+  /** Whether a day can be activated. A boolean rather than "is `dateClick` bound?", because Arena never derives what it draws from what a consumer listens for. `ArenaTableRow.interactive` and `ArenaCalendarEvent.interactive` are members for the same reason. Here the derived render would be the day's own cursor, which a layer whose subscriber list is private would draw differently from the other. With it on, the day header is a <button> (the keyboard's route to the date, and the one element that already names it). With it on, the column background also takes a pointer cursor. With it off both are inert and the cursor says so. The default is false because a schedule someone only reads is the ordinary calendar. A pointer cursor over days that answer nothing is the defect this member exists to end. */
   readonly dayInteractive = input(false, { transform: booleanAttribute });
   /** A day header or column background was activated; carries the ISO date. Never emitted unless `dayInteractive`. */
   readonly dateClick = output<string>();
@@ -134,7 +135,7 @@ export class ArenaCalendar {
   private readonly medium = arenaReadBreakpoint('md');
   private readonly tick = signal(0);
 
-  protected readonly actionsSlot = contentChild(ArenaActions);
+  protected readonly actionsSlot = contentChild(ArenaActions, { descendants: false });
   protected readonly chips = contentChildren(ArenaCalendarEvent);
 
   protected readonly zone = computed(

@@ -48,7 +48,7 @@ Status label in mono uppercase. Short text (1–2 words); if it's longer, it's n
 ```
 
 **Don't**
-- Don't use `arena-accent-primary` to communicate a status (use a status tone); reserve its crimson for "new/featured".
+- Don't use `arena-accent-primary` to communicate a status (use a status tone); reserve the primary for "new/featured".
 - Don't put full sentences inside an ArenaBadge, and don't use `dot` with an accent class.
 - Don't pass `style` or stray DOM attributes. ArenaBadge declares three members (its label content, `tone` and `dot`) and renders nothing else; wrap it in your own element if you need to position it.
 

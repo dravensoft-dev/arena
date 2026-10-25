@@ -1,0 +1,19 @@
+{
+  "component": "ArenaFieldset",
+  "seed": {
+    "legend": "Notifications"
+  },
+  "slots": {
+    "content": [
+      {
+        "component": "ArenaCheckbox",
+        "members": { "label": "Deploys", "name": "notify", "value": "deploys", "checked": true }
+      },
+      {
+        "component": "ArenaCheckbox",
+        "members": { "label": "Incidents", "name": "notify", "value": "incidents" }
+      }
+    ]
+  },
+  "note": "A legend over a set of fields. Turn on hint or error to see the line that belongs to the set, and disabled to see it reach every box."
+}

@@ -5,14 +5,15 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { EventEmitter } from 'node:events';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { basename, join, win32 } from 'node:path';
-import { execFileSync, spawnSync } from 'node:child_process';
+import { basename, dirname, join, win32 } from 'node:path';
+import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import {
-  DARWIN_APPS, DEVTOOLS, GRACE, LINUX_CANDIDATES, PROFILE_PREFIX, REAP, WINDOWS_APPS, browserFlags,
+  DARWIN_APPS, DEVTOOLS, GRACE, LINUX_CANDIDATES, PROFILE_PREFIX, REAP, SIGNALS, WINDOWS_APPS, browserFlags,
   candidates, findChromium, launchChromium, observerFor, orphanProfiles, ownerOf, processesNaming,
-  profileNeedle, running, sweepOrphans,
+  profileNeedle, reapOnSignal, running, sweepOrphans, ownTempDirs, OWN_TMP_SUFFIX,
 } from './chromium.ts';
 import { budgetFor, deadline, type Deadline } from './deadline.ts';
 import { waitFor } from './wait-for.ts';
@@ -28,13 +29,17 @@ const OBSERVE: Deadline = deadline('chromium:observe', 30_000,
   + 'there. A case that asks it and declares no bound of its own inherits the runner default, '
   + 'which is a number nobody in this tree chose and which the Windows leg exceeded.');
 
-const BUDGET_MS = budgetFor(DEVTOOLS, GRACE, REAP, SETTLE, OBSERVE);
+const ENDED: Deadline = deadline('chromium:ended', 10_000,
+  'the span a child process has to start, launch a stand-in browser, hear SIGTERM and exit by it '
+  + 'before the wait is a hang rather than a slow start under a loaded runner');
+
+const BUDGET_MS = budgetFor(DEVTOOLS, GRACE, REAP, SETTLE, OBSERVE, ENDED);
 import { createDispatcher } from './cdp.ts';
 import { platform, type Platform } from './platform.ts';
 import { hostBinary } from './host-binary.ts';
 
 function chromiumTempDirs() {
-  return new Set(readdirSync(tmpdir()).filter((n) => n.startsWith('arena-chromium-')));
+  return new Set(readdirSync(tmpdir()).filter((n) => n.startsWith('arena-chromium-') && !n.endsWith(OWN_TMP_SUFFIX)));
 }
 
 function pidsNaming(profilePath: string, where: Parameters<typeof hostBinary>[2] = {}) {
@@ -200,9 +205,11 @@ test('a request made after drain still gets its own promise, unaffected by the e
 
 test('launchChromium rejects instead of crashing when spawn cannot start the binary, and leaves no temp profile behind',
   { timeout: BUDGET_MS }, async () => {
-  const before = chromiumTempDirs();
+  const mine = (names: Set<string>) =>
+    new Set([...names].filter((n) => n.startsWith(`${PROFILE_PREFIX}${process.pid}-`)));
+  const before = mine(chromiumTempDirs());
   await assert.rejects(() => launchChromium('/this/path/does/not/exist'));
-  const after = chromiumTempDirs();
+  const after = mine(chromiumTempDirs());
   assert.deepEqual(after, before, 'a temp profile dir was left behind by the rejected launch');
 });
 
@@ -421,6 +428,15 @@ test('a profile is an orphan when the run that made it is gone, and never while 
   + 'a question this cannot answer');
 });
 
+test('a browser temp directory goes with its profile, and alone only when the profile is already gone', () => {
+  const alive = () => false;
+  assert.deepEqual(orphanProfiles([
+    `${PROFILE_PREFIX}8-a`, `${PROFILE_PREFIX}8-a${OWN_TMP_SUFFIX}`, `${PROFILE_PREFIX}8-b${OWN_TMP_SUFFIX}`,
+  ], alive), [`${PROFILE_PREFIX}8-a`, `${PROFILE_PREFIX}8-b${OWN_TMP_SUFFIX}`],
+  'reaping the profile removes its temp directory, so asking the host about both spends a second '
+  + 'process-table walk on a directory no browser names');
+});
+
 test('a pid that answers a signal is running, and one that answers nothing is not', () => {
   assert.equal(running(process.pid), true);
   const gone = spawnSync(process.execPath, ['-e', '']);
@@ -458,3 +474,206 @@ test('a profile whose holders cannot be looked up is kept rather than removed', 
     + 'directory that is no longer there, which is worse than leaving the directory');
   rmSync(at, { recursive: true, force: true });
 });
+
+test('a signal reaps once, removes its listeners and ends by that signal', () => {
+  const target = new EventEmitter();
+  const reaped: number[] = [];
+  const ended: string[] = [];
+  reapOnSignal(() => reaped.push(1), (s) => ended.push(s), target);
+  target.emit('SIGTERM');
+  assert.deepEqual(reaped, [1]);
+  assert.deepEqual(ended, ['SIGTERM']);
+  for (const name of SIGNALS) assert.equal(target.listenerCount(name), 0, name);
+});
+
+test('dispose before any signal leaves no listener and reaps nothing', () => {
+  const target = new EventEmitter();
+  const reaped: number[] = [];
+  const dispose = reapOnSignal(() => reaped.push(1), () => {}, target);
+  dispose();
+  target.emit('SIGINT');
+  assert.deepEqual(reaped, []);
+  for (const name of SIGNALS) assert.equal(target.listenerCount(name), 0, name);
+});
+
+test('two registrations on one target are both reaped by one signal, which ends the process once', () => {
+  const target = new EventEmitter();
+  const reaped: string[] = [];
+  const ended: string[] = [];
+  reapOnSignal(() => reaped.push('a'), (s) => ended.push(s), target);
+  reapOnSignal(() => reaped.push('b'), (s) => ended.push(s), target);
+  target.emit('SIGINT');
+  assert.deepEqual(reaped.sort(), ['a', 'b']);
+  assert.deepEqual(ended, ['SIGINT']);
+  for (const name of SIGNALS) assert.equal(target.listenerCount(name), 0, name);
+});
+
+test('a reap that throws neither skips the reaps after it nor the end of the process', () => {
+  const target = new EventEmitter();
+  const reaped: string[] = [];
+  const ended: string[] = [];
+  reapOnSignal(() => { throw new Error('taskkill failed'); }, (s) => ended.push(s), target);
+  reapOnSignal(() => reaped.push('b'), (s) => ended.push(s), target);
+  assert.throws(() => target.emit('SIGTERM'), /taskkill failed/);
+  assert.deepEqual(reaped, ['b']);
+  assert.deepEqual(ended, ['SIGTERM']);
+});
+
+test('a gate that is sent SIGTERM reaps the browser group and the profile before it ends by it',
+  { timeout: BUDGET_MS, skip: NEEDS_A_SIGNAL }, async () => {
+    const root = mkdtempSync(join(tmpdir(), 'arena-signal-root-'));
+    try {
+      const exe = join(root, 'stand-in.sh');
+      writeFileSync(exe,
+        '#!/bin/sh\n'
+        + "sh -c 'sleep 60; :' \"$@\" &\n"
+        + 'echo "DevTools listening on ws://127.0.0.1:1/devtools/browser/x" >&2\n'
+        + 'wait\n');
+      chmodSync(exe, 0o755);
+      const chromiumModule = join(import.meta.dirname, 'chromium.ts');
+      const script = join(root, 'gate.ts');
+      writeFileSync(script,
+        `import { launchChromium } from ${JSON.stringify(chromiumModule)};\n`
+        + `await launchChromium(${JSON.stringify(exe)});\n`
+        + "console.log('ready');\n"
+        + 'await new Promise(() => {});\n');
+
+      const child = spawn(process.execPath, [script], {
+        env: { ...process.env, TMPDIR: root }, stdio: ['ignore', 'pipe', 'inherit'],
+      });
+      let out = '';
+      child.stdout.on('data', (chunk) => { out += String(chunk); });
+      let ended: { status: number | null; signal: NodeJS.Signals | null } | undefined;
+      child.once('exit', (status, signal) => { ended = { status, signal }; });
+
+      const ready = await waitFor(() => out.includes('ready'), ENDED);
+      assert.ok(ready.seen, 'the child never reported a launched browser');
+      const profile = join(root, readdirSync(root).find((n) => n.startsWith(PROFILE_PREFIX)) ?? '');
+      assert.ok(pidsNaming(profile).length > 1, 'the group has to hold a descendant naming the profile');
+
+      child.kill('SIGTERM');
+      const gone = await waitFor(() => ended !== undefined, ENDED);
+      assert.ok(gone.seen, 'the child did not end after SIGTERM');
+      assert.ok(ended?.signal === 'SIGTERM' || ended?.status === 143, JSON.stringify(ended));
+      const swept = await waitFor(() => pidsNaming(profile).length === 0, SETTLE);
+      assert.ok(swept.seen, 'a process still names the profile after the gate ended');
+      assert.equal(existsSync(profile), false, 'the profile directory outlived the gate');
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+test('the temp directory the singleton links of a profile name is found, whatever the brand, and a link anywhere else is not',
+  { skip: platform === 'win32' ? 'a symbolic link needs a privilege there' : false }, () => {
+  const base = mkdtempSync(join(tmpdir(), 'arena-own-dirs-'));
+  try {
+    const profile = join(base, 'profile');
+    const own = join(base, '.com.google.Chrome.abc123');
+    mkdirSync(profile);
+    mkdirSync(own);
+    symlinkSync(join(own, 'SingletonSocket'), join(profile, 'SingletonSocket'));
+    symlinkSync('host-4242', join(profile, 'SingletonLock'));
+    symlinkSync(join(base, 'deep', 'elsewhere', 'SingletonCookie'), join(profile, 'SingletonCookie'));
+    assert.deepEqual(ownTempDirs(profile), [own]);
+    assert.deepEqual(ownTempDirs(join(base, 'no-such-profile')), []);
+    rmSync(join(profile, 'SingletonSocket'));
+    symlinkSync(join(profile, 'SingletonSocket'), join(profile, 'SingletonSocket'));
+    assert.deepEqual(ownTempDirs(profile), [], 'a link into the profile itself names no directory of its own');
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+});
+
+const FAKE_BROWSER = [
+  "import { renameSync, rmSync, writeFileSync } from 'node:fs';",
+  "import { randomUUID } from 'node:crypto';",
+  "import { join } from 'node:path';",
+  "import { tmpdir } from 'node:os';",
+  'const [report, mode] = process.argv.slice(2);',
+  'const tmp = process.env.TMP ?? tmpdir();',
+  "const drop = () => { const file = join(tmp, `${randomUUID()}.tmp`); writeFileSync(file, ''); return file; };",
+  'drop();',
+  'writeFileSync(`${report}.part`, JSON.stringify({ pid: process.pid, tmp }));',
+  'renameSync(`${report}.part`, report);',
+  "if (mode === 'racing') {",
+  "  process.on('SIGTERM', drop);",
+  '  let last;',
+  '  const again = () => { try { const next = drop(); if (last) rmSync(last); last = next; } catch { return; } setImmediate(again); };',
+  '  again();',
+  '}',
+  "process.stderr.write('DevTools listening on ws://127.0.0.1:1/devtools/browser/fake\\n');",
+  'setInterval(() => {}, 1_000);',
+].join('\n');
+
+const FAKES = [
+  { mode: 'still', what: 'writes a <uuid>.tmp and blocks' },
+  { mode: 'racing', what: 'writes a new one every turn of its loop and one more as SIGTERM lands, so a write meets the kill' },
+];
+
+test('a browser given a temp directory of its own leaves nothing in it, or of it, once kill() resolves',
+  { timeout: BUDGET_MS * FAKES.length }, async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'arena-fake-browser-'));
+    try {
+      const fake = join(dir, 'fake-browser.mjs');
+      writeFileSync(fake, FAKE_BROWSER);
+      for (const one of FAKES) {
+        const report = join(dir, `${one.mode}.json`);
+        const { kill } = await launchChromium(process.execPath, platform, { prefix: [fake, report, one.mode], ownTemp: true });
+        const { pid, tmp } = JSON.parse(readFileSync(report, 'utf8')) as { pid: number; tmp: string };
+        assert.ok(basename(dirname(tmp)) === basename(tmpdir()) && basename(tmp).startsWith(`${PROFILE_PREFIX}${process.pid}-`)
+          && tmp.endsWith(OWN_TMP_SUFFIX), `${one.mode}: the browser wrote into ${tmp}, not a directory of its own beside its profile`);
+        assert.ok(readdirSync(tmp).some((name) => name.endsWith('.tmp')), `${one.mode}: the fake wrote nothing, so this proves nothing`);
+        await kill();
+        assert.equal(running(pid), false, `${one.mode}: kill() resolved with the browser alive, which can still write`);
+        assert.equal(existsSync(tmp), false, `${one.mode}, a browser that ${one.what}: its temp directory outlived kill()`);
+      }
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+test('off Windows the browser keeps the temp directory it inherits, since a longer TMPDIR moves its singleton socket past the limit',
+  { timeout: BUDGET_MS }, async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'arena-fake-browser-'));
+    let dropped: string[] = [];
+    try {
+      const fake = join(dir, 'fake-browser.mjs');
+      writeFileSync(fake, FAKE_BROWSER);
+      const report = join(dir, 'still.json');
+      const before = new Set(readdirSync(tmpdir()));
+      const { kill } = await launchChromium(process.execPath, 'linux', { prefix: [fake, report, 'still'] });
+      const { tmp } = JSON.parse(readFileSync(report, 'utf8')) as { tmp: string };
+      dropped = readdirSync(tmpdir()).filter((name) => !before.has(name) && name.endsWith('.tmp'));
+      assert.equal(readdirSync(tmpdir()).some((name) => !before.has(name) && name.endsWith(OWN_TMP_SUFFIX)), false,
+        'a temp directory of its own was made off Windows');
+      await kill();
+      assert.equal(tmp, process.env.TMP ?? tmpdir());
+    } finally {
+      for (const name of dropped) rmSync(join(tmpdir(), name), { force: true });
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+test('a fetcher directory another process makes while the browser lives is left alone by its teardown',
+  { timeout: BUDGET_MS }, async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'arena-fake-browser-'));
+    let dropped: string[] = [];
+    let foreign = '';
+    try {
+      const fake = join(dir, 'fake-browser.mjs');
+      writeFileSync(fake, FAKE_BROWSER);
+      const report = join(dir, 'still.json');
+      const before = new Set(readdirSync(tmpdir()));
+      const { kill } = await launchChromium(process.execPath, 'linux', { prefix: [fake, report, 'still'] });
+      foreign = mkdtempSync(join(tmpdir(), 'org.chromium.Chromium.chromium_chrome_url_fetcher_.'));
+      dropped = readdirSync(tmpdir()).filter((name) => !before.has(name) && name.endsWith('.tmp'));
+      await kill();
+      assert.equal(existsSync(foreign), true,
+        'kill() removed an empty fetcher directory made after the launch by another process, which a '
+        + 'shared temp directory gives no way to tell from one the browser made');
+    } finally {
+      for (const name of dropped) rmSync(join(tmpdir(), name), { force: true });
+      if (foreign) rmSync(foreign, { recursive: true, force: true });
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });

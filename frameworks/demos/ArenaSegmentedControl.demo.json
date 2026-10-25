@@ -5,8 +5,8 @@
     "value": "staging",
     "options": [
       {
-        "value": "dev",
-        "label": "Dev"
+        "value": "all",
+        "label": "All"
       },
       {
         "value": "staging",
@@ -19,7 +19,7 @@
     ]
   },
   "bind": {
-    "change": "value"
+    "valueChange": "value"
   },
   "note": "A small closed set, all of it visible at once."
 }

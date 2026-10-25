@@ -18,7 +18,7 @@ const c = arenaClassesFor(manifest);
 function dialog({ eyebrow, title, body, actions, width = '' }) {
   const foot = el('div', { class: c.foot });
   for (const action of actions) foot.append(el('span', { class: 'font-body text-ctl text-base-content/82', text: `[ ${action} ]` }));
-  return el('div', { class: `${c.panel} ${width}` },
+  return el('div', { class: `${c.panel} ${width}`, 'data-arena-part': 'dialog.panel' },
     el('div', { class: c.head }, el('div', { class: c.eyebrow, text: eyebrow }), el('div', { class: c.title, text: title })),
     el('div', { class: c.body, text: body }),
     foot);

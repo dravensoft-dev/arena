@@ -6,10 +6,10 @@
  * suites as well, a native path compared to a posix literal being the same defect wherever it
  * sits. Matches go through the lexer check:docs uses, so a construct in a comment or a string is
  * described rather than performed, bar the two whose construct IS a string and say so. It also
- * holds the workflows: develop.yml's matrix is the declared list, pr-gate waits for every other
- * job in pr.yml, one workflow names a browser, and a job layout it cannot read is a problem. */
+ * holds the workflows: develop.yml's matrix, pr-gate waiting for every other job in pr.yml, one
+ * workflow naming a browser, a time limit on every job, and no job layout it cannot read. */
 
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { basename, join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
@@ -24,7 +24,12 @@ import { HOST_BINARIES } from '../../lib/arena/host-binaries.ts';
 
 export const node = {
   name: 'check:portability',
-  reads: ['scripts/**', '.github/workflows/**'],
+  reads: [
+    'scripts/**', '.github/workflows/**',
+    'frameworks/**/*.ts', 'frameworks/**/*.tsx', 'frameworks/**/*.mts', 'frameworks/**/*.mjs',
+    '!frameworks/**/dist/**', '!frameworks/**/build/**', '!frameworks/**/node_modules/**',
+    '!frameworks/**/*.generated.*',
+  ],
   writes: [],
   feeds: [],
 };
@@ -57,7 +62,7 @@ export type Rule = {
   owners: string[];
   why: string;
   written?: 'as a string';
-  reaches?: 'suites as well';
+  reaches?: 'suites as well' | 'every tracked source';
 };
 
 export const RULES: Rule[] = [
@@ -79,9 +84,10 @@ export const RULES: Rule[] = [
   {
     id: 'bare-name-spawn',
     pattern: /\b(?:spawnSync|spawn|execFileSync|execFile|execSync|exec)\(\s*(?:'|")[^'"/\\]+(?:'|")/g,
-    owners: ['scripts/lib/arena/host-binary.ts'],
+    owners: ['scripts/lib/arena/host-binary.ts', 'scripts/generate/core/arena-cli/command-doctor.ts'],
     why: 'a binary is spawned by resolved path: there is no git on Windows, there is git.exe, '
-      + 'and which suffixes count is PATHEXT answer rather than node one',
+      + 'and which suffixes count is PATHEXT answer rather than node one; the shipped CLI imports only '
+      + 'node: built-ins, so it cannot reach host-binary.ts, and Node\'s spawn finds git.exe through its own PATH search',
   },
   {
     id: 'dot-bin-shim',
@@ -197,29 +203,51 @@ export const RULES: Rule[] = [
       + 'fail-open without a separator boundary and fail-closed with a hardcoded one',
     reaches: 'suites as well',
   },
+  {
+    id: 'file-url-pathname',
+    pattern: /(?<!\blocation\??)\.pathname\b/g,
+    owners: ['scripts/lib/arena/static-server.ts'],
+    why: 'the .pathname of a file: URL is /D:/a/... on Windows, which no fs call reads, so '
+      + 'fileURLToPath is the one spelling of a path taken from a file URL; the owner\'s URL is an '
+      + 'http request, which has no drive letter to lose',
+    reaches: 'every tracked source',
+  },
 ];
 
-export function inScope(path: string) {
-  const rel = relPosix(root, path);
+export function inScope(path: string, base = root) {
+  const rel = relPosix(base, path);
   if (!rel.startsWith('scripts/')) return false;
   const name = basename(rel);
   return isScript(name) && !isSuite(name);
 }
 
 export function scriptFiles(base = root) {
-  return walkFiles(join(base, 'scripts')).filter(inScope);
+  return walkFiles(join(base, 'scripts')).filter((path) => inScope(path, base));
 }
 
 export const SUITE_RULES = RULES.filter((rule) => rule.reaches === 'suites as well');
 
-export function inSuiteScope(path: string) {
-  const rel = relPosix(root, path);
+export function inSuiteScope(path: string, base = root) {
+  const rel = relPosix(base, path);
   if (!rel.startsWith('scripts/')) return false;
   return isSuite(basename(rel));
 }
 
 export function suiteFiles(base = root) {
-  return walkFiles(join(base, 'scripts')).filter(inSuiteScope);
+  return walkFiles(join(base, 'scripts')).filter((path) => inSuiteScope(path, base));
+}
+
+export const EVERY_RULES = RULES.filter((rule) => rule.reaches === 'every tracked source');
+
+const BUILT = ['/dist/', '/build/', '/node_modules/', '.generated.'];
+
+export function layerFiles(base = root) {
+  const dir = join(base, 'frameworks');
+  if (!existsSync(dir)) return [];
+  return walkFiles(dir).filter((path) => {
+    const rel = `/${relPosix(base, path)}`;
+    return /\.(?:ts|tsx|mts|mjs)$/.test(rel) && !BUILT.some((part) => rel.includes(part));
+  });
 }
 
 export function commentRanges(source: string): [number, number][] {
@@ -312,6 +340,55 @@ export function jobShapeProblems(file: string, text: string) {
   }
   if (heads === 0) problems.push(`${file} declares no job this gate can read, so nothing in it is checked`);
   return problems;
+}
+
+export const TIMEOUT_MAX_MINUTES = 360;
+
+export function timeoutProblems(file: string, text: string) {
+  return [...jobShapeProblems(file, text), ...jobLimitProblems(file, text)];
+}
+
+export function jobLimitProblems(file: string, text: string) {
+  const problems: string[] = [];
+  for (const [job, block] of jobBlocks(text)) {
+    const lines = block.split('\n');
+    if (lines.some((line) => /^ {4}uses:/.test(line))) {
+      if (lines.some((line) => /^ {4}runs-on:/.test(line))) {
+        problems.push(`${file}: job ${job} has both uses: and runs-on:, which GitHub refuses, and this reader `
+          + 'cannot say which time limit applies');
+      }
+      continue;
+    }
+    if (!lines.some((line) => /^ {4}runs-on:/.test(line))) {
+      problems.push(`${file}: job ${job} is a job this reader cannot classify, because it has neither `
+        + 'a uses: that calls a reusable workflow nor a runs-on: that runs steps, so its time limit is unchecked');
+      continue;
+    }
+    const at = lines.findIndex((line) => /^ {4}timeout-minutes:/.test(line));
+    if (at === -1) {
+      problems.push(`${file}: job ${job} does not declare timeout-minutes, so a step that hangs holds `
+        + 'a runner for six hours before GitHub ends it');
+      continue;
+    }
+    if (lines.filter((line) => /^ {4}timeout-minutes:/.test(line)).length > 1) {
+      problems.push(`${file}: job ${job} declares timeout-minutes more than once, and this reader cannot say `
+        + 'which figure a hung step is held to');
+      continue;
+    }
+    const value = (lines[at] ?? '').replace(/^ {4}timeout-minutes:[ \t]*/, '').replace(/[ \t]*#.*$/, '').trim();
+    const minutes = /^\d+$/.test(value) ? Number(value) : 0;
+    if (minutes < 1 || minutes > TIMEOUT_MAX_MINUTES) {
+      problems.push(`${file}: job ${job} sets timeout-minutes to ${JSON.stringify(value)}, and it has to be a `
+        + `literal number of minutes from 1 to ${TIMEOUT_MAX_MINUTES}, because an expression or an out-of-range `
+        + 'figure leaves a hung step holding a runner for up to six hours');
+    }
+  }
+  return problems;
+}
+
+export function workflowFiles(base = root) {
+  if (!existsSync(join(base, WORKFLOWS))) return [];
+  return walkFiles(join(base, WORKFLOWS)).filter((file) => /\.ya?ml$/.test(file));
 }
 
 export function declaredNeeds(block: string): string[] | null {
@@ -413,27 +490,32 @@ export function matrixProblems(base = root, supported = SUPPORTED_OS) {
   return problems;
 }
 
-export const BROWSER_INPUT = 'chrome-path';
+export const BROWSER_INPUT = 'name-browser';
 
-const CONDUIT = /^\s*CHROME_PATH:[ \t]*\$\{\{[ \t]*inputs\.chrome-path[ \t]*\}\}[ \t]*$/;
+const CONDUIT = /^\s*(?:-\s+)?run:[ \t]*echo "CHROME_PATH=\$\{\{[ \t]*steps\.[\w-]+\.outputs\.chrome-path[ \t]*\}\}"[ \t]*>>[ \t]*"\$GITHUB_ENV"[ \t]*$/;
+const CONDITION = /^\s*(?:-\s+)?if:[ \t]*\$\{\{[ \t]*inputs\.name-browser[ \t]*\}\}[ \t]*$/;
 const NAMED_ENV = /^\s*CHROME_PATH:/;
-const PASSED = /^\s*chrome-path:[ \t]*(.*?)[ \t]*$/;
+const PASSED = /^\s*name-browser:[ \t]*(.*?)[ \t]*$/;
 
-const MENTION = /chrome[-_]path/i;
+const MENTION = /chrome[-_]path|name-browser/i;
 const NOT_CODE = /^\s*(?:#|(?:-\s+)?(?:name|description):)/;
 
 const clean = (raw: string) => raw.replace(/[ \t]*#.*$/, '').replace(/^(['"])(.*)\1$/, '$2').trim();
-const passedValue = (line: string) => clean(PASSED.exec(line)?.[1] ?? '');
+const named_ = (value: string) => value !== '' && value !== 'false';
+const passedValue = (line: string) => {
+  const value = clean(PASSED.exec(line)?.[1] ?? '');
+  return named_(value) ? value : '';
+};
 
 function declaresDefault(lines: string[]) {
   return lines.some((line, at) => {
-    const key = /^(\s*)chrome-path:[ \t]*(?:#.*)?$/.exec(line);
+    const key = /^(\s*)name-browser:[ \t]*(?:#.*)?$/.exec(line);
     if (!key) return false;
     for (const next of lines.slice(at + 1)) {
       if (next.trim() === '') continue;
       if (next.length - next.trimStart().length <= (key[1] ?? '').length) return false;
       const value = /^\s*default:[ \t]*(.*)$/.exec(next)?.[1];
-      if (value !== undefined && clean(value) !== '') return true;
+      if (value !== undefined && named_(clean(value))) return true;
     }
     return false;
   });
@@ -446,14 +528,14 @@ export function browserNamingProblems(workflows: { file: string; text: string }[
   for (const { file, text } of workflows) {
     const lines = text.split('\n');
     if (lines.some((line) => CONDUIT.test(line))) conduits.push(file);
-    const named = lines.some((line) => NAMED_ENV.test(line) && !CONDUIT.test(line))
+    const named = lines.some((line) => NAMED_ENV.test(line))
       || lines.some((line) => passedValue(line) !== '') || declaresDefault(lines);
     if (named) naming.push(file);
     lines.forEach((line, at) => {
-      if (!MENTION.test(line) || NOT_CODE.test(line) || CONDUIT.test(line)) return;
+      if (!MENTION.test(line) || NOT_CODE.test(line) || CONDUIT.test(line) || CONDITION.test(line)) return;
       if (NAMED_ENV.test(line) || PASSED.test(line)) return;
       problems.push(`${file}:${at + 1}: ${JSON.stringify(line.trim())} names the browser in a shape this gate `
-        + 'cannot read; write CHROME_PATH or chrome-path as a plain key, or the line goes unchecked');
+        + 'cannot read; write CHROME_PATH or name-browser as a plain key, or the line goes unchecked');
     });
   }
 
@@ -468,15 +550,14 @@ export function browserNamingProblems(workflows: { file: string; text: string }[
   }
   const passing = workflows.filter(({ text }) => text.split('\n').some((line) => passedValue(line) !== ''));
   if (passing.length > 0 && conduits.length === 0) {
-    problems.push(`${passing.map((one) => one.file).join(', ')} pass ${BROWSER_INPUT} and no workflow hands it on as `
-      + `CHROME_PATH: \${{ inputs.${BROWSER_INPUT} }}, so the browser it names reaches no gate`);
+    problems.push(`${passing.map((one) => one.file).join(', ')} pass ${BROWSER_INPUT} and no workflow writes the `
+      + 'browser setup-chrome installed to $GITHUB_ENV as CHROME_PATH, so the browser it names reaches no gate');
   }
   return problems;
 }
 
 export function browserWorkflows(base = root) {
-  return walkFiles(join(base, WORKFLOWS))
-    .filter((file) => file.endsWith('.yml'))
+  return workflowFiles(base)
     .map((file) => ({ file: relPosix(base, file), text: readFileSync(file, 'utf8') }));
 }
 
@@ -548,6 +629,7 @@ export function checkoutProblems(paths: string[]) {
 export function portabilityProblems(base = root) {
   const files = scriptFiles(base);
   const suites = suiteFiles(base);
+  const layers = layerFiles(base);
   const tracked = trackedPaths(base);
   const problems: string[] = [];
 
@@ -562,12 +644,25 @@ export function portabilityProblems(base = root) {
     }
   };
   scan(files, RULES);
-  scan(suites, SUITE_RULES);
+  scan(suites, [...SUITE_RULES, ...EVERY_RULES]);
+  scan(layers, EVERY_RULES);
 
   problems.push(...staleOwners([...files, ...suites], base));
   problems.push(...matrixProblems(base));
   problems.push(...gateProblems(base));
   problems.push(...browserPathProblems(base));
+  const workflows = workflowFiles(base);
+  if (workflows.length === 0) {
+    problems.push(`${WORKFLOWS} holds no .yml or .yaml workflow this gate can read, so not one job's time limit is checked`);
+  }
+  let jobs = 0;
+  for (const file of workflows) {
+    const rel = relPosix(base, file);
+    const text = readFileSync(file, 'utf8');
+    if (rel !== `${WORKFLOWS}/${PR_WORKFLOW}`) problems.push(...jobShapeProblems(rel, text));
+    problems.push(...jobLimitProblems(rel, text));
+    jobs += jobBlocks(text).size;
+  }
   problems.push(...setupProblems(base));
   problems.push(...checkoutProblems(tracked));
 
@@ -579,11 +674,13 @@ export function portabilityProblems(base = root) {
     rules: RULES.length,
     tracked: tracked.length,
     longest,
+    workflows: workflows.length,
+    jobs,
   };
 }
 
-function main() {
-  const { problems, scanned, covered, rules, tracked, longest } = portabilityProblems();
+export function main(base = root) {
+  const { problems, scanned, covered, rules, tracked, longest, workflows, jobs } = portabilityProblems(base);
 
   if (scanned === 0) {
     console.error('check-portability: scanned 0 script(s); the tree moved under this gate');
@@ -599,10 +696,11 @@ function main() {
   console.log(`check-portability: ${scanned} script(s) hold to ${rules} rule(s) and ${covered} `
     + `suite(s) to the ${SUITE_RULES.length} that read one, every exception `
     + `names a module that is there, ${SETUP_DOCUMENT} names every host prerequisite, `
+    + `${workflows} workflow(s) and their ${jobs} job(s) were read for a time limit, `
     + `${MATRIX_WORKFLOW} runs exactly ${SUPPORTED_OS_NAMES.length} declared operating `
     + `system(s), ${REQUIRED_JOB} waits for every other job in ${PR_WORKFLOW}, and ${tracked} `
     + `tracked path(s) are ones a Windows checkout can hold, the longest at ${longest} of the `
     + `${MAX_PATH - CLONE_ROOT_BUDGET} left after a clone root`);
 }
 
-if (isMainModule(import.meta.url)) main();
+if (isMainModule(import.meta.url)) main(process.argv[2]);

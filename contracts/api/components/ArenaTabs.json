@@ -4,12 +4,12 @@
   "affordances": [],
   "api": {
     "content": { "form": "slot",
-                 "description": "The tabs. Which one is selected, which is the strip's tab stop, the ids wiring each to its panel and how the choice is reported are the strip's to settle, and none of it is a member here. EVERY tab's content mounts: one panel per tab is rendered and the inactive ones are hidden, because each tab's aria-controls must reference a tabpanel that exists. So a panel's side effects run immediately rather than on first selection." },
+                 "description": "The tabs. Which one is selected, which is the strip's tab stop, the ids wiring each to its panel and how the choice is reported are the strip's to settle. None of it is a member here. EVERY tab's content mounts: one panel per tab is rendered and the inactive ones are hidden, because each tab's aria-controls must reference a tabpanel that exists. So a panel's side effects run immediately rather than on first selection." },
     "value": { "form": "primitive", "type": "string",
                "description": "The selected tab's value. Omit and pass `defaultValue` to let it govern itself." },
     "defaultValue": { "form": "primitive", "type": "string",
                       "description": "The initially selected value when uncontrolled. Defaults to the first tab." },
-    "change": { "form": "event", "payload": "string",
+    "valueChange": { "form": "event", "payload": "string",
                 "description": "A different tab was chosen; carries its value." }
   }
 }

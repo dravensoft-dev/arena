@@ -16,7 +16,7 @@ Dravensoft's by accident.
 |---|---|---|---|---|
 | `mark*` | slot |  |  | The mark, as an asset the consumer supplies. Required: Arena ships MIT and a default would ship Dravensoft's trademark to whoever never read the API. The slot sizes the mark; a mark that brings its own dimensions fights the lock-up. |
 | `name*` | primitive | `string` |  | The product name, or its first half when `dim` carries the second. |
-| `dim` | primitive | `string` |  | The wordmark's second half, drawn muted and set straight against `name` with no space between them, so `name` of Draven and `dim` of soft reads as the one word Dravensoft. It is the second half of a name and never a tagline beside it: a product called Coldwalk splits as Cold and walk, and passing the tagline here draws it butted onto the name. Present for the manual's Primary variant, absent for Monochrome, which is why there is no `variant` member: the mark's ink and this are the same two decisions. |
+| `dim` | primitive | `string` |  | The wordmark's second half, drawn muted and set straight against `name` with no space between them, so `name` of Draven and `dim` of soft reads as the one word Dravensoft. The value is the second half of a name and never a tagline beside it. A product called Coldwalk splits as Cold and walk, and passing the tagline here draws it butted onto the name. Present for the manual's Primary variant, absent for Monochrome, which is why there is no `variant` member: the mark's ink and this are the same two decisions. |
 
 <!-- @api end -->
 
@@ -54,7 +54,7 @@ and the choice of mark and wordmark express them:
 - **Don't** look for a component that renders the mark on its own. Arena ships none:
   the mark is a brand asset (`assets/rotor-*.svg`), and the lock-up is this component,
   which takes that asset as `mark` alongside a product `name`.
-- **Don't** mix the lock-ups. A crimson mark beside an undivided `Dravensoft` is half of Primary and half of Monochrome, which is no variant at all. The half-and-half lock-up is precisely the defect that existed in the console before this component held the rule.
+- **Don't** mix the lock-ups. A coloured mark beside an undivided `Dravensoft` is half of Primary and half of Monochrome, which is no variant at all. The half-and-half lock-up is precisely the defect that existed in the console before this component held the rule.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

@@ -10,6 +10,7 @@ import { ArenaInput } from '../components/forms/arena-input/ArenaInput';
 import { ArenaInputControl } from './ArenaInputControl';
 
 @Component({
+  selector: 'forms-arena-input-control-host',
   standalone: true,
   imports: [ReactiveFormsModule, ArenaInput, ArenaInputControl],
   template: `<arena-input label="Name" [formControl]="control" /><arena-input label="Seats" type="number" [formControl]="seats" />`,

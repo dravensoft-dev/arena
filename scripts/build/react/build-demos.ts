@@ -20,10 +20,12 @@ export const ROOTS = [
 
 export const ROOT_MODULES = [
   'frameworks/react/AnchorActivation.ts', 'frameworks/react/DataVisuals.ts',
-  'frameworks/react/StructuredData.ts', 'frameworks/react/Theme.ts',
+  'frameworks/react/StructuredData.ts', 'frameworks/react/Theme.ts', 'frameworks/react/ThemeState.ts',
   'frameworks/react/UseArenaContainerWidth.ts', 'frameworks/react/UseDialogModal.ts',
-  'frameworks/react/WarnOnce.ts', 'frameworks/react/VocabularyClass.ts', 'frameworks/react/Vocabulary.generated.ts', 'frameworks/react/Phrase.ts', 'frameworks/react/ArenaLocale.ts', 'frameworks/react/LocaleDefaults.generated.ts',
+  'frameworks/react/WarnOnce.ts', 'frameworks/react/VocabularyClass.ts', 'frameworks/react/Vocabulary.generated.ts', 'frameworks/react/Phrase.ts', 'frameworks/react/Thresholds.ts', 'frameworks/react/ArenaLocale.ts', 'frameworks/react/ArenaIcons.ts', 'frameworks/react/LocaleDefaults.generated.ts',
   'frameworks/react/ArenaStyles.generated.ts',
+  'frameworks/react/AnchoredPanel.ts', 'frameworks/react/UseAnchoredPanel.ts',
+  'frameworks/react/TypeAhead.ts', 'frameworks/react/RowWindowMeasure.ts', 'frameworks/react/ToastClock.ts',
 ];
 
 export const SOURCE_EXTENSIONS = ['.jsx', '.tsx'];
@@ -39,10 +41,11 @@ export const node = {
   feeds: [
     'check:families',
     'build:react-package',
+    'check:anchoring',
     'check:appearance',
     'check:parts',
     'check:kitchen-sink',
-    'check:target-size', 'check:pixel-parity',
+    'check:target-size', 'check:contained-parts', 'check:pixel-parity', 'check:palette-islands',
     'check:behaviour',
     'check:compliance',
     'check:demos',
@@ -58,6 +61,7 @@ export const node = {
     'check:skills',
     'check:states',
     'build:site',
+    'check:site',
   ],
 };
 

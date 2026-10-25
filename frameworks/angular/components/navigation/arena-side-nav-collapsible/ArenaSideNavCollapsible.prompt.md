@@ -15,12 +15,12 @@ hides a group of destinations. Standalone, `OnPush`, signal I/O.
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `id*` | primitive | `string` |  | Identifies the group. The disclosure pattern needs two DOM ids that resolve -- the trigger's aria-controls must name the region, and the region's aria-labelledby must name the trigger -- and Arena derives both from this member, as `${id}-trigger` and `${id}-region`. Neither wiring is conditional: every collapsible has a trigger and a region, so there is no shape in which the id goes unused, and that is why it is required rather than optional. A group is a thing a consumer names anyway. Falsy-guarded as well as required: a blank id yields the pair `-trigger`/`-region`, which every other blank-id collapsible on the page would share, and duplicate ids make aria-controls resolve to the wrong element rather than to none. A consumer can address either element from outside as a consequence -- an aria-describedby, a deep link, a test hook -- but that is a benefit of the derivation, not the reason for it. |
+| `id*` | primitive | `string` |  | Identifies the group. The disclosure pattern needs two DOM ids that resolve -- the trigger's aria-controls must name the region, and the region's aria-labelledby must name the trigger. Arena derives both from this member, as `${id}-trigger` and `${id}-region`. Neither wiring is conditional. Every collapsible has a trigger and a region, so there is no shape in which the id goes unused, and that is why it is required rather than optional. A group is a thing a consumer names anyway. Falsy-guarded as well as required: a blank id yields the pair `-trigger`/`-region`, which every other blank-id collapsible on the page would share. Duplicate ids make aria-controls resolve to the wrong element rather than to none. A consumer can address either element from outside as a consequence -- an aria-describedby, a deep link, a test hook. Addressing them is a benefit of the derivation, not the reason for it. |
 | `label*` | primitive | `string` |  | What the trigger reads, and the accessible name of both the trigger and the region it controls. Required and falsy-guarded. |
-| `icon` | primitive | `string` |  | A Phosphor class name drawn before the label. The caret that reports expanded-ness is Arena's own and is not this member. |
-| `defaultExpanded` | primitive | `boolean` | `false` | Whether the group starts open. It is a seed, not a control: after the first render the state is the component's, and the group also opens itself when it comes to hold the active destination. |
+| `icon` | primitive | `string` |  | A Phosphor class name drawn before the label through ArenaIcon. The caret that reports expanded-ness is Arena's own and is not this member. |
+| `defaultExpanded` | primitive | `boolean` | `false` | Whether the group starts open. The value is a seed, not a control: after the first render the state is the component's. The group also opens itself when it comes to hold the active destination. |
 | `content` | slot |  |  | What the group holds -- items, sections, further collapsibles. Each sits one nesting level deeper. |
-| `toggle` | event | `boolean` |  | The trigger was pressed, carrying the state it moved to. It fires on a press ONLY: the automatic expansion that follows the active destination is Arena's decision rather than the user's, and reporting it here would be a lie a consumer persists. |
+| `toggle` | event | `boolean` |  | The trigger was pressed, carrying the state it moved to. The event fires on a press ONLY. The automatic expansion that follows the active destination is Arena's decision rather than the user's, and reporting it here would be a lie a consumer persists. |
 
 <!-- @api end -->
 
@@ -55,7 +55,7 @@ Enter and Space are **intercepted and prevented**, then toggle. `arena-menu` sha
 - **Do** persist `toggle` if the rail should remember itself across a reload. Arena keeps no
   storage of its own.
 - **Do** nest one inside another when the hierarchy has three levels. The groups are independent disclosures, and neither closes the other.
-- **Don't** read this as a treeview. There is no `aria-level`, no roving tab stop and no arrow navigation, and that is refused rather than missing. A nav landmark full of links is a set of disclosures, and the binding states the cost.
+- **Don't** read this as a treeview. There is no `aria-level`, no roving tab stop and no arrow navigation, and that is refused rather than missing. A nav landmark full of links is a set of disclosures, and the binding states the cost. ArenaTreeView gives a hierarchy one tab stop, the arrow keys and `aria-level` on every node.
 - **Don't** put a destination on the trigger itself. The control opens a group. A row that navigates is an `arena-side-nav-item`.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->

@@ -154,3 +154,11 @@ test('a channel read with a role fallback compiles whole, and the strip and its 
   assert.equal(stripIndirection('gap: var(--spacing, var(--sp-1)); h: var(--arena-a-h, var(--r-1))', new Map([['spacing', 'sp-1']])),
     'gap: var(--sp-1); h: var(--arena-a-h, var(--r-1))');
 });
+
+test('the theme map of the preset holds every key, the inline block included', () => {
+  const map = themeMapFor(repoRoot);
+  assert.equal(map.size, 231);
+  assert.equal(map.get('color-surface'), 'fill-surface');
+  assert.equal(map.get('color-base-100'), 'color-base-100');
+  assert.equal(map.get('spacing-ctl-h'), 'dz-ctl-h');
+});

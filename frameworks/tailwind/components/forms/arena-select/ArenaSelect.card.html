@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor, glyph } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaSelect.manifest.json')).json();
 
@@ -21,7 +21,7 @@ function select({ label, options, value, disabled }) {
   for (const option of options) {
     field.append(el('option', { value: option, selected: option === value || undefined }, option));
   }
-  root.append(el('div', { class: c.wrap, ...d.wrap }, field, el('span', { class: c.caret, ...d.caret }, el('i', { class: 'ph-bold ph-caret-down', 'aria-hidden': 'true' }))));
+  root.append(el('div', { class: c.wrap, ...d.wrap }, field, el('span', { class: c.caret, ...d.caret }, glyph('ph-bold ph-caret-down'))));
   return root;
 }
 

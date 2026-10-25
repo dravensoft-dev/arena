@@ -10,10 +10,10 @@ export interface ArenaKeyValueProps {
   className?: ArenaKeyValueClass;
 
 
-  /** The rows, in the order they are given. An empty array renders an empty list rather than throwing, because a summary with nothing to adjust is a state a basket reaches on its way to being filled and not a mistake in the markup. */
+  /** The rows, in the order they are given. An empty array renders an empty list rather than throwing. Throwing would be wrong, because a summary with nothing to adjust is a state a basket reaches on its way to being filled, not a mistake in the markup. */
   rows: readonly ArenaKeyValueRow[];
 
-  /** The row the others add up to, drawn last, ruled off above and set in the heading register. It is a member rather than the last element of rows because the rule and the register are what say a total is a total, and deriving that from position would make the last adjustment in a list look like one. */
+  /** The row the others add up to, drawn last, ruled off above and set in the heading register. The total is a member rather than the last element of rows, because the rule and the register are what say a total is a total. Deriving that from position would make the last adjustment in a list look like one. */
   total?: ArenaKeyValueRow;
 }
 
@@ -24,7 +24,7 @@ export function ArenaKeyValue({ className, rows, total }: ArenaKeyValueProps) {
   const figures = arenaKeyValueStyles({ numeric: true });
 
   return (
-    <dl className={arenaClassName('ArenaKeyValue', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+    <dl className={arenaClassName('ArenaKeyValue', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       {rows.map((row, index) => (
         <div key={`${row.term}-${index}`} className={styles.row()} data-arena-part={manifest.parts.row} {...styles.$data.row()}>
           <dt className={styles.term()} data-arena-part={manifest.parts.term} {...styles.$data.term()}>{row.term}</dt>

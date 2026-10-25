@@ -4,6 +4,14 @@ What does `@dravensoft/arena-contracts` hold? How do I read a design value, a co
 
 If you build a screen with Arena on the web, this is not the package you want. `@dravensoft/arena-react` and `@dravensoft/arena-angular` carry the components and the compiled stylesheet. Install the contracts package when you write the layer itself.
 
+## How do I install it?
+
+```bash
+npm i -D @dravensoft/arena-contracts        # or: bun add -d / pnpm add -D / yarn add -D
+```
+
+Pin an exact version, as the last section says.
+
 ## What arrives
 
 ```
@@ -45,9 +53,26 @@ Every design value is a DTCG token. A dimension is `{ "value": 16, "unit": "px" 
 ```json
 {
   "$value": { "value": 48, "unit": "px" },
-  "$description": "48px clears WCAG 2.5.8's enhanced 44px target, which the 40px base does not"
+  "$description": "48px clears WCAG 2.5.5's 44px target, which the 40px base does not"
 }
 ```
+
+A role entry in `contracts/design/roles.json` is one question the style kernel asks, keyed by its name. The entry's `$type` is a DTCG type or `keyword`, and the `$description` says what the question is. A keyword role carries its closed set under `$extensions["com.dravensoft.arena"].values`. The default a plugin falls back to sits under `$extensions["com.dravensoft.arena"].default`.
+
+```json
+"tt-key": {
+  "$type": "keyword",
+  "$description": "Whether a key is set in capitals. ...",
+  "$extensions": { "com.dravensoft.arena": { "values": ["none", "uppercase", "lowercase", "capitalize"], "default": "{case.none}" } }
+},
+"ink-key": {
+  "$type": "color",
+  "$description": "The ink of a key ...",
+  "$extensions": { "com.dravensoft.arena": { "default": "{ink-muted}" } }
+}
+```
+
+A default in braces is an alias: the first segment is the group and the rest is the token. `{color.base-content}` is `color["base-content"]` in the palette of the polarity you resolve for. In `palette.light.json` that token's `$value` is `{ "colorSpace": "srgb", "components": [0.102, 0.102, 0.102], "hex": "#1a1a1a" }`, so the light value of that alias is `#1a1a1a`. In `palette.dark.json` the same alias resolves to `#f3ede5`. An alias to another role, such as `{ink-muted}`, follows that role's answer. A keyword alias such as `{case.none}` resolves the same way, to a bare word. [`style-kernel.md`](./style-kernel.md) says what a style plugin may answer a role with.
 
 A target decides some things for itself, because a value and a unit cannot say them.
 
@@ -57,13 +82,29 @@ A target decides some things for itself, because a value and a unit cannot say t
 
 ## How do I read a component contract?
 
-An API contract states the members a component presents, under neutral names. The contract says nothing about the syntax a platform binds them with. A slot is a slot whether the platform spells it as a child, a projection or a builder.
+An API contract states the members a component presents, under neutral names. [`MemberForms.md`](../../../contracts/api/MemberForms.md#contract-format) says how a file is laid out. The contract says nothing about the syntax a platform binds them with. A slot is a slot whether the platform spells it as a child, a projection or a builder.
+
+```js
+import button from '@dravensoft/arena-contracts/contracts/api/components/ArenaButton.json' with { type: 'json' };
+
+console.log(Object.keys(button));
+```
 
 A behaviour contract states what a kind of component must **do**. Such a contract names the role the component carries, the keys it answers, where focus goes and what dismisses it. Each contract cites the source it was adopted from, mostly the [WAI-ARIA Authoring Practices Guide](https://www.w3.org/WAI/ARIA/apg/patterns/). A pattern that requires a role names that role in an `element` field beside the prose. A target applies the role without parsing a sentence.
 
 **A requirement a browser meets through an element's own semantics is an explicit obligation everywhere else.** A native `<button>` answers a role, two keys and a disabled state while the component asserts nothing. A platform with no such mapping owes every one of them by hand. Know that asymmetry before you implement a pattern from this package.
 
 Two patterns carry no requirements. `none` is for a component a user cannot act on. `absent` is for a component a layer does not ship at all. Both exist to be declared and never implemented.
+
+## How do I write a layer?
+
+A short checklist for a platform target. Each step names the file it reads.
+
+1. Read `arena.contracts.json` for the paths the installed version holds. [`contracts/AGENTS.md`](../../../contracts/AGENTS.md) says which of the three levels a fact belongs to.
+2. Read `contracts/api/components/*.json` for the members each component presents, and [`MemberForms.md`](../../../contracts/api/MemberForms.md) for the forms they are written in.
+3. Read `contracts/behaviour/*.json` for the role, keys, focus and dismissal each component owes.
+4. Read `contracts/design/*.json` for the tokens, and `contracts/design/roles.json` for the questions a style plugin answers. [`TokenTypes.md`](../../../contracts/design/TokenTypes.md) says what each `$type` is authored as.
+5. Resolve each alias against the palette of the polarity you build, as the section above shows.
 
 ## How do I version the contracts package?
 

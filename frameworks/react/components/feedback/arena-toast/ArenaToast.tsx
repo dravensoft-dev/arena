@@ -3,10 +3,10 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaToast.classes.generated.ts';
 
 import type { ArenaToastTone } from '../../../Api.generated';
-import { dismissDefault, dismissActionable } from '../../../Tokens.generated.js';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 import type { ArenaToastClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon.tsx';
 
 export interface ArenaToastProps {
   className?: ArenaToastClass;
@@ -27,7 +27,7 @@ export interface ArenaToastProps {
   /** The inline action was activated. */
   onAction?: () => void;
 
-  /** Disables the host's auto-dismiss and shows the Pinned marker. **Implied by `tone: "danger"`, which ignores `false`**: a critical message that vanishes on a timer is one a user can miss entirely, so an error state makes the pin mandatory and the layers enforce it rather than leave it to documentation. Set it explicitly for any other tone that must not disappear on its own. */
+  /** Disables the host's auto-dismiss and shows the Pinned marker. **Implied by `tone: "danger"`, which ignores `false`.** A critical message that vanishes on a timer is one a user can miss entirely. An error state therefore makes the pin mandatory, and the layers enforce it rather than leave it to documentation. Set it explicitly for any other tone that must not disappear on its own. */
   persist?: boolean;
 
   /** Whether the × is shown. Every layer gates the × on this member and never on whether anything listens for `onClose`, because Arena never derives what it draws from what a consumer listens for. */
@@ -37,7 +37,7 @@ export interface ArenaToastProps {
   onClose?: () => void;
 }
 
-export const ARENA_TOAST_DISMISS = { default: dismissDefault, actionable: dismissActionable } as const;
+export { ARENA_TOAST_DISMISS } from '../../../ToastClock.ts';
 
 const arenaToastStyles = arenaStyles(manifest);
 const TONES: readonly string[] = manifest.values.tone;
@@ -51,7 +51,7 @@ export function ArenaToast({ className, title, message, tone = 'neutral', action
   const styles = arenaToastStyles({ tone: toneOf(tone) });
   return (
     <div role={tone === 'danger' ? 'alert' : 'status'} aria-live={tone === 'danger' ? 'assertive' : 'polite'}
-      data-persist={pinned ? '' : undefined} className={arenaClassName('ArenaToast', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+      data-persist={pinned ? '' : undefined} className={arenaClassName('ArenaToast', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       <div className={styles.body()} data-arena-part={manifest.parts.body} {...styles.$data.body()}>
         {title && (
           <div className={styles.title()} data-arena-part={manifest.parts.title} {...styles.$data.title()}>
@@ -61,12 +61,12 @@ export function ArenaToast({ className, title, message, tone = 'neutral', action
         )}
         {message && <div className={styles.message()} data-arena-part={manifest.parts.message} {...styles.$data.message()}>{message}</div>}
         {actionLabel && (
-          <button onClick={onAction} className={styles.action()} data-arena-part={manifest.parts.action} {...styles.$data.action()}>{actionLabel}</button>
+          <button type="button" onClick={onAction} className={styles.action()} data-arena-part={manifest.parts.action} {...styles.$data.action()}>{actionLabel}</button>
         )}
       </div>
       {dismissible && (
-        <button onClick={onClose} aria-label={locale.toastClose} className={styles.close()} data-arena-part={manifest.parts.close} {...styles.$data.close()}>
-          <i className="ph-bold ph-x" />
+        <button type="button" onClick={onClose} aria-label={locale.toastClose} className={styles.close()} data-arena-part={manifest.parts.close} {...styles.$data.close()}>
+          <ArenaIcon icon="ph-bold ph-x" />
         </button>
       )}
     </div>

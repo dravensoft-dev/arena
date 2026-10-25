@@ -89,6 +89,14 @@ test('a selector is matched at its end, so one name is not read inside a longer 
     + 'or every part hook in a consumer\'s own markup is reported as a component nobody can place');
 });
 
+test('a camel-cased attribute selector is read as written and as a binding', () => {
+  const map = { match: 'selector', draws: { arenaPalette: 'palette-scope' }, needs: {} };
+  assert.deepEqual(selectorKeys(map, ['<section arenaPalette="light">x</section>']).drawn, ['arenaPalette']);
+  assert.deepEqual(selectorKeys(map, ['<div class="a" [arenaPalette]="theme()">x</div>']).drawn, ['arenaPalette'],
+    'the binding spelling is the same use, and a sheet it needs is missing from the emit if it is not read');
+  assert.deepEqual(selectorKeys(map, ['<div arenaPaletteX="1"></div>']).unplaced, ['arenaPaletteX']);
+});
+
 test('React is read through the import that names the package', () => {
   const source = "import { ArenaButton, ArenaTable as ArenaGrid } from '@dravensoft/arena-react';";
   const { drawn } = symbolKeys(REACT, [source], '@dravensoft/arena-react');
@@ -170,10 +178,19 @@ test('a hook is read from an attribute name and never from inside a quoted value
     + 'and --strict=components fails a consumer who wrote exactly what it prescribes');
   assert.deepEqual(read.drawn, ['arena-button']);
 
-  const hooks = selectorKeys(ANGULAR, ['<tr class="arena-stack" arena-table-row (click)="a > b"><td arena-table-cell>1</td></tr>']);
+  const hooks = selectorKeys(ANGULAR, ['<tr class="arena-stack" arena-table-row (activate)="a > b"><td arena-table-cell>1</td></tr>']);
   assert.deepEqual(hooks.drawn, ['arena-table-row']);
   assert.deepEqual(hooks.unplaced, ['arena-table-cell'], 'a hook after a quoted value is still read');
 
   const unknown = selectorKeys(ANGULAR, ['<div class="arena-stack" arena-algo></div>']);
   assert.deepEqual(unknown.unplaced, ['arena-algo'], 'an attribute the package does not ship is still reported');
+});
+
+test('a provider the map lists as sheetless is neither drawn nor unplaced, and a typo still is', () => {
+  const map: ComponentMap = { ...REACT, sheetless: ['ArenaIconsProvider'] };
+  const source = "import { ArenaButton, ArenaIconsProvider, ArenaButon } from '@dravensoft/arena-react';\n"
+    + '<ArenaIconsProvider href="/x.svg"><ArenaButton /><ArenaButon /></ArenaIconsProvider>';
+  const found = symbolKeys(map, [source], '@dravensoft/arena-react');
+  assert.deepEqual(found.unplaced, ['ArenaButon']);
+  assert.ok(!found.drawn.includes('ArenaIconsProvider'));
 });

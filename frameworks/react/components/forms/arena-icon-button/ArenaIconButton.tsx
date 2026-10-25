@@ -5,18 +5,19 @@ import manifest from './ArenaIconButton.classes.generated.ts';
 import type { ArenaButtonType } from '../../../Api.generated';
 import type { ArenaIconButtonClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon.tsx';
 
 export interface ArenaIconButtonProps {
   className?: ArenaIconButtonClass;
 
 
-  /** Phosphor class name, e.g. 'ph-bold ph-plus'. Arena draws the <i> and hides it from assistive technology; `label` is the accessible name. */
+  /** Phosphor class name, e.g. 'ph-bold ph-plus'. ArenaIcon draws the glyph and hides it from assistive technology; `label` is the accessible name. */
   icon: string;
 
   /** The accessible name, present in every state. Also the visible text when showLabel is set, and the title attribute when it is not. */
   label: string;
 
-  /** Whether this control is a toggle, and whether it is currently on. Present, Arena writes aria-pressed and draws the on state with the same accent tint a current ArenaSideNav item takes, so "this one is on" is one statement across the library; absent, the control is not a toggle at all. The tri-state is the point and a default of false would destroy it: aria-pressed="false" on a plain button announces a toggle that is off rather than a button, so every ArenaIconButton in the system would announce as an unpressed toggle. The label does NOT change with the state, which is what the button pattern means by a toggle: a control that renames itself is announced as a different control rather than as the same one in another state. */
+  /** Whether this control is a toggle, and whether it is currently on. Present, Arena writes aria-pressed and draws the on state with the same accent tint a current ArenaSideNav item takes, so "this one is on" is one statement across the library. Absent, the control is not a toggle at all. The tri-state is the point and a default of false would destroy it. aria-pressed="false" on a plain button announces a toggle that is off rather than a button, so every ArenaIconButton in the system would announce as an unpressed toggle. The label does NOT change with the state, which is what the button pattern means by a toggle. A control that renames itself is announced as a different control rather than as the same one in another state. */
   pressed?: boolean;
 
   /** Shows the label as text beside the icon (H6). Don't rely on the title alone on touch or keyboard surfaces. */
@@ -39,11 +40,20 @@ export interface ArenaIconButtonProps {
   /** The id of the form this button belongs to, when it is not a descendant of it. */
   form?: string;
 
-  /** Whether the control is reached from the page's Tab sequence. Set false when it lives inside a composite that manages its own focus (a grid with a roving tab stop, a menu), where reaching it by Tab would be a second way in. Arena writes tabindex="-1" and the control stays programmatically focusable; a positive tab order is not expressible and never should be. */
+  /** Whether the control is reached from the page's Tab sequence. Set false when the control lives inside a composite that manages its own focus, such as a grid with a roving tab stop or a menu. Reaching it by Tab there would be a second way in. Arena writes tabindex="-1" and the control stays programmatically focusable; a positive tab order is not expressible and never should be. */
   tabStop?: boolean;
 
-  /** The button was activated, by pointer or by keyboard. */
-  onClick?: () => void;
+  /** The button was activated, by pointer or by keyboard. The native click is never stopped, so a listener on the document hears every click inside the button; this event reports only the activation. */
+  onActivate?: () => void;
+
+  /** Written by Arena's popover and menu when this button is their trigger: what it opens. */
+  'aria-haspopup'?: React.AriaAttributes['aria-haspopup'];
+  /** Written by Arena's popover and menu when this button is their trigger: whether that is open. */
+  'aria-expanded'?: boolean;
+  /** Written by Arena's popover while its panel exists: the panel's id. */
+  'aria-controls'?: string;
+  /** Written by Arena's tooltip around this button: the bubble's id, after any the consumer gave. */
+  'aria-describedby'?: string;
 }
 
 
@@ -51,18 +61,20 @@ const arenaIconButtonStyles = arenaStyles(manifest);
 
 export function ArenaIconButton({ className, 
   icon, label, pressed, showLabel = false, disabled = false,
-  type = 'button', name, value, autoFocus = false, form, onClick, tabStop = true,
+  type = 'button', name, value, autoFocus = false, form, onActivate, tabStop = true,
+  'aria-haspopup': ariaHasPopup, 'aria-expanded': ariaExpanded, 'aria-controls': ariaControls, 'aria-describedby': ariaDescribedBy,
 }: ArenaIconButtonProps) {
   if (!icon) throw new Error('ArenaIconButton: `icon` is required');
   if (!label) throw new Error('ArenaIconButton: `label` is required');
   const styles = arenaIconButtonStyles({ showLabel, pressed });
   return (
-    <button type={type} name={name} value={value} autoFocus={autoFocus} form={form} onClick={onClick}
+    <button type={type} name={name} value={value} autoFocus={autoFocus} form={form} onClick={onActivate && (() => onActivate())}
 
       tabIndex={tabStop ? undefined : -1}
+      aria-haspopup={ariaHasPopup} aria-expanded={ariaExpanded} aria-controls={ariaControls} aria-describedby={ariaDescribedBy}
       aria-label={label} aria-pressed={pressed} title={showLabel ? undefined : label} disabled={disabled}
-      className={arenaClassName('ArenaIconButton', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
-      <i className={icon} aria-hidden="true" />
+      className={arenaClassName('ArenaIconButton', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+      <ArenaIcon icon={icon} />
       {showLabel && <span className={styles.label()} data-arena-part={manifest.parts.label} {...styles.$data.label()}>{label}</span>}
     </button>
   );

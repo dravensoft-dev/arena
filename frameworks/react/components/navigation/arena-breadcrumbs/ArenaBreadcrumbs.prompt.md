@@ -17,8 +17,8 @@ Breadcrumb navigation (H3). Gives an explicit return path when the hierarchy is 
 | `ariaLabel*` | primitive | `string` |  | Names this navigation landmark. Required, and guarded at runtime: nothing can derive it, and a constant such as "Breadcrumb" makes two trails on one page indistinguishable as landmarks while satisfying the requirement mechanically. Say which hierarchy this is a trail through: "Project navigation", never "Breadcrumb". |
 | `items*` | array | `readonly ArenaCrumb[]` |  | The trail, root first. The last entry is the current location and is never a link. |
 | `separator` | primitive | `string` | `"/"` | Drawn between crumbs, never before the first. Arena draws it, in its own aria-hidden span. |
-| `origin` | primitive | `string` |  | The scheme and host each crumb's href is resolved against in the structured data the component emits, as in "https://example.com". Absent, the relative href is published as it stands, which is valid and less well supported. It is a member rather than something read off the document because location.origin does not exist on a server, and a value that differs between the server render and the client one is the hydration hazard ArenaCalendar.timeZone already documents; a value the consumer passes cannot differ. One line per application, not per screen. It changes nothing a person sees. |
-| `onNavigate` | event | `ArenaCrumb` |  | A non-current crumb was activated, carrying that crumb alone. The native MouseEvent is not forwarded, because a platform's own event type never travels in a payload; what the listener needs from it, the chance to route instead of navigating, arrives as behaviour rather than as data. Arena has already cancelled the anchor by the time this fires, so a listener routes and does not double-navigate. It fires for a primary click with no modifier and for Enter; ctrl-click, middle-click and open-in-new-tab are the browser's and fire nothing, so a consumer who wires no listener still has a working trail of real links. |
+| `origin` | primitive | `string` |  | The scheme and host each crumb's href is resolved against in the structured data the component emits, as in "https://example.com". Absent, the relative href is published as it stands, which is valid and less well supported. The origin is a member rather than something read off the document because location.origin does not exist on a server. A value that differs between the server render and the client one is the hydration hazard ArenaCalendar.timeZone already documents, and a value the consumer passes cannot differ. One line per application, not per screen. The value changes nothing a person sees. |
+| `onNavigate` | event | `ArenaCrumb` |  | A non-current crumb was activated, carrying that crumb alone. The native MouseEvent is not forwarded, because a platform's own event type never travels in a payload. What the listener needs from it, the chance to route instead of navigating, arrives as behaviour rather than as data. Arena has already cancelled the anchor by the time this fires, so a listener routes and does not double-navigate. The event fires for a primary click with no modifier and for Enter. Ctrl-click, middle-click and open-in-new-tab are the browser's and fire nothing, so a consumer who wires no listener still has a working trail of real links. |
 
 <!-- @api end -->
 
@@ -29,7 +29,7 @@ Breadcrumb navigation (H3). Gives an explicit return path when the hierarchy is 
 <!-- @answers end -->
 
 <!-- @keys GENERATED from the binding. -->
-**Keys:** none (`navigation`).
+**Keys:** none (`navigation`, `structured-data`).
 <!-- @keys end -->
 
 `ariaLabel` names the landmark and is **required**, throwing when absent. A constant like
@@ -45,7 +45,7 @@ consumer who wires no handler.
 `href` is optional, and a crumb without one is drawn as a `<span>` rather than as an anchor. The last crumb already takes that branch, minus its `aria-current`. A level of the trail that leads nowhere is not a link, and it does not take the pointer or the hover either. What a crumb must never be is an anchor to the page it sits on. Such an anchor is a dead edge in the crawl graph, and a target the keyboard can reach and nothing happens on.
 
 **Do / Don't**
-- The last item is the current location: no link, styled in `--bone`.
+- The last item is the current location: no link, styled in the body ink at bold.
 - Don't replace tabs with breadcrumbs or vice versa; they coexist (tabs = sibling sections, breadcrumbs = depth).
 - Don't reach for `onNavigate` to call `preventDefault()`. The handler never receives the click event and does not need to. Arena has already cancelled the anchor by the time it fires.
 - Don't wrap a crumb in your router's `Link`. `items` is data and the anchor is Arena's;

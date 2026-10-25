@@ -38,7 +38,7 @@ tokens it renders from. Neither of the other two layers changes to accommodate a
 When an API reshape appears to require dropping or changing something a behaviour binding depends
 on, **the reshape is what is wrong, not the binding.** `ArenaConfirmDialog` is the worked example:
 its `cancel` event is how the (accessible, Angular) dialog reports an Escape-key or Cancel-button
-dismissal, which the `dialog-modal` pattern requires. A contract that omitted `cancel` to look
+dismissal, which the `modal-focus` pattern requires. A contract that omitted `cancel` to look
 tidier would leave the Escape handler with nothing to emit and silently void that
 requirement. The member stays because the behaviour contract is firm. An API decision is correct
 only if every behaviour binding it touches, and every design token it renders from, remains
@@ -266,6 +266,11 @@ because `classify()` produces all four from a real signature. It reduces
 `(v: string) => void`, `(v: ArenaCrumb) => void` and `(v: ArenaCalendarView) => void` alike, so a contract
 stating only some of them would be a gap between what the reader reads and what the
 contract can say, rather than a rule the contract enforces.
+
+**An event never takes the name of a native DOM event.** `validateContract` refuses an event
+named `click` or `change`. An Angular `(click)` binding hears the DOM click from every
+element inside the host, so a member of that name collides with it. Name the event after what
+it reports: `activate` for an activation, `valueChange` for a value.
 
 ### What is mechanical about the ninth form
 

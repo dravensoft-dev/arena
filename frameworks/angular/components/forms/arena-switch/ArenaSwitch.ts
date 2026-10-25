@@ -6,11 +6,12 @@ import manifest from './ArenaSwitch.classes.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
 import { ArenaControlBinding, arenaWarnDoubleBinding } from '../../../ControlBinding';
 import { ArenaSlotAttributes } from '../../../SlotData';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
 
 @Component({
   selector: 'arena-switch',
   standalone: true,
-  imports: [ArenaSlotAttributes],
+  imports: [ArenaIcon, ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ArenaControlBinding],
   host: { '[class]': 'styles().root()',
@@ -22,14 +23,14 @@ import { ArenaSlotAttributes } from '../../../SlotData';
             [disabled]="off()" (click)="activate()">
       <span [class]="styles().knob()" [arenaSlotData]="styles().$data.knob()" [attr.data-arena-part]="parts.knob" aria-hidden="true">
         @if (glyph()) {
-          <i [class]="glyphClass()" [arenaSlotData]="styles().$data.icon()" [attr.data-arena-part]="parts.icon" aria-hidden="true"></i>
+          <span [class]="styles().icon()" [arenaSlotData]="styles().$data.icon()" [attr.data-arena-part]="parts.icon" aria-hidden="true"><arena-icon [icon]="glyph()!" /></span>
         }
       </span>
     </button>
     <span [class]="styles().label()" [attr.data-arena-part]="parts.label" (click)="activate()">
       {{ label() }}
       @if (confirm()) {
-        <i [class]="guardClass()" [attr.data-arena-part]="parts.guard" aria-hidden="true" [title]="locale.switchConfirmHint"></i>
+        <span [class]="styles().guard()" [attr.data-arena-part]="parts.guard" aria-hidden="true" [title]="locale.switchConfirmHint"><arena-icon icon="ph-bold ph-shield-check" /></span>
       }
     </span>
   `,
@@ -46,9 +47,9 @@ export class ArenaSwitch {
 
   /** The current on/off value. Controlled: the consumer owns it and pushes it each render. */
   readonly state = input(false, { transform: booleanAttribute });
-  /** A Phosphor class name for the glyph shown while on. Arena draws the aria-hidden `<i>`. */
+  /** A Phosphor class name for the glyph shown while on. ArenaIcon draws it, hidden from assistive technology. */
   readonly iconOn = input<string>();
-  /** A Phosphor class name for the glyph shown while off. */
+  /** A Phosphor class name for the glyph shown while off, drawn through ArenaIcon. */
   readonly iconOff = input<string>();
   /** The accessible name for the switch, also drawn beside it. */
   readonly label = input.required<string>();
@@ -70,8 +71,6 @@ export class ArenaSwitch {
     disabled: this.off(),
   }));
 
-  protected readonly glyphClass = computed(() => `${this.styles().icon()} ${this.glyph() ?? ''}`.trim());
-  protected readonly guardClass = computed(() => `ph-bold ph-shield-check ${this.styles().guard()}`);
 
   protected activate(): void {
     if (this.off()) return;
@@ -81,9 +80,11 @@ export class ArenaSwitch {
     }
     if (this.drawn()) {
       this.funcOff.emit();
+      if (this.binding.bound()) this.binding.value.set(false);
       this.binding.onChange(false);
     } else {
       this.funcOn.emit();
+      if (this.binding.bound()) this.binding.value.set(true);
       this.binding.onChange(true);
     }
   }

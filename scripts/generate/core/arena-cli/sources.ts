@@ -1,11 +1,12 @@
 /* The walk over a consumer's own source trees: which files count, which directories and which of
  * the command's own output sheets it never reads, and what each step reads out of them. The output
- * sheets are skipped so the run is a function of the sources alone. Ships beside the command, so it
+ * sheets and the sprite module are skipped so the run is a function of the sources alone; the sprite
+ * is named by its hash, so spriteFilesIn finds it by that shape. Ships beside the command, so it
  * spells its own byCodeUnit rather than importing one from scripts/. */
 
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
-import { THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET } from './sheets.ts';
+import { THEME_SHEET, PACKAGE_SHEET, PLUGIN_SHEET, RUNTIME_DATA, SPRITE_MODULE, SPRITE_TYPES, SPRITE_SOURCE, SPRITE_STEM } from './sheets.ts';
 import { DEFAULT_PLUGIN } from './theme-css.ts';
 import { sourceScope } from './audit.ts';
 
@@ -13,7 +14,9 @@ export const DEFAULT_SOURCE = 'src';
 
 export const SOURCE_EXTENSIONS = ['.html', '.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs', '.css'];
 export const SKIPPED_DIRECTORIES = new Set(['node_modules', 'dist', '.git', '.angular', 'coverage']);
-export const OUTPUT_SHEETS = new Set([THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET]);
+export const RETIRED_ICONS_SHEET = 'icons.generated.css';
+export const OUTPUT_SHEETS = new Set([THEME_SHEET, PACKAGE_SHEET, RETIRED_ICONS_SHEET, PLUGIN_SHEET, RUNTIME_DATA, SPRITE_MODULE, SPRITE_TYPES, SPRITE_SOURCE]);
+export const SPRITE_FILE = new RegExp(`^${SPRITE_STEM}-[0-9a-f]{10}\\.svg$`);
 
 const byCodeUnit = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
 
@@ -31,6 +34,33 @@ export function sourceFiles(path: string) {
   if (!existsSync(path)) return null;
   if (statSync(path).isDirectory()) walk(path); else found.push(path);
   return found;
+}
+
+export function spriteFilesIn(dir: string) {
+  try {
+    return readdirSync(dir).filter((name) => SPRITE_FILE.test(name)).sort(byCodeUnit);
+  } catch {
+    return [];
+  }
+}
+
+export function fontFilesIn(dir: string, stems: string[]) {
+  const mine = stems.map((stem) => new RegExp(`^${stem.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}-[0-9a-f]{10}\\.woff2$`));
+  try {
+    return readdirSync(dir).filter((name) => mine.some((one) => one.test(name))).sort(byCodeUnit);
+  } catch {
+    return [];
+  }
+}
+
+const WRITTEN_FONT = /url\(\s*'\.\/([^'/]+)-[0-9a-f]{10}\.woff2'\s*\)/g;
+
+export function writtenFontStems(dir: string) {
+  try {
+    return [...new Set([...readFileSync(join(dir, THEME_SHEET), 'utf8').matchAll(WRITTEN_FONT)].map((m) => m[1] as string))];
+  } catch {
+    return [];
+  }
 }
 
 export function readSources(paths: string[]) {

@@ -19,7 +19,7 @@ export const node = {
   name: 'check:generated',
   reads: [
     '.gitignore', 'frameworks/**', 'contracts/design/**', 'contracts/design-generated/**',
-    'intro/**', 'assets/fonts/**',
+    'intro/**', 'assets/fonts/**', 'assets/Icons.generated.svg', 'plugin-style-store/**',
     '!frameworks/react/dist/**', '!frameworks/angular/dist/**', '!frameworks/angular/build/**',
   ],
   writes: [],
@@ -39,6 +39,10 @@ export const UNMARKED = {
     'downloaded from Google Fonts by scripts/generate/core/fetch-fonts.ts. Binary, so it '
     + 'carries no header, and reproducing it needs the network. The one generated output '
     + 'identified by its generator rather than by its name.',
+  'assets/Icons.generated.svg':
+    'written by scripts/build/arena/build-sprite.ts from @phosphor-icons/core, and tracked for the reason '
+    + 'assets/fonts/ is: every playground, kitchen sink and intro page hands it to ArenaIcon, and the git '
+    + 'tag serves intro/ where no build runs. An svg carries no header, so it names its generator here.',
 };
 
 export const UNTRACKED = {
@@ -73,12 +77,19 @@ export const UNTRACKED = {
   'frameworks/react/StructuredData.generated.js': 'the same, for the schema.org serialisation the '
     + 'structured-data pattern requires.',
   'frameworks/react/Theme.generated.js': 'the same, for the theme helper.',
+  'frameworks/react/ThemeState.generated.js': 'the same, for the state the theme helper and the palette scope share.',
   'frameworks/react/WarnOnce.generated.js': 'the same, for the once-per-message console warning '
     + 'the charts and ArenaTable share.',
+  'frameworks/react/ToastClock.generated.js': 'the same, for the toast dismissal constant and the delay a notice waits.',
   'frameworks/react/UseArenaContainerWidth.generated.js': 'the same, for the container-width hook.',
   'frameworks/react/UseDialogModal.generated.js': 'the same, for the modal focus helper.',
+  'frameworks/react/AnchoredPanel.generated.js': 'the same, for the rules every anchored panel follows.',
+  'frameworks/react/UseAnchoredPanel.generated.js': 'the same, for the hook that places an anchored panel and dismisses it.',
+  'frameworks/react/Thresholds.generated.js': 'the same, for the rule that a region keeps its lower edge.',
+  'frameworks/react/TypeAhead.generated.js': 'the same, for the prefix a list matches as characters are typed.',
+  'frameworks/react/RowWindowMeasure.generated.js': 'the same, for the measuring of the rows a windowed list draws.',
   'frameworks/react/VocabularyClass.generated.js': 'the same, for the filter that keeps a className to its vocabulary.',
-  'frameworks/react/Vocabulary.generated.js': 'the same, for the vocabulary each component takes.',
+  'frameworks/react/Vocabulary.generated.js': 'the same, for the vocabulary types and the context classes.',
   'frameworks/react/components/**/*.manifest.generated.ts':
     'the shared recipe for one component, emitted into the layer that renders it. The manifest is '
     + 'authored once as JSON under frameworks/tailwind/ and emitted per layer for the reason the '
@@ -93,6 +104,9 @@ export const UNTRACKED = {
   'frameworks/angular/Api.generated.ts': 'the same file, emitted into the other layer.',
   'frameworks/react/ArenaLocale.generated.js':
     'the compiled sibling of ArenaLocale.ts, which the demo pages load; build:demos writes it and '
+    + 'check:demos holds it to the source.',
+  'frameworks/react/ArenaIcons.generated.js':
+    'the compiled sibling of ArenaIcons.ts, which the demo pages load; build:demos writes it and '
     + 'check:demos holds it to the source.',
   'frameworks/react/LocaleDefaults.generated.js':
     'the compiled sibling of LocaleDefaults.generated.ts, which the demo pages load.',
@@ -156,8 +170,9 @@ export const UNTRACKED = {
     'one sheet per vocabulary family, compiled from its family file and the manifests that answer it, '
     + 'which a page and a package import beside the component sheets.',
   'frameworks/react/Vocabulary.generated.ts':
-    'the vocabulary class each component takes, as a type and as the runtime list the className '
-    + 'filter keeps, emitted from the families and the manifests\' answers.',
+    'the vocabulary class each component takes as a type, and the context classes a part without a '
+    + 'manifest takes, emitted from the families and the manifests\' answers. The list each component '
+    + 'keeps rides in its own classes module.',
 };
 
 function walk(dir: string, root: string): string[] {

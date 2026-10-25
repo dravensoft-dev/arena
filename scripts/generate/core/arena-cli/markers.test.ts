@@ -86,12 +86,44 @@ test('the directive name is derived from the attribute rather than tabled', () =
   assert.equal(directiveFor('secondaryAction'), 'ArenaSecondaryAction');
 });
 
-test('a use is attributed to the nearest host that queries that slot', () => {
+test('a use is attributed to the element it sits directly inside, when that element queries the slot', () => {
   const uses = markerUses(
     '<arena-dialog><arena-card><button action>x</button></arena-card></arena-dialog>',
     MARKERS,
   );
   assert.deepEqual(uses, [{ attribute: 'action', host: 'arena-card' }]);
+});
+
+test('a marker inside an element that queries none is charged to nobody', () => {
+  assert.deepEqual(markerUses(
+    '<arena-calendar><arena-calendar-event><arena-button actions>x</arena-button></arena-calendar-event></arena-calendar>',
+    { 'arena-calendar': ['actions'] },
+  ), []);
+});
+
+test('a marker inside an ng-container is charged to nobody, because the container carries no attribute into a named slot', () => {
+  assert.deepEqual(markerUses(
+    '<arena-card><ng-container><button action>x</button></ng-container></arena-card>',
+    { 'arena-card': ['action'] },
+  ), []);
+});
+
+test('a marker inside an @if or @for block with one root is still charged to the host around it', () => {
+  assert.deepEqual(markerUses(
+    '<arena-card>@if (on) {<button action>x</button>}@for (i of items; track i) {<button action>y</button>}</arena-card>',
+    { 'arena-card': ['action'] },
+  ), [{ attribute: 'action', host: 'arena-card' }, { attribute: 'action', host: 'arena-card' }]);
+});
+
+test('a void element written without a slash does not break the charge of a later sibling', () => {
+  assert.deepEqual(markerUses(
+    '<arena-card><img src="a"><input type="text"><br><button action>x</button></arena-card>',
+    { 'arena-card': ['action'] },
+  ), [{ attribute: 'action', host: 'arena-card' }]);
+});
+
+test('a plain element between the marker and the host breaks the charge', () => {
+  assert.deepEqual(markerUses('<arena-card><div><button action>x</button></div></arena-card>', { 'arena-card': ['action'] }), []);
 });
 
 test('a marker in the SECOND component of a file is read, not just the first', () => {

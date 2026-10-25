@@ -8,6 +8,11 @@ test('reads the Arena tokens a preset references', () => {
   assert.deepEqual([...presetTokens(css)].sort(), ['color-primary', 'fs-h1', 'sp-1']);
 });
 
+test('reads the keys of an @theme inline block as well as the first block', () => {
+  const css = `@theme {\n  --color-primary: var(--color-primary);\n}\n\n@theme inline {\n  /* roles */\n  --color-surface: var(--fill-surface);\n  --spacing: var(--sp-1);\n}\n`;
+  assert.deepEqual([...presetTokens(css)].sort(), ['color-primary', 'fill-surface', 'sp-1']);
+});
+
 test('reads every var() inside a calc', () => {
   const css = `@theme {\n  --spacing-row-x: calc(var(--pad-row-x) * var(--dz-row-scale-x));\n}\n`;
   assert.deepEqual([...presetTokens(css)].sort(), ['dz-row-scale-x', 'pad-row-x']);

@@ -62,7 +62,26 @@ Write `arena.config.json` in your project root. The block below is the whole fil
 }
 ```
 
-`arena.config.example.json`, which each package ships at its root, is the same file with two palettes, one dark and one light, ready to copy and edit.
+`arena.config.example.json`, which each package ships at its root, is the same file with two palettes, one dark and one light, ready to copy and edit. The full examples are `plugin-style-store/catalogue/*/arena.config.json`, listed in [`INDEX.md`](../../../plugin-style-store/catalogue/INDEX.md).
+
+Every key, with its type and its default:
+
+| key | type | required | default |
+| --- | --- | --- | --- |
+| `palettes` | array of palettes | yes | none |
+| `fonts` | object, one entry per font role | yes | none |
+| `stylePlugins` | array of `default` or a directory path | no | `["default"]` |
+| `stylesheet` | object | no | every sheet the package ships |
+| `gradientMark` | boolean | no | unset |
+| `runtimePalettes` | boolean | no | unset |
+| `fonts.<role>.family` | string | yes | none |
+| `fonts.<role>.src` | string, a stylesheet URL or a font file | yes | none |
+| `fonts.<role>.fallback` | array of family names | no | per role: display `system-ui, sans-serif`, body `system-ui, sans-serif`, mono `ui-monospace, monospace` |
+| `fonts.<role>.style` | string | no | `normal` |
+| `fonts.<role>.weight` | string | no | `400 900` |
+| `fonts.<role>.display` | string | no | `swap` |
+| `stylesheet.components` | array of sheet names, or `"auto"` | no | the closed list the build works out from your sources |
+| `stylesheet.preflight` | boolean | no | `true` |
 
 **`stylePlugins` is in that block because leaving it out is a decision and not a blank.** The value above is the appearance this package installs with, which is Dravensoft's. A project that means to look like itself replaces it with the path to a plugin directory of its own. Both
 are finished answers; only one of them is one somebody made.
@@ -70,13 +89,13 @@ are finished answers; only one of them is one somebody made.
 What each part means:
 
 - **`palettes`** is an array, so declare as many as you want. Exactly one is the `default` and
-  reaches `:root`; every other one becomes a class, `.arena-<name>`, that you put on
-  `<html>` to switch skin. The command refuses a palette or style plugin named after a class Arena
-  ships or is going to ship, naming the component a future class belongs to. The names held for a class Arena is going to ship are `divider, kbd, fieldset, link, copy-button, meter, accordion, stepper, timeline, number-field, pin-input, file-input, slider, sparkline, gauge-chart, filter-bar, funnel-chart, popover, combobox, split-button, tree-view, heatmap-chart, sticky-head, sticky-none`. A palette may still take its own polarity's name, `dark` or `light`, and a style plugin may not. A palette name is kebab-case, and a name declared twice is refused.
+  reaches `:root`. Every palette, the default too, is a class `.arena-<name>`. On `<html>` the class skins the page. On any element, or through `ArenaPaletteScope`, it skins that subtree, and theme.md says what the subtree takes. The command refuses a palette or style plugin named after a class Arena
+  ships or is going to ship, naming the component a future class belongs to. No name is held ahead for a class Arena is going to ship. The names `polarity-dark` and `polarity-light` are refused too, because a runtime palette wears them. A palette may still take its own polarity's name, `dark` or `light`, and a style plugin may not. A palette name is kebab-case, and a name declared twice is refused.
 - **`polarity`** is `dark` or `light`. The polarity decides the native date picker's colour, and it is what a first visit matches `prefers-color-scheme` against.
-- **`colors`** takes every key above, each a six-digit hex such as `#141010`. `error-fill` and `primary-fill` are the two optional ones. Leave
+- **`colors`** takes every key above, each a six-digit hex such as `#141010`. `error-fill`, `primary-fill` and the heat steps are optional. Leave
   `error-fill` out and Arena darkens `error` in oklab for the single filled danger surface it has. Leave `primary-fill` out and every ground `primary-content` sits on, a filled button, a checked box, a current page, fills with `primary`. Declare it when the accent you tuned to read as ink on your page cannot also carry `primary-content`. A violet light enough to read on a dark page is too light to carry white. Name a deeper violet here and keep the light one as `primary`.
 - **`cat-1`** through **`cat-8`** are the chart ramp. The order of the slots is their identity, so slot 3 is always slot 3. The slots are never used to mean anything, only to tell series apart.
+- **`heat-1`** through **`heat-5`** are a heatmap's ladder. Pin all five or none: left out, they are derived from `cat-4`, `base-200` and `base-content`.
 - **`fonts`** fills the three families Arena reads. `src` takes either a stylesheet URL, as
   above, or a font binary you host yourself, which becomes an `@font-face`:
   `{ "family": "Archivo", "src": "/fonts/archivo.woff2", "weight": "400 900" }`.
@@ -87,10 +106,11 @@ What each part means:
   project stopping there looks like every other one. Writing one of your own is what makes the
   corners, the weights, the borders, the depth and the internal air the product's own, with no
   component rewritten to get there.
-  The key is a list, because a build can carry more than one register. The first entry is what a page with no class on it looks like. Every later one emits under `.arena-<name>`, which you put on `<html>` beside any palette class, and is a difference. An entry is the word
+  The key is a list, because a build can carry more than one register. The first entry is what a page with no class on it looks like. Every later one emits under `.arena-<name>`, which you put on `<html>` or on any element beside any palette class, and is a difference. The nearest plugin class wins. An entry is the word
   `default`, which is the appearance this package installs with, or a path to a directory of
-  your own holding `plugin.tokens.json` and optionally `plugin.css`. The plugin's name is the name of that directory, so a directory called `ember` declares the plugin `ember`. The name must be kebab-case, and it may not repeat a palette name or another plugin's. The first entry answers every role that carries no default. The roles carrying a default are `hue-danger-on-ink`, `hue-info-on-ink`, `hue-success-on-ink`, `hue-warning-on-ink`, `ink-action`, `ink-figure`, `pad-band-x`, `pad-band-y`, `pad-nav-row-x`, `pad-nav-row-y`, `size-sm-badge-pad-x`, `size-sm-badge-pad-y`, `size-sm-badge-step`, and your root style plugin answers the other 239. A minor release may add a role that carries Arena's default. Your root plugin may then leave that role silent, and the role takes the default. The command notes it, as `N role(s) your root style plugin leaves unanswered take Arena's default: …`. Your package's `arena.tokens.json` writes a role's default beside its type. A custom property with no value is invalid at computed-value time, so an unanswered role is a missing border rather than a plainer look. Declare a list without `default` and you do not receive its stylesheet, the
+  your own holding `plugin.tokens.json` and optionally `plugin.css`. A `stylePlugins` path resolves against the directory that holds `arena.config.json`. The plugin's name is the name of that directory, so a directory called `ember` declares the plugin `ember`. The name must be kebab-case, and it may not repeat a palette name or another plugin's. The first entry answers every role that carries no default. The 20 roles carrying a default are `edge-tab-selected`, `ff-key`, `hue-danger-on-ink`, `hue-info-on-ink`, `hue-success-on-ink`, `hue-warning-on-ink`, `ink-action`, `ink-figure`, `ink-key`, `ink-link`, `pad-band-x`, `pad-band-y`, `pad-key-y`, `pad-nav-row-x`, `pad-nav-row-y`, `size-sm-badge-pad-x`, `size-sm-badge-pad-y`, `size-sm-badge-step`, `timeline-dot`, `tt-key`. Your root plugin answers the other 239. A minor release may add a role that carries Arena's default. Your root plugin may then leave that role silent, and the role takes the default. The command notes it, as `N role(s) your root style plugin leaves unanswered take Arena's default: …`. Your package's `arena.tokens.json` writes a role's default beside its type. A custom property with no value is invalid at computed-value time, so an unanswered role is a missing border rather than a plainer look. Declare a list without `default` and you do not receive its stylesheet, the
   same way the preflight can already be dropped.
+- **`runtimePalettes`** is optional, a boolean, and says the app applies palettes its users design while it runs. With `true`, `arena build` also writes `arena.runtime.generated.json`, adds `--arena-runtime-palettes:1` to `:root` and emits the `.arena-polarity-dark` and `.arena-polarity-light` blocks. Without it, `arena.generated.css` is unchanged and the palette functions refuse. [`theme.md`](./theme.md) covers what a runtime palette may change and how to apply, check and keep one.
 - **`gradientMark`** is optional, a boolean, and says the mark your product is drawn with is a
   gradient. Arena ships no element that is one, so yours lives in your own CSS, where `arena audit` reports it. The scope reads which directory a line sits in, which is right for a part hook and wrong for a brand. Declare it once and that rule goes quiet in your sources; the colours inside
   the gradient are still reported, since they are the skin. The key replaces an `arena-audit allow` marker, which silences every rule on its line and is repeated wherever the mark is drawn.
@@ -102,7 +122,7 @@ you import it beside the other two. The sheet declares the cascade layer order i
 
 ## Build to production
 
-The `stylesheet` key is how a project pays only for what it renders. Set `"components": "auto"` and the command reads your sources and works the list out.
+A project pays only for what it renders by default. With no `stylesheet.components`, the command reads your sources and works the list out. A source that draws no Arena component imports no component sheet, and a build with no component map beside the command imports every component sheet and reports it. Spelling `"components": "auto"` asks for the same list and exits 1 in both of those cases. Name a list of your own to replace it.
 
 ```json
 { "stylesheet": { "components": "auto", "preflight": false } }
@@ -110,7 +130,11 @@ The `stylesheet` key is how a project pays only for what it renders. Set `"compo
 
 The command counts a component as drawn when your sources use it. The command adds what Arena draws on your behalf. A table renders a pagination and a select that you never wrote. The command prints both counts. The command names on stderr anything it saw and could not place.
 
-`preflight: false` is a separate switch. Set it when the project already ships an equivalent browser reset. The switch drops `css/base.css` and nothing else: the token layer and every vocabulary sheet arrive whatever the list names.
+`preflight: false` is a separate switch. Set it when the project already ships an equivalent browser reset. The switch drops `css/base.css` and nothing else: the token layer and every vocabulary sheet arrive whatever the list names. A block that names no `components` works the list out from the sources, so the switch stands alone.
+
+```json
+{ "stylesheet": { "preflight": false } }
+```
 
 ### What counts as drawn in React?
 
@@ -130,6 +154,6 @@ Name the sheets yourself when the project renders through indirection. Naming th
 { "stylesheet": { "components": ["arena-button", "arena-page-head", "arena-side-nav", "arena-stat-card", "arena-table"] } }
 ```
 
-A name the package does not ship makes `arena build` exit 1 and list the names it does ship, so a typo stops the build. An empty list is refused the same way; drop `stylesheet` to import every sheet. Every vocabulary sheet arrives whatever the list names, and in Angular `css/arena-cdk.css` always enters. The command closes a named list the way it closes `"auto"`. Name the components your project renders. The command adds the ones Arena draws on your behalf, and prints them on standard output as `arena build: N component sheet(s) named, and M Arena draws for you: …`. A list needing nothing added prints no such line. The list is then yours to keep current for the components you render yourself.
+A name the package does not ship makes `arena build` exit 1 and list the names it does ship, so a typo stops the build. An empty list is refused the same way; drop `stylesheet` to let the command work the list out. Every vocabulary sheet arrives whatever the list names, and in Angular `css/arena-cdk.css` always enters. The command closes a named list the way it closes `"auto"`. Name the components your project renders. The command adds the ones Arena draws on your behalf, and prints them on standard output as `arena build: N component sheet(s) named, and M Arena draws for you: …`. A list needing nothing added prints no such line. The list is then yours to keep current for the components you render yourself.
 
 A sheet name is the component's own name, as `arena-button`. [`stylesheets.md`](./stylesheets.md) lists the sheet files.

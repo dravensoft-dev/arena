@@ -1,0 +1,27 @@
+{
+  "name": "tree",
+  "source": "https://www.w3.org/WAI/ARIA/apg/patterns/treeview/",
+  "description": "A hierarchical list of nodes, one tab stop for the whole tree, where a parent opens and closes to show its children. The component renders the tree flat: the visible treeitems sit in order directly in the tree element, each with its level, set size and position. WAI-ARIA allows a treeitem directly in a tree, so there is no group element, and the three attributes carry the hierarchy the DOM does not.",
+  "element": "tree",
+  "requires": {
+    "roles.element": "tree",
+    "roles.label": "the tree has aria-labelledby or aria-label",
+    "roles.treeitem": "treeitem, on every node the tree draws",
+    "roles.expanded": "aria-expanded on each parent node, true while its children are shown and false while they are hidden",
+    "states.selected": "aria-selected set to true on each selected node and false on the rest, when the tree offers selection",
+    "states.level": "aria-level on every node, 1 for a root and one more for each level below",
+    "states.setsize": "aria-setsize on every node, the count of its siblings drawn in the tree, the node included",
+    "states.posinset": "aria-posinset on every node, its 1-based place among its siblings",
+    "states.multiselectable": "aria-multiselectable set to true on the tree when more than one node can be selected at once",
+    "focus.roving": "one tab stop into the tree; exactly one node has tabindex 0 and the rest have tabindex -1",
+    "keyboard.ArrowDown": "moves focus to the next visible node",
+    "keyboard.ArrowUp": "moves focus to the previous visible node",
+    "keyboard.ArrowRight": "opens a closed parent; on an open parent moves focus to its first child; on a leaf does nothing",
+    "keyboard.ArrowLeft": "closes an open parent; otherwise moves focus to the parent of the node",
+    "keyboard.Home": "moves focus to the first visible node",
+    "keyboard.End": "moves focus to the last visible node",
+    "keyboard.Enter": "activates the focused node",
+    "keyboard.Space": "selects the focused node, and toggles it when more than one node can be selected",
+    "keyboard.TypeAhead": "typing a character moves focus to the next visible node whose name starts with that character; typing several characters in rapid succession matches on the accumulated string"
+  }
+}

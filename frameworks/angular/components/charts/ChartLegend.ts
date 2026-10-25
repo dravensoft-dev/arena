@@ -35,3 +35,7 @@ export function arenaLegendStrip(height: number, seriesCount: number, sizeKey = 
   const sizeH = arenaSizeKeyHeight(sizeKey);
   return { plotH: Math.max(1, height - stripH - sizeH), stripH, sizeH };
 }
+
+export function arenaHeatLegendStrip(height: number): { plotH: number; stripH: number } {
+  return { plotH: Math.max(1, height - chartLegendStrip), stripH: chartLegendStrip };
+}

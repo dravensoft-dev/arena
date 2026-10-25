@@ -1,4 +1,10 @@
 {
   "pattern": "dialog-modal",
-  "exceptions": []
+  "exceptions": [],
+  "also": [
+    {
+      "pattern": "modal-focus",
+      "exceptions": []
+    }
+  ]
 }

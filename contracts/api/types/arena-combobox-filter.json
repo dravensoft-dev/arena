@@ -1,0 +1,6 @@
+{
+  "name": "ArenaComboboxFilter",
+  "kind": "enum",
+  "description": "Who narrows a list control's options by the typed text. `local` keeps the options whose label holds the text, whatever its case; `none` draws the options as given, because the host already narrowed them from its own search.",
+  "values": ["local", "none"]
+}

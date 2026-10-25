@@ -31,7 +31,7 @@ import { ArenaSlotAttributes } from '../../../SlotData';
 export class ArenaSideNavSection {
   protected readonly parts = manifest.parts;
 
-  /** Names the group, both on screen and to assistive technology. Required, and guarded at runtime: a blank label leaves the group with no accessible name, which is the defect the guard exists to prevent arriving through a value that is present, so the guard trims before it decides. */
+  /** Names the group, both on screen and to assistive technology. Required, and guarded at runtime. A blank label leaves the group with no accessible name, which is the defect the guard exists to prevent arriving through a value that is present. The guard therefore trims before it decides. */
   readonly label = input.required<string>();
 
   private readonly parent = inject(ArenaSideNavState, { skipSelf: true });

@@ -6,7 +6,8 @@
       "title": "Ground",
       "items": [
         "ArenaMain", "ArenaSkipLink", "ArenaSection", "ArenaHero", "ArenaGrid", "ArenaBoard",
-        "ArenaBoardColumn", "ArenaScroller", "ArenaScrollerItem", "ArenaSiteFooter"
+        "ArenaBoardColumn", "ArenaScroller", "ArenaScrollerItem", "ArenaSiteFooter", "ArenaDivider", "ArenaPaletteScope",
+        "ArenaAccordion", "ArenaAccordionItem"
       ]
     },
     {
@@ -19,39 +20,41 @@
     {
       "title": "Controls",
       "items": [
-        "ArenaButton", "ArenaIconButton", "ArenaInput", "ArenaTextarea", "ArenaSelect",
-        "ArenaCheckbox", "ArenaSwitch", "ArenaRadioGroup", "ArenaRadio", "ArenaSegmentedControl"
+        "ArenaButton", "ArenaIconButton", "ArenaCopyButton", "ArenaInput", "ArenaTextarea", "ArenaSelect", "ArenaCombobox", "ArenaMultiSelect",
+        "ArenaCheckbox", "ArenaCheckboxGroup", "ArenaSwitch", "ArenaRadioGroup", "ArenaRadio", "ArenaFieldset", "ArenaSegmentedControl",
+        "ArenaFileInput", "ArenaNumberField", "ArenaSlider", "ArenaPinInput", "ArenaSplitButton"
       ]
     },
     {
       "title": "Wayfinding",
       "items": [
-        "ArenaAppLogo", "ArenaPageHead", "ArenaAppBar", "ArenaBreadcrumbs", "ArenaTabs", "ArenaTab",
-        "ArenaPagination", "ArenaSideNav", "ArenaSideNavSection", "ArenaSideNavItem",
-        "ArenaSideNavCollapsible", "ArenaBottomNav", "ArenaBottomNavItem"
+        "ArenaAppLogo", "ArenaPageHead", "ArenaAppBar", "ArenaBreadcrumbs", "ArenaLink", "ArenaTabs", "ArenaTab",
+        "ArenaPagination", "ArenaStepper", "ArenaSideNav", "ArenaSideNavSection", "ArenaSideNavItem",
+        "ArenaSideNavCollapsible", "ArenaTreeView", "ArenaBottomNav", "ArenaBottomNavItem", "ArenaFilterBar"
       ]
     },
     {
       "title": "Overlays",
       "items": [
         "ArenaDialog", "ArenaConfirmDialog", "ArenaSheet", "ArenaMenu", "ArenaCommandPalette",
-        "ArenaTooltip", "ArenaToast", "ArenaToastHost", "ArenaOnboarding", "ArenaBulkActionBar"
+        "ArenaTooltip", "ArenaToast", "ArenaToastHost", "ArenaOnboarding", "ArenaBulkActionBar",
+        "ArenaPopover"
       ]
     },
     {
       "title": "Signals",
       "items": [
-        "ArenaAlert", "ArenaBadge", "ArenaTag", "ArenaProgressBar", "ArenaSpinner",
-        "ArenaEmptyState", "ArenaErrorState"
+        "ArenaAlert", "ArenaBadge", "ArenaTag", "ArenaProgressBar", "ArenaMeter", "ArenaSpinner",
+        "ArenaEmptyState", "ArenaErrorState", "ArenaKbd", "ArenaIcon"
       ]
     },
     {
       "title": "Data",
       "items": [
-        "ArenaTable", "ArenaTableRow", "ArenaTableCell", "ArenaActivityFeed", "ArenaCalendar",
+        "ArenaTable", "ArenaTableRow", "ArenaTableCell", "ArenaActivityFeed", "ArenaTimeline", "ArenaCalendar",
         "ArenaCalendarEvent", "ArenaAvatar", "ArenaPeopleList", "ArenaPersonRow",
         "ArenaLineChart", "ArenaBarChart", "ArenaHorizontalBarChart", "ArenaDoughnutChart",
-        "ArenaRadarChart", "ArenaScatterChart", "ArenaPyramidChart"
+        "ArenaRadarChart", "ArenaScatterChart", "ArenaPyramidChart", "ArenaSparkline", "ArenaGaugeChart", "ArenaFunnelChart", "ArenaHeatmapChart"
       ]
     }
   ]

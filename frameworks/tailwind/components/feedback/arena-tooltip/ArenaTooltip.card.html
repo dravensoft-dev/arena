@@ -11,10 +11,17 @@ import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.j
 const manifest = await (await fetch('./ArenaTooltip.manifest.json')).json();
 const c = arenaClassesFor(manifest);
 
+/* A component places its bubble by script, over its trigger; the specimen places it the same
+   way with its own styles, so a screenshot shows where a reader sees it. */
 function tooltip(label, content) {
   const bubble = el('span', { class: c.bubble, role: 'tooltip', text: content });
+  bubble.style.position = 'absolute';
+  bubble.style.bottom = 'calc(100% + var(--sp-2))';
+  bubble.style.left = '50%';
+  bubble.style.transform = 'translateX(-50%)';
   const root = el('span', { class: c.root },
     el('span', { class: 'font-body text-ctl text-base-content/82', text: label }), bubble);
+  root.style.position = 'relative';
   root.style.marginTop = 'var(--sp-8)';
   return root;
 }

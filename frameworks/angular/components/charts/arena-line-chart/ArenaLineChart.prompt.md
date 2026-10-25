@@ -29,14 +29,15 @@ readonly errors = computed<ArenaSeries[]>(() => [{ label: 'Error rate', values: 
 |---|---|---|---|---|
 | `labels*` | array | `readonly string[]` |  | One label per point, in the same order as every series' `values`. A label with no value in a series ends that series' line there rather than dropping to zero. |
 | `series*` | array | `readonly ArenaSeries[]` |  | The plotted series, drawn as one polyline each over the same ordered sequence. One series is the common case and draws exactly what it drew before. The area fill is refused past one series, because two fills occlude each other and the reader cannot tell which value either edge belongs to. |
-| `label*` | primitive | `string` |  | Names the chart for its accessible name and for the caption of its data table. This is the CHART's name, not a series': a series names itself. Required and guarded rather than defaulted, because a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing, so two charts on one page announce identically. |
+| `colorStart` | enum | `ArenaCatSlot` | `1` | The ramp slot the first series takes when it names no colour of its own. Each later series takes the next slot, and after the last slot the count starts again at the first. A series' `colorId` or `colorIds` keeps the slot it names. Absent, 1. |
+| `label*` | primitive | `string` |  | Names the chart for its accessible name and for the caption of its data table. The name is the CHART's, not a series': a series names itself. Required and guarded rather than defaulted, because a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing. Two charts on one page would announce identically. |
 | `area` | primitive | `boolean` | `false` | Fill under the line at 18% of the series colour: a tint, never a gradient. For a single series; two fills occlude each other. |
-| `curve` | primitive | `boolean` | `false` | Draw the series as a smooth curve rather than straight segments between points. The interpolation is monotone cubic, not Catmull-Rom, and that is the whole of the decision: a Catmull-Rom curve overshoots, so between two measured points it draws a peak or a trough nobody measured, and a chart that draws data which does not exist is the one thing a chart may not do. A monotone curve stays inside the band its own two points define, keeps a flat tangent at a turning point, and never crosses zero unless the values do. It changes the path string and nothing else: the points, the crosshair, the tooltip and the data cursor read the same numbers at the same places. |
+| `curve` | primitive | `boolean` | `false` | Draw the series as a smooth curve rather than straight segments between points. The interpolation is monotone cubic, not Catmull-Rom, and that is the whole of the decision. A Catmull-Rom curve overshoots, so between two measured points it draws a peak or a trough nobody measured. A chart that draws data which does not exist is the one thing a chart may not do. A monotone curve stays inside the band its own two points define, keeps a flat tangent at a turning point, and never crosses zero unless the values do. The curve changes the path string and nothing else: the points, the crosshair, the tooltip and the data cursor read the same numbers at the same places. |
 | `valueSuffix` | primitive | `string` |  | Appended verbatim to every number the chart draws: the axis ticks, the tooltip and the accessible table. Carries its own leading space if one is wanted. |
 | `valuePrefix` | primitive | `string` |  | Drawn verbatim before every number the chart writes, as valueSuffix is drawn after it. A currency that precedes its amount is the majority case worldwide, and a suffix alone cannot say it: "1234.5 Bs." would disagree with the table beside it reading "Bs. 1.234,50", and the accessible table would inherit the disagreement. |
 | `valueFormat` | object | `ArenaNumberFormat` |  | How each number is written before the prefix and suffix are added: which locale, how many fraction digits, whether thousands are grouped, whether large numbers are compacted. Absent, the raw JavaScript number, which is what this chart drew before the member existed. |
-| `height` | primitive | `number` | `280` | The plot's height in px, the --chart-height token by default. A number rather than a dimension string, because the chart does arithmetic with it to place every mark, and a caller-supplied "20rem" is neither a token nor a derivation of one. |
-| `minPointSpacing` | primitive | `number` |  | The narrowest gap, in px, the chart draws between two adjacent points. Below it the chart stops compressing and overflows its container horizontally instead, scrolled and anchored to the most recent point: marker spacing is a legibility constant, not something that yields to the viewport, and thirty days in 390px is unreadable at any font size. Absent, the chart fits whatever width it is given. The rail it scrolls in is the same region the data cursor lives in, and it is keyboard-reachable whether it overflows or not. |
+| `height` | primitive | `number` | `280` | The plot's height in px, the --chart-height token by default. A number rather than a dimension string, because the chart does arithmetic with it to place every mark. A caller-supplied "20rem" is neither a token nor a derivation of one. |
+| `minPointSpacing` | primitive | `number` |  | The narrowest gap, in px, the chart draws between two adjacent points. Below it the chart stops compressing and overflows its container horizontally instead, scrolled and anchored to the most recent point. Marker spacing is a legibility constant, not something that yields to the viewport, and thirty days in 390px is unreadable at any font size. Absent, the chart fits whatever width it is given. The rail it scrolls in is the same region the data cursor lives in, and it is keyboard-reachable whether it overflows or not. |
 
 <!-- @api end -->
 
@@ -83,8 +84,8 @@ tooltip is positioned against.
   column in the same table, and the two names are different things.
 - Use `area` for a volume or a total, not for a rate. A filled area says "this much of
   something"; a rate has nothing to fill.
-- Use `tone` only when the series genuinely *is* a state. A red line means "bad", and a
-  red line that just means "the third series" makes the chart lie.
+- Use `tone` only when the series genuinely *is* a state. A line in the danger tone means "bad", and a
+  line in the danger tone that just means "the third series" makes the chart lie.
 - Don't plot two series by stacking two line charts. Put both in `series` and they share
   one scale, one axis and one table. Two series that do *not* share a scale are two
   charts, and no member will make them one.
@@ -120,7 +121,7 @@ Arena computes the minimum width from its own axis padding, so nothing outside n
 ### Reading the line without a pointer
 
 The rail is one keyboard region and it is the plot's only tab stop. Inside the plot, Arrow Left and Arrow Right move a data cursor from point to point, clamping at the ends rather than wrapping. Home and End jump to the first and the last, and Escape clears the cursor. The cursor drives exactly
-what hover drives: the enlarged point, the crosshair and the tooltip.
+what hover drives: the enlarged point, the crosshair and the tooltip. When the rail scrolls, the cursor moves the rail to keep the current point in view.
 
 Nothing inside the graphic is focusable, and that is deliberate rather than an omission. A
 `role="img"` subtree is presentational, so no ARIA on a mark inside it reaches a screen reader

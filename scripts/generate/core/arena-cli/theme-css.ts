@@ -1,5 +1,5 @@
-/* Turns a consumer's arena.config.json into the one stylesheet Arena cannot ship: the palette
- * blocks, the @font-face rules and the import that pulls the package's own sheet in. Everything
+/* Turns a consumer's arena.config.json into the stylesheet Arena cannot ship: the palette
+ * blocks and the @font-face rules (themeCss), and the package sheet (packageSheet). Everything
  * else about a token travels inside the package. It runs in the repository, where
  * check-packages.ts holds its output equivalent to Style Dictionary's, and inside both npm
  * packages, where it is the only emitter there is. It reads no file and touches no network, so a
@@ -11,23 +11,26 @@
 
 import {
   PALETTE_KEYS, POLARITIES, pickerInvert, FONT_ROLES, GENERIC_FAMILIES, SOURCE_FORMATS,
-  FILL_PAIRS, SURFACE_PAIRS, TEXT_MIN, catKeys, requiredKeys,
+  FILL_PAIRS, SURFACE_PAIRS, TEXT_MIN, catKeys, heatKeys, requiredKeys,
 } from './palette-keys.ts';
 import { validate, contrast } from './validate-palette.mjs';
 import {
-  FS_STEP, RHYTHM_STEP, floorProblems, nameProblems, reservedProblems, scopeOn, totalityProblems, withDefaults,
+  FS_STEP, RHYTHM_STEP, aliasName, colourAnswer, keywordAnswer, type KnownAnswers, floorProblems, highContrastFor, nameProblems, reservedProblems, rootOnlyFor, scopeOn, totalityProblems, withDefaults,
 } from './style-plugin-rules.ts';
 import { serialize } from './serialize-token.ts';
-import { errorFill } from './oklab.ts';
+import { HEAT_MIN_DL, errorFill, heatCramped, heatLadder, toOklab } from './oklab.ts';
 import { axisReports, derivedLevels, emphasisReports, levelReports, onInkReports, raisedReports, washReports } from './levels.ts';
 import type { Level, Wash } from './levels.ts';
-import { report } from './reports.ts';
-import type { Report } from './reports.ts';
+import { unicodeRange } from './font-cut.ts';
+import { report } from './report.ts';
+import type { Report } from './report.ts';
 import type { SerializableToken } from './serialize-token.ts';
 
 export type TokenCatalogue = {
   tokens: Record<string, string>;
   roles: Record<string, { type?: string; values?: string[]; default?: string }>;
+  aliases?: Record<string, string>;
+  channels?: string[];
 };
 
 export type CheckedSheets = {
@@ -37,6 +40,8 @@ export type CheckedSheets = {
   washes?: Wash[];
   scopes?: string[];
   roleReferences?: string[];
+  aliases?: string[];
+  rootOnly?: { contrast: string; environment: string };
   catalogue?: TokenCatalogue;
 };
 
@@ -63,11 +68,15 @@ export type ArenaStylesheet = { preflight?: boolean; components?: unknown };
 export type ArenaConfig = {
   stylePlugins?: unknown;
   gradientMark?: unknown;
+  runtimePalettes?: unknown;
   palettes?: ArenaPalette[];
   fonts?: Record<string, ArenaFont>;
   stylesheet?: ArenaStylesheet;
   components?: string | string[];
 };
+
+export const ARENA_CONFIG_KEYS: readonly (keyof ArenaConfig)[] = ['palettes', 'fonts', 'stylePlugins', 'stylesheet', 'gradientMark', 'runtimePalettes'];
+export const ARENA_FONT_KEYS: readonly (keyof ArenaFont)[] = ['family', 'src', 'fallback', 'style', 'weight', 'display'];
 
 export type CheckedPalette = ArenaPalette & {
   name: string;
@@ -79,14 +88,16 @@ export type CheckedFont = ArenaFont & { family: string; src: string };
 
 export type CheckedStylesheet = { preflight?: boolean; components: string[] };
 
+export const ARENA_FONT_DEFAULTS = { style: 'normal', weight: '400 900', display: 'swap' } as const;
+
 export type CheckedConfig = ArenaConfig & {
   palettes: CheckedPalette[];
   fonts: Record<string, CheckedFont>;
   stylesheet?: CheckedStylesheet;
 };
 
-const HEX = /^#[0-9a-fA-F]{6}$/;
-const KEBAB = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
+export const HEX = /^#[0-9a-fA-F]{6}$/;
+export const KEBAB = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
 
 const isObject = (v: unknown): v is Record<string, unknown> =>
   v !== null && typeof v === 'object' && !Array.isArray(v);
@@ -95,6 +106,37 @@ export function defaultPalette(palettes: CheckedPalette[]): CheckedPalette {
   const found = palettes.find((p) => p?.default === true) ?? palettes[0];
   if (!found) throw new Error('defaultPalette: the config declares no palette at all, which configProblems refuses');
   return found;
+}
+
+export function paletteInputProblems(at: string, palette: { polarity?: unknown; colors?: unknown }) {
+  const problems: string[] = [];
+  if (typeof palette.polarity !== 'string' || !POLARITIES.includes(palette.polarity)) {
+    problems.push(`${at}.polarity: ${JSON.stringify(palette.polarity)} is not one of ${POLARITIES.join(', ')}`);
+  }
+
+  if (!isObject(palette.colors)) {
+    problems.push(`${at}.colors: not an object`);
+    return problems;
+  }
+
+  for (const key of requiredKeys()) {
+    if (!(key in palette.colors)) problems.push(`${at}.colors: missing ${key}`);
+  }
+  const colors = palette.colors;
+  const pinned = heatKeys().filter((k) => k in colors).length;
+  if (pinned > 0 && pinned < heatKeys().length) {
+    problems.push(`${at}.colors: pins heat-1 to heat-${heatKeys().length} together or none`);
+  }
+  for (const [key, value] of Object.entries(palette.colors)) {
+    if (!PALETTE_KEYS.includes(key)) {
+      problems.push(`${at}.colors: ${key} is not an Arena palette key`);
+      continue;
+    }
+    if (typeof value !== 'string' || !HEX.test(value)) {
+      problems.push(`${at}.colors.${key}: ${JSON.stringify(value)} is not a #rrggbb hex`);
+    }
+  }
+  return problems;
 }
 
 function paletteProblems(
@@ -121,27 +163,7 @@ function paletteProblems(
     }
   }
 
-  if (typeof palette.polarity !== 'string' || !POLARITIES.includes(palette.polarity)) {
-    problems.push(`${at}.polarity: ${JSON.stringify(palette.polarity)} is not one of ${POLARITIES.join(', ')}`);
-  }
-
-  if (!isObject(palette.colors)) {
-    problems.push(`${at}.colors: not an object`);
-    return problems;
-  }
-
-  for (const key of requiredKeys()) {
-    if (!(key in palette.colors)) problems.push(`${at}.colors: missing ${key}`);
-  }
-  for (const [key, value] of Object.entries(palette.colors)) {
-    if (!PALETTE_KEYS.includes(key)) {
-      problems.push(`${at}.colors: ${key} is not an Arena palette key`);
-      continue;
-    }
-    if (typeof value !== 'string' || !HEX.test(value)) {
-      problems.push(`${at}.colors.${key}: ${JSON.stringify(value)} is not a #rrggbb hex`);
-    }
-  }
+  problems.push(...paletteInputProblems(at, palette));
   return problems;
 }
 
@@ -184,8 +206,9 @@ export function stylesheetProblems(stylesheet: ArenaStylesheet, sheets: PackageS
   if (stylesheet.preflight !== undefined && typeof stylesheet.preflight !== 'boolean') {
     problems.push(`stylesheet.preflight: ${JSON.stringify(stylesheet.preflight)} is not true or false`);
   }
-  if (!Array.isArray(stylesheet.components) || stylesheet.components.length === 0) {
-    problems.push('stylesheet.components: name at least one component sheet, or drop stylesheet to import them all');
+  const named = stylesheet.components;
+  if (named !== undefined && (!Array.isArray(named) || named.length === 0)) {
+    problems.push('stylesheet.components: name at least one component sheet, or drop stylesheet to let arena build work them out');
     return problems;
   }
   if (!sheets) {
@@ -193,9 +216,10 @@ export function stylesheetProblems(stylesheet: ArenaStylesheet, sheets: PackageS
       + 'so a name in it can be held to nothing');
     return problems;
   }
+  if (named === undefined) return problems;
 
   const seen = new Set<string>();
-  for (const name of stylesheet.components as unknown[]) {
+  for (const name of named as unknown[]) {
     if (typeof name !== 'string' || !sheets.components.includes(name)) {
       problems.push(`stylesheet.components: ${JSON.stringify(name)} is not a sheet this package ships, `
         + `which are ${sheets.components.join(', ')}`);
@@ -245,6 +269,7 @@ export function pluginValue(raw: unknown, catalogue: TokenCatalogue | null) {
   const alias = ALIAS.exec(value)?.[1];
   if (!alias) return value;
   const flat = alias.replace(/\./g, '-');
+  if (catalogue?.roles?.[flat]?.type === 'color') return `var(--${flat})`;
   if (catalogue?.tokens?.[flat] === undefined) return null;
   return SKIN_ALIAS.test(alias) ? `var(--${flat})` : catalogue.tokens[flat];
 }
@@ -292,7 +317,63 @@ export function resolvedPlugin(
       if (value !== null) at.set(key, value);
     }
   }
+  const roles = catalogue?.roles ?? {};
+  const bound = Object.keys(roles).length;
+  for (const [key, first] of at) {
+    let value = first;
+    for (let hop = 0; hop < bound; hop += 1) {
+      const name = /^var\(--([\w-]+)\)$/.exec(value)?.[1];
+      if (!name || roles[name]?.type !== 'color' || !at.has(name)) break;
+      value = at.get(name) as string;
+    }
+    if (value !== first) at.set(key, value);
+  }
   return at;
+}
+
+function knownOf(catalogue: TokenCatalogue): KnownAnswers {
+  return {
+    colourRoles: (name) => catalogue.roles?.[name]?.type === 'color',
+    resolve: (flat) => catalogue.tokens?.[flat],
+  };
+}
+
+function roleAlias(raw: unknown, catalogue: TokenCatalogue) {
+  const alias = aliasName(String(raw));
+  return alias && catalogue.roles?.[alias]?.type === 'color' ? alias : null;
+}
+
+function ringOf(key: string, tokens: Record<string, unknown>, catalogue: TokenCatalogue) {
+  const seen = [key];
+  let at = roleAlias(tokens[key], catalogue);
+  while (at !== null && at !== undefined) {
+    if (at === key) {
+      const via = seen[seen.length - 1] as string;
+      return {
+        members: seen,
+        message: seen.length === 1
+          ? `"${key}" is "{${key}}", so it names itself and never resolves`
+          : `"${seen[0]}" is "{${seen[1]}}", and "${via}" leads back to "${key}", so neither resolves`,
+      };
+    }
+    if (seen.includes(at)) return null;
+    seen.push(at);
+    at = roleAlias(tokens[at], catalogue);
+  }
+  return null;
+}
+
+export function ringsOf(tokens: Record<string, unknown>, catalogue: TokenCatalogue) {
+  const named = new Set<string>();
+  const rings: { id: string; message: string }[] = [];
+  for (const key of Object.keys(tokens)) {
+    if (named.has(key)) continue;
+    const ring = ringOf(key, tokens, catalogue);
+    if (!ring) continue;
+    for (const member of ring.members) named.add(member);
+    rings.push({ id: [...ring.members].sort().join(' '), message: ring.message });
+  }
+  return rings;
 }
 
 export function pluginBlocks(
@@ -308,6 +389,7 @@ export function pluginTokenProblems(
   group: string, tokens: Record<string, unknown>, catalogue: TokenCatalogue,
 ) {
   const problems = [];
+  const known = knownOf(catalogue);
   for (const [key, raw] of Object.entries(tokens)) {
     const where = `stylePlugins.${group}`;
     const role = catalogue.roles?.[key];
@@ -323,12 +405,17 @@ export function pluginTokenProblems(
         + 'Arena emits.');
       continue;
     }
-    if (role?.type === 'color' && !/^\{color\.[a-z0-9-]+\}$/.test(String(raw).trim()))
-      problems.push(`${where}: "${key}" is ${JSON.stringify(raw)}, and a colour role takes a {color.*} alias `
-        + 'only. A style plugin assigns one of your colours to a role and never authors one of its own.');
-    if (role?.type === 'keyword' && Array.isArray(role.values) && !role.values.includes(String(raw)))
+    if (role?.type === 'color' && !colourAnswer(String(raw), key, known)) {
+      const selfNamed = aliasName(String(raw)) === key;
+      if (!selfNamed)
+        problems.push(`${where}: "${key}" is ${JSON.stringify(raw)}, and a colour role takes a {color.*} alias `
+          + 'or another colour role. A style plugin assigns one of your colours to a role and never authors one '
+          + 'of its own.');
+    }
+    if (role?.type === 'keyword' && Array.isArray(role.values) && !keywordAnswer(String(raw).trim(), role.values, known))
       problems.push(`${where}: "${key}" is ${JSON.stringify(raw)}, not one of ${role.values.join(', ')}.`);
   }
+  for (const { message } of ringsOf(tokens, catalogue)) problems.push(`stylePlugins.${group}: ${message}.`);
   return problems;
 }
 
@@ -378,12 +465,30 @@ function resolvedProblems(
       + 'command, so a style plugin cannot be checked against it'];
   }
 
-  const whole = withDefaults(plugin, catalogue.roles ?? {}, isRoot ? undefined : { root }).plugin;
+  const { plugin: whole, defaulted } = withDefaults(plugin, catalogue.roles ?? {}, isRoot ? undefined : { root });
   problems.push(...pluginTokenProblems(plugin.name, plugin.tokens, catalogue));
   problems.push(...pluginTokenProblems(`${plugin.name}.${THEME_GROUP}`, plugin.light, catalogue));
   if (isRoot) {
     problems.push(...totalityProblems(Object.keys(catalogue.roles ?? {}), Object.keys(whole.tokens))
       .map((problem) => `${at}: ${problem}`));
+  }
+  const reported = new Set([plugin.tokens, plugin.light]
+    .flatMap((group) => ringsOf(group, catalogue).map((ring) => ring.id)));
+  const under = isRoot || !root ? null : withDefaults(root, catalogue.roles ?? {}).plugin;
+  const answersIn = (one: { tokens: Record<string, unknown>; light: Record<string, unknown> }, polarity: string) =>
+    (polarity === 'dark' ? one.tokens : { ...one.tokens, ...one.light });
+  const byDefault = (members: string[]) => members.filter((one) => defaulted.includes(one))
+    .map((one) => `; "${one}" carries Arena's default ${catalogue.roles?.[one]?.default}, so it takes that role's answer`).join('');
+  for (const polarity of POLARITIES) {
+    const merged = answersIn(whole, polarity);
+    const withRoot = under ? { ...answersIn(under, polarity), ...merged } : merged;
+    const ordered = { ...merged, ...withRoot };
+    const crossing = ringsOf(ordered, catalogue).filter(({ id }) => id.split(' ').some((one) => Object.hasOwn(merged, one)));
+    for (const { id, message } of [...ringsOf(merged, catalogue), ...crossing]) {
+      if (reported.has(id)) continue;
+      reported.add(id);
+      problems.push(`stylePlugins.${plugin.name}: ${message}${byDefault(id.split(' '))}.`);
+    }
   }
   if (problems.length) return problems;
 
@@ -442,6 +547,14 @@ export function gradientMarkProblems(config: ArenaConfig) {
     + 'and a value that is not a boolean would read as true while meaning nothing'];
 }
 
+export function runtimePalettesProblems(config: ArenaConfig) {
+  const declared = config.runtimePalettes;
+  if (declared === undefined || typeof declared === 'boolean') return [];
+  return [`runtimePalettes: declare true or false, not ${typeof declared}. It says this build also emits `
+    + 'the polarity hooks, the root marker and the runtime data a browser palette reads, and a value that '
+    + 'is not a boolean would read as true while meaning nothing'];
+}
+
 export function configProblems(
   config: ArenaConfig, sheets: PackageSheets = null, plugins: ResolvedPlugins = null,
 ) {
@@ -461,19 +574,100 @@ export function configProblems(
   }
 
   problems.push(...gradientMarkProblems(config));
+  problems.push(...runtimePalettesProblems(config));
   problems.push(...stylePluginProblems(config, sheets, plugins));
   problems.push(...fontProblems(config.fonts));
   if (config.stylesheet !== undefined) problems.push(...stylesheetProblems(config.stylesheet, sheets));
   return problems;
 }
 
+const POLARITY_MIDPOINT = 0.5;
+
 export const SURFACE_ROLE = 'fill-surface';
 
 export const rampFailed = (state: unknown) => state !== true && state !== 'pass';
 
-export function surfaceOf(palette: CheckedPalette, roles: Map<string, string>) {
+export function surfaceOf(palette: { colors: Record<string, string> }, roles: Map<string, string>) {
   const key = roles.get(SURFACE_ROLE)?.match(/^var\(--color-([\w-]+)\)$/)?.[1];
   return (key && palette.colors[key]) || palette.colors['base-100'];
+}
+
+export function heatReports(pinned: Record<string, string>, colors: Record<string, string>): Report[] {
+  if (!heatKeys().every((k) => pinned[k] === undefined) || !heatKeys().every((k) => colors[k] !== undefined)) return [];
+  const { ordered, cramped } = heatCramped(heatKeys().map((k) => colors[k]!));
+  const lines = cramped.map(({ from, to, gap }) =>
+    `heat, steps ${from} and ${to}: lightness gap ${gap.toFixed(3)}, under the ${HEAT_MIN_DL} a reader needs to tell them apart`);
+  if (!ordered && lines.length === 0) lines.push('heat: the derived steps do not rise or fall in lightness');
+  return lines.map((line) => report('heat', line));
+}
+
+export function heatOrderReports(steps: readonly string[], surface: string): Report[] {
+  const ground = toOklab(surface)[0];
+  const reach = steps.map((hex) => Math.abs(toOklab(hex)[0] - ground));
+  const out: Report[] = [];
+  reach.slice(1).forEach((far, i) => {
+    if (far > reach[i]!) return;
+    out.push(report('heat', `heat, steps ${i + 1} and ${i + 2}: step ${i + 2} is no further from the surface than step ${i + 1}, `
+      + 'and the heatmap reads the steps by magnitude'));
+  });
+  return out;
+}
+
+export function rolesFor(root: StylePlugin | null, catalogue: TokenCatalogue | null, polarity: string) {
+  return root
+    ? resolvedPlugin(root, catalogue, polarity)
+    : new Map<string, string>(Object.entries(catalogue?.tokens ?? {}));
+}
+
+export function polarityReports(polarity: string, ground: string | undefined): Report[] {
+  if (!ground || (polarity !== 'dark' && polarity !== 'light')) return [];
+  const reads = toOklab(ground)[0] >= POLARITY_MIDPOINT ? 'light' : 'dark';
+  return reads === polarity ? [] : [report('contrast', `polarity, base-100 ${ground} reads as ${reads}, and the palette declares ${polarity}`)];
+}
+
+export function paletteMessages(
+  palette: { polarity: string; colors: Record<string, string> }, roles: Map<string, string>,
+  levels: Level[], washes: Wash[],
+) {
+  const mode = palette.polarity;
+  const colors = derivedColours(palette.colors, mode);
+  const surface = surfaceOf({ colors }, roles);
+  const ramp = catKeys().map((k) => colors[k]).filter(Boolean);
+  const messages: Report[] = [...polarityReports(palette.polarity, palette.colors['base-100'])];
+
+  if (ramp.length) {
+    const rampOptions = { mode, surface };
+    for (const [name, state, detail] of validate(ramp, rampOptions).report as [string, any, string][]) {
+      if (rampFailed(state)) messages.push(report('ramp', `ramp, ${name}: ${detail}`));
+    }
+  }
+
+  messages.push(...heatReports(palette.colors, colors));
+  if (surface && heatKeys().every((key) => palette.colors[key] !== undefined)) {
+    const steps = heatKeys().map((key) => colors[key]);
+    if (steps.every((hex) => hex !== undefined)) messages.push(...heatOrderReports(steps as string[], surface));
+  }
+
+  const text = [
+    ...SURFACE_PAIRS.map(({ ink, on }) => [`${ink} on ${on}`, colors[ink], colors[on]]),
+    ...FILL_PAIRS.map(({ fill, content }) => [`${content} on ${fill}`, colors[content], colors[fill]]),
+  ];
+  for (const [what, fg, bg] of text) {
+    if (!fg || !bg) continue;
+    const ratio = contrast(fg, bg);
+    if (ratio < TEXT_MIN) {
+      messages.push(report('contrast',
+        `text, ${what}: ${ratio.toFixed(2)}:1, under the ${TEXT_MIN}:1 Arena holds itself to`));
+    }
+  }
+
+  messages.push(...axisReports(roles, colors, mode), ...onInkReports(roles, colors, mode), ...emphasisReports(roles, colors, mode));
+
+  const derived = derivedLevels(levels, roles, colors);
+  messages.push(...levelReports(levels, roles, colors, derived));
+  messages.push(...raisedReports(derived));
+  messages.push(...washReports(washes, roles, colors));
+  return messages;
 }
 
 export function paletteReports(
@@ -483,42 +677,7 @@ export function paletteReports(
   const root = (plugins ?? [])[0] ?? null;
   const out = [];
   for (const palette of config.palettes) {
-    const mode = palette.polarity;
-    const colors = derivedColours(palette.colors);
-    const roles = root
-      ? resolvedPlugin(root, catalogue, mode)
-      : new Map<string, string>(Object.entries(catalogue?.tokens ?? {}));
-    const surface = surfaceOf({ ...palette, colors }, roles);
-    const ramp = catKeys().map((k) => colors[k]).filter(Boolean);
-    const messages: Report[] = [];
-
-    if (ramp.length) {
-      const rampOptions = { mode, surface };
-      for (const [name, state, detail] of validate(ramp, rampOptions).report as [string, any, string][]) {
-        if (rampFailed(state)) messages.push(report('ramp', `ramp, ${name}: ${detail}`));
-      }
-    }
-
-    const text = [
-      ...SURFACE_PAIRS.map(({ ink, on }) => [`${ink} on ${on}`, colors[ink], colors[on]]),
-      ...FILL_PAIRS.map(({ fill, content }) => [`${content} on ${fill}`, colors[content], colors[fill]]),
-    ];
-    for (const [what, fg, bg] of text) {
-      if (!fg || !bg) continue;
-      const ratio = contrast(fg, bg);
-      if (ratio < TEXT_MIN) {
-        messages.push(report('contrast',
-          `text, ${what}: ${ratio.toFixed(2)}:1, under the ${TEXT_MIN}:1 Arena holds itself to`));
-      }
-    }
-
-    messages.push(...axisReports(roles, colors, mode), ...onInkReports(roles, colors, mode), ...emphasisReports(roles, colors, mode));
-
-    const derived = derivedLevels(levels, roles, colors);
-    messages.push(...levelReports(levels, roles, colors, derived));
-    messages.push(...raisedReports(derived));
-    messages.push(...washReports(washes, roles, colors));
-
+    const messages = paletteMessages(palette, rolesFor(root, catalogue, palette.polarity), levels, washes);
     if (messages.length) out.push({ palette: palette.name, messages });
   }
   return out;
@@ -568,12 +727,22 @@ export function weightsCovered(font: ArenaFont): [number, number][] | null {
   return typeof font.src === 'string' ? googleWeights(font.src) : null;
 }
 
+export type CutLoss = { family: string; label: string; axis: [number, number] | null; lost: number[] };
+
 export function weightReports(
   config: CheckedConfig, catalogue: TokenCatalogue | null = null, plugins: ResolvedPlugins = null,
+  cuts: Record<string, CutLoss> = {},
 ) {
   const root = (plugins ?? [])[0] ?? null;
   const out: Report[] = [];
   const seen = new Set<string>();
+  for (const [role, cut] of Object.entries(cuts)) {
+    const reach = cut.axis ? `${cut.axis[0]}-${cut.axis[1]}` : 'its one weight';
+    for (const weight of cut.lost) {
+      out.push(report('weight', `fonts.${role} paints ${weight} and ${cut.family} (${cut.label}) does not reach it, `
+        + `its weights run ${reach}; the cut keeps what the file has, and the browser draws ${weight} from the nearest one`));
+    }
+  }
   for (const polarity of new Set(config.palettes.map((p) => p.polarity))) {
     const resolved = root
       ? resolvedPlugin(root, catalogue, polarity)
@@ -601,43 +770,80 @@ export function isStylesheet(src: string) {
   return path.endsWith('.css') || /^https?:\/\/fonts\.googleapis\.com\//.test(src);
 }
 
-function fontFace(font: CheckedFont) {
+export type FontFaces = { faces: { name: string; weight: string }[] };
+
+function fontFace(font: CheckedFont, cut?: FontFaces) {
   const src = font.src;
   const bare = src.split('?')[0] ?? '';
   const extension = Object.keys(SOURCE_FORMATS).find((e) => bare.endsWith(e));
   const format = extension ? ` format('${(SOURCE_FORMATS as Record<string, string>)[extension]}')` : '';
-  return [
+  const face = (url: string, weight: string, extra: string[], withFormat: string) => [
     '@font-face{',
     `  font-family:'${font.family}';`,
-    `  font-style:${font.style ?? 'normal'};`,
-    `  font-weight:${font.weight ?? '400 900'};`,
-    `  font-display:${font.display ?? 'swap'};`,
-    `  src:url('${font.src}')${format};`,
+    `  font-style:${font.style ?? ARENA_FONT_DEFAULTS.style};`,
+    `  font-weight:${weight};`,
+    `  font-display:${font.display ?? ARENA_FONT_DEFAULTS.display};`,
+    `  src:url('${url}')${withFormat};`,
+    ...extra,
     '}',
   ].join('\n');
+  if (!cut) return face(font.src, font.weight ?? ARENA_FONT_DEFAULTS.weight, [], format);
+  return cut.faces
+    .map(({ name, weight }) => face(`./${name}`, weight, [`  unicode-range:${unicodeRange()};`], " format('woff2')"))
+    .join('\n');
 }
 
 function block(selector: string, declarations: string[]) {
   return [`${selector}{`, ...declarations.map((d) => `  ${d}`), '}'].join('\n');
 }
 
-export function derivedColours(colors: Record<string, string>) {
+export function derivedColours(colors: Record<string, string>, polarity: string) {
   const { error, primary } = colors;
   const content = colors['error-content'];
   const out: Record<string, string> = colors['error-fill'] === undefined && error !== undefined && content !== undefined
     ? { ...colors, 'error-fill': errorFill(error, content) }
     : { ...colors };
   if (out['primary-fill'] === undefined && primary !== undefined) out['primary-fill'] = primary;
+  const slot = colors['cat-4'];
+  const surface = colors['base-200'];
+  const ink = colors['base-content'];
+  if (heatKeys().every((k) => colors[k] === undefined) && slot && surface && ink) {
+    heatLadder(slot, surface, ink, polarity).forEach((hex, i) => { out[`heat-${i + 1}`] = hex; });
+  }
   return out;
 }
 
-function colourDeclarations(palette: CheckedPalette) {
-  const colors = derivedColours(palette.colors);
-  return PALETTE_KEYS
-    .flatMap((key) => {
-      const value = colors[key];
-      return value === undefined ? [] : [`--color-${key}:${value.toLowerCase()};`];
-    });
+export function paletteDeclarations(
+  palette: { polarity: string; colors: Record<string, string> }, roles: Map<string, string>, levels: Level[],
+) {
+  const colors = derivedColours(palette.colors, palette.polarity);
+  const declared = PALETTE_KEYS.flatMap((key) => {
+    const value = colors[key];
+    return value === undefined ? [] : [`--color-${key}:${value.toLowerCase()};`];
+  });
+  const stepped = [...derivedLevels(levels, roles, colors)]
+    .flatMap(([name, one]) => (one.percent === null ? [] : [`--${name}:${one.percent}%;`]));
+  return [...declared, ...stepped];
+}
+
+export function restatedBy(plugin: StylePlugin, catalogue: TokenCatalogue | null, polarity: string) {
+  const namesColourRole = (d: string) => catalogue?.roles?.[/:var\(--([\w-]+)\);$/.exec(d)?.[1] ?? '']?.type === 'color';
+  return pluginBlocks(plugin, catalogue, polarity).filter((d) => d.includes('var(--color-') || namesColourRole(d));
+}
+
+export type PolarityContext = {
+  aliases: string[]; roleReferences: string[]; root: StylePlugin | null; catalogue: TokenCatalogue | null;
+};
+
+export function polarityDeclarations(polarity: string, context: PolarityContext) {
+  const { aliases, roleReferences, root, catalogue } = context;
+  return [
+    `--picker-invert:${pickerInvert(polarity)};`,
+    `color-scheme:${polarity};`,
+    ...aliases,
+    ...roleReferences,
+    ...(root ? restatedBy(root, catalogue, polarity) : []),
+  ];
 }
 
 export function scopedImports(
@@ -656,18 +862,66 @@ export function scopedImports(
   return lines;
 }
 
+export const RUNTIME_MARKER = '--arena-runtime-palettes';
+export const polarityClass = (polarity: string) => `arena-polarity-${polarity}`;
+
+export type ArenaRuntimeDataShape = {
+  arenaRuntimePalettes: 1;
+  declared: string[];
+  taken: string[];
+  levels: Level[];
+  washes: Wash[];
+  roles: { dark: Record<string, string>; light: Record<string, string> };
+};
+
+export function runtimeData(config: CheckedConfig, sheets: PackageSheets, plugins: ResolvedPlugins): ArenaRuntimeDataShape {
+  const root = plugins?.[0] ?? null;
+  const catalogue = sheets?.catalogue ?? null;
+  const rolesIn = (polarity: string) => Object.fromEntries(rolesFor(root, catalogue, polarity));
+  return {
+    arenaRuntimePalettes: 1,
+    declared: (config.palettes as CheckedPalette[]).map((palette) => palette.name),
+    taken: sheets?.scopes ?? [],
+    levels: sheets?.levels ?? [],
+    washes: sheets?.washes ?? [],
+    roles: { dark: rolesIn('dark'), light: rolesIn('light') },
+  };
+}
+
+export type PackageOptions = { packageName?: string; sheets?: PackageSheets; root?: string | null };
+
+export function packageImports(config: CheckedConfig, { packageName = '@dravensoft/arena-react', sheets = null }: PackageOptions) {
+  const withDefault = rootIsDefault(config);
+  if (!config.stylesheet && withDefault && !sheets) return [`@import '${packageName}/arena.css';`];
+  if (!sheets) return null;
+  const stylesheet = { ...config.stylesheet, components: config.stylesheet?.components ?? sheets.components };
+  return scopedImports(packageName, stylesheet, sheets, withDefault);
+}
+
+export const PACKAGE_HEADER = '/* GENERATED by arena build. Arena\'s half of the stylesheet: it changes with the Arena package and the components your sources draw. */';
+
+export function packageLines(config: CheckedConfig, options: PackageOptions) {
+  const lines = packageImports(config, options);
+  if (lines === null) {
+    throw new Error('packageLines: the config names component sheets or a root style plugin of its own '
+      + 'and the package\'s own sheets were never read, which configProblems refuses; emitting here '
+      + 'would import nothing or import an appearance the config replaced');
+  }
+  return lines;
+}
+
 export type ThemeOptions = {
-  packageName?: string;
-  importHeader?: boolean;
   source?: string;
   sheets?: PackageSheets;
   plugins?: ResolvedPlugins;
+  cuts?: Record<string, FontFaces>;
 };
+
+export const ALWAYS_THEMED: readonly string[] = Object.keys(FONT_ROLES).map((role) => `--font-${role}`);
 
 export function themeCss(config: CheckedConfig, options: ThemeOptions = {}) {
   const {
-    packageName = '@dravensoft/arena-react', importHeader = true,
-    source = 'arena.config.json', sheets = null, plugins = null,
+    source = 'arena.config.json', sheets = null, plugins = null, cuts = {},
   } = options;
   const fonts = config.fonts ?? {};
   const fontFor = (role: string) => {
@@ -677,25 +931,12 @@ export function themeCss(config: CheckedConfig, options: ThemeOptions = {}) {
   };
   const fallbackFor = (role: string) => fontFor(role).fallback ?? (FONT_ROLES as Record<string, string[]>)[role];
 
-  const withDefault = rootIsDefault(config);
   const parts = [`/* GENERATED by arena build from ${source}. Edit that, not this file. */`];
-  if (importHeader) {
-    if (!config.stylesheet && withDefault) parts.push(`@import '${packageName}/arena.css';`);
-    else if (!sheets) {
-      throw new Error('themeCss: the config names component sheets or a root style plugin of its own '
-        + 'and the package\'s own sheets were never read, which configProblems refuses; emitting here '
-        + 'would import nothing or import an appearance the config replaced');
-    } else {
-      const stylesheet = config.stylesheet ?? { components: sheets.components };
-      parts.push(scopedImports(packageName, stylesheet, sheets, withDefault).join('\n'));
-    }
-  }
-
   const roles = Object.keys(FONT_ROLES);
   const fontSheets = [...new Set(roles.map((r) => fontFor(r).src).filter(isStylesheet))];
   for (const sheet of fontSheets) parts.push(`@import url('${sheet}');`);
   for (const role of roles) {
-    if (!isStylesheet(fontFor(role).src)) parts.push(fontFace(fontFor(role)));
+    if (!isStylesheet(fontFor(role).src)) parts.push(fontFace(fontFor(role), cuts[role]));
   }
 
   const catalogue = sheets?.catalogue ?? null;
@@ -703,46 +944,60 @@ export function themeCss(config: CheckedConfig, options: ThemeOptions = {}) {
     (plugin ? [{ plugin, at: i === 0 ? ':root' : `.arena-${plugin.name}` }] : []));
   const root = declared.find(({ at }) => at === ':root')?.plugin;
 
-  const levelDeclarations = (palette: CheckedPalette) => {
-    const roles = root
-      ? resolvedPlugin(root, catalogue, palette.polarity)
-      : new Map<string, string>(Object.entries(catalogue?.tokens ?? {}));
-    return [...derivedLevels(sheets?.levels ?? [], roles, derivedColours(palette.colors))]
-      .flatMap(([name, one]) => (one.percent === null ? [] : [`--${name}:${one.percent}%;`]));
-  };
+  const levels = sheets?.levels ?? [];
+  const rolesOf = (palette: CheckedPalette) => rolesFor(root ?? null, catalogue, palette.polarity);
 
   const fallback = defaultPalette(config.palettes);
+  const aliases = sheets?.aliases ?? [];
   parts.push(block(':root', [
-    ...colourDeclarations(fallback),
-    ...levelDeclarations(fallback),
+    ...paletteDeclarations(fallback, rolesOf(fallback), levels),
+    `--arena-palette:${fallback.name};`,
+    ...(config.runtimePalettes === true ? [`${RUNTIME_MARKER}:1;`] : []),
     `--picker-invert:${pickerInvert(fallback.polarity)};`,
     `color-scheme:${fallback.polarity};`,
+    ...aliases,
     ...Object.keys(FONT_ROLES).map((role) => `--font-${role}:${family(fontFor(role).family, fallbackFor(role) as string[])};`),
   ]));
 
   for (const { plugin, at } of declared) {
     const answers = pluginBlocks(plugin, catalogue, fallback.polarity);
-    if (answers.length) parts.push(block(at, answers));
+    if (at === ':root') {
+      if (answers.length) {
+        parts.push(block(at, answers));
+        const widened = sheets?.rootOnly ? highContrastFor(at, sheets.rootOnly) : '';
+        if (widened) parts.push(widened);
+      }
+    } else {
+      parts.push(block(at, [`--arena-plugin:${plugin.name};`, ...answers]));
+      const again = sheets?.rootOnly ? rootOnlyFor(at, sheets.rootOnly) : '';
+      if (again) parts.push(again);
+    }
   }
 
-  const restated = (plugin: StylePlugin, polarity: string) =>
-    pluginBlocks(plugin, catalogue, polarity).filter((d) => d.includes('var(--color-'));
+  const context: PolarityContext = {
+    aliases, roleReferences: sheets?.roleReferences ?? [], root: root ?? null, catalogue,
+  };
+
+  const crossesOf = (cross: ReturnType<typeof scopeOn>, polarity: string) => declared.flatMap(({ plugin, at }) => {
+    const answers = at === ':root' ? [] : restatedBy(plugin, catalogue, polarity);
+    return answers.length ? [cross(at, `\n${answers.map((d) => `  ${d}`).join('\n')}\n`)] : [];
+  });
 
   for (const palette of config.palettes) {
-    if (palette === fallback) continue;
     const cross = scopeOn(`.arena-${palette.name}`);
     parts.push(block(`.arena-${palette.name}`, [
-      ...colourDeclarations(palette),
-      ...levelDeclarations(palette),
-      `--picker-invert:${pickerInvert(palette.polarity)};`,
-      `color-scheme:${palette.polarity};`,
-      ...(sheets?.roleReferences ?? []),
-      ...(root ? restated(root, palette.polarity) : []),
+      ...paletteDeclarations(palette, rolesOf(palette), levels),
+      `--arena-palette:${palette.name};`,
+      ...polarityDeclarations(palette.polarity, context),
     ]));
-    for (const { plugin, at } of declared) {
-      if (at === ':root') continue;
-      const answers = restated(plugin, palette.polarity);
-      if (answers.length) parts.push(block(cross(at), answers));
+    parts.push(...crossesOf(cross, palette.polarity));
+  }
+
+  if (config.runtimePalettes === true) {
+    for (const polarity of POLARITIES) {
+      const cross = scopeOn(`.${polarityClass(polarity)}`);
+      parts.push(block(`.${polarityClass(polarity)}`, polarityDeclarations(polarity, context)));
+      parts.push(...crossesOf(cross, polarity));
     }
   }
 

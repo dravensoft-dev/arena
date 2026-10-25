@@ -19,7 +19,7 @@ import manifest from './ArenaBoard.classes.generated';
 export class ArenaBoard {
   protected readonly parts = manifest.parts;
 
-  /** Names the board to assistive technology: what the columns are columns OF. "Sprint 32 tasks by status", never "Board". Required and guarded at runtime after trimming, the shape ArenaScroller.label carries for the same reason, since a group announced as a group tells a reader that focus moved and nothing about where it landed. */
+  /** Names the board to assistive technology: what the columns are columns OF. "Sprint 32 tasks by status", never "Board". Required and guarded at runtime after trimming, the shape ArenaScroller.label carries for the same reason. The reason is shared: a group announced as a group tells a reader that focus moved and nothing about where it landed. */
   readonly label = input.required<string>();
 
   protected readonly named = computed(() => {

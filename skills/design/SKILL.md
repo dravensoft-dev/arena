@@ -97,36 +97,44 @@ source text cannot show, is `arena://rules` on the MCP server.
 
 - **Tokens are the only styling layer.** A raw colour is a bug, as is a bare `16px`. A hex, a
   channel triple in `rgb()` or `oklch()`, and a colour's own name are one defect written three
-  ways. Read a value through its custom property, as `var(--color-primary)` or `var(--sp-4)`.
-  Derive one with `calc()` or `clamp()`, or mix one with `color-mix()`, over a token. **`arena
-  audit` reports this one.**
+  ways. Read a value through its custom property, as `var(--ink-body)` or `var(--sp-4)`. Derive
+  one with `calc()` or `clamp()`, or mix one with `color-mix()`, over a token. A bracket value in
+  a class, as `p-[13px]`, is the same raw value. A bracket may hold a `var()` of a token, a
+  `calc()`, `min()`, `max()` or `clamp()` over tokens, or one value in a unit no token models,
+  such as `%`, `ch` or `vw`. **`arena audit` reports this one, as `raw-value`.**
 - **Only a class of the vocabulary goes on an Arena component.** Write it as a literal on the
   component, or on a container whose components all take it. Write no rule targeting a component:
   its `arena-<component>__<slot>` classes are compiler output no contract names, and a slot may be
   renamed. Every class you may write is on the vocabulary page; your own content uses the same
   tokens. React checks the class at compile time, Angular through the audit. **`arena audit`
-  reports this one.**
+  reports this one, as `own-class`.**
 - **Appearance is a class of the vocabulary, never a member.** How wide, how large or how quiet a
   component is, is decided by a class, as `arena-fill`.
 - **Danger is outline, never filled.** The background stays transparent, and the border and the
   content read `--danger`. Arena draws one filled danger surface, the final irreversible
   confirmation inside `ArenaConfirmDialog`. A surface of your own may carry the `--danger-soft`
-  tint. **`arena audit` reports this one.**
+  tint. **`arena audit` reports this one, as `danger-fill`.**
 - **One primary accent per view.** The primary emphasis is the voice: one `arena-emphasis-primary`
   action at most stands on a screen, and a button with no emphasis class is it. Gold is
-  distinction and focus, not a second primary. **`arena audit` reports this one.**
+  distinction and focus, not a second primary. **`arena audit` reports this one, as
+  `one-primary`.**
 - **No gradients, on any surface.** Depth comes from the `base-100`, `base-200`, `base-300`
   surface scale, the hairline border and the shadow roles. `ArenaSkeleton`'s neutral shimmer is
   the one exception. A brand whose mark is a gradient sets `gradientMark` in `arena.config.json`.
-  **`arena audit` reports this one.**
-- **No emoji, in product or in copy.** **`arena audit` reports this one.**
-- **Icons are Phosphor class-name strings, never elements and never SVG.** Write `icon="ph-bold
-  ph-plus"`. Install `@phosphor-icons/web`, because Arena never bundles it. **`arena audit`
-  reports this one.**
+  **`arena audit` reports this one, as `raw-value`.**
+- **No emoji, in product or in copy.** **`arena audit` reports this one, as `emoji`.**
+- **Icons are Phosphor class-name strings, drawn by Arena's components or by ArenaIcon; a raw ph-*
+  element paints nothing.** Write `icon="ph-bold ph-plus"`. Arena draws each glyph from the sprite
+  `arena build` writes, and a raw `ph-*` element needs the project's own `@phosphor-icons/web`,
+  which Arena never bundles. A static page has no build, so it links the weight sheets for its raw
+  `ph-*` elements, as `references/artifact.md` shows. **`arena audit` reports this one, as
+  `icon-element`.**
 - **Never wrap an Arena component in your router's own link.** That nests an anchor inside an
   anchor, and in Angular it does not bind at all. Pass the href to the component and route from
-  the event it reports. The members that take one: `ArenaCard.href`, `ArenaCommand.route`,
-  `ArenaCrumb.href` and `ArenaSideNavItem.href`. **`arena audit` reports this one.**
+  the event it reports. An `ArenaLink` inside a link of your own is reported as `wrapped-link`.
+  The members that take an href: `ArenaBottomNavItem.href`, `ArenaCard.href`,
+  `ArenaCommand.route`, `ArenaCrumb.href`, `ArenaLink.href`, `ArenaSideNavItem.href` and
+  `ArenaTableCell.href`. **`arena audit` reports this one, as `router-link`.**
 - **An anchor Arena draws splits its activations.** A primary click with no modifier, and Enter,
   are cancelled and reported through the component's own event. Route from that handler and
   nothing navigates twice. A modified click, a middle click and the context menu belong to the
@@ -136,10 +144,11 @@ source text cannot show, is `arena://rules` on the MCP server.
   button, a link or a field inside that target runs the control and nothing else. A press
   elsewhere on the surface activates it. So a card or a row may hold controls of your own, or hand
   the press over entirely by not being interactive.
-- **Two themes, dark first.** Dark is `:root`, light is `.arena-light`. Components never rewrite
-  per theme; they read tokens. `.arena-compact` and `.arena-comfortable` are the density family on
-  the vocabulary page, `frameworks/VOCABULARY.md`: the first re-densifies the controls, the second
-  grows them to a 48px touch target, and the two are exclusive.
+- **Two themes, dark first.** Dark is `:root` and `.arena-dark`, light is `.arena-light`, and
+  either class goes on any element. Components never rewrite per theme; they read tokens.
+  `.arena-compact` and `.arena-comfortable` are the density family on the vocabulary page,
+  `frameworks/VOCABULARY.md`: the first re-densifies the controls, the second grows them to a 48px
+  touch target, and the two are exclusive.
 - **A chart carries identity or meaning, never both.** The `--color-cat-*` ramp in fixed order is
   identity. The status colours are meaning. A status colour is never a series colour.
 - **Copy is formal and direct, in the product's language.** Concrete verbs, no boasting; an error
@@ -160,6 +169,8 @@ source text cannot show, is `arena://rules` on the MCP server.
 | I am starting a project that has no appearance yet. What do I ask, and in what order? | [`references/cold-start.md`](./references/cold-start.md): the tree, its five questions, the catalogue of measured style plugins, and the identity document every branch converges on |
 | Which layer, which architecture, and what do I have to install? | [`references/cold-start.md`](./references/cold-start.md), at its last four nodes. How much the product has to be found decides the layer and a peer. What the product is assembled on is answered per architecture, with the evidence for each. The dependency list follows from the answers |
 | What may I build this with, and how sure is Arena about each answer? | [`references/stack.md`](./references/stack.md): the package manager, the runner, the module format, the bundler and the framework version, each answer carrying the evidence it actually has. Arena is built with bun, React 18 and Angular 22, and none of that is a requirement on you |
+| What do I write in my bundler's config, and what does my bundler do differently from the others? | [`references/bundlers/index.md`](./references/bundlers/index.md): one row per bundler saying whether Arena's JS and its package sheet can sit in files of their own. Then the one page of that bundler's family, with its config and what it does differently. Read that page and no other |
+| Which bundlers, and which Angular builder, was Arena tested on, with what figures? | [`references/environments.md`](./references/environments.md): one row per bundler with its version, what was measured, the date and the Arena version, and the ones that cannot keep Arena in a chunk of its own. A record, not a recommendation |
 | How do I make Arena look like my own product? | [`references/style-kernel.md`](./references/style-kernel.md), once per project and before the first screen |
 | Which of those answers actually change how it looks? | the table in [`references/style-kernel.md`](./references/style-kernel.md), measured over eight products built on this kernel |
 | Does what I am building have to be found from outside it? | [`references/seo.md`](./references/seo.md), once per project: what Arena writes into the `<head>`, and which layer writes it |
@@ -172,14 +183,16 @@ source text cannot show, is `arena://rules` on the MCP server.
 | Where is each style decision made, and which of them are mine? | [`references/style.md`](./references/style.md): the five places, and the two you write in |
 | What exactly does this member take? | the members table in that same prompt |
 | Why does this member exist at all? | `contracts/api/components/<Name>.json` |
-| What else is exported: density by breakpoint, a focus trap, toast and confirmation queues, router predicates, tabular figures, hidden labels, the categorical ramp and tone colours for my own chart? How do I size a layout or a panel? | [exports](./references/exports.md), then [page](./references/page.md) for a frame. Switching palettes is [theme](./references/theme.md) and Arena's words are [locale](./references/locale.md) |
+| What else is exported: density by breakpoint, a focus trap, toast and confirmation queues, router predicates, tabular figures, hidden labels, and chart colours (categorical ramp, tones, heat ladder)? How do I size a layout or a panel? | [exports](./references/exports.md), then [shell](./references/shell.md) for a frame. Switching palettes is [theme](./references/theme.md) and Arena's words are [locale](./references/locale.md) |
 | What do I paint my page and my own markup with? | [`references/page.md`](./references/page.md): the floor, the colour roles, and why a role follows the skin where an alias follows the palette. **Arena paints no page of yours** |
 | How much air goes between two components, and what column does the page sit in? | [`references/style.md`](./references/style.md): the four classes the column is made of, and the stack and row steps as classes and as tokens. That page also draws the cut between air you place and air the kernel answers |
+| How do I assemble a page: skip link, landmarks, side nav beside content? | [shell](./references/shell.md): the skeleton in each layer, which landmark each piece is, how wide the rail is and how the title follows the route |
 | What does Arena ship at all, and how much of it do I have to take? | [`references/surface.md`](./references/surface.md): every part in one table with the document that owns it, and three steps a project can stop at |
 | Where does Arena stop? | the last section of [`references/surface.md`](./references/surface.md), which is a list of decisions rather than gaps waiting to close |
 | What is the value of a token? | the DTCG JSON for its group in `contracts/design/` (`ls contracts/design/*.json`), which is the machine-readable form and is cheaper than the specification below. Two files hold what DTCG cannot: `contracts/design/colors.css` and `contracts/design/environment.css`, both of which [`references/page.md`](./references/page.md) reads for you. The values of spacing, radius, border, shadow, motion, layer and breakpoint are tabled in [`references/tokens.md`](./references/tokens.md) |
 | What does a value mean, and why is it that? | [`contracts/design/AGENTS.md`](../../contracts/design/AGENTS.md), the normative design specification |
 | What must this kind of component do to be accessible, and what does an Arena one promise? | `contracts/behaviour/<pattern>.json`, one file per pattern and shipped inside your package. The page handing you the markup names the file it binds: [`references/media-register.md`](./references/media-register.md) for a feed, a lightbox or a viewer, [`references/seo.md`](./references/seo.md) for structured data. What one of Arena's own components does is its `.prompt.md`; the file recording which pattern it binds is what Arena is held to, not a document you read |
+| I want a static mock or a throwaway prototype with no build step. What do I link? | [`references/artifact.md`](./references/artifact.md) |
 | How do I install Arena in my app? | [install](./references/install.md), then [config](./references/config.md) for `arena.config.json`, [cli](./references/cli.md) for the `arena` command and [stylesheets](./references/stylesheets.md) for the import depth |
 | Contracts, an editor server, or two package versions? | [contracts](./references/contracts.md), [mcp](./references/mcp.md), [versioning](./references/versioning.md) |
 | What does every component look like at once? | `frameworks/react/kitchen-sink/`, and the same page in `frameworks/angular/` |
@@ -195,7 +208,7 @@ answers a question in the table above.
 
 **A visual artifact** (a slide, a mock, a throwaway prototype): copy the assets you need out
 of `assets/`, and write static HTML that links `intro/styles.css` and Phosphor's sheets. Neither
-ships in a package; https://arena.dravensoft.org serves both ([artifact](./references/artifact.md)).
+ships in a package; https://arena.dravensoft.org serves the first and a CDN the second ([artifact](./references/artifact.md)).
 
 **Production code**: use the component library for the consumer's framework, import from
 `@dravensoft/arena-react` or `@dravensoft/arena-angular`, and follow the prompts. The rules above
@@ -204,8 +217,7 @@ bind every line of it, and the one broken most often is the second.
 **How a screen is composed is yours, and the silence is deliberate, and it is about the shape
 rather than about the inventory.** Arena ships the pieces and no shape they must make: a console
 and a reading view are different pages before they are different components. Start from what the
-application is, and take the pieces from [`references/page.md`](./references/page.md), which is
-the inventory half and holds every one of them.
+application is, and take the frame from [`references/shell.md`](./references/shell.md) and the pieces from [`references/page.md`](./references/page.md), which holds every one of them.
 
 Arena keeps the questions and every answer is a style plugin. The reasoning under the appearance
 decision above is

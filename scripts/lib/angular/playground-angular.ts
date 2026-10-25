@@ -6,9 +6,9 @@
  * this layer and none in the other. A marker directive is read from the layer's own source
  * rather than listed here, so a new one joins without an edit. */
 
-import { playgroundPage, sheetLinks } from '../arena/playground-page.ts';
+import { playgroundPage, sheetLinks, spriteHref, UP } from '../arena/playground-page.ts';
 import { kebab } from '../../utils/case.ts';
-import { placeOf, SUBJECT } from '../arena/playground-model.ts';
+import { childLists, placeOf, SUBJECT } from '../arena/playground-model.ts';
 import { captured } from '../../utils/captures.ts';
 import type { MemberSpec } from '../arena/contract-shapes.ts';
 import type { FixtureNode, Knob, Place, Places, PlaygroundEvent, PlaygroundModel }
@@ -20,7 +20,7 @@ type FieldRef = Pick<Field, 'name' | 'member' | 'node'>;
 
 type Markers = Map<string, string>;
 
-export type Tag = { element: string; hook: string };
+export type Tag = { element: string; hook: string; aliases?: Record<string, string> };
 
 export type Tags = Map<string, Tag>;
 
@@ -35,6 +35,16 @@ const VALIDATORS: Record<string, (value: string) => string> = {
 };
 
 function validatorFor(name: string | undefined): ((value: string) => string) | undefined {
+  return name === undefined ? undefined : VALIDATORS[name];
+}
+`;
+
+export const NUMBER_VALIDATOR_TABLE = `
+const VALIDATORS: Record<string, (value: number) => string> = {
+  alwaysInvalid: () => 'Never valid, on purpose.',
+};
+
+function validatorFor(name: string | undefined): ((value: number) => string) | undefined {
   return name === undefined ? undefined : VALIDATORS[name];
 }
 `;
@@ -59,18 +69,35 @@ export function componentTags(sources: Map<string, string>): Tags {
   const found: Tags = new Map();
   for (const [name, source] of sources) {
     const declared = source.match(/selector:\s*'([^']+)'/);
-    if (declared) found.set(name, tagFor(captured(declared)));
+    if (!declared) continue;
+    const aliases = inputAliases(source);
+    found.set(name, Object.keys(aliases).length > 0
+      ? { ...tagFor(captured(declared)), aliases }
+      : tagFor(captured(declared)));
   }
   return found;
 }
 
-export function selector(name: string, tags?: Tags) {
-  return tags?.get(name)?.element ?? kebab(name);
+export function inputAliases(source: string): Record<string, string> {
+  const found: Record<string, string> = {};
+  for (const m of source.matchAll(/readonly (\w+)\s*=\s*input[^;]*?\balias:\s*'(\w+)'/g)) found[captured(m)] = captured(m, 2);
+  return found;
 }
 
-export function hook(name: string, tags?: Tags) {
+export function bindingName(name: string, member: string, tags?: Tags) {
+  return tags?.get(name)?.aliases?.[member] ?? member;
+}
+
+export function selector(name: string, tags?: Tags) {
+  const tag = tags?.get(name);
+  if (tag === undefined) return kebab(name);
+  return tag.element || (tag.hook ? 'div' : kebab(name));
+}
+
+export function hook(name: string, tags?: Tags, attrs = '') {
   const carried = tags?.get(name)?.hook;
-  return carried ? ` ${carried}` : '';
+  if (!carried || attrs.includes(` [${carried}]=`) || attrs.includes(` ${carried}=`)) return '';
+  return ` ${carried}`;
 }
 
 export function typeExpr(knob: Knob) {
@@ -114,6 +141,7 @@ export function attributeText(value: unknown) {
 export function collectFields(node: FixtureNode | string | null, contracts: Map<string, any>,
   into: Field[], prefix: string): Field[] {
   if (node === '$subject' || node === null || typeof node !== 'object') return into;
+  if (Array.isArray(node.children)) for (const one of node.children) collectFields(one, contracts, into, prefix);
   if (typeof node.component === 'string') {
     const api = contracts.get(node.component)?.api ?? {};
     for (const [member, value] of Object.entries(node.members ?? {}) as [string, any][]) {
@@ -133,11 +161,12 @@ export function fieldFor(fields: FieldRef[],
   return fields.find((one) => one.node === node && one.member === member)?.name;
 }
 
-export function nodeAttributes(node: FixtureNode, fields: FieldRef[]) {
+export function nodeAttributes(node: FixtureNode, fields: FieldRef[], tags?: Tags) {
+  const bound = (member: string) => (typeof node.component === 'string' ? bindingName(node.component, member, tags) : member);
   return (Object.entries(node.members ?? {}) as [string, any][])
     .map(([member, value]) => (staticAttribute(value)
-      ? ` ${member}="${attributeText(value)}"`
-      : ` [${member}]="${fieldFor(fields, node, member)}"`))
+      ? ` ${bound(member)}="${attributeText(value)}"`
+      : ` [${bound(member)}]="${fieldFor(fields, node, member)}"`))
     .join('');
 }
 
@@ -153,16 +182,21 @@ export function renderNode(node: FixtureNode, places: Places, fields: FieldRef[]
     const tag = node.element ?? 'span';
     const attrs = Object.entries(node.attrs ?? {}).map(([name, value]) => ` ${name}="${String(value)}"`).join('');
     if (VOID_ELEMENTS.has(tag)) return `${pad}<${tag}${attrs} />`;
+    if (Array.isArray(node.children) && node.children.length > 0) {
+      const inner = (node.children as FixtureNode[]).filter((one) => one !== null)
+        .map((one) => renderNode(one, places, fields, markers, tags, depth + 1, imports)).join('\n');
+      return `${pad}<${tag}${attrs}>\n${inner}\n${pad}</${tag}>`;
+    }
     if (node.text === undefined) return `${pad}<${tag}${attrs}></${tag}>`;
     return `${pad}<${tag}${attrs}>${escapeText(node.text)}</${tag}>`;
   }
 
   const place = placeOf(places, node.component);
   const tag = selector(place.name, tags);
-  const open = `${tag}${hook(place.name, tags)}`;
   imports.add(place.name);
   const slots = node.slots ?? {};
-  const attrs = nodeAttributes(node, fields) + classAttribute(node.class);
+  const attrs = nodeAttributes(node, fields, tags) + classAttribute(node.class);
+  const open = `${tag}${hook(place.name, tags, attrs)}`;
   const children = [];
   for (const [name, list] of Object.entries(slots) as [string, any[]][]) {
     for (const one of list) {
@@ -173,6 +207,9 @@ export function renderNode(node: FixtureNode, places: Places, fields: FieldRef[]
     }
   }
   if (children.length === 0) return `${pad}<${open}${attrs}></${tag}>`;
+  const only = (slots.content ?? [])[0] as FixtureNode | undefined;
+  if (children.length === 1 && Object.keys(slots).length === 1 && typeof only === 'object' && typeof only.text === 'string' && !only.element)
+    return `${pad}<${open}${attrs}>${escapeText(only.text)}</${tag}>`;
   return `${pad}<${open}${attrs}>\n${children.join('\n')}\n${pad}</${tag}>`;
 }
 
@@ -193,7 +230,7 @@ export function slotBlock(knob: Knob, places: Places, fields: FieldRef[],
   markers: Markers, tags: Tags, depth: number, imports: Set<string>, marked: string) {
   const pad = '  '.repeat(depth);
   if (knob.control === 'slotText') {
-    const body = marked ? `<span${marked}>{{ k().${knob.member} }}</span>` : `{{ k().${knob.member} }}`;
+    const body = marked ? `<span${marked}>{{ k().${knob.member} }}</span>` : `<ng-container>{{ k().${knob.member} }}</ng-container>`;
     return `${pad}@if (k().${knob.member} !== undefined) {\n${pad}  ${body}\n${pad}}`;
   }
   const nodes = ((knob.nodes ?? []) as FixtureNode[])
@@ -208,19 +245,19 @@ export function renderSubject(model: PlaygroundModel, places: Places,
   const pad = '  '.repeat(depth);
   const inner = `${pad}  `;
   const tag = selector(model.component, tags);
-  const open = `${tag}${hook(model.component, tags)}`;
   imports.add(model.component);
 
   const attrs = model.knobs
     .filter((knob) => knob.form !== 'slot')
     .map((knob) => (knob.form === 'functionInput'
-      ? `\n${inner}[${knob.member}]="validatorFor(k().${knob.member})"`
-      : `\n${inner}[${knob.member}]="k().${knob.member}"`))
+      ? `\n${inner}[${bindingName(model.component, knob.member, tags)}]="validatorFor(k().${knob.member})"`
+      : `\n${inner}[${bindingName(model.component, knob.member, tags)}]="k().${knob.member}"`))
     .concat(model.events.map((event) => (event.payload
       ? `\n${inner}(${event.name})="play.fire('${event.name}', $event)"`
       : `\n${inner}(${event.name})="play.fire('${event.name}')"`)))
     .join('') + (model.class ? `\n${inner}class="${attributeText(model.class)}"` : '');
 
+  const open = `${tag}${hook(model.component, tags, attrs.replace(/\n\s*/g, ' '))}`;
   const slots = model.knobs.filter((knob) => knob.form === 'slot');
   if (slots.length === 0) return `${pad}<${open}${attrs}></${tag}>`;
 
@@ -237,7 +274,7 @@ export function renderSubject(model: PlaygroundModel, places: Places,
 export function holdsSubject(node: FixtureNode | string | null): boolean {
   if (node === '$subject') return true;
   if (node === null || typeof node !== 'object') return false;
-  return (Object.values(node.slots ?? {}) as any[][]).some((list) => list.some((one) => holdsSubject(one)));
+  return childLists(node).some((list) => list.some((one) => holdsSubject(one)));
 }
 
 export function renderTree(model: PlaygroundModel, places: Places, fields: FieldRef[],
@@ -247,11 +284,19 @@ export function renderTree(model: PlaygroundModel, places: Places, fields: Field
     const pad = '  '.repeat(level);
     if (node === '$subject') return renderSubject(model, places, fields, markers, tags, level, imports);
     if (!holdsSubject(node)) return renderNode(node, places, fields, markers, tags, level, imports);
+    if (typeof node.component !== 'string') {
+      const tag = node.element ?? 'span';
+      const attrs = Object.entries(node.attrs ?? {}).map(([name, value]) => ` ${name}="${String(value)}"`).join('');
+      const inner = ((node.children ?? []) as (FixtureNode | typeof SUBJECT | null)[])
+        .filter((one): one is FixtureNode | typeof SUBJECT => one !== null)
+        .map((one) => wrap(one, level + 1)).join('\n');
+      return `${pad}<${tag}${attrs}>\n${inner}\n${pad}</${tag}>`;
+    }
     const place = placeOf(places, node.component);
     const tag = selector(place.name, tags);
-    const open = `${tag}${hook(place.name, tags)}`;
     imports.add(place.name);
-    const attrs = nodeAttributes(node, fields) + classAttribute(node.class);
+    const attrs = nodeAttributes(node, fields, tags) + classAttribute(node.class);
+    const open = `${tag}${hook(place.name, tags, attrs)}`;
     const children = [];
     for (const [name, list] of Object.entries(node.slots ?? {}) as [string, any[]][]) {
       for (const one of list) {
@@ -278,7 +323,9 @@ export function knobsInterface(model: { knobs: Knob[] }) {
 }
 
 export function validatorTable(model: { knobs: Knob[] }) {
-  return model.knobs.some((knob) => knob.form === 'functionInput') ? VALIDATOR_TABLE : '';
+  const knob = model.knobs.find((one) => one.form === 'functionInput');
+  if (!knob) return '';
+  return knob.params?.value === 'number' ? NUMBER_VALIDATOR_TABLE : VALIDATOR_TABLE;
 }
 
 export function angularEntry(model: PlaygroundModel, places: Places,
@@ -314,6 +361,7 @@ import { ChangeDetectionStrategy, Component, computed, provideZonelessChangeDete
 import { bootstrapApplication } from '@angular/platform-browser';
 import { Playground } from '../../../playground/Playground';
 import { PlaygroundStore } from '../../../playground/PlaygroundState';
+import { provideArenaIcons } from '../../../ArenaIcons';
 import type { KnobModel } from '../../../playground/PlaygroundCodec.generated';
 ${types.length > 0 ? `import type { ${types.join(', ')} } from '../../../Api.generated';\n` : ''}${
   markerImports.length > 0 ? `import { ${markerImports.join(', ')} } from '../../../ProjectionMarkers';\n` : ''
@@ -348,7 +396,9 @@ ${fieldRows.length > 0 ? `${fieldRows.join('\n')}\n` : ''}}
  * page then loads its entry, throws at bootstrap and renders an empty document. */
 Reflect.set(globalThis, 'arenaAngularJitCompiler', angularJitCompiler);
 
-bootstrapApplication(Demo, { providers: [provideZonelessChangeDetection()] });
+bootstrapApplication(Demo, {
+  providers: [provideZonelessChangeDetection(), provideArenaIcons(${JSON.stringify(spriteHref(UP))})],
+});
 `;
 }
 

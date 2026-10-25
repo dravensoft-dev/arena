@@ -1,4 +1,10 @@
 {
   "pattern": "combobox",
-  "exceptions": []
+  "exceptions": [],
+  "also": [
+    {
+      "pattern": "modal-focus",
+      "exceptions": []
+    }
+  ]
 }

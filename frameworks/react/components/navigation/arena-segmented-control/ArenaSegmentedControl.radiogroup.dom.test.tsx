@@ -24,7 +24,7 @@ const OPTIONS = [
 
 test('ArenaSegmentedControl is a named radiogroup over native radios', () => {
   const root = mount(
-    <ArenaSegmentedControl ariaLabel="Time range" name="range" options={OPTIONS} value="7d" onChange={() => {}} />,
+    <ArenaSegmentedControl ariaLabel="Time range" name="range" options={OPTIONS} value="7d" onValueChange={() => {}} />,
   );
   const group = root.querySelector<HTMLElement>('[role="radiogroup"]');
   assert.equal(group!.getAttribute('aria-label'), 'Time range',
@@ -54,7 +54,7 @@ test('ArenaSegmentedControl is a named radiogroup over native radios', () => {
 test('a segment reports its own value, not a DOM event', () => {
   let picked = null;
   const root = mount(
-    <ArenaSegmentedControl ariaLabel="Time range" options={OPTIONS} value="7d" onChange={(v) => { picked = v; }} />,
+    <ArenaSegmentedControl ariaLabel="Time range" options={OPTIONS} value="7d" onValueChange={(v) => { picked = v; }} />,
   );
   const radios = [...root.querySelectorAll<HTMLElement>('input[type="radio"]')];
   radios[2]!.click();

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  ARENA_CAT_SLOTS, ARENA_INK_BODY, ARENA_INK_MUTED, arenaCatColor, arenaCatSlotFor, arenaCatSurface, arenaAreaFill, arenaToneColor,
+  ARENA_CAT_SLOTS, ARENA_INK_BODY, ARENA_INK_MUTED, arenaCatColor, arenaCatRotate, arenaCatSlotFor, arenaCatSurface, arenaAreaFill, arenaToneColor, arenaRailStyle,
 } from './DataVisuals.ts';
 import type { ArenaSeriesTone, ArenaTone } from './Api.generated';
 
@@ -52,4 +52,22 @@ test('the neutral tone is the body ink constant, and the muted ink is the body i
   assert.equal(arenaToneColor('neutral'), ARENA_INK_BODY);
   assert.equal(ARENA_INK_BODY, 'color-mix(in oklab,var(--ink-body) var(--level-ink-body),transparent)');
   assert.equal(ARENA_INK_MUTED, 'color-mix(in oklab,var(--ink-muted) var(--level-ink-muted),transparent)');
+});
+
+test('arenaCatRotate counts from the start slot and wraps after the last', () => {
+  assert.deepEqual([0, 1, 2, 3].map((p) => arenaCatRotate(6, p)), [6, 7, 8, 1]);
+  assert.equal(arenaCatRotate(1, ARENA_CAT_SLOTS), 1);
+  assert.equal(arenaCatRotate(1, 8 + 2), 3);
+});
+
+test('arenaCatRotate clamps the start before counting', () => {
+  assert.equal(arenaCatRotate(0, 0), 1);
+  assert.equal(arenaCatRotate(99, 0), ARENA_CAT_SLOTS);
+  assert.equal(arenaCatRotate(99, 1), 1);
+});
+
+test('arenaRailStyle clips on both axes while the rail scrolls and lets the end label overhang while it does not, with the same keys', () => {
+  const keys = { display: 'block', outlineOffset: 'var(--focus-offset)' };
+  assert.deepEqual(arenaRailStyle(true), { overflowX: 'auto', overflowY: 'hidden', ...keys });
+  assert.deepEqual(arenaRailStyle(false), { overflowX: 'visible', overflowY: 'visible', ...keys });
 });

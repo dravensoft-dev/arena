@@ -1,0 +1,6 @@
+{
+  "component": "ArenaIcon",
+  "pattern": "none",
+  "reason": "a glyph, hidden from assistive technology; the component drawing it owns the name",
+  "exceptions": []
+}

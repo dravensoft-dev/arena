@@ -23,9 +23,10 @@ and a project name are identities, so they take a ramp slot and keep it everywhe
 |---|---|---|---|---|
 | `children` | slot |  |  | The tag's label. |
 | `tone` | enum | `ArenaTagTone` | `"neutral"` | What state the tag reports; neutral reports none. Ignored while `colorId` names a ramp slot, because a tag draws one colour and the two mean different things. |
-| `colorId` | enum | `ArenaCatSlot` |  | An identity colour from the categorical ramp, the ramp the charts and the calendar read, so one entity keeps its colour across a chart, a schedule and a label. Colour here means which thing and never what state, which is why it replaces `tone` rather than joining it: a label reading "Backend" is not a warning, and a tag that could say both at once would say neither. Optional, and its absence is the tone tag. The slot reaches the tag as `data-arena-color-id` and its colour through the hue channels (`--arena-hue-ink`, `--arena-hue-edge`, `--arena-hue-fill-strong`, `--arena-hue-fill-soft`), so an appearance that fills the marker rather than outlining it is a style plugin's to write and needs no member here. |
+| `colorId` | enum | `ArenaCatSlot` |  | An identity colour from the categorical ramp, the ramp the charts and the calendar read, so one entity keeps its colour across a chart, a schedule and a label. Colour here means which thing and never what state, which is why it replaces `tone` rather than joining it. A label reading "Backend" is not a warning, and a tag that could say both at once would say neither. Optional, and its absence is the tone tag. The slot reaches the tag as `data-arena-color-id` and its colour through the hue channels (`--arena-hue-ink`, `--arena-hue-edge`, `--arena-hue-fill-strong`, `--arena-hue-fill-soft`). An appearance that fills the marker rather than outlining it is therefore a style plugin's to write and needs no member here. |
 | `removable` | primitive | `boolean` | `false` | Whether the dismiss × is shown. Every layer gates the × on this member and never on whether anything listens for `onRemove`, because Arena never derives what it draws from what a consumer listens for. Removability is a declared input, not something inferred from the event. |
-| `disabled` | primitive | `boolean` | `false` | Whether removal is unavailable while the tag stays visible: a filter a consumer's permissions lock, not a tag that is merely inert. It reflects through `aria-disabled` rather than the native `disabled` attribute, so the × keeps its place in the tab order and a screen-reader user is told the action is unavailable instead of never finding it. With `removable` false there is no × and nothing to disable. |
+| `disabled` | primitive | `boolean` | `false` | Whether removal is unavailable while the tag stays visible: a filter a consumer's permissions lock, not a tag that is merely inert. The × carries `aria-disabled` rather than the native `disabled` attribute. A screen-reader user finds it where `tabStop` puts it and is told the action is unavailable. With `removable` false there is no × and nothing to disable. |
+| `tabStop` | primitive | `boolean` | `true` | Whether the remove button is reached from the page's Tab sequence. Set false when the tag lives inside a composite that manages its own focus. A field holding its chosen values as chips, with one tab stop and arrow keys between them, is one such composite. Reaching the button by Tab there would be a second way in. Arena writes tabindex="-1" and the button stays programmatically focusable; a positive tab order is not expressible and never should be. With `removable` false there is no button and nothing to hold out. |
 | `onRemove` | event |  |  | The dismiss × was activated. Never emitted while `disabled`. |
 
 <!-- @api end -->
@@ -48,10 +49,11 @@ and a project name are identities, so they take a ramp slot and keep it everywhe
 - The leading dot is filled with `currentColor`, so it always matches the tone, even for `tone="danger"` where the chip itself is outline. A tone dot is an identity mark rather than a danger surface, in the same family as `ArenaActivityFeed`'s own dot and `ArenaAvatar`'s presence dot.
 - Use `removable` only when removing the chip is a real user action, such as applied filters, rather than on informational tags. Pass `onRemove` alongside it, or the × renders with nothing to call.
 - Reach for `disabled` when removal is temporarily unavailable and the chip must
-  stay on screen, a filter the user's permissions lock. The × keeps its place
-  in the Tab sequence and announces itself as unavailable, which is why this is
+  stay on screen, a filter the user's permissions lock. The × stays where
+  `tabStop` puts it and announces itself as unavailable, which is why this is
   `aria-disabled` and not the native `disabled` attribute. Without `removable`
   there is no × and `disabled` does nothing.
+- Set `tabStop={false}` only inside a composite that manages its own focus, such as a field holding its chosen values as chips. A tag on its own keeps its × in the Tab sequence.
 - Don't use `disabled` to mean "this chip is greyed out". A tag with no `×` is
   already inert; the state is about the remove action alone.
 - Don't mix the ArenaTag/ArenaToast × with the modal close: dialogs close with their
@@ -66,8 +68,11 @@ and a project name are identities, so they take a ramp slot and keep it everywhe
 - The identity chip outlines, like every other tone. A filled one is an appearance decision. The ramp colour reaches the element as `data-arena-color-id`
   and the hue channels (`--arena-hue-ink`, `--arena-hue-edge`, `--arena-hue-fill-strong` and
   `--arena-hue-fill-soft`). A style plugin fills `tag` with it, so no member is needed here.
+- A tag keeps its label whole in a row, and breaks it only when the tag is wider than its container.
 
-**Words.** `tagRemove` names the remove button.
+**Words.** `tagRemove` is the first half of the remove button's name, and the tag's own text is the second, so a row of chips reads "Remove Berlin", "Remove Lisbon". Translate the word alone; Arena joins the two.
+
+The × answers a thumb without growing the chip. The hit area is a box the size of a small control, centred on the glyph and drawn by a pseudo-element, so the chip keeps its height. At the comfortable density the box may pass the chip's edge.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

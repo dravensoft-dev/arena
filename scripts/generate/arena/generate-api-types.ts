@@ -29,6 +29,7 @@ export const node = {
     'build:angular-tests',
     'build:demos',
     'build:react-package',
+    'build:site',
     'check:api',
     'check:arbitrary',
     'check:demos',
@@ -40,6 +41,7 @@ export const node = {
     'check:react-types',
     'check:script-tokens',
     'check:shared-arithmetic',
+    'check:site',
     'check:skills',
   ],
 };

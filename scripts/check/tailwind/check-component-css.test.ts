@@ -1,8 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
+import { repoRoot } from '../../lib/arena/repo-root.ts';
 import {
   ARENA_THEME_NAMED, EXTERNAL_PROPERTIES, MANIFEST_FETCH, staleThemeNamedProblems, THEME_NAMESPACES, collect, keyframeDepths, preludeProblems,
-  propertiesIn, selectorsIn, themeLeaks,
+  propertiesIn, selectorsIn, themeLeaks, defaultsProblems, layerOrderProblems, DEFAULT_SOURCES,
   isFamilyChannel,
 } from './check-component-css.ts';
 import { keyframesIn, sheetPath } from '../../build/tailwind/build-tailwind.ts';
@@ -115,4 +119,44 @@ test('an Arena aspect token is no leak, and an entry no sheet reads is stale', (
   const read = new Set(ARENA_THEME_NAMED.keys());
   read.delete('aspect-wide');
   assert.match(staleThemeNamedProblems(read).join('\n'), /--aspect-wide and no emitted sheet reads it/);
+});
+
+function copiedTree(change: (rel: string, css: string) => string) {
+  const dir = mkdtempSync(join(tmpdir(), 'defaults-'));
+  for (const rel of DEFAULT_SOURCES) {
+    mkdirSync(dirname(join(dir, rel)), { recursive: true });
+    writeFileSync(join(dir, rel), change(rel, readFileSync(join(repoRoot, rel), 'utf8')));
+  }
+  return dir;
+}
+
+function problemsOf(change: (rel: string, css: string) => string) {
+  const dir = copiedTree(change);
+  try {
+    return defaultsProblems(dir);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+test('both default sources lead with the order and hold their rules in arena-defaults', () => {
+  assert.deepEqual(defaultsProblems(), []);
+  const problems = problemsOf((rel, css) => (rel.endsWith('colors.css')
+    ? css.replace('@layer arena-defaults {', '@layer other {')
+    : css));
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /colors\.css opens no @layer arena-defaults block/);
+});
+
+test('a default source that opens its layer before the order statement is one problem', () => {
+  const problems = problemsOf((rel, css) => (rel.endsWith('typography.generated.css')
+    ? css.replace('@layer properties;\n@layer arena-defaults, theme, base, components, utilities, arena-plugin;\n', '')
+    : css));
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /typography\.generated\.css does not lead with the layer order/);
+});
+
+test('the order a sheet states names arena-defaults first', () => {
+  assert.deepEqual(layerOrderProblems('x.css', '@layer arena-defaults, theme, base, components, utilities, arena-plugin;\n'), []);
+  assert.equal(layerOrderProblems('x.css', '@layer theme, base, components, utilities, arena-plugin;\n').length, 1);
 });

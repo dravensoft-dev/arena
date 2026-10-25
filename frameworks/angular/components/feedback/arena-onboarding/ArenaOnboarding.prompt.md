@@ -1,7 +1,12 @@
 Arena guided tour. A coachmark with progress dots, Skip and Next, floating bottom-right
-over an unblurred scrim, a tour that blurs the product it is touring defeats itself.
-The tour is controlled. The host owns `index` and answers `next`, `back`, `skip` and `done`.
-Clicking the scrim reports `skip`. The tour is a real modal, binding `dialog-modal`. Focus moves into the panel when the tour opens, and returns to whatever opened it when the tour closes. Tab and Shift+Tab cycle inside the panel, and Escape reports `skip`.
+over an unblurred scrim, a tour that blurs the product it is touring defeats itself. The
+tour is controlled. The host owns `index` and answers `next`, `back`, `skip` and `done`.
+Clicking the scrim reports `skip`. The tour is a real modal, binding `dialog-modal` and
+`modal-focus`. Focus moves into the panel when the tour opens, and returns to whatever
+opened it when the tour closes. Removing the tour while it is open counts as closing it
+for focus, though the removal reports no `skip`. The rule holds only while focus is
+inside the tour or nowhere and the element that opened it is still on the page. Tab and
+Shift+Tab cycle inside the panel, and Escape reports `skip`.
 
 ```html
 <arena-onboarding [open]="touring()" [steps]="steps" [index]="step()"
@@ -34,7 +39,7 @@ Clicking the scrim reports `skip`. The tour is a real modal, binding `dialog-mod
 <!-- @answers end -->
 
 <!-- @keys GENERATED from the binding. -->
-**Keys**, from [`dialog-modal`](../../../../../contracts/behaviour/dialog-modal.json):
+**Keys**, from [`modal-focus`](../../../../../contracts/behaviour/modal-focus.json):
 - `Escape`: close.
 <!-- @keys end -->
 

@@ -11,8 +11,10 @@ import { readFileSync } from 'node:fs';
 import { join, basename } from 'node:path';
 import { ModuleKind, ScriptTarget, transpileModule } from 'typescript';
 import { scan } from '../../generate/core/arena-cli/icon-css.ts';
-import type { IconScan, ShippedIcons } from '../../generate/core/arena-cli/icon-css.ts';
+import type { IconScan, ShippedIcons, ShippedIconMap } from '../../generate/core/arena-cli/icon-css.ts';
 import { ICON_MANIFEST as MANIFEST_FILE } from '../../generate/core/arena-cli/sheets.ts';
+import { relPosix } from '../../utils/posix-path.ts';
+import { keysByDirectory } from './component-map.ts';
 import { collectFiles } from './package-assembly.ts';
 import { repoRoot } from './repo-root.ts';
 
@@ -43,10 +45,45 @@ export function serialise(found: IconScan): ShippedIcons {
   return { pairs, loose: [...found.loose].sort() };
 }
 
-export function iconManifest(layer: string, root = repoRoot): ShippedIcons {
-  const found: IconScan = { pairs: new Map(), loose: new Set() };
+const SWAPS = /\barenaActiveWeight\b/;
+
+export function iconManifest(layer: string, root = repoRoot): ShippedIconMap {
+  const base = componentsDir(layer, root);
+  const keys = new Map([...keysByDirectory(layer, root)].map(([at, named]) => [relPosix(base, at), named]));
+  const found = new Map<string, IconScan>();
+  const swaps = new Set<string>();
   for (const path of renderFiles(layer, root)) {
-    scan(withoutComments(readFileSync(path, 'utf8'), basename(path)), found);
+    const parts = relPosix(base, path).split('/');
+    const source = withoutComments(readFileSync(path, 'utf8'), basename(path));
+    if (parts.length < 3) {
+      const loose = serialise(scan(source));
+      if (loose.loose.length > 0 || Object.keys(loose.pairs).length > 0) {
+        throw new Error(`icon-manifest: ${layer}/components/${parts.join('/')} names glyphs and sits directly under its category, `
+          + 'so no component owns them');
+      }
+      continue;
+    }
+    const at = parts.slice(0, 2).join('/');
+    found.set(at, scan(source, found.get(at) ?? { pairs: new Map(), loose: new Set() }));
+    if (SWAPS.test(source)) swaps.add(at);
   }
-  return serialise(found);
+  const components: Record<string, ShippedIcons> = {};
+  const fills = new Set<string>();
+  for (const [at, scanned] of [...found].sort()) {
+    const named = keys.get(at);
+    const icons = serialise(scanned);
+    const names = icons.loose.length > 0 || Object.keys(icons.pairs).length > 0;
+    if (!named && names) {
+      throw new Error(`icon-manifest: ${layer}/components/${at} names glyphs and holds no component, so no build `
+        + 'could tell which screen draws them');
+    }
+    for (const key of named ?? []) {
+      if (names) components[key] = icons;
+      if (swaps.has(at)) fills.add(key);
+    }
+  }
+  return {
+    components: Object.fromEntries(Object.entries(components).sort(([a], [b]) => (a < b ? -1 : 1))),
+    fills: [...fills].sort(),
+  };
 }

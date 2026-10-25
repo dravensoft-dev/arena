@@ -12,6 +12,7 @@ export type LanguageRule = {
   short: string;
   body: string;
   held: string | null;
+  alsoHeld?: string[];
   unheld: string | null;
 };
 
@@ -21,8 +22,11 @@ export const RULES: LanguageRule[] = [
     short: 'Tokens are the only styling layer.',
     body: 'A raw colour is a bug, as is a bare `16px`. A hex, a channel triple in `rgb()` or '
       + '`oklch()`, and a colour\'s own name are one defect written three ways. Read a value '
-      + 'through its custom property, as `var(--color-primary)` or `var(--sp-4)`. Derive one with '
-      + '`calc()` or `clamp()`, or mix one with `color-mix()`, over a token.',
+      + 'through its custom property, as `var(--ink-body)` or `var(--sp-4)`. Derive one with '
+      + '`calc()` or `clamp()`, or mix one with `color-mix()`, over a token. A bracket value in a '
+      + 'class, as `p-[13px]`, is the same raw value. A bracket may hold a `var()` of a token, a '
+      + '`calc()`, `min()`, `max()` or `clamp()` over tokens, or one value in a unit no token '
+      + 'models, such as `%`, `ch` or `vw`.',
     held: 'raw-value',
     unheld: null,
   },
@@ -81,18 +85,22 @@ export const RULES: LanguageRule[] = [
   },
   {
     id: 'icons-are-strings',
-    short: 'Icons are Phosphor class-name strings, never elements and never SVG.',
-    body: 'Write `icon="ph-bold ph-plus"`. Install `@phosphor-icons/web`, because Arena never '
-      + 'bundles it.',
+    short: 'Icons are Phosphor class-name strings, drawn by Arena\'s components or by ArenaIcon; a raw ph-* element paints nothing.',
+    body: 'Write `icon="ph-bold ph-plus"`. Arena draws each glyph from the sprite `arena build` writes, '
+      + 'and a raw `ph-*` element needs the project\'s own `@phosphor-icons/web`, which Arena never bundles. A static page has no build, so it links the weight sheets for its raw `ph-*` elements, as '
+      + '`references/artifact.md` shows.',
     held: 'icon-element',
+    alsoHeld: ['raw-glyph'],
     unheld: null,
   },
   {
     id: 'router-link',
     short: 'Never wrap an Arena component in your router\'s own link.',
     body: 'That nests an anchor inside an anchor, and in Angular it does not bind at all. Pass the '
-      + 'href to the component and route from the event it reports. The members that take one: '
-      + '`ArenaCard.href`, `ArenaCommand.route`, `ArenaCrumb.href` and `ArenaSideNavItem.href`.',
+      + 'href to the component and route from the event it reports. An `ArenaLink` inside a link of your own is reported as '
+      + '`wrapped-link`. The members that take an href: '
+      + '`ArenaBottomNavItem.href`, `ArenaCard.href`, `ArenaCommand.route`, `ArenaCrumb.href`, '
+      + '`ArenaLink.href`, `ArenaSideNavItem.href` and `ArenaTableCell.href`.',
     held: 'router-link',
     unheld: null,
   },
@@ -120,7 +128,7 @@ export const RULES: LanguageRule[] = [
   {
     id: 'two-themes',
     short: 'Two themes, dark first.',
-    body: 'Dark is `:root`, light is `.arena-light`. Components never rewrite per theme; they read '
+    body: 'Dark is `:root` and `.arena-dark`, light is `.arena-light`, and either class goes on any element. Components never rewrite per theme; they read '
       + 'tokens. `.arena-compact` and `.arena-comfortable` are the density family on the vocabulary '
       + 'page, `frameworks/VOCABULARY.md`: the first re-densifies the controls, the second grows '
       + 'them to a 48px touch target, and the two are exclusive.',
@@ -172,6 +180,7 @@ export const RULES: LanguageRule[] = [
   },
 ];
 
+export const rulesReportedAs = (tag: string, rules = RULES) => rules.filter((rule) => rule.held === tag || rule.alsoHeld?.includes(tag));
 export const heldRules = (rules = RULES) => rules.filter((rule) => rule.held !== null);
 
 export const WRAP_AT = 98;
@@ -188,10 +197,13 @@ export function wrapped(text: string, indent = '  ', at = WRAP_AT) {
   return lines.join('\n');
 }
 
-export const REPORTED_MARK = '**`arena audit` reports this one.**';
+export function reportedMark(rule: LanguageRule) {
+  if (rule.held === null) throw new Error(`language-rules: ${rule.id} is held by no tag, so it has no mark to render`);
+  return `**\`arena audit\` reports this one, as \`${rule.held}\`.**`;
+}
 
 export function renderBullet(rule: LanguageRule) {
-  const said = [`- **${rule.short}**`, rule.body, rule.held === null ? '' : REPORTED_MARK];
+  const said = [`- **${rule.short}**`, rule.body, rule.held === null ? '' : reportedMark(rule)];
   return wrapped(said.filter((part) => part !== '').join(' '));
 }
 

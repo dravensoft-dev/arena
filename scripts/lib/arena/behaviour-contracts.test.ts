@@ -4,8 +4,9 @@ import { existsSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import {
   validatePattern, loadPatterns, validateBinding, reactComponents, angularPrimitives,
-  angularBindingPath, reactBindingPath, crossLayerAgrees, loadBinding, bindingCases,
+  angularBindingPath, reactBindingPath, crossLayerAgrees, loadBinding, bindingCases, bindingAlso,
 } from './behaviour-contracts.ts';
+import { layerBindings } from './vocabulary-index.ts';
 import { pascal } from '../../utils/case.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 import type { BehaviourBinding } from './behaviour-contracts.ts';
@@ -89,7 +90,7 @@ test('none aside, exactly the patterns with no APG pattern page cite something e
     .filter(([stem, p]) => stem !== 'none' && !p.source.includes('/ARIA/apg/'))
     .map(([stem]) => stem)
     .sort();
-  assert.deepEqual(nonApg, ['absent', 'figure-with-data-table', 'progressbar', 'scrollable-region', 'select', 'status', 'structured-data', 'textbox']);
+  assert.deepEqual(nonApg, ['absent', 'dialog-nonmodal', 'figure-with-data-table', 'group', 'progressbar', 'scrollable-region', 'select', 'status', 'structured-data', 'textbox']);
 });
 
 const patterns = new Map([
@@ -198,7 +199,7 @@ test('an angular binding that names its counterpart is valid', () => {
 
 test('the React inventory finds every component, no category and no loose file', () => {
   const found = reactComponents('.');
-  assert.equal(found.length, 73);
+  assert.equal(found.length, 100);
   assert.ok(found.includes('ArenaDialog'));
   assert.ok(found.includes('ArenaCalendarEvent'));
   assert.ok(found.includes('ArenaTableRow'));
@@ -218,7 +219,7 @@ test('the React inventory finds every component, no category and no loose file',
 
 test('the Angular inventory finds every component, no category and no bare module', () => {
   const found = angularPrimitives('.');
-  assert.equal(found.length, 73);
+  assert.equal(found.length, 100);
   assert.ok(found.includes('arena-tag'));
   assert.ok(found.includes('arena-bar-chart'));
   assert.ok(found.includes('arena-button'));
@@ -494,4 +495,14 @@ test('an additive pattern must say why a component owes it as well', () => {
   }).join('\n'), /must carry a description/,
   'it is bound alongside another pattern rather than instead of one, so nothing else on the page '
   + 'says why a component owes both');
+});
+
+test('every binding of dialog-modal or alertdialog adds modal-focus', () => {
+  const offenders = layerBindings()
+    .filter(([, binding]) => bindingCases(binding).some(({ pattern }) => pattern === 'dialog-modal' || pattern === 'alertdialog'))
+    .filter(([, binding]) => !bindingAlso(binding).some(({ pattern }) => pattern === 'modal-focus'))
+    .map(([name]) => name);
+  assert.deepEqual(offenders, [],
+    'focus and Escape are written once, in modal-focus, and a dialog owes them under its own role: '
+    + 'a binding that names the role and not the focus is a dialog nobody checked the focus of');
 });

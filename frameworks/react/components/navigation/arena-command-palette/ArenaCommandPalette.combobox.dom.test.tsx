@@ -60,7 +60,10 @@ test('the search field is a combobox that names the row it is on', () => {
     root,
     bindingPath: BINDING,
     subjects: { default: input },
-    behavioural: { 'keyboard.ArrowDown': true, 'keyboard.Escape': true, 'keyboard.Enter': true },
+    behavioural: {
+      'keyboard.ArrowDown': true, 'keyboard.Escape': true, 'keyboard.Enter': true,
+      'focus.onOpen': true, 'focus.onClose': true, 'focus.trap': true,
+    },
   });
 });
 
@@ -93,4 +96,62 @@ test('Escape and Enter both report through the palette own channels', () => {
   assert.equal(enter.defaultPrevented, true, 'Enter was not claimed');
   assert.equal((ran as ArenaCommand | null)?.id, 'deploy', 'Enter did not run the active command');
   assert.equal(closed, 2, 'Enter ran the command without closing, so the palette stays over the result');
+});
+
+function Host({ onClose }: { onClose?: () => void }) {
+  const [open, setOpen] = React.useState(false);
+  return (
+    <>
+      <button type="button" data-testid="invoker" onClick={() => setOpen(true)}>Open</button>
+      <ArenaCommandPalette open={open} commands={COMMANDS} onClose={() => { onClose?.(); setOpen(false); }} />
+    </>
+  );
+}
+
+function openFromInvoker(onClose?: () => void) {
+  const root = mount(<Host onClose={onClose} />);
+  const invoker = root.querySelector<HTMLElement>('[data-testid="invoker"]')!;
+  act(() => { invoker.focus(); });
+  act(() => { invoker.click(); });
+  return { root, invoker };
+}
+
+test('opening moves focus to the search field at once, with no timer', () => {
+  const { root } = openFromInvoker();
+  const input = root.querySelector<HTMLElement>('[role="combobox"]')!;
+  assert.ok(input, 'the palette did not open');
+  assert.equal(document.activeElement, input, 'focus was not on the search field after the open committed');
+});
+
+test('Escape closes the palette once and returns focus to the element that held it at open', () => {
+  let closed = 0;
+  const { root, invoker } = openFromInvoker(() => { closed += 1; });
+  const input = root.querySelector<HTMLElement>('[role="combobox"]')!;
+  const escape = press(input, 'Escape');
+  assert.equal(escape.defaultPrevented, true);
+  assert.equal(closed, 1, 'Escape reported more or less than one close');
+  assert.equal(root.querySelector('[role="dialog"]'), null, 'the host closed the palette');
+  assert.equal(document.activeElement, invoker, 'focus did not return to the invoker');
+});
+
+test('Escape anywhere in the panel closes it, not only in the search field', () => {
+  let closed = 0;
+  const { root, invoker } = openFromInvoker(() => { closed += 1; });
+  const panel = root.querySelector<HTMLElement>('[role="dialog"]')!;
+  assert.equal(press(panel, 'Escape').defaultPrevented, true, 'Escape on the panel reached the page');
+  assert.equal(closed, 1, 'Escape on the panel did not report a close');
+  assert.equal(root.querySelector('[role="dialog"]'), null);
+  assert.equal(document.activeElement, invoker, 'focus did not return to the invoker');
+});
+
+test('Tab and Shift+Tab stay inside the panel', () => {
+  const { root } = openFromInvoker();
+  const input = root.querySelector<HTMLElement>('[role="combobox"]')!;
+  const panel = root.querySelector<HTMLElement>('[role="dialog"]')!;
+  for (const shiftKey of [false, true]) {
+    const event = new KeyboardEvent('keydown', { key: 'Tab', shiftKey, bubbles: true, cancelable: true });
+    act(() => { input.dispatchEvent(event); });
+    assert.equal(event.defaultPrevented, true, `Tab (shift ${shiftKey}) was not held`);
+    assert.ok(panel.contains(document.activeElement), 'focus left the panel');
+  }
 });

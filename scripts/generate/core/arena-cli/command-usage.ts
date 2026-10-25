@@ -4,7 +4,8 @@ import { commandOptions } from './args.ts';
 import { voice } from './io.ts';
 import type { Io } from './io.ts';
 import { resolveEnvironment } from './host.ts';
-import { missingSource, readPluginDirs } from './sources.ts';
+import { resolve as resolveComponents } from './components.ts';
+import { missingSource, readPluginDirs, readSources } from './sources.ts';
 import { auditStep, paintedBy, undrawnStep } from './steps.ts';
 
 export function run(argv: string[], io: Io): number {
@@ -29,6 +30,7 @@ export function run(argv: string[], io: Io): number {
     return 2;
   }
   for (const line of undrawn.notes) say.out(line);
-  say.out(paintedBy(auditStep(read).painted));
+  const drawn = env.map ? resolveComponents(env.map, readSources(options.paths), env.packageName)?.components ?? null : null;
+  say.out(paintedBy(auditStep(read).painted, env.vocabulary, drawn));
   return 0;
 }

@@ -1,6 +1,6 @@
 {
   "name": "ArenaValidateOn",
   "kind": "enum",
-  "description": "When ArenaInput runs `validate`: on blur, or on every change.",
+  "description": "When a field runs `validate`: on blur, or on every change (for ArenaNumberField, on every commit).",
   "values": ["blur", "change"]
 }

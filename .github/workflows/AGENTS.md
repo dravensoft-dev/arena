@@ -21,14 +21,15 @@ push to main                  Arena main            calls Arena verify, then sav
 ## Arena verify
 
 Called by the guards and run by no event of its own. It takes the inputs `domains`, the
-`check-all` domains the caller selects, comma-separated, and `chrome-path`, the browser only
-`Arena main` names and empty for the rest. They are inputs because a called workflow takes none of
+`check-all` domains the caller selects, comma-separated, and `name-browser`, a boolean only
+`Arena main` sets and false for the rest. They are inputs because a called workflow takes none of
 its caller's `env:`.
 
 ```
 build                bun run build:release, the idempotency check, then the artifact
    |
    +-- gates             every gate of the selected domains, side by side
+   +-- audit             always            the trace of each node against what it declares
    +-- suites-scripts    always            the suites under scripts/
    +-- suites-react      if react          the React invocations
    +-- suites-angular    if angular        the emit, then the suites off it
@@ -53,14 +54,14 @@ one is a defect of the run, so the job fails rather than testing an unbuilt tree
 
 **A workflow that verifies or publishes builds with `--force --assert-full`, never with
 `bun run build`.** Locally the build keeps what nothing has moved under, which is the point of
-it. In a workflow that would be the wrong kind of green. A job that verifies runs
+it. In a workflow that would be the wrong kind of green. The `build` job of `Arena verify` runs
 `bun run build:release`, every step, and the step after it proves the build idempotent with
-`git diff --exit-code`, which a build that did nothing satisfies by doing nothing; the `portable`
-legs of `Arena develop` are the exception, and that section says why. A publish workflow or the
-site, on a cache miss, runs `run-build.ts --force --assert-full --target=<its step>`, that step and
-every step it reads from, so what it packs or serves is what this run built. The mcp publish adds
-the playground and kitchen-sink generators as targets, because `check:mcp` holds every page the
-prompts name. A publish never assembles a package it does not ship.
+`git diff --exit-code`, which a build that did nothing satisfies by doing nothing. The `portable`
+legs of `Arena develop` run `bun run build:packages` instead, and that section says why. A publish
+workflow or the site, on a cache miss, runs `run-build.ts --force --assert-full --target=<its step>`,
+that step and every step it reads from, so what it packs or serves is what this run built. The mcp
+publish adds the playground and kitchen-sink generators as targets, because `check:mcp` holds every
+page the prompts name. A publish never assembles a package it does not ship.
 
 **`.cache/` is not in the paths a build hands over, and that is the load-bearing part.** The list
 is `scripts/graph/handoff.ts:BUILD_HANDOFF_PATHS`, the generated sources and every built tree a
@@ -81,6 +82,15 @@ selects and runs every gate of them at once, and `scripts/graph/scheduler.ts:slo
 slots from the runner, so no `--jobs` is written here. Gates and suites are split, and a job per
 domain is not the shape: a job per domain repeats the checkout, the install and the download to run
 a few seconds of gates.
+
+**`audit` runs the tree the build made against what each traced node declares.** It downloads the
+build artifact, runs `bun scripts/check/arena/check-graph.ts --audit`, then `git diff --exit-code`.
+It fails when a node opens a file its declaration omits, because a change to that file would then
+rerun nothing, and when the audit leaves a tracked file changed.
+`scripts/ci/arena/verify-workflow.ts:verifySelection` holds that one job audits, waits for `build`
+alone, carries no `if`, downloads the build first and diffs after, spells the command exactly as
+above, and puts no `if:` or `continue-on-error:` on those steps. No job of `Arena verify`
+carries a `continue-on-error:` of its own, because a red job would then report green to its caller.
 
 **Each suite runs in a job of its own.** A suite job runs `bun run ci:summarize --suite=<name>`,
 and the Angular one runs the emit first, which the restored stamp answers without compiling. A
@@ -146,7 +156,7 @@ kept in step by hand.
 
 ## Arena main
 
-`verify` calls `Arena verify` with every domain and the one `chrome-path`. `cache` downloads the
+`verify` calls `Arena verify` with every domain and `name-browser: true`. `cache` downloads the
 artifact that run uploaded and saves it.
 
 **It saves its build, and that is the only reason the publish workflows and the site are cheap.**
@@ -188,13 +198,14 @@ the way a pull request's do, and the build travels inside the run as an artifact
 saves no build for any later run. `Arena main` saves one because the publish workflows and the site
 read what it built, and nothing reads what a push to `develop` built. `portable` restores a bun
 install cache per operating system and saves none of the build, because what it is asking is
-whether a fresh tree builds on that platform.
+whether a fresh tree builds and assembles on that platform.
 
 **`portable` is the one job that does not take the build artifact**, and it must not. It asks
-whether `bun run build` works on a machine that is not this one, so a job handed the Linux build
-would be answering a question nobody asked. It builds on each of its runners and then compares the
-result to what the Linux tree committed, which is what `git diff --exit-code` is doing in a matrix
-leg.
+whether a fresh tree builds and assembles on a machine that is not this one, so a job handed the
+Linux build would be answering a question nobody asked. A fresh runner has no `.cache`, so the plain
+`bun run build:packages` of a leg is a full build without `--force`. It builds on each of its
+runners and then compares the result to what the Linux tree committed, which is what
+`git diff --exit-code` is doing in a matrix leg.
 
 **A leg that fails without failing the gate is `continue-on-error`, and the flag comes from one
 place.** `scripts/ci/arena/supported-os.ts` declares `blocking` per platform with its reason, the
@@ -203,14 +214,21 @@ matrix sets `continue-on-error: ${{ !matrix.blocking }}`, and a failing leg with
 gates, and the matrix needs no clause of its own about any of them: a leg declared blocking turns
 a red operating system into a merge request that cannot land.
 
-**Assembling is part of the build rather than a step of its own.** `bun run build:release` passes
-`--assemble`, so every package is part of the run the workflow already makes. Dropping the
-assembly would not skip package work: `check:packages` reads no manifest and passes while saying so,
-which is a quieter green rather than a faster one, and `check:consumer` fails on a missing
+**Assembling is part of the build rather than a step of its own.** The `build` job of
+`verify.yml` runs `bun run build:release` and `portable` runs `bun run build:packages`; both pass
+`--assemble`, so every package is part of a run the workflow already makes. Dropping the
+assembly would not skip package work: `check:packages` refuses an unassembled tree through `cannotRun`,
+which is a red rather than a faster green, and `check:consumer` fails on a missing
 `dist/`, because it judges an assembled package and never builds one. Assembling nothing is not
 publishing nothing, and nothing here publishes.
 
 ## Publish arena-react, Publish arena-angular, Publish arena-contracts, Publish arena-mcp
+
+**A package job holds the one package it assembles.** On a cache miss `npm-publish-react-package.yml`
+builds only the React package and `npm-publish-angular-package.yml` only the Angular one, so each
+runs `bun run check:packages --layer=react` or `--layer=angular`: the flag requires and judges that
+package alone. Without it the gate requires both, which is how `bun run check` and the verify
+workflow run it.
 
 **A release moves the version in several places and the tag is the one the rest are pinned to.**
 It lives in `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json` and the README's
@@ -222,7 +240,7 @@ version, so nothing errors and the update is never offered.
 `versioning_steps.md` is the order the moves are made in.
 
 **The fourth is where the language publishes.** `@dravensoft/arena-mcp` is a server, and it is the
-one package here that declares a runtime dependency: the component libraries promise none, and a
+one package here whose code imports a runtime dependency: no component of the libraries does (they declare three that their `arena` command reads at build), and a
 server nobody imports into a screen has no business putting one inside them. It carries the corpus,
 one per layer, which `check:mcp` asserts. So a prompt moving republishes this package and no other.
 Packed from `dist/mcp` for the same reason the contracts package is: nothing is assembled under
@@ -282,12 +300,12 @@ assembler of the package it belongs to, sitting under a directory called `build`
 the names that walk skips.
 
 **An empty list of paths stops the run.** `git` reads no pathspec as every path, so a guard whose
-script died answers "everything moved" and republishes a tree nothing touched -- which is what
-happened at 10.0.1 and 10.1.0, where `package-inputs.ts` reached `typescript` through the assembler
-and a job that installs nothing resolved a major the tree does not pin. It was silent because the
-call sat in `< <(...)`, and `set -e` never sees a command inside a process substitution. The list is
-now read into a variable whose failure is checked, and `check:workflow-scripts` refuses the import
-that made it fail.
+script died answers "everything moved" and republishes a tree nothing touched. A job that installs
+nothing resolves a bare import at whatever major the registry serves, and `package-inputs.ts`
+reaches `typescript` through the assembler, so an import of that kind kills the script. A call in
+`< <(...)` would hide the death, because `set -e` never sees a command inside a process
+substitution. The list is read into a variable whose failure is checked, and
+`check:workflow-scripts` refuses the import that makes it fail.
 
 **Whatever it answers, the guard writes that answer to the run summary**: the version on the
 registry, the version in this tree, the decision, and the reason for it. The common answer is
@@ -331,11 +349,11 @@ nothing.
 **Configuring a publisher for a name that has never been published is where a new package starts,
 and it is the step this repository cannot do.** npm requires the organisation or user, the
 repository, the workflow filename and, for any configuration created after 20 May 2026, at least
-one explicitly selected allowed action; earlier ones were set to `npm publish` alone and did not
-have to choose. Whether npmjs.com accepts a publisher for a name with no versions on it is not
-documented either way, so the fallback is worth knowing before starting rather than halfway
-through: publish the first version by hand with a token, then configure the publisher and delete
-the token.
+one explicitly selected allowed action; a configuration created before that date is set to
+`npm publish` alone and need not choose. Whether npmjs.com accepts a publisher for a name with no
+versions on it is not documented either way, so the fallback is worth knowing before starting rather
+than halfway through: publish the first version by hand with a token, then configure the publisher
+and delete the token.
 
 The one error tolerated is `cannot publish over the previously published versions`. The
 registry read path the guard uses lags a successful publish by several minutes, so a re-run
@@ -356,10 +374,14 @@ own tokens rather than exported by hand, and it takes the one the `portable` leg
 `develop.yml` take too: the `browser-actions/setup-chrome` step with `CHROME_PATH` deliberately
 unexported, because `check:portability` fails when a second workflow names it.
 
-**It is also the only job here that builds a second repository.** The benches are written in
-`dravensoft-dev/arena-web-benches`, and this job checks that repository out into the workspace,
-installs it, builds every half and hands the directory it wrote to `build:site` as
-`ARENA_BENCHES`. Those steps sit before `build:site` because it copies what is there when it runs.
+**It is also the only job here that builds a second repository, and it builds one adopter.** The
+adopter is checked out at its main into `adopter/`, and it is published only when its
+`arena-adopter.json` declares this tree's version: a gate step asks the same function `build:site`
+calls, and nothing is built when the answer is no. When it is, the job runs the adopter's own
+`bun run build` and installs nothing in it: the adopter's dependencies are the adopter's business,
+and its `build` installs what it needs. The job hands the directory that build wrote to `build:site`
+as `ARENA_ADOPTER_BUILD`. Those steps
+sit before `build:site` because it copies what is there when it runs.
 [`../../scripts/check/AGENTS.md`](../../scripts/check/AGENTS.md) is where that variable is
 declared and where an unset one is answered.
 
@@ -367,25 +389,28 @@ declared and where an unset one is answered.
 commit pinned here.** So a push to it changes what this publishes with no commit in this
 repository saying so, and a hand dispatch aimed at an older commit here does not reproduce the
 site that commit published. The alternative is a revision written into this file, which buys that
-reproducibility with a second place to move on every bench change and a published site that is
-stale between the two moves. **Nothing here fires on a push to that repository**, so a bench
+reproducibility with a second place to move on every adopter change and a published site that is
+stale between the two moves. **Nothing here fires on a push to that repository**, so an adopter
 change reaches the domain at the next `Arena main` or at a hand dispatch of this workflow, and at
 no other moment.
 
-**A half that does not build stops the publication.** The build step leaves nothing behind when it
-fails, so the alternative to every pair being served is none of them being served rather than a
-site quietly listing fewer than the manifest declares, which `check:site` would refuse anyway. A
-site carrying no benches at all is a different state and a reachable one: it is what an unset
-`ARENA_BENCHES` publishes, and it is what a clone builds.
+**An adopter that does not arrive or does not hold never stops the publication.** A checkout or a
+build that fails publishes the site without it and a warning, and so does an
+adopter `build:site` refuses (a build whose own manifest declares another version, a path the
+site already holds, an `index.html` of its own, a copy that fails): `build:site` says which in
+the step's `adopter` output, and the warning and the next step read it. So does a `check:site`
+that fails with the adopter in: the site is assembled again without it and held to the same gate,
+and a red there stops the run. A site with no adopter is a reachable state and the one a clone
+builds: it is what an unset `ARENA_ADOPTER_BUILD` publishes.
 
 ## Release notes
 
-**It follows a green `Arena main`, like the four workflows above it**, so a page announcing a
-release is never written over a tree the gates have not passed. It followed the push of the tag
-until a red `test core` on the merge request that carried 10.2.0 sat next to a release page that
-was already up: the page describes a tag, but what a reader takes from it is that the tree is
-good, and the only run that answers that is the one on `main`. It checks out the whole history and
-every tag, since the page is the commit log between this tag and the one below it in version
+**It follows a green `Arena main`, like the publish workflows and the site**, so a page announcing
+a release is never written over a tree the gates have not passed. A trigger on the push of the tag
+would leave a red `test core` on the merge request next to a release page that is already up: the
+page describes a tag, but what a reader takes from it is that the tree is good, and the only run
+that answers that is the one on `main`. It checks out the whole history and
+every tag, because the page is the commit log between this tag and the one below it in version
 order, and a shallow clone carries neither.
 
 **The tag is the one this commit reaches, not the one pointing at it.** A release arrives on
@@ -409,9 +434,9 @@ defect, so the script groups them by the area each one names and prints them as 
 written. An em dash becomes a comma on the way out, because prose here punctuates without one
 and a release page is read by more people than any document in the tree.
 
-**A page that exists is edited rather than replaced**, so the dispatch repairs a release whose
-notes were written before a subject was corrected, and the assets uploaded to it afterwards stay
-where they are. That input is also how the releases older than this workflow got their pages.
+**A page that exists is edited rather than overwritten**, so the dispatch repairs a release whose
+notes carry a subject the log has corrected, and the assets uploaded to it stay where they
+are. A release with no page gets one the same way.
 
 It names no `CHROME_PATH`. `check:portability` fails when more than one workflow does, and
 `Arena main` is the one that may.
@@ -450,6 +475,13 @@ combination.
 
 ## Notes on the runner
 
+**Every job that runs steps declares a literal `timeout-minutes`.** A step that hangs otherwise
+holds a runner until GitHub ends the job at six hours. `check:portability` holds it in every
+workflow through `scripts/check/arena/check-portability.ts:timeoutProblems`, and a job that calls a
+reusable workflow with `uses:` is exempt because the jobs it calls carry their own.
+[`../../scripts/ci/arena/AGENTS.md`](../../scripts/ci/arena/AGENTS.md) says how to run a job's
+commands on a clean clone.
+
 **Every action here runs on `node24`.** That is the runtime GitHub executes the action's own code
 in, declared as `runs.using` in its `action.yml`, and the only other value is `node20`. A `node20`
 action is warned about on every run, forced onto `node24` anyway, and will eventually be refused,
@@ -467,15 +499,23 @@ question to answer rather than a flag to set. `actions/setup-node` from v6 cache
 only when `packageManager` names npm, and this repository's names bun, so a jump to v5 rather than
 past it would have switched on a cache nobody asked for.
 
+**The tools are pinned to the exact versions Arena runs on.** `BUN_VERSION`, `NODE_VERSION` and,
+where a job installs a browser, `CHROME_VERSION` sit in each workflow's `env`, and `packageManager`
+names the same Bun. Every job that runs Arena's tooling installs Node through `actions/setup-node`,
+because the gates read what Node and Bun do (the brotli dictionary `check:weight` measures with, the
+bytes `bun build` emits) and an image's Node moves without a commit. Chrome for Testing serves the
+exact build on every runner, and the three `verify.yml` jobs that launch a browser install it.
+
+An action runs on GitHub's own `node24`, whatever `NODE_VERSION` gives the tooling.
+
 **Chromium.** The gates that measure a real render drive a browser, and `CHROME_PATH` is terminal:
 set and pointing at nothing, they report that rather than falling back to the candidate list.
-**Only `main.yml` names a browser**, by passing `/usr/bin/google-chrome`, which the image documents,
-as the `chrome-path` input of `verify.yml`, and `verify.yml` hands it to every job as `CHROME_PATH`.
-An empty value is no value to `scripts/lib/arena/chromium.ts:findChromium`, so `pr.yml` and
-`develop.yml`, which pass none, prove the candidate list finds one, and the single workflow that
-does name one keeps the terminal-override branch exercised. `check:portability` holds that one
-workflow names one. Exporting it everywhere is what made that list unreachable in the first place,
-and a runner is the last place that should be re-established.
+**Only `main.yml` names a browser**: it passes `name-browser: true` to `verify.yml`, and each of
+its three browser jobs writes the pinned path `setup-chrome` reports (`outputs.chrome-path`) to
+`$GITHUB_ENV` as `CHROME_PATH`. Unwritten, `findChromium` sees no value, so `pr.yml` and
+`develop.yml` prove the candidate list finds one, and `main.yml` keeps the terminal-override branch
+exercised. `check:portability` holds that exactly one workflow names one; naming it everywhere
+would leave the list unreachable.
 
 **Strictness is automatic.** GitHub sets `CI=true`, which `skipExitCode()` reads, so a gate
 whose dependency is missing fails instead of skipping. There is nothing to configure and

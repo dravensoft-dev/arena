@@ -1,6 +1,6 @@
 Arena doughnut, parts of one whole, hand-written SVG, every colour a token. The chart takes exactly one series, whose values are read as shares of their own total. The legend is not optional:
 slices are categories, and identity is never colour alone. Colours come from the categorical
-ramp in order and are never cycled; a slice cannot be a status, so `tone` has no meaning on
+ramp in order from `colorStart`; a slice cannot be a status, so `tone` has no meaning on
 this chart's series. The ring starts at 12 o'clock and the hole is 62% of the outer radius. Hovering either a slice or its legend row dims the others and reads that slice's percentage in the hole. Focusing a legend row does the same, because every row is a real button. The
 numbers are also a real table for anyone who cannot see the ring.
 
@@ -20,13 +20,14 @@ readonly revenue = computed<ArenaSeries[]>(() => [{ label: 'Revenue', values: th
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
 | `labels*` | array | `readonly string[]` |  | One label per slice, in the same order as the series' `values`. A label with no value at its index is dropped. |
-| `series*` | array | `readonly ArenaSeries[]` |  | The parts, as one series whose values are read as shares of their own total. Exactly one series: a ring of two series is a sunburst, which is a different chart and not this one, so a second warns in development and is ignored. Per-slice identity goes in that series' `colorIds`. |
-| `label*` | primitive | `string` |  | Names the chart for its accessible name and for the caption of its data table. Required and guarded rather than defaulted, because a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing, so two charts on one page announce identically. |
+| `series*` | array | `readonly ArenaSeries[]` |  | The parts, as one series whose values are read as shares of their own total. Exactly one series: a ring of two series is a sunburst, which is a different chart and not this one. A second series warns in development and is ignored. Per-slice identity goes in that series' `colorIds`. |
+| `colorStart` | enum | `ArenaCatSlot` | `1` | The ramp slot the first slice takes when the series gives no `colorIds`. Each later slice takes the next slot, and after the last slot the count starts again at the first. A slice past the end of `colorIds` takes the slot its position gives, counted the same way. Absent, 1. |
+| `label*` | primitive | `string` |  | Names the chart for its accessible name and for the caption of its data table. Required and guarded rather than defaulted, because a fallback of the chart TYPE would satisfy roles.label mechanically and tell a screen-reader user nothing. Two doughnuts on one page would then announce identically. |
 | `valueSuffix` | primitive | `string` |  | Appended verbatim to every number the chart draws: the legend value and the accessible table. Not the centre label, which is a percentage rather than a value. |
 | `valuePrefix` | primitive | `string` |  | Drawn verbatim before every number the chart writes, as valueSuffix is drawn after it. A currency that precedes its amount is the majority case worldwide, and a suffix alone cannot say it: "1234.5 Bs." would disagree with the table beside it reading "Bs. 1.234,50", and the accessible table would inherit the disagreement. |
-| `shape` | enum | `ArenaChartShape` | `"doughnut"` | Whether the ring keeps its hole or fills to the centre. 'pie' is the same chart with the same slices, the same legend and the same table, drawn solid. It costs the centre percentage, which has nowhere to go once the hole is gone: over a wedge it would put the heading ink on a --color-cat slot, a pair nothing checks for contrast because nothing else draws it. The figure is not lost, it is in the legend row and in the accessible table, which is where every other number the chart writes already is. |
-| `legendLayout` | enum | `ArenaChartLegendLayout` | `"auto"` | How each legend row arranges its label and its figure. 'inline' puts them on one line, which is what fits a wide tile; 'stacked' puts the label above the figure; 'auto' measures the legend column and stacks when the row does not give. It exists because the two do not degrade equally: on one line the figure does not yield, so the label is what gets truncated, and a legend of numbers with nothing saying what they count is the opposite of a legend. The threshold is already declared, as the chart-legend-min and chart-legend-max tokens the ring width is clamped between; what was missing was the behaviour. |
-| `sliceActivate` | event | `number` |  | A slice was activated, by pointer on the arc or on its legend row, or by keyboard on that row, which is a real button and answers Enter and Space without the component binding either. It carries the slice's index in the series' `values`. **In `values`, never in the drawn paths**, and that is the whole member: a slice worth zero paints nothing, so the shapes on screen and the entries in the array are two different lists, and a consumer indexing the SVG has to reproduce that omission from outside to translate one into the other. It is reverse engineering of a component's own DOM, which the next release breaks in silence. |
+| `shape` | enum | `ArenaChartShape` | `"doughnut"` | Whether the ring keeps its hole or fills to the centre. 'pie' is the same chart with the same slices, the same legend and the same table, drawn solid. The pie costs the centre percentage, which has nowhere to go once the hole is gone. Over a wedge it would put the heading ink on a --color-cat slot, a pair nothing checks for contrast because nothing else draws it. The figure is not lost, it is in the legend row and in the accessible table, which is where every other number the chart writes already is. |
+| `legendLayout` | enum | `ArenaChartLegendLayout` | `"auto"` | How each legend row arranges its label and its figure. 'inline' puts them on one line, which is what fits a wide tile. 'stacked' puts the label above the figure. 'auto' measures the legend column and stacks when the row does not give. The member exists because the two do not degrade equally: on one line the figure does not yield, so the label is what gets truncated. A legend of numbers with nothing saying what they count is the opposite of a legend. The threshold is already declared, as the chart-legend-min and chart-legend-max tokens the ring width is clamped between; what was missing was the behaviour. |
+| `sliceActivate` | event | `number` |  | A slice was activated, by pointer on the arc or on its legend row, or by keyboard on that row. The row is a real button and answers Enter and Space without the component binding either. The event carries the slice's index in the series' `values`. **In `values`, never in the drawn paths**: that is the whole member. A slice worth zero paints nothing, so the shapes on screen and the entries in the array are two different lists. A consumer indexing the SVG has to reproduce that omission from outside to translate one into the other. Indexing the drawn paths is reverse engineering of a component's own DOM, which the next release breaks in silence. |
 | `valueFormat` | object | `ArenaNumberFormat` |  | How each number is written before the prefix and suffix are added: which locale, how many fraction digits, whether thousands are grouped, whether large numbers are compacted. Absent, the raw JavaScript number, which is what this chart drew before the member existed. |
 
 <!-- @api end -->
@@ -74,9 +75,10 @@ measures a frame of its own template, a row holding the ring and the legend.
   reads better. The ceiling is not a rendering limit. The ceiling is what the shape can carry.
 - Make sure the values really are parts of one whole. Two doughnuts whose slices come from
   different totals are two charts that look like one.
-- Don't ask for a ninth colour. The ramp has eight slots and is never cycled, so a ninth
-  slice repeats slot 8 rather than silently claiming two categories are one, fold the tail
-  into "Other" instead.
+- Use `colorStart` to move the slot the first slice takes. `colorIds` keeps the slots it names.
+- Don't ask for a ninth colour. The ramp has eight slots and the count starts again after the
+  last, so a ninth slice takes the first slot again and reads as the first category. Fold the
+  tail into "Other" instead.
 - Don't use it for change over time. The component for that is `arena-line-chart`.
 - Don't pass a second series. A ring of two series is a sunburst, which is a different chart
   and not this one: the second warns in development and is ignored.
@@ -111,7 +113,7 @@ The ring itself takes no data cursor and needs none. A ring has no ordered seque
 `shape` decides whether the hole stays. `pie` is this same chart, the same slices in the same
 order with the same legend and the same table, filled to the centre. There is no ratio member. The hole is 62% of the outer radius, and that number is deliberately not a token. The recorded ground is that a multiplier deriving one dimension from another stays inline. Handing it to a caller one value at a time would move a design decision out of the chart.
 
-A pie draws no centre percentage, and that is the trade rather than an oversight. There is nowhere to put the total once the hole is gone. Printing it over a wedge would put `--bone` on a `--color-cat` slot, which is a pair nothing checks for contrast because nothing had ever drawn it. The
+A pie draws no centre percentage, and that is the trade rather than an oversight. There is nowhere to put the total once the hole is gone. Printing it over a wedge would put the heading ink on a `--color-cat` slot, which is a pair nothing checks for contrast because nothing had ever drawn it. The
 figure is still in the legend row and in the accessible table, which is where every other number
 this chart writes already lives.
 

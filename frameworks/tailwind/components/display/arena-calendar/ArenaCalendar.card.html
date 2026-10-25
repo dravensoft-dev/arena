@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor, glyph } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaCalendar.manifest.json')).json();
 const c = arenaClassesFor(manifest);
@@ -93,7 +93,7 @@ function states() {
     el('span', { class: c.title, ...d.title, text: 'Kebab beside the title' }),
     el('span', { class: c.time, ...d.time, text: '09:00 – 10:30' }),
     el('span', { class: v({ actionsBelow: false }).kebabWrap, ...w({ actionsBelow: false }).kebabWrap },
-      el('i', { class: 'ph-bold ph-dots-three-vertical', style: { fontSize: 'var(--icon-md)', color: 'var(--mute)' } })));
+      glyph('ph-bold ph-dots-three-vertical', { style: { fontSize: 'var(--icon-md)', color: 'var(--mute)' } })));
 
   const opened = el('div', {
     class: v({ clickable: true, reserve: true, panelOpen: true, colorId: '8' }).chip, ...w({ clickable: true, reserve: true, panelOpen: true, colorId: '8' }).chip,
@@ -102,7 +102,7 @@ function states() {
     el('span', { class: c.title, ...d.title, text: 'Panel open' }),
     el('span', { class: c.time, ...d.time, text: '09:00 – 10:30' }),
     el('span', { class: v({ actionsBelow: false }).kebabWrap, ...w({ actionsBelow: false }).kebabWrap },
-      el('i', { class: 'ph-bold ph-dots-three-vertical', style: { fontSize: 'var(--icon-md)', color: 'var(--mute)' } }),
+      glyph('ph-bold ph-dots-three-vertical', { style: { fontSize: 'var(--icon-md)', color: 'var(--mute)' } }),
       el('span', { class: c.panel, ...d.panel, style: { zIndex: 1 } },
         el('span', { class: c.time, ...d.time, text: 'Edit' }),
         el('span', { class: c.time, ...d.time, text: 'Cancel' }))));
@@ -114,10 +114,10 @@ function states() {
 function toolbar() {
   return el('div', { class: c.toolbar, ...d.toolbar, style: { width: '820px' } },
     el('button', { class: c.nav, ...d.nav, type: 'button', 'aria-label': 'Previous' },
-      el('i', { class: 'ph-bold ph-caret-left' })),
+      glyph('ph-bold ph-caret-left')),
     el('button', { class: c.today, ...d.today, type: 'button', text: 'Today' }),
     el('button', { class: c.nav, ...d.nav, type: 'button', 'aria-label': 'Next' },
-      el('i', { class: 'ph-bold ph-caret-right' })),
+      glyph('ph-bold ph-caret-right')),
     el('div', { class: c.heading, ...d.heading, text: '13 – 15 Jul 2026' }),
     el('div', { class: c.actions, ...d.actions }, el('button', { class: c.today, ...d.today, type: 'button', text: 'New event' })));
 }

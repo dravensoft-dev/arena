@@ -4,7 +4,7 @@
  * not aria-required and aria-readonly, are what the accessibility tree reads from a native
  * control, and writing both would be two claims that could disagree. */
 
-import { useTestEnvironment } from '../../../test/TestbedEnv';
+import { useTestEnvironment, glyphIds, symbol } from '../../../test/TestbedEnv';
 useTestEnvironment();
 
 import test from 'node:test';
@@ -25,7 +25,7 @@ const BINDING = join(ANGULAR_COMPONENTS, 'forms/arena-input/ArenaInput.behaviour
                           [required]="required" [readOnly]="readOnly" [disabled]="disabled"
                           [validate]="validate" [validateOn]="validateOn" [value]="value"
                           [icon]="icon" [prefix]="prefix"
-                          (change)="edits.push($event)" (blur)="blurs.push($event)" />`,
+                          (valueChange)="edits.push($event)" (blur)="blurs.push($event)" />`,
 })
 class InputHost {
   label: string | undefined = 'Project name';
@@ -128,14 +128,14 @@ test('typing emits change once per keystroke, carrying the value rather than the
   }
 });
 
-test('the native change never reaches the consumer, so a commit does not look like a second edit', () => {
+test('the native change reaches an ancestor and a commit does not look like a second edit', () => {
   const { fixture, control } = render();
   try {
     type(fixture, control, 'arena');
     control.dispatchEvent(new Event('change', { bubbles: true }));
     fixture.detectChanges();
     assert.equal(fixture.componentInstance.edits.length, 1,
-      'change is an output named after a native DOM event; without stopPropagation the commit emits again');
+      'valueChange runs once per edit, and the commit adds none');
   } finally {
     fixture.destroy();
   }
@@ -235,9 +235,9 @@ test('the error replaces the hint rather than stacking under it', () => {
 test('the status glyphs are decoration -- the message beside them is what is announced', () => {
   const bad = render({ error: 'Already taken' });
   try {
-    const glyph = bad.host.querySelector('i') as HTMLElement;
+    const glyph = bad.host.querySelector('svg') as SVGElement;
     assert.ok(glyph, 'an error drew no status glyph');
-    assert.match(glyph.getAttribute('class') ?? '', /ph-warning-circle/);
+    assert.deepEqual(glyphIds(bad.host), [symbol('fill', 'warning-circle')]);
     assert.equal(glyph.getAttribute('aria-hidden'), 'true',
       'a Phosphor ligature announced beside its own message reads the state twice');
   } finally {
@@ -246,8 +246,8 @@ test('the status glyphs are decoration -- the message beside them is what is ann
 
   const good = render({ valid: true });
   try {
-    const glyph = good.host.querySelector('i') as HTMLElement;
-    assert.match(glyph.getAttribute('class') ?? '', /ph-check-circle/);
+    const glyph = good.host.querySelector('svg') as SVGElement;
+    assert.deepEqual(glyphIds(good.host), [symbol('fill', 'check-circle')]);
     assert.equal(glyph.getAttribute('aria-hidden'), 'true');
   } finally {
     good.fixture.destroy();
@@ -257,8 +257,8 @@ test('the status glyphs are decoration -- the message beside them is what is ann
 test('the leading icon and the prefix are drawn before the control and neither is announced', () => {
   const { fixture, host, control } = render({ icon: 'ph-bold ph-globe', prefix: 'git@' });
   try {
-    const glyph = host.querySelector('i') as HTMLElement;
-    assert.match(glyph.getAttribute('class') ?? '', /ph-globe/);
+    const glyph = host.querySelector('svg') as SVGElement;
+    assert.deepEqual(glyphIds(host), [symbol('bold', 'globe')]);
     assert.equal(glyph.getAttribute('aria-hidden'), 'true');
     assert.equal(host.textContent?.includes('git@'), true);
     assert.ok(glyph.compareDocumentPosition(control) & Node.DOCUMENT_POSITION_FOLLOWING,

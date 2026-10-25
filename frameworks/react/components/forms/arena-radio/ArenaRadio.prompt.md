@@ -1,7 +1,7 @@
-One option inside an `ArenaRadioGroup`. Selected shows a crimson dot inside the ring. `value` is required and matched against the group's; `label` names the option and `hint` adds a line of help under it.
+One option inside an `ArenaRadioGroup`. Selected shows a primary-fill dot inside the ring. `value` is required and matched against the group's; `label` names the option and `hint` adds a line of help under it.
 
 ```tsx
-<ArenaRadioGroup ariaLabel="Deployment target" value={env} onChange={setEnv}>
+<ArenaRadioGroup ariaLabel="Deployment target" value={env} onValueChange={setEnv}>
   <ArenaRadio value="prod" label="Production" hint="Real users, requires approval" />
   <ArenaRadio value="staging" label="Staging" />
   <ArenaRadio value="qa" label="QA" disabled />

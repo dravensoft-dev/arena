@@ -31,7 +31,7 @@ Indeterminate wait indicator, for the waits with no known percentage. Respects `
 **Do**
 - Reach for `ArenaProgressBar` first. A spinner is the fallback for when no real percentage exists; a determinate bar communicates remaining time and a spinner cannot.
 - Give `label` the real subject ("Loading projects"), because it is the accessible name, and "Loading" alone tells a screen-reader user nothing.
-- Use `className="arena-accent-ink"` on a filled crimson surface so the ring stays legible.
+- Use `className="arena-accent-ink"` on a surface filled with the primary so the ring stays legible.
 
 **Don't**
 - Don't use a spinner for a process whose progress you know: that degrades visibility (H1).

@@ -1,0 +1,7 @@
+{
+  "component": "ArenaCopyButton",
+  "seed": {
+    "text": "bun add @dravensoft/arena-react"
+  },
+  "note": "Press it to copy the install command. The confirmation needs a secure context: served over http from another host, the clipboard is missing and the button reports the failure instead."
+}

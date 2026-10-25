@@ -2,27 +2,27 @@
  * starts the process an editor starts, speaks the protocol at it and reads the answers back,
  * because a catalogue that is correct in memory and a server an editor can use are two claims. */
 
-import test from 'node:test';
+import test, { after } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { existsSync, mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { hostBinary } from '../../lib/arena/host-binary.ts';
-import { AGENT_DIR } from '../../generate/core/arena-mcp/payload.ts';
-import { DIST } from '../../build/arena/build-mcp-package.ts';
-import { ROUTER_URI, SCHEME } from '../../generate/core/arena-mcp/catalogue.ts';
+import { bundledPayload } from '../../generate/core/arena-mcp/payload.ts';
+import { buildMcpPackage } from '../../build/arena/build-mcp-package.ts';
+import { ROUTER_URI, SCHEME, COMPONENT_PREFIX } from '../../generate/core/arena-mcp/catalogue.ts';
 
 export const SERVER = 'scripts/generate/core/arena-mcp/arena-mcp.ts';
-export const PAYLOAD = join(...DIST.split('/'), AGENT_DIR, 'react');
 export const PROTOCOL = '2025-06-18';
 export const DEADLINE = 30_000;
 
 type Message = { id?: number; result?: Record<string, any>; error?: Record<string, any> };
 
-export function session() {
+export function session(payload: string) {
   const child = spawn(hostBinary('bun', 'to run the server the way a development loop does'),
-    [SERVER, '--payload', PAYLOAD], { cwd: repoRoot, stdio: ['pipe', 'pipe', 'pipe'] });
+    [SERVER, '--payload', payload], { cwd: repoRoot, stdio: ['pipe', 'pipe', 'pipe'] });
   const pending = new Map<number, (msg: Message) => void>();
   let buffered = '';
   let stderr = '';
@@ -49,12 +49,14 @@ export function session() {
   return { call, notify, stop: () => child.kill(), stderr: () => stderr };
 }
 
-const missing = existsSync(join(repoRoot, PAYLOAD))
-  ? false
-  : `${PAYLOAD} is not assembled, so there is nothing to serve`;
+const temp = mkdtempSync(join(tmpdir(), 'arena-mcp-asm-'));
+after(() => rmSync(temp, { recursive: true, force: true }));
+buildMcpPackage(repoRoot, temp);
+const payload = bundledPayload('react', temp) ?? '';
 
-test('an editor can initialize, list and read, which is the whole of what it does', { skip: missing }, async () => {
-  const mcp = session();
+test('an editor can initialize, list and read, which is the whole of what it does', async () => {
+  assert.ok(payload !== '' && existsSync(payload), 'the assembly carries a react payload to serve');
+  const mcp = session(payload);
   try {
     const init = await mcp.call('initialize', {
       protocolVersion: PROTOCOL, capabilities: {}, clientInfo: { name: 'suite', version: '0' },
@@ -76,9 +78,9 @@ test('an editor can initialize, list and read, which is the whole of what it doe
     assert.match(router.result?.contents?.[0]?.text ?? '', /Arena/);
 
     const found = await mcp.call('tools/call', { name: 'arena_find', arguments: { query: 'confirm dialog' } });
-    assert.match(found.result?.content?.[0]?.text ?? '', new RegExp(`${SCHEME}://component/Arena`));
+    assert.match(found.result?.content?.[0]?.text ?? '', new RegExp(`${COMPONENT_PREFIX}Arena`));
 
-    const absent = await mcp.call('tools/call', { name: 'arena_read', arguments: { uri: `${SCHEME}://component/Nope` } });
+    const absent = await mcp.call('tools/call', { name: 'arena_read', arguments: { uri: `${COMPONENT_PREFIX}Nope` } });
     assert.equal(absent.result?.isError, true, 'a document that is not there is an error rather than silence');
 
     const broken = await mcp.call('tools/call', {

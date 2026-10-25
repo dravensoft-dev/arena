@@ -14,6 +14,7 @@ import { relPosix } from '../../utils/posix-path.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
+import { matchOutsideCode } from '../../generate/core/arena-mcp/code-spans.ts';
 import { withForeignTrees } from '../../lib/arena/foreign-trees.ts';
 
 export const ROUTER = 'AGENTS.md';
@@ -70,7 +71,7 @@ export function resolveLink(fromDirectory: string, target: string) {
 
 export function linkedRouters(rel: string, text: string, known: Set<string>) {
   const from = dirname(rel);
-  return [...text.matchAll(LINK)]
+  return matchOutsideCode(text, LINK)
     .map((match) => resolveLink(from, match[1] ?? ''))
     .filter((target): target is string => target !== null && known.has(target));
 }

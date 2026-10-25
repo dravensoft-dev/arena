@@ -1,0 +1,27 @@
+{
+  "component": "ArenaAccordion",
+  "description": "A stack of sections under headings, each heading a button that shows and hides the panel below it. Write one `ArenaAccordionItem` per section; ArenaAccordion owns which panels are open, the heading level and the keys between headers. `multiple` decides the mode and which pair of members is read.",
+  "affordances": [],
+  "api": {
+    "content": { "form": "slot",
+                 "description": "The items. Which ones are open, the ids wiring each header to its panel and how a press is reported are the accordion's to settle. None of it is a member of an item. EVERY panel mounts: a closed one is hidden and keeps its content, so a panel's side effects run at first render." },
+    "multiple": { "form": "primitive", "type": "boolean", "default": false,
+                  "description": "Whether several panels may be open at once. False reads `value`, `defaultValue` and `valueChange`; true reads `values`, `defaultValues` and `valuesChange`. The pair of the other mode is ignored, and a set one is warned about once." },
+    "collapsible": { "form": "primitive", "type": "boolean", "default": true,
+                     "description": "Without `multiple`, whether the open panel may be closed again. False keeps it open once one is open, and its header writes aria-disabled. Nothing opens by itself: seed `defaultValue` to start with one open. Ignored with `multiple`, where every press toggles." },
+    "headingLevel": { "form": "enum", "type": "ArenaHeadingLevel", "default": "h3",
+                      "description": "The rung each header's heading takes. The rung defaults to `h3`, the card's rung under a section's `h2`. `none` is refused at runtime, because each label names its panel and a header is a heading." },
+    "value": { "form": "primitive", "type": "string",
+               "description": "Without `multiple`, the open item's value, controlled. The empty string, or a value no item has, opens nothing. Omit it and pass `defaultValue` to let the accordion govern itself." },
+    "defaultValue": { "form": "primitive", "type": "string",
+                      "description": "Without `multiple`, the item open at first render when uncontrolled. Absent, every panel starts closed." },
+    "valueChange": { "form": "event", "payload": "string",
+                "description": "Without `multiple`, a header was pressed; carries the value of the item now open, or the empty string when the open one closed. Fired on a press only, never when a controlled `value` merely changes." },
+    "values": { "form": "array", "of": "string",
+                "description": "With `multiple`, the open items' values, controlled. A value no item has opens nothing. Omit it and pass `defaultValues` to let the accordion govern itself." },
+    "defaultValues": { "form": "array", "of": "string",
+                       "description": "With `multiple`, the items open at first render when uncontrolled. Absent, every panel starts closed." },
+    "valuesChange": { "form": "event", "payload": "ArenaValueSet",
+                      "description": "With `multiple`, a header was pressed; carries the whole set of open values that results, never a delta. Fired on a press only, never when controlled `values` merely change." }
+  }
+}

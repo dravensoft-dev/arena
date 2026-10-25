@@ -13,11 +13,16 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { REACT_COMPONENTS } from './AssertPattern.tsx';
 import { ArenaTooltip } from '../components/feedback/arena-tooltip/ArenaTooltip.tsx';
 import { ArenaMenu } from '../components/navigation/arena-menu/ArenaMenu.tsx';
+import { ArenaPopover } from '../components/feedback/arena-popover/ArenaPopover.tsx';
 import { ArenaAppLogo } from '../components/brand/arena-app-logo/ArenaAppLogo.tsx';
 import { ArenaSideNavSection } from '../components/navigation/arena-side-nav-section/ArenaSideNavSection.tsx';
 import { ArenaScroller } from '../components/layout/arena-scroller/ArenaScroller.tsx';
 import { ArenaBoard } from '../components/layout/arena-board/ArenaBoard.tsx';
 import { ArenaSection } from '../components/layout/arena-section/ArenaSection.tsx';
+import { ArenaFieldset } from '../components/forms/arena-fieldset/ArenaFieldset.tsx';
+import { ArenaLink } from '../components/navigation/arena-link/ArenaLink.tsx';
+import { ArenaFilterBar } from '../components/navigation/arena-filter-bar/ArenaFilterBar.tsx';
+import { ArenaSplitButton } from '../components/forms/arena-split-button/ArenaSplitButton.tsx';
 
 interface MemberSpec { form?: string; type?: string; required?: boolean; description?: string }
 const CONTRACTS = join(REACT_COMPONENTS, '../../../contracts/api/components');
@@ -28,6 +33,8 @@ const WITHOUT_THE_SLOT = new Map([
   // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
   ['ArenaMenu', () => <ArenaMenu items={[]} />],
   // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
+  ['ArenaPopover', () => <ArenaPopover label="Filters" trigger={<button type="button">Filters</button>} />],
+  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
   ['ArenaAppLogo', () => <ArenaAppLogo name="Dravensoft" />],
   // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
   ['ArenaSideNavSection', () => <ArenaSideNavSection label="Projects" />],
@@ -36,6 +43,11 @@ const WITHOUT_THE_SLOT = new Map([
   ['ArenaBoard', () => <ArenaBoard label="Sprint 32 tasks by status">{null}</ArenaBoard>],
   // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
   ['ArenaSection', () => <ArenaSection title="Landed recently" />],
+  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
+  ['ArenaFieldset', () => <ArenaFieldset legend="Notifications" />],
+  ['ArenaLink', () => <ArenaLink href="/notes" />],
+  ['ArenaFilterBar', () => <ArenaFilterBar label="Deployment filters">{null}</ArenaFilterBar>],
+  ['ArenaSplitButton', () => <ArenaSplitButton label="Deployment" menuLabel="More deploy options" items={[]}>{null}</ArenaSplitButton>],
 ]);
 
 export function requiredSlots(dir: string, read = readFileSync, list = readdirSync) {

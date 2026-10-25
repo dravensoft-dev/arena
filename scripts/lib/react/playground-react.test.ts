@@ -113,9 +113,24 @@ test('a host wraps the subject where the placeholder marks, and nowhere else', (
   assert.match(out, /<\/ArenaTable>$/);
 });
 
+test('a host element holds the subject among its children, with the text around it kept as written', () => {
+  const hosted = { ...model, host: { element: 'p', children: [{ text: 'Read ' }, '$subject' as const, { text: ' first.' }] } };
+  const out = renderTree(hosted, places, 0);
+  assert.match(out, /^<p>\n {2}\{"Read "\}\n {2}<ArenaCard[\s\S]*<\/ArenaCard>\n {2}\{" first\."\}\n<\/p>$/);
+  assert.match(renderNode({ element: 'p', children: [{ text: 'a' }, { component: 'ArenaBadge' }] }, places, 0),
+    /^<p>\n {2}\{"a"\}\n {2}<ArenaBadge \/>\n<\/p>$/);
+});
+
 test('the validator table appears only for a contract that declares a function input', () => {
   assert.equal(validatorTable(model), '');
   assert.match(validatorTable({ knobs: [knob({ form: 'functionInput' })] }), /nonEmpty/);
+});
+
+test('a function input over a number gets a table typed for a number, with no validator that reads text', () => {
+  const table = validatorTable({ knobs: [knob({ form: 'functionInput', params: { value: 'number' } })] });
+  assert.match(table, /\(value: number\) => string/);
+  assert.doesNotMatch(table, /nonEmpty|trim/);
+  assert.match(validatorTable({ knobs: [knob({ form: 'functionInput', params: { value: 'string' } })] }), /nonEmpty/);
 });
 
 test('the entry mounts once and carries the model as a literal', () => {
@@ -177,4 +192,11 @@ test('a class on the subject and on a node is written as className', () => {
   assert.match(renderSubject({ ...model, class: 'arena-fill arena-compact' }, places, 0), /className="arena-fill arena-compact"/);
   assert.match(renderNode({ component: 'ArenaBadge', class: 'arena-fill' }, places, 0), /className="arena-fill"/);
   assert.doesNotMatch(renderSubject(model, places, 0), /className/);
+});
+
+test('a playground page hands the repo sprite to the layer\'s provider', () => {
+  const entry = reactEntry(model, places, '/* b */');
+  assert.match(entry, /import \{ ArenaIconsProvider \} from '\.\.\/\.\.\/\.\.\/ArenaIcons\.ts';/);
+  assert.match(entry, /<ArenaIconsProvider href="\.\.\/\.\.\/\.\.\/\.\.\/\.\.\/assets\/Icons\.generated\.svg">\s*<Demo \/>/,
+    'without the provider ArenaIcon has no sprite and paints nothing');
 });

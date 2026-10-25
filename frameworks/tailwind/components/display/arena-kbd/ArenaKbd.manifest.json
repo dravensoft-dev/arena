@@ -1,0 +1,15 @@
+{
+  "component": "ArenaKbd",
+  "slots": {
+    "root": "relative inline-flex items-center gap-inline w-fit",
+    "key": "font-face-key text-ctl-xs case-key text-ink-key/(--level-ink-muted) border-[length:var(--bw-marker)] border-edge-control-quiet rounded-marker px-marker-x py-key-y",
+    "separator": "font-face-key text-ctl-xs text-ink-key/(--level-ink-muted)",
+    "name": "sr-only"
+  },
+  "kind": {
+    "root": "none",
+    "key": "marker",
+    "separator": "none",
+    "name": "none"
+  }
+}

@@ -4,7 +4,7 @@ Jumps between pages of a large set, the companion to a table or a long list. The
 
 ```html
 <arena-pagination ariaLabel="Deployments" [page]="page()" [pageCount]="12"
-                  (change)="page.set($event)" />
+                  (valueChange)="page.set($event)" />
 ```
 
 <!-- @api GENERATED from contracts/api/components/ArenaPagination.json. Edit the contract, not this table. -->
@@ -16,7 +16,7 @@ Jumps between pages of a large set, the companion to a table or a long list. The
 | `page*` | primitive | `number` |  | The current page, 1-based. |
 | `pageCount*` | primitive | `number` |  | How many pages there are. Required, and guarded at runtime: an ArenaPagination with no page count renders a window over nothing. |
 | `ariaLabel*` | primitive | `string` |  | Names this navigation landmark. Required, and guarded at runtime: two paginated tables in one dashboard is a routine layout, and a shared constant name leaves them indistinguishable while satisfying the requirement mechanically. A default name would narrow the gap rather than close it: a name the caller omits is still the constant. Say what is being paged: "Deployments", not "Pages". |
-| `change` | event | `number` |  | A page was chosen; carries the new 1-based page. Never fires for the current page, nor for a page outside 1..pageCount. |
+| `valueChange` | event | `number` |  | A page was chosen; carries the new 1-based page. Never fires for the current page, nor for a page outside 1..pageCount. |
 
 <!-- @api end -->
 
@@ -41,7 +41,7 @@ dashboard is a routine layout, and a shared constant name leaves them indistingu
 satisfying `roles.label` mechanically. Say what is being paged, as in `"Deployments"`, not
 `"Pages"`.
 
-`change` carries the new 1-based page. The output never fires for the page already shown, nor for a page outside `1..pageCount`. A handler can set its signal without re-checking either.
+`valueChange` carries the new 1-based page. The output never fires for the page already shown, nor for a page outside `1..pageCount`. A handler can set its signal without re-checking either.
 
 How wide the window is comes from the design layer rather than from this component. `--limit-pagination-siblings` says how many pages flank the current one, and the total width is derived from it at the point of use. Both layers read the same token.
 

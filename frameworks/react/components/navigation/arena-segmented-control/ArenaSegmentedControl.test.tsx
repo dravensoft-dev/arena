@@ -17,7 +17,7 @@ test('an option draws its label as its text and its value onto the hidden radio,
 
 test('value selects the option whose `value` matches, and only it is checked and raised', () => {
   const html = renderToStaticMarkup(
-    <ArenaSegmentedControl ariaLabel="Time range" name="tr" value="dp" onChange={() => {}}
+    <ArenaSegmentedControl ariaLabel="Time range" name="tr" value="dp" onValueChange={() => {}}
       options={[{ value: 'ov', label: 'Overview' }, { value: 'dp', label: 'Deployments' }]} />,
   );
 

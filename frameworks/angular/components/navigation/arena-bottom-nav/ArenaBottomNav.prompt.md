@@ -21,9 +21,9 @@ between the two still works.
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
 | `active` | primitive | `string` |  | The id of the current destination. The ArenaBottomNavItem whose id matches is marked aria-current="page" and draws its glyph in the filled weight, and no item is marked when it names none of them. |
-| `ariaLabel*` | primitive | `string` |  | Names this navigation landmark. Required, and **guarded at runtime**: the guard trims before it decides, so a blank name is refused as well as an absent one, because a landmark present with no accessible name is the defect arriving through a value. A phone shell usually carries this bar AND a sidebar or a header, so two navigation landmarks share a page and the pattern asks each for a unique name; a constant default would satisfy the existence half and leave them indistinguishable. |
+| `ariaLabel*` | primitive | `string` |  | Names this navigation landmark. Required, and **guarded at runtime**: the guard trims before it decides, so a blank name is refused as well as an absent one. Both are refused because a landmark present with no accessible name is the defect arriving through a value. A phone shell usually carries this bar AND a sidebar or a header, so two navigation landmarks share a page. The pattern asks each for a unique name, and a constant default would satisfy the existence half and leave them indistinguishable. |
 | `content` | slot |  |  | The destinations. One ArenaBottomNavItem each; which id is active and how each reports `nav` are the parent's to settle, and none of it is a member here. |
-| `nav` | event | `string` |  | A destination was activated, carrying its id. Where the item has an href, Arena has already cancelled the anchor by the time this fires, so a listener routes and does not double-navigate; a modified click, a middle click and open-in-new-tab are the browser's and fire nothing, so a consumer who wires no listener still has a bar of real links. |
+| `nav` | event | `string` |  | A destination was activated, carrying its id. Where the item has an href, Arena has already cancelled the anchor by the time this fires, so a listener routes and does not double-navigate. A modified click, a middle click and open-in-new-tab are the browser's and fire nothing, so a consumer who wires no listener still has a bar of real links. |
 
 <!-- @api end -->
 
@@ -56,7 +56,7 @@ share a page and each needs its own name.
   anchor already inside.
 - **Don't** exceed five destinations. Every column takes an equal share, and a sixth makes the labels
   truncate before anyone has read them.
-- **Don't** reach for it above a phone width. The bar covers the bottom of the viewport, and a wide screen has a sidebar's room: mark the bar `md:hidden` and the side nav `max-md:hidden`, or branch on `arenaViewportBelow('md')`.
+- **Don't** reach for it above a phone width. The bar covers the bottom of the viewport, and a wide screen has a sidebar's room. Put `md:hidden` on an element of your own around the bar and `max-md:hidden` on one around the side nav. A branch on `arenaViewportBelow('md')` gives the same split in code. A project that compiles none of these utilities writes the same pair as `@media (width < 768px)` and `@media (width >= 768px)` on those two elements.
 
 **By hand, in real Chromium.** Run `bun run demos` and open `/frameworks/angular/components/navigation/arena-bottom-nav/ArenaBottomNav.demo.generated.html` at 390px: - Try primary click, ctrl+click, middle click and Enter on the same destination. The first and the last report once and navigate once, and the other two open a tab and report nothing.
 - The active destination's glyph is filled and its label takes the primary ink; the others do not.

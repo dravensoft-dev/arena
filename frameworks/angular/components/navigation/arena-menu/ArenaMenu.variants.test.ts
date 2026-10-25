@@ -11,14 +11,6 @@ function tokens(classString: string): string[] {
   return classString.split(/\s+/).filter(Boolean);
 }
 
-test('the surface, the ink and the row metrics do not vary with anchoring -- only the position does', () => {
-  const anchored = arenaMenuStyles({ anchored: true });
-  const inFlow = arenaMenuStyles({ anchored: false });
-  for (const slot of ['item', 'icon', 'label', 'shortcut', 'divider', 'header'] as const) {
-    assert.equal(JSON.stringify(anchored.$data[slot]()), JSON.stringify(inFlow.$data[slot]()), `${slot} must not vary with anchored`);
-  }
-});
-
 test('the item carries disabled and destructive as two attributes, and an item that is both carries both', () => {
   const plain = JSON.stringify(arenaMenuStyles({ disabled: false, destructive: false }).$data.item());
   const destructive = JSON.stringify(arenaMenuStyles({ disabled: false, destructive: true }).$data.item());
@@ -28,9 +20,8 @@ test('the item carries disabled and destructive as two attributes, and an item t
     { 'data-arena-disabled': '', 'data-arena-destructive': '' });
 });
 
-test('align end moves the panel and nothing else', () => {
-  assert.notEqual(JSON.stringify(arenaMenuStyles({ align: 'end' }).$data.panel()), JSON.stringify(arenaMenuStyles({ align: 'start' }).$data.panel()));
-  assert.equal(JSON.stringify(arenaMenuStyles({ align: 'end' }).$data.item()), JSON.stringify(arenaMenuStyles({ align: 'start' }).$data.item()));
+test('the panel carries no variant group, because the overlay places it', () => {
+  assert.deepEqual(arenaMenuStyles().$data.panel(), {});
 });
 
 test('a divider and a header are not activatable; everything else is', () => {
@@ -42,25 +33,19 @@ test('a divider and a header are not activatable; everything else is', () => {
     'a disabled row is still a row -- it renders as a menuitem and reports nothing');
 });
 
-test('both alignments offer a flip below the trigger, and the gap is derived from the token rather than written', () => {
+test('both alignments offer a flip above the trigger, and the gap is derived from the token rather than written', () => {
   for (const align of ['start', 'end'] as const) {
     const positions = ARENA_MENU_POSITIONS[align];
-    assert.equal(positions.length, 2, `${align} must offer a fallback above the trigger`);
-    assert.equal(positions[0].offsetY, sp1 * 1.5);
-    assert.equal(positions[1].offsetY, -sp1 * 1.5);
-    assert.equal(positions[0].originY, 'bottom');
-    assert.equal(positions[1].originY, 'top');
+    assert.equal(positions.length, 4, `${align} must offer both alignments below the trigger and above it`);
+    assert.deepEqual(positions.map((position) => position.offsetY), [sp1 * 1.5, sp1 * 1.5, -sp1 * 1.5, -sp1 * 1.5]);
+    assert.deepEqual(positions.map((position) => position.originY), ['bottom', 'bottom', 'top', 'top']);
   }
-  assert.equal(ARENA_MENU_POSITIONS.start[0].originX, 'start');
-  assert.equal(ARENA_MENU_POSITIONS.end[0].originX, 'end');
+  assert.deepEqual(ARENA_MENU_POSITIONS.start.map((position) => position.originX), ['start', 'end', 'start', 'end']);
+  assert.deepEqual(ARENA_MENU_POSITIONS.end.map((position) => position.originX), ['end', 'start', 'end', 'start']);
 });
 
-test('an end-aligned panel carries its alignment, and the sheet gives it left: auto after the in-flow left: 0', () => {
-  assert.equal(arenaMenuStyles({ anchored: true, align: 'end' }).$data.panel()['data-arena-align'], 'end');
-  assert.equal(arenaMenuStyles({ anchored: true, align: 'start' }).$data.panel()['data-arena-align'], 'start');
+test('the sheet positions the panel at neither edge, because the overlay places it', () => {
   const css = readFileSync(join(REPO, 'frameworks/tailwind/consume/components/navigation/arena-menu/ArenaMenu.styles.generated.css'), 'utf8');
-  const inFlow = css.indexOf('.arena-menu__panel:where(:not([data-arena-anchored]))');
-  const end = css.indexOf('.arena-menu__panel:where([data-arena-align="end"])');
-  assert.ok(inFlow !== -1 && end > inFlow);
-  assert.match(css.slice(end, css.indexOf('}', end)), /left: auto/);
+  assert.doesNotMatch(css, /data-arena-anchored|data-arena-align/);
+  assert.doesNotMatch(css, /\.arena-menu__panel[^{]*\{[^}]*(?:^|[\s;])(?:position|left|right|top|bottom|inset|margin-top|transform|translate):/m);
 });

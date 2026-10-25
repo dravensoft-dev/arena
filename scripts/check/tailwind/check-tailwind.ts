@@ -1,14 +1,18 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { compileLayer, manifestClasses, escapeClass } from '../../lib/tailwind/tailwind-compile.ts';
 import { node as tailwindNode } from '../../build/tailwind/build-tailwind.ts';
+import { themeDeclarations } from '../../lib/tailwind/theme-sheet.ts';
 
 export const node = {
   name: 'check:tailwind',
-  reads: tailwindNode.reads,
+  reads: [...tailwindNode.reads, 'contracts/design/colors.css'],
   writes: [],
   feeds: [],
 };
-import { arenaTokens } from '../../lib/core/arena-tokens.ts';
+import { arenaTokenNames } from '../../lib/core/arena-tokens.ts';
+import { repoRoot } from '../../lib/arena/repo-root.ts';
 import type { ManifestClassSource } from '../../lib/tailwind/manifest-shapes.ts';
 import { captured } from '../../utils/captures.ts';
 
@@ -24,6 +28,10 @@ export function themeKeys(css: string) {
     out.set(name.slice(2), line.slice(i + 1).trim());
   }
   return out;
+}
+
+export function inlineThemeKeys(themeCss: string) {
+  return new Map(themeDeclarations(themeCss, true).map(([name, value]) => [name.slice(2), value]));
 }
 
 const TRANSFORM_PROPS = ['translate', 'scale', 'rotate'];
@@ -61,7 +69,9 @@ export function transitionProblems(manifest: ManifestClassSource) {
   return problems;
 }
 
-export function checkCompiled(css: string, manifests: Map<string, ManifestClassSource>, tokens: Set<string>) {
+export function checkCompiled(
+  css: string, manifests: Map<string, ManifestClassSource>, tokens: Set<string>, inline = new Map<string, string>(),
+) {
   const errs = [];
 
   if (manifests.size === 0)
@@ -72,7 +82,7 @@ export function checkCompiled(css: string, manifests: Map<string, ManifestClassS
       if (!css.includes(`.${escapeClass(cls)}`))
         errs.push(`${file}: \`${cls}\` produced no rule — the utility does not exist`);
 
-  for (const [key, value] of themeKeys(css)) {
+  for (const [key, value] of [...themeKeys(css), ...inline]) {
     if (key.startsWith('tw-') || key.startsWith('default-')) continue;
     const calc = value.match(/^calc\((.*)\)$/);
     if (calc) {
@@ -95,7 +105,8 @@ export function checkCompiled(css: string, manifests: Map<string, ManifestClassS
 
 function main() {
   const { css, manifests } = compileLayer();
-  const errs = checkCompiled(css, manifests, arenaTokens());
+  const inline = inlineThemeKeys(readFileSync(join(repoRoot, 'frameworks/tailwind/Theme.css'), 'utf8'));
+  const errs = checkCompiled(css, manifests, arenaTokenNames(repoRoot), inline);
   for (const m of manifests.values()) errs.push(...transitionProblems(m));
   if (errs.length) {
     console.error(`check-tailwind: ${errs.length} violation(s) in the compiled Tailwind layer\n`);
@@ -103,7 +114,7 @@ function main() {
     process.exit(1);
   }
   const classes = [...manifests.values()].reduce((n, m) => n + manifestClasses(m).length, 0);
-  console.log(`check-tailwind: ${manifests.size} manifest(s), ${classes} class(es), ${themeKeys(css).size} theme key(s) — all resolve to Arena tokens`);
+  console.log(`check-tailwind: ${manifests.size} manifest(s), ${classes} class(es), ${themeKeys(css).size + inline.size} theme key(s) — all resolve to Arena tokens`);
 }
 
 if (isMainModule(import.meta.url)) main();

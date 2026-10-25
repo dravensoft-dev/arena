@@ -1,13 +1,13 @@
 {
   "component": "ArenaSegmentedControl",
-  "description": "A compact inline filter over mutually exclusive options. A real radio group, never a tab list, and it carries no crimson.",
+  "description": "A compact inline filter over mutually exclusive options. A real radio group, never a tab list, and it carries no accent.",
   "affordances": ["focus", "hover"],
   "api": {
     "options": { "form": "array", "of": "ArenaSegmentOption", "required": true, "description": "The options, in order. Two to four with one-word labels." },
     "value": { "form": "primitive", "type": "string", "description": "The selected option's value. Omit and pass `defaultValue` to let it govern itself." },
     "defaultValue": { "form": "primitive", "type": "string", "description": "The initially selected value when uncontrolled. Defaults to the first option." },
     "ariaLabel": { "form": "primitive", "type": "string", "required": true, "description": "Names what is being filtered: \"Time range\", not \"Filter\". A radio group with no accessible name is announced unlabelled." },
-    "name": { "form": "primitive", "type": "string", "description": "Shared name for the underlying radios; generated when omitted." },
-    "change": { "form": "event", "payload": "string", "description": "A different option was chosen; carries its value." }
+    "name": { "form": "primitive", "type": "string", "description": "Shared name for the underlying radios; generated when omitted or blank." },
+    "valueChange": { "form": "event", "payload": "string", "description": "A different option was chosen; carries its value. The native change of the inner radio is never stopped, so a listener on the document hears it; this event carries the value." }
   }
 }

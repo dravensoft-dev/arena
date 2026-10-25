@@ -29,8 +29,8 @@ defect rather than a design, so there is nowhere to write that.
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `label*` | primitive | `string` |  | Names the list for assistive technology: what these people are a list OF, never that they are people. "Ruby league standings", "Suggested accounts", never "People". Required and guarded at runtime rather than defaulted, because nothing can derive it and a name that only says what the component is satisfies the requirement mechanically while telling a screen-reader user nothing: two lists on one page announce identically. |
-| `ordered` | primitive | `boolean` | `false` | Whether the order is part of the meaning. A standings table read in any other order is a different claim, and its rows are numbered; a set of suggestions is a set. It is a declared input rather than something inferred from the rows carrying a `rank`, because Arena never derives what it draws from what a consumer happened to pass, and a numbered list whose numbers are decoration is a lie told to a screen reader. |
+| `label*` | primitive | `string` |  | Names the list for assistive technology: what these people are a list OF, never that they are people. "Ruby league standings", "Suggested accounts", never "People". Required and guarded at runtime rather than defaulted, because nothing can derive it. A name that only says what the component is satisfies the requirement mechanically and tells a screen-reader user nothing. Two lists on one page announce identically. |
+| `ordered` | primitive | `boolean` | `false` | Whether the order is part of the meaning. A standings table read in any other order is a different claim, and its rows are numbered; a set of suggestions is a set. The order is a declared input rather than something inferred from the rows carrying a `rank`, because Arena never derives what it draws from what a consumer happened to pass. A numbered list whose numbers are decoration is a lie told to a screen reader. |
 | `children` | slot |  |  | The rows. One ArenaPersonRow per person; a row is what says who and how much, and the list decides only where each one goes. |
 
 <!-- @api end -->

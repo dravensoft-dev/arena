@@ -19,12 +19,12 @@ A named group inside an `ArenaSideNav` that shows and hides its own contents -- 
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `id*` | primitive | `string` |  | Identifies the group. The disclosure pattern needs two DOM ids that resolve -- the trigger's aria-controls must name the region, and the region's aria-labelledby must name the trigger -- and Arena derives both from this member, as `${id}-trigger` and `${id}-region`. Neither wiring is conditional: every collapsible has a trigger and a region, so there is no shape in which the id goes unused, and that is why it is required rather than optional. A group is a thing a consumer names anyway. Falsy-guarded as well as required: a blank id yields the pair `-trigger`/`-region`, which every other blank-id collapsible on the page would share, and duplicate ids make aria-controls resolve to the wrong element rather than to none. A consumer can address either element from outside as a consequence -- an aria-describedby, a deep link, a test hook -- but that is a benefit of the derivation, not the reason for it. |
+| `id*` | primitive | `string` |  | Identifies the group. The disclosure pattern needs two DOM ids that resolve -- the trigger's aria-controls must name the region, and the region's aria-labelledby must name the trigger. Arena derives both from this member, as `${id}-trigger` and `${id}-region`. Neither wiring is conditional. Every collapsible has a trigger and a region, so there is no shape in which the id goes unused, and that is why it is required rather than optional. A group is a thing a consumer names anyway. Falsy-guarded as well as required: a blank id yields the pair `-trigger`/`-region`, which every other blank-id collapsible on the page would share. Duplicate ids make aria-controls resolve to the wrong element rather than to none. A consumer can address either element from outside as a consequence -- an aria-describedby, a deep link, a test hook. Addressing them is a benefit of the derivation, not the reason for it. |
 | `label*` | primitive | `string` |  | What the trigger reads, and the accessible name of both the trigger and the region it controls. Required and falsy-guarded. |
-| `icon` | primitive | `string` |  | A Phosphor class name drawn before the label. The caret that reports expanded-ness is Arena's own and is not this member. |
-| `defaultExpanded` | primitive | `boolean` | `false` | Whether the group starts open. It is a seed, not a control: after the first render the state is the component's, and the group also opens itself when it comes to hold the active destination. |
+| `icon` | primitive | `string` |  | A Phosphor class name drawn before the label through ArenaIcon. The caret that reports expanded-ness is Arena's own and is not this member. |
+| `defaultExpanded` | primitive | `boolean` | `false` | Whether the group starts open. The value is a seed, not a control: after the first render the state is the component's. The group also opens itself when it comes to hold the active destination. |
 | `children` | slot |  |  | What the group holds -- items, sections, further collapsibles. Each sits one nesting level deeper. |
-| `onToggle` | event | `boolean` |  | The trigger was pressed, carrying the state it moved to. It fires on a press ONLY: the automatic expansion that follows the active destination is Arena's decision rather than the user's, and reporting it here would be a lie a consumer persists. |
+| `onToggle` | event | `boolean` |  | The trigger was pressed, carrying the state it moved to. The event fires on a press ONLY. The automatic expansion that follows the active destination is Arena's decision rather than the user's, and reporting it here would be a lie a consumer persists. |
 
 <!-- @api end -->
 
@@ -77,6 +77,7 @@ Two consequences worth holding on to:
   independent disclosure, so Tab moves through the triggers and the visible links in order
   and a collapsed region is skipped because it is hidden. If you genuinely need treeview
   semantics, this is not the component.
+  ArenaTreeView gives a hierarchy one tab stop, the arrow keys and `aria-level` on every node.
 - **Don't** drive `defaultExpanded` from state you update on every toggle. The member is a seed read once. Wire `onToggle` to your own store if you want the group's state to persist, and leave `defaultExpanded` as that store's initial value.
 - **Don't** leave `id` or `label` blank. Both are required and guarded. A blank `label` leaves the trigger with no accessible name. A blank `id` produces the id pair `-trigger` and `-region`, which every other blank-id collapsible on the page would share.
 - **Don't** wrap its children in a fragment or a component of your own. The component injects into the children it is handed, and `React.Children.toArray` does not see through a `<>...</>`. `ArenaSideNav` and `ArenaSideNavSection` carry the same limit.

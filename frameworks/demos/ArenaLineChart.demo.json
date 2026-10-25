@@ -8,5 +8,24 @@
     "label": "Throughput",
     "valueFormat": { "grouping": true }
   },
+  "variants": {
+    "flat": {
+      "series": [{"label": "Requests per minute", "values": [120, 120, 120, 120]}]
+    },
+    "negative": {
+      "series": [{"label": "Net change", "values": [-20, 35, -8, 14]}]
+    },
+    "single-point": {
+      "labels": ["Week 1"],
+      "series": [{"label": "Requests per minute", "values": [120]}]
+    },
+    "area-two-series": {
+      "area": true,
+      "series": [{"label": "Requests per minute", "values": [120, 148, 132, 176]}, {"label": "Errors per minute", "values": [4, 9, 6, 12]}]
+    },
+    "tone-and-color-id": {
+      "series": [{"label": "Requests per minute", "values": [120, 148, 132, 176], "tone": "success", "colorId": 2}]
+    }
+  },
   "note": "One series, one axis. The area fill is for this case and refuses a second series."
 }

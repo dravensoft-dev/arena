@@ -6,7 +6,7 @@
     "ariaLabel": "Deployments"
   },
   "bind": {
-    "change": "page"
+    "valueChange": "page"
   },
   "note": "Controlled: the page knob is what the component renders."
 }

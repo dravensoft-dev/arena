@@ -1,4 +1,4 @@
-Arena tooltip, a short label revealed on pointer intent, bone over dark. Standalone, `OnPush`,
+Arena tooltip, a short label revealed on pointer intent, the page's ink as its ground and the page's ground as its text. Standalone, `OnPush`,
 signal I/O. Wrap the element the tooltip describes; Arena draws the bubble and names it
 from `label`.
 
@@ -51,7 +51,8 @@ The bubble is positioned by `@angular/cdk/overlay`, not by the wrapper, so it es
   control. `contracts/design/behaviour.json` states the rule; do not route focus through the
   delays.
 - Escape dismisses, and the listener is on the document rather than the host, because a
-  pointer-invoked tooltip leaves focus somewhere else entirely.
+  pointer-invoked tooltip leaves focus somewhere else entirely. Escape closes the topmost open
+  panel, so a tooltip inside a popover or a dialog closes alone and the panel under it stays.
 - Don't put interactive content in a tooltip. The bubble never receives focus, so a button inside it is unreachable. The pattern calls that `focus.never`, and it is not a limitation of this implementation.
   Reach for `arena-menu` or a dialog instead.
 - Don't use a tooltip to carry information the user needs to complete a task. A tooltip is supplementary by definition. A field's own `hint` is where a requirement belongs.

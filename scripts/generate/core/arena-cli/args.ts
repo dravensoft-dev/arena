@@ -21,8 +21,8 @@ export type FlagSpec = {
 export const FLAGS: Record<FlagName, FlagSpec> = {
   config: { spellings: ['--config'], takes: 'path', repeatable: false, help: 'the config file (default arena.config.json)' },
   src: { spellings: ['--src'], takes: 'path', repeatable: true, help: 'a source file or directory to read (default src, repeatable)' },
-  out: { spellings: ['-o', '--out'], takes: 'dir', repeatable: false, help: 'the directory the sheets are written to (default src)' },
-  'no-import': { spellings: ['--no-import'], takes: 'none', repeatable: false, help: 'leave the package import out of the theme sheet' },
+  out: { spellings: ['-o', '--out'], takes: 'dir', repeatable: false, help: 'the directory the sheets, the icon sprite and its module are written to (default src)' },
+  'no-import': { spellings: ['--no-import'], takes: 'none', repeatable: false, help: 'do not write the package sheet, for a project that imports the package\'s sheets itself' },
   watch: { spellings: ['--watch'], takes: 'none', repeatable: false, help: 'rebuild the sheets whenever the config or a source changes' },
   strict: { spellings: ['--strict'], takes: 'kinds', repeatable: false, help: 'exit 1 on a report of these kinds (all of them when no list is given)' },
   audit: { spellings: ['--audit'], takes: 'none', repeatable: false, help: 'accepted by no command' },
@@ -32,13 +32,13 @@ export const FLAGS: Record<FlagName, FlagSpec> = {
 export type CommandSpec = { summary: string; flags: readonly FlagName[] };
 
 export const SPECS: Record<Command, CommandSpec> = {
-  build: { summary: 'write the theme, icon and plugin sheets from your config and sources', flags: ['config', 'src', 'out', 'no-import', 'watch'] },
+  build: { summary: 'write the package, theme and plugin sheets, the icon sprite and its module from your config and sources', flags: ['config', 'src', 'out', 'no-import', 'watch'] },
   check: { summary: 'report what your config and sources ask of the language', flags: ['config', 'src', 'strict'] },
   audit: { summary: 'read your sources and style plugins against the rules of the language', flags: ['config', 'src', 'strict'] },
   usage: { summary: 'name the components you draw nowhere and the parts your plugins paint', flags: ['config', 'src'] },
   init: { summary: 'wire the config and the scripts into this project', flags: ['config'] },
   doctor: { summary: 'say whether this project is set up and its sheets are current', flags: ['config', 'src', 'out', 'no-import', 'strict'] },
-  clean: { summary: 'delete the sheets arena build writes', flags: ['out'] },
+  clean: { summary: 'delete the sheets and the sprite arena build writes', flags: ['out'] },
 };
 
 export const DEFAULT_CONFIG = 'arena.config.json';
@@ -64,7 +64,7 @@ const U = '`arena usage` names the components your sources draw nowhere';
 const W = '`arena build --watch` rebuilds the sheets as you edit';
 const quiet = (command: string) => ({
   out: `arena ${command} writes nothing; \`arena build -o\` names where the sheets go`,
-  'no-import': `arena ${command} writes nothing; \`arena build --no-import\` drops the package import from the theme sheet`,
+  'no-import': `arena ${command} writes nothing; \`arena build --no-import\` does not write the package sheet`,
 });
 
 export const NEIGHBOURS: Record<Command, Partial<Record<FlagName, string>>> = {
@@ -109,7 +109,7 @@ export const NEIGHBOURS: Record<Command, Partial<Record<FlagName, string>>> = {
   clean: {
     config: 'arena clean reads no config; it deletes the sheets `arena build` writes, by name, inside -o',
     src: 'arena clean reads no sources; it deletes the sheets `arena build` writes, by name, inside -o',
-    'no-import': 'arena clean only deletes; `arena build --no-import` drops the package import from the theme sheet',
+    'no-import': 'arena clean only deletes; `arena build --no-import` does not write the package sheet',
     watch: W,
     strict: 'arena clean reports nothing; `arena check --strict` holds the reports a build counts',
     audit: A,

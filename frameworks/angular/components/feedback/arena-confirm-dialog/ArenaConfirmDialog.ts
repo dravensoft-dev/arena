@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   DOCUMENT,
+  DestroyRef,
   ElementRef,
   afterRenderEffect,
   booleanAttribute,
@@ -16,7 +17,7 @@ import {
 import { ArenaButton } from '../../forms/arena-button/ArenaButton';
 import { arenaConfirmDialogStyles } from './ArenaConfirmDialog.variants';
 import manifest from './ArenaConfirmDialog.classes.generated';
-import { type FocusTrapState, arenaHandleOpenTransition, arenaTrapTabKey } from '../../../FocusTrap';
+import { type FocusTrapState, arenaHandleOpenTransition, arenaHandleTeardown, arenaTrapTabKey } from '../../../FocusTrap';
 import { ArenaIdGenerator } from '../../../ArenaIds';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
 import { arenaPhrase } from '../../../Phrase';
@@ -57,7 +58,7 @@ export function isArenaConfirmLocked(required: string | undefined, typed: string
           }
         </div>
         <div [class]="styles().foot()" [attr.data-arena-part]="parts.foot">
-          <arena-button class="arena-emphasis-ghost" (click)="cancel.emit()">{{ cancelText() }}</arena-button>
+          <arena-button class="arena-emphasis-ghost" (activate)="cancel.emit()">{{ cancelText() }}</arena-button>
           <button type="button" [class]="styles().confirm()" [arenaSlotData]="styles().$data.confirm()" [attr.data-arena-part]="parts.confirm" [disabled]="locked()" (click)="confirm.emit()">{{ confirmText() }}</button>
         </div>
       </div>
@@ -75,10 +76,10 @@ export class ArenaConfirmDialog {
     return arenaPhrase(this.locale.confirmDialogRequire, { text });
   }
 
-  /** Whether the dialog is shown. The host owns it, as in the other three modals: defaulting it would let an ArenaConfirmDialog whose open was never wired render nothing forever and look like a working closed dialog. */
+  /** Whether the dialog is shown. The host owns it, as in the other three modals. Defaulting it would let an ArenaConfirmDialog whose open was never wired render nothing forever and look like a working closed dialog. */
   readonly open = input.required<boolean, unknown>({ transform: booleanAttribute });
 
-  /** The dialog heading, and the name the panel's aria-labelledby points at. Required: nothing can derive a name for a confirmation, because its subject is editorial, and a modal announcing only its role is worse than none at all. Required whatever open is, since a required member absent is a caller bug rather than a state to render: render the component when there is something to confirm, and hold on to the subject across a cancel so it still has a name while it closes. */
+  /** The dialog heading, and the name the panel's aria-labelledby points at. Required: nothing can derive a name for a confirmation, because its subject is editorial, and a modal announcing only its role is worse than none at all. Required whatever open is, since a required member absent is a caller bug rather than a state to render. Render the component when there is something to confirm, and hold on to the subject across a cancel so it still has a name while it closes. */
   readonly title = input.required<string>();
   /** Small uppercase label above the title. Absent, the provided locale's confirmDialogEyebrow answers it. */
   readonly eyebrow = input<string>();
@@ -113,6 +114,9 @@ export class ArenaConfirmDialog {
   private readonly focusTrap: FocusTrapState = { wasOpen: false, restoreTo: null };
 
   constructor() {
+    inject(DestroyRef).onDestroy(() => {
+      arenaHandleTeardown(this.focusTrap, this.panel()?.nativeElement ?? null, this.doc.activeElement);
+    });
     afterRenderEffect(() => {
       const isOpen = this.open();
       untracked(() => {

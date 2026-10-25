@@ -1,0 +1,15 @@
+{
+  "component": "ArenaNumberField",
+  "seed": {
+    "label": "Replicas",
+    "value": 3,
+    "min": 1,
+    "max": 20,
+    "step": 1,
+    "hint": "Between 1 and 20."
+  },
+  "bind": {
+    "valueChange": "value"
+  },
+  "note": "A commit writes value back. An emptied field fires clear, which carries nothing a knob can hold, so the page keeps the last number and logs the event."
+}

@@ -5,12 +5,20 @@
 import { useTestEnvironment } from '../../../test/TestbedEnv';
 useTestEnvironment();
 
-import test from 'node:test';
+import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ArenaBulkActionBar } from './ArenaBulkActionBar';
 import type { ArenaBulkAction } from '../../../Api.generated';
+
+const root = document.documentElement;
+before(() => {
+  root.style.setProperty('--bp-sm', '480px');
+});
+after(() => {
+  root.style.removeProperty('--bp-sm');
+});
 
 const ACTIONS: readonly ArenaBulkAction[] = [{ id: 'archive', label: 'Archive' }];
 

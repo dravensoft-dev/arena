@@ -1,0 +1,39 @@
+{
+  "component": "ArenaDivider",
+  "answers": [
+    {
+      "family": "orientation",
+      "options": [
+        "arena-orientation-horizontal",
+        "arena-orientation-vertical"
+      ],
+      "default": "arena-orientation-horizontal"
+    }
+  ],
+  "slots": {
+    "root": "flex self-stretch shrink-0 m-0 border-0",
+    "rule": "flex-1 w-[var(--arena-orientation-rule-w,100%)] h-[var(--arena-orientation-rule-h,var(--bw-separator))] bg-edge-separator",
+    "label": "font-face-label text-ctl-xs tracking-label-role case-label text-ink-muted/(--level-ink-muted)"
+  },
+  "kind": {
+    "root": "none",
+    "rule": "none",
+    "label": "none"
+  },
+  "internal": {
+    "labelled": "the divider has a label"
+  },
+  "variants": {
+    "labelled": {
+      "false": {
+        "root": "w-[var(--arena-orientation-rule-w,100%)] h-[var(--arena-orientation-rule-h,var(--bw-separator))] bg-edge-separator"
+      },
+      "true": {
+        "root": "items-center gap-inline [flex-direction:var(--arena-orientation-direction,row)]"
+      }
+    }
+  },
+  "defaultVariants": {
+    "labelled": false
+  }
+}

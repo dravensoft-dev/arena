@@ -2,7 +2,7 @@ Multi-line text input. Shares the same visual states as `ArenaInput`.
 
 ```tsx
 <ArenaTextarea label="Deployment notes" rows={5} maxLength={280} counter
-  value={notes} onChange={setNotes}
+  value={notes} onValueChange={setNotes}
   hint="Attached to the delivery log." />
 ```
 
@@ -13,9 +13,9 @@ Multi-line text input. Shares the same visual states as `ArenaInput`.
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
 | `label` | primitive | `string` |  | Field label; the counter and error sit under the field. |
-| `id` | primitive | `string` |  | The control's id, and what the label's `for` points at. Generated from `label` when omitted, as `ta-` followed by the label with each run of whitespace replaced by a single hyphen and the whole lowercased: the derivation ArenaInput.id states, under this component's own prefix. |
+| `id` | primitive | `string` |  | The control's id, and what the label's `for` points at. Generated from `label` when omitted, as `ta-` followed by the label with each run of whitespace replaced by a single hyphen and the whole lowercased. The derivation is the one ArenaInput.id states, under this component's own prefix. The hint or the error takes it followed by `-note`. |
 | `hint` | primitive | `string` |  | A line of help under the field. |
-| `error` | primitive | `string` |  | Error message; turns the border crimson and shows below. |
+| `error` | primitive | `string` |  | Error message; turns the border to the danger tone and shows below. |
 | `required` | primitive | `boolean` | `false` | Marks the label and the control required. |
 | `counter` | primitive | `boolean` | `false` | Shows a live length/maxLength count, which warns once the length is STRICTLY past nine tenths of `maxLength`; exactly at the share is not yet near the limit. |
 | `autoResize` | primitive | `boolean` | `false` | Grows with the content instead of scrolling. |
@@ -26,7 +26,7 @@ Multi-line text input. Shares the same visual states as `ArenaInput`.
 | `name` | primitive | `string` |  | Submitted with the form. |
 | `maxLength` | primitive | `number` |  | Caps the length; feeds the counter. |
 | `rows` | primitive | `number` | `4` | Initial visible rows. |
-| `onChange` | event | `string` |  | Edited; carries the new text. |
+| `onValueChange` | event | `string` |  | Edited; carries the new text. The native change of the inner field is never stopped, so a listener on the document hears it; this event carries the value. |
 
 <!-- @api end -->
 
@@ -40,11 +40,11 @@ Multi-line text input. Shares the same visual states as `ArenaInput`.
 **Keys:** none (`textbox`).
 <!-- @keys end -->
 
-`onChange` carries the **new text as a string** rather than the `ChangeEvent`. A platform event type never travels in a payload, so the event does not reach you. Read the
-value directly (`onChange={setNotes}`); there is no `e.target` and no `preventDefault()`.
+`onValueChange` carries the **new text as a string** rather than the `ChangeEvent`. A platform event type never travels in a payload, so the event does not reach you. Read the
+value directly (`onValueChange={setNotes}`); there is no `e.target` and no `preventDefault()`.
 
 The members are `label`, `id`, `hint`, `error`, `required`, `counter`, `autoResize`, `value`,
-`disabled`, `readOnly`, `placeholder`, `name`, `maxLength` and `rows`, plus `onChange`.
+`disabled`, `readOnly`, `placeholder`, `name`, `maxLength` and `rows`, plus `onValueChange`.
 The members above are the whole API. There is no `TextareaHTMLAttributes` heritage clause and no `{...rest}` spread. Global attributes do not reach the `<textarea>`, which covers `className`, `dir`, `tabIndex`, ARIA and `data-*`, and neither does a consumer `style` object.
 
 **`id` is the one global attribute that is a member.** The component generates one from `label` to wire the label's `htmlFor`, and a consumer had no way to override it. That left an external `<label>`, an `aria-describedby` or a form library addressing the field by name with no path at all. Pass it and it wins; omit it and the

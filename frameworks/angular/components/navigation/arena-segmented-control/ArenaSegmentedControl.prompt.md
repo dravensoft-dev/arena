@@ -1,14 +1,14 @@
 Arena segmented control, a compact inline filter over mutually exclusive options. **A real radio
-group, never a tab list**, and it carries no crimson: a filter never outweighs the action beside
+group, never a tab list**, and it carries no accent: a filter never outweighs the action beside
 it. Standalone, `OnPush`, signal I/O. The host **is** the track, so it carries `role="radiogroup"`,
 the accessible name and the focus ring.
 
 ```html
 <arena-segmented-control ariaLabel="Time range" [options]="ranges" [value]="range()"
-                         (change)="range.set($event)" />
+                         (valueChange)="range.set($event)" />
 
 <arena-segmented-control ariaLabel="Status" [options]="statuses"
-                         defaultValue="failing" (change)="filter.set($event)" class="arena-size-sm" />
+                         defaultValue="failing" (valueChange)="filter.set($event)" class="arena-size-sm" />
 ```
 
 <!-- @api GENERATED from contracts/api/components/ArenaSegmentedControl.json. Edit the contract, not this table. -->
@@ -21,8 +21,8 @@ the accessible name and the focus ring.
 | `value` | primitive | `string` |  | The selected option's value. Omit and pass `defaultValue` to let it govern itself. |
 | `defaultValue` | primitive | `string` |  | The initially selected value when uncontrolled. Defaults to the first option. |
 | `ariaLabel*` | primitive | `string` |  | Names what is being filtered: "Time range", not "Filter". A radio group with no accessible name is announced unlabelled. |
-| `name` | primitive | `string` |  | Shared name for the underlying radios; generated when omitted. |
-| `change` | event | `string` |  | A different option was chosen; carries its value. |
+| `name` | primitive | `string` |  | Shared name for the underlying radios; generated when omitted or blank. |
+| `valueChange` | event | `string` |  | A different option was chosen; carries its value. The native change of the inner radio is never stopped, so a listener on the document hears it; this event carries the value. |
 
 <!-- @api end -->
 

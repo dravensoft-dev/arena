@@ -1,31 +1,31 @@
 /* Assembles the published site out of the built tree. It copies, and rewrites only the Markdown
- * links the site does not carry to the repository at this release's tag: a page names its assets
- * by a relative href counting directories, so the output holds the same shape under the same
- * names. node_modules is on that path for a playground's Phosphor sheets, and only the sheet and
- * font binaries travel. copyAll, not package-assembly's copyTree, whose exclusions differ.
- * A page's JavaScript is copied by following it: the React pages load unbundled ES modules, so
- * publishing the entry beside the page and stopping there put up pages answering 200 at every href
- * with an empty root. What it authors is what serve.ts answers at request time and a static host
- * cannot: an index per directory a visitor lands on, the landing page, the sitemap, robots.txt, a
- * 404 and the preview card. No count is typed on any; each is derived from the map the packages ship. */
+ * links the site does not carry to the repository at this release's tag: a page names its assets by
+ * a relative href counting directories, so the output holds the same shape under the same names.
+ * The icon sprite travels with assets/, so no font does. copyAll, not package-assembly's copyTree,
+ * whose exclusions differ. An adopter build declaring this Arena is copied whole but for the tool
+ * directories, after the rewrite. A page's JavaScript is copied by following it: the React pages
+ * load unbundled ES modules, so the entry alone put up pages answering 200 at every href with an
+ * empty root. It authors what serve.ts answers at request time and a static host cannot: an index
+ * per directory a visitor lands on, the landing page with the bundler table environments.md holds
+ * (a page that lost it fails the build), the sitemap, robots.txt, a 404 and the preview card. */
 
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { appendFileSync, existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
-import { reset, write, copy, repositoryBase } from '../../lib/arena/package-assembly.ts';
+import { reset, write, copy, repositoryBase, version } from '../../lib/arena/package-assembly.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 import {
-  DOMAIN, SITE_DIR, LAYERS, COPIED, SINK_PAGE, BENCHES_DIR,
-  entryPoints, sinkNames, components, pages, indexedDirectories, phosphorFiles,
+  DOMAIN, SITE_DIR, LAYERS, COPIED, COPIED_FILES, SINK_PAGE,
+  SPRITE_FILE, entryPoints, sinkNames, variantSinkNames, components, pages, indexedDirectories,
   playgroundsOnDisk, playgroundSections, modules, titleOf, url, directoryUrl, REPOSITORY,
-  benches, benchPairs, phosphorDrops,
+  publishedAdopter, adopterVerdict, type AdopterVerdict,
 } from '../../lib/arena/site-pages.ts';
 import { arenaEnv } from '../../lib/arena/arena-scripts-vars.ts';
 import { renderPageImage } from '../../lib/arena/page-image.ts';
 import {
-  HERO_SHEET, HERO_SOURCE, HERO_FILE, HERO_WIDTH, HERO_HEIGHT, heroPage, heroStyles,
+  HERO_SHEET, HERO_SOURCE, HERO_FILE, HERO_WIDTH, HERO_HEIGHT, heroPage, heroRobot, heroStyles,
 } from '../../lib/arena/hero-page.ts';
 import { LLMS_INDEX, layerFile, index, corpus, servedDocs } from '../../lib/arena/llms-index.ts';
 import { retarget } from '../../lib/arena/agent-payload.ts';
@@ -34,14 +34,18 @@ import { withForeignTrees } from '../../lib/arena/foreign-trees.ts';
 export const node = {
   name: 'build:site',
   reads: [
-    'skills/design/SKILL.md', 'skills/design/references/*.md', 'frameworks/**/INDEX.md', 'frameworks/VOCABULARY.md', 'frameworks/**/*.prompt.md',
+    'skills/design/SKILL.md', 'skills/design/references/*.md', 'skills/design/references/*/*.md', 'frameworks/**/INDEX.md', 'frameworks/VOCABULARY.md', 'frameworks/**/*.prompt.md',
     '!frameworks/*/build/package/**', '!frameworks/*/dist/**',
-    'intro/**', 'contracts/behaviour/**', 'contracts/design/**', 'contracts/design-generated/**', 'assets/**',
-    'plugin-style-store/**/plugin.css', 'plugin-style-store/catalogue/*/plugin.tokens.json',
+    'intro/**', 'arena-from-scratch/identity*.html', 'contracts/behaviour/**', 'contracts/design/**', 'contracts/design-generated/**', 'assets/**',
+    'plugin-style-store/**/plugin.css', 'plugin-style-store/catalogue/*/plugin.tokens.json', 'plugin-style-store/catalogue/*/arena.config.json',
     'frameworks/tailwind/consume/**', 'frameworks/react/vendor/**',
-    'frameworks/*/kitchen-sink/**', 'frameworks/*/components/**',
-    'frameworks/*/playground/**', 'frameworks/react/*.generated.js',
+    'frameworks/kitchen-sink/*.sink.json', 'frameworks/*/kitchen-sink/**', 'frameworks/*/components/**',
+    'frameworks/*/playground/**', 'frameworks/react/*.generated.js', 'frameworks/react/*.ts',
     'frameworks/angular/build/demo/**',
+    '.claude-plugin/plugin.json', 'frameworks/tailwind/Hues.json', 'frameworks/tailwind/vocabulary/**',
+    'AGENTS.md', 'contracts/AGENTS.md', 'CONTRIBUTING.md', 'DOUBTS.md', 'contracts/api/MemberForms.md', 'frameworks/AGENTS.md',
+    'frameworks/CHARTS.md', 'frameworks/tailwind/AGENTS.md', 'plugin-style-store/AGENTS.md',
+    'plugin-style-store/catalogue/AGENTS.md',
   ],
   writes: [`${SITE_DIR}/**`],
   feeds: ['check:community', 'check:site'],
@@ -53,8 +57,6 @@ export const OG_WIDTH = 1200;
 export const OG_HEIGHT = 630;
 
 export const NEVER_COPIED = withForeignTrees();
-
-export const BENCHES_REPOSITORY = 'https://github.com/dravensoft-dev/arena-web-benches';
 
 export function retargetPages(out: string, written: string[], base = repoRoot) {
   const repository = repositoryBase(base);
@@ -70,17 +72,59 @@ export function retargetPages(out: string, written: string[], base = repoRoot) {
   }
 }
 
-export function copyAll(from: string, out: string, rel: string, drop = (_name: string) => false) {
+export function copyAll(from: string, out: string, rel: string) {
   const written = [];
-  for (const file of walkFiles(from, { skip: (name) => NEVER_COPIED.has(name) || drop(name) })) {
+  for (const file of walkFiles(from, { skip: (name) => NEVER_COPIED.has(name) })) {
     written.push(copy(file, out, `${rel}/${relPosix(from, file)}`));
   }
   return written;
 }
 
-export function benchesDirectory(env = arenaEnv()) {
-  const named = env.ARENA_BENCHES;
-  return named !== undefined && named !== '' && existsSync(named) ? named : null;
+export function adopterBuild(env = arenaEnv(), base = repoRoot): { dir: string; verdict: AdopterVerdict } | null {
+  const dir = env.ARENA_ADOPTER_BUILD;
+  if (dir === undefined || dir === '') return null;
+  if (!existsSync(dir)) return { dir, verdict: { publish: false, line: `${dir}: not published, the directory is not there` } };
+  return { dir, verdict: adopterVerdict(dir, version(base)) };
+}
+
+export function adopterDeclares(dir: string | undefined, outputFile?: string, base = repoRoot): AdopterVerdict {
+  const verdict: AdopterVerdict = dir === undefined || dir === '' || dir.startsWith('-')
+    ? { publish: false, line: `--adopter-declares needs a directory, and got ${JSON.stringify(dir ?? '')}` }
+    : adopterVerdict(dir, version(base));
+  if (outputFile) appendFileSync(outputFile, `publish=${verdict.publish}\n`);
+  return verdict;
+}
+
+export function adopterClash(out: string, dir: string, name: string) {
+  if (existsSync(join(out, name))) {
+    return `${dir}: not published, /${name}/ is already a path this site holds`;
+  }
+  if (existsSync(join(dir, 'index.html'))) {
+    return `${dir}: not published, it carries an index.html, which the page this site writes at /${name}/ would replace`;
+  }
+  return null;
+}
+
+export function placeAdopter(out: string, env = arenaEnv(), base = repoRoot) {
+  const adopter = adopterBuild(env, base);
+  if (adopter === null) return [];
+  const { dir, verdict } = adopter;
+  const clash = verdict.publish ? adopterClash(out, dir, verdict.manifest.name) : null;
+  console.log(`build-site: ${clash ?? verdict.line}`);
+  let written: string[] = [];
+  let placed = false;
+  if (verdict.publish && clash === null) {
+    const name = verdict.manifest.name;
+    try {
+      written = copyAll(dir, out, name);
+      placed = true;
+    } catch (error) {
+      rmSync(join(out, name), { recursive: true, force: true });
+      console.log(`build-site: ${dir}: not published, copying it failed: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+  if (env.GITHUB_OUTPUT) appendFileSync(env.GITHUB_OUTPUT, `adopter=${placed ? 'published' : 'refused'}\n`);
+  return written;
 }
 
 export const BODY = 'body{margin:0;background:var(--bg);color:var(--text-strong);'
@@ -157,33 +201,69 @@ export function structuredData() {
   });
 }
 
-export function benchesSection(out: string) {
-  const pairs = benchPairs(out);
-  if (pairs.length === 0) return '';
-  const version = benches(out)?.arena ?? '';
-  const rows = pairs.map(({ product, label }) => `<li>${escape(label)}: `
-    + LAYERS.map((layer) => `<a href="./${BENCHES_DIR}/${product}/${layer}/">${layer}</a>`).join(', ')
-    + '</li>').join('\n');
-  return `
-<h2 style="font-family:var(--font-display)">Benches</h2>
-<p style="max-width:44rem">Products drawn twice, once under React and once under Angular, each pair
-from one <code>arena.config.json</code> and one style plugin of its own. What a pair shows is that
-project's appearance rather than Arena's, and both halves are applications you can use rather than
-pictures of them.</p>
+export function adopterSection(out: string) {
+  const adopter = publishedAdopter(out);
+  if (adopter === null) return '';
+  const blocks = adopter.sections.map(({ heading, links }) => `<h3 style="font-family:var(--font-display)">${escape(heading)}</h3>
 <ul style="line-height:2">
-${rows}
-</ul>
-<p style="max-width:44rem">Every half installs Arena ${escape(version)} from the registry rather
-than reading the repository that publishes this page, so a pair draws a released Arena and a fix
-made after that release reaches it at the next one.</p>
-<p style="max-width:44rem">Opening both halves of a pair at once is the comparison, and that is a
-local act: <a href="${BENCHES_REPOSITORY}">clone them</a> and run one command.</p>
+${links.map(({ href, label }) => `  <li><a href="./${adopter.name}/${escape(href)}">${escape(label)}</a></li>`).join('\n')}
+</ul>`).join('\n');
+  return `
+<h2 style="font-family:var(--font-display)">${escape(adopter.title)}</h2>
+<p style="max-width:44rem">${escape(adopter.description)}</p>
+${blocks}
+<p style="max-width:44rem">Built against Arena ${escape(adopter.arena)}. <a href="${escape(adopter.repository)}">The repository</a>.</p>
+`;
+}
+
+export const MEASURED_PAGE = 'skills/design/references/environments.md';
+export const MEASURED_HEADING = '## What did each bundler measure?';
+export const BUNDLERS_PAGE = 'skills/design/references/bundlers/index.md';
+
+const inline = (cell: string) => escape(cell).replace(/`([^`]+)`/g, '<code>$1</code>');
+
+export function measuredTable(text: string) {
+  const lines = text.split('\n');
+  const at = lines.indexOf(MEASURED_HEADING);
+  if (at === -1) throw new Error(`${MEASURED_PAGE} carries no "${MEASURED_HEADING}"`);
+  const next = lines.findIndex((line, index) => index > at && line.startsWith('## '));
+  const section = lines.slice(at + 1, next === -1 ? undefined : next);
+  const start = section.findIndex((line) => line.startsWith('|'));
+  const end = section.findIndex((line, index) => index > start && !line.startsWith('|'));
+  const table = start === -1 ? [] : section.slice(start, end === -1 ? undefined : end);
+  if (table.length < 3) throw new Error(`${MEASURED_PAGE} carries no table under "${MEASURED_HEADING}"`);
+  const cells = (line: string) => line.replace(/^\|/, '').replace(/\|$/, '').split('|').map((cell) => cell.trim());
+  return { header: cells(table[0]!), rows: table.slice(2).map(cells) };
+}
+
+export function measuredSection(base = repoRoot) {
+  const { header, rows } = measuredTable(readFileSync(join(base, MEASURED_PAGE), 'utf8'));
+  const head = header.map((cell) => `<th style="text-align:left;padding:var(--sp-2)">${inline(cell)}</th>`).join('');
+  const body = rows
+    .map((row) => `  <tr>${row.map((cell) => `<td style="padding:var(--sp-2);border-top:1px solid var(--edge-separator)">${inline(cell)}</td>`).join('')}</tr>`)
+    .join('\n');
+  return `
+<h2 style="font-family:var(--font-display)">What each bundler measured</h2>
+<p style="max-width:44rem">Arena does not depend on a bundler: any bundler that resolves a package's
+<code>exports</code> builds an app with it that works. Each bundler below was measured, and on those the
+config of its page keeps Arena's JavaScript and its package sheet in files of their own, so a release
+of the app downloads Arena again only where that row says so. Figures are KB of 1024 bytes, brotli at
+quality 11, written React / Angular; "x to y" is the build before and after the page's config.</p>
+<div style="overflow-x:auto">
+<table style="border-collapse:collapse;font-size:var(--fs-sm)">
+<thead><tr>${head}</tr></thead>
+<tbody>
+${body}
+</tbody>
+</table>
+</div>
+<p style="max-width:44rem"><a href="./${MEASURED_PAGE}">How each row was measured</a>, and
+<a href="./${BUNDLERS_PAGE}">the config each bundler's page gives</a>.</p>
 `;
 }
 
 export function landingPage(base = repoRoot, out = join(base, SITE_DIR)) {
   const drawn = components('react', base).length;
-  const pairs = benchPairs(out);
   const links = entryPoints(base).filter((entry) => entry.public);
   const cards = links
     .map((entry) => `  <li><a href=".${entry.path}">${escape(entry.label)}</a></li>`)
@@ -208,15 +288,14 @@ the gate tells it when it got it wrong.</p>
 ${drawn} components ship under both framework names, rendering the same pixels, and your palettes
 and fonts arrive in an <code>arena.config.json</code> your project writes.</p>
 
-<pre style="background:var(--surface-card);padding:var(--sp-4);border-radius:var(--r-lg);overflow-x:auto"><code>bun add @dravensoft/arena-react     # or @dravensoft/arena-angular
-bun add @phosphor-icons/web</code></pre>
+<pre style="background:var(--surface-card);padding:var(--sp-4);border-radius:var(--r-lg);overflow-x:auto"><code>bun add @dravensoft/arena-react     # or @dravensoft/arena-angular</code></pre>
 
 <h2 style="font-family:var(--font-display)">See it</h2>
 <ul style="line-height:2">
-${cards}${pairs.length > 0 ? '' : `
-  <li><a href="${BENCHES_REPOSITORY}">Products drawn twice, once in React and once in Angular</a></li>`}
+${cards}
 </ul>
-${benchesSection(out)}
+${adopterSection(out)}
+${measuredSection(base)}
 <h2 style="font-family:var(--font-display)">Take it</h2>
 <ul style="line-height:2">
   <li><a href="https://www.npmjs.com/package/@dravensoft/arena-react">@dravensoft/arena-react</a></li>
@@ -269,13 +348,11 @@ export function sitemap(base = repoRoot, out = join(base, SITE_DIR)) {
 
 function sectionsFor(directory: string, base: string, out: string): Section[] {
   if (directory === 'intro/guidelines') {
-    return [{ links: guidelineLinks(base) }];
+    return [{ links: guidelineLinks(base, out) }];
   }
-  if (directory === BENCHES_DIR) {
-    return benchPairs(out).map(({ product, label }) => ({
-      heading: label,
-      links: LAYERS.map((layer) => ({ href: `${product}/${layer}/`, label: layer })),
-    }));
+  const adopter = publishedAdopter(out);
+  if (adopter !== null && directory === adopter.name) {
+    return adopter.sections.map(({ heading, links }) => ({ heading, links }));
   }
   const drawn = /^frameworks\/([a-z]+)\/components$/.exec(directory);
   if (drawn) return playgroundSections(drawn[1] ?? '', base);
@@ -288,10 +365,10 @@ function sectionsFor(directory: string, base: string, out: string): Section[] {
   return [];
 }
 
-function guidelineLinks(base: string) {
+function guidelineLinks(base: string, out: string) {
   const dir = join(base, 'intro', 'guidelines');
   if (!existsSync(dir)) return [];
-  return pages(base)
+  return pages(base, out)
     .filter((rel) => rel.startsWith('intro/guidelines/'))
     .map((rel) => ({ href: rel.slice('intro/guidelines/'.length), label: titleOf(rel, base) }));
 }
@@ -303,9 +380,12 @@ export async function buildSite(base = repoRoot, out = join(base, SITE_DIR)) {
   for (const tree of COPIED) {
     if (existsSync(join(base, tree))) written.push(...copyAll(join(base, tree), out, tree));
   }
+  if (!existsSync(join(out, SPRITE_FILE))) {
+    throw new Error(`build-site: the site carries no ${SPRITE_FILE}, so every page drawing an ArenaIcon paints nothing; `
+      + 'bun run build:sprite writes it');
+  }
 
-  const bench = benchesDirectory();
-  if (bench !== null) written.push(...copyAll(bench, out, BENCHES_DIR, phosphorDrops));
+  for (const rel of COPIED_FILES) written.push(copy(join(base, rel), out, rel));
 
   for (const layer of LAYERS) {
     const sinks = join(base, 'frameworks', layer, 'kitchen-sink');
@@ -323,7 +403,11 @@ export async function buildSite(base = repoRoot, out = join(base, SITE_DIR)) {
     written.push(copy(join(base, rel), out, rel));
   }
 
-  for (const rel of phosphorFiles(base)) written.push(copy(join(base, rel), out, rel));
+  for (const rel of servedDocs(base)) written.push(copy(join(base, rel), out, rel));
+
+  retargetPages(out, written, base);
+
+  written.push(...placeAdopter(out, arenaEnv(), base));
 
   for (const directory of indexedDirectories(base, out)) {
     const depth = directory === '' ? 0 : directory.split('/').length;
@@ -331,15 +415,11 @@ export async function buildSite(base = repoRoot, out = join(base, SITE_DIR)) {
     const page = directory === ''
       ? landingPage(base, out)
       : indexPage(
-        titleFor(directory), descriptionFor(directory), directoryUrl(directory),
+        titleFor(directory, out), descriptionFor(directory, base, out), directoryUrl(directory),
         sectionsFor(directory, base, out), depth,
       );
     written.push(write(out, rel, page));
   }
-
-  for (const rel of servedDocs(base)) written.push(copy(join(base, rel), out, rel));
-
-  retargetPages(out, written, base);
 
   written.push(write(out, LLMS_INDEX, index(base)));
   for (const layer of LAYERS) written.push(write(out, layerFile(layer), corpus(layer, base)));
@@ -351,7 +431,7 @@ export async function buildSite(base = repoRoot, out = join(base, SITE_DIR)) {
   written.push(write(out, 'CNAME', `${DOMAIN}\n`));
 
   written.push(write(out, HERO_SHEET, await heroStyles()));
-  written.push(write(out, HERO_SOURCE, heroPage(components('react', base).length)));
+  written.push(write(out, HERO_SOURCE, heroPage(components('react', base).length, heroRobot(base))));
 
   const png = await renderPageImage(join(out, OG_SOURCE), OG_WIDTH, OG_HEIGHT);
   writeFileSync(join(out, OG_FILE), png);
@@ -364,12 +444,9 @@ export async function buildSite(base = repoRoot, out = join(base, SITE_DIR)) {
   return written;
 }
 
-function descriptionFor(directory: string) {
-  if (directory === BENCHES_DIR) {
-    return 'Products drawn twice from one arena.config.json and one style plugin of their own, '
-      + 'once under React and once under Angular, each half a running application rather than a '
-      + 'picture of one.';
-  }
+function descriptionFor(directory: string, base: string, out: string) {
+  const adopter = publishedAdopter(out);
+  if (adopter !== null && directory === adopter.name) return adopter.description;
   if (directory === 'intro/guidelines') {
     return 'The specimens every Arena screen is drawn from: colour, type, spacing, effects and '
       + 'icons, each showing the token a component reads rather than describing it.';
@@ -382,17 +459,25 @@ function descriptionFor(directory: string) {
   const sink = /^frameworks\/([a-z]+)\/kitchen-sink$/.exec(directory);
   if (sink) {
     return `Every Arena component under ${sink[1]} on one page, under each style plugin this `
-      + 'repository ships.';
+      + 'repository ships, the chart variants and the palette islands on a page of their own each.';
   }
   const one = /^frameworks\/([a-z]+)\/kitchen-sink\/([a-z]+)$/.exec(directory);
+  if (one && one[2] === 'palettes') {
+    return `A palette island under ${one[1]} drawn in each polarity, with its overlay open, on one page.`;
+  }
+  if (one && variantSinkNames(base).includes(one[2] ?? '')) {
+    return `Every chart variant the demos declare under ${one[1]} on one page: absent data, `
+      + 'values at and past the ends of the scale, and configurations a chart warns about.';
+  }
   if (one) {
     return `The ${one[2]} style plugin drawing every Arena component under ${one[1]} on one page.`;
   }
   return TAGLINE;
 }
 
-function titleFor(directory: string) {
-  if (directory === BENCHES_DIR) return 'Benches, Arena by Dravensoft';
+function titleFor(directory: string, out: string) {
+  const adopter = publishedAdopter(out);
+  if (adopter !== null && directory === adopter.name) return `${adopter.title}, Arena by Dravensoft`;
   if (directory === 'intro/guidelines') return 'Guidelines, Arena by Dravensoft';
   const drawn = /^frameworks\/([a-z]+)\/components$/.exec(directory);
   if (drawn) return `Playgrounds, ${drawn[1]}`;
@@ -404,6 +489,11 @@ function titleFor(directory: string) {
 }
 
 async function main() {
+  const at = process.argv.indexOf('--adopter-declares');
+  if (at !== -1) {
+    console.log(adopterDeclares(process.argv[at + 1], process.env.GITHUB_OUTPUT).line);
+    return;
+  }
   const written = await buildSite();
   console.log(`build-site: ${written.length} file(s) into ${SITE_DIR}`);
 }

@@ -1,6 +1,7 @@
 Arena confirmation for a high-consequence action. The dialog does not close on click-outside. Losing a half-finished decision to a stray click is the failure this component exists to prevent. `requireText` makes the user type a word before the confirm button
-enables. `destructive` turns the eyebrow red and gives the confirm button Arena's
+enables. `destructive` draws the eyebrow in the danger tone and gives the confirm button Arena's
 **only filled danger surface**.
+The projected `content` is the dialog's description, announced with it when the dialog opens, so put the question and what it costs there.
 
 ```html
 <arena-confirm-dialog [open]="confirming()" [destructive]="true"
@@ -19,8 +20,8 @@ enables. `destructive` turns the eyebrow red and gives the confirm button Arena'
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `open*` | primitive | `boolean` |  | Whether the dialog is shown. The host owns it, as in the other three modals: defaulting it would let an ArenaConfirmDialog whose open was never wired render nothing forever and look like a working closed dialog. |
-| `title*` | primitive | `string` |  | The dialog heading, and the name the panel's aria-labelledby points at. Required: nothing can derive a name for a confirmation, because its subject is editorial, and a modal announcing only its role is worse than none at all. Required whatever open is, since a required member absent is a caller bug rather than a state to render: render the component when there is something to confirm, and hold on to the subject across a cancel so it still has a name while it closes. |
+| `open*` | primitive | `boolean` |  | Whether the dialog is shown. The host owns it, as in the other three modals. Defaulting it would let an ArenaConfirmDialog whose open was never wired render nothing forever and look like a working closed dialog. |
+| `title*` | primitive | `string` |  | The dialog heading, and the name the panel's aria-labelledby points at. Required: nothing can derive a name for a confirmation, because its subject is editorial, and a modal announcing only its role is worse than none at all. Required whatever open is, since a required member absent is a caller bug rather than a state to render. Render the component when there is something to confirm, and hold on to the subject across a cancel so it still has a name while it closes. |
 | `eyebrow` | primitive | `string` |  | Small uppercase label above the title. Absent, the provided locale's confirmDialogEyebrow answers it. |
 | `content` | slot |  |  | The dialog body: the question and any detail. |
 | `confirmLabel` | primitive | `string` |  | The confirm button's label. Absent, the provided locale's confirmDialogConfirm answers it. |
@@ -39,14 +40,17 @@ enables. `destructive` turns the eyebrow red and gives the confirm button Arena'
 <!-- @answers end -->
 
 <!-- @keys GENERATED from the binding. -->
-**Keys**, from [`alertdialog`](../../../../../contracts/behaviour/alertdialog.json):
+**Keys**, from [`modal-focus`](../../../../../contracts/behaviour/modal-focus.json):
 - `Escape`: close.
 <!-- @keys end -->
 
 `title` is **required**: the panel's `aria-labelledby` points at it, and nothing can
 derive a name for a confirmation because its subject is editorial. Escape dismisses
 through `(cancel)`, focus moves into the panel on open and returns to the invoker on
-close, and Tab wraps at the panel's edges.
+close, and Tab wraps at the panel's edges. Removing the confirmation while it is open
+counts as closing it for focus, though the removal reports no `cancel`. The rule holds
+only while focus is inside the confirmation or nowhere and the element that opened it is
+still on the page.
 
 **Do / Don't**
 - Say what will be destroyed, in the body, in plain words. "Are you sure?" is not a
@@ -62,7 +66,7 @@ close, and Tab wraps at the panel's edges.
 - **Don't hold one in the template with an empty `title` while it is closed.** Both are required inputs whatever the other is. A screen that keeps one confirmation and feeds it a subject per row fails on the first render, so put it behind an `@if` on the subject instead. Keep
   the subject through a cancel and toggle only `open`, or focus never returns to the control
   that opened it.
-- Don't reach for `destructive` on a merely inconvenient action. The filled red is the
+- Don't reach for `destructive` on a merely inconvenient action. The danger fill is the
   system's loudest surface and it stops working once it is common.
 - Don't use this for a routine question: that is `MatDialog` wearing Arena.
 - Don't express a condition as an attribute string. `destructive` carries the

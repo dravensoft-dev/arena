@@ -1,5 +1,5 @@
 Arena progress bar, determinate by default, indeterminate for a wait with no percentage.
-Standalone, `OnPush`, signal I/O. The host is the column the meter sits in. As a bar, it is an optional head row carrying the label and the percentage, with the track below. As a ring, it is the ring with the figure inside it and the label under that. The host shrinks to the ring
+Standalone, `OnPush`, signal I/O. The host is the column the progressbar sits in. As a bar, it is an optional head row carrying the label and the percentage, with the track below. As a ring, it is the ring with the figure inside it and the label under that. The host shrinks to the ring
 rather than filling the row, which is the one layout difference between the two shapes.
 
 ```html
@@ -22,14 +22,14 @@ a number. Turn the figure off yourself when you fill it, because the two share t
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `content` | slot |  |  | What sits in the middle of a ring, in place of the percentage: a glyph, a mark, or the control the ring measures. A bar has no middle, so a bar draws nothing for it. The ring's own `progressbar` element is the drawing rather than the box around it, because that role's children are presentational and a control projected inside it would be drawn and never announced; here it is a sibling of the meter and keeps everything it came with. |
+| `content` | slot |  |  | What sits in the middle of a ring, in place of the percentage: a glyph, a mark, or the control the ring measures. A bar has no middle, so a bar draws nothing for it. The ring's own `progressbar` element is the drawing rather than the box around it. That role's children are presentational, so a control projected inside it would be drawn and never announced. Here the content is a sibling of the progressbar and keeps everything it came with. |
 | `progressPercentage` | primitive | `number` | `0` | How far along, 0-100. Clamped and rounded. Ignored when `indeterminate`. |
 | `indeterminate` | primitive | `boolean` | `false` | A wait with no percentage; the bar sweeps instead of filling. |
 | `tone` | enum | `ArenaProgressTone` |  | The state the work reports: success, danger or info. Absent, the bar paints its accent. |
-| `label*` | primitive | `string` |  | Names what is progressing. Drawn above the bar or under the ring, and it is the meter's accessible name. Required and guarded rather than defaulted: nothing can derive what is progressing, and a fallback of "Progress" satisfies roles.label mechanically while telling a screen-reader user only what the component is -- two of them on one page announce identically. |
-| `showLabel` | primitive | `boolean` | `true` | Draws the label beside the meter. False leaves the meter alone and keeps the accessible name, which is carried by aria-label on the progressbar element rather than by the text. For a bar in a table cell or a card row, where the row already names what is progressing and repeating it is noise. `label` stays required either way, on the reading it already carries: what a screen reader announces is not a decision about what is drawn. It is the same escape ArenaIconButton.showLabel offers, and it is here because the two components pose one question. |
-| `showPercentage` | primitive | `boolean` | `true` | Shows the percentage: beside the label on a bar, and in the middle of a ring, which is the figure a meter in a tile is read by. Determinate only. Turn it off when `content` fills a ring's middle: the two share that space, and Arena never derives what it draws from what a consumer projected, because projected content is not inspectable in at least one layer. |
-| `shape` | enum | `ArenaProgressShape` | `"linear"` | Whether the meter is drawn as a bar or as a ring. A ring puts the percentage inside its own track and the label under it, which is the arrangement a tile wants and the one a row cannot give: a bar is as wide as its row and reads along it, while a ring is as wide as it is tall and reads at a glance. It is a shape rather than a second component because everything else is the same question answered once: the percentage, the tone, the required name, the announcement and the sweep a wait draws. |
+| `label*` | primitive | `string` |  | Names what is progressing. Drawn above the bar or under the ring, and it is the progressbar's accessible name. Required and guarded rather than defaulted: nothing can derive what is progressing. A fallback of "Progress" satisfies roles.label mechanically while telling a screen-reader user only what the component is. Two of them on one page announce identically. |
+| `showLabel` | primitive | `boolean` | `true` | Draws the label beside the bar. False leaves the bar alone and keeps the accessible name, which is carried by aria-label on the progressbar element rather than by the text. For a bar in a table cell or a card row, where the row already names what is progressing and repeating it is noise. `label` stays required either way, on the reading it already carries: what a screen reader announces is not a decision about what is drawn. The escape is the one ArenaIconButton.showLabel offers, and it is here because the two components pose one question. |
+| `showPercentage` | primitive | `boolean` | `true` | Shows the percentage: beside the label on a bar, and in the middle of a ring, which is the figure a ring in a tile is read by. Determinate only. Turn it off when `content` fills a ring's middle: the two share that space. Arena never derives what it draws from what a consumer projected, because projected content is not inspectable in at least one layer. |
+| `shape` | enum | `ArenaProgressShape` | `"linear"` | Whether the progress is drawn as a bar or as a ring. A ring puts the percentage inside its own track and the label under it, which is the arrangement a tile wants and the one a row cannot give. A bar is as wide as its row and reads along it. A ring is as wide as it is tall and reads at a glance. The progress takes a shape rather than a second component, because everything else is shared. The percentage, the tone, the required name, the announcement and the sweep a wait draws are one question answered once. |
 
 <!-- @api end -->
 
@@ -65,11 +65,11 @@ supply one for anything a user is waiting on.
 - **Do** use `tone` for what the progress *means*: `danger` for a failing rollout, `success`
   for one that finished. The track stays the neutral rail in every tone; only the fill is inked,
   because danger is outline in Arena and a progress bar is not the exception.
-- **Do** put a ring where the meter is the tile rather than a line in one: a completion ring on
+- **Do** put a ring where the progress is the tile rather than a line in one: a completion ring on
   a dashboard, a node on a path. `arena-size-*` moves its diameter and its band together, so there is
   nothing else to tune.
 - **Don't** use this for a wait with no measurable end and no room for a label. The component for that is `arena-spinner`. An indeterminate ring turns, which is close to what a spinner does, and the
-  difference is that this one is still a labelled meter and reports a range.
+  difference is that this one is still a labelled progressbar and reports a range.
 - **Don't** project into a bar: a bar has no middle and the projection is dropped.
 - **Don't** reach for a ring to save room. A ring at `sm` is smaller than a bar is long and
   harder to read, and the figure inside it is the point.

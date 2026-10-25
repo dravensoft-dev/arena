@@ -1,0 +1,19 @@
+{
+  "pattern": "figure-with-data-table",
+  "exceptions": [
+    {
+      "requirement": "keyboard.Home",
+      "reason": "This chart has two category axes, so the first point is not one cell. Home goes to the first cell of the current row and End to the last, as the grid pattern words them, and a cursor with no row yet lands on the first row."
+    },
+    {
+      "requirement": "keyboard.End",
+      "reason": "This chart has two category axes, so the last point is not one cell. End goes to the last cell of the current row and Home to the first, as the grid pattern words them, and a cursor with no row yet lands on the first row."
+    }
+  ],
+  "additions": [
+    {
+      "provides": "keyboard.data-cursor-2d",
+      "reason": "The cursor is a cell: it drives exactly what hover drives, the outlined cell and the tooltip, and the plot's group carries tabindex=\"0\", role=\"group\" and the chart name whether or not the rail overflows. All four arrows move it, each clamping at the edge of the grid and never wrapping, and Escape clears it. PageUp, PageDown and Control with Home or End are not bound."
+    }
+  ]
+}

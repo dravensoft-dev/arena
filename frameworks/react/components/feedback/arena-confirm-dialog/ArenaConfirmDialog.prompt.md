@@ -1,4 +1,4 @@
-Protects irreversible actions (H3, H5). Does not close on click-outside. For the most destructive actions, require typing a word with `requireText`.
+Protects irreversible actions (H3, H5). Does not close on click-outside. For the most destructive actions, require typing a word with `requireText`. The body is the dialog's description, announced with it when the dialog opens, so put the question and what it costs there.
 
 ```tsx
 <ArenaConfirmDialog open={o} destructive requireText="DELETE"
@@ -14,8 +14,8 @@ Protects irreversible actions (H3, H5). Does not close on click-outside. For the
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `open*` | primitive | `boolean` |  | Whether the dialog is shown. The host owns it, as in the other three modals: defaulting it would let an ArenaConfirmDialog whose open was never wired render nothing forever and look like a working closed dialog. |
-| `title*` | primitive | `string` |  | The dialog heading, and the name the panel's aria-labelledby points at. Required: nothing can derive a name for a confirmation, because its subject is editorial, and a modal announcing only its role is worse than none at all. Required whatever open is, since a required member absent is a caller bug rather than a state to render: render the component when there is something to confirm, and hold on to the subject across a cancel so it still has a name while it closes. |
+| `open*` | primitive | `boolean` |  | Whether the dialog is shown. The host owns it, as in the other three modals. Defaulting it would let an ArenaConfirmDialog whose open was never wired render nothing forever and look like a working closed dialog. |
+| `title*` | primitive | `string` |  | The dialog heading, and the name the panel's aria-labelledby points at. Required: nothing can derive a name for a confirmation, because its subject is editorial, and a modal announcing only its role is worse than none at all. Required whatever open is, since a required member absent is a caller bug rather than a state to render. Render the component when there is something to confirm, and hold on to the subject across a cancel so it still has a name while it closes. |
 | `eyebrow` | primitive | `string` |  | Small uppercase label above the title. Absent, the provided locale's confirmDialogEyebrow answers it. |
 | `children` | slot |  |  | The dialog body: the question and any detail. |
 | `confirmLabel` | primitive | `string` |  | The confirm button's label. Absent, the provided locale's confirmDialogConfirm answers it. |
@@ -34,7 +34,7 @@ Protects irreversible actions (H3, H5). Does not close on click-outside. For the
 <!-- @answers end -->
 
 <!-- @keys GENERATED from the binding. -->
-**Keys**, from [`alertdialog`](../../../../../contracts/behaviour/alertdialog.json):
+**Keys**, from [`modal-focus`](../../../../../contracts/behaviour/modal-focus.json):
 - `Escape`: close.
 <!-- @keys end -->
 
@@ -42,19 +42,21 @@ Protects irreversible actions (H3, H5). Does not close on click-outside. For the
 
 `title` is **required** and throws when missing. The title is what names the dialog for assistive technology, and the panel's `aria-labelledby` points at it. Nothing can derive a name for a confirmation, because its subject is editorial.
 
-Two things dismiss it, and both go through `onCancel`: **Escape** and the Cancel
-button. A click on the scrim does **not**, and that is the point of the component,
-losing a half-finished decision to a stray click is the failure it exists to prevent.
-Opening moves focus to the first focusable inside the panel (the confirmation input
-when `requireText` is set, Cancel otherwise); closing returns it to whatever had focus
-before. Tab and Shift+Tab wrap at the panel's edges rather than walking out into the
-page behind the scrim.
+Two things dismiss it, and both go through `onCancel`: **Escape** and the Cancel button. A
+click on the scrim does **not**, and that is the point of the component, losing a
+half-finished decision to a stray click is the failure it exists to prevent. Opening moves
+focus to the first focusable inside the panel (the confirmation input when `requireText`
+is set, Cancel otherwise); closing returns it to whatever had focus before. Removing the
+confirmation while it is open counts as closing it for focus, though the removal reports
+no `onCancel`. The rule holds only while focus is inside the confirmation or nowhere and
+the element that opened it is still on the page. Tab and Shift+Tab wrap at the panel's
+edges rather than walking out into the page behind the scrim.
 
 ### Do / Don't
 
 - **Do** let `destructive` paint the button. The fill is `--danger-fill` over `--color-error-content`, and it is the only surface entitled to it.
 - **Don't** rebuild the filled button yourself with `--danger`. That token is tuned to be read *as text* on the base surfaces, so it is too light to carry white. The measurement is 3.67:1 in the dark theme, under WCAG AA. `--danger-fill` exists precisely for this.
-- **Don't** reach for `destructive` on a merely important action. A filled red competes with the primary button; if it is not a point of no return, an ordinary `<ArenaButton destructive>` outline is the right shape.
+- **Don't** reach for `destructive` on a merely important action. The danger fill competes with the primary button; if it is not a point of no return, an ordinary `<ArenaButton destructive>` outline is the right shape.
 - **Do** add `requireText` when the action destroys data that cannot be rebuilt.
 - **Do** give every confirmation a `title` that says what is about to happen, not what the component is ("Delete project", never "Confirm").
 - **Don't** render it with an empty `title` while it is closed. `title` is required whatever `open` is. A screen that mounts one confirmation and feeds it a subject per row fails on the first render, so mount it when a subject exists instead. Keep the subject after a cancel and toggle only `open`, or focus never returns to the control that opened it.

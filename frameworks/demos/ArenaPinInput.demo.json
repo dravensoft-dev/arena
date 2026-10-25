@@ -1,0 +1,12 @@
+{
+  "component": "ArenaPinInput",
+  "seed": {
+    "label": "Verification code",
+    "length": 6,
+    "hint": "Sent to your phone."
+  },
+  "bind": {
+    "valueChange": "value"
+  },
+  "note": "An edit writes the code back to value. complete carries the finished code, which no knob holds, so the page logs it and keeps the code."
+}

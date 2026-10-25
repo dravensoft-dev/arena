@@ -7,5 +7,28 @@
     ],
     "label": "Suite health"
   },
+  "variants": {
+    "pie": {
+      "shape": "pie"
+    },
+    "one-slice": {
+      "labels": ["Passing"],
+      "series": [{"label": "Suites", "values": [128], "colorIds": [1]}]
+    },
+    "zero-total": {
+      "series": [{"label": "Suites", "values": [0, 0, 0], "colorIds": [1, 3, 6]}]
+    },
+    "two-series": {
+      "series": [{"label": "Suites", "values": [128, 14, 6], "colorIds": [1, 3, 6]}, {"label": "Last week", "values": [120, 20, 9]}]
+    },
+    "tone-and-color-id": {
+      "series": [{"label": "Suites", "values": [128, 14, 6], "tone": "success", "colorId": 2}]
+    },
+    "color-start": {
+      "colorStart": 6,
+      "labels": ["Passing", "Flaky", "Failing", "Skipped"],
+      "series": [{"label": "Suites", "values": [128, 14, 6, 9]}]
+    }
+  },
   "note": "Identity colours, never status colours: a slice is a category, not a verdict."
 }

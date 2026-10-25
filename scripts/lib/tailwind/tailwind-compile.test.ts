@@ -1,12 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, readdirSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, rmdirSync, unlinkSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
-  manifestClasses, escapeClass, compileEntry, compileLayer, entryName, entryStylesheet, manifestFiles,
+  manifestClasses, escapeClass, compileEntry, compileLayer, entryName, entryStylesheet, manifestFiles, layerInputs, themeImports,
 } from './tailwind-compile.ts';
 import { CACHE_DIR } from '../arena/artifact-cache.ts';
 import { repoRoot } from '../arena/repo-root.ts';
+import { linkDir, platform } from '../arena/platform.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 
 test('collects classes from slots and from every variant value', () => {
@@ -53,7 +55,7 @@ test('entryStylesheet disables automatic content detection on the preset import 
 test('manifestFiles walks the nested component tree and finds every manifest', () => {
   const dir = join(repoRoot, 'frameworks/tailwind/components');
   const found = manifestFiles(dir);
-  assert.equal(found.length, 62);
+  assert.equal(found.length, 86);
   for (const p of found)
     assert.match(relPosix(repoRoot, p),
       /^frameworks\/tailwind\/components\/[a-z-]+\/[a-z-]+\/[A-Z][A-Za-z]*\.manifest\.json$/,
@@ -69,7 +71,7 @@ test('manifestFiles finds nothing at the old flat level, so a stale file cannot 
 
 test('compileLayer keys its manifests by repo-relative path, not by basename', () => {
   const { manifests } = compileLayer();
-  assert.equal(manifests.size, 62);
+  assert.equal(manifests.size, 86);
   for (const key of manifests.keys())
     assert.match(key, /^frameworks\/tailwind\/components\/[a-z-]+\/[a-z-]+\/[A-Z][A-Za-z]*\.manifest\.json$/);
 });
@@ -96,5 +98,66 @@ test('a failed spawn includes the underlying error (e.g. ENOENT) rather than "ex
     );
   } finally {
     process.execPath = realExecPath;
+  }
+});
+
+function themeRoot(theme: string, files: Record<string, string> = {}) {
+  const root = mkdtempSync(join(tmpdir(), 'arena-tw-root-'));
+  const dir = join(root, 'frameworks/tailwind');
+  mkdirSync(join(dir, 'components'), { recursive: true });
+  writeFileSync(join(dir, 'Theme.css'), theme);
+  for (const [name, text] of Object.entries(files)) writeFileSync(join(dir, name), text);
+  return root;
+}
+
+test('layerInputs keys on the stylesheets Theme.css imports, so an edit to one is not a cache hit', () => {
+  const inputs = layerInputs();
+  for (const f of ['Animations', 'Case', 'Media', 'Breakpoints.generated'])
+    assert.ok(inputs.includes(`frameworks/tailwind/${f}.css`), `${f}.css is a key input`);
+  assert.deepEqual(themeImports(), inputs.filter((p) => p.endsWith('.css') && !p.endsWith('Theme.css')));
+});
+
+test('an edit to an imported stylesheet reaches the next cached compile', () => {
+  const root = themeRoot("@import './Part.css';\n", { 'Part.css': '.zzone{color:red}\n' });
+  const link = join(root, 'node_modules');
+  try {
+    linkDir(join(repoRoot, 'node_modules'), link);
+    const entry = entryStylesheet(join(root, 'frameworks/tailwind/Theme.css'), join(root, 'frameworks/tailwind/components'));
+    assert.match(compileEntry(entry, root, layerInputs(root)), /zzone/);
+    writeFileSync(join(root, 'frameworks/tailwind/Part.css'), '.zzone{color:red}\n.zztwo{color:blue}\n');
+    assert.match(compileEntry(entry, root, layerInputs(root)), /zztwo/);
+  } finally {
+    try { if (platform === 'win32') rmdirSync(link); else unlinkSync(link); } catch {  }
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('a local import that does not exist is an error naming it, and a bare specifier is not one', () => {
+  const root = themeRoot("@import 'tailwindcss';\n@import './Gone.css';\n");
+  try {
+    assert.throws(() => themeImports(root), /Gone\.css/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('themeImports follows an import of an import once, even around a cycle', () => {
+  const root = themeRoot("@import './A.css';\n", { 'A.css': "@import './B.css';\n", 'B.css': "@import './A.css';\n@import './Theme.css';\n" });
+  try {
+    assert.deepEqual(themeImports(root), ['frameworks/tailwind/A.css', 'frameworks/tailwind/B.css']);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('themeImports follows url() and bare relative stylesheets, ignores a comment, and leaves a package alone', () => {
+  const root = themeRoot(
+    "/* @import './Gone.css'; */\n@import url('./A.css');\n@import url(./B.css) layer(x);\n@import 'C.css';\n@import 'tailwindcss/theme.css';\n@import url('https://x.test/f.css');\n",
+    { 'A.css': '', 'B.css': '', 'C.css': '' },
+  );
+  try {
+    assert.deepEqual(themeImports(root), ['frameworks/tailwind/A.css', 'frameworks/tailwind/B.css', 'frameworks/tailwind/C.css']);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
   }
 });

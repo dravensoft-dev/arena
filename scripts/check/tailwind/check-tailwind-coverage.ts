@@ -1,27 +1,36 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
-import { arenaTokens } from '../../lib/core/arena-tokens.ts';
+import { arenaTokenNames, arenaTokens } from '../../lib/core/arena-tokens.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { MANIFESTS, PRESET } from '../../build/tailwind/build-tailwind.ts';
-import { readHues } from '../../lib/tailwind/hue-sheet.ts';
-import { readFamilies } from '../../lib/tailwind/vocabulary.ts';
+import { readHues, HUES_FILE } from '../../lib/tailwind/hue-sheet.ts';
+import { themeDeclarations } from '../../lib/tailwind/theme-sheet.ts';
+import { readFamilies, VOCABULARY_DIR, FAMILY_SUFFIX } from '../../lib/tailwind/vocabulary.ts';
 import type { Family } from '../../lib/tailwind/vocabulary.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { ROOT_PLUGIN } from '../core/check-style-plugin.ts';
 
 export const node = {
   name: 'check:coverage',
-  reads: [...PRESET, MANIFESTS],
+  reads: [...PRESET, 'contracts/design/colors.css', MANIFESTS, HUES_FILE, ROOT_PLUGIN, `${VOCABULARY_DIR}/**/*${FAMILY_SUFFIX}`],
   writes: [],
   feeds: [],
 };
 import { captured } from '../../utils/captures.ts';
 
+const HEAT_KEY_REASON = 'read inline by the heatmap\'s SVG and legend swatch, never through a utility';
+
 export const EXCLUDED = new Map([
+  ['arena-plugin', 'names the style plugin a subtree wears, so an overlay lifted out of that subtree can find the one to '
+    + 'wear; a channel read from computed style, never painted, so no utility offers it'],
+  ['title-hero-fit', 'a computed size the hero reaches through an arbitrary length, text-[length:var(--title-hero-fit)], '
+    + 'restated on every plugin class so a nested plugin keeps it; no utility offers it'],
   ['pad-band-x', 'read inside the band\'s min()'],
   ['pad-row-indent', 'only the side nav\'s arbitrary inset reads it'],
   ['sp-0', 'p-0 compiles to a literal 0px in v4 regardless of the theme'],
+  ['sp-0-5', 'the half step under the grid, which only the kernel default of pad-key-y names; a cap reaches it '
+    + 'through py-key-y, and a utility of its own would offer the step to every slot as spacing'],
   ['lh-root', 'the floor every element inherits, set once on html in contracts/design/reset.css and '
     + 'never picked per element. A leading-root utility would invite a component to restate the '
     + 'inherited value, which is the one thing that makes a floor stop being one; the three roles '
@@ -42,6 +51,9 @@ export const EXCLUDED = new Map([
     + 'utilities naming a value, which is the shape of a scale rather than of a role. Reached through '
     + '.case-eyebrow in frameworks/tailwind/Case.css, hand-authored for exactly that reason'],
   ['tt-label', 'the same, through .case-label'],
+  ['tt-key', 'the same, through .case-key'],
+  ['case-none', 'a word only the kernel default of tt-key names, so a root plugin silent on the role follows '
+    + 'it; a cap reaches it through .case-key, and no slot names a transform outright'],
   ['fit-media', 'v4 has no object-fit namespace, and its object-cover/object-contain and the rest are '
     + 'static utilities naming a value, which is the shape of a scale rather than of a role. Reached '
     + 'through .fit-media in frameworks/tailwind/Media.css, hand-authored for exactly that reason'],
@@ -73,6 +85,9 @@ export const EXCLUDED = new Map([
   ['tint-soft', 'the same, for the surface of an identity colour'],
   ['tint-edge', 'the same, for its hairline'],
   ['chart-height', 'script-readable: JS computes SVG positions from it, never a utility'],
+  ['chart-sparkline-height', 'script-readable: JS computes SVG positions from it, never a utility'],
+  ['chart-gauge-height', 'script-readable: JS computes SVG positions from it, never a utility'],
+  ['chart-heatmap-row-h', 'script-readable: JS computes SVG positions from it, never a utility'],
   ['chart-pad-top', 'script-readable: JS computes SVG positions from it, never a utility'],
   ['chart-pad-right', 'script-readable: JS computes SVG positions from it, never a utility'],
   ['chart-pad-bottom', 'script-readable: JS computes SVG positions from it, never a utility'],
@@ -104,9 +119,18 @@ export const EXCLUDED = new Map([
   ['onboarding-width', 'script-readable: compared against window.innerWidth by Math.min/Math.max. Rendered directly as var(--onboarding-width) in both layers — React inline, Angular via the shared manifest\'s w-[var(--onboarding-width)] — never through the @theme spacing scale this gate checks'],
   ['delay-open', 'script-readable: a setTimeout argument for pointer intent, never a utility'],
   ['delay-close', 'script-readable: a setTimeout argument for pointer intent, never a utility'],
+  ['delay-typeahead', 'script-readable: a setTimeout argument for typed characters, never a utility'],
   ['dismiss-default', 'script-readable: the host runs the toast clock in JS, never a utility'],
   ['dismiss-actionable', 'script-readable: the host runs the toast clock in JS, never a utility'],
+  ['dismiss-confirmation', 'script-readable: a copy button runs its confirmation clock in JS, never a utility'],
   ['limit-pagination-siblings', 'script-readable: an array bound, and the elision threshold derives from it in JS'],
+  ['limit-window-overscan', 'script-readable: a row count the window arithmetic widens its range by in JS, never a utility'],
+  ['limit-window-initial', 'script-readable: a row count the window arithmetic projects before a measure in JS, never a utility'],
+  ['color-heat-1', HEAT_KEY_REASON],
+  ['color-heat-2', HEAT_KEY_REASON],
+  ['color-heat-3', HEAT_KEY_REASON],
+  ['color-heat-4', HEAT_KEY_REASON],
+  ['color-heat-5', HEAT_KEY_REASON],
 ]);
 
 for (const [hue, channels] of readHues()) {
@@ -145,23 +169,15 @@ export function pluginOptionRoles(root = repoRoot) {
 
 export function presetTokens(css: string) {
   const out = new Set<string>();
-  const m = css.match(/@theme\s*\{([\s\S]*)\}/);
-  if (!m) return out;
-
-  const body = captured(m).replace(/\/\*[\s\S]*?\*\//g, '');
-  for (const line of body.split(';')) {
-    const i = line.indexOf(':');
-    if (i === -1) continue;
-    const key = line.slice(0, i).trim();
-
-    if (!key.startsWith('--') || key.startsWith('--default-')) continue;
-    for (const ref of line.slice(i + 1).matchAll(/var\(--([a-z0-9-]+)\)/g)) out.add(captured(ref));
+  for (const [key, value] of themeDeclarations(css)) {
+    if (key.startsWith('--default-')) continue;
+    for (const ref of value.matchAll(/var\(--([a-z0-9-]+)\)/g)) out.add(captured(ref));
   }
   return out;
 }
 
 export function checkCoverage(
-  tokens: Set<string>, exposed: Set<string>, excluded: Map<string, string>,
+  tokens: Set<string>, exposed: Set<string>, excluded: Map<string, string>, known: Set<string> = tokens,
 ) {
   const errs = [];
   for (const t of [...tokens].sort()) {
@@ -174,7 +190,7 @@ export function checkCoverage(
   for (const t of [...excluded.keys()].sort())
     if (!tokens.has(t)) errs.push(`--${t} is excluded but no such token exists — drop the exclusion`);
   for (const t of [...exposed].sort())
-    if (!tokens.has(t)) errs.push(`the preset references --${t} — no such token in contracts/design-generated/`);
+    if (!known.has(t)) errs.push(`the preset references --${t} — no such token in contracts/design-generated/`);
   return errs;
 }
 
@@ -183,7 +199,7 @@ function main() {
   const preset = readFileSync(join(repoRoot, 'frameworks/tailwind/Theme.css'), 'utf8');
   const exposed = presetTokens(preset);
   const excluded = new Map([...EXCLUDED, ...pluginOptionRoles().excluded]);
-  const errs = checkCoverage(tokens, exposed, excluded);
+  const errs = checkCoverage(tokens, exposed, excluded, arenaTokenNames(repoRoot));
   if (errs.length) {
     console.error(`check-tailwind-coverage: ${errs.length} token(s) undeclared\n`);
     for (const e of errs) console.error(`  ${e}`);

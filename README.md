@@ -36,7 +36,10 @@ style plugin the project writes, and the appearance Arena installs with is one
 such plugin rather than a floor under them. Palettes and fonts sit in an
 `arena.config.json`, which the `arena` command each package ships turns
 into the one stylesheet a package cannot carry: **Arena carries the language and
-never the skin**, and none of its own colours reach your build.
+never the skin**, and none of its own colours reach your build. A project that
+starts from an existing look takes a row of
+[`plugin-style-store/catalogue/INDEX.md`](./plugin-style-store/catalogue/INDEX.md): the catalogue
+lists style plugins measured on real products, one row each.
 
 **Metadata for a product that has to be found, which most products do not.** The
 Angular layer writes the document `<head>` from the routes it is handed, at
@@ -45,17 +48,6 @@ canonical and the `og:*` pair, with no route indexed until it says so. That
 import path is a second entry point, so a project that never asks for metadata
 never installs the router behind it. React writes no `<head>` at all, and both
 layers publish the breadcrumb trail they draw in `schema.org` terms.
-
-## Eight products, drawn twice
-
-[The benches](https://arena.dravensoft.org/web-benches/) are a set of templates that implement
-Arena: Calendly, ClickUp, Duolingo, Etsy, Grafana, Instagram, Notion and Superhuman, each mocked
-twice, once in React and once in Angular, from one `arena.config.json` and one `design/` directory
-per pair. Every half installs Arena from npm and answers a style plugin of its own, so what a pair
-shows is a project's appearance rather than Arena's, and the two halves of a pair are the same
-screen under both framework names. That address is where they run, and
-[`dravensoft-dev/arena-web-benches`](https://github.com/dravensoft-dev/arena-web-benches) is where
-they are written.
 
 ## Why an agent can operate it
 
@@ -80,7 +72,8 @@ full and says which of them a gate reads your own sources for.
 - One primary accent per view.
 - No gradients, on any surface.
 - No emoji, in product or in copy.
-- Icons are Phosphor class-name strings, never elements and never SVG.
+- Icons are Phosphor class-name strings, drawn by Arena's components or
+  by ArenaIcon; a raw ph-* element paints nothing.
 - Never wrap an Arena component in your router's own link.
 - An anchor Arena draws splits its activations.
 - A press that starts on a control keeps to that control.
@@ -99,9 +92,11 @@ full and says which of them a gate reads your own sources for.
 bun add @dravensoft/arena-react     # or @dravensoft/arena-angular
 ```
 
-**That is the whole install.** Phosphor is a peer rather than a second
-command, because Arena renders icon class names and never SVG; the layer page
-below says which peers each package declares.
+**That is the whole install.** Bun installs the peers a project lacks. A manager that
+installs no peer, Yarn among them, needs them named, as the commands in `install.md` do. No icon font is a peer: `arena build`
+writes the sprite that `ArenaIcon` draws from.
+[`install.md`](./skills/design/references/install.md#how-do-i-install-a-package) lists the
+commands per layer, and the layer page below says which peers each package declares.
 
 Then run `npx --no-install arena init` (or `pnpm exec arena init`, or `bunx --no-install arena init`),
 which copies an example `arena.config.json` and wires the build scripts, and import what
@@ -186,22 +181,23 @@ component ships under both names and the two documents are not interchangeable.
   `contracts/design-generated/fonts.generated.css` declares them with
   `@font-face`, so they load from the same origin as the page that reads them. A
   package consumer names their own three families in `arena.config.json`, where
-  `src` is either a stylesheet URL or a binary they host.
-- **Icons are [Phosphor Icons](https://phosphoricons.com) (MIT)**, and are not
-  bundled. **Install the official package by default**, either
-  `@phosphor-icons/web` (webfont) or `@phosphor-icons/react`, for full weight and
-  tree-shaking flexibility. The CDN is a prototype-only convenience, not the
-  default. See [Iconography](./contracts/design/AGENTS.md#iconography).
+  `src` is either a font file, which `arena build` cuts to what the product paints, or a
+  stylesheet URL.
+- **Icons are [Phosphor Icons](https://phosphoricons.com) (MIT)**, and no icon font is
+  bundled. Every component takes a Phosphor class string and draws the glyph through
+  `ArenaIcon`, from the sprite `arena build` writes. A raw `ph-*` element needs
+  `@phosphor-icons/web` installed by the project. See
+  [Iconography](./contracts/design/AGENTS.md#iconography).
 
 ## Which version am I getting
 
 The two packages and the plugin do not always carry the same number, because a
 package publishes only when something it ships changed.
-[`.github/workflows/AGENTS.md`](./.github/workflows/AGENTS.md) explains what
-that means for an upgrade.
+[`skills/design/references/versioning.md`](./skills/design/references/versioning.md#how-do-i-install-a-version)
+explains what that means.
 
 ## Latest project artifacts
-- **Repo/Claude Code plugin**: 12.1.1
+- **Repo/Claude Code plugin**: 13.0.0
 - [npm React package](https://www.npmjs.com/package/@dravensoft/arena-react?activeTab=versions)
 - [npm Angular package](https://www.npmjs.com/package/@dravensoft/arena-angular?activeTab=versions)
 - [npm contracts package](https://www.npmjs.com/package/@dravensoft/arena-contracts?activeTab=versions)

@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor, glyph } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaCommandPalette.manifest.json')).json();
 const c = arenaClassesFor(manifest);
@@ -27,13 +27,13 @@ function palette({ query, activeIndex, commands }) {
     const own = arenaClassesFor(manifest, { open: 'true', active: String(active) });
     const dOwn = arenaSlotDataFor(manifest, { open: 'true', active: String(active) });
     const row = el('button', { class: own.row, ...dOwn.row, type: 'button' });
-    if (command.icon) row.append(el('span', { class: c.rowIcon, ...d.rowIcon }, el('i', { class: command.icon, 'aria-hidden': 'true' })));
+    if (command.icon) row.append(el('span', { class: c.rowIcon, ...d.rowIcon }, glyph(command.icon)));
     row.append(el('span', { class: own.rowLabel, ...dOwn.rowLabel, text: command.label }));
     if (command.shortcut) row.append(el('span', { class: c.shortcut, ...d.shortcut, text: command.shortcut }));
     list.append(row);
   });
   const search = el('div', { class: c.search, ...d.search },
-    el('i', { class: `${c.searchIcon} ph-bold ph-magnifying-glass`, ...d.searchIcon, 'aria-hidden': 'true' }),
+    glyph(`${c.searchIcon} ph-bold ph-magnifying-glass`, { ...d.searchIcon }),
     el('input', { class: c.input, ...d.input, value: query, placeholder: 'Search for an action or project…' }),
     el('span', { class: c.esc, ...d.esc, text: 'ESC' }));
   return el('div', { class: c.panel, ...d.panel }, search, list);

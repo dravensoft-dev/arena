@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor, glyph } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaPagination.manifest.json')).json();
 const c = arenaClassesFor(manifest);
@@ -34,7 +34,7 @@ function arrow(direction, disabled) {
   return el('button', {
     class: c.nav, ...d.nav, type: 'button',
     'aria-label': direction < 0 ? 'Previous' : 'Next', disabled: disabled || undefined,
-  }, el('i', { class: direction < 0 ? 'ph-bold ph-caret-left' : 'ph-bold ph-caret-right', 'aria-hidden': 'true' }));
+  }, glyph(direction < 0 ? 'ph-bold ph-caret-left' : 'ph-bold ph-caret-right'));
 }
 
 function pagination(current, total) {

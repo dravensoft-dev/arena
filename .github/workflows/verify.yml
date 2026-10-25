@@ -2,7 +2,7 @@ name: Arena verify
 
 # Called by Arena PR, Arena develop and Arena main, and never run on its own. A called workflow
 # takes none of its caller's env, so what a caller decides arrives as an input: the domains to
-# verify, and the browser only Arena main names.
+# verify, and whether the gates are told which browser to use, which only Arena main does.
 
 on:
   workflow_call:
@@ -11,35 +11,48 @@ on:
         description: the check-all domains to verify, comma-separated; the suites follow them
         type: string
         required: true
-      chrome-path:
-        description: the browser the gates use; empty leaves them to find one on the candidate list
-        type: string
+      name-browser:
+        description: write the pinned browser setup-chrome installs to CHROME_PATH; false leaves the gates to find one on the candidate list
+        type: boolean
         required: false
-        default: ''
+        default: false
 
 permissions:
   contents: read
 
 env:
-  BUN_VERSION: 1.3.14
-  # An empty value is no value to findChromium, so a caller that names no browser proves discovery.
-  CHROME_PATH: ${{ inputs.chrome-path }}
+  BUN_VERSION: 1.4.0
+  NODE_VERSION: 26.7.0
+  CHROME_VERSION: 155.0.8059.79
 
 jobs:
   build:
     name: build
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: ${{ env.BUN_VERSION }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
       - uses: actions/cache@v6
         with:
           path: ~/.bun/install/cache
           key: bun-cache-${{ runner.os }}-${{ hashFiles('bun.lock') }}
           restore-keys: bun-cache-${{ runner.os }}-
       - run: bun install --frozen-lockfile
+      - name: a browser, and CHROME_PATH is set to it only when the caller names one
+        id: chrome
+        uses: browser-actions/setup-chrome@v2
+        with:
+          chrome-version: ${{ env.CHROME_VERSION }}
+      # Unset, CHROME_PATH leaves findChromium to its candidate list, which is what a caller that
+      # names no browser proves.
+      - if: ${{ inputs.name-browser }}
+        run: echo "CHROME_PATH=${{ steps.chrome.outputs.chrome-path }}" >> "$GITHUB_ENV"
 
       - name: build and assemble, every step run
         run: bun run build:release
@@ -71,11 +84,53 @@ jobs:
     name: gates
     needs: [build]
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: ${{ env.BUN_VERSION }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - uses: actions/cache@v6
+        with:
+          path: ~/.bun/install/cache
+          key: bun-cache-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-cache-${{ runner.os }}-
+      - run: bun install --frozen-lockfile
+      - name: a browser, and CHROME_PATH is set to it only when the caller names one
+        id: chrome
+        uses: browser-actions/setup-chrome@v2
+        with:
+          chrome-version: ${{ env.CHROME_VERSION }}
+      # Unset, CHROME_PATH leaves findChromium to its candidate list, which is what a caller that
+      # names no browser proves.
+      - if: ${{ inputs.name-browser }}
+        run: echo "CHROME_PATH=${{ steps.chrome.outputs.chrome-path }}" >> "$GITHUB_ENV"
+      - name: the build this run made
+        uses: actions/download-artifact@v8
+        with:
+          name: arena-build-${{ github.run_id }}
+
+      - name: every gate of the selected domains, side by side
+        env:
+          DOMAINS: ${{ inputs.domains }}
+        run: bun scripts/check/arena/check-all.ts --no-tests --domain="$DOMAINS"
+
+  audit:
+    name: audit
+    needs: [build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
       - uses: actions/cache@v6
         with:
           path: ~/.bun/install/cache
@@ -87,26 +142,39 @@ jobs:
         with:
           name: arena-build-${{ github.run_id }}
 
-      - name: every gate of the selected domains, side by side
-        env:
-          DOMAINS: ${{ inputs.domains }}
-        run: bun scripts/check/arena/check-all.ts --no-tests --domain="$DOMAINS"
+      - name: every traced node opens only what it declares
+        run: bun scripts/check/arena/check-graph.ts --audit
+      - name: the audit rewrote nothing tracked
+        run: git diff --exit-code
 
   suites-scripts:
     name: suites under scripts/
     needs: [build]
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: ${{ env.BUN_VERSION }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
       - uses: actions/cache@v6
         with:
           path: ~/.bun/install/cache
           key: bun-cache-${{ runner.os }}-${{ hashFiles('bun.lock') }}
           restore-keys: bun-cache-${{ runner.os }}-
       - run: bun install --frozen-lockfile
+      - name: a browser, and CHROME_PATH is set to it only when the caller names one
+        id: chrome
+        uses: browser-actions/setup-chrome@v2
+        with:
+          chrome-version: ${{ env.CHROME_VERSION }}
+      # Unset, CHROME_PATH leaves findChromium to its candidate list, which is what a caller that
+      # names no browser proves.
+      - if: ${{ inputs.name-browser }}
+        run: echo "CHROME_PATH=${{ steps.chrome.outputs.chrome-path }}" >> "$GITHUB_ENV"
       - name: the build this run made
         uses: actions/download-artifact@v8
         with:
@@ -131,11 +199,15 @@ jobs:
     needs: [build]
     if: contains(format(',{0},', inputs.domains), ',react,')
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: ${{ env.BUN_VERSION }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
       - uses: actions/cache@v6
         with:
           path: ~/.bun/install/cache
@@ -172,11 +244,15 @@ jobs:
     needs: [build]
     if: contains(format(',{0},', inputs.domains), ',angular,')
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: ${{ env.BUN_VERSION }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
       - uses: actions/cache@v6
         with:
           path: ~/.bun/install/cache
@@ -207,6 +283,7 @@ jobs:
     needs: [suites-scripts, suites-react, suites-angular]
     if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     env:
       DOMAINS: ${{ inputs.domains }}
     steps:
@@ -214,6 +291,9 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: ${{ env.BUN_VERSION }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
       - name: every report the suite jobs wrote
         uses: actions/download-artifact@v8
         with:

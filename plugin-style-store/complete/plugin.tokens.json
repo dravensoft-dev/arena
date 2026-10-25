@@ -81,6 +81,10 @@
     "$type": "fontFamily",
     "$value": "{font.display}"
   },
+  "ff-key": {
+    "$type": "fontFamily",
+    "$value": "{font.display}"
+  },
   "fw-eyebrow": {
     "$type": "fontWeight",
     "$value": "{fw.bold}"
@@ -94,6 +98,10 @@
     "$value": "none"
   },
   "tt-label": {
+    "$type": "keyword",
+    "$value": "capitalize"
+  },
+  "tt-key": {
     "$type": "keyword",
     "$value": "capitalize"
   },
@@ -284,6 +292,10 @@
       "unit": "px"
     }
   },
+  "timeline-dot": {
+    "$type": "dimension",
+    "$value": "{sp.6}"
+  },
   "container-max": {
     "$type": "dimension",
     "$value": {
@@ -347,6 +359,10 @@
     }
   },
   "pad-marker-y": {
+    "$type": "dimension",
+    "$value": "{sp.2}"
+  },
+  "pad-key-y": {
     "$type": "dimension",
     "$value": "{sp.2}"
   },
@@ -473,6 +489,14 @@
     "$type": "color",
     "$value": "{color.neutral-content}"
   },
+  "ink-key": {
+    "$type": "color",
+    "$value": "{color.neutral-content}"
+  },
+  "ink-link": {
+    "$type": "color",
+    "$value": "{color.neutral-content}"
+  },
   "edge-surface": {
     "$type": "color",
     "$value": "{color.primary}"
@@ -502,6 +526,10 @@
     "$value": "{color.neutral}"
   },
   "edge-axis": {
+    "$type": "color",
+    "$value": "{color.secondary}"
+  },
+  "edge-tab-selected": {
     "$type": "color",
     "$value": "{color.secondary}"
   },

@@ -23,7 +23,7 @@ function render() {
   seen.went = 0;
   return mount(
     <ArenaTable label="Recent sales" columns={COLUMNS} responsive={false}>
-      <ArenaTableRow interactive onClick={() => { seen.rows += 1; }}>
+      <ArenaTableRow interactive onActivate={() => { seen.rows += 1; }}>
         <ArenaTableCell href="/sales/4f2a1c9" onNavigate={() => { seen.went += 1; }}>4f2a1c9</ArenaTableCell>
         <ArenaTableCell>Nestor</ArenaTableCell>
       </ArenaTableRow>

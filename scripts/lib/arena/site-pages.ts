@@ -8,7 +8,7 @@
  * nothing is reported. Paths are repo-relative and preserved, so no href is rewritten and the page
  * served from the domain is a clone's. indexedDirectories is what serve.ts lists at request time
  * and a host 404s. A specimen under intro/guidelines/ is named by the @dsCard header instead. */
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { basename, dirname, join, resolve } from 'node:path';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { relPosix, isInside } from '../../utils/posix-path.ts';
@@ -16,8 +16,10 @@ import { pageModules, importSpecifiers } from '../../utils/module-graph.ts';
 import { byCodeUnit, byKey } from '../../utils/compare.ts';
 import { memoBy } from '../../utils/memo.ts';
 import { repoRoot as root } from './repo-root.ts';
-import { componentMap } from './component-map.ts';
-import { PHOSPHOR_WEIGHTS } from './playground-page.ts';
+import { IDENTITY_PAGES } from './agent-payload.ts';
+import { shippedComponents } from './component-map.ts';
+import { isVariantArrangement, type SinkFixture } from './kitchen-sink-model.ts';
+import { SPRITE_FILE } from './playground-page.ts';
 import { kebab, pascal } from '../../utils/case.ts';
 
 export const DOMAIN = 'arena.dravensoft.org';
@@ -27,12 +29,7 @@ export const LAYERS = ['react', 'angular'];
 export const PLAYGROUND_SUFFIX = '.demo.generated.html';
 export const SINK_PAGE = 'index.generated.html';
 export const PLAYGROUND_INDEX = 'components';
-export const PHOSPHOR = 'node_modules/@phosphor-icons/web/src';
-export const PHOSPHOR_KEEP = ['style.css', '.woff2', '.woff'];
-export const PHOSPHOR_FORMATS = ['.svg', '.ttf', '.woff', '.woff2'];
-
-export const BENCHES_DIR = 'web-benches';
-export const BENCHES_MANIFEST = 'benches.json';
+export { SPRITE_FILE };
 
 export const COPIED = [
   'intro',
@@ -46,6 +43,8 @@ export const COPIED = [
   'frameworks/angular/build/demo',
 ];
 
+export const COPIED_FILES = IDENTITY_PAGES;
+
 export type Entry = { label: string; path: string; public: boolean };
 
 export const SINK_FIXTURES = 'frameworks/kitchen-sink';
@@ -58,6 +57,11 @@ export function sinkNames(base = root) {
     .filter((file) => file.endsWith(SINK_SUFFIX))
     .map((file) => file.slice(0, -SINK_SUFFIX.length))
     .sort();
+}
+
+export function variantSinkNames(base = root) {
+  return sinkNames(base).filter((name) => isVariantArrangement(
+    JSON.parse(readFileSync(join(base, SINK_FIXTURES, `${name}${SINK_SUFFIX}`), 'utf8')) as Pick<SinkFixture, 'sections'>));
 }
 
 export function entryPoints(base = root): Entry[] {
@@ -83,7 +87,7 @@ export function componentsDir(layer: string) {
 }
 
 export function components(layer: string, base = root) {
-  return Object.keys(componentMap(layer, base).draws).map(kebab).sort();
+  return shippedComponents(layer, base).map(kebab).sort();
 }
 
 export function playgroundsOnDisk(layer: string, base = root) {
@@ -141,37 +145,96 @@ export function treePages(base = root) {
   return [
     'intro/Arena - Overview.html',
     'intro/Dravensoft Identity.dc.html',
+    ...COPIED_FILES,
     ...guidelinePages(base),
     ...sinkPages(base),
     ...playgrounds.sort(),
   ];
 }
 
-export type Bench = { product: string; label: string; skin: string };
-export type Benches = { arena: string; pairs: Bench[] };
+export const ADOPTER_MANIFEST = 'arena-adopter.json';
+export const ADOPTER_NAME = /^[a-z0-9-]+$/;
+const ADOPTER_HREF = /^(?:[A-Za-z0-9._-]+\/)+$/;
 
-export function benches(out: string): Benches | null {
-  const path = join(out, BENCHES_DIR, BENCHES_MANIFEST);
-  if (!existsSync(path)) return null;
-  return JSON.parse(readFileSync(path, 'utf8')) as Benches;
+export type AdopterLink = { label: string; href: string };
+export type AdopterSection = { heading: string; links: AdopterLink[] };
+export type AdopterManifest = {
+  arena: string; name: string; title: string; description: string; repository: string; sections: AdopterSection[];
+};
+export type AdopterVerdict = { publish: true; manifest: AdopterManifest; line: string } | { publish: false; line: string };
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+
+function adopterShape(raw: unknown): AdopterManifest | string {
+  if (!isRecord(raw)) return 'the manifest is not an object';
+  for (const field of ['arena', 'name', 'title', 'description', 'repository']) {
+    if (typeof raw[field] !== 'string') return `${field} is missing or not a string`;
+  }
+  if (!/^https?:\/\//.test(raw.repository as string)) return 'repository is not an http(s) address';
+  if (!Array.isArray(raw.sections)) return 'sections is missing or not an array';
+  for (const section of raw.sections as unknown[]) {
+    if (!isRecord(section) || typeof section.heading !== 'string' || !Array.isArray(section.links)) {
+      return 'a section lacks a heading or its links';
+    }
+    for (const link of section.links as unknown[]) {
+      if (!isRecord(link) || typeof link.label !== 'string' || typeof link.href !== 'string') {
+        return 'a link lacks a label or an href';
+      }
+      if (!ADOPTER_HREF.test(link.href) || link.href.split('/').some((part) => part === '.' || part === '..')) {
+        return `the href ${JSON.stringify(link.href)} is not a directory under the adopter's own`;
+      }
+    }
+  }
+  return raw as unknown as AdopterManifest;
 }
 
-export function benchPairs(out: string) {
-  return [...(benches(out)?.pairs ?? [])].sort(byKey(({ product }) => product));
+export function adopterVerdict(dir: string, version: string): AdopterVerdict {
+  const refuse = (why: string): AdopterVerdict => ({ publish: false, line: `${dir}: not published, ${why}` });
+  const path = join(dir, ADOPTER_MANIFEST);
+  if (!existsSync(path)) return refuse(`it carries no ${ADOPTER_MANIFEST}`);
+  let raw: unknown;
+  try {
+    raw = JSON.parse(readFileSync(path, 'utf8'));
+  } catch {
+    return refuse(`${ADOPTER_MANIFEST} is not JSON`);
+  }
+  const manifest = adopterShape(raw);
+  if (typeof manifest === 'string') return refuse(manifest);
+  if (!ADOPTER_NAME.test(manifest.name)) return refuse(`the name ${JSON.stringify(manifest.name)} is not a plain directory name`);
+  if (manifest.arena !== version) return refuse(`it declares Arena ${manifest.arena} and this tree is ${version}`);
+  return { publish: true, manifest, line: `${dir}: published for Arena ${version} at /${manifest.name}/` };
 }
 
-export function benchPages(out: string) {
-  return benchPairs(out)
-    .flatMap(({ product }) => LAYERS.map((layer) => `${BENCHES_DIR}/${product}/${layer}/index.html`))
-    .sort(byCodeUnit);
+export function publishedAdopter(out: string): AdopterManifest | null {
+  if (!existsSync(out) || !statSync(out).isDirectory()) return null;
+  for (const entry of readdirSync(out, { withFileTypes: true }).filter((e) => e.isDirectory()).sort(byKey((e) => e.name))) {
+    const path = join(out, entry.name, ADOPTER_MANIFEST);
+    if (!existsSync(path)) continue;
+    try {
+      const manifest = adopterShape(JSON.parse(readFileSync(path, 'utf8')));
+      if (typeof manifest !== 'string' && manifest.name === entry.name && ADOPTER_NAME.test(manifest.name)) return manifest;
+    } catch {
+      continue;
+    }
+  }
+  return null;
 }
 
-export function benchDirectories(out: string) {
-  return benchPairs(out).length === 0 ? [] : [BENCHES_DIR];
+export function adopterPages(out: string) {
+  const adopter = publishedAdopter(out);
+  if (adopter === null) return [];
+  const hrefs = adopter.sections.flatMap(({ links }) => links.map(({ href }) => `${adopter.name}/${href}index.html`));
+  return [...new Set(hrefs)].sort(byCodeUnit);
 }
 
-export function pages(base = root, out = join(base, SITE_DIR)) {
-  return [...treePages(base), ...benchPages(out)];
+export function adopterDirectories(out: string) {
+  const adopter = publishedAdopter(out);
+  return adopter === null ? [] : [adopter.name];
+}
+
+export function pages(base: string, out: string) {
+  return [...treePages(base), ...adopterPages(out)];
 }
 
 export const moduleGraph = memoBy((base: string = root) => base, (base: string = root) => {
@@ -221,37 +284,15 @@ export function missingModules(base = root) {
   return moduleGraph(base).absent;
 }
 
-export function indexedDirectories(base = root, out = join(base, SITE_DIR)) {
+export function indexedDirectories(base: string, out: string) {
   return [
     '',
     'intro/guidelines',
     ...LAYERS.map((layer) => `frameworks/${layer}/kitchen-sink`),
     ...LAYERS.map((layer) => componentsDir(layer)),
     ...LAYERS.flatMap((layer) => sinkNames(base).map((name) => `frameworks/${layer}/kitchen-sink/${name}`)),
-    ...benchDirectories(out),
+    ...adopterDirectories(out),
   ];
-}
-
-export function phosphorKeeps(name: string) {
-  return PHOSPHOR_KEEP.some((keep) => (keep.startsWith('.') ? name.endsWith(keep) : name === keep));
-}
-
-export function phosphorDrops(name: string) {
-  return name.startsWith('Phosphor')
-    && PHOSPHOR_FORMATS.some((format) => name.endsWith(format))
-    && !phosphorKeeps(name);
-}
-
-export function phosphorFiles(base = root) {
-  const found = [];
-  for (const weight of PHOSPHOR_WEIGHTS) {
-    const dir = join(base, PHOSPHOR, weight);
-    if (!existsSync(dir)) continue;
-    for (const path of walkFiles(dir)) {
-      if (phosphorKeeps(basename(path))) found.push(relPosix(base, path));
-    }
-  }
-  return found.sort();
 }
 
 export const TITLE = /<title>([^<]*)<\/title>/;

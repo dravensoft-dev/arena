@@ -10,7 +10,8 @@
  * specificity, so a style plugin declared earlier would need `!important` to reach anything. */
 
 const LAYER_UTILITIES = '@layer utilities {';
-export const LAYER_ORDER = '@layer properties;\n@layer theme, base, components, utilities, arena-plugin;\n';
+export const DEFAULTS_LAYER = 'arena-defaults';
+export const LAYER_ORDER = '@layer properties;\n@layer arena-defaults, theme, base, components, utilities, arena-plugin;\n';
 export const SLOT_CLASS = /\.([a-z0-9-]+?)__/g;
 
 export function matchingBrace(css: string, open: number) {

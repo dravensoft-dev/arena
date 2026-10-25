@@ -39,7 +39,7 @@ export interface ArenaCalendarProps {
   /** Drop Sunday from the week unless an event falls on it. */
   hideEmptyWeekend?: boolean;
 
-  /** Whether a day can be activated. A boolean rather than "is `onDateClick` bound?", because Arena never derives what it draws from what a consumer listens for, and the same member `ArenaTableRow.interactive` and `ArenaCalendarEvent.interactive` are for the same reason; here the derived render would be the day's own cursor, which a layer whose subscriber list is private would draw differently from the other. With it on, the day header is a <button> (the keyboard's route to the date, and the one element that already names it), and the column background takes a pointer cursor; with it off both are inert and the cursor says so. The default is false because a schedule someone only reads is the ordinary calendar, and a pointer cursor over days that answer nothing is the defect this member exists to end. */
+  /** Whether a day can be activated. A boolean rather than "is `onDateClick` bound?", because Arena never derives what it draws from what a consumer listens for. `ArenaTableRow.interactive` and `ArenaCalendarEvent.interactive` are members for the same reason. Here the derived render would be the day's own cursor, which a layer whose subscriber list is private would draw differently from the other. With it on, the day header is a <button> (the keyboard's route to the date, and the one element that already names it). With it on, the column background also takes a pointer cursor. With it off both are inert and the cursor says so. The default is false because a schedule someone only reads is the ordinary calendar. A pointer cursor over days that answer nothing is the defect this member exists to end. */
   dayInteractive?: boolean;
 
   /** A day header or column background was activated; carries the ISO date. Never emitted unless `dayInteractive`. */
@@ -59,6 +59,7 @@ import {
 } from './CalendarInternals.ts';
 import type { ArenaCalendarClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { ArenaIcon } from '../arena-icon/ArenaIcon.tsx';
 
 const TRACKS = (n: number) => `repeat(${n}, minmax(0, 1fr))`;
 
@@ -210,13 +211,13 @@ export function ArenaCalendar({ className,
     <button type="button" aria-label={dir < 0 ? locale.calendarPrevious : locale.calendarNext}
       onClick={() => goto(arenaAddDays(anchor, dir * step))}
       className={styles.nav()} data-arena-part={manifest.parts.nav} {...styles.$data.nav()}>
-      <i className={dir < 0 ? 'ph-bold ph-caret-left' : 'ph-bold ph-caret-right'} aria-hidden="true" />
+      <ArenaIcon icon={dir < 0 ? 'ph-bold ph-caret-left' : 'ph-bold ph-caret-right'} />
     </button>
   );
 
   return (
     <section ref={ref} aria-label={arenaPhrase(locale.calendarRegion, { range })}
-      className={arenaClassName('ArenaCalendar', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+      className={arenaClassName('ArenaCalendar', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
 
       <div className={styles.toolbar()} data-arena-part={manifest.parts.toolbar} {...styles.$data.toolbar()}>
         {navBtn(-1)}

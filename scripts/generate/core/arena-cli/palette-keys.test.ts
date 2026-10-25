@@ -2,7 +2,9 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { PALETTE_KEYS, OPTIONAL_KEYS, ARENA_CAT_SLOTS, FILL_PAIRS, FONT_ROLES, catKeys, requiredKeys } from './palette-keys.ts';
+import {
+  PALETTE_KEYS, OPTIONAL_KEYS, ARENA_CAT_SLOTS, ARENA_HEAT_STEPS, FILL_PAIRS, FONT_ROLES, catKeys, heatKeys, requiredKeys,
+} from './palette-keys.ts';
 import { repoRoot as root } from '../../../lib/arena/repo-root.ts';
 
 const skin = (theme: string) => JSON.parse(readFileSync(join(root, `contracts/design/palette.${theme}.json`), 'utf8'));
@@ -21,9 +23,16 @@ test('the ramp is the catSlots the API contract pins, and every slot is required
   assert.deepEqual(catKeys().filter((k) => OPTIONAL_KEYS.has(k)), []);
 });
 
-test('the two fills are the optional keys, because each is derived when absent', () => {
-  assert.deepEqual([...OPTIONAL_KEYS].sort(), ['error-fill', 'primary-fill']);
-  assert.equal(requiredKeys().length, PALETTE_KEYS.length - 2);
+test('the two fills and the heat ladder are the optional keys, because each is derived when absent', () => {
+  assert.deepEqual([...OPTIONAL_KEYS].sort(), ['error-fill', 'heat-1', 'heat-2', 'heat-3', 'heat-4', 'heat-5', 'primary-fill']);
+  assert.equal(requiredKeys().length, PALETTE_KEYS.length - 7);
+});
+
+test('the heat ladder is five steps after the ramp, and every step is optional', () => {
+  assert.equal(heatKeys().length, ARENA_HEAT_STEPS);
+  assert.deepEqual(heatKeys(), ['heat-1', 'heat-2', 'heat-3', 'heat-4', 'heat-5']);
+  assert.equal(PALETTE_KEYS.indexOf('heat-1'), PALETTE_KEYS.indexOf('cat-8') + 1);
+  assert.deepEqual(heatKeys().filter((k) => !OPTIONAL_KEYS.has(k)), []);
 });
 
 test('primary-content is measured on the primary fill, which is where it sits', () => {

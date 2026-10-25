@@ -2,9 +2,9 @@
  * which selectors, which limit, which declarations, and the layer-order statement that keeps a
  * vocabulary sheet loaded first from ranking utilities below components. Whether the cascade
  * then does what the text says is check:proximity's to measure in Chromium. */
-import test from 'node:test';
+import test, { after } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
@@ -13,6 +13,12 @@ import {
 import { LAYER_ORDER } from './component-sheets.ts';
 import { layerManifests } from './tailwind-compile.ts';
 import type { ComponentManifest } from './manifest-shapes.ts';
+
+const made: string[] = [];
+const track = (dir: string) => { made.push(dir); return dir; };
+after(() => {
+  for (const dir of made) rmSync(dir, { recursive: true, force: true });
+});
 
 const reading = (...parts: string[]): ComponentManifest[] => parts.map((part) => ({
   component: `Arena${part.slice(0, 1).toUpperCase()}${part.slice(1)}`, answers: ['fill'],
@@ -139,7 +145,7 @@ test('a markup option is arbitrary CSS properties, and a utility is not one', ()
 });
 
 test('a restating option writes the literal values of the contract file it names, and an alias is refused', () => {
-  const root = mkdtempSync(join(tmpdir(), 'vocabulary-'));
+  const root = track(mkdtempSync(join(tmpdir(), 'vocabulary-')));
   mkdirSync(join(root, 'contracts/design'), { recursive: true });
   writeFileSync(join(root, 'contracts/design/x.json'), JSON.stringify({ dz: {
     $type: 'dimension', 'ctl-h': { $value: { value: 32, unit: 'px' } }, lh: { $value: 1 } } }));
@@ -150,6 +156,7 @@ test('a restating option writes the literal values of the contract file it names
     variants: { 'arena-compact': 'contracts/design/x.json' } };
   assert.equal(compileFamily(density, [], root), `${LAYER_ORDER}@scope (.arena-compact) {
   :scope {
+    --arena-density: compact;
     --dz-ctl-h: 32px;
     --dz-lh: 1;
   }

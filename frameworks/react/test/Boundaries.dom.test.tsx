@@ -10,6 +10,7 @@ import React from 'react';
 import { element } from './FixtureRender.tsx';
 import {
   ArenaDialog, ArenaConfirmDialog, ArenaSheet, ArenaOnboarding, ArenaCommandPalette, ArenaToastHost, ArenaMenu, ArenaTooltip, ArenaButton,
+  ArenaPopover, ArenaCombobox,
 } from '../Index.generated.ts';
 import {
   boundaryCases, readSites, siteProblems, staleTransparentProblems,
@@ -47,12 +48,14 @@ const FLOATING: Record<string, () => React.ReactElement> = {
   'toast-host': () => <ArenaToastHost />,
   'menu.panel': () => <ArenaMenu trigger={<ArenaButton>More</ArenaButton>} items={[{ label: 'Rename' }]} />,
   'tooltip.bubble': () => <ArenaTooltip label="Copy"><ArenaButton>Save</ArenaButton></ArenaTooltip>,
+  'combobox.panel': () => <ArenaCombobox label="Region" options={[{ value: 'eu-west', label: 'Europe West' }]} />,
 };
 
 for (const [part, render] of Object.entries(FLOATING)) {
   test(`${part} is the floating surface its manifest declares`, () => {
     const root = mount(render());
     if (part === 'menu.panel') act(() => { (root.querySelector('[aria-haspopup]') as HTMLElement | null)?.click(); });
+    if (part === 'combobox.panel') act(() => { root.querySelector('[role="combobox"]')?.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true })); });
     if (part === 'tooltip.bubble') act(() => { (root.querySelector('button') as HTMLElement | null)?.focus(); });
     const surface = root.querySelector(`[data-arena-part="${part}"]`);
     assert.ok(surface, `${part} rendered`);

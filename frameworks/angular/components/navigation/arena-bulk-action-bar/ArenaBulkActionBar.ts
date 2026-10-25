@@ -6,11 +6,12 @@ import type { ArenaBulkAction, ArenaBulkActionBarLayout } from '../../../Api.gen
 import { ARENA_LOCALE } from '../../../ArenaLocale';
 import { arenaPhraseParts } from '../../../Phrase';
 import { ArenaSlotAttributes } from '../../../SlotData';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
 
 @Component({
   selector: 'arena-bulk-action-bar',
   standalone: true,
-  imports: [ArenaSlotAttributes],
+  imports: [ArenaIcon, ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
@@ -32,7 +33,7 @@ import { ArenaSlotAttributes } from '../../../SlotData';
           <button type="button" [class]="classesFor(action).action()" [arenaSlotData]="classesFor(action).$data.action()" [attr.data-arena-part]="parts.action" (click)="run.emit(action)"
                   [attr.tabindex]="i === at() ? 0 : -1" (focus)="cursor.set(i)">
             @if (action.icon; as glyph) {
-              <span [class]="styles().actionIcon()" [attr.data-arena-part]="parts.actionIcon"><i [class]="glyph" aria-hidden="true"></i></span>
+              <span [class]="styles().actionIcon()" [attr.data-arena-part]="parts.actionIcon"><arena-icon [icon]="glyph" /></span>
             }
             {{ action.label }}
           </button>
@@ -59,7 +60,7 @@ export class ArenaBulkActionBar {
   readonly noun = input<string>();
   /** The actions offered for the current selection. */
   readonly actions = input.required<readonly ArenaBulkAction[]>();
-  /** Whether the bar may stack. 'auto' measures its OWN container, not the viewport, and drops the count, the actions and Clear onto separate rows when one row does not fit; 'inline' keeps the single row at every width, for a bar in a place the consumer knows is wide. It is a member rather than something a consumer reaches in with CSS because the alternative is what happens without it: reordering the bar's own children by position, which puts focus order out of step with visual order and breaks the next time anything inside moves. Stacking here reorders nothing, so the tab order and the reading order stay the same order they are wide. */
+  /** Whether the bar may stack. 'auto' measures its OWN container, not the viewport, and drops the count, the actions and Clear onto separate rows when one row does not fit. 'inline' keeps the single row at every width, for a bar in a place the consumer knows is wide. The layout is a member rather than something a consumer reaches in with CSS, because the alternative is what happens without it: reordering the bar's own children by position. Reordering by position puts focus order out of step with visual order and breaks the next time anything inside moves. Stacking here reorders nothing, so the tab order and the reading order stay the same order they are wide. */
   readonly layout = input<ArenaBulkActionBarLayout, ArenaBulkActionBarLayout | undefined>(
     'auto',
     { transform: (value) => value ?? 'auto' },

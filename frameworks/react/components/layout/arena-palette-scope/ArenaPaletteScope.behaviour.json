@@ -1,0 +1,5 @@
+{
+  "pattern": "none",
+  "reason": "a palette scope paints a ground and provides a value; it has no affordance",
+  "exceptions": []
+}

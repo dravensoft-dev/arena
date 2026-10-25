@@ -5,7 +5,7 @@ import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { kebab } from '../../utils/case.ts';
 import {
-  arenaClassesFor, classBase, classesFor, classesManifest, slotClass, slotPart,
+  arenaClassesFor, arenaSlotDataFor, classBase, classesFor, classesManifest, slotClass, slotPart,
 } from '../../lib/tailwind/component-css.ts';
 import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
 
@@ -91,6 +91,16 @@ test('every manifest that ships names a part for every slot it names', () => {
     assert.deepEqual(Object.keys(built.parts ?? {}), Object.keys(built.slots),
       `${manifest.component}: a slot with no part is a slot a style plugin cannot reach`);
   }
+});
+
+test('a slot named in a card carries the part its family reaches, beside its group attributes', () => {
+  const data = arenaSlotDataFor({ component: 'ArenaCard', slots: { root: 'a', body: 'b' } } as never);
+  assert.equal(data.root?.['data-arena-part'], 'card');
+  assert.equal(data.body?.['data-arena-part'], 'card.body');
+  const shipped = arenaSlotDataFor(tag, { tone: 'danger' });
+  assert.equal(shipped.root?.['data-arena-part'], 'tag');
+  assert.equal(shipped.root?.['data-arena-tone'], 'danger');
+  assert.equal(shipped.dot?.['data-arena-part'], 'tag.dot');
 });
 
 test('classesManifest carries values and attributes for every manifest and never copies internal or hues', () => {

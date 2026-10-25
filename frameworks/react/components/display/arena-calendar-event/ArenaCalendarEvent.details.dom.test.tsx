@@ -1,7 +1,7 @@
 import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
-import { mount, cleanup } from '../../../test/Harness.tsx';
+import { mount, cleanup, act } from '../../../test/Harness.tsx';
 import { ArenaCalendar } from '../arena-calendar/ArenaCalendar.tsx';
 import { ArenaCalendarEvent } from './ArenaCalendarEvent.tsx';
 import { arenaVisibleDetails } from '../arena-calendar/CalendarInternals.ts';
@@ -51,4 +51,18 @@ test('an interactive disabled chip carries no clickable state, and an enabled on
   assert.equal(chip({ interactive: true, disabled: true }).hasAttribute('data-arena-clickable'), false);
   assert.equal(chip({ interactive: true }).hasAttribute('data-arena-clickable'), true);
   assert.equal(chip({}).hasAttribute('data-arena-clickable'), false);
+});
+
+test('a paneled chip that cannot be activated takes focus on its body, and the chip itself holds no tab stop', () => {
+  const host = mount(
+    <ArenaCalendar anchorDate="2026-03-16" view="week" timeZone="UTC" dayStart="09:00" dayEnd="12:00">
+      <ArenaCalendarEvent id="e" title="Review" start="2026-03-16T09:00" end="2026-03-16T09:30" actionsEnabled />
+    </ArenaCalendar>,
+  );
+  const chip = host.querySelector('[data-arena-part="calendar.chip"]')!;
+  assert.equal(chip.hasAttribute('tabindex'), false, 'the chip holds a tab stop of its own');
+  const cell = host.querySelector<HTMLElement>('[role="gridcell"][tabindex="0"]')!;
+  cell.focus();
+  act(() => { cell.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })); });
+  assert.equal(document.activeElement, host.querySelector('[data-arena-part="calendar.chip-body"]'));
 });

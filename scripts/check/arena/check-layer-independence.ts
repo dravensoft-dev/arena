@@ -60,7 +60,14 @@ export const ALLOWED = new Map<string, string>([]);
 
 export const ALLOWED_SPECIFIERS = new Map<RegExp, string>([]);
 
-export const EXEMPT = new Map<string, string>([]);
+export const EXEMPT = new Map<string, string>([
+  ['frameworks/angular/components/display/arena-icon/ArenaIcon.test.ts:React', 'the shared ArenaIcon warning names each layer\'s provider, so either layer\'s reader learns the other\'s spelling.'],
+  ['frameworks/angular/components/display/arena-icon/ArenaIcon.ts:React', 'the shared ArenaIcon warning names each layer\'s provider, so either layer\'s reader learns the other\'s spelling.'],
+  ['frameworks/react/components/display/arena-icon/ArenaIcon.test.tsx:Angular', 'the shared ArenaIcon warning names each layer\'s provider, so either layer\'s reader learns the other\'s spelling.'],
+  ['frameworks/react/components/display/arena-icon/ArenaIcon.tsx:Angular', 'the shared ArenaIcon warning names each layer\'s provider, so either layer\'s reader learns the other\'s spelling.'],
+  ['frameworks/angular/test/ServerRender.test.ts:React', 'the shared ArenaIcon warning names each layer\'s provider, so either layer\'s reader learns the other\'s spelling.'],
+  ['frameworks/react/components/display/arena-icon/ArenaIcon.dom.test.tsx:Angular', 'the complete plugin\'s icon hook skips the glyph behind Angular\'s arena-icon host, and the test names that host.'],
+]);
 
 const SCAN_EXT = new Set(['.js', '.jsx', '.ts', '.tsx', '.mjs', '.json', '.css', '.html', '.md']);
 export const MODULE_EXT = new Set(['.js', '.jsx', '.ts', '.tsx', '.mjs']);

@@ -20,7 +20,7 @@ export const node = {
   reads: [
     ...tailwindNode.reads, ...tailwindNode.writes,
     'frameworks/tailwind/components/**/*.generated.ts',
-    'frameworks/angular/ArenaStyles.generated.ts',
+    'frameworks/angular/ArenaStyles.generated.ts', 'contracts/design/density.*.json',
   ],
   writes: [],
   feeds: [],

@@ -5,10 +5,12 @@ import {
 import { ArenaSideNavState, arenaIndentDepth } from '../arena-side-nav/ArenaSideNavState';
 import { arenaSideNavStyles } from '../arena-side-nav/ArenaSideNav.variants';
 import manifest from '../arena-side-nav/ArenaSideNav.classes.generated';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
 
 @Component({
   selector: 'arena-side-nav-collapsible',
   standalone: true,
+  imports: [ArenaIcon],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ArenaSideNavState],
   host: {
@@ -25,10 +27,10 @@ import manifest from '../arena-side-nav/ArenaSideNav.classes.generated';
               [attr.aria-expanded]="expanded()" [attr.aria-controls]="regionId()"
               (click)="press()" (keydown)="onKeydown($event)">
         @if (icon(); as glyph) {
-          <i [class]="styles().icon() + ' ' + glyph" [attr.data-arena-part]="parts.icon" aria-hidden="true"></i>
+          <span [class]="styles().icon()" [attr.data-arena-part]="parts.icon" aria-hidden="true"><arena-icon [icon]="glyph" /></span>
         }
         <span [class]="styles().triggerLabel()" [attr.data-arena-part]="parts.triggerLabel">{{ heading() }}</span>
-        <i [class]="styles().caret() + ' ' + caretGlyph()" [attr.data-arena-part]="parts.caret" aria-hidden="true"></i>
+        <span [class]="styles().caret()" [attr.data-arena-part]="parts.caret" aria-hidden="true"><arena-icon [icon]="caretGlyph()" /></span>
       </button>
     }
     <div [id]="regionId()" [class]="styles().region()" [attr.data-arena-part]="parts.region" data-arena-boundary role="group"
@@ -41,15 +43,15 @@ import manifest from '../arena-side-nav/ArenaSideNav.classes.generated';
 export class ArenaSideNavCollapsible {
   protected readonly parts = manifest.parts;
 
-  /** Identifies the group. The disclosure pattern needs two DOM ids that resolve -- the trigger's aria-controls must name the region, and the region's aria-labelledby must name the trigger -- and Arena derives both from this member, as `${id}-trigger` and `${id}-region`. Neither wiring is conditional: every collapsible has a trigger and a region, so there is no shape in which the id goes unused, and that is why it is required rather than optional. A group is a thing a consumer names anyway. Falsy-guarded as well as required: a blank id yields the pair `-trigger`/`-region`, which every other blank-id collapsible on the page would share, and duplicate ids make aria-controls resolve to the wrong element rather than to none. A consumer can address either element from outside as a consequence -- an aria-describedby, a deep link, a test hook -- but that is a benefit of the derivation, not the reason for it. */
+  /** Identifies the group. The disclosure pattern needs two DOM ids that resolve -- the trigger's aria-controls must name the region, and the region's aria-labelledby must name the trigger. Arena derives both from this member, as `${id}-trigger` and `${id}-region`. Neither wiring is conditional. Every collapsible has a trigger and a region, so there is no shape in which the id goes unused, and that is why it is required rather than optional. A group is a thing a consumer names anyway. Falsy-guarded as well as required: a blank id yields the pair `-trigger`/`-region`, which every other blank-id collapsible on the page would share. Duplicate ids make aria-controls resolve to the wrong element rather than to none. A consumer can address either element from outside as a consequence -- an aria-describedby, a deep link, a test hook. Addressing them is a benefit of the derivation, not the reason for it. */
   readonly id = input.required<string>();
   /** What the trigger reads, and the accessible name of both the trigger and the region it controls. Required and falsy-guarded. */
   readonly label = input.required<string>();
-  /** A Phosphor class name drawn before the label. The caret that reports expanded-ness is Arena's own and is not this member. */
+  /** A Phosphor class name drawn before the label through ArenaIcon. The caret that reports expanded-ness is Arena's own and is not this member. */
   readonly icon = input<string>();
-  /** Whether the group starts open. It is a seed, not a control: after the first render the state is the component's, and the group also opens itself when it comes to hold the active destination. */
+  /** Whether the group starts open. The value is a seed, not a control: after the first render the state is the component's. The group also opens itself when it comes to hold the active destination. */
   readonly defaultExpanded = input(false, { transform: booleanAttribute });
-  /** The trigger was pressed, carrying the state it moved to. It fires on a press ONLY: the automatic expansion that follows the active destination is Arena's decision rather than the user's, and reporting it here would be a lie a consumer persists. */
+  /** The trigger was pressed, carrying the state it moved to. The event fires on a press ONLY. The automatic expansion that follows the active destination is Arena's decision rather than the user's, and reporting it here would be a lie a consumer persists. */
   readonly toggle = output<boolean>();
 
   private readonly parent = inject(ArenaSideNavState, { skipSelf: true });

@@ -4,29 +4,30 @@ import { arenaIndentDepth, arenaInjectInto } from '../arena-side-nav/SideNavInje
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from '../arena-side-nav/ArenaSideNav.classes.generated.ts';
 import { ArenaSideNavItem } from '../arena-side-nav-item/ArenaSideNavItem.tsx';
-import type { ArenaSideNavCollapsibleClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { ARENA_CONTEXT_VOCABULARY, type ArenaSideNavCollapsibleClass } from '../../../Vocabulary.generated.ts';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon.tsx';
 
 export interface ArenaSideNavCollapsibleProps {
   className?: ArenaSideNavCollapsibleClass;
 
 
-  /** Identifies the group. The disclosure pattern needs two DOM ids that resolve -- the trigger's aria-controls must name the region, and the region's aria-labelledby must name the trigger -- and Arena derives both from this member, as `${id}-trigger` and `${id}-region`. Neither wiring is conditional: every collapsible has a trigger and a region, so there is no shape in which the id goes unused, and that is why it is required rather than optional. A group is a thing a consumer names anyway. Falsy-guarded as well as required: a blank id yields the pair `-trigger`/`-region`, which every other blank-id collapsible on the page would share, and duplicate ids make aria-controls resolve to the wrong element rather than to none. A consumer can address either element from outside as a consequence -- an aria-describedby, a deep link, a test hook -- but that is a benefit of the derivation, not the reason for it. */
+  /** Identifies the group. The disclosure pattern needs two DOM ids that resolve -- the trigger's aria-controls must name the region, and the region's aria-labelledby must name the trigger. Arena derives both from this member, as `${id}-trigger` and `${id}-region`. Neither wiring is conditional. Every collapsible has a trigger and a region, so there is no shape in which the id goes unused, and that is why it is required rather than optional. A group is a thing a consumer names anyway. Falsy-guarded as well as required: a blank id yields the pair `-trigger`/`-region`, which every other blank-id collapsible on the page would share. Duplicate ids make aria-controls resolve to the wrong element rather than to none. A consumer can address either element from outside as a consequence -- an aria-describedby, a deep link, a test hook. Addressing them is a benefit of the derivation, not the reason for it. */
   id: string;
 
   /** What the trigger reads, and the accessible name of both the trigger and the region it controls. Required and falsy-guarded. */
   label: string;
 
-  /** A Phosphor class name drawn before the label. The caret that reports expanded-ness is Arena's own and is not this member. */
+  /** A Phosphor class name drawn before the label through ArenaIcon. The caret that reports expanded-ness is Arena's own and is not this member. */
   icon?: string;
 
-  /** Whether the group starts open. It is a seed, not a control: after the first render the state is the component's, and the group also opens itself when it comes to hold the active destination. */
+  /** Whether the group starts open. The value is a seed, not a control: after the first render the state is the component's. The group also opens itself when it comes to hold the active destination. */
   defaultExpanded?: boolean;
 
   /** What the group holds -- items, sections, further collapsibles. Each sits one nesting level deeper. */
   children?: React.ReactNode;
 
-  /** The trigger was pressed, carrying the state it moved to. It fires on a press ONLY: the automatic expansion that follows the active destination is Arena's decision rather than the user's, and reporting it here would be a lie a consumer persists. */
+  /** The trigger was pressed, carrying the state it moved to. The event fires on a press ONLY. The automatic expansion that follows the active destination is Arena's decision rather than the user's, and reporting it here would be a lie a consumer persists. */
   onToggle?: (expanded: boolean) => void;
 }
 
@@ -69,7 +70,7 @@ export function ArenaSideNavCollapsible({ className,
   const styles = arenaSideNavStyles({ collapsed });
   if (collapsed) {
     return (
-      <div className={arenaClassName('ArenaSideNavCollapsible', styles.section(), className)} data-arena-part={manifest.parts.section} {...styles.$data.section()}>
+      <div className={arenaClassName('ArenaSideNavCollapsible', styles.section(), className, ARENA_CONTEXT_VOCABULARY)} data-arena-part={manifest.parts.section} {...styles.$data.section()}>
         <div aria-hidden="true" className={styles.separator()} data-arena-part={manifest.parts.separator} {...styles.$data.separator()} />
         <div role="group" aria-label={label} className={styles.region()} data-arena-part={manifest.parts.region} {...styles.$data.region()} data-arena-boundary="">
           {arenaInjectInto(children, { depth, activeId, onActivate, collapsed })}
@@ -77,10 +78,10 @@ export function ArenaSideNavCollapsible({ className,
       </div>
     );
   }
-  const glyph = icon ? <i className={`${icon} ${styles.icon()}`} data-arena-part={manifest.parts.icon} {...styles.$data.icon()} aria-hidden="true" /> : null;
+  const glyph = icon ? <span className={styles.icon()} data-arena-part={manifest.parts.icon} {...styles.$data.icon()} aria-hidden="true"><ArenaIcon icon={icon} /></span> : null;
 
   return (
-    <div className={arenaClassName('ArenaSideNavCollapsible', styles.section(), className)} data-arena-part={manifest.parts.section} {...styles.$data.section()}>
+    <div className={arenaClassName('ArenaSideNavCollapsible', styles.section(), className, ARENA_CONTEXT_VOCABULARY)} data-arena-part={manifest.parts.section} {...styles.$data.section()}>
       {
 
 }
@@ -90,8 +91,8 @@ export function ArenaSideNavCollapsible({ className,
         style={{ '--arena-side-nav-depth': arenaIndentDepth(depth) } as React.CSSProperties}>
         {glyph}
         <span className={styles.triggerLabel()} data-arena-part={manifest.parts.triggerLabel} {...styles.$data.triggerLabel()}>{label}</span>
-        <i className={`${expanded ? 'ph-bold ph-caret-down' : 'ph-bold ph-caret-right'} ${styles.caret()}`} data-arena-part={manifest.parts.caret} {...styles.$data.caret()}
-          aria-hidden="true" />
+        <span className={styles.caret()} data-arena-part={manifest.parts.caret} {...styles.$data.caret()}
+          aria-hidden="true"><ArenaIcon icon={expanded ? 'ph-bold ph-caret-down' : 'ph-bold ph-caret-right'} /></span>
       </button>
       {
 }

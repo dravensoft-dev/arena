@@ -6,6 +6,7 @@ import type { ArenaAlertTone } from '../../../Api.generated';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 import type { ArenaAlertClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon.tsx';
 
 export interface ArenaAlertProps {
   className?: ArenaAlertClass;
@@ -16,7 +17,7 @@ export interface ArenaAlertProps {
   title?: string;
   /** The message body. */
   children?: React.ReactNode;
-  /** A Phosphor class name overriding the tone's default glyph. Arena draws it. */
+  /** A Phosphor class name overriding the tone's default glyph. ArenaIcon draws it. */
   icon?: string;
   /** The label of a single inline action button. Absent renders no action. */
   actionLabel?: string;
@@ -46,18 +47,18 @@ export function ArenaAlert({ className, tone = 'info', title, children, icon, ac
   const at = toneOf(tone);
   const styles = arenaAlertStyles({ tone: at, titled: Boolean(title) });
   return (
-    <div role={tone === 'danger' ? 'alert' : 'status'} className={arenaClassName('ArenaAlert', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
-      <i className={`${icon || GLYPHS[at]} ${styles.icon()}`} data-arena-part={manifest.parts.icon} {...styles.$data.icon()} />
+    <div role={tone === 'danger' ? 'alert' : 'status'} className={arenaClassName('ArenaAlert', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+      <span className={styles.icon()} data-arena-part={manifest.parts.icon} {...styles.$data.icon()} aria-hidden="true"><ArenaIcon icon={icon || (GLYPHS[at] ?? '')} /></span>
       <div className={styles.body()} data-arena-part={manifest.parts.body} {...styles.$data.body()}>
         {title && <div className={styles.title()} data-arena-part={manifest.parts.title} {...styles.$data.title()}>{title}</div>}
         {children && <div className={styles.message()} data-arena-part={manifest.parts.message} {...styles.$data.message()} data-arena-boundary="">{children}</div>}
         {actionLabel && (
-          <button onClick={onAction} className={styles.action()} data-arena-part={manifest.parts.action} {...styles.$data.action()}>{actionLabel}</button>
+          <button type="button" onClick={onAction} className={styles.action()} data-arena-part={manifest.parts.action} {...styles.$data.action()}>{actionLabel}</button>
         )}
       </div>
       {dismissible && (
-        <button onClick={onClose} aria-label={locale.alertDismiss} className={styles.close()} data-arena-part={manifest.parts.close} {...styles.$data.close()}>
-          <i className="ph-bold ph-x" />
+        <button type="button" onClick={onClose} aria-label={locale.alertDismiss} className={styles.close()} data-arena-part={manifest.parts.close} {...styles.$data.close()}>
+          <ArenaIcon icon="ph-bold ph-x" />
         </button>
       )}
     </div>

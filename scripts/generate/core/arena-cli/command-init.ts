@@ -1,19 +1,25 @@
-/* arena init: copies the example config the package carries and wires the scripts that keep the
- * sheets current. It adds what is absent and never rewrites what a project already wrote. The audit
- * script names every rule and kind that exists when init runs, so a rule added afterwards is reported
- * and holds nothing until the project names it. */
-import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { dirname } from 'node:path';
+/* arena init: copies the example config the package carries, with the fonts it names, and wires
+ * the scripts that keep the sheets current. It adds what is absent and never rewrites what a
+ * project already wrote. The audit script names every rule and kind that exists when init runs,
+ * so a rule added afterwards is reported and holds nothing until the project names it. */
+import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import { DEFAULT_CONFIG, commandOptions, parseArgs } from './args.ts';
 import { hostManifest, resolveEnvironment } from './host.ts';
 import { under, voice } from './io.ts';
 import type { Io } from './io.ts';
 import { strictNames } from './reports.ts';
 
-const LAYER_SCRIPTS: Record<string, string[]> = {
+export const LAYER_SCRIPTS: Record<string, string[]> = {
   '@dravensoft/arena-react': ['prebuild', 'predev'],
   '@dravensoft/arena-angular': ['prebuild', 'prestart'],
 };
+
+export const wiredScripts = (layer: string[], suffix = ''): [string, string][] => [
+  ...layer.map((script): [string, string] => [script, `arena build${suffix}`]),
+  ['arena:check', `arena check --strict=components,glyph,markers${suffix}`],
+  ['arena:audit', `arena audit --strict=${strictNames('audit').join(',')}${suffix}`],
+];
 
 const message = (error: unknown) => (error instanceof Error ? error.message : String(error));
 
@@ -79,15 +85,24 @@ export function run(argv: string[], io: Io): number {
     }
     say.out(`wrote ${options.config}, a copy of the example this package carries`);
     wroteConfig = true;
+    const fonts = under(env.arena, 'fonts');
+    if (existsSync(fonts) && statSync(fonts).isDirectory()) {
+      const to = join(dirname(options.config), 'fonts');
+      try {
+        mkdirSync(to, { recursive: true });
+        const copied = readdirSync(fonts).filter((name) => !existsSync(join(to, name)));
+        for (const name of copied) copyFileSync(join(fonts, name), join(to, name));
+        if (copied.length > 0) say.out(`wrote ${copied.length} file(s) under ${to}, the fonts the example config names`);
+      } catch (error) {
+        say.err(`cannot write ${to}: ${message(error)}`);
+        return 2;
+      }
+    }
   }
 
   const quoted = /^[\w./@:+,=-]+$/.test(typedConfig) ? typedConfig : `"${typedConfig}"`;
   const suffix = typedConfig === DEFAULT_CONFIG ? '' : ` --config ${quoted}`;
-  const wanted: [string, string][] = [
-    ...layer.map((script): [string, string] => [script, `arena build${suffix}`]),
-    ['arena:check', `arena check --strict=components,glyph,markers${suffix}`],
-    ['arena:audit', `arena audit --strict=${strictNames('audit').join(',')}${suffix}`],
-  ];
+  const wanted = wiredScripts(layer, suffix);
 
   const scripts = (pkg.scripts ?? {}) as Record<string, string>;
   const added: string[] = [];

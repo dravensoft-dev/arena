@@ -25,7 +25,7 @@ import { ArenaSlotAttributes } from '../../../SlotData';
         {{ option.label }}
         <input type="radio" [class]="styles().input()" [attr.data-arena-part]="parts.input" [attr.name]="groupName()"
                [attr.value]="option.value" [checked]="option.value === selected()"
-               (change)="choose(option.value, $event)" />
+               (change)="choose(option.value)" />
       </label>
     }
   `,
@@ -41,15 +41,15 @@ export class ArenaSegmentedControl {
   readonly defaultValue = input<string>();
   /** Names what is being filtered: "Time range", not "Filter". A radio group with no accessible name is announced unlabelled. */
   readonly ariaLabel = input.required<string>();
-  /** Shared name for the underlying radios; generated when omitted. */
+  /** Shared name for the underlying radios; generated when omitted or blank. */
   readonly name = input<string>();
-  /** A different option was chosen; carries its value. */
-  readonly change = output<string>();
+  /** A different option was chosen; carries its value. The native change of the inner radio is never stopped, so a listener on the document hears it; this event carries the value. */
+  readonly valueChange = output<string>();
 
   private readonly fallbackName = inject(ArenaIdGenerator).next('arena-segmented-control');
   private readonly chosen = signal<string | undefined>(undefined);
 
-  protected readonly groupName = computed(() => this.name() ?? this.fallbackName);
+  protected readonly groupName = computed(() => this.name() || this.fallbackName);
 
   protected readonly selected = computed(() => this.value()
     ?? this.chosen()
@@ -62,9 +62,8 @@ export class ArenaSegmentedControl {
     return arenaSegmentedControlStyles({ selected: value === this.selected() });
   }
 
-  protected choose(value: string, event: Event): void {
-    event.stopPropagation();
+  protected choose(value: string): void {
     this.chosen.set(value);
-    this.change.emit(value);
+    this.valueChange.emit(value);
   }
 }

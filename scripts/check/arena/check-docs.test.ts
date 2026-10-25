@@ -17,6 +17,7 @@ import {
   RULE_OWNERS, CONTRIBUTOR_BRANCH, ruleOwnerProblems, statesRule, CONSUMER_OWN_OUTPUT,
   FOREIGN_CODE, foreignCodeProblems, componentCountProblems,
   blobLinkProblems, COMMENT_RULE_SKIPS, SOURCE_EXTENSIONS, MAX_CELL_CHARS, cellSizeProblems,
+  hueProblems,
 } from './check-docs.ts';
 
 function tree(files: Record<string, string>) {
@@ -82,8 +83,9 @@ test('a table cell over its limit is reported by line, and a fenced table or a l
   rmSync(root, { recursive: true });
 });
 
-test('SIZE_ALLOWANCE is empty, and that emptiness is the claim', () => {
-  assert.deepEqual([...SIZE_ALLOWANCE.keys()], []);
+test('SIZE_ALLOWANCE names the arena gate table alone, and every other document holds the shared limit', () => {
+  assert.deepEqual([...SIZE_ALLOWANCE.keys()], ['scripts/check/arena/AGENTS.md']);
+  assert.ok((SIZE_ALLOWANCE.get('scripts/check/arena/AGENTS.md')?.reason ?? '').length > 40);
   assert.equal(limitFor('AGENTS.md'), MAX_DOCUMENT_CHARS);
   assert.equal(limitFor('scripts/AGENTS.md'), MAX_DOCUMENT_CHARS);
 });
@@ -528,7 +530,7 @@ test('an entry no document on its own branch states fails as a stale registratio
 
 test('a consumer output is allowed by its whole name, so a build product of this repository still fails', () => {
   const root = tree({
-    'frameworks/react/PACKAGE.md': 'Import ./icons.generated.css beside ./arena.generated.css.',
+    'frameworks/react/PACKAGE.md': 'Import ./arena.icons.generated.js beside ./arena.generated.css.',
     'frameworks/angular/PACKAGE.md': 'Import ./Tokens.generated.ts, which is ours and not theirs.',
   });
   const { problems } = consumerBranchProblems(root);
@@ -540,7 +542,7 @@ test('a consumer output is allowed by its whole name, so a build product of this
 test('every allowed consumer output carries a reason, because a bare exemption cannot be argued with', () => {
   assert.ok(CONSUMER_OWN_OUTPUT.size > 0);
   for (const [name, reason] of CONSUMER_OWN_OUTPUT) {
-    assert.match(name, /\.generated\.[a-z]+$/, `${name} is registered and is not a generated name`);
+    assert.match(name, /\.generated\.(?:d\.)?[a-z]+$/, `${name} is registered and is not a generated name`);
     assert.ok(reason.includes('CONSUMER'), `${name} is registered with no statement of whose output it is`);
   }
 });
@@ -660,5 +662,62 @@ test('a GitHub blob link into this repository fails outside the npm pages and th
   const problems = blobLinkProblems(root);
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /^intro\/AGENTS\.md:1: .*relative path/);
+  rmSync(root, { recursive: true });
+});
+
+test('no prompt prose and no contract description names a hue of the default skin', () => {
+  assert.deepEqual(hueProblems(), []);
+});
+
+test('a hue word in a class or asset name passes and one in prose two words on fails', () => {
+  const root = tree({
+    'frameworks/react/components/x/ArenaX.prompt.md':
+      'Add `arena-accent-gold` and `rotor-crimson.svg`, then paint it gold.\n',
+  });
+  const problems = hueProblems(root);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /"gold"/);
+  rmSync(root, { recursive: true });
+});
+
+test('a hue word in a generated region is reported where it is written', () => {
+  const root = tree({
+    'frameworks/react/components/x/ArenaX.prompt.md':
+      '<!-- @api GENERATED from contracts/api/components/ArenaX.json. Edit the contract, not this table. -->\n'
+      + '| `tone` | primitive | `string` |  | Turns crimson. |\n<!-- @api end -->\n',
+    'contracts/api/components/ArenaX.json': JSON.stringify({ description: 'Turns crimson.' }),
+  });
+  const problems = hueProblems(root);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /contracts\/api\/components\/ArenaX\.json/);
+  rmSync(root, { recursive: true });
+});
+
+test('a hue inside a longer word is no hue', () => {
+  const root = tree({
+    'frameworks/react/components/x/ArenaX.prompt.md': 'A reddish tint, Redis, bones and a golden rule.\n',
+  });
+  assert.deepEqual(hueProblems(root), []);
+  rmSync(root, { recursive: true });
+});
+
+test('a hue-named custom property is refused even in a code span', () => {
+  const root = tree({
+    'frameworks/react/components/x/ArenaX.prompt.md': 'Read `--crimson-soft` behind `--bone`.\n',
+  });
+  const problems = hueProblems(root);
+  assert.equal(problems.length, 2);
+  assert.match(problems[0] ?? '', /names --crimson-soft,/);
+  assert.match(problems[1] ?? '', /names --bone,/);
+  rmSync(root, { recursive: true });
+});
+
+test('an unpaired backtick hides no hue on the lines after it', () => {
+  const root = tree({
+    'frameworks/react/components/x/ArenaX.prompt.md': 'Read `arena-x and stop.\nThen paint it gold `here`.\n',
+  });
+  const problems = hueProblems(root);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /ArenaX\.prompt\.md:2: .*"gold"/);
   rmSync(root, { recursive: true });
 });

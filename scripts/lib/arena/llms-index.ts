@@ -9,11 +9,12 @@
  * Deriving lifts a sentence out of a document: a full stop inside a code span, a link or an
  * emphasis does not end one, and a marker whose partner stayed behind is not published. */
 
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { basename, join, posix } from 'node:path';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 import { repoRoot as root } from './repo-root.ts';
+import { replaceOutsideCode } from '../../generate/core/arena-mcp/code-spans.ts';
 import { DOMAIN, LAYERS } from './site-pages.ts';
 
 export const LLMS_INDEX = 'llms.txt';
@@ -21,7 +22,8 @@ export const PROMPT_SUFFIX = '.prompt.md';
 export const ROUTER = 'skills/design/SKILL.md';
 export const INDEX = 'INDEX.md';
 export const REFERENCE_DIR = 'skills/design/references';
-export const REFERENCE_LINK = /\.\/references\/([A-Za-z0-9-]+\.md)/g;
+export const REFERENCE_LINK = /\.\/references\/((?:[A-Za-z0-9-]+\/)?[A-Za-z0-9-]+\.md)/g;
+export const SECTION_INDEX = 'index.md';
 export const HEADLINE = /^#\s+(.+)$/m;
 export const OPENING = /^#\s+.+\n+([\s\S]*?)(?:\n\n|$)/;
 export const WHEN = /Read this /;
@@ -80,10 +82,18 @@ export function layerDocs(layer: string, base = root) {
   ].filter((rel) => existsSync(join(base, rel)));
 }
 
+export function sectionPages(rel: string, base = root) {
+  const dir = posix.dirname(rel);
+  if (basename(rel) !== SECTION_INDEX || dir === REFERENCE_DIR) return [rel];
+  const pages = readdirSync(join(base, dir)).filter((name) => name.endsWith('.md') && name !== SECTION_INDEX).sort();
+  return [rel, ...pages.map((name) => `${dir}/${name}`)];
+}
+
 export function references(base = root) {
   const linked = readFileSync(join(base, ROUTER), 'utf8').matchAll(REFERENCE_LINK);
   return [...new Set([...linked].map((hit) => `${REFERENCE_DIR}/${hit[1]}`))]
-    .filter((rel) => existsSync(join(base, rel)));
+    .filter((rel) => existsSync(join(base, rel)))
+    .flatMap((rel) => sectionPages(rel, base));
 }
 
 export function headline(rel: string, base = root) {
@@ -178,7 +188,9 @@ export function when(rel: string, base = root) {
 }
 
 export function blurb(rel: string, base = root) {
-  return [opening(rel, base), when(rel, base)].filter(Boolean).join(' ');
+  const first = opening(rel, base);
+  const read = when(rel, base);
+  return [first, first.includes(read) ? '' : read].filter(Boolean).join(' ');
 }
 
 export function servedDocs(base = root) {
@@ -243,7 +255,7 @@ export function index(base = root) {
 export const RELATIVE_LINK = /\]\((?![a-z][a-z0-9+.-]*:|#|\/)([^)\s]+)\)/g;
 
 export function onSite(text: string, rel: string) {
-  return text.replace(RELATIVE_LINK, (_, target: string) => {
+  return replaceOutsideCode(text, RELATIVE_LINK, (_, target = '') => {
     const [path, anchor] = target.split('#');
     const resolved = posix.normalize(posix.join(posix.dirname(rel), path ?? ''));
     return `](${docUrl(resolved)}${anchor === undefined ? '' : `#${anchor}`})`;

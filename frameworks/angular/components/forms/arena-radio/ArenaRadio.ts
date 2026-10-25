@@ -31,7 +31,7 @@ import { ArenaSlotAttributes } from '../../../SlotData';
       }
       <input type="radio" [class]="styles().input()" [attr.data-arena-part]="parts.input" [attr.name]="groupName()"
              [attr.value]="value()" [checked]="checked()" [disabled]="off()"
-             (change)="onChange($event)" />
+             (change)="onChange()" />
     </label>
   `,
 })
@@ -57,8 +57,9 @@ export class ArenaRadio {
     checked: this.checked(), disabled: this.off(),
   }));
 
-  protected onChange(event: Event): void {
-    event.stopPropagation();
-    if (!this.off()) this.group.choose(this.value());
+  protected onChange(): void {
+    if (this.off()) return;
+    this.group.choose(this.value());
+    this.group.resync();
   }
 }

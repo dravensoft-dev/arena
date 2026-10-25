@@ -1,0 +1,32 @@
+<!-- @dsCard group="Tailwind" viewport="700x320" name="ArenaPopover" subtitle="A trigger and its open panel, rendered from ArenaPopover.manifest.json" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../../intro/styles.css">
+<link rel="stylesheet" href="../../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../../consume/components/feedback/arena-popover/ArenaPopover.styles.generated.css">
+<link rel="stylesheet" href="../../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
+
+const manifest = await (await fetch('./ArenaPopover.manifest.json')).json();
+const c = arenaClassesFor(manifest);
+const d = arenaSlotDataFor(manifest);
+
+/* Rendered open and in flow, a step under its trigger: a component places its panel by script in
+   the top layer, and a specimen that had to press the trigger would show nothing in a screenshot. */
+function popover(trigger, body) {
+  const root = el('div', { class: c.root, ...d.root },
+    el('button', { type: 'button', class: 'font-body text-ctl', 'aria-haspopup': 'dialog', 'aria-expanded': 'true', text: trigger }));
+  const panel = el('div', { class: c.panel, ...d.panel, role: 'dialog', 'aria-label': trigger, 'data-arena-surface': 'floating' },
+    el('p', { text: body }));
+  panel.style.marginTop = 'calc(var(--sp-1) * 1.5)';
+  return el('div', {}, root, panel);
+}
+
+mountSpecimen({ sections: [
+  section('Open: the panel takes its content\'s width', [
+    popover('Filters', 'Only failing builds on main, in the last seven days.'),
+    popover('What is p95?', 'The response time that 95 of every 100 requests come in under.'),
+  ]),
+]});
+</script></body></html>

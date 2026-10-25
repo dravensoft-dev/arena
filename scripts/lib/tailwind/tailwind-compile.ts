@@ -6,18 +6,20 @@
  * key each is a silent no-op except the depth, which goes negative and throws. Handing it back to
  * node costs nothing, since join reads a forward slash on every platform. The two paths in the
  * entry stylesheet convert for the same reason: a backslash inside a CSS string starts an escape
- * rather than a segment, so a native root names a file that is not on disk. */
+ * rather than a segment, so a native root names a file that is not on disk. The cache key is
+ * Theme.css, every local stylesheet it imports, and the manifests. */
 
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { basename, join } from 'node:path';
+import { basename, dirname, join } from 'node:path';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../arena/repo-root.ts';
 import { nodeBin } from '../arena/node-bin.ts';
 import { cached } from '../arena/artifact-cache.ts';
+import { captured } from '../../utils/captures.ts';
 import { relPosix, toPosix } from '../../utils/posix-path.ts';
 import type { ManifestClassSource, Manifests } from './manifest-shapes.ts';
 
@@ -73,9 +75,35 @@ export function compileEntry(entry: string, root = repoRoot, inputs?: string[]) 
   return cached(entryName(entry), inputs, run, root);
 }
 
+const IMPORT = /@import\s+(?:url\(\s*)?(['"]?)([^'"\s)]+)\1/g;
+const COMMENT = /\/\*[\s\S]*?\*\//g;
+
+export function themeImports(root = repoRoot) {
+  const theme = join(root, 'frameworks/tailwind/Theme.css');
+  const seen = new Set<string>();
+  const queue = [theme];
+  while (queue.length) {
+    const from = queue.pop()!;
+    for (const found of readFileSync(from, 'utf8').replace(COMMENT, '').matchAll(IMPORT)) {
+      const spec = captured(found, 2);
+      const file = join(dirname(from), spec);
+      const dotted = /^\.{1,2}\//.test(spec);
+      if (!dotted && !(spec.endsWith('.css') && !/^([a-z][a-z0-9+.-]*:|\/)/i.test(spec) && existsSync(file))) continue;
+      if (!existsSync(file))
+        throw new Error(`${relPosix(root, from)} imports ${spec}, which does not exist at ${relPosix(root, file)}`);
+      if (file !== theme && !seen.has(file)) {
+        seen.add(file);
+        queue.push(file);
+      }
+    }
+  }
+  return [...seen].map((path) => relPosix(root, path)).sort();
+}
+
 export function layerInputs(root = repoRoot) {
   return [
     relPosix(root, join(root, 'frameworks/tailwind/Theme.css')),
+    ...themeImports(root),
     ...manifestFiles(join(root, 'frameworks/tailwind/components')).map((path) => relPosix(root, path)),
   ];
 }

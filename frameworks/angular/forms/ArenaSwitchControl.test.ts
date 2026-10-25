@@ -10,6 +10,7 @@ import { ArenaSwitch } from '../components/forms/arena-switch/ArenaSwitch';
 import { ArenaSwitchControl } from './ArenaSwitchControl';
 
 @Component({
+  selector: 'forms-arena-switch-control-host',
   standalone: true,
   imports: [ReactiveFormsModule, ArenaSwitch, ArenaSwitchControl],
   template: `<arena-switch label="Auto deploy" [formControl]="control" /><arena-switch label="Guarded" [confirm]="true" [formControl]="guarded" />`,

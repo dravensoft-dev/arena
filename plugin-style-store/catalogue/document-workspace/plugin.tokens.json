@@ -87,6 +87,10 @@
     "$type": "fontFamily",
     "$value": "{font.body}"
   },
+  "ff-key": {
+    "$type": "fontFamily",
+    "$value": "{font.mono}"
+  },
   "fw-eyebrow": {
     "$type": "fontWeight",
     "$value": "{fw.medium}"
@@ -100,6 +104,10 @@
     "$value": "none"
   },
   "tt-label": {
+    "$type": "keyword",
+    "$value": "none"
+  },
+  "tt-key": {
     "$type": "keyword",
     "$value": "none"
   },
@@ -290,6 +298,10 @@
       "unit": "px"
     }
   },
+  "timeline-dot": {
+    "$type": "dimension",
+    "$value": "{sp.5}"
+  },
   "container-max": {
     "$type": "dimension",
     "$value": {
@@ -352,6 +364,10 @@
   "pad-marker-y": {
     "$type": "dimension",
     "$value": "{sp.1}"
+  },
+  "pad-key-y": {
+    "$type": "dimension",
+    "$value": "{sp.0-5}"
   },
   "pad-row-x": {
     "$type": "dimension",
@@ -449,6 +465,14 @@
     "$value": "{color.neutral-content}"
   },
   "ink-muted": {
+    "$type": "color",
+    "$value": "{color.base-content}"
+  },
+  "ink-key": {
+    "$type": "color",
+    "$value": "{color.base-content}"
+  },
+  "ink-link": {
     "$type": "color",
     "$value": "{color.base-content}"
   },

@@ -3,19 +3,20 @@ import {
 } from '@angular/core';
 import { arenaContainerWidth } from '../../../ContainerSize';
 import { arenaWarnOnce } from '../../../WarnOnce';
-import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, ARENA_RAIL_STYLE, ARENA_SR_ONLY, arenaAreaFill, arenaPlotWidth, arenaValueWriter } from '../../../DataVisuals';
+import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, ARENA_SR_ONLY, arenaAreaFill, arenaPlotWidth, arenaRailStyle, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals';
 import {
   arenaLinearScale, arenaPointScale, arenaPointAt, arenaScaleValue, arenaNearestPointIndex,
 } from '../ChartScales';
 import { arenaLinePoints, arenaLineAreaPath, arenaCurvePath, arenaCurveAreaPath } from '../ChartMarks';
 import { arenaPlotBox, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY, arenaValueGutter } from '../ChartAxis';
 import { arenaChartTable, arenaSeriesColors, arenaSwatchChoice, arenaSeriesDomain, arenaSeriesPointCount } from '../ChartSeries';
-import { arenaTooltipAnchor } from '../ChartTooltip';
+import { arenaRailAnchorX, arenaTooltipAnchor } from '../ChartTooltip';
+import { arenaRailReveal, arenaRailView } from '../ChartRailView';
 import { arenaCursorHandles, arenaCursorStep, arenaPointerClears, arenaPointerUpdates } from '../ChartPointer';
 import { arenaLegendStrip } from '../ChartLegend';
 import { arenaLineChartStyles } from './ArenaLineChart.variants';
 import manifest from './ArenaLineChart.classes.generated';
-import type { ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
+import type { ArenaCatSlot, ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
 import { chartPointR, chartPointRHover } from '../../../Tokens.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
 import { ArenaSlotAttributes } from '../../../SlotData';
@@ -45,8 +46,8 @@ const POINT_LABEL_STYLE = { fontSize: 'var(--dz-text-xs)' } as const satisfies R
   host: { style: 'display: contents' },
   template: `
     <div [class]="styles.frame()" [attr.data-arena-part]="parts.frame" [style.height.px]="height()">
-    <div #rail [style]="arenaRailStyle" tabindex="0" role="group" [attr.aria-label]="name()"
-         (keydown)="onKey($event)">
+    <div #rail [style]="railStyle()" tabindex="0" role="group" [attr.aria-label]="name()"
+         (keydown)="onKey($event)" (scroll)="syncView()">
     <svg [attr.width]="scrolls() ? width() : '100%'" [attr.height]="plotH()" role="img" [attr.aria-label]="name()"
          style="display:block;overflow:visible">
       @for (tick of gridLines(); track tick.value) {
@@ -124,15 +125,17 @@ const POINT_LABEL_STYLE = { fontSize: 'var(--dz-text-xs)' } as const satisfies R
       </div>
     }
 
-    <table [style]="arenaSrOnly">
-      <caption>{{ name() }}</caption>
-      <thead><tr>@for (column of table().columns; track $index) { <th>{{ column }}</th> }</tr></thead>
-      <tbody>
-        @for (row of table().rows; track $index) {
-          <tr><th scope="row">{{ row.header }}</th>@for (cell of row.cells; track $index) { <td>{{ cell }}</td> }</tr>
-        }
-      </tbody>
-    </table>
+    <div [style]="arenaSrOnly">
+      <table>
+        <caption>{{ name() }}</caption>
+        <thead><tr>@for (column of table().columns; track $index) { <th>{{ column }}</th> }</tr></thead>
+        <tbody>
+          @for (row of table().rows; track $index) {
+            <tr><th scope="row">{{ row.header }}</th>@for (cell of row.cells; track $index) { <td>{{ cell }}</td> }</tr>
+          }
+        </tbody>
+      </table>
+    </div>
     </div>
   `,
 })
@@ -142,11 +145,16 @@ export class ArenaLineChart {
   readonly labels = input.required<readonly string[]>();
   /** The plotted series, drawn as one polyline each over the same ordered sequence. One series is the common case and draws exactly what it drew before. The area fill is refused past one series, because two fills occlude each other and the reader cannot tell which value either edge belongs to. */
   readonly series = input.required<readonly ArenaSeries[]>();
-  /** Names the chart for its accessible name and for the caption of its data table. This is the CHART's name, not a series': a series names itself. Required and guarded rather than defaulted, because a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing, so two charts on one page announce identically. */
+  /** The ramp slot the first series takes when it names no colour of its own. Each later series takes the next slot, and after the last slot the count starts again at the first. A series' `colorId` or `colorIds` keeps the slot it names. Absent, 1. */
+  readonly colorStart = input<ArenaCatSlot, ArenaCatSlot | undefined>(
+    1,
+    { transform: (value) => value ?? 1 },
+  );
+  /** Names the chart for its accessible name and for the caption of its data table. The name is the CHART's, not a series': a series names itself. Required and guarded rather than defaulted, because a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing. Two charts on one page would announce identically. */
   readonly label = input.required<string>();
   /** Fill under the line at 18% of the series colour: a tint, never a gradient. For a single series; two fills occlude each other. */
   readonly area = input(false, { transform: booleanAttribute });
-  /** Draw the series as a smooth curve rather than straight segments between points. The interpolation is monotone cubic, not Catmull-Rom, and that is the whole of the decision: a Catmull-Rom curve overshoots, so between two measured points it draws a peak or a trough nobody measured, and a chart that draws data which does not exist is the one thing a chart may not do. A monotone curve stays inside the band its own two points define, keeps a flat tangent at a turning point, and never crosses zero unless the values do. It changes the path string and nothing else: the points, the crosshair, the tooltip and the data cursor read the same numbers at the same places. */
+  /** Draw the series as a smooth curve rather than straight segments between points. The interpolation is monotone cubic, not Catmull-Rom, and that is the whole of the decision. A Catmull-Rom curve overshoots, so between two measured points it draws a peak or a trough nobody measured. A chart that draws data which does not exist is the one thing a chart may not do. A monotone curve stays inside the band its own two points define, keeps a flat tangent at a turning point, and never crosses zero unless the values do. The curve changes the path string and nothing else: the points, the crosshair, the tooltip and the data cursor read the same numbers at the same places. */
   readonly curve = input(false, { transform: booleanAttribute });
   /** Appended verbatim to every number the chart draws: the axis ticks, the tooltip and the accessible table. Carries its own leading space if one is wanted. */
   readonly valueSuffix = input<string>();
@@ -154,18 +162,17 @@ export class ArenaLineChart {
   readonly valuePrefix = input<string>();
   /** How each number is written before the prefix and suffix are added: which locale, how many fraction digits, whether thousands are grouped, whether large numbers are compacted. Absent, the raw JavaScript number, which is what this chart drew before the member existed. */
   readonly valueFormat = input<ArenaNumberFormat>();
-  /** The plot's height in px, the --chart-height token by default. A number rather than a dimension string, because the chart does arithmetic with it to place every mark, and a caller-supplied "20rem" is neither a token nor a derivation of one. */
+  /** The plot's height in px, the --chart-height token by default. A number rather than a dimension string, because the chart does arithmetic with it to place every mark. A caller-supplied "20rem" is neither a token nor a derivation of one. */
   readonly height = input<number, number | undefined>(
     ARENA_CHART_HEIGHT,
     { transform: (value) => value ?? ARENA_CHART_HEIGHT },
   );
-  /** The narrowest gap, in px, the chart draws between two adjacent points. Below it the chart stops compressing and overflows its container horizontally instead, scrolled and anchored to the most recent point: marker spacing is a legibility constant, not something that yields to the viewport, and thirty days in 390px is unreadable at any font size. Absent, the chart fits whatever width it is given. The rail it scrolls in is the same region the data cursor lives in, and it is keyboard-reachable whether it overflows or not. */
+  /** The narrowest gap, in px, the chart draws between two adjacent points. Below it the chart stops compressing and overflows its container horizontally instead, scrolled and anchored to the most recent point. Marker spacing is a legibility constant, not something that yields to the viewport, and thirty days in 390px is unreadable at any font size. Absent, the chart fits whatever width it is given. The rail it scrolls in is the same region the data cursor lives in, and it is keyboard-reachable whether it overflows or not. */
   readonly minPointSpacing = input<number>();
 
   protected readonly parts = manifest.parts;
   protected readonly styles = arenaLineChartStyles();
   protected readonly arenaSrOnly = ARENA_SR_ONLY;
-  protected readonly arenaRailStyle = ARENA_RAIL_STYLE;
   protected readonly lineStyle = LINE_STYLE;
   protected readonly inkMuted = ARENA_INK_MUTED;
   protected readonly seriesStrokeStyle = SERIES_STROKE_STYLE;
@@ -190,11 +197,14 @@ export class ArenaLineChart {
   );
 
   protected readonly scrolls = computed(() => this.width() > this.available());
+  protected readonly railStyle = computed(() => arenaRailStyle(this.scrolls()));
 
   private readonly rail = viewChild<ElementRef<HTMLElement>>('rail');
 
+  private readonly railView = arenaRailView(() => this.rail()?.nativeElement);
+
   protected readonly colors = computed(
-    () => this.series().map((one, index) => arenaSeriesColors(one, 1, index + 1)[0] as string),
+    () => this.series().map((one, index) => arenaSeriesColors(one, 1, arenaCatRotate(this.colorStart(), index), 'ArenaLineChart', this.colorStart())[0] as string),
   );
 
   protected readonly fills = computed(() => {
@@ -206,7 +216,9 @@ export class ArenaLineChart {
   });
 
   protected readonly name = computed(() => {
-    return arenaPhrase(this.locale.lineChartName, { label: this.label() });
+    const label = this.label();
+    if (!label) throw new Error('ArenaLineChart: `label` is required (it names the chart for the accessible name, and nothing can derive that)');
+    return arenaPhrase(this.locale.lineChartName, { label });
   });
 
   private readonly domain = computed(() => arenaSeriesDomain(this.series()));
@@ -274,7 +286,7 @@ export class ArenaLineChart {
   protected readonly legend = computed(() => {
     if (this.strip().stripH === 0) return null;
     return this.series().map((one, index) => ({
-      index, label: one.label, swatch: arenaLineChartStyles(arenaSwatchChoice(one, index + 1)).$data.legendSwatch(),
+      index, label: one.label, swatch: arenaLineChartStyles(arenaSwatchChoice(one, arenaCatRotate(this.colorStart(), index), 0, this.colorStart())).$data.legendSwatch(),
     }));
   });
 
@@ -301,7 +313,7 @@ export class ArenaLineChart {
       x,
       label: this.labels()[index] ?? '',
       readings,
-      anchor: arenaTooltipAnchor(x, Math.min(...readings.map((one) => one.y))),
+      anchor: arenaTooltipAnchor(arenaRailAnchorX(x, this.scrolls(), this.railView.view(), this.available()), Math.min(...readings.map((one) => one.y))),
     };
   });
 
@@ -312,6 +324,30 @@ export class ArenaLineChart {
       if (!rail || !this.scrolls()) return;
       rail.scrollLeft = rail.scrollWidth - rail.clientWidth;
     });
+
+    afterRenderEffect(() => {
+      const rail = this.rail()?.nativeElement;
+      const at = this.hover();
+      const xScale = this.xScale();
+      const count = this.pointCount();
+      this.available();
+      if (!rail || !this.scrolls() || at === null || at >= count) return;
+      const x = arenaPointAt(xScale, at);
+      const to = arenaRailReveal(Math.max(0, x - xScale.step / 2), Math.min(this.width(), x + xScale.step / 2), rail.scrollLeft, rail.clientWidth);
+      if (to !== rail.scrollLeft) rail.scrollLeft = to;
+      this.railView.sync();
+    });
+
+    afterRenderEffect(() => {
+      this.available();
+      this.width();
+      this.scrolls();
+      this.railView.sync();
+    });
+  }
+
+  protected syncView(): void {
+    this.railView.sync();
   }
 
   protected onPointer(event: PointerEvent, phase: string): void {

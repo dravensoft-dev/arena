@@ -163,10 +163,11 @@ test('an abort ends the child rather than waiting on it', { timeout: BUDGET }, a
 test('a child that ignores SIGTERM is killed when the grace runs out, and the capture says it ignored it',
   { timeout: BUDGET, skip: POSIX_ONLY }, async () => {
     const { dir, file } = script([
-      "import { writeFileSync } from 'node:fs';",
+      "import { renameSync, writeFileSync, writeSync } from 'node:fs';",
       "process.on('SIGTERM', () => {});",
-      "process.stdout.write('holding\\n');",
-      'writeFileSync(process.argv[2], String(process.pid));',
+      "writeSync(1, 'holding\\n');",
+      'writeFileSync(`${process.argv[2]}.part`, String(process.pid));',
+      'renameSync(`${process.argv[2]}.part`, process.argv[2]);',
       'setInterval(() => {}, 1_000);',
     ]);
     const marker = join(dir, 'pid');

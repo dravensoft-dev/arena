@@ -27,7 +27,7 @@ const toneOf = (tone: string | undefined): ArenaTone | undefined =>
 export function ArenaBadge({ className, children, tone = 'neutral', dot = false }: ArenaBadgeProps) {
   const styles = arenaBadgeStyles({ tone: toneOf(tone) });
   return (
-    <span className={arenaClassName('ArenaBadge', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()} data-arena-boundary="">
+    <span className={arenaClassName('ArenaBadge', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()} data-arena-boundary="">
       {dot && <span className={styles.dot()} data-arena-part={manifest.parts.dot} {...styles.$data.dot()} />}
       {children}
     </span>

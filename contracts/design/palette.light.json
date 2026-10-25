@@ -29,6 +29,11 @@
     "cat-5": { "$value": { "colorSpace": "srgb", "components": [0, 0.5608, 0.6627], "hex": "#008fa9" }, "$description": "cyan    216°" },
     "cat-6": { "$value": { "colorSpace": "srgb", "components": [0.4314, 0.1961, 0.5529], "hex": "#6e328d" }, "$description": "purple  312°" },
     "cat-7": { "$value": { "colorSpace": "srgb", "components": [0, 0.5804, 0.5294], "hex": "#009487" }, "$description": "teal    184°" },
-    "cat-8": { "$value": { "colorSpace": "srgb", "components": [0.4863, 0.1686, 0.4824], "hex": "#7c2b7b" }, "$description": "orchid  328°" }
+    "cat-8": { "$value": { "colorSpace": "srgb", "components": [0.4863, 0.1686, 0.4824], "hex": "#7c2b7b" }, "$description": "orchid  328°" },
+    "heat-1": { "$value": { "colorSpace": "srgb", "components": [0.6196, 0.6, 0.7922], "hex": "#9e99ca" }, "$description": "Step 1 of the heat ladder, the lowest of five. A heat step carries magnitude only: never identity, never meaning.\nOPTIONAL: a palette that pins none of heat-1 to heat-5 has all five derived from cat-4, base-200\nand base-content (arena-cli/oklab.ts:heatLadder); a palette pins all five or none.\nThis skin pins a ladder of its own, tuned by hand, and check:ramp holds the values a browser is served." },
+    "heat-2": { "$value": { "colorSpace": "srgb", "components": [0.4941, 0.4588, 0.7294], "hex": "#7e75ba" }, "$description": "Step 2 of the heat ladder. Magnitude only, never identity, never meaning. OPTIONAL, like heat-1." },
+    "heat-3": { "$value": { "colorSpace": "srgb", "components": [0.3765, 0.3176, 0.6588], "hex": "#6051a8" }, "$description": "Step 3 of the heat ladder. Magnitude only, never identity, never meaning. OPTIONAL, like heat-1." },
+    "heat-4": { "$value": { "colorSpace": "srgb", "components": [0.2667, 0.2157, 0.498], "hex": "#44377f" }, "$description": "Step 4 of the heat ladder. Magnitude only, never identity, never meaning. OPTIONAL, like heat-1." },
+    "heat-5": { "$value": { "colorSpace": "srgb", "components": [0.1608, 0.149, 0.2471], "hex": "#29263f" }, "$description": "Step 5 of the heat ladder. Magnitude only, never identity, never meaning. OPTIONAL, like heat-1." }
   }
 }

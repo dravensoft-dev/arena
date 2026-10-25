@@ -12,6 +12,7 @@ import { join } from 'node:path';
 import { TestBed } from '@angular/core/testing';
 import { ArenaCommandPalette } from './ArenaCommandPalette';
 import { assertPattern, ANGULAR_COMPONENTS } from '../../../test/Compliance';
+import { assertNoNode, assertSameNode } from '../../../test/NodeAssert';
 
 const BINDING = join(ANGULAR_COMPONENTS, 'navigation/arena-command-palette/ArenaCommandPalette.behaviour.json');
 
@@ -62,7 +63,10 @@ test('the search field is a combobox that names the row it is on', () => {
       root: host,
       bindingPath: BINDING,
       subjects: { default: input },
-      behavioural: { 'keyboard.ArrowDown': true, 'keyboard.Escape': true, 'keyboard.Enter': true },
+      behavioural: {
+        'keyboard.ArrowDown': true, 'keyboard.Escape': true, 'keyboard.Enter': true,
+        'focus.onOpen': true, 'focus.onClose': true, 'focus.trap': true,
+      },
     });
   } finally {
     fixture.destroy();
@@ -86,5 +90,51 @@ test('Enter closes before it runs, so a host that only listens to run is not lef
     assert.deepEqual(order, ['close', 'run:deploy', 'close'], 'Escape must report through close alone');
   } finally {
     fixture.destroy();
+  }
+});
+
+test('the escape cap and every shortcut are kbd elements, printed as given', () => {
+  const { fixture, host } = render();
+  try {
+    const esc = host.querySelector<HTMLElement>('[data-arena-part="command-palette.esc"]')!;
+    assert.equal(esc.tagName, 'KBD', 'the escape cap is a span, so the one cap Arena already drew is not keyboard input to a reader');
+    const shortcut = host.querySelector<HTMLElement>('[data-arena-part="command-palette.shortcut"]')!;
+    assert.equal(shortcut.tagName, 'KBD');
+    assert.equal(shortcut.textContent, '⌘D', 'the string is printed whole, as the type field holds it');
+  } finally {
+    fixture.destroy();
+  }
+});
+
+test('the empty line sits in the panel after the listbox, not inside it', () => {
+  const fixture = TestBed.createComponent(ArenaCommandPalette);
+  fixture.componentRef.setInput('commands', []);
+  fixture.componentRef.setInput('open', true);
+  fixture.detectChanges();
+  const host = fixture.nativeElement as HTMLElement;
+  const empty = host.querySelector('[data-arena-part="command-palette.empty"]');
+  assert.ok(empty, 'no empty line was drawn');
+  assert.equal(empty.parentElement?.getAttribute('data-arena-part'), 'command-palette.panel');
+  assertNoNode(host.querySelector('[role="listbox"] [data-arena-part="command-palette.empty"]'));
+});
+
+test('opening focuses the search field, and closing returns focus to the invoker', () => {
+  const invoker = document.createElement('button');
+  document.body.appendChild(invoker);
+  invoker.focus();
+  const fixture = TestBed.createComponent(ArenaCommandPalette);
+  try {
+    fixture.componentRef.setInput('commands', COMMANDS);
+    fixture.componentRef.setInput('open', true);
+    fixture.detectChanges();
+    const input = (fixture.nativeElement as HTMLElement).querySelector('[role="combobox"]');
+    assertSameNode(document.activeElement, input, 'opening left focus off the search field');
+
+    fixture.componentRef.setInput('open', false);
+    fixture.detectChanges();
+    assertSameNode(document.activeElement, invoker, 'closing did not return focus to the invoker');
+  } finally {
+    fixture.destroy();
+    invoker.remove();
   }
 });

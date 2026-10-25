@@ -22,5 +22,23 @@
     ],
     "label": "Open issues by area"
   },
-  "note": "Categories with names worth reading are what this chart is for: across the plot they would be rotated or truncated."
+  "variants": {
+    "zeros": {
+      "series": [{"label": "Open issues", "values": [0, 0, 0, 0, 0]}]
+    },
+    "negative": {
+      "series": [{"label": "Net change", "values": [14, -9, 6, -17, 3]}]
+    },
+    "long-name": {
+      "labels": ["Cross-region replication and failover pl", "Onboarding", "Billing", "Search", "Notifications"]
+    },
+    "stacked-negative": {
+      "stack": true,
+      "series": [{"label": "Gains", "values": [14, 9, 0, 21, 6]}, {"label": "Losses", "values": [-6, -11, -3, 0, -8]}]
+    },
+    "tone-and-color-id": {
+      "series": [{"label": "Open issues", "values": [14, 9, 6, 17, 3], "tone": "success", "colorId": 2}]
+    }
+  },
+  "note": "Categories with names worth reading are what this chart is for: along a vertical chart's bottom edge long names collide."
 }

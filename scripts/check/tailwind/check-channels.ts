@@ -15,7 +15,7 @@ import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
-import { VOCABULARY_SHEETS, readFamilies, sheetName } from '../../lib/tailwind/vocabulary.ts';
+import { VOCABULARY_SHEETS, VOCABULARY_DIR, FAMILY_SUFFIX, readFamilies, sheetName } from '../../lib/tailwind/vocabulary.ts';
 import { HUE_CHANNELS, HUE_SHEETS } from '../../lib/tailwind/hue-sheet.ts';
 import { parseBlocks, selectorPath } from '../../generate/core/arena-cli/css-blocks.ts';
 import type { CssBlock } from '../../generate/core/arena-cli/css-blocks.ts';
@@ -26,7 +26,8 @@ export const TOKEN_SHEETS = ['contracts/design-generated', 'contracts/design'];
 
 export const node = {
   name: 'check:channels',
-  reads: [`${VOCABULARY_SHEETS}/**`, `${COMPONENT_SHEETS}/**`, `${HUE_SHEETS}/**`, 'contracts/design-generated/**', `${PLUGIN_STORE}/*/plugin.css`, `${PLUGIN_STORE}/catalogue/*/plugin.css`, 'contracts/design/*.css'],
+  reads: [`${VOCABULARY_SHEETS}/**`, `${COMPONENT_SHEETS}/**`, `${HUE_SHEETS}/**`, 'contracts/design-generated/**', `${PLUGIN_STORE}/*/plugin.css`, `${PLUGIN_STORE}/catalogue/*/plugin.css`, 'contracts/design/*.css',
+    `${VOCABULARY_DIR}/**/*${FAMILY_SUFFIX}`],
   writes: [],
   feeds: [],
 };

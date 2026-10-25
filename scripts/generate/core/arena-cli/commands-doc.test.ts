@@ -5,9 +5,9 @@
  * names is a run that exits with that code. The page is prose a person writes, so this is what
  * keeps it from promising a code, a script or a flag the command does not keep. */
 
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -16,8 +16,16 @@ import { COMMAND_NAMES, FLAGS, FLAG_NAMES, NEIGHBOURS, SPECS } from './args.ts';
 import type { FlagName } from './args.ts';
 import { KINDS_BY_COMMAND, RULES_BY_KIND } from './reports.ts';
 import { OUTPUT_SHEETS } from './sources.ts';
-import { MAP, SHEETS, captureIo, hostRoot, phosphor, project, readable } from './cli-fixtures.ts';
+import { MAP, SHEETS, captureIo, hostRoot, phosphor, project, readable, removeFixtures, packageStub } from './cli-fixtures.ts';
+import { fontToolRoots } from './host.ts';
 import type { HostEnvironment } from './host.ts';
+
+const made: string[] = [];
+const track = (dir: string) => { made.push(dir); return dir; };
+after(() => {
+  for (const dir of made) rmSync(dir, { recursive: true, force: true });
+  removeFixtures();
+});
 
 const PAGE = fileURLToPath(new URL('../../../../skills/design/references/cli.md', import.meta.url));
 const ANSWERED = new Set<string>([...COMMAND_NAMES, 'help', '--help', '-h', '--version']);
@@ -84,17 +92,17 @@ test('every kind --strict holds is named on the line that names its command, and
   }
 });
 
-test('every rule --strict can name is on the rules row of its kind, and kind:rule is said', () => {
+test('every rule --strict can name has a row in the tag table its kind row links, and kind:rule is said', () => {
   const source = page();
   assert.ok(source.includes('`<kind>:<rule>`'), 'the page never says how a rule is named');
+  const rows = source.split('\n');
   for (const [kind, rules] of Object.entries(RULES_BY_KIND)) {
-    const line = source.split('\n').find((one) => one.startsWith(`| \`${kind}\` |`));
+    const line = rows.find((one) => one.startsWith(`| \`${kind}\` |`));
     assert.ok(line, `the rules table has no row for ${kind}`);
-    for (const rule of rules ?? []) assert.ok(line.includes(`\`${rule}\``), `the ${kind} row does not name ${rule}`);
-    const cells = line.split('|').slice(2).join('|');
-    for (const [, named] of cells.matchAll(/`([^`]+)`/g)) {
-      assert.ok((rules ?? []).includes(named ?? ''), `the ${kind} row names ${named}, which ${kind} does not have`);
-    }
+    assert.ok(line.includes('(#what-does-each-audit-tag-report)'), `the ${kind} row links no table of its rules`);
+    assert.ok(rows.includes('## What does each audit tag report?'), 'the table sits under the heading the row links');
+    assert.ok((rules ?? []).length > 0, `${kind} names no rule, so this checked nothing`);
+    for (const rule of rules ?? []) assert.ok(rows.some((one) => one.startsWith(`| \`${rule}\` |`)), `no tag row names ${rule}`);
   }
 });
 
@@ -119,7 +127,7 @@ function block(source: string, heading: string) {
 
 for (const [framework, name] of INIT_BLOCKS) {
   test(`the ${framework} JSON block is what arena init writes into {} on ${name}`, async () => {
-    const cwd = mkdtempSync(join(tmpdir(), 'arena-doc-init-'));
+    const cwd = track(mkdtempSync(join(tmpdir(), 'arena-doc-init-')));
     writeFileSync(join(cwd, 'package.json'), '{}\n');
     const { io } = captureIo(cwd, { arena: hostRoot(name, '1.0.0') });
     assert.equal(await main(['init'], io), 0);
@@ -135,12 +143,27 @@ const BROKEN = '{ "palettes": [], }';
 const READING = ['build', 'check', 'audit', 'usage'] as const;
 
 function environment(extra: HostEnvironment = {}): HostEnvironment {
-  return { arena: null, packageName: '@dravensoft/arena-react', map: MAP, sheets: null, vocabulary: null,
-    phosphor: phosphor().web, ...extra };
+  return { arena: packageStub(SHEETS), packageName: '@dravensoft/arena-react', map: MAP, sheets: null, vocabulary: null,
+    phosphor: phosphor().core, ...extra };
 }
 
 function at(label: string, argv: string[], cwd: string, extra: HostEnvironment = {}): Run {
   return { label, argv, cwd, environment: environment(extra) };
+}
+
+function localFonts() {
+  const fonts = fileURLToPath(new URL('../../../../assets/fonts/', import.meta.url));
+  const root = project({
+    ...readable,
+    fonts: {
+      display: { family: 'Archivo', src: './fonts/archivo.woff2' },
+      body: { family: 'Familjen Grotesk', src: './fonts/familjen-grotesk.woff2' },
+      mono: { family: 'Spline Sans Mono', src: './fonts/spline-sans-mono.woff2' },
+    },
+  });
+  mkdirSync(join(root, 'fonts'));
+  for (const name of ['archivo', 'familjen-grotesk', 'spline-sans-mono']) copyFileSync(join(fonts, `${name}.woff2`), join(root, 'fonts', `${name}.woff2`));
+  return root;
 }
 
 function brokenConfig() {
@@ -191,9 +214,11 @@ const CAUSES: Cause[] = [
   ]) },
   { code: 2, phrase: 'a missing `--src`', runs: () => READING.map((command) =>
     at(command, [command, '--src', 'nowhere'], project())) },
-  { code: 2, phrase: 'Phosphor not installed', runs: () => [
+  { code: 2, phrase: 'A missing `@phosphor-icons/core`, `harfbuzzjs` or `wawoff2` is a 2', runs: () => [
     at('build', ['build'], project(), { phosphor: null }),
     at('check', ['check'], project(), { phosphor: null }),
+    at('build with harfbuzzjs missing', ['build'], localFonts(), { fontTools: { harfbuzz: null, wawoff2: fontToolRoots().wawoff2 } }),
+    at('build with wawoff2 missing', ['build'], localFonts(), { fontTools: { harfbuzz: fontToolRoots().harfbuzz, wawoff2: null } }),
   ] },
   { code: 2, phrase: 'a file it cannot write or delete', runs: () => {
     const build = project();

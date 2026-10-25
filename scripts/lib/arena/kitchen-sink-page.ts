@@ -1,16 +1,13 @@
-/* The kitchen-sink page every layer serves, built in one place so the two differ in exactly the
- * two lines they have to: what mounts the app, and what it is loaded from. A sibling of
- * playground-page.ts rather than a caller: that page carries a scope class on <html> naming the
- * appearance it is drawn in, which is what lets check:pixel-parity navigate to a URL and know
- * what it is looking at. The theme button is
- * load-bearing: intro/theme.js applies nothing until it finds a .themebtn, so a page without one
- * ignores ?theme=light and one theme alone could be compared. The whole barrel is linked rather
- * than the list a playground computes, an order computed twice being one that can differ. Ready
- * re-asks after the frames: document.fonts.ready answers for the loads in flight when it is read
- * and mounting starts the rest, so a first resolution is a snapshot taken before the question. */
+/* The kitchen-sink page every layer serves, built in one place so the two differ in exactly the two
+ * lines they have to: what mounts the app, and what it is loaded from. A sibling of playground-page.ts
+ * rather than a caller: it carries a scope class on <html> naming the appearance, which lets
+ * check:pixel-parity know what it is looking at. The theme button is load-bearing: intro/theme.js
+ * applies nothing without a .themebtn. The whole barrel is linked, an order computed twice being one
+ * that can differ. Ready re-asks after the frames, since document.fonts.ready (the text fonts) is a snapshot taken
+ * before mounting starts the rest, and waits for every svg use to have a box, bounded by SPRITE. */
 
 import { BARREL } from '../../build/tailwind/build-tailwind.ts';
-import { PHOSPHOR_WEIGHTS } from './playground-page.ts';
+import { deadline } from './deadline.ts';
 import { scopeClass } from './kitchen-sink-model.ts';
 
 export const READY = 'data-arena-sink-ready';
@@ -40,9 +37,6 @@ export function kitchenSinkPage({ sink, up, banner, mount, head = '', script }: 
     `<link rel="stylesheet" href="${up}intro/toggle.css">`,
     `<link rel="stylesheet" href="${up}intro/kitchen-sink.css">`,
     `<link rel="stylesheet" href="${up}${BARREL}">`,
-    ...PHOSPHOR_WEIGHTS.map(
-      (weight) => `<link rel="stylesheet" href="${up}node_modules/@phosphor-icons/web/src/${weight}/style.css">`,
-    ),
   ];
   const scope = scopeClass(sink);
 
@@ -64,11 +58,29 @@ ${mount}
 `;
 }
 
+export const SPRITE = deadline('kitchen-sink:sprite', 10_000,
+  'the sprite is one local file the static server answers from disk, so a use still boxless after ten '
+  + 'seconds names a symbol the file does not hold, and the page must report that, not wait on it');
+
 export const READY_SIGNAL = `(async () => {
+  const boxed = () => {
+    for (const use of document.querySelectorAll('svg use')) {
+      const owner = Reflect.get(use, 'ownerSVGElement');
+      if (owner && owner.getClientRects().length === 0) continue;
+      try {
+        const box = Reflect.get(use, 'getBBox').call(use);
+        if (!(box.width > 0 && box.height > 0)) return false;
+      } catch { return false; }
+    }
+    return true;
+  };
+  const spriteBy = Date.now() + ${SPRITE.ms};
   for (;;) {
     await document.fonts.ready;
     await new Promise((frame) => requestAnimationFrame(() => requestAnimationFrame(frame)));
-    if (document.fonts.status === 'loaded') break;
+    if (document.fonts.status !== 'loaded') continue;
+    if (boxed()) break;
+    if (Date.now() > spriteBy) return;
   }
   document.documentElement.setAttribute('${READY}', '');
 })()`;

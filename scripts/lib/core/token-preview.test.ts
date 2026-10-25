@@ -4,7 +4,8 @@ import { readFileSync } from 'node:fs';
 import { readJson } from '../../utils/read-file.ts';
 import { flattenTokens, previewFor } from './token-preview.ts';
 import { parseDecls } from '../arena/css-decls.ts';
-import { DESIGN_DIR, FILES, THEME_SCOPES } from '../../generate/arena/generate-tokens.ts';
+import { crossKeys, rootOnlyFor } from '../../generate/core/arena-cli/style-plugin-rules.ts';
+import { DESIGN_DIR, FILES, ROOT_ONLY_SOURCES, THEME_SCOPES } from '../../generate/arena/generate-tokens.ts';
 
 test('flattens a nested group into dash-joined custom-property names', () => {
   const out = flattenTokens({
@@ -77,41 +78,55 @@ function colourReferencesIn(sources: string[]) {
   return names;
 }
 
-function deriveCases(files: { out: string; blocks: { selector: string; source: string; dir?: string }[] }[]) {
+function deriveCases(files: { out: string; blocks: { selector: string; source: string; dir?: string; plugin?: string }[] }[]) {
   const cases = [];
+  const widenedCases: (string | string[])[][] = [];
   for (const file of files) {
     const bySelector = new Map();
-    for (const { selector, source, dir = DESIGN_DIR } of file.blocks) {
+    const named = new Map<string, string[]>();
+    for (const { selector, source, dir = DESIGN_DIR, plugin } of file.blocks) {
       if (!bySelector.has(selector)) bySelector.set(selector, []);
       bySelector.get(selector).push(`${dir}/${source}`);
+      if (plugin !== undefined) named.set(selector, ['arena-plugin']);
+      const rootOnly = (file as { rootOnly?: string }).rootOnly;
+      if (rootOnly === selector) {
+        const [contrast, environment] = ROOT_ONLY_SOURCES.map((at) => readFileSync(at, 'utf8'));
+        const restated = rootOnlyFor(selector, { contrast: contrast as string, environment: environment as string });
+        const widened = /^@media[^{]*\{[\s\S]*?\n\}\n\}/.exec(restated)?.[0] ?? '';
+        const names = (css: string) => [...css.matchAll(/--([\w-]+):/g)].map((m) => m[1] as string);
+        named.set(selector, [...(named.get(selector) ?? []), ...names(restated.slice(widened.length))]);
+        if (widened) widenedCases.push([names(widened), `contracts/design-generated/${file.out}`,
+          `@media (prefers-contrast: more) ${selector}`, [`${ROOT_ONLY_SOURCES[0]}`]]);
+      }
     }
     const css = `contracts/design-generated/${file.out}`;
     for (const [selector, sources] of bySelector) {
       const tokens: { name: string; path?: string[] }[] =
         sources.flatMap((s: string) => flattenTokens(readJson(s)));
       cases.push([
-        tokens.filter((t) => !themeOf(t)).map((t) => t.name),
+        [...new Set([...(named.get(selector) ?? []), ...tokens.filter((t) => !themeOf(t)).map((t) => t.name)])],
         css, selector, sources,
       ]);
       const references = colourReferencesIn(sources);
-      for (const [theme, scope] of THEME_SCOPES) {
+      for (const theme of THEME_SCOPES.keys()) {
         const themed = tokens.filter((t) => themeOf(t) === theme)
           .map((t) => (t.path ?? []).slice(1).join('-'));
         if (themed.length || references.length)
-          cases.push([[...references, ...themed], css, scope(selector), sources]);
+          cases.push([[...references, ...themed], css, selector === ':root' ? [`.arena-${theme}`] : crossKeys(`.arena-${theme}`, selector), sources]);
       }
     }
   }
-  return cases;
+  return [...cases, ...widenedCases];
 }
 
 test('derived names match the custom properties the build actually emits, in every scope a block carries', () => {
   const cases = deriveCases(FILES);
   assert.ok(cases.length >= 4, 'expected at least one case per output file');
-  assert.ok(cases.some(([, , selector]) => String(selector).includes('.arena-light')),
+  assert.ok(cases.some(([, , selector]) => [selector].flat().join().includes('.arena-light')),
     'no theme-scoped case was derived, so this test would pass without ever reading a theme block');
   for (const [names, css, selector, sources] of cases) {
-    const emitted = [...parseDecls(readFileSync(String(css), 'utf8')).get(selector).keys()].sort();
+    const sheet = parseDecls(readFileSync(String(css), 'utf8'));
+    const emitted = [...new Set([selector].flat().flatMap((key) => [...sheet.get(key).keys()]))].sort();
     assert.deepEqual([...(names as string[])].sort(), emitted,
       `${(sources as string[]).join(', ')} -> ${css} ${selector}`);
   }

@@ -1,0 +1,19 @@
+{
+  "component": "ArenaDivider",
+  "cases": [
+    {
+      "name": "rule",
+      "when": "`label` is absent or blank -- the divider is one <hr>",
+      "pattern": "none",
+      "reason": "It renders a real <hr>, so the platform names its role, separator, the moment the element exists, and there is nothing to press, focus or dismiss. No pattern exists for a separator and none is proposed: the element carries its own semantics, and a vertical rule drawn by a class is still announced as a separator, which the prompt states.",
+      "exceptions": []
+    },
+    {
+      "name": "labelled",
+      "when": "`label` is set -- two decorative rules and the word between them",
+      "pattern": "none",
+      "reason": "A separator is a leaf whose children are presentational, so a word placed inside one can be dropped by a reader. The word is therefore ordinary text between two rules hidden from assistive technology, and the case claims no role: what a reader meets is the word, in reading order, with nothing to operate.",
+      "exceptions": []
+    }
+  ]
+}

@@ -7,7 +7,7 @@
 import { useTestEnvironment } from '../test/TestbedEnv';
 useTestEnvironment();
 
-import test from 'node:test';
+import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -22,6 +22,14 @@ import { ArenaSection } from './layout/arena-section/ArenaSection';
 import { ArenaBoardColumn } from './layout/arena-board-column/ArenaBoardColumn';
 import { ArenaEmptyState } from './feedback/arena-empty-state/ArenaEmptyState';
 import { ArenaErrorState } from './feedback/arena-error-state/ArenaErrorState';
+
+const root = document.documentElement;
+before(() => {
+  root.style.setProperty('--bp-sm', '480px');
+});
+after(() => {
+  root.style.removeProperty('--bp-sm');
+});
 
 const LADDER = [ArenaPageHead, ArenaHero, ArenaCard, ArenaUnauthCard, ArenaChartCard,
                 ArenaSection, ArenaBoardColumn, ArenaEmptyState, ArenaErrorState];

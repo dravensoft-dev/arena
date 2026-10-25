@@ -21,12 +21,13 @@ const BINDING = join(ANGULAR_COMPONENTS, 'forms/arena-checkbox/ArenaCheckbox.beh
 @Component({
   standalone: true,
   imports: [ArenaCheckbox],
-  template: `<arena-checkbox [checked]="checked" [label]="label" [disabled]="disabled"
-                             [required]="required" (change)="last = $event; changes = changes + 1" />`,
+  template: `<arena-checkbox [checked]="checked" [label]="label" [showLabel]="showLabel" [disabled]="disabled"
+                             [required]="required" (valueChange)="last = $event; changes = changes + 1" />`,
 })
 class CheckboxHost {
   checked = false;
-  label: string | undefined = 'Notify on failure';
+  label = 'Notify on failure';
+  showLabel = true;
   disabled = false;
   required = false;
   changes = 0;
@@ -106,7 +107,7 @@ test('a toggle emits change exactly once, carrying the new state rather than the
     control.dispatchEvent(new Event('change', { bubbles: true }));
     fixture.detectChanges();
     assert.equal(fixture.componentInstance.changes, 1,
-      'change is an output named after a native DOM event -- twice would mean the native one reached the consumer too');
+      'valueChange runs once for one toggle');
     assert.equal(fixture.componentInstance.last, true, 'the payload must be the new checked state');
   } finally {
     fixture.destroy();
@@ -122,6 +123,24 @@ test('disabled and required reflect onto the native attributes, which is where t
     assert.equal(control.required, true);
     assert.ok(control.hasAttribute('required'),
       'native required is what maps to required in the accessibility tree; aria-required would be a second claim');
+  } finally {
+    fixture.destroy();
+  }
+});
+
+test('a checkbox with a blank label is refused', () => {
+  assert.throws(() => render({ label: '   ' }), /^Error: ArenaCheckbox:/);
+});
+
+test('a blank label is refused even with showLabel false', () => {
+  assert.throws(() => render({ label: '   ', showLabel: false }), /^Error: ArenaCheckbox:/);
+});
+
+test('showLabel false draws no label and keeps the name on the input', () => {
+  const { fixture, host, control } = render({ label: 'Select row', showLabel: false });
+  try {
+    assertNoNode(host.querySelector('[data-arena-part="checkbox.label"]'));
+    assert.equal(control.getAttribute('aria-label'), 'Select row');
   } finally {
     fixture.destroy();
   }

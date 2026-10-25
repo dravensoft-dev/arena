@@ -1,12 +1,16 @@
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
 import {
-  coverageProblems, shapeProblems, seedProblems, slotProblems, bindProblems, hostProblems,
+  coverageProblems, shapeProblems, seedProblems, slotProblems, bindProblems, fieldProblems, hostProblems,
   valueProblems, objectProblems, nodeProblems, fixtureProblems, citationProblems,
   loadContracts, loadFixtures, loadTypes, citingFiles, basenameIndex, emissionProblems,
-  pagePaths, classProblems,
+  pagePaths, classProblems, variantProblems,
 } from './check-playgrounds.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
+import { buildPlaygrounds } from '../../generate/arena/generate-playgrounds.ts';
 import type { ComponentContract, TypeContract } from '../../lib/arena/contract-shapes.ts';
 
 const types = new Map<string, TypeContract>([
@@ -19,6 +23,11 @@ const types = new Map<string, TypeContract>([
       column: { form: 'primitive', type: 'number', required: true, description: 'The column.' },
       direction: { form: 'enum', type: 'ArenaSortDirection', required: true, description: 'The direction.' },
     },
+  }],
+  ['ArenaTagSet', {
+    name: 'ArenaTagSet',
+    kind: 'object',
+    fields: { values: { form: 'array', of: 'string', required: true, description: 'The tags.' } },
   }],
   ['ArenaTableColumn', {
     name: 'ArenaTableColumn',
@@ -39,7 +48,10 @@ const widget: ComponentContract = {
     sort: { form: 'object', type: 'ArenaTableSort', description: 'The sort.' },
     content: { form: 'slot', description: 'The body.' },
     mark: { form: 'slot', required: true, description: 'The mark.' },
+    tags: { form: 'array', of: 'string', description: 'The tags.' },
     sortChange: { form: 'event', payload: 'ArenaTableSort', description: 'Sorted.' },
+    tagsChange: { form: 'event', payload: 'ArenaTagSet', description: 'Retagged.' },
+    countChange: { form: 'event', payload: 'number', description: 'Counted.' },
     close: { form: 'event', description: 'Closed.' },
   },
 };
@@ -161,6 +173,27 @@ test('a host node is checked like any other node', () => {
   );
 });
 
+test('an element node holds children, the subject among them, and a list of nodes is all it holds', () => {
+  const paragraph = { element: 'p', children: [{ text: 'Read ' }, '$subject' as const, { text: ' first.' }] };
+  assert.deepEqual(hostProblems('Widget', { host: paragraph }, contracts, types), []);
+  assert.match(nodeProblems('w', paragraph, contracts, types, { allowSubject: false })[0] ?? '',
+    /^w\.children\[1\]: "\$subject" marks where the component under test goes and belongs in a host/);
+  assert.match(nodeProblems('w', { element: 'p', children: 'Read' } as any, contracts, types, {})[0] ?? '',
+    /^w\.children: an element holds a list of nodes and this is string/);
+  assert.match(nodeProblems('w', { element: 'p', text: 'Read', children: [] } as any, contracts, types, {})[0] ?? '',
+    /^w: a node carries text or children, never both/);
+  assert.match(nodeProblems('w', { element: 'p', children: [{ component: 'ArenaBadge', members: { tone: 'gold' } }] }, contracts, types, {})[0] ?? '',
+    /^w\.children\[0\]\.tone: .*is not one of ArenaTone's/);
+  assert.match(nodeProblems('w', { element: 'p', slots: {} } as any, contracts, types, {})[0] ?? '',
+    /^w: an element node carries element, attrs and text or children, never slots/);
+});
+
+test('a host counts the placeholder inside an element\'s children', () => {
+  const nested = { component: 'ArenaBadge', slots: { content: [{ element: 'p', children: ['$subject' as const, '$subject' as const] }] } };
+  const two = fixtureProblems('Widget', widget, { ...ok, host: nested }, contracts, types);
+  assert.match(two[0] ?? '', /holding 2 "\$subject" placeholders/);
+});
+
 test('a bind naming something that is not an event fails', () => {
   assert.match(bindProblems('Widget', widget, { bind: { label: 'tone' } }, types)[0] ?? '', /declares no event called label/);
 });
@@ -184,6 +217,26 @@ test('a patch is type-checked against the member it writes', () => {
 test('$delta steps a number and is refused on anything else', () => {
   assert.deepEqual(bindProblems('Widget', widget, { bind: { close: { index: { $delta: 1 } } } }, types), []);
   assert.match(bindProblems('Widget', widget, { bind: { close: { tone: { $delta: 1 } } } }, types)[0] ?? '', /\$delta steps a number/);
+});
+
+test('$field copies a payload field into a knob of the same shape and is refused otherwise', () => {
+  const bind = (target: unknown, event = 'tagsChange') => bindProblems('Widget', widget, { bind: { [event]: target } }, types);
+  assert.deepEqual(bind({ tags: { $field: 'values' } }), []);
+  assert.deepEqual(bind({ tags: { $field: 'values' }, index: { $delta: 1 } }), [], 'it composes with a step in one patch');
+  assert.match(bind({ tags: { $field: 'nope' } })[0] ?? '', /ArenaTagSet declares no field called nope/);
+  assert.match(bind({ tags: { $field: 'values' } }, 'close')[0] ?? '', /close carries no payload/);
+  assert.match(bind({ tags: { $field: 'values' } }, 'countChange')[0] ?? '', /reads a field of an object and countChange carries number/);
+  assert.match(bind({ index: { $field: 'values' } })[0] ?? '', /\$field values is array<string> and index is primitive<number>/);
+  assert.match(bind({ tags: { $field: 'values', $delta: 1 } })[0] ?? '', /holds a \$field directive and nothing else/);
+  assert.match(bind({ tags: { $field: 3 } })[0] ?? '', /holds the name of a payload field and this holds number/);
+  assert.match(bind({ label: { $field: 'column' } }, 'sortChange')[0] ?? '', /\$field column is primitive<number> and label is primitive<string>/);
+});
+
+test('$field compares the array item and not only the form', () => {
+  const numbers = { form: 'array', of: 'number', description: 'Numbers.' } as const;
+  const tagsChange = { form: 'event', payload: 'ArenaTagSet', description: 'Retagged.' } as const;
+  assert.match(fieldProblems('W', 'tagsChange', tagsChange, 'n', numbers, { $field: 'values' }, types)[0] ?? '',
+    /array<string> and n is array<number>/);
 });
 
 test('the citation check fires on a page name no file carries, which a bare filename is how prose rots', () => {
@@ -210,10 +263,23 @@ test('every real fixture in the tree holds against its real contract', () => {
   assert.deepEqual(problems, []);
 });
 
+const made: string[] = [];
+after(() => { for (const dir of made) rmSync(dir, { recursive: true, force: true }); });
+
 test('the codec emission is compared against the source, so a hand-edited copy fails', () => {
-  assert.deepEqual(emissionProblems(root), []);
-  const files = new Map([['frameworks/react/playground/PlaygroundCodec.generated.ts', 'not what is on disk']]);
-  assert.match(emissionProblems(root, files)[0] ?? '', /stale — run bun run generate:playgrounds/);
+  const files = buildPlaygrounds(root).files;
+  const temp = mkdtempSync(join(tmpdir(), 'arena-playgrounds-'));
+  made.push(temp);
+  for (const [rel, body] of files) {
+    mkdirSync(dirname(join(temp, rel)), { recursive: true });
+    writeFileSync(join(temp, rel), body);
+  }
+  assert.deepEqual(emissionProblems(temp, files), []);
+  const codec = 'frameworks/react/playground/PlaygroundCodec.generated.ts';
+  writeFileSync(join(temp, codec), 'not what is on disk');
+  assert.match(emissionProblems(temp, files)[0] ?? '', /stale — run bun run generate:playgrounds/);
+  rmSync(join(temp, codec));
+  assert.match(emissionProblems(temp, files)[0] ?? '', /missing — run bun run generate:playgrounds/);
 });
 
 test('a missing copy is named with the command that writes it', () => {
@@ -235,9 +301,9 @@ test('an emission of nothing is a failure rather than a clean pass', () => {
 
 test('every component gets an emitted page in both layers, which is what a citation resolves against', () => {
   const pages = pagePaths(root);
-  assert.equal(pages.length, 146);
-  assert.equal(pages.filter((p) => p.startsWith('frameworks/react/')).length, 73);
-  assert.equal(pages.filter((p) => p.startsWith('frameworks/angular/')).length, 73);
+  assert.equal(pages.length, 200);
+  assert.equal(pages.filter((p) => p.startsWith('frameworks/react/')).length, 100);
+  assert.equal(pages.filter((p) => p.startsWith('frameworks/angular/')).length, 100);
 });
 
 test('a class on a component that answers its family passes, and one it does not answer fails', () => {
@@ -294,4 +360,40 @@ test('a fixture\'s vars name --arena-* properties and hold strings', () => {
   for (const bad of ['a"b', 'a;b', 'a{b', 'a}b', 'a<b'])
     assert.match(shapeProblems('Widget', { ...ok, vars: { '--arena-x': bad } } as any).join('\n'), /would break the style attribute/);
   assert.deepEqual(shapeProblems('Widget', { ...ok, vars: { '--arena-x': 'calc(var(--sp-1) * 4)' } } as any), []);
+});
+
+test('a variant is a partial seed laid over the seed, and each member it holds is checked like a seed member', () => {
+  const fixture = { component: 'Widget', seed: { label: 'Client Portal' }, variants: { loud: { tone: 'danger' } } };
+  assert.deepEqual(variantProblems('Widget', widget, fixture, types), []);
+  assert.deepEqual(fixtureProblems('Widget', widget, { ...ok, variants: fixture.variants }, contracts, types), []);
+});
+
+test('a variant holding a wrong value, an unknown member or nothing new fails, naming the variant', () => {
+  const seed = { label: 'Client Portal' };
+  assert.match(variantProblems('Widget', widget, { component: 'Widget', seed, variants: { odd: { tone: 'loud' } } }, types)[0] ?? '',
+    /Widget\.variants\.odd\.seed\.tone/);
+  assert.match(variantProblems('Widget', widget, { component: 'Widget', seed, variants: { odd: { nope: 1 } } }, types)[0] ?? '',
+    /Widget\.variants\.odd\.seed\.nope: the contract declares no such member/);
+  assert.match(variantProblems('Widget', widget, { component: 'Widget', seed, variants: { same: { label: 'Client Portal' } } }, types)[0] ?? '',
+    /draws the seed unchanged/);
+});
+
+test('a variant may repeat the seed only where SEED_REPEATS says so, and the entry fails once it stops repeating', () => {
+  const seed = { label: 'Client Portal' };
+  const fixture = { component: 'ArenaPaletteScope', seed, variants: { light: { label: 'Client Portal' } } };
+  assert.deepEqual(variantProblems('ArenaPaletteScope', widget, fixture, types), []);
+  const moved = { component: 'ArenaPaletteScope', seed, variants: { light: { label: 'Other' } } };
+  assert.match(variantProblems('ArenaPaletteScope', widget, moved, types)[0] ?? '', /outlived what it was written for/);
+});
+
+test('a variant taking a required member out of the seed fails, since the chart would throw', () => {
+  const problems = variantProblems('Widget', widget, { component: 'Widget', seed: { label: 'x' }, variants: { bare: { label: null } } }, types);
+  assert.match(problems[0] ?? '', /label is required and carries no default/);
+});
+
+test('a variant is named in lower-case words, and is an object of members', () => {
+  const problems = shapeProblems('Widget', { component: 'Widget', variants: { 'At Min': {}, plain: 3 as any } });
+  assert.equal(problems.length, 2);
+  assert.match(problems[0] ?? '', /variants names "At Min"/);
+  assert.match(problems[1] ?? '', /variants\.plain is a partial seed/);
 });

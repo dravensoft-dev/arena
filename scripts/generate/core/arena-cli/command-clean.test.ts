@@ -1,16 +1,22 @@
 /* arena clean: it deletes the sheets arena build writes, by name, inside --out, and nothing else. */
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { run } from './command-clean.ts';
 import { OUTPUT_SHEETS } from './sources.ts';
 import { captureIo } from './cli-fixtures.ts';
 
-const root = () => mkdtempSync(join(tmpdir(), 'arena-clean-'));
+const made: string[] = [];
+const track = (dir: string) => { made.push(dir); return dir; };
+after(() => {
+  for (const dir of made) rmSync(dir, { recursive: true, force: true });
+});
 
-test('removes exactly the three output sheets in --out and leaves a sibling file', () => {
+const root = () => track(mkdtempSync(join(tmpdir(), 'arena-clean-')));
+
+test('removes exactly the output files in --out and leaves a sibling file', () => {
   const dir = root();
   for (const name of OUTPUT_SHEETS) writeFileSync(join(dir, name), 'x');
   writeFileSync(join(dir, 'keep.css'), 'x');
@@ -20,6 +26,24 @@ test('removes exactly the three output sheets in --out and leaves a sibling file
   assert.deepEqual(err, []);
   assert.equal(out.length, OUTPUT_SHEETS.size);
   for (const name of OUTPUT_SHEETS) assert.ok(out.includes(`arena clean: removed ${join(dir, name)}`));
+});
+
+test('removes all three icon list names, whichever layer wrote them', () => {
+  const dir = root();
+  for (const name of ['arena.icons.generated.js', 'arena.icons.generated.d.ts', 'arena.icons.generated.ts']) writeFileSync(join(dir, name), 'x');
+  const { io } = captureIo(dir);
+  assert.equal(run(['--out', '.'], io), 0);
+  assert.deepEqual(readdirSync(dir), []);
+});
+
+test('removes the content-hashed sprite too, and a svg a project named itself stays', () => {
+  const dir = root();
+  writeFileSync(join(dir, 'icons-0123456789.svg'), '<svg/>');
+  writeFileSync(join(dir, 'icons-mine.svg'), '<svg/>');
+  const { io, out } = captureIo(dir);
+  assert.equal(run(['--out', '.'], io), 0);
+  assert.deepEqual(readdirSync(dir), ['icons-mine.svg']);
+  assert.deepEqual(out, [`arena clean: removed ${join(dir, 'icons-0123456789.svg')}`]);
 });
 
 test('an empty or absent out prints "nothing to remove" and exits 0', () => {
@@ -52,4 +76,26 @@ test('a sheet it cannot delete exits 2 naming it, after removing the ones it can
   assert.equal(err.length, 1);
   assert.ok(err[0]!.startsWith(`arena clean: cannot delete ${join(dir, blocked!)}: `), err.join('\n'));
   for (const name of rest) assert.ok(out.includes(`arena clean: removed ${join(dir, name)}`));
+});
+
+test('removes the cut fonts whose stem the config names, and no other woff2', () => {
+  const dir = root();
+  writeFileSync(join(dir, 'arena.config.json'), JSON.stringify({ fonts: {
+    display: { family: 'A', src: './fonts/archivo.woff2' }, body: { family: 'B', src: 'https://example.com/b.woff2' },
+  } }));
+  for (const name of ['archivo-0123456789.woff2', 'other-0123456789.woff2', 'b-0123456789.woff2']) writeFileSync(join(dir, name), 'x');
+  const { io } = captureIo(dir);
+  assert.equal(run(['--out', '.'], io), 0);
+  assert.deepEqual(readdirSync(dir).sort(), ['arena.config.json', 'b-0123456789.woff2', 'other-0123456789.woff2']);
+});
+
+test('removes the cut fonts the last build wrote even when the config no longer names them', () => {
+  const dir = root();
+  writeFileSync(join(dir, 'arena.config.json'), JSON.stringify({ fonts: { display: { family: 'A', src: 'https://example.com/a.woff2' } } }));
+  writeFileSync(join(dir, 'arena.generated.css'), "@font-face{src:url('./archivo-0123456789.woff2') format('woff2');}");
+  writeFileSync(join(dir, 'archivo-0123456789.woff2'), 'x');
+  writeFileSync(join(dir, 'archivo-mine.woff2'), 'x');
+  const { io } = captureIo(dir);
+  assert.equal(run(['-o', '.'], io), 0);
+  assert.deepEqual(readdirSync(dir).sort(), ['archivo-mine.woff2', 'arena.config.json']);
 });

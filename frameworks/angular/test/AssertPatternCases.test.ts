@@ -1,12 +1,18 @@
-import test from 'node:test';
+import test, { after } from 'node:test';
 import assert from 'node:assert/strict';
-import { writeFileSync, mkdtempSync } from 'node:fs';
+import { writeFileSync, mkdtempSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { assertPatternCases } from './Compliance';
+import { assertPattern, assertPatternCases } from './Compliance';
+
+const made: string[] = [];
+const track = (dir: string) => { made.push(dir); return dir; };
+after(() => {
+  for (const dir of made) rmSync(dir, { recursive: true, force: true });
+});
 
 function bindingFile(binding: unknown): string {
-  const dir = mkdtempSync(join(tmpdir(), 'arena-cases-'));
+  const dir = track(mkdtempSync(join(tmpdir(), 'arena-cases-')));
   const p = join(dir, 'X.behaviour.json');
   writeFileSync(p, JSON.stringify(binding));
   return p;
@@ -61,5 +67,13 @@ test('a binding declaring the same case name twice is refused, not diffed', () =
   assert.throws(
     () => assertPatternCases({ bindingPath: p, cases: { danger: () => { throw new Error('never'); } } }),
     /danger/,
+  );
+});
+
+test('an also pattern with no file is refused, and the message says it came from also', () => {
+  const p = bindingFile({ pattern: 'status', exceptions: [], also: [{ pattern: 'no-such-pattern', exceptions: [] }] });
+  assert.throws(
+    () => assertPattern({ root: null as unknown as Element, bindingPath: p }),
+    /names pattern "no-such-pattern" in `also`/,
   );
 });

@@ -35,5 +35,24 @@
     ],
     "label": "Service profile"
   },
+  "variants": {
+    "flat": {
+      "series": [{"label": "Current", "values": [50, 50, 50, 50, 50, 50]}, {"label": "Target", "values": [50, 50, 50, 50, 50, 50]}]
+    },
+    "zeros": {
+      "series": [{"label": "Current", "values": [0, 0, 0, 0, 0, 0]}, {"label": "Target", "values": [0, 0, 0, 0, 0, 0]}]
+    },
+    "three-axes": {
+      "labels": ["Latency", "Throughput", "Accuracy"],
+      "series": [{"label": "Current", "values": [72, 88, 64]}, {"label": "Target", "values": [85, 90, 80]}]
+    },
+    "filled-one-series": {
+      "fill": true,
+      "series": [{"label": "Current", "values": [72, 88, 64, 45, 80, 95]}]
+    },
+    "tone-and-color-id": {
+      "series": [{"label": "Current", "values": [72, 88, 64, 45, 80, 95], "tone": "success", "colorId": 2}]
+    }
+  },
   "note": "Two profiles over one set of axes: the shape is the reading, not any single number."
 }

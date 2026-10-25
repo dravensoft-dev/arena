@@ -1,5 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { repoRoot } from '../../lib/arena/repo-root.ts';
+import { unlayeredColors } from '../../lib/core/colors-fixtures.ts';
 import {
   blocksIn, schemeOf, invertOf, vocabularyProblems, declaredProblems, strayProblems, zeroProblems,
   scopeOf, collect,
@@ -88,4 +92,21 @@ test('a theme names the scope it answers to as a pattern, and the pattern is wha
   assert.equal(scopeOf(blocks, { selector: '\\.arena-light' }), '.arena-light');
   assert.equal(scopeOf(blocks, { selector: ':root' }), ':root');
   assert.equal(scopeOf(blocks, { selector: '\\.arena-sepia' }), null);
+});
+
+test('a selector list answers a theme through any one of its selectors', () => {
+  const blocks = blocksIn(':root,.arena-dark{ --picker-invert:1; color-scheme:dark; }\n.arena-light{ --picker-invert:0; color-scheme:light; }\n');
+  assert.equal(scopeOf(blocks, { selector: ':root' }), ':root,.arena-dark');
+  assert.deepEqual(declaredProblems(blocks, THEMES), []);
+  assert.deepEqual(strayProblems(blocks, THEMES), []);
+});
+
+test('colors.css held in the defaults layer keeps both polarity blocks under their own selectors, as its unlayered body does', () => {
+  const css = readFileSync(join(repoRoot, 'contracts/design/colors.css'), 'utf8');
+  const body = unlayeredColors(css);
+  assert.ok(css.includes('@layer arena-defaults {') && !body.includes('@layer'), 'the body is the layer\'s contents');
+  const blocks = blocksIn(css);
+  assert.deepEqual(blocks, blocksIn(body));
+  assert.match(blocks.get(':root,.arena-dark') ?? '', /color-scheme:dark/);
+  assert.match(blocks.get('.arena-light') ?? '', /color-scheme:light/);
 });

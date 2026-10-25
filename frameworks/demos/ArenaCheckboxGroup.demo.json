@@ -1,0 +1,28 @@
+{
+  "component": "ArenaCheckboxGroup",
+  "seed": {
+    "ariaLabel": "Notify me about",
+    "name": "notify",
+    "value": ["deploys"]
+  },
+  "slots": {
+    "content": [
+      {
+        "component": "ArenaCheckbox",
+        "members": { "value": "deploys", "label": "Deploys" }
+      },
+      {
+        "component": "ArenaCheckbox",
+        "members": { "value": "incidents", "label": "Incidents" }
+      },
+      {
+        "component": "ArenaCheckbox",
+        "members": { "value": "weekly digest", "label": "Weekly digest" }
+      }
+    ]
+  },
+  "bind": {
+    "valueChange": { "value": { "$field": "values" } }
+  },
+  "note": "The group owns which boxes are ticked and reports the whole set; each box owns what it looks like."
+}

@@ -1,0 +1,6 @@
+{
+  "component": "ArenaKbd",
+  "pattern": "none",
+  "reason": "It renders a keyboard-input phrase, nested <kbd> elements naming the keys a reader presses, and a reader cannot act on it: it binds no key, offers no focusable element and carries no role, since <kbd> has none. A shortcut it names stays the host's to bind. What it adds over the element is the drawing and the spoken name, and neither is a role, a key, a focus move or a dismissal.",
+  "exceptions": []
+}

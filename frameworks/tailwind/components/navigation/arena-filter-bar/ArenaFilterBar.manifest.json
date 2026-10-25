@@ -1,0 +1,33 @@
+{
+  "component": "ArenaFilterBar",
+  "slots": {
+    "root": "flex flex-wrap items-center gap-items",
+    "controls": "flex flex-wrap items-end gap-inline w-full",
+    "applied": "flex flex-wrap items-center gap-inline min-w-0",
+    "chip": "inline-flex items-center min-w-0 max-w-full",
+    "clear": "inline-flex items-center min-h-ctl-h-sm min-w-ctl-h-sm bg-transparent border-none cursor-pointer text-ink-muted/(--level-ink-muted) font-face-label text-ctl-xs tracking-label-role case-label transition-[color] duration-[var(--dur-hover)] ease-hover hover:text-ink-body"
+  },
+  "kind": {
+    "root": "none",
+    "controls": "none",
+    "applied": "none",
+    "chip": "none",
+    "clear": "none"
+  },
+  "internal": {
+    "narrow": "the container is narrower than sm"
+  },
+  "variants": {
+    "narrow": {
+      "true": {
+        "root": "flex-col items-stretch",
+        "controls": "flex-col items-stretch",
+        "clear": "self-start"
+      },
+      "false": {}
+    }
+  },
+  "defaultVariants": {
+    "narrow": false
+  }
+}

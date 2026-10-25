@@ -1,0 +1,13 @@
+{
+  "component": "ArenaAccordionItem",
+  "description": "One section of an ArenaAccordion: its header and the panel the header shows and hides. ArenaAccordionItem draws the heading, the button and the panel; the accordion it sits in decides whether the panel is open.",
+  "affordances": ["focus", "hover"],
+  "api": {
+    "value": { "form": "primitive", "type": "string", "required": true,
+               "description": "The item's identity, and what the accordion's `value`, `values` and their events carry. Required, and guarded at runtime after trimming: two blank values cannot be told apart, and the two items would open together." },
+    "label": { "form": "primitive", "type": "string", "required": true,
+               "description": "What the header reads, and the accessible name of the panel. Required, and guarded at runtime after trimming: a header with no words names nothing for the panel to borrow." },
+    "content": { "form": "slot",
+                 "description": "The panel's content. The content mounts whether the panel is open or not, so put no costly work in it." }
+  }
+}

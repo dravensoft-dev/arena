@@ -16,17 +16,20 @@ import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { parseDecls } from '../../lib/arena/css-decls.ts';
 import { arenaTokenNames } from '../../lib/core/arena-tokens.ts';
 import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
+import { DEFAULTS_LAYER, LAYER_ORDER } from '../../lib/tailwind/component-sheets.ts';
 import { applyRules } from '../../lib/tailwind/component-css.ts';
 import { blindFallbacks, repeatedSupports } from '../../lib/tailwind/supports-blocks.ts';
 import { PREFLIGHT, PRELUDE, sheetPath } from '../../build/tailwind/build-tailwind.ts';
 import { CONSUME, MANIFESTS } from '../../build/tailwind/build-tailwind.ts';
+
+export const ANIMATIONS = 'frameworks/tailwind/Animations.css';
 
 export const node = {
   name: 'check:component-css',
   reads: [
     MANIFESTS, `${CONSUME}/**/*.css`, `${VOCABULARY_DIR}/**`, 'frameworks/tailwind/components/**/*.card.html',
     'contracts/design/environment.css', 'contracts/design/colors.css',
-    'contracts/design-generated/*.generated.css',
+    'contracts/design-generated/*.generated.css', ANIMATIONS,
   ],
   writes: [],
   feeds: [],
@@ -51,6 +54,20 @@ export const EXTERNAL_PROPERTIES = new Map([
     + 'depth, in both layers, while the nav is expanded, because a row insets itself by the indent role times its '
     + 'depth and a class string cannot name the depth. It is a component\'s own channel to what it holds, and '
     + 'its var() fallback of zero is the unindented row'],
+  ['arena-tree-depth', 'written by ArenaTreeView onto each item as a unitless count of the levels above it, in both '
+    + 'layers, because a row insets itself by the indent role times its depth and a class string cannot name the depth. '
+    + 'It is a component\'s own channel to what it holds, and its var() fallback of zero is the unindented row'],
+  ['arena-slider-at', 'written by ArenaSlider onto each thumb as the fraction of the range the thumb stands at, 0 to 1, '
+    + 'in both layers, because the thumb is placed along the track by that fraction and a class string cannot name a '
+    + 'number a person is dragging. Its var() fallback of zero is the minimum'],
+  ['arena-slider-from', 'written by ArenaSlider onto its track as the fraction the start thumb of a range stands at, in '
+    + 'both layers, so the painted span begins under that thumb. Zero, its fallback, is a single slider\'s own start'],
+  ['arena-slider-to', 'written by ArenaSlider onto its track as the fraction the thumb, or the end thumb of a range, '
+    + 'stands at, in both layers, so the painted fill ends under that thumb. Its fallback of zero is an empty fill'],
+  ['arena-sparkline-shift', 'written by ArenaSparkline onto its tooltip as the fraction of the plot the cursor stands '
+    + 'at, 0 on the first point to 1 on the last, in both layers, so the readout slides with the point and stays inside '
+    + 'the frame, and a class string cannot name the point under the cursor. Its fallback of zero starts the readout at '
+    + 'its anchor'],
 ]);
 
 export function selectorsIn(css: string) {
@@ -147,8 +164,6 @@ export function sheetProblems(manifests: Manifests, base = root) {
   return problems;
 }
 
-export const ANIMATIONS = 'frameworks/tailwind/Animations.css';
-
 export function keyframeDepths(css: string) {
   const found = [];
   let depth = 0;
@@ -161,10 +176,34 @@ export function keyframeDepths(css: string) {
 }
 
 export function layerOrderProblems(file: string, css: string) {
-  if (/^@layer theme, base, components, utilities, arena-plugin;$/m.test(css)) return [];
+  if (/^@layer arena-defaults, theme, base, components, utilities, arena-plugin;$/m.test(css)) return [];
   return [`${file}: no layer order declaration ending in the reserved plugin layer, so `
     + "Tailwind's own property fallbacks sort above everything, or a style plugin lands where a "
     + 'compiled component rule outranks it'];
+}
+
+export const DEFAULT_SOURCES = ['contracts/design/colors.css', 'contracts/design-generated/typography.generated.css'];
+
+export function defaultsProblems(base = root) {
+  const problems = [];
+  for (const rel of DEFAULT_SOURCES) {
+    const path = join(base, rel);
+    if (!existsSync(path)) {
+      problems.push(`${rel} is missing, so the package declares no colour or type defaults`);
+      continue;
+    }
+    const css = readFileSync(path, 'utf8');
+    const lead = css.replace(/\/\*[\s\S]*?\*\//g, '').trimStart();
+    if (!lead.startsWith(LAYER_ORDER)) {
+      problems.push(`${rel} does not lead with the layer order, so the layer holding its defaults is registered `
+        + 'wherever the first stylesheet to open it happens to put it');
+    }
+    if (!new RegExp(`@layer ${DEFAULTS_LAYER}\\s*\\{`).test(css)) {
+      problems.push(`${rel} opens no @layer ${DEFAULTS_LAYER} block, so its values are unlayered and outrank the `
+        + "theme's own whenever a toolchain emits the theme sheet first");
+    }
+  }
+  return problems;
 }
 
 export function preflightProblems(base = root) {
@@ -242,7 +281,7 @@ export function collect(base = root) {
   }
   return {
     manifests,
-    problems: [...sheetProblems(manifests, base), ...preludeProblems(base), ...preflightProblems(base),
+    problems: [...sheetProblems(manifests, base), ...preludeProblems(base), ...preflightProblems(base), ...defaultsProblems(base),
       ...specimenProblems(manifests, base)],
   };
 }

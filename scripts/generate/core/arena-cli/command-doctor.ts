@@ -1,13 +1,18 @@
 /* arena doctor: it compares the tree with what arena build would leave and names every difference,
- * then the environment around it. It writes nothing. A plan fatal, a missing, stale or orphan sheet
- * and a held environment report exit 1; notes never change the exit. */
+ * then the environment around it. It writes nothing. A plan fatal, a missing, stale or orphan file
+ * (a sheet, the sprite or its module) and a held environment report exit 1; notes never change the exit.
+ * unignoredOutputs gives null for an empty list, because git was asked about nothing and an empty answer would read as every output ignored. */
+import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { commandOptions } from './args.ts';
 import { under, voice } from './io.ts';
+import { relPosix } from './posix.ts';
 import type { Io } from './io.ts';
 import { hostManifest, resolveEnvironment } from './host.ts';
 import { plan, sheetStates } from './plan.ts';
+import { readSources } from './sources.ts';
+import { PACKAGE_SHEET } from './sheets.ts';
 import { heldMessage, report, reported } from './reports.ts';
 import type { Report } from './reports.ts';
 
@@ -36,6 +41,14 @@ function runsBuild(cwd: string) {
   }
 }
 
+export function unignoredOutputs(cwd: string, paths: string[]): string[] | null {
+  if (paths.length === 0) return null;
+  const asked = spawnSync('git', ['-C', cwd, 'check-ignore', '-z', '--stdin'], { encoding: 'utf8', input: `${paths.join('\0')}\0` });
+  if (asked.error || (asked.status !== 0 && asked.status !== 1)) return null;
+  const ignored = new Set(asked.stdout.split('\0').filter((one) => one !== ''));
+  return paths.filter((one) => !ignored.has(one));
+}
+
 function ignoresSheets(cwd: string) {
   const file = under(cwd, '.gitignore');
   if (!existsSync(file)) return false;
@@ -46,7 +59,7 @@ function ignoresSheets(cwd: string) {
   });
 }
 
-export function run(argv: string[], io: Io): number {
+export async function run(argv: string[], io: Io): Promise<number> {
   const options = commandOptions('doctor', argv, io);
   if (typeof options === 'number') return options;
   const say = voice(io, 'doctor');
@@ -67,16 +80,16 @@ export function run(argv: string[], io: Io): number {
     else environment.push(report('environment', `engines.node reads ${range}, which this command does not compare`));
   }
 
-  if (env.phosphor) say.out(`phosphor at ${env.phosphor}`);
+  if (env.phosphor) say.out(`@phosphor-icons/core at ${env.phosphor}`);
 
-  const planned = plan(options, env);
+  const planned = await plan(options, env);
   if (planned.fatal.length) {
     problems++;
     for (const line of planned.fatal) say.err(line);
     say.err('sheets not compared, since nothing can be built yet');
   } else {
     say.out(`config ${options.config} is valid`);
-    for (const { path, state } of sheetStates(planned.outputs)) {
+    for (const { path, state } of sheetStates([...planned.outputs, ...planned.binaries])) {
       if (state === 'current') say.out(`${path} is current`);
       else {
         problems++;
@@ -85,7 +98,7 @@ export function run(argv: string[], io: Io): number {
     }
     for (const name of planned.orphans) {
       problems++;
-      say.err(`${join(options.out, name)} is a sheet this config no longer produces; arena build removes it`);
+      say.err(`${join(options.out, name)} is a file this config does not produce; arena build removes it`);
     }
   }
 
@@ -94,11 +107,21 @@ export function run(argv: string[], io: Io): number {
   const others = planned.reports.filter((one) => one.kind !== 'environment').length;
   if (others > 0) say.err(`${others} report(s): arena check names them`);
 
+  if (!planned.fatal.length && planned.outputs.some((one) => one.name === PACKAGE_SHEET)
+    && !readSources(options.paths).some((text) => text.includes(PACKAGE_SHEET))) {
+    say.out(`note: no source imports ${PACKAGE_SHEET}, so the app renders with no Arena CSS; add @import './${PACKAGE_SHEET}'; before the import of arena.generated.css, in the stylesheet beside it, or link it from your page`);
+  }
   if (!runsBuild(io.cwd)) {
     say.out('note: no script in package.json runs arena build, so the sheets go stale as the config and sources change; arena init wires one');
   }
-  if (!ignoresSheets(io.cwd)) {
-    say.out('note: .gitignore does not cover *.generated.css; add that line, since every sheet is rebuilt from the config and your sources');
+  const asked = planned.fatal.length ? [] : [...planned.outputs, ...planned.binaries].map((one) => relPosix(io.cwd, one.path));
+  const unignored = unignoredOutputs(io.cwd, asked);
+  if (unignored !== null) {
+    if (unignored.length > 0) {
+      say.out(`note: git does not ignore ${unignored.join(', ')}; every file arena build writes is rebuilt from the config and your sources, so add them to .gitignore`);
+    }
+  } else if (!ignoresSheets(io.cwd)) {
+    say.out('note: .gitignore does not cover *.generated.css; add that line, with icons-*.svg and <stem>-*.woff2 for the sprite and the cut fonts, since every file the build writes is rebuilt from the config and your sources');
   }
 
   if (problems > 0) return 1;

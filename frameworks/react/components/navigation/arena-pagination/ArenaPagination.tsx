@@ -5,6 +5,7 @@ import { arenaPageWindow } from './PaginationWindow.ts';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 import type { ArenaPaginationClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon.tsx';
 
 export interface ArenaPaginationProps {
   className?: ArenaPaginationClass;
@@ -20,34 +21,34 @@ export interface ArenaPaginationProps {
   ariaLabel: string;
 
   /** A page was chosen; carries the new 1-based page. Never fires for the current page, nor for a page outside 1..pageCount. */
-  onChange?: (page: number) => void;
+  onValueChange?: (page: number) => void;
 }
 
 
 const arenaPaginationStyles = arenaStyles(manifest);
 
-export function ArenaPagination({ className, page, pageCount, ariaLabel, onChange }: ArenaPaginationProps) {
+export function ArenaPagination({ className, page, pageCount, ariaLabel, onValueChange }: ArenaPaginationProps) {
   const locale = useArenaLocale();
 
   if (!ariaLabel?.trim()) throw new Error('ArenaPagination: `ariaLabel` is required');
   if (page == null) throw new Error('ArenaPagination: `page` is required');
   if (pageCount == null) throw new Error('ArenaPagination: `pageCount` is required');
   const styles = arenaPaginationStyles();
-  const go = (p: number) => { if (p >= 1 && p <= pageCount && p !== page) onChange && onChange(p); };
+  const go = (p: number) => { if (p >= 1 && p <= pageCount && p !== page) onValueChange && onValueChange(p); };
   const nav = (dir: number, dis: boolean) => (
-    <button onClick={() => go(page + dir)} disabled={dis} aria-label={dir < 0 ? locale.paginationPrevious : locale.paginationNext}
+    <button type="button" onClick={() => go(page + dir)} disabled={dis} aria-label={dir < 0 ? locale.paginationPrevious : locale.paginationNext}
       className={styles.nav()} data-arena-part={manifest.parts.nav} {...styles.$data.nav()}>
-      <i className={dir < 0 ? 'ph-bold ph-caret-left' : 'ph-bold ph-caret-right'} />
+      <ArenaIcon icon={dir < 0 ? 'ph-bold ph-caret-left' : 'ph-bold ph-caret-right'} />
     </button>
   );
   return (
-    <nav aria-label={ariaLabel} className={arenaClassName('ArenaPagination', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+    <nav aria-label={ariaLabel} className={arenaClassName('ArenaPagination', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       {nav(-1, page <= 1)}
       {arenaPageWindow(page, pageCount).map((p, i) =>
         p === '\u2026'
           ? <span key={'e' + i} className={styles.ellipsis()} data-arena-part={manifest.parts.ellipsis} {...styles.$data.ellipsis()}>{'\u2026'}</span>
           : (
-            <button key={p} onClick={() => go(Number(p))} aria-current={p === page ? 'page' : undefined}
+            <button type="button" key={p} onClick={() => go(Number(p))} aria-current={p === page ? 'page' : undefined}
               className={arenaPaginationStyles({ current: p === page }).page()}
               data-arena-part={manifest.parts.page} {...arenaPaginationStyles({ current: p === page }).$data.page()}>{p}</button>
           ))}

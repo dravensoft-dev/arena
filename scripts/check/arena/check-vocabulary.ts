@@ -167,11 +167,19 @@ export const NAMED_BUT_NOT_HERE = new Map([
     + 'because it is written by the build rather than by a person'],
   ['tsconfig.lib.json', 'the same staging directory and the same reason'],
   ['index.html', THE_CONSUMER_WRITES],
+  ['angular.json', THE_CONSUMER_WRITES],
   ['tsconfig.json', THE_CONSUMER_WRITES],
   ['next-env.d.ts', 'a file the reader\'s framework generates in their own project, named because '
     + 'the declaration it already carries is what saves them writing one'],
   ['Shell.tsx', THE_CONSUMER_WRITES],
   ['fullcalendar-overrides.css', THE_CONSUMER_WRITES],
+  ['tailwind-theme.css', THE_PACKAGE_SHIPS],
+  ['Next.js', 'a framework\'s name and not a file, which the dot makes read as one'],
+  ['Chart.js', 'a chart library\'s name and not a file, which the dot makes read as one'],
+  ['experiments.css', 'a bundler option written as a dotted path and not a file, which the suffix makes read as one'],
+  ['arena-adopter.json', 'the manifest an adopter\'s build carries at its root to declare the Arena it was built against, '
+    + 'in that adopter\'s repository and never in this tree'],
+  ['claude_desktop_config.json', 'the desktop client\'s own configuration file, on the reader\'s machine and in no project'],
 ]);
 
 export function filenameProblems(

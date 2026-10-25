@@ -14,13 +14,13 @@ export interface ArenaUnauthCardProps {
   /** The brand lock-up above the panel's content. An ArenaAppLogo, in practice. */
   brand?: React.ReactNode;
 
-  /** Mono crimson microlabel: the product, not the task. */
+  /** Mono microlabel in the eyebrow ink: the product, not the task. */
   eyebrow?: string;
 
   /** The task. "Welcome back", "Check your inbox". */
   title?: string;
 
-  /** Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. It defaults to `h2` because this title is drawn in the section register rather than the card one, so the outline follows the register the same way every other title on the ladder does. A signed-out screen whose only title is this one says `h1` and gets the page's one heading, which is the case the member exists for. `none` takes the title out of the outline entirely; with no title there is no heading either way. */
+  /** Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. The member defaults to `h2` because this title is drawn in the section register rather than the card one. The outline therefore follows the register the same way every other title on the ladder does. A signed-out screen whose only title is this one says `h1` and gets the page's one heading, which is the case the member exists for. `none` takes the title out of the outline entirely; with no title there is no heading either way. */
   headingLevel?: ArenaHeadingLevel;
 
   /** Centred muted line below the content: a recovery link, a legal note. */
@@ -37,7 +37,7 @@ export function ArenaUnauthCard({ className, brand, eyebrow, title, headingLevel
   const styles = unauthStyles();
   const Heading = headingLevel === 'none' ? 'div' : headingLevel;
   return (
-    <div className={arenaClassName('ArenaUnauthCard', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+    <div className={arenaClassName('ArenaUnauthCard', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       <ArenaCard>
         <div className={styles.body()} data-arena-part={manifest.parts.body} {...styles.$data.body()} data-arena-boundary="">
           {brand && <div className={styles.brand()} data-arena-part={manifest.parts.brand} {...styles.$data.brand()} data-arena-boundary="">{brand}</div>}

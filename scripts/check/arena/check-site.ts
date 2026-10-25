@@ -5,9 +5,9 @@
  * what the entry imports and an ES import that 404s throws before it runs, which is how every React
  * playground went out answering 200 at every href with an empty root. The markdown half is the one
  * an agent reads, since a corpus is followed by its links and nothing renders them, which is how
- * the style plugins went unreachable from the page calling them its hardest instruction. The rest
- * keeps the set honest both ways. It reads the output, writes nothing, and skips rather than passes
- * without dist/site, since a walk of nothing reports everything fine. */
+ * the style plugins went unreachable from the page calling them its hardest instruction. The rest keeps the set honest
+ * both ways, but an adopter's page at or below one it declares is its own, such as a framework's 404 beside its entry.
+ * It reads the output, writes nothing, and skips rather than passes without dist/site. */
 
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
@@ -17,14 +17,17 @@ import { relPosix, isInside } from '../../utils/posix-path.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { cannotRun } from '../../lib/arena/arena-scripts-vars.ts';
 import {
-  DOMAIN, SITE_DIR, LAYERS, BENCHES_DIR, pages, benchPages, indexedDirectories, missingPlaygrounds,
-  missingModules, modules, url, directoryUrl,
+  DOMAIN, SITE_DIR, LAYERS, pages, indexedDirectories, missingPlaygrounds,
+  missingModules, modules, url, directoryUrl, adopterPages,
 } from '../../lib/arena/site-pages.ts';
+import { matchOutsideCode } from '../../generate/core/arena-mcp/code-spans.ts';
+import { MARKERS_FILE } from '../../lib/arena/component-map.ts';
+import { node as siteBuildNode } from '../../build/arena/build-site.ts';
 import { LLMS_INDEX, ROUTER, layerFile, prompts, summary } from '../../lib/arena/llms-index.ts';
 
 export const node = {
   name: 'check:site',
-  reads: [`${SITE_DIR}/**`],
+  reads: [`${SITE_DIR}/**`, ...siteBuildNode.reads, MARKERS_FILE],
   writes: [],
   feeds: [],
 };
@@ -93,7 +96,7 @@ export function markdownFiles(out: string) {
 }
 
 export function markdownLinks(text: string) {
-  return [...text.matchAll(MARKDOWN_LINK)]
+  return matchOutsideCode(text, MARKDOWN_LINK)
     .map((match) => match[1] ?? '')
     .filter((target) => target && !OFF_SITE.test(target));
 }
@@ -140,29 +143,6 @@ export function missingModuleProblems(out: string, base = root) {
       + 'answers 200 at all of them, and renders nothing at all');
 }
 
-export function benchProblems(out: string) {
-  const declared = benchPages(out);
-  const dir = join(out, BENCHES_DIR);
-  const half = new RegExp(`^${BENCHES_DIR}/[^/]+/[^/]+/index\\.html$`);
-  const carried = existsSync(dir)
-    ? walkFiles(dir).map((path) => relPosix(out, path)).filter((rel) => half.test(rel))
-    : [];
-  const problems = [];
-  for (const rel of declared) {
-    if (carried.includes(rel)) continue;
-    problems.push(`${rel} is a half the manifest beside it declares and the output does not carry. `
-      + 'A pair is the comparison, so a gallery published with one half of one missing is a '
-      + 'comparison with nothing to compare');
-  }
-  for (const rel of carried) {
-    if (declared.includes(rel)) continue;
-    problems.push(`${rel} is a half the output carries and the manifest beside it does not `
-      + 'declare, so the index links every pair it knows and this one is reachable from nothing. '
-      + 'An artifact copied in without its manifest is this in sixteen lines');
-  }
-  return problems;
-}
-
 export function missingPageProblems(out: string, base = root) {
   return pages(base, out)
     .filter((rel) => !existsSync(join(out, rel)))
@@ -173,9 +153,11 @@ export function orphanProblems(out: string, base = root, files = htmlFiles(out))
   const declared = new Set(pages(base, out).map((rel) => rel.split('/').join('/')));
   const indexes = new Set(indexedDirectories(base, out)
     .map((directory) => (directory === '' ? 'index.html' : `${directory}/index.html`)));
+  const owned = adopterPages(out).map((rel) => rel.slice(0, -'index.html'.length));
   return files
     .map((path) => relPosix(out, path))
     .filter((rel) => !declared.has(rel) && !indexes.has(rel) && !AUTHORED.includes(rel))
+    .filter((rel) => !owned.some((directory) => rel.startsWith(directory)))
     .map((rel) => `${rel} is published and nothing declares it, so it is a page nobody meant to serve`);
 }
 
@@ -186,7 +168,7 @@ export function domainProblems(out: string) {
   return named === DOMAIN ? [] : [`CNAME names ${named} and the site is built for ${DOMAIN}`];
 }
 
-export function located(base = root, out = join(root, SITE_DIR)) {
+export function located(base: string, out: string) {
   return [...indexedDirectories(base, out).map(directoryUrl), ...pages(base, out).map(url)];
 }
 
@@ -313,7 +295,6 @@ function main() {
     ...missingPageProblems(out),
     ...missingModuleProblems(out),
     ...orphanProblems(out, root, files),
-    ...benchProblems(out),
     ...missingPlaygrounds(),
     ...missingModules(),
     ...domainProblems(out),

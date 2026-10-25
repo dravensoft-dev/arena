@@ -1,7 +1,7 @@
 Single selection among options that are all visible at once. `ArenaRadioGroup` holds the `value` and distributes each child's selected state; each `ArenaRadio` declares its own `value`.
 
 ```tsx
-<ArenaRadioGroup ariaLabel="Deployment target" value={env} onChange={setEnv}>
+<ArenaRadioGroup ariaLabel="Deployment target" value={env} onValueChange={setEnv}>
   <ArenaRadio value="prod" label="Production" hint="Real users, requires approval" />
   <ArenaRadio value="staging" label="Staging" />
   <ArenaRadio value="qa" label="QA" />
@@ -17,9 +17,9 @@ Single selection among options that are all visible at once. `ArenaRadioGroup` h
 | `ariaLabel*` | primitive | `string` |  | Names the group: what is being chosen, not that it is a choice. Required, and guarded at runtime: a radiogroup with no accessible name is announced unlabelled, and each option's own label says what that option is, never what the set is for. "Deployment target", not "Options". Distinct from `name`, which is the radios' shared form name and never reaches a screen reader. |
 | `children` | slot |  |  | The Radios. An option never holds a selected state of its own -- the group owns it, and how the two are wired is each layer's business rather than this contract's. |
 | `value` | primitive | `string` |  | The selected option's value. |
-| `name` | primitive | `string` |  | Shared name for the underlying radios; generated when omitted. |
+| `name` | primitive | `string` |  | Shared name for the underlying radios; generated when omitted or blank. |
 | `disabled` | primitive | `boolean` | `false` | Whether the whole group is unavailable. Every radio it holds is disabled whatever its own disabled says, and the group reflects aria-disabled. |
-| `onChange` | event | `string` |  | A different option was chosen; carries its value. |
+| `onValueChange` | event | `string` |  | A different option was chosen; carries its value. The native change of the inner radio is never stopped, so a listener on the document hears it; this event carries the value. |
 
 <!-- @api end -->
 
@@ -39,12 +39,12 @@ Single selection among options that are all visible at once. `ArenaRadioGroup` h
 for the underlying native radios and never reaches a screen reader. One is generated when you
 omit it.
 
-`onChange` carries the chosen option's **value**, never a DOM event.
+`onValueChange` carries the chosen option's **value**, never a DOM event.
 
 **Do / Don't**
 - Use ArenaRadio when it helps to see all the options (2–5) and they're mutually exclusive.
 - For more than ~6 options or limited space, use `ArenaSelect`.
-- Don't pass `style` or stray DOM attributes. ArenaRadioGroup declares its `content` slot plus `ariaLabel`, `value`, `name` and `onChange`, and renders nothing else. To space or constrain the group differently, wrap it in your own element rather than reaching through it.
+- Don't pass `style` or stray DOM attributes. ArenaRadioGroup declares its `content` slot plus `ariaLabel`, `value`, `name` and `onValueChange`, and renders nothing else. To space or constrain the group differently, wrap it in your own element rather than reaching through it.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

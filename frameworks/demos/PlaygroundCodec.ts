@@ -151,6 +151,16 @@ function isDelta(value: unknown): value is { $delta: number } {
   return value !== null && typeof value === 'object' && '$delta' in (value as Record<string, unknown>);
 }
 
+function isField(value: unknown): value is { $field: unknown } {
+  return value !== null && typeof value === 'object' && '$field' in (value as Record<string, unknown>);
+}
+
+function fieldOf(payload: unknown, field: string): { found: boolean; value?: unknown } {
+  if (payload === null || typeof payload !== 'object' || !(field in payload)) return { found: false };
+  const value = (payload as Record<string, unknown>)[field];
+  return { found: true, value: Array.isArray(value) ? [...value] : value };
+}
+
 export function applyBind(
   state: PlaygroundState,
   bind: string | Record<string, unknown> | null | undefined,
@@ -173,7 +183,14 @@ export function applyBind(
   for (const entry of Object.entries(bind)) {
     const member = entry[0];
     const value = entry[1];
-    held[member] = isDelta(value) ? Number(held[member] ?? 0) + value.$delta : value;
+    if (isField(value)) {
+      if (typeof value.$field !== 'string') continue;
+      const read = fieldOf(payload, value.$field);
+      if (!read.found) continue;
+      held[member] = read.value;
+    } else {
+      held[member] = isDelta(value) ? Number(held[member] ?? 0) + value.$delta : value;
+    }
     bound[member] = true;
   }
   return { held, bound };

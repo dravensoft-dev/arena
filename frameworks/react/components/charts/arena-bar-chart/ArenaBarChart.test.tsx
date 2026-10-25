@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import { renderToStaticMarkup } from 'react-dom/server';
 import React from 'react';
 import { ArenaBarChart } from './ArenaBarChart.tsx';
+import { arenaPointSeriesColor, arenaSeriesColors } from '../ChartSeries.ts';
+import { forgetArenaWarnings } from '../../../WarnOnce.ts';
 
 const LABELS = ['Mon', 'Tue', 'Wed'];
 const VALUES = [12, 30, 7];
@@ -131,4 +133,27 @@ test('a stack still names every series in the accessible table, which the segmen
   const html = renderToStaticMarkup(<ArenaBarChart label="Load" labels={LABELS} series={STACKED} stack />);
   for (const one of STACKED) assert.match(html, new RegExp(`<th>${one.label}</th>`), `${one.label} lost its column`);
   assert.match(html, /<td>-8<\/td>/, 'a negative segment is still its own number in the table');
+});
+
+test('the tone and colorId warning names the chart that drew it, so a second chart is heard too', () => {
+  forgetArenaWarnings();
+  const warnings: string[] = [];
+  const original = console.warn;
+  console.warn = (...args: unknown[]) => { warnings.push(args.map(String).join(' ')); };
+  try {
+    renderToStaticMarkup(<ArenaBarChart label="Deploys" labels={LABELS} series={[{ label: 'Deploys', values: VALUES, tone: 'danger', colorId: 3 }]} />);
+    arenaSeriesColors({ label: 'Trend', values: VALUES, tone: 'danger', colorId: 3 }, 1, 1, 'ArenaSparkline');
+    arenaPointSeriesColor({ label: 'Cloud', x: [], y: [], tone: 'danger', colorId: 3 }, 1, 'ArenaScatterChart');
+  } finally { console.warn = original; }
+  forgetArenaWarnings();
+  assert.deepEqual(warnings.map((line) => /^\[arena\] (\w+):/.exec(line)?.[1]), ['ArenaBarChart', 'ArenaSparkline', 'ArenaScatterChart']);
+});
+
+test('ArenaBarChart lets the end label overhang while its rail does not scroll, and clips once it does', () => {
+  const labels = Array.from({ length: 30 }, (_, i) => `d${i}`);
+  const draw = (minPointSpacing?: number) => renderToStaticMarkup(
+    <ArenaBarChart labels={labels} series={[{ label: 'Deploys', values: labels.map((_, i) => i + 1) }]} label="Deploys" minPointSpacing={minPointSpacing} />
+  );
+  assert.match(draw(), /overflow-x:visible/);
+  assert.match(draw(35), /overflow-x:auto/);
 });

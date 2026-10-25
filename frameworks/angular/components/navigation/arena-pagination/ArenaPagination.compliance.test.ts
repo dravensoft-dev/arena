@@ -32,7 +32,7 @@ function render(page: number, pageCount: number, ariaLabel = 'Deployments') {
   fixture.componentRef.setInput('pageCount', pageCount);
   fixture.componentRef.setInput('ariaLabel', ariaLabel);
   const chosen: number[] = [];
-  fixture.componentInstance.change.subscribe((value) => chosen.push(value));
+  fixture.componentInstance.valueChange.subscribe((value) => chosen.push(value));
   fixture.detectChanges();
   const host = fixture.nativeElement as HTMLElement;
   const read = () => {

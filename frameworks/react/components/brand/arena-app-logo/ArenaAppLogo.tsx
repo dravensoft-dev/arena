@@ -16,7 +16,7 @@ export interface ArenaAppLogoProps {
   /** The product name, or its first half when `dim` carries the second. */
   name: string;
 
-  /** The wordmark's second half, drawn muted and set straight against `name` with no space between them, so `name` of Draven and `dim` of soft reads as the one word Dravensoft. It is the second half of a name and never a tagline beside it: a product called Coldwalk splits as Cold and walk, and passing the tagline here draws it butted onto the name. Present for the manual's Primary variant, absent for Monochrome, which is why there is no `variant` member: the mark's ink and this are the same two decisions. */
+  /** The wordmark's second half, drawn muted and set straight against `name` with no space between them, so `name` of Draven and `dim` of soft reads as the one word Dravensoft. The value is the second half of a name and never a tagline beside it. A product called Coldwalk splits as Cold and walk, and passing the tagline here draws it butted onto the name. Present for the manual's Primary variant, absent for Monochrome, which is why there is no `variant` member: the mark's ink and this are the same two decisions. */
   dim?: string;
 }
 
@@ -27,7 +27,7 @@ export function ArenaAppLogo({ className, mark, name, dim }: ArenaAppLogoProps) 
   if (!mark || !name) throw new Error('ArenaAppLogo: `mark` and `name` are required');
   const styles = logoStyles({});
   return (
-    <span className={arenaClassName('ArenaAppLogo', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+    <span className={arenaClassName('ArenaAppLogo', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       <span className={styles.mark()} data-arena-part={manifest.parts.mark} {...styles.$data.mark()} data-arena-boundary="">{mark}</span>
       <span className={styles.name()} data-arena-part={manifest.parts.name} {...styles.$data.name()}>
         {name}{dim && <span className={styles.dim()} data-arena-part={manifest.parts.dim} {...styles.$data.dim()}>{dim}</span>}

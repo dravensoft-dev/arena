@@ -6,21 +6,31 @@
    (--bg, --surface-card, --crimson, --gold, --danger, --mute…)
    onto the daisyUI tokens and derives the muted text levels.
    Swapping the skin means swapping the palette source, not this file.
+   Everything below sits in the arena-defaults layer, the first layer of the
+   package's order. Whatever the theme sheet (arena.generated.css) declares of
+   these, it declares unlayered, so the theme wins whatever order a toolchain
+   emits the two sheets in, and no import order has to be right for that to hold.
    ============================================================ */
+@layer properties;
+@layer arena-defaults, theme, base, components, utilities, arena-plugin;
+@layer arena-defaults {
 
-/* Theme polarity — not a color, a direction, and two things read it.
-   --picker-invert is read by the injected style that recolors the native
-   date picker indicator, which is a vendor pseudo-element an inline style
-   cannot reach (see ArenaInput.tsx).
+/* Theme polarity and name — not a colour, a direction and a label, and three things read them.
+   --picker-invert is read by the input slot utility (ArenaInput.styles.generated.css)
+   that recolors the native date picker indicator, which is a vendor pseudo-element
+   an inline style cannot reach.
    color-scheme is read by the browser, and it decides the furniture Arena
    never draws: scrollbars, native controls, autofill, and the canvas the UA
-   paints wherever nothing else does. It reaches the canvas from the root
-   element alone, which is where the .arena-<name> class goes.
-   This is a declaration about the palette and not a paint: --fill-page is
+   paints wherever nothing else does. It is set per palette class and reaches
+   the page canvas only from the root element; on any other element it sets that
+   subtree's native controls and scrollbars.
+   --arena-palette names the palette a subtree wears, which is how an overlay
+   lifted out of that subtree finds the palette to wear.
+   These are declarations about the palette and not a paint: --fill-page is
    the floor and the project is what applies it. Arena states which way the
    palette points and leaves the page to whoever owns it. */
-:root{ --picker-invert:1; color-scheme:dark; }
-.arena-light{ --picker-invert:0; color-scheme:light; }
+:root,.arena-dark{ --arena-palette:dark; --picker-invert:1; color-scheme:dark; }
+.arena-light{ --arena-palette:light; --picker-invert:0; color-scheme:light; }
 
 /* ============================================================
    Compatibility layer — Arena aliases → daisyUI tokens.
@@ -40,7 +50,7 @@
    raising it to answer a contrast report is the one move the
    scale forbids.
    ============================================================ */
-:root,.arena-light{
+:root,.arena-dark,.arena-light{
   --level-ink-body:82%;    /* body copy */
   --level-ink-quiet:70%;   /* a neutral tag's label, quieter than body and above muted */
   --level-ink-muted:62%;   /* captions, meta, the held-back register */
@@ -59,33 +69,33 @@
   --panel:var(--color-base-200);
   --line-strong:var(--color-neutral);
   --bone:var(--color-base-content);
-  --bone-dim:color-mix(in oklab,var(--color-base-content) 82%,transparent);
-  --mute:color-mix(in oklab,var(--color-base-content) 62%,transparent);
+  --bone-dim:color-mix(in oklab,var(--color-base-content) var(--level-ink-body),transparent);
+  --mute:color-mix(in oklab,var(--color-base-content) var(--level-ink-muted),transparent);
   /* Disabled text only. Low by design and NOT a failure: WCAG 1.4.3/1.4.11
      exempt inactive components, and ArenaPagination's disabled controls must read
      as inactive. Do not raise this to fix a contrast report. */
   --mute-2-disabled:color-mix(in oklab,var(--color-base-content) 40%,transparent);
   /* Presence "offline" only (ArenaAvatar's status dot) — never disabled state.
-     52% clears WCAG 1.4.11's 3:1 for graphical objects in both themes
-     (4.93:1 dark / 3.46:1 light on the card). */
-  --status-offline:color-mix(in oklab,var(--color-base-content) 52%,transparent);
+     The presence level clears WCAG 1.4.11's 3:1 for graphical objects in both
+     themes (4.93:1 dark / 3.46:1 light on the card at its 52% floor). */
+  --status-offline:color-mix(in oklab,var(--color-base-content) var(--level-presence),transparent);
 
   /* brand accents */
   --crimson:var(--color-primary);
   --crimson-strong:var(--color-primary);
-  --crimson-soft:color-mix(in oklab,var(--color-primary) 14%,transparent);
+  --crimson-soft:color-mix(in oklab,var(--color-primary) var(--level-accent-soft-primary),transparent);
   --gold:var(--color-secondary);
   --gold-strong:var(--color-secondary);
-  --gold-soft:color-mix(in oklab,var(--color-secondary) 16%,transparent);
+  --gold-soft:color-mix(in oklab,var(--color-secondary) var(--level-accent-soft-gold),transparent);
 
   /* status */
   --success:var(--color-success);
-  --success-soft:color-mix(in oklab,var(--color-success) 16%,transparent);
+  --success-soft:color-mix(in oklab,var(--color-success) var(--level-hue-soft-success),transparent);
   --warning:var(--color-warning);
-  --warning-soft:color-mix(in oklab,var(--color-warning) 18%,transparent);
+  --warning-soft:color-mix(in oklab,var(--color-warning) var(--level-hue-soft-warning),transparent);
   --danger:var(--color-error);
   --danger-strong:var(--color-error);
-  --danger-soft:color-mix(in oklab,var(--color-error) 14%,transparent);
+  --danger-soft:color-mix(in oklab,var(--color-error) var(--level-hue-soft-danger),transparent);
   /* The only filled danger surface in Arena (ArenaConfirmDialog's final
      confirmation). Never a border or text color — --danger is that.
      A skin MAY pin --color-error-fill for an exact value (the Dravensoft skin
@@ -95,7 +105,7 @@
      its own, so a fallback living only in this alias is one nothing reads. */
   --danger-fill:var(--color-error-fill);
   --info:var(--color-info);
-  --info-soft:color-mix(in oklab,var(--color-info) 16%,transparent);
+  --info-soft:color-mix(in oklab,var(--color-info) var(--level-hue-soft-info),transparent);
 
   /* semantic aliases */
   --bg:var(--color-base-100);
@@ -112,4 +122,8 @@
   --accent-soft:var(--crimson-soft);
   --focus-ring:var(--color-secondary);
   --on-accent:var(--color-primary-content);
+
+  /* the cover behind anything that covers the app: the palette's own floor, held back */
+  --scrim:color-mix(in oklab,var(--color-base-100) 60%,transparent);
+}
 }

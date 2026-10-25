@@ -1,0 +1,7 @@
+{
+  "component": "ArenaKbd",
+  "seed": {
+    "keys": ["⌘", "K"]
+  },
+  "note": "Symbols are text: the command glyph is a character in keys. Set the label to hear a name in place of the glyphs."
+}
