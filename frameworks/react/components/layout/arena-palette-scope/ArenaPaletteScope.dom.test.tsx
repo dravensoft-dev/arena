@@ -4,10 +4,11 @@ import React from 'react';
 import { mount, cleanup, act } from '../../../test/Harness.tsx';
 import { hydrateRoot } from 'react-dom/client';
 import { renderToString } from 'react-dom/server';
-import { initArenaTheme, registerArenaPalette, RUNTIME_CACHE_KEY, setArenaTheme } from '../../../Theme.ts';
+import { initArenaTheme, registerArenaPalette, unregisterArenaPalette, RUNTIME_CACHE_KEY, setArenaTheme } from '../../../Theme.ts';
 import { resetArenaTheme } from '../../../ThemeState.ts';
 import { forgetArenaWarnings } from '../../../WarnOnce.ts';
 import { ArenaPaletteScope, useArenaPalette } from './ArenaPaletteScope.tsx';
+import { REMOVAL_CONFIGS, SCOPE_REMOVAL_CASES, removalPalette } from '../../../../../scripts/lib/arena/palette-removal-cases.ts';
 
 function Reader({ label }: { label: string }) {
   return <i data-reader={label}>{useArenaPalette()}</i>;
@@ -193,3 +194,59 @@ test('a scope naming an unregistered palette hydrates against a server that ran 
   act(() => { root?.unmount(); });
   box.remove();
 });
+
+for (const removal of SCOPE_REMOVAL_CASES) {
+  test(`unregisterArenaPalette with a scope: ${removal.title} (${removal.key})`, () => {
+    resetArenaTheme();
+    forgetArenaWarnings();
+    try { globalThis.localStorage?.removeItem(RUNTIME_CACHE_KEY); } catch { void 0; }
+    document.documentElement.style.setProperty(ROOT, '1');
+    const original = console.warn;
+    const warnings: string[] = [];
+    console.warn = (...args: unknown[]) => { warnings.push(args.map(String).join(' ')); };
+    try {
+      initArenaTheme(REMOVAL_CONFIGS.three);
+      let host: HTMLDivElement | null = null;
+      let named = '';
+      const scope = () => host?.querySelector<HTMLElement>('[data-arena-part="palette-scope"]') ?? null;
+      for (const step of removal.steps) {
+        if (step.do === 'mount') {
+          named = step.name;
+          host = mount(<ArenaPaletteScope palette={step.name}><Reader label="r" /></ArenaPaletteScope>);
+        } else if (step.do === 'check') {
+          const element = scope();
+          assert.ok(element, 'the scope is mounted');
+          const arena = [...element.classList].filter((c) => c.startsWith('arena-') && c !== 'arena-palette-scope__root');
+          if (step.scope === 'pending') {
+            assert.deepEqual(arena, []);
+            assert.equal(element.hasAttribute('style'), false);
+          } else {
+            assert.deepEqual(arena, [`arena-polarity-${step.polarity}`]);
+            for (const [key, value] of Object.entries(removalPalette(named, step.polarity ?? 'dark').properties)) {
+              assert.equal(element.style.getPropertyValue(key), value, key);
+            }
+          }
+          assert.equal(warnings.filter((w) => w.includes(`"${named}"`)).length, step.warned);
+        } else if (step.do === 'register') {
+          act(() => { registerArenaPalette(removalPalette(step.name, step.polarity)); });
+        } else if (step.do === 'set') {
+          act(() => { setArenaTheme(step.name); });
+        } else if (step.do === 'remove' && 'returns' in step) {
+          act(() => { assert.equal(unregisterArenaPalette(step.name), step.returns); });
+        } else {
+          throw new Error(`a scope case has no ${step.do} step`);
+        }
+      }
+      if (removal.key === 'page-and-scope') {
+        const style = document.documentElement.style;
+        for (let i = 0; i < style.length; i += 1) {
+          const key = style.item(i);
+          assert.equal(key.startsWith('--color-') || key.startsWith('--level-') || key === '--arena-palette', false, key);
+        }
+      }
+    } finally {
+      console.warn = original;
+      document.documentElement.style.removeProperty(ROOT);
+    }
+  });
+}

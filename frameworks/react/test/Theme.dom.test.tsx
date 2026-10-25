@@ -7,7 +7,7 @@ import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   ARENA_DEFAULT_THEMES, arenaThemeClass, initArenaTheme, getArenaTheme, setArenaTheme,
-  toggleArenaTheme, arenaPalettes, registerArenaPalette, RUNTIME_CACHE_KEY, useArenaPalettes,
+  toggleArenaTheme, arenaPalettes, registerArenaPalette, unregisterArenaPalette, RUNTIME_CACHE_KEY, useArenaPalettes,
 } from '../Theme.ts';
 import { resetArenaTheme } from '../ThemeState.ts';
 import { forgetArenaWarnings } from '../WarnOnce.ts';
@@ -21,6 +21,8 @@ import type { ArenaThemeConfig } from '../Theme.ts';
 import React from 'react';
 import { mount, cleanup, act } from './Harness.tsx';
 import { useArenaTheme } from '../Theme.ts';
+import { REMOVAL_CASES, REMOVAL_CONFIGS, removalPalette } from '../../../scripts/lib/arena/palette-removal-cases.ts';
+import type { RemovalObserved, RemovalStep } from '../../../scripts/lib/arena/palette-removal-cases.ts';
 
 const THREE: ArenaThemeConfig = {
   palettes: [
@@ -388,4 +390,81 @@ test('a name registered before init that the new config declares is dropped with
   assert.equal(warned.length, 1);
   assert.match(warned[0] ?? '', /"high-contrast" is dropped, because the theme config declares it/);
   runtimeClean();
+});
+
+function withPrefers<T>(light: boolean, run: () => T): T {
+  const original = window.matchMedia;
+  window.matchMedia = ((query: string) => ({ matches: light && query.includes('light'), media: query })) as unknown as typeof window.matchMedia;
+  try {
+    return run();
+  } finally {
+    window.matchMedia = original;
+  }
+}
+
+function removalStep(step: RemovalStep): void {
+  if (step.do === 'register') registerArenaPalette(removalPalette(step.name, step.polarity));
+  else if (step.do === 'set') setArenaTheme(step.name);
+  else if (step.do === 'toggle') toggleArenaTheme();
+  else if ('throws' in step) assert.throws(() => unregisterArenaPalette(step.name), new Error(`unregisterArenaPalette: ${step.throws}`));
+  else assert.equal(unregisterArenaPalette(step.name), step.returns);
+}
+
+function inlinePalette(): boolean {
+  const style = html().style;
+  for (let i = 0; i < style.length; i += 1) {
+    const key = style.item(i);
+    if (key.startsWith('--color-') || key.startsWith('--level-') || key === '--arena-palette') return true;
+  }
+  return false;
+}
+
+function observed(unknown: string[]): RemovalObserved {
+  let cached: string | null = null;
+  const copy = localStorage.getItem(RUNTIME_CACHE_KEY);
+  if (copy !== null) cached = (JSON.parse(copy) as { name: string }).name;
+  const polarity = (['dark', 'light'] as const).find((p) => html().classList.contains(`arena-polarity-${p}`)) ?? null;
+  return {
+    listed: arenaPalettes().map((p) => p.name),
+    current: getArenaTheme(),
+    stored: localStorage.getItem('arena-theme'),
+    cached,
+    inline: inlinePalette(),
+    polarity,
+    unknown,
+  };
+}
+
+for (const removal of REMOVAL_CASES) {
+  test(`unregisterArenaPalette: ${removal.title} (${removal.key})`, () => {
+    runtimeClean();
+    forgetArenaWarnings();
+    withPrefers(removal.prefersLight, () => {
+      if (removal.seed) {
+        localStorage.setItem('arena-theme', removal.seed.stored);
+        localStorage.setItem(RUNTIME_CACHE_KEY, JSON.stringify(removalPalette(removal.seed.cached, removal.seed.polarity)));
+      }
+      if (!removal.unread) initArenaTheme(REMOVAL_CONFIGS[removal.config]);
+      for (const step of removal.steps) removalStep(step);
+      assert.deepEqual(observed(removal.expect.unknown), removal.expect);
+      for (const name of removal.expect.unknown) assert.throws(() => setArenaTheme(name), /no palette named/);
+    });
+  });
+}
+
+test('unregisterArenaPalette: mounted readers re-render to the preferred name and the shorter list', () => {
+  runtimeClean();
+  initArenaTheme(REMOVAL_CONFIGS.three);
+  function Readers() {
+    const [theme] = useArenaTheme();
+    const palettes = useArenaPalettes();
+    return <i data-readers="">{theme}|{palettes.map((p) => p.name).join(',')}</i>;
+  }
+  const root = mount(<Readers />);
+  const read = () => root.querySelector('[data-readers]')?.textContent;
+  act(() => { registerArenaPalette(removalPalette('a', 'dark')); setArenaTheme('a'); });
+  assert.equal(read(), 'a|dark,light,high-contrast,a');
+  withPrefers(false, () => { act(() => { unregisterArenaPalette('a'); }); });
+  assert.equal(read(), 'dark|dark,light,high-contrast');
+  cleanup();
 });

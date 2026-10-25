@@ -14,7 +14,7 @@ Every component is imported from the package root, and its types ship with it. T
 
 | export | what it is |
 | --- | --- |
-| `initArenaTheme`, `useArenaTheme`, `getArenaTheme`, `setArenaTheme`, `toggleArenaTheme`, `arenaPalettes`, `registerArenaPalette`, `useArenaPalettes`, `ArenaPalette`, `ArenaRuntimePalette`, `ArenaThemeConfig` | the theme surface, covered in [`theme.md`](./theme.md) |
+| `initArenaTheme`, `useArenaTheme`, `getArenaTheme`, `setArenaTheme`, `toggleArenaTheme`, `arenaPalettes`, `registerArenaPalette`, `unregisterArenaPalette`, `useArenaPalettes`, `ArenaPalette`, `ArenaRuntimePalette`, `ArenaThemeConfig` | the theme surface, covered in [`theme.md`](./theme.md) |
 | `useArenaPalette` | the palette of the nearest `ArenaPaletteScope`, else the page theme, covered in [`theme.md`](./theme.md#how-do-i-put-a-palette-on-part-of-a-page) |
 | `arenaRuntimePalette(name, input, data)`, `arenaCheckPalette(input, data)`, `arenaPaletteDeclarations(input, data)`, `ArenaPolarity`, `ArenaPaletteInput`, `ArenaPaletteReport`, `ArenaRuntimeData`, `ArenaRuntimePalette` | the framework-free subpath `@dravensoft/arena-react/palette`, which checks a palette a user designs and answers the properties to register, covered in [`theme.md`](./theme.md#how-do-i-check-a-runtime-palette-and-turn-it-into-a-palette-to-apply) |
 | `ArenaLocaleProvider`, `useArenaLocale`, `arenaMergeLocale`, `ARENA_DEFAULT_LOCALE` | Arena's own words, covered in [`locale.md`](./locale.md) |

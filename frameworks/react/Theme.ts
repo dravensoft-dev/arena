@@ -59,6 +59,14 @@ function cache(palette: ArenaRuntimePalette | undefined): void {
   }
 }
 
+function forget(): void {
+  try {
+    window.localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    return;
+  }
+}
+
 const KEBAB = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
 
 function shapeProblem(palette: ArenaRuntimePalette): string | null {
@@ -169,6 +177,23 @@ export function registerArenaPalette(palette: ArenaRuntimePalette): string {
   }
   for (const listener of state.listeners) listener(getArenaTheme());
   return name;
+}
+
+export function unregisterArenaPalette(name: string): boolean {
+  if (declares(name)) {
+    throw new Error(`unregisterArenaPalette: no palette named "${name}" can be unregistered, because the theme config declares it; the declared palettes are ${names().join(', ')}`);
+  }
+  if (state.current === null) getArenaTheme();
+  if (!state.registered.delete(name)) return false;
+  state.all = null;
+  if (state.current === name) {
+    state.current = preferred();
+    apply(state.current);
+    forget();
+    cache(undefined);
+  }
+  for (const listener of state.listeners) listener(getArenaTheme());
+  return true;
 }
 
 export function initArenaTheme(themes: ArenaThemeConfig = ARENA_DEFAULT_THEMES): string {
