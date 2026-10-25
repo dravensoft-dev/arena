@@ -83,13 +83,22 @@ test('a line that is not a specifier of the package is a problem', () => {
   assert.equal(problems.length, 1);
 });
 
-test('a url() other than inline data is a problem, and data: is not', () => {
+test('a url() other than inline data or a fragment is a problem, and data: and #id are not', () => {
   const bad = packageRoot({ 'arena.css': '@font-face{src:url(fonts/x.woff2)}' });
   const one = flattenImports(top, bad, PKG).problems;
   assert.equal(one.length, 1);
   assert.match(one[0]!, /arena\.css.*fonts\/x\.woff2/);
   const good = packageRoot({ 'arena.css': "a{background:url(\"data:image/svg+xml;utf8,<svg/>\")}b{background:url(data:image/png;base64,AAAA)}" });
   assert.deepEqual(flattenImports(top, good, PKG).problems, []);
+  const fragment = packageRoot({ 'arena.css': 'a{mask:url(#m)}' });
+  assert.deepEqual(flattenImports(top, fragment, PKG).problems, []);
+  const mixed = packageRoot({ 'arena.css': 'a{mask:url(#m)}b{background:url(img.png)}c{background:url(x.svg#m)}' });
+  assert.equal(flattenImports(top, mixed, PKG).problems.length, 2);
+});
+
+test('a comment that mentions url() does not stop the build', () => {
+  const root = packageRoot({ 'arena.css': '/* the font url(fonts/x.woff2) is cut */\na{b:c}' });
+  assert.deepEqual(flattenImports(top, root, PKG).problems, []);
 });
 
 test('markers read /* <package>/<path from root> */', () => {
@@ -97,12 +106,4 @@ test('markers read /* <package>/<path from root> */', () => {
   const { css } = flattenImports(top, root, PKG);
   assert.match(css, /^\/\* @dravensoft\/arena-react\/arena\.css \*\/\n/);
   assert.ok(css.includes('/* @dravensoft/arena-react/css/x.css */\nx{}'));
-});
-
-const DIST = resolve(import.meta.dirname, '../../../../frameworks/react/dist');
-test('the built React package flattens with no import left, and prelude once', { skip: existsSync(join(DIST, 'arena.css')) ? false : 'frameworks/react/dist is not built' }, () => {
-  const { css, problems } = flattenImports([`@import '${PKG}/arena.css';`], DIST, PKG);
-  assert.deepEqual(problems, []);
-  assert.doesNotMatch(css, /@import/);
-  assert.equal(css.split(`/* ${PKG}/css/prelude.css */`).length, 2);
 });

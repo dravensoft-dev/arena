@@ -59,16 +59,24 @@ export const ANGULAR_EXTRA: CssChainEntry[] = [{ from: 'frameworks/angular/theme
 
 const CDK_IMPORT = "@import '@angular/cdk/overlay-prebuilt.css';";
 const CDK_PREBUILT = 'node_modules/@angular/cdk/overlay-prebuilt.css';
+const CDK_PACKAGE = 'node_modules/@angular/cdk/package.json';
 
-export function inlineCdkPrebuilt(bridge: string, prebuilt: string) {
+export const cdkAttribution = (version: string) =>
+  `/* @angular/cdk ${version}/overlay-prebuilt.css, (c) Google LLC, MIT: https://angular.dev/license */\n`;
+
+export function inlineCdkPrebuilt(bridge: string, prebuilt: string, version: string) {
   if (!bridge.includes(CDK_IMPORT)) throw new Error(`inlineCdkPrebuilt: the bridge holds no ${CDK_IMPORT}`);
-  return bridge.replace(CDK_IMPORT, () => prebuilt.trimEnd());
+  return bridge.replace(CDK_IMPORT, () => cdkAttribution(version) + prebuilt.trimEnd());
 }
 
+export const cdkVersion = (root = repoRoot) =>
+  (JSON.parse(readFileSync(join(root, CDK_PACKAGE), 'utf8')) as { version: string }).version;
+
 export function angularExtra(root = repoRoot): CssChainEntry[] {
+  const version = cdkVersion(root);
   return ANGULAR_EXTRA.map((entry) => entry.from === undefined ? entry : {
     to: entry.to,
-    content: inlineCdkPrebuilt(readFileSync(join(root, entry.from), 'utf8'), readFileSync(join(root, CDK_PREBUILT), 'utf8')),
+    content: inlineCdkPrebuilt(readFileSync(join(root, entry.from), 'utf8'), readFileSync(join(root, CDK_PREBUILT), 'utf8'), version),
   });
 }
 

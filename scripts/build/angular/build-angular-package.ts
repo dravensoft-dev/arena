@@ -45,10 +45,12 @@ export const node = {
     'frameworks/*/components/**/*.behaviour.json',
     'scripts/generate/core/arena-cli/**', '!scripts/generate/core/arena-cli/*.test.ts',
     '!scripts/generate/core/arena-cli/*-fixtures.ts',
+    'bun.lock',
   ],
   writes: [`${LAYER}/dist/**`, `${STAGING}/**`],
   feeds: [
     'check:arbitrary',
+    'check:cdk',
     'check:community',
     'check:consumer',
     'check:packages',

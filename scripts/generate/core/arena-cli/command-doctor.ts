@@ -109,7 +109,7 @@ export async function run(argv: string[], io: Io): Promise<number> {
 
   if (!planned.fatal.length && planned.outputs.some((one) => one.name === PACKAGE_SHEET)
     && !readSources(options.paths).some((text) => text.includes(PACKAGE_SHEET))) {
-    say.out(`note: no source imports ${PACKAGE_SHEET}, so the app renders with no Arena CSS; add @import './${PACKAGE_SHEET}'; before the import of arena.generated.css, in the stylesheet beside it`);
+    say.out(`note: no source imports ${PACKAGE_SHEET}, so the app renders with no Arena CSS; add @import './${PACKAGE_SHEET}'; before the import of arena.generated.css, in the stylesheet beside it, or link it from your page`);
   }
   if (!runsBuild(io.cwd)) {
     say.out('note: no script in package.json runs arena build, so the sheets go stale as the config and sources change; arena init wires one');

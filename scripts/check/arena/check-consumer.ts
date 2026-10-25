@@ -24,8 +24,9 @@ import { isForeignTree } from '../../lib/arena/foreign-trees.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { PACKAGES, distDir, refuseUnassembled as refuseUnassembledPackages } from './check-packages.ts';
 import {
-  THEME_SHEET, PACKAGE_SHEET, PLUGIN_SHEET, RUNTIME_DATA, PLUGIN_CSS, PLUGIN_LAYER, PLUGIN_LAYER_ORDER, SPRITE_MODULE, SPRITE_TYPES, SPRITE_SOURCE,
+  THEME_SHEET, PACKAGE_SHEET, PLUGIN_SHEET, RUNTIME_DATA, PLUGIN_CSS, PLUGIN_LAYER, PLUGIN_LAYER_ORDER,
 } from '../../generate/core/arena-cli/sheets.ts';
+import { spriteModuleFiles } from '../../generate/core/arena-cli/sprite.ts';
 import { RETIRED_ICONS_SHEET, spriteFilesIn } from '../../generate/core/arena-cli/sources.ts';
 import { DEFAULT_PLUGIN, PLUGIN_TOKENS, pluginName } from '../../generate/core/arena-cli/theme-css.ts';
 import { ROOT_PLUGIN } from '../core/check-style-plugin.ts';
@@ -460,7 +461,8 @@ function heldAgainstClass(
   return problems;
 }
 
-export const spriteModuleNames = (layer: string): string[] => layer === 'angular' ? [SPRITE_SOURCE] : [SPRITE_MODULE, SPRITE_TYPES];
+export const spriteModuleNames = (layer: string): string[] =>
+  spriteModuleFiles('x', PACKAGES.find((p) => p.layer === layer)?.name ?? '').map((file) => file.name);
 
 export const COMMAND_FLAGS: Record<string, string[]> = {
   build: ['--src', 'src', '--out', 'out'],

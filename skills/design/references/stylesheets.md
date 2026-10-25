@@ -25,7 +25,7 @@ The two halves are the token layer and `css/components.css`. Importing them in p
 
 ## Which sheet re-bases the Angular CDK overlay?
 
-`css/arena-cdk.css` ships in the Angular package. That sheet re-bases the CDK overlay onto Arena's layering, and it carries the CDK overlay's rules as text. `arena.css` imports it, and so does a `stylesheet` block, which [`config.md`](./config.md) covers under Build to production.
+`css/arena-cdk.css` ships in the Angular package. That sheet re-bases the CDK overlay onto Arena's layering, and it carries the CDK overlay's rules as text. The text holds the rules of the CDK version the package was built with, which a comment at the top of that text names. `arena.css` imports it, and so does a `stylesheet` block, which [`config.md`](./config.md) covers under Build to production.
 
 ## Does Angular need a Tailwind `@source` for Arena?
 

@@ -262,6 +262,7 @@ test('a build that writes the package sheet no source imports is a note naming t
   const before = await noted();
   assert.equal(before.length, 1);
   assert.ok(before[0]!.includes(`@import './${PACKAGE_SHEET}'`));
+  assert.ok(before[0]!.includes('or link it from your page'));
   writeFileSync(join(root, 'src', 'main.css'), `@import './${PACKAGE_SHEET}';\n@import './${THEME_SHEET}';\n`);
   assert.deepEqual(await noted(), []);
 });

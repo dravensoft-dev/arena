@@ -316,7 +316,7 @@ test('a package the command cannot read, or a sheet it names that is no file, st
   const { root: held, core } = phosphor();
   const none = await plan(options(project()), environment(core, { arena: null }));
   assert.equal(none.code, 1);
-  assert.deepEqual(none.fatal, [`arena build cannot read the installed ${NAME}`]);
+  assert.deepEqual(none.fatal, [`arena build cannot read the installed ${NAME}: it is not running from inside an installed Arena package. Run the \`arena\` the package installs, or pass --no-import`]);
   assert.deepEqual(none.outputs, []);
   const bare = hostRoot(NAME, '13.0.0');
   const gone = await plan(options(project()), { ...environment(core, { sheets: { layers: ['css/missing.css'], components: [] } }), arena: bare });

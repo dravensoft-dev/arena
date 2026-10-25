@@ -81,13 +81,22 @@ test('the oracle sees the container class the bridge exists to override', () => 
 
 const SOURCE_BRIDGE = readFileSync(join(repoRoot, 'frameworks', 'angular', 'theme', 'arena-cdk.css'), 'utf8');
 
+const VERSION = '1.2.3';
+
 test('publishedBridgeProblems accepts the inlined bridge and names each way a copy goes wrong', () => {
-  const good = inlineCdkPrebuilt(SOURCE_BRIDGE, PREBUILT);
-  assert.deepEqual(publishedBridgeProblems(good, PREBUILT), []);
-  assert.equal(publishedBridgeProblems(SOURCE_BRIDGE, PREBUILT).length >= 1, true, 'the raw source bridge');
-  assert.ok(publishedBridgeProblems(SOURCE_BRIDGE, PREBUILT).some((p) => p.includes('@import')));
-  const drift = inlineCdkPrebuilt(SOURCE_BRIDGE, PREBUILT.replace('z-index: 1000', 'z-index: 999'));
-  assert.equal(publishedBridgeProblems(drift, PREBUILT).length, 1, 'a prebuilt with one rule changed');
+  const good = inlineCdkPrebuilt(SOURCE_BRIDGE, PREBUILT, VERSION);
+  const problems = (copy: string) => publishedBridgeProblems(copy, SOURCE_BRIDGE, PREBUILT, VERSION);
+  assert.deepEqual(problems(good), []);
+  assert.ok(problems(SOURCE_BRIDGE).some((p) => p.includes('@import')), 'the raw source bridge');
+  const drift = inlineCdkPrebuilt(SOURCE_BRIDGE, PREBUILT.replace('z-index: 1000', 'z-index: 999'), VERSION);
+  assert.equal(problems(drift).length, 1, 'a prebuilt with one rule changed');
   const noOverride = good.replace('calc(var(--z-toast) - 10)', '1000');
-  assert.equal(publishedBridgeProblems(noOverride, PREBUILT).length, 1, 'the override removed');
+  assert.equal(problems(noOverride).length, 1, 'the override removed');
+  const reordered = `${PREBUILT}\n${SOURCE_BRIDGE.replace(/@import[^\n]*\n/, '')}`;
+  assert.equal(problems(reordered).length, 1, 'the override ahead of the CDK rules');
+  const withImport = `${good}\n@import '@angular/cdk/overlay-prebuilt.css';\n`;
+  const both = problems(withImport);
+  assert.equal(both.length, 2, 'prebuilt inlined and a bare @import left in');
+  assert.ok(both.some((p) => p.includes('bare specifier')));
+  assert.equal(problems(good.replace(VERSION, '9.9.9')).length, 1, 'an attribution naming another version');
 });

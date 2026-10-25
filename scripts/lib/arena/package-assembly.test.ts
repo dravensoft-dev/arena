@@ -530,14 +530,15 @@ test('copyFonts stops when the record names a file that is not there, or a font 
 
 test('inlineCdkPrebuilt puts the CDK sheet where the import was and keeps the override after it', () => {
   const bridge = "/* head */\n@import '@angular/cdk/overlay-prebuilt.css';\n\n.cdk-overlay-container {\n  z-index: 1;\n}\n";
-  const out = inlineCdkPrebuilt(bridge, '.cdk-a { top: 0; }\n');
+  const out = inlineCdkPrebuilt(bridge, '.cdk-a { top: 0; }\n', '9.9.9');
+  assert.ok(out.includes('/* @angular/cdk 9.9.9/overlay-prebuilt.css, (c) Google LLC, MIT: https://angular.dev/license */\n.cdk-a'));
   assert.ok(!out.includes('@import'));
   assert.ok(out.indexOf('.cdk-a { top: 0; }') < out.indexOf('.cdk-overlay-container'));
   assert.ok(out.startsWith('/* head */\n'));
 });
 
 test('inlineCdkPrebuilt throws on a bridge with no import, and angularExtra carries the bridge as content', () => {
-  assert.throws(() => inlineCdkPrebuilt('.a { b: c; }', 'x'), /holds no @import/);
+  assert.throws(() => inlineCdkPrebuilt('.a { b: c; }', 'x', '1.0.0'), /holds no @import/);
   const [entry] = angularExtra(repoRoot);
   assert.equal(entry?.to, 'css/arena-cdk.css');
   assert.equal(entry?.from, undefined);

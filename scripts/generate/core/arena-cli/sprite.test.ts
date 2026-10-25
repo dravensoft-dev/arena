@@ -4,11 +4,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
 import { budgetFor, deadline } from '../../../lib/arena/deadline.ts';
+import { ngcBin } from '../../../lib/angular/ngc-bin.ts';
+import { linkDir } from '../../../lib/arena/platform.ts';
+import { repoRoot } from '../../../lib/arena/repo-root.ts';
 import { toPosix } from '../../../utils/posix-path.ts';
 import { symbolId, glyphFile, spriteSvg, contentName, spriteModuleFiles, writesTypeScript } from './sprite.ts';
 
@@ -76,16 +78,13 @@ const NGC_RUN = deadline('ngc on a one-file project',
   30_000, 'ngc loads the Angular compiler and the TypeScript program before it emits one file, which takes seconds cold and '
   + 'longer on a loaded machine; the bound only ends a hang');
 
-const NGC = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', '..', 'node_modules', '.bin', 'ngc');
-
 test('ngc emits the Angular icon list, which a project with no allowJs imports through its .js specifier', {
-  skip: existsSync(NGC) ? false : 'node_modules/.bin/ngc is not installed',
   timeout: budgetFor(NGC_RUN),
 }, () => {
   const dir = mkdtempSync(join(tmpdir(), 'arena-ngc-'));
   try {
     mkdirSync(join(dir, 'src'));
-    symlinkSync(join(dirname(NGC), '..'), join(dir, 'node_modules'), 'dir');
+    linkDir(join(repoRoot, 'node_modules'), join(dir, 'node_modules'));
     writeFileSync(join(dir, 'tsconfig.json'), JSON.stringify({
       compilerOptions: { target: 'ES2022', module: 'ES2022', moduleResolution: 'bundler', outDir: './out', rootDir: './src', strict: true, skipLibCheck: true, types: [] },
       files: ['src/main.ts'],
@@ -93,7 +92,7 @@ test('ngc emits the Angular icon list, which a project with no allowJs imports t
     writeFileSync(join(dir, 'src', 'main.ts'), "import { ARENA_SPRITE } from './arena.icons.generated.js';\nconsole.log(ARENA_SPRITE);\n");
     const [module] = spriteModuleFiles('icons-0123456789.svg', '@dravensoft/arena-angular');
     writeFileSync(join(dir, 'src', module!.name), module!.content);
-    const compiled = spawnSync(process.execPath, [NGC, '-p', 'tsconfig.json'], { cwd: dir, encoding: 'utf8' });
+    const compiled = spawnSync(process.execPath, [ngcBin(repoRoot), '-p', 'tsconfig.json'], { cwd: dir, encoding: 'utf8' });
     assert.equal(compiled.status, 0, `${compiled.stdout}${compiled.stderr}`);
     assert.match(readFileSync(join(dir, 'out', 'arena.icons.generated.js'), 'utf8'), /icons-0123456789\.svg/);
     assert.match(readFileSync(join(dir, 'out', 'main.js'), 'utf8'), /\.\/arena\.icons\.generated\.js/);

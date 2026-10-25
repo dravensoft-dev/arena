@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import {
-  configProblems, heatReports, heatOrderReports, themeCss, packageCss, packageImports, paletteReports, defaultPalette, isStylesheet, scopedImports,
+  configProblems, heatReports, heatOrderReports, themeCss, packageLines, PACKAGE_HEADER, packageImports, paletteReports, defaultPalette, isStylesheet, scopedImports,
   pluginName, pluginValue, readPlugin, weightReports, rootWithDefaults, resolvedPlugin,
   pluginBlocks, pluginTokenProblems,
   ARENA_FONT_DEFAULTS, ALWAYS_THEMED, RUNTIME_MARKER, polarityClass, polarityDeclarations, restatedBy, type CheckedStylesheet, type CheckedSheets,
@@ -36,6 +36,9 @@ const config = (overrides: Record<string, any> = {}): any => ({
   },
   ...overrides,
 });
+
+const packageCss = (c: Parameters<typeof packageLines>[0], o: Parameters<typeof packageLines>[1] = {}) =>
+  `${PACKAGE_HEADER}\n${packageLines(c, o).join('\n')}\n`;
 
 test('a well-formed configuration has no problems', () => {
   assert.deepEqual(configProblems(config()), []);
@@ -405,7 +408,7 @@ test('the package sheet carries no word of the config, so its bytes change with 
 
 test('packageImports answers null when the config names its own sheets and the package\'s were never read', () => {
   assert.equal(packageImports(config({ stylesheet: { components: ['arena-button'] } }), {}), null);
-  assert.throws(() => packageCss(config({ stylesheet: { components: ['arena-button'] } }), {}), /never read/);
+  assert.throws(() => packageLines(config({ stylesheet: { components: ['arena-button'] } }), {}), /never read/);
   assert.deepEqual(packageImports(config(), { packageName: '@x/y' }), ["@import '@x/y/arena.css';"]);
 });
 
