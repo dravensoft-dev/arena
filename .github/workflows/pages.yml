@@ -96,23 +96,18 @@ jobs:
           path: adopter
 
       # The same function build:site calls decides: the adopter is built only when its
-      # arena-adopter.json declares the version of this tree. Nothing is installed otherwise.
+      # arena-adopter.json declares the version of this tree. Nothing is built otherwise.
       - name: does the adopter declare this Arena
         id: adopter
         if: steps.checkout.outcome == 'success'
         continue-on-error: true
         run: bun scripts/build/arena/build-site.ts --adopter-declares adopter
 
-      - name: install the adopter
-        id: install
-        if: steps.adopter.outputs.publish == 'true'
-        continue-on-error: true
-        run: bun install --frozen-lockfile
-        working-directory: adopter
-
+      # The adopter's dependencies are the adopter's business: this job installs nothing in it and
+      # runs the build the adopter declares, which installs what the adopter needs first.
       - name: build the adopter
         id: adopter-build
-        if: steps.install.outcome == 'success'
+        if: steps.adopter.outputs.publish == 'true'
         continue-on-error: true
         run: bun run build
         working-directory: adopter

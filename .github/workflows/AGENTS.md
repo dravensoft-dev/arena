@@ -377,8 +377,10 @@ unexported, because `check:portability` fails when a second workflow names it.
 **It is also the only job here that builds a second repository, and it builds one adopter.** The
 adopter is checked out at its main into `adopter/`, and it is published only when its
 `arena-adopter.json` declares this tree's version: a gate step asks the same function `build:site`
-calls, and nothing is installed or built when the answer is no. When it is, the job installs and
-builds it and hands the directory it wrote to `build:site` as `ARENA_ADOPTER_BUILD`. Those steps
+calls, and nothing is built when the answer is no. When it is, the job runs the adopter's own
+`bun run build` and installs nothing in it: the adopter's dependencies are the adopter's business,
+and its `build` installs what it needs. The job hands the directory that build wrote to `build:site`
+as `ARENA_ADOPTER_BUILD`. Those steps
 sit before `build:site` because it copies what is there when it runs.
 [`../../scripts/check/AGENTS.md`](../../scripts/check/AGENTS.md) is where that variable is
 declared and where an unset one is answered.
@@ -392,8 +394,8 @@ stale between the two moves. **Nothing here fires on a push to that repository**
 change reaches the domain at the next `Arena main` or at a hand dispatch of this workflow, and at
 no other moment.
 
-**An adopter that does not arrive or does not hold never stops the publication.** A checkout, an
-install or a build that fails publishes the site without it and a warning, and so does an
+**An adopter that does not arrive or does not hold never stops the publication.** A checkout or a
+build that fails publishes the site without it and a warning, and so does an
 adopter `build:site` refuses (a build whose own manifest declares another version, a path the
 site already holds, an `index.html` of its own, a copy that fails): `build:site` says which in
 the step's `adopter` output, and the warning and the next step read it. So does a `check:site`
