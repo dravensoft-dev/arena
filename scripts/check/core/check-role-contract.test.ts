@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { declarationProblems, defaultProblems, singleAnswerProblems, emittedTypes, emittedWords, rosterProblems, zeroRoleProblems, collect, ROLES } from './check-role-contract.ts';
+import { declarationProblems, defaultProblems, singleAnswerProblems, emittedTypes, emittedWords, rosterProblems, zeroRoleProblems, collect, ROLES, metadataProblems } from './check-role-contract.ts';
 import { join } from 'node:path';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
@@ -156,4 +156,50 @@ test('no role has only its default as a valid answer', () => {
     'x-floor': { ...typed('keyword'), $extensions: { [ARENA]: { values: ['transparent'] } } },
   }), []);
   assert.deepEqual(singleAnswerProblems(readJson(join(repoRoot, ROLES)) as any), []);
+});
+
+const meta = (extra: Record<string, unknown> = {}) => ({
+  $type: 'dimension', $description: 'x',
+  $extensions: { 'com.dravensoft.arena': { audience: 'markup', task: 'edges', userScale: 'fixed', ...extra } },
+});
+
+test('a role declares who reads it and which task it serves', () => {
+  const none = meta({ audience: undefined });
+  assert.equal(metadataProblems({ 'r-surface': none }).length, 1);
+  assert.match(metadataProblems({ 'r-surface': none })[0] ?? '', /no audience.*markup, component/);
+  const bad = metadataProblems({ 'r-surface': meta({ audience: 'adopter' }) });
+  assert.equal(bad.length, 1);
+  assert.match(bad[0] ?? '', /"adopter"/);
+  const noTask = metadataProblems({ 'r-surface': meta({ task: undefined }) });
+  assert.equal(noTask.length, 1);
+  assert.match(noTask[0] ?? '', /no task.*surfaces-and-text.*component-size/);
+  const badTask = metadataProblems({ 'r-surface': meta({ task: 'colour' }) });
+  assert.equal(badTask.length, 1);
+  assert.match(badTask[0] ?? '', /"colour"/);
+  assert.deepEqual(metadataProblems({ 'r-surface': meta() }), []);
+});
+
+test('a dimension role declares its user-scale axis and any other role may', () => {
+  const none = metadataProblems({ 'r-surface': meta({ userScale: undefined }) });
+  assert.equal(none.length, 1);
+  assert.match(none[0] ?? '', /no userScale/);
+  const bad = metadataProblems({ 'r-surface': meta({ userScale: 'grows' }) });
+  assert.equal(bad.length, 1);
+  assert.match(bad[0] ?? '', /"grows"/);
+  assert.match(bad[0] ?? '', /scales, follows, fixed/);
+  assert.deepEqual(metadataProblems({ 'n-count': { ...meta({ userScale: 'follows' }), $type: 'number' } }), []);
+  assert.deepEqual(metadataProblems({ 'c-ink': { ...meta({ userScale: undefined }), $type: 'color' } }), []);
+  assert.equal(metadataProblems({ 'c-ink': { ...meta({ userScale: 'grows' }), $type: 'color' } }).length, 1);
+});
+
+test('deleting any metadata key from the real declaration fails the gate', () => {
+  const roles = readJson(join(repoRoot, ROLES)) as Record<string, any>;
+  assert.deepEqual(metadataProblems(roles), []);
+  for (const key of ['audience', 'task', 'userScale']) {
+    const copy = structuredClone(roles);
+    delete copy['r-surface'].$extensions['com.dravensoft.arena'][key];
+    const problems = metadataProblems(copy);
+    assert.equal(problems.length, 1, key);
+    assert.match(problems[0] ?? '', /r-surface/);
+  }
 });

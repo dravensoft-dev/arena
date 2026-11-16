@@ -6,7 +6,8 @@
  * answer a role may carry, and only as an alias to a role or to a token the package emits, of the
  * role's own type, so a root plugin silent on the role follows a decision somebody already made.
  * ROSTER is written once from roles.json and never grows: a role outside it carries a default,
- * which is what lets a minor add a role without stopping a build whose root plugin is its own. */
+ * which is what lets a minor add a role without stopping a build whose root plugin is its own.
+ * Every role also declares its audience, task and userScale, each from a closed set. */
 
 import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
@@ -17,6 +18,7 @@ import { ARENA_EXT } from '../../lib/core/dtcg-shapes.ts';
 import type { DtcgNode } from '../../lib/core/dtcg-shapes.ts';
 import { flattenTokens } from '../../lib/core/token-preview.ts';
 import { EXCLUDED } from './check-dtcg.ts';
+import { AXES } from './check-user-scale.ts';
 
 export const ROLES = 'contracts/design/roles.json';
 
@@ -33,8 +35,13 @@ type Role = {
   $type?: string;
   $value?: unknown;
   $description?: string;
-  $extensions?: Record<string, { values?: unknown; default?: unknown }>;
+  $extensions?: Record<string, { values?: unknown; default?: unknown; audience?: unknown; task?: unknown; userScale?: unknown }>;
 };
+
+export const AUDIENCES = ['markup', 'component'] as const;
+
+export const TASKS = ['surfaces-and-text', 'edges', 'space-and-layout', 'type', 'depth-and-motion', 'states',
+  'meaning-and-identity', 'component-size'] as const;
 
 const ALIAS = /^\{([a-z][\w-]*(?:\.[\w-]+)*)\}$/;
 
@@ -180,6 +187,27 @@ export function rosterProblems(roles: Record<string, Role>, roster: unknown) {
   return problems;
 }
 
+export function metadataProblems(roles: Record<string, Role>) {
+  const problems: string[] = [];
+  const axes = [...AXES.keys()];
+  const check = (name: string, key: string, got: unknown, set: readonly string[], purpose: string, required: boolean) => {
+    if (got === undefined) {
+      if (required) problems.push(`${name} has no ${key}. It says ${purpose}; declare one of ${set.join(', ')}.`);
+    } else if (typeof got !== 'string' || !set.includes(got)) {
+      problems.push(`${name} declares ${key} ${JSON.stringify(got)}, which is not one of ${set.join(', ')}. `
+        + `The key says ${purpose}.`);
+    }
+  };
+  for (const [name, role] of Object.entries(roles)) {
+    const ext = role.$extensions?.[ARENA_EXT];
+    check(name, 'audience', ext?.audience, AUDIENCES, 'who may read the role: markup, or only a component', true);
+    check(name, 'task', ext?.task, TASKS, 'which task the role is documented under', true);
+    check(name, 'userScale', ext?.userScale, axes, 'what a larger text setting does to the role',
+      role.$type === 'dimension');
+  }
+  return problems;
+}
+
 export function zeroRoleProblems(count: number) {
   if (count > 0) return [];
   return [`found 0 roles in ${ROLES} -- an empty result set is a failure, not a clean pass; check `
@@ -195,6 +223,7 @@ export function collect(root = repoRoot) {
     ...defaultProblems(roles, emittedTypes(root), emittedWords(root)),
     ...singleAnswerProblems(roles),
     ...rosterProblems(roles, readJson(join(root, ROSTER))),
+    ...metadataProblems(roles),
   ];
 }
 
@@ -207,7 +236,8 @@ function main() {
     process.exit(1);
   }
   console.log(`check-role-contract: ${Object.keys(roles).length} role(s) declare a type and a `
-    + 'reason, a keyword declares its set, and none of them carries an answer');
+    + 'reason, a keyword declares its set, each names its audience, task and userScale, and none of them '
+    + 'carries an answer');
 }
 
 if (isMainModule(import.meta.url)) main();
