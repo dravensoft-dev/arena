@@ -6,7 +6,8 @@
  * rule rather than DTCG's: 2025.10 admits `$extensions` on a group (§6.3.2) and defines no
  * inheritance for it, so the inheritance is stated here and in `contracts/design/TokenTypes.md`.
  * `follows` is checked wherever it is declared but never demanded, because a multiplier is not a
- * dimension and the totality claim is about dimensions. */
+ * dimension and the totality claim is about dimensions. It also walks roles.json against every
+ * plugin answer in PLUGIN_ANSWERS and refuses an alias that lands on another axis than its role. */
 
 import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
@@ -17,9 +18,18 @@ import { ARENA_EXT, childEntries, isToken } from '../../lib/core/dtcg-shapes.ts'
 import type { DtcgNode } from '../../lib/core/dtcg-shapes.ts';
 import { EXCLUDED } from './check-dtcg.ts';
 
+export const PLUGIN_ANSWERS = [
+  'plugin-style-store/default/plugin.tokens.json',
+  'plugin-style-store/complete/plugin.tokens.json',
+  'plugin-style-store/catalogue/*/plugin.tokens.json',
+];
+
 export const node = {
   name: 'check:user-scale',
-  reads: ['contracts/design/*.json'],
+  reads: [
+    'contracts/design/*.json',
+    ...PLUGIN_ANSWERS,
+  ],
   writes: [],
   feeds: [],
 };
@@ -98,10 +108,91 @@ export function collect(dir = join(root, SOURCE_DIR)) {
   return { files, found, problems };
 }
 
+export function tokenAxes(dir = join(root, SOURCE_DIR)) {
+  const map = new Map<string, string>();
+  for (const { at, axis } of collect(dir).found) map.set(at.slice(at.indexOf(':') + 1), axis);
+  return map;
+}
+
+type Answer = { name: string; tokens: Record<string, DtcgNode> };
+
+export function answerAxisProblems(roles: Record<string, DtcgNode>, axes: ReadonlyMap<string, string>,
+                                   answers: Answer[]) {
+  let judged = 0;
+  const problems: string[] = [];
+  for (const { name, tokens } of answers) {
+    for (const [key, answer] of Object.entries(tokens)) {
+      const role = Object.hasOwn(roles, key) ? roles[key] : undefined;
+      const want = role ? declaredAxis(role) : undefined;
+      if (!want || !AXES.has(want)) continue;
+      const value = (answer as DtcgNode)?.$value;
+      const target = typeof value === 'string' ? /^\{([^{}]+)\}$/.exec(value)?.[1] : undefined;
+      if (!target) continue;
+      let got: string | undefined = axes.get(target);
+      if (got === undefined && !target.includes('.') && Object.hasOwn(roles, target)) {
+        got = declaredAxis(roles[target] as DtcgNode);
+      }
+      if (got === undefined) continue;
+      judged += 1;
+      if (got !== want) {
+        problems.push(`${name}: ${key} answers {${target}}, which is on the "${got}" axis, but the role `
+          + `${key} is declared "${want}"; an answer stays on its role's axis, or the role's `
+          + 'declaration is what is wrong');
+      }
+    }
+  }
+  return { judged, problems };
+}
+
+export function answerFiles(base = root) {
+  const files: string[] = [];
+  for (const pattern of PLUGIN_ANSWERS) {
+    let found = [''];
+    for (const part of pattern.split('/')) {
+      found = part === '*'
+        ? found.flatMap((dir) => readdirSync(join(base, dir), { withFileTypes: true })
+          .filter((e) => e.isDirectory()).map((e) => join(dir, e.name)).sort())
+        : found.map((dir) => join(dir, part));
+    }
+    files.push(...found);
+  }
+  return files;
+}
+
+export function collectAnswers(base = root) {
+  const unreadable: string[] = [];
+  const read = (file: string, label: string) => {
+    try {
+      return readJson(file) as Record<string, DtcgNode>;
+    } catch (err) {
+      unreadable.push(`${file} cannot be read as ${label}: ${(err as Error).message}`);
+      return {};
+    }
+  };
+  const roles = read(join(base, SOURCE_DIR, 'roles.json'), 'the role file');
+  const files = answerFiles(base);
+  const walked = files.map((f) => f.split('/').slice(1, -1).join('/'));
+  const answers = files.map((file, i) => ({
+    name: walked[i] as string,
+    tokens: read(join(base, file), 'a plugin answer'),
+  }));
+  const result = answerAxisProblems(roles, tokenAxes(join(base, SOURCE_DIR)), answers);
+  return { ...result, problems: [...unreadable, ...result.problems], walked };
+}
+
+export function zeroJudgedProblems(count: number) {
+  if (count > 0) return [];
+  return ['judged 0 plugin answers, so this gate reported nothing wrong with everything; a walk '
+    + 'over the answers that judges none is a failure rather than a clean pass'];
+}
+
 function main() {
   const { files, found, problems } = collect();
+  const answers = collectAnswers();
   const all = [
     ...zeroClassifiedProblems(found.length),
+    ...zeroJudgedProblems(answers.judged),
+    ...answers.problems,
     ...problems,
     ...unusedAxisProblems(found),
   ];
@@ -112,7 +203,7 @@ function main() {
     process.exit(1);
   }
   const counts = [...AXES.keys()].map((a) => `${found.filter((f) => f.axis === a).length} ${a}`);
-  console.log(`check-user-scale: ${found.length} token(s) across ${files.length} file(s) carry an axis (${counts.join(', ')})`);
+  console.log(`check-user-scale: ${found.length} token(s) across ${files.length} file(s) carry an axis (${counts.join(', ')}); ${answers.judged} alias answer(s) judged over ${answers.walked.length} plugin(s)`);
 }
 
 if (isMainModule(import.meta.url)) main();
