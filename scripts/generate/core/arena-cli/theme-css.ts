@@ -28,7 +28,7 @@ import type { SerializableToken } from './serialize-token.ts';
 
 export type TokenCatalogue = {
   tokens: Record<string, string>;
-  roles: Record<string, { type?: string; values?: string[]; default?: string }>;
+  roles: Record<string, { type?: string; values?: string[]; default?: string; audience?: string; task?: string; userScale?: string }>;
   aliases?: Record<string, string>;
   channels?: string[];
 };

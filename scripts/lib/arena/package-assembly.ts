@@ -323,6 +323,9 @@ export function catalogueRole(role: Record<string, any>) {
     type: role.$type,
     ...(own.values ? { values: own.values } : {}),
     ...(own.default !== undefined ? { default: own.default } : {}),
+    ...(own.audience ? { audience: own.audience } : {}),
+    ...(own.task ? { task: own.task } : {}),
+    ...(own.userScale ? { userScale: own.userScale } : {}),
   };
 }
 

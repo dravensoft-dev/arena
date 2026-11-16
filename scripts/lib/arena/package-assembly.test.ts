@@ -446,16 +446,24 @@ test('what a published copy leaves behind is read at the release tag and never a
   assert.equal(agentBases().repository, tag);
 });
 
-test('a catalogue role carries its type, its closed set and its kernel default, and nothing else', () => {
+test('a catalogue role carries its type, its closed set, its kernel default and its metadata, and nothing else', () => {
   assert.deepEqual(catalogueRole({
     $type: 'color', $description: 'x', $extensions: { 'com.dravensoft.arena': { default: '{ink-body}' } },
   }), { type: 'color', default: '{ink-body}' });
   assert.deepEqual(catalogueRole({ $type: 'keyword', $extensions: { 'com.dravensoft.arena': { values: ['none'] } } }),
     { type: 'keyword', values: ['none'] });
   assert.deepEqual(catalogueRole({ $type: 'dimension', $description: 'x' }), { type: 'dimension' });
+  assert.deepEqual(catalogueRole({
+    $type: 'dimension', $description: 'x',
+    $extensions: { 'com.dravensoft.arena': { audience: 'markup', task: 'edges', userScale: 'fixed' } },
+  }), { type: 'dimension', audience: 'markup', task: 'edges', userScale: 'fixed' });
   assert.deepEqual(Object.keys(catalogueRole({
-    $type: 'keyword', $extensions: { 'com.dravensoft.arena': { default: '{tt-label}', values: ['none'] } },
-  })), ['type', 'values', 'default'], 'type and values keep the order the catalogue file is written in');
+    $type: 'keyword',
+    $extensions: { 'com.dravensoft.arena': {
+      default: '{tt-label}', values: ['none'], cssUnit: 'px', audience: 'markup', task: 'states', userScale: 'follows',
+    } },
+  })), ['type', 'values', 'default', 'audience', 'task', 'userScale'],
+  'type, values and default keep the order the catalogue file is written in, then the metadata follows; cssUnit stays out');
 });
 
 test('copyCli writes bin/palette.d.mts with no import', () => {
