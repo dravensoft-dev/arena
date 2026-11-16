@@ -23,7 +23,7 @@ values; do not re-derive them.
 | Spacing scale (`sp-0..24`, and `sp-0-5`) | `spacing.json` | `dimension` | px; `sp-0` renders as `0px`. `sp-0-5` is the half step under the grid (2px), earned by a key cap's vertical air and named by the kernel default of `pad-key-y` |
 | Page rhythm (`rhythm-group/component/section`) | `spacing.json` | `dimension` | px, and the one group authored entirely as **aliases**: each `$value` is `{sp.N}` rather than a length, so a rhythm step cannot drift off the 4px grid. Style Dictionary resolves an alias at generation, so the emitted line is a literal (`--rhythm-group:12px`) exactly as `chart.json`'s `{sp.4}` emits `--chart-legend-gap:16px`; the alias binds the source and not the runtime. Deliberately outside `dz`, so `density.compact.json` does not override it |
 | `container-max`, `gutter` | `spacing.json` | `dimension` | px |
-| Breakpoints (`bp-sm/md/lg`) | `spacing.json` | `dimension` | px; read by JS via `getComputedStyle`, never a media query |
+| Breakpoints (`bp-sm/md/lg`) | `spacing.json` | `dimension` | px; read by JS through `getComputedStyle`, and emitted once more as literals into Tailwind's `--breakpoint-*` namespace (`frameworks/tailwind/Breakpoints.generated.css`) for the `sm:`, `md:` and `lg:` variants |
 | Density (`dz-*`) | `spacing.json` / `density.compact.json` | `dimension`, except `dz-lh` | px; base on `:root` + `.arena-compact` override. `dz.lh` carries a token-level `$type: "number"` override, because a line height is unitless, so the group's `dimension` default does not fit that one member; DTCG 2025.10 allows a leaf's own `$type` to win over its ancestor's, and `scripts/check/core/check-dtcg.ts` accepts it. `dz.lh` is the control counterpart to `lh` below: `1`, the glyph-tight reset that keeps an icon's line box from throwing its control out of alignment |
 | ArenaAvatar diameters (`avatar-xs/sm/md/lg`) | `spacing.json` | `dimension` | px; named after a component rather than a role, because ArenaAvatar derives the initials' `fontSize` (× 0.4) and the presence dot's diameter (× 0.28) from its own diameter, so the two ratios need a diameter to derive from |
 | Brand lock-up (`logo-mark-*`, `logo-text-*`) | `spacing.json` | `dimension` | px; the mark's square slot and the wordmark's font size, paired at four steps. Authored together in `spacing.json` because the pairing is the token, since a lock-up's mark and text are one decision, even though the wordmark half reaches Tailwind through the `--text-*` namespace |
@@ -35,7 +35,7 @@ values; do not re-derive them.
 | Durations (the `dur` group) | `effects.json` | `duration` | ms |
 | Loop durations (`loop-spin/sweep/shimmer/brand/reduced/brand-reduced`) | `effects.json` | `duration` | ms; cyclical motion, deliberately separate from `dur`'s transition range |
 | Easings (`ease-*`) | `effects.json` | `cubicBezier` | `[x1,y1,x2,y2]` |
-| Roles (`r-surface/control/field`, `bw-surface/control/field`, `shadow-surface-rest`, `dur-hover/state`, `ease-hover/state`, `press-scale`) | `roles.json` | the type of the scale each one names, and its own where it names none | Authored as **aliases** wherever a scale exists to alias, on the same footing as `rhythm`: those `$value`s are `{r.lg}`, `{bw}`, `{shadow.2}`, `{dur.fast}` or `{ease.out}`, so a role cannot drift off the scale it names and the emitted line is a literal exactly as `rhythm`'s is. **A role is a literal only where it names a question no scale ever answered**, and each of those says which: `shadow-surface-rest` and `shadow-control-rest` are fully transparent shadows, because DTCG types a shadow as offsets, blur, spread and a colour and cannot spell the absence of one; `lift-control` is `0px`, a travel distance with no ladder of travels behind it; `press-scale` is `0.98`, the compression under a press, and nothing else in Arena compresses. A scale says how round, how thick, how deep or how long; a role says WHICH corner, border, depth or transition is being asked about, and only a question can be answered differently by one scope than by another. Resolved against `effects.json` through `RESOLVES_AGAINST` in `scripts/generate/arena/generate-tokens.ts`, and emitted into `effects.generated.css` beside the scales they alias rather than into a file of their own, because `scripts/lib/core/arena-tokens.ts` reads a fixed list of four generated files and a fifth would be invisible to `check:coverage`. `r-control` and `r-field` are both `r.sm` today, and `bw-surface`, `bw-control` and `bw-field` are all `bw`: same length, different question, the cut `rhythm-group` and `dz-stack` already make at 12px |
+| Roles (`r-surface/control/field`, `bw-surface/control/field`, `shadow-surface-rest`, `dur-hover/state`, `ease-hover/state`, `press-scale`) | `roles.json` | the type of the scale each one names, and its own where it names none | A role is declared in `roles.json` with a type, a description and no value, and its answer is a style plugin's: `plugin-style-store/default/plugin.tokens.json` for Arena's own, emitted into `contracts/design-generated/style-plugin.default.generated.css`. The tier is described in [`StylePlugins.md`](./StylePlugins.md). A default plugin answer is an alias wherever a scale exists to alias (`{r.lg}`, `{bw}`, `{shadow.2}`, `{dur.fast}`, `{ease.out}`), so a role cannot drift off the scale it names, and a literal only where no scale answers the question |
 | Layering (`z-*`) | `layering.json` | `number` | unitless integers; the family declares the order, the values only preserve it |
 | Chart geometry (`chart-*`) | `chart.json` | `dimension` | px; **script-readable**, emitted to `frameworks/*/Tokens.generated.*` as bare numbers as well as to CSS, because JS arithmetic computes SVG positions from them. Does not re-densify: a value bound at import time cannot respond to `.arena-compact` |
 | Component geometry (`calendar-*`, `onboarding-width`) | `component.json` | `dimension` | px; **script-readable**. Named after a component rather than a role, like `avatar-*` and `logo-*`. Count them rather than trusting a list here, with `grep -c '"script": true' contracts/design/component.json`. Two of them also replace a value the component rendered as a `calc()`, so it existed in two idioms with nothing holding them in step: `onboarding-width` and `calendar-gutter-w` |
@@ -48,8 +48,9 @@ values; do not re-derive them.
   "hex"?: "#rrggbb" }`. Never a bare hex or `rgba()` string. When `hex` is
   present it must round-trip `components`; `scripts/check/core/check-dtcg.ts` enforces it,
   so the two representations cannot drift.
-- Every `dimension` and `duration` is `{ "value": N, "unit": "px" | "ms" }`, and the
-  unit is required even when `N` is 0.
+- Every `dimension` and `duration` is `{ "value": N, "unit": … }`, and the
+  unit is required even when `N` is 0. A `dimension` takes `px` or `rem` and a `duration` takes `ms` or
+  `s`, as `checkDimension` in `scripts/check/core/check-dtcg.ts` admits them.
 - `number`, `fontWeight` values are bare numbers; `cubicBezier` is an array of 4. A `number` that
   becomes a CSS length carries `$extensions["com.dravensoft.arena"].cssUnit`, which is how every
   `ls` step emits `em`. A tracking token that forgets it emits a bare number, which is not a valid
@@ -138,6 +139,25 @@ target that computes its own layout needs only the number, so what is a duplicat
 single useful form off it, and the `script` flag reads as "this value is arithmetic" rather than as
 "this value is emitted twice".
 
+### Role metadata
+
+A role in `roles.json` carries these keys under `$extensions["com.dravensoft.arena"]`. `default`, `values`
+and `cssUnit` come first, and `audience`, `task`, `userScale` follow in that order. `check:role-contract`
+holds `default`, `values`, `audience`, `task` and `userScale`; `cssUnit` is a hint the token serializer (`scripts/generate/core/arena-cli/serialize-token.ts`)
+reads.
+
+- `default`: the alias a role answers with when no plugin does, a `{…}` reference of the role's own `$type`.
+- `values`: the closed set of words a `keyword` role takes.
+- `cssUnit`: the render hint of a `number` that becomes a CSS length, as `ls` takes `em`.
+- `audience`: `markup` when an adopter may read the role in their own markup, and `component` when only a
+  component reads it. A role referenced only from `frameworks/tailwind/vocabulary/*/*.family.json`, a manifest
+  or an `--arena-*` channel is `component`; every other role is `markup`. Required on every role. The
+  compatibility promise is derived from this key and never stored beside it.
+- `task`: the one task the role is documented under, from `surfaces-and-text`, `edges`, `space-and-layout`,
+  `type`, `depth-and-motion`, `states`, `meaning-and-identity` and `component-size`. Required on every role.
+- `userScale`: what the user's text setting does to the role, from `scales`, `follows` and `fixed`. Required
+  on a `dimension` role and optional on any other role; a word outside the set fails wherever it is declared.
+
 ### `userScale`, what the user's text setting does to a value
 
 Every `dimension` in this directory declares what happens to it when the reader asks their device
@@ -190,6 +210,12 @@ they may move before a layout changes shape is a decision that belongs where the
 `keyProblems()` in the shipped audit makes that scale one of only two a plugin may re-value. A
 plugin decides how big a step is; the axis decides what the reader's setting does to whatever size
 the plugin chose. Reading one for the other is the mistake this paragraph exists to stop.
+
+**A role declares its axis too.** `roles.json` carries `userScale` on every `dimension` role and on any
+other role that declares one. An alias answer in any plugin takes the axis of its target: `check:user-scale`
+walks the default plugin, the complete one and every catalogue entry, and refuses an alias that resolves to
+a token of another axis than the role's. A literal answer has no target to take an axis from, so the role
+declares it, and `check:user-scale` does not judge a literal.
 
 ### What is not in this map
 
