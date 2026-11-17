@@ -207,3 +207,9 @@ test('rootOnlyFor takes the :root inside the high-contrast query, not an earlier
   assert.throws(() => rootOnlyFor('.arena-x', { contrast: '.a { --x: 1; }', environment: '' }), /no :root block inside @media/);
   assert.throws(() => rootOnlyFor('.arena-x', { contrast: '', environment: '.a { --x: 1; }' }), /no :root block/);
 });
+
+test('a silent root plugin takes transparent for a role whose default is the absence of paint', () => {
+  const { plugin, defaulted } = withDefaults({ tokens: {}, light: {} }, { 'hue-danger-fill-strong': { default: NO_PAINT } });
+  assert.equal(plugin.tokens['hue-danger-fill-strong'], 'transparent');
+  assert.ok(defaulted.includes('hue-danger-fill-strong'));
+});
