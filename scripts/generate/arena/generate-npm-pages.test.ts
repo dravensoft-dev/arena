@@ -59,7 +59,11 @@ test('each target carries exactly the regions mapped to it', () => {
   assert.deepEqual(regionsOf('frameworks/react/PACKAGE.md'), ['repository', 'questions']);
   assert.deepEqual(regionsOf('skills/design/references/config.md'), ['skin']);
   assert.deepEqual(regionsOf('skills/design/references/stylesheets.md'), ['sheets']);
-  assert.deepEqual(regionsOf('skills/design/references/tokens.md'), ['tokens', 'density', 'typography']);
+  const scales = 'skills/design/references/tokens/scales';
+  assert.deepEqual(regionsOf(`${scales}/spacing-radius-border.md`), ['spacing']);
+  assert.deepEqual(regionsOf(`${scales}/motion-and-layers.md`), ['motion']);
+  assert.deepEqual(regionsOf(`${scales}/density.md`), ['density']);
+  assert.deepEqual(regionsOf(`${scales}/type-scale.md`), ['typography']);
   assert.deepEqual(regionsOf('skills/design/references/style-kernel.md'), ['defaults']);
   assert.deepEqual(regionsOf('skills/design/references/style.md'), ['layout']);
   assert.deepEqual(regionsOf('mcp/NPM.md'), ['questions']);
@@ -300,10 +304,12 @@ test('a density value of a shape the table cannot show is refused, naming the fi
   }
 });
 
-test('the tokens region tables every value of its nine groups that no role answers, and no role at all', () => {
+const joined = () => `${renderRegion('spacing')}\n${renderRegion('motion')}`;
+
+test('the scale regions table every value of its nine groups that no role answers, and no role at all', () => {
   const { tokens } = tokenCatalogue(repoRoot);
   const roles = new Set(Object.keys(readJson(join(repoRoot, ROLE_CONTRACT)) as Record<string, unknown>));
-  const region = renderRegion('tokens');
+  const region = joined();
   for (const group of ['sp', 'r', 'bw', 'shadow', 'dur', 'loop', 'ease', 'z', 'bp']) {
     const names = Object.keys(tokens).filter((name) => (name === group || name.startsWith(`${group}-`)) && !roles.has(name));
     assert.ok(names.length > 0, `the catalogue holds the ${group} group`);
@@ -316,7 +322,7 @@ test('the tokens region tables every value of its nine groups that no role answe
 });
 
 test('the tokens table carries a Tailwind column read from Theme.css', () => {
-  const rows = renderRegion('tokens').split('\n').filter((line) => line.startsWith('| `--'));
+  const rows = joined().split('\n').filter((line) => line.startsWith('| `--'));
   const rowOf = (name: string) => rows.find((row) => row.startsWith(`| \`--${name}\` |`))!.split('|').map((cell) => cell.trim());
   assert.equal(rowOf('r-lg')[3], '`rounded-lg`');
   assert.equal(rowOf('shadow-1')[3], '`shadow-1`');
@@ -326,7 +332,7 @@ test('the tokens table carries a Tailwind column read from Theme.css', () => {
   assert.equal(rowOf('z-modal')[3], '`z-modal`');
   assert.equal(rowOf('bp-md')[3], '`md:`');
   assert.equal(rowOf('loop-spin')[3], 'none');
-  assert.match(renderRegion('tokens'), /\| custom property \| value \| Tailwind \|/);
+  assert.match(renderRegion('spacing'), /\| custom property \| value \| Tailwind \|/);
 });
 
 test('the density table says what each property sizes, from its $description', () => {
@@ -432,4 +438,73 @@ test('the noImport region lists what each package arena.css imports less the def
   assert.match(region, /`arena\.generated\.css` goes in a stylesheet of its own, imported after the list/);
   assert.match(region, /The `"default"` root adds `css\/style-plugin-default\.css` in its slot/);
   assert.doesNotMatch(region, /every component sheet when the config names none/);
+});
+
+const JOINED_TOKEN_ROWS = [
+  '| `--sp-0` | `0px` | `*-0` |',
+  '| `--sp-1` | `4px` | `*-1` |',
+  '| `--sp-2` | `8px` | `*-2` |',
+  '| `--sp-3` | `12px` | `*-3` |',
+  '| `--sp-4` | `16px` | `*-4` |',
+  '| `--sp-5` | `20px` | `*-5` |',
+  '| `--sp-6` | `24px` | `*-6` |',
+  '| `--sp-8` | `32px` | `*-8` |',
+  '| `--sp-10` | `40px` | `*-10` |',
+  '| `--sp-12` | `48px` | `*-12` |',
+  '| `--sp-16` | `64px` | `*-16` |',
+  '| `--sp-20` | `80px` | `*-20` |',
+  '| `--sp-24` | `96px` | `*-24` |',
+  '| `--sp-0-5` | `2px` | `*-0.5` |',
+  '| `--r-xs` | `4px` | `rounded-xs` |',
+  '| `--r-sm` | `6px` | `rounded-sm` |',
+  '| `--r-md` | `10px` | `rounded-md` |',
+  '| `--r-lg` | `14px` | `rounded-lg` |',
+  '| `--r-xl` | `22px` | `rounded-xl` |',
+  '| `--r-2xl` | `34px` | `rounded-2xl` |',
+  '| `--r-pill` | `999px` | `rounded-pill` |',
+  '| `--bw` | `1px` | none |',
+  '| `--bw-strong` | `2px` | none |',
+  '| `--shadow-1` | `0px 2px 6px -2px rgba(0,0,0,.5)` | `shadow-1` |',
+  '| `--shadow-2` | `0px 12px 28px -12px rgba(0,0,0,.6)` | `shadow-2` |',
+  '| `--shadow-3` | `0px 30px 60px -20px rgba(0,0,0,.7)` | `shadow-3` |',
+  '| `--dur-fast` | `120ms` | none |',
+  '| `--dur-mid` | `220ms` | none |',
+  '| `--dur-slow` | `420ms` | none |',
+  '| `--loop-spin` | `700ms` | none |',
+  '| `--loop-sweep` | `1150ms` | none |',
+  '| `--loop-shimmer` | `1400ms` | none |',
+  '| `--loop-brand` | `8000ms` | none |',
+  '| `--loop-reduced` | `2400ms` | none |',
+  '| `--loop-brand-reduced` | `24000ms` | none |',
+  '| `--ease-out` | `cubic-bezier(.2,.7,.3,1)` | `ease-out` |',
+  '| `--ease-in-out` | `cubic-bezier(.4,0,.2,1)` | `ease-in-out` |',
+  '| `--ease-emphatic` | `cubic-bezier(.2,.9,.1,1)` | `ease-emphatic` |',
+  '| `--z-nav` | `800` | `z-nav` |',
+  '| `--z-skip` | `820` | `z-skip` |',
+  '| `--z-sheet` | `850` | `z-sheet` |',
+  '| `--z-dropdown` | `900` | `z-dropdown` |',
+  '| `--z-tooltip` | `950` | `z-tooltip` |',
+  '| `--z-modal` | `1000` | `z-modal` |',
+  '| `--z-modal-nested` | `1050` | `z-modal-nested` |',
+  '| `--z-palette` | `1100` | `z-palette` |',
+  '| `--z-onboarding` | `1200` | `z-onboarding` |',
+  '| `--z-toast` | `1300` | `z-toast` |',
+  '| `--bp-sm` | `480px` | `sm:` |',
+  '| `--bp-md` | `768px` | `md:` |',
+  '| `--bp-lg` | `1024px` | `lg:` |',
+];
+
+const rowsOf = (region: string) => region.split('\n').filter((line) => line.startsWith('| `--'));
+
+test('the scale regions keep every row of the joined table', () => {
+  const rows = [...rowsOf(renderRegion('spacing')), ...rowsOf(renderRegion('motion'))];
+  assert.deepEqual(rows.sort(), [...JOINED_TOKEN_ROWS].sort());
+});
+
+test('a scale region says only what its groups need', () => {
+  const spacing = renderRegion('spacing');
+  const motion = renderRegion('motion');
+  assert.ok(spacing.includes('The sheet sets the spacing base') && !motion.includes('The sheet sets the spacing base'));
+  assert.ok(spacing.includes('(radius and shadow)') && motion.includes('(ease)'));
+  assert.ok(spacing.includes('A breakpoint row names') && !motion.includes('A breakpoint row names'));
 });

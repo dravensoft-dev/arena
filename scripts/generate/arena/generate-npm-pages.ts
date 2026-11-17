@@ -192,9 +192,10 @@ const CLI_PAGE = 'skills/design/references/cli.md';
 export const REGION_TARGETS: Record<string, string[]> = {
   repository: ['frameworks/react/PACKAGE.md', 'frameworks/angular/PACKAGE.md'],
   skin: ['skills/design/references/config.md'],
-  tokens: ['skills/design/references/tokens.md'],
-  density: ['skills/design/references/tokens.md'],
-  typography: ['skills/design/references/tokens.md'],
+  spacing: ['skills/design/references/tokens/scales/spacing-radius-border.md'],
+  motion: ['skills/design/references/tokens/scales/motion-and-layers.md'],
+  density: ['skills/design/references/tokens/scales/density.md'],
+  typography: ['skills/design/references/tokens/scales/type-scale.md'],
   defaults: ['skills/design/references/style-kernel.md'],
   sheets: ['skills/design/references/stylesheets.md'],
   locale: ['skills/design/references/locale.md'],
@@ -215,6 +216,7 @@ export const node = {
   reads: [...TARGETS, ALIAS_SOURCE, 'scripts/generate/core/arena-cli/audit.ts', 'scripts/generate/core/arena-cli/command-init.ts', 'scripts/lib/arena/language-rules.ts', `${DEFAULT_PLUGIN_DIR}/${PLUGIN_TOKENS}`, '.claude-plugin/plugin.json', 'scripts/generate/core/arena-cli/style-plugin-rules.ts', 'scripts/generate/core/arena-cli/theme-css.ts', LOCALE_CONTRACT, ROLE_CONTRACT, BEHAVIOUR_CONTRACT, ...Object.values(DENSITY_CONTRACTS), THEME_SHEET, 'contracts/api/components/*.json', 'contracts/design/spacing.json', BREAKPOINT_TARGET, TOAST_NOTICE_CONTRACT, CONFIRM_REQUEST_CONTRACT, ...CSS_TARGETS, ...CHANNEL_SOURCES, HUES_FILE, `${VOCABULARY_DIR}/**/*${FAMILY_SUFFIX}`],
   writes: TARGETS,
   feeds: [
+    'generate:token-tree',
     'build:angular-package',
     'build:contracts-package',
     'build:mcp-package', 'check:mcp',
@@ -253,6 +255,33 @@ function initFence(layer: string) {
   return ['```json', JSON.stringify({ scripts }, null, 2), '```'].join('\n');
 }
 
+function scaleRegion(groups: string[], base: string) {
+  const { tokens } = tokenCatalogue(base);
+  const roles = new Set(Object.keys(readJson(join(base, ROLE_CONTRACT)) as Record<string, unknown>));
+  const utilities = utilitiesOf(base, /^\s*--(spacing|radius|shadow|ease|z-index)-([a-z0-9-]+):\s*var\(--((?:sp|r|shadow|ease|z)-[a-z0-9-]+)\)\s*;/,
+    (kind, name) => ({ spacing: `*-${name}`, radius: `rounded-${name}`, 'z-index': `z-${name}` })[kind] ?? `${kind}-${name}`);
+  const unit = /^\s*--spacing:\s*var\(--([a-z0-9-]+)\)\s*;/m.exec(readFileSync(join(base, THEME_SHEET), 'utf8'))?.[1];
+  const pixels = (name: string) => /^(-?[\d.]+)px$/.exec(String(tokens[name]))?.[1];
+  const multiple = (name: string) => {
+    const step = unit === undefined ? undefined : Number(pixels(name)) / Number(pixels(unit));
+    return name.startsWith('sp-') && step !== undefined && Number.isFinite(step) ? `\`*-${step}\`` : undefined;
+  };
+  const variants = new Map([...readFileSync(join(base, BREAKPOINT_TARGET), 'utf8').matchAll(/^\s*--breakpoint-([a-z0-9-]+):/gm)]
+    .map((match) => [`bp-${match[1]}`, `\`${match[1]}:\``]));
+  const rows = groups.flatMap((group) => Object.entries(tokens)
+    .filter(([name]) => !roles.has(name) && (name === group || name.startsWith(`${group}-`)))
+    .map(([name, value]) => `| \`--${name}\` | \`${value}\` | ${multiple(name) ?? variants.get(name) ?? utilities.get(name)?.join(', ') ?? 'none'} |`));
+  const resets = [['r', 'radius'], ['shadow', 'shadow'], ['ease', 'ease']].filter(([group]) => groups.includes(group!)).map(([, label]) => label!);
+  const reset = resets.length === 0 ? [] : [`Where the sheet resets a Tailwind default scale (${resets.length === 1 ? resets[0] : `${resets.slice(0, -1).join(', ')} and ${resets.at(-1)}`}), a utility of that default, such as \`${groups.includes('shadow') ? 'shadow-md' : 'ease-in'}\`, emits nothing and reports nothing.`];
+  const intro = [
+    ...(groups.includes('sp') ? ['`*-` stands for any spacing utility, such as `h-` or `py-`.', 'The sheet sets the spacing base to `--sp-1`, so a spacing utility resolves as its number times that step.'] : []),
+    'A row marked `none` has no utility named for its token, so read it with `var()`.',
+    ...reset,
+    ...(groups.includes('bp') ? ['A breakpoint row names the variant that reads it, and Tailwind\'s other default widths, such as `xl:`, stop resolving.'] : []),
+  ].join(' ');
+  return [intro, '', '| custom property | value | Tailwind |', '| --- | --- | --- |', ...rows].join('\n');
+}
+
 export const REGIONS: Record<string, (base?: string, target?: string) => string> = {
   repository: () => `## This package ships the components and not the language
 
@@ -272,26 +301,9 @@ Without one of them an agent guesses. \`arena audit\` reads your own sources for
 
 The package is the code. The server, the plugin and the repository are the language.`,
 
-  tokens: (base = root) => {
-    const groups = ['sp', 'r', 'bw', 'shadow', 'dur', 'loop', 'ease', 'z', 'bp'];
-    const { tokens } = tokenCatalogue(base);
-    const roles = new Set(Object.keys(readJson(join(base, ROLE_CONTRACT)) as Record<string, unknown>));
-    const utilities = utilitiesOf(base, /^\s*--(spacing|radius|shadow|ease|z-index)-([a-z0-9-]+):\s*var\(--((?:sp|r|shadow|ease|z)-[a-z0-9-]+)\)\s*;/,
-      (kind, name) => ({ spacing: `*-${name}`, radius: `rounded-${name}`, 'z-index': `z-${name}` })[kind] ?? `${kind}-${name}`);
-    const unit = /^\s*--spacing:\s*var\(--([a-z0-9-]+)\)\s*;/m.exec(readFileSync(join(base, THEME_SHEET), 'utf8'))?.[1];
-    const pixels = (name: string) => /^(-?[\d.]+)px$/.exec(String(tokens[name]))?.[1];
-    const multiple = (name: string) => {
-      const step = unit === undefined ? undefined : Number(pixels(name)) / Number(pixels(unit));
-      return name.startsWith('sp-') && step !== undefined && Number.isFinite(step) ? `\`*-${step}\`` : undefined;
-    };
-    const variants = new Map([...readFileSync(join(base, BREAKPOINT_TARGET), 'utf8').matchAll(/^\s*--breakpoint-([a-z0-9-]+):/gm)]
-      .map((match) => [`bp-${match[1]}`, `\`${match[1]}:\``]));
-    const rows = groups.flatMap((group) => Object.entries(tokens)
-      .filter(([name]) => !roles.has(name) && (name === group || name.startsWith(`${group}-`)))
-      .map(([name, value]) => `| \`--${name}\` | \`${value}\` | ${multiple(name) ?? variants.get(name) ?? utilities.get(name)?.join(', ') ?? 'none'} |`));
-    return ['`*-` stands for any spacing utility, such as `h-` or `py-`. The sheet sets the spacing base to `--sp-1`, so a spacing utility resolves as its number times that step. A row marked `none` has no utility named for its token, so read it with `var()`. Where the sheet resets a Tailwind default scale (radius, shadow and ease), a utility of that default, such as `shadow-md`, emits nothing and reports nothing. A breakpoint row names the variant that reads it, and Tailwind\'s other default widths, such as `xl:`, stop resolving.', '',
-      '| custom property | value | Tailwind |', '| --- | --- | --- |', ...rows].join('\n');
-  },
+  spacing: (base = root) => scaleRegion(['sp', 'r', 'bw', 'shadow', 'bp'], base),
+
+  motion: (base = root) => scaleRegion(['dur', 'loop', 'ease', 'z'], base),
 
   density: (base = root) => {
     const { tokens } = tokenCatalogue(base);

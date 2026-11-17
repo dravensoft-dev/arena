@@ -50,6 +50,7 @@
     "generate:vocabulary": "bun scripts/generate/arena/generate-vocabulary.ts",
     "generate:support": "bun scripts/generate/arena/generate-support.ts",
     "generate:npm-pages": "bun scripts/generate/arena/generate-npm-pages.ts",
+    "generate:token-tree": "bun scripts/generate/arena/generate-token-tree.ts",
     "generate:kitchen-sink": "bun scripts/generate/arena/generate-kitchen-sink.ts",
     "generate:playgrounds": "bun scripts/generate/arena/generate-playgrounds.ts",
     "build:tailwind": "bun scripts/build/tailwind/build-tailwind.ts",
