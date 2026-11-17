@@ -77,7 +77,7 @@ open `/frameworks/angular/components/forms/arena-icon-button/ArenaIconButton.dem
 - Without `showLabel` the control is square at every size, and the glyph is optically centred
   rather than merely boxed in the middle.
 - Hovering shows the `title`, and setting `showLabel` stops it appearing at all.
-- `disabled` dims to 45% and the cursor turns to not-allowed; both come from `:disabled`
+- `disabled` fades by `fade-disabled` and the cursor turns to not-allowed; both come from `:disabled`
   pseudo-class variants, so they prove the native attribute is really set.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->

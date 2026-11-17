@@ -62,7 +62,7 @@
     },
     "disabled": {
       "true": {
-        "root": "opacity-50",
+        "root": "opacity-[var(--fade-disabled)]",
         "track": "cursor-not-allowed",
         "thumb": "cursor-not-allowed"
       },

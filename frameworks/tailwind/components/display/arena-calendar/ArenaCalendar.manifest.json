@@ -115,7 +115,7 @@
     },
     "disabled": {
       "true": {
-        "chip": "opacity-50 cursor-not-allowed",
+        "chip": "opacity-[var(--fade-disabled)] cursor-not-allowed",
         "chipBody": "cursor-not-allowed"
       },
       "false": {

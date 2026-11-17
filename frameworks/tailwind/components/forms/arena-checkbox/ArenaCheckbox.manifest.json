@@ -27,7 +27,7 @@
     },
     "disabled": {
       "true": {
-        "root": "opacity-50 cursor-not-allowed"
+        "root": "opacity-[var(--fade-disabled)] cursor-not-allowed"
       },
       "false": {
         "root": "cursor-pointer"

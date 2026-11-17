@@ -36,7 +36,7 @@
     },
     "disabled": {
       "true": {
-        "item": "cursor-not-allowed text-ink-muted/40"
+        "item": "opacity-[var(--fade-disabled)] cursor-not-allowed"
       },
       "false": {}
     }

@@ -69,7 +69,7 @@
     },
     "disabled": {
       "true": {
-        "root": "opacity-50",
+        "root": "opacity-[var(--fade-disabled)]",
         "input": "cursor-not-allowed"
       },
       "false": {}
@@ -92,7 +92,7 @@
     },
     "blocked": {
       "true": {
-        "option": "opacity-60 cursor-not-allowed"
+        "option": "opacity-[var(--fade-disabled)] cursor-not-allowed"
       },
       "false": {
         "option": "cursor-pointer"

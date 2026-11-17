@@ -45,7 +45,7 @@
     {
       "disabled": true,
       "class": {
-        "item": "text-ink-muted/(--level-ink-muted) opacity-60 cursor-not-allowed"
+        "item": "text-ink-body/(--level-ink-body) opacity-[var(--fade-disabled)] cursor-not-allowed"
       }
     },
     {

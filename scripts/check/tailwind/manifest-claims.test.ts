@@ -316,6 +316,7 @@ export const CLAIMS = {
     { slot: 'td', has: ['table-cell'], why: 'a row and a cell need the table display utilities to work as custom-element hosts' },
   ],
   ArenaTag: [
+    { chosen: { disabled: true }, slot: 'close', has: ['opacity-[var(--fade-disabled)]', 'cursor-not-allowed'], hasNot: ['text-ink-muted/40'], why: 'a disabled control keeps its rest ink and fades by the role the skin answers' },
     { chosen: { tone: 'danger' }, slot: 'root', has: [EDGE, INK], hasNot: ['bg-error'], why: 'danger is outline: border and text in the danger hue, never a filled background' },
     ...hueClaims('root', Object.fromEntries(['success', 'warning'].map((tone) => [tone, [EDGE, INK]]))),
     ...[1, 2, 3, 4, 5, 6, 7, 8].map((id) => ({ chosen: { colorId: String(id) }, slot: 'root', has: [EDGE, INK], why: HUE_WHY })),
@@ -475,7 +476,7 @@ export const CLAIMS = {
     { chosen: { checked: true }, slot: 'box', has: ['bg-primary-fill', 'border-primary-fill'], why: 'checked fills with the brand; unchecked is the input surface behind a neutral hairline' },
     { chosen: { checked: false }, slot: 'box', has: ['bg-base-300', 'border-edge-control'], why: 'checked fills with the brand; unchecked is the input surface behind a neutral hairline' },
     { chosen: { checked: true }, slot: 'check', has: ['text-primary-content'], why: 'the tick reads on the filled box, which is the one pairing that has to hold' },
-    { chosen: { disabled: true }, slot: 'root', has: ['opacity-50', 'cursor-not-allowed'], why: 'disabled dims the whole control and takes the pointer away; enabled offers it' },
+    { chosen: { disabled: true }, slot: 'root', has: ['opacity-[var(--fade-disabled)]', 'cursor-not-allowed'], hasNot: ['opacity-50'], why: 'disabled dims the whole control and takes the pointer away; enabled offers it' },
     { chosen: { disabled: false }, slot: 'root', has: ['cursor-pointer'], why: 'disabled dims the whole control and takes the pointer away; enabled offers it' },
     { slot: 'input', has: ['opacity-0', 'size-0'], hasNot: ['hidden'], why: 'the native input is hidden by the recipe rather than by display none, so it stays focusable' },
     ...[true, false].map((checked) => ({
@@ -495,7 +496,7 @@ export const CLAIMS = {
     { slot: 'panel', has: ['z-dropdown', 'max-h-80', 'overflow-auto'], hasNot: ['absolute', 'fixed', 'relative'], why: 'the panel scrolls its own rows and leaves its position to the layer' },
     { slot: 'option', has: ['min-h-row-min', 'px-row-floating-x', 'py-row-floating-y'], why: 'a row of a floating list spends the floating row roles, and its floor reads the density' },
     { chosen: { active: true }, slot: 'option', has: ['bg-primary/14'], why: 'the cursor row is washed, and a chosen row carries a glyph, so neither is told by colour alone' },
-    { chosen: { blocked: true }, slot: 'option', has: ['opacity-60', 'cursor-not-allowed'], hasNot: ['cursor-pointer'], why: 'a row the cap blocks dims and refuses the pointer, and only an available row offers it' },
+    { chosen: { blocked: true }, slot: 'option', has: ['opacity-[var(--fade-disabled)]', 'cursor-not-allowed'], hasNot: ['cursor-pointer', 'opacity-60', 'text-ink-muted/(--level-ink-muted)'], why: 'a row the cap blocks dims and refuses the pointer, and only an available row offers it' },
     { slot: 'clear', has: ['min-h-ctl-h-sm', 'min-w-ctl-h-sm'], why: 'the clear control is a small control box, which clears the floor of every density' },
     { slot: 'chips', has: ['flex-wrap', 'gap-inline', 'py-1'], why: 'chips wrap inside the field, keep the gap between siblings on one line and leave air above and below so a second row never touches the border' },
   ],
@@ -504,7 +505,7 @@ export const CLAIMS = {
     { slot: 'body', has: ['flex', 'flex-col', 'gap-items'], why: 'the fields of a set are spaced by the role named for them, and the legend sits outside that column' },
     { slot: 'error', has: [INK], hasNot: ['text-error'], why: 'the set error reads the ink of the danger hue always gives its slot, the same as a field error' },
     { chosen: { state: 'error' }, slot: 'statusIcon', has: [INK], why: 'the glyph is the second channel of the set error, in the danger ink' },
-    { chosen: { disabled: true }, slot: 'root', has: ['opacity-50'], why: 'a disabled set dims as a whole, as a disabled field does' },
+    { chosen: { disabled: true }, slot: 'root', has: ['opacity-[var(--fade-disabled)]'], hasNot: ['opacity-50'], why: 'a disabled set dims as a whole, as a disabled field does' },
   ],
   ArenaIconButton: [
     { chosen: { pressed: false }, slot: 'root', has: ['hover:bg-[color:var(--arena-emphasis-fill-hover,var(--emphasis-ghost-fill-hover))]'],
@@ -513,7 +514,7 @@ export const CLAIMS = {
       why: 'a pressed control is a state of the control and states its own wash over any emphasis' },
     { chosen: { showLabel: true }, slot: 'root', has: ['w-[var(--arena-fill-width,fit-content)]', 'gap-control'], why: 'showLabel opens the box out to its label through the fill channel and gives the glyph a gap; without it the control has neither' },
     { chosen: { showLabel: false }, slot: 'root', has: ['p-0', 'gap-0'], why: 'showLabel opens the box out and gives the glyph a gap; without it the control has neither' },
-    { slot: 'root', has: ['disabled:opacity-45', 'disabled:cursor-not-allowed'], why: 'the disabled treatment is a :disabled variant, which only a real disabled control matches' },
+    { slot: 'root', has: ['disabled:opacity-[var(--fade-disabled)]', 'disabled:cursor-not-allowed'], hasNot: ['disabled:opacity-45'], why: 'the disabled treatment is a :disabled variant, which only a real disabled control matches' },
   ],
   ArenaInput: [
     { slot: 'error', has: [INK], hasNot: ['text-error'], why: 'the field error message reads the ink of the danger hue always gives its slot, so a plugin moving the danger ink moves the message with the ring' },
@@ -522,7 +523,7 @@ export const CLAIMS = {
     { chosen: { state: 'error' }, slot: 'statusIcon', has: [INK], why: 'error and valid ring at rest and say which they are' },
     { chosen: { state: 'valid' }, slot: 'field', has: [EDGE, 'focus-within:border-secondary'], why: 'a valid field still takes the focus ring, because being valid is not being focused' },
     { chosen: { state: 'valid' }, slot: 'statusIcon', has: [INK], why: 'error and valid ring at rest and say which they are' },
-    { chosen: { disabled: true }, slot: 'root', has: ['opacity-50'], why: 'disabled dims the whole field group and readonly changes the surface, not the border' },
+    { chosen: { disabled: true }, slot: 'root', has: ['opacity-[var(--fade-disabled)]'], hasNot: ['opacity-50'], why: 'disabled dims the whole field group and readonly changes the surface, not the border' },
     { chosen: { readOnly: true }, slot: 'field', has: ['bg-base-200'], why: 'disabled dims the whole field group and readonly changes the surface, not the border' },
     { chosen: { readOnly: true }, slot: 'input', has: ['cursor-default'], why: 'disabled dims the whole field group and readonly changes the surface, not the border' },
     { slot: 'required', has: ['text-primary'], why: 'the required marker is the brand, so a label reads as required without the word' },
@@ -536,7 +537,7 @@ export const CLAIMS = {
     { chosen: { dragging: 'true' }, slot: 'zone', has: ['bg-hover'], why: 'a drag over the zone is the surface answering, which is the fill-hover role, and a colour crossfade stays under reduced motion' },
     { slot: 'input', has: ['absolute', 'inset-0', 'size-full', 'col-start-1', 'col-end-2', 'row-start-1', 'row-end-2', 'opacity-0', 'pointer-events-none'], why: 'the hidden input lies over the trigger\'s grid cell, so the browser anchors a required field\'s message at the trigger, and it takes no pointer event, so every press reaches the trigger' },
     { slot: 'trigger', has: ['col-start-1', 'row-start-1'], why: 'the trigger owns the grid cell the hidden input is placed over' },
-    { chosen: { disabled: 'true' }, slot: 'root', has: ['opacity-50'], why: 'disabled dims the whole field once, so the trigger carries no dimming of its own to compound with it' },
+    { chosen: { disabled: 'true' }, slot: 'root', has: ['opacity-[var(--fade-disabled)]'], hasNot: ['opacity-50'], why: 'disabled dims the whole field once, so the trigger carries no dimming of its own to compound with it' },
     { chosen: { disabled: 'true' }, slot: 'trigger', hasNot: ['hover:-translate-y-[var(--lift-control)]'], why: 'a disabled trigger answers no pointer, so its hover lives in the enabled branch' },
     { slot: 'status', has: ['sr-only'], why: 'the count is announced and never drawn, because the chips already show it' },
     { slot: 'size', has: ['font-mono', 'tabular-nums'], why: 'a byte count is a figure, and figures set in tabular digits' },
@@ -546,6 +547,7 @@ export const CLAIMS = {
     { slot: 'group', has: ['flex', 'flex-col', 'gap-items'], why: 'the group is a column, and it is a display utility because the host binds it' },
   ],
   ArenaMenu: [
+    { chosen: { disabled: true }, slot: 'item', has: ['opacity-[var(--fade-disabled)]', 'cursor-not-allowed'], hasNot: ['opacity-60', 'text-ink-muted/(--level-ink-muted)'], why: 'a disabled control keeps its rest ink and fades by the role the skin answers' },
     { chosen: { destructive: true, disabled: false }, slot: 'item', has: [INK, 'hover:bg-hover'], hasNot: ['text-error'], why: HUE_WHY },
     { slot: 'root', has: ['inline-flex'], why: 'a host-bound root is never the UA-default inline box' },
     { slot: 'panel', hasNot: ['absolute', 'top-full', 'left-0', 'mt-1.5', 'left-auto', 'right-0'],
@@ -568,7 +570,7 @@ export const CLAIMS = {
   ],
   ArenaPagination: [
     { slot: 'root', has: ['inline-flex', 'items-center'], why: 'a host-bound root is never the UA-default inline box' },
-    { slot: 'nav', has: ['disabled:text-ink-muted/40', 'disabled:cursor-not-allowed'], why: 'an unreachable step says so through a :disabled variant, which only a real disabled control matches' },
+    { slot: 'nav', has: ['disabled:opacity-[var(--fade-disabled)]', 'disabled:cursor-not-allowed'], hasNot: ['disabled:text-ink-muted/40'], why: 'an unreachable step says so through a :disabled variant, which only a real disabled control matches' },
     { chosen: { current: true }, slot: 'page', has: ['bg-primary-fill', 'text-primary-content'], why: 'the current page is the one filled control in the row' },
     { chosen: { current: false }, slot: 'page', has: ['bg-transparent'], hasNot: ['bg-primary-fill'], why: 'the current page is the one filled control in the row' },
     { slot: 'page', has: ['min-h-ctl-h-sm', 'min-w-ctl-h-sm', 'border-[length:var(--bw-control)]'], why: 'the shared box is set once on the page slot, so a state slot never fights it, and it reads the density rather than a step, so a page number is a target a thumb can hit in the density chosen for one' },
@@ -604,7 +606,13 @@ export const CLAIMS = {
     { chosen: { state: false }, slot: 'track', has: ['bg-neutral'], why: 'on fills with the brand and off stays the neutral rail' },
     { slot: 'icon', has: ['text-primary'], why: 'the icon reads the brand ink on the knob' },
     { slot: 'knob', has: ['bg-primary-content'], why: 'the knob is the content colour against the filled track' },
-    { chosen: { disabled: true }, slot: 'root', has: ['opacity-50'], why: 'disabled dims the whole control' },
+    { chosen: { disabled: true }, slot: 'root', has: ['opacity-[var(--fade-disabled)]'], hasNot: ['opacity-50'], why: 'disabled dims the whole control' },
+  ],
+  ArenaCalendar: [
+    { chosen: { disabled: true }, slot: 'chip', has: ['opacity-[var(--fade-disabled)]', 'cursor-not-allowed'], hasNot: ['opacity-50'], why: 'a disabled control keeps its rest ink and fades by the role the skin answers' },
+  ],
+  ArenaTreeView: [
+    { chosen: { disabled: true }, slot: 'item', has: ['opacity-[var(--fade-disabled)]', 'cursor-not-allowed'], hasNot: ['text-ink-muted/40'], why: 'a disabled control keeps its rest ink and fades by the role the skin answers' },
   ],
   ArenaTabs: [
     { slot: 'root', has: ['flex', 'border-b-[length:var(--bw-separator)]', 'border-edge-separator'], why: 'the tablist sits on a hairline rule that the selected tab overdraws' },
@@ -626,7 +634,7 @@ export const CLAIMS = {
     { chosen: { state: 'error' }, slot: 'field', has: [EDGE, 'ring-[color:var(--arena-hue-fill-soft)]'], hasNot: ['border-success'], why: 'error rings at rest and says which it is' },
     { chosen: { resize: 'vertical' }, slot: 'field', has: ['resize-y'], why: 'resize is the consumer\'s choice and the recipe carries both answers' },
     { chosen: { resize: 'none' }, slot: 'field', has: ['resize-none'], why: 'resize is the consumer\'s choice and the recipe carries both answers' },
-    { chosen: { disabled: true }, slot: 'root', has: ['opacity-50'], why: 'disabled dims the whole field group' },
+    { chosen: { disabled: true }, slot: 'root', has: ['opacity-[var(--fade-disabled)]'], hasNot: ['opacity-50'], why: 'disabled dims the whole field group' },
     { chosen: { readOnly: true }, slot: 'field', has: ['bg-base-200', 'cursor-default'], why: 'readonly changes the surface, not the border' },
     { slot: 'counter', has: ['font-mono', 'text-ink-muted/(--level-ink-muted)'], why: 'the counter is a muted mono readout' },
     { chosen: { near: true }, slot: 'counter', has: [INK], hasNot: ['text-warning'], why: 'the counter warns before it refuses, which is a warning ink read from the hue channel and not a danger one' },

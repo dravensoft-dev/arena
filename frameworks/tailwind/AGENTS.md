@@ -698,7 +698,7 @@ button: a disabled prev/next arrow, rendered dim and `not-allowed` by design,
 tints on hover anyway.
 
 `ArenaIconButton.manifest.json` gets away with an unguarded `hover:bg-base-200`
-only because its `disabled:opacity-45` mutes *everything* the element renders,
+only because its disabled fade mutes *everything* the element renders,
 tint included. The hover still technically fires, but nothing shows through
 the reduced opacity that a sighted user would read as feedback. A bare
 `hover:bg-*` with no such blanket disabled treatment does not get this for

@@ -39,7 +39,7 @@
     },
     "disabled": {
       "true": {
-        "root": "opacity-50"
+        "root": "opacity-[var(--fade-disabled)]"
       },
       "false": {}
     }

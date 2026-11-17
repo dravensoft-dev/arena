@@ -82,7 +82,7 @@
     },
     "disabled": {
       "true": {
-        "root": "opacity-50"
+        "root": "opacity-[var(--fade-disabled)]"
       },
       "false": {
         "trigger": "hover:-translate-y-[var(--lift-control)] hover:bg-[color:var(--arena-emphasis-fill-hover,var(--emphasis-secondary-fill-hover))] hover:shadow-[var(--arena-emphasis-shadow-hover,var(--shadow-control-rest))] focus-visible:shadow-[inset_0_0_0_var(--focus-width)_var(--focus-ring)]"
