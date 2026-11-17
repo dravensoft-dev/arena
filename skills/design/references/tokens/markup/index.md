@@ -16,5 +16,6 @@ The roles under [`../components/`](../components/index.md) exist, and your marku
 - [Where does a layer of mine sit among the layers Arena draws?](./layers.md): Read this when a layer of yours, such as a sticky bar, a panel or a popover, must sit above or below the layers Arena draws.
 - [What does a row take under the pointer, and what marks the selected tab?](./states.md): Read this when your own markup shows a state, such as a row under the pointer or the tab a reader has selected.
 - [Which colour means something, and which one identifies something?](./meaning-and-identity.md): Read this when your own markup draws a status, a tone, a category or a chart series, and you must pick between the aliases and the ramp.
+- [Which units does Arena use, and which do I use in my markup?](./units.md): Read this when your own markup sets a size, a breakpoint or a measurement in script, and you need to know whether it follows the reader's text setting.
 
 <!-- @tree end -->

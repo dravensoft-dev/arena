@@ -25,6 +25,7 @@ import type { ArenaConfig, ArenaFont } from '../core/arena-cli/theme-css.ts';
 import { FONT_ROLES } from '../core/arena-cli/palette-keys.ts';
 import { CSS_TARGETS, BREAKPOINT_TARGET } from './generate-tokens.ts';
 import { HUES_FILE } from '../../lib/tailwind/hue-sheet.ts';
+import { BROWSER_DEFAULT_PX, scaledLiteral } from '../core/arena-cli/serialize-token.ts';
 import { RULE_TAGS, RULE_DESCRIPTIONS } from '../core/arena-cli/audit.ts';
 import { LAYER_SCRIPTS, wiredScripts } from '../core/arena-cli/command-init.ts';
 import { rulesReportedAs } from '../../lib/arena/language-rules.ts';
@@ -115,6 +116,11 @@ export const TOAST_NOTICE_CONTRACT = 'contracts/api/types/arena-toast-notice.jso
 export const CONFIRM_REQUEST_CONTRACT = 'contracts/api/types/arena-confirm-request.json';
 
 const cell = (text: string) => text.replace(/\|/g, '\\|');
+
+export function atDefault(css: string): string {
+  const rem = /^(-?[\d.]+)rem$/.exec(css);
+  return rem ? `\`${css}\` = ${Number((Number(rem[1]) * BROWSER_DEFAULT_PX).toFixed(4))}px at the browser default` : `\`${css}\``;
+}
 
 export function fieldTable(base: string, typeFile: string) {
   const contract = readJson(join(base, typeFile)) as { fields?: unknown };
@@ -261,16 +267,19 @@ function scaleRegion(groups: string[], base: string) {
   const utilities = utilitiesOf(base, /^\s*--(spacing|radius|shadow|ease|z-index)-([a-z0-9-]+):\s*var\(--((?:sp|r|shadow|ease|z)-[a-z0-9-]+)\)\s*;/,
     (kind, name) => ({ spacing: `*-${name}`, radius: `rounded-${name}`, 'z-index': `z-${name}` })[kind] ?? `${kind}-${name}`);
   const unit = /^\s*--spacing:\s*var\(--([a-z0-9-]+)\)\s*;/m.exec(readFileSync(join(base, THEME_SHEET), 'utf8'))?.[1];
-  const pixels = (name: string) => /^(-?[\d.]+)px$/.exec(String(tokens[name]))?.[1];
+  const pixels = (name: string) => {
+    const one = /^(-?[\d.]+)(px|rem)$/.exec(String(tokens[name]));
+    return one ? Number(one[1]) * (one[2] === 'rem' ? BROWSER_DEFAULT_PX : 1) : Number.NaN;
+  };
   const multiple = (name: string) => {
-    const step = unit === undefined ? undefined : Number(pixels(name)) / Number(pixels(unit));
+    const step = unit === undefined ? undefined : pixels(name) / pixels(unit);
     return name.startsWith('sp-') && step !== undefined && Number.isFinite(step) ? `\`*-${step}\`` : undefined;
   };
   const variants = new Map([...readFileSync(join(base, BREAKPOINT_TARGET), 'utf8').matchAll(/^\s*--breakpoint-([a-z0-9-]+):/gm)]
     .map((match) => [`bp-${match[1]}`, `\`${match[1]}:\``]));
   const rows = groups.flatMap((group) => Object.entries(tokens)
     .filter(([name]) => !roles.has(name) && (name === group || name.startsWith(`${group}-`)))
-    .map(([name, value]) => `| \`--${name}\` | \`${value}\` | ${multiple(name) ?? variants.get(name) ?? utilities.get(name)?.join(', ') ?? 'none'} |`));
+    .map(([name, value]) => `| \`--${name}\` | ${atDefault(String(value))} | ${multiple(name) ?? variants.get(name) ?? utilities.get(name)?.join(', ') ?? 'none'} |`));
   const resets = [['r', 'radius'], ['shadow', 'shadow'], ['ease', 'ease']].filter(([group]) => groups.includes(group!)).map(([, label]) => label!);
   const reset = resets.length === 0 ? [] : [`Where the sheet resets a Tailwind default scale (${resets.length === 1 ? resets[0] : `${resets.slice(0, -1).join(', ')} and ${resets.at(-1)}`}), a utility of that default, such as \`${groups.includes('shadow') ? 'shadow-md' : 'ease-in'}\`, emits nothing and reports nothing.`];
   const intro = [
@@ -312,14 +321,15 @@ The package is the code. The server, the plugin and the repository are the langu
     const utilities = utilitiesOf(base, /^\s*--(spacing|text|leading)-([a-z0-9-]+):\s*([^;]*var\(--dz-[^;]*);/,
       (kind, name) => kind === 'spacing' ? `*-${name}` : `${kind}-${name}`,
       (match) => [...match[3]!.matchAll(/var\(--dz-([a-z0-9-]+)\)/g)].map((one) => one[1]!));
-    const shown = (value: string | undefined) => value === undefined ? 'base' : `\`${cell(value)}\``;
+    const shown = (value: string | undefined, name: string) => value === undefined ? 'base'
+      : atDefault(cell(String(tokens[name]).endsWith('rem') ? scaledLiteral(value, { axis: 'scales' }) : value));
     const sizes = (readJson(join(base, 'contracts/design/spacing.json')) as { dz: Record<string, { $description?: string }> }).dz;
     const rows = Object.entries(tokens).filter(([name]) => name.startsWith('dz-')).map(([name, value]) => {
       const key = name.slice(3);
       const reads = utilities.get(key)?.join(', ') ?? 'none';
       const sized = sizes[key]?.$description?.split(/\. /)[0]?.replace(/\.$/, '');
       if (!sized) throw new Error(`generate-npm-pages: contracts/design/spacing.json dz.${key} has no $description to say what it sizes`);
-      return `| \`--${name}\` | \`${value}\` | ${shown(compact(key))} | ${shown(comfortable(key))} | ${reads} | ${cell(sized)} |`;
+      return `| \`--${name}\` | ${atDefault(String(value))} | ${shown(compact(key), name)} | ${shown(comfortable(key), name)} | ${reads} | ${cell(sized)} |`;
     });
     return ['`*-` stands for any spacing utility, such as `h-` or `py-`.', '',
       '| custom property | base | .arena-compact | .arena-comfortable | Tailwind | what it sizes |', '| --- | --- | --- | --- | --- | --- |', ...rows].join('\n');
@@ -332,7 +342,7 @@ The package is the code. The server, the plugin and the repository are the langu
       (kind, name) => kind === 'font-weight' ? `font-${name}` : `${kind}-${name}`);
     const rows = TYPE_GROUPS.flatMap((group) => Object.entries(tokens)
       .filter(([name]) => !roles.has(name) && (name === group || name.startsWith(`${group}-`)))
-      .map(([name, value]) => `| \`--${name}\` | \`${value}\` | ${utilities.get(name)?.join(', ') ?? 'none'} |`));
+      .map(([name, value]) => `| \`--${name}\` | ${atDefault(String(value))} | ${utilities.get(name)?.join(', ') ?? 'none'} |`));
     return ['| custom property | value | Tailwind |', '| --- | --- | --- |', ...rows].join('\n');
   },
 

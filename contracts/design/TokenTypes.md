@@ -183,17 +183,15 @@ is nineteen declarations and not a hundred and thirty-two: a scale is one decisi
 | `follows` | nothing: it is a multiplier of a size that already scales | a `TextUnit` in `em`, or a plain ratio | a ratio applied to the scaled size |
 | `fixed` | leave it where it is, and let the box around it grow instead | `dp` | points |
 
-**Every one of these is authored in px and emitted in px, and the axis changes nothing about a
-rendered page here.** That is deliberate rather than unfinished. A CSS platform could honour the
-axis by emitting `rem` for the `scales` set, and every gate would survive it: `check:dtcg` already
-admits `rem`, the serializer concatenates whatever unit it is handed, the reading floors read no
-font size, and `check:pixel-parity` holds no stored baseline and moves both layers together. What
-would not survive is the charts. `chart-tick-char` and `chart-label-gap` are px numbers JS reads to
-reserve room for text set at `--dz-text-2xs`, and this document already says a script-readable
-value is bound at import time and cannot re-densify. A user's text size is a third runtime axis
-with exactly that property, so scaling the text while the reserved room stays put clips every
-label with nothing reporting it. That is why every script-readable dimension takes `fixed` and why
-the emission is a separate question from the declaration.
+**Every one of these is authored in px, and the axis decides what CSS emits.** The `scales` set is
+emitted in `rem`, its px divided by 16, because 16px is CSS Fonts 4 `medium` and the initial
+`font-size`: the type scale, the control text, the icons and the breakpoints grow with the text
+setting of the browser. Tailwind's own breakpoint variables are `em`, since a media query answers
+against the browser default and no root rule moves it. The `fixed` and `follows` sets are emitted
+as written. The numbers a chart reads in script, `chart-tick-char` and `chart-label-gap`, stay `fixed`
+px, because a value read once at import cannot follow a text size the reader changes later. A script
+reading a breakpoint resolves its `rem` against the root font size at the moment of the call, so the
+value it compares is in pixels.
 
 **What `fixed` does not mean is that the control never grows.** `dz-ctl-h` is a floor the content
 grows past, never a height the text is fitted into: a target that honours the axis lets a button

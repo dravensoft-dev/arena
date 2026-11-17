@@ -17,17 +17,17 @@ Read this when markup of yours needs a font family, a weight, a size, a line hei
 | `--fw-bold` | `700` | `font-bold` |
 | `--fw-extrabold` | `800` | `font-extrabold` |
 | `--fw-black` | `900` | `font-black` |
-| `--fs-mega` | `9.375rem` | `text-mega` |
-| `--fs-hero` | `6rem` | `text-hero` |
-| `--fs-display` | `4rem` | `text-display` |
-| `--fs-h1` | `2.75rem` | `text-h1` |
-| `--fs-h2` | `2rem` | `text-h2` |
-| `--fs-h3` | `1.5rem` | `text-h3` |
-| `--fs-h4` | `1.1875rem` | `text-h4` |
-| `--fs-lg` | `1.0625rem` | `text-lg` |
-| `--fs-md` | `0.9375rem` | `text-md` |
-| `--fs-sm` | `0.8125rem` | `text-sm` |
-| `--fs-xs` | `0.6875rem` | `text-xs` |
+| `--fs-mega` | `9.375rem` = 150px at the browser default | `text-mega` |
+| `--fs-hero` | `6rem` = 96px at the browser default | `text-hero` |
+| `--fs-display` | `4rem` = 64px at the browser default | `text-display` |
+| `--fs-h1` | `2.75rem` = 44px at the browser default | `text-h1` |
+| `--fs-h2` | `2rem` = 32px at the browser default | `text-h2` |
+| `--fs-h3` | `1.5rem` = 24px at the browser default | `text-h3` |
+| `--fs-h4` | `1.1875rem` = 19px at the browser default | `text-h4` |
+| `--fs-lg` | `1.0625rem` = 17px at the browser default | `text-lg` |
+| `--fs-md` | `0.9375rem` = 15px at the browser default | `text-md` |
+| `--fs-sm` | `0.8125rem` = 13px at the browser default | `text-sm` |
+| `--fs-xs` | `0.6875rem` = 11px at the browser default | `text-xs` |
 | `--lh-root` | `1.5` | none |
 | `--lh-tight` | `0.98` | `leading-tight` |
 | `--lh-snug` | `1.15` | `leading-snug` |

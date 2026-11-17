@@ -11,7 +11,7 @@ import { join } from 'node:path';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { LAYER_TOKENS, FORBIDDEN } from '../../check/arena/check-layer-independence.ts';
 import {
-  TARGETS, noImportSheets, openLine, closeLine, renderRegion, applyRegion, renderTarget, regionsOf,
+  TARGETS, atDefault, noImportSheets, openLine, closeLine, renderRegion, applyRegion, renderTarget, regionsOf,
   ROLE_CONTRACT, BEHAVIOUR_CONTRACT, densityValues, requiredLead, toastIntervals, defaultedRoles, defaultedSentence, defaultsStatement, roleRuns, unansweredCount,
 } from './generate-npm-pages.ts';
 import { tokenCatalogue, CSS_CHAIN, ANGULAR_EXTRA } from '../../lib/arena/package-assembly.ts';
@@ -314,7 +314,7 @@ test('the scale regions table every value of its nine groups that no role answer
     const names = Object.keys(tokens).filter((name) => (name === group || name.startsWith(`${group}-`)) && !roles.has(name));
     assert.ok(names.length > 0, `the catalogue holds the ${group} group`);
     for (const name of names)
-      assert.ok(region.includes(`| \`--${name}\` | \`${tokens[name]}\` |`), `--${name} is a row with its value`);
+      assert.ok(region.includes(`| \`--${name}\` | ${atDefault(String(tokens[name]))} |`), `--${name} is a row with its value`);
   }
   for (const role of roles) assert.ok(!region.includes(`| \`--${role}\` |`), `--${role} is a role a style plugin answers`);
   assert.ok(roles.has('r-surface') && region.includes('--r-xs'), 'the scale stays and the role goes');
@@ -361,7 +361,7 @@ test('the density region tables every --dz property once, with the value each cl
   assert.deepEqual(rows.map((row) => row.split('|')[1]!.trim()), names.map((name) => `\`--${name}\``));
   const rowOf = (name: string) => rows.find((row) => row.startsWith(`| \`--${name}\` |`))!.split('|').map((cell) => cell.trim());
   const ctl = rowOf('dz-ctl-h');
-  assert.equal(ctl[3], `\`${compact['ctl-h']!.$value.value}${compact['ctl-h']!.$value.unit}\``);
+  assert.equal(ctl[3], atDefault(`${compact['ctl-h']!.$value.value}${compact['ctl-h']!.$value.unit}`));
   assert.equal(ctl[5], '`*-ctl-h`');
   assert.equal(rowOf('dz-text-lg')[4], 'base');
   assert.equal(rowOf('dz-row-scale-x')[5], '`*-row-x`, `*-nav-row-x`, `*-row-floating-x`');
@@ -489,10 +489,33 @@ const JOINED_TOKEN_ROWS = [
   '| `--z-palette` | `1100` | `z-palette` |',
   '| `--z-onboarding` | `1200` | `z-onboarding` |',
   '| `--z-toast` | `1300` | `z-toast` |',
-  '| `--bp-sm` | `480px` | `sm:` |',
-  '| `--bp-md` | `768px` | `md:` |',
-  '| `--bp-lg` | `1024px` | `lg:` |',
+  '| `--bp-sm` | `30rem` = 480px at the browser default | `sm:` |',
+  '| `--bp-md` | `48rem` = 768px at the browser default | `md:` |',
+  '| `--bp-lg` | `64rem` = 1024px at the browser default | `lg:` |',
 ];
+
+test('a rem value shows its pixel at the browser default', () => {
+  assert.equal(atDefault('0.8125rem'), '`0.8125rem` = 13px at the browser default');
+  assert.equal(atDefault('48rem'), '`48rem` = 768px at the browser default');
+  assert.equal(atDefault('13px'), '`13px`');
+  assert.equal(atDefault('700ms'), '`700ms`');
+  assert.equal(atDefault('1.5'), '`1.5`');
+});
+
+test('the type table shows fs in rem with its pixel', () => {
+  const row = renderRegion('typography').split('\n').find((line) => line.startsWith('| `--fs-h1` |'))!;
+  assert.ok(row.includes('`2.75rem` = 44px at the browser default'), row);
+});
+
+test('breakpoint rows keep their variant', () => {
+  const row = renderRegion('spacing').split('\n').find((line) => line.startsWith('| `--bp-md` |'))!;
+  assert.ok(row.includes('`48rem` = 768px at the browser default') && row.endsWith('`md:` |'), row);
+});
+
+test('a spacing step keeps its multiple', () => {
+  const row = renderRegion('spacing').split('\n').find((line) => line.startsWith('| `--sp-4` |'))!;
+  assert.ok(row.endsWith('`*-4` |'), row);
+});
 
 const rowsOf = (region: string) => region.split('\n').filter((line) => line.startsWith('| `--'));
 

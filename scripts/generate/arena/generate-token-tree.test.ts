@@ -67,6 +67,12 @@ test('every role lands in exactly one role leaf', () => {
   });
 });
 
+test('units is a markup leaf and the markup index links it', () => {
+  assert.ok(TREE['markup/index.md']!.includes('units'));
+  assert.equal(markupLeaf('units'), 'markup/units.md');
+  assert.ok(regionBodies().get('markup/index.md')!.includes('(./units.md)'));
+});
+
 test('a role no leaf rule takes throws', () => {
   assert.throws(() => roleLeaf('mystery-role', { audience: 'component', task: 'states' }), /mystery-role/);
   assert.throws(() => markupLeaf('component-size'), /markup\/component-size\.md/);

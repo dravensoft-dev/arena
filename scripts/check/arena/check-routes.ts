@@ -292,27 +292,27 @@ export const ROUTES: Route[] = [
     who: 'a builder painting a panel of their own markup: the router, then the markup tree index and the pages for surfaces and text, type, edges, space and layout, and depth and motion',
     entry: 'consumer',
     stops: ['skills/design/references/tokens/markup/index.md', 'skills/design/references/tokens/markup/surfaces-and-text.md', 'skills/design/references/tokens/markup/type.md', 'skills/design/references/tokens/markup/edges.md', 'skills/design/references/tokens/markup/space-and-layout.md', 'skills/design/references/tokens/markup/depth-and-motion.md'],
-    budget: 20_300,
+    budget: 20_500,
     reason:
-      'paid per panel a builder draws themselves. It buys the whole of what paints one: the ground and the ink on it, the title it carries and its size and weight, the edge and its radius, the air inside and around it, and the depth and motion it carries, each read at the page that owns it and not through the page, style and token references. On each leaf the route buys the question of every role, its utility and how it combines with the others, and the paragraph that composes them. The number is what the stops measure and moves when a page of the tree grows a decision, not a paragraph.',
+      'paid per panel a builder draws themselves. It buys the whole of what paints one: the ground and the ink on it, the title it carries and its size and weight, the edge and its radius, the air inside and around it, and the depth and motion it carries, each read at the page that owns it and not through the page, style and token references. On each leaf the route buys the question of every role, its utility and how it combines with the others, and the paragraph that composes them. The number is what the stops measure and moves when a page of the tree grows a decision, not a paragraph. The markup index, a stop of this route, lists the units page among its rows.',
   },
   {
     name: 'consumer-own-toggle',
     who: 'a builder who owns a toggle of their own and draws every state of it: the router, then the markup tree index and the pages for states, edges, depth and motion, and space and layout',
     entry: 'consumer',
     stops: ['skills/design/references/tokens/markup/index.md', 'skills/design/references/tokens/markup/states.md', 'skills/design/references/tokens/markup/edges.md', 'skills/design/references/tokens/markup/depth-and-motion.md', 'skills/design/references/tokens/markup/space-and-layout.md'],
-    budget: 13_500,
+    budget: 13_700,
     reason:
-      'paid once per control a builder draws without a component. It buys the states a control wears, hover and the pressed lift and scale, with the motion and the space of each change, and the outline the control draws, its edge colour, width and radius, each role with its question, utility and combination and the paragraph that composes the leaf. Focus and disabled have no role yet, so a control of this kind draws them itself. Each is read from the page that owns it instead of the media register, the page and the kernel. The data files beside the pages are not stops, since the gate charges the Markdown only.',
+      'paid once per control a builder draws without a component. It buys the states a control wears, hover and the pressed lift and scale, with the motion and the space of each change, and the outline the control draws, its edge colour, width and radius, each role with its question, utility and combination and the paragraph that composes the leaf. Focus and disabled have no role yet, so a control of this kind draws them itself. Each is read from the page that owns it instead of the media register, the page and the kernel. The data files beside the pages are not stops, since the gate charges the Markdown only. The markup index, a stop of this route, lists the units page among its rows.',
   },
   {
     name: 'consumer-layer',
     who: 'a builder placing a layer over the page: the router, then the markup tree index and the layers page',
     entry: 'consumer',
     stops: ['skills/design/references/tokens/markup/index.md', 'skills/design/references/tokens/markup/layers.md'],
-    budget: 3_800,
+    budget: 4_000,
     reason:
-      'paid per overlay, sticky bar or panel a builder places. It buys the order layers stack in and what each one rests on, in one page, without the token reference and the shell page. The number is what the two stops measure and moves when the layers page grows a rule.',
+      'paid per overlay, sticky bar or panel a builder places. It buys the order layers stack in and what each one rests on, in one page, without the token reference and the shell page. The number is what the two stops measure and moves when the layers page grows a rule. The markup index, a stop of this route, lists the units page among its rows.',
   },
   {
     name: 'consumer-coldstart',

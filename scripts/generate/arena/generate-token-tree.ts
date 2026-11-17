@@ -26,7 +26,7 @@ const LAYERING = 'contracts/design/layering.json';
 
 export const TREE: Record<string, string[]> = {
   'index.md': ['markup/index.md', 'plugin/index.md', 'components/index.md', 'scales/index.md'],
-  'markup/index.md': ['surfaces-and-text', 'edges', 'space-and-layout', 'type', 'depth-and-motion', 'layers', 'states', 'meaning-and-identity'],
+  'markup/index.md': ['surfaces-and-text', 'edges', 'space-and-layout', 'type', 'depth-and-motion', 'layers', 'states', 'meaning-and-identity', 'units'],
   'plugin/index.md': ['surfaces-and-text', 'edges', 'space-and-layout', 'type', 'depth-and-motion', 'states'],
   'components/index.md': ['air', 'type', 'size-controls', 'size-content', 'emphasis-and-accent', 'status-hues'],
   'scales/index.md': ['spacing-radius-border', 'motion-and-layers', 'density', 'type-scale'],
