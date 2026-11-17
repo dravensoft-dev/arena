@@ -15,7 +15,7 @@ import { readJson } from '../../utils/read-file.ts';
 import { pascal } from '../../utils/case.ts';
 import { captured } from '../../utils/captures.ts';
 import { repoRoot } from '../arena/repo-root.ts';
-import { declaredAxis } from '../../check/core/check-user-scale.ts';
+import { declaredAxis } from '../core/user-scale.ts';
 import { emittedLength } from '../../generate/core/arena-cli/serialize-token.ts';
 import type { DtcgNode } from '../core/dtcg-shapes.ts';
 import { classesManifest } from './component-css.ts';
@@ -92,8 +92,8 @@ export function markupDeclarations(classes: string): [string, string][] {
 
 export function restatedDeclarations(rel: string, group: string, root = repoRoot): [string, string][] {
   const tokens = (readJson(join(root, rel)) as Record<string, Record<string, unknown>>)[group];
-  const groupAxis = declaredAxis(tokens as DtcgNode);
   if (!tokens) throw new Error(`vocabulary: ${rel} has no ${group} group to restate`);
+  const groupAxis = declaredAxis(tokens as DtcgNode);
   return Object.entries(tokens).filter(([key]) => !key.startsWith('$')).map(([key, token]) => {
     const value = (token as { $value?: unknown }).$value;
     if (value && typeof value === 'object' && 'value' in value && 'unit' in value)

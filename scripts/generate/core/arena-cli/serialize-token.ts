@@ -5,8 +5,11 @@
  * node_modules. `$value` is `any` because `$type` decides its shape, and this file owns that
  * knowledge, so an unrecognised shape is thrown rather than spelled: the caller knows whether to
  * pass an author's literal through or to name the file.
- * A scales px length is divided by BROWSER_DEFAULT_PX, 16: CSS Fonts 4 `medium`, the initial
- * `font-size`, so the browser default draws the authored pixel and the user's text setting moves it. */
+ * BROWSER_DEFAULT_PX, below, is 16 because CSS Fonts 4 `medium` is 16px and the initial value of
+ * `font-size`: a scales px length is divided by it, so the browser default draws the authored pixel
+ * and the user's text setting moves it. */
+
+export const BROWSER_DEFAULT_PX = 16;
 
 import { ARENA_EXT } from './style-plugin-rules.ts';
 import { GENERIC_FAMILIES } from './palette-keys.ts';
@@ -27,8 +30,6 @@ const dim = (d: { value: number; unit: string }, what: string) => {
   }
   return `${d.value}${d.unit}`;
 };
-
-export const BROWSER_DEFAULT_PX = 16;
 
 export type Emission = { axis?: string; relative?: 'rem' | 'em' };
 

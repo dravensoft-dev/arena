@@ -14,7 +14,8 @@ import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
-import { ARENA_EXT, childEntries, isToken } from '../../lib/core/dtcg-shapes.ts';
+import { KEY, AXES, declaredAxis, classify, tokenAxes as axesOf } from '../../lib/core/user-scale.ts';
+import type { Classified } from '../../lib/core/user-scale.ts';
 import type { DtcgNode } from '../../lib/core/dtcg-shapes.ts';
 import { EXCLUDED } from './check-dtcg.ts';
 
@@ -34,53 +35,10 @@ export const node = {
   feeds: [],
 };
 
-export const KEY = 'userScale';
-
-export const AXES = new Map([
-  ['scales', 'grows with the user\'s text setting: sp on Android, Dynamic Type on iOS'],
-  ['follows', 'a multiplier of a size that scales, so it needs no transform of its own'],
-  ['fixed', 'does not move when the text does, and the box around it grows instead'],
-]);
-
 export const SOURCE_DIR = 'contracts/design';
 
-export function declaredAxis(node: DtcgNode) {
-  return (node?.$extensions as Record<string, any>)?.[ARENA_EXT]?.[KEY];
-}
-
-export type Classified = { at: string; axis: string; declaredAt: string };
-
-export function classify(tree: DtcgNode, file: string) {
-  const found: Classified[] = [];
-  const problems: string[] = [];
-
-  const walk = (node: DtcgNode, path: string[], inherited: string | undefined,
-                inheritedFrom: string, type: string | undefined) => {
-    const own = declaredAxis(node);
-    const at = `${file}:${path.join('.') || '(root)'}`;
-    if (own !== undefined && !AXES.has(own)) {
-      problems.push(`${at} declares userScale "${own}", which is not one of ${[...AXES.keys()].join(', ')}`);
-    }
-    const axis = own ?? inherited;
-    const from = own !== undefined ? at : inheritedFrom;
-    const resolvedType = (node.$type as string | undefined) ?? type;
-
-    if (isToken(node)) {
-      if (resolvedType === 'dimension' && axis === undefined) {
-        problems.push(
-          `${at} is a dimension and resolves no userScale. Declare one on it, or on the group it `
-          + 'belongs to, because a target with a text-size setting has no way to derive the answer.',
-        );
-      }
-      if (axis !== undefined && AXES.has(axis)) found.push({ at, axis, declaredAt: from });
-      return;
-    }
-    for (const [name, child] of childEntries(node)) walk(child, [...path, name], axis, from, resolvedType);
-  };
-
-  walk(tree, [], undefined, '', undefined);
-  return { found, problems };
-}
+export { KEY, AXES, declaredAxis, classify };
+export type { Classified };
 
 export function zeroClassifiedProblems(count: number) {
   if (count > 0) return [];
@@ -108,11 +66,7 @@ export function collect(dir = join(root, SOURCE_DIR)) {
   return { files, found, problems };
 }
 
-export function tokenAxes(dir = join(root, SOURCE_DIR)) {
-  const map = new Map<string, string>();
-  for (const { at, axis } of collect(dir).found) map.set(at.slice(at.indexOf(':') + 1), axis);
-  return map;
-}
+export const tokenAxes = (dir = join(root, SOURCE_DIR)) => axesOf(dir, EXCLUDED);
 
 type Answer = { name: string; tokens: Record<string, DtcgNode> };
 

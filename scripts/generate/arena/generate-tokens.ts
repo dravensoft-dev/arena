@@ -22,7 +22,7 @@ import { rootOnlyFor, scopeOn } from '../core/arena-cli/style-plugin-rules.ts';
 import { DEFAULTS_LAYER, LAYER_ORDER } from '../../lib/tailwind/component-sheets.ts';
 import { serializeScript } from '../../lib/core/serialize-script.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
-import { tokenAxes, declaredAxis } from '../../check/core/check-user-scale.ts';
+import { tokenAxes, declaredAxis } from '../../lib/core/user-scale.ts';
 import { ARENA_EXT, childEntries, isStamped, isToken } from '../../lib/core/dtcg-shapes.ts';
 import type { DtcgNode, DtcgToken, StampedToken } from '../../lib/core/dtcg-shapes.ts';
 
@@ -301,11 +301,19 @@ export function axisOf(token: { name: string; path?: string[] }, roles: Record<s
   return role ?? axes.get((token.path ?? []).join('.'));
 }
 
-const ROLES = readJson(join(root, DESIGN_DIR, 'roles.json')) as Record<string, unknown>;
-const AXES = tokenAxes(join(root, DESIGN_DIR));
+let axisSources: { roles: Record<string, unknown>; axes: ReadonlyMap<string, string> } | undefined;
+
+function axisSourcesOnce() {
+  axisSources ??= {
+    roles: readJson(join(root, DESIGN_DIR, 'roles.json')) as Record<string, unknown>,
+    axes: tokenAxes(join(root, DESIGN_DIR), new Set(['roles.json'])),
+  };
+  return axisSources;
+}
 
 function render(token: StampedToken) {
-  const axis = axisOf(token, ROLES, AXES);
+  const { roles, axes } = axisSourcesOnce();
+  const axis = axisOf(token, roles, axes);
   const decl = `  --${emittedName(token)}:${referenceOf(token) ?? serialize(token, { axis })};`;
   const d = token.$description;
   if (!d) return decl;
