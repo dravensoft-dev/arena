@@ -539,6 +539,42 @@
     "$type": "color",
     "$value": "{color.primary}"
   },
+  "edge-focus": {
+    "$type": "color",
+    "$value": "{color.secondary}"
+  },
+  "bw-focus": {
+    "$type": "dimension",
+    "$value": "{focus.width}"
+  },
+  "gap-focus": {
+    "$type": "dimension",
+    "$value": "{focus.offset}"
+  },
+  "fill-selected": {
+    "$type": "color",
+    "$value": "{color.primary}"
+  },
+  "ink-selected": {
+    "$type": "color",
+    "$value": "{color.base-content}"
+  },
+  "edge-selected": {
+    "$type": "color",
+    "$value": "{color.base-content}"
+  },
+  "fade-disabled": {
+    "$type": "number",
+    "$value": "{opacity.disabled}"
+  },
+  "edge-invalid": {
+    "$type": "color",
+    "$value": "{color.error}"
+  },
+  "ink-invalid": {
+    "$type": "color",
+    "$value": "{color.error}"
+  },
   "bw-surface": {
     "$type": "dimension",
     "$value": "{bw}"
@@ -1359,5 +1395,15 @@
   "elevation-floating-shadow": {
     "$type": "shadow",
     "$value": "{shadow.2}"
+  },
+  "light": {
+    "edge-focus": {
+      "$type": "color",
+      "$value": "{color.base-content}"
+    },
+    "edge-selected": {
+      "$type": "color",
+      "$value": "{color.primary}"
+    }
   }
 }

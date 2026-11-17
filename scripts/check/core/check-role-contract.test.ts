@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { declarationProblems, defaultProblems, singleAnswerProblems, emittedTypes, emittedWords, rosterProblems, zeroRoleProblems, collect, ROLES, metadataProblems, questionProblems, combineProblems, levelNames, QUESTION_MAX, SIZE_QUESTION_MAX } from './check-role-contract.ts';
+import { declarationProblems, defaultProblems, singleAnswerProblems, emittedTypes, emittedWords, rosterProblems, zeroRoleProblems, collect, ROLES, metadataProblems, questionProblems, combineProblems, levelNames, QUESTION_MAX, SIZE_QUESTION_MAX, STATE_SELECTORS } from './check-role-contract.ts';
 import { join } from 'node:path';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -270,4 +270,45 @@ test('levelNames reads declarations, not comments', () => {
     assert.deepEqual([...levelNames(root)].sort(), ['level-ink-body', 'level-ink-muted']);
   } finally { rmSync(root, { recursive: true, force: true }); }
   assert.ok(levelNames().has('level-ink-muted'));
+});
+
+const stated = (task: string, state?: unknown) => ({
+  $type: 'color', $description: 'x',
+  $extensions: { 'com.dravensoft.arena': { audience: 'markup', task, ...(state === undefined ? {} : { state }) } },
+});
+
+test('a states role without state is refused', () => {
+  const problems = metadataProblems({ 'fill-hover': stated('states') });
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /^fill-hover has no state/);
+});
+
+test('a state outside STATE_SELECTORS is refused, and so are an empty list and a repeated key', () => {
+  assert.match(metadataProblems({ 'fill-hover': stated('states', ['hovered']) })[0] ?? '', /fill-hover declares state \["hovered"\]/);
+  assert.equal(metadataProblems({ 'fill-hover': stated('states', []) }).length, 1);
+  assert.match(metadataProblems({ 'fill-hover': stated('states', ['hover', 'hover']) })[0] ?? '', /twice/);
+  assert.deepEqual(metadataProblems({ 'fill-hover': stated('states', ['hover']) }), []);
+});
+
+test('state on a role of another task is refused', () => {
+  const problems = metadataProblems({ 'fill-surface': stated('surfaces-and-text', ['hover']) });
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /fill-surface declares state on the surfaces-and-text task/);
+});
+
+test('STATE_SELECTORS is the closed set of states and the selector each one is', () => {
+  assert.deepEqual(STATE_SELECTORS, {
+    hover: ':hover', 'focus-visible': ':focus-visible', 'aria-selected': '[aria-selected="true"]',
+    'aria-current': '[aria-current]:not([aria-current="false"])', 'aria-pressed': '[aria-pressed="true"]',
+    'aria-disabled': '[aria-disabled="true"]', disabled: ':disabled', 'aria-invalid': '[aria-invalid="true"]',
+  });
+});
+
+test('the shipped roles carry a valid state on every states role', () => {
+  const shipped = readJson(join(repoRoot, ROLES)) as Record<string, any>;
+  assert.deepEqual(metadataProblems(shipped), []);
+  const states = Object.entries(shipped).filter(([, role]) => role.$extensions?.['com.dravensoft.arena']?.task === 'states');
+  assert.equal(states.length, 11);
+  assert.deepEqual(states.map(([name]) => name).sort(), ['bw-focus', 'edge-focus', 'edge-invalid', 'edge-selected',
+    'edge-tab-selected', 'fade-disabled', 'fill-hover', 'fill-selected', 'gap-focus', 'ink-invalid', 'ink-selected']);
 });

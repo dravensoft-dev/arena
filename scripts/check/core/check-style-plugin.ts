@@ -5,7 +5,9 @@
  * command, so this gate and a consumer's build hold the same claim and neither can be the weaker
  * of the two. The root plugin is held total with kernel defaults ignored, and its answer to a role
  * carrying one is that default completed the way a consumer's build completes a silent plugin, so
- * a project whose own copy is silent on the role renders it as this one does. */
+ * a project whose own copy is silent on the role renders it as this one does. A kernel default is
+ * the dark answer and carries no light group, so LIGHT_BY_DESIGN names the roles the plugin Arena
+ * installs with answers differently in light, for the WCAG 1.4.11 floor, and holds those on dark. */
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -94,6 +96,8 @@ type KernelRole = { $extensions?: Record<string, { default?: unknown }> };
 const without = (record: Record<string, unknown>, key: string) =>
   Object.fromEntries(Object.entries(record).filter(([one]) => one !== key));
 
+export const LIGHT_BY_DESIGN: ReadonlySet<string> = new Set(['edge-focus', 'edge-selected']);
+
 const WORD_ALIAS = /^\{([a-z][\w-]*(?:\.[\w-]+)*)\}$/;
 
 export function defaultAnswerProblems(roles: Record<string, KernelRole>, answers: Record<string, unknown>,
@@ -111,9 +115,10 @@ export function defaultAnswerProblems(roles: Record<string, KernelRole>, answers
       const at = typeof value === 'string' ? WORD_ALIAS.exec(value.trim())?.[1]?.replace(/\./g, '-') : undefined;
       return at !== undefined && words.has(at) ? words.get(at) : value;
     };
-    const want = [word(completed.tokens[name]), word(completed.light[name])];
-    const got = [plugin.tokens[name], plugin.light[name]];
-    if (want[0] !== got[0] || want[1] !== got[1])
+    const own = LIGHT_BY_DESIGN.has(name) ? 1 : 2;
+    const want = [word(completed.tokens[name]), word(completed.light[name])].slice(0, own);
+    const got = [plugin.tokens[name], plugin.light[name]].slice(0, own);
+    if (want[0] !== got[0] || (own === 2 && want[1] !== got[1]))
       problems.push(`${ROOT_PLUGIN}: --${name} is ${said(got)} and its kernel default ${alias} comes to ${said(want)}. `
         + 'A project whose own plugin is silent on the role renders it through that default, so the plugin Arena '
         + 'installs with gives the same answer or the two appearances differ on the one role they were meant to share.');

@@ -27,6 +27,9 @@
   --focus-width:2px;
   --focus-offset:2px;
 
+  /* Opacity */
+  --opacity-disabled:0.45; /* The share of its opacity a disabled control keeps. A disabled control is exempt from contrast under WCAG 1.4.3 and 1.4.11, so the share is a fade and never a colour. */
+
   /* Motion */
   --dur-fast:120ms;
   --dur-mid:220ms;

@@ -1478,6 +1478,38 @@ test('a package whose sheets carry no root-only text emits no restatement', () =
   assert.doesNotMatch(css, /prefers-contrast|title-hero-fit/);
 });
 
+const STATE_ROLES = ['edge-focus', 'bw-focus', 'gap-focus', 'fill-selected', 'ink-selected', 'edge-selected',
+  'fade-disabled', 'edge-invalid', 'ink-invalid'];
+
+test('a silent root plugin gets the nine state roles and a widened bw-focus', () => {
+  const shipped = JSON.parse(readFileSync(fileURLToPath(new URL('../../../../contracts/design/roles.json', import.meta.url)), 'utf8'));
+  const contrast = readFileSync(fileURLToPath(new URL('../../../../contracts/design/contrast.css', import.meta.url)), 'utf8');
+  const sheets = {
+    ...SHEETS_FULL,
+    rootOnly: { ...ROOT_ONLY, contrast },
+    catalogue: {
+      tokens: {
+        ...SHEETS_FULL.catalogue.tokens, 'color-primary': 'var(--color-primary)', 'color-base-content': 'var(--color-base-content)',
+        'color-error': 'var(--color-error)', 'focus-width': '2px', 'focus-offset': '2px', 'opacity-disabled': '0.45',
+      },
+      roles: {
+        ...SHEETS_FULL.catalogue.roles,
+        ...Object.fromEntries(STATE_ROLES.map((name) => [name, {
+          type: shipped[name].$type, default: shipped[name].$extensions['com.dravensoft.arena'].default,
+        }])),
+      },
+    },
+  };
+  const { plugins, defaulted } = rootWithDefaults([total()], sheets.catalogue);
+  assert.deepEqual(defaulted, [...STATE_ROLES].sort());
+  const css = themeCss(listed(['console']), { sheets, plugins });
+  const root = [...css.matchAll(/:root\{([^}]*)\}/g)].map((one) => one[1]).join('\n');
+  for (const name of STATE_ROLES) assert.match(root, new RegExp(`--${name}:`), name);
+  const media = css.indexOf(HC_ROOT);
+  assert.ok(media > css.indexOf(':root{'), 'the media block follows the plugin block');
+  assert.match(css.slice(media, css.indexOf('\n}\n', media)), /--bw-focus:var\(--focus-width\)/);
+});
+
 test('the palette code imports no node: module, however deep', () => {
   assert.deepEqual(nodeImportsReachedFrom('scripts/generate/core/arena-cli/theme-css.ts'), []);
 });

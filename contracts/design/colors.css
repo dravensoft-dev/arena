@@ -120,7 +120,7 @@
   --accent:var(--color-primary);
   --accent-press:var(--color-primary);
   --accent-soft:var(--crimson-soft);
-  --focus-ring:var(--color-secondary);
+  --focus-ring:var(--edge-focus);
   --on-accent:var(--color-primary-content);
 
   /* the cover behind anything that covers the app: the palette's own floor, held back */

@@ -10,7 +10,16 @@ Your markup and Arena's components both read the roles on this page. A role keep
 
 | role | question | utility | combines with |
 | --- | --- | --- | --- |
+| `--bw-focus` | How wide is the ring a control draws while it holds keyboard focus? | none | none |
+| `--edge-focus` | What colour is the ring a control draws while it holds keyboard focus? | none | none |
+| `--edge-invalid` | What colour is the edge of a field that holds an invalid value? | none | none |
+| `--edge-selected` | What colour is the edge that marks a selected or current item? | none | none |
 | `--edge-tab-selected` | What colour is the rule that marks the selected tab? | `border-edge-tab-selected` | none |
+| `--fade-disabled` | What share of its opacity does a disabled control keep? | none | none |
 | `--fill-hover` | What colour does a table row, link card or navigation row take under the pointer? | `bg-hover` | none |
+| `--fill-selected` | What colour washes the background of a selected or current item? | none | none |
+| `--gap-focus` | How far is the keyboard focus ring from the edge of its control? | none | none |
+| `--ink-invalid` | What colour is the error text of a field that holds an invalid value? | none | none |
+| `--ink-selected` | What colour is the text of a selected or current item? | none | none |
 
 <!-- @tree end -->

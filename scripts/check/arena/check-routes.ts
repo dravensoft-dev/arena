@@ -124,7 +124,7 @@ export const ROUTES: Route[] = [
       'skills/design/references/config.md',
       'skills/design/references/cli.md',
     ],
-    budget: 51_000,
+    budget: 51_300,
     reason:
       'paid once per project, not per screen, so it carries what the build route may not: '
       + 'the install, the config file and the command. The config block is copied whole. '
@@ -137,7 +137,7 @@ export const ROUTES: Route[] = [
       + 'reach the sprite\'s filled weight and when an icon expression widens that set or stills the '
       + 'glyph report, and its audit section covers the two rules that read a plugin\'s names. '
       + 'The config reference tables every '
-      + 'key, the names the build refuses and the roles that carry a default. The install and command '
+      + 'key, the names the build refuses and the 29 roles that carry a default, which it names. The install and command '
       + 'references name the arena-defaults layer the defaults sit in, which the Tailwind entry '
       + 'states first.',
   },
@@ -147,7 +147,7 @@ export const ROUTES: Route[] = [
       + 'document that says what the questions are and which answers carry the difference',
     entry: 'consumer',
     stops: ['skills/design/references/style-kernel.md'],
-    budget: 19_000,
+    budget: 19_300,
     reason:
       'paid once per project and never per screen, which lets it carry the whole surface the kernel '
       + 'exposes, not a pointer to it, so a project stops learning the kernel from a normative '
@@ -157,7 +157,7 @@ export const ROUTES: Route[] = [
       + 'is a measurement over the catalogue, so it grows by remeasuring and not by writing. The '
       + 'number is what the stops measure with room for the kernel to grow a section, and it moves '
       + 'when it grows a question, not a paragraph. The root rule says where a role\'s default is '
-      + 'written and states first, in a region generated with the config page\'s, which roles carry a '
+      + 'written and states first, in a region generated with the config page\'s, which of 29 roles carry a '
       + 'default and that the root answers the rest. It says where a clone-less project fetches '
       + 'the default plugin. The roster grows per role. The setup checklist names each unanswered role. It says what each kind of role may be answered '
       + 'with, which the roster omits. It names the selected tab\'s rule and its default, and says a '
@@ -301,9 +301,9 @@ export const ROUTES: Route[] = [
     who: 'a builder who owns a toggle of their own and draws every state of it: the router, then the markup tree index and the pages for states, edges, depth and motion, and space and layout',
     entry: 'consumer',
     stops: ['skills/design/references/tokens/markup/index.md', 'skills/design/references/tokens/markup/states.md', 'skills/design/references/tokens/markup/edges.md', 'skills/design/references/tokens/markup/depth-and-motion.md', 'skills/design/references/tokens/markup/space-and-layout.md'],
-    budget: 13_700,
+    budget: 14_700,
     reason:
-      'paid once per control a builder draws without a component. It buys the states a control wears, hover and the pressed lift and scale, with the motion and the space of each change, and the outline the control draws, its edge colour, width and radius, each role with its question, utility and combination and the paragraph that composes the leaf. Focus and disabled have no role yet, so a control of this kind draws them itself. Each is read from the page that owns it instead of the media register, the page and the kernel. The data files beside the pages are not stops, since the gate charges the Markdown only. The markup index, the first stop, carries one row more for the units page, which a toggle does not need.',
+      'paid once per control a builder draws without a component. It buys the states a control wears, hover and the pressed lift and scale, with the motion and the space of each change, and the outline the control draws, its edge colour, width and radius, each role with its question, utility and combination and the paragraph that composes the leaf. Focus, selected, disabled and invalid each have a role on the states page, so a control of this kind reads them there and draws none itself. Each is read from the page that owns it instead of the media register, the page and the kernel. The data files beside the pages are not stops, since the gate charges the Markdown only. The markup index, the first stop, carries one row more for the units page, which a toggle does not need.',
   },
   {
     name: 'consumer-layer',

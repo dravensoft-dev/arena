@@ -6,7 +6,7 @@ import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { readJson } from '../../utils/read-file.ts';
 import * as rules from '../../generate/core/arena-cli/style-plugin-rules.ts';
 import {
-  SCOPES, collect, shippedFixedRemProblems, defaultAnswerProblems, floorProblems, keyProblems, movedTokens, nameProblems, resolvedFor, totalityProblems,
+  LIGHT_BY_DESIGN, SCOPES, collect, shippedFixedRemProblems, defaultAnswerProblems, floorProblems, keyProblems, movedTokens, nameProblems, resolvedFor, totalityProblems,
   valueProblems, zeroScopeProblems,
 } from './check-style-plugin.ts';
 
@@ -344,6 +344,14 @@ test('a light answer is held too, and a role the default plugin is silent on is 
   assert.deepEqual(defaultAnswerProblems(KERNEL, silent), []);
 });
 
+test('a role whose light answer is the default plugin\'s by design is held on its dark answer only', () => {
+  const kernel = { 'edge-focus': { $extensions: { 'com.dravensoft.arena': { default: '{color.secondary}' } } } };
+  const light = { 'edge-focus': { $type: 'color', $value: '{color.secondary}' }, light: { 'edge-focus': { $type: 'color', $value: '{color.base-content}' } } };
+  assert.deepEqual(defaultAnswerProblems(kernel, light), []);
+  const dark = { 'edge-focus': { $type: 'color', $value: '{color.base-content}' } };
+  assert.equal(defaultAnswerProblems(kernel, dark).length, 1);
+});
+
 const AXIS_ROLES = { 'gap-actions': { userScale: 'fixed' }, 'fs-body': { userScale: 'scales' } };
 
 test('a rem answer to a fixed role fails, naming it', () => {
@@ -366,4 +374,9 @@ test('the shipped answer files carry no rem on a fixed role', () => {
 test('a unit with no finite value is not a rem answer', () => {
   assert.deepEqual(rules.fixedRemProblems('p', { 'gap-actions': { $value: { unit: 'rem' } } }, AXIS_ROLES), []);
   assert.deepEqual(rules.fixedRemProblems('p', { 'gap-actions': { $value: { value: 'x', unit: 'rem' } } }, AXIS_ROLES), []);
+});
+
+test('the roles a light answer is by design are the keys of the default plugin\'s light group', () => {
+  const plugin = readJson(join(repoRoot, 'plugin-style-store/default/plugin.tokens.json')) as { light?: Record<string, unknown> };
+  assert.deepEqual([...LIGHT_BY_DESIGN].sort(), Object.keys(plugin.light ?? {}).sort());
 });

@@ -35,13 +35,24 @@ type Role = {
   $type?: string;
   $value?: unknown;
   $description?: string;
-  $extensions?: Record<string, { values?: unknown; default?: unknown; audience?: unknown; task?: unknown; userScale?: unknown; question?: unknown; combines?: unknown }>;
+  $extensions?: Record<string, { values?: unknown; default?: unknown; audience?: unknown; task?: unknown; userScale?: unknown; question?: unknown; combines?: unknown; state?: unknown }>;
 };
 
 export const AUDIENCES = ['markup', 'component'] as const;
 
 export const TASKS = ['surfaces-and-text', 'edges', 'space-and-layout', 'type', 'depth-and-motion', 'states',
   'meaning-and-identity', 'component-size'] as const;
+
+export const STATE_SELECTORS: Readonly<Record<string, string>> = {
+  hover: ':hover',
+  'focus-visible': ':focus-visible',
+  'aria-selected': '[aria-selected="true"]',
+  'aria-current': '[aria-current]:not([aria-current="false"])',
+  'aria-pressed': '[aria-pressed="true"]',
+  'aria-disabled': '[aria-disabled="true"]',
+  disabled: ':disabled',
+  'aria-invalid': '[aria-invalid="true"]',
+};
 
 const ALIAS = /^\{([a-z][\w-]*(?:\.[\w-]+)*)\}$/;
 
@@ -204,6 +215,22 @@ export function metadataProblems(roles: Record<string, Role>) {
     check(name, 'task', ext?.task, TASKS, 'which task the role is documented under', true);
     check(name, 'userScale', ext?.userScale, axes, 'what a larger text setting does to the role',
       role.$type === 'dimension');
+    const keys = Object.keys(STATE_SELECTORS);
+    const state = ext?.state;
+    if (ext?.task === 'states') {
+      if (state === undefined) {
+        problems.push(`${name} has no state. A role of the states task says which state shows it; declare a non-empty list of ${keys.join(', ')}.`);
+        continue;
+      }
+    } else if (state !== undefined) {
+      problems.push(`${name} declares state on the ${String(ext?.task)} task. Only a role of the states task names the state that shows it.`);
+      continue;
+    }
+    if (state === undefined) continue;
+    if (!Array.isArray(state) || state.length === 0 || state.some((one) => typeof one !== 'string' || !keys.includes(one)))
+      problems.push(`${name} declares state ${JSON.stringify(state)}, which is not a non-empty list drawn from ${keys.join(', ')}.`);
+    else if (new Set(state).size !== state.length)
+      problems.push(`${name} declares state ${JSON.stringify(state)}, which names one state twice.`);
   }
   return problems;
 }

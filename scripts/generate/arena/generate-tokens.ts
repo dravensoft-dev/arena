@@ -5,9 +5,9 @@
  * writes a Windows drive as //?/D:/ and therefore equals nothing any join produces. Comparing two
  * spellings of one file is the defect both halves of that caused, and a name has only one.
  * An alias resolves to its value EXCEPT where that value is the SKIN's, which LATE_BOUND names:
- * the palette and the faces belong to the consuming project and the density axis to another
- * scope, so a role resolved at build time freezes one answer and inherits it everywhere.
- * REDECLARED_GROUPS restates some of those per scope, and check:proximity's step-* cases hold it. */
+ * the palette and the faces belong to the consuming project, the density axis to another scope and
+ * the focus widths to contrast.css, which re-points them under prefers-contrast, so a role resolved
+ * at build time freezes one answer. REDECLARED_GROUPS restates some per scope (check:proximity). */
 
 import StyleDictionary from 'style-dictionary';
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -81,7 +81,7 @@ export const REDECLARED_GROUPS = new Map<string, string[]>([
   ['dz', ['compact', 'comfortable']],
 ]);
 
-export const LATE_BOUND = new Set([...REDECLARED_GROUPS.keys(), 'font']);
+export const LATE_BOUND = new Set([...REDECLARED_GROUPS.keys(), 'font', 'focus']);
 
 export const themeOf = (token: { path?: string[] }) => {
   const first = token.path?.[0] ?? '';

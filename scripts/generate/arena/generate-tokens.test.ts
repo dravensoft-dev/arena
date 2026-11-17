@@ -187,7 +187,7 @@ test('the default palette wears a class: .arena-dark carries the :root block, an
   assert.equal(body(palette, '.arena-dark'), body(palette, ':root'));
   const plugin = built.get('style-plugin.default.generated.css') as string;
   const names = (selector: string) => [...(body(plugin, selector) ?? '').matchAll(/^\s*--([\w-]+):/gm)].map((m) => m[1]);
-  assert.equal(names('.arena-dark').length, 71);
+  assert.equal(names('.arena-dark').length, 77);
   assert.deepEqual(names('.arena-dark'), names('.arena-light'));
   const rootValue = (name: string) => new RegExp(`--${name}:([^;]+);`).exec(body(plugin, ':root') ?? '')?.[1];
   for (const line of (body(plugin, '.arena-dark') ?? '').split('\n').filter(Boolean)) {
@@ -201,6 +201,21 @@ test('the default palette wears a class: .arena-dark carries the :root block, an
   const fit = complete.indexOf('.arena-complete{\n  --title-hero-fit:');
   assert.ok(own >= 0 && media > own && fit > media, 'the contrast widths and the hero fit follow the class block');
   assert.match(complete, /--bw-surface:var\(--bw-strong\);/);
+});
+
+test('bw-focus and gap-focus emit the focus tokens by reference', async () => {
+  const plugin = (await buildAll()).get('style-plugin.default.generated.css') as string;
+  assert.match(plugin, /--bw-focus:var\(--focus-width\);/);
+  assert.match(plugin, /--gap-focus:var\(--focus-offset\);/);
+});
+
+test('the default light group lands in .arena-light', async () => {
+  const plugin = (await buildAll()).get('style-plugin.default.generated.css') as string;
+  const light = [...plugin.matchAll(/^\.arena-light\{\n([\s\S]*?)\n\}/gm)].map((one) => one[1]).join('\n');
+  assert.match(light, /--edge-focus:var\(--color-base-content\);/);
+  assert.match(light, /--edge-selected:var\(--color-primary\);/);
+  assert.ok(light.lastIndexOf('--edge-focus:var(--color-base-content);') > light.lastIndexOf('--edge-focus:var(--color-secondary);'),
+    'the light answer follows the restated dark one');
 });
 
 test('a dark group of a plugin source reaches the base selector as well as the .arena-dark scope', async () => {

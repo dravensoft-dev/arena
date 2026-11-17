@@ -469,6 +469,14 @@ test('a catalogue role carries its type, its closed set, its kernel default and 
   'type, values and default keep the order the catalogue file is written in, then the metadata follows; cssUnit stays out');
 });
 
+test('a catalogue role carries its state, so arena.tokens.json and the MCP see it', () => {
+  assert.deepEqual(catalogueRole({
+    $type: 'color', $description: 'x',
+    $extensions: { 'com.dravensoft.arena': { task: 'states', state: ['aria-invalid'] } },
+  }), { type: 'color', task: 'states', state: ['aria-invalid'] });
+  assert.equal('state' in catalogueRole({ $type: 'color' }), false);
+});
+
 test('copyCli writes bin/palette.d.mts with no import', () => {
   const to = track(mkdtempSync(join(tmpdir(), 'arena-assembly-cli-')));
   const written = copyCli(to, repoRoot);

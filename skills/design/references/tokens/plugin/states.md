@@ -12,7 +12,16 @@ Your markup and Arena's components both read the roles on this page. A role keep
 
 | role | question | type | user scale | default |
 | --- | --- | --- | --- | --- |
+| `--bw-focus` | How wide is the ring a control draws while it holds keyboard focus? | dimension | fixed | `{focus.width}` |
+| `--edge-focus` | What colour is the ring a control draws while it holds keyboard focus? | color | none | `{color.secondary}` |
+| `--edge-invalid` | What colour is the edge of a field that holds an invalid value? | color | none | `{hue-danger-edge}` |
+| `--edge-selected` | What colour is the edge that marks a selected or current item? | color | none | `{ink-body}` |
 | `--edge-tab-selected` | What colour is the rule that marks the selected tab? | color | none | `{color.primary}` |
+| `--fade-disabled` | What share of its opacity does a disabled control keep? | number | none | `{opacity.disabled}` |
 | `--fill-hover` | What colour does a table row, link card or navigation row take under the pointer? | color | none | none |
+| `--fill-selected` | What colour washes the background of a selected or current item? | color | none | `{color.primary}` |
+| `--gap-focus` | How far is the keyboard focus ring from the edge of its control? | dimension | fixed | `{focus.offset}` |
+| `--ink-invalid` | What colour is the error text of a field that holds an invalid value? | color | none | `{hue-danger-ink}` |
+| `--ink-selected` | What colour is the text of a selected or current item? | color | none | `{ink-body}` |
 
 <!-- @tree end -->

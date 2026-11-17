@@ -107,6 +107,15 @@
   --edge-separator:var(--color-base-300);
   --edge-axis:var(--color-neutral);
   --edge-tab-selected:var(--color-primary);
+  --edge-focus:var(--color-secondary);
+  --bw-focus:var(--focus-width);
+  --gap-focus:var(--focus-offset);
+  --fill-selected:var(--color-primary);
+  --ink-selected:var(--color-base-content);
+  --edge-selected:var(--color-base-content);
+  --fade-disabled:0.45;
+  --edge-invalid:var(--color-error);
+  --ink-invalid:var(--color-error);
   --bw-surface:1px;
   --bw-control:1px;
   --bw-field:1px;
@@ -287,6 +296,12 @@
   --edge-separator:var(--color-base-300);
   --edge-axis:var(--color-neutral);
   --edge-tab-selected:var(--color-primary);
+  --edge-focus:var(--color-secondary);
+  --fill-selected:var(--color-primary);
+  --ink-selected:var(--color-base-content);
+  --edge-selected:var(--color-base-content);
+  --edge-invalid:var(--color-error);
+  --ink-invalid:var(--color-error);
   --hue-danger-ink:var(--color-error);
   --hue-danger-on-ink:var(--color-base-100);
   --hue-danger-edge:var(--color-error);
@@ -360,6 +375,12 @@
   --edge-separator:var(--color-base-300);
   --edge-axis:var(--color-neutral);
   --edge-tab-selected:var(--color-primary);
+  --edge-focus:var(--color-secondary);
+  --fill-selected:var(--color-primary);
+  --ink-selected:var(--color-base-content);
+  --edge-selected:var(--color-base-content);
+  --edge-invalid:var(--color-error);
+  --ink-invalid:var(--color-error);
   --hue-danger-ink:var(--color-error);
   --hue-danger-on-ink:var(--color-base-100);
   --hue-danger-edge:var(--color-error);
@@ -405,6 +426,10 @@
   --accent-primary-edge:var(--color-primary);
   --accent-plain-side-edge:var(--color-neutral);
   --accent-gold-side-edge:var(--color-secondary);
+}
+.arena-light{
+  --edge-focus:var(--color-base-content);
+  --edge-selected:var(--color-primary);
 }
 .arena-compact{
   --step-label:var(--dz-text-2xs);

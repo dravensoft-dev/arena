@@ -112,7 +112,7 @@ function deriveCases(files: { out: string; blocks: { selector: string; source: s
         const themed = tokens.filter((t) => themeOf(t) === theme)
           .map((t) => (t.path ?? []).slice(1).join('-'));
         if (themed.length || references.length)
-          cases.push([[...references, ...themed], css, selector === ':root' ? [`.arena-${theme}`] : crossKeys(`.arena-${theme}`, selector), sources]);
+          cases.push([[...new Set([...references, ...themed])], css, selector === ':root' ? [`.arena-${theme}`] : crossKeys(`.arena-${theme}`, selector), sources]);
       }
     }
   }

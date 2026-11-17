@@ -29,6 +29,11 @@
     "width": { "$value": { "value": 2, "unit": "px" } },
     "offset": { "$value": { "value": 2, "unit": "px" } }
   },
+  "opacity": {
+    "$type": "number",
+    "$description": "Opacity",
+    "disabled": { "$value": 0.45, "$description": "The share of its opacity a disabled control keeps. A disabled control is exempt from contrast under WCAG 1.4.3 and 1.4.11, so the share is a fade and never a colour." }
+  },
   "dur": {
     "$type": "duration",
     "$description": "Motion",

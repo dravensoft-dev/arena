@@ -101,15 +101,22 @@ export function roleRuns(roles: string[]) {
   return out;
 }
 
+const SENTENCE_RUNS = 20;
+
 export function defaultedSentence(roles: string[], total = 0) {
   if (roles.length === 0)
     return `No role in this package carries a default, so your root style plugin answers every one of the ${total} roles and the command refuses a root plugin silent on any.`;
-  return `The ${roles.length} roles carrying a default are ${roleRuns(roles).join(', ')}. Your root plugin answers the other ${total}.`;
+  const runs = roleRuns(roles);
+  const verb = runs.length > SENTENCE_RUNS ? 'begin with' : 'are';
+  const named = [`The ${roles.length} roles carrying a default ${verb} ${runs.slice(0, SENTENCE_RUNS).join(', ')}.`];
+  for (let at = SENTENCE_RUNS; at < runs.length; at += SENTENCE_RUNS)
+    named.push(`Roles carrying a default also include ${runs.slice(at, at + SENTENCE_RUNS).join(', ')}.`);
+  return `${named.join(' ')} Your root plugin answers the other ${total}.`;
 }
 
 export function defaultsStatement(base = root) {
   const roles = defaultedRoles(base);
-  return `${defaultedSentence(roles, unansweredCount(base))} A minor release may add a role that carries Arena's default. Your root plugin may then leave that role silent, and the role takes the default. The command notes it, as \`N role(s) your root style plugin leaves unanswered take Arena's default: …\`. Your package's \`arena.tokens.json\` writes a role's default beside its type.`;
+  return `${defaultedSentence(roles, unansweredCount(base))} A minor release may add a role that carries Arena's default, which your root plugin may then leave silent, and the role takes the default. The command notes it, as \`N role(s) your root style plugin leaves unanswered take Arena's default: …\`. Your package's \`arena.tokens.json\` writes a role's default beside its type.`;
 }
 
 export const TOAST_NOTICE_CONTRACT = 'contracts/api/types/arena-toast-notice.json';

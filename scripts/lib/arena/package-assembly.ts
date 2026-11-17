@@ -328,6 +328,7 @@ export function catalogueRole(role: Record<string, any>) {
     ...(own.userScale ? { userScale: own.userScale } : {}),
     ...(own.question ? { question: own.question } : {}),
     ...(own.combines ? { combines: own.combines } : {}),
+    ...(own.state ? { state: own.state } : {}),
   };
 }
 

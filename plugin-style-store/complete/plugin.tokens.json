@@ -518,6 +518,42 @@
     "$type": "color",
     "$value": "{color.secondary}"
   },
+  "edge-focus": {
+    "$type": "color",
+    "$value": "{color.info}"
+  },
+  "bw-focus": {
+    "$type": "dimension",
+    "$value": "{sp.1}"
+  },
+  "gap-focus": {
+    "$type": "dimension",
+    "$value": "{sp.1}"
+  },
+  "fill-selected": {
+    "$type": "color",
+    "$value": "{color.secondary}"
+  },
+  "ink-selected": {
+    "$type": "color",
+    "$value": "{color.neutral-content}"
+  },
+  "edge-selected": {
+    "$type": "color",
+    "$value": "{color.neutral-content}"
+  },
+  "fade-disabled": {
+    "$type": "number",
+    "$value": 0.38
+  },
+  "edge-invalid": {
+    "$type": "color",
+    "$value": "{color.base-content}"
+  },
+  "ink-invalid": {
+    "$type": "color",
+    "$value": "{color.base-content}"
+  },
   "bw-surface": {
     "$type": "dimension",
     "$value": "{bw-strong}"
