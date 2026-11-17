@@ -1646,3 +1646,19 @@ test('arena build reports a pale light focus ring a root plugin left unanswered,
     assert.ok(messages.some((m) => m.includes(`against ${surface} in the light theme, below 3:1 (WCAG 1.4.11)`)), surface);
   }
 });
+
+test('a transparent colour answer is emitted as transparent', () => {
+  const css = themeCss(config({ palettes: TWO_PALETTES }), {
+    sheets: SHEETS_FULL,
+    plugins: [total({ 'hue-danger-fill-strong': { $type: 'color', $value: 'transparent' } })],
+  });
+  assert.equal(parseDecls(css).get(':root').get('hue-danger-fill-strong'), 'transparent');
+  const answered = total({ 'hue-danger-fill-strong': { $type: 'color', $value: 'transparent' } });
+  for (const polarity of ['dark', 'light'])
+    assert.ok(pluginBlocks(answered, SHEETS_FULL.catalogue, polarity).some((line) => /--hue-danger-fill-strong:\s*transparent/.test(line)), polarity);
+  const coloured = themeCss(config({ palettes: TWO_PALETTES }), {
+    sheets: SHEETS_FULL,
+    plugins: [total({ 'hue-danger-fill-strong': { $type: 'color', $value: '{color.secondary}' } })],
+  });
+  assert.equal(parseDecls(coloured).get(':root').get('hue-danger-fill-strong'), 'var(--color-secondary)');
+});

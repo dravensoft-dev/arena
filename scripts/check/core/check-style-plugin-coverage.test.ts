@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  COMPLETE, collect, immovableRoles, movedRoles, phantomParts, unpaintedParts, unreachedRoles, zeroCoverageProblems, restatedInWitness, sheetsByPart,
+  COMPLETE, WITNESS_EXEMPT, collect, immovableRoles, movedRoles, staleExemptions, phantomParts, unpaintedParts, unreachedRoles, zeroCoverageProblems, restatedInWitness, sheetsByPart,
 } from './check-style-plugin-coverage.ts';
 
 test('a role complete does not move is a role nothing can reach', () => {
@@ -14,11 +14,11 @@ const ARENA = 'com.dravensoft.arena';
 
 test('a keyword whose closed set holds one value cannot be moved, so it is not owed a distinct answer', () => {
   const roles = {
-    'hue-danger-fill-strong': { $type: 'keyword', $extensions: { [ARENA]: { values: ['transparent'] } } },
+    'hue-one': { $type: 'keyword', $extensions: { [ARENA]: { values: ['transparent'] } } },
     'tt-label': { $type: 'keyword', $extensions: { [ARENA]: { values: ['none', 'uppercase'] } } },
     'r-surface': { $type: 'dimension' },
   };
-  assert.deepEqual(immovableRoles(roles), ['hue-danger-fill-strong']);
+  assert.deepEqual(immovableRoles(roles), ['hue-one']);
   assert.deepEqual(unreachedRoles(Object.keys(roles), ['r-surface', 'tt-label'], immovableRoles(roles)), []);
 });
 
@@ -82,4 +82,12 @@ test('every part the manifests emit resolves to a compiled sheet, or the rule re
   const sheets = sheetsByPart();
   assert.ok(sheets.size > 0, 'no part mapped to a sheet, so the witness would be measured against nothing');
   assert.ok(sheets.has('card.title'), 'a part every layer draws must resolve, or the map is partial');
+});
+
+test('the witness exemption covers hue-danger-fill-strong and goes stale once complete moves it', () => {
+  assert.deepEqual(unreachedRoles(['hue-danger-fill-strong'], [], [...WITNESS_EXEMPT.keys()]), []);
+  const stale = staleExemptions(['hue-danger-fill-strong']);
+  assert.equal(stale.length, 1);
+  assert.match(stale[0] ?? '', /hue-danger-fill-strong/);
+  assert.deepEqual(staleExemptions([]), []);
 });

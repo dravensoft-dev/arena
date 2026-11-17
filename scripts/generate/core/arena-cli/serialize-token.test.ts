@@ -122,3 +122,7 @@ test('scaledLiteral converts a written px length and passes anything else', () =
   assert.equal(scaledLiteral('var(--fs-h3)', { axis: 'scales' }), 'var(--fs-h3)');
   assert.equal(scaledLiteral('calc(1px + 2px)', { axis: 'scales' }), 'calc(1px + 2px)');
 });
+
+test('a colour answered with the keyword transparent serializes as that keyword', () => {
+  assert.equal(serialize({ $type: 'color', $value: 'transparent' } as never), 'transparent');
+});

@@ -99,9 +99,9 @@ test('a plugin sheet writing a hue channel fails, and reading one stays allowed'
       new RegExp(`plugin-style-store/catalogue/y/plugin\\.css declares ${channel}, which only a hue sheet writes`));
 });
 
-test('a plugin sheet writing the danger hue strong fill role fails', () => {
-  assert.match(channelProblems(sheets([{ kind: 'plugin', rel: 'plugin-style-store/catalogue/y/plugin.css', css: ':root { --hue-danger-fill-strong: red; }' }])).join('\n'),
-    /plugin-style-store\/catalogue\/y\/plugin\.css declares --hue-danger-fill-strong/);
+test('a plugin sheet may declare --hue-danger-fill-strong', () => {
+  assert.doesNotMatch(channelProblems(sheets([{ kind: 'plugin', rel: 'plugin-style-store/catalogue/y/plugin.css', css: ':root { --hue-danger-fill-strong: red; }' }])).join('\n'),
+    /--hue-danger-fill-strong/);
 });
 
 test('no plugin sheet is a failure rather than a clean pass', () => {

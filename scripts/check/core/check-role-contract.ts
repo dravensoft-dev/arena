@@ -19,6 +19,7 @@ import type { DtcgNode } from '../../lib/core/dtcg-shapes.ts';
 import { flattenTokens } from '../../lib/core/token-preview.ts';
 import { EXCLUDED } from './check-dtcg.ts';
 import { AXES } from './check-user-scale.ts';
+import { NO_PAINT } from '../../generate/core/arena-cli/style-plugin-rules.ts';
 
 export const ROLES = 'contracts/design/roles.json';
 
@@ -110,6 +111,7 @@ export function defaultProblems(roles: Record<string, Role>, emitted: ReadonlyMa
   for (const [name, role] of Object.entries(roles)) {
     const alias = role.$extensions?.[ARENA_EXT]?.default;
     if (alias === undefined) continue;
+    if (role.$type === 'color' && alias === NO_PAINT) continue;
     const target = targetOf(role);
     if (target === undefined) {
       problems.push(`${name}: its kernel default is ${JSON.stringify(alias)}, which is not an alias. A default `

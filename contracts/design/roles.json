@@ -1776,13 +1776,11 @@
     }
   },
   "hue-danger-fill-strong": {
-    "$type": "keyword",
-    "$description": "Which colour the danger hue fills a surface or a marker with at full strength, and the answer is closed: transparent. Danger is outline. Its ink, its edge and its wash carry the meaning, and nothing in Arena fills a surface with danger except the final confirmation of ArenaConfirmDialog, which reads fill-confirm-final and ink-confirm-final.\n\nA keyword role with a closed set of one, so that no plugin can answer it otherwise: it is the floor check:style-plugin and check:catalogue hold in the root plugin, in every scoped plugin and in every catalogue entry, and the one role complete cannot answer with a value of its own. A slot that wants a presence dot in the danger hue reads hue-danger-ink.",
+    "$type": "color",
+    "$description": "Which colour the danger hue fills a surface or a marker with at full strength. Its kernel default is transparent, so a destructive control and a danger marker draw no fill until a plugin answers one. A slot that wants a presence dot in the danger hue reads hue-danger-ink.",
     "$extensions": {
       "com.dravensoft.arena": {
-        "values": [
-          "transparent"
-        ],
+        "default": "transparent",
         "audience": "component",
         "task": "meaning-and-identity",
         "question": "What colour does the danger hue fill a surface with at full strength?"
@@ -1970,7 +1968,7 @@
   },
   "fill-confirm-final": {
     "$type": "color",
-    "$description": "Which colour the final irreversible confirmation of ArenaConfirmDialog is filled with. The one filled danger surface in Arena, which is why it is a role of its own and not hue-danger-fill-strong: that role is transparent in every answer, because danger is outline everywhere else. Paired with ink-confirm-final, which has to clear the contrast bar against it.",
+    "$description": "Which colour the final irreversible confirmation of ArenaConfirmDialog is filled with. Paired with ink-confirm-final, which has to clear the contrast bar against it.",
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
@@ -1981,7 +1979,7 @@
   },
   "ink-confirm-final": {
     "$type": "color",
-    "$description": "Which colour the label of the final irreversible confirmation of ArenaConfirmDialog is set in, on fill-confirm-final. The one filled danger surface in Arena, and the pair a plugin answers together: a fill moved without its ink is a label that may no longer be read.",
+    "$description": "Which colour the label of the final irreversible confirmation of ArenaConfirmDialog is set in, on fill-confirm-final. The pair a plugin answers together: a fill moved without its ink is a label that may no longer be read.",
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",

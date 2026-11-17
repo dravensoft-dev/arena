@@ -53,6 +53,19 @@ export function immovableRoles(roles: Record<string, Shape>) {
   }).map(([role]) => role);
 }
 
+export const WITNESS_EXEMPT: ReadonlyMap<string, string> = new Map([
+  ['hue-danger-fill-strong', 'complete answers it as default does, because a colour of its own would move the '
+    + 'complete sink, and this role reaches a page through the destructive and danger-tone parts that default '
+    + 'already paints'],
+]);
+
+export function staleExemptions(moved: string[], exempt: ReadonlyMap<string, string> = WITNESS_EXEMPT) {
+  const given = new Set(moved);
+  return [...exempt.keys()].filter((role) => given.has(role)).map((role) =>
+    `${role} is exempt from the witness and complete answers it with a value of its own, so the exemption `
+    + 'is stale: drop the entry from WITNESS_EXEMPT.');
+}
+
 export function unreachedRoles(declared: string[], moved: string[], immovable: string[] = []) {
   const given = new Set([...moved, ...immovable]);
   return declared.filter((role) => !given.has(role)).map((role) =>
@@ -120,9 +133,11 @@ export function collect(base = repoRoot) {
     return path ? readFileSync(path, 'utf8') : null;
   };
 
+  const moved = movedRoles(root, complete);
   return {
     problems: [
-      ...unreachedRoles(declared, movedRoles(root, complete), immovableRoles(shapes)),
+      ...unreachedRoles(declared, moved, [...immovableRoles(shapes), ...WITNESS_EXEMPT.keys()]),
+      ...staleExemptions(moved),
       ...unpaintedParts(parts, painted),
       ...phantomParts(parts, painted),
       ...restatedInWitness(witness, sheetOf, at),

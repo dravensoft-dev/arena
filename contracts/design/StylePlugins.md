@@ -11,7 +11,7 @@ Not one value of appearance.
 
 | Surface | What it is |
 |---|---|
-| The floors | WCAG contrast, the 3:1 a control's boundary and the focus ring carry, target size, the reduced-motion policy, prose leading that never closes below 1.5, danger as an outline: the danger hue's strong fill is `transparent` |
+| The floors | WCAG contrast, the 3:1 a control's boundary and the focus ring carry, target size, the reduced-motion policy, prose leading that never closes below 1.5 |
 | The role declaration | every role's name, `$type`, `$description` and, for a keyword, its closed set, in [`roles.json`](./roles.json), and a kernel `default` where one is declared, which is an alias to another role or to a token the package emits. No value |
 | The value repertoire | the scales: the spacing grid, the radius, border, shadow, motion, weight, tracking, leading and type ladders, density, layering, chart and behaviour timing, all of them in this directory and catalogued in [`Scales.md`](./Scales.md) |
 | The part hooks | `data-arena-part="<component>.<slot>"` on every element drawing a slot of every manifest |
@@ -247,7 +247,7 @@ defaults to the hue's `{color.<hue>-content}` and, for danger, to the page colou
 
 | Hue | Ink | Edge | Fill, strong | Fill, soft | On ink |
 |---|---|---|---|---|---|
-| danger | `hue-danger-ink` | `hue-danger-edge` | `hue-danger-fill-strong`, closed to `transparent` | `hue-danger-fill-soft` | `hue-danger-on-ink` |
+| danger | `hue-danger-ink` | `hue-danger-edge` | `hue-danger-fill-strong`, a colour role whose kernel default is `transparent` | `hue-danger-fill-soft` | `hue-danger-on-ink` |
 | success | `hue-success-ink` | `hue-success-edge` | `hue-success-fill-strong` | `hue-success-fill-soft` | `hue-success-on-ink` |
 | warning | `hue-warning-ink` | `hue-warning-edge` | `hue-warning-fill-strong` | `hue-warning-fill-soft` | `hue-warning-on-ink` |
 | info | `hue-info-ink` | `hue-info-edge` | `hue-info-fill-strong` | `hue-info-fill-soft` | `hue-info-on-ink` |
@@ -266,8 +266,7 @@ absence of a hue**: its value writes every channel to `initial` and the slot kee
 classes, so the matrix has no neutral row.
 
 **The final confirmation of `ArenaConfirmDialog` reads two roles of its own**, `fill-confirm-final`
-and `ink-confirm-final`, which a plugin answers as a pair. It is the one filled danger surface, which
-is why it is not `hue-danger-fill-strong`.
+and `ink-confirm-final`, which a plugin answers as a pair.
 
 ## Which floors a gate still holds, and which became reports
 
@@ -284,9 +283,7 @@ an application source and says nothing about it inside a declared plugin directo
 |---|---|---|
 | prose leading, heading leading, prose measure | `check:style-plugin` | the root plugin, in the base scope and in every theme scope |
 | the same three floors | `check:catalogue` | every entry under `plugin-style-store/catalogue/`, in both polarities, resolved in memory because no entry is compiled |
-| the danger hue's strong fill, `hue-danger-fill-strong`, answered `transparent` | `check:style-plugin` | the root plugin and every scoped plugin, in both polarities |
-| the same floor | `check:catalogue` | every entry under `plugin-style-store/catalogue/`, in both polarities |
-| no `plugin.css` writes a `--arena-hue-*` channel or `--hue-danger-fill-strong` (reading a channel is allowed); a direct declaration on a part is not gated | `check:channels` | every `plugin.css` under `plugin-style-store/` and `plugin-style-store/catalogue/` |
+| no `plugin.css` writes a `--arena-hue-*` channel (reading a channel is allowed); a direct declaration on a part is not gated | `check:channels` | every `plugin.css` under `plugin-style-store/` and `plugin-style-store/catalogue/` |
 | a control's boundary at 3:1 where its border goes to zero | `check:boundary-contrast` | the root plugin, in both themes |
 | text contrast against the surfaces a plugin names | `check:text-contrast` | the root plugin and every scoped plugin this build emits |
 | the two layers draw one appearance identically | `check:pixel-parity` | every sink, exactly, with no allowance declared for any of them |

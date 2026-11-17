@@ -95,7 +95,7 @@ error names the set.
 nothing, so `values` is optional on the answer and
 `scripts/generate/core/arena-cli/style-plugin-rules.ts:valueProblems(where, key, token, role)`
 is what holds a moved keyword to its role's set. Two gates, one set: the alternative is a copy of
-the enum in every plugin, which is a copy that can drift. A set may hold one word: `hue-danger-fill-strong` is closed to `["transparent"]`, a floor with no choice in it.
+the enum in every plugin, which is a copy that can drift.
 
 **What it does not buy.** A keyword is a word, so it cannot alias a scale and cannot carry a
 `cssUnit`. A value that is a measurement stays a `dimension` or a `number`, and a value that is a

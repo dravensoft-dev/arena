@@ -640,7 +640,7 @@
     "$value": "{color.error}"
   },
   "hue-danger-fill-strong": {
-    "$type": "keyword",
+    "$type": "color",
     "$value": "transparent"
   },
   "hue-danger-fill-soft": {

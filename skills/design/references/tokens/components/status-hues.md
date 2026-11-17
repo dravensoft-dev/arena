@@ -13,7 +13,7 @@ Only Arena's components read the roles on this page. A role keeps its name until
 | `--fill-confirm-final` | What colour fills the final irreversible confirmation of a confirm dialog? | color | none | none |
 | `--hue-danger-edge` | What colour does the danger hue take as a border or a rule? | color | none | none |
 | `--hue-danger-fill-soft` | What colour does the danger hue take as a soft wash behind a surface? | color | none | none |
-| `--hue-danger-fill-strong` | What colour does the danger hue fill a surface with at full strength? | keyword | none | none |
+| `--hue-danger-fill-strong` | What colour does the danger hue fill a surface with at full strength? | color | none | `transparent` |
 | `--hue-danger-ink` | What colour does the danger hue take as text and as an icon? | color | none | none |
 | `--hue-danger-on-ink` | What colour is the content set on a mark filled with the danger hue? | color | none | `{color.base-100}` |
 | `--hue-info-edge` | What colour does the info hue take as a border or a rule? | color | none | none |

@@ -74,7 +74,7 @@ export function serialize(token: SerializableToken, emission: Emission = {}) {
     case 'cubicBezier':
       return `cubic-bezier(${v.map(trim).join(',')})`;
     case 'color':
-      return color(v);
+      return typeof v === 'string' ? v : color(v);
     case 'fontFamily':
       return (Array.isArray(v) ? v : [v])
         .map((f) => (GENERIC_FAMILIES.has(f) ? f : `'${f}'`))

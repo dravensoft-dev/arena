@@ -26,7 +26,7 @@ export const MIN_PROSE_MEASURE = 45;
 
 export const MAX_PROSE_MEASURE = 90;
 
-export const DANGER_FLOOR = 'hue-danger-fill-strong';
+export const NO_PAINT = 'transparent';
 
 export const RESERVED = new Map<string, string>();
 
@@ -125,10 +125,6 @@ export function floorProblems(at: Map<string, string>, scope: string, where: str
       + `${MAX_PROSE_MEASURE}. Under the floor a line breaks mid-thought and over the ceiling the eye loses `
       + `which line it was on coming back, and both are failures of the same thing a measure exists to hold.`);
 
-  const danger = at.get(DANGER_FLOOR);
-  if (danger !== undefined && danger !== 'transparent')
-    problems.push(`${where}: --${DANGER_FLOOR} is ${danger} in ${scope}, and danger is outline: its strong `
-      + 'fill is transparent in every answer, and the one filled danger surface reads fill-confirm-final');
   return problems;
 }
 
@@ -144,6 +140,7 @@ export type KnownAnswers = {
 export const aliasName = (value: string) => ANY_ALIAS.exec(value.trim())?.[1] ?? null;
 
 export function colourAnswer(value: string, self: string, known: KnownAnswers = {}) {
+  if (value.trim() === NO_PAINT) return true;
   if (COLOUR_ALIAS.test(value.trim())) return true;
   const named = aliasName(value);
   return named !== null && named !== self && known.colourRoles?.(named) === true;
@@ -206,6 +203,11 @@ export function withDefaults<P extends Answers>(
     const alias = Object.hasOwn(roles, role) ? roles[role]?.default : undefined;
     if (typeof alias !== 'string' || open.includes(role) || rootSaid(role)) return lightOnly;
     const target = ANY_ALIAS.exec(alias.trim())?.[1]?.replace(/\./g, '-');
+    if (alias.trim() === NO_PAINT) {
+      tokens[role] = NO_PAINT;
+      defaulted.push(role);
+      return true;
+    }
     if (target === undefined) return lightOnly;
     if (Object.hasOwn(roles, target)) {
       if (!answer(target, [...open, role])) return lightOnly;

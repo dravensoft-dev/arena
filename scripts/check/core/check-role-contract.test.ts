@@ -312,3 +312,9 @@ test('the shipped roles carry a valid state on every states role', () => {
   assert.deepEqual(states.map(([name]) => name).sort(), ['bw-focus', 'edge-focus', 'edge-invalid', 'edge-selected',
     'edge-tab-selected', 'fade-disabled', 'fill-hover', 'fill-selected', 'gap-focus', 'ink-invalid', 'ink-selected']);
 });
+
+test('a colour role may default to transparent and to nothing else literal', () => {
+  const role = (value: string) => ({ r: { $type: 'color', $description: 'd', $extensions: { 'com.dravensoft.arena': { default: value } } } });
+  assert.deepEqual(defaultProblems(role('transparent'), new Map()), []);
+  assert.equal(defaultProblems(role('#000'), new Map()).length, 1);
+});

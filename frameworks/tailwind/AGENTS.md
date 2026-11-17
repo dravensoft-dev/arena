@@ -547,7 +547,7 @@ repository does not have.
 
 ## Invariants the manifests must reproduce
 
-- **Danger is outline:** the danger hue's edge and ink, its strong fill closed to `transparent`, so a
+- **Danger is outline:** the danger hue's edge and ink, its strong fill the colour role `hue-danger-fill-strong`, whose kernel default is `transparent`, so a
   presence, feed and progress marks read `--arena-hue-fill-strong` for the other hues and the ink for danger, and a chart legend swatch and the tag's dot read the ink;
   the one filled danger surface is `ArenaConfirmDialog`'s final confirmation, `fill-confirm-final`.
 - **Focus is a ring, and which ring follows the shape of what is focused.** Every focus ring is
