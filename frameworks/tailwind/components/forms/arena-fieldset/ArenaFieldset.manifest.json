@@ -6,7 +6,7 @@
     "stack": "flex flex-col gap-1.5",
     "body": "flex flex-col gap-items",
     "hint": "font-body text-ctl-sm text-ink-muted/(--level-ink-muted)",
-    "error": "inline-flex items-center gap-inline font-body text-ctl-sm text-[color:var(--arena-hue-ink)]",
+    "error": "inline-flex items-center gap-inline font-body text-ctl-sm text-ink-invalid",
     "statusIcon": "text-[length:var(--icon-md)]"
   },
   "kind": {
@@ -25,7 +25,7 @@
     "state": {
       "neutral": {},
       "error": {
-        "statusIcon": "text-[color:var(--arena-hue-ink)]"
+        "statusIcon": "text-ink-invalid"
       }
     },
     "disabled": {
@@ -38,14 +38,5 @@
   "defaultVariants": {
     "state": "neutral",
     "disabled": false
-  },
-  "hues": {
-    "always": {
-      "error": "danger"
-    },
-    "state": {
-      "neutral": null,
-      "error": "danger"
-    }
   }
 }

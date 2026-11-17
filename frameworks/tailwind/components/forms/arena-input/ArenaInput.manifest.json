@@ -10,7 +10,7 @@
     "input": "flex-1 min-w-0 bg-transparent border-none outline-none text-ink-body placeholder:text-ink-muted/(--level-ink-muted) font-body text-ctl [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-60 [&::-webkit-calendar-picker-indicator]:[filter:invert(var(--picker-invert))] [&::-webkit-calendar-picker-indicator]:transition-opacity [&::-webkit-calendar-picker-indicator]:duration-[var(--dur-hover)] hover:[&::-webkit-calendar-picker-indicator]:opacity-100",
     "statusIcon": "text-[length:var(--icon-md)]",
     "hint": "font-body text-ctl-sm text-ink-muted/(--level-ink-muted)",
-    "error": "font-body text-ctl-sm text-[color:var(--arena-hue-ink)]"
+    "error": "font-body text-ctl-sm text-ink-invalid"
   },
   "kind": {
     "root": "none",
@@ -33,8 +33,8 @@
         "field": "border-edge-field focus-within:border-edge-focus focus-within:ring-[length:var(--bw-focus)] focus-within:ring-edge-focus/(--level-accent-soft-gold)"
       },
       "error": {
-        "field": "border-[color:var(--arena-hue-edge)] ring-[length:var(--focus-width)] ring-[color:var(--arena-hue-fill-soft)]",
-        "statusIcon": "text-[color:var(--arena-hue-ink)]"
+        "field": "border-edge-invalid ring-[length:var(--focus-width)] ring-[color:var(--arena-hue-fill-soft)]",
+        "statusIcon": "text-ink-invalid"
       },
       "valid": {
         "field": "border-[color:var(--arena-hue-edge)] ring-[length:var(--focus-width)] ring-[color:var(--arena-hue-fill-soft)] focus-within:border-edge-focus focus-within:ring-[length:var(--bw-focus)] focus-within:ring-edge-focus/(--level-accent-soft-gold)",
@@ -61,9 +61,6 @@
     "readOnly": false
   },
   "hues": {
-    "always": {
-      "error": "danger"
-    },
     "state": {
       "neutral": null,
       "error": "danger",

@@ -45,7 +45,7 @@
     },
     "invalid": {
       "true": {
-        "input": "border-[color:var(--arena-hue-edge)]"
+        "input": "border-edge-invalid"
       },
       "false": {
         "input": "border-edge-field"
@@ -64,9 +64,6 @@
     "open": false
   },
   "hues": {
-    "always": {
-      "input": "danger"
-    },
     "destructive": {
       "true": "danger",
       "false": null

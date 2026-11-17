@@ -84,7 +84,6 @@ const HUES = {
   ArenaNumberField: { state: { error: 'danger', valid: 'success' } },
   ArenaPinInput: { state: { error: 'danger', valid: 'success' } },
   ArenaCombobox: { state: { error: 'danger', valid: 'success' } },
-  ArenaFileInput: { state: { error: 'danger' } },
   ArenaSelect: { state: { error: 'danger', valid: 'success' } },
   ArenaTextarea: { state: { error: 'danger' }, near: { true: 'warning' } },
   ArenaBulkActionBar: { destructive: { true: 'danger' } },
@@ -110,7 +109,7 @@ test('every status value maps to its own hue, and a neutral or editorial value t
     ['ArenaAlert', 'tone', ['neutral']], ['ArenaBadge', 'tone', ['neutral']],
     ['ArenaToast', 'tone', ['neutral']], ['ArenaAvatar', 'status', ['none', 'offline']],
     ['ArenaConfirmDialog', 'destructive', ['false']], ['ArenaTextarea', 'near', ['false']], ['ArenaTag', 'tone', ['neutral']],
-    ['ArenaFileInput', 'state', ['neutral']], ['ArenaStepper', 'error', ['false']], ['ArenaTimeline', 'tone', ['neutral']],
+    ['ArenaStepper', 'error', ['false']], ['ArenaTimeline', 'tone', ['neutral']],
   ] as [string, string, string[]][])
     for (const value of values)
       assert.equal(manifests.get(component)?.hues?.[group]?.[value], null, `${component}.hues.${group}.${value} is not mapped to no hue`);
@@ -118,15 +117,6 @@ test('every status value maps to its own hue, and a neutral or editorial value t
 
 const ALWAYS_HUES = {
   ArenaErrorState: { root: 'danger', icon: 'danger' },
-  ArenaCombobox: { error: 'danger' },
-  ArenaFieldset: { error: 'danger' },
-  ArenaInput: { error: 'danger' },
-  ArenaNumberField: { error: 'danger' },
-  ArenaPinInput: { error: 'danger' },
-  ArenaFileInput: { error: 'danger', rejection: 'danger' },
-  ArenaSelect: { error: 'danger' },
-  ArenaTextarea: { error: 'danger' },
-  ArenaConfirmDialog: { input: 'danger' },
 } as Record<string, Record<string, string>>;
 
 test('a slot whose meaning no value varies names its hue under always, and no other manifest does', () => {
@@ -387,8 +377,8 @@ export const CLAIMS = {
     { chosen: { destructive: false }, slot: 'confirm', has: ['bg-primary-fill', 'text-primary-content'], hasNot: ['bg-confirm-final'], why: 'a confirmation that is not destructive fills with the brand' },
     { chosen: { open: true }, slot: 'foot', has: ['flex-wrap'], why: 'the footer wraps the way ArenaDialog, ArenaPageHead and ArenaChartCard all do, and a third action row behaving differently is worse than none' },
     { chosen: { open: true }, slot: 'root', has: ['flex'], why: 'the root carries a display utility in its own base string, independent of the open variant' },
-    { slot: 'input', has: ['focus-visible:ring-edge-focus'], hasNot: ['focus-visible:ring-error'], why: 'the require-text input confirms a destructive action, so its focus ring is the danger edge channel always gives this slot' },
-    { chosen: { invalid: true }, slot: 'input', has: [EDGE], hasNot: ['border-error', 'border-edge-field'], why: 'invalid borders the require-text input in the danger edge channel and drops the neutral border' },
+    { slot: 'input', has: ['focus-visible:ring-edge-focus'], hasNot: ['focus-visible:ring-error'], why: 'the require-text input confirms a destructive action, so its focus ring is the focus edge role' },
+    { chosen: { invalid: true }, slot: 'input', has: ['border-edge-invalid'], hasNot: ['border-error', 'border-edge-field'], why: 'invalid borders the require-text input in the invalid edge role and drops the neutral border' },
     { chosen: { invalid: false }, slot: 'input', has: ['border-edge-field'], why: 'a valid require-text input keeps the neutral border' },
   ],
   ArenaDialog: [
@@ -496,9 +486,9 @@ export const CLAIMS = {
   ],
   ArenaCombobox: [
     { slot: 'root', has: ['flex', 'flex-col'], why: 'a host-bound root is never the UA-default inline box' },
-    { slot: 'error', has: [INK], hasNot: ['text-error'], why: 'the field error message reads the ink of the danger hue always gives its slot, so a plugin moving the danger ink moves the message with the ring' },
+    { slot: 'error', has: ['text-ink-invalid'], hasNot: ['text-error'], why: 'the field error message reads the invalid ink role, so a plugin answering ink-invalid moves the message with the edge' },
     { chosen: { state: 'neutral' }, slot: 'field', has: ['focus-within:border-edge-focus'], why: 'focus stays in the input, so the field rings on focus-within, and neutral rings only then' },
-    { chosen: { state: 'error' }, slot: 'statusIcon', has: [INK], why: 'error and valid ring at rest and say which they are, with a glyph as the second channel' },
+    { chosen: { state: 'error' }, slot: 'statusIcon', has: ['text-ink-invalid'], why: 'error and valid ring at rest and say which they are, with a glyph as the second channel' },
     { slot: 'field', has: ['min-h-ctl-h'], hasNot: ['h-ctl-h'], why: 'the field is a floor and never a fixed height, so a row of chips can wrap inside it' },
     { slot: 'caret', has: ['pointer-events-none'], why: 'the caret is decoration and must not swallow the press meant for the field' },
     { slot: 'announcement', has: ['sr-only'], why: 'the count is spoken and never seen' },
@@ -512,8 +502,8 @@ export const CLAIMS = {
   ArenaFieldset: [
     { slot: 'root', has: ['block', 'border-0', 'p-0', 'm-0', 'min-w-0'], why: 'a fieldset is a plain grouping, so the platform border, padding and minimum width are taken away and the root keeps a display utility of its own' },
     { slot: 'body', has: ['flex', 'flex-col', 'gap-items'], why: 'the fields of a set are spaced by the role named for them, and the legend sits outside that column' },
-    { slot: 'error', has: [INK], hasNot: ['text-error'], why: 'the set error reads the ink of the danger hue always gives its slot, the same as a field error' },
-    { chosen: { state: 'error' }, slot: 'statusIcon', has: [INK], why: 'the glyph is the second channel of the set error, in the danger ink' },
+    { slot: 'error', has: ['text-ink-invalid'], hasNot: ['text-error'], why: 'the set error reads the invalid ink role, the same as a field error' },
+    { chosen: { state: 'error' }, slot: 'statusIcon', has: ['text-ink-invalid'], why: 'the glyph is the second channel of the set error, in the danger ink' },
     { chosen: { disabled: true }, slot: 'root', has: ['opacity-[var(--fade-disabled)]'], hasNot: ['opacity-50'], why: 'a disabled set dims as a whole, as a disabled field does' },
   ],
   ArenaIconButton: [
@@ -526,10 +516,10 @@ export const CLAIMS = {
     { slot: 'root', has: ['disabled:opacity-[var(--fade-disabled)]', 'disabled:cursor-not-allowed'], hasNot: ['disabled:opacity-45'], why: 'the disabled treatment is a :disabled variant, which only a real disabled control matches' },
   ],
   ArenaInput: [
-    { slot: 'error', has: [INK], hasNot: ['text-error'], why: 'the field error message reads the ink of the danger hue always gives its slot, so a plugin moving the danger ink moves the message with the ring' },
+    { slot: 'error', has: ['text-ink-invalid'], hasNot: ['text-error'], why: 'the field error message reads the invalid ink role, so a plugin answering ink-invalid moves the message with the edge' },
     { chosen: { state: 'neutral' }, slot: 'field', has: ['focus-within:border-edge-focus'], why: 'neutral rings gold only on focus, where error and valid ring at rest and say which they are' },
-    { chosen: { state: 'error' }, slot: 'field', has: [EDGE, 'ring-[color:var(--arena-hue-fill-soft)]'], why: 'error and valid ring at rest and say which they are, at the soft tint rather than full strength' },
-    { chosen: { state: 'error' }, slot: 'statusIcon', has: [INK], why: 'error and valid ring at rest and say which they are' },
+    { chosen: { state: 'error' }, slot: 'field', has: ['border-edge-invalid', 'ring-[color:var(--arena-hue-fill-soft)]'], why: 'error and valid ring at rest and say which they are, error in the invalid edge and a soft hue halo rather than full strength' },
+    { chosen: { state: 'error' }, slot: 'statusIcon', has: ['text-ink-invalid'], why: 'error and valid ring at rest and say which they are' },
     { chosen: { state: 'valid' }, slot: 'field', has: [EDGE, 'focus-within:border-edge-focus'], why: 'a valid field still takes the focus ring, because being valid is not being focused' },
     { chosen: { state: 'valid' }, slot: 'statusIcon', has: [INK], why: 'error and valid ring at rest and say which they are' },
     { chosen: { disabled: true }, slot: 'root', has: ['opacity-[var(--fade-disabled)]'], hasNot: ['opacity-50'], why: 'disabled dims the whole field group and readonly changes the surface, not the border' },
@@ -538,9 +528,9 @@ export const CLAIMS = {
     { slot: 'required', has: ['text-primary'], why: 'the required marker is the brand, so a label reads as required without the word' },
   ],
   ArenaFileInput: [
-    { slot: 'error', has: [INK], hasNot: ['text-error'], why: 'the field error message reads the ink of the danger hue always gives its slot, so a plugin moving the danger ink moves the message with the zone' },
-    { slot: 'rejection', has: [INK], hasNot: ['text-error'], why: 'a refused file is said in the ink of the danger hue always gives its slot, and danger is an outline, never a fill' },
-    { chosen: { state: 'error' }, slot: 'zone', has: [EDGE], why: 'an error turns the zone\'s edge to the danger hue, read from the channel the hue sheet writes' },
+    { slot: 'error', has: ['text-ink-invalid'], hasNot: ['text-error'], why: 'the field error message reads the invalid ink role, so a plugin answering ink-invalid moves the message with the zone' },
+    { slot: 'rejection', has: ['text-ink-invalid'], hasNot: ['text-error'], why: 'a refused file is said in the invalid ink role, and invalid is an outline, never a fill' },
+    { chosen: { state: 'error' }, slot: 'zone', has: ['border-edge-invalid'], why: 'an error turns the zone\'s edge to the danger hue, read from the channel the hue sheet writes' },
     { chosen: { droppable: 'true' }, slot: 'zone', has: ['border-dashed', 'border-edge-surface', 'border-[length:var(--bw-surface)]', 'p-surface', 'rounded-surface'], why: 'a drop zone is a surface with a dashed edge, drawn literally as the empty state draws its own, and every other property a role' },
     { chosen: { droppable: 'false' }, slot: 'zone', hasNot: ['border-dashed', 'p-surface'], why: 'a field that takes no drop draws no frame, so the trigger stands on the page as a button would' },
     { chosen: { dragging: 'true' }, slot: 'zone', has: ['bg-hover'], why: 'a drag over the zone is the surface answering, which is the fill-hover role, and a colour crossfade stays under reduced motion' },
@@ -593,7 +583,7 @@ export const CLAIMS = {
     { slot: 'input', has: ['opacity-0', 'size-0'], hasNot: ['hidden'], why: 'the native input is hidden by the recipe rather than by display none, so it stays focusable' },
   ],
   ArenaSelect: [
-    { slot: 'error', has: [INK], hasNot: ['text-error'], why: 'the field error message reads the ink of the danger hue always gives its slot, so a plugin moving the danger ink moves the message with the ring' },
+    { slot: 'error', has: ['text-ink-invalid'], hasNot: ['text-error'], why: 'the field error message reads the invalid ink role, so a plugin answering ink-invalid moves the message with the edge' },
     { slot: 'field', has: ['focus:border-edge-focus'], why: 'the focus ring is the recipe\'s job, not the component\'s, so nothing injects a stylesheet for it' },
     { slot: 'field', has: ['appearance-none', 'pr-9'], why: 'the field strips the platform chrome and reserves the room the caret Arena draws sits in' },
     { slot: 'root', has: ['flex'], why: 'a host-bound root is never the UA-default inline box' },
@@ -640,10 +630,10 @@ export const CLAIMS = {
     { chosen: { selected: false }, slot: 'panel', has: ['block', 'hidden'], why: 'exactly one panel is shown, and the other is hidden rather than merely unstyled: the base block and the branch hidden are both present and the branch is emitted later' },
   ],
   ArenaTextarea: [
-    { slot: 'error', has: [INK], hasNot: ['text-error'], why: 'the field error message reads the ink of the danger hue always gives its slot, so a plugin moving the danger ink moves the message with the ring' },
+    { slot: 'error', has: ['text-ink-invalid'], hasNot: ['text-error'], why: 'the field error message reads the invalid ink role, so a plugin answering ink-invalid moves the message with the edge' },
     { slot: 'field', has: ['focus:border-edge-focus'], why: 'the focus ring is the recipe\'s job, not the component\'s, so nothing injects a stylesheet for it' },
     { chosen: { state: 'neutral' }, slot: 'field', has: ['focus:border-edge-focus'], hasNot: ['border-success'], why: 'a textarea takes focus itself, so its ring is focus rather than focus-within' },
-    { chosen: { state: 'error' }, slot: 'field', has: [EDGE, 'ring-[color:var(--arena-hue-fill-soft)]'], hasNot: ['border-success'], why: 'error rings at rest and says which it is' },
+    { chosen: { state: 'error' }, slot: 'field', has: ['border-edge-invalid', 'ring-[color:var(--arena-hue-fill-soft)]'], hasNot: ['border-success'], why: 'error rings at rest and says which it is' },
     { chosen: { resize: 'vertical' }, slot: 'field', has: ['resize-y'], why: 'resize is the consumer\'s choice and the recipe carries both answers' },
     { chosen: { resize: 'none' }, slot: 'field', has: ['resize-none'], why: 'resize is the consumer\'s choice and the recipe carries both answers' },
     { chosen: { disabled: true }, slot: 'root', has: ['opacity-[var(--fade-disabled)]'], hasNot: ['opacity-50'], why: 'disabled dims the whole field group' },
@@ -922,5 +912,37 @@ test('every slot that gained a ring keeps it under hover', () => {
     const strings = (classStringsBySlot(manifest as never) as Map<string, string[]>).get(slot) ?? [];
     const hover = strings.flatMap((one) => one.split(/\s+/)).filter((cls) => cls.includes('hover:shadow-'));
     assert.deepEqual(hover, [], `${component}.${slot} sets ${hover.join(' ')}, which replaces the inset ring while the pointer rests on a focused control`);
+  }
+});
+
+test('an invalid field reads the invalid roles', () => {
+  const fields: [string, string][] = [
+    ['ArenaInput', 'field'], ['ArenaNumberField', 'field'], ['ArenaCombobox', 'field'], ['ArenaSelect', 'field'],
+    ['ArenaTextarea', 'field'], ['ArenaPinInput', 'cell'], ['ArenaFileInput', 'zone'],
+  ];
+  const HUE_EDGE = 'border-[color:var(--arena-hue-edge)]';
+  const HUE_INK = 'text-[color:var(--arena-hue-ink)]';
+  for (const [component, slot] of fields) {
+    const classes = resolve(component, { state: 'error' }, slot);
+    assert.ok(classes.includes('border-edge-invalid'), `${component}.${slot} state=error lacks border-edge-invalid`);
+    assert.ok(!classes.includes(HUE_EDGE), `${component}.${slot} state=error still reads the hue edge`);
+  }
+  for (const component of ['ArenaInput', 'ArenaNumberField', 'ArenaCombobox', 'ArenaPinInput', 'ArenaFieldset']) {
+    const classes = resolve(component, { state: 'error' }, 'statusIcon');
+    assert.ok(classes.includes('text-ink-invalid'), `${component}.statusIcon state=error lacks text-ink-invalid`);
+    assert.ok(!classes.includes(HUE_INK), `${component}.statusIcon state=error still reads the hue ink`);
+  }
+  for (const component of ['ArenaInput', 'ArenaNumberField', 'ArenaCombobox', 'ArenaPinInput', 'ArenaFieldset', 'ArenaFileInput', 'ArenaSelect', 'ArenaTextarea']) {
+    const classes = resolve(component, {}, 'error');
+    assert.ok(classes.includes('text-ink-invalid'), `${component}.error lacks text-ink-invalid`);
+    assert.ok(!classes.includes(HUE_INK), `${component}.error still reads the hue ink`);
+  }
+  const rejection = resolve('ArenaFileInput', {}, 'rejection');
+  assert.ok(rejection.includes('text-ink-invalid') && !rejection.includes(HUE_INK), 'ArenaFileInput.rejection reads text-ink-invalid');
+  const input = resolve('ArenaConfirmDialog', { invalid: true }, 'input');
+  assert.ok(input.includes('border-edge-invalid') && !input.includes(HUE_EDGE), 'ArenaConfirmDialog input invalid=true reads border-edge-invalid');
+  for (const component of ['ArenaInput', 'ArenaNumberField', 'ArenaCombobox', 'ArenaSelect', 'ArenaTextarea', 'ArenaPinInput']) {
+    const slot = component === 'ArenaPinInput' ? 'cell' : 'field';
+    assert.ok(resolve(component, { state: 'error' }, slot).includes('ring-[color:var(--arena-hue-fill-soft)]'), `${component} keeps its error halo`);
   }
 });

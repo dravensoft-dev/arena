@@ -32,11 +32,11 @@
     "file": "inline-flex items-center gap-inline min-w-0 max-w-full",
     "size": "font-mono tabular-nums text-ctl-xs text-ink-muted/(--level-ink-muted)",
     "rejected": "flex flex-col gap-inline",
-    "rejection": "font-body text-ctl-sm text-[color:var(--arena-hue-ink)]",
+    "rejection": "font-body text-ctl-sm text-ink-invalid",
     "status": "sr-only",
     "input": "absolute inset-0 size-full col-start-1 col-end-2 row-start-1 row-end-2 opacity-0 pointer-events-none",
     "hint": "font-body text-ctl-sm text-ink-muted/(--level-ink-muted)",
-    "error": "font-body text-ctl-sm text-[color:var(--arena-hue-ink)]"
+    "error": "font-body text-ctl-sm text-ink-invalid"
   },
   "kind": {
     "root": "none",
@@ -77,7 +77,7 @@
     "state": {
       "neutral": {},
       "error": {
-        "zone": "border-[color:var(--arena-hue-edge)]"
+        "zone": "border-edge-invalid"
       }
     },
     "disabled": {
@@ -94,15 +94,5 @@
     "dragging": false,
     "state": "neutral",
     "disabled": false
-  },
-  "hues": {
-    "always": {
-      "rejection": "danger",
-      "error": "danger"
-    },
-    "state": {
-      "neutral": null,
-      "error": "danger"
-    }
   }
 }

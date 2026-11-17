@@ -236,7 +236,8 @@ renders the group as `data-arena-<group>`, and the hue sheet writes its channels
 carry it: `--arena-hue-ink`, `--arena-hue-edge`, `--arena-hue-fill-strong`, `--arena-hue-fill-soft`
 and `--arena-hue-on-ink`. A slot reads the channel it needs and never a status colour by name, so a
 plugin that moves one role moves every surface wearing that hue. A slot whose hue no value varies,
-a field's error message, names it under `hues.always`. A solid status mark (a presence or feed dot,
+an error state's root and icon, names it under `hues.always`. A field's error message and edge, a status icon, FileInput's
+rejection and ConfirmDialog's invalid input read the `ink-invalid` and `edge-invalid` roles instead. A solid status mark (a presence or feed dot,
 a progress fill) reads the strong fill, and danger's marks the ink, its strong fill being closed;
 a chart legend swatch and the tag's dot read the ink, following series painted from the palette.
 A badge written with `arena-mark-solid` fills with the ink and sets its label in the on-ink, which

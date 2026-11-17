@@ -8,7 +8,7 @@
     "cell": "size-ctl-h min-w-0 shrink p-0 text-center bg-field border-[length:var(--bw-field)] rounded-field outline-none text-ink-body font-mono tabular-nums text-ctl transition-[border-color,box-shadow] duration-[var(--dur-hover)] ease-hover",
     "statusIcon": "shrink-0 text-[length:var(--icon-md)]",
     "hint": "font-body text-ctl-sm text-ink-muted/(--level-ink-muted)",
-    "error": "font-body text-ctl-sm text-[color:var(--arena-hue-ink)]"
+    "error": "font-body text-ctl-sm text-ink-invalid"
   },
   "kind": {
     "root": "none",
@@ -29,8 +29,8 @@
         "cell": "border-edge-field focus:border-edge-focus focus:ring-[length:var(--bw-focus)] focus:ring-edge-focus/(--level-accent-soft-gold)"
       },
       "error": {
-        "cell": "border-[color:var(--arena-hue-edge)] ring-[length:var(--focus-width)] ring-[color:var(--arena-hue-fill-soft)]",
-        "statusIcon": "text-[color:var(--arena-hue-ink)]"
+        "cell": "border-edge-invalid ring-[length:var(--focus-width)] ring-[color:var(--arena-hue-fill-soft)]",
+        "statusIcon": "text-ink-invalid"
       },
       "valid": {
         "cell": "border-[color:var(--arena-hue-edge)] ring-[length:var(--focus-width)] ring-[color:var(--arena-hue-fill-soft)] focus:border-edge-focus focus:ring-[length:var(--bw-focus)] focus:ring-edge-focus/(--level-accent-soft-gold)",
@@ -49,9 +49,6 @@
     "disabled": false
   },
   "hues": {
-    "always": {
-      "error": "danger"
-    },
     "state": {
       "neutral": null,
       "error": "danger",
