@@ -86,43 +86,38 @@ test('`tone` paints the whole series the semantic colour', () => {
   assert.deepEqual(arenaSeriesColors(series({ tone: 'warning' }), 2, 1, 'ArenaLineChart'), ['var(--warning)', 'var(--warning)']);
 });
 
-test('`tone` wins over `colorId` and over `colorIds`, and passing both warns', () => {
+test('`tone` wins over `colorId` and over `colorIds`', () => {
   forgetArenaWarnings();
   const warnings = captureWarnings(() => {
     assert.deepEqual(arenaSeriesColors(series({ tone: 'danger', colorId: 3 }), 1, 1, 'ArenaLineChart'), ['var(--danger)']);
     assert.deepEqual(arenaSeriesColors(series({ tone: 'danger', colorIds: [3] }), 1, 1, 'ArenaLineChart'), ['var(--danger)']);
   });
-  assert.ok(warnings.length <= 1, 'arenaWarnOnce must not warn twice for one message');
+  assert.deepEqual(warnings, []);
   forgetArenaWarnings();
 });
 
-test('the mutually-exclusive warning fires once, and only when both are passed', () => {
+test('a series with tone and colorId takes the tone colour and warns nothing', () => {
   forgetArenaWarnings();
-  const clean = captureWarnings(() => {
-    arenaSeriesColors(series({ tone: 'danger' }), 1, 1, 'ArenaLineChart');
+  const warnings = captureWarnings(() => {
+    assert.deepEqual(arenaSeriesColors(series({ tone: 'danger', colorId: 3 }), 1, 1, 'ArenaLineChart'),
+      arenaSeriesColors(series({ tone: 'danger' }), 1, 1, 'ArenaLineChart'));
+    assert.deepEqual(arenaSeriesColors(series({ tone: 'info', colorIds: [2] }), 1, 1, 'ArenaLineChart'),
+      arenaSeriesColors(series({ tone: 'info' }), 1, 1, 'ArenaLineChart'));
     arenaSeriesColors(series({ colorId: 2 }), 1, 1, 'ArenaLineChart');
     arenaSeriesColors(series(), 1, 1, 'ArenaLineChart');
   });
-  assert.deepEqual(clean, [], 'identity alone and meaning alone are both legal, and silent');
-
-  const warnings = captureWarnings(() => {
-    arenaSeriesColors(series({ tone: 'danger', colorId: 3 }), 1, 1, 'ArenaLineChart');
-    arenaSeriesColors(series({ tone: 'info', colorIds: [2] }), 1, 1, 'ArenaLineChart');
-  });
-  assert.equal(warnings.length, 1, 'warned once for the two offending calls');
-  assert.match(warnings[0] as string, /^\[arena\] ArenaLineChart:/);
-  assert.match(warnings[0] as string, /mutually exclusive/);
+  assert.deepEqual(warnings, []);
   forgetArenaWarnings();
 });
 
-test('the mutually-exclusive warning names the chart that drew it, so a second chart is heard too', () => {
+test('a series that sets a tone and a slot warns on no chart', () => {
   forgetArenaWarnings();
   const warnings = captureWarnings(() => {
     arenaSeriesColors(series({ tone: 'danger', colorId: 3 }), 1, 1, 'ArenaLineChart');
     arenaSeriesColors(series({ tone: 'danger', colorId: 3 }), 1, 1, 'ArenaSparkline');
     arenaPointSeriesColor({ label: 'T', x: [], y: [], tone: 'danger', colorId: 3 }, 1, 'ArenaScatterChart');
   });
-  assert.deepEqual(warnings.map((line) => /^\[arena\] (\w+):/.exec(line)?.[1]), ['ArenaLineChart', 'ArenaSparkline', 'ArenaScatterChart']);
+  assert.deepEqual(warnings, []);
   forgetArenaWarnings();
 });
 
@@ -453,8 +448,7 @@ test('a point series takes its colour by position when it declares none', () => 
     'two clouds that were never told apart must not come out the same colour');
 });
 
-test('tone still wins over colorId on a point series, and still warns', () => {
-
+test('tone still wins over colorId on a point series, and warns nothing', () => {
   forgetArenaWarnings();
   const warnings: string[] = [];
   const real = console.warn;
@@ -462,7 +456,7 @@ test('tone still wins over colorId on a point series, and still warns', () => {
   try {
     const both: ArenaPointSeries = { label: 'Both', x: [1], y: [1], colorId: 4, tone: 'danger' };
     assert.equal(arenaPointSeriesColor(both, 1, 'ArenaScatterChart'), arenaPointSeriesColor({ label: 'T', x: [], y: [], tone: 'danger' }, 1, 'ArenaScatterChart'));
-    assert.ok(warnings.some((w) => w.includes('mutually exclusive')), `no warning, got ${JSON.stringify(warnings)}`);
+    assert.deepEqual(warnings, []);
   } finally {
     console.warn = real;
   }
@@ -575,11 +569,10 @@ test('the arc takes the hue of the band the value is in, and the identity slot w
   assert.equal(arenaGaugeColor([], -1, 99, 'ArenaGaugeChart'), `var(--color-cat-${ARENA_CAT_SLOTS})`, 'clamped to the ramp');
 });
 
-test('a colorId beside bands is ignored and warns, because a chart carries identity or meaning', () => {
+test('a gauge with bands and colorId warns nothing', () => {
   forgetArenaWarnings();
   const warned = captureWarnings(() => assert.equal(arenaGaugeColor(BANDS, 1, 4, 'ArenaGaugeChart'), 'var(--warning)'));
-  assert.equal(warned.length, 1);
-  assert.match(warned[0] as string, /ArenaGaugeChart: `colorId` is ignored while `bands` is given/);
+  assert.deepEqual(warned, []);
 });
 
 test('the gauge table holds the whole scale: the value, both ends and every band\'s range', () => {

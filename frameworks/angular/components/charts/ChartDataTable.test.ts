@@ -1002,13 +1002,12 @@ test('arena-gauge-chart a band wholly outside the scale draws no segment of the 
   });
 });
 
-test('arena-gauge-chart ignores colorId beside bands, with a warning', () => {
+test('arena-gauge-chart ignores colorId beside bands, and warns nothing', () => {
   forgetArenaWarnings();
   let fixture: ReturnType<typeof renderGauge> | undefined;
   try {
     const warnings = captureWarnings(() => { fixture = renderGauge({ colorId: 3 }); });
-    assert.equal(warnings.length, 1);
-    assert.match(warnings[0]!, /ArenaGaugeChart: `colorId` is ignored while `bands` is given/);
+    assert.deepEqual(warnings, []);
     const host = fixture!.nativeElement as Element;
     assert.ok(gaugeArc(host, 'var(--warning)'));
     assert.equal(gaugeArc(host, 'var(--color-cat-3)'), undefined);
@@ -1018,14 +1017,13 @@ test('arena-gauge-chart ignores colorId beside bands, with a warning', () => {
   }
 });
 
-test('arena-gauge-chart ignores colorId beside bands with a warning, even when the value draws no arc', () => {
+test('arena-gauge-chart warns nothing about colorId beside bands, even when the value draws no arc', () => {
   for (const value of [-20, Number.NaN]) {
     forgetArenaWarnings();
     let fixture: ReturnType<typeof renderGauge> | undefined;
     try {
       const warnings = captureWarnings(() => { fixture = renderGauge({ colorId: 3, value }); });
-      assert.equal(warnings.length, 1, `value ${value}`);
-      assert.match(warnings[0]!, /ArenaGaugeChart: `colorId` is ignored while `bands` is given/);
+      assert.deepEqual(warnings, [], `value ${value}`);
     } finally {
       fixture?.destroy();
       forgetArenaWarnings();

@@ -1,8 +1,7 @@
 Arena bar chart. One axis, hand-written SVG, every colour a token, so it re-themes
 with the rest of Arena and costs no dependency. The chart takes series, and a series names itself. Identity comes from a series' `colorId` (one colour for the whole series) or its
 `colorIds` (a colour per bar, **in ramp order**); meaning comes from its
-`tone`. Passing both warns and `tone` wins, because a chart carries identity or meaning,
-never both. A series with no identity of its own takes the slot its position gives it,
+`tone`. With a `tone` the series takes the status colour, and `colorId` and `colorIds` are not read. A series with no identity of its own takes the slot its position gives it,
 so two series are never the same colour by accident.
 
 ```ts

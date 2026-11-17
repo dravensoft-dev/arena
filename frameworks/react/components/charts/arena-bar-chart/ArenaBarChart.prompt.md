@@ -64,7 +64,7 @@ Bars for comparing a value across categories. Dependency-free SVG: it reads `var
 - Pass `valueSuffix` for units: the axis, the tooltip and the accessible table all carry it. The suffix is appended verbatim, so write the space yourself: `" ms"`, but `"%"`.
 
 **Don't**
-- Don't pass `tone` together with `colorId`/`colorIds` on one series. A chart carries identity or meaning, never both; it warns in development and `tone` wins.
+- Don't pass `tone` together with `colorId`/`colorIds` on one series. With `tone` the series takes the status colour and `colorId` and `colorIds` are not read.
 - Don't use status colors as series colors by hand. A series painted `--danger` reads as an error, and that is exactly the bug this API exists to prevent.
 - Don't reach past eight categories, or past eight series. Nine bars in eight slots means two of them lie about being the same.
 - Don't add a second axis. Arena charts have one; a dual axis invents a correlation the data never claimed.

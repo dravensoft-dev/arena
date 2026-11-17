@@ -135,7 +135,7 @@ test('a stack still names every series in the accessible table, which the segmen
   assert.match(html, /<td>-8<\/td>/, 'a negative segment is still its own number in the table');
 });
 
-test('the tone and colorId warning names the chart that drew it, so a second chart is heard too', () => {
+test('a series with tone and colorId takes the tone colour and warns nothing', () => {
   forgetArenaWarnings();
   const warnings: string[] = [];
   const original = console.warn;
@@ -146,7 +146,7 @@ test('the tone and colorId warning names the chart that drew it, so a second cha
     arenaPointSeriesColor({ label: 'Cloud', x: [], y: [], tone: 'danger', colorId: 3 }, 1, 'ArenaScatterChart');
   } finally { console.warn = original; }
   forgetArenaWarnings();
-  assert.deepEqual(warnings.map((line) => /^\[arena\] (\w+):/.exec(line)?.[1]), ['ArenaBarChart', 'ArenaSparkline', 'ArenaScatterChart']);
+  assert.deepEqual(warnings, []);
 });
 
 test('ArenaBarChart lets the end label overhang while its rail does not scroll, and clips once it does', () => {
