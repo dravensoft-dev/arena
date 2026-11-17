@@ -169,7 +169,7 @@ test('arena_find "size" answers with the size family before any component that m
 });
 
 test('arena_check leaves a second primary action to the adopter', () => {
-  const index = { ...vocabularyIndex(), defaults: { ArenaButton: { emphasis: 'arena-emphasis-primary' } } };
-  const out = checked('<ArenaButton>Save</ArenaButton>\n<ArenaButton>Publish</ArenaButton>', CHECKED_AS, index);
+  const out = checked('<ArenaButton className="arena-emphasis-primary">Save</ArenaButton>\n'
+    + '<ArenaButton className="arena-emphasis-primary">Publish</ArenaButton>', CHECKED_AS, vocabularyIndex());
   assert.match(out, /^No finding\./);
 });

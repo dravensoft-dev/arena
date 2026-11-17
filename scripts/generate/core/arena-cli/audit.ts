@@ -322,8 +322,6 @@ export type VocabularyIndex = {
   answers: Record<string, string[]>;
   options: Record<string, string[]>;
   axes?: Record<string, string[]>;
-  defaults?: Record<string, Record<string, string>>;
-  modals?: string[];
   inputs?: Record<string, string[]>;
   parts?: Record<string, Record<string, string[]>>;
 };

@@ -255,8 +255,9 @@ test('a danger background is a colour choice and goes unreported', () => {
 });
 
 test('two primary actions on one screen go unreported', () => {
-  assert.deepEqual(findings('src/App.tsx', '<ArenaButton>Save</ArenaButton>\n<ArenaButton>Publish</ArenaButton>', 'app',
-    { ...vocabularyIndex(), defaults: { ArenaButton: { emphasis: 'arena-emphasis-primary' } } }), []);
+  const found = auditText('src/App.tsx', '<ArenaButton className="arena-emphasis-primary">Save</ArenaButton>\n'
+    + '<ArenaButton className="arena-emphasis-primary">Publish</ArenaButton>');
+  assert.deepEqual(found.filter((line) => line.includes('primary action')), []);
 });
 
 test('a gradient in an application source goes unreported', () => {
@@ -570,13 +571,6 @@ test('a shape class and the property a family composes with are no conflict, and
   assert.deepEqual(own('<arena-skeleton class="arena-skeleton-line" style="--arena-skeleton-width: var(--sp-8)"></arena-skeleton>'), []);
   assert.equal(own('<arena-grid class="arena-grid-min-lg" [style.--arena-grid-min]="\'var(--sp-8)\'"></arena-grid>').length, 1);
   assert.equal(own('<arena-grid class="arena-grid-min-lg" style="--arena-grid-min: var(--sp-8)"></arena-grid>').length, 1);
-});
-
-test('the shipped vocabulary makes ArenaButton and ArenaSplitButton default to primary and no other component', () => {
-  const index = vocabularyIndex();
-  const primary = Object.entries(index.defaults ?? {})
-    .filter(([, families]) => families.emphasis === 'arena-emphasis-primary').map(([name]) => name);
-  assert.deepEqual(primary, ['ArenaButton', 'ArenaSplitButton']);
 });
 
 test('every audit line carries its rule, and the line ends in it unless it is the stale allowance', () => {

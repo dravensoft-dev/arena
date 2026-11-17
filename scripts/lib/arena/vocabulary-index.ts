@@ -4,7 +4,7 @@
 
 import { readdirSync, readFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
-import { bindingAlso, bindingCases, type BehaviourBinding } from './behaviour-contracts.ts';
+import { type BehaviourBinding } from './behaviour-contracts.ts';
 import { answerOf, answeredFamilies, axesOf, readFamilies, targetOf, type Family } from '../tailwind/vocabulary.ts';
 import { layerManifests } from '../tailwind/tailwind-compile.ts';
 import { classesManifest, dataAttribute } from '../tailwind/component-css.ts';
@@ -17,12 +17,6 @@ import type { VocabularyIndex } from '../../generate/core/arena-cli/audit.ts';
 import type { ComponentManifest } from '../tailwind/manifest-shapes.ts';
 
 export const VOCABULARY_FILE = 'arena.vocabulary.json';
-
-export const MODAL_PATTERNS = ['dialog-modal', 'alertdialog'];
-
-export function bindsModal(binding: BehaviourBinding) {
-  return [...bindingCases(binding), ...bindingAlso(binding)].some(({ pattern }) => MODAL_PATTERNS.includes(pattern ?? ''));
-}
 
 export function layerBindings(root = repoRoot): [string, BehaviourBinding][] {
   const out: [string, BehaviourBinding][] = [];
@@ -72,7 +66,7 @@ export function layerInputs(root = repoRoot): Record<string, string[]> {
 }
 
 export function vocabularyIndexOf(families: Family[], manifests: Iterable<Pick<ComponentManifest, 'component'> & Partial<ComponentManifest>>, page: string,
-  bindings: Iterable<[string, BehaviourBinding]> = [], inputs: Record<string, string[]> = {}): VocabularyIndex {
+  inputs: Record<string, string[]> = {}): VocabularyIndex {
   const classes: VocabularyIndex['classes'] = {};
   const axes: NonNullable<VocabularyIndex['axes']> = {};
   for (const family of families) {
@@ -84,18 +78,11 @@ export function vocabularyIndexOf(families: Family[], manifests: Iterable<Pick<C
   }
   const answers: VocabularyIndex['answers'] = {};
   const options: VocabularyIndex['options'] = {};
-  const defaults: NonNullable<VocabularyIndex['defaults']> = {};
   const all = [...manifests];
   for (const manifest of all) {
     if (!manifest.answers?.length) continue;
     answers[manifest.component] = answeredFamilies(manifest);
     options[manifest.component] = families.flatMap((family) => answerOf(manifest as ComponentManifest, family)?.options ?? []);
-    const own: Record<string, string> = {};
-    for (const family of families) {
-      const answer = answerOf(manifest as ComponentManifest, family);
-      if (answer?.default) own[family.family] = answer.default;
-    }
-    if (Object.keys(own).length > 0) defaults[manifest.component] = own;
   }
   const parts: NonNullable<VocabularyIndex['parts']> = {};
   for (const manifest of all) {
@@ -105,13 +92,12 @@ export function vocabularyIndexOf(families: Family[], manifests: Iterable<Pick<C
     parts[manifest.component] = Object.fromEntries(named.map(([slot, part]) => [part,
       Object.entries(shape.attributes ?? {}).filter(([, slots]) => slots.includes(slot)).map(([group]) => dataAttribute(group)).sort()]));
   }
-  const modals = [...new Set([...bindings].filter(([, binding]) => bindsModal(binding)).map(([component]) => component))].sort();
-  return { page, classes, answers, options, axes, defaults, modals, inputs, ...(Object.keys(parts).length > 0 ? { parts } : {}) };
+  return { page, classes, answers, options, axes, inputs, ...(Object.keys(parts).length > 0 ? { parts } : {}) };
 }
 
 export function vocabularyIndex(root = repoRoot) {
   return vocabularyIndexOf([...readFamilies(root).values()], layerManifests(root).values(),
-    `https://${DOMAIN}/frameworks/VOCABULARY.md`, layerBindings(root), layerInputs(root));
+    `https://${DOMAIN}/frameworks/VOCABULARY.md`, layerInputs(root));
 }
 
 export function writeVocabularyIndex(dir: string, root = repoRoot) {
