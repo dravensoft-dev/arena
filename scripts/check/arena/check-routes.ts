@@ -169,7 +169,7 @@ export const ROUTES: Route[] = [
       + 'then the page that says what Arena hands over instead of a component',
     entry: 'consumer',
     stops: ['skills/design/references/media-register.md'],
-    budget: 12_500,
+    budget: 12_700,
     reason:
       'paid once per project, by a reader the router has just told to write their own markup. It '
       + 'buys that the honest sentence sending them away from the component list stops costing '
@@ -179,10 +179,9 @@ export const ROUTES: Route[] = [
       + 'that look like the answer and are not, and the viewer that opens a picture at full size with '
       + 'the answers every walk otherwise invents: what dims the page, whether the picture is '
       + 'contained, what a control over it stands on, and which two patterns it still binds, roles and modal focus. It also says '
-      + 'where a value no step names is set. The number is what the stops measure, and it grows when '
-      + 'the register gains a part to hand over rather than when the page gains a paragraph. The feed\'s keys are written out as a function, because the component '
+      + 'where a value no step names is set. The number is what the stops measure. The feed\'s keys are written out as a function, because the component '
       + 'binding them ships compiled and no export hands them over, and the Angular component binding '
-      + 'them is shown whole. It answers the four media roles in a fragment, and places video and illustration in the figure.',
+      + 'them is shown whole. It answers the four media roles in a fragment, and places video and illustration in the figure. It ends with one line sending states to the markup states page.',
   },
   {
     name: 'consumer-seo',
@@ -292,18 +291,18 @@ export const ROUTES: Route[] = [
     who: 'a builder painting a panel of their own markup: the router, then the markup tree index and the pages for surfaces and text, type, edges, space and layout, and depth and motion',
     entry: 'consumer',
     stops: ['skills/design/references/tokens/markup/index.md', 'skills/design/references/tokens/markup/surfaces-and-text.md', 'skills/design/references/tokens/markup/type.md', 'skills/design/references/tokens/markup/edges.md', 'skills/design/references/tokens/markup/space-and-layout.md', 'skills/design/references/tokens/markup/depth-and-motion.md'],
-    budget: 20_500,
+    budget: 20_600,
     reason:
-      'paid per panel a builder draws themselves. It buys the whole of what paints one: the ground and the ink on it, the title it carries and its size and weight, the edge and its radius, the air inside and around it, and the depth and motion it carries, each read at the page that owns it and not through the page, style and token references. On each leaf the route buys the question of every role, its utility and how it combines with the others, and the paragraph that composes them. The number is what the stops measure and moves when a page of the tree grows a decision, not a paragraph. The markup index, the first stop, carries one row more for the units page, which this panel route does not read.',
+      'paid per panel a builder draws themselves. It buys the whole of what paints one: the ground and the ink on it, the title it carries and its size and weight, the edge and its radius, the air inside and around it, and the depth and motion it carries, each read at the page that owns it and not through the page, style and token references. On each leaf the route buys the question of every role, its utility and how it combines with the others, and the paragraph that composes them. The number is what the stops measure and moves when a page of the tree grows a decision, not a paragraph. The markup index, the first stop, carries one row more for the units page, which this panel route does not read. Its read-this line for the states page names the keyboard focus, the pressed toggle and the other states that page answers.',
   },
   {
     name: 'consumer-own-toggle',
     who: 'a builder who owns a toggle of their own and draws every state of it: the router, then the markup tree index and the pages for states, edges, depth and motion, and space and layout',
     entry: 'consumer',
     stops: ['skills/design/references/tokens/markup/index.md', 'skills/design/references/tokens/markup/states.md', 'skills/design/references/tokens/markup/edges.md', 'skills/design/references/tokens/markup/depth-and-motion.md', 'skills/design/references/tokens/markup/space-and-layout.md'],
-    budget: 15_700,
+    budget: 17_300,
     reason:
-      'paid once per control a builder draws without a component. It buys the states a control wears, hover and the pressed lift and scale, with the motion and the space of each change, and the outline the control draws, its edge colour, width and radius, each role with its question, utility and combination and the paragraph that composes the leaf. Focus, selected, disabled and invalid each have a role on the states page, so a control of this kind reads them there and draws none itself. Each is read from the page that owns it instead of the media register, the page and the kernel. The data files beside the pages are not stops, since the gate charges the Markdown only. The markup index, the first stop, carries one row more for the units page, which a toggle does not need. The states page carries nine more roles with their utilities and a table that maps each state attribute to its selector and roles, which is what a control of this kind reads to draw focus, selection, the disabled fade and an invalid field.',
+      'paid once per control a builder draws without a component. It buys the states a control wears, hover and the pressed lift and scale, with the motion and the space of each change, and the outline the control draws, its edge colour, width and radius, each role with its question, utility and combination and the paragraph that composes the leaf. Focus, selected, disabled and invalid each have a role on the states page, so a control of this kind reads them there and draws none itself. Each is read from the page that owns it instead of the media register, the page and the kernel. The data files beside the pages are not stops, since the gate charges the Markdown only. The markup index, the first stop, carries one row more for the units page, which a toggle does not need. The states page carries eleven roles with their utilities and a table that maps each state attribute to its selector and roles, which is what a control of this kind reads to draw focus, selection, the disabled fade and an invalid field. The page also carries one html toggle, with its label and its aria-invalid edge, that shows every state.',
   },
   {
     name: 'consumer-layer',

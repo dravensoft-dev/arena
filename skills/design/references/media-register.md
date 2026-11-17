@@ -193,3 +193,5 @@ The banner, the navigation, the states around empty and failed, every field and 
 furniture whatever the product is. Reaching for them is what keeps a product built this way from
 reading as two. Your layer's `INDEX.md` is the directory; work out from your own element
 rather than in from a page layout.
+
+[`tokens/markup/states.md`](./tokens/markup/states.md) says which role each state of your own element reads and which selector shows it.

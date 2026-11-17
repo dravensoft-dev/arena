@@ -14,7 +14,7 @@ The roles under [`../components/`](../components/index.md) exist, and your marku
 - [What do I set my own text in?](./type.md): Read this when your own markup sets a face, a weight, a size, a line height or a tracking.
 - [What do I give my own markup depth and motion with?](./depth-and-motion.md): Read this when your own markup casts a shadow, lifts under the pointer or runs a transition.
 - [Where does a layer of mine sit among the layers Arena draws?](./layers.md): Read this when a layer of yours, such as a sticky bar, a panel or a popover, must sit above or below the layers Arena draws.
-- [What does a state draw, and which selector shows it?](./states.md): Read this when your own markup shows a state, such as hover, focus, selection, a disabled control or an invalid field.
+- [What does a state draw, and which selector shows it?](./states.md): Read this when your own markup shows a state, such as hover, keyboard focus, selection, a pressed toggle, a disabled control or an invalid field.
 - [Which colour means something, and which one identifies something?](./meaning-and-identity.md): Read this when your own markup draws a status, a tone, a category or a chart series, and you must pick between the aliases and the ramp.
 - [Which units does Arena use, and which do I use in my markup?](./units.md): Read this when your own markup sets a size, a breakpoint or a measurement in script, and you need to know whether it follows the reader's text setting.
 
