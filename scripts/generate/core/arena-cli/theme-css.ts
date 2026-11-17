@@ -15,7 +15,7 @@ import {
 } from './palette-keys.ts';
 import { validate, contrast } from './validate-palette.mjs';
 import {
-  FS_STEP, RHYTHM_STEP, aliasName, colourAnswer, keywordAnswer, type KnownAnswers, floorProblems, highContrastFor, nameProblems, reservedProblems, rootOnlyFor, scopeOn, totalityProblems, withDefaults,
+  FS_STEP, RHYTHM_STEP, aliasName, colourAnswer, fixedRemProblems, keywordAnswer, type KnownAnswers, floorProblems, highContrastFor, nameProblems, reservedProblems, rootOnlyFor, scopeOn, totalityProblems, withDefaults,
 } from './style-plugin-rules.ts';
 import { scaledLiteral, serialize } from './serialize-token.ts';
 import { HEAT_MIN_DL, errorFill, heatCramped, heatLadder, toOklab } from './oklab.ts';
@@ -419,6 +419,7 @@ export function pluginTokenProblems(
     if (role?.type === 'keyword' && Array.isArray(role.values) && !keywordAnswer(String(raw).trim(), role.values, known))
       problems.push(`${where}: "${key}" is ${JSON.stringify(raw)}, not one of ${role.values.join(', ')}.`);
   }
+  problems.push(...fixedRemProblems(`stylePlugins.${group}`, tokens, catalogue.roles ?? {}));
   for (const { message } of ringsOf(tokens, catalogue)) problems.push(`stylePlugins.${group}: ${message}.`);
   return problems;
 }

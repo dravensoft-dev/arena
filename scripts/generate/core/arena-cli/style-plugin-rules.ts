@@ -72,6 +72,29 @@ export function rootOnlyFor(className: string, sources: { contrast: string; envi
   ].filter(Boolean).join('\n');
 }
 
+const REM_TEXT = /^-?\d*\.?\d+r?em$/;
+
+const isRem = (value: unknown) => {
+  if (typeof value === 'string') return REM_TEXT.test(value.trim());
+  const unit = (value as { unit?: unknown } | null)?.unit;
+  return typeof value === 'object' && value !== null && (unit === 'rem' || unit === 'em');
+};
+
+export function fixedRemProblems(where: string, tokens: Record<string, unknown>,
+  roles: Record<string, { userScale?: string; type?: string }>) {
+  const problems: string[] = [];
+  for (const [key, answer] of Object.entries(tokens)) {
+    if (key.startsWith('$') || roles[key]?.userScale !== 'fixed') continue;
+    const value = (answer as { $value?: unknown } | null)?.$value ?? answer;
+    if (isRem(value)) {
+      problems.push(`${where}: "${key}" is ${JSON.stringify(value)}, and the role is fixed: the axis keeps it in px `
+        + 'while the text grows and the box around it grows instead, so a rem answer would move a size the role '
+        + 'says does not move. Answer it in px or with a spacing alias.');
+    }
+  }
+  return problems;
+}
+
 export type RoleShape = { $type?: string; $extensions?: Record<string, { values?: unknown }> };
 
 export type MovedToken = { $type?: string; $value?: unknown; $description?: string };

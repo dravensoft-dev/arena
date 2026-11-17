@@ -170,10 +170,7 @@
   },
   "pad-control-text-y": {
     "$type": "dimension",
-    "$value": {
-      "value": 0.625,
-      "unit": "rem"
-    }
+    "$value": "{sp.3}"
   },
   "gap-control": {
     "$type": "dimension",
@@ -281,8 +278,8 @@
   "dialog-width-md": {
     "$type": "dimension",
     "$value": {
-      "value": 30.0,
-      "unit": "rem"
+      "value": 512,
+      "unit": "px"
     }
   },
   "dialog-width-lg": {
@@ -320,10 +317,7 @@
   },
   "pad-surface-head-top": {
     "$type": "dimension",
-    "$value": {
-      "value": 1.125,
-      "unit": "rem"
-    }
+    "$value": "{sp.5}"
   },
   "pad-floating-x": {
     "$type": "dimension",
@@ -336,8 +330,8 @@
   "pad-floating-edge-x": {
     "$type": "dimension",
     "$value": {
-      "value": 1.25,
-      "unit": "rem"
+      "value": 20,
+      "unit": "px"
     }
   },
   "pad-status-x": {
@@ -383,10 +377,7 @@
   },
   "pad-row-floating-x": {
     "$type": "dimension",
-    "$value": {
-      "value": 0.625,
-      "unit": "rem"
-    }
+    "$value": "{sp.3}"
   },
   "pad-row-floating-y": {
     "$type": "dimension",
@@ -421,17 +412,11 @@
   },
   "gap-row-floating": {
     "$type": "dimension",
-    "$value": {
-      "value": 0.625,
-      "unit": "rem"
-    }
+    "$value": "{sp.3}"
   },
   "gap-actions": {
     "$type": "dimension",
-    "$value": {
-      "value": 0.625,
-      "unit": "rem"
-    }
+    "$value": "{sp.3}"
   },
   "fill-surface": {
     "$type": "color",

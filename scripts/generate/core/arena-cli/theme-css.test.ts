@@ -711,6 +711,15 @@ test('a project literal on a fixed role keeps its px', () => {
   assert.equal(pluginValue('2px', SCALED), '2px');
 });
 
+test('arena build refuses a rem answer to a fixed role', () => {
+  const rem = (value: number) => readPlugin('p', { 'bw-surface': { $type: 'dimension', $value: { value, unit: 'rem' } } }).tokens;
+  const problems = pluginTokenProblems('p', rem(0.125), SCALED);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /bw-surface/);
+  const scales = readPlugin('p', { 'step-title-surface': { $type: 'dimension', $value: { value: 1.125, unit: 'rem' } } }).tokens;
+  assert.deepEqual(pluginTokenProblems('p', scales, SCALED), []);
+});
+
 const ALIASED = {
   tokens: {
     ...SHEETS_FULL.catalogue.tokens,

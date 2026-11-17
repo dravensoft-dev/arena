@@ -3,6 +3,9 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
+import { readJson } from '../../utils/read-file.ts';
+import { declaredAxis } from '../../lib/core/user-scale.ts';
+import { answerFiles } from './check-user-scale.ts';
 import * as rules from '../../generate/core/arena-cli/style-plugin-rules.ts';
 import {
   SCOPES, collect, defaultAnswerProblems, floorProblems, keyProblems, movedTokens, nameProblems, resolvedFor, totalityProblems,
@@ -31,7 +34,7 @@ test('the rules module carries floors, shape checks and the kernel defaults, and
   assert.deepEqual(Object.keys(rules).sort(), [
     'ARENA_EXT', 'DANGER_FLOOR', 'FS_STEP', 'KEBAB', 'MAX_PROSE_MEASURE', 'MIN_HEADING_LEADING',
     'MIN_PROSE_LEADING', 'MIN_PROSE_MEASURE', 'POLARITY_HOOKS', 'RESERVED', 'RHYTHM_STEP',
-    'aliasName', 'colourAnswer', 'crossKeys', 'floorProblems', 'highContrastFor', 'highContrastNames', 'keyProblems', 'keywordAnswer', 'nameProblems', 'reservedProblems', 'rootOnlyFor', 'scopeKey', 'scopeOn',
+    'aliasName', 'colourAnswer', 'crossKeys', 'fixedRemProblems', 'floorProblems', 'highContrastFor', 'highContrastNames', 'keyProblems', 'keywordAnswer', 'nameProblems', 'reservedProblems', 'rootOnlyFor', 'scopeKey', 'scopeOn',
     'totalityProblems', 'valueProblems', 'withDefaults',
   ], 'a rule that keeps a catalogue coherent is Arena design theory, and a floor is a claim about '
   + 'a reader: only the second one has any business binding somebody else\'s product');
@@ -341,4 +344,28 @@ test('a light answer is held too, and a role the default plugin is silent on is 
   assert.equal(defaultAnswerProblems(KERNEL, lit).length, 1);
   const silent = Object.fromEntries(Object.entries(answering()).filter(([key]) => key !== 'r-popover'));
   assert.deepEqual(defaultAnswerProblems(KERNEL, silent), []);
+});
+
+const AXIS_ROLES = { 'gap-actions': { userScale: 'fixed' }, 'fs-body': { userScale: 'scales' } };
+
+test('a rem answer to a fixed role fails, naming it', () => {
+  const problems = rules.fixedRemProblems('p.json', { 'gap-actions': { $value: { value: 0.625, unit: 'rem' } } }, AXIS_ROLES);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /gap-actions/);
+  assert.match(problems[0] ?? '', /px/);
+  assert.equal(rules.fixedRemProblems('p', { 'gap-actions': { $value: '0.625rem' } }, AXIS_ROLES).length, 1);
+  assert.deepEqual(rules.fixedRemProblems('p', { 'gap-actions': { $value: { value: 10, unit: 'px' } } }, AXIS_ROLES), []);
+});
+
+test('a rem answer to a scales role passes', () => {
+  assert.deepEqual(rules.fixedRemProblems('p', { 'fs-body': { $value: { value: 1.125, unit: 'rem' } } }, AXIS_ROLES), []);
+});
+
+test('the shipped answer files carry no rem on a fixed role', () => {
+  const roles = readJson(join(repoRoot, 'contracts/design/roles.json')) as Record<string, any>;
+  const axes = Object.fromEntries(Object.entries(roles)
+    .map(([name, role]) => [name, { userScale: declaredAxis(role) }]));
+  const problems = answerFiles().flatMap((file) =>
+    rules.fixedRemProblems(file, readJson(join(repoRoot, file)) as Record<string, unknown>, axes));
+  assert.deepEqual(problems, []);
 });

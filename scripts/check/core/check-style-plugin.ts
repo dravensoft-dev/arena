@@ -17,9 +17,11 @@ import { THEME_SCOPES } from '../../generate/arena/generate-tokens.ts';
 import {
   ARENA_EXT, FS_STEP, KEBAB, MAX_PROSE_MEASURE, MIN_HEADING_LEADING, MIN_PROSE_LEADING,
   MIN_PROSE_MEASURE, RHYTHM_STEP, floorProblems, keyProblems, nameProblems, totalityProblems,
-  crossKeys, valueProblems, withDefaults,
+  crossKeys, fixedRemProblems, valueProblems, withDefaults,
 } from '../../generate/core/arena-cli/style-plugin-rules.ts';
 import { readPlugin } from '../../generate/core/arena-cli/theme-css.ts';
+import { declaredAxis } from '../../lib/core/user-scale.ts';
+import { answerFiles } from './check-user-scale.ts';
 import { emittedWords } from './check-role-contract.ts';
 
 export {
@@ -42,7 +44,7 @@ export const RESOLVED = [
 
 export const node = {
   name: 'check:style-plugin',
-  reads: [ROLES, ROOT_PLUGIN, 'contracts/design/*.json', 'scripts/generate/arena/generate-tokens.ts', ...RESOLVED],
+  reads: [ROLES, ROOT_PLUGIN, 'plugin-style-store/**/plugin.tokens.json', 'contracts/design/*.json', 'scripts/generate/arena/generate-tokens.ts', ...RESOLVED],
   writes: [],
   feeds: [],
 };
@@ -136,6 +138,11 @@ export function collect(sheets?: string) {
     readJson(join(repoRoot, ROOT_PLUGIN)) as Record<string, unknown>,
     emittedWords(repoRoot),
   ));
+  const kernel = readJson(join(repoRoot, ROLES)) as Record<string, any>;
+  const axes = Object.fromEntries(Object.entries(kernel)
+    .map(([name, role]) => [name, { userScale: declaredAxis(role) }]));
+  for (const file of answerFiles())
+    problems.push(...fixedRemProblems(file, readJson(join(repoRoot, file)) as Record<string, unknown>, axes));
   return problems;
 }
 
