@@ -16,12 +16,12 @@ Read this when markup of yours takes its control or row sizes from `--dz-*`, and
 | `--dz-row-py` | `12px` | `7px` | `16px` | `*-row-py` | table/list row vertical padding |
 | `--dz-row-px` | `16px` | `12px` | `20px` | `*-row-px` | row horizontal padding |
 | `--dz-stack` | `12px` | `8px` | `16px` | `*-stack` | gap between stacked items |
-| `--dz-text-lg` | `16px` | base | base | `text-ctl-lg` | the largest control text: a data readout inside a chart, where the number is the content rather than a label |
-| `--dz-text` | `14px` | `13px` | base | `text-ctl` | control text: buttons, inputs, selects, menu items, table cells |
-| `--dz-text-md` | `13px` | `12px` | base | `text-ctl-md` | secondary control text: tag chips, pagination, secondary buttons |
-| `--dz-text-sm` | `12px` | `11px` | base | `text-ctl-sm` | secondary control text: hints, validation errors, badges, legends |
-| `--dz-text-xs` | `11px` | `10px` | base | `text-ctl-xs` | micro control text: field labels, shortcuts, eyebrow labels, and the category and point labels of a chart, which are chrome under a plot rather than prose |
-| `--dz-text-2xs` | `10px` | `10px` | base | `text-ctl-2xs` | column headers, row micro-labels, and a chart's axis ticks |
+| `--dz-text-lg` | `1rem` | base | base | `text-ctl-lg` | the largest control text: a data readout inside a chart, where the number is the content rather than a label |
+| `--dz-text` | `0.875rem` | `13px` | base | `text-ctl` | control text: buttons, inputs, selects, menu items, table cells |
+| `--dz-text-md` | `0.8125rem` | `12px` | base | `text-ctl-md` | secondary control text: tag chips, pagination, secondary buttons |
+| `--dz-text-sm` | `0.75rem` | `11px` | base | `text-ctl-sm` | secondary control text: hints, validation errors, badges, legends |
+| `--dz-text-xs` | `0.6875rem` | `10px` | base | `text-ctl-xs` | micro control text: field labels, shortcuts, eyebrow labels, and the category and point labels of a chart, which are chrome under a plot rather than prose |
+| `--dz-text-2xs` | `0.625rem` | `10px` | base | `text-ctl-2xs` | column headers, row micro-labels, and a chart's axis ticks |
 | `--dz-lh` | `1` | base | base | `leading-ctl` | glyph-tight line height: the control reset |
 | `--dz-row-scale-x` | `1` | `0.75` | `1.25` | `*-row-x`, `*-nav-row-x`, `*-row-floating-x` | the factor a row's horizontal padding is multiplied by; 1 at base, and density restates it in the proportion row-px does |
 | `--dz-row-scale-y` | `1` | `0.5833` | `1.3333` | `*-row-y`, `*-nav-row-y`, `*-row-floating-y` | the factor a row's vertical padding is multiplied by; 1 at base, and density restates it in the proportion row-py does |

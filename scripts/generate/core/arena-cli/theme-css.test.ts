@@ -689,6 +689,28 @@ test('a bare colour alias becomes the var() a palette scope can restate', () => 
   assert.equal(pluginValue('{color.nonesuch}', SHEETS_FULL.catalogue), null);
 });
 
+const SCALED = {
+  ...SHEETS_FULL.catalogue,
+  roles: {
+    ...SHEETS_FULL.catalogue.roles,
+    'step-title-surface': { type: 'dimension', userScale: 'scales' },
+    'bw-surface': { type: 'dimension', userScale: 'fixed' },
+  },
+};
+
+test('a project literal on a scales role is emitted in rem', () => {
+  const plugin = readPlugin('mine', { 'step-title-surface': { $type: 'dimension', $value: { value: 18, unit: 'px' } } });
+  assert.equal(pluginValue(plugin.tokens['step-title-surface'], SCALED, 'step-title-surface'), '1.125rem');
+  assert.equal(pluginValue('clamp(2.5rem,8.5vw,6rem)', SCALED, 'step-title-surface'), 'clamp(2.5rem,8.5vw,6rem)');
+  assert.equal(resolvedPlugin(plugin, SCALED).get('step-title-surface'), '1.125rem');
+});
+
+test('a project literal on a fixed role keeps its px', () => {
+  const plugin = readPlugin('mine', { 'bw-surface': { $type: 'dimension', $value: { value: 2, unit: 'px' } } });
+  assert.equal(pluginValue(plugin.tokens['bw-surface'], SCALED, 'bw-surface'), '2px');
+  assert.equal(pluginValue('2px', SCALED), '2px');
+});
+
 const ALIASED = {
   tokens: {
     ...SHEETS_FULL.catalogue.tokens,

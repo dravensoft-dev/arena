@@ -164,6 +164,21 @@ test('a restating option writes the literal values of the contract file it names
 `);
 });
 
+test('a restated density emits its text in rem and its boxes in px', () => {
+  const root = track(mkdtempSync(join(tmpdir(), 'vocabulary-')));
+  mkdirSync(join(root, 'contracts/design'), { recursive: true });
+  const ext = (axis: string) => ({ 'com.dravensoft.arena': { userScale: axis } });
+  writeFileSync(join(root, 'contracts/design/z.json'), JSON.stringify({ dz: {
+    $type: 'dimension', $extensions: ext('fixed'),
+    'ctl-h': { $value: { value: 32, unit: 'px' } },
+    text: { $value: { value: 13, unit: 'px' }, $extensions: ext('scales') } } }));
+  assert.deepEqual(restatedDeclarations('contracts/design/z.json', 'dz', root),
+    [['--dz-ctl-h', '32px'], ['--dz-text', '0.8125rem']]);
+  const real = Object.fromEntries(restatedDeclarations('contracts/design/density.compact.json', 'dz'));
+  assert.equal(real['--dz-text'], '0.8125rem');
+  assert.equal(real['--dz-ctl-h'], '32px');
+});
+
 const size: Family = { family: 'probe', reach: 'context', description: 'x', default: 'arena-probe-md',
   variants: { 'arena-probe-sm': '[--arena-probe-h:1px]', 'arena-probe-md': '[--arena-probe-h:2px]', 'arena-probe-xl': '[--arena-probe-h:9px]' } };
 const button: ComponentManifest = { component: 'ArenaButton',

@@ -31,10 +31,10 @@
   --step-label:var(--dz-text-xs);
   --step-trail:var(--dz-text-xs);
   --step-eyebrow:var(--dz-text-sm);
-  --step-title-surface:24px;
-  --step-title-section:32px;
-  --step-title-page:96px;
-  --step-title-hero:150px;
+  --step-title-surface:1.5rem;
+  --step-title-section:2rem;
+  --step-title-page:6rem;
+  --step-title-hero:9.375rem;
   --pad-control-x:20px;
   --pad-control-y:12px;
   --pad-control-text-y:0.625rem;

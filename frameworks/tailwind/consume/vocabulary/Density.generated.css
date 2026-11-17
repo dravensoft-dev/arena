@@ -10,11 +10,11 @@
     --dz-row-py: 7px;
     --dz-row-px: 12px;
     --dz-stack: 8px;
-    --dz-text: 13px;
-    --dz-text-md: 12px;
-    --dz-text-sm: 11px;
-    --dz-text-xs: 10px;
-    --dz-text-2xs: 10px;
+    --dz-text: 0.8125rem;
+    --dz-text-md: 0.75rem;
+    --dz-text-sm: 0.6875rem;
+    --dz-text-xs: 0.625rem;
+    --dz-text-2xs: 0.625rem;
     --dz-row-scale-x: 0.75;
     --dz-row-scale-y: 0.5833;
     --dz-row-min: 0px;

@@ -17,7 +17,7 @@ import { validate, contrast } from './validate-palette.mjs';
 import {
   FS_STEP, RHYTHM_STEP, aliasName, colourAnswer, keywordAnswer, type KnownAnswers, floorProblems, highContrastFor, nameProblems, reservedProblems, rootOnlyFor, scopeOn, totalityProblems, withDefaults,
 } from './style-plugin-rules.ts';
-import { serialize } from './serialize-token.ts';
+import { scaledLiteral, serialize } from './serialize-token.ts';
 import { HEAT_MIN_DL, errorFill, heatCramped, heatLadder, toOklab } from './oklab.ts';
 import { axisReports, derivedLevels, emphasisReports, levelReports, onInkReports, raisedReports, washReports } from './levels.ts';
 import type { Level, Wash } from './levels.ts';
@@ -264,11 +264,14 @@ const COLOUR_ALIAS = /^color\.[a-z0-9-]+$/;
 
 export const SKIN_ALIAS = /^(?:color|font)\.[a-z0-9-]+$/;
 
-export function pluginValue(raw: unknown, catalogue: TokenCatalogue | null) {
+export function pluginValue(raw: unknown, catalogue: TokenCatalogue | null, key?: string) {
   if (typeof raw !== 'string' || !raw.trim()) return null;
   const value = raw.trim();
   const alias = ALIAS.exec(value)?.[1];
-  if (!alias) return value;
+  if (!alias) {
+    const axis = key === undefined ? undefined : catalogue?.roles?.[key]?.userScale;
+    return scaledLiteral(value, { axis });
+  }
   const flat = alias.replace(/\./g, '-');
   if (catalogue?.roles?.[flat]?.type === 'color') return `var(--${flat})`;
   if (catalogue?.tokens?.[flat] === undefined) return null;
@@ -301,7 +304,7 @@ export function readPlugin(name: string, source: unknown): StylePlugin {
 }
 
 function declarationsOf(tokens: Record<string, unknown>, catalogue: TokenCatalogue | null) {
-  return Object.entries(tokens).map(([key, raw]) => `--${key}:${pluginValue(raw, catalogue)};`);
+  return Object.entries(tokens).map(([key, raw]) => `--${key}:${pluginValue(raw, catalogue, key)};`);
 }
 
 export function resolvedPlugin(
@@ -309,12 +312,12 @@ export function resolvedPlugin(
 ) {
   const at = new Map<string, string>(Object.entries(catalogue?.tokens ?? {}));
   for (const [key, raw] of Object.entries(plugin.tokens)) {
-    const value = pluginValue(raw, catalogue);
+    const value = pluginValue(raw, catalogue, key);
     if (value !== null) at.set(key, value);
   }
   if (polarity !== 'dark') {
     for (const [key, raw] of Object.entries(plugin.light)) {
-      const value = pluginValue(raw, catalogue);
+      const value = pluginValue(raw, catalogue, key);
       if (value !== null) at.set(key, value);
     }
   }
@@ -400,7 +403,7 @@ export function pluginTokenProblems(
         + 'use that wants that value, so moving one is not a style plugin but a different Arena.');
       continue;
     }
-    if (pluginValue(raw, catalogue) === null) {
+    if (pluginValue(raw, catalogue, key) === null) {
       problems.push(`${where}: "${key}" is ${JSON.stringify(raw)}, which resolves to nothing this package `
         + 'ships. Write a value outright, or an alias like {fs.h3} or {color.base-200} naming a token '
         + 'Arena emits.');

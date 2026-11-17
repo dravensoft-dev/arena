@@ -36,8 +36,8 @@ Read this when markup of yours needs a length, a corner, a border width, a shado
 | `--shadow-1` | `0px 2px 6px -2px rgba(0,0,0,.5)` | `shadow-1` |
 | `--shadow-2` | `0px 12px 28px -12px rgba(0,0,0,.6)` | `shadow-2` |
 | `--shadow-3` | `0px 30px 60px -20px rgba(0,0,0,.7)` | `shadow-3` |
-| `--bp-sm` | `480px` | `sm:` |
-| `--bp-md` | `768px` | `md:` |
-| `--bp-lg` | `1024px` | `lg:` |
+| `--bp-sm` | `30rem` | `sm:` |
+| `--bp-md` | `48rem` | `md:` |
+| `--bp-lg` | `64rem` | `lg:` |
 
 <!-- @shared spacing end -->

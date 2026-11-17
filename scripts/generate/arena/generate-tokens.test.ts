@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, existsSync, mkdirSync, mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import nodePath, { join, win32, posix } from 'node:path';
 import { readJson } from '../../utils/read-file.ts';
-import { DESIGN_DIR, FILES, REDECLARED_GROUPS, RESOLVES_AGAINST, SCOPE_SELECTORS, SCRIPT_TARGETS, collectScriptTokens, designPath, isFrom, referenceOf, scopesRedeclaring } from './generate-tokens.ts';
+import { DESIGN_DIR, FILES, REDECLARED_GROUPS, RESOLVES_AGAINST, SCOPE_SELECTORS, SCRIPT_TARGETS, collectScriptTokens, buildAll, buildBreakpointTheme, designPath, isFrom, referenceOf, scopesRedeclaring } from './generate-tokens.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { readFamilies } from '../../lib/tailwind/vocabulary.ts';
 import { relPosix } from '../../utils/posix-path.ts';
@@ -219,4 +219,26 @@ test('a dark group of a plugin source reaches the base selector as well as the .
     assert.match(base, /--bw-field:3px;/, 'the dark answer is missing from the base selector');
     assert.match(css, /@scope \(\.arena-dark\)[\s\S]*--bw-field:3px;/);
   } finally { rmSync(tmp, { recursive: true, force: true }); }
+});
+
+test('fs, dz text and icon come out in rem, sp and bw in px', async () => {
+  const all = [...(await buildAll()).values()].join('\n');
+  assert.match(all, /--fs-h1:2\.75rem;/);
+  assert.match(all, /--dz-text:[^;]*0\.875rem/);
+  assert.match(all, /--icon-md:1rem;/);
+  assert.match(all, /--sp-4:16px;/);
+  assert.match(all, /--bw:1px;/);
+  assert.doesNotMatch(all, /--(sp|bw|r)-[a-z0-9-]+:[0-9.]+rem/);
+});
+
+test('a scales role answered by an fs alias is emitted in rem', async () => {
+  const sheet = (await buildAll()).get('style-plugin.default.generated.css') as string;
+  assert.match(sheet, /--step-title-page:[0-9.]+rem;/);
+  assert.match(sheet, /--step-title-surface:[0-9.]+rem;/);
+});
+
+test('breakpoints are rem tokens and em variants', async () => {
+  const all = [...(await buildAll()).values()].join('\n');
+  assert.match(all, /--bp-md:48rem;/);
+  assert.ok((await buildBreakpointTheme()).includes('--breakpoint-md:48em;'));
 });

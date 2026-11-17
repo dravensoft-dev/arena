@@ -15,6 +15,9 @@ import { readJson } from '../../utils/read-file.ts';
 import { pascal } from '../../utils/case.ts';
 import { captured } from '../../utils/captures.ts';
 import { repoRoot } from '../arena/repo-root.ts';
+import { declaredAxis } from '../../check/core/check-user-scale.ts';
+import { emittedLength } from '../../generate/core/arena-cli/serialize-token.ts';
+import type { DtcgNode } from '../core/dtcg-shapes.ts';
 import { classesManifest } from './component-css.ts';
 import { LAYER_ORDER } from './component-sheets.ts';
 import type { ArenaAnswer, ComponentManifest } from './manifest-shapes.ts';
@@ -89,11 +92,13 @@ export function markupDeclarations(classes: string): [string, string][] {
 
 export function restatedDeclarations(rel: string, group: string, root = repoRoot): [string, string][] {
   const tokens = (readJson(join(root, rel)) as Record<string, Record<string, unknown>>)[group];
+  const groupAxis = declaredAxis(tokens as DtcgNode);
   if (!tokens) throw new Error(`vocabulary: ${rel} has no ${group} group to restate`);
   return Object.entries(tokens).filter(([key]) => !key.startsWith('$')).map(([key, token]) => {
     const value = (token as { $value?: unknown }).$value;
     if (value && typeof value === 'object' && 'value' in value && 'unit' in value)
-      return [`--${group}-${key}`, `${(value as { value: number }).value}${(value as { unit: string }).unit}`];
+      return [`--${group}-${key}`, emittedLength(value as { value: number; unit: string },
+        { axis: declaredAxis(token as DtcgNode) ?? groupAxis })];
     if (typeof value === 'number' || (typeof value === 'string' && !value.trim().startsWith('{')))
       return [`--${group}-${key}`, String(value)];
     throw new Error(`vocabulary: ${rel} ${group}.${key} is not a literal value, and a family restates values rather than aliases`);

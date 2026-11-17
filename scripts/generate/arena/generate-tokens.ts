@@ -12,6 +12,7 @@
 import StyleDictionary from 'style-dictionary';
 import { readFileSync, writeFileSync } from 'node:fs';
 import nodePath, { join } from 'node:path';
+import { readJson } from '../../utils/read-file.ts';
 import { toPosix } from '../../utils/posix-path.ts';
 import type { PathModule } from '../../utils/posix-path.ts';
 import { camel } from '../../utils/case.ts';
@@ -21,6 +22,7 @@ import { rootOnlyFor, scopeOn } from '../core/arena-cli/style-plugin-rules.ts';
 import { DEFAULTS_LAYER, LAYER_ORDER } from '../../lib/tailwind/component-sheets.ts';
 import { serializeScript } from '../../lib/core/serialize-script.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
+import { tokenAxes, declaredAxis } from '../../check/core/check-user-scale.ts';
 import { ARENA_EXT, childEntries, isStamped, isToken } from '../../lib/core/dtcg-shapes.ts';
 import type { DtcgNode, DtcgToken, StampedToken } from '../../lib/core/dtcg-shapes.ts';
 
@@ -185,7 +187,7 @@ export async function buildBreakpointTheme() {
   const lines = [];
   for (const item of walk(await load('spacing.json'))) {
     if (!isTokenItem(item) || !/^bp-/.test(item.token.name)) continue;
-    lines.push(`  --breakpoint-${item.token.name.slice(3)}:${serialize(item.token)};`);
+    lines.push(`  --breakpoint-${item.token.name.slice(3)}:${serialize(item.token, { axis: 'scales', relative: 'em' })};`);
   }
   return `${BREAKPOINT_HEADER}\n@theme {\n  --breakpoint-*: initial;\n${lines.join('\n')}\n}\n`;
 }
@@ -293,8 +295,18 @@ function comment(d: string) {
   return ['  /*', ...d.split('\n').map((l: string) => `     ${l}`), '   */'].join('\n');
 }
 
+export function axisOf(token: { name: string; path?: string[] }, roles: Record<string, unknown>,
+                       axes: ReadonlyMap<string, string>) {
+  const role = Object.hasOwn(roles, token.name) ? declaredAxis(roles[token.name] as DtcgNode) : undefined;
+  return role ?? axes.get((token.path ?? []).join('.'));
+}
+
+const ROLES = readJson(join(root, DESIGN_DIR, 'roles.json')) as Record<string, unknown>;
+const AXES = tokenAxes(join(root, DESIGN_DIR));
+
 function render(token: StampedToken) {
-  const decl = `  --${emittedName(token)}:${referenceOf(token) ?? serialize(token)};`;
+  const axis = axisOf(token, ROLES, AXES);
+  const decl = `  --${emittedName(token)}:${referenceOf(token) ?? serialize(token, { axis })};`;
   const d = token.$description;
   if (!d) return decl;
   if (!d.includes('\n')) return `${decl} /* ${d} */`;

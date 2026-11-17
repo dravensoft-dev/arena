@@ -57,7 +57,7 @@
   },
   "bp": {
     "$type": "dimension",
-    "$extensions": { "com.dravensoft.arena": { "userScale": "fixed" } },
+    "$extensions": { "com.dravensoft.arena": { "userScale": "scales" } },
     "$description": "Breakpoints. A component reads them in script, against the width of its own\ncontainer, through useArenaContainerWidth or arenaContainerWidth. A consumer's page\nframe reads them through useArenaViewportBelow or arenaViewportBelow, or through\nthe sm:, md: and lg: variants the Tailwind theme sheet generates from this group.\nThey live here so a threshold stays a token, not a magic number retyped in each\ncomponent. 768px is what DAMA hardcodes.",
     "sm": { "$value": { "value": 480, "unit": "px" } },
     "md": { "$value": { "value": 768, "unit": "px" } },
