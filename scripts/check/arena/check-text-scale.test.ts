@@ -6,7 +6,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   ENLARGED_PX, rootProblems, doublingProblems, clipProblems, overlapProblems, staleAllowanceProblems,
-  breakpointProblems, type TextBox,
+  breakpointProblems, clippedBy, declaresTruncation, takesPartInFlow, collectExpression, type TextBox,
 } from './check-text-scale.ts';
 
 const box = (over: Partial<TextBox> = {}): TextBox => ({
@@ -65,4 +65,66 @@ test('the md breakpoint falls between 1530 and 1540 at 32px', () => {
   assert.equal(breakpointProblems({ bpMd: '768px', below1530: true, below1540: false }).length, 1);
   assert.equal(breakpointProblems({ bpMd: '48rem', below1530: false, below1540: false }).length, 1);
   assert.equal(breakpointProblems({ bpMd: '48rem', below1530: true, below1540: true }).length, 1);
+});
+
+test('a box drawn at 32 and absent at 16 fails', () => {
+  const problems = doublingProblems([], [box({ fontSize: 28 })], new Map());
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /no box of that slot and text at 16px/);
+});
+
+test('a box drawn at 16 and gone at 32 fails', () => {
+  const problems = doublingProblems([box()], [], new Map());
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /vanished or moved/);
+});
+
+test('a shifted ordinal cannot pair two different elements', () => {
+  const at16 = [box({ path: 'x#0', text: 'Save', fontSize: 14 })];
+  const at32 = [box({ path: 'x#0', text: 'Cancel', fontSize: 28 })];
+  assert.equal(doublingProblems(at16, at32, new Map()).length, 2);
+});
+
+test('the ordinal of a slot counts it before any visibility skip, so a hidden sibling cannot shift it', () => {
+  const expression = collectExpression('react', 'default', 'arena-compact');
+  assert.ok(expression.indexOf('ordinalBeforeSkips = counts') < expression.indexOf('getClientRects().length === 0'));
+});
+
+test('a missing 16px reference is reported by the sweep as a problem, not skipped', async () => {
+  const { readFileSync } = await import('node:fs');
+  const source = readFileSync(new URL('./check-text-scale.ts', import.meta.url), 'utf8');
+  assert.match(source, /no \$\{REFERENCE_PX\}px reference was measured/);
+});
+
+test('text is clipped only where its own box leaves a hidden or clipping box, not a scrolling one', () => {
+  const inside = { left: 0, top: 0, right: 100, bottom: 40 };
+  assert.deepEqual(clippedBy({ left: 10, top: 5, right: 90, bottom: 20 }, inside, 'hidden', 'hidden'),
+    { clipX: false, clipY: false });
+  assert.deepEqual(clippedBy({ left: 10, top: 5, right: 140, bottom: 20 }, inside, 'hidden', 'visible'),
+    { clipX: true, clipY: false });
+  assert.deepEqual(clippedBy({ left: 10, top: 5, right: 140, bottom: 20 }, inside, 'clip', 'visible'),
+    { clipX: true, clipY: false });
+  assert.deepEqual(clippedBy({ left: 10, top: 5, right: 140, bottom: 90 }, inside, 'auto', 'scroll'),
+    { clipX: false, clipY: false });
+  assert.deepEqual(clippedBy({ left: 10, top: 5, right: 100.5, bottom: 41 }, inside, 'hidden', 'hidden'),
+    { clipX: false, clipY: false });
+  assert.deepEqual(clippedBy({ left: 10, top: 5, right: 90, bottom: 50 }, inside, 'visible', 'hidden'),
+    { clipX: false, clipY: true });
+});
+
+test('ellipsis and a line clamp are declared truncation, and nothing else is', () => {
+  assert.equal(declaresTruncation({ textOverflow: 'ellipsis', lineClamp: 'none' }), true);
+  assert.equal(declaresTruncation({ textOverflow: 'clip', lineClamp: '3' }), true);
+  assert.equal(declaresTruncation({ textOverflow: 'clip', lineClamp: 'none' }), false);
+  assert.equal(declaresTruncation({ textOverflow: 'clip', lineClamp: '' }), false);
+});
+
+test('an inline, floated, absolute or fixed box takes no part in overlap', () => {
+  const base = { position: 'static', float: 'none', display: 'block' };
+  assert.equal(takesPartInFlow(base), true);
+  assert.equal(takesPartInFlow({ ...base, position: 'relative' }), true);
+  assert.equal(takesPartInFlow({ ...base, position: 'absolute' }), false);
+  assert.equal(takesPartInFlow({ ...base, position: 'fixed' }), false);
+  assert.equal(takesPartInFlow({ ...base, float: 'left' }), false);
+  assert.equal(takesPartInFlow({ ...base, display: 'inline' }), false);
 });

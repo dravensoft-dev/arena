@@ -9,7 +9,6 @@
  * next launch to reap. The singleton links' directory goes too; a suite root sweeps the fetcher one.
  * defaultFontSize is the text-size preference a user sets. */
 
-
 import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readlinkSync, rmSync, writeFileSync } from 'node:fs';
 import { basename, dirname, isAbsolute } from 'node:path';

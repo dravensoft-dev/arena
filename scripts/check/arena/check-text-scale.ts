@@ -74,20 +74,52 @@ export function rootProblems(rootPx: number, what = 'the page'): string[] {
     + 'measured here says anything about larger text'];
 }
 
+export const matchKey = (one: TextBox) => `${one.path}\u0000${one.text}`;
+
 export function doublingProblems(at16: TextBox[], at32: TextBox[], fixed: Map<string, string>,
   used: Set<string> = new Set()): string[] {
-  const before = new Map(at16.map((one) => [one.path, one]));
+  const before = new Map(at16.map((one) => [matchKey(one), one]));
+  const after = new Set(at32.map(matchKey));
   const problems: string[] = [];
   for (const now of at32) {
-    const then = before.get(now.path);
-    if (!then || then.fontSize <= 0) continue;
+    const then = before.get(matchKey(now));
+    if (!then) {
+      problems.push(`${now.path}: "${now.text}" is drawn at ${ENLARGED_PX}px and has no box of that slot and text at 16px, `
+        + 'so its size cannot be compared');
+      continue;
+    }
+    if (then.fontSize <= 0) continue;
     if (Math.abs(now.fontSize - then.fontSize * 2) <= DOUBLING_TOLERANCE_PX) continue;
     const slot = slotOf(now.path);
     if (fixed.has(slot)) { used.add(slot); continue; }
     problems.push(`${now.path}: "${now.text}" is ${then.fontSize}px at a 16px default and ${now.fontSize}px at `
       + `${ENLARGED_PX}px, so it did not double`);
   }
+  for (const then of at16) {
+    if (after.has(matchKey(then))) continue;
+    problems.push(`${then.path}: "${then.text}" is drawn at 16px and has no box of that slot and text at ${ENLARGED_PX}px, `
+      + 'so it vanished or moved when the text grew');
+  }
   return problems;
+}
+
+export type Edges = { left: number; top: number; right: number; bottom: number };
+
+export function clippedBy(text: Edges, box: Edges, overflowX: string, overflowY: string) {
+  const cuts = (overflow: string) => overflow === 'hidden' || overflow === 'clip';
+  return {
+    clipX: cuts(overflowX) && (text.right > box.right + 1 || text.left < box.left - 1),
+    clipY: cuts(overflowY) && (text.bottom > box.bottom + 1 || text.top < box.top - 1),
+  };
+}
+
+export function declaresTruncation(style: { textOverflow: string; lineClamp: string }) {
+  return style.textOverflow === 'ellipsis' || (style.lineClamp !== '' && style.lineClamp !== 'none');
+}
+
+export function takesPartInFlow(style: { position: string; float: string; display: string }) {
+  return style.position !== 'absolute' && style.position !== 'fixed' && style.float === 'none'
+    && style.display !== 'inline';
 }
 
 export function clipProblems(boxes: TextBox[], allowed: Map<string, string>, used: Set<string> = new Set()): string[] {
@@ -141,6 +173,9 @@ export function breakpointProblems(at: { bpMd: string; below1530: boolean; below
 }
 
 export const collectExpression = (layer: string, sink: string, scope: string) => `(() => {
+  const clippedBy = ${clippedBy.toString()};
+  const declaresTruncation = ${declaresTruncation.toString()};
+  const takesPartInFlow = ${takesPartInFlow.toString()};
   const html = document.documentElement;
   for (const one of ${JSON.stringify([...SCOPES])}) html.classList.remove(one);
   html.classList.add(${JSON.stringify(scope)});
@@ -157,8 +192,8 @@ export const collectExpression = (layer: string, sink: string, scope: string) =>
     const host = el.closest('[data-arena-part]');
     const own = el.getAttribute('data-arena-part');
     const key = own ?? ((host ? host.getAttribute('data-arena-part') : 'page') + '>' + el.tagName.toLowerCase());
-    const n = counts.get(key) ?? 0;
-    counts.set(key, n + 1);
+    const ordinalBeforeSkips = counts.get(key) ?? 0;
+    counts.set(key, ordinalBeforeSkips + 1);
     if (!host) continue;
     if (el.getClientRects().length === 0) continue;
     const style = getComputedStyle(el);
@@ -167,34 +202,49 @@ export const collectExpression = (layer: string, sink: string, scope: string) =>
     range.selectNodeContents(el);
     const r = range.getBoundingClientRect();
     if (r.width === 0 && r.height === 0) continue;
-    let clipper = null;
-    for (let at = el; at && at !== document.body; at = at.parentElement) {
-      const s = getComputedStyle(at);
-      if (s.overflowX !== 'visible' || s.overflowY !== 'visible') { clipper = { at, s }; break; }
-    }
     let clipX = false;
     let clipY = false;
     let truncates = false;
     let classes = '';
-    if (clipper && clipper.at.clientWidth <= 1 && clipper.at.clientHeight <= 1) continue;
-    if (clipper) {
-      const { at, s } = clipper;
-      clipX = s.overflowX !== 'visible' && at.scrollWidth > at.clientWidth + 1;
-      clipY = s.overflowY !== 'visible' && at.scrollHeight > at.clientHeight + 1;
-      truncates = s.textOverflow === 'ellipsis' || (s.webkitLineClamp && s.webkitLineClamp !== 'none')
-        || style.textOverflow === 'ellipsis';
-      classes = String(at.getAttribute('class') ?? at.tagName.toLowerCase());
+    const classOf = (at) => at.getAttribute('class') ?? at.tagName.toLowerCase();
+    const lineClampOf = (s) => s.webkitLineClamp ?? s.getPropertyValue('-webkit-line-clamp') ?? '';
+    truncates = declaresTruncation({ textOverflow: style.textOverflow, lineClamp: lineClampOf(style) });
+    const clipperOf = (axis) => {
+      for (let at = el; at && at !== document.body; at = at.parentElement) {
+        const s = getComputedStyle(at);
+        const value = axis === 'x' ? s.overflowX : s.overflowY;
+        if (value !== 'visible') return { at, s, value };
+      }
+      return null;
+    };
+    for (const axis of ['x', 'y']) {
+      const found = clipperOf(axis);
+      if (!found) continue;
+      const { at, s, value } = found;
+      if (at.clientWidth <= 1 && at.clientHeight <= 1) { clipX = false; clipY = false; classes = 'hidden'; break; }
+      const cr = at.getBoundingClientRect();
+      const left = cr.left + at.clientLeft;
+      const top = cr.top + at.clientTop;
+      const box = { left, top, right: left + at.clientWidth, bottom: top + at.clientHeight };
+      const text = { left: r.left, top: r.top, right: r.right, bottom: r.bottom };
+      const cut = clippedBy(text, box, axis === 'x' ? value : 'visible', axis === 'y' ? value : 'visible');
+      if (cut.clipX) clipX = true;
+      if (cut.clipY) clipY = true;
+      if (cut.clipX || cut.clipY) {
+        classes = classOf(at);
+        if (declaresTruncation({ textOverflow: s.textOverflow, lineClamp: lineClampOf(s) })) truncates = true;
+      }
     }
+    if (classes === 'hidden') continue;
     const sibling = el.parentElement;
     out.push({
-      path: prefix + ':' + key + '#' + n,
+      path: prefix + ':' + key + '#' + ordinalBeforeSkips,
       text: text.slice(0, 40),
       fontSize: parseFloat(style.fontSize),
       clipX, clipY, truncates: Boolean(truncates),
       rect: { left: r.left + scrollX, top: r.top + scrollY, right: r.right + scrollX, bottom: r.bottom + scrollY },
       parent: sibling ? idOf(sibling) : 'root',
-      inFlow: style.position !== 'absolute' && style.position !== 'fixed' && style.cssFloat === 'none'
-        && style.display !== 'inline',
+      inFlow: takesPartInFlow({ position: style.position, float: style.cssFloat, display: style.display }),
       classes,
     });
   }
@@ -292,7 +342,6 @@ async function main() {
   const usedClips = new Set<string>();
   const usedOverlaps = new Set<string>();
   let measured = 0;
-  let unmatched = 0;
   try {
     const cdpBig = await connect(big.wsUrl);
     const cdpSmall = await connect(small.wsUrl);
@@ -321,9 +370,9 @@ async function main() {
         for (const one of rootProblems(collected.root, what)) note(one, where);
         const base = reference.get(`${page.layer}/${page.sink}/${scope}`);
         if (base) {
-          const known = new Set(base.boxes.map((one) => one.path));
-          unmatched += collected.boxes.filter((one) => !known.has(one.path)).length;
           for (const one of doublingProblems(base.boxes, collected.boxes, FIXED, usedFixed)) note(one, where);
+        } else {
+          note(`${where}: no ${REFERENCE_PX}px reference was measured for this page and scope, so nothing here was compared`, where);
         }
         for (const one of clipProblems(collected.boxes, CLIPS, usedClips)) note(one, where);
         for (const one of overlapProblems(collected.boxes, OVERLAPS, usedOverlaps)) note(one, where);
@@ -349,7 +398,7 @@ async function main() {
     process.exit(1);
   }
   console.log(`check-text-scale: ${measured} text box(es) measured at a ${ENLARGED_PX}px browser default across `
-    + `${pages.length} page(s), every one doubled, unclipped and clear of its siblings (${unmatched} unmatched)`);
+    + `${pages.length} page(s), every one doubled, unclipped and clear of its siblings`);
 }
 
 function unpainted(what: string, got: { painted: Painted; silence?: Silence; threw?: string; changed: any[] }) {
