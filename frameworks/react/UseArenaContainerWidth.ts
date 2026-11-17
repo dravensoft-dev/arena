@@ -89,8 +89,6 @@ export function useArenaContainerWidth<T extends Element = HTMLDivElement>(targe
 
 export type ArenaBreakpointName = 'sm' | 'md' | 'lg';
 
-/* The raw token text, by name: the root font size is read against it on every arenaReadBreakpoint call, so a
- * changed root changes the pixels without forgetArenaBreakpoints. The em query does not depend on the root. */
 const cache = new Map<string, string>();
 
 const warned = new Set<string>();
@@ -151,16 +149,12 @@ function rawBreakpoint(name: ArenaBreakpointName): string {
   return raw;
 }
 
-/* The breakpoint in px against the root font size as it is now: a rem token follows a changed root, a px
- * token does not. NaN where the token does not resolve. */
 export function arenaReadBreakpoint(name: ArenaBreakpointName): number {
   if (typeof document === 'undefined') return NaN;
   const raw = rawBreakpoint(name);
   return raw === '' ? NaN : arenaBreakpointPx(raw, rootFontSize());
 }
 
-/* The user's text size as a multiple of the authored root (1 at the browser default), for a reader that
- * measures in px what the stylesheet sizes in rem. 1 where there is no document. */
 export function useArenaTextScale(): number {
   if (typeof document === 'undefined') return 1;
   return arenaTextScaleOf(rootFontSize());

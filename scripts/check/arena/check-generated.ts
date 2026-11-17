@@ -86,6 +86,7 @@ export const UNTRACKED = {
   'frameworks/react/AnchoredPanel.generated.js': 'the same, for the rules every anchored panel follows.',
   'frameworks/react/UseAnchoredPanel.generated.js': 'the same, for the hook that places an anchored panel and dismisses it.',
   'frameworks/react/Thresholds.generated.js': 'the same, for the rule that a region keeps its lower edge.',
+  'frameworks/react/RootScale.generated.js': 'the same, for the root font size a breakpoint and the text scale are read against.',
   'frameworks/react/TypeAhead.generated.js': 'the same, for the prefix a list matches as characters are typed.',
   'frameworks/react/RowWindowMeasure.generated.js': 'the same, for the measuring of the rows a windowed list draws.',
   'frameworks/react/VocabularyClass.generated.js': 'the same, for the filter that keeps a className to its vocabulary.',

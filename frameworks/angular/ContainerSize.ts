@@ -3,8 +3,6 @@ import { arenaBelowQuery, arenaBreakpointPx, arenaTextScaleOf } from './RootScal
 
 export type ArenaBreakpointName = 'sm' | 'md' | 'lg';
 
-/* The raw token text, by name: the root font size is read against it on every arenaReadBreakpoint call, so a
- * changed root changes the pixels without forgetArenaBreakpoints. The em query does not depend on the root. */
 const breakpoints = new Map<string, string>();
 
 export type WidthTarget = ElementRef<HTMLElement> | (() => HTMLElement | null | undefined);
@@ -89,8 +87,6 @@ const rootFontSize = (doc: Document) => doc.defaultView?.getComputedStyle(doc.do
 const rawBreakpoint = (doc: Document, name: ArenaBreakpointName) =>
   doc.defaultView?.getComputedStyle(doc.documentElement).getPropertyValue(`--bp-${name}`) ?? '';
 
-/* The breakpoint in px against the root font size as it is now: a rem token follows a changed root, a px
- * token does not. NaN where the token does not resolve. */
 export function arenaReadBreakpoint(name: ArenaBreakpointName): number {
   const doc = inject(DOCUMENT);
   let raw = breakpoints.get(name);
@@ -105,8 +101,6 @@ export function arenaReadBreakpoint(name: ArenaBreakpointName): number {
   return arenaBreakpointPx(raw, rootFontSize(doc));
 }
 
-/* The user's text size as a multiple of the authored root (1 at the browser default), for a reader that
- * measures in px what the stylesheet sizes in rem. */
 export function arenaReadTextScale(): number {
   return arenaTextScaleOf(rootFontSize(inject(DOCUMENT)));
 }
