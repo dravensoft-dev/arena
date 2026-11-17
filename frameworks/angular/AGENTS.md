@@ -250,7 +250,7 @@ Standalone (no `NgModule`), `OnPush`, `input()`/`output()`/`model()`, `inject()`
 for DI, capital-initial filenames with no type suffix, `arena-` selector prefix, no
 component `styles` (recipe owns styling), no comments beyond one JSDoc line,
 barrels with no `../` imports inside the layer. Dark-first (`.arena-light` for
-light). Danger is outline. Icons are Phosphor (Bold default). No gradients, no emoji.
+light). Icons are Phosphor (Bold default). No emoji.
 
 ## A component writes an inner component's appearance as a class, and hands it a face by injection
 

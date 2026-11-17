@@ -174,7 +174,7 @@ A runtime palette is a palette nobody declared in `arena.config.json`: a user de
 
 **A runtime palette may change** every colour key and the polarity. The colour keys are the 26 required keys of a declared palette, the eight chart slots `cat-1` to `cat-8` among them. The polarity is `dark` or `light`. The seven optional keys, `error-fill`, `primary-fill` and `heat-1` to `heat-5`, may be given and are derived when absent, as in the config. The polarity picks which of the style plugin's answers apply, plus the native date picker's colour and `color-scheme`.
 
-**A runtime palette may not change** the style plugin and its roles, the fonts, the density, the component sheets or the gradient mark. The build fixes those, and a runtime palette answers to the plugin the app was built with, as a declared palette does.
+**A runtime palette may not change** the style plugin and its roles, the fonts, the density or the component sheets. The build fixes those, and a runtime palette answers to the plugin the app was built with, as a declared palette does.
 
 **The app keeps the rest.** Arena does not store a user's palette, load it at sign-in, draw the editor where the user picks colours, or decide who may change whose palette.
 

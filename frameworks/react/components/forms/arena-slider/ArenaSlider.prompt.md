@@ -72,7 +72,7 @@ A number chosen inside a range by moving a thumb, or a span chosen with two thum
 
 **`name` submits the number through a hidden input.** A range posts two values under one name, the start first.
 
-**One primary accent per view.** The fill is the primary accent by default, a state colour like a ticked box. Set `arena-accent-plain` on the container of a settings panel holding several sliders.
+**The fill is the primary accent by default**, a state colour like a ticked box. Set `arena-accent-plain` on the container of a settings panel holding several sliders.
 
 `ArenaInput` has no `range` type. A native range cannot paint its filled part without a gradient, so the slider is this component.
 

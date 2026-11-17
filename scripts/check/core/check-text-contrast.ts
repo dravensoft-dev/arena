@@ -131,7 +131,7 @@ const LEVELS = [
 export const PAIRS = [
   { fill: 'primary-fill', content: 'primary-content', gate: 4.5, note: 'every ground primary-content sits on: a filled button, a checked box, a switch track, a current page, a count badge; ArenaCheckbox tick and ArenaSwitch knob are the content, and primary itself is the accent read as ink and as a line' },
 
-  { fill: 'error-fill', content: 'error-content', gate: 4.5, deriveFrom: 'error', keep: FILL_FALLBACK_KEEP, note: "ArenaConfirmDialog's final confirmation — Arena's only filled danger surface" },
+  { fill: 'error-fill', content: 'error-content', gate: 4.5, deriveFrom: 'error', keep: FILL_FALLBACK_KEEP, note: "ArenaConfirmDialog's final confirmation" },
   { fill: 'secondary', content: 'secondary-content', gate: 4.5, note: 'daisyUI pair — legible content on the fill' },
   { fill: 'neutral', content: 'neutral-content', gate: 4.5, note: 'daisyUI pair — legible content on the fill' },
   { fill: 'info', content: 'info-content', gate: 4.5, note: 'daisyUI pair — legible content on the fill' },

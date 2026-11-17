@@ -68,7 +68,7 @@ it instead of waiting for it.
   [`cold-start.md`](./cold-start.md)'s ninth node answers each architecture with the evidence
   behind it. What Arena ships no tooling for is producing the pages or listing them, and it
   writes into the head of whatever page your application renders.
-- **Nothing reads your application running.** `arena audit` reads your source files one at a time, for what a source text can show: a second primary action and a filled danger surface among them. What no tool reads is the rendered view, the screen your files compose together, and every rule about meaning. Those hold because you hold them.
+- **Nothing reads your application running.** `arena audit` reads your source files one at a time, for what a source text can show. A class of your own on a component, a raw value where a token belongs and an emoji are among them. What no tool reads is the rendered view, the screen your files compose together, and every rule about meaning. Those hold because you hold them.
 - **The component list ends at the register.** A photo wall, a feed of posts, a slideshow, a
   document editor and a game map are markup you write, and the skin still travels.
   [`media-register.md`](./media-register.md) is what Arena hands you instead of a component.

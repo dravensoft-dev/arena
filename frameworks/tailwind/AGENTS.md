@@ -547,9 +547,11 @@ repository does not have.
 
 ## Invariants the manifests must reproduce
 
-- **Danger is outline:** the danger hue's edge and ink, its strong fill the colour role `hue-danger-fill-strong`, whose kernel default is `transparent`, so a
-  presence, feed and progress marks read `--arena-hue-fill-strong` for the other hues and the ink for danger, and a chart legend swatch and the tag's dot read the ink;
-  the one filled danger surface is `ArenaConfirmDialog`'s final confirmation, `fill-confirm-final`.
+- **The danger hue paints through its edge and its ink, and its strong fill is `hue-danger-fill-strong`.**
+  That is a colour role whose kernel default is `transparent`, so a slot reading
+  `--arena-hue-fill-strong` is clear until a plugin answers it. Presence, feed and progress marks read
+  `--arena-hue-fill-strong` for the other hues and the ink for danger, a chart legend swatch and the
+  tag's dot read the ink, and `ArenaConfirmDialog`'s final confirmation fills with `fill-confirm-final`.
 - **Focus is a ring, and which ring follows the shape of what is focused.** Every focus ring is
   the `edge-focus` role at `bw-focus`, so a skin that answers the role moves all of them. A
   surface an activation is drawn around (card, board, sheet, scroller, accordion, tab, stepper,
@@ -574,8 +576,8 @@ repository does not have.
   slot held, so a slot whose shadow already means something, the selected tab's underline,
   takes `ring-*`, which writes its own slot and composes. A manifest painting no ring is
   quiet in every gate and loud on the page.
-- No gradient utilities. Uppercase is reserved for micro-labels. Charts carry identity
-  (`--color-cat-*`) or meaning (status), never both.
+- Uppercase is reserved for micro-labels. A chart series carries identity
+  (`--color-cat-*`) or meaning (status), through `colorId` or `tone`.
 
 Authoring a manifest that needs a value no token holds is a spec violation: add
 the token to `contracts/design/` first, then reference it here.

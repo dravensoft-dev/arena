@@ -19,7 +19,7 @@
     "success-content": { "$value": { "colorSpace": "srgb", "components": [0.0784, 0.0627, 0.0627], "hex": "#141010" } },
     "warning": { "$value": { "colorSpace": "srgb", "components": [0.9255, 0.7882, 0.2941], "hex": "#ecc94b" } },
     "warning-content": { "$value": { "colorSpace": "srgb", "components": [0.0784, 0.0627, 0.0627], "hex": "#141010" } },
-    "error": { "$value": { "colorSpace": "srgb", "components": [0.7647, 0.2078, 0.2078], "hex": "#c33535" }, "$description": "Outline danger: darker than dark's, because here it is read against bone\nrather than warm black. Same role, opposite direction." },
+    "error": { "$value": { "colorSpace": "srgb", "components": [0.7647, 0.2078, 0.2078], "hex": "#c33535" }, "$description": "Danger as text and border: darker than dark's, because here it is read against bone\nrather than warm black. Same role, opposite direction." },
     "error-content": { "$value": { "colorSpace": "srgb", "components": [1, 1, 1], "hex": "#ffffff" } },
     "error-fill": { "$value": { "colorSpace": "srgb", "components": [0.8078, 0.2196, 0.2196], "hex": "#ce3838" }, "$description": "Filled danger: see the dark theme's note; likewise an OPTIONAL pin over the\noklab fallback in colors.css. Here one value could very nearly serve both\nroles, but the token stays split: they pull apart in dark, and a skin that\ncollapsed them here would have to un-collapse them there." },
     "cat-1": { "$value": { "colorSpace": "srgb", "components": [0.2235, 0.4706, 0.0157], "hex": "#397804" }, "$description": "Categorical chart ramp: light theme. Same hues, re-tuned for the\nbone surface; slot order is identical to dark and must stay identical.\nforest  136°" },

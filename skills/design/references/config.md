@@ -1,6 +1,6 @@
 # Declaring palettes, fonts and a style plugin in arena.config.json
 
-What goes in `arena.config.json`? Which keys does it take? How do I declare a palette, a font, a style plugin or a gradient mark? How do I send only the component sheets my screens render? Read this once per project, before the first screen.
+What goes in `arena.config.json`? Which keys does it take? How do I declare a palette, a font or a style plugin? How do I send only the component sheets my screens render? Read this once per project, before the first screen.
 
 The file sits in the project root. `arena build` reads it and writes the stylesheets that Arena reads. [`cli.md`](./cli.md) covers the command. [`style-kernel.md`](./style-kernel.md) covers the style plugin that `stylePlugins` names.
 
@@ -92,7 +92,7 @@ What each part means:
   ships or is going to ship, naming the component a future class belongs to. No name is held ahead for a class Arena is going to ship. The names `polarity-dark` and `polarity-light` are refused too, because a runtime palette wears them. A palette may still take its own polarity's name, `dark` or `light`, and a style plugin may not. A palette name is kebab-case, and a name declared twice is refused.
 - **`polarity`** is `dark` or `light`. The polarity decides the native date picker's colour, and it is what a first visit matches `prefers-color-scheme` against.
 - **`colors`** takes every key above, each a six-digit hex such as `#141010`. `error-fill`, `primary-fill` and the heat steps are optional. Leave
-  `error-fill` out and Arena darkens `error` in oklab for the single filled danger surface it has. Leave `primary-fill` out and every ground `primary-content` sits on, a filled button, a checked box, a current page, fills with `primary`. Declare it when the accent you tuned to read as ink on your page cannot also carry `primary-content`. A violet light enough to read on a dark page is too light to carry white. Name a deeper violet here and keep the light one as `primary`.
+  `error-fill` out and Arena darkens `error` in oklab for the confirm button's fill. Leave `primary-fill` out and every ground `primary-content` sits on, a filled button, a checked box, a current page, fills with `primary`. Declare it when the accent you tuned to read as ink on your page cannot also carry `primary-content`. A violet light enough to read on a dark page is too light to carry white. Name a deeper violet here and keep the light one as `primary`.
 - **`cat-1`** through **`cat-8`** are the chart ramp. The order of the slots is their identity, so slot 3 is always slot 3. The slots are never used to mean anything, only to tell series apart.
 - **`heat-1`** through **`heat-5`** are a heatmap's ladder. Pin all five or none: left out, they are derived from `cat-4`, `base-200` and `base-content`.
 - **`fonts`** fills the three families Arena reads. `src` takes either a stylesheet URL, as

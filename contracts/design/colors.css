@@ -96,8 +96,8 @@
   --danger:var(--color-error);
   --danger-strong:var(--color-error);
   --danger-soft:color-mix(in oklab,var(--color-error) var(--level-hue-soft-danger),transparent);
-  /* The only filled danger surface in Arena (ArenaConfirmDialog's final
-     confirmation). Never a border or text color — --danger is that.
+  /* The fill of ArenaConfirmDialog's final confirmation. Never a border
+     or text color: --danger is that.
      A skin MAY pin --color-error-fill for an exact value (the Dravensoft skin
      does: #ce3838). A skin that doesn't gets one derived from --color-error,
      emitted into the palette by arena build rather than composed here: the

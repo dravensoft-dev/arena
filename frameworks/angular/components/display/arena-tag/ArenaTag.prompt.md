@@ -45,8 +45,8 @@ and a project name are identities, so they take a ramp slot and keep it everywhe
 
 **Do / Don't**
 - Use `tone="danger"` for a blocked/destructive status: the chip's border and
-  text render in the danger hue (`--arena-hue-ink`), never a fill. The outline is the danger convention. The only filled danger surface in Arena is `ArenaConfirmDialog`'s final confirmation.
-- The leading dot is filled (`bg-current`, coloured by `tone`) even for `tone="danger"`, though the chip itself is outline. A tone dot is an identity mark rather than a danger surface, in the same family as `ArenaActivityFeed`'s own dot and `ArenaAvatar`'s presence dot.
+  text render in the danger hue (`--arena-hue-ink`), over the danger hue's soft wash.
+- The leading dot is filled (`bg-current`, coloured by `tone`) even for `tone="danger"`. A tone dot is an identity mark rather than a danger surface, in the same family as `ArenaActivityFeed`'s own dot and `ArenaAvatar`'s presence dot.
 - Use `removable` only when removing the tag is a real user action (applied
   filters), not on informational tags, and handle `(remove)`, or the × has
   nothing wired to it.
@@ -63,7 +63,7 @@ and a project name are identities, so they take a ramp slot and keep it everywhe
   unbound attribute hands it the string.
 - Don't pass `tone` and `colorId` together expecting both: `colorId` wins, and a chip that
   carried a state colour and an identity colour at once would read as neither.
-- The identity chip outlines, like every other tone. A filled one is an appearance decision. The ramp colour reaches the host as `data-arena-color-id`
+- The identity chip draws its edge, like every other tone. A fill is the style plugin's. The ramp colour reaches the host as `data-arena-color-id`
   and the hue channels (`--arena-hue-ink`, `--arena-hue-edge`, `--arena-hue-fill-strong` and
   `--arena-hue-fill-soft`). A style plugin fills `tag` with it, so no member is needed here.
 - A tag keeps its label whole in a row, and breaks it only when the tag is wider than its container.

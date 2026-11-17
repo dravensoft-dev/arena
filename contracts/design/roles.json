@@ -1154,7 +1154,7 @@
   },
   "ink-eyebrow": {
     "$type": "color",
-    "$description": "The colour of an eyebrow. Born at primary, which four of the five eyebrow slots\nname.\n\nIt is the role that lets a style plugin honour the one-primary-accent rule the SKILL.md already states.\nAn accent spent on every eyebrow on the page is an accent spent, and the single primary action is\nwhat it was being saved for, so several style plugins move this to secondary for exactly that reason.\nBefore the role there was no way to say it.",
+    "$description": "The colour of an eyebrow. Born at primary, which four of the five eyebrow slots\nname.\n\nIt is the role that lets a style plugin say which accent an eyebrow wears. An accent worn by every\neyebrow on the page is an accent spent, so several style plugins move this to secondary and keep the\nprimary accent for the action.",
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",

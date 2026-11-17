@@ -196,7 +196,7 @@ const STRONG = 'bg-[color:var(--arena-hue-fill-strong)]';
 const MARK_SOFT = 'bg-[color:var(--arena-mark-fill,var(--arena-hue-fill-soft))]';
 const MARK_INK = 'text-[color:var(--arena-mark-ink,color-mix(in_oklab,var(--ink-body)_var(--level-ink-body),transparent))]';
 const STRONG_INK = 'text-[color:var(--arena-hue-fill-strong)]';
-const FILLED_WHY = 'a solid status fill reads the strong fill channel, and danger, whose strong fill is closed to transparent, keeps the mark through its ink';
+const FILLED_WHY = 'a solid status fill reads the strong fill channel, and danger, whose strong fill is hue-danger-fill-strong and transparent by default, draws the mark through its ink';
 const STATUS = ['success', 'warning', 'danger', 'info'];
 const HUE_WHY = 'a status colour is a read of the hue channel the hue sheet writes on this slot, so the style plugin that answers the hue roles moves every surface wearing it';
 const hueClaims = (slot: string, tones: Record<string, string[]>, group = 'tone') =>
@@ -265,7 +265,7 @@ export const CLAIMS = {
       why: 'a live presence dot is a solid fill, so it reads the strong fill channel of its status hue',
     })),
     { chosen: { status: 'busy' }, slot: 'status', has: ['bg-[color:var(--arena-hue-ink)]'], hasNot: ['bg-error', STRONG],
-      why: 'a busy dot is filled with the ink of the danger hue, whose strong fill is closed to transparent, which is how it still shows' },
+      why: 'a busy dot is filled with the ink of the danger hue, so it shows whatever hue-danger-fill-strong answers' },
     { chosen: { status: 'offline' }, slot: 'status', has: ['bg-base-content/(--level-presence)'], why: 'a presence tone maps to the status colour taxonomy, never to a series colour' },
     { slot: 'image', has: ['w-full', 'h-full', 'object-cover'], why: 'the image fills the box and crops to it, so a non-square source never distorts' },
   ],
@@ -286,7 +286,7 @@ export const CLAIMS = {
     { chosen: { tone: 'neutral' }, slot: 'value', hasNot: [INK, 'text-ink-body'], why: 'a neutral figure states no status, so the accent channel inks it and the tone adds no class' },
     { chosen: { tone: 'danger' }, slot: 'value', has: [INK], hasNot: ['bg-error'], why: 'a danger value tone colours text only, so the value slot carries no background' },
     { chosen: { tone: 'danger', deltaTone: 'positive' }, slot: 'delta', has: [EDGE, INK], why: 'tone and deltaTone are independent, which is why the contract declares them separately' },
-    { chosen: { deltaTone: 'negative' }, slot: 'delta', has: [EDGE, INK, 'bg-transparent'], hasNot: ['bg-error'], why: 'a negative delta is outline: border and text in the danger hue, never a filled background' },
+    { chosen: { deltaTone: 'negative' }, slot: 'delta', has: [EDGE, INK, 'bg-transparent'], hasNot: ['bg-error'], why: 'a negative delta draws its border and text in the danger hue on a transparent background' },
     { chosen: { deltaTone: 'positive' }, slot: 'delta', has: [EDGE, INK], hasNot: ['border-error', 'text-error'], why: 'a positive delta reads the success hue, not the danger family' },
     { chosen: { deltaTone: 'neutral' }, slot: 'delta', has: ['rounded-marker'], why: 'every delta tone keeps the shared marker base, which is the corner roles.json gives a delta badge' },
   ],
@@ -315,7 +315,7 @@ export const CLAIMS = {
   ],
   ArenaTag: [
     { chosen: { disabled: true }, slot: 'close', has: ['opacity-[var(--fade-disabled)]', 'cursor-not-allowed'], hasNot: ['text-ink-muted/40'], why: 'a disabled control keeps its rest ink and fades by the role the skin answers' },
-    { chosen: { tone: 'danger' }, slot: 'root', has: [EDGE, INK], hasNot: ['bg-error'], why: 'danger is outline: border and text in the danger hue, never a filled background' },
+    { chosen: { tone: 'danger' }, slot: 'root', has: [EDGE, INK], hasNot: ['bg-error'], why: 'danger draws its border and text in the danger hue, with no background of its own' },
     ...hueClaims('root', Object.fromEntries(['success', 'warning'].map((tone) => [tone, [EDGE, INK]]))),
     ...[1, 2, 3, 4, 5, 6, 7, 8].map((id) => ({ chosen: { colorId: String(id) }, slot: 'root', has: [EDGE, INK], why: HUE_WHY })),
     { chosen: { tone: 'neutral' }, slot: 'root', hasNot: [EDGE, INK, 'border-edge-surface', 'text-ink-body/(--level-ink-quiet)', 'border-primary', 'text-primary'], why: 'a neutral tag states no status, so the accent channels paint its edge and its ink and the tone adds no class' },
@@ -334,7 +334,7 @@ export const CLAIMS = {
   ],
   ArenaAlert: [
     ...STATUS.flatMap((tone) => [
-      { chosen: { tone }, slot: 'root', has: [SOFT, EDGE], hasNot: ['bg-error', 'bg-error-fill'], why: 'every status tone colours its root from the hue channels, as a soft wash and an edge, never as the filled danger surface' },
+      { chosen: { tone }, slot: 'root', has: [SOFT, EDGE], hasNot: ['bg-error', 'bg-error-fill'], why: 'every status tone colours its root from the hue channels, as a soft wash and an edge' },
       { chosen: { tone }, slot: 'icon', has: [INK], why: HUE_WHY },
       { chosen: { tone }, slot: 'action', has: [INK], why: HUE_WHY },
     ]),
@@ -373,7 +373,7 @@ export const CLAIMS = {
   ],
   ArenaConfirmDialog: [
     { chosen: { destructive: true }, slot: 'eyebrow', has: [INK], why: HUE_WHY },
-    { chosen: { destructive: true }, slot: 'confirm', has: ['bg-confirm-final', 'text-ink-confirm-final'], hasNot: ['bg-error', 'bg-error-fill', STRONG], why: 'the final confirmation is the one filled danger surface, and it reads the roles of its own rather than the danger hue, whose fill is closed to transparent' },
+    { chosen: { destructive: true }, slot: 'confirm', has: ['bg-confirm-final', 'text-ink-confirm-final'], hasNot: ['bg-error', 'bg-error-fill', STRONG], why: 'the final confirmation fills with fill-confirm-final and sets its label in ink-confirm-final, roles of its own that the danger hue channels do not feed' },
     { chosen: { destructive: false }, slot: 'confirm', has: ['bg-primary-fill', 'text-primary-content'], hasNot: ['bg-confirm-final'], why: 'a confirmation that is not destructive fills with the brand' },
     { chosen: { open: true }, slot: 'foot', has: ['flex-wrap'], why: 'the footer wraps the way ArenaDialog, ArenaPageHead and ArenaChartCard all do, and a third action row behaving differently is worse than none' },
     { chosen: { open: true }, slot: 'root', has: ['flex'], why: 'the root carries a display utility in its own base string, independent of the open variant' },
@@ -437,7 +437,7 @@ export const CLAIMS = {
     { slot: 'root', has: ['inline-flex'], hasNot: ['relative'], why: 'the bubble leaves the wrapper when it is shown, so nothing is positioned against the root' },
   ],
   ArenaButton: [
-    { chosen: { destructive: true }, slot: 'root', has: [EDGE, INK, STRONG], hasNot: ['bg-error', 'bg-error-fill'], why: 'destructive is outline: border and text in the danger hue, and its fill channel is closed to transparent, so its only error fill is a hover wash' },
+    { chosen: { destructive: true }, slot: 'root', has: [EDGE, INK, STRONG], hasNot: ['bg-error', 'bg-error-fill'], why: 'destructive draws its border and label in the danger hue and fills with hue-danger-fill-strong, transparent by default' },
     { chosen: { destructive: true }, slot: 'root', has: ['hover:shadow-control-rest'], hasNot: ['hover:shadow-[var(--arena-emphasis-shadow-hover,var(--emphasis-primary-shadow-hover))]'],
       why: 'a destructive button never lifts on hover whatever its emphasis, because the raised hover shadow is the emphasis destructive does not govern' },
     { chosen: { destructive: false }, slot: 'root', has: ['hover:shadow-[var(--arena-emphasis-shadow-hover,var(--emphasis-primary-shadow-hover))]'],
@@ -461,7 +461,7 @@ export const CLAIMS = {
       why: 'the joint is the emphasis ink at the muted level, because the primary edge is the primary fill and the ghost edge is transparent, so an edge-coloured joint draws nothing' },
     { chosen: { destructive: true }, slot: 'caret', has: ['border-s-[color:color-mix(in_oklab,var(--arena-hue-ink)_var(--level-ink-muted),transparent)]'], hasNot: ['border-s-[color:color-mix(in_oklab,var(--arena-emphasis-ink,var(--emphasis-primary-ink))_var(--level-ink-muted),transparent)]'],
       why: 'a destructive split draws its joint in the danger ink the same way' },
-    { chosen: { destructive: true }, slot: 'primary', has: [EDGE, INK, STRONG], why: 'destructive is the danger outline on the primary half, as on a button' },
+    { chosen: { destructive: true }, slot: 'primary', has: [EDGE, INK, STRONG], why: 'destructive draws the primary half in the danger hue, border and label, with a fill of hue-danger-fill-strong, as on a button' },
     { chosen: { destructive: true }, slot: 'caret', has: [EDGE, INK, STRONG], why: 'and on the caret half, so the split is one danger control' },
     { chosen: { destructive: false }, slot: 'caret',
       has: ['aria-expanded:bg-[color:var(--arena-emphasis-fill-hover,var(--emphasis-primary-fill))]', 'aria-expanded:shadow-[var(--arena-emphasis-shadow-hover,var(--emphasis-primary-shadow-hover))]'],
@@ -529,7 +529,7 @@ export const CLAIMS = {
   ],
   ArenaFileInput: [
     { slot: 'error', has: ['text-ink-invalid'], hasNot: ['text-error'], why: 'the field error message reads the invalid ink role, so a plugin answering ink-invalid moves the message with the zone' },
-    { slot: 'rejection', has: ['text-ink-invalid'], hasNot: ['text-error'], why: 'a refused file is said in the invalid ink role, and invalid is an outline, never a fill' },
+    { slot: 'rejection', has: ['text-ink-invalid'], hasNot: ['text-error'], why: 'a refused file is said in the invalid ink role' },
     { chosen: { state: 'error' }, slot: 'zone', has: ['border-edge-invalid'], why: 'an error turns the zone\'s edge to the invalid edge role, so a plugin answering edge-invalid moves it' },
     { chosen: { droppable: 'true' }, slot: 'zone', has: ['border-dashed', 'border-edge-surface', 'border-[length:var(--bw-surface)]', 'p-surface', 'rounded-surface'], why: 'a drop zone is a surface with a dashed edge, drawn literally as the empty state draws its own, and every other property a role' },
     { chosen: { droppable: 'false' }, slot: 'zone', hasNot: ['border-dashed', 'p-surface'], why: 'a field that takes no drop draws no frame, so the trigger stands on the page as a button would' },

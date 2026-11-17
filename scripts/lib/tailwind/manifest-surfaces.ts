@@ -80,8 +80,8 @@ export const MANIFEST_COVERS = new Map([
   }],
   ['ArenaConfirmDialog', {
     covers: ['ArenaConfirmDialog', 'ArenaButton'],
-    reason: 'The dialog draws the confirm action itself, because that action carries Arena\'s one '
-      + 'filled danger surface and an ArenaButton forwards no style. The cancel action is still an Arena '
+    reason: 'The dialog draws the confirm action itself, because that action fills with the roles of its own, '
+      + 'fill-confirm-final and ink-confirm-final, and an ArenaButton forwards no style. The cancel action is still an Arena '
       + 'ArenaButton, and a manifest has no composition, so it types that button out as its own slot and '
       + 'needs ArenaButton\'s affordance.',
   }],

@@ -264,11 +264,6 @@ export function scopeProblems(layer: string, audited: CliRun, used: CliRun) {
     problems.push(`${layer}: the same rule in ${REACHING_IN} was not reported, so the audit does not say `
       + 'where a project\'s appearance lives, which is half of what it reports');
   }
-  if (audited.stderr.split('\n').some((line) => line.includes(PLUGIN_CSS) && line.includes('gradient'))) {
-    problems.push(`${layer}: arena audit reported a gradient inside a style plugin. A plugin paints one from its `
-      + 'own stylesheet whatever the token tier says, so the norm records it as a report rather than a '
-      + 'floor and --strict may not refuse what the norm permits');
-  }
   if (!used.stdout.includes(`paint no part(s). 2 rule(s) reach nothing this project draws: ${PAINTED}, ${RESTATED}`)) {
     problems.push(`${layer}: arena usage does not name the plugin's rules for a component the project never draws `
       + 'as rules that reach nothing. That note is where the evidence for promoting a role comes from, and a part '

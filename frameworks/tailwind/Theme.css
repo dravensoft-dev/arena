@@ -61,7 +61,7 @@
   --color-error: var(--color-error);
   --color-error-content: var(--color-error-content);
 
-  /* the system's only filled danger surface — ArenaConfirmDialog's final step */
+  /* the fill of ArenaConfirmDialog's final step */
   --color-error-fill: var(--color-error-fill);
 
   --color-neutral: var(--color-neutral);

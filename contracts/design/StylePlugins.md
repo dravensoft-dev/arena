@@ -273,11 +273,10 @@ and `ink-confirm-final`, which a plugin answers as a pair.
 This is the half that has to be written down rather than discovered.
 
 **A floor expressed as a token value is a floor over the token half only.** With plugin CSS open,
-the prohibition on gradients is the clear case: it is a floor because a fill whose colour is a
-range turns contrast into a range, and **a plugin paints the gradient from its own stylesheet
-whatever the token tier says**. It stops being a floor and becomes a report. `arena audit` names it in
-an application source and says nothing about it inside a declared plugin directory, because
-`--strict` may not refuse what this document permits.
+a plugin paints from its own stylesheet whatever the token tier says, so a floor holds where a gate
+measures the resolved value. `arena audit` names what a source text can show in an application
+source and says nothing about it inside a declared plugin directory, because `--strict` may not
+refuse what this document permits.
 
 | Claim | Held by | Over |
 |---|---|---|
@@ -289,7 +288,6 @@ an application source and says nothing about it inside a declared plugin directo
 | the two layers draw one appearance identically | `check:pixel-parity` | every sink, exactly, with no allowance declared for any of them |
 | the compiled `arena-` class name is output rather than contract | `arena audit`, in both scopes | a consumer's sources |
 | a raw colour or a bare pixel length where a token belongs | `arena audit`, in both scopes | a consumer's sources |
-| no gradient | `arena audit`, in the application scope, unless the project declares its mark is one | a consumer's sources |
 | a colour assigned through one of Arena's own aliases rather than a role | `arena audit`, in the plugin scope only | a consumer's style plugins |
 | a declaration restating what the part's slot already paints | `arena audit`, in the plugin scope only | a consumer's style plugins, and `complete` through `check:style-plugin-coverage` |
 

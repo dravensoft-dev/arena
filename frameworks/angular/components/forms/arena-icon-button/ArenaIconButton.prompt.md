@@ -60,11 +60,10 @@ name in every state regardless. Standalone, `OnPush`, signal I/O. The host stays
   browser draw a tooltip repeating what is already on screen.
 - Don't rely on the `title` alone on a touch or keyboard surface, because a title appears on pointer
   hover and nowhere else. Set `showLabel`, or reach for `arena-tooltip` on the trigger.
-- `arena-emphasis-solid` fills with the brand and is for the one primary action in a dense toolbar.
+- `arena-emphasis-solid` fills with the brand and is for the primary action in a dense toolbar.
   `ghost` is the default and the right answer nearly always; a row of solid icon buttons has no
   hierarchy left to spend.
-- There is no danger emphasis, and that is the danger convention rather than an omission: a
-  destructive action needs a word, so use `<arena-button destructive>`.
+- There is no danger emphasis: a destructive action needs a word, so use `<arena-button destructive>`.
 - `arena-size-*` reads the same density tokens `arena-button` does, so the two re-densify together in a
   toolbar. Set the same size class on both or they will not line up.
 - Reach for `tabStop="false"` only inside a composite that manages its own focus, such as a grid with a roving tab stop or a menu. Use it where reaching this control by Tab would be a second way in.

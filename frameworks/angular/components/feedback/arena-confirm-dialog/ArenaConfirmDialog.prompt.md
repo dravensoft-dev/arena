@@ -1,6 +1,6 @@
 Arena confirmation for a high-consequence action. The dialog does not close on click-outside. Losing a half-finished decision to a stray click is the failure this component exists to prevent. `requireText` makes the user type a word before the confirm button
-enables. `destructive` draws the eyebrow in the danger tone and gives the confirm button Arena's
-**only filled danger surface**.
+enables. `destructive` draws the eyebrow in the danger tone and fills the confirm button with
+`fill-confirm-final`.
 The projected `content` is the dialog's description, announced with it when the dialog opens, so put the question and what it costs there.
 
 ```html
@@ -26,7 +26,7 @@ The projected `content` is the dialog's description, announced with it when the 
 | `content` | slot |  |  | The dialog body: the question and any detail. |
 | `confirmLabel` | primitive | `string` |  | The confirm button's label. Absent, the provided locale's confirmDialogConfirm answers it. |
 | `cancelLabel` | primitive | `string` |  | The cancel button's label. Absent, the provided locale's confirmDialogCancel answers it. |
-| `destructive` | primitive | `boolean` | `false` | Gives the confirm button Arena's only filled danger surface. |
+| `destructive` | primitive | `boolean` | `false` | Fills the confirm button with fill-confirm-final. |
 | `requireText` | primitive | `string` |  | Locks the confirm button until this exact word is typed. |
 | `cancel` | event |  |  | The dialog was dismissed -- by the Cancel action or by the Escape key, in both layers. A scrim click is deliberately NOT one of them: this component never closes on click-outside. No payload. |
 | `confirm` | event |  |  | The action was confirmed. |

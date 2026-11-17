@@ -93,8 +93,9 @@ the subtree its trigger sits in, so no class above the trigger reaches it either
 channels.** A component renders each manifest group as an attribute on every slot it touches; a
 Tailwind rule keyed on it writes `--arena-hue-ink`, `-edge`, `-fill-strong`, `-fill-soft` and `-on-ink` from
 the roles a plugin answers, and a slot reads them. No component chooses a class or a colour by a
-member's value. **A floor lives in the answer**: a closed set on the role, `hue-danger-fill-strong`
-answering `transparent`, held in every plugin ([`design/StylePlugins.md`](./design/StylePlugins.md)).
+member's value. **A floor lives in the check over the answer**: `lh-prose` never closes below 1.5, and
+`check:style-plugin` measures the resolved value in every plugin
+([`design/StylePlugins.md`](./design/StylePlugins.md)).
 
 **A value no option names is the family's property, set on a container with a token**:
 `--arena-grid-min: calc(var(--grid-min) * 1.5)`, and a class on the component wins over it. A

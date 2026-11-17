@@ -72,7 +72,7 @@ is expensive, guard it inside the view rather than expecting the tab to defer it
   promises nothing an empty render would break, but it must not ship an invalid one.
 - Don't use it for steps in a sequence, or for anything a person should be able to open in a new
   window. Destinations are `arena-side-nav` items or links rather than tabs.
-- Don't fill the selected tab. The selected tab is marked by its selected rule and by weight. A filled tab spends the view's primary accent on navigation.
+- Don't fill the selected tab. The selected tab is marked by its selected rule and by weight. A filled tab would draw the accent on navigation.
 
 **By hand, in real Chromium**: the keyboard is asserted for real, but the ink and the ring are not.
 Run `bun run demos` and open

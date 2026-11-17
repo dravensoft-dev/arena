@@ -20,7 +20,7 @@ Protects irreversible actions (H3, H5). Does not close on click-outside. For the
 | `children` | slot |  |  | The dialog body: the question and any detail. |
 | `confirmLabel` | primitive | `string` |  | The confirm button's label. Absent, the provided locale's confirmDialogConfirm answers it. |
 | `cancelLabel` | primitive | `string` |  | The cancel button's label. Absent, the provided locale's confirmDialogCancel answers it. |
-| `destructive` | primitive | `boolean` | `false` | Gives the confirm button Arena's only filled danger surface. |
+| `destructive` | primitive | `boolean` | `false` | Fills the confirm button with fill-confirm-final. |
 | `requireText` | primitive | `string` |  | Locks the confirm button until this exact word is typed. |
 | `onCancel` | event |  |  | The dialog was dismissed -- by the Cancel action or by the Escape key, in both layers. A scrim click is deliberately NOT one of them: this component never closes on click-outside. No payload. |
 | `onConfirm` | event |  |  | The action was confirmed. |
@@ -38,7 +38,7 @@ Protects irreversible actions (H3, H5). Does not close on click-outside. For the
 - `Escape`: close.
 <!-- @keys end -->
 
-`destructive` fills the confirm button with `--danger-fill`, and this is the only place in Arena where danger is filled. Everywhere else danger is an outline.
+`destructive` fills the confirm button with `--danger-fill` through `fill-confirm-final`, and sets its label in `ink-confirm-final`.
 
 `title` is **required** and throws when missing. The title is what names the dialog for assistive technology, and the panel's `aria-labelledby` points at it. Nothing can derive a name for a confirmation, because its subject is editorial.
 
@@ -54,9 +54,9 @@ edges rather than walking out into the page behind the scrim.
 
 ### Do / Don't
 
-- **Do** let `destructive` paint the button. The fill is `--danger-fill` over `--color-error-content`, and it is the only surface entitled to it.
+- **Do** let `destructive` paint the button. The fill is `--danger-fill` over `--color-error-content`, the pair the confirm button reads.
 - **Don't** rebuild the filled button yourself with `--danger`. That token is tuned to be read *as text* on the base surfaces, so it is too light to carry white. The measurement is 3.67:1 in the dark theme, under WCAG AA. `--danger-fill` exists precisely for this.
-- **Don't** reach for `destructive` on a merely important action. The danger fill competes with the primary button; if it is not a point of no return, an ordinary `<ArenaButton destructive>` outline is the right shape.
+- **Don't** reach for `destructive` on a merely important action. The danger fill competes with the primary button; if it is not a point of no return, an ordinary `<ArenaButton destructive>` is the right shape.
 - **Do** add `requireText` when the action destroys data that cannot be rebuilt.
 - **Do** give every confirmation a `title` that says what is about to happen, not what the component is ("Delete project", never "Confirm").
 - **Don't** render it with an empty `title` while it is closed. `title` is required whatever `open` is. A screen that mounts one confirmation and feeds it a subject per row fails on the first render, so mount it when a subject exists instead. Keep the subject after a cancel and toggle only `open`, or focus never returns to the control that opened it.

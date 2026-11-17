@@ -1,7 +1,7 @@
 {
   "name": "ArenaBulkAction",
   "kind": "object",
-  "description": "One action an ArenaBulkActionBar offers for the current selection. A destructive action stays outline in the danger hue's edge and ink, transparent at rest, rather than in the quiet control edge and body ink. A destructive action is never the filled danger surface, which is ArenaConfirmDialog's alone.",
+  "description": "One action an ArenaBulkActionBar offers for the current selection. A destructive action draws the danger hue's edge and ink, transparent at rest, rather than the quiet control edge and body ink.",
   "fields": {
     "id": { "form": "primitive", "type": "string", "required": true,
             "description": "A stable identity for the action, so a host can switch on it rather than on the label." },
@@ -10,6 +10,6 @@
     "icon": { "form": "primitive", "type": "string",
               "description": "A Phosphor class name for the leading glyph ArenaIcon draws." },
     "destructive": { "form": "primitive", "type": "boolean",
-                     "description": "Renders the action outlined in the danger hue's edge and ink, transparent at rest, rather than in the quiet control edge and body ink." }
+                     "description": "Renders the action in the danger hue's edge and ink, transparent at rest, rather than in the quiet control edge and body ink." }
   }
 }

@@ -32,7 +32,7 @@
   --color-warning:#ecc94b;
   --color-warning-content:#141010;
   /*
-     Outline danger: this red IS the text and the border, so it is tuned against
+     Danger as text and border: this red IS the text and the border, so it is tuned against
      the base surfaces, lighter than the shared #e53e3e it replaced (4.29:1 on
      base-200: under AA).
    */
@@ -40,8 +40,8 @@
   --color-error-content:#ffffff;
   /*
      Filled danger. --color-error is tuned to be read AS TEXT on the base
-     surfaces, which makes it far too light to carry white text itself. The one
-     filled danger surface (ArenaConfirmDialog's final confirmation) therefore takes
+     surfaces, which makes it far too light to carry white text itself. A
+     surface filled with the danger hue (ArenaConfirmDialog's final confirmation) therefore takes
      its own fill, dark enough for --color-error-content. The two cannot be one
      token: the outline needs a lighter red and the fill a darker one, in
      opposite directions. This pin is OPTIONAL: omit it and colors.css derives
@@ -110,7 +110,7 @@
   --color-warning:#ecc94b;
   --color-warning-content:#141010;
   /*
-     Outline danger: this red IS the text and the border, so it is tuned against
+     Danger as text and border: this red IS the text and the border, so it is tuned against
      the base surfaces, lighter than the shared #e53e3e it replaced (4.29:1 on
      base-200: under AA).
    */
@@ -118,8 +118,8 @@
   --color-error-content:#ffffff;
   /*
      Filled danger. --color-error is tuned to be read AS TEXT on the base
-     surfaces, which makes it far too light to carry white text itself. The one
-     filled danger surface (ArenaConfirmDialog's final confirmation) therefore takes
+     surfaces, which makes it far too light to carry white text itself. A
+     surface filled with the danger hue (ArenaConfirmDialog's final confirmation) therefore takes
      its own fill, dark enough for --color-error-content. The two cannot be one
      token: the outline needs a lighter red and the fill a darker one, in
      opposite directions. This pin is OPTIONAL: omit it and colors.css derives
@@ -181,7 +181,7 @@
   --color-warning:#ecc94b;
   --color-warning-content:#141010;
   /*
-     Outline danger: darker than dark's, because here it is read against bone
+     Danger as text and border: darker than dark's, because here it is read against bone
      rather than warm black. Same role, opposite direction.
    */
   --color-error:#c33535;

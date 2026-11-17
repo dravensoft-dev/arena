@@ -1,4 +1,4 @@
-<!-- @dsCard group="Components" viewport="700x406" name="Danger convention" subtitle="Outline --error, not filled" -->
+<!-- @dsCard group="Components" viewport="700x406" name="Danger convention" subtitle="--error on controls, a fill for the final confirmation" -->
 <!doctype html><html><head><meta charset="utf-8">
 <link rel="stylesheet" href="../styles.css">
 <style>
@@ -20,21 +20,18 @@ body{margin:0;background:var(--bg);color:var(--text-strong);font-family:var(--fo
 </style>
 </head><body>
 <div class="wrap">
-<div class="lede">Destructive actions use a <b>transparent background</b> with border and content in <span class="tok">--error</span>. Danger reads through color, not weight — it never competes with the primary button. The solid fill is reserved only for the final irreversible confirmation.</div>
+<div class="lede">Destructive actions draw border and content in <span class="tok">--error</span> over <span class="tok">hue-danger-fill-strong</span>, transparent by default. The final irreversible confirmation fills with <span class="tok">fill-confirm-final</span>.</div>
 <div class="row">
 <div class="cell"><button class="btn primary"><svg style="width:1em;height:1em;fill:currentColor" aria-hidden="true" focusable="false"><use href="../../assets/Icons.generated.svg#ph-bold-rocket-launch"></use></svg>Primary</button><span class="cap">primary · filled</span></div>
-<div class="cell"><button class="btn danger"><svg style="width:1em;height:1em;fill:currentColor" aria-hidden="true" focusable="false"><use href="../../assets/Icons.generated.svg#ph-bold-trash"></use></svg>Destructive</button><span class="cap">danger · outline --error</span></div>
+<div class="cell"><button class="btn danger"><svg style="width:1em;height:1em;fill:currentColor" aria-hidden="true" focusable="false"><use href="../../assets/Icons.generated.svg#ph-bold-trash"></use></svg>Destructive</button><span class="cap">danger · border and ink --error</span></div>
 <div class="cell"><button class="iconbtn" aria-label="Delete"><svg style="width:1em;height:1em;fill:currentColor" aria-hidden="true" focusable="false"><use href="../../assets/Icons.generated.svg#ph-bold-trash"></use></svg></button><span class="cap">iconbtn danger</span></div>
-<div class="cell"><button class="btn final">Final confirmation</button><span class="cap">exception · filled</span></div>
+<div class="cell"><button class="btn final">Final confirmation</button><span class="cap">final confirmation · filled</span></div>
 </div>
 <div class="note">
-  <strong>Data pills are outline too — both signs.</strong>
+  <strong>Data pills draw an edge for both signs.</strong>
   <code>ArenaStatCard</code>'s delta pill is transparent with a 1px border whether the change is
-  positive or negative. Filled red stays exclusive to <code>ArenaConfirmDialog</code>'s final
-  irreversible confirmation, and that exclusivity is exactly what gives it weight: destructive
-  affordances are rare and must not compete for attention. A data pill has no business spending
-  that signal. The rule applies to <code>positive</code> as well, so the pair reads as one family
-  rather than a green button beside a red warning.
+  positive or negative, so the pair reads as one family rather than a green button beside a red
+  warning.
 </div>
 </div>
 </body></html>

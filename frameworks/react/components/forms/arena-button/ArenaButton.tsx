@@ -13,7 +13,7 @@ export interface ArenaButtonProps {
 
   /** The button's label. Sits between the two icons when both are given. */
   children?: React.ReactNode;
-  /** Whether the action destroys or removes something. Destructive draws the danger outline whatever emphasis the button is given: danger is never filled outside ArenaConfirmDialog's final confirmation. */
+  /** Whether the action destroys or removes something. Destructive draws its border and label in the danger hue and fills with hue-danger-fill-strong, transparent by default, whatever emphasis the button is given. */
   destructive?: boolean;
 
   /** Phosphor class name drawn before the label through ArenaIcon. Replaced by the spinner while loading. */
