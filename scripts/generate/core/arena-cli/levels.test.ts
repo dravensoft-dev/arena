@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
   DECORATIVE, derivedLevels, exemptionFor, gateFor, inlineHues, levelReports, levelsIn, raisedReports,
-  emphasisReports, surfaceKeys, washesIn, washReports,
+  emphasisReports, levelDefaults, STATE_PAIRS, stateReports, surfaceKeys, WASH_DEFAULT, washesIn, washReports,
 } from './levels.ts';
 import { walkFiles } from '../../../utils/walk-files.ts';
 import { repoRoot } from '../../../lib/arena/repo-root.ts';
@@ -351,4 +351,56 @@ test('a filled button\'s ink is measured on the fill the style plugin gives it',
   const stale = emphasisReports(roles('var(--color-primary)'), colours, 'dark');
   assert.deepEqual(stale.map((one) => one.message.split(' measures')[0]), ['--emphasis-primary-ink', '--emphasis-solid-ink'],
     'a plugin still filling the button with primary sets white on #9e77ed, 3.33:1, and the palette pair cannot see it');
+});
+
+const LIGHT = Object.fromEntries(Object.entries(
+  JSON.parse(readFileSync(join(repoRoot, 'contracts/design/palette.light.json'), 'utf8')).color as Record<string, { $value?: { hex: string } }>,
+).filter(([, token]) => token.$value?.hex).map(([key, token]) => [key, (token.$value as { hex: string }).hex]));
+
+const STATE_ROLES = (over: Record<string, string> = {}) => new Map(Object.entries({
+  'fill-page': 'var(--color-base-100)', 'fill-surface': 'var(--color-base-200)', 'fill-field': 'var(--color-base-300)',
+  'edge-focus': 'var(--color-base-content)', 'edge-selected': 'var(--color-base-content)',
+  'edge-invalid': 'var(--color-error)', 'ink-invalid': 'var(--color-error)',
+  'fill-selected': 'var(--color-primary)', 'ink-selected': 'var(--color-base-content)',
+  ...over,
+}));
+
+test('a pale light secondary reports edge-focus under 3:1', () => {
+  const found = stateReports(STATE_ROLES({ 'edge-focus': 'var(--color-secondary)' }), LIGHT, 'light', {});
+  assert.deepEqual(found.map((one) => one.kind), ['contrast', 'contrast', 'contrast'], 'one report per surface');
+  for (const one of found) {
+    assert.match(one.message, /^--edge-focus measures \d\.\d\d:1 against --fill-(page|surface|field) in the light theme, below 3:1 \(WCAG 1\.4\.11\)/);
+  }
+  assert.equal(found[0]?.message, '--edge-focus measures 2.46:1 against --fill-page in the light theme, below 3:1 (WCAG 1.4.11), '
+    + 'so the focus ring is hard to see; answer it with a colour that stands further from that ground');
+});
+
+test('the selected wash is composited at its level', () => {
+  const colours = { ...LIGHT, 'base-content': '#1a1a1a', primary: '#b52a20', 'base-200': '#f7f4ef' };
+  assert.deepEqual(stateReports(STATE_ROLES(), colours, 'light', { 'level-accent-soft-primary': 14 }), []);
+  const pale = stateReports(STATE_ROLES({ 'ink-selected': 'var(--color-neutral)' }), { ...colours, neutral: '#cabcad' }, 'light', {});
+  assert.equal(pale.length, 1);
+  assert.match(pale[0]?.message ?? '', /^--ink-selected measures \d\.\d\d:1 against the wash of --fill-selected at 14% over --fill-surface in the light theme, below 4\.5:1 \(WCAG 1\.4\.3\)/);
+});
+
+test('strict reports an unresolved role, lax skips it', () => {
+  const roles = STATE_ROLES({ 'edge-focus': 'var(--ring)' });
+  assert.deepEqual(stateReports(roles, LIGHT, 'light', {}), []);
+  const strict = stateReports(roles, LIGHT, 'light', {}, true);
+  assert.equal(strict.length, 1, 'once, not once per surface');
+  assert.match(strict[0]?.message ?? '', /^--edge-focus resolves to no palette colour in the light theme/);
+});
+
+test('the state pairs are the ones D29 and the contrast rule name', () => {
+  assert.deepEqual(STATE_PAIRS.map((pair) => `${pair.role}/${pair.over}/${pair.min}`), [
+    'edge-focus/fill-page/3', 'edge-focus/fill-surface/3', 'edge-focus/fill-field/3', 'edge-selected/fill-surface/3',
+    'edge-invalid/fill-field/3', 'ink-invalid/fill-surface/4.5', 'ink-selected/fill-selected/4.5',
+  ]);
+});
+
+test('the wash level arena build measures with is the level colors.css declares', () => {
+  const colors = readFileSync(join(repoRoot, 'contracts/design/colors.css'), 'utf8');
+  for (const pair of STATE_PAIRS.filter((one) => one.wash)) {
+    assert.equal(levelDefaults(colors)[pair.wash!.level], WASH_DEFAULT, pair.wash!.level);
+  }
 });

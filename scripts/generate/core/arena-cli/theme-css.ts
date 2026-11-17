@@ -1,13 +1,13 @@
 /* Turns a consumer's arena.config.json into the stylesheet Arena cannot ship: the palette
  * blocks and the @font-face rules (themeCss), and the package sheet (packageSheet). Everything
- * else about a token travels inside the package. It runs in the repository, where
- * check-packages.ts holds its output equivalent to Style Dictionary's, and inside both npm
- * packages, where it is the only emitter there is. It reads no file and touches no network, so a
+ * else about a token travels inside the package. It runs in the repository, where check-packages.ts
+ * holds its output equivalent to Style Dictionary's, and inside both npm packages, where it is the only emitter there is. It reads no file and touches no network, so a
  * path in the config is emitted rather than resolved and a style plugin arrives already read.
+ * State pairs use the default wash level, as a project's own is not readable here.
  * Every field of an ArenaConfig is optional because a CONSUMER writes it: an invalid one must
  * reach configProblems rather than be refused by a type nobody there can read. A style plugin is
- * checked here and not only shaped, through the same style-plugin-rules.ts Arena's own gate runs,
- * so what a consumer writes is held to the same floors in the PROJECT's build. */
+ * checked here, through the same style-plugin-rules.ts Arena's own gate runs, so what a consumer
+ * writes is held to the same floors in the PROJECT's build. */
 
 import {
   PALETTE_KEYS, POLARITIES, pickerInvert, FONT_ROLES, GENERIC_FAMILIES, SOURCE_FORMATS,
@@ -19,7 +19,7 @@ import {
 } from './style-plugin-rules.ts';
 import { scaledLiteral, serialize } from './serialize-token.ts';
 import { HEAT_MIN_DL, errorFill, heatCramped, heatLadder, toOklab } from './oklab.ts';
-import { axisReports, derivedLevels, emphasisReports, levelReports, onInkReports, raisedReports, washReports } from './levels.ts';
+import { axisReports, derivedLevels, emphasisReports, levelReports, onInkReports, raisedReports, stateReports, washReports } from './levels.ts';
 import type { Level, Wash } from './levels.ts';
 import { unicodeRange } from './font-cut.ts';
 import { report } from './report.ts';
@@ -262,7 +262,7 @@ const ALIAS = /^\{([a-z][\w-]*(?:\.[\w-]+)*)\}$/;
 
 const COLOUR_ALIAS = /^color\.[a-z0-9-]+$/;
 
-export const SKIN_ALIAS = /^(?:color|font)\.[a-z0-9-]+$/;
+export const SKIN_ALIAS = /^(?:color|font|focus)\.[a-z0-9-]+$/;
 
 export function pluginValue(raw: unknown, catalogue: TokenCatalogue | null, key?: string) {
   if (typeof raw !== 'string' || !raw.trim()) return null;
@@ -666,7 +666,7 @@ export function paletteMessages(
     }
   }
 
-  messages.push(...axisReports(roles, colors, mode), ...onInkReports(roles, colors, mode), ...emphasisReports(roles, colors, mode));
+  messages.push(...axisReports(roles, colors, mode), ...onInkReports(roles, colors, mode), ...emphasisReports(roles, colors, mode), ...stateReports(roles, colors, mode));
 
   const derived = derivedLevels(levels, roles, colors);
   messages.push(...levelReports(levels, roles, colors, derived));

@@ -12,8 +12,7 @@ import { paletteBlock, readHex, THEMES } from '../../lib/core/palette-read.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { readJson } from '../../utils/read-file.ts';
-import { answeredColour, catalogueEntries, paletteColours, roleDefaults } from './check-text-contrast.ts';
-import { CATALOGUE } from './check-catalogue.ts';
+import { answeredColour, contrastScopes, roleDefaults, stateProblems } from './check-text-contrast.ts';
 import { axisComparison } from '../../generate/core/arena-cli/levels.ts';
 
 export const node = {
@@ -24,6 +23,7 @@ export const node = {
     'plugin-style-store/catalogue/*/plugin.tokens.json',
     'plugin-style-store/catalogue/*/arena.config.json',
     'contracts/design/roles.json',
+    'contracts/design/colors.css',
     'contracts/design-generated/palette.generated.css',
   ],
   writes: [],
@@ -93,30 +93,8 @@ export function axisProblems(where: string, theme: string, hexes: AxisHexes) {
 }
 
 type Answers = Record<string, { $value?: unknown } | undefined>;
-type Scope = { where: string; theme: string; colors: Record<string, string> };
 
-export function axisScopes(): Scope[] {
-  const palette = readFileSync(join(repoRoot, PALETTE), 'utf8');
-  const generated = THEMES.map((theme) => ({
-    theme: theme.name, colors: paletteColours(paletteBlock(palette, theme.selector, PALETTE)),
-  }));
-  const dir = join(repoRoot, CATALOGUE);
-  return [
-    ...['default', 'complete'].flatMap((name) => generated.map((one) => ({
-      where: `plugin-style-store/${name}/${ANSWERS}`, ...one,
-    }))),
-    ...catalogueEntries().flatMap((entry) => {
-      const config = readJson(join(dir, entry, 'arena.config.json')) as
-        { palettes?: { name?: string; polarity?: string; colors?: Record<string, string> }[] };
-      return (config.palettes ?? []).map((one) => ({
-        where: `${CATALOGUE}/${entry}/${ANSWERS}`,
-        theme: one.polarity ?? 'dark', colors: one.colors ?? {},
-      }));
-    }),
-  ];
-}
-
-export function collectAxis(scopes = axisScopes()) {
+export function collectAxis(scopes = contrastScopes()) {
   const defaults = roleDefaults(repoRoot);
   return scopes.flatMap(({ where, theme, colors }) => {
     const answers = readJson(join(repoRoot, where)) as Answers & { light?: Answers };
@@ -155,14 +133,14 @@ export function collect(dir = ANSWER_DIR, file = ANSWERS) {
 
 function main() {
   const zero = zeroBoundaryProblems(BOUNDARIES.length);
-  const problems = [...zero, ...(zero.length ? [] : [...collect(), ...collectAxis()])];
+  const problems = [...zero, ...(zero.length ? [] : [...collect(), ...collectAxis(), ...stateProblems('edge-')])];
   if (problems.length) {
     console.error(`check-boundary-contrast: ${problems.length} problem(s)\n`);
     for (const p of problems) console.error(`  ${p}`);
     process.exit(1);
   }
   console.log(`check-boundary-contrast: ${BOUNDARIES.length} control boundary(ies) in `
-    + `${PLUGIN_DIR}/${ANSWERS}, measured in both themes, and every plugin Arena ships draws a chart's axis heavier than its grid`);
+    + `${PLUGIN_DIR}/${ANSWERS}, measured in both themes, and every plugin Arena ships draws a chart's axis heavier than its grid, and its focus, selected and invalid edges clear 3:1`);
 }
 
 if (isMainModule(import.meta.url)) main();

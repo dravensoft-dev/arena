@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {
   BOUNDARIES, removedBorders, boundaryProblems, collect, zeroBoundaryProblems, axisProblems, collectAxis,
 } from './check-boundary-contrast.ts';
+import { stateProblems } from './check-text-contrast.ts';
 
 const HEXES = {
   'color-base-100': '#141010',
@@ -85,4 +86,8 @@ test('an axis heavier than the separator passes, and one equal to it does not', 
 
 test('the real tree holds: every plugin Arena ships draws the axis heavier than the grid in both themes', () => {
   assert.deepEqual(collectAxis(), []);
+});
+
+test('the real tree holds: every plugin Arena ships clears 3:1 on its focus, selected and invalid edges in both themes', () => {
+  assert.deepEqual(stateProblems('edge-'), []);
 });

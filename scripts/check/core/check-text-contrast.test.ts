@@ -1,10 +1,11 @@
-import test from 'node:test';
+import test, { after } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
   COLORS, COMPONENT_SHEETS, ON_INK_GATE, PAIRS, PALETTE, REMOVED, ROLE_SHEETS, SCOPED_PLUGINS, VOCABULARY_SHEETS,
-  answeredColour, catalogueOnInk, componentSheets, onInkPairs, paletteColours, resolvePercent, scopesToMeasure, structureOf, surfacesUnder, THEMES,
+  answeredColour, answeredKey, catalogueOnInk, stateProblems, componentSheets, onInkPairs, paletteColours, resolvePercent, scopesToMeasure, structureOf, surfacesUnder, THEMES,
 } from './check-text-contrast.ts';
 import { paletteBlock } from '../../lib/core/palette-read.ts';
 import { resolvedFor } from './check-style-plugin.ts';
@@ -261,4 +262,42 @@ test('a toast\'s action reads one measured role in every tone, and it clears AA 
     'a plugin raising crimson to the action owes 4.5:1, and on the dark floating surface it does not clear it');
   assert.ok(inkReports('.arena-toast__action', 'ink-action', 'var(--color-secondary)').reports.some((one) => one.startsWith('light: --ink-action')),
     'a plugin raising gold to the action owes 4.5:1, and on the light floating surface it does not clear it');
+});
+
+test('the real tree holds: every plugin Arena ships clears 4.5:1 on its invalid and selected inks in both themes', () => {
+  assert.deepEqual(stateProblems('ink-'), []);
+});
+
+test('answeredKey follows the answer to the palette key a role names, and the light group only in a light theme', () => {
+  const answers = { 'edge-focus': { $value: '{color.secondary}' } };
+  const light = { 'edge-focus': { $value: '{color.base-content}' } };
+  assert.equal(answeredKey('edge-focus', answers, light, {}, 'dark'), 'secondary');
+  assert.equal(answeredKey('edge-focus', answers, light, {}, 'light'), 'base-content');
+  assert.equal(answeredKey('edge-selected', {}, {}, { 'edge-selected': '{ink-body}', 'ink-body': '{color.base-content}' }, 'dark'), 'base-content');
+});
+
+const made: string[] = [];
+after(() => { for (const dir of made) rmSync(dir, { recursive: true, force: true }); });
+
+test('a surface answered with no palette colour is reported by the gate of the pair that stands on it', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'state-'));
+  made.push(dir);
+  mkdirSync(join(dir, 'contracts/design'), { recursive: true });
+  mkdirSync(join(dir, 'p'));
+  writeFileSync(join(dir, 'contracts/design/roles.json'), '{}');
+  writeFileSync(join(dir, COLORS), readFileSync(join(repoRoot, COLORS)));
+  const answer = (role: string, value: string) => ({ [role]: { $value: value } });
+  writeFileSync(join(dir, 'p/plugin.tokens.json'), JSON.stringify({
+    ...answer('fill-page', '{color.base-100}'), ...answer('fill-surface', 'var(--ring)'), ...answer('fill-field', '{color.base-300}'),
+    ...answer('edge-focus', '{color.base-content}'), ...answer('edge-selected', '{color.base-content}'),
+    ...answer('edge-invalid', '{color.base-content}'), ...answer('ink-invalid', '{color.base-content}'),
+    ...answer('ink-selected', '{color.base-content}'), ...answer('fill-selected', '{color.primary}'),
+  }));
+  const colors = { 'base-100': '#ffffff', 'base-300': '#e5e5e5', 'base-content': '#111111', primary: '#b52a20' };
+  const scopes = [{ where: 'p/plugin.tokens.json', theme: 'light', colors }];
+  const edges = stateProblems('edge-', scopes, dir);
+  const inks = stateProblems('ink-', scopes, dir);
+  assert.ok(edges.some((one) => /--edge-focus is measured over --fill-surface, which resolves to no palette colour/.test(one)));
+  assert.ok(inks.some((one) => /--ink-invalid is measured over --fill-surface, which resolves to no palette colour/.test(one)));
+  assert.ok(inks.some((one) => /--ink-selected is measured over --fill-surface/.test(one)));
 });

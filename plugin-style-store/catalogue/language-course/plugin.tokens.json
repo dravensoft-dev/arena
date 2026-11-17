@@ -1451,5 +1451,15 @@
         "alpha": 1
       }
     }
+  },
+  "light": {
+    "edge-focus": {
+      "$type": "color",
+      "$value": "{color.base-content}"
+    },
+    "edge-selected": {
+      "$type": "color",
+      "$value": "{color.base-content}"
+    }
   }
 }

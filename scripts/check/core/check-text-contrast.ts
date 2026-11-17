@@ -16,7 +16,7 @@ import { HUE_SHEETS } from '../../lib/tailwind/hue-sheet.ts';
 import { PALETTE_KEYS } from '../../generate/core/arena-cli/palette-keys.ts';
 import {
   derivedLevels, drawnBy, emphasisReports, inlineHues, levelDefaults, levelReports, levelsIn, paletteKey, raisedReports,
-  STATUS_HUES, washesIn, washReports,
+  STATE_PAIRS, STATUS_HUES, stateReports, washesIn, washReports,
 } from '../../generate/core/arena-cli/levels.ts';
 import { ARENA_EXT } from '../../generate/core/arena-cli/style-plugin-rules.ts';
 import { CATALOGUE, entries } from './check-catalogue.ts';
@@ -43,7 +43,8 @@ export const ROLES = 'contracts/design/roles.json';
 export const node = {
   name: 'check:text-contrast',
   reads: [PALETTE, COLORS, ...ROLE_SHEETS, ...COMPONENT_SHEETS, `${HUE_SHEETS}/**/*.hues.generated.css`, ROLES,
-    `${CATALOGUE}/*/plugin.tokens.json`, `${CATALOGUE}/*/arena.config.json`],
+    `${CATALOGUE}/*/plugin.tokens.json`, `${CATALOGUE}/*/arena.config.json`,
+    'plugin-style-store/default/plugin.tokens.json', 'plugin-style-store/complete/plugin.tokens.json'],
   writes: [],
   feeds: [],
 };
@@ -163,14 +164,60 @@ type EntryPalette = { name?: string; polarity?: string; colors?: Record<string, 
 
 const ALIAS = /^\{([\w.-]+)\}$/;
 
-export function answeredColour(role: string, answers: Answers, light: Answers, defaults: Record<string, string>,
-  colors: Record<string, string>, polarity: string, seen: string[] = []): string | null {
+export function answeredKey(role: string, answers: Answers, light: Answers, defaults: Record<string, string>,
+  polarity: string, seen: string[] = []): string | null {
   if (seen.includes(role)) return null;
   const own = (polarity === 'light' ? light[role]?.$value : undefined) ?? answers[role]?.$value ?? defaults[role];
   const target = ALIAS.exec(typeof own === 'string' ? own.trim() : '')?.[1];
   if (!target) return null;
-  if (target.startsWith('color.')) return colors[target.slice('color.'.length)] ?? null;
-  return answeredColour(target, answers, light, defaults, colors, polarity, [...seen, role]);
+  if (target.startsWith('color.')) return target.slice('color.'.length);
+  return answeredKey(target, answers, light, defaults, polarity, [...seen, role]);
+}
+
+export function answeredColour(role: string, answers: Answers, light: Answers, defaults: Record<string, string>,
+  colors: Record<string, string>, polarity: string): string | null {
+  const key = answeredKey(role, answers, light, defaults, polarity);
+  return key === null ? null : colors[key] ?? null;
+}
+
+export type ContrastScope = { where: string; theme: string; colors: Record<string, string> };
+
+export function contrastScopes(at = root): ContrastScope[] {
+  const palette = readFileSync(join(at, PALETTE), 'utf8');
+  const generated = THEMES.map((theme) => ({
+    theme: theme.name, colors: paletteColours(block(palette, theme.selector, PALETTE)),
+  }));
+  const dir = join(at, CATALOGUE);
+  return [
+    ...['default', 'complete'].flatMap((name) => generated.map((one) => ({
+      where: `plugin-style-store/${name}/plugin.tokens.json`, ...one,
+    }))),
+    ...catalogueEntries(at).flatMap((entry) => {
+      const config = JSON.parse(readFileSync(join(dir, entry, 'arena.config.json'), 'utf8')) as { palettes?: EntryPalette[] };
+      return (config.palettes ?? []).map((one) => ({
+        where: `${CATALOGUE}/${entry}/plugin.tokens.json`,
+        theme: one.polarity ?? 'dark', colors: one.colors ?? {},
+      }));
+    }),
+  ];
+}
+
+const STATE_ROLES = [...new Set(STATE_PAIRS.flatMap((pair) => [pair.role, pair.over, ...(pair.wash ? ['fill-surface'] : [])]))];
+
+export function stateProblems(prefix: string, scopes = contrastScopes(), at = root) {
+  const defaults = roleDefaults(at);
+  const level = levelDefaults(readFileSync(join(at, COLORS), 'utf8'));
+  return scopes.flatMap(({ where, theme, colors }) => {
+    const answers = JSON.parse(readFileSync(join(at, where), 'utf8')) as Answers & { light?: Answers };
+    const roles = new Map<string, string>();
+    for (const role of STATE_ROLES) {
+      const key = answeredKey(role, answers, (answers.light ?? {}) as Answers, defaults, theme);
+      if (key) roles.set(role, `var(--color-${key})`);
+    }
+    return stateReports(roles, colors, theme, level, true)
+      .filter((one) => one.message.startsWith(`--${prefix}`))
+      .map((one) => `${where}: ${one.message}`);
+  });
 }
 
 export function roleDefaults(at = root) {
@@ -368,6 +415,12 @@ function main() {
       console.log(`         derived from --color-error ${errHex} by ${way} it in oklab, away from --color-error-content`);
     }
   }
+
+  const states = stateProblems('ink-');
+  console.log('\nthe state inks: invalid and selected text over the grounds it stands on, in every plugin Arena ships and both themes');
+  for (const one of states) console.log(`  [FAIL] ${one}`);
+  if (states.length) ok = false;
+  else console.log('  [PASS] every ink-invalid and ink-selected pair clears 4.5:1');
 
   const entries = catalogueOnInk();
   console.log('\nthe catalogue: each status hue\'s on-ink over its ink in every palette of every entry');

@@ -1052,6 +1052,21 @@ test('a default resolves through the root plugin\'s own answer and is restated u
     'the catalogue carries the default plugin\'s answer, and a project\'s default follows its own');
 });
 
+test('a default that names a focus token is emitted as the token, as Arena\'s own sheet does', () => {
+  const sheets = {
+    ...DEFAULTED,
+    catalogue: {
+      ...DEFAULTED.catalogue,
+      tokens: { ...DEFAULTED.catalogue.tokens, 'focus-width': '2px' },
+      roles: { ...DEFAULTED.catalogue.roles, 'bw-focus': { type: 'dimension', userScale: 'fixed', default: '{focus.width}' } },
+    },
+  };
+  const { plugins, defaulted } = rootWithDefaults([total()], sheets.catalogue as any);
+  assert.ok(defaulted.includes('bw-focus'));
+  const css = themeCss(listed(['console']), { sheets: sheets as any, plugins });
+  assert.match(css, /--bw-focus:var\(--focus-width\);/);
+});
+
 test('a default follows the root plugin\'s light answer to the role it aliases', () => {
   const root = total({ light: { 'ink-eyebrow': { $type: 'color', $value: '{color.base-200}' } } });
   const { plugins } = rootWithDefaults([root], DEFAULTED.catalogue);
@@ -1266,7 +1281,7 @@ test('a project naming its own component subset still imports every vocabulary s
 });
 
 const COLOUR_ROLES = {
-  tokens: Object.fromEntries(['neutral', 'secondary', 'base-content', 'base-100', 'base-300', 'error', 'info']
+  tokens: Object.fromEntries(['neutral', 'secondary', 'base-content', 'base-100', 'base-200', 'base-300', 'error', 'info']
     .map((key) => [`color-${key}`, `var(--color-${key})`])),
 };
 
@@ -1596,4 +1611,38 @@ test('a palette named polarity-light is refused', () => {
   assert.equal(reservedProblems('polarity-light', 'at').length, 1);
   const c = config({ palettes: [{ name: 'polarity-light', default: true, polarity: 'light', colors: colors() }] });
   assert.ok(configProblems(c).some((m) => m.includes('"polarity-light" is the polarity hook a runtime palette wears')));
+});
+
+const stateConfig = () => config({ palettes: [{ name: 'day', default: true, polarity: 'light', colors: colors({
+  'base-100': '#ffffff', 'base-200': '#f7f7f7', 'base-300': '#e6e6e6', 'base-content': '#111111', secondary: '#c5a059', error: '#aa1111',
+}) }] });
+
+test('arena build reports a state pair that fails', () => {
+  const roles = {
+    'fill-page': '{color.base-100}', 'fill-surface': '{color.base-200}', 'fill-field': '{color.base-300}',
+    'edge-focus': '{color.secondary}',
+  };
+  const messages = (paletteReports(stateConfig(), COLOUR_ROLES as any, [answered(roles)])[0]?.messages ?? [])
+    .filter((m) => m.kind === 'contrast' && m.message.startsWith('--edge-focus')).map((m) => m.message);
+  assert.equal(messages.length, 3, 'one per surface the focus ring can stand on');
+  assert.match(messages[0] ?? '', /^--edge-focus measures 2\.\d\d:1 against --fill-page in the light theme, below 3:1 \(WCAG 1\.4\.11\)/);
+});
+
+test('arena build says nothing of a state role answered with no palette colour', () => {
+  const found = (paletteReports(stateConfig(), COLOUR_ROLES as any, [answered({ 'edge-focus': 'var(--ring)' })])[0]?.messages ?? [])
+    .filter((m) => /^--(edge|ink)-(focus|selected|invalid)/.test(m.message));
+  assert.deepEqual(found, []);
+});
+
+test('arena build reports a pale light focus ring a root plugin left unanswered, once the kernel default is applied', () => {
+  const catalogue = { tokens: COLOUR_ROLES.tokens, roles: { 'edge-focus': { type: 'color', default: '{color.secondary}' } } };
+  const silent = answered({ 'fill-page': '{color.base-100}', 'fill-surface': '{color.base-200}', 'fill-field': '{color.base-300}' });
+  const { plugins, defaulted } = rootWithDefaults([silent], catalogue as any);
+  assert.ok(defaulted.includes('edge-focus'), 'the plugin never answered edge-focus');
+  const messages = (paletteReports(stateConfig(), COLOUR_ROLES as any, plugins)[0]?.messages ?? [])
+    .filter((m) => m.kind === 'contrast' && m.message.startsWith('--edge-focus')).map((m) => m.message);
+  assert.equal(messages.length, 3, messages.join('\n'));
+  for (const surface of ['--fill-page', '--fill-surface', '--fill-field']) {
+    assert.ok(messages.some((m) => m.includes(`against ${surface} in the light theme, below 3:1 (WCAG 1.4.11)`)), surface);
+  }
 });

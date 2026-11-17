@@ -431,3 +431,61 @@ export function onInkReports(roles: Map<string, string>, colors: Record<string, 
   }
   return out;
 }
+
+export const STATE_PAIRS: readonly { role: string; over: string; min: number; wash?: { level: string } }[] = [
+  { role: 'edge-focus', over: 'fill-page', min: 3 },
+  { role: 'edge-focus', over: 'fill-surface', min: 3 },
+  { role: 'edge-focus', over: 'fill-field', min: 3 },
+  { role: 'edge-selected', over: 'fill-surface', min: 3 },
+  { role: 'edge-invalid', over: 'fill-field', min: 3 },
+  { role: 'ink-invalid', over: 'fill-surface', min: 4.5 },
+  { role: 'ink-selected', over: 'fill-selected', min: 4.5, wash: { level: 'level-accent-soft-primary' } },
+];
+
+export const WASH_DEFAULT = 14;
+
+const STATE_WHY: Record<string, string> = {
+  'edge-focus': 'the focus ring is hard to see',
+  'edge-selected': 'the edge that marks a selected item is hard to see',
+  'edge-invalid': 'the edge of an invalid field is hard to see',
+  'ink-invalid': 'the message under an invalid field is hard to read',
+  'ink-selected': 'the label of a selected item is hard to read',
+};
+
+export function stateReports(
+  roles: Map<string, string>, colors: Record<string, string>, theme: string,
+  levels: Record<string, number> = {}, strict = false,
+): Report[] {
+  const out: Report[] = [];
+  const unresolved = new Set<string>();
+  const missing = (pair: string, role: string) => {
+    const seen = `${pair}|${role}`;
+    if (!strict || unresolved.has(seen)) return;
+    unresolved.add(seen);
+    out.push(report('contrast', pair === role
+      ? `--${role} resolves to no palette colour in the ${theme} theme, so its pairs cannot be measured; `
+        + 'answer it with a palette colour'
+      : `--${pair} is measured over --${role}, which resolves to no palette colour in the ${theme} theme, `
+        + 'so the pair cannot be measured; answer it with a palette colour'));
+  };
+  for (const pair of STATE_PAIRS) {
+    const ink = colors[paletteKey(roles.get(pair.role)) ?? ''];
+    const ground = colors[paletteKey(roles.get(pair.over)) ?? ''];
+    if (!ink) { missing(pair.role, pair.role); continue; }
+    if (!ground) { missing(pair.role, pair.over); continue; }
+    const surface = pair.wash ? colors[paletteKey(roles.get('fill-surface')) ?? ''] : undefined;
+    if (pair.wash && !surface) { missing(pair.role, 'fill-surface'); continue; }
+    const under = pair.wash
+      ? composite(ground, surface as string, levels[pair.wash.level] ?? WASH_DEFAULT) : ground;
+    const ratio = contrast(ink, under);
+    if (ratio >= pair.min) continue;
+    const standard = pair.min === MARK_MIN ? 'WCAG 1.4.11' : 'WCAG 1.4.3';
+    const against = pair.wash
+      ? `the wash of --${pair.over} at ${levels[pair.wash.level] ?? WASH_DEFAULT}% over --fill-surface`
+      : `--${pair.over}`;
+    out.push(report('contrast', `--${pair.role} measures ${ratio.toFixed(2)}:1 against ${against} in the `
+      + `${theme} theme, below ${pair.min}:1 (${standard}), so ${STATE_WHY[pair.role]}; `
+      + 'answer it with a colour that stands further from that ground'));
+  }
+  return out;
+}
