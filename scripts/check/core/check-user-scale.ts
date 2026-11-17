@@ -17,7 +17,7 @@ import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { KEY, AXES, declaredAxis, classify, tokenAxes as axesOf } from '../../lib/core/user-scale.ts';
 import type { Classified } from '../../lib/core/user-scale.ts';
 import type { DtcgNode } from '../../lib/core/dtcg-shapes.ts';
-import { EXCLUDED } from './check-dtcg.ts';
+import { EXCLUDED } from '../../lib/core/dtcg-shapes.ts';
 
 export const PLUGIN_ANSWERS = [
   'plugin-style-store/default/plugin.tokens.json',
@@ -66,7 +66,7 @@ export function collect(dir = join(root, SOURCE_DIR)) {
   return { files, found, problems };
 }
 
-export const tokenAxes = (dir = join(root, SOURCE_DIR)) => axesOf(dir, EXCLUDED);
+export const tokenAxes = (dir = join(root, SOURCE_DIR)) => axesOf(dir);
 
 type Answer = { name: string; tokens: Record<string, DtcgNode> };
 

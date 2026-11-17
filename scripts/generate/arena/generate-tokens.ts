@@ -306,7 +306,7 @@ let axisSources: { roles: Record<string, unknown>; axes: ReadonlyMap<string, str
 function axisSourcesOnce() {
   axisSources ??= {
     roles: readJson(join(root, DESIGN_DIR, 'roles.json')) as Record<string, unknown>,
-    axes: tokenAxes(join(root, DESIGN_DIR), new Set(['roles.json'])),
+    axes: tokenAxes(join(root, DESIGN_DIR)),
   };
   return axisSources;
 }

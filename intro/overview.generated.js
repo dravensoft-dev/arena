@@ -34,6 +34,12 @@ var POLARITY_HOOKS = new Set(POLARITIES.map((polarity) => `polarity-${polarity}`
 var scopeKey = (root, selector) => `@scope (${root}) ${selector}`;
 
 // scripts/lib/core/dtcg-shapes.ts
+var EXCLUDED = new Map([
+  [
+    "roles.json",
+    "it declares the questions the kernel asks and carries no value, so it is not a token file. " + "A DTCG token without $value is not a DTCG token, and check:role-contract holds it instead."
+  ]
+]);
 function childEntries(node) {
   return Object.entries(node ?? {}).filter(([key, child]) => !key.startsWith("$") && child !== null && typeof child === "object").map(([key, child]) => [key, child]);
 }

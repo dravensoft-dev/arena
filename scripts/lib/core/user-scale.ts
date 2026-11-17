@@ -6,7 +6,7 @@
 import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { readJson } from '../../utils/read-file.ts';
-import { ARENA_EXT, childEntries, isToken } from './dtcg-shapes.ts';
+import { ARENA_EXT, EXCLUDED, childEntries, isToken } from './dtcg-shapes.ts';
 import type { DtcgNode } from './dtcg-shapes.ts';
 
 export const KEY = 'userScale';
@@ -55,10 +55,9 @@ export function classify(tree: DtcgNode, file: string) {
   return { found, problems };
 }
 
-
-export function tokenAxes(dir: string, skip: ReadonlyMap<string, unknown> | ReadonlySet<string>) {
+export function tokenAxes(dir: string) {
   const map = new Map<string, string>();
-  const files = readdirSync(dir).filter((f) => f.endsWith('.json') && !skip.has(f)).sort();
+  const files = readdirSync(dir).filter((f) => f.endsWith('.json') && !EXCLUDED.has(f)).sort();
   for (const file of files) {
     for (const { at, axis } of classify(readJson(join(dir, file)), file).found) {
       map.set(at.slice(at.indexOf(':') + 1), axis);

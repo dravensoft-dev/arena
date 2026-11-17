@@ -20,7 +20,7 @@ export const node = {
   writes: [],
   feeds: [],
 };
-import { ARENA_EXT } from '../../lib/core/dtcg-shapes.ts';
+import { ARENA_EXT, EXCLUDED } from '../../lib/core/dtcg-shapes.ts';
 import type { DtcgNode } from '../../lib/core/dtcg-shapes.ts';
 
 const RESERVED = new Set(['$value', '$type', '$description', '$extensions', '$deprecated']);
@@ -137,11 +137,7 @@ export function validateTree(tree: DtcgNode, file: string) {
   return errs;
 }
 
-export const EXCLUDED = new Map([
-  ['roles.json',
-   'it declares the questions the kernel asks and carries no value, so it is not a token file. '
-   + 'A DTCG token without $value is not a DTCG token, and check:role-contract holds it instead.'],
-]);
+export { EXCLUDED };
 
 export function zeroSourceProblems(count: number) {
   if (count > 0) return [];
