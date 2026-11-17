@@ -56,14 +56,14 @@
   "variants": {
     "state": {
       "neutral": {
-        "field": "border-edge-field focus-within:border-secondary focus-within:ring-[length:var(--focus-width)] focus-within:ring-secondary/16"
+        "field": "border-edge-field focus-within:border-edge-focus focus-within:ring-[length:var(--bw-focus)] focus-within:ring-edge-focus/(--level-accent-soft-gold)"
       },
       "error": {
         "field": "border-[color:var(--arena-hue-edge)] ring-[length:var(--focus-width)] ring-[color:var(--arena-hue-fill-soft)]",
         "statusIcon": "text-[color:var(--arena-hue-ink)]"
       },
       "valid": {
-        "field": "border-[color:var(--arena-hue-edge)] ring-[length:var(--focus-width)] ring-[color:var(--arena-hue-fill-soft)] focus-within:border-secondary focus-within:ring-[length:var(--focus-width)] focus-within:ring-secondary/16",
+        "field": "border-[color:var(--arena-hue-edge)] ring-[length:var(--focus-width)] ring-[color:var(--arena-hue-fill-soft)] focus-within:border-edge-focus focus-within:ring-[length:var(--bw-focus)] focus-within:ring-edge-focus/(--level-accent-soft-gold)",
         "statusIcon": "text-[color:var(--arena-hue-ink)]"
       }
     },

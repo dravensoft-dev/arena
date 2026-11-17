@@ -13,6 +13,7 @@ import { escapeClass, layerManifests } from '../../lib/tailwind/tailwind-compile
 import { markupDeclarations } from '../../lib/tailwind/vocabulary.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { readJson } from '../../utils/read-file.ts';
+import { classStringsBySlot } from '../arena/check-manifest-states.ts';
 
 const manifests = new Map([...layerManifests().values()].map((m) => [m.component, m]));
 
@@ -301,7 +302,7 @@ export const CLAIMS = {
   ],
   ArenaTable: [
     ...['th', 'td'].map((slot) => ({
-      slot, has: ['outline-none', 'focus:shadow-[inset_0_0_0_var(--focus-width)_var(--focus-ring)]'],
+      slot, has: ['outline-none', 'focus:shadow-[inset_0_0_0_var(--bw-focus)_var(--edge-focus)]'],
       why: 'a cell draws its focus ring from the focus tokens and suppresses the UA outline, or a keyboard user cannot see where the cursor is',
     })),
     ...['th', 'td'].map((slot) => ({
@@ -386,7 +387,7 @@ export const CLAIMS = {
     { chosen: { destructive: false }, slot: 'confirm', has: ['bg-primary-fill', 'text-primary-content'], hasNot: ['bg-confirm-final'], why: 'a confirmation that is not destructive fills with the brand' },
     { chosen: { open: true }, slot: 'foot', has: ['flex-wrap'], why: 'the footer wraps the way ArenaDialog, ArenaPageHead and ArenaChartCard all do, and a third action row behaving differently is worse than none' },
     { chosen: { open: true }, slot: 'root', has: ['flex'], why: 'the root carries a display utility in its own base string, independent of the open variant' },
-    { slot: 'input', has: ['focus-visible:ring-[color:var(--arena-hue-edge)]'], hasNot: ['focus-visible:ring-error'], why: 'the require-text input confirms a destructive action, so its focus ring is the danger edge channel always gives this slot' },
+    { slot: 'input', has: ['focus-visible:ring-edge-focus'], hasNot: ['focus-visible:ring-error'], why: 'the require-text input confirms a destructive action, so its focus ring is the danger edge channel always gives this slot' },
     { chosen: { invalid: true }, slot: 'input', has: [EDGE], hasNot: ['border-error', 'border-edge-field'], why: 'invalid borders the require-text input in the danger edge channel and drops the neutral border' },
     { chosen: { invalid: false }, slot: 'input', has: ['border-edge-field'], why: 'a valid require-text input keeps the neutral border' },
   ],
@@ -480,7 +481,7 @@ export const CLAIMS = {
     { slot: 'spinner', has: ['arena-btn-spin'], why: 'the spinner is the button spinner, reduced-motion answer included' },
   ],
   ArenaCheckbox: [
-    { slot: 'box', has: ['[&:has(~input:focus-visible)]:shadow-[0_0_0_var(--focus-width)_var(--focus-ring)]'], why: 'the focus ring is a selector on the box, so nothing injects a stylesheet and no hook class survives, and it is the full-strength role because the accent at 16% is a wash rather than an edge' },
+    { slot: 'box', has: ['[&:has(~input:focus-visible)]:shadow-[0_0_0_var(--bw-focus)_var(--edge-focus)]'], why: 'the focus ring is a selector on the box, so nothing injects a stylesheet and no hook class survives, and it is the full-strength role because the accent at 16% is a wash rather than an edge' },
     { chosen: { checked: true }, slot: 'box', has: ['bg-primary-fill', 'border-primary-fill'], why: 'checked fills with the brand; unchecked is the input surface behind a neutral hairline' },
     { chosen: { checked: false }, slot: 'box', has: ['bg-base-300', 'border-edge-control'], why: 'checked fills with the brand; unchecked is the input surface behind a neutral hairline' },
     { chosen: { checked: true }, slot: 'check', has: ['text-primary-content'], why: 'the tick reads on the filled box, which is the one pairing that has to hold' },
@@ -496,7 +497,7 @@ export const CLAIMS = {
   ArenaCombobox: [
     { slot: 'root', has: ['flex', 'flex-col'], why: 'a host-bound root is never the UA-default inline box' },
     { slot: 'error', has: [INK], hasNot: ['text-error'], why: 'the field error message reads the ink of the danger hue always gives its slot, so a plugin moving the danger ink moves the message with the ring' },
-    { chosen: { state: 'neutral' }, slot: 'field', has: ['focus-within:border-secondary'], why: 'focus stays in the input, so the field rings on focus-within, and neutral rings only then' },
+    { chosen: { state: 'neutral' }, slot: 'field', has: ['focus-within:border-edge-focus'], why: 'focus stays in the input, so the field rings on focus-within, and neutral rings only then' },
     { chosen: { state: 'error' }, slot: 'statusIcon', has: [INK], why: 'error and valid ring at rest and say which they are, with a glyph as the second channel' },
     { slot: 'field', has: ['min-h-ctl-h'], hasNot: ['h-ctl-h'], why: 'the field is a floor and never a fixed height, so a row of chips can wrap inside it' },
     { slot: 'caret', has: ['pointer-events-none'], why: 'the caret is decoration and must not swallow the press meant for the field' },
@@ -526,10 +527,10 @@ export const CLAIMS = {
   ],
   ArenaInput: [
     { slot: 'error', has: [INK], hasNot: ['text-error'], why: 'the field error message reads the ink of the danger hue always gives its slot, so a plugin moving the danger ink moves the message with the ring' },
-    { chosen: { state: 'neutral' }, slot: 'field', has: ['focus-within:border-secondary'], why: 'neutral rings gold only on focus, where error and valid ring at rest and say which they are' },
+    { chosen: { state: 'neutral' }, slot: 'field', has: ['focus-within:border-edge-focus'], why: 'neutral rings gold only on focus, where error and valid ring at rest and say which they are' },
     { chosen: { state: 'error' }, slot: 'field', has: [EDGE, 'ring-[color:var(--arena-hue-fill-soft)]'], why: 'error and valid ring at rest and say which they are, at the soft tint rather than full strength' },
     { chosen: { state: 'error' }, slot: 'statusIcon', has: [INK], why: 'error and valid ring at rest and say which they are' },
-    { chosen: { state: 'valid' }, slot: 'field', has: [EDGE, 'focus-within:border-secondary'], why: 'a valid field still takes the focus ring, because being valid is not being focused' },
+    { chosen: { state: 'valid' }, slot: 'field', has: [EDGE, 'focus-within:border-edge-focus'], why: 'a valid field still takes the focus ring, because being valid is not being focused' },
     { chosen: { state: 'valid' }, slot: 'statusIcon', has: [INK], why: 'error and valid ring at rest and say which they are' },
     { chosen: { disabled: true }, slot: 'root', has: ['opacity-[var(--fade-disabled)]'], hasNot: ['opacity-50'], why: 'disabled dims the whole field group and readonly changes the surface, not the border' },
     { chosen: { readOnly: true }, slot: 'field', has: ['bg-base-200'], why: 'disabled dims the whole field group and readonly changes the surface, not the border' },
@@ -551,7 +552,7 @@ export const CLAIMS = {
     { slot: 'size', has: ['font-mono', 'tabular-nums'], why: 'a byte count is a figure, and figures set in tabular digits' },
   ],
   ArenaRadio: [
-    { slot: 'ring', has: ['[&:has(~input:focus-visible)]:shadow-[0_0_0_var(--focus-width)_var(--focus-ring)]'], why: 'the ring finds its own focus through an arbitrary variant, so nothing injects a stylesheet and no hook class survives, and it is the full-strength role because the accent at 16% is a wash rather than an edge' },
+    { slot: 'ring', has: ['[&:has(~input:focus-visible)]:shadow-[0_0_0_var(--bw-focus)_var(--edge-focus)]'], why: 'the ring finds its own focus through an arbitrary variant, so nothing injects a stylesheet and no hook class survives, and it is the full-strength role because the accent at 16% is a wash rather than an edge' },
     { slot: 'group', has: ['flex', 'flex-col', 'gap-items'], why: 'the group is a column, and it is a display utility because the host binds it' },
   ],
   ArenaMenu: [
@@ -587,17 +588,17 @@ export const CLAIMS = {
   ArenaSegmentedControl: [
     { chosen: { selected: true }, slot: 'segment', has: ['bg-neutral', 'font-control', 'shadow-1'], why: 'the selected segment reads as a raised neutral chip rather than a brand fill' },
     { chosen: { selected: false }, slot: 'segment', has: ['bg-transparent', 'text-ink-muted/(--level-ink-muted)', 'hover:text-ink-body/(--level-ink-body)'], why: 'an unselected segment is muted and answers hover' },
-    { slot: 'track', has: ['inline-flex', 'rounded-control', 'focus-within:border-secondary'], why: 'the track carries the focus ring for the group, since the native inputs are hidden' },
+    { slot: 'track', has: ['inline-flex', 'rounded-control', 'focus-within:border-edge-focus'], why: 'the track carries the focus ring for the group, since the native inputs are hidden' },
     { slot: 'segment', has: ['rounded-control-sm'], why: 'the segment radius is one step inside the track radius' },
     { slot: 'input', has: ['opacity-0', 'size-0'], hasNot: ['hidden'], why: 'the native input is hidden by the recipe rather than by display none, so it stays focusable' },
   ],
   ArenaSelect: [
     { slot: 'error', has: [INK], hasNot: ['text-error'], why: 'the field error message reads the ink of the danger hue always gives its slot, so a plugin moving the danger ink moves the message with the ring' },
-    { slot: 'field', has: ['focus:border-secondary'], why: 'the focus ring is the recipe\'s job, not the component\'s, so nothing injects a stylesheet for it' },
+    { slot: 'field', has: ['focus:border-edge-focus'], why: 'the focus ring is the recipe\'s job, not the component\'s, so nothing injects a stylesheet for it' },
     { slot: 'field', has: ['appearance-none', 'pr-9'], why: 'the field strips the platform chrome and reserves the room the caret Arena draws sits in' },
     { slot: 'root', has: ['flex'], why: 'a host-bound root is never the UA-default inline box' },
     { slot: 'caret', has: ['pointer-events-none'], why: 'the caret is decoration over the native control and must not swallow the click' },
-    { slot: 'field', has: ['focus:border-secondary', 'focus:outline-none'], why: 'a select takes focus itself, so the ring is focus rather than focus-within' },
+    { slot: 'field', has: ['focus:border-edge-focus', 'focus:outline-none'], why: 'a select takes focus itself, so the ring is focus rather than focus-within' },
   ],
   ArenaSheet: [
     { chosen: { open: true }, slot: 'root', has: ['flex'],
@@ -632,7 +633,7 @@ export const CLAIMS = {
     { slot: 'tab', has: ['focus-visible:outline-none'], why: 'a directly focused slot removes the browser\'s own outline or that is what a keyboard user sees instead of Arena\'s' },
     {
       slot: 'tab',
-      has: ['focus-visible:ring-[length:var(--focus-width)]', 'focus-visible:ring-[color:var(--focus-ring)]'],
+      has: ['focus-visible:ring-[length:var(--bw-focus)]', 'focus-visible:ring-edge-focus'],
       why: 'the ring is a ring utility rather than a shadow one, for the reason the tab focus-ring test in this file carries',
     },
     { chosen: { selected: true }, slot: 'panel', has: ['block'], hasNot: ['hidden'], why: 'exactly one panel is shown, and the other is hidden rather than merely unstyled' },
@@ -640,8 +641,8 @@ export const CLAIMS = {
   ],
   ArenaTextarea: [
     { slot: 'error', has: [INK], hasNot: ['text-error'], why: 'the field error message reads the ink of the danger hue always gives its slot, so a plugin moving the danger ink moves the message with the ring' },
-    { slot: 'field', has: ['focus:border-secondary'], why: 'the focus ring is the recipe\'s job, not the component\'s, so nothing injects a stylesheet for it' },
-    { chosen: { state: 'neutral' }, slot: 'field', has: ['focus:border-secondary'], hasNot: ['border-success'], why: 'a textarea takes focus itself, so its ring is focus rather than focus-within' },
+    { slot: 'field', has: ['focus:border-edge-focus'], why: 'the focus ring is the recipe\'s job, not the component\'s, so nothing injects a stylesheet for it' },
+    { chosen: { state: 'neutral' }, slot: 'field', has: ['focus:border-edge-focus'], hasNot: ['border-success'], why: 'a textarea takes focus itself, so its ring is focus rather than focus-within' },
     { chosen: { state: 'error' }, slot: 'field', has: [EDGE, 'ring-[color:var(--arena-hue-fill-soft)]'], hasNot: ['border-success'], why: 'error rings at rest and says which it is' },
     { chosen: { resize: 'vertical' }, slot: 'field', has: ['resize-y'], why: 'resize is the consumer\'s choice and the recipe carries both answers' },
     { chosen: { resize: 'none' }, slot: 'field', has: ['resize-none'], why: 'resize is the consumer\'s choice and the recipe carries both answers' },
@@ -868,5 +869,58 @@ test('a key cap is drawn one way wherever it appears, so a plugin answers every 
     const bare = resolve(component, {}, slot);
     assert.ok(bare.includes('font-face-key') && bare.some((one) => one.startsWith('text-ink-key/')),
       `${component}.${slot} prints a key outside the key register, in a face or an ink no key role answers`);
+  }
+});
+
+const FOCUS_MODIFIER = /(^|[:\]])focus(-visible|-within)?:/;
+
+function everyClassBySlot(): [string, string, string[]][] {
+  const found: [string, string, string[]][] = [];
+  for (const [component, manifest] of manifests)
+    for (const [slot, strings] of classStringsBySlot(manifest) as Map<string, string[]>)
+      found.push([component, slot, strings.flatMap((one) => one.split(/\s+/).filter(Boolean))]);
+  return found;
+}
+
+test('no manifest reads a focus compatibility alias', () => {
+  const problems: string[] = [];
+  for (const [component, slot, classes] of everyClassBySlot()) {
+    for (const cls of classes) {
+      if (/--focus-ring|(^|:)ring-primary|(^|:)ring-secondary|(^|:)border-secondary/.test(cls))
+        problems.push(`${component}.${slot} reads ${cls}`);
+      if (FOCUS_MODIFIER.test(cls) && cls.includes('--focus-width'))
+        problems.push(`${component}.${slot} reads --focus-width inside the focus class ${cls}`);
+    }
+  }
+  assert.deepEqual(problems, [],
+    'focus is answered by the edge-focus and bw-focus roles, so a nested plugin answering them reaches every component');
+});
+
+test('an errored field carries no focus edge', () => {
+  for (const component of ['ArenaInput', 'ArenaNumberField', 'ArenaCombobox', 'ArenaSelect', 'ArenaPinInput', 'ArenaTextarea']) {
+    const manifest = manifests.get(component) as { slots: Record<string, string>; variants: Record<string, Record<string, Record<string, string>>> };
+    const field = Object.keys(manifest.variants.state?.error ?? {})[0] as string;
+    const base = (manifest.slots[field] ?? '').split(/\s+/);
+    const error = (manifest.variants.state!.error![field] ?? '').split(/\s+/);
+    const focusOf = (list: string[]) => list.filter((cls) => FOCUS_MODIFIER.test(cls) && /(border|ring|shadow)-/.test(cls.replace(FOCUS_MODIFIER, "")));
+    assert.deepEqual(focusOf(base), [], `${component}.${field} base carries a focus class, which would turn an errored field gold on focus`);
+    assert.deepEqual(focusOf(error), [], `${component}.${field} state=error carries a focus class`);
+    const neutral = (manifest.variants.state!.neutral![field] ?? '').split(/\s+/);
+    assert.ok(neutral.some((cls) => /^focus(-within)?:border-edge-focus$/.test(cls)), `${component}.${field} state=neutral lacks its focus edge`);
+  }
+});
+
+test('every slot that gained a ring keeps it under hover', () => {
+  const RING = 'focus-visible:shadow-[inset_0_0_0_var(--bw-focus)_var(--edge-focus)]';
+  const gained: [string, string][] = [
+    ['ArenaIconButton', 'root'], ['ArenaSwitch', 'track'], ['ArenaPagination', 'nav'], ['ArenaPagination', 'page'],
+    ['ArenaSideNav', 'item'], ['ArenaSideNav', 'trigger'], ['ArenaMenu', 'item'], ['ArenaBreadcrumbs', 'crumb'],
+  ];
+  for (const [component, slot] of gained) {
+    const manifest = manifests.get(component) as { slots: Record<string, string> };
+    assert.ok((manifest.slots[slot] ?? '').split(/\s+/).includes(RING), `${component}.${slot} base lacks the focus ring`);
+    const strings = (classStringsBySlot(manifest as never) as Map<string, string[]>).get(slot) ?? [];
+    const hover = strings.flatMap((one) => one.split(/\s+/)).filter((cls) => cls.includes('hover:shadow-'));
+    assert.deepEqual(hover, [], `${component}.${slot} sets ${hover.join(' ')}, which replaces the inset ring while the pointer rests on a focused control`);
   }
 });

@@ -539,10 +539,10 @@ repository does not have.
   presence, feed and progress marks read `--arena-hue-fill-strong` for the other hues and the ink for danger, and a chart legend swatch and the tag's dot read the ink;
   the one filled danger surface is `ArenaConfirmDialog`'s final confirmation, `fill-confirm-final`.
 - **Focus is a ring, and which ring follows what is being focused.** A CONTROL takes the
-  gold ring, `--focus-ring` at `--focus-width`. A SURFACE an activation is drawn around
-  takes `ring-primary` with `ring-2`. Derive which manifests spend each with
-  `grep -rl 'focus-visible:ring-primary' frameworks/tailwind/components` and
-  `grep -rl 'focus-ring' frameworks/tailwind/components`. **`--gold-soft` is not that ring**:
+  gold ring, the `edge-focus` role at `bw-focus`. A SURFACE an activation is drawn around
+  takes the same role as a ring utility, `ring-[length:var(--bw-focus)] ring-edge-focus`. Derive which manifests spend each with
+  `grep -rl 'focus-visible:ring-edge-focus' frameworks/tailwind/components` and
+  `grep -rl '--edge-focus' frameworks/tailwind/components`. **`--gold-soft` is not that ring**:
   it is the accent at 16%, and a real browser reads it as a wash rather than an edge.
 - **A ring is composed from several utilities rather than named by one**, which is why
   `check:coverage` excludes the namespace and why nothing fails a manifest painting none,
@@ -566,11 +566,11 @@ variant combination and be right without a browser interaction driving it.
 
 The corollary matters just as much: **a state modifier beats a plain variant
 class on the same property, always**, both on specificity, since a pseudo-class adds
-a selector so `focus-within:border-secondary` compiles to `(0,2,0)` against a
+a selector so `focus-within:border-edge-focus` compiles to `(0,2,0)` against a
 variant's plain `border-error` at `(0,1,0)`, and on source order. A state
 modifier left on a slot's **base** string therefore leaks through every variant
 built on that slot, including the ones that must lose to it. The failure is concrete:
-put `focus-within:border-secondary` / `focus-within:ring-secondary/16`
+put `focus-within:border-edge-focus` / `focus-within:ring-edge-focus/(--level-accent-soft-gold)`
 on `ArenaInput`'s base `field` slot and all three `state` values (`neutral`, `error`,
 `valid`) inherit it. `error`'s own `border-error`/`ring-error` are plain classes
 with lower specificity, so focusing an errored field turns it gold and

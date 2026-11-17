@@ -4,7 +4,7 @@
     "board-column"
   ],
   "slots": {
-    "root": "grid grid-flow-col auto-cols-[minmax(var(--arena-board-column-width,var(--arena-board-column,var(--board-column-md))),1fr)] items-start gap-component overflow-x-auto font-body rounded-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+    "root": "grid grid-flow-col auto-cols-[minmax(var(--arena-board-column-width,var(--arena-board-column,var(--board-column-md))),1fr)] items-start gap-component overflow-x-auto font-body rounded-surface focus-visible:outline-none focus-visible:ring-[length:var(--bw-focus)] focus-visible:ring-edge-focus",
     "column": "grid gap-items p-2 rounded-surface bg-surface-sunken",
     "head": "flex items-center gap-items min-w-0",
     "dot": "size-1.5 shrink-0 rounded-pill",
