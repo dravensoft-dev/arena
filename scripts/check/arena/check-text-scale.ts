@@ -1,6 +1,6 @@
 /* Loads the kitchen sinks at a 32px browser default against a 16px reference (dark only, matched by slot)
  * and reports text that did not double, is clipped by its box (a scroller that holds it inside the clip
- * is not a clip), spills out of its part's box, or overlaps a sibling. A root that is not 32px fails
+ * is not a clip), spills out of its part's box (unless it already did at 16px), or overlaps a sibling. A root that is not 32px fails
  * naming it. Truncating slots, 1px clip boxes and out-of-flow boxes are not reported; a line height below
  * the content area is slack. FIXED, CLIPS, OVERLAPS, SPILLS and THINNED are keyed
  * <layer>/<sink>:<data-arena-part or tag>, carry a reason and fail when they silence nothing; a THINNED
@@ -194,13 +194,28 @@ export function clipProblems(boxes: TextBox[], allowed: Map<string, string>, use
   return problems;
 }
 
-export function spillProblems(boxes: TextBox[], allowed: Map<string, string>, used: Set<string> = new Set()): string[] {
+export function spillKeys(boxes: TextBox[]) {
+  const seen = new Map<string, number>();
+  return boxes.map((one) => {
+    const base = `${slotOf(one.path)}\u0000${one.text}`;
+    const nth = seen.get(base) ?? 0;
+    seen.set(base, nth + 1);
+    return { one, key: `${base}\u0000${nth}` };
+  });
+}
+
+export function spillProblems(boxes: TextBox[], allowed: Map<string, string>, used: Set<string> = new Set(),
+  reference: TextBox[] = []): string[] {
+  const hung = new Map(spillKeys(reference).map(({ one, key }) => [key, one]));
   const problems: string[] = [];
-  for (const one of boxes) {
-    if (!(one.spillX || one.spillY) || one.truncates || one.clipX || one.clipY) continue;
-    const slot = slotOf(one.path);
+  for (const { one: now, key } of spillKeys(boxes)) {
+    const before = hung.get(key);
+    const spillX = Boolean(now.spillX) && !before?.spillX;
+    const spillY = Boolean(now.spillY) && !before?.spillY;
+    if (!(spillX || spillY) || now.truncates || now.clipX || now.clipY) continue;
+    const slot = slotOf(now.path);
     if (allowed.has(slot)) { used.add(slot); continue; }
-    problems.push(`${one.path}: "${one.text}" runs out of its part's box${one.spillX ? ' across' : ''}${one.spillY ? ' down' : ''}, `
+    problems.push(`${now.path}: "${now.text}" runs out of its part's box${spillX ? ' across' : ''}${spillY ? ' down' : ''}, `
       + 'and nothing clips it, so the box did not grow with the text');
   }
   return problems;
@@ -465,7 +480,7 @@ async function main() {
         if (missing !== null) note(missing, where);
         if (base) for (const one of doublingProblems(base.boxes, collected.boxes, FIXED, usedFixed, THINNED, usedThinned)) note(one, where);
         for (const one of clipProblems(collected.boxes, CLIPS, usedClips)) note(one, where);
-        for (const one of spillProblems(collected.boxes, SPILLS, usedSpills)) note(one, where);
+        for (const one of spillProblems(collected.boxes, SPILLS, usedSpills, base?.boxes)) note(one, where);
         for (const one of overlapProblems(collected.boxes, OVERLAPS, usedOverlaps)) note(one, where);
       }
     }

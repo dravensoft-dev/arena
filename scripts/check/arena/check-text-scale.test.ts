@@ -185,3 +185,14 @@ test('a scrolling overflow is a scroller, and hidden or clip is not', () => {
   const expression = collectExpression('react', 'default', 'arena-compact');
   assert.ok(expression.includes('scrolls(one.value)'));
 });
+
+test('a spill that already exists at 16px is the design\'s own hang, one new at 32px is reported', () => {
+  const at = (over: Partial<TextBox>) => box({ path: 'react/charts:line-chart.frame>text#3', text: 'Week 4', ...over });
+  const none = new Map<string, string>();
+  assert.deepEqual(spillProblems([at({ spillX: true })], none, new Set(), [at({ spillX: true })]), []);
+  assert.equal(spillProblems([at({ spillX: true })], none, new Set(), [at({})]).length, 1);
+  assert.deepEqual(spillProblems([at({})], none, new Set(), [at({ spillX: true })]), []);
+  assert.equal(spillProblems([at({ spillX: true })], none, new Set(), [at({ spillY: true })]).length, 1);
+  assert.deepEqual(spillProblems([at({ path: 'react/charts:line-chart.frame>text#9', spillX: true })], none, new Set(),
+    [at({ spillX: true })]), []);
+});
