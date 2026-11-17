@@ -2,7 +2,7 @@
 
 Read this when your style plugin answers the padding, the gap or an edge of a part inside a component.
 
-`grid-min` reads no scale at all, and a literal is the only answer for it.
+The role `grid-min` reads no density scale and follows the text scale. Answer it with a length of your own: a literal in `px`, which Arena emits in `rem`.
 
 These roles answer the air and the fixed lengths of the parts of a component. Those of a board column, a dialog, a grid and a scroller carry the family option `sm`, `md` or `lg` in their name; the rest answer one part.
 
