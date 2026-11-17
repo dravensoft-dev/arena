@@ -86,7 +86,7 @@ test('`tone` paints the whole series the semantic colour', () => {
   assert.deepEqual(arenaSeriesColors(series({ tone: 'warning' }), 2, 1), ['var(--warning)', 'var(--warning)']);
 });
 
-test('`tone` wins over `colorId` and over `colorIds`', () => {
+test('`tone` paints over `colorId` and `colorIds`', () => {
   forgetArenaWarnings();
   const warnings = captureWarnings(() => {
     assert.deepEqual(arenaSeriesColors(series({ tone: 'danger', colorId: 3 }), 1, 1), ['var(--danger)']);
@@ -448,7 +448,7 @@ test('a point series takes its colour by position when it declares none', () => 
     'two clouds that were never told apart must not come out the same colour');
 });
 
-test('tone still wins over colorId on a point series, and warns nothing', () => {
+test('a point series with tone and colorId takes the tone colour and warns nothing', () => {
   forgetArenaWarnings();
   const warnings: string[] = [];
   const real = console.warn;

@@ -1,11 +1,11 @@
 import test, { after } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
   COLORS, COMPONENT_SHEETS, ON_INK_GATE, PAIRS, PALETTE, REMOVED, ROLE_SHEETS, SCOPED_PLUGINS, VOCABULARY_SHEETS,
-  answeredColour, answeredKey, catalogueOnInk, stateProblems, stateReports, defaultBuildProblems, JUDGED, componentSheets, onInkPairs, paletteColours, resolvePercent, scopesToMeasure, structureOf, surfacesUnder, THEMES,
+  answeredColour, answeredKey, catalogueOnInk, catalogueReports, stateProblems, stateReports, defaultBuildProblems, JUDGED, componentSheets, onInkPairs, paletteColours, resolvePercent, scopesToMeasure, structureOf, surfacesUnder, THEMES,
 } from './check-text-contrast.ts';
 import { paletteBlock } from '../../lib/core/palette-read.ts';
 import { resolvedFor } from './check-style-plugin.ts';
@@ -15,6 +15,7 @@ import {
   derivedLevels, levelDefaults, levelReports, levelsIn, raisedReports, STATUS_HUES,
 } from '../../generate/core/arena-cli/levels.ts';
 import { CATALOGUE } from './check-catalogue.ts';
+import { scratchContrastTree } from './contrast-scratch.ts';
 import { FILL_PAIRS } from '../../generate/core/arena-cli/palette-keys.ts';
 
 test('this gate and the shipped command hold the same fills legible', () => {
@@ -264,7 +265,7 @@ test('a toast\'s action reads one measured role in every tone, and it clears AA 
     'a plugin raising gold to the action owes 4.5:1, and on the light floating surface it does not clear it');
 });
 
-test('the real tree holds: every plugin Arena ships clears 4.5:1 on its invalid and selected inks in both themes', () => {
+test('the default plugin clears 4.5:1 on its invalid and selected inks in both themes', () => {
   assert.deepEqual(stateProblems('ink-'), []);
 });
 
@@ -303,19 +304,8 @@ test('a surface answered with no palette colour is reported by the gate of the p
 });
 
 function scratchTree(inkInvalid: string) {
-  const dir = mkdtempSync(join(tmpdir(), 'judged-'));
+  const dir = scratchContrastTree({ 'ink-invalid': inkInvalid });
   made.push(dir);
-  mkdirSync(join(dir, 'contracts/design'), { recursive: true });
-  mkdirSync(join(dir, 'p'));
-  writeFileSync(join(dir, 'contracts/design/roles.json'), '{}');
-  writeFileSync(join(dir, COLORS), readFileSync(join(repoRoot, COLORS)));
-  const answer = (role: string, value: string) => ({ [role]: { $value: value } });
-  writeFileSync(join(dir, 'p/plugin.tokens.json'), JSON.stringify({
-    ...answer('fill-page', '{color.base-100}'), ...answer('fill-surface', '{color.base-100}'), ...answer('fill-field', '{color.base-100}'),
-    ...answer('fill-track', '{color.base-100}'), ...answer('edge-focus', '{color.strong}'), ...answer('edge-selected', '{color.strong}'),
-    ...answer('edge-invalid', '{color.strong}'), ...answer('ink-invalid', inkInvalid), ...answer('ink-selected', '{color.strong}'),
-    ...answer('fill-selected', '{color.base-100}'),
-  }));
   return dir;
 }
 
@@ -341,4 +331,24 @@ test('only the default plugin is judged', () => {
 
 test('defaultBuildProblems is clean on Arena\'s skin', () => {
   assert.deepEqual(defaultBuildProblems(), []);
+});
+
+test('a catalogue palette below AA is reported with its entry and palette name', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'catalogue-'));
+  made.push(dir);
+  for (const name of readdirSync(repoRoot)) if (name !== 'plugin-style-store') symlinkSync(join(repoRoot, name), join(dir, name));
+  const store = join(dir, 'plugin-style-store');
+  mkdirSync(store);
+  for (const name of readdirSync(join(repoRoot, 'plugin-style-store'))) {
+    if (name !== 'catalogue') symlinkSync(join(repoRoot, 'plugin-style-store', name), join(store, name));
+  }
+  const entry = join(store, 'catalogue', 'weak-register');
+  mkdirSync(entry, { recursive: true });
+  writeFileSync(join(entry, 'plugin.tokens.json'), '{}');
+  writeFileSync(join(entry, 'arena.config.json'), JSON.stringify({
+    palettes: [{ name: 'faint', polarity: 'dark', colors: { 'base-100': '#141010', 'base-content': '#2a2323' } }],
+  }));
+  const found = catalogueReports(dir);
+  assert.ok(found.length > 0, 'a palette that fails AA reports nothing');
+  assert.ok(found.every((one) => one.startsWith('weak-register, faint: ')));
 });

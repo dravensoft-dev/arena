@@ -10,7 +10,6 @@ import { ArenaConfirmDialog } from './ArenaConfirmDialog.tsx';
 test('destructive marks the confirm button, and a plain confirm carries no mark', () => {
   const html = renderToStaticMarkup(<ArenaConfirmDialog open destructive title="Delete" onConfirm={() => {}} />);
   assert.match(html, /data-arena-part="confirm-dialog.confirm"[^>]*\bdata-arena-destructive=""/, 'the destructive confirm does not render');
-  assert.match(html, /data-arena-part="confirm-dialog.confirm"[^>]*\bdata-arena-destructive=""/, 'the destructive confirm carries no mark');
 
   const plain = renderToStaticMarkup(<ArenaConfirmDialog open title="Save" onConfirm={() => {}} />);
   assert.doesNotMatch(plain, /data-arena-part="confirm-dialog.confirm"[^>]*\bdata-arena-destructive=""/, 'an ordinary confirm carries the destructive mark');

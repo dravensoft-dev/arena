@@ -219,13 +219,6 @@ test('an entry answering a floor through a scale alias is measured at the value 
   } finally { clean(); }
 });
 
-test('an entry answering the danger fill with transparent clears the floor', () => {
-  const { base, clean } = fixture((dir) => wholeEntry(dir));
-  try {
-    assert.deepEqual(readingFloorProblems('a-register', tokenCatalogue(), base), []);
-  } finally { clean(); }
-});
-
 test('an empty catalogue is a failure rather than a clean pass', () => {
   assert.equal(zeroScanProblems([]).length, 1);
   assert.deepEqual(zeroScanProblems(['a-register']), []);

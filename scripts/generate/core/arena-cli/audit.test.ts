@@ -256,8 +256,8 @@ test('a danger background is a colour choice and goes unreported', () => {
 
 test('two primary actions on one screen go unreported', () => {
   const found = auditText('src/App.tsx', '<ArenaButton className="arena-emphasis-primary">Save</ArenaButton>\n'
-    + '<ArenaButton className="arena-emphasis-primary">Publish</ArenaButton>');
-  assert.deepEqual(found.filter((line) => line.includes('primary action')), []);
+    + '<ArenaButton className="arena-emphasis-primary">Publish</ArenaButton>', 'app', vocabularyIndex());
+  assert.deepEqual(found, []);
 });
 
 test('a gradient in an application source goes unreported', () => {
