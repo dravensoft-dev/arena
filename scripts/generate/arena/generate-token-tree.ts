@@ -159,7 +159,7 @@ export const node = {
   name: 'generate:token-tree',
   reads: [ROLES, LAYERING, `${TREE_DIR}/**/*.md`],
   writes: GENERATED_PATHS.map((path) => `${TREE_DIR}/${path}`),
-  feeds: ['check:routes', 'check:register', 'check:skills', 'build:site', 'build:mcp-package'],
+  feeds: ['check:register', 'check:skills', 'check:community', 'check:mcp', 'check:site', 'check:support', 'build:site', 'build:mcp-package'],
 };
 
 function main() {

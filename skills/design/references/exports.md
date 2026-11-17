@@ -6,7 +6,7 @@ A name on this page may be leaned on. A symbol you found by autocomplete may not
 
 ## Does every export carry a compatibility promise?
 
-Only the names listed on this page do. Every other symbol reaching a package root is an internal of that layer. The barrel is generated wholesale and not curated. Such a symbol carries no compatibility promise. The symbol carries the `Arena` prefix too, since the convention is about the name and not about the promise. Reading `Arena` on a symbol tells you where it comes from. The prefix never tells you the symbol is yours to depend on.
+Only the names listed on this page do. Every other symbol reaching a package root is an internal of that layer. The barrel is generated wholesale and not curated. Such a symbol carries no compatibility promise. The symbol carries the `Arena` prefix too, since the convention is about the name and not about the promise. Reading `Arena` on a symbol tells you where it comes from. The prefix never tells you the symbol is yours to depend on. A role's name and a scale token's name move only in a major release, and their values carry no promise.
 
 ## What does the React package export besides components?
 

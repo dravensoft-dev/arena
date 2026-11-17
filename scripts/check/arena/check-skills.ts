@@ -22,6 +22,7 @@ import { NPM_QUESTIONS, githubSlug, type Section } from '../../lib/arena/npm-que
 import { walkFiles } from '../../utils/walk-files.ts';
 import { isConsumerDocument } from './check-docs.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
+import { withForeignTrees } from '../../lib/arena/foreign-trees.ts';
 
 export const node = {
   name: 'check:skills',
@@ -107,7 +108,7 @@ export function questionProblems(base = root, manifest: Record<string, Section[]
 
 const FENCE = /^```[\s\S]*?^```/gm;
 const RELATIVE_FRAGMENT = /\]\(((?![a-z][a-z0-9+.-]*:)[^)#\s]+\.md)#([^)\s]+)\)/g;
-const NOT_READ = new Set(['node_modules', 'dist', 'build']);
+const NOT_READ = withForeignTrees('dist', 'build');
 
 function consumerDocuments(base: string) {
   const docs = ['frameworks', 'skills', 'plugin-style-store']

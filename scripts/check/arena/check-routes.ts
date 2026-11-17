@@ -212,7 +212,7 @@ export const ROUTES: Route[] = [
       + 'every part Arena ships, the three steps a project can stop at, and where Arena stops',
     entry: 'consumer',
     stops: ['skills/design/references/surface.md'],
-    budget: 11_650,
+    budget: 11_700,
     reason:
       'paid once per project and taken before the skin, register and seo routes, because each of '
       + 'them asks how much of a thing nobody has shown the reader yet. What it buys is that a '
@@ -225,7 +225,8 @@ export const ROUTES: Route[] = [
       + 'the stops measure with room for one part, and it grows when Arena ships something new rather '
       + 'than when the page explains something better. The row naming the layout container and the '
       + 'spacing scale\'s half step are what the page spends beyond the parts it already listed. '
-      + 'The icon line says where the sprite comes from and that the components reach no dependency.',
+      + 'The icon line says where the sprite comes from and that the components reach no dependency. '
+      + 'The token layer row names the token tree beside the scales it lists.',
   },
   {
     name: 'consumer-stack',
@@ -273,22 +274,19 @@ export const ROUTES: Route[] = [
       + 'column it sits in and how much air goes between two components',
     entry: 'consumer',
     stops: ['skills/design/references/page.md', 'skills/design/references/style.md'],
-    budget: 25_600,
+    budget: 21_000,
     reason:
       'paid per element a builder draws themselves, which every screen has. It buys the half of a '
-      + 'page no component draws: which colour role each thing a builder draws takes and which level '
-      + 'holds it back, since a bare muted ink paints a caption at body strength; the three rhythm '
-      + 'steps as classes and as custom properties; the row as the horizontal half of those steps '
-      + 'rather than a wrapping line; what to wrap when the element is a component; the block air the '
-      + 'band leaves; the gutter as a ceiling; and which frame the viewport shows, through the theme '
-      + 'sheet\'s variants, where a value no step names is set, and the rule that paints the floor '
-      + 'with where each layer puts it. The page names the selected tab\'s rule and which aliases '
-      + 'follow a palette\'s level. The style reference holds the layout container, the page column\'s '
-      + 'width and each layer\'s sizing section, and names each layer\'s breakpoint helper and the '
-      + 'quiet ink level. It prints the default plugin\'s layout answers and sends density values to '
-      + 'the token table. Arena paints no selection or scrollbar, so a recipe gives one. It says '
-      + 'which palette, style plugin and density an overlay takes from its trigger, and where an '
-      + 'island paints its ground.',
+      + 'page no component draws: the floor and where each layer puts it, which frame the viewport '
+      + 'shows through the theme sheet\'s variants, the three rhythm steps as classes and as custom '
+      + 'properties, the row as the horizontal half of those steps, what to wrap when the element is '
+      + 'a component, the block air the band leaves and the gutter as a ceiling. The colour roles, '
+      + 'the level and the meaning set sit in the markup tree this page links, so the number is what '
+      + 'the stops measure without them. The style reference holds the layout container, the page '
+      + 'column\'s width and each layer\'s sizing section, names each layer\'s breakpoint helper and '
+      + 'the quiet ink level, and sends density values to the density page. Arena paints no '
+      + 'selection or scrollbar, so a recipe gives one. It says which palette, style plugin and '
+      + 'density an overlay takes from its trigger, and where an island paints its ground.',
   },
   {
     name: 'consumer-coldstart',

@@ -97,49 +97,9 @@ the other, so a hex here is a light-mode colour showing through your dark theme.
   them. A square corner is `{ "value": 0, "unit": "px" }`. No shadow at all is a shadow object
   whose every length is zero and whose colour is `{ "colorSpace": "srgb", "components": [0, 0, 0],
   "alpha": 0 }`, beside `offsetX`, `offsetY`, `blur` and `spread`.
-- **A unit the type does not carry**, through `$extensions`. Four roles need it and the rest do
-  not: `track-heading`, `track-eyebrow` and `track-label` take `em`, and `measure-prose` takes
-  `ch`. A tracking role that forgets it emits a bare number, which is not a valid letter spacing,
-  and the declaration silently resolves to `normal`.
-  ```json
-  "measure-prose": { "$type": "number", "$value": 86,
-    "$extensions": { "com.dravensoft.arena": { "cssUnit": "ch" } } }
-  ```
+- **A unit the type does not carry**, through `$extensions`. [`tokens/plugin/type.md`](./tokens/plugin/type.md) names the four roles that need one.
 
-**The type of a role does not tell you which scale its answer comes from**, so here is the map. A
-`dimension` role draws from four different places depending on what it is for:
-
-**The steps live in [`effects.json`](../../../contracts/design/effects.json)** for these:
-
-| Roles | Scale |
-|---|---|
-| `r-*` | `r` |
-| `bw-*` | `bw` and `bw-strong`, a pair rather than a ladder, so the alias carries no step |
-| `shadow-*` | `shadow` |
-| `dur-*`, `ease-*` | `dur`, `ease` |
-
-**In [`spacing.json`](../../../contracts/design/spacing.json)** for these:
-
-| Roles | Scale |
-|---|---|
-| `pad-*`, `gap-*`, `gutter` | `sp` |
-| `step-eyebrow`, `step-label` | `dz` |
-
-**In [`typography.json`](../../../contracts/design/typography.json)** for these:
-
-| Roles | Scale |
-|---|---|
-| `fw-*` | `fw` |
-| `ff-*` | `font`, which resolves to the families your config declares |
-| `track-*` | `ls` |
-| `lh-*` | `lh` |
-| `step-title-*` | `fs` |
-
-**Six roles read no scale at all**, and a literal is the only answer for them: `container-max`,
-`grid-min`, `measure-prose`, `lift-control`, `press-scale` and `aspect-media`.
-
-[`Scales.md`](../../../contracts/design/Scales.md) beside them is the reasoning for the ladders
-that have one, which is not all of them.
+**Each role draws from one scale, or from none.** [`tokens/plugin/index.md`](./tokens/plugin/index.md) lists the roles by task, with the type and the scale beside each.
 
 **What an answer may never be is a scale itself.** A scale step is shared by every use that wants
 that value, so moving one is not a style plugin but a different Arena. **The type and page-rhythm
