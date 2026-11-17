@@ -58,6 +58,11 @@
       "$description": "The advance of one character of a tick label, which is what lets the axis measure\nits widest tick without a DOM to ask. A CONSEQUENCE of two decisions rather than a\nchosen dimension: a tick is written in the mono face, whose advance is 0.6em, at\n--dz-text-2xs, which is 10px in both densities. Measured in the browser at 6.0016px\nand rounded down to the whole pixel, because the gutter takes the ceiling of what it\ncomputes and a hundredth of a pixel per character is not room anybody can see. It\nholds only while the ticks stay monospaced: a proportional face makes a label's width\nits glyphs' business and no arithmetic can answer it.",
       "$extensions": { "com.dravensoft.arena": { "script": true } }
     },
+    "label-char": {
+      "$value": { "value": 6.6, "unit": "px" },
+      "$description": "The advance one character of a radar spoke label is budgeted at, so the label can be cut to the room beside its ring without a DOM to ask. A CONSEQUENCE of two decisions rather than a chosen dimension: a spoke label is written in the body face at --dz-text-xs, which is 11px. Measured in the browser, the body face advances 5.2px to 5.9px a character over words such as Latency, Throughput and Engagement, which is up to 0.54em, and 6.6px is 0.6em of 11px, a margin of about an eighth over the widest of those. It is an estimate and not a measurement, because a proportional face makes a label's width its glyphs' business: a run of wide capitals such as W or M still outruns it, and the label then keeps its full name in a title and in the data table. If the label's size or face moves, revisit it; it will not fail loudly.",
+      "$extensions": { "com.dravensoft.arena": { "script": true } }
+    },
     "ring-inset": {
       "$value": { "value": 8, "unit": "px" },
       "$description": "Breathing room between the doughnut's outer radius and its box, so a slice's\nstroke is not clipped. Not a multiplier deriving one dimension from another --\nthose stay inline by the recorded criterion -- but a chosen gap, which is why\nthis one is a token and the 0.62 inner-radius ratio beside it is not.",

@@ -5,11 +5,11 @@ import {
   arenaCategoryGutter, arenaCategoryLabelX, arenaFunnelBox, arenaHeatmapBox, arenaHeatmapHeight, arenaHeatmapWidth,
   arenaLabelStride, arenaPlotBox, arenaPlotBoxH, arenaTextGutter, arenaValueGutter,
 } from './ChartAxis';
-import { arenaGaugeRadii, arenaFitLabel, arenaRadarLabelChar, arenaGaugeWordY, arenaRadarLabelRoom, arenaRadarLabelRadius, arenaRadarRadius } from './ChartPolar';
+import { arenaGaugeRadii, arenaFitLabel, arenaRadarFitLabel, arenaRadarLabelChar, arenaGaugeWordY, arenaRadarLabelRoom, arenaRadarLabelRadius, arenaRadarRadius } from './ChartPolar';
 import { arenaHeatLegendStrip, arenaLegendStrip } from './ChartLegend';
 import { arenaNiceDomain } from './ChartScales';
 import {
-  chartHeatmapRowH, chartLabelGap, chartLegendStrip, chartPadBottom, chartPadCategory, chartPadLeft, chartPadRight, chartPadTop, chartTickChar,
+  chartHeatmapRowH, chartLabelGap, chartLegendStrip, chartPadBottom, chartPadCategory, chartPadLeft, chartPadRight, chartPadTop, chartTickChar, chartLabelChar,
 } from '../../Tokens.generated';
 
 test('the value gutter doubles its character room at a doubled text scale', () => {
@@ -118,8 +118,29 @@ test('at the default room the radar demo labels are drawn whole at the frame the
   assert.notEqual(arenaFitLabel('Throughput', arenaRadarLabelRoom(width / 2 + rr * Math.cos(-Math.PI / 2 + Math.PI * 2 / 6), width, 'start'), arenaRadarLabelChar(big)), 'Throughput');
 });
 
-test('the radar label character width is zero at the default size, so nothing is shortened there, and follows the text above it', () => {
-  assert.equal(arenaRadarLabelChar(), 0);
-  assert.equal(arenaFitLabel('Throughput', 0, arenaRadarLabelChar()), 'Throughput');
-  assert.equal(arenaRadarLabelChar(arenaTextRoom(2)), chartTickChar * 0.95 * 2);
+test('the radar label character width is the label token at the text scale, so fitting is on at every size', () => {
+  assert.equal(arenaRadarLabelChar(), chartLabelChar);
+  assert.equal(arenaRadarLabelChar(arenaTextRoom(2)), chartLabelChar * 2);
+  assert.equal(arenaRadarLabelChar(arenaTextRoom(1.01)), chartLabelChar * 1.01);
+  assert.equal(arenaFitLabel('Throughput', 0, arenaRadarLabelChar()), '\u2026');
+});
+
+test('a label is never cut below the width it is drawn at by default, so the cut grows from nothing as the text grows', () => {
+  const room = 44;
+  assert.equal(arenaRadarFitLabel('Throughput', room, arenaTextRoom(1)), 'Throughput');
+  const slight = arenaRadarFitLabel('Throughput', room, arenaTextRoom(1.01));
+  assert.ok(slight.endsWith('\u2026') && slight.length >= 'Throughput'.length - 2);
+  const doubled = arenaRadarFitLabel('Throughput', room, arenaTextRoom(2));
+  assert.ok(doubled.endsWith('\u2026') && doubled.length < slight.length);
+  assert.equal(arenaRadarFitLabel('Throughput', 300, arenaTextRoom(2)), 'Throughput');
+});
+
+test('a label of wide glyphs is kept in the room at the default size and cut to it at a doubled one', () => {
+  const label = 'WWWWWWWWWW';
+  const room = 110;
+  assert.equal(arenaRadarFitLabel(label, room, arenaTextRoom(1)), label);
+  const doubled = arenaRadarFitLabel(label, room, arenaTextRoom(2));
+  assert.ok(doubled.endsWith('\u2026'));
+  assert.ok(doubled.length < label.length);
+  assert.ok(Math.ceil((doubled.length - 1) * chartLabelChar * 2) <= room);
 });

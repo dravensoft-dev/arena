@@ -4,7 +4,7 @@ import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, arenaSrOnly, arenaTextRoom, arenaA
 import { arenaLinearScale, arenaScaleValue } from '../ChartScales.ts';
 import { arenaLinePoints } from '../ChartMarks.ts';
 import {
-  arenaPolarPoint, arenaPolarIndex, arenaPolarAnchor, arenaRadarRings, arenaRadarRadius, arenaRadarLabelRadius, arenaRadarLabelRoom, arenaRadarLabelChar, arenaFitLabel,
+  arenaPolarPoint, arenaPolarIndex, arenaPolarAnchor, arenaRadarRings, arenaRadarRadius, arenaRadarLabelRadius, arenaRadarLabelRoom, arenaRadarFitLabel,
 } from '../ChartPolar.ts';
 import {
   arenaChartTable, arenaSeriesColors, arenaSwatchHue, arenaSeriesPointCount, arenaRadarDomain,
@@ -26,7 +26,7 @@ export interface ArenaRadarChartProps {
   className?: ArenaRadarChartClass;
 
 
-  /** One label per axis, in the same order as every series' `values`, running clockwise from 12 o'clock. Keep the count small: past eight or so the labels collide and the shape stops being readable, which is a limit of the form rather than of the drawing. A label longer than the room beside the ring is cut with an ellipsis. The full name of a cut label stays in a title on it and in the data table. The room is read when the chart is created. */
+  /** One label per axis, in the same order as every series' `values`, running clockwise from 12 o'clock. Keep the count small: past eight or so the labels collide and the shape stops being readable, which is a limit of the form rather than of the drawing. At a larger browser text size a label that grows past the room beside the ring is cut with an ellipsis, and never below its width at the default. The full name of a cut label stays in a title on it and in the data table. The room is read when the chart is created. */
   labels: readonly string[];
 
   /** The plotted series, drawn as one closed polygon each over the same axes. The shape is the reading, so two or three series is the useful case and more is a tangle. After the last slot the positional count starts again at the first, so fold a ninth series into "Other" upstream. */
@@ -149,7 +149,7 @@ export function ArenaRadarChart({ className,
           const at = arenaPolarPoint(cx, cy, labelR, i, n);
           const anchor = arenaPolarAnchor(i, n);
           const full = labels[i] ?? '';
-          const shown = arenaFitLabel(full, arenaRadarLabelRoom(at.x, width, anchor), arenaRadarLabelChar(room));
+          const shown = arenaRadarFitLabel(full, arenaRadarLabelRoom(at.x, width, anchor), room);
           return (
             <text key={i} x={at.x} y={at.y} textAnchor={anchor} dominantBaseline="middle"
               fill={ARENA_INK_MUTED} fontFamily="var(--font-body)" style={{ fontSize: 'var(--dz-text-xs)' }}>

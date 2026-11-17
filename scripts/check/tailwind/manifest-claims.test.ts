@@ -331,7 +331,7 @@ export const CLAIMS = {
       why: 'a label with no break opportunity, such as a long file name, wraps inside the chip and never pushes its field or the page sideways' },
   ],
   ArenaUnauthCard: [
-    { slot: 'root', has: ['block', 'shadow-surface-deep', 'max-w-[calc(var(--sp-1)*95+var(--sp-1)*18+var(--bw-surface)*2)]'], why: 'the width is the derivation and never the literal it computes to' },
+    { slot: 'root', has: ['block', 'shadow-surface-deep', 'max-w-[calc(var(--unauth-card-width)+var(--bw-surface)*2)]'], why: 'the width is the token, which the text scale moves, and never the literal it computes to' },
   ],
   ArenaAlert: [
     ...STATUS.flatMap((tone) => [
@@ -571,7 +571,7 @@ export const CLAIMS = {
     { slot: 'nav', has: ['disabled:text-ink-muted/40', 'disabled:cursor-not-allowed'], why: 'an unreachable step says so through a :disabled variant, which only a real disabled control matches' },
     { chosen: { current: true }, slot: 'page', has: ['bg-primary-fill', 'text-primary-content'], why: 'the current page is the one filled control in the row' },
     { chosen: { current: false }, slot: 'page', has: ['bg-transparent'], hasNot: ['bg-primary-fill'], why: 'the current page is the one filled control in the row' },
-    { slot: 'page', has: ['h-ctl-h-sm', 'min-w-ctl-h-sm', 'border-[length:var(--bw-control)]'], why: 'the shared box is set once on the page slot, so a state slot never fights it, and it reads the density rather than a step, so a page number is a target a thumb can hit in the density chosen for one' },
+    { slot: 'page', has: ['min-h-ctl-h-sm', 'min-w-ctl-h-sm', 'border-[length:var(--bw-control)]'], why: 'the shared box is set once on the page slot, so a state slot never fights it, and it reads the density rather than a step, so a page number is a target a thumb can hit in the density chosen for one' },
   ],
   ArenaSegmentedControl: [
     { chosen: { selected: true }, slot: 'segment', has: ['bg-neutral', 'font-control', 'shadow-1'], why: 'the selected segment reads as a raised neutral chip rather than a brand fill' },

@@ -1,15 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { ARENA_PAD, ARENA_TEXT_ROOM, arenaPad, arenaPlotWidth, arenaTextRoom, arenaValueWriter } from '../../DataVisuals.ts';
 import {
   arenaCategoryGutter, arenaCategoryLabelX, arenaFunnelBox, arenaHeatmapBox, arenaHeatmapHeight, arenaHeatmapWidth,
   arenaLabelStride, arenaPlotBox, arenaPlotBoxH, arenaTextGutter, arenaValueGutter,
 } from './ChartAxis.ts';
-import { arenaGaugeRadii, arenaFitLabel, arenaRadarLabelChar, arenaGaugeWordY, arenaRadarLabelRoom, arenaRadarLabelRadius, arenaRadarRadius } from './ChartPolar.ts';
+import { arenaGaugeRadii, arenaFitLabel, arenaRadarFitLabel, arenaRadarLabelChar, arenaGaugeWordY, arenaRadarLabelRoom, arenaRadarLabelRadius, arenaRadarRadius } from './ChartPolar.ts';
 import { arenaHeatLegendStrip, arenaLegendStrip } from './ChartLegend.ts';
 import { arenaNiceDomain } from './ChartScales.ts';
 import {
-  chartHeatmapRowH, chartLabelGap, chartLegendStrip, chartPadBottom, chartPadCategory, chartPadLeft, chartPadRight, chartPadTop, chartTickChar,
+  chartGaugeReadingDescent, chartHeatmapRowH, chartLabelGap, chartLegendStrip, chartPadBottom, chartPadCategory, chartPadLeft, chartPadRight, chartPadTop, chartTickChar, chartLabelChar,
 } from '../../Tokens.generated.js';
 
 test('the value gutter doubles its character room at a doubled text scale', () => {
@@ -118,8 +119,38 @@ test('at the default room the radar demo labels are drawn whole at the frame the
   assert.notEqual(arenaFitLabel('Throughput', arenaRadarLabelRoom(width / 2 + rr * Math.cos(-Math.PI / 2 + Math.PI * 2 / 6), width, 'start'), arenaRadarLabelChar(big)), 'Throughput');
 });
 
-test('the radar label character width is zero at the default size, so nothing is shortened there, and follows the text above it', () => {
-  assert.equal(arenaRadarLabelChar(), 0);
-  assert.equal(arenaFitLabel('Throughput', 0, arenaRadarLabelChar()), 'Throughput');
-  assert.equal(arenaRadarLabelChar(arenaTextRoom(2)), chartTickChar * 0.95 * 2);
+test('the radar label character width is the label token at the text scale, so fitting is on at every size', () => {
+  assert.equal(arenaRadarLabelChar(), chartLabelChar);
+  assert.equal(arenaRadarLabelChar(arenaTextRoom(2)), chartLabelChar * 2);
+  assert.equal(arenaRadarLabelChar(arenaTextRoom(1.01)), chartLabelChar * 1.01);
+  assert.equal(arenaFitLabel('Throughput', 0, arenaRadarLabelChar()), '\u2026');
+});
+
+test('a label is never cut below the width it is drawn at by default, so the cut grows from nothing as the text grows', () => {
+  const room = 44;
+  assert.equal(arenaRadarFitLabel('Throughput', room, arenaTextRoom(1)), 'Throughput');
+  const slight = arenaRadarFitLabel('Throughput', room, arenaTextRoom(1.01));
+  assert.ok(slight.endsWith('\u2026') && slight.length >= 'Throughput'.length - 2);
+  const doubled = arenaRadarFitLabel('Throughput', room, arenaTextRoom(2));
+  assert.ok(doubled.endsWith('\u2026') && doubled.length < slight.length);
+  assert.equal(arenaRadarFitLabel('Throughput', 300, arenaTextRoom(2)), 'Throughput');
+});
+
+test('a label of wide glyphs is kept in the room at the default size and cut to it at a doubled one', () => {
+  const label = 'WWWWWWWWWW';
+  const room = 110;
+  assert.equal(arenaRadarFitLabel(label, room, arenaTextRoom(1)), label);
+  const doubled = arenaRadarFitLabel(label, room, arenaTextRoom(2));
+  assert.ok(doubled.endsWith('\u2026'));
+  assert.ok(doubled.length < label.length);
+  assert.ok(Math.ceil((doubled.length - 1) * chartLabelChar * 2) <= room);
+});
+
+test('the gauge reading descent is 0.4 of the size the reading is set in', () => {
+  const read = (path: string) => readFileSync(new URL(path, import.meta.url), 'utf8');
+  assert.match(read('./arena-gauge-chart/ArenaGaugeChart.tsx'), /fontSize: 'var\(--dz-text-lg\)'/,
+    'the gauge reading is no longer set in --dz-text-lg, so the descent token has nothing to follow');
+  const { dz } = JSON.parse(read('../../../../contracts/design/spacing.json'));
+  assert.equal(dz['text-lg'].$value.unit, 'px');
+  assert.equal(chartGaugeReadingDescent, Number((0.4 * dz['text-lg'].$value.value).toFixed(2)));
 });

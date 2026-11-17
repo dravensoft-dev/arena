@@ -208,4 +208,10 @@
      SSR fallback for a viewport height nobody chose.
    */
   --onboarding-height-reserve:220px;
+
+  /* ArenaUnauthCard. */
+  --unauth-card-width:28.25rem; /* The widest the card's content may be, 113 steps of the 4px grid: the card is a column of text, so it grows with the reader's text size and is capped by its container. The two borders are added by the component. */
+
+  /* ArenaConfirmDialog. */
+  --confirm-dialog-width:28.75rem; /* The panel's width, 115 steps of the 4px grid: the panel is a column of text, so it grows with the reader's text size and is capped at 92vw by the viewport. */
 }

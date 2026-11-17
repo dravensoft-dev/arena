@@ -2,7 +2,7 @@ import type * as React from 'react';
 import type { ArenaNumberFormat, ArenaSeriesTone, ArenaTone } from './Api.generated';
 import { arenaWarnOnce } from './WarnOnce.ts';
 import {
-  chartHeight, chartPadTop, chartPadRight, chartPadBottom, chartPadLeft, chartTickChar, chartPadCategory,
+  chartHeight, chartPadTop, chartPadRight, chartPadBottom, chartPadLeft, chartTickChar, chartLabelChar, chartPadCategory,
   chartHeatmapRowH, chartLegendStrip, catSlots, heatSteps,
   tintArea, tintSoft, tintEdge,
 } from './Tokens.generated.js';
@@ -13,12 +13,13 @@ export const ARENA_HEAT_STEPS = heatSteps;
 
 export const ARENA_CHART_HEIGHT = chartHeight;
 export type ArenaTextRoom = {
-  tickChar: number; padBottom: number; padLeft: number; padCategory: number; heatmapRowH: number; legendStrip: number; padTop: number; padRight: number; scale: number;
+  tickChar: number; labelChar: number; padBottom: number; padLeft: number; padCategory: number; heatmapRowH: number; legendStrip: number; padTop: number; padRight: number; scale: number;
 };
 
 export function arenaTextRoom(scale: number): ArenaTextRoom {
   return {
     tickChar: chartTickChar * scale,
+    labelChar: chartLabelChar * scale,
     padBottom: chartPadBottom * scale,
     padLeft: chartPadLeft * scale,
     padCategory: chartPadCategory * scale,

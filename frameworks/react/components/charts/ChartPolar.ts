@@ -1,6 +1,6 @@
 import { ARENA_TEXT_ROOM } from '../../DataVisuals.ts';
 import type { ArenaTextRoom } from '../../DataVisuals.ts';
-import { chartGaugeReadingDescent, chartLabelGap } from '../../Tokens.generated.js';
+import { chartGaugeReadingDescent, chartLabelChar, chartLabelGap } from '../../Tokens.generated.js';
 import type { ArenaDomain, ArenaLinePoint } from './ChartScales.ts';
 
 export function arenaPolarAngle(index: number, count: number): number {
@@ -48,7 +48,11 @@ export function arenaRadarLabelRoom(x: number, width: number, anchor: 'start' | 
 }
 
 export function arenaRadarLabelChar(room: ArenaTextRoom = ARENA_TEXT_ROOM): number {
-  return room.scale > 1 ? room.tickChar * 0.95 : 0;
+  return room.labelChar;
+}
+
+export function arenaRadarFitLabel(label: string, available: number, room: ArenaTextRoom = ARENA_TEXT_ROOM): string {
+  return arenaFitLabel(label, Math.max(available, Math.ceil(label.length * chartLabelChar)), arenaRadarLabelChar(room));
 }
 
 export function arenaFitLabel(label: string, available: number, charWidth: number): string {

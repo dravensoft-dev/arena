@@ -6,7 +6,7 @@ import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, ARENA_SR_ONLY, arenaTextRoom, aren
 import { arenaLinearScale, arenaScaleValue } from '../ChartScales';
 import { arenaLinePoints } from '../ChartMarks';
 import {
-  arenaPolarPoint, arenaPolarIndex, arenaPolarAnchor, arenaRadarRings, arenaRadarRadius, arenaRadarLabelRadius, arenaRadarLabelRoom, arenaRadarLabelChar, arenaFitLabel,
+  arenaPolarPoint, arenaPolarIndex, arenaPolarAnchor, arenaRadarRings, arenaRadarRadius, arenaRadarLabelRadius, arenaRadarLabelRoom, arenaRadarFitLabel,
 } from '../ChartPolar';
 import {
   arenaChartTable, arenaSeriesColors, arenaSwatchChoice, arenaSeriesPointCount, arenaRadarDomain,
@@ -123,7 +123,7 @@ const SERIES_STROKE_STYLE = { strokeWidth: 'var(--bw-strong)' } as const satisfi
 })
 export class ArenaRadarChart {
   protected readonly locale = inject(ARENA_LOCALE);
-  /** One label per axis, in the same order as every series' `values`, running clockwise from 12 o'clock. Keep the count small: past eight or so the labels collide and the shape stops being readable, which is a limit of the form rather than of the drawing. A label longer than the room beside the ring is cut with an ellipsis. The full name of a cut label stays in a title on it and in the data table. The room is read when the chart is created. */
+  /** One label per axis, in the same order as every series' `values`, running clockwise from 12 o'clock. Keep the count small: past eight or so the labels collide and the shape stops being readable, which is a limit of the form rather than of the drawing. At a larger browser text size a label that grows past the room beside the ring is cut with an ellipsis, and never below its width at the default. The full name of a cut label stays in a title on it and in the data table. The room is read when the chart is created. */
   readonly labels = input.required<readonly string[]>();
   /** The plotted series, drawn as one closed polygon each over the same axes. The shape is the reading, so two or three series is the useful case and more is a tangle. After the last slot the positional count starts again at the first, so fold a ninth series into "Other" upstream. */
   readonly series = input.required<readonly ArenaSeries[]>();
@@ -223,7 +223,7 @@ export class ArenaRadarChart {
       const label = labels[index] ?? '';
       return {
         index, x: tip.x, y: tip.y, label,
-        shown: arenaFitLabel(label, arenaRadarLabelRoom(at.x, width, anchor), arenaRadarLabelChar(this.room)),
+        shown: arenaRadarFitLabel(label, arenaRadarLabelRoom(at.x, width, anchor), this.room),
         labelX: at.x, labelY: at.y, anchor,
       };
     });
