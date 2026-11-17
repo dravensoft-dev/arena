@@ -1,7 +1,7 @@
 /* Every dimension in `contracts/design/` says what happens to it when the user asks for larger
- * text. CSS emits px either way, so nothing here changes a rendered page: the axis exists because
- * a platform that HAS the setting, which is every phone, cannot derive the answer from a value and
- * a unit. The closed set is what earns the extension, the same argument `keyword` makes for being a
+ * text. The axis decides the CSS unit: `scales` is emitted in rem and grows with the reader's text
+ * setting, `fixed` and `follows` as written. The same answer serves a platform that HAS the setting,
+ * which is every phone, and cannot derive it from a value and a unit. The closed set is what earns the extension, the same argument `keyword` makes for being a
  * type. A group declares for the leaves under it and a leaf overrides its group, which is Arena's
  * rule rather than DTCG's: 2025.10 admits `$extensions` on a group (§6.3.2) and defines no
  * inheritance for it, so the inheritance is stated here and in `contracts/design/TokenTypes.md`.

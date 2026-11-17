@@ -372,6 +372,11 @@ test('the density region tables every --dz property once, with the value each cl
   assert.match(renderRegion('density'), /`\*-` stands for any spacing utility, such as `h-` or `py-`\./);
 });
 
+test('the compact column shows a text size in rem with its pixel', () => {
+  const row = renderRegion('density').split('\n').find((line) => line.startsWith('| `--dz-text` |'))!;
+  assert.equal(row.split('|')[3]!.trim(), '`0.8125rem` = 13px at the browser default');
+});
+
 test('the typography region tables every font, weight, size, leading and tracking token no role answers', () => {
   const { tokens } = tokenCatalogue(repoRoot);
   const roles = new Set(Object.keys(readJson(join(repoRoot, ROLE_CONTRACT)) as Record<string, unknown>));
@@ -514,7 +519,7 @@ test('breakpoint rows keep their variant', () => {
 
 test('a spacing step keeps its multiple', () => {
   const row = renderRegion('spacing').split('\n').find((line) => line.startsWith('| `--sp-4` |'))!;
-  assert.ok(row.endsWith('`*-4` |'), row);
+  assert.ok(row.includes('| `16px` |') && row.endsWith('`*-4` |'), row);
 });
 
 const rowsOf = (region: string) => region.split('\n').filter((line) => line.startsWith('| `--'));
