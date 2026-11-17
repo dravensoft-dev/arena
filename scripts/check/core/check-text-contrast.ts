@@ -140,7 +140,7 @@ export const PAIRS = [
 ];
 
 const ON_SURFACE = [
-  { token: 'error', gate: 4.5, note: 'outline danger — IS the text and the border (.btn.danger, .iconbtn.danger, .mitem.danger)' },
+  { token: 'error', gate: 4.5, note: 'danger as text and border, measured on the base surfaces (.btn.danger, .iconbtn.danger, .mitem.danger)' },
   { token: 'primary', gate: null, note: 'REPORTED, NOT GATED — crimson as text (ArenaConfirmDialog eyebrow); brand value, see header' },
   { token: 'secondary', gate: null, note: 'REPORTED, NOT GATED — gold as text/focus ring; brand value, see header' },
 ];

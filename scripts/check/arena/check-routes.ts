@@ -216,7 +216,7 @@ export const ROUTES: Route[] = [
       + 'them asks how much of a thing nobody has shown the reader yet. What it buys is that a '
       + 'consumer stops learning the offer by running out of it: every part Arena ships is named in '
       + 'one place, beside the document that owns it. The page is an index rather than a tutorial, '
-      + 'which is what keeps it inside this budget and keeps it from becoming a second router. It '
+      + 'which keeps it inside this budget and from becoming a second router. It '
       + 'also carries where Arena stops, each line a decision rather than a gap, because a limit kept '
       + 'in a component prompt is reached after the project has planned around it, and a page '
       + 'promising the whole line is falsified by any part of it kept elsewhere. The number is what '
@@ -224,7 +224,7 @@ export const ROUTES: Route[] = [
       + 'than when the page explains something better. The row naming the layout container and the '
       + 'spacing scale\'s half step are what the page spends beyond the parts it already listed. '
       + 'The icon line says where the sprite comes from and that the components reach no dependency. '
-      + 'The token layer row names the token tree beside the scales it lists.',
+      + 'The token layer row names the token tree beside the scales it lists. The audit line names what a source text shows.',
   },
   {
     name: 'consumer-stack',
@@ -244,7 +244,7 @@ export const ROUTES: Route[] = [
       + 'the render architecture, which are nodes of the cold start tree. The peers table says which '
       + 'peer is required and which optional, and why a command names no framework peer. Each bundler '
       + 'row names its evidence and the family page holding its config, which the bundler route pays for. '
-      + 'A bundler row measured by an adopter repository names the run: its date, the bundler version and the Arena tree. A row its latest run did not build keeps the date of the run that measured it.',
+      + 'A bundler row measured by an adopter repository names the run: its date, the bundler version and the Arena tree. A row its latest run did not build keeps the date of the run that measured it. The audit line names what a source text shows.',
   },
   {
     name: 'consumer-bundler',

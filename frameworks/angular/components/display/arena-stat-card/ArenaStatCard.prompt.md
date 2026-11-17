@@ -71,10 +71,9 @@ aria-hidden wrapper, and an unfilled `icon` renders no wrapper at all:
   tone while the chip still reads an improvement in the success tone.
 - Don't hand `delta` a fresh object identity to change one field without meaning to. `delta` is a single input, so `[delta]="{ value: v, direction: 'up' }"` in a template expression rebuilds the whole object every change-detection pass. Bind from a
   component property computed once instead.
-- Don't fill the negative delta or the danger value. Both are text/outline in
+- Don't fill the negative delta or the danger value. Both draw text and edge in
   `--error`, the value slot carries no background at all, and the delta chip is
-  `bg-transparent`, like every other danger surface in Arena except
-  `ArenaConfirmDialog`'s final confirmation.
+  `bg-transparent`.
 - Don't put a chart in a stat card, `arena-chart-card` is the tile that holds one.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->

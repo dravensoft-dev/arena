@@ -30,7 +30,7 @@ function split(label, opts = {}, { disabled = false, loading = false, open = fal
 mountSpecimen({ sections: [
   section('Emphasis: one joint line in the ink, whatever the edge', ['primary', 'secondary', 'ghost'].map((emphasis) =>
     split('Deploy', {}, { cls: `arena-emphasis-${emphasis}` }))),
-  section('Destructive keeps the danger outline on both halves', ['primary', 'secondary', 'ghost'].map((emphasis) =>
+  section('Destructive draws both halves in the danger hue', ['primary', 'secondary', 'ghost'].map((emphasis) =>
     split('Roll back', { destructive: true }, { cls: `arena-emphasis-${emphasis}` }))),
   section('Sizes', ['sm', 'md', 'lg'].map((size) => split(`Deploy (${size})`, {}, { cls: `arena-size-${size}` }))),
   section('States: the caret stays usable while the action runs', [
