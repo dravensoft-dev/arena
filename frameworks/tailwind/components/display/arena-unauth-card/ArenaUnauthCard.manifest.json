@@ -1,7 +1,7 @@
 {
   "component": "ArenaUnauthCard",
   "slots": {
-    "root": "block w-full max-w-[calc(var(--sp-1)*95+var(--sp-1)*18+var(--bw-surface)*2)] rounded-surface shadow-surface-deep",
+    "root": "block w-full max-w-[calc(28.25rem+var(--bw-surface)*2)] rounded-surface shadow-surface-deep",
     "body": "p-4",
     "brand": "flex mb-7",
     "eyebrow": "font-face-eyebrow text-eyebrow tracking-eyebrow case-eyebrow text-ink-eyebrow mb-1.5 font-eyebrow",
