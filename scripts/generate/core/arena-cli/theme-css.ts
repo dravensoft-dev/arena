@@ -28,6 +28,7 @@ import type { SerializableToken } from './serialize-token.ts';
 
 export type TokenCatalogue = {
   tokens: Record<string, string>;
+  light?: Record<string, string>;
   roles: Record<string, { type?: string; values?: string[]; default?: string; audience?: string; task?: string; userScale?: string;
     question?: string; combines?: { with: string; as: string }[] }>;
   aliases?: Record<string, string>;
@@ -614,7 +615,9 @@ export function heatOrderReports(steps: readonly string[], surface: string): Rep
 export function rolesFor(root: StylePlugin | null, catalogue: TokenCatalogue | null, polarity: string) {
   return root
     ? resolvedPlugin(root, catalogue, polarity)
-    : new Map<string, string>(Object.entries(catalogue?.tokens ?? {}));
+    : new Map<string, string>(Object.entries({
+      ...catalogue?.tokens, ...(polarity === 'light' ? catalogue?.light : {}),
+    }));
 }
 
 export function polarityReports(polarity: string, ground: string | undefined): Report[] {
@@ -655,7 +658,8 @@ export function paletteMessages(
     const ratio = contrast(fg, bg);
     if (ratio < TEXT_MIN) {
       messages.push(report('contrast',
-        `text, ${what}: ${ratio.toFixed(2)}:1, under the ${TEXT_MIN}:1 Arena holds itself to`));
+        `text, ${what}: ${ratio.toFixed(2)}:1, under the ${TEXT_MIN}:1 of WCAG AA. `
+        + 'Arena measures every palette and reports what falls short, and the build goes on'));
     }
   }
 

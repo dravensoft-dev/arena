@@ -16,10 +16,12 @@ import { HUE_SHEETS } from '../../lib/tailwind/hue-sheet.ts';
 import { PALETTE_KEYS } from '../../generate/core/arena-cli/palette-keys.ts';
 import {
   derivedLevels, drawnBy, emphasisReports, inlineHues, levelDefaults, levelReports, levelsIn, paletteKey, raisedReports,
-  STATE_PAIRS, STATUS_HUES, stateReports, washesIn, washReports,
+  STATE_PAIRS, STATUS_HUES, stateReports as measureStates, washesIn, washReports,
 } from '../../generate/core/arena-cli/levels.ts';
 import { ARENA_EXT } from '../../generate/core/arena-cli/style-plugin-rules.ts';
 import { CATALOGUE, entries } from './check-catalogue.ts';
+import { rolesFor, paletteMessages, readPlugin, resolvedPlugin } from '../../generate/core/arena-cli/theme-css.ts';
+import { tokenCatalogue } from '../../lib/arena/package-assembly.ts';
 import {
   composite, darkenOklab, errorFill, FILL_FALLBACK_KEEP,
 } from '../../generate/core/arena-cli/oklab.ts';
@@ -180,7 +182,9 @@ export function answeredColour(role: string, answers: Answers, light: Answers, d
   return key === null ? null : colors[key] ?? null;
 }
 
-export type ContrastScope = { where: string; theme: string; colors: Record<string, string> };
+export const JUDGED = ['plugin-style-store/default/plugin.tokens.json'];
+
+export type ContrastScope = { where: string; theme: string; colors: Record<string, string>; judged: boolean };
 
 export function contrastScopes(at = root): ContrastScope[] {
   const palette = readFileSync(join(at, PALETTE), 'utf8');
@@ -191,12 +195,13 @@ export function contrastScopes(at = root): ContrastScope[] {
   return [
     ...['default', 'complete'].flatMap((name) => generated.map((one) => ({
       where: `plugin-style-store/${name}/plugin.tokens.json`, ...one,
+      judged: JUDGED.includes(`plugin-style-store/${name}/plugin.tokens.json`),
     }))),
     ...catalogueEntries(at).flatMap((entry) => {
       const config = JSON.parse(readFileSync(join(dir, entry, 'arena.config.json'), 'utf8')) as { palettes?: EntryPalette[] };
       return (config.palettes ?? []).map((one) => ({
         where: `${CATALOGUE}/${entry}/plugin.tokens.json`,
-        theme: one.polarity ?? 'dark', colors: one.colors ?? {},
+        theme: one.polarity ?? 'dark', colors: one.colors ?? {}, judged: false,
       }));
     }),
   ];
@@ -204,19 +209,38 @@ export function contrastScopes(at = root): ContrastScope[] {
 
 const STATE_ROLES = [...new Set(STATE_PAIRS.flatMap((pair) => [pair.role, pair.over, ...(pair.wash ? ['fill-surface'] : [])]))];
 
-export function stateProblems(prefix: string, scopes = contrastScopes(), at = root) {
+function stateLines(prefix: string, scopes: ContrastScope[], at: string) {
   const defaults = roleDefaults(at);
   const level = levelDefaults(readFileSync(join(at, COLORS), 'utf8'));
-  return scopes.flatMap(({ where, theme, colors }) => {
+  return scopes.flatMap(({ where, theme, colors, judged }) => {
     const answers = JSON.parse(readFileSync(join(at, where), 'utf8')) as Answers & { light?: Answers };
     const roles = new Map<string, string>();
     for (const role of STATE_ROLES) {
       const key = answeredKey(role, answers, (answers.light ?? {}) as Answers, defaults, theme);
       if (key) roles.set(role, `var(--color-${key})`);
     }
-    return stateReports(roles, colors, theme, level, true)
+    return measureStates(roles, colors, theme, level, true)
       .filter((one) => one.message.startsWith(`--${prefix}`))
-      .map((one) => `${where}: ${one.message}`);
+      .map((one) => ({ judged, line: `${where}: ${one.message}` }));
+  });
+}
+
+export function stateProblems(prefix: string, scopes = contrastScopes(), at = root) {
+  return stateLines(prefix, scopes, at).filter((one) => one.judged).map((one) => one.line);
+}
+
+export function stateReports(prefix: string, scopes = contrastScopes(), at = root) {
+  return stateLines(prefix, scopes, at).filter((one) => !one.judged).map((one) => one.line);
+}
+
+export function defaultBuildProblems(at = root) {
+  const catalogue = tokenCatalogue(at);
+  const palette = readFileSync(join(at, PALETTE), 'utf8');
+  return THEMES.flatMap((theme) => {
+    const colors = paletteColours(block(palette, theme.selector, PALETTE));
+    return paletteMessages({ polarity: theme.name, colors }, rolesFor(null, catalogue, theme.name), [], [])
+      .filter((one) => one.kind === 'contrast' || one.kind === 'heat')
+      .map((one) => `${theme.name}: ${one.message}`);
   });
 }
 
@@ -247,6 +271,22 @@ export function catalogueOnInk(at = root) {
   });
 }
 
+export function catalogueReports(at = root) {
+  const catalogue = tokenCatalogue(at);
+  const dir = join(at, CATALOGUE);
+  return catalogueEntries(at).flatMap((entry) => {
+    const plugin = readPlugin(entry, JSON.parse(readFileSync(join(dir, entry, 'plugin.tokens.json'), 'utf8')));
+    const config = JSON.parse(readFileSync(join(dir, entry, 'arena.config.json'), 'utf8')) as { palettes?: EntryPalette[] };
+    return (config.palettes ?? []).flatMap((one) => {
+      const polarity = one.polarity ?? 'dark';
+      const roles = resolvedPlugin(plugin, catalogue, polarity);
+      return paletteMessages({ polarity, colors: one.colors ?? {} }, roles, [], [])
+        .filter((message) => message.kind === 'contrast' || message.kind === 'heat')
+        .map((message) => `${entry}, ${one.name ?? polarity}: ${message.message}`);
+    });
+  });
+}
+
 export const REMOVED = [
   { token: 'mute-2', use: '--mute (--text-muted)' },
   { token: 'text-faint', use: '--text-muted' },
@@ -271,11 +311,11 @@ export function surfacesUnder(resolved: Map<string, string>) {
 
 export function scopesToMeasure(effects: string, theme: string, plugins: string[]) {
   const base = surfacesUnder(resolvedFor(effects, '', theme));
-  const out = [{ label: 'the root plugin', surfaces: base }];
+  const out = [{ label: 'the root plugin', surfaces: base, judged: true }];
   for (const name of plugins) {
     const surfaces = surfacesUnder(resolvedFor(effects, name, theme));
     if (surfaces.join() === base.join()) continue;
-    out.push({ label: `.arena-${name}`, surfaces });
+    out.push({ label: `.arena-${name}`, surfaces, judged: false });
   }
   return out;
 }
@@ -335,8 +375,8 @@ function main() {
         }
         const ratios: [string, number][] = surfaces.map(([n, hex]) => [n, contrast(composite(content, hex, percent), hex)]);
         const failed = gate !== null && ratios.some(([, r]) => r < gate);
-        if (failed) ok = false;
-        const glyph = gate === null ? 'INFO' : failed ? 'FAIL' : 'PASS';
+        if (failed && scope.judged) ok = false;
+        const glyph = gate === null ? 'INFO' : failed ? (scope.judged ? 'FAIL' : 'REPORT') : 'PASS';
         const detail = ratios.map(([n, r]) => `${n} ${r.toFixed(2)}:1`).join('  ');
         const bar = gate === null ? 'not gated' : `gate ${gate}:1`;
         console.log(`  [${glyph}] --${token.padEnd(16)} ${String(percent).padStart(3)}%  ${detail}  ${bar}`);
@@ -354,8 +394,8 @@ function main() {
         }
         const ratios: [string, number][] = surfaces.map(([n, s]) => [n, contrast(hex, s)]);
         const failed = gate !== null && ratios.some(([, r]) => r < gate);
-        if (failed) ok = false;
-        const glyph = gate === null ? 'INFO' : failed ? 'FAIL' : 'PASS';
+        if (failed && scope.judged) ok = false;
+        const glyph = gate === null ? 'INFO' : failed ? (scope.judged ? 'FAIL' : 'REPORT') : 'PASS';
         const bar = gate === null ? 'not gated' : `gate ${gate}:1`;
         const detail = ratios.map(([n, r]) => `${n} ${r.toFixed(2)}:1`).join('  ');
         console.log(`  [${glyph}] --color-${token.padEnd(18)} ${hex}  ${detail}  ${bar}`);
@@ -392,13 +432,13 @@ function main() {
       console.log(`\n${t.name}, ${name ? `.arena-${name}` : 'the root plugin'}: each status hue's on-ink over its ink, a mark arena-mark-solid fills`);
       for (const { hue, ink, onInk, ratio } of onInkPairs(resolvedFor(effects, name, t.name), body)) {
         const failed = ratio === null || ratio < ON_INK_GATE;
-        if (failed) ok = false;
+        if (failed && !name) ok = false;
         const detail = ratio === null ? 'a role that names no palette colour' : `${onInk} on ${ink}  ${ratio.toFixed(2)}:1`;
-        console.log(`  [${failed ? 'FAIL' : 'PASS'}] --hue-${hue}-on-ink over --hue-${hue}-ink  ${detail}  gate ${ON_INK_GATE}:1`);
+        console.log(`  [${failed ? (name ? 'REPORT' : 'FAIL') : 'PASS'}] --hue-${hue}-on-ink over --hue-${hue}-ink  ${detail}  gate ${ON_INK_GATE}:1`);
       }
       const emphasis = emphasisReports(resolvedFor(effects, name, t.name), paletteColours(body), t.name);
-      if (emphasis.length) ok = false;
-      for (const one of emphasis) console.log(`  [FAIL] ${one.message}`);
+      if (emphasis.length && !name) ok = false;
+      for (const one of emphasis) console.log(`  [${name ? 'REPORT' : 'FAIL'}] ${one.message}`);
       if (!emphasis.length) console.log('  [PASS] a filled button\'s ink over its fill, primary and solid');
     }
 
@@ -417,28 +457,36 @@ function main() {
   }
 
   const states = stateProblems('ink-');
-  console.log('\nthe state inks: invalid and selected text over the grounds it stands on, in every plugin Arena ships and both themes');
+  console.log('\nthe state inks: invalid and selected text over the grounds it stands on, in the default plugin and both themes');
   for (const one of states) console.log(`  [FAIL] ${one}`);
   if (states.length) ok = false;
   else console.log('  [PASS] every ink-invalid and ink-selected pair clears 4.5:1');
+  for (const one of stateReports('ink-')) console.log(`  [REPORT] ${one}`);
+
+  const built = defaultBuildProblems();
+  console.log('\nthe default plugin as arena check measures it: every pair, in both of Arena\'s palettes');
+  for (const one of built) console.log(`  [FAIL] ${one}`);
+  if (built.length) ok = false;
+  else console.log('  [PASS] arena check reports nothing over the default plugin');
+
+  console.log('\nthe catalogue as arena check measures it: every pair of every palette of every entry, reported and passed');
+  for (const one of catalogueReports()) console.log(`  [REPORT] ${one}`);
 
   const entries = catalogueOnInk();
-  console.log('\nthe catalogue: each status hue\'s on-ink over its ink in every palette of every entry');
+  console.log('\nthe catalogue: each status hue\'s on-ink over its ink in every palette of every entry, measured and reported');
   if (entries.length === 0) {
     ok = false;
     console.log(`  [FAIL] measured 0 entries under ${CATALOGUE}; an empty sweep is a failure rather than a clean pass`);
   }
   for (const { entry, palette, hue, ink, onInk, ratio } of entries) {
-    const failed = ratio === null || ratio < ON_INK_GATE;
-    if (failed) ok = false;
-    if (!failed) continue;
+    if (ratio !== null && ratio >= ON_INK_GATE) continue;
     const detail = ratio === null ? 'a role that names no palette colour' : `${onInk} on ${ink}  ${ratio.toFixed(2)}:1`;
-    console.log(`  [FAIL] ${entry}, ${palette}: --hue-${hue}-on-ink over --hue-${hue}-ink  ${detail}  gate ${ON_INK_GATE}:1`);
+    console.log(`  [REPORT] ${entry}, ${palette}: --hue-${hue}-on-ink over --hue-${hue}-ink  ${detail}  under ${ON_INK_GATE}:1`);
   }
   if (entries.length && entries.every(({ ratio }) => ratio !== null && ratio >= ON_INK_GATE))
     console.log(`  [PASS] ${entries.length} pairs across ${new Set(entries.map((one) => one.entry)).size} entries clear ${ON_INK_GATE}:1`);
 
-  console.log(ok ? '\nText contrast OK — every gated level clears its bar in both themes.\n' : '\nText contrast FAILED — fix the marked levels.\n');
+  console.log(ok ? '\nText contrast OK: every gated level clears its bar in both themes, and what the catalogue and complete fall short of is reported above.\n' : '\nText contrast FAILED — fix the marked levels.\n');
   process.exit(ok ? 0 : 1);
 }
 

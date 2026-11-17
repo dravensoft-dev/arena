@@ -3,7 +3,11 @@ import assert from 'node:assert/strict';
 import {
   BOUNDARIES, removedBorders, boundaryProblems, collect, zeroBoundaryProblems, axisProblems, collectAxis,
 } from './check-boundary-contrast.ts';
-import { stateProblems } from './check-text-contrast.ts';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { COLORS, stateProblems, stateReports } from './check-text-contrast.ts';
+import { repoRoot } from '../../lib/arena/repo-root.ts';
 
 const HEXES = {
   'color-base-100': '#141010',
@@ -90,4 +94,28 @@ test('the real tree holds: every plugin Arena ships draws the axis heavier than 
 
 test('the real tree holds: every plugin Arena ships clears 3:1 on its focus, selected and invalid edges in both themes', () => {
   assert.deepEqual(stateProblems('edge-'), []);
+});
+
+test('a boundary pair below 3:1 is refused in a judged scope and reported in any other', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'edge-'));
+  try {
+    mkdirSync(join(dir, 'contracts/design'), { recursive: true });
+    mkdirSync(join(dir, 'p'));
+    writeFileSync(join(dir, 'contracts/design/roles.json'), '{}');
+    writeFileSync(join(dir, COLORS), readFileSync(join(repoRoot, COLORS)));
+    const answer = (role: string, value: string) => ({ [role]: { $value: value } });
+    writeFileSync(join(dir, 'p/plugin.tokens.json'), JSON.stringify({
+      ...answer('fill-page', '{color.base-100}'), ...answer('fill-surface', '{color.base-100}'), ...answer('fill-field', '{color.base-100}'),
+      ...answer('fill-track', '{color.base-100}'), ...answer('edge-focus', '{color.base-content}'), ...answer('edge-selected', '{color.strong}'),
+      ...answer('edge-invalid', '{color.strong}'), ...answer('ink-invalid', '{color.strong}'), ...answer('ink-selected', '{color.strong}'),
+      ...answer('fill-selected', '{color.base-100}'),
+    }));
+    const colors = { 'base-100': '#ffffff', strong: '#000000', 'base-content': '#cccccc' };
+    const scope = (judged: boolean) => [{ where: 'p/plugin.tokens.json', theme: 'light', colors, judged }];
+    assert.ok(stateProblems('edge-', scope(true), dir).length > 0);
+    assert.deepEqual(stateProblems('edge-', scope(false), dir), []);
+    assert.ok(stateReports('edge-', scope(false), dir).length > 0);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
 });

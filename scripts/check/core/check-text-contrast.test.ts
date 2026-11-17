@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
   COLORS, COMPONENT_SHEETS, ON_INK_GATE, PAIRS, PALETTE, REMOVED, ROLE_SHEETS, SCOPED_PLUGINS, VOCABULARY_SHEETS,
-  answeredColour, answeredKey, catalogueOnInk, stateProblems, componentSheets, onInkPairs, paletteColours, resolvePercent, scopesToMeasure, structureOf, surfacesUnder, THEMES,
+  answeredColour, answeredKey, catalogueOnInk, stateProblems, stateReports, defaultBuildProblems, JUDGED, componentSheets, onInkPairs, paletteColours, resolvePercent, scopesToMeasure, structureOf, surfacesUnder, THEMES,
 } from './check-text-contrast.ts';
 import { paletteBlock } from '../../lib/core/palette-read.ts';
 import { resolvedFor } from './check-style-plugin.ts';
@@ -294,10 +294,51 @@ test('a surface answered with no palette colour is reported by the gate of the p
     ...answer('ink-selected', '{color.base-content}'), ...answer('fill-selected', '{color.primary}'),
   }));
   const colors = { 'base-100': '#ffffff', 'base-300': '#e5e5e5', 'base-content': '#111111', primary: '#b52a20' };
-  const scopes = [{ where: 'p/plugin.tokens.json', theme: 'light', colors }];
+  const scopes = [{ where: 'p/plugin.tokens.json', theme: 'light', colors, judged: true }];
   const edges = stateProblems('edge-', scopes, dir);
   const inks = stateProblems('ink-', scopes, dir);
   assert.ok(edges.some((one) => /--edge-focus is measured over --fill-surface, which resolves to no palette colour/.test(one)));
   assert.ok(inks.some((one) => /--ink-invalid is measured over --fill-surface, which resolves to no palette colour/.test(one)));
   assert.ok(inks.some((one) => /--ink-selected is measured over --fill-surface/.test(one)));
+});
+
+function scratchTree(inkInvalid: string) {
+  const dir = mkdtempSync(join(tmpdir(), 'judged-'));
+  made.push(dir);
+  mkdirSync(join(dir, 'contracts/design'), { recursive: true });
+  mkdirSync(join(dir, 'p'));
+  writeFileSync(join(dir, 'contracts/design/roles.json'), '{}');
+  writeFileSync(join(dir, COLORS), readFileSync(join(repoRoot, COLORS)));
+  const answer = (role: string, value: string) => ({ [role]: { $value: value } });
+  writeFileSync(join(dir, 'p/plugin.tokens.json'), JSON.stringify({
+    ...answer('fill-page', '{color.base-100}'), ...answer('fill-surface', '{color.base-100}'), ...answer('fill-field', '{color.base-100}'),
+    ...answer('fill-track', '{color.base-100}'), ...answer('edge-focus', '{color.strong}'), ...answer('edge-selected', '{color.strong}'),
+    ...answer('edge-invalid', '{color.strong}'), ...answer('ink-invalid', inkInvalid), ...answer('ink-selected', '{color.strong}'),
+    ...answer('fill-selected', '{color.base-100}'),
+  }));
+  return dir;
+}
+
+const WEAK = { 'base-100': '#ffffff', strong: '#000000', 'base-content': '#bbbbbb' };
+
+test('a catalogue pair below AA is reported, not refused', () => {
+  const dir = scratchTree('{color.base-content}');
+  const scopes = [{ where: 'p/plugin.tokens.json', theme: 'light', colors: WEAK, judged: false }];
+  assert.deepEqual(stateProblems('ink-', scopes, dir), []);
+  assert.equal(stateReports('ink-', scopes, dir).length, 1);
+});
+
+test('a default pair below AA is refused', () => {
+  const dir = scratchTree('{color.base-content}');
+  const scopes = [{ where: 'p/plugin.tokens.json', theme: 'light', colors: WEAK, judged: true }];
+  assert.equal(stateProblems('ink-', scopes, dir).length, 1);
+  assert.deepEqual(stateReports('ink-', scopes, dir), []);
+});
+
+test('only the default plugin is judged', () => {
+  assert.deepEqual(JUDGED, ['plugin-style-store/default/plugin.tokens.json']);
+});
+
+test('defaultBuildProblems is clean on Arena\'s skin', () => {
+  assert.deepEqual(defaultBuildProblems(), []);
 });

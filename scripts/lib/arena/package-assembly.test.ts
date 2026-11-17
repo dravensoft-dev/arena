@@ -13,6 +13,7 @@ import { readJson } from '../../utils/read-file.ts';
 import { MARKERS_FILE, markerAttributes } from './component-map.ts';
 import { MAP_FILE } from './component-map.ts';
 import { repoRoot } from './repo-root.ts';
+import { rolesFor } from '../../generate/core/arena-cli/theme-css.ts';
 import { THEME_SOURCES } from '../tailwind/theme-sheet.ts';
 import { CONSUME } from '../../build/tailwind/build-tailwind.ts';
 import { CLI_DEPENDENCIES } from './support-matrix.ts';
@@ -340,7 +341,7 @@ test('a component sheet is reached through the barrel alone, never named twice i
 });
 
 test('the token catalogue offers roles and no catalogue of appearances', () => {
-  assert.deepEqual(Object.keys(tokenCatalogue()).sort(), ['aliases', 'channels', 'roles', 'tokens'],
+  assert.deepEqual(Object.keys(tokenCatalogue()).sort(), ['aliases', 'channels', 'light', 'roles', 'tokens'],
     'a consumer resolves an alias against the tokens and answers a role itself, and a menu of '
     + 'appearances is a decision Arena took for somebody else');
 });
@@ -562,4 +563,12 @@ test('inlineCdkPrebuilt throws on a bridge with no import, and angularExtra carr
   assert.equal(entry?.to, 'css/arena-cdk.css');
   assert.equal(entry?.from, undefined);
   assert.ok(!entry?.content?.includes('@import'));
+});
+
+test('default light answers reach the measurement', () => {
+  const catalogue = tokenCatalogue();
+  assert.equal(catalogue.light['edge-focus'], 'var(--color-base-content)');
+  assert.equal(catalogue.tokens['edge-focus'], 'var(--color-secondary)');
+  assert.equal(rolesFor(null, catalogue, 'light').get('edge-focus'), 'var(--color-base-content)');
+  assert.equal(rolesFor(null, catalogue, 'dark').get('edge-focus'), 'var(--color-secondary)');
 });

@@ -11,6 +11,7 @@ import {
 import { PALETTE_KEYS, POLARITIES, heatKeys } from './palette-keys.ts';
 import { heatLadder } from './oklab.ts';
 import { parseDecls } from '../../../lib/arena/css-decls.ts';
+import { tokenCatalogue } from '../../../lib/arena/package-assembly.ts';
 import { goldenInput } from '../../../lib/arena/theme-css-golden-input.ts';
 import { crossKeys, reservedProblems, scopeOn } from './style-plugin-rules.ts';
 import { nodeImportsReachedFrom, whileHeld } from './cli-fixtures.ts';
@@ -1657,4 +1658,20 @@ test('a transparent colour answer is emitted as transparent', () => {
     plugins: [total({ 'hue-danger-fill-strong': { $type: 'color', $value: '{color.secondary}' } })],
   });
   assert.equal(parseDecls(coloured).get(':root').get('hue-danger-fill-strong'), 'var(--color-secondary)');
+});
+
+test('a default project with a light palette reports no edge-focus pair', () => {
+  const light = readFileSync(fileURLToPath(new URL('../../../../contracts/design-generated/palette.generated.css', import.meta.url)), 'utf8');
+  const body = /\.arena-light\{([^}]*)\}/.exec(light)?.[1] ?? '';
+  const palette: Record<string, string> = {};
+  for (const [, name, hex] of body.matchAll(/--color-([\w-]+):(#[0-9a-fA-F]{6})/g)) palette[name as string] = hex as string;
+  const c = config({ palettes: [{ name: 'light', default: true, polarity: 'light', colors: { ...colors(), ...palette } }] });
+  const messages = paletteReports(c, tokenCatalogue(), [null]).flatMap((one) => one.messages.map((m) => m.message));
+  assert.ok(messages.every((m) => !/--edge-focus|--edge-selected/.test(m)), messages.join('\n'));
+});
+
+test('a text pair below AA is reported in words that let the build go on', () => {
+  const c = config({ palettes: [{ name: 'dim', default: true, polarity: 'dark', colors: colors({ 'base-content': '#222222' }) }] });
+  const messages = paletteReports(c)[0]?.messages.map((m) => m.message) ?? [];
+  assert.ok(messages.some((m) => /Arena measures every palette and reports what falls short/.test(m)), messages.join('\n'));
 });

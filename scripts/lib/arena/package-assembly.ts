@@ -369,6 +369,9 @@ export function shippedChannels(root = repoRoot) {
   return [...names];
 }
 
+const DEFAULT_SHEET = 'contracts/design-generated/style-plugin.default.generated.css';
+const LIGHT_SELECTOR = '.arena-light';
+
 export function tokenCatalogue(root = repoRoot) {
   const decls = new Map<string, Map<string, string>>();
   for (const target of CSS_TARGETS) {
@@ -376,6 +379,7 @@ export function tokenCatalogue(root = repoRoot) {
       decls.set(selector, new Map([...(decls.get(selector) ?? []), ...pairs]));
   }
   const tokens = Object.fromEntries(decls.get(':root') ?? []);
+  const light = Object.fromEntries(parseDecls(readFileSync(join(root, DEFAULT_SHEET), 'utf8')).get(LIGHT_SELECTOR) ?? []);
 
   const roleFile = readJson(join(root, 'contracts', 'design', 'roles.json')) as Record<string, any>;
   const roles = Object.fromEntries(Object.entries(roleFile).map(([name, role]) => [name, catalogueRole(role)]));
@@ -384,7 +388,7 @@ export function tokenCatalogue(root = repoRoot) {
   const listed = new Set([...Object.keys(tokens), ...Object.keys(roles), ...Object.keys(aliases)].map((name) => `--${name.replace(/^--/, '')}`));
   const channels = shippedChannels(root).filter((name) => !listed.has(name) && !name.startsWith('--tw-')).sort();
 
-  return { tokens, roles, aliases, channels };
+  return { tokens, light, roles, aliases, channels };
 }
 
 export const CLI_BINS = { arena: './bin/arena.mjs' };

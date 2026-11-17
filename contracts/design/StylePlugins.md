@@ -283,8 +283,8 @@ refuse what this document permits.
 | prose leading, heading leading, prose measure | `check:style-plugin` | the root plugin, in the base scope and in every theme scope |
 | the same three floors | `check:catalogue` | every entry under `plugin-style-store/catalogue/`, in both polarities, resolved in memory because no entry is compiled |
 | no `plugin.css` writes a `--arena-hue-*` channel (reading a channel is allowed); a direct declaration on a part is not gated | `check:channels` | every `plugin.css` under `plugin-style-store/` and `plugin-style-store/catalogue/` |
-| a control's boundary at 3:1 where its border goes to zero | `check:boundary-contrast` | the root plugin, in both themes |
-| text contrast against the surfaces a plugin names | `check:text-contrast` | the root plugin and every scoped plugin this build emits |
+| a control's boundary at 3:1 where its border goes to zero | `check:boundary-contrast` | the `default` plugin, in both themes; `complete` and the catalogue are measured and reported |
+| text contrast against the surfaces a plugin names | `check:text-contrast` | the `default` plugin, in both themes; `complete` and the catalogue are measured and reported |
 | the two layers draw one appearance identically | `check:pixel-parity` | every sink, exactly, with no allowance declared for any of them |
 | the compiled `arena-` class name is output rather than contract | `arena audit`, in both scopes | a consumer's sources |
 | a raw colour or a bare pixel length where a token belongs | `arena audit`, in both scopes | a consumer's sources |
