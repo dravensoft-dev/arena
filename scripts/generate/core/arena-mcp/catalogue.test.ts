@@ -388,3 +388,17 @@ test('a pattern in a code span is not a link to resolve, and a link beside it is
   const byRel = new Map([['skills/design/references/b.md', `${SCHEME}://reference/b`]]);
   assert.equal(withUris(`${span} [x](./b.md)`, at, byRel), `${span} [x](${SCHEME}://reference/b)`);
 });
+
+test('a reference is titled by its own first heading, and by its path when it has none', () => {
+  const dir = payload({
+    'skills/design/references/pad.md': '# What do I pad with?\n\nthe room around.\n',
+    'skills/design/references/bare.md': 'no heading here\n',
+  });
+  try {
+    const found = entries(dir, MANIFEST);
+    const title = (name: string) => found.find((one) => one.uri === `${SCHEME}://reference/${name}`)?.title;
+    assert.equal(title('pad'), 'What do I pad with?');
+    assert.equal(title('bare'), 'Reference: bare');
+    assert.equal(search(dir, found, 'pad')[0]?.entry.uri, `${SCHEME}://reference/pad`);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});

@@ -172,7 +172,7 @@ export function entries(payload: string, manifest: Manifest): Entry[] {
     }
     if (rel.startsWith(`${REFERENCE_DIR}/`) && rel.endsWith('.md')) {
       found.push({ uri: `${REFERENCE_PREFIX}${referenceName(rel)}`, rel, mime: 'text/markdown',
-        title: `Reference: ${referenceName(rel)}` });
+        title: firstHeading(readIn(payload, rel)) ?? `Reference: ${referenceName(rel)}` });
       continue;
     }
     if (rel.endsWith(`/${INDEX}`) && rel.includes('/components/')) {
@@ -186,6 +186,12 @@ export function entries(payload: string, manifest: Manifest): Entry[] {
     }
   }
   return found;
+}
+
+const HEADING = /^# +(.+?) *$/m;
+
+export function firstHeading(text: string | null) {
+  return text === null ? null : HEADING.exec(text)?.[1] ?? null;
 }
 
 export function catalogue(payload: string, manifest: Manifest) {
