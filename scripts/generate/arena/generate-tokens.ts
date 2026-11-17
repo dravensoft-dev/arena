@@ -154,6 +154,7 @@ export const node = {
     'check:families',
     'check:style-plugin',
     'check:style-plugin-coverage',
+    'check:text-scale',
     'check:generated',
     'check:icons',
     'check:layer-independence',

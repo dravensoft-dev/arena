@@ -6,10 +6,12 @@
  * a directory a live process writes to fails with EBUSY. On Windows the browser's TMP is <profile>.t,
  * removed whole with it, because taskkill /F strands the empty <uuid>.tmp it was about to use. SIGTERM
  * or SIGINT reaps group and profile at once; SIGKILL leaves a profile with its launcher's pid for the
- * next launch to reap. The singleton links' directory goes too; a suite root sweeps the fetcher one. */
+ * next launch to reap. The singleton links' directory goes too; a suite root sweeps the fetcher one.
+ * defaultFontSize is the text-size preference a user sets. */
+
 
 import { execFileSync, spawn, spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, readlinkSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readlinkSync, rmSync, writeFileSync } from 'node:fs';
 import { basename, dirname, isAbsolute } from 'node:path';
 import { constants, tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -303,13 +305,18 @@ export function reapOnSignal(
 export async function launchChromium(
   exePath: string,
   on: Platform = platform,
-  options: { prefix?: string[]; ownTemp?: boolean } = {},
+  options: { prefix?: string[]; ownTemp?: boolean; defaultFontSize?: number } = {},
 ): Promise<{ wsUrl: string; kill: () => Promise<void> }> {
   sweepOrphans(tmpdir(), on);
   const profile = mkdtempSync(join(tmpdir(), `${PROFILE_PREFIX}${process.pid}-`));
   const ownTemp = options.ownTemp ?? on === 'win32';
   const temp = `${profile}${OWN_TMP_SUFFIX}`;
   if (ownTemp) mkdirSync(temp);
+  if (options.defaultFontSize !== undefined) {
+    mkdirSync(join(profile, 'Default'));
+    writeFileSync(join(profile, 'Default', 'Preferences'),
+      JSON.stringify({ webkit: { webprefs: { default_font_size: options.defaultFontSize } } }));
+  }
   const removeProfile = (retry: object) => {
     const own = ownTempDirs(profile);
     for (const dir of ownTemp ? [profile, temp] : [profile])

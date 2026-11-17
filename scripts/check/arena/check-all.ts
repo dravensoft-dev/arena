@@ -121,6 +121,7 @@ export const GATES: Gate[] = [
   { name: 'check:target-size', file: 'arena/check-target-size.ts', pool: 'browser', cost: 20.3 },
   { name: 'check:contained-parts', file: 'arena/check-contained-parts.ts', pool: 'browser', cost: 12.6 },
   { name: 'check:pixel-parity', file: 'arena/check-pixel-parity.ts', pool: 'browser', cost: 52 },
+  { name: 'check:text-scale', file: 'arena/check-text-scale.ts', pool: 'browser', cost: 58 },
   { name: 'check:proximity', file: 'arena/check-proximity.ts', pool: 'browser', cost: 10.2 },
   { name: 'check:palette-islands', file: 'arena/check-palette-islands.ts', pool: 'browser', cost: 4.7 },
   { name: 'check:shared-arithmetic', file: 'arena/check-shared-arithmetic.ts' },

@@ -42,10 +42,10 @@ export const PROSE_EXEMPT = {
 
 export const SIZE_ALLOWANCE = new Map<string, { limit: number; reason: string }>([
   ['scripts/check/arena/AGENTS.md', {
-    limit: 62_000,
+    limit: 63_700,
     reason: 'the domain table of the arena gates, one row per gate, where a row states the claim and the '
       + 'failure its gate exists for and the table cell cap keeps each row from becoming a page; the '
-      + 'real-browser gates (target size, contained parts) carry the longest rows because the reason a '
+      + 'real-browser gates (target size, contained parts, text scale) carry the longest rows because the reason a '
       + 'unit tier cannot answer them is part of what each one claims',
   }],
 ]);

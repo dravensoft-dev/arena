@@ -115,7 +115,7 @@ export const node = {
     'check:generated',
     'check:icons',
     'check:layer-independence',
-    'check:target-size', 'check:contained-parts', 'check:pixel-parity', 'check:palette-islands',
+    'check:target-size', 'check:text-scale', 'check:contained-parts', 'check:pixel-parity', 'check:palette-islands',
     'check:playgrounds',
     'check:react-types',
     'check:script-tokens',

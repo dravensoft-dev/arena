@@ -677,3 +677,17 @@ test('a fetcher directory another process makes while the browser lives is left 
       rmSync(dir, { recursive: true, force: true });
     }
   });
+
+test('a default font size is written to the profile preferences',
+  { timeout: BUDGET_MS, skip: NEEDS_A_BROWSER }, async () => {
+  const before = chromiumTempDirs();
+  const { kill } = await launchChromium(BROWSER_PATH, platform, { defaultFontSize: 32 });
+  try {
+    const created = [...chromiumTempDirs()].filter((d) => !before.has(d));
+    assert.equal(created.length, 1);
+    const written = JSON.parse(readFileSync(join(tmpdir(), created[0] ?? '', 'Default', 'Preferences'), 'utf8'));
+    assert.equal(written.webkit.webprefs.default_font_size, 32);
+  } finally {
+    await kill();
+  }
+});
