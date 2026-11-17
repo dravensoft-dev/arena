@@ -5,12 +5,13 @@ import { fileURLToPath } from 'node:url';
 import {
   configProblems, heatReports, heatOrderReports, themeCss, packageLines, PACKAGE_HEADER, packageImports, paletteReports, defaultPalette, isStylesheet, scopedImports,
   pluginName, pluginValue, readPlugin, weightReports, rootWithDefaults, resolvedPlugin,
-  pluginBlocks, pluginTokenProblems,
+  pluginBlocks, pluginTokenProblems, rolesFor,
   ARENA_FONT_DEFAULTS, ALWAYS_THEMED, RUNTIME_MARKER, polarityClass, polarityDeclarations, restatedBy, type CheckedStylesheet, type CheckedSheets,
 } from './theme-css.ts';
 import { PALETTE_KEYS, POLARITIES, heatKeys } from './palette-keys.ts';
 import { heatLadder } from './oklab.ts';
 import { parseDecls } from '../../../lib/arena/css-decls.ts';
+import { roleReferencesIn } from './sheets.ts';
 import { tokenCatalogue } from '../../../lib/arena/package-assembly.ts';
 import { goldenInput } from '../../../lib/arena/theme-css-golden-input.ts';
 import { crossKeys, reservedProblems, scopeOn } from './style-plugin-rules.ts';
@@ -1674,4 +1675,18 @@ test('a text pair below AA is reported in words that let the build go on', () =>
   const c = config({ palettes: [{ name: 'dim', default: true, polarity: 'dark', colors: colors({ 'base-content': '#222222' }) }] });
   const messages = paletteReports(c)[0]?.messages.map((m) => m.message) ?? [];
   assert.ok(messages.some((m) => /Arena measures every palette and reports what falls short/.test(m)), messages.join('\n'));
+});
+
+test('a plugin that leaves edge-focus to the kernel is measured with the value the light sheet draws', () => {
+  const dir = fileURLToPath(new URL('../../../../plugin-style-store/catalogue/booking/plugin.tokens.json', import.meta.url));
+  const plugin = readPlugin('booking', JSON.parse(readFileSync(dir, 'utf8')));
+  assert.equal('edge-focus' in plugin.tokens || 'edge-focus' in plugin.light, false);
+  const catalogue = tokenCatalogue();
+  const css = themeCss(config({ palettes: [
+    { name: 'dark', default: true, polarity: 'dark', colors: colors() },
+    { name: 'light', polarity: 'light', colors: colors({ 'base-100': '#ffffff' }) },
+  ] }), { sheets: { layers: [], components: [], catalogue, roleReferences: roleReferencesIn(catalogue) }, plugins: [plugin] });
+  const drawn = parseDecls(css).get('.arena-light').get('edge-focus');
+  assert.equal(rolesFor(plugin, catalogue, 'light').get('edge-focus'), drawn);
+  assert.equal(drawn, 'var(--color-secondary)');
 });

@@ -486,7 +486,7 @@ function main() {
   if (entries.length && entries.every(({ ratio }) => ratio !== null && ratio >= ON_INK_GATE))
     console.log(`  [PASS] ${entries.length} pairs across ${new Set(entries.map((one) => one.entry)).size} entries clear ${ON_INK_GATE}:1`);
 
-  console.log(ok ? '\nText contrast OK: every gated level clears its bar in both themes, and what the catalogue and complete fall short of is reported above.\n' : '\nText contrast FAILED — fix the marked levels.\n');
+  console.log(ok ? '\nText contrast OK: every gated level clears its bar in both themes, and what the catalogue and complete fall short of is reported above.\n' : '\nText contrast FAILED: fix the marked levels.\n');
   process.exit(ok ? 0 : 1);
 }
 
