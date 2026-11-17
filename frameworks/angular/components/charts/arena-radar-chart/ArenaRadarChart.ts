@@ -123,7 +123,7 @@ const SERIES_STROKE_STYLE = { strokeWidth: 'var(--bw-strong)' } as const satisfi
 })
 export class ArenaRadarChart {
   protected readonly locale = inject(ARENA_LOCALE);
-  /** One label per axis, in the same order as every series' `values`, running clockwise from 12 o'clock. Keep the count small: past eight or so the labels collide and the shape stops being readable, which is a limit of the form rather than of the drawing. */
+  /** One label per axis, in the same order as every series' `values`, running clockwise from 12 o'clock. Keep the count small: past eight or so the labels collide and the shape stops being readable, which is a limit of the form rather than of the drawing. A label longer than the room beside the ring is cut with an ellipsis. The full name of a cut label stays in a title on it and in the data table. The room is read when the chart is created. */
   readonly labels = input.required<readonly string[]>();
   /** The plotted series, drawn as one closed polygon each over the same axes. The shape is the reading, so two or three series is the useful case and more is a tangle. After the last slot the positional count starts again at the first, so fold a ninth series into "Other" upstream. */
   readonly series = input.required<readonly ArenaSeries[]>();
