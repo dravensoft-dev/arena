@@ -6,7 +6,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   ENLARGED_PX, rootProblems, doublingProblems, clipProblems, overlapProblems, staleAllowanceProblems,
-  breakpointProblems, clippedBy, declaresTruncation, takesPartInFlow, collectExpression, type TextBox,
+  breakpointProblems, clippedBy, declaresTruncation, takesPartInFlow, collectExpression, firstCutting, referenceProblem, type TextBox,
 } from './check-text-scale.ts';
 
 const box = (over: Partial<TextBox> = {}): TextBox => ({
@@ -90,10 +90,17 @@ test('the ordinal of a slot counts it before any visibility skip, so a hidden si
   assert.ok(expression.indexOf('ordinalBeforeSkips = counts') < expression.indexOf('getClientRects().length === 0'));
 });
 
-test('a missing 16px reference is reported by the sweep as a problem, not skipped', async () => {
-  const { readFileSync } = await import('node:fs');
-  const source = readFileSync(new URL('./check-text-scale.ts', import.meta.url), 'utf8');
-  assert.match(source, /no \$\{REFERENCE_PX\}px reference was measured/);
+test('a page and scope with no 16px reference is a problem, one with a reference is not', () => {
+  assert.match(referenceProblem('react/default:dark/arena-compact', undefined) ?? '', /no 16px reference was measured/);
+  assert.equal(referenceProblem('react/default:dark/arena-compact', { root: 16, boxes: [] }), null);
+});
+
+test('a scroller does not shield text from an outer hidden or clip ancestor', () => {
+  assert.equal(firstCutting(['auto', 'hidden']), 1);
+  assert.equal(firstCutting(['scroll', 'visible', 'clip']), 2);
+  assert.equal(firstCutting(['auto', 'scroll', 'visible']), -1);
+  assert.equal(firstCutting(['hidden', 'clip']), 0);
+  assert.equal(firstCutting([]), -1);
 });
 
 test('text is clipped only where its own box leaves a hidden or clipping box, not a scrolling one', () => {

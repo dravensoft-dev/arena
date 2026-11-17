@@ -113,6 +113,15 @@ export function clippedBy(text: Edges, box: Edges, overflowX: string, overflowY:
   };
 }
 
+export function firstCutting(overflows: string[]) {
+  return overflows.findIndex((value) => value === 'hidden' || value === 'clip');
+}
+
+export function referenceProblem(where: string, base: unknown) {
+  return base ? null
+    : `${where}: no ${REFERENCE_PX}px reference was measured for this page and scope, so nothing here was compared`;
+}
+
 export function declaresTruncation(style: { textOverflow: string; lineClamp: string }) {
   return style.textOverflow === 'ellipsis' || (style.lineClamp !== '' && style.lineClamp !== 'none');
 }
@@ -175,6 +184,7 @@ export function breakpointProblems(at: { bpMd: string; below1530: boolean; below
 export const collectExpression = (layer: string, sink: string, scope: string) => `(() => {
   const clippedBy = ${clippedBy.toString()};
   const declaresTruncation = ${declaresTruncation.toString()};
+  const firstCutting = ${firstCutting.toString()};
   const takesPartInFlow = ${takesPartInFlow.toString()};
   const html = document.documentElement;
   for (const one of ${JSON.stringify([...SCOPES])}) html.classList.remove(one);
@@ -209,19 +219,21 @@ export const collectExpression = (layer: string, sink: string, scope: string) =>
     const classOf = (at) => at.getAttribute('class') ?? at.tagName.toLowerCase();
     const lineClampOf = (s) => s.webkitLineClamp ?? s.getPropertyValue('-webkit-line-clamp') ?? '';
     truncates = declaresTruncation({ textOverflow: style.textOverflow, lineClamp: lineClampOf(style) });
+    let collapsed = false;
     const clipperOf = (axis) => {
+      const chain = [];
       for (let at = el; at && at !== document.body; at = at.parentElement) {
         const s = getComputedStyle(at);
-        const value = axis === 'x' ? s.overflowX : s.overflowY;
-        if (value !== 'visible') return { at, s, value };
+        chain.push({ at, s, value: axis === 'x' ? s.overflowX : s.overflowY });
       }
-      return null;
+      const found = firstCutting(chain.map((one) => one.value));
+      return found === -1 ? null : chain[found];
     };
     for (const axis of ['x', 'y']) {
       const found = clipperOf(axis);
       if (!found) continue;
       const { at, s, value } = found;
-      if (at.clientWidth <= 1 && at.clientHeight <= 1) { clipX = false; clipY = false; classes = 'hidden'; break; }
+      if (at.clientWidth <= 1 && at.clientHeight <= 1) { collapsed = true; break; }
       const cr = at.getBoundingClientRect();
       const left = cr.left + at.clientLeft;
       const top = cr.top + at.clientTop;
@@ -235,7 +247,7 @@ export const collectExpression = (layer: string, sink: string, scope: string) =>
         if (declaresTruncation({ textOverflow: s.textOverflow, lineClamp: lineClampOf(s) })) truncates = true;
       }
     }
-    if (classes === 'hidden') continue;
+    if (collapsed) continue;
     const sibling = el.parentElement;
     out.push({
       path: prefix + ':' + key + '#' + ordinalBeforeSkips,
@@ -369,11 +381,9 @@ async function main() {
         measured += collected.boxes.length;
         for (const one of rootProblems(collected.root, what)) note(one, where);
         const base = reference.get(`${page.layer}/${page.sink}/${scope}`);
-        if (base) {
-          for (const one of doublingProblems(base.boxes, collected.boxes, FIXED, usedFixed)) note(one, where);
-        } else {
-          note(`${where}: no ${REFERENCE_PX}px reference was measured for this page and scope, so nothing here was compared`, where);
-        }
+        const missing = referenceProblem(where, base);
+        if (missing !== null) note(missing, where);
+        if (base) for (const one of doublingProblems(base.boxes, collected.boxes, FIXED, usedFixed)) note(one, where);
         for (const one of clipProblems(collected.boxes, CLIPS, usedClips)) note(one, where);
         for (const one of overlapProblems(collected.boxes, OVERLAPS, usedOverlaps)) note(one, where);
       }
