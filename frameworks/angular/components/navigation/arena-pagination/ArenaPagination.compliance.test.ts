@@ -15,6 +15,7 @@ import { TestBed } from '@angular/core/testing';
 import { assertNoNode, assertSameNode } from '../../../test/NodeAssert';
 import { ArenaPagination } from './ArenaPagination';
 import { assertPattern, ANGULAR_COMPONENTS } from '../../../test/Compliance';
+import { currentVerdict, itemNamed } from '../../../test/StateVerdicts';
 
 const BINDING = join(ANGULAR_COMPONENTS, 'navigation/arena-pagination/ArenaPagination.behaviour.json');
 
@@ -73,7 +74,14 @@ test('arena-pagination meets the navigation pattern, and two of them are told ap
     assert.notEqual(other.read().nav.getAttribute('aria-label'), nav.getAttribute('aria-label'),
       'two paginated tables in one dashboard is a routine layout and they must not share a name');
 
-    assertPattern({ root: host, bindingPath: BINDING, subjects: { default: nav } });
+    assertPattern({
+      root: host,
+      bindingPath: BINDING,
+      subjects: { default: nav },
+      behavioural: { 'states.current': currentVerdict(
+          itemNamed(nav, 'button', '3'), [...nav.querySelectorAll('button')],
+        ) },
+    });
   } finally {
     fixture.destroy();
     other.fixture.destroy();

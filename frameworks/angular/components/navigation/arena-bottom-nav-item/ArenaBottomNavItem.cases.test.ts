@@ -15,6 +15,7 @@ import { TestBed, type ComponentFixture } from '@angular/core/testing';
 import { ArenaBottomNav } from '../arena-bottom-nav/ArenaBottomNav';
 import { ArenaBottomNavItem } from './ArenaBottomNavItem';
 import { assertPatternCases, ANGULAR_COMPONENTS } from '../../../test/Compliance';
+import { commandButtonVerdict } from '../../../test/StateVerdicts';
 
 const BINDING = join(ANGULAR_COMPONENTS, 'navigation/arena-bottom-nav-item/ArenaBottomNavItem.behaviour.json');
 
@@ -85,6 +86,7 @@ test('arena-bottom-nav-item meets both of the shapes href chooses between', () =
               'keyboard.Enter': true,
               'keyboard.Space': true,
               'states.disabled': true,
+              'states.pressed': commandButtonVerdict(el),
             },
           };
         },

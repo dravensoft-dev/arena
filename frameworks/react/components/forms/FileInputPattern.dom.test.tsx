@@ -9,6 +9,7 @@ import { join } from 'node:path';
 import React, { useState } from 'react';
 import { mount, cleanup, act } from '../../test/Harness.tsx';
 import { assertPattern, REACT_COMPONENTS } from '../../test/AssertPattern.tsx';
+import { commandButtonVerdict } from '../../test/StateVerdicts.ts';
 import { ArenaFileInput } from './arena-file-input/ArenaFileInput.tsx';
 
 afterEach(cleanup);
@@ -123,6 +124,9 @@ test('ArenaFileInput meets the button pattern on its trigger', () => {
     root,
     bindingPath: BINDING,
     subjects: { default: trigger },
-    behavioural: { 'keyboard.Enter': true, 'keyboard.Space': true, 'states.disabled': true },
+    behavioural: {
+      'keyboard.Enter': true, 'keyboard.Space': true, 'states.disabled': true,
+      'states.pressed': commandButtonVerdict(trigger),
+    },
   });
 });

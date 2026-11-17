@@ -8,6 +8,7 @@
     "roles.label": "text content, aria-labelledby, or aria-label",
     "keyboard.Space": "activate",
     "keyboard.Enter": "activate",
-    "states.disabled": "aria-disabled set to true when the action is unavailable"
+    "states.disabled": "aria-disabled set to true when the action is unavailable",
+    "states.pressed": "aria-pressed reflects the state on a toggle button, true or false, and is absent on a command button"
   }
 }

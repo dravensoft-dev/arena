@@ -366,6 +366,14 @@ test('evaluate treats the conditional states as behavioural, not as presence', (
   }
 });
 
+test('pressed, invalid and current are behavioural', () => {
+  for (const [key, pattern] of [['states.pressed', 'button'], ['states.invalid', 'textbox'], ['states.current', 'navigation']] as const) {
+    assert.ok(BEHAVIOURAL.has(key), `${key} should be listed behavioural`);
+    assert.equal(DECIDABLE.has(key), false, `${key} should not be listed decidable`);
+    assert.equal(evaluate(el('div'), key, '', pattern), null, key);
+  }
+});
+
 test('evaluate throws on an unrecognised requirement key', () => {
 
   assert.throws(() => evaluate(el('div'), 'states.chekced', '', 'checkbox'), /states\.chekced/);
@@ -457,13 +465,32 @@ test('comparePattern reports an overclaim when a requirement is unmet and unexce
 test('comparePattern is silent for a correct button', () => {
 
   const button = PATTERNS.get('button');
+  const subject = el('button', {}, 'Save');
   const problems = comparePattern({
     pattern: button,
     binding: { pattern: 'button', exceptions: [] },
-    fallback: el('button', {}, 'Save'),
-    behavioural: { 'keyboard.Space': true, 'keyboard.Enter': true, 'states.disabled': true },
+    fallback: subject,
+    behavioural: {
+      'keyboard.Space': true, 'keyboard.Enter': true, 'states.disabled': true,
+      'states.pressed': subject.getAttribute('aria-pressed') === null,
+    },
   });
   assert.deepEqual(problems, []);
+});
+
+test('a command button carrying aria-pressed makes states.pressed unmet', () => {
+  const subject = el('button', { 'aria-pressed': 'false' }, 'Save');
+  const problems = comparePattern({
+    pattern: PATTERNS.get('button'),
+    binding: { pattern: 'button', exceptions: [] },
+    fallback: subject,
+    behavioural: {
+      'keyboard.Space': true, 'keyboard.Enter': true, 'states.disabled': true,
+      'states.pressed': subject.getAttribute('aria-pressed') === null,
+    },
+  });
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /states\.pressed/);
 });
 
 test('comparePattern refuses an undecidable requirement that was not declared behavioural', () => {

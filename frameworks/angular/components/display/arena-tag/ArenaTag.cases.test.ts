@@ -7,6 +7,7 @@ import { join } from 'node:path';
 import { TestBed } from '@angular/core/testing';
 import { ArenaTag } from './ArenaTag';
 import { assertPatternCases, ANGULAR_COMPONENTS } from '../../../test/Compliance';
+import { commandButtonVerdict } from '../../../test/StateVerdicts';
 
 const BINDING = join(ANGULAR_COMPONENTS, 'display/arena-tag/ArenaTag.behaviour.json');
 
@@ -69,7 +70,10 @@ test('arena-tag meets both of its declared cases', () => {
           return {
             root: host,
             subjects: { default: button },
-            behavioural: { 'states.disabled': true, 'keyboard.Space': true, 'keyboard.Enter': true },
+            behavioural: {
+              'states.disabled': true, 'keyboard.Space': true, 'keyboard.Enter': true,
+              'states.pressed': commandButtonVerdict(button),
+            },
           };
         },
       },

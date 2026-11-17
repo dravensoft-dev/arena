@@ -226,6 +226,7 @@ export const BEHAVIOURAL = new Set([
   'alternative.table', 'alternative.jsonLd',
 
   'states.disabled', 'states.required', 'states.readonly',
+  'states.pressed', 'states.invalid', 'states.current',
   'states.multiselectable', 'states.busy', 'states.posinset', 'states.setsize',
   'states.valuenow', 'states.valuemin', 'states.valuemax', 'states.valuetext', 'states.orientation',
 ]);

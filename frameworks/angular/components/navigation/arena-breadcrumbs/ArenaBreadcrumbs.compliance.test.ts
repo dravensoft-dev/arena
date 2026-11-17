@@ -13,6 +13,7 @@ import { join } from 'node:path';
 import { TestBed } from '@angular/core/testing';
 import { ArenaBreadcrumbs } from './ArenaBreadcrumbs';
 import { assertPattern, ANGULAR_COMPONENTS } from '../../../test/Compliance';
+import { currentVerdict, itemNamed } from '../../../test/StateVerdicts';
 
 const BINDING = join(ANGULAR_COMPONENTS, 'navigation/arena-breadcrumbs/ArenaBreadcrumbs.behaviour.json');
 
@@ -48,7 +49,12 @@ test('arena-breadcrumbs is a named nav landmark, and two of them are told apart'
       root: fixture.nativeElement as Element,
       bindingPath: BINDING,
       subjects: { default: nav },
-      behavioural: { 'alternative.jsonLd': true },
+      behavioural: {
+        'alternative.jsonLd': true,
+        'states.current': currentVerdict(
+          itemNamed(nav, 'span', 'Overview'), [...nav.querySelectorAll('a, span')].filter((el) => el.closest('li')),
+        ),
+      },
     });
   } finally {
     fixture.destroy();

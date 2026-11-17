@@ -11,6 +11,7 @@ import { join } from 'node:path';
 import { mount, cleanup, act } from '../../../test/Harness.tsx';
 import { withIcons, domSymbols } from '../../../test/IconsHarness.tsx';
 import { assertPattern, assertPatternCases, REACT_COMPONENTS } from '../../../test/AssertPattern.tsx';
+import { commandButtonVerdict, currentVerdict, itemNamed } from '../../../test/StateVerdicts.ts';
 import { ArenaBottomNav } from './ArenaBottomNav.tsx';
 import { ArenaBottomNavItem } from '../arena-bottom-nav-item/ArenaBottomNavItem.tsx';
 
@@ -32,7 +33,17 @@ test('ArenaBottomNav is a named navigation landmark, which is the whole of what 
   const nav = root.querySelector('nav')!;
   assert.equal(nav.getAttribute('aria-label'), 'Primary');
   assert.equal(nav.getAttribute('tabindex'), null, 'the landmark must not be a tab stop');
-  assertPattern({ root, bindingPath: BAR_BINDING, subjects: { default: nav } });
+  const links = [...nav.querySelectorAll('a, button')];
+  const movedNav = mount(bar(undefined, 'more')).querySelector('nav')!;
+  assertPattern({
+    root,
+    bindingPath: BAR_BINDING,
+    subjects: { default: nav },
+    behavioural: {
+      'states.current': currentVerdict(itemNamed(nav, 'a', 'Home'), links)
+        && currentVerdict(itemNamed(movedNav, 'button, a', 'More'), [...movedNav.querySelectorAll('a, button')]),
+    },
+  });
 });
 
 test('ArenaBottomNavItem meets both of the shapes href chooses between', () => {
@@ -71,7 +82,10 @@ test('ArenaBottomNavItem meets both of the shapes href chooses between', () => {
         return {
           root: el,
           subjects: { default: el },
-          behavioural: { 'keyboard.Enter': true, 'keyboard.Space': true, 'states.disabled': true },
+          behavioural: {
+            'keyboard.Enter': true, 'keyboard.Space': true, 'states.disabled': true,
+            'states.pressed': commandButtonVerdict(el),
+          },
         };
       },
     },
