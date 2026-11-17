@@ -110,18 +110,6 @@ source text cannot show, is `arena://rules` on the MCP server.
   reports this one, as `own-class`.**
 - **Appearance is a class of the vocabulary, never a member.** How wide, how large or how quiet a
   component is, is decided by a class, as `arena-fill`.
-- **Danger is outline, never filled.** The background stays transparent, and the border and the
-  content read `--danger`. Arena draws one filled danger surface, the final irreversible
-  confirmation inside `ArenaConfirmDialog`. A surface of your own may carry the `--danger-soft`
-  tint. **`arena audit` reports this one, as `danger-fill`.**
-- **One primary accent per view.** The primary emphasis is the voice: one `arena-emphasis-primary`
-  action at most stands on a screen, and a button with no emphasis class is it. Gold is
-  distinction and focus, not a second primary. **`arena audit` reports this one, as
-  `one-primary`.**
-- **No gradients, on any surface.** Depth comes from the `base-100`, `base-200`, `base-300`
-  surface scale, the hairline border and the shadow roles. `ArenaSkeleton`'s neutral shimmer is
-  the one exception. A brand whose mark is a gradient sets `gradientMark` in `arena.config.json`.
-  **`arena audit` reports this one, as `raw-value`.**
 - **No emoji, in product or in copy.** **`arena audit` reports this one, as `emoji`.**
 - **Icons are Phosphor class-name strings, drawn by Arena's components or by ArenaIcon; a raw ph-*
   element paints nothing.** Write `icon="ph-bold ph-plus"`. Arena draws each glyph from the sprite
@@ -149,8 +137,6 @@ source text cannot show, is `arena://rules` on the MCP server.
   `.arena-compact` and `.arena-comfortable` are the density family on the vocabulary page,
   `frameworks/VOCABULARY.md`: the first re-densifies the controls, the second grows them to a 48px
   touch target, and the two are exclusive.
-- **A chart carries identity or meaning, never both.** The `--color-cat-*` ramp in fixed order is
-  identity. The status colours are meaning. A status colour is never a series colour.
 - **Copy is formal and direct, in the product's language.** Concrete verbs, no boasting; an error
   is blame-free and says what to do next. Arena's words follow the locale.
 - **A required member absent is a caller bug.** It is not a state to render. Every layer fails

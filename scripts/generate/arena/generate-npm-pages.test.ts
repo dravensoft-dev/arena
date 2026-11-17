@@ -414,9 +414,7 @@ test('the audit region has one row per tag in RULE_TAGS order, with the rules th
     assert.equal(cells[2], `${RULE_DESCRIPTIONS[tag]} |`, tag);
   });
   assert.ok(rows[RULE_TAGS.indexOf('raw-glyph')]!.includes('a raw ph-* element paints nothing'), 'raw-glyph names the rule it enforces');
-  assert.deepEqual(RULES.filter((rule) => rule.held === 'raw-value').length, 2, 'two rules hold raw-value');
-  assert.ok(rows[RULE_TAGS.indexOf('raw-value')]!.includes('Tokens are the only styling layer.')
-    && rows[RULE_TAGS.indexOf('raw-value')]!.includes('No gradients, on any surface.'));
+    assert.ok(rows[RULE_TAGS.indexOf('raw-value')]!.includes('Tokens are the only styling layer.'));
 });
 
 test('each fenced arena:audit script is what arena init writes for that layer', () => {

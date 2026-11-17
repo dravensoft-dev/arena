@@ -50,33 +50,6 @@ export const RULES: LanguageRule[] = [
       + 'Angular, so the compilers hold it before any source text is read',
   },
   {
-    id: 'danger-outline',
-    short: 'Danger is outline, never filled.',
-    body: 'The background stays transparent, and the border and the content read `--danger`. '
-      + 'Arena draws one filled danger surface, the final irreversible confirmation '
-      + 'inside `ArenaConfirmDialog`. A surface of your own may carry the `--danger-soft` tint.',
-    held: 'danger-fill',
-    unheld: null,
-  },
-  {
-    id: 'one-primary',
-    short: 'One primary accent per view.',
-    body: 'The primary emphasis is the voice: one `arena-emphasis-primary` action at most stands on a screen, and a '
-      + 'button with no emphasis class is it. '
-      + 'Gold is distinction and focus, not a second primary.',
-    held: 'one-primary',
-    unheld: null,
-  },
-  {
-    id: 'no-gradients',
-    short: 'No gradients, on any surface.',
-    body: 'Depth comes from the `base-100`, `base-200`, `base-300` surface scale, the hairline '
-      + 'border and the shadow roles. `ArenaSkeleton`\'s neutral shimmer is the one exception. '
-      + 'A brand whose mark is a gradient sets `gradientMark` in `arena.config.json`.',
-    held: 'raw-value',
-    unheld: null,
-  },
-  {
     id: 'no-emoji',
     short: 'No emoji, in product or in copy.',
     body: '',
@@ -135,15 +108,6 @@ export const RULES: LanguageRule[] = [
     held: null,
     unheld: 'a theme is a class on a root element, and a source text shows the class rather than '
       + 'whether a component was rewritten under it',
-  },
-  {
-    id: 'chart-identity',
-    short: 'A chart carries identity or meaning, never both.',
-    body: 'The `--color-cat-*` ramp in fixed order is identity. The status colours are meaning. A '
-      + 'status colour is never a series colour.',
-    held: null,
-    unheld: 'a series is a value your code builds, so the colour it carries is not in the source '
-      + 'text. Passing a slot and a tone together warns in development, and the tone wins',
   },
   {
     id: 'copy-is-direct',

@@ -128,8 +128,8 @@ test('a contributor document Context7 would index is the failure this gate exist
 
 test('a rule the router does not carry has drifted, and rewrapping the router has not', () => {
   const drifted = tree({
-    [CONTEXT7]: JSON.stringify({ excludeFiles: [], rules: ['Gradients are fine'] }),
-    [ROUTER]: '**No gradients** on any surface.',
+    [CONTEXT7]: JSON.stringify({ excludeFiles: [], rules: ['Emoji are fine'] }),
+    [ROUTER]: '**No emoji** in the interface.',
   });
   assert.equal(context7Problems(drifted).length, 1);
 
