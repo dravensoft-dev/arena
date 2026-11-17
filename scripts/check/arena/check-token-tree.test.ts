@@ -22,6 +22,7 @@ function copy() {
   made.push(base);
   cpSync(join(repoRoot, TREE_DIR), join(base, TREE_DIR), { recursive: true });
   cpSync(join(repoRoot, 'contracts', 'design'), join(base, 'contracts', 'design'), { recursive: true });
+  cpSync(join(repoRoot, 'frameworks', 'tailwind', 'Theme.css'), join(base, 'frameworks', 'tailwind', 'Theme.css'));
   return base;
 }
 const file = (base: string, rel: string) => join(base, TREE_DIR, rel);
@@ -105,6 +106,6 @@ test('a child with no "Read this" is a problem', () => {
 
 test('a hand-edited region row is a problem', () => {
   const base = copy();
-  edit(base, 'components/size-controls.md', (text) => text.replace('| `--size-sm-control-h` | dimension', '| `--size-sm-control-h` | number'));
+  edit(base, 'components/size-controls.md', (text) => text.replace(/(\| `--size-sm-control-h` \| [^|]+\| )dimension/, '$1number'));
   assert.equal(only(base, /components\/size-controls\.md holds a region that is not what generate:token-tree writes/).length, 1);
 });

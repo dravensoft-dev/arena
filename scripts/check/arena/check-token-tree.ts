@@ -29,7 +29,7 @@ const COMPONENT_INDEX_LINK = '../components/index.md';
 
 export const node = {
   name: 'check:token-tree',
-  reads: [ROLES, 'contracts/design/layering.json', `${TREE_DIR}/**/*.md`],
+  reads: [ROLES, 'contracts/design/layering.json', 'frameworks/tailwind/Theme.css', `${TREE_DIR}/**/*.md`],
   writes: [],
   feeds: [],
 };
