@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useArenaContainerWidth } from '../../../UseArenaContainerWidth.ts';
-import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, arenaSrOnly, arenaAreaFill, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals.ts';
+import { useArenaContainerWidth, useArenaTextScale } from '../../../UseArenaContainerWidth.ts';
+import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, arenaSrOnly, arenaTextRoom, arenaAreaFill, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals.ts';
 import { arenaLinearScale, arenaScaleValue } from '../ChartScales.ts';
 import { arenaLinePoints } from '../ChartMarks.ts';
 import {
@@ -67,6 +67,7 @@ export function ArenaRadarChart({ className,
   if (!labels) throw new Error('ArenaRadarChart: `labels` is required');
   if (!series) throw new Error('ArenaRadarChart: `series` is required');
   const [ref, measured] = useArenaContainerWidth();
+  const room = arenaTextRoom(useArenaTextScale());
   const [hover, setHover] = useState<number | null>(null);
 
   const width = measured ?? 600;
@@ -74,11 +75,11 @@ export function ArenaRadarChart({ className,
   const fmt = arenaValueWriter({ prefix: valuePrefix, suffix: valueSuffix, format: valueFormat });
 
   const domain = arenaRadarDomain(series);
-  const strip = arenaLegendStrip(height, series.length);
+  const strip = arenaLegendStrip(height, series.length, false, room);
   const cx = width / 2;
   const cy = strip.plotH / 2;
-  const outer = arenaRadarRadius(width, strip.plotH);
-  const labelR = arenaRadarLabelRadius(width, strip.plotH);
+  const outer = arenaRadarRadius(width, strip.plotH, room);
+  const labelR = arenaRadarLabelRadius(width, strip.plotH, room);
   const radial = arenaLinearScale(domain.min, domain.max, 0, outer);
   const reach = (value: number) => Math.max(0, arenaScaleValue(radial, value));
 

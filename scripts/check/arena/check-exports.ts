@@ -47,6 +47,13 @@ export const INTERNAL = new Map<string, string>([
   ['arenaReadBreakpoint', 'reads one breakpoint out of the compiled sheet for the hooks above it. '
     + 'A consumer asks the hook rather than the sheet'],
   ['ARENA_PAD', CHART_GEOMETRY],
+  ['arenaPad', CHART_GEOMETRY],
+  ['ARENA_TEXT_ROOM', CHART_GEOMETRY],
+  ['arenaTextRoom', CHART_GEOMETRY],
+  ['useArenaTextScale', 'the reader\'s text scale, root font size over 16, that Arena\'s chart components '
+    + 'multiply their label room by. A consumer draws no chart geometry through it'],
+  ['arenaReadTextScale', 'the same reading for the Angular chart components, called in their injection '
+    + 'context. A consumer draws no chart geometry through it'],
   ['ARENA_CHART_HEIGHT', CHART_GEOMETRY],
   ['ARENA_INK_BODY', CHART_GEOMETRY],
   ['ARENA_INK_MUTED', CHART_GEOMETRY],

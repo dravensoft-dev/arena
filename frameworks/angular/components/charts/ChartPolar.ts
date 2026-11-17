@@ -1,4 +1,6 @@
-import { chartLabelGap, chartPadBottom, chartPadLeft } from '../../Tokens.generated';
+import { ARENA_TEXT_ROOM } from '../../DataVisuals';
+import type { ArenaTextRoom } from '../../DataVisuals';
+import { chartLabelGap } from '../../Tokens.generated';
 import type { ArenaDomain, ArenaLinePoint } from './ChartScales';
 
 export function arenaPolarAngle(index: number, count: number): number {
@@ -31,12 +33,12 @@ export function arenaPolarAnchor(index: number, count: number): 'start' | 'middl
   return across > 0 ? 'start' : 'end';
 }
 
-export function arenaRadarRadius(plotWidth: number, height: number): number {
-  return Math.max(1, Math.min(plotWidth, height) / 2 - chartPadBottom);
+export function arenaRadarRadius(plotWidth: number, height: number, room: ArenaTextRoom = ARENA_TEXT_ROOM): number {
+  return Math.max(1, Math.min(plotWidth, height) / 2 - room.padBottom);
 }
 
-export function arenaRadarLabelRadius(plotWidth: number, height: number): number {
-  return arenaRadarRadius(plotWidth, height) + chartLabelGap;
+export function arenaRadarLabelRadius(plotWidth: number, height: number, room: ArenaTextRoom = ARENA_TEXT_ROOM): number {
+  return arenaRadarRadius(plotWidth, height, room) + chartLabelGap;
 }
 
 const GAUGE_START = (Math.PI * 5) / 4;
@@ -64,9 +66,9 @@ export function arenaGaugeAnchor(fraction: number): 'start' | 'middle' | 'end' {
   return across > 0 ? 'start' : 'end';
 }
 
-export function arenaGaugeRadii(width: number, height: number): ArenaGaugeRadii {
+export function arenaGaugeRadii(width: number, height: number, room: ArenaTextRoom = ARENA_TEXT_ROOM): ArenaGaugeRadii {
   const tall = 1 + Math.SQRT1_2;
-  const r = Math.max(1, Math.min(width / 2 - chartPadLeft, (height - chartPadBottom * 2) / tall));
+  const r = Math.max(1, Math.min(width / 2 - room.padLeft, (height - room.padBottom * 2) / tall));
   return {
     cy: height / 2 + (r * (2 - tall)) / 2,
     band: { outer: r, inner: r * 0.94 },

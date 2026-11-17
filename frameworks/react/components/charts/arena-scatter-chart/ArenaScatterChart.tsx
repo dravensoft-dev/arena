@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useArenaContainerWidth } from '../../../UseArenaContainerWidth.ts';
-import { ARENA_CHART_HEIGHT, ARENA_INK_BODY, ARENA_INK_MUTED, arenaSrOnly, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals.ts';
+import { useArenaContainerWidth, useArenaTextScale } from '../../../UseArenaContainerWidth.ts';
+import { ARENA_CHART_HEIGHT, ARENA_INK_BODY, ARENA_INK_MUTED, arenaSrOnly, arenaTextRoom, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals.ts';
 import {
   arenaLinearScale, arenaScaleValue, arenaNearestPoint, arenaRadiusScale, arenaRadiusAt,
 } from '../ChartScales.ts';
@@ -78,6 +78,7 @@ export function ArenaScatterChart({ className,
     throw new Error('ArenaScatterChart: `sizeLabel` is required once a series carries `r` (a column headed "Size" names the quantity to nobody)');
   }
   const [ref, measured] = useArenaContainerWidth();
+  const room = arenaTextRoom(useArenaTextScale());
   const [hover, setHover] = useState<number | null>(null);
 
   const width = measured ?? 600;
@@ -88,9 +89,9 @@ export function ArenaScatterChart({ className,
   const sizes = arenaPointSizeRange(series);
   const rScale = arenaRadiusScale(sizes.min, sizes.max);
   const showsKey = sized && sizeLegend;
-  const strip = arenaLegendStrip(height, series.length, showsKey);
-  const gutter = arenaValueGutter(domains.y, fmt);
-  const box = arenaPlotBox(width, strip.plotH, gutter);
+  const strip = arenaLegendStrip(height, series.length, showsKey, room);
+  const gutter = arenaValueGutter(domains.y, fmt, room);
+  const box = arenaPlotBox(width, strip.plotH, gutter, room);
   const xScale = arenaLinearScale(domains.x.min, domains.x.max, box.x, box.x + box.w);
   const yScale = arenaLinearScale(domains.y.min, domains.y.max, box.y + box.h, box.y);
   const xAxis = arenaAxisModelX(xScale, domains.x, fmt);

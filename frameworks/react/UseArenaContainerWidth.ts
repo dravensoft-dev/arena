@@ -155,7 +155,12 @@ export function arenaReadBreakpoint(name: ArenaBreakpointName): number {
   return raw === '' ? NaN : arenaBreakpointPx(raw, rootFontSize());
 }
 
+const noSubscription = () => () => {};
+
+const serverTextScale = () => 1;
+
+const clientTextScale = () => arenaTextScaleOf(rootFontSize());
+
 export function useArenaTextScale(): number {
-  if (typeof document === 'undefined') return 1;
-  return arenaTextScaleOf(rootFontSize());
+  return useSyncExternalStore(noSubscription, clientTextScale, serverTextScale);
 }

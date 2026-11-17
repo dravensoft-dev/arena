@@ -1,8 +1,8 @@
 import {
   booleanAttribute, ChangeDetectionStrategy, Component, computed, ElementRef, inject, input, signal, viewChild,
 } from '@angular/core';
-import { arenaContainerWidth } from '../../../ContainerSize';
-import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, ARENA_SR_ONLY, arenaAreaFill, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals';
+import { arenaContainerWidth, arenaReadTextScale } from '../../../ContainerSize';
+import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, ARENA_SR_ONLY, arenaTextRoom, arenaAreaFill, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals';
 import { arenaLinearScale, arenaScaleValue } from '../ChartScales';
 import { arenaLinePoints } from '../ChartMarks';
 import {
@@ -148,6 +148,7 @@ export class ArenaRadarChart {
     { transform: (value) => value ?? ARENA_CHART_HEIGHT },
   );
 
+  private readonly room = arenaTextRoom(arenaReadTextScale());
   protected readonly parts = manifest.parts;
   protected readonly styles = arenaRadarChartStyles();
   protected readonly arenaSrOnly = ARENA_SR_ONLY;
@@ -177,13 +178,13 @@ export class ArenaRadarChart {
 
   private readonly axes = computed(() => arenaSeriesPointCount(this.series()));
   private readonly domain = computed(() => arenaRadarDomain(this.series()));
-  private readonly strip = computed(() => arenaLegendStrip(this.height(), this.series().length));
+  private readonly strip = computed(() => arenaLegendStrip(this.height(), this.series().length, false, this.room));
   protected readonly plotH = computed(() => this.strip().plotH);
   protected readonly stripH = computed(() => this.strip().stripH);
   protected readonly centreX = computed(() => this.width() / 2);
   protected readonly centreY = computed(() => this.strip().plotH / 2);
-  private readonly outer = computed(() => arenaRadarRadius(this.width(), this.strip().plotH));
-  private readonly labelR = computed(() => arenaRadarLabelRadius(this.width(), this.strip().plotH));
+  private readonly outer = computed(() => arenaRadarRadius(this.width(), this.strip().plotH, this.room));
+  private readonly labelR = computed(() => arenaRadarLabelRadius(this.width(), this.strip().plotH, this.room));
 
   private readonly radial = computed(() => arenaLinearScale(this.domain().min, this.domain().max, 0, this.outer()));
 

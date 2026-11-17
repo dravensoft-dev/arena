@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useArenaContainerWidth } from '../../../UseArenaContainerWidth.ts';
-import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, arenaSrOnly, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals.ts';
+import { useArenaContainerWidth, useArenaTextScale } from '../../../UseArenaContainerWidth.ts';
+import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, arenaSrOnly, arenaTextRoom, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals.ts';
 import {
   arenaLinearScale, arenaBandScale, arenaBandCenter, arenaBandIndex, arenaBandMark, arenaScaleValue,
 } from '../ChartScales.ts';
@@ -64,6 +64,7 @@ export function ArenaPyramidChart({ className,
   if (!labels) throw new Error('ArenaPyramidChart: `labels` is required');
   if (!series) throw new Error('ArenaPyramidChart: `series` is required');
   const [ref, measured] = useArenaContainerWidth();
+  const room = arenaTextRoom(useArenaTextScale());
   const [hover, setHover] = useState<number | null>(null);
 
   const width = measured ?? 600;
@@ -73,8 +74,8 @@ export function ArenaPyramidChart({ className,
   const away = (value: number) => fmt(Math.abs(value));
 
   const domain = arenaMirrorDomain(sides);
-  const strip = arenaLegendStrip(height, sides.length);
-  const box = arenaPlotBoxH(width, strip.plotH);
+  const strip = arenaLegendStrip(height, sides.length, false, room);
+  const box = arenaPlotBoxH(width, strip.plotH, room);
   const xScale = arenaLinearScale(domain.min, domain.max, box.x, box.x + box.w);
   const bands = arenaBandScale(n, box.y, box.h, chartBarGap);
   const axis = arenaAxisModelX(xScale, domain, away);
@@ -131,7 +132,7 @@ export function ArenaPyramidChart({ className,
         ))}
 
         {Array.from({ length: n }, (_, i) => (
-          <text key={i} x={arenaCategoryLabelX()} y={arenaBandCenter(bands, i)} textAnchor="end" dominantBaseline="middle"
+          <text key={i} x={arenaCategoryLabelX(room)} y={arenaBandCenter(bands, i)} textAnchor="end" dominantBaseline="middle"
             fill={ARENA_INK_MUTED} fontFamily="var(--font-body)" style={{ fontSize: 'var(--dz-text-xs)' }}>{labels[i] ?? ''}</text>
         ))}
 

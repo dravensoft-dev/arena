@@ -1,6 +1,7 @@
-import { ARENA_PAD } from '../../DataVisuals';
+import { ARENA_PAD, ARENA_TEXT_ROOM } from '../../DataVisuals';
+import type { ArenaTextRoom } from '../../DataVisuals';
 import {
-  chartLabelGap, chartRingInset, chartPadCategory, chartPointR, chartTickChar, chartHeatmapRowH, chartLegendStrip,
+  chartLabelGap, chartRingInset, chartPointR,
 } from '../../Tokens.generated';
 import type { ArenaChartShape } from '../../Api.generated';
 import type { ArenaDomain, ArenaLinearScale } from './ChartScales';
@@ -35,21 +36,26 @@ export interface ArenaAxisModelX {
   zeroX: number;
 }
 
-export function arenaValueGutter(domain: ArenaDomain, write: (value: number) => string): number {
+export function arenaValueGutter(
+  domain: ArenaDomain, write: (value: number) => string, room: ArenaTextRoom = ARENA_TEXT_ROOM,
+): number {
   let widest = 0;
   for (const value of arenaDomainTicks(domain)) {
     const length = write(value).length;
     if (length > widest) widest = length;
   }
-  return Math.max(ARENA_PAD.l, Math.ceil(widest * chartTickChar) + chartLabelGap);
+  return Math.max(room.padLeft, Math.ceil(widest * room.tickChar) + chartLabelGap);
 }
 
-export function arenaPlotBox(width: number, height: number, gutter: number = ARENA_PAD.l): ArenaPlotBox {
+export function arenaPlotBox(
+  width: number, height: number, gutter?: number, room: ArenaTextRoom = ARENA_TEXT_ROOM,
+): ArenaPlotBox {
+  const left = gutter ?? room.padLeft;
   return {
-    x: gutter,
+    x: left,
     y: ARENA_PAD.t,
-    w: Math.max(1, width - gutter - ARENA_PAD.r),
-    h: Math.max(1, height - ARENA_PAD.t - ARENA_PAD.b),
+    w: Math.max(1, width - left - ARENA_PAD.r),
+    h: Math.max(1, height - ARENA_PAD.t - room.padBottom),
   };
 }
 
@@ -85,8 +91,8 @@ export function arenaAxisModel(
   };
 }
 
-export function arenaTickLabelX(gutter: number = ARENA_PAD.l): number {
-  return gutter - chartLabelGap;
+export function arenaTickLabelX(gutter?: number, room: ArenaTextRoom = ARENA_TEXT_ROOM): number {
+  return (gutter ?? room.padLeft) - chartLabelGap;
 }
 
 export function arenaCategoryLabelY(height: number): number {
@@ -99,52 +105,56 @@ export function arenaDoughnutRadii(
   return { outer, inner: shape === 'pie' ? 0 : outer * 0.62 };
 }
 
-export function arenaPlotBoxH(width: number, height: number): ArenaPlotBox {
+export function arenaPlotBoxH(width: number, height: number, room: ArenaTextRoom = ARENA_TEXT_ROOM): ArenaPlotBox {
   return {
-    x: chartPadCategory,
+    x: room.padCategory,
     y: ARENA_PAD.t,
-    w: Math.max(1, width - chartPadCategory - ARENA_PAD.r),
-    h: Math.max(1, height - ARENA_PAD.t - ARENA_PAD.b),
+    w: Math.max(1, width - room.padCategory - ARENA_PAD.r),
+    h: Math.max(1, height - ARENA_PAD.t - room.padBottom),
   };
 }
 
-export function arenaTextGutter(texts: readonly string[]): number {
+export function arenaTextGutter(texts: readonly string[], room: ArenaTextRoom = ARENA_TEXT_ROOM): number {
   let widest = 0;
   for (const text of texts) if (text.length > widest) widest = text.length;
-  return Math.max(ARENA_PAD.l, Math.ceil(widest * chartTickChar) + chartLabelGap);
+  return Math.max(room.padLeft, Math.ceil(widest * room.tickChar) + chartLabelGap);
 }
 
-export function arenaFunnelBox(width: number, height: number, gutter: number): ArenaPlotBox {
+export function arenaFunnelBox(
+  width: number, height: number, gutter: number, room: ArenaTextRoom = ARENA_TEXT_ROOM,
+): ArenaPlotBox {
   return {
-    x: chartPadCategory,
+    x: room.padCategory,
     y: ARENA_PAD.t,
-    w: Math.max(1, width - chartPadCategory - gutter - ARENA_PAD.r),
+    w: Math.max(1, width - room.padCategory - gutter - ARENA_PAD.r),
     h: Math.max(1, height - ARENA_PAD.t * 2),
   };
 }
 
-export function arenaHeatmapHeight(rows: number): number {
-  return Math.max(1, rows) * chartHeatmapRowH + ARENA_PAD.t + ARENA_PAD.b + chartLegendStrip;
+export function arenaHeatmapHeight(rows: number, room: ArenaTextRoom = ARENA_TEXT_ROOM): number {
+  return Math.max(1, rows) * room.heatmapRowH + ARENA_PAD.t + room.padBottom + room.legendStrip;
 }
 
-export function arenaHeatmapBox(width: number, plotH: number): ArenaPlotBox {
+export function arenaHeatmapBox(width: number, plotH: number, room: ArenaTextRoom = ARENA_TEXT_ROOM): ArenaPlotBox {
   return {
-    x: chartPadCategory,
+    x: room.padCategory,
     y: ARENA_PAD.t,
-    w: Math.max(1, width - chartPadCategory - ARENA_PAD.r),
-    h: Math.max(1, plotH - ARENA_PAD.t - ARENA_PAD.b),
+    w: Math.max(1, width - room.padCategory - ARENA_PAD.r),
+    h: Math.max(1, plotH - ARENA_PAD.t - room.padBottom),
   };
 }
 
-export function arenaHeatmapWidth(available: number, cols: number, minCellWidth: number | undefined): number {
+export function arenaHeatmapWidth(
+  available: number, cols: number, minCellWidth: number | undefined, room: ArenaTextRoom = ARENA_TEXT_ROOM,
+): number {
   if (!minCellWidth || !(minCellWidth > 0)) return available;
-  return Math.max(available, chartPadCategory + ARENA_PAD.r + minCellWidth * cols);
+  return Math.max(available, room.padCategory + ARENA_PAD.r + minCellWidth * cols);
 }
 
-export function arenaLabelStride(step: number, texts: readonly string[]): number {
+export function arenaLabelStride(step: number, texts: readonly string[], room: ArenaTextRoom = ARENA_TEXT_ROOM): number {
   let widest = 0;
   for (const text of texts) if (text.length > widest) widest = text.length;
-  return Math.max(1, Math.ceil((Math.ceil(widest * chartTickChar) + chartLabelGap) / step));
+  return Math.max(1, Math.ceil((Math.ceil(widest * room.tickChar) + chartLabelGap) / step));
 }
 
 export function arenaAxisTicksX(
@@ -162,13 +172,13 @@ export function arenaAxisModelX(
   };
 }
 
-export function arenaCategoryLabelX(): number {
-  return chartPadCategory - chartLabelGap;
+export function arenaCategoryLabelX(room: ArenaTextRoom = ARENA_TEXT_ROOM): number {
+  return room.padCategory - chartLabelGap;
 }
 
 /** The rectangle that clips the category names of a horizontal chart: the gutter, from the card's start edge to the plot's, over the whole plot height. */
-export function arenaCategoryGutter(plotH: number): ArenaPlotBox {
-  return { x: 0, y: 0, w: chartPadCategory, h: plotH };
+export function arenaCategoryGutter(plotH: number, room: ArenaTextRoom = ARENA_TEXT_ROOM): ArenaPlotBox {
+  return { x: 0, y: 0, w: room.padCategory, h: plotH };
 }
 
 export function arenaTickLabelY(height: number): number {

@@ -1,6 +1,6 @@
 import React from 'react';
-import { useArenaContainerWidth } from '../../../UseArenaContainerWidth.ts';
-import { arenaSrOnly, arenaAreaFill, arenaToneColor, arenaValueWriter, ARENA_INK_MUTED } from '../../../DataVisuals.ts';
+import { useArenaContainerWidth, useArenaTextScale } from '../../../UseArenaContainerWidth.ts';
+import { arenaSrOnly, arenaTextRoom, arenaAreaFill, arenaToneColor, arenaValueWriter, ARENA_INK_MUTED } from '../../../DataVisuals.ts';
 import { arenaGaugeFraction } from '../ChartScales.ts';
 import { arenaGaugeAngle, arenaGaugeAnchor, arenaGaugePoint, arenaGaugeRadii } from '../ChartPolar.ts';
 import { arenaArcPath } from '../ChartMarks.ts';
@@ -67,10 +67,11 @@ export function ArenaGaugeChart({ className,
     throw new Error('ArenaGaugeChart: every band needs a `label` (a status colour never ships without its word)');
   }
   const [ref, measured] = useArenaContainerWidth();
+  const room = arenaTextRoom(useArenaTextScale());
 
   const width = measured ?? 600;
   const cx = width / 2;
-  const { cy, band: ring, track, label: labelR } = arenaGaugeRadii(width, height);
+  const { cy, band: ring, track, label: labelR } = arenaGaugeRadii(width, height, room);
   const fmt = arenaValueWriter({ prefix: valuePrefix, suffix: valueSuffix, format: valueFormat });
   const sorted = arenaGaugeBands(bands ?? [], 'ArenaGaugeChart');
   const ticks = arenaGaugeTicks(sorted, min, max, 'ArenaGaugeChart');

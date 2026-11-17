@@ -1,8 +1,8 @@
 import {
   afterRenderEffect, booleanAttribute, ChangeDetectionStrategy, Component, computed, ElementRef, inject, input, signal, viewChild,
 } from '@angular/core';
-import { arenaContainerWidth } from '../../../ContainerSize';
-import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, ARENA_SR_ONLY, arenaPlotWidth, arenaRailStyle, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals';
+import { arenaContainerWidth, arenaReadTextScale } from '../../../ContainerSize';
+import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, ARENA_SR_ONLY, arenaTextRoom, arenaPlotWidth, arenaRailStyle, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals';
 import {
   arenaLinearScale, arenaBandScale, arenaBandStart, arenaBandCenter, arenaBandIndex, arenaBandMark, arenaBandSubBand,
   arenaScaleValue,
@@ -148,6 +148,7 @@ export class ArenaBarChart {
   /** The narrowest gap, in px, the chart draws between two adjacent points. Below it the chart stops compressing and overflows its container horizontally instead, scrolled and anchored to the most recent point. Marker spacing is a legibility constant, not something that yields to the viewport, and thirty days in 390px is unreadable at any font size. Absent, the chart fits whatever width it is given. The rail it scrolls in is the same region the data cursor lives in, and it is keyboard-reachable whether it overflows or not. */
   readonly minPointSpacing = input<number>();
 
+  private readonly room = arenaTextRoom(arenaReadTextScale());
   protected readonly parts = manifest.parts;
   protected readonly styles = arenaBarChartStyles();
   protected readonly arenaSrOnly = ARENA_SR_ONLY;
@@ -169,7 +170,7 @@ export class ArenaBarChart {
   private readonly available = computed(() => this.measured() ?? ASSUMED_WIDTH);
 
   protected readonly width = computed(
-    () => arenaPlotWidth(this.available(), this.points(), this.minPointSpacing()),
+    () => arenaPlotWidth(this.available(), this.points(), this.minPointSpacing(), this.room),
   );
 
   protected readonly scrolls = computed(() => this.width() > this.available());
@@ -189,12 +190,12 @@ export class ArenaBarChart {
     () => (this.stack() ? arenaStackDomain(this.series()) : arenaSeriesDomain(this.series())),
   );
   private readonly points = computed(() => arenaSeriesPointCount(this.series()));
-  private readonly strip = computed(() => arenaLegendStrip(this.height(), this.series().length));
+  private readonly strip = computed(() => arenaLegendStrip(this.height(), this.series().length, false, this.room));
   protected readonly plotH = computed(() => this.strip().plotH);
   protected readonly stripH = computed(() => this.strip().stripH);
-  private readonly gutter = computed(() => arenaValueGutter(this.domain(), this.write()));
+  private readonly gutter = computed(() => arenaValueGutter(this.domain(), this.write(), this.room));
 
-  private readonly box = computed(() => arenaPlotBox(this.width(), this.strip().plotH, this.gutter()));
+  private readonly box = computed(() => arenaPlotBox(this.width(), this.strip().plotH, this.gutter(), this.room));
   protected readonly plotLeft = computed(() => this.box().x);
   protected readonly plotRight = computed(() => this.box().x + this.box().w);
   protected readonly plotTop = computed(() => this.box().y);

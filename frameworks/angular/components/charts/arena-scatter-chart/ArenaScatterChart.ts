@@ -1,8 +1,8 @@
 import {
   booleanAttribute, ChangeDetectionStrategy, Component, computed, ElementRef, inject, input, signal, viewChild,
 } from '@angular/core';
-import { arenaContainerWidth } from '../../../ContainerSize';
-import { ARENA_CHART_HEIGHT, ARENA_INK_BODY, ARENA_INK_MUTED, ARENA_SR_ONLY, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals';
+import { arenaContainerWidth, arenaReadTextScale } from '../../../ContainerSize';
+import { ARENA_CHART_HEIGHT, ARENA_INK_BODY, ARENA_INK_MUTED, ARENA_SR_ONLY, arenaTextRoom, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals';
 import {
   arenaLinearScale, arenaScaleValue, arenaNearestPoint, arenaRadiusScale, arenaRadiusAt,
 } from '../ChartScales';
@@ -169,6 +169,7 @@ export class ArenaScatterChart {
     { transform: (value) => value ?? ARENA_CHART_HEIGHT },
   );
 
+  private readonly room = arenaTextRoom(arenaReadTextScale());
   protected readonly parts = manifest.parts;
   protected readonly styles = arenaScatterChartStyles();
   protected readonly arenaSrOnly = ARENA_SR_ONLY;
@@ -204,7 +205,7 @@ export class ArenaScatterChart {
   private readonly rScale = computed(() => arenaRadiusScale(this.sizes().min, this.sizes().max));
   protected readonly showsKey = computed(() => this.sized() && this.sizeLegend());
   private readonly strip = computed(
-    () => arenaLegendStrip(this.height(), this.series().length, this.showsKey()),
+    () => arenaLegendStrip(this.height(), this.series().length, this.showsKey(), this.room),
   );
   protected readonly sizeH = computed(() => this.strip().sizeH);
 
@@ -219,9 +220,9 @@ export class ArenaScatterChart {
   });
   protected readonly plotH = computed(() => this.strip().plotH);
   protected readonly stripH = computed(() => this.strip().stripH);
-  private readonly gutter = computed(() => arenaValueGutter(this.domains().y, this.write()));
+  private readonly gutter = computed(() => arenaValueGutter(this.domains().y, this.write(), this.room));
 
-  private readonly box = computed(() => arenaPlotBox(this.width(), this.strip().plotH, this.gutter()));
+  private readonly box = computed(() => arenaPlotBox(this.width(), this.strip().plotH, this.gutter(), this.room));
   protected readonly plotLeft = computed(() => this.box().x);
   protected readonly plotRight = computed(() => this.box().x + this.box().w);
   protected readonly plotTop = computed(() => this.box().y);

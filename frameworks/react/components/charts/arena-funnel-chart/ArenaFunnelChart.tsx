@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { useArenaContainerWidth } from '../../../UseArenaContainerWidth.ts';
+import { useArenaContainerWidth, useArenaTextScale } from '../../../UseArenaContainerWidth.ts';
 import {
-  ARENA_CHART_HEIGHT, arenaCatRotate, ARENA_INK_BODY, ARENA_INK_MUTED, arenaAreaFill, arenaPercentWriter, arenaSrOnly, arenaValueWriter,
+  ARENA_CHART_HEIGHT, arenaCatRotate, ARENA_INK_BODY, ARENA_INK_MUTED, arenaAreaFill, arenaPercentWriter, arenaSrOnly, arenaTextRoom, arenaValueWriter,
 } from '../../../DataVisuals.ts';
 import {
   arenaLinearScale, arenaBandCenter, arenaBandIndex, arenaBandMark, arenaBandStart, arenaFunnelBands, arenaFunnelWidth,
@@ -68,6 +68,7 @@ export function ArenaFunnelChart({ className,
   if (!labels) throw new Error('ArenaFunnelChart: `labels` is required');
   if (!series) throw new Error('ArenaFunnelChart: `series` is required');
   const [ref, measured] = useArenaContainerWidth();
+  const room = arenaTextRoom(useArenaTextScale());
   const [hover, setHover] = useState<number | null>(null);
 
   const width = measured ?? 600;
@@ -84,7 +85,7 @@ export function ArenaFunnelChart({ className,
       ? conversions.flatMap(({ step }) => (step === null ? [] : [percent(step)]))
       : []),
   ];
-  const box = arenaFunnelBox(width, height, arenaTextGutter(texts));
+  const box = arenaFunnelBox(width, height, arenaTextGutter(texts, room), room);
   const cx = box.x + box.w / 2;
   const scale = arenaLinearScale(0, arenaFunnelMax(values), 0, box.w);
   const bands = arenaFunnelBands(n, box.y, box.h);
@@ -142,7 +143,7 @@ export function ArenaFunnelChart({ className,
         })}
 
         {Array.from({ length: n }, (_, i) => (
-          <text key={i} x={arenaCategoryLabelX()} y={arenaBandCenter(bands, i)} textAnchor="end" dominantBaseline="middle"
+          <text key={i} x={arenaCategoryLabelX(room)} y={arenaBandCenter(bands, i)} textAnchor="end" dominantBaseline="middle"
             fill={ARENA_INK_MUTED} fontFamily="var(--font-body)" style={{ fontSize: 'var(--dz-text-xs)' }}>{labels[i] ?? ''}</text>
         ))}
 

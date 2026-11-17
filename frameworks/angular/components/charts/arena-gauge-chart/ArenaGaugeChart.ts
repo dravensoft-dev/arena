@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, ElementRef, inject, input, viewChild } from '@angular/core';
-import { arenaContainerWidth } from '../../../ContainerSize';
-import { ARENA_INK_MUTED, ARENA_SR_ONLY, arenaAreaFill, arenaToneColor, arenaValueWriter } from '../../../DataVisuals';
+import { arenaContainerWidth, arenaReadTextScale } from '../../../ContainerSize';
+import { ARENA_INK_MUTED, ARENA_SR_ONLY, arenaTextRoom, arenaAreaFill, arenaToneColor, arenaValueWriter } from '../../../DataVisuals';
 import { arenaGaugeFraction } from '../ChartScales';
 import { arenaGaugeAngle, arenaGaugeAnchor, arenaGaugePoint, arenaGaugeRadii } from '../ChartPolar';
 import { arenaArcPath } from '../ChartMarks';
@@ -109,6 +109,7 @@ export class ArenaGaugeChart {
     { transform: (value) => value ?? chartGaugeHeight },
   );
 
+  private readonly room = arenaTextRoom(arenaReadTextScale());
   protected readonly parts = manifest.parts;
   protected readonly styles = arenaGaugeChartStyles();
   protected readonly arenaSrOnly = ARENA_SR_ONLY;
@@ -143,7 +144,7 @@ export class ArenaGaugeChart {
   });
 
   protected readonly centreX = computed(() => this.width() / 2);
-  private readonly radii = computed(() => arenaGaugeRadii(this.width(), this.height()));
+  private readonly radii = computed(() => arenaGaugeRadii(this.width(), this.height(), this.room));
   protected readonly centreY = computed(() => this.radii().cy);
 
   private readonly index = computed(() => arenaGaugeBand(this.sorted(), this.value()));

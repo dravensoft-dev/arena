@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useArenaContainerWidth } from '../../../UseArenaContainerWidth.ts';
-import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, arenaSrOnly, arenaAreaFill, arenaPlotWidth, arenaRailStyle, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals.ts';
+import { useArenaContainerWidth, useArenaTextScale } from '../../../UseArenaContainerWidth.ts';
+import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, arenaSrOnly, arenaTextRoom, arenaAreaFill, arenaPlotWidth, arenaRailStyle, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals.ts';
 import { arenaWarnOnce } from '../../../WarnOnce.ts';
 import {
   arenaLinearScale, arenaPointScale, arenaPointAt, arenaScaleValue, arenaNearestPointIndex,
@@ -73,12 +73,13 @@ export function ArenaLineChart({ className,
   if (!labels) throw new Error('ArenaLineChart: `labels` is required');
   if (!series) throw new Error('ArenaLineChart: `series` is required');
   const [ref, measured] = useArenaContainerWidth();
+  const room = arenaTextRoom(useArenaTextScale());
   const rail = useRef<HTMLDivElement>(null);
   const [hover, setHover] = useState<number | null>(null);
 
   const available = measured ?? 600;
   const n = arenaSeriesPointCount(series);
-  const width = arenaPlotWidth(available, n, minPointSpacing);
+  const width = arenaPlotWidth(available, n, minPointSpacing, room);
   const scrolls = width > available;
   const [view, syncView] = useArenaRailView(rail, [measured, scrolls, width]);
   const fmt = arenaValueWriter({ prefix: valuePrefix, suffix: valueSuffix, format: valueFormat });
@@ -96,9 +97,9 @@ export function ArenaLineChart({ className,
   const fills = area && series.length === 1;
 
   const domain = arenaSeriesDomain(series);
-  const strip = arenaLegendStrip(height, series.length);
-  const gutter = arenaValueGutter(domain, fmt);
-  const box = arenaPlotBox(width, strip.plotH, gutter);
+  const strip = arenaLegendStrip(height, series.length, false, room);
+  const gutter = arenaValueGutter(domain, fmt, room);
+  const box = arenaPlotBox(width, strip.plotH, gutter, room);
   const yScale = arenaLinearScale(domain.min, domain.max, box.y + box.h, box.y);
   const xScale = arenaPointScale(n, box.x, box.w);
 

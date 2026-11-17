@@ -188,8 +188,11 @@ emitted in `rem`, its px divided by 16, because 16px is CSS Fonts 4 `medium` and
 `font-size`: the type scale, the control text, the icons and the breakpoints grow with the text
 setting of the browser. Tailwind's own breakpoint variables are `em`, since a media query answers
 against the browser default and no root rule moves it. The `fixed` and `follows` sets are emitted
-as written. The numbers a chart reads in script, `chart-tick-char` and `chart-label-gap`, stay `fixed`
-px, because a value read once at import cannot follow a text size the reader changes later. A script
+as written. The numbers a chart reads in script are authored as px and emitted as bare numbers. Chart text
+reads the `dz-text` scale and grows with the browser's text setting, so chart geometry multiplies the six
+text-derived numbers (`chart-tick-char`, `chart-pad-bottom`, `chart-pad-left`, `chart-pad-category`,
+`chart-heatmap-row-h` and `chart-legend-strip`) by the reader's text scale, the root font size divided by 16.
+`chart-label-gap`, `chart-point-r` and every other chart number are spacing and marks, and stay `fixed`. A script
 reading a breakpoint resolves its `rem` against the root font size at the moment of the call, so the
 value it compares is in pixels.
 
