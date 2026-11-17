@@ -216,7 +216,7 @@ export const node = {
   reads: [...TARGETS, ALIAS_SOURCE, 'scripts/generate/core/arena-cli/audit.ts', 'scripts/generate/core/arena-cli/command-init.ts', 'scripts/lib/arena/language-rules.ts', `${DEFAULT_PLUGIN_DIR}/${PLUGIN_TOKENS}`, '.claude-plugin/plugin.json', 'scripts/generate/core/arena-cli/style-plugin-rules.ts', 'scripts/generate/core/arena-cli/theme-css.ts', LOCALE_CONTRACT, ROLE_CONTRACT, BEHAVIOUR_CONTRACT, ...Object.values(DENSITY_CONTRACTS), THEME_SHEET, 'contracts/api/components/*.json', 'contracts/design/spacing.json', BREAKPOINT_TARGET, TOAST_NOTICE_CONTRACT, CONFIRM_REQUEST_CONTRACT, ...CSS_TARGETS, ...CHANNEL_SOURCES, HUES_FILE, `${VOCABULARY_DIR}/**/*${FAMILY_SUFFIX}`],
   writes: TARGETS,
   feeds: [
-    'generate:token-tree',
+    'generate:token-tree', 'check:token-tree',
     'build:angular-package',
     'build:contracts-package',
     'build:mcp-package', 'check:mcp',

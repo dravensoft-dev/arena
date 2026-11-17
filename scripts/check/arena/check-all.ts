@@ -54,6 +54,7 @@ export const GATES: Gate[] = [
   { name: 'check:families', file: 'arena/check-families.ts' },
   { name: 'check:architecture', file: 'arena/check-architecture.ts' },
   { name: 'check:duplication', file: 'arena/check-duplication.ts' },
+  { name: 'check:token-tree', file: 'arena/check-token-tree.ts' },
   { name: 'check:dtcg', file: 'core/check-dtcg.ts' },
   { name: 'check:user-scale', file: 'core/check-user-scale.ts' },
   { name: 'check:catalogue', file: 'core/check-catalogue.ts' },

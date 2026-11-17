@@ -117,6 +117,7 @@
     "check:rules": "bun scripts/check/arena/check-rules.ts",
     "check:register": "bun scripts/check/arena/check-register.ts",
     "check:routes": "bun scripts/check/arena/check-routes.ts",
+    "check:token-tree": "bun scripts/check/arena/check-token-tree.ts",
     "check:vocabulary": "bun scripts/check/arena/check-vocabulary.ts",
     "check:duplication": "bun scripts/check/arena/check-duplication.ts",
     "check:script-tokens": "bun scripts/check/arena/check-script-tokens.ts",
