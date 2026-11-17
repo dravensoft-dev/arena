@@ -352,18 +352,17 @@ export const ROUTES: Route[] = [
       + 'layer that binds it',
     entry: 'contributor',
     stops: ['frameworks/AGENTS.md', 'frameworks/*/AGENTS.md'],
-    budget: 77_800,
+    budget: 78_400,
     reason:
       'the most-walked contributor route paid by '
-      + 'whoever changes Arena. No category\'s own tour: the '
-      + 'chart family has frameworks/CHARTS.md. What it carries is what every component meets: the ordered '
+      + 'whoever changes Arena. What it carries is what every component meets: the ordered '
       + 'steps a new component takes, including the barrel chain an Angular primitive needs and its '
       + 'suites; the architecture envelope, since a module-scope browser global '
       + 'throws in a server render; when a primitive is an attribute on a native element; and the Angular default '
       + 'written twice, as initial value and fallback, a pair no gate holds. The roof '
       + 'carries what binds both layers and each layer carries its own envelope and peer, '
       + 'the split that keeps the pair from going stale in one. The roof states the '
-      + 'attribute the layers build from different values, what a browser proves about focus, the contract modal focus answers and why a radio group is one stop; each layer, the binding that interpolates a property name and why a root module has one consumer, and every method a component exposes, and the classes an open pane wears. The Tailwind page names the :scope part selector a family\'s block writes and why a bundler needs it. The kitchen-sink page holds the gate flags. The Angular page holds the marker rule.',
+      + 'attribute the layers build from different values, what a browser proves about focus, the contract modal focus answers and why a radio group is one stop; each layer, the binding that interpolates a property name and why a root module has one consumer, and every method a component exposes, and the classes an open pane wears. The Tailwind page names the :scope part selector a family\'s block writes and why a bundler needs it, the three shapes a focus ring takes and the state-literal rule. The kitchen-sink page holds the gate flags. The Angular page holds the marker rule.',
   },
   {
     name: 'contributor-authoring',
@@ -431,7 +430,7 @@ export const ROUTES: Route[] = [
       + 'then the one layer that owns an appearance decision for both frameworks at once',
     entry: 'contributor',
     stops: ['frameworks/tailwind/AGENTS.md'],
-    budget: 51_100,
+    budget: 51_700,
     reason:
       'the row a contributor takes when a shape, a colour or a state is wrong and the API is not. '
       + 'The file a corner radius actually moves in is a style plugin under plugin-style-store, '
@@ -441,7 +440,8 @@ export const ROUTES: Route[] = [
       + 'to and everybody meets. It states the axis, keyed and transparent rules of the vocabulary. '
       + 'The focus rows name the edge-focus and bw-focus roles and the grep that finds each ring. '
       + 'It states the rule that check:roles refuses a state drawn with a literal level, and the whole '
-      + 'vocabulary of states, modifiers and literal forms that rule covers.',
+      + 'vocabulary of states, modifiers and literal forms that rule covers. The focus row also states '
+      + 'that a ring never sits on a filled ground and which shape that takes.',
   },
   {
     name: 'contributor-behaviour',

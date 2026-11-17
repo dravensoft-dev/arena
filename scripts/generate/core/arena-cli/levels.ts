@@ -436,6 +436,7 @@ export const STATE_PAIRS: readonly { role: string; over: string; min: number; wa
   { role: 'edge-focus', over: 'fill-page', min: 3 },
   { role: 'edge-focus', over: 'fill-surface', min: 3 },
   { role: 'edge-focus', over: 'fill-field', min: 3 },
+  { role: 'edge-focus', over: 'fill-track', min: 3 },
   { role: 'edge-selected', over: 'fill-surface', min: 3 },
   { role: 'edge-invalid', over: 'fill-field', min: 3 },
   { role: 'ink-invalid', over: 'fill-surface', min: 4.5 },

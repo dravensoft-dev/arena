@@ -594,6 +594,16 @@
   --accent-gold-side-edge:var(--color-primary);
 }
 }
+@scope (.arena-light) {
+:where(:scope).arena-complete, .arena-complete{
+  --edge-focus:var(--color-neutral-content);
+}
+}
+@scope (.arena-complete) {
+.arena-light{
+  --edge-focus:var(--color-neutral-content);
+}
+}
 @scope (.arena-compact) {
 :where(:scope).arena-complete, .arena-complete{
   --step-label:var(--dz-text-xs);

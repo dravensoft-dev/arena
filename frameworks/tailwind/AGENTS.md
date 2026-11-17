@@ -302,9 +302,12 @@ follows its label, a `calc()` adding a hairline up rather than drawing one. Each
 case and says why, and an entry no manifest carries fails the gate as a stale allowance.
 
 **`check:roles` also refuses a state drawn with a literal level.** An `opacity-<n>` (other than 0
-and 100, which are visibility) or a `/<digits>` alpha on a state branch (a `disabled`, `blocked`,
-`selected`, `current`, `pressed`, `active`, `invalid` or `state` variant, or a compound variant
-keyed by one) or under a state modifier (`hover:`, `focus:`, `disabled:`, `aria-*:`) fails, because
+and 100, which are visibility), an opacity or a `/<digits>` alpha written as a bracketed number
+rather than a `var()`, with or without a leading or trailing `!`, on a state branch (a `disabled`,
+`blocked`, `selected`, `current`, `pressed`, `active`, `invalid`, `state`, `checked`,
+`indeterminate`, `error`, `open`, `readOnly` or `dragging` variant, or a compound variant keyed by
+one) or under a state modifier (`hover:`, `focus:`, `disabled:`, `aria-*:`, `data-[state=...]:`, or
+a `group-` or `peer-` form of one, named or not) fails, because
 the state roles carry the level a style plugin can answer: `opacity-[var(--fade-disabled)]`,
 `bg-selected/(--level-accent-soft-primary)`, `ring-edge-focus/(--level-accent-soft-gold)`. A literal
 alpha on a base slot is not a state. `STATE_LITERALS` in the same file records an exception with its
@@ -547,11 +550,21 @@ repository does not have.
 - **Danger is outline:** the danger hue's edge and ink, its strong fill closed to `transparent`, so a
   presence, feed and progress marks read `--arena-hue-fill-strong` for the other hues and the ink for danger, and a chart legend swatch and the tag's dot read the ink;
   the one filled danger surface is `ArenaConfirmDialog`'s final confirmation, `fill-confirm-final`.
-- **Focus is a ring, and which ring follows what is being focused.** A CONTROL takes the
-  gold ring, the `edge-focus` role at `bw-focus`. A SURFACE an activation is drawn around
-  takes the same role as a ring utility, `ring-[length:var(--bw-focus)] ring-edge-focus`. Derive which manifests spend each with
-  `grep -rl 'focus-visible:ring-edge-focus' frameworks/tailwind/components` and
-  `grep -rl '--edge-focus' frameworks/tailwind/components`. **`--gold-soft` is not that ring**:
+- **Focus is a ring, and which ring follows the shape of what is focused.** Every focus ring is
+  the `edge-focus` role at `bw-focus`, so a skin that answers the role moves all of them. A
+  surface an activation is drawn around (card, board, sheet, scroller, accordion, tab, stepper,
+  bottom nav, a dialog's input) takes it as a ring utility,
+  `ring-[length:var(--bw-focus)] ring-edge-focus`. An unfilled row, link or cell takes it as an
+  inset shadow, `focus-visible:shadow-[inset_0_0_0_var(--bw-focus)_var(--edge-focus)]`. **A focus
+  ring never sits on a filled ground**: a control with a fill (a button, a switch track, a current
+  page) draws it outside, `focus-visible:outline-[length:var(--bw-focus)]
+  focus-visible:outline-edge-focus focus-visible:outline-offset-[var(--gap-focus)]`, on the whole
+  slot and never beside an `outline-none`, so it rests on the page surface where the ring is
+  measured. Derive which manifests spend each with
+  `grep -rl --include=*.manifest.json -e 'focus-visible:ring-edge-focus' frameworks/tailwind/components`,
+  `grep -rl --include=*.manifest.json -e 'focus-visible:outline-edge-focus' frameworks/tailwind/components` and
+  `grep -rl --include=*.manifest.json -e 'focus-visible:shadow-\[inset_0_0_0_var(--bw-focus)_var(--edge-focus)' frameworks/tailwind/components`.
+  **`--gold-soft` is not that ring**:
   it is the accent at 16%, and a real browser reads it as a wash rather than an edge.
 - **A ring is composed from several utilities rather than named by one**, which is why
   `check:coverage` excludes the namespace and why nothing fails a manifest painting none,

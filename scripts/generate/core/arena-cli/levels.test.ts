@@ -358,7 +358,7 @@ const LIGHT = Object.fromEntries(Object.entries(
 ).filter(([, token]) => token.$value?.hex).map(([key, token]) => [key, (token.$value as { hex: string }).hex]));
 
 const STATE_ROLES = (over: Record<string, string> = {}) => new Map(Object.entries({
-  'fill-page': 'var(--color-base-100)', 'fill-surface': 'var(--color-base-200)', 'fill-field': 'var(--color-base-300)',
+  'fill-page': 'var(--color-base-100)', 'fill-surface': 'var(--color-base-200)', 'fill-field': 'var(--color-base-300)', 'fill-track': 'var(--color-base-300)',
   'edge-focus': 'var(--color-base-content)', 'edge-selected': 'var(--color-base-content)',
   'edge-invalid': 'var(--color-error)', 'ink-invalid': 'var(--color-error)',
   'fill-selected': 'var(--color-primary)', 'ink-selected': 'var(--color-base-content)',
@@ -367,9 +367,9 @@ const STATE_ROLES = (over: Record<string, string> = {}) => new Map(Object.entrie
 
 test('a pale light secondary reports edge-focus under 3:1', () => {
   const found = stateReports(STATE_ROLES({ 'edge-focus': 'var(--color-secondary)' }), LIGHT, 'light', {});
-  assert.deepEqual(found.map((one) => one.kind), ['contrast', 'contrast', 'contrast'], 'one report per surface');
+  assert.deepEqual(found.map((one) => one.kind), ['contrast', 'contrast', 'contrast', 'contrast'], 'one report per surface');
   for (const one of found) {
-    assert.match(one.message, /^--edge-focus measures \d\.\d\d:1 against --fill-(page|surface|field) in the light theme, below 3:1 \(WCAG 1\.4\.11\)/);
+    assert.match(one.message, /^--edge-focus measures \d\.\d\d:1 against --fill-(page|surface|field|track) in the light theme, below 3:1 \(WCAG 1\.4\.11\)/);
   }
   assert.equal(found[0]?.message, '--edge-focus measures 2.46:1 against --fill-page in the light theme, below 3:1 (WCAG 1.4.11), '
     + 'so the focus ring is hard to see; answer it with a colour that stands further from that ground');
@@ -393,9 +393,14 @@ test('strict reports an unresolved role, lax skips it', () => {
 
 test('the state pairs are the ones D29 and the contrast rule name', () => {
   assert.deepEqual(STATE_PAIRS.map((pair) => `${pair.role}/${pair.over}/${pair.min}`), [
-    'edge-focus/fill-page/3', 'edge-focus/fill-surface/3', 'edge-focus/fill-field/3', 'edge-selected/fill-surface/3',
+    'edge-focus/fill-page/3', 'edge-focus/fill-surface/3', 'edge-focus/fill-field/3', 'edge-focus/fill-track/3', 'edge-selected/fill-surface/3',
     'edge-invalid/fill-field/3', 'ink-invalid/fill-surface/4.5', 'ink-selected/fill-selected/4.5',
   ]);
+});
+
+test('a ring too pale for the track ground is reported against fill-track', () => {
+  const found = stateReports(STATE_ROLES({ 'edge-focus': 'var(--color-secondary)' }), LIGHT, 'light', {});
+  assert.ok(found.some((one) => /^--edge-focus measures \d\.\d\d:1 against --fill-track in the light theme/.test(one.message)));
 });
 
 test('the wash level arena build measures with is the level colors.css declares', () => {

@@ -1323,5 +1323,11 @@
   "elevation-floating-shadow": {
     "$type": "shadow",
     "$value": "{shadow.3}"
+  },
+  "light": {
+    "edge-focus": {
+      "$type": "color",
+      "$value": "{color.neutral-content}"
+    }
   }
 }

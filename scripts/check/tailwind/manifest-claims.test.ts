@@ -377,7 +377,7 @@ export const CLAIMS = {
     { chosen: { destructive: false }, slot: 'confirm', has: ['bg-primary-fill', 'text-primary-content'], hasNot: ['bg-confirm-final'], why: 'a confirmation that is not destructive fills with the brand' },
     { chosen: { open: true }, slot: 'foot', has: ['flex-wrap'], why: 'the footer wraps the way ArenaDialog, ArenaPageHead and ArenaChartCard all do, and a third action row behaving differently is worse than none' },
     { chosen: { open: true }, slot: 'root', has: ['flex'], why: 'the root carries a display utility in its own base string, independent of the open variant' },
-    { slot: 'input', has: ['focus-visible:ring-edge-focus'], hasNot: ['focus-visible:ring-error'], why: 'the require-text input confirms a destructive action, so its focus ring is the focus edge role' },
+    { slot: 'input', has: ['focus-visible:ring-edge-focus'], hasNot: ['focus-visible:ring-error'], why: 'the require-text input focus reads the focus role like every field, and never the danger hue' },
     { chosen: { invalid: true }, slot: 'input', has: ['border-edge-invalid'], hasNot: ['border-error', 'border-edge-field'], why: 'invalid borders the require-text input in the invalid edge role and drops the neutral border' },
     { chosen: { invalid: false }, slot: 'input', has: ['border-edge-field'], why: 'a valid require-text input keeps the neutral border' },
   ],
@@ -530,7 +530,7 @@ export const CLAIMS = {
   ArenaFileInput: [
     { slot: 'error', has: ['text-ink-invalid'], hasNot: ['text-error'], why: 'the field error message reads the invalid ink role, so a plugin answering ink-invalid moves the message with the zone' },
     { slot: 'rejection', has: ['text-ink-invalid'], hasNot: ['text-error'], why: 'a refused file is said in the invalid ink role, and invalid is an outline, never a fill' },
-    { chosen: { state: 'error' }, slot: 'zone', has: ['border-edge-invalid'], why: 'an error turns the zone\'s edge to the danger hue, read from the channel the hue sheet writes' },
+    { chosen: { state: 'error' }, slot: 'zone', has: ['border-edge-invalid'], why: 'an error turns the zone\'s edge to the invalid edge role, so a plugin answering edge-invalid moves it' },
     { chosen: { droppable: 'true' }, slot: 'zone', has: ['border-dashed', 'border-edge-surface', 'border-[length:var(--bw-surface)]', 'p-surface', 'rounded-surface'], why: 'a drop zone is a surface with a dashed edge, drawn literally as the empty state draws its own, and every other property a role' },
     { chosen: { droppable: 'false' }, slot: 'zone', hasNot: ['border-dashed', 'p-surface'], why: 'a field that takes no drop draws no frame, so the trigger stands on the page as a button would' },
     { chosen: { dragging: 'true' }, slot: 'zone', has: ['bg-hover'], why: 'a drag over the zone is the surface answering, which is the fill-hover role, and a colour crossfade stays under reduced motion' },
@@ -823,13 +823,13 @@ test('a component whose tone is optional carries no default for it, so an untone
     assert.equal(manifests.get(component)?.defaultVariants?.tone, undefined, `${component} still defaults its tone`);
 });
 
-test('a non-destructive button draws its focus ring after its hover rule, so a hovered and focused one keeps the ring', () => {
+test('a non-destructive button draws its focus ring as an outline no hover rule writes, so a hovered and focused one keeps the ring', () => {
   const sheet = readFileSync(join(repoRoot, 'frameworks/tailwind/consume/components/forms/arena-button/ArenaButton.styles.generated.css'), 'utf8');
   const selector = '.arena-button__root:where(:not([data-arena-destructive]))';
   const hover = sheet.indexOf(`${selector}:hover {`);
-  const focus = sheet.search(new RegExp(`${selector.replace(/[()[\]]/g, '\\$&')}:focus-visible\\b`));
   assert.ok(hover >= 0, 'the compiled sheet has no non-destructive hover rule');
-  assert.ok(focus > hover, 'the non-destructive focus-visible rule must follow its hover rule');
+  assert.match(sheet, /&:focus-visible \{\s*outline-style: var\(--tw-outline-style\);\s*outline-width: var\(--bw-focus\);/, 'the root draws no focus outline');
+  assert.ok(!/outline/.test(sheet.slice(hover, sheet.indexOf('}', hover))), 'the hover rule writes an outline over the focus ring');
 });
 
 const DIALOG_PANEL = '.arena-dialog__panel';
@@ -903,7 +903,7 @@ test('an errored field carries no focus edge', () => {
 test('every slot that gained a ring keeps it under hover', () => {
   const RING = 'focus-visible:shadow-[inset_0_0_0_var(--bw-focus)_var(--edge-focus)]';
   const gained: [string, string][] = [
-    ['ArenaIconButton', 'root'], ['ArenaSwitch', 'track'], ['ArenaPagination', 'nav'], ['ArenaPagination', 'page'],
+    ['ArenaPagination', 'nav'],
     ['ArenaSideNav', 'item'], ['ArenaSideNav', 'trigger'], ['ArenaMenu', 'item'], ['ArenaBreadcrumbs', 'crumb'],
   ];
   for (const [component, slot] of gained) {
@@ -912,6 +912,39 @@ test('every slot that gained a ring keeps it under hover', () => {
     const strings = (classStringsBySlot(manifest as never) as Map<string, string[]>).get(slot) ?? [];
     const hover = strings.flatMap((one) => one.split(/\s+/)).filter((cls) => cls.includes('hover:shadow-'));
     assert.deepEqual(hover, [], `${component}.${slot} sets ${hover.join(' ')}, which replaces the inset ring while the pointer rests on a focused control`);
+  }
+});
+
+test('a focus ring never sits on a filled ground', () => {
+  const INSET = 'focus-visible:shadow-[inset_0_0_0_var(--bw-focus)_var(--edge-focus)]';
+  const OUTLINE = ['focus-visible:outline-[length:var(--bw-focus)]', 'focus-visible:outline-edge-focus', 'focus-visible:outline-offset-[var(--gap-focus)]'];
+  const isFill = (cls: string) => {
+    const colour = /^(?:[\w-]+:)*bg-(.+)$/.exec(cls)?.[1];
+    if (colour === undefined || /\/(?:\d|\(|\[)/.test(colour) || /^(?:transparent|hover|surface|track|field|base|raised|sunken|selected|\[?color:var\(--hover)/.test(colour)) return false;
+    if (/fill-(?:soft|hover)/.test(colour)) return false;
+    return /fill|confirm-final|^(?:primary|secondary|accent|neutral|error|success|warning|info)$/.test(colour);
+  };
+  assert.equal(isFill('bg-[color:var(--arena-hue-fill-soft)]'), false);
+  assert.equal(isFill('hover:bg-[color:var(--arena-emphasis-fill-hover,var(--x))]'), false);
+  assert.equal(isFill('bg-primary-fill'), true);
+  assert.equal(isFill('bg-[color:var(--arena-emphasis-fill,var(--x))]'), true);
+  const filled: [string, string][] = [
+    ['ArenaButton', 'root'], ['ArenaSplitButton', 'primary'], ['ArenaSplitButton', 'caret'], ['ArenaConfirmDialog', 'confirm'],
+    ['ArenaIconButton', 'root'], ['ArenaFileInput', 'trigger'], ['ArenaSwitch', 'track'], ['ArenaPagination', 'page'],
+  ];
+  for (const [component, slot] of filled) {
+    const manifest = manifests.get(component) as { slots: Record<string, string> };
+    const base = (manifest.slots[slot] ?? '').split(/\s+/);
+    for (const cls of OUTLINE) assert.ok(base.includes(cls), `${component}.${slot} base lacks ${cls}`);
+    assert.ok(!base.includes('outline-none') && !base.includes('focus-visible:outline-none'), `${component}.${slot} strips the outline it draws`);
+  }
+  for (const manifest of manifests.values() as Iterable<{ component: string }>) {
+    for (const [slot, strings] of classStringsBySlot(manifest as never) as Map<string, string[]>) {
+      const classes = strings.flatMap((one) => one.split(/\s+/));
+      if (!classes.some(isFill)) continue;
+      assert.ok(!classes.includes(INSET), `${manifest.component}.${slot} has a fill and draws its focus ring inset on it`);
+      assert.deepEqual(classes.filter((cls) => cls.includes('hover:outline-')), [], `${manifest.component}.${slot} sets a hover outline over the focus ring`);
+    }
   }
 });
 
