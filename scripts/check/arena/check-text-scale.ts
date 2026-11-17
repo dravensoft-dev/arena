@@ -1,13 +1,10 @@
-/* Loads the kitchen sinks in a browser whose default font size is 32px, twice the 16 it ships with, and
- * reports text that did not double, text clipped by its own box and sibling text that now overlaps. The
- * 16px reference is the same pages in a second browser, dark only, matched by slot. The judges are pure
- * over the records the page returns. A root that is not 32px fails naming what it measured, so a browser
- * that ignored the preference cannot pass on pages that never grew. A truncating slot (ellipsis, line
- * clamp), a 1px clip box (visually hidden text) and an absolutely positioned, floated or inline box
- * (its rect spans its wrapped lines) are not reported. FIXED, CLIPS, OVERLAPS and THINNED are keyed
- * <layer>/<sink>:<data-arena-part or tag>, carry a reason, and fail when they silence nothing. A THINNED
- * slot draws a different set of labels at each size by design, so it is matched by slot, text and
- * occurrence instead of by ordinal, and a label drawn at only one size is not reported. */
+/* Loads the kitchen sinks at a 32px browser default against a 16px reference (dark only, matched by slot)
+ * and reports text that did not double, is clipped by its box (a scroller that holds it inside the clip
+ * is not a clip), spills out of its part's box, or overlaps a sibling. A root that is not 32px fails
+ * naming it. Truncating slots, 1px clip boxes and out-of-flow boxes are not reported; a line height below
+ * the content area is slack. FIXED, CLIPS, OVERLAPS, SPILLS and THINNED are keyed
+ * <layer>/<sink>:<data-arena-part or tag>, carry a reason and fail when they silence nothing; a THINNED
+ * slot draws different labels at each size by design and is matched by slot, text and occurrence. */
 
 import { withTimeout } from '../../utils/with-timeout.ts';
 import { isMainModule } from '../../utils/main-module.ts';
@@ -50,7 +47,7 @@ export const SCOPES = ['arena-compact', 'arena-comfortable'] as const;
 
 export type TextBox = {
   path: string; text: string; fontSize: number; clipX: boolean; clipY: boolean; truncates: boolean;
-  rect: Rect; parent: string; inFlow: boolean; classes?: string;
+  rect: Rect; parent: string; inFlow: boolean; classes?: string; spillX?: boolean; spillY?: boolean;
 };
 
 const LOGO_WHY = 'the logo lock-up is the brand scale: spacing.json declares the logo.* dimensions on the fixed '
@@ -60,9 +57,19 @@ export const FIXED = new Map<string, string>(SINK_LAYERS.flatMap((layer) =>
   ['default', 'complete'].flatMap((sink) => ['app-logo.name', 'app-logo.dim'].map((part) =>
     [`${layer}/${sink}:${part}`, LOGO_WHY] as [string, string]))));
 
+const AVATAR_WHY = 'the initials follow the avatar box, a fixed density size (D4)';
+
+for (const layer of SINK_LAYERS) for (const sink of ['default', 'complete']) FIXED.set(`${layer}/${sink}:avatar.box`, AVATAR_WHY);
+
 export const CLIPS = new Map<string, string>([]);
 
-export const OVERLAPS = new Map<string, string>([]);
+const PAGE_HEAD_WHY = 'the title line height is below the font content area, so its glyph box and the subtitle '
+  + 'box meet by a pixel of line-height rounding; the lines themselves do not collide';
+
+export const OVERLAPS = new Map<string, string>(SINK_LAYERS.map((layer) =>
+  [`${layer}/complete:page-head.title`, PAGE_HEAD_WHY] as [string, string]));
+
+export const SPILLS = new Map<string, string>([]);
 
 const THINNED_WHY = 'the chart keeps every stride-th tick label and measures the stride over a tick width that '
   + 'now follows the text size, so the labels drawn at 16px and at 32px are different sets by design; the '
@@ -137,8 +144,26 @@ export function clippedBy(text: Edges, box: Edges, overflowX: string, overflowY:
   };
 }
 
+export function halfLeadingDeficit(rectHeight: number, lineHeight: number) {
+  if (!(lineHeight > 0) || !(rectHeight > 0)) return 0;
+  const lines = Math.max(1, Math.round(rectHeight / lineHeight));
+  const contentArea = rectHeight - (lines - 1) * lineHeight;
+  return Math.max(0, (contentArea - lineHeight) / 2);
+}
+
+export function spillsOut(text: Edges, box: Edges, slackY = 0) {
+  return {
+    spillX: text.right > box.right + 1 || text.left < box.left - 1,
+    spillY: text.bottom > box.bottom + 1 + slackY || text.top < box.top - 1 - slackY,
+  };
+}
+
 export function firstCutting(overflows: string[]) {
   return overflows.findIndex((value) => value === 'hidden' || value === 'clip');
+}
+
+export function scrolls(overflow: string) {
+  return overflow === 'auto' || overflow === 'scroll';
 }
 
 export function referenceProblem(where: string, base: unknown) {
@@ -163,6 +188,18 @@ export function clipProblems(boxes: TextBox[], allowed: Map<string, string>, use
     if (allowed.has(slot)) { used.add(slot); continue; }
     problems.push(`${one.path}: "${one.text}" is clipped${one.clipX ? ' across' : ''}${one.clipY ? ' down' : ''} by its `
       + `own box, and the slot does not truncate on purpose${one.classes ? ` (classes: ${one.classes})` : ''}`);
+  }
+  return problems;
+}
+
+export function spillProblems(boxes: TextBox[], allowed: Map<string, string>, used: Set<string> = new Set()): string[] {
+  const problems: string[] = [];
+  for (const one of boxes) {
+    if (!(one.spillX || one.spillY) || one.truncates || one.clipX || one.clipY) continue;
+    const slot = slotOf(one.path);
+    if (allowed.has(slot)) { used.add(slot); continue; }
+    problems.push(`${one.path}: "${one.text}" runs out of its part's box${one.spillX ? ' across' : ''}${one.spillY ? ' down' : ''}, `
+      + 'and nothing clips it, so the box did not grow with the text');
   }
   return problems;
 }
@@ -209,6 +246,9 @@ export const collectExpression = (layer: string, sink: string, scope: string) =>
   const clippedBy = ${clippedBy.toString()};
   const declaresTruncation = ${declaresTruncation.toString()};
   const firstCutting = ${firstCutting.toString()};
+  const scrolls = ${scrolls.toString()};
+  const spillsOut = ${spillsOut.toString()};
+  const halfLeadingDeficit = ${halfLeadingDeficit.toString()};
   const takesPartInFlow = ${takesPartInFlow.toString()};
   const html = document.documentElement;
   for (const one of ${JSON.stringify([...SCOPES])}) html.classList.remove(one);
@@ -251,18 +291,25 @@ export const collectExpression = (layer: string, sink: string, scope: string) =>
         chain.push({ at, s, value: axis === 'x' ? s.overflowX : s.overflowY });
       }
       const found = firstCutting(chain.map((one) => one.value));
-      return found === -1 ? null : chain[found];
+      return found === -1 ? null : { ...chain[found], chain, index: found };
     };
     for (const axis of ['x', 'y']) {
       const found = clipperOf(axis);
       if (!found) continue;
-      const { at, s, value } = found;
+      const { at, s, value, chain, index } = found;
       if (at.clientWidth <= 1 && at.clientHeight <= 1) { collapsed = true; break; }
       const cr = at.getBoundingClientRect();
       const left = cr.left + at.clientLeft;
       const top = cr.top + at.clientTop;
       const box = { left, top, right: left + at.clientWidth, bottom: top + at.clientHeight };
       const text = { left: r.left, top: r.top, right: r.right, bottom: r.bottom };
+      const holder = chain.slice(0, index).find((one) => scrolls(one.value));
+      if (holder) {
+        const hr = holder.at.getBoundingClientRect();
+        const inside = clippedBy({ left: hr.left, top: hr.top, right: hr.right, bottom: hr.bottom }, box,
+          axis === 'x' ? value : 'visible', axis === 'y' ? value : 'visible');
+        if (!inside.clipX && !inside.clipY) continue;
+      }
       const cut = clippedBy(text, box, axis === 'x' ? value : 'visible', axis === 'y' ? value : 'visible');
       if (cut.clipX) clipX = true;
       if (cut.clipY) clipY = true;
@@ -273,7 +320,12 @@ export const collectExpression = (layer: string, sink: string, scope: string) =>
     }
     if (collapsed) continue;
     const sibling = el.parentElement;
+    const partBox = (own ? el : host).getBoundingClientRect();
+    const spill = spillsOut({ left: r.left, top: r.top, right: r.right, bottom: r.bottom },
+      { left: partBox.left, top: partBox.top, right: partBox.right, bottom: partBox.bottom },
+      halfLeadingDeficit(r.height, parseFloat(style.lineHeight)));
     out.push({
+      spillX: spill.spillX, spillY: spill.spillY,
       path: prefix + ':' + key + '#' + ordinalBeforeSkips,
       text: text.slice(0, 40),
       fontSize: parseFloat(style.fontSize),
@@ -377,6 +429,7 @@ async function main() {
   const usedFixed = new Set<string>();
   const usedClips = new Set<string>();
   const usedOverlaps = new Set<string>();
+  const usedSpills = new Set<string>();
   const usedThinned = new Set<string>();
   let measured = 0;
   try {
@@ -410,6 +463,7 @@ async function main() {
         if (missing !== null) note(missing, where);
         if (base) for (const one of doublingProblems(base.boxes, collected.boxes, FIXED, usedFixed, THINNED, usedThinned)) note(one, where);
         for (const one of clipProblems(collected.boxes, CLIPS, usedClips)) note(one, where);
+        for (const one of spillProblems(collected.boxes, SPILLS, usedSpills)) note(one, where);
         for (const one of overlapProblems(collected.boxes, OVERLAPS, usedOverlaps)) note(one, where);
       }
     }
@@ -423,6 +477,7 @@ async function main() {
     ...staleAllowanceProblems(usedFixed, FIXED, 'FIXED'),
     ...staleAllowanceProblems(usedClips, CLIPS, 'CLIPS'),
     ...staleAllowanceProblems(usedOverlaps, OVERLAPS, 'OVERLAPS'),
+    ...staleAllowanceProblems(usedSpills, SPILLS, 'SPILLS'),
     ...staleAllowanceProblems(usedThinned, THINNED, 'THINNED'),
   ]) note(one, 'allowances');
 

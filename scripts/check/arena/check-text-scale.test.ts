@@ -6,7 +6,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   ENLARGED_PX, rootProblems, doublingProblems, clipProblems, overlapProblems, staleAllowanceProblems,
-  breakpointProblems, THINNED, clippedBy, declaresTruncation, takesPartInFlow, collectExpression, firstCutting, referenceProblem, type TextBox,
+  breakpointProblems, THINNED, spillsOut, spillProblems, halfLeadingDeficit, scrolls, clippedBy, declaresTruncation, takesPartInFlow, collectExpression, firstCutting, referenceProblem, type TextBox,
 } from './check-text-scale.ts';
 
 const box = (over: Partial<TextBox> = {}): TextBox => ({
@@ -154,4 +154,34 @@ test('a thinned slot pairs its labels by text and occurrence, ignores the ones d
 test('a thinned allowance that silenced nothing is stale', () => {
   const used = new Set<string>();
   assert.equal(staleAllowanceProblems(used, new Map([['a', 'why']]), 'THINNED').length, 1);
+});
+
+test('text leaving its part box by more than 1px is a spill unless truncated, clipped or allowed', () => {
+  const part = { left: 0, top: 0, right: 100, bottom: 30 };
+  assert.deepEqual(spillsOut({ left: 0, top: 0, right: 101, bottom: 31 }, part), { spillX: false, spillY: false });
+  assert.deepEqual(spillsOut({ left: 0, top: 4, right: 100, bottom: 32 }, part), { spillX: false, spillY: true });
+  assert.deepEqual(spillsOut({ left: -3, top: 0, right: 100, bottom: 30 }, part), { spillX: true, spillY: false });
+  const spilled = box({ spillY: true });
+  const [problem] = spillProblems([spilled], new Map());
+  assert.match(problem ?? '', /runs out of its part's box down/);
+  assert.deepEqual(spillProblems([box({ spillY: true, truncates: true }), box({ spillY: true, clipY: true }), box()], new Map()), []);
+  const used = new Set<string>();
+  assert.deepEqual(spillProblems([spilled], new Map([['react/default:button>span', 'why']]), used), []);
+  assert.deepEqual([...used], ['react/default:button>span']);
+});
+
+test('a line height below the content area gives the glyph box half the difference as slack', () => {
+  assert.equal(halfLeadingDeficit(40, 32), 4);
+  assert.equal(halfLeadingDeficit(40, 40), 0);
+  assert.equal(halfLeadingDeficit(72, 32), 4);
+  assert.equal(halfLeadingDeficit(40, Number.NaN), 0);
+  const part = { left: 0, top: 0, right: 100, bottom: 32 };
+  assert.equal(spillsOut({ left: 0, top: -4, right: 100, bottom: 36 }, part, 4).spillY, false);
+  assert.equal(spillsOut({ left: 0, top: -4, right: 100, bottom: 36 }, part).spillY, true);
+});
+
+test('a scrolling overflow is a scroller, and hidden or clip is not', () => {
+  assert.deepEqual(['auto', 'scroll', 'hidden', 'clip', 'visible'].map(scrolls), [true, true, false, false, false]);
+  const expression = collectExpression('react', 'default', 'arena-compact');
+  assert.ok(expression.includes('scrolls(one.value)'));
 });
