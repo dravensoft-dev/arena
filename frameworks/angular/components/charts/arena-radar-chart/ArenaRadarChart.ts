@@ -6,7 +6,7 @@ import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, ARENA_SR_ONLY, arenaTextRoom, aren
 import { arenaLinearScale, arenaScaleValue } from '../ChartScales';
 import { arenaLinePoints } from '../ChartMarks';
 import {
-  arenaPolarPoint, arenaPolarIndex, arenaPolarAnchor, arenaRadarRings, arenaRadarRadius, arenaRadarLabelRadius,
+  arenaPolarPoint, arenaPolarIndex, arenaPolarAnchor, arenaRadarRings, arenaRadarRadius, arenaRadarLabelRadius, arenaRadarLabelRoom, arenaRadarLabelChar, arenaFitLabel,
 } from '../ChartPolar';
 import {
   arenaChartTable, arenaSeriesColors, arenaSwatchChoice, arenaSeriesPointCount, arenaRadarDomain,
@@ -78,7 +78,7 @@ const SERIES_STROKE_STYLE = { strokeWidth: 'var(--bw-strong)' } as const satisfi
         <text [attr.x]="spoke.labelX" [attr.y]="spoke.labelY" [attr.text-anchor]="spoke.anchor"
               dominant-baseline="middle"
               [attr.fill]="inkMuted" font-family="var(--font-body)"
-              [style]="categoryLabelStyle">{{ spoke.label }}</text>
+              [style]="categoryLabelStyle">{{ spoke.shown }}@if (spoke.shown !== spoke.label) {<title>{{ spoke.label }}</title>}</text>
       }
 
       <rect x="0" y="0" width="100%" [attr.height]="plotH()" fill="transparent"
@@ -215,12 +215,16 @@ export class ArenaRadarChart {
     const outer = this.outer();
     const labels = this.labels();
     const labelR = this.labelR();
+    const width = this.width();
     return Array.from({ length: count }, (_, index) => {
       const tip = arenaPolarPoint(cx, cy, outer, index, count);
       const at = arenaPolarPoint(cx, cy, labelR, index, count);
+      const anchor = arenaPolarAnchor(index, count);
+      const label = labels[index] ?? '';
       return {
-        index, x: tip.x, y: tip.y, label: labels[index] ?? '',
-        labelX: at.x, labelY: at.y, anchor: arenaPolarAnchor(index, count),
+        index, x: tip.x, y: tip.y, label,
+        shown: arenaFitLabel(label, arenaRadarLabelRoom(at.x, width, anchor), arenaRadarLabelChar(this.room)),
+        labelX: at.x, labelY: at.y, anchor,
       };
     });
   });

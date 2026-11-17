@@ -5,7 +5,7 @@ import {
   arenaCategoryGutter, arenaCategoryLabelX, arenaFunnelBox, arenaHeatmapBox, arenaHeatmapHeight, arenaHeatmapWidth,
   arenaLabelStride, arenaPlotBox, arenaPlotBoxH, arenaTextGutter, arenaValueGutter,
 } from './ChartAxis.ts';
-import { arenaGaugeRadii, arenaGaugeWordY, arenaRadarRadius } from './ChartPolar.ts';
+import { arenaGaugeRadii, arenaFitLabel, arenaRadarLabelChar, arenaGaugeWordY, arenaRadarLabelRoom, arenaRadarLabelRadius, arenaRadarRadius } from './ChartPolar.ts';
 import { arenaHeatLegendStrip, arenaLegendStrip } from './ChartLegend.ts';
 import { arenaNiceDomain } from './ChartScales.ts';
 import {
@@ -84,4 +84,42 @@ test('the top and right pads hold half a tick label, so they grow with the text'
   assert.equal(arenaHeatmapBox(600, 300, room).w, 600 - chartPadCategory * 2 - chartPadRight * 2);
   assert.equal(ARENA_PAD.t, chartPadTop);
   assert.equal(ARENA_PAD.r, chartPadRight);
+});
+
+test('a radar spoke label that fits is drawn whole, and a longer one is cut to a prefix and an ellipsis', () => {
+  assert.equal(arenaFitLabel('Latency', 100, 6), 'Latency');
+  assert.equal(arenaFitLabel('Throughput', 60, 6), 'Throughput');
+  assert.equal(arenaFitLabel('Throughput', 59, 6), 'Throughp\u2026');
+  assert.equal(arenaFitLabel('Throughput', 30, 6), 'Thro\u2026');
+  assert.equal(arenaFitLabel('Throughput', 0, 6), '\u2026');
+  assert.equal(arenaFitLabel('', 0, 6), '');
+  assert.equal(arenaFitLabel('', 0, 0), '');
+});
+
+test('the room beside a spoke label is measured to the frame edge on the side it is anchored to', () => {
+  assert.equal(arenaRadarLabelRoom(233, 300, 'start'), 67);
+  assert.equal(arenaRadarLabelRoom(40, 300, 'end'), 40);
+  assert.equal(arenaRadarLabelRoom(100, 300, 'middle'), 200);
+  assert.equal(arenaRadarLabelRoom(320, 300, 'start'), 0);
+});
+
+test('at the default room the radar demo labels are drawn whole at the frame the sinks use', () => {
+  const labels = ['Latency', 'Throughput', 'Accuracy', 'Cost', 'Coverage', 'Uptime'];
+  const width = 300;
+  const r = arenaRadarLabelRadius(width, 214);
+  labels.forEach((text, i) => {
+    const angle = -Math.PI / 2 + (Math.PI * 2 * i) / labels.length;
+    const x = width / 2 + r * Math.cos(angle);
+    const anchor = Math.abs(Math.cos(angle)) < 1e-6 ? 'middle' : Math.cos(angle) > 0 ? 'start' : 'end';
+    assert.equal(arenaFitLabel(text, arenaRadarLabelRoom(x, width, anchor), arenaRadarLabelChar()), text);
+  });
+  const big = arenaTextRoom(2);
+  const rr = arenaRadarLabelRadius(width, 300, big);
+  assert.notEqual(arenaFitLabel('Throughput', arenaRadarLabelRoom(width / 2 + rr * Math.cos(-Math.PI / 2 + Math.PI * 2 / 6), width, 'start'), arenaRadarLabelChar(big)), 'Throughput');
+});
+
+test('the radar label character width is zero at the default size, so nothing is shortened there, and follows the text above it', () => {
+  assert.equal(arenaRadarLabelChar(), 0);
+  assert.equal(arenaFitLabel('Throughput', 0, arenaRadarLabelChar()), 'Throughput');
+  assert.equal(arenaRadarLabelChar(arenaTextRoom(2)), chartTickChar * 0.95 * 2);
 });

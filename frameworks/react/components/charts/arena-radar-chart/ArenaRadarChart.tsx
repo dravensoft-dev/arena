@@ -4,7 +4,7 @@ import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, arenaSrOnly, arenaTextRoom, arenaA
 import { arenaLinearScale, arenaScaleValue } from '../ChartScales.ts';
 import { arenaLinePoints } from '../ChartMarks.ts';
 import {
-  arenaPolarPoint, arenaPolarIndex, arenaPolarAnchor, arenaRadarRings, arenaRadarRadius, arenaRadarLabelRadius,
+  arenaPolarPoint, arenaPolarIndex, arenaPolarAnchor, arenaRadarRings, arenaRadarRadius, arenaRadarLabelRadius, arenaRadarLabelRoom, arenaRadarLabelChar, arenaFitLabel,
 } from '../ChartPolar.ts';
 import {
   arenaChartTable, arenaSeriesColors, arenaSwatchHue, arenaSeriesPointCount, arenaRadarDomain,
@@ -147,9 +147,15 @@ export function ArenaRadarChart({ className,
 
         {Array.from({ length: n }, (_, i) => {
           const at = arenaPolarPoint(cx, cy, labelR, i, n);
+          const anchor = arenaPolarAnchor(i, n);
+          const full = labels[i] ?? '';
+          const shown = arenaFitLabel(full, arenaRadarLabelRoom(at.x, width, anchor), arenaRadarLabelChar(room));
           return (
-            <text key={i} x={at.x} y={at.y} textAnchor={arenaPolarAnchor(i, n)} dominantBaseline="middle"
-              fill={ARENA_INK_MUTED} fontFamily="var(--font-body)" style={{ fontSize: 'var(--dz-text-xs)' }}>{labels[i] ?? ''}</text>
+            <text key={i} x={at.x} y={at.y} textAnchor={anchor} dominantBaseline="middle"
+              fill={ARENA_INK_MUTED} fontFamily="var(--font-body)" style={{ fontSize: 'var(--dz-text-xs)' }}>
+              {shown}
+              {shown !== full && <title>{full}</title>}
+            </text>
           );
         })}
 

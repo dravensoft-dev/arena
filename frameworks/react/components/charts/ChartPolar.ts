@@ -41,6 +41,22 @@ export function arenaRadarLabelRadius(plotWidth: number, height: number, room: A
   return arenaRadarRadius(plotWidth, height, room) + chartLabelGap;
 }
 
+export function arenaRadarLabelRoom(x: number, width: number, anchor: 'start' | 'middle' | 'end'): number {
+  if (anchor === 'start') return Math.max(0, width - x);
+  if (anchor === 'end') return Math.max(0, x);
+  return Math.max(0, 2 * Math.min(x, width - x));
+}
+
+export function arenaRadarLabelChar(room: ArenaTextRoom = ARENA_TEXT_ROOM): number {
+  return room.scale > 1 ? room.tickChar * 0.95 : 0;
+}
+
+export function arenaFitLabel(label: string, available: number, charWidth: number): string {
+  if (Math.ceil(label.length * charWidth) <= available) return label;
+  const keep = Math.max(0, Math.floor(available / charWidth) - 1);
+  return keep === 0 ? '\u2026' : `${label.slice(0, keep).trimEnd()}\u2026`;
+}
+
 const GAUGE_START = (Math.PI * 5) / 4;
 const GAUGE_SWEEP = (Math.PI * 3) / 2;
 
