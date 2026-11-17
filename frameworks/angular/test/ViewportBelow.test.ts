@@ -19,6 +19,7 @@ import { join } from 'node:path';
 import { ChangeDetectionStrategy, Component, Type } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { REPO } from './Compliance';
+import { arenaBreakpointPx } from '../RootScale';
 import { arenaReadBreakpoint, forgetArenaBreakpoints, arenaViewportBelow } from '../ContainerSize';
 
 const spacing = readFileSync(join(REPO, 'contracts', 'design-generated', 'spacing.generated.css'), 'utf8');
@@ -180,7 +181,8 @@ test('a failed read is not cached, so a stylesheet that arrives late is read aga
     } finally { first.destroy(); }
 
     restore();
-    const expected = Number.parseFloat(document.documentElement.style.getPropertyValue('--bp-lg'));
+    const expected = arenaBreakpointPx(document.documentElement.style.getPropertyValue('--bp-lg'),
+      getComputedStyle(document.documentElement).fontSize);
     const second = TestBed.createComponent(ReadProbe);
     try {
       assert.equal(second.componentInstance.value, expected,
@@ -211,5 +213,34 @@ test('a document with no matchMedia, which is what a server has, answers false',
     } finally { fixture.destroy(); }
   } finally {
     view.matchMedia = saved;
+  }
+});
+
+test('a rem breakpoint follows the root font size and queries in em', () => {
+  const root = document.documentElement.style;
+  const saved = [root.getPropertyValue('--bp-md'), root.fontSize, root.getPropertyValue('--bp-lg')];
+  const view = document.defaultView as unknown as { matchMedia: (query: string) => MediaQueryList };
+  const original = view.matchMedia;
+  const asked: string[] = [];
+  view.matchMedia = (query: string) => { asked.push(query); return original.call(view, query); };
+  forgetArenaBreakpoints();
+  root.setProperty('--bp-md', '48rem');
+  root.setProperty('--bp-lg', '48rem');
+  root.fontSize = '32px';
+  try {
+    const fixture = TestBed.createComponent(MediumProbe);
+    try {
+      assert.deepEqual(asked, ['not all and (min-width: 48em)']);
+    } finally { fixture.destroy(); }
+    const read = TestBed.createComponent(ReadProbe);
+    try {
+      assert.equal(read.componentInstance.value, 1536);
+    } finally { read.destroy(); }
+  } finally {
+    view.matchMedia = original;
+    root.setProperty('--bp-md', saved[0]);
+    root.setProperty('--bp-lg', saved[2]);
+    root.fontSize = saved[1];
+    forgetArenaBreakpoints();
   }
 });

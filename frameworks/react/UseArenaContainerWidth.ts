@@ -1,5 +1,6 @@
 import type * as React from 'react';
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { arenaBelowQuery, arenaBreakpointPx, arenaTextScaleOf } from './RootScale.ts';
 
 const px = (value: string) => Number.parseFloat(value) || 0;
 
@@ -100,7 +101,7 @@ function warnUnresolved(name: string): void {
     + " Arena's stylesheet is missing, or it loads after this ran.");
 }
 
-const queries = new Map<number, MediaQueryList>();
+const queries = new Map<string, MediaQueryList>();
 
 export function forgetArenaBreakpoints(): void {
   cache.clear();
@@ -108,12 +109,14 @@ export function forgetArenaBreakpoints(): void {
   warned.clear();
 }
 
-function viewportQuery(threshold: number): MediaQueryList | null {
-  if (typeof window === 'undefined' || !window.matchMedia || !Number.isFinite(threshold)) return null;
-  let query = queries.get(threshold);
+function viewportQuery(raw: string | null): MediaQueryList | null {
+  if (typeof window === 'undefined' || !window.matchMedia || raw === null) return null;
+  const text = arenaBelowQuery(raw);
+  if (text === null) return null;
+  let query = queries.get(text);
   if (!query) {
-    query = window.matchMedia(`not all and (min-width: ${threshold}px)`);
-    queries.set(threshold, query);
+    query = window.matchMedia(text);
+    queries.set(text, query);
   }
   return query;
 }
@@ -121,15 +124,26 @@ function viewportQuery(threshold: number): MediaQueryList | null {
 const serverBelow = () => false;
 
 export function useArenaViewportBelow(name: ArenaBreakpointName): boolean {
-  const width = arenaReadBreakpoint(name);
+  const raw = typeof document === 'undefined' ? null : rawBreakpoint(name);
   const subscribe = useCallback((onChange: () => void) => {
-    const query = viewportQuery(width);
+    const query = viewportQuery(raw);
     if (!query) return () => {};
     query.addEventListener('change', onChange);
     return () => query.removeEventListener('change', onChange);
-  }, [width]);
-  const snapshot = useCallback(() => viewportQuery(width)?.matches ?? false, [width]);
+  }, [raw]);
+  const snapshot = useCallback(() => viewportQuery(raw)?.matches ?? false, [raw]);
   return useSyncExternalStore(subscribe, snapshot, serverBelow);
+}
+
+const rootFontSize = () => getComputedStyle(document.documentElement).fontSize;
+
+function rawBreakpoint(name: ArenaBreakpointName): string {
+  const raw = getComputedStyle(document.documentElement).getPropertyValue(`--bp-${name}`).trim();
+  if (!Number.isFinite(arenaBreakpointPx(raw, rootFontSize()))) {
+    warnUnresolved(name);
+    return '';
+  }
+  return raw;
 }
 
 export function arenaReadBreakpoint(name: ArenaBreakpointName): number {
@@ -137,11 +151,18 @@ export function arenaReadBreakpoint(name: ArenaBreakpointName): number {
   const hit = cache.get(name);
   if (hit !== undefined) return hit;
   const raw = getComputedStyle(document.documentElement).getPropertyValue(`--bp-${name}`);
-  const value = parseFloat(raw);
+  const value = arenaBreakpointPx(raw, rootFontSize());
   if (!Number.isFinite(value)) {
     warnUnresolved(name);
     return NaN;
   }
   cache.set(name, value);
   return value;
+}
+
+/* The user's text size as a multiple of the authored root (1 at the browser default), for a reader that
+ * measures in px what the stylesheet sizes in rem. 1 where there is no document. */
+export function useArenaTextScale(): number {
+  if (typeof document === 'undefined') return 1;
+  return arenaTextScaleOf(rootFontSize());
 }
