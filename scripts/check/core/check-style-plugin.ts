@@ -20,6 +20,7 @@ import {
   crossKeys, fixedRemProblems, valueProblems, withDefaults,
 } from '../../generate/core/arena-cli/style-plugin-rules.ts';
 import { readPlugin } from '../../generate/core/arena-cli/theme-css.ts';
+import type { DtcgNode } from '../../lib/core/dtcg-shapes.ts';
 import { declaredAxis } from '../../lib/core/user-scale.ts';
 import { answerFiles } from './check-user-scale.ts';
 import { emittedWords } from './check-role-contract.ts';
@@ -120,6 +121,13 @@ export function defaultAnswerProblems(roles: Record<string, KernelRole>, answers
   return problems;
 }
 
+export function shippedFixedRemProblems(kernel: Record<string, unknown>) {
+  const axes = Object.fromEntries(Object.entries(kernel)
+    .map(([name, role]) => [name, { userScale: declaredAxis(role as DtcgNode) }]));
+  return answerFiles().flatMap((file) =>
+    fixedRemProblems(file, readJson(join(repoRoot, file)) as Record<string, unknown>, axes));
+}
+
 export function collect(sheets?: string) {
   const css = sheets ?? RESOLVED.map((f) => readFileSync(join(repoRoot, f), 'utf8')).join('\n');
   const problems = [];
@@ -129,20 +137,17 @@ export function collect(sheets?: string) {
     for (const scope of SCOPES)
       problems.push(...floorProblems(resolvedFor(css, name, scope), `${scope} under .arena-${name}`,
         `.arena-${name}`));
+  const kernel = readJson(join(repoRoot, ROLES)) as Record<string, KernelRole>;
   problems.push(...totalityProblems(
-    Object.keys(readJson(join(repoRoot, ROLES))),
+    Object.keys(kernel),
     Object.keys(readJson(join(repoRoot, ROOT_PLUGIN))),
   ));
   problems.push(...defaultAnswerProblems(
-    readJson(join(repoRoot, ROLES)) as Record<string, KernelRole>,
+    kernel,
     readJson(join(repoRoot, ROOT_PLUGIN)) as Record<string, unknown>,
     emittedWords(repoRoot),
   ));
-  const kernel = readJson(join(repoRoot, ROLES)) as Record<string, any>;
-  const axes = Object.fromEntries(Object.entries(kernel)
-    .map(([name, role]) => [name, { userScale: declaredAxis(role) }]));
-  for (const file of answerFiles())
-    problems.push(...fixedRemProblems(file, readJson(join(repoRoot, file)) as Record<string, unknown>, axes));
+  problems.push(...shippedFixedRemProblems(kernel));
   return problems;
 }
 

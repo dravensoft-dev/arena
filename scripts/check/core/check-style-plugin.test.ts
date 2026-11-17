@@ -4,11 +4,9 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { readJson } from '../../utils/read-file.ts';
-import { declaredAxis } from '../../lib/core/user-scale.ts';
-import { answerFiles } from './check-user-scale.ts';
 import * as rules from '../../generate/core/arena-cli/style-plugin-rules.ts';
 import {
-  SCOPES, collect, defaultAnswerProblems, floorProblems, keyProblems, movedTokens, nameProblems, resolvedFor, totalityProblems,
+  SCOPES, collect, shippedFixedRemProblems, defaultAnswerProblems, floorProblems, keyProblems, movedTokens, nameProblems, resolvedFor, totalityProblems,
   valueProblems, zeroScopeProblems,
 } from './check-style-plugin.ts';
 
@@ -362,10 +360,10 @@ test('a rem answer to a scales role passes', () => {
 });
 
 test('the shipped answer files carry no rem on a fixed role', () => {
-  const roles = readJson(join(repoRoot, 'contracts/design/roles.json')) as Record<string, any>;
-  const axes = Object.fromEntries(Object.entries(roles)
-    .map(([name, role]) => [name, { userScale: declaredAxis(role) }]));
-  const problems = answerFiles().flatMap((file) =>
-    rules.fixedRemProblems(file, readJson(join(repoRoot, file)) as Record<string, unknown>, axes));
-  assert.deepEqual(problems, []);
+  assert.deepEqual(shippedFixedRemProblems(readJson(join(repoRoot, 'contracts/design/roles.json')) as Record<string, unknown>), []);
+});
+
+test('a unit with no finite value is not a rem answer', () => {
+  assert.deepEqual(rules.fixedRemProblems('p', { 'gap-actions': { $value: { unit: 'rem' } } }, AXIS_ROLES), []);
+  assert.deepEqual(rules.fixedRemProblems('p', { 'gap-actions': { $value: { value: 'x', unit: 'rem' } } }, AXIS_ROLES), []);
 });

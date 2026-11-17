@@ -76,8 +76,8 @@ const REM_TEXT = /^-?\d*\.?\d+r?em$/;
 
 const isRem = (value: unknown) => {
   if (typeof value === 'string') return REM_TEXT.test(value.trim());
-  const unit = (value as { unit?: unknown } | null)?.unit;
-  return typeof value === 'object' && value !== null && (unit === 'rem' || unit === 'em');
+  const { unit, value: amount } = (value ?? {}) as { unit?: unknown; value?: unknown };
+  return typeof value === 'object' && Number.isFinite(amount) && (unit === 'rem' || unit === 'em');
 };
 
 export function fixedRemProblems(where: string, tokens: Record<string, unknown>,
