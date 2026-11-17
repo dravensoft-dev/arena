@@ -244,3 +244,24 @@ test('a rem breakpoint follows the root font size and queries in em', () => {
     forgetArenaBreakpoints();
   }
 });
+
+test('a changed root font size changes the read without forgetting the breakpoints', () => {
+  const root = document.documentElement.style;
+  const saved = [root.getPropertyValue('--bp-lg'), root.fontSize];
+  forgetArenaBreakpoints();
+  root.setProperty('--bp-lg', '48rem');
+  try {
+    root.fontSize = '16px';
+    const first = TestBed.createComponent(ReadProbe);
+    assert.equal(first.componentInstance.value, 768);
+    first.destroy();
+    root.fontSize = '32px';
+    const second = TestBed.createComponent(ReadProbe);
+    assert.equal(second.componentInstance.value, 1536);
+    second.destroy();
+  } finally {
+    root.setProperty('--bp-lg', saved[0]);
+    root.fontSize = saved[1];
+    forgetArenaBreakpoints();
+  }
+});

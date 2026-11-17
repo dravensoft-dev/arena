@@ -9,23 +9,26 @@ export function arenaTextScaleOf(rootFontSize: string | undefined): number {
   return Number.isFinite(px) && px > 0 ? px / AUTHORED_ROOT_PX : 1;
 }
 
-/* A breakpoint token in pixels: `rem` follows the root font size, `px` stays px, anything else is NaN. */
-export function arenaBreakpointPx(raw: string, rootFontSize: string | undefined): number {
+function parseBreakpoint(raw: string): { value: number; unit: 'rem' | 'px' } | null {
   const text = raw.trim();
   const value = Number.parseFloat(text);
-  if (!Number.isFinite(value)) return Number.NaN;
-  if (text.endsWith('rem')) return value * AUTHORED_ROOT_PX * arenaTextScaleOf(rootFontSize);
-  if (text.endsWith('px')) return value;
-  return Number.NaN;
+  if (!Number.isFinite(value)) return null;
+  if (text.endsWith('rem')) return { value, unit: 'rem' };
+  if (text.endsWith('px')) return { value, unit: 'px' };
+  return null;
+}
+
+/* A breakpoint token in pixels: `rem` follows the root font size, `px` stays px, anything else is NaN. */
+export function arenaBreakpointPx(raw: string, rootFontSize: string | undefined): number {
+  const parsed = parseBreakpoint(raw);
+  if (!parsed) return Number.NaN;
+  return parsed.unit === 'rem' ? parsed.value * AUTHORED_ROOT_PX * arenaTextScaleOf(rootFontSize) : parsed.value;
 }
 
 /* The media query that is the complement of the `md:` variant: `em` follows the browser default, never the
  * page's own root size, exactly as the `em` breakpoint in the stylesheet does. */
 export function arenaBelowQuery(raw: string): string | null {
-  const text = raw.trim();
-  const value = Number.parseFloat(text);
-  if (!Number.isFinite(value)) return null;
-  if (text.endsWith('rem')) return `not all and (min-width: ${value}em)`;
-  if (text.endsWith('px')) return `not all and (min-width: ${value}px)`;
-  return null;
+  const parsed = parseBreakpoint(raw);
+  if (!parsed) return null;
+  return `not all and (min-width: ${parsed.value}${parsed.unit === 'rem' ? 'em' : 'px'})`;
 }
