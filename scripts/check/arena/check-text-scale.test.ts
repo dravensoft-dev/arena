@@ -6,7 +6,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   ENLARGED_PX, rootProblems, doublingProblems, clipProblems, overlapProblems, staleAllowanceProblems,
-  breakpointProblems, THINNED, spillsOut, spillProblems, halfLeadingDeficit, scrolls, clippedBy, declaresTruncation, takesPartInFlow, collectExpression, firstCutting, referenceProblem, type TextBox,
+  breakpointProblems, breakpointProbeCss, breakpointExpression, THINNED, spillsOut, overrunOf, spillProblems, halfLeadingDeficit, scrolls, clippedBy, declaresTruncation, takesPartInFlow, collectExpression, firstCutting, referenceProblem, type TextBox,
 } from './check-text-scale.ts';
 
 const box = (over: Partial<TextBox> = {}): TextBox => ({
@@ -65,6 +65,12 @@ test('the md breakpoint falls between 1530 and 1540 at 32px', () => {
   assert.equal(breakpointProblems({ bpMd: '768px', below1530: true, below1540: false }).length, 1);
   assert.equal(breakpointProblems({ bpMd: '48rem', below1530: false, below1540: false }).length, 1);
   assert.equal(breakpointProblems({ bpMd: '48rem', below1530: true, below1540: true }).length, 1);
+});
+
+test('the md probe is compiled from the Arena preset and reads the rule that ships', () => {
+  const css = breakpointProbeCss();
+  assert.match(css, /@media \(width >= 48em\)\s*\{\s*\.md\\:block/);
+  assert.match(breakpointExpression(css), /display !== 'none'/);
 });
 
 test('a box drawn at 32 and absent at 16 fails', () => {
@@ -195,4 +201,16 @@ test('a spill that already exists at 16px is the design\'s own hang, one new at 
   assert.equal(spillProblems([at({ spillX: true })], none, new Set(), [at({ spillY: true })]).length, 1);
   assert.deepEqual(spillProblems([at({ path: 'react/charts:line-chart.frame>text#9', spillX: true })], none, new Set(),
     [at({ spillX: true })]), []);
+});
+
+test('a spill present at both sizes is reported once it grows past twice its 16px overrun plus 1px', () => {
+  const at = (over: Partial<TextBox>) => box({ path: 'react/charts:line-chart.frame>text#3', text: 'Week 4', ...over });
+  const none = new Map<string, string>();
+  const hang = (px: number) => at({ spillX: true, overX: px });
+  assert.deepEqual(spillProblems([hang(4)], none, new Set(), [hang(2)]), []);
+  assert.deepEqual(spillProblems([hang(5)], none, new Set(), [hang(2)]), []);
+  assert.equal(spillProblems([hang(20)], none, new Set(), [hang(2)]).length, 1);
+  assert.equal(spillProblems([at({ spillY: true, overY: 20 })], none, new Set(), [at({ spillY: true, overY: 2 })]).length, 1);
+  assert.deepEqual(overrunOf({ left: -3, top: 0, right: 110, bottom: 30 }, { left: 0, top: 0, right: 100, bottom: 32 }),
+    { overX: 10, overY: 0 });
 });

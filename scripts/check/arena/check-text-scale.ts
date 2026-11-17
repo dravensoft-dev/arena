@@ -4,8 +4,17 @@
  * naming it. Truncating slots, 1px clip boxes and out-of-flow boxes are not reported; a line height below
  * the content area is slack. FIXED, CLIPS, OVERLAPS, SPILLS and THINNED are keyed
  * <layer>/<sink>:<data-arena-part or tag>, carry a reason and fail when they silence nothing; a THINNED
- * slot draws different labels at each size by design and is matched by slot, text and occurrence. */
+ * slot draws different labels at each size by design and is matched by slot, text and occurrence. The md
+ * breakpoint is read from the rule Arena compiles for a probe carrying `md:block`, on a page at 1530px and at
+ * 1540px, so a regressed Breakpoints sheet fails here. The kitchen-sink stage grows with the text, so an
+ * overlay whose text doubles inside a fixed small viewport is not measured. */
 
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { byCodeUnit } from '../../utils/compare.ts';
+import { toPosix } from '../../utils/posix-path.ts';
+import { compileEntry } from '../../lib/tailwind/tailwind-compile.ts';
 import { withTimeout } from '../../utils/with-timeout.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { startStaticServer } from '../../lib/arena/static-server.ts';
@@ -48,6 +57,7 @@ export const SCOPES = ['arena-compact', 'arena-comfortable'] as const;
 export type TextBox = {
   path: string; text: string; fontSize: number; clipX: boolean; clipY: boolean; truncates: boolean;
   rect: Rect; parent: string; inFlow: boolean; classes?: string; spillX?: boolean; spillY?: boolean;
+  overX?: number; overY?: number;
 };
 
 const LOGO_WHY = 'the logo lock-up is the brand scale: spacing.json declares the logo.* dimensions on the fixed '
@@ -75,10 +85,15 @@ const THINNED_WHY = 'the chart keeps every stride-th category or tick label and 
   + 'now follows the text size, so the labels drawn at 16px and at 32px are different sets by design; the '
   + 'labels both sizes draw are still compared for doubling';
 
-export const THINNED = new Map<string, string>(SINK_LAYERS.flatMap((layer) =>
+const RADAR_WHY = 'a radar spoke label is shortened with an ellipsis to the room left beside the ring, so the label drawn at '
+  + '32px is a shorter text than the one at 16px by design (D23); its full name stays in the accessible name and a <title>';
+
+export const THINNED = new Map<string, string>([...SINK_LAYERS.flatMap((layer) =>
   [['charts', 'heatmap'], ['default', 'heatmap'], ['complete', 'heatmap'], ['charts', 'line'], ['default', 'line'],
     ['complete', 'line'], ['default', 'bar']].map(([sink, chart]) =>
-    [`${layer}/${sink}:${chart}-chart.frame>text`, THINNED_WHY] as [string, string])));
+    [`${layer}/${sink}:${chart}-chart.frame>text`, THINNED_WHY] as [string, string])),
+...SINK_LAYERS.flatMap((layer) => ['charts', 'default', 'complete'].map((sink) =>
+  [`${layer}/${sink}:radar-chart.frame>text`, RADAR_WHY] as [string, string]))]);
 
 export function slotOf(path: string) {
   const at = path.indexOf('#');
@@ -160,6 +175,17 @@ export function spillsOut(text: Edges, box: Edges, slackY = 0) {
   };
 }
 
+export function overrunOf(text: Edges, box: Edges, slackY = 0) {
+  return {
+    overX: Math.max(0, text.right - box.right, box.left - text.left),
+    overY: Math.max(0, text.bottom - box.bottom - slackY, box.top - text.top - slackY),
+  };
+}
+
+export function grewPastDoubling(now: number | undefined, before: number | undefined) {
+  return (now ?? 0) > 2 * (before ?? 0) + 1;
+}
+
 export function firstCutting(overflows: string[]) {
   return overflows.findIndex((value) => value === 'hidden' || value === 'clip');
 }
@@ -210,8 +236,8 @@ export function spillProblems(boxes: TextBox[], allowed: Map<string, string>, us
   const problems: string[] = [];
   for (const { one: now, key } of spillKeys(boxes)) {
     const before = hung.get(key);
-    const spillX = Boolean(now.spillX) && !before?.spillX;
-    const spillY = Boolean(now.spillY) && !before?.spillY;
+    const spillX = Boolean(now.spillX) && (!before?.spillX || grewPastDoubling(now.overX, before.overX));
+    const spillY = Boolean(now.spillY) && (!before?.spillY || grewPastDoubling(now.overY, before.overY));
     if (!(spillX || spillY) || now.truncates || now.clipX || now.clipY) continue;
     const slot = slotOf(now.path);
     if (allowed.has(slot)) { used.add(slot); continue; }
@@ -265,6 +291,7 @@ export const collectExpression = (layer: string, sink: string, scope: string) =>
   const firstCutting = ${firstCutting.toString()};
   const scrolls = ${scrolls.toString()};
   const spillsOut = ${spillsOut.toString()};
+  const overrunOf = ${overrunOf.toString()};
   const halfLeadingDeficit = ${halfLeadingDeficit.toString()};
   const takesPartInFlow = ${takesPartInFlow.toString()};
   const html = document.documentElement;
@@ -341,8 +368,11 @@ export const collectExpression = (layer: string, sink: string, scope: string) =>
     const spill = spillsOut({ left: r.left, top: r.top, right: r.right, bottom: r.bottom },
       { left: partBox.left, top: partBox.top, right: partBox.right, bottom: partBox.bottom },
       halfLeadingDeficit(r.height, parseFloat(style.lineHeight)));
+    const over = overrunOf({ left: r.left, top: r.top, right: r.right, bottom: r.bottom },
+      { left: partBox.left, top: partBox.top, right: partBox.right, bottom: partBox.bottom },
+      halfLeadingDeficit(r.height, parseFloat(style.lineHeight)));
     out.push({
-      spillX: spill.spillX, spillY: spill.spillY,
+      spillX: spill.spillX, spillY: spill.spillY, overX: over.overX, overY: over.overY,
       path: prefix + ':' + key + '#' + ordinalBeforeSkips,
       text: text.slice(0, 40),
       fontSize: parseFloat(style.fontSize),
@@ -356,10 +386,34 @@ export const collectExpression = (layer: string, sink: string, scope: string) =>
   return { root: parseFloat(getComputedStyle(html).fontSize), boxes: out };
 })()`;
 
-export const BREAKPOINT_EXPRESSION = `(() => ({
-  bpMd: getComputedStyle(document.documentElement).getPropertyValue('--bp-md').trim(),
-  matches: matchMedia('(min-width: 48em)').matches,
-}))()`;
+export function breakpointProbeCss() {
+  const dir = mkdtempSync(join(tmpdir(), 'arena-bp-'));
+  try {
+    const probe = join(dir, 'probe.html');
+    writeFileSync(probe, '<div class="hidden md:block"></div>');
+    return compileEntry(`@import '${toPosix(join(root, 'frameworks/tailwind/Theme.css'))}' source(none);\n`
+      + `@source '${toPosix(probe)}';\n`);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+export const breakpointExpression = (css: string) => `(() => {
+  let probe = document.getElementById('arena-md-probe');
+  if (!probe) {
+    const sheet = document.createElement('style');
+    sheet.textContent = ${JSON.stringify(css)};
+    document.head.append(sheet);
+    probe = document.createElement('div');
+    probe.id = 'arena-md-probe';
+    probe.className = 'hidden md:block';
+    document.body.append(probe);
+  }
+  return {
+    bpMd: getComputedStyle(document.documentElement).getPropertyValue('--bp-md').trim(),
+    matches: getComputedStyle(probe).display !== 'none',
+  };
+})()`;
 
 type Collected = { root: number; boxes: TextBox[] };
 
@@ -409,11 +463,11 @@ export async function collectPage(cdp: Cdp, url: string, layer: string, sink: st
   }, VIEWPORT);
 }
 
-export async function breakpointPage(cdp: Cdp, url: string) {
+export async function breakpointPage(cdp: Cdp, url: string, css: string) {
   return visit(cdp, url, async (ev, sessionId) => {
     const read = async (width: number) => {
       await cdp.send('Emulation.setDeviceMetricsOverride', { ...VIEWPORT, width }, sessionId);
-      return await ev(BREAKPOINT_EXPRESSION) as { bpMd: string; matches: boolean };
+      return await ev(breakpointExpression(css)) as { bpMd: string; matches: boolean };
     };
     const at1530 = await read(1530);
     const at1540 = await read(1540);
@@ -454,7 +508,7 @@ async function main() {
     const cdpSmall = await connect(small.wsUrl);
     const url = (page: Page) => `http://127.0.0.1:${server.port}/${pagePath(page.layer, page.sink)}?theme=${page.theme}`;
     const first = pages[0] as Page;
-    const bp = await breakpointPage(cdpBig, url(first));
+    const bp = await breakpointPage(cdpBig, url(first), breakpointProbeCss());
     if (bp.value) for (const one of breakpointProblems(bp.value)) note(one, 'breakpoint');
     else note(`${first.layer}/${first.sink}: the breakpoint probe did not paint`, 'breakpoint');
     const reference = new Map<string, Collected>();
@@ -500,7 +554,7 @@ async function main() {
 
   if (problems.size > 0) {
     console.error(`check-text-scale: ${problems.size} problem(s) over ${measured} text box(es)\n`);
-    for (const [message, where] of [...problems].sort(([a], [b]) => a.localeCompare(b))) {
+    for (const [message, where] of [...problems].sort(([a], [b]) => byCodeUnit(a, b))) {
       console.error(`  ${message}\n      seen in: ${[...where].sort().join(', ')}`);
     }
     process.exit(1);
