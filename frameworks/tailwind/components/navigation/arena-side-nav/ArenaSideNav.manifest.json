@@ -36,7 +36,7 @@
   "variants": {
     "current": {
       "true": {
-        "item": "bg-primary/14 text-ink-body/(--level-ink-body) font-control",
+        "item": "bg-selected/(--level-accent-soft-primary) text-ink-selected font-control",
         "badge": "bg-primary-fill text-primary-content"
       },
       "false": {

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { readFileSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { readJson } from '../../utils/read-file.ts';
@@ -245,4 +245,9 @@ test('an entry answering the danger fill with transparent clears the floor', () 
 test('an empty catalogue is a failure rather than a clean pass', () => {
   assert.equal(zeroScanProblems([]).length, 1);
   assert.deepEqual(zeroScanProblems(['a-register']), []);
+});
+
+test('document-workspace paints no tab state in plugin.css', () => {
+  const css = readFileSync(join(repoRoot, CATALOGUE, 'document-workspace', 'plugin.css'), 'utf8');
+  assert.doesNotMatch(css, /aria-selected/);
 });

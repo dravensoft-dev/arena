@@ -59,7 +59,7 @@
       "disabled": false,
       "destructive": false,
       "class": {
-        "item": "cursor-pointer text-ink-body/(--level-ink-body) hover:bg-primary/14"
+        "item": "cursor-pointer text-ink-body/(--level-ink-body) hover:bg-hover"
       }
     }
   ],

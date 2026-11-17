@@ -456,6 +456,14 @@
     "$type": "color",
     "$value": "{color.base-content}"
   },
+  "edge-tab-selected": {
+    "$type": "color",
+    "$value": "{ink-heading}"
+  },
+  "ink-selected": {
+    "$type": "color",
+    "$value": "{ink-heading}"
+  },
   "ink-body": {
     "$type": "color",
     "$value": "{color.base-content}"

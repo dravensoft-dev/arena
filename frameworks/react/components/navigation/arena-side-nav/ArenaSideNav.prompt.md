@@ -43,7 +43,7 @@ There is no item datum to carry: you wrote the element, so you already hold
 everything on it. An item with `href` splits its activations. The plain one is reported through `onNav`, so routing from there does not race the browser. The rest keep working for a consumer who wires no handler.
 
 An item with `href` renders an `<a>`; without one it renders a `<button>`. The active
-item takes a primary wash behind the body ink at the control weight; the rest are
+item takes the selected wash in the selected ink at the control weight; the rest are
 transparent, in the muted ink. Both read `--dz-text`, so the nav re-densifies
 inside `.arena-compact`.
 

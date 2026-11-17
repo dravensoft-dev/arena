@@ -588,11 +588,11 @@ slot is only a safe place for a modifier every variant branch is willing to lose
 
 ## Two classes at equal specificity are ordered alphabetically, not by manifest order
 
-Tailwind emits same-specificity utilities sorted by value inside each property bucket, so
-`bg-transparent` always compiles after `bg-primary/14`, whatever order the manifest writes them
-in. When a base slot and a modifier both set one property, the alphabetically-later value wins,
-which is arbitrary with respect to intent. Reordering the class string does nothing, because this
-is the *compiled stylesheet's* order. A property a modifier overrides does not belong on the base
+Tailwind sorts same-specificity utilities by value inside each property bucket, so
+`bg-transparent` compiles after `bg-selected/(--level-accent-soft-primary)`, whatever order the manifest writes them.
+When a base slot and a modifier both set one property, the alphabetically-later value wins,
+which is arbitrary with respect to intent. Reordering the class string does nothing: this is
+the *compiled stylesheet's* order. A property a modifier overrides does not belong on the base
 slot at all: put it in every branch, so the base only carries what no branch touches.
 
 A `variants` block does not carry this risk: `classesFor`

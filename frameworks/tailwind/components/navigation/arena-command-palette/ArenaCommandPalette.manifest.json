@@ -47,7 +47,7 @@
     },
     "active": {
       "true": {
-        "row": "bg-primary/14 text-ink-body/(--level-ink-body)",
+        "row": "bg-selected/(--level-accent-soft-primary) text-ink-selected",
         "rowLabel": "font-control"
       },
       "false": {

@@ -49,6 +49,13 @@ test('every claim names a manifest that exists, so a renamed component fails her
   }
 });
 
+test('a pressed icon button keeps its wash under the pointer', () => {
+  const pressed = resolve('ArenaIconButton', { pressed: true }, 'root');
+  assert.deepEqual(pressed.filter((c) => c.startsWith('hover:bg-')), []);
+  const unpressed = resolve('ArenaIconButton', { pressed: false }, 'root');
+  assert.ok(unpressed.some((c) => c.startsWith('hover:bg-')), 'an unpressed control keeps its emphasis hover');
+});
+
 test('every claim carries a reason, because one that cannot be judged stale is not a claim', () => {
   for (const [component, entries] of Object.entries(CLAIMS) as [string, Claim[]][]) {
     assert.ok(entries.length > 0, `${component} carries an empty claim list`);
@@ -370,6 +377,7 @@ export const CLAIMS = {
     { slot: 'divider', has: ['w-px'], why: 'the divider uses the one-pixel utility rather than a border-width token, since it is not a border' },
   ],
   ArenaCommandPalette: [
+    { chosen: { active: true }, slot: 'row', has: ['bg-selected/(--level-accent-soft-primary)', 'text-ink-selected'], hasNot: ['bg-primary/14'], why: 'the cursor row is washed by the selected role, so a skin that answers the wash moves it' },
     { chosen: { open: true }, slot: 'root', has: ['flex'], why: 'the root carries a display utility in its own base string, independent of the open variant' },
   ],
   ArenaConfirmDialog: [
@@ -495,7 +503,7 @@ export const CLAIMS = {
     { slot: 'announcement', has: ['sr-only'], why: 'the count is spoken and never seen' },
     { slot: 'panel', has: ['z-dropdown', 'max-h-80', 'overflow-auto'], hasNot: ['absolute', 'fixed', 'relative'], why: 'the panel scrolls its own rows and leaves its position to the layer' },
     { slot: 'option', has: ['min-h-row-min', 'px-row-floating-x', 'py-row-floating-y'], why: 'a row of a floating list spends the floating row roles, and its floor reads the density' },
-    { chosen: { active: true }, slot: 'option', has: ['bg-primary/14'], why: 'the cursor row is washed, and a chosen row carries a glyph, so neither is told by colour alone' },
+    { chosen: { active: true }, slot: 'option', has: ['bg-selected/(--level-accent-soft-primary)', 'text-ink-selected'], hasNot: ['bg-primary/14'], why: 'the cursor row is washed, and a chosen row carries a glyph, so neither is told by colour alone' },
     { chosen: { blocked: true }, slot: 'option', has: ['opacity-[var(--fade-disabled)]', 'cursor-not-allowed'], hasNot: ['cursor-pointer', 'opacity-60', 'text-ink-muted/(--level-ink-muted)'], why: 'a row the cap blocks dims and refuses the pointer, and only an available row offers it' },
     { slot: 'clear', has: ['min-h-ctl-h-sm', 'min-w-ctl-h-sm'], why: 'the clear control is a small control box, which clears the floor of every density' },
     { slot: 'chips', has: ['flex-wrap', 'gap-inline', 'py-1'], why: 'chips wrap inside the field, keep the gap between siblings on one line and leave air above and below so a second row never touches the border' },
@@ -510,7 +518,7 @@ export const CLAIMS = {
   ArenaIconButton: [
     { chosen: { pressed: false }, slot: 'root', has: ['hover:bg-[color:var(--arena-emphasis-fill-hover,var(--emphasis-ghost-fill-hover))]'],
       why: 'the hover fill is an emphasis read, and it sits in the unpressed branch so a pressed control keeps its own wash under the pointer' },
-    { chosen: { pressed: true }, slot: 'root', has: ['bg-primary/14', 'hover:bg-primary/22'], hasNot: ['hover:bg-[color:var(--arena-emphasis-fill-hover,var(--emphasis-ghost-fill-hover))]'],
+    { chosen: { pressed: true }, slot: 'root', has: ['bg-selected/(--level-accent-soft-primary)', 'text-ink-selected', 'border-edge-selected'], hasNot: ['hover:bg-primary/22', 'bg-primary/14', 'hover:bg-[color:var(--arena-emphasis-fill-hover,var(--emphasis-ghost-fill-hover))]'],
       why: 'a pressed control is a state of the control and states its own wash over any emphasis' },
     { chosen: { showLabel: true }, slot: 'root', has: ['w-[var(--arena-fill-width,fit-content)]', 'gap-control'], why: 'showLabel opens the box out to its label through the fill channel and gives the glyph a gap; without it the control has neither' },
     { chosen: { showLabel: false }, slot: 'root', has: ['p-0', 'gap-0'], why: 'showLabel opens the box out and gives the glyph a gap; without it the control has neither' },
@@ -547,6 +555,7 @@ export const CLAIMS = {
     { slot: 'group', has: ['flex', 'flex-col', 'gap-items'], why: 'the group is a column, and it is a display utility because the host binds it' },
   ],
   ArenaMenu: [
+    { chosen: { disabled: false, destructive: false }, slot: 'item', has: ['hover:bg-hover'], hasNot: ['hover:bg-primary/14'], why: 'a plain item under the pointer reads the hover role, not the selected wash' },
     { chosen: { disabled: true }, slot: 'item', has: ['opacity-[var(--fade-disabled)]', 'cursor-not-allowed'], hasNot: ['opacity-60', 'text-ink-muted/(--level-ink-muted)'], why: 'a disabled control keeps its rest ink and fades by the role the skin answers' },
     { chosen: { destructive: true, disabled: false }, slot: 'item', has: [INK, 'hover:bg-hover'], hasNot: ['text-error'], why: HUE_WHY },
     { slot: 'root', has: ['inline-flex'], why: 'a host-bound root is never the UA-default inline box' },
@@ -595,6 +604,7 @@ export const CLAIMS = {
       why: 'the display utility stays on the base, since the host binds the root slot and a placement class writes no display' },
   ],
   ArenaSideNav: [
+    { chosen: { current: true }, slot: 'item', has: ['bg-selected/(--level-accent-soft-primary)', 'text-ink-selected'], hasNot: ['bg-primary/14'], why: 'the current page is a wash in the selected ink, read from the roles' },
     ...['item', 'trigger'].map((slot) => ({ slot, has: ['flex', 'items-center', 'gap-row', 'px-nav-row-x', 'py-nav-row-y', 'rounded-control'],
       why: 'the trigger matches the item metrics, or a collapsible header will not line up with its siblings' })),
     { slot: 'root', has: ['flex', 'flex-col'], why: 'the rail is a column, and it is a display utility because the host binds it' },
@@ -612,11 +622,12 @@ export const CLAIMS = {
     { chosen: { disabled: true }, slot: 'chip', has: ['opacity-[var(--fade-disabled)]', 'cursor-not-allowed'], hasNot: ['opacity-50'], why: 'a disabled control keeps its rest ink and fades by the role the skin answers' },
   ],
   ArenaTreeView: [
+    { chosen: { selected: true }, slot: 'item', has: ['bg-selected/(--level-accent-soft-primary)', 'text-ink-selected'], hasNot: ['bg-primary/14'], why: 'the selected row is a wash in the selected ink, read from the roles' },
     { chosen: { disabled: true }, slot: 'item', has: ['opacity-[var(--fade-disabled)]', 'cursor-not-allowed'], hasNot: ['text-ink-muted/40'], why: 'a disabled control keeps its rest ink and fades by the role the skin answers' },
   ],
   ArenaTabs: [
     { slot: 'root', has: ['flex', 'border-b-[length:var(--bw-separator)]', 'border-edge-separator'], why: 'the tablist sits on a hairline rule that the selected tab overdraws' },
-    { chosen: { selected: true }, slot: 'tab', has: ['font-control', 'text-ink-body', 'shadow-[inset_0_calc(var(--bw-strong)*-1)_0_var(--edge-tab-selected)]'], why: 'the selected tab is marked by an inset rule in the colour role edge-tab-selected rather than a fill' },
+    { chosen: { selected: true }, slot: 'tab', has: ['font-control', 'text-ink-selected', 'shadow-[inset_0_calc(var(--bw-strong)*-1)_0_var(--edge-tab-selected)]'], why: 'the selected tab is marked by an inset rule in the colour role edge-tab-selected rather than a fill' },
     { chosen: { selected: false }, slot: 'tab', has: ['font-medium', 'text-ink-muted/(--level-ink-muted)', 'shadow-none'], why: 'an unselected tab is muted and carries no underline' },
     { slot: 'tab', has: ['focus-visible:outline-none'], why: 'a directly focused slot removes the browser\'s own outline or that is what a keyboard user sees instead of Arena\'s' },
     {
