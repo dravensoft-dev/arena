@@ -86,7 +86,7 @@ export function ArenaSparkline({ className,
   const floor = box.y + box.h;
   const yScale = arenaLinearScale(domain.min, domain.max, floor, box.y);
   const xScale = arenaPointScale(n, box.x, box.w);
-  const color = arenaSeriesColors(one, 1, arenaCatRotate(colorStart, 0), 'ArenaSparkline', colorStart)[0] as string;
+  const color = arenaSeriesColors(one, 1, arenaCatRotate(colorStart, 0), colorStart)[0] as string;
   const table = arenaChartTable(locale.chartTablePoint, [one], labels, fmt);
   const points = one.values.map((value, i) => ({ x: arenaPointAt(xScale, i), y: arenaScaleValue(yScale, value) }));
   const last = points[n - 1];

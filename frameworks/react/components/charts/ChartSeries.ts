@@ -24,7 +24,7 @@ export interface ArenaStackSegment {
 }
 
 export function arenaSeriesColors(
-  series: ArenaSeries, count: number, fallbackSlot: number, chart: string, start = 1,
+  series: ArenaSeries, count: number, fallbackSlot: number, start = 1,
 ): string[] {
   const { colorId, colorIds, tone } = series;
   if (tone) {
@@ -172,7 +172,7 @@ export function arenaGaugeTicks(bands: readonly ArenaGaugeBand[], min: number, m
 }
 
 export function arenaGaugeColor(
-  bands: readonly ArenaGaugeBand[], index: number, colorId: number | undefined, chart: string, start = 1,
+  bands: readonly ArenaGaugeBand[], index: number, colorId: number | undefined, start = 1,
 ): string {
   if (bands.length === 0) return arenaCatColor(colorId ?? start);
   const band = bands[index];
@@ -348,7 +348,7 @@ export function arenaPointSeriesDomain(series: readonly ArenaPointSeries[], coun
   return { x: arenaNiceDomain(minX, maxX, count), y: arenaNiceDomain(minY, maxY, count) };
 }
 
-export function arenaPointSeriesColor(series: ArenaPointSeries, fallbackSlot: number, chart: string): string {
+export function arenaPointSeriesColor(series: ArenaPointSeries, fallbackSlot: number): string {
   const { colorId, tone } = series;
   if (tone) return arenaToneColor(tone) || arenaCatColor(1);
   return arenaCatColor(colorId ?? fallbackSlot);

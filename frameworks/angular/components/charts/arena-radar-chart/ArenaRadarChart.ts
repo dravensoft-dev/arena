@@ -194,7 +194,7 @@ export class ArenaRadarChart {
   });
 
   protected readonly colors = computed(
-    () => this.series().map((one, index) => arenaSeriesColors(one, 1, arenaCatRotate(this.colorStart(), index), 'ArenaRadarChart', this.colorStart())[0] as string),
+    () => this.series().map((one, index) => arenaSeriesColors(one, 1, arenaCatRotate(this.colorStart(), index), this.colorStart())[0] as string),
   );
 
   protected readonly rings = computed(() => {

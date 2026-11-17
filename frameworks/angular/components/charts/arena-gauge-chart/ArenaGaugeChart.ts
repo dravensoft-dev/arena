@@ -148,7 +148,7 @@ export class ArenaGaugeChart {
   protected readonly wordY = computed(() => arenaGaugeWordY(this.centreY(), this.room));
 
   private readonly index = computed(() => arenaGaugeBand(this.sorted(), this.value()));
-  private readonly color = computed(() => arenaGaugeColor(this.sorted(), this.index(), this.colorId(), 'ArenaGaugeChart', this.colorStart()));
+  private readonly color = computed(() => arenaGaugeColor(this.sorted(), this.index(), this.colorId(), this.colorStart()));
   private readonly fraction = computed(() => arenaGaugeFraction(this.value(), this.min(), this.max()));
   protected readonly word = computed(() => this.sorted()[this.index()]?.label);
   protected readonly reads = computed(() => Number.isFinite(this.value()));

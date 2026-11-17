@@ -248,7 +248,7 @@ export class ArenaBarChart {
             path: arenaBarPath(arenaBandMark(bands, index), bands.band,
               arenaScaleValue(yScale, segment.to), arenaScaleValue(yScale, segment.from),
               segment.outer ? BAR_RADIUS : 0),
-            color: arenaSeriesColors(one, this.points(), arenaCatRotate(this.colorStart(), segment.seriesIndex), 'ArenaBarChart', this.colorStart())[index],
+            color: arenaSeriesColors(one, this.points(), arenaCatRotate(this.colorStart(), segment.seriesIndex), this.colorStart())[index],
             value: write(one.values[index] as number),
           };
         })
@@ -262,7 +262,7 @@ export class ArenaBarChart {
             y,
             name: series.length > 1 ? `${one.label}: ` : '',
             path: arenaBarPath(sub.x, sub.width, y, zeroY, BAR_RADIUS),
-            color: arenaSeriesColors(one, this.points(), arenaCatRotate(this.colorStart(), s), 'ArenaBarChart', this.colorStart())[index],
+            color: arenaSeriesColors(one, this.points(), arenaCatRotate(this.colorStart(), s), this.colorStart())[index],
             value: write(value),
           }];
         }),

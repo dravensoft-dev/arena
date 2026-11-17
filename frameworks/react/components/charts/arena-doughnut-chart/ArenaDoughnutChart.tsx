@@ -71,7 +71,7 @@ export function ArenaDoughnutChart({ className,
   const n = values.length;
   const fmt = arenaValueWriter({ prefix: valuePrefix, suffix: valueSuffix, format: valueFormat });
   const tonedSeries = only.tone ? only : { ...only, colorIds: only.colorIds ?? Array.from({ length: n }, (_, i) => arenaCatRotate(colorStart, i)) };
-  const colors = arenaSeriesColors(tonedSeries, n, arenaCatRotate(colorStart, 0), 'ArenaDoughnutChart', colorStart);
+  const colors = arenaSeriesColors(tonedSeries, n, arenaCatRotate(colorStart, 0), colorStart);
 
   const stacked = arenaLegendStacked(legendLayout, width);
   const styles = arenaDoughnutChartStyles({ stacked });

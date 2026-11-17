@@ -230,7 +230,7 @@ export class ArenaPyramidChart {
           name: `${one.label}: `,
           path: arenaBarPathH(arenaBandMark(bands, index), bands.band,
             arenaScaleValue(xScale, signed), zeroX, BAR_RADIUS),
-          color: arenaSeriesColors(one, this.points(), arenaCatRotate(this.colorStart(), s), 'ArenaPyramidChart', this.colorStart())[index],
+          color: arenaSeriesColors(one, this.points(), arenaCatRotate(this.colorStart(), s), this.colorStart())[index],
           value: write(value),
         }];
       }),

@@ -4,6 +4,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import React from 'react';
 import { ArenaBarChart } from './ArenaBarChart.tsx';
 import { arenaPointSeriesColor, arenaSeriesColors } from '../ChartSeries.ts';
+import { arenaToneColor } from '../../../DataVisuals.ts';
 import { forgetArenaWarnings } from '../../../WarnOnce.ts';
 
 const LABELS = ['Mon', 'Tue', 'Wed'];
@@ -142,8 +143,8 @@ test('a series with tone and colorId takes the tone colour and warns nothing', (
   console.warn = (...args: unknown[]) => { warnings.push(args.map(String).join(' ')); };
   try {
     renderToStaticMarkup(<ArenaBarChart label="Deploys" labels={LABELS} series={[{ label: 'Deploys', values: VALUES, tone: 'danger', colorId: 3 }]} />);
-    arenaSeriesColors({ label: 'Trend', values: VALUES, tone: 'danger', colorId: 3 }, 1, 1, 'ArenaSparkline');
-    arenaPointSeriesColor({ label: 'Cloud', x: [], y: [], tone: 'danger', colorId: 3 }, 1, 'ArenaScatterChart');
+    assert.deepEqual(arenaSeriesColors({ label: 'Trend', values: VALUES, tone: 'danger', colorId: 3 }, 1, 1), [arenaToneColor('danger')]);
+    assert.equal(arenaPointSeriesColor({ label: 'Cloud', x: [], y: [], tone: 'danger', colorId: 3 }, 1), arenaToneColor('danger'));
   } finally { console.warn = original; }
   forgetArenaWarnings();
   assert.deepEqual(warnings, []);

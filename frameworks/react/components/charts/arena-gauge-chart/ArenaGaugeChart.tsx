@@ -76,7 +76,7 @@ export function ArenaGaugeChart({ className,
   const sorted = arenaGaugeBands(bands ?? [], 'ArenaGaugeChart');
   const ticks = arenaGaugeTicks(sorted, min, max, 'ArenaGaugeChart');
   const index = arenaGaugeBand(sorted, value);
-  const color = arenaGaugeColor(sorted, index, colorId, 'ArenaGaugeChart', colorStart);
+  const color = arenaGaugeColor(sorted, index, colorId, colorStart);
   const fraction = arenaGaugeFraction(value, min, max);
   const word = sorted[index]?.label;
   const name = arenaPhrase(locale.gaugeChartName, { label });

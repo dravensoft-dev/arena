@@ -97,7 +97,7 @@ export function ArenaScatterChart({ className,
   const xAxis = arenaAxisModelX(xScale, domains.x, fmt);
   const yAxis = arenaAxisModel(yScale, domains.y, fmt);
 
-  const colors = series.map((one, s) => arenaPointSeriesColor(one, arenaCatRotate(colorStart, s), 'ArenaScatterChart'));
+  const colors = series.map((one, s) => arenaPointSeriesColor(one, arenaCatRotate(colorStart, s)));
   const table = arenaPointTable(locale.chartTableSeries, series, xLabel, yLabel, sizeLabel ?? '', fmt);
   const n = arenaPointCount(series);
 

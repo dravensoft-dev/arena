@@ -203,7 +203,7 @@ export class ArenaFunnelChart {
 
   private readonly bands = computed(() => arenaFunnelBands(this.points(), this.box().y, this.box().h));
 
-  private readonly colors = computed(() => arenaSeriesColors(this.one(), this.points(), arenaCatRotate(this.colorStart(), 0), 'ArenaFunnelChart', this.colorStart()));
+  private readonly colors = computed(() => arenaSeriesColors(this.one(), this.points(), arenaCatRotate(this.colorStart(), 0), this.colorStart()));
 
   private readonly widthOf = computed(() => {
     const scale = this.scale();

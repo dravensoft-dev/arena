@@ -106,7 +106,7 @@ export function ArenaBarChart({ className,
     syncView();
   }, [hover, scrolls, bands.step, measured]);
   const axis = arenaAxisModel(yScale, domain, fmt);
-  const colors = series.map((one, s) => arenaSeriesColors(one, n, arenaCatRotate(colorStart, s), 'ArenaBarChart', colorStart));
+  const colors = series.map((one, s) => arenaSeriesColors(one, n, arenaCatRotate(colorStart, s), colorStart));
   const table = arenaChartTable(locale.chartTableCategory, series, labels, fmt);
 
   const name = arenaPhrase(locale.barChartName, { label });

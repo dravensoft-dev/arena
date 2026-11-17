@@ -89,7 +89,7 @@ export function ArenaFunnelChart({ className,
   const cx = box.x + box.w / 2;
   const scale = arenaLinearScale(0, arenaFunnelMax(values), 0, box.w);
   const bands = arenaFunnelBands(n, box.y, box.h);
-  const colors = arenaSeriesColors(one, n, arenaCatRotate(colorStart, 0), 'ArenaFunnelChart', colorStart);
+  const colors = arenaSeriesColors(one, n, arenaCatRotate(colorStart, 0), colorStart);
   const table = arenaFunnelTable(
     { stage: locale.chartTableCategory, step: locale.funnelConversionStep, total: locale.funnelConversionTotal },
     one, labels, fmt, percent, showConversion,

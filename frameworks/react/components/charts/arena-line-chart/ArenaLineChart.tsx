@@ -113,7 +113,7 @@ export function ArenaLineChart({ className,
     syncView();
   }, [hover, scrolls, xScale.step, measured]);
   const axis = arenaAxisModel(yScale, domain, fmt);
-  const colors = series.map((one, s) => arenaSeriesColors(one, 1, arenaCatRotate(colorStart, s), 'ArenaLineChart', colorStart)[0] as string);
+  const colors = series.map((one, s) => arenaSeriesColors(one, 1, arenaCatRotate(colorStart, s), colorStart)[0] as string);
   const table = arenaChartTable(locale.chartTablePoint, series, labels, fmt);
 
   const plotted = series.map(

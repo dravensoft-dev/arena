@@ -21,18 +21,18 @@ test('identity falls to the series colour, the index of colorIds, then the fallb
 });
 
 test('`colorIds` shorter than `count` falls back to the rotated position, which wraps after the last slot', () => {
-  const colours = arenaSeriesColors({ label: 'One', values: [], colorIds: [] }, 12, 1, 'ArenaLineChart', 1);
+  const colours = arenaSeriesColors({ label: 'One', values: [], colorIds: [] }, 12, 1, 1);
   assert.equal(colours[8], 'var(--color-cat-1)');
   assert.equal(colours[11], 'var(--color-cat-4)');
 });
 
 test('the colorIds fallback counts from `start`', () => {
-  assert.deepEqual(arenaSeriesColors({ label: 'One', values: [], colorIds: [5] }, 3, 1, 'ArenaLineChart', 6),
+  assert.deepEqual(arenaSeriesColors({ label: 'One', values: [], colorIds: [5] }, 3, 1, 6),
     ['var(--color-cat-5)', 'var(--color-cat-7)', 'var(--color-cat-8)']);
 });
 
 test('an explicit colorId ignores `start` and still clamps', () => {
-  assert.deepEqual(arenaSeriesColors({ label: 'One', values: [], colorId: 9 }, 1, 1, 'ArenaLineChart', 3),
+  assert.deepEqual(arenaSeriesColors({ label: 'One', values: [], colorId: 9 }, 1, 1, 3),
     [`var(--color-cat-${ARENA_CAT_SLOTS})`]);
 });
 
