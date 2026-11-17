@@ -71,12 +71,14 @@ export const OVERLAPS = new Map<string, string>(SINK_LAYERS.map((layer) =>
 
 export const SPILLS = new Map<string, string>([]);
 
-const THINNED_WHY = 'the chart keeps every stride-th tick label and measures the stride over a tick width that '
+const THINNED_WHY = 'the chart keeps every stride-th category or tick label and measures the stride over a tick width that '
   + 'now follows the text size, so the labels drawn at 16px and at 32px are different sets by design; the '
   + 'labels both sizes draw are still compared for doubling';
 
 export const THINNED = new Map<string, string>(SINK_LAYERS.flatMap((layer) =>
-  ['charts', 'default', 'complete'].map((sink) => [`${layer}/${sink}:heatmap-chart.frame>text`, THINNED_WHY] as [string, string])));
+  [['charts', 'heatmap'], ['default', 'heatmap'], ['complete', 'heatmap'], ['charts', 'line'], ['default', 'line'],
+    ['complete', 'line'], ['default', 'bar']].map(([sink, chart]) =>
+    [`${layer}/${sink}:${chart}-chart.frame>text`, THINNED_WHY] as [string, string])));
 
 export function slotOf(path: string) {
   const at = path.indexOf('#');
