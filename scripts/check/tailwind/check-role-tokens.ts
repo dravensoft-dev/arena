@@ -4,7 +4,10 @@
  * kind of a slot says which roles it may ask. Scale utilities are banned by utility name, and a
  * border width, a duration and an easing by token name. SCALE_USES records the places that
  * genuinely mean the value, one entry per case with its reason, keyed by component, slot and
- * utility, and an entry no manifest carries any more fails as stale. */
+ * utility, and an entry no manifest carries any more fails as stale. A state is never drawn with
+ * a literal either: an opacity step, an arbitrary literal opacity or a /<digits> or /[literal]
+ * alpha, with or without an important mark, on a state branch or under a state modifier (a
+ * group- or peer- form and data-[state=...] included) fails, since a state role carries the level. STATE_LITERALS ships empty. */
 
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
@@ -472,15 +475,112 @@ export function zeroManifestProblem(files: string[]) {
     : null;
 }
 
+export const STATE_VARIANTS: ReadonlySet<string> = new Set(['disabled', 'blocked', 'selected', 'current', 'pressed', 'active', 'invalid', 'state', 'checked', 'indeterminate', 'error', 'open', 'readOnly', 'dragging']);
+
+export const STATE_LITERALS = new Map<string, string>([]);
+
+const STATE_MODIFIER = /^(?:hover|active|focus|focus-visible|focus-within|disabled|enabled|checked|invalid|aria-.+)$/;
+const ARBITRARY_STATE = /(?:^|[^\w-])(?:hover|active|focus|focus-visible|focus-within|disabled|enabled|checked|invalid)(?![\w-])/;
+const ALPHA_LEVEL = String.raw`(?:\d+(?:\.\d+)?|\[[^\]]*\])`;
+const COLOUR_ALPHA = new RegExp(String.raw`^(?:bg|text|border|ring|outline|shadow|fill|stroke|decoration|divide)-.+\/(${ALPHA_LEVEL})$`);
+const LINE_HEIGHT = new RegExp(String.raw`^text-(?:xs|sm|base|lg|\d*xl)\/${ALPHA_LEVEL}$`);
+const OPACITY_STEP = /^opacity-(\d+)$/;
+const OPACITY_ARBITRARY = /^opacity-\[([^\]]*)\]$/;
+const VISIBILITY_LEVELS = new Set(['0', '1', '0%', '100%']);
+const GROUP_PEER = /^(?:group|peer)-(.+?)(?:\/[\w-]+)?$/;
+const DATA_STATE = /^(?:group-|peer-)?data-\[state=.+\]$/;
+
+function literalLevel(level: string) {
+  return !level.startsWith('[') || !/var\(|--/.test(level);
+}
+
+function splitModifiers(token: string) {
+  const parts: string[] = [];
+  let depth = 0;
+  let start = 0;
+  for (let i = 0; i < token.length; i++) {
+    const c = token[i];
+    if (c === '[' || c === '(') depth++;
+    else if (c === ']' || c === ')') depth--;
+    else if (c === ':' && depth === 0) {
+      parts.push(token.slice(start, i));
+      start = i + 1;
+    }
+  }
+  parts.push(token.slice(start));
+  return { modifiers: parts.slice(0, -1), utility: (parts.at(-1) ?? '').replace(/^!/, '').replace(/!$/, '') };
+}
+
+function isStateModifier(modifier: string) {
+  if (modifier.startsWith('[')) return ARBITRARY_STATE.test(modifier);
+  if (DATA_STATE.test(modifier)) return true;
+  const named = GROUP_PEER.exec(modifier)?.[1];
+  if (named !== undefined) return isStateModifier(named);
+  return STATE_MODIFIER.test(modifier);
+}
+
+export function stateLiteral(utility: string, inStateBranch: boolean) {
+  const { modifiers, utility: bare } = splitModifiers(utility);
+  const step = OPACITY_STEP.exec(bare) ?? OPACITY_ARBITRARY.exec(bare);
+  const alpha = COLOUR_ALPHA.exec(bare);
+  const isLiteral = step
+    ? !VISIBILITY_LEVELS.has(step[1] ?? '') && step[1] !== '100' && literalLevel(`[${step[1]}]`)
+    : alpha !== null && !LINE_HEIGHT.test(bare) && literalLevel(alpha[1] ?? '');
+  if (!isLiteral) return false;
+  return inStateBranch || modifiers.some(isStateModifier);
+}
+
+export type StateFinding = { component: string; slot: string; branch: string; utility: string };
+
+export function stateLiteralFindings(manifest: ComponentManifest, allowed: ReadonlyMap<string, string> = STATE_LITERALS): StateFinding[] {
+  const findings: StateFinding[] = [];
+  const seen = new Set<string>();
+  const walk = (slot: string, classString: unknown, branch: string, inStateBranch: boolean) => {
+    if (typeof classString !== 'string') return;
+    for (const utility of classString.split(/\s+/).filter(Boolean)) {
+      if (!stateLiteral(utility, inStateBranch)) continue;
+      const id = `${slot}|${branch}|${utility}`;
+      if (seen.has(id) || allowed.has(scaleUseKey(manifest.component, slot, utility))) continue;
+      seen.add(id);
+      findings.push({ component: manifest.component, slot, branch, utility });
+    }
+  };
+  for (const [slot, cls] of Object.entries(manifest.slots ?? {})) walk(slot, cls, 'base', false);
+  for (const [key, group] of Object.entries(manifest.variants ?? {}))
+    for (const [value, branch] of Object.entries(group ?? {}))
+      for (const [slot, cls] of Object.entries(branch ?? {})) walk(slot, cls, `${key}=${value}`, STATE_VARIANTS.has(key));
+  for (const compound of manifest.compoundVariants ?? []) {
+    const { class: classes, ...condition } = compound as { class?: Record<string, string> } & Record<string, unknown>;
+    const keys = Object.keys(condition);
+    const label = `compound[${keys.map((k) => `${k}=${String(condition[k])}`).join(',')}]`;
+    for (const [slot, cls] of Object.entries(classes ?? {})) walk(slot, cls, label, keys.some((k) => STATE_VARIANTS.has(k)));
+  }
+  return findings;
+}
+
+export function staleStateLiterals(seen: Set<string>, allowed: ReadonlyMap<string, string> = STATE_LITERALS) {
+  return [...allowed.keys()]
+    .filter((key) => !seen.has(key))
+    .map((key) => `${key} is excused in STATE_LITERALS but no manifest carries it -- drop the entry`);
+}
+
+export function stateMessage(f: StateFinding) {
+  return `${f.component}:${f.slot} (${f.branch}) draws a state with the literal ${f.utility}; read the state role the skin answers: opacity-[var(--fade-disabled)] for a disabled level, bg-selected/(--level-accent-soft-primary) for a selected wash, ring-edge-focus/(--level-accent-soft-gold) for a focus halo, or a level token`;
+}
+
 export function collect(files = manifestFiles(COMPONENTS_DIR)) {
   const findings = [];
+  const states: StateFinding[] = [];
   const seen = new Set<string>();
+  const seenStates = new Set<string>();
   for (const p of files) {
     const manifest = readJson(p);
     findings.push(...evaluateManifest(manifest));
     for (const key of seenKeys(manifest)) seen.add(key);
+    states.push(...stateLiteralFindings(manifest));
+    for (const f of stateLiteralFindings(manifest, new Map())) seenStates.add(scaleUseKey(f.component, f.slot, f.utility));
   }
-  return { findings, stale: staleAllowances(seen) };
+  return { findings, stale: [...staleAllowances(seen), ...staleStateLiterals(seenStates)], states };
 }
 
 function main() {
@@ -495,13 +595,14 @@ function main() {
     console.error(`check-role-tokens: ${zero}`);
     process.exit(1);
   }
-  const { findings, stale } = collect(files);
-  if (findings.length || stale.length) {
-    console.error(`check-role-tokens: ${findings.length} finding(s) in a role position, ${stale.length} stale allowance(s)\n`);
+  const { findings, stale, states } = collect(files);
+  if (findings.length || stale.length || states.length) {
+    console.error(`check-role-tokens: ${findings.length} finding(s) in a role position, ${states.length} state(s) drawn with a literal, ${stale.length} stale allowance(s)\n`);
     for (const f of findings) {
       if (f.why === 'missing-kind') console.error(`  ${f.role} -- every slot declares a kind (${f.why})`);
       else console.error(`  ${f.component}:${f.slot} (${f.kind}) carries ${f.utility} where a role belongs (${f.why}) -- use ${f.role}, or record the case in SCALE_USES with the reason it means the length`);
     }
+    for (const f of states) console.error(`  ${stateMessage(f)}`);
     for (const s of stale) console.error(`  ${s}`);
     process.exit(1);
   }

@@ -1,9 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
-import { scaleUsesIn, evaluateManifest, staleAllowances, zeroManifestProblem, derivedSetsProblem, padStems, gapRoles, SCALE_USES } from './check-role-tokens.ts';
+import { scaleUsesIn, evaluateManifest, staleAllowances, zeroManifestProblem, derivedSetsProblem, padStems, gapRoles, SCALE_USES, STATE_LITERALS, stateLiteral, stateLiteralFindings } from './check-role-tokens.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
+import { manifestFiles } from '../../lib/tailwind/tailwind-compile.ts';
 
 test('a radius scale step in a class string is reported', () => {
   assert.deepEqual(scaleUsesIn('bg-neutral rounded-lg overflow-hidden'), ['rounded-lg']);
@@ -273,4 +274,89 @@ test('a reason whose figure drifts from the default plugin fails, and a role wit
   assert.match(problems[0] ?? '', /pad-row-y answers 11px/);
   assert.equal(claimProblems([{ role: 'pad-nowhere', px: 4 }], defaultTokens(), spacing()).length, 1);
   assert.deepEqual(claimProblems(answerClaims(['a slot where gap-row answers 12px']), defaultTokens(), spacing()), []);
+});
+
+const fixture = (extra: Record<string, unknown>) => ({ component: 'ArenaFixture', slots: { root: 'flex' }, kind: { root: 'none' }, ...extra }) as never;
+
+test('a literal opacity on a disabled branch is refused', () => {
+  const found = stateLiteralFindings(fixture({ variants: { disabled: { true: { root: 'opacity-50' } } } }));
+  assert.equal(found.length, 1);
+  assert.equal(found[0]?.branch, 'disabled=true');
+  assert.equal(found[0]?.utility, 'opacity-50');
+});
+
+test('a literal alpha under a state modifier is refused', () => {
+  assert.equal(stateLiteralFindings(fixture({ slots: { root: 'hover:bg-primary/22' } })).length, 1);
+  assert.equal(stateLiteralFindings(fixture({ slots: { root: 'disabled:text-ink-muted/40' } })).length, 1);
+  assert.equal(stateLiteralFindings(fixture({ slots: { root: '[&:has(~input:focus-visible)]:ring-edge-focus/16' } })).length, 1);
+});
+
+test('visibility and base alphas are not states', () => {
+  const slots = { root: 'focus:opacity-100 opacity-0 bg-overlay-media/72 text-ink-body/(--level-ink-body) [&::-webkit-calendar-picker-indicator]:opacity-60 opacity-60 text-sm/6' };
+  assert.deepEqual(stateLiteralFindings(fixture({ slots })), []);
+  assert.deepEqual(stateLiteralFindings(fixture({ variants: { disabled: { true: { root: 'opacity-[var(--fade-disabled)]' } } } })), []);
+});
+
+test('a compound variant with a state key is a state branch', () => {
+  const found = stateLiteralFindings(fixture({ compoundVariants: [{ disabled: true, class: { item: 'opacity-60' } }] }));
+  assert.equal(found.length, 1);
+  assert.equal(found[0]?.branch, 'compound[disabled=true]');
+  assert.deepEqual(stateLiteralFindings(fixture({ compoundVariants: [{ size: 'sm', class: { item: 'opacity-60' } }] })), []);
+});
+
+test('stateLiteral judges the utility alone and the branch it sits in', () => {
+  assert.equal(stateLiteral('opacity-50', true), true);
+  assert.equal(stateLiteral('opacity-50', false), false);
+  assert.equal(stateLiteral('hover:bg-primary/22', false), true);
+  assert.equal(stateLiteral('aria-disabled:opacity-45', false), true);
+  assert.equal(stateLiteral('opacity-100', true), false);
+});
+
+test('an arbitrary literal opacity or alpha is a literal, a var level is not', () => {
+  for (const u of ['opacity-[.5]', 'opacity-[0.5]', 'opacity-[50%]', 'bg-x/[0.4]', 'bg-x/[40%]'])
+    assert.equal(stateLiteral(u, true), true, u);
+  for (const u of ['opacity-[var(--fade-disabled)]', 'opacity-(--fade-disabled)', 'bg-x/[var(--lvl)]', 'bg-x/(--lvl)'])
+    assert.equal(stateLiteral(u, true), false, u);
+});
+
+test('a suffix important does not hide a literal', () => {
+  assert.equal(stateLiteral('opacity-50!', true), true);
+  assert.equal(stateLiteral('bg-x/20!', true), true);
+  assert.equal(stateLiteral('!opacity-50', true), true);
+  assert.equal(stateLiteral('opacity-100!', true), false);
+  assert.equal(stateLiteral('opacity-50!', false), false);
+});
+
+test('group and peer modifiers naming a state are state modifiers', () => {
+  for (const u of ['group-hover:opacity-50', 'peer-checked:opacity-50', 'group-aria-selected:bg-x/20', 'group-hover/name:opacity-50', 'peer-disabled/field:opacity-40'])
+    assert.equal(stateLiteral(u, false), true, u);
+  assert.equal(stateLiteral('group-first:opacity-50', false), false);
+  assert.equal(stateLiteral('group:opacity-50', false), false);
+});
+
+test('a data-state variant is a state modifier', () => {
+  assert.equal(stateLiteral('data-[state=open]:opacity-50', false), true);
+  assert.equal(stateLiteral('data-[size=sm]:opacity-50', false), false);
+});
+
+test('the whole state vocabulary is a state branch', () => {
+  for (const key of ['checked', 'indeterminate', 'error', 'open', 'readOnly', 'dragging'])
+    assert.equal(stateLiteralFindings(fixture({ variants: { [key]: { true: { root: 'opacity-50' } } } })).length, 1, key);
+});
+
+test('an allowance in STATE_LITERALS suppresses one finding', () => {
+  const m = fixture({ variants: { disabled: { true: { root: 'opacity-50' } } } });
+  assert.deepEqual(stateLiteralFindings(m, new Map([['ArenaFixture:root:opacity-50', 'a reason']])), []);
+});
+
+test('the shipped manifests draw no state with a literal', () => {
+  const found = [];
+  const seen = new Set<string>();
+  for (const p of manifestFiles(join(repoRoot, 'frameworks/tailwind/components'))) {
+    const manifest = readJson(p);
+    found.push(...stateLiteralFindings(manifest));
+    for (const f of stateLiteralFindings(manifest, new Map())) seen.add(`${f.component}:${f.slot}:${f.utility}`);
+  }
+  assert.deepEqual(found, []);
+  assert.deepEqual([...STATE_LITERALS.keys()].filter((k) => !seen.has(k)), []);
 });

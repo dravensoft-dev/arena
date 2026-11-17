@@ -431,7 +431,7 @@ export const ROUTES: Route[] = [
       + 'then the one layer that owns an appearance decision for both frameworks at once',
     entry: 'contributor',
     stops: ['frameworks/tailwind/AGENTS.md'],
-    budget: 49_700,
+    budget: 51_100,
     reason:
       'the row a contributor takes when a shape, a colour or a state is wrong and the API is not. '
       + 'The file a corner radius actually moves in is a style plugin under plugin-style-store, '
@@ -439,7 +439,9 @@ export const ROUTES: Route[] = [
       + 'on the way saying so. One stop, and it is the largest single page on the contributor branch, '
       + 'so what this budget holds down is the document most likely to grow by a hazard nobody routes '
       + 'to and everybody meets. It states the axis, keyed and transparent rules of the vocabulary. '
-      + 'The focus rows name the edge-focus and bw-focus roles and the grep that finds each ring.',
+      + 'The focus rows name the edge-focus and bw-focus roles and the grep that finds each ring. '
+      + 'It states the rule that check:roles refuses a state drawn with a literal level, and the whole '
+      + 'vocabulary of states, modifiers and literal forms that rule covers.',
   },
   {
     name: 'contributor-behaviour',

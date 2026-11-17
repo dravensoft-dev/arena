@@ -301,6 +301,15 @@ mean the length: a placeholder faking the shape of what it stands in for, a tool
 follows its label, a `calc()` adding a hairline up rather than drawing one. Each entry names one
 case and says why, and an entry no manifest carries fails the gate as a stale allowance.
 
+**`check:roles` also refuses a state drawn with a literal level.** An `opacity-<n>` (other than 0
+and 100, which are visibility) or a `/<digits>` alpha on a state branch (a `disabled`, `blocked`,
+`selected`, `current`, `pressed`, `active`, `invalid` or `state` variant, or a compound variant
+keyed by one) or under a state modifier (`hover:`, `focus:`, `disabled:`, `aria-*:`) fails, because
+the state roles carry the level a style plugin can answer: `opacity-[var(--fade-disabled)]`,
+`bg-selected/(--level-accent-soft-primary)`, `ring-edge-focus/(--level-accent-soft-gold)`. A literal
+alpha on a base slot is not a state. `STATE_LITERALS` in the same file records an exception with its
+reason, ships empty, and fails as stale like `SCALE_USES`.
+
 ## A slot paints the expressive properties even when they are neutral
 
 A token re-values a declaration a slot already makes and cannot add one. A card that declared no
