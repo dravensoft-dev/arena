@@ -44,8 +44,6 @@ export const INTERNAL = new Map<string, string>([
   ['forgetArenaWarnings', 'the test seam that clears what arenaWarnOnce has already said, so a '
     + 'suite can assert the same warning twice. It exists for Arena\'s own suites'],
   ['forgetArenaBreakpoints', 'the same shape for the breakpoint cache, and the same reason'],
-  ['arenaReadBreakpoint', 'reads one breakpoint out of the compiled sheet for the hooks above it. '
-    + 'A consumer asks the hook rather than the sheet'],
   ['ARENA_PAD', CHART_GEOMETRY],
   ['arenaPad', CHART_GEOMETRY],
   ['ARENA_TEXT_ROOM', CHART_GEOMETRY],
