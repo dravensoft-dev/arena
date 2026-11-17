@@ -455,14 +455,17 @@ test('a catalogue role carries its type, its closed set, its kernel default and 
   assert.deepEqual(catalogueRole({ $type: 'dimension', $description: 'x' }), { type: 'dimension' });
   assert.deepEqual(catalogueRole({
     $type: 'dimension', $description: 'x',
-    $extensions: { 'com.dravensoft.arena': { audience: 'markup', task: 'edges', userScale: 'fixed' } },
-  }), { type: 'dimension', audience: 'markup', task: 'edges', userScale: 'fixed' });
+    $extensions: { 'com.dravensoft.arena': { audience: 'markup', task: 'edges', userScale: 'fixed',
+      question: 'How wide is the rule?', combines: [{ with: 'edge-surface', as: 'width' }] } },
+  }), { type: 'dimension', audience: 'markup', task: 'edges', userScale: 'fixed',
+    question: 'How wide is the rule?', combines: [{ with: 'edge-surface', as: 'width' }] });
   assert.deepEqual(Object.keys(catalogueRole({
     $type: 'keyword',
     $extensions: { 'com.dravensoft.arena': {
       default: '{tt-label}', values: ['none'], cssUnit: 'px', audience: 'markup', task: 'states', userScale: 'follows',
+      question: 'Which case is the label?', combines: [{ with: 'ink-body', as: 'level' }],
     } },
-  })), ['type', 'values', 'default', 'audience', 'task', 'userScale'],
+  })), ['type', 'values', 'default', 'audience', 'task', 'userScale', 'question', 'combines'],
   'type, values and default keep the order the catalogue file is written in, then the metadata follows; cssUnit stays out');
 });
 

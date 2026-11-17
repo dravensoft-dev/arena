@@ -7,9 +7,9 @@
  * role's own type, so a root plugin silent on the role follows a decision somebody already made.
  * ROSTER is written once from roles.json and never grows: a role outside it carries a default,
  * which is what lets a minor add a role without stopping a build whose root plugin is its own.
- * Every role also declares its audience, task and userScale, each from a closed set. */
+ * Every role also declares audience, task and userScale, asks one question and may name its pairs. */
 
-import { readdirSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { readJson } from '../../utils/read-file.ts';
@@ -26,7 +26,7 @@ export const ROSTER = 'scripts/check/core/roles-without-default.json';
 
 export const node = {
   name: 'check:role-contract',
-  reads: [ROLES, 'contracts/design/*.json', ROSTER],
+  reads: [ROLES, 'contracts/design/*.json', 'contracts/design/colors.css', ROSTER],
   writes: [],
   feeds: [],
 };
@@ -35,7 +35,7 @@ type Role = {
   $type?: string;
   $value?: unknown;
   $description?: string;
-  $extensions?: Record<string, { values?: unknown; default?: unknown; audience?: unknown; task?: unknown; userScale?: unknown }>;
+  $extensions?: Record<string, { values?: unknown; default?: unknown; audience?: unknown; task?: unknown; userScale?: unknown; question?: unknown; combines?: unknown }>;
 };
 
 export const AUDIENCES = ['markup', 'component'] as const;
@@ -208,6 +208,66 @@ export function metadataProblems(roles: Record<string, Role>) {
   return problems;
 }
 
+export const COMBINE_AS = ['level', 'width', 'density'] as const;
+
+export const QUESTION_MAX = 140;
+
+export const SIZE_QUESTION_MAX = 100;
+
+export function levelNames(root = repoRoot) {
+  const css = readFileSync(join(root, 'contracts', 'design', 'colors.css'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+  return new Set([...css.matchAll(/--(level-[a-z0-9-]+)\s*:/g)].map(([, name = '']) => name));
+}
+
+export function questionProblems(roles: Record<string, Role>) {
+  const problems: string[] = [];
+  const asked = new Map<string, string>();
+  for (const [name, role] of Object.entries(roles)) {
+    const question = role.$extensions?.[ARENA_EXT]?.question;
+    if (question === undefined) { problems.push(`${name} has no question. It asks what the style plugin answers, in one sentence ending in ?.`); continue; }
+    if (typeof question !== 'string') { problems.push(`${name} declares a question that is not a string.`); continue; }
+    if (/[\r\n]/.test(question)) problems.push(`${name}: its question runs over more than one line.`);
+    if (!question.endsWith('?')) problems.push(`${name}: its question must end in ?.`);
+    const cap = role.$extensions?.[ARENA_EXT]?.task === 'component-size' ? SIZE_QUESTION_MAX : QUESTION_MAX;
+    if (question.length > cap)
+      problems.push(`${name}: its question runs ${question.length} characters, over ${cap}.`);
+    if (/[|`\u2014]/.test(question))
+      problems.push(`${name}: its question holds a pipe, a backtick or an em dash, which a table cell cannot carry.`);
+    const other = asked.get(question);
+    if (other !== undefined) problems.push(`${name}: its question is the one ${other} asks, and two roles cannot ask the same.`);
+    else asked.set(question, name);
+  }
+  return problems;
+}
+
+export function combineProblems(roles: Record<string, Role>, emitted: ReadonlyMap<string, string>, levels: Set<string>) {
+  const problems: string[] = [];
+  for (const [name, role] of Object.entries(roles)) {
+    const combines = role.$extensions?.[ARENA_EXT]?.combines;
+    if (combines === undefined) continue;
+    if (!Array.isArray(combines)) { problems.push(`${name}: combines is not a list of { with, as } pairs.`); continue; }
+    const seen = new Set<string>();
+    for (const pair of combines) {
+      const keys = pair !== null && typeof pair === 'object' ? Object.keys(pair).sort().join() : '';
+      if (keys !== 'as,with') {
+        problems.push(`${name}: a combines entry is ${JSON.stringify(pair)}, and each is exactly { with, as }.`);
+        continue;
+      }
+      const { with: other, as } = pair as { with: unknown; as: unknown };
+      if (typeof as !== 'string' || !(COMBINE_AS as readonly string[]).includes(as))
+        problems.push(`${name}: combines as ${JSON.stringify(as)}, which is not one of ${COMBINE_AS.join(', ')}.`);
+      if (typeof other !== 'string') { problems.push(`${name}: combines with ${JSON.stringify(other)}, which is not a name.`); continue; }
+      if (other === name) problems.push(`${name}: combines with itself.`);
+      else if (!Object.hasOwn(roles, other) && !emitted.has(other) && !levels.has(other))
+        problems.push(`${name}: combines with ${other}, which is no role, no token the package emits and no level of colors.css.`);
+      const key = `${other}|${as}`;
+      if (seen.has(key)) problems.push(`${name}: combines with ${other} as ${String(as)} twice.`);
+      seen.add(key);
+    }
+  }
+  return problems;
+}
+
 export function zeroRoleProblems(count: number) {
   if (count > 0) return [];
   return [`found 0 roles in ${ROLES} -- an empty result set is a failure, not a clean pass; check `
@@ -218,12 +278,15 @@ export function collect(root = repoRoot) {
   const roles = readJson(join(root, ROLES)) as Record<string, Role>;
   const zero = zeroRoleProblems(Object.keys(roles).length);
   if (zero.length) return zero;
+  const emitted = emittedTypes(root);
   return [
     ...declarationProblems(roles),
-    ...defaultProblems(roles, emittedTypes(root), emittedWords(root)),
+    ...defaultProblems(roles, emitted, emittedWords(root)),
     ...singleAnswerProblems(roles),
     ...rosterProblems(roles, readJson(join(root, ROSTER))),
     ...metadataProblems(roles),
+    ...questionProblems(roles),
+    ...combineProblems(roles, emitted, levelNames(root)),
   ];
 }
 
@@ -236,7 +299,7 @@ function main() {
     process.exit(1);
   }
   console.log(`check-role-contract: ${Object.keys(roles).length} role(s) declare a type and a `
-    + 'reason, a keyword declares its set, each names its audience, task and userScale, and none of them '
+    + 'reason, a keyword declares its set, each names its audience, task, userScale and question, a pair names what it combines with, and none of them '
     + 'carries an answer');
 }
 

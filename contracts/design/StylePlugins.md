@@ -39,14 +39,14 @@ an alias naming nothing, a type that disagrees, a keyword whose target can take 
 set, a keyword token whose word the role refuses, and a chain that leads back to itself. **The
 question belongs to the kernel and the answer never does.**
 
-A role is born with `audience`, `task` and, for a dimension, `userScale`, and
+A role is born with `audience`, `task`, a `question` and, for a dimension, `userScale`, and
 `scripts/check/core/check-role-contract.ts` refuses one that lacks them. Pick `audience` by who reads it:
 `component` when only a family file, a manifest or an `--arena-*` channel references the role, `markup`
 when an adopter's own markup may. Pick `task` by what the role draws, one of the eight words listed under
 `Role metadata` in [`TokenTypes.md`](./TokenTypes.md). Pick `userScale` by what the role answers: `scales`
 when it grows with the reader's text setting, as a font size does (the font size steps are the example),
 `follows` when it is a multiplier of a size that scales and so needs no transform of its own, `fixed` when
-it stays put while the box around it grows. A plugin alias must land on a token of the same axis, which
+it stays put while the box around it grows. Pick `question` as what the style plugin answers for the role, in the reader's words, and add `combines` where the role is read with another value. A plugin alias must land on a token of the same axis, which
 `check:user-scale` holds.
 
 The scales stay, and they stay with values, because a manifest never names one. They reach a page

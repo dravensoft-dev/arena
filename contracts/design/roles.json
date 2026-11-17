@@ -6,7 +6,8 @@
       "com.dravensoft.arena": {
         "audience": "markup",
         "task": "edges",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How round is the corner of a card, panel, dialog or table frame?"
       }
     }
   },
@@ -17,7 +18,8 @@
       "com.dravensoft.arena": {
         "audience": "markup",
         "task": "edges",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How round is the corner of a menu, toast, alert or bulk action bar floating over the page?"
       }
     }
   },
@@ -28,7 +30,8 @@
       "com.dravensoft.arena": {
         "audience": "markup",
         "task": "edges",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How round is the corner of a button, menu item or navigation row?"
       }
     }
   },
@@ -39,7 +42,8 @@
       "com.dravensoft.arena": {
         "audience": "markup",
         "task": "edges",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How round is the corner of a small control such as a checkbox box or a segment?"
       }
     }
   },
@@ -50,7 +54,8 @@
       "com.dravensoft.arena": {
         "audience": "markup",
         "task": "edges",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How round is the corner of an input, select or textarea?"
       }
     }
   },
@@ -61,7 +66,8 @@
       "com.dravensoft.arena": {
         "audience": "markup",
         "task": "edges",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How round is the corner of a tag, badge, keyboard cap or inline code chip?"
       }
     }
   },
@@ -72,7 +78,8 @@
       "com.dravensoft.arena": {
         "audience": "markup",
         "task": "edges",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How round is the corner of the frame an image or video is clipped to?"
       }
     }
   },
@@ -82,7 +89,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "space-and-layout"
+        "task": "space-and-layout",
+        "question": "What width to height ratio does a media frame take?"
       }
     }
   },
@@ -99,7 +107,8 @@
           "scale-down"
         ],
         "audience": "markup",
-        "task": "space-and-layout"
+        "task": "space-and-layout",
+        "question": "How does an image fill the edges of its media frame?"
       }
     }
   },
@@ -109,7 +118,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "surfaces-and-text"
+        "task": "surfaces-and-text",
+        "question": "What colour wash sits under a caption laid over an image?"
       }
     }
   },
@@ -119,7 +129,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "type"
+        "task": "type",
+        "question": "How heavy is the type of a heading in the display face?"
       }
     }
   },
@@ -129,7 +140,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "type"
+        "task": "type",
+        "question": "How widely are the letters of a heading spaced?"
       }
     }
   },
@@ -139,7 +151,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "type"
+        "task": "type",
+        "question": "How much leading does body text people read have?"
       }
     }
   },
@@ -149,7 +162,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "type"
+        "task": "type",
+        "question": "How much leading does a heading have?"
       }
     }
   },
@@ -159,7 +173,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "type"
+        "task": "type",
+        "question": "How wide may a column of prose get, in characters?"
       }
     }
   },
@@ -169,7 +184,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "type"
+        "task": "type",
+        "question": "Which font family does a heading use?"
       }
     }
   },
@@ -179,7 +195,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "type"
+        "task": "type",
+        "question": "Which font family does an eyebrow line above a title use?"
       }
     }
   },
@@ -189,7 +206,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "type"
+        "task": "type",
+        "question": "Which font family do field labels, column headers and badges use?"
       }
     }
   },
@@ -200,7 +218,8 @@
       "com.dravensoft.arena": {
         "default": "{font.mono}",
         "audience": "component",
-        "task": "type"
+        "task": "type",
+        "question": "Which font family is a keyboard key set in?"
       }
     }
   },
@@ -210,7 +229,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "type"
+        "task": "type",
+        "question": "How heavy is the type of an eyebrow line above a title?"
       }
     }
   },
@@ -220,7 +240,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "type"
+        "task": "type",
+        "question": "How heavy is the label text on a button, tab or menu item?"
       }
     }
   },
@@ -236,7 +257,8 @@
           "capitalize"
         ],
         "audience": "markup",
-        "task": "type"
+        "task": "type",
+        "question": "Is an eyebrow line above a title set in capitals?"
       }
     }
   },
@@ -252,7 +274,8 @@
           "capitalize"
         ],
         "audience": "markup",
-        "task": "type"
+        "task": "type",
+        "question": "Are field labels, column headers and badges set in capitals?"
       }
     }
   },
@@ -261,15 +284,16 @@
     "$description": "Whether a key is set in capitals. Born at none, because a key shows its own spelling: Esc, Ctrl and the command glyph are written the way the keyboard prints them, and the capitals the label register takes would rewrite them. Read by an ArenaKbd cap and the escape cap; a trailing shortcut prints its string as written and reads no transform.\n\nIts kernel default is the keyword token case.none, so a root plugin silent on the role draws its caps as written.",
     "$extensions": {
       "com.dravensoft.arena": {
+        "default": "{case.none}",
         "values": [
           "none",
           "uppercase",
           "lowercase",
           "capitalize"
         ],
-        "default": "{case.none}",
         "audience": "component",
-        "task": "type"
+        "task": "type",
+        "question": "Is a keyboard key set in capitals?"
       }
     }
   },
@@ -279,7 +303,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "type"
+        "task": "type",
+        "question": "How widely are the letters of an eyebrow line spaced?"
       }
     }
   },
@@ -289,7 +314,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "type"
+        "task": "type",
+        "question": "How widely are the letters of a label spaced?"
       }
     }
   },
@@ -300,7 +326,8 @@
       "com.dravensoft.arena": {
         "cssUnit": "em",
         "audience": "component",
-        "task": "type"
+        "task": "type",
+        "question": "How widely are the letters of the breadcrumb trail above a page spaced?"
       }
     }
   },
@@ -311,7 +338,8 @@
       "com.dravensoft.arena": {
         "audience": "markup",
         "task": "type",
-        "userScale": "scales"
+        "userScale": "scales",
+        "question": "Which step of the type ladder does a label take?"
       }
     }
   },
@@ -322,7 +350,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "type",
-        "userScale": "scales"
+        "userScale": "scales",
+        "question": "Which step of the type ladder does the breadcrumb trail above a page take?"
       }
     }
   },
@@ -333,7 +362,8 @@
       "com.dravensoft.arena": {
         "audience": "markup",
         "task": "type",
-        "userScale": "scales"
+        "userScale": "scales",
+        "question": "Which step of the type ladder does an eyebrow take?"
       }
     }
   },
@@ -344,7 +374,8 @@
       "com.dravensoft.arena": {
         "audience": "markup",
         "task": "type",
-        "userScale": "scales"
+        "userScale": "scales",
+        "question": "Which step of the type ladder does the title of a card, panel or tile take?"
       }
     }
   },
@@ -355,7 +386,8 @@
       "com.dravensoft.arena": {
         "audience": "markup",
         "task": "type",
-        "userScale": "scales"
+        "userScale": "scales",
+        "question": "Which step of the type ladder does the heading of a page section take?"
       }
     }
   },
@@ -366,7 +398,8 @@
       "com.dravensoft.arena": {
         "audience": "markup",
         "task": "type",
-        "userScale": "scales"
+        "userScale": "scales",
+        "question": "Which step of the type ladder does the heading that names the whole page take?"
       }
     }
   },
@@ -377,7 +410,8 @@
       "com.dravensoft.arena": {
         "audience": "markup",
         "task": "type",
-        "userScale": "scales"
+        "userScale": "scales",
+        "question": "Which step of the type ladder does the headline of a landing page take?"
       }
     }
   },
@@ -388,7 +422,8 @@
       "com.dravensoft.arena": {
         "audience": "markup",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How much room does a button leave on its left and right?"
       }
     }
   },
@@ -399,7 +434,8 @@
       "com.dravensoft.arena": {
         "audience": "markup",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How much room does a button leave above and below its content?"
       }
     }
   },
@@ -410,7 +446,8 @@
       "com.dravensoft.arena": {
         "audience": "markup",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How much room sits above and below a field or skip link sized by its text?"
       }
     }
   },
@@ -421,7 +458,8 @@
       "com.dravensoft.arena": {
         "audience": "markup",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How far apart are the parts inside one control, such as an icon and its label?"
       }
     }
   },
@@ -432,7 +470,8 @@
       "com.dravensoft.arena": {
         "audience": "markup",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How far apart are siblings that sit on one line, such as toolbar actions or chips?"
       }
     }
   },
@@ -443,7 +482,8 @@
       "com.dravensoft.arena": {
         "audience": "markup",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How far apart are the members of a group, such as form fields or grid cards?"
       }
     }
   },
@@ -454,7 +494,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How narrow may a column of an auto-filling grid get before the grid drops one?"
       }
     }
   },
@@ -465,7 +506,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How narrow may a column of a grid get at the sm size?"
       }
     }
   },
@@ -476,7 +518,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How narrow may a column of a grid get at the lg size?"
       }
     }
   },
@@ -487,7 +530,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How wide may a grid run at the sm size before it centres?"
       }
     }
   },
@@ -498,7 +542,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How wide may a grid run at the md size before it centres?"
       }
     }
   },
@@ -509,7 +554,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How wide may a grid run at the lg size before it centres?"
       }
     }
   },
@@ -520,7 +566,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How narrow may a column of a board get at the sm size?"
       }
     }
   },
@@ -531,7 +578,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How narrow may a column of a board get at the md size?"
       }
     }
   },
@@ -542,7 +590,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How narrow may a column of a board get at the lg size?"
       }
     }
   },
@@ -553,7 +602,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How wide is each item of a scroller at the sm size?"
       }
     }
   },
@@ -564,7 +614,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How wide is each item of a scroller at the md size?"
       }
     }
   },
@@ -575,7 +626,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How wide is each item of a scroller at the lg size?"
       }
     }
   },
@@ -586,7 +638,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How wide is the panel of a dialog at the sm size?"
       }
     }
   },
@@ -597,7 +650,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How wide is the panel of a dialog at the md size?"
       }
     }
   },
@@ -608,7 +662,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How wide is the panel of a dialog at the lg size?"
       }
     }
   },
@@ -620,7 +675,8 @@
         "default": "{sp.5}",
         "audience": "component",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How wide is the dot of a timeline milestone?"
       }
     }
   },
@@ -631,7 +687,8 @@
       "com.dravensoft.arena": {
         "audience": "markup",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How wide does the content column of a page get?"
       }
     }
   },
@@ -642,7 +699,8 @@
       "com.dravensoft.arena": {
         "audience": "markup",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How much air sits between the content column and the viewport edge?"
       }
     }
   },
@@ -653,7 +711,8 @@
       "com.dravensoft.arena": {
         "audience": "markup",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How much room does a card or panel leave around its content?"
       }
     }
   },
@@ -664,7 +723,8 @@
       "com.dravensoft.arena": {
         "audience": "markup",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How much room does a surface leave under its head?"
       }
     }
   },
@@ -675,7 +735,8 @@
       "com.dravensoft.arena": {
         "audience": "markup",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How much room does a surface leave above its title?"
       }
     }
   },
@@ -686,7 +747,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How much room does a dialog, menu or popover give its content across?"
       }
     }
   },
@@ -697,7 +759,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How much room does a dialog, menu or popover give its content down?"
       }
     }
   },
@@ -708,7 +771,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How much room does a sheet pinned to a viewport edge give its content across?"
       }
     }
   },
@@ -719,7 +783,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How much room does an alert, toast or empty state give its message across?"
       }
     }
   },
@@ -730,7 +795,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How much room does an alert, toast or empty state give its message down?"
       }
     }
   },
@@ -741,7 +807,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How much room does a badge, chip or tag give its label across?"
       }
     }
   },
@@ -752,7 +819,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How much room does a badge, chip or tag give its label down?"
       }
     }
   },
@@ -764,7 +832,8 @@
         "default": "{sp.0-5}",
         "audience": "component",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How much room does a keyboard key cap give its label down?"
       }
     }
   },
@@ -775,7 +844,14 @@
       "com.dravensoft.arena": {
         "audience": "markup",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How much room does a list, feed or side nav row leave on its left and right?",
+        "combines": [
+          {
+            "with": "dz-row-scale-x",
+            "as": "density"
+          }
+        ]
       }
     }
   },
@@ -786,7 +862,14 @@
       "com.dravensoft.arena": {
         "audience": "markup",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How much room does a list, feed or side nav row leave above and below?",
+        "combines": [
+          {
+            "with": "dz-row-scale-y",
+            "as": "density"
+          }
+        ]
       }
     }
   },
@@ -797,7 +880,8 @@
       "com.dravensoft.arena": {
         "audience": "markup",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How far does each level of nesting indent a row?"
       }
     }
   },
@@ -808,7 +892,14 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How much room does a row of a floating list give its content across?",
+        "combines": [
+          {
+            "with": "dz-row-scale-x",
+            "as": "density"
+          }
+        ]
       }
     }
   },
@@ -819,7 +910,14 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How much room does a row of a floating list give its content down?",
+        "combines": [
+          {
+            "with": "dz-row-scale-y",
+            "as": "density"
+          }
+        ]
       }
     }
   },
@@ -831,7 +929,14 @@
         "default": "{pad-row-x}",
         "audience": "component",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How much room does a side nav row give its content across?",
+        "combines": [
+          {
+            "with": "dz-row-scale-x",
+            "as": "density"
+          }
+        ]
       }
     }
   },
@@ -843,7 +948,14 @@
         "default": "{pad-row-y}",
         "audience": "component",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How much room does a side nav row give its content down?",
+        "combines": [
+          {
+            "with": "dz-row-scale-y",
+            "as": "density"
+          }
+        ]
       }
     }
   },
@@ -855,7 +967,8 @@
         "default": "{gutter}",
         "audience": "component",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How much room does an app bar band leave at each end?"
       }
     }
   },
@@ -867,7 +980,8 @@
         "default": "{sp.3}",
         "audience": "component",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How much room does an app bar band give its content down?"
       }
     }
   },
@@ -878,7 +992,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How far apart are the parts of a marker, such as a dot and its label?"
       }
     }
   },
@@ -889,7 +1004,8 @@
       "com.dravensoft.arena": {
         "audience": "markup",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How far apart are the parts of a row, such as an icon and its text?"
       }
     }
   },
@@ -900,7 +1016,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How far apart are the icon, label and shortcut of a row in a floating list?"
       }
     }
   },
@@ -911,7 +1028,8 @@
       "com.dravensoft.arena": {
         "audience": "markup",
         "task": "space-and-layout",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How far apart are the buttons in the action row of a dialog or sheet?"
       }
     }
   },
@@ -921,7 +1039,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "surfaces-and-text"
+        "task": "surfaces-and-text",
+        "question": "What colour fills a card, panel or table frame at rest?"
       }
     }
   },
@@ -931,7 +1050,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "surfaces-and-text"
+        "task": "surfaces-and-text",
+        "question": "What colour fills a menu, dialog, toast or sheet floating over the page?"
       }
     }
   },
@@ -941,7 +1061,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "surfaces-and-text"
+        "task": "surfaces-and-text",
+        "question": "What colour fills a small readout, such as a chart tooltip, raised over content?"
       }
     }
   },
@@ -951,7 +1072,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "surfaces-and-text"
+        "task": "surfaces-and-text",
+        "question": "What colour fills the page itself behind every surface?"
       }
     }
   },
@@ -961,7 +1083,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "surfaces-and-text"
+        "task": "surfaces-and-text",
+        "question": "What colour fills a region recessed into a surface, such as a code block or preview well?"
       }
     }
   },
@@ -971,7 +1094,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "surfaces-and-text"
+        "task": "surfaces-and-text",
+        "question": "What colour fills an input, textarea or select?"
       }
     }
   },
@@ -981,7 +1105,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "states"
+        "task": "states",
+        "question": "What colour does a table row, link card or navigation row take under the pointer?"
       }
     }
   },
@@ -991,7 +1116,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "surfaces-and-text"
+        "task": "surfaces-and-text",
+        "question": "What colour is the strip a progress bar or segmented control runs along?"
       }
     }
   },
@@ -1001,7 +1127,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "surfaces-and-text"
+        "task": "surfaces-and-text",
+        "question": "What colour is the text of a heading?"
       }
     }
   },
@@ -1011,7 +1138,14 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "surfaces-and-text"
+        "task": "surfaces-and-text",
+        "question": "What colour is the text people read?",
+        "combines": [
+          {
+            "with": "level-ink-body",
+            "as": "level"
+          }
+        ]
       }
     }
   },
@@ -1021,7 +1155,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "surfaces-and-text"
+        "task": "surfaces-and-text",
+        "question": "What colour is an eyebrow line above a title?"
       }
     }
   },
@@ -1031,7 +1166,14 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "surfaces-and-text"
+        "task": "surfaces-and-text",
+        "question": "What colour is held-back text such as a caption, hint or timestamp?",
+        "combines": [
+          {
+            "with": "level-ink-muted",
+            "as": "level"
+          }
+        ]
       }
     }
   },
@@ -1042,7 +1184,14 @@
       "com.dravensoft.arena": {
         "default": "{color.base-content}",
         "audience": "markup",
-        "task": "surfaces-and-text"
+        "task": "surfaces-and-text",
+        "question": "What colour are the numbers and codes a reader scans, such as table figures?",
+        "combines": [
+          {
+            "with": "level-ink-full",
+            "as": "level"
+          }
+        ]
       }
     }
   },
@@ -1053,7 +1202,14 @@
       "com.dravensoft.arena": {
         "default": "{color.base-content}",
         "audience": "markup",
-        "task": "surfaces-and-text"
+        "task": "surfaces-and-text",
+        "question": "What colour is an action set as text, such as a toast undo?",
+        "combines": [
+          {
+            "with": "level-ink-full",
+            "as": "level"
+          }
+        ]
       }
     }
   },
@@ -1064,7 +1220,14 @@
       "com.dravensoft.arena": {
         "default": "{ink-muted}",
         "audience": "markup",
-        "task": "surfaces-and-text"
+        "task": "surfaces-and-text",
+        "question": "What colour is the text of a keyboard cap or shortcut?",
+        "combines": [
+          {
+            "with": "level-ink-muted",
+            "as": "level"
+          }
+        ]
       }
     }
   },
@@ -1075,7 +1238,14 @@
       "com.dravensoft.arena": {
         "default": "{ink-body}",
         "audience": "markup",
-        "task": "surfaces-and-text"
+        "task": "surfaces-and-text",
+        "question": "What colour is a link inside running text?",
+        "combines": [
+          {
+            "with": "level-ink-body",
+            "as": "level"
+          }
+        ]
       }
     }
   },
@@ -1085,7 +1255,14 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "edges"
+        "task": "edges",
+        "question": "What colour is the line enclosing a card or panel?",
+        "combines": [
+          {
+            "with": "bw-surface",
+            "as": "width"
+          }
+        ]
       }
     }
   },
@@ -1095,7 +1272,14 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "edges"
+        "task": "edges",
+        "question": "What colour is the line around a menu, dialog or toast floating over the page?",
+        "combines": [
+          {
+            "with": "bw-surface",
+            "as": "width"
+          }
+        ]
       }
     }
   },
@@ -1105,7 +1289,14 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "edges"
+        "task": "edges",
+        "question": "What colour is the line around a control that is present but not offering itself?",
+        "combines": [
+          {
+            "with": "bw-control",
+            "as": "width"
+          }
+        ]
       }
     }
   },
@@ -1115,7 +1306,14 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "edges"
+        "task": "edges",
+        "question": "What colour is the ring around an avatar or delta badge?",
+        "combines": [
+          {
+            "with": "bw-marker",
+            "as": "width"
+          }
+        ]
       }
     }
   },
@@ -1125,7 +1323,14 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "edges"
+        "task": "edges",
+        "question": "What colour is the line around a button or other pressable control?",
+        "combines": [
+          {
+            "with": "bw-control",
+            "as": "width"
+          }
+        ]
       }
     }
   },
@@ -1135,7 +1340,14 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "edges"
+        "task": "edges",
+        "question": "What colour is the line around an input, textarea or select?",
+        "combines": [
+          {
+            "with": "bw-field",
+            "as": "width"
+          }
+        ]
       }
     }
   },
@@ -1145,7 +1357,14 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "edges"
+        "task": "edges",
+        "question": "What colour is the rule dividing one thing from the next inside a surface?",
+        "combines": [
+          {
+            "with": "bw-separator",
+            "as": "width"
+          }
+        ]
       }
     }
   },
@@ -1155,7 +1374,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "edges"
+        "task": "edges",
+        "question": "What colour are the axis lines, zero line and crosshair of a chart?"
       }
     }
   },
@@ -1166,7 +1386,8 @@
       "com.dravensoft.arena": {
         "default": "{color.primary}",
         "audience": "markup",
-        "task": "states"
+        "task": "states",
+        "question": "What colour is the rule that marks the selected tab?"
       }
     }
   },
@@ -1177,7 +1398,8 @@
       "com.dravensoft.arena": {
         "audience": "markup",
         "task": "edges",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How thick is the border enclosing a card or panel?"
       }
     }
   },
@@ -1188,7 +1410,8 @@
       "com.dravensoft.arena": {
         "audience": "markup",
         "task": "edges",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How thick is the border of a button or other pressable control?"
       }
     }
   },
@@ -1199,7 +1422,8 @@
       "com.dravensoft.arena": {
         "audience": "markup",
         "task": "edges",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How thick is the border of an input, textarea or select?"
       }
     }
   },
@@ -1210,7 +1434,8 @@
       "com.dravensoft.arena": {
         "audience": "markup",
         "task": "edges",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How thick is the rule dividing one thing from the next inside a surface?"
       }
     }
   },
@@ -1221,7 +1446,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "edges",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How thick is the rule between the head of a surface and its body?"
       }
     }
   },
@@ -1232,7 +1458,8 @@
       "com.dravensoft.arena": {
         "audience": "markup",
         "task": "edges",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How thick is the border of a tag, badge or avatar ring?"
       }
     }
   },
@@ -1242,7 +1469,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "depth-and-motion"
+        "task": "depth-and-motion",
+        "question": "What shadow does a menu, toast or tooltip floating over the page carry at rest?"
       }
     }
   },
@@ -1252,7 +1480,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "depth-and-motion"
+        "task": "depth-and-motion",
+        "question": "What shadow does a card or panel carry at rest on the page?"
       }
     }
   },
@@ -1262,7 +1491,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "depth-and-motion"
+        "task": "depth-and-motion",
+        "question": "What shadow does a dialog, sheet or sign-in card carry as it commands the screen?"
       }
     }
   },
@@ -1272,7 +1502,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "depth-and-motion"
+        "task": "depth-and-motion",
+        "question": "What shadow does a control rise to under the pointer?"
       }
     }
   },
@@ -1282,7 +1513,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "depth-and-motion"
+        "task": "depth-and-motion",
+        "question": "What shadow does a button carry at rest?"
       }
     }
   },
@@ -1293,7 +1525,8 @@
       "com.dravensoft.arena": {
         "audience": "markup",
         "task": "depth-and-motion",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How far does a control rise under the pointer?"
       }
     }
   },
@@ -1303,7 +1536,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "depth-and-motion"
+        "task": "depth-and-motion",
+        "question": "How long does a hover or press response take?"
       }
     }
   },
@@ -1313,7 +1547,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "depth-and-motion"
+        "task": "depth-and-motion",
+        "question": "How long does a state change the user follows, such as a switch moving, take?"
       }
     }
   },
@@ -1323,7 +1558,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "depth-and-motion"
+        "task": "depth-and-motion",
+        "question": "What easing curve does a hover or press response follow?"
       }
     }
   },
@@ -1333,7 +1569,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "depth-and-motion"
+        "task": "depth-and-motion",
+        "question": "What easing curve does a state change the user watches, such as a switch moving, use?"
       }
     }
   },
@@ -1343,7 +1580,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "depth-and-motion"
+        "task": "depth-and-motion",
+        "question": "What scale does a control shrink to while it is held down?"
       }
     }
   },
@@ -1353,7 +1591,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour does the danger hue take as text and as an icon?"
       }
     }
   },
@@ -1364,7 +1603,8 @@
       "com.dravensoft.arena": {
         "default": "{color.base-100}",
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour is the content set on a mark filled with the danger hue?"
       }
     }
   },
@@ -1374,7 +1614,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour does the danger hue take as a border or a rule?"
       }
     }
   },
@@ -1387,7 +1628,8 @@
           "transparent"
         ],
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour does the danger hue fill a surface with at full strength?"
       }
     }
   },
@@ -1397,7 +1639,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour does the danger hue take as a soft wash behind a surface?"
       }
     }
   },
@@ -1407,7 +1650,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour does the success hue take as text and as an icon?"
       }
     }
   },
@@ -1418,7 +1662,8 @@
       "com.dravensoft.arena": {
         "default": "{color.success-content}",
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour is the content set on a mark filled with the success hue?"
       }
     }
   },
@@ -1428,7 +1673,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour does the success hue take as a border or a rule?"
       }
     }
   },
@@ -1438,7 +1684,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour does the success hue take as a solid fill?"
       }
     }
   },
@@ -1448,7 +1695,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour does the success hue take as a soft wash behind a surface?"
       }
     }
   },
@@ -1458,7 +1706,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour does the warning hue take as text and as an icon?"
       }
     }
   },
@@ -1469,7 +1718,8 @@
       "com.dravensoft.arena": {
         "default": "{color.warning-content}",
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour is the content set on a mark filled with the warning hue?"
       }
     }
   },
@@ -1479,7 +1729,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour does the warning hue take as a border or a rule?"
       }
     }
   },
@@ -1489,7 +1740,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour does the warning hue take as a solid fill?"
       }
     }
   },
@@ -1499,7 +1751,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour does the warning hue take as a soft wash behind a surface?"
       }
     }
   },
@@ -1509,7 +1762,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour does the info hue take as text and as an icon?"
       }
     }
   },
@@ -1520,7 +1774,8 @@
       "com.dravensoft.arena": {
         "default": "{color.info-content}",
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour is the content set on a mark filled with the info hue?"
       }
     }
   },
@@ -1530,7 +1785,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour does the info hue take as a border or a rule?"
       }
     }
   },
@@ -1540,7 +1796,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour does the info hue take as a solid fill?"
       }
     }
   },
@@ -1550,7 +1807,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour does the info hue take as a soft wash behind a surface?"
       }
     }
   },
@@ -1560,7 +1818,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour fills the final irreversible confirmation of a confirm dialog?"
       }
     }
   },
@@ -1570,7 +1829,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour is the label of the final irreversible confirmation of a confirm dialog?"
       }
     }
   },
@@ -1581,7 +1841,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How tall is a button at the sm size?"
       }
     }
   },
@@ -1592,7 +1853,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How tall is a button at the md size?"
       }
     }
   },
@@ -1603,7 +1865,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How tall is a button at the lg size?"
       }
     }
   },
@@ -1614,7 +1877,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How much side padding does a button have at the sm size?"
       }
     }
   },
@@ -1625,7 +1889,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How much side padding does a button have at the md size?"
       }
     }
   },
@@ -1636,7 +1901,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How much side padding does a button have at the lg size?"
       }
     }
   },
@@ -1647,7 +1913,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "scales"
+        "userScale": "scales",
+        "question": "Which step of the type ladder sets a button label at the sm size?"
       }
     }
   },
@@ -1658,7 +1925,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "scales"
+        "userScale": "scales",
+        "question": "Which step of the type ladder sets a button label at the md size?"
       }
     }
   },
@@ -1669,7 +1937,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "scales"
+        "userScale": "scales",
+        "question": "Which step of the type ladder sets a button label at the lg size?"
       }
     }
   },
@@ -1680,7 +1949,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How tall is a segment of a segmented control at the sm size?"
       }
     }
   },
@@ -1691,7 +1961,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How tall is a segment of a segmented control at the md size?"
       }
     }
   },
@@ -1702,7 +1973,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How much side padding does a segment have at the sm size?"
       }
     }
   },
@@ -1713,7 +1985,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How much side padding does a segment have at the md size?"
       }
     }
   },
@@ -1724,7 +1997,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "scales"
+        "userScale": "scales",
+        "question": "Which step of the type ladder sets a segment label at the sm size?"
       }
     }
   },
@@ -1735,7 +2009,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "scales"
+        "userScale": "scales",
+        "question": "Which step of the type ladder sets a segment label at the md size?"
       }
     }
   },
@@ -1746,7 +2021,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How wide is a switch knob at the sm size?"
       }
     }
   },
@@ -1757,7 +2033,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How wide is a switch knob at the md size?"
       }
     }
   },
@@ -1768,7 +2045,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How wide is a switch knob at the lg size?"
       }
     }
   },
@@ -1779,7 +2057,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How wide is a switch knob at the xl size?"
       }
     }
   },
@@ -1790,7 +2069,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How wide is a switch knob at the 2xl size?"
       }
     }
   },
@@ -1801,7 +2081,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How big is the glyph inside a switch knob at the sm size?"
       }
     }
   },
@@ -1812,7 +2093,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How big is the glyph inside a switch knob at the md size?"
       }
     }
   },
@@ -1823,7 +2105,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How big is the glyph inside a switch knob at the lg size?"
       }
     }
   },
@@ -1834,7 +2117,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How big is the glyph inside a switch knob at the xl size?"
       }
     }
   },
@@ -1845,7 +2129,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How big is the glyph inside a switch knob at the 2xl size?"
       }
     }
   },
@@ -1856,7 +2141,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How long is a switch track at the sm size?"
       }
     }
   },
@@ -1867,7 +2153,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How long is a switch track at the md size?"
       }
     }
   },
@@ -1878,7 +2165,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How long is a switch track at the lg size?"
       }
     }
   },
@@ -1889,7 +2177,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How long is a switch track at the xl size?"
       }
     }
   },
@@ -1900,7 +2189,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How long is a switch track at the 2xl size?"
       }
     }
   },
@@ -1911,7 +2201,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How thick is a switch track at the sm size?"
       }
     }
   },
@@ -1922,7 +2213,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How thick is a switch track at the md size?"
       }
     }
   },
@@ -1933,7 +2225,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How thick is a switch track at the lg size?"
       }
     }
   },
@@ -1944,7 +2237,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How thick is a switch track at the xl size?"
       }
     }
   },
@@ -1955,7 +2249,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How thick is a switch track at the 2xl size?"
       }
     }
   },
@@ -1966,7 +2261,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How wide is a spinner at the sm size?"
       }
     }
   },
@@ -1977,7 +2273,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How wide is a spinner at the md size?"
       }
     }
   },
@@ -1988,7 +2285,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How wide is a spinner at the lg size?"
       }
     }
   },
@@ -1999,7 +2297,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How thick is a progress bar, meter or slider track at the sm size?"
       }
     }
   },
@@ -2010,7 +2309,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How thick is a progress bar, meter or slider track at the md size?"
       }
     }
   },
@@ -2021,7 +2321,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How thick is a progress bar, meter or slider track at the lg size?"
       }
     }
   },
@@ -2032,7 +2333,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How wide is a progress ring at the sm size?"
       }
     }
   },
@@ -2043,7 +2345,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How wide is a progress ring at the md size?"
       }
     }
   },
@@ -2054,7 +2357,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How wide is a progress ring at the lg size?"
       }
     }
   },
@@ -2065,7 +2369,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How wide is an avatar at the xs size?"
       }
     }
   },
@@ -2076,7 +2381,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How wide is an avatar at the sm size?"
       }
     }
   },
@@ -2087,7 +2393,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How wide is an avatar at the md size?"
       }
     }
   },
@@ -2098,7 +2405,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How wide is an avatar at the lg size?"
       }
     }
   },
@@ -2109,7 +2417,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How big is the logo mark at the sm size?"
       }
     }
   },
@@ -2120,7 +2429,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How big is the logo mark at the md size?"
       }
     }
   },
@@ -2131,7 +2441,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How big is the logo mark at the lg size?"
       }
     }
   },
@@ -2142,7 +2453,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How big is the logo mark at the xl size?"
       }
     }
   },
@@ -2153,7 +2465,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "Which step of the type ladder sets the logo wordmark at the sm size?"
       }
     }
   },
@@ -2164,7 +2477,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "Which step of the type ladder sets the logo wordmark at the md size?"
       }
     }
   },
@@ -2175,7 +2489,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "Which step of the type ladder sets the logo wordmark at the lg size?"
       }
     }
   },
@@ -2186,7 +2501,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "Which step of the type ladder sets the logo wordmark at the xl size?"
       }
     }
   },
@@ -2197,7 +2513,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How far apart are people-list rows at the sm size?"
       }
     }
   },
@@ -2208,7 +2525,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How far apart are people-list rows at the md size?"
       }
     }
   },
@@ -2219,7 +2537,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How far apart are people-list rows at the lg size?"
       }
     }
   },
@@ -2230,7 +2549,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How far apart are the parts of a people-list row at the sm size?"
       }
     }
   },
@@ -2241,7 +2561,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How far apart are the parts of a people-list row at the md size?"
       }
     }
   },
@@ -2252,7 +2573,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How far apart are the parts of a people-list row at the lg size?"
       }
     }
   },
@@ -2263,7 +2585,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How much side padding does a people-list row have at the sm size?"
       }
     }
   },
@@ -2274,7 +2597,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How much side padding does a people-list row have at the md size?"
       }
     }
   },
@@ -2285,7 +2609,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How much side padding does a people-list row have at the lg size?"
       }
     }
   },
@@ -2296,7 +2621,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How much top and bottom padding does a people-list row have at the sm size?"
       }
     }
   },
@@ -2307,7 +2633,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How much top and bottom padding does a people-list row have at the md size?"
       }
     }
   },
@@ -2318,7 +2645,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How much top and bottom padding does a people-list row have at the lg size?"
       }
     }
   },
@@ -2329,7 +2657,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How wide is a people-list rank at the sm size?"
       }
     }
   },
@@ -2340,7 +2669,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How wide is a people-list rank at the md size?"
       }
     }
   },
@@ -2351,7 +2681,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How wide is a people-list rank at the lg size?"
       }
     }
   },
@@ -2362,7 +2693,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "scales"
+        "userScale": "scales",
+        "question": "Which step of the type ladder sets a people-list rank and secondary line at the sm size?"
       }
     }
   },
@@ -2373,7 +2705,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "scales"
+        "userScale": "scales",
+        "question": "Which step of the type ladder sets a people-list rank and secondary line at the md size?"
       }
     }
   },
@@ -2384,7 +2717,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "scales"
+        "userScale": "scales",
+        "question": "Which step of the type ladder sets a people-list rank and secondary line at the lg size?"
       }
     }
   },
@@ -2395,7 +2729,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "scales"
+        "userScale": "scales",
+        "question": "Which step of the type ladder sets a people-list name at the sm size?"
       }
     }
   },
@@ -2406,7 +2741,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "scales"
+        "userScale": "scales",
+        "question": "Which step of the type ladder sets a people-list name at the md size?"
       }
     }
   },
@@ -2417,7 +2753,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "scales"
+        "userScale": "scales",
+        "question": "Which step of the type ladder sets a people-list name at the lg size?"
       }
     }
   },
@@ -2428,7 +2765,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "scales"
+        "userScale": "scales",
+        "question": "Which step of the type ladder sets a people-list figure at the sm size?"
       }
     }
   },
@@ -2439,7 +2777,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "scales"
+        "userScale": "scales",
+        "question": "Which step of the type ladder sets a people-list figure at the md size?"
       }
     }
   },
@@ -2450,7 +2789,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "scales"
+        "userScale": "scales",
+        "question": "Which step of the type ladder sets a people-list figure at the lg size?"
       }
     }
   },
@@ -2461,7 +2801,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How wide is the face in a people-list row at the sm size?"
       }
     }
   },
@@ -2472,7 +2813,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How wide is the face in a people-list row at the md size?"
       }
     }
   },
@@ -2483,7 +2825,8 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How wide is the face in a people-list row at the lg size?"
       }
     }
   },
@@ -2495,7 +2838,8 @@
         "default": "{sp.1}",
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How much side padding does a badge have at the sm size?"
       }
     }
   },
@@ -2507,7 +2851,8 @@
         "default": "{sp.0}",
         "audience": "component",
         "task": "component-size",
-        "userScale": "fixed"
+        "userScale": "fixed",
+        "question": "How much top and bottom padding does a badge have at the sm size?"
       }
     }
   },
@@ -2519,7 +2864,8 @@
         "default": "{dz.text-2xs}",
         "audience": "component",
         "task": "component-size",
-        "userScale": "scales"
+        "userScale": "scales",
+        "question": "Which step of the type ladder sets a badge label at the sm size?"
       }
     }
   },
@@ -2529,7 +2875,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour fills a primary action?"
       }
     }
   },
@@ -2539,7 +2886,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour fills a secondary action?"
       }
     }
   },
@@ -2549,7 +2897,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour fills a solid icon button?"
       }
     }
   },
@@ -2559,7 +2908,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour is the ink of a primary action?"
       }
     }
   },
@@ -2569,7 +2919,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour is the ink of a secondary action?"
       }
     }
   },
@@ -2579,7 +2930,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour is the ink of a ghost action?"
       }
     }
   },
@@ -2589,7 +2941,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour is the ink of a solid icon button?"
       }
     }
   },
@@ -2599,7 +2952,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour is the edge of a primary button?"
       }
     }
   },
@@ -2609,7 +2963,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour is the edge of a secondary button?"
       }
     }
   },
@@ -2619,7 +2974,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour is the edge of a ghost icon button?"
       }
     }
   },
@@ -2629,7 +2985,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour fills a secondary action under the pointer?"
       }
     }
   },
@@ -2639,7 +2996,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour fills a ghost action under the pointer?"
       }
     }
   },
@@ -2649,7 +3007,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What shadow lifts a primary button under the pointer?"
       }
     }
   },
@@ -2659,7 +3018,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour is the soft wash of a badge in the plain accent?"
       }
     }
   },
@@ -2669,7 +3029,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour is the soft wash of a badge in the primary accent?"
       }
     }
   },
@@ -2679,7 +3040,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour is the soft wash of a badge in the gold accent?"
       }
     }
   },
@@ -2689,7 +3051,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour is the ink of a figure in the plain accent?"
       }
     }
   },
@@ -2699,7 +3062,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour is the ink of a figure, a bar or a spinner in the primary accent?"
       }
     }
   },
@@ -2709,7 +3073,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour is the ink of a figure, a bar or a spinner in the gold accent?"
       }
     }
   },
@@ -2719,7 +3084,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour is the ink of a spinner in the muted accent?"
       }
     }
   },
@@ -2729,7 +3095,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour is the quiet ink of a tag in the plain accent?"
       }
     }
   },
@@ -2739,7 +3106,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour is the edge of a card or a tag in the plain accent?"
       }
     }
   },
@@ -2749,7 +3117,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour is the edge of a card or a tag in the primary accent?"
       }
     }
   },
@@ -2759,7 +3128,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour is the side bar of a toast in the plain accent?"
       }
     }
   },
@@ -2769,7 +3139,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
-        "task": "meaning-and-identity"
+        "task": "meaning-and-identity",
+        "question": "What colour is the side bar of a toast in the gold accent?"
       }
     }
   },
@@ -2779,7 +3150,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
-        "task": "depth-and-motion"
+        "task": "depth-and-motion",
+        "question": "What shadow does a card cast at the flat elevation?"
       }
     }
   },
@@ -2789,7 +3161,8 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
-        "task": "depth-and-motion"
+        "task": "depth-and-motion",
+        "question": "What shadow does a card cast at the floating elevation?"
       }
     }
   }

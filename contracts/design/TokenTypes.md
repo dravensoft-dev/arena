@@ -142,8 +142,8 @@ single useful form off it, and the `script` flag reads as "this value is arithme
 ### Role metadata
 
 A role in `roles.json` carries these keys under `$extensions["com.dravensoft.arena"]`. `default`, `values`
-and `cssUnit` come first, and `audience`, `task`, `userScale` follow in that order. `check:role-contract`
-holds `default`, `values`, `audience`, `task` and `userScale`; `cssUnit` is a hint the token serializer (`scripts/generate/core/arena-cli/serialize-token.ts`)
+and `cssUnit` come first, and `audience`, `task`, `userScale`, `question`, `combines` follow in that order.
+`check:role-contract` holds `default`, `values`, `audience`, `task`, `userScale`, `question` and `combines`; `cssUnit` is a hint the token serializer (`scripts/generate/core/arena-cli/serialize-token.ts`)
 reads.
 
 - `default`: the alias a role answers with when no plugin does, a `{…}` reference of the role's own `$type`.
@@ -157,6 +157,12 @@ reads.
   `type`, `depth-and-motion`, `states`, `meaning-and-identity` and `component-size`. Required on every role.
 - `userScale`: what the user's text setting does to the role, from `scales`, `follows` and `fixed`. Required
   on a `dimension` role and optional on any other role; a word outside the set fails wherever it is declared.
+- `question`: what the style plugin answers for the role, as one English sentence on one line that ends in `?`
+  and runs at most 140 characters, or 100 on a `component-size` role. It carries no `|`, backtick or em
+  dash and reads in the consumer register (`check:register`). No two roles ask the same question. Required on every role.
+- `combines`: the tokens a role is read together with, as a list of `{ "with", "as" }` pairs, where `with` is
+  another role, a token the package emits or a `level-*` of `colors.css` (named without `--`, never the role
+  itself) and `as` is `level`, `width` or `density`. Optional, and a pair appears once.
 
 ### `userScale`, what the user's text setting does to a value
 

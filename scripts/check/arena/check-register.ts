@@ -55,7 +55,7 @@ export const NOT_YET_REWRITTEN = new Map<string, string>([
 export const node = {
   name: 'check:register',
   reads: [
-    'contracts/api/**/*.json', 'skills/**/*.md', 'frameworks/**/INDEX.md', 'frameworks/**/PACKAGE.md',
+    'contracts/api/**/*.json', 'contracts/design/roles.json', 'skills/**/*.md', 'frameworks/**/INDEX.md', 'frameworks/**/PACKAGE.md',
     'frameworks/**/*.prompt.md', 'plugin-style-store/catalogue/*/ENTRY.md',
     CONSUMER_VOCABULARY, `${CONSUMER_CATALOGUE}${CONSUMER_INDEX}`,
     '!frameworks/angular/build/**', '!frameworks/react/dist/**', '!frameworks/angular/dist/**',
@@ -235,9 +235,27 @@ export function contractScan(base = root) {
   return problems;
 }
 
+export const ROLES_FILE = 'contracts/design/roles.json';
+
+export function roleQuestionScan(base = root) {
+  const roles = JSON.parse(readFileSync(join(base, ROLES_FILE), 'utf8')) as Record<string, { $extensions?: Record<string, { question?: unknown }> }>;
+  const problems: string[] = [];
+  let read = 0;
+  for (const [name, role] of Object.entries(roles)) {
+    const question = role.$extensions?.['com.dravensoft.arena']?.question;
+    if (typeof question !== 'string') continue;
+    read += 1;
+    problems.push(...descriptionProblems(ROLES_FILE, name, question));
+  }
+  if (read === 0)
+    problems.push(`${ROLES_FILE}: no role question was read, so every claim below passed over nothing`);
+  return problems;
+}
+
 export function collect(base = root) {
   const docs = scoped(base);
-  const problems = [...zeroScanProblems(docs), ...staleExemptProblems(docs), ...contractScan(base)];
+  const problems = [...zeroScanProblems(docs), ...staleExemptProblems(docs), ...contractScan(base),
+    ...roleQuestionScan(base)];
   const clean = new Map<string, boolean>();
   for (const rel of docs) {
     if (EXEMPT.has(rel)) continue;

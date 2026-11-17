@@ -1,7 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { declarationProblems, defaultProblems, singleAnswerProblems, emittedTypes, emittedWords, rosterProblems, zeroRoleProblems, collect, ROLES, metadataProblems } from './check-role-contract.ts';
+import { declarationProblems, defaultProblems, singleAnswerProblems, emittedTypes, emittedWords, rosterProblems, zeroRoleProblems, collect, ROLES, metadataProblems, questionProblems, combineProblems, levelNames, QUESTION_MAX, SIZE_QUESTION_MAX } from './check-role-contract.ts';
 import { join } from 'node:path';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 
@@ -202,4 +204,70 @@ test('deleting any metadata key from the real declaration fails the gate', () =>
     assert.equal(problems.length, 1, key);
     assert.match(problems[0] ?? '', /r-surface/);
   }
+});
+
+const asking = (question?: unknown, combines?: unknown) => ({
+  $type: 'dimension', $description: 'x',
+  $extensions: { [ARENA]: { ...(question === undefined ? {} : { question }), ...(combines === undefined ? {} : { combines }) } },
+});
+
+test('a role with no question fails, naming it', () => {
+  const problems = questionProblems({ 'r-surface': asking() });
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /^r-surface has no question/);
+  assert.match(questionProblems({ 'r-surface': asking(4) })[0] ?? '', /^r-surface declares a question that is not a string/);
+});
+
+test('a question must end in ? and fit 140 characters', () => {
+  assert.deepEqual(questionProblems({ 'r-surface': asking('How round is the surface?') }), []);
+  assert.match(questionProblems({ 'r-surface': asking('How round is the surface.') })[0] ?? '', /^r-surface: .*end in \?/);
+  assert.match(questionProblems({ 'r-surface': asking('How round?\nIs it?') })[0] ?? '', /^r-surface: .*more than one line/);
+  const long = `${'x'.repeat(QUESTION_MAX)}?`;
+  assert.match(questionProblems({ 'r-surface': asking(long) })[0] ?? '', /^r-surface: .*141 characters, over 140/);
+  assert.deepEqual(questionProblems({ 'r-surface': asking(`${'x'.repeat(QUESTION_MAX - 1)}?`) }), []);
+});
+
+test('a question carries no pipe, backtick or em dash, and a size role keeps to 100', () => {
+  for (const bad of ['How wide | tall?', 'How wide is `x`?', 'How wide \u2014 or tall?'])
+    assert.match(questionProblems({ 'r-surface': asking(bad) })[0] ?? '', /^r-surface: .*pipe, a backtick or an em dash/);
+  const sized = (question: string) => ({ ...asking(question),
+    $extensions: { [ARENA]: { question, task: 'component-size' } } });
+  const over = `${'x'.repeat(SIZE_QUESTION_MAX)}?`;
+  assert.match(questionProblems({ 'size-a': sized(over) })[0] ?? '', /^size-a: .*101 characters, over 100/);
+  assert.deepEqual(questionProblems({ 'size-a': sized(`${'x'.repeat(SIZE_QUESTION_MAX - 1)}?`) }), []);
+  assert.deepEqual(questionProblems({ 'r-surface': asking(over) }), []);
+});
+
+test('two roles cannot ask the same question', () => {
+  const problems = questionProblems({ 'r-a': asking('How round?'), 'r-b': asking('How round?') });
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /^r-b: .*r-a asks/);
+});
+
+test('combines takes a role, an emitted token or a colours level', () => {
+  const roles = { 'bw-surface': asking('A?'), 'edge-surface': asking('B?') };
+  const emitted = new Map([['dz-row-scale-x', 'dimension']]);
+  const levels = new Set(['level-ink-muted']);
+  const check = (...combines: unknown[]) => combineProblems({ ...roles, 'r-x': asking('C?', combines) }, emitted, levels);
+  assert.deepEqual(check({ with: 'bw-surface', as: 'width' }, { with: 'dz-row-scale-x', as: 'density' },
+    { with: 'level-ink-muted', as: 'level' }), []);
+  assert.equal(check({ with: '--level-ink-muted', as: 'level' }).length, 1);
+  assert.equal(check({ with: 'level-ink-nope', as: 'level' }).length, 1);
+  assert.equal(check({ with: 'bw-surface', as: 'state' }).length, 1);
+  assert.equal(check({ with: 'r-x', as: 'width' }).length, 1);
+  assert.equal(check({ with: 'bw-surface', as: 'width' }, { with: 'bw-surface', as: 'width' }).length, 1);
+  assert.equal(check({ with: 'bw-surface', as: 'width', extra: 1 }).length, 1);
+  assert.equal(check({ as: 'width' }).length, 1);
+  assert.equal(combineProblems({ 'r-x': asking('C?', 'bw-surface') }, emitted, levels).length, 1);
+});
+
+test('levelNames reads declarations, not comments', () => {
+  const root = mkdtempSync(join(tmpdir(), 'arena-levels-'));
+  try {
+    mkdirSync(join(root, 'contracts', 'design'), { recursive: true });
+    writeFileSync(join(root, 'contracts', 'design', 'colors.css'),
+      ':root {\n  --level-ink-body:82%;\n  /* --level-x:1% and --level-y:2% */\n  --level-ink-muted: 62%;\n}\n');
+    assert.deepEqual([...levelNames(root)].sort(), ['level-ink-body', 'level-ink-muted']);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+  assert.ok(levelNames().has('level-ink-muted'));
 });
