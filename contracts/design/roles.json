@@ -494,7 +494,7 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "space-and-layout",
-        "userScale": "fixed",
+        "userScale": "scales",
         "question": "How narrow may a column of an auto-filling grid get before the grid drops one?"
       }
     }
@@ -506,7 +506,7 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "space-and-layout",
-        "userScale": "fixed",
+        "userScale": "scales",
         "question": "How narrow may a column of a grid get at the sm size?"
       }
     }
@@ -518,7 +518,7 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "space-and-layout",
-        "userScale": "fixed",
+        "userScale": "scales",
         "question": "How narrow may a column of a grid get at the lg size?"
       }
     }
@@ -566,7 +566,7 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "space-and-layout",
-        "userScale": "fixed",
+        "userScale": "scales",
         "question": "How narrow may a column of a board get at the sm size?"
       }
     }
@@ -578,7 +578,7 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "space-and-layout",
-        "userScale": "fixed",
+        "userScale": "scales",
         "question": "How narrow may a column of a board get at the md size?"
       }
     }
@@ -590,7 +590,7 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "space-and-layout",
-        "userScale": "fixed",
+        "userScale": "scales",
         "question": "How narrow may a column of a board get at the lg size?"
       }
     }

@@ -12,9 +12,9 @@ Only Arena's components read the roles on this page. A role keeps its name until
 
 | role | question | type | user scale | default |
 | --- | --- | --- | --- | --- |
-| `--board-column-lg` | How narrow may a column of a board get at the lg size? | dimension | fixed | none |
-| `--board-column-md` | How narrow may a column of a board get at the md size? | dimension | fixed | none |
-| `--board-column-sm` | How narrow may a column of a board get at the sm size? | dimension | fixed | none |
+| `--board-column-lg` | How narrow may a column of a board get at the lg size? | dimension | scales | none |
+| `--board-column-md` | How narrow may a column of a board get at the md size? | dimension | scales | none |
+| `--board-column-sm` | How narrow may a column of a board get at the sm size? | dimension | scales | none |
 | `--bw-surface-head` | How thick is the rule between the head of a surface and its body? | dimension | fixed | none |
 | `--dialog-width-lg` | How wide is the panel of a dialog at the lg size? | dimension | fixed | none |
 | `--dialog-width-md` | How wide is the panel of a dialog at the md size? | dimension | fixed | none |
@@ -24,9 +24,9 @@ Only Arena's components read the roles on this page. A role keeps its name until
 | `--grid-max-lg` | How wide may a grid run at the lg size before it centres? | dimension | fixed | none |
 | `--grid-max-md` | How wide may a grid run at the md size before it centres? | dimension | fixed | none |
 | `--grid-max-sm` | How wide may a grid run at the sm size before it centres? | dimension | fixed | none |
-| `--grid-min` | How narrow may a column of an auto-filling grid get before the grid drops one? | dimension | fixed | none |
-| `--grid-min-lg` | How narrow may a column of a grid get at the lg size? | dimension | fixed | none |
-| `--grid-min-sm` | How narrow may a column of a grid get at the sm size? | dimension | fixed | none |
+| `--grid-min` | How narrow may a column of an auto-filling grid get before the grid drops one? | dimension | scales | none |
+| `--grid-min-lg` | How narrow may a column of a grid get at the lg size? | dimension | scales | none |
+| `--grid-min-sm` | How narrow may a column of a grid get at the sm size? | dimension | scales | none |
 | `--pad-band-x` | How much room does an app bar band leave at each end? | dimension | fixed | `{gutter}` |
 | `--pad-band-y` | How much room does an app bar band give its content down? | dimension | fixed | `{sp.3}` |
 | `--pad-floating-edge-x` | How much room does a sheet pinned to a viewport edge give its content across? | dimension | fixed | none |
