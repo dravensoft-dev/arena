@@ -602,7 +602,7 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "space-and-layout",
-        "userScale": "fixed",
+        "userScale": "scales",
         "question": "How wide is each item of a scroller at the sm size?"
       }
     }
@@ -614,7 +614,7 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "space-and-layout",
-        "userScale": "fixed",
+        "userScale": "scales",
         "question": "How wide is each item of a scroller at the md size?"
       }
     }
@@ -626,7 +626,7 @@
       "com.dravensoft.arena": {
         "audience": "component",
         "task": "space-and-layout",
-        "userScale": "fixed",
+        "userScale": "scales",
         "question": "How wide is each item of a scroller at the lg size?"
       }
     }

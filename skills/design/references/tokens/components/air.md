@@ -41,9 +41,9 @@ Only Arena's components read the roles on this page. A role keeps its name until
 | `--pad-row-floating-y` | How much room does a row of a floating list give its content down? | dimension | fixed | none |
 | `--pad-status-x` | How much room does an alert, toast or empty state give its message across? | dimension | fixed | none |
 | `--pad-status-y` | How much room does an alert, toast or empty state give its message down? | dimension | fixed | none |
-| `--scroller-item-lg` | How wide is each item of a scroller at the lg size? | dimension | fixed | none |
-| `--scroller-item-md` | How wide is each item of a scroller at the md size? | dimension | fixed | none |
-| `--scroller-item-sm` | How wide is each item of a scroller at the sm size? | dimension | fixed | none |
+| `--scroller-item-lg` | How wide is each item of a scroller at the lg size? | dimension | scales | none |
+| `--scroller-item-md` | How wide is each item of a scroller at the md size? | dimension | scales | none |
+| `--scroller-item-sm` | How wide is each item of a scroller at the sm size? | dimension | scales | none |
 | `--timeline-dot` | How wide is the dot of a timeline milestone? | dimension | fixed | `{sp.5}` |
 
 <!-- @tree end -->

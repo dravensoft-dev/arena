@@ -50,9 +50,9 @@
   --board-column-sm:176px;
   --board-column-md:260px;
   --board-column-lg:364px;
-  --scroller-item-sm:176px;
-  --scroller-item-md:260px;
-  --scroller-item-lg:364px;
+  --scroller-item-sm:11rem;
+  --scroller-item-md:16.25rem;
+  --scroller-item-lg:22.75rem;
   --dialog-width-sm:416px;
   --dialog-width-md:512px;
   --dialog-width-lg:704px;
