@@ -391,22 +391,20 @@ export const ROUTES: Route[] = [
       + 'and the shape a token is authored in',
     entry: 'contributor',
     stops: ['contracts/AGENTS.md', 'contracts/design/AGENTS.md', 'contracts/design/TokenTypes.md'],
-    budget: 73_100,
+    budget: 73_700,
     reason:
       'the normative half of the tree, where a stop is read for what a value means rather than for '
       + 'how to write one, so it is bounded by what a person can hold rather than by what an agent '
       + 'can afford. The level answers two readers: a contributor deciding a value, and a platform '
       + 'target that reads contracts/design/ first and is not a browser. So TokenTypes.md states the '
-      + 'one departure from DTCG and why, the axis a reader asking for larger text moves and what it '
-      + 'obliges on each platform, and the shapes in the type map that read one way on the web and '
-      + 'another elsewhere. The specification states the muted levels as floors a palette moves up '
-      + 'and never down, target size as the axis density answers, and what DTCG deliberately does not '
-      + 'model. It states the frame shapes and the roles a kind answers, and '
+      + 'one departure from DTCG and why, the axis larger text moves and what it obliges on each '
+      + 'platform, and the shapes that read one way on the web and another elsewhere. The specification states the muted levels as floors a palette moves up '
+      + 'and never down, target size as the axis density answers, and what DTCG does not model. It states the frame shapes and the roles a kind answers, and '
       + 'names the filled status mark beside the presence dot. The type map names the keyword tokens a '
       + 'role may default to and the half spacing step. The ramp paragraph states how a chart '
-      + 'counts a positional slot. It names the glyph component and its sprite. '
+      + 'counts a positional slot. It names the glyph component. '
       + 'The design level states the contrast floors as measured over the catalogue. '
-      + 'It also states the role metadata keys a role declares.',
+      + 'It also states the role metadata keys a role declares, and which chart numbers and two widths follow the reader\'s text size.',
   },
   {
     name: 'contributor-gate',
@@ -414,7 +412,7 @@ export const ROUTES: Route[] = [
       + 'the domain the gate lands in',
     entry: 'contributor',
     stops: ['scripts/AGENTS.md', 'scripts/check/AGENTS.md', 'scripts/check/*/AGENTS.md'],
-    budget: 99_300,
+    budget: 101_000,
     reason:
       'the route a contributor takes most often after the component one, and the one whose last '
       + 'stop grows every time a gate lands, because each gate has a row in its domain\'s table. The '
@@ -422,12 +420,11 @@ export const ROUTES: Route[] = [
       + 'rather than the growth it is there to report. A row states the claim and the failure the '
       + 'gate exists for, and the rest of its argument belongs to the gate\'s own reason strings, '
       + 'which its paired suite asserts by name; check:docs caps a table cell, so a row cannot '
-      + 'become the page. Measure the longest row of a domain table before writing one. The rows of the arena domain table '
+      + 'become the page. The rows of the arena domain table '
       + 'state what their gates refuse, and the check page carries its section on the sweep running '
       + 'side by side, its pools and --jobs. The focus-trap row names both questions that gate puts '
-      + 'to a real browser, the trap and the handoff of a refused hidden control. The other '
-      + 'browser-gate rows say why only a real browser answers them. The token-tree row states its seven claims, and the route buys that one row of headroom. The scripts page names the two Angular runs, the emitted verdict, '
-      + 'the JIT loop a task runs and the file-URL rule.',
+      + 'to a real browser, the trap and the handoff of a refused hidden control. The token-tree row states its seven claims, and the route buys that one row of headroom. The scripts page names the two Angular runs, the emitted verdict, '
+      + 'the JIT loop a task runs and the file-URL rule. The text-scale row states the sweep at twice the browser default, its spill judge and the md probe it reads from the compiled sheet.',
   },
   {
     name: 'contributor-tailwind',
