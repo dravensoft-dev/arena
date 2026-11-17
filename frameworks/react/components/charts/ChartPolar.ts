@@ -1,6 +1,6 @@
 import { ARENA_TEXT_ROOM } from '../../DataVisuals.ts';
 import type { ArenaTextRoom } from '../../DataVisuals.ts';
-import { chartLabelGap } from '../../Tokens.generated.js';
+import { chartGaugeReadingDescent, chartLabelGap } from '../../Tokens.generated.js';
 import type { ArenaDomain, ArenaLinePoint } from './ChartScales.ts';
 
 export function arenaPolarAngle(index: number, count: number): number {
@@ -64,6 +64,10 @@ export function arenaGaugeAnchor(fraction: number): 'start' | 'middle' | 'end' {
   const across = Math.cos(arenaGaugeAngle(fraction));
   if (Math.abs(across) < 0.3) return 'middle';
   return across > 0 ? 'start' : 'end';
+}
+
+export function arenaGaugeWordY(cy: number, room: ArenaTextRoom = ARENA_TEXT_ROOM): number {
+  return cy + chartLabelGap + chartGaugeReadingDescent * (room.scale - 1);
 }
 
 export function arenaGaugeRadii(width: number, height: number, room: ArenaTextRoom = ARENA_TEXT_ROOM): ArenaGaugeRadii {

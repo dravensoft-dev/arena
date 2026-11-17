@@ -13,7 +13,7 @@ export const ARENA_HEAT_STEPS = heatSteps;
 
 export const ARENA_CHART_HEIGHT = chartHeight;
 export type ArenaTextRoom = {
-  tickChar: number; padBottom: number; padLeft: number; padCategory: number; heatmapRowH: number; legendStrip: number;
+  tickChar: number; padBottom: number; padLeft: number; padCategory: number; heatmapRowH: number; legendStrip: number; scale: number;
 };
 
 export function arenaTextRoom(scale: number): ArenaTextRoom {
@@ -24,6 +24,7 @@ export function arenaTextRoom(scale: number): ArenaTextRoom {
     padCategory: chartPadCategory * scale,
     heatmapRowH: chartHeatmapRowH * scale,
     legendStrip: chartLegendStrip * scale,
+    scale,
   };
 }
 

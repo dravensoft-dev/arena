@@ -2,10 +2,10 @@ import React from 'react';
 import { useArenaContainerWidth, useArenaTextScale } from '../../../UseArenaContainerWidth.ts';
 import { arenaSrOnly, arenaTextRoom, arenaAreaFill, arenaToneColor, arenaValueWriter, ARENA_INK_MUTED } from '../../../DataVisuals.ts';
 import { arenaGaugeFraction } from '../ChartScales.ts';
-import { arenaGaugeAngle, arenaGaugeAnchor, arenaGaugePoint, arenaGaugeRadii } from '../ChartPolar.ts';
+import { arenaGaugeAngle, arenaGaugeAnchor, arenaGaugePoint, arenaGaugeRadii, arenaGaugeWordY } from '../ChartPolar.ts';
 import { arenaArcPath } from '../ChartMarks.ts';
 import { arenaGaugeBand, arenaGaugeBands, arenaGaugeColor, arenaGaugeTable, arenaGaugeTicks } from '../ChartSeries.ts';
-import { chartGaugeHeight, chartLabelGap } from '../../../Tokens.generated.js';
+import { chartGaugeHeight } from '../../../Tokens.generated.js';
 
 import type { ArenaCatSlot, ArenaGaugeBand, ArenaNumberFormat } from '../../../Api.generated';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
@@ -128,7 +128,7 @@ export function ArenaGaugeChart({ className,
         )}
 
         {reads && word && (
-          <text x={cx} y={cy + chartLabelGap} textAnchor="middle" dominantBaseline="hanging"
+          <text x={cx} y={arenaGaugeWordY(cy, room)} textAnchor="middle" dominantBaseline="hanging"
             fill={ARENA_INK_MUTED} fontFamily="var(--font-body)" style={{ fontSize: 'var(--dz-text-xs)' }}>
             {word}
           </text>

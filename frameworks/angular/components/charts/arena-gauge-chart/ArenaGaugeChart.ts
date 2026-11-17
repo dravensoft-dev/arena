@@ -2,13 +2,13 @@ import { ChangeDetectionStrategy, Component, computed, ElementRef, inject, input
 import { arenaContainerWidth, arenaReadTextScale } from '../../../ContainerSize';
 import { ARENA_INK_MUTED, ARENA_SR_ONLY, arenaTextRoom, arenaAreaFill, arenaToneColor, arenaValueWriter } from '../../../DataVisuals';
 import { arenaGaugeFraction } from '../ChartScales';
-import { arenaGaugeAngle, arenaGaugeAnchor, arenaGaugePoint, arenaGaugeRadii } from '../ChartPolar';
+import { arenaGaugeAngle, arenaGaugeAnchor, arenaGaugePoint, arenaGaugeRadii, arenaGaugeWordY } from '../ChartPolar';
 import { arenaArcPath } from '../ChartMarks';
 import { arenaGaugeBand, arenaGaugeBands, arenaGaugeColor, arenaGaugeTable, arenaGaugeTicks } from '../ChartSeries';
 import { arenaGaugeChartStyles } from './ArenaGaugeChart.variants';
 import manifest from './ArenaGaugeChart.classes.generated';
 import type { ArenaCatSlot, ArenaGaugeBand, ArenaNumberFormat } from '../../../Api.generated';
-import { chartGaugeHeight, chartLabelGap } from '../../../Tokens.generated';
+import { chartGaugeHeight } from '../../../Tokens.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
 import { arenaPhrase } from '../../../Phrase';
 
@@ -58,7 +58,7 @@ const WORD_STYLE = { fontSize: 'var(--dz-text-xs)' } as const satisfies Readonly
       }
 
       @if (reads() && word(); as text) {
-        <text [attr.x]="centreX()" [attr.y]="centreY() + labelGap" text-anchor="middle" dominant-baseline="hanging"
+        <text [attr.x]="centreX()" [attr.y]="wordY()" text-anchor="middle" dominant-baseline="hanging"
               [attr.fill]="inkMuted" font-family="var(--font-body)" [style]="wordStyle">{{ text }}</text>
       }
     </svg>
@@ -119,7 +119,6 @@ export class ArenaGaugeChart {
   protected readonly readingStyle = READING_STYLE;
   protected readonly wordStyle = WORD_STYLE;
   protected readonly inkMuted = ARENA_INK_MUTED;
-  protected readonly labelGap = chartLabelGap;
 
   private readonly frame = viewChild<ElementRef<HTMLElement>>('frame');
   private readonly measured = arenaContainerWidth(() => this.frame()?.nativeElement);
@@ -146,6 +145,7 @@ export class ArenaGaugeChart {
   protected readonly centreX = computed(() => this.width() / 2);
   private readonly radii = computed(() => arenaGaugeRadii(this.width(), this.height(), this.room));
   protected readonly centreY = computed(() => this.radii().cy);
+  protected readonly wordY = computed(() => arenaGaugeWordY(this.centreY(), this.room));
 
   private readonly index = computed(() => arenaGaugeBand(this.sorted(), this.value()));
   private readonly color = computed(() => arenaGaugeColor(this.sorted(), this.index(), this.colorId(), 'ArenaGaugeChart', this.colorStart()));

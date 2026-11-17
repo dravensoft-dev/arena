@@ -106,6 +106,7 @@ export const EXCLUDED = new Map([
   ['chart-pad-category', 'script-readable: subtracted from the measured width to size a horizontal chart\'s plot, and the same number places the category label at its right edge'],
   ['chart-tick-char', 'script-readable: multiplied by a tick label\'s length to size the value gutter, which is arithmetic over a string and not a length any element wears'],
   ['chart-legend-strip', 'script-readable: subtracted from the chart height to size the plot, and the same number is the strip\'s own height, so one utility could carry at most half of it'],
+  ['chart-gauge-reading-descent', 'script-readable: multiplied by the text scale in JS to drop the gauge band word below its reading, an SVG text y and never a utility'],
   ['chart-label-gap', 'script-readable: subtracted from a pad or a height in JS to place an SVG text x/y, never a utility'],
   ['chart-ring-inset', 'script-readable: subtracted from half the plot box in JS to size the doughnut\'s outer radius, never a utility'],
   ['calendar-hour-h', 'script-readable in both layers: JS projects a minute-of-day onto a pixel offset from it, and the chip and the hour cell it sits over must agree to the pixel, which only one shared number gives them'],

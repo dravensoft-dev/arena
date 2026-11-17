@@ -5,7 +5,7 @@ import {
   arenaLinearScale, arenaBandScale, arenaBandCenter, arenaBandIndex, arenaBandMark, arenaBandSubBand, arenaScaleValue,
 } from '../ChartScales.ts';
 import { arenaBarPath } from '../ChartMarks.ts';
-import { arenaPlotBox, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY, arenaValueGutter } from '../ChartAxis.ts';
+import { arenaPlotBox, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY, arenaValueGutter, arenaLabelStride } from '../ChartAxis.ts';
 import {
   arenaChartTable, arenaSeriesColors, arenaSwatchHue, arenaSeriesDomain, arenaSeriesPointCount, arenaStackSegments, arenaStackDomain,
 } from '../ChartSeries.ts';
@@ -95,6 +95,7 @@ export function ArenaBarChart({ className,
   const box = arenaPlotBox(width, strip.plotH, gutter, room);
   const yScale = arenaLinearScale(domain.min, domain.max, box.y + box.h, box.y);
   const bands = arenaBandScale(n, box.x, box.w, chartBarGap);
+  const stride = arenaLabelStride(bands.step, labels, room);
 
   useEffect(() => {
     const region = rail.current;
@@ -167,7 +168,7 @@ export function ArenaBarChart({ className,
         {
 
 }
-        {Array.from({ length: n }, (_, i) => (
+        {Array.from({ length: n }, (_, i) => i % stride === 0 && (
           <text key={i} x={arenaBandCenter(bands, i)} y={arenaCategoryLabelY(strip.plotH)} textAnchor="middle"
             fill={ARENA_INK_MUTED} fontFamily="var(--font-body)" style={{ fontSize: 'var(--dz-text-xs)' }}>{labels[i] ?? ''}</text>
         ))}

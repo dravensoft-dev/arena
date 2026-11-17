@@ -8,7 +8,7 @@ import {
   arenaScaleValue,
 } from '../ChartScales';
 import { arenaBarPath } from '../ChartMarks';
-import { arenaPlotBox, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY, arenaValueGutter } from '../ChartAxis';
+import { arenaPlotBox, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY, arenaValueGutter, arenaLabelStride } from '../ChartAxis';
 import {
   arenaChartTable, arenaSeriesColors, arenaSwatchChoice, arenaSeriesDomain, arenaSeriesPointCount, arenaStackSegments, arenaStackDomain,
 } from '../ChartSeries';
@@ -77,7 +77,7 @@ const BAR_STYLE = { transition: 'opacity var(--dur-hover) var(--ease-hover)' } a
             fill="transparent" (pointermove)="onPointer($event, 'move')" (pointerdown)="onPointer($event, 'down')"
             (pointerleave)="onPointerLeave($event)" (pointercancel)="hover.set(null)" />
 
-      @for (bar of bars(); track bar.index) {
+      @for (bar of categoryLabels(); track bar.index) {
         <text [attr.x]="bar.midX" [attr.y]="categoryLabelY()" text-anchor="middle"
               [attr.fill]="inkMuted" font-family="var(--font-body)"
               [style]="categoryLabelStyle">{{ bar.label }}</text>
@@ -219,6 +219,11 @@ export class ArenaBarChart {
 
   protected readonly zeroY = computed(() => this.axis().zeroY);
   protected readonly gridLines = computed(() => this.axis().ticks);
+
+  protected readonly categoryLabels = computed(() => {
+    const stride = arenaLabelStride(this.bands().step, this.labels(), this.room);
+    return this.bars().filter((bar) => bar.index % stride === 0);
+  });
 
   protected readonly bars = computed(() => {
     const series = this.series();

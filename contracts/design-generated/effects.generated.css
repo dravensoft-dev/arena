@@ -225,6 +225,7 @@
      the ring rather than from the caller.
    */
   --chart-legend-strip:26px;
+  --chart-gauge-reading-descent:6.4px; /* How far the gauge's centre reading reaches below its baseline at the default text size, 0.4 of the 16px line the reading is set in. A CONSEQUENCE of the type scale, the way pad-bottom is: the band word beneath it keeps --chart-label-gap at the default size and drops by this much for every default size the reading has grown past, so a larger text setting never lets the reading's descent touch the word. If the reading's step moves, revisit it; it will not fail loudly. */
 }
 :root{
   /*

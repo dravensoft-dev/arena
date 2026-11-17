@@ -8,7 +8,7 @@ import {
   arenaLinearScale, arenaPointScale, arenaPointAt, arenaScaleValue, arenaNearestPointIndex,
 } from '../ChartScales';
 import { arenaLinePoints, arenaLineAreaPath, arenaCurvePath, arenaCurveAreaPath } from '../ChartMarks';
-import { arenaPlotBox, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY, arenaValueGutter } from '../ChartAxis';
+import { arenaPlotBox, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY, arenaValueGutter, arenaLabelStride } from '../ChartAxis';
 import { arenaChartTable, arenaSeriesColors, arenaSwatchChoice, arenaSeriesDomain, arenaSeriesPointCount } from '../ChartSeries';
 import { arenaRailAnchorX, arenaTooltipAnchor } from '../ChartTooltip';
 import { arenaRailReveal, arenaRailView } from '../ChartRailView';
@@ -281,7 +281,9 @@ export class ArenaLineChart {
     const xScale = this.xScale();
     const labels = this.labels();
     const count = this.pointCount();
-    return Array.from({ length: count }, (_, index) => ({ index, x: arenaPointAt(xScale, index), label: labels[index] ?? '' }));
+    const stride = arenaLabelStride(xScale.step, labels, this.room);
+    return Array.from({ length: count }, (_, index) => ({ index, x: arenaPointAt(xScale, index), label: labels[index] ?? '' }))
+      .filter((one) => one.index % stride === 0);
   });
 
   protected readonly legend = computed(() => {

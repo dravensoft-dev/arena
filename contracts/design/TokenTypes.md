@@ -192,6 +192,7 @@ as written. The numbers a chart reads in script are authored as px and emitted a
 reads the `dz-text` scale and grows with the browser's text setting, so chart geometry multiplies the six
 text-derived numbers (`chart-tick-char`, `chart-pad-bottom`, `chart-pad-left`, `chart-pad-category`,
 `chart-heatmap-row-h` and `chart-legend-strip`) by the reader's text scale, the root font size divided by 16.
+`chart-gauge-reading-descent` is the seventh and is multiplied by the growth past the default, the scale minus 1.
 `chart-label-gap`, `chart-point-r` and every other chart number are spacing and marks, and stay `fixed`. A script
 reading a breakpoint resolves its `rem` against the root font size at the moment of the call, so the
 value it compares is in pixels.

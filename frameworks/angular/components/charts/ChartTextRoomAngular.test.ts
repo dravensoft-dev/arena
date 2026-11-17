@@ -5,7 +5,7 @@ import {
   arenaCategoryGutter, arenaCategoryLabelX, arenaFunnelBox, arenaHeatmapBox, arenaHeatmapHeight, arenaHeatmapWidth,
   arenaLabelStride, arenaPlotBox, arenaPlotBoxH, arenaTextGutter, arenaValueGutter,
 } from './ChartAxis';
-import { arenaGaugeRadii, arenaRadarRadius } from './ChartPolar';
+import { arenaGaugeRadii, arenaGaugeWordY, arenaRadarRadius } from './ChartPolar';
 import { arenaHeatLegendStrip, arenaLegendStrip } from './ChartLegend';
 import { arenaNiceDomain } from './ChartScales';
 import {
@@ -65,4 +65,11 @@ test('a point-spaced plot reserves the scaled left pad, a category gutter and a 
   assert.equal(arenaCategoryGutter(120, room).w, chartPadCategory * 2);
   assert.equal(arenaCategoryGutter(120, room).h, 120);
   assert.equal(arenaHeatmapWidth(100, 50, 20, room), chartPadCategory * 2 + ARENA_PAD.r + 20 * 50);
+});
+
+test('the gauge word sits where it sat at the default and drops with the growth of the reading', () => {
+  assert.equal(arenaGaugeWordY(100), 100 + chartLabelGap);
+  assert.equal(arenaGaugeWordY(100, arenaTextRoom(1)), 100 + chartLabelGap);
+  assert.ok(arenaGaugeWordY(100, arenaTextRoom(2)) > 100 + chartLabelGap);
+  assert.ok(Math.abs(arenaGaugeWordY(100, arenaTextRoom(3)) - arenaGaugeWordY(100, arenaTextRoom(2)) - (arenaGaugeWordY(100, arenaTextRoom(2)) - arenaGaugeWordY(100))) < 1e-9);
 });
