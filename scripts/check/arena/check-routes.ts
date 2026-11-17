@@ -51,7 +51,7 @@ export const ENTRIES: Entry[] = [
   {
     name: 'consumer',
     router: 'skills/design/SKILL.md',
-    budget: 21_700,
+    budget: 21_600,
     reason:
       'the page every consumer route opens with, declared once, not as the first stop of '
       + 'each route. What a route pays past it is its own, and each is argued where spent. '
@@ -66,7 +66,7 @@ export const ENTRIES: Entry[] = [
       + 'extends, as wrapped-link stands beside router-link. The vocabulary families name which '
       + 'style decision reaches which component owner and answer the route\'s questions about '
       + 'appearance sources at the decision layer. The tokens-only rule names the bracket values '
-      + 'audit holds. Rows route a mock, a toolchain and a bundler to their pages. The router-link rule names each member '
+      + 'audit holds. Rows route a mock, toolchain, bundler, panel, toggle and layer. The router-link rule names each member '
       + 'with an href, and the icon rule names production code and the component that draws a glyph.',
   },
   {
@@ -147,20 +147,19 @@ export const ROUTES: Route[] = [
       + 'document that says what the questions are and which answers carry the difference',
     entry: 'consumer',
     stops: ['skills/design/references/style-kernel.md'],
-    budget: 20_500,
+    budget: 19_000,
     reason:
       'paid once per project and never per screen, which lets it carry the whole surface the kernel '
       + 'exposes, not a pointer to it, so a project stops learning the kernel from a normative '
-      + 'contributor document. It states which scale each role draws from, that a reading floor '
+      + 'contributor document. It links the plugin branch for which scale each role draws from, and states that a reading floor '
       + 'refuses the build rather than reporting, which answers a project may inherit and which it '
       + 'has to make, and how the one exception to the scale rule is keyed. The differentiation table '
       + 'is a measurement over the catalogue, so it grows by remeasuring and not by writing. The '
       + 'number is what the stops measure with room for the kernel to grow a section, and it moves '
       + 'when it grows a question, not a paragraph. The root rule says where a role\'s default is '
       + 'written and states first, in a region generated with the config page\'s, which roles carry a '
-      + 'default and that the root answers the rest. It says where a project with no clone fetches '
-      + 'the default plugin. The roster grows per role. The hand checklist names each unanswered '
-      + 'role. A plugin class goes on any element. It says what each kind of role may be answered '
+      + 'default and that the root answers the rest. It says where a clone-less project fetches '
+      + 'the default plugin. The roster grows per role. The setup checklist names each unanswered role. It says what each kind of role may be answered '
       + 'with, which the roster omits. It names the selected tab\'s rule and its default, and says a '
       + 'plugin\'s own percentage stays put.',
   },
@@ -274,7 +273,7 @@ export const ROUTES: Route[] = [
       + 'column it sits in and how much air goes between two components',
     entry: 'consumer',
     stops: ['skills/design/references/page.md', 'skills/design/references/style.md'],
-    budget: 21_000,
+    budget: 20_900,
     reason:
       'paid per element a builder draws themselves, which every screen has. It buys the half of a '
       + 'page no component draws: the floor and where each layer puts it, which frame the viewport '
@@ -286,7 +285,34 @@ export const ROUTES: Route[] = [
       + 'column\'s width and each layer\'s sizing section, names each layer\'s breakpoint helper and '
       + 'the quiet ink level, and sends density values to the density page. Arena paints no '
       + 'selection or scrollbar, so a recipe gives one. It says which palette, style plugin and '
-      + 'density an overlay takes from its trigger, and where an island paints its ground.',
+      + 'density an overlay takes from its trigger, and where an island paints its ground. The page sends a panel, a toggle and a layer to the token tree, which owns what each is painted with.',
+  },
+  {
+    name: 'consumer-paint-panel',
+    who: 'a builder painting a panel of their own markup: the router, then the markup tree index and the pages for surfaces and text, type, edges, space and layout, and depth and motion',
+    entry: 'consumer',
+    stops: ['skills/design/references/tokens/markup/index.md', 'skills/design/references/tokens/markup/surfaces-and-text.md', 'skills/design/references/tokens/markup/type.md', 'skills/design/references/tokens/markup/edges.md', 'skills/design/references/tokens/markup/space-and-layout.md', 'skills/design/references/tokens/markup/depth-and-motion.md'],
+    budget: 18_300,
+    reason:
+      'paid per panel a builder draws themselves. It buys the whole of what paints one: the ground and the ink on it, the title it carries and its size and weight, the edge and its radius, the air inside and around it, and the depth and motion it carries, each read at the page that owns it and not through the page, style and token references. The number is what the stops measure and moves when a page of the tree grows a decision, not a paragraph.',
+  },
+  {
+    name: 'consumer-own-toggle',
+    who: 'a builder who owns a toggle of their own and draws every state of it: the router, then the markup tree index and the pages for states, edges, depth and motion, and space and layout',
+    entry: 'consumer',
+    stops: ['skills/design/references/tokens/markup/index.md', 'skills/design/references/tokens/markup/states.md', 'skills/design/references/tokens/markup/edges.md', 'skills/design/references/tokens/markup/depth-and-motion.md', 'skills/design/references/tokens/markup/space-and-layout.md'],
+    budget: 11_500,
+    reason:
+      'paid once per control a builder draws without a component. It buys the states a control wears, hover and the pressed lift and scale, with the motion and the space of each change, and the outline the control draws, its edge colour, width and radius. Focus and disabled have no role yet, so a control of this kind draws them itself. Each is read from the page that owns it instead of the media register, the page and the kernel. The data files beside the pages are not stops, since the gate charges the Markdown only.',
+  },
+  {
+    name: 'consumer-layer',
+    who: 'a builder placing a layer over the page: the router, then the markup tree index and the layers page',
+    entry: 'consumer',
+    stops: ['skills/design/references/tokens/markup/index.md', 'skills/design/references/tokens/markup/layers.md'],
+    budget: 3_700,
+    reason:
+      'paid per overlay, sticky bar or panel a builder places. It buys the order layers stack in and what each one rests on, in one page, without the token reference and the shell page. The number is what the two stops measure and moves when the layers page grows a rule.',
   },
   {
     name: 'consumer-coldstart',
