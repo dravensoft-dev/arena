@@ -150,6 +150,7 @@
   --color-field: var(--fill-field);
   --color-hover: var(--fill-hover);
   --color-track: var(--fill-track);
+  --color-selected: var(--fill-selected);
 
   /* The wash a media frame draws under anything laid over it. A colour key rather than one of
      its own, because bg-* is the namespace that paints it; the OPACITY stays in the manifest,
@@ -170,6 +171,8 @@
   --color-ink-action: var(--ink-action);
   --color-ink-key: var(--ink-key);
   --color-ink-link: var(--ink-link);
+  --color-ink-selected: var(--ink-selected);
+  --color-ink-invalid: var(--ink-invalid);
 
   /* Edge ROLES. v4 has no border-color namespace: a border colour is a --color-* key read by
      border-<key>, which is why these sit here rather than beside the bw roles they pair with. */
@@ -182,6 +185,9 @@
   --color-edge-axis: var(--edge-axis);
   --color-edge-tab-selected: var(--edge-tab-selected);
   --color-edge-marker: var(--edge-marker);
+  --color-edge-focus: var(--edge-focus);
+  --color-edge-selected: var(--edge-selected);
+  --color-edge-invalid: var(--edge-invalid);
   --color-confirm-final: var(--fill-confirm-final);
   --color-ink-confirm-final: var(--ink-confirm-final);
 

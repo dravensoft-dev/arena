@@ -193,7 +193,7 @@ test('a long list of roles carrying a default is named in sentences the register
   const sentence = defaultedSentence(roles, 239);
   for (const one of plain(sentence).split(/(?<=\.)\s+/))
     assert.ok(words(one).length <= MAX_WORDS, `a sentence of ${words(one).length} words: ${one.slice(0, 60)}`);
-  assert.match(sentence, /^The 29 roles carrying a default begin with `role-a`/);
+  assert.match(sentence, /^The 29 roles carrying a default include `role-a`/);
   assert.match(sentence, /Roles carrying a default also include `role-u`.* Your root plugin answers the other 239\.$/);
   for (const role of roles) assert.ok(sentence.includes(`\`${role}\``), role);
 });

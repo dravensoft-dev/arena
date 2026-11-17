@@ -107,7 +107,7 @@ export function defaultedSentence(roles: string[], total = 0) {
   if (roles.length === 0)
     return `No role in this package carries a default, so your root style plugin answers every one of the ${total} roles and the command refuses a root plugin silent on any.`;
   const runs = roleRuns(roles);
-  const verb = runs.length > SENTENCE_RUNS ? 'begin with' : 'are';
+  const verb = runs.length > SENTENCE_RUNS ? 'include' : 'are';
   const named = [`The ${roles.length} roles carrying a default ${verb} ${runs.slice(0, SENTENCE_RUNS).join(', ')}.`];
   for (let at = SENTENCE_RUNS; at < runs.length; at += SENTENCE_RUNS)
     named.push(`Roles carrying a default also include ${runs.slice(at, at + SENTENCE_RUNS).join(', ')}.`);

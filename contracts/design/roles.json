@@ -1457,7 +1457,13 @@
           "aria-current",
           "aria-pressed"
         ],
-        "question": "What colour washes the background of a selected or current item?"
+        "question": "What colour washes the background of a selected or current item?",
+        "combines": [
+          {
+            "with": "level-accent-soft-primary",
+            "as": "level"
+          }
+        ]
       }
     }
   },

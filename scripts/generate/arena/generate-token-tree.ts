@@ -13,7 +13,7 @@ import { readJson } from '../../utils/read-file.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { ARENA_EXT } from '../../lib/core/dtcg-shapes.ts';
 import { HEADLINE, when } from '../../lib/arena/llms-index.ts';
-import { AUDIENCES, TASKS } from '../../check/core/check-role-contract.ts';
+import { AUDIENCES, TASKS, STATE_SELECTORS } from '../../check/core/check-role-contract.ts';
 import { themeDeclarations } from '../../lib/tailwind/theme-sheet.ts';
 import { deriveNamespaces } from '../../lib/tailwind/theme-namespaces.ts';
 
@@ -82,7 +82,7 @@ export function firstSentence(text: string) {
 }
 
 type Combine = { with: string; as: string };
-type RoleMeta = { audience?: string; task?: string; userScale?: string; default?: string; question?: string; combines?: Combine[] };
+type RoleMeta = { audience?: string; task?: string; state?: string[]; userScale?: string; default?: string; question?: string; combines?: Combine[] };
 type RoleToken = { $type?: string; $description?: string; $extensions?: Record<string, RoleMeta> };
 
 export const COMPAT: Record<'markup' | 'component', string> = {
@@ -96,10 +96,11 @@ const NAMESPACE_PREFIX: Record<string, string> = {
   text: 'text-', leading: 'leading-', tracking: 'tracking-', container: 'max-w-',
 };
 
-function colorPrefix(role: string, key: string) {
-  if (/^(fill|overlay)-/.test(role)) return 'bg-';
-  if (role.startsWith('ink-')) return 'text-';
-  if (role.startsWith('edge-')) return 'border-';
+function colorPrefix(role: string, key: string): string[] {
+  if (role === 'edge-focus') return ['ring-', 'outline-'];
+  if (/^(fill|overlay)-/.test(role)) return ['bg-'];
+  if (role.startsWith('ink-')) return ['text-'];
+  if (role.startsWith('edge-')) return ['border-'];
   throw new Error(`generate-token-tree: the theme key --color-${key} reads the role ${role}, and no colour prefix takes a role of that name.`);
 }
 
@@ -134,9 +135,9 @@ export function roleUtilities(base = root) {
       if (!arithmeticOnly(value, role)) continue;
       if (!hit) throw new Error(`generate-token-tree: the theme key ${name} reads the role ${role}, and no theme namespace places that key.`);
       const [ns, key] = hit;
-      const prefix = ns === 'color' ? colorPrefix(role, key) : ns === 'spacing' ? spacingPrefix(role) : NAMESPACE_PREFIX[ns];
-      if (!prefix) throw new Error(`generate-token-tree: the theme key ${name} reads the role ${role}, and the namespace ${ns} has no utility prefix here.`);
-      out.set(role, [...(out.get(role) ?? []), `${prefix}${key}`]);
+      const one = ns === 'color' ? colorPrefix(role, key) : [ns === 'spacing' ? spacingPrefix(role) : NAMESPACE_PREFIX[ns]];
+      if (!one[0]) throw new Error(`generate-token-tree: the theme key ${name} reads the role ${role}, and the namespace ${ns} has no utility prefix here.`);
+      out.set(role, [...(out.get(role) ?? []), ...one.map((prefix) => `${prefix}${key}`)]);
     }
   }
   return out;
@@ -148,7 +149,7 @@ export function combination(role: string, entry: Combine, utilities: string[]) {
     if (!found) throw new Error(`generate-token-tree: the role ${role} combines as ${entry.as} with --${entry.with}, but no ${prefix} utility reaches it.`);
     return found;
   };
-  if (entry.as === 'level') return `${need('text-')}/(--${entry.with})`;
+  if (entry.as === 'level') return `${need(role.startsWith('fill-') ? 'bg-' : 'text-')}/(--${entry.with})`;
   if (entry.as === 'width') return `${need('border-')} border-[length:var(--${entry.with})]`;
   if (entry.as === 'density') return `calc(var(--${role}) * var(--${entry.with}))`;
   throw new Error(`generate-token-tree: the role ${role} combines as ${entry.as}, which is not level, width or density.`);
@@ -166,6 +167,16 @@ function indexBody(index: string, base: string) {
     const link = child.endsWith('index.md') ? child : `${child}.md`;
     return `- [${headline}](./${link}): ${sentence}`;
   }).join('\n');
+}
+
+export function stateRows(roles: Record<string, RoleToken>) {
+  return Object.entries(STATE_SELECTORS).flatMap(([attribute, selector]) => {
+    const named = Object.keys(roles).sort().filter((name) => {
+      const state = (roles[name]!.$extensions?.[ARENA_EXT] as Record<string, unknown> | undefined)?.state;
+      return Array.isArray(state) && state.includes(attribute);
+    });
+    return named.length ? [`| \`${attribute}\` | \`${selector}\` | ${named.map((name) => `\`--${name}\``).join(', ')} |`] : [];
+  });
 }
 
 export function regionBodies(base = root) {
@@ -203,6 +214,8 @@ export function regionBodies(base = root) {
       '| role | question | type | user scale | default |', '| --- | --- | --- | --- | --- |', ...rows].join('\n'));
   for (const [leaf, rows] of markupRows)
     bodies.set(leaf, [COMPAT.markup, '', '| role | question | utility | combines with |', '| --- | --- | --- | --- |', ...rows].join('\n'));
+
+  bodies.set('markup/states.md', [bodies.get('markup/states.md') ?? '', '', '| attribute | selector | roles |', '| --- | --- | --- |', ...stateRows(roles)].join('\n'));
 
   for (const path of GENERATED_PATHS) if (!bodies.has(path)) bodies.set(path, '');
   const z = (readJson(join(base, LAYERING)) as { z: Record<string, { $value?: number; $description?: string }> }).z;

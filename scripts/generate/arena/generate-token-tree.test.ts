@@ -12,7 +12,7 @@ import { readJson } from '../../utils/read-file.ts';
 import { ARENA_EXT } from '../../lib/core/dtcg-shapes.ts';
 import {
   TREE, TREE_DIR, TREE_OPEN, TREE_CLOSE, roleLeaf, markupLeaf, regionBodies, renderTree, writeTree, firstSentence,
-  COMPAT, roleUtilities, combination,
+  COMPAT, roleUtilities, combination, stateRows,
 } from './generate-token-tree.ts';
 import { compileLayer, escapeClass } from '../../lib/tailwind/tailwind-compile.ts';
 
@@ -203,4 +203,30 @@ test('every rendered utility compiles', () => {
   const { css } = compileLayer({ extraSource: join(dir, '*.manifest.json') });
   assert.deepEqual([...classes].filter((cls) => !new RegExp(`\\.${escapeClass(cls).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?=[\\s{:,>])`).test(css)), []);
   assert.ok(classes.size > 60);
+});
+
+test('edge-focus reaches ring and outline', () => {
+  assert.deepEqual(roleUtilities().get('edge-focus'), ['ring-edge-focus', 'outline-edge-focus']);
+});
+
+test('a fill role combines its level on its bg utility', () => {
+  assert.equal(combination('fill-selected', { with: 'level-accent-soft-primary', as: 'level' }, ['bg-selected']), 'bg-selected/(--level-accent-soft-primary)');
+  assert.ok(rowOf('markup/states.md', 'fill-selected').includes('`bg-selected/(--level-accent-soft-primary)`'));
+});
+
+test('the states leaf maps every attribute to its selector and roles', () => {
+  const body = real.get('markup/states.md')!;
+  const rows = body.split('\n').filter((line) => /^\| `[a-z-]+` \| `/.test(line));
+  assert.equal(rows.length, 8);
+  assert.ok(body.includes('| attribute | selector | roles |'));
+  const invalid = rows.find((line) => line.startsWith('| `aria-invalid` |'))!;
+  assert.ok(invalid.includes('`--edge-invalid`') && invalid.includes('`--ink-invalid`'));
+  assert.ok(rows.find((line) => line.startsWith('| `hover` |'))!.includes('`--fill-hover`'));
+  assert.ok(rows.find((line) => line.startsWith('| `aria-pressed` |'))!.includes('`[aria-pressed="true"]`'));
+});
+
+test('a state no role names has no row', () => {
+  const stub: Parameters<typeof stateRows>[0] = { a: { $extensions: { [ARENA_EXT]: { state: ['hover'] } } } };
+  const rows = stateRows(stub);
+  assert.deepEqual(rows, ['| `hover` | `:hover` | `--a` |']);
 });

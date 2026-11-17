@@ -1,6 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { presetTokens, checkCoverage, optionRoles, optionPrefixes, OPTION_ROLE_REASON, pluginOptionRoles } from './check-tailwind-coverage.ts';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { EXCLUDED, presetTokens, checkCoverage, optionRoles, optionPrefixes, OPTION_ROLE_REASON, pluginOptionRoles } from './check-tailwind-coverage.ts';
+import { arenaTokenNames, arenaTokens } from '../../lib/core/arena-tokens.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 
 test('reads the Arena tokens a preset references', () => {
@@ -104,4 +107,15 @@ test('every role of the real plugin that an option of a family names is excluded
   for (const role of roles)
     if ([...prefixes].some((prefix) => role.startsWith(prefix)))
       assert.equal(excluded.get(role), OPTION_ROLE_REASON, `${role} is an option role`);
+});
+
+test('the shipped theme and exclusions leave none of the nine state roles unreached', () => {
+  const css = readFileSync(join(repoRoot, 'frameworks/tailwind/Theme.css'), 'utf8');
+  const exposed = presetTokens(css);
+  const excluded = new Map([...EXCLUDED, ...pluginOptionRoles(repoRoot).excluded]);
+  const nine = ['edge-focus', 'bw-focus', 'gap-focus', 'fill-selected', 'ink-selected', 'edge-selected', 'fade-disabled', 'edge-invalid', 'ink-invalid'];
+  for (const role of nine)
+    assert.ok(exposed.has(role) !== excluded.has(role), `${role} is exposed or excluded, never both nor neither`);
+  const errs = checkCoverage(arenaTokens(), exposed, excluded, arenaTokenNames(repoRoot));
+  assert.deepEqual(errs.filter((err) => nine.some((role) => err.startsWith(`--${role} `) || err.includes(`--${role} `))), []);
 });
