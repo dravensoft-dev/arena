@@ -107,8 +107,8 @@
   transform: translateZ(0);
   contain: paint;
   overflow: hidden;
-  width: 640px;
-  height: 420px;
+  width: 40rem;
+  height: 26.25rem;
   max-width: 100%;
   border: 1px dashed var(--border);
 }

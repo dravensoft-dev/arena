@@ -6,7 +6,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   ENLARGED_PX, rootProblems, doublingProblems, clipProblems, overlapProblems, staleAllowanceProblems,
-  breakpointProblems, clippedBy, declaresTruncation, takesPartInFlow, collectExpression, firstCutting, referenceProblem, type TextBox,
+  breakpointProblems, THINNED, clippedBy, declaresTruncation, takesPartInFlow, collectExpression, firstCutting, referenceProblem, type TextBox,
 } from './check-text-scale.ts';
 
 const box = (over: Partial<TextBox> = {}): TextBox => ({
@@ -134,4 +134,24 @@ test('an inline, floated, absolute or fixed box takes no part in overlap', () =>
   assert.equal(takesPartInFlow({ ...base, position: 'fixed' }), false);
   assert.equal(takesPartInFlow({ ...base, float: 'left' }), false);
   assert.equal(takesPartInFlow({ ...base, display: 'inline' }), false);
+});
+
+test('a thinned slot pairs its labels by text and occurrence, ignores the ones drawn at one size and still checks doubling', () => {
+  const slot = 'react/charts:heatmap-chart.frame>text';
+  assert.ok(THINNED.has(slot));
+  const thinned = new Map([[slot, 'why']]);
+  const at = (n: number, text: string, fontSize: number) => box({ path: `${slot}#${n}`, text, fontSize });
+  const used = new Set<string>();
+  const at16 = [at(3, '06', 14), at(4, '09', 14), at(5, '12', 14)];
+  assert.deepEqual(doublingProblems(at16, [at(3, '06', 28), at(4, '12', 28), at(5, '18', 28)], new Map(), new Set(), thinned, used), []);
+  assert.deepEqual([...used], [slot]);
+  const stuck = doublingProblems(at16, [at(9, '12', 14)], new Map(), new Set(), thinned, new Set());
+  assert.equal(stuck.length, 1);
+  assert.match(stuck[0] ?? '', /did not double/);
+  assert.equal(doublingProblems([box({ path: 'x#0', text: 'A' })], [], new Map(), new Set(), thinned, new Set()).length, 1);
+});
+
+test('a thinned allowance that silenced nothing is stale', () => {
+  const used = new Set<string>();
+  assert.equal(staleAllowanceProblems(used, new Map([['a', 'why']]), 'THINNED').length, 1);
 });

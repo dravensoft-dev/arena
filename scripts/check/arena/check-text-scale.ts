@@ -4,8 +4,10 @@
  * over the records the page returns. A root that is not 32px fails naming what it measured, so a browser
  * that ignored the preference cannot pass on pages that never grew. A truncating slot (ellipsis, line
  * clamp), a 1px clip box (visually hidden text) and an absolutely positioned, floated or inline box
- * (its rect spans its wrapped lines) are not reported. FIXED, CLIPS and OVERLAPS are keyed
- * <layer>/<sink>:<data-arena-part or tag>, carry a reason, and fail when they silence nothing. */
+ * (its rect spans its wrapped lines) are not reported. FIXED, CLIPS, OVERLAPS and THINNED are keyed
+ * <layer>/<sink>:<data-arena-part or tag>, carry a reason, and fail when they silence nothing. A THINNED
+ * slot draws a different set of labels at each size by design, so it is matched by slot, text and
+ * occurrence instead of by ordinal, and a label drawn at only one size is not reported. */
 
 import { withTimeout } from '../../utils/with-timeout.ts';
 import { isMainModule } from '../../utils/main-module.ts';
@@ -62,6 +64,13 @@ export const CLIPS = new Map<string, string>([]);
 
 export const OVERLAPS = new Map<string, string>([]);
 
+const THINNED_WHY = 'the chart keeps every stride-th tick label and measures the stride over a tick width that '
+  + 'now follows the text size, so the labels drawn at 16px and at 32px are different sets by design; the '
+  + 'labels both sizes draw are still compared for doubling';
+
+export const THINNED = new Map<string, string>(SINK_LAYERS.flatMap((layer) =>
+  ['charts', 'default', 'complete'].map((sink) => [`${layer}/${sink}:heatmap-chart.frame>text`, THINNED_WHY] as [string, string])));
+
 export function slotOf(path: string) {
   const at = path.indexOf('#');
   return at === -1 ? path : path.slice(0, at);
@@ -76,14 +85,28 @@ export function rootProblems(rootPx: number, what = 'the page'): string[] {
 
 export const matchKey = (one: TextBox) => `${one.path}\u0000${one.text}`;
 
+function keyed(boxes: TextBox[], thinned: Map<string, string>) {
+  const seen = new Map<string, number>();
+  return boxes.map((one) => {
+    if (!thinned.has(slotOf(one.path))) return { one, key: matchKey(one), slot: null as string | null };
+    const base = `${slotOf(one.path)}\u0000${one.text}`;
+    const nth = seen.get(base) ?? 0;
+    seen.set(base, nth + 1);
+    return { one, key: `${base}\u0000${nth}`, slot: slotOf(one.path) };
+  });
+}
+
 export function doublingProblems(at16: TextBox[], at32: TextBox[], fixed: Map<string, string>,
-  used: Set<string> = new Set()): string[] {
-  const before = new Map(at16.map((one) => [matchKey(one), one]));
-  const after = new Set(at32.map(matchKey));
+  used: Set<string> = new Set(), thinned: Map<string, string> = new Map(), usedThinned: Set<string> = new Set()): string[] {
+  const then16 = keyed(at16, thinned);
+  const now32 = keyed(at32, thinned);
+  const before = new Map(then16.map((entry) => [entry.key, entry.one]));
+  const after = new Set(now32.map((entry) => entry.key));
   const problems: string[] = [];
-  for (const now of at32) {
-    const then = before.get(matchKey(now));
+  for (const { one: now, key, slot: thinSlot } of now32) {
+    const then = before.get(key);
     if (!then) {
+      if (thinSlot !== null) { usedThinned.add(thinSlot); continue; }
       problems.push(`${now.path}: "${now.text}" is drawn at ${ENLARGED_PX}px and has no box of that slot and text at 16px, `
         + 'so its size cannot be compared');
       continue;
@@ -95,8 +118,9 @@ export function doublingProblems(at16: TextBox[], at32: TextBox[], fixed: Map<st
     problems.push(`${now.path}: "${now.text}" is ${then.fontSize}px at a 16px default and ${now.fontSize}px at `
       + `${ENLARGED_PX}px, so it did not double`);
   }
-  for (const then of at16) {
-    if (after.has(matchKey(then))) continue;
+  for (const { one: then, key, slot: thinSlot } of then16) {
+    if (after.has(key)) continue;
+    if (thinSlot !== null) { usedThinned.add(thinSlot); continue; }
     problems.push(`${then.path}: "${then.text}" is drawn at 16px and has no box of that slot and text at ${ENLARGED_PX}px, `
       + 'so it vanished or moved when the text grew');
   }
@@ -353,6 +377,7 @@ async function main() {
   const usedFixed = new Set<string>();
   const usedClips = new Set<string>();
   const usedOverlaps = new Set<string>();
+  const usedThinned = new Set<string>();
   let measured = 0;
   try {
     const cdpBig = await connect(big.wsUrl);
@@ -383,7 +408,7 @@ async function main() {
         const base = reference.get(`${page.layer}/${page.sink}/${scope}`);
         const missing = referenceProblem(where, base);
         if (missing !== null) note(missing, where);
-        if (base) for (const one of doublingProblems(base.boxes, collected.boxes, FIXED, usedFixed)) note(one, where);
+        if (base) for (const one of doublingProblems(base.boxes, collected.boxes, FIXED, usedFixed, THINNED, usedThinned)) note(one, where);
         for (const one of clipProblems(collected.boxes, CLIPS, usedClips)) note(one, where);
         for (const one of overlapProblems(collected.boxes, OVERLAPS, usedOverlaps)) note(one, where);
       }
@@ -398,6 +423,7 @@ async function main() {
     ...staleAllowanceProblems(usedFixed, FIXED, 'FIXED'),
     ...staleAllowanceProblems(usedClips, CLIPS, 'CLIPS'),
     ...staleAllowanceProblems(usedOverlaps, OVERLAPS, 'OVERLAPS'),
+    ...staleAllowanceProblems(usedThinned, THINNED, 'THINNED'),
   ]) note(one, 'allowances');
 
   if (problems.size > 0) {
