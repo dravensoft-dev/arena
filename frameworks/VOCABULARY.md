@@ -117,7 +117,7 @@ Whether a surface rests on the page or lifts off it. Depth comes from the shadow
 
 ## emphasis
 
-How loudly an action speaks: filled in the accent, a quiet surface, or no surface at all. Emphasis is the treatment channel, and meaning composes with it: a destructive action keeps whichever emphasis it is given and draws it in danger. At most one primary stands in a view.
+How loudly an action speaks: filled in the accent, a quiet surface, or no surface at all. Emphasis is the treatment channel, and meaning composes with it: a destructive action keeps whichever emphasis it is given and draws it in danger.
 
 - **Options:** `arena-emphasis-ghost`, `arena-emphasis-primary` (default), `arena-emphasis-secondary`, `arena-emphasis-solid`.
 - **Reach:** context: it reaches every component inside, until a nearer class answers it again.

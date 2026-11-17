@@ -8,9 +8,6 @@ repository rather than a fixture beside a gate or a template a command copies in
 template is a copy the moment it is used, and a copy is a second answer to a question the kernel
 asks once.
 
-`check:text-contrast` and `check:boundary-contrast` refuse a pair under its bar in `default` alone.
-`complete` and the catalogue are measured and reported, and pass.
-
 **That claim is about the answers Arena gives, and [`catalogue/`](./catalogue/AGENTS.md) gives
 none.** An entry there is a starting point measured on a real product, published so a project with
 no appearance of its own can take one and edit it in its own tree, and being copied is its whole
@@ -18,6 +15,9 @@ purpose rather than a defect. It costs the claim above nothing, because no entry
 has a row in `FILES` in `scripts/generate/arena/generate-tokens.ts`, so no sheet is emitted, no
 class exists, and nothing in this repository renders one. What this repository renders is the two
 below; what it publishes for somebody else to run is the catalogue.
+
+`check:text-contrast` and `check:boundary-contrast` refuse a pair under its bar in `default` alone.
+`complete` and the catalogue are measured and reported, and pass.
 
 A plugin is a directory holding two files. [`default/plugin.tokens.json`](./default/plugin.tokens.json)
 answers roles. `plugin.css` beside it is CSS of the plugin's own, written against the

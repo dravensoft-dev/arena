@@ -1,6 +1,6 @@
 {
   "name": "ArenaDeltaTone",
   "kind": "enum",
-  "description": "Whether a change was GOOD. Separate from ArenaDirection because revenue down is negative and latency down is positive, and only the product knows which. Every sign renders outline, never filled.",
+  "description": "Whether a change was GOOD. Separate from ArenaDirection because revenue down is negative and latency down is positive, and only the product knows which. Both signs draw an edge and ink over a transparent background.",
   "values": ["neutral", "positive", "negative"]
 }

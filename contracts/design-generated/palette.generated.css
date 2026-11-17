@@ -50,7 +50,7 @@
    */
   --color-error-fill:#ce3838;
   /*
-     Categorical chart ramp: identity only, never meaning (see README → Theming).
+     Categorical chart ramp: identity (see README → Theming).
      Fixed order: slot N is always slot N. A 9th series folds to "Other", small
      multiples, or direct labels; it is NEVER a generated hue.
      Chroma is capped at OKLCH C <= 0.15 so the ramp sits in Arena's register
@@ -128,7 +128,7 @@
    */
   --color-error-fill:#ce3838;
   /*
-     Categorical chart ramp: identity only, never meaning (see README → Theming).
+     Categorical chart ramp: identity (see README → Theming).
      Fixed order: slot N is always slot N. A 9th series folds to "Other", small
      multiples, or direct labels; it is NEVER a generated hue.
      Chroma is capped at OKLCH C <= 0.15 so the ramp sits in Arena's register
