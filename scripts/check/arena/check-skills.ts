@@ -11,7 +11,7 @@
 import { readFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { hostBinary } from '../../lib/arena/host-binary.ts';
-import { join } from 'node:path';
+import { join, dirname } from 'node:path';
 import { relPosix } from '../../utils/posix-path.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { renderTarget, skillTargets, loadCategories, node as skillsNode } from '../../generate/arena/generate-skills.ts';
@@ -19,6 +19,8 @@ import {
   TARGETS as NPM_TARGETS, renderTarget as renderNpmPage, node as npmPagesNode,
 } from '../../generate/arena/generate-npm-pages.ts';
 import { NPM_QUESTIONS, githubSlug, type Section } from '../../lib/arena/npm-questions.ts';
+import { walkFiles } from '../../utils/walk-files.ts';
+import { isConsumerDocument } from './check-docs.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 
 export const node = {
@@ -28,7 +30,7 @@ export const node = {
     ...NPM_TARGETS, 'skills/design/**', '.claude-plugin/plugin.json',
     'frameworks/react/**', 'frameworks/angular/**',
     '!frameworks/angular/build/**', '!frameworks/react/dist/**', '!frameworks/angular/dist/**',
-    ...skillsNode.reads, ...skillsNode.writes, ...npmPagesNode.reads, 'frameworks/VOCABULARY.md',
+    'plugin-style-store/catalogue/**', ...skillsNode.reads, ...skillsNode.writes, ...npmPagesNode.reads, 'frameworks/VOCABULARY.md',
   ],
   writes: [],
   feeds: [],
@@ -103,6 +105,47 @@ export function questionProblems(base = root, manifest: Record<string, Section[]
   return [...new Set(problems)];
 }
 
+const FENCE = /^```[\s\S]*?^```/gm;
+const RELATIVE_FRAGMENT = /\]\(((?![a-z][a-z0-9+.-]*:)[^)#\s]+\.md)#([^)\s]+)\)/g;
+const NOT_READ = new Set(['node_modules', 'dist', 'build']);
+
+function consumerDocuments(base: string) {
+  const docs = ['frameworks', 'skills', 'plugin-style-store']
+    .flatMap((dir) => walkFiles(join(base, dir), { skip: (name) => name.startsWith('.') || NOT_READ.has(name) }))
+    .map((file) => relPosix(base, file))
+    .filter((rel) => rel.endsWith('.md') && isConsumerDocument(rel));
+  return [...new Set([...docs, 'skills/design/SKILL.md'])];
+}
+
+export function fragmentProblems(base = root, docs?: string[]) {
+  const explicit = docs !== undefined;
+  const problems: string[] = [];
+  const slugs = new Map<string, Set<string> | null>();
+  for (const from of docs ?? consumerDocuments(base)) {
+    let text: string;
+    try {
+      text = readFileSync(join(base, from), 'utf8');
+    } catch {
+      if (explicit) throw new Error(`fragmentProblems: ${from} was named and cannot be read`);
+      continue;
+    }
+    for (const [, target, frag] of text.replace(FENCE, '').matchAll(RELATIVE_FRAGMENT)) {
+      const resolved = relPosix('.', join(dirname(from), target as string));
+      if (!slugs.has(resolved)) {
+        try {
+          slugs.set(resolved, slugsIn(readFileSync(join(base, resolved), 'utf8')));
+        } catch {
+          slugs.set(resolved, null);
+        }
+      }
+      const found = slugs.get(resolved);
+      if (found === null) problems.push(`${from}: ${target}#${frag} names no heading in ${resolved}, which does not exist`);
+      else if (!found?.has(frag as string)) problems.push(`${from}: ${target}#${frag} names no heading in ${resolved}`);
+    }
+  }
+  return [...new Set(problems)];
+}
+
 export function trackingProblems(target: string, tracked: boolean) {
   return tracked
     ? []
@@ -141,6 +184,7 @@ export function skillProblems(base = root, tracked = trackedFiles(base)) {
     ...zeroDeclarationProblems(declared),
     ...sharedRegionProblems(base),
     ...questionProblems(base),
+    ...fragmentProblems(base),
   ];
 
   for (const target of targets) {

@@ -1,10 +1,10 @@
 import test, { after } from 'node:test';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, chmodSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import assert from 'node:assert/strict';
 import {
-  skillProblems, firstDifference, zeroDeclarationProblems, trackingProblems, questionProblems,
+  skillProblems, firstDifference, zeroDeclarationProblems, trackingProblems, questionProblems, fragmentProblems,
 } from './check-skills.ts';
 import { skillTargets } from '../../generate/arena/generate-skills.ts';
 
@@ -107,4 +107,50 @@ test('a SKILL.md link carrying an anchor links the file, and a repeated heading 
   const second = { 'contracts/NPM.md': [{ section: 's', rows: [{ question: 'q?', file: 'skills/design/references/a.md', heading: 'Same' }] }] };
   assert.deepEqual(questionProblems(base, second), []);
   assert.equal(questionProblems(base, manifest('Same-2', 'skills/design/references/a.md')).length, 1);
+});
+
+test('a relative fragment names a heading of its target', () => {
+  const dir = track(mkdtempSync(join(tmpdir(), 'arena-frag-')));
+  mkdirSync(join(dir, 'skills/design'), { recursive: true });
+  writeFileSync(join(dir, 'skills/design/a.md'), '# A\n\n## X\n\n## X\n\n```\n## Fenced\n```\n');
+  const link = (to: string) => writeFileSync(join(dir, 'skills/design/SKILL.md'), `[l](${to})\n`);
+  const run = () => fragmentProblems(dir, ['skills/design/SKILL.md']);
+  link('a.md#x');
+  assert.deepEqual(run(), []);
+  link('a.md#x-1');
+  assert.deepEqual(run(), []);
+  link('a.md#nope');
+  assert.equal(run().length, 1);
+  assert.match(run()[0] ?? '', /names no heading/);
+  link('a.md#fenced');
+  assert.equal(run().length, 1);
+  link('missing.md#x');
+  assert.deepEqual(run(), ['skills/design/SKILL.md: missing.md#x names no heading in skills/design/missing.md, which does not exist']);
+  link('https://example.com/a.md#nope');
+  assert.deepEqual(run(), []);
+  link('a.json#k');
+  assert.deepEqual(run(), []);
+});
+
+test('every relative fragment in the consumer documents resolves', () => {
+  assert.deepEqual(fragmentProblems(), []);
+});
+
+test('a named document that cannot be read throws, naming its path', () => {
+  const dir = track(mkdtempSync(join(tmpdir(), 'arena-frag-')));
+  assert.throws(() => fragmentProblems(dir, ['skills/design/gone.md']), /skills\/design\/gone\.md/);
+});
+
+test('the default walk skips a consumer document it cannot read', () => {
+  const dir = track(mkdtempSync(join(tmpdir(), 'arena-frag-')));
+  for (const root of ['skills/design', 'frameworks', 'plugin-style-store']) mkdirSync(join(dir, root), { recursive: true });
+  writeFileSync(join(dir, 'skills/design/SKILL.md'), '# S\n');
+  const hidden = join(dir, 'skills/design/hidden.md');
+  writeFileSync(hidden, '[l](SKILL.md#nope)\n');
+  chmodSync(hidden, 0o000);
+  try {
+    assert.deepEqual(fragmentProblems(dir), []);
+  } finally {
+    chmodSync(hidden, 0o644);
+  }
 });
