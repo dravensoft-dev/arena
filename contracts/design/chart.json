@@ -25,12 +25,12 @@
     },
     "pad-top": {
       "$value": "{sp.2}",
-      "$description": "The plot's top padding, one step of the base grid.",
+      "$description": "The plot's top padding, one step of the base grid at the default text size. It holds half of the top tick label, so a chart multiplies it by the reader's text scale.",
       "$extensions": { "com.dravensoft.arena": { "script": true } }
     },
     "pad-right": {
       "$value": "{sp.2}",
-      "$description": "The plot's right padding, one step of the base grid.",
+      "$description": "The plot's right padding, one step of the base grid at the default text size. It holds half of the last tick label, so a chart multiplies it by the reader's text scale.",
       "$extensions": { "com.dravensoft.arena": { "script": true } }
     },
     "pad-bottom": {

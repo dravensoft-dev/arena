@@ -1,4 +1,4 @@
-import { ARENA_PAD, ARENA_TEXT_ROOM } from '../../DataVisuals.ts';
+import { ARENA_TEXT_ROOM } from '../../DataVisuals.ts';
 import type { ArenaTextRoom } from '../../DataVisuals.ts';
 import {
   chartLabelGap, chartRingInset, chartPointR,
@@ -53,9 +53,9 @@ export function arenaPlotBox(
   const left = gutter ?? room.padLeft;
   return {
     x: left,
-    y: ARENA_PAD.t,
-    w: Math.max(1, width - left - ARENA_PAD.r),
-    h: Math.max(1, height - ARENA_PAD.t - room.padBottom),
+    y: room.padTop,
+    w: Math.max(1, width - left - room.padRight),
+    h: Math.max(1, height - room.padTop - room.padBottom),
   };
 }
 
@@ -108,9 +108,9 @@ export function arenaDoughnutRadii(
 export function arenaPlotBoxH(width: number, height: number, room: ArenaTextRoom = ARENA_TEXT_ROOM): ArenaPlotBox {
   return {
     x: room.padCategory,
-    y: ARENA_PAD.t,
-    w: Math.max(1, width - room.padCategory - ARENA_PAD.r),
-    h: Math.max(1, height - ARENA_PAD.t - room.padBottom),
+    y: room.padTop,
+    w: Math.max(1, width - room.padCategory - room.padRight),
+    h: Math.max(1, height - room.padTop - room.padBottom),
   };
 }
 
@@ -125,22 +125,22 @@ export function arenaFunnelBox(
 ): ArenaPlotBox {
   return {
     x: room.padCategory,
-    y: ARENA_PAD.t,
-    w: Math.max(1, width - room.padCategory - gutter - ARENA_PAD.r),
-    h: Math.max(1, height - ARENA_PAD.t * 2),
+    y: room.padTop,
+    w: Math.max(1, width - room.padCategory - gutter - room.padRight),
+    h: Math.max(1, height - room.padTop * 2),
   };
 }
 
 export function arenaHeatmapHeight(rows: number, room: ArenaTextRoom = ARENA_TEXT_ROOM): number {
-  return Math.max(1, rows) * room.heatmapRowH + ARENA_PAD.t + room.padBottom + room.legendStrip;
+  return Math.max(1, rows) * room.heatmapRowH + room.padTop + room.padBottom + room.legendStrip;
 }
 
 export function arenaHeatmapBox(width: number, plotH: number, room: ArenaTextRoom = ARENA_TEXT_ROOM): ArenaPlotBox {
   return {
     x: room.padCategory,
-    y: ARENA_PAD.t,
-    w: Math.max(1, width - room.padCategory - ARENA_PAD.r),
-    h: Math.max(1, plotH - ARENA_PAD.t - room.padBottom),
+    y: room.padTop,
+    w: Math.max(1, width - room.padCategory - room.padRight),
+    h: Math.max(1, plotH - room.padTop - room.padBottom),
   };
 }
 
@@ -148,7 +148,7 @@ export function arenaHeatmapWidth(
   available: number, cols: number, minCellWidth: number | undefined, room: ArenaTextRoom = ARENA_TEXT_ROOM,
 ): number {
   if (!minCellWidth || !(minCellWidth > 0)) return available;
-  return Math.max(available, room.padCategory + ARENA_PAD.r + minCellWidth * cols);
+  return Math.max(available, room.padCategory + room.padRight + minCellWidth * cols);
 }
 
 export function arenaLabelStride(step: number, texts: readonly string[], room: ArenaTextRoom = ARENA_TEXT_ROOM): number {

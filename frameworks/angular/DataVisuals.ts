@@ -13,7 +13,7 @@ export const ARENA_HEAT_STEPS = heatSteps;
 export const ARENA_CHART_HEIGHT = chartHeight;
 
 export type ArenaTextRoom = {
-  tickChar: number; padBottom: number; padLeft: number; padCategory: number; heatmapRowH: number; legendStrip: number; scale: number;
+  tickChar: number; padBottom: number; padLeft: number; padCategory: number; heatmapRowH: number; legendStrip: number; padTop: number; padRight: number; scale: number;
 };
 
 export function arenaTextRoom(scale: number): ArenaTextRoom {
@@ -24,6 +24,8 @@ export function arenaTextRoom(scale: number): ArenaTextRoom {
     padCategory: chartPadCategory * scale,
     heatmapRowH: chartHeatmapRowH * scale,
     legendStrip: chartLegendStrip * scale,
+    padTop: chartPadTop * scale,
+    padRight: chartPadRight * scale,
     scale,
   };
 }
@@ -31,7 +33,7 @@ export function arenaTextRoom(scale: number): ArenaTextRoom {
 export const ARENA_TEXT_ROOM = arenaTextRoom(1);
 
 export function arenaPad(room: ArenaTextRoom = ARENA_TEXT_ROOM): Readonly<{ t: number; r: number; b: number; l: number }> {
-  return { t: chartPadTop, r: chartPadRight, b: room.padBottom, l: room.padLeft };
+  return { t: room.padTop, r: room.padRight, b: room.padBottom, l: room.padLeft };
 }
 
 export const ARENA_PAD = arenaPad();
@@ -148,7 +150,7 @@ export function arenaPlotWidth(
   available: number, count: number, minPointSpacing: number | undefined, room: ArenaTextRoom = ARENA_TEXT_ROOM,
 ): number {
   if (!minPointSpacing || !(minPointSpacing > 0) || count < 2) return available;
-  const needed = room.padLeft + ARENA_PAD.r + minPointSpacing * (count - 1);
+  const needed = room.padLeft + room.padRight + minPointSpacing * (count - 1);
   return Math.max(available, needed);
 }
 export function arenaRailStyle(scrolls: boolean): Readonly<Record<string, string>> {

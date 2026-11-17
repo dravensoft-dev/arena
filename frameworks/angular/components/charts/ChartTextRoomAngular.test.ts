@@ -9,7 +9,7 @@ import { arenaGaugeRadii, arenaGaugeWordY, arenaRadarRadius } from './ChartPolar
 import { arenaHeatLegendStrip, arenaLegendStrip } from './ChartLegend';
 import { arenaNiceDomain } from './ChartScales';
 import {
-  chartHeatmapRowH, chartLabelGap, chartLegendStrip, chartPadBottom, chartPadCategory, chartPadLeft, chartTickChar,
+  chartHeatmapRowH, chartLabelGap, chartLegendStrip, chartPadBottom, chartPadCategory, chartPadLeft, chartPadRight, chartPadTop, chartTickChar,
 } from '../../Tokens.generated';
 
 test('the value gutter doubles its character room at a doubled text scale', () => {
@@ -45,7 +45,7 @@ test('the default room draws what it drew', () => {
 
 test('a heatmap row grows with the text', () => {
   const room = arenaTextRoom(2);
-  assert.equal(arenaHeatmapHeight(3, room), 3 * chartHeatmapRowH * 2 + ARENA_PAD.t + chartPadBottom * 2 + chartLegendStrip * 2);
+  assert.equal(arenaHeatmapHeight(3, room), 3 * chartHeatmapRowH * 2 + chartPadTop * 2 + chartPadBottom * 2 + chartLegendStrip * 2);
   assert.ok(arenaHeatmapHeight(3, room) > arenaHeatmapHeight(3));
 });
 
@@ -53,18 +53,18 @@ test('the category gutter, the plot padding and the legend strip follow the scal
   const room = arenaTextRoom(1.5);
   assert.equal(arenaPlotBoxH(600, 300, room).x, chartPadCategory * 1.5);
   assert.equal(arenaPlotBox(600, 300, undefined, room).x, chartPadLeft * 1.5);
-  assert.equal(arenaPlotBox(600, 300, undefined, room).h, 300 - ARENA_PAD.t - chartPadBottom * 1.5);
+  assert.equal(arenaPlotBox(600, 300, undefined, room).h, 300 - chartPadTop * 1.5 - chartPadBottom * 1.5);
   assert.equal(arenaLegendStrip(300, 2, false, room).stripH, chartLegendStrip * 1.5);
   assert.equal(arenaCategoryLabelX(room), chartPadCategory * 1.5 - chartLabelGap);
 });
 
 test('a point-spaced plot reserves the scaled left pad, a category gutter and a heatmap minimum width follow the room', () => {
   const room = arenaTextRoom(2);
-  assert.equal(arenaPlotWidth(100, 10, 30, room), chartPadLeft * 2 + ARENA_PAD.r + 30 * 9);
+  assert.equal(arenaPlotWidth(100, 10, 30, room), chartPadLeft * 2 + chartPadRight * 2 + 30 * 9);
   assert.equal(arenaPlotWidth(100, 10, 30), chartPadLeft + ARENA_PAD.r + 30 * 9);
   assert.equal(arenaCategoryGutter(120, room).w, chartPadCategory * 2);
   assert.equal(arenaCategoryGutter(120, room).h, 120);
-  assert.equal(arenaHeatmapWidth(100, 50, 20, room), chartPadCategory * 2 + ARENA_PAD.r + 20 * 50);
+  assert.equal(arenaHeatmapWidth(100, 50, 20, room), chartPadCategory * 2 + chartPadRight * 2 + 20 * 50);
 });
 
 test('the gauge word sits where it sat at the default and drops with the growth of the reading', () => {
@@ -72,4 +72,16 @@ test('the gauge word sits where it sat at the default and drops with the growth 
   assert.equal(arenaGaugeWordY(100, arenaTextRoom(1)), 100 + chartLabelGap);
   assert.ok(arenaGaugeWordY(100, arenaTextRoom(2)) > 100 + chartLabelGap);
   assert.ok(Math.abs(arenaGaugeWordY(100, arenaTextRoom(3)) - arenaGaugeWordY(100, arenaTextRoom(2)) - (arenaGaugeWordY(100, arenaTextRoom(2)) - arenaGaugeWordY(100))) < 1e-9);
+});
+
+test('the top and right pads hold half a tick label, so they grow with the text', () => {
+  const room = arenaTextRoom(2);
+  assert.deepEqual(arenaPad(room), { t: chartPadTop * 2, r: chartPadRight * 2, b: chartPadBottom * 2, l: chartPadLeft * 2 });
+  assert.equal(arenaPlotBox(600, 300, undefined, room).y, chartPadTop * 2);
+  assert.equal(arenaPlotBox(600, 300, undefined, room).w, 600 - chartPadLeft * 2 - chartPadRight * 2);
+  assert.equal(arenaPlotBoxH(600, 300, room).y, chartPadTop * 2);
+  assert.equal(arenaFunnelBox(600, 300, 40, room).y, chartPadTop * 2);
+  assert.equal(arenaHeatmapBox(600, 300, room).w, 600 - chartPadCategory * 2 - chartPadRight * 2);
+  assert.equal(ARENA_PAD.t, chartPadTop);
+  assert.equal(ARENA_PAD.r, chartPadRight);
 });
