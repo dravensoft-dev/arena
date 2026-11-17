@@ -159,8 +159,8 @@ const noSubscription = () => () => {};
 
 const serverTextScale = () => 1;
 
-const clientTextScale = () => arenaTextScaleOf(rootFontSize());
-
 export function useArenaTextScale(): number {
-  return useSyncExternalStore(noSubscription, clientTextScale, serverTextScale);
+  const atMount = useRef<number | null>(null);
+  const readAtMount = useCallback(() => (atMount.current ??= arenaTextScaleOf(rootFontSize())), []);
+  return useSyncExternalStore(noSubscription, readAtMount, serverTextScale);
 }

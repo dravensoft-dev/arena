@@ -29,7 +29,7 @@ export function arenaTextRoom(scale: number): ArenaTextRoom {
 
 export const ARENA_TEXT_ROOM = arenaTextRoom(1);
 
-export function arenaPad(room: ArenaTextRoom = ARENA_TEXT_ROOM): { t: number; r: number; b: number; l: number } {
+export function arenaPad(room: ArenaTextRoom = ARENA_TEXT_ROOM): Readonly<{ t: number; r: number; b: number; l: number }> {
   return { t: chartPadTop, r: chartPadRight, b: room.padBottom, l: room.padLeft };
 }
 

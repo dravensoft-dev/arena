@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ARENA_PAD, ARENA_TEXT_ROOM, arenaPad, arenaTextRoom, arenaValueWriter } from '../../DataVisuals.ts';
+import { ARENA_PAD, ARENA_TEXT_ROOM, arenaPad, arenaPlotWidth, arenaTextRoom, arenaValueWriter } from '../../DataVisuals.ts';
 import {
   arenaCategoryGutter, arenaCategoryLabelX, arenaFunnelBox, arenaHeatmapBox, arenaHeatmapHeight, arenaHeatmapWidth,
   arenaLabelStride, arenaPlotBox, arenaPlotBoxH, arenaTextGutter, arenaValueGutter,
@@ -56,4 +56,13 @@ test('the category gutter, the plot padding and the legend strip follow the scal
   assert.equal(arenaPlotBox(600, 300, undefined, room).h, 300 - ARENA_PAD.t - chartPadBottom * 1.5);
   assert.equal(arenaLegendStrip(300, 2, false, room).stripH, chartLegendStrip * 1.5);
   assert.equal(arenaCategoryLabelX(room), chartPadCategory * 1.5 - chartLabelGap);
+});
+
+test('a point-spaced plot reserves the scaled left pad, a category gutter and a heatmap minimum width follow the room', () => {
+  const room = arenaTextRoom(2);
+  assert.equal(arenaPlotWidth(100, 10, 30, room), chartPadLeft * 2 + ARENA_PAD.r + 30 * 9);
+  assert.equal(arenaPlotWidth(100, 10, 30), chartPadLeft + ARENA_PAD.r + 30 * 9);
+  assert.equal(arenaCategoryGutter(120, room).w, chartPadCategory * 2);
+  assert.equal(arenaCategoryGutter(120, room).h, 120);
+  assert.equal(arenaHeatmapWidth(100, 50, 20, room), chartPadCategory * 2 + ARENA_PAD.r + 20 * 50);
 });
