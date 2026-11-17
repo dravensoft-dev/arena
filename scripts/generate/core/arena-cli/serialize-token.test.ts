@@ -126,3 +126,8 @@ test('scaledLiteral converts a written px length and passes anything else', () =
 test('a colour answered with the keyword transparent serializes as that keyword', () => {
   assert.equal(serialize({ $type: 'color', $value: 'transparent' } as never), 'transparent');
 });
+
+test('a colour string is only the transparent keyword, and any other string is refused', () => {
+  assert.equal(serialize({ $type: 'color', $value: 'transparent' }), 'transparent');
+  assert.throws(() => serialize({ $type: 'color', $value: 'red' }));
+});
