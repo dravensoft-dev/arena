@@ -1263,14 +1263,10 @@ test('a colour reference is restated inside every palette, because a var() compu
     + 'into every other one, so a second palette keeps the first one\'s card fill');
 });
 
-test('gradientMark is a boolean or it is absent, so a typo cannot read as true', () => {
-  assert.deepEqual(configProblems(config({ gradientMark: true })), []);
-  assert.deepEqual(configProblems(config({ gradientMark: false })), []);
-  assert.deepEqual(configProblems(config()), [],
-    'a project that never mentions it is a project whose mark is not a gradient');
-  const problems = configProblems(config({ gradientMark: 'yes' }));
+test('gradientMark is an unknown config key', () => {
+  const problems = configProblems(config({ gradientMark: true } as never));
   assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /gradientMark: declare true or false/);
+  assert.match(problems[0] ?? '', /gradientMark/);
 });
 
 test('a project naming its own component subset still imports every vocabulary sheet arena.css links', () => {

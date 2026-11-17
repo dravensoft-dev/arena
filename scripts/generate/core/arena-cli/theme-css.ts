@@ -68,7 +68,6 @@ export type ArenaStylesheet = { preflight?: boolean; components?: unknown };
 
 export type ArenaConfig = {
   stylePlugins?: unknown;
-  gradientMark?: unknown;
   runtimePalettes?: unknown;
   palettes?: ArenaPalette[];
   fonts?: Record<string, ArenaFont>;
@@ -76,7 +75,7 @@ export type ArenaConfig = {
   components?: string | string[];
 };
 
-export const ARENA_CONFIG_KEYS: readonly (keyof ArenaConfig)[] = ['palettes', 'fonts', 'stylePlugins', 'stylesheet', 'gradientMark', 'runtimePalettes'];
+export const ARENA_CONFIG_KEYS: readonly (keyof ArenaConfig)[] = ['palettes', 'fonts', 'stylePlugins', 'stylesheet', 'runtimePalettes'];
 export const ARENA_FONT_KEYS: readonly (keyof ArenaFont)[] = ['family', 'src', 'fallback', 'style', 'weight', 'display'];
 
 export type CheckedPalette = ArenaPalette & {
@@ -544,14 +543,6 @@ export function rootWithDefaults(plugins: ResolvedPlugins, catalogue: TokenCatal
 export const defaultedNote = (roles: string[]) =>
   `${roles.length} role(s) your root style plugin leaves unanswered take Arena's default: ${roles.join(', ')}`;
 
-export function gradientMarkProblems(config: ArenaConfig) {
-  const declared = config.gradientMark;
-  if (declared === undefined || typeof declared === 'boolean') return [];
-  return [`gradientMark: declare true or false, not ${typeof declared}. It says the mark this `
-    + 'project is drawn with is a gradient, so the audit stops reporting one in your own sources, '
-    + 'and a value that is not a boolean would read as true while meaning nothing'];
-}
-
 export function runtimePalettesProblems(config: ArenaConfig) {
   const declared = config.runtimePalettes;
   if (declared === undefined || typeof declared === 'boolean') return [];
@@ -566,6 +557,9 @@ export function configProblems(
   if (!isObject(config)) return ['the configuration is not an object'];
   const problems = [];
 
+  for (const key of Object.keys(config).filter((one) => one !== 'extension' && !(ARENA_CONFIG_KEYS as readonly string[]).includes(one)))
+    problems.push(`${key}: not a key of arena.config.json. The keys are ${ARENA_CONFIG_KEYS.join(', ')}`);
+
   if (!Array.isArray(config.palettes) || config.palettes.length === 0) {
     problems.push('palettes: declare at least one palette');
   } else {
@@ -578,7 +572,6 @@ export function configProblems(
     }
   }
 
-  problems.push(...gradientMarkProblems(config));
   problems.push(...runtimePalettesProblems(config));
   problems.push(...stylePluginProblems(config, sheets, plugins));
   problems.push(...fontProblems(config.fonts));

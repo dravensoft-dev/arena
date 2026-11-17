@@ -29,7 +29,7 @@ export const CHECK_SCOPE = 'Read as an application source, so a style plugin of 
 export function checked(
   source: string, path: string = CHECKED_AS, vocabulary: VocabularyIndex | null = null,
 ) {
-  const found = auditText(path, source, 'app', false, vocabulary);
+  const found = auditText(path, source, 'app', vocabulary);
   return found.length === 0
     ? `No finding. ${CHECK_SCOPE}`
     : `${found.length} finding(s):\n${found.join('\n')}\n\n${CHECK_SCOPE}`;
@@ -149,7 +149,7 @@ export function build(payload: string, manifest: Manifest, installed: Installed 
   server.registerTool('arena_check', {
     description: 'Check code you just wrote against the rules of the Arena language, before you '
       + 'save it. Pass the source text. Reports a class of your own on a component, a raw value '
-      + 'where a token belongs, a gradient, a filled danger surface, a second primary action, an '
+      + 'where a token belongs, an '
       + 'icon as an element, an emoji, a component wrapped in a link of your own, and a heading '
       + 'outline with a rung missing. Returns one line per finding, or says it found none. Every '
       + `rule it can report is in ${SCHEME}://rules, with the ones it cannot.`,

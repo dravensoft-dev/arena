@@ -41,7 +41,6 @@ const CONFIG_ROWS: Partial<Record<keyof ArenaConfig, Row>> = {
   fonts: { type: 'object, one entry per font role', required: 'yes', default: 'none' },
   stylePlugins: { type: 'array of `default` or a directory path', required: 'no', default: '`["default"]`' },
   stylesheet: { type: 'object', required: 'no', default: 'every sheet the package ships' },
-  gradientMark: { type: 'boolean', required: 'no', default: 'unset' },
   runtimePalettes: { type: 'boolean', required: 'no', default: 'unset' },
 };
 
@@ -502,9 +501,6 @@ What each part means:
   your own holding \`plugin.tokens.json\` and optionally \`plugin.css\`. A \`stylePlugins\` path resolves against the directory that holds \`arena.config.json\`. The plugin's name is the name of that directory, so a directory called \`ember\` declares the plugin \`ember\`. The name must be kebab-case, and it may not repeat a palette name or another plugin's. The first entry answers every role that carries no default. ${defaultsStatement(base)} A custom property with no value is invalid at computed-value time, so an unanswered role is a missing border rather than a plainer look. Declare a list without \`default\` and you do not receive its stylesheet, the
   same way the preflight can already be dropped.
 - **\`runtimePalettes\`** is optional, a boolean, and says the app applies palettes its users design while it runs. With \`true\`, \`arena build\` also writes \`arena.runtime.generated.json\`, adds \`--arena-runtime-palettes:1\` to \`:root\` and emits the \`.arena-polarity-dark\` and \`.arena-polarity-light\` blocks. Without it, \`arena.generated.css\` is unchanged and the palette functions refuse. [\`theme.md\`](./theme.md) covers what a runtime palette may change and how to apply, check and keep one.
-- **\`gradientMark\`** is optional, a boolean, and says the mark your product is drawn with is a
-  gradient. Arena ships no element that is one, so yours lives in your own CSS, where \`arena audit\` reports it. The scope reads which directory a line sits in, which is right for a part hook and wrong for a brand. Declare it once and that rule goes quiet in your sources; the colours inside
-  the gradient are still reported, since they are the skin. The key replaces an \`arena-audit allow\` marker, which silences every rule on its line and is repeated wherever the mark is drawn.
 
 **A plugin carrying a \`plugin.css\` gets a third generated file**, \`plugin.generated.css\`, and
 you import it beside the other two. The sheet declares the cascade layer order itself and then opens the reserved layer. Where your bundler places it among your other stylesheets cannot change what wins.`;

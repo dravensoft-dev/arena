@@ -2,7 +2,6 @@
   "stylePlugins": [
     "./design/photo-feed"
   ],
-  "gradientMark": true,
   "palettes": [
     {
       "name": "dark",

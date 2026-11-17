@@ -168,9 +168,8 @@ test('arena_find "size" answers with the size family before any component that m
   }
 });
 
-test('arena_check counts a button with no emphasis class as a primary when the vocabulary carries the default', () => {
+test('arena_check leaves a second primary action to the adopter', () => {
   const index = { ...vocabularyIndex(), defaults: { ArenaButton: { emphasis: 'arena-emphasis-primary' } } };
   const out = checked('<ArenaButton>Save</ArenaButton>\n<ArenaButton>Publish</ArenaButton>', CHECKED_AS, index);
-  assert.match(out, /one-primary/);
-  assert.match(out, /1 finding/);
+  assert.match(out, /^No finding\./);
 });

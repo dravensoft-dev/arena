@@ -3,29 +3,26 @@
  * packages beside the CLI, and check:arbitrary and check:dimensions read their rule from here.
  * It depends on nothing but node and its own siblings, because inside a package scripts/ does
  * not exist. It decides what source text shows and nothing else: the render rules are not
- * visible from outside, and a filled danger surface is visible only where a project paints one
- * of its own. A line carrying an allow marker is exempt, and a marker over a line with nothing
+ * visible from outside. A line carrying an allow marker is exempt, and a marker over a line with nothing
  * to exempt is stale. Every rule is read in a SCOPE: a declared plugin directory may select a
- * part hook and paint a gradient, and a source may not. A bracket may also carry em, which has no
+ * part hook, and a source may not. A bracket may also carry em, which has no
  * token to name; the dimension gate still reports it, because tracking is expressed in em. */
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { SYMBOL_REF, WEIGHT_CLASSES, glyphNames, scan } from './icon-css.ts';
 
-export const RULE_TAGS = ['compat-alias', 'danger-fill', 'emoji', 'icon-element',
-  'one-primary', 'outline-gap', 'own-class', 'raw-glyph', 'raw-value', 'router-link', 'stale-allowance', 'unknown-input', 'unknown-part', 'unknown-property', 'wrapped-link'] as const;
+export const RULE_TAGS = ['compat-alias', 'emoji', 'icon-element',
+  'outline-gap', 'own-class', 'raw-glyph', 'raw-value', 'router-link', 'stale-allowance', 'unknown-input', 'unknown-part', 'unknown-property', 'wrapped-link'] as const;
 
 export const RULE_DESCRIPTIONS: Record<(typeof RULE_TAGS)[number], string> = {
   'compat-alias': 'A stylesheet in a style plugin directory reads one of Arena\'s compatibility aliases through `var()`, which names a step of the ramp instead of a role.',
-  'danger-fill': 'A background declaration outside a style plugin directory reads a danger token not mixed with transparent, which fills a surface where Arena draws danger as an outline.',
   emoji: 'A line of a source holds an emoji character.',
   'icon-element': 'An `icon` or `iconRight` attribute is given an element in braces, where Arena takes a Phosphor class-name string.',
-  'one-primary': 'A second action in one view, or in one modal, takes the primary emphasis by class or by leaving a primary-default component without one.',
   'outline-gap': 'A source draws Arena headings at two levels with a level missing between them, such as an h1 and an h3 with no h2.',
   'own-class': 'A component carries a class outside its vocabulary or a computed one, or a stylesheet targets an `arena-` class anywhere or a `data-arena-part` hook outside a style plugin.',
   'raw-glyph': 'An element other than `ArenaIcon` holds a Phosphor glyph class, or binds its class to a non-literal value in a file naming one; Arena ships no icon font.',
-  'raw-value': 'A style holds a hex, colour or bare pixel length, or a gradient outside a style plugin unless `gradientMark` is set, or a class holds a non-token bracket value.',
+  'raw-value': 'A style holds a hex, colour or bare pixel length, or a class holds a non-token bracket value.',
   'router-link': 'A link of your own, such as `a`, `Link` or `routerLink`, directly wraps an Arena card, side nav item, bottom nav item or table cell.',
   'stale-allowance': 'An `arena-audit allow` marker sits on a line with nothing to exempt.',
   'unknown-input': 'A static attribute on an `arena-` element in an Angular template names no input or output of that component.',
@@ -245,9 +242,6 @@ export function rawColour(line: string, isStylesheet: boolean) {
 export const RAW_HEX_MESSAGE = 'a raw hex where a token belongs. Read the value through its '
   + 'custom property, as var(--color-primary)';
 
-export const GRADIENT_MESSAGE = 'a gradient. Depth comes from the base-100 to base-300 surface '
-  + 'scale, the hairline border and the shadow roles';
-
 export const RAW_COLOUR_MESSAGE = 'a raw colour where a token belongs. A channel value and a '
   + 'colour\'s name are both the skin written down: read the colour through its custom property, '
   + 'as var(--color-primary), or compose one with color-mix() over var()';
@@ -273,41 +267,6 @@ export function namesAnAlias(line: string) {
   return COMPAT_ALIASES.some((alias) => new RegExp(`var\\(\\s*--${alias}\\s*[,)]`).test(line));
 }
 
-export const DANGER_FILL_TOKENS = ['--danger', '--danger-strong', '--danger-fill',
-  '--color-error', '--color-error-fill'];
-
-export const FILL_PROPERTY = /(?:^|[\s;{"'])(?:background|background-color|backgroundColor)\s*:/;
-
-export const DANGER_FILL_MESSAGE = 'a filled danger surface. Danger is outline in Arena: leave the '
-  + 'background transparent and read var(--danger) for the border and the content. The one filled '
-  + 'danger surface in the system is the final confirmation inside ArenaConfirmDialog, and '
-  + 'var(--danger-soft) is the tint a surface of your own may carry. A filled status mark is an '
-  + 'ArenaBadge with arena-mark-solid';
-
-const MIX_SHARE = String.raw`\d+(?:\.\d+)?%`;
-const DANGER_OPERAND = String.raw`var\(\s*(--[a-z-]+)\s*(?:,[^()]*)?\)`;
-const DANGER_FIRST = String.raw`${DANGER_OPERAND}\s*(${MIX_SHARE})?\s*,\s*transparent(?:\s+(${MIX_SHARE}))?`;
-const TRANSPARENT_FIRST = String.raw`transparent(?:\s+(${MIX_SHARE}))?\s*,\s*${DANGER_OPERAND}(?:\s+(${MIX_SHARE}))?`;
-const HUE_METHOD = String.raw`(?:\s+(?:shorter|longer|increasing|decreasing)\s+hue)?`;
-const TINT = new RegExp(
-  String.raw`color-mix\(\s*in\s+[a-z-]+${HUE_METHOD}\s*,\s*(?:${DANGER_FIRST}|${TRANSPARENT_FIRST})\s*\)`,
-  'g',
-);
-
-function dangerShare(groups: (string | undefined)[]) {
-  const own = groups[2] ?? groups[6];
-  if (own) return parseFloat(own);
-  const other = groups[3] ?? groups[4];
-  return other ? 100 - parseFloat(other) : 50;
-}
-
-export function fillsWithDanger(line: string) {
-  if (!FILL_PROPERTY.test(line)) return false;
-  const untinted = line.replace(TINT, (...groups) => (dangerShare(groups) < 100 ? '' : groups[0]));
-  return DANGER_FILL_TOKENS.some((token) => new RegExp(`var\\(\\s*${token}\\s*[,)]`).test(untinted));
-}
-
-const GRADIENT = /\b(?:linear|radial|conic)-gradient\s*\(/;
 const PART_SELECTOR = /\[data-arena-part[~^$*|]?=/;
 const INLINE_STYLE = /\bstyle\s*=\s*(["'{])/;
 const STYLE_ANNOTATION = /:\s*(?:React\.)?CSSProperties\b/;
@@ -523,50 +482,8 @@ export function statedRung(attributes: string) {
   return stated === 'none' ? null : Number(stated.slice(1));
 }
 
-export const STATED_PRIMARY = /(?:^|\s)\[?(?:class|className)\]?\s*=\s*\{?\s*["'`]{1,2}[^"'`]*?(?<![\w-])arena-emphasis-primary(?![\w-])/;
-
-const EMPHASIS_OPTION = /(?<![\w-])arena-emphasis-[a-z]+(?![\w-])/;
-const DESTRUCTIVE = /(?:^|\s)\[?destructive\]?(?=[\s=/>]|$)/;
-const BARE_COMPUTED_CLASS = /(?:^|\s)(?:className\s*=\s*\{|\[(?:class|ngClass|attr\.class|class\.[a-z0-9-]+)\]\s*=|class\s*=\s*["'][^"']*\{\{)|\{\s*\.\.\./;
-const BRANCH_ATTRIBUTE = /(?:^|\s)\*ng(?:If|SwitchCase|SwitchDefault)\b/;
-const BRANCH_BLOCK = /@(?:if|else|switch|case|default)\b[^{}@]*\{|@else\s*\{/y;
-const BRANCH_LEAD = /(?:\?\??|:|&&|\|\|)\s*(?:\(\s*|<>\s*)*$/;
-const STRING_CONTEXT = /[=:,(\[?&|]\s*$|\breturn\s*$/;
-const INLINE_TEMPLATE = /\btemplate\s*:\s*$/;
-const STATEMENT_BRANCH = /(?<![\w$.@])(?:if\s*\(|else\b|case\b[^:\n]*:|default\s*:)/g;
 const CLASS_VALUE = /(?<=^|\s)(?:className|class|\[class\]|\[ngClass\]|\[attr\.class\])\s*=\s*/g;
 const TAG_LEAD = /[\w$.]/;
-
-function closing(text: string, from: number, open: string, close: string) {
-  let depth = 0;
-  for (let i = from; i < text.length; i += 1) {
-    if (text[i] === open) depth += 1;
-    else if (text[i] === close && --depth === 0) return i + 1;
-  }
-  return text.length;
-}
-
-export function statementBranches(text: string): [number, number][] {
-  const spans: [number, number][] = [];
-  for (const m of text.matchAll(STATEMENT_BRANCH)) {
-    let body = (m.index ?? 0) + m[0].length;
-    if (m[0].startsWith('if')) body = closing(text, body - 1, '(', ')');
-    while (/\s/.test(text[body] ?? '')) body += 1;
-    if (text[body] === '{') spans.push([body, closing(text, body, '{', '}')]);
-    else if (/^return\b/.test(text.slice(body, body + 7))) {
-      let depth = 0;
-      let end = body;
-      for (; end < text.length; end += 1) {
-        const c = text[end];
-        if (c === '(' || c === '{' || c === '[') depth += 1;
-        else if (c === ')' || c === '}' || c === ']') depth -= 1;
-        if (depth < 0 || (depth === 0 && c === ';')) break;
-      }
-      spans.push([body, end]);
-    }
-  }
-  return spans;
-}
 
 export function elementEnd(text: string, name: string, ends: number) {
   let depth = 1;
@@ -715,54 +632,6 @@ function boundClass(raw: string): boolean {
   });
 }
 
-export function inBranch(text: string, start: number, attributes: string, openBranches: { name: string; end: number }[]) {
-  if (BRANCH_ATTRIBUTE.test(attributes) || BRANCH_LEAD.test(text.slice(Math.max(0, start - 40), start))) return true;
-  if (openBranches.some(({ name, end }) => {
-    let depth = 1;
-    const tags = new RegExp(`<(/?)${name}(?![\\w.-])(?:[^>]*[^/>])?>`, 'g');
-    for (const m of text.slice(end, start).matchAll(tags)) {
-      depth += m[1] ? -1 : 1;
-      if (depth === 0) return false;
-    }
-    return true;
-  })) return true;
-  const stack: boolean[] = [];
-  for (let i = 0; i < start; i++) {
-    const c = text[i];
-    if (c === '"' || c === "'" || c === '`') {
-      const before = text.slice(0, i);
-      if (STRING_CONTEXT.test(before.slice(-12)) && !(c === '`' && INLINE_TEMPLATE.test(before.slice(-24)))) {
-        let j = i + 1;
-        while (j < start && text[j] !== c) j += text[j] === '\\' ? 2 : 1;
-        i = j;
-      }
-    } else if (c === '@') {
-      BRANCH_BLOCK.lastIndex = i;
-      const m = BRANCH_BLOCK.exec(text);
-      if (m) { stack.push(true); i += m[0].length - 1; }
-    } else if (c === '{') stack.push(false);
-    else if (c === '}') stack.pop();
-  }
-  return stack.some(Boolean);
-}
-
-export function pascalTag(name: string) {
-  return name.startsWith('arena-')
-    ? name.split('-').map((word) => word.slice(0, 1).toUpperCase() + word.slice(1)).join('')
-    : name;
-}
-
-export function bareOfEmphasis(raw: string) {
-  return !EMPHASIS_OPTION.test(raw) && !DESTRUCTIVE.test(raw) && !BARE_COMPUTED_CLASS.test(raw);
-}
-
-export function primaryMessage(first: number) {
-  return `a second primary action on this screen, and the first is on line ${first}. The primary emphasis is `
-    + 'the voice, so at most one arena-emphasis-primary action stands in a view. Write '
-    + 'arena-emphasis-secondary or arena-emphasis-ghost on the others, and keep the primary for the '
-    + 'one action the screen is for. A button with no emphasis class is primary too';
-}
-
 export const LINKABLE_TAGS = new Set([
   'arena-bottom-nav-item', 'arena-card', 'arena-side-nav-item', 'arena-table-cell',
 ]);
@@ -847,31 +716,17 @@ export function ownAttributes(attributes: string) {
   return out;
 }
 
-export function branchPrimaryMessage(outside: number): string {
-  return `a primary action in a branch, and the view around it already draws one on line ${outside}, so whenever the branch is taken the view holds two. `
-    + 'Write arena-emphasis-secondary or arena-emphasis-ghost on this one unless it is the action the view is for. A button with no emphasis class is primary too';
-}
-
-export function structuralFindings(text: string, vocabulary: VocabularyIndex | null = null, source = text): Finding[] {
+export function structuralFindings(text: string, vocabulary: VocabularyIndex | null = null): Finding[] {
   const found: Finding[] = [];
   const namesGlyph = glyphNames(scan(text)).size > 0;
   const rungs: number[] = [];
   let firstRung = 0;
-  const primaries: { scope: number; line: number; conditional: boolean }[] = [];
-  const bare: { scope: number; line: number }[] = [];
-  const branchBare: { scope: number; line: number }[] = [];
-  const branches: { name: string; end: number }[] = [];
-  const modals: { start: number; end: number }[] = [];
-  const statements = vocabulary?.defaults ? statementBranches(text) : [];
-  let contextEmphasis = false;
-  let statementBranch = false;
   for (const m of text.matchAll(OPEN_TAG)) {
     const name = m[1] ?? '';
     const start = m.index ?? 0;
     if (start > 0 && TAG_LEAD.test(text[start - 1] ?? '')) continue;
     const ends = tagEnd(text, start);
     if (ends === -1) continue;
-    const scope = modals.findLastIndex((modal) => modal.start < start && start < modal.end);
     const attributes = ownAttributes(text.slice(start + name.length + 1, ends - 1));
 
     const rung = HEADING_RUNGS[kebabTag(name)];
@@ -903,25 +758,6 @@ export function structuralFindings(text: string, vocabulary: VocabularyIndex | n
         found.push(at(lineAt(text, start), 'raw-glyph', RAW_GLYPH_BOUND_MESSAGE));
     }
 
-    if (ARENA_TAG.test(name) && STATED_PRIMARY.test(attributes)) {
-      primaries.push({ scope, line: lineAt(text, start), conditional: inBranch(text, start, attributes, branches) });
-    }
-    const emphasis = EMPHASIS_OPTION.test(attributes) || EMPHASIS_OPTION.test(classValues(raw));
-    if (ARENA_TAG.test(name) || emphasis) {
-      const component = pascalTag(name);
-      const answersEmphasis = (vocabulary?.answers[component] ?? []).includes('emphasis');
-      if (emphasis && !answersEmphasis) contextEmphasis = true;
-      if (vocabulary?.defaults?.[component]?.emphasis === 'arena-emphasis-primary' && bareOfEmphasis(raw)) {
-        const branch = inBranch(text, start, attributes, branches);
-        if (!branch && statements.some(([from, to]) => from < start && start < to)) statementBranch = true;
-        (branch ? branchBare : bare).push({ scope, line: lineAt(text, start) });
-      }
-      if (vocabulary?.modals?.includes(component))
-        modals.push({ start, end: raw.trimEnd().endsWith('/') ? ends : elementEnd(source, name, ends) });
-    }
-
-    if ((BRANCH_ATTRIBUTE.test(attributes) || BRANCH_LEAD.test(text.slice(Math.max(0, start - 40), start))) && !raw.trimEnd().endsWith('/')) branches.push({ name, end: ends });
-
     const links = LINK_TAG.test(name) || /(?:^|\s)\[?routerLink\]?\s*=/.test(attributes);
     if (!links || !ROUTER_ATTRIBUTE.test(attributes)) continue;
     const inside = text.slice(ends).replace(/^\s*(?:\{\s*\}\s*)*/, '');
@@ -933,23 +769,11 @@ export function structuralFindings(text: string, vocabulary: VocabularyIndex | n
   }
   const gap = outlineGap(rungs);
   if (gap) found.push(at(firstRung, 'outline-gap', outlineMessage(gap[0], gap[1])));
-  const all = contextEmphasis || statementBranch ? primaries : [...primaries, ...bare];
-  for (const scope of new Set(all.map((one) => one.scope))) {
-    const counted = all.filter((one) => one.scope === scope).map((one) => one.line).sort((a, b) => a - b);
-    for (const line of counted.slice(1))
-      found.push(at(line, 'one-primary', primaryMessage(counted[0] as number)));
-  }
-  if (!contextEmphasis && !statementBranch)
-    for (const entry of branchBare) {
-      const outside = [...primaries.filter((one) => !one.conditional), ...bare]
-        .filter((one) => one.scope === entry.scope).map((one) => one.line).sort((a, b) => a - b)[0];
-      if (outside !== undefined) found.push(at(entry.line, 'one-primary', branchPrimaryMessage(outside)));
-    }
   return found;
 }
 
 export function lineFindings(line: string, isStylesheet: boolean, scope: Scope = 'app',
-  gradientMark = false, inStyleObject = false): Finding[] {
+  inStyleObject = false): Finding[] {
   const found: Finding[] = [];
 
   if (isStylesheet && OWN_RULE.test(line))
@@ -972,12 +796,6 @@ export function lineFindings(line: string, isStylesheet: boolean, scope: Scope =
       + 'var(--sp-4), or derive it with calc() over one'));
   if (isStylesheet && scope === 'plugin' && namesAnAlias(line))
     found.push(at(0, 'compat-alias', COMPAT_ALIAS_MESSAGE));
-
-  if (styled && scope === 'app' && !gradientMark && GRADIENT.test(line))
-    found.push(at(0, 'raw-value', GRADIENT_MESSAGE));
-
-  if (styled && scope === 'app' && fillsWithDanger(line))
-    found.push(at(0, 'danger-fill', DANGER_FILL_MESSAGE));
 
   if (ICON_ELEMENT.test(line))
     found.push(at(0, 'icon-element', 'an icon passed as an element. An icon is a Phosphor '
@@ -1039,25 +857,25 @@ export function styleObjectLines(text: string) {
 }
 
 export function findings(relPath: string, text: string, scope: Scope = 'app',
-  gradientMark = false, vocabulary: VocabularyIndex | null = null): Finding[] {
+  vocabulary: VocabularyIndex | null = null): Finding[] {
   const isStylesheet = STYLE_EXTENSIONS.some((ext) => relPath.endsWith(ext));
   const lines = text.split('\n');
   const stripped = withoutComments(text);
   const painted = isStylesheet ? new Set<number>() : styleObjectLines(stripped);
   const perLine = stripped.split('\n').flatMap((line, index) =>
-    lineFindings(line, isStylesheet, scope, gradientMark, painted.has(index + 1))
+    lineFindings(line, isStylesheet, scope, painted.has(index + 1))
       .map((one) => at(index + 1, one.rule, one.message)));
-  return [...perLine, ...structuralFindings(stripped, vocabulary, text), ...bracketFindings(text, lines)]
+  return [...perLine, ...structuralFindings(stripped, vocabulary), ...bracketFindings(text, lines)]
     .sort((a, b) => a.line - b.line);
 }
 
 export type AuditLine = { rule: string; text: string };
 
 export function auditFindings(relPath: string, text: string, scope: Scope = 'app',
-  gradientMark = false, vocabulary: VocabularyIndex | null = null): AuditLine[] {
+  vocabulary: VocabularyIndex | null = null): AuditLine[] {
   const lines = text.split('\n');
   const byLine = new Map<number, Finding[]>();
-  for (const one of findings(relPath, text, scope, gradientMark, vocabulary)) {
+  for (const one of findings(relPath, text, scope, vocabulary)) {
     if (!byLine.has(one.line)) byLine.set(one.line, []);
     (byLine.get(one.line) ?? []).push(one);
   }
@@ -1082,8 +900,8 @@ export function auditFindings(relPath: string, text: string, scope: Scope = 'app
 }
 
 export function auditText(relPath: string, text: string, scope: Scope = 'app',
-  gradientMark = false, vocabulary: VocabularyIndex | null = null): string[] {
-  return auditFindings(relPath, text, scope, gradientMark, vocabulary).map((one) => one.text);
+  vocabulary: VocabularyIndex | null = null): string[] {
+  return auditFindings(relPath, text, scope, vocabulary).map((one) => one.text);
 }
 
 const ICON_TAG = /^(?:ArenaIcon|arena-icon)$/;

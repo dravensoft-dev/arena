@@ -212,9 +212,9 @@ test('commandOptions prints usage on help with 0, prints the error and usage on 
 });
 
 test('--strict= takes kind:rule beside kind, and keeps the names as written', () => {
-  assert.deepEqual(options('audit', ['--strict=audit:one-primary']).strict, ['audit:one-primary']);
-  assert.deepEqual(options('audit', ['--strict=audit:one-primary,audit:emoji,restated']).strict,
-    ['audit:one-primary', 'audit:emoji', 'restated']);
+  assert.deepEqual(options('audit', ['--strict=audit:emoji']).strict, ['audit:emoji']);
+  assert.deepEqual(options('audit', ['--strict=audit:emoji,audit:own-class,restated']).strict,
+    ['audit:emoji', 'audit:own-class', 'restated']);
   assert.deepEqual(options('audit', ['--strict= audit : emoji ,audit']).strict, ['audit:emoji', 'audit']);
 });
 

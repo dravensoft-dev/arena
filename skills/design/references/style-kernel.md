@@ -209,9 +209,6 @@ Each of these was measured on a product, not reasoned about.
 - **The charts that draw geometry from the data carry no part hook at all**, because their
   coordinates are the data and they have no slots to hook. A plugin reaches the frame around a
   chart and nothing inside the plot; the palette is what skins a plot.
-- **A brand whose mark IS a gradient declares it once**, with `"gradientMark": true` in
-  `arena.config.json`. The alternative is a marker on every line that draws the mark, and a marker
-  suppresses every rule on its line rather than the one it is about.
 - **Holding the report in CI takes kinds, not a switch.** A brand under 4.5:1 is a decision you
   already made and measured, and one switch over every kind would make that the price of holding
   the rest.

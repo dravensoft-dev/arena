@@ -97,16 +97,13 @@ export const BREAKING: Record<string, { files: Record<string, string>; rules: st
         + '    Go \u{1F680}\n'
         + '  </ArenaButton>\n'
         + '  <i className="ph-bold ph-x" />\n'
-        + '  <ArenaButton className="arena-emphasis-primary">Publish</ArenaButton>\n'
         + '  <Link to="/x">\n'
         + '    <ArenaCard>c</ArenaCard>\n'
         + '  </Link>\n'
         + '</div>);\n',
-      'src/app.css': '.arena-button__label { color: #fff; }\n'
-        + '.mine { background: var(--danger); }\n',
+      'src/app.css': '.arena-button__label { color: #fff; }\n',
     },
-    rules: ['own-class', 'router-link', 'raw-value', 'icon-element', 'raw-glyph', 'emoji', 'one-primary',
-      'danger-fill'],
+    rules: ['own-class', 'router-link', 'raw-value', 'icon-element', 'raw-glyph', 'emoji'],
   },
   angular: {
     files: {
@@ -115,16 +112,14 @@ export const BREAKING: Record<string, { files: Record<string, string>; rules: st
         + '  icon="ph-bold ph-bell"\n'
         + '>Go \u{1F680}</arena-button>\n'
         + '<i class="ph-bold ph-x"></i>\n'
-        + '<arena-button class="arena-emphasis-primary">Publish</arena-button>\n'
         + '<a\n'
         + '  routerLink="/x"\n'
         + '>\n'
         + '  <arena-card></arena-card>\n'
         + '</a>\n',
-      'src/app.css': '.arena-card__body { color: #fff; padding: 16px; }\n'
-        + '.mine { background: var(--color-error-fill); }\n',
+      'src/app.css': '.arena-card__body { color: #fff; padding: 16px; }\n',
     },
-    rules: ['own-class', 'router-link', 'raw-value', 'raw-glyph', 'emoji', 'one-primary', 'danger-fill'],
+    rules: ['own-class', 'router-link', 'raw-value', 'raw-glyph', 'emoji'],
   },
 };
 
