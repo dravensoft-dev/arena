@@ -224,3 +224,9 @@ test('a disabled and a selected disabled icon slot fall to the ink of their own 
   const none = edit((x) => { delete x.slots['emphasis-ghost-root-icon-selected-disabled']!.default; });
   assert.deepEqual(fallbackProblems(none), ['emphasis-ghost-root-icon-selected-disabled: an icon slot falls to the ink slot of its own part and state, and this one names no default']);
 });
+
+test('a slot draws a part that carries slots of its own option, which is the part a channel read in it falls to', () => {
+  assert.deepEqual(manifestProblems(shipped(), manifests), []);
+  const lost = edit((x) => { for (const [name, slot] of Object.entries(x.slots)) if (slot.component === 'ArenaIconButton' && slot.option === 'solid') delete x.slots[name]; });
+  assert.ok(manifestProblems(lost, manifests).some((line) => /^copy-button-solid-root-fill-rest: draws ArenaIconButton\.root, a part with no solid slots of its own/.test(line)));
+});

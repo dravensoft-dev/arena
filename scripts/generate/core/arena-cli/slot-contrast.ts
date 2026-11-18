@@ -72,8 +72,10 @@ function inPart(ctx: Context, at: ColorSlot | undefined, target: string): string
     const hit = Object.entries(ctx.catalogue.slots).find(([, s]) => s.scope === 'component' && s.component === owner!.component
       && s.part === owner!.part && s.option === owner!.option && s.channel === family.channel);
     if (hit) return hit[0];
-    const [component, drawn]: (string | undefined)[] = owner.draws?.split('.') ?? [];
-    owner = component === undefined ? undefined : { ...owner, component, part: drawn ?? '', draws: undefined };
+    const [component, slot]: (string | undefined)[] = owner.draws?.split('.') ?? [];
+    const option = owner.option;
+    owner = component === undefined ? undefined : Object.values(ctx.catalogue.slots)
+      .find((s) => s.scope === 'component' && s.component === component && s.part === slot && s.option === option && s.draws === undefined);
   }
   return target;
 }

@@ -209,6 +209,9 @@ export function manifestProblems(c: SlotCatalogue, manifests: Manifests): string
     if (s.draws !== undefined) {
       const [dc, dp] = s.draws.split('.');
       if (!manifests.get(dc ?? '')?.slots || !Object.hasOwn(manifests.get(dc ?? '')!.slots!, dp ?? '')) out.push(`${name}: draws ${s.draws}, which is no slot of a manifest`);
+      else if (!Object.values(c.slots).some((o) => o.scope === 'component' && o.component === dc && o.part === dp && o.option === s.option && o.draws === undefined)) {
+        out.push(`${name}: draws ${s.draws}, a part with no ${s.option} slots of its own, so a channel read in it has no part to fall to`);
+      }
     } else if (!Object.hasOwn(m.slots ?? {}, s.part)) out.push(`${name}: ${s.component} has no slot ${s.part}`);
     if (!emphasisOptions(m).includes(s.option) && !Object.hasOwn(m.hues ?? {}, s.option)) {
       out.push(`${name}: ${s.component} answers no emphasis ${s.option} and maps no variant ${s.option} through hues`);

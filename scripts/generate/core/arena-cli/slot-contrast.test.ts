@@ -182,3 +182,11 @@ test('a pair whose mark or fill resolves to no palette colour is returned, not s
   assert.deepEqual(lost.map((pair) => `${pair.slot} ${pair.over}`), ['button-primary-root-icon-pressed button-primary-root-fill-pressed',
     'button-primary-root-ink-pressed button-primary-root-fill-pressed']);
 });
+
+test('a channel read in a CopyButton falls to the IconButton part it draws, then to the family', () => {
+  const surface = 'var(--color-base-100)';
+  const drawn = paintedIn('dark', new Map([['icon-button-solid-root-fill-rest', surface]]));
+  assert.equal(drawn('copy-button-solid-root-fill-disabled'), drawn('icon-button-solid-root-fill-rest'));
+  const family = paintedIn('dark', new Map([['emphasis-solid-root-fill-rest', surface]]));
+  assert.equal(family('copy-button-solid-root-fill-disabled'), family('emphasis-solid-root-fill-rest'));
+});
