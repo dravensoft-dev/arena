@@ -162,11 +162,12 @@ and that therefore live in each platform's own idiom:
 
    **The fourth case is the style plugin's and the kernel does not pretend to it.** An accent drawn
    as ink is gated like every ink: each Dravensoft accent and status hue clears 4.5:1 over base-100,
-   base-200 and base-300 in both themes, and `check-text-contrast.ts:ON_SURFACE` holds `primary`, `secondary`,
-   `error`, `info`, `success` and `warning` to it. Whether a product draws one, and through which role, is an answer over a palette
-   Arena does not know, so a kernel reassigning it would be overruling a decision it cannot see. What
-   holds it is the tier that made it: a plugin raising an accent to ink owes the same 4.5:1 under
-   this query that every other ink owes without it.
+   base-200 and base-300 in both themes, and `check-text-contrast.ts:ON_SURFACE` holds `primary`,
+   `secondary`, `error`, `info`, `success` and `warning` to it. Whether a product draws one, and
+   through which role, is an answer over a palette Arena does not know, so a kernel reassigning it
+   would be overruling a decision it cannot see. What holds it is the tier that made it: a plugin
+   raising an accent to ink owes the same 4.5:1 under this query that every other ink owes without
+   it.
 
    Motion is the shape all four of these follow, and it is worth reading first: the reduced-motion
    policy below states what each KIND of motion does rather than listing the animations, which is
