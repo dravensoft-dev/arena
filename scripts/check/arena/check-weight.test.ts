@@ -3,11 +3,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { BUDGETS, CEILINGS, PAINTED_FACES, assertChanged, assertStartInputs, oneLine } from './check-weight.ts';
 
-test('every budget states the start commit and its multiplier, and each ceiling sits at or over its budget', () => {
+test('every budget states the commit it was measured at and its multiplier, and each ceiling sits at or over its budget', () => {
   for (const { figure, reason } of BUDGETS) {
-    assert.match(reason, /c543cd66/, `${figure} does not name the start commit`);
-    assert.match(reason, /start × 1\.05/, `${figure} does not state the multiplier`);
+    assert.match(reason, /^[\d.]+ KB at (the start tree c543cd66|[0-9a-f]{8}, .+)/, `${figure} does not name the commit it was measured at`);
+    assert.match(reason, /× 1\.05/, `${figure} does not state the multiplier`);
   }
+  assert.ok(BUDGETS.some(({ reason }) => /c543cd66/.test(reason)), 'the budgets no raise moved still name the start tree');
   for (const { figure, kb } of CEILINGS) {
     const budget = BUDGETS.find((b) => b.figure === figure);
     assert.ok(budget, `${figure} has a ceiling and no budget`);
