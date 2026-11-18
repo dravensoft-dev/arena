@@ -262,3 +262,38 @@ test('arena-mark-solid fills a badge with its hue\'s ink and writes on-ink over 
   assert.match(soft, /--arena-mark-fill: initial;\n\s+--arena-mark-ink: initial;/,
     'initial is the guaranteed-invalid value of a registered channel, so the badge reads its fallbacks under a container written solid');
 });
+
+const emphasisSheet = () => compileFamily(readFamilies().get('emphasis') as Family, [...layerManifests().values()]);
+
+test('the emphasis sheet writes a default block per answering part', () => {
+  const css = emphasisSheet();
+  const block = /^  :where\(\[data-arena-part="button"\]\) \{\n([^}]*)\}/m.exec(css)?.[1] ?? '';
+  assert.match(block, /--arena-emphasis-fill: var\(--button-primary-root-fill-rest,var\(--emphasis-primary-root-fill-rest,var\(--emphasis-primary-fill\)\)\);/);
+  assert.ok(css.indexOf(':where([data-arena-part="button"]) {') > css.lastIndexOf('@scope'), 'the default blocks come after the option scopes');
+  assert.match(css, /:where\(\[data-arena-part="icon-button"\]\) \{[^}]*--arena-emphasis-fill: var\(--icon-button-ghost-root-fill-rest,/);
+  assert.match(css, /:where\(\[data-arena-part="split-button\.caret"\]\) \{/);
+  assert.match(css, /:where\(\[data-arena-part="file-input\.trigger"\]\) \{[^}]*--arena-emphasis-fill: var\(--file-input-secondary-trigger-fill-rest,/);
+});
+
+test('copy button rebinds the icon button it draws', () => {
+  const css = emphasisSheet();
+  const ghost = css.split('@scope (.arena-emphasis-ghost)')[1]!.split('@scope (')[0]!;
+  const icon = ghost.indexOf('[data-arena-part="icon-button"] {');
+  const copy = ghost.indexOf('[data-arena-part="copy-button"]) [data-arena-part="icon-button"]');
+  assert.ok(icon >= 0 && copy > icon, 'the copy button block comes after the icon button block');
+  assert.match(ghost.slice(copy), /--arena-emphasis-fill: var\(--copy-button-ghost-root-fill-rest,var\(--icon-button-ghost-root-fill-rest,/);
+  assert.match(css, /:where\(\[data-arena-part="copy-button"\] \[data-arena-part="icon-button"\]\) \{[^}]*--copy-button-ghost-root-fill-rest/);
+});
+
+test('a part with component slots writes its own marker around the family fade', () => {
+  const css = emphasisSheet();
+  assert.match(css, /--arena-emphasis-fade-disabled: var\(--button-primary-root-fade-disabled,var\(--emphasis-primary-root-fade-disabled,var\(--fade-disabled\)\)\);/);
+  assert.match(css, /--arena-emphasis-icon-edge: var\(--icon-button-ghost-root-edge-rest,var\(--emphasis-ghost-icon-edge\)\);/);
+});
+
+test('channelReads marks a read that sits inside the fallback of another when asked', () => {
+  const classes = 'a-[var(--arena-x-a,var(--arena-x-b))] b-[var(--arena-x-b)]';
+  assert.deepEqual(channelReads(classes), [
+    { channel: '--arena-x-a', fallback: 'var(--arena-x-b)' }, { channel: '--arena-x-b', fallback: null }, { channel: '--arena-x-b', fallback: null }]);
+  assert.deepEqual(channelReads(classes, true).map((one) => one.nested), [false, true, false]);
+});

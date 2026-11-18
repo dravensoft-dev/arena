@@ -37,6 +37,8 @@ export const node = {
 };
 import type { Manifests } from '../../lib/tailwind/manifest-shapes.ts';
 import { axesOf, channelPrefix, readFamilies, VOCABULARY_DIR, type Family } from '../../lib/tailwind/vocabulary.ts';
+import { fadeMarkers } from '../../generate/core/arena-cli/slots.ts';
+import { HANDED_DOWN } from './check-channels.ts';
 import { HUE_CHANNELS } from '../../lib/tailwind/hue-sheet.ts';
 
 export const THEME_NAMESPACES = [
@@ -109,7 +111,9 @@ export function sheetProblems(manifests: Manifests, base = root) {
   const readNames = new Set<string>();
   const tokens = arenaTokenNames(base);
   const families = readFamilies(base);
-  for (const slot of Object.keys(readColorSlots(base).slots)) tokens.add(slot);
+  const catalogue = readColorSlots(base);
+  for (const slot of Object.keys(catalogue.slots)) tokens.add(slot);
+  for (const [marker] of fadeMarkers(Object.keys(catalogue.slots), catalogue)) tokens.add(marker.slice(2));
   for (const decls of parseDecls(readFileSync(join(base, 'contracts/design/environment.css'), 'utf8')).values())
     for (const name of decls.keys()) tokens.add(name);
 
@@ -137,7 +141,7 @@ export function sheetProblems(manifests: Manifests, base = root) {
     }
     for (const name of propertiesIn(css)) {
       if (name === undefined) continue;
-      if (tokens.has(name) || name.startsWith('tw-') || EXTERNAL_PROPERTIES.has(name) || isFamilyChannel(name, families) || isHueChannel(name)) continue;
+      if (tokens.has(name) || name.startsWith('tw-') || EXTERNAL_PROPERTIES.has(name) || HANDED_DOWN.has(`--${name}`) || isFamilyChannel(name, families) || isHueChannel(name)) continue;
       problems.push(`${manifest.component}: reads --${name}, which is no Arena token and is not `
         + 'declared external, so nothing in either package defines it');
     }

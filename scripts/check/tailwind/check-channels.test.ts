@@ -116,3 +116,9 @@ test('an axis is written by the family sheet that resets it and by no other writ
   assert.match(channelProblems(sheets([reset, { kind: 'component', rel: 'c/ArenaGrid.styles.generated.css', css: '.x { --arena-grid-min: 8px; }' }])).join('\n'),
     /c\/ArenaGrid\.styles\.generated\.css declares --arena-grid-min/);
 });
+
+test('a component sheet may hand its icon an ink, and declares no other channel', () => {
+  const button = (css: string) => sheets().map((one) => (one.kind === 'component' ? { ...one, css } : one));
+  assert.deepEqual(channelProblems(button('.arena-button__root { --tw-shadow: 0 0 #0000; --arena-icon-ink: red; }')), []);
+  assert.match(channelProblems(button('.arena-button__root { --arena-icon-edge: red; }')).join('\n'), /declares --arena-icon-edge/);
+});

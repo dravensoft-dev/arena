@@ -1,7 +1,7 @@
 {
   "component": "ArenaIcon",
   "slots": {
-    "root": "inline-block size-[1em] shrink-0 fill-current align-[-0.125em]"
+    "root": "inline-block size-[1em] shrink-0 fill-current align-[-0.125em] text-[color:var(--arena-icon-ink,currentColor)]"
   },
   "kind": {
     "root": "none"

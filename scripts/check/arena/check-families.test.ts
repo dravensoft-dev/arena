@@ -7,6 +7,8 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { readFamilies } from '../../lib/tailwind/vocabulary.ts';
+import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
 import { familyProblems, pageDriftProblems, strayClassProblems, utilityProblems, sweptProblems, collect, treeSource } from './check-families.ts';
 import type { Family } from '../../lib/tailwind/vocabulary.ts';
 
@@ -339,4 +341,20 @@ test('a default writing initial stands for the read\'s own fallback, because ini
 test('a component answering mark maps a value only to a status hue or to none, so every solid fill is a measured pair', () => {
   assert.match(runWith(MARK, badge({ neutral: null, cat: 'identity-2' })).join('\n'),
     /ArenaBadge: answers mark and hues\.tone\.cat maps to identity-2/);
+});
+
+test('a channel the compiler writes from a component slot counts as written by the family', () => {
+  const manifests = new Map([...layerManifests().values()].map((one) => [one.component, one])) as Map<string, any>;
+  const problems = familyProblems(readFamilies(), ['frameworks/tailwind/vocabulary/arena-emphasis/Emphasis.family.json'], manifests)
+    .filter((line) => /emphasis/.test(line));
+  assert.deepEqual(problems.filter((line) => /--arena-emphasis-icon-edge/.test(line)), []);
+});
+
+test('a channel read inside the fallback of another read of the family needs no fallback of its own', () => {
+  const chained: Family = { family: 'chain', reach: 'context', description: 'A pair of channels, the second falling to the first.', default: 'arena-chain-on',
+    variants: { 'arena-chain-on': '[--arena-chain-a:1px] [--arena-chain-b:var(--arena-chain-a)]' } };
+  const manifest = { component: 'ArenaButton', answers: ['chain'], slots: { root: 'x-[var(--arena-chain-a,1px)] y-[var(--arena-chain-b,var(--arena-chain-a))]' } };
+  assert.deepEqual(runWith(chained, manifest), []);
+  const bare = { ...manifest, slots: { root: 'x-[var(--arena-chain-a)] y-[var(--arena-chain-b,var(--arena-chain-a))]' } };
+  assert.match(runWith(chained, bare).join('\n'), /--arena-chain-a falls back to nothing/);
 });

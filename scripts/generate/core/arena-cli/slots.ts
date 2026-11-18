@@ -99,10 +99,10 @@ function read(catalogue: SlotCatalogue, name: string): string {
   return slot.channel ? `var(${slot.channel})` : channelValue(catalogue, name, 'tailwind');
 }
 
-function inkOf(catalogue: SlotCatalogue, from: ColorSlot): string {
+function inkOf(catalogue: SlotCatalogue, from: ColorSlot, built: string): string {
   const ink = Object.entries(catalogue.slots).find(([, s]) => ownerOf(s) === ownerOf(from) && s.option === from.option
     && s.part === from.part && s.property === 'ink' && s.state === from.state);
-  if (!ink) throw new Error(`${expectedName(from)}: no ink slot of the same scope, option, part and state to mix toward`);
+  if (!ink) throw new Error(`${built}: ${expectedName(from)} has no ink slot of the same scope, option, part and state to mix toward`);
   return read(catalogue, ink[0]);
 }
 
@@ -110,7 +110,7 @@ function fall(catalogue: SlotCatalogue, name: string, slot: ColorSlot): string {
   if (slot.derive) {
     const from = catalogue.slots[slot.derive.from] as ColorSlot;
     const base = read(catalogue, slot.derive.from);
-    return slot.derive.mix ? `color-mix(in_oklab,${base},${inkOf(catalogue, from)}_calc(var(--${slot.derive.mix})*100%))` : base;
+    return slot.derive.mix ? `color-mix(in_oklab,${base},${inkOf(catalogue, from, name)}_calc(var(--${slot.derive.mix})*100%))` : base;
   }
   if (slot.optional) {
     const restName = expectedName({ ...slot, state: 'rest' });
@@ -131,4 +131,28 @@ export function channelValue(catalogue: SlotCatalogue, name: string, form: 'tail
   const chain = slotChain(catalogue, name);
   const value = slot.level ? `color-mix(in_oklab,${chain}_var(--${slot.level}),transparent)` : chain;
   return form === 'tailwind' ? value : value.replaceAll('in_oklab', 'in oklab').replaceAll('_', ' ');
+}
+
+function balanced(text: string, open: number): number {
+  let depth = 0;
+  for (let at = open; at < text.length; at += 1) {
+    if (text[at] === '(') depth += 1;
+    else if (text[at] === ')' && (depth -= 1) === 0) return at;
+  }
+  return -1;
+}
+
+export function componentValue(familyValue: string, slot: ColorSlot, name: string): string {
+  const target = /^\{([a-z][a-z0-9-]*)\}$/.exec((slot.default ?? '').trim())?.[1];
+  const needle = target === undefined ? '' : `var(--${target},`;
+  if (needle === '' || !familyValue.includes(needle)) return `var(--${name},${familyValue})`;
+  let out = '';
+  for (let from = 0; ;) {
+    const at = familyValue.indexOf(needle, from);
+    if (at < 0) return out + familyValue.slice(from);
+    const end = balanced(familyValue, at + 3);
+    if (end < 0) throw new Error(`${name}: the family value ${familyValue} has an unbalanced read of --${target}`);
+    out += `${familyValue.slice(from, at)}var(--${name},${familyValue.slice(at, end + 1)})`;
+    from = end + 1;
+  }
 }

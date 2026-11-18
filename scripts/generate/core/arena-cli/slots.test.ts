@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readColorSlots } from '../../../lib/core/color-slots.ts';
-import { channelValue, slotChain } from './slots.ts';
+import { channelValue, componentValue, slotChain } from './slots.ts';
 
 const c = readColorSlots();
 
@@ -58,4 +58,30 @@ test('a slot whose default cannot be read names itself', () => {
   const broken = structuredClone(c);
   (broken.slots['emphasis-primary-root-fill-rest'] as { default: string }).default = '#fff';
   assert.throws(() => slotChain(broken, 'emphasis-primary-root-fill-rest'), /emphasis-primary-root-fill-rest: default "#fff"/);
+});
+
+test('a component slot wraps its family slot inside the level', () => {
+  const family = 'color-mix(in_oklab,var(--emphasis-ghost-root-ink-rest,var(--emphasis-ghost-ink))_var(--level-ink-body),transparent)';
+  assert.equal(componentValue(family, c.slots['button-ghost-root-ink-rest']!, 'button-ghost-root-ink-rest'),
+    'color-mix(in_oklab,var(--button-ghost-root-ink-rest,var(--emphasis-ghost-root-ink-rest,var(--emphasis-ghost-ink)))_var(--level-ink-body),transparent)');
+});
+
+test('a component-only edge wraps the whole value', () => {
+  assert.equal(componentValue('var(--emphasis-ghost-icon-edge)', c.slots['icon-button-ghost-root-edge-rest']!, 'icon-button-ghost-root-edge-rest'),
+    'var(--icon-button-ghost-root-edge-rest,var(--emphasis-ghost-icon-edge))');
+});
+
+test('every balanced read of the family slot is wrapped, and a copy button wraps the icon button slot it follows', () => {
+  const family = 'var(--emphasis-primary-root-fill-pressed,color-mix(in_oklab,var(--arena-emphasis-fill),var(--arena-emphasis-ink)_calc(var(--mix-pressed)*100%)))';
+  assert.equal(componentValue(family, c.slots['button-primary-root-fill-pressed']!, 'button-primary-root-fill-pressed'),
+    `var(--button-primary-root-fill-pressed,${family})`);
+  assert.equal(componentValue('var(--icon-button-ghost-root-fill-rest,var(--emphasis-ghost-root-fill-rest,transparent))', c.slots['copy-button-ghost-root-fill-rest']!, 'copy-button-ghost-root-fill-rest'),
+    'var(--copy-button-ghost-root-fill-rest,var(--icon-button-ghost-root-fill-rest,var(--emphasis-ghost-root-fill-rest,transparent)))');
+});
+
+test('a derived slot with no ink to mix toward names the slot being built', () => {
+  const broken = structuredClone(c);
+  delete broken.slots['emphasis-solid-root-ink-rest'];
+  assert.throws(() => channelValue(broken, 'emphasis-solid-root-fill-pressed', 'tailwind'),
+    /emphasis-solid-root-fill-pressed: .*emphasis-solid-root-fill-rest/);
 });

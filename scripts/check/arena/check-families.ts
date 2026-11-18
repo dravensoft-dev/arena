@@ -2,11 +2,11 @@
  * it, a default among its options, and options that write only its own channels; every channel is
  * read by a manifest that answers the family, with the default's value as that read's fallback, so
  * the look with no class written is the look the default names, a default writing initial reading
- * the fallback itself; every answers names a family, a manifest answering mark maps its values only
- * to a hue whose on-ink is measured or to none, and every transparent slot is a slot of its manifest
- * with a reason. The vocabulary page must equal a fresh render of the same files. An empty
- * vocabulary fails, and so does an arena- class in a compiled or shipped sheet that no family and
- * no manifest emits. */
+ * the fallback itself; a read inside another read's fallback needs none, and a channel compiled from
+ * a component's colour slot counts as the family's. Every
+ * answers names a family, a mark manifest maps only to a measured hue or none, every transparent slot
+ * is a slot of its manifest with a reason, the vocabulary page equals a fresh render, an empty
+ * vocabulary fails, and so does an arena- class in a sheet that no family and no manifest emits. */
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -23,7 +23,7 @@ import { NOT_WRITTEN, SHEETS, UTILITIES, classesIn, themeUtilities } from './che
 import { THEME_SOURCES } from '../../lib/tailwind/theme-sheet.ts';
 import {
   REACHES, TARGETS, VOCABULARY_DIR, answerOf, answeredFamilies, axesOf, axisWrapped, channelPrefix, channelReads, declarations, familyFiles,
-  optionDeclarations, readFamilies, slotClassStrings, type Family,
+  componentChannels, optionDeclarations, readFamilies, slotClassStrings, type Family,
 } from '../../lib/tailwind/vocabulary.ts';
 import type { ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';
 import { readHues } from '../../lib/tailwind/hue-sheet.ts';
@@ -222,6 +222,7 @@ export function familyProblems(
       for (const classes of Object.values(family.variants ?? {})) {
         try { for (const [property] of declarations(classes)) written.add(property); } catch { continue; }
       }
+      for (const channel of componentChannels(family, root)) written.add(channel);
     }
     writtenBy.set(family.family, written);
   }
@@ -249,7 +250,8 @@ export function familyProblems(
       if (!answer.options.includes(answer.default)) problems.push(`${manifest.component}: answers ${name} with a default ${answer.default} that is none of its options`);
     }
     for (const [slot, classes] of slotClassStrings(manifest)) {
-      for (const { channel, fallback: raw } of channelReads(String(classes ?? ''))) {
+      for (const { channel, fallback: raw, nested } of channelReads(String(classes ?? ''), true)) {
+        if (raw === null && nested) continue;
         const owner = [...families.values()].find((one) => axesOf(one).includes(channel));
         if (owner && answers.includes(owner.family)) axisReads.set(owner.family, (axisReads.get(owner.family) ?? new Set()).add(channel));
         const family = familyOf(channel);

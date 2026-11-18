@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { collect, channelProblems, shapeProblems, nameProblems, acceptsProblems, defaultProblems, fallbackProblems, pairProblems, manifestProblems, ringProblems, colourRoleSet, slotManifests } from './check-color-slots.ts';
+import { collect, channelProblems, shapeProblems, nameProblems, acceptsProblems, defaultProblems, fallbackProblems, pairProblems, manifestProblems, ringProblems, readProblems, colourRoleSet, slotManifests } from './check-color-slots.ts';
 import { readColorSlots } from '../../lib/core/color-slots.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
@@ -159,4 +159,22 @@ test('a channel written twice, or one no slot reaches, is refused', () => {
   const extra = channelProblems(readColorSlots(), families, hues);
   assert.equal(extra.length, 1);
   assert.match(extra[0] ?? '', /declares --arena-accent-edge/);
+});
+
+test('every slot of the five buttons reaches its part under its state', () => {
+  const c = shipped();
+  assert.deepEqual(readProblems(c, manifests), []);
+  const dropped = structuredClone(manifests) as Map<string, any>;
+  const root = dropped.get('ArenaButton').variants.destructive.false;
+  const pressed = 'active:bg-[color:var(--arena-emphasis-fill-pressed,';
+  assert.ok(root.root.includes(pressed), 'the shipped Button reads the pressed fill under active:');
+  root.root = root.root.replace(pressed, 'bg-[color:var(--arena-emphasis-fill-pressed,');
+  const lines = readProblems(c, dropped);
+  assert.equal(lines.length, 1);
+  assert.match(lines[0] ?? '', /ArenaButton\.root.*--arena-emphasis-fill-pressed.*active:/);
+});
+
+test('a family slot no part reads is refused', () => {
+  const c = edit((x) => { x.slots['emphasis-primary-root-fill-rest']!.channel = '--arena-emphasis-fill-nobody'; });
+  assert.ok(readProblems(c, manifests).some((line) => /emphasis-primary-root-fill-rest.*--arena-emphasis-fill-nobody/.test(line)));
 });

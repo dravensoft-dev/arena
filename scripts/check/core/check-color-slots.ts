@@ -3,7 +3,8 @@
  * names. It carries no value, so check:dtcg leaves it by name and this gate holds its shape: the
  * name each slot must have, the roles each property may be answered with, where a default or a
  * derivation may point, the family a component slot falls to, the fill an ink sits on, and the
- * manifest part a slot paints. A slot is never asked for totality or kernel equality. */
+ * manifest part a slot paints, and the variant under which that part reads its channel. A slot is
+ * never asked for totality or kernel equality. */
 
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
@@ -13,7 +14,7 @@ import { COLOR_SLOTS, readColorSlots } from '../../lib/core/color-slots.ts';
 import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
 import type { ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';
 import {
-  SLOT_PROPERTIES, SLOT_STATES, acceptedRole, channelValue, expectedName, glob,
+  SLOT_PROPERTIES, SLOT_STATES, acceptedRole, channelValue, expectedName, glob, slotChain,
 } from '../../generate/core/arena-cli/slots.ts';
 import type { ColorSlot, SlotCatalogue } from '../../generate/core/arena-cli/slots.ts';
 
@@ -233,6 +234,41 @@ export function ringProblems(c: SlotCatalogue, manifests: Manifests): string[] {
   return out;
 }
 
+const MODIFIER: Record<string, string> = {
+  rest: '', hover: 'hover:', pressed: 'active:', disabled: 'disabled:', selected: '', 'selected-hover': 'hover:', 'selected-pressed': 'active:',
+};
+const UTILITY: Record<string, string> = { fill: 'bg-[color:', ink: 'text-[color:', edge: 'border-[color:', icon: '[--arena-icon-ink:' };
+const VARIANT = /^(?:[a-z][a-z0-9-]*:)+/;
+
+const reads = (token: string, modifier: string, property: string, expected: string) => {
+  const prefix = VARIANT.exec(token)?.[0] ?? '';
+  return prefix === modifier && token.slice(prefix.length).startsWith(UTILITY[property] ?? '?') && token.includes(expected);
+};
+
+export function readProblems(c: SlotCatalogue, manifests: Manifests): string[] {
+  const lines = new Map<string, string[]>();
+  for (const [name, s] of entries(c)) {
+    if (s.scope === 'component') {
+      const [component, part] = s.draws === undefined ? [s.component ?? '', s.part] : s.draws.split('.');
+      const m = manifests.get(component ?? '');
+      const selected = s.state.startsWith('selected');
+      const texts = selected ? [(m?.variants?.pressed as Record<string, Record<string, string>> | undefined)?.true?.[part ?? '']]
+        : classesOf(m ?? ({} as ComponentManifest))[part ?? ''] ?? [];
+      const expected = s.channel === undefined ? slotChain(c, name) : `var(${s.channel},`;
+      const modifier = MODIFIER[s.state] ?? '';
+      const found = texts.some((text) => String(text ?? '').split(/\s+/).some((token) => reads(token, modifier, s.property, expected)));
+      if (!found) {
+        const key = `${component}.${part} does not read ${s.channel ?? 'its destructive chain'} under ${modifier || 'no variant'}${selected ? ' in the pressed branch' : ''}`;
+        lines.set(key, [...(lines.get(key) ?? []), name]);
+      }
+    } else if (s.family === 'emphasis' && s.channel !== undefined) {
+      const read = [...manifests.values()].some((m) => Object.values(classesOf(m)).flat().some((text) => text.includes(`var(${s.channel},`) || text.includes(`var(${s.channel})`)));
+      if (!read) lines.set(`${name}: its channel ${s.channel} is read by no part`, []);
+    }
+  }
+  return [...lines].map(([key, names]) => (names.length ? `${key}: ${names.join(', ')}` : key));
+}
+
 const HUE_KEY: Record<string, string> = {
   '--arena-hue-ink': 'ink', '--arena-hue-edge': 'edge', '--arena-hue-fill-strong': 'fill-strong',
   '--arena-hue-fill-soft': 'fill-soft', '--arena-hue-on-ink': 'on-ink',
@@ -241,6 +277,8 @@ const HUE_KEY: Record<string, string> = {
 export function channelProblems(c: SlotCatalogue, families: { variants: Record<string, string> }, hues: { hues: Record<string, Record<string, string>> }): string[] {
   const out: string[] = [];
   const extra = new Set<string>();
+  const owned = new Map<string, Set<string | undefined>>();
+  for (const [, o] of entries(c)) if (o.family === 'accent') owned.set(o.option, (owned.get(o.option) ?? new Set()).add(o.channel));
   for (const [name, s] of entries(c)) {
     if (s.scope !== 'family' || !s.channel) continue;
     if (s.family === 'accent') {
@@ -248,7 +286,7 @@ export function channelProblems(c: SlotCatalogue, families: { variants: Record<s
       const written = families.variants[`arena-accent-${s.option}`] ?? '';
       const times = written.split(`[${s.channel}:`).length - 1;
       if (times !== 1 || !written.includes(entry)) out.push(`${name}: Accent.family.json arena-accent-${s.option} carries ${s.channel} ${times} time(s) and does not carry exactly ${entry}`);
-      const own = new Set(entries(c).filter(([, o]) => o.family === 'accent' && o.option === s.option).map(([, o]) => o.channel));
+      const own = owned.get(s.option) ?? new Set();
       for (const [, channel] of written.matchAll(/\[(--[a-z0-9-]+):/g)) {
         if (!own.has(channel) && !extra.has(`${s.option}${channel}`)) { extra.add(`${s.option}${channel}`); out.push(`Accent.family.json arena-accent-${s.option} declares ${channel}, which no accent slot of that option reaches`); }
       }
@@ -270,7 +308,7 @@ export function collect(root = repoRoot): string[] {
   if (shape.length) return shape;
   return [
     ...nameProblems(c), ...acceptsProblems(c, roles), ...defaultProblems(c, roles), ...fallbackProblems(c),
-    ...pairProblems(c), ...manifestProblems(c, manifests), ...ringProblems(c, manifests),
+    ...pairProblems(c), ...manifestProblems(c, manifests), ...ringProblems(c, manifests), ...readProblems(c, manifests),
     ...channelProblems(c, readJson(join(root, ACCENT_FAMILY)) as never, readJson(join(root, HUES_JSON)) as never),
   ];
 }

@@ -52,7 +52,8 @@ test('every claim names a manifest that exists, so a renamed component fails her
 
 test('a pressed icon button keeps its wash under the pointer', () => {
   const pressed = resolve('ArenaIconButton', { pressed: true }, 'root');
-  assert.deepEqual(pressed.filter((c) => c.startsWith('hover:bg-')), []);
+  assert.deepEqual(pressed.filter((c) => c.startsWith('hover:bg-')).map((c) => /^hover:bg-\[color:var\((--arena-emphasis-fill-[a-z-]+),/.exec(c)?.[1]),
+    ['--arena-emphasis-fill-selected-hover']);
   const unpressed = resolve('ArenaIconButton', { pressed: false }, 'root');
   assert.ok(unpressed.some((c) => c.startsWith('hover:bg-')), 'an unpressed control keeps its emphasis hover');
 });
@@ -195,6 +196,11 @@ const SOFT = 'bg-[color:var(--arena-hue-fill-soft)]';
 const STRONG = 'bg-[color:var(--arena-hue-fill-strong)]';
 const MARK_SOFT = 'bg-[color:var(--arena-mark-fill,var(--arena-hue-fill-soft))]';
 const MARK_INK = 'text-[color:var(--arena-mark-ink,color-mix(in_oklab,var(--ink-body)_var(--level-ink-body),transparent))]';
+const DESTRUCTIVE = (stem: string, part: string) => ['edge', 'ink', 'fill'].map((property) => {
+  const hue = { edge: 'edge', ink: 'ink', fill: 'fill-strong' }[property];
+  const utility = { edge: 'border', ink: 'text', fill: 'bg' }[property];
+  return `${utility}-[color:var(--${stem}-destructive-${part}-${property}-rest,var(--arena-hue-${hue}))]`;
+});
 const STRONG_INK = 'text-[color:var(--arena-hue-fill-strong)]';
 const FILLED_WHY = 'a solid status fill reads the strong fill channel, and danger, whose strong fill is hue-danger-fill-strong and transparent by default, draws the mark through its ink';
 const STATUS = ['success', 'warning', 'danger', 'info'];
@@ -437,7 +443,7 @@ export const CLAIMS = {
     { slot: 'root', has: ['inline-flex'], hasNot: ['relative'], why: 'the bubble leaves the wrapper when it is shown, so nothing is positioned against the root' },
   ],
   ArenaButton: [
-    { chosen: { destructive: true }, slot: 'root', has: [EDGE, INK, STRONG], hasNot: ['bg-error', 'bg-error-fill'], why: 'destructive draws its border and label in the danger hue and fills with hue-danger-fill-strong, transparent by default' },
+    { chosen: { destructive: true }, slot: 'root', has: DESTRUCTIVE('button', 'root'), hasNot: ['bg-error', 'bg-error-fill'], why: 'destructive draws its border and label in the danger hue and fills with hue-danger-fill-strong, transparent by default' },
     { chosen: { destructive: true }, slot: 'root', has: ['hover:shadow-control-rest'], hasNot: ['hover:shadow-[var(--arena-emphasis-shadow-hover,var(--emphasis-primary-shadow-hover))]'],
       why: 'a destructive button never lifts on hover whatever its emphasis, because the raised hover shadow is the emphasis destructive does not govern' },
     { chosen: { destructive: false }, slot: 'root', has: ['hover:shadow-[var(--arena-emphasis-shadow-hover,var(--emphasis-primary-shadow-hover))]'],
@@ -457,16 +463,16 @@ export const CLAIMS = {
       why: 'the same reason, on the other half' },
     { slot: 'primary', has: ['rounded-s-control', 'border-e-0'], why: 'the primary half rounds its start corners only and draws no end edge, so the joint is one line and never two' },
     { slot: 'caret', has: ['rounded-e-control', 'w-[var(--arena-size-control-h,var(--size-md-control-h))]'], why: 'the caret rounds its end corners only and is a square of the control height' },
-    { chosen: { destructive: false }, slot: 'caret', has: ['border-s-[color:color-mix(in_oklab,var(--arena-emphasis-ink,var(--emphasis-primary-ink))_var(--level-ink-muted),transparent)]'], hasNot: ['border-s-[color:var(--arena-emphasis-edge,var(--emphasis-primary-edge))]'],
+    { chosen: { destructive: false }, slot: 'caret', has: ['border-s-[color:color-mix(in_oklab,var(--arena-emphasis-ink,var(--emphasis-primary-root-ink-rest,var(--emphasis-primary-ink)))_var(--level-ink-muted),transparent)]'], hasNot: ['border-s-[color:var(--arena-emphasis-edge,var(--emphasis-primary-root-edge-rest,var(--emphasis-primary-edge)))]'],
       why: 'the joint is the emphasis ink at the muted level, because the primary edge is the primary fill and the ghost edge is transparent, so an edge-coloured joint draws nothing' },
-    { chosen: { destructive: true }, slot: 'caret', has: ['border-s-[color:color-mix(in_oklab,var(--arena-hue-ink)_var(--level-ink-muted),transparent)]'], hasNot: ['border-s-[color:color-mix(in_oklab,var(--arena-emphasis-ink,var(--emphasis-primary-ink))_var(--level-ink-muted),transparent)]'],
+    { chosen: { destructive: true }, slot: 'caret', has: ['border-s-[color:color-mix(in_oklab,var(--arena-hue-ink)_var(--level-ink-muted),transparent)]'], hasNot: ['border-s-[color:color-mix(in_oklab,var(--arena-emphasis-ink,var(--emphasis-primary-root-ink-rest,var(--emphasis-primary-ink)))_var(--level-ink-muted),transparent)]'],
       why: 'a destructive split draws its joint in the danger ink the same way' },
-    { chosen: { destructive: true }, slot: 'primary', has: [EDGE, INK, STRONG], why: 'destructive draws the primary half in the danger hue, border and label, with a fill of hue-danger-fill-strong, as on a button' },
-    { chosen: { destructive: true }, slot: 'caret', has: [EDGE, INK, STRONG], why: 'and on the caret half, so the split is one danger control' },
+    { chosen: { destructive: true }, slot: 'primary', has: DESTRUCTIVE('split-button', 'primary'), why: 'destructive draws the primary half in the danger hue, border and label, with a fill of hue-danger-fill-strong, as on a button' },
+    { chosen: { destructive: true }, slot: 'caret', has: DESTRUCTIVE('split-button', 'caret'), why: 'and on the caret half, so the split is one danger control' },
     { chosen: { destructive: false }, slot: 'caret',
-      has: ['aria-expanded:bg-[color:var(--arena-emphasis-fill-hover,var(--emphasis-primary-fill))]', 'aria-expanded:shadow-[var(--arena-emphasis-shadow-hover,var(--emphasis-primary-shadow-hover))]'],
+      has: ['aria-expanded:bg-[color:var(--arena-emphasis-fill-hover,var(--emphasis-primary-root-fill-hover,var(--arena-emphasis-fill)))]', 'aria-expanded:shadow-[var(--arena-emphasis-shadow-hover,var(--emphasis-primary-shadow-hover))]'],
       why: 'an open caret holds the half\'s own hover look while its menu is shown, read through the emphasis channel' },
-    { chosen: { destructive: true }, slot: 'caret', has: ['aria-expanded:bg-hover'],
+    { chosen: { destructive: true }, slot: 'caret', has: ['aria-expanded:bg-[color:var(--split-button-destructive-caret-fill-hover,var(--fill-hover))]'],
       why: 'a destructive caret holds its hover wash while its menu is shown, the same way' },
     { slot: 'spinner', has: ['arena-btn-spin'], why: 'the spinner is the button spinner, reduced-motion answer included' },
   ],
@@ -507,13 +513,19 @@ export const CLAIMS = {
     { chosen: { disabled: true }, slot: 'root', has: ['opacity-[var(--fade-disabled)]'], hasNot: ['opacity-50'], why: 'a disabled set dims as a whole, as a disabled field does' },
   ],
   ArenaIconButton: [
-    { chosen: { pressed: false }, slot: 'root', has: ['hover:bg-[color:var(--arena-emphasis-fill-hover,var(--emphasis-ghost-fill-hover))]'],
+    { chosen: { pressed: false }, slot: 'root', has: ['hover:bg-[color:var(--arena-emphasis-fill-hover,var(--emphasis-ghost-root-fill-hover,var(--emphasis-ghost-fill-hover)))]'],
       why: 'the hover fill is an emphasis read, and it sits in the unpressed branch so a pressed control keeps its own wash under the pointer' },
-    { chosen: { pressed: true }, slot: 'root', has: ['bg-selected/(--level-accent-soft-primary)', 'text-ink-selected', 'border-edge-selected'], hasNot: ['hover:bg-primary/22', 'bg-primary/14', 'hover:bg-[color:var(--arena-emphasis-fill-hover,var(--emphasis-ghost-fill-hover))]'],
+    { chosen: { pressed: true }, slot: 'root', has: [
+      'bg-[color:var(--arena-emphasis-fill-selected,color-mix(in_oklab,var(--emphasis-ghost-root-fill-selected,var(--fill-selected))_var(--level-accent-soft-primary),transparent))]',
+      'text-[color:var(--arena-emphasis-ink-selected,var(--emphasis-ghost-root-ink-selected,var(--ink-selected)))]',
+      'border-[color:var(--arena-emphasis-icon-edge-selected,var(--icon-button-ghost-root-edge-selected,var(--edge-selected)))]',
+      'hover:bg-[color:var(--arena-emphasis-fill-selected-hover,var(--emphasis-ghost-root-fill-selected-hover,color-mix(in_oklab,var(--arena-emphasis-fill-selected),var(--arena-emphasis-ink-selected)_calc(var(--mix-hover)*100%))))]',
+      'active:bg-[color:var(--arena-emphasis-fill-selected-pressed,var(--emphasis-ghost-root-fill-selected-pressed,color-mix(in_oklab,var(--arena-emphasis-fill-selected),var(--arena-emphasis-ink-selected)_calc(var(--mix-pressed)*100%))))]',
+    ], hasNot: ['hover:bg-primary/22', 'bg-primary/14', 'hover:bg-[color:var(--arena-emphasis-fill-hover,var(--emphasis-ghost-root-fill-hover,var(--emphasis-ghost-fill-hover)))]'],
       why: 'a pressed control is a state of the control and states its own wash over any emphasis' },
     { chosen: { showLabel: true }, slot: 'root', has: ['w-[var(--arena-fill-width,fit-content)]', 'gap-control'], why: 'showLabel opens the box out to its label through the fill channel and gives the glyph a gap; without it the control has neither' },
     { chosen: { showLabel: false }, slot: 'root', has: ['p-0', 'gap-0'], why: 'showLabel opens the box out and gives the glyph a gap; without it the control has neither' },
-    { slot: 'root', has: ['disabled:opacity-[var(--fade-disabled)]', 'disabled:cursor-not-allowed'], hasNot: ['disabled:opacity-45'], why: 'the disabled treatment is a :disabled variant, which only a real disabled control matches' },
+    { slot: 'root', has: ['disabled:opacity-[var(--arena-emphasis-fade-disabled,var(--emphasis-ghost-root-fade-disabled,var(--fade-disabled)))]', 'disabled:cursor-not-allowed'], hasNot: ['disabled:opacity-45'], why: 'the disabled treatment is a :disabled variant, which only a real disabled control matches' },
   ],
   ArenaInput: [
     { slot: 'error', has: ['text-ink-invalid'], hasNot: ['text-error'], why: 'the field error message reads the invalid ink role, so a plugin answering ink-invalid moves the message with the edge' },
@@ -663,10 +675,10 @@ const READS: [component: string, slot: string, question: string, reads: string[]
   ['ArenaFileInput', 'trigger', 'size.control-h', ['h-[var(--arena-size-control-h,var(--size-md-control-h))]']],
   ['ArenaFileInput', 'trigger', 'size.control-pad-x', ['px-[var(--arena-size-control-pad-x,var(--size-md-control-pad-x))]']],
   ['ArenaFileInput', 'trigger', 'size.control-step', ['text-[length:var(--arena-size-control-step,var(--size-md-control-step))]']],
-  ['ArenaFileInput', 'trigger', 'emphasis.fill', ['bg-[color:var(--arena-emphasis-fill,var(--emphasis-secondary-fill))]']],
-  ['ArenaFileInput', 'trigger', 'emphasis.ink', ['text-[color:var(--arena-emphasis-ink,var(--emphasis-secondary-ink))]']],
-  ['ArenaFileInput', 'trigger', 'emphasis.edge', ['border-[color:var(--arena-emphasis-edge,var(--emphasis-secondary-edge))]']],
-  ['ArenaFileInput', 'trigger', 'emphasis.fill-hover', ['hover:bg-[color:var(--arena-emphasis-fill-hover,var(--emphasis-secondary-fill-hover))]']],
+  ['ArenaFileInput', 'trigger', 'emphasis.fill', ['bg-[color:var(--arena-emphasis-fill,var(--emphasis-secondary-root-fill-rest,var(--emphasis-secondary-fill)))]']],
+  ['ArenaFileInput', 'trigger', 'emphasis.ink', ['text-[color:var(--arena-emphasis-ink,var(--emphasis-secondary-root-ink-rest,var(--emphasis-secondary-ink)))]']],
+  ['ArenaFileInput', 'trigger', 'emphasis.edge', ['border-[color:var(--arena-emphasis-edge,var(--emphasis-secondary-root-edge-rest,var(--emphasis-secondary-edge)))]']],
+  ['ArenaFileInput', 'trigger', 'emphasis.fill-hover', ['hover:bg-[color:var(--arena-emphasis-fill-hover,var(--emphasis-secondary-root-fill-hover,var(--emphasis-secondary-fill-hover)))]']],
   ['ArenaFileInput', 'trigger', 'emphasis.shadow-hover', ['hover:shadow-[var(--arena-emphasis-shadow-hover,var(--shadow-control-rest))]']],
   ['ArenaSegmentedControl', 'segment', 'size.segment-h', ['h-[var(--arena-size-segment-h,var(--size-md-segment-h))]']],
   ['ArenaSegmentedControl', 'segment', 'size.segment-pad-x', ['px-[var(--arena-size-segment-pad-x,var(--size-md-segment-pad-x))]']],
@@ -715,14 +727,14 @@ const READS: [component: string, slot: string, question: string, reads: string[]
   ['ArenaTimeline', 'connector', 'orientation.rule-w', ['w-[var(--arena-orientation-rule-w,var(--bw-separator))]', 'h-[var(--arena-orientation-rule-h,auto)]']],
   ['ArenaStepper', 'connector', 'orientation.rule-w', ['w-[var(--arena-orientation-rule-w,100%)]', 'h-[var(--arena-orientation-rule-h,var(--bw-separator))]']],
   ['ArenaSwitch', 'track', 'orientation.track-w', ['w-[var(--arena-orientation-track-w,var(--arena-size-switch-long,var(--size-md-switch-long)))]', 'h-[var(--arena-orientation-track-h,var(--arena-size-switch-short,var(--size-md-switch-short)))]']],
-  ['ArenaButton', 'root', 'emphasis.fill', ['bg-[color:var(--arena-emphasis-fill,var(--emphasis-primary-fill))]']],
-  ['ArenaIconButton', 'root', 'emphasis.fill', ['bg-[color:var(--arena-emphasis-fill,transparent)]']],
-  ['ArenaButton', 'root', 'emphasis.ink', ['text-[color:var(--arena-emphasis-ink,var(--emphasis-primary-ink))]']],
-  ['ArenaIconButton', 'root', 'emphasis.ink', ['text-[color:var(--arena-emphasis-ink,color-mix(in_oklab,var(--emphasis-ghost-ink)_var(--level-ink-body),transparent))]']],
-  ['ArenaButton', 'root', 'emphasis.edge', ['border-[color:var(--arena-emphasis-edge,var(--emphasis-primary-edge))]']],
-  ['ArenaIconButton', 'root', 'emphasis.icon-edge', ['border-[length:var(--bw-control)]', 'border-[color:var(--arena-emphasis-icon-edge,var(--emphasis-ghost-icon-edge))]', '[border-style:var(--arena-emphasis-edge-style,solid)]']],
-  ['ArenaButton', 'root', 'emphasis.fill-hover', ['hover:bg-[color:var(--arena-emphasis-fill-hover,var(--emphasis-primary-fill))]']],
-  ['ArenaIconButton', 'root', 'emphasis.fill-hover', ['hover:bg-[color:var(--arena-emphasis-fill-hover,var(--emphasis-ghost-fill-hover))]'], { pressed: 'false' }],
+  ['ArenaButton', 'root', 'emphasis.fill', ['bg-[color:var(--arena-emphasis-fill,var(--emphasis-primary-root-fill-rest,var(--emphasis-primary-fill)))]']],
+  ['ArenaIconButton', 'root', 'emphasis.fill', ['bg-[color:var(--arena-emphasis-fill,var(--emphasis-ghost-root-fill-rest,transparent))]']],
+  ['ArenaButton', 'root', 'emphasis.ink', ['text-[color:var(--arena-emphasis-ink,var(--emphasis-primary-root-ink-rest,var(--emphasis-primary-ink)))]']],
+  ['ArenaIconButton', 'root', 'emphasis.ink', ['text-[color:var(--arena-emphasis-ink,color-mix(in_oklab,var(--emphasis-ghost-root-ink-rest,var(--emphasis-ghost-ink))_var(--level-ink-body),transparent))]']],
+  ['ArenaButton', 'root', 'emphasis.edge', ['border-[color:var(--arena-emphasis-edge,var(--emphasis-primary-root-edge-rest,var(--emphasis-primary-edge)))]']],
+  ['ArenaIconButton', 'root', 'emphasis.icon-edge', ['border-[length:var(--bw-control)]', 'border-[color:var(--arena-emphasis-icon-edge,var(--icon-button-ghost-root-edge-rest,var(--emphasis-ghost-icon-edge)))]', '[border-style:var(--arena-emphasis-edge-style,solid)]']],
+  ['ArenaButton', 'root', 'emphasis.fill-hover', ['hover:bg-[color:var(--arena-emphasis-fill-hover,var(--emphasis-primary-root-fill-hover,var(--arena-emphasis-fill)))]']],
+  ['ArenaIconButton', 'root', 'emphasis.fill-hover', ['hover:bg-[color:var(--arena-emphasis-fill-hover,var(--emphasis-ghost-root-fill-hover,var(--emphasis-ghost-fill-hover)))]'], { pressed: 'false' }],
   ['ArenaBadge', 'root', 'accent.fill-soft', ['bg-[color:var(--arena-mark-fill,var(--arena-accent-fill-soft,var(--accent-plain-root-fill-rest,var(--accent-plain-fill-soft))))]']],
   ['ArenaBadge', 'root', 'mark.fill', ['bg-[color:var(--arena-mark-fill,var(--arena-accent-fill-soft,var(--accent-plain-root-fill-rest,var(--accent-plain-fill-soft))))]']],
   ['ArenaBadge', 'root', 'mark.ink', [MARK_INK]],
@@ -753,16 +765,16 @@ const READS: [component: string, slot: string, question: string, reads: string[]
   ['ArenaSplitButton', 'caret', 'size.control-h', ['h-[var(--arena-size-control-h,var(--size-md-control-h))]']],
   ['ArenaSplitButton', 'primary', 'size.control-pad-x', ['px-[var(--arena-size-control-pad-x,var(--size-md-control-pad-x))]']],
   ['ArenaSplitButton', 'primary', 'size.control-step', ['text-[length:var(--arena-size-control-step,var(--size-md-control-step))]']],
-  ['ArenaSplitButton', 'primary', 'emphasis.fill', ['bg-[color:var(--arena-emphasis-fill,var(--emphasis-primary-fill))]']],
-  ['ArenaSplitButton', 'primary', 'emphasis.ink', ['text-[color:var(--arena-emphasis-ink,var(--emphasis-primary-ink))]']],
-  ['ArenaSplitButton', 'primary', 'emphasis.edge', ['border-[color:var(--arena-emphasis-edge,var(--emphasis-primary-edge))]']],
-  ['ArenaSplitButton', 'primary', 'emphasis.fill-hover', ['hover:bg-[color:var(--arena-emphasis-fill-hover,var(--emphasis-primary-fill))]'], { destructive: 'false' }],
+  ['ArenaSplitButton', 'primary', 'emphasis.fill', ['bg-[color:var(--arena-emphasis-fill,var(--emphasis-primary-root-fill-rest,var(--emphasis-primary-fill)))]']],
+  ['ArenaSplitButton', 'primary', 'emphasis.ink', ['text-[color:var(--arena-emphasis-ink,var(--emphasis-primary-root-ink-rest,var(--emphasis-primary-ink)))]']],
+  ['ArenaSplitButton', 'primary', 'emphasis.edge', ['border-[color:var(--arena-emphasis-edge,var(--emphasis-primary-root-edge-rest,var(--emphasis-primary-edge)))]']],
+  ['ArenaSplitButton', 'primary', 'emphasis.fill-hover', ['hover:bg-[color:var(--arena-emphasis-fill-hover,var(--emphasis-primary-root-fill-hover,var(--arena-emphasis-fill)))]'], { destructive: 'false' }],
   ['ArenaSplitButton', 'primary', 'emphasis.shadow-hover', ['hover:shadow-[var(--arena-emphasis-shadow-hover,var(--emphasis-primary-shadow-hover))]'], { destructive: 'false' }],
   ['ArenaSplitButton', 'caret', 'size.control-step', ['text-[length:var(--arena-size-control-step,var(--size-md-control-step))]']],
-  ['ArenaSplitButton', 'caret', 'emphasis.fill', ['bg-[color:var(--arena-emphasis-fill,var(--emphasis-primary-fill))]']],
-  ['ArenaSplitButton', 'caret', 'emphasis.ink', ['text-[color:var(--arena-emphasis-ink,var(--emphasis-primary-ink))]']],
-  ['ArenaSplitButton', 'caret', 'emphasis.edge', ['border-[color:var(--arena-emphasis-edge,var(--emphasis-primary-edge))]']],
-  ['ArenaSplitButton', 'caret', 'emphasis.fill-hover', ['hover:bg-[color:var(--arena-emphasis-fill-hover,var(--emphasis-primary-fill))]'], { destructive: 'false' }],
+  ['ArenaSplitButton', 'caret', 'emphasis.fill', ['bg-[color:var(--arena-emphasis-fill,var(--emphasis-primary-root-fill-rest,var(--emphasis-primary-fill)))]']],
+  ['ArenaSplitButton', 'caret', 'emphasis.ink', ['text-[color:var(--arena-emphasis-ink,var(--emphasis-primary-root-ink-rest,var(--emphasis-primary-ink)))]']],
+  ['ArenaSplitButton', 'caret', 'emphasis.edge', ['border-[color:var(--arena-emphasis-edge,var(--emphasis-primary-root-edge-rest,var(--emphasis-primary-edge)))]']],
+  ['ArenaSplitButton', 'caret', 'emphasis.fill-hover', ['hover:bg-[color:var(--arena-emphasis-fill-hover,var(--emphasis-primary-root-fill-hover,var(--arena-emphasis-fill)))]'], { destructive: 'false' }],
   ['ArenaSplitButton', 'caret', 'emphasis.shadow-hover', ['hover:shadow-[var(--arena-emphasis-shadow-hover,var(--emphasis-primary-shadow-hover))]'], { destructive: 'false' }],
 ];
 

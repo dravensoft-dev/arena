@@ -6,7 +6,7 @@ import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
 import { mount, cleanup } from './Harness.tsx';
-import { ArenaButton, ArenaIconButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope } from '../Index.generated.ts';
+import { ArenaButton, ArenaIconButton, ArenaSplitButton, ArenaCopyButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope } from '../Index.generated.ts';
 import { readProximity, normalize, vocabularyClasses } from '../../../scripts/lib/arena/proximity.ts';
 
 afterEach(cleanup);
@@ -14,6 +14,7 @@ afterEach(cleanup);
 type NodeLike = Parameters<typeof normalize>[0];
 
 const axis = { display: 'contents', '--arena-grid-min': '300px' } as React.CSSProperties;
+const answered = (answers: Record<string, string>) => answers as React.CSSProperties;
 
 const COMPOSITIONS: Record<string, () => React.ReactElement> = {
   'class-on-component-beats-ancestor': () => <ArenaButton className="arena-fill">Save</ArenaButton>,
@@ -74,6 +75,17 @@ const COMPOSITIONS: Record<string, () => React.ReactElement> = {
   'timeline-connector-horizontal-keeps-block-margin': () => <ArenaTimeline label="Order" items={[{ title: 'Placed' }, { title: 'Shipped' }]} />,
   'tag-breaks-a-label-wider-than-its-container': () => <ArenaTag>{'InternationalisationInternationalisationInternationalisationInternationalisationInternationalisationInternationalisation'}</ArenaTag>,
   'palette-scope-takes-the-surface-radius': () => <ArenaPaletteScope palette="light"><span>Light</span></ArenaPaletteScope>,
+  'component-slot-beats-family-and-needs-no-class': () => <div style={answered({ '--button-primary-root-fill-rest': 'var(--fill-surface)' })}>
+    <ArenaButton>Save</ArenaButton>
+    <ArenaSplitButton label="Deployment" menuLabel="More deploy options" items={[{ label: 'Deploy' }]}>Deploy</ArenaSplitButton>
+    <ArenaIconButton icon="ph-bold ph-x" label="Close" />
+  </div>,
+  'context-class-beats-the-default-block': () => <div style={answered({ '--button-primary-root-fill-rest': 'var(--fill-surface-raised)' })}><ArenaButton>Save</ArenaButton></div>,
+  'copy-button-follows-icon-button': () => <div style={answered({ '--icon-button-ghost-root-fill-rest': 'var(--fill-surface)' })}><ArenaCopyButton text="x" label="Copy" /></div>,
+  'copy-button-slot-wins': () => <div style={answered({ '--icon-button-ghost-root-fill-rest': 'var(--fill-surface)', '--copy-button-ghost-root-fill-rest': 'var(--fill-surface-raised)' })}><ArenaCopyButton text="x" label="Copy" /></div>,
+  'answered-disabled-stops-the-fade': () => <div style={answered({ '--button-primary-root-ink-disabled': 'var(--ink-muted)', '--button-primary-root-fade-disabled': '1' })}><ArenaButton disabled>Save</ArenaButton></div>,
+  'class-on-copy-button-reaches-the-icon-button-it-draws': () => <div style={answered({ '--copy-button-solid-root-fill-rest': 'var(--fill-surface-raised)' })}><ArenaCopyButton className="arena-emphasis-solid" text="x" label="Copy" /></div>,
+  'family-hover-beats-component-rest': () => <div style={answered({ '--button-primary-root-fill-rest': 'var(--fill-surface)', '--emphasis-primary-root-fill-hover': 'var(--fill-hover)' })}><ArenaButton>Save</ArenaButton></div>,
 };
 
 const BARE = new Set(['meaning-wins-over-accent', 'accent-stops-at-the-card-body', 'small-badge-compacts-itself', 'small-badge-tightens-its-block', 'small-badge-tightens-its-ends']);
@@ -109,6 +121,9 @@ const SUBJECT: Record<string, { part: string; at: number }> = {
   'timeline-connector-horizontal-keeps-block-margin': { part: 'timeline.connector', at: 0 },
   'tag-breaks-a-label-wider-than-its-container': { part: 'tag', at: 0 },
   'palette-scope-takes-the-surface-radius': { part: 'palette-scope', at: 0 },
+  'copy-button-follows-icon-button': { part: 'icon-button', at: 0 },
+  'copy-button-slot-wins': { part: 'icon-button', at: 0 },
+  'class-on-copy-button-reaches-the-icon-button-it-draws': { part: 'icon-button', at: 0 },
 };
 
 const { families, cases } = readProximity();

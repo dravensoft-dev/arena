@@ -17,6 +17,8 @@ import { ArenaTooltip } from '../components/feedback/arena-tooltip/ArenaTooltip'
 import { ArenaMenu } from '../components/navigation/arena-menu/ArenaMenu';
 import { ArenaPopover } from '../components/feedback/arena-popover/ArenaPopover';
 import { ArenaIconButton } from '../components/forms/arena-icon-button/ArenaIconButton';
+import { ArenaSplitButton } from '../components/forms/arena-split-button/ArenaSplitButton';
+import { ArenaCopyButton } from '../components/forms/arena-copy-button/ArenaCopyButton';
 import { ArenaDialog } from '../components/feedback/arena-dialog/ArenaDialog';
 import { ArenaAppLogo } from '../components/brand/arena-app-logo/ArenaAppLogo';
 import { ArenaPeopleList } from '../components/display/arena-people-list/ArenaPeopleList';
@@ -97,6 +99,15 @@ const TEMPLATES: Record<string, string> = {
   'timeline-connector-horizontal-keeps-block-margin': '<arena-timeline label="Order" [items]="[{ title: \'Placed\' }, { title: \'Shipped\' }]" />',
   'tag-breaks-a-label-wider-than-its-container': '<arena-tag>InternationalisationInternationalisationInternationalisationInternationalisationInternationalisationInternationalisation</arena-tag>',
   'palette-scope-takes-the-surface-radius': '<div arenaPalette="light"><span>Light</span></div>',
+  'component-slot-beats-family-and-needs-no-class': '<div style="--button-primary-root-fill-rest: var(--fill-surface)"><arena-button>Save</arena-button>'
+    + '<arena-split-button label="Deployment" menuLabel="More deploy options" [items]="[{ label: \'Deploy\' }]">Deploy</arena-split-button>'
+    + '<arena-icon-button icon="ph-bold ph-x" label="Close" /></div>',
+  'context-class-beats-the-default-block': '<div style="--button-primary-root-fill-rest: var(--fill-surface-raised)"><arena-button>Save</arena-button></div>',
+  'copy-button-follows-icon-button': '<div style="--icon-button-ghost-root-fill-rest: var(--fill-surface)"><arena-copy-button text="x" label="Copy" /></div>',
+  'copy-button-slot-wins': '<div style="--icon-button-ghost-root-fill-rest: var(--fill-surface); --copy-button-ghost-root-fill-rest: var(--fill-surface-raised)"><arena-copy-button text="x" label="Copy" /></div>',
+  'answered-disabled-stops-the-fade': '<div style="--button-primary-root-ink-disabled: var(--ink-muted); --button-primary-root-fade-disabled: 1"><arena-button disabled>Save</arena-button></div>',
+  'class-on-copy-button-reaches-the-icon-button-it-draws': '<div style="--copy-button-solid-root-fill-rest: var(--fill-surface-raised)"><arena-copy-button class="arena-emphasis-solid" text="x" label="Copy" /></div>',
+  'family-hover-beats-component-rest': '<div style="--button-primary-root-fill-rest: var(--fill-surface); --emphasis-primary-root-fill-hover: var(--fill-hover)"><arena-button>Save</arena-button></div>',
 };
 
 const BARE = new Set(['meaning-wins-over-accent', 'accent-stops-at-the-card-body', 'small-badge-compacts-itself', 'small-badge-tightens-its-block', 'small-badge-tightens-its-ends']);
@@ -132,6 +143,9 @@ const SUBJECT: Record<string, { part: string; index: number }> = {
   'timeline-connector-horizontal-keeps-block-margin': { part: 'timeline.connector', index: 0 },
   'tag-breaks-a-label-wider-than-its-container': { part: 'tag', index: 0 },
   'palette-scope-takes-the-surface-radius': { part: 'palette-scope', index: 0 },
+  'copy-button-follows-icon-button': { part: 'icon-button', index: 0 },
+  'copy-button-slot-wins': { part: 'icon-button', index: 0 },
+  'class-on-copy-button-reaches-the-icon-button-it-draws': { part: 'icon-button', index: 0 },
 };
 
 const { families, cases } = proximity.readProximity();
@@ -146,7 +160,7 @@ for (const kase of cases) {
     const Host = Component({
       selector: `proximity-${kase.name}-host`,
       standalone: true,
-      imports: [ArenaButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaIconButton, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaFooter, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope],
+      imports: [ArenaButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaIconButton, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaFooter, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope, ArenaSplitButton, ArenaCopyButton],
       template: BARE.has(kase.name) ? TEMPLATES[kase.name] : `<div class="${kase.container}">${TEMPLATES[kase.name]}</div>`,
     })(class {});
     const fixture = TestBed.createComponent(Host);

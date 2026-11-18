@@ -6,11 +6,14 @@
  * A tree also keeps an open surface, a floating one and a channel an element binds on its style:
  * the three things a size class reaches, stops at and is answered by. A destructive part keeps its
  * flag too, and so does a tone other than neutral, since the meaning a part states is what an
- * emphasis class and an accent class have to leave in place. */
+ * emphasis class and an accent class have to leave in place. A disabled part keeps its flag, and a
+ * colour slot a case binds stands in for the answer a style plugin writes. */
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { repoRoot } from './repo-root.ts';
+import { readColorSlots } from '../core/color-slots.ts';
+import { fadeMarkers } from '../../generate/core/arena-cli/slots.ts';
 import type { Family } from '../tailwind/vocabulary.ts';
 import { readFamilies, SURFACE } from '../tailwind/vocabulary.ts';
 
@@ -21,7 +24,7 @@ export const DESTRUCTIVE = 'data-arena-destructive';
 export const TONE = 'data-arena-tone';
 
 export type Tree = {
-  tag: string; part?: string; boundary?: true; contents?: true; open?: true; destructive?: true; tone?: string; surface?: string; vars?: string; class?: string; text?: string;
+  tag: string; part?: string; boundary?: true; contents?: true; open?: true; disabled?: true; destructive?: true; tone?: string; surface?: string; vars?: string; class?: string; text?: string;
   subject?: true; children?: Tree[];
 };
 
@@ -60,8 +63,15 @@ export function vocabularyClasses(witness: Family[], root = repoRoot) {
   return new Set([...readFamilies(root).values(), ...witness].flatMap((family) => Object.keys(family.variants)));
 }
 
+const slotChannels = (root = repoRoot) => {
+  const catalogue = readColorSlots(root);
+  const names = Object.keys(catalogue.slots);
+  return new Set([...names.map((name) => `--${name}`), ...fadeMarkers(names, catalogue).map(([marker]) => marker)]);
+};
+const SLOT_CHANNELS = slotChannels();
+
 export const channelBindings = (style: string) => style.split(';').map((one) => one.replace(/\s+/g, ''))
-  .filter((one) => one.startsWith('--arena-')).join(';');
+  .filter((one) => one.startsWith('--arena-') || SLOT_CHANNELS.has(one.split(':')[0] ?? '')).join(';');
 
 export function normalize(element: NodeLike, vocabulary: Set<string>, subject: NodeLike | null = null): Tree | null {
   const tree: Tree = { tag: (element.tagName ?? '').toLowerCase() };
@@ -71,6 +81,7 @@ export function normalize(element: NodeLike, vocabulary: Set<string>, subject: N
   const style = element.getAttribute?.('style') ?? '';
   if (/display:\s*contents/.test(style)) tree.contents = true;
   if (element.hasAttribute?.(OPEN)) tree.open = true;
+  if (element.hasAttribute?.('disabled')) tree.disabled = true;
   if (element.hasAttribute?.(DESTRUCTIVE) && element.getAttribute?.(DESTRUCTIVE) !== 'false') tree.destructive = true;
   const tone = element.getAttribute?.(TONE);
   if (tone && tone !== 'neutral') tree.tone = tone;
@@ -86,7 +97,7 @@ export function normalize(element: NodeLike, vocabulary: Set<string>, subject: N
   if (text) tree.text = text;
   const children = kids.filter((one) => one.nodeType === 1).map((one) => normalize(one, vocabulary, subject)).filter((one): one is Tree => one !== null);
   if (children.length) tree.children = children;
-  const kept = tree.part || tree.boundary || tree.contents || tree.open || tree.destructive || tree.tone || tree.surface || tree.vars || tree.class || tree.text || tree.subject || tree.children;
+  const kept = tree.part || tree.boundary || tree.contents || tree.open || tree.disabled || tree.destructive || tree.tone || tree.surface || tree.vars || tree.class || tree.text || tree.subject || tree.children;
   return kept ? tree : null;
 }
 
@@ -101,6 +112,7 @@ export function treeHtml(
   if (tree.part) attrs.push(`data-arena-part="${tree.part}"`);
   if (tree.boundary) attrs.push('data-arena-boundary=""');
   if (tree.open) attrs.push(`${OPEN}=""`);
+  if (tree.disabled) attrs.push('disabled=""');
   if (tree.subject) attrs.push(`${SUBJECT}=""`);
   if (tree.surface) attrs.push(`${SURFACE}="${tree.surface}"`);
   const styles = [tree.contents ? 'display: contents' : '', tree.vars ?? ''].filter(Boolean);
