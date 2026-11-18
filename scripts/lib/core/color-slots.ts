@@ -43,11 +43,16 @@ export type SlotDeclarations = {
   rings: Record<string, string>;
 };
 
-const KEYS = ['scope', 'family', 'component', 'option', 'part', 'property', 'state', 'channel', 'accepts', 'on', 'default',
+export const SLOT_KEYS = ['scope', 'family', 'component', 'option', 'part', 'property', 'state', 'channel', 'accepts', 'on', 'default',
   'derive', 'level', 'optional', 'draws'] as const;
 const PROPS = ['fill', 'ink', 'edge', 'icon'] as const;
 const DISABLED = ['disabled', 'selected-disabled'];
 const answer = (v: Answer): [string, string | undefined] => (typeof v === 'object' ? [v.role, v.level] : [v, undefined]);
+const restOf = (rest: Rest): Rest => {
+  const fixed: Rest = Object.fromEntries(Object.entries(rest).filter(([, v]) => v !== 'ink'));
+  if (Object.values(rest).includes('ink')) fixed.icon = 'ink';
+  return fixed;
+};
 const slotName = (owner: string, opt: string, part: string, prop: string, st: string) => [owner, opt, part, prop, st].join('-');
 
 type Standing = { owner: string; opt: string; part: string; rest: Rest; states: (prop: string) => string[];
@@ -91,13 +96,12 @@ export function deriveSlots(d: SlotDeclarations): SlotCatalogue {
       : (decl.options ?? {});
     const parts: string[] = [];
     for (const [opt, { states: spec, parts: byPart }] of Object.entries(options)) {
+      if (spec === undefined) fail(`${fam}-${opt}: no states`);
       for (const [part, rest] of Object.entries(byPart)) {
         if (!parts.includes(part)) parts.push(part);
-        const fixed: Rest = Object.fromEntries(Object.entries(rest).filter(([, v]) => v !== 'ink'));
-        if (Object.values(rest).includes('ink')) fixed.icon = 'ink';
         standing({
-          owner: fam, opt, part, rest: fixed, scope: { scope: 'family', family: fam }, onReader: decl.on === 'reader',
-          states: (prop) => sets(typeof spec === 'string' ? spec : (spec[prop] ?? spec['*'] ?? fail(`${fam}-${opt}: no states for ${prop}`))),
+          owner: fam, opt, part, rest: restOf(rest), scope: { scope: 'family', family: fam }, onReader: decl.on === 'reader',
+          states: (prop) => sets(typeof spec === 'string' ? spec : (spec?.[prop] ?? spec['*'] ?? fail(`${fam}-${opt}: no states for ${prop}`))),
           channel: (prop, st) => (decl.channels
             ? decl.channels[`${part}.${prop}`] ?? fail(`${fam}.${part}.${prop}: no channel declared`)
             : (decl.channel ?? '').replace('{property}', prop) + (st === 'rest' ? '' : `-${st}`)),
@@ -115,6 +119,7 @@ export function deriveSlots(d: SlotDeclarations): SlotCatalogue {
     const scope = { scope: 'component', component: comp } as const;
     for (const [part, decl] of Object.entries(parts)) {
       if (decl.draws) continue;
+      if (decl.states === undefined) fail(`${comp}.${part}: no states`);
       const sts = sets(decl.states);
       const own = decl.own ?? {};
       for (const opt of decl.options ?? []) {
@@ -136,7 +141,7 @@ export function deriveSlots(d: SlotDeclarations): SlotCatalogue {
       }
       for (const variant of decl.variants ?? []) {
         const rest = { ...(d.variants[variant] ?? fail(`variant "${variant}" is undeclared`)).rest };
-        standing({ owner, opt: variant, part, rest: { ...Object.fromEntries(Object.entries(rest).filter(([, v]) => v !== 'ink')), icon: 'ink' }, states: () => sts,
+        standing({ owner, opt: variant, part, rest: restOf(rest), states: () => sts,
           channel: () => undefined, scope });
       }
     }
@@ -146,14 +151,18 @@ export function deriveSlots(d: SlotDeclarations): SlotCatalogue {
     for (const [part, decl] of Object.entries(parts)) {
       if (!decl.draws) continue;
       const [dc, dp] = decl.draws.split('.');
+      if (decl.states === undefined) fail(`${comp}.${part}: no states`);
       const sts = sets(decl.states);
+      let built = 0;
       for (const [n, f] of [...slots]) {
         if (f.component !== dc || f.part !== dp || !sts.includes(f.state as string)) continue;
         const own = slotStem(comp);
         put(slotName(own, f.option as string, part, f.property as string, f.state as string), { scope: 'component', component: comp, option: f.option, part,
           property: f.property, state: f.state, channel: f.channel, accepts: f.property,
           on: f.property === 'fill' ? undefined : slotName(own, f.option as string, part, 'fill', f.state as string), default: `{${n}}`, optional: f.optional, draws: decl.draws });
+        built++;
       }
+      if (built === 0) fail(`${comp}.${part} draws ${decl.draws}, which builds no slot`);
     }
   }
 
@@ -163,7 +172,7 @@ export function deriveSlots(d: SlotDeclarations): SlotCatalogue {
     f.default = exc.default;
   }
 
-  const ordered = (f: Record<string, unknown>) => Object.fromEntries(KEYS.filter((k) => f[k] !== undefined).map((k) => [k, f[k]]));
+  const ordered = (f: Record<string, unknown>) => Object.fromEntries(SLOT_KEYS.filter((k) => f[k] !== undefined).map((k) => [k, f[k]]));
   const sorted = [...slots].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
   return { accepts: d.accepts, refused: d.refused, states: d.states, families, rings: d.rings,
     slots: Object.fromEntries(sorted.map(([n, f]) => [n, ordered(f) as ColorSlot])) };

@@ -321,3 +321,60 @@ test('the shipped declarations are clean', () => {
   assert.deepEqual(declarationProblems(d), []);
   assert.deepEqual(exceptionProblems(d), []);
 });
+
+test('a draws naming an undeclared part or a part that itself draws is refused', () => {
+  const d = declared();
+  d.components.ArenaCopyButton!.root!.draws = 'ArenaNope.root';
+  const lines = declarationProblems(d);
+  assert.equal(lines.length, 1);
+  assert.match(lines[0] ?? '', /draws ArenaNope\.root/);
+  const e = declared();
+  e.components.ArenaCopyButton!.root!.draws = 'ArenaCopyButton.root';
+  assert.equal(declarationProblems(e).length, 1);
+  const f = declared();
+  f.components.ArenaButton!.root = { draws: 'ArenaCopyButton.root', states: 'base' } as never;
+  assert.equal(declarationProblems(f).length, 1);
+});
+
+test('a missing states on an option, a template family or a component part is refused and named', () => {
+  const d = declared();
+  delete (d.families.emphasis!.options!.primary as any).states;
+  delete (d.components.ArenaButton!.root as any).states;
+  delete (d.families.hue as any).states;
+  const lines = declarationProblems(d);
+  assert.equal(lines.length, 3);
+  assert.ok(lines.some((l) => /families\.emphasis\.options\.primary.*no states/.test(l)));
+  assert.ok(lines.some((l) => /components\.ArenaButton\.root.*no states/.test(l)));
+  assert.ok(lines.some((l) => /families\.hue.*no states/.test(l)));
+});
+
+test('an own key, an own row key or an own decision outside the declaration is refused', () => {
+  const a = declared();
+  (a.components.ArenaIconButton!.root!.own as any).edges = { ghost: 'transparent', decision: 'D21' };
+  assert.equal(declarationProblems(a).length, 1);
+  const b = declared();
+  (b.components.ArenaIconButton!.root!.own!.edge as any).loud = 'transparent';
+  assert.equal(declarationProblems(b).length, 1);
+  const c = declared();
+  c.components.ArenaIconButton!.root!.own!.edge!.decision = 'because';
+  assert.equal(declarationProblems(c).length, 1);
+  const e = declared();
+  delete c.components.ArenaIconButton!.root!.own!.edge!.decision;
+  delete e.components.ArenaIconButton!.root!.own!.edge!.decision;
+  assert.equal(declarationProblems(e).length, 1);
+});
+
+test('a template family with options, a selected key outside fill, ink and edge, and an ink answer off icon are refused', () => {
+  const a = declared();
+  (a.families.hue as any).options = { danger: { states: 'rest', parts: {} } };
+  assert.equal(declarationProblems(a).length, 1);
+  const b = declared();
+  (b.selected as any).icon = 'ink';
+  assert.equal(declarationProblems(b).length, 1);
+  const c = declared();
+  (c.families.emphasis!.options!.ghost!.parts.root as any).edge = 'ink';
+  assert.equal(declarationProblems(c).length, 1);
+  const e = declared();
+  (e.variants.destructive!.rest as any).edge = 'ink';
+  assert.equal(declarationProblems(e).length, 1);
+});

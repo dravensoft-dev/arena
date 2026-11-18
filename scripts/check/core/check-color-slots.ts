@@ -11,7 +11,7 @@ import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
-import { COLOR_SLOTS, deriveSlots, readSlotDeclarations } from '../../lib/core/color-slots.ts';
+import { COLOR_SLOTS, SLOT_KEYS, deriveSlots, readSlotDeclarations } from '../../lib/core/color-slots.ts';
 import type { SlotDeclarations } from '../../lib/core/color-slots.ts';
 import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
 import type { ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';
@@ -31,8 +31,6 @@ export const node = {
 type Manifests = ReadonlyMap<string, ComponentManifest>;
 
 const TOP_KEYS = ['$description', 'accepts', 'refused', 'states', 'families', 'rings', 'slots'];
-const SLOT_KEYS = ['scope', 'family', 'component', 'option', 'part', 'property', 'state', 'channel', 'accepts', 'on',
-  'default', 'derive', 'level', 'optional', 'draws'];
 const WORD: Record<string, string> = { fill: 'fill', ink: 'ink', icon: 'ink', edge: 'edge' };
 const ACCENT_FAMILY = 'frameworks/tailwind/vocabulary/arena-accent/Accent.family.json';
 const HUES_JSON = 'frameworks/tailwind/Hues.json';
@@ -54,7 +52,7 @@ export function shapeProblems(c: SlotCatalogue): string[] {
   if (JSON.stringify(c.states) !== JSON.stringify(SLOT_STATES)) out.push(`${COLOR_SLOTS}: states is not ${SLOT_STATES.join(', ')}`);
   for (const p of SLOT_PROPERTIES) if (!Array.isArray(c.accepts?.[p])) out.push(`${COLOR_SLOTS}: accepts declares no list for ${p}`);
   for (const [name, s] of entries(c)) {
-    for (const key of Object.keys(s)) if (!SLOT_KEYS.includes(key)) out.push(`${name}: unknown key "${key}"`);
+    for (const key of Object.keys(s)) if (!(SLOT_KEYS as readonly string[]).includes(key)) out.push(`${name}: unknown key "${key}"`);
     if (s.scope !== 'family' && s.scope !== 'component') out.push(`${name}: scope "${s.scope}" is neither family nor component`);
     if (!(SLOT_PROPERTIES as readonly string[]).includes(s.property)) out.push(`${name}: property "${s.property}" is outside ${SLOT_PROPERTIES.join(', ')}`);
     if (!(SLOT_STATES as readonly string[]).includes(s.state)) out.push(`${name}: state "${s.state}" is outside ${SLOT_STATES.join(', ')}`);
@@ -333,7 +331,8 @@ export function declarationProblems(d: SlotDeclarations): string[] {
     const set = (at: string, name: string) => {
       if (!Object.hasOwn(d.stateSets ?? {}, name)) out.push(`${at}: state set "${name}" is not declared in stateSets`);
     };
-    if (typeof spec === 'string') set(where, spec);
+    if (spec === undefined) out.push(`${where}: no states`);
+    else if (typeof spec === 'string') set(where, spec);
     else if (Array.isArray(spec)) {
       for (const st of spec) if (!(d.states ?? []).includes(st)) out.push(`${where}: state "${st}" is not declared in states`);
     } else {
@@ -343,21 +342,49 @@ export function declarationProblems(d: SlotDeclarations): string[] {
       }
     }
   };
+  const inkOnIcon = (where: string, rest: Record<string, unknown>) => {
+    for (const [prop, a] of Object.entries(rest ?? {})) if (a === 'ink' && prop !== 'icon') out.push(`${where}.${prop}: the answer "ink" belongs to icon only`);
+  };
   keys(COLOR_SLOTS, d, DECLARED.top);
+  for (const [prop, a] of Object.entries(d.selected ?? {})) {
+    if (!['fill', 'ink', 'edge'].includes(prop)) out.push(`selected: unknown key "${prop}"`);
+    else if (a === 'ink') out.push(`selected.${prop}: the answer "ink" belongs to icon only`);
+  }
   for (const [fam, f] of Object.entries(d.families ?? {})) {
     keys(`families.${fam}`, f, DECLARED.family);
-    sets(`families.${fam}`, f.states);
+    if (f.template !== undefined) {
+      if (f.options !== undefined) out.push(`families.${fam}: a template family declares no options, which would be dropped`);
+      if (f.states === undefined) out.push(`families.${fam}: a template family declares states for its options: no states here`);
+      for (const [part, rest] of Object.entries(f.template)) inkOnIcon(`families.${fam}.template.${part}`, rest);
+    }
+    if (f.states !== undefined) sets(`families.${fam}`, f.states);
     for (const [opt, o] of Object.entries(f.options ?? {})) {
       keys(`families.${fam}.options.${opt}`, o, DECLARED.option);
       sets(`families.${fam}.options.${opt}`, o.states);
+      for (const [part, rest] of Object.entries(o.parts ?? {})) inkOnIcon(`families.${fam}.options.${opt}.${part}`, rest);
     }
   }
-  for (const [v, x] of Object.entries(d.variants ?? {})) keys(`variants.${v}`, x, DECLARED.variant);
+  for (const [v, x] of Object.entries(d.variants ?? {})) {
+    keys(`variants.${v}`, x, DECLARED.variant);
+    inkOnIcon(`variants.${v}.rest`, x.rest);
+  }
   for (const [comp, parts] of Object.entries(d.components ?? {})) {
     for (const [part, p] of Object.entries(parts)) {
       const where = `components.${comp}.${part}`;
       keys(where, p, DECLARED.part);
+      if (p.draws !== undefined) {
+        const [dc, dp] = p.draws.split('.');
+        const target = (d.components ?? {})[dc ?? '']?.[dp ?? ''];
+        if (!target) out.push(`${where}: it draws ${p.draws}, which is no part declared under components`);
+        else if (target.draws !== undefined) out.push(`${where}: it draws ${p.draws}, which itself draws`);
+      }
       sets(where, p.states);
+      const props = ['fill', 'ink', 'edge', 'icon'];
+      for (const [prop, row] of Object.entries(p.own ?? {})) {
+        if (!props.includes(prop)) { out.push(`${where}.own: unknown key "${prop}"`); continue; }
+        for (const key of Object.keys(row)) if (key !== 'decision' && !(p.options ?? []).includes(key)) out.push(`${where}.own.${prop}: "${key}" is neither an option of the part nor decision`);
+        if (!/^[DR]\d+$/.test(row.decision ?? '')) out.push(`${where}.own.${prop}: its decision ${row.decision === undefined ? 'is missing' : `"${row.decision}" is neither D<n> nor R<n>`}, and needs D<n> or R<n>`);
+      }
       if (p.family !== undefined && !Object.hasOwn(d.families ?? {}, p.family)) out.push(`${where}: family "${p.family}" is not declared in families`);
       for (const v of p.variants ?? []) if (!Object.hasOwn(d.variants ?? {}, v)) out.push(`${where}: variant "${v}" is not declared in variants`);
     }

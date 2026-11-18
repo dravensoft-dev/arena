@@ -1,10 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { deriveSlots, readSlotDeclarations } from './color-slots.ts';
+import { SLOT_KEYS, deriveSlots, readSlotDeclarations } from './color-slots.ts';
 import type { SlotDeclarations } from './color-slots.ts';
 import { SLOT_STATES } from '../../generate/core/arena-cli/slots.ts';
-
-const KEYS = ['scope', 'family', 'component', 'option', 'part', 'property', 'state', 'channel', 'accepts', 'on', 'default', 'derive', 'level', 'optional', 'draws'];
 
 const fixture = (): SlotDeclarations => ({
   accepts: { fill: ['f-*'], ink: ['i-*'], edge: ['e-*', 'transparent'], icon: ['i-*'] },
@@ -123,6 +121,29 @@ test('the shipped declarations derive slots in name order with SLOT_KEYS field o
   assert.deepEqual(names, [...names].sort());
   for (const slot of Object.values(slots)) {
     const keys = Object.keys(slot);
-    assert.deepEqual(keys, KEYS.filter((k) => keys.includes(k)));
+    assert.deepEqual(keys, SLOT_KEYS.filter((k) => keys.includes(k)));
   }
+});
+
+test('a draws naming a part that builds no slot throws, naming the drawer', () => {
+  const d = fixture();
+  d.components.ArenaDrawer!.root!.draws = 'ArenaNope.root';
+  assert.throws(() => deriveSlots(d), /ArenaDrawer\.root draws ArenaNope\.root, which builds no slot/);
+});
+
+test('an option or a component part with no states throws, naming its owner', () => {
+  const a = fixture();
+  delete (a.families.tone!.options!.calm as { states?: unknown }).states;
+  assert.throws(() => deriveSlots(a), /tone-calm: no states/);
+  const b = fixture();
+  delete (b.components.ArenaKnob!.root as { states?: unknown }).states;
+  assert.throws(() => deriveSlots(b), /ArenaKnob\.root: no states/);
+});
+
+test('a variant builds an icon only when it declares one', () => {
+  const d = fixture();
+  delete d.variants.danger!.rest.icon;
+  const s = deriveSlots(d).slots;
+  assert.equal(s['knob-danger-root-icon-rest'], undefined);
+  assert.ok(s['knob-danger-root-ink-rest']);
 });
