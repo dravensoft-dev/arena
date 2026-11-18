@@ -69,7 +69,7 @@ const data = runtimeData(CONFIG, SHEETS, PLUGINS);
 test('the runtime data carries no field nothing reads', () => {
   assert.deepEqual(Object.keys(data).sort(), ['arenaRuntimePalettes', 'declared', 'levels', 'roles', 'slots', 'taken', 'washes']);
   const shipped = runtimeData(CONFIG, { ...SHEETS, catalogue: tokenCatalogue() }, PLUGINS);
-  assert.deepEqual(Object.keys(shipped.slots ?? {}).sort(), ['rings', 'slots'], 'the slot catalogue ships only what a measurement reads');
+  assert.deepEqual(Object.keys(shipped.slots ?? {}).sort(), ['members', 'rings', 'slots'], 'the slot catalogue ships only what a measurement reads, the member defaults among it');
 });
 const css = themeCss(CONFIG, { sheets: SHEETS, plugins: PLUGINS });
 const decls = parseDecls(css);
@@ -201,7 +201,7 @@ test('a runtime palette warns when a slot pair, the kernel pressed mix among the
   const dark = Object.fromEntries(Object.entries(palette).filter(([, token]) => token.$value?.hex).map(([key, token]) => [key, token.$value?.hex as string]));
   const reports = arenaCheckPalette({ polarity: 'dark', colors: dark }, live);
   assert.ok(reports.some((one) => one.kind === 'contrast'
-    && one.message.startsWith('--emphasis-primary-root-ink-pressed measures 4.47:1 over --emphasis-primary-root-fill-pressed in the pressed state of the dark theme')),
+    && one.message.startsWith('--actions-primary-root-ink-pressed measures 4.47:1 over --actions-primary-root-fill-pressed in the pressed state of the dark theme')),
   reports.map((one) => one.message).join('\n'));
   const built = paletteReports({ ...CONFIG, palettes: [{ name: 'x', default: true, polarity: 'dark', colors: dark }], stylePlugins: [] }, catalogue, null, [], [])[0]?.messages ?? [];
   assert.deepEqual(reports, built, 'the browser says what the build says');

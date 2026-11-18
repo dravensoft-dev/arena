@@ -3,105 +3,108 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readColorSlots } from '../../../lib/core/color-slots.ts';
-import { channelValue, componentValue, fadeMarkers, slotChain } from './slots.ts';
+import { channelValue, fadeMarkers, memberChain, memberValue, slotChain } from './slots.ts';
 
 const c = readColorSlots();
 
 test('a rest chain falls to the role', () => {
-  assert.equal(channelValue(c, 'emphasis-primary-root-fill-rest', 'tailwind'),
-    'var(--emphasis-primary-root-fill-rest,var(--emphasis-primary-fill))');
+  assert.equal(channelValue(c, 'actions-primary-root-fill-rest', 'tailwind'),
+    'var(--actions-primary-root-fill-rest,var(--emphasis-primary-fill))');
 });
 
 test('a level wraps the rest answer', () => {
-  assert.equal(channelValue(c, 'emphasis-ghost-root-ink-rest', 'tailwind'),
-    'color-mix(in_oklab,var(--emphasis-ghost-root-ink-rest,var(--emphasis-ghost-ink))_var(--level-ink-body),transparent)');
+  assert.equal(channelValue(c, 'actions-ghost-root-ink-rest', 'tailwind'),
+    'color-mix(in_oklab,var(--actions-ghost-root-ink-rest,var(--emphasis-ghost-ink))_var(--level-ink-body),transparent)');
 });
 
 test('the icon falls to its ink inside the ink\'s level', () => {
-  assert.equal(channelValue(c, 'emphasis-ghost-root-icon-rest', 'tailwind'),
-    'color-mix(in_oklab,var(--emphasis-ghost-root-icon-rest,var(--emphasis-ghost-root-ink-rest,var(--emphasis-ghost-ink)))_var(--level-ink-body),transparent)');
+  assert.equal(channelValue(c, 'actions-ghost-root-icon-rest', 'tailwind'),
+    'color-mix(in_oklab,var(--actions-ghost-root-icon-rest,var(--actions-ghost-root-ink-rest,var(--emphasis-ghost-ink)))_var(--level-ink-body),transparent)');
 });
 
 test('a hover the part paints as rest falls to the rest channel', () => {
-  assert.equal(channelValue(c, 'emphasis-primary-root-fill-hover', 'tailwind'),
-    'var(--emphasis-primary-root-fill-hover,var(--arena-emphasis-fill))');
-  assert.equal(channelValue(c, 'emphasis-secondary-root-fill-hover', 'tailwind'),
-    'var(--emphasis-secondary-root-fill-hover,var(--emphasis-secondary-fill-hover))');
+  assert.equal(channelValue(c, 'actions-primary-root-fill-hover', 'tailwind'),
+    'var(--actions-primary-root-fill-hover,var(--arena-emphasis-fill))');
+  assert.equal(channelValue(c, 'actions-secondary-root-fill-hover', 'tailwind'),
+    'var(--actions-secondary-root-fill-hover,var(--emphasis-secondary-fill-hover))');
 });
 
 test('pressed mixes the drawn fill toward the drawn ink', () => {
-  assert.equal(channelValue(c, 'emphasis-primary-root-fill-pressed', 'tailwind'),
-    'var(--emphasis-primary-root-fill-pressed,color-mix(in_oklab,var(--arena-emphasis-fill),var(--arena-emphasis-ink)_calc(var(--mix-pressed)*100%)))');
+  assert.equal(channelValue(c, 'actions-primary-root-fill-pressed', 'tailwind'),
+    'var(--actions-primary-root-fill-pressed,color-mix(in_oklab,var(--arena-emphasis-fill),var(--arena-emphasis-ink)_calc(var(--mix-pressed)*100%)))');
 });
 
 test('selected-hover mixes from selected', () => {
-  assert.equal(channelValue(c, 'emphasis-ghost-root-fill-selected-hover', 'tailwind'),
-    'var(--emphasis-ghost-root-fill-selected-hover,color-mix(in_oklab,var(--arena-emphasis-fill-selected),var(--arena-emphasis-ink-selected)_calc(var(--mix-hover)*100%)))');
+  assert.equal(channelValue(c, 'actions-ghost-root-fill-selected-hover', 'tailwind'),
+    'var(--actions-ghost-root-fill-selected-hover,color-mix(in_oklab,var(--arena-emphasis-fill-selected),var(--arena-emphasis-ink-selected)_calc(var(--mix-hover)*100%)))');
 });
 
 test('a disabled slot falls to the rest channel', () => {
-  assert.equal(channelValue(c, 'emphasis-primary-root-fill-disabled', 'tailwind'),
-    'var(--emphasis-primary-root-fill-disabled,var(--arena-emphasis-fill))');
+  assert.equal(channelValue(c, 'actions-primary-root-fill-disabled', 'tailwind'),
+    'var(--actions-primary-root-fill-disabled,var(--arena-emphasis-fill))');
 });
 
 test('a destructive chain ends in the danger roles', () => {
-  assert.equal(slotChain(c, 'button-destructive-root-fill-pressed'),
-    'var(--button-destructive-root-fill-pressed,color-mix(in_oklab,var(--button-destructive-root-fill-rest,var(--hue-danger-fill-strong)),var(--button-destructive-root-ink-rest,var(--hue-danger-ink))_calc(var(--mix-pressed)*100%)))');
+  assert.equal(slotChain(c, 'actions-destructive-root-fill-pressed'),
+    'var(--actions-destructive-root-fill-pressed,color-mix(in_oklab,var(--actions-destructive-root-fill-rest,var(--hue-danger-fill-strong)),var(--actions-destructive-root-ink-rest,var(--hue-danger-ink))_calc(var(--mix-pressed)*100%)))');
 });
 
 test('the css form of a level-wrapped slot', () => {
-  assert.equal(channelValue(c, 'emphasis-ghost-root-ink-rest', 'css'),
-    'color-mix(in oklab,var(--emphasis-ghost-root-ink-rest,var(--emphasis-ghost-ink)) var(--level-ink-body),transparent)');
+  assert.equal(channelValue(c, 'actions-ghost-root-ink-rest', 'css'),
+    'color-mix(in oklab,var(--actions-ghost-root-ink-rest,var(--emphasis-ghost-ink)) var(--level-ink-body),transparent)');
 });
 
 test('a slot whose default cannot be read names itself', () => {
   const broken = structuredClone(c);
-  (broken.slots['emphasis-primary-root-fill-rest'] as { default: string }).default = '#fff';
-  assert.throws(() => slotChain(broken, 'emphasis-primary-root-fill-rest'), /emphasis-primary-root-fill-rest: default "#fff"/);
-});
-
-test('a component slot wraps its family slot inside the level', () => {
-  const family = 'color-mix(in_oklab,var(--emphasis-ghost-root-ink-rest,var(--emphasis-ghost-ink))_var(--level-ink-body),transparent)';
-  assert.equal(componentValue(family, c.slots['button-ghost-root-ink-rest']!, 'button-ghost-root-ink-rest'),
-    'color-mix(in_oklab,var(--button-ghost-root-ink-rest,var(--emphasis-ghost-root-ink-rest,var(--emphasis-ghost-ink)))_var(--level-ink-body),transparent)');
-});
-
-test('a component-only edge wraps the whole value', () => {
-  assert.equal(componentValue('var(--emphasis-ghost-icon-edge)', c.slots['icon-button-ghost-root-edge-rest']!, 'icon-button-ghost-root-edge-rest'),
-    'var(--icon-button-ghost-root-edge-rest,var(--emphasis-ghost-icon-edge))');
-});
-
-test('every balanced read of the family slot is wrapped, and a copy button wraps the icon button slot it follows', () => {
-  const family = 'var(--emphasis-primary-root-fill-pressed,color-mix(in_oklab,var(--arena-emphasis-fill),var(--arena-emphasis-ink)_calc(var(--mix-pressed)*100%)))';
-  assert.equal(componentValue(family, c.slots['button-primary-root-fill-pressed']!, 'button-primary-root-fill-pressed'),
-    `var(--button-primary-root-fill-pressed,${family})`);
-  assert.equal(componentValue('var(--icon-button-ghost-root-fill-rest,var(--emphasis-ghost-root-fill-rest,transparent))', c.slots['copy-button-ghost-root-fill-rest']!, 'copy-button-ghost-root-fill-rest'),
-    'var(--copy-button-ghost-root-fill-rest,var(--icon-button-ghost-root-fill-rest,var(--emphasis-ghost-root-fill-rest,transparent)))');
+  (broken.slots['actions-primary-root-fill-rest'] as { default: string }).default = '#fff';
+  assert.throws(() => slotChain(broken, 'actions-primary-root-fill-rest'), /actions-primary-root-fill-rest: default "#fff"/);
 });
 
 test('a derived slot with no ink to mix toward names the slot being built', () => {
   const broken = structuredClone(c);
-  delete broken.slots['emphasis-solid-root-ink-rest'];
-  assert.throws(() => channelValue(broken, 'emphasis-solid-root-fill-pressed', 'tailwind'),
-    /emphasis-solid-root-fill-pressed: .*emphasis-solid-root-fill-rest/);
+  delete broken.slots['actions-solid-root-ink-rest'];
+  assert.throws(() => channelValue(broken, 'actions-solid-root-fill-pressed', 'tailwind'),
+    /actions-solid-root-fill-pressed: .*actions-solid-root-fill-rest/);
 });
 
 test('a selected disabled slot falls to the selected channel and writes its own fade marker', () => {
-  assert.equal(channelValue(c, 'emphasis-ghost-root-ink-selected-disabled', 'tailwind'),
-    'var(--emphasis-ghost-root-ink-selected-disabled,var(--arena-emphasis-ink-selected))');
-  assert.equal(slotChain(c, 'icon-button-ghost-root-edge-selected-disabled'),
-    'var(--icon-button-ghost-root-edge-selected-disabled,var(--arena-emphasis-icon-edge-selected))');
-  assert.deepEqual(fadeMarkers(['icon-button-ghost-root-ink-disabled', 'icon-button-ghost-root-ink-selected-disabled', 'icon-button-ghost-root-fill-selected-disabled'], c),
-    [['--icon-button-ghost-root-fade-disabled', '1'], ['--icon-button-ghost-root-fade-selected-disabled', '1']]);
+  assert.equal(channelValue(c, 'actions-ghost-root-ink-selected-disabled', 'tailwind'),
+    'var(--actions-ghost-root-ink-selected-disabled,var(--arena-emphasis-ink-selected))');
+  assert.equal(memberChain(c, 'ArenaIconButton.root', 'actions-ghost-root-edge-selected-disabled'),
+    'var(--actions-ghost-root-edge-selected-disabled,var(--arena-emphasis-icon-edge-selected))');
+  assert.deepEqual(fadeMarkers(['actions-ghost-root-ink-disabled', 'actions-ghost-root-ink-selected-disabled', 'actions-ghost-root-fill-selected-disabled'], c),
+    [['--actions-ghost-root-fade-disabled', '1'], ['--actions-ghost-root-fade-selected-disabled', '1']]);
 });
 
 test('a disabled icon falls to the ink of its own state, and an optional slot with a default follows it', () => {
-  assert.equal(channelValue(c, 'emphasis-primary-root-icon-disabled', 'tailwind'),
-    'var(--emphasis-primary-root-icon-disabled,var(--arena-emphasis-ink-disabled))');
-  assert.equal(channelValue(c, 'emphasis-solid-root-icon-selected-disabled', 'tailwind'),
-    'var(--emphasis-solid-root-icon-selected-disabled,var(--arena-emphasis-ink-selected-disabled))');
-  assert.equal(slotChain(c, 'button-destructive-root-icon-disabled'),
-    'var(--button-destructive-root-icon-disabled,var(--button-destructive-root-ink-disabled,var(--button-destructive-root-ink-rest,var(--hue-danger-ink))))');
-  assert.equal(slotChain(c, 'button-primary-root-fill-disabled'),
-    'var(--button-primary-root-fill-disabled,var(--arena-emphasis-fill-disabled))');
+  assert.equal(channelValue(c, 'actions-primary-root-icon-disabled', 'tailwind'),
+    'var(--actions-primary-root-icon-disabled,var(--arena-emphasis-ink-disabled))');
+  assert.equal(channelValue(c, 'actions-solid-root-icon-selected-disabled', 'tailwind'),
+    'var(--actions-solid-root-icon-selected-disabled,var(--arena-emphasis-ink-selected-disabled))');
+  assert.equal(slotChain(c, 'actions-destructive-root-icon-disabled'),
+    'var(--actions-destructive-root-icon-disabled,var(--actions-destructive-root-ink-disabled,var(--actions-destructive-root-ink-rest,var(--hue-danger-ink))))');
+  assert.equal(slotChain(c, 'actions-primary-root-fill-disabled'),
+    'var(--actions-primary-root-fill-disabled,var(--arena-emphasis-fill))');
+});
+
+test('a member default reaches the derived states', () => {
+  assert.equal(memberChain(c, 'ArenaIconButton.root', 'actions-ghost-root-edge-hover'),
+    'var(--actions-ghost-root-edge-hover,var(--actions-ghost-root-edge-rest,var(--emphasis-ghost-icon-edge)))');
+  assert.equal(memberChain(c, 'ArenaIconButton.root', 'actions-ghost-root-edge-rest'), 'var(--actions-ghost-root-edge-rest,var(--emphasis-ghost-icon-edge))');
+  assert.equal(slotChain(c, 'actions-ghost-root-edge-rest'), 'var(--actions-ghost-root-edge-rest,transparent)', 'the group keeps its own default');
+  assert.equal(memberChain(c, 'ArenaIconButton.root', 'actions-ghost-root-edge-selected-hover'),
+    'var(--actions-ghost-root-edge-selected-hover,var(--arena-emphasis-icon-edge-selected))', 'a state the default does not reach reads the member channel');
+});
+
+test('a member channel replaces the group channel only for the property it names, and a level still wraps the member chain', () => {
+  assert.equal(memberChain(c, 'ArenaIconButton.root', 'actions-ghost-root-fill-hover'), slotChain(c, 'actions-ghost-root-fill-hover'));
+  assert.equal(memberValue(c, 'ArenaIconButton.root', 'actions-ghost-root-ink-rest', 'tailwind'), channelValue(c, 'actions-ghost-root-ink-rest', 'tailwind'));
+  assert.equal(memberChain(c, 'ArenaIconButton.root', 'actions-solid-root-edge-hover'), 'var(--actions-solid-root-edge-hover,var(--arena-emphasis-icon-edge))');
+  assert.throws(() => memberChain(c, 'ArenaCopyButton.root', 'actions-ghost-root-edge-rest'), /ArenaCopyButton\.root is no member part/);
+});
+
+test('a group part with no option axis writes a fade marker with no option segment', () => {
+  const fixture = structuredClone(c);
+  fixture.slots['actions-dismiss-ink-disabled'] = { group: 'actions', part: 'dismiss', property: 'ink', state: 'disabled', accepts: 'ink', optional: true };
+  assert.deepEqual(fadeMarkers(['actions-dismiss-ink-disabled'], fixture), [['--actions-dismiss-fade-disabled', '1']]);
 });

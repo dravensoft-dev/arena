@@ -1338,1583 +1338,435 @@
       "$value": "{color.neutral-content}"
     }
   },
-  "button-destructive-root-edge-disabled": {
+  "actions-destructive-root-edge-disabled": {
     "$type": "color",
     "$value": "{accent-gold-side-edge}"
   },
-  "button-destructive-root-edge-hover": {
+  "actions-destructive-root-edge-hover": {
     "$type": "color",
     "$value": "{edge-invalid}"
   },
-  "button-destructive-root-edge-pressed": {
+  "actions-destructive-root-edge-pressed": {
     "$type": "color",
     "$value": "{edge-invalid}"
   },
-  "button-destructive-root-edge-rest": {
+  "actions-destructive-root-edge-rest": {
     "$type": "color",
     "$value": "{edge-invalid}"
   },
-  "button-destructive-root-fill-disabled": {
+  "actions-destructive-root-fill-disabled": {
     "$type": "color",
     "$value": "{accent-gold-fill-soft}"
   },
-  "button-destructive-root-fill-hover": {
+  "actions-destructive-root-fill-hover": {
     "$type": "color",
     "$value": "{accent-plain-fill-soft}"
   },
-  "button-destructive-root-fill-pressed": {
+  "actions-destructive-root-fill-pressed": {
     "$type": "color",
     "$value": "transparent"
   },
-  "button-destructive-root-fill-rest": {
+  "actions-destructive-root-fill-rest": {
     "$type": "color",
     "$value": "transparent"
   },
-  "button-destructive-root-icon-disabled": {
+  "actions-destructive-root-icon-disabled": {
     "$type": "color",
     "$value": "{accent-muted-ink}"
   },
-  "button-destructive-root-icon-hover": {
+  "actions-destructive-root-icon-hover": {
     "$type": "color",
     "$value": "{hue-info-ink}"
   },
-  "button-destructive-root-icon-pressed": {
+  "actions-destructive-root-icon-pressed": {
     "$type": "color",
     "$value": "{hue-info-ink}"
   },
-  "button-destructive-root-icon-rest": {
+  "actions-destructive-root-icon-rest": {
     "$type": "color",
     "$value": "{hue-info-ink}"
   },
-  "button-destructive-root-ink-disabled": {
+  "actions-destructive-root-ink-disabled": {
     "$type": "color",
     "$value": "{accent-gold-ink}"
   },
-  "button-destructive-root-ink-hover": {
+  "actions-destructive-root-ink-hover": {
     "$type": "color",
     "$value": "{hue-danger-ink}"
   },
-  "button-destructive-root-ink-pressed": {
+  "actions-destructive-root-ink-pressed": {
     "$type": "color",
     "$value": "{hue-danger-ink}"
   },
-  "button-destructive-root-ink-rest": {
+  "actions-destructive-root-ink-rest": {
     "$type": "color",
     "$value": "{ink-invalid}"
   },
-  "button-ghost-root-edge-disabled": {
+  "actions-ghost-root-edge-disabled": {
     "$type": "color",
     "$value": "{accent-gold-side-edge}"
   },
-  "button-ghost-root-edge-hover": {
+  "actions-ghost-root-edge-selected": {
     "$type": "color",
-    "$value": "transparent"
+    "$value": "{edge-invalid}"
   },
-  "button-ghost-root-edge-pressed": {
+  "actions-ghost-root-edge-selected-disabled": {
     "$type": "color",
-    "$value": "transparent"
+    "$value": "{accent-gold-side-edge}"
   },
-  "button-ghost-root-edge-rest": {
+  "actions-ghost-root-edge-selected-hover": {
     "$type": "color",
-    "$value": "transparent"
+    "$value": "{edge-invalid}"
   },
-  "button-ghost-root-fill-disabled": {
+  "actions-ghost-root-edge-selected-pressed": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "actions-ghost-root-fill-disabled": {
     "$type": "color",
     "$value": "{accent-gold-fill-soft}"
   },
-  "button-ghost-root-fill-hover": {
-    "$type": "color",
-    "$value": "{emphasis-ghost-fill-hover}"
-  },
-  "button-ghost-root-fill-pressed": {
-    "$type": "color",
-    "$value": "transparent"
-  },
-  "button-ghost-root-fill-rest": {
-    "$type": "color",
-    "$value": "transparent"
-  },
-  "button-ghost-root-icon-disabled": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "button-ghost-root-icon-hover": {
-    "$type": "color",
-    "$value": "{accent-plain-ink}"
-  },
-  "button-ghost-root-icon-pressed": {
-    "$type": "color",
-    "$value": "{accent-plain-ink}"
-  },
-  "button-ghost-root-icon-rest": {
-    "$type": "color",
-    "$value": "{accent-plain-ink}"
-  },
-  "button-ghost-root-ink-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-ink}"
-  },
-  "button-ghost-root-ink-hover": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "button-ghost-root-ink-pressed": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "button-ghost-root-ink-rest": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "button-primary-root-edge-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-side-edge}"
-  },
-  "button-primary-root-edge-hover": {
-    "$type": "color",
-    "$value": "{accent-primary-edge}"
-  },
-  "button-primary-root-edge-pressed": {
-    "$type": "color",
-    "$value": "{accent-primary-edge}"
-  },
-  "button-primary-root-edge-rest": {
-    "$type": "color",
-    "$value": "{accent-primary-edge}"
-  },
-  "button-primary-root-fill-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-fill-soft}"
-  },
-  "button-primary-root-fill-hover": {
-    "$type": "color",
-    "$value": "{accent-primary-fill-soft}"
-  },
-  "button-primary-root-fill-pressed": {
-    "$type": "color",
-    "$value": "{accent-primary-fill-soft}"
-  },
-  "button-primary-root-fill-rest": {
-    "$type": "color",
-    "$value": "{accent-primary-fill-soft}"
-  },
-  "button-primary-root-icon-disabled": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "button-primary-root-icon-hover": {
-    "$type": "color",
-    "$value": "{emphasis-solid-ink}"
-  },
-  "button-primary-root-icon-pressed": {
-    "$type": "color",
-    "$value": "{emphasis-solid-ink}"
-  },
-  "button-primary-root-icon-rest": {
-    "$type": "color",
-    "$value": "{emphasis-solid-ink}"
-  },
-  "button-primary-root-ink-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-ink}"
-  },
-  "button-primary-root-ink-hover": {
-    "$type": "color",
-    "$value": "{emphasis-primary-ink}"
-  },
-  "button-primary-root-ink-pressed": {
-    "$type": "color",
-    "$value": "{emphasis-primary-ink}"
-  },
-  "button-primary-root-ink-rest": {
-    "$type": "color",
-    "$value": "{emphasis-primary-ink}"
-  },
-  "button-secondary-root-edge-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-side-edge}"
-  },
-  "button-secondary-root-edge-hover": {
-    "$type": "color",
-    "$value": "{accent-primary-edge}"
-  },
-  "button-secondary-root-edge-pressed": {
-    "$type": "color",
-    "$value": "{accent-primary-edge}"
-  },
-  "button-secondary-root-edge-rest": {
-    "$type": "color",
-    "$value": "{accent-primary-edge}"
-  },
-  "button-secondary-root-fill-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-fill-soft}"
-  },
-  "button-secondary-root-fill-hover": {
-    "$type": "color",
-    "$value": "{accent-plain-fill-soft}"
-  },
-  "button-secondary-root-fill-pressed": {
-    "$type": "color",
-    "$value": "{emphasis-ghost-fill-hover}"
-  },
-  "button-secondary-root-fill-rest": {
-    "$type": "color",
-    "$value": "{emphasis-ghost-fill-hover}"
-  },
-  "button-secondary-root-icon-disabled": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "button-secondary-root-icon-hover": {
-    "$type": "color",
-    "$value": "{accent-plain-ink}"
-  },
-  "button-secondary-root-icon-pressed": {
-    "$type": "color",
-    "$value": "{accent-plain-ink}"
-  },
-  "button-secondary-root-icon-rest": {
-    "$type": "color",
-    "$value": "{accent-plain-ink}"
-  },
-  "button-secondary-root-ink-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-ink}"
-  },
-  "button-secondary-root-ink-hover": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "button-secondary-root-ink-pressed": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "button-secondary-root-ink-rest": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "copy-button-ghost-root-edge-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-side-edge}"
-  },
-  "copy-button-ghost-root-edge-hover": {
-    "$type": "color",
-    "$value": "{edge-control-quiet}"
-  },
-  "copy-button-ghost-root-edge-pressed": {
-    "$type": "color",
-    "$value": "{edge-control-quiet}"
-  },
-  "copy-button-ghost-root-edge-rest": {
-    "$type": "color",
-    "$value": "{edge-control-quiet}"
-  },
-  "copy-button-ghost-root-fill-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-fill-soft}"
-  },
-  "copy-button-ghost-root-fill-hover": {
-    "$type": "color",
-    "$value": "{emphasis-ghost-fill-hover}"
-  },
-  "copy-button-ghost-root-fill-pressed": {
-    "$type": "color",
-    "$value": "transparent"
-  },
-  "copy-button-ghost-root-fill-rest": {
-    "$type": "color",
-    "$value": "transparent"
-  },
-  "copy-button-ghost-root-icon-disabled": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "copy-button-ghost-root-icon-hover": {
-    "$type": "color",
-    "$value": "{accent-plain-ink}"
-  },
-  "copy-button-ghost-root-icon-pressed": {
-    "$type": "color",
-    "$value": "{accent-plain-ink}"
-  },
-  "copy-button-ghost-root-icon-rest": {
-    "$type": "color",
-    "$value": "{accent-plain-ink}"
-  },
-  "copy-button-ghost-root-ink-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-ink}"
-  },
-  "copy-button-ghost-root-ink-hover": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "copy-button-ghost-root-ink-pressed": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "copy-button-ghost-root-ink-rest": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "copy-button-solid-root-edge-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-side-edge}"
-  },
-  "copy-button-solid-root-edge-hover": {
-    "$type": "color",
-    "$value": "transparent"
-  },
-  "copy-button-solid-root-edge-pressed": {
-    "$type": "color",
-    "$value": "transparent"
-  },
-  "copy-button-solid-root-edge-rest": {
-    "$type": "color",
-    "$value": "transparent"
-  },
-  "copy-button-solid-root-fill-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-fill-soft}"
-  },
-  "copy-button-solid-root-fill-hover": {
-    "$type": "color",
-    "$value": "{accent-primary-fill-soft}"
-  },
-  "copy-button-solid-root-fill-pressed": {
-    "$type": "color",
-    "$value": "{accent-primary-fill-soft}"
-  },
-  "copy-button-solid-root-fill-rest": {
-    "$type": "color",
-    "$value": "{accent-primary-fill-soft}"
-  },
-  "copy-button-solid-root-icon-disabled": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "copy-button-solid-root-icon-hover": {
-    "$type": "color",
-    "$value": "{emphasis-solid-ink}"
-  },
-  "copy-button-solid-root-icon-pressed": {
-    "$type": "color",
-    "$value": "{emphasis-solid-ink}"
-  },
-  "copy-button-solid-root-icon-rest": {
-    "$type": "color",
-    "$value": "{emphasis-solid-ink}"
-  },
-  "copy-button-solid-root-ink-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-ink}"
-  },
-  "copy-button-solid-root-ink-hover": {
-    "$type": "color",
-    "$value": "{emphasis-primary-ink}"
-  },
-  "copy-button-solid-root-ink-pressed": {
-    "$type": "color",
-    "$value": "{emphasis-primary-ink}"
-  },
-  "copy-button-solid-root-ink-rest": {
-    "$type": "color",
-    "$value": "{emphasis-primary-ink}"
-  },
-  "emphasis-ghost-root-edge-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-side-edge}"
-  },
-  "emphasis-ghost-root-edge-hover": {
-    "$type": "color",
-    "$value": "transparent"
-  },
-  "emphasis-ghost-root-edge-pressed": {
-    "$type": "color",
-    "$value": "transparent"
-  },
-  "emphasis-ghost-root-edge-rest": {
-    "$type": "color",
-    "$value": "{accent-gold-side-edge}"
-  },
-  "emphasis-ghost-root-fill-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-fill-soft}"
-  },
-  "emphasis-ghost-root-fill-hover": {
+  "actions-ghost-root-fill-hover": {
     "$type": "color",
     "$value": "{emphasis-secondary-fill}"
   },
-  "emphasis-ghost-root-fill-pressed": {
+  "actions-ghost-root-fill-pressed": {
     "$type": "color",
     "$value": "transparent"
   },
-  "emphasis-ghost-root-fill-rest": {
+  "actions-ghost-root-fill-rest": {
     "$type": "color",
     "$value": "{hue-danger-fill-strong}"
   },
-  "emphasis-ghost-root-fill-selected": {
-    "$type": "color",
-    "$value": "{accent-primary-fill-soft}"
-  },
-  "emphasis-ghost-root-fill-selected-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-fill-soft}"
-  },
-  "emphasis-ghost-root-fill-selected-hover": {
-    "$type": "color",
-    "$value": "{accent-primary-fill-soft}"
-  },
-  "emphasis-ghost-root-fill-selected-pressed": {
-    "$type": "color",
-    "$value": "{accent-primary-fill-soft}"
-  },
-  "emphasis-ghost-root-icon-disabled": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "emphasis-ghost-root-icon-hover": {
-    "$type": "color",
-    "$value": "{accent-plain-ink}"
-  },
-  "emphasis-ghost-root-icon-pressed": {
-    "$type": "color",
-    "$value": "{accent-plain-ink}"
-  },
-  "emphasis-ghost-root-icon-rest": {
-    "$type": "color",
-    "$value": "{accent-plain-ink}"
-  },
-  "emphasis-ghost-root-icon-selected": {
-    "$type": "color",
-    "$value": "{accent-plain-ink}"
-  },
-  "emphasis-ghost-root-icon-selected-disabled": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "emphasis-ghost-root-icon-selected-hover": {
-    "$type": "color",
-    "$value": "{emphasis-solid-ink}"
-  },
-  "emphasis-ghost-root-icon-selected-pressed": {
-    "$type": "color",
-    "$value": "{emphasis-solid-ink}"
-  },
-  "emphasis-ghost-root-ink-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-ink}"
-  },
-  "emphasis-ghost-root-ink-hover": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "emphasis-ghost-root-ink-pressed": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "emphasis-ghost-root-ink-rest": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "emphasis-ghost-root-ink-selected": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "emphasis-ghost-root-ink-selected-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-ink}"
-  },
-  "emphasis-ghost-root-ink-selected-hover": {
-    "$type": "color",
-    "$value": "{emphasis-primary-ink}"
-  },
-  "emphasis-ghost-root-ink-selected-pressed": {
-    "$type": "color",
-    "$value": "{emphasis-primary-ink}"
-  },
-  "emphasis-primary-root-edge-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-side-edge}"
-  },
-  "emphasis-primary-root-edge-hover": {
-    "$type": "color",
-    "$value": "{accent-primary-edge}"
-  },
-  "emphasis-primary-root-edge-pressed": {
-    "$type": "color",
-    "$value": "{accent-primary-edge}"
-  },
-  "emphasis-primary-root-edge-rest": {
-    "$type": "color",
-    "$value": "{accent-primary-edge}"
-  },
-  "emphasis-primary-root-fill-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-fill-soft}"
-  },
-  "emphasis-primary-root-fill-hover": {
-    "$type": "color",
-    "$value": "{accent-primary-fill-soft}"
-  },
-  "emphasis-primary-root-fill-pressed": {
-    "$type": "color",
-    "$value": "{accent-primary-fill-soft}"
-  },
-  "emphasis-primary-root-fill-rest": {
-    "$type": "color",
-    "$value": "{accent-primary-fill-soft}"
-  },
-  "emphasis-primary-root-icon-disabled": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "emphasis-primary-root-icon-hover": {
-    "$type": "color",
-    "$value": "{emphasis-solid-ink}"
-  },
-  "emphasis-primary-root-icon-pressed": {
-    "$type": "color",
-    "$value": "{emphasis-solid-ink}"
-  },
-  "emphasis-primary-root-icon-rest": {
-    "$type": "color",
-    "$value": "{emphasis-primary-ink}"
-  },
-  "emphasis-primary-root-ink-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-ink}"
-  },
-  "emphasis-primary-root-ink-hover": {
-    "$type": "color",
-    "$value": "{emphasis-primary-ink}"
-  },
-  "emphasis-primary-root-ink-pressed": {
-    "$type": "color",
-    "$value": "{emphasis-primary-ink}"
-  },
-  "emphasis-primary-root-ink-rest": {
-    "$type": "color",
-    "$value": "{emphasis-solid-ink}"
-  },
-  "emphasis-secondary-root-edge-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-side-edge}"
-  },
-  "emphasis-secondary-root-edge-hover": {
-    "$type": "color",
-    "$value": "{accent-primary-edge}"
-  },
-  "emphasis-secondary-root-edge-pressed": {
-    "$type": "color",
-    "$value": "{accent-primary-edge}"
-  },
-  "emphasis-secondary-root-edge-rest": {
-    "$type": "color",
-    "$value": "{accent-primary-edge}"
-  },
-  "emphasis-secondary-root-fill-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-fill-soft}"
-  },
-  "emphasis-secondary-root-fill-hover": {
+  "actions-ghost-root-fill-selected": {
     "$type": "color",
     "$value": "{accent-plain-fill-soft}"
   },
-  "emphasis-secondary-root-fill-pressed": {
-    "$type": "color",
-    "$value": "{emphasis-ghost-fill-hover}"
-  },
-  "emphasis-secondary-root-fill-rest": {
-    "$type": "color",
-    "$value": "{emphasis-ghost-fill-hover}"
-  },
-  "emphasis-secondary-root-icon-disabled": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "emphasis-secondary-root-icon-hover": {
-    "$type": "color",
-    "$value": "{accent-plain-ink}"
-  },
-  "emphasis-secondary-root-icon-pressed": {
-    "$type": "color",
-    "$value": "{accent-plain-ink}"
-  },
-  "emphasis-secondary-root-icon-rest": {
-    "$type": "color",
-    "$value": "{accent-plain-ink}"
-  },
-  "emphasis-secondary-root-ink-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-ink}"
-  },
-  "emphasis-secondary-root-ink-hover": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "emphasis-secondary-root-ink-pressed": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "emphasis-secondary-root-ink-rest": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "emphasis-solid-root-fill-disabled": {
+  "actions-ghost-root-fill-selected-disabled": {
     "$type": "color",
     "$value": "{accent-gold-fill-soft}"
   },
-  "emphasis-solid-root-fill-hover": {
-    "$type": "color",
-    "$value": "{accent-primary-fill-soft}"
-  },
-  "emphasis-solid-root-fill-pressed": {
-    "$type": "color",
-    "$value": "{accent-primary-fill-soft}"
-  },
-  "emphasis-solid-root-fill-rest": {
-    "$type": "color",
-    "$value": "{accent-primary-fill-soft}"
-  },
-  "emphasis-solid-root-fill-selected": {
-    "$type": "color",
-    "$value": "{accent-primary-fill-soft}"
-  },
-  "emphasis-solid-root-fill-selected-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-fill-soft}"
-  },
-  "emphasis-solid-root-fill-selected-hover": {
-    "$type": "color",
-    "$value": "{accent-primary-fill-soft}"
-  },
-  "emphasis-solid-root-fill-selected-pressed": {
-    "$type": "color",
-    "$value": "{accent-primary-fill-soft}"
-  },
-  "emphasis-solid-root-icon-disabled": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "emphasis-solid-root-icon-hover": {
-    "$type": "color",
-    "$value": "{emphasis-solid-ink}"
-  },
-  "emphasis-solid-root-icon-pressed": {
-    "$type": "color",
-    "$value": "{emphasis-solid-ink}"
-  },
-  "emphasis-solid-root-icon-rest": {
-    "$type": "color",
-    "$value": "{emphasis-solid-ink}"
-  },
-  "emphasis-solid-root-icon-selected": {
-    "$type": "color",
-    "$value": "{accent-plain-ink}"
-  },
-  "emphasis-solid-root-icon-selected-disabled": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "emphasis-solid-root-icon-selected-hover": {
-    "$type": "color",
-    "$value": "{emphasis-solid-ink}"
-  },
-  "emphasis-solid-root-icon-selected-pressed": {
-    "$type": "color",
-    "$value": "{emphasis-solid-ink}"
-  },
-  "emphasis-solid-root-ink-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-ink}"
-  },
-  "emphasis-solid-root-ink-hover": {
-    "$type": "color",
-    "$value": "{emphasis-primary-ink}"
-  },
-  "emphasis-solid-root-ink-pressed": {
-    "$type": "color",
-    "$value": "{emphasis-primary-ink}"
-  },
-  "emphasis-solid-root-ink-rest": {
-    "$type": "color",
-    "$value": "{emphasis-primary-ink}"
-  },
-  "emphasis-solid-root-ink-selected": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "emphasis-solid-root-ink-selected-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-ink}"
-  },
-  "emphasis-solid-root-ink-selected-hover": {
-    "$type": "color",
-    "$value": "{emphasis-primary-ink}"
-  },
-  "emphasis-solid-root-ink-selected-pressed": {
-    "$type": "color",
-    "$value": "{emphasis-primary-ink}"
-  },
-  "file-input-ghost-trigger-edge-hover": {
-    "$type": "color",
-    "$value": "transparent"
-  },
-  "file-input-ghost-trigger-edge-pressed": {
-    "$type": "color",
-    "$value": "transparent"
-  },
-  "file-input-ghost-trigger-edge-rest": {
-    "$type": "color",
-    "$value": "transparent"
-  },
-  "file-input-ghost-trigger-fill-hover": {
-    "$type": "color",
-    "$value": "{emphasis-ghost-fill-hover}"
-  },
-  "file-input-ghost-trigger-fill-pressed": {
-    "$type": "color",
-    "$value": "transparent"
-  },
-  "file-input-ghost-trigger-fill-rest": {
-    "$type": "color",
-    "$value": "transparent"
-  },
-  "file-input-ghost-trigger-icon-hover": {
-    "$type": "color",
-    "$value": "{accent-plain-ink}"
-  },
-  "file-input-ghost-trigger-icon-pressed": {
-    "$type": "color",
-    "$value": "{accent-plain-ink}"
-  },
-  "file-input-ghost-trigger-icon-rest": {
-    "$type": "color",
-    "$value": "{accent-plain-ink}"
-  },
-  "file-input-ghost-trigger-ink-hover": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "file-input-ghost-trigger-ink-pressed": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "file-input-ghost-trigger-ink-rest": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "file-input-secondary-trigger-edge-hover": {
-    "$type": "color",
-    "$value": "{accent-primary-edge}"
-  },
-  "file-input-secondary-trigger-edge-pressed": {
-    "$type": "color",
-    "$value": "{accent-primary-edge}"
-  },
-  "file-input-secondary-trigger-edge-rest": {
-    "$type": "color",
-    "$value": "{accent-primary-edge}"
-  },
-  "file-input-secondary-trigger-fill-hover": {
+  "actions-ghost-root-fill-selected-hover": {
     "$type": "color",
     "$value": "{accent-plain-fill-soft}"
   },
-  "file-input-secondary-trigger-fill-pressed": {
-    "$type": "color",
-    "$value": "{emphasis-ghost-fill-hover}"
-  },
-  "file-input-secondary-trigger-fill-rest": {
-    "$type": "color",
-    "$value": "{emphasis-ghost-fill-hover}"
-  },
-  "file-input-secondary-trigger-icon-hover": {
-    "$type": "color",
-    "$value": "{accent-plain-ink}"
-  },
-  "file-input-secondary-trigger-icon-pressed": {
-    "$type": "color",
-    "$value": "{accent-plain-ink}"
-  },
-  "file-input-secondary-trigger-icon-rest": {
-    "$type": "color",
-    "$value": "{accent-plain-ink}"
-  },
-  "file-input-secondary-trigger-ink-hover": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "file-input-secondary-trigger-ink-pressed": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "file-input-secondary-trigger-ink-rest": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "icon-button-ghost-root-edge-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-side-edge}"
-  },
-  "icon-button-ghost-root-edge-hover": {
-    "$type": "color",
-    "$value": "{edge-control-quiet}"
-  },
-  "icon-button-ghost-root-edge-pressed": {
-    "$type": "color",
-    "$value": "{edge-control-quiet}"
-  },
-  "icon-button-ghost-root-edge-rest": {
-    "$type": "color",
-    "$value": "{edge-control-quiet}"
-  },
-  "icon-button-ghost-root-edge-selected": {
-    "$type": "color",
-    "$value": "{edge-invalid}"
-  },
-  "icon-button-ghost-root-edge-selected-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-side-edge}"
-  },
-  "icon-button-ghost-root-edge-selected-hover": {
-    "$type": "color",
-    "$value": "{edge-invalid}"
-  },
-  "icon-button-ghost-root-edge-selected-pressed": {
-    "$type": "color",
-    "$value": "{edge-invalid}"
-  },
-  "icon-button-ghost-root-fill-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-fill-soft}"
-  },
-  "icon-button-ghost-root-fill-hover": {
-    "$type": "color",
-    "$value": "{emphasis-ghost-fill-hover}"
-  },
-  "icon-button-ghost-root-fill-pressed": {
-    "$type": "color",
-    "$value": "transparent"
-  },
-  "icon-button-ghost-root-fill-rest": {
-    "$type": "color",
-    "$value": "transparent"
-  },
-  "icon-button-ghost-root-fill-selected": {
+  "actions-ghost-root-fill-selected-pressed": {
     "$type": "color",
     "$value": "{accent-plain-fill-soft}"
   },
-  "icon-button-ghost-root-fill-selected-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-fill-soft}"
-  },
-  "icon-button-ghost-root-fill-selected-hover": {
-    "$type": "color",
-    "$value": "{accent-plain-fill-soft}"
-  },
-  "icon-button-ghost-root-fill-selected-pressed": {
-    "$type": "color",
-    "$value": "{accent-plain-fill-soft}"
-  },
-  "icon-button-ghost-root-icon-disabled": {
+  "actions-ghost-root-icon-disabled": {
     "$type": "color",
     "$value": "{accent-muted-ink}"
   },
-  "icon-button-ghost-root-icon-hover": {
+  "actions-ghost-root-icon-hover": {
     "$type": "color",
     "$value": "{accent-plain-ink}"
   },
-  "icon-button-ghost-root-icon-pressed": {
+  "actions-ghost-root-icon-pressed": {
     "$type": "color",
     "$value": "{accent-plain-ink}"
   },
-  "icon-button-ghost-root-icon-rest": {
+  "actions-ghost-root-icon-rest": {
     "$type": "color",
     "$value": "{accent-plain-ink}"
   },
-  "icon-button-ghost-root-icon-selected": {
+  "actions-ghost-root-icon-selected": {
     "$type": "color",
     "$value": "{accent-plain-ink}"
   },
-  "icon-button-ghost-root-icon-selected-disabled": {
+  "actions-ghost-root-icon-selected-disabled": {
     "$type": "color",
     "$value": "{accent-muted-ink}"
   },
-  "icon-button-ghost-root-icon-selected-hover": {
+  "actions-ghost-root-icon-selected-hover": {
     "$type": "color",
     "$value": "{accent-plain-ink}"
   },
-  "icon-button-ghost-root-icon-selected-pressed": {
+  "actions-ghost-root-icon-selected-pressed": {
     "$type": "color",
     "$value": "{accent-plain-ink}"
   },
-  "icon-button-ghost-root-ink-disabled": {
+  "actions-ghost-root-ink-disabled": {
     "$type": "color",
     "$value": "{accent-gold-ink}"
   },
-  "icon-button-ghost-root-ink-hover": {
+  "actions-ghost-root-ink-hover": {
     "$type": "color",
     "$value": "{accent-muted-ink}"
   },
-  "icon-button-ghost-root-ink-pressed": {
+  "actions-ghost-root-ink-pressed": {
     "$type": "color",
     "$value": "{accent-muted-ink}"
   },
-  "icon-button-ghost-root-ink-rest": {
+  "actions-ghost-root-ink-rest": {
     "$type": "color",
     "$value": "{accent-muted-ink}"
   },
-  "icon-button-ghost-root-ink-selected": {
+  "actions-ghost-root-ink-selected": {
     "$type": "color",
     "$value": "{accent-muted-ink}"
   },
-  "icon-button-ghost-root-ink-selected-disabled": {
+  "actions-ghost-root-ink-selected-disabled": {
     "$type": "color",
     "$value": "{accent-gold-ink}"
   },
-  "icon-button-ghost-root-ink-selected-hover": {
+  "actions-ghost-root-ink-selected-hover": {
     "$type": "color",
     "$value": "{accent-muted-ink}"
   },
-  "icon-button-ghost-root-ink-selected-pressed": {
+  "actions-ghost-root-ink-selected-pressed": {
     "$type": "color",
     "$value": "{accent-muted-ink}"
   },
-  "icon-button-solid-root-edge-disabled": {
+  "actions-primary-root-edge-disabled": {
     "$type": "color",
     "$value": "{accent-gold-side-edge}"
   },
-  "icon-button-solid-root-edge-hover": {
+  "actions-primary-root-edge-hover": {
     "$type": "color",
-    "$value": "transparent"
+    "$value": "{accent-primary-edge}"
   },
-  "icon-button-solid-root-edge-pressed": {
+  "actions-primary-root-edge-pressed": {
     "$type": "color",
-    "$value": "transparent"
+    "$value": "{accent-primary-edge}"
   },
-  "icon-button-solid-root-edge-selected": {
+  "actions-primary-root-edge-rest": {
     "$type": "color",
-    "$value": "{edge-invalid}"
+    "$value": "{accent-primary-edge}"
   },
-  "icon-button-solid-root-edge-selected-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-side-edge}"
-  },
-  "icon-button-solid-root-edge-selected-hover": {
-    "$type": "color",
-    "$value": "{edge-invalid}"
-  },
-  "icon-button-solid-root-edge-selected-pressed": {
-    "$type": "color",
-    "$value": "{edge-invalid}"
-  },
-  "icon-button-solid-root-fill-disabled": {
+  "actions-primary-root-fill-disabled": {
     "$type": "color",
     "$value": "{accent-gold-fill-soft}"
   },
-  "icon-button-solid-root-fill-hover": {
+  "actions-primary-root-fill-hover": {
     "$type": "color",
     "$value": "{accent-primary-fill-soft}"
   },
-  "icon-button-solid-root-fill-pressed": {
+  "actions-primary-root-fill-pressed": {
     "$type": "color",
     "$value": "{accent-primary-fill-soft}"
   },
-  "icon-button-solid-root-fill-rest": {
+  "actions-primary-root-fill-rest": {
     "$type": "color",
     "$value": "{accent-primary-fill-soft}"
   },
-  "icon-button-solid-root-fill-selected": {
-    "$type": "color",
-    "$value": "{accent-plain-fill-soft}"
-  },
-  "icon-button-solid-root-fill-selected-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-fill-soft}"
-  },
-  "icon-button-solid-root-fill-selected-hover": {
-    "$type": "color",
-    "$value": "{accent-plain-fill-soft}"
-  },
-  "icon-button-solid-root-fill-selected-pressed": {
-    "$type": "color",
-    "$value": "{accent-plain-fill-soft}"
-  },
-  "icon-button-solid-root-icon-disabled": {
+  "actions-primary-root-icon-disabled": {
     "$type": "color",
     "$value": "{accent-muted-ink}"
   },
-  "icon-button-solid-root-icon-hover": {
+  "actions-primary-root-icon-hover": {
     "$type": "color",
     "$value": "{emphasis-solid-ink}"
   },
-  "icon-button-solid-root-icon-pressed": {
+  "actions-primary-root-icon-pressed": {
     "$type": "color",
     "$value": "{emphasis-solid-ink}"
   },
-  "icon-button-solid-root-icon-rest": {
+  "actions-primary-root-icon-rest": {
+    "$type": "color",
+    "$value": "{emphasis-primary-ink}"
+  },
+  "actions-primary-root-ink-disabled": {
+    "$type": "color",
+    "$value": "{accent-gold-ink}"
+  },
+  "actions-primary-root-ink-hover": {
+    "$type": "color",
+    "$value": "{emphasis-primary-ink}"
+  },
+  "actions-primary-root-ink-pressed": {
+    "$type": "color",
+    "$value": "{emphasis-primary-ink}"
+  },
+  "actions-primary-root-ink-rest": {
     "$type": "color",
     "$value": "{emphasis-solid-ink}"
   },
-  "icon-button-solid-root-icon-selected": {
-    "$type": "color",
-    "$value": "{accent-plain-ink}"
-  },
-  "icon-button-solid-root-icon-selected-disabled": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "icon-button-solid-root-icon-selected-hover": {
-    "$type": "color",
-    "$value": "{accent-plain-ink}"
-  },
-  "icon-button-solid-root-icon-selected-pressed": {
-    "$type": "color",
-    "$value": "{accent-plain-ink}"
-  },
-  "icon-button-solid-root-ink-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-ink}"
-  },
-  "icon-button-solid-root-ink-hover": {
-    "$type": "color",
-    "$value": "{emphasis-primary-ink}"
-  },
-  "icon-button-solid-root-ink-pressed": {
-    "$type": "color",
-    "$value": "{emphasis-primary-ink}"
-  },
-  "icon-button-solid-root-ink-rest": {
-    "$type": "color",
-    "$value": "{emphasis-primary-ink}"
-  },
-  "icon-button-solid-root-ink-selected": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "icon-button-solid-root-ink-selected-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-ink}"
-  },
-  "icon-button-solid-root-ink-selected-hover": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "icon-button-solid-root-ink-selected-pressed": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "split-button-destructive-caret-edge-disabled": {
+  "actions-secondary-root-edge-disabled": {
     "$type": "color",
     "$value": "{accent-gold-side-edge}"
   },
-  "split-button-destructive-caret-edge-hover": {
+  "actions-secondary-root-edge-hover": {
     "$type": "color",
-    "$value": "{edge-invalid}"
+    "$value": "{accent-primary-edge}"
   },
-  "split-button-destructive-caret-edge-pressed": {
+  "actions-secondary-root-edge-pressed": {
     "$type": "color",
-    "$value": "{edge-invalid}"
+    "$value": "{accent-primary-edge}"
   },
-  "split-button-destructive-caret-edge-rest": {
+  "actions-secondary-root-edge-rest": {
     "$type": "color",
-    "$value": "{edge-invalid}"
+    "$value": "{accent-primary-edge}"
   },
-  "split-button-destructive-caret-fill-disabled": {
+  "actions-secondary-root-fill-disabled": {
     "$type": "color",
     "$value": "{accent-gold-fill-soft}"
   },
-  "split-button-destructive-caret-fill-hover": {
+  "actions-secondary-root-fill-hover": {
     "$type": "color",
     "$value": "{accent-plain-fill-soft}"
   },
-  "split-button-destructive-caret-fill-pressed": {
-    "$type": "color",
-    "$value": "transparent"
-  },
-  "split-button-destructive-caret-fill-rest": {
-    "$type": "color",
-    "$value": "transparent"
-  },
-  "split-button-destructive-caret-icon-disabled": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "split-button-destructive-caret-icon-hover": {
-    "$type": "color",
-    "$value": "{hue-info-ink}"
-  },
-  "split-button-destructive-caret-icon-pressed": {
-    "$type": "color",
-    "$value": "{hue-info-ink}"
-  },
-  "split-button-destructive-caret-icon-rest": {
-    "$type": "color",
-    "$value": "{hue-info-ink}"
-  },
-  "split-button-destructive-caret-ink-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-ink}"
-  },
-  "split-button-destructive-caret-ink-hover": {
-    "$type": "color",
-    "$value": "{hue-danger-ink}"
-  },
-  "split-button-destructive-caret-ink-pressed": {
-    "$type": "color",
-    "$value": "{hue-danger-ink}"
-  },
-  "split-button-destructive-caret-ink-rest": {
-    "$type": "color",
-    "$value": "{ink-invalid}"
-  },
-  "split-button-destructive-primary-edge-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-side-edge}"
-  },
-  "split-button-destructive-primary-edge-hover": {
-    "$type": "color",
-    "$value": "{edge-invalid}"
-  },
-  "split-button-destructive-primary-edge-pressed": {
-    "$type": "color",
-    "$value": "{edge-invalid}"
-  },
-  "split-button-destructive-primary-edge-rest": {
-    "$type": "color",
-    "$value": "{edge-invalid}"
-  },
-  "split-button-destructive-primary-fill-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-fill-soft}"
-  },
-  "split-button-destructive-primary-fill-hover": {
-    "$type": "color",
-    "$value": "{accent-plain-fill-soft}"
-  },
-  "split-button-destructive-primary-fill-pressed": {
-    "$type": "color",
-    "$value": "transparent"
-  },
-  "split-button-destructive-primary-fill-rest": {
-    "$type": "color",
-    "$value": "transparent"
-  },
-  "split-button-destructive-primary-icon-disabled": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "split-button-destructive-primary-icon-hover": {
-    "$type": "color",
-    "$value": "{hue-info-ink}"
-  },
-  "split-button-destructive-primary-icon-pressed": {
-    "$type": "color",
-    "$value": "{hue-info-ink}"
-  },
-  "split-button-destructive-primary-icon-rest": {
-    "$type": "color",
-    "$value": "{hue-info-ink}"
-  },
-  "split-button-destructive-primary-ink-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-ink}"
-  },
-  "split-button-destructive-primary-ink-hover": {
-    "$type": "color",
-    "$value": "{hue-danger-ink}"
-  },
-  "split-button-destructive-primary-ink-pressed": {
-    "$type": "color",
-    "$value": "{hue-danger-ink}"
-  },
-  "split-button-destructive-primary-ink-rest": {
-    "$type": "color",
-    "$value": "{ink-invalid}"
-  },
-  "split-button-ghost-caret-edge-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-side-edge}"
-  },
-  "split-button-ghost-caret-edge-hover": {
-    "$type": "color",
-    "$value": "transparent"
-  },
-  "split-button-ghost-caret-edge-pressed": {
-    "$type": "color",
-    "$value": "transparent"
-  },
-  "split-button-ghost-caret-edge-rest": {
-    "$type": "color",
-    "$value": "transparent"
-  },
-  "split-button-ghost-caret-fill-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-fill-soft}"
-  },
-  "split-button-ghost-caret-fill-hover": {
+  "actions-secondary-root-fill-pressed": {
     "$type": "color",
     "$value": "{emphasis-ghost-fill-hover}"
   },
-  "split-button-ghost-caret-fill-pressed": {
-    "$type": "color",
-    "$value": "transparent"
-  },
-  "split-button-ghost-caret-fill-rest": {
-    "$type": "color",
-    "$value": "transparent"
-  },
-  "split-button-ghost-caret-icon-disabled": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "split-button-ghost-caret-icon-hover": {
-    "$type": "color",
-    "$value": "{accent-plain-ink}"
-  },
-  "split-button-ghost-caret-icon-pressed": {
-    "$type": "color",
-    "$value": "{accent-plain-ink}"
-  },
-  "split-button-ghost-caret-icon-rest": {
-    "$type": "color",
-    "$value": "{accent-plain-ink}"
-  },
-  "split-button-ghost-caret-ink-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-ink}"
-  },
-  "split-button-ghost-caret-ink-hover": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "split-button-ghost-caret-ink-pressed": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "split-button-ghost-caret-ink-rest": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "split-button-ghost-primary-edge-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-side-edge}"
-  },
-  "split-button-ghost-primary-edge-hover": {
-    "$type": "color",
-    "$value": "transparent"
-  },
-  "split-button-ghost-primary-edge-pressed": {
-    "$type": "color",
-    "$value": "transparent"
-  },
-  "split-button-ghost-primary-edge-rest": {
-    "$type": "color",
-    "$value": "transparent"
-  },
-  "split-button-ghost-primary-fill-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-fill-soft}"
-  },
-  "split-button-ghost-primary-fill-hover": {
+  "actions-secondary-root-fill-rest": {
     "$type": "color",
     "$value": "{emphasis-ghost-fill-hover}"
   },
-  "split-button-ghost-primary-fill-pressed": {
+  "actions-secondary-root-icon-disabled": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "actions-secondary-root-icon-hover": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "actions-secondary-root-icon-pressed": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "actions-secondary-root-icon-rest": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "actions-secondary-root-ink-disabled": {
+    "$type": "color",
+    "$value": "{accent-gold-ink}"
+  },
+  "actions-secondary-root-ink-hover": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "actions-secondary-root-ink-pressed": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "actions-secondary-root-ink-rest": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "actions-solid-root-edge-disabled": {
+    "$type": "color",
+    "$value": "{accent-gold-side-edge}"
+  },
+  "actions-solid-root-edge-hover": {
     "$type": "color",
     "$value": "transparent"
   },
-  "split-button-ghost-primary-fill-rest": {
+  "actions-solid-root-edge-pressed": {
     "$type": "color",
     "$value": "transparent"
   },
-  "split-button-ghost-primary-icon-disabled": {
+  "actions-solid-root-edge-selected": {
     "$type": "color",
-    "$value": "{accent-muted-ink}"
+    "$value": "{edge-invalid}"
   },
-  "split-button-ghost-primary-icon-hover": {
-    "$type": "color",
-    "$value": "{accent-plain-ink}"
-  },
-  "split-button-ghost-primary-icon-pressed": {
-    "$type": "color",
-    "$value": "{accent-plain-ink}"
-  },
-  "split-button-ghost-primary-icon-rest": {
-    "$type": "color",
-    "$value": "{accent-plain-ink}"
-  },
-  "split-button-ghost-primary-ink-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-ink}"
-  },
-  "split-button-ghost-primary-ink-hover": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "split-button-ghost-primary-ink-pressed": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "split-button-ghost-primary-ink-rest": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "split-button-primary-caret-edge-disabled": {
+  "actions-solid-root-edge-selected-disabled": {
     "$type": "color",
     "$value": "{accent-gold-side-edge}"
   },
-  "split-button-primary-caret-edge-hover": {
+  "actions-solid-root-edge-selected-hover": {
     "$type": "color",
-    "$value": "{accent-primary-edge}"
+    "$value": "{edge-invalid}"
   },
-  "split-button-primary-caret-edge-pressed": {
+  "actions-solid-root-edge-selected-pressed": {
     "$type": "color",
-    "$value": "{accent-primary-edge}"
+    "$value": "{edge-invalid}"
   },
-  "split-button-primary-caret-edge-rest": {
-    "$type": "color",
-    "$value": "{accent-primary-edge}"
-  },
-  "split-button-primary-caret-fill-disabled": {
+  "actions-solid-root-fill-disabled": {
     "$type": "color",
     "$value": "{accent-gold-fill-soft}"
   },
-  "split-button-primary-caret-fill-hover": {
+  "actions-solid-root-fill-hover": {
     "$type": "color",
     "$value": "{accent-primary-fill-soft}"
   },
-  "split-button-primary-caret-fill-pressed": {
+  "actions-solid-root-fill-pressed": {
     "$type": "color",
     "$value": "{accent-primary-fill-soft}"
   },
-  "split-button-primary-caret-fill-rest": {
+  "actions-solid-root-fill-rest": {
     "$type": "color",
     "$value": "{accent-primary-fill-soft}"
   },
-  "split-button-primary-caret-icon-disabled": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "split-button-primary-caret-icon-hover": {
-    "$type": "color",
-    "$value": "{emphasis-solid-ink}"
-  },
-  "split-button-primary-caret-icon-pressed": {
-    "$type": "color",
-    "$value": "{emphasis-solid-ink}"
-  },
-  "split-button-primary-caret-icon-rest": {
-    "$type": "color",
-    "$value": "{emphasis-solid-ink}"
-  },
-  "split-button-primary-caret-ink-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-ink}"
-  },
-  "split-button-primary-caret-ink-hover": {
-    "$type": "color",
-    "$value": "{emphasis-primary-ink}"
-  },
-  "split-button-primary-caret-ink-pressed": {
-    "$type": "color",
-    "$value": "{emphasis-primary-ink}"
-  },
-  "split-button-primary-caret-ink-rest": {
-    "$type": "color",
-    "$value": "{emphasis-primary-ink}"
-  },
-  "split-button-primary-primary-edge-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-side-edge}"
-  },
-  "split-button-primary-primary-edge-hover": {
-    "$type": "color",
-    "$value": "{accent-primary-edge}"
-  },
-  "split-button-primary-primary-edge-pressed": {
-    "$type": "color",
-    "$value": "{accent-primary-edge}"
-  },
-  "split-button-primary-primary-edge-rest": {
-    "$type": "color",
-    "$value": "{accent-primary-edge}"
-  },
-  "split-button-primary-primary-fill-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-fill-soft}"
-  },
-  "split-button-primary-primary-fill-hover": {
-    "$type": "color",
-    "$value": "{accent-primary-fill-soft}"
-  },
-  "split-button-primary-primary-fill-pressed": {
-    "$type": "color",
-    "$value": "{accent-primary-fill-soft}"
-  },
-  "split-button-primary-primary-fill-rest": {
-    "$type": "color",
-    "$value": "{accent-primary-fill-soft}"
-  },
-  "split-button-primary-primary-icon-disabled": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "split-button-primary-primary-icon-hover": {
-    "$type": "color",
-    "$value": "{emphasis-solid-ink}"
-  },
-  "split-button-primary-primary-icon-pressed": {
-    "$type": "color",
-    "$value": "{emphasis-solid-ink}"
-  },
-  "split-button-primary-primary-icon-rest": {
-    "$type": "color",
-    "$value": "{emphasis-solid-ink}"
-  },
-  "split-button-primary-primary-ink-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-ink}"
-  },
-  "split-button-primary-primary-ink-hover": {
-    "$type": "color",
-    "$value": "{emphasis-primary-ink}"
-  },
-  "split-button-primary-primary-ink-pressed": {
-    "$type": "color",
-    "$value": "{emphasis-primary-ink}"
-  },
-  "split-button-primary-primary-ink-rest": {
-    "$type": "color",
-    "$value": "{emphasis-primary-ink}"
-  },
-  "split-button-secondary-caret-edge-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-side-edge}"
-  },
-  "split-button-secondary-caret-edge-hover": {
-    "$type": "color",
-    "$value": "{accent-primary-edge}"
-  },
-  "split-button-secondary-caret-edge-pressed": {
-    "$type": "color",
-    "$value": "{accent-primary-edge}"
-  },
-  "split-button-secondary-caret-edge-rest": {
-    "$type": "color",
-    "$value": "{accent-primary-edge}"
-  },
-  "split-button-secondary-caret-fill-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-fill-soft}"
-  },
-  "split-button-secondary-caret-fill-hover": {
+  "actions-solid-root-fill-selected": {
     "$type": "color",
     "$value": "{accent-plain-fill-soft}"
   },
-  "split-button-secondary-caret-fill-pressed": {
-    "$type": "color",
-    "$value": "{emphasis-ghost-fill-hover}"
-  },
-  "split-button-secondary-caret-fill-rest": {
-    "$type": "color",
-    "$value": "{emphasis-ghost-fill-hover}"
-  },
-  "split-button-secondary-caret-icon-disabled": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "split-button-secondary-caret-icon-hover": {
-    "$type": "color",
-    "$value": "{accent-plain-ink}"
-  },
-  "split-button-secondary-caret-icon-pressed": {
-    "$type": "color",
-    "$value": "{accent-plain-ink}"
-  },
-  "split-button-secondary-caret-icon-rest": {
-    "$type": "color",
-    "$value": "{accent-plain-ink}"
-  },
-  "split-button-secondary-caret-ink-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-ink}"
-  },
-  "split-button-secondary-caret-ink-hover": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "split-button-secondary-caret-ink-pressed": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "split-button-secondary-caret-ink-rest": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "split-button-secondary-primary-edge-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-side-edge}"
-  },
-  "split-button-secondary-primary-edge-hover": {
-    "$type": "color",
-    "$value": "{accent-primary-edge}"
-  },
-  "split-button-secondary-primary-edge-pressed": {
-    "$type": "color",
-    "$value": "{accent-primary-edge}"
-  },
-  "split-button-secondary-primary-edge-rest": {
-    "$type": "color",
-    "$value": "{accent-primary-edge}"
-  },
-  "split-button-secondary-primary-fill-disabled": {
+  "actions-solid-root-fill-selected-disabled": {
     "$type": "color",
     "$value": "{accent-gold-fill-soft}"
   },
-  "split-button-secondary-primary-fill-hover": {
+  "actions-solid-root-fill-selected-hover": {
     "$type": "color",
     "$value": "{accent-plain-fill-soft}"
   },
-  "split-button-secondary-primary-fill-pressed": {
+  "actions-solid-root-fill-selected-pressed": {
     "$type": "color",
-    "$value": "{emphasis-ghost-fill-hover}"
+    "$value": "{accent-plain-fill-soft}"
   },
-  "split-button-secondary-primary-fill-rest": {
-    "$type": "color",
-    "$value": "{emphasis-ghost-fill-hover}"
-  },
-  "split-button-secondary-primary-icon-disabled": {
+  "actions-solid-root-icon-disabled": {
     "$type": "color",
     "$value": "{accent-muted-ink}"
   },
-  "split-button-secondary-primary-icon-hover": {
+  "actions-solid-root-icon-hover": {
+    "$type": "color",
+    "$value": "{emphasis-solid-ink}"
+  },
+  "actions-solid-root-icon-pressed": {
+    "$type": "color",
+    "$value": "{emphasis-solid-ink}"
+  },
+  "actions-solid-root-icon-rest": {
+    "$type": "color",
+    "$value": "{emphasis-solid-ink}"
+  },
+  "actions-solid-root-icon-selected": {
     "$type": "color",
     "$value": "{accent-plain-ink}"
   },
-  "split-button-secondary-primary-icon-pressed": {
+  "actions-solid-root-icon-selected-disabled": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "actions-solid-root-icon-selected-hover": {
     "$type": "color",
     "$value": "{accent-plain-ink}"
   },
-  "split-button-secondary-primary-icon-rest": {
+  "actions-solid-root-icon-selected-pressed": {
     "$type": "color",
     "$value": "{accent-plain-ink}"
   },
-  "split-button-secondary-primary-ink-disabled": {
+  "actions-solid-root-ink-disabled": {
     "$type": "color",
     "$value": "{accent-gold-ink}"
   },
-  "split-button-secondary-primary-ink-hover": {
+  "actions-solid-root-ink-hover": {
+    "$type": "color",
+    "$value": "{emphasis-primary-ink}"
+  },
+  "actions-solid-root-ink-pressed": {
+    "$type": "color",
+    "$value": "{emphasis-primary-ink}"
+  },
+  "actions-solid-root-ink-rest": {
+    "$type": "color",
+    "$value": "{emphasis-primary-ink}"
+  },
+  "actions-solid-root-ink-selected": {
     "$type": "color",
     "$value": "{accent-muted-ink}"
   },
-  "split-button-secondary-primary-ink-pressed": {
+  "actions-solid-root-ink-selected-disabled": {
+    "$type": "color",
+    "$value": "{accent-gold-ink}"
+  },
+  "actions-solid-root-ink-selected-hover": {
     "$type": "color",
     "$value": "{accent-muted-ink}"
   },
-  "split-button-secondary-primary-ink-rest": {
+  "actions-solid-root-ink-selected-pressed": {
     "$type": "color",
     "$value": "{accent-muted-ink}"
   }

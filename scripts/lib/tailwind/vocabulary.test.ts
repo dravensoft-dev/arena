@@ -266,30 +266,35 @@ test('arena-mark-solid fills a badge with its hue\'s ink and writes on-ink over 
 
 const emphasisSheet = () => compileFamily(readFamilies().get('emphasis') as Family, [...layerManifests().values()]);
 
-test('the emphasis sheet writes a default block per answering part', () => {
+test('the emphasis sheet writes a default block per member part', () => {
   const css = emphasisSheet();
   const block = /^  :where\(\[data-arena-part="button"\]\) \{\n([^}]*)\}/m.exec(css)?.[1] ?? '';
-  assert.match(block, /--arena-emphasis-fill: var\(--button-primary-root-fill-rest,var\(--emphasis-primary-root-fill-rest,var\(--emphasis-primary-fill\)\)\);/);
+  assert.match(block, /--arena-emphasis-fill: var\(--actions-primary-root-fill-rest,var\(--emphasis-primary-fill\)\);/);
   assert.ok(css.indexOf(':where([data-arena-part="button"]) {') > css.lastIndexOf('@scope'), 'the default blocks come after the option scopes');
-  assert.match(css, /:where\(\[data-arena-part="icon-button"\]\) \{[^}]*--arena-emphasis-fill: var\(--icon-button-ghost-root-fill-rest,/);
+  assert.match(css, /:where\(\[data-arena-part="icon-button"\]\) \{[^}]*--arena-emphasis-fill: var\(--actions-ghost-root-fill-rest,/);
   assert.match(css, /:where\(\[data-arena-part="split-button\.caret"\]\) \{/);
-  assert.match(css, /:where\(\[data-arena-part="file-input\.trigger"\]\) \{[^}]*--arena-emphasis-fill: var\(--file-input-secondary-trigger-fill-rest,/);
+  assert.match(css, /:where\(\[data-arena-part="file-input\.trigger"\]\) \{[^}]*--arena-emphasis-fill: var\(--actions-secondary-root-fill-rest,/);
+  assert.doesNotMatch(css, /:where\(\[data-arena-part="copy-button"\]/, 'a copy button is no member part, so it takes no block of its own');
 });
 
-test('copy button rebinds the icon button it draws', () => {
+test('an option block writes the group chains over every answering part in one selector list, and a member with a channel of its own adds its block', () => {
   const css = emphasisSheet();
   const ghost = css.split('@scope (.arena-emphasis-ghost)')[1]!.split('@scope (')[0]!;
-  const icon = ghost.indexOf('[data-arena-part="icon-button"] {');
-  const copy = ghost.indexOf('[data-arena-part="copy-button"]) [data-arena-part="icon-button"]');
-  assert.ok(icon >= 0 && copy > icon, 'the copy button block comes after the icon button block');
-  assert.match(ghost.slice(copy), /--arena-emphasis-fill: var\(--copy-button-ghost-root-fill-rest,var\(--icon-button-ghost-root-fill-rest,/);
-  assert.match(css, /:where\(\[data-arena-part="copy-button"\] \[data-arena-part="icon-button"\]\) \{[^}]*--copy-button-ghost-root-fill-rest/);
+  const lists = [...ghost.matchAll(/((?:    :scope\[[^\n]*,\n)*    :scope\[[^\n]*) \{\n/g)].map((m) => m[1]!);
+  assert.equal(lists.length, 2, ghost);
+  for (const part of ['button', 'copy-button', 'icon-button', 'split-button.caret', 'split-button.primary', 'file-input.trigger']) {
+    assert.ok(lists[0]!.includes(`[data-arena-part="${part}"]`), part);
+  }
+  assert.equal(lists[1], '    :scope[data-arena-part="icon-button"], [data-arena-part="icon-button"]');
+  assert.match(ghost, /--arena-emphasis-icon-edge: var\(--actions-ghost-root-edge-rest,var\(--emphasis-ghost-icon-edge\)\);/);
+  assert.match(ghost, /--arena-emphasis-icon-edge-hover: var\(--actions-ghost-root-edge-hover,var\(--actions-ghost-root-edge-rest,var\(--emphasis-ghost-icon-edge\)\)\);/);
+  assert.doesNotMatch(css, /--(button|icon-button|copy-button|split-button|file-input)-(primary|secondary|ghost|solid|destructive)-/);
 });
 
-test('a part with component slots writes its own marker around the family fade', () => {
+test('a group option writes its own fade marker around the family fade', () => {
   const css = emphasisSheet();
-  assert.match(css, /--arena-emphasis-fade-disabled: var\(--button-primary-root-fade-disabled,var\(--emphasis-primary-root-fade-disabled,var\(--fade-disabled\)\)\);/);
-  assert.match(css, /--arena-emphasis-icon-edge: var\(--icon-button-ghost-root-edge-rest,var\(--emphasis-ghost-icon-edge\)\);/);
+  assert.match(css, /--arena-emphasis-fade-disabled: var\(--actions-primary-root-fade-disabled,var\(--fade-disabled\)\);/);
+  assert.match(css, /--arena-emphasis-fade-selected-disabled: var\(--actions-ghost-root-fade-selected-disabled,var\(--fade-disabled\)\);/);
 });
 
 test('channelReads marks a read that sits inside the fallback of another when asked', () => {
@@ -299,30 +304,13 @@ test('channelReads marks a read that sits inside the fallback of another when as
   assert.deepEqual(channelReads(classes, true).map((one) => one.nested), [false, true, false]);
 });
 
-test('a selected disabled slot wraps the selected fade with its own marker, beside the disabled one', () => {
+test('the levelled rest icon channel wraps the icon and ink slots inside the ink level', () => {
   const css = emphasisSheet();
-  assert.match(css, /--arena-emphasis-fade-selected-disabled: var\(--icon-button-ghost-root-fade-selected-disabled,var\(--emphasis-ghost-root-fade-selected-disabled,var\(--fade-disabled\)\)\);/);
-  assert.match(css, /--arena-emphasis-ink-selected-disabled: var\(--icon-button-ghost-root-ink-selected-disabled,var\(--emphasis-ghost-root-ink-selected-disabled,var\(--arena-emphasis-ink-selected\)\)\);/);
-  assert.doesNotMatch(css, /--arena-emphasis-fade-selected-disabled: var\(--button-/);
-});
-
-test('the levelled rest icon channel wraps the component icon and ink slots inside the ink level', () => {
-  const css = emphasisSheet();
-  const inside = 'var(--button-ghost-root-icon-rest,var(--emphasis-ghost-root-icon-rest,var(--button-ghost-root-ink-rest,var(--emphasis-ghost-root-ink-rest,var(--emphasis-ghost-ink)))))';
-  assert.ok(css.includes(`--arena-emphasis-icon: color-mix(in oklab,${inside} var(--level-ink-body),transparent);`), 'the Button ghost icon');
-  assert.ok(css.includes('color-mix(in oklab,var(--icon-button-ghost-root-icon-rest,var(--emphasis-ghost-root-icon-rest,var(--icon-button-ghost-root-ink-rest,var(--emphasis-ghost-root-ink-rest,var(--emphasis-ghost-ink))))) var(--level-ink-body),transparent)'), 'the IconButton ghost icon');
-  assert.ok(css.includes('--arena-emphasis-icon: var(--button-primary-root-icon-rest,var(--emphasis-primary-root-icon-rest,var(--arena-emphasis-ink)));'), 'an unlevelled state ends in the resolved ink channel');
-});
-
-test('a disabled icon channel carries a component ink answer of its state, and an icon that reaches no ink throws naming its channel', () => {
-  const css = emphasisSheet();
-  assert.ok(css.includes('--arena-emphasis-icon-disabled: var(--button-primary-root-icon-disabled,var(--emphasis-primary-root-icon-disabled,var(--arena-emphasis-ink-disabled)));'));
-  assert.ok(css.includes('--arena-emphasis-ink-disabled: var(--button-primary-root-ink-disabled,var(--emphasis-primary-root-ink-disabled,var(--arena-emphasis-ink)));'));
-  const family = structuredClone(readFamilies().get('emphasis') as Family);
-  family.variants['arena-emphasis-primary'] = (family.variants['arena-emphasis-primary'] ?? '')
-    .replace('var(--emphasis-primary-root-icon-disabled,var(--arena-emphasis-ink-disabled))', 'var(--emphasis-primary-root-icon-disabled,var(--arena-emphasis-icon))');
-  assert.throws(() => compileFamily(family, [...layerManifests().values()]),
-    /--arena-emphasis-icon-disabled of button-primary-root-icon-disabled reaches neither --emphasis-primary-root-ink-disabled nor the channel --arena-emphasis-ink-disabled/);
+  const inside = 'var(--actions-ghost-root-icon-rest,var(--actions-ghost-root-ink-rest,var(--emphasis-ghost-ink)))';
+  assert.ok(css.includes(`--arena-emphasis-icon: color-mix(in oklab,${inside} var(--level-ink-body),transparent);`), 'the ghost icon');
+  assert.ok(css.includes('--arena-emphasis-icon: var(--actions-primary-root-icon-rest,var(--arena-emphasis-ink));'), 'an unlevelled state ends in the resolved ink channel');
+  assert.ok(css.includes('--arena-emphasis-icon-disabled: var(--actions-primary-root-icon-disabled,var(--arena-emphasis-ink-disabled));'));
+  assert.ok(css.includes('--arena-emphasis-ink-selected-disabled: var(--actions-ghost-root-ink-selected-disabled,var(--arena-emphasis-ink-selected));'));
 });
 
 test('a family with colour slots compiles per component, each sheet importing nothing, and the parts carry the rules of the whole sheet', () => {
@@ -337,7 +325,8 @@ test('a family with colour slots compiles per component, each sheet importing no
   assert.match(button, /:where\(\[data-arena-part="button"\]\) \{/);
   const copy = compileFamily(family, manifests, undefined, 'ArenaCopyButton');
   assert.ok(copy.startsWith(`${LAYER_ORDER}@layer utilities {`), 'a part sheet imports nothing, so a bundler reads each once');
-  assert.match(copy, /:where\(\[data-arena-part="copy-button"\]\) \[data-arena-part="icon-button"\]/);
+  assert.match(copy, /\[data-arena-part="copy-button"\]/);
+  assert.doesNotMatch(copy, /icon-button/, 'a copy button draws an icon button, whose own sheet answers it');
   const whole = emphasisSheet();
   const parts = owners.map((one) => compileFamily(family, manifests, undefined, one)).join('\n');
   assert.ok(familyRules(whole).size > 20);

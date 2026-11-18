@@ -293,9 +293,9 @@ test('an adopter\'s pressed pair below AA is one report more, arena check names 
     return { count: Number(/(\d+) report\(s\): arena check names them$/.exec(err.join('\n'))?.[1] ?? 0), named: checked.err };
   };
   const without = await built(null);
-  const answered = await built({ 'button-primary-root-fill-pressed': { $value: '{fill-confirm-final}', $type: 'color' } });
+  const answered = await built({ 'actions-primary-root-fill-pressed': { $value: '{fill-confirm-final}', $type: 'color' } });
   assert.equal(answered.count, without.count + 1, `${answered.count} report(s) with the answer, ${without.count} without`);
-  const pair = /--button-primary-root-ink-pressed measures 3\.45:1 over --button-primary-root-fill-pressed in the pressed state of the dark theme/;
+  const pair = /--actions-primary-root-ink-pressed measures 3\.45:1 over --actions-primary-root-fill-pressed in the pressed state of the dark theme/;
   assert.ok(answered.named.some((line) => pair.test(line)), answered.named.join('\n'));
   assert.equal(without.named.some((line) => pair.test(line)), false);
 });

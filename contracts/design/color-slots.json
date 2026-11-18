@@ -1,5 +1,5 @@
 {
-  "$description": "The colour slot declarations: per family the options, parts and the rest role of each property; per component the parts that read a family, the options and states they paint; the variants that are no family option; and each exception with the decision that grants it. scripts/lib/core/color-slots.ts:readColorSlots(root) derives every slot from them, and check:color-slots holds both.",
+  "$description": "The colour slot declarations: the groups (their parts, the properties each paints, its options and states, and the rest role of each property where a group part is read), the members (every coloured part of every manifest mapped onto a group part, or null when it paints only current or transparent), and each exception with the decision that grants it. scripts/lib/core/color-slots.ts:readColorSlots(root) derives every slot from them, and check:color-slots holds both.",
   "accepts": {
     "fill": [
       "emphasis-*-fill",
@@ -95,171 +95,16 @@
       "role": "{edge-selected}"
     }
   },
-  "families": {
-    "emphasis": {
-      "channel": "--arena-emphasis-{property}",
-      "options": {
-        "primary": {
-          "states": "base",
-          "parts": {
-            "root": {
-              "fill": "{emphasis-primary-fill}",
-              "ink": "{emphasis-primary-ink}",
-              "edge": "{emphasis-primary-edge}",
-              "icon": "ink"
-            }
-          }
-        },
-        "secondary": {
-          "states": "base",
-          "parts": {
-            "root": {
-              "fill": "{emphasis-secondary-fill}",
-              "ink": "{emphasis-secondary-ink}",
-              "edge": "{emphasis-secondary-edge}",
-              "icon": "ink"
-            }
-          }
-        },
-        "ghost": {
-          "states": {
-            "edge": "base",
-            "*": "selectable"
-          },
-          "parts": {
-            "root": {
-              "fill": "transparent",
-              "ink": {
-                "role": "{emphasis-ghost-ink}",
-                "level": "level-ink-body"
-              },
-              "edge": "transparent",
-              "icon": "ink"
-            }
-          }
-        },
-        "solid": {
-          "states": "selectable",
-          "parts": {
-            "root": {
-              "fill": "{emphasis-solid-fill}",
-              "ink": "{emphasis-solid-ink}",
-              "icon": "ink"
-            }
-          }
-        }
-      }
-    }
-  },
-  "variants": {
-    "destructive": {
-      "decision": "R6",
-      "rest": {
-        "fill": "{hue-danger-fill-strong}",
-        "ink": "{hue-danger-ink}",
-        "edge": "{hue-danger-edge}",
-        "icon": "ink"
-      }
-    }
-  },
-  "components": {
-    "ArenaButton": {
-      "root": {
-        "family": "emphasis",
-        "options": [
-          "primary",
-          "secondary",
-          "ghost"
-        ],
-        "states": "base",
-        "variants": [
-          "destructive"
-        ]
-      }
-    },
-    "ArenaSplitButton": {
-      "primary": {
-        "family": "emphasis",
-        "options": [
-          "primary",
-          "secondary",
-          "ghost"
-        ],
-        "states": "base",
-        "variants": [
-          "destructive"
-        ]
-      },
-      "caret": {
-        "family": "emphasis",
-        "options": [
-          "primary",
-          "secondary",
-          "ghost"
-        ],
-        "states": "base",
-        "variants": [
-          "destructive"
-        ]
-      }
-    },
-    "ArenaFileInput": {
-      "trigger": {
-        "family": "emphasis",
-        "options": [
-          "secondary",
-          "ghost"
-        ],
-        "states": [
-          "rest",
-          "hover",
-          "pressed"
-        ]
-      }
-    },
-    "ArenaIconButton": {
-      "root": {
-        "family": "emphasis",
-        "options": [
-          "ghost",
-          "solid"
-        ],
-        "states": "selectable",
-        "edgeChannel": "--arena-emphasis-icon-edge",
-        "own": {
-          "edge": {
-            "ghost": "{emphasis-ghost-icon-edge}",
-            "solid": "transparent",
-            "decision": "D21"
-          }
-        }
-      }
-    },
-    "ArenaCopyButton": {
-      "root": {
-        "draws": "ArenaIconButton.root",
-        "states": "base"
-      }
-    }
-  },
   "exceptions": {
-    "emphasis-secondary-root-fill-hover": {
+    "actions-secondary-root-fill-hover": {
       "default": "{emphasis-secondary-fill-hover}",
       "decision": "D19"
     },
-    "emphasis-ghost-root-fill-hover": {
+    "actions-ghost-root-fill-hover": {
       "default": "{emphasis-ghost-fill-hover}",
       "decision": "D19"
     },
-    "button-destructive-root-fill-hover": {
-      "default": "{fill-hover}",
-      "decision": "R6"
-    },
-    "split-button-destructive-primary-fill-hover": {
-      "default": "{fill-hover}",
-      "decision": "R6"
-    },
-    "split-button-destructive-caret-fill-hover": {
+    "actions-destructive-root-fill-hover": {
       "default": "{fill-hover}",
       "decision": "R6"
     }
@@ -281,14 +126,59 @@
             "edge",
             "icon"
           ],
-          "options": [
-            "primary",
-            "secondary",
-            "ghost",
-            "solid",
-            "destructive"
-          ],
-          "states": "per-option"
+          "channel": "--arena-emphasis-{property}",
+          "options": {
+            "primary": {
+              "states": "base",
+              "rest": {
+                "fill": "{emphasis-primary-fill}",
+                "ink": "{emphasis-primary-ink}",
+                "edge": "{emphasis-primary-edge}",
+                "icon": "ink"
+              }
+            },
+            "secondary": {
+              "states": "base",
+              "rest": {
+                "fill": "{emphasis-secondary-fill}",
+                "ink": "{emphasis-secondary-ink}",
+                "edge": "{emphasis-secondary-edge}",
+                "icon": "ink"
+              }
+            },
+            "ghost": {
+              "states": "selectable",
+              "rest": {
+                "fill": "transparent",
+                "ink": {
+                  "role": "{emphasis-ghost-ink}",
+                  "level": "level-ink-body"
+                },
+                "edge": "transparent",
+                "icon": "ink"
+              }
+            },
+            "solid": {
+              "states": "selectable",
+              "rest": {
+                "fill": "{emphasis-solid-fill}",
+                "ink": "{emphasis-solid-ink}",
+                "edge": "transparent",
+                "icon": "ink"
+              }
+            },
+            "destructive": {
+              "states": "base",
+              "channel": null,
+              "rest": {
+                "fill": "{hue-danger-fill-strong}",
+                "ink": "{hue-danger-ink}",
+                "edge": "{hue-danger-edge}",
+                "icon": "ink"
+              },
+              "decision": "R6"
+            }
+          }
         },
         "dismiss": {
           "properties": [
@@ -1159,7 +1049,16 @@
     "ArenaButton": {
       "group": "actions",
       "parts": {
-        "root": "actions.root",
+        "root": {
+          "to": "actions.root",
+          "options": [
+            "primary",
+            "secondary",
+            "ghost",
+            "destructive"
+          ],
+          "states": "base"
+        },
         "spinner": null
       }
     },
@@ -1333,7 +1232,18 @@
         "label": "text.muted",
         "required": "fields.required",
         "zone": "fields.field",
-        "trigger": "actions.root",
+        "trigger": {
+          "to": "actions.root",
+          "options": [
+            "secondary",
+            "ghost"
+          ],
+          "states": [
+            "rest",
+            "hover",
+            "pressed"
+          ]
+        },
         "prompt": "text.muted",
         "size": "text.muted",
         "rejection": "fields.error",
@@ -1399,7 +1309,21 @@
     "ArenaIconButton": {
       "group": "actions",
       "parts": {
-        "root": "actions.root"
+        "root": {
+          "to": "actions.root",
+          "options": [
+            "ghost",
+            "solid"
+          ],
+          "states": "selectable",
+          "channels": {
+            "edge": "--arena-emphasis-icon-edge"
+          },
+          "defaults": {
+            "actions-ghost-root-edge-rest": "{emphasis-ghost-icon-edge}"
+          },
+          "decision": "D21"
+        }
       }
     },
     "ArenaInput": {
@@ -1704,8 +1628,26 @@
     "ArenaSplitButton": {
       "group": "actions",
       "parts": {
-        "primary": "actions.root",
-        "caret": "actions.root",
+        "primary": {
+          "to": "actions.root",
+          "options": [
+            "primary",
+            "secondary",
+            "ghost",
+            "destructive"
+          ],
+          "states": "base"
+        },
+        "caret": {
+          "to": "actions.root",
+          "options": [
+            "primary",
+            "secondary",
+            "ghost",
+            "destructive"
+          ],
+          "states": "base"
+        },
         "spinner": null
       }
     },

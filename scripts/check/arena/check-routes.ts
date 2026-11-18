@@ -389,11 +389,10 @@ export const ROUTES: Route[] = [
       + 'and the shape a token is authored in',
     entry: 'contributor',
     stops: ['contracts/AGENTS.md', 'contracts/design/AGENTS.md', 'contracts/design/TokenTypes.md'],
-    budget: 74_300,
+    budget: 75_600,
     reason:
       'the normative half of the tree, where a stop is read for what a value means rather than for '
-      + 'how to write one, so it is bounded by what a person can hold rather than by what an agent '
-      + 'can afford. The level answers two readers: a contributor deciding a value, and a platform '
+      + 'how to write one, so it is bounded by what a person can hold. The level answers two readers: a contributor deciding a value, and a platform '
       + 'target that reads contracts/design/ first and is not a browser. So TokenTypes.md states the '
       + 'one departure from DTCG and why, the axis larger text moves and what it obliges on each '
       + 'platform, and the shapes that read one way on the web and another elsewhere. The specification '
@@ -403,7 +402,7 @@ export const ROUTES: Route[] = [
       + 'may default to and the half spacing step. The ramp paragraph states how a chart counts a '
       + 'positional slot. It names the glyph component. The design level states the contrast floors as '
       + 'measured over the catalogue, the role metadata keys a role declares, which chart numbers and '
-      + 'two widths follow the reader\'s text size, and the group map that holds every coloured part.',
+      + 'two widths follow the reader\'s text size, and the group map, its member parts and their member defaults.',
   },
   {
     name: 'contributor-gate',

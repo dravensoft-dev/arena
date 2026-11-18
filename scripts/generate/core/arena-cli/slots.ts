@@ -1,7 +1,8 @@
-/* The colour slot catalogue: the tier above the roles. A slot is one coloured part of one
- * component, per property and state, and a plugin answers it with a role its accepts set names.
- * MeasuredSlots is what a contrast measurement reads, the slots and the rings, and all that
- * runtime data ships. The command ships this file, so it imports nothing outside this directory. */
+/* The colour slot catalogue: the tier above the roles. A slot is one coloured part of one group
+ * of components, per option, property and state, and a plugin answers it with a role its accepts
+ * set names. A member default replaces the group default at the end of that member's chain, and a
+ * state deriving the same colour from it reads the member's chain (R5). MeasuredSlots is what a
+ * contrast measurement reads. The command ships this file, so it imports nothing outside it. */
 
 export const SLOT_PROPERTIES = ['fill', 'ink', 'edge', 'icon'] as const;
 export const SLOT_STATES = ['rest', 'hover', 'pressed', 'selected', 'selected-hover', 'selected-pressed', 'disabled', 'selected-disabled'] as const;
@@ -10,10 +11,8 @@ export type SlotProperty = (typeof SLOT_PROPERTIES)[number];
 export type SlotState = (typeof SLOT_STATES)[number];
 
 export type ColorSlot = {
-  scope: 'family' | 'component';
-  family?: string;
-  component?: string;
-  option: string;
+  group: string;
+  option?: string;
   part: string;
   property: SlotProperty;
   state: SlotState;
@@ -24,29 +23,36 @@ export type ColorSlot = {
   derive?: { from: string; mix?: 'mix-hover' | 'mix-pressed' };
   level?: string;
   optional?: true;
-  draws?: string;
+};
+
+export type MemberPart = {
+  to: string;
+  options: string[];
+  states: SlotState[];
+  channels?: Partial<Record<SlotProperty, string>>;
+  defaults?: Record<string, string>;
 };
 
 export type SlotCatalogue = {
   accepts: Record<SlotProperty, string[]>;
   refused: string[];
   states: string[];
-  families: Record<string, { parts: string[] }>;
+  groups: Record<string, { parts: string[] }>;
+  members: Record<string, MemberPart>;
   rings: Record<string, string>;
   slots: Record<string, ColorSlot>;
 };
 
-export type MeasuredSlots = Pick<SlotCatalogue, 'rings' | 'slots'>;
+export type MeasuredSlots = Pick<SlotCatalogue, 'rings' | 'slots'> & Partial<Pick<SlotCatalogue, 'members'>>;
 
-export const measuredSlots = (catalogue: SlotCatalogue): MeasuredSlots => ({ rings: catalogue.rings, slots: catalogue.slots });
+export const measuredSlots = (catalogue: SlotCatalogue): MeasuredSlots => ({ rings: catalogue.rings, slots: catalogue.slots, members: catalogue.members });
 
-export function slotStem(component: string): string {
-  return component.replace(/^Arena/, '').replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
-}
+type Named = Pick<ColorSlot, 'group' | 'option' | 'part'>;
 
-export function expectedName(slot: ColorSlot): string {
-  const owner = slot.scope === 'family' ? slot.family : slotStem(slot.component ?? '');
-  return [owner, slot.option, slot.part, slot.property, slot.state].join('-');
+const stemOf = (slot: Named) => [slot.group, ...(slot.option === undefined ? [] : [slot.option]), slot.part].join('-');
+
+export function expectedName(slot: Named & Pick<ColorSlot, 'property' | 'state'>): string {
+  return `${stemOf(slot)}-${slot.property}-${slot.state}`;
 }
 
 export const glob = (pattern: string) =>
@@ -83,8 +89,7 @@ export function fadeMarkers(answered: Iterable<string>, catalogue: SlotCatalogue
   for (const name of answered) {
     const slot = catalogue.slots[name];
     if (!slot || (slot.state !== 'disabled' && slot.state !== 'selected-disabled')) continue;
-    const owner = slot.scope === 'family' ? slot.family : slotStem(slot.component ?? '');
-    markers.add(`--${owner}-${slot.option}-${slot.part}-fade-${slot.state}`);
+    markers.add(`--${stemOf(slot)}-fade-${slot.state}`);
   }
   return [...markers].map((name) => [name, '1']);
 }
@@ -92,79 +97,88 @@ export function fadeMarkers(answered: Iterable<string>, catalogue: SlotCatalogue
 export const colourNamesOf = (roles: Record<string, unknown>, key: 'type' | '$type'): Set<string> =>
   new Set(Object.entries(roles).filter(([, role]) => (role as Record<string, unknown> | null)?.[key] === 'color').map(([name]) => name));
 
-const ownerOf = (slot: ColorSlot) => (slot.scope === 'family' ? `f:${slot.family}` : `c:${slot.component}`);
+const REF = /^\{([a-z][a-z0-9-]*)\}$/;
 
 export function followsInk(catalogue: MeasuredSlots, slot: ColorSlot): boolean {
-  const ref = /^\{([a-z][a-z0-9-]*)\}$/.exec((slot.default ?? '').trim())?.[1];
+  const ref = REF.exec((slot.default ?? '').trim())?.[1];
   const target = ref === undefined ? undefined : catalogue.slots[ref];
-  return slot.property === 'icon' && slot.level === undefined && target !== undefined && target.property === 'ink' && target.channel !== undefined && ownerOf(target) === ownerOf(slot);
+  return slot.property === 'icon' && slot.level === undefined && target !== undefined && target.property === 'ink' && target.channel !== undefined && target.group === slot.group;
 }
+
+type Member = MemberPart | undefined;
 
 export function slotChain(catalogue: SlotCatalogue, name: string): string {
-  const slot = catalogue.slots[name] as ColorSlot;
-  return `var(--${name},${fall(catalogue, name, slot)})`;
+  return chain(catalogue, undefined, name);
 }
 
-function read(catalogue: SlotCatalogue, name: string): string {
-  const slot = catalogue.slots[name] as ColorSlot;
-  return slot.channel ? `var(${slot.channel})` : channelValue(catalogue, name, 'tailwind');
+export function memberChain(catalogue: SlotCatalogue, member: string, name: string): string {
+  const m = catalogue.members[member];
+  if (!m) throw new Error(`${name}: ${member} is no member part of the catalogue`);
+  return chain(catalogue, m, name);
 }
 
-function inkOf(catalogue: SlotCatalogue, from: ColorSlot, built: string): string {
-  const ink = Object.entries(catalogue.slots).find(([, s]) => ownerOf(s) === ownerOf(from) && s.option === from.option
-    && s.part === from.part && s.property === 'ink' && s.state === from.state);
-  if (!ink) throw new Error(`${built}: ${expectedName(from)} has no ink slot of the same scope, option, part and state to mix toward`);
-  return read(catalogue, ink[0]);
+export function memberValue(catalogue: SlotCatalogue, member: string, name: string, form: 'tailwind' | 'css'): string {
+  return levelled(catalogue, name, memberChain(catalogue, member, name), form);
 }
 
-function fall(catalogue: SlotCatalogue, name: string, slot: ColorSlot): string {
-  if (slot.derive) {
+export function memberChannel(m: Member, slot: ColorSlot): string | undefined {
+  const own = m?.channels?.[slot.property];
+  if (slot.channel === undefined || own === undefined) return slot.channel;
+  return own + (slot.state === 'rest' ? '' : `-${slot.state}`);
+}
+
+export const restOf = (slot: ColorSlot) => expectedName({ ...slot, state: slot.state === 'selected-disabled' ? 'selected' : 'rest' });
+
+export function touched(catalogue: MeasuredSlots, m: Member, name: string): boolean {
+  if (m?.defaults === undefined) return false;
+  if (Object.hasOwn(m.defaults, name)) return true;
+  const slot = catalogue.slots[name];
+  if (!slot) return false;
+  if (slot.derive) return slot.derive.mix === undefined && touched(catalogue, m, slot.derive.from);
+  return slot.optional === true && slot.default === undefined && touched(catalogue, m, restOf(slot));
+}
+
+function chain(catalogue: SlotCatalogue, m: Member, name: string): string {
+  return `var(--${name},${fall(catalogue, m, name, catalogue.slots[name] as ColorSlot)})`;
+}
+
+function read(catalogue: SlotCatalogue, m: Member, name: string): string {
+  if (touched(catalogue, m, name)) return chain(catalogue, m, name);
+  const channel = memberChannel(m, catalogue.slots[name] as ColorSlot);
+  return channel ? `var(${channel})` : levelled(catalogue, name, chain(catalogue, m, name), 'tailwind');
+}
+
+function inkOf(catalogue: SlotCatalogue, m: Member, from: ColorSlot, built: string): string {
+  const ink = expectedName({ ...from, property: 'ink' });
+  if (!catalogue.slots[ink]) throw new Error(`${built}: ${expectedName(from)} has no ink slot of the same group, option, part and state to mix toward`);
+  return read(catalogue, m, ink);
+}
+
+function fall(catalogue: SlotCatalogue, m: Member, name: string, slot: ColorSlot): string {
+  const own = m?.defaults?.[name];
+  if (slot.derive && own === undefined) {
+    const base = read(catalogue, m, slot.derive.from);
     const from = catalogue.slots[slot.derive.from] as ColorSlot;
-    const base = read(catalogue, slot.derive.from);
-    return slot.derive.mix ? `color-mix(in_oklab,${base},${inkOf(catalogue, from, name)}_calc(var(--${slot.derive.mix})*100%))` : base;
+    return slot.derive.mix ? `color-mix(in_oklab,${base},${inkOf(catalogue, m, from, name)}_calc(var(--${slot.derive.mix})*100%))` : base;
   }
-  if (slot.optional && slot.default === undefined) {
-    const restName = expectedName({ ...slot, state: slot.state === 'selected-disabled' ? 'selected' : 'rest' });
-    return read(catalogue, restName);
-  }
-  const answer = (slot.default ?? '').trim();
+  if (slot.optional && slot.default === undefined && own === undefined) return read(catalogue, m, restOf(slot));
+  const answer = (own ?? slot.default ?? '').trim();
   if (answer === 'transparent') return 'transparent';
-  const ref = /^\{([a-z][a-z0-9-]*)\}$/.exec(answer)?.[1];
-  if (ref === undefined) throw new Error(`${name}: default ${JSON.stringify(slot.default)} is neither transparent nor a {role} or {slot}`);
+  const ref = REF.exec(answer)?.[1];
+  if (ref === undefined) throw new Error(`${name}: default ${JSON.stringify(own ?? slot.default)} is neither transparent nor a {role} or {slot}`);
   const target = catalogue.slots[ref];
   if (!target) return `var(--${ref})`;
-  if (followsInk(catalogue, slot)) return read(catalogue, ref);
-  if (ownerOf(target) === ownerOf(slot)) return slotChain(catalogue, ref);
-  return read(catalogue, ref);
+  if (followsInk(catalogue, slot)) return read(catalogue, m, ref);
+  if (target.group === slot.group) return chain(catalogue, m, ref);
+  return read(catalogue, m, ref);
+}
+
+function levelled(catalogue: SlotCatalogue, name: string, value: string, form: 'tailwind' | 'css'): string {
+  const slot = catalogue.slots[name] as ColorSlot;
+  const wrapped = slot.level && !followsInk(catalogue, slot) ? `color-mix(in_oklab,${value}_var(--${slot.level}),transparent)` : value;
+  return form === 'tailwind' ? wrapped : wrapped.replaceAll('in_oklab', 'in oklab').replaceAll('_', ' ');
 }
 
 export function channelValue(catalogue: SlotCatalogue, name: string, form: 'tailwind' | 'css'): string {
-  const slot = catalogue.slots[name] as ColorSlot;
-  const chain = slotChain(catalogue, name);
-  const value = slot.level && !followsInk(catalogue, slot) ? `color-mix(in_oklab,${chain}_var(--${slot.level}),transparent)` : chain;
-  return form === 'tailwind' ? value : value.replaceAll('in_oklab', 'in oklab').replaceAll('_', ' ');
-}
-
-function balanced(text: string, open: number): number {
-  let depth = 0;
-  for (let at = open; at < text.length; at += 1) {
-    if (text[at] === '(') depth += 1;
-    else if (text[at] === ')' && (depth -= 1) === 0) return at;
-  }
-  return -1;
-}
-
-export function componentValue(familyValue: string, slot: ColorSlot, name: string): string {
-  const target = /^\{([a-z][a-z0-9-]*)\}$/.exec((slot.default ?? '').trim())?.[1];
-  const needle = target === undefined ? '' : `var(--${target},`;
-  if (needle === '' || !familyValue.includes(needle)) return `var(--${name},${familyValue})`;
-  let out = '';
-  for (let from = 0; ;) {
-    const at = familyValue.indexOf(needle, from);
-    if (at < 0) return out + familyValue.slice(from);
-    const end = balanced(familyValue, at + 3);
-    if (end < 0) throw new Error(`${name}: the family value ${familyValue} has an unbalanced read of --${target}`);
-    out += `${familyValue.slice(from, at)}var(--${name},${familyValue.slice(at, end + 1)})`;
-    from = end + 1;
-  }
+  return levelled(catalogue, name, slotChain(catalogue, name), form);
 }

@@ -1709,13 +1709,13 @@ test('a plugin that leaves edge-focus to the kernel is measured with the value t
 
 test('a slot answer is emitted as a role var in both polarities', () => {
   const catalogue = tokenCatalogue();
-  const plugin = readPlugin('p', { 'button-primary-root-fill-rest': { $value: '{fill-surface}' } });
+  const plugin = readPlugin('p', { 'actions-primary-root-fill-rest': { $value: '{fill-surface}' } });
   for (const polarity of ['dark', 'light']) {
-    assert.deepEqual(pluginBlocks(plugin, catalogue, polarity), ['--button-primary-root-fill-rest:var(--fill-surface);'], polarity);
-    assert.deepEqual(restatedBy(plugin, catalogue, polarity), ['--button-primary-root-fill-rest:var(--fill-surface);'], polarity);
+    assert.deepEqual(pluginBlocks(plugin, catalogue, polarity), ['--actions-primary-root-fill-rest:var(--fill-surface);'], polarity);
+    assert.deepEqual(restatedBy(plugin, catalogue, polarity), ['--actions-primary-root-fill-rest:var(--fill-surface);'], polarity);
   }
-  assert.deepEqual(pluginTokenProblems('p', { 'button-primary-root-fill-rest': '{fill-surface}' }, catalogue), []);
-  assert.equal(pluginTokenProblems('p', { 'button-primary-root-fill-rest': '{ink-body}' }, catalogue).length, 1);
+  assert.deepEqual(pluginTokenProblems('p', { 'actions-primary-root-fill-rest': '{fill-surface}' }, catalogue), []);
+  assert.equal(pluginTokenProblems('p', { 'actions-primary-root-fill-rest': '{ink-body}' }, catalogue).length, 1);
   assert.deepEqual(pluginBlocks(readPlugin('p', { 'fill-surface': { $value: '{fill-raised}' } }), catalogue, 'dark')
     .filter((line) => /--(button|emphasis-[a-z]+-root)-/.test(line)), [],
   'a plugin answering no slot emits none');
@@ -1725,22 +1725,22 @@ test('a disabled answer writes the part\'s fade marker', () => {
   const catalogue = tokenCatalogue();
   const blocks = (answers: Record<string, string>) =>
     pluginBlocks(readPlugin('p', Object.fromEntries(Object.entries(answers).map(([k, v]) => [k, { $value: v }]))), catalogue, 'dark');
-  const ink = blocks({ 'button-primary-root-ink-disabled': '{ink-muted}' });
-  assert.equal(ink.filter((line) => line === '--button-primary-root-fade-disabled:1;').length, 1, ink.join('\n'));
-  const two = blocks({ 'button-primary-root-ink-disabled': '{ink-muted}', 'button-primary-root-fill-disabled': '{fill-surface}' });
+  const ink = blocks({ 'actions-primary-root-ink-disabled': '{ink-muted}' });
+  assert.equal(ink.filter((line) => line === '--actions-primary-root-fade-disabled:1;').length, 1, ink.join('\n'));
+  const two = blocks({ 'actions-primary-root-ink-disabled': '{ink-muted}', 'actions-primary-root-fill-disabled': '{fill-surface}' });
   assert.equal(two.filter((line) => /fade-disabled/.test(line)).length, 1, 'one marker per part');
-  assert.ok(blocks({ 'emphasis-ghost-root-fill-disabled': 'transparent' }).includes('--emphasis-ghost-root-fade-disabled:1;'));
-  assert.deepEqual(blocks({ 'button-primary-root-ink-rest': '{ink-muted}' }).filter((line) => /fade/.test(line)), []);
+  assert.ok(blocks({ 'actions-ghost-root-fill-disabled': 'transparent' }).includes('--actions-ghost-root-fade-disabled:1;'));
+  assert.deepEqual(blocks({ 'actions-primary-root-ink-rest': '{ink-muted}' }).filter((line) => /fade/.test(line)), []);
 });
 
 test('an adopter\'s pressed pair below AA is a warning', () => {
   const catalogue = tokenCatalogue();
-  const plugin = readPlugin('mine', { 'button-primary-root-fill-pressed': { $type: 'color', $value: '{fill-confirm-final}' } });
+  const plugin = readPlugin('mine', { 'actions-primary-root-fill-pressed': { $type: 'color', $value: '{fill-confirm-final}' } });
   assert.deepEqual(pluginTokenProblems('mine', plugin.tokens, catalogue), []);
   const key = /--color-([\w-]+)/.exec(rolesFor(null, catalogue, 'dark').get('fill-confirm-final') ?? '')?.[1] as string;
   const palette = { name: 'night', default: true, polarity: 'dark', colors: colors({ [key]: '#8a8a8a', 'primary-content': '#ffffff', 'base-content': '#f3ede5', 'base-100': '#141010' }) };
   const [found] = paletteReports(config({ palettes: [palette] }), catalogue, [plugin]);
-  const slots = (found?.messages ?? []).filter((one) => one.kind === 'contrast' && one.message.startsWith('--button-primary-root-'));
+  const slots = (found?.messages ?? []).filter((one) => one.kind === 'contrast' && one.message.startsWith('--actions-primary-root-'));
   assert.equal(slots.length, 1, JSON.stringify(slots));
-  assert.match(slots[0]?.message ?? '', /^--button-primary-root-ink-pressed measures 3\.\d\d:1 over --button-primary-root-fill-pressed in the pressed state of the dark theme/);
+  assert.match(slots[0]?.message ?? '', /^--actions-primary-root-ink-pressed measures 3\.\d\d:1 over --actions-primary-root-fill-pressed in the pressed state of the dark theme/);
 });

@@ -1,8 +1,12 @@
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
-import { collect, mapProblems, declarationProblems, exceptionProblems, shapeProblems, nameProblems, acceptsProblems, defaultProblems, fallbackProblems, pairProblems, manifestProblems, ringProblems, readProblems, colourRoleSet, slotManifests } from './check-color-slots.ts';
-import { readColorSlots, readSlotDeclarations } from '../../lib/core/color-slots.ts';
+import { join } from 'node:path';
+import { collect, mapProblems, declarationProblems, exceptionProblems, shapeProblems, nameProblems, acceptsProblems, defaultProblems, fallbackProblems, pairProblems, manifestProblems, ringProblems, readProblems, familyProblems, colourRoleSet, slotManifests, EMPHASIS_FAMILY } from './check-color-slots.ts';
+import { deriveSlots, readColorSlots, readSlotDeclarations } from '../../lib/core/color-slots.ts';
+import type { GroupOption, MemberDecl, SlotDeclarations } from '../../lib/core/color-slots.ts';
+import { readJson } from '../../utils/read-file.ts';
+import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { colouredParts } from '../../lib/core/color-slot-map.ts';
 import type { SlotCatalogue } from '../../generate/core/arena-cli/slots.ts';
 
@@ -21,17 +25,18 @@ test('no hue or accent family slot is derived', () => {
 });
 
 test('a slot whose name disagrees with its fields is refused', () => {
-  const c = edit((x) => { x.slots['button-primary-root-fill-rest']!.state = 'hover'; });
+  const c = edit((x) => { x.slots['actions-primary-root-fill-rest']!.state = 'hover'; });
   const lines = nameProblems(c);
   assert.equal(lines.length, 1);
-  assert.match(lines[0] ?? '', /button-primary-root-fill-rest/);
+  assert.match(lines[0] ?? '', /actions-primary-root-fill-rest/);
 });
 
 test('a key or a value outside the vocabulary is refused', () => {
-  assert.ok(shapeProblems(edit((x) => { (x.slots['button-primary-root-fill-rest'] as any).colour = 'x'; })).length > 0);
+  assert.ok(shapeProblems(edit((x) => { (x.slots['actions-primary-root-fill-rest'] as any).colour = 'x'; })).length > 0);
   assert.ok(shapeProblems(edit((x) => { (x as any).extra = 1; })).length > 0);
-  assert.ok(shapeProblems(edit((x) => { (x.slots['button-primary-root-fill-rest'] as any).state = 'active'; })).length > 0);
-  assert.ok(shapeProblems(edit((x) => { x.slots['emphasis-primary-root-fill-rest']!.part = 'quiet'; })).length > 0);
+  assert.ok(shapeProblems(edit((x) => { (x.slots['actions-primary-root-fill-rest'] as any).state = 'active'; })).length > 0);
+  assert.ok(shapeProblems(edit((x) => { x.slots['actions-primary-root-fill-rest']!.part = 'quiet'; })).length > 0);
+  assert.ok(shapeProblems(edit((x) => { x.slots['actions-primary-root-fill-rest']!.group = 'loud'; })).some((l) => /group "loud" is not declared/.test(l)));
 });
 
 test('a fill slot accepting an ink role is refused', () => {
@@ -45,104 +50,91 @@ test('an accepts pattern matching no colour role is refused', () => {
 });
 
 test('a pressed slot carrying both a default and a derive is refused', () => {
-  const c = edit((x) => { x.slots['emphasis-primary-root-fill-pressed']!.default = '{fill-hover}'; });
+  const c = edit((x) => { x.slots['actions-primary-root-fill-pressed']!.default = '{fill-hover}'; });
   const lines = defaultProblems(c, roles);
   assert.equal(lines.length, 1);
-  assert.match(lines[0] ?? '', /emphasis-primary-root-fill-pressed/);
+  assert.match(lines[0] ?? '', /actions-primary-root-fill-pressed/);
 });
 
 test('a default that is no accepted role, no slot and no transparent is refused', () => {
-  assert.equal(defaultProblems(edit((x) => { x.slots['emphasis-primary-root-fill-rest']!.default = '{ink-body}'; }), roles).length, 1);
-  assert.equal(defaultProblems(edit((x) => { x.slots['emphasis-primary-root-fill-rest']!.default = '#fff'; }), roles).length, 1);
-  assert.equal(defaultProblems(edit((x) => { x.slots['emphasis-primary-root-ink-rest']!.default = 'transparent'; }), roles).length, 1);
+  assert.equal(defaultProblems(edit((x) => { x.slots['actions-primary-root-fill-rest']!.default = '{ink-body}'; }), roles).length, 1);
+  assert.equal(defaultProblems(edit((x) => { x.slots['actions-primary-root-fill-rest']!.default = '#fff'; }), roles).length, 1);
+  assert.equal(defaultProblems(edit((x) => { x.slots['actions-primary-root-ink-rest']!.default = 'transparent'; }), roles).length, 1);
 });
 
 test('a derive names its own rest slot, optional sits on disabled and mix on a fill', () => {
-  assert.equal(defaultProblems(edit((x) => { x.slots['emphasis-primary-root-ink-hover']!.derive = { from: 'emphasis-primary-root-ink-pressed' }; }), roles).length, 1);
-  assert.equal(defaultProblems(edit((x) => { x.slots['emphasis-primary-root-ink-hover']!.derive = { from: 'emphasis-primary-root-ink-rest', mix: 'mix-hover' }; }), roles).length, 1);
-  assert.equal(defaultProblems(edit((x) => { delete x.slots['emphasis-primary-root-fill-rest']!.default; }), roles).length, 1);
+  assert.equal(defaultProblems(edit((x) => { x.slots['actions-primary-root-ink-hover']!.derive = { from: 'actions-primary-root-ink-pressed' }; }), roles).length, 1);
+  assert.equal(defaultProblems(edit((x) => { x.slots['actions-primary-root-ink-hover']!.derive = { from: 'actions-primary-root-ink-rest', mix: 'mix-hover' }; }), roles).length, 1);
+  assert.equal(defaultProblems(edit((x) => { delete x.slots['actions-primary-root-fill-rest']!.default; }), roles).length, 1);
 });
 
 test('a chain that returns to itself is refused', () => {
   const c = edit((x) => {
-    x.slots['emphasis-ghost-root-icon-rest']!.default = '{emphasis-ghost-root-ink-rest}';
-    x.slots['emphasis-ghost-root-ink-rest']!.default = '{emphasis-ghost-root-icon-rest}';
+    x.slots['actions-ghost-root-icon-rest']!.default = '{actions-ghost-root-ink-rest}';
+    x.slots['actions-ghost-root-ink-rest']!.default = '{actions-ghost-root-icon-rest}';
   });
   assert.ok(defaultProblems(c, roles).some((l) => /cycle/.test(l)));
 });
 
-test('a component slot must fall to its family slot', () => {
-  const c = edit((x) => { x.slots['button-primary-root-fill-rest']!.default = '{emphasis-primary-fill}'; });
-  const lines = fallbackProblems(c);
-  assert.equal(lines.length, 1);
-  assert.match(lines[0] ?? '', /emphasis-primary-root-fill-rest/);
-});
-
-test('copy button falls to icon button, and icon button edges to their role', () => {
+test('a group slot falls to a role, never to another slot, and the destructive hover fill is the R6 exception', () => {
+  const lines = fallbackProblems(edit((x) => { x.slots['actions-destructive-root-fill-rest']!.default = '{actions-primary-root-fill-rest}'; }));
+  assert.deepEqual(lines, ['actions-destructive-root-fill-rest: a group slot falls to a role, and {actions-primary-root-fill-rest} is a slot']);
   const c = shipped();
-  assert.equal(c.slots['copy-button-ghost-root-fill-rest']!.default, '{icon-button-ghost-root-fill-rest}');
-  assert.equal(c.slots['icon-button-ghost-root-edge-rest']!.default, '{emphasis-ghost-icon-edge}');
+  assert.equal(c.slots['actions-destructive-root-fill-hover']!.default, '{fill-hover}');
+  assert.equal(c.slots['actions-destructive-root-fill-hover']!.derive, undefined);
+  assert.equal(c.slots['actions-ghost-root-edge-rest']!.default, 'transparent', 'the IconButton edge is a member default, never the group default');
   assert.deepEqual(fallbackProblems(c), []);
 });
 
-test('a destructive slot falls to a role, and its hover fill to fill-hover', () => {
-  const role = edit((x) => { x.slots['button-destructive-root-fill-rest']!.default = '{emphasis-primary-root-fill-rest}'; });
-  assert.equal(fallbackProblems(role).length, 1);
-  const hover = edit((x) => { x.slots['button-destructive-root-fill-hover']!.default = '{fill-selected}'; });
-  assert.equal(fallbackProblems(hover).length, 1);
-  assert.deepEqual(fallbackProblems(shipped()), []);
-});
-
 test('an icon slot at rest falls to its own ink and keeps its level', () => {
-  assert.equal(fallbackProblems(edit((x) => { x.slots['emphasis-ghost-root-icon-rest']!.default = '{emphasis-ghost-root-ink-selected}'; })).length, 1);
-  assert.equal(fallbackProblems(edit((x) => { delete x.slots['emphasis-ghost-root-icon-rest']!.level; })).length, 1);
+  assert.equal(fallbackProblems(edit((x) => { x.slots['actions-ghost-root-icon-rest']!.default = '{actions-ghost-root-ink-selected}'; })).length, 1);
+  assert.equal(fallbackProblems(edit((x) => { delete x.slots['actions-ghost-root-icon-rest']!.level; })).length, 1);
 });
 
 test('an ink slot sits on its own fill', () => {
-  const ground = edit((x) => { x.slots['button-primary-root-ink-rest']!.on = 'ground'; });
+  const ground = edit((x) => { x.slots['actions-primary-root-ink-rest']!.on = 'ground'; });
   assert.equal(pairProblems(ground).length, 1);
-  const reader = edit((x) => { x.slots['emphasis-primary-root-ink-rest']!.on = 'reader'; });
-  assert.equal(pairProblems(reader).length, 1);
-  assert.equal(pairProblems(edit((x) => { x.slots['button-primary-root-fill-rest']!.on = 'reader'; })).length, 1);
+  assert.equal(pairProblems(edit((x) => { x.slots['actions-primary-root-fill-rest']!.on = 'reader'; })).length, 1);
   assert.deepEqual(pairProblems(shipped()), []);
 });
 
-test('a focusable slotted part declares its ring', () => {
+test('a focusable member part declares its ring', () => {
   const c = edit((x) => { delete x.rings['ArenaButton.root']; });
   assert.equal(ringProblems(c, manifests).length, 1);
-  assert.equal(ringProblems(edit((x) => { x.rings['ArenaButton.root'] = 'button-primary-root-fill-nothing'; }), manifests).length, 1);
+  assert.equal(ringProblems(edit((x) => { x.rings['ArenaButton.root'] = 'actions-primary-root-fill-nothing'; }), manifests).length, 1);
+  assert.deepEqual(ringProblems(edit((x) => { x.rings['ArenaCopyButton.root'] = 'ground'; }), manifests), ['rings names ArenaCopyButton.root, which is no focusable member part of a group']);
 });
 
 test('a ring that names a fill is measured over each of its states, and a disabled fill is no ground', () => {
-  assert.deepEqual(ringProblems(edit((x) => { x.rings['ArenaButton.root'] = 'button-primary-root-fill-rest'; }), manifests), []);
-  const disabled = ringProblems(edit((x) => { x.rings['ArenaButton.root'] = 'button-primary-root-fill-disabled'; }), manifests);
+  assert.deepEqual(ringProblems(edit((x) => { x.rings['ArenaButton.root'] = 'actions-primary-root-fill-rest'; }), manifests), []);
+  const disabled = ringProblems(edit((x) => { x.rings['ArenaButton.root'] = 'actions-primary-root-fill-disabled'; }), manifests);
   assert.equal(disabled.length, 1);
-  assert.match(disabled[0] ?? '', /rings\.ArenaButton\.root is button-primary-root-fill-disabled, a fill the focus ring is never measured over/);
+  assert.match(disabled[0] ?? '', /rings\.ArenaButton\.root is actions-primary-root-fill-disabled, a fill the focus ring is never measured over/);
 });
 
-test('a slot on a part or option its manifest lacks is refused', () => {
-  const c = edit((x) => { x.slots['button-primary-root-fill-rest']!.option = 'solid'; });
-  assert.ok(manifestProblems(c, manifests).some((l) => /solid/.test(l)));
-  const gone = edit((x) => { for (const k of Object.keys(x.slots)) if (k.startsWith('split-button-') && k.includes('-caret-')) delete x.slots[k]; });
-  assert.ok(manifestProblems(gone, manifests).some((l) => /caret/.test(l)));
+test('a member part on an option its manifest lacks, or a part its manifest lacks, is refused', () => {
+  const c = edit((x) => { x.members['ArenaButton.root']!.options.push('solid'); });
+  assert.ok(manifestProblems(c, manifests).some((l) => /members\.ArenaButton\.root: ArenaButton answers no emphasis solid/.test(l)));
+  const gone = edit((x) => { delete x.members['ArenaSplitButton.caret']; });
+  assert.ok(manifestProblems(gone, manifests).some((l) => /ArenaSplitButton\.caret reads an --arena-emphasis-\* channel and is no member part/.test(l)));
+  const missing = edit((x) => { x.members['ArenaButton.label'] = { ...x.members['ArenaButton.root']! }; });
+  assert.ok(manifestProblems(missing, manifests).some((l) => /members\.ArenaButton\.label: ArenaButton has no slot label/.test(l)));
 });
 
 test('the contract counts', () => {
   const slots = Object.values(shipped().slots);
-  assert.equal(slots.length, 396);
+  assert.equal(slots.length, 112);
   const by = (key: (s: (typeof slots)[number]) => string) => {
     const n: Record<string, number> = {};
     for (const s of slots) n[key(s)] = (n[key(s)] ?? 0) + 1;
     return n;
   };
-  assert.deepEqual(by((s) => s.component ?? s.family ?? ''), {
-    ArenaButton: 64, ArenaCopyButton: 32, ArenaFileInput: 24, ArenaIconButton: 64, ArenaSplitButton: 128,
-    emphasis: 84,
-  });
-  assert.deepEqual(by((s) => s.state), { rest: 87, disabled: 79, hover: 87, pressed: 87, selected: 14, 'selected-hover': 14, 'selected-pressed': 14, 'selected-disabled': 14 });
-  assert.equal(slots.filter((s) => s.optional).length, 93);
-  assert.equal(slots.filter((s) => s.derive?.mix === 'mix-pressed').length, 9);
+  assert.deepEqual(by((s) => s.option ?? ''), { primary: 16, secondary: 16, ghost: 32, solid: 32, destructive: 16 });
+  assert.deepEqual(by((s) => s.state), { rest: 20, disabled: 20, hover: 20, pressed: 20, selected: 8, 'selected-hover': 8, 'selected-pressed': 8, 'selected-disabled': 8 });
+  assert.equal(slots.filter((s) => s.optional).length, 28);
+  assert.equal(slots.filter((s) => s.derive?.mix === 'mix-pressed').length, 7);
   assert.equal(slots.filter((s) => s.derive?.mix === 'mix-hover').length, 2);
+  assert.equal(slots.filter((s) => s.channel === undefined).length, 16, 'the destructive option carries no channel (R6)');
 });
 
 test('every slot of the five buttons reaches its part under its state', () => {
@@ -158,14 +150,25 @@ test('every slot of the five buttons reaches its part under its state', () => {
   assert.match(lines[0] ?? '', /ArenaButton\.root.*--arena-emphasis-fill-pressed.*active:/);
 });
 
-test('a family slot no part reads is refused', () => {
-  const c = edit((x) => { x.slots['emphasis-primary-root-fill-rest']!.channel = '--arena-emphasis-fill-nobody'; });
-  assert.ok(readProblems(c, manifests).some((line) => /emphasis-primary-root-fill-rest.*--arena-emphasis-fill-nobody/.test(line)));
+test('a destructive slot is read as its full chain, and the IconButton edge through its member channel', () => {
+  const lost = structuredClone(manifests) as Map<string, any>;
+  const button = lost.get('ArenaButton').variants.destructive.true;
+  button.root = button.root.replace('var(--actions-destructive-root-fill-rest,var(--hue-danger-fill-strong))', 'var(--hue-danger-fill-strong)');
+  assert.ok(readProblems(shipped(), lost).some((l) => /^ArenaButton\.root does not read its full chain under no variant: actions-destructive-root-fill-rest/.test(l)));
+  const icon = structuredClone(manifests) as Map<string, any>;
+  const slot = icon.get('ArenaIconButton').slots;
+  slot.root = slot.root.replace('border-[color:var(--arena-emphasis-icon-edge)]', 'border-[color:var(--arena-emphasis-edge)]');
+  assert.ok(readProblems(shipped(), icon).some((l) => /^ArenaIconButton\.root does not read --arena-emphasis-icon-edge under no variant: actions-ghost-root-edge-rest, actions-solid-root-edge-rest/.test(l)));
+});
+
+test('a group slot no member part reads is refused', () => {
+  const c = edit((x) => { x.members['ArenaIconButton.root']!.options = ['ghost']; });
+  assert.ok(readProblems(c, manifests).some((line) => line === 'actions-solid-root-fill-rest: no member part reads it'));
 });
 
 test('a selected disabled slot is optional, falls to selected, and is read under disabled: in the pressed branch', () => {
   const c = shipped();
-  assert.equal(c.slots['icon-button-ghost-root-ink-selected-disabled']!.optional, true);
+  assert.equal(c.slots['actions-ghost-root-ink-selected-disabled']!.optional, true);
   const lost = structuredClone(manifests) as Map<string, any>;
   const root = lost.get('ArenaIconButton').variants.pressed.true;
   const read = 'disabled:text-[color:var(--arena-emphasis-ink-selected-disabled)]';
@@ -174,54 +177,67 @@ test('a selected disabled slot is optional, falls to selected, and is read under
   const lines = readProblems(c, lost);
   assert.equal(lines.length, 1);
   assert.match(lines[0] ?? '', /ArenaIconButton\.root.*--arena-emphasis-ink-selected-disabled.*disabled:/);
-  const orphan = edit((x) => { delete x.slots['emphasis-ghost-root-ink-selected']; });
-  assert.ok(shapeProblems(orphan).concat(defaultProblems(orphan, roles)).some((l) => /emphasis-ghost-root-ink-selected-disabled.*falls to emphasis-ghost-root-ink-selected/.test(l)));
+  const orphan = edit((x) => { delete x.slots['actions-ghost-root-ink-selected']; });
+  assert.ok(shapeProblems(orphan).concat(defaultProblems(orphan, roles)).some((l) => /actions-ghost-root-ink-selected-disabled.*falls to actions-ghost-root-ink-selected/.test(l)));
 });
 
 test('an icon slot falls to the ink slot of its own part and state, in every state', () => {
   assert.deepEqual(fallbackProblems(shipped()), []);
   const c = shipped();
-  assert.equal(c.slots['emphasis-ghost-root-icon-hover']!.default, '{emphasis-ghost-root-ink-hover}');
-  assert.equal(c.slots['button-destructive-root-icon-pressed']!.default, '{button-destructive-root-ink-pressed}');
-  assert.equal(c.slots['emphasis-solid-root-icon-selected-pressed']!.default, '{emphasis-solid-root-ink-selected-pressed}');
-  const back = edit((x) => { delete x.slots['emphasis-ghost-root-icon-hover']!.derive; x.slots['emphasis-ghost-root-icon-hover']!.default = '{emphasis-ghost-root-icon-rest}'; });
+  assert.equal(c.slots['actions-ghost-root-icon-hover']!.default, '{actions-ghost-root-ink-hover}');
+  assert.equal(c.slots['actions-destructive-root-icon-pressed']!.default, '{actions-destructive-root-ink-pressed}');
+  assert.equal(c.slots['actions-solid-root-icon-selected-pressed']!.default, '{actions-solid-root-ink-selected-pressed}');
+  const back = edit((x) => { x.slots['actions-ghost-root-icon-hover']!.default = '{actions-ghost-root-icon-rest}'; });
   assert.equal(fallbackProblems(back).length, 1);
 });
 
 test('a disabled and a selected disabled icon slot fall to the ink of their own state, and keep optional', () => {
   const c = shipped();
-  for (const [icon, ink] of [['emphasis-ghost-root-icon-disabled', 'emphasis-ghost-root-ink-disabled'],
-    ['emphasis-ghost-root-icon-selected-disabled', 'emphasis-ghost-root-ink-selected-disabled'],
-    ['button-destructive-root-icon-disabled', 'button-destructive-root-ink-disabled']] as const) {
+  for (const [icon, ink] of [['actions-ghost-root-icon-disabled', 'actions-ghost-root-ink-disabled'],
+    ['actions-ghost-root-icon-selected-disabled', 'actions-ghost-root-ink-selected-disabled'],
+    ['actions-destructive-root-icon-disabled', 'actions-destructive-root-ink-disabled']] as const) {
     assert.equal(c.slots[icon]!.optional, true);
     assert.equal(c.slots[icon]!.default, `{${ink}}`);
   }
-  const rest = edit((x) => { x.slots['emphasis-ghost-root-icon-disabled']!.default = '{emphasis-ghost-root-ink-rest}'; });
-  assert.deepEqual(fallbackProblems(rest), ['emphasis-ghost-root-icon-disabled: it falls to {emphasis-ghost-root-ink-rest} and must fall to emphasis-ghost-root-ink-disabled']);
-  const none = edit((x) => { delete x.slots['emphasis-ghost-root-icon-selected-disabled']!.default; });
-  assert.deepEqual(fallbackProblems(none), ['emphasis-ghost-root-icon-selected-disabled: an icon slot falls to the ink slot of its own part and state, and this one names no default']);
+  const rest = edit((x) => { x.slots['actions-ghost-root-icon-disabled']!.default = '{actions-ghost-root-ink-rest}'; });
+  assert.deepEqual(fallbackProblems(rest), ['actions-ghost-root-icon-disabled: it falls to {actions-ghost-root-ink-rest} and must fall to actions-ghost-root-ink-disabled']);
+  const none = edit((x) => { delete x.slots['actions-ghost-root-icon-selected-disabled']!.default; });
+  assert.deepEqual(fallbackProblems(none), ['actions-ghost-root-icon-selected-disabled: an icon slot falls to the ink slot of its own part and state, and this one names no default']);
 });
 
-test('a slot draws a part that carries slots of its own option, which is the part a channel read in it falls to', () => {
-  assert.deepEqual(manifestProblems(shipped(), manifests), []);
-  const lost = edit((x) => { for (const [name, slot] of Object.entries(x.slots)) if (slot.component === 'ArenaIconButton' && slot.option === 'solid') delete x.slots[name]; });
-  assert.ok(manifestProblems(lost, manifests).some((line) => /^copy-button-solid-root-fill-rest: draws ArenaIconButton\.root, a part with no solid slots of its own/.test(line)));
+test('the Emphasis family writes each actions chain its options carry (R7)', () => {
+  const family = readJson(join(repoRoot, EMPHASIS_FAMILY)) as { variants: Record<string, string> };
+  assert.deepEqual(familyProblems(shipped(), family), []);
+  const stale = structuredClone(family);
+  stale.variants['arena-emphasis-primary'] = stale.variants['arena-emphasis-primary']!.replace('var(--actions-primary-root-fill-rest,', 'var(--emphasis-primary-root-fill-rest,');
+  assert.ok(familyProblems(shipped(), stale).some((l) => /arena-emphasis-primary writes --arena-emphasis-fill as var\(--emphasis-primary-root-fill-rest,.*and the chain of actions-primary-root-fill-rest is/.test(l)));
+  const silent = structuredClone(family);
+  silent.variants['arena-emphasis-primary'] = silent.variants['arena-emphasis-primary']!.replace(/\[--arena-emphasis-edge:[^\]]*\] /, '');
+  assert.ok(familyProblems(shipped(), silent).some((l) => l.endsWith('arena-emphasis-primary writes no --arena-emphasis-edge, and actions-primary-root-edge-rest is read through it')));
+  const unread = structuredClone(family);
+  unread.variants['arena-emphasis-solid'] += ' [--arena-emphasis-edge:var(--actions-solid-root-edge-rest,transparent)]';
+  assert.ok(familyProblems(shipped(), unread).some((l) => l.endsWith('arena-emphasis-solid writes --arena-emphasis-edge, and every member part reads actions-solid-root-edge-rest through a channel of its own')));
+  const fade = structuredClone(family);
+  fade.variants['arena-emphasis-ghost'] = fade.variants['arena-emphasis-ghost']!.replace('var(--actions-ghost-root-fade-disabled,', 'var(--emphasis-ghost-root-fade-disabled,');
+  assert.ok(familyProblems(shipped(), fade).some((l) => /arena-emphasis-ghost writes --arena-emphasis-fade-disabled without var\(--actions-ghost-root-fade-disabled,/.test(l)));
 });
 
 const declared = () => structuredClone(readSlotDeclarations());
+const actionsRoot = (d: SlotDeclarations) => d.groups!.actions!.parts.root!;
+const optionOf = (d: SlotDeclarations, opt: string) => (actionsRoot(d).options as Record<string, GroupOption>)[opt]!;
 
 test('an exception the rule already produces is refused', () => {
   const d = declared();
-  d.exceptions['emphasis-primary-root-fill-rest'] = { default: '{emphasis-primary-fill}', decision: 'D19' };
+  d.exceptions['actions-primary-root-fill-rest'] = { default: '{emphasis-primary-fill}', decision: 'D19' };
   const lines = exceptionProblems(d);
   assert.equal(lines.length, 1);
-  assert.match(lines[0] ?? '', /emphasis-primary-root-fill-rest/);
+  assert.match(lines[0] ?? '', /actions-primary-root-fill-rest/);
   assert.match(lines[0] ?? '', /the rule already gives/);
 });
 
 test('an exception with no decision is refused', () => {
   const d = declared();
-  d.exceptions['emphasis-ghost-root-fill-hover'] = { default: '{emphasis-ghost-fill-hover}' } as never;
+  d.exceptions['actions-ghost-root-fill-hover'] = { default: '{emphasis-ghost-fill-hover}' } as never;
   const lines = exceptionProblems(d);
   assert.equal(lines.length, 1);
   assert.match(lines[0] ?? '', /carries no decision/);
@@ -229,7 +245,7 @@ test('an exception with no decision is refused', () => {
 
 test('an exception naming no slot is refused', () => {
   const d = declared();
-  d.exceptions['emphasis-nothing-root-fill-hover'] = { default: '{fill-hover}', decision: 'D19' };
+  d.exceptions['actions-nothing-root-fill-hover'] = { default: '{fill-hover}', decision: 'D19' };
   const lines = exceptionProblems(d);
   assert.equal(lines.length, 1);
   assert.match(lines[0] ?? '', /names no slot/);
@@ -238,37 +254,30 @@ test('an exception naming no slot is refused', () => {
 test('an unknown declaration key is refused', () => {
   const d = declared();
   (d as any).extra = 1;
-  (d.families.emphasis as any).colour = 1;
-  (d.components.ArenaButton!.root as any).tone = 1;
-  (d.variants.destructive as any).why = 1;
+  (d.groups!.actions as any).colour = 1;
+  (actionsRoot(d) as any).tone = 1;
+  (optionOf(d, 'primary') as any).mood = 1;
   (Object.values(d.exceptions)[0] as any).note = 1;
-  (d.families.emphasis!.options!.primary as any).mood = 1;
-  assert.equal(declarationProblems(d).length, 6);
+  (d.members!.ArenaButton!.parts.root as any).why = 1;
+  assert.equal(declarationProblems(d).length, 6, declarationProblems(d).join('\n'));
 });
 
-test('a state set or family that is not declared is refused', () => {
+test('a state set or state that is not declared is refused, on an option, a part or a member part', () => {
   const d = declared();
-  d.components.ArenaButton!.root!.states = 'nowhere';
-  d.components.ArenaButton!.root!.family = 'nothing';
-  assert.equal(declarationProblems(d).length, 2);
-});
-
-test('an undeclared state set on an option or an object-form part is refused', () => {
-  const d = declared();
-  d.families.emphasis!.options!.primary!.states = 'nowhere';
-  assert.equal(declarationProblems(d).length, 1);
+  optionOf(d, 'primary').states = 'nowhere';
+  assert.deepEqual(declarationProblems(d), ['groups.actions.parts.root.options.primary: state set "nowhere" is not declared in stateSets']);
   const e = declared();
-  (e.components.ArenaButton!.root as any).states = { '*': 'nowhere' };
-  assert.equal(declarationProblems(e).length, 1);
+  (e.members!.ArenaFileInput!.parts.trigger as MemberDecl).states = ['rest', 'sparkle'];
+  assert.deepEqual(declarationProblems(e), ['members.ArenaFileInput.parts.trigger: state "sparkle" is not declared in states']);
   const f = declared();
-  f.components.ArenaFileInput!.trigger!.states = ['rest', 'sparkle'];
-  assert.equal(declarationProblems(f).length, 1);
+  (f.members!.ArenaButton!.parts.root as any).states = { '*': 'base' };
+  assert.match(declarationProblems(f).join('\n'), /members\.ArenaButton\.parts\.root: its states name a state set or list states/);
 });
 
 test('an exception is compared with the rule without that entry alone, and a missing decision is named', () => {
   const d = declared();
-  d.exceptions['emphasis-primary-root-fill-rest'] = { default: '{emphasis-primary-fill}', decision: 'D19' };
-  d.exceptions['emphasis-ghost-root-fill-hover'] = { default: '{emphasis-ghost-fill-hover}' } as never;
+  d.exceptions['actions-primary-root-fill-rest'] = { default: '{emphasis-primary-fill}', decision: 'D19' };
+  d.exceptions['actions-ghost-root-fill-hover'] = { default: '{emphasis-ghost-fill-hover}' } as never;
   const lines = exceptionProblems(d);
   assert.equal(lines.length, 2);
   assert.ok(lines.some((l) => /carries no decision/.test(l) && !/undefined/.test(l)));
@@ -276,21 +285,13 @@ test('an exception is compared with the rule without that entry alone, and a mis
 
 test('a redundant exception and one naming no slot are both reported, and nothing throws', () => {
   const d = declared();
-  d.exceptions['emphasis-primary-root-fill-rest'] = { default: '{emphasis-primary-fill}', decision: 'D19' };
-  d.exceptions['emphasis-nothing-root-fill-hover'] = { default: '{fill-hover}', decision: 'D19' };
+  d.exceptions['actions-primary-root-fill-rest'] = { default: '{emphasis-primary-fill}', decision: 'D19' };
+  d.exceptions['actions-nothing-root-fill-hover'] = { default: '{fill-hover}', decision: 'D19' };
   let lines: string[] = [];
   assert.doesNotThrow(() => { lines = exceptionProblems(d); });
   assert.equal(lines.length, 2);
-  assert.ok(lines.some((l) => /emphasis-primary-root-fill-rest.*the rule already gives/.test(l)));
-  assert.ok(lines.some((l) => /emphasis-nothing-root-fill-hover.*names no slot/.test(l)));
-});
-
-test('an object-form states value that is not a set name is refused', () => {
-  const d = declared();
-  (d.components.ArenaButton!.root as any).states = { '*': ['rest'] };
-  const lines = declarationProblems(d);
-  assert.equal(lines.length, 1);
-  assert.match(lines[0] ?? '', /names a state set/);
+  assert.ok(lines.some((l) => /actions-primary-root-fill-rest.*the rule already gives/.test(l)));
+  assert.ok(lines.some((l) => /actions-nothing-root-fill-hover.*names no slot/.test(l)));
 });
 
 test('the shipped declarations are clean', () => {
@@ -299,62 +300,39 @@ test('the shipped declarations are clean', () => {
   assert.deepEqual(exceptionProblems(d), []);
 });
 
-test('a draws naming an undeclared part or a part that itself draws is refused', () => {
+test('a missing states on an option of a part with no states of its own is refused and named', () => {
   const d = declared();
-  d.components.ArenaCopyButton!.root!.draws = 'ArenaNope.root';
-  const lines = declarationProblems(d);
-  assert.equal(lines.length, 1);
-  assert.match(lines[0] ?? '', /draws ArenaNope\.root/);
+  delete optionOf(d, 'primary').states;
+  assert.deepEqual(declarationProblems(d), ['groups.actions.parts.root.options.primary: no states']);
+});
+
+test('an option missing its rest answers or a property, a rest on a part with options, a selected key outside fill, ink and edge, and an ink answer off icon are refused', () => {
+  const a = declared();
+  delete (optionOf(a, 'solid') as Partial<GroupOption>).rest;
+  assert.deepEqual(declarationProblems(a), ['groups.actions.parts.root.options.solid: an option of a part that derives slots declares its rest answers (D45)']);
+  const b = declared();
+  delete optionOf(b, 'solid').rest.edge;
+  assert.deepEqual(declarationProblems(b), ['groups.actions.parts.root.options.solid.rest: it answers no edge, and a part that derives slots answers every property it paints (D45)']);
+  const c = declared();
+  actionsRoot(c).rest = { fill: '{fill-surface}' };
+  assert.match(declarationProblems(c).join('\n'), /groups\.actions\.parts\.root: a part with options answers its rest per option/);
   const e = declared();
-  e.components.ArenaCopyButton!.root!.draws = 'ArenaCopyButton.root';
+  (e.selected as any).icon = 'ink';
   assert.equal(declarationProblems(e).length, 1);
   const f = declared();
-  f.components.ArenaButton!.root = { draws: 'ArenaCopyButton.root', states: 'base' } as never;
-  assert.equal(declarationProblems(f).length, 1);
+  optionOf(f, 'ghost').rest.edge = 'ink';
+  assert.deepEqual(declarationProblems(f), ['groups.actions.parts.root.options.ghost.rest.edge: the answer "ink" belongs to icon only']);
+  const g = declared();
+  optionOf(g, 'destructive').channel = 'arena-danger';
+  assert.deepEqual(declarationProblems(g), ['groups.actions.parts.root.options.destructive.channel: "arena-danger" is neither null nor a custom property']);
 });
 
-test('a missing states on an option or a component part is refused and named', () => {
+test('a group part that answers its rest with no options drops the segment and passes the gate', () => {
   const d = declared();
-  delete (d.families.emphasis!.options!.primary as any).states;
-  delete (d.components.ArenaButton!.root as any).states;
-  const lines = declarationProblems(d);
-  assert.equal(lines.length, 2);
-  assert.ok(lines.some((l) => /families\.emphasis\.options\.primary.*no states/.test(l)));
-  assert.ok(lines.some((l) => /components\.ArenaButton\.root.*no states/.test(l)));
-});
-
-test('an own key, an own row key or an own decision outside the declaration is refused', () => {
-  const a = declared();
-  (a.components.ArenaIconButton!.root!.own as any).edges = { ghost: 'transparent', decision: 'D21' };
-  assert.equal(declarationProblems(a).length, 1);
-  const b = declared();
-  (b.components.ArenaIconButton!.root!.own!.edge as any).loud = 'transparent';
-  assert.equal(declarationProblems(b).length, 1);
-  const c = declared();
-  c.components.ArenaIconButton!.root!.own!.edge!.decision = 'because';
-  assert.equal(declarationProblems(c).length, 1);
-  const e = declared();
-  delete e.components.ArenaIconButton!.root!.own!.edge!.decision;
-  assert.equal(declarationProblems(e).length, 1);
-});
-
-test('a template, optionsFrom or states key on a family, a selected key outside fill, ink and edge, and an ink answer off icon are refused', () => {
-  const a = declared();
-  (a.families.emphasis as any).template = { mark: { ink: '{x}' } };
-  assert.match(declarationProblems(a).join('\n'), /families\.emphasis: unknown key "template"/);
-  (a.families.emphasis as any).optionsFrom = ['danger'];
-  (a.families.emphasis as any).states = 'rest';
-  assert.equal(declarationProblems(a).length, 3);
-  assert.match(declarationProblems(a).join('\n'), /families\.emphasis: unknown key "states"/);
-  const b = declared();
-  (b.selected as any).icon = 'ink';
-  assert.equal(declarationProblems(b).length, 1);
-  const c = declared();
-  (c.families.emphasis!.options!.ghost!.parts.root as any).edge = 'ink';
-  assert.equal(declarationProblems(c).length, 1);
-  const e = declared();
-  (e.variants.destructive!.rest as any).edge = 'ink';
-  assert.equal(declarationProblems(e).length, 1);
+  const dismiss = d.groups!.actions!.parts.dismiss!;
+  dismiss.rest = { fill: 'transparent', ink: '{ink-muted}', icon: 'ink' };
+  assert.deepEqual(declarationProblems(d), []);
+  assert.ok(Object.hasOwn(deriveSlots(d).slots, 'actions-dismiss-ink-hover'));
 });
 
 const coloured = colouredParts();
@@ -463,4 +441,25 @@ test('every shipped paintedBy path names a file that paints the part', () => {
     assert.ok(paths.length > 0, part);
     for (const p of paths) assert.match(read(p), re, `${part}: ${p}`);
   }
+});
+
+test('a component-scoped slot is refused', () => {
+  const withComponents = { ...declared(), components: { ArenaButton: { root: { family: 'emphasis', options: ['primary'], states: 'base' } } } };
+  assert.ok(declarationProblems(withComponents as never).some((line) => /unknown key "components"/.test(line)));
+  const withFamilies = { ...declared(), families: { emphasis: { channel: '--arena-emphasis-{property}' } } };
+  assert.ok(declarationProblems(withFamilies as never).some((line) => /unknown key "families"/.test(line)));
+  for (const key of ['component', 'family', 'draws'] as const) {
+    const c = edit((x) => { (x.slots['actions-primary-root-fill-rest'] as Record<string, unknown>)[key] = key === 'draws' ? 'ArenaIconButton.root' : 'ArenaButton'; });
+    assert.ok(shapeProblems(c).some((line) => line.startsWith(`actions-primary-root-fill-rest: a slot belongs to a group and names no ${key}`)), `${key}: ${shapeProblems(c).join('\n')}`);
+  }
+});
+
+test('a member default with no decision is refused', () => {
+  const d = declared();
+  delete (d.members!.ArenaIconButton!.parts.root as { decision?: string }).decision;
+  const lines = declarationProblems(d);
+  assert.ok(lines.some((line) => line === 'members.ArenaIconButton.parts.root: it declares defaults and carries no decision, and needs D<n> or R<n>'), lines.join('\n'));
+  const e = declared();
+  (e.members!.ArenaIconButton!.parts.root as { decision?: string }).decision = 'because';
+  assert.ok(declarationProblems(e).some((line) => /members\.ArenaIconButton\.parts\.root: its decision "because" is neither D<n> nor R<n>/.test(line)));
 });

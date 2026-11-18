@@ -187,7 +187,7 @@ test('the default palette wears a class: .arena-dark carries the :root block, an
   assert.equal(body(palette, '.arena-dark'), body(palette, ':root'));
   const plugin = built.get('style-plugin.default.generated.css') as string;
   const names = (selector: string) => [...(body(plugin, selector) ?? '').matchAll(/^\s*--([\w-]+):/gm)].map((m) => m[1]);
-  assert.equal(names('.arena-dark').length, 91);
+  assert.equal(names('.arena-dark').length, 83);
   assert.deepEqual(names('.arena-dark'), names('.arena-light'));
   const rootValue = (name: string) => new RegExp(`--${name}:([^;]+);`).exec(body(plugin, ':root') ?? '')?.[1];
   for (const line of (body(plugin, '.arena-dark') ?? '').split('\n').filter(Boolean)) {
@@ -243,10 +243,10 @@ test('a plugin answering a disabled slot emits the part\'s fade marker', async (
   try {
     writeFileSync(join(tmp, 'plugin.tokens.json'), JSON.stringify({
       'ink-muted': { $type: 'color', $value: '{color.base-content}' },
-      'button-primary-root-ink-disabled': { $type: 'color', $value: '{ink-muted}' },
+      'actions-primary-root-ink-disabled': { $type: 'color', $value: '{ink-muted}' },
     }));
     const css = await block({ selector: '.arena-p', source: 'plugin.tokens.json', dir: relPosix(repoRoot, tmp) });
-    assert.equal((css.match(/--button-primary-root-fade-disabled:1;/g) ?? []).length, 1, css);
+    assert.equal((css.match(/--actions-primary-root-fade-disabled:1;/g) ?? []).length, 1, css);
   } finally { rmSync(tmp, { recursive: true, force: true }); }
 });
 
@@ -257,16 +257,16 @@ test('a slot answered with a colour role emits a reference to it in the base blo
   try {
     writeFileSync(join(tmp, 'plugin.tokens.json'), JSON.stringify({
       'fill-surface': { $type: 'color', $value: '{color.base-200}' },
-      'button-primary-root-fill-rest': { $type: 'color', $value: '{fill-surface}' },
-      'button-primary-root-edge-rest': { $type: 'color', $value: 'transparent' },
-      light: { 'button-primary-root-ink-rest': { $type: 'color', $value: '{fill-surface}' } },
+      'actions-primary-root-fill-rest': { $type: 'color', $value: '{fill-surface}' },
+      'actions-primary-root-edge-rest': { $type: 'color', $value: 'transparent' },
+      light: { 'actions-primary-root-ink-rest': { $type: 'color', $value: '{fill-surface}' } },
     }));
     const css = await block({ selector: ':root', source: 'plugin.tokens.json', dir: relPosix(repoRoot, tmp) });
     const base = /^:root\{\n([\s\S]*?)\n\}/m.exec(css)?.[1] ?? '';
-    assert.match(base, /--button-primary-root-fill-rest:var\(--fill-surface\);/);
-    assert.match(base, /--button-primary-root-edge-rest:transparent;/);
-    assert.match(css, /--button-primary-root-ink-rest:var\(--fill-surface\);/);
-    assert.doesNotMatch(base, /--button-primary-root-ink-rest/, 'the light answer stays in the light scope');
+    assert.match(base, /--actions-primary-root-fill-rest:var\(--fill-surface\);/);
+    assert.match(base, /--actions-primary-root-edge-rest:transparent;/);
+    assert.match(css, /--actions-primary-root-ink-rest:var\(--fill-surface\);/);
+    assert.doesNotMatch(base, /--actions-primary-root-ink-rest/, 'the light answer stays in the light scope');
   } finally { rmSync(tmp, { recursive: true, force: true }); }
 });
 
@@ -296,7 +296,7 @@ test('a slot answered with a colour role is restated under each theme scope, as 
   const { buildAll } = await import('./generate-tokens.ts');
   const plugin = (await buildAll()).get('style-plugin.default.generated.css') as string;
   const declared = (selector: string) => new RegExp(`^${selector.replace('.', '\\.')}\\{\\n([\\s\\S]*?)\\n\\}`, 'm').exec(plugin)?.[1] ?? '';
-  for (const name of ['emphasis-primary-root-fill-pressed', 'button-destructive-root-ink-hover']) {
+  for (const name of ['actions-primary-root-fill-pressed', 'actions-destructive-root-ink-hover']) {
     for (const scope of ['.arena-dark', '.arena-light']) {
       assert.match(declared(scope), new RegExp(`^\\s*--${name}:var\\(--[\\w-]+\\);`, 'm'), `${name} under ${scope}`);
     }

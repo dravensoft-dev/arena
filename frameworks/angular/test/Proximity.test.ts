@@ -99,22 +99,21 @@ const TEMPLATES: Record<string, string> = {
   'timeline-connector-horizontal-keeps-block-margin': '<arena-timeline label="Order" [items]="[{ title: \'Placed\' }, { title: \'Shipped\' }]" />',
   'tag-breaks-a-label-wider-than-its-container': '<arena-tag>InternationalisationInternationalisationInternationalisationInternationalisationInternationalisationInternationalisation</arena-tag>',
   'palette-scope-takes-the-surface-radius': '<div arenaPalette="light"><span>Light</span></div>',
-  'component-slot-beats-family-and-needs-no-class': '<div style="--button-primary-root-fill-rest: var(--fill-surface); --emphasis-primary-root-fill-rest: var(--fill-surface-raised)"><arena-button>Save</arena-button>'
+  'group-answer-moves-every-member': '<div style="--actions-primary-root-fill-rest: var(--fill-surface)"><arena-button>Save</arena-button>'
     + '<arena-split-button label="Deployment" menuLabel="More deploy options" [items]="[{ label: \'Deploy\' }]">Deploy</arena-split-button>'
     + '<arena-icon-button icon="ph-bold ph-x" label="Close" /></div>',
-  'context-class-beats-the-default-block': '<div style="--button-primary-root-fill-rest: var(--fill-surface-raised)"><arena-button>Save</arena-button></div>',
-  'copy-button-follows-icon-button': '<div style="--icon-button-ghost-root-fill-rest: var(--fill-surface)"><arena-icon-button icon="ph-bold ph-x" label="Close" /><arena-copy-button text="x" label="Copy" /></div>',
-  'copy-button-slot-wins': '<div style="--icon-button-ghost-root-fill-rest: var(--fill-surface); --copy-button-ghost-root-fill-rest: var(--fill-surface-raised)"><arena-copy-button text="x" label="Copy" /></div>',
-  'answered-disabled-stops-the-fade': '<div style="--button-primary-root-ink-disabled: var(--ink-muted); --button-primary-root-fade-disabled: 1"><arena-button disabled>Save</arena-button></div>',
-  'answered-disabled-draws-its-ink': '<div style="--button-primary-root-ink-disabled: var(--ink-muted); --button-primary-root-fade-disabled: 1"><arena-button disabled>Save</arena-button></div>',
-  'answered-disabled-ink-reaches-the-glyph': '<div style="--button-primary-root-ink-disabled: var(--ink-muted); --button-primary-root-fade-disabled: 1"><arena-button disabled icon="ph-bold ph-x">Save</arena-button></div>',
-  'component-ink-answer-reaches-the-glyph': '<div style="--button-primary-root-ink-rest: var(--fill-surface)"><arena-button icon="ph-bold ph-x">Save</arena-button></div>',
-  'icon-rest-answer-keeps-the-level': '<div style="--emphasis-ghost-root-icon-rest: var(--hue-danger-ink)"><arena-button class="arena-emphasis-ghost" icon="ph-bold ph-x">Save</arena-button></div>',
-  'class-on-copy-button-reaches-the-icon-button-it-draws': '<div style="--copy-button-solid-root-fill-rest: var(--fill-surface-raised)"><arena-copy-button class="arena-emphasis-solid" text="x" label="Copy" /></div>',
-  'answered-disabled-keeps-the-rest-fill': '<div style="--button-primary-root-ink-disabled: var(--ink-muted); --button-primary-root-fade-disabled: 1"><arena-button disabled>Save</arena-button></div>',
-  'selected-disabled-answer-stops-only-the-selected-fade': '<div style="--icon-button-ghost-root-ink-disabled: var(--ink-muted); --icon-button-ghost-root-fade-disabled: 1"><arena-icon-button icon="ph-bold ph-x" label="Close" [pressed]="true" disabled /></div>'
-    + '<div style="--icon-button-ghost-root-ink-selected-disabled: var(--ink-muted); --icon-button-ghost-root-fade-selected-disabled: 1"><arena-icon-button icon="ph-bold ph-x" label="Close" [pressed]="true" disabled /></div>',
-  'family-hover-answer-is-not-derived-from-the-component-rest': '<div style="--button-primary-root-fill-rest: var(--fill-surface); --emphasis-primary-root-fill-hover: var(--fill-hover)"><arena-button>Save</arena-button></div>',
+  'context-class-beats-the-default-block': '<div style="--actions-primary-root-fill-rest: var(--fill-surface-raised)"><arena-button>Save</arena-button></div>',
+  'member-default-kept-while-the-group-is-silent': '<div><arena-icon-button icon="ph-bold ph-x" label="Close" /><arena-button class="arena-emphasis-ghost">Save</arena-button></div>',
+  'answered-disabled-stops-the-fade': '<div style="--actions-primary-root-ink-disabled: var(--ink-muted); --actions-primary-root-fade-disabled: 1"><arena-button disabled>Save</arena-button></div>',
+  'answered-disabled-draws-its-ink': '<div style="--actions-primary-root-ink-disabled: var(--ink-muted); --actions-primary-root-fade-disabled: 1"><arena-button disabled>Save</arena-button></div>',
+  'answered-disabled-ink-reaches-the-glyph': '<div style="--actions-primary-root-ink-disabled: var(--ink-muted); --actions-primary-root-fade-disabled: 1"><arena-button disabled icon="ph-bold ph-x">Save</arena-button></div>',
+  'component-ink-answer-reaches-the-glyph': '<div style="--actions-primary-root-ink-rest: var(--fill-surface)"><arena-button icon="ph-bold ph-x">Save</arena-button></div>',
+  'icon-rest-answer-keeps-the-level': '<div style="--actions-ghost-root-icon-rest: var(--hue-danger-ink)"><arena-button class="arena-emphasis-ghost" icon="ph-bold ph-x">Save</arena-button></div>',
+  'class-on-copy-button-reaches-the-icon-button-it-draws': '<div style="--actions-solid-root-fill-rest: var(--fill-surface-raised)"><arena-copy-button class="arena-emphasis-solid" text="x" label="Copy" /></div>',
+  'answered-disabled-keeps-the-rest-fill': '<div style="--actions-primary-root-ink-disabled: var(--ink-muted); --actions-primary-root-fade-disabled: 1"><arena-button disabled>Save</arena-button></div>',
+  'selected-disabled-answer-stops-only-the-selected-fade': '<div style="--actions-ghost-root-ink-disabled: var(--ink-muted); --actions-ghost-root-fade-disabled: 1"><arena-icon-button icon="ph-bold ph-x" label="Close" [pressed]="true" disabled /></div>'
+    + '<div style="--actions-ghost-root-ink-selected-disabled: var(--ink-muted); --actions-ghost-root-fade-selected-disabled: 1"><arena-icon-button icon="ph-bold ph-x" label="Close" [pressed]="true" disabled /></div>',
+  'family-hover-answer-is-not-derived-from-the-component-rest': '<div style="--actions-primary-root-fill-rest: var(--fill-surface); --actions-primary-root-fill-hover: var(--fill-hover)"><arena-button>Save</arena-button></div>',
 };
 
 const BARE = new Set(['meaning-wins-over-accent', 'accent-stops-at-the-card-body', 'small-badge-compacts-itself', 'small-badge-tightens-its-block', 'small-badge-tightens-its-ends']);
@@ -150,8 +149,7 @@ const SUBJECT: Record<string, { part: string; index: number }> = {
   'timeline-connector-horizontal-keeps-block-margin': { part: 'timeline.connector', index: 0 },
   'tag-breaks-a-label-wider-than-its-container': { part: 'tag', index: 0 },
   'palette-scope-takes-the-surface-radius': { part: 'palette-scope', index: 0 },
-  'copy-button-follows-icon-button': { part: 'icon-button', index: -1 },
-  'copy-button-slot-wins': { part: 'icon-button', index: 0 },
+  'member-default-kept-while-the-group-is-silent': { part: 'icon-button', index: 0 },
   'selected-disabled-answer-stops-only-the-selected-fade': { part: 'icon-button', index: -1 },
   'class-on-copy-button-reaches-the-icon-button-it-draws': { part: 'icon-button', index: 0 },
 };

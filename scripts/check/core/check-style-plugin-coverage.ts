@@ -60,13 +60,15 @@ export function immovableRoles(roles: Record<string, Shape>) {
 const NO_SECOND_SPELLING = 'no other accepted role resolves to the key complete paints there, so a spelling of '
   + 'its own would move the complete sink';
 
+const MEMBER_DEFAULT = 'the ghost Button paints it transparent and the ghost IconButton keeps its member default '
+  + '(D21) while the slot is silent, so any answer paints both alike and moves one of them in the complete sink';
+
 export const WITNESS_EXEMPT: ReadonlyMap<string, string> = new Map([
   ['hue-danger-fill-strong', 'complete answers it as default does, because a colour of its own would move the '
     + 'complete sink, and this role reaches a page through the destructive and danger-tone parts that default '
     + 'already paints'],
-  ...[
-    'icon-button-solid-root-edge-rest',
-  ].map((slot): [string, string] => [slot, NO_SECOND_SPELLING]),
+  ['actions-solid-root-edge-rest', NO_SECOND_SPELLING],
+  ...['rest', 'hover', 'pressed'].map((state): [string, string] => [`actions-ghost-root-edge-${state}`, MEMBER_DEFAULT]),
 ]);
 
 export function staleExemptions(moved: string[], exempt: ReadonlyMap<string, string> = WITNESS_EXEMPT) {

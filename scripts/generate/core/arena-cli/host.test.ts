@@ -181,7 +181,7 @@ test('the command\'s own dependencies win over a project\'s copy of the same nam
   }
 });
 
-test('a screen drawing CopyButton and IconButton gets one IconButton default block, and the CopyButton rebind after it', () => {
+test('a screen drawing CopyButton and IconButton gets one IconButton default block, and no CopyButton block of its own', () => {
   const root = installed("@import './css/components.css';\n@import './css/vocabulary/emphasis.css';\n", ['arena-copy-button', 'arena-icon-button']);
   mkdirSync(join(root, 'css', 'vocabulary'), { recursive: true });
   writeFileSync(join(root, 'css', 'vocabulary', 'emphasis.css'), '');
@@ -195,11 +195,9 @@ test('a screen drawing CopyButton and IconButton gets one IconButton default blo
   const lines = scopedImports('@x/arena', { components: ['arena-copy-button', 'arena-icon-button'] } as CheckedStylesheet, sheets)
     .filter((line) => line.includes('/vocabulary/'));
   const own = ':where([data-arena-part="icon-button"]) {';
-  const rebind = ':where([data-arena-part="copy-button"] [data-arena-part="icon-button"]) {';
   for (const css of [bundledImports(lines, root, '@x/arena'), flattenImports(lines, root, '@x/arena').css]) {
     assert.equal(css.split(own).length - 1, 1, 'one IconButton default block');
-    assert.equal(css.split(rebind).length - 1, 1, 'one CopyButton rebind');
-    assert.ok(css.indexOf(rebind) > css.indexOf(own), 'the rebind comes after the block it rebinds');
+    assert.doesNotMatch(css, /:where\(\[data-arena-part="copy-button"\]/, 'a CopyButton draws an IconButton, a member, and needs no block of its own');
   }
   rmSync(root, { recursive: true });
 });

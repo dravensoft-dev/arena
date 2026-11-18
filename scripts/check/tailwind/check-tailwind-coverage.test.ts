@@ -122,19 +122,19 @@ test('the shipped theme and exclusions leave none of the nine state roles unreac
 
 test('a colour slot and its fade marker are declared by the slot tier, never exposed and never excluded', () => {
   const slots = slotTier(repoRoot);
-  assert.ok(slots.has('button-primary-root-fill-rest'));
-  assert.ok(slots.has('button-primary-root-fade-disabled'));
-  assert.ok(slots.has('icon-button-ghost-root-fade-selected-disabled'));
+  assert.ok(slots.has('actions-primary-root-fill-rest'));
+  assert.ok(slots.has('actions-primary-root-fade-disabled'));
+  assert.ok(slots.has('actions-ghost-root-fade-selected-disabled'));
   assert.equal(slots.has('fill-surface'), false, 'a role is not a slot');
-  const tokens = new Set(['fill-surface', 'button-primary-root-fill-rest', 'button-primary-root-fade-disabled']);
+  const tokens = new Set(['fill-surface', 'actions-primary-root-fill-rest', 'actions-primary-root-fade-disabled']);
   assert.deepEqual(checkCoverage(tokens, new Set(['fill-surface']), new Map(), tokens, slots), []);
   assert.deepEqual(checkCoverage(tokens, new Set(['fill-surface']), new Map(), tokens), [
-    '--button-primary-root-fade-disabled reaches no Tailwind utility — expose it in frameworks/tailwind/Theme.css or add it to EXCLUDED with a reason',
-    '--button-primary-root-fill-rest reaches no Tailwind utility — expose it in frameworks/tailwind/Theme.css or add it to EXCLUDED with a reason']);
-  const wrong = checkCoverage(tokens, new Set(['fill-surface', 'button-primary-root-fill-rest']),
-    new Map([['button-primary-root-fade-disabled', 'a reason']]), tokens, slots);
+    '--actions-primary-root-fade-disabled reaches no Tailwind utility — expose it in frameworks/tailwind/Theme.css or add it to EXCLUDED with a reason',
+    '--actions-primary-root-fill-rest reaches no Tailwind utility — expose it in frameworks/tailwind/Theme.css or add it to EXCLUDED with a reason']);
+  const wrong = checkCoverage(tokens, new Set(['fill-surface', 'actions-primary-root-fill-rest']),
+    new Map([['actions-primary-root-fade-disabled', 'a reason']]), tokens, slots);
   assert.equal(wrong.length, 2);
-  assert.match(wrong[0] ?? '', /--button-primary-root-fade-disabled is declared by the slot tier/);
-  assert.match(wrong[1] ?? '', /--button-primary-root-fill-rest is a colour slot or its fade marker/);
+  assert.match(wrong[0] ?? '', /--actions-primary-root-fade-disabled is declared by the slot tier/);
+  assert.match(wrong[1] ?? '', /--actions-primary-root-fill-rest is a colour slot or its fade marker/);
   assert.equal(pluginOptionRoles(repoRoot).roles.some((name) => slots.has(name)), false, 'a slot the default plugin answers is no option role');
 });

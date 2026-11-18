@@ -98,14 +98,14 @@ test('the witness exemption covers hue-danger-fill-strong and goes stale once co
   assert.deepEqual(staleExemptions([]), []);
 });
 
-const EXEMPT_SLOTS = ['icon-button-solid-root-edge-rest'];
+const EXEMPT_SLOTS = ['actions-ghost-root-edge-hover', 'actions-ghost-root-edge-pressed', 'actions-ghost-root-edge-rest', 'actions-solid-root-edge-rest'];
 
 const answers = (file: string) => answersIn(readJson(join(repoRoot, file)) as Record<string, { $value?: unknown }>);
 
 const fixture = (slots: SlotCatalogue['slots']): SlotCatalogue =>
-  ({ accepts: { fill: [], ink: [], edge: [], icon: [] }, refused: [], states: [], families: {}, rings: {}, slots });
+  ({ accepts: { fill: [], ink: [], edge: [], icon: [] }, refused: [], states: [], groups: { button: { parts: ['root'] } }, members: {}, rings: {}, slots });
 
-const part = { scope: 'component', component: 'ArenaButton', option: 'primary', part: 'root', accepts: 'ink' } as const;
+const part = { group: 'button', option: 'primary', part: 'root', accepts: 'ink' } as const;
 
 test('complete answers every slot with a spelling of its own', () => {
   const unanswered = unansweredSlots(readColorSlots(), answers('plugin-style-store/complete/plugin.tokens.json'),
@@ -141,6 +141,6 @@ test('a slot complete answers as default does fails', () => {
 test('the slot exemption is listed in WITNESS_EXEMPT, and goes stale once complete moves it', () => {
   for (const slot of EXEMPT_SLOTS) assert.ok(WITNESS_EXEMPT.has(slot), `${slot} is exempt`);
   const stale = staleExemptions([...EXEMPT_SLOTS]);
-  assert.equal(stale.length, 1);
+  assert.equal(stale.length, EXEMPT_SLOTS.length);
   assert.deepEqual(staleExemptions([]), []);
 });

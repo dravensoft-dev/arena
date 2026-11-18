@@ -1404,75 +1404,35 @@
     "$type": "shadow",
     "$value": "{shadow.2}"
   },
-  "emphasis-primary-root-fill-pressed": {
+  "actions-primary-root-fill-pressed": {
     "$type": "color",
     "$value": "{emphasis-primary-fill}",
     "$description": "The primary fill is the darkest red the palette carries, so a press keeps the fill and moves by the press scale: mixing it toward its ink would lighten it until the label falls under 4.5:1."
   },
-  "emphasis-solid-root-fill-pressed": {
+  "actions-solid-root-fill-pressed": {
     "$type": "color",
     "$value": "{emphasis-solid-fill}",
     "$description": "The solid fill is the darkest red the palette carries, so a press keeps the fill and moves by the press scale: mixing it toward its ink would lighten it until the label falls under 4.5:1."
   },
-  "button-destructive-root-fill-hover": {
+  "actions-destructive-root-fill-hover": {
     "$type": "color",
     "$value": "{hue-danger-fill-soft}",
-    "$description": "A destructive button fills with the danger hue under the pointer, so the control reads as the destructive action it is while the pointer is on it."
+    "$description": "A destructive action fills with the danger hue under the pointer, so the control reads as the destructive action it is while the pointer is on it."
   },
-  "button-destructive-root-fill-pressed": {
+  "actions-destructive-root-fill-pressed": {
     "$type": "color",
     "$value": "{hue-danger-fill-soft}",
-    "$description": "A destructive button fills with the danger hue when pressed, so the control reads as the destructive action it is while it is pressed."
+    "$description": "A destructive action fills with the danger hue when pressed, so the control reads as the destructive action it is while it is pressed."
   },
-  "button-destructive-root-ink-hover": {
+  "actions-destructive-root-ink-hover": {
     "$type": "color",
     "$value": "{hue-danger-on-ink}",
-    "$description": "A destructive button sets its label in the content colour of the danger hue under the pointer, because the label stands on that fill."
+    "$description": "A destructive action sets its label and glyph in the content colour of the danger hue under the pointer, because they stand on that fill."
   },
-  "button-destructive-root-ink-pressed": {
+  "actions-destructive-root-ink-pressed": {
     "$type": "color",
     "$value": "{hue-danger-on-ink}",
-    "$description": "A destructive button sets its label in the content colour of the danger hue when pressed, because the label stands on that fill."
-  },
-  "split-button-destructive-primary-fill-hover": {
-    "$type": "color",
-    "$value": "{hue-danger-fill-soft}",
-    "$description": "The primary half of a destructive split button fills with the danger hue under the pointer, so the control reads as the destructive action it is while the pointer is on it."
-  },
-  "split-button-destructive-primary-fill-pressed": {
-    "$type": "color",
-    "$value": "{hue-danger-fill-soft}",
-    "$description": "The primary half of a destructive split button fills with the danger hue when pressed, so the control reads as the destructive action it is while it is pressed."
-  },
-  "split-button-destructive-primary-ink-hover": {
-    "$type": "color",
-    "$value": "{hue-danger-on-ink}",
-    "$description": "The primary half of a destructive split button sets its label in the content colour of the danger hue under the pointer, because the label stands on that fill."
-  },
-  "split-button-destructive-primary-ink-pressed": {
-    "$type": "color",
-    "$value": "{hue-danger-on-ink}",
-    "$description": "The primary half of a destructive split button sets its label in the content colour of the danger hue when pressed, because the label stands on that fill."
-  },
-  "split-button-destructive-caret-fill-hover": {
-    "$type": "color",
-    "$value": "{hue-danger-fill-soft}",
-    "$description": "The caret half of a destructive split button fills with the danger hue under the pointer, so the control reads as the destructive action it is while the pointer is on it."
-  },
-  "split-button-destructive-caret-fill-pressed": {
-    "$type": "color",
-    "$value": "{hue-danger-fill-soft}",
-    "$description": "The caret half of a destructive split button fills with the danger hue when pressed, so the control reads as the destructive action it is while it is pressed."
-  },
-  "split-button-destructive-caret-ink-hover": {
-    "$type": "color",
-    "$value": "{hue-danger-on-ink}",
-    "$description": "The caret half of a destructive split button draws its glyph in the content colour of the danger hue under the pointer, because the glyph stands on that fill."
-  },
-  "split-button-destructive-caret-ink-pressed": {
-    "$type": "color",
-    "$value": "{hue-danger-on-ink}",
-    "$description": "The caret half of a destructive split button draws its glyph in the content colour of the danger hue when pressed, because the glyph stands on that fill."
+    "$description": "A destructive action sets its label and glyph in the content colour of the danger hue when pressed, because they stand on that fill."
   },
   "light": {
     "edge-focus": {

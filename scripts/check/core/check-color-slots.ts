@@ -1,11 +1,10 @@
 /* contracts/design/color-slots.json is the slot tier above the roles: every coloured part of a
- * component, per property and state, as a question a plugin answers with a role its accepts set
- * names. It carries no value, so check:dtcg leaves it by name and this gate holds its shape: the
- * name each slot must have, the roles each property may be answered with, where a default or a
- * derivation may point, the family a component slot falls to, the fill an ink sits on, and the
- * manifest part a slot paints, and the variant under which that part reads its channel. It holds the
- * declarations themselves first (unknown keys, exceptions) before the derived catalogue. A slot is
- * never asked for totality or kernel equality. */
+ * group of components, per option, property and state, as a question a plugin answers with a role
+ * its accepts set names. It carries no value, so check:dtcg leaves it by name and this gate holds its
+ * shape: the declarations first (unknown keys, exceptions, member defaults and their decisions),
+ * then the derived catalogue: the name each slot must have, the roles each property may be answered
+ * with, where a default or a derivation may point, the fill an ink sits on, the member parts that
+ * read each slot under its state, the Emphasis family's chains (R7), and the group map. */
 
 import { statSync } from 'node:fs';
 import { join } from 'node:path';
@@ -14,26 +13,30 @@ import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { colouredParts } from '../../lib/core/color-slot-map.ts';
 import type { ColouredPart } from '../../lib/core/color-slot-map.ts';
-import { COLOR_SLOTS, SLOT_KEYS, deriveSlots, readSlotDeclarations } from '../../lib/core/color-slots.ts';
-import type { SlotDeclarations } from '../../lib/core/color-slots.ts';
+import { COLOR_SLOTS, SLOT_KEYS, deriveSlots, isMemberDecl, readSlotDeclarations } from '../../lib/core/color-slots.ts';
+import type { GroupPart, MemberDecl, SlotDeclarations } from '../../lib/core/color-slots.ts';
+import { declarations } from '../../lib/tailwind/vocabulary.ts';
 import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
 import type { ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';
 import {
-  SLOT_PROPERTIES, SLOT_STATES, acceptedRole, expectedName, glob, slotChain,
+  SLOT_PROPERTIES, SLOT_STATES, acceptedRole, channelValue, expectedName, glob, memberChain, memberChannel,
 } from '../../generate/core/arena-cli/slots.ts';
-import type { ColorSlot, SlotCatalogue } from '../../generate/core/arena-cli/slots.ts';
+import type { ColorSlot, MemberPart, SlotCatalogue } from '../../generate/core/arena-cli/slots.ts';
 import { slotPairs } from '../../generate/core/arena-cli/slot-contrast.ts';
+
+export const EMPHASIS_FAMILY = 'frameworks/tailwind/vocabulary/arena-emphasis/Emphasis.family.json';
 
 export const node = {
   name: 'check:color-slots',
-  reads: [COLOR_SLOTS, 'contracts/design/roles.json', 'contracts/design/palette.dark.json', 'frameworks/tailwind/Theme.css', 'frameworks/tailwind/components/**/*.manifest.json'],
+  reads: [COLOR_SLOTS, EMPHASIS_FAMILY, 'contracts/design/roles.json', 'contracts/design/palette.dark.json', 'frameworks/tailwind/Theme.css', 'frameworks/tailwind/components/**/*.manifest.json'],
   writes: [],
   feeds: [],
 };
 
 type Manifests = ReadonlyMap<string, ComponentManifest>;
 
-const TOP_KEYS = ['$description', 'accepts', 'refused', 'states', 'families', 'rings', 'slots'];
+const TOP_KEYS = ['accepts', 'refused', 'states', 'groups', 'members', 'rings', 'slots'];
+const SCOPED = ['scope', 'family', 'component', 'draws'];
 const WORD: Record<string, string> = { fill: 'fill', ink: 'ink', icon: 'ink', edge: 'edge' };
 const REF = /^\{([a-z0-9-]+)\}$/;
 const entries = (c: SlotCatalogue) => Object.entries(c.slots);
@@ -53,17 +56,16 @@ export function shapeProblems(c: SlotCatalogue): string[] {
   if (JSON.stringify(c.states) !== JSON.stringify(SLOT_STATES)) out.push(`${COLOR_SLOTS}: states is not ${SLOT_STATES.join(', ')}`);
   for (const p of SLOT_PROPERTIES) if (!Array.isArray(c.accepts?.[p])) out.push(`${COLOR_SLOTS}: accepts declares no list for ${p}`);
   for (const [name, s] of entries(c)) {
-    for (const key of Object.keys(s)) if (!(SLOT_KEYS as readonly string[]).includes(key)) out.push(`${name}: unknown key "${key}"`);
-    if (s.scope !== 'family' && s.scope !== 'component') out.push(`${name}: scope "${s.scope}" is neither family nor component`);
+    for (const key of Object.keys(s)) {
+      if (SCOPED.includes(key)) out.push(`${name}: a slot belongs to a group and names no ${key}`);
+      else if (!(SLOT_KEYS as readonly string[]).includes(key)) out.push(`${name}: unknown key "${key}"`);
+    }
     if (!(SLOT_PROPERTIES as readonly string[]).includes(s.property)) out.push(`${name}: property "${s.property}" is outside ${SLOT_PROPERTIES.join(', ')}`);
     if (!(SLOT_STATES as readonly string[]).includes(s.state)) out.push(`${name}: state "${s.state}" is outside ${SLOT_STATES.join(', ')}`);
     if (!(SLOT_PROPERTIES as readonly string[]).includes(s.accepts)) out.push(`${name}: accepts "${s.accepts}" names no property`);
-    if (s.scope === 'family') {
-      const parts = c.families?.[s.family ?? '']?.parts;
-      if (!parts) out.push(`${name}: family "${s.family}" is not declared in families`);
-      else if (!parts.includes(s.part)) out.push(`${name}: part "${s.part}" is not a part of family ${s.family} (${parts.join(', ')})`);
-      if (s.component !== undefined) out.push(`${name}: a family slot names no component`);
-    } else if (!s.component || s.family !== undefined) out.push(`${name}: a component slot names a component and no family`);
+    const parts = c.groups?.[s.group ?? '']?.parts;
+    if (!parts) out.push(`${name}: group "${s.group}" is not declared in groups`);
+    else if (!parts.includes(s.part)) out.push(`${name}: part "${s.part}" is not a part of group ${s.group} (${parts.join(', ')})`);
     if (s.channel !== undefined && !/^--[a-z0-9-]+$/.test(s.channel)) out.push(`${name}: channel "${s.channel}" is no custom property`);
     if (s.optional !== undefined && s.optional !== true) out.push(`${name}: optional is true or absent`);
   }
@@ -118,9 +120,8 @@ export function defaultProblems(c: SlotCatalogue, roles: ReadonlySet<string>): s
       const from = c.slots[s.derive.from];
       const want = s.state.startsWith('selected-') ? 'selected' : 'rest';
       if (!from) out.push(`${name}: derives from ${s.derive.from}, which is no slot`);
-      else if (from.scope !== s.scope || from.family !== s.family || from.component !== s.component || from.option !== s.option
-        || from.part !== s.part || from.property !== s.property || from.state !== want) {
-        out.push(`${name}: derives from ${s.derive.from}, which is not the ${s.option} ${s.part} ${s.property} slot at ${want}`);
+      else if (from.group !== s.group || from.option !== s.option || from.part !== s.part || from.property !== s.property || from.state !== want) {
+        out.push(`${name}: derives from ${s.derive.from}, which is not the ${[s.group, s.option, s.part].filter(Boolean).join(' ')} ${s.property} slot at ${want}`);
       }
     }
   }
@@ -139,31 +140,13 @@ export function defaultProblems(c: SlotCatalogue, roles: ReadonlySet<string>): s
 export function fallbackProblems(c: SlotCatalogue): string[] {
   const out: string[] = [];
   for (const [name, s] of entries(c)) {
-    const iconRule = s.property === 'icon' && (s.scope === 'family' || s.option === 'destructive');
-    if (s.default === undefined) {
-      if (iconRule) out.push(`${name}: an icon slot falls to the ink slot of its own part and state, and this one names no default`);
-      continue;
-    }
-    const want = (target: string) => { if (s.default !== `{${target}}`) out.push(`${name}: it falls to ${s.default} and must fall to ${target}`); };
-    const own = (property: string) => expectedName({ ...s, property: property as ColorSlot['property'], accepts: property as ColorSlot['property'] });
-    if (iconRule) {
-      want(own('ink'));
-      const ink = c.slots[own('ink')];
-      if (ink?.level !== s.level) out.push(`${name}: it carries level ${s.level ?? 'none'} and its ink slot carries ${ink?.level ?? 'none'}`);
-    } else if (s.scope === 'component' && s.option !== 'destructive') {
-      const owner = s.component === 'ArenaCopyButton' ? 'icon-button' : 'emphasis';
-      if (s.property === 'edge' && s.component === 'ArenaIconButton') {
-        const ref = REF.exec(s.default)?.[1];
-        if (ref !== undefined && Object.hasOwn(c.slots, ref)) out.push(`${name}: an IconButton edge falls to the role it paints, and ${s.default} is a slot`);
-      } else want([owner, s.option, owner === 'emphasis' ? 'root' : s.part, s.property, s.state].join('-'));
-    } else if (s.scope === 'component') {
-      if (s.property === 'fill' && s.state === 'hover') {
-        if (s.default !== '{fill-hover}') out.push(`${name}: a destructive hover fill falls to {fill-hover}, and this one falls to ${s.default}`);
-      } else if (REF.test(s.default) && Object.hasOwn(c.slots, REF.exec(s.default)![1]!)) {
-        out.push(`${name}: a destructive slot falls to a role, and ${s.default} is a slot`);
-      }
-    } else if (REF.test(s.default) && Object.hasOwn(c.slots, REF.exec(s.default)![1]!)) {
-      out.push(`${name}: a family slot falls to a role, and ${s.default} is a slot`);
+    if (s.property === 'icon') {
+      const ink = expectedName({ ...s, property: 'ink' });
+      if (s.default === undefined) out.push(`${name}: an icon slot falls to the ink slot of its own part and state, and this one names no default`);
+      else if (s.default !== `{${ink}}`) out.push(`${name}: it falls to ${s.default} and must fall to ${ink}`);
+      if (c.slots[ink]?.level !== s.level) out.push(`${name}: it carries level ${s.level ?? 'none'} and its ink slot carries ${c.slots[ink]?.level ?? 'none'}`);
+    } else if (s.default !== undefined && REF.test(s.default) && Object.hasOwn(c.slots, REF.exec(s.default)![1]!)) {
+      out.push(`${name}: a group slot falls to a role, and ${s.default} is a slot`);
     }
   }
   return out;
@@ -173,7 +156,7 @@ export function pairProblems(c: SlotCatalogue): string[] {
   const out: string[] = [];
   for (const [name, s] of entries(c)) {
     if (s.property === 'fill') { if (s.on !== undefined) out.push(`${name}: a fill carries no "on"`); continue; }
-    const fill = expectedName({ ...s, property: 'fill', accepts: 'fill' });
+    const fill = expectedName({ ...s, property: 'fill' });
     if (s.on !== fill) out.push(`${name}: it sits on ${s.on ?? 'nothing'} and must sit on ${fill}`);
   }
   return out;
@@ -193,30 +176,30 @@ const classesOf = (m: ComponentManifest): Record<string, string[]> => {
 const emphasisOptions = (m: ComponentManifest) => (m.answers ?? [])
   .flatMap((a) => (typeof a === 'string' || a.family !== 'emphasis' ? [] : a.options.map((o) => o.replace(/^arena-emphasis-/, ''))));
 
+const memberSlots = (c: SlotCatalogue, m: MemberPart) => {
+  const [group, part] = m.to.split('.');
+  return entries(c).filter(([, s]) => s.group === group && s.part === part && m.options.includes(s.option ?? '') && m.states.includes(s.state));
+};
+
 export function manifestProblems(c: SlotCatalogue, manifests: Manifests): string[] {
   const out: string[] = [];
-  const answered = new Set<string>();
-  for (const [name, s] of entries(c)) {
-    if (s.scope !== 'component') continue;
-    const m = manifests.get(s.component ?? '');
-    if (!m) { out.push(`${name}: no manifest declares the component ${s.component}`); continue; }
-    answered.add(`${s.component}.${s.part}`);
-    if (s.draws !== undefined) {
-      const [dc, dp] = s.draws.split('.');
-      if (!manifests.get(dc ?? '')?.slots || !Object.hasOwn(manifests.get(dc ?? '')!.slots!, dp ?? '')) out.push(`${name}: draws ${s.draws}, which is no slot of a manifest`);
-      else if (!Object.values(c.slots).some((o) => o.scope === 'component' && o.component === dc && o.part === dp && o.option === s.option && o.draws === undefined)) {
-        out.push(`${name}: draws ${s.draws}, a part with no ${s.option} slots of its own, so a channel read in it has no part to fall to`);
+  for (const [key, m] of Object.entries(c.members ?? {})) {
+    const [comp, part] = key.split('.') as [string, string];
+    const manifest = manifests.get(comp);
+    if (!manifest) { out.push(`members.${key}: no manifest declares the component ${comp}`); continue; }
+    if (!Object.hasOwn(manifest.slots ?? {}, part)) out.push(`members.${key}: ${comp} has no slot ${part}`);
+    for (const option of m.options) {
+      if (!entries(c).some(([, s]) => `${s.group}.${s.part}` === m.to && s.option === option)) out.push(`members.${key}: ${m.to} derives no ${option} slot`);
+      if (!emphasisOptions(manifest).includes(option) && !Object.hasOwn(manifest.variants ?? {}, option)) {
+        out.push(`members.${key}: ${comp} answers no emphasis ${option} and declares no variant ${option}`);
       }
-    } else if (!Object.hasOwn(m.slots ?? {}, s.part)) out.push(`${name}: ${s.component} has no slot ${s.part}`);
-    if (!emphasisOptions(m).includes(s.option) && !Object.hasOwn(m.variants ?? {}, s.option)) {
-      out.push(`${name}: ${s.component} answers no emphasis ${s.option} and declares no variant ${s.option}`);
     }
   }
   for (const m of manifests.values()) {
     if (emphasisOptions(m).length === 0) continue;
     for (const [part, texts] of Object.entries(classesOf(m))) {
-      if (texts.some((t) => t.includes('--arena-emphasis-')) && !answered.has(`${m.component}.${part}`)) {
-        out.push(`${m.component}.${part} reads an --arena-emphasis-* channel and declares no colour slot in ${COLOR_SLOTS}`);
+      if (texts.some((t) => t.includes('--arena-emphasis-')) && !Object.hasOwn(c.members ?? {}, `${m.component}.${part}`)) {
+        out.push(`${m.component}.${part} reads an --arena-emphasis-* channel and is no member part of a group in ${COLOR_SLOTS}`);
       }
     }
   }
@@ -226,17 +209,17 @@ export function manifestProblems(c: SlotCatalogue, manifests: Manifests): string
 export function ringProblems(c: SlotCatalogue, manifests: Manifests): string[] {
   const out: string[] = [];
   const focusable = new Set<string>();
-  for (const s of Object.values(c.slots)) {
-    if (s.scope !== 'component' || s.draws !== undefined) continue;
-    const text = manifests.get(s.component ?? '')?.slots?.[s.part as never] as unknown;
-    if (typeof text === 'string' && text.includes('focus-visible:outline')) focusable.add(`${s.component}.${s.part}`);
+  for (const key of Object.keys(c.members ?? {})) {
+    const [comp, part] = key.split('.') as [string, string];
+    const text = manifests.get(comp)?.slots?.[part as never] as unknown;
+    if (typeof text === 'string' && text.includes('focus-visible:outline')) focusable.add(key);
   }
   const measured = new Set(slotPairs(c).filter((pair) => pair.slot === 'edge-focus').map((pair) => pair.over));
   for (const key of focusable) {
-    if (!(key in c.rings)) out.push(`${key} is focusable and carries colour slots, and rings does not say what its focus ring sits on`);
+    if (!(key in c.rings)) out.push(`${key} is focusable and a member part of a group, and rings does not say what its focus ring sits on`);
   }
   for (const [key, on] of Object.entries(c.rings)) {
-    if (!focusable.has(key)) out.push(`rings names ${key}, which is no focusable part with colour slots`);
+    if (!focusable.has(key)) out.push(`rings names ${key}, which is no focusable member part of a group`);
     else if (on !== 'ground' && c.slots[on]?.property !== 'fill') out.push(`rings.${key} is ${on}, which is neither ground nor a fill slot`);
     else if (on !== 'ground' && !measured.has(on)) out.push(`rings.${key} is ${on}, a fill the focus ring is never measured over: a disabled state is no pair`);
   }
@@ -256,39 +239,63 @@ const reads = (token: string, modifier: string, property: string, expected: stri
 
 export function readProblems(c: SlotCatalogue, manifests: Manifests): string[] {
   const lines = new Map<string, string[]>();
-  for (const [name, s] of entries(c)) {
-    if (s.scope === 'component') {
-      const [component, part] = s.draws === undefined ? [s.component ?? '', s.part] : s.draws.split('.');
-      const m = manifests.get(component ?? '');
+  const read = new Set<string>();
+  for (const [key, m] of Object.entries(c.members ?? {})) {
+    const [comp, part] = key.split('.') as [string, string];
+    const manifest = manifests.get(comp);
+    for (const [name, s] of memberSlots(c, m)) {
+      read.add(name);
       const selected = s.state.startsWith('selected');
-      const texts = selected ? [(m?.variants?.pressed as Record<string, Record<string, string>> | undefined)?.true?.[part ?? '']]
-        : classesOf(m ?? ({} as ComponentManifest))[part ?? ''] ?? [];
-      const expected = s.channel === undefined ? [slotChain(c, name)] : [`var(${s.channel},`, `var(${s.channel})`];
+      const texts = selected ? [(manifest?.variants?.pressed as Record<string, Record<string, string>> | undefined)?.true?.[part]]
+        : classesOf(manifest ?? ({} as ComponentManifest))[part] ?? [];
+      const channel = memberChannel(m, s);
+      const expected = channel === undefined ? [memberChain(c, key, name)] : [`var(${channel},`, `var(${channel})`];
       const modifier = MODIFIER[s.state] ?? '';
       const found = texts.some((text) => String(text ?? '').split(/\s+/).some((token) => reads(token, modifier, s.property, expected)));
       if (!found) {
-        const key = `${component}.${part} does not read ${s.channel ?? 'its destructive chain'} under ${modifier || 'no variant'}${selected ? ' in the pressed branch' : ''}`;
-        lines.set(key, [...(lines.get(key) ?? []), name]);
+        const line = `${key} does not read ${channel ?? 'its full chain'} under ${modifier || 'no variant'}${selected ? ' in the pressed branch' : ''}`;
+        lines.set(line, [...(lines.get(line) ?? []), name]);
       }
-    } else if (s.family === 'emphasis' && s.channel !== undefined) {
-      const read = [...manifests.values()].some((m) => Object.values(classesOf(m)).flat().some((text) => text.includes(`var(${s.channel},`) || text.includes(`var(${s.channel})`)));
-      if (!read) lines.set(`${name}: its channel ${s.channel} is read by no part`, []);
     }
   }
+  for (const name of Object.keys(c.slots)) if (!read.has(name)) lines.set(`${name}: no member part reads it`, []);
   return [...lines].map(([key, names]) => (names.length ? `${key}: ${names.join(', ')}` : key));
 }
 
+export function familyProblems(c: SlotCatalogue, family: { variants?: Record<string, string> }): string[] {
+  const out: string[] = [];
+  for (const [option, classes] of Object.entries(family.variants ?? {})) {
+    const opt = option.replace(/^arena-emphasis-/, '');
+    const written = new Map(declarations(classes) as [string, string][]);
+    const slots = entries(c).filter(([, s]) => s.group === 'actions' && s.part === 'root' && s.option === opt && s.channel?.startsWith('--arena-emphasis-'));
+    for (const [name, s] of slots) {
+      const want = channelValue(c, name, 'css');
+      const value = written.get(s.channel as string);
+      const readThrough = Object.values(c.members ?? {}).some((m) => memberSlots(c, m).some(([n]) => n === name) && memberChannel(m, s) === s.channel);
+      if (!readThrough) {
+        if (value !== undefined) out.push(`${EMPHASIS_FAMILY}: ${option} writes ${s.channel}, and every member part reads ${name} through a channel of its own`);
+      } else if (value === undefined) out.push(`${EMPHASIS_FAMILY}: ${option} writes no ${s.channel}, and ${name} is read through it`);
+      else if (value !== want) out.push(`${EMPHASIS_FAMILY}: ${option} writes ${s.channel} as ${value}, and the chain of ${name} is ${want}`);
+    }
+    for (const state of ['disabled', 'selected-disabled']) {
+      if (!slots.some(([, s]) => s.state === state)) continue;
+      const marker = `var(--actions-${opt}-root-fade-${state},`;
+      if (!(written.get(`--arena-emphasis-fade-${state}`) ?? '').startsWith(marker)) out.push(`${EMPHASIS_FAMILY}: ${option} writes --arena-emphasis-fade-${state} without ${marker}…), so an answered ${state} slot never stops the fade`);
+    }
+  }
+  return out;
+}
+
 const DECLARED = {
-  top: ['$description', 'accepts', 'refused', 'states', 'stateSets', 'selected', 'families', 'variants', 'components', 'exceptions', 'rings', 'groups', 'members'],
+  top: ['$description', 'accepts', 'refused', 'states', 'stateSets', 'selected', 'exceptions', 'rings', 'groups', 'members'],
   group: ['parts'],
-  groupPart: ['properties', 'options', 'states', 'paintedBy'],
+  groupPart: ['properties', 'options', 'states', 'channel', 'rest', 'decision', 'paintedBy'],
+  option: ['states', 'rest', 'channel', 'decision'],
   member: ['group', 'parts'],
-  family: ['channel', 'channels', 'options'],
-  option: ['states', 'parts'],
-  part: ['family', 'options', 'states', 'variants', 'edgeChannel', 'own', 'draws'],
-  variant: ['decision', 'rest'],
+  memberPart: ['to', 'options', 'states', 'channels', 'defaults', 'decision'],
   exception: ['default', 'decision'],
 };
+const DECISION = /^[DR]\d+$/;
 
 export function declarationProblems(d: SlotDeclarations): string[] {
   const out: string[] = [];
@@ -296,60 +303,31 @@ export function declarationProblems(d: SlotDeclarations): string[] {
     for (const key of Object.keys((value ?? {}) as object)) if (!allowed.includes(key)) out.push(`${where}: unknown key "${key}"`);
   };
   const sets = (where: string, spec: unknown) => {
-    const set = (at: string, name: string) => {
-      if (!Object.hasOwn(d.stateSets ?? {}, name)) out.push(`${at}: state set "${name}" is not declared in stateSets`);
-    };
     if (spec === undefined) out.push(`${where}: no states`);
-    else if (typeof spec === 'string') set(where, spec);
-    else if (Array.isArray(spec)) {
+    else if (typeof spec === 'string') {
+      if (!Object.hasOwn(d.stateSets ?? {}, spec)) out.push(`${where}: state set "${spec}" is not declared in stateSets`);
+    } else if (Array.isArray(spec)) {
       for (const st of spec) if (!(d.states ?? []).includes(st)) out.push(`${where}: state "${st}" is not declared in states`);
-    } else {
-      for (const [prop, name] of Object.entries((spec ?? {}) as Record<string, unknown>)) {
-        if (typeof name === 'string') set(`${where}.states.${prop}`, name);
-        else out.push(`${where}.states.${prop}: it names a state set by its name, and this is not a string`);
-      }
-    }
+    } else out.push(`${where}: its states name a state set or list states, and this is neither`);
   };
-  const inkOnIcon = (where: string, rest: Record<string, unknown>) => {
-    for (const [prop, a] of Object.entries(rest ?? {})) if (a === 'ink' && prop !== 'icon') out.push(`${where}.${prop}: the answer "ink" belongs to icon only`);
+  const decision = (where: string, value: unknown, what: string) => {
+    if (value === undefined) out.push(`${where}: it declares ${what} and carries no decision, and needs D<n> or R<n>`);
+    else if (!DECISION.test(String(value))) out.push(`${where}: its decision "${String(value)}" is neither D<n> nor R<n>`);
+  };
+  const rest = (where: string, answers: Record<string, unknown>, part: GroupPart) => {
+    for (const [prop, a] of Object.entries(answers ?? {})) {
+      if (!part.properties.includes(prop)) out.push(`${where}.${prop}: the part paints no ${prop} (${part.properties.join(', ')})`);
+      if (a === 'ink' && prop !== 'icon') out.push(`${where}.${prop}: the answer "ink" belongs to icon only`);
+    }
+    for (const prop of part.properties) if (!Object.hasOwn(answers ?? {}, prop)) out.push(`${where}: it answers no ${prop}, and a part that derives slots answers every property it paints (D45)`);
+  };
+  const channel = (where: string, value: unknown) => {
+    if (value !== undefined && value !== null && !/^--[a-z0-9-]+(\{property\}[a-z0-9-]*)?$/.test(String(value))) out.push(`${where}.channel: "${String(value)}" is neither null nor a custom property`);
   };
   keys(COLOR_SLOTS, d, DECLARED.top);
   for (const [prop, a] of Object.entries(d.selected ?? {})) {
     if (!['fill', 'ink', 'edge'].includes(prop)) out.push(`selected: unknown key "${prop}"`);
     else if (a === 'ink') out.push(`selected.${prop}: the answer "ink" belongs to icon only`);
-  }
-  for (const [fam, f] of Object.entries(d.families ?? {})) {
-    keys(`families.${fam}`, f, DECLARED.family);
-    for (const [opt, o] of Object.entries(f.options ?? {})) {
-      keys(`families.${fam}.options.${opt}`, o, DECLARED.option);
-      sets(`families.${fam}.options.${opt}`, o.states);
-      for (const [part, rest] of Object.entries(o.parts ?? {})) inkOnIcon(`families.${fam}.options.${opt}.${part}`, rest);
-    }
-  }
-  for (const [v, x] of Object.entries(d.variants ?? {})) {
-    keys(`variants.${v}`, x, DECLARED.variant);
-    inkOnIcon(`variants.${v}.rest`, x.rest);
-  }
-  for (const [comp, parts] of Object.entries(d.components ?? {})) {
-    for (const [part, p] of Object.entries(parts)) {
-      const where = `components.${comp}.${part}`;
-      keys(where, p, DECLARED.part);
-      if (p.draws !== undefined) {
-        const [dc, dp] = p.draws.split('.');
-        const target = (d.components ?? {})[dc ?? '']?.[dp ?? ''];
-        if (!target) out.push(`${where}: it draws ${p.draws}, which is no part declared under components`);
-        else if (target.draws !== undefined) out.push(`${where}: it draws ${p.draws}, which itself draws`);
-      }
-      sets(where, p.states);
-      const props = ['fill', 'ink', 'edge', 'icon'];
-      for (const [prop, row] of Object.entries(p.own ?? {})) {
-        if (!props.includes(prop)) { out.push(`${where}.own: unknown key "${prop}"`); continue; }
-        for (const key of Object.keys(row)) if (key !== 'decision' && !(p.options ?? []).includes(key)) out.push(`${where}.own.${prop}: "${key}" is neither an option of the part nor decision`);
-        if (!/^[DR]\d+$/.test(row.decision ?? '')) out.push(`${where}.own.${prop}: its decision ${row.decision === undefined ? 'is missing' : `"${row.decision}" is neither D<n> nor R<n>`}, and needs D<n> or R<n>`);
-      }
-      if (p.family !== undefined && !Object.hasOwn(d.families ?? {}, p.family)) out.push(`${where}: family "${p.family}" is not declared in families`);
-      for (const v of p.variants ?? []) if (!Object.hasOwn(d.variants ?? {}, v)) out.push(`${where}: variant "${v}" is not declared in variants`);
-    }
   }
   for (const [n, e] of Object.entries(d.exceptions ?? {})) keys(`exceptions.${n}`, e, DECLARED.exception);
   for (const [g, group] of Object.entries(d.groups ?? {})) {
@@ -357,11 +335,43 @@ export function declarationProblems(d: SlotDeclarations): string[] {
     for (const [part, p] of Object.entries(group.parts ?? {})) {
       const where = `groups.${g}.parts.${part}`;
       keys(where, p, DECLARED.groupPart);
-      if (typeof p.states === 'string') { if (p.states !== 'per-option') sets(where, p.states); } else sets(where, p.states);
       for (const prop of p.properties ?? []) if (!['fill', 'ink', 'edge', 'icon'].includes(prop)) out.push(`${where}: property "${prop}" is outside fill, ink, edge, icon`);
+      channel(where, p.channel);
+      const options = p.options;
+      if (options !== undefined && !Array.isArray(options)) {
+        if (p.rest !== undefined) out.push(`${where}: a part with options answers its rest per option, never on the part`);
+        for (const [opt, o] of Object.entries(options)) {
+          const at = `${where}.options.${opt}`;
+          keys(at, o, DECLARED.option);
+          channel(at, o.channel);
+          if (o.decision !== undefined) decision(at, o.decision, 'a decision');
+          if (o.rest === undefined) out.push(`${at}: an option of a part that derives slots declares its rest answers (D45)`);
+          else rest(`${at}.rest`, o.rest, p);
+          sets(at, o.states ?? p.states);
+        }
+      } else {
+        if (p.states !== undefined || p.rest !== undefined) sets(where, p.states);
+        if (p.rest !== undefined) {
+          if (options !== undefined) out.push(`${where}: a part that lists its options answers its rest per option`);
+          rest(`${where}.rest`, p.rest, p);
+        }
+      }
     }
   }
-  for (const [comp, m] of Object.entries(d.members ?? {})) keys(`members.${comp}`, m, DECLARED.member);
+  for (const [comp, m] of Object.entries(d.members ?? {})) {
+    keys(`members.${comp}`, m, DECLARED.member);
+    for (const [part, to] of Object.entries(m.parts ?? {})) {
+      if (!isMemberDecl(to)) continue;
+      const where = `members.${comp}.parts.${part}`;
+      keys(where, to, DECLARED.memberPart);
+      sets(where, (to as MemberDecl).states);
+      if (Object.keys(to.defaults ?? {}).length) decision(where, to.decision, 'defaults');
+      for (const [prop, ch] of Object.entries(to.channels ?? {})) {
+        if (!['fill', 'ink', 'edge', 'icon'].includes(prop)) out.push(`${where}.channels: unknown key "${prop}"`);
+        if (!/^--[a-z0-9-]+$/.test(ch)) out.push(`${where}.channels.${prop}: "${ch}" is no custom property`);
+      }
+    }
+  }
   return out;
 }
 
@@ -403,11 +413,12 @@ export function mapProblems(d: SlotDeclarations, coloured: ReadonlyMap<string, C
         if (!painted?.keywordsOnly) out.push(`${key}: it is null and paints ${painted ? 'a role' : 'no colour'}; null is for a part that paints only current or transparent`);
         continue;
       }
-      const t = targetOf(to);
+      const t = isMemberDecl(to) ? { ...targetOf(to.to), options: to.options } : targetOf(to);
       const gp = groups[t.group]?.parts?.[t.part];
       if (!gp) { out.push(`${key}: it maps onto ${t.group}.${t.part}, which is no group part declared in groups`); continue; }
       used.add(`${t.group}.${t.part}`);
-      for (const o of t.options) if (!(gp.options ?? []).includes(o)) out.push(`${key}: its option "${o}" is not an option of ${t.group}.${t.part} (${(gp.options ?? []).join(', ') || 'none'})`);
+      const known = Array.isArray(gp.options) ? gp.options : Object.keys(gp.options ?? {});
+      for (const o of t.options) if (!known.includes(o)) out.push(`${key}: its option "${o}" is not an option of ${t.group}.${t.part} (${known.join(', ') || 'none'})`);
       const extra = (painted?.properties ?? []).filter((p) => !gp.properties.includes(p));
       if (extra.length) out.push(`${key}: it paints ${extra.join(', ')}, which ${t.group}.${t.part} does not paint (${gp.properties.join(', ')})`);
     }
@@ -453,6 +464,7 @@ export function collect(root = repoRoot): string[] {
   return [
     ...nameProblems(c), ...acceptsProblems(c, roles), ...defaultProblems(c, roles), ...fallbackProblems(c),
     ...pairProblems(c), ...manifestProblems(c, manifests), ...ringProblems(c, manifests), ...readProblems(c, manifests),
+    ...familyProblems(c, readJson(join(root, EMPHASIS_FAMILY)) as { variants?: Record<string, string> }),
     ...mapProblems(d, colouredParts(root), manifests, root),
   ];
 }

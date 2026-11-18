@@ -222,16 +222,16 @@ test('a slot answer outside its accepts set is refused', () => {
   const known = { slots: readColorSlots(), colourNames: colours, colourRoles: (name: string) => colours.has(name) };
   const ask = (slot: string, value: string) =>
     valueProblems('at', slot, { $type: 'color', $value: value }, undefined, known);
-  const fill = 'button-primary-root-fill-rest';
-  for (const value of ['{color.primary}', '{ink-body}', '#fff', '{edge-focus}', '{emphasis-primary-root-fill-rest}']) {
+  const fill = 'actions-primary-root-fill-rest';
+  for (const value of ['{color.primary}', '{ink-body}', '#fff', '{edge-focus}', '{actions-secondary-root-fill-rest}']) {
     const problems = ask(fill, value);
     assert.equal(problems.length, 1, `${value}: ${problems.join('\n')}`);
     assert.match(problems[0] as string, new RegExp(`--${fill} is `), value);
     for (const accepted of ['{fill-*}', '{emphasis-*-fill}', '{accent-*-fill-soft}, transparent. ']) assert.ok((problems[0] as string).includes(accepted), `${value}: names ${accepted}`);
   }
   assert.deepEqual(ask(fill, '{fill-surface}'), []);
-  assert.deepEqual(ask('emphasis-ghost-root-edge-rest', 'transparent'), []);
-  assert.equal(ask('button-primary-root-ink-rest', 'transparent').length, 1);
+  assert.deepEqual(ask('actions-ghost-root-edge-rest', 'transparent'), []);
+  assert.equal(ask('actions-primary-root-ink-rest', 'transparent').length, 1);
 });
 
 test('an answer to a removed hue slot is refused as an unknown key', () => {
@@ -239,5 +239,14 @@ test('an answer to a removed hue slot is refused as an unknown key', () => {
   const token = { $type: 'color', $value: '{hue-danger-ink}', $description: 'x' };
   const problems = keyProblems('at', 'hue-danger-mark-ink-rest', token, undefined, known);
   assert.equal(problems.length, 1, problems.join('\n'));
+  assert.match(problems[0] as string, /neither a role/);
+});
+
+test('a removed component slot is refused as an unknown key', () => {
+  const known = { slots: readColorSlots() };
+  const token = { $type: 'color', $value: '{fill-surface}', $description: 'x' };
+  const problems = keyProblems('at', 'button-primary-root-fill-rest', token, undefined, known);
+  assert.equal(problems.length, 1, problems.join('\n'));
+  assert.match(problems[0] as string, /button-primary-root-fill-rest/);
   assert.match(problems[0] as string, /neither a role/);
 });

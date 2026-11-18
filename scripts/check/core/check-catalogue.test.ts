@@ -236,13 +236,13 @@ test('an entry answering a slot with a palette alias is refused', () => {
   const { base, clean } = fixture((dir) => {
     wholeEntry(dir);
     const answers = readJson(join(dir, TOKENS)) as Record<string, unknown>;
-    answers['button-primary-root-fill-rest'] = { $type: 'color', $value: '{color.primary}' };
+    answers['actions-primary-root-fill-rest'] = { $type: 'color', $value: '{color.primary}' };
     writeFileSync(join(dir, TOKENS), JSON.stringify(answers));
   });
   try {
     const problems = tokenProblems('a-register', roles, base);
     assert.equal(problems.length, 1, problems.join('\n'));
-    assert.match(problems[0] as string, /button-primary-root-fill-rest/);
+    assert.match(problems[0] as string, /actions-primary-root-fill-rest/);
   } finally { clean(); }
 });
 
@@ -250,13 +250,13 @@ test('an entry is read against the slot contract of the root it is given', () =>
   const { base, clean } = fixture((dir) => {
     wholeEntry(dir);
     const answers = readJson(join(dir, TOKENS)) as Record<string, unknown>;
-    answers['button-primary-root-fill-rest'] = { $type: 'color', $value: '{fill-surface}' };
+    answers['actions-primary-root-fill-rest'] = { $type: 'color', $value: '{fill-surface}' };
     writeFileSync(join(dir, TOKENS), JSON.stringify(answers));
   });
   try {
     assert.deepEqual(tokenProblems('a-register', roles, base), []);
-    const contract = readJson(join(base, COLOR_SLOTS)) as { components: Record<string, Record<string, { options: string[] }>> };
-    contract.components.ArenaButton!.root!.options = contract.components.ArenaButton!.root!.options.filter((o) => o !== 'primary');
+    const contract = readJson(join(base, COLOR_SLOTS)) as { groups: Record<string, { parts: Record<string, { options: Record<string, unknown> }> }> };
+    delete contract.groups.actions!.parts.root!.options.primary;
     writeFileSync(join(base, COLOR_SLOTS), JSON.stringify(contract));
     assert.notDeepEqual(tokenProblems('a-register', roles, base), []);
   } finally { clean(); }

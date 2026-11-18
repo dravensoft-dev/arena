@@ -1,17 +1,31 @@
-/* The colour slot contract: contracts/design/color-slots.json declares families, parts, states and exceptions,
+/* The colour slot contract: contracts/design/color-slots.json declares the groups, their parts,
+ * options, states and rest answers, the members that map their parts onto them, and the exceptions,
  * and deriveSlots expands them into the catalogue every gate and generator reads, in memory (D29, D30). */
 
 import { join } from 'node:path';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../arena/repo-root.ts';
-import { slotStem } from '../../generate/core/arena-cli/slots.ts';
-import type { ColorSlot, SlotCatalogue } from '../../generate/core/arena-cli/slots.ts';
+import type { ColorSlot, MemberPart, SlotCatalogue, SlotState } from '../../generate/core/arena-cli/slots.ts';
 
 export const COLOR_SLOTS = 'contracts/design/color-slots.json';
 
 type Answer = string | { role: string; level?: string };
-type StateSpec = string | Record<string, string>;
+type StateSpec = string | string[];
 type Rest = Record<string, Answer>;
+
+export type GroupOption = { states?: StateSpec; rest: Rest; channel?: string | null; decision?: string };
+export type GroupPart = {
+  properties: string[];
+  options?: string[] | Record<string, GroupOption>;
+  states?: StateSpec;
+  channel?: string | null;
+  rest?: Rest;
+  decision?: string;
+  paintedBy?: string | string[];
+};
+export type MemberDecl = {
+  to: string; options: string[]; states: StateSpec; channels?: Record<string, string>; defaults?: Record<string, string>; decision?: string;
+};
 
 export type SlotDeclarations = {
   $description?: string;
@@ -20,30 +34,13 @@ export type SlotDeclarations = {
   states: string[];
   stateSets: Record<string, string[]>;
   selected: Record<string, Answer>;
-  families: Record<string, {
-    channel?: string;
-    channels?: Record<string, string>;
-    options?: Record<string, { states: StateSpec; parts: Record<string, Rest> }>;
-  }>;
-  variants: Record<string, { decision?: string; rest: Rest }>;
-  components: Record<string, Record<string, {
-    family?: string;
-    options?: string[];
-    states: string | string[];
-    variants?: string[];
-    edgeChannel?: string;
-    own?: Record<string, Record<string, string>>;
-    draws?: string;
-  }>>;
+  groups?: Record<string, { parts: Record<string, GroupPart> }>;
+  members?: Record<string, { group: string | null; parts: Record<string, string | null | MemberDecl> }>;
   exceptions: Record<string, { default: string; decision: string }>;
   rings: Record<string, string>;
-  groups?: Record<string, { parts: Record<string, { properties: string[]; options?: string[]; states: string | string[]; paintedBy?: string | string[] }> }>;
-  members?: Record<string, { group: string | null; parts: Record<string, string | null> }>;
 };
 
-export const SLOT_KEYS = ['scope', 'family', 'component', 'option', 'part', 'property', 'state', 'channel', 'accepts', 'on', 'default',
-  'derive', 'level', 'optional', 'draws'] as const;
-const PROPS = ['fill', 'ink', 'edge', 'icon'] as const;
+export const SLOT_KEYS = ['group', 'option', 'part', 'property', 'state', 'channel', 'accepts', 'on', 'default', 'derive', 'level', 'optional'] as const;
 const DISABLED = ['disabled', 'selected-disabled'];
 const answer = (v: Answer): [string, string | undefined] => (typeof v === 'object' ? [v.role, v.level] : [v, undefined]);
 const restOf = (rest: Rest): Rest => {
@@ -51,35 +48,40 @@ const restOf = (rest: Rest): Rest => {
   if (Object.values(rest).includes('ink')) fixed.icon = 'ink';
   return fixed;
 };
-const slotName = (owner: string, opt: string, part: string, prop: string, st: string) => [owner, opt, part, prop, st].join('-');
+const slotName = (group: string, opt: string | undefined, part: string, prop: string, st: string) =>
+  [group, ...(opt === undefined ? [] : [opt]), part, prop, st].join('-');
 
-type Standing = { owner: string; opt: string; part: string; rest: Rest; states: (prop: string) => string[];
-  channel: (prop: string, st: string) => string | undefined; scope: Partial<ColorSlot> };
+export const isMemberDecl = (to: unknown): to is MemberDecl => typeof to === 'object' && to !== null;
+
+type Standing = { group: string; opt: string | undefined; part: string; rest: Rest; states: string[]; channel: string | null | undefined };
 
 export function deriveSlots(d: SlotDeclarations): SlotCatalogue {
   const slots = new Map<string, Record<string, unknown>>();
-  const sets = (s: string | string[]): string[] => (typeof s === 'string' ? d.stateSets[s] ?? fail(`state set "${s}" is undeclared`) : s);
+  const sets = (s: StateSpec): string[] => (typeof s === 'string' ? d.stateSets[s] ?? fail(`state set "${s}" is undeclared`) : s);
   const put = (name: string, f: Record<string, unknown>) => {
     if (slots.has(name)) throw new Error(`slot ${name} is built twice`);
     slots.set(name, Object.fromEntries(Object.entries(f).filter(([, v]) => v !== undefined && v !== null)));
   };
 
-  function standing({ owner, opt, part, rest, states, channel, scope }: Standing) {
+  function standing({ group, opt, part, rest, states, channel }: Standing) {
     for (const prop of Object.keys(rest)) {
-      for (const st of states(prop)) {
-        const n = slotName(owner, opt, part, prop, st);
-        const f: Record<string, unknown> = { ...scope, option: opt, part, property: prop, state: st, channel: channel(prop, st), accepts: prop };
-        if (prop !== 'fill') f.on = slotName(owner, opt, part, 'fill', st);
+      for (const st of states) {
+        const n = slotName(group, opt, part, prop, st);
+        const f: Record<string, unknown> = {
+          group, option: opt, part, property: prop, state: st,
+          channel: channel ? channel.replace('{property}', prop) + (st === 'rest' ? '' : `-${st}`) : undefined, accepts: prop,
+        };
+        if (prop !== 'fill') f.on = slotName(group, opt, part, 'fill', st);
         const selectedAnswer = () => d.selected[prop] ?? fail(`${n}: no selected answer for ${prop}`);
         if (prop === 'icon') {
-          f.default = `{${slotName(owner, opt, part, 'ink', st)}}`;
+          f.default = `{${slotName(group, opt, part, 'ink', st)}}`;
           if (st === 'rest' && rest.ink) f.level = answer(rest.ink)[1];
           else if (st === 'selected') f.level = answer(d.selected.ink ?? fail(`${n}: no selected answer for ink`))[1];
         } else if (st === 'rest') [f.default, f.level] = answer(rest[prop] as Answer);
         else if (st === 'selected') [f.default, f.level] = answer(selectedAnswer());
         else if (!DISABLED.includes(st)) {
           const mix = prop === 'fill' && st !== 'hover' ? (st === 'selected-hover' ? 'mix-hover' : 'mix-pressed') : undefined;
-          f.derive = { from: slotName(owner, opt, part, prop, st.startsWith('selected') ? 'selected' : 'rest'), ...(mix ? { mix } : {}) };
+          f.derive = { from: slotName(group, opt, part, prop, st.startsWith('selected') ? 'selected' : 'rest'), ...(mix ? { mix } : {}) };
         }
         if (DISABLED.includes(st)) f.optional = true;
         put(n, f);
@@ -87,78 +89,22 @@ export function deriveSlots(d: SlotDeclarations): SlotCatalogue {
     }
   }
 
-  const families: SlotCatalogue['families'] = {};
-  for (const [fam, decl] of Object.entries(d.families)) {
-    const options = decl.options ?? {};
-    const parts: string[] = [];
-    for (const [opt, { states: spec, parts: byPart }] of Object.entries(options)) {
-      if (spec === undefined) fail(`${fam}-${opt}: no states`);
-      for (const [part, rest] of Object.entries(byPart)) {
-        if (!parts.includes(part)) parts.push(part);
-        standing({
-          owner: fam, opt, part, rest: restOf(rest), scope: { scope: 'family', family: fam },
-          states: (prop) => sets(typeof spec === 'string' ? spec : (spec[prop] ?? spec['*'] ?? fail(`${fam}-${opt}: no states for ${prop}`))),
-          channel: (prop, st) => (decl.channels
-            ? decl.channels[`${part}.${prop}`] ?? fail(`${fam}.${part}.${prop}: no channel declared`)
-            : (decl.channel ?? '').replace('{property}', prop) + (st === 'rest' ? '' : `-${st}`)),
-        });
-      }
-    }
-    families[fam] = { parts };
-  }
-
-  const emphasis = (prop: string, st: string, edge?: string) =>
-    `--arena-emphasis-${prop === 'edge' ? (edge ?? '--arena-emphasis-edge').replace('--arena-emphasis-', '') : prop}${st === 'rest' ? '' : `-${st}`}`;
-
-  for (const [comp, parts] of Object.entries(d.components)) {
-    const owner = slotStem(comp);
-    const scope = { scope: 'component', component: comp } as const;
-    for (const [part, decl] of Object.entries(parts)) {
-      if (decl.draws) continue;
-      if (decl.states === undefined) fail(`${comp}.${part}: no states`);
-      const sts = sets(decl.states);
-      const own = decl.own ?? {};
-      for (const opt of decl.options ?? []) {
-        for (const prop of PROPS) {
-          const ownRow = own[prop];
-          if (ownRow) {
-            standing({ owner, opt, part, rest: { [prop]: ownRow[opt] ?? fail(`${comp}.${part}: own ${prop} has no answer for ${opt}`) }, states: () => sts,
-              channel: (p, s) => emphasis(p, s, decl.edgeChannel), scope });
-            continue;
-          }
-          for (const st of sts) {
-            const target = slotName(decl.family ?? '', opt, 'root', prop, st);
-            if (!slots.has(target)) throw new Error(`${slotName(owner, opt, part, prop, st)} falls to ${target}, which no family builds`);
-            put(slotName(owner, opt, part, prop, st), { ...scope, option: opt, part, property: prop, state: st, channel: emphasis(prop, st, decl.edgeChannel),
-              accepts: prop, on: prop === 'fill' ? undefined : slotName(owner, opt, part, 'fill', st), default: `{${target}}`,
-              optional: DISABLED.includes(st) ? true : undefined });
-          }
+  const groups: SlotCatalogue['groups'] = {};
+  for (const [group, decl] of Object.entries(d.groups ?? {})) {
+    groups[group] = { parts: Object.keys(decl.parts ?? {}) };
+    for (const [part, p] of Object.entries(decl.parts ?? {})) {
+      const options = p.options;
+      if (options !== undefined && !Array.isArray(options)) {
+        for (const [opt, o] of Object.entries(options)) {
+          const owner = [group, opt, part].join('-');
+          if (o.rest === undefined) fail(`${owner}: no rest answers`);
+          const spec = o.states ?? p.states ?? fail(`${owner}: no states`);
+          standing({ group, opt, part, rest: restOf(o.rest), states: sets(spec), channel: o.channel !== undefined ? o.channel : p.channel });
         }
+      } else if (p.rest !== undefined) {
+        const spec = p.states ?? fail(`${group}-${part}: no states`);
+        standing({ group, opt: undefined, part, rest: restOf(p.rest), states: sets(spec), channel: p.channel });
       }
-      for (const variant of decl.variants ?? []) {
-        const rest = { ...(d.variants[variant] ?? fail(`variant "${variant}" is undeclared`)).rest };
-        standing({ owner, opt: variant, part, rest: restOf(rest), states: () => sts,
-          channel: () => undefined, scope });
-      }
-    }
-  }
-
-  for (const [comp, parts] of Object.entries(d.components)) {
-    for (const [part, decl] of Object.entries(parts)) {
-      if (!decl.draws) continue;
-      const [dc, dp] = decl.draws.split('.');
-      if (decl.states === undefined) fail(`${comp}.${part}: no states`);
-      const sts = sets(decl.states);
-      let built = 0;
-      for (const [n, f] of [...slots]) {
-        if (f.component !== dc || f.part !== dp || !sts.includes(f.state as string)) continue;
-        const own = slotStem(comp);
-        put(slotName(own, f.option as string, part, f.property as string, f.state as string), { scope: 'component', component: comp, option: f.option, part,
-          property: f.property, state: f.state, channel: f.channel, accepts: f.property,
-          on: f.property === 'fill' ? undefined : slotName(own, f.option as string, part, 'fill', f.state as string), default: `{${n}}`, optional: f.optional, draws: decl.draws });
-        built++;
-      }
-      if (built === 0) fail(`${comp}.${part} draws ${decl.draws}, which builds no slot`);
     }
   }
 
@@ -168,9 +114,22 @@ export function deriveSlots(d: SlotDeclarations): SlotCatalogue {
     f.default = exc.default;
   }
 
+  const members: SlotCatalogue['members'] = {};
+  for (const [comp, m] of Object.entries(d.members ?? {})) {
+    for (const [part, to] of Object.entries(m.parts ?? {})) {
+      if (!isMemberDecl(to)) continue;
+      const key = `${comp}.${part}`;
+      for (const name of Object.keys(to.defaults ?? {})) if (!slots.has(name)) fail(`${key}: its default ${name} names no slot the group builds`);
+      const one: MemberPart = { to: to.to, options: to.options, states: sets(to.states ?? fail(`${key}: no states`)) as SlotState[] };
+      if (to.channels) one.channels = to.channels;
+      if (to.defaults) one.defaults = to.defaults;
+      members[key] = one;
+    }
+  }
+
   const ordered = (f: Record<string, unknown>) => Object.fromEntries(SLOT_KEYS.filter((k) => f[k] !== undefined).map((k) => [k, f[k]]));
   const sorted = [...slots].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
-  return { accepts: d.accepts, refused: d.refused, states: d.states, families, rings: d.rings,
+  return { accepts: d.accepts, refused: d.refused, states: d.states, groups, members, rings: d.rings,
     slots: Object.fromEntries(sorted.map(([n, f]) => [n, ordered(f) as ColorSlot])) };
 }
 

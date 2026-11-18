@@ -194,10 +194,10 @@ const SOFT = 'bg-[color:var(--arena-hue-fill-soft)]';
 const STRONG = 'bg-[color:var(--arena-hue-fill-strong)]';
 const MARK_SOFT = 'bg-[color:var(--arena-mark-fill,var(--arena-hue-fill-soft))]';
 const MARK_INK = 'text-[color:var(--arena-mark-ink,color-mix(in_oklab,var(--ink-body)_var(--level-ink-body),transparent))]';
-const DESTRUCTIVE = (stem: string, part: string) => ['edge', 'ink', 'fill'].map((property) => {
+const DESTRUCTIVE = ['edge', 'ink', 'fill'].map((property) => {
   const hue = { edge: 'edge', ink: 'ink', fill: 'fill-strong' }[property];
   const utility = { edge: 'border', ink: 'text', fill: 'bg' }[property];
-  return `${utility}-[color:var(--${stem}-destructive-${part}-${property}-rest,var(--hue-danger-${hue}))]`;
+  return `${utility}-[color:var(--actions-destructive-root-${property}-rest,var(--hue-danger-${hue}))]`;
 });
 const STRONG_INK = 'text-[color:var(--arena-hue-fill-strong)]';
 const FILLED_WHY = 'a solid status fill reads the strong fill channel, and danger, whose strong fill is hue-danger-fill-strong and transparent by default, draws the mark through its ink';
@@ -441,7 +441,7 @@ export const CLAIMS = {
     { slot: 'root', has: ['inline-flex'], hasNot: ['relative'], why: 'the bubble leaves the wrapper when it is shown, so nothing is positioned against the root' },
   ],
   ArenaButton: [
-    { chosen: { destructive: true }, slot: 'root', has: DESTRUCTIVE('button', 'root'), hasNot: ['bg-error', 'bg-error-fill'], why: 'destructive draws its border and label in the danger hue and fills with hue-danger-fill-strong, transparent by default' },
+    { chosen: { destructive: true }, slot: 'root', has: DESTRUCTIVE, hasNot: ['bg-error', 'bg-error-fill'], why: 'destructive draws its border and label in the danger hue and fills with hue-danger-fill-strong, transparent by default' },
     { chosen: { destructive: true }, slot: 'root', has: ['hover:shadow-control-rest'], hasNot: ['hover:shadow-[var(--arena-emphasis-shadow-hover)]'],
       why: 'a destructive button never lifts on hover whatever its emphasis, because the raised hover shadow is the emphasis destructive does not govern' },
     { chosen: { destructive: false }, slot: 'root', has: ['hover:shadow-[var(--arena-emphasis-shadow-hover)]'],
@@ -465,12 +465,12 @@ export const CLAIMS = {
       why: 'the joint is the emphasis ink at the muted level, because the primary edge is the primary fill and the ghost edge is transparent, so an edge-coloured joint draws nothing' },
     { chosen: { destructive: true }, slot: 'caret', has: ['border-s-[color:color-mix(in_oklab,var(--hue-danger-ink)_var(--level-ink-muted),transparent)]'], hasNot: ['border-s-[color:color-mix(in_oklab,var(--arena-emphasis-ink)_var(--level-ink-muted),transparent)]'],
       why: 'a destructive split draws its joint in the danger ink the same way' },
-    { chosen: { destructive: true }, slot: 'primary', has: DESTRUCTIVE('split-button', 'primary'), why: 'destructive draws the primary half in the danger hue, border and label, with a fill of hue-danger-fill-strong, as on a button' },
-    { chosen: { destructive: true }, slot: 'caret', has: DESTRUCTIVE('split-button', 'caret'), why: 'and on the caret half, so the split is one danger control' },
+    { chosen: { destructive: true }, slot: 'primary', has: DESTRUCTIVE, why: 'destructive draws the primary half in the danger hue, border and label, with a fill of hue-danger-fill-strong, as on a button' },
+    { chosen: { destructive: true }, slot: 'caret', has: DESTRUCTIVE, why: 'and on the caret half, so the split is one danger control' },
     { chosen: { destructive: false }, slot: 'caret',
       has: ['aria-expanded:bg-[color:var(--arena-emphasis-fill-hover)]', 'aria-expanded:shadow-[var(--arena-emphasis-shadow-hover)]'],
       why: 'an open caret holds the half\'s own hover look while its menu is shown, read through the emphasis channel' },
-    { chosen: { destructive: true }, slot: 'caret', has: ['aria-expanded:bg-[color:var(--split-button-destructive-caret-fill-hover,var(--fill-hover))]'],
+    { chosen: { destructive: true }, slot: 'caret', has: ['aria-expanded:bg-[color:var(--actions-destructive-root-fill-hover,var(--fill-hover))]'],
       why: 'a destructive caret holds its hover wash while its menu is shown, the same way' },
     { slot: 'spinner', has: ['arena-btn-spin'], why: 'the spinner is the button spinner, reduced-motion answer included' },
   ],
@@ -519,7 +519,7 @@ export const CLAIMS = {
       'border-[color:var(--arena-emphasis-icon-edge-selected)]',
       'hover:bg-[color:var(--arena-emphasis-fill-selected-hover)]',
       'active:bg-[color:var(--arena-emphasis-fill-selected-pressed)]',
-    ], hasNot: ['hover:bg-primary/22', 'bg-primary/14', 'hover:bg-[color:var(--arena-emphasis-fill-hover,var(--emphasis-ghost-root-fill-hover,var(--emphasis-ghost-fill-hover)))]'],
+    ], hasNot: ['hover:bg-primary/22', 'bg-primary/14', 'hover:bg-[color:var(--arena-emphasis-fill-hover,var(--actions-ghost-root-fill-hover,var(--emphasis-ghost-fill-hover)))]'],
       why: 'a pressed control is a state of the control and states its own wash over any emphasis' },
     { chosen: { showLabel: true }, slot: 'root', has: ['w-[var(--arena-fill-width,fit-content)]', 'gap-control'], why: 'showLabel opens the box out to its label through the fill channel and gives the glyph a gap; without it the control has neither' },
     { chosen: { showLabel: false }, slot: 'root', has: ['p-0', 'gap-0'], why: 'showLabel opens the box out and gives the glyph a gap; without it the control has neither' },

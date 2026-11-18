@@ -63,7 +63,7 @@ reach a page through classes a consumer applies rather than through any role. `p
 of the plugin's own, written against the part hooks; the build wraps it in the reserved layer, so
 its author never spells `@layer arena-plugin`.
 
-A plugin may also answer a colour slot the catalogue derives from `color-slots.json` with a role from that slot's accepts set. An unanswered slot reads the kernel's chain.
+A plugin may also answer a colour slot the catalogue derives from `color-slots.json` with a role from that slot's accepts set. A slot belongs to a group of components, so an answer moves every member that paints its part. An unanswered slot reads the kernel's chain, and a member keeps its own default there where a decision grants one.
 
 **Colour stays an assignment and never an authorship.** A colour role takes one of the consumer's
 palette colours as a `{color.*}` alias, or follows another colour role as `{ink-muted}`, and a plugin

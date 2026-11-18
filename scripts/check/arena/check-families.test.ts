@@ -367,7 +367,7 @@ test('a read of a channel the part\'s default block writes takes no fallback, an
   const button = structuredClone(manifests.get('ArenaButton'));
   assert.ok(String(button.slots.root).includes('bg-[color:var(--arena-emphasis-fill)]'));
   button.slots.root = String(button.slots.root).replace('bg-[color:var(--arena-emphasis-fill)]',
-    'bg-[color:var(--arena-emphasis-fill,var(--emphasis-primary-root-fill-rest,var(--emphasis-primary-fill)))]');
+    'bg-[color:var(--arena-emphasis-fill,var(--actions-primary-root-fill-rest,var(--emphasis-primary-fill)))]');
   const restated = emphasis(new Map([...manifests, ['ArenaButton', button]]));
   assert.equal(restated.length, 1, restated.join('\n'));
   assert.match(restated[0] ?? '', /^ArenaButton\.root: --arena-emphasis-fill falls back to .*, and the emphasis default block of this part writes --arena-emphasis-fill on it/);

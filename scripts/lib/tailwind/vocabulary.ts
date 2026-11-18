@@ -4,10 +4,10 @@
  * effect until somebody writes it. A family compiles to one @scope block per option over the parts
  * that read it, so nearness comes from scope proximity; a box family registers its channels as not
  * inherited, or a reached part would hand its value down past the boundary the rule stops at, and
- * its limit is inclusive, since the boundary is usually the component's own root. A
- * part with colour slots writes each channel wrapped by the slot that answers it, a drawn part
- * rebound by its wrapper, and a default block of zero specificity, so its reads take no fallback. A markup family writes the
- * declarations of the element its class is on, unlayered, in the order its file writes them. */
+ * its limit is inclusive, since the boundary is usually the component's own root. An option
+ * block writes its family's group chains over every answering part at once, a member part with
+ * channels or defaults adds its member chains, and each member part takes a zero-specificity default
+ * block, so its reads take no fallback. A markup family writes its element's declarations unlayered. */
 
 import { existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
@@ -17,8 +17,8 @@ import { captured } from '../../utils/captures.ts';
 import { repoRoot } from '../arena/repo-root.ts';
 import { declaredAxis } from '../core/user-scale.ts';
 import { emittedLength } from '../../generate/core/arena-cli/serialize-token.ts';
-import { componentValue, expectedName, slotChain, slotStem } from '../../generate/core/arena-cli/slots.ts';
-import type { ColorSlot, SlotCatalogue } from '../../generate/core/arena-cli/slots.ts';
+import { channelValue, memberChannel, memberValue } from '../../generate/core/arena-cli/slots.ts';
+import type { ColorSlot, MemberPart, SlotCatalogue } from '../../generate/core/arena-cli/slots.ts';
 import { COLOR_SLOTS, readColorSlots } from '../core/color-slots.ts';
 import type { DtcgNode } from '../core/dtcg-shapes.ts';
 import { classesManifest } from './component-css.ts';
@@ -224,58 +224,47 @@ function ownersOf(family: Family, manifests: ComponentManifest[]): Owner[] {
 
 const shortOption = (family: Family, option: string) => option.replace(`arena-${family.family}-`, '');
 
-function slotsOf(catalogue: SlotCatalogue, family: Family, owner: Owner, option: string, drawn: boolean): [string, ColorSlot][] {
+const memberKey = (owner: Owner) => `${owner.manifest.component}.${owner.slot}`;
+
+function memberSlots(catalogue: SlotCatalogue, family: Family, owner: Owner, option: string): [string, ColorSlot][] {
+  const m = catalogue.members[memberKey(owner)];
+  if (m === undefined) return [];
   const prefix = channelPrefix(family.family);
-  return Object.entries(catalogue.slots).filter(([, s]) => s.scope === 'component' && s.component === owner.manifest.component
-    && s.option === shortOption(family, option) && s.part === owner.slot && (s.draws !== undefined) === drawn
-    && s.channel !== undefined && s.channel.startsWith(prefix));
+  const [group, part] = m.to.split('.');
+  return Object.entries(catalogue.slots).filter(([, s]) => s.group === group && s.part === part && s.option === shortOption(family, option)
+    && m.options.includes(s.option ?? '') && m.states.includes(s.state) && s.channel !== undefined && s.channel.startsWith(prefix));
 }
 
-const NO_SLOTS: SlotCatalogue = { accepts: { fill: [], ink: [], edge: [], icon: [] }, refused: [], states: [], families: {}, rings: {}, slots: {} };
+const NO_SLOTS: SlotCatalogue = { accepts: { fill: [], ink: [], edge: [], icon: [] }, refused: [], states: [], groups: {}, members: {}, rings: {}, slots: {} };
 
 const catalogueOf = (root: string): SlotCatalogue => (existsSync(join(root, COLOR_SLOTS)) ? readColorSlots(root) : NO_SLOTS);
 
+const ownChannel = (m: MemberPart, slot: ColorSlot) => memberChannel(m, slot) as string;
+
 export function componentChannels(family: Family, root = repoRoot): Set<string> {
+  const catalogue = catalogueOf(root);
   const prefix = channelPrefix(family.family);
-  return new Set(Object.values(catalogueOf(root).slots)
-    .filter((s) => s.scope === 'component' && s.channel !== undefined && s.channel.startsWith(prefix)).map((s) => s.channel as string));
+  const out = new Set<string>();
+  for (const m of Object.values(catalogue.members)) {
+    const [group, part] = m.to.split('.');
+    for (const s of Object.values(catalogue.slots)) {
+      if (s.group !== group || s.part !== part || s.channel === undefined || !s.channel.startsWith(prefix)) continue;
+      if (m.options.includes(s.option ?? '') && m.states.includes(s.state)) out.add(ownChannel(m, s));
+    }
+  }
+  return out;
 }
 
 type Compiler = { family: Family; catalogue: SlotCatalogue; owners: Owner[] };
 
-function withInk(catalogue: SlotCatalogue, slot: ColorSlot, name: string, value: string): string {
-  if (slot.property !== 'icon') return value;
-  const inkName = expectedName({ ...slot, property: 'ink', accepts: 'ink' });
-  const ink = catalogue.slots[inkName];
-  const target = /^\{([a-z][a-z0-9-]*)\}$/.exec((ink?.default ?? '').trim())?.[1];
-  if (ink !== undefined && target !== undefined && value.includes(`var(--${target},`)) return componentValue(value, ink, inkName);
-  if (ink?.channel !== undefined && new RegExp(`var\\(${ink.channel}\\s*[,)]`).test(value)) return value;
-  throw new Error(`vocabulary: ${slot.channel} of ${name} reaches neither --${target ?? inkName} nor the channel `
-    + `${ink?.channel ?? 'of ' + inkName}, so an answer to ${inkName} would not carry the glyph`);
-}
-
-function partWrites(k: Compiler, option: string, owner: Owner): Map<string, string> {
-  const wrapper = slotsOf(k.catalogue, k.family, owner, option, true);
-  const drawn = wrapper[0]?.[1].draws;
-  let writes: Map<string, string>;
-  if (drawn === undefined) {
-    writes = new Map(declarations(k.family.variants[option] ?? '') as [string, string][]);
-  } else {
-    const [component, slot] = drawn.split('.');
-    const under = k.owners.find((one) => one.manifest.component === component && one.slot === slot);
-    writes = under === undefined ? new Map() : partWrites(k, option, under);
-  }
-  const slots = drawn === undefined ? slotsOf(k.catalogue, k.family, owner, option, false) : wrapper;
-  for (const [name, slot] of slots) {
-    const base = writes.get(slot.channel as string);
-    writes.set(slot.channel as string, base === undefined ? slotChain(k.catalogue, name) : withInk(k.catalogue, slot, name, componentValue(base, slot, name)));
-  }
-  for (const state of ['disabled', 'selected-disabled'] as const) {
-    const disabled = slots.find(([, slot]) => slot.state === state)?.[1];
-    const channel = `--arena-emphasis-fade-${state}`;
-    const fade = writes.get(channel);
-    if (disabled !== undefined && fade !== undefined)
-      writes.set(channel, `var(--${slotStem(owner.manifest.component)}-${disabled.option}-${disabled.part}-fade-${state},${fade})`);
+function memberWrites(k: Compiler, option: string, owner: Owner): Map<string, string> {
+  const writes = new Map<string, string>();
+  const m = k.catalogue.members[memberKey(owner)];
+  if (m === undefined || (m.channels === undefined && m.defaults === undefined)) return writes;
+  for (const [name, slot] of memberSlots(k.catalogue, k.family, owner, option)) {
+    const value = memberValue(k.catalogue, memberKey(owner), name, 'tailwind');
+    const channel = ownChannel(m, slot);
+    if (channel !== slot.channel || value !== channelValue(k.catalogue, name, 'tailwind')) writes.set(channel, value);
   }
   return writes;
 }
@@ -312,37 +301,27 @@ export function compileFamily(family: Family, manifests: Iterable<ComponentManif
   }
   const k: Compiler = { family, catalogue: catalogueOf(root), owners: ownersOf(family, all) };
   const mine = (owner: Owner) => only === undefined || owner.manifest.component === only;
-  const slotted = (option: string, drawn: boolean) => k.owners.filter((one) => one.options.includes(option) && mine(one)
-    && slotsOf(k.catalogue, family, one, option, drawn).length > 0).sort(byPart);
+  const members = (option: string) => k.owners.filter((one) => one.options.includes(option) && mine(one)
+    && memberSlots(k.catalogue, family, one, option).length > 0).sort(byPart);
   const scoped = only === undefined ? all : all.filter((one) => one.component === only);
-  const drawnPart = (owner: Owner, option: string) => {
-    const [component, slot] = slotsOf(k.catalogue, family, owner, option, true)[0]?.[1].draws?.split('.') ?? [];
-    return k.owners.find((one) => one.manifest.component === component && one.slot === slot)?.part ?? '';
-  };
   const blocks: string[] = [];
   for (const [option, classes] of Object.entries(family.variants).sort(byOption)) {
     const own = answeringParts(family, scoped, option);
     if (own.length === 0) continue;
     const head = family.reach === 'box' ? `@scope (.${option}) to (${LIMIT})` : `@scope (.${option}) to (${FLOATING_LIMIT})`;
-    const answered = slotted(option, false);
-    const plain = own.filter((part) => !answered.some((one) => one.part === part));
-    const inner: string[] = [];
-    if (plain.length) {
-      const body = declarations(classes).map(([name, value]) => `      ${name}: ${value};`).join('\n');
-      inner.push(`    ${plain.map(partSelector).join(',\n    ')} {\n${body}\n    }`);
-    }
-    for (const owner of answered) inner.push(rule(partSelector(owner.part), partWrites(k, option, owner), '    '));
-    for (const owner of slotted(option, true)) {
-      const into = drawnPart(owner, option);
-      inner.push(rule(`:where(:scope[data-arena-part="${owner.part}"]) [data-arena-part="${into}"],\n    :where([data-arena-part="${owner.part}"]) [data-arena-part="${into}"]`,
-        partWrites(k, option, owner), '    '));
+    const body = declarations(classes).map(([name, value]) => `      ${name}: ${value};`).join('\n');
+    const parts = [...new Set([...own, ...members(option).map((one) => one.part)])].sort();
+    const inner = [`    ${parts.map(partSelector).join(',\n    ')} {\n${body}\n    }`];
+    for (const owner of members(option)) {
+      const writes = memberWrites(k, option, owner);
+      if (writes.size) inner.push(rule(partSelector(owner.part), writes, '    '));
     }
     blocks.push(`  ${head} {\n${inner.join('\n')}\n  }`);
   }
-  const atDefault = (drawn: boolean) => k.owners.filter((one) => mine(one) && slotsOf(k.catalogue, family, one, one.default, drawn).length > 0).sort(byPart);
-  for (const owner of atDefault(false)) blocks.push(rule(`:where([data-arena-part="${owner.part}"])`, partWrites(k, owner.default, owner), '  '));
-  for (const owner of atDefault(true)) {
-    blocks.push(rule(`:where([data-arena-part="${owner.part}"] [data-arena-part="${drawnPart(owner, owner.default)}"])`, partWrites(k, owner.default, owner), '  '));
+  const atDefault = k.owners.filter((one) => mine(one) && memberSlots(k.catalogue, family, one, one.default).length > 0).sort(byPart);
+  for (const owner of atDefault) {
+    const writes = new Map([...declarations(family.variants[owner.default] ?? '') as [string, string][], ...memberWrites(k, owner.default, owner)]);
+    blocks.push(rule(`:where([data-arena-part="${owner.part}"])`, writes, '  '));
   }
   if (family.reach === 'box')
     for (const axis of axesOf(family)) blocks.push(`  [${BOUNDARY}] > * {\n    ${axis}: initial;\n  }`);
@@ -359,20 +338,22 @@ export function defaultBlockChannels(family: Family, manifests: Iterable<Compone
   const all = [...manifests];
   const k: Compiler = { family, catalogue: catalogueOf(root), owners: ownersOf(family, all) };
   for (const owner of k.owners) {
-    if (slotsOf(k.catalogue, family, owner, owner.default, false).length === 0) continue;
-    out.set(`${owner.manifest.component}.${owner.slot}`, new Set(partWrites(k, owner.default, owner).keys()));
+    if (memberSlots(k.catalogue, family, owner, owner.default).length === 0) continue;
+    const written = declarations(family.variants[owner.default] ?? '').map(([name]) => name);
+    out.set(memberKey(owner), new Set([...written, ...memberWrites(k, owner.default, owner).keys()]));
   }
   return out;
 }
 
-export const partSheetStem = (component: string) => `arena-${slotStem(component)}`;
+const kebab = (component: string) => component.replace(/^Arena/, '').replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
+
+export const partSheetStem = (component: string) => `arena-${kebab(component)}`;
 
 export function partSheetOwners(family: Family, manifests: Iterable<ComponentManifest>, root = repoRoot): string[] {
   if (targetOf(family) !== 'component') return [];
   const catalogue = catalogueOf(root);
   const owners = ownersOf(family, [...manifests]);
-  const slotted = (owner: Owner) => owner.options.some((option) => slotsOf(catalogue, family, owner, option, false).length > 0
-    || slotsOf(catalogue, family, owner, option, true).length > 0);
+  const slotted = (owner: Owner) => owner.options.some((option) => memberSlots(catalogue, family, owner, option).length > 0);
   return owners.some(slotted) ? [...new Set(owners.map((owner) => owner.manifest.component))].sort() : [];
 }
 
