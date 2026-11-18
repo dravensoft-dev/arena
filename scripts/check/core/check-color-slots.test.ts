@@ -336,12 +336,14 @@ test('an own key, an own row key or an own decision outside the declaration is r
   assert.equal(declarationProblems(e).length, 1);
 });
 
-test('a template or optionsFrom key on a family, a selected key outside fill, ink and edge, and an ink answer off icon are refused', () => {
+test('a template, optionsFrom or states key on a family, a selected key outside fill, ink and edge, and an ink answer off icon are refused', () => {
   const a = declared();
   (a.families.emphasis as any).template = { mark: { ink: '{x}' } };
   assert.match(declarationProblems(a).join('\n'), /families\.emphasis: unknown key "template"/);
   (a.families.emphasis as any).optionsFrom = ['danger'];
-  assert.equal(declarationProblems(a).length, 2);
+  (a.families.emphasis as any).states = 'rest';
+  assert.equal(declarationProblems(a).length, 3);
+  assert.match(declarationProblems(a).join('\n'), /families\.emphasis: unknown key "states"/);
   const b = declared();
   (b.selected as any).icon = 'ink';
   assert.equal(declarationProblems(b).length, 1);
