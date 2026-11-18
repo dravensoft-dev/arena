@@ -103,6 +103,13 @@ test('an exception naming no slot throws', () => {
   assert.throws(() => deriveSlots(d), /tone-calm-root-fill-nowhere/);
 });
 
+test('an icon at selected with no declared selected ink throws, naming the slot', () => {
+  const d = fixture();
+  d.families.tone!.options!.calm!.parts.root = { fill: '{tone-calm-fill}', icon: 'ink' as never };
+  delete d.selected.ink;
+  assert.throws(() => deriveSlots(d), /tone-calm-root-icon-selected: no selected answer for ink/);
+});
+
 test('a component slot whose family target does not exist throws, naming the slot', () => {
   const d = fixture();
   (d.components.ArenaKnob as Record<string, { options: string[] }>).root!.options = ['loud'];

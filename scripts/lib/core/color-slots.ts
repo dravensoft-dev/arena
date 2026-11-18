@@ -71,7 +71,7 @@ export function deriveSlots(d: SlotDeclarations): SlotCatalogue {
         if (prop === 'icon') {
           f.default = `{${slotName(owner, opt, part, 'ink', st)}}`;
           if (st === 'rest' && rest.ink) f.level = answer(rest.ink)[1];
-          else if (st === 'selected') f.level = answer(d.selected.ink ?? '')[1];
+          else if (st === 'selected') f.level = answer(d.selected.ink ?? fail(`${n}: no selected answer for ink`))[1];
         } else if (st === 'rest') [f.default, f.level] = answer(rest[prop] as Answer);
         else if (st === 'selected') [f.default, f.level] = answer(selectedAnswer());
         else if (!DISABLED.includes(st)) {
