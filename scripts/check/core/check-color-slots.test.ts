@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { collect, mapProblems, declarationProblems, exceptionProblems, shapeProblems, nameProblems, acceptsProblems, defaultProblems, fallbackProblems, pairProblems, manifestProblems, ringProblems, readProblems, colourRoleSet, slotManifests } from './check-color-slots.ts';
 import { readColorSlots, readSlotDeclarations } from '../../lib/core/color-slots.ts';
@@ -431,4 +432,31 @@ test('an orphan group part without paintedBy is refused, and paintedBy on a mapp
   const f = mapped();
   (f.groups!.charts!.parts.heat as any).paintedBy = 'frameworks/nowhere.ts';
   assert.match(mapLines(f).join('\n'), /charts\.parts\.heat.*nowhere/);
+});
+
+test('paintedBy may be a list, and each path of it must exist', () => {
+  const d = mapped();
+  (d.groups!.charts!.parts.heat as any).paintedBy = ['frameworks/react/DataVisuals.ts', 'frameworks/angular/DataVisuals.ts'];
+  assert.deepEqual(mapLines(d), []);
+  (d.groups!.charts!.parts.heat as any).paintedBy = ['frameworks/react/DataVisuals.ts', 'frameworks/nowhere.ts'];
+  assert.match(mapLines(d).join('\n'), /charts\.parts\.heat.*nowhere/);
+  (d.groups!.charts!.parts.heat as any).paintedBy = [];
+  assert.match(mapLines(d).join('\n'), /charts\.parts\.heat/);
+});
+
+test('a null part on a part that paints no colour at all is refused', () => {
+  const d = mapped();
+  d.members!.ArenaAlert!.parts.body = null;
+  assert.match(mapLines(d).join('\n'), /ArenaAlert\.body.*paints no colour/);
+});
+
+test('every shipped paintedBy path names a file that paints the part', () => {
+  const read = (p: string) => readFileSync(p, 'utf8');
+  const needle: Record<string, RegExp> = { heat: /color-heat/, tick: /ARENA_INK_MUTED/, axis: /--edge-axis/, grid: /--edge-separator/, halo: /--fill-surface/, track: /--fill-track/ };
+  for (const [part, re] of Object.entries(needle)) {
+    const by = mapped().groups!.charts!.parts[part]!.paintedBy;
+    const paths = typeof by === 'string' ? [by] : by ?? [];
+    assert.ok(paths.length > 0, part);
+    for (const p of paths) assert.match(read(p), re, `${part}: ${p}`);
+  }
 });

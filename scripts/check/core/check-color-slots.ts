@@ -423,7 +423,11 @@ export function mapProblems(d: SlotDeclarations, coloured: ReadonlyMap<string, C
       if (used.has(`${g}.${part}`)) {
         if (gp.paintedBy !== undefined) out.push(`${at}: a member part maps onto it, so it carries no paintedBy`);
       } else if (gp.paintedBy === undefined) out.push(`${at}: no member part maps onto it and it names no paintedBy, the file that paints it`);
-      else if (!existsSync(join(root, gp.paintedBy))) out.push(`${at}: paintedBy ${gp.paintedBy} is no file`);
+      else {
+        const paths = typeof gp.paintedBy === 'string' ? [gp.paintedBy] : gp.paintedBy;
+        if (paths.length === 0) out.push(`${at}: paintedBy names no file`);
+        for (const path of paths) if (!existsSync(join(root, path))) out.push(`${at}: paintedBy ${path} is no file`);
+      }
     }
   }
   return out;

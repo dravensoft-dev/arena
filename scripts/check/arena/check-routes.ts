@@ -396,13 +396,14 @@ export const ROUTES: Route[] = [
       + 'can afford. The level answers two readers: a contributor deciding a value, and a platform '
       + 'target that reads contracts/design/ first and is not a browser. So TokenTypes.md states the '
       + 'one departure from DTCG and why, the axis larger text moves and what it obliges on each '
-      + 'platform, and the shapes that read one way on the web and another elsewhere. The specification states the muted levels as floors a palette moves up '
-      + 'and never down, target size as the axis density answers, and what DTCG does not model. It states the frame shapes and the roles a kind answers, and '
-      + 'names the filled status mark beside the presence dot. The type map names the keyword tokens a '
-      + 'role may default to and the half spacing step. The ramp paragraph states how a chart '
-      + 'counts a positional slot. It names the glyph component. '
-      + 'The design level states the contrast floors as measured over the catalogue. '
-      + 'It also states the role metadata keys a role declares, and which chart numbers and two widths follow the reader\'s text size.',
+      + 'platform, and the shapes that read one way on the web and another elsewhere. The specification '
+      + 'states the muted levels as floors a palette moves up and never down, target size as the axis '
+      + 'density answers, what DTCG does not model, the frame shapes and the roles a kind answers, and '
+      + 'the filled status mark beside the presence dot. The type map names the keyword tokens a role '
+      + 'may default to and the half spacing step. The ramp paragraph states how a chart counts a '
+      + 'positional slot. It names the glyph component. The design level states the contrast floors as '
+      + 'measured over the catalogue, the role metadata keys a role declares, which chart numbers and '
+      + 'two widths follow the reader\'s text size, and the group map that holds every coloured part.',
   },
   {
     name: 'contributor-gate',
