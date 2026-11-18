@@ -1,7 +1,8 @@
 /* The colour slot catalogue: the tier above the roles. A slot is one coloured part of one group
  * of components, per option, property and state, and a plugin answers it with a role its accepts
  * set names. A member default replaces the group default at the end of that member's chain, and a
- * state deriving the same colour from it reads the member's chain (R5). MeasuredSlots is what a
+ * state deriving the same colour from it reads the member's chain (R5). A part with no fill sits
+ * on the ground, and a halo is an option's edge-rest chain at the level it names. MeasuredSlots is what a
  * contrast measurement reads. The command ships this file, so it imports nothing outside it. */
 
 export const SLOT_PROPERTIES = ['fill', 'ink', 'edge', 'icon'] as const;
@@ -18,7 +19,7 @@ export type ColorSlot = {
   state: SlotState;
   channel?: string;
   accepts: SlotProperty;
-  on?: string;
+  on?: string | 'ground';
   default?: string;
   derive?: { from: string; mix?: 'mix-hover' | 'mix-pressed' };
   level?: string;
@@ -31,6 +32,8 @@ export type MemberPart = {
   states: SlotState[];
   channels?: Partial<Record<SlotProperty, string>>;
   defaults?: Record<string, string>;
+  optionBy?: { axis: string; values: Record<string, string> };
+  selectedBy?: { axis: string; value: string };
 };
 
 export type SlotCatalogue = {
@@ -40,6 +43,7 @@ export type SlotCatalogue = {
   groups: Record<string, { parts: string[] }>;
   members: Record<string, MemberPart>;
   rings: Record<string, string>;
+  halos?: Record<string, string>;
   slots: Record<string, ColorSlot>;
 };
 
@@ -119,6 +123,15 @@ export function memberChain(catalogue: SlotCatalogue, member: string, name: stri
 
 export function memberValue(catalogue: SlotCatalogue, member: string, name: string, form: 'tailwind' | 'css'): string {
   return levelled(catalogue, name, memberChain(catalogue, member, name), form);
+}
+
+export function haloValue(catalogue: SlotCatalogue, member: string, option: string): string {
+  const m = catalogue.members[member];
+  if (!m) throw new Error(`${option}: ${member} is no member part of the catalogue`);
+  const [group, part] = m.to.split('.');
+  const stem = `${group}-${option}-${part}`;
+  const level = catalogue.halos?.[stem] ?? (() => { throw new Error(`${member}: ${stem} declares no halo`); })();
+  return `color-mix(in_oklab,${memberChain(catalogue, member, `${stem}-edge-rest`)}_var(--${level}),transparent)`;
 }
 
 export function memberChannel(m: Member, slot: ColorSlot): string | undefined {

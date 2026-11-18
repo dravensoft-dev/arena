@@ -177,3 +177,54 @@ test('an option builds an icon only when it declares one', () => {
   assert.equal(s['actions-danger-root-icon-rest'], undefined);
   assert.ok(s['actions-danger-root-ink-rest']);
 });
+
+test('a part may declare its own selected answers', () => {
+  const d = fixture();
+  d.groups!.actions!.parts.dismiss!.states = 'selectable';
+  d.groups!.actions!.parts.dismiss!.selected = { fill: { role: '{own-fill}', level: 'level-own' }, ink: '{own-ink}' };
+  const calm = (d.groups!.actions!.parts.root!.options as Record<string, { selected?: Record<string, unknown> }>).calm!;
+  calm.selected = { edge: '{calm-edge-selected}' };
+  const s = deriveSlots(d).slots;
+  assert.equal(s['actions-dismiss-fill-selected']?.default, '{own-fill}');
+  assert.equal(s['actions-dismiss-fill-selected']?.level, 'level-own');
+  assert.equal(s['actions-dismiss-ink-selected']?.default, '{own-ink}');
+  assert.equal(s['actions-dismiss-icon-selected']?.default, '{actions-dismiss-ink-selected}');
+  assert.deepEqual(s['actions-dismiss-fill-selected-hover']?.derive, { from: 'actions-dismiss-fill-selected', mix: 'mix-hover' });
+  assert.equal(s['actions-calm-root-edge-selected']?.default, '{calm-edge-selected}', 'an option wins over the part');
+  assert.equal(s['actions-calm-root-fill-selected']?.default, '{fill-selected}', 'the top-level answer is the fallback');
+});
+
+test('an exception may carry a level', () => {
+  const d = fixture();
+  d.exceptions['actions-calm-root-ink-hover'] = { default: '{ink-body}', decision: 'D19', level: 'level-ink-body' };
+  d.exceptions['actions-calm-root-ink-rest'] = { default: '{ink-quiet}', decision: 'D19' };
+  const s = deriveSlots(d).slots;
+  assert.equal(s['actions-calm-root-ink-hover']?.default, '{ink-body}');
+  assert.equal(s['actions-calm-root-ink-hover']?.level, 'level-ink-body');
+  assert.equal(s['actions-calm-root-ink-rest']?.level, undefined, 'an exception with no level takes none');
+  assert.equal(s['actions-calm-root-icon-rest']?.level, undefined, 'its icon follows');
+  assert.equal(s['actions-calm-root-icon-hover']?.level, 'level-ink-body', 'the icon carries its ink level');
+});
+
+test('a part with no fill sits its ink and icon on the ground, and a part with on sits on its sibling', () => {
+  const d = fixture();
+  d.groups!.actions!.parts.close = { properties: ['ink', 'icon'], states: 'base', rest: { ink: '{i-quiet}', icon: 'ink' } };
+  d.groups!.actions!.parts.dismiss!.on = 'root';
+  const s = deriveSlots(d).slots;
+  assert.equal(s['actions-close-ink-rest']?.on, 'ground');
+  assert.equal(s['actions-close-icon-hover']?.on, 'ground');
+  assert.equal(s['actions-dismiss-ink-hover']?.on, 'actions-root-fill-hover');
+  assert.equal(s['actions-dismiss-fill-hover']?.on, 'actions-root-fill-hover');
+});
+
+test('a halo and a member axis enter the catalogue', () => {
+  const d = fixture();
+  (d.groups!.actions!.parts.root!.options as Record<string, { halo?: string }>).calm!.halo = 'level-halo';
+  (d.members!.ArenaKnob!.parts.root as { optionBy?: unknown; selectedBy?: unknown }).optionBy = { axis: 'state', values: { danger: 'danger' } };
+  (d.members!.ArenaKnob!.parts.root as { optionBy?: unknown; selectedBy?: unknown }).selectedBy = { axis: 'on', value: 'true' };
+  const c = deriveSlots(d);
+  assert.deepEqual(c.halos, { 'actions-calm-root': 'level-halo' });
+  assert.deepEqual(c.members['ArenaKnob.root']?.optionBy, { axis: 'state', values: { danger: 'danger' } });
+  assert.deepEqual(c.members['ArenaKnob.root']?.selectedBy, { axis: 'on', value: 'true' });
+  assert.equal(Object.hasOwn(deriveSlots(fixture()), 'halos'), false, 'no halo, no key');
+});

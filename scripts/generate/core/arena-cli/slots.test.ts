@@ -3,7 +3,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readColorSlots } from '../../../lib/core/color-slots.ts';
-import { channelValue, fadeMarkers, memberChain, memberValue, slotChain } from './slots.ts';
+import { channelValue, fadeMarkers, haloValue, memberChain, memberValue, slotChain } from './slots.ts';
+import type { SlotCatalogue } from './slots.ts';
 
 const c = readColorSlots();
 
@@ -107,4 +108,14 @@ test('a group part with no option axis writes a fade marker with no option segme
   const fixture = structuredClone(c);
   fixture.slots['actions-dismiss-ink-disabled'] = { group: 'actions', part: 'dismiss', property: 'ink', state: 'disabled', accepts: 'ink', optional: true };
   assert.deepEqual(fadeMarkers(['actions-dismiss-ink-disabled'], fixture), [['--actions-dismiss-fade-disabled', '1']]);
+});
+
+test('haloValue is the edge-rest chain at the halo level', () => {
+  const g: SlotCatalogue = {
+    ...c, halos: { 'actions-primary-root': 'level-hue-soft-danger' },
+  };
+  const edge = 'actions-primary-root-edge-rest';
+  assert.equal(haloValue(g, 'ArenaButton.root', 'primary'),
+    `color-mix(in_oklab,${memberChain(g, 'ArenaButton.root', edge)}_var(--level-hue-soft-danger),transparent)`);
+  assert.throws(() => haloValue(g, 'ArenaButton.root', 'ghost'), /ghost/);
 });

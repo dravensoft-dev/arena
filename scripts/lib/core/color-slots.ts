@@ -13,18 +13,22 @@ type Answer = string | { role: string; level?: string };
 type StateSpec = string | string[];
 type Rest = Record<string, Answer>;
 
-export type GroupOption = { states?: StateSpec; rest: Rest; channel?: string | null; decision?: string };
+export type GroupOption = { states?: StateSpec; rest: Rest; selected?: Rest; halo?: string; channel?: string | null; decision?: string };
 export type GroupPart = {
   properties: string[];
   options?: string[] | Record<string, GroupOption>;
   states?: StateSpec;
   channel?: string | null;
   rest?: Rest;
+  selected?: Rest;
+  on?: string;
+  selectedOn?: 'rest';
   decision?: string;
   paintedBy?: string | string[];
 };
 export type MemberDecl = {
   to: string; options: string[]; states: StateSpec; channels?: Record<string, string>; defaults?: Record<string, string>; decision?: string;
+  optionBy?: { axis: string; values: Record<string, string> }; selectedBy?: { axis: string; value: string };
 };
 
 export type SlotDeclarations = {
@@ -36,7 +40,7 @@ export type SlotDeclarations = {
   selected: Record<string, Answer>;
   groups?: Record<string, { parts: Record<string, GroupPart> }>;
   members?: Record<string, { group: string | null; parts: Record<string, string | null | MemberDecl> }>;
-  exceptions: Record<string, { default: string; decision: string }>;
+  exceptions: Record<string, { default: string; decision: string; level?: string }>;
   rings: Record<string, string>;
 };
 
@@ -53,7 +57,10 @@ const slotName = (group: string, opt: string | undefined, part: string, prop: st
 
 export const isMemberDecl = (to: unknown): to is MemberDecl => typeof to === 'object' && to !== null;
 
-type Standing = { group: string; opt: string | undefined; part: string; rest: Rest; states: string[]; channel: string | null | undefined };
+type Standing = {
+  group: string; opt: string | undefined; part: string; rest: Rest; selected: Rest; states: string[]; channel: string | null | undefined;
+  properties: string[]; on: string | undefined; selectedOn: 'rest' | undefined;
+};
 
 export function deriveSlots(d: SlotDeclarations): SlotCatalogue {
   const slots = new Map<string, Record<string, unknown>>();
@@ -63,7 +70,7 @@ export function deriveSlots(d: SlotDeclarations): SlotCatalogue {
     slots.set(name, Object.fromEntries(Object.entries(f).filter(([, v]) => v !== undefined && v !== null)));
   };
 
-  function standing({ group, opt, part, rest, states, channel }: Standing) {
+  function standing({ group, opt, part, rest, selected, states, channel, properties, on, selectedOn }: Standing) {
     for (const prop of Object.keys(rest)) {
       for (const st of states) {
         const n = slotName(group, opt, part, prop, st);
@@ -71,12 +78,14 @@ export function deriveSlots(d: SlotDeclarations): SlotCatalogue {
           group, option: opt, part, property: prop, state: st,
           channel: channel ? channel.replace('{property}', prop) + (st === 'rest' ? '' : `-${st}`) : undefined, accepts: prop,
         };
-        if (prop !== 'fill') f.on = slotName(group, opt, part, 'fill', st);
-        const selectedAnswer = () => d.selected[prop] ?? fail(`${n}: no selected answer for ${prop}`);
+        const sibling = on === undefined ? undefined : slotName(group, undefined, on, 'fill', st);
+        if (prop === 'fill') f.on = st === 'selected' && selectedOn ? slotName(group, opt, part, 'fill', 'rest') : sibling;
+        else f.on = sibling ?? (properties.includes('fill') ? slotName(group, opt, part, 'fill', st) : prop === 'edge' ? undefined : 'ground');
+        const selectedAnswer = () => selected[prop] ?? d.selected[prop] ?? fail(`${n}: no selected answer for ${prop}`);
         if (prop === 'icon') {
           f.default = `{${slotName(group, opt, part, 'ink', st)}}`;
           if (st === 'rest' && rest.ink) f.level = answer(rest.ink)[1];
-          else if (st === 'selected') f.level = answer(d.selected.ink ?? fail(`${n}: no selected answer for ink`))[1];
+          else if (st === 'selected') f.level = answer(selected.ink ?? d.selected.ink ?? fail(`${n}: no selected answer for ink`))[1];
         } else if (st === 'rest') [f.default, f.level] = answer(rest[prop] as Answer);
         else if (st === 'selected') [f.default, f.level] = answer(selectedAnswer());
         else if (!DISABLED.includes(st)) {
@@ -90,6 +99,7 @@ export function deriveSlots(d: SlotDeclarations): SlotCatalogue {
   }
 
   const groups: SlotCatalogue['groups'] = {};
+  const halos: Record<string, string> = {};
   for (const [group, decl] of Object.entries(d.groups ?? {})) {
     groups[group] = { parts: Object.keys(decl.parts ?? {}) };
     for (const [part, p] of Object.entries(decl.parts ?? {})) {
@@ -99,11 +109,18 @@ export function deriveSlots(d: SlotDeclarations): SlotCatalogue {
           const owner = [group, opt, part].join('-');
           if (o.rest === undefined) fail(`${owner}: no rest answers`);
           const spec = o.states ?? p.states ?? fail(`${owner}: no states`);
-          standing({ group, opt, part, rest: restOf(o.rest), states: sets(spec), channel: o.channel !== undefined ? o.channel : p.channel });
+          if (o.halo !== undefined) halos[owner] = o.halo;
+          standing({
+            group, opt, part, rest: restOf(o.rest), selected: { ...p.selected, ...o.selected }, states: sets(spec),
+            channel: o.channel !== undefined ? o.channel : p.channel, properties: p.properties, on: p.on, selectedOn: p.selectedOn,
+          });
         }
       } else if (p.rest !== undefined) {
         const spec = p.states ?? fail(`${group}-${part}: no states`);
-        standing({ group, opt: undefined, part, rest: restOf(p.rest), states: sets(spec), channel: p.channel });
+        standing({
+          group, opt: undefined, part, rest: restOf(p.rest), selected: { ...p.selected }, states: sets(spec), channel: p.channel,
+          properties: p.properties, on: p.on, selectedOn: p.selectedOn,
+        });
       }
     }
   }
@@ -112,6 +129,10 @@ export function deriveSlots(d: SlotDeclarations): SlotCatalogue {
     const f = slots.get(n) ?? fail(`exception ${n} names no slot the rule builds`);
     delete f.derive;
     f.default = exc.default;
+    f.level = exc.level;
+    const at = n.lastIndexOf('-ink-');
+    const icon = at < 0 ? undefined : slots.get(`${n.slice(0, at)}-icon-${n.slice(at + 5)}`);
+    if (icon?.default === `{${n}}`) icon.level = exc.level;
   }
 
   const members: SlotCatalogue['members'] = {};
@@ -123,6 +144,8 @@ export function deriveSlots(d: SlotDeclarations): SlotCatalogue {
       const one: MemberPart = { to: to.to, options: to.options, states: sets(to.states ?? fail(`${key}: no states`)) as SlotState[] };
       if (to.channels) one.channels = to.channels;
       if (to.defaults) one.defaults = to.defaults;
+      if (to.optionBy) one.optionBy = to.optionBy;
+      if (to.selectedBy) one.selectedBy = to.selectedBy;
       members[key] = one;
     }
   }
@@ -130,6 +153,7 @@ export function deriveSlots(d: SlotDeclarations): SlotCatalogue {
   const ordered = (f: Record<string, unknown>) => Object.fromEntries(SLOT_KEYS.filter((k) => f[k] !== undefined).map((k) => [k, f[k]]));
   const sorted = [...slots].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
   return { accepts: d.accepts, refused: d.refused, states: d.states, groups, members, rings: d.rings,
+    ...(Object.keys(halos).length ? { halos } : {}),
     slots: Object.fromEntries(sorted.map(([n, f]) => [n, ordered(f) as ColorSlot])) };
 }
 

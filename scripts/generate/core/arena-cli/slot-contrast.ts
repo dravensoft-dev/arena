@@ -103,11 +103,13 @@ function contexts(base: Context): [string, Context][] {
 const same = (a: Resolved, b: Resolved) => a !== undefined && b !== undefined
   && (a === null || b === null ? a === b : a.hex === b.hex && Math.abs(a.alpha - b.alpha) < 1e-9);
 
+const fillOf = (ctx: Context, pair: SlotPair): Resolved => (pair.over === 'ground' ? null : paint(ctx, pair.over));
+
 const markOf = (ctx: Context, pair: SlotPair) =>
   (ctx.catalogue.slots[pair.slot] === undefined ? valueColour(ctx, ctx.roles.get(pair.slot)) : paint(ctx, pair.slot));
 
 function moved(base: Context, ctx: Context, pair: SlotPair) {
-  return ctx === base || !same(markOf(ctx, pair), markOf(base, pair)) || !same(paint(ctx, pair.over), paint(base, pair.over));
+  return ctx === base || !same(markOf(ctx, pair), markOf(base, pair)) || !same(fillOf(ctx, pair), fillOf(base, pair));
 }
 
 const over = (colour: Paint, ground: string) => (colour === null ? ground : colour.alpha >= 1 ? colour.hex : composite(colour.hex, ground, colour.alpha * 100));
@@ -132,8 +134,9 @@ export type SlotPair = { slot: string; over: string; min: number };
 export function slotPairs(catalogue: MeasuredSlots): SlotPair[] {
   const out: SlotPair[] = [];
   for (const [name, slot] of Object.entries(catalogue.slots)) {
-    if (!slot.on || OFF.has(slot.state) || !catalogue.slots[slot.on]) continue;
-    if (slot.property === 'ink') out.push({ slot: name, over: slot.on, min: TEXT_MIN });
+    if (!slot.on || OFF.has(slot.state) || (slot.on !== 'ground' && !catalogue.slots[slot.on])) continue;
+    if (slot.property === 'fill') out.push({ slot: name, over: slot.on, min: MARK_MIN });
+    else if (slot.property === 'ink') out.push({ slot: name, over: slot.on, min: TEXT_MIN });
     else if (slot.property === 'icon') out.push({ slot: name, over: slot.on, min: MARK_MIN });
     else if (slot.property === 'edge' && slot.state.startsWith('selected')) out.push({ slot: name, over: slot.on, min: MARK_MIN });
   }
@@ -151,6 +154,7 @@ const WHY: Record<string, string> = {
   ink: 'the label is hard to read',
   icon: 'the glyph is hard to see',
   edge: 'the edge that marks the state is hard to see',
+  fill: 'the mark is hard to see',
   'edge-focus': 'the focus ring is hard to see',
 };
 
@@ -165,9 +169,10 @@ export function slotReports(
   for (const pair of slotPairs(catalogue)) for (const [member, ctx] of contexts(base)) {
     if (!moved(base, ctx, pair)) continue;
     const mark = markOf(ctx, pair);
-    const fill = paint(ctx, pair.over);
+    const fill = fillOf(ctx, pair);
     if (!mark || fill === undefined) continue;
-    const state = (catalogue.slots[pair.over] as ColorSlot).state;
+    const state = (catalogue.slots[pair.over] ?? catalogue.slots[pair.slot] as ColorSlot).state;
+    const against = pair.over === 'ground' ? 'the ground' : `--${pair.over}`;
     const kind = catalogue.slots[pair.slot]?.property ?? 'edge-focus';
     const standard = pair.min === MARK_MIN ? 'WCAG 1.4.11' : 'WCAG 1.4.3';
     for (const ground of fill !== null && fill.alpha >= 1 ? [null] : grounds) {
@@ -177,7 +182,7 @@ export function slotReports(
       const on = (ground === null ? '' : `, where it is composited over --color-${ground}`) + (member ? `, as ${member} paints it with its own default` : '');
       const split = /^actions-(primary|solid)-root-fill-rest$/.test(pair.over)
         ? '; a palette that splits primary-fill from primary fills the button with primary-fill' : '';
-      const line = `--${pair.slot} measures ${ratio.toFixed(2)}:1 over --${pair.over} in the ${state} state of the ${theme} theme${on}, `
+      const line = `--${pair.slot} measures ${ratio.toFixed(2)}:1 over ${against} in the ${state} state of the ${theme} theme${on}, `
         + `below ${pair.min}:1 (${standard}), so ${WHY[kind]}; answer the pair with colours that stand further apart${split}`;
       if (seen.has(line)) continue;
       seen.add(line);
@@ -192,7 +197,7 @@ export function unresolvedPairs(
   colors: Record<string, string>, levels: Record<string, number> = {},
 ): SlotPair[] {
   const base: Context = { catalogue, answers, roles, colors, levels, mix: mixOf(roles) };
-  return slotPairs(catalogue).filter((pair) => contexts(base).some(([, ctx]) => markOf(ctx, pair) === undefined || paint(ctx, pair.over) === undefined));
+  return slotPairs(catalogue).filter((pair) => contexts(base).some(([, ctx]) => markOf(ctx, pair) === undefined || fillOf(ctx, pair) === undefined));
 }
 
 export function disabledReports(

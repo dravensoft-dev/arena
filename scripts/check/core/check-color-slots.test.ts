@@ -2,13 +2,15 @@ import test from 'node:test';
 import { readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
-import { collect, mapProblems, declarationProblems, exceptionProblems, memberDefaultProblems, shapeProblems, nameProblems, acceptsProblems, defaultProblems, fallbackProblems, pairProblems, manifestProblems, ringProblems, readProblems, familyProblems, colourRoleSet, slotManifests, EMPHASIS_FAMILY } from './check-color-slots.ts';
+import { collect, mapProblems, declarationProblems, exceptionProblems, memberDefaultProblems, shapeProblems, nameProblems, acceptsProblems, defaultProblems, fallbackProblems, pairProblems, manifestProblems, ringProblems, readProblems, memberReadProblems, familyProblems, colourRoleSet, slotManifests, EMPHASIS_FAMILY } from './check-color-slots.ts';
 import { deriveSlots, readColorSlots, readSlotDeclarations } from '../../lib/core/color-slots.ts';
 import type { GroupOption, MemberDecl, SlotDeclarations } from '../../lib/core/color-slots.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { colouredParts } from '../../lib/core/color-slot-map.ts';
 import type { SlotCatalogue } from '../../generate/core/arena-cli/slots.ts';
+import { memberValue } from '../../generate/core/arena-cli/slots.ts';
+import type { ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';
 
 const shipped = () => structuredClone(readColorSlots());
 const roles = colourRoleSet();
@@ -298,6 +300,7 @@ test('the shipped declarations are clean', () => {
   const d = declared();
   assert.deepEqual(declarationProblems(d), []);
   assert.deepEqual(exceptionProblems(d), []);
+  assert.deepEqual(memberReadProblems(shipped(), manifests), []);
 });
 
 test('a missing states on an option of a part with no states of its own is refused and named', () => {
@@ -498,4 +501,129 @@ test('a member default on a slot that derives is refused', () => {
 test('a member default equal to the group default is refused as redundant', () => {
   const lines = memberDefaultProblems(withDefault(GHOST_EDGE, 'transparent'), roles);
   assert.ok(lines.some((l) => /actions-ghost-root-edge-rest/.test(l) && /already/.test(l)), lines.join('\n'));
+});
+
+const boxDeclared = (): SlotDeclarations => ({
+  accepts: { fill: ['fill-*', 'transparent'], ink: ['ink-*'], edge: ['edge-*', 'transparent'], icon: ['ink-*'] },
+  refused: [],
+  states: ['rest', 'hover', 'pressed', 'disabled', 'selected', 'selected-hover', 'selected-pressed', 'selected-disabled'],
+  stateSets: { base: ['rest', 'hover'], toggle: ['rest', 'hover', 'selected'], on: ['selected'] },
+  selected: { fill: '{fill-selected}', ink: '{ink-selected}', edge: '{edge-selected}' },
+  groups: {
+    choices: {
+      parts: {
+        box: { properties: ['fill'], states: 'toggle', rest: { fill: '{fill-control}' } },
+        field: {
+          properties: ['edge'],
+          states: 'base',
+          options: { plain: { rest: { edge: '{edge-control}' } }, error: { rest: { edge: '{edge-danger}' }, halo: 'level-hue-soft-danger' } },
+        },
+        fill: { properties: ['fill'], states: 'on', rest: { fill: '{fill-control}' } },
+        calm: { properties: ['fill'], states: 'base', options: { only: { rest: { fill: '{fill-control}' } } } },
+      },
+    },
+  },
+  members: {
+    ArenaBox: { group: 'choices', parts: { box: { to: 'choices.box', options: [], states: 'toggle', selectedBy: { axis: 'checked', value: 'true' } } } },
+    ArenaField: {
+      group: 'choices',
+      parts: { field: { to: 'choices.field', options: ['plain', 'error'], states: 'base', optionBy: { axis: 'state', values: { error: 'error' } } } },
+    },
+    ArenaRange: { group: 'choices', parts: { fill: { to: 'choices.fill', options: [], states: 'on', selectedBy: { axis: 'checked', value: 'true' } } } },
+    ArenaCalm: { group: 'choices', parts: { calm: { to: 'choices.calm', options: ['only'], states: 'base' } } },
+  },
+  exceptions: {},
+  rings: {},
+});
+
+const boxManifest = (c: SlotCatalogue): Map<string, ComponentManifest> => {
+  const token = (name: string, member: string, modifier: string, utility: string) => `${modifier}${utility}${memberValue(c, member, name, 'tailwind')}]`;
+  const read = (member: string, group: string, part: string, state: string, option?: string) => {
+    const [mod, utility] = [{ rest: '', hover: 'hover:', selected: '', 'selected-hover': 'hover:' }[state] as string, group];
+    const name = option === undefined ? `choices-${part}-${group}-${state}` : `choices-${option}-${part}-${group}-${state}`;
+    return token(name, member, mod, group === 'fill' ? 'bg-[color:' : 'border-[color:');
+  };
+  const box = (state: string) => read('ArenaBox.box', 'fill', 'box', state);
+  return new Map<string, ComponentManifest>([
+    ['ArenaBox', { component: 'ArenaBox', slots: { box: `${box('rest')} ${box('hover')}` }, variants: { checked: { true: { box: box('selected') } } } } as unknown as ComponentManifest],
+    ['ArenaField', {
+      component: 'ArenaField',
+      slots: { field: `${read('ArenaField.field', 'edge', 'field', 'rest', 'plain')} ${read('ArenaField.field', 'edge', 'field', 'hover', 'plain')}` },
+      variants: { state: { error: { field: `${read('ArenaField.field', 'edge', 'field', 'rest', 'error')} ${read('ArenaField.field', 'edge', 'field', 'hover', 'error')}` } } },
+    } as unknown as ComponentManifest],
+    ['ArenaRange', {
+      component: 'ArenaRange',
+      slots: { fill: `${token('choices-fill-fill-selected', 'ArenaRange.fill', '', 'bg-[color:')}` },
+      variants: { checked: { true: {} } },
+    } as unknown as ComponentManifest],
+    ['ArenaCalm', { component: 'ArenaCalm', slots: { calm: `${token('choices-only-calm-fill-rest', 'ArenaCalm.calm', '', 'bg-[color:')} ${token('choices-only-calm-fill-hover', 'ArenaCalm.calm', 'hover:', 'bg-[color:')}` } } as unknown as ComponentManifest],
+  ]);
+};
+
+test('a fixed-option member and an axis member are accepted', () => {
+  const c = deriveSlots(boxDeclared());
+  const m = boxManifest(c);
+  assert.deepEqual(declarationProblems(boxDeclared()), []);
+  assert.deepEqual(manifestProblems(c, m), []);
+  assert.deepEqual(pairProblems(c), []);
+  const noAxis = structuredClone(c);
+  noAxis.members['ArenaField.field']!.optionBy = { axis: 'state', values: { error: 'nothing' } };
+  assert.ok(manifestProblems(noAxis, m).some((l) => /ArenaField\.field/.test(l)));
+  const gone = structuredClone(c);
+  gone.members['ArenaBox.box']!.selectedBy = { axis: 'toggled', value: 'true' };
+  assert.ok(manifestProblems(gone, m).some((l) => /ArenaBox\.box: ArenaBox declares no variant toggled=true/.test(l)));
+});
+
+test('a member read that differs from its chain is refused', () => {
+  const c = deriveSlots(boxDeclared());
+  const m = boxManifest(c);
+  assert.deepEqual(memberReadProblems(c, m), []);
+  const swapped = boxManifest(c);
+  const box = swapped.get('ArenaBox') as unknown as { slots: { box: string } };
+  box.slots.box = box.slots.box.replace('hover:bg-[color:', 'hover:text-[color:');
+  assert.deepEqual(memberReadProblems(c, swapped), ['ArenaBox.box: choices-box-fill-hover is not read as hover:bg-[color:' + memberValue(c, 'ArenaBox.box', 'choices-box-fill-hover', 'tailwind') + '] in the base class']);
+  const wrongBranch = boxManifest(c);
+  (wrongBranch.get('ArenaField') as { variants: Record<string, Record<string, Record<string, string>>> }).variants.state!.error!.field = '';
+  const lines = memberReadProblems(c, wrongBranch);
+  assert.equal(lines.length, 2);
+  assert.ok(lines.every((l) => /^ArenaField\.field: choices-error-field-edge-(rest|hover) is not read as .* in the state=error branch$/.test(l)), lines.join('\n'));
+  const noRest = boxManifest(c);
+  (noRest.get('ArenaRange') as unknown as { slots: { fill: string } }).slots.fill = '';
+  assert.equal(memberReadProblems(c, noRest).length, 1, 'a member with no rest paints its first state with no branch');
+  const channelled = structuredClone(c);
+  channelled.members['ArenaBox.box']!.channels = { fill: '--arena-box-fill' };
+  assert.deepEqual(memberReadProblems(channelled, new Map()), [], 'a member with channels is readProblems\'s');
+});
+
+test('an exception level, a halo, an on and a member axis are checked as declarations', () => {
+  const d = boxDeclared();
+  d.exceptions['choices-calm-only-fill-hover'] = { default: '{fill-surface}', decision: 'D1', level: 'nope' };
+  assert.match(declarationProblems(d).join('\n'), /exceptions\.choices-calm-only-fill-hover\.level: "nope" is no level/);
+  const e = boxDeclared();
+  (e.groups!.choices!.parts.field!.options as Record<string, GroupOption>).error!.halo = 'soft';
+  assert.match(declarationProblems(e).join('\n'), /options\.error\.halo: "soft" is no level/);
+  const f = boxDeclared();
+  f.groups!.choices!.parts.box!.on = 'field';
+  assert.match(declarationProblems(f).join('\n'), /parts\.box\.on: "field" is no part of choices that paints a fill/);
+  const g = boxDeclared();
+  (g.groups!.choices!.parts.box as any).selectedOn = 'hover';
+  assert.match(declarationProblems(g).join('\n'), /parts\.box\.selectedOn: "hover" is not "rest"/);
+  const h = boxDeclared();
+  (h.members!.ArenaField!.parts.field as MemberDecl).optionBy = { axis: 'state', values: { error: 'missing' } };
+  assert.match(declarationProblems(h).join('\n'), /ArenaField\.parts\.field\.optionBy: "missing" is not an option the member lists/);
+  const i = boxDeclared();
+  i.groups!.choices!.parts.field!.states = 'base';
+  (i.groups!.choices!.parts.field as any).selected = { edge: '{x}' };
+  assert.match(declarationProblems(i).join('\n'), /parts\.field\.selected: .* no selected state/);
+});
+
+test('an exception whose level alone differs is an exception', () => {
+  const d = boxDeclared();
+  d.stateSets.base = ['rest', 'hover'];
+  d.groups!.choices!.parts.calm!.options = { only: { rest: { fill: { role: '{fill-control}', level: 'level-a' } } } };
+  const base = deriveSlots(d).slots['choices-only-calm-fill-rest']!;
+  d.exceptions['choices-only-calm-fill-rest'] = { default: base.default as string, decision: 'D1' };
+  assert.deepEqual(exceptionProblems(d), [], 'dropping the level changes the slot');
+  d.exceptions['choices-only-calm-fill-rest'] = { default: base.default as string, decision: 'D1', level: 'level-a' };
+  assert.match(exceptionProblems(d).join('\n'), /the rule already gives/);
 });

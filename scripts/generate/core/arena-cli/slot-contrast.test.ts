@@ -9,6 +9,8 @@ import { contrast } from './validate-palette.mjs';
 import { tokenCatalogue } from '../../../lib/arena/package-assembly.ts';
 import { repoRoot } from '../../../lib/arena/repo-root.ts';
 import type { SlotCatalogue } from './slots.ts';
+import { deriveSlots } from '../../../lib/core/color-slots.ts';
+import type { GroupPart } from '../../../lib/core/color-slots.ts';
 
 const CATALOGUE = tokenCatalogue();
 const SLOTS = CATALOGUE.slots.slots;
@@ -195,4 +197,55 @@ test('the default plugin paints its actions with the kernel answers, and their h
     .map((option) => pluginAt(theme)(`actions-${option}-root-ink-${state}`, `actions-${option}-root-fill-${state}`)));
   assert.deepEqual(figures('dark'), ['5.32', '6.41', '4.94', '4.53']);
   assert.deepEqual(figures('light'), ['5.17', '6.41', '4.91', '4.53']);
+});
+
+const declared = (parts: Record<string, GroupPart>) => deriveSlots({
+  accepts: { fill: ['fill-*', 'transparent'], ink: ['ink-*'], edge: ['edge-*', 'transparent'], icon: ['ink-*'] },
+  refused: [],
+  states: ['rest', 'hover', 'pressed', 'disabled', 'selected', 'selected-hover', 'selected-pressed', 'selected-disabled'],
+  stateSets: { base: ['rest', 'hover', 'pressed', 'disabled'], toggle: ['rest', 'hover', 'pressed', 'disabled', 'selected', 'selected-hover', 'selected-pressed', 'selected-disabled'] },
+  selected: { fill: '{fill-surface}', ink: '{ink-body}', edge: '{edge-control}' },
+  groups: { fields: { parts } },
+  exceptions: {},
+  rings: {},
+});
+
+test('an ink with no fill is measured over every ground', () => {
+  const c = declared({ required: { properties: ['ink', 'icon'], states: 'base', rest: { ink: '{ink-body}', icon: 'ink' } } });
+  const pairs = slotPairs(c).filter((pair) => pair.slot.startsWith('fields-required-'));
+  assert.deepEqual(pairs.map((pair) => `${pair.slot}>${pair.over}@${pair.min}`).sort(), [
+    'fields-required-icon-hover>ground@3', 'fields-required-icon-pressed>ground@3', 'fields-required-icon-rest>ground@3',
+    'fields-required-ink-hover>ground@4.5', 'fields-required-ink-pressed>ground@4.5', 'fields-required-ink-rest>ground@4.5',
+  ]);
+  const roles = rolesFor(null, CATALOGUE, 'dark');
+  const colors = coloursOf('dark');
+  assert.deepEqual(unresolvedPairs(c, new Map(), roles, colors, LEVELS).filter((pair) => pair.over === 'ground').length, 0);
+  const faint = new Map([['fields-required-ink-rest', 'var(--color-base-100)']]);
+  const lines = slotReports(c, faint, roles, colors, 'dark', LEVELS).map((one) => one.message).filter((line) => line.startsWith('--fields-required-ink-rest measures'));
+  const grounds = new Set(lines.map((line) => /composited over --color-(base-\d+)/.exec(line)?.[1]));
+  assert.ok(grounds.size >= 2, lines.join('\n'));
+  assert.ok(lines.every((line) => /over the ground in the rest state of the dark theme/.test(line)));
+  assert.deepEqual(slotReports(c, new Map([['fields-required-ink-rest', 'var(--color-base-content)']]), roles, colors, 'dark', LEVELS)
+    .filter((one) => one.message.startsWith('--fields-required-ink-rest measures')), []);
+});
+
+test('a mark is measured over its box', () => {
+  const c = declared({
+    box: { properties: ['fill', 'ink'], states: 'toggle', rest: { fill: '{fill-control}', ink: '{ink-body}' } },
+    mark: { properties: ['fill', 'ink'], states: 'toggle', on: 'box', selectedOn: 'rest', rest: { fill: '{fill-surface}', ink: '{ink-body}' } },
+  });
+  const pairs = slotPairs(c);
+  const fill = (slot: string) => pairs.find((pair) => pair.slot === slot);
+  assert.deepEqual(fill('fields-mark-fill-hover'), { slot: 'fields-mark-fill-hover', over: 'fields-box-fill-hover', min: 3 });
+  assert.deepEqual(fill('fields-mark-fill-selected'), { slot: 'fields-mark-fill-selected', over: 'fields-mark-fill-rest', min: 3 });
+  assert.deepEqual(fill('fields-mark-fill-selected-hover'), { slot: 'fields-mark-fill-selected-hover', over: 'fields-box-fill-selected-hover', min: 3 });
+  assert.equal(fill('fields-mark-fill-disabled'), undefined);
+  assert.equal(fill('fields-box-fill-rest'), undefined, 'a fill with no on is no pair');
+  assert.deepEqual(fill('fields-mark-ink-pressed'), { slot: 'fields-mark-ink-pressed', over: 'fields-box-fill-pressed', min: 4.5 });
+  const roles = rolesFor(null, CATALOGUE, 'dark');
+  const colors = coloursOf('dark');
+  const same = new Map([['fields-mark-fill-rest', 'var(--color-base-300)'], ['fields-box-fill-rest', 'var(--color-base-300)']]);
+  const lines = slotReports(c, same, roles, colors, 'dark', LEVELS).map((one) => one.message).filter((line) => line.startsWith('--fields-mark-fill-rest measures'));
+  assert.ok(lines.length > 0, 'a mark the colour of its box is reported');
+  assert.ok(lines.every((line) => /below 3:1 \(WCAG 1\.4\.11\)/.test(line)));
 });
