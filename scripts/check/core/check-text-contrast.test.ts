@@ -15,7 +15,7 @@ import {
   derivedLevels, levelDefaults, levelReports, levelsIn, raisedReports, STATUS_HUES,
 } from '../../generate/core/arena-cli/levels.ts';
 import { CATALOGUE } from './check-catalogue.ts';
-import { scratchContrastTree } from './contrast-scratch.ts';
+import { scratchContrastTree } from '../../lib/core/contrast-fixtures.ts';
 import { FILL_PAIRS } from '../../generate/core/arena-cli/palette-keys.ts';
 
 test('this gate and the shipped command hold the same fills legible', () => {

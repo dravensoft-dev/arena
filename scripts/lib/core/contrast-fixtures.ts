@@ -1,8 +1,8 @@
 import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { COLORS } from './check-text-contrast.ts';
-import { repoRoot } from '../../lib/arena/repo-root.ts';
+import { COLORS } from '../../check/core/check-text-contrast.ts';
+import { repoRoot } from '../arena/repo-root.ts';
 
 export function scratchContrastTree(over: Record<string, string> = {}) {
   const dir = mkdtempSync(join(tmpdir(), 'contrast-'));

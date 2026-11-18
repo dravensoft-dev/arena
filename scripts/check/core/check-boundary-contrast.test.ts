@@ -5,7 +5,7 @@ import {
 } from './check-boundary-contrast.ts';
 import { rmSync } from 'node:fs';
 import { stateProblems, stateReports } from './check-text-contrast.ts';
-import { scratchContrastTree } from './contrast-scratch.ts';
+import { scratchContrastTree } from '../../lib/core/contrast-fixtures.ts';
 
 const HEXES = {
   'color-base-100': '#141010',
