@@ -226,7 +226,8 @@ test('a slot answer outside its accepts set is refused', () => {
   for (const value of ['{color.primary}', '{ink-body}', '#fff', '{edge-focus}', '{emphasis-primary-root-fill-rest}']) {
     const problems = ask(fill, value);
     assert.equal(problems.length, 1, `${value}: ${problems.join('\n')}`);
-    assert.match(problems[0] as string, new RegExp(`${fill}.*fill`), value);
+    assert.match(problems[0] as string, new RegExp(`--${fill} is `), value);
+    for (const accepted of ['{fill-*}', '{emphasis-*-fill}', '{accent-*-fill-soft}, transparent. ']) assert.ok((problems[0] as string).includes(accepted), `${value}: names ${accepted}`);
   }
   assert.deepEqual(ask(fill, '{fill-surface}'), []);
   assert.deepEqual(ask('emphasis-ghost-root-edge-rest', 'transparent'), []);

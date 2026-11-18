@@ -17,6 +17,8 @@ import {
 import { CATALOGUE } from './check-catalogue.ts';
 import { scratchContrastTree } from '../../lib/core/contrast-fixtures.ts';
 import { FILL_PAIRS } from '../../generate/core/arena-cli/palette-keys.ts';
+import { slotPairs } from '../../generate/core/arena-cli/slot-contrast.ts';
+import { tokenCatalogue } from '../../lib/arena/package-assembly.ts';
 
 test('this gate and the shipped command hold the same fills legible', () => {
   const key = (p: { fill: string, content: string }) => `${p.fill}/${p.content}`;
@@ -333,8 +335,9 @@ test('defaultBuildProblems is clean on Arena\'s skin', () => {
   assert.deepEqual(defaultBuildProblems(), []);
 });
 
-test('the default plugin clears every slot pair', () => {
+test('the default plugin resolves and clears every slot pair the contract declares', () => {
   assert.deepEqual(defaultBuildProblems(), []);
+  assert.equal(slotPairs(tokenCatalogue().slots).length, 162, 'the sweep measures every slot pair the contract declares');
 });
 
 test('complete and the catalogue report their slot pairs in the lines the gate prints', () => {

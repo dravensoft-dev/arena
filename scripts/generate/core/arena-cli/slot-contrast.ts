@@ -14,7 +14,7 @@ import { MARK_MIN, paletteKey, surfaceKeys, TEXT_MIN } from './levels.ts';
 import { report } from './report.ts';
 import type { Report } from './report.ts';
 import { expectedName, followsInk } from './slots.ts';
-import type { ColorSlot, SlotCatalogue } from './slots.ts';
+import type { ColorSlot, MeasuredSlots } from './slots.ts';
 
 export type Paint = { hex: string; alpha: number } | null;
 
@@ -23,7 +23,7 @@ type Resolved = Paint | undefined;
 type Mix = { hover: number; pressed: number };
 
 type Context = {
-  catalogue: SlotCatalogue;
+  catalogue: MeasuredSlots;
   answers: Map<string, string>;
   roles: Map<string, string>;
   colors: Record<string, string>;
@@ -133,7 +133,7 @@ const share = (roles: Map<string, string>, name: string, fallback: number) => {
 export const mixOf = (roles: Map<string, string>): Mix => ({ hover: share(roles, 'mix-hover', 0.08), pressed: share(roles, 'mix-pressed', 0.16) });
 
 export function slotColour(
-  catalogue: SlotCatalogue, name: string, answers: Map<string, string>, roles: Map<string, string>,
+  catalogue: MeasuredSlots, name: string, answers: Map<string, string>, roles: Map<string, string>,
   colors: Record<string, string>, levels: Record<string, number>, mix: Mix, ground: string,
 ): string | null {
   const painted = paint({ catalogue, answers, roles, colors, levels, mix }, name);
@@ -142,7 +142,7 @@ export function slotColour(
 
 export type SlotPair = { slot: string; over: string; min: number };
 
-export function slotPairs(catalogue: SlotCatalogue): SlotPair[] {
+export function slotPairs(catalogue: MeasuredSlots): SlotPair[] {
   const out: SlotPair[] = [];
   for (const [name, slot] of Object.entries(catalogue.slots)) {
     if (!slot.on || slot.on === 'reader' || OFF.has(slot.state) || !catalogue.slots[slot.on]) continue;
@@ -168,7 +168,7 @@ const WHY: Record<string, string> = {
 };
 
 export function slotReports(
-  catalogue: SlotCatalogue, answers: Map<string, string>, roles: Map<string, string>,
+  catalogue: MeasuredSlots, answers: Map<string, string>, roles: Map<string, string>,
   colors: Record<string, string>, theme: string, levels: Record<string, number> = {},
 ): Report[] {
   const ctx: Context = { catalogue, answers, roles, colors, levels, mix: mixOf(roles) };
@@ -199,11 +199,22 @@ export function slotReports(
   return out;
 }
 
+export function unresolvedPairs(
+  catalogue: MeasuredSlots, answers: Map<string, string>, roles: Map<string, string>,
+  colors: Record<string, string>, levels: Record<string, number> = {},
+): SlotPair[] {
+  const ctx: Context = { catalogue, answers, roles, colors, levels, mix: mixOf(roles) };
+  return slotPairs(catalogue).filter((pair) => {
+    const mark = catalogue.slots[pair.slot] === undefined ? valueColour(ctx, roles.get(pair.slot)) : paint(ctx, pair.slot);
+    return mark === undefined || paint(ctx, pair.over) === undefined;
+  });
+}
+
 const same = (a: Resolved, b: Resolved) => a !== undefined && b !== undefined
   && (a === null || b === null ? a === b : a.hex === b.hex && Math.abs(a.alpha - b.alpha) < 1e-9);
 
 export function disabledReports(
-  catalogue: SlotCatalogue, answers: Map<string, string>, roles: Map<string, string>,
+  catalogue: MeasuredSlots, answers: Map<string, string>, roles: Map<string, string>,
   colors: Record<string, string>, theme: string, levels: Record<string, number> = {},
 ): Report[] {
   const ctx: Context = { catalogue, answers, roles, colors, levels, mix: mixOf(roles) };

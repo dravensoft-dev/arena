@@ -25,8 +25,8 @@ import { unicodeRange } from './font-cut.ts';
 import { report } from './report.ts';
 import type { Report } from './report.ts';
 import type { SerializableToken } from './serialize-token.ts';
-import { colourNamesOf, fadeMarkers, slotAnswer, slotProblem } from './slots.ts';
-import type { SlotCatalogue } from './slots.ts';
+import { colourNamesOf, fadeMarkers, measuredSlots, slotAnswer, slotProblem } from './slots.ts';
+import type { MeasuredSlots, SlotCatalogue } from './slots.ts';
 import { disabledReports, slotReports } from './slot-contrast.ts';
 
 export type TokenCatalogue = {
@@ -640,7 +640,7 @@ export function polarityReports(polarity: string, ground: string | undefined): R
 }
 
 export function slotMessages(
-  slots: { catalogue: SlotCatalogue; levels?: Record<string, number> }, roles: Map<string, string>,
+  slots: { catalogue: MeasuredSlots; levels?: Record<string, number> }, roles: Map<string, string>,
   colors: Record<string, string>, theme: string, levels: Level[],
 ) {
   const answers = new Map([...roles].filter(([name]) => Object.hasOwn(slots.catalogue.slots, name)));
@@ -650,7 +650,7 @@ export function slotMessages(
 
 export function paletteMessages(
   palette: { polarity: string; colors: Record<string, string> }, roles: Map<string, string>,
-  levels: Level[], washes: Wash[], slots: { catalogue: SlotCatalogue; levels?: Record<string, number> } | null = null,
+  levels: Level[], washes: Wash[], slots: { catalogue: MeasuredSlots; levels?: Record<string, number> } | null = null,
 ) {
   const mode = palette.polarity;
   const colors = derivedColours(palette.colors, mode);
@@ -897,7 +897,7 @@ export type ArenaRuntimeDataShape = {
   levels: Level[];
   washes: Wash[];
   roles: { dark: Record<string, string>; light: Record<string, string> };
-  slots: SlotCatalogue | null;
+  slots: MeasuredSlots | null;
 };
 
 export function runtimeData(config: CheckedConfig, sheets: PackageSheets, plugins: ResolvedPlugins): ArenaRuntimeDataShape {
@@ -911,7 +911,7 @@ export function runtimeData(config: CheckedConfig, sheets: PackageSheets, plugin
     levels: sheets?.levels ?? [],
     washes: sheets?.washes ?? [],
     roles: { dark: rolesIn('dark'), light: rolesIn('light') },
-    slots: catalogue?.slots ?? null,
+    slots: catalogue?.slots ? measuredSlots(catalogue.slots) : null,
   };
 }
 

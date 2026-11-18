@@ -1,6 +1,7 @@
 /* The colour slot catalogue: the tier above the roles. A slot is one coloured part of one
  * component, per property and state, and a plugin answers it with a role its accepts set names.
- * The command ships this file, so it imports nothing outside this directory. */
+ * MeasuredSlots is what a contrast measurement reads, the slots and the rings, and all that
+ * runtime data ships. The command ships this file, so it imports nothing outside this directory. */
 
 export const SLOT_PROPERTIES = ['fill', 'ink', 'edge', 'icon'] as const;
 export const SLOT_STATES = ['rest', 'hover', 'pressed', 'selected', 'selected-hover', 'selected-pressed', 'disabled', 'selected-disabled'] as const;
@@ -34,6 +35,10 @@ export type SlotCatalogue = {
   rings: Record<string, string>;
   slots: Record<string, ColorSlot>;
 };
+
+export type MeasuredSlots = Pick<SlotCatalogue, 'rings' | 'slots'>;
+
+export const measuredSlots = (catalogue: SlotCatalogue): MeasuredSlots => ({ rings: catalogue.rings, slots: catalogue.slots });
 
 export function slotStem(component: string): string {
   return component.replace(/^Arena/, '').replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
@@ -89,7 +94,7 @@ export const colourNamesOf = (roles: Record<string, unknown>, key: 'type' | '$ty
 
 const ownerOf = (slot: ColorSlot) => (slot.scope === 'family' ? `f:${slot.family}` : `c:${slot.component}`);
 
-export function followsInk(catalogue: SlotCatalogue, slot: ColorSlot): boolean {
+export function followsInk(catalogue: MeasuredSlots, slot: ColorSlot): boolean {
   const ref = /^\{([a-z][a-z0-9-]*)\}$/.exec((slot.default ?? '').trim())?.[1];
   const target = ref === undefined ? undefined : catalogue.slots[ref];
   return slot.property === 'icon' && slot.level === undefined && target !== undefined && target.property === 'ink' && target.channel !== undefined && ownerOf(target) === ownerOf(slot);

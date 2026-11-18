@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { disabledReports, mixOf, slotColour, slotPairs, slotReports } from './slot-contrast.ts';
+import { disabledReports, mixOf, slotColour, slotPairs, slotReports, unresolvedPairs } from './slot-contrast.ts';
 import { levelDefaults } from './levels.ts';
 import { rolesFor } from './theme-css.ts';
 import { tokenCatalogue } from '../../../lib/arena/package-assembly.ts';
@@ -172,4 +172,13 @@ test('a part reads its own answers through the channels its block writes, and a 
   const copy = paintedIn('dark', new Map([['icon-button-ghost-root-fill-rest', surface]]));
   assert.equal(copy('copy-button-ghost-root-fill-disabled'), copy('icon-button-ghost-root-fill-rest'));
   assert.notEqual(copy('emphasis-ghost-root-fill-disabled'), copy('icon-button-ghost-root-fill-rest'));
+});
+
+test('a pair whose mark or fill resolves to no palette colour is returned, not skipped', () => {
+  const roles = rolesFor(null, CATALOGUE, 'dark');
+  const colors = coloursOf('dark');
+  assert.deepEqual(unresolvedPairs(CATALOGUE.slots, new Map(), roles, colors, LEVELS), []);
+  const lost = unresolvedPairs(CATALOGUE.slots, new Map([['button-primary-root-fill-pressed', 'var(--color-nowhere)']]), roles, colors, LEVELS);
+  assert.deepEqual(lost.map((pair) => `${pair.slot} ${pair.over}`), ['button-primary-root-icon-pressed button-primary-root-fill-pressed',
+    'button-primary-root-ink-pressed button-primary-root-fill-pressed']);
 });

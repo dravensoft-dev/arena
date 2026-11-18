@@ -20,6 +20,7 @@ import { isMainModule } from '../../utils/main-module.ts';
 import { serialize } from '../core/arena-cli/serialize-token.ts';
 import { rootOnlyFor, scopeOn } from '../core/arena-cli/style-plugin-rules.ts';
 import { fadeMarkers } from '../core/arena-cli/slots.ts';
+import type { SlotCatalogue } from '../core/arena-cli/slots.ts';
 import { COLOR_SLOTS, readColorSlots } from '../../lib/core/color-slots.ts';
 import { DEFAULTS_LAYER, LAYER_ORDER } from '../../lib/tailwind/component-sheets.ts';
 import { serializeScript } from '../../lib/core/serialize-script.ts';
@@ -101,7 +102,7 @@ export function aliasOf(token: DtcgToken) {
   return ALIAS.exec(authored.trim())?.[1]?.trim() ?? null;
 }
 
-const answersColourRole = (token: DtcgToken, alias: string) => readColorSlots().slots[emittedName(token as StampedToken)] !== undefined
+const answersColourRole = (token: DtcgToken, alias: string) => colorSlotsOnce().slots[emittedName(token as StampedToken)] !== undefined
   && !alias.includes('.') && (axisSourcesOnce().roles[alias] as DtcgNode | undefined)?.$type === 'color';
 
 export function scopesRedeclaring(token: DtcgToken) {
@@ -309,6 +310,10 @@ export function axisOf(token: { name: string; path?: string[] }, roles: Record<s
   return role ?? axes.get((token.path ?? []).join('.'));
 }
 
+let colorSlots: SlotCatalogue | undefined;
+
+const colorSlotsOnce = () => (colorSlots ??= readColorSlots(root));
+
 let axisSources: { roles: Record<string, unknown>; axes: ReadonlyMap<string, string> } | undefined;
 
 function axisSourcesOnce() {
@@ -371,7 +376,7 @@ function renderLines(items: Emitted[], marked: string[] = []) {
 
 function markersFor(items: Emitted[], seen: ReadonlySet<string> = new Set()) {
   const names = items.filter(isTokenItem).map((item) => emittedName(item.token));
-  return fadeMarkers(names, readColorSlots()).map(([name, value]) => `  ${name}:${value};`).filter((line) => !seen.has(line));
+  return fadeMarkers(names, colorSlotsOnce()).map(([name, value]) => `  ${name}:${value};`).filter((line) => !seen.has(line));
 }
 
 export async function block({ selector, source, dir = DESIGN_DIR, plugin }:

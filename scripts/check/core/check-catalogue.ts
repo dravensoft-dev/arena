@@ -95,7 +95,7 @@ export function tokenProblems(name: string, roles: Record<string, unknown>, base
   const known: KnownAnswers = {
     colourRoles: (named) => (roles[named] as { $type?: string } | undefined)?.$type === 'color',
     colourNames: colourNamesOf(roles, '$type'),
-    slots: readColorSlots(),
+    slots: readColorSlots(base),
     resolve: (flat) => (shipped ??= tokenCatalogue().tokens as Record<string, string>)[flat],
   };
   for (const { key, token } of movedTokens(tokens)) {

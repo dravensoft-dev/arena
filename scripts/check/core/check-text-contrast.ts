@@ -22,6 +22,7 @@ import { ARENA_EXT } from '../../generate/core/arena-cli/style-plugin-rules.ts';
 import { CATALOGUE, entries } from './check-catalogue.ts';
 import { derivedColours, rolesFor, paletteMessages, readPlugin, resolvedPlugin, slotMessages } from '../../generate/core/arena-cli/theme-css.ts';
 import { tokenCatalogue } from '../../lib/arena/package-assembly.ts';
+import { unresolvedPairs } from '../../generate/core/arena-cli/slot-contrast.ts';
 import {
   composite, darkenOklab, errorFill, FILL_FALLBACK_KEEP,
 } from '../../generate/core/arena-cli/oklab.ts';
@@ -242,9 +243,13 @@ export function defaultBuildProblems(at = root) {
   const levels = levelDefaults(readFileSync(join(at, COLORS), 'utf8'));
   return THEMES.flatMap((theme) => {
     const colors = paletteColours(block(palette, theme.selector, PALETTE));
-    return paletteMessages({ polarity: theme.name, colors }, rolesFor(plugin, catalogue, theme.name), [], [], { catalogue: catalogue.slots, levels })
+    const roles = rolesFor(plugin, catalogue, theme.name);
+    const answers = new Map([...roles].filter(([name]) => Object.hasOwn(catalogue.slots.slots, name)));
+    const unresolved = unresolvedPairs(catalogue.slots, answers, roles, derivedColours(colors, theme.name), levels)
+      .map((pair) => `${theme.name}: --${pair.slot} over --${pair.over} resolves to no palette colour, so the pair is never measured`);
+    return [...unresolved, ...paletteMessages({ polarity: theme.name, colors }, roles, [], [], { catalogue: catalogue.slots, levels })
       .filter((one) => one.kind === 'contrast' || one.kind === 'heat')
-      .map((one) => `${theme.name}: ${one.message}`);
+      .map((one) => `${theme.name}: ${one.message}`)];
   });
 }
 

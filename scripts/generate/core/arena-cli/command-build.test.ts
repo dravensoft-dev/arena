@@ -4,10 +4,12 @@ import assert from 'node:assert/strict';
 import { existsSync, mkdirSync, readFileSync, statSync, utimesSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { run, writeOutputs } from './command-build.ts';
+import { run as check } from './command-check.ts';
 import { THEME_SHEET, PACKAGE_SHEET, PLUGIN_SHEET, SPRITE_MODULE, SPRITE_SOURCE, SPRITE_TYPES } from './sheets.ts';
 import { RETIRED_ICONS_SHEET, spriteFilesIn } from './sources.ts';
 import { captureIo, phosphor, project, readable, whileHeld, removeFixtures, packageStub } from './cli-fixtures.ts';
 import { tokenCatalogue } from '../../../lib/arena/package-assembly.ts';
+import { repoRoot } from '../../../lib/arena/repo-root.ts';
 
 const SLOTS = tokenCatalogue().slots;
 
@@ -272,18 +274,28 @@ test('a root plugin may answer a keyword role with a word alias and a colour rol
   assert.match(written, /--ink-key:var\(--ink-eyebrow\);/);
 });
 
-test('an adopter\'s pressed pair below AA is a report and the build exits 0', async () => {
+test('an adopter\'s pressed pair below AA is one report more, arena check names it, and the build exits 0', async () => {
   const { core } = phosphor();
   const catalogue = tokenCatalogue();
   const key = /--color-([\w-]+)/.exec(catalogue.tokens['fill-confirm-final'] ?? '')?.[1] as string;
   const palette = { ...readable.palettes[0]!, colors: { ...readable.palettes[0]!.colors, [key]: '#8a8a8a', 'primary-content': '#ffffff' } };
-  const root = project({ ...readable, palettes: [palette], stylePlugins: ['default', './design/mine'] });
-  mkdirSync(join(root, 'design', 'mine'), { recursive: true });
-  writeFileSync(join(root, 'design', 'mine', 'plugin.tokens.json'),
-    JSON.stringify({ 'button-primary-root-fill-pressed': { $value: '{fill-confirm-final}', $type: 'color' } }));
-  writeFileSync(join(root, 'design', 'mine', 'plugin.css'), '.x { color: red }\n');
-  const sheets = { ...CATALOGUED, catalogue };
-  const { io, err } = captureIo(root, { ...environment(core), sheets, arena: packageStub(sheets) });
-  assert.equal(await run(flags(root), io), 0, err.join('\n'));
-  assert.ok(err.some((line) => /\d+ report\(s\): arena check names them$/.test(line)), err.join('\n'));
+  const kernel = JSON.parse(readFileSync(join(repoRoot, 'plugin-style-store/default/plugin.tokens.json'), 'utf8'));
+  const built = async (tokens: Record<string, unknown> | null) => {
+    const root = project({ ...readable, palettes: [palette], stylePlugins: tokens === null ? ['default'] : ['./design/mine'] });
+    mkdirSync(join(root, 'design', 'mine'), { recursive: true });
+    writeFileSync(join(root, 'design', 'mine', 'plugin.tokens.json'), JSON.stringify({ ...kernel, ...tokens }));
+    writeFileSync(join(root, 'design', 'mine', 'plugin.css'), '.x { color: red }\n');
+    const sheets = { ...CATALOGUED, catalogue };
+    const { io, err } = captureIo(root, { ...environment(core), sheets, arena: packageStub(sheets) });
+    assert.equal(await run(flags(root), io), 0, err.join('\n'));
+    const checked = captureIo(root, { ...environment(core), sheets, arena: packageStub(sheets) });
+    await check(['--config', join(root, 'arena.config.json')], checked.io);
+    return { count: Number(/(\d+) report\(s\): arena check names them$/.exec(err.join('\n'))?.[1] ?? 0), named: checked.err };
+  };
+  const without = await built(null);
+  const answered = await built({ 'button-primary-root-fill-pressed': { $value: '{fill-confirm-final}', $type: 'color' } });
+  assert.equal(answered.count, without.count + 1, `${answered.count} report(s) with the answer, ${without.count} without`);
+  const pair = /--button-primary-root-ink-pressed measures 3\.45:1 over --button-primary-root-fill-pressed in the pressed state of the dark theme/;
+  assert.ok(answered.named.some((line) => pair.test(line)), answered.named.join('\n'));
+  assert.equal(without.named.some((line) => pair.test(line)), false);
 });

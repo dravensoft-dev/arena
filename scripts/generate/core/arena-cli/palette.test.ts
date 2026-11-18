@@ -68,6 +68,8 @@ const data = runtimeData(CONFIG, SHEETS, PLUGINS);
 
 test('the runtime data carries no field nothing reads', () => {
   assert.deepEqual(Object.keys(data).sort(), ['arenaRuntimePalettes', 'declared', 'levels', 'roles', 'slots', 'taken', 'washes']);
+  const shipped = runtimeData(CONFIG, { ...SHEETS, catalogue: tokenCatalogue() }, PLUGINS);
+  assert.deepEqual(Object.keys(shipped.slots ?? {}).sort(), ['rings', 'slots'], 'the slot catalogue ships only what a measurement reads');
 });
 const css = themeCss(CONFIG, { sheets: SHEETS, plugins: PLUGINS });
 const decls = parseDecls(css);
