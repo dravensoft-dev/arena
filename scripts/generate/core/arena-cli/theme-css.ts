@@ -25,7 +25,7 @@ import { unicodeRange } from './font-cut.ts';
 import { report } from './report.ts';
 import type { Report } from './report.ts';
 import type { SerializableToken } from './serialize-token.ts';
-import { fadeMarkers, slotAnswer, slotProblem } from './slots.ts';
+import { colourNamesOf, fadeMarkers, slotAnswer, slotProblem } from './slots.ts';
 import type { SlotCatalogue } from './slots.ts';
 
 export type TokenCatalogue = {
@@ -341,7 +341,7 @@ export function resolvedPlugin(
 function knownOf(catalogue: TokenCatalogue): KnownAnswers {
   return {
     colourRoles: (name) => catalogue.roles?.[name]?.type === 'color',
-    colourNames: new Set(Object.entries(catalogue.roles ?? {}).filter(([, role]) => role.type === 'color').map(([name]) => name)),
+    colourNames: colourNamesOf(catalogue.roles ?? {}, 'type'),
     slots: catalogue.slots,
     resolve: (flat) => catalogue.tokens?.[flat],
   };

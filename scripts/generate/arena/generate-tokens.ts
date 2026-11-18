@@ -318,7 +318,11 @@ function axisSourcesOnce() {
 function render(token: StampedToken) {
   const { roles, axes } = axisSourcesOnce();
   const axis = axisOf(token, roles, axes);
-  const decl = `  --${emittedName(token)}:${referenceOf(token) ?? serialize(token, { axis })};`;
+  const name = emittedName(token);
+  const answered = aliasOf(token);
+  const roleOf = readColorSlots().slots[name] && answered !== null && !answered.includes('.')
+    && (roles[answered] as DtcgNode | undefined)?.$type === 'color' ? `var(--${answered})` : null;
+  const decl = `  --${name}:${roleOf ?? referenceOf(token) ?? serialize(token, { axis })};`;
   const d = token.$description;
   if (!d) return decl;
   if (!d.includes('\n')) return `${decl} /* ${d} */`;

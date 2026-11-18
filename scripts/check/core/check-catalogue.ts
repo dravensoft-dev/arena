@@ -14,6 +14,7 @@ import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
+import { colourNamesOf } from '../../generate/core/arena-cli/slots.ts';
 import { readColorSlots } from '../../lib/core/color-slots.ts';
 import {
   POLARITIES, FONT_ROLES, requiredKeys,
@@ -93,7 +94,7 @@ export function tokenProblems(name: string, roles: Record<string, unknown>, base
   let shipped: Record<string, string> | undefined;
   const known: KnownAnswers = {
     colourRoles: (named) => (roles[named] as { $type?: string } | undefined)?.$type === 'color',
-    colourNames: new Set(Object.entries(roles).filter(([, one]) => (one as { $type?: string }).$type === 'color').map(([one]) => one)),
+    colourNames: colourNamesOf(roles, '$type'),
     slots: readColorSlots(),
     resolve: (flat) => (shipped ??= tokenCatalogue().tokens as Record<string, string>)[flat],
   };

@@ -250,6 +250,26 @@ test('a plugin answering a disabled slot emits the part\'s fade marker', async (
   } finally { rmSync(tmp, { recursive: true, force: true }); }
 });
 
+test('a slot answered with a colour role emits a reference to it in the base block and the light scope', async () => {
+  const { block } = await import('./generate-tokens.ts');
+  mkdirSync(join(repoRoot, '.cache'), { recursive: true });
+  const tmp = mkdtempSync(join(repoRoot, '.cache', 'arena-slot-ref-'));
+  try {
+    writeFileSync(join(tmp, 'plugin.tokens.json'), JSON.stringify({
+      'fill-surface': { $type: 'color', $value: '{color.base-200}' },
+      'button-primary-root-fill-rest': { $type: 'color', $value: '{fill-surface}' },
+      'button-primary-root-edge-rest': { $type: 'color', $value: 'transparent' },
+      light: { 'button-primary-root-ink-rest': { $type: 'color', $value: '{fill-surface}' } },
+    }));
+    const css = await block({ selector: ':root', source: 'plugin.tokens.json', dir: relPosix(repoRoot, tmp) });
+    const base = /^:root\{\n([\s\S]*?)\n\}/m.exec(css)?.[1] ?? '';
+    assert.match(base, /--button-primary-root-fill-rest:var\(--fill-surface\);/);
+    assert.match(base, /--button-primary-root-edge-rest:transparent;/);
+    assert.match(css, /--button-primary-root-ink-rest:var\(--fill-surface\);/);
+    assert.doesNotMatch(base, /--button-primary-root-ink-rest/, 'the light answer stays in the light scope');
+  } finally { rmSync(tmp, { recursive: true, force: true }); }
+});
+
 test('fs, dz text and icon come out in rem, sp and bw in px', async () => {
   const all = [...(await buildAll()).values()].join('\n');
   assert.match(all, /--fs-h1:2\.75rem;/);

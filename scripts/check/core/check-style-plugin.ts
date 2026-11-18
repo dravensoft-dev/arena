@@ -22,6 +22,7 @@ import {
   crossKeys, fixedRemProblems, valueProblems, withDefaults,
 } from '../../generate/core/arena-cli/style-plugin-rules.ts';
 import { readPlugin } from '../../generate/core/arena-cli/theme-css.ts';
+import { colourNamesOf } from '../../generate/core/arena-cli/slots.ts';
 import { readColorSlots } from '../../lib/core/color-slots.ts';
 import type { DtcgNode } from '../../lib/core/dtcg-shapes.ts';
 import { declaredAxis } from '../../lib/core/user-scale.ts';
@@ -129,8 +130,7 @@ export function defaultAnswerProblems(roles: Record<string, KernelRole>, answers
 
 export function slotAnswerProblems(where: string, tokens: Record<string, unknown>, kernel: Record<string, unknown>) {
   const slots = readColorSlots();
-  const colourNames = new Set(Object.entries(kernel)
-    .filter(([, role]) => (role as { $type?: string }).$type === 'color').map(([name]) => name));
+  const colourNames = colourNamesOf(kernel, '$type');
   return movedTokens(tokens).filter(({ key }) => slots.slots[key])
     .flatMap(({ key, token }) => keyProblems(where, key, token, undefined, { slots, colourNames }));
 }

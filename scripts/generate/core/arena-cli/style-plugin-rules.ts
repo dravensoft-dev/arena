@@ -165,8 +165,7 @@ export function valueProblems(
       return [slotProblem(where, key, String(value), known.slots)];
     return [];
   }
-  if (!role) return [];
-  if (role.$type === 'color') {
+  if (role?.$type === 'color') {
     const value = token?.$value;
     if (typeof value !== 'string')
       return [`${where}: --${key} authors a colour outright. A style plugin assigns a colour and never authors one: `
@@ -177,7 +176,7 @@ export function valueProblems(
         + 'under every theme, and anything else resolves to one theme\'s hex and inherits it into the other.'];
     return [];
   }
-  if (role.$type === 'keyword') {
+  if (role?.$type === 'keyword') {
     const allowed = role.$extensions?.[ARENA_EXT]?.values;
     if (!Array.isArray(allowed)) return [];
     const value = token?.$value;

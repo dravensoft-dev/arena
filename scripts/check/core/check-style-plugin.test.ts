@@ -340,3 +340,9 @@ test('a slot answer in a plugin is held to its accepts set, and a role answer is
   assert.deepEqual(slotAnswerProblems('at', answer('{fill-surface}'), kernel), []);
   assert.equal(slotAnswerProblems('at', answer('{ink-body}'), kernel).length, 1);
 });
+
+test('a bad slot answer in the light group is refused', () => {
+  const kernel = { 'fill-surface': { $type: 'color' }, 'ink-body': { $type: 'color' } };
+  const light = { light: { 'button-primary-root-fill-rest': { $type: 'color', $value: '{ink-body}', $description: 'why' } } };
+  assert.equal(slotAnswerProblems('at', light, kernel).length, 1);
+});

@@ -66,9 +66,9 @@ export function slotAnswer(value: string, name: string, catalogue: SlotCatalogue
 }
 
 export function slotProblem(where: string, name: string, value: string, catalogue: SlotCatalogue): string {
-  const slot = catalogue.slots[name];
-  const takes = (catalogue.accepts[slot?.accepts ?? 'fill'] ?? []).map((p) => (p === 'transparent' ? p : `{${p}}`)).join(', ');
-  return `${where}: --${name} is ${JSON.stringify(value)}, and a ${slot?.accepts ?? 'colour'} slot takes a role from its accepts set: ${takes}. `
+  const slot = catalogue.slots[name] as ColorSlot;
+  const takes = (catalogue.accepts[slot.accepts] ?? []).map((p) => (p === 'transparent' ? p : `{${p}}`)).join(', ');
+  return `${where}: --${name} is ${JSON.stringify(value)}, and a ${slot.accepts} slot takes a role from its accepts set: ${takes}. `
     + 'A slot is answered with a role the set names, or with transparent where the set lists it; a palette alias, '
     + 'a literal, another slot and the focus edge are refused.';
 }
@@ -83,3 +83,6 @@ export function fadeMarkers(answered: Iterable<string>, catalogue: SlotCatalogue
   }
   return [...markers].map((name) => [name, '1']);
 }
+
+export const colourNamesOf = (roles: Record<string, unknown>, key: 'type' | '$type'): Set<string> =>
+  new Set(Object.entries(roles).filter(([, role]) => (role as Record<string, unknown> | null)?.[key] === 'color').map(([name]) => name));
