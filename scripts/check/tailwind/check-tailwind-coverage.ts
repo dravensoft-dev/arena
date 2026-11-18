@@ -10,10 +10,12 @@ import { readFamilies, VOCABULARY_DIR, FAMILY_SUFFIX } from '../../lib/tailwind/
 import type { Family } from '../../lib/tailwind/vocabulary.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { ROOT_PLUGIN } from '../core/check-style-plugin.ts';
+import { COLOR_SLOTS, readColorSlots } from '../../lib/core/color-slots.ts';
+import { fadeMarkers } from '../../generate/core/arena-cli/slots.ts';
 
 export const node = {
   name: 'check:coverage',
-  reads: [...PRESET, 'contracts/design/colors.css', MANIFESTS, HUES_FILE, ROOT_PLUGIN, `${VOCABULARY_DIR}/**/*${FAMILY_SUFFIX}`],
+  reads: [...PRESET, 'contracts/design/colors.css', MANIFESTS, HUES_FILE, ROOT_PLUGIN, `${VOCABULARY_DIR}/**/*${FAMILY_SUFFIX}`, 'contracts/design/color-slots.json'],
   writes: [],
   feeds: [],
 };
@@ -174,7 +176,8 @@ export function optionRoles(roles: Iterable<string>, families: Iterable<Pick<Fam
 }
 
 export function pluginOptionRoles(root = repoRoot) {
-  const roles = Object.keys(readJson(join(root, ROOT_PLUGIN)) as object);
+  const slots = slotTier(root);
+  const roles = Object.keys(readJson(join(root, ROOT_PLUGIN)) as object).filter((name) => !slots.has(name));
   const families = [...readFamilies(root).values()];
   return { roles, excluded: optionRoles(roles, families), families };
 }
@@ -188,11 +191,23 @@ export function presetTokens(css: string) {
   return out;
 }
 
+export function slotTier(root = repoRoot): Set<string> {
+  const catalogue = readColorSlots(root);
+  const names = Object.keys(catalogue.slots);
+  return new Set([...names, ...fadeMarkers(names, catalogue).map(([name]) => name.slice(2))]);
+}
+
 export function checkCoverage(
   tokens: Set<string>, exposed: Set<string>, excluded: Map<string, string>, known: Set<string> = tokens,
+  slots: ReadonlySet<string> = new Set(),
 ) {
   const errs = [];
   for (const t of [...tokens].sort()) {
+    if (slots.has(t)) {
+      if (exposed.has(t)) errs.push(`--${t} is a colour slot or its fade marker, which a part reads inside its own chain, so the preset exposes no utility for it`);
+      if (excluded.has(t)) errs.push(`--${t} is declared by the slot tier in ${COLOR_SLOTS}, so it needs no exclusion`);
+      continue;
+    }
     const isExposed = exposed.has(t);
     const isExcluded = excluded.has(t);
     if (isExposed && isExcluded) errs.push(`--${t} is both exposed and excluded — drop the exclusion`);
@@ -211,13 +226,15 @@ function main() {
   const preset = readFileSync(join(repoRoot, 'frameworks/tailwind/Theme.css'), 'utf8');
   const exposed = presetTokens(preset);
   const excluded = new Map([...EXCLUDED, ...pluginOptionRoles().excluded]);
-  const errs = checkCoverage(tokens, exposed, excluded, arenaTokenNames(repoRoot));
+  const slots = slotTier();
+  const errs = checkCoverage(tokens, exposed, excluded, arenaTokenNames(repoRoot), slots);
   if (errs.length) {
     console.error(`check-tailwind-coverage: ${errs.length} token(s) undeclared\n`);
     for (const e of errs) console.error(`  ${e}`);
     process.exit(1);
   }
-  console.log(`check-tailwind-coverage: ${tokens.size} token(s) — ${exposed.size} exposed, ${excluded.size} excluded on the record`);
+  const tier = [...tokens].filter((t) => slots.has(t)).length;
+  console.log(`check-tailwind-coverage: ${tokens.size} token(s) — ${exposed.size} exposed, ${excluded.size} excluded on the record; ${tier} declared by the slot tier`);
 }
 
 if (isMainModule(import.meta.url)) main();
