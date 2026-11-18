@@ -47,6 +47,7 @@ export const DECORATIVE = new Map([
 const SELECTOR = /^\s*([.:&][^{}]*?)\s*\{\s*$/;
 const SCOPE = /^\s*@scope\s*\((\.[\w-]+)\)/;
 const MIX = /^\s*([\w-]+)\s*:\s*(?:var\(--[\w-]+\s*,\s*)?color-mix\(in oklab,\s*var\(--([\w-]+)\)\s*(?:([\d.]+)%|var\(--([\w-]+)\))\s*,\s*transparent\)/;
+const SLOT_FALL = /(color-mix\(in oklab,\s*)var\(--[\w-]+\s*,\s*(var\(--[\w-]+\))\)/;
 const REFERENCE = /^var\(--color-([\w-]+)\)$/;
 const DEFAULT = /--(level-[\w-]+)\s*:\s*([\d.]+)%/g;
 
@@ -94,7 +95,7 @@ export function levelsIn(
     const named = SELECTOR.exec(line)?.[1];
     if (named?.startsWith('.')) { selector = named; state = named; condition = states.get(named) ?? ''; }
     else if (named) state = `${selector}${named.replace(/:scope(?=\[)/g, '')}`;
-    const mix = MIX.exec(line);
+    const mix = MIX.exec(line.replace(SLOT_FALL, '$1$2'));
     if (!mix) continue;
     const level = mix[4] ?? null;
     const declared = level === null ? Number(mix[3]) : defaults[level];

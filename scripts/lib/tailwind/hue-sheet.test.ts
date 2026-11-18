@@ -31,7 +31,7 @@ test('every status hue writes its on-ink role, and an identity hue writes none',
     hues: { tone: { ...Object.fromEntries(tones.map((tone) => [tone, tone])), cat: 'identity-2' } },
   } as unknown as ComponentManifest, hues);
   for (const tone of tones)
-    assert.match(css, new RegExp(`data-arena-tone="${tone}"\\]\\) \\{[^}]*--arena-hue-on-ink: var\\(--hue-${tone}-on-ink\\);`));
+    assert.match(css, new RegExp(`data-arena-tone="${tone}"\\]\\) \\{[^}]*--arena-hue-on-ink: var\\(--hue-${tone}-strong-ink-rest,var\\(--hue-${tone}-on-ink\\)\\);`));
   assert.match(css, /data-arena-tone="cat"\]\) \{[^}]*--arena-hue-on-ink: initial;/);
 });
 
@@ -42,12 +42,12 @@ test('Hues.json expands identity-N to the eight categorical colours', () => {
   assert.equal(hues.get('identity-3')?.['fill-soft'],
     'color-mix(in oklab, var(--color-cat-3) var(--tint-soft), var(--fill-surface))');
   assert.equal(hues.get('danger')?.['fill-soft'],
-    'color-mix(in oklab, var(--hue-danger-fill-soft) var(--level-hue-soft-danger), transparent)');
+    'color-mix(in oklab,var(--hue-danger-soft-fill-rest,var(--hue-danger-fill-soft)) var(--level-hue-soft-danger),transparent)');
 });
 
 test('a value is a rule on every slot its group reaches, selected by the group attribute', () => {
   const css = hueRules(probe(), hues);
-  assert.match(css, /\.arena-probe__root:where\(\[data-arena-tone="danger"\]\) \{\n\s+--arena-hue-ink: var\(--hue-danger-ink\);/);
+  assert.match(css, /\.arena-probe__root:where\(\[data-arena-tone="danger"\]\) \{\n\s+--arena-hue-ink: var\(--hue-danger-mark-ink-rest,var\(--hue-danger-ink\)\);/);
   assert.match(css, /\.arena-probe__mark:where\(\[data-arena-color-id="3"\]\) \{\n\s+--arena-hue-ink: var\(--color-cat-3\);/);
   assert.doesNotMatch(css, /arena-probe__root:where\(\[data-arena-color-id/);
 });
@@ -109,7 +109,7 @@ const fixed = (extra: Partial<ComponentManifest> = {}): ComponentManifest => pro
 
 test('always writes a slot\'s fixed hue on the bare slot class, ahead of every group rule', () => {
   const css = hueRules(fixed(), hues);
-  assert.match(css, /^\.arena-probe__note \{\n\s+--arena-hue-ink: var\(--hue-danger-ink\);/);
+  assert.match(css, /^\.arena-probe__note \{\n\s+--arena-hue-ink: var\(--hue-danger-mark-ink-rest,var\(--hue-danger-ink\)\);/);
   assert.doesNotMatch(css, /arena-probe__note:where/);
   assert.deepEqual(hueProblems(fixed(), hues), []);
 });

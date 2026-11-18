@@ -13,13 +13,13 @@ import { COLOR_SLOTS, readColorSlots } from '../../lib/core/color-slots.ts';
 import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
 import type { ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';
 import {
-  SLOT_PROPERTIES, SLOT_STATES, acceptedRole, expectedName, glob,
+  SLOT_PROPERTIES, SLOT_STATES, acceptedRole, channelValue, expectedName, glob,
 } from '../../generate/core/arena-cli/slots.ts';
 import type { ColorSlot, SlotCatalogue } from '../../generate/core/arena-cli/slots.ts';
 
 export const node = {
   name: 'check:color-slots',
-  reads: [COLOR_SLOTS, 'contracts/design/roles.json', 'frameworks/tailwind/components/**/*.manifest.json'],
+  reads: [COLOR_SLOTS, 'contracts/design/roles.json', 'frameworks/tailwind/vocabulary/arena-accent/Accent.family.json', 'frameworks/tailwind/Hues.json', 'frameworks/tailwind/components/**/*.manifest.json'],
   writes: [],
   feeds: [],
 };
@@ -30,6 +30,8 @@ const TOP_KEYS = ['$description', 'accepts', 'refused', 'states', 'families', 'r
 const SLOT_KEYS = ['scope', 'family', 'component', 'option', 'part', 'property', 'state', 'channel', 'accepts', 'on',
   'default', 'derive', 'level', 'optional', 'draws'];
 const WORD: Record<string, string> = { fill: 'fill', ink: 'ink', icon: 'ink', edge: 'edge' };
+const ACCENT_FAMILY = 'frameworks/tailwind/vocabulary/arena-accent/Accent.family.json';
+const HUES_JSON = 'frameworks/tailwind/Hues.json';
 const REF = /^\{([a-z0-9-]+)\}$/;
 const entries = (c: SlotCatalogue) => Object.entries(c.slots);
 
@@ -231,6 +233,27 @@ export function ringProblems(c: SlotCatalogue, manifests: Manifests): string[] {
   return out;
 }
 
+const HUE_KEY: Record<string, string> = {
+  '--arena-hue-ink': 'ink', '--arena-hue-edge': 'edge', '--arena-hue-fill-strong': 'fill-strong',
+  '--arena-hue-fill-soft': 'fill-soft', '--arena-hue-on-ink': 'on-ink',
+};
+
+export function channelProblems(c: SlotCatalogue, families: { variants: Record<string, string> }, hues: { hues: Record<string, Record<string, string>> }): string[] {
+  const out: string[] = [];
+  for (const [name, s] of entries(c)) {
+    if (s.scope !== 'family' || !s.channel) continue;
+    if (s.family === 'accent') {
+      const entry = `[${s.channel}:${channelValue(c, name, 'tailwind')}]`;
+      if (!families.variants[`arena-accent-${s.option}`]?.includes(entry)) out.push(`${name}: Accent.family.json arena-accent-${s.option} does not carry ${entry}`);
+    } else if (s.family === 'hue') {
+      const want = channelValue(c, name, 'css');
+      const got = hues.hues[s.option]?.[HUE_KEY[s.channel] ?? ''];
+      if (got !== want) out.push(`${name}: Hues.json ${s.option}.${HUE_KEY[s.channel]} is ${JSON.stringify(got)}, not ${JSON.stringify(want)}`);
+    }
+  }
+  return out;
+}
+
 export function collect(root = repoRoot): string[] {
   const c = readColorSlots(root);
   const roles = colourRoleSet(root);
@@ -241,6 +264,7 @@ export function collect(root = repoRoot): string[] {
   return [
     ...nameProblems(c), ...acceptsProblems(c, roles), ...defaultProblems(c, roles), ...fallbackProblems(c),
     ...pairProblems(c), ...manifestProblems(c, manifests), ...ringProblems(c, manifests),
+    ...channelProblems(c, readJson(join(root, ACCENT_FAMILY)) as never, readJson(join(root, HUES_JSON)) as never),
   ];
 }
 

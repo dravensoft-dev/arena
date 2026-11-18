@@ -14,7 +14,7 @@ const tag = readJson(join(repoRoot, 'frameworks/tailwind/components/display/aren
 test('the default variants apply when nothing is chosen', () => {
   const { root = '', dot = '' } = classesFor(tag);
   assert.ok(root.includes('rounded-marker'), 'the base slot is present');
-  assert.ok(root.includes('border-[color:var(--arena-accent-edge,var(--accent-plain-edge))]'), 'tone=neutral is the default, and it adds no class of its own');
+  assert.ok(root.includes('border-[color:var(--arena-accent-edge,var(--accent-plain-root-edge-rest,var(--accent-plain-edge)))]'), 'tone=neutral is the default, and it adds no class of its own');
   assert.equal(dot, 'size-1.5 rounded-pill bg-current');
 });
 

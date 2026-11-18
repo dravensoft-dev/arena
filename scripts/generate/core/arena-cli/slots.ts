@@ -86,3 +86,47 @@ export function fadeMarkers(answered: Iterable<string>, catalogue: SlotCatalogue
 
 export const colourNamesOf = (roles: Record<string, unknown>, key: 'type' | '$type'): Set<string> =>
   new Set(Object.entries(roles).filter(([, role]) => (role as Record<string, unknown> | null)?.[key] === 'color').map(([name]) => name));
+
+const ownerOf = (slot: ColorSlot) => (slot.scope === 'family' ? `f:${slot.family}` : `c:${slot.component}`);
+
+export function slotChain(catalogue: SlotCatalogue, name: string): string {
+  const slot = catalogue.slots[name] as ColorSlot;
+  return `var(--${name},${fall(catalogue, name, slot)})`;
+}
+
+function read(catalogue: SlotCatalogue, name: string): string {
+  const slot = catalogue.slots[name] as ColorSlot;
+  return slot.channel ? `var(${slot.channel})` : channelValue(catalogue, name, 'tailwind');
+}
+
+function inkOf(catalogue: SlotCatalogue, from: ColorSlot): string {
+  const ink = Object.entries(catalogue.slots).find(([, s]) => ownerOf(s) === ownerOf(from) && s.option === from.option
+    && s.part === from.part && s.property === 'ink' && s.state === from.state);
+  return read(catalogue, (ink as [string, ColorSlot])[0]);
+}
+
+function fall(catalogue: SlotCatalogue, name: string, slot: ColorSlot): string {
+  if (slot.derive) {
+    const from = catalogue.slots[slot.derive.from] as ColorSlot;
+    const base = read(catalogue, slot.derive.from);
+    return slot.derive.mix ? `color-mix(in_oklab,${base},${inkOf(catalogue, from)}_calc(var(--${slot.derive.mix})*100%))` : base;
+  }
+  if (slot.optional) {
+    const restName = expectedName({ ...slot, state: 'rest' });
+    return read(catalogue, restName);
+  }
+  const answer = (slot.default ?? '').trim();
+  if (answer === 'transparent') return 'transparent';
+  const ref = /^\{([a-z][a-z0-9-]*)\}$/.exec(answer)?.[1] as string;
+  const target = catalogue.slots[ref];
+  if (!target) return `var(--${ref})`;
+  if (ownerOf(target) === ownerOf(slot)) return slotChain(catalogue, ref);
+  return read(catalogue, ref);
+}
+
+export function channelValue(catalogue: SlotCatalogue, name: string, form: 'tailwind' | 'css'): string {
+  const slot = catalogue.slots[name] as ColorSlot;
+  const chain = slotChain(catalogue, name);
+  const value = slot.level ? `color-mix(in_oklab,${chain}_var(--${slot.level}),transparent)` : chain;
+  return form === 'tailwind' ? value : value.replaceAll('in_oklab', 'in oklab').replaceAll('_', ' ');
+}

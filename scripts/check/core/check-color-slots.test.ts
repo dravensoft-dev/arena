@@ -1,7 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { collect, shapeProblems, nameProblems, acceptsProblems, defaultProblems, fallbackProblems, pairProblems, manifestProblems, ringProblems, colourRoleSet, slotManifests } from './check-color-slots.ts';
+import { collect, channelProblems, shapeProblems, nameProblems, acceptsProblems, defaultProblems, fallbackProblems, pairProblems, manifestProblems, ringProblems, colourRoleSet, slotManifests } from './check-color-slots.ts';
 import { readColorSlots } from '../../lib/core/color-slots.ts';
+import { readJson } from '../../utils/read-file.ts';
+import { repoRoot } from '../../lib/arena/repo-root.ts';
+import { join } from 'node:path';
 import type { SlotCatalogue } from '../../generate/core/arena-cli/slots.ts';
 
 const shipped = () => structuredClone(readColorSlots());
@@ -129,4 +132,13 @@ test('the contract counts', () => {
   assert.equal(slots.filter((s) => s.optional).length, 79);
   assert.equal(slots.filter((s) => s.derive?.mix === 'mix-pressed').length, 9);
   assert.equal(slots.filter((s) => s.derive?.mix === 'mix-hover').length, 2);
+});
+
+test('every accent and hue family slot reaches its channel', () => {
+  const families = readJson(join(repoRoot, 'frameworks/tailwind/vocabulary/arena-accent/Accent.family.json')) as any;
+  const hues = readJson(join(repoRoot, 'frameworks/tailwind/Hues.json')) as any;
+  assert.deepEqual(channelProblems(readColorSlots(), families, hues), []);
+  const reverted = structuredClone(families);
+  reverted.variants['arena-accent-plain'] = '[--arena-accent-fill-soft:var(--accent-plain-fill-soft)] [--arena-accent-ink:var(--accent-plain-ink)] [--arena-accent-quiet-ink:color-mix(in_oklab,var(--accent-plain-quiet-ink)_var(--level-ink-quiet),transparent)] [--arena-accent-edge:var(--accent-plain-edge)] [--arena-accent-side-edge:var(--accent-plain-side-edge)]';
+  assert.ok(channelProblems(readColorSlots(), reverted, hues).length > 0);
 });

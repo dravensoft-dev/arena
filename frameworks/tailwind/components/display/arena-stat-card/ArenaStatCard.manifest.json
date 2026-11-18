@@ -16,7 +16,7 @@
     "head": "flex items-center justify-between gap-items",
     "label": "font-face-label text-label tracking-label-role case-label text-ink-muted/(--level-ink-muted)",
     "icon": "inline-flex text-[length:var(--icon-sm)] text-ink-muted/(--level-ink-muted) opacity-60",
-    "value": "font-face-heading font-heading text-h2 leading-snug tabular-nums tracking-heading text-[color:var(--arena-accent-ink,var(--accent-plain-ink))]",
+    "value": "font-face-heading font-heading text-h2 leading-snug tabular-nums tracking-heading text-[color:var(--arena-accent-ink,var(--accent-plain-root-ink-rest,var(--accent-plain-ink)))]",
     "delta": "self-start inline-flex items-center gap-1 rounded-marker px-2 py-0.5 bg-transparent border-[length:var(--bw-marker)] font-body text-ctl-sm font-semibold",
     "sub": "font-body text-ctl-sm text-ink-muted/(--level-ink-muted)"
   },

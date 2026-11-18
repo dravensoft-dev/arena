@@ -15,6 +15,7 @@ import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { parseDecls } from '../../lib/arena/css-decls.ts';
 import { arenaTokenNames } from '../../lib/core/arena-tokens.ts';
+import { COLOR_SLOTS, readColorSlots } from '../../lib/core/color-slots.ts';
 import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
 import { DEFAULTS_LAYER, LAYER_ORDER } from '../../lib/tailwind/component-sheets.ts';
 import { applyRules } from '../../lib/tailwind/component-css.ts';
@@ -28,7 +29,7 @@ export const node = {
   name: 'check:component-css',
   reads: [
     MANIFESTS, `${CONSUME}/**/*.css`, `${VOCABULARY_DIR}/**`, 'frameworks/tailwind/components/**/*.card.html',
-    'contracts/design/environment.css', 'contracts/design/colors.css',
+    'contracts/design/environment.css', 'contracts/design/colors.css', COLOR_SLOTS,
     'contracts/design-generated/*.generated.css', ANIMATIONS,
   ],
   writes: [],
@@ -108,6 +109,7 @@ export function sheetProblems(manifests: Manifests, base = root) {
   const readNames = new Set<string>();
   const tokens = arenaTokenNames(base);
   const families = readFamilies(base);
+  for (const slot of Object.keys(readColorSlots(base).slots)) tokens.add(slot);
   for (const decls of parseDecls(readFileSync(join(base, 'contracts/design/environment.css'), 'utf8')).values())
     for (const name of decls.keys()) tokens.add(name);
 
