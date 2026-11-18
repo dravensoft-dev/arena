@@ -3,14 +3,16 @@
  * names. It carries no value, so check:dtcg leaves it by name and this gate holds its shape: the
  * name each slot must have, the roles each property may be answered with, where a default or a
  * derivation may point, the family a component slot falls to, the fill an ink sits on, and the
- * manifest part a slot paints, and the variant under which that part reads its channel. A slot is
+ * manifest part a slot paints, and the variant under which that part reads its channel. It holds the
+ * declarations themselves first (unknown keys, exceptions) before the derived catalogue. A slot is
  * never asked for totality or kernel equality. */
 
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
-import { COLOR_SLOTS, readColorSlots } from '../../lib/core/color-slots.ts';
+import { COLOR_SLOTS, deriveSlots, readSlotDeclarations } from '../../lib/core/color-slots.ts';
+import type { SlotDeclarations } from '../../lib/core/color-slots.ts';
 import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
 import type { ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';
 import {
@@ -313,8 +315,73 @@ export function channelProblems(c: SlotCatalogue, families: { variants: Record<s
   return out;
 }
 
+const DECLARED = {
+  top: ['$description', 'accepts', 'refused', 'states', 'stateSets', 'selected', 'families', 'variants', 'components', 'exceptions', 'rings'],
+  family: ['on', 'channel', 'channels', 'states', 'options', 'optionsFrom', 'template'],
+  option: ['states', 'parts'],
+  part: ['family', 'options', 'states', 'variants', 'edgeChannel', 'own', 'draws'],
+  variant: ['decision', 'rest'],
+  exception: ['default', 'decision'],
+};
+
+export function declarationProblems(d: SlotDeclarations): string[] {
+  const out: string[] = [];
+  const keys = (where: string, value: unknown, allowed: string[]) => {
+    for (const key of Object.keys((value ?? {}) as object)) if (!allowed.includes(key)) out.push(`${where}: unknown key "${key}"`);
+  };
+  const sets = (where: string, spec: unknown) => {
+    const names = typeof spec === 'string' ? [spec] : [];
+    for (const name of names) if (!Object.hasOwn(d.stateSets ?? {}, name)) out.push(`${where}: state set "${name}" is not declared in stateSets`);
+  };
+  keys(COLOR_SLOTS, d, DECLARED.top);
+  for (const [fam, f] of Object.entries(d.families ?? {})) {
+    keys(`families.${fam}`, f, DECLARED.family);
+    if (typeof f.states === 'string') sets(`families.${fam}`, f.states);
+    else for (const [prop, name] of Object.entries(f.states ?? {})) sets(`families.${fam}.states.${prop}`, name);
+    for (const [opt, o] of Object.entries(f.options ?? {})) {
+      keys(`families.${fam}.options.${opt}`, o, DECLARED.option);
+      if (typeof o.states === 'string') sets(`families.${fam}.options.${opt}`, o.states);
+      else for (const [prop, name] of Object.entries(o.states ?? {})) sets(`families.${fam}.options.${opt}.states.${prop}`, name);
+    }
+  }
+  for (const [v, x] of Object.entries(d.variants ?? {})) keys(`variants.${v}`, x, DECLARED.variant);
+  for (const [comp, parts] of Object.entries(d.components ?? {})) {
+    for (const [part, p] of Object.entries(parts)) {
+      const where = `components.${comp}.${part}`;
+      keys(where, p, DECLARED.part);
+      sets(where, p.states);
+      if (p.family !== undefined && !Object.hasOwn(d.families ?? {}, p.family)) out.push(`${where}: family "${p.family}" is not declared in families`);
+      for (const v of p.variants ?? []) if (!Object.hasOwn(d.variants ?? {}, v)) out.push(`${where}: variant "${v}" is not declared in variants`);
+    }
+  }
+  for (const [n, e] of Object.entries(d.exceptions ?? {})) keys(`exceptions.${n}`, e, DECLARED.exception);
+  return out;
+}
+
+export function exceptionProblems(d: SlotDeclarations): string[] {
+  const out: string[] = [];
+  const bare = deriveSlots({ ...d, exceptions: {} });
+  for (const [n, e] of Object.entries(d.exceptions ?? {})) {
+    if (!/^[DR]\d+$/.test(e.decision ?? '')) out.push(`exceptions.${n}: its decision "${e.decision}" is neither D<n> nor R<n>`);
+    const slot = bare.slots[n];
+    if (!slot) out.push(`exceptions.${n}: it names no slot the rule builds`);
+    else if (slot.default === e.default) out.push(`exceptions.${n}: ${n} already falls to ${e.default}, the rule already gives it, so the exception is no exception`);
+  }
+  return out;
+}
+
 export function collect(root = repoRoot): string[] {
-  const c = readColorSlots(root);
+  const d = readSlotDeclarations(root);
+  const declared = declarationProblems(d);
+  if (declared.length) return declared;
+  let c: SlotCatalogue;
+  try {
+    const excepted = exceptionProblems(d);
+    if (excepted.length) return excepted;
+    c = deriveSlots(d);
+  } catch (e) {
+    return [`${COLOR_SLOTS}: ${(e as Error).message}`];
+  }
   const roles = colourRoleSet(root);
   const manifests = slotManifests(root);
   if (Object.keys(c.slots ?? {}).length === 0) return [`found 0 slots in ${COLOR_SLOTS} -- an empty result set is a failure, not a clean pass`];
@@ -334,7 +401,7 @@ function main() {
     for (const p of problems) console.error(`  ${p}`);
     process.exit(1);
   }
-  console.log(`check-color-slots: ${Object.keys(readColorSlots().slots).length} slot(s) are named by their fields, answered by roles their property accepts, and painted by a manifest part`);
+  console.log(`check-color-slots: ${Object.keys(deriveSlots(readSlotDeclarations()).slots).length} slot(s) are named by their fields, answered by roles their property accepts, and painted by a manifest part`);
 }
 
 if (isMainModule(import.meta.url)) main();

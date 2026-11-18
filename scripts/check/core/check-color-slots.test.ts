@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { collect, channelProblems, shapeProblems, nameProblems, acceptsProblems, defaultProblems, fallbackProblems, pairProblems, manifestProblems, ringProblems, readProblems, colourRoleSet, slotManifests } from './check-color-slots.ts';
-import { readColorSlots } from '../../lib/core/color-slots.ts';
+import { collect, declarationProblems, exceptionProblems, channelProblems, shapeProblems, nameProblems, acceptsProblems, defaultProblems, fallbackProblems, pairProblems, manifestProblems, ringProblems, readProblems, colourRoleSet, slotManifests } from './check-color-slots.ts';
+import { readColorSlots, readSlotDeclarations } from '../../lib/core/color-slots.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { join } from 'node:path';
@@ -229,4 +229,54 @@ test('a slot draws a part that carries slots of its own option, which is the par
   assert.deepEqual(manifestProblems(shipped(), manifests), []);
   const lost = edit((x) => { for (const [name, slot] of Object.entries(x.slots)) if (slot.component === 'ArenaIconButton' && slot.option === 'solid') delete x.slots[name]; });
   assert.ok(manifestProblems(lost, manifests).some((line) => /^copy-button-solid-root-fill-rest: draws ArenaIconButton\.root, a part with no solid slots of its own/.test(line)));
+});
+
+const declared = () => structuredClone(readSlotDeclarations());
+
+test('an exception the rule already produces is refused', () => {
+  const d = declared();
+  d.exceptions['emphasis-primary-root-fill-rest'] = { default: '{emphasis-primary-fill}', decision: 'D19' };
+  const lines = exceptionProblems(d);
+  assert.equal(lines.length, 1);
+  assert.match(lines[0] ?? '', /emphasis-primary-root-fill-rest/);
+  assert.match(lines[0] ?? '', /the rule already gives/);
+});
+
+test('an exception with no decision is refused', () => {
+  const d = declared();
+  d.exceptions['emphasis-ghost-root-fill-hover'] = { default: '{emphasis-ghost-fill-hover}' } as never;
+  const lines = exceptionProblems(d);
+  assert.equal(lines.length, 1);
+  assert.match(lines[0] ?? '', /D<n> nor R<n>/);
+});
+
+test('an exception naming no slot is refused', () => {
+  const d = declared();
+  d.exceptions['emphasis-nothing-root-fill-hover'] = { default: '{fill-hover}', decision: 'D19' };
+  const lines = exceptionProblems(d);
+  assert.equal(lines.length, 1);
+  assert.match(lines[0] ?? '', /names no slot/);
+});
+
+test('an unknown declaration key is refused', () => {
+  const d = declared();
+  (d as any).extra = 1;
+  (d.families.emphasis as any).colour = 1;
+  (d.components.ArenaButton!.root as any).tone = 1;
+  (d.variants.destructive as any).why = 1;
+  (Object.values(d.exceptions)[0] as any).note = 1;
+  assert.equal(declarationProblems(d).length, 5);
+});
+
+test('a state set or family that is not declared is refused', () => {
+  const d = declared();
+  d.components.ArenaButton!.root!.states = 'nowhere';
+  d.components.ArenaButton!.root!.family = 'nothing';
+  assert.equal(declarationProblems(d).length, 2);
+});
+
+test('the shipped declarations are clean', () => {
+  const d = declared();
+  assert.deepEqual(declarationProblems(d), []);
+  assert.deepEqual(exceptionProblems(d), []);
 });

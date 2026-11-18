@@ -94,6 +94,8 @@ reports, and the rule the role tier grows by. Read it before writing one.
 
 `color-slots.json` is the slot tier above the roles: every coloured part of a component, per
 property and state, as a question a plugin answers with a role that slot's `accepts` set names.
+The file declares families, components, variants and exceptions, and `readColorSlots` derives the
+slots from them in memory; packages ship the derived slots in `arena.tokens.json` under `slots`.
 It carries no value, so `check:dtcg` leaves it by name, and `check:color-slots` holds its shape,
 the names, the defaults and the manifest parts it points at.
 

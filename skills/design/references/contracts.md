@@ -103,7 +103,7 @@ A short checklist for a platform target. Each step names the file it reads.
 1. Read `arena.contracts.json` for the paths the installed version holds. [`contracts/AGENTS.md`](../../../contracts/AGENTS.md) says which of the three levels a fact belongs to.
 2. Read `contracts/api/components/*.json` for the members each component presents, and [`MemberForms.md`](../../../contracts/api/MemberForms.md) for the forms they are written in.
 3. Read `contracts/behaviour/*.json` for the role, keys, focus and dismissal each component owes.
-4. Read `contracts/design/*.json` for the tokens, and `contracts/design/roles.json` for the questions a style plugin answers, and `contracts/design/color-slots.json` for the colour slots above them. [`TokenTypes.md`](../../../contracts/design/TokenTypes.md) says what each `$type` is authored as.
+4. Read `contracts/design/*.json` for the tokens, and `contracts/design/roles.json` for the questions a style plugin answers, and the colour slots above them. The slots a plugin answers are listed in the package's `arena.tokens.json` under `slots`, and `contracts/design/color-slots.json` declares them. [`TokenTypes.md`](../../../contracts/design/TokenTypes.md) says what each `$type` is authored as.
 5. Resolve each alias against the palette of the polarity you build, as the section above shows.
 
 ## How do I version the contracts package?
