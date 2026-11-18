@@ -6,7 +6,7 @@
  * inherited, or a reached part would hand its value down past the boundary the rule stops at, and
  * its limit is inclusive, since the boundary is usually the component's own root. A
  * part with colour slots writes each channel wrapped by the slot that answers it, a drawn part
- * rebound by its wrapper, and a default block of zero specificity. A markup family writes the
+ * rebound by its wrapper, and a default block of zero specificity, so its reads take no fallback. A markup family writes the
  * declarations of the element its class is on, unlayered, in the order its file writes them. */
 
 import { existsSync, readdirSync } from 'node:fs';
@@ -354,6 +354,18 @@ export function compileFamily(family: Family, manifests: Iterable<ComponentManif
     .filter((s) => s.scope === 'component' && s.component === only && s.draws !== undefined)
     .map((s) => (s.draws as string).split('.')[0] as string))].sort().map((drawn) => `@import './${partSheetStem(drawn)}.css';\n`);
   return `${LAYER_ORDER}${under.join('')}${registered}@layer utilities {\n${blocks.join('\n')}\n}\n`;
+}
+
+export function defaultBlockChannels(family: Family, manifests: Iterable<ComponentManifest>, root = repoRoot): Map<string, Set<string>> {
+  const out = new Map<string, Set<string>>();
+  if (targetOf(family) !== 'component') return out;
+  const all = [...manifests];
+  const k: Compiler = { family, catalogue: catalogueOf(root), owners: ownersOf(family, all) };
+  for (const owner of k.owners) {
+    if (slotsOf(k.catalogue, family, owner, owner.default, false).length === 0) continue;
+    out.set(`${owner.manifest.component}.${owner.slot}`, new Set(partWrites(k, owner.default, owner).keys()));
+  }
+  return out;
 }
 
 export const partSheetStem = (component: string) => `arena-${slotStem(component)}`;

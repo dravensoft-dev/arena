@@ -106,7 +106,10 @@ specificity and source order would decide again. **A read of a channel falls bac
 family's axis**, `var(<channel>,var(<axis>,<default>))`: a class on the component sets the channel
 and wins, the property an adopter sets on a container is read when no class does, and the default
 is read when neither is there. `check:families` compares the fallback with the value the family
-writes, wrapped in its axis or not.
+writes, wrapped in its axis or not. **A part whose family writes a default block reads bare.** A
+part with colour slots gets a `:where([data-arena-part="<part>"])` block that writes every channel of
+its default option, so its slot reads `bg-[color:var(--arena-emphasis-fill)]` with no fallback, and
+`check:families` refuses one that restates the default.
 
 **An `answers` entry is a bare family name or an object.** The object,
 `{ "family": "size", "options": ["arena-size-sm", "arena-size-md", "arena-size-lg"], "default":

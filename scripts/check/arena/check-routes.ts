@@ -352,17 +352,17 @@ export const ROUTES: Route[] = [
       + 'layer that binds it',
     entry: 'contributor',
     stops: ['frameworks/AGENTS.md', 'frameworks/*/AGENTS.md'],
-    budget: 78_400,
+    budget: 79_000,
     reason:
       'the most-walked contributor route paid by '
       + 'whoever changes Arena. What it carries is what every component meets: the ordered '
       + 'steps a new component takes, including the barrel chain an Angular primitive needs and its '
       + 'suites; the architecture envelope, since a module-scope browser global '
-      + 'throws in a server render; when a primitive is an attribute on a native element; and the Angular default '
+      + 'throws on a server; when a primitive is an attribute on a native element; and the Angular default '
       + 'written twice, as initial value and fallback, a pair no gate holds. The roof '
       + 'carries what binds both layers and each layer carries its own envelope and peer, '
       + 'the split that keeps the pair from going stale in one. The roof states the '
-      + 'attribute the layers build from different values, what a browser proves about focus, the contract modal focus answers and why a radio group is one stop; each layer, the binding that interpolates a property name and why a root module has one consumer, and every method a component exposes, and the classes an open pane wears. The Tailwind page names the :scope part selector a family\'s block writes and why a bundler needs it, the three shapes a focus ring takes and the state-literal rule. The kitchen-sink page holds the gate flags. The Angular page holds the marker rule.',
+      + 'attribute the layers build from different values, what a browser proves about focus, the contract modal focus answers and why a radio group is one stop; each layer, the binding that interpolates a property name and why a root module has one consumer, and every method a component exposes, and the classes an open pane wears. The Tailwind page names the :scope part selector a family\'s block writes, why a bundler needs it, bare reads, the three shapes a focus ring takes and the state-literal rule. The kitchen-sink page holds the gate flags. The Angular page holds the marker rule.',
   },
   {
     name: 'contributor-authoring',
@@ -410,7 +410,7 @@ export const ROUTES: Route[] = [
       + 'the domain the gate lands in',
     entry: 'contributor',
     stops: ['scripts/AGENTS.md', 'scripts/check/AGENTS.md', 'scripts/check/*/AGENTS.md'],
-    budget: 101_000,
+    budget: 101_300,
     reason:
       'the route a contributor takes most often after the component one, and the one whose last '
       + 'stop grows every time a gate lands, because each gate has a row in its domain\'s table. The '
@@ -422,7 +422,7 @@ export const ROUTES: Route[] = [
       + 'state what their gates refuse, and the check page carries its section on the sweep running '
       + 'side by side, its pools and --jobs. The focus-trap row names both questions that gate puts '
       + 'to a real browser, the trap and the handoff of a refused hidden control. The token-tree row states its seven claims, and the route buys that one row of headroom. The scripts page names the two Angular runs, the emitted verdict, '
-      + 'the JIT loop a task runs and the file-URL rule. The text-scale row states the sweep at twice the browser default, its spill judge and the md probe it reads from the compiled sheet.',
+      + 'the JIT loop a task runs and the file-URL rule. The text-scale row states the sweep at twice the browser default, its spill judge and the md probe it reads from the compiled sheet. Rows state the slot tier.',
   },
   {
     name: 'contributor-tailwind',
@@ -430,7 +430,7 @@ export const ROUTES: Route[] = [
       + 'then the one layer that owns an appearance decision for both frameworks at once',
     entry: 'contributor',
     stops: ['frameworks/tailwind/AGENTS.md'],
-    budget: 51_700,
+    budget: 52_300,
     reason:
       'the row a contributor takes when a shape, a colour or a state is wrong and the API is not. '
       + 'The file a corner radius actually moves in is a style plugin under plugin-style-store, '
@@ -441,7 +441,7 @@ export const ROUTES: Route[] = [
       + 'The focus rows name the edge-focus and bw-focus roles and the grep that finds each ring. '
       + 'It states the rule that check:roles refuses a state drawn with a literal level, and the whole '
       + 'vocabulary of states, modifiers and literal forms that rule covers. The focus row also states '
-      + 'that a ring never sits on a filled ground and which shape that takes.',
+      + 'that a ring never sits on a filled ground and which shape that takes. It states that a part whose family writes a default block reads its channels bare (colour slots, plan 5.1b).',
   },
   {
     name: 'contributor-behaviour',

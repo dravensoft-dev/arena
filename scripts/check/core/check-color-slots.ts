@@ -251,9 +251,9 @@ const MODIFIER: Record<string, string> = {
 const UTILITY: Record<string, string> = { fill: 'bg-[color:', ink: 'text-[color:', edge: 'border-[color:', icon: '[--arena-icon-ink:' };
 const VARIANT = /^(?:[a-z][a-z0-9-]*:)+/;
 
-const reads = (token: string, modifier: string, property: string, expected: string) => {
+const reads = (token: string, modifier: string, property: string, expected: string[]) => {
   const prefix = VARIANT.exec(token)?.[0] ?? '';
-  return prefix === modifier && token.slice(prefix.length).startsWith(UTILITY[property] ?? '?') && token.includes(expected);
+  return prefix === modifier && token.slice(prefix.length).startsWith(UTILITY[property] ?? '?') && expected.some((one) => token.includes(one));
 };
 
 export function readProblems(c: SlotCatalogue, manifests: Manifests): string[] {
@@ -265,7 +265,7 @@ export function readProblems(c: SlotCatalogue, manifests: Manifests): string[] {
       const selected = s.state.startsWith('selected');
       const texts = selected ? [(m?.variants?.pressed as Record<string, Record<string, string>> | undefined)?.true?.[part ?? '']]
         : classesOf(m ?? ({} as ComponentManifest))[part ?? ''] ?? [];
-      const expected = s.channel === undefined ? slotChain(c, name) : `var(${s.channel},`;
+      const expected = s.channel === undefined ? [slotChain(c, name)] : [`var(${s.channel},`, `var(${s.channel})`];
       const modifier = MODIFIER[s.state] ?? '';
       const found = texts.some((text) => String(text ?? '').split(/\s+/).some((token) => reads(token, modifier, s.property, expected)));
       if (!found) {

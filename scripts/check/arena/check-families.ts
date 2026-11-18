@@ -2,8 +2,8 @@
  * it, a default among its options, and options that write only its own channels; every channel is
  * read by a manifest that answers the family, with the default's value as that read's fallback, so
  * the look with no class written is the look the default names, a default writing initial reading
- * the fallback itself; a read inside another read's fallback needs none, and a channel compiled from
- * a component's colour slot counts as the family's. Every answers names a family, a mark manifest
+ * the fallback itself; a read inside another read's fallback needs none, a read of a channel its
+ * part's default block writes takes none, and a channel compiled from a colour slot is the family's. Every answers names a family, a mark manifest
  * maps only to a measured hue or none, every transparent slot is a slot of its manifest with a
  * reason, the vocabulary page equals a fresh render, an empty vocabulary fails, and so does an
  * arena- class in a sheet that no family and no manifest emits. */
@@ -23,7 +23,7 @@ import { NOT_WRITTEN, SHEETS, UTILITIES, classesIn, themeUtilities } from './che
 import { THEME_SOURCES } from '../../lib/tailwind/theme-sheet.ts';
 import {
   REACHES, TARGETS, VOCABULARY_DIR, answerOf, answeredFamilies, axesOf, axisWrapped, channelPrefix, channelReads, declarations, familyFiles,
-  componentChannels, optionDeclarations, readFamilies, slotClassStrings, type Family,
+  componentChannels, defaultBlockChannels, optionDeclarations, readFamilies, slotClassStrings, type Family,
 } from '../../lib/tailwind/vocabulary.ts';
 import type { ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';
 import { readHues } from '../../lib/tailwind/hue-sheet.ts';
@@ -229,6 +229,7 @@ export function familyProblems(
   const isAxis = (channel: string) => [...families.values()].some((one) => axesOf(one).includes(channel));
   const familyOf = (channel: string) => (isAxis(channel) ? undefined
     : [...families.values()].find((one) => channel.startsWith(channelPrefix(one.family))));
+  const defaultBlocks = new Map([...families.values()].map((one) => [one.family, defaultBlockChannels(one, manifests.values(), root)]));
   const readsByFamily = new Map<string, Set<string>>();
   const axisReads = new Map<string, Set<string>>();
   const answeredOptions = new Map<string, Set<string>>();
@@ -265,6 +266,14 @@ export function familyProblems(
         const fallback = (raw ?? '').replaceAll('_', ' ');
         for (const key of themeKeyReads(fallback, palette))
           problems.push(`${manifest.component}.${slot}: ${channel} falls back to ${key}, a Tailwind theme key that no sheet declares at runtime; name an Arena token or role`);
+        const block = defaultBlocks.get(family.family)?.get(`${manifest.component}.${slot}`);
+        if (block?.has(channel)) {
+          if (raw !== null && !nested) {
+            problems.push(`${manifest.component}.${slot}: ${channel} falls back to ${fallback}, and the ${family.family} default block of this part `
+              + `writes ${channel} on it, so the fallback restates the default; read var(${channel})`);
+          }
+          continue;
+        }
         const chosen = answerOf(manifest, family)?.default ?? family.default;
         const written = (() => { try { return chosen === undefined ? [] : declarations(family.variants[chosen] ?? ''); } catch { return []; } })()
           .find(([property]) => property === channel)?.[1];

@@ -173,9 +173,9 @@ test('every slot of the five buttons reaches its part under its state', () => {
   assert.deepEqual(readProblems(c, manifests), []);
   const dropped = structuredClone(manifests) as Map<string, any>;
   const root = dropped.get('ArenaButton').variants.destructive.false;
-  const pressed = 'active:bg-[color:var(--arena-emphasis-fill-pressed,';
+  const pressed = 'active:bg-[color:var(--arena-emphasis-fill-pressed)]';
   assert.ok(root.root.includes(pressed), 'the shipped Button reads the pressed fill under active:');
-  root.root = root.root.replace(pressed, 'bg-[color:var(--arena-emphasis-fill-pressed,');
+  root.root = root.root.replace(pressed, 'bg-[color:var(--arena-emphasis-fill-pressed)]');
   const lines = readProblems(c, dropped);
   assert.equal(lines.length, 1);
   assert.match(lines[0] ?? '', /ArenaButton\.root.*--arena-emphasis-fill-pressed.*active:/);
@@ -191,9 +191,9 @@ test('a selected disabled slot is optional, falls to selected, and is read under
   assert.equal(c.slots['icon-button-ghost-root-ink-selected-disabled']!.optional, true);
   const lost = structuredClone(manifests) as Map<string, any>;
   const root = lost.get('ArenaIconButton').variants.pressed.true;
-  const read = 'disabled:text-[color:var(--arena-emphasis-ink-selected-disabled,';
+  const read = 'disabled:text-[color:var(--arena-emphasis-ink-selected-disabled)]';
   assert.ok(root.root.includes(read));
-  root.root = root.root.replace(read, 'text-[color:var(--arena-emphasis-ink-selected-disabled,');
+  root.root = root.root.replace(read, 'text-[color:var(--arena-emphasis-ink-selected-disabled)]');
   const lines = readProblems(c, lost);
   assert.equal(lines.length, 1);
   assert.match(lines[0] ?? '', /ArenaIconButton\.root.*--arena-emphasis-ink-selected-disabled.*disabled:/);
