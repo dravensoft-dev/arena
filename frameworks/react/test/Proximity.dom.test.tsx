@@ -75,7 +75,7 @@ const COMPOSITIONS: Record<string, () => React.ReactElement> = {
   'timeline-connector-horizontal-keeps-block-margin': () => <ArenaTimeline label="Order" items={[{ title: 'Placed' }, { title: 'Shipped' }]} />,
   'tag-breaks-a-label-wider-than-its-container': () => <ArenaTag>{'InternationalisationInternationalisationInternationalisationInternationalisationInternationalisationInternationalisation'}</ArenaTag>,
   'palette-scope-takes-the-surface-radius': () => <ArenaPaletteScope palette="light"><span>Light</span></ArenaPaletteScope>,
-  'component-slot-beats-family-and-needs-no-class': () => <div style={answered({ '--button-primary-root-fill-rest': 'var(--fill-surface)' })}>
+  'component-slot-beats-family-and-needs-no-class': () => <div style={answered({ '--button-primary-root-fill-rest': 'var(--fill-surface)', '--emphasis-primary-root-fill-rest': 'var(--fill-surface-raised)' })}>
     <ArenaButton>Save</ArenaButton>
     <ArenaSplitButton label="Deployment" menuLabel="More deploy options" items={[{ label: 'Deploy' }]}>Deploy</ArenaSplitButton>
     <ArenaIconButton icon="ph-bold ph-x" label="Close" />
@@ -84,8 +84,10 @@ const COMPOSITIONS: Record<string, () => React.ReactElement> = {
   'copy-button-follows-icon-button': () => <div style={answered({ '--icon-button-ghost-root-fill-rest': 'var(--fill-surface)' })}><ArenaIconButton icon="ph-bold ph-x" label="Close" /><ArenaCopyButton text="x" label="Copy" /></div>,
   'copy-button-slot-wins': () => <div style={answered({ '--icon-button-ghost-root-fill-rest': 'var(--fill-surface)', '--copy-button-ghost-root-fill-rest': 'var(--fill-surface-raised)' })}><ArenaCopyButton text="x" label="Copy" /></div>,
   'answered-disabled-stops-the-fade': () => <div style={answered({ '--button-primary-root-ink-disabled': 'var(--ink-muted)', '--button-primary-root-fade-disabled': '1' })}><ArenaButton disabled>Save</ArenaButton></div>,
+  'answered-disabled-draws-its-ink': () => <div style={answered({ '--button-primary-root-ink-disabled': 'var(--ink-muted)', '--button-primary-root-fade-disabled': '1' })}><ArenaButton disabled>Save</ArenaButton></div>,
+  'answered-disabled-ink-reaches-the-glyph': () => <div style={answered({ '--button-primary-root-ink-disabled': 'var(--ink-muted)', '--button-primary-root-fade-disabled': '1' })}><ArenaButton disabled icon="ph-bold ph-x">Save</ArenaButton></div>,
   'component-ink-answer-reaches-the-glyph': () => <div style={answered({ '--button-primary-root-ink-rest': 'var(--fill-surface)' })}><ArenaButton icon="ph-bold ph-x">Save</ArenaButton></div>,
-  'icon-rest-answer-keeps-the-level': () => <div style={answered({ '--emphasis-ghost-root-icon-rest': 'var(--fill-surface)' })}><ArenaButton className="arena-emphasis-ghost" icon="ph-bold ph-x">Save</ArenaButton></div>,
+  'icon-rest-answer-keeps-the-level': () => <div style={answered({ '--emphasis-ghost-root-icon-rest': 'var(--hue-danger-ink)' })}><ArenaButton className="arena-emphasis-ghost" icon="ph-bold ph-x">Save</ArenaButton></div>,
   'class-on-copy-button-reaches-the-icon-button-it-draws': () => <div style={answered({ '--copy-button-solid-root-fill-rest': 'var(--fill-surface-raised)' })}><ArenaCopyButton className="arena-emphasis-solid" text="x" label="Copy" /></div>,
   'answered-disabled-keeps-the-rest-fill': () => <div style={answered({ '--button-primary-root-ink-disabled': 'var(--ink-muted)', '--button-primary-root-fade-disabled': '1' })}><ArenaButton disabled>Save</ArenaButton></div>,
   'selected-disabled-answer-stops-only-the-selected-fade': () => <>
