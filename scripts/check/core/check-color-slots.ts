@@ -98,7 +98,7 @@ export function defaultProblems(c: SlotCatalogue, roles: ReadonlySet<string>): s
     if (s.state === 'rest') {
       if (s.default === undefined || s.derive !== undefined || s.optional === true) out.push(`${name}: a rest slot carries a default and nothing else`);
     } else if (answered > 1 || (answered === 0 && s.optional !== true) || (s.derive !== undefined && s.optional === true)) {
-      out.push(`${name}: a ${s.state} slot carries exactly one of a default or a derive, or is optional with neither; only a disabled or selected-disabled slot may be optional`);
+      out.push(`${name}: a ${s.state} slot carries a default or a derive, never both, and carries neither only when it is optional; only a disabled or selected-disabled slot may be optional, with or without a default and never with a derive`);
     }
     if (s.optional && s.state !== 'disabled' && s.state !== 'selected-disabled') out.push(`${name}: optional is for a disabled or selected-disabled slot only`);
     if (s.optional) {

@@ -1422,7 +1422,7 @@
   "button-destructive-root-fill-pressed": {
     "$type": "color",
     "$value": "{hue-danger-fill-soft}",
-    "$description": "A destructive button fills with the danger hue when pressed, so the control reads as the destructive action it is while the pointer is on it."
+    "$description": "A destructive button fills with the danger hue when pressed, so the control reads as the destructive action it is while it is pressed."
   },
   "button-destructive-root-ink-hover": {
     "$type": "color",
@@ -1442,7 +1442,7 @@
   "split-button-destructive-primary-fill-pressed": {
     "$type": "color",
     "$value": "{hue-danger-fill-soft}",
-    "$description": "The primary half of a destructive split button fills with the danger hue when pressed, so the control reads as the destructive action it is while the pointer is on it."
+    "$description": "The primary half of a destructive split button fills with the danger hue when pressed, so the control reads as the destructive action it is while it is pressed."
   },
   "split-button-destructive-primary-ink-hover": {
     "$type": "color",
@@ -1462,17 +1462,17 @@
   "split-button-destructive-caret-fill-pressed": {
     "$type": "color",
     "$value": "{hue-danger-fill-soft}",
-    "$description": "The caret half of a destructive split button fills with the danger hue when pressed, so the control reads as the destructive action it is while the pointer is on it."
+    "$description": "The caret half of a destructive split button fills with the danger hue when pressed, so the control reads as the destructive action it is while it is pressed."
   },
   "split-button-destructive-caret-ink-hover": {
     "$type": "color",
     "$value": "{hue-danger-on-ink}",
-    "$description": "The caret half of a destructive split button sets its label in the content colour of the danger hue under the pointer, because the label stands on that fill."
+    "$description": "The caret half of a destructive split button draws its glyph in the content colour of the danger hue under the pointer, because the glyph stands on that fill."
   },
   "split-button-destructive-caret-ink-pressed": {
     "$type": "color",
     "$value": "{hue-danger-on-ink}",
-    "$description": "The caret half of a destructive split button sets its label in the content colour of the danger hue when pressed, because the label stands on that fill."
+    "$description": "The caret half of a destructive split button draws its glyph in the content colour of the danger hue when pressed, because the glyph stands on that fill."
   },
   "light": {
     "edge-focus": {

@@ -139,12 +139,9 @@ test('a slot complete answers as default does fails', () => {
   assert.equal(unansweredSlots(catalogue, complete, root, new Map([['button-e-root-ink-rest', 'no second spelling']])).length, 3);
 });
 
-const FOUR = ['accent-gold-root-ink-rest', 'accent-plain-side-edge-rest', 'hue-danger-strong-ink-rest',
-  'icon-button-solid-root-edge-rest'];
-
-test('the four witness exemptions are slots without a second spelling', () => {
-  for (const slot of FOUR) assert.ok(WITNESS_EXEMPT.has(slot), `${slot} is exempt`);
-  const stale = staleExemptions([...FOUR]);
+test('the four slot exemptions are listed in WITNESS_EXEMPT, and each goes stale once complete moves it', () => {
+  for (const slot of EXEMPT_SLOTS) assert.ok(WITNESS_EXEMPT.has(slot), `${slot} is exempt`);
+  const stale = staleExemptions([...EXEMPT_SLOTS]);
   assert.equal(stale.length, 4);
   assert.deepEqual(staleExemptions([]), []);
 });
