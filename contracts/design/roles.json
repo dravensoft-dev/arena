@@ -1517,6 +1517,36 @@
       }
     }
   },
+  "mix-hover": {
+    "$type": "number",
+    "$description": "The share of its drawn ink a part's fill takes under the pointer: the fill is mixed toward the ink the part draws on it, in OKLab, by this fraction. A number and never a colour, so a style plugin that wants a firmer hover answers a share and the part keeps reading as itself.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{blend.hover}",
+        "audience": "component",
+        "task": "states",
+        "state": [
+          "hover"
+        ],
+        "question": "How far toward its ink does a part's fill move under the pointer?"
+      }
+    }
+  },
+  "mix-pressed": {
+    "$type": "number",
+    "$description": "The share of its drawn ink a part's fill takes while it is pressed: the fill is mixed toward the ink the part draws on it, in OKLab, by this fraction. A number and never a colour, kept apart from the hover share because a press is firmer than a hover and a plugin answers the two one at a time.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{blend.pressed}",
+        "audience": "component",
+        "task": "states",
+        "state": [
+          "active"
+        ],
+        "question": "How far toward its ink does a part's fill move while pressed?"
+      }
+    }
+  },
   "edge-invalid": {
     "$type": "color",
     "$description": "The colour of the edge of a field the reader has filled in wrongly, shown by aria-invalid. It is a boundary a reader must see, so it is measured under WCAG 1.4.11.",

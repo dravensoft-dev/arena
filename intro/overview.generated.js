@@ -38,6 +38,10 @@ var EXCLUDED = new Map([
   [
     "roles.json",
     "it declares the questions the kernel asks and carries no value, so it is not a token file. " + "A DTCG token without $value is not a DTCG token, and check:role-contract holds it instead."
+  ],
+  [
+    "color-slots.json",
+    "it declares the colour slots a style plugin may answer and carries no value, so it is not a token file. " + "check:color-slots holds it instead."
   ]
 ]);
 function childEntries(node) {

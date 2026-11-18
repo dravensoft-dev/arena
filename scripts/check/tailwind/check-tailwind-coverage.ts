@@ -27,6 +27,10 @@ export const EXCLUDED = new Map([
   ['title-hero-fit', 'a computed size the hero reaches through an arbitrary length, text-[length:var(--title-hero-fit)], '
     + 'restated on every plugin class so a nested plugin keeps it; no utility offers it'],
   ['pad-band-x', 'read inside the band\'s min()'],
+  ['blend-hover', 'the kernel default of the mix-hover role, which no part reads directly; no utility offers a number'],
+  ['blend-pressed', 'the kernel default of the mix-pressed role, which no part reads directly; no utility offers a number'],
+  ['mix-hover', 'a share a part reads inside color-mix(), as var(--mix-hover); no utility offers a number'],
+  ['mix-pressed', 'a share a part reads inside color-mix(), as var(--mix-pressed); no utility offers a number'],
   ['pad-row-indent', 'only the side nav\'s arbitrary inset reads it'],
   ['sp-0', 'p-0 compiles to a literal 0px in v4 regardless of the theme'],
   ['sp-0-5', 'the half step under the grid, which only the kernel default of pad-key-y names; a cap reaches it '

@@ -546,6 +546,14 @@
     "$type": "number",
     "$value": 0.38
   },
+  "mix-hover": {
+    "$type": "number",
+    "$value": 0.12
+  },
+  "mix-pressed": {
+    "$type": "number",
+    "$value": 0.24
+  },
   "edge-invalid": {
     "$type": "color",
     "$value": "{color.base-content}"

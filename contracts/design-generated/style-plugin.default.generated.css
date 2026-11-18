@@ -114,6 +114,8 @@
   --ink-selected:var(--color-base-content);
   --edge-selected:var(--color-base-content);
   --fade-disabled:0.45;
+  --mix-hover:0.08;
+  --mix-pressed:0.16;
   --edge-invalid:var(--color-error);
   --ink-invalid:var(--color-error);
   --bw-surface:1px;

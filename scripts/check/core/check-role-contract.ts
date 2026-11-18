@@ -53,6 +53,7 @@ export const STATE_SELECTORS: Readonly<Record<string, string>> = {
   'aria-disabled': '[aria-disabled="true"]',
   disabled: ':disabled',
   'aria-invalid': '[aria-invalid="true"]',
+  active: ':active',
 };
 
 const ALIAS = /^\{([a-z][\w-]*(?:\.[\w-]+)*)\}$/;

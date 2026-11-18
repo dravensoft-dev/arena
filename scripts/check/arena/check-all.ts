@@ -62,6 +62,7 @@ export const GATES: Gate[] = [
   { name: 'check:style-plugin-coverage', file: 'core/check-style-plugin-coverage.ts' },
   { name: 'check:plugin-css', file: 'core/check-plugin-css.ts' },
   { name: 'check:role-contract', file: 'core/check-role-contract.ts' },
+  { name: 'check:color-slots', file: 'core/check-color-slots.ts' },
   { name: 'check:compat-aliases', file: 'core/check-compat-aliases.ts' },
   { name: 'check:polarity', file: 'core/check-polarity.ts' },
   { name: 'check:tokens', file: 'core/check-tokens-generated.ts' },

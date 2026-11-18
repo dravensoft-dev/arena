@@ -63,7 +63,7 @@ test('every role lands in exactly one role leaf', () => {
     'plugin/surfaces-and-text.md': 16, 'plugin/edges.md': 20, 'plugin/space-and-layout.md': 18, 'plugin/type.md': 20,
     'plugin/depth-and-motion.md': 11, 'plugin/states.md': 11,
     'components/air.md': 33, 'components/type.md': 4, 'components/size-controls.md': 44, 'components/size-content.md': 42,
-    'components/emphasis-and-accent.md': 27, 'components/status-hues.md': 22,
+    'components/emphasis-and-accent.md': 29, 'components/status-hues.md': 22,
   });
 });
 
@@ -74,7 +74,8 @@ test('units is a markup leaf and the markup index links it', () => {
 });
 
 test('a role no leaf rule takes throws', () => {
-  assert.throws(() => roleLeaf('mystery-role', { audience: 'component', task: 'states' }), /mystery-role/);
+  assert.throws(() => roleLeaf('mystery-role', { audience: 'component', task: 'surfaces-and-text' }), /mystery-role/);
+  assert.equal(roleLeaf('mix-hover', { audience: 'component', task: 'states' }), 'components/emphasis-and-accent.md');
   assert.throws(() => markupLeaf('component-size'), /markup\/component-size\.md/);
   assert.equal(markupLeaf('layers'), 'markup/layers.md');
   assert.throws(() => roleLeaf('mystery-role', { audience: 'markup', task: 'meaning-and-identity' }), /mystery-role/);
@@ -226,7 +227,7 @@ test('the states leaf maps every attribute to its selector and roles', () => {
 });
 
 test('a state no role names has no row', () => {
-  const stub: Parameters<typeof stateRows>[0] = { a: { $extensions: { [ARENA_EXT]: { state: ['hover'] } } } };
+  const stub: Parameters<typeof stateRows>[0] = { a: { $extensions: { [ARENA_EXT]: { audience: 'markup', state: ['hover'] } } } };
   const rows = stateRows(stub);
   assert.deepEqual(rows, ['| `hover` | `:hover` | `--a` |']);
 });

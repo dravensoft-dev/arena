@@ -30,6 +30,10 @@
   /* Opacity */
   --opacity-disabled:0.45; /* The share of its opacity a disabled control keeps. A disabled control is exempt from contrast under WCAG 1.4.3 and 1.4.11, so the share is a fade and never a colour. */
 
+  /* How far a part's fill moves toward the ink it draws, as a fraction of that ink. Read through the mix-hover and mix-pressed roles, so a style plugin answers each state's share. */
+  --blend-hover:0.08; /* The share a fill moves toward its ink under the pointer. */
+  --blend-pressed:0.16; /* The share a fill moves toward its ink while pressed: twice the hover share, so a press reads firmer than a hover. */
+
   /* Motion */
   --dur-fast:120ms;
   --dur-mid:220ms;

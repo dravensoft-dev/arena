@@ -567,6 +567,14 @@
     "$type": "number",
     "$value": "{opacity.disabled}"
   },
+  "mix-hover": {
+    "$type": "number",
+    "$value": "{blend.hover}"
+  },
+  "mix-pressed": {
+    "$type": "number",
+    "$value": "{blend.pressed}"
+  },
   "edge-invalid": {
     "$type": "color",
     "$value": "{color.error}"

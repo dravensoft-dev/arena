@@ -55,7 +55,7 @@ export function roleLeaf(name: string, meta: Meta) {
       return CONTROL_PARTS.has(name.split('-')[2] ?? '') ? 'components/size-controls.md' : 'components/size-content.md';
     if (task === 'space-and-layout' || task === 'edges') return 'components/air.md';
     if (task === 'type') return 'components/type.md';
-    if (task === 'depth-and-motion' || /^(emphasis|accent)-/.test(name)) return 'components/emphasis-and-accent.md';
+    if (task === 'depth-and-motion' || task === 'states' || /^(emphasis|accent)-/.test(name)) return 'components/emphasis-and-accent.md';
     if (task === 'meaning-and-identity') return 'components/status-hues.md';
   }
   throw new Error(`generate-token-tree: no leaf takes the role ${name} (audience ${audience}, task ${task}). `
@@ -172,8 +172,8 @@ function indexBody(index: string, base: string) {
 export function stateRows(roles: Record<string, RoleToken>) {
   return Object.entries(STATE_SELECTORS).flatMap(([attribute, selector]) => {
     const named = Object.keys(roles).sort().filter((name) => {
-      const state = (roles[name]!.$extensions?.[ARENA_EXT] as Record<string, unknown> | undefined)?.state;
-      return Array.isArray(state) && state.includes(attribute);
+      const ext = roles[name]!.$extensions?.[ARENA_EXT] as Record<string, unknown> | undefined;
+      return ext?.audience === 'markup' && Array.isArray(ext.state) && ext.state.includes(attribute);
     });
     return named.length ? [`| \`${attribute}\` | \`${selector}\` | ${named.map((name) => `\`--${name}\``).join(', ')} |`] : [];
   });

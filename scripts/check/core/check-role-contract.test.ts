@@ -301,6 +301,7 @@ test('STATE_SELECTORS is the closed set of states and the selector each one is',
     hover: ':hover', 'focus-visible': ':focus-visible', 'aria-selected': '[aria-selected="true"]',
     'aria-current': '[aria-current]:not([aria-current="false"])', 'aria-pressed': '[aria-pressed="true"]',
     'aria-disabled': '[aria-disabled="true"]', disabled: ':disabled', 'aria-invalid': '[aria-invalid="true"]',
+    active: ':active',
   });
 });
 
@@ -308,13 +309,26 @@ test('the shipped roles carry a valid state on every states role', () => {
   const shipped = readJson(join(repoRoot, ROLES)) as Record<string, any>;
   assert.deepEqual(metadataProblems(shipped), []);
   const states = Object.entries(shipped).filter(([, role]) => role.$extensions?.['com.dravensoft.arena']?.task === 'states');
-  assert.equal(states.length, 11);
+  assert.equal(states.length, 13);
   assert.deepEqual(states.map(([name]) => name).sort(), ['bw-focus', 'edge-focus', 'edge-invalid', 'edge-selected',
-    'edge-tab-selected', 'fade-disabled', 'fill-hover', 'fill-selected', 'gap-focus', 'ink-invalid', 'ink-selected']);
+    'edge-tab-selected', 'fade-disabled', 'fill-hover', 'fill-selected', 'gap-focus', 'ink-invalid', 'ink-selected',
+    'mix-hover', 'mix-pressed']);
 });
 
 test('a colour role may default to transparent and to nothing else literal', () => {
   const role = (value: string) => ({ r: { $type: 'color', $description: 'd', $extensions: { 'com.dravensoft.arena': { default: value } } } });
   assert.deepEqual(defaultProblems(role('transparent'), new Map()), []);
   assert.equal(defaultProblems(role('#000'), new Map()).length, 1);
+});
+
+test('the mix numbers are states roles shown under hover and active', () => {
+  const shipped = readJson(join(repoRoot, ROLES)) as Record<string, any>;
+  const ext = (name: string) => shipped[name]?.$extensions?.['com.dravensoft.arena'];
+  for (const [name, state, def] of [['mix-hover', 'hover', '{blend.hover}'], ['mix-pressed', 'active', '{blend.pressed}']] as const) {
+    assert.equal(shipped[name]?.$type, 'number', name);
+    assert.equal(ext(name)?.audience, 'component', name);
+    assert.equal(ext(name)?.task, 'states', name);
+    assert.deepEqual(ext(name)?.state, [state], name);
+    assert.equal(ext(name)?.default, def, name);
+  }
 });
