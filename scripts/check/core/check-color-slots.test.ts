@@ -442,6 +442,10 @@ test('paintedBy may be a list, and each path of it must exist', () => {
   assert.match(mapLines(d).join('\n'), /charts\.parts\.heat.*nowhere/);
   (d.groups!.charts!.parts.heat as any).paintedBy = [];
   assert.match(mapLines(d).join('\n'), /charts\.parts\.heat/);
+  (d.groups!.charts!.parts.heat as any).paintedBy = '';
+  assert.match(mapLines(d).join('\n'), /charts\.parts\.heat.*no file/);
+  (d.groups!.charts!.parts.heat as any).paintedBy = ['frameworks/react'];
+  assert.match(mapLines(d).join('\n'), /charts\.parts\.heat.*no file/);
 });
 
 test('a null part on a part that paints no colour at all is refused', () => {
@@ -451,8 +455,8 @@ test('a null part on a part that paints no colour at all is refused', () => {
 });
 
 test('every shipped paintedBy path names a file that paints the part', () => {
-  const read = (p: string) => readFileSync(p, 'utf8');
-  const needle: Record<string, RegExp> = { heat: /color-heat/, tick: /ARENA_INK_MUTED/, axis: /--edge-axis/, grid: /--edge-separator/, halo: /--fill-surface/, track: /--fill-track/ };
+  const read = (p: string) => readFileSync(p, 'utf8').split('\n').filter((l) => !/^\s*import\b/.test(l)).join('\n');
+  const needle: Record<string, RegExp> = { heat: /arenaHeatFill\(/, tick: /ARENA_INK_MUTED/, axis: /--edge-axis/, grid: /--edge-separator/, halo: /--fill-surface/, track: /--fill-track/ };
   for (const [part, re] of Object.entries(needle)) {
     const by = mapped().groups!.charts!.parts[part]!.paintedBy;
     const paths = typeof by === 'string' ? [by] : by ?? [];

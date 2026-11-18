@@ -756,8 +756,8 @@
             "heat-5"
           ],
           "paintedBy": [
-            "frameworks/react/DataVisuals.ts",
-            "frameworks/angular/DataVisuals.ts"
+            "frameworks/react/components/charts/arena-heatmap-chart/ArenaHeatmapChart.tsx",
+            "frameworks/angular/components/charts/arena-heatmap-chart/ArenaHeatmapChart.ts"
           ]
         },
         "axis": {
@@ -812,8 +812,24 @@
           ],
           "states": "static",
           "paintedBy": [
-            "frameworks/react/DataVisuals.ts",
-            "frameworks/angular/DataVisuals.ts"
+            "frameworks/react/components/charts/arena-bar-chart/ArenaBarChart.tsx",
+            "frameworks/react/components/charts/arena-funnel-chart/ArenaFunnelChart.tsx",
+            "frameworks/react/components/charts/arena-gauge-chart/ArenaGaugeChart.tsx",
+            "frameworks/react/components/charts/arena-heatmap-chart/ArenaHeatmapChart.tsx",
+            "frameworks/react/components/charts/arena-horizontal-bar-chart/ArenaHorizontalBarChart.tsx",
+            "frameworks/react/components/charts/arena-line-chart/ArenaLineChart.tsx",
+            "frameworks/react/components/charts/arena-pyramid-chart/ArenaPyramidChart.tsx",
+            "frameworks/react/components/charts/arena-radar-chart/ArenaRadarChart.tsx",
+            "frameworks/react/components/charts/arena-scatter-chart/ArenaScatterChart.tsx",
+            "frameworks/angular/components/charts/arena-bar-chart/ArenaBarChart.ts",
+            "frameworks/angular/components/charts/arena-funnel-chart/ArenaFunnelChart.ts",
+            "frameworks/angular/components/charts/arena-gauge-chart/ArenaGaugeChart.ts",
+            "frameworks/angular/components/charts/arena-heatmap-chart/ArenaHeatmapChart.ts",
+            "frameworks/angular/components/charts/arena-horizontal-bar-chart/ArenaHorizontalBarChart.ts",
+            "frameworks/angular/components/charts/arena-line-chart/ArenaLineChart.ts",
+            "frameworks/angular/components/charts/arena-pyramid-chart/ArenaPyramidChart.ts",
+            "frameworks/angular/components/charts/arena-radar-chart/ArenaRadarChart.ts",
+            "frameworks/angular/components/charts/arena-scatter-chart/ArenaScatterChart.ts"
           ]
         },
         "halo": {

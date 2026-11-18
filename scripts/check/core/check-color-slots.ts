@@ -7,7 +7,7 @@
  * declarations themselves first (unknown keys, exceptions) before the derived catalogue. A slot is
  * never asked for totality or kernel equality. */
 
-import { existsSync } from 'node:fs';
+import { statSync } from 'node:fs';
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { readJson } from '../../utils/read-file.ts';
@@ -426,7 +426,7 @@ export function mapProblems(d: SlotDeclarations, coloured: ReadonlyMap<string, C
       else {
         const paths = typeof gp.paintedBy === 'string' ? [gp.paintedBy] : gp.paintedBy;
         if (paths.length === 0) out.push(`${at}: paintedBy names no file`);
-        for (const path of paths) if (!existsSync(join(root, path))) out.push(`${at}: paintedBy ${path} is no file`);
+        for (const path of paths) if (path === '' || !statSync(join(root, path), { throwIfNoEntry: false })?.isFile()) out.push(`${at}: paintedBy ${path} is no file`);
       }
     }
   }
