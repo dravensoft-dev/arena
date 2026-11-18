@@ -330,18 +330,21 @@ export function declarationProblems(d: SlotDeclarations): string[] {
     for (const key of Object.keys((value ?? {}) as object)) if (!allowed.includes(key)) out.push(`${where}: unknown key "${key}"`);
   };
   const sets = (where: string, spec: unknown) => {
-    const names = typeof spec === 'string' ? [spec] : [];
-    for (const name of names) if (!Object.hasOwn(d.stateSets ?? {}, name)) out.push(`${where}: state set "${name}" is not declared in stateSets`);
+    const set = (at: string, name: string) => {
+      if (!Object.hasOwn(d.stateSets ?? {}, name)) out.push(`${at}: state set "${name}" is not declared in stateSets`);
+    };
+    if (typeof spec === 'string') set(where, spec);
+    else if (Array.isArray(spec)) {
+      for (const st of spec) if (!(d.states ?? []).includes(st)) out.push(`${where}: state "${st}" is not declared in states`);
+    } else for (const [prop, name] of Object.entries((spec ?? {}) as Record<string, string>)) set(`${where}.states.${prop}`, name);
   };
   keys(COLOR_SLOTS, d, DECLARED.top);
   for (const [fam, f] of Object.entries(d.families ?? {})) {
     keys(`families.${fam}`, f, DECLARED.family);
-    if (typeof f.states === 'string') sets(`families.${fam}`, f.states);
-    else for (const [prop, name] of Object.entries(f.states ?? {})) sets(`families.${fam}.states.${prop}`, name);
+    sets(`families.${fam}`, f.states);
     for (const [opt, o] of Object.entries(f.options ?? {})) {
       keys(`families.${fam}.options.${opt}`, o, DECLARED.option);
-      if (typeof o.states === 'string') sets(`families.${fam}.options.${opt}`, o.states);
-      else for (const [prop, name] of Object.entries(o.states ?? {})) sets(`families.${fam}.options.${opt}.states.${prop}`, name);
+      sets(`families.${fam}.options.${opt}`, o.states);
     }
   }
   for (const [v, x] of Object.entries(d.variants ?? {})) keys(`variants.${v}`, x, DECLARED.variant);
@@ -360,10 +363,13 @@ export function declarationProblems(d: SlotDeclarations): string[] {
 
 export function exceptionProblems(d: SlotDeclarations): string[] {
   const out: string[] = [];
-  const bare = deriveSlots({ ...d, exceptions: {} });
+  const built = deriveSlots({ ...d, exceptions: {} }).slots;
   for (const [n, e] of Object.entries(d.exceptions ?? {})) {
-    if (!/^[DR]\d+$/.test(e.decision ?? '')) out.push(`exceptions.${n}: its decision "${e.decision}" is neither D<n> nor R<n>`);
-    const slot = bare.slots[n];
+    if (!/^[DR]\d+$/.test(e.decision ?? '')) {
+      out.push(e.decision === undefined ? `exceptions.${n}: the exception carries no decision, and needs D<n> or R<n>` : `exceptions.${n}: its decision "${e.decision}" is neither D<n> nor R<n>`);
+    }
+    const rest = Object.fromEntries(Object.entries(d.exceptions).filter(([k]) => k !== n && Object.hasOwn(built, k)));
+    const slot = deriveSlots({ ...d, exceptions: rest }).slots[n];
     if (!slot) out.push(`exceptions.${n}: it names no slot the rule builds`);
     else if (slot.default === e.default) out.push(`exceptions.${n}: ${n} already falls to ${e.default}, the rule already gives it, so the exception is no exception`);
   }

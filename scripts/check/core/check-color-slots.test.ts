@@ -247,7 +247,7 @@ test('an exception with no decision is refused', () => {
   d.exceptions['emphasis-ghost-root-fill-hover'] = { default: '{emphasis-ghost-fill-hover}' } as never;
   const lines = exceptionProblems(d);
   assert.equal(lines.length, 1);
-  assert.match(lines[0] ?? '', /D<n> nor R<n>/);
+  assert.match(lines[0] ?? '', /carries no decision/);
 });
 
 test('an exception naming no slot is refused', () => {
@@ -265,7 +265,8 @@ test('an unknown declaration key is refused', () => {
   (d.components.ArenaButton!.root as any).tone = 1;
   (d.variants.destructive as any).why = 1;
   (Object.values(d.exceptions)[0] as any).note = 1;
-  assert.equal(declarationProblems(d).length, 5);
+  (d.families.emphasis!.options!.primary as any).mood = 1;
+  assert.equal(declarationProblems(d).length, 6);
 });
 
 test('a state set or family that is not declared is refused', () => {
@@ -273,6 +274,27 @@ test('a state set or family that is not declared is refused', () => {
   d.components.ArenaButton!.root!.states = 'nowhere';
   d.components.ArenaButton!.root!.family = 'nothing';
   assert.equal(declarationProblems(d).length, 2);
+});
+
+test('an undeclared state set on an option or an object-form part is refused', () => {
+  const d = declared();
+  d.families.emphasis!.options!.primary!.states = 'nowhere';
+  assert.equal(declarationProblems(d).length, 1);
+  const e = declared();
+  (e.components.ArenaButton!.root as any).states = { '*': 'nowhere' };
+  assert.equal(declarationProblems(e).length, 1);
+  const f = declared();
+  f.components.ArenaFileInput!.trigger!.states = ['rest', 'sparkle'];
+  assert.equal(declarationProblems(f).length, 1);
+});
+
+test('an exception is compared with the rule without that entry alone, and a missing decision is named', () => {
+  const d = declared();
+  d.exceptions['emphasis-primary-root-fill-rest'] = { default: '{emphasis-primary-fill}', decision: 'D19' };
+  d.exceptions['emphasis-ghost-root-fill-hover'] = { default: '{emphasis-ghost-fill-hover}' } as never;
+  const lines = exceptionProblems(d);
+  assert.equal(lines.length, 2);
+  assert.ok(lines.some((l) => /carries no decision/.test(l) && !/undefined/.test(l)));
 });
 
 test('the shipped declarations are clean', () => {
