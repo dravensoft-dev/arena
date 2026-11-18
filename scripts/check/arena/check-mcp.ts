@@ -28,7 +28,8 @@ import { manifestIn, bundledPayload } from '../../generate/core/arena-mcp/payloa
 import { servedDocs, writtenPages } from '../../lib/arena/llms-index.ts';
 import { PAGE_FILE } from '../../lib/arena/kitchen-sink-page.ts';
 import { matchOutsideCode } from '../../generate/core/arena-mcp/code-spans.ts';
-import { LINK, INLINE, isRepoPath, inPayload, IDENTITY_PAGES } from '../../lib/arena/agent-payload.ts';
+import { DERIVED_SLOTS, derivedSlotsText } from '../../lib/arena/package-assembly.ts';
+import { LINK, INLINE, isRepoPath, inPayload, IDENTITY_PAGES, payloadDir } from '../../lib/arena/agent-payload.ts';
 import { LAYERS as BUILT_LAYERS } from '../../build/arena/build-mcp-package.ts';
 
 export const REGISTRY_FILE = 'server.json';
@@ -387,12 +388,26 @@ export function identityProblems(dir: string, base = root) {
   return problems;
 }
 
+export function derivedSlotsProblems(dir: string, base = root) {
+  const problems: string[] = [];
+  const want = derivedSlotsText(base);
+  for (const layer of BUILT_LAYERS) {
+    const at = join(dir, payloadDir(layer), DERIVED_SLOTS);
+    if (!existsSync(at)) {
+      problems.push(`${NAME}: the ${layer} corpus carries no ${DERIVED_SLOTS}, so an agent reads the slot declarations and has no leaves to answer`);
+    } else if (readFileSync(at, 'utf8') !== want) {
+      problems.push(`${NAME}: ${DERIVED_SLOTS} in the ${layer} corpus differs from what readColorSlots derives from the tree`);
+    }
+  }
+  return problems;
+}
+
 export function collect(base = root, dir = assembled(base)) {
   return {
     problems: [
       ...dependencyProblems(base), ...registryProblems(base), ...binProblems(dir), ...flatProblems(dir),
       ...corpusProblems(dir), ...vocabularyProblems(dir), ...servedLinkProblems(dir),
-      ...catalogueProblems(dir, base), ...styleStoreProblems(dir, base), ...identityProblems(dir, base),
+      ...derivedSlotsProblems(dir, base), ...catalogueProblems(dir, base), ...styleStoreProblems(dir, base), ...identityProblems(dir, base),
     ],
   };
 }

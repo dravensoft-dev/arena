@@ -16,8 +16,9 @@ import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { writeVocabularyIndex } from '../../lib/arena/vocabulary-index.ts';
 import {
   collectFiles, reset, write, copy, report, emitCli, pluginIdentity, SHARED_KEYWORDS,
-  copyAgentPayload,
+  copyAgentPayload, DERIVED_SLOTS, derivedSlotsText,
 } from '../../lib/arena/package-assembly.ts';
+import { payloadDir } from '../../lib/arena/agent-payload.ts';
 import { AGENT_DIR, PACKAGES } from '../../generate/core/arena-mcp/payload.ts';
 
 export const NAME = '@dravensoft/arena-mcp';
@@ -129,6 +130,7 @@ export function buildMcpPackage(root = repoRoot, dir = join(root, DIST)) {
 
   for (const layer of LAYERS) {
     written.push(...copyAgentPayload(dir, layer, NAME, root));
+    written.push(write(dir, `${payloadDir(layer)}/${DERIVED_SLOTS}`, derivedSlotsText(root)));
     written.push(writeVocabularyIndex(join(dir, AGENT_DIR, layer), root));
   }
 

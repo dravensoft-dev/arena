@@ -322,6 +322,11 @@ export function copyFonts(dir: string, root = repoRoot) {
 }
 
 export const BEHAVIOUR_DIR = 'contracts/behaviour';
+export const DERIVED_SLOTS = 'contracts/design/color-slots.derived.json';
+
+export function derivedSlotsText(root = repoRoot) {
+  return `${JSON.stringify(readColorSlots(root), null, 2)}\n`;
+}
 
 export function copyBehaviourContracts(dir: string, root = repoRoot) {
   const from = join(root, ...BEHAVIOUR_DIR.split('/'));
