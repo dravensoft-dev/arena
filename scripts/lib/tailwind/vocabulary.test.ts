@@ -325,7 +325,7 @@ test('a disabled icon channel carries a component ink answer of its state, and a
     /--arena-emphasis-icon-disabled of button-primary-root-icon-disabled reaches neither --emphasis-primary-root-ink-disabled nor the channel --arena-emphasis-ink-disabled/);
 });
 
-test('a family with colour slots compiles per component, the copy button importing the icon button it rebinds, and the parts carry the rules of the whole sheet', () => {
+test('a family with colour slots compiles per component, each sheet importing nothing, and the parts carry the rules of the whole sheet', () => {
   const family = readFamilies().get('emphasis') as Family;
   const manifests = [...layerManifests().values()];
   const owners = partSheetOwners(family, manifests);
@@ -336,7 +336,7 @@ test('a family with colour slots compiles per component, the copy button importi
   assert.doesNotMatch(button, /icon-button|split-button|file-input|copy-button/);
   assert.match(button, /:where\(\[data-arena-part="button"\]\) \{/);
   const copy = compileFamily(family, manifests, undefined, 'ArenaCopyButton');
-  assert.ok(copy.startsWith(`${LAYER_ORDER}@import './arena-icon-button.css';\n@layer utilities {`));
+  assert.ok(copy.startsWith(`${LAYER_ORDER}@layer utilities {`), 'a part sheet imports nothing, so a bundler reads each once');
   assert.match(copy, /:where\(\[data-arena-part="copy-button"\]\) \[data-arena-part="icon-button"\]/);
   const whole = emphasisSheet();
   const parts = owners.map((one) => compileFamily(family, manifests, undefined, one)).join('\n');

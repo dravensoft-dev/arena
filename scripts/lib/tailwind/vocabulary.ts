@@ -350,10 +350,7 @@ export function compileFamily(family: Family, manifests: Iterable<ComponentManif
     ? [...new Set(Object.values(family.variants).flatMap((classes) => declarations(classes).map(([name]) => name)))].sort()
     : [];
   const registered = channels.map((name) => `@property ${name} {\n  syntax: '*';\n  inherits: false;\n}\n`).join('');
-  const under = only === undefined ? [] : [...new Set(Object.values(k.catalogue.slots)
-    .filter((s) => s.scope === 'component' && s.component === only && s.draws !== undefined)
-    .map((s) => (s.draws as string).split('.')[0] as string))].sort().map((drawn) => `@import './${partSheetStem(drawn)}.css';\n`);
-  return `${LAYER_ORDER}${under.join('')}${registered}@layer utilities {\n${blocks.join('\n')}\n}\n`;
+  return `${LAYER_ORDER}${registered}@layer utilities {\n${blocks.join('\n')}\n}\n`;
 }
 
 export function defaultBlockChannels(family: Family, manifests: Iterable<ComponentManifest>, root = repoRoot): Map<string, Set<string>> {

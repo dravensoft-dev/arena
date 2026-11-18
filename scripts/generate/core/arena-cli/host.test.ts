@@ -7,6 +7,11 @@ import { fileURLToPath } from 'node:url';
 import { hostManifest, hostPackage, hostPackageName, fontToolRoots, packageSheets, phosphorRoot, resolveEnvironment } from './host.ts';
 import { loadVocabulary, VOCABULARY_INDEX } from './audit.ts';
 import { hostRoot, phosphor, removeFixtures } from './cli-fixtures.ts';
+import { scopedImports } from './theme-css.ts';
+import type { CheckedStylesheet } from './theme-css.ts';
+import { flattenImports } from './flat-sheet.ts';
+import { familyPartSheets } from '../../../lib/arena/package-assembly.ts';
+import { bundledImports } from '../../../lib/tailwind/vocabulary-rules.ts';
 
 after(removeFixtures);
 
@@ -174,4 +179,27 @@ test('the command\'s own dependencies win over a project\'s copy of the same nam
   } finally {
     rmSync(decoy, { recursive: true, force: true });
   }
+});
+
+test('a screen drawing CopyButton and IconButton gets one IconButton default block, and the CopyButton rebind after it', () => {
+  const root = installed("@import './css/components.css';\n@import './css/vocabulary/emphasis.css';\n", ['arena-copy-button', 'arena-icon-button']);
+  mkdirSync(join(root, 'css', 'vocabulary'), { recursive: true });
+  writeFileSync(join(root, 'css', 'vocabulary', 'emphasis.css'), '');
+  writeFileSync(join(root, 'components.json'), JSON.stringify({ match: 'symbol', draws: {}, needs: { 'arena-copy-button': ['arena-icon', 'arena-icon-button'] }, markers: {}, sheetless: [] }));
+  for (const sheet of familyPartSheets()) {
+    mkdirSync(dirname(join(root, sheet.to)), { recursive: true });
+    writeFileSync(join(root, sheet.to), sheet.content);
+  }
+  const sheets = packageSheets(root);
+  assert.ok(sheets);
+  const lines = scopedImports('@x/arena', { components: ['arena-copy-button', 'arena-icon-button'] } as CheckedStylesheet, sheets)
+    .filter((line) => line.includes('/vocabulary/'));
+  const own = ':where([data-arena-part="icon-button"]) {';
+  const rebind = ':where([data-arena-part="copy-button"] [data-arena-part="icon-button"]) {';
+  for (const css of [bundledImports(lines, root, '@x/arena'), flattenImports(lines, root, '@x/arena').css]) {
+    assert.equal(css.split(own).length - 1, 1, 'one IconButton default block');
+    assert.equal(css.split(rebind).length - 1, 1, 'one CopyButton rebind');
+    assert.ok(css.indexOf(rebind) > css.indexOf(own), 'the rebind comes after the block it rebinds');
+  }
+  rmSync(root, { recursive: true });
 });

@@ -1,6 +1,10 @@
 /* A compiled family sheet as a set of rules, one per part a selector names, keyed by the @scope it sits
  * in and the body it writes: two sheets that carry the same set paint every part alike, whichever
- * selector lists they group the parts into. A test helper, so it lives here and not beside a gate. */
+ * selector lists they group the parts into. bundledImports inlines a list of package imports the way
+ * a bundler does, every @import where it stands and none skipped as seen. Test helpers, kept here. */
+
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 
 const PAIR = /^:scope\[data-arena-part="([^"]+)"\], \[data-arena-part="\1"\]$/;
 
@@ -20,4 +24,10 @@ export function familyRules(css: string): Set<string> {
     for (const selector of grouped) out.add(`${scope} | ${selector} | ${body}`);
   }
   return out;
+}
+
+export function bundledImports(lines: string[], root: string, packageName: string): string {
+  const inline = (file: string): string => readFileSync(file, 'utf8')
+    .replace(/@import\s+'(\.[^']+)';/g, (_all, rel: string) => inline(join(dirname(file), rel)));
+  return lines.map((line) => inline(join(root, (/^@import '([^']+)';$/.exec(line)?.[1] ?? '').replace(`${packageName}/`, '')))).join('\n');
 }
