@@ -18,12 +18,14 @@ import { kebab } from '../../utils/case.ts';
 import { componentMap, MAP_FILE } from './component-map.ts';
 import { iconManifest, MANIFEST_FILE } from './icon-manifest.ts';
 import { shippedNames } from '../../generate/core/arena-cli/icon-css.ts';
-import { manifestFiles } from '../tailwind/tailwind-compile.ts';
+import { layerManifests, manifestFiles } from '../tailwind/tailwind-compile.ts';
 import { tailwindThemeSheet, THEME_SOURCES } from '../tailwind/theme-sheet.ts';
 import { preflightSheet } from '../tailwind/component-sheets.ts';
 import { huePath } from '../tailwind/hue-sheet.ts';
 import { CONSUME, sheetPath } from '../../build/tailwind/build-tailwind.ts';
-import { VOCABULARY_SHEETS, packageSheetName, sheetFamilies, sheetName } from '../tailwind/vocabulary.ts';
+import {
+  VOCABULARY_SHEETS, compileFamily, packagePartSheetName, packageSheetName, partSheetOwners, readFamilies, sheetFamilies, sheetName,
+} from '../tailwind/vocabulary.ts';
 import { DOMAIN, REPOSITORY } from './site-pages.ts';
 import { FRONTMATTER, unquote } from './llms-index.ts';
 import { parseDecls } from './css-decls.ts';
@@ -197,7 +199,23 @@ export function componentSheets(css: string, split: (css: string) => { base: str
       to: packageSheetName(family),
       content: readFileSync(join(root, ...VOCABULARY_SHEETS.split('/'), sheetName(family)), 'utf8'),
     })),
+    ...familyPartSheets(root),
   ];
+}
+
+export const PART_SHEET_BANNER = (family: string, component: string) => `/* The ${family} family's blocks for ${component} alone: `
+  + `arena build imports this in place of ${packageSheetName(family)} when a screen draws some of the family's components and not all. */\n`;
+
+export function familyPartSheets(root = repoRoot) {
+  if (!existsSync(join(root, 'frameworks', 'tailwind', 'components'))) return [];
+  const manifests = [...layerManifests(root).values()];
+  return [...readFamilies(root).values()].sort((a, b) => (a.family < b.family ? -1 : 1)).flatMap((family) =>
+    partSheetOwners(family, manifests, root).map((component) => ({
+      to: packagePartSheetName(family.family, component),
+      content: PART_SHEET_BANNER(family.family, component) + compileFamily(family, manifests, root, component),
+      linked: false,
+      family: family.family,
+    })));
 }
 
 export function repositoryBase(root = repoRoot) {

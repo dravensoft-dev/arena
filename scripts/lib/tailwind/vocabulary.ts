@@ -287,7 +287,7 @@ const partSelector = (part: string) => `:scope[data-arena-part="${part}"], [data
 
 const byPart = (a: Owner, b: Owner) => (a.part < b.part ? -1 : a.part > b.part ? 1 : 0);
 
-export function compileFamily(family: Family, manifests: Iterable<ComponentManifest>, root = repoRoot): string {
+export function compileFamily(family: Family, manifests: Iterable<ComponentManifest>, root = repoRoot, only?: string): string {
   if (targetOf(family) === 'keyed')
     throw new Error(`vocabulary: ${family.family} is a keyed family, and a keyed family compiles to no sheet`);
   const all = [...manifests];
@@ -311,15 +311,17 @@ export function compileFamily(family: Family, manifests: Iterable<ComponentManif
       + 'option would compile to a rule that selects nothing');
   }
   const k: Compiler = { family, catalogue: catalogueOf(root), owners: ownersOf(family, all) };
-  const slotted = (option: string, drawn: boolean) => k.owners.filter((one) => one.options.includes(option)
+  const mine = (owner: Owner) => only === undefined || owner.manifest.component === only;
+  const slotted = (option: string, drawn: boolean) => k.owners.filter((one) => one.options.includes(option) && mine(one)
     && slotsOf(k.catalogue, family, one, option, drawn).length > 0).sort(byPart);
+  const scoped = only === undefined ? all : all.filter((one) => one.component === only);
   const drawnPart = (owner: Owner, option: string) => {
     const [component, slot] = slotsOf(k.catalogue, family, owner, option, true)[0]?.[1].draws?.split('.') ?? [];
     return k.owners.find((one) => one.manifest.component === component && one.slot === slot)?.part ?? '';
   };
   const blocks: string[] = [];
   for (const [option, classes] of Object.entries(family.variants).sort(byOption)) {
-    const own = answeringParts(family, all, option);
+    const own = answeringParts(family, scoped, option);
     if (own.length === 0) continue;
     const head = family.reach === 'box' ? `@scope (.${option}) to (${LIMIT})` : `@scope (.${option}) to (${FLOATING_LIMIT})`;
     const answered = slotted(option, false);
@@ -337,7 +339,7 @@ export function compileFamily(family: Family, manifests: Iterable<ComponentManif
     }
     blocks.push(`  ${head} {\n${inner.join('\n')}\n  }`);
   }
-  const atDefault = (drawn: boolean) => k.owners.filter((one) => slotsOf(k.catalogue, family, one, one.default, drawn).length > 0).sort(byPart);
+  const atDefault = (drawn: boolean) => k.owners.filter((one) => mine(one) && slotsOf(k.catalogue, family, one, one.default, drawn).length > 0).sort(byPart);
   for (const owner of atDefault(false)) blocks.push(rule(`:where([data-arena-part="${owner.part}"])`, partWrites(k, owner.default, owner), '  '));
   for (const owner of atDefault(true)) {
     blocks.push(rule(`:where([data-arena-part="${owner.part}"] [data-arena-part="${drawnPart(owner, owner.default)}"])`, partWrites(k, owner.default, owner), '  '));
@@ -348,8 +350,24 @@ export function compileFamily(family: Family, manifests: Iterable<ComponentManif
     ? [...new Set(Object.values(family.variants).flatMap((classes) => declarations(classes).map(([name]) => name)))].sort()
     : [];
   const registered = channels.map((name) => `@property ${name} {\n  syntax: '*';\n  inherits: false;\n}\n`).join('');
-  return `${LAYER_ORDER}${registered}@layer utilities {\n${blocks.join('\n')}\n}\n`;
+  const under = only === undefined ? [] : [...new Set(Object.values(k.catalogue.slots)
+    .filter((s) => s.scope === 'component' && s.component === only && s.draws !== undefined)
+    .map((s) => (s.draws as string).split('.')[0] as string))].sort().map((drawn) => `@import './${partSheetStem(drawn)}.css';\n`);
+  return `${LAYER_ORDER}${under.join('')}${registered}@layer utilities {\n${blocks.join('\n')}\n}\n`;
 }
+
+export const partSheetStem = (component: string) => `arena-${slotStem(component)}`;
+
+export function partSheetOwners(family: Family, manifests: Iterable<ComponentManifest>, root = repoRoot): string[] {
+  if (targetOf(family) !== 'component') return [];
+  const catalogue = catalogueOf(root);
+  const owners = ownersOf(family, [...manifests]);
+  const slotted = (owner: Owner) => owner.options.some((option) => slotsOf(catalogue, family, owner, option, false).length > 0
+    || slotsOf(catalogue, family, owner, option, true).length > 0);
+  return owners.some(slotted) ? [...new Set(owners.map((owner) => owner.manifest.component))].sort() : [];
+}
+
+export const packagePartSheetName = (family: string, component: string) => `css/vocabulary/${family}/${partSheetStem(component)}.css`;
 
 export const sheetName = (family: string) => `${pascal(family)}.generated.css`;
 

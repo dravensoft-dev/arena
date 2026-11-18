@@ -72,12 +72,18 @@ export function packageSheets(root: string): PackageSheets {
     const families = existsSync(familyDir)
       ? readdirSync(familyDir).filter((name) => name.endsWith('.css')).sort().map((name) => read(join(familyDir, name)))
       : [];
+    const parts = Object.fromEntries(layers.filter((layer) => /^css\/vocabulary\/[\w-]+\.css$/.test(layer)).flatMap((layer) => {
+      const dir = join(root, ...layer.replace(/\.css$/, '').split('/'));
+      if (!existsSync(dir)) return [];
+      return [[layer, readdirSync(dir).filter((name) => name.endsWith('.css')).map((name) => basename(name, '.css')).sort()]];
+    }));
     const levels = [...sheets, ...families].flatMap((css) => levelsIn(css, defaults));
     const washes = [...sheets, ...families].flatMap((css) => washesIn(css, defaults));
     const layerCss = layers.map((layer) => read(join(root, ...layer.split('/'))));
     return {
       layers,
       components,
+      ...(Object.keys(parts).length ? { parts } : {}),
       levels,
       washes,
       scopes: [...new Set([...layerCss, ...sheets].flatMap(scopesIn))].sort(),

@@ -8,9 +8,10 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
-  declarations, compileFamily, readFamilies, channelReads, answerOf, answeredFamilies, markupDeclarations, restatedDeclarations, answeringParts, axisWrapped, LIMIT, sheetName, packageSheetName, type Family,
+  declarations, compileFamily, partSheetOwners, readFamilies, channelReads, answerOf, answeredFamilies, markupDeclarations, restatedDeclarations, answeringParts, axisWrapped, LIMIT, sheetName, packageSheetName, type Family,
 } from './vocabulary.ts';
 import { LAYER_ORDER } from './component-sheets.ts';
+import { familyRules } from './vocabulary-rules.ts';
 import { layerManifests } from './tailwind-compile.ts';
 import type { ComponentManifest } from './manifest-shapes.ts';
 
@@ -322,4 +323,23 @@ test('a disabled icon channel carries a component ink answer of its state, and a
     .replace('var(--emphasis-primary-root-icon-disabled,var(--arena-emphasis-ink-disabled))', 'var(--emphasis-primary-root-icon-disabled,var(--arena-emphasis-icon))');
   assert.throws(() => compileFamily(family, [...layerManifests().values()]),
     /--arena-emphasis-icon-disabled of button-primary-root-icon-disabled reaches neither --emphasis-primary-root-ink-disabled nor the channel --arena-emphasis-ink-disabled/);
+});
+
+test('a family with colour slots compiles per component, the copy button importing the icon button it rebinds, and the parts carry the rules of the whole sheet', () => {
+  const family = readFamilies().get('emphasis') as Family;
+  const manifests = [...layerManifests().values()];
+  const owners = partSheetOwners(family, manifests);
+  assert.deepEqual(owners, ['ArenaButton', 'ArenaCopyButton', 'ArenaFileInput', 'ArenaIconButton', 'ArenaSplitButton']);
+  assert.deepEqual(partSheetOwners(readFamilies().get('fill') as Family, manifests), []);
+  const button = compileFamily(family, manifests, undefined, 'ArenaButton');
+  assert.ok(button.startsWith(LAYER_ORDER));
+  assert.doesNotMatch(button, /icon-button|split-button|file-input|copy-button/);
+  assert.match(button, /:where\(\[data-arena-part="button"\]\) \{/);
+  const copy = compileFamily(family, manifests, undefined, 'ArenaCopyButton');
+  assert.ok(copy.startsWith(`${LAYER_ORDER}@import './arena-icon-button.css';\n@layer utilities {`));
+  assert.match(copy, /:where\(\[data-arena-part="copy-button"\]\) \[data-arena-part="icon-button"\]/);
+  const whole = emphasisSheet();
+  const parts = owners.map((one) => compileFamily(family, manifests, undefined, one)).join('\n');
+  assert.ok(familyRules(whole).size > 20);
+  assert.deepEqual([...familyRules(parts)].sort(), [...familyRules(whole)].sort());
 });

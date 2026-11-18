@@ -42,6 +42,7 @@ export type TokenCatalogue = {
 export type CheckedSheets = {
   layers: string[];
   components: string[];
+  parts?: Record<string, string[]>;
   levels?: Level[];
   washes?: Wash[];
   scopes?: string[];
@@ -880,6 +881,12 @@ export function scopedImports(
     if (layer === PLUGIN_SHEET && !withDefault) continue;
     if (layer === COMPONENTS_SHEET) {
       for (const name of stylesheet.components as string[]) lines.push(`@import '${packageName}/css/components/${name}.css';`);
+      continue;
+    }
+    const parts = sheets.parts?.[layer];
+    if (parts !== undefined && !parts.every((name) => (stylesheet.components as string[]).includes(name))) {
+      for (const name of parts.filter((one) => (stylesheet.components as string[]).includes(one)))
+        lines.push(`@import '${packageName}/${layer.replace(/\.css$/, '')}/${name}.css';`);
       continue;
     }
     lines.push(`@import '${packageName}/${layer}';`);

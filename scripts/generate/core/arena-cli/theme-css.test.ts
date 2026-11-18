@@ -1281,6 +1281,18 @@ test('a project naming its own component subset still imports every vocabulary s
   assert.ok(lines.includes("@import '@dravensoft/arena-react/css/components/button.css';"));
 });
 
+test('a family split per component imports the part sheets of the components drawn, and the whole sheet when every one is', () => {
+  const sheets = {
+    layers: ['css/components.css', 'css/vocabulary/emphasis.css', 'css/vocabulary/fill.css'],
+    components: ['arena-button', 'arena-card', 'arena-icon-button'],
+    parts: { 'css/vocabulary/emphasis.css': ['arena-button', 'arena-icon-button'] },
+  } as CheckedSheets;
+  const drawn = (components: string[]) => scopedImports('p', { components } as CheckedStylesheet, sheets).filter((line) => line.includes('/vocabulary/'));
+  assert.deepEqual(drawn(['arena-button', 'arena-card']), ["@import 'p/css/vocabulary/emphasis/arena-button.css';", "@import 'p/css/vocabulary/fill.css';"]);
+  assert.deepEqual(drawn(['arena-card']), ["@import 'p/css/vocabulary/fill.css';"]);
+  assert.deepEqual(drawn(['arena-button', 'arena-icon-button']), ["@import 'p/css/vocabulary/emphasis.css';", "@import 'p/css/vocabulary/fill.css';"]);
+});
+
 const COLOUR_ROLES = {
   slots: SLOTS,
   tokens: Object.fromEntries(['neutral', 'secondary', 'base-content', 'base-100', 'base-200', 'base-300', 'error', 'info']

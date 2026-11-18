@@ -50,6 +50,15 @@ test('the sheets a package ships are read from beside the command, so no copy of
   rmSync(root, { recursive: true });
 });
 
+test('a family split per component lists its part sheets under the layer of the whole sheet', () => {
+  const root = installed("@import './css/components.css';\n@import './css/vocabulary/emphasis.css';\n@import './css/vocabulary/fill.css';\n", ['button']);
+  mkdirSync(join(root, 'css', 'vocabulary', 'emphasis'), { recursive: true });
+  for (const name of ['emphasis.css', 'fill.css']) writeFileSync(join(root, 'css', 'vocabulary', name), '');
+  for (const name of ['arena-icon-button.css', 'arena-button.css']) writeFileSync(join(root, 'css', 'vocabulary', 'emphasis', name), '');
+  assert.deepEqual(packageSheets(root)?.parts, { 'css/vocabulary/emphasis.css': ['arena-button', 'arena-icon-button'] });
+  rmSync(root, { recursive: true });
+});
+
 test('a package without contrast.css or environment.css is reported and not read as empty', () => {
   const root = installed("@import './css/reset.css';\n", ['button']);
   rmSync(join(root, 'css', 'contrast.css'));

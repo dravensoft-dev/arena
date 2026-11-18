@@ -11,7 +11,7 @@ import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { packageSheetName, sheetFamilies, VOCABULARY_DIR, FAMILY_SUFFIX } from '../../lib/tailwind/vocabulary.ts';
-import { CSS_CHAIN, CHANNEL_SOURCES, ALIAS_SOURCE, ANGULAR_EXTRA, arenaCssLayers, tokenCatalogue } from '../../lib/arena/package-assembly.ts';
+import { CSS_CHAIN, CHANNEL_SOURCES, ALIAS_SOURCE, ANGULAR_EXTRA, arenaCssLayers, familyPartSheets, tokenCatalogue } from '../../lib/arena/package-assembly.ts';
 import type { CssChainEntry } from '../../lib/arena/package-assembly.ts';
 import { NPM_PAGES, renderQuestions } from '../../lib/arena/npm-questions.ts';
 import { ARENA_EXT, POLARITY_HOOKS, RESERVED } from '../core/arena-cli/style-plugin-rules.ts';
@@ -375,7 +375,7 @@ ${fieldTable(base, CONFIRM_REQUEST_CONTRACT)}`,
 
   noImport: (base = root) => {
     const fence = (name: string, extra: CssChainEntry[]) => ['```css', ...noImportSheets(name, base, extra), '```'].join('\n');
-    return `**React:**\n\n${fence('@dravensoft/arena-react', [])}\n\n**Angular:**\n\n${fence('@dravensoft/arena-angular', ANGULAR_EXTRA)}\n\nEach \`<component>\` stands for a sheet in the closed list \`arena build\` works out, for every root. That list is what \`arena.package.generated.css\` carries, each sheet written out in full, when a build writes it: the components the sources draw and the ones Arena draws for them. The \`"default"\` root adds \`css/style-plugin-default.css\` in its slot. Each \`<family>\` is a vocabulary sheet. \`css/base.css\` is left out when \`stylesheet.preflight\` is \`false\`. \`arena.generated.css\` goes in a stylesheet of its own, imported after the list, so the package's sheets and yours never share a file.`;
+    return `**React:**\n\n${fence('@dravensoft/arena-react', [])}\n\n**Angular:**\n\n${fence('@dravensoft/arena-angular', ANGULAR_EXTRA)}\n\nEach \`<component>\` stands for a sheet in the closed list \`arena build\` works out, for every root. That list is what \`arena.package.generated.css\` carries, each sheet written out in full, when a build writes it: the components the sources draw and the ones Arena draws for them. The \`"default"\` root adds \`css/style-plugin-default.css\` in its slot. Each \`<family>\` is a vocabulary sheet. A family whose components carry colour slots enters as the sheet of each listed component that answers it, under \`css/vocabulary/<family>/\`. The family's whole sheet enters when the list holds all of them. \`css/base.css\` is left out when \`stylesheet.preflight\` is \`false\`. \`arena.generated.css\` goes in a stylesheet of its own, imported after the list, so the package's sheets and yours never share a file.`;
   },
 
   scriptsReact: () => initFence('@dravensoft/arena-react'),
@@ -383,6 +383,16 @@ ${fieldTable(base, CONFIRM_REQUEST_CONTRACT)}`,
   scriptsAngular: () => initFence('@dravensoft/arena-angular'),
 
   sheets: (base = root) => {
+    const partRows = (at: string) => {
+      const byFamily = new Map<string, string[]>();
+      for (const { to, family } of familyPartSheets(at)) {
+        const dir = packageSheetName(family).replace(/\.css$/, '/');
+        byFamily.set(dir, [...(byFamily.get(dir) ?? []), `\`${to}\``]);
+      }
+      return [...byFamily].map(([dir, sheets]) => `| \`${dir}\` | One sheet per component of a family whose components carry colour slots: `
+        + `${sheets.join(', ')}. Each holds that component's blocks of the family. \`arena build\` imports the ones a screen draws, in place of `
+        + `the family's whole sheet. \`arena.css\` imports the whole sheet, and a project importing component sheets one by one imports either |\n`).join('');
+    };
     const families = sheetFamilies(base).map((one) => one.family).sort().map((family) => `\`${packageSheetName(family)}\``);
     const tokens = CSS_CHAIN.map(({ to }) => (to === PLUGIN_SHEET
       ? `the root plugin's slot, \`${to}\` for the default root`
@@ -402,7 +412,7 @@ ${fieldTable(base, CONFIRM_REQUEST_CONTRACT)}`,
 | \`css/components/<name>.css\` | one component, named for its sheet as \`arena-button.css\` or \`arena-stat-card.css\`. Each imports the prelude it needs itself, so importing one alone is safe |
 | \`css/hues/<name>.css\` | a component's hue sheet, imported by its sheet, writing ${channelList} from the component's \`data-arena\` values, or unconditionally on a slot whose hue no value varies |
 | \`css/vocabulary/\` | One sheet per family on the vocabulary page: ${sheetList}. \`arena.css\` imports them. A project importing component sheets one by one imports these too, or a vocabulary class does nothing |
-| \`css/tailwind-theme.css\` | Arena's theme and utilities for markup of your own compiled with \`tailwindcss\` v4. Import it right after \`@import 'tailwindcss'\`: every utility then resolves to Arena's scale, \`case-eyebrow\`, \`case-label\`, \`fit-media\` and the animation utilities are available, and the compiler's own defaults are unreachable. A key of yours survives only below this import. The sheet's \`sm:\`, \`md:\` and \`lg:\` variants and their \`max-*\` complements sit at the \`--bp-*\` thresholds the viewport helper reads. A wide frame marked \`max-md:hidden\` and a phone frame marked \`md:hidden\` are therefore right at the first paint, a server's HTML included |
+${partRows(base)}| \`css/tailwind-theme.css\` | Arena's theme and utilities for markup of your own compiled with \`tailwindcss\` v4. Import it right after \`@import 'tailwindcss'\`: every utility then resolves to Arena's scale, \`case-eyebrow\`, \`case-label\`, \`fit-media\` and the animation utilities are available, and the compiler's own defaults are unreachable. A key of yours survives only below this import. The sheet's \`sm:\`, \`md:\` and \`lg:\` variants and their \`max-*\` complements sit at the \`--bp-*\` thresholds the viewport helper reads. A wide frame marked \`max-md:hidden\` and a phone frame marked \`md:hidden\` are therefore right at the first paint, a server's HTML included |
 
 **The rest of what ships under \`css/\` is not a choice.** The token layer is these sheets, in this order: ${listed}. \`arena.css\` imports them in the order they have to be in, and \`css/prelude.css\` is what a single component sheet pulls in for itself. The one that IS a decision is \`css/style-plugin-default.css\`, the appearance this package installs with. The sheet arrives through \`arena.css\` like the rest. A \`stylePlugins\` list of your own that does not name \`default\` does not receive it, which is the point of writing one. A project's own root plugin has no sheet in that slot: it answers in \`arena.generated.css\`, which restates the high-contrast block after those answers.`;
   },

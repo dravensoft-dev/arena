@@ -61,7 +61,7 @@ One rule holds for every root. A `--no-import` project imports the list `arena b
 @import '@dravensoft/arena-angular/css/arena-cdk.css';
 ```
 
-Each `<component>` stands for a sheet in the closed list `arena build` works out, for every root. That list is what `arena.package.generated.css` carries, each sheet written out in full, when a build writes it: the components the sources draw and the ones Arena draws for them. The `"default"` root adds `css/style-plugin-default.css` in its slot. Each `<family>` is a vocabulary sheet. `css/base.css` is left out when `stylesheet.preflight` is `false`. `arena.generated.css` goes in a stylesheet of its own, imported after the list, so the package's sheets and yours never share a file.
+Each `<component>` stands for a sheet in the closed list `arena build` works out, for every root. That list is what `arena.package.generated.css` carries, each sheet written out in full, when a build writes it: the components the sources draw and the ones Arena draws for them. The `"default"` root adds `css/style-plugin-default.css` in its slot. Each `<family>` is a vocabulary sheet. A family whose components carry colour slots enters as the sheet of each listed component that answers it, under `css/vocabulary/<family>/`. The family's whole sheet enters when the list holds all of them. `css/base.css` is left out when `stylesheet.preflight` is `false`. `arena.generated.css` goes in a stylesheet of its own, imported after the list, so the package's sheets and yours never share a file.
 
 <!-- @shared noImport end -->
 
