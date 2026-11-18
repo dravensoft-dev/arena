@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { basename, dirname, join } from 'node:path';
-import { KEBAB, NO_PAINT, colourAnswer, valueProblems, POLARITY_HOOKS, RESERVED, floorProblems, highContrastFor, nameProblems, reservedProblems, rootOnlyFor, withDefaults } from './style-plugin-rules.ts';
+import { KEBAB, NO_PAINT, colourAnswer, keyProblems, valueProblems, POLARITY_HOOKS, RESERVED, floorProblems, highContrastFor, nameProblems, reservedProblems, rootOnlyFor, withDefaults } from './style-plugin-rules.ts';
 import { scopesIn } from './sheets.ts';
 import { POLARITIES } from './palette-keys.ts';
 import { walkFiles } from '../../../utils/walk-files.ts';
@@ -232,4 +232,12 @@ test('a slot answer outside its accepts set is refused', () => {
   assert.deepEqual(ask(fill, '{fill-surface}'), []);
   assert.deepEqual(ask('emphasis-ghost-root-edge-rest', 'transparent'), []);
   assert.equal(ask('button-primary-root-ink-rest', 'transparent').length, 1);
+});
+
+test('an answer to a removed hue slot is refused as an unknown key', () => {
+  const known = { slots: readColorSlots() };
+  const token = { $type: 'color', $value: '{hue-danger-ink}', $description: 'x' };
+  const problems = keyProblems('at', 'hue-danger-mark-ink-rest', token, undefined, known);
+  assert.equal(problems.length, 1, problems.join('\n'));
+  assert.match(problems[0] as string, /neither a role/);
 });

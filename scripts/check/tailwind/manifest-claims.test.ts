@@ -79,8 +79,6 @@ const HUES = {
   ArenaConfirmDialog: { destructive: { true: 'danger' } },
   ArenaProgressBar: { tone: { success: 'success', danger: 'danger', info: 'info' } },
   ArenaToast: { tone: { success: 'success', danger: 'danger' } },
-  ArenaButton: { destructive: { true: 'danger' } },
-  ArenaSplitButton: { destructive: { true: 'danger' } },
   ArenaInput: { state: { error: 'danger', valid: 'success' } },
   ArenaNumberField: { state: { error: 'danger', valid: 'success' } },
   ArenaPinInput: { state: { error: 'danger', valid: 'success' } },
@@ -199,7 +197,7 @@ const MARK_INK = 'text-[color:var(--arena-mark-ink,color-mix(in_oklab,var(--ink-
 const DESTRUCTIVE = (stem: string, part: string) => ['edge', 'ink', 'fill'].map((property) => {
   const hue = { edge: 'edge', ink: 'ink', fill: 'fill-strong' }[property];
   const utility = { edge: 'border', ink: 'text', fill: 'bg' }[property];
-  return `${utility}-[color:var(--${stem}-destructive-${part}-${property}-rest,var(--arena-hue-${hue}))]`;
+  return `${utility}-[color:var(--${stem}-destructive-${part}-${property}-rest,var(--hue-danger-${hue}))]`;
 });
 const STRONG_INK = 'text-[color:var(--arena-hue-fill-strong)]';
 const FILLED_WHY = 'a solid status fill reads the strong fill channel, and danger, whose strong fill is hue-danger-fill-strong and transparent by default, draws the mark through its ink';
@@ -465,7 +463,7 @@ export const CLAIMS = {
     { slot: 'caret', has: ['rounded-e-control', 'w-[var(--arena-size-control-h,var(--size-md-control-h))]'], why: 'the caret rounds its end corners only and is a square of the control height' },
     { chosen: { destructive: false }, slot: 'caret', has: ['border-s-[color:color-mix(in_oklab,var(--arena-emphasis-ink)_var(--level-ink-muted),transparent)]'], hasNot: ['border-s-[color:var(--arena-emphasis-edge)]'],
       why: 'the joint is the emphasis ink at the muted level, because the primary edge is the primary fill and the ghost edge is transparent, so an edge-coloured joint draws nothing' },
-    { chosen: { destructive: true }, slot: 'caret', has: ['border-s-[color:color-mix(in_oklab,var(--arena-hue-ink)_var(--level-ink-muted),transparent)]'], hasNot: ['border-s-[color:color-mix(in_oklab,var(--arena-emphasis-ink)_var(--level-ink-muted),transparent)]'],
+    { chosen: { destructive: true }, slot: 'caret', has: ['border-s-[color:color-mix(in_oklab,var(--hue-danger-ink)_var(--level-ink-muted),transparent)]'], hasNot: ['border-s-[color:color-mix(in_oklab,var(--arena-emphasis-ink)_var(--level-ink-muted),transparent)]'],
       why: 'a destructive split draws its joint in the danger ink the same way' },
     { chosen: { destructive: true }, slot: 'primary', has: DESTRUCTIVE('split-button', 'primary'), why: 'destructive draws the primary half in the danger hue, border and label, with a fill of hue-danger-fill-strong, as on a button' },
     { chosen: { destructive: true }, slot: 'caret', has: DESTRUCTIVE('split-button', 'caret'), why: 'and on the caret half, so the split is one danger control' },
@@ -737,19 +735,19 @@ const READS: [component: string, slot: string, question: string, reads: string[]
   ['ArenaIconButton', 'root', 'emphasis.icon-edge', ['border-[length:var(--bw-control)]', 'border-[color:var(--arena-emphasis-icon-edge)]', '[border-style:var(--arena-emphasis-edge-style)]']],
   ['ArenaButton', 'root', 'emphasis.fill-hover', ['hover:bg-[color:var(--arena-emphasis-fill-hover)]']],
   ['ArenaIconButton', 'root', 'emphasis.fill-hover', ['hover:bg-[color:var(--arena-emphasis-fill-hover)]'], { pressed: 'false' }],
-  ['ArenaBadge', 'root', 'accent.fill-soft', ['bg-[color:var(--arena-mark-fill,var(--arena-accent-fill-soft,var(--accent-plain-root-fill-rest,var(--accent-plain-fill-soft))))]']],
-  ['ArenaBadge', 'root', 'mark.fill', ['bg-[color:var(--arena-mark-fill,var(--arena-accent-fill-soft,var(--accent-plain-root-fill-rest,var(--accent-plain-fill-soft))))]']],
+  ['ArenaBadge', 'root', 'accent.fill-soft', ['bg-[color:var(--arena-mark-fill,var(--arena-accent-fill-soft,var(--accent-plain-fill-soft)))]']],
+  ['ArenaBadge', 'root', 'mark.fill', ['bg-[color:var(--arena-mark-fill,var(--arena-accent-fill-soft,var(--accent-plain-fill-soft)))]']],
   ['ArenaBadge', 'root', 'mark.ink', [MARK_INK]],
-  ['ArenaStatCard', 'value', 'accent.ink', ['text-[color:var(--arena-accent-ink,var(--accent-plain-root-ink-rest,var(--accent-plain-ink)))]']],
-  ['ArenaProgressBar', 'track', 'accent.ink', ['text-[color:var(--arena-accent-ink,var(--accent-primary-root-ink-rest,var(--accent-primary-ink)))]']],
-  ['ArenaSlider', 'track', 'accent.ink', ['text-[color:var(--arena-accent-ink,var(--accent-primary-root-ink-rest,var(--accent-primary-ink)))]']],
-  ['ArenaProgressBar', 'ring', 'accent.ink', ['text-[color:var(--arena-accent-ink,var(--accent-primary-root-ink-rest,var(--accent-primary-ink)))]']],
-  ['ArenaActivityFeed', 'dot', 'accent.ink', ['text-[color:var(--arena-accent-ink,var(--accent-primary-root-ink-rest,var(--accent-primary-ink)))]']],
-  ['ArenaSpinner', 'root', 'accent.ink', ['text-[color:var(--arena-accent-ink,var(--accent-primary-root-ink-rest,var(--accent-primary-ink)))]']],
-  ['ArenaTag', 'root', 'accent.quiet-ink', ['text-[color:var(--arena-accent-quiet-ink,color-mix(in_oklab,var(--accent-plain-quiet-ink-rest,var(--accent-plain-quiet-ink))_var(--level-ink-quiet),transparent))]']],
-  ['ArenaCard', 'root', 'accent.edge', ['border-[color:var(--arena-accent-edge,var(--accent-plain-root-edge-rest,var(--accent-plain-edge)))]']],
-  ['ArenaTag', 'root', 'accent.edge', ['border-[color:var(--arena-accent-edge,var(--accent-plain-root-edge-rest,var(--accent-plain-edge)))]']],
-  ['ArenaToast', 'root', 'accent.side-edge', ['border-l-[color:var(--arena-accent-side-edge,var(--accent-plain-side-edge-rest,var(--accent-plain-side-edge)))]']],
+  ['ArenaStatCard', 'value', 'accent.ink', ['text-[color:var(--arena-accent-ink,var(--accent-plain-ink))]']],
+  ['ArenaProgressBar', 'track', 'accent.ink', ['text-[color:var(--arena-accent-ink,var(--accent-primary-ink))]']],
+  ['ArenaSlider', 'track', 'accent.ink', ['text-[color:var(--arena-accent-ink,var(--accent-primary-ink))]']],
+  ['ArenaProgressBar', 'ring', 'accent.ink', ['text-[color:var(--arena-accent-ink,var(--accent-primary-ink))]']],
+  ['ArenaActivityFeed', 'dot', 'accent.ink', ['text-[color:var(--arena-accent-ink,var(--accent-primary-ink))]']],
+  ['ArenaSpinner', 'root', 'accent.ink', ['text-[color:var(--arena-accent-ink,var(--accent-primary-ink))]']],
+  ['ArenaTag', 'root', 'accent.quiet-ink', ['text-[color:var(--arena-accent-quiet-ink,color-mix(in_oklab,var(--accent-plain-quiet-ink)_var(--level-ink-quiet),transparent))]']],
+  ['ArenaCard', 'root', 'accent.edge', ['border-[color:var(--arena-accent-edge,var(--accent-plain-edge))]']],
+  ['ArenaTag', 'root', 'accent.edge', ['border-[color:var(--arena-accent-edge,var(--accent-plain-edge))]']],
+  ['ArenaToast', 'root', 'accent.side-edge', ['border-l-[color:var(--arena-accent-side-edge,var(--accent-plain-side-edge))]']],
   ['ArenaCard', 'root', 'elevation.shadow', ['shadow-[var(--arena-elevation-shadow,var(--elevation-flat-shadow))]']],
   ['ArenaHero', 'words', 'align.items', ['[align-items:var(--arena-align-items,flex-start)]']],
   ['ArenaPageHead', 'root', 'align.items', ['[align-items:var(--arena-align-items,flex-start)]']],

@@ -13,7 +13,7 @@
   "slots": {
     "root": "flex flex-col list-none m-0 p-0",
     "item": "flex items-center gap-row py-[calc(var(--sp-1)*3.5*var(--dz-row-scale-y))]",
-    "dot": "flex-none size-2 rounded-pill bg-current text-[color:var(--arena-accent-ink,var(--accent-primary-root-ink-rest,var(--accent-primary-ink)))]",
+    "dot": "flex-none size-2 rounded-pill bg-current text-[color:var(--arena-accent-ink,var(--accent-primary-ink))]",
     "text": "font-body text-ctl text-ink-body/(--level-ink-body)",
     "actor": "font-bold text-ink-body",
     "target": "font-mono text-ctl-md text-ink-figure/(--level-ink-full)",

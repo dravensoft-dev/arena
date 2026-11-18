@@ -44,14 +44,14 @@ test('a disabled slot falls to the rest channel', () => {
     'var(--emphasis-primary-root-fill-disabled,var(--arena-emphasis-fill))');
 });
 
-test('a destructive chain reaches the hue channels', () => {
+test('a destructive chain ends in the danger roles', () => {
   assert.equal(slotChain(c, 'button-destructive-root-fill-pressed'),
-    'var(--button-destructive-root-fill-pressed,color-mix(in_oklab,var(--button-destructive-root-fill-rest,var(--arena-hue-fill-strong)),var(--button-destructive-root-ink-rest,var(--arena-hue-ink))_calc(var(--mix-pressed)*100%)))');
+    'var(--button-destructive-root-fill-pressed,color-mix(in_oklab,var(--button-destructive-root-fill-rest,var(--hue-danger-fill-strong)),var(--button-destructive-root-ink-rest,var(--hue-danger-ink))_calc(var(--mix-pressed)*100%)))');
 });
 
-test('the css form of a hue soft fill', () => {
-  assert.equal(channelValue(c, 'hue-warning-soft-fill-rest', 'css'),
-    'color-mix(in oklab,var(--hue-warning-soft-fill-rest,var(--hue-warning-fill-soft)) var(--level-hue-soft-warning),transparent)');
+test('the css form of a level-wrapped slot', () => {
+  assert.equal(channelValue(c, 'emphasis-ghost-root-ink-rest', 'css'),
+    'color-mix(in oklab,var(--emphasis-ghost-root-ink-rest,var(--emphasis-ghost-ink)) var(--level-ink-body),transparent)');
 });
 
 test('a slot whose default cannot be read names itself', () => {
@@ -101,7 +101,7 @@ test('a disabled icon falls to the ink of its own state, and an optional slot wi
   assert.equal(channelValue(c, 'emphasis-solid-root-icon-selected-disabled', 'tailwind'),
     'var(--emphasis-solid-root-icon-selected-disabled,var(--arena-emphasis-ink-selected-disabled))');
   assert.equal(slotChain(c, 'button-destructive-root-icon-disabled'),
-    'var(--button-destructive-root-icon-disabled,var(--button-destructive-root-ink-disabled,var(--button-destructive-root-ink-rest,var(--arena-hue-ink))))');
+    'var(--button-destructive-root-icon-disabled,var(--button-destructive-root-ink-disabled,var(--button-destructive-root-ink-rest,var(--hue-danger-ink))))');
   assert.equal(slotChain(c, 'button-primary-root-fill-disabled'),
     'var(--button-primary-root-fill-disabled,var(--arena-emphasis-fill-disabled))');
 });

@@ -147,7 +147,7 @@ export type SlotPair = { slot: string; over: string; min: number };
 export function slotPairs(catalogue: MeasuredSlots): SlotPair[] {
   const out: SlotPair[] = [];
   for (const [name, slot] of Object.entries(catalogue.slots)) {
-    if (!slot.on || slot.on === 'reader' || OFF.has(slot.state) || !catalogue.slots[slot.on]) continue;
+    if (!slot.on || OFF.has(slot.state) || !catalogue.slots[slot.on]) continue;
     if (slot.property === 'ink') out.push({ slot: name, over: slot.on, min: TEXT_MIN });
     else if (slot.property === 'icon') out.push({ slot: name, over: slot.on, min: MARK_MIN });
     else if (slot.property === 'edge' && slot.state.startsWith('selected')) out.push({ slot: name, over: slot.on, min: MARK_MIN });

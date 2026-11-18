@@ -1338,50 +1338,6 @@
       "$value": "{color.neutral-content}"
     }
   },
-  "accent-gold-root-fill-rest": {
-    "$type": "color",
-    "$value": "{fill-confirm-final}"
-  },
-  "accent-gold-side-edge-rest": {
-    "$type": "color",
-    "$value": "{accent-plain-edge}"
-  },
-  "accent-muted-root-ink-rest": {
-    "$type": "color",
-    "$value": "{accent-plain-ink}"
-  },
-  "accent-plain-quiet-ink-rest": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "accent-plain-root-edge-rest": {
-    "$type": "color",
-    "$value": "{accent-gold-side-edge}"
-  },
-  "accent-plain-root-fill-rest": {
-    "$type": "color",
-    "$value": "{emphasis-secondary-fill-hover}"
-  },
-  "accent-plain-root-ink-rest": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "accent-primary-quiet-ink-rest": {
-    "$type": "color",
-    "$value": "{ink-eyebrow}"
-  },
-  "accent-primary-root-edge-rest": {
-    "$type": "color",
-    "$value": "{edge-axis}"
-  },
-  "accent-primary-root-fill-rest": {
-    "$type": "color",
-    "$value": "{emphasis-primary-fill}"
-  },
-  "accent-primary-root-ink-rest": {
-    "$type": "color",
-    "$value": "{ink-eyebrow}"
-  },
   "button-destructive-root-edge-disabled": {
     "$type": "color",
     "$value": "{accent-gold-side-edge}"
@@ -1439,10 +1395,6 @@
     "$value": "{hue-danger-ink}"
   },
   "button-destructive-root-ink-pressed": {
-    "$type": "color",
-    "$value": "{hue-danger-ink}"
-  },
-  "button-destructive-root-ink-rest": {
     "$type": "color",
     "$value": "{hue-danger-ink}"
   },
@@ -2198,82 +2150,6 @@
     "$type": "color",
     "$value": "{accent-muted-ink}"
   },
-  "hue-danger-mark-edge-rest": {
-    "$type": "color",
-    "$value": "{edge-invalid}"
-  },
-  "hue-danger-mark-ink-rest": {
-    "$type": "color",
-    "$value": "{hue-info-ink}"
-  },
-  "hue-danger-soft-fill-rest": {
-    "$type": "color",
-    "$value": "{accent-plain-fill-soft}"
-  },
-  "hue-danger-strong-fill-rest": {
-    "$type": "color",
-    "$value": "transparent"
-  },
-  "hue-info-mark-edge-rest": {
-    "$type": "color",
-    "$value": "{edge-invalid}"
-  },
-  "hue-info-mark-ink-rest": {
-    "$type": "color",
-    "$value": "{hue-danger-ink}"
-  },
-  "hue-info-soft-fill-rest": {
-    "$type": "color",
-    "$value": "{accent-plain-fill-soft}"
-  },
-  "hue-info-strong-fill-rest": {
-    "$type": "color",
-    "$value": "{accent-plain-fill-soft}"
-  },
-  "hue-info-strong-ink-rest": {
-    "$type": "color",
-    "$value": "{hue-success-on-ink}"
-  },
-  "hue-success-mark-edge-rest": {
-    "$type": "color",
-    "$value": "{edge-invalid}"
-  },
-  "hue-success-mark-ink-rest": {
-    "$type": "color",
-    "$value": "{hue-danger-ink}"
-  },
-  "hue-success-soft-fill-rest": {
-    "$type": "color",
-    "$value": "{accent-plain-fill-soft}"
-  },
-  "hue-success-strong-fill-rest": {
-    "$type": "color",
-    "$value": "{accent-plain-fill-soft}"
-  },
-  "hue-success-strong-ink-rest": {
-    "$type": "color",
-    "$value": "{hue-info-on-ink}"
-  },
-  "hue-warning-mark-edge-rest": {
-    "$type": "color",
-    "$value": "{edge-invalid}"
-  },
-  "hue-warning-mark-ink-rest": {
-    "$type": "color",
-    "$value": "{hue-danger-ink}"
-  },
-  "hue-warning-soft-fill-rest": {
-    "$type": "color",
-    "$value": "{accent-plain-fill-soft}"
-  },
-  "hue-warning-strong-fill-rest": {
-    "$type": "color",
-    "$value": "{accent-plain-fill-soft}"
-  },
-  "hue-warning-strong-ink-rest": {
-    "$type": "color",
-    "$value": "{hue-info-on-ink}"
-  },
   "icon-button-ghost-root-edge-disabled": {
     "$type": "color",
     "$value": "{accent-gold-side-edge}"
@@ -2586,10 +2462,6 @@
     "$type": "color",
     "$value": "{hue-danger-ink}"
   },
-  "split-button-destructive-caret-ink-rest": {
-    "$type": "color",
-    "$value": "{hue-danger-ink}"
-  },
   "split-button-destructive-primary-edge-disabled": {
     "$type": "color",
     "$value": "{accent-gold-side-edge}"
@@ -2647,10 +2519,6 @@
     "$value": "{hue-danger-ink}"
   },
   "split-button-destructive-primary-ink-pressed": {
-    "$type": "color",
-    "$value": "{hue-danger-ink}"
-  },
-  "split-button-destructive-primary-ink-rest": {
     "$type": "color",
     "$value": "{hue-danger-ink}"
   },

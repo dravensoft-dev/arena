@@ -21,7 +21,6 @@ export type SlotDeclarations = {
   stateSets: Record<string, string[]>;
   selected: Record<string, Answer>;
   families: Record<string, {
-    on?: string;
     channel?: string;
     channels?: Record<string, string>;
     states?: StateSpec;
@@ -56,7 +55,7 @@ const restOf = (rest: Rest): Rest => {
 const slotName = (owner: string, opt: string, part: string, prop: string, st: string) => [owner, opt, part, prop, st].join('-');
 
 type Standing = { owner: string; opt: string; part: string; rest: Rest; states: (prop: string) => string[];
-  channel: (prop: string, st: string) => string | undefined; scope: Partial<ColorSlot>; onReader?: boolean };
+  channel: (prop: string, st: string) => string | undefined; scope: Partial<ColorSlot> };
 
 export function deriveSlots(d: SlotDeclarations): SlotCatalogue {
   const slots = new Map<string, Record<string, unknown>>();
@@ -66,12 +65,12 @@ export function deriveSlots(d: SlotDeclarations): SlotCatalogue {
     slots.set(name, Object.fromEntries(Object.entries(f).filter(([, v]) => v !== undefined && v !== null)));
   };
 
-  function standing({ owner, opt, part, rest, states, channel, scope, onReader }: Standing) {
+  function standing({ owner, opt, part, rest, states, channel, scope }: Standing) {
     for (const prop of Object.keys(rest)) {
       for (const st of states(prop)) {
         const n = slotName(owner, opt, part, prop, st);
         const f: Record<string, unknown> = { ...scope, option: opt, part, property: prop, state: st, channel: channel(prop, st), accepts: prop };
-        if (prop !== 'fill') f.on = onReader ? 'reader' : slotName(owner, opt, part, 'fill', st);
+        if (prop !== 'fill') f.on = slotName(owner, opt, part, 'fill', st);
         const selectedAnswer = () => d.selected[prop] ?? fail(`${n}: no selected answer for ${prop}`);
         if (prop === 'icon') {
           f.default = `{${slotName(owner, opt, part, 'ink', st)}}`;
@@ -100,7 +99,7 @@ export function deriveSlots(d: SlotDeclarations): SlotCatalogue {
       for (const [part, rest] of Object.entries(byPart)) {
         if (!parts.includes(part)) parts.push(part);
         standing({
-          owner: fam, opt, part, rest: restOf(rest), scope: { scope: 'family', family: fam }, onReader: decl.on === 'reader',
+          owner: fam, opt, part, rest: restOf(rest), scope: { scope: 'family', family: fam },
           states: (prop) => sets(typeof spec === 'string' ? spec : (spec[prop] ?? spec['*'] ?? fail(`${fam}-${opt}: no states for ${prop}`))),
           channel: (prop, st) => (decl.channels
             ? decl.channels[`${part}.${prop}`] ?? fail(`${fam}.${part}.${prop}: no channel declared`)

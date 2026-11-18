@@ -16,14 +16,14 @@ import type { SlotDeclarations } from '../../lib/core/color-slots.ts';
 import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
 import type { ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';
 import {
-  SLOT_PROPERTIES, SLOT_STATES, acceptedRole, channelValue, expectedName, glob, slotChain,
+  SLOT_PROPERTIES, SLOT_STATES, acceptedRole, expectedName, glob, slotChain,
 } from '../../generate/core/arena-cli/slots.ts';
 import type { ColorSlot, SlotCatalogue } from '../../generate/core/arena-cli/slots.ts';
 import { slotPairs } from '../../generate/core/arena-cli/slot-contrast.ts';
 
 export const node = {
   name: 'check:color-slots',
-  reads: [COLOR_SLOTS, 'contracts/design/roles.json', 'frameworks/tailwind/vocabulary/arena-accent/Accent.family.json', 'frameworks/tailwind/Hues.json', 'frameworks/tailwind/components/**/*.manifest.json'],
+  reads: [COLOR_SLOTS, 'contracts/design/roles.json', 'frameworks/tailwind/components/**/*.manifest.json'],
   writes: [],
   feeds: [],
 };
@@ -32,8 +32,6 @@ type Manifests = ReadonlyMap<string, ComponentManifest>;
 
 const TOP_KEYS = ['$description', 'accepts', 'refused', 'states', 'families', 'rings', 'slots'];
 const WORD: Record<string, string> = { fill: 'fill', ink: 'ink', icon: 'ink', edge: 'edge' };
-const ACCENT_FAMILY = 'frameworks/tailwind/vocabulary/arena-accent/Accent.family.json';
-const HUES_JSON = 'frameworks/tailwind/Hues.json';
 const REF = /^\{([a-z0-9-]+)\}$/;
 const entries = (c: SlotCatalogue) => Object.entries(c.slots);
 
@@ -156,14 +154,10 @@ export function fallbackProblems(c: SlotCatalogue): string[] {
         if (ref !== undefined && Object.hasOwn(c.slots, ref)) out.push(`${name}: an IconButton edge falls to the role it paints, and ${s.default} is a slot`);
       } else want([owner, s.option, owner === 'emphasis' ? 'root' : s.part, s.property, s.state].join('-'));
     } else if (s.scope === 'component') {
-      const ref = REF.exec(s.default)?.[1];
       if (s.property === 'fill' && s.state === 'hover') {
         if (s.default !== '{fill-hover}') out.push(`${name}: a destructive hover fill falls to {fill-hover}, and this one falls to ${s.default}`);
-      } else {
-        const target = ref ? c.slots[ref] : undefined;
-        if (!(target && target.scope === 'family' && target.family === 'hue' && target.property === s.property && target.state === s.state)) {
-          out.push(`${name}: a destructive slot falls to a hue family slot of its property and state, and ${s.default} is not one`);
-        }
+      } else if (REF.test(s.default) && Object.hasOwn(c.slots, REF.exec(s.default)![1]!)) {
+        out.push(`${name}: a destructive slot falls to a role, and ${s.default} is a slot`);
       }
     } else if (REF.test(s.default) && Object.hasOwn(c.slots, REF.exec(s.default)![1]!)) {
       out.push(`${name}: a family slot falls to a role, and ${s.default} is a slot`);
@@ -177,9 +171,7 @@ export function pairProblems(c: SlotCatalogue): string[] {
   for (const [name, s] of entries(c)) {
     if (s.property === 'fill') { if (s.on !== undefined) out.push(`${name}: a fill carries no "on"`); continue; }
     const fill = expectedName({ ...s, property: 'fill', accepts: 'fill' });
-    if (s.on === 'reader') {
-      if (!(s.scope === 'family' && (s.family === 'accent' || s.family === 'hue'))) out.push(`${name}: "reader" is for an accent or hue family slot, and this one sits on ${fill}`);
-    } else if (s.on !== fill) out.push(`${name}: it sits on ${s.on ?? 'nothing'} and must sit on ${fill}`);
+    if (s.on !== fill) out.push(`${name}: it sits on ${s.on ?? 'nothing'} and must sit on ${fill}`);
   }
   return out;
 }
@@ -213,8 +205,8 @@ export function manifestProblems(c: SlotCatalogue, manifests: Manifests): string
         out.push(`${name}: draws ${s.draws}, a part with no ${s.option} slots of its own, so a channel read in it has no part to fall to`);
       }
     } else if (!Object.hasOwn(m.slots ?? {}, s.part)) out.push(`${name}: ${s.component} has no slot ${s.part}`);
-    if (!emphasisOptions(m).includes(s.option) && !Object.hasOwn(m.hues ?? {}, s.option)) {
-      out.push(`${name}: ${s.component} answers no emphasis ${s.option} and maps no variant ${s.option} through hues`);
+    if (!emphasisOptions(m).includes(s.option) && !Object.hasOwn(m.variants ?? {}, s.option)) {
+      out.push(`${name}: ${s.component} answers no emphasis ${s.option} and declares no variant ${s.option}`);
     }
   }
   for (const m of manifests.values()) {
@@ -283,39 +275,9 @@ export function readProblems(c: SlotCatalogue, manifests: Manifests): string[] {
   return [...lines].map(([key, names]) => (names.length ? `${key}: ${names.join(', ')}` : key));
 }
 
-const HUE_KEY: Record<string, string> = {
-  '--arena-hue-ink': 'ink', '--arena-hue-edge': 'edge', '--arena-hue-fill-strong': 'fill-strong',
-  '--arena-hue-fill-soft': 'fill-soft', '--arena-hue-on-ink': 'on-ink',
-};
-
-export function channelProblems(c: SlotCatalogue, families: { variants: Record<string, string> }, hues: { hues: Record<string, Record<string, string>> }): string[] {
-  const out: string[] = [];
-  const extra = new Set<string>();
-  const owned = new Map<string, Set<string | undefined>>();
-  for (const [, o] of entries(c)) if (o.family === 'accent') owned.set(o.option, (owned.get(o.option) ?? new Set()).add(o.channel));
-  for (const [name, s] of entries(c)) {
-    if (s.scope !== 'family' || !s.channel) continue;
-    if (s.family === 'accent') {
-      const entry = `[${s.channel}:${channelValue(c, name, 'tailwind')}]`;
-      const written = families.variants[`arena-accent-${s.option}`] ?? '';
-      const times = written.split(`[${s.channel}:`).length - 1;
-      if (times !== 1 || !written.includes(entry)) out.push(`${name}: Accent.family.json arena-accent-${s.option} carries ${s.channel} ${times} time(s) and does not carry exactly ${entry}`);
-      const own = owned.get(s.option) ?? new Set();
-      for (const [, channel] of written.matchAll(/\[(--[a-z0-9-]+):/g)) {
-        if (!own.has(channel) && !extra.has(`${s.option}${channel}`)) { extra.add(`${s.option}${channel}`); out.push(`Accent.family.json arena-accent-${s.option} declares ${channel}, which no accent slot of that option reaches`); }
-      }
-    } else if (s.family === 'hue') {
-      const want = channelValue(c, name, 'css');
-      const got = hues.hues[s.option]?.[HUE_KEY[s.channel] ?? ''];
-      if (got !== want) out.push(`${name}: Hues.json ${s.option}.${HUE_KEY[s.channel]} is ${JSON.stringify(got)}, not ${JSON.stringify(want)}`);
-    }
-  }
-  return out;
-}
-
 const DECLARED = {
   top: ['$description', 'accepts', 'refused', 'states', 'stateSets', 'selected', 'families', 'variants', 'components', 'exceptions', 'rings'],
-  family: ['on', 'channel', 'channels', 'states', 'options', 'optionsFrom', 'template'],
+  family: ['channel', 'channels', 'states', 'options', 'optionsFrom', 'template'],
   option: ['states', 'parts'],
   part: ['family', 'options', 'states', 'variants', 'edgeChannel', 'own', 'draws'],
   variant: ['decision', 'rest'],
@@ -428,7 +390,6 @@ export function collect(root = repoRoot): string[] {
   return [
     ...nameProblems(c), ...acceptsProblems(c, roles), ...defaultProblems(c, roles), ...fallbackProblems(c),
     ...pairProblems(c), ...manifestProblems(c, manifests), ...ringProblems(c, manifests), ...readProblems(c, manifests),
-    ...channelProblems(c, readJson(join(root, ACCENT_FAMILY)) as never, readJson(join(root, HUES_JSON)) as never),
   ];
 }
 

@@ -117,7 +117,7 @@ test('a component slot whose family target does not exist throws, naming the slo
 test('the shipped declarations derive slots in name order with SLOT_KEYS field order', () => {
   const slots = deriveSlots(readSlotDeclarations()).slots;
   const names = Object.keys(slots);
-  assert.equal(names.length, 429);
+  assert.equal(names.length, 396);
   assert.deepEqual(names, [...names].sort());
   for (const slot of Object.values(slots)) {
     const keys = Object.keys(slot);

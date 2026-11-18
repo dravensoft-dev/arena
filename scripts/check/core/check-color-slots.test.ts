@@ -1,10 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { collect, declarationProblems, exceptionProblems, channelProblems, shapeProblems, nameProblems, acceptsProblems, defaultProblems, fallbackProblems, pairProblems, manifestProblems, ringProblems, readProblems, colourRoleSet, slotManifests } from './check-color-slots.ts';
+import { collect, declarationProblems, exceptionProblems, shapeProblems, nameProblems, acceptsProblems, defaultProblems, fallbackProblems, pairProblems, manifestProblems, ringProblems, readProblems, colourRoleSet, slotManifests } from './check-color-slots.ts';
 import { readColorSlots, readSlotDeclarations } from '../../lib/core/color-slots.ts';
-import { readJson } from '../../utils/read-file.ts';
-import { repoRoot } from '../../lib/arena/repo-root.ts';
-import { join } from 'node:path';
 import type { SlotCatalogue } from '../../generate/core/arena-cli/slots.ts';
 
 const shipped = () => structuredClone(readColorSlots());
@@ -14,6 +11,11 @@ const edit = (fn: (c: SlotCatalogue) => void) => { const c = shipped(); fn(c); r
 
 test('the shipped contract is clean', () => {
   assert.deepEqual(collect(), []);
+});
+
+test('no hue or accent family slot is derived', () => {
+  const named = Object.keys(shipped().slots).filter((n) => n.startsWith('hue-') || n.startsWith('accent-'));
+  assert.deepEqual(named, []);
 });
 
 test('a slot whose name disagrees with its fields is refused', () => {
@@ -81,8 +83,8 @@ test('copy button falls to icon button, and icon button edges to their role', ()
   assert.deepEqual(fallbackProblems(c), []);
 });
 
-test('a destructive slot falls to the hue danger family, and its hover fill to fill-hover', () => {
-  const role = edit((x) => { x.slots['button-destructive-root-fill-rest']!.default = '{fill-surface}'; });
+test('a destructive slot falls to a role, and its hover fill to fill-hover', () => {
+  const role = edit((x) => { x.slots['button-destructive-root-fill-rest']!.default = '{emphasis-primary-root-fill-rest}'; });
   assert.equal(fallbackProblems(role).length, 1);
   const hover = edit((x) => { x.slots['button-destructive-root-fill-hover']!.default = '{fill-selected}'; });
   assert.equal(fallbackProblems(hover).length, 1);
@@ -125,7 +127,7 @@ test('a slot on a part or option its manifest lacks is refused', () => {
 
 test('the contract counts', () => {
   const slots = Object.values(shipped().slots);
-  assert.equal(slots.length, 429);
+  assert.equal(slots.length, 396);
   const by = (key: (s: (typeof slots)[number]) => string) => {
     const n: Record<string, number> = {};
     for (const s of slots) n[key(s)] = (n[key(s)] ?? 0) + 1;
@@ -133,39 +135,12 @@ test('the contract counts', () => {
   };
   assert.deepEqual(by((s) => s.component ?? s.family ?? ''), {
     ArenaButton: 64, ArenaCopyButton: 32, ArenaFileInput: 24, ArenaIconButton: 64, ArenaSplitButton: 128,
-    accent: 13, emphasis: 84, hue: 20,
+    emphasis: 84,
   });
-  assert.deepEqual(by((s) => s.state), { rest: 120, disabled: 79, hover: 87, pressed: 87, selected: 14, 'selected-hover': 14, 'selected-pressed': 14, 'selected-disabled': 14 });
+  assert.deepEqual(by((s) => s.state), { rest: 87, disabled: 79, hover: 87, pressed: 87, selected: 14, 'selected-hover': 14, 'selected-pressed': 14, 'selected-disabled': 14 });
   assert.equal(slots.filter((s) => s.optional).length, 93);
   assert.equal(slots.filter((s) => s.derive?.mix === 'mix-pressed').length, 9);
   assert.equal(slots.filter((s) => s.derive?.mix === 'mix-hover').length, 2);
-});
-
-type ChannelInputs = Parameters<typeof channelProblems>;
-
-test('every accent and hue family slot reaches its channel', () => {
-  const families = readJson(join(repoRoot, 'frameworks/tailwind/vocabulary/arena-accent/Accent.family.json')) as ChannelInputs[1];
-  const hues = readJson(join(repoRoot, 'frameworks/tailwind/Hues.json')) as ChannelInputs[2];
-  assert.deepEqual(channelProblems(readColorSlots(), families, hues), []);
-  const reverted = structuredClone(families);
-  reverted.variants['arena-accent-plain'] = '[--arena-accent-fill-soft:var(--accent-plain-fill-soft)] [--arena-accent-ink:var(--accent-plain-ink)] [--arena-accent-quiet-ink:color-mix(in_oklab,var(--accent-plain-quiet-ink)_var(--level-ink-quiet),transparent)] [--arena-accent-edge:var(--accent-plain-edge)] [--arena-accent-side-edge:var(--accent-plain-side-edge)]';
-  const lines = channelProblems(readColorSlots(), reverted, hues);
-  assert.equal(lines.length, 5);
-  assert.deepEqual(lines.map((l) => l.split(':')[0]).sort(), ['accent-plain-quiet-ink-rest', 'accent-plain-root-edge-rest', 'accent-plain-root-fill-rest', 'accent-plain-root-ink-rest', 'accent-plain-side-edge-rest']);
-});
-
-test('a channel written twice, or one no slot reaches, is refused', () => {
-  const families = structuredClone(readJson(join(repoRoot, 'frameworks/tailwind/vocabulary/arena-accent/Accent.family.json')) as ChannelInputs[1]);
-  const hues = readJson(join(repoRoot, 'frameworks/tailwind/Hues.json')) as ChannelInputs[2];
-  const muted = families.variants['arena-accent-muted'] as string;
-  families.variants['arena-accent-muted'] = `${muted} ${muted}`;
-  const twice = channelProblems(readColorSlots(), families, hues);
-  assert.equal(twice.length, 1);
-  assert.match(twice[0] ?? '', /accent-muted-root-ink-rest.*2 time/);
-  families.variants['arena-accent-muted'] = `${muted} [--arena-accent-edge:red]`;
-  const extra = channelProblems(readColorSlots(), families, hues);
-  assert.equal(extra.length, 1);
-  assert.match(extra[0] ?? '', /declares --arena-accent-edge/);
 });
 
 test('every slot of the five buttons reaches its part under its state', () => {
@@ -340,12 +315,12 @@ test('a missing states on an option, a template family or a component part is re
   const d = declared();
   delete (d.families.emphasis!.options!.primary as any).states;
   delete (d.components.ArenaButton!.root as any).states;
-  delete (d.families.hue as any).states;
+  d.families.tone = { template: { mark: { ink: '{x}' } }, optionsFrom: ['danger'] };
   const lines = declarationProblems(d);
   assert.equal(lines.length, 3);
   assert.ok(lines.some((l) => /families\.emphasis\.options\.primary.*no states/.test(l)));
   assert.ok(lines.some((l) => /components\.ArenaButton\.root.*no states/.test(l)));
-  assert.ok(lines.some((l) => /families\.hue.*no states/.test(l)));
+  assert.ok(lines.some((l) => /families\.tone.*no states/.test(l)));
 });
 
 test('an own key, an own row key or an own decision outside the declaration is refused', () => {
@@ -365,7 +340,7 @@ test('an own key, an own row key or an own decision outside the declaration is r
 
 test('a template family with options, a selected key outside fill, ink and edge, and an ink answer off icon are refused', () => {
   const a = declared();
-  (a.families.hue as any).options = { danger: { states: 'rest', parts: {} } };
+  a.families.tone = { template: { mark: { ink: '{x}' } }, optionsFrom: ['danger'], states: 'rest', options: { danger: { states: 'rest', parts: {} } } };
   assert.equal(declarationProblems(a).length, 1);
   const b = declared();
   (b.selected as any).icon = 'ink';

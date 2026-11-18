@@ -98,8 +98,8 @@ test('the witness exemption covers hue-danger-fill-strong and goes stale once co
   assert.deepEqual(staleExemptions([]), []);
 });
 
-const EXEMPT_SLOTS = ['accent-gold-root-ink-rest', 'accent-plain-side-edge-rest', 'hue-danger-strong-ink-rest',
-  'icon-button-solid-root-edge-rest'];
+const EXEMPT_SLOTS = ['button-destructive-root-ink-rest', 'icon-button-solid-root-edge-rest',
+  'split-button-destructive-caret-ink-rest', 'split-button-destructive-primary-ink-rest'];
 
 const answers = (file: string) => answersIn(readJson(join(repoRoot, file)) as Record<string, { $value?: unknown }>);
 

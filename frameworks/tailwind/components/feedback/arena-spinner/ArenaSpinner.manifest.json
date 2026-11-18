@@ -22,7 +22,7 @@
     }
   ],
   "slots": {
-    "root": "inline-flex w-fit text-[color:var(--arena-accent-ink,var(--accent-primary-root-ink-rest,var(--accent-primary-ink)))]",
+    "root": "inline-flex w-fit text-[color:var(--arena-accent-ink,var(--accent-primary-ink))]",
     "circle": "arena-spinner inline-block border-[length:var(--bw-strong)] border-current border-t-transparent rounded-pill size-[var(--arena-size-spinner,var(--size-md-spinner))]"
   },
   "kind": {

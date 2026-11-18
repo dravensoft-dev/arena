@@ -136,121 +136,15 @@
           }
         }
       }
-    },
-    "accent": {
-      "on": "reader",
-      "channels": {
-        "root.fill": "--arena-accent-fill-soft",
-        "root.ink": "--arena-accent-ink",
-        "quiet.ink": "--arena-accent-quiet-ink",
-        "root.edge": "--arena-accent-edge",
-        "side.edge": "--arena-accent-side-edge"
-      },
-      "options": {
-        "plain": {
-          "states": "rest",
-          "parts": {
-            "root": {
-              "fill": "{accent-plain-fill-soft}",
-              "ink": "{accent-plain-ink}",
-              "edge": "{accent-plain-edge}"
-            },
-            "quiet": {
-              "ink": {
-                "role": "{accent-plain-quiet-ink}",
-                "level": "level-ink-quiet"
-              }
-            },
-            "side": {
-              "edge": "{accent-plain-side-edge}"
-            }
-          }
-        },
-        "primary": {
-          "states": "rest",
-          "parts": {
-            "root": {
-              "fill": {
-                "role": "{accent-primary-fill-soft}",
-                "level": "level-accent-soft-primary"
-              },
-              "ink": "{accent-primary-ink}",
-              "edge": "{accent-primary-edge}"
-            },
-            "quiet": {
-              "ink": "{accent-primary-ink}"
-            }
-          }
-        },
-        "gold": {
-          "states": "rest",
-          "parts": {
-            "root": {
-              "fill": {
-                "role": "{accent-gold-fill-soft}",
-                "level": "level-accent-soft-gold"
-              },
-              "ink": "{accent-gold-ink}"
-            },
-            "side": {
-              "edge": "{accent-gold-side-edge}"
-            }
-          }
-        },
-        "muted": {
-          "states": "rest",
-          "parts": {
-            "root": {
-              "ink": {
-                "role": "{accent-muted-ink}",
-                "level": "level-ink-muted"
-              }
-            }
-          }
-        }
-      }
-    },
-    "hue": {
-      "on": "reader",
-      "channels": {
-        "mark.ink": "--arena-hue-ink",
-        "mark.edge": "--arena-hue-edge",
-        "soft.fill": "--arena-hue-fill-soft",
-        "strong.fill": "--arena-hue-fill-strong",
-        "strong.ink": "--arena-hue-on-ink"
-      },
-      "optionsFrom": [
-        "danger",
-        "success",
-        "warning",
-        "info"
-      ],
-      "template": {
-        "mark": {
-          "ink": "{hue-{option}-ink}",
-          "edge": "{hue-{option}-edge}"
-        },
-        "soft": {
-          "fill": {
-            "role": "{hue-{option}-fill-soft}",
-            "level": "level-hue-soft-{option}"
-          }
-        },
-        "strong": {
-          "fill": "{hue-{option}-fill-strong}",
-          "ink": "{hue-{option}-on-ink}"
-        }
-      },
-      "states": "rest"
     }
   },
   "variants": {
     "destructive": {
       "decision": "R6",
       "rest": {
-        "fill": "{hue-danger-strong-fill-rest}",
-        "ink": "{hue-danger-mark-ink-rest}",
-        "edge": "{hue-danger-mark-edge-rest}",
+        "fill": "{hue-danger-fill-strong}",
+        "ink": "{hue-danger-ink}",
+        "edge": "{hue-danger-edge}",
         "icon": "ink"
       }
     }
