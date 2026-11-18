@@ -23,7 +23,7 @@ import { NOT_WRITTEN, SHEETS, UTILITIES, classesIn, themeUtilities } from './che
 import { THEME_SOURCES } from '../../lib/tailwind/theme-sheet.ts';
 import {
   REACHES, TARGETS, VOCABULARY_DIR, answerOf, answeredFamilies, axesOf, axisWrapped, channelPrefix, channelReads, declarations, familyFiles,
-  componentChannels, defaultBlockChannels, optionDeclarations, readFamilies, slotClassStrings, type Family,
+  memberChannels, defaultBlockChannels, optionDeclarations, readFamilies, slotClassStrings, type Family,
 } from '../../lib/tailwind/vocabulary.ts';
 import type { ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';
 import { readHues } from '../../lib/tailwind/hue-sheet.ts';
@@ -222,7 +222,7 @@ export function familyProblems(
       for (const classes of Object.values(family.variants ?? {})) {
         try { for (const [property] of declarations(classes)) written.add(property); } catch { continue; }
       }
-      for (const channel of componentChannels(family, root)) written.add(channel);
+      for (const channel of memberChannels(family, root)) written.add(channel);
     }
     writtenBy.set(family.family, written);
   }

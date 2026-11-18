@@ -1,7 +1,9 @@
 /* The colour criterion of the group map: a part is coloured when a bg, text, border, outline, ring, fill,
  * stroke, decoration, divide, caret, accent or placeholder utility (after its variant prefixes) reads a
  * --color-* key of Theme.css, a palette key, a keyword or [color:...], in slots, variants or compoundVariants.
- * check:color-slots holds every such part to a group part of contracts/design/color-slots.json. */
+ * check:color-slots holds every such part to a group part of contracts/design/color-slots.json.
+ * A fill-* utility paints ink on a part whose name reads as text (TEXTLIKE: label, tick, value, readout and
+ * the like, an SVG text) and a fill on any other: the manifest names no element, so the part name decides. */
 
 import { join } from 'node:path';
 import { readFileSync } from 'node:fs';

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { formatSlotDiff, slotDiff } from './slot-diff.ts';
 import type { SlotCatalogue } from '../../generate/core/arena-cli/slots.ts';
 
-const catalogue = (slots: Record<string, object>) => ({ accepts: {}, refused: [], states: [], families: {}, rings: {}, slots }) as unknown as SlotCatalogue;
+const catalogue = (slots: Record<string, object>) => ({ accepts: {}, refused: [], states: [], groups: {}, members: {}, rings: {}, slots }) as unknown as SlotCatalogue;
 
 test('slotDiff reports added, removed and per-field changes', () => {
   const before = catalogue({ a: { default: '{x}', level: 'l' }, b: { default: '{y}' }, c: { default: '{z}' } });

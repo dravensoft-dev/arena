@@ -241,7 +241,7 @@ const catalogueOf = (root: string): SlotCatalogue => (existsSync(join(root, COLO
 
 const ownChannel = (m: MemberPart, slot: ColorSlot) => memberChannel(m, slot) as string;
 
-export function componentChannels(family: Family, root = repoRoot): Set<string> {
+export function memberChannels(family: Family, root = repoRoot): Set<string> {
   const catalogue = catalogueOf(root);
   const prefix = channelPrefix(family.family);
   const out = new Set<string>();

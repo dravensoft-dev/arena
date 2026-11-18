@@ -94,22 +94,21 @@ reports, and the rule the role tier grows by. Read it before writing one.
 
 `color-slots.json` is the slot tier above the roles: every coloured part of a group of components, per
 option, property and state, as a question a plugin answers with a role that slot's `accepts` set names.
-A slot is named `<group>-<option>-<part>-<property>-<state>`, or `<group>-<part>-<property>-<state>` for a group part with no options (D41),
-and answering it moves every member that paints that part. A group part derives slots only once each of its options declares a rest
-answer per property (D45); today only `actions.root` does, with the options primary, secondary, ghost, solid and destructive (R6, no channel).
+A slot is named `<group>-<option>-<part>-<property>-<state>`, or `<group>-<part>-<property>-<state>` for a group part with no options,
+and answering it moves every member part that reads the group. A group part derives slots only once each of its options declares a rest
+answer per property; today only `actions.root` does, with the options primary, secondary, ghost, solid and destructive (the last carries no channel).
 A member part that reads a group is an object `{ to, options, states, channels?, defaults?, decision? }`: `channels` reads a property
 through a channel of its own (`ArenaIconButton.root` reads its edge through `--arena-emphasis-icon-edge`), and a `defaults` entry is a
 member default, which replaces the group default at the end of that member's chain while the slot is silent and needs the decision that
-grants it (D21 for the IconButton ghost edge); `scripts/generate/core/arena-cli/slots.ts:memberChain(catalogue, member, name)` writes that chain.
-The file declares groups, members, exceptions and rings, and `scripts/lib/core/color-slots.ts:readColorSlots(root)` derives the
+grants it (the `decision` field of `ArenaIconButton.root` names the one for its ghost edge); `check:color-slots` holds a default to one rest slot of the member's own part, on an option and a state it lists, answered with `transparent` or a role that slot accepts, and never the answer the group already gives; `scripts/generate/core/arena-cli/slots.ts:memberChain(catalogue, member, name)` writes that chain.
+The file declares groups, members (the group part every coloured manifest part of the 86 components maps onto, as `"<group>.<part>[@<options>]"` for a part mapped and not yet read, the object above for one that reads its group, or `null` for a part that paints only `current` or `transparent`), exceptions and rings, and `scripts/lib/core/color-slots.ts:readColorSlots(root)` derives the
 slots from them in memory; packages ship the derived slots in `arena.tokens.json` under `slots`, and the contracts and MCP packages ship them as
 `contracts/design/color-slots.derived.json` (`scripts/lib/arena/package-assembly.ts:derivedSlotsText(root)`).
 It carries no value, so `check:dtcg` leaves it by name, and `check:color-slots` holds the declarations themselves and the catalogue derived from them: the
-names, the defaults and the member parts that read them. `frameworks/tailwind/vocabulary/arena-emphasis/Emphasis.family.json` writes each
+names, the defaults and the member parts that read them. On the declarations it refuses an unknown key anywhere (a `components`, `families` or `variants` key among them), a missing `states`, an undeclared `stateSets` name or state, a group part option with no rest answers or a rest answer missing a property the part paints, an `"ink"` answer off `icon`, a channel that is neither `null` nor a custom property, a member part with `defaults` and no `D<n>` or `R<n>` decision, a member default that breaks the rule above, an exception with no such decision, naming no slot the rule builds, or giving what the rule already gives. `frameworks/tailwind/vocabulary/arena-emphasis/Emphasis.family.json` writes each
 `actions.root` chain a member reads through the group channel, and the gate holds each value equal to
-`scripts/generate/core/arena-cli/slots.ts:channelValue(catalogue, name, form)` (R7).
-The file also declares `groups` and `members`: fourteen groups of parts, and for each of the 86 components the group part every coloured manifest part
-maps onto (`"<group>.<part>[@<options>]"` for a part mapped and not yet read, the object above for one that reads its group, or `null` for a part that paints only `current` or `transparent`). `scripts/lib/core/color-slot-map.ts:colouredParts(root)`
+`scripts/generate/core/arena-cli/slots.ts:channelValue(catalogue, name, form)`.
+The fourteen groups of parts are the file's `groups`. `scripts/lib/core/color-slot-map.ts:colouredParts(root)`
 reads the coloured parts, and `check:color-slots` refuses a coloured part mapped nowhere, a property its group part does not paint, an option it does not list, and a
 group part nothing maps onto unless it carries `paintedBy`, the file or list of files that paint it from code (each a file that exists); `paintedBy` on a part a member maps onto is refused.
 A slot is never asked for totality or kernel equality, which stay the role gate's.

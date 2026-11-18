@@ -86,7 +86,7 @@ const COMPOSITIONS: Record<string, () => React.ReactElement> = {
   'answered-disabled-stops-the-fade': () => <div style={answered({ '--actions-primary-root-ink-disabled': 'var(--ink-muted)', '--actions-primary-root-fade-disabled': '1' })}><ArenaButton disabled>Save</ArenaButton></div>,
   'answered-disabled-draws-its-ink': () => <div style={answered({ '--actions-primary-root-ink-disabled': 'var(--ink-muted)', '--actions-primary-root-fade-disabled': '1' })}><ArenaButton disabled>Save</ArenaButton></div>,
   'answered-disabled-ink-reaches-the-glyph': () => <div style={answered({ '--actions-primary-root-ink-disabled': 'var(--ink-muted)', '--actions-primary-root-fade-disabled': '1' })}><ArenaButton disabled icon="ph-bold ph-x">Save</ArenaButton></div>,
-  'component-ink-answer-reaches-the-glyph': () => <div style={answered({ '--actions-primary-root-ink-rest': 'var(--fill-surface)' })}><ArenaButton icon="ph-bold ph-x">Save</ArenaButton></div>,
+  'ink-answer-reaches-the-glyph': () => <div style={answered({ '--actions-primary-root-ink-rest': 'var(--fill-surface)' })}><ArenaButton icon="ph-bold ph-x">Save</ArenaButton></div>,
   'icon-rest-answer-keeps-the-level': () => <div style={answered({ '--actions-ghost-root-icon-rest': 'var(--hue-danger-ink)' })}><ArenaButton className="arena-emphasis-ghost" icon="ph-bold ph-x">Save</ArenaButton></div>,
   'class-on-copy-button-reaches-the-icon-button-it-draws': () => <div style={answered({ '--actions-solid-root-fill-rest': 'var(--fill-surface-raised)' })}><ArenaCopyButton className="arena-emphasis-solid" text="x" label="Copy" /></div>,
   'answered-disabled-keeps-the-rest-fill': () => <div style={answered({ '--actions-primary-root-ink-disabled': 'var(--ink-muted)', '--actions-primary-root-fade-disabled': '1' })}><ArenaButton disabled>Save</ArenaButton></div>,
@@ -94,7 +94,7 @@ const COMPOSITIONS: Record<string, () => React.ReactElement> = {
     <div style={answered({ '--actions-ghost-root-ink-disabled': 'var(--ink-muted)', '--actions-ghost-root-fade-disabled': '1' })}><ArenaIconButton icon="ph-bold ph-x" label="Close" pressed disabled /></div>
     <div style={answered({ '--actions-ghost-root-ink-selected-disabled': 'var(--ink-muted)', '--actions-ghost-root-fade-selected-disabled': '1' })}><ArenaIconButton icon="ph-bold ph-x" label="Close" pressed disabled /></div>
   </>,
-  'family-hover-answer-is-not-derived-from-the-component-rest': () => <div style={answered({ '--actions-primary-root-fill-rest': 'var(--fill-surface)', '--actions-primary-root-fill-hover': 'var(--fill-hover)' })}><ArenaButton>Save</ArenaButton></div>,
+  'hover-answer-is-not-derived-from-the-rest-answer': () => <div style={answered({ '--actions-primary-root-fill-rest': 'var(--fill-surface)', '--actions-primary-root-fill-hover': 'var(--fill-hover)' })}><ArenaButton>Save</ArenaButton></div>,
 };
 
 const BARE = new Set(['meaning-wins-over-accent', 'accent-stops-at-the-card-body', 'small-badge-compacts-itself', 'small-badge-tightens-its-block', 'small-badge-tightens-its-ends']);

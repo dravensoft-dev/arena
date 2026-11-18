@@ -31,3 +31,19 @@ test('the criterion reads variants and compoundVariants, and tells focus-only an
     rmSync(root, { recursive: true, force: true });
   }
 });
+
+test('a fill utility is ink on a part named like text and fill on any other, by the part name', () => {
+  const root = mkdtempSync(join(tmpdir(), 'cs-map-'));
+  try {
+    mkdirSync(join(root, 'frameworks/tailwind/components/x'), { recursive: true });
+    mkdirSync(join(root, 'contracts/design'), { recursive: true });
+    writeFileSync(join(root, 'frameworks/tailwind/Theme.css'), '@theme { --color-surface: red; }');
+    writeFileSync(join(root, 'contracts/design/palette.dark.json'), JSON.stringify({ color: { $type: 'color' } }));
+    writeFileSync(join(root, 'frameworks/tailwind/components/x/ArenaFixture.manifest.json'), JSON.stringify({ component: 'ArenaFixture', slots: { label: 'fill-surface', bar: 'fill-surface' } }));
+    const parts = colouredParts(root);
+    assert.equal(parts.get('ArenaFixture.label')!.properties.join(), 'ink');
+    assert.equal(parts.get('ArenaFixture.bar')!.properties.join(), 'fill');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});

@@ -332,7 +332,7 @@ test('a mix nested in the fallback of a channel read is a level too', () => {
 
 test('a mix over a slot chain is a level over the role the chain falls to', () => {
   const chain = FAMILY.replace('var(--accent-plain-quiet-ink) var(--level-ink-quiet)',
-    'var(--accent-plain-quiet-ink-rest,var(--accent-plain-quiet-ink)) var(--level-ink-quiet)');
+    'var(--a-slot,var(--accent-plain-quiet-ink)) var(--level-ink-quiet)');
   const [first] = levelsIn(chain, { 'level-ink-quiet': 50, 'level-accent-soft-gold': 16 });
   assert.equal(`${first?.property}/${first?.variable}/${first?.percent}`, 'color/accent-plain-quiet-ink/50');
 });

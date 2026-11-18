@@ -4,7 +4,10 @@
  * shape: the declarations first (unknown keys, exceptions, member defaults and their decisions),
  * then the derived catalogue: the name each slot must have, the roles each property may be answered
  * with, where a default or a derivation may point, the fill an ink sits on, the member parts that
- * read each slot under its state, the Emphasis family's chains (R7), and the group map. */
+ * read each slot under its state, the Emphasis family's chains (R7), and the group map. A member default
+ * (D21's grant, R5) is one rest slot of the member's part, on an option and state it lists, answered with a
+ * role its slot accepts and unlike the group's answer. paintedByPaths names the files the map stats, so a
+ * rename or a delete of one reruns the gate. */
 
 import { statSync } from 'node:fs';
 import { join } from 'node:path';
@@ -26,9 +29,15 @@ import { slotPairs } from '../../generate/core/arena-cli/slot-contrast.ts';
 
 export const EMPHASIS_FAMILY = 'frameworks/tailwind/vocabulary/arena-emphasis/Emphasis.family.json';
 
+function paintedByPaths(): string[] {
+  const groups = readSlotDeclarations().groups ?? {};
+  const paths = Object.values(groups).flatMap((g) => Object.values(g.parts ?? {})).flatMap((p) => p.paintedBy ?? []);
+  return [...new Set(paths)].sort();
+}
+
 export const node = {
   name: 'check:color-slots',
-  reads: [COLOR_SLOTS, EMPHASIS_FAMILY, 'contracts/design/roles.json', 'contracts/design/palette.dark.json', 'frameworks/tailwind/Theme.css', 'frameworks/tailwind/components/**/*.manifest.json'],
+  reads: [COLOR_SLOTS, EMPHASIS_FAMILY, 'contracts/design/roles.json', 'contracts/design/palette.dark.json', 'frameworks/tailwind/Theme.css', 'frameworks/tailwind/components/**/*.manifest.json', ...paintedByPaths()],
   writes: [],
   feeds: [],
 };
@@ -444,6 +453,28 @@ export function mapProblems(d: SlotDeclarations, coloured: ReadonlyMap<string, C
   return out;
 }
 
+export function memberDefaultProblems(c: SlotCatalogue, roles: ReadonlySet<string>): string[] {
+  const out: string[] = [];
+  for (const [key, m] of Object.entries(c.members ?? {})) {
+    const to = targetOf(m.to);
+    for (const [name, value] of Object.entries(m.defaults ?? {})) {
+      const where = `${key}: its default ${name}`;
+      const slot = c.slots[name];
+      if (!slot) { out.push(`${where} names no slot`); continue; }
+      if (slot.group !== to.group || slot.part !== to.part) out.push(`${where} is a slot of ${slot.group}.${slot.part}, and the member maps onto ${m.to}`);
+      if (slot.option !== undefined && !m.options.includes(slot.option)) out.push(`${where} is on option ${slot.option}, which the member does not list (${m.options.join(', ')})`);
+      if (!m.states.includes(slot.state)) out.push(`${where} is at state ${slot.state}, which the member does not list`);
+      if (slot.state !== 'rest') out.push(`${where} is at ${slot.state}: a member default answers the rest slot, and the states that derive from it read the member's chain (R5)`);
+      const ref = REF.exec(value)?.[1];
+      if (!(value === 'transparent' ? acceptedRole(c, slot, 'transparent', roles) : ref !== undefined && acceptedRole(c, slot, ref, roles))) {
+        out.push(`${where} is ${value}, which is not transparent where ${slot.accepts} accepts it or a role ${slot.accepts} accepts`);
+      }
+      if (slot.default === value) out.push(`${where} is ${value}, which the group already answers, so the default is no default`);
+    }
+  }
+  return out;
+}
+
 export function collect(root = repoRoot): string[] {
   const d = readSlotDeclarations(root);
   const declared = declarationProblems(d);
@@ -462,7 +493,7 @@ export function collect(root = repoRoot): string[] {
   const shape = shapeProblems(c);
   if (shape.length) return shape;
   return [
-    ...nameProblems(c), ...acceptsProblems(c, roles), ...defaultProblems(c, roles), ...fallbackProblems(c),
+    ...nameProblems(c), ...acceptsProblems(c, roles), ...defaultProblems(c, roles), ...memberDefaultProblems(c, roles), ...fallbackProblems(c),
     ...pairProblems(c), ...manifestProblems(c, manifests), ...ringProblems(c, manifests), ...readProblems(c, manifests),
     ...familyProblems(c, readJson(join(root, EMPHASIS_FAMILY)) as { variants?: Record<string, string> }),
     ...mapProblems(d, colouredParts(root), manifests, root),

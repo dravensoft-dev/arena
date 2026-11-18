@@ -2,7 +2,7 @@ import test from 'node:test';
 import { readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
-import { collect, mapProblems, declarationProblems, exceptionProblems, shapeProblems, nameProblems, acceptsProblems, defaultProblems, fallbackProblems, pairProblems, manifestProblems, ringProblems, readProblems, familyProblems, colourRoleSet, slotManifests, EMPHASIS_FAMILY } from './check-color-slots.ts';
+import { collect, mapProblems, declarationProblems, exceptionProblems, memberDefaultProblems, shapeProblems, nameProblems, acceptsProblems, defaultProblems, fallbackProblems, pairProblems, manifestProblems, ringProblems, readProblems, familyProblems, colourRoleSet, slotManifests, EMPHASIS_FAMILY } from './check-color-slots.ts';
 import { deriveSlots, readColorSlots, readSlotDeclarations } from '../../lib/core/color-slots.ts';
 import type { GroupOption, MemberDecl, SlotDeclarations } from '../../lib/core/color-slots.ts';
 import { readJson } from '../../utils/read-file.ts';
@@ -462,4 +462,40 @@ test('a member default with no decision is refused', () => {
   const e = declared();
   (e.members!.ArenaIconButton!.parts.root as { decision?: string }).decision = 'because';
   assert.ok(declarationProblems(e).some((line) => /members\.ArenaIconButton\.parts\.root: its decision "because" is neither D<n> nor R<n>/.test(line)));
+});
+
+const withDefault = (name: string, value: string) => edit((c) => { c.members['ArenaIconButton.root']!.defaults = { [name]: value }; });
+const GHOST_EDGE = 'actions-ghost-root-edge-rest';
+
+test('the shipped member default is clean', () => {
+  assert.deepEqual(memberDefaultProblems(shipped(), roles), []);
+});
+
+test('a member default whose value is not a role its slot accepts is refused', () => {
+  assert.ok(memberDefaultProblems(withDefault(GHOST_EDGE, '{ink-body}'), roles).some((l) => /ink-body/.test(l) && /edge accepts/.test(l)));
+  assert.ok(memberDefaultProblems(withDefault(GHOST_EDGE, '{edge-focus}'), roles).some((l) => /edge-focus/.test(l)));
+  assert.ok(memberDefaultProblems(withDefault(GHOST_EDGE, '#ff0000'), roles).some((l) => /#ff0000/.test(l)));
+});
+
+test('a member default on a slot of another part or an option the member does not list is refused', () => {
+  const lines = memberDefaultProblems(withDefault('actions-primary-root-fill-rest', '{emphasis-primary-fill}'), roles);
+  assert.ok(lines.some((l) => /actions-primary-root-fill-rest/.test(l) && /option primary/.test(l)), lines.join('\n'));
+  const other = edit((c) => { c.members['ArenaIconButton.root']!.to = 'actions.other'; c.members['ArenaIconButton.root']!.defaults = { [GHOST_EDGE]: '{emphasis-ghost-icon-edge}' }; });
+  assert.ok(memberDefaultProblems(other, roles).some((l) => /actions-ghost-root-edge-rest/.test(l) && /actions\.other/.test(l)));
+});
+
+test('a member default on a slot whose state the member does not list is refused', () => {
+  const c = withDefault(GHOST_EDGE, '{emphasis-ghost-icon-edge}');
+  c.members['ArenaIconButton.root']!.states = ['hover', 'pressed'] as never;
+  assert.ok(memberDefaultProblems(c, roles).some((l) => /actions-ghost-root-edge-rest/.test(l) && /state rest/.test(l)));
+});
+
+test('a member default on a slot that derives is refused', () => {
+  const lines = memberDefaultProblems(withDefault('actions-ghost-root-edge-hover', '{emphasis-ghost-icon-edge}'), roles);
+  assert.ok(lines.some((l) => /actions-ghost-root-edge-hover/.test(l) && /rest/.test(l)), lines.join('\n'));
+});
+
+test('a member default equal to the group default is refused as redundant', () => {
+  const lines = memberDefaultProblems(withDefault(GHOST_EDGE, 'transparent'), roles);
+  assert.ok(lines.some((l) => /actions-ghost-root-edge-rest/.test(l) && /already/.test(l)), lines.join('\n'));
 });
