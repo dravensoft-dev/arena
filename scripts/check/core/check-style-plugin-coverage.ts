@@ -20,6 +20,8 @@ import { ARENA_EXT, ROLES, ROOT_PLUGIN } from './check-style-plugin.ts';
 import { ALIAS_SOURCE, CHANNEL_SOURCES, tokenCatalogue } from '../../lib/arena/package-assembly.ts';
 import { readPlugin, resolvedPlugin } from '../../generate/core/arena-cli/theme-css.ts';
 import { CSS_TARGETS } from '../../generate/arena/generate-tokens.ts';
+import { COLOR_SLOTS, readColorSlots } from '../../lib/core/color-slots.ts';
+import { expectedName, type SlotCatalogue } from '../../generate/core/arena-cli/slots.ts';
 
 export const COMPLETE = 'plugin-style-store/complete/plugin.tokens.json';
 
@@ -27,7 +29,7 @@ export const COMPLETE_CSS = 'plugin-style-store/complete/plugin.css';
 
 export const node = {
   name: 'check:style-plugin-coverage',
-  reads: [ROLES, ALIAS_SOURCE, ...CHANNEL_SOURCES, ROOT_PLUGIN, COMPLETE, COMPLETE_CSS, 'frameworks/tailwind/components/**',
+  reads: [ROLES, ALIAS_SOURCE, ...CHANNEL_SOURCES, ROOT_PLUGIN, COMPLETE, COMPLETE_CSS, COLOR_SLOTS, 'frameworks/tailwind/components/**',
     ...CSS_TARGETS, 'frameworks/Components.json',
     'frameworks/tailwind/consume/components/**/*.styles.generated.css'],
   writes: [],
@@ -53,10 +55,17 @@ export function immovableRoles(roles: Record<string, Shape>) {
   }).map(([role]) => role);
 }
 
+const NO_SECOND_SPELLING = 'no other accepted role resolves to the key complete paints there, so a spelling of '
+  + 'its own would move the complete sink';
+
 export const WITNESS_EXEMPT: ReadonlyMap<string, string> = new Map([
   ['hue-danger-fill-strong', 'complete answers it as default does, because a colour of its own would move the '
     + 'complete sink, and this role reaches a page through the destructive and danger-tone parts that default '
     + 'already paints'],
+  ...[
+    'accent-gold-root-ink-rest', 'accent-plain-side-edge-rest', 'hue-danger-strong-ink-rest',
+    'icon-button-solid-root-edge-rest',
+  ].map((slot): [string, string] => [slot, NO_SECOND_SPELLING]),
 ]);
 
 export function staleExemptions(moved: string[], exempt: ReadonlyMap<string, string> = WITNESS_EXEMPT) {
@@ -64,6 +73,41 @@ export function staleExemptions(moved: string[], exempt: ReadonlyMap<string, str
   return [...exempt.keys()].filter((role) => given.has(role)).map((role) =>
     `${role} is exempt from the witness and complete answers it with a value of its own, so the exemption `
     + 'is stale: drop the entry from WITNESS_EXEMPT.');
+}
+
+function ownSpellings(
+  catalogue: SlotCatalogue, name: string, complete: Record<string, string>, root: Record<string, string>,
+): [string, string][] {
+  const slot = catalogue.slots[name];
+  const out: [string, string][] = [];
+  if (slot?.default !== undefined) out.push([JSON.stringify(slot.default), 'kernel default']);
+  if (root[name] !== undefined) out.push([root[name], 'default plugin']);
+  const ink = slot?.property === 'icon' ? complete[expectedName({ ...slot, property: 'ink' })] : undefined;
+  if (ink !== undefined) out.push([ink, 'ink the icon follows']);
+  return out;
+}
+
+export function unansweredSlots(
+  catalogue: SlotCatalogue, complete: Record<string, string>, root: Record<string, string>,
+  exempt: ReadonlyMap<string, string> = WITNESS_EXEMPT,
+) {
+  const problems: string[] = [];
+  for (const name of Object.keys(catalogue.slots).sort()) {
+    if (exempt.has(name)) continue;
+    const answer = complete[name];
+    if (answer === undefined) {
+      problems.push(`${name} is a colour slot and complete leaves it unanswered, so nothing in this tree `
+        + `shows the slot reaching a page: answer it in ${COMPLETE} with a role of its own.`);
+      continue;
+    }
+    const same = ownSpellings(catalogue, name, complete, root).find(([spelling]) => spelling === answer);
+    if (same) {
+      problems.push(`${name} is a colour slot and complete answers it ${answer} as the ${same[1]} does, so the `
+        + 'witness shows no reach: give it a spelling of its own, or exempt it in WITNESS_EXEMPT with the reason '
+        + 'no second spelling exists.');
+    }
+  }
+  return problems;
 }
 
 export function unreachedRoles(declared: string[], moved: string[], immovable: string[] = []) {
@@ -136,6 +180,7 @@ export function collect(base = repoRoot) {
   const moved = movedRoles(root, complete);
   return {
     problems: [
+      ...unansweredSlots(readColorSlots(base), complete, root),
       ...unreachedRoles(declared, moved, [...immovableRoles(shapes), ...WITNESS_EXEMPT.keys()]),
       ...staleExemptions(moved),
       ...unpaintedParts(parts, painted),

@@ -5,6 +5,8 @@ import { readJson } from '../../utils/read-file.ts';
 import { flattenTokens, previewFor } from './token-preview.ts';
 import { parseDecls } from '../arena/css-decls.ts';
 import { crossKeys, rootOnlyFor } from '../../generate/core/arena-cli/style-plugin-rules.ts';
+import { fadeMarkers } from '../../generate/core/arena-cli/slots.ts';
+import { readColorSlots } from './color-slots.ts';
 import { DESIGN_DIR, FILES, ROOT_ONLY_SOURCES, THEME_SCOPES } from '../../generate/arena/generate-tokens.ts';
 
 test('flattens a nested group into dash-joined custom-property names', () => {
@@ -127,7 +129,8 @@ test('derived names match the custom properties the build actually emits, in eve
   for (const [names, css, selector, sources] of cases) {
     const sheet = parseDecls(readFileSync(String(css), 'utf8'));
     const emitted = [...new Set([selector].flat().flatMap((key) => [...sheet.get(key).keys()]))].sort();
-    assert.deepEqual([...(names as string[])].sort(), emitted,
+    const marked = typeof selector === 'string' ? fadeMarkers(names as string[], readColorSlots()).map(([name]) => name.slice(2)) : [];
+    assert.deepEqual([...new Set([...(names as string[]), ...marked])].sort(), emitted,
       `${(sources as string[]).join(', ')} -> ${css} ${selector}`);
   }
 });
