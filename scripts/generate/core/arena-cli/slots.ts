@@ -89,6 +89,12 @@ export const colourNamesOf = (roles: Record<string, unknown>, key: 'type' | '$ty
 
 const ownerOf = (slot: ColorSlot) => (slot.scope === 'family' ? `f:${slot.family}` : `c:${slot.component}`);
 
+export function followsInk(catalogue: SlotCatalogue, slot: ColorSlot): boolean {
+  const ref = /^\{([a-z][a-z0-9-]*)\}$/.exec((slot.default ?? '').trim())?.[1];
+  const target = ref === undefined ? undefined : catalogue.slots[ref];
+  return slot.property === 'icon' && target !== undefined && target.property === 'ink' && target.channel !== undefined && ownerOf(target) === ownerOf(slot);
+}
+
 export function slotChain(catalogue: SlotCatalogue, name: string): string {
   const slot = catalogue.slots[name] as ColorSlot;
   return `var(--${name},${fall(catalogue, name, slot)})`;
@@ -122,6 +128,7 @@ function fall(catalogue: SlotCatalogue, name: string, slot: ColorSlot): string {
   if (ref === undefined) throw new Error(`${name}: default ${JSON.stringify(slot.default)} is neither transparent nor a {role} or {slot}`);
   const target = catalogue.slots[ref];
   if (!target) return `var(--${ref})`;
+  if (followsInk(catalogue, slot)) return read(catalogue, ref);
   if (ownerOf(target) === ownerOf(slot)) return slotChain(catalogue, ref);
   return read(catalogue, ref);
 }
@@ -129,7 +136,7 @@ function fall(catalogue: SlotCatalogue, name: string, slot: ColorSlot): string {
 export function channelValue(catalogue: SlotCatalogue, name: string, form: 'tailwind' | 'css'): string {
   const slot = catalogue.slots[name] as ColorSlot;
   const chain = slotChain(catalogue, name);
-  const value = slot.level ? `color-mix(in_oklab,${chain}_var(--${slot.level}),transparent)` : chain;
+  const value = slot.level && !followsInk(catalogue, slot) ? `color-mix(in_oklab,${chain}_var(--${slot.level}),transparent)` : chain;
   return form === 'tailwind' ? value : value.replaceAll('in_oklab', 'in oklab').replaceAll('_', ' ');
 }
 

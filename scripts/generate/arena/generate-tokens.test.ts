@@ -291,3 +291,14 @@ test('breakpoints are rem tokens and em variants', async () => {
   assert.match(all, /--bp-md:48rem;/);
   assert.ok((await buildBreakpointTheme()).includes('--breakpoint-md:48em;'));
 });
+
+test('a slot answered with a colour role is restated under each theme scope, as a colour role is', async () => {
+  const { buildAll } = await import('./generate-tokens.ts');
+  const plugin = (await buildAll()).get('style-plugin.default.generated.css') as string;
+  const declared = (selector: string) => new RegExp(`^${selector.replace('.', '\\.')}\\{\\n([\\s\\S]*?)\\n\\}`, 'm').exec(plugin)?.[1] ?? '';
+  for (const name of ['emphasis-primary-root-fill-pressed', 'button-destructive-root-ink-hover']) {
+    for (const scope of ['.arena-dark', '.arena-light']) {
+      assert.match(declared(scope), new RegExp(`^\\s*--${name}:var\\(--[\\w-]+\\);`, 'm'), `${name} under ${scope}`);
+    }
+  }
+});

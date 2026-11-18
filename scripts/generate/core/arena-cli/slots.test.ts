@@ -19,7 +19,7 @@ test('a level wraps the rest answer', () => {
 
 test('the icon falls to its ink inside the ink\'s level', () => {
   assert.equal(channelValue(c, 'emphasis-ghost-root-icon-rest', 'tailwind'),
-    'color-mix(in_oklab,var(--emphasis-ghost-root-icon-rest,var(--emphasis-ghost-root-ink-rest,var(--emphasis-ghost-ink)))_var(--level-ink-body),transparent)');
+    'var(--emphasis-ghost-root-icon-rest,var(--arena-emphasis-ink))');
 });
 
 test('a hover the part paints as rest falls to the rest channel', () => {

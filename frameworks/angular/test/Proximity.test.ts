@@ -106,6 +106,7 @@ const TEMPLATES: Record<string, string> = {
   'copy-button-follows-icon-button': '<div style="--icon-button-ghost-root-fill-rest: var(--fill-surface)"><arena-icon-button icon="ph-bold ph-x" label="Close" /><arena-copy-button text="x" label="Copy" /></div>',
   'copy-button-slot-wins': '<div style="--icon-button-ghost-root-fill-rest: var(--fill-surface); --copy-button-ghost-root-fill-rest: var(--fill-surface-raised)"><arena-copy-button text="x" label="Copy" /></div>',
   'answered-disabled-stops-the-fade': '<div style="--button-primary-root-ink-disabled: var(--ink-muted); --button-primary-root-fade-disabled: 1"><arena-button disabled>Save</arena-button></div>',
+  'component-ink-answer-reaches-the-glyph': '<div style="--button-primary-root-ink-rest: var(--fill-surface)"><arena-button icon="ph-bold ph-x">Save</arena-button></div>',
   'class-on-copy-button-reaches-the-icon-button-it-draws': '<div style="--copy-button-solid-root-fill-rest: var(--fill-surface-raised)"><arena-copy-button class="arena-emphasis-solid" text="x" label="Copy" /></div>',
   'answered-disabled-keeps-the-rest-fill': '<div style="--button-primary-root-ink-disabled: var(--ink-muted); --button-primary-root-fade-disabled: 1"><arena-button disabled>Save</arena-button></div>',
   'selected-disabled-answer-stops-only-the-selected-fade': '<div style="--icon-button-ghost-root-ink-disabled: var(--ink-muted); --icon-button-ghost-root-fade-disabled: 1"><arena-icon-button icon="ph-bold ph-x" label="Close" [pressed]="true" disabled /></div>'

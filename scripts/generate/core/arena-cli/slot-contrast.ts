@@ -11,7 +11,7 @@ import type { Triple } from './oklab.ts';
 import { MARK_MIN, paletteKey, surfaceKeys, TEXT_MIN } from './levels.ts';
 import { report } from './report.ts';
 import type { Report } from './report.ts';
-import { expectedName } from './slots.ts';
+import { expectedName, followsInk } from './slots.ts';
 import type { ColorSlot, SlotCatalogue } from './slots.ts';
 
 export type Paint = { hex: string; alpha: number } | null;
@@ -85,9 +85,9 @@ function paint(ctx: Context, name: string, withLevel = true): Resolved {
     if (text === 'transparent') base = null;
     else if (ref === undefined) base = undefined;
     else if (!target) base = valueColour(ctx, ctx.roles.get(ref));
-    else base = paint(ctx, ref, owner(target) !== owner(slot));
+    else base = paint(ctx, ref, owner(target) !== owner(slot) || followsInk(ctx.catalogue, slot));
   }
-  if (!slot.level || !withLevel || !base) return base;
+  if (!slot.level || !withLevel || !base || followsInk(ctx.catalogue, slot)) return base;
   const percent = ctx.levels[slot.level];
   return percent === undefined ? undefined : { hex: base.hex, alpha: base.alpha * (percent / 100) };
 }
@@ -156,8 +156,10 @@ export function slotReports(
       const ratio = contrast(over(mark, under), under);
       if (ratio >= pair.min) continue;
       const on = ground === null ? '' : `, where it is composited over --color-${ground}`;
+      const split = /^emphasis-(primary|solid)-root-fill-rest$/.test(pair.over)
+        ? '; a palette that splits primary-fill from primary fills the button with primary-fill' : '';
       const line = `--${pair.slot} measures ${ratio.toFixed(2)}:1 over --${pair.over} in the ${state} state of the ${theme} theme${on}, `
-        + `below ${pair.min}:1 (${standard}), so ${WHY[kind]}; answer the pair with colours that stand further apart`;
+        + `below ${pair.min}:1 (${standard}), so ${WHY[kind]}; answer the pair with colours that stand further apart${split}`;
       if (seen.has(line)) continue;
       seen.add(line);
       out.push(report('contrast', line));

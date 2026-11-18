@@ -121,3 +121,21 @@ test('a destructive glyph follows its ink in the state a plugin answers', () => 
   const lines = slotReports(CATALOGUE.slots, answers, roles, colors, 'dark', LEVELS).map((one) => one.message);
   assert.equal(lines.some((line) => line.startsWith('--button-destructive-root-icon-hover')), false);
 });
+
+test('a plugin still filling the button with primary is measured, the palette pair cannot see it', () => {
+  const colors = { ...coloursOf('dark'), primary: '#9e77ed', 'primary-fill': '#7f56d9', 'primary-content': '#ffffff' };
+  const roles = new Map(rolesFor(null, CATALOGUE, 'dark'));
+  roles.set('emphasis-primary-fill', 'var(--color-primary)');
+  roles.set('emphasis-solid-fill', 'var(--color-primary)');
+  roles.set('emphasis-primary-ink', 'var(--color-primary-content)');
+  roles.set('emphasis-solid-ink', 'var(--color-primary-content)');
+  const lines = slotReports(CATALOGUE.slots, new Map(), roles, colors, 'dark', LEVELS).map((one) => one.message);
+  for (const name of ['emphasis-primary-root-ink-rest', 'emphasis-solid-root-ink-rest']) {
+    assert.ok(lineOf(lines, name, name.replace('-ink-', '-fill-'), '3.33'), lines.join('\n'));
+  }
+  assert.ok(lines.some((line) => line.includes('a palette that splits primary-fill from primary fills the button with primary-fill')));
+  const ok = new Map(roles);
+  ok.set('emphasis-primary-fill', 'var(--color-primary-fill)');
+  ok.set('emphasis-solid-fill', 'var(--color-primary-fill)');
+  assert.equal(slotReports(CATALOGUE.slots, new Map(), ok, colors, 'dark', LEVELS).some((one) => one.message.includes('-ink-rest measures')), false);
+});
