@@ -92,7 +92,7 @@ const ownerOf = (slot: ColorSlot) => (slot.scope === 'family' ? `f:${slot.family
 export function followsInk(catalogue: SlotCatalogue, slot: ColorSlot): boolean {
   const ref = /^\{([a-z][a-z0-9-]*)\}$/.exec((slot.default ?? '').trim())?.[1];
   const target = ref === undefined ? undefined : catalogue.slots[ref];
-  return slot.property === 'icon' && target !== undefined && target.property === 'ink' && target.channel !== undefined && ownerOf(target) === ownerOf(slot);
+  return slot.property === 'icon' && slot.level === undefined && target !== undefined && target.property === 'ink' && target.channel !== undefined && ownerOf(target) === ownerOf(slot);
 }
 
 export function slotChain(catalogue: SlotCatalogue, name: string): string {

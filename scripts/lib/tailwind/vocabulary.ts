@@ -17,7 +17,7 @@ import { captured } from '../../utils/captures.ts';
 import { repoRoot } from '../arena/repo-root.ts';
 import { declaredAxis } from '../core/user-scale.ts';
 import { emittedLength } from '../../generate/core/arena-cli/serialize-token.ts';
-import { componentValue, slotChain, slotStem } from '../../generate/core/arena-cli/slots.ts';
+import { componentValue, expectedName, slotChain, slotStem } from '../../generate/core/arena-cli/slots.ts';
 import type { ColorSlot, SlotCatalogue } from '../../generate/core/arena-cli/slots.ts';
 import { COLOR_SLOTS, readColorSlots } from '../core/color-slots.ts';
 import type { DtcgNode } from '../core/dtcg-shapes.ts';
@@ -245,6 +245,14 @@ export function componentChannels(family: Family, root = repoRoot): Set<string> 
 
 type Compiler = { family: Family; catalogue: SlotCatalogue; owners: Owner[] };
 
+function withInk(catalogue: SlotCatalogue, slot: ColorSlot, name: string, value: string): string {
+  if (slot.property !== 'icon') return value;
+  const inkName = expectedName({ ...slot, property: 'ink', accepts: 'ink' });
+  const ink = catalogue.slots[inkName];
+  const target = /^\{([a-z][a-z0-9-]*)\}$/.exec((ink?.default ?? '').trim())?.[1];
+  return ink === undefined || target === undefined || !value.includes(`var(--${target},`) ? value : componentValue(value, ink, inkName);
+}
+
 function partWrites(k: Compiler, option: string, owner: Owner): Map<string, string> {
   const wrapper = slotsOf(k.catalogue, k.family, owner, option, true);
   const drawn = wrapper[0]?.[1].draws;
@@ -259,7 +267,7 @@ function partWrites(k: Compiler, option: string, owner: Owner): Map<string, stri
   const slots = drawn === undefined ? slotsOf(k.catalogue, k.family, owner, option, false) : wrapper;
   for (const [name, slot] of slots) {
     const base = writes.get(slot.channel as string);
-    writes.set(slot.channel as string, base === undefined ? slotChain(k.catalogue, name) : componentValue(base, slot, name));
+    writes.set(slot.channel as string, base === undefined ? slotChain(k.catalogue, name) : withInk(k.catalogue, slot, name, componentValue(base, slot, name)));
   }
   for (const state of ['disabled', 'selected-disabled'] as const) {
     const disabled = slots.find(([, slot]) => slot.state === state)?.[1];

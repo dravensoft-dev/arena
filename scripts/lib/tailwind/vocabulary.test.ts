@@ -304,3 +304,11 @@ test('a selected disabled slot wraps the selected fade with its own marker, besi
   assert.match(css, /--arena-emphasis-ink-selected-disabled: var\(--icon-button-ghost-root-ink-selected-disabled,var\(--emphasis-ghost-root-ink-selected-disabled,var\(--arena-emphasis-ink-selected\)\)\);/);
   assert.doesNotMatch(css, /--arena-emphasis-fade-selected-disabled: var\(--button-/);
 });
+
+test('the levelled rest icon channel wraps the component icon and ink slots inside the ink level', () => {
+  const css = emphasisSheet();
+  const inside = 'var(--button-ghost-root-icon-rest,var(--emphasis-ghost-root-icon-rest,var(--button-ghost-root-ink-rest,var(--emphasis-ghost-root-ink-rest,var(--emphasis-ghost-ink)))))';
+  assert.ok(css.includes(`--arena-emphasis-icon: color-mix(in oklab,${inside} var(--level-ink-body),transparent);`), 'the Button ghost icon');
+  assert.ok(css.includes('color-mix(in oklab,var(--icon-button-ghost-root-icon-rest,var(--emphasis-ghost-root-icon-rest,var(--icon-button-ghost-root-ink-rest,var(--emphasis-ghost-root-ink-rest,var(--emphasis-ghost-ink))))) var(--level-ink-body),transparent)'), 'the IconButton ghost icon');
+  assert.ok(css.includes('--arena-emphasis-icon: var(--button-primary-root-icon-rest,var(--emphasis-primary-root-icon-rest,var(--arena-emphasis-ink)));'), 'an unlevelled state ends in the resolved ink channel');
+});
