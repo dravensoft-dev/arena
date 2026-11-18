@@ -139,3 +139,37 @@ test('a plugin still filling the button with primary is measured, the palette pa
   ok.set('emphasis-solid-fill', 'var(--color-primary-fill)');
   assert.equal(slotReports(CATALOGUE.slots, new Map(), ok, colors, 'dark', LEVELS).some((one) => one.message.includes('-ink-rest measures')), false);
 });
+
+const paintedIn = (theme: string, answers: Map<string, string>) => {
+  const roles = rolesFor(null, CATALOGUE, theme);
+  const colors = coloursOf(theme);
+  return (name: string) => slotColour(CATALOGUE.slots, name, answers, roles, colors, LEVELS, mixOf(roles), colors['base-100'] as string);
+};
+
+test('an unlevelled destructive glyph paints as its ink, and a levelled ghost glyph takes its ink level once', () => {
+  const at = paintedIn('dark', new Map());
+  assert.equal(at('button-destructive-root-icon-rest'), at('button-destructive-root-ink-rest'));
+  assert.equal(at('split-button-destructive-caret-icon-rest'), at('split-button-destructive-caret-ink-rest'));
+  for (const name of ['emphasis-ghost-root', 'button-ghost-root', 'icon-button-ghost-root']) {
+    assert.equal(at(`${name}-icon-rest`), at(`${name}-ink-rest`), name);
+  }
+  const ink = paintedIn('dark', new Map([['button-ghost-root-ink-rest', 'var(--color-primary)']]));
+  assert.equal(ink('button-ghost-root-icon-rest'), ink('button-ghost-root-ink-rest'));
+  assert.notEqual(ink('button-ghost-root-ink-rest'), at('button-ghost-root-ink-rest'));
+  assert.notEqual(ink('button-ghost-root-ink-rest'), paintedIn('dark', new Map())('emphasis-ghost-root-ink-rest'));
+});
+
+test('a part reads its own answers through the channels its block writes, and a disabled glyph follows the disabled ink', () => {
+  const surface = 'var(--color-base-100)';
+  const rest = paintedIn('dark', new Map([['button-primary-root-fill-rest', surface]]));
+  for (const state of ['hover', 'disabled']) assert.equal(rest(`button-primary-root-fill-${state}`), rest('button-primary-root-fill-rest'), state);
+  assert.notEqual(rest('emphasis-primary-root-fill-hover'), rest('button-primary-root-fill-hover'));
+  const family = paintedIn('dark', new Map([['emphasis-primary-root-fill-disabled', surface]]));
+  assert.equal(family('button-primary-root-fill-disabled'), family('emphasis-primary-root-fill-disabled'));
+  const ink = paintedIn('dark', new Map([['button-primary-root-ink-disabled', 'var(--color-base-content)']]));
+  assert.equal(ink('button-primary-root-icon-disabled'), ink('button-primary-root-ink-disabled'));
+  assert.notEqual(ink('button-primary-root-icon-disabled'), ink('button-primary-root-icon-rest'));
+  const copy = paintedIn('dark', new Map([['icon-button-ghost-root-fill-rest', surface]]));
+  assert.equal(copy('copy-button-ghost-root-fill-disabled'), copy('icon-button-ghost-root-fill-rest'));
+  assert.notEqual(copy('emphasis-ghost-root-fill-disabled'), copy('icon-button-ghost-root-fill-rest'));
+});

@@ -209,8 +209,6 @@ export function answeringParts(
 
 const byOption = ([a]: [string, string], [b]: [string, string]) => (a < b ? -1 : a > b ? 1 : 0);
 
-const FADE = '--arena-emphasis-fade-disabled';
-
 type Owner = { manifest: ComponentManifest; slot: string; part: string; default: string; options: readonly string[] };
 
 function ownersOf(family: Family, manifests: ComponentManifest[]): Owner[] {
@@ -250,7 +248,10 @@ function withInk(catalogue: SlotCatalogue, slot: ColorSlot, name: string, value:
   const inkName = expectedName({ ...slot, property: 'ink', accepts: 'ink' });
   const ink = catalogue.slots[inkName];
   const target = /^\{([a-z][a-z0-9-]*)\}$/.exec((ink?.default ?? '').trim())?.[1];
-  return ink === undefined || target === undefined || !value.includes(`var(--${target},`) ? value : componentValue(value, ink, inkName);
+  if (ink !== undefined && target !== undefined && value.includes(`var(--${target},`)) return componentValue(value, ink, inkName);
+  if (ink?.channel !== undefined && new RegExp(`var\\(${ink.channel}\\s*[,)]`).test(value)) return value;
+  throw new Error(`vocabulary: ${slot.channel} of ${name} reaches neither --${target ?? inkName} nor the channel `
+    + `${ink?.channel ?? 'of ' + inkName}, so an answer to ${inkName} would not carry the glyph`);
 }
 
 function partWrites(k: Compiler, option: string, owner: Owner): Map<string, string> {

@@ -3,7 +3,9 @@
  * alpha; a level or a mix toward the ink makes the alpha, and the ground a caller names is what
  * a part with no fill, or a wash, stands on. A disabled and a selected-disabled slot is never a
  * pair (WCAG exempts an inactive control), and disabledReports only says when one is not told
- * from its rest. Imports nothing outside this directory, because the command ships it. */
+ * from its rest. A chain is read in the part that draws it: a channel read takes the part's own
+ * slot first and an answer sits inside the level its channel carries, as the emphasis sheet
+ * writes it. Imports nothing outside this directory, because the command ships it. */
 
 import { contrast } from './validate-palette.mjs';
 import { composite, mixOklab, oklabToHex, toOklab } from './oklab.ts';
@@ -63,21 +65,48 @@ function mixPaints(a: Resolved, b: Resolved, share: number): Resolved {
   return { hex: oklabToHex([0, 1, 2].map((i) => (la[i]! * wa + lb[i]! * wb) / alpha) as Triple), alpha };
 }
 
-function paint(ctx: Context, name: string, withLevel = true): Resolved {
+function inPart(ctx: Context, at: ColorSlot | undefined, target: string): string {
+  const family = ctx.catalogue.slots[target];
+  if (at === undefined || family?.scope !== 'family' || family.channel === undefined) return target;
+  for (let owner: ColorSlot | undefined = at; owner !== undefined;) {
+    const hit = Object.entries(ctx.catalogue.slots).find(([, s]) => s.scope === 'component' && s.component === owner!.component
+      && s.part === owner!.part && s.option === owner!.option && s.channel === family.channel);
+    if (hit) return hit[0];
+    const [component, drawn]: (string | undefined)[] = owner.draws?.split('.') ?? [];
+    owner = component === undefined ? undefined : { ...owner, component, part: drawn ?? '', draws: undefined };
+  }
+  return target;
+}
+
+function wrappedLevel(ctx: Context, slot: ColorSlot): string | undefined {
+  for (let at: ColorSlot | undefined = slot, hop = 0; at !== undefined && hop < 4; hop += 1) {
+    if (at.scope === 'family') return followsInk(ctx.catalogue, at) ? undefined : at.level;
+    if (at.option === 'destructive') return undefined;
+    const ref: string | undefined = REF.exec((at.default ?? '').trim())?.[1];
+    at = ref === undefined ? undefined : ctx.catalogue.slots[ref];
+  }
+  return undefined;
+}
+
+function paint(ctx: Context, name: string, withLevel = true, at?: ColorSlot): Resolved {
   const slot = ctx.catalogue.slots[name];
   if (!slot) return undefined;
+  const part = at ?? (slot.scope === 'component' && slot.channel !== undefined ? slot : undefined);
+  const read = (target: string, level = true) => paint(ctx, inPart(ctx, part, target), level, part);
   let base: Resolved;
+  let level = slot.level;
   if (ctx.answers.has(name)) {
     base = valueColour(ctx, ctx.answers.get(name));
+    if (slot.scope === 'component') level = wrappedLevel(ctx, slot);
   } else if (slot.derive) {
     const from = ctx.catalogue.slots[slot.derive.from];
-    base = paint(ctx, slot.derive.from);
+    base = read(slot.derive.from);
     if (slot.derive.mix && from) {
-      const ink = paint(ctx, expectedName({ ...from, property: 'ink' }));
+      const ink = read(expectedName({ ...from, property: 'ink' }));
       base = mixPaints(base, ink, ctx.mix[slot.derive.mix === 'mix-hover' ? 'hover' : 'pressed']);
     }
-  } else if (slot.optional) {
-    base = paint(ctx, expectedName({ ...slot, state: slot.state === 'selected-disabled' ? 'selected' : 'rest' }));
+  } else if (slot.optional && slot.default === undefined) {
+    base = read(expectedName({ ...slot, state: slot.state === 'selected-disabled' ? 'selected' : 'rest' }));
   } else {
     const text = (slot.default ?? '').trim();
     const ref = REF.exec(text)?.[1];
@@ -85,10 +114,12 @@ function paint(ctx: Context, name: string, withLevel = true): Resolved {
     if (text === 'transparent') base = null;
     else if (ref === undefined) base = undefined;
     else if (!target) base = valueColour(ctx, ctx.roles.get(ref));
-    else base = paint(ctx, ref, owner(target) !== owner(slot) || followsInk(ctx.catalogue, slot));
+    else if (followsInk(ctx.catalogue, slot)) base = read(ref);
+    else if (owner(target) === owner(slot)) base = paint(ctx, inPart(ctx, part, ref), false, part);
+    else base = paint(ctx, ref, slot.scope === 'component' ? withLevel : true, part);
   }
-  if (!slot.level || !withLevel || !base || followsInk(ctx.catalogue, slot)) return base;
-  const percent = ctx.levels[slot.level];
+  if (!level || !withLevel || !base || followsInk(ctx.catalogue, slot)) return base;
+  const percent = ctx.levels[level];
   return percent === undefined ? undefined : { hex: base.hex, alpha: base.alpha * (percent / 100) };
 }
 

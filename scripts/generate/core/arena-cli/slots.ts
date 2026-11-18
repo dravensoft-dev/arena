@@ -118,7 +118,7 @@ function fall(catalogue: SlotCatalogue, name: string, slot: ColorSlot): string {
     const base = read(catalogue, slot.derive.from);
     return slot.derive.mix ? `color-mix(in_oklab,${base},${inkOf(catalogue, from, name)}_calc(var(--${slot.derive.mix})*100%))` : base;
   }
-  if (slot.optional) {
+  if (slot.optional && slot.default === undefined) {
     const restName = expectedName({ ...slot, state: slot.state === 'selected-disabled' ? 'selected' : 'rest' });
     return read(catalogue, restName);
   }

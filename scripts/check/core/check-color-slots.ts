@@ -138,10 +138,14 @@ export function defaultProblems(c: SlotCatalogue, roles: ReadonlySet<string>): s
 export function fallbackProblems(c: SlotCatalogue): string[] {
   const out: string[] = [];
   for (const [name, s] of entries(c)) {
-    if (s.default === undefined) continue;
+    const iconRule = s.property === 'icon' && (s.scope === 'family' || s.option === 'destructive');
+    if (s.default === undefined) {
+      if (iconRule) out.push(`${name}: an icon slot falls to the ink slot of its own part and state, and this one names no default`);
+      continue;
+    }
     const want = (target: string) => { if (s.default !== `{${target}}`) out.push(`${name}: it falls to ${s.default} and must fall to ${target}`); };
     const own = (property: string) => expectedName({ ...s, property: property as ColorSlot['property'], accepts: property as ColorSlot['property'] });
-    if (s.property === 'icon' && (s.scope === 'family' || s.option === 'destructive')) {
+    if (iconRule) {
       want(own('ink'));
       const ink = c.slots[own('ink')];
       if (ink?.level !== s.level) out.push(`${name}: it carries level ${s.level ?? 'none'} and its ink slot carries ${ink?.level ?? 'none'}`);

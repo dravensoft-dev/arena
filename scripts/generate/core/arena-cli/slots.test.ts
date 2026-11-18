@@ -94,3 +94,14 @@ test('a selected disabled slot falls to the selected channel and writes its own 
   assert.deepEqual(fadeMarkers(['icon-button-ghost-root-ink-disabled', 'icon-button-ghost-root-ink-selected-disabled', 'icon-button-ghost-root-fill-selected-disabled'], c),
     [['--icon-button-ghost-root-fade-disabled', '1'], ['--icon-button-ghost-root-fade-selected-disabled', '1']]);
 });
+
+test('a disabled icon falls to the ink of its own state, and an optional slot with a default follows it', () => {
+  assert.equal(channelValue(c, 'emphasis-primary-root-icon-disabled', 'tailwind'),
+    'var(--emphasis-primary-root-icon-disabled,var(--arena-emphasis-ink-disabled))');
+  assert.equal(channelValue(c, 'emphasis-solid-root-icon-selected-disabled', 'tailwind'),
+    'var(--emphasis-solid-root-icon-selected-disabled,var(--arena-emphasis-ink-selected-disabled))');
+  assert.equal(slotChain(c, 'button-destructive-root-icon-disabled'),
+    'var(--button-destructive-root-icon-disabled,var(--button-destructive-root-ink-disabled,var(--button-destructive-root-ink-rest,var(--arena-hue-ink))))');
+  assert.equal(slotChain(c, 'button-primary-root-fill-disabled'),
+    'var(--button-primary-root-fill-disabled,var(--arena-emphasis-fill-disabled))');
+});

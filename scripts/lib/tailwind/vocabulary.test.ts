@@ -312,3 +312,14 @@ test('the levelled rest icon channel wraps the component icon and ink slots insi
   assert.ok(css.includes('color-mix(in oklab,var(--icon-button-ghost-root-icon-rest,var(--emphasis-ghost-root-icon-rest,var(--icon-button-ghost-root-ink-rest,var(--emphasis-ghost-root-ink-rest,var(--emphasis-ghost-ink))))) var(--level-ink-body),transparent)'), 'the IconButton ghost icon');
   assert.ok(css.includes('--arena-emphasis-icon: var(--button-primary-root-icon-rest,var(--emphasis-primary-root-icon-rest,var(--arena-emphasis-ink)));'), 'an unlevelled state ends in the resolved ink channel');
 });
+
+test('a disabled icon channel carries a component ink answer of its state, and an icon that reaches no ink throws naming its channel', () => {
+  const css = emphasisSheet();
+  assert.ok(css.includes('--arena-emphasis-icon-disabled: var(--button-primary-root-icon-disabled,var(--emphasis-primary-root-icon-disabled,var(--arena-emphasis-ink-disabled)));'));
+  assert.ok(css.includes('--arena-emphasis-ink-disabled: var(--button-primary-root-ink-disabled,var(--emphasis-primary-root-ink-disabled,var(--arena-emphasis-ink)));'));
+  const family = structuredClone(readFamilies().get('emphasis') as Family);
+  family.variants['arena-emphasis-primary'] = (family.variants['arena-emphasis-primary'] ?? '')
+    .replace('var(--emphasis-primary-root-icon-disabled,var(--arena-emphasis-ink-disabled))', 'var(--emphasis-primary-root-icon-disabled,var(--arena-emphasis-icon))');
+  assert.throws(() => compileFamily(family, [...layerManifests().values()]),
+    /--arena-emphasis-icon-disabled of button-primary-root-icon-disabled reaches neither --emphasis-primary-root-ink-disabled nor the channel --arena-emphasis-ink-disabled/);
+});

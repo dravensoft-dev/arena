@@ -210,3 +210,17 @@ test('an icon slot falls to the ink slot of its own part and state, in every sta
   const back = edit((x) => { delete x.slots['emphasis-ghost-root-icon-hover']!.derive; x.slots['emphasis-ghost-root-icon-hover']!.default = '{emphasis-ghost-root-icon-rest}'; });
   assert.equal(fallbackProblems(back).length, 1);
 });
+
+test('a disabled and a selected disabled icon slot fall to the ink of their own state, and keep optional', () => {
+  const c = shipped();
+  for (const [icon, ink] of [['emphasis-ghost-root-icon-disabled', 'emphasis-ghost-root-ink-disabled'],
+    ['emphasis-ghost-root-icon-selected-disabled', 'emphasis-ghost-root-ink-selected-disabled'],
+    ['button-destructive-root-icon-disabled', 'button-destructive-root-ink-disabled']] as const) {
+    assert.equal(c.slots[icon]!.optional, true);
+    assert.equal(c.slots[icon]!.default, `{${ink}}`);
+  }
+  const rest = edit((x) => { x.slots['emphasis-ghost-root-icon-disabled']!.default = '{emphasis-ghost-root-ink-rest}'; });
+  assert.deepEqual(fallbackProblems(rest), ['emphasis-ghost-root-icon-disabled: it falls to {emphasis-ghost-root-ink-rest} and must fall to emphasis-ghost-root-ink-disabled']);
+  const none = edit((x) => { delete x.slots['emphasis-ghost-root-icon-selected-disabled']!.default; });
+  assert.deepEqual(fallbackProblems(none), ['emphasis-ghost-root-icon-selected-disabled: an icon slot falls to the ink slot of its own part and state, and this one names no default']);
+});
