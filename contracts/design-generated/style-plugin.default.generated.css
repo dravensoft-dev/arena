@@ -270,6 +270,20 @@
   --accent-gold-side-edge:var(--color-secondary);
   --elevation-flat-shadow:0px 0px 0px 0px rgba(0,0,0,0);
   --elevation-floating-shadow:0px 12px 28px -12px rgba(0,0,0,.6);
+  --emphasis-primary-root-fill-pressed:var(--emphasis-primary-fill); /* The primary fill is the darkest red the palette carries, so a press keeps the fill and moves by the press scale: mixing it toward its ink would lighten it until the label falls under 4.5:1. */
+  --emphasis-solid-root-fill-pressed:var(--emphasis-solid-fill); /* The solid fill is the darkest red the palette carries, so a press keeps the fill and moves by the press scale: mixing it toward its ink would lighten it until the label falls under 4.5:1. */
+  --button-destructive-root-fill-hover:var(--hue-danger-fill-soft); /* A destructive button fills with the danger hue under the pointer, so the control reads as the destructive action it is while the pointer is on it. */
+  --button-destructive-root-fill-pressed:var(--hue-danger-fill-soft); /* A destructive button fills with the danger hue when pressed, so the control reads as the destructive action it is while the pointer is on it. */
+  --button-destructive-root-ink-hover:var(--hue-danger-on-ink); /* A destructive button sets its label in the content colour of the danger hue under the pointer, because the label stands on that fill. */
+  --button-destructive-root-ink-pressed:var(--hue-danger-on-ink); /* A destructive button sets its label in the content colour of the danger hue when pressed, because the label stands on that fill. */
+  --split-button-destructive-primary-fill-hover:var(--hue-danger-fill-soft); /* The primary half of a destructive split button fills with the danger hue under the pointer, so the control reads as the destructive action it is while the pointer is on it. */
+  --split-button-destructive-primary-fill-pressed:var(--hue-danger-fill-soft); /* The primary half of a destructive split button fills with the danger hue when pressed, so the control reads as the destructive action it is while the pointer is on it. */
+  --split-button-destructive-primary-ink-hover:var(--hue-danger-on-ink); /* The primary half of a destructive split button sets its label in the content colour of the danger hue under the pointer, because the label stands on that fill. */
+  --split-button-destructive-primary-ink-pressed:var(--hue-danger-on-ink); /* The primary half of a destructive split button sets its label in the content colour of the danger hue when pressed, because the label stands on that fill. */
+  --split-button-destructive-caret-fill-hover:var(--hue-danger-fill-soft); /* The caret half of a destructive split button fills with the danger hue under the pointer, so the control reads as the destructive action it is while the pointer is on it. */
+  --split-button-destructive-caret-fill-pressed:var(--hue-danger-fill-soft); /* The caret half of a destructive split button fills with the danger hue when pressed, so the control reads as the destructive action it is while the pointer is on it. */
+  --split-button-destructive-caret-ink-hover:var(--hue-danger-on-ink); /* The caret half of a destructive split button sets its label in the content colour of the danger hue under the pointer, because the label stands on that fill. */
+  --split-button-destructive-caret-ink-pressed:var(--hue-danger-on-ink); /* The caret half of a destructive split button sets its label in the content colour of the danger hue when pressed, because the label stands on that fill. */
 }
 .arena-dark{
   --overlay-media:var(--color-base-100);
@@ -349,6 +363,20 @@
   --accent-primary-edge:var(--color-primary);
   --accent-plain-side-edge:var(--color-neutral);
   --accent-gold-side-edge:var(--color-secondary);
+  --emphasis-primary-root-fill-pressed:var(--emphasis-primary-fill); /* The primary fill is the darkest red the palette carries, so a press keeps the fill and moves by the press scale: mixing it toward its ink would lighten it until the label falls under 4.5:1. */
+  --emphasis-solid-root-fill-pressed:var(--emphasis-solid-fill); /* The solid fill is the darkest red the palette carries, so a press keeps the fill and moves by the press scale: mixing it toward its ink would lighten it until the label falls under 4.5:1. */
+  --button-destructive-root-fill-hover:var(--hue-danger-fill-soft); /* A destructive button fills with the danger hue under the pointer, so the control reads as the destructive action it is while the pointer is on it. */
+  --button-destructive-root-fill-pressed:var(--hue-danger-fill-soft); /* A destructive button fills with the danger hue when pressed, so the control reads as the destructive action it is while the pointer is on it. */
+  --button-destructive-root-ink-hover:var(--hue-danger-on-ink); /* A destructive button sets its label in the content colour of the danger hue under the pointer, because the label stands on that fill. */
+  --button-destructive-root-ink-pressed:var(--hue-danger-on-ink); /* A destructive button sets its label in the content colour of the danger hue when pressed, because the label stands on that fill. */
+  --split-button-destructive-primary-fill-hover:var(--hue-danger-fill-soft); /* The primary half of a destructive split button fills with the danger hue under the pointer, so the control reads as the destructive action it is while the pointer is on it. */
+  --split-button-destructive-primary-fill-pressed:var(--hue-danger-fill-soft); /* The primary half of a destructive split button fills with the danger hue when pressed, so the control reads as the destructive action it is while the pointer is on it. */
+  --split-button-destructive-primary-ink-hover:var(--hue-danger-on-ink); /* The primary half of a destructive split button sets its label in the content colour of the danger hue under the pointer, because the label stands on that fill. */
+  --split-button-destructive-primary-ink-pressed:var(--hue-danger-on-ink); /* The primary half of a destructive split button sets its label in the content colour of the danger hue when pressed, because the label stands on that fill. */
+  --split-button-destructive-caret-fill-hover:var(--hue-danger-fill-soft); /* The caret half of a destructive split button fills with the danger hue under the pointer, so the control reads as the destructive action it is while the pointer is on it. */
+  --split-button-destructive-caret-fill-pressed:var(--hue-danger-fill-soft); /* The caret half of a destructive split button fills with the danger hue when pressed, so the control reads as the destructive action it is while the pointer is on it. */
+  --split-button-destructive-caret-ink-hover:var(--hue-danger-on-ink); /* The caret half of a destructive split button sets its label in the content colour of the danger hue under the pointer, because the label stands on that fill. */
+  --split-button-destructive-caret-ink-pressed:var(--hue-danger-on-ink); /* The caret half of a destructive split button sets its label in the content colour of the danger hue when pressed, because the label stands on that fill. */
 }
 .arena-light{
   --overlay-media:var(--color-base-100);
@@ -428,6 +456,20 @@
   --accent-primary-edge:var(--color-primary);
   --accent-plain-side-edge:var(--color-neutral);
   --accent-gold-side-edge:var(--color-secondary);
+  --emphasis-primary-root-fill-pressed:var(--emphasis-primary-fill); /* The primary fill is the darkest red the palette carries, so a press keeps the fill and moves by the press scale: mixing it toward its ink would lighten it until the label falls under 4.5:1. */
+  --emphasis-solid-root-fill-pressed:var(--emphasis-solid-fill); /* The solid fill is the darkest red the palette carries, so a press keeps the fill and moves by the press scale: mixing it toward its ink would lighten it until the label falls under 4.5:1. */
+  --button-destructive-root-fill-hover:var(--hue-danger-fill-soft); /* A destructive button fills with the danger hue under the pointer, so the control reads as the destructive action it is while the pointer is on it. */
+  --button-destructive-root-fill-pressed:var(--hue-danger-fill-soft); /* A destructive button fills with the danger hue when pressed, so the control reads as the destructive action it is while the pointer is on it. */
+  --button-destructive-root-ink-hover:var(--hue-danger-on-ink); /* A destructive button sets its label in the content colour of the danger hue under the pointer, because the label stands on that fill. */
+  --button-destructive-root-ink-pressed:var(--hue-danger-on-ink); /* A destructive button sets its label in the content colour of the danger hue when pressed, because the label stands on that fill. */
+  --split-button-destructive-primary-fill-hover:var(--hue-danger-fill-soft); /* The primary half of a destructive split button fills with the danger hue under the pointer, so the control reads as the destructive action it is while the pointer is on it. */
+  --split-button-destructive-primary-fill-pressed:var(--hue-danger-fill-soft); /* The primary half of a destructive split button fills with the danger hue when pressed, so the control reads as the destructive action it is while the pointer is on it. */
+  --split-button-destructive-primary-ink-hover:var(--hue-danger-on-ink); /* The primary half of a destructive split button sets its label in the content colour of the danger hue under the pointer, because the label stands on that fill. */
+  --split-button-destructive-primary-ink-pressed:var(--hue-danger-on-ink); /* The primary half of a destructive split button sets its label in the content colour of the danger hue when pressed, because the label stands on that fill. */
+  --split-button-destructive-caret-fill-hover:var(--hue-danger-fill-soft); /* The caret half of a destructive split button fills with the danger hue under the pointer, so the control reads as the destructive action it is while the pointer is on it. */
+  --split-button-destructive-caret-fill-pressed:var(--hue-danger-fill-soft); /* The caret half of a destructive split button fills with the danger hue when pressed, so the control reads as the destructive action it is while the pointer is on it. */
+  --split-button-destructive-caret-ink-hover:var(--hue-danger-on-ink); /* The caret half of a destructive split button sets its label in the content colour of the danger hue under the pointer, because the label stands on that fill. */
+  --split-button-destructive-caret-ink-pressed:var(--hue-danger-on-ink); /* The caret half of a destructive split button sets its label in the content colour of the danger hue when pressed, because the label stands on that fill. */
 }
 .arena-light{
   --edge-focus:var(--color-base-content);

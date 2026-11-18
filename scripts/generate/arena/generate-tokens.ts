@@ -101,9 +101,13 @@ export function aliasOf(token: DtcgToken) {
   return ALIAS.exec(authored.trim())?.[1]?.trim() ?? null;
 }
 
+const answersColourRole = (token: DtcgToken, alias: string) => readColorSlots().slots[emittedName(token as StampedToken)] !== undefined
+  && !alias.includes('.') && (axisSourcesOnce().roles[alias] as DtcgNode | undefined)?.$type === 'color';
+
 export function scopesRedeclaring(token: DtcgToken) {
   const alias = aliasOf(token);
   if (!alias) return [];
+  if (answersColourRole(token, alias)) return REDECLARED_GROUPS.get('color') ?? [];
   return REDECLARED_GROUPS.get(alias.split('.')[0] ?? '') ?? [];
 }
 
@@ -320,8 +324,7 @@ function render(token: StampedToken) {
   const axis = axisOf(token, roles, axes);
   const name = emittedName(token);
   const answered = aliasOf(token);
-  const roleOf = readColorSlots().slots[name] && answered !== null && !answered.includes('.')
-    && (roles[answered] as DtcgNode | undefined)?.$type === 'color' ? `var(--${answered})` : null;
+  const roleOf = answered !== null && answersColourRole(token, answered) ? `var(--${answered})` : null;
   const decl = `  --${name}:${roleOf ?? referenceOf(token) ?? serialize(token, { axis })};`;
   const d = token.$description;
   if (!d) return decl;

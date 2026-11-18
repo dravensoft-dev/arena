@@ -15,12 +15,12 @@ import { walkFiles } from '../../utils/walk-files.ts';
 import { HUE_SHEETS } from '../../lib/tailwind/hue-sheet.ts';
 import { PALETTE_KEYS } from '../../generate/core/arena-cli/palette-keys.ts';
 import {
-  derivedLevels, drawnBy, emphasisReports, inlineHues, levelDefaults, levelReports, levelsIn, paletteKey, raisedReports,
+  derivedLevels, drawnBy, inlineHues, levelDefaults, levelReports, levelsIn, paletteKey, raisedReports,
   STATE_PAIRS, STATUS_HUES, stateReports as measureStates, washesIn, washReports,
 } from '../../generate/core/arena-cli/levels.ts';
 import { ARENA_EXT } from '../../generate/core/arena-cli/style-plugin-rules.ts';
 import { CATALOGUE, entries } from './check-catalogue.ts';
-import { rolesFor, paletteMessages, readPlugin, resolvedPlugin } from '../../generate/core/arena-cli/theme-css.ts';
+import { derivedColours, rolesFor, paletteMessages, readPlugin, resolvedPlugin, slotMessages } from '../../generate/core/arena-cli/theme-css.ts';
 import { tokenCatalogue } from '../../lib/arena/package-assembly.ts';
 import {
   composite, darkenOklab, errorFill, FILL_FALLBACK_KEEP,
@@ -233,14 +233,29 @@ export function stateReports(prefix: string, scopes = contrastScopes(), at = roo
   return stateLines(prefix, scopes, at).filter((one) => !one.judged).map((one) => one.line);
 }
 
+export const DEFAULT_PLUGIN = 'plugin-style-store/default/plugin.tokens.json';
+
 export function defaultBuildProblems(at = root) {
   const catalogue = tokenCatalogue(at);
   const palette = readFileSync(join(at, PALETTE), 'utf8');
+  const plugin = readPlugin('default', JSON.parse(readFileSync(join(at, DEFAULT_PLUGIN), 'utf8')));
+  const levels = levelDefaults(readFileSync(join(at, COLORS), 'utf8'));
   return THEMES.flatMap((theme) => {
     const colors = paletteColours(block(palette, theme.selector, PALETTE));
-    return paletteMessages({ polarity: theme.name, colors }, rolesFor(null, catalogue, theme.name), [], [])
+    return paletteMessages({ polarity: theme.name, colors }, rolesFor(plugin, catalogue, theme.name), [], [], { catalogue: catalogue.slots, levels })
       .filter((one) => one.kind === 'contrast' || one.kind === 'heat')
       .map((one) => `${theme.name}: ${one.message}`);
+  });
+}
+
+export function slotReportLines(scopes = contrastScopes(), at = root) {
+  const catalogue = tokenCatalogue(at);
+  const levels = levelDefaults(readFileSync(join(at, COLORS), 'utf8'));
+  return scopes.filter((scope) => !scope.judged).flatMap(({ where, theme, colors }) => {
+    const plugin = readPlugin(where, JSON.parse(readFileSync(join(at, where), 'utf8')));
+    const roles = rolesFor(plugin, catalogue, theme);
+    return slotMessages({ catalogue: catalogue.slots, levels }, roles, derivedColours(colors, theme), theme, [])
+      .map((one) => `${where} (${theme}): ${one.message}`);
   });
 }
 
@@ -436,10 +451,6 @@ function main() {
         const detail = ratio === null ? 'a role that names no palette colour' : `${onInk} on ${ink}  ${ratio.toFixed(2)}:1`;
         console.log(`  [${failed ? (name ? 'REPORT' : 'FAIL') : 'PASS'}] --hue-${hue}-on-ink over --hue-${hue}-ink  ${detail}  gate ${ON_INK_GATE}:1`);
       }
-      const emphasis = emphasisReports(resolvedFor(effects, name, t.name), paletteColours(body), t.name);
-      if (emphasis.length && !name) ok = false;
-      for (const one of emphasis) console.log(`  [${name ? 'REPORT' : 'FAIL'}] ${one.message}`);
-      if (!emphasis.length) console.log('  [PASS] a filled button\'s ink over its fill, primary and solid');
     }
 
     const errHex = tryHex(body, 'color-error');
@@ -468,6 +479,11 @@ function main() {
   for (const one of built) console.log(`  [FAIL] ${one}`);
   if (built.length) ok = false;
   else console.log('  [PASS] arena check reports nothing over the default plugin');
+
+  const slotLines = slotReportLines();
+  console.log('\ncomplete and the catalogue: every slot pair, in every state of every palette, measured and reported');
+  for (const one of slotLines) console.log(`  [REPORT] ${one}`);
+  if (slotLines.length === 0) console.log('  [PASS] every slot pair of complete and of the catalogue clears its bar');
 
   console.log('\nthe catalogue as arena check measures it: every pair of every palette of every entry, reported and passed');
   for (const one of catalogueReports()) console.log(`  [REPORT] ${one}`);

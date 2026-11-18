@@ -271,3 +271,19 @@ test('a root plugin may answer a keyword role with a word alias and a colour rol
   assert.match(written, /--tt-key:none;/);
   assert.match(written, /--ink-key:var\(--ink-eyebrow\);/);
 });
+
+test('an adopter\'s pressed pair below AA is a report and the build exits 0', async () => {
+  const { core } = phosphor();
+  const catalogue = tokenCatalogue();
+  const key = /--color-([\w-]+)/.exec(catalogue.tokens['fill-confirm-final'] ?? '')?.[1] as string;
+  const palette = { ...readable.palettes[0]!, colors: { ...readable.palettes[0]!.colors, [key]: '#8a8a8a', 'primary-content': '#ffffff' } };
+  const root = project({ ...readable, palettes: [palette], stylePlugins: ['default', './design/mine'] });
+  mkdirSync(join(root, 'design', 'mine'), { recursive: true });
+  writeFileSync(join(root, 'design', 'mine', 'plugin.tokens.json'),
+    JSON.stringify({ 'button-primary-root-fill-pressed': { $value: '{fill-confirm-final}', $type: 'color' } }));
+  writeFileSync(join(root, 'design', 'mine', 'plugin.css'), '.x { color: red }\n');
+  const sheets = { ...CATALOGUED, catalogue };
+  const { io, err } = captureIo(root, { ...environment(core), sheets, arena: packageStub(sheets) });
+  assert.equal(await run(flags(root), io), 0, err.join('\n'));
+  assert.ok(err.some((line) => /\d+ report\(s\): arena check names them$/.test(line)), err.join('\n'));
+});

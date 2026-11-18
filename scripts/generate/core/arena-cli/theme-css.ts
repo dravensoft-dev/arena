@@ -19,7 +19,7 @@ import {
 } from './style-plugin-rules.ts';
 import { scaledLiteral, serialize } from './serialize-token.ts';
 import { HEAT_MIN_DL, errorFill, heatCramped, heatLadder, toOklab } from './oklab.ts';
-import { axisReports, derivedLevels, emphasisReports, levelReports, onInkReports, raisedReports, stateReports, washReports } from './levels.ts';
+import { axisReports, derivedLevels, levelReports, onInkReports, raisedReports, stateReports, washReports } from './levels.ts';
 import type { Level, Wash } from './levels.ts';
 import { unicodeRange } from './font-cut.ts';
 import { report } from './report.ts';
@@ -27,6 +27,7 @@ import type { Report } from './report.ts';
 import type { SerializableToken } from './serialize-token.ts';
 import { colourNamesOf, fadeMarkers, slotAnswer, slotProblem } from './slots.ts';
 import type { SlotCatalogue } from './slots.ts';
+import { disabledReports, slotReports } from './slot-contrast.ts';
 
 export type TokenCatalogue = {
   tokens: Record<string, string>;
@@ -638,9 +639,18 @@ export function polarityReports(polarity: string, ground: string | undefined): R
   return reads === polarity ? [] : [report('contrast', `polarity, base-100 ${ground} reads as ${reads}, and the palette declares ${polarity}`)];
 }
 
+export function slotMessages(
+  slots: { catalogue: SlotCatalogue; levels?: Record<string, number> }, roles: Map<string, string>,
+  colors: Record<string, string>, theme: string, levels: Level[],
+) {
+  const answers = new Map([...roles].filter(([name]) => Object.hasOwn(slots.catalogue.slots, name)));
+  const percents = { ...Object.fromEntries(levels.filter((one) => one.level !== null).map((one) => [one.level as string, one.percent])), ...slots.levels };
+  return [...slotReports(slots.catalogue, answers, roles, colors, theme, percents), ...disabledReports(slots.catalogue, answers, roles, colors, theme, percents)];
+}
+
 export function paletteMessages(
   palette: { polarity: string; colors: Record<string, string> }, roles: Map<string, string>,
-  levels: Level[], washes: Wash[],
+  levels: Level[], washes: Wash[], slots: { catalogue: SlotCatalogue; levels?: Record<string, number> } | null = null,
 ) {
   const mode = palette.polarity;
   const colors = derivedColours(palette.colors, mode);
@@ -675,7 +685,8 @@ export function paletteMessages(
     }
   }
 
-  messages.push(...axisReports(roles, colors, mode), ...onInkReports(roles, colors, mode), ...emphasisReports(roles, colors, mode), ...stateReports(roles, colors, mode));
+  messages.push(...axisReports(roles, colors, mode), ...onInkReports(roles, colors, mode), ...stateReports(roles, colors, mode));
+  if (slots) messages.push(...slotMessages(slots, roles, colors, mode, levels));
 
   const derived = derivedLevels(levels, roles, colors);
   messages.push(...levelReports(levels, roles, colors, derived));
@@ -691,7 +702,7 @@ export function paletteReports(
   const root = (plugins ?? [])[0] ?? null;
   const out = [];
   for (const palette of config.palettes) {
-    const messages = paletteMessages(palette, rolesFor(root, catalogue, palette.polarity), levels, washes);
+    const messages = paletteMessages(palette, rolesFor(root, catalogue, palette.polarity), levels, washes, catalogue?.slots ? { catalogue: catalogue.slots } : null);
     if (messages.length) out.push({ palette: palette.name, messages });
   }
   return out;
@@ -886,6 +897,7 @@ export type ArenaRuntimeDataShape = {
   levels: Level[];
   washes: Wash[];
   roles: { dark: Record<string, string>; light: Record<string, string> };
+  slots: SlotCatalogue | null;
 };
 
 export function runtimeData(config: CheckedConfig, sheets: PackageSheets, plugins: ResolvedPlugins): ArenaRuntimeDataShape {
@@ -899,6 +911,7 @@ export function runtimeData(config: CheckedConfig, sheets: PackageSheets, plugin
     levels: sheets?.levels ?? [],
     washes: sheets?.washes ?? [],
     roles: { dark: rolesIn('dark'), light: rolesIn('light') },
+    slots: catalogue?.slots ?? null,
   };
 }
 

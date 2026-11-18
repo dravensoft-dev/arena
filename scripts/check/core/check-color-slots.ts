@@ -17,6 +17,7 @@ import {
   SLOT_PROPERTIES, SLOT_STATES, acceptedRole, channelValue, expectedName, glob, slotChain,
 } from '../../generate/core/arena-cli/slots.ts';
 import type { ColorSlot, SlotCatalogue } from '../../generate/core/arena-cli/slots.ts';
+import { slotPairs } from '../../generate/core/arena-cli/slot-contrast.ts';
 
 export const node = {
   name: 'check:color-slots',
@@ -97,7 +98,7 @@ export function defaultProblems(c: SlotCatalogue, roles: ReadonlySet<string>): s
     if (s.state === 'rest') {
       if (s.default === undefined || s.derive !== undefined || s.optional === true) out.push(`${name}: a rest slot carries a default and nothing else`);
     } else if (answered > 1 || (answered === 0 && s.optional !== true) || (s.derive !== undefined && s.optional === true)) {
-      out.push(`${name}: a ${s.state} slot carries exactly one of a default or a derive, or is optional with neither; only a disabled slot may be optional beside its default`);
+      out.push(`${name}: a ${s.state} slot carries exactly one of a default or a derive, or is optional with neither; only a disabled or selected-disabled slot may be optional`);
     }
     if (s.optional && s.state !== 'disabled' && s.state !== 'selected-disabled') out.push(`${name}: optional is for a disabled or selected-disabled slot only`);
     if (s.optional) {
@@ -140,7 +141,7 @@ export function fallbackProblems(c: SlotCatalogue): string[] {
     if (s.default === undefined) continue;
     const want = (target: string) => { if (s.default !== `{${target}}`) out.push(`${name}: it falls to ${s.default} and must fall to ${target}`); };
     const own = (property: string) => expectedName({ ...s, property: property as ColorSlot['property'], accepts: property as ColorSlot['property'] });
-    if (s.property === 'icon' && (s.state === 'rest' || s.state === 'selected') && (s.scope === 'family' || s.option === 'destructive')) {
+    if (s.property === 'icon' && (s.scope === 'family' || s.option === 'destructive')) {
       want(own('ink'));
       const ink = c.slots[own('ink')];
       if (ink?.level !== s.level) out.push(`${name}: it carries level ${s.level ?? 'none'} and its ink slot carries ${ink?.level ?? 'none'}`);
@@ -228,12 +229,14 @@ export function ringProblems(c: SlotCatalogue, manifests: Manifests): string[] {
     const text = manifests.get(s.component ?? '')?.slots?.[s.part as never] as unknown;
     if (typeof text === 'string' && text.includes('focus-visible:outline')) focusable.add(`${s.component}.${s.part}`);
   }
+  const measured = new Set(slotPairs(c).filter((pair) => pair.slot === 'edge-focus').map((pair) => pair.over));
   for (const key of focusable) {
     if (!(key in c.rings)) out.push(`${key} is focusable and carries colour slots, and rings does not say what its focus ring sits on`);
   }
   for (const [key, on] of Object.entries(c.rings)) {
     if (!focusable.has(key)) out.push(`rings names ${key}, which is no focusable part with colour slots`);
     else if (on !== 'ground' && c.slots[on]?.property !== 'fill') out.push(`rings.${key} is ${on}, which is neither ground nor a fill slot`);
+    else if (on !== 'ground' && !measured.has(on)) out.push(`rings.${key} is ${on}, a fill the focus ring is never measured over: a disabled state is no pair`);
   }
   return out;
 }

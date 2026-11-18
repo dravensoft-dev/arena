@@ -109,6 +109,13 @@ test('a focusable slotted part declares its ring', () => {
   assert.equal(ringProblems(edit((x) => { x.rings['ArenaButton.root'] = 'button-primary-root-fill-nothing'; }), manifests).length, 1);
 });
 
+test('a ring that names a fill is measured over each of its states, and a disabled fill is no ground', () => {
+  assert.deepEqual(ringProblems(edit((x) => { x.rings['ArenaButton.root'] = 'button-primary-root-fill-rest'; }), manifests), []);
+  const disabled = ringProblems(edit((x) => { x.rings['ArenaButton.root'] = 'button-primary-root-fill-disabled'; }), manifests);
+  assert.equal(disabled.length, 1);
+  assert.match(disabled[0] ?? '', /rings\.ArenaButton\.root is button-primary-root-fill-disabled, a fill the focus ring is never measured over/);
+});
+
 test('a slot on a part or option its manifest lacks is refused', () => {
   const c = edit((x) => { x.slots['button-primary-root-fill-rest']!.option = 'solid'; });
   assert.ok(manifestProblems(c, manifests).some((l) => /solid/.test(l)));
@@ -192,4 +199,14 @@ test('a selected disabled slot is optional, falls to selected, and is read under
   assert.match(lines[0] ?? '', /ArenaIconButton\.root.*--arena-emphasis-ink-selected-disabled.*disabled:/);
   const orphan = edit((x) => { delete x.slots['emphasis-ghost-root-ink-selected']; });
   assert.ok(shapeProblems(orphan).concat(defaultProblems(orphan, roles)).some((l) => /emphasis-ghost-root-ink-selected-disabled.*falls to emphasis-ghost-root-ink-selected/.test(l)));
+});
+
+test('an icon slot falls to the ink slot of its own part and state, in every state', () => {
+  assert.deepEqual(fallbackProblems(shipped()), []);
+  const c = shipped();
+  assert.equal(c.slots['emphasis-ghost-root-icon-hover']!.default, '{emphasis-ghost-root-ink-hover}');
+  assert.equal(c.slots['button-destructive-root-icon-pressed']!.default, '{button-destructive-root-ink-pressed}');
+  assert.equal(c.slots['emphasis-solid-root-icon-selected-pressed']!.default, '{emphasis-solid-root-ink-selected-pressed}');
+  const back = edit((x) => { delete x.slots['emphasis-ghost-root-icon-hover']!.derive; x.slots['emphasis-ghost-root-icon-hover']!.default = '{emphasis-ghost-root-icon-rest}'; });
+  assert.equal(fallbackProblems(back).length, 1);
 });

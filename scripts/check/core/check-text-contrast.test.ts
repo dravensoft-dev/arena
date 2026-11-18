@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
   COLORS, COMPONENT_SHEETS, ON_INK_GATE, PAIRS, PALETTE, REMOVED, ROLE_SHEETS, SCOPED_PLUGINS, VOCABULARY_SHEETS,
-  answeredColour, answeredKey, catalogueOnInk, catalogueReports, stateProblems, stateReports, defaultBuildProblems, JUDGED, componentSheets, onInkPairs, paletteColours, resolvePercent, scopesToMeasure, structureOf, surfacesUnder, THEMES,
+  answeredColour, answeredKey, catalogueOnInk, catalogueReports, contrastScopes, slotReportLines, stateProblems, stateReports, defaultBuildProblems, JUDGED, componentSheets, onInkPairs, paletteColours, resolvePercent, scopesToMeasure, structureOf, surfacesUnder, THEMES,
 } from './check-text-contrast.ts';
 import { paletteBlock } from '../../lib/core/palette-read.ts';
 import { resolvedFor } from './check-style-plugin.ts';
@@ -331,6 +331,17 @@ test('only the default plugin is judged', () => {
 
 test('defaultBuildProblems is clean on Arena\'s skin', () => {
   assert.deepEqual(defaultBuildProblems(), []);
+});
+
+test('the default plugin clears every slot pair', () => {
+  assert.deepEqual(defaultBuildProblems(), []);
+});
+
+test('complete and the catalogue report their slot pairs in the lines the gate prints', () => {
+  const lines = slotReportLines(contrastScopes());
+  assert.ok(lines.length > 0, 'a sweep that reports nothing over complete and eight entries measured nothing');
+  assert.ok(lines.every((one) => one.startsWith('plugin-style-store/complete/') || one.startsWith(`${CATALOGUE}/`)),
+    'the default is refused through defaultBuildProblems, so only complete and the catalogue are reported here');
 });
 
 test('a catalogue palette below AA is reported with its entry and palette name', () => {
