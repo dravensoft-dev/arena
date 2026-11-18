@@ -101,7 +101,7 @@ export function deriveSlots(d: SlotDeclarations): SlotCatalogue {
         if (!parts.includes(part)) parts.push(part);
         standing({
           owner: fam, opt, part, rest: restOf(rest), scope: { scope: 'family', family: fam }, onReader: decl.on === 'reader',
-          states: (prop) => sets(typeof spec === 'string' ? spec : (spec?.[prop] ?? spec['*'] ?? fail(`${fam}-${opt}: no states for ${prop}`))),
+          states: (prop) => sets(typeof spec === 'string' ? spec : (spec[prop] ?? spec['*'] ?? fail(`${fam}-${opt}: no states for ${prop}`))),
           channel: (prop, st) => (decl.channels
             ? decl.channels[`${part}.${prop}`] ?? fail(`${fam}.${part}.${prop}: no channel declared`)
             : (decl.channel ?? '').replace('{property}', prop) + (st === 'rest' ? '' : `-${st}`)),

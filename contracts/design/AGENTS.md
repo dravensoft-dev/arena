@@ -95,9 +95,11 @@ reports, and the rule the role tier grows by. Read it before writing one.
 `color-slots.json` is the slot tier above the roles: every coloured part of a component, per
 property and state, as a question a plugin answers with a role that slot's `accepts` set names.
 The file declares families, components, variants and exceptions, and `scripts/lib/core/color-slots.ts:readColorSlots(root)` derives the
-slots from them in memory; packages ship the derived slots in `arena.tokens.json` under `slots`.
+slots from them in memory; packages ship the derived slots in `arena.tokens.json` under `slots`, and the contracts and MCP packages ship them as
+`contracts/design/color-slots.derived.json` (`scripts/lib/arena/package-assembly.ts:derivedSlotsText(root)`).
 It carries no value, so `check:dtcg` leaves it by name, and `check:color-slots` holds the declarations themselves and the catalogue derived from them: the
 names, the defaults and the manifest parts it points at.
+A slot is never asked for totality or kernel equality, which stay the role gate's.
 
 ## Theming
 

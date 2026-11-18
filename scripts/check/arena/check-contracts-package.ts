@@ -29,7 +29,7 @@ export const node = {
   feeds: [],
 };
 
-export const NON_CONTRACT = ['package.json', 'README.md', 'LICENSE', CATALOGUE, DERIVED_SLOTS];
+export const NON_CONTRACT = ['package.json', 'README.md', 'LICENSE', CATALOGUE];
 
 export const FORBIDDEN_FIELDS = new Map([
   ['bin', 'the consumer is a build with no Node runtime, so a declared command is one nobody can run'],
@@ -56,7 +56,7 @@ export function zeroDerivedProblems(count: number) {
 export function payloadProblems(dir: string, expected: string[], repo = root) {
   const problems: string[] = [];
   const present = collectFiles(dir).map((f) => relPosix(dir, f)).sort();
-  const contracts = present.filter((p) => !NON_CONTRACT.includes(p));
+  const contracts = present.filter((p) => !NON_CONTRACT.includes(p) && p !== DERIVED_SLOTS);
 
   for (const rel of expected) {
     if (!contracts.includes(rel)) { problems.push(`${rel} is in the tree and not in the package`); continue; }

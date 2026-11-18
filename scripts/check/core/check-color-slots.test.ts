@@ -359,7 +359,6 @@ test('an own key, an own row key or an own decision outside the declaration is r
   c.components.ArenaIconButton!.root!.own!.edge!.decision = 'because';
   assert.equal(declarationProblems(c).length, 1);
   const e = declared();
-  delete c.components.ArenaIconButton!.root!.own!.edge!.decision;
   delete e.components.ArenaIconButton!.root!.own!.edge!.decision;
   assert.equal(declarationProblems(e).length, 1);
 });

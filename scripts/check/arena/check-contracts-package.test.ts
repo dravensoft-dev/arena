@@ -143,6 +143,21 @@ test('the derived set is every contract level and nothing else', () => {
     'a package carrying anything but JSON is carrying a mechanism rather than a value');
 });
 
+test('a package without the derived slot catalogue gives one line, and a present one is no stray contract', () => {
+  const { dir, put } = fixture();
+  try {
+    put('contracts/design/spacing.json', '{}');
+    for (const rel of NON_CONTRACT) put(rel, '{}');
+    const expected = ['contracts/design/spacing.json'];
+    assert.equal(NON_CONTRACT.includes(DERIVED_SLOTS), false);
+    const lines = [...payloadProblems(dir, expected, dir), ...derivedProblems(dir, repoRoot)];
+    assert.equal(lines.length, 1);
+    assert.match(lines[0] ?? '', /carries no contracts\/design\/color-slots\.derived\.json/);
+    put(DERIVED_SLOTS, derivedSlotsText(repoRoot));
+    assert.deepEqual(payloadProblems(dir, expected, dir), []);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
 test('the derived slot catalogue is held equal to what readColorSlots derives, and absence is a problem', () => {
   const { dir, put } = fixture();
   try {
