@@ -68,6 +68,19 @@
       "selected-hover",
       "selected-pressed",
       "selected-disabled"
+    ],
+    "static": [
+      "rest"
+    ],
+    "static-disabled": [
+      "rest",
+      "disabled"
+    ],
+    "toggle": [
+      "rest",
+      "selected",
+      "disabled",
+      "selected-disabled"
     ]
   },
   "selected": {
@@ -257,5 +270,1494 @@
     "ArenaSplitButton.primary": "ground",
     "ArenaSplitButton.caret": "ground",
     "ArenaFileInput.trigger": "ground"
+  },
+  "groups": {
+    "actions": {
+      "parts": {
+        "root": {
+          "properties": [
+            "fill",
+            "ink",
+            "edge",
+            "icon"
+          ],
+          "options": [
+            "primary",
+            "secondary",
+            "ghost",
+            "solid",
+            "destructive"
+          ],
+          "states": "per-option"
+        },
+        "dismiss": {
+          "properties": [
+            "fill",
+            "ink",
+            "icon"
+          ],
+          "states": "base"
+        }
+      }
+    },
+    "choices": {
+      "parts": {
+        "box": {
+          "properties": [
+            "fill",
+            "edge"
+          ],
+          "states": "toggle"
+        },
+        "mark": {
+          "properties": [
+            "fill",
+            "ink"
+          ],
+          "states": "toggle"
+        },
+        "knob": {
+          "properties": [
+            "fill",
+            "edge"
+          ],
+          "states": "toggle"
+        },
+        "segment": {
+          "properties": [
+            "fill",
+            "ink",
+            "edge"
+          ],
+          "states": "selectable"
+        },
+        "track": {
+          "properties": [
+            "fill",
+            "edge"
+          ],
+          "states": "static"
+        }
+      }
+    },
+    "fields": {
+      "parts": {
+        "field": {
+          "properties": [
+            "fill",
+            "edge",
+            "ink"
+          ],
+          "states": "static-disabled",
+          "options": [
+            "neutral",
+            "error",
+            "valid",
+            "readonly"
+          ]
+        },
+        "value": {
+          "properties": [
+            "fill",
+            "ink"
+          ],
+          "states": "static-disabled"
+        },
+        "required": {
+          "properties": [
+            "ink"
+          ],
+          "states": "static"
+        },
+        "status": {
+          "properties": [
+            "ink"
+          ],
+          "states": "static",
+          "options": [
+            "error",
+            "valid"
+          ]
+        },
+        "error": {
+          "properties": [
+            "ink"
+          ],
+          "states": "static"
+        },
+        "counter": {
+          "properties": [
+            "ink"
+          ],
+          "states": "static",
+          "options": [
+            "neutral",
+            "warning"
+          ]
+        },
+        "stepper": {
+          "properties": [
+            "fill",
+            "edge",
+            "ink"
+          ],
+          "states": "base"
+        }
+      }
+    },
+    "menus": {
+      "parts": {
+        "item": {
+          "properties": [
+            "fill",
+            "ink",
+            "icon"
+          ],
+          "states": [
+            "rest",
+            "hover",
+            "pressed",
+            "selected",
+            "disabled"
+          ],
+          "options": [
+            "plain",
+            "destructive"
+          ]
+        }
+      }
+    },
+    "navigation": {
+      "parts": {
+        "item": {
+          "properties": [
+            "fill",
+            "ink",
+            "edge",
+            "icon"
+          ],
+          "states": "selectable"
+        },
+        "badge": {
+          "properties": [
+            "fill",
+            "ink"
+          ],
+          "states": [
+            "rest",
+            "selected"
+          ]
+        },
+        "link": {
+          "properties": [
+            "ink"
+          ],
+          "states": [
+            "rest",
+            "hover"
+          ]
+        },
+        "disclosure": {
+          "properties": [
+            "fill",
+            "ink"
+          ],
+          "states": "base"
+        }
+      }
+    },
+    "steps": {
+      "parts": {
+        "marker": {
+          "properties": [
+            "fill",
+            "edge",
+            "ink"
+          ],
+          "states": "static",
+          "options": [
+            "complete",
+            "current",
+            "upcoming",
+            "error"
+          ]
+        },
+        "label": {
+          "properties": [
+            "ink"
+          ],
+          "states": "static",
+          "options": [
+            "complete",
+            "current",
+            "upcoming"
+          ]
+        }
+      }
+    },
+    "marks": {
+      "parts": {
+        "soft": {
+          "properties": [
+            "fill",
+            "ink",
+            "edge"
+          ],
+          "states": "static",
+          "options": [
+            "neutral",
+            "plain",
+            "primary",
+            "gold",
+            "danger",
+            "success",
+            "warning",
+            "info",
+            "identity-1",
+            "identity-2",
+            "identity-3",
+            "identity-4",
+            "identity-5",
+            "identity-6",
+            "identity-7",
+            "identity-8"
+          ]
+        },
+        "solid": {
+          "properties": [
+            "fill",
+            "ink"
+          ],
+          "states": "static",
+          "options": [
+            "neutral",
+            "danger",
+            "success",
+            "warning",
+            "info"
+          ],
+          "paintedBy": "frameworks/tailwind/vocabulary/arena-mark/Mark.family.json"
+        },
+        "outline": {
+          "properties": [
+            "edge",
+            "ink"
+          ],
+          "states": "static-disabled",
+          "options": [
+            "neutral",
+            "plain",
+            "primary",
+            "danger",
+            "success",
+            "warning",
+            "info",
+            "identity-1",
+            "identity-2",
+            "identity-3",
+            "identity-4",
+            "identity-5",
+            "identity-6",
+            "identity-7",
+            "identity-8"
+          ]
+        },
+        "dot": {
+          "properties": [
+            "fill",
+            "edge",
+            "ink"
+          ],
+          "states": "static",
+          "options": [
+            "neutral",
+            "primary",
+            "gold",
+            "danger",
+            "success",
+            "warning",
+            "info",
+            "identity-1",
+            "identity-2",
+            "identity-3",
+            "identity-4",
+            "identity-5",
+            "identity-6",
+            "identity-7",
+            "identity-8",
+            "neutral-complete",
+            "neutral-current",
+            "neutral-upcoming",
+            "danger-complete",
+            "danger-current",
+            "danger-upcoming",
+            "success-complete",
+            "success-current",
+            "success-upcoming",
+            "warning-complete",
+            "warning-current",
+            "warning-upcoming",
+            "info-complete",
+            "info-current",
+            "info-upcoming"
+          ]
+        },
+        "tile": {
+          "properties": [
+            "fill",
+            "edge",
+            "ink"
+          ],
+          "states": "static"
+        },
+        "label": {
+          "properties": [
+            "ink"
+          ],
+          "states": "static",
+          "options": [
+            "neutral",
+            "plain",
+            "primary",
+            "gold",
+            "danger",
+            "success",
+            "warning",
+            "info",
+            "identity-1",
+            "identity-2",
+            "identity-3",
+            "identity-4",
+            "identity-5",
+            "identity-6",
+            "identity-7",
+            "identity-8"
+          ]
+        }
+      }
+    },
+    "feedback": {
+      "parts": {
+        "banner": {
+          "properties": [
+            "fill",
+            "edge"
+          ],
+          "states": "static",
+          "options": [
+            "neutral",
+            "plain",
+            "gold",
+            "danger",
+            "success",
+            "warning",
+            "info"
+          ]
+        },
+        "icon": {
+          "properties": [
+            "ink"
+          ],
+          "states": "static",
+          "options": [
+            "neutral",
+            "danger",
+            "success",
+            "warning",
+            "info"
+          ]
+        },
+        "action": {
+          "properties": [
+            "fill",
+            "ink"
+          ],
+          "states": "static",
+          "options": [
+            "neutral",
+            "danger",
+            "success",
+            "warning",
+            "info"
+          ]
+        }
+      }
+    },
+    "meters": {
+      "parts": {
+        "track": {
+          "properties": [
+            "fill",
+            "ink",
+            "edge"
+          ],
+          "states": "static-disabled",
+          "options": [
+            "plain",
+            "primary",
+            "gold",
+            "muted",
+            "ink",
+            "danger",
+            "success",
+            "warning",
+            "info"
+          ]
+        },
+        "standing": {
+          "properties": [
+            "ink"
+          ],
+          "states": "static",
+          "options": [
+            "neutral",
+            "danger",
+            "success",
+            "warning",
+            "info"
+          ]
+        }
+      }
+    },
+    "charts": {
+      "parts": {
+        "series": {
+          "properties": [
+            "fill",
+            "edge"
+          ],
+          "states": "static",
+          "options": [
+            "cat-1",
+            "cat-2",
+            "cat-3",
+            "cat-4",
+            "cat-5",
+            "cat-6",
+            "cat-7",
+            "cat-8",
+            "neutral",
+            "danger",
+            "success",
+            "warning",
+            "info"
+          ]
+        },
+        "heat": {
+          "properties": [
+            "fill"
+          ],
+          "states": "static",
+          "options": [
+            "heat-1",
+            "heat-2",
+            "heat-3",
+            "heat-4",
+            "heat-5"
+          ],
+          "paintedBy": "frameworks/react/DataVisuals.ts"
+        },
+        "axis": {
+          "properties": [
+            "edge"
+          ],
+          "states": "static",
+          "paintedBy": "frameworks/react/DataVisuals.ts"
+        },
+        "grid": {
+          "properties": [
+            "edge"
+          ],
+          "states": "static",
+          "paintedBy": "frameworks/react/DataVisuals.ts"
+        },
+        "tick": {
+          "properties": [
+            "ink"
+          ],
+          "states": "static",
+          "paintedBy": "frameworks/react/DataVisuals.ts"
+        },
+        "halo": {
+          "properties": [
+            "edge"
+          ],
+          "states": "static",
+          "paintedBy": "frameworks/react/DataVisuals.ts"
+        },
+        "track": {
+          "properties": [
+            "fill"
+          ],
+          "states": "static",
+          "paintedBy": "frameworks/react/DataVisuals.ts"
+        },
+        "tooltip": {
+          "properties": [
+            "fill",
+            "edge"
+          ],
+          "states": "static"
+        }
+      }
+    },
+    "overlays": {
+      "parts": {
+        "scrim": {
+          "properties": [
+            "fill"
+          ],
+          "states": "static"
+        },
+        "panel": {
+          "properties": [
+            "fill",
+            "edge",
+            "ink"
+          ],
+          "states": "static"
+        },
+        "section": {
+          "properties": [
+            "fill"
+          ],
+          "states": "static"
+        },
+        "tip": {
+          "properties": [
+            "fill",
+            "ink"
+          ],
+          "states": "static"
+        },
+        "eyebrow": {
+          "properties": [
+            "ink"
+          ],
+          "states": "static",
+          "options": [
+            "plain",
+            "destructive"
+          ]
+        }
+      }
+    },
+    "surfaces": {
+      "parts": {
+        "card": {
+          "properties": [
+            "fill",
+            "edge"
+          ],
+          "states": [
+            "rest",
+            "hover"
+          ],
+          "options": [
+            "plain",
+            "primary"
+          ]
+        },
+        "sunken": {
+          "properties": [
+            "fill",
+            "edge",
+            "ink"
+          ],
+          "states": "static"
+        },
+        "bar": {
+          "properties": [
+            "fill",
+            "edge"
+          ],
+          "states": "static"
+        },
+        "separator": {
+          "properties": [
+            "edge"
+          ],
+          "states": "static"
+        },
+        "page": {
+          "properties": [
+            "fill",
+            "ink"
+          ],
+          "states": "static"
+        },
+        "media": {
+          "properties": [
+            "fill",
+            "ink"
+          ],
+          "states": "static"
+        },
+        "skeleton": {
+          "properties": [
+            "fill"
+          ],
+          "states": "static",
+          "paintedBy": "frameworks/tailwind/Animations.css"
+        }
+      }
+    },
+    "data": {
+      "parts": {
+        "row": {
+          "properties": [
+            "fill",
+            "edge"
+          ],
+          "states": [
+            "rest",
+            "hover",
+            "selected"
+          ]
+        },
+        "header": {
+          "properties": [
+            "fill",
+            "edge",
+            "ink"
+          ],
+          "states": [
+            "rest",
+            "hover"
+          ]
+        },
+        "today": {
+          "properties": [
+            "ink"
+          ],
+          "states": "static"
+        },
+        "now": {
+          "properties": [
+            "fill",
+            "edge"
+          ],
+          "states": "static"
+        }
+      }
+    },
+    "text": {
+      "parts": {
+        "heading": {
+          "properties": [
+            "ink"
+          ],
+          "states": "static"
+        },
+        "body": {
+          "properties": [
+            "ink"
+          ],
+          "states": "static"
+        },
+        "muted": {
+          "properties": [
+            "ink"
+          ],
+          "states": "static"
+        },
+        "eyebrow": {
+          "properties": [
+            "ink"
+          ],
+          "states": "static"
+        },
+        "figure": {
+          "properties": [
+            "ink"
+          ],
+          "states": "static"
+        },
+        "key": {
+          "properties": [
+            "ink",
+            "edge"
+          ],
+          "states": "static"
+        }
+      }
+    }
+  },
+  "members": {
+    "ArenaAccordion": {
+      "group": "navigation",
+      "parts": {
+        "item": "surfaces.separator",
+        "trigger": "navigation.disclosure",
+        "panel": "text.body"
+      }
+    },
+    "ArenaActivityFeed": {
+      "group": "data",
+      "parts": {
+        "item": "surfaces.separator",
+        "dot": "marks.dot",
+        "text": "text.body",
+        "actor": "text.body",
+        "target": "text.figure",
+        "time": "text.muted"
+      }
+    },
+    "ArenaAlert": {
+      "group": "feedback",
+      "parts": {
+        "root": "feedback.banner",
+        "icon": "feedback.icon",
+        "title": "text.heading",
+        "message": "text.body",
+        "action": "feedback.action",
+        "close": "actions.dismiss"
+      }
+    },
+    "ArenaAppBar": {
+      "group": "navigation",
+      "parts": {
+        "root": "surfaces.bar"
+      }
+    },
+    "ArenaAppLogo": {
+      "group": "text",
+      "parts": {
+        "name": "text.body",
+        "dim": "text.muted"
+      }
+    },
+    "ArenaAvatar": {
+      "group": "marks",
+      "parts": {
+        "box": "marks.tile",
+        "status": "marks.dot"
+      }
+    },
+    "ArenaBadge": {
+      "group": "marks",
+      "parts": {
+        "root": "marks.soft",
+        "dot": null
+      }
+    },
+    "ArenaBarChart": {
+      "group": "charts",
+      "parts": {
+        "legendSwatch": "charts.series",
+        "legendLabel": "text.body",
+        "tooltip": "charts.tooltip",
+        "tooltipLabel": "text.muted",
+        "tooltipValue": "text.body"
+      }
+    },
+    "ArenaBoard": {
+      "group": "surfaces",
+      "parts": {
+        "column": "surfaces.sunken",
+        "dot": "marks.dot",
+        "title": "marks.label",
+        "count": "text.muted",
+        "summary": "text.muted"
+      }
+    },
+    "ArenaBottomNav": {
+      "group": "navigation",
+      "parts": {
+        "root": "surfaces.bar",
+        "item": "navigation.item",
+        "badge": "navigation.badge"
+      }
+    },
+    "ArenaBreadcrumbs": {
+      "group": "navigation",
+      "parts": {
+        "crumb": "navigation.link",
+        "current": "text.body",
+        "separator": "text.muted"
+      }
+    },
+    "ArenaBulkActionBar": {
+      "group": "overlays",
+      "parts": {
+        "root": "overlays.panel",
+        "count": "text.body",
+        "number": "text.figure",
+        "divider": "surfaces.separator",
+        "action": "actions.root@secondary|destructive",
+        "clear": "actions.dismiss"
+      }
+    },
+    "ArenaButton": {
+      "group": "actions",
+      "parts": {
+        "root": "actions.root",
+        "spinner": null
+      }
+    },
+    "ArenaCalendar": {
+      "group": "data",
+      "parts": {
+        "nav": "actions.root@secondary",
+        "today": "actions.root@secondary",
+        "heading": "text.heading",
+        "headStrip": "surfaces.separator",
+        "dayHead": null,
+        "weekday": "text.muted",
+        "dayNumber": "data.today",
+        "hourLabel": "text.muted",
+        "rule": "surfaces.separator",
+        "column": "surfaces.separator",
+        "now": "data.now",
+        "nowDot": "data.now",
+        "chip": "marks.soft",
+        "chipBody": null,
+        "title": "text.heading",
+        "time": "text.muted",
+        "detail": "text.muted",
+        "panel": "overlays.panel"
+      }
+    },
+    "ArenaCard": {
+      "group": "surfaces",
+      "parts": {
+        "root": "surfaces.card",
+        "head": "surfaces.separator",
+        "eyebrow": "text.eyebrow",
+        "title": "text.heading"
+      }
+    },
+    "ArenaChartCard": {
+      "group": "charts",
+      "parts": {
+        "root": "surfaces.card@plain",
+        "head": "surfaces.separator",
+        "title": "text.muted"
+      }
+    },
+    "ArenaCheckbox": {
+      "group": "choices",
+      "parts": {
+        "box": "choices.box",
+        "check": "choices.mark",
+        "label": "text.body"
+      }
+    },
+    "ArenaCombobox": {
+      "group": "fields",
+      "parts": {
+        "label": "text.muted",
+        "field": "fields.field",
+        "icon": "text.muted",
+        "more": "text.key",
+        "input": "fields.value",
+        "statusIcon": "fields.status",
+        "clear": "actions.dismiss",
+        "caret": "text.muted",
+        "hint": "text.muted",
+        "error": "fields.error",
+        "panel": "overlays.panel",
+        "option": "menus.item",
+        "empty": "text.muted",
+        "status": "text.muted"
+      }
+    },
+    "ArenaCommandPalette": {
+      "group": "menus",
+      "parts": {
+        "root": "overlays.scrim",
+        "panel": "overlays.panel",
+        "search": "fields.field",
+        "searchIcon": "text.muted",
+        "input": "fields.value",
+        "esc": "text.key",
+        "empty": "text.muted",
+        "groupLabel": "text.muted",
+        "row": "menus.item",
+        "shortcut": "text.key"
+      }
+    },
+    "ArenaConfirmDialog": {
+      "group": "overlays",
+      "parts": {
+        "root": "overlays.scrim",
+        "panel": "overlays.panel",
+        "eyebrow": "overlays.eyebrow",
+        "title": "text.heading",
+        "body": "text.body",
+        "requireLabel": "text.muted",
+        "input": "fields.field",
+        "confirm": "actions.root@primary|destructive"
+      }
+    },
+    "ArenaCopyButton": {
+      "group": "actions",
+      "parts": {}
+    },
+    "ArenaDialog": {
+      "group": "overlays",
+      "parts": {
+        "scrim": "overlays.scrim",
+        "panel": "overlays.panel",
+        "head": "overlays.section",
+        "eyebrow": "text.eyebrow",
+        "title": "text.heading",
+        "body": "text.body",
+        "foot": "overlays.section"
+      }
+    },
+    "ArenaDivider": {
+      "group": "surfaces",
+      "parts": {
+        "root": "surfaces.separator",
+        "rule": "surfaces.separator",
+        "label": "text.muted"
+      }
+    },
+    "ArenaDoughnutChart": {
+      "group": "charts",
+      "parts": {
+        "legendRow": null,
+        "legendSwatch": "charts.series",
+        "legendLabel": "text.body",
+        "legendValue": "text.muted"
+      }
+    },
+    "ArenaEmptyState": {
+      "group": "feedback",
+      "parts": {
+        "root": "feedback.banner@neutral",
+        "icon": "feedback.icon@neutral",
+        "title": "text.heading",
+        "message": "text.muted"
+      }
+    },
+    "ArenaErrorState": {
+      "group": "feedback",
+      "parts": {
+        "root": "feedback.banner@danger",
+        "icon": "feedback.icon@danger",
+        "title": "text.heading",
+        "message": "text.body",
+        "code": "surfaces.sunken"
+      }
+    },
+    "ArenaFieldset": {
+      "group": "fields",
+      "parts": {
+        "legend": "text.muted",
+        "hint": "text.muted",
+        "error": "fields.error",
+        "statusIcon": "fields.status"
+      }
+    },
+    "ArenaFigure": {
+      "group": "surfaces",
+      "parts": {
+        "frame": "surfaces.sunken",
+        "overlay": "surfaces.media",
+        "caption": "text.muted"
+      }
+    },
+    "ArenaFileInput": {
+      "group": "fields",
+      "parts": {
+        "label": "text.muted",
+        "required": "fields.required",
+        "zone": "fields.field",
+        "trigger": "actions.root",
+        "prompt": "text.muted",
+        "size": "text.muted",
+        "rejection": "fields.error",
+        "hint": "text.muted",
+        "error": "fields.error"
+      }
+    },
+    "ArenaFilterBar": {
+      "group": "navigation",
+      "parts": {
+        "clear": "actions.dismiss"
+      }
+    },
+    "ArenaFunnelChart": {
+      "group": "charts",
+      "parts": {
+        "tooltip": "charts.tooltip",
+        "tooltipLabel": "text.muted",
+        "tooltipValue": "text.body"
+      }
+    },
+    "ArenaGaugeChart": {
+      "group": "charts",
+      "parts": {}
+    },
+    "ArenaGrid": {
+      "group": null,
+      "parts": {}
+    },
+    "ArenaHeatmapChart": {
+      "group": "charts",
+      "parts": {
+        "legendLabel": "text.body",
+        "tooltip": "charts.tooltip",
+        "tooltipLabel": "text.muted",
+        "tooltipValue": "text.body"
+      }
+    },
+    "ArenaHero": {
+      "group": "text",
+      "parts": {
+        "eyebrow": "text.eyebrow",
+        "title": "text.heading",
+        "lede": "text.body"
+      }
+    },
+    "ArenaHorizontalBarChart": {
+      "group": "charts",
+      "parts": {
+        "legendSwatch": "charts.series",
+        "legendLabel": "text.body",
+        "tooltip": "charts.tooltip",
+        "tooltipLabel": "text.muted",
+        "tooltipValue": "text.body"
+      }
+    },
+    "ArenaIcon": {
+      "group": null,
+      "parts": {
+        "root": null
+      }
+    },
+    "ArenaIconButton": {
+      "group": "actions",
+      "parts": {
+        "root": "actions.root"
+      }
+    },
+    "ArenaInput": {
+      "group": "fields",
+      "parts": {
+        "label": "text.muted",
+        "required": "fields.required",
+        "field": "fields.field",
+        "icon": "text.muted",
+        "prefix": "text.muted",
+        "input": "fields.value",
+        "statusIcon": "fields.status",
+        "hint": "text.muted",
+        "error": "fields.error"
+      }
+    },
+    "ArenaKbd": {
+      "group": "text",
+      "parts": {
+        "key": "text.key",
+        "separator": "text.key"
+      }
+    },
+    "ArenaKeyValue": {
+      "group": "data",
+      "parts": {
+        "term": "text.muted",
+        "value": "text.body",
+        "total": "surfaces.separator",
+        "totalTerm": "text.heading",
+        "totalValue": "text.heading"
+      }
+    },
+    "ArenaLineChart": {
+      "group": "charts",
+      "parts": {
+        "legendSwatch": "charts.series",
+        "legendLabel": "text.body",
+        "tooltip": "charts.tooltip",
+        "tooltipLabel": "text.muted",
+        "tooltipValue": "text.body"
+      }
+    },
+    "ArenaLink": {
+      "group": "navigation",
+      "parts": {
+        "root": "navigation.link"
+      }
+    },
+    "ArenaMain": {
+      "group": null,
+      "parts": {}
+    },
+    "ArenaMenu": {
+      "group": "menus",
+      "parts": {
+        "panel": "overlays.panel",
+        "item": "menus.item",
+        "shortcut": "text.key",
+        "divider": "surfaces.separator",
+        "header": "text.muted"
+      }
+    },
+    "ArenaMeter": {
+      "group": "meters",
+      "parts": {
+        "label": "text.body",
+        "value": "text.muted",
+        "standing": "meters.standing",
+        "track": "meters.track",
+        "fill": null
+      }
+    },
+    "ArenaNumberField": {
+      "group": "fields",
+      "parts": {
+        "label": "text.muted",
+        "required": "fields.required",
+        "field": "fields.field",
+        "stepper": "fields.stepper",
+        "prefix": "text.muted",
+        "input": "fields.value",
+        "suffix": "text.muted",
+        "statusIcon": "fields.status",
+        "hint": "text.muted",
+        "error": "fields.error"
+      }
+    },
+    "ArenaOnboarding": {
+      "group": "overlays",
+      "parts": {
+        "root": "overlays.scrim",
+        "panel": "overlays.panel",
+        "eyebrow": "text.eyebrow",
+        "title": "text.heading",
+        "body": "text.body",
+        "dot": "steps.marker@upcoming|current",
+        "text": "actions.dismiss",
+        "next": "actions.root@primary"
+      }
+    },
+    "ArenaPageHead": {
+      "group": "text",
+      "parts": {
+        "title": "text.heading",
+        "subtitle": "text.muted"
+      }
+    },
+    "ArenaPagination": {
+      "group": "navigation",
+      "parts": {
+        "nav": "actions.root@secondary",
+        "page": "navigation.item",
+        "ellipsis": "text.muted"
+      }
+    },
+    "ArenaPaletteScope": {
+      "group": "surfaces",
+      "parts": {
+        "root": "surfaces.page"
+      }
+    },
+    "ArenaPeopleList": {
+      "group": "data",
+      "parts": {
+        "row": "data.row",
+        "rank": "text.muted",
+        "name": "text.heading",
+        "secondary": "text.muted",
+        "figure": "text.muted"
+      }
+    },
+    "ArenaPinInput": {
+      "group": "fields",
+      "parts": {
+        "label": "text.muted",
+        "required": "fields.required",
+        "cell": "fields.field",
+        "statusIcon": "fields.status",
+        "hint": "text.muted",
+        "error": "fields.error"
+      }
+    },
+    "ArenaPopover": {
+      "group": "overlays",
+      "parts": {
+        "panel": "overlays.panel"
+      }
+    },
+    "ArenaProgressBar": {
+      "group": "meters",
+      "parts": {
+        "label": "text.body",
+        "value": "text.muted",
+        "track": "meters.track",
+        "fill": null,
+        "ring": "meters.track",
+        "ringTrack": "meters.track",
+        "ringFill": null
+      }
+    },
+    "ArenaPyramidChart": {
+      "group": "charts",
+      "parts": {
+        "legendSwatch": "charts.series",
+        "legendLabel": "text.body",
+        "tooltip": "charts.tooltip",
+        "tooltipLabel": "text.muted",
+        "tooltipValue": "text.body"
+      }
+    },
+    "ArenaRadarChart": {
+      "group": "charts",
+      "parts": {
+        "legendSwatch": "charts.series",
+        "legendLabel": "text.body",
+        "tooltip": "charts.tooltip",
+        "tooltipLabel": "text.muted",
+        "tooltipValue": "text.body"
+      }
+    },
+    "ArenaRadio": {
+      "group": "choices",
+      "parts": {
+        "ring": "choices.box",
+        "dot": "choices.mark",
+        "label": "text.body",
+        "hint": "text.muted"
+      }
+    },
+    "ArenaScatterChart": {
+      "group": "charts",
+      "parts": {
+        "legendSwatch": "charts.series",
+        "legendLabel": "text.body",
+        "tooltip": "charts.tooltip",
+        "tooltipLabel": "text.muted",
+        "tooltipValue": "text.body"
+      }
+    },
+    "ArenaScroller": {
+      "group": null,
+      "parts": {}
+    },
+    "ArenaScrollerItem": {
+      "group": null,
+      "parts": {}
+    },
+    "ArenaSection": {
+      "group": "text",
+      "parts": {
+        "eyebrow": "text.eyebrow",
+        "title": "text.heading",
+        "description": "text.muted"
+      }
+    },
+    "ArenaSegmentedControl": {
+      "group": "choices",
+      "parts": {
+        "track": "choices.track",
+        "segment": "choices.segment"
+      }
+    },
+    "ArenaSelect": {
+      "group": "fields",
+      "parts": {
+        "label": "text.muted",
+        "field": "fields.field",
+        "caret": "text.muted",
+        "hint": "text.muted",
+        "error": "fields.error",
+        "iconWrap": "text.muted"
+      }
+    },
+    "ArenaSheet": {
+      "group": "overlays",
+      "parts": {
+        "root": "overlays.panel",
+        "head": "surfaces.separator",
+        "trigger": "navigation.disclosure",
+        "caret": "text.muted",
+        "close": "actions.dismiss",
+        "body": "text.body",
+        "foot": "surfaces.separator"
+      }
+    },
+    "ArenaSideNav": {
+      "group": "navigation",
+      "parts": {
+        "item": "navigation.item",
+        "badge": "navigation.badge",
+        "sectionLabel": "text.muted",
+        "trigger": "navigation.item",
+        "dot": "navigation.badge",
+        "separator": "surfaces.separator"
+      }
+    },
+    "ArenaSiteFooter": {
+      "group": "surfaces",
+      "parts": {
+        "root": "surfaces.bar",
+        "note": "text.muted"
+      }
+    },
+    "ArenaSkeleton": {
+      "group": "surfaces",
+      "parts": {}
+    },
+    "ArenaSkipLink": {
+      "group": "navigation",
+      "parts": {
+        "root": "navigation.item"
+      }
+    },
+    "ArenaSlider": {
+      "group": "choices",
+      "parts": {
+        "label": "text.body",
+        "value": "text.muted",
+        "track": "choices.mark",
+        "rail": "choices.box",
+        "fill": null,
+        "thumb": "choices.knob",
+        "hint": "text.muted"
+      }
+    },
+    "ArenaSparkline": {
+      "group": "charts",
+      "parts": {
+        "tooltip": "charts.tooltip",
+        "tooltipLabel": "text.muted",
+        "tooltipValue": "text.body"
+      }
+    },
+    "ArenaSpinner": {
+      "group": "meters",
+      "parts": {
+        "root": "meters.track",
+        "circle": null
+      }
+    },
+    "ArenaSplitButton": {
+      "group": "actions",
+      "parts": {
+        "primary": "actions.root",
+        "caret": "actions.root",
+        "spinner": null
+      }
+    },
+    "ArenaStatCard": {
+      "group": "data",
+      "parts": {
+        "root": "surfaces.card@plain",
+        "label": "text.muted",
+        "icon": "text.muted",
+        "value": "marks.label",
+        "delta": "marks.outline",
+        "sub": "text.muted"
+      }
+    },
+    "ArenaStepper": {
+      "group": "steps",
+      "parts": {
+        "trigger": "navigation.item",
+        "marker": "steps.marker",
+        "label": "steps.label",
+        "description": "text.muted",
+        "connector": "surfaces.separator"
+      }
+    },
+    "ArenaSwitch": {
+      "group": "choices",
+      "parts": {
+        "track": "choices.box",
+        "knob": "choices.knob",
+        "icon": "choices.mark",
+        "label": "text.body",
+        "guard": "text.muted"
+      }
+    },
+    "ArenaTable": {
+      "group": "data",
+      "parts": {
+        "root": "surfaces.card@plain",
+        "th": "data.header",
+        "pager": "surfaces.separator",
+        "row": "data.row",
+        "td": "text.figure",
+        "link": "navigation.link",
+        "empty": "text.muted",
+        "card": "surfaces.card@plain",
+        "cardLabel": "text.muted",
+        "cardValue": "text.figure",
+        "cardBlock": "surfaces.separator"
+      }
+    },
+    "ArenaTabs": {
+      "group": "navigation",
+      "parts": {
+        "root": "surfaces.separator",
+        "tab": "navigation.item"
+      }
+    },
+    "ArenaTag": {
+      "group": "marks",
+      "parts": {
+        "root": "marks.outline",
+        "dot": null,
+        "close": "actions.dismiss"
+      }
+    },
+    "ArenaTextarea": {
+      "group": "fields",
+      "parts": {
+        "label": "text.muted",
+        "required": "fields.required",
+        "field": "fields.field",
+        "hint": "text.muted",
+        "error": "fields.error",
+        "counter": "fields.counter"
+      }
+    },
+    "ArenaTimeline": {
+      "group": "data",
+      "parts": {
+        "dot": "marks.dot",
+        "connector": "surfaces.separator",
+        "title": "text.heading",
+        "description": "text.body",
+        "time": "text.muted"
+      }
+    },
+    "ArenaToast": {
+      "group": "feedback",
+      "parts": {
+        "root": "feedback.banner",
+        "title": "text.heading",
+        "pinned": "marks.outline@neutral",
+        "message": "text.muted",
+        "action": "feedback.action@neutral",
+        "close": "actions.dismiss"
+      }
+    },
+    "ArenaToastHost": {
+      "group": null,
+      "parts": {}
+    },
+    "ArenaTooltip": {
+      "group": "overlays",
+      "parts": {
+        "bubble": "overlays.tip"
+      }
+    },
+    "ArenaTreeView": {
+      "group": "navigation",
+      "parts": {
+        "item": "navigation.item"
+      }
+    },
+    "ArenaUnauthCard": {
+      "group": "text",
+      "parts": {
+        "eyebrow": "text.eyebrow",
+        "title": "text.heading",
+        "footer": "text.muted"
+      }
+    }
   }
 }

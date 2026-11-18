@@ -7,10 +7,13 @@
  * declarations themselves first (unknown keys, exceptions) before the derived catalogue. A slot is
  * never asked for totality or kernel equality. */
 
+import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
+import { colouredParts } from '../../lib/core/color-slot-map.ts';
+import type { ColouredPart } from '../../lib/core/color-slot-map.ts';
 import { COLOR_SLOTS, SLOT_KEYS, deriveSlots, readSlotDeclarations } from '../../lib/core/color-slots.ts';
 import type { SlotDeclarations } from '../../lib/core/color-slots.ts';
 import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
@@ -23,7 +26,7 @@ import { slotPairs } from '../../generate/core/arena-cli/slot-contrast.ts';
 
 export const node = {
   name: 'check:color-slots',
-  reads: [COLOR_SLOTS, 'contracts/design/roles.json', 'frameworks/tailwind/components/**/*.manifest.json'],
+  reads: [COLOR_SLOTS, 'contracts/design/roles.json', 'contracts/design/palette.dark.json', 'frameworks/tailwind/Theme.css', 'frameworks/tailwind/components/**/*.manifest.json'],
   writes: [],
   feeds: [],
 };
@@ -276,7 +279,10 @@ export function readProblems(c: SlotCatalogue, manifests: Manifests): string[] {
 }
 
 const DECLARED = {
-  top: ['$description', 'accepts', 'refused', 'states', 'stateSets', 'selected', 'families', 'variants', 'components', 'exceptions', 'rings'],
+  top: ['$description', 'accepts', 'refused', 'states', 'stateSets', 'selected', 'families', 'variants', 'components', 'exceptions', 'rings', 'groups', 'members'],
+  group: ['parts'],
+  groupPart: ['properties', 'options', 'states', 'paintedBy'],
+  member: ['group', 'parts'],
   family: ['channel', 'channels', 'options'],
   option: ['states', 'parts'],
   part: ['family', 'options', 'states', 'variants', 'edgeChannel', 'own', 'draws'],
@@ -346,6 +352,16 @@ export function declarationProblems(d: SlotDeclarations): string[] {
     }
   }
   for (const [n, e] of Object.entries(d.exceptions ?? {})) keys(`exceptions.${n}`, e, DECLARED.exception);
+  for (const [g, group] of Object.entries(d.groups ?? {})) {
+    keys(`groups.${g}`, group, DECLARED.group);
+    for (const [part, p] of Object.entries(group.parts ?? {})) {
+      const where = `groups.${g}.parts.${part}`;
+      keys(where, p, DECLARED.groupPart);
+      if (typeof p.states === 'string') { if (p.states !== 'per-option') sets(where, p.states); } else sets(where, p.states);
+      for (const prop of p.properties ?? []) if (!['fill', 'ink', 'edge', 'icon'].includes(prop)) out.push(`${where}: property "${prop}" is outside fill, ink, edge, icon`);
+    }
+  }
+  for (const [comp, m] of Object.entries(d.members ?? {})) keys(`members.${comp}`, m, DECLARED.member);
   return out;
 }
 
@@ -360,6 +376,55 @@ export function exceptionProblems(d: SlotDeclarations): string[] {
     const slot = deriveSlots({ ...d, exceptions: rest }).slots[n];
     if (!slot) out.push(`exceptions.${n}: it names no slot the rule builds`);
     else if (slot.default === e.default) out.push(`exceptions.${n}: ${n} already falls to ${e.default}, the rule already gives it, so the exception is no exception`);
+  }
+  return out;
+}
+
+const targetOf = (to: string) => {
+  const [at, options] = to.split('@');
+  const [group, part] = (at ?? '').split('.');
+  return { group: group ?? '', part: part ?? '', options: options === undefined ? [] : options.split('|') };
+};
+
+export function mapProblems(d: SlotDeclarations, coloured: ReadonlyMap<string, ColouredPart>, manifests: Manifests, root = repoRoot): string[] {
+  const out: string[] = [];
+  const groups = d.groups ?? {};
+  const members = d.members ?? {};
+  const used = new Set<string>();
+  for (const [comp, m] of Object.entries(members)) {
+    const manifest = manifests.get(comp);
+    if (!manifest) { out.push(`members.${comp}: no manifest declares the component ${comp}`); continue; }
+    if (m.group !== null && !Object.hasOwn(groups, m.group)) out.push(`members.${comp}: its group "${m.group}" is not declared in groups`);
+    for (const [part, to] of Object.entries(m.parts ?? {})) {
+      const key = `${comp}.${part}`;
+      if (!Object.hasOwn(manifest.slots ?? {}, part)) { out.push(`${key}: ${comp} has no slot ${part}`); continue; }
+      const painted = coloured.get(key);
+      if (to === null) {
+        if (!painted?.keywordsOnly) out.push(`${key}: it is null and paints ${painted ? 'a role' : 'no colour'}; null is for a part that paints only current or transparent`);
+        continue;
+      }
+      const t = targetOf(to);
+      const gp = groups[t.group]?.parts?.[t.part];
+      if (!gp) { out.push(`${key}: it maps onto ${t.group}.${t.part}, which is no group part declared in groups`); continue; }
+      used.add(`${t.group}.${t.part}`);
+      for (const o of t.options) if (!(gp.options ?? []).includes(o)) out.push(`${key}: its option "${o}" is not an option of ${t.group}.${t.part} (${(gp.options ?? []).join(', ') || 'none'})`);
+      const extra = (painted?.properties ?? []).filter((p) => !gp.properties.includes(p));
+      if (extra.length) out.push(`${key}: it paints ${extra.join(', ')}, which ${t.group}.${t.part} does not paint (${gp.properties.join(', ')})`);
+    }
+  }
+  for (const comp of manifests.keys()) if (!Object.hasOwn(members, comp)) out.push(`members: ${comp} has a manifest and no entry`);
+  for (const [key, painted] of coloured) {
+    const [comp, part] = key.split('.') as [string, string];
+    if (!painted.focusOnly && !Object.hasOwn(members[comp]?.parts ?? {}, part)) out.push(`${key}: a coloured part mapped onto no group part in members`);
+  }
+  for (const [g, group] of Object.entries(groups)) {
+    for (const [part, gp] of Object.entries(group.parts ?? {})) {
+      const at = `groups.${g}.parts.${part}`;
+      if (used.has(`${g}.${part}`)) {
+        if (gp.paintedBy !== undefined) out.push(`${at}: a member part maps onto it, so it carries no paintedBy`);
+      } else if (gp.paintedBy === undefined) out.push(`${at}: no member part maps onto it and it names no paintedBy, the file that paints it`);
+      else if (!existsSync(join(root, gp.paintedBy))) out.push(`${at}: paintedBy ${gp.paintedBy} is no file`);
+    }
   }
   return out;
 }
@@ -384,6 +449,7 @@ export function collect(root = repoRoot): string[] {
   return [
     ...nameProblems(c), ...acceptsProblems(c, roles), ...defaultProblems(c, roles), ...fallbackProblems(c),
     ...pairProblems(c), ...manifestProblems(c, manifests), ...ringProblems(c, manifests), ...readProblems(c, manifests),
+    ...mapProblems(d, colouredParts(root), manifests, root),
   ];
 }
 

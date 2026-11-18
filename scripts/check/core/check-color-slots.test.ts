@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { collect, declarationProblems, exceptionProblems, shapeProblems, nameProblems, acceptsProblems, defaultProblems, fallbackProblems, pairProblems, manifestProblems, ringProblems, readProblems, colourRoleSet, slotManifests } from './check-color-slots.ts';
+import { collect, mapProblems, declarationProblems, exceptionProblems, shapeProblems, nameProblems, acceptsProblems, defaultProblems, fallbackProblems, pairProblems, manifestProblems, ringProblems, readProblems, colourRoleSet, slotManifests } from './check-color-slots.ts';
 import { readColorSlots, readSlotDeclarations } from '../../lib/core/color-slots.ts';
+import { colouredParts } from '../../lib/core/color-slot-map.ts';
 import type { SlotCatalogue } from '../../generate/core/arena-cli/slots.ts';
 
 const shipped = () => structuredClone(readColorSlots());
@@ -353,4 +354,81 @@ test('a template, optionsFrom or states key on a family, a selected key outside 
   const e = declared();
   (e.variants.destructive!.rest as any).edge = 'ink';
   assert.equal(declarationProblems(e).length, 1);
+});
+
+const coloured = colouredParts();
+const mapped = () => structuredClone(readSlotDeclarations());
+const mapLines = (d = mapped()) => mapProblems(d, coloured, manifests);
+
+test('the shipped map is clean', () => {
+  assert.deepEqual(mapLines(), []);
+});
+
+test('a coloured part mapped nowhere is refused', () => {
+  const d = mapped();
+  delete d.members!.ArenaAlert!.parts.icon;
+  const lines = mapLines(d);
+  assert.equal(lines.length, 1);
+  assert.match(lines[0] ?? '', /ArenaAlert\.icon/);
+});
+
+test('a null part that paints a role is refused', () => {
+  const d = mapped();
+  d.members!.ArenaAlert!.parts.icon = null;
+  const lines = mapLines(d);
+  assert.equal(lines.length, 1);
+  assert.match(lines[0] ?? '', /ArenaAlert\.icon/);
+});
+
+test('a mapping to an undeclared group part is refused', () => {
+  const d = mapped();
+  d.members!.ArenaAlert!.parts.icon = 'feedback.nothing';
+  assert.match(mapLines(d).join('\n'), /ArenaAlert\.icon.*feedback\.nothing/);
+  d.members!.ArenaAlert!.parts.icon = 'nowhere.icon';
+  assert.match(mapLines(d).join('\n'), /nowhere/);
+});
+
+test('a property the group part does not paint is refused', () => {
+  const d = mapped();
+  d.groups!.feedback!.parts.icon!.properties = ['edge'];
+  assert.match(mapLines(d).join('\n'), /ArenaAlert\.icon.*paints/);
+});
+
+test('an option the group part does not list, an undeclared home group and a part the manifest lacks are refused', () => {
+  const d = mapped();
+  d.members!.ArenaCalendar!.parts.nav = 'actions.root@loud';
+  assert.match(mapLines(d).join('\n'), /ArenaCalendar\.nav.*loud/);
+  const e = mapped();
+  e.members!.ArenaAlert!.group = 'nowhere';
+  assert.match(mapLines(e).join('\n'), /ArenaAlert.*nowhere/);
+  const f = mapped();
+  f.members!.ArenaAlert!.parts.ghost = 'feedback.icon';
+  assert.match(mapLines(f).join('\n'), /ArenaAlert\.ghost/);
+  const g = mapped();
+  delete g.members!.ArenaAlert;
+  assert.match(mapLines(g).join('\n'), /ArenaAlert/);
+});
+
+test('a group part no member part maps onto is refused', () => {
+  const d = mapped();
+  d.groups!.feedback!.parts.orphan = { properties: ['fill'], states: 'static' };
+  assert.match(mapLines(d).join('\n'), /feedback\.parts\.orphan/);
+});
+
+test('the map ships its stateSets and its declarations are known keys', () => {
+  const d = mapped();
+  for (const s of ['static', 'static-disabled', 'toggle']) assert.ok(d.stateSets[s]);
+  assert.deepEqual(declarationProblems(d), []);
+});
+
+test('an orphan group part without paintedBy is refused, and paintedBy on a mapped part or at a missing path is refused', () => {
+  const d = mapped();
+  delete (d.groups!.charts!.parts.heat as any).paintedBy;
+  assert.match(mapLines(d).join('\n'), /charts\.parts\.heat/);
+  const e = mapped();
+  (e.groups!.feedback!.parts.icon as any).paintedBy = 'frameworks/react/DataVisuals.ts';
+  assert.match(mapLines(e).join('\n'), /feedback\.parts\.icon.*paintedBy/);
+  const f = mapped();
+  (f.groups!.charts!.parts.heat as any).paintedBy = 'frameworks/nowhere.ts';
+  assert.match(mapLines(f).join('\n'), /charts\.parts\.heat.*nowhere/);
 });

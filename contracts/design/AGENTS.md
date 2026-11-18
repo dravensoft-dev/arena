@@ -99,6 +99,10 @@ slots from them in memory; packages ship the derived slots in `arena.tokens.json
 `contracts/design/color-slots.derived.json` (`scripts/lib/arena/package-assembly.ts:derivedSlotsText(root)`).
 It carries no value, so `check:dtcg` leaves it by name, and `check:color-slots` holds the declarations themselves and the catalogue derived from them: the
 names, the defaults and the manifest parts it points at.
+The file also declares `groups` and `members`: fourteen groups of parts, and for each of the 86 components the group part every coloured manifest part
+maps onto (`"<group>.<part>[@<options>]"`, or `null` for a part that paints only `current` or `transparent`). `scripts/lib/core/color-slot-map.ts:colouredParts(root)`
+reads the coloured parts, and `check:color-slots` refuses a coloured part mapped nowhere, a property its group part does not paint, an option it does not list, and a
+group part nothing maps onto unless it carries `paintedBy`, the file that paints it from code; `paintedBy` on a part a member maps onto, or at a missing path, is refused.
 A slot is never asked for totality or kernel equality, which stay the role gate's.
 
 ## Theming

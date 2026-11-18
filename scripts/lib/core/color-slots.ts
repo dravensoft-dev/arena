@@ -37,6 +37,8 @@ export type SlotDeclarations = {
   }>>;
   exceptions: Record<string, { default: string; decision: string }>;
   rings: Record<string, string>;
+  groups?: Record<string, { parts: Record<string, { properties: string[]; options?: string[]; states: string | string[]; paintedBy?: string }> }>;
+  members?: Record<string, { group: string | null; parts: Record<string, string | null> }>;
 };
 
 export const SLOT_KEYS = ['scope', 'family', 'component', 'option', 'part', 'property', 'state', 'channel', 'accepts', 'on', 'default',
