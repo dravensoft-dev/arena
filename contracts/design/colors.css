@@ -52,8 +52,8 @@
    ============================================================ */
 :root,.arena-dark,.arena-light{
   --level-ink-body:82%;    /* body copy */
-  --level-ink-quiet:70%;   /* a neutral tag's label, quieter than body and above muted */
-  --level-ink-muted:62%;   /* captions, meta, the held-back register */
+  --level-ink-quiet:72%;   /* a neutral tag's label, quieter than body and 8 points above muted */
+  --level-ink-muted:64%;   /* captions, meta, the held-back register; the floor a muted ink keeps 4.5:1 over the 16 % press wash of itself */
   --level-ink-full:100%;   /* a figure, a code, a text action: not held back, and measured like any level */
   --level-presence:52%;    /* ArenaAvatar's offline dot: a graphical object, 3:1 */
   --level-hue-soft-danger:14%;   /* the danger hue's wash */

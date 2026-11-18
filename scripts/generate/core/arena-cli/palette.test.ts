@@ -198,7 +198,8 @@ test('a runtime palette warns when a slot pair, the kernel pressed mix among the
   const sheets = { ...SHEETS, catalogue, levels: [], washes: [] };
   const live = runtimeData({ ...CONFIG, stylePlugins: [] }, sheets, null);
   const palette = JSON.parse(readFileSync(join(repoRoot, 'contracts/design/palette.dark.json'), 'utf8')).color as Record<string, { $value?: { hex?: string } }>;
-  const dark = Object.fromEntries(Object.entries(palette).filter(([, token]) => token.$value?.hex).map(([key, token]) => [key, token.$value?.hex as string]));
+  const shippedDark = Object.fromEntries(Object.entries(palette).filter(([, token]) => token.$value?.hex).map(([key, token]) => [key, token.$value?.hex as string]));
+  const dark = { ...shippedDark, 'primary-fill': '#b52a20' };
   const reports = arenaCheckPalette({ polarity: 'dark', colors: dark }, live);
   assert.ok(reports.some((one) => one.kind === 'contrast'
     && one.message.startsWith('--actions-primary-root-ink-pressed measures 4.47:1 over --actions-primary-root-fill-pressed in the pressed state of the dark theme')),

@@ -1,12 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { readJson } from '../../utils/read-file.ts';
 import * as rules from '../../generate/core/arena-cli/style-plugin-rules.ts';
 import {
-  LIGHT_BY_DESIGN, SCOPES, slotAnswerProblems, collect, shippedFixedRemProblems, defaultAnswerProblems, floorProblems, keyProblems, movedTokens, nameProblems, resolvedFor, totalityProblems,
+  LIGHT_BY_DESIGN, ROOT_PLUGIN, SCOPES, defaultSlotAnswers, slotAnswerProblems, collect, shippedFixedRemProblems, defaultAnswerProblems, floorProblems, keyProblems, movedTokens, nameProblems, resolvedFor, totalityProblems,
   valueProblems, zeroScopeProblems,
 } from './check-style-plugin.ts';
 
@@ -345,4 +346,20 @@ test('a bad slot answer in the light group is refused', () => {
   const kernel = { 'fill-surface': { $type: 'color' }, 'ink-body': { $type: 'color' } };
   const light = { light: { 'actions-primary-root-fill-rest': { $type: 'color', $value: '{ink-body}', $description: 'why' } } };
   assert.equal(slotAnswerProblems('at', light, kernel).length, 1);
+});
+
+test('the default plugin answers no colour slot', () => {
+  assert.deepEqual(defaultSlotAnswers(), [], 'D61: a sub-AA pair of the default is corrected in the identity, never by a slot answer');
+  const dir = mkdtempSync(join(tmpdir(), 'slot-answers-'));
+  try {
+    mkdirSync(join(dir, 'contracts/design'), { recursive: true });
+    mkdirSync(join(dir, 'plugin-style-store/default'), { recursive: true });
+    writeFileSync(join(dir, 'contracts/design/color-slots.json'), readFileSync(join(repoRoot, 'contracts/design/color-slots.json')));
+    const plugin = readJson(join(repoRoot, ROOT_PLUGIN)) as Record<string, unknown>;
+    writeFileSync(join(dir, ROOT_PLUGIN), JSON.stringify({ ...plugin,
+      'actions-primary-root-fill-pressed': { $type: 'color', $value: '{emphasis-primary-fill}', $description: 'why' } }));
+    const lines = defaultSlotAnswers(dir);
+    assert.equal(lines.length, 1, lines.join('\n'));
+    assert.match(lines[0] as string, /actions-primary-root-fill-pressed/);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
 });

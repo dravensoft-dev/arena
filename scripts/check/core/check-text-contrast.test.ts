@@ -4,7 +4,7 @@ import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync,
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
-  COLORS, COMPONENT_SHEETS, ON_INK_GATE, PAIRS, PALETTE, REMOVED, ROLE_SHEETS, SCOPED_PLUGINS, VOCABULARY_SHEETS,
+  COLORS, COMPONENT_SHEETS, ON_INK_GATE, ON_SURFACE, PAIRS, PALETTE, REMOVED, ROLE_SHEETS, SCOPED_PLUGINS, VOCABULARY_SHEETS,
   answeredColour, answeredKey, catalogueOnInk, catalogueReports, contrastScopes, slotReportLines, stateProblems, stateReports, defaultBuildProblems, JUDGED, componentSheets, onInkPairs, paletteColours, resolvePercent, scopesToMeasure, structureOf, surfacesUnder, THEMES,
 } from './check-text-contrast.ts';
 import { paletteBlock } from '../../lib/core/palette-read.ts';
@@ -19,6 +19,7 @@ import { scratchContrastTree } from '../../lib/core/contrast-fixtures.ts';
 import { FILL_PAIRS } from '../../generate/core/arena-cli/palette-keys.ts';
 import { slotPairs } from '../../generate/core/arena-cli/slot-contrast.ts';
 import { tokenCatalogue } from '../../lib/arena/package-assembly.ts';
+import { contrast } from '../../lib/core/validate-palette.mjs';
 
 test('this gate and the shipped command hold the same fills legible', () => {
   const key = (p: { fill: string, content: string }) => `${p.fill}/${p.content}`;
@@ -233,8 +234,8 @@ test('a table\'s figures are drawn in a role the contrast gate measures, and it 
     'a numeric cell and a numeric card value paint --ink-figure through a level, which is the one shape levelReports reads; '
     + 'a raw var(--color-secondary) was an accent drawn as ink that nothing measured');
   assert.deepEqual(reports, [], 'the figures of a pricing table are the numbers a reader came for');
-  assert.ok(inkReports('.arena-table__td', 'ink-figure', 'var(--color-secondary)').reports.some((one) => one.startsWith('light: --ink-figure')),
-    'a plugin raising gold to the figures owes 4.5:1, and on the light card it does not clear it');
+  assert.ok(inkReports('.arena-table__td', 'ink-figure', 'var(--color-neutral)').reports.some((one) => one.startsWith('light: --ink-figure')),
+    'a plugin raising a fill colour to the figures owes 4.5:1, and neutral on the light card does not clear it');
 });
 
 test('a bulk action bar\'s count is a figure, drawn in a role the contrast gate measures', () => {
@@ -242,8 +243,8 @@ test('a bulk action bar\'s count is a figure, drawn in a role the contrast gate 
   assert.deepEqual(selectorsOf(levels), ['.arena-bulk-action-bar__number'],
     'the number of rows selected paints --ink-figure through a level; a raw var(--color-secondary) was gold drawn as ink that nothing measured');
   assert.deepEqual(reports, [], 'the count is what the bar is about');
-  assert.ok(inkReports('.arena-bulk-action-bar__number', 'ink-figure', 'var(--color-secondary)').reports.some((one) => one.startsWith('light: --ink-figure')),
-    'a plugin raising gold to the count owes 4.5:1, and on the light floating surface it does not clear it');
+  assert.ok(inkReports('.arena-bulk-action-bar__number', 'ink-figure', 'var(--color-neutral)').reports.some((one) => one.startsWith('light: --ink-figure')),
+    'a plugin raising a fill colour to the count owes 4.5:1, and neutral on the light floating surface does not clear it');
 });
 
 test('an activity feed\'s target is a code, drawn in a role the contrast gate measures', () => {
@@ -251,20 +252,19 @@ test('an activity feed\'s target is a code, drawn in a role the contrast gate me
   assert.deepEqual(selectorsOf(levels), ['.arena-activity-feed__target'],
     'the identifier a row acted on paints --ink-figure through a level, as a table\'s codes do; a raw var(--color-secondary) was gold drawn as ink that nothing measured');
   assert.deepEqual(reports, [], 'the target is the half of the row a reader scans for');
-  assert.ok(inkReports('.arena-activity-feed__target', 'ink-figure', 'var(--color-secondary)').reports.some((one) => one.startsWith('light: --ink-figure')),
-    'a plugin raising gold to the target owes 4.5:1, and on the light page it does not clear it');
+  assert.ok(inkReports('.arena-activity-feed__target', 'ink-figure', 'var(--color-neutral)').reports.some((one) => one.startsWith('light: --ink-figure')),
+    'a plugin raising a fill colour to the target owes 4.5:1, and neutral on the light page does not clear it');
 });
 
 test('a toast\'s action reads one measured role in every tone, and it clears AA in both themes', () => {
   const { levels, reports } = inkReports('.arena-toast__action', 'ink-action');
   assert.deepEqual(selectorsOf(levels), ['.arena-toast__action'],
-    'the action paints --ink-action through a level in every tone; crimson in neutral and success and gold in danger were accents drawn as ink, '
-    + 'and crimson on the dark floating surface is 2.80:1');
+    'the action paints --ink-action through a level in every tone, one role measured as every ink is');
   assert.deepEqual(reports, [], 'an undo nobody can read is an undo nobody takes');
-  assert.ok(inkReports('.arena-toast__action', 'ink-action', 'var(--color-primary)').reports.some((one) => one.startsWith('dark: --ink-action')),
-    'a plugin raising crimson to the action owes 4.5:1, and on the dark floating surface it does not clear it');
-  assert.ok(inkReports('.arena-toast__action', 'ink-action', 'var(--color-secondary)').reports.some((one) => one.startsWith('light: --ink-action')),
-    'a plugin raising gold to the action owes 4.5:1, and on the light floating surface it does not clear it');
+  for (const theme of ['dark', 'light']) {
+    assert.ok(inkReports('.arena-toast__action', 'ink-action', 'var(--color-neutral)').reports.some((one) => one.startsWith(`${theme}: --ink-action`)),
+      `a plugin raising a fill colour to the action owes 4.5:1, and neutral on the ${theme} floating surface does not clear it`);
+  }
 });
 
 test('the default plugin clears 4.5:1 on its invalid and selected inks in both themes', () => {
@@ -365,4 +365,24 @@ test('a catalogue palette below AA is reported with its entry and palette name',
   const found = catalogueReports(dir);
   assert.ok(found.length > 0, 'a palette that fails AA reports nothing');
   assert.ok(found.every((one) => one.startsWith('weak-register, faint: ')));
+});
+
+test('primary and secondary are gated as ink on the base surfaces', () => {
+  for (const token of ['primary', 'secondary']) {
+    const row = ON_SURFACE.find((one) => one.token === token);
+    assert.equal(row?.gate, 4.5, `--color-${token} read as ink owes 4.5:1 like every ink`);
+    assert.doesNotMatch(row?.note ?? '', /NOT GATED/);
+  }
+});
+
+test('every Dravensoft key read as ink clears 4.5 over base-100, base-200 and base-300', () => {
+  const INK = ['primary', 'secondary', 'error', 'info', 'success', 'warning'];
+  for (const theme of ['dark', 'light']) {
+    const palette = JSON.parse(readFileSync(join(repoRoot, `contracts/design/palette.${theme}.json`), 'utf8')).color as Record<string, { $value?: { hex?: string } }>;
+    const hex = (key: string) => palette[key]?.$value?.hex as string;
+    for (const key of INK) for (const ground of ['base-100', 'base-200', 'base-300']) {
+      const ratio = contrast(hex(key), hex(ground));
+      assert.ok(ratio >= 4.5, `${theme}: ${key} ${hex(key)} over ${ground} ${hex(ground)} is ${ratio.toFixed(2)}:1`);
+    }
+  }
 });

@@ -25,15 +25,11 @@ const kernel = (theme: string) => slotReports(CATALOGUE.slots, new Map(), rolesF
 const lineOf = (lines: string[], slot: string, over: string, ratio: string) =>
   lines.some((line) => line.startsWith(`--${slot} measures ${ratio}:1 over --${over} in the `));
 
-test('the kernel pressed mix of Arena\'s primary falls under AA', () => {
+test('the kernel pressed mix of Arena\'s primary and destructive actions clears AA, so the default plugin answers neither', () => {
   for (const theme of ['dark', 'light']) {
-    const lines = kernel(theme);
-    assert.ok(lineOf(lines, 'actions-primary-root-ink-pressed', 'actions-primary-root-fill-pressed', '4.47'), `${theme}\n${lines.join('\n')}`);
-    assert.ok(lines.some((line) => /^--actions-destructive-root-ink-pressed measures 4\.(34|25):1 over --actions-destructive-root-fill-pressed/.test(line)), theme);
-    assert.ok(lines.some((line) => /^--actions-destructive-root-ink-pressed measures (4\.02|3\.89):1 /.test(line)), theme);
+    const lines = kernel(theme).filter((line) => /^--actions-(primary|solid|destructive)-root-/.test(line));
+    assert.deepEqual(lines, [], theme);
   }
-  assert.ok(lineOf(kernel('light'), 'actions-destructive-root-ink-hover', 'actions-destructive-root-fill-hover', '4.36'));
-  assert.equal(kernel('dark').some((line) => line.includes('destructive-root-ink-hover')), false, 'dark hover is 4.56');
 });
 
 test('a ghost pair is measured over each ground', () => {
@@ -177,7 +173,7 @@ test('a member default is measured as the member paints it, where it moves a pai
   const fixture = structuredClone(CATALOGUE.slots);
   fixture.members!['ArenaIconButton.root']!.defaults = { 'actions-ghost-root-edge-selected': '{fill-selected}' };
   const lines = slotReports(fixture, new Map(), roles, colors, 'dark', LEVELS).map((one) => one.message);
-  assert.ok(lines.some((line) => /^--actions-ghost-root-edge-selected measures [0-9.]+:1 over --actions-ghost-root-fill-selected .*as ArenaIconButton\.root paints it with its own default/.test(line)), lines.join('\n'));
+  assert.ok(lines.some((line) => /^--actions-ghost-root-edge-selected(-pressed)? measures [0-9.]+:1 over --actions-ghost-root-fill-selected(-pressed)? .*as ArenaIconButton\.root paints it with its own default/.test(line)), lines.join('\n'));
   assert.equal(slotReports(CATALOGUE.slots, new Map(), roles, colors, 'dark', LEVELS).some((one) => one.message.includes('ArenaIconButton.root')), false,
     'the shipped member default is a rest edge, which is no pair');
 });
@@ -194,10 +190,9 @@ const pluginAt = (theme: string) => {
   };
 };
 
-test('the default plugin keeps D22\'s destructive hover figures under the group names, and the kernel keeps the primary pressed pair', () => {
-  assert.equal(pluginAt('dark')('actions-destructive-root-ink-hover', 'actions-destructive-root-fill-hover'), '5.15');
-  assert.equal(pluginAt('light')('actions-destructive-root-ink-hover', 'actions-destructive-root-fill-hover'), '5.41');
-  for (const theme of ['dark', 'light']) {
-    assert.ok(lineOf(kernel(theme), 'actions-primary-root-ink-pressed', 'actions-primary-root-fill-pressed', '4.47'), theme);
-  }
+test('the default plugin paints its actions with the kernel answers, and their hover and pressed figures clear AA', () => {
+  const figures = (theme: string) => ['hover', 'pressed'].flatMap((state) => ['destructive', 'primary']
+    .map((option) => pluginAt(theme)(`actions-${option}-root-ink-${state}`, `actions-${option}-root-fill-${state}`)));
+  assert.deepEqual(figures('dark'), ['5.32', '6.41', '4.94', '4.53']);
+  assert.deepEqual(figures('light'), ['5.17', '6.41', '4.91', '4.53']);
 });

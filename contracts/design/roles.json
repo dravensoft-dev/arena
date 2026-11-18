@@ -1200,7 +1200,7 @@
   },
   "ink-action": {
     "$type": "color",
-    "$description": "The colour of an action set as text rather than drawn as a control: a toast's undo or retry. Born at base-content, the ink every palette already holds to 4.5:1 on its surfaces, and the same in every tone, because the tone is carried by the toast's side edge and an action is not a risk trigger, so a danger toast's retry is not drawn as danger.\n\nA role rather than a palette step, because an action in an accent is a style decision over a palette Arena does not know. It was crimson in two tones and gold in the third, which is 2.80:1 on the dark floating surface and 2.24:1 on the light card. A plugin that raises an accent to it owes the 4.5:1 every other ink owes: the action is drawn through --level-ink-full, so check:text-contrast and the shipped command measure it like any level.",
+    "$description": "The colour of an action set as text rather than drawn as a control: a toast's undo or retry. Born at base-content, the ink every palette already holds to 4.5:1 on its surfaces, and the same in every tone, because the tone is carried by the toast's side edge and an action is not a risk trigger, so a danger toast's retry is not drawn as danger.\n\nA role rather than a palette step, because an action in an accent is a style decision over a palette Arena does not know. A plugin that raises an accent to it owes the 4.5:1 every other ink owes: the action is drawn through --level-ink-full, so check:text-contrast and the shipped command measure it like any level.",
     "$extensions": {
       "com.dravensoft.arena": {
         "default": "{color.base-content}",

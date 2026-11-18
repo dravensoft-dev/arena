@@ -83,7 +83,7 @@ an application, which is the last word and is already reported for reaching in.
 the rule ships beside the CLI and cannot read that file.
 
 **Where no palette entry holds the shade a plugin wants, it composes one.**
-`color-mix(in oklab, var(--color-base-content) 62%, transparent)` is a colour built out of the
+`color-mix(in oklab, var(--color-base-content) 64%, transparent)` is a colour built out of the
 consumer's own palette rather than a name borrowed from Arena's internals, and it is the same
 instruction the audit gives a consumer who writes a raw colour. That is the route for a decision no
 role carries, and holding a level is the clearest case: a role names which colour and the opacity
@@ -364,7 +364,7 @@ A colour role names WHICH of the consumer's colours and never how held back it i
 and the count was two plugins reaching for one alias rather than two plugins asking one question.
 
 **What a plugin does instead is compose the colour**, `color-mix(in oklab, var(--color-base-content)
-62%, transparent)`, which is the instruction the audit already gives a consumer who writes a raw
+64%, transparent)`, which is the instruction the audit already gives a consumer who writes a raw
 one. The limit behind it is worth stating in the same breath: a slot carrying no opacity modifier
 cannot be held back by any token, because the modifier lives in the manifest and a role cannot add
 a declaration a slot never makes. Most text carries none, since full strength is the ordinary case

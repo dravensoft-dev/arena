@@ -270,12 +270,6 @@
   --accent-gold-side-edge:var(--color-secondary);
   --elevation-flat-shadow:0px 0px 0px 0px rgba(0,0,0,0);
   --elevation-floating-shadow:0px 12px 28px -12px rgba(0,0,0,.6);
-  --actions-primary-root-fill-pressed:var(--emphasis-primary-fill); /* The primary fill is the darkest red the palette carries, so a press keeps the fill and moves by the press scale: mixing it toward its ink would lighten it until the label falls under 4.5:1. */
-  --actions-solid-root-fill-pressed:var(--emphasis-solid-fill); /* The solid fill is the darkest red the palette carries, so a press keeps the fill and moves by the press scale: mixing it toward its ink would lighten it until the label falls under 4.5:1. */
-  --actions-destructive-root-fill-hover:var(--hue-danger-fill-soft); /* A destructive action fills with the danger hue under the pointer, so the control reads as the destructive action it is while the pointer is on it. */
-  --actions-destructive-root-fill-pressed:var(--hue-danger-fill-soft); /* A destructive action fills with the danger hue when pressed, so the control reads as the destructive action it is while it is pressed. */
-  --actions-destructive-root-ink-hover:var(--hue-danger-on-ink); /* A destructive action sets its label and glyph in the content colour of the danger hue under the pointer, because they stand on that fill. */
-  --actions-destructive-root-ink-pressed:var(--hue-danger-on-ink); /* A destructive action sets its label and glyph in the content colour of the danger hue when pressed, because they stand on that fill. */
 }
 .arena-dark{
   --overlay-media:var(--color-base-100);
@@ -355,12 +349,6 @@
   --accent-primary-edge:var(--color-primary);
   --accent-plain-side-edge:var(--color-neutral);
   --accent-gold-side-edge:var(--color-secondary);
-  --actions-primary-root-fill-pressed:var(--emphasis-primary-fill); /* The primary fill is the darkest red the palette carries, so a press keeps the fill and moves by the press scale: mixing it toward its ink would lighten it until the label falls under 4.5:1. */
-  --actions-solid-root-fill-pressed:var(--emphasis-solid-fill); /* The solid fill is the darkest red the palette carries, so a press keeps the fill and moves by the press scale: mixing it toward its ink would lighten it until the label falls under 4.5:1. */
-  --actions-destructive-root-fill-hover:var(--hue-danger-fill-soft); /* A destructive action fills with the danger hue under the pointer, so the control reads as the destructive action it is while the pointer is on it. */
-  --actions-destructive-root-fill-pressed:var(--hue-danger-fill-soft); /* A destructive action fills with the danger hue when pressed, so the control reads as the destructive action it is while it is pressed. */
-  --actions-destructive-root-ink-hover:var(--hue-danger-on-ink); /* A destructive action sets its label and glyph in the content colour of the danger hue under the pointer, because they stand on that fill. */
-  --actions-destructive-root-ink-pressed:var(--hue-danger-on-ink); /* A destructive action sets its label and glyph in the content colour of the danger hue when pressed, because they stand on that fill. */
 }
 .arena-light{
   --overlay-media:var(--color-base-100);
@@ -440,12 +428,6 @@
   --accent-primary-edge:var(--color-primary);
   --accent-plain-side-edge:var(--color-neutral);
   --accent-gold-side-edge:var(--color-secondary);
-  --actions-primary-root-fill-pressed:var(--emphasis-primary-fill); /* The primary fill is the darkest red the palette carries, so a press keeps the fill and moves by the press scale: mixing it toward its ink would lighten it until the label falls under 4.5:1. */
-  --actions-solid-root-fill-pressed:var(--emphasis-solid-fill); /* The solid fill is the darkest red the palette carries, so a press keeps the fill and moves by the press scale: mixing it toward its ink would lighten it until the label falls under 4.5:1. */
-  --actions-destructive-root-fill-hover:var(--hue-danger-fill-soft); /* A destructive action fills with the danger hue under the pointer, so the control reads as the destructive action it is while the pointer is on it. */
-  --actions-destructive-root-fill-pressed:var(--hue-danger-fill-soft); /* A destructive action fills with the danger hue when pressed, so the control reads as the destructive action it is while it is pressed. */
-  --actions-destructive-root-ink-hover:var(--hue-danger-on-ink); /* A destructive action sets its label and glyph in the content colour of the danger hue under the pointer, because they stand on that fill. */
-  --actions-destructive-root-ink-pressed:var(--hue-danger-on-ink); /* A destructive action sets its label and glyph in the content colour of the danger hue when pressed, because they stand on that fill. */
 }
 .arena-light{
   --edge-focus:var(--color-base-content);

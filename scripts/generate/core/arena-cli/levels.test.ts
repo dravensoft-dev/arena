@@ -367,8 +367,10 @@ const STATE_ROLES = (over: Record<string, string> = {}) => new Map(Object.entrie
   ...over,
 }));
 
+const PALE = { ...LIGHT, secondary: '#c5a059' };
+
 test('a pale light secondary reports edge-focus under 3:1', () => {
-  const found = stateReports(STATE_ROLES({ 'edge-focus': 'var(--color-secondary)' }), LIGHT, 'light', {});
+  const found = stateReports(STATE_ROLES({ 'edge-focus': 'var(--color-secondary)' }), PALE, 'light', {});
   assert.deepEqual(found.map((one) => one.kind), ['contrast', 'contrast', 'contrast', 'contrast'], 'one report per surface');
   for (const one of found) {
     assert.match(one.message, /^--edge-focus measures \d\.\d\d:1 against --fill-(page|surface|field|track) in the light theme, below 3:1 \(WCAG 1\.4\.11\)/);
@@ -401,7 +403,7 @@ test('the state pairs are the ones D29 and the contrast rule name', () => {
 });
 
 test('a ring too pale for the track ground is reported against fill-track', () => {
-  const found = stateReports(STATE_ROLES({ 'edge-focus': 'var(--color-secondary)' }), LIGHT, 'light', {});
+  const found = stateReports(STATE_ROLES({ 'edge-focus': 'var(--color-secondary)' }), PALE, 'light', {});
   assert.ok(found.some((one) => /^--edge-focus measures \d\.\d\d:1 against --fill-track in the light theme/.test(one.message)));
 });
 

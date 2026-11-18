@@ -1404,36 +1404,6 @@
     "$type": "shadow",
     "$value": "{shadow.2}"
   },
-  "actions-primary-root-fill-pressed": {
-    "$type": "color",
-    "$value": "{emphasis-primary-fill}",
-    "$description": "The primary fill is the darkest red the palette carries, so a press keeps the fill and moves by the press scale: mixing it toward its ink would lighten it until the label falls under 4.5:1."
-  },
-  "actions-solid-root-fill-pressed": {
-    "$type": "color",
-    "$value": "{emphasis-solid-fill}",
-    "$description": "The solid fill is the darkest red the palette carries, so a press keeps the fill and moves by the press scale: mixing it toward its ink would lighten it until the label falls under 4.5:1."
-  },
-  "actions-destructive-root-fill-hover": {
-    "$type": "color",
-    "$value": "{hue-danger-fill-soft}",
-    "$description": "A destructive action fills with the danger hue under the pointer, so the control reads as the destructive action it is while the pointer is on it."
-  },
-  "actions-destructive-root-fill-pressed": {
-    "$type": "color",
-    "$value": "{hue-danger-fill-soft}",
-    "$description": "A destructive action fills with the danger hue when pressed, so the control reads as the destructive action it is while it is pressed."
-  },
-  "actions-destructive-root-ink-hover": {
-    "$type": "color",
-    "$value": "{hue-danger-on-ink}",
-    "$description": "A destructive action sets its label and glyph in the content colour of the danger hue under the pointer, because they stand on that fill."
-  },
-  "actions-destructive-root-ink-pressed": {
-    "$type": "color",
-    "$value": "{hue-danger-on-ink}",
-    "$description": "A destructive action sets its label and glyph in the content colour of the danger hue when pressed, because they stand on that fill."
-  },
   "light": {
     "edge-focus": {
       "$type": "color",

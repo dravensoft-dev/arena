@@ -187,7 +187,7 @@ test('the default palette wears a class: .arena-dark carries the :root block, an
   assert.equal(body(palette, '.arena-dark'), body(palette, ':root'));
   const plugin = built.get('style-plugin.default.generated.css') as string;
   const names = (selector: string) => [...(body(plugin, selector) ?? '').matchAll(/^\s*--([\w-]+):/gm)].map((m) => m[1]);
-  assert.equal(names('.arena-dark').length, 83);
+  assert.equal(names('.arena-dark').length, 77);
   assert.deepEqual(names('.arena-dark'), names('.arena-light'));
   const rootValue = (name: string) => new RegExp(`--${name}:([^;]+);`).exec(body(plugin, ':root') ?? '')?.[1];
   for (const line of (body(plugin, '.arena-dark') ?? '').split('\n').filter(Boolean)) {
@@ -294,8 +294,8 @@ test('breakpoints are rem tokens and em variants', async () => {
 
 test('a slot answered with a colour role is restated under each theme scope, as a colour role is', async () => {
   const { buildAll } = await import('./generate-tokens.ts');
-  const plugin = (await buildAll()).get('style-plugin.default.generated.css') as string;
-  const declared = (selector: string) => new RegExp(`^${selector.replace('.', '\\.')}\\{\\n([\\s\\S]*?)\\n\\}`, 'm').exec(plugin)?.[1] ?? '';
+  const plugin = (await buildAll()).get('style-plugin.complete.generated.css') as string;
+  const declared = (selector: string) => new RegExp(`^@scope \\(${selector.replace('.', '\\.')}\\) \\{\\n[^{]*\\{\\n([\\s\\S]*?)\\n\\}`, 'm').exec(plugin)?.[1] ?? '';
   for (const name of ['actions-primary-root-fill-pressed', 'actions-destructive-root-ink-hover']) {
     for (const scope of ['.arena-dark', '.arena-light']) {
       assert.match(declared(scope), new RegExp(`^\\s*--${name}:var\\(--[\\w-]+\\);`, 'm'), `${name} under ${scope}`);

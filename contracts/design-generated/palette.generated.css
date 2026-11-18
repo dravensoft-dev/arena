@@ -12,20 +12,21 @@
   --color-base-200:#1d1715; /* elevated surface / card */
   --color-base-300:#241c19; /* panel / border */
   --color-base-content:#f3ede5; /* text on base */
-  --color-primary:#b52a20; /* crimson */
+  --color-primary:#e25647; /* crimson */
   --color-primary-content:#ffffff;
   /*
      The ground primary-content sits on: a filled button, a checked box, a current page.
      OPTIONAL, like error-fill: omit it and the fill is primary. It exists for a
      palette whose accent, tuned to read as ink on its page, is too light to carry
-     its content; crimson carries white in both themes, so this skin pins primary.
+     its content; dark primary is a lighter crimson tuned to read as ink on warm black,
+     so this skin pins the fill at a darker crimson that carries white in both themes.
    */
-  --color-primary-fill:#b52a20;
+  --color-primary-fill:#b4291f;
   --color-secondary:#c5a059; /* gold */
   --color-secondary-content:#141010;
   --color-neutral:#2c221e; /* neutral surface */
   --color-neutral-content:#d8cfc4;
-  --color-info:#3182ce;
+  --color-info:#3888d5;
   --color-info-content:#141010;
   --color-success:#38a169;
   --color-success-content:#141010;
@@ -36,7 +37,7 @@
      the base surfaces, lighter than the shared #e53e3e it replaced (4.29:1 on
      base-200: under AA).
    */
-  --color-error:#e85151;
+  --color-error:#f65e5c;
   --color-error-content:#ffffff;
   /*
      Filled danger. --color-error is tuned to be read AS TEXT on the base
@@ -90,20 +91,21 @@
   --color-base-200:#1d1715; /* elevated surface / card */
   --color-base-300:#241c19; /* panel / border */
   --color-base-content:#f3ede5; /* text on base */
-  --color-primary:#b52a20; /* crimson */
+  --color-primary:#e25647; /* crimson */
   --color-primary-content:#ffffff;
   /*
      The ground primary-content sits on: a filled button, a checked box, a current page.
      OPTIONAL, like error-fill: omit it and the fill is primary. It exists for a
      palette whose accent, tuned to read as ink on its page, is too light to carry
-     its content; crimson carries white in both themes, so this skin pins primary.
+     its content; dark primary is a lighter crimson tuned to read as ink on warm black,
+     so this skin pins the fill at a darker crimson that carries white in both themes.
    */
-  --color-primary-fill:#b52a20;
+  --color-primary-fill:#b4291f;
   --color-secondary:#c5a059; /* gold */
   --color-secondary-content:#141010;
   --color-neutral:#2c221e; /* neutral surface */
   --color-neutral-content:#d8cfc4;
-  --color-info:#3182ce;
+  --color-info:#3888d5;
   --color-info-content:#141010;
   --color-success:#38a169;
   --color-success-content:#141010;
@@ -114,7 +116,7 @@
      the base surfaces, lighter than the shared #e53e3e it replaced (4.29:1 on
      base-200: under AA).
    */
-  --color-error:#e85151;
+  --color-error:#f65e5c;
   --color-error-content:#ffffff;
   /*
      Filled danger. --color-error is tuned to be read AS TEXT on the base
@@ -167,24 +169,25 @@
      The ground primary-content sits on: a filled button, a checked box, a current page.
      OPTIONAL, like error-fill: omit it and the fill is primary. It exists for a
      palette whose accent, tuned to read as ink on its page, is too light to carry
-     its content; crimson carries white in both themes, so this skin pins primary.
+     its content; dark primary is a lighter crimson tuned to read as ink on warm black,
+     so this skin pins the fill at a darker crimson that carries white in both themes.
    */
-  --color-primary-fill:#b52a20;
-  --color-secondary:#c5a059;
-  --color-secondary-content:#141010;
+  --color-primary-fill:#b4291f;
+  --color-secondary:#856214;
+  --color-secondary-content:#ffffff;
   --color-neutral:#cabcad;
   --color-neutral-content:#3a2e29;
-  --color-info:#3182ce;
-  --color-info-content:#141010;
-  --color-success:#38a169;
-  --color-success-content:#141010;
-  --color-warning:#ecc94b;
-  --color-warning-content:#141010;
+  --color-info:#126ab5;
+  --color-info-content:#ffffff;
+  --color-success:#007742;
+  --color-success-content:#ffffff;
+  --color-warning:#846200;
+  --color-warning-content:#ffffff;
   /*
      Danger as text and border: darker than dark's, because here it is read against bone
      rather than warm black. Same role, opposite direction.
    */
-  --color-error:#c33535;
+  --color-error:#b5262a;
   --color-error-content:#ffffff;
   /*
      Filled danger: see the dark theme's note; likewise an OPTIONAL pin over the

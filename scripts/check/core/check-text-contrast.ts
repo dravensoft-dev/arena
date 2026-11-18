@@ -1,6 +1,8 @@
 /* Reads both sheets from disk inside main() and not at module top level, because the graph
  * collects a node's declaration by importing the script that carries it. A gate doing its work
- * where an import reaches it cannot be collected, and this one exits the process outright. */
+ * where an import reaches it cannot be collected, and this one exits the process outright.
+ * Every accent the palette carries is read as ink somewhere, so each one in ON_SURFACE owes
+ * 4.5:1 on the base surfaces like every other ink, and none is a brand value let through. */
 
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -142,10 +144,10 @@ export const PAIRS = [
   { fill: 'warning', content: 'warning-content', gate: 4.5, note: 'daisyUI pair — legible content on the fill' },
 ];
 
-const ON_SURFACE = [
+export const ON_SURFACE = [
   { token: 'error', gate: 4.5, note: 'danger as text and border, measured on the base surfaces (.btn.danger, .iconbtn.danger, .mitem.danger)' },
-  { token: 'primary', gate: null, note: 'REPORTED, NOT GATED — crimson as text (ArenaConfirmDialog eyebrow); brand value, see header' },
-  { token: 'secondary', gate: null, note: 'REPORTED, NOT GATED — gold as text/focus ring; brand value, see header' },
+  { token: 'primary', gate: 4.5, note: 'crimson as text on the base surfaces: ink-eyebrow and accent-primary-ink' },
+  { token: 'secondary', gate: 4.5, note: 'gold as text and as a line on the base surfaces: accent-gold-ink and edge-focus' },
 ];
 
 export const ON_INK_GATE = 4.5;

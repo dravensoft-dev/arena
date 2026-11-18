@@ -135,6 +135,13 @@ export function slotAnswerProblems(where: string, tokens: Record<string, unknown
     .flatMap(({ key, token }) => keyProblems(where, key, token, undefined, { slots, colourNames }));
 }
 
+export function defaultSlotAnswers(at = repoRoot): string[] {
+  const slots = readColorSlots(at).slots;
+  return movedTokens(readJson(join(at, ROOT_PLUGIN)) as Record<string, unknown>).filter(({ key }) => Object.hasOwn(slots, key))
+    .map(({ key, theme }) => `${ROOT_PLUGIN}: --${key}${theme ? ` (${theme})` : ''} answers a colour slot. The default `
+      + 'plugin answers none: a pair it falls short on is corrected in the identity or the group default.');
+}
+
 export function shippedFixedRemProblems(kernel: Record<string, unknown>) {
   const axes = Object.fromEntries(Object.entries(kernel)
     .map(([name, role]) => [name, { userScale: declaredAxis(role as DtcgNode) }]));
@@ -163,6 +170,7 @@ export function collect(sheets?: string) {
   ));
   problems.push(...shippedFixedRemProblems(kernel));
   problems.push(...slotAnswerProblems(ROOT_PLUGIN, readJson(join(repoRoot, ROOT_PLUGIN)) as Record<string, unknown>, kernel));
+  problems.push(...defaultSlotAnswers());
   return problems;
 }
 
