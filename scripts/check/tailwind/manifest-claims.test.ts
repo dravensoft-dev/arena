@@ -525,7 +525,9 @@ export const CLAIMS = {
       why: 'a pressed control is a state of the control and states its own wash over any emphasis' },
     { chosen: { showLabel: true }, slot: 'root', has: ['w-[var(--arena-fill-width,fit-content)]', 'gap-control'], why: 'showLabel opens the box out to its label through the fill channel and gives the glyph a gap; without it the control has neither' },
     { chosen: { showLabel: false }, slot: 'root', has: ['p-0', 'gap-0'], why: 'showLabel opens the box out and gives the glyph a gap; without it the control has neither' },
-    { slot: 'root', has: ['disabled:opacity-[var(--arena-emphasis-fade-disabled,var(--emphasis-ghost-root-fade-disabled,var(--fade-disabled)))]', 'disabled:cursor-not-allowed'], hasNot: ['disabled:opacity-45'], why: 'the disabled treatment is a :disabled variant, which only a real disabled control matches' },
+    { chosen: { pressed: false }, slot: 'root', has: ['disabled:opacity-[var(--arena-emphasis-fade-disabled,var(--emphasis-ghost-root-fade-disabled,var(--fade-disabled)))]', 'disabled:cursor-not-allowed'], hasNot: ['disabled:opacity-45', 'disabled:opacity-[var(--arena-emphasis-fade-selected-disabled,var(--emphasis-ghost-root-fade-selected-disabled,var(--fade-disabled)))]'], why: 'the disabled treatment is a :disabled variant, which only a real disabled control matches' },
+    { chosen: { pressed: true }, slot: 'root', has: ['disabled:opacity-[var(--arena-emphasis-fade-selected-disabled,var(--emphasis-ghost-root-fade-selected-disabled,var(--fade-disabled)))]'], hasNot: ['disabled:opacity-[var(--arena-emphasis-fade-disabled,var(--emphasis-ghost-root-fade-disabled,var(--fade-disabled)))]'],
+      why: 'a selected disabled control fades by its own marker, and one disabled answer neither repaints nor un-fades it, and only one fade applies to the element' },
   ],
   ArenaInput: [
     { slot: 'error', has: ['text-ink-invalid'], hasNot: ['text-error'], why: 'the field error message reads the invalid ink role, so a plugin answering ink-invalid moves the message with the edge' },

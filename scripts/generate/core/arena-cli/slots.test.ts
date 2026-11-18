@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readColorSlots } from '../../../lib/core/color-slots.ts';
-import { channelValue, componentValue, slotChain } from './slots.ts';
+import { channelValue, componentValue, fadeMarkers, slotChain } from './slots.ts';
 
 const c = readColorSlots();
 
@@ -84,4 +84,13 @@ test('a derived slot with no ink to mix toward names the slot being built', () =
   delete broken.slots['emphasis-solid-root-ink-rest'];
   assert.throws(() => channelValue(broken, 'emphasis-solid-root-fill-pressed', 'tailwind'),
     /emphasis-solid-root-fill-pressed: .*emphasis-solid-root-fill-rest/);
+});
+
+test('a selected disabled slot falls to the selected channel and writes its own fade marker', () => {
+  assert.equal(channelValue(c, 'emphasis-ghost-root-ink-selected-disabled', 'tailwind'),
+    'var(--emphasis-ghost-root-ink-selected-disabled,var(--arena-emphasis-ink-selected))');
+  assert.equal(slotChain(c, 'icon-button-ghost-root-edge-selected-disabled'),
+    'var(--icon-button-ghost-root-edge-selected-disabled,var(--arena-emphasis-icon-edge-selected))');
+  assert.deepEqual(fadeMarkers(['icon-button-ghost-root-ink-disabled', 'icon-button-ghost-root-ink-selected-disabled', 'icon-button-ghost-root-fill-selected-disabled'], c),
+    [['--icon-button-ghost-root-fade-disabled', '1'], ['--icon-button-ghost-root-fade-selected-disabled', '1']]);
 });

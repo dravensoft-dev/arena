@@ -99,7 +99,11 @@ export function defaultProblems(c: SlotCatalogue, roles: ReadonlySet<string>): s
     } else if (answered > 1 || (answered === 0 && s.optional !== true) || (s.derive !== undefined && s.optional === true)) {
       out.push(`${name}: a ${s.state} slot carries exactly one of a default or a derive, or is optional with neither; only a disabled slot may be optional beside its default`);
     }
-    if (s.optional && s.state !== 'disabled') out.push(`${name}: optional is for a disabled slot only`);
+    if (s.optional && s.state !== 'disabled' && s.state !== 'selected-disabled') out.push(`${name}: optional is for a disabled or selected-disabled slot only`);
+    if (s.optional) {
+      const base = expectedName({ ...s, state: s.state === 'selected-disabled' ? 'selected' : 'rest' });
+      if (!Object.hasOwn(c.slots, base)) out.push(`${name}: it falls to ${base}, which is no slot`);
+    }
     if (!mixIsFill(s)) out.push(`${name}: mix is for a fill only`);
     if (s.derive?.mix !== undefined && !['mix-hover', 'mix-pressed'].includes(s.derive.mix)) out.push(`${name}: mix "${s.derive.mix}" is neither mix-hover nor mix-pressed`);
     if (s.default !== undefined) {
@@ -235,7 +239,7 @@ export function ringProblems(c: SlotCatalogue, manifests: Manifests): string[] {
 }
 
 const MODIFIER: Record<string, string> = {
-  rest: '', hover: 'hover:', pressed: 'active:', disabled: 'disabled:', selected: '', 'selected-hover': 'hover:', 'selected-pressed': 'active:',
+  rest: '', hover: 'hover:', pressed: 'active:', disabled: 'disabled:', selected: '', 'selected-hover': 'hover:', 'selected-pressed': 'active:', 'selected-disabled': 'disabled:',
 };
 const UTILITY: Record<string, string> = { fill: 'bg-[color:', ink: 'text-[color:', edge: 'border-[color:', icon: '[--arena-icon-ink:' };
 const VARIANT = /^(?:[a-z][a-z0-9-]*:)+/;

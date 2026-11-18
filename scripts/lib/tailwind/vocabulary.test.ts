@@ -297,3 +297,10 @@ test('channelReads marks a read that sits inside the fallback of another when as
     { channel: '--arena-x-a', fallback: 'var(--arena-x-b)' }, { channel: '--arena-x-b', fallback: null }, { channel: '--arena-x-b', fallback: null }]);
   assert.deepEqual(channelReads(classes, true).map((one) => one.nested), [false, true, false]);
 });
+
+test('a selected disabled slot wraps the selected fade with its own marker, beside the disabled one', () => {
+  const css = emphasisSheet();
+  assert.match(css, /--arena-emphasis-fade-selected-disabled: var\(--icon-button-ghost-root-fade-selected-disabled,var\(--emphasis-ghost-root-fade-selected-disabled,var\(--fade-disabled\)\)\);/);
+  assert.match(css, /--arena-emphasis-ink-selected-disabled: var\(--icon-button-ghost-root-ink-selected-disabled,var\(--emphasis-ghost-root-ink-selected-disabled,var\(--arena-emphasis-ink-selected\)\)\);/);
+  assert.doesNotMatch(css, /--arena-emphasis-fade-selected-disabled: var\(--button-/);
+});

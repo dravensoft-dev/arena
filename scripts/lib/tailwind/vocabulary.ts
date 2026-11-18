@@ -261,10 +261,13 @@ function partWrites(k: Compiler, option: string, owner: Owner): Map<string, stri
     const base = writes.get(slot.channel as string);
     writes.set(slot.channel as string, base === undefined ? slotChain(k.catalogue, name) : componentValue(base, slot, name));
   }
-  const disabled = slots.find(([, slot]) => slot.state === 'disabled')?.[1];
-  const fade = writes.get(FADE);
-  if (disabled !== undefined && fade !== undefined)
-    writes.set(FADE, `var(--${slotStem(owner.manifest.component)}-${disabled.option}-${disabled.part}-fade-disabled,${fade})`);
+  for (const state of ['disabled', 'selected-disabled'] as const) {
+    const disabled = slots.find(([, slot]) => slot.state === state)?.[1];
+    const channel = `--arena-emphasis-fade-${state}`;
+    const fade = writes.get(channel);
+    if (disabled !== undefined && fade !== undefined)
+      writes.set(channel, `var(--${slotStem(owner.manifest.component)}-${disabled.option}-${disabled.part}-fade-${state},${fade})`);
+  }
   return writes;
 }
 

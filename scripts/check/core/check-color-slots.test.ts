@@ -118,18 +118,18 @@ test('a slot on a part or option its manifest lacks is refused', () => {
 
 test('the contract counts', () => {
   const slots = Object.values(shipped().slots);
-  assert.equal(slots.length, 415);
+  assert.equal(slots.length, 429);
   const by = (key: (s: (typeof slots)[number]) => string) => {
     const n: Record<string, number> = {};
     for (const s of slots) n[key(s)] = (n[key(s)] ?? 0) + 1;
     return n;
   };
   assert.deepEqual(by((s) => s.component ?? s.family ?? ''), {
-    ArenaButton: 64, ArenaCopyButton: 32, ArenaFileInput: 24, ArenaIconButton: 56, ArenaSplitButton: 128,
-    accent: 13, emphasis: 78, hue: 20,
+    ArenaButton: 64, ArenaCopyButton: 32, ArenaFileInput: 24, ArenaIconButton: 64, ArenaSplitButton: 128,
+    accent: 13, emphasis: 84, hue: 20,
   });
-  assert.deepEqual(by((s) => s.state), { rest: 120, disabled: 79, hover: 87, pressed: 87, selected: 14, 'selected-hover': 14, 'selected-pressed': 14 });
-  assert.equal(slots.filter((s) => s.optional).length, 79);
+  assert.deepEqual(by((s) => s.state), { rest: 120, disabled: 79, hover: 87, pressed: 87, selected: 14, 'selected-hover': 14, 'selected-pressed': 14, 'selected-disabled': 14 });
+  assert.equal(slots.filter((s) => s.optional).length, 93);
   assert.equal(slots.filter((s) => s.derive?.mix === 'mix-pressed').length, 9);
   assert.equal(slots.filter((s) => s.derive?.mix === 'mix-hover').length, 2);
 });
@@ -177,4 +177,19 @@ test('every slot of the five buttons reaches its part under its state', () => {
 test('a family slot no part reads is refused', () => {
   const c = edit((x) => { x.slots['emphasis-primary-root-fill-rest']!.channel = '--arena-emphasis-fill-nobody'; });
   assert.ok(readProblems(c, manifests).some((line) => /emphasis-primary-root-fill-rest.*--arena-emphasis-fill-nobody/.test(line)));
+});
+
+test('a selected disabled slot is optional, falls to selected, and is read under disabled: in the pressed branch', () => {
+  const c = shipped();
+  assert.equal(c.slots['icon-button-ghost-root-ink-selected-disabled']!.optional, true);
+  const lost = structuredClone(manifests) as Map<string, any>;
+  const root = lost.get('ArenaIconButton').variants.pressed.true;
+  const read = 'disabled:text-[color:var(--arena-emphasis-ink-selected-disabled,';
+  assert.ok(root.root.includes(read));
+  root.root = root.root.replace(read, 'text-[color:var(--arena-emphasis-ink-selected-disabled,');
+  const lines = readProblems(c, lost);
+  assert.equal(lines.length, 1);
+  assert.match(lines[0] ?? '', /ArenaIconButton\.root.*--arena-emphasis-ink-selected-disabled.*disabled:/);
+  const orphan = edit((x) => { delete x.slots['emphasis-ghost-root-ink-selected']; });
+  assert.ok(shapeProblems(orphan).concat(defaultProblems(orphan, roles)).some((l) => /emphasis-ghost-root-ink-selected-disabled.*falls to emphasis-ghost-root-ink-selected/.test(l)));
 });

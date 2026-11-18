@@ -3,10 +3,10 @@
  * read by a manifest that answers the family, with the default's value as that read's fallback, so
  * the look with no class written is the look the default names, a default writing initial reading
  * the fallback itself; a read inside another read's fallback needs none, and a channel compiled from
- * a component's colour slot counts as the family's. Every
- * answers names a family, a mark manifest maps only to a measured hue or none, every transparent slot
- * is a slot of its manifest with a reason, the vocabulary page equals a fresh render, an empty
- * vocabulary fails, and so does an arena- class in a sheet that no family and no manifest emits. */
+ * a component's colour slot counts as the family's. Every answers names a family, a mark manifest
+ * maps only to a measured hue or none, every transparent slot is a slot of its manifest with a
+ * reason, the vocabulary page equals a fresh render, an empty vocabulary fails, and so does an
+ * arena- class in a sheet that no family and no manifest emits. */
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -251,7 +251,6 @@ export function familyProblems(
     }
     for (const [slot, classes] of slotClassStrings(manifest)) {
       for (const { channel, fallback: raw, nested } of channelReads(String(classes ?? ''), true)) {
-        if (raw === null && nested) continue;
         const owner = [...families.values()].find((one) => axesOf(one).includes(channel));
         if (owner && answers.includes(owner.family)) axisReads.set(owner.family, (axisReads.get(owner.family) ?? new Set()).add(channel));
         const family = familyOf(channel);
@@ -269,7 +268,7 @@ export function familyProblems(
         const chosen = answerOf(manifest, family)?.default ?? family.default;
         const written = (() => { try { return chosen === undefined ? [] : declarations(family.variants[chosen] ?? ''); } catch { return []; } })()
           .find(([property]) => property === channel)?.[1];
-        if (written !== undefined && written.trim() !== 'initial' && !axisWrapped(fallback, written, axesOf(family))) {
+        if (written !== undefined && written.trim() !== 'initial' && !(raw === null && nested) && !axisWrapped(fallback, written, axesOf(family))) {
           problems.push(`${manifest.component}.${slot}: ${channel} falls back to ${raw === null ? 'nothing' : fallback} and the default ${chosen} writes ${written}, `
             + 'so the component with no class written does not look like its default');
         }

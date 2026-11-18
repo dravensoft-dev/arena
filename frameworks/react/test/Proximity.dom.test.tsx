@@ -81,11 +81,16 @@ const COMPOSITIONS: Record<string, () => React.ReactElement> = {
     <ArenaIconButton icon="ph-bold ph-x" label="Close" />
   </div>,
   'context-class-beats-the-default-block': () => <div style={answered({ '--button-primary-root-fill-rest': 'var(--fill-surface-raised)' })}><ArenaButton>Save</ArenaButton></div>,
-  'copy-button-follows-icon-button': () => <div style={answered({ '--icon-button-ghost-root-fill-rest': 'var(--fill-surface)' })}><ArenaCopyButton text="x" label="Copy" /></div>,
+  'copy-button-follows-icon-button': () => <div style={answered({ '--icon-button-ghost-root-fill-rest': 'var(--fill-surface)' })}><ArenaIconButton icon="ph-bold ph-x" label="Close" /><ArenaCopyButton text="x" label="Copy" /></div>,
   'copy-button-slot-wins': () => <div style={answered({ '--icon-button-ghost-root-fill-rest': 'var(--fill-surface)', '--copy-button-ghost-root-fill-rest': 'var(--fill-surface-raised)' })}><ArenaCopyButton text="x" label="Copy" /></div>,
   'answered-disabled-stops-the-fade': () => <div style={answered({ '--button-primary-root-ink-disabled': 'var(--ink-muted)', '--button-primary-root-fade-disabled': '1' })}><ArenaButton disabled>Save</ArenaButton></div>,
   'class-on-copy-button-reaches-the-icon-button-it-draws': () => <div style={answered({ '--copy-button-solid-root-fill-rest': 'var(--fill-surface-raised)' })}><ArenaCopyButton className="arena-emphasis-solid" text="x" label="Copy" /></div>,
-  'family-hover-beats-component-rest': () => <div style={answered({ '--button-primary-root-fill-rest': 'var(--fill-surface)', '--emphasis-primary-root-fill-hover': 'var(--fill-hover)' })}><ArenaButton>Save</ArenaButton></div>,
+  'answered-disabled-keeps-the-rest-fill': () => <div style={answered({ '--button-primary-root-ink-disabled': 'var(--ink-muted)', '--button-primary-root-fade-disabled': '1' })}><ArenaButton disabled>Save</ArenaButton></div>,
+  'selected-disabled-answer-stops-only-the-selected-fade': () => <>
+    <div style={answered({ '--icon-button-ghost-root-ink-disabled': 'var(--ink-muted)', '--icon-button-ghost-root-fade-disabled': '1' })}><ArenaIconButton icon="ph-bold ph-x" label="Close" pressed disabled /></div>
+    <div style={answered({ '--icon-button-ghost-root-ink-selected-disabled': 'var(--ink-muted)', '--icon-button-ghost-root-fade-selected-disabled': '1' })}><ArenaIconButton icon="ph-bold ph-x" label="Close" pressed disabled /></div>
+  </>,
+  'family-hover-answer-is-not-derived-from-the-component-rest': () => <div style={answered({ '--button-primary-root-fill-rest': 'var(--fill-surface)', '--emphasis-primary-root-fill-hover': 'var(--fill-hover)' })}><ArenaButton>Save</ArenaButton></div>,
 };
 
 const BARE = new Set(['meaning-wins-over-accent', 'accent-stops-at-the-card-body', 'small-badge-compacts-itself', 'small-badge-tightens-its-block', 'small-badge-tightens-its-ends']);
@@ -121,8 +126,9 @@ const SUBJECT: Record<string, { part: string; at: number }> = {
   'timeline-connector-horizontal-keeps-block-margin': { part: 'timeline.connector', at: 0 },
   'tag-breaks-a-label-wider-than-its-container': { part: 'tag', at: 0 },
   'palette-scope-takes-the-surface-radius': { part: 'palette-scope', at: 0 },
-  'copy-button-follows-icon-button': { part: 'icon-button', at: 0 },
+  'copy-button-follows-icon-button': { part: 'icon-button', at: -1 },
   'copy-button-slot-wins': { part: 'icon-button', at: 0 },
+  'selected-disabled-answer-stops-only-the-selected-fade': { part: 'icon-button', at: -1 },
   'class-on-copy-button-reaches-the-icon-button-it-draws': { part: 'icon-button', at: 0 },
 };
 

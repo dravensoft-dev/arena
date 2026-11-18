@@ -3,7 +3,7 @@
  * The command ships this file, so it imports nothing outside this directory. */
 
 export const SLOT_PROPERTIES = ['fill', 'ink', 'edge', 'icon'] as const;
-export const SLOT_STATES = ['rest', 'hover', 'pressed', 'selected', 'selected-hover', 'selected-pressed', 'disabled'] as const;
+export const SLOT_STATES = ['rest', 'hover', 'pressed', 'selected', 'selected-hover', 'selected-pressed', 'disabled', 'selected-disabled'] as const;
 
 export type SlotProperty = (typeof SLOT_PROPERTIES)[number];
 export type SlotState = (typeof SLOT_STATES)[number];
@@ -77,9 +77,9 @@ export function fadeMarkers(answered: Iterable<string>, catalogue: SlotCatalogue
   const markers = new Set<string>();
   for (const name of answered) {
     const slot = catalogue.slots[name];
-    if (!slot || slot.state !== 'disabled') continue;
+    if (!slot || (slot.state !== 'disabled' && slot.state !== 'selected-disabled')) continue;
     const owner = slot.scope === 'family' ? slot.family : slotStem(slot.component ?? '');
-    markers.add(`--${owner}-${slot.option}-${slot.part}-fade-disabled`);
+    markers.add(`--${owner}-${slot.option}-${slot.part}-fade-${slot.state}`);
   }
   return [...markers].map((name) => [name, '1']);
 }
@@ -113,7 +113,7 @@ function fall(catalogue: SlotCatalogue, name: string, slot: ColorSlot): string {
     return slot.derive.mix ? `color-mix(in_oklab,${base},${inkOf(catalogue, from, name)}_calc(var(--${slot.derive.mix})*100%))` : base;
   }
   if (slot.optional) {
-    const restName = expectedName({ ...slot, state: 'rest' });
+    const restName = expectedName({ ...slot, state: slot.state === 'selected-disabled' ? 'selected' : 'rest' });
     return read(catalogue, restName);
   }
   const answer = (slot.default ?? '').trim();
