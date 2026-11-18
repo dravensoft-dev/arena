@@ -1,5 +1,5 @@
 {
-  "$description": "The colour slots: every coloured part of a component, per property and state, as a question a style plugin may answer with a system role its accepts list names. A slot is not a role: roles.json is the system tier and this file is the tier above it. check:color-slots holds the shape.",
+  "$description": "The colour slot declarations: per family the options, parts and the rest role of each property; per component the parts that read a family, the options and states they paint; the variants that are no family option; and each exception with the decision that grants it. scripts/lib/core/color-slots.ts:readColorSlots(root) derives every slot from them, and check:color-slots holds both.",
   "accepts": {
     "fill": [
       "emphasis-*-fill",
@@ -49,25 +49,312 @@
     "disabled",
     "selected-disabled"
   ],
+  "stateSets": {
+    "rest": [
+      "rest"
+    ],
+    "base": [
+      "rest",
+      "hover",
+      "pressed",
+      "disabled"
+    ],
+    "selectable": [
+      "rest",
+      "hover",
+      "pressed",
+      "disabled",
+      "selected",
+      "selected-hover",
+      "selected-pressed",
+      "selected-disabled"
+    ]
+  },
+  "selected": {
+    "fill": {
+      "role": "{fill-selected}",
+      "level": "level-accent-soft-primary"
+    },
+    "ink": {
+      "role": "{ink-selected}"
+    },
+    "edge": {
+      "role": "{edge-selected}"
+    }
+  },
   "families": {
     "emphasis": {
-      "parts": [
-        "root"
-      ]
+      "channel": "--arena-emphasis-{property}",
+      "options": {
+        "primary": {
+          "states": "base",
+          "parts": {
+            "root": {
+              "fill": "{emphasis-primary-fill}",
+              "ink": "{emphasis-primary-ink}",
+              "edge": "{emphasis-primary-edge}",
+              "icon": "ink"
+            }
+          }
+        },
+        "secondary": {
+          "states": "base",
+          "parts": {
+            "root": {
+              "fill": "{emphasis-secondary-fill}",
+              "ink": "{emphasis-secondary-ink}",
+              "edge": "{emphasis-secondary-edge}",
+              "icon": "ink"
+            }
+          }
+        },
+        "ghost": {
+          "states": {
+            "edge": "base",
+            "*": "selectable"
+          },
+          "parts": {
+            "root": {
+              "fill": "transparent",
+              "ink": {
+                "role": "{emphasis-ghost-ink}",
+                "level": "level-ink-body"
+              },
+              "edge": "transparent",
+              "icon": "ink"
+            }
+          }
+        },
+        "solid": {
+          "states": "selectable",
+          "parts": {
+            "root": {
+              "fill": "{emphasis-solid-fill}",
+              "ink": "{emphasis-solid-ink}",
+              "icon": "ink"
+            }
+          }
+        }
+      }
     },
     "accent": {
-      "parts": [
-        "root",
-        "quiet",
-        "side"
-      ]
+      "on": "reader",
+      "channels": {
+        "root.fill": "--arena-accent-fill-soft",
+        "root.ink": "--arena-accent-ink",
+        "quiet.ink": "--arena-accent-quiet-ink",
+        "root.edge": "--arena-accent-edge",
+        "side.edge": "--arena-accent-side-edge"
+      },
+      "options": {
+        "plain": {
+          "states": "rest",
+          "parts": {
+            "root": {
+              "fill": "{accent-plain-fill-soft}",
+              "ink": "{accent-plain-ink}",
+              "edge": "{accent-plain-edge}"
+            },
+            "quiet": {
+              "ink": {
+                "role": "{accent-plain-quiet-ink}",
+                "level": "level-ink-quiet"
+              }
+            },
+            "side": {
+              "edge": "{accent-plain-side-edge}"
+            }
+          }
+        },
+        "primary": {
+          "states": "rest",
+          "parts": {
+            "root": {
+              "fill": {
+                "role": "{accent-primary-fill-soft}",
+                "level": "level-accent-soft-primary"
+              },
+              "ink": "{accent-primary-ink}",
+              "edge": "{accent-primary-edge}"
+            },
+            "quiet": {
+              "ink": "{accent-primary-ink}"
+            }
+          }
+        },
+        "gold": {
+          "states": "rest",
+          "parts": {
+            "root": {
+              "fill": {
+                "role": "{accent-gold-fill-soft}",
+                "level": "level-accent-soft-gold"
+              },
+              "ink": "{accent-gold-ink}"
+            },
+            "side": {
+              "edge": "{accent-gold-side-edge}"
+            }
+          }
+        },
+        "muted": {
+          "states": "rest",
+          "parts": {
+            "root": {
+              "ink": {
+                "role": "{accent-muted-ink}",
+                "level": "level-ink-muted"
+              }
+            }
+          }
+        }
+      }
     },
     "hue": {
-      "parts": [
-        "mark",
-        "soft",
-        "strong"
-      ]
+      "on": "reader",
+      "channels": {
+        "mark.ink": "--arena-hue-ink",
+        "mark.edge": "--arena-hue-edge",
+        "soft.fill": "--arena-hue-fill-soft",
+        "strong.fill": "--arena-hue-fill-strong",
+        "strong.ink": "--arena-hue-on-ink"
+      },
+      "optionsFrom": [
+        "danger",
+        "success",
+        "warning",
+        "info"
+      ],
+      "template": {
+        "mark": {
+          "ink": "{hue-{option}-ink}",
+          "edge": "{hue-{option}-edge}"
+        },
+        "soft": {
+          "fill": {
+            "role": "{hue-{option}-fill-soft}",
+            "level": "level-hue-soft-{option}"
+          }
+        },
+        "strong": {
+          "fill": "{hue-{option}-fill-strong}",
+          "ink": "{hue-{option}-on-ink}"
+        }
+      },
+      "states": "rest"
+    }
+  },
+  "variants": {
+    "destructive": {
+      "decision": "R6",
+      "rest": {
+        "fill": "{hue-danger-strong-fill-rest}",
+        "ink": "{hue-danger-mark-ink-rest}",
+        "edge": "{hue-danger-mark-edge-rest}",
+        "icon": "ink"
+      }
+    }
+  },
+  "components": {
+    "ArenaButton": {
+      "root": {
+        "family": "emphasis",
+        "options": [
+          "primary",
+          "secondary",
+          "ghost"
+        ],
+        "states": "base",
+        "variants": [
+          "destructive"
+        ]
+      }
+    },
+    "ArenaSplitButton": {
+      "primary": {
+        "family": "emphasis",
+        "options": [
+          "primary",
+          "secondary",
+          "ghost"
+        ],
+        "states": "base",
+        "variants": [
+          "destructive"
+        ]
+      },
+      "caret": {
+        "family": "emphasis",
+        "options": [
+          "primary",
+          "secondary",
+          "ghost"
+        ],
+        "states": "base",
+        "variants": [
+          "destructive"
+        ]
+      }
+    },
+    "ArenaFileInput": {
+      "trigger": {
+        "family": "emphasis",
+        "options": [
+          "secondary",
+          "ghost"
+        ],
+        "states": [
+          "rest",
+          "hover",
+          "pressed"
+        ]
+      }
+    },
+    "ArenaIconButton": {
+      "root": {
+        "family": "emphasis",
+        "options": [
+          "ghost",
+          "solid"
+        ],
+        "states": "selectable",
+        "edgeChannel": "--arena-emphasis-icon-edge",
+        "own": {
+          "edge": {
+            "ghost": "{emphasis-ghost-icon-edge}",
+            "solid": "transparent",
+            "decision": "D21"
+          }
+        }
+      }
+    },
+    "ArenaCopyButton": {
+      "root": {
+        "draws": "ArenaIconButton.root",
+        "states": "base"
+      }
+    }
+  },
+  "exceptions": {
+    "emphasis-secondary-root-fill-hover": {
+      "default": "{emphasis-secondary-fill-hover}",
+      "decision": "D19"
+    },
+    "emphasis-ghost-root-fill-hover": {
+      "default": "{emphasis-ghost-fill-hover}",
+      "decision": "D19"
+    },
+    "button-destructive-root-fill-hover": {
+      "default": "{fill-hover}",
+      "decision": "R6"
+    },
+    "split-button-destructive-primary-fill-hover": {
+      "default": "{fill-hover}",
+      "decision": "R6"
+    },
+    "split-button-destructive-caret-fill-hover": {
+      "default": "{fill-hover}",
+      "decision": "R6"
     }
   },
   "rings": {
@@ -76,436 +363,5 @@
     "ArenaSplitButton.primary": "ground",
     "ArenaSplitButton.caret": "ground",
     "ArenaFileInput.trigger": "ground"
-  },
-  "slots": {
-    "accent-gold-root-fill-rest": {"scope": "family", "family": "accent", "option": "gold", "part": "root", "property": "fill", "state": "rest", "channel": "--arena-accent-fill-soft", "accepts": "fill", "default": "{accent-gold-fill-soft}", "level": "level-accent-soft-gold"},
-    "accent-gold-root-ink-rest": {"scope": "family", "family": "accent", "option": "gold", "part": "root", "property": "ink", "state": "rest", "channel": "--arena-accent-ink", "accepts": "ink", "on": "reader", "default": "{accent-gold-ink}"},
-    "accent-gold-side-edge-rest": {"scope": "family", "family": "accent", "option": "gold", "part": "side", "property": "edge", "state": "rest", "channel": "--arena-accent-side-edge", "accepts": "edge", "on": "reader", "default": "{accent-gold-side-edge}"},
-    "accent-muted-root-ink-rest": {"scope": "family", "family": "accent", "option": "muted", "part": "root", "property": "ink", "state": "rest", "channel": "--arena-accent-ink", "accepts": "ink", "on": "reader", "default": "{accent-muted-ink}", "level": "level-ink-muted"},
-    "accent-plain-quiet-ink-rest": {"scope": "family", "family": "accent", "option": "plain", "part": "quiet", "property": "ink", "state": "rest", "channel": "--arena-accent-quiet-ink", "accepts": "ink", "on": "reader", "default": "{accent-plain-quiet-ink}", "level": "level-ink-quiet"},
-    "accent-plain-root-edge-rest": {"scope": "family", "family": "accent", "option": "plain", "part": "root", "property": "edge", "state": "rest", "channel": "--arena-accent-edge", "accepts": "edge", "on": "reader", "default": "{accent-plain-edge}"},
-    "accent-plain-root-fill-rest": {"scope": "family", "family": "accent", "option": "plain", "part": "root", "property": "fill", "state": "rest", "channel": "--arena-accent-fill-soft", "accepts": "fill", "default": "{accent-plain-fill-soft}"},
-    "accent-plain-root-ink-rest": {"scope": "family", "family": "accent", "option": "plain", "part": "root", "property": "ink", "state": "rest", "channel": "--arena-accent-ink", "accepts": "ink", "on": "reader", "default": "{accent-plain-ink}"},
-    "accent-plain-side-edge-rest": {"scope": "family", "family": "accent", "option": "plain", "part": "side", "property": "edge", "state": "rest", "channel": "--arena-accent-side-edge", "accepts": "edge", "on": "reader", "default": "{accent-plain-side-edge}"},
-    "accent-primary-quiet-ink-rest": {"scope": "family", "family": "accent", "option": "primary", "part": "quiet", "property": "ink", "state": "rest", "channel": "--arena-accent-quiet-ink", "accepts": "ink", "on": "reader", "default": "{accent-primary-ink}"},
-    "accent-primary-root-edge-rest": {"scope": "family", "family": "accent", "option": "primary", "part": "root", "property": "edge", "state": "rest", "channel": "--arena-accent-edge", "accepts": "edge", "on": "reader", "default": "{accent-primary-edge}"},
-    "accent-primary-root-fill-rest": {"scope": "family", "family": "accent", "option": "primary", "part": "root", "property": "fill", "state": "rest", "channel": "--arena-accent-fill-soft", "accepts": "fill", "default": "{accent-primary-fill-soft}", "level": "level-accent-soft-primary"},
-    "accent-primary-root-ink-rest": {"scope": "family", "family": "accent", "option": "primary", "part": "root", "property": "ink", "state": "rest", "channel": "--arena-accent-ink", "accepts": "ink", "on": "reader", "default": "{accent-primary-ink}"},
-    "button-destructive-root-edge-disabled": {"scope": "component", "component": "ArenaButton", "option": "destructive", "part": "root", "property": "edge", "state": "disabled", "accepts": "edge", "on": "button-destructive-root-fill-disabled", "optional": true},
-    "button-destructive-root-edge-hover": {"scope": "component", "component": "ArenaButton", "option": "destructive", "part": "root", "property": "edge", "state": "hover", "accepts": "edge", "on": "button-destructive-root-fill-hover", "derive": {"from": "button-destructive-root-edge-rest"}},
-    "button-destructive-root-edge-pressed": {"scope": "component", "component": "ArenaButton", "option": "destructive", "part": "root", "property": "edge", "state": "pressed", "accepts": "edge", "on": "button-destructive-root-fill-pressed", "derive": {"from": "button-destructive-root-edge-rest"}},
-    "button-destructive-root-edge-rest": {"scope": "component", "component": "ArenaButton", "option": "destructive", "part": "root", "property": "edge", "state": "rest", "accepts": "edge", "on": "button-destructive-root-fill-rest", "default": "{hue-danger-mark-edge-rest}"},
-    "button-destructive-root-fill-disabled": {"scope": "component", "component": "ArenaButton", "option": "destructive", "part": "root", "property": "fill", "state": "disabled", "accepts": "fill", "optional": true},
-    "button-destructive-root-fill-hover": {"scope": "component", "component": "ArenaButton", "option": "destructive", "part": "root", "property": "fill", "state": "hover", "accepts": "fill", "default": "{fill-hover}"},
-    "button-destructive-root-fill-pressed": {"scope": "component", "component": "ArenaButton", "option": "destructive", "part": "root", "property": "fill", "state": "pressed", "accepts": "fill", "derive": {"from": "button-destructive-root-fill-rest", "mix": "mix-pressed"}},
-    "button-destructive-root-fill-rest": {"scope": "component", "component": "ArenaButton", "option": "destructive", "part": "root", "property": "fill", "state": "rest", "accepts": "fill", "default": "{hue-danger-strong-fill-rest}"},
-    "button-destructive-root-icon-disabled": {"scope": "component", "component": "ArenaButton", "option": "destructive", "part": "root", "property": "icon", "state": "disabled", "accepts": "icon", "on": "button-destructive-root-fill-disabled", "default": "{button-destructive-root-ink-disabled}", "optional": true},
-    "button-destructive-root-icon-hover": {"scope": "component", "component": "ArenaButton", "option": "destructive", "part": "root", "property": "icon", "state": "hover", "accepts": "icon", "on": "button-destructive-root-fill-hover", "default": "{button-destructive-root-ink-hover}"},
-    "button-destructive-root-icon-pressed": {"scope": "component", "component": "ArenaButton", "option": "destructive", "part": "root", "property": "icon", "state": "pressed", "accepts": "icon", "on": "button-destructive-root-fill-pressed", "default": "{button-destructive-root-ink-pressed}"},
-    "button-destructive-root-icon-rest": {"scope": "component", "component": "ArenaButton", "option": "destructive", "part": "root", "property": "icon", "state": "rest", "accepts": "icon", "on": "button-destructive-root-fill-rest", "default": "{button-destructive-root-ink-rest}"},
-    "button-destructive-root-ink-disabled": {"scope": "component", "component": "ArenaButton", "option": "destructive", "part": "root", "property": "ink", "state": "disabled", "accepts": "ink", "on": "button-destructive-root-fill-disabled", "optional": true},
-    "button-destructive-root-ink-hover": {"scope": "component", "component": "ArenaButton", "option": "destructive", "part": "root", "property": "ink", "state": "hover", "accepts": "ink", "on": "button-destructive-root-fill-hover", "derive": {"from": "button-destructive-root-ink-rest"}},
-    "button-destructive-root-ink-pressed": {"scope": "component", "component": "ArenaButton", "option": "destructive", "part": "root", "property": "ink", "state": "pressed", "accepts": "ink", "on": "button-destructive-root-fill-pressed", "derive": {"from": "button-destructive-root-ink-rest"}},
-    "button-destructive-root-ink-rest": {"scope": "component", "component": "ArenaButton", "option": "destructive", "part": "root", "property": "ink", "state": "rest", "accepts": "ink", "on": "button-destructive-root-fill-rest", "default": "{hue-danger-mark-ink-rest}"},
-    "button-ghost-root-edge-disabled": {"scope": "component", "component": "ArenaButton", "option": "ghost", "part": "root", "property": "edge", "state": "disabled", "channel": "--arena-emphasis-edge-disabled", "accepts": "edge", "on": "button-ghost-root-fill-disabled", "default": "{emphasis-ghost-root-edge-disabled}", "optional": true},
-    "button-ghost-root-edge-hover": {"scope": "component", "component": "ArenaButton", "option": "ghost", "part": "root", "property": "edge", "state": "hover", "channel": "--arena-emphasis-edge-hover", "accepts": "edge", "on": "button-ghost-root-fill-hover", "default": "{emphasis-ghost-root-edge-hover}"},
-    "button-ghost-root-edge-pressed": {"scope": "component", "component": "ArenaButton", "option": "ghost", "part": "root", "property": "edge", "state": "pressed", "channel": "--arena-emphasis-edge-pressed", "accepts": "edge", "on": "button-ghost-root-fill-pressed", "default": "{emphasis-ghost-root-edge-pressed}"},
-    "button-ghost-root-edge-rest": {"scope": "component", "component": "ArenaButton", "option": "ghost", "part": "root", "property": "edge", "state": "rest", "channel": "--arena-emphasis-edge", "accepts": "edge", "on": "button-ghost-root-fill-rest", "default": "{emphasis-ghost-root-edge-rest}"},
-    "button-ghost-root-fill-disabled": {"scope": "component", "component": "ArenaButton", "option": "ghost", "part": "root", "property": "fill", "state": "disabled", "channel": "--arena-emphasis-fill-disabled", "accepts": "fill", "default": "{emphasis-ghost-root-fill-disabled}", "optional": true},
-    "button-ghost-root-fill-hover": {"scope": "component", "component": "ArenaButton", "option": "ghost", "part": "root", "property": "fill", "state": "hover", "channel": "--arena-emphasis-fill-hover", "accepts": "fill", "default": "{emphasis-ghost-root-fill-hover}"},
-    "button-ghost-root-fill-pressed": {"scope": "component", "component": "ArenaButton", "option": "ghost", "part": "root", "property": "fill", "state": "pressed", "channel": "--arena-emphasis-fill-pressed", "accepts": "fill", "default": "{emphasis-ghost-root-fill-pressed}"},
-    "button-ghost-root-fill-rest": {"scope": "component", "component": "ArenaButton", "option": "ghost", "part": "root", "property": "fill", "state": "rest", "channel": "--arena-emphasis-fill", "accepts": "fill", "default": "{emphasis-ghost-root-fill-rest}"},
-    "button-ghost-root-icon-disabled": {"scope": "component", "component": "ArenaButton", "option": "ghost", "part": "root", "property": "icon", "state": "disabled", "channel": "--arena-emphasis-icon-disabled", "accepts": "icon", "on": "button-ghost-root-fill-disabled", "default": "{emphasis-ghost-root-icon-disabled}", "optional": true},
-    "button-ghost-root-icon-hover": {"scope": "component", "component": "ArenaButton", "option": "ghost", "part": "root", "property": "icon", "state": "hover", "channel": "--arena-emphasis-icon-hover", "accepts": "icon", "on": "button-ghost-root-fill-hover", "default": "{emphasis-ghost-root-icon-hover}"},
-    "button-ghost-root-icon-pressed": {"scope": "component", "component": "ArenaButton", "option": "ghost", "part": "root", "property": "icon", "state": "pressed", "channel": "--arena-emphasis-icon-pressed", "accepts": "icon", "on": "button-ghost-root-fill-pressed", "default": "{emphasis-ghost-root-icon-pressed}"},
-    "button-ghost-root-icon-rest": {"scope": "component", "component": "ArenaButton", "option": "ghost", "part": "root", "property": "icon", "state": "rest", "channel": "--arena-emphasis-icon", "accepts": "icon", "on": "button-ghost-root-fill-rest", "default": "{emphasis-ghost-root-icon-rest}"},
-    "button-ghost-root-ink-disabled": {"scope": "component", "component": "ArenaButton", "option": "ghost", "part": "root", "property": "ink", "state": "disabled", "channel": "--arena-emphasis-ink-disabled", "accepts": "ink", "on": "button-ghost-root-fill-disabled", "default": "{emphasis-ghost-root-ink-disabled}", "optional": true},
-    "button-ghost-root-ink-hover": {"scope": "component", "component": "ArenaButton", "option": "ghost", "part": "root", "property": "ink", "state": "hover", "channel": "--arena-emphasis-ink-hover", "accepts": "ink", "on": "button-ghost-root-fill-hover", "default": "{emphasis-ghost-root-ink-hover}"},
-    "button-ghost-root-ink-pressed": {"scope": "component", "component": "ArenaButton", "option": "ghost", "part": "root", "property": "ink", "state": "pressed", "channel": "--arena-emphasis-ink-pressed", "accepts": "ink", "on": "button-ghost-root-fill-pressed", "default": "{emphasis-ghost-root-ink-pressed}"},
-    "button-ghost-root-ink-rest": {"scope": "component", "component": "ArenaButton", "option": "ghost", "part": "root", "property": "ink", "state": "rest", "channel": "--arena-emphasis-ink", "accepts": "ink", "on": "button-ghost-root-fill-rest", "default": "{emphasis-ghost-root-ink-rest}"},
-    "button-primary-root-edge-disabled": {"scope": "component", "component": "ArenaButton", "option": "primary", "part": "root", "property": "edge", "state": "disabled", "channel": "--arena-emphasis-edge-disabled", "accepts": "edge", "on": "button-primary-root-fill-disabled", "default": "{emphasis-primary-root-edge-disabled}", "optional": true},
-    "button-primary-root-edge-hover": {"scope": "component", "component": "ArenaButton", "option": "primary", "part": "root", "property": "edge", "state": "hover", "channel": "--arena-emphasis-edge-hover", "accepts": "edge", "on": "button-primary-root-fill-hover", "default": "{emphasis-primary-root-edge-hover}"},
-    "button-primary-root-edge-pressed": {"scope": "component", "component": "ArenaButton", "option": "primary", "part": "root", "property": "edge", "state": "pressed", "channel": "--arena-emphasis-edge-pressed", "accepts": "edge", "on": "button-primary-root-fill-pressed", "default": "{emphasis-primary-root-edge-pressed}"},
-    "button-primary-root-edge-rest": {"scope": "component", "component": "ArenaButton", "option": "primary", "part": "root", "property": "edge", "state": "rest", "channel": "--arena-emphasis-edge", "accepts": "edge", "on": "button-primary-root-fill-rest", "default": "{emphasis-primary-root-edge-rest}"},
-    "button-primary-root-fill-disabled": {"scope": "component", "component": "ArenaButton", "option": "primary", "part": "root", "property": "fill", "state": "disabled", "channel": "--arena-emphasis-fill-disabled", "accepts": "fill", "default": "{emphasis-primary-root-fill-disabled}", "optional": true},
-    "button-primary-root-fill-hover": {"scope": "component", "component": "ArenaButton", "option": "primary", "part": "root", "property": "fill", "state": "hover", "channel": "--arena-emphasis-fill-hover", "accepts": "fill", "default": "{emphasis-primary-root-fill-hover}"},
-    "button-primary-root-fill-pressed": {"scope": "component", "component": "ArenaButton", "option": "primary", "part": "root", "property": "fill", "state": "pressed", "channel": "--arena-emphasis-fill-pressed", "accepts": "fill", "default": "{emphasis-primary-root-fill-pressed}"},
-    "button-primary-root-fill-rest": {"scope": "component", "component": "ArenaButton", "option": "primary", "part": "root", "property": "fill", "state": "rest", "channel": "--arena-emphasis-fill", "accepts": "fill", "default": "{emphasis-primary-root-fill-rest}"},
-    "button-primary-root-icon-disabled": {"scope": "component", "component": "ArenaButton", "option": "primary", "part": "root", "property": "icon", "state": "disabled", "channel": "--arena-emphasis-icon-disabled", "accepts": "icon", "on": "button-primary-root-fill-disabled", "default": "{emphasis-primary-root-icon-disabled}", "optional": true},
-    "button-primary-root-icon-hover": {"scope": "component", "component": "ArenaButton", "option": "primary", "part": "root", "property": "icon", "state": "hover", "channel": "--arena-emphasis-icon-hover", "accepts": "icon", "on": "button-primary-root-fill-hover", "default": "{emphasis-primary-root-icon-hover}"},
-    "button-primary-root-icon-pressed": {"scope": "component", "component": "ArenaButton", "option": "primary", "part": "root", "property": "icon", "state": "pressed", "channel": "--arena-emphasis-icon-pressed", "accepts": "icon", "on": "button-primary-root-fill-pressed", "default": "{emphasis-primary-root-icon-pressed}"},
-    "button-primary-root-icon-rest": {"scope": "component", "component": "ArenaButton", "option": "primary", "part": "root", "property": "icon", "state": "rest", "channel": "--arena-emphasis-icon", "accepts": "icon", "on": "button-primary-root-fill-rest", "default": "{emphasis-primary-root-icon-rest}"},
-    "button-primary-root-ink-disabled": {"scope": "component", "component": "ArenaButton", "option": "primary", "part": "root", "property": "ink", "state": "disabled", "channel": "--arena-emphasis-ink-disabled", "accepts": "ink", "on": "button-primary-root-fill-disabled", "default": "{emphasis-primary-root-ink-disabled}", "optional": true},
-    "button-primary-root-ink-hover": {"scope": "component", "component": "ArenaButton", "option": "primary", "part": "root", "property": "ink", "state": "hover", "channel": "--arena-emphasis-ink-hover", "accepts": "ink", "on": "button-primary-root-fill-hover", "default": "{emphasis-primary-root-ink-hover}"},
-    "button-primary-root-ink-pressed": {"scope": "component", "component": "ArenaButton", "option": "primary", "part": "root", "property": "ink", "state": "pressed", "channel": "--arena-emphasis-ink-pressed", "accepts": "ink", "on": "button-primary-root-fill-pressed", "default": "{emphasis-primary-root-ink-pressed}"},
-    "button-primary-root-ink-rest": {"scope": "component", "component": "ArenaButton", "option": "primary", "part": "root", "property": "ink", "state": "rest", "channel": "--arena-emphasis-ink", "accepts": "ink", "on": "button-primary-root-fill-rest", "default": "{emphasis-primary-root-ink-rest}"},
-    "button-secondary-root-edge-disabled": {"scope": "component", "component": "ArenaButton", "option": "secondary", "part": "root", "property": "edge", "state": "disabled", "channel": "--arena-emphasis-edge-disabled", "accepts": "edge", "on": "button-secondary-root-fill-disabled", "default": "{emphasis-secondary-root-edge-disabled}", "optional": true},
-    "button-secondary-root-edge-hover": {"scope": "component", "component": "ArenaButton", "option": "secondary", "part": "root", "property": "edge", "state": "hover", "channel": "--arena-emphasis-edge-hover", "accepts": "edge", "on": "button-secondary-root-fill-hover", "default": "{emphasis-secondary-root-edge-hover}"},
-    "button-secondary-root-edge-pressed": {"scope": "component", "component": "ArenaButton", "option": "secondary", "part": "root", "property": "edge", "state": "pressed", "channel": "--arena-emphasis-edge-pressed", "accepts": "edge", "on": "button-secondary-root-fill-pressed", "default": "{emphasis-secondary-root-edge-pressed}"},
-    "button-secondary-root-edge-rest": {"scope": "component", "component": "ArenaButton", "option": "secondary", "part": "root", "property": "edge", "state": "rest", "channel": "--arena-emphasis-edge", "accepts": "edge", "on": "button-secondary-root-fill-rest", "default": "{emphasis-secondary-root-edge-rest}"},
-    "button-secondary-root-fill-disabled": {"scope": "component", "component": "ArenaButton", "option": "secondary", "part": "root", "property": "fill", "state": "disabled", "channel": "--arena-emphasis-fill-disabled", "accepts": "fill", "default": "{emphasis-secondary-root-fill-disabled}", "optional": true},
-    "button-secondary-root-fill-hover": {"scope": "component", "component": "ArenaButton", "option": "secondary", "part": "root", "property": "fill", "state": "hover", "channel": "--arena-emphasis-fill-hover", "accepts": "fill", "default": "{emphasis-secondary-root-fill-hover}"},
-    "button-secondary-root-fill-pressed": {"scope": "component", "component": "ArenaButton", "option": "secondary", "part": "root", "property": "fill", "state": "pressed", "channel": "--arena-emphasis-fill-pressed", "accepts": "fill", "default": "{emphasis-secondary-root-fill-pressed}"},
-    "button-secondary-root-fill-rest": {"scope": "component", "component": "ArenaButton", "option": "secondary", "part": "root", "property": "fill", "state": "rest", "channel": "--arena-emphasis-fill", "accepts": "fill", "default": "{emphasis-secondary-root-fill-rest}"},
-    "button-secondary-root-icon-disabled": {"scope": "component", "component": "ArenaButton", "option": "secondary", "part": "root", "property": "icon", "state": "disabled", "channel": "--arena-emphasis-icon-disabled", "accepts": "icon", "on": "button-secondary-root-fill-disabled", "default": "{emphasis-secondary-root-icon-disabled}", "optional": true},
-    "button-secondary-root-icon-hover": {"scope": "component", "component": "ArenaButton", "option": "secondary", "part": "root", "property": "icon", "state": "hover", "channel": "--arena-emphasis-icon-hover", "accepts": "icon", "on": "button-secondary-root-fill-hover", "default": "{emphasis-secondary-root-icon-hover}"},
-    "button-secondary-root-icon-pressed": {"scope": "component", "component": "ArenaButton", "option": "secondary", "part": "root", "property": "icon", "state": "pressed", "channel": "--arena-emphasis-icon-pressed", "accepts": "icon", "on": "button-secondary-root-fill-pressed", "default": "{emphasis-secondary-root-icon-pressed}"},
-    "button-secondary-root-icon-rest": {"scope": "component", "component": "ArenaButton", "option": "secondary", "part": "root", "property": "icon", "state": "rest", "channel": "--arena-emphasis-icon", "accepts": "icon", "on": "button-secondary-root-fill-rest", "default": "{emphasis-secondary-root-icon-rest}"},
-    "button-secondary-root-ink-disabled": {"scope": "component", "component": "ArenaButton", "option": "secondary", "part": "root", "property": "ink", "state": "disabled", "channel": "--arena-emphasis-ink-disabled", "accepts": "ink", "on": "button-secondary-root-fill-disabled", "default": "{emphasis-secondary-root-ink-disabled}", "optional": true},
-    "button-secondary-root-ink-hover": {"scope": "component", "component": "ArenaButton", "option": "secondary", "part": "root", "property": "ink", "state": "hover", "channel": "--arena-emphasis-ink-hover", "accepts": "ink", "on": "button-secondary-root-fill-hover", "default": "{emphasis-secondary-root-ink-hover}"},
-    "button-secondary-root-ink-pressed": {"scope": "component", "component": "ArenaButton", "option": "secondary", "part": "root", "property": "ink", "state": "pressed", "channel": "--arena-emphasis-ink-pressed", "accepts": "ink", "on": "button-secondary-root-fill-pressed", "default": "{emphasis-secondary-root-ink-pressed}"},
-    "button-secondary-root-ink-rest": {"scope": "component", "component": "ArenaButton", "option": "secondary", "part": "root", "property": "ink", "state": "rest", "channel": "--arena-emphasis-ink", "accepts": "ink", "on": "button-secondary-root-fill-rest", "default": "{emphasis-secondary-root-ink-rest}"},
-    "copy-button-ghost-root-edge-disabled": {"scope": "component", "component": "ArenaCopyButton", "option": "ghost", "part": "root", "property": "edge", "state": "disabled", "channel": "--arena-emphasis-icon-edge-disabled", "accepts": "edge", "on": "copy-button-ghost-root-fill-disabled", "default": "{icon-button-ghost-root-edge-disabled}", "optional": true, "draws": "ArenaIconButton.root"},
-    "copy-button-ghost-root-edge-hover": {"scope": "component", "component": "ArenaCopyButton", "option": "ghost", "part": "root", "property": "edge", "state": "hover", "channel": "--arena-emphasis-icon-edge-hover", "accepts": "edge", "on": "copy-button-ghost-root-fill-hover", "default": "{icon-button-ghost-root-edge-hover}", "draws": "ArenaIconButton.root"},
-    "copy-button-ghost-root-edge-pressed": {"scope": "component", "component": "ArenaCopyButton", "option": "ghost", "part": "root", "property": "edge", "state": "pressed", "channel": "--arena-emphasis-icon-edge-pressed", "accepts": "edge", "on": "copy-button-ghost-root-fill-pressed", "default": "{icon-button-ghost-root-edge-pressed}", "draws": "ArenaIconButton.root"},
-    "copy-button-ghost-root-edge-rest": {"scope": "component", "component": "ArenaCopyButton", "option": "ghost", "part": "root", "property": "edge", "state": "rest", "channel": "--arena-emphasis-icon-edge", "accepts": "edge", "on": "copy-button-ghost-root-fill-rest", "default": "{icon-button-ghost-root-edge-rest}", "draws": "ArenaIconButton.root"},
-    "copy-button-ghost-root-fill-disabled": {"scope": "component", "component": "ArenaCopyButton", "option": "ghost", "part": "root", "property": "fill", "state": "disabled", "channel": "--arena-emphasis-fill-disabled", "accepts": "fill", "default": "{icon-button-ghost-root-fill-disabled}", "optional": true, "draws": "ArenaIconButton.root"},
-    "copy-button-ghost-root-fill-hover": {"scope": "component", "component": "ArenaCopyButton", "option": "ghost", "part": "root", "property": "fill", "state": "hover", "channel": "--arena-emphasis-fill-hover", "accepts": "fill", "default": "{icon-button-ghost-root-fill-hover}", "draws": "ArenaIconButton.root"},
-    "copy-button-ghost-root-fill-pressed": {"scope": "component", "component": "ArenaCopyButton", "option": "ghost", "part": "root", "property": "fill", "state": "pressed", "channel": "--arena-emphasis-fill-pressed", "accepts": "fill", "default": "{icon-button-ghost-root-fill-pressed}", "draws": "ArenaIconButton.root"},
-    "copy-button-ghost-root-fill-rest": {"scope": "component", "component": "ArenaCopyButton", "option": "ghost", "part": "root", "property": "fill", "state": "rest", "channel": "--arena-emphasis-fill", "accepts": "fill", "default": "{icon-button-ghost-root-fill-rest}", "draws": "ArenaIconButton.root"},
-    "copy-button-ghost-root-icon-disabled": {"scope": "component", "component": "ArenaCopyButton", "option": "ghost", "part": "root", "property": "icon", "state": "disabled", "channel": "--arena-emphasis-icon-disabled", "accepts": "icon", "on": "copy-button-ghost-root-fill-disabled", "default": "{icon-button-ghost-root-icon-disabled}", "optional": true, "draws": "ArenaIconButton.root"},
-    "copy-button-ghost-root-icon-hover": {"scope": "component", "component": "ArenaCopyButton", "option": "ghost", "part": "root", "property": "icon", "state": "hover", "channel": "--arena-emphasis-icon-hover", "accepts": "icon", "on": "copy-button-ghost-root-fill-hover", "default": "{icon-button-ghost-root-icon-hover}", "draws": "ArenaIconButton.root"},
-    "copy-button-ghost-root-icon-pressed": {"scope": "component", "component": "ArenaCopyButton", "option": "ghost", "part": "root", "property": "icon", "state": "pressed", "channel": "--arena-emphasis-icon-pressed", "accepts": "icon", "on": "copy-button-ghost-root-fill-pressed", "default": "{icon-button-ghost-root-icon-pressed}", "draws": "ArenaIconButton.root"},
-    "copy-button-ghost-root-icon-rest": {"scope": "component", "component": "ArenaCopyButton", "option": "ghost", "part": "root", "property": "icon", "state": "rest", "channel": "--arena-emphasis-icon", "accepts": "icon", "on": "copy-button-ghost-root-fill-rest", "default": "{icon-button-ghost-root-icon-rest}", "draws": "ArenaIconButton.root"},
-    "copy-button-ghost-root-ink-disabled": {"scope": "component", "component": "ArenaCopyButton", "option": "ghost", "part": "root", "property": "ink", "state": "disabled", "channel": "--arena-emphasis-ink-disabled", "accepts": "ink", "on": "copy-button-ghost-root-fill-disabled", "default": "{icon-button-ghost-root-ink-disabled}", "optional": true, "draws": "ArenaIconButton.root"},
-    "copy-button-ghost-root-ink-hover": {"scope": "component", "component": "ArenaCopyButton", "option": "ghost", "part": "root", "property": "ink", "state": "hover", "channel": "--arena-emphasis-ink-hover", "accepts": "ink", "on": "copy-button-ghost-root-fill-hover", "default": "{icon-button-ghost-root-ink-hover}", "draws": "ArenaIconButton.root"},
-    "copy-button-ghost-root-ink-pressed": {"scope": "component", "component": "ArenaCopyButton", "option": "ghost", "part": "root", "property": "ink", "state": "pressed", "channel": "--arena-emphasis-ink-pressed", "accepts": "ink", "on": "copy-button-ghost-root-fill-pressed", "default": "{icon-button-ghost-root-ink-pressed}", "draws": "ArenaIconButton.root"},
-    "copy-button-ghost-root-ink-rest": {"scope": "component", "component": "ArenaCopyButton", "option": "ghost", "part": "root", "property": "ink", "state": "rest", "channel": "--arena-emphasis-ink", "accepts": "ink", "on": "copy-button-ghost-root-fill-rest", "default": "{icon-button-ghost-root-ink-rest}", "draws": "ArenaIconButton.root"},
-    "copy-button-solid-root-edge-disabled": {"scope": "component", "component": "ArenaCopyButton", "option": "solid", "part": "root", "property": "edge", "state": "disabled", "channel": "--arena-emphasis-icon-edge-disabled", "accepts": "edge", "on": "copy-button-solid-root-fill-disabled", "default": "{icon-button-solid-root-edge-disabled}", "optional": true, "draws": "ArenaIconButton.root"},
-    "copy-button-solid-root-edge-hover": {"scope": "component", "component": "ArenaCopyButton", "option": "solid", "part": "root", "property": "edge", "state": "hover", "channel": "--arena-emphasis-icon-edge-hover", "accepts": "edge", "on": "copy-button-solid-root-fill-hover", "default": "{icon-button-solid-root-edge-hover}", "draws": "ArenaIconButton.root"},
-    "copy-button-solid-root-edge-pressed": {"scope": "component", "component": "ArenaCopyButton", "option": "solid", "part": "root", "property": "edge", "state": "pressed", "channel": "--arena-emphasis-icon-edge-pressed", "accepts": "edge", "on": "copy-button-solid-root-fill-pressed", "default": "{icon-button-solid-root-edge-pressed}", "draws": "ArenaIconButton.root"},
-    "copy-button-solid-root-edge-rest": {"scope": "component", "component": "ArenaCopyButton", "option": "solid", "part": "root", "property": "edge", "state": "rest", "channel": "--arena-emphasis-icon-edge", "accepts": "edge", "on": "copy-button-solid-root-fill-rest", "default": "{icon-button-solid-root-edge-rest}", "draws": "ArenaIconButton.root"},
-    "copy-button-solid-root-fill-disabled": {"scope": "component", "component": "ArenaCopyButton", "option": "solid", "part": "root", "property": "fill", "state": "disabled", "channel": "--arena-emphasis-fill-disabled", "accepts": "fill", "default": "{icon-button-solid-root-fill-disabled}", "optional": true, "draws": "ArenaIconButton.root"},
-    "copy-button-solid-root-fill-hover": {"scope": "component", "component": "ArenaCopyButton", "option": "solid", "part": "root", "property": "fill", "state": "hover", "channel": "--arena-emphasis-fill-hover", "accepts": "fill", "default": "{icon-button-solid-root-fill-hover}", "draws": "ArenaIconButton.root"},
-    "copy-button-solid-root-fill-pressed": {"scope": "component", "component": "ArenaCopyButton", "option": "solid", "part": "root", "property": "fill", "state": "pressed", "channel": "--arena-emphasis-fill-pressed", "accepts": "fill", "default": "{icon-button-solid-root-fill-pressed}", "draws": "ArenaIconButton.root"},
-    "copy-button-solid-root-fill-rest": {"scope": "component", "component": "ArenaCopyButton", "option": "solid", "part": "root", "property": "fill", "state": "rest", "channel": "--arena-emphasis-fill", "accepts": "fill", "default": "{icon-button-solid-root-fill-rest}", "draws": "ArenaIconButton.root"},
-    "copy-button-solid-root-icon-disabled": {"scope": "component", "component": "ArenaCopyButton", "option": "solid", "part": "root", "property": "icon", "state": "disabled", "channel": "--arena-emphasis-icon-disabled", "accepts": "icon", "on": "copy-button-solid-root-fill-disabled", "default": "{icon-button-solid-root-icon-disabled}", "optional": true, "draws": "ArenaIconButton.root"},
-    "copy-button-solid-root-icon-hover": {"scope": "component", "component": "ArenaCopyButton", "option": "solid", "part": "root", "property": "icon", "state": "hover", "channel": "--arena-emphasis-icon-hover", "accepts": "icon", "on": "copy-button-solid-root-fill-hover", "default": "{icon-button-solid-root-icon-hover}", "draws": "ArenaIconButton.root"},
-    "copy-button-solid-root-icon-pressed": {"scope": "component", "component": "ArenaCopyButton", "option": "solid", "part": "root", "property": "icon", "state": "pressed", "channel": "--arena-emphasis-icon-pressed", "accepts": "icon", "on": "copy-button-solid-root-fill-pressed", "default": "{icon-button-solid-root-icon-pressed}", "draws": "ArenaIconButton.root"},
-    "copy-button-solid-root-icon-rest": {"scope": "component", "component": "ArenaCopyButton", "option": "solid", "part": "root", "property": "icon", "state": "rest", "channel": "--arena-emphasis-icon", "accepts": "icon", "on": "copy-button-solid-root-fill-rest", "default": "{icon-button-solid-root-icon-rest}", "draws": "ArenaIconButton.root"},
-    "copy-button-solid-root-ink-disabled": {"scope": "component", "component": "ArenaCopyButton", "option": "solid", "part": "root", "property": "ink", "state": "disabled", "channel": "--arena-emphasis-ink-disabled", "accepts": "ink", "on": "copy-button-solid-root-fill-disabled", "default": "{icon-button-solid-root-ink-disabled}", "optional": true, "draws": "ArenaIconButton.root"},
-    "copy-button-solid-root-ink-hover": {"scope": "component", "component": "ArenaCopyButton", "option": "solid", "part": "root", "property": "ink", "state": "hover", "channel": "--arena-emphasis-ink-hover", "accepts": "ink", "on": "copy-button-solid-root-fill-hover", "default": "{icon-button-solid-root-ink-hover}", "draws": "ArenaIconButton.root"},
-    "copy-button-solid-root-ink-pressed": {"scope": "component", "component": "ArenaCopyButton", "option": "solid", "part": "root", "property": "ink", "state": "pressed", "channel": "--arena-emphasis-ink-pressed", "accepts": "ink", "on": "copy-button-solid-root-fill-pressed", "default": "{icon-button-solid-root-ink-pressed}", "draws": "ArenaIconButton.root"},
-    "copy-button-solid-root-ink-rest": {"scope": "component", "component": "ArenaCopyButton", "option": "solid", "part": "root", "property": "ink", "state": "rest", "channel": "--arena-emphasis-ink", "accepts": "ink", "on": "copy-button-solid-root-fill-rest", "default": "{icon-button-solid-root-ink-rest}", "draws": "ArenaIconButton.root"},
-    "emphasis-ghost-root-edge-disabled": {"scope": "family", "family": "emphasis", "option": "ghost", "part": "root", "property": "edge", "state": "disabled", "channel": "--arena-emphasis-edge-disabled", "accepts": "edge", "on": "emphasis-ghost-root-fill-disabled", "optional": true},
-    "emphasis-ghost-root-edge-hover": {"scope": "family", "family": "emphasis", "option": "ghost", "part": "root", "property": "edge", "state": "hover", "channel": "--arena-emphasis-edge-hover", "accepts": "edge", "on": "emphasis-ghost-root-fill-hover", "derive": {"from": "emphasis-ghost-root-edge-rest"}},
-    "emphasis-ghost-root-edge-pressed": {"scope": "family", "family": "emphasis", "option": "ghost", "part": "root", "property": "edge", "state": "pressed", "channel": "--arena-emphasis-edge-pressed", "accepts": "edge", "on": "emphasis-ghost-root-fill-pressed", "derive": {"from": "emphasis-ghost-root-edge-rest"}},
-    "emphasis-ghost-root-edge-rest": {"scope": "family", "family": "emphasis", "option": "ghost", "part": "root", "property": "edge", "state": "rest", "channel": "--arena-emphasis-edge", "accepts": "edge", "on": "emphasis-ghost-root-fill-rest", "default": "transparent"},
-    "emphasis-ghost-root-fill-disabled": {"scope": "family", "family": "emphasis", "option": "ghost", "part": "root", "property": "fill", "state": "disabled", "channel": "--arena-emphasis-fill-disabled", "accepts": "fill", "optional": true},
-    "emphasis-ghost-root-fill-hover": {"scope": "family", "family": "emphasis", "option": "ghost", "part": "root", "property": "fill", "state": "hover", "channel": "--arena-emphasis-fill-hover", "accepts": "fill", "default": "{emphasis-ghost-fill-hover}"},
-    "emphasis-ghost-root-fill-pressed": {"scope": "family", "family": "emphasis", "option": "ghost", "part": "root", "property": "fill", "state": "pressed", "channel": "--arena-emphasis-fill-pressed", "accepts": "fill", "derive": {"from": "emphasis-ghost-root-fill-rest", "mix": "mix-pressed"}},
-    "emphasis-ghost-root-fill-rest": {"scope": "family", "family": "emphasis", "option": "ghost", "part": "root", "property": "fill", "state": "rest", "channel": "--arena-emphasis-fill", "accepts": "fill", "default": "transparent"},
-    "emphasis-ghost-root-fill-selected": {"scope": "family", "family": "emphasis", "option": "ghost", "part": "root", "property": "fill", "state": "selected", "channel": "--arena-emphasis-fill-selected", "accepts": "fill", "default": "{fill-selected}", "level": "level-accent-soft-primary"},
-    "emphasis-ghost-root-fill-selected-disabled": {"scope": "family", "family": "emphasis", "option": "ghost", "part": "root", "property": "fill", "state": "selected-disabled", "channel": "--arena-emphasis-fill-selected-disabled", "accepts": "fill", "optional": true},
-    "emphasis-ghost-root-fill-selected-hover": {"scope": "family", "family": "emphasis", "option": "ghost", "part": "root", "property": "fill", "state": "selected-hover", "channel": "--arena-emphasis-fill-selected-hover", "accepts": "fill", "derive": {"from": "emphasis-ghost-root-fill-selected", "mix": "mix-hover"}},
-    "emphasis-ghost-root-fill-selected-pressed": {"scope": "family", "family": "emphasis", "option": "ghost", "part": "root", "property": "fill", "state": "selected-pressed", "channel": "--arena-emphasis-fill-selected-pressed", "accepts": "fill", "derive": {"from": "emphasis-ghost-root-fill-selected", "mix": "mix-pressed"}},
-    "emphasis-ghost-root-icon-disabled": {"scope": "family", "family": "emphasis", "option": "ghost", "part": "root", "property": "icon", "state": "disabled", "channel": "--arena-emphasis-icon-disabled", "accepts": "icon", "on": "emphasis-ghost-root-fill-disabled", "default": "{emphasis-ghost-root-ink-disabled}", "optional": true},
-    "emphasis-ghost-root-icon-hover": {"scope": "family", "family": "emphasis", "option": "ghost", "part": "root", "property": "icon", "state": "hover", "channel": "--arena-emphasis-icon-hover", "accepts": "icon", "on": "emphasis-ghost-root-fill-hover", "default": "{emphasis-ghost-root-ink-hover}"},
-    "emphasis-ghost-root-icon-pressed": {"scope": "family", "family": "emphasis", "option": "ghost", "part": "root", "property": "icon", "state": "pressed", "channel": "--arena-emphasis-icon-pressed", "accepts": "icon", "on": "emphasis-ghost-root-fill-pressed", "default": "{emphasis-ghost-root-ink-pressed}"},
-    "emphasis-ghost-root-icon-rest": {"scope": "family", "family": "emphasis", "option": "ghost", "part": "root", "property": "icon", "state": "rest", "channel": "--arena-emphasis-icon", "accepts": "icon", "on": "emphasis-ghost-root-fill-rest", "default": "{emphasis-ghost-root-ink-rest}", "level": "level-ink-body"},
-    "emphasis-ghost-root-icon-selected": {"scope": "family", "family": "emphasis", "option": "ghost", "part": "root", "property": "icon", "state": "selected", "channel": "--arena-emphasis-icon-selected", "accepts": "icon", "on": "emphasis-ghost-root-fill-selected", "default": "{emphasis-ghost-root-ink-selected}"},
-    "emphasis-ghost-root-icon-selected-disabled": {"scope": "family", "family": "emphasis", "option": "ghost", "part": "root", "property": "icon", "state": "selected-disabled", "channel": "--arena-emphasis-icon-selected-disabled", "accepts": "icon", "on": "emphasis-ghost-root-fill-selected-disabled", "default": "{emphasis-ghost-root-ink-selected-disabled}", "optional": true},
-    "emphasis-ghost-root-icon-selected-hover": {"scope": "family", "family": "emphasis", "option": "ghost", "part": "root", "property": "icon", "state": "selected-hover", "channel": "--arena-emphasis-icon-selected-hover", "accepts": "icon", "on": "emphasis-ghost-root-fill-selected-hover", "default": "{emphasis-ghost-root-ink-selected-hover}"},
-    "emphasis-ghost-root-icon-selected-pressed": {"scope": "family", "family": "emphasis", "option": "ghost", "part": "root", "property": "icon", "state": "selected-pressed", "channel": "--arena-emphasis-icon-selected-pressed", "accepts": "icon", "on": "emphasis-ghost-root-fill-selected-pressed", "default": "{emphasis-ghost-root-ink-selected-pressed}"},
-    "emphasis-ghost-root-ink-disabled": {"scope": "family", "family": "emphasis", "option": "ghost", "part": "root", "property": "ink", "state": "disabled", "channel": "--arena-emphasis-ink-disabled", "accepts": "ink", "on": "emphasis-ghost-root-fill-disabled", "optional": true},
-    "emphasis-ghost-root-ink-hover": {"scope": "family", "family": "emphasis", "option": "ghost", "part": "root", "property": "ink", "state": "hover", "channel": "--arena-emphasis-ink-hover", "accepts": "ink", "on": "emphasis-ghost-root-fill-hover", "derive": {"from": "emphasis-ghost-root-ink-rest"}},
-    "emphasis-ghost-root-ink-pressed": {"scope": "family", "family": "emphasis", "option": "ghost", "part": "root", "property": "ink", "state": "pressed", "channel": "--arena-emphasis-ink-pressed", "accepts": "ink", "on": "emphasis-ghost-root-fill-pressed", "derive": {"from": "emphasis-ghost-root-ink-rest"}},
-    "emphasis-ghost-root-ink-rest": {"scope": "family", "family": "emphasis", "option": "ghost", "part": "root", "property": "ink", "state": "rest", "channel": "--arena-emphasis-ink", "accepts": "ink", "on": "emphasis-ghost-root-fill-rest", "default": "{emphasis-ghost-ink}", "level": "level-ink-body"},
-    "emphasis-ghost-root-ink-selected": {"scope": "family", "family": "emphasis", "option": "ghost", "part": "root", "property": "ink", "state": "selected", "channel": "--arena-emphasis-ink-selected", "accepts": "ink", "on": "emphasis-ghost-root-fill-selected", "default": "{ink-selected}"},
-    "emphasis-ghost-root-ink-selected-disabled": {"scope": "family", "family": "emphasis", "option": "ghost", "part": "root", "property": "ink", "state": "selected-disabled", "channel": "--arena-emphasis-ink-selected-disabled", "accepts": "ink", "on": "emphasis-ghost-root-fill-selected-disabled", "optional": true},
-    "emphasis-ghost-root-ink-selected-hover": {"scope": "family", "family": "emphasis", "option": "ghost", "part": "root", "property": "ink", "state": "selected-hover", "channel": "--arena-emphasis-ink-selected-hover", "accepts": "ink", "on": "emphasis-ghost-root-fill-selected-hover", "derive": {"from": "emphasis-ghost-root-ink-selected"}},
-    "emphasis-ghost-root-ink-selected-pressed": {"scope": "family", "family": "emphasis", "option": "ghost", "part": "root", "property": "ink", "state": "selected-pressed", "channel": "--arena-emphasis-ink-selected-pressed", "accepts": "ink", "on": "emphasis-ghost-root-fill-selected-pressed", "derive": {"from": "emphasis-ghost-root-ink-selected"}},
-    "emphasis-primary-root-edge-disabled": {"scope": "family", "family": "emphasis", "option": "primary", "part": "root", "property": "edge", "state": "disabled", "channel": "--arena-emphasis-edge-disabled", "accepts": "edge", "on": "emphasis-primary-root-fill-disabled", "optional": true},
-    "emphasis-primary-root-edge-hover": {"scope": "family", "family": "emphasis", "option": "primary", "part": "root", "property": "edge", "state": "hover", "channel": "--arena-emphasis-edge-hover", "accepts": "edge", "on": "emphasis-primary-root-fill-hover", "derive": {"from": "emphasis-primary-root-edge-rest"}},
-    "emphasis-primary-root-edge-pressed": {"scope": "family", "family": "emphasis", "option": "primary", "part": "root", "property": "edge", "state": "pressed", "channel": "--arena-emphasis-edge-pressed", "accepts": "edge", "on": "emphasis-primary-root-fill-pressed", "derive": {"from": "emphasis-primary-root-edge-rest"}},
-    "emphasis-primary-root-edge-rest": {"scope": "family", "family": "emphasis", "option": "primary", "part": "root", "property": "edge", "state": "rest", "channel": "--arena-emphasis-edge", "accepts": "edge", "on": "emphasis-primary-root-fill-rest", "default": "{emphasis-primary-edge}"},
-    "emphasis-primary-root-fill-disabled": {"scope": "family", "family": "emphasis", "option": "primary", "part": "root", "property": "fill", "state": "disabled", "channel": "--arena-emphasis-fill-disabled", "accepts": "fill", "optional": true},
-    "emphasis-primary-root-fill-hover": {"scope": "family", "family": "emphasis", "option": "primary", "part": "root", "property": "fill", "state": "hover", "channel": "--arena-emphasis-fill-hover", "accepts": "fill", "derive": {"from": "emphasis-primary-root-fill-rest"}},
-    "emphasis-primary-root-fill-pressed": {"scope": "family", "family": "emphasis", "option": "primary", "part": "root", "property": "fill", "state": "pressed", "channel": "--arena-emphasis-fill-pressed", "accepts": "fill", "derive": {"from": "emphasis-primary-root-fill-rest", "mix": "mix-pressed"}},
-    "emphasis-primary-root-fill-rest": {"scope": "family", "family": "emphasis", "option": "primary", "part": "root", "property": "fill", "state": "rest", "channel": "--arena-emphasis-fill", "accepts": "fill", "default": "{emphasis-primary-fill}"},
-    "emphasis-primary-root-icon-disabled": {"scope": "family", "family": "emphasis", "option": "primary", "part": "root", "property": "icon", "state": "disabled", "channel": "--arena-emphasis-icon-disabled", "accepts": "icon", "on": "emphasis-primary-root-fill-disabled", "default": "{emphasis-primary-root-ink-disabled}", "optional": true},
-    "emphasis-primary-root-icon-hover": {"scope": "family", "family": "emphasis", "option": "primary", "part": "root", "property": "icon", "state": "hover", "channel": "--arena-emphasis-icon-hover", "accepts": "icon", "on": "emphasis-primary-root-fill-hover", "default": "{emphasis-primary-root-ink-hover}"},
-    "emphasis-primary-root-icon-pressed": {"scope": "family", "family": "emphasis", "option": "primary", "part": "root", "property": "icon", "state": "pressed", "channel": "--arena-emphasis-icon-pressed", "accepts": "icon", "on": "emphasis-primary-root-fill-pressed", "default": "{emphasis-primary-root-ink-pressed}"},
-    "emphasis-primary-root-icon-rest": {"scope": "family", "family": "emphasis", "option": "primary", "part": "root", "property": "icon", "state": "rest", "channel": "--arena-emphasis-icon", "accepts": "icon", "on": "emphasis-primary-root-fill-rest", "default": "{emphasis-primary-root-ink-rest}"},
-    "emphasis-primary-root-ink-disabled": {"scope": "family", "family": "emphasis", "option": "primary", "part": "root", "property": "ink", "state": "disabled", "channel": "--arena-emphasis-ink-disabled", "accepts": "ink", "on": "emphasis-primary-root-fill-disabled", "optional": true},
-    "emphasis-primary-root-ink-hover": {"scope": "family", "family": "emphasis", "option": "primary", "part": "root", "property": "ink", "state": "hover", "channel": "--arena-emphasis-ink-hover", "accepts": "ink", "on": "emphasis-primary-root-fill-hover", "derive": {"from": "emphasis-primary-root-ink-rest"}},
-    "emphasis-primary-root-ink-pressed": {"scope": "family", "family": "emphasis", "option": "primary", "part": "root", "property": "ink", "state": "pressed", "channel": "--arena-emphasis-ink-pressed", "accepts": "ink", "on": "emphasis-primary-root-fill-pressed", "derive": {"from": "emphasis-primary-root-ink-rest"}},
-    "emphasis-primary-root-ink-rest": {"scope": "family", "family": "emphasis", "option": "primary", "part": "root", "property": "ink", "state": "rest", "channel": "--arena-emphasis-ink", "accepts": "ink", "on": "emphasis-primary-root-fill-rest", "default": "{emphasis-primary-ink}"},
-    "emphasis-secondary-root-edge-disabled": {"scope": "family", "family": "emphasis", "option": "secondary", "part": "root", "property": "edge", "state": "disabled", "channel": "--arena-emphasis-edge-disabled", "accepts": "edge", "on": "emphasis-secondary-root-fill-disabled", "optional": true},
-    "emphasis-secondary-root-edge-hover": {"scope": "family", "family": "emphasis", "option": "secondary", "part": "root", "property": "edge", "state": "hover", "channel": "--arena-emphasis-edge-hover", "accepts": "edge", "on": "emphasis-secondary-root-fill-hover", "derive": {"from": "emphasis-secondary-root-edge-rest"}},
-    "emphasis-secondary-root-edge-pressed": {"scope": "family", "family": "emphasis", "option": "secondary", "part": "root", "property": "edge", "state": "pressed", "channel": "--arena-emphasis-edge-pressed", "accepts": "edge", "on": "emphasis-secondary-root-fill-pressed", "derive": {"from": "emphasis-secondary-root-edge-rest"}},
-    "emphasis-secondary-root-edge-rest": {"scope": "family", "family": "emphasis", "option": "secondary", "part": "root", "property": "edge", "state": "rest", "channel": "--arena-emphasis-edge", "accepts": "edge", "on": "emphasis-secondary-root-fill-rest", "default": "{emphasis-secondary-edge}"},
-    "emphasis-secondary-root-fill-disabled": {"scope": "family", "family": "emphasis", "option": "secondary", "part": "root", "property": "fill", "state": "disabled", "channel": "--arena-emphasis-fill-disabled", "accepts": "fill", "optional": true},
-    "emphasis-secondary-root-fill-hover": {"scope": "family", "family": "emphasis", "option": "secondary", "part": "root", "property": "fill", "state": "hover", "channel": "--arena-emphasis-fill-hover", "accepts": "fill", "default": "{emphasis-secondary-fill-hover}"},
-    "emphasis-secondary-root-fill-pressed": {"scope": "family", "family": "emphasis", "option": "secondary", "part": "root", "property": "fill", "state": "pressed", "channel": "--arena-emphasis-fill-pressed", "accepts": "fill", "derive": {"from": "emphasis-secondary-root-fill-rest", "mix": "mix-pressed"}},
-    "emphasis-secondary-root-fill-rest": {"scope": "family", "family": "emphasis", "option": "secondary", "part": "root", "property": "fill", "state": "rest", "channel": "--arena-emphasis-fill", "accepts": "fill", "default": "{emphasis-secondary-fill}"},
-    "emphasis-secondary-root-icon-disabled": {"scope": "family", "family": "emphasis", "option": "secondary", "part": "root", "property": "icon", "state": "disabled", "channel": "--arena-emphasis-icon-disabled", "accepts": "icon", "on": "emphasis-secondary-root-fill-disabled", "default": "{emphasis-secondary-root-ink-disabled}", "optional": true},
-    "emphasis-secondary-root-icon-hover": {"scope": "family", "family": "emphasis", "option": "secondary", "part": "root", "property": "icon", "state": "hover", "channel": "--arena-emphasis-icon-hover", "accepts": "icon", "on": "emphasis-secondary-root-fill-hover", "default": "{emphasis-secondary-root-ink-hover}"},
-    "emphasis-secondary-root-icon-pressed": {"scope": "family", "family": "emphasis", "option": "secondary", "part": "root", "property": "icon", "state": "pressed", "channel": "--arena-emphasis-icon-pressed", "accepts": "icon", "on": "emphasis-secondary-root-fill-pressed", "default": "{emphasis-secondary-root-ink-pressed}"},
-    "emphasis-secondary-root-icon-rest": {"scope": "family", "family": "emphasis", "option": "secondary", "part": "root", "property": "icon", "state": "rest", "channel": "--arena-emphasis-icon", "accepts": "icon", "on": "emphasis-secondary-root-fill-rest", "default": "{emphasis-secondary-root-ink-rest}"},
-    "emphasis-secondary-root-ink-disabled": {"scope": "family", "family": "emphasis", "option": "secondary", "part": "root", "property": "ink", "state": "disabled", "channel": "--arena-emphasis-ink-disabled", "accepts": "ink", "on": "emphasis-secondary-root-fill-disabled", "optional": true},
-    "emphasis-secondary-root-ink-hover": {"scope": "family", "family": "emphasis", "option": "secondary", "part": "root", "property": "ink", "state": "hover", "channel": "--arena-emphasis-ink-hover", "accepts": "ink", "on": "emphasis-secondary-root-fill-hover", "derive": {"from": "emphasis-secondary-root-ink-rest"}},
-    "emphasis-secondary-root-ink-pressed": {"scope": "family", "family": "emphasis", "option": "secondary", "part": "root", "property": "ink", "state": "pressed", "channel": "--arena-emphasis-ink-pressed", "accepts": "ink", "on": "emphasis-secondary-root-fill-pressed", "derive": {"from": "emphasis-secondary-root-ink-rest"}},
-    "emphasis-secondary-root-ink-rest": {"scope": "family", "family": "emphasis", "option": "secondary", "part": "root", "property": "ink", "state": "rest", "channel": "--arena-emphasis-ink", "accepts": "ink", "on": "emphasis-secondary-root-fill-rest", "default": "{emphasis-secondary-ink}"},
-    "emphasis-solid-root-fill-disabled": {"scope": "family", "family": "emphasis", "option": "solid", "part": "root", "property": "fill", "state": "disabled", "channel": "--arena-emphasis-fill-disabled", "accepts": "fill", "optional": true},
-    "emphasis-solid-root-fill-hover": {"scope": "family", "family": "emphasis", "option": "solid", "part": "root", "property": "fill", "state": "hover", "channel": "--arena-emphasis-fill-hover", "accepts": "fill", "derive": {"from": "emphasis-solid-root-fill-rest"}},
-    "emphasis-solid-root-fill-pressed": {"scope": "family", "family": "emphasis", "option": "solid", "part": "root", "property": "fill", "state": "pressed", "channel": "--arena-emphasis-fill-pressed", "accepts": "fill", "derive": {"from": "emphasis-solid-root-fill-rest", "mix": "mix-pressed"}},
-    "emphasis-solid-root-fill-rest": {"scope": "family", "family": "emphasis", "option": "solid", "part": "root", "property": "fill", "state": "rest", "channel": "--arena-emphasis-fill", "accepts": "fill", "default": "{emphasis-solid-fill}"},
-    "emphasis-solid-root-fill-selected": {"scope": "family", "family": "emphasis", "option": "solid", "part": "root", "property": "fill", "state": "selected", "channel": "--arena-emphasis-fill-selected", "accepts": "fill", "default": "{fill-selected}", "level": "level-accent-soft-primary"},
-    "emphasis-solid-root-fill-selected-disabled": {"scope": "family", "family": "emphasis", "option": "solid", "part": "root", "property": "fill", "state": "selected-disabled", "channel": "--arena-emphasis-fill-selected-disabled", "accepts": "fill", "optional": true},
-    "emphasis-solid-root-fill-selected-hover": {"scope": "family", "family": "emphasis", "option": "solid", "part": "root", "property": "fill", "state": "selected-hover", "channel": "--arena-emphasis-fill-selected-hover", "accepts": "fill", "derive": {"from": "emphasis-solid-root-fill-selected", "mix": "mix-hover"}},
-    "emphasis-solid-root-fill-selected-pressed": {"scope": "family", "family": "emphasis", "option": "solid", "part": "root", "property": "fill", "state": "selected-pressed", "channel": "--arena-emphasis-fill-selected-pressed", "accepts": "fill", "derive": {"from": "emphasis-solid-root-fill-selected", "mix": "mix-pressed"}},
-    "emphasis-solid-root-icon-disabled": {"scope": "family", "family": "emphasis", "option": "solid", "part": "root", "property": "icon", "state": "disabled", "channel": "--arena-emphasis-icon-disabled", "accepts": "icon", "on": "emphasis-solid-root-fill-disabled", "default": "{emphasis-solid-root-ink-disabled}", "optional": true},
-    "emphasis-solid-root-icon-hover": {"scope": "family", "family": "emphasis", "option": "solid", "part": "root", "property": "icon", "state": "hover", "channel": "--arena-emphasis-icon-hover", "accepts": "icon", "on": "emphasis-solid-root-fill-hover", "default": "{emphasis-solid-root-ink-hover}"},
-    "emphasis-solid-root-icon-pressed": {"scope": "family", "family": "emphasis", "option": "solid", "part": "root", "property": "icon", "state": "pressed", "channel": "--arena-emphasis-icon-pressed", "accepts": "icon", "on": "emphasis-solid-root-fill-pressed", "default": "{emphasis-solid-root-ink-pressed}"},
-    "emphasis-solid-root-icon-rest": {"scope": "family", "family": "emphasis", "option": "solid", "part": "root", "property": "icon", "state": "rest", "channel": "--arena-emphasis-icon", "accepts": "icon", "on": "emphasis-solid-root-fill-rest", "default": "{emphasis-solid-root-ink-rest}"},
-    "emphasis-solid-root-icon-selected": {"scope": "family", "family": "emphasis", "option": "solid", "part": "root", "property": "icon", "state": "selected", "channel": "--arena-emphasis-icon-selected", "accepts": "icon", "on": "emphasis-solid-root-fill-selected", "default": "{emphasis-solid-root-ink-selected}"},
-    "emphasis-solid-root-icon-selected-disabled": {"scope": "family", "family": "emphasis", "option": "solid", "part": "root", "property": "icon", "state": "selected-disabled", "channel": "--arena-emphasis-icon-selected-disabled", "accepts": "icon", "on": "emphasis-solid-root-fill-selected-disabled", "default": "{emphasis-solid-root-ink-selected-disabled}", "optional": true},
-    "emphasis-solid-root-icon-selected-hover": {"scope": "family", "family": "emphasis", "option": "solid", "part": "root", "property": "icon", "state": "selected-hover", "channel": "--arena-emphasis-icon-selected-hover", "accepts": "icon", "on": "emphasis-solid-root-fill-selected-hover", "default": "{emphasis-solid-root-ink-selected-hover}"},
-    "emphasis-solid-root-icon-selected-pressed": {"scope": "family", "family": "emphasis", "option": "solid", "part": "root", "property": "icon", "state": "selected-pressed", "channel": "--arena-emphasis-icon-selected-pressed", "accepts": "icon", "on": "emphasis-solid-root-fill-selected-pressed", "default": "{emphasis-solid-root-ink-selected-pressed}"},
-    "emphasis-solid-root-ink-disabled": {"scope": "family", "family": "emphasis", "option": "solid", "part": "root", "property": "ink", "state": "disabled", "channel": "--arena-emphasis-ink-disabled", "accepts": "ink", "on": "emphasis-solid-root-fill-disabled", "optional": true},
-    "emphasis-solid-root-ink-hover": {"scope": "family", "family": "emphasis", "option": "solid", "part": "root", "property": "ink", "state": "hover", "channel": "--arena-emphasis-ink-hover", "accepts": "ink", "on": "emphasis-solid-root-fill-hover", "derive": {"from": "emphasis-solid-root-ink-rest"}},
-    "emphasis-solid-root-ink-pressed": {"scope": "family", "family": "emphasis", "option": "solid", "part": "root", "property": "ink", "state": "pressed", "channel": "--arena-emphasis-ink-pressed", "accepts": "ink", "on": "emphasis-solid-root-fill-pressed", "derive": {"from": "emphasis-solid-root-ink-rest"}},
-    "emphasis-solid-root-ink-rest": {"scope": "family", "family": "emphasis", "option": "solid", "part": "root", "property": "ink", "state": "rest", "channel": "--arena-emphasis-ink", "accepts": "ink", "on": "emphasis-solid-root-fill-rest", "default": "{emphasis-solid-ink}"},
-    "emphasis-solid-root-ink-selected": {"scope": "family", "family": "emphasis", "option": "solid", "part": "root", "property": "ink", "state": "selected", "channel": "--arena-emphasis-ink-selected", "accepts": "ink", "on": "emphasis-solid-root-fill-selected", "default": "{ink-selected}"},
-    "emphasis-solid-root-ink-selected-disabled": {"scope": "family", "family": "emphasis", "option": "solid", "part": "root", "property": "ink", "state": "selected-disabled", "channel": "--arena-emphasis-ink-selected-disabled", "accepts": "ink", "on": "emphasis-solid-root-fill-selected-disabled", "optional": true},
-    "emphasis-solid-root-ink-selected-hover": {"scope": "family", "family": "emphasis", "option": "solid", "part": "root", "property": "ink", "state": "selected-hover", "channel": "--arena-emphasis-ink-selected-hover", "accepts": "ink", "on": "emphasis-solid-root-fill-selected-hover", "derive": {"from": "emphasis-solid-root-ink-selected"}},
-    "emphasis-solid-root-ink-selected-pressed": {"scope": "family", "family": "emphasis", "option": "solid", "part": "root", "property": "ink", "state": "selected-pressed", "channel": "--arena-emphasis-ink-selected-pressed", "accepts": "ink", "on": "emphasis-solid-root-fill-selected-pressed", "derive": {"from": "emphasis-solid-root-ink-selected"}},
-    "file-input-ghost-trigger-edge-hover": {"scope": "component", "component": "ArenaFileInput", "option": "ghost", "part": "trigger", "property": "edge", "state": "hover", "channel": "--arena-emphasis-edge-hover", "accepts": "edge", "on": "file-input-ghost-trigger-fill-hover", "default": "{emphasis-ghost-root-edge-hover}"},
-    "file-input-ghost-trigger-edge-pressed": {"scope": "component", "component": "ArenaFileInput", "option": "ghost", "part": "trigger", "property": "edge", "state": "pressed", "channel": "--arena-emphasis-edge-pressed", "accepts": "edge", "on": "file-input-ghost-trigger-fill-pressed", "default": "{emphasis-ghost-root-edge-pressed}"},
-    "file-input-ghost-trigger-edge-rest": {"scope": "component", "component": "ArenaFileInput", "option": "ghost", "part": "trigger", "property": "edge", "state": "rest", "channel": "--arena-emphasis-edge", "accepts": "edge", "on": "file-input-ghost-trigger-fill-rest", "default": "{emphasis-ghost-root-edge-rest}"},
-    "file-input-ghost-trigger-fill-hover": {"scope": "component", "component": "ArenaFileInput", "option": "ghost", "part": "trigger", "property": "fill", "state": "hover", "channel": "--arena-emphasis-fill-hover", "accepts": "fill", "default": "{emphasis-ghost-root-fill-hover}"},
-    "file-input-ghost-trigger-fill-pressed": {"scope": "component", "component": "ArenaFileInput", "option": "ghost", "part": "trigger", "property": "fill", "state": "pressed", "channel": "--arena-emphasis-fill-pressed", "accepts": "fill", "default": "{emphasis-ghost-root-fill-pressed}"},
-    "file-input-ghost-trigger-fill-rest": {"scope": "component", "component": "ArenaFileInput", "option": "ghost", "part": "trigger", "property": "fill", "state": "rest", "channel": "--arena-emphasis-fill", "accepts": "fill", "default": "{emphasis-ghost-root-fill-rest}"},
-    "file-input-ghost-trigger-icon-hover": {"scope": "component", "component": "ArenaFileInput", "option": "ghost", "part": "trigger", "property": "icon", "state": "hover", "channel": "--arena-emphasis-icon-hover", "accepts": "icon", "on": "file-input-ghost-trigger-fill-hover", "default": "{emphasis-ghost-root-icon-hover}"},
-    "file-input-ghost-trigger-icon-pressed": {"scope": "component", "component": "ArenaFileInput", "option": "ghost", "part": "trigger", "property": "icon", "state": "pressed", "channel": "--arena-emphasis-icon-pressed", "accepts": "icon", "on": "file-input-ghost-trigger-fill-pressed", "default": "{emphasis-ghost-root-icon-pressed}"},
-    "file-input-ghost-trigger-icon-rest": {"scope": "component", "component": "ArenaFileInput", "option": "ghost", "part": "trigger", "property": "icon", "state": "rest", "channel": "--arena-emphasis-icon", "accepts": "icon", "on": "file-input-ghost-trigger-fill-rest", "default": "{emphasis-ghost-root-icon-rest}"},
-    "file-input-ghost-trigger-ink-hover": {"scope": "component", "component": "ArenaFileInput", "option": "ghost", "part": "trigger", "property": "ink", "state": "hover", "channel": "--arena-emphasis-ink-hover", "accepts": "ink", "on": "file-input-ghost-trigger-fill-hover", "default": "{emphasis-ghost-root-ink-hover}"},
-    "file-input-ghost-trigger-ink-pressed": {"scope": "component", "component": "ArenaFileInput", "option": "ghost", "part": "trigger", "property": "ink", "state": "pressed", "channel": "--arena-emphasis-ink-pressed", "accepts": "ink", "on": "file-input-ghost-trigger-fill-pressed", "default": "{emphasis-ghost-root-ink-pressed}"},
-    "file-input-ghost-trigger-ink-rest": {"scope": "component", "component": "ArenaFileInput", "option": "ghost", "part": "trigger", "property": "ink", "state": "rest", "channel": "--arena-emphasis-ink", "accepts": "ink", "on": "file-input-ghost-trigger-fill-rest", "default": "{emphasis-ghost-root-ink-rest}"},
-    "file-input-secondary-trigger-edge-hover": {"scope": "component", "component": "ArenaFileInput", "option": "secondary", "part": "trigger", "property": "edge", "state": "hover", "channel": "--arena-emphasis-edge-hover", "accepts": "edge", "on": "file-input-secondary-trigger-fill-hover", "default": "{emphasis-secondary-root-edge-hover}"},
-    "file-input-secondary-trigger-edge-pressed": {"scope": "component", "component": "ArenaFileInput", "option": "secondary", "part": "trigger", "property": "edge", "state": "pressed", "channel": "--arena-emphasis-edge-pressed", "accepts": "edge", "on": "file-input-secondary-trigger-fill-pressed", "default": "{emphasis-secondary-root-edge-pressed}"},
-    "file-input-secondary-trigger-edge-rest": {"scope": "component", "component": "ArenaFileInput", "option": "secondary", "part": "trigger", "property": "edge", "state": "rest", "channel": "--arena-emphasis-edge", "accepts": "edge", "on": "file-input-secondary-trigger-fill-rest", "default": "{emphasis-secondary-root-edge-rest}"},
-    "file-input-secondary-trigger-fill-hover": {"scope": "component", "component": "ArenaFileInput", "option": "secondary", "part": "trigger", "property": "fill", "state": "hover", "channel": "--arena-emphasis-fill-hover", "accepts": "fill", "default": "{emphasis-secondary-root-fill-hover}"},
-    "file-input-secondary-trigger-fill-pressed": {"scope": "component", "component": "ArenaFileInput", "option": "secondary", "part": "trigger", "property": "fill", "state": "pressed", "channel": "--arena-emphasis-fill-pressed", "accepts": "fill", "default": "{emphasis-secondary-root-fill-pressed}"},
-    "file-input-secondary-trigger-fill-rest": {"scope": "component", "component": "ArenaFileInput", "option": "secondary", "part": "trigger", "property": "fill", "state": "rest", "channel": "--arena-emphasis-fill", "accepts": "fill", "default": "{emphasis-secondary-root-fill-rest}"},
-    "file-input-secondary-trigger-icon-hover": {"scope": "component", "component": "ArenaFileInput", "option": "secondary", "part": "trigger", "property": "icon", "state": "hover", "channel": "--arena-emphasis-icon-hover", "accepts": "icon", "on": "file-input-secondary-trigger-fill-hover", "default": "{emphasis-secondary-root-icon-hover}"},
-    "file-input-secondary-trigger-icon-pressed": {"scope": "component", "component": "ArenaFileInput", "option": "secondary", "part": "trigger", "property": "icon", "state": "pressed", "channel": "--arena-emphasis-icon-pressed", "accepts": "icon", "on": "file-input-secondary-trigger-fill-pressed", "default": "{emphasis-secondary-root-icon-pressed}"},
-    "file-input-secondary-trigger-icon-rest": {"scope": "component", "component": "ArenaFileInput", "option": "secondary", "part": "trigger", "property": "icon", "state": "rest", "channel": "--arena-emphasis-icon", "accepts": "icon", "on": "file-input-secondary-trigger-fill-rest", "default": "{emphasis-secondary-root-icon-rest}"},
-    "file-input-secondary-trigger-ink-hover": {"scope": "component", "component": "ArenaFileInput", "option": "secondary", "part": "trigger", "property": "ink", "state": "hover", "channel": "--arena-emphasis-ink-hover", "accepts": "ink", "on": "file-input-secondary-trigger-fill-hover", "default": "{emphasis-secondary-root-ink-hover}"},
-    "file-input-secondary-trigger-ink-pressed": {"scope": "component", "component": "ArenaFileInput", "option": "secondary", "part": "trigger", "property": "ink", "state": "pressed", "channel": "--arena-emphasis-ink-pressed", "accepts": "ink", "on": "file-input-secondary-trigger-fill-pressed", "default": "{emphasis-secondary-root-ink-pressed}"},
-    "file-input-secondary-trigger-ink-rest": {"scope": "component", "component": "ArenaFileInput", "option": "secondary", "part": "trigger", "property": "ink", "state": "rest", "channel": "--arena-emphasis-ink", "accepts": "ink", "on": "file-input-secondary-trigger-fill-rest", "default": "{emphasis-secondary-root-ink-rest}"},
-    "hue-danger-mark-edge-rest": {"scope": "family", "family": "hue", "option": "danger", "part": "mark", "property": "edge", "state": "rest", "channel": "--arena-hue-edge", "accepts": "edge", "on": "reader", "default": "{hue-danger-edge}"},
-    "hue-danger-mark-ink-rest": {"scope": "family", "family": "hue", "option": "danger", "part": "mark", "property": "ink", "state": "rest", "channel": "--arena-hue-ink", "accepts": "ink", "on": "reader", "default": "{hue-danger-ink}"},
-    "hue-danger-soft-fill-rest": {"scope": "family", "family": "hue", "option": "danger", "part": "soft", "property": "fill", "state": "rest", "channel": "--arena-hue-fill-soft", "accepts": "fill", "default": "{hue-danger-fill-soft}", "level": "level-hue-soft-danger"},
-    "hue-danger-strong-fill-rest": {"scope": "family", "family": "hue", "option": "danger", "part": "strong", "property": "fill", "state": "rest", "channel": "--arena-hue-fill-strong", "accepts": "fill", "default": "{hue-danger-fill-strong}"},
-    "hue-danger-strong-ink-rest": {"scope": "family", "family": "hue", "option": "danger", "part": "strong", "property": "ink", "state": "rest", "channel": "--arena-hue-on-ink", "accepts": "ink", "on": "reader", "default": "{hue-danger-on-ink}"},
-    "hue-info-mark-edge-rest": {"scope": "family", "family": "hue", "option": "info", "part": "mark", "property": "edge", "state": "rest", "channel": "--arena-hue-edge", "accepts": "edge", "on": "reader", "default": "{hue-info-edge}"},
-    "hue-info-mark-ink-rest": {"scope": "family", "family": "hue", "option": "info", "part": "mark", "property": "ink", "state": "rest", "channel": "--arena-hue-ink", "accepts": "ink", "on": "reader", "default": "{hue-info-ink}"},
-    "hue-info-soft-fill-rest": {"scope": "family", "family": "hue", "option": "info", "part": "soft", "property": "fill", "state": "rest", "channel": "--arena-hue-fill-soft", "accepts": "fill", "default": "{hue-info-fill-soft}", "level": "level-hue-soft-info"},
-    "hue-info-strong-fill-rest": {"scope": "family", "family": "hue", "option": "info", "part": "strong", "property": "fill", "state": "rest", "channel": "--arena-hue-fill-strong", "accepts": "fill", "default": "{hue-info-fill-strong}"},
-    "hue-info-strong-ink-rest": {"scope": "family", "family": "hue", "option": "info", "part": "strong", "property": "ink", "state": "rest", "channel": "--arena-hue-on-ink", "accepts": "ink", "on": "reader", "default": "{hue-info-on-ink}"},
-    "hue-success-mark-edge-rest": {"scope": "family", "family": "hue", "option": "success", "part": "mark", "property": "edge", "state": "rest", "channel": "--arena-hue-edge", "accepts": "edge", "on": "reader", "default": "{hue-success-edge}"},
-    "hue-success-mark-ink-rest": {"scope": "family", "family": "hue", "option": "success", "part": "mark", "property": "ink", "state": "rest", "channel": "--arena-hue-ink", "accepts": "ink", "on": "reader", "default": "{hue-success-ink}"},
-    "hue-success-soft-fill-rest": {"scope": "family", "family": "hue", "option": "success", "part": "soft", "property": "fill", "state": "rest", "channel": "--arena-hue-fill-soft", "accepts": "fill", "default": "{hue-success-fill-soft}", "level": "level-hue-soft-success"},
-    "hue-success-strong-fill-rest": {"scope": "family", "family": "hue", "option": "success", "part": "strong", "property": "fill", "state": "rest", "channel": "--arena-hue-fill-strong", "accepts": "fill", "default": "{hue-success-fill-strong}"},
-    "hue-success-strong-ink-rest": {"scope": "family", "family": "hue", "option": "success", "part": "strong", "property": "ink", "state": "rest", "channel": "--arena-hue-on-ink", "accepts": "ink", "on": "reader", "default": "{hue-success-on-ink}"},
-    "hue-warning-mark-edge-rest": {"scope": "family", "family": "hue", "option": "warning", "part": "mark", "property": "edge", "state": "rest", "channel": "--arena-hue-edge", "accepts": "edge", "on": "reader", "default": "{hue-warning-edge}"},
-    "hue-warning-mark-ink-rest": {"scope": "family", "family": "hue", "option": "warning", "part": "mark", "property": "ink", "state": "rest", "channel": "--arena-hue-ink", "accepts": "ink", "on": "reader", "default": "{hue-warning-ink}"},
-    "hue-warning-soft-fill-rest": {"scope": "family", "family": "hue", "option": "warning", "part": "soft", "property": "fill", "state": "rest", "channel": "--arena-hue-fill-soft", "accepts": "fill", "default": "{hue-warning-fill-soft}", "level": "level-hue-soft-warning"},
-    "hue-warning-strong-fill-rest": {"scope": "family", "family": "hue", "option": "warning", "part": "strong", "property": "fill", "state": "rest", "channel": "--arena-hue-fill-strong", "accepts": "fill", "default": "{hue-warning-fill-strong}"},
-    "hue-warning-strong-ink-rest": {"scope": "family", "family": "hue", "option": "warning", "part": "strong", "property": "ink", "state": "rest", "channel": "--arena-hue-on-ink", "accepts": "ink", "on": "reader", "default": "{hue-warning-on-ink}"},
-    "icon-button-ghost-root-edge-disabled": {"scope": "component", "component": "ArenaIconButton", "option": "ghost", "part": "root", "property": "edge", "state": "disabled", "channel": "--arena-emphasis-icon-edge-disabled", "accepts": "edge", "on": "icon-button-ghost-root-fill-disabled", "optional": true},
-    "icon-button-ghost-root-edge-hover": {"scope": "component", "component": "ArenaIconButton", "option": "ghost", "part": "root", "property": "edge", "state": "hover", "channel": "--arena-emphasis-icon-edge-hover", "accepts": "edge", "on": "icon-button-ghost-root-fill-hover", "derive": {"from": "icon-button-ghost-root-edge-rest"}},
-    "icon-button-ghost-root-edge-pressed": {"scope": "component", "component": "ArenaIconButton", "option": "ghost", "part": "root", "property": "edge", "state": "pressed", "channel": "--arena-emphasis-icon-edge-pressed", "accepts": "edge", "on": "icon-button-ghost-root-fill-pressed", "derive": {"from": "icon-button-ghost-root-edge-rest"}},
-    "icon-button-ghost-root-edge-rest": {"scope": "component", "component": "ArenaIconButton", "option": "ghost", "part": "root", "property": "edge", "state": "rest", "channel": "--arena-emphasis-icon-edge", "accepts": "edge", "on": "icon-button-ghost-root-fill-rest", "default": "{emphasis-ghost-icon-edge}"},
-    "icon-button-ghost-root-edge-selected": {"scope": "component", "component": "ArenaIconButton", "option": "ghost", "part": "root", "property": "edge", "state": "selected", "channel": "--arena-emphasis-icon-edge-selected", "accepts": "edge", "on": "icon-button-ghost-root-fill-selected", "default": "{edge-selected}"},
-    "icon-button-ghost-root-edge-selected-disabled": {"scope": "component", "component": "ArenaIconButton", "option": "ghost", "part": "root", "property": "edge", "state": "selected-disabled", "channel": "--arena-emphasis-icon-edge-selected-disabled", "accepts": "edge", "on": "icon-button-ghost-root-fill-selected-disabled", "optional": true},
-    "icon-button-ghost-root-edge-selected-hover": {"scope": "component", "component": "ArenaIconButton", "option": "ghost", "part": "root", "property": "edge", "state": "selected-hover", "channel": "--arena-emphasis-icon-edge-selected-hover", "accepts": "edge", "on": "icon-button-ghost-root-fill-selected-hover", "derive": {"from": "icon-button-ghost-root-edge-selected"}},
-    "icon-button-ghost-root-edge-selected-pressed": {"scope": "component", "component": "ArenaIconButton", "option": "ghost", "part": "root", "property": "edge", "state": "selected-pressed", "channel": "--arena-emphasis-icon-edge-selected-pressed", "accepts": "edge", "on": "icon-button-ghost-root-fill-selected-pressed", "derive": {"from": "icon-button-ghost-root-edge-selected"}},
-    "icon-button-ghost-root-fill-disabled": {"scope": "component", "component": "ArenaIconButton", "option": "ghost", "part": "root", "property": "fill", "state": "disabled", "channel": "--arena-emphasis-fill-disabled", "accepts": "fill", "default": "{emphasis-ghost-root-fill-disabled}", "optional": true},
-    "icon-button-ghost-root-fill-hover": {"scope": "component", "component": "ArenaIconButton", "option": "ghost", "part": "root", "property": "fill", "state": "hover", "channel": "--arena-emphasis-fill-hover", "accepts": "fill", "default": "{emphasis-ghost-root-fill-hover}"},
-    "icon-button-ghost-root-fill-pressed": {"scope": "component", "component": "ArenaIconButton", "option": "ghost", "part": "root", "property": "fill", "state": "pressed", "channel": "--arena-emphasis-fill-pressed", "accepts": "fill", "default": "{emphasis-ghost-root-fill-pressed}"},
-    "icon-button-ghost-root-fill-rest": {"scope": "component", "component": "ArenaIconButton", "option": "ghost", "part": "root", "property": "fill", "state": "rest", "channel": "--arena-emphasis-fill", "accepts": "fill", "default": "{emphasis-ghost-root-fill-rest}"},
-    "icon-button-ghost-root-fill-selected": {"scope": "component", "component": "ArenaIconButton", "option": "ghost", "part": "root", "property": "fill", "state": "selected", "channel": "--arena-emphasis-fill-selected", "accepts": "fill", "default": "{emphasis-ghost-root-fill-selected}"},
-    "icon-button-ghost-root-fill-selected-disabled": {"scope": "component", "component": "ArenaIconButton", "option": "ghost", "part": "root", "property": "fill", "state": "selected-disabled", "channel": "--arena-emphasis-fill-selected-disabled", "accepts": "fill", "default": "{emphasis-ghost-root-fill-selected-disabled}", "optional": true},
-    "icon-button-ghost-root-fill-selected-hover": {"scope": "component", "component": "ArenaIconButton", "option": "ghost", "part": "root", "property": "fill", "state": "selected-hover", "channel": "--arena-emphasis-fill-selected-hover", "accepts": "fill", "default": "{emphasis-ghost-root-fill-selected-hover}"},
-    "icon-button-ghost-root-fill-selected-pressed": {"scope": "component", "component": "ArenaIconButton", "option": "ghost", "part": "root", "property": "fill", "state": "selected-pressed", "channel": "--arena-emphasis-fill-selected-pressed", "accepts": "fill", "default": "{emphasis-ghost-root-fill-selected-pressed}"},
-    "icon-button-ghost-root-icon-disabled": {"scope": "component", "component": "ArenaIconButton", "option": "ghost", "part": "root", "property": "icon", "state": "disabled", "channel": "--arena-emphasis-icon-disabled", "accepts": "icon", "on": "icon-button-ghost-root-fill-disabled", "default": "{emphasis-ghost-root-icon-disabled}", "optional": true},
-    "icon-button-ghost-root-icon-hover": {"scope": "component", "component": "ArenaIconButton", "option": "ghost", "part": "root", "property": "icon", "state": "hover", "channel": "--arena-emphasis-icon-hover", "accepts": "icon", "on": "icon-button-ghost-root-fill-hover", "default": "{emphasis-ghost-root-icon-hover}"},
-    "icon-button-ghost-root-icon-pressed": {"scope": "component", "component": "ArenaIconButton", "option": "ghost", "part": "root", "property": "icon", "state": "pressed", "channel": "--arena-emphasis-icon-pressed", "accepts": "icon", "on": "icon-button-ghost-root-fill-pressed", "default": "{emphasis-ghost-root-icon-pressed}"},
-    "icon-button-ghost-root-icon-rest": {"scope": "component", "component": "ArenaIconButton", "option": "ghost", "part": "root", "property": "icon", "state": "rest", "channel": "--arena-emphasis-icon", "accepts": "icon", "on": "icon-button-ghost-root-fill-rest", "default": "{emphasis-ghost-root-icon-rest}"},
-    "icon-button-ghost-root-icon-selected": {"scope": "component", "component": "ArenaIconButton", "option": "ghost", "part": "root", "property": "icon", "state": "selected", "channel": "--arena-emphasis-icon-selected", "accepts": "icon", "on": "icon-button-ghost-root-fill-selected", "default": "{emphasis-ghost-root-icon-selected}"},
-    "icon-button-ghost-root-icon-selected-disabled": {"scope": "component", "component": "ArenaIconButton", "option": "ghost", "part": "root", "property": "icon", "state": "selected-disabled", "channel": "--arena-emphasis-icon-selected-disabled", "accepts": "icon", "on": "icon-button-ghost-root-fill-selected-disabled", "default": "{emphasis-ghost-root-icon-selected-disabled}", "optional": true},
-    "icon-button-ghost-root-icon-selected-hover": {"scope": "component", "component": "ArenaIconButton", "option": "ghost", "part": "root", "property": "icon", "state": "selected-hover", "channel": "--arena-emphasis-icon-selected-hover", "accepts": "icon", "on": "icon-button-ghost-root-fill-selected-hover", "default": "{emphasis-ghost-root-icon-selected-hover}"},
-    "icon-button-ghost-root-icon-selected-pressed": {"scope": "component", "component": "ArenaIconButton", "option": "ghost", "part": "root", "property": "icon", "state": "selected-pressed", "channel": "--arena-emphasis-icon-selected-pressed", "accepts": "icon", "on": "icon-button-ghost-root-fill-selected-pressed", "default": "{emphasis-ghost-root-icon-selected-pressed}"},
-    "icon-button-ghost-root-ink-disabled": {"scope": "component", "component": "ArenaIconButton", "option": "ghost", "part": "root", "property": "ink", "state": "disabled", "channel": "--arena-emphasis-ink-disabled", "accepts": "ink", "on": "icon-button-ghost-root-fill-disabled", "default": "{emphasis-ghost-root-ink-disabled}", "optional": true},
-    "icon-button-ghost-root-ink-hover": {"scope": "component", "component": "ArenaIconButton", "option": "ghost", "part": "root", "property": "ink", "state": "hover", "channel": "--arena-emphasis-ink-hover", "accepts": "ink", "on": "icon-button-ghost-root-fill-hover", "default": "{emphasis-ghost-root-ink-hover}"},
-    "icon-button-ghost-root-ink-pressed": {"scope": "component", "component": "ArenaIconButton", "option": "ghost", "part": "root", "property": "ink", "state": "pressed", "channel": "--arena-emphasis-ink-pressed", "accepts": "ink", "on": "icon-button-ghost-root-fill-pressed", "default": "{emphasis-ghost-root-ink-pressed}"},
-    "icon-button-ghost-root-ink-rest": {"scope": "component", "component": "ArenaIconButton", "option": "ghost", "part": "root", "property": "ink", "state": "rest", "channel": "--arena-emphasis-ink", "accepts": "ink", "on": "icon-button-ghost-root-fill-rest", "default": "{emphasis-ghost-root-ink-rest}"},
-    "icon-button-ghost-root-ink-selected": {"scope": "component", "component": "ArenaIconButton", "option": "ghost", "part": "root", "property": "ink", "state": "selected", "channel": "--arena-emphasis-ink-selected", "accepts": "ink", "on": "icon-button-ghost-root-fill-selected", "default": "{emphasis-ghost-root-ink-selected}"},
-    "icon-button-ghost-root-ink-selected-disabled": {"scope": "component", "component": "ArenaIconButton", "option": "ghost", "part": "root", "property": "ink", "state": "selected-disabled", "channel": "--arena-emphasis-ink-selected-disabled", "accepts": "ink", "on": "icon-button-ghost-root-fill-selected-disabled", "default": "{emphasis-ghost-root-ink-selected-disabled}", "optional": true},
-    "icon-button-ghost-root-ink-selected-hover": {"scope": "component", "component": "ArenaIconButton", "option": "ghost", "part": "root", "property": "ink", "state": "selected-hover", "channel": "--arena-emphasis-ink-selected-hover", "accepts": "ink", "on": "icon-button-ghost-root-fill-selected-hover", "default": "{emphasis-ghost-root-ink-selected-hover}"},
-    "icon-button-ghost-root-ink-selected-pressed": {"scope": "component", "component": "ArenaIconButton", "option": "ghost", "part": "root", "property": "ink", "state": "selected-pressed", "channel": "--arena-emphasis-ink-selected-pressed", "accepts": "ink", "on": "icon-button-ghost-root-fill-selected-pressed", "default": "{emphasis-ghost-root-ink-selected-pressed}"},
-    "icon-button-solid-root-edge-disabled": {"scope": "component", "component": "ArenaIconButton", "option": "solid", "part": "root", "property": "edge", "state": "disabled", "channel": "--arena-emphasis-icon-edge-disabled", "accepts": "edge", "on": "icon-button-solid-root-fill-disabled", "optional": true},
-    "icon-button-solid-root-edge-hover": {"scope": "component", "component": "ArenaIconButton", "option": "solid", "part": "root", "property": "edge", "state": "hover", "channel": "--arena-emphasis-icon-edge-hover", "accepts": "edge", "on": "icon-button-solid-root-fill-hover", "derive": {"from": "icon-button-solid-root-edge-rest"}},
-    "icon-button-solid-root-edge-pressed": {"scope": "component", "component": "ArenaIconButton", "option": "solid", "part": "root", "property": "edge", "state": "pressed", "channel": "--arena-emphasis-icon-edge-pressed", "accepts": "edge", "on": "icon-button-solid-root-fill-pressed", "derive": {"from": "icon-button-solid-root-edge-rest"}},
-    "icon-button-solid-root-edge-rest": {"scope": "component", "component": "ArenaIconButton", "option": "solid", "part": "root", "property": "edge", "state": "rest", "channel": "--arena-emphasis-icon-edge", "accepts": "edge", "on": "icon-button-solid-root-fill-rest", "default": "transparent"},
-    "icon-button-solid-root-edge-selected": {"scope": "component", "component": "ArenaIconButton", "option": "solid", "part": "root", "property": "edge", "state": "selected", "channel": "--arena-emphasis-icon-edge-selected", "accepts": "edge", "on": "icon-button-solid-root-fill-selected", "default": "{edge-selected}"},
-    "icon-button-solid-root-edge-selected-disabled": {"scope": "component", "component": "ArenaIconButton", "option": "solid", "part": "root", "property": "edge", "state": "selected-disabled", "channel": "--arena-emphasis-icon-edge-selected-disabled", "accepts": "edge", "on": "icon-button-solid-root-fill-selected-disabled", "optional": true},
-    "icon-button-solid-root-edge-selected-hover": {"scope": "component", "component": "ArenaIconButton", "option": "solid", "part": "root", "property": "edge", "state": "selected-hover", "channel": "--arena-emphasis-icon-edge-selected-hover", "accepts": "edge", "on": "icon-button-solid-root-fill-selected-hover", "derive": {"from": "icon-button-solid-root-edge-selected"}},
-    "icon-button-solid-root-edge-selected-pressed": {"scope": "component", "component": "ArenaIconButton", "option": "solid", "part": "root", "property": "edge", "state": "selected-pressed", "channel": "--arena-emphasis-icon-edge-selected-pressed", "accepts": "edge", "on": "icon-button-solid-root-fill-selected-pressed", "derive": {"from": "icon-button-solid-root-edge-selected"}},
-    "icon-button-solid-root-fill-disabled": {"scope": "component", "component": "ArenaIconButton", "option": "solid", "part": "root", "property": "fill", "state": "disabled", "channel": "--arena-emphasis-fill-disabled", "accepts": "fill", "default": "{emphasis-solid-root-fill-disabled}", "optional": true},
-    "icon-button-solid-root-fill-hover": {"scope": "component", "component": "ArenaIconButton", "option": "solid", "part": "root", "property": "fill", "state": "hover", "channel": "--arena-emphasis-fill-hover", "accepts": "fill", "default": "{emphasis-solid-root-fill-hover}"},
-    "icon-button-solid-root-fill-pressed": {"scope": "component", "component": "ArenaIconButton", "option": "solid", "part": "root", "property": "fill", "state": "pressed", "channel": "--arena-emphasis-fill-pressed", "accepts": "fill", "default": "{emphasis-solid-root-fill-pressed}"},
-    "icon-button-solid-root-fill-rest": {"scope": "component", "component": "ArenaIconButton", "option": "solid", "part": "root", "property": "fill", "state": "rest", "channel": "--arena-emphasis-fill", "accepts": "fill", "default": "{emphasis-solid-root-fill-rest}"},
-    "icon-button-solid-root-fill-selected": {"scope": "component", "component": "ArenaIconButton", "option": "solid", "part": "root", "property": "fill", "state": "selected", "channel": "--arena-emphasis-fill-selected", "accepts": "fill", "default": "{emphasis-solid-root-fill-selected}"},
-    "icon-button-solid-root-fill-selected-disabled": {"scope": "component", "component": "ArenaIconButton", "option": "solid", "part": "root", "property": "fill", "state": "selected-disabled", "channel": "--arena-emphasis-fill-selected-disabled", "accepts": "fill", "default": "{emphasis-solid-root-fill-selected-disabled}", "optional": true},
-    "icon-button-solid-root-fill-selected-hover": {"scope": "component", "component": "ArenaIconButton", "option": "solid", "part": "root", "property": "fill", "state": "selected-hover", "channel": "--arena-emphasis-fill-selected-hover", "accepts": "fill", "default": "{emphasis-solid-root-fill-selected-hover}"},
-    "icon-button-solid-root-fill-selected-pressed": {"scope": "component", "component": "ArenaIconButton", "option": "solid", "part": "root", "property": "fill", "state": "selected-pressed", "channel": "--arena-emphasis-fill-selected-pressed", "accepts": "fill", "default": "{emphasis-solid-root-fill-selected-pressed}"},
-    "icon-button-solid-root-icon-disabled": {"scope": "component", "component": "ArenaIconButton", "option": "solid", "part": "root", "property": "icon", "state": "disabled", "channel": "--arena-emphasis-icon-disabled", "accepts": "icon", "on": "icon-button-solid-root-fill-disabled", "default": "{emphasis-solid-root-icon-disabled}", "optional": true},
-    "icon-button-solid-root-icon-hover": {"scope": "component", "component": "ArenaIconButton", "option": "solid", "part": "root", "property": "icon", "state": "hover", "channel": "--arena-emphasis-icon-hover", "accepts": "icon", "on": "icon-button-solid-root-fill-hover", "default": "{emphasis-solid-root-icon-hover}"},
-    "icon-button-solid-root-icon-pressed": {"scope": "component", "component": "ArenaIconButton", "option": "solid", "part": "root", "property": "icon", "state": "pressed", "channel": "--arena-emphasis-icon-pressed", "accepts": "icon", "on": "icon-button-solid-root-fill-pressed", "default": "{emphasis-solid-root-icon-pressed}"},
-    "icon-button-solid-root-icon-rest": {"scope": "component", "component": "ArenaIconButton", "option": "solid", "part": "root", "property": "icon", "state": "rest", "channel": "--arena-emphasis-icon", "accepts": "icon", "on": "icon-button-solid-root-fill-rest", "default": "{emphasis-solid-root-icon-rest}"},
-    "icon-button-solid-root-icon-selected": {"scope": "component", "component": "ArenaIconButton", "option": "solid", "part": "root", "property": "icon", "state": "selected", "channel": "--arena-emphasis-icon-selected", "accepts": "icon", "on": "icon-button-solid-root-fill-selected", "default": "{emphasis-solid-root-icon-selected}"},
-    "icon-button-solid-root-icon-selected-disabled": {"scope": "component", "component": "ArenaIconButton", "option": "solid", "part": "root", "property": "icon", "state": "selected-disabled", "channel": "--arena-emphasis-icon-selected-disabled", "accepts": "icon", "on": "icon-button-solid-root-fill-selected-disabled", "default": "{emphasis-solid-root-icon-selected-disabled}", "optional": true},
-    "icon-button-solid-root-icon-selected-hover": {"scope": "component", "component": "ArenaIconButton", "option": "solid", "part": "root", "property": "icon", "state": "selected-hover", "channel": "--arena-emphasis-icon-selected-hover", "accepts": "icon", "on": "icon-button-solid-root-fill-selected-hover", "default": "{emphasis-solid-root-icon-selected-hover}"},
-    "icon-button-solid-root-icon-selected-pressed": {"scope": "component", "component": "ArenaIconButton", "option": "solid", "part": "root", "property": "icon", "state": "selected-pressed", "channel": "--arena-emphasis-icon-selected-pressed", "accepts": "icon", "on": "icon-button-solid-root-fill-selected-pressed", "default": "{emphasis-solid-root-icon-selected-pressed}"},
-    "icon-button-solid-root-ink-disabled": {"scope": "component", "component": "ArenaIconButton", "option": "solid", "part": "root", "property": "ink", "state": "disabled", "channel": "--arena-emphasis-ink-disabled", "accepts": "ink", "on": "icon-button-solid-root-fill-disabled", "default": "{emphasis-solid-root-ink-disabled}", "optional": true},
-    "icon-button-solid-root-ink-hover": {"scope": "component", "component": "ArenaIconButton", "option": "solid", "part": "root", "property": "ink", "state": "hover", "channel": "--arena-emphasis-ink-hover", "accepts": "ink", "on": "icon-button-solid-root-fill-hover", "default": "{emphasis-solid-root-ink-hover}"},
-    "icon-button-solid-root-ink-pressed": {"scope": "component", "component": "ArenaIconButton", "option": "solid", "part": "root", "property": "ink", "state": "pressed", "channel": "--arena-emphasis-ink-pressed", "accepts": "ink", "on": "icon-button-solid-root-fill-pressed", "default": "{emphasis-solid-root-ink-pressed}"},
-    "icon-button-solid-root-ink-rest": {"scope": "component", "component": "ArenaIconButton", "option": "solid", "part": "root", "property": "ink", "state": "rest", "channel": "--arena-emphasis-ink", "accepts": "ink", "on": "icon-button-solid-root-fill-rest", "default": "{emphasis-solid-root-ink-rest}"},
-    "icon-button-solid-root-ink-selected": {"scope": "component", "component": "ArenaIconButton", "option": "solid", "part": "root", "property": "ink", "state": "selected", "channel": "--arena-emphasis-ink-selected", "accepts": "ink", "on": "icon-button-solid-root-fill-selected", "default": "{emphasis-solid-root-ink-selected}"},
-    "icon-button-solid-root-ink-selected-disabled": {"scope": "component", "component": "ArenaIconButton", "option": "solid", "part": "root", "property": "ink", "state": "selected-disabled", "channel": "--arena-emphasis-ink-selected-disabled", "accepts": "ink", "on": "icon-button-solid-root-fill-selected-disabled", "default": "{emphasis-solid-root-ink-selected-disabled}", "optional": true},
-    "icon-button-solid-root-ink-selected-hover": {"scope": "component", "component": "ArenaIconButton", "option": "solid", "part": "root", "property": "ink", "state": "selected-hover", "channel": "--arena-emphasis-ink-selected-hover", "accepts": "ink", "on": "icon-button-solid-root-fill-selected-hover", "default": "{emphasis-solid-root-ink-selected-hover}"},
-    "icon-button-solid-root-ink-selected-pressed": {"scope": "component", "component": "ArenaIconButton", "option": "solid", "part": "root", "property": "ink", "state": "selected-pressed", "channel": "--arena-emphasis-ink-selected-pressed", "accepts": "ink", "on": "icon-button-solid-root-fill-selected-pressed", "default": "{emphasis-solid-root-ink-selected-pressed}"},
-    "split-button-destructive-caret-edge-disabled": {"scope": "component", "component": "ArenaSplitButton", "option": "destructive", "part": "caret", "property": "edge", "state": "disabled", "accepts": "edge", "on": "split-button-destructive-caret-fill-disabled", "optional": true},
-    "split-button-destructive-caret-edge-hover": {"scope": "component", "component": "ArenaSplitButton", "option": "destructive", "part": "caret", "property": "edge", "state": "hover", "accepts": "edge", "on": "split-button-destructive-caret-fill-hover", "derive": {"from": "split-button-destructive-caret-edge-rest"}},
-    "split-button-destructive-caret-edge-pressed": {"scope": "component", "component": "ArenaSplitButton", "option": "destructive", "part": "caret", "property": "edge", "state": "pressed", "accepts": "edge", "on": "split-button-destructive-caret-fill-pressed", "derive": {"from": "split-button-destructive-caret-edge-rest"}},
-    "split-button-destructive-caret-edge-rest": {"scope": "component", "component": "ArenaSplitButton", "option": "destructive", "part": "caret", "property": "edge", "state": "rest", "accepts": "edge", "on": "split-button-destructive-caret-fill-rest", "default": "{hue-danger-mark-edge-rest}"},
-    "split-button-destructive-caret-fill-disabled": {"scope": "component", "component": "ArenaSplitButton", "option": "destructive", "part": "caret", "property": "fill", "state": "disabled", "accepts": "fill", "optional": true},
-    "split-button-destructive-caret-fill-hover": {"scope": "component", "component": "ArenaSplitButton", "option": "destructive", "part": "caret", "property": "fill", "state": "hover", "accepts": "fill", "default": "{fill-hover}"},
-    "split-button-destructive-caret-fill-pressed": {"scope": "component", "component": "ArenaSplitButton", "option": "destructive", "part": "caret", "property": "fill", "state": "pressed", "accepts": "fill", "derive": {"from": "split-button-destructive-caret-fill-rest", "mix": "mix-pressed"}},
-    "split-button-destructive-caret-fill-rest": {"scope": "component", "component": "ArenaSplitButton", "option": "destructive", "part": "caret", "property": "fill", "state": "rest", "accepts": "fill", "default": "{hue-danger-strong-fill-rest}"},
-    "split-button-destructive-caret-icon-disabled": {"scope": "component", "component": "ArenaSplitButton", "option": "destructive", "part": "caret", "property": "icon", "state": "disabled", "accepts": "icon", "on": "split-button-destructive-caret-fill-disabled", "default": "{split-button-destructive-caret-ink-disabled}", "optional": true},
-    "split-button-destructive-caret-icon-hover": {"scope": "component", "component": "ArenaSplitButton", "option": "destructive", "part": "caret", "property": "icon", "state": "hover", "accepts": "icon", "on": "split-button-destructive-caret-fill-hover", "default": "{split-button-destructive-caret-ink-hover}"},
-    "split-button-destructive-caret-icon-pressed": {"scope": "component", "component": "ArenaSplitButton", "option": "destructive", "part": "caret", "property": "icon", "state": "pressed", "accepts": "icon", "on": "split-button-destructive-caret-fill-pressed", "default": "{split-button-destructive-caret-ink-pressed}"},
-    "split-button-destructive-caret-icon-rest": {"scope": "component", "component": "ArenaSplitButton", "option": "destructive", "part": "caret", "property": "icon", "state": "rest", "accepts": "icon", "on": "split-button-destructive-caret-fill-rest", "default": "{split-button-destructive-caret-ink-rest}"},
-    "split-button-destructive-caret-ink-disabled": {"scope": "component", "component": "ArenaSplitButton", "option": "destructive", "part": "caret", "property": "ink", "state": "disabled", "accepts": "ink", "on": "split-button-destructive-caret-fill-disabled", "optional": true},
-    "split-button-destructive-caret-ink-hover": {"scope": "component", "component": "ArenaSplitButton", "option": "destructive", "part": "caret", "property": "ink", "state": "hover", "accepts": "ink", "on": "split-button-destructive-caret-fill-hover", "derive": {"from": "split-button-destructive-caret-ink-rest"}},
-    "split-button-destructive-caret-ink-pressed": {"scope": "component", "component": "ArenaSplitButton", "option": "destructive", "part": "caret", "property": "ink", "state": "pressed", "accepts": "ink", "on": "split-button-destructive-caret-fill-pressed", "derive": {"from": "split-button-destructive-caret-ink-rest"}},
-    "split-button-destructive-caret-ink-rest": {"scope": "component", "component": "ArenaSplitButton", "option": "destructive", "part": "caret", "property": "ink", "state": "rest", "accepts": "ink", "on": "split-button-destructive-caret-fill-rest", "default": "{hue-danger-mark-ink-rest}"},
-    "split-button-destructive-primary-edge-disabled": {"scope": "component", "component": "ArenaSplitButton", "option": "destructive", "part": "primary", "property": "edge", "state": "disabled", "accepts": "edge", "on": "split-button-destructive-primary-fill-disabled", "optional": true},
-    "split-button-destructive-primary-edge-hover": {"scope": "component", "component": "ArenaSplitButton", "option": "destructive", "part": "primary", "property": "edge", "state": "hover", "accepts": "edge", "on": "split-button-destructive-primary-fill-hover", "derive": {"from": "split-button-destructive-primary-edge-rest"}},
-    "split-button-destructive-primary-edge-pressed": {"scope": "component", "component": "ArenaSplitButton", "option": "destructive", "part": "primary", "property": "edge", "state": "pressed", "accepts": "edge", "on": "split-button-destructive-primary-fill-pressed", "derive": {"from": "split-button-destructive-primary-edge-rest"}},
-    "split-button-destructive-primary-edge-rest": {"scope": "component", "component": "ArenaSplitButton", "option": "destructive", "part": "primary", "property": "edge", "state": "rest", "accepts": "edge", "on": "split-button-destructive-primary-fill-rest", "default": "{hue-danger-mark-edge-rest}"},
-    "split-button-destructive-primary-fill-disabled": {"scope": "component", "component": "ArenaSplitButton", "option": "destructive", "part": "primary", "property": "fill", "state": "disabled", "accepts": "fill", "optional": true},
-    "split-button-destructive-primary-fill-hover": {"scope": "component", "component": "ArenaSplitButton", "option": "destructive", "part": "primary", "property": "fill", "state": "hover", "accepts": "fill", "default": "{fill-hover}"},
-    "split-button-destructive-primary-fill-pressed": {"scope": "component", "component": "ArenaSplitButton", "option": "destructive", "part": "primary", "property": "fill", "state": "pressed", "accepts": "fill", "derive": {"from": "split-button-destructive-primary-fill-rest", "mix": "mix-pressed"}},
-    "split-button-destructive-primary-fill-rest": {"scope": "component", "component": "ArenaSplitButton", "option": "destructive", "part": "primary", "property": "fill", "state": "rest", "accepts": "fill", "default": "{hue-danger-strong-fill-rest}"},
-    "split-button-destructive-primary-icon-disabled": {"scope": "component", "component": "ArenaSplitButton", "option": "destructive", "part": "primary", "property": "icon", "state": "disabled", "accepts": "icon", "on": "split-button-destructive-primary-fill-disabled", "default": "{split-button-destructive-primary-ink-disabled}", "optional": true},
-    "split-button-destructive-primary-icon-hover": {"scope": "component", "component": "ArenaSplitButton", "option": "destructive", "part": "primary", "property": "icon", "state": "hover", "accepts": "icon", "on": "split-button-destructive-primary-fill-hover", "default": "{split-button-destructive-primary-ink-hover}"},
-    "split-button-destructive-primary-icon-pressed": {"scope": "component", "component": "ArenaSplitButton", "option": "destructive", "part": "primary", "property": "icon", "state": "pressed", "accepts": "icon", "on": "split-button-destructive-primary-fill-pressed", "default": "{split-button-destructive-primary-ink-pressed}"},
-    "split-button-destructive-primary-icon-rest": {"scope": "component", "component": "ArenaSplitButton", "option": "destructive", "part": "primary", "property": "icon", "state": "rest", "accepts": "icon", "on": "split-button-destructive-primary-fill-rest", "default": "{split-button-destructive-primary-ink-rest}"},
-    "split-button-destructive-primary-ink-disabled": {"scope": "component", "component": "ArenaSplitButton", "option": "destructive", "part": "primary", "property": "ink", "state": "disabled", "accepts": "ink", "on": "split-button-destructive-primary-fill-disabled", "optional": true},
-    "split-button-destructive-primary-ink-hover": {"scope": "component", "component": "ArenaSplitButton", "option": "destructive", "part": "primary", "property": "ink", "state": "hover", "accepts": "ink", "on": "split-button-destructive-primary-fill-hover", "derive": {"from": "split-button-destructive-primary-ink-rest"}},
-    "split-button-destructive-primary-ink-pressed": {"scope": "component", "component": "ArenaSplitButton", "option": "destructive", "part": "primary", "property": "ink", "state": "pressed", "accepts": "ink", "on": "split-button-destructive-primary-fill-pressed", "derive": {"from": "split-button-destructive-primary-ink-rest"}},
-    "split-button-destructive-primary-ink-rest": {"scope": "component", "component": "ArenaSplitButton", "option": "destructive", "part": "primary", "property": "ink", "state": "rest", "accepts": "ink", "on": "split-button-destructive-primary-fill-rest", "default": "{hue-danger-mark-ink-rest}"},
-    "split-button-ghost-caret-edge-disabled": {"scope": "component", "component": "ArenaSplitButton", "option": "ghost", "part": "caret", "property": "edge", "state": "disabled", "channel": "--arena-emphasis-edge-disabled", "accepts": "edge", "on": "split-button-ghost-caret-fill-disabled", "default": "{emphasis-ghost-root-edge-disabled}", "optional": true},
-    "split-button-ghost-caret-edge-hover": {"scope": "component", "component": "ArenaSplitButton", "option": "ghost", "part": "caret", "property": "edge", "state": "hover", "channel": "--arena-emphasis-edge-hover", "accepts": "edge", "on": "split-button-ghost-caret-fill-hover", "default": "{emphasis-ghost-root-edge-hover}"},
-    "split-button-ghost-caret-edge-pressed": {"scope": "component", "component": "ArenaSplitButton", "option": "ghost", "part": "caret", "property": "edge", "state": "pressed", "channel": "--arena-emphasis-edge-pressed", "accepts": "edge", "on": "split-button-ghost-caret-fill-pressed", "default": "{emphasis-ghost-root-edge-pressed}"},
-    "split-button-ghost-caret-edge-rest": {"scope": "component", "component": "ArenaSplitButton", "option": "ghost", "part": "caret", "property": "edge", "state": "rest", "channel": "--arena-emphasis-edge", "accepts": "edge", "on": "split-button-ghost-caret-fill-rest", "default": "{emphasis-ghost-root-edge-rest}"},
-    "split-button-ghost-caret-fill-disabled": {"scope": "component", "component": "ArenaSplitButton", "option": "ghost", "part": "caret", "property": "fill", "state": "disabled", "channel": "--arena-emphasis-fill-disabled", "accepts": "fill", "default": "{emphasis-ghost-root-fill-disabled}", "optional": true},
-    "split-button-ghost-caret-fill-hover": {"scope": "component", "component": "ArenaSplitButton", "option": "ghost", "part": "caret", "property": "fill", "state": "hover", "channel": "--arena-emphasis-fill-hover", "accepts": "fill", "default": "{emphasis-ghost-root-fill-hover}"},
-    "split-button-ghost-caret-fill-pressed": {"scope": "component", "component": "ArenaSplitButton", "option": "ghost", "part": "caret", "property": "fill", "state": "pressed", "channel": "--arena-emphasis-fill-pressed", "accepts": "fill", "default": "{emphasis-ghost-root-fill-pressed}"},
-    "split-button-ghost-caret-fill-rest": {"scope": "component", "component": "ArenaSplitButton", "option": "ghost", "part": "caret", "property": "fill", "state": "rest", "channel": "--arena-emphasis-fill", "accepts": "fill", "default": "{emphasis-ghost-root-fill-rest}"},
-    "split-button-ghost-caret-icon-disabled": {"scope": "component", "component": "ArenaSplitButton", "option": "ghost", "part": "caret", "property": "icon", "state": "disabled", "channel": "--arena-emphasis-icon-disabled", "accepts": "icon", "on": "split-button-ghost-caret-fill-disabled", "default": "{emphasis-ghost-root-icon-disabled}", "optional": true},
-    "split-button-ghost-caret-icon-hover": {"scope": "component", "component": "ArenaSplitButton", "option": "ghost", "part": "caret", "property": "icon", "state": "hover", "channel": "--arena-emphasis-icon-hover", "accepts": "icon", "on": "split-button-ghost-caret-fill-hover", "default": "{emphasis-ghost-root-icon-hover}"},
-    "split-button-ghost-caret-icon-pressed": {"scope": "component", "component": "ArenaSplitButton", "option": "ghost", "part": "caret", "property": "icon", "state": "pressed", "channel": "--arena-emphasis-icon-pressed", "accepts": "icon", "on": "split-button-ghost-caret-fill-pressed", "default": "{emphasis-ghost-root-icon-pressed}"},
-    "split-button-ghost-caret-icon-rest": {"scope": "component", "component": "ArenaSplitButton", "option": "ghost", "part": "caret", "property": "icon", "state": "rest", "channel": "--arena-emphasis-icon", "accepts": "icon", "on": "split-button-ghost-caret-fill-rest", "default": "{emphasis-ghost-root-icon-rest}"},
-    "split-button-ghost-caret-ink-disabled": {"scope": "component", "component": "ArenaSplitButton", "option": "ghost", "part": "caret", "property": "ink", "state": "disabled", "channel": "--arena-emphasis-ink-disabled", "accepts": "ink", "on": "split-button-ghost-caret-fill-disabled", "default": "{emphasis-ghost-root-ink-disabled}", "optional": true},
-    "split-button-ghost-caret-ink-hover": {"scope": "component", "component": "ArenaSplitButton", "option": "ghost", "part": "caret", "property": "ink", "state": "hover", "channel": "--arena-emphasis-ink-hover", "accepts": "ink", "on": "split-button-ghost-caret-fill-hover", "default": "{emphasis-ghost-root-ink-hover}"},
-    "split-button-ghost-caret-ink-pressed": {"scope": "component", "component": "ArenaSplitButton", "option": "ghost", "part": "caret", "property": "ink", "state": "pressed", "channel": "--arena-emphasis-ink-pressed", "accepts": "ink", "on": "split-button-ghost-caret-fill-pressed", "default": "{emphasis-ghost-root-ink-pressed}"},
-    "split-button-ghost-caret-ink-rest": {"scope": "component", "component": "ArenaSplitButton", "option": "ghost", "part": "caret", "property": "ink", "state": "rest", "channel": "--arena-emphasis-ink", "accepts": "ink", "on": "split-button-ghost-caret-fill-rest", "default": "{emphasis-ghost-root-ink-rest}"},
-    "split-button-ghost-primary-edge-disabled": {"scope": "component", "component": "ArenaSplitButton", "option": "ghost", "part": "primary", "property": "edge", "state": "disabled", "channel": "--arena-emphasis-edge-disabled", "accepts": "edge", "on": "split-button-ghost-primary-fill-disabled", "default": "{emphasis-ghost-root-edge-disabled}", "optional": true},
-    "split-button-ghost-primary-edge-hover": {"scope": "component", "component": "ArenaSplitButton", "option": "ghost", "part": "primary", "property": "edge", "state": "hover", "channel": "--arena-emphasis-edge-hover", "accepts": "edge", "on": "split-button-ghost-primary-fill-hover", "default": "{emphasis-ghost-root-edge-hover}"},
-    "split-button-ghost-primary-edge-pressed": {"scope": "component", "component": "ArenaSplitButton", "option": "ghost", "part": "primary", "property": "edge", "state": "pressed", "channel": "--arena-emphasis-edge-pressed", "accepts": "edge", "on": "split-button-ghost-primary-fill-pressed", "default": "{emphasis-ghost-root-edge-pressed}"},
-    "split-button-ghost-primary-edge-rest": {"scope": "component", "component": "ArenaSplitButton", "option": "ghost", "part": "primary", "property": "edge", "state": "rest", "channel": "--arena-emphasis-edge", "accepts": "edge", "on": "split-button-ghost-primary-fill-rest", "default": "{emphasis-ghost-root-edge-rest}"},
-    "split-button-ghost-primary-fill-disabled": {"scope": "component", "component": "ArenaSplitButton", "option": "ghost", "part": "primary", "property": "fill", "state": "disabled", "channel": "--arena-emphasis-fill-disabled", "accepts": "fill", "default": "{emphasis-ghost-root-fill-disabled}", "optional": true},
-    "split-button-ghost-primary-fill-hover": {"scope": "component", "component": "ArenaSplitButton", "option": "ghost", "part": "primary", "property": "fill", "state": "hover", "channel": "--arena-emphasis-fill-hover", "accepts": "fill", "default": "{emphasis-ghost-root-fill-hover}"},
-    "split-button-ghost-primary-fill-pressed": {"scope": "component", "component": "ArenaSplitButton", "option": "ghost", "part": "primary", "property": "fill", "state": "pressed", "channel": "--arena-emphasis-fill-pressed", "accepts": "fill", "default": "{emphasis-ghost-root-fill-pressed}"},
-    "split-button-ghost-primary-fill-rest": {"scope": "component", "component": "ArenaSplitButton", "option": "ghost", "part": "primary", "property": "fill", "state": "rest", "channel": "--arena-emphasis-fill", "accepts": "fill", "default": "{emphasis-ghost-root-fill-rest}"},
-    "split-button-ghost-primary-icon-disabled": {"scope": "component", "component": "ArenaSplitButton", "option": "ghost", "part": "primary", "property": "icon", "state": "disabled", "channel": "--arena-emphasis-icon-disabled", "accepts": "icon", "on": "split-button-ghost-primary-fill-disabled", "default": "{emphasis-ghost-root-icon-disabled}", "optional": true},
-    "split-button-ghost-primary-icon-hover": {"scope": "component", "component": "ArenaSplitButton", "option": "ghost", "part": "primary", "property": "icon", "state": "hover", "channel": "--arena-emphasis-icon-hover", "accepts": "icon", "on": "split-button-ghost-primary-fill-hover", "default": "{emphasis-ghost-root-icon-hover}"},
-    "split-button-ghost-primary-icon-pressed": {"scope": "component", "component": "ArenaSplitButton", "option": "ghost", "part": "primary", "property": "icon", "state": "pressed", "channel": "--arena-emphasis-icon-pressed", "accepts": "icon", "on": "split-button-ghost-primary-fill-pressed", "default": "{emphasis-ghost-root-icon-pressed}"},
-    "split-button-ghost-primary-icon-rest": {"scope": "component", "component": "ArenaSplitButton", "option": "ghost", "part": "primary", "property": "icon", "state": "rest", "channel": "--arena-emphasis-icon", "accepts": "icon", "on": "split-button-ghost-primary-fill-rest", "default": "{emphasis-ghost-root-icon-rest}"},
-    "split-button-ghost-primary-ink-disabled": {"scope": "component", "component": "ArenaSplitButton", "option": "ghost", "part": "primary", "property": "ink", "state": "disabled", "channel": "--arena-emphasis-ink-disabled", "accepts": "ink", "on": "split-button-ghost-primary-fill-disabled", "default": "{emphasis-ghost-root-ink-disabled}", "optional": true},
-    "split-button-ghost-primary-ink-hover": {"scope": "component", "component": "ArenaSplitButton", "option": "ghost", "part": "primary", "property": "ink", "state": "hover", "channel": "--arena-emphasis-ink-hover", "accepts": "ink", "on": "split-button-ghost-primary-fill-hover", "default": "{emphasis-ghost-root-ink-hover}"},
-    "split-button-ghost-primary-ink-pressed": {"scope": "component", "component": "ArenaSplitButton", "option": "ghost", "part": "primary", "property": "ink", "state": "pressed", "channel": "--arena-emphasis-ink-pressed", "accepts": "ink", "on": "split-button-ghost-primary-fill-pressed", "default": "{emphasis-ghost-root-ink-pressed}"},
-    "split-button-ghost-primary-ink-rest": {"scope": "component", "component": "ArenaSplitButton", "option": "ghost", "part": "primary", "property": "ink", "state": "rest", "channel": "--arena-emphasis-ink", "accepts": "ink", "on": "split-button-ghost-primary-fill-rest", "default": "{emphasis-ghost-root-ink-rest}"},
-    "split-button-primary-caret-edge-disabled": {"scope": "component", "component": "ArenaSplitButton", "option": "primary", "part": "caret", "property": "edge", "state": "disabled", "channel": "--arena-emphasis-edge-disabled", "accepts": "edge", "on": "split-button-primary-caret-fill-disabled", "default": "{emphasis-primary-root-edge-disabled}", "optional": true},
-    "split-button-primary-caret-edge-hover": {"scope": "component", "component": "ArenaSplitButton", "option": "primary", "part": "caret", "property": "edge", "state": "hover", "channel": "--arena-emphasis-edge-hover", "accepts": "edge", "on": "split-button-primary-caret-fill-hover", "default": "{emphasis-primary-root-edge-hover}"},
-    "split-button-primary-caret-edge-pressed": {"scope": "component", "component": "ArenaSplitButton", "option": "primary", "part": "caret", "property": "edge", "state": "pressed", "channel": "--arena-emphasis-edge-pressed", "accepts": "edge", "on": "split-button-primary-caret-fill-pressed", "default": "{emphasis-primary-root-edge-pressed}"},
-    "split-button-primary-caret-edge-rest": {"scope": "component", "component": "ArenaSplitButton", "option": "primary", "part": "caret", "property": "edge", "state": "rest", "channel": "--arena-emphasis-edge", "accepts": "edge", "on": "split-button-primary-caret-fill-rest", "default": "{emphasis-primary-root-edge-rest}"},
-    "split-button-primary-caret-fill-disabled": {"scope": "component", "component": "ArenaSplitButton", "option": "primary", "part": "caret", "property": "fill", "state": "disabled", "channel": "--arena-emphasis-fill-disabled", "accepts": "fill", "default": "{emphasis-primary-root-fill-disabled}", "optional": true},
-    "split-button-primary-caret-fill-hover": {"scope": "component", "component": "ArenaSplitButton", "option": "primary", "part": "caret", "property": "fill", "state": "hover", "channel": "--arena-emphasis-fill-hover", "accepts": "fill", "default": "{emphasis-primary-root-fill-hover}"},
-    "split-button-primary-caret-fill-pressed": {"scope": "component", "component": "ArenaSplitButton", "option": "primary", "part": "caret", "property": "fill", "state": "pressed", "channel": "--arena-emphasis-fill-pressed", "accepts": "fill", "default": "{emphasis-primary-root-fill-pressed}"},
-    "split-button-primary-caret-fill-rest": {"scope": "component", "component": "ArenaSplitButton", "option": "primary", "part": "caret", "property": "fill", "state": "rest", "channel": "--arena-emphasis-fill", "accepts": "fill", "default": "{emphasis-primary-root-fill-rest}"},
-    "split-button-primary-caret-icon-disabled": {"scope": "component", "component": "ArenaSplitButton", "option": "primary", "part": "caret", "property": "icon", "state": "disabled", "channel": "--arena-emphasis-icon-disabled", "accepts": "icon", "on": "split-button-primary-caret-fill-disabled", "default": "{emphasis-primary-root-icon-disabled}", "optional": true},
-    "split-button-primary-caret-icon-hover": {"scope": "component", "component": "ArenaSplitButton", "option": "primary", "part": "caret", "property": "icon", "state": "hover", "channel": "--arena-emphasis-icon-hover", "accepts": "icon", "on": "split-button-primary-caret-fill-hover", "default": "{emphasis-primary-root-icon-hover}"},
-    "split-button-primary-caret-icon-pressed": {"scope": "component", "component": "ArenaSplitButton", "option": "primary", "part": "caret", "property": "icon", "state": "pressed", "channel": "--arena-emphasis-icon-pressed", "accepts": "icon", "on": "split-button-primary-caret-fill-pressed", "default": "{emphasis-primary-root-icon-pressed}"},
-    "split-button-primary-caret-icon-rest": {"scope": "component", "component": "ArenaSplitButton", "option": "primary", "part": "caret", "property": "icon", "state": "rest", "channel": "--arena-emphasis-icon", "accepts": "icon", "on": "split-button-primary-caret-fill-rest", "default": "{emphasis-primary-root-icon-rest}"},
-    "split-button-primary-caret-ink-disabled": {"scope": "component", "component": "ArenaSplitButton", "option": "primary", "part": "caret", "property": "ink", "state": "disabled", "channel": "--arena-emphasis-ink-disabled", "accepts": "ink", "on": "split-button-primary-caret-fill-disabled", "default": "{emphasis-primary-root-ink-disabled}", "optional": true},
-    "split-button-primary-caret-ink-hover": {"scope": "component", "component": "ArenaSplitButton", "option": "primary", "part": "caret", "property": "ink", "state": "hover", "channel": "--arena-emphasis-ink-hover", "accepts": "ink", "on": "split-button-primary-caret-fill-hover", "default": "{emphasis-primary-root-ink-hover}"},
-    "split-button-primary-caret-ink-pressed": {"scope": "component", "component": "ArenaSplitButton", "option": "primary", "part": "caret", "property": "ink", "state": "pressed", "channel": "--arena-emphasis-ink-pressed", "accepts": "ink", "on": "split-button-primary-caret-fill-pressed", "default": "{emphasis-primary-root-ink-pressed}"},
-    "split-button-primary-caret-ink-rest": {"scope": "component", "component": "ArenaSplitButton", "option": "primary", "part": "caret", "property": "ink", "state": "rest", "channel": "--arena-emphasis-ink", "accepts": "ink", "on": "split-button-primary-caret-fill-rest", "default": "{emphasis-primary-root-ink-rest}"},
-    "split-button-primary-primary-edge-disabled": {"scope": "component", "component": "ArenaSplitButton", "option": "primary", "part": "primary", "property": "edge", "state": "disabled", "channel": "--arena-emphasis-edge-disabled", "accepts": "edge", "on": "split-button-primary-primary-fill-disabled", "default": "{emphasis-primary-root-edge-disabled}", "optional": true},
-    "split-button-primary-primary-edge-hover": {"scope": "component", "component": "ArenaSplitButton", "option": "primary", "part": "primary", "property": "edge", "state": "hover", "channel": "--arena-emphasis-edge-hover", "accepts": "edge", "on": "split-button-primary-primary-fill-hover", "default": "{emphasis-primary-root-edge-hover}"},
-    "split-button-primary-primary-edge-pressed": {"scope": "component", "component": "ArenaSplitButton", "option": "primary", "part": "primary", "property": "edge", "state": "pressed", "channel": "--arena-emphasis-edge-pressed", "accepts": "edge", "on": "split-button-primary-primary-fill-pressed", "default": "{emphasis-primary-root-edge-pressed}"},
-    "split-button-primary-primary-edge-rest": {"scope": "component", "component": "ArenaSplitButton", "option": "primary", "part": "primary", "property": "edge", "state": "rest", "channel": "--arena-emphasis-edge", "accepts": "edge", "on": "split-button-primary-primary-fill-rest", "default": "{emphasis-primary-root-edge-rest}"},
-    "split-button-primary-primary-fill-disabled": {"scope": "component", "component": "ArenaSplitButton", "option": "primary", "part": "primary", "property": "fill", "state": "disabled", "channel": "--arena-emphasis-fill-disabled", "accepts": "fill", "default": "{emphasis-primary-root-fill-disabled}", "optional": true},
-    "split-button-primary-primary-fill-hover": {"scope": "component", "component": "ArenaSplitButton", "option": "primary", "part": "primary", "property": "fill", "state": "hover", "channel": "--arena-emphasis-fill-hover", "accepts": "fill", "default": "{emphasis-primary-root-fill-hover}"},
-    "split-button-primary-primary-fill-pressed": {"scope": "component", "component": "ArenaSplitButton", "option": "primary", "part": "primary", "property": "fill", "state": "pressed", "channel": "--arena-emphasis-fill-pressed", "accepts": "fill", "default": "{emphasis-primary-root-fill-pressed}"},
-    "split-button-primary-primary-fill-rest": {"scope": "component", "component": "ArenaSplitButton", "option": "primary", "part": "primary", "property": "fill", "state": "rest", "channel": "--arena-emphasis-fill", "accepts": "fill", "default": "{emphasis-primary-root-fill-rest}"},
-    "split-button-primary-primary-icon-disabled": {"scope": "component", "component": "ArenaSplitButton", "option": "primary", "part": "primary", "property": "icon", "state": "disabled", "channel": "--arena-emphasis-icon-disabled", "accepts": "icon", "on": "split-button-primary-primary-fill-disabled", "default": "{emphasis-primary-root-icon-disabled}", "optional": true},
-    "split-button-primary-primary-icon-hover": {"scope": "component", "component": "ArenaSplitButton", "option": "primary", "part": "primary", "property": "icon", "state": "hover", "channel": "--arena-emphasis-icon-hover", "accepts": "icon", "on": "split-button-primary-primary-fill-hover", "default": "{emphasis-primary-root-icon-hover}"},
-    "split-button-primary-primary-icon-pressed": {"scope": "component", "component": "ArenaSplitButton", "option": "primary", "part": "primary", "property": "icon", "state": "pressed", "channel": "--arena-emphasis-icon-pressed", "accepts": "icon", "on": "split-button-primary-primary-fill-pressed", "default": "{emphasis-primary-root-icon-pressed}"},
-    "split-button-primary-primary-icon-rest": {"scope": "component", "component": "ArenaSplitButton", "option": "primary", "part": "primary", "property": "icon", "state": "rest", "channel": "--arena-emphasis-icon", "accepts": "icon", "on": "split-button-primary-primary-fill-rest", "default": "{emphasis-primary-root-icon-rest}"},
-    "split-button-primary-primary-ink-disabled": {"scope": "component", "component": "ArenaSplitButton", "option": "primary", "part": "primary", "property": "ink", "state": "disabled", "channel": "--arena-emphasis-ink-disabled", "accepts": "ink", "on": "split-button-primary-primary-fill-disabled", "default": "{emphasis-primary-root-ink-disabled}", "optional": true},
-    "split-button-primary-primary-ink-hover": {"scope": "component", "component": "ArenaSplitButton", "option": "primary", "part": "primary", "property": "ink", "state": "hover", "channel": "--arena-emphasis-ink-hover", "accepts": "ink", "on": "split-button-primary-primary-fill-hover", "default": "{emphasis-primary-root-ink-hover}"},
-    "split-button-primary-primary-ink-pressed": {"scope": "component", "component": "ArenaSplitButton", "option": "primary", "part": "primary", "property": "ink", "state": "pressed", "channel": "--arena-emphasis-ink-pressed", "accepts": "ink", "on": "split-button-primary-primary-fill-pressed", "default": "{emphasis-primary-root-ink-pressed}"},
-    "split-button-primary-primary-ink-rest": {"scope": "component", "component": "ArenaSplitButton", "option": "primary", "part": "primary", "property": "ink", "state": "rest", "channel": "--arena-emphasis-ink", "accepts": "ink", "on": "split-button-primary-primary-fill-rest", "default": "{emphasis-primary-root-ink-rest}"},
-    "split-button-secondary-caret-edge-disabled": {"scope": "component", "component": "ArenaSplitButton", "option": "secondary", "part": "caret", "property": "edge", "state": "disabled", "channel": "--arena-emphasis-edge-disabled", "accepts": "edge", "on": "split-button-secondary-caret-fill-disabled", "default": "{emphasis-secondary-root-edge-disabled}", "optional": true},
-    "split-button-secondary-caret-edge-hover": {"scope": "component", "component": "ArenaSplitButton", "option": "secondary", "part": "caret", "property": "edge", "state": "hover", "channel": "--arena-emphasis-edge-hover", "accepts": "edge", "on": "split-button-secondary-caret-fill-hover", "default": "{emphasis-secondary-root-edge-hover}"},
-    "split-button-secondary-caret-edge-pressed": {"scope": "component", "component": "ArenaSplitButton", "option": "secondary", "part": "caret", "property": "edge", "state": "pressed", "channel": "--arena-emphasis-edge-pressed", "accepts": "edge", "on": "split-button-secondary-caret-fill-pressed", "default": "{emphasis-secondary-root-edge-pressed}"},
-    "split-button-secondary-caret-edge-rest": {"scope": "component", "component": "ArenaSplitButton", "option": "secondary", "part": "caret", "property": "edge", "state": "rest", "channel": "--arena-emphasis-edge", "accepts": "edge", "on": "split-button-secondary-caret-fill-rest", "default": "{emphasis-secondary-root-edge-rest}"},
-    "split-button-secondary-caret-fill-disabled": {"scope": "component", "component": "ArenaSplitButton", "option": "secondary", "part": "caret", "property": "fill", "state": "disabled", "channel": "--arena-emphasis-fill-disabled", "accepts": "fill", "default": "{emphasis-secondary-root-fill-disabled}", "optional": true},
-    "split-button-secondary-caret-fill-hover": {"scope": "component", "component": "ArenaSplitButton", "option": "secondary", "part": "caret", "property": "fill", "state": "hover", "channel": "--arena-emphasis-fill-hover", "accepts": "fill", "default": "{emphasis-secondary-root-fill-hover}"},
-    "split-button-secondary-caret-fill-pressed": {"scope": "component", "component": "ArenaSplitButton", "option": "secondary", "part": "caret", "property": "fill", "state": "pressed", "channel": "--arena-emphasis-fill-pressed", "accepts": "fill", "default": "{emphasis-secondary-root-fill-pressed}"},
-    "split-button-secondary-caret-fill-rest": {"scope": "component", "component": "ArenaSplitButton", "option": "secondary", "part": "caret", "property": "fill", "state": "rest", "channel": "--arena-emphasis-fill", "accepts": "fill", "default": "{emphasis-secondary-root-fill-rest}"},
-    "split-button-secondary-caret-icon-disabled": {"scope": "component", "component": "ArenaSplitButton", "option": "secondary", "part": "caret", "property": "icon", "state": "disabled", "channel": "--arena-emphasis-icon-disabled", "accepts": "icon", "on": "split-button-secondary-caret-fill-disabled", "default": "{emphasis-secondary-root-icon-disabled}", "optional": true},
-    "split-button-secondary-caret-icon-hover": {"scope": "component", "component": "ArenaSplitButton", "option": "secondary", "part": "caret", "property": "icon", "state": "hover", "channel": "--arena-emphasis-icon-hover", "accepts": "icon", "on": "split-button-secondary-caret-fill-hover", "default": "{emphasis-secondary-root-icon-hover}"},
-    "split-button-secondary-caret-icon-pressed": {"scope": "component", "component": "ArenaSplitButton", "option": "secondary", "part": "caret", "property": "icon", "state": "pressed", "channel": "--arena-emphasis-icon-pressed", "accepts": "icon", "on": "split-button-secondary-caret-fill-pressed", "default": "{emphasis-secondary-root-icon-pressed}"},
-    "split-button-secondary-caret-icon-rest": {"scope": "component", "component": "ArenaSplitButton", "option": "secondary", "part": "caret", "property": "icon", "state": "rest", "channel": "--arena-emphasis-icon", "accepts": "icon", "on": "split-button-secondary-caret-fill-rest", "default": "{emphasis-secondary-root-icon-rest}"},
-    "split-button-secondary-caret-ink-disabled": {"scope": "component", "component": "ArenaSplitButton", "option": "secondary", "part": "caret", "property": "ink", "state": "disabled", "channel": "--arena-emphasis-ink-disabled", "accepts": "ink", "on": "split-button-secondary-caret-fill-disabled", "default": "{emphasis-secondary-root-ink-disabled}", "optional": true},
-    "split-button-secondary-caret-ink-hover": {"scope": "component", "component": "ArenaSplitButton", "option": "secondary", "part": "caret", "property": "ink", "state": "hover", "channel": "--arena-emphasis-ink-hover", "accepts": "ink", "on": "split-button-secondary-caret-fill-hover", "default": "{emphasis-secondary-root-ink-hover}"},
-    "split-button-secondary-caret-ink-pressed": {"scope": "component", "component": "ArenaSplitButton", "option": "secondary", "part": "caret", "property": "ink", "state": "pressed", "channel": "--arena-emphasis-ink-pressed", "accepts": "ink", "on": "split-button-secondary-caret-fill-pressed", "default": "{emphasis-secondary-root-ink-pressed}"},
-    "split-button-secondary-caret-ink-rest": {"scope": "component", "component": "ArenaSplitButton", "option": "secondary", "part": "caret", "property": "ink", "state": "rest", "channel": "--arena-emphasis-ink", "accepts": "ink", "on": "split-button-secondary-caret-fill-rest", "default": "{emphasis-secondary-root-ink-rest}"},
-    "split-button-secondary-primary-edge-disabled": {"scope": "component", "component": "ArenaSplitButton", "option": "secondary", "part": "primary", "property": "edge", "state": "disabled", "channel": "--arena-emphasis-edge-disabled", "accepts": "edge", "on": "split-button-secondary-primary-fill-disabled", "default": "{emphasis-secondary-root-edge-disabled}", "optional": true},
-    "split-button-secondary-primary-edge-hover": {"scope": "component", "component": "ArenaSplitButton", "option": "secondary", "part": "primary", "property": "edge", "state": "hover", "channel": "--arena-emphasis-edge-hover", "accepts": "edge", "on": "split-button-secondary-primary-fill-hover", "default": "{emphasis-secondary-root-edge-hover}"},
-    "split-button-secondary-primary-edge-pressed": {"scope": "component", "component": "ArenaSplitButton", "option": "secondary", "part": "primary", "property": "edge", "state": "pressed", "channel": "--arena-emphasis-edge-pressed", "accepts": "edge", "on": "split-button-secondary-primary-fill-pressed", "default": "{emphasis-secondary-root-edge-pressed}"},
-    "split-button-secondary-primary-edge-rest": {"scope": "component", "component": "ArenaSplitButton", "option": "secondary", "part": "primary", "property": "edge", "state": "rest", "channel": "--arena-emphasis-edge", "accepts": "edge", "on": "split-button-secondary-primary-fill-rest", "default": "{emphasis-secondary-root-edge-rest}"},
-    "split-button-secondary-primary-fill-disabled": {"scope": "component", "component": "ArenaSplitButton", "option": "secondary", "part": "primary", "property": "fill", "state": "disabled", "channel": "--arena-emphasis-fill-disabled", "accepts": "fill", "default": "{emphasis-secondary-root-fill-disabled}", "optional": true},
-    "split-button-secondary-primary-fill-hover": {"scope": "component", "component": "ArenaSplitButton", "option": "secondary", "part": "primary", "property": "fill", "state": "hover", "channel": "--arena-emphasis-fill-hover", "accepts": "fill", "default": "{emphasis-secondary-root-fill-hover}"},
-    "split-button-secondary-primary-fill-pressed": {"scope": "component", "component": "ArenaSplitButton", "option": "secondary", "part": "primary", "property": "fill", "state": "pressed", "channel": "--arena-emphasis-fill-pressed", "accepts": "fill", "default": "{emphasis-secondary-root-fill-pressed}"},
-    "split-button-secondary-primary-fill-rest": {"scope": "component", "component": "ArenaSplitButton", "option": "secondary", "part": "primary", "property": "fill", "state": "rest", "channel": "--arena-emphasis-fill", "accepts": "fill", "default": "{emphasis-secondary-root-fill-rest}"},
-    "split-button-secondary-primary-icon-disabled": {"scope": "component", "component": "ArenaSplitButton", "option": "secondary", "part": "primary", "property": "icon", "state": "disabled", "channel": "--arena-emphasis-icon-disabled", "accepts": "icon", "on": "split-button-secondary-primary-fill-disabled", "default": "{emphasis-secondary-root-icon-disabled}", "optional": true},
-    "split-button-secondary-primary-icon-hover": {"scope": "component", "component": "ArenaSplitButton", "option": "secondary", "part": "primary", "property": "icon", "state": "hover", "channel": "--arena-emphasis-icon-hover", "accepts": "icon", "on": "split-button-secondary-primary-fill-hover", "default": "{emphasis-secondary-root-icon-hover}"},
-    "split-button-secondary-primary-icon-pressed": {"scope": "component", "component": "ArenaSplitButton", "option": "secondary", "part": "primary", "property": "icon", "state": "pressed", "channel": "--arena-emphasis-icon-pressed", "accepts": "icon", "on": "split-button-secondary-primary-fill-pressed", "default": "{emphasis-secondary-root-icon-pressed}"},
-    "split-button-secondary-primary-icon-rest": {"scope": "component", "component": "ArenaSplitButton", "option": "secondary", "part": "primary", "property": "icon", "state": "rest", "channel": "--arena-emphasis-icon", "accepts": "icon", "on": "split-button-secondary-primary-fill-rest", "default": "{emphasis-secondary-root-icon-rest}"},
-    "split-button-secondary-primary-ink-disabled": {"scope": "component", "component": "ArenaSplitButton", "option": "secondary", "part": "primary", "property": "ink", "state": "disabled", "channel": "--arena-emphasis-ink-disabled", "accepts": "ink", "on": "split-button-secondary-primary-fill-disabled", "default": "{emphasis-secondary-root-ink-disabled}", "optional": true},
-    "split-button-secondary-primary-ink-hover": {"scope": "component", "component": "ArenaSplitButton", "option": "secondary", "part": "primary", "property": "ink", "state": "hover", "channel": "--arena-emphasis-ink-hover", "accepts": "ink", "on": "split-button-secondary-primary-fill-hover", "default": "{emphasis-secondary-root-ink-hover}"},
-    "split-button-secondary-primary-ink-pressed": {"scope": "component", "component": "ArenaSplitButton", "option": "secondary", "part": "primary", "property": "ink", "state": "pressed", "channel": "--arena-emphasis-ink-pressed", "accepts": "ink", "on": "split-button-secondary-primary-fill-pressed", "default": "{emphasis-secondary-root-ink-pressed}"},
-    "split-button-secondary-primary-ink-rest": {"scope": "component", "component": "ArenaSplitButton", "option": "secondary", "part": "primary", "property": "ink", "state": "rest", "channel": "--arena-emphasis-ink", "accepts": "ink", "on": "split-button-secondary-primary-fill-rest", "default": "{emphasis-secondary-root-ink-rest}"}
   }
 }

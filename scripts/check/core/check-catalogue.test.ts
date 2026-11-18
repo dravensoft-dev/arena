@@ -255,8 +255,8 @@ test('an entry is read against the slot contract of the root it is given', () =>
   });
   try {
     assert.deepEqual(tokenProblems('a-register', roles, base), []);
-    const contract = readJson(join(base, COLOR_SLOTS)) as { slots: Record<string, unknown> };
-    delete contract.slots['button-primary-root-fill-rest'];
+    const contract = readJson(join(base, COLOR_SLOTS)) as { components: Record<string, Record<string, { options: string[] }>> };
+    contract.components.ArenaButton!.root!.options = contract.components.ArenaButton!.root!.options.filter((o) => o !== 'primary');
     writeFileSync(join(base, COLOR_SLOTS), JSON.stringify(contract));
     assert.notDeepEqual(tokenProblems('a-register', roles, base), []);
   } finally { clean(); }
