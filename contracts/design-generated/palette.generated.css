@@ -179,9 +179,9 @@
   --color-neutral-content:#3a2e29;
   --color-info:#126ab5;
   --color-info-content:#ffffff;
-  --color-success:#007742;
+  --color-success:#007745;
   --color-success-content:#ffffff;
-  --color-warning:#846200;
+  --color-warning:#7c6500;
   --color-warning-content:#ffffff;
   /*
      Danger as text and border: darker than dark's, because here it is read against bone

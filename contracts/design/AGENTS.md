@@ -162,8 +162,8 @@ and that therefore live in each platform's own idiom:
 
    **The fourth case is the style plugin's and the kernel does not pretend to it.** An accent drawn
    as ink is gated like every ink: each Dravensoft accent and status hue clears 4.5:1 over base-100,
-   base-200 and base-300 in both themes, and `check-text-contrast.ts:ON_SURFACE` holds `primary`, `secondary` and
-   `error` to it. Whether a product draws one, and through which role, is an answer over a palette
+   base-200 and base-300 in both themes, and `check-text-contrast.ts:ON_SURFACE` holds `primary`, `secondary`,
+   `error`, `info`, `success` and `warning` to it. Whether a product draws one, and through which role, is an answer over a palette
    Arena does not know, so a kernel reassigning it would be overruling a decision it cannot see. What
    holds it is the tier that made it: a plugin raising an accent to ink owes the same 4.5:1 under
    this query that every other ink owes without it.
@@ -178,7 +178,7 @@ at runtime.** `contracts/design/colors.css` therefore holds no skin value, only 
 only a token and what the device reports. The full `$type` table is
 [`TokenTypes.md`](./TokenTypes.md), beside this file.
 
-**A swap is not done until it is measured**, and two scripts measure it. `bun scripts/check/core/check-ramp.ts` holds the categorical ramp and the heat ladder; `bun scripts/check/core/check-text-contrast.ts` holds the text of the `default` plugin and measures and reports the text of `complete` and of every catalogue entry, without refusing them: the levels derived from `--color-base-content`, every `--color-*` / `--color-*-content` pair (all seven, at 4.5:1, because the pair is the contract a skin defines, so an illegible one fails before a component can inherit it), the accents painted straight onto the base surfaces (`--color-error` as danger text and border, `--color-primary` and `--color-secondary` as text and line, each at 4.5:1), and every slot drawing an accent on a wash of that same accent. Both read the values out of `palette.generated.css` and hardcode nothing, so a new skin is one edit and two commands away from a real answer.
+**A swap is not done until it is measured**, and two scripts measure it. `bun scripts/check/core/check-ramp.ts` holds the categorical ramp and the heat ladder; `bun scripts/check/core/check-text-contrast.ts` holds the text of the `default` plugin and measures and reports the text of `complete` and of every catalogue entry, without refusing them: the levels derived from `--color-base-content`, every `--color-*` / `--color-*-content` pair (all seven, at 4.5:1, because the pair is the contract a skin defines, so an illegible one fails before a component can inherit it), the accents painted straight onto the base surfaces (`--color-error` as danger text and border, `--color-primary` and `--color-secondary` as text and line, `--color-info`, `--color-success` and `--color-warning` as the status hues' ink, each at 4.5:1), and every slot drawing an accent on a wash of that same accent. Both read the values out of `palette.generated.css` and hardcode nothing, so a new skin is one edit and two commands away from a real answer.
 
 No number in it is reported without a gate. The accents are tuned for the page they are read on: crimson as text is `#e25647` in dark, 4.77:1 on the card, and gold as text is `#856214` in light, 5.10:1 on the card, each keeping its oklch hue and chroma and moving only its lightness. Every `-content` on them is the colour that clears 4.5:1, which in light is white on every status hue and on gold.
 

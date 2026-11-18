@@ -148,6 +148,9 @@ export const ON_SURFACE = [
   { token: 'error', gate: 4.5, note: 'danger as text and border, measured on the base surfaces (.btn.danger, .iconbtn.danger, .mitem.danger)' },
   { token: 'primary', gate: 4.5, note: 'crimson as text on the base surfaces: ink-eyebrow and accent-primary-ink' },
   { token: 'secondary', gate: 4.5, note: 'gold as text and as a line on the base surfaces: accent-gold-ink and edge-focus' },
+  { token: 'info', gate: 4.5, note: 'the info hue as text and glyph on the base surfaces: hue-info-ink' },
+  { token: 'success', gate: 4.5, note: 'the success hue as text and glyph on the base surfaces: hue-success-ink' },
+  { token: 'warning', gate: 4.5, note: 'the warning hue as text and glyph on the base surfaces: hue-warning-ink' },
 ];
 
 export const ON_INK_GATE = 4.5;

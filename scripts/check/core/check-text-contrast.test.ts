@@ -367,8 +367,8 @@ test('a catalogue palette below AA is reported with its entry and palette name',
   assert.ok(found.every((one) => one.startsWith('weak-register, faint: ')));
 });
 
-test('primary and secondary are gated as ink on the base surfaces', () => {
-  for (const token of ['primary', 'secondary']) {
+test('the accents and the status hues are gated as ink on the base surfaces', () => {
+  for (const token of ['primary', 'secondary', 'info', 'success', 'warning']) {
     const row = ON_SURFACE.find((one) => one.token === token);
     assert.equal(row?.gate, 4.5, `--color-${token} read as ink owes 4.5:1 like every ink`);
     assert.doesNotMatch(row?.note ?? '', /NOT GATED/);
