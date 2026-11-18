@@ -6,7 +6,7 @@ import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { readJson } from '../../utils/read-file.ts';
 import * as rules from '../../generate/core/arena-cli/style-plugin-rules.ts';
 import {
-  LIGHT_BY_DESIGN, SCOPES, collect, shippedFixedRemProblems, defaultAnswerProblems, floorProblems, keyProblems, movedTokens, nameProblems, resolvedFor, totalityProblems,
+  LIGHT_BY_DESIGN, SCOPES, slotAnswerProblems, collect, shippedFixedRemProblems, defaultAnswerProblems, floorProblems, keyProblems, movedTokens, nameProblems, resolvedFor, totalityProblems,
   valueProblems, zeroScopeProblems,
 } from './check-style-plugin.ts';
 
@@ -332,4 +332,11 @@ test('a unit with no finite value is not a rem answer', () => {
 test('the roles a light answer is by design are the keys of the default plugin\'s light group', () => {
   const plugin = readJson(join(repoRoot, 'plugin-style-store/default/plugin.tokens.json')) as { light?: Record<string, unknown> };
   assert.deepEqual([...LIGHT_BY_DESIGN].sort(), Object.keys(plugin.light ?? {}).sort());
+});
+
+test('a slot answer in a plugin is held to its accepts set, and a role answer is not asked of a slot', () => {
+  const kernel = { 'fill-surface': { $type: 'color' }, 'ink-body': { $type: 'color' } };
+  const answer = (value: string) => ({ 'button-primary-root-fill-rest': { $type: 'color', $value: value, $description: 'why' } });
+  assert.deepEqual(slotAnswerProblems('at', answer('{fill-surface}'), kernel), []);
+  assert.equal(slotAnswerProblems('at', answer('{ink-body}'), kernel).length, 1);
 });

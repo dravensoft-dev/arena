@@ -7,13 +7,16 @@ import { run, writeOutputs } from './command-build.ts';
 import { THEME_SHEET, PACKAGE_SHEET, PLUGIN_SHEET, SPRITE_MODULE, SPRITE_SOURCE, SPRITE_TYPES } from './sheets.ts';
 import { RETIRED_ICONS_SHEET, spriteFilesIn } from './sources.ts';
 import { captureIo, phosphor, project, readable, whileHeld, removeFixtures, packageStub } from './cli-fixtures.ts';
+import { tokenCatalogue } from '../../../lib/arena/package-assembly.ts';
+
+const SLOTS = tokenCatalogue().slots;
 
 after(removeFixtures);
 
 const CATALOGUED = {
   layers: ['css/reset.css'],
   components: ['button'],
-  catalogue: { tokens: { 'color-base-200': 'var(--color-base-200)', 'lh-prose': '1.6', 'lh-heading': '1.5', 'measure-prose': '72ch' }, roles: { 'ink-eyebrow': { type: 'color' } } },
+  catalogue: { slots: SLOTS, tokens: { 'color-base-200': 'var(--color-base-200)', 'lh-prose': '1.6', 'lh-heading': '1.5', 'measure-prose': '72ch' }, roles: { 'ink-eyebrow': { type: 'color' } } },
 };
 
 function withPlugin(css: string, name = 'andina') {
@@ -238,7 +241,7 @@ test('a root plugin silent on a role with a kernel default builds and the build 
   mkdirSync(join(root, 'design', 'andina'), { recursive: true });
   writeFileSync(join(root, 'design', 'andina', 'plugin.tokens.json'),
     JSON.stringify({ 'ink-eyebrow': { $value: '{color.base-200}', $type: 'color' } }));
-  const sheets = { ...CATALOGUED, catalogue: { tokens: CATALOGUED.catalogue.tokens,
+  const sheets = { ...CATALOGUED, catalogue: { slots: SLOTS, tokens: CATALOGUED.catalogue.tokens,
     roles: { 'ink-eyebrow': { type: 'color' }, 'ink-link': { type: 'color', default: '{ink-eyebrow}' } } } };
   const { io, out } = captureIo(root, { ...environment(core), sheets });
   assert.equal(await run(flags(root), io), 0);
@@ -255,7 +258,7 @@ test('a root plugin may answer a keyword role with a word alias and a colour rol
     'ink-key': { $value: '{ink-eyebrow}', $type: 'color' },
     'tt-key': { $value: '{case.none}', $type: 'keyword' },
   }));
-  const sheets = { ...CATALOGUED, catalogue: {
+  const sheets = { ...CATALOGUED, catalogue: { slots: SLOTS,
     tokens: { ...CATALOGUED.catalogue.tokens, 'case-none': 'none' },
     roles: {
       'ink-eyebrow': { type: 'color' }, 'ink-key': { type: 'color' },

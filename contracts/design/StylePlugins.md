@@ -63,6 +63,8 @@ reach a page through classes a consumer applies rather than through any role. `p
 of the plugin's own, written against the part hooks; the build wraps it in the reserved layer, so
 its author never spells `@layer arena-plugin`.
 
+A plugin may also answer a colour slot of `color-slots.json` with a role from that slot's accepts set. An unanswered slot reads the kernel's chain.
+
 **Colour stays an assignment and never an authorship.** A colour role takes one of the consumer's
 palette colours as a `{color.*}` alias, or follows another colour role as `{ink-muted}`, and a plugin
 writing a hex would be authoring a skin it does not own. A keyword role takes a word of its set or

@@ -17,6 +17,8 @@ import { goldenInput } from '../../../lib/arena/theme-css-golden-input.ts';
 import { crossKeys, reservedProblems, scopeOn } from './style-plugin-rules.ts';
 import { nodeImportsReachedFrom, whileHeld } from './cli-fixtures.ts';
 
+const SLOTS = tokenCatalogue().slots;
+
 const colors = (overrides: Record<string, string> = {}): Record<string, string> => {
   const out: Record<string, string> = {};
   for (const key of PALETTE_KEYS) out[key] = '#141010';
@@ -635,7 +637,7 @@ const SHEETS = {
 
 const SHEETS_FULL = {
   ...SHEETS,
-  catalogue: {
+  catalogue: { slots: SLOTS,
     tokens: {
       'fs-h3': '24px', 'font-display': "'Archivo',system-ui,sans-serif",
       'font-body': "'Familjen Grotesk',system-ui,sans-serif", 'fw-black': '900', 'fw-regular': '400',
@@ -723,6 +725,7 @@ test('arena build refuses a rem answer to a fixed role', () => {
 });
 
 const ALIASED = {
+  slots: SLOTS,
   tokens: {
     ...SHEETS_FULL.catalogue.tokens,
     'case-none': 'none', 'color-primary': 'var(--color-primary)',
@@ -986,7 +989,7 @@ test('only the root plugin is held to totality', () => {
 
 const DEFAULTED = {
   ...SHEETS_FULL,
-  catalogue: {
+  catalogue: { slots: SLOTS,
     tokens: {
       ...SHEETS_FULL.catalogue.tokens,
       'r-lg': '14px', 'lh-tight': '1.1', 'ink-link': 'var(--color-base-content)', 'r-popover': '8px',
@@ -1028,7 +1031,7 @@ test('a root plugin silent on a role with a kernel default is total, and without
 test('a keyword or a half step default names a token the package emits, and a silent root plugin draws its value', () => {
   const sheets = {
     ...SHEETS_FULL,
-    catalogue: {
+    catalogue: { slots: SLOTS,
       tokens: { ...SHEETS_FULL.catalogue.tokens, 'case-none': 'none', 'sp-0-5': '2px' },
       roles: {
         ...SHEETS_FULL.catalogue.roles,
@@ -1279,6 +1282,7 @@ test('a project naming its own component subset still imports every vocabulary s
 });
 
 const COLOUR_ROLES = {
+  slots: SLOTS,
   tokens: Object.fromEntries(['neutral', 'secondary', 'base-content', 'base-100', 'base-200', 'base-300', 'error', 'info']
     .map((key) => [`color-${key}`, `var(--color-${key})`])),
 };
@@ -1500,7 +1504,7 @@ test('a silent root plugin gets the nine state roles and a widened bw-focus', ()
   const sheets = {
     ...SHEETS_FULL,
     rootOnly: { ...ROOT_ONLY, contrast },
-    catalogue: {
+    catalogue: { slots: SLOTS,
       tokens: {
         ...SHEETS_FULL.catalogue.tokens, 'color-primary': 'var(--color-primary)', 'color-base-content': 'var(--color-base-content)',
         'color-error': 'var(--color-error)', 'focus-width': '2px', 'focus-offset': '2px', 'opacity-disabled': '0.45',
@@ -1689,4 +1693,30 @@ test('a plugin that leaves edge-focus to the kernel is measured with the value t
   const drawn = parseDecls(css).get('.arena-light').get('edge-focus');
   assert.equal(rolesFor(plugin, catalogue, 'light').get('edge-focus'), drawn);
   assert.equal(drawn, 'var(--color-secondary)');
+});
+
+test('a slot answer is emitted as a role var in both polarities', () => {
+  const catalogue = tokenCatalogue();
+  const plugin = readPlugin('p', { 'button-primary-root-fill-rest': { $value: '{fill-surface}' } });
+  for (const polarity of ['dark', 'light']) {
+    assert.deepEqual(pluginBlocks(plugin, catalogue, polarity), ['--button-primary-root-fill-rest:var(--fill-surface);'], polarity);
+    assert.deepEqual(restatedBy(plugin, catalogue, polarity), ['--button-primary-root-fill-rest:var(--fill-surface);'], polarity);
+  }
+  assert.deepEqual(pluginTokenProblems('p', { 'button-primary-root-fill-rest': '{fill-surface}' }, catalogue), []);
+  assert.equal(pluginTokenProblems('p', { 'button-primary-root-fill-rest': '{ink-body}' }, catalogue).length, 1);
+  assert.deepEqual(pluginBlocks(readPlugin('p', { 'fill-surface': { $value: '{fill-raised}' } }), catalogue, 'dark')
+    .filter((line) => /--(button|emphasis-[a-z]+-root)-/.test(line)), [],
+  'a plugin answering no slot emits none');
+});
+
+test('a disabled answer writes the part\'s fade marker', () => {
+  const catalogue = tokenCatalogue();
+  const blocks = (answers: Record<string, string>) =>
+    pluginBlocks(readPlugin('p', Object.fromEntries(Object.entries(answers).map(([k, v]) => [k, { $value: v }]))), catalogue, 'dark');
+  const ink = blocks({ 'button-primary-root-ink-disabled': '{ink-muted}' });
+  assert.equal(ink.filter((line) => line === '--button-primary-root-fade-disabled:1;').length, 1, ink.join('\n'));
+  const two = blocks({ 'button-primary-root-ink-disabled': '{ink-muted}', 'button-primary-root-fill-disabled': '{fill-surface}' });
+  assert.equal(two.filter((line) => /fade-disabled/.test(line)).length, 1, 'one marker per part');
+  assert.ok(blocks({ 'emphasis-ghost-root-fill-disabled': 'transparent' }).includes('--emphasis-ghost-root-fade-disabled:1;'));
+  assert.deepEqual(blocks({ 'button-primary-root-ink-rest': '{ink-muted}' }).filter((line) => /fade/.test(line)), []);
 });

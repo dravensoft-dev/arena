@@ -12,6 +12,7 @@ import { join, dirname, relative, basename } from 'node:path';
 import { relPosix } from '../../utils/posix-path.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { readJson } from '../../utils/read-file.ts';
+import { readColorSlots } from '../core/color-slots.ts';
 import { repoRoot } from './repo-root.ts';
 import { kebab } from '../../utils/case.ts';
 import { componentMap, MAP_FILE } from './component-map.ts';
@@ -388,7 +389,7 @@ export function tokenCatalogue(root = repoRoot) {
   const listed = new Set([...Object.keys(tokens), ...Object.keys(roles), ...Object.keys(aliases)].map((name) => `--${name.replace(/^--/, '')}`));
   const channels = shippedChannels(root).filter((name) => !listed.has(name) && !name.startsWith('--tw-')).sort();
 
-  return { tokens, light, roles, aliases, channels };
+  return { tokens, light, roles, aliases, channels, slots: readColorSlots(root) };
 }
 
 export const CLI_BINS = { arena: './bin/arena.mjs' };

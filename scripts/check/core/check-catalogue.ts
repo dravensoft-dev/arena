@@ -14,6 +14,7 @@ import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
+import { readColorSlots } from '../../lib/core/color-slots.ts';
 import {
   POLARITIES, FONT_ROLES, requiredKeys,
 } from '../../generate/core/arena-cli/palette-keys.ts';
@@ -92,10 +93,16 @@ export function tokenProblems(name: string, roles: Record<string, unknown>, base
   let shipped: Record<string, string> | undefined;
   const known: KnownAnswers = {
     colourRoles: (named) => (roles[named] as { $type?: string } | undefined)?.$type === 'color',
+    colourNames: new Set(Object.entries(roles).filter(([, one]) => (one as { $type?: string }).$type === 'color').map(([one]) => one)),
+    slots: readColorSlots(),
     resolve: (flat) => (shipped ??= tokenCatalogue().tokens as Record<string, string>)[flat],
   };
   for (const { key, token } of movedTokens(tokens)) {
     const role = roles[key] as Parameters<typeof valueProblems>[3] | undefined;
+    if (known.slots?.slots[key]) {
+      problems.push(...valueProblems(where, key, token, undefined, known));
+      continue;
+    }
     problems.push(...shapeProblems(where, key, token, role));
     if (role) problems.push(...valueProblems(where, key, token, role, known));
   }

@@ -9,6 +9,7 @@
  * the widths alone, on :root, after a project's own root answers. */
 
 import { POLARITIES } from './palette-keys.ts';
+import { slotAnswer, slotProblem, type SlotCatalogue } from './slots.ts';
 
 export const ARENA_EXT = 'com.dravensoft.arena';
 
@@ -134,6 +135,8 @@ const ANY_ALIAS = /^\{([a-z][\w-]*(?:\.[\w-]+)*)\}$/;
 
 export type KnownAnswers = {
   colourRoles?: (name: string) => boolean;
+  colourNames?: ReadonlySet<string>;
+  slots?: SlotCatalogue;
   resolve?: (flat: string) => string | undefined;
 };
 
@@ -154,8 +157,15 @@ export function keywordAnswer(value: string, allowed: readonly unknown[], known:
 }
 
 export function valueProblems(
-  where: string, key: string, token: MovedToken, role: RoleShape, known: KnownAnswers = {},
+  where: string, key: string, token: MovedToken, role: RoleShape | undefined, known: KnownAnswers = {},
 ) {
+  if (known.slots?.slots[key]) {
+    const value = token?.$value;
+    if (typeof value !== 'string' || !slotAnswer(value, key, known.slots, known.colourNames ?? new Set()))
+      return [slotProblem(where, key, String(value), known.slots)];
+    return [];
+  }
+  if (!role) return [];
   if (role.$type === 'color') {
     const value = token?.$value;
     if (typeof value !== 'string')
@@ -266,6 +276,14 @@ export function keyProblems(
       problems.push(`${where}: --${key} is a ${token?.$type}, and ${named} is a dimension`);
     if (!token?.$description)
       problems.push(`${where}: --${key} carries no $description, and a style plugin is a set of decisions rather than a set of values`);
+    return problems;
+  }
+  if (!role && known.slots?.slots[key]) {
+    if (token?.$type !== 'color')
+      problems.push(`${where}: --${key} is a ${token?.$type}, and a colour slot is a colour`);
+    if (!token?.$description)
+      problems.push(`${where}: --${key} carries no $description, and a style plugin is a set of decisions rather than a set of values`);
+    problems.push(...valueProblems(where, key, token, role, known));
     return problems;
   }
   if (!role) {

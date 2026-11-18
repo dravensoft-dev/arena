@@ -228,3 +228,17 @@ test('document-workspace paints no tab state in plugin.css', () => {
   const css = readFileSync(join(repoRoot, CATALOGUE, 'document-workspace', 'plugin.css'), 'utf8');
   assert.doesNotMatch(css, /aria-selected/);
 });
+
+test('an entry answering a slot with a palette alias is refused', () => {
+  const { base, clean } = fixture((dir) => {
+    wholeEntry(dir);
+    const answers = readJson(join(dir, TOKENS)) as Record<string, unknown>;
+    answers['button-primary-root-fill-rest'] = { $type: 'color', $value: '{color.primary}' };
+    writeFileSync(join(dir, TOKENS), JSON.stringify(answers));
+  });
+  try {
+    const problems = tokenProblems('a-register', roles, base);
+    assert.equal(problems.length, 1, problems.join('\n'));
+    assert.match(problems[0] as string, /button-primary-root-fill-rest/);
+  } finally { clean(); }
+});

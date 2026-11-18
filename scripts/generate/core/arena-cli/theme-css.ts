@@ -25,6 +25,8 @@ import { unicodeRange } from './font-cut.ts';
 import { report } from './report.ts';
 import type { Report } from './report.ts';
 import type { SerializableToken } from './serialize-token.ts';
+import { fadeMarkers, slotAnswer, slotProblem } from './slots.ts';
+import type { SlotCatalogue } from './slots.ts';
 
 export type TokenCatalogue = {
   tokens: Record<string, string>;
@@ -33,6 +35,7 @@ export type TokenCatalogue = {
     question?: string; combines?: { with: string; as: string }[] }>;
   aliases?: Record<string, string>;
   channels?: string[];
+  slots: SlotCatalogue;
 };
 
 export type CheckedSheets = {
@@ -338,6 +341,8 @@ export function resolvedPlugin(
 function knownOf(catalogue: TokenCatalogue): KnownAnswers {
   return {
     colourRoles: (name) => catalogue.roles?.[name]?.type === 'color',
+    colourNames: new Set(Object.entries(catalogue.roles ?? {}).filter(([, role]) => role.type === 'color').map(([name]) => name)),
+    slots: catalogue.slots,
     resolve: (flat) => catalogue.tokens?.[flat],
   };
 }
@@ -383,9 +388,11 @@ export function ringsOf(tokens: Record<string, unknown>, catalogue: TokenCatalog
 export function pluginBlocks(
   plugin: StylePlugin, catalogue: TokenCatalogue | null, polarity: string,
 ) {
+  const answered = polarity === 'light' ? [...Object.keys(plugin.tokens), ...Object.keys(plugin.light)] : Object.keys(plugin.tokens);
   return [
     ...declarationsOf(plugin.tokens, catalogue),
     ...(polarity === 'light' ? declarationsOf(plugin.light, catalogue) : []),
+    ...(catalogue?.slots ? fadeMarkers(answered, catalogue.slots).map(([name, value]) => `${name}:${value};`) : []),
   ];
 }
 
@@ -397,6 +404,11 @@ export function pluginTokenProblems(
   for (const [key, raw] of Object.entries(tokens)) {
     const where = `stylePlugins.${group}`;
     const role = catalogue.roles?.[key];
+    if (!role && catalogue.slots?.slots[key]) {
+      if (typeof raw !== 'string' || !slotAnswer(raw, key, catalogue.slots, known.colourNames ?? new Set()))
+        problems.push(slotProblem(where, key, String(raw), catalogue.slots));
+      continue;
+    }
     if (!role && !FS_STEP.test(key) && !RHYTHM_STEP.test(key)) {
       problems.push(`${where}: "${key}" is neither a role this package ships nor an fs or rhythm step. `
         + 'A style plugin re-values those only: a scale, a colour or a spacing step is shared by every '

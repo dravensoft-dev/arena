@@ -341,7 +341,7 @@ test('a component sheet is reached through the barrel alone, never named twice i
 });
 
 test('the token catalogue offers roles and no catalogue of appearances', () => {
-  assert.deepEqual(Object.keys(tokenCatalogue()).sort(), ['aliases', 'channels', 'light', 'roles', 'tokens'],
+  assert.deepEqual(Object.keys(tokenCatalogue()).sort(), ['aliases', 'channels', 'light', 'roles', 'slots', 'tokens'],
     'a consumer resolves an alias against the tokens and answers a role itself, and a menu of '
     + 'appearances is a decision Arena took for somebody else');
 });
@@ -571,4 +571,8 @@ test('default light answers reach the measurement', () => {
   assert.equal(catalogue.tokens['edge-focus'], 'var(--color-secondary)');
   assert.equal(rolesFor(null, catalogue, 'light').get('edge-focus'), 'var(--color-base-content)');
   assert.equal(rolesFor(null, catalogue, 'dark').get('edge-focus'), 'var(--color-secondary)');
+});
+
+test('the token catalogue carries the slots', () => {
+  assert.equal(Object.keys(tokenCatalogue().slots.slots).length, 415);
 });

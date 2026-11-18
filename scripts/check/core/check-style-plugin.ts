@@ -22,6 +22,7 @@ import {
   crossKeys, fixedRemProblems, valueProblems, withDefaults,
 } from '../../generate/core/arena-cli/style-plugin-rules.ts';
 import { readPlugin } from '../../generate/core/arena-cli/theme-css.ts';
+import { readColorSlots } from '../../lib/core/color-slots.ts';
 import type { DtcgNode } from '../../lib/core/dtcg-shapes.ts';
 import { declaredAxis } from '../../lib/core/user-scale.ts';
 import { answerFiles } from './check-user-scale.ts';
@@ -126,6 +127,14 @@ export function defaultAnswerProblems(roles: Record<string, KernelRole>, answers
   return problems;
 }
 
+export function slotAnswerProblems(where: string, tokens: Record<string, unknown>, kernel: Record<string, unknown>) {
+  const slots = readColorSlots();
+  const colourNames = new Set(Object.entries(kernel)
+    .filter(([, role]) => (role as { $type?: string }).$type === 'color').map(([name]) => name));
+  return movedTokens(tokens).filter(({ key }) => slots.slots[key])
+    .flatMap(({ key, token }) => keyProblems(where, key, token, undefined, { slots, colourNames }));
+}
+
 export function shippedFixedRemProblems(kernel: Record<string, unknown>) {
   const axes = Object.fromEntries(Object.entries(kernel)
     .map(([name, role]) => [name, { userScale: declaredAxis(role as DtcgNode) }]));
@@ -153,6 +162,7 @@ export function collect(sheets?: string) {
     emittedWords(repoRoot),
   ));
   problems.push(...shippedFixedRemProblems(kernel));
+  problems.push(...slotAnswerProblems(ROOT_PLUGIN, readJson(join(repoRoot, ROOT_PLUGIN)) as Record<string, unknown>, kernel));
   return problems;
 }
 

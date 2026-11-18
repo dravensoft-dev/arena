@@ -236,6 +236,20 @@ test('a dark group of a plugin source reaches the base selector as well as the .
   } finally { rmSync(tmp, { recursive: true, force: true }); }
 });
 
+test('a plugin answering a disabled slot emits the part\'s fade marker', async () => {
+  const { block } = await import('./generate-tokens.ts');
+  mkdirSync(join(repoRoot, '.cache'), { recursive: true });
+  const tmp = mkdtempSync(join(repoRoot, '.cache', 'arena-fade-marker-'));
+  try {
+    writeFileSync(join(tmp, 'plugin.tokens.json'), JSON.stringify({
+      'ink-muted': { $type: 'color', $value: '{color.base-content}' },
+      'button-primary-root-ink-disabled': { $type: 'color', $value: '{ink-muted}' },
+    }));
+    const css = await block({ selector: '.arena-p', source: 'plugin.tokens.json', dir: relPosix(repoRoot, tmp) });
+    assert.equal((css.match(/--button-primary-root-fade-disabled:1;/g) ?? []).length, 1, css);
+  } finally { rmSync(tmp, { recursive: true, force: true }); }
+});
+
 test('fs, dz text and icon come out in rem, sp and bw in px', async () => {
   const all = [...(await buildAll()).values()].join('\n');
   assert.match(all, /--fs-h1:2\.75rem;/);

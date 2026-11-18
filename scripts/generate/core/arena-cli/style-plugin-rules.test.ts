@@ -8,6 +8,8 @@ import { walkFiles } from '../../../utils/walk-files.ts';
 import { repoRoot } from '../../../lib/arena/repo-root.ts';
 import { readFamilies } from '../../../lib/tailwind/vocabulary.ts';
 import { whileHeld } from './cli-fixtures.ts';
+import { readColorSlots } from '../../../lib/core/color-slots.ts';
+import { readJson } from '../../../utils/read-file.ts';
 
 const reading = { 'lh-prose': '1.6', 'lh-heading': '1.15', 'measure-prose': '72ch' };
 
@@ -212,4 +214,21 @@ test('a silent root plugin takes transparent for a role whose default is the abs
   const { plugin, defaulted } = withDefaults({ tokens: {}, light: {} }, { 'hue-danger-fill-strong': { default: NO_PAINT } });
   assert.equal(plugin.tokens['hue-danger-fill-strong'], 'transparent');
   assert.ok(defaulted.includes('hue-danger-fill-strong'));
+});
+
+test('a slot answer outside its accepts set is refused', () => {
+  const colours = new Set(Object.entries(readJson(join(repoRoot, 'contracts/design/roles.json')) as Record<string, { $type?: string }>)
+    .filter(([, role]) => role.$type === 'color').map(([name]) => name));
+  const known = { slots: readColorSlots(), colourNames: colours, colourRoles: (name: string) => colours.has(name) };
+  const ask = (slot: string, value: string) =>
+    valueProblems('at', slot, { $type: 'color', $value: value }, undefined, known);
+  const fill = 'button-primary-root-fill-rest';
+  for (const value of ['{color.primary}', '{ink-body}', '#fff', '{edge-focus}', '{emphasis-primary-root-fill-rest}']) {
+    const problems = ask(fill, value);
+    assert.equal(problems.length, 1, `${value}: ${problems.join('\n')}`);
+    assert.match(problems[0] as string, new RegExp(`${fill}.*fill`), value);
+  }
+  assert.deepEqual(ask(fill, '{fill-surface}'), []);
+  assert.deepEqual(ask('emphasis-ghost-root-edge-rest', 'transparent'), []);
+  assert.equal(ask('button-primary-root-ink-rest', 'transparent').length, 1);
 });

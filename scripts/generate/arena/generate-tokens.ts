@@ -19,6 +19,8 @@ import { camel } from '../../utils/case.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { serialize } from '../core/arena-cli/serialize-token.ts';
 import { rootOnlyFor, scopeOn } from '../core/arena-cli/style-plugin-rules.ts';
+import { fadeMarkers } from '../core/arena-cli/slots.ts';
+import { COLOR_SLOTS, readColorSlots } from '../../lib/core/color-slots.ts';
 import { DEFAULTS_LAYER, LAYER_ORDER } from '../../lib/tailwind/component-sheets.ts';
 import { serializeScript } from '../../lib/core/serialize-script.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
@@ -132,6 +134,7 @@ export const node = {
     ...Object.values(RESOLVES_AGAINST).flat().map((source) => `${DESIGN_DIR}/${source}`),
     ...ROOT_ONLY_SOURCES,
     `${DESIGN_DIR}/roles.json`,
+    COLOR_SLOTS,
   ])],
   writes: [...CSS_TARGETS, ...SCRIPT_TARGETS, BREAKPOINT_TARGET],
   feeds: [
@@ -349,14 +352,19 @@ function* walk({ tokens, from }: { tokens: any; from: string },
   }
 }
 
-function renderLines(items: Emitted[]) {
+function renderLines(items: Emitted[], marked: string[] = []) {
   const lines = [];
   for (const item of items) {
     if (isTokenItem(item)) { lines.push(render(item.token)); continue; }
     if (lines.length) lines.push('');
     lines.push(comment(item.description));
   }
-  return lines;
+  return [...lines, ...marked];
+}
+
+function markersFor(items: Emitted[], seen: ReadonlySet<string> = new Set()) {
+  const names = items.filter(isTokenItem).map((item) => emittedName(item.token));
+  return fadeMarkers(names, readColorSlots()).map(([name, value]) => `  ${name}:${value};`).filter((line) => !seen.has(line));
 }
 
 export async function block({ selector, source, dir = DESIGN_DIR, plugin }:
@@ -370,7 +378,8 @@ export async function block({ selector, source, dir = DESIGN_DIR, plugin }:
   const restatedIn = (name: string) => base.filter((item) =>
     isTokenItem(item) && scopesRedeclaring(item.token).includes(name));
   const named = plugin === undefined ? [] : [`  --arena-plugin:${plugin};`];
-  const out = base.length ? [`${selector}{\n${[...named, ...renderLines(base)].join('\n')}\n}`] : [];
+  const baseMarks = markersFor(base);
+  const out = base.length ? [`${selector}{\n${[...named, ...renderLines(base, baseMarks)].join('\n')}\n}`] : [];
 
   for (const [theme, scope] of THEME_SCOPES) {
     const references = restatedIn(theme);
@@ -378,7 +387,7 @@ export async function block({ selector, source, dir = DESIGN_DIR, plugin }:
       ? [scope(selector, `\n${renderLines(references).join('\n')}\n`)] : [];
     const themed = buckets.get(theme) ?? [];
     const overrides = themed.length
-      ? [scope(selector, `\n${renderLines(themed).join('\n')}\n`)] : [];
+      ? [scope(selector, `\n${renderLines(themed, markersFor(themed, new Set(baseMarks))).join('\n')}\n`)] : [];
     out.push(...restated, ...overrides);
   }
 
