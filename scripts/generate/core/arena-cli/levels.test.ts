@@ -337,6 +337,13 @@ test('a mix over a slot chain is a level over the role the chain falls to', () =
   assert.equal(`${first?.property}/${first?.variable}/${first?.percent}`, 'color/accent-plain-quiet-ink/50');
 });
 
+test('a mix over a chain of slots, to any depth, is a level over the role it ends in', () => {
+  const deep = FAMILY.replace('var(--accent-plain-quiet-ink) var(--level-ink-quiet)',
+    'var(--a-slot,var(--b-slot,var(--accent-plain-quiet-ink))) var(--level-ink-quiet)');
+  const [first] = levelsIn(deep, { 'level-ink-quiet': 50, 'level-accent-soft-gold': 16 });
+  assert.equal(`${first?.property}/${first?.variable}/${first?.percent}`, 'color/accent-plain-quiet-ink/50');
+});
+
 test('a wash whose percent is a level reads its default, and one with no default is left out', () => {
   const css = [
     '.arena-x__y {',

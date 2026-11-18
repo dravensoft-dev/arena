@@ -134,11 +134,29 @@ test('the contract counts', () => {
   assert.equal(slots.filter((s) => s.derive?.mix === 'mix-hover').length, 2);
 });
 
+type ChannelInputs = Parameters<typeof channelProblems>;
+
 test('every accent and hue family slot reaches its channel', () => {
-  const families = readJson(join(repoRoot, 'frameworks/tailwind/vocabulary/arena-accent/Accent.family.json')) as any;
-  const hues = readJson(join(repoRoot, 'frameworks/tailwind/Hues.json')) as any;
+  const families = readJson(join(repoRoot, 'frameworks/tailwind/vocabulary/arena-accent/Accent.family.json')) as ChannelInputs[1];
+  const hues = readJson(join(repoRoot, 'frameworks/tailwind/Hues.json')) as ChannelInputs[2];
   assert.deepEqual(channelProblems(readColorSlots(), families, hues), []);
   const reverted = structuredClone(families);
   reverted.variants['arena-accent-plain'] = '[--arena-accent-fill-soft:var(--accent-plain-fill-soft)] [--arena-accent-ink:var(--accent-plain-ink)] [--arena-accent-quiet-ink:color-mix(in_oklab,var(--accent-plain-quiet-ink)_var(--level-ink-quiet),transparent)] [--arena-accent-edge:var(--accent-plain-edge)] [--arena-accent-side-edge:var(--accent-plain-side-edge)]';
-  assert.ok(channelProblems(readColorSlots(), reverted, hues).length > 0);
+  const lines = channelProblems(readColorSlots(), reverted, hues);
+  assert.equal(lines.length, 5);
+  assert.deepEqual(lines.map((l) => l.split(':')[0]).sort(), ['accent-plain-quiet-ink-rest', 'accent-plain-root-edge-rest', 'accent-plain-root-fill-rest', 'accent-plain-root-ink-rest', 'accent-plain-side-edge-rest']);
+});
+
+test('a channel written twice, or one no slot reaches, is refused', () => {
+  const families = structuredClone(readJson(join(repoRoot, 'frameworks/tailwind/vocabulary/arena-accent/Accent.family.json')) as ChannelInputs[1]);
+  const hues = readJson(join(repoRoot, 'frameworks/tailwind/Hues.json')) as ChannelInputs[2];
+  const muted = families.variants['arena-accent-muted'] as string;
+  families.variants['arena-accent-muted'] = `${muted} ${muted}`;
+  const twice = channelProblems(readColorSlots(), families, hues);
+  assert.equal(twice.length, 1);
+  assert.match(twice[0] ?? '', /accent-muted-root-ink-rest.*2 time/);
+  families.variants['arena-accent-muted'] = `${muted} [--arena-accent-edge:red]`;
+  const extra = channelProblems(readColorSlots(), families, hues);
+  assert.equal(extra.length, 1);
+  assert.match(extra[0] ?? '', /declares --arena-accent-edge/);
 });

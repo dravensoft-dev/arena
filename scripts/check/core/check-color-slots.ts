@@ -240,11 +240,18 @@ const HUE_KEY: Record<string, string> = {
 
 export function channelProblems(c: SlotCatalogue, families: { variants: Record<string, string> }, hues: { hues: Record<string, Record<string, string>> }): string[] {
   const out: string[] = [];
+  const extra = new Set<string>();
   for (const [name, s] of entries(c)) {
     if (s.scope !== 'family' || !s.channel) continue;
     if (s.family === 'accent') {
       const entry = `[${s.channel}:${channelValue(c, name, 'tailwind')}]`;
-      if (!families.variants[`arena-accent-${s.option}`]?.includes(entry)) out.push(`${name}: Accent.family.json arena-accent-${s.option} does not carry ${entry}`);
+      const written = families.variants[`arena-accent-${s.option}`] ?? '';
+      const times = written.split(`[${s.channel}:`).length - 1;
+      if (times !== 1 || !written.includes(entry)) out.push(`${name}: Accent.family.json arena-accent-${s.option} carries ${s.channel} ${times} time(s) and does not carry exactly ${entry}`);
+      const own = new Set(entries(c).filter(([, o]) => o.family === 'accent' && o.option === s.option).map(([, o]) => o.channel));
+      for (const [, channel] of written.matchAll(/\[(--[a-z0-9-]+):/g)) {
+        if (!own.has(channel) && !extra.has(`${s.option}${channel}`)) { extra.add(`${s.option}${channel}`); out.push(`Accent.family.json arena-accent-${s.option} declares ${channel}, which no accent slot of that option reaches`); }
+      }
     } else if (s.family === 'hue') {
       const want = channelValue(c, name, 'css');
       const got = hues.hues[s.option]?.[HUE_KEY[s.channel] ?? ''];

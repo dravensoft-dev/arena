@@ -53,3 +53,9 @@ test('the css form of a hue soft fill', () => {
   assert.equal(channelValue(c, 'hue-warning-soft-fill-rest', 'css'),
     'color-mix(in oklab,var(--hue-warning-soft-fill-rest,var(--hue-warning-fill-soft)) var(--level-hue-soft-warning),transparent)');
 });
+
+test('a slot whose default cannot be read names itself', () => {
+  const broken = structuredClone(c);
+  (broken.slots['emphasis-primary-root-fill-rest'] as { default: string }).default = '#fff';
+  assert.throws(() => slotChain(broken, 'emphasis-primary-root-fill-rest'), /emphasis-primary-root-fill-rest: default "#fff"/);
+});

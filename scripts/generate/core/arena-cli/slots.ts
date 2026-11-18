@@ -102,7 +102,8 @@ function read(catalogue: SlotCatalogue, name: string): string {
 function inkOf(catalogue: SlotCatalogue, from: ColorSlot): string {
   const ink = Object.entries(catalogue.slots).find(([, s]) => ownerOf(s) === ownerOf(from) && s.option === from.option
     && s.part === from.part && s.property === 'ink' && s.state === from.state);
-  return read(catalogue, (ink as [string, ColorSlot])[0]);
+  if (!ink) throw new Error(`${expectedName(from)}: no ink slot of the same scope, option, part and state to mix toward`);
+  return read(catalogue, ink[0]);
 }
 
 function fall(catalogue: SlotCatalogue, name: string, slot: ColorSlot): string {
@@ -117,7 +118,8 @@ function fall(catalogue: SlotCatalogue, name: string, slot: ColorSlot): string {
   }
   const answer = (slot.default ?? '').trim();
   if (answer === 'transparent') return 'transparent';
-  const ref = /^\{([a-z][a-z0-9-]*)\}$/.exec(answer)?.[1] as string;
+  const ref = /^\{([a-z][a-z0-9-]*)\}$/.exec(answer)?.[1];
+  if (ref === undefined) throw new Error(`${name}: default ${JSON.stringify(slot.default)} is neither transparent nor a {role} or {slot}`);
   const target = catalogue.slots[ref];
   if (!target) return `var(--${ref})`;
   if (ownerOf(target) === ownerOf(slot)) return slotChain(catalogue, ref);
