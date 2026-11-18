@@ -98,6 +98,9 @@ test('the witness exemption covers hue-danger-fill-strong and goes stale once co
   assert.deepEqual(staleExemptions([]), []);
 });
 
+const EXEMPT_SLOTS = ['accent-gold-root-ink-rest', 'accent-plain-side-edge-rest', 'hue-danger-strong-ink-rest',
+  'icon-button-solid-root-edge-rest'];
+
 const answers = (file: string) => answersIn(readJson(join(repoRoot, file)) as Record<string, { $value?: unknown }>);
 
 const fixture = (slots: SlotCatalogue['slots']): SlotCatalogue =>
@@ -109,6 +112,8 @@ test('complete answers every slot with a spelling of its own', () => {
   const unanswered = unansweredSlots(readColorSlots(), answers('plugin-style-store/complete/plugin.tokens.json'),
     answers(ROOT_PLUGIN));
   assert.deepEqual(unanswered, []);
+  const given = answers('plugin-style-store/complete/plugin.tokens.json');
+  for (const slot of EXEMPT_SLOTS) assert.equal(given[slot], undefined, `${slot} is exempt and complete leaves it unanswered`);
 });
 
 test('a slot complete answers as default does fails', () => {

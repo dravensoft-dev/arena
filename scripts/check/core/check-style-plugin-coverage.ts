@@ -4,7 +4,8 @@
  * with a value `default` does not use and paints through every part hook. It reads the parts from
  * the manifests rather than from the generated modules, so a manifest that gained a slot and
  * never rebuilt is caught, and it reuses paintedParts from the shipped audit rather than parsing
- * a selector a second time. */
+ * a selector a second time. An icon answer equal to complete's own answer for the ink it follows is
+ * the kernel default under D26, so it counts as unanswered. */
 
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
