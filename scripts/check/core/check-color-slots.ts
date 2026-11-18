@@ -13,7 +13,7 @@ import { COLOR_SLOTS, readColorSlots } from '../../lib/core/color-slots.ts';
 import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
 import type { ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';
 import {
-  SLOT_PROPERTIES, SLOT_STATES, acceptedRole, expectedName,
+  SLOT_PROPERTIES, SLOT_STATES, acceptedRole, expectedName, glob,
 } from '../../generate/core/arena-cli/slots.ts';
 import type { ColorSlot, SlotCatalogue } from '../../generate/core/arena-cli/slots.ts';
 
@@ -75,7 +75,7 @@ export function acceptsProblems(c: SlotCatalogue, roles: ReadonlySet<string>): s
   for (const p of SLOT_PROPERTIES) {
     for (const pattern of c.accepts[p] ?? []) {
       if (pattern === 'transparent') continue;
-      const re = new RegExp(`^${pattern.split('*').map((x) => x.replace(/[.+?^${}()|[\]\\]/g, '\\$&')).join('.*')}$`);
+      const re = glob(pattern);
       const hits = [...roles].filter((r) => re.test(r));
       if (hits.length === 0) out.push(`accepts.${p}: "${pattern}" matches no colour role`);
       const wrong = hits.filter((r) => !r.includes(WORD[p] ?? p));
@@ -90,12 +90,11 @@ const mixIsFill = (s: ColorSlot) => s.derive?.mix === undefined || s.property ==
 export function defaultProblems(c: SlotCatalogue, roles: ReadonlySet<string>): string[] {
   const out: string[] = [];
   for (const [name, s] of entries(c)) {
-    const given = [s.default !== undefined, s.derive !== undefined, s.optional === true].filter(Boolean).length;
     const answered = [s.default !== undefined, s.derive !== undefined].filter(Boolean).length;
     if (s.state === 'rest') {
-      if (s.default === undefined || given !== 1) out.push(`${name}: a rest slot carries a default and nothing else`);
-    } else if (given === 0 || answered > 1 || (s.derive !== undefined && s.optional === true)) {
-      out.push(`${name}: a ${s.state} slot carries exactly one of default, derive and optional (optional may sit beside a disabled default), and this one carries ${given}`);
+      if (s.default === undefined || s.derive !== undefined || s.optional === true) out.push(`${name}: a rest slot carries a default and nothing else`);
+    } else if (answered > 1 || (answered === 0 && s.optional !== true) || (s.derive !== undefined && s.optional === true)) {
+      out.push(`${name}: a ${s.state} slot carries exactly one of a default or a derive, or is optional with neither; only a disabled slot may be optional beside its default`);
     }
     if (s.optional && s.state !== 'disabled') out.push(`${name}: optional is for a disabled slot only`);
     if (!mixIsFill(s)) out.push(`${name}: mix is for a fill only`);
@@ -146,9 +145,13 @@ export function fallbackProblems(c: SlotCatalogue): string[] {
       } else want([owner, s.option, owner === 'emphasis' ? 'root' : s.part, s.property, s.state].join('-'));
     } else if (s.scope === 'component') {
       const ref = REF.exec(s.default)?.[1];
-      const target = ref ? c.slots[ref] : undefined;
-      if (target && !(target.scope === 'family' && target.family === 'hue' && target.property === s.property)) {
-        out.push(`${name}: a destructive slot falls to a hue family slot of its property, and ${ref} is not one`);
+      if (s.property === 'fill' && s.state === 'hover') {
+        if (s.default !== '{fill-hover}') out.push(`${name}: a destructive hover fill falls to {fill-hover}, and this one falls to ${s.default}`);
+      } else {
+        const target = ref ? c.slots[ref] : undefined;
+        if (!(target && target.scope === 'family' && target.family === 'hue' && target.property === s.property && target.state === s.state)) {
+          out.push(`${name}: a destructive slot falls to a hue family slot of its property and state, and ${s.default} is not one`);
+        }
       }
     } else if (REF.test(s.default) && Object.hasOwn(c.slots, REF.exec(s.default)![1]!)) {
       out.push(`${name}: a family slot falls to a role, and ${s.default} is a slot`);

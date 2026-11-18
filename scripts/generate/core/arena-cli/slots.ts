@@ -44,7 +44,7 @@ export function expectedName(slot: ColorSlot): string {
   return [owner, slot.option, slot.part, slot.property, slot.state].join('-');
 }
 
-const glob = (pattern: string) =>
+export const glob = (pattern: string) =>
   new RegExp(`^${pattern.split('*').map((p) => p.replace(/[.+?^${}()|[\]\\]/g, '\\$&')).join('.*')}$`);
 
 export function acceptedRole(catalogue: SlotCatalogue, slot: ColorSlot, role: string, colourRoles: ReadonlySet<string>): boolean {

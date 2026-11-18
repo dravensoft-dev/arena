@@ -78,6 +78,14 @@ test('copy button falls to icon button, and icon button edges to their role', ()
   assert.deepEqual(fallbackProblems(c), []);
 });
 
+test('a destructive slot falls to the hue danger family, and its hover fill to fill-hover', () => {
+  const role = edit((x) => { x.slots['button-destructive-root-fill-rest']!.default = '{fill-surface}'; });
+  assert.equal(fallbackProblems(role).length, 1);
+  const hover = edit((x) => { x.slots['button-destructive-root-fill-hover']!.default = '{fill-selected}'; });
+  assert.equal(fallbackProblems(hover).length, 1);
+  assert.deepEqual(fallbackProblems(shipped()), []);
+});
+
 test('an icon slot at rest falls to its own ink and keeps its level', () => {
   assert.equal(fallbackProblems(edit((x) => { x.slots['emphasis-ghost-root-icon-rest']!.default = '{emphasis-ghost-root-ink-selected}'; })).length, 1);
   assert.equal(fallbackProblems(edit((x) => { delete x.slots['emphasis-ghost-root-icon-rest']!.level; })).length, 1);
