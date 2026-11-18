@@ -297,6 +297,25 @@ test('an exception is compared with the rule without that entry alone, and a mis
   assert.ok(lines.some((l) => /carries no decision/.test(l) && !/undefined/.test(l)));
 });
 
+test('a redundant exception and one naming no slot are both reported, and nothing throws', () => {
+  const d = declared();
+  d.exceptions['emphasis-primary-root-fill-rest'] = { default: '{emphasis-primary-fill}', decision: 'D19' };
+  d.exceptions['emphasis-nothing-root-fill-hover'] = { default: '{fill-hover}', decision: 'D19' };
+  let lines: string[] = [];
+  assert.doesNotThrow(() => { lines = exceptionProblems(d); });
+  assert.equal(lines.length, 2);
+  assert.ok(lines.some((l) => /emphasis-primary-root-fill-rest.*the rule already gives/.test(l)));
+  assert.ok(lines.some((l) => /emphasis-nothing-root-fill-hover.*names no slot/.test(l)));
+});
+
+test('an object-form states value that is not a set name is refused', () => {
+  const d = declared();
+  (d.components.ArenaButton!.root as any).states = { '*': ['rest'] };
+  const lines = declarationProblems(d);
+  assert.equal(lines.length, 1);
+  assert.match(lines[0] ?? '', /names a state set/);
+});
+
 test('the shipped declarations are clean', () => {
   const d = declared();
   assert.deepEqual(declarationProblems(d), []);

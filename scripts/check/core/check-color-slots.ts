@@ -336,7 +336,12 @@ export function declarationProblems(d: SlotDeclarations): string[] {
     if (typeof spec === 'string') set(where, spec);
     else if (Array.isArray(spec)) {
       for (const st of spec) if (!(d.states ?? []).includes(st)) out.push(`${where}: state "${st}" is not declared in states`);
-    } else for (const [prop, name] of Object.entries((spec ?? {}) as Record<string, string>)) set(`${where}.states.${prop}`, name);
+    } else {
+      for (const [prop, name] of Object.entries((spec ?? {}) as Record<string, unknown>)) {
+        if (typeof name === 'string') set(`${where}.states.${prop}`, name);
+        else out.push(`${where}.states.${prop}: it names a state set by its name, and this is not a string`);
+      }
+    }
   };
   keys(COLOR_SLOTS, d, DECLARED.top);
   for (const [fam, f] of Object.entries(d.families ?? {})) {
