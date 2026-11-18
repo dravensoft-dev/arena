@@ -392,7 +392,7 @@ export const ROUTES: Route[] = [
     budget: 75_600,
     reason:
       'the normative half of the tree, where a stop is read for what a value means rather than for '
-      + 'how to write one, so it is bounded by what a person can hold. The level answers two readers: a contributor deciding a value, and a platform '
+      + 'how to write one, so it is bounded by what a person can hold, not what an agent can afford. The level answers two readers: a contributor deciding a value, and a platform '
       + 'target that reads contracts/design/ first and is not a browser. So TokenTypes.md states the '
       + 'one departure from DTCG and why, the axis larger text moves and what it obliges on each '
       + 'platform, and the shapes that read one way on the web and another elsewhere. The specification '

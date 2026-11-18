@@ -60,8 +60,8 @@ export function immovableRoles(roles: Record<string, Shape>) {
 const NO_SECOND_SPELLING = 'no other accepted role resolves to the key complete paints there, so a spelling of '
   + 'its own would move the complete sink';
 
-const MEMBER_DEFAULT = 'the ghost Button paints it transparent and the ghost IconButton keeps its member default '
-  + '(D21) while the slot is silent, so any answer paints both alike and moves one of them in the complete sink';
+const MEMBER_DEFAULT = 'complete paints the ghost Button transparent here and the ghost IconButton in its member '
+  + 'default (D21), two colours one group slot cannot carry, so any answer to it moves one of them in the complete sink';
 
 export const WITNESS_EXEMPT: ReadonlyMap<string, string> = new Map([
   ['hue-danger-fill-strong', 'complete answers it as default does, because a colour of its own would move the '

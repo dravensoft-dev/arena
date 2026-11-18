@@ -82,6 +82,7 @@ const COMPOSITIONS: Record<string, () => React.ReactElement> = {
   </div>,
   'context-class-beats-the-default-block': () => <div style={answered({ '--actions-primary-root-fill-rest': 'var(--fill-surface-raised)' })}><ArenaButton>Save</ArenaButton></div>,
   'member-default-kept-while-the-group-is-silent': () => <div><ArenaIconButton icon="ph-bold ph-x" label="Close" /><ArenaButton className="arena-emphasis-ghost">Save</ArenaButton></div>,
+  'group-answer-replaces-the-member-default': () => <div style={answered({ '--actions-ghost-root-edge-rest': 'var(--hue-danger-edge)' })}><ArenaIconButton icon="ph-bold ph-x" label="Close" /><ArenaButton className="arena-emphasis-ghost">Save</ArenaButton></div>,
   'answered-disabled-stops-the-fade': () => <div style={answered({ '--actions-primary-root-ink-disabled': 'var(--ink-muted)', '--actions-primary-root-fade-disabled': '1' })}><ArenaButton disabled>Save</ArenaButton></div>,
   'answered-disabled-draws-its-ink': () => <div style={answered({ '--actions-primary-root-ink-disabled': 'var(--ink-muted)', '--actions-primary-root-fade-disabled': '1' })}><ArenaButton disabled>Save</ArenaButton></div>,
   'answered-disabled-ink-reaches-the-glyph': () => <div style={answered({ '--actions-primary-root-ink-disabled': 'var(--ink-muted)', '--actions-primary-root-fade-disabled': '1' })}><ArenaButton disabled icon="ph-bold ph-x">Save</ArenaButton></div>,
@@ -130,6 +131,7 @@ const SUBJECT: Record<string, { part: string; at: number }> = {
   'tag-breaks-a-label-wider-than-its-container': { part: 'tag', at: 0 },
   'palette-scope-takes-the-surface-radius': { part: 'palette-scope', at: 0 },
   'member-default-kept-while-the-group-is-silent': { part: 'icon-button', at: 0 },
+  'group-answer-replaces-the-member-default': { part: 'icon-button', at: 0 },
   'selected-disabled-answer-stops-only-the-selected-fade': { part: 'icon-button', at: -1 },
   'class-on-copy-button-reaches-the-icon-button-it-draws': { part: 'icon-button', at: 0 },
 };
