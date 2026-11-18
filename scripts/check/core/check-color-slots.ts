@@ -277,7 +277,7 @@ export function readProblems(c: SlotCatalogue, manifests: Manifests): string[] {
 
 const DECLARED = {
   top: ['$description', 'accepts', 'refused', 'states', 'stateSets', 'selected', 'families', 'variants', 'components', 'exceptions', 'rings'],
-  family: ['channel', 'channels', 'states', 'options', 'optionsFrom', 'template'],
+  family: ['channel', 'channels', 'options'],
   option: ['states', 'parts'],
   part: ['family', 'options', 'states', 'variants', 'edgeChannel', 'own', 'draws'],
   variant: ['decision', 'rest'],
@@ -314,12 +314,6 @@ export function declarationProblems(d: SlotDeclarations): string[] {
   }
   for (const [fam, f] of Object.entries(d.families ?? {})) {
     keys(`families.${fam}`, f, DECLARED.family);
-    if (f.template !== undefined) {
-      if (f.options !== undefined) out.push(`families.${fam}: a template family declares no options, which would be dropped`);
-      if (f.states === undefined) out.push(`families.${fam}: a template family declares states for its options: no states here`);
-      for (const [part, rest] of Object.entries(f.template)) inkOnIcon(`families.${fam}.template.${part}`, rest);
-    }
-    if (f.states !== undefined) sets(`families.${fam}`, f.states);
     for (const [opt, o] of Object.entries(f.options ?? {})) {
       keys(`families.${fam}.options.${opt}`, o, DECLARED.option);
       sets(`families.${fam}.options.${opt}`, o.states);

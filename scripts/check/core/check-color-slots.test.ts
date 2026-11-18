@@ -311,16 +311,14 @@ test('a draws naming an undeclared part or a part that itself draws is refused',
   assert.equal(declarationProblems(f).length, 1);
 });
 
-test('a missing states on an option, a template family or a component part is refused and named', () => {
+test('a missing states on an option or a component part is refused and named', () => {
   const d = declared();
   delete (d.families.emphasis!.options!.primary as any).states;
   delete (d.components.ArenaButton!.root as any).states;
-  d.families.tone = { template: { mark: { ink: '{x}' } }, optionsFrom: ['danger'] };
   const lines = declarationProblems(d);
-  assert.equal(lines.length, 3);
+  assert.equal(lines.length, 2);
   assert.ok(lines.some((l) => /families\.emphasis\.options\.primary.*no states/.test(l)));
   assert.ok(lines.some((l) => /components\.ArenaButton\.root.*no states/.test(l)));
-  assert.ok(lines.some((l) => /families\.tone.*no states/.test(l)));
 });
 
 test('an own key, an own row key or an own decision outside the declaration is refused', () => {
@@ -338,10 +336,12 @@ test('an own key, an own row key or an own decision outside the declaration is r
   assert.equal(declarationProblems(e).length, 1);
 });
 
-test('a template family with options, a selected key outside fill, ink and edge, and an ink answer off icon are refused', () => {
+test('a template or optionsFrom key on a family, a selected key outside fill, ink and edge, and an ink answer off icon are refused', () => {
   const a = declared();
-  a.families.tone = { template: { mark: { ink: '{x}' } }, optionsFrom: ['danger'], states: 'rest', options: { danger: { states: 'rest', parts: {} } } };
-  assert.equal(declarationProblems(a).length, 1);
+  (a.families.emphasis as any).template = { mark: { ink: '{x}' } };
+  assert.match(declarationProblems(a).join('\n'), /families\.emphasis: unknown key "template"/);
+  (a.families.emphasis as any).optionsFrom = ['danger'];
+  assert.equal(declarationProblems(a).length, 2);
   const b = declared();
   (b.selected as any).icon = 'ink';
   assert.equal(declarationProblems(b).length, 1);

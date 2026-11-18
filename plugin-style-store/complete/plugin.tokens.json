@@ -1398,6 +1398,10 @@
     "$type": "color",
     "$value": "{hue-danger-ink}"
   },
+  "button-destructive-root-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
   "button-ghost-root-edge-disabled": {
     "$type": "color",
     "$value": "{accent-gold-side-edge}"
@@ -2462,6 +2466,10 @@
     "$type": "color",
     "$value": "{hue-danger-ink}"
   },
+  "split-button-destructive-caret-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
   "split-button-destructive-primary-edge-disabled": {
     "$type": "color",
     "$value": "{accent-gold-side-edge}"
@@ -2521,6 +2529,10 @@
   "split-button-destructive-primary-ink-pressed": {
     "$type": "color",
     "$value": "{hue-danger-ink}"
+  },
+  "split-button-destructive-primary-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
   },
   "split-button-ghost-caret-edge-disabled": {
     "$type": "color",

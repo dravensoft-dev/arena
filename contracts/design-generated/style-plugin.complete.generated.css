@@ -286,6 +286,7 @@
   --button-destructive-root-ink-disabled:var(--accent-gold-ink);
   --button-destructive-root-ink-hover:var(--hue-danger-ink);
   --button-destructive-root-ink-pressed:var(--hue-danger-ink);
+  --button-destructive-root-ink-rest:var(--ink-invalid);
   --button-ghost-root-edge-disabled:var(--accent-gold-side-edge);
   --button-ghost-root-edge-hover:transparent;
   --button-ghost-root-edge-pressed:transparent;
@@ -552,6 +553,7 @@
   --split-button-destructive-caret-ink-disabled:var(--accent-gold-ink);
   --split-button-destructive-caret-ink-hover:var(--hue-danger-ink);
   --split-button-destructive-caret-ink-pressed:var(--hue-danger-ink);
+  --split-button-destructive-caret-ink-rest:var(--ink-invalid);
   --split-button-destructive-primary-edge-disabled:var(--accent-gold-side-edge);
   --split-button-destructive-primary-edge-hover:var(--edge-invalid);
   --split-button-destructive-primary-edge-pressed:var(--edge-invalid);
@@ -567,6 +569,7 @@
   --split-button-destructive-primary-ink-disabled:var(--accent-gold-ink);
   --split-button-destructive-primary-ink-hover:var(--hue-danger-ink);
   --split-button-destructive-primary-ink-pressed:var(--hue-danger-ink);
+  --split-button-destructive-primary-ink-rest:var(--ink-invalid);
   --split-button-ghost-caret-edge-disabled:var(--accent-gold-side-edge);
   --split-button-ghost-caret-edge-hover:transparent;
   --split-button-ghost-caret-edge-pressed:transparent;
@@ -780,6 +783,7 @@
   --button-destructive-root-ink-disabled:var(--accent-gold-ink);
   --button-destructive-root-ink-hover:var(--hue-danger-ink);
   --button-destructive-root-ink-pressed:var(--hue-danger-ink);
+  --button-destructive-root-ink-rest:var(--ink-invalid);
   --button-ghost-root-edge-disabled:var(--accent-gold-side-edge);
   --button-ghost-root-fill-disabled:var(--accent-gold-fill-soft);
   --button-ghost-root-fill-hover:var(--emphasis-ghost-fill-hover);
@@ -1022,6 +1026,7 @@
   --split-button-destructive-caret-ink-disabled:var(--accent-gold-ink);
   --split-button-destructive-caret-ink-hover:var(--hue-danger-ink);
   --split-button-destructive-caret-ink-pressed:var(--hue-danger-ink);
+  --split-button-destructive-caret-ink-rest:var(--ink-invalid);
   --split-button-destructive-primary-edge-disabled:var(--accent-gold-side-edge);
   --split-button-destructive-primary-edge-hover:var(--edge-invalid);
   --split-button-destructive-primary-edge-pressed:var(--edge-invalid);
@@ -1035,6 +1040,7 @@
   --split-button-destructive-primary-ink-disabled:var(--accent-gold-ink);
   --split-button-destructive-primary-ink-hover:var(--hue-danger-ink);
   --split-button-destructive-primary-ink-pressed:var(--hue-danger-ink);
+  --split-button-destructive-primary-ink-rest:var(--ink-invalid);
   --split-button-ghost-caret-edge-disabled:var(--accent-gold-side-edge);
   --split-button-ghost-caret-fill-disabled:var(--accent-gold-fill-soft);
   --split-button-ghost-caret-fill-hover:var(--emphasis-ghost-fill-hover);
@@ -1215,6 +1221,7 @@
   --button-destructive-root-ink-disabled:var(--accent-gold-ink);
   --button-destructive-root-ink-hover:var(--hue-danger-ink);
   --button-destructive-root-ink-pressed:var(--hue-danger-ink);
+  --button-destructive-root-ink-rest:var(--ink-invalid);
   --button-ghost-root-edge-disabled:var(--accent-gold-side-edge);
   --button-ghost-root-fill-disabled:var(--accent-gold-fill-soft);
   --button-ghost-root-fill-hover:var(--emphasis-ghost-fill-hover);
@@ -1457,6 +1464,7 @@
   --split-button-destructive-caret-ink-disabled:var(--accent-gold-ink);
   --split-button-destructive-caret-ink-hover:var(--hue-danger-ink);
   --split-button-destructive-caret-ink-pressed:var(--hue-danger-ink);
+  --split-button-destructive-caret-ink-rest:var(--ink-invalid);
   --split-button-destructive-primary-edge-disabled:var(--accent-gold-side-edge);
   --split-button-destructive-primary-edge-hover:var(--edge-invalid);
   --split-button-destructive-primary-edge-pressed:var(--edge-invalid);
@@ -1470,6 +1478,7 @@
   --split-button-destructive-primary-ink-disabled:var(--accent-gold-ink);
   --split-button-destructive-primary-ink-hover:var(--hue-danger-ink);
   --split-button-destructive-primary-ink-pressed:var(--hue-danger-ink);
+  --split-button-destructive-primary-ink-rest:var(--ink-invalid);
   --split-button-ghost-caret-edge-disabled:var(--accent-gold-side-edge);
   --split-button-ghost-caret-fill-disabled:var(--accent-gold-fill-soft);
   --split-button-ghost-caret-fill-hover:var(--emphasis-ghost-fill-hover);
@@ -1650,6 +1659,7 @@
   --button-destructive-root-ink-disabled:var(--accent-gold-ink);
   --button-destructive-root-ink-hover:var(--hue-danger-ink);
   --button-destructive-root-ink-pressed:var(--hue-danger-ink);
+  --button-destructive-root-ink-rest:var(--ink-invalid);
   --button-ghost-root-edge-disabled:var(--accent-gold-side-edge);
   --button-ghost-root-fill-disabled:var(--accent-gold-fill-soft);
   --button-ghost-root-fill-hover:var(--emphasis-ghost-fill-hover);
@@ -1892,6 +1902,7 @@
   --split-button-destructive-caret-ink-disabled:var(--accent-gold-ink);
   --split-button-destructive-caret-ink-hover:var(--hue-danger-ink);
   --split-button-destructive-caret-ink-pressed:var(--hue-danger-ink);
+  --split-button-destructive-caret-ink-rest:var(--ink-invalid);
   --split-button-destructive-primary-edge-disabled:var(--accent-gold-side-edge);
   --split-button-destructive-primary-edge-hover:var(--edge-invalid);
   --split-button-destructive-primary-edge-pressed:var(--edge-invalid);
@@ -1905,6 +1916,7 @@
   --split-button-destructive-primary-ink-disabled:var(--accent-gold-ink);
   --split-button-destructive-primary-ink-hover:var(--hue-danger-ink);
   --split-button-destructive-primary-ink-pressed:var(--hue-danger-ink);
+  --split-button-destructive-primary-ink-rest:var(--ink-invalid);
   --split-button-ghost-caret-edge-disabled:var(--accent-gold-side-edge);
   --split-button-ghost-caret-fill-disabled:var(--accent-gold-fill-soft);
   --split-button-ghost-caret-fill-hover:var(--emphasis-ghost-fill-hover);
@@ -2085,6 +2097,7 @@
   --button-destructive-root-ink-disabled:var(--accent-gold-ink);
   --button-destructive-root-ink-hover:var(--hue-danger-ink);
   --button-destructive-root-ink-pressed:var(--hue-danger-ink);
+  --button-destructive-root-ink-rest:var(--ink-invalid);
   --button-ghost-root-edge-disabled:var(--accent-gold-side-edge);
   --button-ghost-root-fill-disabled:var(--accent-gold-fill-soft);
   --button-ghost-root-fill-hover:var(--emphasis-ghost-fill-hover);
@@ -2327,6 +2340,7 @@
   --split-button-destructive-caret-ink-disabled:var(--accent-gold-ink);
   --split-button-destructive-caret-ink-hover:var(--hue-danger-ink);
   --split-button-destructive-caret-ink-pressed:var(--hue-danger-ink);
+  --split-button-destructive-caret-ink-rest:var(--ink-invalid);
   --split-button-destructive-primary-edge-disabled:var(--accent-gold-side-edge);
   --split-button-destructive-primary-edge-hover:var(--edge-invalid);
   --split-button-destructive-primary-edge-pressed:var(--edge-invalid);
@@ -2340,6 +2354,7 @@
   --split-button-destructive-primary-ink-disabled:var(--accent-gold-ink);
   --split-button-destructive-primary-ink-hover:var(--hue-danger-ink);
   --split-button-destructive-primary-ink-pressed:var(--hue-danger-ink);
+  --split-button-destructive-primary-ink-rest:var(--ink-invalid);
   --split-button-ghost-caret-edge-disabled:var(--accent-gold-side-edge);
   --split-button-ghost-caret-fill-disabled:var(--accent-gold-fill-soft);
   --split-button-ghost-caret-fill-hover:var(--emphasis-ghost-fill-hover);

@@ -65,8 +65,7 @@ export const WITNESS_EXEMPT: ReadonlyMap<string, string> = new Map([
     + 'complete sink, and this role reaches a page through the destructive and danger-tone parts that default '
     + 'already paints'],
   ...[
-    'button-destructive-root-ink-rest', 'icon-button-solid-root-edge-rest',
-    'split-button-destructive-caret-ink-rest', 'split-button-destructive-primary-ink-rest',
+    'icon-button-solid-root-edge-rest',
   ].map((slot): [string, string] => [slot, NO_SECOND_SPELLING]),
 ]);
 

@@ -23,10 +23,7 @@ export type SlotDeclarations = {
   families: Record<string, {
     channel?: string;
     channels?: Record<string, string>;
-    states?: StateSpec;
     options?: Record<string, { states: StateSpec; parts: Record<string, Rest> }>;
-    optionsFrom?: string[];
-    template?: Record<string, Rest>;
   }>;
   variants: Record<string, { decision?: string; rest: Rest }>;
   components: Record<string, Record<string, {
@@ -90,9 +87,7 @@ export function deriveSlots(d: SlotDeclarations): SlotCatalogue {
 
   const families: SlotCatalogue['families'] = {};
   for (const [fam, decl] of Object.entries(d.families)) {
-    const options = decl.template
-      ? Object.fromEntries((decl.optionsFrom ?? []).map((o) => [o, { states: decl.states as StateSpec, parts: JSON.parse(JSON.stringify(decl.template).replaceAll('{option}', o)) as Record<string, Rest> }]))
-      : (decl.options ?? {});
+    const options = decl.options ?? {};
     const parts: string[] = [];
     for (const [opt, { states: spec, parts: byPart }] of Object.entries(options)) {
       if (spec === undefined) fail(`${fam}-${opt}: no states`);

@@ -98,8 +98,7 @@ test('the witness exemption covers hue-danger-fill-strong and goes stale once co
   assert.deepEqual(staleExemptions([]), []);
 });
 
-const EXEMPT_SLOTS = ['button-destructive-root-ink-rest', 'icon-button-solid-root-edge-rest',
-  'split-button-destructive-caret-ink-rest', 'split-button-destructive-primary-ink-rest'];
+const EXEMPT_SLOTS = ['icon-button-solid-root-edge-rest'];
 
 const answers = (file: string) => answersIn(readJson(join(repoRoot, file)) as Record<string, { $value?: unknown }>);
 
@@ -139,9 +138,9 @@ test('a slot complete answers as default does fails', () => {
   assert.equal(unansweredSlots(catalogue, complete, root, new Map([['button-e-root-ink-rest', 'no second spelling']])).length, 3);
 });
 
-test('the four slot exemptions are listed in WITNESS_EXEMPT, and each goes stale once complete moves it', () => {
+test('the slot exemption is listed in WITNESS_EXEMPT, and goes stale once complete moves it', () => {
   for (const slot of EXEMPT_SLOTS) assert.ok(WITNESS_EXEMPT.has(slot), `${slot} is exempt`);
   const stale = staleExemptions([...EXEMPT_SLOTS]);
-  assert.equal(stale.length, 4);
+  assert.equal(stale.length, 1);
   assert.deepEqual(staleExemptions([]), []);
 });
