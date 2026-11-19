@@ -1397,7 +1397,7 @@
   "actions-destructive-root-icon-disabled": {
     "$type": "color",
     "$value": "{hue-warning-on-ink}",
-    "$description": "complete fills a disabled destructive control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph."
+    "$description": "complete fills a disabled destructive control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-warning-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own."
   },
   "actions-destructive-root-icon-hover": {
     "$type": "color",
@@ -1530,7 +1530,7 @@
   "actions-ghost-root-icon-disabled": {
     "$type": "color",
     "$value": "{hue-success-on-ink}",
-    "$description": "complete fills a disabled ghost control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph."
+    "$description": "complete fills a disabled ghost control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-success-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own."
   },
   "actions-ghost-root-icon-hover": {
     "$type": "color",
@@ -1551,7 +1551,7 @@
   "actions-ghost-root-icon-selected-disabled": {
     "$type": "color",
     "$value": "{hue-success-on-ink}",
-    "$description": "complete fills a selected disabled ghost control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph."
+    "$description": "complete fills a selected disabled ghost control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-success-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own."
   },
   "actions-ghost-root-icon-selected-hover": {
     "$type": "color",
@@ -1630,7 +1630,7 @@
   "actions-primary-root-icon-disabled": {
     "$type": "color",
     "$value": "{hue-success-on-ink}",
-    "$description": "complete fills a disabled primary control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph."
+    "$description": "complete fills a disabled primary control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-success-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own."
   },
   "actions-primary-root-icon-hover": {
     "$type": "color",
@@ -1696,7 +1696,7 @@
   "actions-secondary-root-icon-disabled": {
     "$type": "color",
     "$value": "{hue-success-on-ink}",
-    "$description": "complete fills a disabled secondary control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph."
+    "$description": "complete fills a disabled secondary control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-success-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own."
   },
   "actions-secondary-root-icon-hover": {
     "$type": "color",
@@ -1790,7 +1790,7 @@
   "actions-solid-root-icon-disabled": {
     "$type": "color",
     "$value": "{hue-success-on-ink}",
-    "$description": "complete fills a disabled solid control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph."
+    "$description": "complete fills a disabled solid control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-success-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own."
   },
   "actions-solid-root-icon-hover": {
     "$type": "color",
@@ -1811,7 +1811,7 @@
   "actions-solid-root-icon-selected-disabled": {
     "$type": "color",
     "$value": "{hue-success-on-ink}",
-    "$description": "complete fills a selected disabled solid control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph."
+    "$description": "complete fills a selected disabled solid control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-success-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own."
   },
   "actions-solid-root-icon-selected-hover": {
     "$type": "color",

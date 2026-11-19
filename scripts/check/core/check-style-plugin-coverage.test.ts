@@ -98,7 +98,8 @@ test('the witness exemption covers hue-danger-fill-strong and goes stale once co
   assert.deepEqual(staleExemptions([]), []);
 });
 
-const EXEMPT_SLOTS = [...WITNESS_EXEMPT.keys()].filter((name) => Object.hasOwn(readColorSlots().slots, name));
+const SHIPPED_SLOTS = readColorSlots().slots;
+const EXEMPT_SLOTS = [...WITNESS_EXEMPT.keys()].filter((name) => Object.hasOwn(SHIPPED_SLOTS, name));
 
 const answers = (file: string) => answersIn(readJson(join(repoRoot, file)) as Record<string, { $value?: unknown }>);
 

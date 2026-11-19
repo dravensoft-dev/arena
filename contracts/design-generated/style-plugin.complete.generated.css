@@ -285,7 +285,7 @@
   --actions-destructive-root-fill-hover:var(--accent-plain-fill-soft);
   --actions-destructive-root-fill-pressed:transparent;
   --actions-destructive-root-fill-rest:transparent;
-  --actions-destructive-root-icon-disabled:var(--hue-warning-on-ink); /* complete fills a disabled destructive control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
+  --actions-destructive-root-icon-disabled:var(--hue-warning-on-ink); /* complete fills a disabled destructive control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-warning-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own. */
   --actions-destructive-root-icon-hover:var(--hue-info-ink);
   --actions-destructive-root-icon-pressed:var(--hue-info-ink);
   --actions-destructive-root-icon-rest:var(--hue-info-ink);
@@ -317,12 +317,12 @@
   --actions-ghost-root-fill-selected-disabled:var(--accent-gold-fill-soft);
   --actions-ghost-root-fill-selected-hover:var(--accent-plain-fill-soft);
   --actions-ghost-root-fill-selected-pressed:var(--accent-plain-fill-soft);
-  --actions-ghost-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled ghost control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
+  --actions-ghost-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled ghost control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-success-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own. */
   --actions-ghost-root-icon-hover:var(--accent-plain-ink);
   --actions-ghost-root-icon-pressed:var(--accent-plain-ink);
   --actions-ghost-root-icon-rest:var(--accent-plain-ink);
   --actions-ghost-root-icon-selected:var(--accent-plain-ink);
-  --actions-ghost-root-icon-selected-disabled:var(--hue-success-on-ink); /* complete fills a selected disabled ghost control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
+  --actions-ghost-root-icon-selected-disabled:var(--hue-success-on-ink); /* complete fills a selected disabled ghost control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-success-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own. */
   --actions-ghost-root-icon-selected-hover:var(--accent-plain-ink);
   --actions-ghost-root-icon-selected-pressed:var(--accent-plain-ink);
   --actions-ghost-root-ink-disabled:var(--hue-info-on-ink); /* complete fills a disabled ghost control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */
@@ -341,7 +341,7 @@
   --actions-primary-root-fill-hover:var(--accent-primary-fill-soft);
   --actions-primary-root-fill-pressed:var(--accent-primary-fill-soft);
   --actions-primary-root-fill-rest:var(--accent-primary-fill-soft);
-  --actions-primary-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled primary control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
+  --actions-primary-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled primary control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-success-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own. */
   --actions-primary-root-icon-hover:var(--emphasis-solid-ink);
   --actions-primary-root-icon-pressed:var(--emphasis-solid-ink);
   --actions-primary-root-icon-rest:var(--emphasis-primary-ink);
@@ -357,7 +357,7 @@
   --actions-secondary-root-fill-hover:var(--accent-plain-fill-soft);
   --actions-secondary-root-fill-pressed:var(--emphasis-ghost-fill-hover);
   --actions-secondary-root-fill-rest:var(--emphasis-ghost-fill-hover);
-  --actions-secondary-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled secondary control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
+  --actions-secondary-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled secondary control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-success-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own. */
   --actions-secondary-root-icon-hover:var(--accent-plain-ink);
   --actions-secondary-root-icon-pressed:var(--accent-plain-ink);
   --actions-secondary-root-icon-rest:var(--accent-plain-ink);
@@ -380,12 +380,12 @@
   --actions-solid-root-fill-selected-disabled:var(--accent-gold-fill-soft);
   --actions-solid-root-fill-selected-hover:var(--accent-plain-fill-soft);
   --actions-solid-root-fill-selected-pressed:var(--accent-plain-fill-soft);
-  --actions-solid-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled solid control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
+  --actions-solid-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled solid control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-success-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own. */
   --actions-solid-root-icon-hover:var(--emphasis-solid-ink);
   --actions-solid-root-icon-pressed:var(--emphasis-solid-ink);
   --actions-solid-root-icon-rest:var(--emphasis-solid-ink);
   --actions-solid-root-icon-selected:var(--accent-plain-ink);
-  --actions-solid-root-icon-selected-disabled:var(--hue-success-on-ink); /* complete fills a selected disabled solid control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
+  --actions-solid-root-icon-selected-disabled:var(--hue-success-on-ink); /* complete fills a selected disabled solid control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-success-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own. */
   --actions-solid-root-icon-selected-hover:var(--accent-plain-ink);
   --actions-solid-root-icon-selected-pressed:var(--accent-plain-ink);
   --actions-solid-root-ink-disabled:var(--hue-info-on-ink); /* complete fills a disabled solid control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */
@@ -567,7 +567,7 @@
   --actions-destructive-root-edge-rest:var(--edge-invalid);
   --actions-destructive-root-fill-disabled:var(--accent-gold-fill-soft);
   --actions-destructive-root-fill-hover:var(--accent-plain-fill-soft);
-  --actions-destructive-root-icon-disabled:var(--hue-warning-on-ink); /* complete fills a disabled destructive control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
+  --actions-destructive-root-icon-disabled:var(--hue-warning-on-ink); /* complete fills a disabled destructive control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-warning-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own. */
   --actions-destructive-root-icon-hover:var(--hue-info-ink);
   --actions-destructive-root-icon-pressed:var(--hue-info-ink);
   --actions-destructive-root-icon-rest:var(--hue-info-ink);
@@ -595,12 +595,12 @@
   --actions-ghost-root-fill-selected-disabled:var(--accent-gold-fill-soft);
   --actions-ghost-root-fill-selected-hover:var(--accent-plain-fill-soft);
   --actions-ghost-root-fill-selected-pressed:var(--accent-plain-fill-soft);
-  --actions-ghost-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled ghost control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
+  --actions-ghost-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled ghost control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-success-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own. */
   --actions-ghost-root-icon-hover:var(--accent-plain-ink);
   --actions-ghost-root-icon-pressed:var(--accent-plain-ink);
   --actions-ghost-root-icon-rest:var(--accent-plain-ink);
   --actions-ghost-root-icon-selected:var(--accent-plain-ink);
-  --actions-ghost-root-icon-selected-disabled:var(--hue-success-on-ink); /* complete fills a selected disabled ghost control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
+  --actions-ghost-root-icon-selected-disabled:var(--hue-success-on-ink); /* complete fills a selected disabled ghost control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-success-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own. */
   --actions-ghost-root-icon-selected-hover:var(--accent-plain-ink);
   --actions-ghost-root-icon-selected-pressed:var(--accent-plain-ink);
   --actions-ghost-root-ink-disabled:var(--hue-info-on-ink); /* complete fills a disabled ghost control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */
@@ -619,7 +619,7 @@
   --actions-primary-root-fill-hover:var(--accent-primary-fill-soft);
   --actions-primary-root-fill-pressed:var(--accent-primary-fill-soft);
   --actions-primary-root-fill-rest:var(--accent-primary-fill-soft);
-  --actions-primary-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled primary control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
+  --actions-primary-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled primary control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-success-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own. */
   --actions-primary-root-icon-hover:var(--emphasis-solid-ink);
   --actions-primary-root-icon-pressed:var(--emphasis-solid-ink);
   --actions-primary-root-icon-rest:var(--emphasis-primary-ink);
@@ -635,7 +635,7 @@
   --actions-secondary-root-fill-hover:var(--accent-plain-fill-soft);
   --actions-secondary-root-fill-pressed:var(--emphasis-ghost-fill-hover);
   --actions-secondary-root-fill-rest:var(--emphasis-ghost-fill-hover);
-  --actions-secondary-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled secondary control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
+  --actions-secondary-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled secondary control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-success-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own. */
   --actions-secondary-root-icon-hover:var(--accent-plain-ink);
   --actions-secondary-root-icon-pressed:var(--accent-plain-ink);
   --actions-secondary-root-icon-rest:var(--accent-plain-ink);
@@ -656,12 +656,12 @@
   --actions-solid-root-fill-selected-disabled:var(--accent-gold-fill-soft);
   --actions-solid-root-fill-selected-hover:var(--accent-plain-fill-soft);
   --actions-solid-root-fill-selected-pressed:var(--accent-plain-fill-soft);
-  --actions-solid-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled solid control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
+  --actions-solid-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled solid control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-success-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own. */
   --actions-solid-root-icon-hover:var(--emphasis-solid-ink);
   --actions-solid-root-icon-pressed:var(--emphasis-solid-ink);
   --actions-solid-root-icon-rest:var(--emphasis-solid-ink);
   --actions-solid-root-icon-selected:var(--accent-plain-ink);
-  --actions-solid-root-icon-selected-disabled:var(--hue-success-on-ink); /* complete fills a selected disabled solid control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
+  --actions-solid-root-icon-selected-disabled:var(--hue-success-on-ink); /* complete fills a selected disabled solid control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-success-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own. */
   --actions-solid-root-icon-selected-hover:var(--accent-plain-ink);
   --actions-solid-root-icon-selected-pressed:var(--accent-plain-ink);
   --actions-solid-root-ink-disabled:var(--hue-info-on-ink); /* complete fills a disabled solid control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */
@@ -824,7 +824,7 @@
   --actions-destructive-root-edge-rest:var(--edge-invalid);
   --actions-destructive-root-fill-disabled:var(--accent-gold-fill-soft);
   --actions-destructive-root-fill-hover:var(--accent-plain-fill-soft);
-  --actions-destructive-root-icon-disabled:var(--hue-warning-on-ink); /* complete fills a disabled destructive control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
+  --actions-destructive-root-icon-disabled:var(--hue-warning-on-ink); /* complete fills a disabled destructive control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-warning-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own. */
   --actions-destructive-root-icon-hover:var(--hue-info-ink);
   --actions-destructive-root-icon-pressed:var(--hue-info-ink);
   --actions-destructive-root-icon-rest:var(--hue-info-ink);
@@ -852,12 +852,12 @@
   --actions-ghost-root-fill-selected-disabled:var(--accent-gold-fill-soft);
   --actions-ghost-root-fill-selected-hover:var(--accent-plain-fill-soft);
   --actions-ghost-root-fill-selected-pressed:var(--accent-plain-fill-soft);
-  --actions-ghost-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled ghost control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
+  --actions-ghost-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled ghost control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-success-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own. */
   --actions-ghost-root-icon-hover:var(--accent-plain-ink);
   --actions-ghost-root-icon-pressed:var(--accent-plain-ink);
   --actions-ghost-root-icon-rest:var(--accent-plain-ink);
   --actions-ghost-root-icon-selected:var(--accent-plain-ink);
-  --actions-ghost-root-icon-selected-disabled:var(--hue-success-on-ink); /* complete fills a selected disabled ghost control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
+  --actions-ghost-root-icon-selected-disabled:var(--hue-success-on-ink); /* complete fills a selected disabled ghost control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-success-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own. */
   --actions-ghost-root-icon-selected-hover:var(--accent-plain-ink);
   --actions-ghost-root-icon-selected-pressed:var(--accent-plain-ink);
   --actions-ghost-root-ink-disabled:var(--hue-info-on-ink); /* complete fills a disabled ghost control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */
@@ -876,7 +876,7 @@
   --actions-primary-root-fill-hover:var(--accent-primary-fill-soft);
   --actions-primary-root-fill-pressed:var(--accent-primary-fill-soft);
   --actions-primary-root-fill-rest:var(--accent-primary-fill-soft);
-  --actions-primary-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled primary control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
+  --actions-primary-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled primary control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-success-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own. */
   --actions-primary-root-icon-hover:var(--emphasis-solid-ink);
   --actions-primary-root-icon-pressed:var(--emphasis-solid-ink);
   --actions-primary-root-icon-rest:var(--emphasis-primary-ink);
@@ -892,7 +892,7 @@
   --actions-secondary-root-fill-hover:var(--accent-plain-fill-soft);
   --actions-secondary-root-fill-pressed:var(--emphasis-ghost-fill-hover);
   --actions-secondary-root-fill-rest:var(--emphasis-ghost-fill-hover);
-  --actions-secondary-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled secondary control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
+  --actions-secondary-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled secondary control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-success-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own. */
   --actions-secondary-root-icon-hover:var(--accent-plain-ink);
   --actions-secondary-root-icon-pressed:var(--accent-plain-ink);
   --actions-secondary-root-icon-rest:var(--accent-plain-ink);
@@ -913,12 +913,12 @@
   --actions-solid-root-fill-selected-disabled:var(--accent-gold-fill-soft);
   --actions-solid-root-fill-selected-hover:var(--accent-plain-fill-soft);
   --actions-solid-root-fill-selected-pressed:var(--accent-plain-fill-soft);
-  --actions-solid-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled solid control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
+  --actions-solid-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled solid control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-success-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own. */
   --actions-solid-root-icon-hover:var(--emphasis-solid-ink);
   --actions-solid-root-icon-pressed:var(--emphasis-solid-ink);
   --actions-solid-root-icon-rest:var(--emphasis-solid-ink);
   --actions-solid-root-icon-selected:var(--accent-plain-ink);
-  --actions-solid-root-icon-selected-disabled:var(--hue-success-on-ink); /* complete fills a selected disabled solid control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
+  --actions-solid-root-icon-selected-disabled:var(--hue-success-on-ink); /* complete fills a selected disabled solid control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-success-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own. */
   --actions-solid-root-icon-selected-hover:var(--accent-plain-ink);
   --actions-solid-root-icon-selected-pressed:var(--accent-plain-ink);
   --actions-solid-root-ink-disabled:var(--hue-info-on-ink); /* complete fills a disabled solid control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */
@@ -1081,7 +1081,7 @@
   --actions-destructive-root-edge-rest:var(--edge-invalid);
   --actions-destructive-root-fill-disabled:var(--accent-gold-fill-soft);
   --actions-destructive-root-fill-hover:var(--accent-plain-fill-soft);
-  --actions-destructive-root-icon-disabled:var(--hue-warning-on-ink); /* complete fills a disabled destructive control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
+  --actions-destructive-root-icon-disabled:var(--hue-warning-on-ink); /* complete fills a disabled destructive control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-warning-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own. */
   --actions-destructive-root-icon-hover:var(--hue-info-ink);
   --actions-destructive-root-icon-pressed:var(--hue-info-ink);
   --actions-destructive-root-icon-rest:var(--hue-info-ink);
@@ -1109,12 +1109,12 @@
   --actions-ghost-root-fill-selected-disabled:var(--accent-gold-fill-soft);
   --actions-ghost-root-fill-selected-hover:var(--accent-plain-fill-soft);
   --actions-ghost-root-fill-selected-pressed:var(--accent-plain-fill-soft);
-  --actions-ghost-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled ghost control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
+  --actions-ghost-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled ghost control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-success-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own. */
   --actions-ghost-root-icon-hover:var(--accent-plain-ink);
   --actions-ghost-root-icon-pressed:var(--accent-plain-ink);
   --actions-ghost-root-icon-rest:var(--accent-plain-ink);
   --actions-ghost-root-icon-selected:var(--accent-plain-ink);
-  --actions-ghost-root-icon-selected-disabled:var(--hue-success-on-ink); /* complete fills a selected disabled ghost control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
+  --actions-ghost-root-icon-selected-disabled:var(--hue-success-on-ink); /* complete fills a selected disabled ghost control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-success-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own. */
   --actions-ghost-root-icon-selected-hover:var(--accent-plain-ink);
   --actions-ghost-root-icon-selected-pressed:var(--accent-plain-ink);
   --actions-ghost-root-ink-disabled:var(--hue-info-on-ink); /* complete fills a disabled ghost control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */
@@ -1133,7 +1133,7 @@
   --actions-primary-root-fill-hover:var(--accent-primary-fill-soft);
   --actions-primary-root-fill-pressed:var(--accent-primary-fill-soft);
   --actions-primary-root-fill-rest:var(--accent-primary-fill-soft);
-  --actions-primary-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled primary control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
+  --actions-primary-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled primary control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-success-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own. */
   --actions-primary-root-icon-hover:var(--emphasis-solid-ink);
   --actions-primary-root-icon-pressed:var(--emphasis-solid-ink);
   --actions-primary-root-icon-rest:var(--emphasis-primary-ink);
@@ -1149,7 +1149,7 @@
   --actions-secondary-root-fill-hover:var(--accent-plain-fill-soft);
   --actions-secondary-root-fill-pressed:var(--emphasis-ghost-fill-hover);
   --actions-secondary-root-fill-rest:var(--emphasis-ghost-fill-hover);
-  --actions-secondary-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled secondary control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
+  --actions-secondary-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled secondary control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-success-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own. */
   --actions-secondary-root-icon-hover:var(--accent-plain-ink);
   --actions-secondary-root-icon-pressed:var(--accent-plain-ink);
   --actions-secondary-root-icon-rest:var(--accent-plain-ink);
@@ -1170,12 +1170,12 @@
   --actions-solid-root-fill-selected-disabled:var(--accent-gold-fill-soft);
   --actions-solid-root-fill-selected-hover:var(--accent-plain-fill-soft);
   --actions-solid-root-fill-selected-pressed:var(--accent-plain-fill-soft);
-  --actions-solid-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled solid control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
+  --actions-solid-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled solid control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-success-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own. */
   --actions-solid-root-icon-hover:var(--emphasis-solid-ink);
   --actions-solid-root-icon-pressed:var(--emphasis-solid-ink);
   --actions-solid-root-icon-rest:var(--emphasis-solid-ink);
   --actions-solid-root-icon-selected:var(--accent-plain-ink);
-  --actions-solid-root-icon-selected-disabled:var(--hue-success-on-ink); /* complete fills a selected disabled solid control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
+  --actions-solid-root-icon-selected-disabled:var(--hue-success-on-ink); /* complete fills a selected disabled solid control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-success-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own. */
   --actions-solid-root-icon-selected-hover:var(--accent-plain-ink);
   --actions-solid-root-icon-selected-pressed:var(--accent-plain-ink);
   --actions-solid-root-ink-disabled:var(--hue-info-on-ink); /* complete fills a disabled solid control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */
@@ -1338,7 +1338,7 @@
   --actions-destructive-root-edge-rest:var(--edge-invalid);
   --actions-destructive-root-fill-disabled:var(--accent-gold-fill-soft);
   --actions-destructive-root-fill-hover:var(--accent-plain-fill-soft);
-  --actions-destructive-root-icon-disabled:var(--hue-warning-on-ink); /* complete fills a disabled destructive control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
+  --actions-destructive-root-icon-disabled:var(--hue-warning-on-ink); /* complete fills a disabled destructive control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-warning-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own. */
   --actions-destructive-root-icon-hover:var(--hue-info-ink);
   --actions-destructive-root-icon-pressed:var(--hue-info-ink);
   --actions-destructive-root-icon-rest:var(--hue-info-ink);
@@ -1366,12 +1366,12 @@
   --actions-ghost-root-fill-selected-disabled:var(--accent-gold-fill-soft);
   --actions-ghost-root-fill-selected-hover:var(--accent-plain-fill-soft);
   --actions-ghost-root-fill-selected-pressed:var(--accent-plain-fill-soft);
-  --actions-ghost-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled ghost control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
+  --actions-ghost-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled ghost control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-success-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own. */
   --actions-ghost-root-icon-hover:var(--accent-plain-ink);
   --actions-ghost-root-icon-pressed:var(--accent-plain-ink);
   --actions-ghost-root-icon-rest:var(--accent-plain-ink);
   --actions-ghost-root-icon-selected:var(--accent-plain-ink);
-  --actions-ghost-root-icon-selected-disabled:var(--hue-success-on-ink); /* complete fills a selected disabled ghost control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
+  --actions-ghost-root-icon-selected-disabled:var(--hue-success-on-ink); /* complete fills a selected disabled ghost control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-success-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own. */
   --actions-ghost-root-icon-selected-hover:var(--accent-plain-ink);
   --actions-ghost-root-icon-selected-pressed:var(--accent-plain-ink);
   --actions-ghost-root-ink-disabled:var(--hue-info-on-ink); /* complete fills a disabled ghost control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */
@@ -1390,7 +1390,7 @@
   --actions-primary-root-fill-hover:var(--accent-primary-fill-soft);
   --actions-primary-root-fill-pressed:var(--accent-primary-fill-soft);
   --actions-primary-root-fill-rest:var(--accent-primary-fill-soft);
-  --actions-primary-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled primary control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
+  --actions-primary-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled primary control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-success-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own. */
   --actions-primary-root-icon-hover:var(--emphasis-solid-ink);
   --actions-primary-root-icon-pressed:var(--emphasis-solid-ink);
   --actions-primary-root-icon-rest:var(--emphasis-primary-ink);
@@ -1406,7 +1406,7 @@
   --actions-secondary-root-fill-hover:var(--accent-plain-fill-soft);
   --actions-secondary-root-fill-pressed:var(--emphasis-ghost-fill-hover);
   --actions-secondary-root-fill-rest:var(--emphasis-ghost-fill-hover);
-  --actions-secondary-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled secondary control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
+  --actions-secondary-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled secondary control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-success-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own. */
   --actions-secondary-root-icon-hover:var(--accent-plain-ink);
   --actions-secondary-root-icon-pressed:var(--accent-plain-ink);
   --actions-secondary-root-icon-rest:var(--accent-plain-ink);
@@ -1427,12 +1427,12 @@
   --actions-solid-root-fill-selected-disabled:var(--accent-gold-fill-soft);
   --actions-solid-root-fill-selected-hover:var(--accent-plain-fill-soft);
   --actions-solid-root-fill-selected-pressed:var(--accent-plain-fill-soft);
-  --actions-solid-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled solid control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
+  --actions-solid-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled solid control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-success-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own. */
   --actions-solid-root-icon-hover:var(--emphasis-solid-ink);
   --actions-solid-root-icon-pressed:var(--emphasis-solid-ink);
   --actions-solid-root-icon-rest:var(--emphasis-solid-ink);
   --actions-solid-root-icon-selected:var(--accent-plain-ink);
-  --actions-solid-root-icon-selected-disabled:var(--hue-success-on-ink); /* complete fills a selected disabled solid control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
+  --actions-solid-root-icon-selected-disabled:var(--hue-success-on-ink); /* complete fills a selected disabled solid control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-success-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own. */
   --actions-solid-root-icon-selected-hover:var(--accent-plain-ink);
   --actions-solid-root-icon-selected-pressed:var(--accent-plain-ink);
   --actions-solid-root-ink-disabled:var(--hue-info-on-ink); /* complete fills a disabled solid control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */

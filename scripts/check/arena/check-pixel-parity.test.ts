@@ -305,6 +305,9 @@ test('an allowance rect grows by its part\'s own shadow and outline, so a pixel 
   assert.deepEqual(bare, { left: 10, top: 10, right: 20, bottom: 20 });
   assert.match(pixel(bare).problem ?? '', /outside the allowed parts/, 'an unshadowed part covers its border box alone');
   const complete = paintedOverflow({ boxShadow: 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.5) 0px 2px 6px -2px', outlineStyle: 'dotted', outlineWidth: '2px', outlineOffset: '4px' });
+  assert.deepEqual(paintedOverflow({ boxShadow: 'rgba(0, 0, 0, 0) 0px 4px 20px 8px, transparent 0px 0px 10px 0px', outlineStyle: 'none' }), { left: 0, top: 0, right: 0, bottom: 0 },
+    'a layer whose colour has alpha 0 paints nothing and grows nothing');
+  assert.deepEqual(paintedOverflow({ boxShadow: 'rgba(0, 0, 0, 0.05) 0px 0px 2px 0px', outlineStyle: 'none' }), { left: 3, top: 3, right: 3, bottom: 3 }, 'an alpha that only starts with 0 still paints');
   assert.deepEqual(complete, { left: 7, top: 6, right: 7, bottom: 9 }, 'complete\'s control shadow reaches 9px below a part, past its 6px outline: the rows a locked confirm moved under it');
   assert.deepEqual(paintedOverflow({ boxShadow: 'none', outlineStyle: 'solid', outlineWidth: '2px', outlineOffset: '1px' }), { left: 3, top: 3, right: 3, bottom: 3 }, 'a drawn outline grows the rect by its width and offset');
   assert.deepEqual(paintedOverflow({ boxShadow: 'none', outlineStyle: 'none', outlineWidth: '2px', outlineOffset: '1px' }), { left: 0, top: 0, right: 0, bottom: 0 });
