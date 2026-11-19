@@ -39,6 +39,9 @@ export type MemberPart = {
   disabledBy?: { axis: string; value: string };
   hoverBy?: { axis: string; value: string };
   onlyBy?: { axis: string; value: string };
+  hoverIn?: { axis: string; value: string };
+  edgeAs?: 'rule';
+  disabledModifier?: string;
   inkFrom?: string;
   properties?: SlotProperty[];
   inline?: true;

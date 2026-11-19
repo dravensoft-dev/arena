@@ -894,3 +894,77 @@ test('Switch.icon paints the knob ink alone, inside the knob that paints its fil
   const sw = manifests.get('ArenaSwitch') as any;
   for (const text of [sw.slots.icon, sw.variants.state.true.icon] as string[]) assert.ok(!/(^|\s)(bg|border)-\[color:/.test(text), text);
 });
+
+const crumbDeclared = (extra: Partial<MemberDecl>, properties: ('fill' | 'ink' | 'edge')[] = ['fill'], states: string[] = ['rest', 'hover']) => slotFixture({
+  box: { properties, states, rest: Object.fromEntries(properties.map((p) => [p, p === 'ink' ? '{ink-body}' : p === 'edge' ? '{edge-control}' : '{fill-control}'])) },
+}, { ArenaCrumb: { group: 'choices', parts: { box: { to: 'choices.box', options: [], states, ...extra } } } }, 'choices');
+const crumbManifest = (base: string, branches: Record<string, Record<string, Record<string, string>>> = {}) => new Map([['ArenaCrumb', {
+  component: 'ArenaCrumb', slots: { box: base }, variants: branches,
+} as never]]);
+const crumbValue = (c: SlotCatalogue, name: string) => memberValue(c, 'ArenaCrumb.box', name, 'tailwind');
+
+test('a hover inside one branch is read there and rest stays in the base class', () => {
+  const d = crumbDeclared({ hoverIn: { axis: 'linked', value: 'true' } });
+  assert.deepEqual(declarationProblems(d), []);
+  const c = deriveSlots(d);
+  assert.deepEqual(c.members['ArenaCrumb.box']?.hoverIn, { axis: 'linked', value: 'true' });
+  const rest = `bg-[color:${crumbValue(c, 'choices-box-fill-rest')}]`;
+  const hover = `hover:bg-[color:${crumbValue(c, 'choices-box-fill-hover')}]`;
+  const branch = (text: string) => ({ linked: { true: { box: text }, false: {} } });
+  assert.deepEqual(memberReadProblems(c, crumbManifest(rest, branch(hover))), []);
+  assert.deepEqual(manifestProblems(c, crumbManifest(rest, branch(hover))), []);
+  assert.deepEqual(memberReadProblems(c, crumbManifest(`${rest} ${hover}`, branch(''))),
+    [`ArenaCrumb.box: choices-box-fill-hover is not read as ${hover} in the linked=true branch`]);
+  assert.ok(manifestProblems(c, crumbManifest(rest)).some((l) => /ArenaCrumb declares no variant linked=true/.test(l)));
+});
+
+test('an edge drawn as a rule is read inside the inset shadow', () => {
+  const d = crumbDeclared({ edgeAs: 'rule' }, ['edge'], ['rest']);
+  assert.deepEqual(declarationProblems(d), []);
+  const c = deriveSlots(d);
+  assert.equal(c.members['ArenaCrumb.box']?.edgeAs, 'rule');
+  const rule = `shadow-[inset_0_calc(var(--bw-strong)*-1)_0_${crumbValue(c, 'choices-box-edge-rest')}]`;
+  assert.deepEqual(memberReadProblems(c, crumbManifest(rule)), []);
+  assert.deepEqual(memberReadProblems(c, crumbManifest(`border-[color:${crumbValue(c, 'choices-box-edge-rest')}]`)),
+    [`ArenaCrumb.box: choices-box-edge-rest is not read as ${rule} in the base class`]);
+  assert.match(declarationProblems(crumbDeclared({ edgeAs: 'rule' }, ['fill'], ['rest'])).join('\n'), /ArenaCrumb\.parts\.box\.edgeAs: choices\.box paints no edge/);
+  assert.match(declarationProblems(crumbDeclared({ edgeAs: 'line' as 'rule' }, ['edge'], ['rest'])).join('\n'), /edgeAs: "line" is not "rule"/);
+});
+
+test('an aria-disabled member reads its disabled states under aria-disabled:', () => {
+  const d = crumbDeclared({ disabledModifier: 'aria-disabled:' }, ['fill'], ['rest', 'disabled']);
+  assert.deepEqual(declarationProblems(d), []);
+  const c = deriveSlots(d);
+  const value = `bg-[color:${crumbValue(c, 'choices-box-fill-disabled')}]`;
+  const rest = `bg-[color:${crumbValue(c, 'choices-box-fill-rest')}]`;
+  assert.deepEqual(memberReadProblems(c, crumbManifest(`${rest} aria-disabled:${value}`)), []);
+  assert.deepEqual(memberReadProblems(c, crumbManifest(`${rest} disabled:${value}`)),
+    [`ArenaCrumb.box: choices-box-fill-disabled is not read as aria-disabled:${value} in the base class`]);
+  const marker = 'opacity-[var(--choices-box-fade-disabled,var(--fade-disabled))]';
+  assert.deepEqual(fadeProblems(c, crumbManifest(`${rest} aria-disabled:${value} aria-disabled:${marker}`)), []);
+  assert.equal(fadeProblems(c, crumbManifest(`${rest} aria-disabled:${value} disabled:${marker}`)).length, 1, 'a marker under disabled: no longer carries the fade');
+  assert.match(declarationProblems(crumbDeclared({ disabledModifier: 'disabled:' as 'aria-disabled:' }, ['fill'], ['rest', 'disabled'])).join('\n'), /disabledModifier: "disabled:" is not "aria-disabled:"/);
+  assert.match(declarationProblems(crumbDeclared({ disabledModifier: 'aria-disabled:', disabledBy: { axis: 'disabled', value: 'true' } }, ['fill'], ['rest', 'disabled'])).join('\n'), /disabledModifier: it stands beside disabledBy/);
+});
+
+test('a rest hover that can beat a selected hover is refused', () => {
+  const states = ['rest', 'hover', 'selected', 'selected-hover'];
+  const d = crumbDeclared({ selectedBy: { axis: 'current', value: 'true' }, properties: ['fill'] }, ['fill', 'ink'], states);
+  assert.deepEqual(declarationProblems(d), []);
+  const c = deriveSlots(d);
+  const v = (name: string) => crumbValue(c, name);
+  const rest = `bg-[color:${v('choices-box-fill-rest')}]`;
+  const hover = `hover:bg-[color:${v('choices-box-fill-hover')}]`;
+  const selected = `bg-[color:${v('choices-box-fill-selected')}] hover:bg-[color:${v('choices-box-fill-selected-hover')}]`;
+  const manifest = (base: string, unselected = '') => crumbManifest(base, { current: { true: { box: selected }, false: { box: unselected } } });
+  assert.deepEqual(memberReadProblems(c, manifest(`${rest} ${hover}`)),
+    ['ArenaCrumb.box: choices-box-fill-hover is read under hover: in the base class and choices-box-fill-selected-hover under hover: in the current=true branch, and a selected part matches both with no rule for their order (R4): read choices-box-fill-hover in the current=false branch']);
+  assert.deepEqual(memberReadProblems(c, manifest(rest, hover)), []);
+});
+
+test('hoverIn beside hoverBy or onlyBy is refused', () => {
+  const hoverIn = { axis: 'linked', value: 'true' };
+  assert.match(declarationProblems(crumbDeclared({ hoverIn, hoverBy: { axis: 'dragging', value: 'true' } })).join('\n'), /hoverIn: it stands beside hoverBy/);
+  assert.match(declarationProblems(crumbDeclared({ hoverIn, onlyBy: { axis: 'dragging', value: 'true' } })).join('\n'), /hoverIn: it stands beside onlyBy/);
+  assert.match(declarationProblems(crumbDeclared({ hoverIn: { axis: 'linked', value: 'true' }, selectedBy: { axis: 'linked', value: 'true' } }, ['fill'], ['rest', 'hover', 'selected'])).join('\n'), /hoverIn: it shares the axis linked with selectedBy/);
+});

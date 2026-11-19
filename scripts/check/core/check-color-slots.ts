@@ -220,6 +220,7 @@ export function manifestProblems(c: SlotCatalogue, manifests: Manifests): string
       ...(m.selectedBy && m.states.includes('rest') ? [[m.selectedBy.axis, m.selectedBy.value] as [string, string]] : []),
       ...(m.disabledBy && m.states.some((st) => DISABLED.has(st)) ? [[m.disabledBy.axis, m.disabledBy.value] as [string, string]] : []),
       ...(m.hoverBy && m.states.includes('hover') ? [[m.hoverBy.axis, m.hoverBy.value] as [string, string]] : []),
+      ...(m.hoverIn && m.states.some((st) => st === 'hover' || st === 'pressed') ? [[m.hoverIn.axis, m.hoverIn.value] as [string, string]] : []),
       ...(m.onlyBy ? [[m.onlyBy.axis, m.onlyBy.value] as [string, string]] : [])];
     for (const [axis, value] of branches) {
       if (!Object.hasOwn(manifest.variants?.[axis] ?? {}, value)) out.push(`members.${key}: ${comp} declares no variant ${axis}=${value}`);
@@ -260,12 +261,20 @@ const MODIFIER: Record<string, string> = {
   rest: '', hover: 'hover:', pressed: 'active:', disabled: 'disabled:', selected: '', 'selected-hover': 'hover:', 'selected-pressed': 'active:', 'selected-disabled': 'disabled:',
 };
 const UTILITY: Record<string, string> = { fill: 'bg-[color:', ink: 'text-[color:', edge: 'border-[color:', icon: '[--arena-icon-ink:' };
+const RULE = 'shadow-[inset_0_calc(var(--bw-strong)*-1)_0_';
 const VARIANT = /^(?:[a-z][a-z0-9-]*:)+/;
 
 const reads = (token: string, modifier: string, property: string, expected: string[]) => {
   const prefix = VARIANT.exec(token)?.[0] ?? '';
   return prefix === modifier && token.slice(prefix.length).startsWith(UTILITY[property] ?? '?') && expected.some((one) => token.includes(one));
 };
+
+const utilityOf = (m: MemberPart, property: string) => (property === 'edge' && m.edgeAs === 'rule' ? RULE : UTILITY[property]);
+const modifierOf = (m: MemberPart, s: ColorSlot) => {
+  if (DISABLED.has(s.state) && m.disabledModifier !== undefined) return m.disabledModifier;
+  return (m.disabledBy && DISABLED.has(s.state)) || (m.hoverBy && s.state === 'hover') ? '' : MODIFIER[s.state] ?? '';
+};
+const whereOf = (branch: [string, string][]) => (branch.length ? branch.map(([axis, value]) => `the ${axis}=${value} branch`).join(' and ') : 'the base class');
 
 const inlineMember = (c: SlotCatalogue, m: MemberPart) => m.inline === true || m.channels === undefined && memberSlots(c, m).every(([, s]) => s.channel === undefined);
 
@@ -279,6 +288,7 @@ const branchOf = (m: MemberPart, s: ColorSlot): [string, string][] => {
   if (m.selectedBy && m.states.includes('rest') && s.state.startsWith('selected')) out.push([m.selectedBy.axis, m.selectedBy.value]);
   if (m.disabledBy && DISABLED.has(s.state)) out.push([m.disabledBy.axis, m.disabledBy.value]);
   if (m.hoverBy && s.state === 'hover') out.push([m.hoverBy.axis, m.hoverBy.value]);
+  if (m.hoverIn && (s.state === 'hover' || s.state === 'pressed')) out.push([m.hoverIn.axis, m.hoverIn.value]);
   return out;
 };
 
@@ -315,13 +325,23 @@ export function memberReadProblems(c: SlotCatalogue, manifests: Manifests): stri
     }
     for (const [name, s] of memberSlots(c, m)) {
       const branch = branchOf(m, s);
-      const modifier = (m.disabledBy && DISABLED.has(s.state)) || (m.hoverBy && s.state === 'hover') ? '' : MODIFIER[s.state] ?? '';
-      const want = `${UTILITY[s.property]}${memberValue(c, key, name, 'tailwind')}]`;
-      const found = branchTexts(manifest, part, branch).some((text) => text.split(/\s+/).some((token) => {
+      const modifier = modifierOf(m, s);
+      const want = `${utilityOf(m, s.property)}${memberValue(c, key, name, 'tailwind')}]`;
+      const holds = (at: [string, string][]) => branchTexts(manifest, part, at).some((text) => text.split(/\s+/).some((token) => {
         const prefix = VARIANT.exec(token)?.[0] ?? '';
         return prefix === modifier && token.slice(prefix.length) === want;
       }));
-      if (!found) out.push(`${key}: ${name} is not read as ${modifier}${want} in ${branch.length ? branch.map(([axis, value]) => `the ${axis}=${value} branch`).join(' and ') : 'the base class'}`);
+      const twin = m.selectedBy !== undefined && (s.state === 'hover' || s.state === 'pressed') && modifier !== ''
+        ? memberSlots(c, m).find(([, one]) => one.option === s.option && one.property === s.property && one.state === `selected-${s.state}`)?.[0] : undefined;
+      if (twin !== undefined) {
+        const unselected: [string, string][] = [...branch, [m.selectedBy!.axis, m.selectedBy!.value === 'true' ? 'false' : 'true']];
+        if (m.selectedBy!.value === 'true' && holds(unselected)) continue;
+        if (holds(branch)) {
+          out.push(`${key}: ${name} is read under ${modifier} in ${whereOf(branch)} and ${twin} under ${modifier} in ${whereOf([...branch, [m.selectedBy!.axis, m.selectedBy!.value]])}, and a selected part matches both with no rule for their order (R4): read ${name} in ${whereOf(unselected)}`);
+          continue;
+        }
+      }
+      if (!holds(branch)) out.push(`${key}: ${name} is not read as ${modifier}${want} in ${whereOf(branch)}`);
     }
     const held = new Set<string>();
     for (const [still, moving] of hoverless(c, m)) {
@@ -365,7 +385,7 @@ export function fadeProblems(c: SlotCatalogue, manifests: Manifests): string[] {
       const branch = branchOf(m, s);
       if (seen.has(marker + JSON.stringify(branch))) continue;
       seen.add(marker + JSON.stringify(branch));
-      const carried = textsUnder(manifest, part, branch).some((text) => text.split(/\s+/).some((token) => token === marker || token === `disabled:${marker}`));
+      const carried = textsUnder(manifest, part, branch).some((text) => text.split(/\s+/).some((token) => token === marker || token === `${m.disabledModifier ?? 'disabled:'}${marker}`));
       if (!carried) {
         const where = branch.length ? branch.map(([axis, value]) => `the ${axis}=${value} branch`).join(' and ') : 'the base class';
         out.push(`${key}: it reads ${name} and fades, and no class of ${where} or a branch under it carries ${marker}, so an answered ${s.state} slot never stops the fade (D8)`);
@@ -431,7 +451,7 @@ const DECLARED = {
   groupPart: ['properties', 'options', 'states', 'channel', 'rest', 'selected', 'on', 'selectedOn', 'decision', 'paintedBy'],
   option: ['states', 'properties', 'rest', 'halo', 'channel', 'decision'],
   member: ['group', 'parts'],
-  memberPart: ['to', 'options', 'states', 'channels', 'defaults', 'decision', 'optionBy', 'selectedBy', 'disabledBy', 'hoverBy', 'onlyBy', 'inkFrom', 'properties', 'inline'],
+  memberPart: ['to', 'options', 'states', 'channels', 'defaults', 'decision', 'optionBy', 'selectedBy', 'disabledBy', 'hoverBy', 'onlyBy', 'hoverIn', 'edgeAs', 'disabledModifier', 'inkFrom', 'properties', 'inline'],
   exception: ['default', 'decision', 'level'],
 };
 const DECISION = /^[DR]\d+$/;
@@ -544,7 +564,7 @@ export function declarationProblems(d: SlotDeclarations): string[] {
       if (axes.length > 0 && (to.options ?? []).filter((o) => !axes.some((one) => Object.values(one.values ?? {}).includes(o))).length > 1) {
         out.push(`${where}.optionBy: more than one option is left with no value, and only the base option has none`);
       }
-      const branch = (key: 'selectedBy' | 'disabledBy' | 'hoverBy' | 'onlyBy', others: ('optionBy' | 'selectedBy' | 'disabledBy' | 'hoverBy')[]) => {
+      const branch = (key: 'selectedBy' | 'disabledBy' | 'hoverBy' | 'onlyBy' | 'hoverIn', others: ('optionBy' | 'selectedBy' | 'disabledBy' | 'hoverBy')[]) => {
         const one = to[key];
         if (one === undefined) return;
         if (typeof one.axis !== 'string' || one.axis === '' || typeof one.value !== 'string') { out.push(`${where}.${key}: it names an axis and a value`); return; }
@@ -557,6 +577,14 @@ export function declarationProblems(d: SlotDeclarations): string[] {
       branch('disabledBy', ['optionBy', 'selectedBy']);
       branch('hoverBy', ['optionBy', 'selectedBy', 'disabledBy']);
       branch('onlyBy', ['optionBy', 'selectedBy', 'disabledBy', 'hoverBy']);
+      branch('hoverIn', ['optionBy', 'selectedBy', 'disabledBy']);
+      for (const other of ['hoverBy', 'onlyBy'] as const) if (to.hoverIn !== undefined && to[other] !== undefined) out.push(`${where}.hoverIn: it stands beside ${other}, and a member reads its hover in one branch or under one axis`);
+      const [homeGroup, homePart] = String(to.to).split('.');
+      const homeProps = to.properties ?? d.groups?.[homeGroup as string]?.parts?.[homePart as string]?.properties ?? [];
+      if (to.edgeAs !== undefined && to.edgeAs !== 'rule') out.push(`${where}.edgeAs: "${String(to.edgeAs)}" is not "rule"`);
+      else if (to.edgeAs !== undefined && !homeProps.includes('edge')) out.push(`${where}.edgeAs: ${to.to} paints no edge to draw as a rule`);
+      if (to.disabledModifier !== undefined && to.disabledModifier !== 'aria-disabled:') out.push(`${where}.disabledModifier: "${String(to.disabledModifier)}" is not "aria-disabled:"`);
+      else if (to.disabledModifier !== undefined && to.disabledBy !== undefined) out.push(`${where}.disabledModifier: it stands beside disabledBy, and a member reads its disabled states under one of them`);
       if (to.properties !== undefined) {
         const [group, partName] = String(to.to).split('.');
         const painted = d.groups?.[group as string]?.parts?.[partName as string]?.properties ?? [];

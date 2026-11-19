@@ -29,7 +29,7 @@ export type GroupPart = {
 export type MemberDecl = {
   to: string; options: string[]; states: StateSpec; channels?: Record<string, string>; defaults?: Record<string, string>; decision?: string;
   optionBy?: OptionAxis | OptionAxis[]; selectedBy?: { axis: string; value: string };
-  disabledBy?: { axis: string; value: string }; hoverBy?: { axis: string; value: string }; onlyBy?: { axis: string; value: string }; inkFrom?: string; properties?: string[]; inline?: true;
+  disabledBy?: { axis: string; value: string }; hoverBy?: { axis: string; value: string }; onlyBy?: { axis: string; value: string }; hoverIn?: { axis: string; value: string }; edgeAs?: 'rule'; disabledModifier?: string; inkFrom?: string; properties?: string[]; inline?: true;
 };
 
 export type SlotDeclarations = {
@@ -154,6 +154,9 @@ export function deriveSlots(d: SlotDeclarations): SlotCatalogue {
       if (to.disabledBy) one.disabledBy = to.disabledBy;
       if (to.hoverBy) one.hoverBy = to.hoverBy;
       if (to.onlyBy) one.onlyBy = to.onlyBy;
+      if (to.hoverIn) one.hoverIn = to.hoverIn;
+      if (to.edgeAs) one.edgeAs = to.edgeAs;
+      if (to.disabledModifier) one.disabledModifier = to.disabledModifier;
       if (to.inkFrom) one.inkFrom = to.inkFrom;
       if (to.properties) one.properties = to.properties as MemberPart['properties'];
       if (to.inline) one.inline = true;

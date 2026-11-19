@@ -130,3 +130,16 @@ test('the halo follows the edge it belongs to', () => {
   assert.match(haloValue(moved, 'ArenaTextarea.field', 'error'), /var\(--fields-error-field-edge-rest,var\(--hue-warning-edge\)\)_var\(--level-hue-soft-danger\)/,
     'moving the edge moves the halo with it');
 });
+
+test('a member declaring hoverIn, edgeAs and disabledModifier carries them into the catalogue', async () => {
+  const { deriveSlots } = await import('../../../lib/core/color-slots.ts');
+  const { slotFixture } = await import('../../../lib/core/color-slots-fixture.ts');
+  const keys = { hoverIn: { axis: 'linked', value: 'true' }, edgeAs: 'rule' as const, disabledModifier: 'aria-disabled:' };
+  const built = deriveSlots(slotFixture(
+    { box: { properties: ['edge'], states: ['rest', 'hover', 'disabled'], rest: { edge: '{edge-control}' } } },
+    { ArenaCrumb: { group: 'choices', parts: { box: { to: 'choices.box', options: [], states: ['rest', 'hover', 'disabled'], ...keys } } } },
+    'choices',
+  ));
+  const m = built.members['ArenaCrumb.box'];
+  assert.deepEqual({ hoverIn: m?.hoverIn, edgeAs: m?.edgeAs, disabledModifier: m?.disabledModifier }, keys);
+});
