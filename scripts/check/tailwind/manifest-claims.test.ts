@@ -317,7 +317,7 @@ export const CLAIMS = {
     { slot: 'td', has: ['table-cell'], why: 'a row and a cell need the table display utilities to work as custom-element hosts' },
   ],
   ArenaTag: [
-    { chosen: { disabled: true }, slot: 'close', has: ['opacity-[var(--fade-disabled)]', 'cursor-not-allowed'], hasNot: ['text-ink-muted/40'], why: 'a disabled control keeps its rest ink and fades by the role the skin answers' },
+    { chosen: { disabled: true }, slot: 'close', has: ['opacity-[var(--actions-dismiss-fade-disabled,var(--fade-disabled))]', 'cursor-not-allowed'], hasNot: ['text-ink-muted/40', 'opacity-[var(--fade-disabled)]'], why: 'a disabled close keeps its rest ink and fades by its own marker, so an answered disabled dismiss slot stops the fade' },
     { chosen: { tone: 'danger' }, slot: 'root', has: [EDGE, INK], hasNot: ['bg-error'], why: 'danger draws its border and text in the danger hue, with no background of its own' },
     ...hueClaims('root', Object.fromEntries(['success', 'warning'].map((tone) => [tone, [EDGE, INK]]))),
     ...[1, 2, 3, 4, 5, 6, 7, 8].map((id) => ({ chosen: { colorId: String(id) }, slot: 'root', has: [EDGE, INK], why: HUE_WHY })),
@@ -378,6 +378,8 @@ export const CLAIMS = {
     { chosen: { destructive: true }, slot: 'eyebrow', has: [INK], why: HUE_WHY },
     { chosen: { destructive: true }, slot: 'confirm', has: ['bg-[color:var(--actions-destructive-root-fill-rest,var(--hue-danger-fill-strong))]', 'text-[color:var(--actions-destructive-root-ink-rest,var(--hue-danger-ink))]'], hasNot: ['bg-error', 'bg-error-fill', STRONG, 'bg-confirm-final', 'text-ink-confirm-final'], why: 'the final confirmation reads the actions group\'s destructive option, so the answer that moves a destructive Button moves it' },
     { chosen: { destructive: false }, slot: 'confirm', has: ['bg-[color:var(--actions-primary-root-fill-rest,var(--emphasis-primary-fill))]', 'text-[color:var(--actions-primary-root-ink-rest,var(--emphasis-primary-ink))]'], hasNot: ['bg-confirm-final', 'bg-primary-fill'], why: 'a confirmation that is not destructive reads the actions group\'s primary option' },
+    { chosen: { destructive: true }, slot: 'confirm', has: ['disabled:opacity-[var(--actions-destructive-root-fade-disabled,var(--fade-disabled))]'], hasNot: ['disabled:opacity-[var(--fade-disabled)]'], why: 'a locked destructive confirmation fades by the destructive marker, so an answered disabled slot stops the fade' },
+    { chosen: { destructive: false }, slot: 'confirm', has: ['disabled:opacity-[var(--actions-primary-root-fade-disabled,var(--fade-disabled))]'], hasNot: ['disabled:opacity-[var(--fade-disabled)]'], why: 'a locked confirmation fades by the primary marker, so an answered disabled slot stops the fade' },
     { chosen: { open: true }, slot: 'foot', has: ['flex-wrap'], why: 'the footer wraps the way ArenaDialog, ArenaPageHead and ArenaChartCard all do, and a third action row behaving differently is worse than none' },
     { chosen: { open: true }, slot: 'root', has: ['flex'], why: 'the root carries a display utility in its own base string, independent of the open variant' },
     { slot: 'input', has: ['focus-visible:ring-edge-focus'], hasNot: ['focus-visible:ring-error'], why: 'the require-text input focus reads the focus role like every field, and never the danger hue' },
@@ -586,7 +588,7 @@ export const CLAIMS = {
   ],
   ArenaPagination: [
     { slot: 'root', has: ['inline-flex', 'items-center'], why: 'a host-bound root is never the UA-default inline box' },
-    { slot: 'nav', has: ['disabled:opacity-[var(--fade-disabled)]', 'disabled:cursor-not-allowed'], hasNot: ['disabled:text-ink-muted/40'], why: 'an unreachable step says so through a :disabled variant, which only a real disabled control matches' },
+    { slot: 'nav', has: ['disabled:opacity-[var(--actions-secondary-root-fade-disabled,var(--fade-disabled))]', 'disabled:cursor-not-allowed'], hasNot: ['disabled:text-ink-muted/40', 'disabled:opacity-[var(--fade-disabled)]'], why: 'an unreachable step says so through a :disabled variant, which only a real disabled control matches, and fades by its own marker' },
     { chosen: { current: true }, slot: 'page', has: ['bg-primary-fill', 'text-primary-content'], why: 'the current page is the one filled control in the row' },
     { chosen: { current: false }, slot: 'page', has: ['bg-transparent'], hasNot: ['bg-primary-fill'], why: 'the current page is the one filled control in the row' },
     { slot: 'page', has: ['min-h-ctl-h-sm', 'min-w-ctl-h-sm', 'border-[length:var(--bw-control)]'], why: 'the shared box is set once on the page slot, so a state slot never fights it, and it reads the density rather than a step, so a page number is a target a thumb can hit in the density chosen for one' },

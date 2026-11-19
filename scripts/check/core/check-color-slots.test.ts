@@ -2,7 +2,7 @@ import test from 'node:test';
 import { readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
-import { collect, mapProblems, declarationProblems, exceptionProblems, memberDefaultProblems, shapeProblems, nameProblems, acceptsProblems, defaultProblems, fallbackProblems, pairProblems, manifestProblems, ringProblems, readProblems, memberReadProblems, familyProblems, colourRoleSet, slotManifests, EMPHASIS_FAMILY } from './check-color-slots.ts';
+import { collect, mapProblems, declarationProblems, exceptionProblems, memberDefaultProblems, shapeProblems, nameProblems, acceptsProblems, defaultProblems, fallbackProblems, pairProblems, manifestProblems, ringProblems, readProblems, memberReadProblems, fadeProblems, familyProblems, colourRoleSet, slotManifests, EMPHASIS_FAMILY } from './check-color-slots.ts';
 import { deriveSlots, readColorSlots, readSlotDeclarations } from '../../lib/core/color-slots.ts';
 import type { GroupOption, MemberDecl, SlotDeclarations } from '../../lib/core/color-slots.ts';
 import { readJson } from '../../utils/read-file.ts';
@@ -784,4 +784,82 @@ test('a field fades and hovers by its own option, and the compounds that carry t
     assert.deepEqual(kinds, ['rest', 'dragging', 'disabled'], `${state}: where() carries no specificity, so the rest compound comes first and a drag or a disable overrides it`);
   }
   assert.equal(c.members['ArenaFileInput.zone']?.onlyBy?.axis, 'droppable');
+});
+
+const twinDeclared = () => {
+  const d = fieldDeclared(fieldMember({ optionBy: [{ axis: 'state', values: { plain: 'plain', error: 'error' } }, { axis: 'readOnly', values: { true: 'readonly' } }] }));
+  (d.groups!.choices!.parts.field!.options as Record<string, GroupOption>).readonly!.states = ['rest'];
+  return d;
+};
+const twinRead = (c: SlotCatalogue, name: string, hover: boolean) =>
+  `${hover ? 'hover:' : ''}${name.includes('-fill-') ? 'bg-[color:' : 'border-[color:'}${memberValue(c, 'ArenaField.field', name, 'tailwind')}]`;
+const twinManifest = (c: SlotCatalogue, readonly: string, compound: (option: string) => string) => new Map([['ArenaField', {
+  component: 'ArenaField', slots: { field: '' },
+  variants: {
+    state: { plain: { field: `${reads(c, 'plain', 'fill')} ${reads(c, 'plain', 'edge')}` }, error: { field: `${reads(c, 'error', 'fill')} ${reads(c, 'error', 'edge')}` } },
+    readOnly: { true: { field: readonly } },
+  },
+  compoundVariants: ['plain', 'error'].map((option) => ({ readOnly: true, state: option, class: { field: compound(option) } })),
+} as never]]);
+
+test('an option that derives no hover holds its rest under hover, and the edge it does not paint holds the other option\'s rest (D73)', () => {
+  const d = twinDeclared();
+  assert.deepEqual(declarationProblems(d), []);
+  const c = deriveSlots(d);
+  assert.equal(c.slots['choices-readonly-field-fill-hover'], undefined, 'the readonly option derives no hover');
+  const rest = twinRead(c, 'choices-readonly-field-fill-rest', false);
+  const fill = twinRead(c, 'choices-readonly-field-fill-rest', true);
+  const edge = (option: string) => twinRead(c, `choices-${option}-field-edge-rest`, true);
+  assert.deepEqual(memberReadProblems(c, twinManifest(c, `${rest} ${fill}`, edge)), []);
+  assert.deepEqual(memberReadProblems(c, twinManifest(c, rest, edge)),
+    [`ArenaField.field: choices-readonly-field-fill-rest is not held as ${fill} in the readOnly=true branch, so a hovered readonly field takes another option's hover (D73)`]);
+  assert.deepEqual(memberReadProblems(c, twinManifest(c, `${rest} ${fill}`, (option) => (option === 'error' ? '' : edge(option)))),
+    [`ArenaField.field: choices-error-field-edge-rest is not held as ${edge('error')} in the readOnly=true branch and the state=error branch, so a hovered readonly field takes another option's hover (D73)`]);
+  const hovering = fieldDeclared(fieldMember({ optionBy: [{ axis: 'state', values: { plain: 'plain', error: 'error' } }, { axis: 'readOnly', values: { true: 'readonly' } }] }));
+  const h = deriveSlots(hovering);
+  assert.ok(memberReadProblems(h, twinManifest(h, `${twinRead(h, 'choices-readonly-field-fill-rest', false)} ${twinRead(h, 'choices-readonly-field-fill-hover', true)}`, () => ''))
+    .every((l) => !/held as/.test(l)), 'an option that derives its own hover needs no twin');
+});
+
+test('the shipped readonly fields hold their rest under hover (D73)', () => {
+  const c = readColorSlots();
+  for (const comp of ['ArenaInput', 'ArenaNumberField', 'ArenaTextarea']) {
+    const branch = (manifests.get(comp) as any).variants.readOnly.true.field as string;
+    const want = `hover:bg-[color:${memberValue(c, `${comp}.field`, 'fields-readonly-field-fill-rest', 'tailwind')}]`;
+    assert.ok(branch.split(/\s+/).includes(want), `${comp}: the readOnly=true branch holds ${want}`);
+  }
+  const dropped = structuredClone(manifests) as Map<string, any>;
+  const input = dropped.get('ArenaInput').variants.readOnly.true;
+  input.field = input.field.split(/\s+/).filter((t: string) => !t.startsWith('hover:')).join(' ');
+  assert.match(memberReadProblems(c, dropped).join('\n'), /ArenaInput\.field: fields-readonly-field-fill-rest is not held as hover:/);
+});
+
+test('a channel-less member that reads a disabled slot and fades carries that slot\'s marker fade (D8)', () => {
+  const c = readColorSlots();
+  assert.deepEqual(fadeProblems(c, manifests), []);
+  const plain = (comp: string, at: (m: any) => Record<string, string>, part: string) => {
+    const broken = structuredClone(manifests) as Map<string, any>;
+    const where = at(broken.get(comp));
+    where[part] = where[part]!.replace(/opacity-\[var\(--[a-z0-9-]+-fade-disabled,var\(--fade-disabled\)\)\]/, 'opacity-[var(--fade-disabled)]');
+    return fadeProblems(c, broken);
+  };
+  assert.deepEqual(plain('ArenaPagination', (m) => m.slots, 'nav'),
+    ['ArenaPagination.nav: it reads actions-secondary-root-edge-disabled and fades, and no class of the base class or a branch under it carries opacity-[var(--actions-secondary-root-fade-disabled,var(--fade-disabled))], so an answered disabled slot never stops the fade (D8)']);
+  assert.deepEqual(plain('ArenaConfirmDialog', (m) => m.variants.destructive.true, 'confirm'),
+    ['ArenaConfirmDialog.confirm: it reads actions-destructive-root-edge-disabled and fades, and no class of the destructive=true branch or a branch under it carries opacity-[var(--actions-destructive-root-fade-disabled,var(--fade-disabled))], so an answered disabled slot never stops the fade (D8)']);
+  assert.match(plain('ArenaTag', (m) => m.variants.disabled.true, 'close').join('\n'), /^ArenaTag\.close: it reads actions-dismiss-[a-z]+-disabled and fades, .*--actions-dismiss-fade-disabled/);
+  const still = structuredClone(manifests) as Map<string, any>;
+  still.get('ArenaPagination').slots.nav = still.get('ArenaPagination').slots.nav.split(/\s+/).filter((t: string) => !t.includes('opacity-')).join(' ');
+  assert.deepEqual(fadeProblems(c, still), [], 'a member that never fades has no fade an answer could stop');
+});
+
+test('ArenaTag.close is no native control and reads its disabled states in its disabled=true branch (D71)', () => {
+  const c = readColorSlots();
+  assert.deepEqual(c.members['ArenaTag.close']?.disabledBy, { axis: 'disabled', value: 'true' });
+  const close = (manifests.get('ArenaTag') as any).slots.close as string;
+  assert.ok(!/(^|\s)disabled:/.test(close), 'the close carries aria-disabled, so a disabled: read never matches');
+  const branch = (manifests.get('ArenaTag') as any).variants.disabled.true.close as string;
+  for (const token of branch.split(/\s+/).filter((t) => /^(bg|text)-\[color:|^\[--arena-icon-ink:/.test(t))) {
+    for (const modifier of ['hover:', 'active:']) assert.ok(branch.split(/\s+/).includes(`${modifier}${token}`), `${modifier}${token}: a hovered or pressed disabled close keeps its disabled answer`);
+  }
 });

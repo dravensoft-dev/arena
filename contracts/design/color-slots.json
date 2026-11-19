@@ -2365,7 +2365,11 @@
         "close": {
           "to": "actions.dismiss",
           "options": [],
-          "states": "base"
+          "states": "base",
+          "disabledBy": {
+            "axis": "disabled",
+            "value": "true"
+          }
         }
       }
     },

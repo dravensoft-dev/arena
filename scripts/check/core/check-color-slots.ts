@@ -284,6 +284,17 @@ const branchTexts = (manifest: ComponentManifest, part: string, branch: [string,
   return (manifest.compoundVariants ?? []).filter((cv) => branch.every(([axis, value]) => String(cv[axis]) === value)).flatMap((cv) => text((cv.class as Record<string, unknown>)[part]));
 };
 
+const hoverless = (c: SlotCatalogue, m: MemberPart) => {
+  const slots = memberSlots(c, m);
+  const has = (option: string, state: string) => slots.some(([, s]) => s.option === option && s.state === state);
+  const axisOf = (option: string) => optionAxes(m).find((one) => Object.values(one.values).includes(option));
+  const without = m.states.includes('hover') ? m.options.filter((o) => has(o, 'rest') && !has(o, 'hover') && axisOf(o)) : [];
+  return without.flatMap((o) => m.options.filter((p) => has(p, 'hover') && axisOf(p) && axisOf(p)!.axis !== axisOf(o)!.axis).map((p) => [o, p] as [string, string]));
+};
+
+const heldAt = (manifest: ComponentManifest, part: string, branch: [string, string][], want: string) =>
+  branchTexts(manifest, part, branch).some((text) => text.split(/\s+/).includes(want));
+
 export function memberReadProblems(c: SlotCatalogue, manifests: Manifests): string[] {
   const out: string[] = [];
   for (const [key, m] of Object.entries(c.members ?? {})) {
@@ -304,6 +315,54 @@ export function memberReadProblems(c: SlotCatalogue, manifests: Manifests): stri
         return prefix === modifier && token.slice(prefix.length) === want;
       }));
       if (!found) out.push(`${key}: ${name} is not read as ${modifier}${want} in ${branch.length ? branch.map(([axis, value]) => `the ${axis}=${value} branch`).join(' and ') : 'the base class'}`);
+    }
+    const held = new Set<string>();
+    for (const [still, moving] of hoverless(c, m)) {
+      for (const [, s] of memberSlots(c, m).filter(([, one]) => one.option === moving && one.state === 'hover')) {
+        const paints = memberSlots(c, m).find(([, one]) => one.option === still && one.state === 'rest' && one.property === s.property);
+        const [name, rest] = paints ?? [expectedName({ ...s, state: 'rest' }), { ...s, state: 'rest' } as ColorSlot];
+        const branch = paints ? branchOf(m, rest) : [...branchOf(m, { ...rest, option: still }), ...branchOf(m, rest).filter(([axis]) => !(m.onlyBy && axis === m.onlyBy.axis))];
+        const want = `hover:${UTILITY[s.property]}${memberValue(c, key, name, 'tailwind')}]`;
+        const where = branch.map(([axis, value]) => `the ${axis}=${value} branch`).join(' and ');
+        if (held.has(`${name} ${where}`)) continue;
+        held.add(`${name} ${where}`);
+        if (!heldAt(manifest, part, branch, want)) out.push(`${key}: ${name} is not held as ${want} in ${where}, so a hovered ${still} field takes another option's hover (D73)`);
+      }
+    }
+  }
+  return out;
+}
+
+const FADES = /opacity-\[var\(--(?:[a-z0-9-]+-)?fade-/;
+
+const textsUnder = (manifest: ComponentManifest, part: string, branch: [string, string][]): string[] => {
+  const text = (v: unknown) => (typeof v === 'string' ? [v] : []);
+  const holds = (conditions: Record<string, unknown>) => branch.every(([axis, value]) => String(conditions[axis]) === value);
+  return [
+    ...(branch.length === 0 ? text((manifest.slots as Record<string, unknown> | undefined)?.[part]) : []),
+    ...Object.entries(manifest.variants ?? {}).flatMap(([axis, values]) => Object.entries(values).filter(([value]) => holds({ [axis]: value })).flatMap(([, one]) => text((one as Record<string, unknown>)[part]))),
+    ...(manifest.compoundVariants ?? []).filter((cv) => holds(cv as Record<string, unknown>)).flatMap((cv) => text((cv.class as Record<string, unknown>)[part])),
+  ];
+};
+
+export function fadeProblems(c: SlotCatalogue, manifests: Manifests): string[] {
+  const out: string[] = [];
+  for (const [key, m] of Object.entries(c.members ?? {})) {
+    const [comp, part] = key.split('.') as [string, string];
+    const manifest = manifests.get(comp);
+    if (!manifest || !(classesOf(manifest)[part] ?? []).some((text) => FADES.test(text))) continue;
+    const seen = new Set<string>();
+    for (const [name, s] of memberSlots(c, m)) {
+      if (!DISABLED.has(s.state) || !(inlineMember(c, m) || s.channel === undefined)) continue;
+      const marker = `opacity-[var(--${[s.group, ...(s.option === undefined ? [] : [s.option]), s.part].join('-')}-fade-${s.state},var(--fade-disabled))]`;
+      const branch = branchOf(m, s);
+      if (seen.has(marker + JSON.stringify(branch))) continue;
+      seen.add(marker + JSON.stringify(branch));
+      const carried = textsUnder(manifest, part, branch).some((text) => text.split(/\s+/).some((token) => token === marker || token === `disabled:${marker}`));
+      if (!carried) {
+        const where = branch.length ? branch.map(([axis, value]) => `the ${axis}=${value} branch`).join(' and ') : 'the base class';
+        out.push(`${key}: it reads ${name} and fades, and no class of ${where} or a branch under it carries ${marker}, so an answered ${s.state} slot never stops the fade (D8)`);
+      }
     }
   }
   return out;
@@ -623,7 +682,7 @@ export function collect(root = repoRoot): string[] {
   if (shape.length) return shape;
   return [
     ...nameProblems(c), ...acceptsProblems(c, roles), ...defaultProblems(c, roles), ...memberDefaultProblems(c, roles), ...fallbackProblems(c),
-    ...pairProblems(c, d), ...manifestProblems(c, manifests), ...ringProblems(c, manifests), ...readProblems(c, manifests), ...memberReadProblems(c, manifests),
+    ...pairProblems(c, d), ...manifestProblems(c, manifests), ...ringProblems(c, manifests), ...readProblems(c, manifests), ...memberReadProblems(c, manifests), ...fadeProblems(c, manifests),
     ...familyProblems(c, readJson(join(root, EMPHASIS_FAMILY)) as { variants?: Record<string, string> }),
     ...mapProblems(d, colouredParts(root), manifests, root),
   ];

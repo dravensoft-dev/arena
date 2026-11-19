@@ -59,7 +59,7 @@
     },
     "readOnly": {
       "true": {
-        "field": "bg-[color:var(--fields-readonly-field-fill-rest,var(--fill-surface))]",
+        "field": "bg-[color:var(--fields-readonly-field-fill-rest,var(--fill-surface))] hover:bg-[color:var(--fields-readonly-field-fill-rest,var(--fill-surface))]",
         "input": "cursor-default"
       },
       "false": {}
@@ -72,6 +72,27 @@
     "readOnly": false
   },
   "compoundVariants": [
+    {
+      "readOnly": true,
+      "state": "neutral",
+      "class": {
+        "field": "hover:border-[color:var(--fields-neutral-field-edge-rest,var(--edge-field))]"
+      }
+    },
+    {
+      "readOnly": true,
+      "state": "error",
+      "class": {
+        "field": "hover:border-[color:var(--fields-error-field-edge-rest,var(--edge-invalid))]"
+      }
+    },
+    {
+      "readOnly": true,
+      "state": "valid",
+      "class": {
+        "field": "hover:border-[color:var(--fields-valid-field-edge-rest,var(--hue-success-edge))]"
+      }
+    },
     {
       "state": "error",
       "disabled": true,

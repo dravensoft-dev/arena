@@ -123,6 +123,11 @@ const COMPOSITIONS: Record<string, () => React.ReactElement> = {
   'fields-error-zone-draws-no-field-unless-droppable': () => <ArenaFileInput label="Upload" error="Too big" />,
   'answered-disabled-field-keeps-its-answer-while-hovered': () => <div style={answered({ '--fields-neutral-field-fill-disabled': 'var(--fill-surface)' })}><ArenaInput label="Email" disabled /></div>,
   'hovered-enabled-field-takes-its-hover-answer': () => <div style={answered({ '--fields-neutral-field-fill-hover': 'var(--fill-surface)' })}><ArenaInput label="Email" /></div>,
+  'hovered-readonly-field-keeps-its-readonly-fill': () => <ArenaInput label="Email" readOnly />,
+  'answered-disabled-dismiss-stops-the-fade': () => <>
+    <div><ArenaTag removable disabled>europe-west</ArenaTag></div>
+    <div style={answered({ '--actions-dismiss-ink-disabled': 'var(--ink-body)', '--actions-dismiss-fade-disabled': '1' })}><ArenaTag removable disabled>europe-west</ArenaTag></div>
+  </>,
   'hover-answer-is-not-derived-from-the-rest-answer': () => <div style={answered({ '--actions-primary-root-fill-rest': 'var(--fill-surface)', '--actions-primary-root-fill-hover': 'var(--fill-hover)' })}><ArenaButton>Save</ArenaButton></div>,
 };
 
@@ -175,6 +180,8 @@ const SUBJECT: Record<string, { part: string; at: number }> = {
   'fields-error-zone-draws-no-field-unless-droppable': { part: 'file-input.zone', at: 0 },
   'answered-disabled-field-keeps-its-answer-while-hovered': { part: 'input.field', at: 0 },
   'hovered-enabled-field-takes-its-hover-answer': { part: 'input.field', at: 0 },
+  'hovered-readonly-field-keeps-its-readonly-fill': { part: 'input.field', at: 0 },
+  'answered-disabled-dismiss-stops-the-fade': { part: 'tag.close', at: -1 },
   'class-on-copy-button-reaches-the-icon-button-it-draws': { part: 'icon-button', at: 0 },
 };
 

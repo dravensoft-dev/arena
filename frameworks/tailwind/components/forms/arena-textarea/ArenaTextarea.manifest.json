@@ -53,7 +53,7 @@
     },
     "readOnly": {
       "true": {
-        "field": "cursor-default disabled:bg-[color:var(--fields-readonly-field-fill-disabled,var(--fields-readonly-field-fill-rest,var(--fill-surface)))] bg-[color:var(--fields-readonly-field-fill-rest,var(--fill-surface))] disabled:opacity-[var(--fields-readonly-field-fade-disabled,var(--fade-disabled))]"
+        "field": "cursor-default disabled:bg-[color:var(--fields-readonly-field-fill-disabled,var(--fields-readonly-field-fill-rest,var(--fill-surface)))] bg-[color:var(--fields-readonly-field-fill-rest,var(--fill-surface))] hover:bg-[color:var(--fields-readonly-field-fill-rest,var(--fill-surface))] disabled:opacity-[var(--fields-readonly-field-fade-disabled,var(--fade-disabled))]"
       },
       "false": {}
     },
@@ -72,5 +72,21 @@
     "disabled": false,
     "readOnly": false,
     "near": false
-  }
+  },
+  "compoundVariants": [
+    {
+      "readOnly": true,
+      "state": "neutral",
+      "class": {
+        "field": "hover:border-[color:var(--fields-neutral-field-edge-rest,var(--edge-field))] disabled:border-[color:var(--fields-neutral-field-edge-disabled,var(--fields-neutral-field-edge-rest,var(--edge-field)))]"
+      }
+    },
+    {
+      "readOnly": true,
+      "state": "error",
+      "class": {
+        "field": "hover:border-[color:var(--fields-error-field-edge-rest,var(--edge-invalid))] disabled:border-[color:var(--fields-error-field-edge-disabled,var(--fields-error-field-edge-rest,var(--edge-invalid)))]"
+      }
+    }
+  ]
 }
