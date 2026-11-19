@@ -5,7 +5,7 @@
  * then the derived catalogue: each slot's name, the roles a property may be answered with, where a
  * default or derivation may point, what a slot sits on (its fill, a sibling's, its rest, the ground),
  * the member parts that read each slot under its state (a channel-less member reads its chain inline,
- * per axis branch), the chains the Emphasis and Accent families write (R7), and the group map. A
+ * per axis branch), the chains the Emphasis family (R7) and the Accent family (D95) write, and the group map. A
  * member default (D21's grant, R5) is one rest slot of the member's part, unlike the group's answer.
  * paintedByPaths names the files the map stats, so a rename or a delete of one reruns the gate. */
 
@@ -184,6 +184,7 @@ export function pairProblems(c: SlotCatalogue, d: SlotDeclarations = readSlotDec
     let want: string | undefined;
     if (gp.over !== undefined) want = sibling;
     else if (s.property === 'ink' || s.property === 'icon') want = own ?? sibling ?? 'ground';
+    else if (s.property === 'fill' && gp.mark === true && sibling === undefined) want = 'ground';
     else if (s.property === 'fill') want = gp.selectedOn === 'rest' && SELECTED_ON.has(s.state) ? expectedName({ ...s, state: 'rest' }) : sibling;
     else want = sibling ?? own;
     if (s.on !== want) out.push(`${name}: it sits on ${s.on ?? 'nothing'} and the declarations give ${want ?? 'nothing'}`);
@@ -460,7 +461,7 @@ export function stripeProblems(c: SlotCatalogue, manifests: Manifests): string[]
       const read = [`var(--${name},`, ...(channel === undefined ? [] : [`var(${channel},`, `var(${channel})`])];
       for (const token of tokens) {
         const util = token.slice(VARIANT.exec(token)?.[0].length ?? 0);
-        if (SIDE.test(util) && !util.startsWith(STRIPE) && read.some((one) => util.includes(one))) out.add(`${key}: it reads ${name} as ${token}, and a stripe reads its edge on border-l alone (R5)`);
+        if (SIDE.test(util) && !util.startsWith(STRIPE) && read.some((one) => util.includes(one))) out.add(`${key}: it reads ${name} as ${token}, and a stripe reads its edge on border-l alone (D90)`);
       }
     }
   }
@@ -485,13 +486,18 @@ export function familyProblems(c: SlotCatalogue, family: { variants?: Record<str
       } else if (value === undefined) out.push(`${path}: ${option} writes no ${s.channel}, and ${name} is read through it`);
       else if (value !== want) out.push(`${path}: ${option} writes ${s.channel} as ${value}, and the chain of ${name} is ${want}`);
     }
-    const wholes = new Map(slots.map(([, s]) => [`${s.group}-${opt}-${s.part}`, s] as const));
-    for (const [stem, whole] of wholes) {
-      for (const state of ['disabled', 'selected-disabled']) {
-        if (!slots.some(([, s]) => s.group === whole.group && s.part === whole.part && s.state === state)) continue;
-        const marker = `var(--${stem}-fade-${state},`;
-        if (!(written.get(`${prefix}fade-${state}`) ?? '').startsWith(marker)) out.push(`${path}: ${option} writes ${prefix}fade-${state} without ${marker}…), so an answered ${state} slot never stops the fade`);
-      }
+    for (const [name, value] of written) {
+      const owner = Object.entries(c.groups ?? {}).flatMap(([g, one]) => one.parts.map((p) => `${g}.${p}`)).find((gp) => name.startsWith(`${prefix}${gp.replace('.', '-')}-`));
+      if (owner === undefined || slots.some(([, s]) => s.channel === name)) continue;
+      const declared = entries(c).some(([, s]) => s.channel === name);
+      if (!(declared && value.trim() === 'currentColor')) out.push(`${path}: ${option} writes ${name}, a channel of ${owner} that no slot of its ${opt} option declares`);
+    }
+    for (const state of ['disabled', 'selected-disabled']) {
+      const stems = [...new Set(slots.filter(([, s]) => s.state === state).map(([, s]) => `${s.group}-${opt}-${s.part}`))];
+      const channel = `${prefix}fade-${state}`;
+      if (stems.length > 1) { out.push(`${path}: ${option} has one ${channel} channel, and ${stems.join(' and ')} each derive a ${state} slot through it, so one fade cannot stop for both`); continue; }
+      const marker = `var(--${stems[0]}-fade-${state},`;
+      if (stems.length === 1 && !(written.get(channel) ?? '').startsWith(marker)) out.push(`${path}: ${option} writes ${channel} without ${marker}…), so an answered ${state} slot never stops the fade`);
     }
   }
   return out;
@@ -712,7 +718,7 @@ const targetOf = (to: string) => {
 const HUE_READ = /^\[color:var\(--arena-hue-[a-z0-9-]+\)\]$/;
 
 function seriesProblems(key: string, painted: ColouredPart | undefined, manifest: ComponentManifest, part: string, names: ReadonlySet<string>): string[] {
-  if (!painted || painted.keywordsOnly || painted.focusOnly) return [`${key}: it is "series" and paints no colour, and "series" is for a part that paints its series through its hues channel (R6)`];
+  if (!painted || painted.keywordsOnly || painted.focusOnly) return [`${key}: it is "series" and paints no colour, and "series" is for a part that paints its series through its hues channel (D75)`];
   const hued = (axis: string) => Object.hasOwn(manifest.hues ?? {}, axis);
   const text = (v: unknown) => (typeof v === 'string' ? v : '');
   const at: [string, string, boolean][] = [
@@ -729,7 +735,7 @@ function seriesProblems(key: string, painted: ColouredPart | undefined, manifest
     for (const token of classes.split(/\s+/).filter(Boolean)) {
       const read = colourToken(token, names);
       if (!read || read.focus || (ok && HUE_READ.test(read.value))) continue;
-      out.push(`${key}: it is "series" and reads ${token} in ${where}, and a series part paints only var(--arena-hue-…) inside the branches of an axis with a hues entry (R6)`);
+      out.push(`${key}: it is "series" and reads ${token} in ${where}, and a series part paints only var(--arena-hue-…) inside the branches of an axis with a hues entry (D75)`);
     }
   }
   return out;

@@ -6,8 +6,8 @@
  * from its rest. An answer sits inside the level its channel carries, as the emphasis sheet writes
  * it, and a member default is measured as the member paints it, where it moves a pair. Imports
  * nothing outside this directory, because the command ships it. Every pair of a part that sits on
- * another part's fill is a mark at 3:1 (D69), unless it sits over it and keeps each floor (R2), and
- * every pair of a mark part is a mark at 3:1 (R3). */
+ * another part's fill is a mark at 3:1 (D69), unless it sits over it and keeps each floor (D89), and
+ * every pair of a mark part, its fill over the ground among them, is a mark at 3:1 (D92). */
 
 import { contrast } from './validate-palette.mjs';
 import { composite, mixOklab, oklabToHex, toOklab } from './oklab.ts';

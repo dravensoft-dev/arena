@@ -1077,7 +1077,7 @@ test('an edge drawn as a stripe is read on border-l only', () => {
   assert.deepEqual(memberReadProblems(c, crumbManifest(`border-[color:${value}]`)),
     [`ArenaCrumb.box: choices-box-edge-rest is not read as ${stripe} in the base class`]);
   assert.deepEqual(stripeProblems(c, crumbManifest(`${stripe} border-t-[color:${value}]`)),
-    [`ArenaCrumb.box: it reads choices-box-edge-rest as border-t-[color:${value}], and a stripe reads its edge on border-l alone (R5)`]);
+    [`ArenaCrumb.box: it reads choices-box-edge-rest as border-t-[color:${value}], and a stripe reads its edge on border-l alone (D90)`]);
   assert.match(declarationProblems(crumbDeclared({ edgeAs: 'line' as 'rule' }, ['edge'], ['rest'])).join('\n'), /edgeAs: "line" is neither "rule" nor "stripe"/);
 });
 
@@ -1091,10 +1091,10 @@ test('a series part is accepted only where every read is a hues channel', () => 
   const hued = { variants: { colorId: { 1: { dot: hue }, 2: { dot: hue } } }, hues: { colorId: { 1: 'identity-1', 2: 'identity-2' } } };
   assert.deepEqual(seriesLines(hued), []);
   assert.deepEqual(seriesLines({ ...hued, slots: { dot: 'size-1.5 rounded-pill bg-surface' } }),
-    ['ArenaDots.dot: it is "series" and reads bg-surface in the base class, and a series part paints only var(--arena-hue-…) inside the branches of an axis with a hues entry (R6)']);
+    ['ArenaDots.dot: it is "series" and reads bg-surface in the base class, and a series part paints only var(--arena-hue-…) inside the branches of an axis with a hues entry (D75)']);
   assert.deepEqual(seriesLines({ variants: hued.variants }).length, 2, 'an axis with no hues entry is no series branch');
   assert.deepEqual(mapProblems(seriesDeclared(), new Map(), seriesManifest(hued)).filter((line) => line.startsWith('ArenaDots.dot')),
-    ['ArenaDots.dot: it is "series" and paints no colour, and "series" is for a part that paints its series through its hues channel (R6)']);
+    ['ArenaDots.dot: it is "series" and paints no colour, and "series" is for a part that paints its series through its hues channel (D75)']);
 });
 
 const axesDeclared = (optionBy: unknown) => slotFixture({
@@ -1136,6 +1136,22 @@ test('an accent option writes its channel in the accent family', () => {
     [`${ACCENT_FAMILY}: arena-accent-primary writes no --arena-accent-meters-track-ink, and meters-primary-track-ink-rest is read through it`]);
   const accent = readJson(join(repoRoot, ACCENT_FAMILY)) as { variants: Record<string, string> };
   assert.deepEqual(familyProblems(shipped(), accent, ACCENT_FAMILY), [], 'the shipped accent family is clean');
+  assert.deepEqual(familyProblems(c, { variants: { ...family.variants, 'arena-accent-primary': `${write('fill')} ${write('ink')} [--arena-accent-meters-track-edge:red]` } }, ACCENT_FAMILY),
+    [`${ACCENT_FAMILY}: arena-accent-primary writes --arena-accent-meters-track-edge, a channel of meters.track that no slot of its primary option declares`]);
+  assert.deepEqual(familyProblems(c, { variants: { 'arena-accent-ink': '[--arena-accent-meters-track-fill:red]' } }, ACCENT_FAMILY),
+    [`${ACCENT_FAMILY}: arena-accent-ink writes --arena-accent-meters-track-fill, a channel of meters.track that no slot of its ink option declares`], 'only currentColor stands for an option that derives no slot');
+});
+
+test('one fade channel serves one whole of an option', () => {
+  const part = (name: string) => ({ properties: ['fill'], options: { primary: { states: ['rest', 'disabled'], channel: `--arena-accent-meters-${name}-{property}`, rest: { fill: '{fill-control}' } } } }) as GroupPart;
+  const member = (name: string) => ({ to: `meters.${name}`, options: ['primary'], states: ['rest', 'disabled'], channels: { fill: `--arena-accent-meters-${name}-fill` } });
+  const c = deriveSlots(slotFixture({ track: part('track'), bar: part('bar') }, { ArenaGauge: { group: 'meters', parts: { track: member('track'), bar: member('bar') } } }, 'meters'));
+  const writes = ['track', 'bar'].flatMap((name) => ['rest', 'disabled'].map((st) => {
+    const slot = `meters-primary-${name}-fill-${st}`;
+    return `[--arena-accent-meters-${name}-fill${st === 'rest' ? '' : '-disabled'}:${channelValue(c, slot, 'css').replaceAll(' ', '_')}]`;
+  })).join(' ');
+  const lines = familyProblems(c, { variants: { 'arena-accent-primary': `${writes} [--arena-accent-fade-disabled:var(--meters-primary-track-fade-disabled,var(--fade-disabled))]` } }, ACCENT_FAMILY);
+  assert.deepEqual(lines, [`${ACCENT_FAMILY}: arena-accent-primary has one --arena-accent-fade-disabled channel, and meters-primary-bar and meters-primary-track each derive a disabled slot through it, so one fade cannot stop for both`]);
 });
 
 test('on beside over is refused', () => {

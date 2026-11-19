@@ -453,5 +453,6 @@ test('a part on a sibling with options sits on the same option', () => {
   assert.equal(s['feedback-gold-dot-ink-rest']?.on, 'ground', 'a mark with no fill sits on the ground');
   assert.equal(s['feedback-gold-dot-ink-rest']?.pair, 'mark');
   assert.equal(s['feedback-info-dot-fill-rest']?.pair, 'mark');
+  assert.equal(s['feedback-info-dot-fill-rest']?.on, 'ground', 'a mark part\'s fill is a mark over the ground (D92)');
   assert.equal(s['feedback-info-banner-fill-rest']?.pair, undefined, 'a part with no over and no mark carries no pair');
 });

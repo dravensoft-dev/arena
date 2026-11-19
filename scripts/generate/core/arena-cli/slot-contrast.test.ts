@@ -407,6 +407,7 @@ test('every pair of a mark part is 3:1 over the ground', () => {
   });
   const pairs = slotPairs(c).filter((one) => /^fields-(dot|disc)-/.test(one.slot));
   assert.deepEqual(pairs.map((one) => `${one.slot}>${one.over}@${one.min}`).sort(), [
+    'fields-disc-fill-hover>ground@3', 'fields-disc-fill-pressed>ground@3', 'fields-disc-fill-rest>ground@3',
     'fields-disc-ink-hover>fields-disc-fill-hover@3', 'fields-disc-ink-pressed>fields-disc-fill-pressed@3', 'fields-disc-ink-rest>fields-disc-fill-rest@3',
     'fields-dot-icon-hover>ground@3', 'fields-dot-icon-pressed>ground@3', 'fields-dot-icon-rest>ground@3',
     'fields-dot-ink-hover>ground@3', 'fields-dot-ink-pressed>ground@3', 'fields-dot-ink-rest>ground@3',

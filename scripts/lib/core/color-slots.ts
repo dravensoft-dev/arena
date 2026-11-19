@@ -87,6 +87,7 @@ export function deriveSlots(d: SlotDeclarations): SlotCatalogue {
         const sibling = under === undefined ? undefined : slotName(group, siblingOpt, under, 'fill', st);
         const own = properties.includes('fill') ? slotName(group, opt, part, 'fill', st) : undefined;
         if (over !== undefined) f.on = sibling;
+        else if (prop === 'fill' && mark && sibling === undefined) f.on = 'ground';
         else if (prop === 'fill') f.on = selectedOn && ['selected', 'selected-hover', 'selected-pressed'].includes(st) ? slotName(group, opt, part, 'fill', 'rest') : sibling;
         else if (prop === 'edge') f.on = sibling ?? own;
         else f.on = own ?? sibling ?? 'ground';
