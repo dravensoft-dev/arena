@@ -6,7 +6,7 @@ import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
 import { mount, cleanup, act } from './Harness.tsx';
-import { ArenaButton, ArenaIconButton, ArenaSplitButton, ArenaCopyButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope, ArenaCheckbox, ArenaRadioGroup, ArenaRadio, ArenaSwitch, ArenaSlider, ArenaInput, ArenaFileInput, ArenaMultiSelect, ArenaSideNav, ArenaSideNavItem, ArenaTabs, ArenaTab, ArenaTreeView, ArenaPagination, ArenaBottomNav, ArenaBottomNavItem, ArenaStepper, ArenaOnboarding, ArenaCommandPalette } from '../Index.generated.ts';
+import { ArenaButton, ArenaIconButton, ArenaSplitButton, ArenaCopyButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope, ArenaCheckbox, ArenaRadioGroup, ArenaRadio, ArenaSwitch, ArenaSlider, ArenaInput, ArenaFileInput, ArenaMultiSelect, ArenaSideNav, ArenaSideNavItem, ArenaTabs, ArenaTab, ArenaTreeView, ArenaPagination, ArenaBottomNav, ArenaBottomNavItem, ArenaStepper, ArenaOnboarding, ArenaCommandPalette, ArenaAlert, ArenaToast } from '../Index.generated.ts';
 import { readProximity, normalize, vocabularyClasses } from '../../../scripts/lib/arena/proximity.ts';
 
 afterEach(cleanup);
@@ -171,12 +171,21 @@ const COMPOSITIONS: Record<string, () => React.ReactElement> = {
     <ArenaStepper ariaLabel="Checkout" steps={[{ label: 'Account' }]} index={0} />
     <ArenaOnboarding open index={0} steps={[{ body: 'One' }]} />
   </div>,
+  'banner-edge-answer-moves-alert-border-and-toast-stripe': () => <div style={answered({ '--feedback-success-banner-edge-rest': 'var(--hue-info-edge)' })}>
+    <ArenaAlert tone="success">Saved</ArenaAlert>
+    <ArenaToast tone="success" title="Saved" message="Done" />
+  </div>,
+  'banner-edge-answer-leaves-the-toast-quiet-sides': () => <div style={answered({ '--feedback-success-banner-edge-rest': 'var(--hue-info-edge)' })}>
+    <ArenaAlert tone="success">Saved</ArenaAlert>
+    <ArenaToast tone="success" title="Saved" message="Done" />
+  </div>,
+  'toast-tone-beats-its-accent': () => <ArenaToast className="arena-accent-gold" tone="success" title="Saved" message="Done" />,
   'hover-answer-is-not-derived-from-the-rest-answer': () => <div style={answered({ '--actions-primary-root-fill-rest': 'var(--fill-surface)', '--actions-primary-root-fill-hover': 'var(--fill-hover)' })}><ArenaButton>Save</ArenaButton></div>,
 };
 
 const DRAGGED = new Set(['fields-error-zone-keeps-its-edge-while-dragged']);
 const OPENED = new Set(['menu-answer-moves-every-highlight', 'blocked-option-fades-until-answered', 'blocked-active-option-fades-until-answered', 'blocked-active-option-keeps-its-selected-wash']);
-const BARE = new Set(['meaning-wins-over-accent', 'accent-stops-at-the-card-body', 'small-badge-compacts-itself', 'small-badge-tightens-its-block', 'small-badge-tightens-its-ends']);
+const BARE = new Set(['toast-tone-beats-its-accent', 'meaning-wins-over-accent', 'accent-stops-at-the-card-body', 'small-badge-compacts-itself', 'small-badge-tightens-its-block', 'small-badge-tightens-its-ends']);
 const SUBJECT: Record<string, { part: string; at: number }> = {
   'people-list-face-follows-the-list': { part: 'avatar.box', at: -1 },
   'meaning-follows-the-base': { part: 'button', at: 0 },
@@ -243,6 +252,9 @@ const SUBJECT: Record<string, { part: string; at: number }> = {
   'answered-disabled-tree-item-stops-the-fade': { part: 'tree-view.item', at: -1 },
   'current-step-answer-moves-marker-and-dot': { part: 'stepper.marker', at: 0 },
   'class-on-copy-button-reaches-the-icon-button-it-draws': { part: 'icon-button', at: 0 },
+  'banner-edge-answer-moves-alert-border-and-toast-stripe': { part: 'alert', at: 0 },
+  'banner-edge-answer-leaves-the-toast-quiet-sides': { part: 'toast', at: 0 },
+  'toast-tone-beats-its-accent': { part: 'toast', at: 0 },
 };
 
 const { families, cases } = readProximity();

@@ -74,8 +74,6 @@ export const PALETTE_HINTS = new Map<string, string>([
 ]);
 
 export const PALETTE_READS = new Map<string, string>([
-  ['ArenaAlert:icon:text-neutral', 'feedback: 5.1d moves the status glyph onto the feedback group slots'],
-  ['ArenaAlert:action:text-neutral', 'feedback: 5.1d moves the action word onto the feedback group slots'],
   ['ArenaAvatar:box:bg-base-300', 'marks: 5.1d moves the monogram ground onto the marks group slots'],
   ['ArenaAvatar:status:border-base-200', 'marks: 5.1d moves the presence ring onto the marks group slots'],
   ['ArenaAvatar:status:bg-base-content/(--level-presence)', 'marks: 5.1d moves the presence dot onto the marks group slots'],
@@ -85,9 +83,6 @@ export const PALETTE_READS = new Map<string, string>([
   ['ArenaPaletteScope:root:bg-base-100', 'surfaces: 5.1d moves the island ground onto the surfaces group slots'],
   ['ArenaPaletteScope:root:text-base-content', 'surfaces: 5.1d moves the island ink onto the surfaces group slots'],
   ['ArenaProgressBar:ringTrack:stroke-base-300', 'meters: 5.1d moves the ring track onto the meters group slots'],
-  ['ArenaToast:root:border-t-base-300', 'feedback: 5.1d moves the toast edge onto the feedback group slots'],
-  ['ArenaToast:root:border-r-base-300', 'feedback: 5.1d moves the toast edge onto the feedback group slots'],
-  ['ArenaToast:root:border-b-base-300', 'feedback: 5.1d moves the toast edge onto the feedback group slots'],
   ['ArenaTooltip:bubble:bg-base-content', 'overlays: 5.1d moves the bubble ground onto the overlays group slots'],
   ['ArenaTooltip:bubble:text-base-100', 'overlays: 5.1d moves the bubble ink onto the overlays group slots'],
 ]);

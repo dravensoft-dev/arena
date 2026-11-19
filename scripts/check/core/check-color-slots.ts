@@ -205,7 +205,7 @@ const classesOf = (m: ComponentManifest): Record<string, string[]> => {
 };
 
 const emphasisOptions = (m: ComponentManifest) => (m.answers ?? [])
-  .flatMap((a) => (typeof a === 'string' || a.family !== 'emphasis' ? [] : a.options.map((o) => o.replace(/^arena-emphasis-/, ''))));
+  .flatMap((a) => (typeof a === 'string' || (a.family !== 'emphasis' && a.family !== 'accent') ? [] : a.options.map((o) => o.replace(/^arena-(?:emphasis|accent)-/, ''))));
 
 const memberSlots = (c: SlotCatalogue, m: MemberPart) => {
   const [group, part] = m.to.split('.');
@@ -635,8 +635,10 @@ export function declarationProblems(d: SlotDeclarations): string[] {
         }
         if (Object.keys(by.values ?? {}).length === 0) out.push(`${where}.optionBy: it maps no value onto an option`);
       }
-      if (axes.length > 0 && (to.options ?? []).filter((o) => !axes.some((one) => Object.values(one.values ?? {}).includes(o))).length > 1) {
-        out.push(`${where}.optionBy: more than one option is left with no value, and only the base option has none`);
+      const [toGroup, toPart] = String(to.to).split('.');
+      const channelled = (o: string) => to.channels !== undefined && typeof (d.groups?.[toGroup ?? '']?.parts?.[toPart ?? '']?.options as Record<string, { channel?: string | null }> | undefined)?.[o]?.channel === 'string';
+      if (axes.length > 0 && (to.options ?? []).filter((o) => !axes.some((one) => Object.values(one.values ?? {}).includes(o)) && !channelled(o)).length > 1) {
+        out.push(`${where}.optionBy: more than one option is left with no value, and only the base option has none, save an option its channel answers`);
       }
       const branch = (key: 'selectedBy' | 'disabledBy' | 'hoverBy' | 'onlyBy' | 'hoverIn', others: ('optionBy' | 'selectedBy' | 'disabledBy' | 'hoverBy')[]) => {
         const one = to[key];

@@ -6,7 +6,7 @@
     "body": "flex-1",
     "title": "font-body font-semibold text-ctl text-ink-heading",
     "message": "font-body text-sm text-ink-body/(--level-ink-body) leading-prose",
-    "action": "mt-2.5 inline-flex items-center min-h-ctl-h-sm min-w-ctl-h-sm bg-transparent border-none p-0 cursor-pointer font-face-label text-ctl-sm font-bold tracking-uppercase-status case-label",
+    "action": "mt-2.5 inline-flex items-center min-h-ctl-h-sm min-w-ctl-h-sm border-none p-0 cursor-pointer font-face-label text-ctl-sm font-bold tracking-uppercase-status case-label",
     "close": "inline-flex items-center justify-center size-ctl-h-sm shrink-0 border-none cursor-pointer text-[length:var(--icon-md)] leading-ctl bg-[color:var(--actions-dismiss-fill-rest,transparent)] [--arena-icon-ink:color-mix(in_oklab,var(--actions-dismiss-icon-rest,var(--actions-dismiss-ink-rest,var(--ink-muted)))_var(--level-ink-muted),transparent)] text-[color:color-mix(in_oklab,var(--actions-dismiss-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)] hover:bg-[color:var(--actions-dismiss-fill-hover,var(--actions-dismiss-fill-rest,transparent))] hover:[--arena-icon-ink:color-mix(in_oklab,var(--actions-dismiss-icon-hover,var(--actions-dismiss-ink-hover,var(--ink-body)))_var(--level-ink-body),transparent)] hover:text-[color:color-mix(in_oklab,var(--actions-dismiss-ink-hover,var(--ink-body))_var(--level-ink-body),transparent)] active:bg-[color:var(--actions-dismiss-fill-pressed,color-mix(in_oklab,var(--actions-dismiss-fill-rest,transparent),color-mix(in_oklab,var(--actions-dismiss-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)_calc(var(--mix-pressed)*100%)))] active:[--arena-icon-ink:var(--actions-dismiss-icon-pressed,var(--actions-dismiss-ink-pressed,color-mix(in_oklab,var(--actions-dismiss-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)))] active:text-[color:var(--actions-dismiss-ink-pressed,color-mix(in_oklab,var(--actions-dismiss-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent))] disabled:bg-[color:var(--actions-dismiss-fill-disabled,var(--actions-dismiss-fill-rest,transparent))] disabled:[--arena-icon-ink:var(--actions-dismiss-icon-disabled,var(--actions-dismiss-ink-disabled,color-mix(in_oklab,var(--actions-dismiss-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)))] disabled:text-[color:var(--actions-dismiss-ink-disabled,color-mix(in_oklab,var(--actions-dismiss-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent))]"
   },
   "kind": {
@@ -24,29 +24,29 @@
   "variants": {
     "tone": {
       "info": {
-        "root": "bg-[color:var(--arena-hue-fill-soft)] border-[color:var(--arena-hue-edge)]",
-        "icon": "text-[color:var(--arena-hue-ink)]",
-        "action": "text-[color:var(--arena-hue-ink)]"
+        "root": "bg-[color:color-mix(in_oklab,var(--feedback-info-banner-fill-rest,var(--hue-info-fill-soft))_var(--level-hue-soft-info),transparent)] border-[color:var(--feedback-info-banner-edge-rest,var(--hue-info-edge))]",
+        "icon": "text-[color:var(--feedback-info-icon-ink-rest,var(--hue-info-ink))]",
+        "action": "bg-[color:var(--feedback-info-action-fill-rest,transparent)] text-[color:color-mix(in_oklab,var(--feedback-info-action-ink-rest,var(--ink-action))_var(--level-ink-full),transparent)]"
       },
       "success": {
-        "root": "bg-[color:var(--arena-hue-fill-soft)] border-[color:var(--arena-hue-edge)]",
-        "icon": "text-[color:var(--arena-hue-ink)]",
-        "action": "text-[color:var(--arena-hue-ink)]"
+        "root": "bg-[color:color-mix(in_oklab,var(--feedback-success-banner-fill-rest,var(--hue-success-fill-soft))_var(--level-hue-soft-success),transparent)] border-[color:var(--feedback-success-banner-edge-rest,var(--hue-success-edge))]",
+        "icon": "text-[color:var(--feedback-success-icon-ink-rest,var(--hue-success-ink))]",
+        "action": "bg-[color:var(--feedback-success-action-fill-rest,transparent)] text-[color:color-mix(in_oklab,var(--feedback-success-action-ink-rest,var(--ink-action))_var(--level-ink-full),transparent)]"
       },
       "warning": {
-        "root": "bg-[color:var(--arena-hue-fill-soft)] border-[color:var(--arena-hue-edge)]",
-        "icon": "text-[color:var(--arena-hue-ink)]",
-        "action": "text-[color:var(--arena-hue-ink)]"
+        "root": "bg-[color:color-mix(in_oklab,var(--feedback-warning-banner-fill-rest,var(--hue-warning-fill-soft))_var(--level-hue-soft-warning),transparent)] border-[color:var(--feedback-warning-banner-edge-rest,var(--hue-warning-edge))]",
+        "icon": "text-[color:var(--feedback-warning-icon-ink-rest,var(--hue-warning-ink))]",
+        "action": "bg-[color:var(--feedback-warning-action-fill-rest,transparent)] text-[color:color-mix(in_oklab,var(--feedback-warning-action-ink-rest,var(--ink-action))_var(--level-ink-full),transparent)]"
       },
       "danger": {
-        "root": "bg-[color:var(--arena-hue-fill-soft)] border-[color:var(--arena-hue-edge)]",
-        "icon": "text-[color:var(--arena-hue-ink)]",
-        "action": "text-[color:var(--arena-hue-ink)]"
+        "root": "bg-[color:color-mix(in_oklab,var(--feedback-danger-banner-fill-rest,var(--hue-danger-fill-soft))_var(--level-hue-soft-danger),transparent)] border-[color:var(--feedback-danger-banner-edge-rest,var(--hue-danger-edge))]",
+        "icon": "text-[color:var(--feedback-danger-icon-ink-rest,var(--hue-danger-ink))]",
+        "action": "bg-[color:var(--feedback-danger-action-fill-rest,transparent)] text-[color:color-mix(in_oklab,var(--feedback-danger-action-ink-rest,var(--ink-action))_var(--level-ink-full),transparent)]"
       },
       "neutral": {
-        "root": "bg-surface border-edge-surface-floating",
-        "icon": "text-neutral",
-        "action": "text-neutral"
+        "root": "bg-[color:var(--feedback-neutral-banner-fill-rest,var(--fill-surface))] border-[color:var(--feedback-neutral-banner-edge-rest,var(--edge-surface-floating))]",
+        "icon": "text-[color:color-mix(in_oklab,var(--feedback-neutral-icon-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",
+        "action": "bg-[color:var(--feedback-neutral-action-fill-rest,transparent)] text-[color:color-mix(in_oklab,var(--feedback-neutral-action-ink-rest,var(--ink-action))_var(--level-ink-full),transparent)]"
       }
     },
     "titled": {
@@ -59,14 +59,5 @@
   "defaultVariants": {
     "tone": "info",
     "titled": false
-  },
-  "hues": {
-    "tone": {
-      "info": "info",
-      "success": "success",
-      "warning": "warning",
-      "danger": "danger",
-      "neutral": null
-    }
   }
 }

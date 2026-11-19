@@ -55,6 +55,8 @@ import { ArenaBottomNav } from '../components/navigation/arena-bottom-nav/ArenaB
 import { ArenaBottomNavItem } from '../components/navigation/arena-bottom-nav-item/ArenaBottomNavItem';
 import { ArenaStepper } from '../components/navigation/arena-stepper/ArenaStepper';
 import { ArenaOnboarding } from '../components/feedback/arena-onboarding/ArenaOnboarding';
+import { ArenaAlert } from '../components/feedback/arena-alert/ArenaAlert';
+import { ArenaToast } from '../components/feedback/arena-toast/ArenaToast';
 import { ArenaFooter } from '../ProjectionMarkers';
 import { LIB } from './Compliance';
 
@@ -176,10 +178,13 @@ const TEMPLATES: Record<string, string> = {
   'selected-edge-answer-draws-no-side-nav-line': '<div style="--navigation-item-edge-selected: var(--hue-info-edge)"><arena-side-nav ariaLabel="Primary" active="home"><arena-side-nav-item id="home" label="Home" /></arena-side-nav></div>',
   'error-step-reads-the-error-chain-while-current': '<arena-stepper ariaLabel="Checkout" [steps]="[{ label: \'Account\', error: true }]" [index]="0" />',
   'current-step-answer-moves-marker-and-dot': '<div style="--steps-current-marker-fill-rest: var(--fill-surface)"><arena-stepper ariaLabel="Checkout" [steps]="[{ label: \'Account\' }]" [index]="0" /><arena-onboarding [open]="true" [steps]="[{ body: \'One\' }]" [index]="0" /></div>',
+  'banner-edge-answer-moves-alert-border-and-toast-stripe': '<div style="--feedback-success-banner-edge-rest: var(--hue-info-edge)"><arena-alert tone="success">Saved</arena-alert><arena-toast tone="success" title="Saved" message="Done"></arena-toast></div>',
+  'banner-edge-answer-leaves-the-toast-quiet-sides': '<div style="--feedback-success-banner-edge-rest: var(--hue-info-edge)"><arena-alert tone="success">Saved</arena-alert><arena-toast tone="success" title="Saved" message="Done"></arena-toast></div>',
+  'toast-tone-beats-its-accent': '<arena-toast class="arena-accent-gold" tone="success" title="Saved" message="Done"></arena-toast>',
   'hover-answer-is-not-derived-from-the-rest-answer': '<div style="--actions-primary-root-fill-rest: var(--fill-surface); --actions-primary-root-fill-hover: var(--fill-hover)"><arena-button>Save</arena-button></div>',
 };
 
-const BARE = new Set(['meaning-wins-over-accent', 'accent-stops-at-the-card-body', 'small-badge-compacts-itself', 'small-badge-tightens-its-block', 'small-badge-tightens-its-ends']);
+const BARE = new Set(['toast-tone-beats-its-accent', 'meaning-wins-over-accent', 'accent-stops-at-the-card-body', 'small-badge-compacts-itself', 'small-badge-tightens-its-block', 'small-badge-tightens-its-ends']);
 const SUBJECT: Record<string, { part: string; index: number }> = {
   'people-list-face-follows-the-list': { part: 'avatar.box', index: -1 },
   'meaning-follows-the-base': { part: 'button', index: 0 },
@@ -246,6 +251,9 @@ const SUBJECT: Record<string, { part: string; index: number }> = {
   'answered-disabled-tree-item-stops-the-fade': { part: 'tree-view.item', index: -1 },
   'current-step-answer-moves-marker-and-dot': { part: 'stepper.marker', index: 0 },
   'class-on-copy-button-reaches-the-icon-button-it-draws': { part: 'icon-button', index: 0 },
+  'banner-edge-answer-moves-alert-border-and-toast-stripe': { part: 'alert', index: 0 },
+  'banner-edge-answer-leaves-the-toast-quiet-sides': { part: 'toast', index: 0 },
+  'toast-tone-beats-its-accent': { part: 'toast', index: 0 },
 };
 
 const OPENED = new Set(['menu-answer-moves-every-highlight', 'blocked-option-fades-until-answered', 'blocked-active-option-fades-until-answered', 'blocked-active-option-keeps-its-selected-wash']);
@@ -261,7 +269,7 @@ for (const kase of cases) {
     const Host = Component({
       selector: `proximity-${kase.name}-host`,
       standalone: true,
-      imports: [ArenaStepper, ArenaOnboarding, ArenaSideNav, ArenaSideNavItem, ArenaTabs, ArenaTab, ArenaTreeView, ArenaPagination, ArenaBottomNav, ArenaBottomNavItem, ArenaButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaIconButton, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaFooter, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope, ArenaSplitButton, ArenaCopyButton, ArenaCheckbox, ArenaRadioGroup, ArenaRadio, ArenaSwitch, ArenaSlider, ArenaInput, ArenaFileInput, ArenaMultiSelect, ArenaCommandPalette],
+      imports: [ArenaStepper, ArenaOnboarding, ArenaSideNav, ArenaSideNavItem, ArenaTabs, ArenaTab, ArenaTreeView, ArenaPagination, ArenaBottomNav, ArenaBottomNavItem, ArenaButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaIconButton, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaFooter, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope, ArenaSplitButton, ArenaCopyButton, ArenaCheckbox, ArenaRadioGroup, ArenaRadio, ArenaSwitch, ArenaSlider, ArenaInput, ArenaFileInput, ArenaMultiSelect, ArenaCommandPalette, ArenaAlert, ArenaToast],
       template: BARE.has(kase.name) ? TEMPLATES[kase.name] : `<div class="${kase.container}">${TEMPLATES[kase.name]}</div>`,
     })(class {});
     const fixture = TestBed.createComponent(Host);

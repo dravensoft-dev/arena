@@ -383,7 +383,7 @@ test('the shipped manifests read no palette key outside PALETTE_READS', () => {
   const { palette, stale } = collect();
   assert.deepEqual(palette, []);
   assert.deepEqual(stale, []);
-  assert.equal(PALETTE_READS.size, 16);
+  assert.equal(PALETTE_READS.size, 11);
 });
 
 test('cat and heat keys are palette keys too', () => {

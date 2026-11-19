@@ -104,6 +104,10 @@ export const WITNESS_EXEMPT: ReadonlyMap<string, string> = new Map([
   ...['complete', 'upcoming'].map((option): [string, string] => [`steps-${option}-marker-fill-rest`, SLOT + 'the one accepted role complete paints transparent, '
     + 'hue-danger-fill-strong, is a danger fill, and a step marker answered with it would say danger where it draws nothing; the kernel default is the literal '
     + 'transparent, so no other spelling resolves to the key complete paints there']),
+  ...['neutral', 'danger', 'success', 'warning', 'info'].map((option): [string, string] => [`feedback-${option}-action-fill-rest`, SLOT + 'the one accepted role complete paints '
+    + 'transparent, hue-danger-fill-strong, is a danger fill, and an alert or toast action answered with it would say danger where it draws nothing; the kernel '
+    + 'default is the literal transparent, so no other spelling resolves to the key complete paints there']),
+  ['feedback-plain-banner-edge-rest', SLOT + NO_SECOND_SPELLING],
   ['fill-marker', 'complete answers it as default does, base-300, because complete paints the count beside a side navigation row that is not current '
     + 'base-300 and no other palette key resolves to it, and this role reaches a page through the navigation badge slot complete answers with a '
     + 'spelling of its own'],

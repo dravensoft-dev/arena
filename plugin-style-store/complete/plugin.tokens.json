@@ -1968,6 +1968,90 @@
     "$type": "color",
     "$value": "{accent-plain-fill-soft}"
   },
+  "feedback-danger-action-ink-rest": {
+    "$type": "color",
+    "$value": "{hue-danger-ink}"
+  },
+  "feedback-danger-banner-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "feedback-danger-banner-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-track}"
+  },
+  "feedback-danger-icon-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "feedback-gold-banner-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-marker}"
+  },
+  "feedback-info-action-ink-rest": {
+    "$type": "color",
+    "$value": "{hue-info-ink}"
+  },
+  "feedback-info-banner-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "feedback-info-banner-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-track}"
+  },
+  "feedback-info-icon-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "feedback-neutral-action-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-figure}"
+  },
+  "feedback-neutral-banner-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-control}"
+  },
+  "feedback-neutral-banner-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface-floating}"
+  },
+  "feedback-neutral-icon-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-figure}"
+  },
+  "feedback-success-action-ink-rest": {
+    "$type": "color",
+    "$value": "{hue-success-ink}"
+  },
+  "feedback-success-banner-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "feedback-success-banner-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-track}"
+  },
+  "feedback-success-icon-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "feedback-warning-action-ink-rest": {
+    "$type": "color",
+    "$value": "{hue-warning-ink}"
+  },
+  "feedback-warning-banner-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "feedback-warning-banner-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-track}"
+  },
+  "feedback-warning-icon-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
   "fields-error-field-edge-disabled": {
     "$type": "color",
     "$value": "{edge-invalid}"

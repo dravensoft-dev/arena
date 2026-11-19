@@ -872,28 +872,105 @@
             "edge"
           ],
           "states": "static",
-          "options": [
-            "neutral",
-            "plain",
-            "gold",
-            "danger",
-            "success",
-            "warning",
-            "info"
-          ]
+          "options": {
+            "neutral": {
+              "rest": {
+                "fill": "{fill-surface}",
+                "edge": "{edge-surface-floating}"
+              }
+            },
+            "plain": {
+              "properties": [
+                "edge"
+              ],
+              "channel": "--arena-accent-feedback-banner-{property}",
+              "rest": {
+                "edge": "{accent-plain-side-edge}"
+              }
+            },
+            "gold": {
+              "properties": [
+                "edge"
+              ],
+              "channel": "--arena-accent-feedback-banner-{property}",
+              "rest": {
+                "edge": "{accent-gold-side-edge}"
+              }
+            },
+            "danger": {
+              "rest": {
+                "fill": {
+                  "role": "{hue-danger-fill-soft}",
+                  "level": "level-hue-soft-danger"
+                },
+                "edge": "{hue-danger-edge}"
+              }
+            },
+            "success": {
+              "rest": {
+                "fill": {
+                  "role": "{hue-success-fill-soft}",
+                  "level": "level-hue-soft-success"
+                },
+                "edge": "{hue-success-edge}"
+              }
+            },
+            "warning": {
+              "rest": {
+                "fill": {
+                  "role": "{hue-warning-fill-soft}",
+                  "level": "level-hue-soft-warning"
+                },
+                "edge": "{hue-warning-edge}"
+              }
+            },
+            "info": {
+              "rest": {
+                "fill": {
+                  "role": "{hue-info-fill-soft}",
+                  "level": "level-hue-soft-info"
+                },
+                "edge": "{hue-info-edge}"
+              }
+            }
+          }
         },
         "icon": {
           "properties": [
             "ink"
           ],
           "states": "static",
-          "options": [
-            "neutral",
-            "danger",
-            "success",
-            "warning",
-            "info"
-          ]
+          "on": "banner",
+          "options": {
+            "neutral": {
+              "rest": {
+                "ink": {
+                  "role": "{ink-muted}",
+                  "level": "level-ink-muted"
+                }
+              }
+            },
+            "danger": {
+              "rest": {
+                "ink": "{hue-danger-ink}"
+              }
+            },
+            "success": {
+              "rest": {
+                "ink": "{hue-success-ink}"
+              }
+            },
+            "warning": {
+              "rest": {
+                "ink": "{hue-warning-ink}"
+              }
+            },
+            "info": {
+              "rest": {
+                "ink": "{hue-info-ink}"
+              }
+            }
+          }
         },
         "action": {
           "properties": [
@@ -901,13 +978,54 @@
             "ink"
           ],
           "states": "static",
-          "options": [
-            "neutral",
-            "danger",
-            "success",
-            "warning",
-            "info"
-          ]
+          "over": "banner",
+          "options": {
+            "neutral": {
+              "rest": {
+                "fill": "transparent",
+                "ink": {
+                  "role": "{ink-action}",
+                  "level": "level-ink-full"
+                }
+              }
+            },
+            "danger": {
+              "rest": {
+                "fill": "transparent",
+                "ink": {
+                  "role": "{ink-action}",
+                  "level": "level-ink-full"
+                }
+              }
+            },
+            "success": {
+              "rest": {
+                "fill": "transparent",
+                "ink": {
+                  "role": "{ink-action}",
+                  "level": "level-ink-full"
+                }
+              }
+            },
+            "warning": {
+              "rest": {
+                "fill": "transparent",
+                "ink": {
+                  "role": "{ink-action}",
+                  "level": "level-ink-full"
+                }
+              }
+            },
+            "info": {
+              "rest": {
+                "fill": "transparent",
+                "ink": {
+                  "role": "{ink-action}",
+                  "level": "level-ink-full"
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -1307,11 +1425,74 @@
     "ArenaAlert": {
       "group": "feedback",
       "parts": {
-        "root": "feedback.banner",
-        "icon": "feedback.icon",
+        "root": {
+          "to": "feedback.banner",
+          "options": [
+            "neutral",
+            "info",
+            "success",
+            "warning",
+            "danger"
+          ],
+          "states": "static",
+          "optionBy": {
+            "axis": "tone",
+            "values": {
+              "neutral": "neutral",
+              "info": "info",
+              "success": "success",
+              "warning": "warning",
+              "danger": "danger"
+            }
+          },
+          "inline": true
+        },
+        "icon": {
+          "to": "feedback.icon",
+          "options": [
+            "neutral",
+            "info",
+            "success",
+            "warning",
+            "danger"
+          ],
+          "states": "static",
+          "optionBy": {
+            "axis": "tone",
+            "values": {
+              "neutral": "neutral",
+              "info": "info",
+              "success": "success",
+              "warning": "warning",
+              "danger": "danger"
+            }
+          },
+          "inline": true
+        },
         "title": "text.heading",
         "message": "text.body",
-        "action": "feedback.action",
+        "action": {
+          "to": "feedback.action",
+          "options": [
+            "neutral",
+            "info",
+            "success",
+            "warning",
+            "danger"
+          ],
+          "states": "static",
+          "optionBy": {
+            "axis": "tone",
+            "values": {
+              "neutral": "neutral",
+              "info": "info",
+              "success": "success",
+              "warning": "warning",
+              "danger": "danger"
+            }
+          },
+          "inline": true
+        },
         "close": {
           "to": "actions.dismiss",
           "options": [],
@@ -1745,8 +1926,22 @@
     "ArenaEmptyState": {
       "group": "feedback",
       "parts": {
-        "root": "feedback.banner@neutral",
-        "icon": "feedback.icon@neutral",
+        "root": {
+          "to": "feedback.banner",
+          "options": [
+            "neutral"
+          ],
+          "states": "static",
+          "inline": true
+        },
+        "icon": {
+          "to": "feedback.icon",
+          "options": [
+            "neutral"
+          ],
+          "states": "static",
+          "inline": true
+        },
         "title": "text.heading",
         "message": "text.muted"
       }
@@ -1754,8 +1949,22 @@
     "ArenaErrorState": {
       "group": "feedback",
       "parts": {
-        "root": "feedback.banner@danger",
-        "icon": "feedback.icon@danger",
+        "root": {
+          "to": "feedback.banner",
+          "options": [
+            "danger"
+          ],
+          "states": "static",
+          "inline": true
+        },
+        "icon": {
+          "to": "feedback.icon",
+          "options": [
+            "danger"
+          ],
+          "states": "static",
+          "inline": true
+        },
         "title": "text.heading",
         "message": "text.body",
         "code": "surfaces.sunken"
@@ -2899,11 +3108,41 @@
     "ArenaToast": {
       "group": "feedback",
       "parts": {
-        "root": "feedback.banner",
+        "root": {
+          "to": "feedback.banner",
+          "options": [
+            "plain",
+            "gold",
+            "success",
+            "danger"
+          ],
+          "properties": [
+            "edge"
+          ],
+          "states": "static",
+          "edgeAs": "stripe",
+          "optionBy": {
+            "axis": "tone",
+            "values": {
+              "success": "success",
+              "danger": "danger"
+            }
+          },
+          "channels": {
+            "edge": "--arena-accent-feedback-banner-edge"
+          }
+        },
         "title": "text.heading",
         "pinned": "marks.outline@neutral",
         "message": "text.muted",
-        "action": "feedback.action@neutral",
+        "action": {
+          "to": "feedback.action",
+          "options": [
+            "neutral"
+          ],
+          "states": "static",
+          "inline": true
+        },
         "close": {
           "to": "actions.dismiss",
           "options": [],

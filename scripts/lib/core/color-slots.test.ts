@@ -95,7 +95,7 @@ test('actions derives 124 slots and no component slot', () => {
   const c = deriveSlots(readSlotDeclarations());
   const slots = Object.values(c.slots);
   assert.equal(slots.filter((slot) => slot.group === 'actions').length, 124);
-  assert.deepEqual([...new Set(slots.map((slot) => slot.group))].sort(), ['actions', 'choices', 'fields', 'menus', 'navigation', 'steps']);
+  assert.deepEqual([...new Set(slots.map((slot) => slot.group))].sort(), ['actions', 'choices', 'feedback', 'fields', 'menus', 'navigation', 'steps']);
   for (const slot of slots) {
     for (const key of ['scope', 'family', 'component', 'draws']) assert.equal(Object.hasOwn(slot, key), false, key);
   }
@@ -455,4 +455,24 @@ test('a part on a sibling with options sits on the same option', () => {
   assert.equal(s['feedback-info-dot-fill-rest']?.pair, 'mark');
   assert.equal(s['feedback-info-dot-fill-rest']?.on, 'ground', 'a mark part\'s fill is a mark over the ground (D92)');
   assert.equal(s['feedback-info-banner-fill-rest']?.pair, undefined, 'a part with no over and no mark carries no pair');
+});
+
+test('feedback derives its banner, icon and action', () => {
+  const c = deriveSlots(readSlotDeclarations());
+  assert.equal(c.slots['feedback-success-action-ink-rest']?.default, '{ink-action}');
+  assert.equal(c.slots['feedback-success-action-ink-rest']?.level, 'level-ink-full');
+  assert.equal(c.slots['feedback-neutral-icon-ink-rest']?.default, '{ink-muted}');
+  assert.equal(c.slots['feedback-neutral-icon-ink-rest']?.level, 'level-ink-muted');
+  assert.equal(c.slots['feedback-info-icon-ink-rest']?.on, 'feedback-info-banner-fill-rest');
+  assert.equal(c.slots['feedback-info-action-ink-rest']?.on, 'feedback-info-banner-fill-rest');
+  assert.equal(c.slots['feedback-info-action-ink-rest']?.pair, 'own');
+  assert.equal(c.slots['feedback-danger-banner-fill-rest']?.default, '{hue-danger-fill-soft}');
+  assert.equal(c.slots['feedback-neutral-banner-edge-rest']?.default, '{edge-surface-floating}');
+  assert.equal(c.slots['feedback-gold-banner-edge-rest']?.default, '{accent-gold-side-edge}');
+  assert.equal(c.slots['feedback-gold-banner-edge-rest']?.channel, '--arena-accent-feedback-banner-edge');
+  assert.equal(c.slots['feedback-plain-banner-edge-rest']?.default, '{accent-plain-side-edge}');
+  assert.equal(c.slots['feedback-plain-banner-fill-rest'], undefined, 'plain and gold derive the edge alone');
+  assert.deepEqual(c.members['ArenaToast.root']?.options, ['plain', 'gold', 'success', 'danger']);
+  assert.equal(c.members['ArenaToast.root']?.edgeAs, 'stripe');
+  assert.deepEqual(c.members['ArenaAlert.action']?.options, ['neutral', 'info', 'success', 'warning', 'danger']);
 });

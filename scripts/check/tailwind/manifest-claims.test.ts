@@ -77,10 +77,8 @@ const HUES = {
   ArenaBadge: { tone: { success: 'success', warning: 'warning', danger: 'danger', info: 'info' } },
   ArenaStatCard: { tone: { success: 'success', warning: 'warning', danger: 'danger', info: 'info' }, deltaTone: { positive: 'success', negative: 'danger' } },
   ArenaTag: { tone: { success: 'success', warning: 'warning', danger: 'danger' } },
-  ArenaAlert: { tone: { info: 'info', success: 'success', warning: 'warning', danger: 'danger' } },
   ArenaConfirmDialog: { destructive: { true: 'danger' } },
   ArenaProgressBar: { tone: { success: 'success', danger: 'danger', info: 'info' } },
-  ArenaToast: { tone: { success: 'success', danger: 'danger' } },
   ArenaTimeline: { tone: { success: 'success', warning: 'warning', danger: 'danger', info: 'info' } },
 } as Record<string, Record<string, Record<string, string>>>;
 
@@ -98,8 +96,7 @@ test('every status value maps to its own hue, and a neutral or editorial value t
     }
   }
   for (const [component, group, values] of [
-    ['ArenaAlert', 'tone', ['neutral']], ['ArenaBadge', 'tone', ['neutral']],
-    ['ArenaToast', 'tone', ['neutral']], ['ArenaAvatar', 'status', ['none', 'offline']],
+    ['ArenaBadge', 'tone', ['neutral']], ['ArenaAvatar', 'status', ['none', 'offline']],
     ['ArenaConfirmDialog', 'destructive', ['false']], ['ArenaTag', 'tone', ['neutral']],
     ['ArenaTimeline', 'tone', ['neutral']],
   ] as [string, string, string[]][])
@@ -107,9 +104,7 @@ test('every status value maps to its own hue, and a neutral or editorial value t
       assert.equal(manifests.get(component)?.hues?.[group]?.[value], null, `${component}.hues.${group}.${value} is not mapped to no hue`);
 });
 
-const ALWAYS_HUES = {
-  ArenaErrorState: { root: 'danger', icon: 'danger' },
-} as Record<string, Record<string, string>>;
+const ALWAYS_HUES = {} as Record<string, Record<string, string>>;
 
 test('a slot whose meaning no value varies names its hue under always, and no other manifest does', () => {
   for (const manifest of manifests.values())
@@ -199,6 +194,7 @@ const DESTRUCTIVE = ['edge', 'ink', 'fill'].map((property) => {
 const STRONG_INK = 'text-[color:var(--arena-hue-fill-strong)]';
 const FILLED_WHY = 'a solid status fill reads the strong fill channel, and danger, whose strong fill is hue-danger-fill-strong and transparent by default, draws the mark through its ink';
 const STATUS = ['success', 'warning', 'danger', 'info'];
+const FEEDBACK_WHY = 'a status colour is a read of the feedback slot of its tone, so the style plugin that answers the slot moves every surface wearing it';
 const HUE_WHY = 'a status colour is a read of the hue channel the hue sheet writes on this slot, so the style plugin that answers the hue roles moves every surface wearing it';
 const hueClaims = (slot: string, tones: Record<string, string[]>, group = 'tone') =>
   Object.entries(tones).map(([tone, has]) => ({ chosen: { [group]: tone }, slot, has, why: HUE_WHY }));
@@ -335,13 +331,13 @@ export const CLAIMS = {
   ],
   ArenaAlert: [
     ...STATUS.flatMap((tone) => [
-      { chosen: { tone }, slot: 'root', has: [SOFT, EDGE], hasNot: ['bg-error', 'bg-error-fill'], why: 'every status tone colours its root from the hue channels, as a soft wash and an edge' },
-      { chosen: { tone }, slot: 'icon', has: [INK], why: HUE_WHY },
-      { chosen: { tone }, slot: 'action', has: [INK], why: HUE_WHY },
+      { chosen: { tone }, slot: 'root', has: [`bg-[color:${memberValue(SLOTS, 'ArenaAlert.root', `feedback-${tone}-banner-fill-rest`, 'tailwind')}]`, `border-[color:${memberValue(SLOTS, 'ArenaAlert.root', `feedback-${tone}-banner-edge-rest`, 'tailwind')}]`], hasNot: ['bg-error', 'bg-error-fill'], why: 'every status tone colours its root from the feedback slots, as a soft wash and an edge' },
+      { chosen: { tone }, slot: 'icon', has: [`text-[color:${memberValue(SLOTS, 'ArenaAlert.icon', `feedback-${tone}-icon-ink-rest`, 'tailwind')}]`], why: FEEDBACK_WHY },
+      { chosen: { tone }, slot: 'action', has: [`text-[color:${memberValue(SLOTS, 'ArenaAlert.action', `feedback-${tone}-action-ink-rest`, 'tailwind')}]`], why: FEEDBACK_WHY },
     ]),
-    { chosen: { tone: 'neutral' }, slot: 'root', has: ['border-edge-surface-floating'], hasNot: [SOFT, EDGE], why: 'the neutral tone is the absence of a hue, so its edge is the floating surface role rather than a status colour' },
-    { chosen: { tone: 'neutral' }, slot: 'icon', has: ['text-neutral'], hasNot: [INK], why: 'the neutral tone is the absence of a hue, so its icon is the neutral ink' },
-    { slot: 'action', has: ['bg-transparent', 'border-none'], why: 'the action control is text-only chrome, carrying no border or fill of its own' },
+    { chosen: { tone: 'neutral' }, slot: 'root', has: [`border-[color:${memberValue(SLOTS, 'ArenaAlert.root', 'feedback-neutral-banner-edge-rest', 'tailwind')}]`], hasNot: [SOFT, EDGE], why: 'the neutral tone is the absence of a hue, so its edge is the floating surface role rather than a status colour' },
+    { chosen: { tone: 'neutral' }, slot: 'icon', has: [`text-[color:${memberValue(SLOTS, 'ArenaAlert.icon', 'feedback-neutral-icon-ink-rest', 'tailwind')}]`], hasNot: [INK, 'text-neutral'], why: 'the neutral tone is the absence of a hue, so its icon is the muted ink' },
+    { slot: 'action', has: ['border-none'], hasNot: ['bg-transparent'], why: 'the action control is text-only chrome, carrying no border and reading its fill from the feedback slots' },
     { slot: 'close', has: ['bg-[color:var(--actions-dismiss-fill-rest,transparent)]', 'border-none'], hasNot: ['bg-transparent'], why: 'the close control is text-only chrome that reads the dismiss slots for its fill, and carries no border of its own' },
     { chosen: { titled: true }, slot: 'message', has: ['mt-1'], why: 'the message carries the title-separating margin only when a title is present' },
   ],
@@ -401,8 +397,8 @@ export const CLAIMS = {
     { slot: 'action', has: ['mt-1.5'], why: 'the action slot carries the token spacing that separates a present action from the copy above it' },
   ],
   ArenaErrorState: [
-    { slot: 'root', has: ['flex', EDGE, SOFT], hasNot: ['border-dashed', 'border-error', 'bg-error/14', 'bg-error', 'bg-error-fill', STRONG], why: 'danger stays a soft resting tint here, read from the hue channels always gives the slot: this is a non-interactive status surface, not a risk trigger' },
-    { slot: 'icon', has: [INK], hasNot: ['text-error'], why: HUE_WHY },
+    { slot: 'root', has: ['flex', `border-[color:${memberValue(SLOTS, 'ArenaErrorState.root', 'feedback-danger-banner-edge-rest', 'tailwind')}]`, `bg-[color:${memberValue(SLOTS, 'ArenaErrorState.root', 'feedback-danger-banner-fill-rest', 'tailwind')}]`], hasNot: ['border-dashed', 'border-error', 'bg-error/14', 'bg-error', 'bg-error-fill', STRONG], why: 'danger stays a soft resting tint here, read from the feedback slots: this is a non-interactive status surface, not a risk trigger' },
+    { slot: 'icon', has: [`text-[color:${memberValue(SLOTS, 'ArenaErrorState.icon', 'feedback-danger-icon-ink-rest', 'tailwind')}]`], hasNot: ['text-error'], why: FEEDBACK_WHY },
     { slot: 'actions', has: ['mt-1.5'], why: 'the actions slot carries the token spacing that separates the row from the copy above it' },
   ],
   ArenaOnboarding: [
@@ -428,9 +424,9 @@ export const CLAIMS = {
     { slot: 'root', has: ['inline-flex'], why: 'a host-bound root is never the UA-default inline box' },
   ],
   ArenaToast: [
-    ...['success', 'danger'].map((tone) => ({ chosen: { tone }, slot: 'root', has: ['border-l-[color:var(--arena-hue-edge)]'], why: HUE_WHY })),
+    ...['success', 'danger'].map((tone) => ({ chosen: { tone }, slot: 'root', has: [`border-l-[color:${memberValue(SLOTS, 'ArenaToast.root', `feedback-${tone}-banner-edge-rest`, 'tailwind')}]`], why: FEEDBACK_WHY })),
     ...['neutral', 'success', 'danger'].map((tone) => ({ chosen: { tone }, slot: 'action',
-      has: ['text-ink-action/(--level-ink-full)'], hasNot: [INK, 'text-primary', 'text-secondary'],
+      has: [`text-[color:${memberValue(SLOTS, 'ArenaToast.action', 'feedback-neutral-action-ink-rest', 'tailwind')}]`], hasNot: [INK, 'text-primary', 'text-secondary'],
       why: 'every tone draws the action in one measured role: the tone is the side edge, an undo is not a risk trigger, and an accent as ink is the style plugin\'s to raise' })),
     { slot: 'root', has: ['flex', 'z-toast'], why: 'the root sits on --z-toast, the one slot above every other overlay' },
   ],
@@ -755,7 +751,7 @@ const READS: [component: string, slot: string, question: string, reads: string[]
   ['ArenaTag', 'root', 'accent.quiet-ink', ['text-[color:var(--arena-accent-quiet-ink,color-mix(in_oklab,var(--accent-plain-quiet-ink)_var(--level-ink-quiet),transparent))]']],
   ['ArenaCard', 'root', 'accent.edge', ['border-[color:var(--arena-accent-edge,var(--accent-plain-edge))]']],
   ['ArenaTag', 'root', 'accent.edge', ['border-[color:var(--arena-accent-edge,var(--accent-plain-edge))]']],
-  ['ArenaToast', 'root', 'accent.side-edge', ['border-l-[color:var(--arena-accent-side-edge,var(--accent-plain-side-edge))]']],
+  ['ArenaToast', 'root', 'accent.feedback-banner-edge', ['border-l-[color:var(--arena-accent-feedback-banner-edge)]']],
   ['ArenaCard', 'root', 'elevation.shadow', ['shadow-[var(--arena-elevation-shadow,var(--elevation-flat-shadow))]']],
   ['ArenaHero', 'words', 'align.items', ['[align-items:var(--arena-align-items,flex-start)]']],
   ['ArenaPageHead', 'root', 'align.items', ['[align-items:var(--arena-align-items,flex-start)]']],
@@ -797,7 +793,7 @@ for (const [component, slot, question, reads, chosen] of READS) {
 }
 
 test('every size, orientation, emphasis, accent, mark, elevation, align, layout and placement question a slot answers is read through its own channel, with a fallback unless the part\'s default block writes it', () => {
-  const blocks = defaultBlockChannels(readFamilies().get('emphasis') as Family, [...layerManifests().values()]);
+  const blocks = new Map([...['emphasis', 'accent'].flatMap((family) => [...defaultBlockChannels(readFamilies().get(family) as Family, [...layerManifests().values()])])]);
   for (const [component, slot, , reads] of READS) {
     for (const one of reads) {
       for (const [, channel, end] of one.matchAll(/var\((--arena-(?:size|orientation|emphasis|accent|mark|elevation|align|layout|placement)-[a-z0-9-]+)([,)])/g)) {
@@ -833,15 +829,15 @@ test('a status a component states follows the accent read in the slot string, so
     ['ArenaBadge', 'root', 'accent-fill-soft', ['success', 'warning', 'danger', 'info']],
     ['ArenaStatCard', 'value', 'accent-ink', ['success', 'warning', 'danger', 'info']],
     ['ArenaTag', 'root', 'accent-edge', ['success', 'warning', 'danger']],
-    ['ArenaToast', 'root', 'accent-side-edge', ['success', 'danger']],
+    ['ArenaToast', 'root', 'accent-feedback-banner-edge', ['success', 'danger']],
     ['ArenaProgressBar', 'track', 'accent-ink', ['success', 'danger', 'info']],
     ['ArenaActivityFeed', 'dot', 'accent-ink', ['success', 'warning', 'danger', 'info']],
   ];
   for (const [component, slot, channel, tones] of stated) {
     for (const tone of tones) {
       const classes = resolve(component, { tone }, slot);
-      const accent = classes.findIndex((one) => one.includes(`--arena-${channel},`));
-      const meaning = classes.findIndex((one) => one.includes('--arena-hue-'));
+      const accent = classes.findIndex((one) => one.includes(`--arena-${channel},`) || one.includes(`--arena-${channel})`));
+      const meaning = classes.findIndex((one) => one.includes('--arena-hue-') || one.includes(`--feedback-${tone}-banner-`));
       assert.ok(accent >= 0 && meaning > accent, `${component}.${slot} at tone ${tone} must write its hue read after the ${channel} read`);
     }
   }

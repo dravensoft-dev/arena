@@ -67,8 +67,8 @@ test('a rest edge is not a slot pair, a selected edge is', () => {
   assert.ok(selected.every((pair) => SLOTS[pair.slot]?.state.startsWith('selected') && pair.min === 3));
   assert.equal(pairs.some((pair) => /disabled$/.test(SLOTS[pair.slot]?.state ?? '') || /disabled$/.test(SLOTS[pair.over]?.state ?? '')), false,
     'a disabled and a selected-disabled slot is never a pair');
-  const mark = (name: string) => SLOTS[name]?.group === 'choices' && ['mark', 'knob'].includes(SLOTS[name]?.part ?? '');
-  assert.ok(pairs.every((pair) => pair.min === (SLOTS[pair.slot]?.property === 'ink' && !mark(pair.slot) ? 4.5 : 3)), 'an ink is text at 4.5:1, a mark or a knob glyph at 3:1 (D69)');
+  const mark = (name: string) => (SLOTS[name]?.group === 'choices' && ['mark', 'knob'].includes(SLOTS[name]?.part ?? '')) || (SLOTS[name]?.group === 'feedback' && SLOTS[name]?.part === 'icon');
+  assert.ok(pairs.every((pair) => pair.min === (SLOTS[pair.slot]?.property === 'ink' && !mark(pair.slot) ? 4.5 : 3)), 'an ink is text at 4.5:1, a mark, a knob glyph or a feedback icon at 3:1 (D69, D89)');
 });
 
 test('an inset ring is measured over each state of its fill', () => {
@@ -416,4 +416,18 @@ test('every pair of a mark part is 3:1 over the ground', () => {
   const faint = new Map([['fields-dot-ink-rest', 'var(--color-base-300)']]);
   const lines = slotReports(c, faint, roles, coloursOf('dark'), 'dark', LEVELS).map((one) => one.message).filter((line) => line.startsWith('--fields-dot-ink-rest measures'));
   assert.ok(lines.length > 0 && lines.every((line) => /below 3:1 \(WCAG 1\.4\.11\)/.test(line)), lines.join('\n'));
+});
+
+test('the feedback icon and action clear their floors over the wash', () => {
+  const shipped = slotPairs(CATALOGUE.slots).filter((pair) => /^feedback-[a-z]+-(icon|action)-ink-rest$/.test(pair.slot));
+  assert.ok(shipped.length >= 10, 'every icon and action ink is measured');
+  for (const pair of shipped) {
+    assert.match(pair.over, /^feedback-[a-z]+-banner-fill-rest$/, `${pair.slot} sits on its banner`);
+    assert.equal(pair.min, /-icon-/.test(pair.slot) ? 3 : 4.5, pair.slot);
+  }
+  for (const theme of ['dark', 'light'] as const) {
+    const roles = rolesFor(null, CATALOGUE, theme);
+    const lines = slotReports(CATALOGUE.slots, new Map(), roles, coloursOf(theme), theme, LEVELS).map((one) => one.message).filter((line) => line.startsWith('--feedback-'));
+    assert.deepEqual(lines, [], `${theme}: every feedback icon and action clears its floor over its wash`);
+  }
 });
