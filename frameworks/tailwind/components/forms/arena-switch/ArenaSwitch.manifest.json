@@ -51,8 +51,6 @@
     "disabled": {
       "true": {
         "root": "",
-        "knob": "border-[color:var(--choices-knob-edge-disabled,var(--choices-knob-edge-rest,var(--edge-control)))] bg-[color:var(--choices-knob-fill-disabled,var(--choices-knob-fill-rest,var(--fill-knob-off)))] text-[color:var(--choices-knob-ink-disabled,var(--choices-knob-ink-rest,var(--ink-knob-off)))]",
-        "icon": "border-[color:var(--choices-knob-edge-disabled,var(--choices-knob-edge-rest,var(--edge-control)))] bg-[color:var(--choices-knob-fill-disabled,var(--choices-knob-fill-rest,var(--fill-knob-off)))] text-[color:var(--choices-knob-ink-disabled,var(--choices-knob-ink-rest,var(--ink-knob-off)))]",
         "label": "opacity-[var(--fade-disabled)]"
       },
       "false": {
@@ -60,16 +58,6 @@
       }
     }
   },
-  "compoundVariants": [
-    {
-      "state": true,
-      "disabled": true,
-      "class": {
-        "knob": "border-[color:var(--choices-knob-edge-selected-disabled,var(--choices-knob-edge-selected,var(--edge-control)))] bg-[color:var(--choices-knob-fill-selected-disabled,var(--choices-knob-fill-selected,var(--fill-knob)))] text-[color:var(--choices-knob-ink-selected-disabled,var(--choices-knob-ink-selected,var(--ink-knob)))]",
-        "icon": "border-[color:var(--choices-knob-edge-selected-disabled,var(--choices-knob-edge-selected,var(--edge-control)))] bg-[color:var(--choices-knob-fill-selected-disabled,var(--choices-knob-fill-selected,var(--fill-knob)))] text-[color:var(--choices-knob-ink-selected-disabled,var(--choices-knob-ink-selected,var(--ink-knob)))]"
-      }
-    }
-  ],
   "defaultVariants": {
     "state": false,
     "disabled": false

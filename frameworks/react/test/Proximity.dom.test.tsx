@@ -105,6 +105,14 @@ const COMPOSITIONS: Record<string, () => React.ReactElement> = {
     <div><ArenaCheckbox disabled label="Notify" /></div>
     <div style={answered({ '--choices-box-fill-disabled': 'var(--fill-surface)', '--choices-box-fade-disabled': '1' })}><ArenaCheckbox disabled label="Notify" /></div>
   </>,
+  'answered-disabled-radio-stops-the-fade': () => <>
+    <div><ArenaRadioGroup ariaLabel="Cadence" value="daily"><ArenaRadio value="daily" label="Daily" disabled /></ArenaRadioGroup></div>
+    <div style={answered({ '--choices-box-fill-selected-disabled': 'var(--fill-surface)', '--choices-box-fade-selected-disabled': '1' })}><ArenaRadioGroup ariaLabel="Cadence" value="daily"><ArenaRadio value="daily" label="Daily" disabled /></ArenaRadioGroup></div>
+  </>,
+  'answered-disabled-switch-stops-the-fade': () => <>
+    <div><ArenaSwitch label="Sync" disabled /></div>
+    <div style={answered({ '--choices-box-fill-disabled': 'var(--fill-surface)', '--choices-box-fade-disabled': '1' })}><ArenaSwitch label="Sync" disabled /></div>
+  </>,
   'hover-answer-is-not-derived-from-the-rest-answer': () => <div style={answered({ '--actions-primary-root-fill-rest': 'var(--fill-surface)', '--actions-primary-root-fill-hover': 'var(--fill-hover)' })}><ArenaButton>Save</ArenaButton></div>,
 };
 
@@ -147,6 +155,8 @@ const SUBJECT: Record<string, { part: string; at: number }> = {
   'choices-answer-moves-every-box': { part: 'checkbox.box', at: 0 },
   'selected-disabled-answer-stops-only-the-selected-fade': { part: 'icon-button', at: -1 },
   'answered-disabled-choices-stops-the-fade': { part: 'checkbox.box', at: -1 },
+  'answered-disabled-radio-stops-the-fade': { part: 'radio.ring', at: -1 },
+  'answered-disabled-switch-stops-the-fade': { part: 'switch.track', at: -1 },
   'class-on-copy-button-reaches-the-icon-button-it-draws': { part: 'icon-button', at: 0 },
 };
 

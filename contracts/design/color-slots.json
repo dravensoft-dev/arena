@@ -235,8 +235,7 @@
             "ink"
           ],
           "states": [
-            "selected",
-            "selected-disabled"
+            "selected"
           ],
           "selected": {
             "ink": "{emphasis-primary-ink}"
@@ -249,7 +248,10 @@
             "ink",
             "edge"
           ],
-          "states": "toggle",
+          "states": [
+            "rest",
+            "selected"
+          ],
           "rest": {
             "fill": "{fill-knob-off}",
             "ink": "{ink-knob-off}",
@@ -1232,13 +1234,8 @@
           "to": "choices.mark",
           "options": [],
           "states": [
-            "selected",
-            "selected-disabled"
-          ],
-          "disabledBy": {
-            "axis": "disabled",
-            "value": "true"
-          }
+            "selected"
+          ]
         },
         "label": "text.body"
       }
@@ -1699,13 +1696,8 @@
           "to": "choices.mark",
           "options": [],
           "states": [
-            "selected",
-            "selected-disabled"
-          ],
-          "disabledBy": {
-            "axis": "disabled",
-            "value": "true"
-          }
+            "selected"
+          ]
         },
         "label": "text.body",
         "hint": "text.muted"
@@ -1924,26 +1916,24 @@
         "knob": {
           "to": "choices.knob",
           "options": [],
-          "states": "toggle",
+          "states": [
+            "rest",
+            "selected"
+          ],
           "selectedBy": {
             "axis": "state",
-            "value": "true"
-          },
-          "disabledBy": {
-            "axis": "disabled",
             "value": "true"
           }
         },
         "icon": {
           "to": "choices.knob",
           "options": [],
-          "states": "toggle",
+          "states": [
+            "rest",
+            "selected"
+          ],
           "selectedBy": {
             "axis": "state",
-            "value": "true"
-          },
-          "disabledBy": {
-            "axis": "disabled",
             "value": "true"
           }
         },

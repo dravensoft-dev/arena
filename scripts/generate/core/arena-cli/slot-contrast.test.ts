@@ -278,19 +278,24 @@ test('a disabled selected box keeps the fade while selected-disabled is silent, 
   assert.equal(box?.default, undefined, 'the default answers no selected-disabled slot');
   assert.equal(memberValue(CATALOGUE.slots, 'ArenaCheckbox.box', 'choices-box-fill-selected-disabled', 'tailwind'),
     'var(--choices-box-fill-selected-disabled,var(--choices-box-fill-selected,var(--fill-control-on)))');
-  assert.equal(memberValue(CATALOGUE.slots, 'ArenaSwitch.knob', 'choices-knob-fill-disabled', 'tailwind'),
-    'var(--choices-knob-fill-disabled,var(--choices-knob-fill-rest,var(--fill-knob-off)))', 'a disabled off knob keeps its knob at rest');
+  for (const state of ['disabled', 'selected-disabled']) {
+    for (const stem of ['choices-knob-fill', 'choices-knob-ink', 'choices-knob-edge', 'choices-mark-ink']) {
+      assert.equal(SLOTS[`${stem}-${state}`], undefined, `${stem}-${state}: a part drawn inside a faded part derives no disabled state (D72)`);
+    }
+  }
+  assert.deepEqual(CATALOGUE.slots.members?.['ArenaSwitch.knob']?.states, ['rest', 'selected'], 'a disabled off knob reads its knob at rest and fades with its track');
+  assert.deepEqual(fadeMarkers(Object.keys(SLOTS), CATALOGUE.slots).map(([marker]) => marker).filter((marker) => /^--choices-(knob|mark)-/.test(marker)), [],
+    'no knob or mark marker is written, since nothing reads it');
   assert.deepEqual(fadeMarkers([], CATALOGUE.slots), [], 'nothing answered, nothing stops the fade');
   assert.deepEqual(fadeMarkers(['choices-box-fill-selected-disabled'], CATALOGUE.slots), [['--choices-box-fade-selected-disabled', '1']]);
   const roles = rolesFor(null, CATALOGUE, 'dark');
   const colors = coloursOf('dark');
   const at = (name: string) => slotColour(CATALOGUE.slots, name, new Map(), roles, colors, LEVELS, mixOf(roles), colors['base-100'] as string);
   assert.equal(at('choices-box-fill-selected-disabled'), at('choices-box-fill-selected'));
-  assert.equal(at('choices-knob-fill-disabled'), at('choices-knob-fill-rest'));
   const manifestOf = (path: string) => JSON.parse(readFileSync(join(repoRoot, 'frameworks/tailwind/components/forms', path), 'utf8'));
   for (const [path, part] of [['arena-checkbox/ArenaCheckbox.manifest.json', 'box'], ['arena-radio/ArenaRadio.manifest.json', 'ring']] as const) {
     const m = manifestOf(path);
-    assert.doesNotMatch(m.variants.disabled.true.root ?? '', /opacity-/, `${path}: the root no longer fades the whole control`);
+    assert.doesNotMatch(m.variants.disabled.true.root ?? '', /opacity-/, `${path}: the root carries no fade, each part carries its own`);
     assert.match(m.variants.disabled.true[part], /opacity-\[var\(--choices-box-fade-disabled,var\(--fade-disabled\)\)\]/, `${path}: an answered disabled box stops its own fade`);
     assert.match(m.compoundVariants[0].class[part], /opacity-\[var\(--choices-box-fade-selected-disabled,var\(--fade-disabled\)\)\]/, `${path}: an answered selected-disabled box stops its own fade`);
   }

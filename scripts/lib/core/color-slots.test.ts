@@ -251,8 +251,8 @@ test('choices derives its slots', () => {
   const segment = ['rest', 'hover', 'pressed', 'selected', 'selected-hover', 'selected-pressed'];
   const want = [
     ...['fill', 'edge'].flatMap((p) => toggle.map((s) => `choices-box-${p}-${s}`)),
-    'choices-mark-ink-selected', 'choices-mark-ink-selected-disabled',
-    ...['fill', 'ink', 'edge'].flatMap((p) => toggle.map((s) => `choices-knob-${p}-${s}`)),
+    'choices-mark-ink-selected',
+    ...['fill', 'ink', 'edge'].flatMap((p) => ['rest', 'selected'].map((s) => `choices-knob-${p}-${s}`)),
     ...['fill', 'ink'].flatMap((p) => segment.map((s) => `choices-segment-${p}-${s}`)),
     'choices-track-fill-rest', 'choices-track-edge-rest',
   ];
@@ -267,7 +267,8 @@ test('choices derives its slots', () => {
   assert.equal(c.slots['choices-knob-ink-rest']?.on, 'choices-knob-fill-rest', 'a glyph sits on its own part\'s fill (D69)');
   assert.equal(c.slots['choices-knob-ink-selected']?.on, 'choices-knob-fill-selected');
   assert.equal(c.slots['choices-knob-edge-selected']?.on, 'choices-box-fill-selected');
-  assert.equal(c.slots['choices-mark-ink-selected-disabled']?.optional, true);
+  assert.equal(c.slots['choices-mark-ink-selected-disabled'], undefined, 'the mark fades with its box (D72)');
+  assert.equal(c.slots['choices-knob-fill-disabled'], undefined, 'the knob fades with its track (D72)');
   const hover = c.slots['choices-segment-ink-hover'];
   assert.equal(hover?.default, '{ink-body}');
   assert.equal(hover?.level, 'level-ink-body');
@@ -276,7 +277,7 @@ test('choices derives its slots', () => {
   assert.deepEqual(c.members['ArenaCheckbox.box']?.selectedBy, { axis: 'checked', value: 'true' });
   assert.deepEqual(c.members['ArenaCheckbox.box']?.disabledBy, { axis: 'disabled', value: 'true' }, 'a span reads its disabled states in the disabled branch (D71)');
   assert.equal(c.members['ArenaSwitch.track']?.disabledBy, undefined, 'a native control reads them under disabled:');
-  assert.deepEqual(c.members['ArenaCheckbox.check']?.states, ['selected', 'selected-disabled']);
+  assert.deepEqual(c.members['ArenaCheckbox.check']?.states, ['selected']);
   assert.equal(c.members['ArenaSlider.track'], undefined, 'the track paints no colour');
   assert.deepEqual(c.members['ArenaSwitch.icon']?.to, 'choices.knob');
 });

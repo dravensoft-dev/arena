@@ -1866,10 +1866,6 @@
     "$type": "color",
     "$value": "{fill-control-on}"
   },
-  "choices-knob-edge-disabled": {
-    "$type": "color",
-    "$value": "{accent-primary-edge}"
-  },
   "choices-knob-edge-rest": {
     "$type": "color",
     "$value": "{accent-primary-edge}"
@@ -1877,14 +1873,6 @@
   "choices-knob-edge-selected": {
     "$type": "color",
     "$value": "{accent-primary-edge}"
-  },
-  "choices-knob-edge-selected-disabled": {
-    "$type": "color",
-    "$value": "{accent-primary-edge}"
-  },
-  "choices-knob-fill-disabled": {
-    "$type": "color",
-    "$value": "{fill-knob}"
   },
   "choices-knob-fill-rest": {
     "$type": "color",
@@ -1896,14 +1884,6 @@
     "$value": "{fill-knob-off}",
     "$description": "complete paints the knob white on and off; fill-knob-off resolves to that white here, and it is a spelling of its own, since the kernel default fill-knob is the one the witness refuses."
   },
-  "choices-knob-fill-selected-disabled": {
-    "$type": "color",
-    "$value": "{fill-knob}"
-  },
-  "choices-knob-ink-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-ink}"
-  },
   "choices-knob-ink-rest": {
     "$type": "color",
     "$value": "{accent-gold-ink}"
@@ -1912,15 +1892,7 @@
     "$type": "color",
     "$value": "{accent-gold-ink}"
   },
-  "choices-knob-ink-selected-disabled": {
-    "$type": "color",
-    "$value": "{accent-gold-ink}"
-  },
   "choices-mark-ink-selected": {
-    "$type": "color",
-    "$value": "{ink-confirm-final}"
-  },
-  "choices-mark-ink-selected-disabled": {
     "$type": "color",
     "$value": "{ink-confirm-final}"
   },
