@@ -125,18 +125,18 @@ test('a member part on an option its manifest lacks, or a part its manifest lack
 
 test('the contract counts', () => {
   const slots = Object.values(shipped().slots);
-  assert.equal(slots.length, 203);
+  assert.equal(slots.length, 193);
   const by = (key: (s: (typeof slots)[number]) => string) => {
     const n: Record<string, number> = {};
     for (const s of slots) n[key(s)] = (n[key(s)] ?? 0) + 1;
     return n;
   };
-  assert.deepEqual(by((s) => s.option ?? ''), { '': 57, primary: 16, secondary: 16, ghost: 32, solid: 32, destructive: 16, neutral: 10, error: 10, valid: 10, readonly: 3, warning: 1 });
-  assert.deepEqual(by((s) => s.state), { rest: 53, disabled: 38, hover: 38, pressed: 28, selected: 16, 'selected-hover': 10, 'selected-pressed': 10, 'selected-disabled': 10 });
-  assert.equal(slots.filter((s) => s.optional).length, 48);
+  assert.deepEqual(by((s) => s.option ?? ''), { '': 57, primary: 16, secondary: 16, ghost: 32, solid: 32, destructive: 16, neutral: 7, error: 7, valid: 7, readonly: 2, warning: 1 });
+  assert.deepEqual(by((s) => s.state), { rest: 50, disabled: 35, hover: 34, pressed: 28, selected: 16, 'selected-hover': 10, 'selected-pressed': 10, 'selected-disabled': 10 });
+  assert.equal(slots.filter((s) => s.optional).length, 45);
   assert.equal(slots.filter((s) => s.derive?.mix === 'mix-pressed').length, 11);
   assert.equal(slots.filter((s) => s.derive?.mix === 'mix-hover').length, 3);
-  assert.equal(slots.filter((s) => s.channel === undefined).length, 107, 'the destructive option, the dismiss part and the choices and fields groups carry no channel (R6)');
+  assert.equal(slots.filter((s) => s.channel === undefined).length, 97, 'the destructive option, the dismiss part and the choices and fields groups carry no channel (R6)');
 });
 
 test('every slot of the five buttons reaches its part under its state', () => {
@@ -738,4 +738,50 @@ test('a member may read its hover inside a branch (D68)', () => {
     .some((l) => /ArenaField declares no variant dragging=true/.test(l)));
   const shared = fieldDeclared(fieldMember({ options: ['plain'], states: ['rest', 'hover'], hoverBy: { axis: 'dragging', value: 'true' }, selectedBy: { axis: 'dragging', value: 'true' } }));
   assert.match(declarationProblems(shared).join('\n'), /hoverBy: it shares the axis dragging with selectedBy/);
+});
+
+test('a member may paint only where an axis holds, and read its text from another group part', () => {
+  const ok = fieldDeclared(fieldMember({ options: ['plain', 'error'], states: ['rest'], properties: ['edge'], optionBy: { axis: 'state', values: { plain: 'plain', error: 'error' } }, onlyBy: { axis: 'droppable', value: 'true' } }));
+  assert.deepEqual(declarationProblems(ok), []);
+  const c = deriveSlots(ok);
+  const edge = (option: string) => `border-[color:${memberValue(c, 'ArenaField.field', `choices-${option}-field-edge-rest`, 'tailwind')}]`;
+  const m = (error: string) => new Map([['ArenaField', {
+    component: 'ArenaField', slots: { field: '' }, variants: { state: { plain: {}, error: {} }, droppable: { true: {} } },
+    compoundVariants: [{ droppable: true, state: 'plain', class: { field: edge('plain') } }, { droppable: true, state: 'error', class: { field: error } }],
+  } as never]]);
+  assert.deepEqual(memberReadProblems(c, m(edge('error'))), []);
+  assert.deepEqual(manifestProblems(c, m(edge('error'))), []);
+  assert.deepEqual(memberReadProblems(c, m('')), [`ArenaField.field: choices-error-field-edge-rest is not read as ${edge('error')} in the droppable=true branch and the state=error branch`]);
+  const sameAxis = fieldDeclared(fieldMember({ options: ['plain'], onlyBy: { axis: 'state', value: 'true' }, optionBy: { axis: 'state', values: { plain: 'plain' } } }));
+  assert.match(declarationProblems(sameAxis).join('\n'), /onlyBy: it shares the axis state with optionBy/);
+});
+
+test('the shipped fields read their text from fields.value, and a missing read is refused (D74)', () => {
+  const c = readColorSlots();
+  assert.deepEqual(memberReadProblems(c, manifests), []);
+  const dropped = structuredClone(manifests) as Map<string, any>;
+  dropped.get('ArenaSelect').slots.field = dropped.get('ArenaSelect').slots.field.replace(/text-\[color:var\(--fields-value-ink-rest[^\s]*/, '');
+  assert.match(memberReadProblems(c, dropped).join('\n'), /ArenaSelect\.field: its ink is not read from fields\.value/);
+});
+
+test('a field fades and hovers by its own option, and the compounds that carry them are ordered (I1, I2, m1)', () => {
+  const c = readColorSlots();
+  const compounds = (comp: string) => (manifests.get(comp) as any).compoundVariants as { class: Record<string, string>; [key: string]: unknown }[];
+  for (const comp of ['ArenaInput', 'ArenaNumberField']) {
+    const last = compounds(comp).at(-1)!;
+    assert.deepEqual([last.readOnly, last.disabled], [true, true], `${comp}: the readonly and disabled compound comes last, so it wins the fade of a valid field`);
+  }
+  for (const comp of ['ArenaInput', 'ArenaNumberField', 'ArenaCombobox']) {
+    for (const cv of compounds(comp)) {
+      const tokens = cv.class.field!.split(/\s+/);
+      for (const t of tokens.filter((one) => /^(border|bg)-\[color:/.test(one))) assert.ok(tokens.includes(`hover:${t}`), `${comp}: a disabled read has a hover twin, so a hovered disabled field keeps its answer`);
+    }
+  }
+  const zone = compounds('ArenaFileInput');
+  for (const cv of zone) assert.ok(typeof cv.state === 'string' && cv.droppable === true, 'a zone compound names its state, so an error zone never takes a neutral compound');
+  for (const state of ['neutral', 'error']) {
+    const kinds = zone.filter((cv) => cv.state === state).map((cv) => (cv.disabled ? 'disabled' : cv.dragging ? 'dragging' : 'rest'));
+    assert.deepEqual(kinds, ['rest', 'dragging', 'disabled'], `${state}: where() carries no specificity, so the rest compound comes first and a drag or a disable overrides it`);
+  }
+  assert.equal(c.members['ArenaFileInput.zone']?.onlyBy?.axis, 'droppable');
 });

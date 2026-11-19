@@ -545,7 +545,7 @@ export const CLAIMS = {
   ArenaFileInput: [
     { slot: 'error', has: [ERROR_INK('ArenaFileInput.error')], hasNot: ['text-error', 'text-ink-invalid'], why: 'the field error message reads the invalid ink role, so a plugin answering ink-invalid moves the message with the zone' },
     { slot: 'rejection', has: [ERROR_INK('ArenaFileInput.rejection')], hasNot: ['text-error', 'text-ink-invalid'], why: 'a refused file is said in the invalid ink role' },
-    { chosen: { state: 'error' }, slot: 'zone', has: [read('ArenaFileInput.zone', 'fields-error-field-edge-rest', 'border')], why: 'an error turns the zone\'s edge to the invalid edge role, so a plugin answering edge-invalid moves it' },
+    { chosen: { state: 'error', droppable: 'true' }, slot: 'zone', has: [read('ArenaFileInput.zone', 'fields-error-field-edge-rest', 'border')], why: 'an error turns the zone\'s edge to the invalid edge role, so a plugin answering edge-invalid moves it' },
     { chosen: { droppable: 'true' }, slot: 'zone', has: ['border-dashed', read('ArenaFileInput.zone', 'fields-neutral-field-edge-rest', 'border'), 'border-[length:var(--bw-surface)]', 'p-surface', 'rounded-surface'], why: 'a drop zone is a surface with a dashed edge, drawn literally as the empty state draws its own, and every other property a role' },
     { chosen: { droppable: 'false' }, slot: 'zone', hasNot: ['border-dashed', 'p-surface'], why: 'a field that takes no drop draws no frame, so the trigger stands on the page as a button would' },
     { chosen: { dragging: 'true', droppable: 'true' }, slot: 'zone', has: [read('ArenaFileInput.zone', 'fields-neutral-field-fill-hover', 'bg')], why: 'a drag over the zone is the surface answering, which is the fill-hover role, and a colour crossfade stays under reduced motion' },
@@ -981,7 +981,7 @@ test('an invalid field reads the fields group\'s error slots', () => {
   const HUE_EDGE = 'border-[color:var(--arena-hue-edge)]';
   const HUE_INK = 'text-[color:var(--arena-hue-ink)]';
   for (const [component, slot] of fields) {
-    const classes = resolve(component, { state: 'error' }, slot);
+    const classes = resolve(component, { state: 'error', ...(slot === 'zone' ? { droppable: 'true' } : {}) }, slot);
     assert.ok(classes.includes(read(`${component}.${slot}`, 'fields-error-field-edge-rest', 'border')), `${component}.${slot} state=error lacks the error edge read`);
     assert.ok(!classes.includes(HUE_EDGE) && !classes.includes('border-edge-invalid'), `${component}.${slot} state=error still reads a role directly`);
   }

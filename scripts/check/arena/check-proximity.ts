@@ -133,6 +133,14 @@ export function verdict(kase: ProximityCase, layer: string, order: Order, measur
     : `${where}: the subject is ${measured.width}px wide, the container's width, and the case expects its own width`;
 }
 
+async function forceHover(cdp: Pick<Cdp, 'send'>, sessionId: string) {
+  await cdp.send('DOM.enable', {}, sessionId);
+  await cdp.send('CSS.enable', {}, sessionId);
+  const { root } = await cdp.send('DOM.getDocument', { depth: 0 }, sessionId) as { root: { nodeId: number } };
+  const { nodeId } = await cdp.send('DOM.querySelector', { nodeId: root.nodeId, selector: `[${SUBJECT}]` }, sessionId) as { nodeId: number };
+  await cdp.send('CSS.forcePseudoState', { nodeId, forcedPseudoClasses: ['hover'] }, sessionId);
+}
+
 const MEASURE = (property: string, parts: string[] = []) => `(() => {
   const subject = document.querySelector('[${SUBJECT}]');
   const container = document.body.firstElementChild;
@@ -218,6 +226,7 @@ export async function driveTab(cdp: Pick<Cdp, 'send' | 'on'>, plan: Plan) {
               `${kase.name}: the page never finished loading its sheets, within ${LOADED.ms}ms, which is that size because ${LOADED.why}`);
           });
           if (unloaded !== null) { problems.push(unloaded); continue; }
+          if (kase.hover) await forceHover(cdp, sessionId);
           const property = 'property' in kase.measure ? kase.measure.property : '--arena-fill-width';
           const parts = 'property' in kase.measure ? Object.keys(kase.measure.others ?? {}) : [];
           const result = await evaluate(cdp, MEASURE(property, parts), sessionId) as Measured | null;

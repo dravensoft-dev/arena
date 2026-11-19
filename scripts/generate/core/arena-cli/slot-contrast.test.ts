@@ -317,7 +317,7 @@ test('every fields ink clears AA over every ground in the default', () => {
   const shipped = slotPairs(CATALOGUE.slots);
   const grounded = ['fields-required-ink-rest', 'fields-error-status-ink-rest', 'fields-valid-status-ink-rest', 'fields-error-ink-rest', 'fields-neutral-counter-ink-rest', 'fields-warning-counter-ink-rest'];
   for (const slot of grounded) assert.ok(shipped.some((pair) => pair.slot === slot && pair.over === 'ground' && pair.min === 4.5), `${slot} is measured over every ground at 4.5:1`);
-  assert.ok(shipped.some((pair) => pair.slot === 'fields-neutral-field-ink-rest' && pair.over === 'fields-neutral-field-fill-rest' && pair.min === 4.5), 'a field ink is measured over its own fill');
+  assert.ok(shipped.some((pair) => pair.slot === 'fields-value-ink-rest' && pair.over === 'fields-value-fill-rest' && pair.min === 4.5), 'the text of every field is measured over its transparent fill, so over every ground');
   assert.ok(shipped.some((pair) => pair.slot === 'fields-stepper-ink-hover' && pair.over === 'fields-stepper-fill-hover' && pair.min === 4.5));
   for (const theme of ['dark', 'light'] as const) {
     const plugin = readPlugin('default', JSON.parse(readFileSync(join(repoRoot, 'plugin-style-store/default/plugin.tokens.json'), 'utf8')));

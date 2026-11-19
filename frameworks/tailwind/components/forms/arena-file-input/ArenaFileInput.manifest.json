@@ -64,7 +64,7 @@
   "variants": {
     "droppable": {
       "true": {
-        "zone": "p-surface rounded-surface border-[length:var(--bw-surface)] border-dashed shadow-surface-rest border-[color:var(--fields-neutral-field-edge-rest,var(--edge-field))] bg-[color:var(--fields-neutral-field-fill-rest,var(--fill-field))]"
+        "zone": "p-surface rounded-surface border-[length:var(--bw-surface)] border-dashed shadow-surface-rest"
       },
       "false": {}
     },
@@ -75,9 +75,11 @@
       "false": {}
     },
     "state": {
-      "neutral": {},
+      "neutral": {
+        "zone": ""
+      },
       "error": {
-        "zone": "border-[color:var(--fields-error-field-edge-rest,var(--edge-invalid))] bg-[color:var(--fields-error-field-fill-rest,var(--fill-field))]"
+        "zone": ""
       }
     },
     "disabled": {
@@ -102,13 +104,37 @@
   },
   "compoundVariants": [
     {
-      "state": "error",
-      "disabled": true,
+      "droppable": true,
+      "state": "neutral",
       "class": {
-        "zone": "border-[color:var(--fields-error-field-edge-disabled,var(--fields-error-field-edge-rest,var(--edge-invalid)))] bg-[color:var(--fields-error-field-fill-disabled,var(--fields-error-field-fill-rest,var(--fill-field)))] opacity-[var(--fields-error-field-fade-disabled,var(--fade-disabled))]"
+        "zone": "border-[color:var(--fields-neutral-field-edge-rest,var(--edge-field))] bg-[color:var(--fields-neutral-field-fill-rest,var(--fill-field))]"
       }
     },
     {
+      "droppable": true,
+      "state": "neutral",
+      "dragging": true,
+      "class": {
+        "zone": "border-[color:var(--fields-neutral-field-edge-hover,var(--fields-neutral-field-edge-rest,var(--edge-field)))] bg-[color:var(--fields-neutral-field-fill-hover,var(--fill-hover))]"
+      }
+    },
+    {
+      "droppable": true,
+      "state": "neutral",
+      "disabled": true,
+      "class": {
+        "zone": "border-[color:var(--fields-neutral-field-edge-disabled,var(--fields-neutral-field-edge-rest,var(--edge-field)))] bg-[color:var(--fields-neutral-field-fill-disabled,var(--fields-neutral-field-fill-rest,var(--fill-field)))] opacity-[var(--fields-neutral-field-fade-disabled,var(--fade-disabled))]"
+      }
+    },
+    {
+      "droppable": true,
+      "state": "error",
+      "class": {
+        "zone": "border-[color:var(--fields-error-field-edge-rest,var(--edge-invalid))] bg-[color:var(--fields-error-field-fill-rest,var(--fill-field))]"
+      }
+    },
+    {
+      "droppable": true,
       "state": "error",
       "dragging": true,
       "class": {
@@ -117,16 +143,10 @@
     },
     {
       "droppable": true,
+      "state": "error",
       "disabled": true,
       "class": {
-        "zone": "border-[color:var(--fields-neutral-field-edge-disabled,var(--fields-neutral-field-edge-rest,var(--edge-field)))] bg-[color:var(--fields-neutral-field-fill-disabled,var(--fields-neutral-field-fill-rest,var(--fill-field)))] opacity-[var(--fields-neutral-field-fade-disabled,var(--fade-disabled))]"
-      }
-    },
-    {
-      "droppable": true,
-      "dragging": true,
-      "class": {
-        "zone": "border-[color:var(--fields-neutral-field-edge-hover,var(--fields-neutral-field-edge-rest,var(--edge-field)))] bg-[color:var(--fields-neutral-field-fill-hover,var(--fill-hover))]"
+        "zone": "border-[color:var(--fields-error-field-edge-disabled,var(--fields-error-field-edge-rest,var(--edge-invalid)))] bg-[color:var(--fields-error-field-fill-disabled,var(--fields-error-field-fill-rest,var(--fill-field)))] opacity-[var(--fields-error-field-fade-disabled,var(--fade-disabled))]"
       }
     }
   ]

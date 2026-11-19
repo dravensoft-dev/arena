@@ -41,6 +41,7 @@ import { ArenaRadio } from '../components/forms/arena-radio/ArenaRadio';
 import { ArenaSwitch } from '../components/forms/arena-switch/ArenaSwitch';
 import { ArenaSlider } from '../components/forms/arena-slider/ArenaSlider';
 import { ArenaInput } from '../components/forms/arena-input/ArenaInput';
+import { ArenaFileInput } from '../components/forms/arena-file-input/ArenaFileInput';
 import { ArenaFooter } from '../ProjectionMarkers';
 import { LIB } from './Compliance';
 
@@ -133,6 +134,10 @@ const TEMPLATES: Record<string, string> = {
   'fields-edge-answer-moves-the-halo': '<div style="--fields-error-field-edge-rest: var(--hue-warning-edge)"><arena-input label="Email" error="Required" /></div>',
   'answered-disabled-field-stops-the-fade': '<div><arena-input label="Email" disabled /></div>'
     + '<div style="--fields-neutral-field-fill-disabled: var(--fill-surface); --fields-neutral-field-fade-disabled: 1"><arena-input label="Email" disabled /></div>',
+  'fields-error-zone-keeps-its-edge-while-disabled': '<div style="--fields-error-field-edge-disabled: var(--hue-warning-edge)"><arena-file-input label="Upload" [droppable]="true" error="Too big" disabled /></div>',
+  'fields-error-zone-keeps-its-edge-while-dragged': '<div style="--fields-error-field-edge-hover: var(--hue-warning-edge)"><arena-file-input label="Upload" [droppable]="true" error="Too big" /></div>',
+  'fields-error-zone-draws-no-field-unless-droppable': '<arena-file-input label="Upload" error="Too big" />',
+  'answered-disabled-field-keeps-its-answer-while-hovered': '<div style="--fields-neutral-field-fill-disabled: var(--fill-surface)"><arena-input label="Email" disabled /></div>',
   'hover-answer-is-not-derived-from-the-rest-answer': '<div style="--actions-primary-root-fill-rest: var(--fill-surface); --actions-primary-root-fill-hover: var(--fill-hover)"><arena-button>Save</arena-button></div>',
 };
 
@@ -179,6 +184,10 @@ const SUBJECT: Record<string, { part: string; index: number }> = {
   'answered-disabled-switch-stops-the-fade': { part: 'switch.track', index: -1 },
   'fields-edge-answer-moves-the-halo': { part: 'input.field', index: 0 },
   'answered-disabled-field-stops-the-fade': { part: 'input.field', index: -1 },
+  'fields-error-zone-keeps-its-edge-while-disabled': { part: 'file-input.zone', index: 0 },
+  'fields-error-zone-keeps-its-edge-while-dragged': { part: 'file-input.zone', index: 0 },
+  'fields-error-zone-draws-no-field-unless-droppable': { part: 'file-input.zone', index: 0 },
+  'answered-disabled-field-keeps-its-answer-while-hovered': { part: 'input.field', index: 0 },
   'class-on-copy-button-reaches-the-icon-button-it-draws': { part: 'icon-button', index: 0 },
 };
 
@@ -194,7 +203,7 @@ for (const kase of cases) {
     const Host = Component({
       selector: `proximity-${kase.name}-host`,
       standalone: true,
-      imports: [ArenaButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaIconButton, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaFooter, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope, ArenaSplitButton, ArenaCopyButton, ArenaCheckbox, ArenaRadioGroup, ArenaRadio, ArenaSwitch, ArenaSlider, ArenaInput],
+      imports: [ArenaButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaIconButton, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaFooter, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope, ArenaSplitButton, ArenaCopyButton, ArenaCheckbox, ArenaRadioGroup, ArenaRadio, ArenaSwitch, ArenaSlider, ArenaInput, ArenaFileInput],
       template: BARE.has(kase.name) ? TEMPLATES[kase.name] : `<div class="${kase.container}">${TEMPLATES[kase.name]}</div>`,
     })(class {});
     const fixture = TestBed.createComponent(Host);
@@ -202,6 +211,12 @@ for (const kase of cases) {
       fixture.detectChanges();
       fixture.detectChanges();
       const container = (fixture.nativeElement as Element).firstElementChild!;
+      if (kase.name === 'fields-error-zone-keeps-its-edge-while-dragged') {
+        const event = new Event('dragenter', { bubbles: true, cancelable: true });
+        Object.defineProperty(event, 'dataTransfer', { value: { types: ['Files'] } });
+        container.querySelector('[data-arena-part="file-input.zone"]')!.dispatchEvent(event);
+        fixture.detectChanges();
+      }
       const { part, index } = SUBJECT[kase.name] ?? { part: 'button', index: -1 };
       const drawn = [...(container.matches(`[data-arena-part="${part}"]`) ? [container] : []), ...container.querySelectorAll(`[data-arena-part="${part}"]`)];
       const subject = drawn.at(index) ?? null;

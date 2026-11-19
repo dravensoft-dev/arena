@@ -4,7 +4,7 @@
     "root": "flex flex-col gap-1.5",
     "label": "font-face-label text-ctl-xs tracking-label-role case-label text-ink-muted/(--level-ink-muted)",
     "required": "ml-1 text-[color:var(--fields-required-ink-rest,var(--accent-primary-ink))]",
-    "field": "w-full px-control-x py-control-text-y border-[length:var(--bw-field)] rounded-field font-body text-ctl leading-body outline-none transition-[border-color,box-shadow] duration-[var(--dur-hover)] ease-hover placeholder:text-[color:color-mix(in_oklab,var(--fields-value-ink-rest,var(--ink-body))_var(--level-ink-muted),transparent)]",
+    "field": "w-full px-control-x py-control-text-y border-[length:var(--bw-field)] rounded-field font-body text-ctl leading-body outline-none transition-[border-color,box-shadow] duration-[var(--dur-hover)] ease-hover placeholder:text-[color:color-mix(in_oklab,var(--fields-value-ink-rest,var(--ink-body))_var(--level-ink-muted),transparent)] text-[color:var(--fields-value-ink-rest,var(--ink-body))]",
     "foot": "flex justify-between gap-items",
     "hint": "font-body text-ctl-sm text-ink-muted/(--level-ink-muted)",
     "error": "font-body text-ctl-sm text-[color:var(--fields-error-ink-rest,var(--ink-invalid))]",
@@ -28,10 +28,10 @@
   "variants": {
     "state": {
       "neutral": {
-        "field": "focus:border-edge-focus focus:ring-[length:var(--bw-focus)] focus:ring-edge-focus/(--level-accent-soft-gold) disabled:border-[color:var(--fields-neutral-field-edge-disabled,var(--fields-neutral-field-edge-rest,var(--edge-field)))] hover:border-[color:var(--fields-neutral-field-edge-hover,var(--fields-neutral-field-edge-rest,var(--edge-field)))] border-[color:var(--fields-neutral-field-edge-rest,var(--edge-field))] disabled:bg-[color:var(--fields-neutral-field-fill-disabled,var(--fields-neutral-field-fill-rest,var(--fill-field)))] hover:bg-[color:var(--fields-neutral-field-fill-hover,var(--fill-hover))] bg-[color:var(--fields-neutral-field-fill-rest,var(--fill-field))] disabled:text-[color:var(--fields-neutral-field-ink-disabled,var(--fields-neutral-field-ink-rest,var(--ink-body)))] hover:text-[color:var(--fields-neutral-field-ink-hover,var(--fields-neutral-field-ink-rest,var(--ink-body)))] text-[color:var(--fields-neutral-field-ink-rest,var(--ink-body))] disabled:opacity-[var(--fields-neutral-field-fade-disabled,var(--fade-disabled))]"
+        "field": "focus:border-edge-focus focus:ring-[length:var(--bw-focus)] focus:ring-edge-focus/(--level-accent-soft-gold) disabled:border-[color:var(--fields-neutral-field-edge-disabled,var(--fields-neutral-field-edge-rest,var(--edge-field)))] hover:border-[color:var(--fields-neutral-field-edge-hover,var(--fields-neutral-field-edge-rest,var(--edge-field)))] border-[color:var(--fields-neutral-field-edge-rest,var(--edge-field))] disabled:bg-[color:var(--fields-neutral-field-fill-disabled,var(--fields-neutral-field-fill-rest,var(--fill-field)))] hover:bg-[color:var(--fields-neutral-field-fill-hover,var(--fill-hover))] bg-[color:var(--fields-neutral-field-fill-rest,var(--fill-field))] disabled:opacity-[var(--fields-neutral-field-fade-disabled,var(--fade-disabled))]"
       },
       "error": {
-        "field": "ring-[length:var(--focus-width)] disabled:border-[color:var(--fields-error-field-edge-disabled,var(--fields-error-field-edge-rest,var(--edge-invalid)))] hover:border-[color:var(--fields-error-field-edge-hover,var(--fields-error-field-edge-rest,var(--edge-invalid)))] border-[color:var(--fields-error-field-edge-rest,var(--edge-invalid))] disabled:bg-[color:var(--fields-error-field-fill-disabled,var(--fields-error-field-fill-rest,var(--fill-field)))] hover:bg-[color:var(--fields-error-field-fill-hover,var(--fill-hover))] bg-[color:var(--fields-error-field-fill-rest,var(--fill-field))] disabled:text-[color:var(--fields-error-field-ink-disabled,var(--fields-error-field-ink-rest,var(--ink-body)))] hover:text-[color:var(--fields-error-field-ink-hover,var(--fields-error-field-ink-rest,var(--ink-body)))] text-[color:var(--fields-error-field-ink-rest,var(--ink-body))] ring-[color:color-mix(in_oklab,var(--fields-error-field-edge-rest,var(--edge-invalid))_var(--level-hue-soft-danger),transparent)] disabled:opacity-[var(--fields-error-field-fade-disabled,var(--fade-disabled))]"
+        "field": "ring-[length:var(--focus-width)] disabled:border-[color:var(--fields-error-field-edge-disabled,var(--fields-error-field-edge-rest,var(--edge-invalid)))] hover:border-[color:var(--fields-error-field-edge-hover,var(--fields-error-field-edge-rest,var(--edge-invalid)))] border-[color:var(--fields-error-field-edge-rest,var(--edge-invalid))] disabled:bg-[color:var(--fields-error-field-fill-disabled,var(--fields-error-field-fill-rest,var(--fill-field)))] hover:bg-[color:var(--fields-error-field-fill-hover,var(--fill-hover))] bg-[color:var(--fields-error-field-fill-rest,var(--fill-field))] ring-[color:color-mix(in_oklab,var(--fields-error-field-edge-rest,var(--edge-invalid))_var(--level-hue-soft-danger),transparent)] disabled:opacity-[var(--fields-error-field-fade-disabled,var(--fade-disabled))]"
       }
     },
     "resize": {
@@ -53,7 +53,7 @@
     },
     "readOnly": {
       "true": {
-        "field": "cursor-default disabled:bg-[color:var(--fields-readonly-field-fill-disabled,var(--fields-readonly-field-fill-rest,var(--fill-surface)))] hover:bg-[color:var(--fields-readonly-field-fill-hover,var(--fill-hover))] bg-[color:var(--fields-readonly-field-fill-rest,var(--fill-surface))] disabled:opacity-[var(--fields-readonly-field-fade-disabled,var(--fade-disabled))]"
+        "field": "cursor-default disabled:bg-[color:var(--fields-readonly-field-fill-disabled,var(--fields-readonly-field-fill-rest,var(--fill-surface)))] bg-[color:var(--fields-readonly-field-fill-rest,var(--fill-surface))] disabled:opacity-[var(--fields-readonly-field-fade-disabled,var(--fade-disabled))]"
       },
       "false": {}
     },

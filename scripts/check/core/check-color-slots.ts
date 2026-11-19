@@ -214,7 +214,8 @@ export function manifestProblems(c: SlotCatalogue, manifests: Manifests): string
     const branches: [string, string][] = [...optionAxes(m).flatMap((one) => Object.keys(one.values).map((value) => [one.axis, value] as [string, string])),
       ...(m.selectedBy && m.states.includes('rest') ? [[m.selectedBy.axis, m.selectedBy.value] as [string, string]] : []),
       ...(m.disabledBy && m.states.some((st) => DISABLED.has(st)) ? [[m.disabledBy.axis, m.disabledBy.value] as [string, string]] : []),
-      ...(m.hoverBy && m.states.includes('hover') ? [[m.hoverBy.axis, m.hoverBy.value] as [string, string]] : [])];
+      ...(m.hoverBy && m.states.includes('hover') ? [[m.hoverBy.axis, m.hoverBy.value] as [string, string]] : []),
+      ...(m.onlyBy ? [[m.onlyBy.axis, m.onlyBy.value] as [string, string]] : [])];
     for (const [axis, value] of branches) {
       if (!Object.hasOwn(manifest.variants?.[axis] ?? {}, value)) out.push(`members.${key}: ${comp} declares no variant ${axis}=${value}`);
     }
@@ -265,6 +266,7 @@ const inlineMember = (c: SlotCatalogue, m: MemberPart) => m.inline === true || m
 
 const branchOf = (m: MemberPart, s: ColorSlot): [string, string][] => {
   const out: [string, string][] = [];
+  if (m.onlyBy) out.push([m.onlyBy.axis, m.onlyBy.value]);
   for (const one of optionAxes(m)) {
     const by = Object.entries(one.values).find(([, option]) => option === s.option);
     if (by) { out.push([one.axis, by[0]]); break; }
@@ -288,6 +290,11 @@ export function memberReadProblems(c: SlotCatalogue, manifests: Manifests): stri
     const [comp, part] = key.split('.') as [string, string];
     const manifest = manifests.get(comp);
     if (!manifest || !inlineMember(c, m)) continue;
+    if (m.inkFrom !== undefined && inlineMember(c, m)) {
+      const name = `${m.inkFrom.replace('.', '-')}-ink-rest`;
+      const want = `text-[color:${memberValue(c, key, name, 'tailwind')}]`;
+      if (!branchTexts(manifest, part, []).some((text) => text.split(/\s+/).includes(want))) out.push(`${key}: its ink is not read from ${m.inkFrom} as ${want} in the base class`);
+    }
     for (const [name, s] of memberSlots(c, m)) {
       const branch = branchOf(m, s);
       const modifier = (m.disabledBy && DISABLED.has(s.state)) || (m.hoverBy && s.state === 'hover') ? '' : MODIFIER[s.state] ?? '';
@@ -358,7 +365,7 @@ const DECLARED = {
   groupPart: ['properties', 'options', 'states', 'channel', 'rest', 'selected', 'on', 'selectedOn', 'decision', 'paintedBy'],
   option: ['states', 'properties', 'rest', 'selected', 'halo', 'channel', 'decision'],
   member: ['group', 'parts'],
-  memberPart: ['to', 'options', 'states', 'channels', 'defaults', 'decision', 'optionBy', 'selectedBy', 'disabledBy', 'hoverBy', 'properties', 'inline'],
+  memberPart: ['to', 'options', 'states', 'channels', 'defaults', 'decision', 'optionBy', 'selectedBy', 'disabledBy', 'hoverBy', 'onlyBy', 'inkFrom', 'properties', 'inline'],
   exception: ['default', 'decision', 'level'],
 };
 const DECISION = /^[DR]\d+$/;
@@ -472,7 +479,7 @@ export function declarationProblems(d: SlotDeclarations): string[] {
       if (axes.length > 0 && (to.options ?? []).filter((o) => !axes.some((one) => Object.values(one.values ?? {}).includes(o))).length > 1) {
         out.push(`${where}.optionBy: more than one option is left with no value, and only the base option has none`);
       }
-      const branch = (key: 'selectedBy' | 'disabledBy' | 'hoverBy', others: ('optionBy' | 'selectedBy' | 'disabledBy' | 'hoverBy')[]) => {
+      const branch = (key: 'selectedBy' | 'disabledBy' | 'hoverBy' | 'onlyBy', others: ('optionBy' | 'selectedBy' | 'disabledBy' | 'hoverBy')[]) => {
         const one = to[key];
         if (one === undefined) return;
         if (typeof one.axis !== 'string' || one.axis === '' || typeof one.value !== 'string') { out.push(`${where}.${key}: it names an axis and a value`); return; }
@@ -484,6 +491,7 @@ export function declarationProblems(d: SlotDeclarations): string[] {
       branch('selectedBy', ['optionBy']);
       branch('disabledBy', ['optionBy', 'selectedBy']);
       branch('hoverBy', ['optionBy', 'selectedBy', 'disabledBy']);
+      branch('onlyBy', ['optionBy', 'selectedBy', 'disabledBy', 'hoverBy']);
       if (to.properties !== undefined) {
         const [group, partName] = String(to.to).split('.');
         const painted = d.groups?.[group as string]?.parts?.[partName as string]?.properties ?? [];
@@ -542,7 +550,14 @@ export function mapProblems(d: SlotDeclarations, coloured: ReadonlyMap<string, C
       used.add(`${t.group}.${t.part}`);
       const known = Array.isArray(gp.options) ? gp.options : Object.keys(gp.options ?? {});
       for (const o of t.options) if (!known.includes(o)) out.push(`${key}: its option "${o}" is not an option of ${t.group}.${t.part} (${known.join(', ') || 'none'})`);
-      const extra = (painted?.properties ?? []).filter((p) => !gp.properties.includes(p));
+      const from = isMemberDecl(to) ? to.inkFrom : undefined;
+      if (from !== undefined) {
+        const [fg, fp] = from.split('.');
+        const source = groups[fg as string]?.parts?.[fp as string];
+        if (!source || !source.properties.includes('ink')) out.push(`${key}: inkFrom "${from}" is no group part that paints ink`);
+        else used.add(from);
+      }
+      const extra = (painted?.properties ?? []).filter((p) => !gp.properties.includes(p) && !(p === 'ink' && from !== undefined));
       if (extra.length) out.push(`${key}: it paints ${extra.join(', ')}, which ${t.group}.${t.part} does not paint (${gp.properties.join(', ')})`);
     }
   }

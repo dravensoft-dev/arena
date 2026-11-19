@@ -51,7 +51,7 @@
     },
     "readOnly": {
       "true": {
-        "field": "hover:bg-[color:var(--fields-readonly-field-fill-hover,var(--fill-hover))] bg-[color:var(--fields-readonly-field-fill-rest,var(--fill-surface))]",
+        "field": "bg-[color:var(--fields-readonly-field-fill-rest,var(--fill-surface))]",
         "input": "cursor-default"
       },
       "false": {}
@@ -67,28 +67,28 @@
       "state": "error",
       "disabled": true,
       "class": {
-        "field": "border-[color:var(--fields-error-field-edge-disabled,var(--fields-error-field-edge-rest,var(--edge-invalid)))] bg-[color:var(--fields-error-field-fill-disabled,var(--fields-error-field-fill-rest,var(--fill-field)))] opacity-[var(--fields-error-field-fade-disabled,var(--fade-disabled))]"
+        "field": "border-[color:var(--fields-error-field-edge-disabled,var(--fields-error-field-edge-rest,var(--edge-invalid)))] bg-[color:var(--fields-error-field-fill-disabled,var(--fields-error-field-fill-rest,var(--fill-field)))] opacity-[var(--fields-error-field-fade-disabled,var(--fade-disabled))] hover:border-[color:var(--fields-error-field-edge-disabled,var(--fields-error-field-edge-rest,var(--edge-invalid)))] hover:bg-[color:var(--fields-error-field-fill-disabled,var(--fields-error-field-fill-rest,var(--fill-field)))]"
       }
     },
     {
       "state": "neutral",
       "disabled": true,
       "class": {
-        "field": "border-[color:var(--fields-neutral-field-edge-disabled,var(--fields-neutral-field-edge-rest,var(--edge-field)))] bg-[color:var(--fields-neutral-field-fill-disabled,var(--fields-neutral-field-fill-rest,var(--fill-field)))] opacity-[var(--fields-neutral-field-fade-disabled,var(--fade-disabled))]"
-      }
-    },
-    {
-      "readOnly": true,
-      "disabled": true,
-      "class": {
-        "field": "bg-[color:var(--fields-readonly-field-fill-disabled,var(--fields-readonly-field-fill-rest,var(--fill-surface)))] opacity-[var(--fields-readonly-field-fade-disabled,var(--fade-disabled))]"
+        "field": "border-[color:var(--fields-neutral-field-edge-disabled,var(--fields-neutral-field-edge-rest,var(--edge-field)))] bg-[color:var(--fields-neutral-field-fill-disabled,var(--fields-neutral-field-fill-rest,var(--fill-field)))] opacity-[var(--fields-neutral-field-fade-disabled,var(--fade-disabled))] hover:border-[color:var(--fields-neutral-field-edge-disabled,var(--fields-neutral-field-edge-rest,var(--edge-field)))] hover:bg-[color:var(--fields-neutral-field-fill-disabled,var(--fields-neutral-field-fill-rest,var(--fill-field)))]"
       }
     },
     {
       "state": "valid",
       "disabled": true,
       "class": {
-        "field": "border-[color:var(--fields-valid-field-edge-disabled,var(--fields-valid-field-edge-rest,var(--hue-success-edge)))] bg-[color:var(--fields-valid-field-fill-disabled,var(--fields-valid-field-fill-rest,var(--fill-field)))] opacity-[var(--fields-valid-field-fade-disabled,var(--fade-disabled))]"
+        "field": "border-[color:var(--fields-valid-field-edge-disabled,var(--fields-valid-field-edge-rest,var(--hue-success-edge)))] bg-[color:var(--fields-valid-field-fill-disabled,var(--fields-valid-field-fill-rest,var(--fill-field)))] opacity-[var(--fields-valid-field-fade-disabled,var(--fade-disabled))] hover:border-[color:var(--fields-valid-field-edge-disabled,var(--fields-valid-field-edge-rest,var(--hue-success-edge)))] hover:bg-[color:var(--fields-valid-field-fill-disabled,var(--fields-valid-field-fill-rest,var(--fill-field)))]"
+      }
+    },
+    {
+      "readOnly": true,
+      "disabled": true,
+      "class": {
+        "field": "bg-[color:var(--fields-readonly-field-fill-disabled,var(--fields-readonly-field-fill-rest,var(--fill-surface)))] opacity-[var(--fields-readonly-field-fade-disabled,var(--fade-disabled))] hover:bg-[color:var(--fields-readonly-field-fill-disabled,var(--fields-readonly-field-fill-rest,var(--fill-surface)))]"
       }
     }
   ]

@@ -1974,18 +1974,6 @@
     "$type": "color",
     "$value": "{fill-page}"
   },
-  "fields-error-field-ink-disabled": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "fields-error-field-ink-hover": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "fields-error-field-ink-rest": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
   "fields-error-ink-rest": {
     "$type": "color",
     "$value": "{hue-danger-ink}"
@@ -2022,25 +2010,9 @@
     "$type": "color",
     "$value": "{fill-page}"
   },
-  "fields-neutral-field-ink-disabled": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "fields-neutral-field-ink-hover": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "fields-neutral-field-ink-rest": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
   "fields-readonly-field-fill-disabled": {
     "$type": "color",
     "$value": "{fill-surface}"
-  },
-  "fields-readonly-field-fill-hover": {
-    "$type": "color",
-    "$value": "{accent-plain-fill-soft}"
   },
   "fields-readonly-field-fill-rest": {
     "$type": "color",
@@ -2120,18 +2092,6 @@
   "fields-valid-field-fill-rest": {
     "$type": "color",
     "$value": "{fill-page}"
-  },
-  "fields-valid-field-ink-disabled": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "fields-valid-field-ink-hover": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "fields-valid-field-ink-rest": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
   },
   "fields-valid-status-ink-rest": {
     "$type": "color",

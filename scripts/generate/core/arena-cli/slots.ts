@@ -38,6 +38,8 @@ export type MemberPart = {
   selectedBy?: { axis: string; value: string };
   disabledBy?: { axis: string; value: string };
   hoverBy?: { axis: string; value: string };
+  onlyBy?: { axis: string; value: string };
+  inkFrom?: string;
   properties?: SlotProperty[];
   inline?: true;
 };

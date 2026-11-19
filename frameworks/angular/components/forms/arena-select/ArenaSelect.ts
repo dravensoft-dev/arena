@@ -25,7 +25,7 @@ import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
     @if (label(); as text) {
       <label [class]="styles().label()" [arenaSlotData]="styles().$data.label()" [attr.data-arena-part]="parts.label" [attr.for]="selectId">{{ text }}</label>
     }
-    <div [class]="styles().wrap()" [attr.data-arena-part]="parts.wrap">
+    <div [class]="styles().wrap()" [arenaSlotData]="styles().$data.wrap()" [attr.data-arena-part]="parts.wrap">
       @if (icon(); as glyph) {
         <span [class]="styles().iconWrap()" [arenaSlotData]="styles().$data.iconWrap()" [attr.data-arena-part]="parts.iconWrap" aria-hidden="true"><arena-icon [icon]="glyph" /></span>
       }

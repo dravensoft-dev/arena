@@ -288,8 +288,8 @@ test('fields derives its slots', () => {
   const field = ['rest', 'hover', 'disabled'];
   const base = ['rest', 'hover', 'pressed', 'disabled'];
   const want = [
-    ...['neutral', 'error', 'valid'].flatMap((o) => ['fill', 'edge', 'ink'].flatMap((p) => field.map((s) => `fields-${o}-field-${p}-${s}`))),
-    ...field.map((s) => `fields-readonly-field-fill-${s}`),
+    ...['neutral', 'error', 'valid'].flatMap((o) => ['fill', 'edge'].flatMap((p) => field.map((s) => `fields-${o}-field-${p}-${s}`))),
+    ...['rest', 'disabled'].map((s) => `fields-readonly-field-fill-${s}`),
     'fields-value-fill-rest', 'fields-value-ink-rest', 'fields-required-ink-rest',
     'fields-error-status-ink-rest', 'fields-valid-status-ink-rest', 'fields-error-ink-rest',
     'fields-neutral-counter-ink-rest', 'fields-warning-counter-ink-rest',
@@ -298,12 +298,13 @@ test('fields derives its slots', () => {
   assert.deepEqual([...names].sort(), [...want].sort());
   assert.equal(c.slots['fields-neutral-field-fill-rest']?.default, '{fill-field}');
   assert.equal(c.slots['fields-neutral-field-edge-rest']?.default, '{edge-field}');
-  assert.equal(c.slots['fields-neutral-field-ink-rest']?.on, 'fields-neutral-field-fill-rest', 'an ink sits on its own part\'s fill');
+  assert.equal(Object.values(c.slots).some((s) => s.part === 'field' && s.property === 'ink'), false, 'every field text reads fields.value (D74)');
+  assert.equal(c.slots['fields-readonly-field-fill-hover'], undefined, 'a readonly field does not hover (D73)');
   assert.equal(c.slots['fields-error-field-edge-rest']?.default, '{edge-invalid}');
   assert.equal(c.slots['fields-valid-field-edge-rest']?.default, '{hue-success-edge}');
   assert.equal(c.slots['fields-readonly-field-fill-rest']?.default, '{fill-surface}');
   assert.deepEqual(c.halos, { 'fields-error-field': 'level-hue-soft-danger', 'fields-valid-field': 'level-hue-soft-success' });
-  for (const o of ['neutral', 'error', 'valid', 'readonly']) assert.equal(c.slots[`fields-${o}-field-fill-hover`]?.default, '{fill-hover}', `${o}: the hover fill is the group's exception (D19)`);
+  for (const o of ['neutral', 'error', 'valid']) assert.equal(c.slots[`fields-${o}-field-fill-hover`]?.default, '{fill-hover}', `${o}: the hover fill is the group's exception (D19)`);
   assert.equal(c.slots['fields-neutral-field-edge-hover']?.derive?.from, 'fields-neutral-field-edge-rest');
   assert.equal(c.slots['fields-required-ink-rest']?.default, '{accent-primary-ink}');
   assert.equal(c.slots['fields-required-ink-rest']?.on, 'ground', 'an ink with no fill sits on the ground');
@@ -319,7 +320,9 @@ test('fields derives its slots', () => {
   assert.deepEqual(c.members['ArenaInput.field']?.optionBy, [
     { axis: 'state', values: { neutral: 'neutral', error: 'error', valid: 'valid' } }, { axis: 'readOnly', values: { true: 'readonly' } },
   ]);
-  assert.deepEqual(c.members['ArenaInput.field']?.properties, ['fill', 'edge']);
+  for (const key of ['ArenaSelect.field', 'ArenaTextarea.field', 'ArenaPinInput.cell', 'ArenaConfirmDialog.input']) assert.equal(c.members[key]?.inkFrom, 'fields.value', `${key} reads its text from fields.value (D74)`);
+  assert.deepEqual(c.members['ArenaFileInput.zone']?.onlyBy, { axis: 'droppable', value: 'true' }, 'the zone paints its field only where it is droppable');
+  assert.deepEqual(c.members['ArenaFileInput.zone']?.optionBy, { axis: 'state', values: { neutral: 'neutral', error: 'error' } });
   assert.deepEqual(c.members['ArenaInput.field']?.disabledBy, { axis: 'disabled', value: 'true' }, 'a div field reads its disabled states in its branch (D71)');
   assert.equal(c.members['ArenaTextarea.field']?.disabledBy, undefined, 'a native textarea reads them under disabled:');
   assert.deepEqual(c.members['ArenaFileInput.zone']?.hoverBy, { axis: 'dragging', value: 'true' }, 'dragging over the zone is the field\'s hover (D68)');

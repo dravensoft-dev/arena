@@ -19,7 +19,7 @@ test('droppable, dragging and state each reach the zone', () => {
   assert.notEqual(data({ state: 'error' }, 'zone'), data({ state: 'neutral' }, 'zone'));
 });
 
-test('disabled reaches the zone, the trigger and the parts that fade on their own, and no longer the root', () => {
+test('disabled reaches the zone, the trigger and the parts that fade on their own, and the root carries none', () => {
   for (const slot of ['zone', 'trigger', 'label', 'hint'] as const) assert.notEqual(data({ disabled: true }, slot), data({ disabled: false }, slot), slot);
   assert.equal(data({ disabled: true }, 'root'), data({ disabled: false }, 'root'));
 });

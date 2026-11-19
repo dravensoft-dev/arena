@@ -135,10 +135,6 @@
       "default": "{fill-hover}",
       "decision": "D19"
     },
-    "fields-readonly-field-fill-hover": {
-      "default": "{fill-hover}",
-      "decision": "D19"
-    },
     "fields-stepper-fill-hover": {
       "default": "{fill-hover}",
       "decision": "D19"
@@ -340,35 +336,35 @@
         "field": {
           "properties": [
             "fill",
-            "edge",
-            "ink"
+            "edge"
           ],
           "states": "field",
           "options": {
             "neutral": {
               "rest": {
                 "fill": "{fill-field}",
-                "edge": "{edge-field}",
-                "ink": "{ink-body}"
+                "edge": "{edge-field}"
               }
             },
             "error": {
               "halo": "level-hue-soft-danger",
               "rest": {
                 "fill": "{fill-field}",
-                "edge": "{edge-invalid}",
-                "ink": "{ink-body}"
+                "edge": "{edge-invalid}"
               }
             },
             "valid": {
               "halo": "level-hue-soft-success",
               "rest": {
                 "fill": "{fill-field}",
-                "edge": "{hue-success-edge}",
-                "ink": "{ink-body}"
+                "edge": "{hue-success-edge}"
               }
             },
             "readonly": {
+              "states": [
+                "rest",
+                "disabled"
+              ],
               "properties": [
                 "fill"
               ],
@@ -1346,10 +1342,6 @@
             "valid"
           ],
           "states": "field",
-          "properties": [
-            "fill",
-            "edge"
-          ],
           "optionBy": {
             "axis": "state",
             "values": {
@@ -1458,7 +1450,8 @@
               "false": "neutral",
               "true": "error"
             }
-          }
+          },
+          "inkFrom": "fields.value"
         },
         "confirm": {
           "to": "actions.root",
@@ -1579,30 +1572,23 @@
             "error"
           ],
           "states": "field",
-          "properties": [
-            "fill",
-            "edge"
-          ],
-          "optionBy": [
-            {
-              "axis": "state",
-              "values": {
-                "error": "error"
-              }
-            },
-            {
-              "axis": "droppable",
-              "values": {
-                "true": "neutral"
-              }
+          "optionBy": {
+            "axis": "state",
+            "values": {
+              "neutral": "neutral",
+              "error": "error"
             }
-          ],
+          },
           "hoverBy": {
             "axis": "dragging",
             "value": "true"
           },
           "disabledBy": {
             "axis": "disabled",
+            "value": "true"
+          },
+          "onlyBy": {
+            "axis": "droppable",
             "value": "true"
           }
         },
@@ -1730,10 +1716,6 @@
             "readonly"
           ],
           "states": "field",
-          "properties": [
-            "fill",
-            "edge"
-          ],
           "optionBy": [
             {
               "axis": "state",
@@ -1860,10 +1842,6 @@
             "readonly"
           ],
           "states": "field",
-          "properties": [
-            "fill",
-            "edge"
-          ],
           "optionBy": [
             {
               "axis": "state",
@@ -2006,7 +1984,8 @@
               "error": "error",
               "valid": "valid"
             }
-          }
+          },
+          "inkFrom": "fields.value"
         },
         "statusIcon": {
           "to": "fields.status",
@@ -2167,7 +2146,8 @@
               "error": "error",
               "valid": "valid"
             }
-          }
+          },
+          "inkFrom": "fields.value"
         },
         "caret": "text.muted",
         "hint": "text.muted",
@@ -2420,7 +2400,8 @@
                 "true": "readonly"
               }
             }
-          ]
+          ],
+          "inkFrom": "fields.value"
         },
         "hint": "text.muted",
         "error": {
