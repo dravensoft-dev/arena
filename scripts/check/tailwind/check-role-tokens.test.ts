@@ -426,3 +426,7 @@ for (const token of ['shadow-base-300', 'inset-shadow-neutral/40', 'inset-ring-p
     assert.deepEqual(refused(token), [token]);
   });
 }
+
+test('a shadow, inset, offset or drop shadow scale or role utility reads no palette key', () => {
+  assert.deepEqual(refused('shadow-sm shadow-none ring-offset-2 drop-shadow-lg text-shadow-xs inset-shadow-none shadow-surface-floating'), []);
+});

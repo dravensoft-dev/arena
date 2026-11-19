@@ -2,7 +2,7 @@
  * to the fixture. A null tree is a case not yet recorded: the suite fails printing the tree it
  * rendered, which is read against the case's intent before it is pasted into the fixture. The
  * subject is the last drawn button in each case. An opened combobox's CDK overlay panel moves
- * beside its field, so the normalised tree matches React's. */
+ * beside its field, so the normalised tree is the one both layers record. */
 import { useTestEnvironment } from './TestbedEnv';
 useTestEnvironment();
 

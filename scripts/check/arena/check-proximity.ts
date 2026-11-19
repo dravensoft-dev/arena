@@ -6,7 +6,7 @@
  * classes an adopter writes, in both orders and with no layer; a null in a case's expect is unrecorded and
  * fails with the map to paste. The page is pinned at 800x600 on the fixture's own origin, where a face
  * loads, and a markup case waits for its subject's face, so a 100dvh and a ch measure the same on every
- * machine. A forced hover finishes every transition it starts before it is measured, or a part that eases
+ * machine. A forced hover finishes every finite animation before it is measured, or a part that eases
  * its background reads its rest colour. */
 
 import { join } from 'node:path';
@@ -142,7 +142,7 @@ async function forceHover(cdp: Pick<Cdp, 'send'>, sessionId: string) {
   await cdp.send('CSS.forcePseudoState', { nodeId, forcedPseudoClasses: ['hover'] }, sessionId);
 }
 
-const FINISH_TRANSITIONS = 'document.getAnimations().forEach((one) => one.finish())';
+export const FINISH_TRANSITIONS = 'document.getAnimations().filter((one) => Number.isFinite(one.effect?.getComputedTiming().endTime)).forEach((one) => one.finish())';
 
 const MEASURE = (property: string, parts: string[] = []) => `(() => {
   const subject = document.querySelector('[${SUBJECT}]');

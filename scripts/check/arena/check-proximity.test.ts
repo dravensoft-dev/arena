@@ -2,7 +2,7 @@
  * load order, and the verdict on a measurement. The browser half is the gate's run. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { partClasses, partData, pageHtml, verdict, markupVerdict, witnessManifests, pageProblem, driveTab } from './check-proximity.ts';
+import { partClasses, partData, pageHtml, verdict, markupVerdict, witnessManifests, pageProblem, driveTab, FINISH_TRANSITIONS } from './check-proximity.ts';
 import { NETWORK_CHANGED } from '../../lib/arena/page-load.ts';
 import type { CdpMessage } from '../../lib/arena/cdp.ts';
 import { readManifests } from './check-measured-box.ts';
@@ -163,4 +163,15 @@ test('the tab work stops its recorder when the run ends, and when it throws', as
   const wrong = fakeBrowser(() => 'http://elsewhere/');
   await assert.rejects(driveTab(wrong.cdp, PLAN), /the page is at http:\/\/elsewhere\/ and not/);
   assert.equal(wrong.unsubscribed, 1);
+});
+
+test('a forced hover finishes every finite animation and leaves an infinite one running', () => {
+  const finished: string[] = [];
+  const animation = (name: string, endTime: number) => ({
+    effect: { getComputedTiming: () => ({ endTime }) },
+    finish: () => { if (!Number.isFinite(endTime)) throw new Error('InvalidStateError'); finished.push(name); },
+  });
+  const document = { getAnimations: () => [animation('background', 150), animation('spinner', Infinity), { effect: null, finish: () => finished.push('bare') }] };
+  new Function('document', FINISH_TRANSITIONS)(document);
+  assert.deepEqual(finished, ['background']);
 });
