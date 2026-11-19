@@ -9,7 +9,7 @@ import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { colouredParts } from '../../lib/core/color-slot-map.ts';
 import type { SlotCatalogue } from '../../generate/core/arena-cli/slots.ts';
-import { memberValue } from '../../generate/core/arena-cli/slots.ts';
+import { haloValue, memberValue } from '../../generate/core/arena-cli/slots.ts';
 import { fixtureManifests, slotFixture } from '../../lib/core/color-slots-fixture.ts';
 
 const shipped = () => structuredClone(readColorSlots());
@@ -125,18 +125,18 @@ test('a member part on an option its manifest lacks, or a part its manifest lack
 
 test('the contract counts', () => {
   const slots = Object.values(shipped().slots);
-  assert.equal(slots.length, 153);
+  assert.equal(slots.length, 203);
   const by = (key: (s: (typeof slots)[number]) => string) => {
     const n: Record<string, number> = {};
     for (const s of slots) n[key(s)] = (n[key(s)] ?? 0) + 1;
     return n;
   };
-  assert.deepEqual(by((s) => s.option ?? ''), { '': 41, primary: 16, secondary: 16, ghost: 32, solid: 32, destructive: 16 });
-  assert.deepEqual(by((s) => s.state), { rest: 32, disabled: 25, hover: 25, pressed: 25, selected: 16, 'selected-hover': 10, 'selected-pressed': 10, 'selected-disabled': 10 });
-  assert.equal(slots.filter((s) => s.optional).length, 35);
-  assert.equal(slots.filter((s) => s.derive?.mix === 'mix-pressed').length, 10);
+  assert.deepEqual(by((s) => s.option ?? ''), { '': 57, primary: 16, secondary: 16, ghost: 32, solid: 32, destructive: 16, neutral: 10, error: 10, valid: 10, readonly: 3, warning: 1 });
+  assert.deepEqual(by((s) => s.state), { rest: 53, disabled: 38, hover: 38, pressed: 28, selected: 16, 'selected-hover': 10, 'selected-pressed': 10, 'selected-disabled': 10 });
+  assert.equal(slots.filter((s) => s.optional).length, 48);
+  assert.equal(slots.filter((s) => s.derive?.mix === 'mix-pressed').length, 11);
   assert.equal(slots.filter((s) => s.derive?.mix === 'mix-hover').length, 3);
-  assert.equal(slots.filter((s) => s.channel === undefined).length, 57, 'the destructive option, the dismiss part and the choices group carry no channel (R6)');
+  assert.equal(slots.filter((s) => s.channel === undefined).length, 107, 'the destructive option, the dismiss part and the choices and fields groups carry no channel (R6)');
 });
 
 test('every slot of the five buttons reaches its part under its state', () => {
@@ -657,4 +657,85 @@ test('an inline member reads its chains and a channelled one reads its channel',
   delete channelled.members['ArenaCalendar.nav']!.inline;
   assert.ok(readProblems(channelled, manifests).some((l) => l.startsWith('ArenaCalendar.nav does not read --arena-emphasis-')));
   assert.deepEqual(memberReadProblems(channelled, manifests), [], 'a channelled member is readProblems\'s');
+});
+
+test('the ring of an error or valid field reads the halo of its edge', () => {
+  const c = readColorSlots();
+  const ring = (comp: string, part: string, option: string) => {
+    const axis = [c.members[`${comp}.${part}`]!.optionBy].flat().find((one) => Object.values(one!.values).includes(option))!;
+    const value = Object.entries(axis.values).find(([, o]) => o === option)![0];
+    const text = (manifests.get(comp)!.variants as Record<string, Record<string, Record<string, string>>>)[axis.axis]![value]![part]!;
+    return text.split(/\s+/).includes(`ring-[color:${haloValue(c, `${comp}.${part}`, option)}]`);
+  };
+  for (const [comp, part, options] of [
+    ['ArenaInput', 'field', ['error', 'valid']], ['ArenaCombobox', 'field', ['error', 'valid']], ['ArenaNumberField', 'field', ['error', 'valid']],
+    ['ArenaPinInput', 'cell', ['error', 'valid']], ['ArenaSelect', 'field', ['error', 'valid']], ['ArenaTextarea', 'field', ['error']],
+  ] as const) for (const option of options) assert.ok(ring(comp, part, option), `${comp}.${part} ${option}: the ring reads haloValue`);
+});
+
+const fieldDeclared = (members: NonNullable<SlotDeclarations['members']>): SlotDeclarations => slotFixture({
+  field: {
+    properties: ['fill', 'edge'], states: 'plain',
+    options: {
+      plain: { rest: { fill: '{fill-field}', edge: '{edge-field}' } },
+      error: { rest: { fill: '{fill-field}', edge: '{edge-danger}' } },
+      readonly: { properties: ['fill'], rest: { fill: '{fill-surface}' } },
+    },
+  },
+}, members, 'choices');
+
+const fieldMember = (extra: Partial<MemberDecl>): NonNullable<SlotDeclarations['members']> => ({
+  ArenaField: { group: 'choices', parts: { field: { to: 'choices.field', options: ['plain', 'error', 'readonly'], states: 'plain', ...extra } } },
+});
+
+const fieldManifest = (variants: Record<string, unknown>, base = '') => new Map([['ArenaField', {
+  component: 'ArenaField', slots: { field: base }, variants,
+} as never]]);
+
+const reads = (c: SlotCatalogue, option: string, property: 'fill' | 'edge') => ['rest', 'hover'].map((state) => {
+  const name = `choices-${option}-field-${property}-${state}`;
+  return `${state === 'hover' ? 'hover:' : ''}${property === 'fill' ? 'bg-[color:' : 'border-[color:'}${memberValue(c, 'ArenaField.field', name, 'tailwind')}]`;
+}).join(' ');
+
+test('a member may paint a subset of its part\'s properties and name a second option axis', () => {
+  const d = fieldDeclared(fieldMember({
+    properties: ['fill', 'edge'],
+    optionBy: [{ axis: 'state', values: { plain: 'plain', error: 'error' } }, { axis: 'readOnly', values: { true: 'readonly' } }],
+  }));
+  assert.deepEqual(declarationProblems(d), []);
+  const c = deriveSlots(d);
+  const m = fieldManifest({
+    state: { plain: { field: `${reads(c, 'plain', 'fill')} ${reads(c, 'plain', 'edge')}` }, error: { field: `${reads(c, 'error', 'fill')} ${reads(c, 'error', 'edge')}` } },
+    readOnly: { true: { field: reads(c, 'readonly', 'fill') } },
+  });
+  assert.deepEqual(memberReadProblems(c, m), []);
+  assert.deepEqual(manifestProblems(c, m), []);
+  const noReadOnly = fieldManifest({ state: (m.get('ArenaField') as unknown as { variants: Record<string, unknown> }).variants.state, readOnly: { true: { field: '' } } });
+  assert.equal(memberReadProblems(c, noReadOnly).length, 2);
+  assert.ok(memberReadProblems(c, noReadOnly).every((l) => /choices-readonly-field-fill-(rest|hover) is not read as .* in the readOnly=true branch$/.test(l)));
+  const wrongProperty = fieldDeclared(fieldMember({ properties: ['ink'] }));
+  assert.match(declarationProblems(wrongProperty).join('\n'), /ArenaField\.parts\.field\.properties: "ink" is a property choices\.field does not paint/);
+  const sameAxis = fieldDeclared(fieldMember({ optionBy: [{ axis: 'state', values: { error: 'error' } }, { axis: 'state', values: { true: 'readonly' } }] }));
+  assert.match(declarationProblems(sameAxis).join('\n'), /optionBy: the axis state is named twice/);
+});
+
+test('a member may read its hover inside a branch (D68)', () => {
+  const d = fieldDeclared(fieldMember({
+    options: ['plain'], states: ['rest', 'hover'], properties: ['fill'], hoverBy: { axis: 'dragging', value: 'true' },
+  }));
+  assert.deepEqual(declarationProblems(d), []);
+  const c = deriveSlots(d);
+  const rest = `bg-[color:${memberValue(c, 'ArenaField.field', 'choices-plain-field-fill-rest', 'tailwind')}]`;
+  const hover = `bg-[color:${memberValue(c, 'ArenaField.field', 'choices-plain-field-fill-hover', 'tailwind')}]`;
+  const m = (branch: string, base = rest) => new Map([['ArenaField', {
+    component: 'ArenaField', slots: { field: base }, variants: { dragging: { true: { field: branch }, false: {} } },
+  } as never]]);
+  assert.deepEqual(memberReadProblems(c, m(hover)), []);
+  assert.deepEqual(manifestProblems(c, m(hover)), []);
+  assert.deepEqual(memberReadProblems(c, m(`hover:${hover}`)),
+    [`ArenaField.field: choices-plain-field-fill-hover is not read as ${hover} in the dragging=true branch`]);
+  assert.ok(manifestProblems(c, new Map([['ArenaField', { component: 'ArenaField', slots: { field: rest }, variants: {} } as never]]))
+    .some((l) => /ArenaField declares no variant dragging=true/.test(l)));
+  const shared = fieldDeclared(fieldMember({ options: ['plain'], states: ['rest', 'hover'], hoverBy: { axis: 'dragging', value: 'true' }, selectedBy: { axis: 'dragging', value: 'true' } }));
+  assert.match(declarationProblems(shared).join('\n'), /hoverBy: it shares the axis dragging with selectedBy/);
 });

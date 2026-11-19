@@ -119,3 +119,14 @@ test('haloValue is the edge-rest chain at the halo level', () => {
     `color-mix(in_oklab,${memberChain(g, 'ArenaButton.root', edge)}_var(--level-hue-soft-danger),transparent)`);
   assert.throws(() => haloValue(g, 'ArenaButton.root', 'ghost'), /ghost/);
 });
+
+test('the halo follows the edge it belongs to', () => {
+  const edge = (option: string, role: string) => `var(--fields-${option}-field-edge-rest,var(--${role}))`;
+  assert.equal(haloValue(c, 'ArenaInput.field', 'error'), `color-mix(in_oklab,${edge('error', 'edge-invalid')}_var(--level-hue-soft-danger),transparent)`);
+  assert.equal(haloValue(c, 'ArenaSelect.field', 'valid'), `color-mix(in_oklab,${edge('valid', 'hue-success-edge')}_var(--level-hue-soft-success),transparent)`);
+  assert.throws(() => haloValue(c, 'ArenaInput.field', 'neutral'), /neutral/);
+  const moved = structuredClone(c);
+  moved.slots['fields-error-field-edge-rest']!.default = '{hue-warning-edge}';
+  assert.match(haloValue(moved, 'ArenaTextarea.field', 'error'), /var\(--fields-error-field-edge-rest,var\(--hue-warning-edge\)\)_var\(--level-hue-soft-danger\)/,
+    'moving the edge moves the halo with it');
+});

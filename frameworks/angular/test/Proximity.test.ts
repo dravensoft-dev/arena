@@ -40,6 +40,7 @@ import { ArenaRadioGroup } from '../components/forms/arena-radio-group/ArenaRadi
 import { ArenaRadio } from '../components/forms/arena-radio/ArenaRadio';
 import { ArenaSwitch } from '../components/forms/arena-switch/ArenaSwitch';
 import { ArenaSlider } from '../components/forms/arena-slider/ArenaSlider';
+import { ArenaInput } from '../components/forms/arena-input/ArenaInput';
 import { ArenaFooter } from '../ProjectionMarkers';
 import { LIB } from './Compliance';
 
@@ -129,6 +130,9 @@ const TEMPLATES: Record<string, string> = {
     + '<div style="--choices-box-fill-selected-disabled: var(--fill-surface); --choices-box-fade-selected-disabled: 1"><arena-radio-group ariaLabel="Cadence" value="daily"><arena-radio value="daily" label="Daily" disabled /></arena-radio-group></div>',
   'answered-disabled-switch-stops-the-fade': '<div><arena-switch label="Sync" disabled /></div>'
     + '<div style="--choices-box-fill-disabled: var(--fill-surface); --choices-box-fade-disabled: 1"><arena-switch label="Sync" disabled /></div>',
+  'fields-edge-answer-moves-the-halo': '<div style="--fields-error-field-edge-rest: var(--hue-warning-edge)"><arena-input label="Email" error="Required" /></div>',
+  'answered-disabled-field-stops-the-fade': '<div><arena-input label="Email" disabled /></div>'
+    + '<div style="--fields-neutral-field-fill-disabled: var(--fill-surface); --fields-neutral-field-fade-disabled: 1"><arena-input label="Email" disabled /></div>',
   'hover-answer-is-not-derived-from-the-rest-answer': '<div style="--actions-primary-root-fill-rest: var(--fill-surface); --actions-primary-root-fill-hover: var(--fill-hover)"><arena-button>Save</arena-button></div>',
 };
 
@@ -173,6 +177,8 @@ const SUBJECT: Record<string, { part: string; index: number }> = {
   'answered-disabled-choices-stops-the-fade': { part: 'checkbox.box', index: -1 },
   'answered-disabled-radio-stops-the-fade': { part: 'radio.ring', index: -1 },
   'answered-disabled-switch-stops-the-fade': { part: 'switch.track', index: -1 },
+  'fields-edge-answer-moves-the-halo': { part: 'input.field', index: 0 },
+  'answered-disabled-field-stops-the-fade': { part: 'input.field', index: -1 },
   'class-on-copy-button-reaches-the-icon-button-it-draws': { part: 'icon-button', index: 0 },
 };
 
@@ -188,7 +194,7 @@ for (const kase of cases) {
     const Host = Component({
       selector: `proximity-${kase.name}-host`,
       standalone: true,
-      imports: [ArenaButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaIconButton, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaFooter, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope, ArenaSplitButton, ArenaCopyButton, ArenaCheckbox, ArenaRadioGroup, ArenaRadio, ArenaSwitch, ArenaSlider],
+      imports: [ArenaButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaIconButton, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaFooter, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope, ArenaSplitButton, ArenaCopyButton, ArenaCheckbox, ArenaRadioGroup, ArenaRadio, ArenaSwitch, ArenaSlider, ArenaInput],
       template: BARE.has(kase.name) ? TEMPLATES[kase.name] : `<div class="${kase.container}">${TEMPLATES[kase.name]}</div>`,
     })(class {});
     const fixture = TestBed.createComponent(Host);

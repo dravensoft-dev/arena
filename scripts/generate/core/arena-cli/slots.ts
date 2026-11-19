@@ -26,17 +26,23 @@ export type ColorSlot = {
   optional?: true;
 };
 
+export type OptionAxis = { axis: string; values: Record<string, string> };
+
 export type MemberPart = {
   to: string;
   options: string[];
   states: SlotState[];
   channels?: Partial<Record<SlotProperty, string>>;
   defaults?: Record<string, string>;
-  optionBy?: { axis: string; values: Record<string, string> };
+  optionBy?: OptionAxis | OptionAxis[];
   selectedBy?: { axis: string; value: string };
   disabledBy?: { axis: string; value: string };
+  hoverBy?: { axis: string; value: string };
+  properties?: SlotProperty[];
   inline?: true;
 };
+
+export const optionAxes = (m: Pick<MemberPart, 'optionBy'>): OptionAxis[] => (m.optionBy === undefined ? [] : [m.optionBy].flat());
 
 export type SlotCatalogue = {
   accepts: Record<SlotProperty, string[]>;

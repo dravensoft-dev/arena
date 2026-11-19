@@ -6,7 +6,7 @@ import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
 import { mount, cleanup } from './Harness.tsx';
-import { ArenaButton, ArenaIconButton, ArenaSplitButton, ArenaCopyButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope, ArenaCheckbox, ArenaRadioGroup, ArenaRadio, ArenaSwitch, ArenaSlider } from '../Index.generated.ts';
+import { ArenaButton, ArenaIconButton, ArenaSplitButton, ArenaCopyButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope, ArenaCheckbox, ArenaRadioGroup, ArenaRadio, ArenaSwitch, ArenaSlider, ArenaInput } from '../Index.generated.ts';
 import { readProximity, normalize, vocabularyClasses } from '../../../scripts/lib/arena/proximity.ts';
 
 afterEach(cleanup);
@@ -113,6 +113,11 @@ const COMPOSITIONS: Record<string, () => React.ReactElement> = {
     <div><ArenaSwitch label="Sync" disabled /></div>
     <div style={answered({ '--choices-box-fill-disabled': 'var(--fill-surface)', '--choices-box-fade-disabled': '1' })}><ArenaSwitch label="Sync" disabled /></div>
   </>,
+  'fields-edge-answer-moves-the-halo': () => <div style={answered({ '--fields-error-field-edge-rest': 'var(--hue-warning-edge)' })}><ArenaInput label="Email" error="Required" /></div>,
+  'answered-disabled-field-stops-the-fade': () => <>
+    <div><ArenaInput label="Email" disabled /></div>
+    <div style={answered({ '--fields-neutral-field-fill-disabled': 'var(--fill-surface)', '--fields-neutral-field-fade-disabled': '1' })}><ArenaInput label="Email" disabled /></div>
+  </>,
   'hover-answer-is-not-derived-from-the-rest-answer': () => <div style={answered({ '--actions-primary-root-fill-rest': 'var(--fill-surface)', '--actions-primary-root-fill-hover': 'var(--fill-hover)' })}><ArenaButton>Save</ArenaButton></div>,
 };
 
@@ -157,6 +162,8 @@ const SUBJECT: Record<string, { part: string; at: number }> = {
   'answered-disabled-choices-stops-the-fade': { part: 'checkbox.box', at: -1 },
   'answered-disabled-radio-stops-the-fade': { part: 'radio.ring', at: -1 },
   'answered-disabled-switch-stops-the-fade': { part: 'switch.track', at: -1 },
+  'fields-edge-answer-moves-the-halo': { part: 'input.field', at: 0 },
+  'answered-disabled-field-stops-the-fade': { part: 'input.field', at: -1 },
   'class-on-copy-button-reaches-the-icon-button-it-draws': { part: 'icon-button', at: 0 },
 };
 

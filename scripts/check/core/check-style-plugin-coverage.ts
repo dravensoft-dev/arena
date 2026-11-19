@@ -83,6 +83,9 @@ export const WITNESS_EXEMPT: ReadonlyMap<string, string> = new Map([
     + 'and no accepted edge role resolves to transparent in complete, so no other spelling resolves to what complete paints there'],
   ['choices-box-fill-selected', SLOT + 'complete fills a ticked box with primary-fill through fill-control-on, the kernel default: '
     + NO_SECOND_SPELLING],
+  ...['fields-value-fill-rest', 'fields-stepper-fill-rest'].map((name): [string, string] => [name, SLOT + 'the one accepted role complete paints transparent, '
+    + 'hue-danger-fill-strong, is a danger fill, and a field part answered with it would say danger where it draws nothing; the kernel default is the '
+    + 'literal transparent, so no other spelling resolves to the key complete paints there']),
   ...['rest', 'hover', 'pressed'].map((state): [string, string] => [`actions-ghost-root-edge-${state}`, SLOT + MEMBER_DEFAULT]),
 ]);
 

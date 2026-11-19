@@ -6,14 +6,14 @@
  * A tree also keeps an open surface, a floating one and a channel an element binds on its style:
  * the three things a size class reaches, stops at and is answered by. A destructive part keeps its
  * flag too, and so does a tone other than neutral, since the meaning a part states is what an
- * emphasis class and an accent class have to leave in place. A disabled, pressed or selected part keeps its flag (a
+ * emphasis class and an accent class have to leave in place. A member part that takes its option from an axis keeps that axis's attribute, so an error field is rebuilt an error. A disabled, pressed or selected part keeps its flag (a
  * branch member by its data attribute), and a colour slot a case binds stands in for a style plugin's answer. */
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { repoRoot } from './repo-root.ts';
 import { readColorSlots } from '../core/color-slots.ts';
-import { fadeMarkers } from '../../generate/core/arena-cli/slots.ts';
+import { fadeMarkers, optionAxes } from '../../generate/core/arena-cli/slots.ts';
 import type { Family } from '../tailwind/vocabulary.ts';
 import { readFamilies, SURFACE } from '../tailwind/vocabulary.ts';
 import { kebab } from '../../utils/case.ts';
@@ -26,7 +26,7 @@ export const TONE = 'data-arena-tone';
 export const PRESSED = 'data-arena-pressed';
 
 export type Tree = {
-  tag: string; part?: string; boundary?: true; contents?: true; open?: true; disabled?: true; pressed?: true; selected?: true; destructive?: true; tone?: string; surface?: string; vars?: string; class?: string; text?: string;
+  tag: string; part?: string; boundary?: true; contents?: true; open?: true; disabled?: true; pressed?: true; selected?: true; destructive?: true; tone?: string; surface?: string; axes?: Record<string, string>; vars?: string; class?: string; text?: string;
   subject?: true; children?: Tree[];
 };
 
@@ -77,6 +77,12 @@ const branchAxes = (by: 'selectedBy' | 'disabledBy', root = repoRoot) => new Map
   const axis = member[by]?.axis;
   return axis ? [[`${kebab(component.replace(/^Arena/, ''))}.${kebab(part)}`, `data-arena-${axis}`] as [string, string]] : [];
 }));
+const optionAxesOf = (root = repoRoot) => new Map(Object.entries(readColorSlots(root).members).flatMap(([key, member]) => {
+  const [component, part] = key.split('.') as [string, string];
+  const axes = optionAxes(member).map((one) => `data-arena-${kebab(one.axis)}`);
+  return axes.length ? [[`${kebab(component.replace(/^Arena/, ''))}.${kebab(part)}`, axes] as [string, string[]]] : [];
+}));
+const OPTION_AXES = optionAxesOf();
 const SELECTED_BY = branchAxes('selectedBy');
 const DISABLED_BY = branchAxes('disabledBy');
 
@@ -98,6 +104,11 @@ export function normalize(element: NodeLike, vocabulary: Set<string>, subject: N
   if (element.hasAttribute?.(PRESSED) && element.getAttribute?.(PRESSED) !== 'false') tree.pressed = true;
   const selected = part ? SELECTED_BY.get(part) : undefined;
   if (selected && element.hasAttribute?.(selected) && element.getAttribute?.(selected) !== 'false') tree.selected = true;
+  const axes = Object.fromEntries((part ? OPTION_AXES.get(part) ?? [] : []).flatMap((attr) => {
+    const value = element.getAttribute?.(attr);
+    return value === null || value === undefined || value === 'false' || value === 'neutral' ? [] : [[attr, value] as [string, string]];
+  }));
+  if (Object.keys(axes).length) tree.axes = axes;
   const tone = element.getAttribute?.(TONE);
   if (tone && tone !== 'neutral') tree.tone = tone;
   const surface = element.getAttribute?.(SURFACE);
@@ -112,7 +123,7 @@ export function normalize(element: NodeLike, vocabulary: Set<string>, subject: N
   if (text) tree.text = text;
   const children = kids.filter((one) => one.nodeType === 1).map((one) => normalize(one, vocabulary, subject)).filter((one): one is Tree => one !== null);
   if (children.length) tree.children = children;
-  const kept = tree.part || tree.boundary || tree.contents || tree.open || tree.disabled || tree.pressed || tree.selected || tree.destructive || tree.tone || tree.surface || tree.vars || tree.class || tree.text || tree.subject || tree.children;
+  const kept = tree.part || tree.boundary || tree.contents || tree.open || tree.disabled || tree.pressed || tree.selected || tree.destructive || tree.axes || tree.tone || tree.surface || tree.vars || tree.class || tree.text || tree.subject || tree.children;
   return kept ? tree : null;
 }
 
@@ -136,7 +147,7 @@ export function treeHtml(
   if (classes) attrs.push(`class="${classes}"`);
   const data = { ...(tree.part ? dataOf(tree.part) : {}), ...(tree.destructive ? { [DESTRUCTIVE]: 'true' } : {}), ...(tree.pressed ? { [PRESSED]: '' } : {}),
     ...(tree.selected && tree.part ? { [SELECTED_BY.get(tree.part) as string]: '' } : {}),
-    ...(tree.disabled && tree.part && DISABLED_BY.has(tree.part) ? { [DISABLED_BY.get(tree.part) as string]: '' } : {}), ...(tree.tone ? { [TONE]: tree.tone } : {}) };
+    ...(tree.disabled && tree.part && DISABLED_BY.has(tree.part) ? { [DISABLED_BY.get(tree.part) as string]: '' } : {}), ...(tree.axes ?? {}), ...(tree.tone ? { [TONE]: tree.tone } : {}) };
   for (const [name, value] of Object.entries(data)) attrs.push(`${name}="${value}"`);
   const inner = `${tree.text ? escape(tree.text) : ''}${(tree.children ?? []).map((one) => treeHtml(one, classesOf, dataOf)).join('')}`;
   return `<${tree.tag}${attrs.length ? ` ${attrs.join(' ')}` : ''}>${inner}</${tree.tag}>`;

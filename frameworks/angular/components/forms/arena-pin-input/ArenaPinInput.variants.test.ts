@@ -12,8 +12,9 @@ test('the default is a neutral, enabled pin input', () => {
   );
 });
 
-test('the state reaches every cell and the status icon, and disabled marks the root the dimming hangs on', () => {
+test('the state reaches every cell and the status icon, and disabled marks the label, the hint, the error and the status icon, which fade on their own', () => {
   assert.equal(arenaPinInputStyles({ state: 'error' }).$data.cell()['data-arena-state'], 'error');
   assert.equal(arenaPinInputStyles({ state: 'valid' }).$data.statusIcon()['data-arena-state'], 'valid');
-  assert.equal(arenaPinInputStyles({ disabled: true }).$data.root()['data-arena-disabled'], '');
+  for (const slot of ['label', 'hint', 'error', 'statusIcon'] as const) assert.equal(arenaPinInputStyles({ disabled: true }).$data[slot]()['data-arena-disabled'], '', slot);
+  assert.equal(JSON.stringify(arenaPinInputStyles({ disabled: true }).$data.root()), JSON.stringify({}), 'the root carries no fade');
 });

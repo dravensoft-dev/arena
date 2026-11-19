@@ -36,7 +36,7 @@ export const ARENA_COMBOBOX_POSITIONS = arenaConnectedPositions('start', 'below'
   },
   template: `
     @if (showLabel()) {
-      <label [class]="styles().label()" [attr.data-arena-part]="parts.label" [attr.for]="uid">{{ labelText() }}</label>
+      <label [class]="styles().label()" [arenaSlotData]="styles().$data.label()" [attr.data-arena-part]="parts.label" [attr.for]="uid">{{ labelText() }}</label>
     }
     <div #field (mousedown)="onFieldPress($event)" [class]="styles().field()" [arenaSlotData]="styles().$data.field()" [attr.data-arena-part]="parts.field">
       @if (icon(); as glyph) {
@@ -62,9 +62,9 @@ export const ARENA_COMBOBOX_POSITIONS = arenaConnectedPositions('start', 'below'
     }
     <span role="status" [class]="styles().announcement()" [attr.data-arena-part]="parts.announcement">{{ announcement() }}</span>
     @if (error(); as message) {
-      <span [class]="styles().error()" [attr.data-arena-part]="parts.error" [attr.id]="noteId">{{ message }}</span>
+      <span [class]="styles().error()" [arenaSlotData]="styles().$data.error()" [attr.data-arena-part]="parts.error" [attr.id]="noteId">{{ message }}</span>
     } @else if (hint(); as text) {
-      <span [class]="styles().hint()" [attr.data-arena-part]="parts.hint" [attr.id]="noteId">{{ text }}</span>
+      <span [class]="styles().hint()" [arenaSlotData]="styles().$data.hint()" [attr.data-arena-part]="parts.hint" [attr.id]="noteId">{{ text }}</span>
     }
     <ng-template #panel>
       <div [class]="styles().panel()" [attr.data-arena-surface]="'floating'" [attr.data-arena-part]="parts.panel"

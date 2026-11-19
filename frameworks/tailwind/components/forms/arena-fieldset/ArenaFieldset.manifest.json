@@ -6,7 +6,7 @@
     "stack": "flex flex-col gap-1.5",
     "body": "flex flex-col gap-items",
     "hint": "font-body text-ctl-sm text-ink-muted/(--level-ink-muted)",
-    "error": "inline-flex items-center gap-inline font-body text-ctl-sm text-ink-invalid",
+    "error": "inline-flex items-center gap-inline font-body text-ctl-sm text-[color:var(--fields-error-ink-rest,var(--ink-invalid))]",
     "statusIcon": "text-[length:var(--icon-md)]"
   },
   "kind": {
@@ -25,7 +25,7 @@
     "state": {
       "neutral": {},
       "error": {
-        "statusIcon": "text-ink-invalid"
+        "statusIcon": "text-[color:var(--fields-error-status-ink-rest,var(--ink-invalid))]"
       }
     },
     "disabled": {

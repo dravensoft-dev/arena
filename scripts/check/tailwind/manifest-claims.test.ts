@@ -13,6 +13,8 @@ import { escapeClass, layerManifests } from '../../lib/tailwind/tailwind-compile
 import { defaultBlockChannels, markupDeclarations, readFamilies, type Family } from '../../lib/tailwind/vocabulary.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { readJson } from '../../utils/read-file.ts';
+import { readColorSlots } from '../../lib/core/color-slots.ts';
+import { haloValue, memberValue } from '../../generate/core/arena-cli/slots.ts';
 import { classStringsBySlot } from '../arena/check-manifest-states.ts';
 
 const manifests = new Map([...layerManifests().values()].map((m) => [m.component, m]));
@@ -79,12 +81,6 @@ const HUES = {
   ArenaConfirmDialog: { destructive: { true: 'danger' } },
   ArenaProgressBar: { tone: { success: 'success', danger: 'danger', info: 'info' } },
   ArenaToast: { tone: { success: 'success', danger: 'danger' } },
-  ArenaInput: { state: { error: 'danger', valid: 'success' } },
-  ArenaNumberField: { state: { error: 'danger', valid: 'success' } },
-  ArenaPinInput: { state: { error: 'danger', valid: 'success' } },
-  ArenaCombobox: { state: { error: 'danger', valid: 'success' } },
-  ArenaSelect: { state: { error: 'danger', valid: 'success' } },
-  ArenaTextarea: { state: { error: 'danger' }, near: { true: 'warning' } },
   ArenaMenu: { destructive: { true: 'danger' } },
   ArenaStepper: { error: { true: 'danger' } },
   ArenaTimeline: { tone: { success: 'success', warning: 'warning', danger: 'danger', info: 'info' } },
@@ -106,7 +102,7 @@ test('every status value maps to its own hue, and a neutral or editorial value t
   for (const [component, group, values] of [
     ['ArenaAlert', 'tone', ['neutral']], ['ArenaBadge', 'tone', ['neutral']],
     ['ArenaToast', 'tone', ['neutral']], ['ArenaAvatar', 'status', ['none', 'offline']],
-    ['ArenaConfirmDialog', 'destructive', ['false']], ['ArenaTextarea', 'near', ['false']], ['ArenaTag', 'tone', ['neutral']],
+    ['ArenaConfirmDialog', 'destructive', ['false']], ['ArenaTag', 'tone', ['neutral']],
     ['ArenaStepper', 'error', ['false']], ['ArenaTimeline', 'tone', ['neutral']],
   ] as [string, string, string[]][])
     for (const value of values)
@@ -187,6 +183,10 @@ const BAND_CEILING = 'px-[min(var(--gutter),7%)]';
 
 const APP_BAR_CEILING = 'px-[min(var(--pad-band-x),7%)]';
 
+const SLOTS = readColorSlots();
+const UTILITIES = { bg: 'bg-[color:', text: 'text-[color:', border: 'border-[color:', ring: 'ring-[color:' } as const;
+const read = (member: string, slot: string, utility: keyof typeof UTILITIES, modifier = '') => `${modifier}${UTILITIES[utility]}${memberValue(SLOTS, member, slot, 'tailwind')}]`;
+const ERROR_INK = (member: string) => read(member, 'fields-error-ink-rest', 'text');
 const INK = 'text-[color:var(--arena-hue-ink)]';
 const EDGE = 'border-[color:var(--arena-hue-edge)]';
 const SOFT = 'bg-[color:var(--arena-hue-fill-soft)]';
@@ -381,8 +381,8 @@ export const CLAIMS = {
     { chosen: { open: true }, slot: 'foot', has: ['flex-wrap'], why: 'the footer wraps the way ArenaDialog, ArenaPageHead and ArenaChartCard all do, and a third action row behaving differently is worse than none' },
     { chosen: { open: true }, slot: 'root', has: ['flex'], why: 'the root carries a display utility in its own base string, independent of the open variant' },
     { slot: 'input', has: ['focus-visible:ring-edge-focus'], hasNot: ['focus-visible:ring-error'], why: 'the require-text input focus reads the focus role like every field, and never the danger hue' },
-    { chosen: { invalid: true }, slot: 'input', has: ['border-edge-invalid'], hasNot: ['border-error', 'border-edge-field'], why: 'invalid borders the require-text input in the invalid edge role and drops the neutral border' },
-    { chosen: { invalid: false }, slot: 'input', has: ['border-edge-field'], why: 'a valid require-text input keeps the neutral border' },
+    { chosen: { invalid: true }, slot: 'input', has: [read('ArenaConfirmDialog.input', 'fields-error-field-edge-rest', 'border')], hasNot: ['border-error', 'border-edge-field', 'border-edge-invalid'], why: 'invalid borders the require-text input in the invalid edge role and drops the neutral border' },
+    { chosen: { invalid: false }, slot: 'input', has: [read('ArenaConfirmDialog.input', 'fields-neutral-field-edge-rest', 'border')], why: 'a valid require-text input keeps the neutral border' },
   ],
   ArenaDialog: [
     { chosen: { open: true }, slot: 'foot', has: ['flex-wrap'], why: 'the footer wraps because the consumer projects one control per element rather than a wrapper of their own' },
@@ -491,9 +491,9 @@ export const CLAIMS = {
   ],
   ArenaCombobox: [
     { slot: 'root', has: ['flex', 'flex-col'], why: 'a host-bound root is never the UA-default inline box' },
-    { slot: 'error', has: ['text-ink-invalid'], hasNot: ['text-error'], why: 'the field error message reads the invalid ink role, so a plugin answering ink-invalid moves the message with the edge' },
+    { slot: 'error', has: [ERROR_INK('ArenaCombobox.error')], hasNot: ['text-error', 'text-ink-invalid'], why: 'the field error message reads the invalid ink role, so a plugin answering ink-invalid moves the message with the edge' },
     { chosen: { state: 'neutral' }, slot: 'field', has: ['focus-within:border-edge-focus'], why: 'focus stays in the input, so the field rings on focus-within, and neutral rings only then' },
-    { chosen: { state: 'error' }, slot: 'statusIcon', has: ['text-ink-invalid'], why: 'error and valid ring at rest and say which they are, with a glyph as the second channel' },
+    { chosen: { state: 'error' }, slot: 'statusIcon', has: [read('ArenaCombobox.statusIcon', 'fields-error-status-ink-rest', 'text')], why: 'error and valid ring at rest and say which they are, with a glyph as the second channel' },
     { slot: 'field', has: ['min-h-ctl-h'], hasNot: ['h-ctl-h'], why: 'the field is a floor and never a fixed height, so a row of chips can wrap inside it' },
     { slot: 'caret', has: ['pointer-events-none'], why: 'the caret is decoration and must not swallow the press meant for the field' },
     { slot: 'announcement', has: ['sr-only'], why: 'the count is spoken and never seen' },
@@ -507,8 +507,8 @@ export const CLAIMS = {
   ArenaFieldset: [
     { slot: 'root', has: ['block', 'border-0', 'p-0', 'm-0', 'min-w-0'], why: 'a fieldset is a plain grouping, so the platform border, padding and minimum width are taken away and the root keeps a display utility of its own' },
     { slot: 'body', has: ['flex', 'flex-col', 'gap-items'], why: 'the fields of a set are spaced by the role named for them, and the legend sits outside that column' },
-    { slot: 'error', has: ['text-ink-invalid'], hasNot: ['text-error'], why: 'the set error reads the invalid ink role, the same as a field error' },
-    { chosen: { state: 'error' }, slot: 'statusIcon', has: ['text-ink-invalid'], why: 'the glyph is the second channel of the set error, in the danger ink' },
+    { slot: 'error', has: [ERROR_INK('ArenaFieldset.error')], hasNot: ['text-error', 'text-ink-invalid'], why: 'the set error reads the invalid ink role, the same as a field error' },
+    { chosen: { state: 'error' }, slot: 'statusIcon', has: [read('ArenaFieldset.statusIcon', 'fields-error-status-ink-rest', 'text')], why: 'the glyph is the second channel of the set error, in the danger ink' },
     { chosen: { disabled: true }, slot: 'root', has: ['opacity-[var(--fade-disabled)]'], hasNot: ['opacity-50'], why: 'a disabled set dims as a whole, as a disabled field does' },
   ],
   ArenaIconButton: [
@@ -529,27 +529,30 @@ export const CLAIMS = {
       why: 'a selected disabled control fades by its own marker, and one disabled answer neither repaints nor un-fades it, and only one fade applies to the element' },
   ],
   ArenaInput: [
-    { slot: 'error', has: ['text-ink-invalid'], hasNot: ['text-error'], why: 'the field error message reads the invalid ink role, so a plugin answering ink-invalid moves the message with the edge' },
+    { slot: 'error', has: [ERROR_INK('ArenaInput.error')], hasNot: ['text-error', 'text-ink-invalid'], why: 'the field error message reads the invalid ink role, so a plugin answering ink-invalid moves the message with the edge' },
     { chosen: { state: 'neutral' }, slot: 'field', has: ['focus-within:border-edge-focus'], why: 'neutral rings gold only on focus, where error and valid ring at rest and say which they are' },
-    { chosen: { state: 'error' }, slot: 'field', has: ['border-edge-invalid', 'ring-[color:var(--arena-hue-fill-soft)]'], why: 'error and valid ring at rest and say which they are, error in the invalid edge and a soft hue halo rather than full strength' },
-    { chosen: { state: 'error' }, slot: 'statusIcon', has: ['text-ink-invalid'], why: 'error and valid ring at rest and say which they are' },
-    { chosen: { state: 'valid' }, slot: 'field', has: [EDGE, 'focus-within:border-edge-focus'], why: 'a valid field still takes the focus ring, because being valid is not being focused' },
-    { chosen: { state: 'valid' }, slot: 'statusIcon', has: [INK], why: 'error and valid ring at rest and say which they are' },
-    { chosen: { disabled: true }, slot: 'root', has: ['opacity-[var(--fade-disabled)]'], hasNot: ['opacity-50'], why: 'disabled dims the whole field group and readonly changes the surface, not the border' },
-    { chosen: { readOnly: true }, slot: 'field', has: ['bg-base-200'], why: 'disabled dims the whole field group and readonly changes the surface, not the border' },
+    { chosen: { state: 'error' }, slot: 'field', has: [read('ArenaInput.field', 'fields-error-field-edge-rest', 'border'), `ring-[color:${haloValue(SLOTS, 'ArenaInput.field', 'error')}]`], why: 'error and valid ring at rest and say which they are, error in the invalid edge and a soft hue halo rather than full strength' },
+    { chosen: { state: 'error' }, slot: 'statusIcon', has: [read('ArenaInput.statusIcon', 'fields-error-status-ink-rest', 'text')], why: 'error and valid ring at rest and say which they are' },
+    { chosen: { state: 'valid' }, slot: 'field', has: [read('ArenaInput.field', 'fields-valid-field-edge-rest', 'border'), 'focus-within:border-edge-focus'], why: 'a valid field still takes the focus ring, because being valid is not being focused' },
+    { chosen: { state: 'valid' }, slot: 'statusIcon', has: [read('ArenaInput.statusIcon', 'fields-valid-status-ink-rest', 'text')], why: 'error and valid ring at rest and say which they are' },
+    { chosen: { disabled: true }, slot: 'label', has: ['opacity-[var(--fade-disabled)]'], hasNot: ['opacity-50'], why: 'disabled dims each part on its own, so an answered disabled field slot can stop the fade on its part alone' },
+    { chosen: { disabled: true, state: 'neutral' }, slot: 'field', has: ['opacity-[var(--fields-neutral-field-fade-disabled,var(--fade-disabled))]'], why: 'the field fades by its own marker, and one disabled answer neither repaints nor un-fades another option' },
+    { chosen: { disabled: true }, slot: 'root', hasNot: ['opacity-[var(--fade-disabled)]'], why: 'the root carries no fade, since a child cannot lift its parent\'s opacity' },
+    { chosen: { readOnly: true }, slot: 'field', has: [read('ArenaInput.field', 'fields-readonly-field-fill-rest', 'bg')], why: 'disabled dims the whole field group and readonly changes the surface, not the border' },
     { chosen: { readOnly: true }, slot: 'input', has: ['cursor-default'], why: 'disabled dims the whole field group and readonly changes the surface, not the border' },
-    { slot: 'required', has: ['text-primary'], why: 'the required marker is the brand, so a label reads as required without the word' },
+    { slot: 'required', has: [read('ArenaInput.required', 'fields-required-ink-rest', 'text')], hasNot: ['text-primary'], why: 'the required marker is the brand, so a label reads as required without the word' },
   ],
   ArenaFileInput: [
-    { slot: 'error', has: ['text-ink-invalid'], hasNot: ['text-error'], why: 'the field error message reads the invalid ink role, so a plugin answering ink-invalid moves the message with the zone' },
-    { slot: 'rejection', has: ['text-ink-invalid'], hasNot: ['text-error'], why: 'a refused file is said in the invalid ink role' },
-    { chosen: { state: 'error' }, slot: 'zone', has: ['border-edge-invalid'], why: 'an error turns the zone\'s edge to the invalid edge role, so a plugin answering edge-invalid moves it' },
-    { chosen: { droppable: 'true' }, slot: 'zone', has: ['border-dashed', 'border-edge-surface', 'border-[length:var(--bw-surface)]', 'p-surface', 'rounded-surface'], why: 'a drop zone is a surface with a dashed edge, drawn literally as the empty state draws its own, and every other property a role' },
+    { slot: 'error', has: [ERROR_INK('ArenaFileInput.error')], hasNot: ['text-error', 'text-ink-invalid'], why: 'the field error message reads the invalid ink role, so a plugin answering ink-invalid moves the message with the zone' },
+    { slot: 'rejection', has: [ERROR_INK('ArenaFileInput.rejection')], hasNot: ['text-error', 'text-ink-invalid'], why: 'a refused file is said in the invalid ink role' },
+    { chosen: { state: 'error' }, slot: 'zone', has: [read('ArenaFileInput.zone', 'fields-error-field-edge-rest', 'border')], why: 'an error turns the zone\'s edge to the invalid edge role, so a plugin answering edge-invalid moves it' },
+    { chosen: { droppable: 'true' }, slot: 'zone', has: ['border-dashed', read('ArenaFileInput.zone', 'fields-neutral-field-edge-rest', 'border'), 'border-[length:var(--bw-surface)]', 'p-surface', 'rounded-surface'], why: 'a drop zone is a surface with a dashed edge, drawn literally as the empty state draws its own, and every other property a role' },
     { chosen: { droppable: 'false' }, slot: 'zone', hasNot: ['border-dashed', 'p-surface'], why: 'a field that takes no drop draws no frame, so the trigger stands on the page as a button would' },
-    { chosen: { dragging: 'true' }, slot: 'zone', has: ['bg-hover'], why: 'a drag over the zone is the surface answering, which is the fill-hover role, and a colour crossfade stays under reduced motion' },
+    { chosen: { dragging: 'true', droppable: 'true' }, slot: 'zone', has: [read('ArenaFileInput.zone', 'fields-neutral-field-fill-hover', 'bg')], why: 'a drag over the zone is the surface answering, which is the fill-hover role, and a colour crossfade stays under reduced motion' },
     { slot: 'input', has: ['absolute', 'inset-0', 'size-full', 'col-start-1', 'col-end-2', 'row-start-1', 'row-end-2', 'opacity-0', 'pointer-events-none'], why: 'the hidden input lies over the trigger\'s grid cell, so the browser anchors a required field\'s message at the trigger, and it takes no pointer event, so every press reaches the trigger' },
     { slot: 'trigger', has: ['col-start-1', 'row-start-1'], why: 'the trigger owns the grid cell the hidden input is placed over' },
-    { chosen: { disabled: 'true' }, slot: 'root', has: ['opacity-[var(--fade-disabled)]'], hasNot: ['opacity-50'], why: 'disabled dims the whole field once, so the trigger carries no dimming of its own to compound with it' },
+    { chosen: { disabled: 'true' }, slot: 'zone', has: ['opacity-[var(--fade-disabled)]'], hasNot: ['opacity-50'], why: 'disabled dims the zone and its trigger once, so the trigger carries no dimming of its own to compound with it' },
+    { chosen: { disabled: 'true' }, slot: 'root', hasNot: ['opacity-[var(--fade-disabled)]'], why: 'the root carries no fade, since a child cannot lift its parent\'s opacity' },
     { chosen: { disabled: 'true' }, slot: 'trigger', hasNot: ['hover:-translate-y-[var(--lift-control)]'], why: 'a disabled trigger answers no pointer, so its hover lives in the enabled branch' },
     { slot: 'status', has: ['sr-only'], why: 'the count is announced and never drawn, because the chips already show it' },
     { slot: 'size', has: ['font-mono', 'tabular-nums'], why: 'a byte count is a figure, and figures set in tabular digits' },
@@ -596,7 +599,7 @@ export const CLAIMS = {
     { slot: 'input', has: ['opacity-0', 'size-0'], hasNot: ['hidden'], why: 'the native input is hidden by the recipe rather than by display none, so it stays focusable' },
   ],
   ArenaSelect: [
-    { slot: 'error', has: ['text-ink-invalid'], hasNot: ['text-error'], why: 'the field error message reads the invalid ink role, so a plugin answering ink-invalid moves the message with the edge' },
+    { slot: 'error', has: [ERROR_INK('ArenaSelect.error')], hasNot: ['text-error', 'text-ink-invalid'], why: 'the field error message reads the invalid ink role, so a plugin answering ink-invalid moves the message with the edge' },
     { slot: 'field', has: ['focus:border-edge-focus'], why: 'the focus ring is the recipe\'s job, not the component\'s, so nothing injects a stylesheet for it' },
     { slot: 'field', has: ['appearance-none', 'pr-9'], why: 'the field strips the platform chrome and reserves the room the caret Arena draws sits in' },
     { slot: 'root', has: ['flex'], why: 'a host-bound root is never the UA-default inline box' },
@@ -644,16 +647,17 @@ export const CLAIMS = {
     { chosen: { selected: false }, slot: 'panel', has: ['block', 'hidden'], why: 'exactly one panel is shown, and the other is hidden rather than merely unstyled: the base block and the branch hidden are both present and the branch is emitted later' },
   ],
   ArenaTextarea: [
-    { slot: 'error', has: ['text-ink-invalid'], hasNot: ['text-error'], why: 'the field error message reads the invalid ink role, so a plugin answering ink-invalid moves the message with the edge' },
+    { slot: 'error', has: [ERROR_INK('ArenaTextarea.error')], hasNot: ['text-error', 'text-ink-invalid'], why: 'the field error message reads the invalid ink role, so a plugin answering ink-invalid moves the message with the edge' },
     { slot: 'field', has: ['focus:border-edge-focus'], why: 'the focus ring is the recipe\'s job, not the component\'s, so nothing injects a stylesheet for it' },
     { chosen: { state: 'neutral' }, slot: 'field', has: ['focus:border-edge-focus'], hasNot: ['border-success'], why: 'a textarea takes focus itself, so its ring is focus rather than focus-within' },
-    { chosen: { state: 'error' }, slot: 'field', has: ['border-edge-invalid', 'ring-[color:var(--arena-hue-fill-soft)]'], hasNot: ['border-success'], why: 'error rings at rest and says which it is' },
+    { chosen: { state: 'error' }, slot: 'field', has: [read('ArenaTextarea.field', 'fields-error-field-edge-rest', 'border'), `ring-[color:${haloValue(SLOTS, 'ArenaTextarea.field', 'error')}]`], hasNot: ['border-success'], why: 'error rings at rest and says which it is' },
     { chosen: { resize: 'vertical' }, slot: 'field', has: ['resize-y'], why: 'resize is the consumer\'s choice and the recipe carries both answers' },
     { chosen: { resize: 'none' }, slot: 'field', has: ['resize-none'], why: 'resize is the consumer\'s choice and the recipe carries both answers' },
-    { chosen: { disabled: true }, slot: 'root', has: ['opacity-[var(--fade-disabled)]'], hasNot: ['opacity-50'], why: 'disabled dims the whole field group' },
-    { chosen: { readOnly: true }, slot: 'field', has: ['bg-base-200', 'cursor-default'], why: 'readonly changes the surface, not the border' },
-    { slot: 'counter', has: ['font-mono', 'text-ink-muted/(--level-ink-muted)'], why: 'the counter is a muted mono readout' },
-    { chosen: { near: true }, slot: 'counter', has: [INK], hasNot: ['text-warning'], why: 'the counter warns before it refuses, which is a warning ink read from the hue channel and not a danger one' },
+    { chosen: { disabled: true }, slot: 'label', has: ['opacity-[var(--fade-disabled)]'], hasNot: ['opacity-50'], why: 'disabled dims each part on its own, so an answered disabled field slot can stop the fade on its part alone' },
+    { chosen: { disabled: true }, slot: 'root', hasNot: ['opacity-[var(--fade-disabled)]'], why: 'the root carries no fade, since a child cannot lift its parent\'s opacity' },
+    { chosen: { readOnly: true }, slot: 'field', has: [read('ArenaTextarea.field', 'fields-readonly-field-fill-rest', 'bg'), 'cursor-default'], why: 'readonly changes the surface, not the border' },
+    { slot: 'counter', has: ['font-mono', read('ArenaTextarea.counter', 'fields-neutral-counter-ink-rest', 'text')], why: 'the counter is a muted mono readout' },
+    { chosen: { near: true }, slot: 'counter', has: [read('ArenaTextarea.counter', 'fields-warning-counter-ink-rest', 'text')], hasNot: ['text-warning'], why: 'the counter warns before it refuses, which is a warning ink read from the hue channel and not a danger one' },
     { slot: 'foot', has: ['justify-between'], why: 'the foot spaces the help text and the counter to opposite ends' },
   ],
   ArenaBadge: [
@@ -806,7 +810,7 @@ test('every size, orientation, emphasis, accent, mark, elevation, align, layout 
 });
 
 test('every slot that takes a placeholder colours it, rather than inheriting preflight', () => {
-  const wanted = 'placeholder:text-ink-muted/(--level-ink-muted)';
+  const wanted = `placeholder:text-[color:color-mix(in_oklab,${memberValue(SLOTS, 'ArenaInput.input', 'fields-value-ink-rest', 'tailwind')}_var(--level-ink-muted),transparent)]`;
   for (const [component, slot] of [
     ['ArenaInput', 'input'],
     ['ArenaNumberField', 'input'],
@@ -969,7 +973,7 @@ test('a focus ring never sits on a filled ground', () => {
   }
 });
 
-test('an invalid field reads the invalid roles', () => {
+test('an invalid field reads the fields group\'s error slots', () => {
   const fields: [string, string][] = [
     ['ArenaInput', 'field'], ['ArenaNumberField', 'field'], ['ArenaCombobox', 'field'], ['ArenaSelect', 'field'],
     ['ArenaTextarea', 'field'], ['ArenaPinInput', 'cell'], ['ArenaFileInput', 'zone'],
@@ -978,25 +982,25 @@ test('an invalid field reads the invalid roles', () => {
   const HUE_INK = 'text-[color:var(--arena-hue-ink)]';
   for (const [component, slot] of fields) {
     const classes = resolve(component, { state: 'error' }, slot);
-    assert.ok(classes.includes('border-edge-invalid'), `${component}.${slot} state=error lacks border-edge-invalid`);
-    assert.ok(!classes.includes(HUE_EDGE), `${component}.${slot} state=error still reads the hue edge`);
+    assert.ok(classes.includes(read(`${component}.${slot}`, 'fields-error-field-edge-rest', 'border')), `${component}.${slot} state=error lacks the error edge read`);
+    assert.ok(!classes.includes(HUE_EDGE) && !classes.includes('border-edge-invalid'), `${component}.${slot} state=error still reads a role directly`);
   }
   for (const component of ['ArenaInput', 'ArenaNumberField', 'ArenaCombobox', 'ArenaPinInput', 'ArenaFieldset']) {
     const classes = resolve(component, { state: 'error' }, 'statusIcon');
-    assert.ok(classes.includes('text-ink-invalid'), `${component}.statusIcon state=error lacks text-ink-invalid`);
-    assert.ok(!classes.includes(HUE_INK), `${component}.statusIcon state=error still reads the hue ink`);
+    assert.ok(classes.includes(read(`${component}.statusIcon`, 'fields-error-status-ink-rest', 'text')), `${component}.statusIcon state=error lacks the status ink read`);
+    assert.ok(!classes.includes(HUE_INK) && !classes.includes('text-ink-invalid'), `${component}.statusIcon state=error still reads a role directly`);
   }
   for (const component of ['ArenaInput', 'ArenaNumberField', 'ArenaCombobox', 'ArenaPinInput', 'ArenaFieldset', 'ArenaFileInput', 'ArenaSelect', 'ArenaTextarea']) {
     const classes = resolve(component, {}, 'error');
-    assert.ok(classes.includes('text-ink-invalid'), `${component}.error lacks text-ink-invalid`);
-    assert.ok(!classes.includes(HUE_INK), `${component}.error still reads the hue ink`);
+    assert.ok(classes.includes(ERROR_INK(`${component}.error`)), `${component}.error lacks the error ink read`);
+    assert.ok(!classes.includes(HUE_INK) && !classes.includes('text-ink-invalid'), `${component}.error still reads a role directly`);
   }
   const rejection = resolve('ArenaFileInput', {}, 'rejection');
-  assert.ok(rejection.includes('text-ink-invalid') && !rejection.includes(HUE_INK), 'ArenaFileInput.rejection reads text-ink-invalid');
+  assert.ok(rejection.includes(ERROR_INK('ArenaFileInput.rejection')) && !rejection.includes(HUE_INK), 'ArenaFileInput.rejection reads the error ink');
   const input = resolve('ArenaConfirmDialog', { invalid: true }, 'input');
-  assert.ok(input.includes('border-edge-invalid') && !input.includes(HUE_EDGE), 'ArenaConfirmDialog input invalid=true reads border-edge-invalid');
+  assert.ok(input.includes(read('ArenaConfirmDialog.input', 'fields-error-field-edge-rest', 'border')) && !input.includes(HUE_EDGE), 'ArenaConfirmDialog input invalid=true reads the error edge');
   for (const component of ['ArenaInput', 'ArenaNumberField', 'ArenaCombobox', 'ArenaSelect', 'ArenaTextarea', 'ArenaPinInput']) {
     const slot = component === 'ArenaPinInput' ? 'cell' : 'field';
-    assert.ok(resolve(component, { state: 'error' }, slot).includes('ring-[color:var(--arena-hue-fill-soft)]'), `${component} keeps its error halo`);
+    assert.ok(resolve(component, { state: 'error' }, slot).includes(`ring-[color:${haloValue(SLOTS, `${component}.${slot}`, 'error')}]`), `${component} keeps its error halo, read from its edge`);
   }
 });

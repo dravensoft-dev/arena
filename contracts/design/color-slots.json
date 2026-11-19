@@ -81,6 +81,11 @@
       "selected",
       "disabled",
       "selected-disabled"
+    ],
+    "field": [
+      "rest",
+      "hover",
+      "disabled"
     ]
   },
   "selected": {
@@ -114,6 +119,31 @@
       "level": "level-ink-body"
     },
     "choices-segment-ink-hover": {
+      "default": "{ink-body}",
+      "decision": "D19",
+      "level": "level-ink-body"
+    },
+    "fields-neutral-field-fill-hover": {
+      "default": "{fill-hover}",
+      "decision": "D19"
+    },
+    "fields-error-field-fill-hover": {
+      "default": "{fill-hover}",
+      "decision": "D19"
+    },
+    "fields-valid-field-fill-hover": {
+      "default": "{fill-hover}",
+      "decision": "D19"
+    },
+    "fields-readonly-field-fill-hover": {
+      "default": "{fill-hover}",
+      "decision": "D19"
+    },
+    "fields-stepper-fill-hover": {
+      "default": "{fill-hover}",
+      "decision": "D19"
+    },
+    "fields-stepper-ink-hover": {
       "default": "{ink-body}",
       "decision": "D19",
       "level": "level-ink-body"
@@ -313,52 +343,108 @@
             "edge",
             "ink"
           ],
-          "states": "static-disabled",
-          "options": [
-            "neutral",
-            "error",
-            "valid",
-            "readonly"
-          ]
+          "states": "field",
+          "options": {
+            "neutral": {
+              "rest": {
+                "fill": "{fill-field}",
+                "edge": "{edge-field}",
+                "ink": "{ink-body}"
+              }
+            },
+            "error": {
+              "halo": "level-hue-soft-danger",
+              "rest": {
+                "fill": "{fill-field}",
+                "edge": "{edge-invalid}",
+                "ink": "{ink-body}"
+              }
+            },
+            "valid": {
+              "halo": "level-hue-soft-success",
+              "rest": {
+                "fill": "{fill-field}",
+                "edge": "{hue-success-edge}",
+                "ink": "{ink-body}"
+              }
+            },
+            "readonly": {
+              "properties": [
+                "fill"
+              ],
+              "rest": {
+                "fill": "{fill-surface}"
+              }
+            }
+          }
         },
         "value": {
           "properties": [
             "fill",
             "ink"
           ],
-          "states": "static-disabled"
+          "states": "static",
+          "rest": {
+            "fill": "transparent",
+            "ink": "{ink-body}"
+          }
         },
         "required": {
           "properties": [
             "ink"
           ],
-          "states": "static"
+          "states": "static",
+          "rest": {
+            "ink": "{accent-primary-ink}"
+          }
         },
         "status": {
           "properties": [
             "ink"
           ],
           "states": "static",
-          "options": [
-            "error",
-            "valid"
-          ]
+          "options": {
+            "error": {
+              "rest": {
+                "ink": "{ink-invalid}"
+              }
+            },
+            "valid": {
+              "rest": {
+                "ink": "{hue-success-ink}"
+              }
+            }
+          }
         },
         "error": {
           "properties": [
             "ink"
           ],
-          "states": "static"
+          "states": "static",
+          "rest": {
+            "ink": "{ink-invalid}"
+          }
         },
         "counter": {
           "properties": [
             "ink"
           ],
           "states": "static",
-          "options": [
-            "neutral",
-            "warning"
-          ]
+          "options": {
+            "neutral": {
+              "rest": {
+                "ink": {
+                  "role": "{ink-muted}",
+                  "level": "level-ink-muted"
+                }
+              }
+            },
+            "warning": {
+              "rest": {
+                "ink": "{hue-warning-ink}"
+              }
+            }
+          }
         },
         "stepper": {
           "properties": [
@@ -366,7 +452,15 @@
             "edge",
             "ink"
           ],
-          "states": "base"
+          "states": "base",
+          "rest": {
+            "fill": "transparent",
+            "edge": "{edge-control}",
+            "ink": {
+              "role": "{ink-muted}",
+              "level": "level-ink-muted"
+            }
+          }
         }
       }
     },
@@ -1244,11 +1338,53 @@
       "group": "fields",
       "parts": {
         "label": "text.muted",
-        "field": "fields.field",
+        "field": {
+          "to": "fields.field",
+          "options": [
+            "neutral",
+            "error",
+            "valid"
+          ],
+          "states": "field",
+          "properties": [
+            "fill",
+            "edge"
+          ],
+          "optionBy": {
+            "axis": "state",
+            "values": {
+              "neutral": "neutral",
+              "error": "error",
+              "valid": "valid"
+            }
+          },
+          "disabledBy": {
+            "axis": "disabled",
+            "value": "true"
+          }
+        },
         "icon": "text.muted",
         "more": "text.key",
-        "input": "fields.value",
-        "statusIcon": "fields.status",
+        "input": {
+          "to": "fields.value",
+          "options": [],
+          "states": "static"
+        },
+        "statusIcon": {
+          "to": "fields.status",
+          "options": [
+            "error",
+            "valid"
+          ],
+          "states": "static",
+          "optionBy": {
+            "axis": "state",
+            "values": {
+              "error": "error",
+              "valid": "valid"
+            }
+          }
+        },
         "clear": {
           "to": "actions.dismiss",
           "options": [],
@@ -1256,7 +1392,11 @@
         },
         "caret": "text.muted",
         "hint": "text.muted",
-        "error": "fields.error",
+        "error": {
+          "to": "fields.error",
+          "options": [],
+          "states": "static"
+        },
         "panel": "overlays.panel",
         "option": "menus.item",
         "empty": "text.muted",
@@ -1268,9 +1408,24 @@
       "parts": {
         "root": "overlays.scrim",
         "panel": "overlays.panel",
-        "search": "fields.field",
+        "search": {
+          "to": "fields.field",
+          "options": [
+            "neutral"
+          ],
+          "states": [
+            "rest"
+          ],
+          "properties": [
+            "edge"
+          ]
+        },
         "searchIcon": "text.muted",
-        "input": "fields.value",
+        "input": {
+          "to": "fields.value",
+          "options": [],
+          "states": "static"
+        },
         "esc": "text.key",
         "empty": "text.muted",
         "groupLabel": "text.muted",
@@ -1287,7 +1442,24 @@
         "title": "text.heading",
         "body": "text.body",
         "requireLabel": "text.muted",
-        "input": "fields.field",
+        "input": {
+          "to": "fields.field",
+          "options": [
+            "neutral",
+            "error"
+          ],
+          "states": [
+            "rest",
+            "hover"
+          ],
+          "optionBy": {
+            "axis": "invalid",
+            "values": {
+              "false": "neutral",
+              "true": "error"
+            }
+          }
+        },
         "confirm": {
           "to": "actions.root",
           "options": [
@@ -1363,8 +1535,24 @@
       "parts": {
         "legend": "text.muted",
         "hint": "text.muted",
-        "error": "fields.error",
-        "statusIcon": "fields.status"
+        "error": {
+          "to": "fields.error",
+          "options": [],
+          "states": "static"
+        },
+        "statusIcon": {
+          "to": "fields.status",
+          "options": [
+            "error"
+          ],
+          "states": "static",
+          "optionBy": {
+            "axis": "state",
+            "values": {
+              "error": "error"
+            }
+          }
+        }
       }
     },
     "ArenaFigure": {
@@ -1379,8 +1567,45 @@
       "group": "fields",
       "parts": {
         "label": "text.muted",
-        "required": "fields.required",
-        "zone": "fields.field",
+        "required": {
+          "to": "fields.required",
+          "options": [],
+          "states": "static"
+        },
+        "zone": {
+          "to": "fields.field",
+          "options": [
+            "neutral",
+            "error"
+          ],
+          "states": "field",
+          "properties": [
+            "fill",
+            "edge"
+          ],
+          "optionBy": [
+            {
+              "axis": "state",
+              "values": {
+                "error": "error"
+              }
+            },
+            {
+              "axis": "droppable",
+              "values": {
+                "true": "neutral"
+              }
+            }
+          ],
+          "hoverBy": {
+            "axis": "dragging",
+            "value": "true"
+          },
+          "disabledBy": {
+            "axis": "disabled",
+            "value": "true"
+          }
+        },
         "trigger": {
           "to": "actions.root",
           "options": [
@@ -1395,9 +1620,17 @@
         },
         "prompt": "text.muted",
         "size": "text.muted",
-        "rejection": "fields.error",
+        "rejection": {
+          "to": "fields.error",
+          "options": [],
+          "states": "static"
+        },
         "hint": "text.muted",
-        "error": "fields.error"
+        "error": {
+          "to": "fields.error",
+          "options": [],
+          "states": "static"
+        }
       }
     },
     "ArenaFilterBar": {
@@ -1483,14 +1716,73 @@
       "group": "fields",
       "parts": {
         "label": "text.muted",
-        "required": "fields.required",
-        "field": "fields.field",
+        "required": {
+          "to": "fields.required",
+          "options": [],
+          "states": "static"
+        },
+        "field": {
+          "to": "fields.field",
+          "options": [
+            "neutral",
+            "error",
+            "valid",
+            "readonly"
+          ],
+          "states": "field",
+          "properties": [
+            "fill",
+            "edge"
+          ],
+          "optionBy": [
+            {
+              "axis": "state",
+              "values": {
+                "neutral": "neutral",
+                "error": "error",
+                "valid": "valid"
+              }
+            },
+            {
+              "axis": "readOnly",
+              "values": {
+                "true": "readonly"
+              }
+            }
+          ],
+          "disabledBy": {
+            "axis": "disabled",
+            "value": "true"
+          }
+        },
         "icon": "text.muted",
         "prefix": "text.muted",
-        "input": "fields.value",
-        "statusIcon": "fields.status",
+        "input": {
+          "to": "fields.value",
+          "options": [],
+          "states": "static"
+        },
+        "statusIcon": {
+          "to": "fields.status",
+          "options": [
+            "error",
+            "valid"
+          ],
+          "states": "static",
+          "optionBy": {
+            "axis": "state",
+            "values": {
+              "error": "error",
+              "valid": "valid"
+            }
+          }
+        },
         "hint": "text.muted",
-        "error": "fields.error"
+        "error": {
+          "to": "fields.error",
+          "options": [],
+          "states": "static"
+        }
       }
     },
     "ArenaKbd": {
@@ -1554,15 +1846,78 @@
       "group": "fields",
       "parts": {
         "label": "text.muted",
-        "required": "fields.required",
-        "field": "fields.field",
-        "stepper": "fields.stepper",
+        "required": {
+          "to": "fields.required",
+          "options": [],
+          "states": "static"
+        },
+        "field": {
+          "to": "fields.field",
+          "options": [
+            "neutral",
+            "error",
+            "valid",
+            "readonly"
+          ],
+          "states": "field",
+          "properties": [
+            "fill",
+            "edge"
+          ],
+          "optionBy": [
+            {
+              "axis": "state",
+              "values": {
+                "neutral": "neutral",
+                "error": "error",
+                "valid": "valid"
+              }
+            },
+            {
+              "axis": "readOnly",
+              "values": {
+                "true": "readonly"
+              }
+            }
+          ],
+          "disabledBy": {
+            "axis": "disabled",
+            "value": "true"
+          }
+        },
+        "stepper": {
+          "to": "fields.stepper",
+          "options": [],
+          "states": "base"
+        },
         "prefix": "text.muted",
-        "input": "fields.value",
+        "input": {
+          "to": "fields.value",
+          "options": [],
+          "states": "static"
+        },
         "suffix": "text.muted",
-        "statusIcon": "fields.status",
+        "statusIcon": {
+          "to": "fields.status",
+          "options": [
+            "error",
+            "valid"
+          ],
+          "states": "static",
+          "optionBy": {
+            "axis": "state",
+            "values": {
+              "error": "error",
+              "valid": "valid"
+            }
+          }
+        },
         "hint": "text.muted",
-        "error": "fields.error"
+        "error": {
+          "to": "fields.error",
+          "options": [],
+          "states": "static"
+        }
       }
     },
     "ArenaOnboarding": {
@@ -1631,11 +1986,49 @@
       "group": "fields",
       "parts": {
         "label": "text.muted",
-        "required": "fields.required",
-        "cell": "fields.field",
-        "statusIcon": "fields.status",
+        "required": {
+          "to": "fields.required",
+          "options": [],
+          "states": "static"
+        },
+        "cell": {
+          "to": "fields.field",
+          "options": [
+            "neutral",
+            "error",
+            "valid"
+          ],
+          "states": "field",
+          "optionBy": {
+            "axis": "state",
+            "values": {
+              "neutral": "neutral",
+              "error": "error",
+              "valid": "valid"
+            }
+          }
+        },
+        "statusIcon": {
+          "to": "fields.status",
+          "options": [
+            "error",
+            "valid"
+          ],
+          "states": "static",
+          "optionBy": {
+            "axis": "state",
+            "values": {
+              "error": "error",
+              "valid": "valid"
+            }
+          }
+        },
         "hint": "text.muted",
-        "error": "fields.error"
+        "error": {
+          "to": "fields.error",
+          "options": [],
+          "states": "static"
+        }
       }
     },
     "ArenaPopover": {
@@ -1759,10 +2152,30 @@
       "group": "fields",
       "parts": {
         "label": "text.muted",
-        "field": "fields.field",
+        "field": {
+          "to": "fields.field",
+          "options": [
+            "neutral",
+            "error",
+            "valid"
+          ],
+          "states": "field",
+          "optionBy": {
+            "axis": "state",
+            "values": {
+              "neutral": "neutral",
+              "error": "error",
+              "valid": "valid"
+            }
+          }
+        },
         "caret": "text.muted",
         "hint": "text.muted",
-        "error": "fields.error",
+        "error": {
+          "to": "fields.error",
+          "options": [],
+          "states": "static"
+        },
         "iconWrap": "text.muted"
       }
     },
@@ -1980,11 +2393,56 @@
       "group": "fields",
       "parts": {
         "label": "text.muted",
-        "required": "fields.required",
-        "field": "fields.field",
+        "required": {
+          "to": "fields.required",
+          "options": [],
+          "states": "static"
+        },
+        "field": {
+          "to": "fields.field",
+          "options": [
+            "neutral",
+            "error",
+            "readonly"
+          ],
+          "states": "field",
+          "optionBy": [
+            {
+              "axis": "state",
+              "values": {
+                "neutral": "neutral",
+                "error": "error"
+              }
+            },
+            {
+              "axis": "readOnly",
+              "values": {
+                "true": "readonly"
+              }
+            }
+          ]
+        },
         "hint": "text.muted",
-        "error": "fields.error",
-        "counter": "fields.counter"
+        "error": {
+          "to": "fields.error",
+          "options": [],
+          "states": "static"
+        },
+        "counter": {
+          "to": "fields.counter",
+          "options": [
+            "neutral",
+            "warning"
+          ],
+          "states": "static",
+          "optionBy": {
+            "axis": "near",
+            "values": {
+              "false": "neutral",
+              "true": "warning"
+            }
+          }
+        }
       }
     },
     "ArenaTimeline": {

@@ -83,7 +83,7 @@ test('THE REAL SHEET: the two halves reassemble to every rule the one file carri
 
   assert.ok(base.includes('-webkit-text-size-adjust'), 'the preflight is in the base half');
   assert.ok(base.includes('font: inherit'), 'including the form-control rule Arena depends on');
-  assert.ok(utilities.includes('.bg-base-200'), 'and the utilities in the other');
+  assert.ok(utilities.includes('.bg-base-300'), 'and the utilities in the other');
   assert.ok(!utilities.includes('-webkit-text-size-adjust'),
     'with no preflight left behind in it. The marker is not `box-sizing: border-box`, which the '
     + 'preflight sets on every element AND `.box-border` sets on one, so it proves nothing here');

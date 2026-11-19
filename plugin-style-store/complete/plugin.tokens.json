@@ -1949,5 +1949,202 @@
   "choices-track-fill-rest": {
     "$type": "color",
     "$value": "{accent-plain-fill-soft}"
+  },
+  "fields-error-field-edge-disabled": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "fields-error-field-edge-hover": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "fields-error-field-edge-rest": {
+    "$type": "color",
+    "$value": "{hue-danger-edge}"
+  },
+  "fields-error-field-fill-disabled": {
+    "$type": "color",
+    "$value": "{fill-field}"
+  },
+  "fields-error-field-fill-hover": {
+    "$type": "color",
+    "$value": "{accent-plain-fill-soft}"
+  },
+  "fields-error-field-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-page}"
+  },
+  "fields-error-field-ink-disabled": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "fields-error-field-ink-hover": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "fields-error-field-ink-rest": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "fields-error-ink-rest": {
+    "$type": "color",
+    "$value": "{hue-danger-ink}"
+  },
+  "fields-error-status-ink-rest": {
+    "$type": "color",
+    "$value": "{hue-danger-ink}"
+  },
+  "fields-neutral-counter-ink-rest": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "fields-neutral-field-edge-disabled": {
+    "$type": "color",
+    "$value": "{edge-control-quiet}"
+  },
+  "fields-neutral-field-edge-hover": {
+    "$type": "color",
+    "$value": "{edge-control-quiet}"
+  },
+  "fields-neutral-field-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-control-quiet}"
+  },
+  "fields-neutral-field-fill-disabled": {
+    "$type": "color",
+    "$value": "{fill-field}"
+  },
+  "fields-neutral-field-fill-hover": {
+    "$type": "color",
+    "$value": "{accent-plain-fill-soft}"
+  },
+  "fields-neutral-field-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-page}"
+  },
+  "fields-neutral-field-ink-disabled": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "fields-neutral-field-ink-hover": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "fields-neutral-field-ink-rest": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "fields-readonly-field-fill-disabled": {
+    "$type": "color",
+    "$value": "{fill-surface}"
+  },
+  "fields-readonly-field-fill-hover": {
+    "$type": "color",
+    "$value": "{accent-plain-fill-soft}"
+  },
+  "fields-readonly-field-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface-floating}"
+  },
+  "fields-required-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-eyebrow}"
+  },
+  "fields-stepper-edge-disabled": {
+    "$type": "color",
+    "$value": "{accent-primary-edge}"
+  },
+  "fields-stepper-edge-hover": {
+    "$type": "color",
+    "$value": "{accent-primary-edge}"
+  },
+  "fields-stepper-edge-pressed": {
+    "$type": "color",
+    "$value": "{accent-primary-edge}"
+  },
+  "fields-stepper-edge-rest": {
+    "$type": "color",
+    "$value": "{accent-primary-edge}"
+  },
+  "fields-stepper-fill-disabled": {
+    "$type": "color",
+    "$value": "transparent"
+  },
+  "fields-stepper-fill-hover": {
+    "$type": "color",
+    "$value": "{accent-plain-fill-soft}"
+  },
+  "fields-stepper-fill-pressed": {
+    "$type": "color",
+    "$value": "transparent"
+  },
+  "fields-stepper-ink-disabled": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "fields-stepper-ink-hover": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "fields-stepper-ink-pressed": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "fields-stepper-ink-rest": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "fields-valid-field-edge-disabled": {
+    "$type": "color",
+    "$value": "{edge-invalid}",
+    "$description": "complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses."
+  },
+  "fields-valid-field-edge-hover": {
+    "$type": "color",
+    "$value": "{edge-invalid}",
+    "$description": "complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses."
+  },
+  "fields-valid-field-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-invalid}",
+    "$description": "complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses."
+  },
+  "fields-valid-field-fill-disabled": {
+    "$type": "color",
+    "$value": "{fill-field}"
+  },
+  "fields-valid-field-fill-hover": {
+    "$type": "color",
+    "$value": "{accent-plain-fill-soft}"
+  },
+  "fields-valid-field-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-page}"
+  },
+  "fields-valid-field-ink-disabled": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "fields-valid-field-ink-hover": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "fields-valid-field-ink-rest": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "fields-valid-status-ink-rest": {
+    "$type": "color",
+    "$value": "{hue-danger-ink}",
+    "$description": "complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses."
+  },
+  "fields-value-ink-rest": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "fields-warning-counter-ink-rest": {
+    "$type": "color",
+    "$value": "{hue-danger-ink}",
+    "$description": "complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses."
   }
 }

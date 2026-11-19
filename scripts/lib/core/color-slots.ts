@@ -5,7 +5,7 @@
 import { join } from 'node:path';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../arena/repo-root.ts';
-import type { ColorSlot, MemberPart, SlotCatalogue, SlotState } from '../../generate/core/arena-cli/slots.ts';
+import type { ColorSlot, MemberPart, OptionAxis, SlotCatalogue, SlotState } from '../../generate/core/arena-cli/slots.ts';
 
 export const COLOR_SLOTS = 'contracts/design/color-slots.json';
 
@@ -13,7 +13,7 @@ type Answer = string | { role: string; level?: string };
 type StateSpec = string | string[];
 type Rest = Record<string, Answer>;
 
-export type GroupOption = { states?: StateSpec; rest: Rest; selected?: Rest; halo?: string; channel?: string | null; decision?: string };
+export type GroupOption = { states?: StateSpec; properties?: string[]; rest: Rest; selected?: Rest; halo?: string; channel?: string | null; decision?: string };
 export type GroupPart = {
   properties: string[];
   options?: string[] | Record<string, GroupOption>;
@@ -28,8 +28,8 @@ export type GroupPart = {
 };
 export type MemberDecl = {
   to: string; options: string[]; states: StateSpec; channels?: Record<string, string>; defaults?: Record<string, string>; decision?: string;
-  optionBy?: { axis: string; values: Record<string, string> }; selectedBy?: { axis: string; value: string };
-  disabledBy?: { axis: string; value: string }; inline?: true;
+  optionBy?: OptionAxis | OptionAxis[]; selectedBy?: { axis: string; value: string };
+  disabledBy?: { axis: string; value: string }; hoverBy?: { axis: string; value: string }; properties?: string[]; inline?: true;
 };
 
 export type SlotDeclarations = {
@@ -115,7 +115,7 @@ export function deriveSlots(d: SlotDeclarations): SlotCatalogue {
           if (o.halo !== undefined) halos[owner] = o.halo;
           standing({
             group, opt, part, rest: restOf(o.rest), selected: { ...p.selected, ...o.selected }, states: sets(spec),
-            channel: o.channel !== undefined ? o.channel : p.channel, properties: p.properties, on: p.on, selectedOn: p.selectedOn,
+            channel: o.channel !== undefined ? o.channel : p.channel, properties: o.properties ?? p.properties, on: p.on, selectedOn: p.selectedOn,
           });
         }
       } else if (p.rest !== undefined || p.selected !== undefined) {
@@ -152,6 +152,8 @@ export function deriveSlots(d: SlotDeclarations): SlotCatalogue {
       if (to.optionBy) one.optionBy = to.optionBy;
       if (to.selectedBy) one.selectedBy = to.selectedBy;
       if (to.disabledBy) one.disabledBy = to.disabledBy;
+      if (to.hoverBy) one.hoverBy = to.hoverBy;
+      if (to.properties) one.properties = to.properties as MemberPart['properties'];
       if (to.inline) one.inline = true;
       members[key] = one;
     }

@@ -22,7 +22,7 @@ import { declarations } from '../../lib/tailwind/vocabulary.ts';
 import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
 import type { ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';
 import {
-  SLOT_PROPERTIES, SLOT_STATES, acceptedRole, channelValue, expectedName, glob, memberChain, memberChannel, memberValue,
+  SLOT_PROPERTIES, SLOT_STATES, acceptedRole, channelValue, expectedName, glob, memberChain, memberChannel, memberValue, optionAxes,
 } from '../../generate/core/arena-cli/slots.ts';
 import type { ColorSlot, MemberPart, SlotCatalogue } from '../../generate/core/arena-cli/slots.ts';
 import { slotPairs } from '../../generate/core/arena-cli/slot-contrast.ts';
@@ -193,7 +193,7 @@ const emphasisOptions = (m: ComponentManifest) => (m.answers ?? [])
 
 const memberSlots = (c: SlotCatalogue, m: MemberPart) => {
   const [group, part] = m.to.split('.');
-  return entries(c).filter(([, s]) => s.group === group && s.part === part && (s.option === undefined ? m.options.length === 0 : m.options.includes(s.option)) && m.states.includes(s.state));
+  return entries(c).filter(([, s]) => s.group === group && s.part === part && (s.option === undefined ? m.options.length === 0 : m.options.includes(s.option)) && m.states.includes(s.state) && (m.properties === undefined || m.properties.includes(s.property)));
 };
 
 export function manifestProblems(c: SlotCatalogue, manifests: Manifests): string[] {
@@ -203,7 +203,7 @@ export function manifestProblems(c: SlotCatalogue, manifests: Manifests): string
     const manifest = manifests.get(comp);
     if (!manifest) { out.push(`members.${key}: no manifest declares the component ${comp}`); continue; }
     if (!Object.hasOwn(manifest.slots ?? {}, part)) out.push(`members.${key}: ${comp} has no slot ${part}`);
-    const targeted = new Set(Object.values(m.optionBy?.values ?? {}));
+    const targeted = new Set(optionAxes(m).flatMap((one) => Object.values(one.values)));
     for (const option of m.options) {
       if (!entries(c).some(([, s]) => `${s.group}.${s.part}` === m.to && s.option === option)) out.push(`members.${key}: ${m.to} derives no ${option} slot`);
       const axis = targeted.has(option) || (m.optionBy === undefined && m.options.length === 1) || (m.optionBy !== undefined && m.options.filter((o) => !targeted.has(o)).length === 1);
@@ -211,9 +211,10 @@ export function manifestProblems(c: SlotCatalogue, manifests: Manifests): string
         out.push(`members.${key}: ${comp} answers no emphasis ${option} and declares no variant ${option}`);
       }
     }
-    const branches: [string, string][] = [...Object.entries(m.optionBy?.values ?? {}).map(([value]) => [m.optionBy!.axis, value] as [string, string]),
+    const branches: [string, string][] = [...optionAxes(m).flatMap((one) => Object.keys(one.values).map((value) => [one.axis, value] as [string, string])),
       ...(m.selectedBy && m.states.includes('rest') ? [[m.selectedBy.axis, m.selectedBy.value] as [string, string]] : []),
-      ...(m.disabledBy && m.states.some((st) => DISABLED.has(st)) ? [[m.disabledBy.axis, m.disabledBy.value] as [string, string]] : [])];
+      ...(m.disabledBy && m.states.some((st) => DISABLED.has(st)) ? [[m.disabledBy.axis, m.disabledBy.value] as [string, string]] : []),
+      ...(m.hoverBy && m.states.includes('hover') ? [[m.hoverBy.axis, m.hoverBy.value] as [string, string]] : [])];
     for (const [axis, value] of branches) {
       if (!Object.hasOwn(manifest.variants?.[axis] ?? {}, value)) out.push(`members.${key}: ${comp} declares no variant ${axis}=${value}`);
     }
@@ -264,10 +265,13 @@ const inlineMember = (c: SlotCatalogue, m: MemberPart) => m.inline === true || m
 
 const branchOf = (m: MemberPart, s: ColorSlot): [string, string][] => {
   const out: [string, string][] = [];
-  const by = Object.entries(m.optionBy?.values ?? {}).find(([, option]) => option === s.option);
-  if (by) out.push([m.optionBy!.axis, by[0]]);
+  for (const one of optionAxes(m)) {
+    const by = Object.entries(one.values).find(([, option]) => option === s.option);
+    if (by) { out.push([one.axis, by[0]]); break; }
+  }
   if (m.selectedBy && m.states.includes('rest') && s.state.startsWith('selected')) out.push([m.selectedBy.axis, m.selectedBy.value]);
   if (m.disabledBy && DISABLED.has(s.state)) out.push([m.disabledBy.axis, m.disabledBy.value]);
+  if (m.hoverBy && s.state === 'hover') out.push([m.hoverBy.axis, m.hoverBy.value]);
   return out;
 };
 
@@ -286,7 +290,7 @@ export function memberReadProblems(c: SlotCatalogue, manifests: Manifests): stri
     if (!manifest || !inlineMember(c, m)) continue;
     for (const [name, s] of memberSlots(c, m)) {
       const branch = branchOf(m, s);
-      const modifier = m.disabledBy && DISABLED.has(s.state) ? '' : MODIFIER[s.state] ?? '';
+      const modifier = (m.disabledBy && DISABLED.has(s.state)) || (m.hoverBy && s.state === 'hover') ? '' : MODIFIER[s.state] ?? '';
       const want = `${UTILITY[s.property]}${memberValue(c, key, name, 'tailwind')}]`;
       const found = branchTexts(manifest, part, branch).some((text) => text.split(/\s+/).some((token) => {
         const prefix = VARIANT.exec(token)?.[0] ?? '';
@@ -352,9 +356,9 @@ const DECLARED = {
   top: ['$description', 'accepts', 'refused', 'states', 'stateSets', 'selected', 'exceptions', 'rings', 'groups', 'members'],
   group: ['parts'],
   groupPart: ['properties', 'options', 'states', 'channel', 'rest', 'selected', 'on', 'selectedOn', 'decision', 'paintedBy'],
-  option: ['states', 'rest', 'selected', 'halo', 'channel', 'decision'],
+  option: ['states', 'properties', 'rest', 'selected', 'halo', 'channel', 'decision'],
   member: ['group', 'parts'],
-  memberPart: ['to', 'options', 'states', 'channels', 'defaults', 'decision', 'optionBy', 'selectedBy', 'disabledBy', 'inline'],
+  memberPart: ['to', 'options', 'states', 'channels', 'defaults', 'decision', 'optionBy', 'selectedBy', 'disabledBy', 'hoverBy', 'properties', 'inline'],
   exception: ['default', 'decision', 'level'],
 };
 const DECISION = /^[DR]\d+$/;
@@ -426,10 +430,12 @@ export function declarationProblems(d: SlotDeclarations): string[] {
           channel(at, o.channel);
           selectedOf(`${at}.selected`, o.selected, p, o.states ?? p.states);
           if (o.halo !== undefined && !LEVEL.test(String(o.halo))) out.push(`${at}.halo: "${String(o.halo)}" is no level, and a level is level-<name>`);
-          if (o.halo !== undefined && !p.properties.includes('edge')) out.push(`${at}.halo: the part paints no edge for a halo to follow`);
+          if (o.halo !== undefined && !(o.properties ?? p.properties).includes('edge')) out.push(`${at}.halo: the part paints no edge for a halo to follow`);
           if (o.decision !== undefined) decision(at, o.decision, 'a decision');
           if (o.rest === undefined) out.push(`${at}: an option of a part that derives slots declares its rest answers (D45)`);
-          else rest(`${at}.rest`, o.rest, p);
+          else rest(`${at}.rest`, o.rest, { ...p, properties: o.properties ?? p.properties });
+          for (const prop of o.properties ?? []) if (!p.properties.includes(prop)) out.push(`${at}.properties: "${prop}" is a property the part does not paint (${p.properties.join(', ')})`);
+          if (o.properties !== undefined && o.properties.length === 0) out.push(`${at}.properties: it lists no property`);
           sets(at, o.states ?? p.states);
         }
       } else {
@@ -452,25 +458,36 @@ export function declarationProblems(d: SlotDeclarations): string[] {
       keys(where, to, DECLARED.memberPart);
       sets(where, (to as MemberDecl).states);
       if (Object.keys(to.defaults ?? {}).length) decision(where, to.decision, 'defaults');
-      const by = to.optionBy;
-      if (by !== undefined) {
+      const axes = optionAxes(to as MemberPart);
+      const axisNames = new Set<string>();
+      for (const by of axes) {
         if (typeof by.axis !== 'string' || by.axis === '') out.push(`${where}.optionBy: it names no axis`);
+        else if (axisNames.has(by.axis)) out.push(`${where}.optionBy: the axis ${by.axis} is named twice`);
+        axisNames.add(by.axis);
         for (const [value, option] of Object.entries(by.values ?? {})) {
           if (!(to.options ?? []).includes(option)) out.push(`${where}.optionBy: "${option}" is not an option the member lists (${(to.options ?? []).join(', ') || 'none'}), for ${by.axis}=${value}`);
         }
         if (Object.keys(by.values ?? {}).length === 0) out.push(`${where}.optionBy: it maps no value onto an option`);
-        else if ((to.options ?? []).filter((o) => !Object.values(by.values).includes(o)).length > 1) out.push(`${where}.optionBy: more than one option is left with no value, and only the base option has none`);
       }
-      const sel = to.selectedBy;
-      if (sel !== undefined) {
-        if (typeof sel.axis !== 'string' || sel.axis === '' || typeof sel.value !== 'string') out.push(`${where}.selectedBy: it names an axis and a value`);
-        else if (by?.axis === sel.axis) out.push(`${where}.selectedBy: it shares the axis ${sel.axis} with optionBy`);
+      if (axes.length > 0 && (to.options ?? []).filter((o) => !axes.some((one) => Object.values(one.values ?? {}).includes(o))).length > 1) {
+        out.push(`${where}.optionBy: more than one option is left with no value, and only the base option has none`);
       }
-      const off = to.disabledBy;
-      if (off !== undefined) {
-        if (typeof off.axis !== 'string' || off.axis === '' || typeof off.value !== 'string') out.push(`${where}.disabledBy: it names an axis and a value`);
-        else if (by?.axis === off.axis) out.push(`${where}.disabledBy: it shares the axis ${off.axis} with optionBy`);
-        else if (sel?.axis === off.axis) out.push(`${where}.disabledBy: it shares the axis ${off.axis} with selectedBy`);
+      const branch = (key: 'selectedBy' | 'disabledBy' | 'hoverBy', others: ('optionBy' | 'selectedBy' | 'disabledBy' | 'hoverBy')[]) => {
+        const one = to[key];
+        if (one === undefined) return;
+        if (typeof one.axis !== 'string' || one.axis === '' || typeof one.value !== 'string') { out.push(`${where}.${key}: it names an axis and a value`); return; }
+        for (const other of others) {
+          const shared = other === 'optionBy' ? axisNames.has(one.axis) : (to[other] as { axis: string } | undefined)?.axis === one.axis;
+          if (shared) { out.push(`${where}.${key}: it shares the axis ${one.axis} with ${other}`); return; }
+        }
+      };
+      branch('selectedBy', ['optionBy']);
+      branch('disabledBy', ['optionBy', 'selectedBy']);
+      branch('hoverBy', ['optionBy', 'selectedBy', 'disabledBy']);
+      if (to.properties !== undefined) {
+        const [group, partName] = String(to.to).split('.');
+        const painted = d.groups?.[group as string]?.parts?.[partName as string]?.properties ?? [];
+        for (const prop of to.properties) if (!painted.includes(prop)) out.push(`${where}.properties: "${prop}" is a property ${to.to} does not paint (${painted.join(', ') || 'none'})`);
       }
       for (const [prop, ch] of Object.entries(to.channels ?? {})) {
         if (!['fill', 'ink', 'edge', 'icon'].includes(prop)) out.push(`${where}.channels: unknown key "${prop}"`);

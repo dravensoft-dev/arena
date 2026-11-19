@@ -422,6 +422,54 @@
   --choices-segment-ink-selected-pressed:var(--accent-muted-ink);
   --choices-track-edge-rest:var(--edge-field);
   --choices-track-fill-rest:var(--accent-plain-fill-soft);
+  --fields-error-field-edge-disabled:var(--edge-invalid);
+  --fields-error-field-edge-hover:var(--edge-invalid);
+  --fields-error-field-edge-rest:var(--hue-danger-edge);
+  --fields-error-field-fill-disabled:var(--fill-field);
+  --fields-error-field-fill-hover:var(--accent-plain-fill-soft);
+  --fields-error-field-fill-rest:var(--fill-page);
+  --fields-error-field-ink-disabled:var(--accent-muted-ink);
+  --fields-error-field-ink-hover:var(--accent-muted-ink);
+  --fields-error-field-ink-rest:var(--accent-muted-ink);
+  --fields-error-ink-rest:var(--hue-danger-ink);
+  --fields-error-status-ink-rest:var(--hue-danger-ink);
+  --fields-neutral-counter-ink-rest:var(--accent-muted-ink);
+  --fields-neutral-field-edge-disabled:var(--edge-control-quiet);
+  --fields-neutral-field-edge-hover:var(--edge-control-quiet);
+  --fields-neutral-field-edge-rest:var(--edge-control-quiet);
+  --fields-neutral-field-fill-disabled:var(--fill-field);
+  --fields-neutral-field-fill-hover:var(--accent-plain-fill-soft);
+  --fields-neutral-field-fill-rest:var(--fill-page);
+  --fields-neutral-field-ink-disabled:var(--accent-muted-ink);
+  --fields-neutral-field-ink-hover:var(--accent-muted-ink);
+  --fields-neutral-field-ink-rest:var(--accent-muted-ink);
+  --fields-readonly-field-fill-disabled:var(--fill-surface);
+  --fields-readonly-field-fill-hover:var(--accent-plain-fill-soft);
+  --fields-readonly-field-fill-rest:var(--fill-surface-floating);
+  --fields-required-ink-rest:var(--ink-eyebrow);
+  --fields-stepper-edge-disabled:var(--accent-primary-edge);
+  --fields-stepper-edge-hover:var(--accent-primary-edge);
+  --fields-stepper-edge-pressed:var(--accent-primary-edge);
+  --fields-stepper-edge-rest:var(--accent-primary-edge);
+  --fields-stepper-fill-disabled:transparent;
+  --fields-stepper-fill-hover:var(--accent-plain-fill-soft);
+  --fields-stepper-fill-pressed:transparent;
+  --fields-stepper-ink-disabled:var(--accent-muted-ink);
+  --fields-stepper-ink-hover:var(--accent-muted-ink);
+  --fields-stepper-ink-pressed:var(--accent-muted-ink);
+  --fields-stepper-ink-rest:var(--accent-muted-ink);
+  --fields-valid-field-edge-disabled:var(--edge-invalid); /* complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses. */
+  --fields-valid-field-edge-hover:var(--edge-invalid); /* complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses. */
+  --fields-valid-field-edge-rest:var(--edge-invalid); /* complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses. */
+  --fields-valid-field-fill-disabled:var(--fill-field);
+  --fields-valid-field-fill-hover:var(--accent-plain-fill-soft);
+  --fields-valid-field-fill-rest:var(--fill-page);
+  --fields-valid-field-ink-disabled:var(--accent-muted-ink);
+  --fields-valid-field-ink-hover:var(--accent-muted-ink);
+  --fields-valid-field-ink-rest:var(--accent-muted-ink);
+  --fields-valid-status-ink-rest:var(--hue-danger-ink); /* complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses. */
+  --fields-value-ink-rest:var(--accent-muted-ink);
+  --fields-warning-counter-ink-rest:var(--hue-danger-ink); /* complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses. */
   --actions-destructive-root-fade-disabled:1;
   --actions-dismiss-fade-disabled:1;
   --actions-ghost-root-fade-disabled:1;
@@ -432,6 +480,11 @@
   --actions-solid-root-fade-selected-disabled:1;
   --choices-box-fade-disabled:1;
   --choices-box-fade-selected-disabled:1;
+  --fields-error-field-fade-disabled:1;
+  --fields-neutral-field-fade-disabled:1;
+  --fields-readonly-field-fade-disabled:1;
+  --fields-stepper-fade-disabled:1;
+  --fields-valid-field-fade-disabled:1;
 }
 @scope (.arena-dark) {
 :where(:scope).arena-complete, .arena-complete{
@@ -652,6 +705,52 @@
   --choices-segment-ink-selected-pressed:var(--accent-muted-ink);
   --choices-track-edge-rest:var(--edge-field);
   --choices-track-fill-rest:var(--accent-plain-fill-soft);
+  --fields-error-field-edge-disabled:var(--edge-invalid);
+  --fields-error-field-edge-hover:var(--edge-invalid);
+  --fields-error-field-edge-rest:var(--hue-danger-edge);
+  --fields-error-field-fill-disabled:var(--fill-field);
+  --fields-error-field-fill-hover:var(--accent-plain-fill-soft);
+  --fields-error-field-fill-rest:var(--fill-page);
+  --fields-error-field-ink-disabled:var(--accent-muted-ink);
+  --fields-error-field-ink-hover:var(--accent-muted-ink);
+  --fields-error-field-ink-rest:var(--accent-muted-ink);
+  --fields-error-ink-rest:var(--hue-danger-ink);
+  --fields-error-status-ink-rest:var(--hue-danger-ink);
+  --fields-neutral-counter-ink-rest:var(--accent-muted-ink);
+  --fields-neutral-field-edge-disabled:var(--edge-control-quiet);
+  --fields-neutral-field-edge-hover:var(--edge-control-quiet);
+  --fields-neutral-field-edge-rest:var(--edge-control-quiet);
+  --fields-neutral-field-fill-disabled:var(--fill-field);
+  --fields-neutral-field-fill-hover:var(--accent-plain-fill-soft);
+  --fields-neutral-field-fill-rest:var(--fill-page);
+  --fields-neutral-field-ink-disabled:var(--accent-muted-ink);
+  --fields-neutral-field-ink-hover:var(--accent-muted-ink);
+  --fields-neutral-field-ink-rest:var(--accent-muted-ink);
+  --fields-readonly-field-fill-disabled:var(--fill-surface);
+  --fields-readonly-field-fill-hover:var(--accent-plain-fill-soft);
+  --fields-readonly-field-fill-rest:var(--fill-surface-floating);
+  --fields-required-ink-rest:var(--ink-eyebrow);
+  --fields-stepper-edge-disabled:var(--accent-primary-edge);
+  --fields-stepper-edge-hover:var(--accent-primary-edge);
+  --fields-stepper-edge-pressed:var(--accent-primary-edge);
+  --fields-stepper-edge-rest:var(--accent-primary-edge);
+  --fields-stepper-fill-hover:var(--accent-plain-fill-soft);
+  --fields-stepper-ink-disabled:var(--accent-muted-ink);
+  --fields-stepper-ink-hover:var(--accent-muted-ink);
+  --fields-stepper-ink-pressed:var(--accent-muted-ink);
+  --fields-stepper-ink-rest:var(--accent-muted-ink);
+  --fields-valid-field-edge-disabled:var(--edge-invalid); /* complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses. */
+  --fields-valid-field-edge-hover:var(--edge-invalid); /* complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses. */
+  --fields-valid-field-edge-rest:var(--edge-invalid); /* complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses. */
+  --fields-valid-field-fill-disabled:var(--fill-field);
+  --fields-valid-field-fill-hover:var(--accent-plain-fill-soft);
+  --fields-valid-field-fill-rest:var(--fill-page);
+  --fields-valid-field-ink-disabled:var(--accent-muted-ink);
+  --fields-valid-field-ink-hover:var(--accent-muted-ink);
+  --fields-valid-field-ink-rest:var(--accent-muted-ink);
+  --fields-valid-status-ink-rest:var(--hue-danger-ink); /* complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses. */
+  --fields-value-ink-rest:var(--accent-muted-ink);
+  --fields-warning-counter-ink-rest:var(--hue-danger-ink); /* complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses. */
 }
 }
 @scope (.arena-complete) {
@@ -873,6 +972,52 @@
   --choices-segment-ink-selected-pressed:var(--accent-muted-ink);
   --choices-track-edge-rest:var(--edge-field);
   --choices-track-fill-rest:var(--accent-plain-fill-soft);
+  --fields-error-field-edge-disabled:var(--edge-invalid);
+  --fields-error-field-edge-hover:var(--edge-invalid);
+  --fields-error-field-edge-rest:var(--hue-danger-edge);
+  --fields-error-field-fill-disabled:var(--fill-field);
+  --fields-error-field-fill-hover:var(--accent-plain-fill-soft);
+  --fields-error-field-fill-rest:var(--fill-page);
+  --fields-error-field-ink-disabled:var(--accent-muted-ink);
+  --fields-error-field-ink-hover:var(--accent-muted-ink);
+  --fields-error-field-ink-rest:var(--accent-muted-ink);
+  --fields-error-ink-rest:var(--hue-danger-ink);
+  --fields-error-status-ink-rest:var(--hue-danger-ink);
+  --fields-neutral-counter-ink-rest:var(--accent-muted-ink);
+  --fields-neutral-field-edge-disabled:var(--edge-control-quiet);
+  --fields-neutral-field-edge-hover:var(--edge-control-quiet);
+  --fields-neutral-field-edge-rest:var(--edge-control-quiet);
+  --fields-neutral-field-fill-disabled:var(--fill-field);
+  --fields-neutral-field-fill-hover:var(--accent-plain-fill-soft);
+  --fields-neutral-field-fill-rest:var(--fill-page);
+  --fields-neutral-field-ink-disabled:var(--accent-muted-ink);
+  --fields-neutral-field-ink-hover:var(--accent-muted-ink);
+  --fields-neutral-field-ink-rest:var(--accent-muted-ink);
+  --fields-readonly-field-fill-disabled:var(--fill-surface);
+  --fields-readonly-field-fill-hover:var(--accent-plain-fill-soft);
+  --fields-readonly-field-fill-rest:var(--fill-surface-floating);
+  --fields-required-ink-rest:var(--ink-eyebrow);
+  --fields-stepper-edge-disabled:var(--accent-primary-edge);
+  --fields-stepper-edge-hover:var(--accent-primary-edge);
+  --fields-stepper-edge-pressed:var(--accent-primary-edge);
+  --fields-stepper-edge-rest:var(--accent-primary-edge);
+  --fields-stepper-fill-hover:var(--accent-plain-fill-soft);
+  --fields-stepper-ink-disabled:var(--accent-muted-ink);
+  --fields-stepper-ink-hover:var(--accent-muted-ink);
+  --fields-stepper-ink-pressed:var(--accent-muted-ink);
+  --fields-stepper-ink-rest:var(--accent-muted-ink);
+  --fields-valid-field-edge-disabled:var(--edge-invalid); /* complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses. */
+  --fields-valid-field-edge-hover:var(--edge-invalid); /* complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses. */
+  --fields-valid-field-edge-rest:var(--edge-invalid); /* complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses. */
+  --fields-valid-field-fill-disabled:var(--fill-field);
+  --fields-valid-field-fill-hover:var(--accent-plain-fill-soft);
+  --fields-valid-field-fill-rest:var(--fill-page);
+  --fields-valid-field-ink-disabled:var(--accent-muted-ink);
+  --fields-valid-field-ink-hover:var(--accent-muted-ink);
+  --fields-valid-field-ink-rest:var(--accent-muted-ink);
+  --fields-valid-status-ink-rest:var(--hue-danger-ink); /* complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses. */
+  --fields-value-ink-rest:var(--accent-muted-ink);
+  --fields-warning-counter-ink-rest:var(--hue-danger-ink); /* complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses. */
 }
 }
 @scope (.arena-light) {
@@ -1094,6 +1239,52 @@
   --choices-segment-ink-selected-pressed:var(--accent-muted-ink);
   --choices-track-edge-rest:var(--edge-field);
   --choices-track-fill-rest:var(--accent-plain-fill-soft);
+  --fields-error-field-edge-disabled:var(--edge-invalid);
+  --fields-error-field-edge-hover:var(--edge-invalid);
+  --fields-error-field-edge-rest:var(--hue-danger-edge);
+  --fields-error-field-fill-disabled:var(--fill-field);
+  --fields-error-field-fill-hover:var(--accent-plain-fill-soft);
+  --fields-error-field-fill-rest:var(--fill-page);
+  --fields-error-field-ink-disabled:var(--accent-muted-ink);
+  --fields-error-field-ink-hover:var(--accent-muted-ink);
+  --fields-error-field-ink-rest:var(--accent-muted-ink);
+  --fields-error-ink-rest:var(--hue-danger-ink);
+  --fields-error-status-ink-rest:var(--hue-danger-ink);
+  --fields-neutral-counter-ink-rest:var(--accent-muted-ink);
+  --fields-neutral-field-edge-disabled:var(--edge-control-quiet);
+  --fields-neutral-field-edge-hover:var(--edge-control-quiet);
+  --fields-neutral-field-edge-rest:var(--edge-control-quiet);
+  --fields-neutral-field-fill-disabled:var(--fill-field);
+  --fields-neutral-field-fill-hover:var(--accent-plain-fill-soft);
+  --fields-neutral-field-fill-rest:var(--fill-page);
+  --fields-neutral-field-ink-disabled:var(--accent-muted-ink);
+  --fields-neutral-field-ink-hover:var(--accent-muted-ink);
+  --fields-neutral-field-ink-rest:var(--accent-muted-ink);
+  --fields-readonly-field-fill-disabled:var(--fill-surface);
+  --fields-readonly-field-fill-hover:var(--accent-plain-fill-soft);
+  --fields-readonly-field-fill-rest:var(--fill-surface-floating);
+  --fields-required-ink-rest:var(--ink-eyebrow);
+  --fields-stepper-edge-disabled:var(--accent-primary-edge);
+  --fields-stepper-edge-hover:var(--accent-primary-edge);
+  --fields-stepper-edge-pressed:var(--accent-primary-edge);
+  --fields-stepper-edge-rest:var(--accent-primary-edge);
+  --fields-stepper-fill-hover:var(--accent-plain-fill-soft);
+  --fields-stepper-ink-disabled:var(--accent-muted-ink);
+  --fields-stepper-ink-hover:var(--accent-muted-ink);
+  --fields-stepper-ink-pressed:var(--accent-muted-ink);
+  --fields-stepper-ink-rest:var(--accent-muted-ink);
+  --fields-valid-field-edge-disabled:var(--edge-invalid); /* complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses. */
+  --fields-valid-field-edge-hover:var(--edge-invalid); /* complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses. */
+  --fields-valid-field-edge-rest:var(--edge-invalid); /* complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses. */
+  --fields-valid-field-fill-disabled:var(--fill-field);
+  --fields-valid-field-fill-hover:var(--accent-plain-fill-soft);
+  --fields-valid-field-fill-rest:var(--fill-page);
+  --fields-valid-field-ink-disabled:var(--accent-muted-ink);
+  --fields-valid-field-ink-hover:var(--accent-muted-ink);
+  --fields-valid-field-ink-rest:var(--accent-muted-ink);
+  --fields-valid-status-ink-rest:var(--hue-danger-ink); /* complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses. */
+  --fields-value-ink-rest:var(--accent-muted-ink);
+  --fields-warning-counter-ink-rest:var(--hue-danger-ink); /* complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses. */
 }
 }
 @scope (.arena-complete) {
@@ -1315,6 +1506,52 @@
   --choices-segment-ink-selected-pressed:var(--accent-muted-ink);
   --choices-track-edge-rest:var(--edge-field);
   --choices-track-fill-rest:var(--accent-plain-fill-soft);
+  --fields-error-field-edge-disabled:var(--edge-invalid);
+  --fields-error-field-edge-hover:var(--edge-invalid);
+  --fields-error-field-edge-rest:var(--hue-danger-edge);
+  --fields-error-field-fill-disabled:var(--fill-field);
+  --fields-error-field-fill-hover:var(--accent-plain-fill-soft);
+  --fields-error-field-fill-rest:var(--fill-page);
+  --fields-error-field-ink-disabled:var(--accent-muted-ink);
+  --fields-error-field-ink-hover:var(--accent-muted-ink);
+  --fields-error-field-ink-rest:var(--accent-muted-ink);
+  --fields-error-ink-rest:var(--hue-danger-ink);
+  --fields-error-status-ink-rest:var(--hue-danger-ink);
+  --fields-neutral-counter-ink-rest:var(--accent-muted-ink);
+  --fields-neutral-field-edge-disabled:var(--edge-control-quiet);
+  --fields-neutral-field-edge-hover:var(--edge-control-quiet);
+  --fields-neutral-field-edge-rest:var(--edge-control-quiet);
+  --fields-neutral-field-fill-disabled:var(--fill-field);
+  --fields-neutral-field-fill-hover:var(--accent-plain-fill-soft);
+  --fields-neutral-field-fill-rest:var(--fill-page);
+  --fields-neutral-field-ink-disabled:var(--accent-muted-ink);
+  --fields-neutral-field-ink-hover:var(--accent-muted-ink);
+  --fields-neutral-field-ink-rest:var(--accent-muted-ink);
+  --fields-readonly-field-fill-disabled:var(--fill-surface);
+  --fields-readonly-field-fill-hover:var(--accent-plain-fill-soft);
+  --fields-readonly-field-fill-rest:var(--fill-surface-floating);
+  --fields-required-ink-rest:var(--ink-eyebrow);
+  --fields-stepper-edge-disabled:var(--accent-primary-edge);
+  --fields-stepper-edge-hover:var(--accent-primary-edge);
+  --fields-stepper-edge-pressed:var(--accent-primary-edge);
+  --fields-stepper-edge-rest:var(--accent-primary-edge);
+  --fields-stepper-fill-hover:var(--accent-plain-fill-soft);
+  --fields-stepper-ink-disabled:var(--accent-muted-ink);
+  --fields-stepper-ink-hover:var(--accent-muted-ink);
+  --fields-stepper-ink-pressed:var(--accent-muted-ink);
+  --fields-stepper-ink-rest:var(--accent-muted-ink);
+  --fields-valid-field-edge-disabled:var(--edge-invalid); /* complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses. */
+  --fields-valid-field-edge-hover:var(--edge-invalid); /* complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses. */
+  --fields-valid-field-edge-rest:var(--edge-invalid); /* complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses. */
+  --fields-valid-field-fill-disabled:var(--fill-field);
+  --fields-valid-field-fill-hover:var(--accent-plain-fill-soft);
+  --fields-valid-field-fill-rest:var(--fill-page);
+  --fields-valid-field-ink-disabled:var(--accent-muted-ink);
+  --fields-valid-field-ink-hover:var(--accent-muted-ink);
+  --fields-valid-field-ink-rest:var(--accent-muted-ink);
+  --fields-valid-status-ink-rest:var(--hue-danger-ink); /* complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses. */
+  --fields-value-ink-rest:var(--accent-muted-ink);
+  --fields-warning-counter-ink-rest:var(--hue-danger-ink); /* complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses. */
 }
 }
 @scope (.arena-light) {

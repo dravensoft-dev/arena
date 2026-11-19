@@ -312,3 +312,19 @@ test('an answer that sinks the box under its white mark is reported below 3:1', 
   assert.ok(lines.length > 0, 'the white mark over fill-surface is reported');
   assert.ok(lines.every((line) => / over --choices-box-fill-selected in the selected state of the light theme, below 3:1 \(WCAG 1\.4\.11\)/.test(line)), lines.join('\n'));
 });
+
+test('every fields ink clears AA over every ground in the default', () => {
+  const shipped = slotPairs(CATALOGUE.slots);
+  const grounded = ['fields-required-ink-rest', 'fields-error-status-ink-rest', 'fields-valid-status-ink-rest', 'fields-error-ink-rest', 'fields-neutral-counter-ink-rest', 'fields-warning-counter-ink-rest'];
+  for (const slot of grounded) assert.ok(shipped.some((pair) => pair.slot === slot && pair.over === 'ground' && pair.min === 4.5), `${slot} is measured over every ground at 4.5:1`);
+  assert.ok(shipped.some((pair) => pair.slot === 'fields-neutral-field-ink-rest' && pair.over === 'fields-neutral-field-fill-rest' && pair.min === 4.5), 'a field ink is measured over its own fill');
+  assert.ok(shipped.some((pair) => pair.slot === 'fields-stepper-ink-hover' && pair.over === 'fields-stepper-fill-hover' && pair.min === 4.5));
+  for (const theme of ['dark', 'light'] as const) {
+    const plugin = readPlugin('default', JSON.parse(readFileSync(join(repoRoot, 'plugin-style-store/default/plugin.tokens.json'), 'utf8')));
+    const roles = rolesFor(plugin, CATALOGUE, theme);
+    const answers = new Map([...roles].filter(([name]) => Object.hasOwn(SLOTS, name)));
+    const fields = slotReports(CATALOGUE.slots, answers, roles, coloursOf(theme), theme, LEVELS).map((one) => one.message).filter((line) => line.startsWith('--fields-'));
+    assert.deepEqual(fields, [], `${theme}: the default plugin draws every fields pair above its floor`);
+    assert.deepEqual(unresolvedPairs(CATALOGUE.slots, answers, roles, coloursOf(theme), LEVELS).filter((pair) => pair.slot.startsWith('fields-')), [], `${theme}: every fields pair resolves`);
+  }
+});
