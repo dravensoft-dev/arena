@@ -896,7 +896,7 @@ const FOCUS_MODIFIER = /(^|[:\]])focus(-visible|-within)?:/;
 function everyClassBySlot(): [string, string, string[]][] {
   const found: [string, string, string[]][] = [];
   for (const [component, manifest] of manifests)
-    for (const [slot, strings] of classStringsBySlot(manifest) as Map<string, string[]>)
+    for (const [slot, strings] of classStringsBySlot(manifest))
       found.push([component, slot, strings.flatMap((one) => one.split(/\s+/).filter(Boolean))]);
   return found;
 }
@@ -937,7 +937,7 @@ test('every slot that gained a ring keeps it under hover', () => {
   for (const [component, slot] of gained) {
     const manifest = manifests.get(component) as { slots: Record<string, string> };
     assert.ok((manifest.slots[slot] ?? '').split(/\s+/).includes(RING), `${component}.${slot} base lacks the focus ring`);
-    const strings = (classStringsBySlot(manifest as never) as Map<string, string[]>).get(slot) ?? [];
+    const strings = classStringsBySlot(manifest as never).get(slot) ?? [];
     const hover = strings.flatMap((one) => one.split(/\s+/)).filter((cls) => cls.includes('hover:shadow-'));
     assert.deepEqual(hover, [], `${component}.${slot} sets ${hover.join(' ')}, which replaces the inset ring while the pointer rests on a focused control`);
   }
@@ -969,7 +969,7 @@ test('a focus ring never sits on a filled ground', () => {
     assert.ok(!base.includes('outline-none') && !base.includes('focus-visible:outline-none'), `${component}.${slot} strips the outline it draws`);
   }
   for (const manifest of manifests.values() as Iterable<{ component: string }>) {
-    for (const [slot, strings] of classStringsBySlot(manifest as never) as Map<string, string[]>) {
+    for (const [slot, strings] of classStringsBySlot(manifest as never)) {
       const classes = strings.flatMap((one) => one.split(/\s+/));
       if (!classes.some(isFill)) continue;
       assert.ok(!classes.includes(INSET), `${manifest.component}.${slot} has a fill and draws its focus ring inset on it`);

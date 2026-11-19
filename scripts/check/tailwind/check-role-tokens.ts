@@ -1,13 +1,13 @@
-/* Fails on a scale utility standing where a role belongs, on a slot that declares no kind, on a
- * numeric padding, gap or margin step, and on a padding, gap or radius role its kind does not
- * spend. A role says WHICH air or corner is asked about, so a style plugin can answer it; the
- * kind of a slot says which roles it may ask. Scale utilities are banned by utility name, and a
- * border width, a duration and an easing by token name. SCALE_USES records the places that
- * genuinely mean the value, keyed by component, slot and utility, and a stale entry fails. A state is never drawn with
- * a literal either: an opacity step, an arbitrary literal opacity or a /<digits> or /[literal]
- * alpha, with or without an important mark, on a state branch or under a state modifier (a
- * group- or peer- form and data-[state=...] included) fails, since a state role carries the level.
- * STATE_LITERALS ships empty. A palette utility fails unless PALETTE_READS lists it. */
+/* Fails on a scale utility standing where a role belongs, on a slot that declares no kind, on a numeric
+ * padding, gap or margin step, and on a padding, gap or radius role its kind does not spend. A role says
+ * WHICH air or corner is asked about, so a style plugin can answer it; the kind of a slot says which roles
+ * it may ask. Scale utilities are banned by utility name, and a border width, a duration and an easing by
+ * token name. SCALE_USES records the places that genuinely mean the value, keyed by component, slot and
+ * utility, and a stale entry fails. A state is never drawn with a literal either: an opacity step, an
+ * arbitrary literal opacity or a /<digits> or /[literal] alpha, with or without an important mark, on a
+ * state branch or under a state modifier (a group- or peer- form and data-[state=...] included) fails,
+ * since a state role carries the level. STATE_LITERALS ships empty. A palette utility, or a --color-<key>
+ * read in an arbitrary value, fails unless PALETTE_READS lists it. */
 
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
@@ -441,7 +441,7 @@ export function evaluateManifest(manifest: ComponentManifest, allowed = SCALE_US
     const slot = /^[^:]+:(\S+) /.exec(problem)?.[1] ?? '';
     findings.push({ component: manifest.component, slot, utility: '', role: problem, kind: 'none', why: 'missing-kind' });
   }
-  for (const [slot, classList] of classStringsBySlot(manifest) as Map<string, string[]>) {
+  for (const [slot, classList] of classStringsBySlot(manifest)) {
     const declared = manifest.kind?.[slot] as string | undefined;
     const kind = declared && (KINDS as readonly string[]).includes(declared) ? declared as SlotKind : undefined;
     const reported = new Set<string>();
@@ -579,20 +579,24 @@ export function stateMessage(f: StateFinding) {
   return `${f.component}:${f.slot} (${f.branch}) draws a state with the literal ${f.utility}; read the state role the skin answers: opacity-[var(--fade-disabled)] for a disabled level, bg-selected/(--level-accent-soft-primary) for a selected wash, ring-edge-focus/(--level-accent-soft-gold) for a focus halo, or a level token`;
 }
 
-const COLOUR_PREFIX = '(?:bg|text|border(?:-[trblxyse])?|ring|outline|fill|stroke|decoration|divide|from|via|to|caret|accent|placeholder)';
-const PALETTE_UTILITY = new RegExp(`^(${COLOUR_PREFIX})-(${[...PALETTE_KEYS].sort((a, b) => b.length - a.length).join('|')})(?:/.+)?$`);
+const COLOUR_PREFIX = '(?:bg|text-shadow|text|border(?:-[trblxyse])?|inset-shadow|inset-ring|ring-offset|ring|outline|drop-shadow|shadow|fill|stroke|decoration|divide|from|via|to|caret|accent|placeholder)';
+const KEY_ALTERNATION = [...PALETTE_KEYS].sort((a, b) => b.length - a.length).join('|');
+const PALETTE_UTILITY = new RegExp(`^(${COLOUR_PREFIX})-(${KEY_ALTERNATION})(?:/.+)?$`);
+const PALETTE_VAR = new RegExp(`--color-(${KEY_ALTERNATION})(?![a-z0-9-])`);
 
 export type PaletteFinding = { component: string; slot: string; utility: string; hint: string };
 
 export function paletteUtility(token: string) {
   const { utility } = splitModifiers(token);
   const m = PALETTE_UTILITY.exec(utility);
-  return m ? `${m[1]}-${m[2]}` : undefined;
+  if (m) return `${m[1]}-${m[2]}`;
+  const read = /[[(]/.test(utility) ? PALETTE_VAR.exec(utility) : null;
+  return read ? `var(--color-${read[1]})` : undefined;
 }
 
 export function paletteFindings(manifest: ComponentManifest, allowed: ReadonlyMap<string, string> = PALETTE_READS): PaletteFinding[] {
   const findings: PaletteFinding[] = [];
-  for (const [slot, classList] of classStringsBySlot(manifest) as Map<string, string[]>) {
+  for (const [slot, classList] of classStringsBySlot(manifest)) {
     const reported = new Set<string>();
     for (const token of classList.flatMap((c) => c.split(/\s+/).filter(Boolean))) {
       const bare = paletteUtility(token);

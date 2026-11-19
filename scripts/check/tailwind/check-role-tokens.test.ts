@@ -81,7 +81,7 @@ test('a scale use inside a compoundVariants branch is found, so a class cannot h
   assert.deepEqual(evaluateManifest(manifest, new Map()).map((f) => f.slot), ['root']);
 });
 
-test('an allowance whose key no longer occurs fails as stale, so the map cannot outlive the code it excused', () => {
+test('an allowance whose key occurs nowhere fails as stale, so the map cannot outlive the code it excused', () => {
   const allowed = new Map([['Gone:root:rounded-lg', 'it was moved']]);
   const problems = staleAllowances(new Set(['Fixture:root:rounded-lg']), allowed);
   assert.equal(problems.length, 1);
@@ -103,7 +103,7 @@ test('zeroManifestProblem is null for a non-empty file list', () => {
 
 test('the palette step behind a track is refused once, by the palette refusal, with the track hint', () => {
   const manifest = { component: 'ArenaThing', slots: { track: 'relative rounded-pill bg-base-300' }, kind: { track: 'none' } } as never;
-  assert.deepEqual(evaluateManifest(manifest, new Map()).map((f) => f.utility), [], 'the scale check no longer names it');
+  assert.deepEqual(evaluateManifest(manifest, new Map()).map((f) => f.utility), [], 'the scale check names nothing');
   const found = paletteFindings(manifest, new Map());
   assert.deepEqual(found.map((f) => f.utility), ['bg-base-300']);
   assert.match(found[0]?.hint ?? '', /bg-track/);
@@ -390,3 +390,39 @@ test('cat and heat keys are palette keys too', () => {
   const found = paletteFindings(palettePart({ root: 'bg-cat-3 text-heat-5/60 fill-surface' }), new Map());
   assert.deepEqual(found.map((f) => f.utility), ['bg-cat-3', 'text-heat-5/60']);
 });
+
+const refused = (token: string) => paletteFindings(palettePart({ root: `flex ${token}` }), new Map()).map((f) => f.utility);
+
+test('a palette key read through an arbitrary colour value is refused', () => {
+  assert.deepEqual(refused('bg-[color:var(--color-primary)]'), ['bg-[color:var(--color-primary)]']);
+  assert.equal(paletteUtility('bg-[color:var(--color-primary)]'), 'var(--color-primary)');
+});
+
+test('a palette key read through a paren shorthand is refused', () => {
+  assert.deepEqual(refused('bg-(--color-primary)'), ['bg-(--color-primary)']);
+});
+
+test('a palette key written into an arbitrary property is refused', () => {
+  assert.deepEqual(refused('[--arena-icon-ink:var(--color-base-300)]'), ['[--arena-icon-ink:var(--color-base-300)]']);
+});
+
+test('a palette key inside an arbitrary value is matched whole', () => {
+  assert.deepEqual(refused('bg-[color:var(--color-primary-fill)]'), ['bg-[color:var(--color-primary-fill)]']);
+  assert.equal(paletteUtility('bg-[color:var(--color-primary-fill)]'), 'var(--color-primary-fill)');
+  assert.deepEqual(refused('bg-[color:var(--color-primary-soft)] bg-[color:var(--color-surface)] bg-[color:var(--fill-primary)]'), []);
+});
+
+test('a leading important mark does not hide a palette utility', () => {
+  assert.deepEqual(refused('!bg-base-300'), ['!bg-base-300']);
+  assert.equal(paletteUtility('hover:!bg-base-300'), 'bg-base-300');
+});
+
+test('a trailing important mark does not hide a palette utility', () => {
+  assert.deepEqual(refused('bg-base-300!'), ['bg-base-300!']);
+});
+
+for (const token of ['shadow-base-300', 'inset-shadow-neutral/40', 'inset-ring-primary', 'ring-offset-base-100', 'drop-shadow-neutral', 'text-shadow-base-content']) {
+  test(`a shadow, inset or offset colour reads a palette key too: ${token}`, () => {
+    assert.deepEqual(refused(token), [token]);
+  });
+}
