@@ -16,7 +16,7 @@
     "announcement": "sr-only",
     "panel": "grow z-dropdown max-h-80 overflow-auto p-1.5 bg-surface-floating border-[length:var(--bw-surface)] border-edge-surface-floating rounded-surface-floating shadow-surface-floating",
     "list": "flex flex-col",
-    "option": "flex items-center gap-row-floating w-full min-h-row-min text-left px-row-floating-x py-row-floating-y rounded-control font-body text-md",
+    "option": "flex items-center gap-row-floating w-full min-h-row-min text-left px-row-floating-x py-row-floating-y rounded-control font-body text-md bg-[color:var(--menus-plain-item-fill-rest,transparent)] [--arena-icon-ink:color-mix(in_oklab,var(--menus-plain-item-icon-rest,var(--menus-plain-item-ink-rest,var(--ink-body)))_var(--level-ink-body),transparent)] text-[color:color-mix(in_oklab,var(--menus-plain-item-ink-rest,var(--ink-body))_var(--level-ink-body),transparent)]",
     "optionLabel": "flex-1",
     "optionMark": "inline-flex text-[length:var(--icon-sm)]",
     "empty": "px-row-floating-x py-row-floating-y font-body text-md text-ink-muted/(--level-ink-muted)",
@@ -78,11 +78,9 @@
     },
     "active": {
       "true": {
-        "option": "bg-selected/(--level-accent-soft-primary) text-ink-selected"
+        "option": "bg-[color:color-mix(in_oklab,var(--menus-plain-item-fill-selected,var(--fill-selected))_var(--level-accent-soft-primary),transparent)] [--arena-icon-ink:var(--menus-plain-item-icon-selected,var(--menus-plain-item-ink-selected,var(--ink-selected)))] text-[color:var(--menus-plain-item-ink-selected,var(--ink-selected))]"
       },
-      "false": {
-        "option": "bg-transparent text-ink-body/(--level-ink-body)"
-      }
+      "false": {}
     },
     "selected": {
       "true": {
@@ -94,7 +92,7 @@
     },
     "blocked": {
       "true": {
-        "option": "opacity-[var(--fade-disabled)] cursor-not-allowed"
+        "option": "opacity-[var(--menus-plain-item-fade-disabled,var(--fade-disabled))] cursor-not-allowed bg-[color:var(--menus-plain-item-fill-disabled,var(--menus-plain-item-fill-rest,transparent))] [--arena-icon-ink:var(--menus-plain-item-icon-disabled,var(--menus-plain-item-ink-disabled,color-mix(in_oklab,var(--menus-plain-item-ink-rest,var(--ink-body))_var(--level-ink-body),transparent)))] text-[color:var(--menus-plain-item-ink-disabled,color-mix(in_oklab,var(--menus-plain-item-ink-rest,var(--ink-body))_var(--level-ink-body),transparent))]"
       },
       "false": {
         "option": "cursor-pointer"

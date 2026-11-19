@@ -143,6 +143,27 @@
       "default": "{ink-body}",
       "decision": "D19",
       "level": "level-ink-body"
+    },
+    "menus-plain-item-fill-hover": {
+      "default": "{fill-hover}",
+      "decision": "D19"
+    },
+    "menus-destructive-item-fill-hover": {
+      "default": "{fill-hover}",
+      "decision": "D19"
+    },
+    "navigation-disclosure-fill-hover": {
+      "default": "{fill-hover}",
+      "decision": "D19"
+    },
+    "navigation-quiet-link-ink-hover": {
+      "default": "{ink-body}",
+      "decision": "D19",
+      "level": "level-ink-body"
+    },
+    "navigation-plain-link-ink-hover": {
+      "default": "{ink-heading}",
+      "decision": "D19"
     }
   },
   "rings": {
@@ -154,7 +175,12 @@
     "ArenaSheet.close": "ground",
     "ArenaConfirmDialog.confirm": "ground",
     "ArenaPagination.nav": "ground",
-    "ArenaSwitch.track": "ground"
+    "ArenaSwitch.track": "ground",
+    "ArenaMenu.item": "ground",
+    "ArenaAccordion.trigger": "ground",
+    "ArenaSheet.trigger": "ground",
+    "ArenaBreadcrumbs.crumb": "ground",
+    "ArenaLink.root": "ground"
   },
   "groups": {
     "actions": {
@@ -475,10 +501,31 @@
             "selected",
             "disabled"
           ],
-          "options": [
-            "plain",
-            "destructive"
-          ]
+          "options": {
+            "plain": {
+              "rest": {
+                "fill": "transparent",
+                "ink": {
+                  "role": "{ink-body}",
+                  "level": "level-ink-body"
+                },
+                "icon": "ink"
+              }
+            },
+            "destructive": {
+              "rest": {
+                "fill": "transparent",
+                "ink": "{hue-danger-ink}",
+                "icon": "ink"
+              },
+              "states": [
+                "rest",
+                "hover",
+                "pressed",
+                "disabled"
+              ]
+            }
+          }
         }
       }
     },
@@ -510,14 +557,39 @@
           "states": [
             "rest",
             "hover"
-          ]
+          ],
+          "options": {
+            "quiet": {
+              "rest": {
+                "ink": {
+                  "role": "{ink-muted}",
+                  "level": "level-ink-muted"
+                }
+              }
+            },
+            "plain": {
+              "rest": {
+                "ink": {
+                  "role": "{ink-link}",
+                  "level": "level-ink-body"
+                }
+              }
+            }
+          }
         },
         "disclosure": {
           "properties": [
             "fill",
             "ink"
           ],
-          "states": "base"
+          "states": "base",
+          "rest": {
+            "fill": "transparent",
+            "ink": {
+              "role": "{ink-body}",
+              "level": "level-ink-body"
+            }
+          }
         }
       }
     },
@@ -1111,7 +1183,12 @@
       "group": "navigation",
       "parts": {
         "item": "surfaces.separator",
-        "trigger": "navigation.disclosure",
+        "trigger": {
+          "to": "navigation.disclosure",
+          "options": [],
+          "states": "base",
+          "disabledModifier": "aria-disabled:"
+        },
         "panel": "text.body"
       }
     },
@@ -1199,7 +1276,20 @@
     "ArenaBreadcrumbs": {
       "group": "navigation",
       "parts": {
-        "crumb": "navigation.link",
+        "crumb": {
+          "to": "navigation.link",
+          "options": [
+            "quiet"
+          ],
+          "states": [
+            "rest",
+            "hover"
+          ],
+          "hoverIn": {
+            "axis": "linked",
+            "value": "true"
+          }
+        },
         "current": "text.body",
         "separator": "text.muted"
       }
@@ -1390,7 +1480,26 @@
           "states": "static"
         },
         "panel": "overlays.panel",
-        "option": "menus.item",
+        "option": {
+          "to": "menus.item",
+          "options": [
+            "plain"
+          ],
+          "states": [
+            "rest",
+            "selected",
+            "disabled",
+            "selected-disabled"
+          ],
+          "selectedBy": {
+            "axis": "active",
+            "value": "true"
+          },
+          "disabledBy": {
+            "axis": "blocked",
+            "value": "true"
+          }
+        },
         "empty": "text.muted",
         "status": "text.muted"
       }
@@ -1421,7 +1530,20 @@
         "esc": "text.key",
         "empty": "text.muted",
         "groupLabel": "text.muted",
-        "row": "menus.item",
+        "row": {
+          "to": "menus.item",
+          "options": [
+            "plain"
+          ],
+          "states": [
+            "rest",
+            "selected"
+          ],
+          "selectedBy": {
+            "axis": "active",
+            "value": "true"
+          }
+        },
         "shortcut": "text.key"
       }
     },
@@ -1797,7 +1919,16 @@
     "ArenaLink": {
       "group": "navigation",
       "parts": {
-        "root": "navigation.link"
+        "root": {
+          "to": "navigation.link",
+          "options": [
+            "plain"
+          ],
+          "states": [
+            "rest",
+            "hover"
+          ]
+        }
       }
     },
     "ArenaMain": {
@@ -1808,7 +1939,30 @@
       "group": "menus",
       "parts": {
         "panel": "overlays.panel",
-        "item": "menus.item",
+        "item": {
+          "to": "menus.item",
+          "options": [
+            "plain",
+            "destructive"
+          ],
+          "states": [
+            "rest",
+            "hover",
+            "pressed",
+            "disabled"
+          ],
+          "optionBy": {
+            "axis": "destructive",
+            "values": {
+              "false": "plain",
+              "true": "destructive"
+            }
+          },
+          "disabledBy": {
+            "axis": "disabled",
+            "value": "true"
+          }
+        },
         "shortcut": "text.key",
         "divider": "surfaces.separator",
         "header": "text.muted"
@@ -2164,7 +2318,15 @@
       "parts": {
         "root": "overlays.panel",
         "head": "surfaces.separator",
-        "trigger": "navigation.disclosure",
+        "trigger": {
+          "to": "navigation.disclosure",
+          "options": [],
+          "states": [
+            "rest",
+            "hover",
+            "pressed"
+          ]
+        },
         "caret": "text.muted",
         "close": {
           "to": "actions.dismiss",
@@ -2345,7 +2507,16 @@
         "pager": "surfaces.separator",
         "row": "data.row",
         "td": "text.figure",
-        "link": "navigation.link",
+        "link": {
+          "to": "navigation.link",
+          "options": [
+            "plain"
+          ],
+          "states": [
+            "rest",
+            "hover"
+          ]
+        },
         "empty": "text.muted",
         "card": "surfaces.card@plain",
         "cardLabel": "text.muted",

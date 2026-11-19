@@ -460,6 +460,42 @@
   --fields-valid-status-ink-rest:var(--hue-danger-ink); /* complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses. */
   --fields-value-ink-rest:var(--accent-muted-ink);
   --fields-warning-counter-ink-rest:var(--hue-danger-ink); /* complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses. */
+  --menus-destructive-item-fill-disabled:transparent; /* complete paints a destructive menu row transparent in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling. */
+  --menus-destructive-item-fill-hover:var(--accent-plain-fill-soft);
+  --menus-destructive-item-fill-pressed:transparent; /* complete paints a destructive menu row transparent in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling. */
+  --menus-destructive-item-icon-disabled:var(--hue-info-ink);
+  --menus-destructive-item-icon-hover:var(--hue-info-ink);
+  --menus-destructive-item-icon-pressed:var(--hue-info-ink);
+  --menus-destructive-item-icon-rest:var(--hue-info-ink);
+  --menus-destructive-item-ink-disabled:var(--hue-danger-ink);
+  --menus-destructive-item-ink-hover:var(--hue-danger-ink);
+  --menus-destructive-item-ink-pressed:var(--hue-danger-ink);
+  --menus-destructive-item-ink-rest:var(--ink-invalid);
+  --menus-plain-item-fill-disabled:transparent; /* complete paints a menu row transparent in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling. */
+  --menus-plain-item-fill-hover:var(--accent-plain-fill-soft);
+  --menus-plain-item-fill-pressed:transparent; /* complete paints a menu row transparent in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling. */
+  --menus-plain-item-fill-selected:var(--accent-primary-fill-soft);
+  --menus-plain-item-icon-disabled:var(--accent-muted-ink);
+  --menus-plain-item-icon-hover:var(--accent-muted-ink);
+  --menus-plain-item-icon-pressed:var(--accent-muted-ink);
+  --menus-plain-item-icon-rest:var(--accent-muted-ink);
+  --menus-plain-item-icon-selected:var(--accent-muted-ink);
+  --menus-plain-item-ink-disabled:var(--accent-plain-ink);
+  --menus-plain-item-ink-hover:var(--accent-plain-ink);
+  --menus-plain-item-ink-pressed:var(--accent-plain-ink);
+  --menus-plain-item-ink-rest:var(--accent-plain-ink);
+  --menus-plain-item-ink-selected:var(--accent-plain-ink);
+  --navigation-disclosure-fill-disabled:transparent; /* complete paints a disclosure trigger transparent in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling. */
+  --navigation-disclosure-fill-hover:var(--accent-plain-fill-soft);
+  --navigation-disclosure-fill-pressed:transparent; /* complete paints a disclosure trigger transparent in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling. */
+  --navigation-disclosure-ink-disabled:var(--accent-plain-ink);
+  --navigation-disclosure-ink-hover:var(--accent-plain-ink);
+  --navigation-disclosure-ink-pressed:var(--accent-plain-ink);
+  --navigation-disclosure-ink-rest:var(--accent-plain-ink);
+  --navigation-plain-link-ink-hover:var(--ink-eyebrow); /* complete draws a hovered link in the heading colour, secondary, and ink-eyebrow is the accepted role that resolves to it, since the kernel default ink-heading is the spelling the witness refuses. */
+  --navigation-plain-link-ink-rest:var(--accent-plain-ink);
+  --navigation-quiet-link-ink-hover:var(--accent-plain-ink);
+  --navigation-quiet-link-ink-rest:var(--accent-plain-ink);
   --actions-destructive-root-fade-disabled:1;
   --actions-dismiss-fade-disabled:1;
   --actions-ghost-root-fade-disabled:1;
@@ -475,6 +511,9 @@
   --fields-readonly-field-fade-disabled:1;
   --fields-stepper-fade-disabled:1;
   --fields-valid-field-fade-disabled:1;
+  --menus-destructive-item-fade-disabled:1;
+  --menus-plain-item-fade-disabled:1;
+  --navigation-disclosure-fade-disabled:1;
 }
 @scope (.arena-dark) {
 :where(:scope).arena-complete, .arena-complete{
@@ -731,6 +770,36 @@
   --fields-valid-status-ink-rest:var(--hue-danger-ink); /* complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses. */
   --fields-value-ink-rest:var(--accent-muted-ink);
   --fields-warning-counter-ink-rest:var(--hue-danger-ink); /* complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses. */
+  --menus-destructive-item-fill-hover:var(--accent-plain-fill-soft);
+  --menus-destructive-item-icon-disabled:var(--hue-info-ink);
+  --menus-destructive-item-icon-hover:var(--hue-info-ink);
+  --menus-destructive-item-icon-pressed:var(--hue-info-ink);
+  --menus-destructive-item-icon-rest:var(--hue-info-ink);
+  --menus-destructive-item-ink-disabled:var(--hue-danger-ink);
+  --menus-destructive-item-ink-hover:var(--hue-danger-ink);
+  --menus-destructive-item-ink-pressed:var(--hue-danger-ink);
+  --menus-destructive-item-ink-rest:var(--ink-invalid);
+  --menus-plain-item-fill-hover:var(--accent-plain-fill-soft);
+  --menus-plain-item-fill-selected:var(--accent-primary-fill-soft);
+  --menus-plain-item-icon-disabled:var(--accent-muted-ink);
+  --menus-plain-item-icon-hover:var(--accent-muted-ink);
+  --menus-plain-item-icon-pressed:var(--accent-muted-ink);
+  --menus-plain-item-icon-rest:var(--accent-muted-ink);
+  --menus-plain-item-icon-selected:var(--accent-muted-ink);
+  --menus-plain-item-ink-disabled:var(--accent-plain-ink);
+  --menus-plain-item-ink-hover:var(--accent-plain-ink);
+  --menus-plain-item-ink-pressed:var(--accent-plain-ink);
+  --menus-plain-item-ink-rest:var(--accent-plain-ink);
+  --menus-plain-item-ink-selected:var(--accent-plain-ink);
+  --navigation-disclosure-fill-hover:var(--accent-plain-fill-soft);
+  --navigation-disclosure-ink-disabled:var(--accent-plain-ink);
+  --navigation-disclosure-ink-hover:var(--accent-plain-ink);
+  --navigation-disclosure-ink-pressed:var(--accent-plain-ink);
+  --navigation-disclosure-ink-rest:var(--accent-plain-ink);
+  --navigation-plain-link-ink-hover:var(--ink-eyebrow); /* complete draws a hovered link in the heading colour, secondary, and ink-eyebrow is the accepted role that resolves to it, since the kernel default ink-heading is the spelling the witness refuses. */
+  --navigation-plain-link-ink-rest:var(--accent-plain-ink);
+  --navigation-quiet-link-ink-hover:var(--accent-plain-ink);
+  --navigation-quiet-link-ink-rest:var(--accent-plain-ink);
 }
 }
 @scope (.arena-complete) {
@@ -988,6 +1057,36 @@
   --fields-valid-status-ink-rest:var(--hue-danger-ink); /* complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses. */
   --fields-value-ink-rest:var(--accent-muted-ink);
   --fields-warning-counter-ink-rest:var(--hue-danger-ink); /* complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses. */
+  --menus-destructive-item-fill-hover:var(--accent-plain-fill-soft);
+  --menus-destructive-item-icon-disabled:var(--hue-info-ink);
+  --menus-destructive-item-icon-hover:var(--hue-info-ink);
+  --menus-destructive-item-icon-pressed:var(--hue-info-ink);
+  --menus-destructive-item-icon-rest:var(--hue-info-ink);
+  --menus-destructive-item-ink-disabled:var(--hue-danger-ink);
+  --menus-destructive-item-ink-hover:var(--hue-danger-ink);
+  --menus-destructive-item-ink-pressed:var(--hue-danger-ink);
+  --menus-destructive-item-ink-rest:var(--ink-invalid);
+  --menus-plain-item-fill-hover:var(--accent-plain-fill-soft);
+  --menus-plain-item-fill-selected:var(--accent-primary-fill-soft);
+  --menus-plain-item-icon-disabled:var(--accent-muted-ink);
+  --menus-plain-item-icon-hover:var(--accent-muted-ink);
+  --menus-plain-item-icon-pressed:var(--accent-muted-ink);
+  --menus-plain-item-icon-rest:var(--accent-muted-ink);
+  --menus-plain-item-icon-selected:var(--accent-muted-ink);
+  --menus-plain-item-ink-disabled:var(--accent-plain-ink);
+  --menus-plain-item-ink-hover:var(--accent-plain-ink);
+  --menus-plain-item-ink-pressed:var(--accent-plain-ink);
+  --menus-plain-item-ink-rest:var(--accent-plain-ink);
+  --menus-plain-item-ink-selected:var(--accent-plain-ink);
+  --navigation-disclosure-fill-hover:var(--accent-plain-fill-soft);
+  --navigation-disclosure-ink-disabled:var(--accent-plain-ink);
+  --navigation-disclosure-ink-hover:var(--accent-plain-ink);
+  --navigation-disclosure-ink-pressed:var(--accent-plain-ink);
+  --navigation-disclosure-ink-rest:var(--accent-plain-ink);
+  --navigation-plain-link-ink-hover:var(--ink-eyebrow); /* complete draws a hovered link in the heading colour, secondary, and ink-eyebrow is the accepted role that resolves to it, since the kernel default ink-heading is the spelling the witness refuses. */
+  --navigation-plain-link-ink-rest:var(--accent-plain-ink);
+  --navigation-quiet-link-ink-hover:var(--accent-plain-ink);
+  --navigation-quiet-link-ink-rest:var(--accent-plain-ink);
 }
 }
 @scope (.arena-light) {
@@ -1245,6 +1344,36 @@
   --fields-valid-status-ink-rest:var(--hue-danger-ink); /* complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses. */
   --fields-value-ink-rest:var(--accent-muted-ink);
   --fields-warning-counter-ink-rest:var(--hue-danger-ink); /* complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses. */
+  --menus-destructive-item-fill-hover:var(--accent-plain-fill-soft);
+  --menus-destructive-item-icon-disabled:var(--hue-info-ink);
+  --menus-destructive-item-icon-hover:var(--hue-info-ink);
+  --menus-destructive-item-icon-pressed:var(--hue-info-ink);
+  --menus-destructive-item-icon-rest:var(--hue-info-ink);
+  --menus-destructive-item-ink-disabled:var(--hue-danger-ink);
+  --menus-destructive-item-ink-hover:var(--hue-danger-ink);
+  --menus-destructive-item-ink-pressed:var(--hue-danger-ink);
+  --menus-destructive-item-ink-rest:var(--ink-invalid);
+  --menus-plain-item-fill-hover:var(--accent-plain-fill-soft);
+  --menus-plain-item-fill-selected:var(--accent-primary-fill-soft);
+  --menus-plain-item-icon-disabled:var(--accent-muted-ink);
+  --menus-plain-item-icon-hover:var(--accent-muted-ink);
+  --menus-plain-item-icon-pressed:var(--accent-muted-ink);
+  --menus-plain-item-icon-rest:var(--accent-muted-ink);
+  --menus-plain-item-icon-selected:var(--accent-muted-ink);
+  --menus-plain-item-ink-disabled:var(--accent-plain-ink);
+  --menus-plain-item-ink-hover:var(--accent-plain-ink);
+  --menus-plain-item-ink-pressed:var(--accent-plain-ink);
+  --menus-plain-item-ink-rest:var(--accent-plain-ink);
+  --menus-plain-item-ink-selected:var(--accent-plain-ink);
+  --navigation-disclosure-fill-hover:var(--accent-plain-fill-soft);
+  --navigation-disclosure-ink-disabled:var(--accent-plain-ink);
+  --navigation-disclosure-ink-hover:var(--accent-plain-ink);
+  --navigation-disclosure-ink-pressed:var(--accent-plain-ink);
+  --navigation-disclosure-ink-rest:var(--accent-plain-ink);
+  --navigation-plain-link-ink-hover:var(--ink-eyebrow); /* complete draws a hovered link in the heading colour, secondary, and ink-eyebrow is the accepted role that resolves to it, since the kernel default ink-heading is the spelling the witness refuses. */
+  --navigation-plain-link-ink-rest:var(--accent-plain-ink);
+  --navigation-quiet-link-ink-hover:var(--accent-plain-ink);
+  --navigation-quiet-link-ink-rest:var(--accent-plain-ink);
 }
 }
 @scope (.arena-complete) {
@@ -1502,6 +1631,36 @@
   --fields-valid-status-ink-rest:var(--hue-danger-ink); /* complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses. */
   --fields-value-ink-rest:var(--accent-muted-ink);
   --fields-warning-counter-ink-rest:var(--hue-danger-ink); /* complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses. */
+  --menus-destructive-item-fill-hover:var(--accent-plain-fill-soft);
+  --menus-destructive-item-icon-disabled:var(--hue-info-ink);
+  --menus-destructive-item-icon-hover:var(--hue-info-ink);
+  --menus-destructive-item-icon-pressed:var(--hue-info-ink);
+  --menus-destructive-item-icon-rest:var(--hue-info-ink);
+  --menus-destructive-item-ink-disabled:var(--hue-danger-ink);
+  --menus-destructive-item-ink-hover:var(--hue-danger-ink);
+  --menus-destructive-item-ink-pressed:var(--hue-danger-ink);
+  --menus-destructive-item-ink-rest:var(--ink-invalid);
+  --menus-plain-item-fill-hover:var(--accent-plain-fill-soft);
+  --menus-plain-item-fill-selected:var(--accent-primary-fill-soft);
+  --menus-plain-item-icon-disabled:var(--accent-muted-ink);
+  --menus-plain-item-icon-hover:var(--accent-muted-ink);
+  --menus-plain-item-icon-pressed:var(--accent-muted-ink);
+  --menus-plain-item-icon-rest:var(--accent-muted-ink);
+  --menus-plain-item-icon-selected:var(--accent-muted-ink);
+  --menus-plain-item-ink-disabled:var(--accent-plain-ink);
+  --menus-plain-item-ink-hover:var(--accent-plain-ink);
+  --menus-plain-item-ink-pressed:var(--accent-plain-ink);
+  --menus-plain-item-ink-rest:var(--accent-plain-ink);
+  --menus-plain-item-ink-selected:var(--accent-plain-ink);
+  --navigation-disclosure-fill-hover:var(--accent-plain-fill-soft);
+  --navigation-disclosure-ink-disabled:var(--accent-plain-ink);
+  --navigation-disclosure-ink-hover:var(--accent-plain-ink);
+  --navigation-disclosure-ink-pressed:var(--accent-plain-ink);
+  --navigation-disclosure-ink-rest:var(--accent-plain-ink);
+  --navigation-plain-link-ink-hover:var(--ink-eyebrow); /* complete draws a hovered link in the heading colour, secondary, and ink-eyebrow is the accepted role that resolves to it, since the kernel default ink-heading is the spelling the witness refuses. */
+  --navigation-plain-link-ink-rest:var(--accent-plain-ink);
+  --navigation-quiet-link-ink-hover:var(--accent-plain-ink);
+  --navigation-quiet-link-ink-rest:var(--accent-plain-ink);
 }
 }
 @scope (.arena-light) {

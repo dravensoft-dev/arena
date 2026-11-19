@@ -41,6 +41,8 @@ import { ArenaRadio } from '../components/forms/arena-radio/ArenaRadio';
 import { ArenaSwitch } from '../components/forms/arena-switch/ArenaSwitch';
 import { ArenaSlider } from '../components/forms/arena-slider/ArenaSlider';
 import { ArenaInput } from '../components/forms/arena-input/ArenaInput';
+import { ArenaMultiSelect } from '../components/forms/arena-multi-select/ArenaMultiSelect';
+import { ArenaCommandPalette } from '../components/navigation/arena-command-palette/ArenaCommandPalette';
 import { ArenaFileInput } from '../components/forms/arena-file-input/ArenaFileInput';
 import { ArenaFooter } from '../ProjectionMarkers';
 import { LIB } from './Compliance';
@@ -142,6 +144,11 @@ const TEMPLATES: Record<string, string> = {
   'hovered-readonly-field-keeps-its-readonly-fill': '<arena-input label="Email" readOnly />',
   'answered-disabled-dismiss-stops-the-fade': '<div><arena-tag removable disabled>europe-west</arena-tag></div>'
     + '<div style="--actions-dismiss-ink-disabled: var(--ink-body); --actions-dismiss-fade-disabled: 1"><arena-tag removable disabled>europe-west</arena-tag></div>',
+  'menu-answer-moves-every-highlight': '<div style="--menus-plain-item-fill-selected: var(--fill-surface)">'
+    + '<arena-multi-select label="Regions" [options]="[{ value: \'eu-west\', label: \'Europe West\' }]" [value]="[]" />'
+    + '<arena-command-palette [open]="true" [commands]="[{ id: \'home\', label: \'Go home\' }]" /></div>',
+  'blocked-option-fades-until-answered': '<div><arena-multi-select label="Regions" [options]="[{ value: \'eu-west\', label: \'Europe West\' }]" [value]="[]" [max]="0" /></div>'
+    + '<div style="--menus-plain-item-fade-disabled: 1"><arena-multi-select label="Regions" [options]="[{ value: \'eu-west\', label: \'Europe West\' }]" [value]="[]" [max]="0" /></div>',
   'hover-answer-is-not-derived-from-the-rest-answer': '<div style="--actions-primary-root-fill-rest: var(--fill-surface); --actions-primary-root-fill-hover: var(--fill-hover)"><arena-button>Save</arena-button></div>',
 };
 
@@ -195,9 +202,12 @@ const SUBJECT: Record<string, { part: string; index: number }> = {
   'hovered-enabled-field-takes-its-hover-answer': { part: 'input.field', index: 0 },
   'hovered-readonly-field-keeps-its-readonly-fill': { part: 'input.field', index: 0 },
   'answered-disabled-dismiss-stops-the-fade': { part: 'tag.close', index: -1 },
+  'menu-answer-moves-every-highlight': { part: 'combobox.option', index: 0 },
+  'blocked-option-fades-until-answered': { part: 'combobox.option', index: -1 },
   'class-on-copy-button-reaches-the-icon-button-it-draws': { part: 'icon-button', index: 0 },
 };
 
+const OPENED = new Set(['menu-answer-moves-every-highlight', 'blocked-option-fades-until-answered']);
 const { families, cases } = proximity.readProximity();
 const vocabulary = proximity.vocabularyClasses(families);
 
@@ -210,7 +220,7 @@ for (const kase of cases) {
     const Host = Component({
       selector: `proximity-${kase.name}-host`,
       standalone: true,
-      imports: [ArenaButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaIconButton, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaFooter, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope, ArenaSplitButton, ArenaCopyButton, ArenaCheckbox, ArenaRadioGroup, ArenaRadio, ArenaSwitch, ArenaSlider, ArenaInput, ArenaFileInput],
+      imports: [ArenaButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaIconButton, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaFooter, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope, ArenaSplitButton, ArenaCopyButton, ArenaCheckbox, ArenaRadioGroup, ArenaRadio, ArenaSwitch, ArenaSlider, ArenaInput, ArenaFileInput, ArenaMultiSelect, ArenaCommandPalette],
       template: BARE.has(kase.name) ? TEMPLATES[kase.name] : `<div class="${kase.container}">${TEMPLATES[kase.name]}</div>`,
     })(class {});
     const fixture = TestBed.createComponent(Host);
@@ -222,6 +232,15 @@ for (const kase of cases) {
         const event = new Event('dragenter', { bubbles: true, cancelable: true });
         Object.defineProperty(event, 'dataTransfer', { value: { types: ['Files'] } });
         container.querySelector('[data-arena-part="file-input.zone"]')!.dispatchEvent(event);
+        fixture.detectChanges();
+      }
+      if (OPENED.has(kase.name)) {
+        for (const input of container.querySelectorAll('input[role="combobox"]')) {
+          input.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true }));
+          fixture.detectChanges();
+          const panel = document.body.querySelector('.cdk-overlay-container [data-arena-part="combobox.panel"]');
+          if (panel) input.closest('[data-arena-part="combobox"]')!.append(panel);
+        }
         fixture.detectChanges();
       }
       const { part, index } = SUBJECT[kase.name] ?? { part: 'button', index: -1 };

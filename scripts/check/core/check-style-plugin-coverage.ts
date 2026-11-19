@@ -87,6 +87,9 @@ export const WITNESS_EXEMPT: ReadonlyMap<string, string> = new Map([
     + 'hue-danger-fill-strong, is a danger fill, and a field part answered with it would say danger where it draws nothing; the kernel default is the '
     + 'literal transparent, so no other spelling resolves to the key complete paints there']),
   ...['rest', 'hover', 'pressed'].map((state): [string, string] => [`actions-ghost-root-edge-${state}`, SLOT + MEMBER_DEFAULT]),
+  ...['menus-plain-item-fill-rest', 'menus-destructive-item-fill-rest', 'navigation-disclosure-fill-rest'].map((name): [string, string] => [name, SLOT + 'the one accepted role complete paints '
+    + 'transparent, hue-danger-fill-strong, is a danger fill, and a menu row or a disclosure answered with it would say danger where it draws nothing; the kernel '
+    + 'default is the literal transparent, so no other spelling resolves to the key complete paints there']),
 ]);
 
 export function staleExemptions(moved: string[], exempt: ReadonlyMap<string, string> = WITNESS_EXEMPT) {

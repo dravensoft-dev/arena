@@ -2120,5 +2120,156 @@
     "$type": "color",
     "$value": "{hue-danger-ink}",
     "$description": "complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses."
+  },
+  "menus-destructive-item-fill-disabled": {
+    "$type": "color",
+    "$value": "transparent",
+    "$description": "complete paints a destructive menu row transparent in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling."
+  },
+  "menus-destructive-item-fill-hover": {
+    "$type": "color",
+    "$value": "{accent-plain-fill-soft}"
+  },
+  "menus-destructive-item-fill-pressed": {
+    "$type": "color",
+    "$value": "transparent",
+    "$description": "complete paints a destructive menu row transparent in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling."
+  },
+  "menus-destructive-item-icon-disabled": {
+    "$type": "color",
+    "$value": "{hue-info-ink}"
+  },
+  "menus-destructive-item-icon-hover": {
+    "$type": "color",
+    "$value": "{hue-info-ink}"
+  },
+  "menus-destructive-item-icon-pressed": {
+    "$type": "color",
+    "$value": "{hue-info-ink}"
+  },
+  "menus-destructive-item-icon-rest": {
+    "$type": "color",
+    "$value": "{hue-info-ink}"
+  },
+  "menus-destructive-item-ink-disabled": {
+    "$type": "color",
+    "$value": "{hue-danger-ink}"
+  },
+  "menus-destructive-item-ink-hover": {
+    "$type": "color",
+    "$value": "{hue-danger-ink}"
+  },
+  "menus-destructive-item-ink-pressed": {
+    "$type": "color",
+    "$value": "{hue-danger-ink}"
+  },
+  "menus-destructive-item-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "menus-plain-item-fill-disabled": {
+    "$type": "color",
+    "$value": "transparent",
+    "$description": "complete paints a menu row transparent in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling."
+  },
+  "menus-plain-item-fill-hover": {
+    "$type": "color",
+    "$value": "{accent-plain-fill-soft}"
+  },
+  "menus-plain-item-fill-pressed": {
+    "$type": "color",
+    "$value": "transparent",
+    "$description": "complete paints a menu row transparent in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling."
+  },
+  "menus-plain-item-fill-selected": {
+    "$type": "color",
+    "$value": "{accent-primary-fill-soft}"
+  },
+  "menus-plain-item-icon-disabled": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "menus-plain-item-icon-hover": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "menus-plain-item-icon-pressed": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "menus-plain-item-icon-rest": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "menus-plain-item-icon-selected": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "menus-plain-item-ink-disabled": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "menus-plain-item-ink-hover": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "menus-plain-item-ink-pressed": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "menus-plain-item-ink-rest": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "menus-plain-item-ink-selected": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "navigation-disclosure-fill-disabled": {
+    "$type": "color",
+    "$value": "transparent",
+    "$description": "complete paints a disclosure trigger transparent in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling."
+  },
+  "navigation-disclosure-fill-hover": {
+    "$type": "color",
+    "$value": "{accent-plain-fill-soft}"
+  },
+  "navigation-disclosure-fill-pressed": {
+    "$type": "color",
+    "$value": "transparent",
+    "$description": "complete paints a disclosure trigger transparent in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling."
+  },
+  "navigation-disclosure-ink-disabled": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "navigation-disclosure-ink-hover": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "navigation-disclosure-ink-pressed": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "navigation-disclosure-ink-rest": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "navigation-plain-link-ink-hover": {
+    "$type": "color",
+    "$value": "{ink-eyebrow}",
+    "$description": "complete draws a hovered link in the heading colour, secondary, and ink-eyebrow is the accepted role that resolves to it, since the kernel default ink-heading is the spelling the witness refuses."
+  },
+  "navigation-plain-link-ink-rest": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "navigation-quiet-link-ink-hover": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "navigation-quiet-link-ink-rest": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
   }
 }

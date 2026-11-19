@@ -95,7 +95,7 @@ test('actions derives 124 slots and no component slot', () => {
   const c = deriveSlots(readSlotDeclarations());
   const slots = Object.values(c.slots);
   assert.equal(slots.filter((slot) => slot.group === 'actions').length, 124);
-  assert.deepEqual([...new Set(slots.map((slot) => slot.group))].sort(), ['actions', 'choices', 'fields']);
+  assert.deepEqual([...new Set(slots.map((slot) => slot.group))].sort(), ['actions', 'choices', 'fields', 'menus', 'navigation']);
   for (const slot of slots) {
     for (const key of ['scope', 'family', 'component', 'draws']) assert.equal(Object.hasOwn(slot, key), false, key);
   }
@@ -326,4 +326,30 @@ test('fields derives its slots', () => {
   assert.deepEqual(c.members['ArenaCommandPalette.search']?.properties, ['edge']);
   assert.deepEqual(c.members['ArenaConfirmDialog.input']?.optionBy, { axis: 'invalid', values: { false: 'neutral', true: 'error' } });
   assert.deepEqual(c.members['ArenaTextarea.counter']?.optionBy, { axis: 'near', values: { false: 'neutral', true: 'warning' } });
+});
+
+test('menus, the disclosure and the link derive their slots', () => {
+  const c = deriveSlots(readSlotDeclarations());
+  const names = Object.keys(c.slots);
+  const of = (prefix: string) => names.filter((n) => n.startsWith(prefix));
+  const item = ['rest', 'hover', 'pressed', 'selected', 'disabled'];
+  assert.deepEqual(of('menus-').sort(), ['plain', 'destructive'].flatMap((o) => ['fill', 'ink', 'icon'].flatMap((p) => item.filter((s) => o === 'plain' || s !== 'selected').map((s) => `menus-${o}-item-${p}-${s}`))).sort());
+  const base = ['rest', 'hover', 'pressed', 'disabled'];
+  assert.deepEqual(of('navigation-disclosure-').sort(), ['fill', 'ink'].flatMap((p) => base.map((s) => `navigation-disclosure-${p}-${s}`)).sort());
+  assert.deepEqual(of('navigation-quiet-link-').concat(of('navigation-plain-link-')).sort(), ['quiet', 'plain'].flatMap((o) => ['rest', 'hover'].map((s) => `navigation-${o}-link-ink-${s}`)).sort());
+  assert.equal(c.slots['menus-destructive-item-ink-rest']?.default, '{hue-danger-ink}');
+  assert.equal(c.slots['menus-plain-item-ink-rest']?.default, '{ink-body}');
+  assert.equal(c.slots['menus-plain-item-ink-rest']?.level, 'level-ink-body');
+  for (const o of ['plain', 'destructive']) assert.equal(c.slots[`menus-${o}-item-fill-hover`]?.default, '{fill-hover}', `${o}: the hover fill is the group's exception (D19)`);
+  assert.equal(c.slots['navigation-disclosure-fill-hover']?.default, '{fill-hover}');
+  assert.equal(c.slots['navigation-disclosure-ink-rest']?.default, '{ink-body}');
+  assert.equal(c.slots['navigation-quiet-link-ink-rest']?.default, '{ink-muted}');
+  assert.equal(c.slots['navigation-quiet-link-ink-hover']?.default, '{ink-body}');
+  assert.equal(c.slots['navigation-quiet-link-ink-hover']?.level, 'level-ink-body');
+  assert.equal(c.slots['navigation-plain-link-ink-rest']?.default, '{ink-link}');
+  assert.equal(c.slots['navigation-plain-link-ink-hover']?.default, '{ink-heading}');
+  assert.deepEqual(c.members['ArenaBreadcrumbs.crumb']?.hoverIn, { axis: 'linked', value: 'true' });
+  assert.equal(c.members['ArenaAccordion.trigger']?.disabledModifier, 'aria-disabled:');
+  assert.deepEqual(c.members['ArenaCombobox.option']?.selectedBy, { axis: 'active', value: 'true' });
+  assert.deepEqual(c.members['ArenaMenu.item']?.optionBy, { axis: 'destructive', values: { false: 'plain', true: 'destructive' } });
 });

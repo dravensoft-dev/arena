@@ -328,3 +328,15 @@ test('every fields ink clears AA over every ground in the default', () => {
     assert.deepEqual(unresolvedPairs(CATALOGUE.slots, answers, roles, coloursOf(theme), LEVELS).filter((pair) => pair.slot.startsWith('fields-')), [], `${theme}: every fields pair resolves`);
   }
 });
+
+test('the menu destructive press clears AA over every ground', () => {
+  const shipped = slotPairs(CATALOGUE.slots);
+  assert.ok(shipped.some((pair) => pair.slot === 'menus-destructive-item-ink-pressed' && pair.over === 'menus-destructive-item-fill-pressed' && pair.min === 4.5));
+  for (const theme of ['dark', 'light'] as const) {
+    const plugin = readPlugin('default', JSON.parse(readFileSync(join(repoRoot, 'plugin-style-store/default/plugin.tokens.json'), 'utf8')));
+    const roles = rolesFor(plugin, CATALOGUE, theme);
+    const answers = new Map([...roles].filter(([name]) => Object.hasOwn(SLOTS, name)));
+    const menus = slotReports(CATALOGUE.slots, answers, roles, coloursOf(theme), theme, LEVELS).map((one) => one.message).filter((line) => line.startsWith('--menus-'));
+    assert.deepEqual(menus, [], `${theme}: the default plugin draws every menus pair above its floor`);
+  }
+});

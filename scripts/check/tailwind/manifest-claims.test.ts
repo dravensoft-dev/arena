@@ -81,7 +81,6 @@ const HUES = {
   ArenaConfirmDialog: { destructive: { true: 'danger' } },
   ArenaProgressBar: { tone: { success: 'success', danger: 'danger', info: 'info' } },
   ArenaToast: { tone: { success: 'success', danger: 'danger' } },
-  ArenaMenu: { destructive: { true: 'danger' } },
   ArenaStepper: { error: { true: 'danger' } },
   ArenaTimeline: { tone: { success: 'success', warning: 'warning', danger: 'danger', info: 'info' } },
 } as Record<string, Record<string, Record<string, string>>>;
@@ -359,7 +358,8 @@ export const CLAIMS = {
   ArenaBreadcrumbs: [
     { slot: 'root', has: ['flex'], why: 'a host-bound breadcrumbs trail has no other way to lay out' },
     { slot: 'current', has: ['font-bold', 'text-ink-body'], why: 'only the current crumb is bold and full-strength; a linked crumb stays muted' },
-    { slot: 'crumb', has: ['text-ink-muted/(--level-ink-muted)', 'no-underline', 'cursor-pointer', 'hover:text-ink-body/(--level-ink-body)'], hasNot: ['font-bold'], why: 'a linked crumb stays muted, carries no underline, reads as a pointer target, and takes its hover as a state modifier rather than a variant' },
+    { slot: 'crumb', has: [read('ArenaBreadcrumbs.crumb', 'navigation-quiet-link-ink-rest', 'text'), 'no-underline'], hasNot: ['font-bold'], why: 'a crumb stays muted and carries no underline, reading the quiet link ink of the navigation group' },
+    { chosen: { linked: 'true' }, slot: 'crumb', has: ['cursor-pointer', read('ArenaBreadcrumbs.crumb', 'navigation-quiet-link-ink-hover', 'text', 'hover:')], hasNot: ['hover:text-ink-body/(--level-ink-body)'], why: 'a linked crumb reads as a pointer target and takes its hover as a state modifier inside the linked branch, so a crumb with no href never hovers' },
     { slot: 'separator', has: ['text-ink-muted/(--level-ink-muted)'], why: 'the mark between two crumbs is held back to the level a crumb already sits at, because the muted step is the faintest level that clears AA and a mark under it is a mark nobody sees' },
     { slot: 'crumb', has: ['font-face-label', 'text-trail', 'tracking-trail'], why: 'the trail register, which wears the label face and none of its case, and which default answers at the size and the narrow nav tracking a crumb already had' },
     { slot: 'current', has: ['font-face-label', 'text-trail', 'tracking-trail'], why: 'the same register at the last segment, which is the one drawn bold' },
@@ -371,7 +371,7 @@ export const CLAIMS = {
     { slot: 'divider', has: ['w-px'], why: 'the divider uses the one-pixel utility rather than a border-width token, since it is not a border' },
   ],
   ArenaCommandPalette: [
-    { chosen: { active: true }, slot: 'row', has: ['bg-selected/(--level-accent-soft-primary)', 'text-ink-selected'], hasNot: ['bg-primary/14'], why: 'the cursor row is washed by the selected role, so a skin that answers the wash moves it' },
+    { chosen: { active: true }, slot: 'row', has: [read('ArenaCommandPalette.row', 'menus-plain-item-fill-selected', 'bg'), read('ArenaCommandPalette.row', 'menus-plain-item-ink-selected', 'text')], hasNot: ['bg-primary/14', 'bg-selected/(--level-accent-soft-primary)', 'text-ink-selected'], why: 'the cursor row is washed by the menus group\'s selected slots, so a skin that answers the wash moves it with the Combobox rows' },
     { chosen: { open: true }, slot: 'root', has: ['flex'], why: 'the root carries a display utility in its own base string, independent of the open variant' },
   ],
   ArenaConfirmDialog: [
@@ -501,8 +501,8 @@ export const CLAIMS = {
     { slot: 'announcement', has: ['sr-only'], why: 'the count is spoken and never seen' },
     { slot: 'panel', has: ['z-dropdown', 'max-h-80', 'overflow-auto'], hasNot: ['absolute', 'fixed', 'relative'], why: 'the panel scrolls its own rows and leaves its position to the layer' },
     { slot: 'option', has: ['min-h-row-min', 'px-row-floating-x', 'py-row-floating-y'], why: 'a row of a floating list spends the floating row roles, and its floor reads the density' },
-    { chosen: { active: true }, slot: 'option', has: ['bg-selected/(--level-accent-soft-primary)', 'text-ink-selected'], hasNot: ['bg-primary/14'], why: 'the cursor row is washed, and a chosen row carries a glyph, so neither is told by colour alone' },
-    { chosen: { blocked: true }, slot: 'option', has: ['opacity-[var(--fade-disabled)]', 'cursor-not-allowed'], hasNot: ['cursor-pointer', 'opacity-60', 'text-ink-muted/(--level-ink-muted)'], why: 'a row the cap blocks dims and refuses the pointer, and only an available row offers it' },
+    { chosen: { active: true }, slot: 'option', has: [read('ArenaCombobox.option', 'menus-plain-item-fill-selected', 'bg'), read('ArenaCombobox.option', 'menus-plain-item-ink-selected', 'text')], hasNot: ['bg-primary/14', 'bg-selected/(--level-accent-soft-primary)', 'text-ink-selected'], why: 'the cursor row is washed by the menus group\'s selected slots, and a chosen row carries a glyph, so neither is told by colour alone' },
+    { chosen: { blocked: true }, slot: 'option', has: ['opacity-[var(--menus-plain-item-fade-disabled,var(--fade-disabled))]', 'cursor-not-allowed'], hasNot: ['cursor-pointer', 'opacity-[var(--fade-disabled)]', 'opacity-60', 'text-ink-muted/(--level-ink-muted)'], why: 'a row the cap blocks dims by the plain option\'s marker and refuses the pointer, and only an available row offers it' },
     { slot: 'clear', has: ['min-h-ctl-h-sm', 'min-w-ctl-h-sm'], why: 'the clear control is a small control box, which clears the floor of every density' },
     { slot: 'chips', has: ['flex-wrap', 'gap-inline', 'py-1'], why: 'chips wrap inside the field, keep the gap between siblings on one line and leave air above and below so a second row never touches the border' },
   ],
@@ -564,9 +564,10 @@ export const CLAIMS = {
     { slot: 'group', has: ['flex', 'flex-col', 'gap-items'], why: 'the group is a column, and it is a display utility because the host binds it' },
   ],
   ArenaMenu: [
-    { chosen: { disabled: false, destructive: false }, slot: 'item', has: ['hover:bg-hover'], hasNot: ['hover:bg-primary/14'], why: 'a plain item under the pointer reads the hover role, not the selected wash' },
-    { chosen: { disabled: true }, slot: 'item', has: ['opacity-[var(--fade-disabled)]', 'cursor-not-allowed'], hasNot: ['opacity-60', 'text-ink-muted/(--level-ink-muted)'], why: 'a disabled control keeps its rest ink and fades by the role the skin answers' },
-    { chosen: { destructive: true, disabled: false }, slot: 'item', has: [INK, 'hover:bg-hover'], hasNot: ['text-error'], why: HUE_WHY },
+    { chosen: { disabled: false, destructive: false }, slot: 'item', has: [read('ArenaMenu.item', 'menus-plain-item-fill-hover', 'bg', 'hover:')], hasNot: ['hover:bg-hover', 'hover:bg-primary/14'], why: 'a plain item under the pointer reads the menus group\'s hover slot, not the selected wash' },
+    { chosen: { disabled: true, destructive: false }, slot: 'item', has: ['opacity-[var(--menus-plain-item-fade-disabled,var(--fade-disabled))]', 'cursor-not-allowed'], hasNot: ['opacity-[var(--fade-disabled)]', 'opacity-60', 'text-ink-muted/(--level-ink-muted)'], why: 'a disabled item fades by the plain option\'s marker, so an answered disabled slot stops the fade' },
+    { chosen: { disabled: true, destructive: true }, slot: 'item', has: ['opacity-[var(--menus-destructive-item-fade-disabled,var(--fade-disabled))]', 'cursor-not-allowed'], hasNot: ['opacity-[var(--fade-disabled)]'], why: 'a disabled destructive item fades by the destructive option\'s marker' },
+    { chosen: { destructive: true, disabled: false }, slot: 'item', has: [read('ArenaMenu.item', 'menus-destructive-item-ink-rest', 'text'), read('ArenaMenu.item', 'menus-destructive-item-fill-hover', 'bg', 'hover:')], hasNot: ['text-error', INK, 'hover:bg-hover'], why: 'a destructive item reads the menus group\'s destructive option, so the danger ink is a slot a plugin answers' },
     { slot: 'root', has: ['inline-flex'], why: 'a host-bound root is never the UA-default inline box' },
     { slot: 'panel', hasNot: ['absolute', 'top-full', 'left-0', 'mt-1.5', 'left-auto', 'right-0'],
       why: 'each layer places the panel and lines it up with the trigger, so no positioning class is left for either edge' },
@@ -949,10 +950,12 @@ test('a focus ring never sits on a filled ground', () => {
     const colour = /^(?:[\w-]+:)*bg-(.+)$/.exec(cls)?.[1];
     if (colour === undefined || /\/(?:\d|\(|\[)/.test(colour) || /^(?:transparent|hover|surface|track|field|base|raised|sunken|selected|\[?color:var\(--hover)/.test(colour)) return false;
     if (/fill-(?:soft|hover)/.test(colour)) return false;
+    if (/^\[color:(?:color-mix\(in_oklab,)?var\(--(?:menus|navigation)-/.test(colour)) return false;
     return /fill|confirm-final|^(?:primary|secondary|accent|neutral|error|success|warning|info)$/.test(colour);
   };
   assert.equal(isFill('bg-[color:var(--arena-hue-fill-soft)]'), false);
   assert.equal(isFill('hover:bg-[color:var(--arena-emphasis-fill-hover,var(--x))]'), false);
+  assert.equal(isFill('active:bg-[color:var(--menus-plain-item-fill-pressed,var(--x))]'), false, 'a menu row\'s wash is the ground its ring sits on, not a fill that hides it');
   assert.equal(isFill('bg-primary-fill'), true);
   assert.equal(isFill('bg-[color:var(--arena-emphasis-fill,var(--x))]'), true);
   const filled: [string, string][] = [

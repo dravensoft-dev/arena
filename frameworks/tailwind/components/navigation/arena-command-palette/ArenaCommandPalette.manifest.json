@@ -11,7 +11,7 @@
     "empty": "px-3 py-4.5 font-body text-md text-ink-muted/(--level-ink-muted)",
     "group": "flex flex-col",
     "groupLabel": "px-row-x pt-[calc(var(--sp-1)*3*var(--dz-row-scale-y))] pb-[calc(var(--sp-1)*1.5*var(--dz-row-scale-y))] font-face-label text-label font-bold tracking-label-role case-label text-ink-muted/(--level-ink-muted)",
-    "row": "flex items-center gap-row w-full min-h-ctl-h text-left px-row-x py-row-y rounded-control border-none cursor-pointer no-underline shadow-control-rest active:scale-[var(--press-scale)] motion-reduce:active:scale-100",
+    "row": "flex items-center gap-row w-full min-h-ctl-h text-left px-row-x py-row-y rounded-control border-none cursor-pointer no-underline shadow-control-rest active:scale-[var(--press-scale)] motion-reduce:active:scale-100 bg-[color:var(--menus-plain-item-fill-rest,transparent)] [--arena-icon-ink:color-mix(in_oklab,var(--menus-plain-item-icon-rest,var(--menus-plain-item-ink-rest,var(--ink-body)))_var(--level-ink-body),transparent)] text-[color:color-mix(in_oklab,var(--menus-plain-item-ink-rest,var(--ink-body))_var(--level-ink-body),transparent)]",
     "rowIcon": "inline-flex text-[length:var(--icon-lg)]",
     "rowLabel": "flex-1 font-body text-ctl",
     "shortcut": "font-face-key text-ctl-xs text-ink-key/(--level-ink-muted)"
@@ -47,11 +47,10 @@
     },
     "active": {
       "true": {
-        "row": "bg-selected/(--level-accent-soft-primary) text-ink-selected",
+        "row": "bg-[color:color-mix(in_oklab,var(--menus-plain-item-fill-selected,var(--fill-selected))_var(--level-accent-soft-primary),transparent)] [--arena-icon-ink:var(--menus-plain-item-icon-selected,var(--menus-plain-item-ink-selected,var(--ink-selected)))] text-[color:var(--menus-plain-item-ink-selected,var(--ink-selected))]",
         "rowLabel": "font-control"
       },
       "false": {
-        "row": "bg-transparent text-ink-body/(--level-ink-body)",
         "rowLabel": "font-medium"
       }
     }

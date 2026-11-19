@@ -1,7 +1,7 @@
 {
   "component": "ArenaLink",
   "slots": {
-    "root": "relative inline w-fit text-ink-link/(--level-ink-body) underline underline-offset-2 cursor-pointer transition-[color] duration-[var(--dur-hover)] ease-hover hover:text-ink-heading hover:decoration-2 focus-visible:outline-none focus-visible:shadow-[inset_0_0_0_var(--bw-focus)_var(--edge-focus)]",
+    "root": "relative inline w-fit text-[color:color-mix(in_oklab,var(--navigation-plain-link-ink-rest,var(--ink-link))_var(--level-ink-body),transparent)] underline underline-offset-2 cursor-pointer transition-[color] duration-[var(--dur-hover)] ease-hover hover:text-[color:var(--navigation-plain-link-ink-hover,var(--ink-heading))] hover:decoration-2 focus-visible:outline-none focus-visible:shadow-[inset_0_0_0_var(--bw-focus)_var(--edge-focus)]",
     "external": "sr-only"
   },
   "kind": {

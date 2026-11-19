@@ -6,7 +6,7 @@ import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
 import { mount, cleanup, act } from './Harness.tsx';
-import { ArenaButton, ArenaIconButton, ArenaSplitButton, ArenaCopyButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope, ArenaCheckbox, ArenaRadioGroup, ArenaRadio, ArenaSwitch, ArenaSlider, ArenaInput, ArenaFileInput } from '../Index.generated.ts';
+import { ArenaButton, ArenaIconButton, ArenaSplitButton, ArenaCopyButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope, ArenaCheckbox, ArenaRadioGroup, ArenaRadio, ArenaSwitch, ArenaSlider, ArenaInput, ArenaFileInput, ArenaMultiSelect, ArenaCommandPalette } from '../Index.generated.ts';
 import { readProximity, normalize, vocabularyClasses } from '../../../scripts/lib/arena/proximity.ts';
 
 afterEach(cleanup);
@@ -128,10 +128,19 @@ const COMPOSITIONS: Record<string, () => React.ReactElement> = {
     <div><ArenaTag removable disabled>europe-west</ArenaTag></div>
     <div style={answered({ '--actions-dismiss-ink-disabled': 'var(--ink-body)', '--actions-dismiss-fade-disabled': '1' })}><ArenaTag removable disabled>europe-west</ArenaTag></div>
   </>,
+  'menu-answer-moves-every-highlight': () => <div style={answered({ '--menus-plain-item-fill-selected': 'var(--fill-surface)' })}>
+    <ArenaMultiSelect label="Regions" options={[{ value: 'eu-west', label: 'Europe West' }]} value={[]} />
+    <ArenaCommandPalette open commands={[{ id: 'home', label: 'Go home' }]} />
+  </div>,
+  'blocked-option-fades-until-answered': () => <>
+    <div><ArenaMultiSelect label="Regions" options={[{ value: 'eu-west', label: 'Europe West' }]} value={[]} max={0} /></div>
+    <div style={answered({ '--menus-plain-item-fade-disabled': '1' })}><ArenaMultiSelect label="Regions" options={[{ value: 'eu-west', label: 'Europe West' }]} value={[]} max={0} /></div>
+  </>,
   'hover-answer-is-not-derived-from-the-rest-answer': () => <div style={answered({ '--actions-primary-root-fill-rest': 'var(--fill-surface)', '--actions-primary-root-fill-hover': 'var(--fill-hover)' })}><ArenaButton>Save</ArenaButton></div>,
 };
 
 const DRAGGED = new Set(['fields-error-zone-keeps-its-edge-while-dragged']);
+const OPENED = new Set(['menu-answer-moves-every-highlight', 'blocked-option-fades-until-answered']);
 const BARE = new Set(['meaning-wins-over-accent', 'accent-stops-at-the-card-body', 'small-badge-compacts-itself', 'small-badge-tightens-its-block', 'small-badge-tightens-its-ends']);
 const SUBJECT: Record<string, { part: string; at: number }> = {
   'people-list-face-follows-the-list': { part: 'avatar.box', at: -1 },
@@ -182,6 +191,8 @@ const SUBJECT: Record<string, { part: string; at: number }> = {
   'hovered-enabled-field-takes-its-hover-answer': { part: 'input.field', at: 0 },
   'hovered-readonly-field-keeps-its-readonly-fill': { part: 'input.field', at: 0 },
   'answered-disabled-dismiss-stops-the-fade': { part: 'tag.close', at: -1 },
+  'menu-answer-moves-every-highlight': { part: 'combobox.option', at: 0 },
+  'blocked-option-fades-until-answered': { part: 'combobox.option', at: -1 },
   'class-on-copy-button-reaches-the-icon-button-it-draws': { part: 'icon-button', at: 0 },
 };
 
@@ -203,6 +214,11 @@ for (const kase of cases) {
       const event = new Event('dragenter', { bubbles: true, cancelable: true });
       Object.defineProperty(event, 'dataTransfer', { value: { types: ['Files'] } });
       act(() => { zone.dispatchEvent(event); });
+    }
+    if (OPENED.has(kase.name)) {
+      for (const input of container.querySelectorAll('input[role="combobox"]')) {
+        act(() => { input.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true })); });
+      }
     }
     const { part: subjectPart, at } = SUBJECT[kase.name] ?? { part: 'button', at: -1 };
     const found = [...container.querySelectorAll(`[data-arena-part="${subjectPart}"]`)];
