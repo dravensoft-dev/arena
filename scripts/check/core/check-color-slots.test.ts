@@ -1175,3 +1175,16 @@ test('on beside over is refused', () => {
     assert.deepEqual(pairProblems(c, d), [`feedback-action-ink-rest: it pairs as nothing and the declarations give ${extra.over ? 'own' : 'mark'}`], JSON.stringify(extra));
   }
 });
+
+test('a channelled option names a channel for each of its properties', () => {
+  const d = declared();
+  assert.ok(!declarationProblems(d).some((l) => /ArenaToast\.parts\.root\.optionBy/.test(l)), 'the shipped Toast.root is clean');
+  (d.members!.ArenaToast!.parts.root as any).channels = {};
+  assert.ok(declarationProblems(d).some((l) => /ArenaToast\.parts\.root\.optionBy: more than one option is left with no value/.test(l)), declarationProblems(d).join('\n'));
+});
+
+test('an accent answer clears an option only where the member reads it through channels', () => {
+  assert.deepEqual(manifestProblems(shipped(), manifests).filter((l) => /ArenaToast/.test(l)), []);
+  const bare = edit((x) => { delete x.members['ArenaToast.root']!.channels; });
+  assert.ok(manifestProblems(bare, manifests).some((l) => /members\.ArenaToast\.root: ArenaToast answers no emphasis (plain|gold) and declares no variant/.test(l)), manifestProblems(bare, manifests).join('\n'));
+});

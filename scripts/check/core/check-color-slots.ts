@@ -204,12 +204,18 @@ const classesOf = (m: ComponentManifest): Record<string, string[]> => {
   return parts;
 };
 
-const emphasisOptions = (m: ComponentManifest) => (m.answers ?? [])
-  .flatMap((a) => (typeof a === 'string' || (a.family !== 'emphasis' && a.family !== 'accent') ? [] : a.options.map((o) => o.replace(/^arena-(?:emphasis|accent)-/, ''))));
+const emphasisOptions = (m: ComponentManifest, answered: (option: string) => boolean = () => false) => (m.answers ?? [])
+  .flatMap((a) => (typeof a === 'string' ? [] : a.family === 'emphasis' ? a.options.map((o) => o.replace(/^arena-emphasis-/, ''))
+    : a.family === 'accent' ? a.options.map((o) => o.replace(/^arena-accent-/, '')).filter(answered) : []));
 
 const memberSlots = (c: SlotCatalogue, m: MemberPart) => {
   const [group, part] = m.to.split('.');
   return entries(c).filter(([, s]) => s.group === group && s.part === part && (s.option === undefined ? m.options.length === 0 : m.options.includes(s.option)) && m.states.includes(s.state) && (m.properties === undefined || m.properties.includes(s.property)));
+};
+
+const byChannels = (c: SlotCatalogue, m: MemberPart, option: string) => {
+  const own = entries(c).filter(([, s]) => `${s.group}.${s.part}` === m.to && s.option === option);
+  return own.length > 0 && own.every(([, s]) => s.channel !== undefined && m.channels?.[s.property] !== undefined);
 };
 
 export function manifestProblems(c: SlotCatalogue, manifests: Manifests): string[] {
@@ -223,7 +229,7 @@ export function manifestProblems(c: SlotCatalogue, manifests: Manifests): string
     for (const option of m.options) {
       if (!entries(c).some(([, s]) => `${s.group}.${s.part}` === m.to && s.option === option)) out.push(`members.${key}: ${m.to} derives no ${option} slot`);
       const axis = targeted.has(option) || (m.optionBy === undefined && m.options.length === 1) || (m.optionBy !== undefined && m.options.filter((o) => !targeted.has(o)).length === 1);
-      if (!axis && !emphasisOptions(manifest).includes(option) && !Object.hasOwn(manifest.variants ?? {}, option)) {
+      if (!axis && !emphasisOptions(manifest, (o) => byChannels(c, m, o)).includes(option) && !Object.hasOwn(manifest.variants ?? {}, option)) {
         out.push(`members.${key}: ${comp} answers no emphasis ${option} and declares no variant ${option}`);
       }
     }
@@ -636,7 +642,11 @@ export function declarationProblems(d: SlotDeclarations): string[] {
         if (Object.keys(by.values ?? {}).length === 0) out.push(`${where}.optionBy: it maps no value onto an option`);
       }
       const [toGroup, toPart] = String(to.to).split('.');
-      const channelled = (o: string) => to.channels !== undefined && typeof (d.groups?.[toGroup ?? '']?.parts?.[toPart ?? '']?.options as Record<string, { channel?: string | null }> | undefined)?.[o]?.channel === 'string';
+      const partOptions = d.groups?.[toGroup ?? '']?.parts?.[toPart ?? ''] as { properties?: string[]; options?: Record<string, { channel?: string | null; properties?: string[] }> } | undefined;
+      const channelled = (o: string) => {
+        const one = partOptions?.options?.[o];
+        return typeof one?.channel === 'string' && (one.properties ?? partOptions?.properties ?? []).every((prop) => to.channels?.[prop] !== undefined);
+      };
       if (axes.length > 0 && (to.options ?? []).filter((o) => !axes.some((one) => Object.values(one.values ?? {}).includes(o)) && !channelled(o)).length > 1) {
         out.push(`${where}.optionBy: more than one option is left with no value, and only the base option has none, save an option its channel answers`);
       }
