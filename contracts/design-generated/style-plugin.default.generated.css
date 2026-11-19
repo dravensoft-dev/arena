@@ -90,6 +90,10 @@
   --fill-field:var(--color-base-300);
   --fill-hover:var(--color-base-300);
   --fill-track:var(--color-base-300);
+  --fill-control:var(--color-neutral);
+  --fill-control-on:var(--color-primary);
+  --fill-knob:var(--color-primary-content);
+  --fill-knob-off:var(--color-neutral-content);
   --ink-heading:var(--color-base-content);
   --ink-body:var(--color-base-content);
   --ink-eyebrow:var(--color-primary);
@@ -98,6 +102,8 @@
   --ink-action:var(--color-base-content);
   --ink-key:var(--color-base-content);
   --ink-link:var(--color-base-content);
+  --ink-knob:var(--color-primary);
+  --ink-knob-off:var(--color-neutral);
   --edge-surface:var(--color-base-300);
   --edge-surface-floating:var(--color-neutral);
   --edge-control-quiet:var(--color-base-300);
@@ -281,6 +287,10 @@
   --fill-field:var(--color-base-300);
   --fill-hover:var(--color-base-300);
   --fill-track:var(--color-base-300);
+  --fill-control:var(--color-neutral);
+  --fill-control-on:var(--color-primary);
+  --fill-knob:var(--color-primary-content);
+  --fill-knob-off:var(--color-neutral-content);
   --ink-heading:var(--color-base-content);
   --ink-body:var(--color-base-content);
   --ink-eyebrow:var(--color-primary);
@@ -289,6 +299,8 @@
   --ink-action:var(--color-base-content);
   --ink-key:var(--color-base-content);
   --ink-link:var(--color-base-content);
+  --ink-knob:var(--color-primary);
+  --ink-knob-off:var(--color-neutral);
   --edge-surface:var(--color-base-300);
   --edge-surface-floating:var(--color-neutral);
   --edge-control-quiet:var(--color-base-300);
@@ -360,6 +372,10 @@
   --fill-field:var(--color-base-300);
   --fill-hover:var(--color-base-300);
   --fill-track:var(--color-base-300);
+  --fill-control:var(--color-neutral);
+  --fill-control-on:var(--color-primary);
+  --fill-knob:var(--color-primary-content);
+  --fill-knob-off:var(--color-neutral-content);
   --ink-heading:var(--color-base-content);
   --ink-body:var(--color-base-content);
   --ink-eyebrow:var(--color-primary);
@@ -368,6 +384,8 @@
   --ink-action:var(--color-base-content);
   --ink-key:var(--color-base-content);
   --ink-link:var(--color-base-content);
+  --ink-knob:var(--color-primary);
+  --ink-knob-off:var(--color-neutral);
   --edge-surface:var(--color-base-300);
   --edge-surface-floating:var(--color-neutral);
   --edge-control-quiet:var(--color-base-300);

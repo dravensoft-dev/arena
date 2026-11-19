@@ -90,6 +90,8 @@
   --fill-surface-sunken:var(--color-base-300);
   --fill-field:var(--color-base-200);
   --fill-hover:var(--color-neutral);
+  --fill-knob:var(--color-error-content);
+  --fill-knob-off:var(--color-error-content);
   --fill-track:var(--color-neutral);
   --ink-heading:var(--color-secondary);
   --ink-body:var(--color-neutral-content);
@@ -98,6 +100,8 @@
   --ink-figure:var(--color-neutral-content);
   --ink-action:var(--color-neutral-content);
   --ink-key:var(--color-neutral-content);
+  --ink-knob:var(--color-primary-fill);
+  --ink-knob-off:var(--color-primary);
   --ink-link:var(--color-neutral-content);
   --edge-surface:var(--color-primary);
   --edge-surface-floating:var(--color-secondary);
@@ -157,6 +161,8 @@
   --hue-info-fill-strong:var(--color-neutral);
   --hue-info-fill-soft:var(--color-neutral);
   --fill-confirm-final:var(--color-primary);
+  --fill-control:var(--color-neutral);
+  --fill-control-on:var(--color-primary-fill);
   --ink-confirm-final:var(--color-primary-content);
   --size-sm-control-h:var(--dz-ctl-h);
   --size-md-control-h:var(--dz-ctl-h-lg);
@@ -390,6 +396,39 @@
   --actions-solid-root-ink-selected-disabled:var(--accent-gold-ink);
   --actions-solid-root-ink-selected-hover:var(--accent-muted-ink);
   --actions-solid-root-ink-selected-pressed:var(--accent-muted-ink);
+  --choices-box-edge-disabled:var(--accent-primary-edge);
+  --choices-box-edge-rest:var(--accent-primary-edge);
+  --choices-box-edge-selected-disabled:transparent; /* complete draws a ticked box with no edge, and the literal transparent is the one answer that resolves to that; its selected slot is exempt from the witness for want of a second spelling. */
+  --choices-box-fill-disabled:var(--accent-plain-fill-soft);
+  --choices-box-fill-rest:var(--accent-plain-fill-soft);
+  --choices-box-fill-selected-disabled:var(--fill-control-on);
+  --choices-knob-edge-disabled:var(--accent-primary-edge);
+  --choices-knob-edge-rest:var(--accent-primary-edge);
+  --choices-knob-edge-selected:var(--accent-primary-edge);
+  --choices-knob-edge-selected-disabled:var(--accent-primary-edge);
+  --choices-knob-fill-disabled:var(--fill-knob);
+  --choices-knob-fill-rest:var(--fill-knob);
+  --choices-knob-fill-selected:var(--fill-knob-off);
+  --choices-knob-fill-selected-disabled:var(--fill-knob);
+  --choices-knob-ink-disabled:var(--accent-gold-ink);
+  --choices-knob-ink-rest:var(--accent-gold-ink);
+  --choices-knob-ink-selected:var(--accent-gold-ink);
+  --choices-knob-ink-selected-disabled:var(--accent-gold-ink);
+  --choices-mark-ink-selected:var(--ink-confirm-final);
+  --choices-mark-ink-selected-disabled:var(--ink-confirm-final);
+  --choices-segment-fill-hover:transparent; /* complete paints an unselected segment transparent in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling. */
+  --choices-segment-fill-pressed:transparent; /* complete paints an unselected segment transparent in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling. */
+  --choices-segment-fill-selected:var(--accent-plain-fill-soft);
+  --choices-segment-fill-selected-hover:var(--accent-plain-fill-soft);
+  --choices-segment-fill-selected-pressed:var(--accent-plain-fill-soft);
+  --choices-segment-ink-hover:var(--accent-muted-ink);
+  --choices-segment-ink-pressed:var(--accent-muted-ink);
+  --choices-segment-ink-rest:var(--accent-muted-ink);
+  --choices-segment-ink-selected:var(--accent-muted-ink);
+  --choices-segment-ink-selected-hover:var(--accent-muted-ink);
+  --choices-segment-ink-selected-pressed:var(--accent-muted-ink);
+  --choices-track-edge-rest:var(--edge-field);
+  --choices-track-fill-rest:var(--accent-plain-fill-soft);
   --actions-destructive-root-fade-disabled:1;
   --actions-dismiss-fade-disabled:1;
   --actions-ghost-root-fade-disabled:1;
@@ -398,6 +437,11 @@
   --actions-secondary-root-fade-disabled:1;
   --actions-solid-root-fade-disabled:1;
   --actions-solid-root-fade-selected-disabled:1;
+  --choices-box-fade-disabled:1;
+  --choices-box-fade-selected-disabled:1;
+  --choices-knob-fade-disabled:1;
+  --choices-knob-fade-selected-disabled:1;
+  --choices-mark-fade-selected-disabled:1;
 }
 @scope (.arena-dark) {
 :where(:scope).arena-complete, .arena-complete{
@@ -409,6 +453,8 @@
   --fill-surface-sunken:var(--color-base-300);
   --fill-field:var(--color-base-200);
   --fill-hover:var(--color-neutral);
+  --fill-knob:var(--color-error-content);
+  --fill-knob-off:var(--color-error-content);
   --fill-track:var(--color-neutral);
   --ink-heading:var(--color-secondary);
   --ink-body:var(--color-neutral-content);
@@ -417,6 +463,8 @@
   --ink-figure:var(--color-neutral-content);
   --ink-action:var(--color-neutral-content);
   --ink-key:var(--color-neutral-content);
+  --ink-knob:var(--color-primary-fill);
+  --ink-knob-off:var(--color-primary);
   --ink-link:var(--color-neutral-content);
   --edge-surface:var(--color-primary);
   --edge-surface-floating:var(--color-secondary);
@@ -453,6 +501,8 @@
   --hue-info-fill-strong:var(--color-neutral);
   --hue-info-fill-soft:var(--color-neutral);
   --fill-confirm-final:var(--color-primary);
+  --fill-control:var(--color-neutral);
+  --fill-control-on:var(--color-primary-fill);
   --ink-confirm-final:var(--color-primary-content);
   --emphasis-primary-fill:var(--color-secondary);
   --emphasis-secondary-fill:var(--color-base-300);
@@ -589,6 +639,36 @@
   --actions-solid-root-ink-selected-disabled:var(--accent-gold-ink);
   --actions-solid-root-ink-selected-hover:var(--accent-muted-ink);
   --actions-solid-root-ink-selected-pressed:var(--accent-muted-ink);
+  --choices-box-edge-disabled:var(--accent-primary-edge);
+  --choices-box-edge-rest:var(--accent-primary-edge);
+  --choices-box-fill-disabled:var(--accent-plain-fill-soft);
+  --choices-box-fill-rest:var(--accent-plain-fill-soft);
+  --choices-box-fill-selected-disabled:var(--fill-control-on);
+  --choices-knob-edge-disabled:var(--accent-primary-edge);
+  --choices-knob-edge-rest:var(--accent-primary-edge);
+  --choices-knob-edge-selected:var(--accent-primary-edge);
+  --choices-knob-edge-selected-disabled:var(--accent-primary-edge);
+  --choices-knob-fill-disabled:var(--fill-knob);
+  --choices-knob-fill-rest:var(--fill-knob);
+  --choices-knob-fill-selected:var(--fill-knob-off);
+  --choices-knob-fill-selected-disabled:var(--fill-knob);
+  --choices-knob-ink-disabled:var(--accent-gold-ink);
+  --choices-knob-ink-rest:var(--accent-gold-ink);
+  --choices-knob-ink-selected:var(--accent-gold-ink);
+  --choices-knob-ink-selected-disabled:var(--accent-gold-ink);
+  --choices-mark-ink-selected:var(--ink-confirm-final);
+  --choices-mark-ink-selected-disabled:var(--ink-confirm-final);
+  --choices-segment-fill-selected:var(--accent-plain-fill-soft);
+  --choices-segment-fill-selected-hover:var(--accent-plain-fill-soft);
+  --choices-segment-fill-selected-pressed:var(--accent-plain-fill-soft);
+  --choices-segment-ink-hover:var(--accent-muted-ink);
+  --choices-segment-ink-pressed:var(--accent-muted-ink);
+  --choices-segment-ink-rest:var(--accent-muted-ink);
+  --choices-segment-ink-selected:var(--accent-muted-ink);
+  --choices-segment-ink-selected-hover:var(--accent-muted-ink);
+  --choices-segment-ink-selected-pressed:var(--accent-muted-ink);
+  --choices-track-edge-rest:var(--edge-field);
+  --choices-track-fill-rest:var(--accent-plain-fill-soft);
 }
 }
 @scope (.arena-complete) {
@@ -601,6 +681,8 @@
   --fill-surface-sunken:var(--color-base-300);
   --fill-field:var(--color-base-200);
   --fill-hover:var(--color-neutral);
+  --fill-knob:var(--color-error-content);
+  --fill-knob-off:var(--color-error-content);
   --fill-track:var(--color-neutral);
   --ink-heading:var(--color-secondary);
   --ink-body:var(--color-neutral-content);
@@ -609,6 +691,8 @@
   --ink-figure:var(--color-neutral-content);
   --ink-action:var(--color-neutral-content);
   --ink-key:var(--color-neutral-content);
+  --ink-knob:var(--color-primary-fill);
+  --ink-knob-off:var(--color-primary);
   --ink-link:var(--color-neutral-content);
   --edge-surface:var(--color-primary);
   --edge-surface-floating:var(--color-secondary);
@@ -645,6 +729,8 @@
   --hue-info-fill-strong:var(--color-neutral);
   --hue-info-fill-soft:var(--color-neutral);
   --fill-confirm-final:var(--color-primary);
+  --fill-control:var(--color-neutral);
+  --fill-control-on:var(--color-primary-fill);
   --ink-confirm-final:var(--color-primary-content);
   --emphasis-primary-fill:var(--color-secondary);
   --emphasis-secondary-fill:var(--color-base-300);
@@ -781,6 +867,36 @@
   --actions-solid-root-ink-selected-disabled:var(--accent-gold-ink);
   --actions-solid-root-ink-selected-hover:var(--accent-muted-ink);
   --actions-solid-root-ink-selected-pressed:var(--accent-muted-ink);
+  --choices-box-edge-disabled:var(--accent-primary-edge);
+  --choices-box-edge-rest:var(--accent-primary-edge);
+  --choices-box-fill-disabled:var(--accent-plain-fill-soft);
+  --choices-box-fill-rest:var(--accent-plain-fill-soft);
+  --choices-box-fill-selected-disabled:var(--fill-control-on);
+  --choices-knob-edge-disabled:var(--accent-primary-edge);
+  --choices-knob-edge-rest:var(--accent-primary-edge);
+  --choices-knob-edge-selected:var(--accent-primary-edge);
+  --choices-knob-edge-selected-disabled:var(--accent-primary-edge);
+  --choices-knob-fill-disabled:var(--fill-knob);
+  --choices-knob-fill-rest:var(--fill-knob);
+  --choices-knob-fill-selected:var(--fill-knob-off);
+  --choices-knob-fill-selected-disabled:var(--fill-knob);
+  --choices-knob-ink-disabled:var(--accent-gold-ink);
+  --choices-knob-ink-rest:var(--accent-gold-ink);
+  --choices-knob-ink-selected:var(--accent-gold-ink);
+  --choices-knob-ink-selected-disabled:var(--accent-gold-ink);
+  --choices-mark-ink-selected:var(--ink-confirm-final);
+  --choices-mark-ink-selected-disabled:var(--ink-confirm-final);
+  --choices-segment-fill-selected:var(--accent-plain-fill-soft);
+  --choices-segment-fill-selected-hover:var(--accent-plain-fill-soft);
+  --choices-segment-fill-selected-pressed:var(--accent-plain-fill-soft);
+  --choices-segment-ink-hover:var(--accent-muted-ink);
+  --choices-segment-ink-pressed:var(--accent-muted-ink);
+  --choices-segment-ink-rest:var(--accent-muted-ink);
+  --choices-segment-ink-selected:var(--accent-muted-ink);
+  --choices-segment-ink-selected-hover:var(--accent-muted-ink);
+  --choices-segment-ink-selected-pressed:var(--accent-muted-ink);
+  --choices-track-edge-rest:var(--edge-field);
+  --choices-track-fill-rest:var(--accent-plain-fill-soft);
 }
 }
 @scope (.arena-light) {
@@ -793,6 +909,8 @@
   --fill-surface-sunken:var(--color-base-300);
   --fill-field:var(--color-base-200);
   --fill-hover:var(--color-neutral);
+  --fill-knob:var(--color-error-content);
+  --fill-knob-off:var(--color-error-content);
   --fill-track:var(--color-neutral);
   --ink-heading:var(--color-secondary);
   --ink-body:var(--color-neutral-content);
@@ -801,6 +919,8 @@
   --ink-figure:var(--color-neutral-content);
   --ink-action:var(--color-neutral-content);
   --ink-key:var(--color-neutral-content);
+  --ink-knob:var(--color-primary-fill);
+  --ink-knob-off:var(--color-primary);
   --ink-link:var(--color-neutral-content);
   --edge-surface:var(--color-primary);
   --edge-surface-floating:var(--color-secondary);
@@ -837,6 +957,8 @@
   --hue-info-fill-strong:var(--color-neutral);
   --hue-info-fill-soft:var(--color-neutral);
   --fill-confirm-final:var(--color-primary);
+  --fill-control:var(--color-neutral);
+  --fill-control-on:var(--color-primary-fill);
   --ink-confirm-final:var(--color-primary-content);
   --emphasis-primary-fill:var(--color-secondary);
   --emphasis-secondary-fill:var(--color-base-300);
@@ -973,6 +1095,36 @@
   --actions-solid-root-ink-selected-disabled:var(--accent-gold-ink);
   --actions-solid-root-ink-selected-hover:var(--accent-muted-ink);
   --actions-solid-root-ink-selected-pressed:var(--accent-muted-ink);
+  --choices-box-edge-disabled:var(--accent-primary-edge);
+  --choices-box-edge-rest:var(--accent-primary-edge);
+  --choices-box-fill-disabled:var(--accent-plain-fill-soft);
+  --choices-box-fill-rest:var(--accent-plain-fill-soft);
+  --choices-box-fill-selected-disabled:var(--fill-control-on);
+  --choices-knob-edge-disabled:var(--accent-primary-edge);
+  --choices-knob-edge-rest:var(--accent-primary-edge);
+  --choices-knob-edge-selected:var(--accent-primary-edge);
+  --choices-knob-edge-selected-disabled:var(--accent-primary-edge);
+  --choices-knob-fill-disabled:var(--fill-knob);
+  --choices-knob-fill-rest:var(--fill-knob);
+  --choices-knob-fill-selected:var(--fill-knob-off);
+  --choices-knob-fill-selected-disabled:var(--fill-knob);
+  --choices-knob-ink-disabled:var(--accent-gold-ink);
+  --choices-knob-ink-rest:var(--accent-gold-ink);
+  --choices-knob-ink-selected:var(--accent-gold-ink);
+  --choices-knob-ink-selected-disabled:var(--accent-gold-ink);
+  --choices-mark-ink-selected:var(--ink-confirm-final);
+  --choices-mark-ink-selected-disabled:var(--ink-confirm-final);
+  --choices-segment-fill-selected:var(--accent-plain-fill-soft);
+  --choices-segment-fill-selected-hover:var(--accent-plain-fill-soft);
+  --choices-segment-fill-selected-pressed:var(--accent-plain-fill-soft);
+  --choices-segment-ink-hover:var(--accent-muted-ink);
+  --choices-segment-ink-pressed:var(--accent-muted-ink);
+  --choices-segment-ink-rest:var(--accent-muted-ink);
+  --choices-segment-ink-selected:var(--accent-muted-ink);
+  --choices-segment-ink-selected-hover:var(--accent-muted-ink);
+  --choices-segment-ink-selected-pressed:var(--accent-muted-ink);
+  --choices-track-edge-rest:var(--edge-field);
+  --choices-track-fill-rest:var(--accent-plain-fill-soft);
 }
 }
 @scope (.arena-complete) {
@@ -985,6 +1137,8 @@
   --fill-surface-sunken:var(--color-base-300);
   --fill-field:var(--color-base-200);
   --fill-hover:var(--color-neutral);
+  --fill-knob:var(--color-error-content);
+  --fill-knob-off:var(--color-error-content);
   --fill-track:var(--color-neutral);
   --ink-heading:var(--color-secondary);
   --ink-body:var(--color-neutral-content);
@@ -993,6 +1147,8 @@
   --ink-figure:var(--color-neutral-content);
   --ink-action:var(--color-neutral-content);
   --ink-key:var(--color-neutral-content);
+  --ink-knob:var(--color-primary-fill);
+  --ink-knob-off:var(--color-primary);
   --ink-link:var(--color-neutral-content);
   --edge-surface:var(--color-primary);
   --edge-surface-floating:var(--color-secondary);
@@ -1029,6 +1185,8 @@
   --hue-info-fill-strong:var(--color-neutral);
   --hue-info-fill-soft:var(--color-neutral);
   --fill-confirm-final:var(--color-primary);
+  --fill-control:var(--color-neutral);
+  --fill-control-on:var(--color-primary-fill);
   --ink-confirm-final:var(--color-primary-content);
   --emphasis-primary-fill:var(--color-secondary);
   --emphasis-secondary-fill:var(--color-base-300);
@@ -1165,6 +1323,36 @@
   --actions-solid-root-ink-selected-disabled:var(--accent-gold-ink);
   --actions-solid-root-ink-selected-hover:var(--accent-muted-ink);
   --actions-solid-root-ink-selected-pressed:var(--accent-muted-ink);
+  --choices-box-edge-disabled:var(--accent-primary-edge);
+  --choices-box-edge-rest:var(--accent-primary-edge);
+  --choices-box-fill-disabled:var(--accent-plain-fill-soft);
+  --choices-box-fill-rest:var(--accent-plain-fill-soft);
+  --choices-box-fill-selected-disabled:var(--fill-control-on);
+  --choices-knob-edge-disabled:var(--accent-primary-edge);
+  --choices-knob-edge-rest:var(--accent-primary-edge);
+  --choices-knob-edge-selected:var(--accent-primary-edge);
+  --choices-knob-edge-selected-disabled:var(--accent-primary-edge);
+  --choices-knob-fill-disabled:var(--fill-knob);
+  --choices-knob-fill-rest:var(--fill-knob);
+  --choices-knob-fill-selected:var(--fill-knob-off);
+  --choices-knob-fill-selected-disabled:var(--fill-knob);
+  --choices-knob-ink-disabled:var(--accent-gold-ink);
+  --choices-knob-ink-rest:var(--accent-gold-ink);
+  --choices-knob-ink-selected:var(--accent-gold-ink);
+  --choices-knob-ink-selected-disabled:var(--accent-gold-ink);
+  --choices-mark-ink-selected:var(--ink-confirm-final);
+  --choices-mark-ink-selected-disabled:var(--ink-confirm-final);
+  --choices-segment-fill-selected:var(--accent-plain-fill-soft);
+  --choices-segment-fill-selected-hover:var(--accent-plain-fill-soft);
+  --choices-segment-fill-selected-pressed:var(--accent-plain-fill-soft);
+  --choices-segment-ink-hover:var(--accent-muted-ink);
+  --choices-segment-ink-pressed:var(--accent-muted-ink);
+  --choices-segment-ink-rest:var(--accent-muted-ink);
+  --choices-segment-ink-selected:var(--accent-muted-ink);
+  --choices-segment-ink-selected-hover:var(--accent-muted-ink);
+  --choices-segment-ink-selected-pressed:var(--accent-muted-ink);
+  --choices-track-edge-rest:var(--edge-field);
+  --choices-track-fill-rest:var(--accent-plain-fill-soft);
 }
 }
 @scope (.arena-light) {

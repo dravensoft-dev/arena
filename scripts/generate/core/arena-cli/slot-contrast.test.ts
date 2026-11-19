@@ -8,6 +8,7 @@ import { readPlugin, rolesFor } from './theme-css.ts';
 import { contrast } from './validate-palette.mjs';
 import { tokenCatalogue } from '../../../lib/arena/package-assembly.ts';
 import { repoRoot } from '../../../lib/arena/repo-root.ts';
+import { fadeMarkers, memberValue } from './slots.ts';
 import type { SlotCatalogue } from './slots.ts';
 import { deriveSlots } from '../../../lib/core/color-slots.ts';
 import type { GroupPart } from '../../../lib/core/color-slots.ts';
@@ -66,7 +67,8 @@ test('a rest edge is not a slot pair, a selected edge is', () => {
   assert.ok(selected.every((pair) => SLOTS[pair.slot]?.state.startsWith('selected') && pair.min === 3));
   assert.equal(pairs.some((pair) => /disabled$/.test(SLOTS[pair.slot]?.state ?? '') || /disabled$/.test(SLOTS[pair.over]?.state ?? '')), false,
     'a disabled and a selected-disabled slot is never a pair');
-  assert.ok(pairs.every((pair) => pair.min === (SLOTS[pair.slot]?.property === 'ink' ? 4.5 : 3)));
+  const mark = (name: string) => SLOTS[name]?.group === 'choices' && ['mark', 'knob'].includes(SLOTS[name]?.part ?? '');
+  assert.ok(pairs.every((pair) => pair.min === (SLOTS[pair.slot]?.property === 'ink' && !mark(pair.slot) ? 4.5 : 3)), 'an ink is text at 4.5:1, a mark or a knob glyph at 3:1 (D69)');
 });
 
 test('an inset ring is measured over each state of its fill', () => {
@@ -235,11 +237,54 @@ test('a mark is measured over its box', () => {
   assert.equal(fill('fields-mark-fill-selected-disabled'), undefined);
   assert.equal(fill('fields-mark-fill-disabled'), undefined);
   assert.equal(fill('fields-box-fill-rest'), undefined, 'a fill with no on is no pair');
-  assert.deepEqual(fill('fields-mark-ink-pressed'), { slot: 'fields-mark-ink-pressed', over: 'fields-box-fill-pressed', min: 4.5 });
+  assert.deepEqual(fill('fields-mark-ink-pressed'), { slot: 'fields-mark-ink-pressed', over: 'fields-mark-fill-pressed', min: 3 }, 'a glyph sits on its own part\'s fill at 3:1 (D69)');
+  const bare = slotPairs(declared({
+    box: { properties: ['fill'], states: 'toggle', rest: { fill: '{fill-control}' } },
+    tick: { properties: ['ink'], states: 'toggle', on: 'box', rest: { ink: '{ink-body}' } },
+  }));
+  assert.deepEqual(bare.find((pair) => pair.slot === 'fields-tick-ink-selected'), { slot: 'fields-tick-ink-selected', over: 'fields-box-fill-selected', min: 3 }, 'a mark with no fill sits on the box at 3:1');
   const roles = rolesFor(null, CATALOGUE, 'dark');
   const colors = coloursOf('dark');
   const same = new Map([['fields-mark-fill-rest', 'var(--color-base-300)'], ['fields-box-fill-rest', 'var(--color-base-300)']]);
   const lines = slotReports(c, same, roles, colors, 'dark', LEVELS).map((one) => one.message).filter((line) => line.startsWith('--fields-mark-fill-rest measures'));
   assert.ok(lines.length > 0, 'a mark the colour of its box is reported');
   assert.ok(lines.every((line) => /below 3:1 \(WCAG 1\.4\.11\)/.test(line)));
+  const knobOff = { dark: '10.07', light: '7.06' };
+  for (const theme of ['dark', 'light'] as const) {
+    const ratio = pluginAt(theme);
+    assert.equal(ratio('choices-knob-fill-rest', 'choices-box-fill-rest'), knobOff[theme], `${theme}: the off knob over the box at rest`);
+    assert.ok(Number(ratio('choices-mark-ink-selected', 'choices-box-fill-selected')) >= 3, `${theme}: the white mark over fill-control-on`);
+    assert.ok(Number(ratio('choices-box-fill-selected', 'choices-box-fill-rest')) >= 3, `${theme}: fill-control-on over fill-control`);
+    for (const state of ['rest', 'selected']) assert.ok(Number(ratio(`choices-knob-ink-${state}`, `choices-knob-fill-${state}`)) >= 3, `${theme}: the knob glyph over the knob at ${state}`);
+    assert.equal(ratio('choices-knob-ink-rest', 'choices-knob-fill-rest'), knobOff[theme], `${theme}: the off glyph over the off knob`);
+    assert.equal(ratio('choices-mark-ink-selected', 'choices-box-fill-selected'), { dark: '3.71', light: '6.33' }[theme], `${theme}: the white mark over fill-control-on`);
+    const plugin = readPlugin('default', JSON.parse(readFileSync(join(repoRoot, 'plugin-style-store/default/plugin.tokens.json'), 'utf8')));
+    const roles = rolesFor(plugin, CATALOGUE, theme);
+    const answers = new Map([...roles].filter(([name]) => Object.hasOwn(SLOTS, name)));
+    const choices = slotReports(CATALOGUE.slots, answers, roles, coloursOf(theme), theme, LEVELS).map((one) => one.message).filter((line) => line.startsWith('--choices-'));
+    assert.deepEqual(choices, [], `${theme}: the default plugin draws every choices pair above its floor`);
+  }
+  const shipped = slotPairs(CATALOGUE.slots);
+  assert.ok(shipped.some((pair) => pair.slot === 'choices-knob-fill-selected' && pair.over === 'choices-box-fill-selected' && pair.min === 3));
+  assert.ok(shipped.some((pair) => pair.slot === 'choices-box-fill-selected' && pair.over === 'choices-box-fill-rest' && pair.min === 3));
+  assert.ok(shipped.some((pair) => pair.slot === 'choices-knob-ink-selected' && pair.over === 'choices-knob-fill-selected' && pair.min === 3));
+  assert.ok(shipped.some((pair) => pair.slot === 'choices-mark-ink-selected' && pair.over === 'choices-box-fill-selected' && pair.min === 3));
+  assert.ok(!shipped.some((pair) => pair.slot === 'choices-mark-ink-rest'), 'the mark has no rest slot (D70)');
+});
+
+test('a disabled selected box keeps the fade while selected-disabled is silent', () => {
+  const box = SLOTS['choices-box-fill-selected-disabled'];
+  assert.equal(box?.optional, true);
+  assert.equal(box?.default, undefined, 'the default answers no selected-disabled slot');
+  assert.equal(memberValue(CATALOGUE.slots, 'ArenaCheckbox.box', 'choices-box-fill-selected-disabled', 'tailwind'),
+    'var(--choices-box-fill-selected-disabled,var(--choices-box-fill-selected,var(--fill-control-on)))');
+  assert.equal(memberValue(CATALOGUE.slots, 'ArenaSwitch.knob', 'choices-knob-fill-disabled', 'tailwind'),
+    'var(--choices-knob-fill-disabled,var(--choices-knob-fill-rest,var(--fill-knob-off)))', 'a disabled off knob keeps its knob at rest');
+  assert.deepEqual(fadeMarkers([], CATALOGUE.slots), [], 'nothing answered, nothing stops the fade');
+  assert.deepEqual(fadeMarkers(['choices-box-fill-selected-disabled'], CATALOGUE.slots), [['--choices-box-fade-selected-disabled', '1']]);
+  const roles = rolesFor(null, CATALOGUE, 'dark');
+  const colors = coloursOf('dark');
+  const at = (name: string) => slotColour(CATALOGUE.slots, name, new Map(), roles, colors, LEVELS, mixOf(roles), colors['base-100'] as string);
+  assert.equal(at('choices-box-fill-selected-disabled'), at('choices-box-fill-selected'));
+  assert.equal(at('choices-knob-fill-disabled'), at('choices-knob-fill-rest'));
 });

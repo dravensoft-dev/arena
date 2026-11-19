@@ -25,7 +25,7 @@ export const ARENA_CHECK_STROKE_STYLE = { strokeWidth: 'var(--bw-strong)' };
     <label [class]="styles().root()" [arenaSlotData]="styles().$data.root()" [attr.data-arena-part]="parts.root">
       <span [class]="styles().box()" [arenaSlotData]="styles().$data.box()" [attr.data-arena-part]="parts.box">
         @if (drawn()) {
-          <svg [class]="styles().check()" [attr.data-arena-part]="parts.check" viewBox="0 0 12 12" fill="none" [style]="glyph">
+          <svg [class]="styles().check()" [arenaSlotData]="styles().$data.check()" [attr.data-arena-part]="parts.check" viewBox="0 0 12 12" fill="none" [style]="glyph">
             <path d="M2 6l3 3 5-6" stroke="currentColor" stroke-linecap="round"
                   stroke-linejoin="round" [style]="glyphStroke"></path>
           </svg>

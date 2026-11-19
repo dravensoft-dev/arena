@@ -125,18 +125,18 @@ test('a member part on an option its manifest lacks, or a part its manifest lack
 
 test('the contract counts', () => {
   const slots = Object.values(shipped().slots);
-  assert.equal(slots.length, 124);
+  assert.equal(slots.length, 160);
   const by = (key: (s: (typeof slots)[number]) => string) => {
     const n: Record<string, number> = {};
     for (const s of slots) n[key(s)] = (n[key(s)] ?? 0) + 1;
     return n;
   };
-  assert.deepEqual(by((s) => s.option ?? ''), { '': 12, primary: 16, secondary: 16, ghost: 32, solid: 32, destructive: 16 });
-  assert.deepEqual(by((s) => s.state), { rest: 23, disabled: 23, hover: 23, pressed: 23, selected: 8, 'selected-hover': 8, 'selected-pressed': 8, 'selected-disabled': 8 });
-  assert.equal(slots.filter((s) => s.optional).length, 31);
-  assert.equal(slots.filter((s) => s.derive?.mix === 'mix-pressed').length, 8);
-  assert.equal(slots.filter((s) => s.derive?.mix === 'mix-hover').length, 2);
-  assert.equal(slots.filter((s) => s.channel === undefined).length, 28, 'the destructive option and the dismiss part carry no channel (R6)');
+  assert.deepEqual(by((s) => s.option ?? ''), { '': 48, primary: 16, secondary: 16, ghost: 32, solid: 32, destructive: 16 });
+  assert.deepEqual(by((s) => s.state), { rest: 32, disabled: 28, hover: 25, pressed: 25, selected: 16, 'selected-hover': 10, 'selected-pressed': 10, 'selected-disabled': 14 });
+  assert.equal(slots.filter((s) => s.optional).length, 42);
+  assert.equal(slots.filter((s) => s.derive?.mix === 'mix-pressed').length, 10);
+  assert.equal(slots.filter((s) => s.derive?.mix === 'mix-hover').length, 3);
+  assert.equal(slots.filter((s) => s.channel === undefined).length, 64, 'the destructive option, the dismiss part and the choices group carry no channel (R6)');
 });
 
 test('every slot of the five buttons reaches its part under its state', () => {
@@ -559,6 +559,32 @@ test('a member read that differs from its chain is refused', () => {
   assert.deepEqual(memberReadProblems(channelled, new Map()), [], 'a member with channels is readProblems\'s');
 });
 
+test('a member that is no native control reads its disabled states in its disabled=true branch (D71)', () => {
+  const spanOf = (disabledBy?: { axis: string; value: string }) => slotFixture(
+    { box: { properties: ['fill'], states: ['rest', 'disabled'], rest: { fill: '{fill-control}' } } },
+    { ArenaSpan: { group: 'choices', parts: { box: { to: 'choices.box', options: [], states: ['rest', 'disabled'], ...(disabledBy ? { disabledBy } : {}) } } } },
+    'choices',
+  );
+  const d = spanOf({ axis: 'disabled', value: 'true' });
+  assert.deepEqual(declarationProblems(d), []);
+  const c = deriveSlots(d);
+  const value = (state: string) => `bg-[color:${memberValue(c, 'ArenaSpan.box', `choices-box-fill-${state}`, 'tailwind')}]`;
+  const manifest = (base: string, branch?: string) => new Map([['ArenaSpan', {
+    component: 'ArenaSpan', slots: { box: base }, variants: branch === undefined ? {} : { disabled: { true: { box: branch }, false: {} } },
+  } as never]]);
+  assert.deepEqual(memberReadProblems(c, manifest(value('rest'), value('disabled'))), []);
+  assert.deepEqual(manifestProblems(c, manifest(value('rest'), value('disabled'))), []);
+  assert.deepEqual(memberReadProblems(c, manifest(`${value('rest')} disabled:${value('disabled')}`, '')),
+    [`ArenaSpan.box: choices-box-fill-disabled is not read as ${value('disabled')} in the disabled=true branch`]);
+  assert.ok(manifestProblems(c, manifest(value('rest'))).some((l) => /members\.ArenaSpan\.box: ArenaSpan declares no variant disabled=true/.test(l)));
+  const native = deriveSlots(spanOf());
+  const nativeValue = (state: string) => `bg-[color:${memberValue(native, 'ArenaSpan.box', `choices-box-fill-${state}`, 'tailwind')}]`;
+  assert.deepEqual(memberReadProblems(native, manifest(`${nativeValue('rest')} disabled:${nativeValue('disabled')}`)), [], 'a native control reads them under disabled:');
+  const shared = spanOf({ axis: 'disabled', value: 'true' });
+  (shared.members!.ArenaSpan!.parts.box as MemberDecl).selectedBy = { axis: 'disabled', value: 'true' };
+  assert.match(declarationProblems(shared).join('\n'), /ArenaSpan\.parts\.box\.disabledBy: it shares the axis disabled with selectedBy/);
+});
+
 test('an exception level, a halo, an on and a member axis are checked as declarations', () => {
   const d = boxDeclared();
   d.exceptions['choices-calm-only-fill-hover'] = { default: '{fill-surface}', decision: 'D1', level: 'nope' };
@@ -598,11 +624,12 @@ test('a slot sits on what the declarations give, no looser', () => {
   (calm.options as Record<string, GroupOption>).only!.rest.ink = '{ink-body}';
   calm.on = 'box';
   const c = deriveSlots(d);
-  assert.equal(c.slots['choices-only-calm-ink-rest']?.on, 'choices-box-fill-rest');
+  assert.equal(c.slots['choices-only-calm-ink-rest']?.on, 'choices-only-calm-fill-rest', 'a glyph sits on its own part\'s fill (D69)');
+  assert.equal(c.slots['choices-only-calm-fill-rest']?.on, 'choices-box-fill-rest');
   assert.deepEqual(pairProblems(c, d), []);
-  const own = structuredClone(c);
-  own.slots['choices-only-calm-ink-rest']!.on = 'choices-only-calm-fill-rest';
-  assert.match(pairProblems(own, d).join('\n'), /choices-only-calm-ink-rest: it sits on choices-only-calm-fill-rest and the declarations give choices-box-fill-rest/);
+  const sibling = structuredClone(c);
+  sibling.slots['choices-only-calm-ink-rest']!.on = 'choices-box-fill-rest';
+  assert.match(pairProblems(sibling, d).join('\n'), /choices-only-calm-ink-rest: it sits on choices-box-fill-rest and the declarations give choices-only-calm-fill-rest/);
   const e = boxDeclared();
   const sel = deriveSlots(e);
   sel.slots['choices-box-fill-selected']!.on = 'choices-box-fill-rest';

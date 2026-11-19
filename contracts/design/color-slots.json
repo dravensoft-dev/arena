@@ -112,6 +112,11 @@
       "default": "{ink-body}",
       "decision": "D52",
       "level": "level-ink-body"
+    },
+    "choices-segment-ink-hover": {
+      "default": "{ink-body}",
+      "decision": "D19",
+      "level": "level-ink-body"
     }
   },
   "rings": {
@@ -122,7 +127,8 @@
     "ArenaFileInput.trigger": "ground",
     "ArenaSheet.close": "ground",
     "ArenaConfirmDialog.confirm": "ground",
-    "ArenaPagination.nav": "ground"
+    "ArenaPagination.nav": "ground",
+    "ArenaSwitch.track": "ground"
   },
   "groups": {
     "actions": {
@@ -213,36 +219,87 @@
             "fill",
             "edge"
           ],
-          "states": "toggle"
+          "states": "toggle",
+          "rest": {
+            "fill": "{fill-control}",
+            "edge": "{edge-control}"
+          },
+          "selected": {
+            "fill": "{fill-control-on}",
+            "edge": "transparent"
+          },
+          "selectedOn": "rest"
         },
         "mark": {
           "properties": [
-            "fill",
             "ink"
           ],
-          "states": "toggle"
+          "states": [
+            "selected",
+            "selected-disabled"
+          ],
+          "selected": {
+            "ink": "{emphasis-primary-ink}"
+          },
+          "on": "box"
         },
         "knob": {
-          "properties": [
-            "fill",
-            "edge"
-          ],
-          "states": "toggle"
-        },
-        "segment": {
           "properties": [
             "fill",
             "ink",
             "edge"
           ],
-          "states": "selectable"
+          "states": "toggle",
+          "rest": {
+            "fill": "{fill-knob-off}",
+            "ink": "{ink-knob-off}",
+            "edge": "{edge-control}"
+          },
+          "selected": {
+            "fill": "{fill-knob}",
+            "ink": "{ink-knob}",
+            "edge": "{edge-control}"
+          },
+          "on": "box"
+        },
+        "segment": {
+          "properties": [
+            "fill",
+            "ink"
+          ],
+          "states": [
+            "rest",
+            "hover",
+            "pressed",
+            "selected",
+            "selected-hover",
+            "selected-pressed"
+          ],
+          "rest": {
+            "fill": "transparent",
+            "ink": {
+              "role": "{ink-muted}",
+              "level": "level-ink-muted"
+            }
+          },
+          "selected": {
+            "fill": "{fill-control}",
+            "ink": {
+              "role": "{ink-body}",
+              "level": "level-ink-body"
+            }
+          }
         },
         "track": {
           "properties": [
             "fill",
             "edge"
           ],
-          "states": "static"
+          "states": "static",
+          "rest": {
+            "fill": "{fill-track}",
+            "edge": "{edge-control-quiet}"
+          }
         }
       }
     },
@@ -1158,8 +1215,31 @@
     "ArenaCheckbox": {
       "group": "choices",
       "parts": {
-        "box": "choices.box",
-        "check": "choices.mark",
+        "box": {
+          "to": "choices.box",
+          "options": [],
+          "states": "toggle",
+          "selectedBy": {
+            "axis": "checked",
+            "value": "true"
+          },
+          "disabledBy": {
+            "axis": "disabled",
+            "value": "true"
+          }
+        },
+        "check": {
+          "to": "choices.mark",
+          "options": [],
+          "states": [
+            "selected",
+            "selected-disabled"
+          ],
+          "disabledBy": {
+            "axis": "disabled",
+            "value": "true"
+          }
+        },
         "label": "text.body"
       }
     },
@@ -1602,8 +1682,31 @@
     "ArenaRadio": {
       "group": "choices",
       "parts": {
-        "ring": "choices.box",
-        "dot": "choices.mark",
+        "ring": {
+          "to": "choices.box",
+          "options": [],
+          "states": "toggle",
+          "selectedBy": {
+            "axis": "checked",
+            "value": "true"
+          },
+          "disabledBy": {
+            "axis": "disabled",
+            "value": "true"
+          }
+        },
+        "dot": {
+          "to": "choices.mark",
+          "options": [],
+          "states": [
+            "selected",
+            "selected-disabled"
+          ],
+          "disabledBy": {
+            "axis": "disabled",
+            "value": "true"
+          }
+        },
         "label": "text.body",
         "hint": "text.muted"
       }
@@ -1637,8 +1740,27 @@
     "ArenaSegmentedControl": {
       "group": "choices",
       "parts": {
-        "track": "choices.track",
-        "segment": "choices.segment"
+        "track": {
+          "to": "choices.track",
+          "options": [],
+          "states": "static"
+        },
+        "segment": {
+          "to": "choices.segment",
+          "options": [],
+          "states": [
+            "rest",
+            "hover",
+            "pressed",
+            "selected",
+            "selected-hover",
+            "selected-pressed"
+          ],
+          "selectedBy": {
+            "axis": "selected",
+            "value": "true"
+          }
+        }
       }
     },
     "ArenaSelect": {
@@ -1701,10 +1823,27 @@
       "parts": {
         "label": "text.body",
         "value": "text.muted",
-        "track": "choices.mark",
-        "rail": "choices.box",
-        "fill": null,
-        "thumb": "choices.knob",
+        "rail": {
+          "to": "choices.box",
+          "options": [],
+          "states": [
+            "rest"
+          ]
+        },
+        "fill": {
+          "to": "choices.box",
+          "options": [],
+          "states": [
+            "selected"
+          ]
+        },
+        "thumb": {
+          "to": "choices.knob",
+          "options": [],
+          "states": [
+            "selected"
+          ]
+        },
         "hint": "text.muted"
       }
     },
@@ -1773,9 +1912,41 @@
     "ArenaSwitch": {
       "group": "choices",
       "parts": {
-        "track": "choices.box",
-        "knob": "choices.knob",
-        "icon": "choices.mark",
+        "track": {
+          "to": "choices.box",
+          "options": [],
+          "states": "toggle",
+          "selectedBy": {
+            "axis": "state",
+            "value": "true"
+          }
+        },
+        "knob": {
+          "to": "choices.knob",
+          "options": [],
+          "states": "toggle",
+          "selectedBy": {
+            "axis": "state",
+            "value": "true"
+          },
+          "disabledBy": {
+            "axis": "disabled",
+            "value": "true"
+          }
+        },
+        "icon": {
+          "to": "choices.knob",
+          "options": [],
+          "states": "toggle",
+          "selectedBy": {
+            "axis": "state",
+            "value": "true"
+          },
+          "disabledBy": {
+            "axis": "disabled",
+            "value": "true"
+          }
+        },
         "label": "text.body",
         "guard": "text.muted"
       }

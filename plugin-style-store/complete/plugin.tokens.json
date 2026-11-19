@@ -446,6 +446,14 @@
     "$type": "color",
     "$value": "{color.neutral}"
   },
+  "fill-knob": {
+    "$type": "color",
+    "$value": "{color.error-content}"
+  },
+  "fill-knob-off": {
+    "$type": "color",
+    "$value": "{color.error-content}"
+  },
   "fill-track": {
     "$type": "color",
     "$value": "{color.neutral}"
@@ -477,6 +485,14 @@
   "ink-key": {
     "$type": "color",
     "$value": "{color.neutral-content}"
+  },
+  "ink-knob": {
+    "$type": "color",
+    "$value": "{color.primary-fill}"
+  },
+  "ink-knob-off": {
+    "$type": "color",
+    "$value": "{color.primary}"
   },
   "ink-link": {
     "$type": "color",
@@ -716,6 +732,14 @@
   "fill-confirm-final": {
     "$type": "color",
     "$value": "{color.primary}"
+  },
+  "fill-control": {
+    "$type": "color",
+    "$value": "{color.neutral}"
+  },
+  "fill-control-on": {
+    "$type": "color",
+    "$value": "{color.primary-fill}"
   },
   "ink-confirm-final": {
     "$type": "color",
@@ -1816,5 +1840,140 @@
   "actions-solid-root-ink-selected-pressed": {
     "$type": "color",
     "$value": "{accent-muted-ink}"
+  },
+  "choices-box-edge-disabled": {
+    "$type": "color",
+    "$value": "{accent-primary-edge}"
+  },
+  "choices-box-edge-rest": {
+    "$type": "color",
+    "$value": "{accent-primary-edge}"
+  },
+  "choices-box-edge-selected-disabled": {
+    "$type": "color",
+    "$value": "transparent",
+    "$description": "complete draws a ticked box with no edge, and the literal transparent is the one answer that resolves to that; its selected slot is exempt from the witness for want of a second spelling."
+  },
+  "choices-box-fill-disabled": {
+    "$type": "color",
+    "$value": "{accent-plain-fill-soft}"
+  },
+  "choices-box-fill-rest": {
+    "$type": "color",
+    "$value": "{accent-plain-fill-soft}"
+  },
+  "choices-box-fill-selected-disabled": {
+    "$type": "color",
+    "$value": "{fill-control-on}"
+  },
+  "choices-knob-edge-disabled": {
+    "$type": "color",
+    "$value": "{accent-primary-edge}"
+  },
+  "choices-knob-edge-rest": {
+    "$type": "color",
+    "$value": "{accent-primary-edge}"
+  },
+  "choices-knob-edge-selected": {
+    "$type": "color",
+    "$value": "{accent-primary-edge}"
+  },
+  "choices-knob-edge-selected-disabled": {
+    "$type": "color",
+    "$value": "{accent-primary-edge}"
+  },
+  "choices-knob-fill-disabled": {
+    "$type": "color",
+    "$value": "{fill-knob}"
+  },
+  "choices-knob-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-knob}"
+  },
+  "choices-knob-fill-selected": {
+    "$type": "color",
+    "$value": "{fill-knob-off}"
+  },
+  "choices-knob-fill-selected-disabled": {
+    "$type": "color",
+    "$value": "{fill-knob}"
+  },
+  "choices-knob-ink-disabled": {
+    "$type": "color",
+    "$value": "{accent-gold-ink}"
+  },
+  "choices-knob-ink-rest": {
+    "$type": "color",
+    "$value": "{accent-gold-ink}"
+  },
+  "choices-knob-ink-selected": {
+    "$type": "color",
+    "$value": "{accent-gold-ink}"
+  },
+  "choices-knob-ink-selected-disabled": {
+    "$type": "color",
+    "$value": "{accent-gold-ink}"
+  },
+  "choices-mark-ink-selected": {
+    "$type": "color",
+    "$value": "{ink-confirm-final}"
+  },
+  "choices-mark-ink-selected-disabled": {
+    "$type": "color",
+    "$value": "{ink-confirm-final}"
+  },
+  "choices-segment-fill-hover": {
+    "$type": "color",
+    "$value": "transparent",
+    "$description": "complete paints an unselected segment transparent in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling."
+  },
+  "choices-segment-fill-pressed": {
+    "$type": "color",
+    "$value": "transparent",
+    "$description": "complete paints an unselected segment transparent in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling."
+  },
+  "choices-segment-fill-selected": {
+    "$type": "color",
+    "$value": "{accent-plain-fill-soft}"
+  },
+  "choices-segment-fill-selected-hover": {
+    "$type": "color",
+    "$value": "{accent-plain-fill-soft}"
+  },
+  "choices-segment-fill-selected-pressed": {
+    "$type": "color",
+    "$value": "{accent-plain-fill-soft}"
+  },
+  "choices-segment-ink-hover": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "choices-segment-ink-pressed": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "choices-segment-ink-rest": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "choices-segment-ink-selected": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "choices-segment-ink-selected-hover": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "choices-segment-ink-selected-pressed": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "choices-track-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-field}"
+  },
+  "choices-track-fill-rest": {
+    "$type": "color",
+    "$value": "{accent-plain-fill-soft}"
   }
 }

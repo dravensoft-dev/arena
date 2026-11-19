@@ -1124,6 +1124,50 @@
       }
     }
   },
+  "fill-control": {
+    "$type": "color",
+    "$description": "The fill of a selection control at rest: the box of a checkbox, the ring of a radio, the track of a switch, the rail of a slider, and the selected segment of a segmented control. Read through the choices group, whose box answers it at rest and whose selected segment takes it as its fill. Paired with fill-control-on, which has to stand 3:1 apart from it, because the fill is what tells on from off.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "audience": "component",
+        "task": "meaning-and-identity",
+        "question": "What colour fills the box of a checkbox, radio, switch or slider at rest?"
+      }
+    }
+  },
+  "fill-control-on": {
+    "$type": "color",
+    "$description": "The fill of a selection control that is on: a checked box or radio, a switch that is on, the range of a slider. Read through the choices group's box at selected, which sits on fill-control at 3:1, and the mark and the knob drawn on it are measured over it at 3:1.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "audience": "component",
+        "task": "meaning-and-identity",
+        "question": "What colour fills the box of a checked checkbox or radio, an on switch or a slider's range?"
+      }
+    }
+  },
+  "fill-knob": {
+    "$type": "color",
+    "$description": "The fill of the knob of a selection control that is on: the knob of a switch that is on and the thumb of a slider. Read through the choices group's knob at selected, measured over fill-control-on at 3:1.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "audience": "component",
+        "task": "meaning-and-identity",
+        "question": "What colour fills the knob of an on switch or the thumb of a slider?"
+      }
+    }
+  },
+  "fill-knob-off": {
+    "$type": "color",
+    "$description": "The fill of the knob of a switch that is off. Read through the choices group's knob at rest, measured over fill-control at 3:1, so the off knob is seen on its track in both themes.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "audience": "component",
+        "task": "meaning-and-identity",
+        "question": "What colour fills the knob of a switch that is off?"
+      }
+    }
+  },
   "ink-heading": {
     "$type": "color",
     "$description": "The colour of a heading. One of a hundred and twenty-two slots that pointed at\nbase-content directly, which is the measurement that says why the ink roles exist: a style plugin could\nchange every shape on the page and not one word's colour.\n\nSplit from ink-body although both are born on the same step, because that is the split a style plugin\nspends. A page whose headings sit a shade above its prose reads as edited; one where they match\nreads as printed, and neither is reachable while both name the palette.\n\nAn assignment and never a value, like every colour role: WHICH of the consumer's colours, never\nwhat that colour is.",
@@ -1249,6 +1293,28 @@
             "as": "level"
           }
         ]
+      }
+    }
+  },
+  "ink-knob": {
+    "$type": "color",
+    "$description": "The glyph drawn on the knob of a switch that is on. Read through the choices group's knob ink at selected. Paired with fill-knob, the knob it is drawn on.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "audience": "component",
+        "task": "meaning-and-identity",
+        "question": "What colour is the glyph on the knob of an on switch?"
+      }
+    }
+  },
+  "ink-knob-off": {
+    "$type": "color",
+    "$description": "The glyph drawn on the knob of a switch that is off. Read through the choices group's knob ink at rest. Paired with fill-knob-off, the knob it is drawn on.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "audience": "component",
+        "task": "meaning-and-identity",
+        "question": "What colour is the glyph on the knob of a switch that is off?"
       }
     }
   },

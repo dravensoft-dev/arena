@@ -34,6 +34,7 @@ export type MemberPart = {
   defaults?: Record<string, string>;
   optionBy?: { axis: string; values: Record<string, string> };
   selectedBy?: { axis: string; value: string };
+  disabledBy?: { axis: string; value: string };
   inline?: true;
 };
 

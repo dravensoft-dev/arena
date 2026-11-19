@@ -439,6 +439,14 @@
     "$type": "color",
     "$value": "{color.base-200}"
   },
+  "fill-knob": {
+    "$type": "color",
+    "$value": "{color.primary-content}"
+  },
+  "fill-knob-off": {
+    "$type": "color",
+    "$value": "{color.neutral-content}"
+  },
   "fill-track": {
     "$type": "color",
     "$value": "{color.base-200}"
@@ -462,6 +470,14 @@
   "ink-key": {
     "$type": "color",
     "$value": "{color.base-content}"
+  },
+  "ink-knob": {
+    "$type": "color",
+    "$value": "{color.primary}"
+  },
+  "ink-knob-off": {
+    "$type": "color",
+    "$value": "{color.neutral}"
   },
   "ink-link": {
     "$type": "color",
@@ -790,6 +806,14 @@
   "fill-confirm-final": {
     "$type": "color",
     "$value": "{color.error-fill}"
+  },
+  "fill-control": {
+    "$type": "color",
+    "$value": "{color.neutral}"
+  },
+  "fill-control-on": {
+    "$type": "color",
+    "$value": "{color.primary}"
   },
   "ink-confirm-final": {
     "$type": "color",

@@ -35,6 +35,11 @@ import { ArenaTag } from '../components/display/arena-tag/ArenaTag';
 import { ArenaPinInput } from '../components/forms/arena-pin-input/ArenaPinInput';
 import { ArenaTimeline } from '../components/display/arena-timeline/ArenaTimeline';
 import { ArenaPaletteScope } from '../components/layout/arena-palette-scope/ArenaPaletteScope';
+import { ArenaCheckbox } from '../components/forms/arena-checkbox/ArenaCheckbox';
+import { ArenaRadioGroup } from '../components/forms/arena-radio-group/ArenaRadioGroup';
+import { ArenaRadio } from '../components/forms/arena-radio/ArenaRadio';
+import { ArenaSwitch } from '../components/forms/arena-switch/ArenaSwitch';
+import { ArenaSlider } from '../components/forms/arena-slider/ArenaSlider';
 import { ArenaFooter } from '../ProjectionMarkers';
 import { LIB } from './Compliance';
 
@@ -109,6 +114,9 @@ const TEMPLATES: Record<string, string> = {
   'answered-disabled-stops-the-fade': '<div style="--actions-primary-root-ink-disabled: var(--ink-muted); --actions-primary-root-fade-disabled: 1"><arena-button disabled>Save</arena-button></div>',
   'answered-disabled-draws-its-ink': '<div style="--actions-primary-root-ink-disabled: var(--ink-muted); --actions-primary-root-fade-disabled: 1"><arena-button disabled>Save</arena-button></div>',
   'answered-disabled-ink-reaches-the-glyph': '<div style="--actions-primary-root-ink-disabled: var(--ink-muted); --actions-primary-root-fade-disabled: 1"><arena-button disabled icon="ph-bold ph-x">Save</arena-button></div>',
+  'choices-answer-moves-every-box': '<div style="--choices-box-fill-selected: var(--fill-surface)"><arena-checkbox checked label="Notify" />'
+    + '<arena-radio-group ariaLabel="Cadence" value="daily"><arena-radio value="daily" label="Daily" /></arena-radio-group>'
+    + '<arena-switch state label="Sync" /><arena-slider label="Volume" [value]="40" /></div>',
   'ink-answer-reaches-the-glyph': '<div style="--actions-primary-root-ink-rest: var(--fill-surface)"><arena-button icon="ph-bold ph-x">Save</arena-button></div>',
   'icon-rest-answer-keeps-the-level': '<div style="--actions-ghost-root-icon-rest: var(--hue-danger-ink)"><arena-button class="arena-emphasis-ghost" icon="ph-bold ph-x">Save</arena-button></div>',
   'class-on-copy-button-reaches-the-icon-button-it-draws': '<div style="--actions-solid-root-fill-rest: var(--fill-surface-raised)"><arena-copy-button class="arena-emphasis-solid" text="x" label="Copy" /></div>',
@@ -154,6 +162,7 @@ const SUBJECT: Record<string, { part: string; index: number }> = {
   'member-default-kept-while-the-group-is-silent': { part: 'icon-button', index: 0 },
   'group-answer-replaces-the-member-default': { part: 'icon-button', index: 0 },
   'secondary-answer-reaches-the-calendar-nav': { part: 'button', index: 0 },
+  'choices-answer-moves-every-box': { part: 'checkbox.box', index: 0 },
   'selected-disabled-answer-stops-only-the-selected-fade': { part: 'icon-button', index: -1 },
   'class-on-copy-button-reaches-the-icon-button-it-draws': { part: 'icon-button', index: 0 },
 };
@@ -170,7 +179,7 @@ for (const kase of cases) {
     const Host = Component({
       selector: `proximity-${kase.name}-host`,
       standalone: true,
-      imports: [ArenaButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaIconButton, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaFooter, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope, ArenaSplitButton, ArenaCopyButton],
+      imports: [ArenaButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaIconButton, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaFooter, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope, ArenaSplitButton, ArenaCopyButton, ArenaCheckbox, ArenaRadioGroup, ArenaRadio, ArenaSwitch, ArenaSlider],
       template: BARE.has(kase.name) ? TEMPLATES[kase.name] : `<div class="${kase.container}">${TEMPLATES[kase.name]}</div>`,
     })(class {});
     const fixture = TestBed.createComponent(Host);

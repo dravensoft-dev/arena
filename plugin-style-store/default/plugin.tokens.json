@@ -471,6 +471,22 @@
     "$type": "color",
     "$value": "{color.base-300}"
   },
+  "fill-control": {
+    "$type": "color",
+    "$value": "{color.neutral}"
+  },
+  "fill-control-on": {
+    "$type": "color",
+    "$value": "{color.primary}"
+  },
+  "fill-knob": {
+    "$type": "color",
+    "$value": "{color.primary-content}"
+  },
+  "fill-knob-off": {
+    "$type": "color",
+    "$value": "{color.neutral-content}"
+  },
   "ink-heading": {
     "$type": "color",
     "$value": "{color.base-content}"
@@ -502,6 +518,14 @@
   "ink-link": {
     "$type": "color",
     "$value": "{color.base-content}"
+  },
+  "ink-knob": {
+    "$type": "color",
+    "$value": "{color.primary}"
+  },
+  "ink-knob-off": {
+    "$type": "color",
+    "$value": "{color.neutral}"
   },
   "edge-surface": {
     "$type": "color",

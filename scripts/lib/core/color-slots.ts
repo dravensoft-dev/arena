@@ -28,7 +28,8 @@ export type GroupPart = {
 };
 export type MemberDecl = {
   to: string; options: string[]; states: StateSpec; channels?: Record<string, string>; defaults?: Record<string, string>; decision?: string;
-  optionBy?: { axis: string; values: Record<string, string> }; selectedBy?: { axis: string; value: string }; inline?: true;
+  optionBy?: { axis: string; values: Record<string, string> }; selectedBy?: { axis: string; value: string };
+  disabledBy?: { axis: string; value: string }; inline?: true;
 };
 
 export type SlotDeclarations = {
@@ -79,8 +80,10 @@ export function deriveSlots(d: SlotDeclarations): SlotCatalogue {
           channel: channel ? channel.replace('{property}', prop) + (st === 'rest' ? '' : `-${st}`) : undefined, accepts: prop,
         };
         const sibling = on === undefined ? undefined : slotName(group, undefined, on, 'fill', st);
+        const own = properties.includes('fill') ? slotName(group, opt, part, 'fill', st) : undefined;
         if (prop === 'fill') f.on = selectedOn && ['selected', 'selected-hover', 'selected-pressed'].includes(st) ? slotName(group, opt, part, 'fill', 'rest') : sibling;
-        else f.on = sibling ?? (properties.includes('fill') ? slotName(group, opt, part, 'fill', st) : prop === 'edge' ? undefined : 'ground');
+        else if (prop === 'edge') f.on = sibling ?? own;
+        else f.on = own ?? sibling ?? 'ground';
         const selectedAnswer = () => selected[prop] ?? d.selected[prop] ?? fail(`${n}: no selected answer for ${prop}`);
         if (prop === 'icon') {
           f.default = `{${slotName(group, opt, part, 'ink', st)}}`;
@@ -115,10 +118,12 @@ export function deriveSlots(d: SlotDeclarations): SlotCatalogue {
             channel: o.channel !== undefined ? o.channel : p.channel, properties: p.properties, on: p.on, selectedOn: p.selectedOn,
           });
         }
-      } else if (p.rest !== undefined) {
+      } else if (p.rest !== undefined || p.selected !== undefined) {
         const spec = p.states ?? fail(`${group}-${part}: no states`);
+        const states = sets(spec);
+        if (p.rest === undefined && states.includes('rest')) fail(`${group}-${part}: its states hold rest and it answers no rest`);
         standing({
-          group, opt: undefined, part, rest: restOf(p.rest), selected: { ...p.selected }, states: sets(spec), channel: p.channel,
+          group, opt: undefined, part, rest: restOf(p.rest ?? p.selected ?? {}), selected: { ...p.selected }, states, channel: p.channel,
           properties: p.properties, on: p.on, selectedOn: p.selectedOn,
         });
       }
@@ -146,6 +151,7 @@ export function deriveSlots(d: SlotDeclarations): SlotCatalogue {
       if (to.defaults) one.defaults = to.defaults;
       if (to.optionBy) one.optionBy = to.optionBy;
       if (to.selectedBy) one.selectedBy = to.selectedBy;
+      if (to.disabledBy) one.disabledBy = to.disabledBy;
       if (to.inline) one.inline = true;
       members[key] = one;
     }

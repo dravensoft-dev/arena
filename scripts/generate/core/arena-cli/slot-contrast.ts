@@ -5,7 +5,8 @@
  * pair (WCAG exempts an inactive control), and disabledReports only says when one is not told
  * from its rest. An answer sits inside the level its channel carries, as the emphasis sheet writes
  * it, and a member default is measured as the member paints it, where it moves a pair. Imports
- * nothing outside this directory, because the command ships it. */
+ * nothing outside this directory, because the command ships it. Every pair of a part that sits on
+ * another part's fill is a mark at 3:1 (D69). */
 
 import { contrast } from './validate-palette.mjs';
 import { composite, mixOklab, oklabToHex, toOklab } from './oklab.ts';
@@ -131,12 +132,18 @@ export function slotColour(
 
 export type SlotPair = { slot: string; over: string; min: number };
 
+const wholeOf = (slot: ColorSlot) => `${slot.group}|${slot.option ?? ''}|${slot.part}`;
+
 export function slotPairs(catalogue: MeasuredSlots): SlotPair[] {
   const out: SlotPair[] = [];
+  const marks = new Set(Object.values(catalogue.slots).filter((slot) => {
+    const under = slot.on === undefined || slot.on === 'ground' ? undefined : catalogue.slots[slot.on];
+    return under !== undefined && !sameWhole(slot, under);
+  }).map(wholeOf));
   for (const [name, slot] of Object.entries(catalogue.slots)) {
     if (!slot.on || OFF.has(slot.state) || (slot.on !== 'ground' && !catalogue.slots[slot.on])) continue;
     if (slot.property === 'fill') out.push({ slot: name, over: slot.on, min: MARK_MIN });
-    else if (slot.property === 'ink') out.push({ slot: name, over: slot.on, min: TEXT_MIN });
+    else if (slot.property === 'ink') out.push({ slot: name, over: slot.on, min: marks.has(wholeOf(slot)) ? MARK_MIN : TEXT_MIN });
     else if (slot.property === 'icon') out.push({ slot: name, over: slot.on, min: MARK_MIN });
     else if (slot.property === 'edge' && slot.state.startsWith('selected')) out.push({ slot: name, over: slot.on, min: MARK_MIN });
   }

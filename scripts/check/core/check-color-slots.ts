@@ -49,6 +49,7 @@ const SCOPED = ['scope', 'family', 'component', 'draws'];
 const WORD: Record<string, string> = { fill: 'fill', ink: 'ink', icon: 'ink', edge: 'edge' };
 const REF = /^\{([a-z0-9-]+)\}$/;
 const entries = (c: SlotCatalogue) => Object.entries(c.slots);
+const DISABLED = new Set(['disabled', 'selected-disabled']);
 
 export function colourRoleSet(root = repoRoot): Set<string> {
   const roles = readJson(join(root, 'contracts/design/roles.json')) as Record<string, { $type?: string }>;
@@ -211,7 +212,8 @@ export function manifestProblems(c: SlotCatalogue, manifests: Manifests): string
       }
     }
     const branches: [string, string][] = [...Object.entries(m.optionBy?.values ?? {}).map(([value]) => [m.optionBy!.axis, value] as [string, string]),
-      ...(m.selectedBy && m.states.includes('rest') ? [[m.selectedBy.axis, m.selectedBy.value] as [string, string]] : [])];
+      ...(m.selectedBy && m.states.includes('rest') ? [[m.selectedBy.axis, m.selectedBy.value] as [string, string]] : []),
+      ...(m.disabledBy && m.states.some((st) => DISABLED.has(st)) ? [[m.disabledBy.axis, m.disabledBy.value] as [string, string]] : [])];
     for (const [axis, value] of branches) {
       if (!Object.hasOwn(manifest.variants?.[axis] ?? {}, value)) out.push(`members.${key}: ${comp} declares no variant ${axis}=${value}`);
     }
@@ -265,6 +267,7 @@ const branchOf = (m: MemberPart, s: ColorSlot): [string, string][] => {
   const by = Object.entries(m.optionBy?.values ?? {}).find(([, option]) => option === s.option);
   if (by) out.push([m.optionBy!.axis, by[0]]);
   if (m.selectedBy && m.states.includes('rest') && s.state.startsWith('selected')) out.push([m.selectedBy.axis, m.selectedBy.value]);
+  if (m.disabledBy && DISABLED.has(s.state)) out.push([m.disabledBy.axis, m.disabledBy.value]);
   return out;
 };
 
@@ -283,7 +286,7 @@ export function memberReadProblems(c: SlotCatalogue, manifests: Manifests): stri
     if (!manifest || !inlineMember(c, m)) continue;
     for (const [name, s] of memberSlots(c, m)) {
       const branch = branchOf(m, s);
-      const modifier = MODIFIER[s.state] ?? '';
+      const modifier = m.disabledBy && DISABLED.has(s.state) ? '' : MODIFIER[s.state] ?? '';
       const want = `${UTILITY[s.property]}${memberValue(c, key, name, 'tailwind')}]`;
       const found = branchTexts(manifest, part, branch).some((text) => text.split(/\s+/).some((token) => {
         const prefix = VARIANT.exec(token)?.[0] ?? '';
@@ -351,7 +354,7 @@ const DECLARED = {
   groupPart: ['properties', 'options', 'states', 'channel', 'rest', 'selected', 'on', 'selectedOn', 'decision', 'paintedBy'],
   option: ['states', 'rest', 'selected', 'halo', 'channel', 'decision'],
   member: ['group', 'parts'],
-  memberPart: ['to', 'options', 'states', 'channels', 'defaults', 'decision', 'optionBy', 'selectedBy', 'inline'],
+  memberPart: ['to', 'options', 'states', 'channels', 'defaults', 'decision', 'optionBy', 'selectedBy', 'disabledBy', 'inline'],
   exception: ['default', 'decision', 'level'],
 };
 const DECISION = /^[DR]\d+$/;
@@ -435,6 +438,9 @@ export function declarationProblems(d: SlotDeclarations): string[] {
           if (options !== undefined) out.push(`${where}: a part that lists its options answers its rest per option`);
           rest(`${where}.rest`, p.rest, p);
         }
+        const names = typeof p.states === 'string' ? d.stateSets?.[p.states] : Array.isArray(p.states) ? p.states : undefined;
+        if (names !== undefined && p.rest === undefined && p.selected !== undefined && names.includes('rest')) out.push(`${where}: its states hold rest and it answers no rest`);
+        if (p.rest === undefined && p.selected !== undefined && options === undefined) rest(`${where}.selected`, p.selected, p);
       }
     }
   }
@@ -459,6 +465,12 @@ export function declarationProblems(d: SlotDeclarations): string[] {
       if (sel !== undefined) {
         if (typeof sel.axis !== 'string' || sel.axis === '' || typeof sel.value !== 'string') out.push(`${where}.selectedBy: it names an axis and a value`);
         else if (by?.axis === sel.axis) out.push(`${where}.selectedBy: it shares the axis ${sel.axis} with optionBy`);
+      }
+      const off = to.disabledBy;
+      if (off !== undefined) {
+        if (typeof off.axis !== 'string' || off.axis === '' || typeof off.value !== 'string') out.push(`${where}.disabledBy: it names an axis and a value`);
+        else if (by?.axis === off.axis) out.push(`${where}.disabledBy: it shares the axis ${off.axis} with optionBy`);
+        else if (sel?.axis === off.axis) out.push(`${where}.disabledBy: it shares the axis ${off.axis} with selectedBy`);
       }
       for (const [prop, ch] of Object.entries(to.channels ?? {})) {
         if (!['fill', 'ink', 'edge', 'icon'].includes(prop)) out.push(`${where}.channels: unknown key "${prop}"`);

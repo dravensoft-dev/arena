@@ -6,8 +6,8 @@
  * A tree also keeps an open surface, a floating one and a channel an element binds on its style:
  * the three things a size class reaches, stops at and is answered by. A destructive part keeps its
  * flag too, and so does a tone other than neutral, since the meaning a part states is what an
- * emphasis class and an accent class have to leave in place. A disabled or pressed part keeps its flag, and a
- * colour slot a case binds stands in for the answer a style plugin writes. */
+ * emphasis class and an accent class have to leave in place. A disabled, pressed or selected part keeps its flag,
+ * and a colour slot a case binds stands in for the answer a style plugin writes. */
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -16,6 +16,7 @@ import { readColorSlots } from '../core/color-slots.ts';
 import { fadeMarkers } from '../../generate/core/arena-cli/slots.ts';
 import type { Family } from '../tailwind/vocabulary.ts';
 import { readFamilies, SURFACE } from '../tailwind/vocabulary.ts';
+import { kebab } from '../../utils/case.ts';
 
 export const PROXIMITY_CASES = 'scripts/check/arena/proximity-cases.json';
 export const SUBJECT = 'data-proximity-subject';
@@ -25,7 +26,7 @@ export const TONE = 'data-arena-tone';
 export const PRESSED = 'data-arena-pressed';
 
 export type Tree = {
-  tag: string; part?: string; boundary?: true; contents?: true; open?: true; disabled?: true; pressed?: true; destructive?: true; tone?: string; surface?: string; vars?: string; class?: string; text?: string;
+  tag: string; part?: string; boundary?: true; contents?: true; open?: true; disabled?: true; pressed?: true; selected?: true; destructive?: true; tone?: string; surface?: string; vars?: string; class?: string; text?: string;
   subject?: true; children?: Tree[];
 };
 
@@ -71,6 +72,12 @@ const slotChannels = (root = repoRoot) => {
 };
 const SLOT_CHANNELS = slotChannels();
 
+const selectedAxes = (root = repoRoot) => new Map(Object.entries(readColorSlots(root).members).flatMap(([key, member]) => {
+  const [component, part] = key.split('.') as [string, string];
+  return member.selectedBy ? [[`${kebab(component.replace(/^Arena/, ''))}.${kebab(part)}`, `data-arena-${member.selectedBy.axis}`] as [string, string]] : [];
+}));
+const SELECTED_BY = selectedAxes();
+
 export const channelBindings = (style: string) => style.split(';').map((one) => one.replace(/\s+/g, ''))
   .filter((one) => one.startsWith('--arena-') || SLOT_CHANNELS.has(one.split(':')[0] ?? '')).join(';');
 
@@ -85,6 +92,8 @@ export function normalize(element: NodeLike, vocabulary: Set<string>, subject: N
   if (element.hasAttribute?.('disabled')) tree.disabled = true;
   if (element.hasAttribute?.(DESTRUCTIVE) && element.getAttribute?.(DESTRUCTIVE) !== 'false') tree.destructive = true;
   if (element.hasAttribute?.(PRESSED) && element.getAttribute?.(PRESSED) !== 'false') tree.pressed = true;
+  const selected = part ? SELECTED_BY.get(part) : undefined;
+  if (selected && element.hasAttribute?.(selected) && element.getAttribute?.(selected) !== 'false') tree.selected = true;
   const tone = element.getAttribute?.(TONE);
   if (tone && tone !== 'neutral') tree.tone = tone;
   const surface = element.getAttribute?.(SURFACE);
@@ -99,7 +108,7 @@ export function normalize(element: NodeLike, vocabulary: Set<string>, subject: N
   if (text) tree.text = text;
   const children = kids.filter((one) => one.nodeType === 1).map((one) => normalize(one, vocabulary, subject)).filter((one): one is Tree => one !== null);
   if (children.length) tree.children = children;
-  const kept = tree.part || tree.boundary || tree.contents || tree.open || tree.disabled || tree.pressed || tree.destructive || tree.tone || tree.surface || tree.vars || tree.class || tree.text || tree.subject || tree.children;
+  const kept = tree.part || tree.boundary || tree.contents || tree.open || tree.disabled || tree.pressed || tree.selected || tree.destructive || tree.tone || tree.surface || tree.vars || tree.class || tree.text || tree.subject || tree.children;
   return kept ? tree : null;
 }
 
@@ -121,7 +130,8 @@ export function treeHtml(
   if (styles.length) attrs.push(`style="${styles.join('; ')}"`);
   const classes = [tree.part ? classesOf(tree.part) : '', tree.class ?? ''].filter(Boolean).join(' ');
   if (classes) attrs.push(`class="${classes}"`);
-  const data = { ...(tree.part ? dataOf(tree.part) : {}), ...(tree.destructive ? { [DESTRUCTIVE]: 'true' } : {}), ...(tree.pressed ? { [PRESSED]: '' } : {}), ...(tree.tone ? { [TONE]: tree.tone } : {}) };
+  const data = { ...(tree.part ? dataOf(tree.part) : {}), ...(tree.destructive ? { [DESTRUCTIVE]: 'true' } : {}), ...(tree.pressed ? { [PRESSED]: '' } : {}),
+    ...(tree.selected && tree.part ? { [SELECTED_BY.get(tree.part) as string]: '' } : {}), ...(tree.tone ? { [TONE]: tree.tone } : {}) };
   for (const [name, value] of Object.entries(data)) attrs.push(`${name}="${value}"`);
   const inner = `${tree.text ? escape(tree.text) : ''}${(tree.children ?? []).map((one) => treeHtml(one, classesOf, dataOf)).join('')}`;
   return `<${tree.tag}${attrs.length ? ` ${attrs.join(' ')}` : ''}>${inner}</${tree.tag}>`;

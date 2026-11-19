@@ -69,10 +69,20 @@ export const WITNESS_EXEMPT: ReadonlyMap<string, string> = new Map([
   ['hue-danger-fill-strong', 'complete answers it as default does, because a colour of its own would move the '
     + 'complete sink, and this role reaches a page through the destructive and danger-tone parts that default '
     + 'already paints'],
+  ['fill-control', 'complete answers it as default does, neutral, because complete paints an off Switch track and a selected '
+    + 'segment neutral and no other palette key resolves to it, and this role reaches a page through the choices slots '
+    + 'complete answers with spellings of their own'],
   ['actions-solid-root-edge-rest', SLOT + NO_SECOND_SPELLING],
   ['actions-dismiss-fill-rest', SLOT + 'the one accepted role complete paints transparent, hue-danger-fill-strong, is a danger fill, '
     + 'and a dismiss button answered with it would say danger where it draws nothing; the kernel default is the literal '
     + 'transparent, so no other spelling resolves to the key complete paints there'],
+  ['choices-segment-fill-rest', SLOT + 'the one accepted role complete paints transparent, hue-danger-fill-strong, is a danger fill, '
+    + 'and an unselected segment answered with it would say danger where it draws nothing; the kernel default is the literal '
+    + 'transparent, so no other spelling resolves to the key complete paints there'],
+  ['choices-box-edge-selected', SLOT + 'complete draws a ticked box with no edge, the kernel default is the literal transparent, '
+    + 'and no accepted edge role resolves to transparent in complete, so no other spelling resolves to what complete paints there'],
+  ['choices-box-fill-selected', SLOT + 'complete fills a ticked box with primary-fill through fill-control-on, the kernel default: '
+    + NO_SECOND_SPELLING],
   ...['rest', 'hover', 'pressed'].map((state): [string, string] => [`actions-ghost-root-edge-${state}`, SLOT + MEMBER_DEFAULT]),
 ]);
 

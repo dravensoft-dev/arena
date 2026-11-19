@@ -145,6 +145,8 @@ export const EXCLUDED = new Map([
   ['color-heat-3', HEAT_KEY_REASON],
   ['color-heat-4', HEAT_KEY_REASON],
   ['color-heat-5', HEAT_KEY_REASON],
+  ...['fill-control', 'fill-control-on', 'fill-knob', 'fill-knob-off', 'ink-knob', 'ink-knob-off'].map((role): [string, string] => [role,
+    'a choices role, the default at the end of a choices slot chain a member reads inline, so no utility is named after it']),
 ]);
 
 for (const [hue, channels] of readHues()) {

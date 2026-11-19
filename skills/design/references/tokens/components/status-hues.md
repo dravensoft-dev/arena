@@ -11,6 +11,10 @@ Only Arena's components read the roles on this page. A role keeps its name until
 | role | question | type | user scale | default |
 | --- | --- | --- | --- | --- |
 | `--fill-confirm-final` | What colour fills the final irreversible confirmation of a confirm dialog? | color | none | none |
+| `--fill-control` | What colour fills the box of a checkbox, radio, switch or slider at rest? | color | none | none |
+| `--fill-control-on` | What colour fills the box of a checked checkbox or radio, an on switch or a slider's range? | color | none | none |
+| `--fill-knob` | What colour fills the knob of an on switch or the thumb of a slider? | color | none | none |
+| `--fill-knob-off` | What colour fills the knob of a switch that is off? | color | none | none |
 | `--hue-danger-edge` | What colour does the danger hue take as a border or a rule? | color | none | none |
 | `--hue-danger-fill-soft` | What colour does the danger hue take as a soft wash behind a surface? | color | none | none |
 | `--hue-danger-fill-strong` | What colour does the danger hue fill a surface with at full strength? | color | none | `transparent` |
@@ -32,5 +36,7 @@ Only Arena's components read the roles on this page. A role keeps its name until
 | `--hue-warning-ink` | What colour does the warning hue take as text and as an icon? | color | none | none |
 | `--hue-warning-on-ink` | What colour is the content set on a mark filled with the warning hue? | color | none | `{color.warning-content}` |
 | `--ink-confirm-final` | What colour is the label of the final irreversible confirmation of a confirm dialog? | color | none | none |
+| `--ink-knob` | What colour is the glyph on the knob of an on switch? | color | none | none |
+| `--ink-knob-off` | What colour is the glyph on the knob of a switch that is off? | color | none | none |
 
 <!-- @tree end -->

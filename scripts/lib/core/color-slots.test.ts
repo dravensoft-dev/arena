@@ -94,9 +94,9 @@ test('a group slot carries its group, option, part and channel, and an option wi
 test('actions derives 124 slots and no component slot', () => {
   const c = deriveSlots(readSlotDeclarations());
   const slots = Object.values(c.slots);
-  assert.equal(slots.length, 124);
+  assert.equal(slots.filter((slot) => slot.group === 'actions').length, 124);
+  assert.deepEqual([...new Set(slots.map((slot) => slot.group))].sort(), ['actions', 'choices']);
   for (const slot of slots) {
-    assert.equal(slot.group, 'actions');
     for (const key of ['scope', 'family', 'component', 'draws']) assert.equal(Object.hasOwn(slot, key), false, key);
   }
   assert.equal(Object.hasOwn(c, 'families'), false);
@@ -206,14 +206,14 @@ test('an exception may carry a level', () => {
   assert.equal(s['actions-calm-root-icon-hover']?.level, 'level-ink-body', 'the icon carries its ink level');
 });
 
-test('a part with no fill sits its ink and icon on the ground, and a part with on sits on its sibling', () => {
+test('a part with no fill sits its ink and icon on the ground, and a part with on sits its fill on its sibling and its glyph on its own fill', () => {
   const d = fixture();
   d.groups!.actions!.parts.close = { properties: ['ink', 'icon'], states: 'base', rest: { ink: '{i-quiet}', icon: 'ink' } };
   d.groups!.actions!.parts.dismiss!.on = 'root';
   const s = deriveSlots(d).slots;
   assert.equal(s['actions-close-ink-rest']?.on, 'ground');
   assert.equal(s['actions-close-icon-hover']?.on, 'ground');
-  assert.equal(s['actions-dismiss-ink-hover']?.on, 'actions-root-fill-hover');
+  assert.equal(s['actions-dismiss-ink-hover']?.on, 'actions-dismiss-fill-hover', 'a glyph sits on its own part\'s fill (D69)');
   assert.equal(s['actions-dismiss-fill-hover']?.on, 'actions-root-fill-hover');
 });
 
@@ -242,4 +242,41 @@ test('actions.dismiss derives its slots with no option segment', () => {
   assert.deepEqual(c.members['ArenaAlert.close'], { to: 'actions.dismiss', options: [], states: ['rest', 'hover', 'pressed', 'disabled'] });
   assert.equal(c.members['ArenaCalendar.nav']?.inline, true);
   assert.deepEqual(c.members['ArenaConfirmDialog.confirm']?.optionBy, { axis: 'destructive', values: { true: 'destructive', false: 'primary' } });
+});
+
+test('choices derives its slots', () => {
+  const c = deriveSlots(readSlotDeclarations());
+  const names = Object.keys(c.slots).filter((n) => n.startsWith('choices-'));
+  const toggle = ['rest', 'selected', 'disabled', 'selected-disabled'];
+  const segment = ['rest', 'hover', 'pressed', 'selected', 'selected-hover', 'selected-pressed'];
+  const want = [
+    ...['fill', 'edge'].flatMap((p) => toggle.map((s) => `choices-box-${p}-${s}`)),
+    'choices-mark-ink-selected', 'choices-mark-ink-selected-disabled',
+    ...['fill', 'ink', 'edge'].flatMap((p) => toggle.map((s) => `choices-knob-${p}-${s}`)),
+    ...['fill', 'ink'].flatMap((p) => segment.map((s) => `choices-segment-${p}-${s}`)),
+    'choices-track-fill-rest', 'choices-track-edge-rest',
+  ];
+  assert.deepEqual([...names].sort(), [...want].sort());
+  assert.equal(c.slots['choices-box-fill-selected']?.on, 'choices-box-fill-rest');
+  assert.equal(c.slots['choices-box-fill-selected']?.default, '{fill-control-on}');
+  assert.equal(c.slots['choices-box-edge-selected']?.default, 'transparent');
+  assert.equal(c.slots['choices-knob-fill-rest']?.on, 'choices-box-fill-rest');
+  assert.equal(c.slots['choices-knob-fill-rest']?.default, '{fill-knob-off}');
+  assert.equal(c.slots['choices-knob-fill-selected']?.default, '{fill-knob}');
+  assert.equal(c.slots['choices-mark-ink-selected']?.on, 'choices-box-fill-selected');
+  assert.equal(c.slots['choices-knob-ink-rest']?.on, 'choices-knob-fill-rest', 'a glyph sits on its own part\'s fill (D69)');
+  assert.equal(c.slots['choices-knob-ink-selected']?.on, 'choices-knob-fill-selected');
+  assert.equal(c.slots['choices-knob-edge-selected']?.on, 'choices-box-fill-selected');
+  assert.equal(c.slots['choices-mark-ink-selected-disabled']?.optional, true);
+  const hover = c.slots['choices-segment-ink-hover'];
+  assert.equal(hover?.default, '{ink-body}');
+  assert.equal(hover?.level, 'level-ink-body');
+  assert.equal(c.slots['choices-segment-ink-rest']?.level, 'level-ink-muted');
+  assert.deepEqual(c.members['ArenaSlider.fill'], { to: 'choices.box', options: [], states: ['selected'] });
+  assert.deepEqual(c.members['ArenaCheckbox.box']?.selectedBy, { axis: 'checked', value: 'true' });
+  assert.deepEqual(c.members['ArenaCheckbox.box']?.disabledBy, { axis: 'disabled', value: 'true' }, 'a span reads its disabled states in the disabled branch (D71)');
+  assert.equal(c.members['ArenaSwitch.track']?.disabledBy, undefined, 'a native control reads them under disabled:');
+  assert.deepEqual(c.members['ArenaCheckbox.check']?.states, ['selected', 'selected-disabled']);
+  assert.equal(c.members['ArenaSlider.track'], undefined, 'the track paints no colour');
+  assert.deepEqual(c.members['ArenaSwitch.icon']?.to, 'choices.knob');
 });

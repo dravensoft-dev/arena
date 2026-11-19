@@ -6,7 +6,7 @@ import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
 import { mount, cleanup } from './Harness.tsx';
-import { ArenaButton, ArenaIconButton, ArenaSplitButton, ArenaCopyButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope } from '../Index.generated.ts';
+import { ArenaButton, ArenaIconButton, ArenaSplitButton, ArenaCopyButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope, ArenaCheckbox, ArenaRadioGroup, ArenaRadio, ArenaSwitch, ArenaSlider } from '../Index.generated.ts';
 import { readProximity, normalize, vocabularyClasses } from '../../../scripts/lib/arena/proximity.ts';
 
 afterEach(cleanup);
@@ -87,6 +87,12 @@ const COMPOSITIONS: Record<string, () => React.ReactElement> = {
   'answered-disabled-stops-the-fade': () => <div style={answered({ '--actions-primary-root-ink-disabled': 'var(--ink-muted)', '--actions-primary-root-fade-disabled': '1' })}><ArenaButton disabled>Save</ArenaButton></div>,
   'answered-disabled-draws-its-ink': () => <div style={answered({ '--actions-primary-root-ink-disabled': 'var(--ink-muted)', '--actions-primary-root-fade-disabled': '1' })}><ArenaButton disabled>Save</ArenaButton></div>,
   'answered-disabled-ink-reaches-the-glyph': () => <div style={answered({ '--actions-primary-root-ink-disabled': 'var(--ink-muted)', '--actions-primary-root-fade-disabled': '1' })}><ArenaButton disabled icon="ph-bold ph-x">Save</ArenaButton></div>,
+  'choices-answer-moves-every-box': () => <div style={answered({ '--choices-box-fill-selected': 'var(--fill-surface)' })}>
+    <ArenaCheckbox checked label="Notify" />
+    <ArenaRadioGroup ariaLabel="Cadence" value="daily"><ArenaRadio value="daily" label="Daily" /></ArenaRadioGroup>
+    <ArenaSwitch state label="Sync" />
+    <ArenaSlider label="Volume" value={40} />
+  </div>,
   'ink-answer-reaches-the-glyph': () => <div style={answered({ '--actions-primary-root-ink-rest': 'var(--fill-surface)' })}><ArenaButton icon="ph-bold ph-x">Save</ArenaButton></div>,
   'icon-rest-answer-keeps-the-level': () => <div style={answered({ '--actions-ghost-root-icon-rest': 'var(--hue-danger-ink)' })}><ArenaButton className="arena-emphasis-ghost" icon="ph-bold ph-x">Save</ArenaButton></div>,
   'class-on-copy-button-reaches-the-icon-button-it-draws': () => <div style={answered({ '--actions-solid-root-fill-rest': 'var(--fill-surface-raised)' })}><ArenaCopyButton className="arena-emphasis-solid" text="x" label="Copy" /></div>,
@@ -134,6 +140,7 @@ const SUBJECT: Record<string, { part: string; at: number }> = {
   'member-default-kept-while-the-group-is-silent': { part: 'icon-button', at: 0 },
   'group-answer-replaces-the-member-default': { part: 'icon-button', at: 0 },
   'secondary-answer-reaches-the-calendar-nav': { part: 'button', at: 0 },
+  'choices-answer-moves-every-box': { part: 'checkbox.box', at: 0 },
   'selected-disabled-answer-stops-only-the-selected-fade': { part: 'icon-button', at: -1 },
   'class-on-copy-button-reaches-the-icon-button-it-draws': { part: 'icon-button', at: 0 },
 };
