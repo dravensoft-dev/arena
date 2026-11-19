@@ -285,11 +285,11 @@
   --actions-destructive-root-fill-hover:var(--accent-plain-fill-soft);
   --actions-destructive-root-fill-pressed:transparent;
   --actions-destructive-root-fill-rest:transparent;
-  --actions-destructive-root-icon-disabled:var(--accent-muted-ink);
+  --actions-destructive-root-icon-disabled:var(--hue-warning-on-ink); /* complete fills a disabled destructive control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
   --actions-destructive-root-icon-hover:var(--hue-info-ink);
   --actions-destructive-root-icon-pressed:var(--hue-info-ink);
   --actions-destructive-root-icon-rest:var(--hue-info-ink);
-  --actions-destructive-root-ink-disabled:var(--accent-gold-ink);
+  --actions-destructive-root-ink-disabled:var(--hue-danger-on-ink); /* complete fills a disabled destructive control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */
   --actions-destructive-root-ink-hover:var(--hue-danger-ink);
   --actions-destructive-root-ink-pressed:var(--hue-danger-ink);
   --actions-destructive-root-ink-rest:var(--ink-invalid);
@@ -317,20 +317,20 @@
   --actions-ghost-root-fill-selected-disabled:var(--accent-gold-fill-soft);
   --actions-ghost-root-fill-selected-hover:var(--accent-plain-fill-soft);
   --actions-ghost-root-fill-selected-pressed:var(--accent-plain-fill-soft);
-  --actions-ghost-root-icon-disabled:var(--accent-muted-ink);
+  --actions-ghost-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled ghost control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
   --actions-ghost-root-icon-hover:var(--accent-plain-ink);
   --actions-ghost-root-icon-pressed:var(--accent-plain-ink);
   --actions-ghost-root-icon-rest:var(--accent-plain-ink);
   --actions-ghost-root-icon-selected:var(--accent-plain-ink);
-  --actions-ghost-root-icon-selected-disabled:var(--accent-muted-ink);
+  --actions-ghost-root-icon-selected-disabled:var(--hue-success-on-ink); /* complete fills a selected disabled ghost control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
   --actions-ghost-root-icon-selected-hover:var(--accent-plain-ink);
   --actions-ghost-root-icon-selected-pressed:var(--accent-plain-ink);
-  --actions-ghost-root-ink-disabled:var(--accent-gold-ink);
+  --actions-ghost-root-ink-disabled:var(--hue-info-on-ink); /* complete fills a disabled ghost control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */
   --actions-ghost-root-ink-hover:var(--accent-muted-ink);
   --actions-ghost-root-ink-pressed:var(--accent-muted-ink);
   --actions-ghost-root-ink-rest:var(--accent-muted-ink);
   --actions-ghost-root-ink-selected:var(--accent-muted-ink);
-  --actions-ghost-root-ink-selected-disabled:var(--accent-gold-ink);
+  --actions-ghost-root-ink-selected-disabled:var(--hue-info-on-ink); /* complete fills a selected disabled ghost control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */
   --actions-ghost-root-ink-selected-hover:var(--accent-muted-ink);
   --actions-ghost-root-ink-selected-pressed:var(--accent-muted-ink);
   --actions-primary-root-edge-disabled:var(--accent-gold-side-edge);
@@ -341,11 +341,11 @@
   --actions-primary-root-fill-hover:var(--accent-primary-fill-soft);
   --actions-primary-root-fill-pressed:var(--accent-primary-fill-soft);
   --actions-primary-root-fill-rest:var(--accent-primary-fill-soft);
-  --actions-primary-root-icon-disabled:var(--accent-muted-ink);
+  --actions-primary-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled primary control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
   --actions-primary-root-icon-hover:var(--emphasis-solid-ink);
   --actions-primary-root-icon-pressed:var(--emphasis-solid-ink);
   --actions-primary-root-icon-rest:var(--emphasis-primary-ink);
-  --actions-primary-root-ink-disabled:var(--accent-gold-ink);
+  --actions-primary-root-ink-disabled:var(--hue-info-on-ink); /* complete fills a disabled primary control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */
   --actions-primary-root-ink-hover:var(--emphasis-primary-ink);
   --actions-primary-root-ink-pressed:var(--emphasis-primary-ink);
   --actions-primary-root-ink-rest:var(--emphasis-solid-ink);
@@ -357,11 +357,11 @@
   --actions-secondary-root-fill-hover:var(--accent-plain-fill-soft);
   --actions-secondary-root-fill-pressed:var(--emphasis-ghost-fill-hover);
   --actions-secondary-root-fill-rest:var(--emphasis-ghost-fill-hover);
-  --actions-secondary-root-icon-disabled:var(--accent-muted-ink);
+  --actions-secondary-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled secondary control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
   --actions-secondary-root-icon-hover:var(--accent-plain-ink);
   --actions-secondary-root-icon-pressed:var(--accent-plain-ink);
   --actions-secondary-root-icon-rest:var(--accent-plain-ink);
-  --actions-secondary-root-ink-disabled:var(--accent-gold-ink);
+  --actions-secondary-root-ink-disabled:var(--hue-info-on-ink); /* complete fills a disabled secondary control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */
   --actions-secondary-root-ink-hover:var(--accent-muted-ink);
   --actions-secondary-root-ink-pressed:var(--accent-muted-ink);
   --actions-secondary-root-ink-rest:var(--accent-muted-ink);
@@ -380,20 +380,20 @@
   --actions-solid-root-fill-selected-disabled:var(--accent-gold-fill-soft);
   --actions-solid-root-fill-selected-hover:var(--accent-plain-fill-soft);
   --actions-solid-root-fill-selected-pressed:var(--accent-plain-fill-soft);
-  --actions-solid-root-icon-disabled:var(--accent-muted-ink);
+  --actions-solid-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled solid control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
   --actions-solid-root-icon-hover:var(--emphasis-solid-ink);
   --actions-solid-root-icon-pressed:var(--emphasis-solid-ink);
   --actions-solid-root-icon-rest:var(--emphasis-solid-ink);
   --actions-solid-root-icon-selected:var(--accent-plain-ink);
-  --actions-solid-root-icon-selected-disabled:var(--accent-muted-ink);
+  --actions-solid-root-icon-selected-disabled:var(--hue-success-on-ink); /* complete fills a selected disabled solid control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
   --actions-solid-root-icon-selected-hover:var(--accent-plain-ink);
   --actions-solid-root-icon-selected-pressed:var(--accent-plain-ink);
-  --actions-solid-root-ink-disabled:var(--accent-gold-ink);
+  --actions-solid-root-ink-disabled:var(--hue-info-on-ink); /* complete fills a disabled solid control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */
   --actions-solid-root-ink-hover:var(--emphasis-primary-ink);
   --actions-solid-root-ink-pressed:var(--emphasis-primary-ink);
   --actions-solid-root-ink-rest:var(--emphasis-primary-ink);
   --actions-solid-root-ink-selected:var(--accent-muted-ink);
-  --actions-solid-root-ink-selected-disabled:var(--accent-gold-ink);
+  --actions-solid-root-ink-selected-disabled:var(--hue-info-on-ink); /* complete fills a selected disabled solid control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */
   --actions-solid-root-ink-selected-hover:var(--accent-muted-ink);
   --actions-solid-root-ink-selected-pressed:var(--accent-muted-ink);
   --choices-box-edge-disabled:var(--accent-primary-edge);
@@ -567,11 +567,11 @@
   --actions-destructive-root-edge-rest:var(--edge-invalid);
   --actions-destructive-root-fill-disabled:var(--accent-gold-fill-soft);
   --actions-destructive-root-fill-hover:var(--accent-plain-fill-soft);
-  --actions-destructive-root-icon-disabled:var(--accent-muted-ink);
+  --actions-destructive-root-icon-disabled:var(--hue-warning-on-ink); /* complete fills a disabled destructive control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
   --actions-destructive-root-icon-hover:var(--hue-info-ink);
   --actions-destructive-root-icon-pressed:var(--hue-info-ink);
   --actions-destructive-root-icon-rest:var(--hue-info-ink);
-  --actions-destructive-root-ink-disabled:var(--accent-gold-ink);
+  --actions-destructive-root-ink-disabled:var(--hue-danger-on-ink); /* complete fills a disabled destructive control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */
   --actions-destructive-root-ink-hover:var(--hue-danger-ink);
   --actions-destructive-root-ink-pressed:var(--hue-danger-ink);
   --actions-destructive-root-ink-rest:var(--ink-invalid);
@@ -595,20 +595,20 @@
   --actions-ghost-root-fill-selected-disabled:var(--accent-gold-fill-soft);
   --actions-ghost-root-fill-selected-hover:var(--accent-plain-fill-soft);
   --actions-ghost-root-fill-selected-pressed:var(--accent-plain-fill-soft);
-  --actions-ghost-root-icon-disabled:var(--accent-muted-ink);
+  --actions-ghost-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled ghost control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
   --actions-ghost-root-icon-hover:var(--accent-plain-ink);
   --actions-ghost-root-icon-pressed:var(--accent-plain-ink);
   --actions-ghost-root-icon-rest:var(--accent-plain-ink);
   --actions-ghost-root-icon-selected:var(--accent-plain-ink);
-  --actions-ghost-root-icon-selected-disabled:var(--accent-muted-ink);
+  --actions-ghost-root-icon-selected-disabled:var(--hue-success-on-ink); /* complete fills a selected disabled ghost control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
   --actions-ghost-root-icon-selected-hover:var(--accent-plain-ink);
   --actions-ghost-root-icon-selected-pressed:var(--accent-plain-ink);
-  --actions-ghost-root-ink-disabled:var(--accent-gold-ink);
+  --actions-ghost-root-ink-disabled:var(--hue-info-on-ink); /* complete fills a disabled ghost control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */
   --actions-ghost-root-ink-hover:var(--accent-muted-ink);
   --actions-ghost-root-ink-pressed:var(--accent-muted-ink);
   --actions-ghost-root-ink-rest:var(--accent-muted-ink);
   --actions-ghost-root-ink-selected:var(--accent-muted-ink);
-  --actions-ghost-root-ink-selected-disabled:var(--accent-gold-ink);
+  --actions-ghost-root-ink-selected-disabled:var(--hue-info-on-ink); /* complete fills a selected disabled ghost control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */
   --actions-ghost-root-ink-selected-hover:var(--accent-muted-ink);
   --actions-ghost-root-ink-selected-pressed:var(--accent-muted-ink);
   --actions-primary-root-edge-disabled:var(--accent-gold-side-edge);
@@ -619,11 +619,11 @@
   --actions-primary-root-fill-hover:var(--accent-primary-fill-soft);
   --actions-primary-root-fill-pressed:var(--accent-primary-fill-soft);
   --actions-primary-root-fill-rest:var(--accent-primary-fill-soft);
-  --actions-primary-root-icon-disabled:var(--accent-muted-ink);
+  --actions-primary-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled primary control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
   --actions-primary-root-icon-hover:var(--emphasis-solid-ink);
   --actions-primary-root-icon-pressed:var(--emphasis-solid-ink);
   --actions-primary-root-icon-rest:var(--emphasis-primary-ink);
-  --actions-primary-root-ink-disabled:var(--accent-gold-ink);
+  --actions-primary-root-ink-disabled:var(--hue-info-on-ink); /* complete fills a disabled primary control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */
   --actions-primary-root-ink-hover:var(--emphasis-primary-ink);
   --actions-primary-root-ink-pressed:var(--emphasis-primary-ink);
   --actions-primary-root-ink-rest:var(--emphasis-solid-ink);
@@ -635,11 +635,11 @@
   --actions-secondary-root-fill-hover:var(--accent-plain-fill-soft);
   --actions-secondary-root-fill-pressed:var(--emphasis-ghost-fill-hover);
   --actions-secondary-root-fill-rest:var(--emphasis-ghost-fill-hover);
-  --actions-secondary-root-icon-disabled:var(--accent-muted-ink);
+  --actions-secondary-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled secondary control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
   --actions-secondary-root-icon-hover:var(--accent-plain-ink);
   --actions-secondary-root-icon-pressed:var(--accent-plain-ink);
   --actions-secondary-root-icon-rest:var(--accent-plain-ink);
-  --actions-secondary-root-ink-disabled:var(--accent-gold-ink);
+  --actions-secondary-root-ink-disabled:var(--hue-info-on-ink); /* complete fills a disabled secondary control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */
   --actions-secondary-root-ink-hover:var(--accent-muted-ink);
   --actions-secondary-root-ink-pressed:var(--accent-muted-ink);
   --actions-secondary-root-ink-rest:var(--accent-muted-ink);
@@ -656,20 +656,20 @@
   --actions-solid-root-fill-selected-disabled:var(--accent-gold-fill-soft);
   --actions-solid-root-fill-selected-hover:var(--accent-plain-fill-soft);
   --actions-solid-root-fill-selected-pressed:var(--accent-plain-fill-soft);
-  --actions-solid-root-icon-disabled:var(--accent-muted-ink);
+  --actions-solid-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled solid control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
   --actions-solid-root-icon-hover:var(--emphasis-solid-ink);
   --actions-solid-root-icon-pressed:var(--emphasis-solid-ink);
   --actions-solid-root-icon-rest:var(--emphasis-solid-ink);
   --actions-solid-root-icon-selected:var(--accent-plain-ink);
-  --actions-solid-root-icon-selected-disabled:var(--accent-muted-ink);
+  --actions-solid-root-icon-selected-disabled:var(--hue-success-on-ink); /* complete fills a selected disabled solid control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
   --actions-solid-root-icon-selected-hover:var(--accent-plain-ink);
   --actions-solid-root-icon-selected-pressed:var(--accent-plain-ink);
-  --actions-solid-root-ink-disabled:var(--accent-gold-ink);
+  --actions-solid-root-ink-disabled:var(--hue-info-on-ink); /* complete fills a disabled solid control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */
   --actions-solid-root-ink-hover:var(--emphasis-primary-ink);
   --actions-solid-root-ink-pressed:var(--emphasis-primary-ink);
   --actions-solid-root-ink-rest:var(--emphasis-primary-ink);
   --actions-solid-root-ink-selected:var(--accent-muted-ink);
-  --actions-solid-root-ink-selected-disabled:var(--accent-gold-ink);
+  --actions-solid-root-ink-selected-disabled:var(--hue-info-on-ink); /* complete fills a selected disabled solid control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */
   --actions-solid-root-ink-selected-hover:var(--accent-muted-ink);
   --actions-solid-root-ink-selected-pressed:var(--accent-muted-ink);
   --choices-box-edge-disabled:var(--accent-primary-edge);
@@ -824,11 +824,11 @@
   --actions-destructive-root-edge-rest:var(--edge-invalid);
   --actions-destructive-root-fill-disabled:var(--accent-gold-fill-soft);
   --actions-destructive-root-fill-hover:var(--accent-plain-fill-soft);
-  --actions-destructive-root-icon-disabled:var(--accent-muted-ink);
+  --actions-destructive-root-icon-disabled:var(--hue-warning-on-ink); /* complete fills a disabled destructive control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
   --actions-destructive-root-icon-hover:var(--hue-info-ink);
   --actions-destructive-root-icon-pressed:var(--hue-info-ink);
   --actions-destructive-root-icon-rest:var(--hue-info-ink);
-  --actions-destructive-root-ink-disabled:var(--accent-gold-ink);
+  --actions-destructive-root-ink-disabled:var(--hue-danger-on-ink); /* complete fills a disabled destructive control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */
   --actions-destructive-root-ink-hover:var(--hue-danger-ink);
   --actions-destructive-root-ink-pressed:var(--hue-danger-ink);
   --actions-destructive-root-ink-rest:var(--ink-invalid);
@@ -852,20 +852,20 @@
   --actions-ghost-root-fill-selected-disabled:var(--accent-gold-fill-soft);
   --actions-ghost-root-fill-selected-hover:var(--accent-plain-fill-soft);
   --actions-ghost-root-fill-selected-pressed:var(--accent-plain-fill-soft);
-  --actions-ghost-root-icon-disabled:var(--accent-muted-ink);
+  --actions-ghost-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled ghost control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
   --actions-ghost-root-icon-hover:var(--accent-plain-ink);
   --actions-ghost-root-icon-pressed:var(--accent-plain-ink);
   --actions-ghost-root-icon-rest:var(--accent-plain-ink);
   --actions-ghost-root-icon-selected:var(--accent-plain-ink);
-  --actions-ghost-root-icon-selected-disabled:var(--accent-muted-ink);
+  --actions-ghost-root-icon-selected-disabled:var(--hue-success-on-ink); /* complete fills a selected disabled ghost control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
   --actions-ghost-root-icon-selected-hover:var(--accent-plain-ink);
   --actions-ghost-root-icon-selected-pressed:var(--accent-plain-ink);
-  --actions-ghost-root-ink-disabled:var(--accent-gold-ink);
+  --actions-ghost-root-ink-disabled:var(--hue-info-on-ink); /* complete fills a disabled ghost control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */
   --actions-ghost-root-ink-hover:var(--accent-muted-ink);
   --actions-ghost-root-ink-pressed:var(--accent-muted-ink);
   --actions-ghost-root-ink-rest:var(--accent-muted-ink);
   --actions-ghost-root-ink-selected:var(--accent-muted-ink);
-  --actions-ghost-root-ink-selected-disabled:var(--accent-gold-ink);
+  --actions-ghost-root-ink-selected-disabled:var(--hue-info-on-ink); /* complete fills a selected disabled ghost control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */
   --actions-ghost-root-ink-selected-hover:var(--accent-muted-ink);
   --actions-ghost-root-ink-selected-pressed:var(--accent-muted-ink);
   --actions-primary-root-edge-disabled:var(--accent-gold-side-edge);
@@ -876,11 +876,11 @@
   --actions-primary-root-fill-hover:var(--accent-primary-fill-soft);
   --actions-primary-root-fill-pressed:var(--accent-primary-fill-soft);
   --actions-primary-root-fill-rest:var(--accent-primary-fill-soft);
-  --actions-primary-root-icon-disabled:var(--accent-muted-ink);
+  --actions-primary-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled primary control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
   --actions-primary-root-icon-hover:var(--emphasis-solid-ink);
   --actions-primary-root-icon-pressed:var(--emphasis-solid-ink);
   --actions-primary-root-icon-rest:var(--emphasis-primary-ink);
-  --actions-primary-root-ink-disabled:var(--accent-gold-ink);
+  --actions-primary-root-ink-disabled:var(--hue-info-on-ink); /* complete fills a disabled primary control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */
   --actions-primary-root-ink-hover:var(--emphasis-primary-ink);
   --actions-primary-root-ink-pressed:var(--emphasis-primary-ink);
   --actions-primary-root-ink-rest:var(--emphasis-solid-ink);
@@ -892,11 +892,11 @@
   --actions-secondary-root-fill-hover:var(--accent-plain-fill-soft);
   --actions-secondary-root-fill-pressed:var(--emphasis-ghost-fill-hover);
   --actions-secondary-root-fill-rest:var(--emphasis-ghost-fill-hover);
-  --actions-secondary-root-icon-disabled:var(--accent-muted-ink);
+  --actions-secondary-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled secondary control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
   --actions-secondary-root-icon-hover:var(--accent-plain-ink);
   --actions-secondary-root-icon-pressed:var(--accent-plain-ink);
   --actions-secondary-root-icon-rest:var(--accent-plain-ink);
-  --actions-secondary-root-ink-disabled:var(--accent-gold-ink);
+  --actions-secondary-root-ink-disabled:var(--hue-info-on-ink); /* complete fills a disabled secondary control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */
   --actions-secondary-root-ink-hover:var(--accent-muted-ink);
   --actions-secondary-root-ink-pressed:var(--accent-muted-ink);
   --actions-secondary-root-ink-rest:var(--accent-muted-ink);
@@ -913,20 +913,20 @@
   --actions-solid-root-fill-selected-disabled:var(--accent-gold-fill-soft);
   --actions-solid-root-fill-selected-hover:var(--accent-plain-fill-soft);
   --actions-solid-root-fill-selected-pressed:var(--accent-plain-fill-soft);
-  --actions-solid-root-icon-disabled:var(--accent-muted-ink);
+  --actions-solid-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled solid control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
   --actions-solid-root-icon-hover:var(--emphasis-solid-ink);
   --actions-solid-root-icon-pressed:var(--emphasis-solid-ink);
   --actions-solid-root-icon-rest:var(--emphasis-solid-ink);
   --actions-solid-root-icon-selected:var(--accent-plain-ink);
-  --actions-solid-root-icon-selected-disabled:var(--accent-muted-ink);
+  --actions-solid-root-icon-selected-disabled:var(--hue-success-on-ink); /* complete fills a selected disabled solid control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
   --actions-solid-root-icon-selected-hover:var(--accent-plain-ink);
   --actions-solid-root-icon-selected-pressed:var(--accent-plain-ink);
-  --actions-solid-root-ink-disabled:var(--accent-gold-ink);
+  --actions-solid-root-ink-disabled:var(--hue-info-on-ink); /* complete fills a disabled solid control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */
   --actions-solid-root-ink-hover:var(--emphasis-primary-ink);
   --actions-solid-root-ink-pressed:var(--emphasis-primary-ink);
   --actions-solid-root-ink-rest:var(--emphasis-primary-ink);
   --actions-solid-root-ink-selected:var(--accent-muted-ink);
-  --actions-solid-root-ink-selected-disabled:var(--accent-gold-ink);
+  --actions-solid-root-ink-selected-disabled:var(--hue-info-on-ink); /* complete fills a selected disabled solid control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */
   --actions-solid-root-ink-selected-hover:var(--accent-muted-ink);
   --actions-solid-root-ink-selected-pressed:var(--accent-muted-ink);
   --choices-box-edge-disabled:var(--accent-primary-edge);
@@ -1081,11 +1081,11 @@
   --actions-destructive-root-edge-rest:var(--edge-invalid);
   --actions-destructive-root-fill-disabled:var(--accent-gold-fill-soft);
   --actions-destructive-root-fill-hover:var(--accent-plain-fill-soft);
-  --actions-destructive-root-icon-disabled:var(--accent-muted-ink);
+  --actions-destructive-root-icon-disabled:var(--hue-warning-on-ink); /* complete fills a disabled destructive control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
   --actions-destructive-root-icon-hover:var(--hue-info-ink);
   --actions-destructive-root-icon-pressed:var(--hue-info-ink);
   --actions-destructive-root-icon-rest:var(--hue-info-ink);
-  --actions-destructive-root-ink-disabled:var(--accent-gold-ink);
+  --actions-destructive-root-ink-disabled:var(--hue-danger-on-ink); /* complete fills a disabled destructive control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */
   --actions-destructive-root-ink-hover:var(--hue-danger-ink);
   --actions-destructive-root-ink-pressed:var(--hue-danger-ink);
   --actions-destructive-root-ink-rest:var(--ink-invalid);
@@ -1109,20 +1109,20 @@
   --actions-ghost-root-fill-selected-disabled:var(--accent-gold-fill-soft);
   --actions-ghost-root-fill-selected-hover:var(--accent-plain-fill-soft);
   --actions-ghost-root-fill-selected-pressed:var(--accent-plain-fill-soft);
-  --actions-ghost-root-icon-disabled:var(--accent-muted-ink);
+  --actions-ghost-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled ghost control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
   --actions-ghost-root-icon-hover:var(--accent-plain-ink);
   --actions-ghost-root-icon-pressed:var(--accent-plain-ink);
   --actions-ghost-root-icon-rest:var(--accent-plain-ink);
   --actions-ghost-root-icon-selected:var(--accent-plain-ink);
-  --actions-ghost-root-icon-selected-disabled:var(--accent-muted-ink);
+  --actions-ghost-root-icon-selected-disabled:var(--hue-success-on-ink); /* complete fills a selected disabled ghost control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
   --actions-ghost-root-icon-selected-hover:var(--accent-plain-ink);
   --actions-ghost-root-icon-selected-pressed:var(--accent-plain-ink);
-  --actions-ghost-root-ink-disabled:var(--accent-gold-ink);
+  --actions-ghost-root-ink-disabled:var(--hue-info-on-ink); /* complete fills a disabled ghost control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */
   --actions-ghost-root-ink-hover:var(--accent-muted-ink);
   --actions-ghost-root-ink-pressed:var(--accent-muted-ink);
   --actions-ghost-root-ink-rest:var(--accent-muted-ink);
   --actions-ghost-root-ink-selected:var(--accent-muted-ink);
-  --actions-ghost-root-ink-selected-disabled:var(--accent-gold-ink);
+  --actions-ghost-root-ink-selected-disabled:var(--hue-info-on-ink); /* complete fills a selected disabled ghost control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */
   --actions-ghost-root-ink-selected-hover:var(--accent-muted-ink);
   --actions-ghost-root-ink-selected-pressed:var(--accent-muted-ink);
   --actions-primary-root-edge-disabled:var(--accent-gold-side-edge);
@@ -1133,11 +1133,11 @@
   --actions-primary-root-fill-hover:var(--accent-primary-fill-soft);
   --actions-primary-root-fill-pressed:var(--accent-primary-fill-soft);
   --actions-primary-root-fill-rest:var(--accent-primary-fill-soft);
-  --actions-primary-root-icon-disabled:var(--accent-muted-ink);
+  --actions-primary-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled primary control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
   --actions-primary-root-icon-hover:var(--emphasis-solid-ink);
   --actions-primary-root-icon-pressed:var(--emphasis-solid-ink);
   --actions-primary-root-icon-rest:var(--emphasis-primary-ink);
-  --actions-primary-root-ink-disabled:var(--accent-gold-ink);
+  --actions-primary-root-ink-disabled:var(--hue-info-on-ink); /* complete fills a disabled primary control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */
   --actions-primary-root-ink-hover:var(--emphasis-primary-ink);
   --actions-primary-root-ink-pressed:var(--emphasis-primary-ink);
   --actions-primary-root-ink-rest:var(--emphasis-solid-ink);
@@ -1149,11 +1149,11 @@
   --actions-secondary-root-fill-hover:var(--accent-plain-fill-soft);
   --actions-secondary-root-fill-pressed:var(--emphasis-ghost-fill-hover);
   --actions-secondary-root-fill-rest:var(--emphasis-ghost-fill-hover);
-  --actions-secondary-root-icon-disabled:var(--accent-muted-ink);
+  --actions-secondary-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled secondary control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
   --actions-secondary-root-icon-hover:var(--accent-plain-ink);
   --actions-secondary-root-icon-pressed:var(--accent-plain-ink);
   --actions-secondary-root-icon-rest:var(--accent-plain-ink);
-  --actions-secondary-root-ink-disabled:var(--accent-gold-ink);
+  --actions-secondary-root-ink-disabled:var(--hue-info-on-ink); /* complete fills a disabled secondary control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */
   --actions-secondary-root-ink-hover:var(--accent-muted-ink);
   --actions-secondary-root-ink-pressed:var(--accent-muted-ink);
   --actions-secondary-root-ink-rest:var(--accent-muted-ink);
@@ -1170,20 +1170,20 @@
   --actions-solid-root-fill-selected-disabled:var(--accent-gold-fill-soft);
   --actions-solid-root-fill-selected-hover:var(--accent-plain-fill-soft);
   --actions-solid-root-fill-selected-pressed:var(--accent-plain-fill-soft);
-  --actions-solid-root-icon-disabled:var(--accent-muted-ink);
+  --actions-solid-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled solid control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
   --actions-solid-root-icon-hover:var(--emphasis-solid-ink);
   --actions-solid-root-icon-pressed:var(--emphasis-solid-ink);
   --actions-solid-root-icon-rest:var(--emphasis-solid-ink);
   --actions-solid-root-icon-selected:var(--accent-plain-ink);
-  --actions-solid-root-icon-selected-disabled:var(--accent-muted-ink);
+  --actions-solid-root-icon-selected-disabled:var(--hue-success-on-ink); /* complete fills a selected disabled solid control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
   --actions-solid-root-icon-selected-hover:var(--accent-plain-ink);
   --actions-solid-root-icon-selected-pressed:var(--accent-plain-ink);
-  --actions-solid-root-ink-disabled:var(--accent-gold-ink);
+  --actions-solid-root-ink-disabled:var(--hue-info-on-ink); /* complete fills a disabled solid control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */
   --actions-solid-root-ink-hover:var(--emphasis-primary-ink);
   --actions-solid-root-ink-pressed:var(--emphasis-primary-ink);
   --actions-solid-root-ink-rest:var(--emphasis-primary-ink);
   --actions-solid-root-ink-selected:var(--accent-muted-ink);
-  --actions-solid-root-ink-selected-disabled:var(--accent-gold-ink);
+  --actions-solid-root-ink-selected-disabled:var(--hue-info-on-ink); /* complete fills a selected disabled solid control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */
   --actions-solid-root-ink-selected-hover:var(--accent-muted-ink);
   --actions-solid-root-ink-selected-pressed:var(--accent-muted-ink);
   --choices-box-edge-disabled:var(--accent-primary-edge);
@@ -1338,11 +1338,11 @@
   --actions-destructive-root-edge-rest:var(--edge-invalid);
   --actions-destructive-root-fill-disabled:var(--accent-gold-fill-soft);
   --actions-destructive-root-fill-hover:var(--accent-plain-fill-soft);
-  --actions-destructive-root-icon-disabled:var(--accent-muted-ink);
+  --actions-destructive-root-icon-disabled:var(--hue-warning-on-ink); /* complete fills a disabled destructive control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
   --actions-destructive-root-icon-hover:var(--hue-info-ink);
   --actions-destructive-root-icon-pressed:var(--hue-info-ink);
   --actions-destructive-root-icon-rest:var(--hue-info-ink);
-  --actions-destructive-root-ink-disabled:var(--accent-gold-ink);
+  --actions-destructive-root-ink-disabled:var(--hue-danger-on-ink); /* complete fills a disabled destructive control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */
   --actions-destructive-root-ink-hover:var(--hue-danger-ink);
   --actions-destructive-root-ink-pressed:var(--hue-danger-ink);
   --actions-destructive-root-ink-rest:var(--ink-invalid);
@@ -1366,20 +1366,20 @@
   --actions-ghost-root-fill-selected-disabled:var(--accent-gold-fill-soft);
   --actions-ghost-root-fill-selected-hover:var(--accent-plain-fill-soft);
   --actions-ghost-root-fill-selected-pressed:var(--accent-plain-fill-soft);
-  --actions-ghost-root-icon-disabled:var(--accent-muted-ink);
+  --actions-ghost-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled ghost control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
   --actions-ghost-root-icon-hover:var(--accent-plain-ink);
   --actions-ghost-root-icon-pressed:var(--accent-plain-ink);
   --actions-ghost-root-icon-rest:var(--accent-plain-ink);
   --actions-ghost-root-icon-selected:var(--accent-plain-ink);
-  --actions-ghost-root-icon-selected-disabled:var(--accent-muted-ink);
+  --actions-ghost-root-icon-selected-disabled:var(--hue-success-on-ink); /* complete fills a selected disabled ghost control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
   --actions-ghost-root-icon-selected-hover:var(--accent-plain-ink);
   --actions-ghost-root-icon-selected-pressed:var(--accent-plain-ink);
-  --actions-ghost-root-ink-disabled:var(--accent-gold-ink);
+  --actions-ghost-root-ink-disabled:var(--hue-info-on-ink); /* complete fills a disabled ghost control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */
   --actions-ghost-root-ink-hover:var(--accent-muted-ink);
   --actions-ghost-root-ink-pressed:var(--accent-muted-ink);
   --actions-ghost-root-ink-rest:var(--accent-muted-ink);
   --actions-ghost-root-ink-selected:var(--accent-muted-ink);
-  --actions-ghost-root-ink-selected-disabled:var(--accent-gold-ink);
+  --actions-ghost-root-ink-selected-disabled:var(--hue-info-on-ink); /* complete fills a selected disabled ghost control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */
   --actions-ghost-root-ink-selected-hover:var(--accent-muted-ink);
   --actions-ghost-root-ink-selected-pressed:var(--accent-muted-ink);
   --actions-primary-root-edge-disabled:var(--accent-gold-side-edge);
@@ -1390,11 +1390,11 @@
   --actions-primary-root-fill-hover:var(--accent-primary-fill-soft);
   --actions-primary-root-fill-pressed:var(--accent-primary-fill-soft);
   --actions-primary-root-fill-rest:var(--accent-primary-fill-soft);
-  --actions-primary-root-icon-disabled:var(--accent-muted-ink);
+  --actions-primary-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled primary control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
   --actions-primary-root-icon-hover:var(--emphasis-solid-ink);
   --actions-primary-root-icon-pressed:var(--emphasis-solid-ink);
   --actions-primary-root-icon-rest:var(--emphasis-primary-ink);
-  --actions-primary-root-ink-disabled:var(--accent-gold-ink);
+  --actions-primary-root-ink-disabled:var(--hue-info-on-ink); /* complete fills a disabled primary control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */
   --actions-primary-root-ink-hover:var(--emphasis-primary-ink);
   --actions-primary-root-ink-pressed:var(--emphasis-primary-ink);
   --actions-primary-root-ink-rest:var(--emphasis-solid-ink);
@@ -1406,11 +1406,11 @@
   --actions-secondary-root-fill-hover:var(--accent-plain-fill-soft);
   --actions-secondary-root-fill-pressed:var(--emphasis-ghost-fill-hover);
   --actions-secondary-root-fill-rest:var(--emphasis-ghost-fill-hover);
-  --actions-secondary-root-icon-disabled:var(--accent-muted-ink);
+  --actions-secondary-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled secondary control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
   --actions-secondary-root-icon-hover:var(--accent-plain-ink);
   --actions-secondary-root-icon-pressed:var(--accent-plain-ink);
   --actions-secondary-root-icon-rest:var(--accent-plain-ink);
-  --actions-secondary-root-ink-disabled:var(--accent-gold-ink);
+  --actions-secondary-root-ink-disabled:var(--hue-info-on-ink); /* complete fills a disabled secondary control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */
   --actions-secondary-root-ink-hover:var(--accent-muted-ink);
   --actions-secondary-root-ink-pressed:var(--accent-muted-ink);
   --actions-secondary-root-ink-rest:var(--accent-muted-ink);
@@ -1427,20 +1427,20 @@
   --actions-solid-root-fill-selected-disabled:var(--accent-gold-fill-soft);
   --actions-solid-root-fill-selected-hover:var(--accent-plain-fill-soft);
   --actions-solid-root-fill-selected-pressed:var(--accent-plain-fill-soft);
-  --actions-solid-root-icon-disabled:var(--accent-muted-ink);
+  --actions-solid-root-icon-disabled:var(--hue-success-on-ink); /* complete fills a disabled solid control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
   --actions-solid-root-icon-hover:var(--emphasis-solid-ink);
   --actions-solid-root-icon-pressed:var(--emphasis-solid-ink);
   --actions-solid-root-icon-rest:var(--emphasis-solid-ink);
   --actions-solid-root-icon-selected:var(--accent-plain-ink);
-  --actions-solid-root-icon-selected-disabled:var(--accent-muted-ink);
+  --actions-solid-root-icon-selected-disabled:var(--hue-success-on-ink); /* complete fills a selected disabled solid control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. */
   --actions-solid-root-icon-selected-hover:var(--accent-plain-ink);
   --actions-solid-root-icon-selected-pressed:var(--accent-plain-ink);
-  --actions-solid-root-ink-disabled:var(--accent-gold-ink);
+  --actions-solid-root-ink-disabled:var(--hue-info-on-ink); /* complete fills a disabled solid control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */
   --actions-solid-root-ink-hover:var(--emphasis-primary-ink);
   --actions-solid-root-ink-pressed:var(--emphasis-primary-ink);
   --actions-solid-root-ink-rest:var(--emphasis-primary-ink);
   --actions-solid-root-ink-selected:var(--accent-muted-ink);
-  --actions-solid-root-ink-selected-disabled:var(--accent-gold-ink);
+  --actions-solid-root-ink-selected-disabled:var(--hue-info-on-ink); /* complete fills a selected disabled solid control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label. */
   --actions-solid-root-ink-selected-hover:var(--accent-muted-ink);
   --actions-solid-root-ink-selected-pressed:var(--accent-muted-ink);
   --choices-box-edge-disabled:var(--accent-primary-edge);

@@ -1396,7 +1396,8 @@
   },
   "actions-destructive-root-icon-disabled": {
     "$type": "color",
-    "$value": "{accent-muted-ink}"
+    "$value": "{hue-warning-on-ink}",
+    "$description": "complete fills a disabled destructive control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph."
   },
   "actions-destructive-root-icon-hover": {
     "$type": "color",
@@ -1412,7 +1413,8 @@
   },
   "actions-destructive-root-ink-disabled": {
     "$type": "color",
-    "$value": "{accent-gold-ink}"
+    "$value": "{hue-danger-on-ink}",
+    "$description": "complete fills a disabled destructive control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label."
   },
   "actions-destructive-root-ink-hover": {
     "$type": "color",
@@ -1527,7 +1529,8 @@
   },
   "actions-ghost-root-icon-disabled": {
     "$type": "color",
-    "$value": "{accent-muted-ink}"
+    "$value": "{hue-success-on-ink}",
+    "$description": "complete fills a disabled ghost control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph."
   },
   "actions-ghost-root-icon-hover": {
     "$type": "color",
@@ -1547,7 +1550,8 @@
   },
   "actions-ghost-root-icon-selected-disabled": {
     "$type": "color",
-    "$value": "{accent-muted-ink}"
+    "$value": "{hue-success-on-ink}",
+    "$description": "complete fills a selected disabled ghost control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph."
   },
   "actions-ghost-root-icon-selected-hover": {
     "$type": "color",
@@ -1559,7 +1563,8 @@
   },
   "actions-ghost-root-ink-disabled": {
     "$type": "color",
-    "$value": "{accent-gold-ink}"
+    "$value": "{hue-info-on-ink}",
+    "$description": "complete fills a disabled ghost control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label."
   },
   "actions-ghost-root-ink-hover": {
     "$type": "color",
@@ -1579,7 +1584,8 @@
   },
   "actions-ghost-root-ink-selected-disabled": {
     "$type": "color",
-    "$value": "{accent-gold-ink}"
+    "$value": "{hue-info-on-ink}",
+    "$description": "complete fills a selected disabled ghost control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label."
   },
   "actions-ghost-root-ink-selected-hover": {
     "$type": "color",
@@ -1623,7 +1629,8 @@
   },
   "actions-primary-root-icon-disabled": {
     "$type": "color",
-    "$value": "{accent-muted-ink}"
+    "$value": "{hue-success-on-ink}",
+    "$description": "complete fills a disabled primary control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph."
   },
   "actions-primary-root-icon-hover": {
     "$type": "color",
@@ -1639,7 +1646,8 @@
   },
   "actions-primary-root-ink-disabled": {
     "$type": "color",
-    "$value": "{accent-gold-ink}"
+    "$value": "{hue-info-on-ink}",
+    "$description": "complete fills a disabled primary control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label."
   },
   "actions-primary-root-ink-hover": {
     "$type": "color",
@@ -1687,7 +1695,8 @@
   },
   "actions-secondary-root-icon-disabled": {
     "$type": "color",
-    "$value": "{accent-muted-ink}"
+    "$value": "{hue-success-on-ink}",
+    "$description": "complete fills a disabled secondary control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph."
   },
   "actions-secondary-root-icon-hover": {
     "$type": "color",
@@ -1703,7 +1712,8 @@
   },
   "actions-secondary-root-ink-disabled": {
     "$type": "color",
-    "$value": "{accent-gold-ink}"
+    "$value": "{hue-info-on-ink}",
+    "$description": "complete fills a disabled secondary control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label."
   },
   "actions-secondary-root-ink-hover": {
     "$type": "color",
@@ -1779,7 +1789,8 @@
   },
   "actions-solid-root-icon-disabled": {
     "$type": "color",
-    "$value": "{accent-muted-ink}"
+    "$value": "{hue-success-on-ink}",
+    "$description": "complete fills a disabled solid control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph."
   },
   "actions-solid-root-icon-hover": {
     "$type": "color",
@@ -1799,7 +1810,8 @@
   },
   "actions-solid-root-icon-selected-disabled": {
     "$type": "color",
-    "$value": "{accent-muted-ink}"
+    "$value": "{hue-success-on-ink}",
+    "$description": "complete fills a selected disabled solid control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph."
   },
   "actions-solid-root-icon-selected-hover": {
     "$type": "color",
@@ -1811,7 +1823,8 @@
   },
   "actions-solid-root-ink-disabled": {
     "$type": "color",
-    "$value": "{accent-gold-ink}"
+    "$value": "{hue-info-on-ink}",
+    "$description": "complete fills a disabled solid control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label."
   },
   "actions-solid-root-ink-hover": {
     "$type": "color",
@@ -1831,7 +1844,8 @@
   },
   "actions-solid-root-ink-selected-disabled": {
     "$type": "color",
-    "$value": "{accent-gold-ink}"
+    "$value": "{hue-info-on-ink}",
+    "$description": "complete fills a selected disabled solid control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label."
   },
   "actions-solid-root-ink-selected-hover": {
     "$type": "color",
