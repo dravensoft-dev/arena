@@ -580,6 +580,18 @@ export function declarationProblems(d: SlotDeclarations): string[] {
       branch('hoverIn', ['optionBy', 'selectedBy', 'disabledBy']);
       for (const other of ['hoverBy', 'onlyBy'] as const) if (to.hoverIn !== undefined && to[other] !== undefined) out.push(`${where}.hoverIn: it stands beside ${other}, and a member reads its hover in one branch or under one axis`);
       const [homeGroup, homePart] = String(to.to).split('.');
+      const stateList = (spec: unknown): string[] => (typeof spec === 'string' ? d.stateSets?.[spec] ?? [] : Array.isArray(spec) ? spec as string[] : []);
+      const homeDecl = d.groups?.[homeGroup as string]?.parts?.[homePart as string];
+      if (homeDecl !== undefined) {
+        const homeOptions = homeDecl.options !== undefined && !Array.isArray(homeDecl.options) ? homeDecl.options : {};
+        const owners = (to.options ?? []).length > 0 ? (to.options ?? []).map((o) => [o, stateList(homeOptions[o]?.states ?? homeDecl.states)] as const) : [[undefined, stateList(homeDecl.states)] as const];
+        const declared = owners.every(([, derived]) => derived.length > 0);
+        for (const st of declared ? stateList(to.states).filter((one) => (d.states ?? []).includes(one)) : []) {
+          if (owners.some(([, derived]) => derived.includes(st))) continue;
+          const named = owners.map(([o]) => [homeGroup, o, homePart].filter(Boolean).join('.')).join(', ');
+          out.push(`${where}.states: "${st}" is a state none of ${named} derives, so the member reads no slot for it`);
+        }
+      }
       const homeProps = to.properties ?? d.groups?.[homeGroup as string]?.parts?.[homePart as string]?.properties ?? [];
       if (to.edgeAs !== undefined && to.edgeAs !== 'rule') out.push(`${where}.edgeAs: "${String(to.edgeAs)}" is not "rule"`);
       else if (to.edgeAs !== undefined && !homeProps.includes('edge')) out.push(`${where}.edgeAs: ${to.to} paints no edge to draw as a rule`);

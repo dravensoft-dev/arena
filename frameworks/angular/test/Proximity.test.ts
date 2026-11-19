@@ -148,7 +148,9 @@ const TEMPLATES: Record<string, string> = {
     + '<arena-multi-select label="Regions" [options]="[{ value: \'eu-west\', label: \'Europe West\' }]" [value]="[]" />'
     + '<arena-command-palette [open]="true" [commands]="[{ id: \'home\', label: \'Go home\' }]" /></div>',
   'blocked-option-fades-until-answered': '<div><arena-multi-select label="Regions" [options]="[{ value: \'eu-west\', label: \'Europe West\' }]" [value]="[]" [max]="0" /></div>'
-    + '<div style="--menus-plain-item-fade-disabled: 1"><arena-multi-select label="Regions" [options]="[{ value: \'eu-west\', label: \'Europe West\' }]" [value]="[]" [max]="0" /></div>',
+    + '<div style="--menus-plain-item-fade-selected-disabled: 1"><arena-multi-select label="Regions" [options]="[{ value: \'eu-west\', label: \'Europe West\' }]" [value]="[]" [max]="0" /></div>',
+  'blocked-active-option-keeps-its-selected-wash': '<div><arena-multi-select label="Regions" [options]="[{ value: \'eu-west\', label: \'Europe West\' }]" [value]="[]" /></div>'
+    + '<div><arena-multi-select label="Regions" [options]="[{ value: \'eu-west\', label: \'Europe West\' }]" [value]="[]" [max]="0" /></div>',
   'hover-answer-is-not-derived-from-the-rest-answer': '<div style="--actions-primary-root-fill-rest: var(--fill-surface); --actions-primary-root-fill-hover: var(--fill-hover)"><arena-button>Save</arena-button></div>',
 };
 
@@ -204,10 +206,11 @@ const SUBJECT: Record<string, { part: string; index: number }> = {
   'answered-disabled-dismiss-stops-the-fade': { part: 'tag.close', index: -1 },
   'menu-answer-moves-every-highlight': { part: 'combobox.option', index: 0 },
   'blocked-option-fades-until-answered': { part: 'combobox.option', index: -1 },
+  'blocked-active-option-keeps-its-selected-wash': { part: 'combobox.option', index: -1 },
   'class-on-copy-button-reaches-the-icon-button-it-draws': { part: 'icon-button', index: 0 },
 };
 
-const OPENED = new Set(['menu-answer-moves-every-highlight', 'blocked-option-fades-until-answered']);
+const OPENED = new Set(['menu-answer-moves-every-highlight', 'blocked-option-fades-until-answered', 'blocked-active-option-keeps-its-selected-wash']);
 const { families, cases } = proximity.readProximity();
 const vocabulary = proximity.vocabularyClasses(families);
 

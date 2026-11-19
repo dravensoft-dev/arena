@@ -127,6 +127,13 @@
       "class": {
         "field": "border-[color:var(--fields-valid-field-edge-disabled,var(--fields-valid-field-edge-rest,var(--hue-success-edge)))] bg-[color:var(--fields-valid-field-fill-disabled,var(--fields-valid-field-fill-rest,var(--fill-field)))] opacity-[var(--fields-valid-field-fade-disabled,var(--fade-disabled))] hover:border-[color:var(--fields-valid-field-edge-disabled,var(--fields-valid-field-edge-rest,var(--hue-success-edge)))] hover:bg-[color:var(--fields-valid-field-fill-disabled,var(--fields-valid-field-fill-rest,var(--fill-field)))]"
       }
+    },
+    {
+      "active": true,
+      "blocked": true,
+      "class": {
+        "option": "opacity-[var(--menus-plain-item-fade-selected-disabled,var(--fade-disabled))] bg-[color:var(--menus-plain-item-fill-selected-disabled,color-mix(in_oklab,var(--menus-plain-item-fill-selected,var(--fill-selected))_var(--level-accent-soft-primary),transparent))] [--arena-icon-ink:var(--menus-plain-item-icon-selected-disabled,var(--menus-plain-item-ink-selected-disabled,var(--menus-plain-item-ink-selected,var(--ink-selected))))] text-[color:var(--menus-plain-item-ink-selected-disabled,var(--menus-plain-item-ink-selected,var(--ink-selected)))]"
+      }
     }
   ]
 }

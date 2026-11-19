@@ -146,18 +146,18 @@ test('a member part on an option its manifest lacks, or a part its manifest lack
 
 test('the contract counts', () => {
   const slots = Object.values(shipped().slots);
-  assert.equal(slots.length, 232);
+  assert.equal(slots.length, 235);
   const by = (key: (s: (typeof slots)[number]) => string) => {
     const n: Record<string, number> = {};
     for (const s of slots) n[key(s)] = (n[key(s)] ?? 0) + 1;
     return n;
   };
-  assert.deepEqual(by((s) => s.option ?? ''), { '': 65, primary: 16, secondary: 16, ghost: 32, solid: 32, destructive: 28, neutral: 7, error: 7, valid: 7, readonly: 2, warning: 1, plain: 17, quiet: 2 });
-  assert.deepEqual(by((s) => s.state), { rest: 60, disabled: 43, hover: 44, pressed: 36, selected: 19, 'selected-hover': 10, 'selected-pressed': 10, 'selected-disabled': 10 });
-  assert.equal(slots.filter((s) => s.optional).length, 53);
+  assert.deepEqual(by((s) => s.option ?? ''), { '': 65, primary: 16, secondary: 16, ghost: 32, solid: 32, destructive: 28, neutral: 7, error: 7, valid: 7, readonly: 2, warning: 1, plain: 20, quiet: 2 });
+  assert.deepEqual(by((s) => s.state), { rest: 60, disabled: 43, hover: 44, pressed: 36, selected: 19, 'selected-hover': 10, 'selected-pressed': 10, 'selected-disabled': 13 });
+  assert.equal(slots.filter((s) => s.optional).length, 56);
   assert.equal(slots.filter((s) => s.derive?.mix === 'mix-pressed').length, 14);
   assert.equal(slots.filter((s) => s.derive?.mix === 'mix-hover').length, 3);
-  assert.equal(slots.filter((s) => s.channel === undefined).length, 136, 'the destructive option, the dismiss part and the choices, fields, menus and navigation groups carry no channel (R6)');
+  assert.equal(slots.filter((s) => s.channel === undefined).length, 139, 'the destructive option, the dismiss part and the choices, fields, menus and navigation groups carry no channel (R6)');
 });
 
 test('every slot of the five buttons reaches its part under its state', () => {
@@ -797,7 +797,8 @@ test('a field fades and hovers by its own option, and the compounds that carry t
   }
   for (const comp of ['ArenaInput', 'ArenaNumberField', 'ArenaCombobox']) {
     for (const cv of compounds(comp)) {
-      const tokens = cv.class.field!.split(/\s+/);
+      if (cv.class.field === undefined) continue;
+      const tokens = cv.class.field.split(/\s+/);
       for (const t of tokens.filter((one) => /^(border|bg)-\[color:/.test(one))) assert.ok(tokens.includes(`hover:${t}`), `${comp}: a disabled read has a hover twin, so a hovered disabled field keeps its answer`);
     }
   }
@@ -967,4 +968,10 @@ test('hoverIn beside hoverBy or onlyBy is refused', () => {
   assert.match(declarationProblems(crumbDeclared({ hoverIn, hoverBy: { axis: 'dragging', value: 'true' } })).join('\n'), /hoverIn: it stands beside hoverBy/);
   assert.match(declarationProblems(crumbDeclared({ hoverIn, onlyBy: { axis: 'dragging', value: 'true' } })).join('\n'), /hoverIn: it stands beside onlyBy/);
   assert.match(declarationProblems(crumbDeclared({ hoverIn: { axis: 'linked', value: 'true' }, selectedBy: { axis: 'linked', value: 'true' } }, ['fill'], ['rest', 'hover', 'selected'])).join('\n'), /hoverIn: it shares the axis linked with selectedBy/);
+});
+
+test('a member state the group does not derive is refused', () => {
+  const d = crumbDeclared({ states: ['rest', 'selected-disabled'] }, ['fill'], ['rest', 'hover']);
+  assert.match(declarationProblems(d).join('\n'), /members\.ArenaCrumb\.parts\.box\.states: "selected-disabled" is a state none of choices\.box derives/);
+  assert.deepEqual(declarationProblems(crumbDeclared({ states: ['rest'] }, ['fill'], ['rest', 'hover'])), [], 'a subset of the derived states is allowed');
 });

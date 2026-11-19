@@ -134,13 +134,17 @@ const COMPOSITIONS: Record<string, () => React.ReactElement> = {
   </div>,
   'blocked-option-fades-until-answered': () => <>
     <div><ArenaMultiSelect label="Regions" options={[{ value: 'eu-west', label: 'Europe West' }]} value={[]} max={0} /></div>
-    <div style={answered({ '--menus-plain-item-fade-disabled': '1' })}><ArenaMultiSelect label="Regions" options={[{ value: 'eu-west', label: 'Europe West' }]} value={[]} max={0} /></div>
+    <div style={answered({ '--menus-plain-item-fade-selected-disabled': '1' })}><ArenaMultiSelect label="Regions" options={[{ value: 'eu-west', label: 'Europe West' }]} value={[]} max={0} /></div>
+  </>,
+  'blocked-active-option-keeps-its-selected-wash': () => <>
+    <div><ArenaMultiSelect label="Regions" options={[{ value: 'eu-west', label: 'Europe West' }]} value={[]} /></div>
+    <div><ArenaMultiSelect label="Regions" options={[{ value: 'eu-west', label: 'Europe West' }]} value={[]} max={0} /></div>
   </>,
   'hover-answer-is-not-derived-from-the-rest-answer': () => <div style={answered({ '--actions-primary-root-fill-rest': 'var(--fill-surface)', '--actions-primary-root-fill-hover': 'var(--fill-hover)' })}><ArenaButton>Save</ArenaButton></div>,
 };
 
 const DRAGGED = new Set(['fields-error-zone-keeps-its-edge-while-dragged']);
-const OPENED = new Set(['menu-answer-moves-every-highlight', 'blocked-option-fades-until-answered']);
+const OPENED = new Set(['menu-answer-moves-every-highlight', 'blocked-option-fades-until-answered', 'blocked-active-option-keeps-its-selected-wash']);
 const BARE = new Set(['meaning-wins-over-accent', 'accent-stops-at-the-card-body', 'small-badge-compacts-itself', 'small-badge-tightens-its-block', 'small-badge-tightens-its-ends']);
 const SUBJECT: Record<string, { part: string; at: number }> = {
   'people-list-face-follows-the-list': { part: 'avatar.box', at: -1 },
@@ -193,6 +197,7 @@ const SUBJECT: Record<string, { part: string; at: number }> = {
   'answered-disabled-dismiss-stops-the-fade': { part: 'tag.close', at: -1 },
   'menu-answer-moves-every-highlight': { part: 'combobox.option', at: 0 },
   'blocked-option-fades-until-answered': { part: 'combobox.option', at: -1 },
+  'blocked-active-option-keeps-its-selected-wash': { part: 'combobox.option', at: -1 },
   'class-on-copy-button-reaches-the-icon-button-it-draws': { part: 'icon-button', at: 0 },
 };
 

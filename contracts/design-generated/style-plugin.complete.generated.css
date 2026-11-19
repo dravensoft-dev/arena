@@ -475,16 +475,19 @@
   --menus-plain-item-fill-hover:var(--accent-plain-fill-soft);
   --menus-plain-item-fill-pressed:transparent; /* complete paints a menu row transparent in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling. */
   --menus-plain-item-fill-selected:var(--accent-primary-fill-soft);
+  --menus-plain-item-fill-selected-disabled:var(--accent-primary-fill-soft);
   --menus-plain-item-icon-disabled:var(--accent-muted-ink);
   --menus-plain-item-icon-hover:var(--accent-muted-ink);
   --menus-plain-item-icon-pressed:var(--accent-muted-ink);
   --menus-plain-item-icon-rest:var(--accent-muted-ink);
   --menus-plain-item-icon-selected:var(--accent-muted-ink);
+  --menus-plain-item-icon-selected-disabled:var(--accent-muted-ink);
   --menus-plain-item-ink-disabled:var(--accent-plain-ink);
   --menus-plain-item-ink-hover:var(--accent-plain-ink);
   --menus-plain-item-ink-pressed:var(--accent-plain-ink);
   --menus-plain-item-ink-rest:var(--accent-plain-ink);
   --menus-plain-item-ink-selected:var(--accent-plain-ink);
+  --menus-plain-item-ink-selected-disabled:var(--accent-plain-ink);
   --navigation-disclosure-fill-disabled:transparent; /* complete paints a disclosure trigger transparent in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling. */
   --navigation-disclosure-fill-hover:var(--accent-plain-fill-soft);
   --navigation-disclosure-fill-pressed:transparent; /* complete paints a disclosure trigger transparent in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling. */
@@ -513,6 +516,7 @@
   --fields-valid-field-fade-disabled:1;
   --menus-destructive-item-fade-disabled:1;
   --menus-plain-item-fade-disabled:1;
+  --menus-plain-item-fade-selected-disabled:1;
   --navigation-disclosure-fade-disabled:1;
 }
 @scope (.arena-dark) {
@@ -781,16 +785,19 @@
   --menus-destructive-item-ink-rest:var(--ink-invalid);
   --menus-plain-item-fill-hover:var(--accent-plain-fill-soft);
   --menus-plain-item-fill-selected:var(--accent-primary-fill-soft);
+  --menus-plain-item-fill-selected-disabled:var(--accent-primary-fill-soft);
   --menus-plain-item-icon-disabled:var(--accent-muted-ink);
   --menus-plain-item-icon-hover:var(--accent-muted-ink);
   --menus-plain-item-icon-pressed:var(--accent-muted-ink);
   --menus-plain-item-icon-rest:var(--accent-muted-ink);
   --menus-plain-item-icon-selected:var(--accent-muted-ink);
+  --menus-plain-item-icon-selected-disabled:var(--accent-muted-ink);
   --menus-plain-item-ink-disabled:var(--accent-plain-ink);
   --menus-plain-item-ink-hover:var(--accent-plain-ink);
   --menus-plain-item-ink-pressed:var(--accent-plain-ink);
   --menus-plain-item-ink-rest:var(--accent-plain-ink);
   --menus-plain-item-ink-selected:var(--accent-plain-ink);
+  --menus-plain-item-ink-selected-disabled:var(--accent-plain-ink);
   --navigation-disclosure-fill-hover:var(--accent-plain-fill-soft);
   --navigation-disclosure-ink-disabled:var(--accent-plain-ink);
   --navigation-disclosure-ink-hover:var(--accent-plain-ink);
@@ -1068,16 +1075,19 @@
   --menus-destructive-item-ink-rest:var(--ink-invalid);
   --menus-plain-item-fill-hover:var(--accent-plain-fill-soft);
   --menus-plain-item-fill-selected:var(--accent-primary-fill-soft);
+  --menus-plain-item-fill-selected-disabled:var(--accent-primary-fill-soft);
   --menus-plain-item-icon-disabled:var(--accent-muted-ink);
   --menus-plain-item-icon-hover:var(--accent-muted-ink);
   --menus-plain-item-icon-pressed:var(--accent-muted-ink);
   --menus-plain-item-icon-rest:var(--accent-muted-ink);
   --menus-plain-item-icon-selected:var(--accent-muted-ink);
+  --menus-plain-item-icon-selected-disabled:var(--accent-muted-ink);
   --menus-plain-item-ink-disabled:var(--accent-plain-ink);
   --menus-plain-item-ink-hover:var(--accent-plain-ink);
   --menus-plain-item-ink-pressed:var(--accent-plain-ink);
   --menus-plain-item-ink-rest:var(--accent-plain-ink);
   --menus-plain-item-ink-selected:var(--accent-plain-ink);
+  --menus-plain-item-ink-selected-disabled:var(--accent-plain-ink);
   --navigation-disclosure-fill-hover:var(--accent-plain-fill-soft);
   --navigation-disclosure-ink-disabled:var(--accent-plain-ink);
   --navigation-disclosure-ink-hover:var(--accent-plain-ink);
@@ -1355,16 +1365,19 @@
   --menus-destructive-item-ink-rest:var(--ink-invalid);
   --menus-plain-item-fill-hover:var(--accent-plain-fill-soft);
   --menus-plain-item-fill-selected:var(--accent-primary-fill-soft);
+  --menus-plain-item-fill-selected-disabled:var(--accent-primary-fill-soft);
   --menus-plain-item-icon-disabled:var(--accent-muted-ink);
   --menus-plain-item-icon-hover:var(--accent-muted-ink);
   --menus-plain-item-icon-pressed:var(--accent-muted-ink);
   --menus-plain-item-icon-rest:var(--accent-muted-ink);
   --menus-plain-item-icon-selected:var(--accent-muted-ink);
+  --menus-plain-item-icon-selected-disabled:var(--accent-muted-ink);
   --menus-plain-item-ink-disabled:var(--accent-plain-ink);
   --menus-plain-item-ink-hover:var(--accent-plain-ink);
   --menus-plain-item-ink-pressed:var(--accent-plain-ink);
   --menus-plain-item-ink-rest:var(--accent-plain-ink);
   --menus-plain-item-ink-selected:var(--accent-plain-ink);
+  --menus-plain-item-ink-selected-disabled:var(--accent-plain-ink);
   --navigation-disclosure-fill-hover:var(--accent-plain-fill-soft);
   --navigation-disclosure-ink-disabled:var(--accent-plain-ink);
   --navigation-disclosure-ink-hover:var(--accent-plain-ink);
@@ -1642,16 +1655,19 @@
   --menus-destructive-item-ink-rest:var(--ink-invalid);
   --menus-plain-item-fill-hover:var(--accent-plain-fill-soft);
   --menus-plain-item-fill-selected:var(--accent-primary-fill-soft);
+  --menus-plain-item-fill-selected-disabled:var(--accent-primary-fill-soft);
   --menus-plain-item-icon-disabled:var(--accent-muted-ink);
   --menus-plain-item-icon-hover:var(--accent-muted-ink);
   --menus-plain-item-icon-pressed:var(--accent-muted-ink);
   --menus-plain-item-icon-rest:var(--accent-muted-ink);
   --menus-plain-item-icon-selected:var(--accent-muted-ink);
+  --menus-plain-item-icon-selected-disabled:var(--accent-muted-ink);
   --menus-plain-item-ink-disabled:var(--accent-plain-ink);
   --menus-plain-item-ink-hover:var(--accent-plain-ink);
   --menus-plain-item-ink-pressed:var(--accent-plain-ink);
   --menus-plain-item-ink-rest:var(--accent-plain-ink);
   --menus-plain-item-ink-selected:var(--accent-plain-ink);
+  --menus-plain-item-ink-selected-disabled:var(--accent-plain-ink);
   --navigation-disclosure-fill-hover:var(--accent-plain-fill-soft);
   --navigation-disclosure-ink-disabled:var(--accent-plain-ink);
   --navigation-disclosure-ink-hover:var(--accent-plain-ink);

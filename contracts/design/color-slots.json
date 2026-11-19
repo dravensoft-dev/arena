@@ -499,7 +499,8 @@
             "hover",
             "pressed",
             "selected",
-            "disabled"
+            "disabled",
+            "selected-disabled"
           ],
           "options": {
             "plain": {

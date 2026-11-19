@@ -2185,6 +2185,10 @@
     "$type": "color",
     "$value": "{accent-primary-fill-soft}"
   },
+  "menus-plain-item-fill-selected-disabled": {
+    "$type": "color",
+    "$value": "{accent-primary-fill-soft}"
+  },
   "menus-plain-item-icon-disabled": {
     "$type": "color",
     "$value": "{accent-muted-ink}"
@@ -2205,6 +2209,10 @@
     "$type": "color",
     "$value": "{accent-muted-ink}"
   },
+  "menus-plain-item-icon-selected-disabled": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
   "menus-plain-item-ink-disabled": {
     "$type": "color",
     "$value": "{accent-plain-ink}"
@@ -2222,6 +2230,10 @@
     "$value": "{accent-plain-ink}"
   },
   "menus-plain-item-ink-selected": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "menus-plain-item-ink-selected-disabled": {
     "$type": "color",
     "$value": "{accent-plain-ink}"
   },

@@ -332,8 +332,8 @@ test('menus, the disclosure and the link derive their slots', () => {
   const c = deriveSlots(readSlotDeclarations());
   const names = Object.keys(c.slots);
   const of = (prefix: string) => names.filter((n) => n.startsWith(prefix));
-  const item = ['rest', 'hover', 'pressed', 'selected', 'disabled'];
-  assert.deepEqual(of('menus-').sort(), ['plain', 'destructive'].flatMap((o) => ['fill', 'ink', 'icon'].flatMap((p) => item.filter((s) => o === 'plain' || s !== 'selected').map((s) => `menus-${o}-item-${p}-${s}`))).sort());
+  const item = ['rest', 'hover', 'pressed', 'selected', 'disabled', 'selected-disabled'];
+  assert.deepEqual(of('menus-').sort(), ['plain', 'destructive'].flatMap((o) => ['fill', 'ink', 'icon'].flatMap((p) => item.filter((s) => o === 'plain' || !s.startsWith('selected')).map((s) => `menus-${o}-item-${p}-${s}`))).sort());
   const base = ['rest', 'hover', 'pressed', 'disabled'];
   assert.deepEqual(of('navigation-disclosure-').sort(), ['fill', 'ink'].flatMap((p) => base.map((s) => `navigation-disclosure-${p}-${s}`)).sort());
   assert.deepEqual(of('navigation-quiet-link-').concat(of('navigation-plain-link-')).sort(), ['quiet', 'plain'].flatMap((o) => ['rest', 'hover'].map((s) => `navigation-${o}-link-ink-${s}`)).sort());
