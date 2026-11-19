@@ -266,7 +266,7 @@ export const OVERFLOW_SOURCE = '(style) => { '
   + 'else if ((c === "," && depth === 0) || i === text.length) { list.push(text.slice(from, i)); from = i + 1; } } '
   + 'for (const one of list) { if (one.trim() === "none" || /\\binset\\b/.test(one)) continue; '
   + 'const n = one.replace(/[a-z-]+\\([^)]*\\)/gi, " ").match(/-?[\\d.]+px/g) || []; '
-  + 'const [x = 0, y = 0, blur = 0, spread = 0] = n.map(parseFloat); const reach = blur + spread; '
+  + 'const [x = 0, y = 0, blur = 0, spread = 0] = n.map(parseFloat); const reach = 1.5 * blur + spread; '
   + 'grow(reach - x, reach - y, reach + x, reach + y); } '
   + 'if (style.outlineStyle && style.outlineStyle !== "none") { const w = (parseFloat(style.outlineWidth) || 0) + (parseFloat(style.outlineOffset) || 0); if (w > 0) grow(w, w, w, w); } '
   + 'return out; }';

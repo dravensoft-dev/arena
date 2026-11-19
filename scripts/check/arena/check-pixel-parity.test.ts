@@ -298,12 +298,14 @@ test('an allowance rect grows by its part\'s own shadow and outline, so a pixel 
   const run = (style: Record<string, string>) => (new Function('document', 'scrollX', 'scrollY', 'getComputedStyle', `return ${rectsExpression('x')}`)(
     { querySelectorAll: () => [part] }, 0, 0, () => style) as Rect[])[0]!;
   const shadowed = run({ boxShadow: 'rgba(0, 0, 0, 0.3) 0px 2px 4px 1px, rgb(0, 0, 0) 0px 0px 0px 3px inset', outlineStyle: 'none' });
-  assert.deepEqual(shadowed, { left: 5, top: 7, right: 25, bottom: 27 }, 'blur and spread reach out, the offset moves the reach, an inset shadow paints inside');
+  assert.deepEqual(shadowed, { left: 3, top: 5, right: 27, bottom: 29 }, 'Chromium draws a blur to three sigma, 1.5 times the blur, plus the spread; the offset moves the reach, and an inset shadow paints inside');
   const pixel = (r: Rect) => maskedProblem('p', solid(30, 30, [0, 0, 0, 255]), paint(solid(30, 30, [0, 0, 0, 255]), 22, 15), [r]);
   assert.equal(pixel(shadowed).problem, null, 'a pixel of the shadow just past the border box is spent inside the part');
   const bare = run({ boxShadow: 'none', outlineStyle: 'none' });
   assert.deepEqual(bare, { left: 10, top: 10, right: 20, bottom: 20 });
   assert.match(pixel(bare).problem ?? '', /outside the allowed parts/, 'an unshadowed part covers its border box alone');
+  const complete = paintedOverflow({ boxShadow: 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.5) 0px 2px 6px -2px', outlineStyle: 'dotted', outlineWidth: '2px', outlineOffset: '4px' });
+  assert.deepEqual(complete, { left: 7, top: 6, right: 7, bottom: 9 }, 'complete\'s control shadow reaches 9px below a part, past its 6px outline: the rows a locked confirm moved under it');
   assert.deepEqual(paintedOverflow({ boxShadow: 'none', outlineStyle: 'solid', outlineWidth: '2px', outlineOffset: '1px' }), { left: 3, top: 3, right: 3, bottom: 3 }, 'a drawn outline grows the rect by its width and offset');
   assert.deepEqual(paintedOverflow({ boxShadow: 'none', outlineStyle: 'none', outlineWidth: '2px', outlineOffset: '1px' }), { left: 0, top: 0, right: 0, bottom: 0 });
 });
