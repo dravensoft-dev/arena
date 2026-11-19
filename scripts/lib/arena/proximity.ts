@@ -1,13 +1,13 @@
 /* The proximity fixture and the two directions it is read in. Each layer's suite renders a case and
- * holds the normalised tree of its own DOM equal to the fixture's tree for that layer, which is how
- * an Angular host shape and a React root shape both reach the gate; the gate rebuilds each tree as
- * HTML, giving every part the slot classes its manifest resolves to by default, and measures it in
- * Chromium. The witness family is a context family the fixture declares, since phase 1 ships none.
- * A tree also keeps an open surface, a floating one and a channel an element binds on its style:
- * the three things a size class reaches, stops at and is answered by. A destructive part keeps its
- * flag too, and so does a tone other than neutral, since the meaning a part states is what an
- * emphasis class and an accent class have to leave in place. A member part that takes its option from an axis keeps that axis's attribute, so an error field is rebuilt an error. A disabled, pressed or selected part keeps its flag (a
- * branch member by its data attribute), and a colour slot a case binds stands in for a style plugin's answer. */
+ * holds the normalised tree of its own DOM equal to the fixture's tree for that layer, so an Angular
+ * host shape and a React root shape both reach the gate, which rebuilds each tree as HTML with the
+ * slot classes each part's manifest resolves to by default and measures it in Chromium. The witness
+ * family is a context family the fixture declares, since phase 1 ships none. A tree keeps an open
+ * surface, a floating one and a channel an element binds on its style: what a size class reaches,
+ * stops at and is answered by. It keeps a destructive flag and a tone other than neutral, the meaning
+ * an emphasis class and an accent class leave in place; the axis attribute a member takes its option
+ * from, so an error field is rebuilt an error; a disabled, pressed or selected flag (a branch member's
+ * by its data attribute); and a colour slot a case binds, standing in for a style plugin's answer. */
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';

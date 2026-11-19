@@ -2328,7 +2328,10 @@
           "selectedBy": {
             "axis": "state",
             "value": "true"
-          }
+          },
+          "properties": [
+            "ink"
+          ]
         },
         "label": "text.body",
         "guard": "text.muted"

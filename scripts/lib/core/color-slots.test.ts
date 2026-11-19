@@ -182,15 +182,12 @@ test('a part may declare its own selected answers', () => {
   const d = fixture();
   d.groups!.actions!.parts.dismiss!.states = 'selectable';
   d.groups!.actions!.parts.dismiss!.selected = { fill: { role: '{own-fill}', level: 'level-own' }, ink: '{own-ink}' };
-  const calm = (d.groups!.actions!.parts.root!.options as Record<string, { selected?: Record<string, unknown> }>).calm!;
-  calm.selected = { edge: '{calm-edge-selected}' };
   const s = deriveSlots(d).slots;
   assert.equal(s['actions-dismiss-fill-selected']?.default, '{own-fill}');
   assert.equal(s['actions-dismiss-fill-selected']?.level, 'level-own');
   assert.equal(s['actions-dismiss-ink-selected']?.default, '{own-ink}');
   assert.equal(s['actions-dismiss-icon-selected']?.default, '{actions-dismiss-ink-selected}');
   assert.deepEqual(s['actions-dismiss-fill-selected-hover']?.derive, { from: 'actions-dismiss-fill-selected', mix: 'mix-hover' });
-  assert.equal(s['actions-calm-root-edge-selected']?.default, '{calm-edge-selected}', 'an option wins over the part');
   assert.equal(s['actions-calm-root-fill-selected']?.default, '{fill-selected}', 'the top-level answer is the fallback');
 });
 

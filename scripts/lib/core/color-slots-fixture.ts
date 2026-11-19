@@ -30,10 +30,10 @@ export const slotFixture = (
 
 export const fixtureManifests = (c: SlotCatalogue): Map<string, ComponentManifest> => {
   const token = (name: string, member: string, modifier: string, utility: string) => `${modifier}${utility}${memberValue(c, member, name, 'tailwind')}]`;
-  const read = (member: string, group: string, part: string, state: string, option?: string) => {
+  const read = (member: string, property: string, part: string, state: string, option?: string) => {
     const mod = { rest: '', hover: 'hover:', selected: '', 'selected-hover': 'hover:' }[state] as string;
-    const name = option === undefined ? `choices-${part}-${group}-${state}` : `choices-${option}-${part}-${group}-${state}`;
-    return token(name, member, mod, group === 'fill' ? 'bg-[color:' : 'border-[color:');
+    const name = option === undefined ? `choices-${part}-${property}-${state}` : `choices-${option}-${part}-${property}-${state}`;
+    return token(name, member, mod, property === 'fill' ? 'bg-[color:' : 'border-[color:');
   };
   const box = (state: string) => read('ArenaBox.box', 'fill', 'box', state);
   return new Map<string, ComponentManifest>([

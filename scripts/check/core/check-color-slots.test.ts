@@ -100,6 +100,27 @@ test('an ink slot sits on its own fill', () => {
   assert.deepEqual(pairProblems(shipped()), []);
 });
 
+test('each pair rule holds on its own, read from the declarations and never from the derived catalogue', () => {
+  const at = (name: string, on: string | undefined) => pairProblems(edit((x) => {
+    if (on === undefined) delete x.slots[name]!.on; else x.slots[name]!.on = on;
+  }));
+  const one = (lines: string[], name: string, sits: string, want: string) => {
+    assert.deepEqual(lines, [`${name}: it sits on ${sits} and the declarations give ${want}`]);
+  };
+  one(at('actions-primary-root-ink-rest', 'ground'), 'actions-primary-root-ink-rest', 'ground', 'actions-primary-root-fill-rest');
+  one(at('choices-mark-ink-selected', 'ground'), 'choices-mark-ink-selected', 'ground', 'choices-box-fill-selected');
+  one(at('fields-required-ink-rest', 'fields-value-fill-rest'), 'fields-required-ink-rest', 'fields-value-fill-rest', 'ground');
+  one(at('choices-knob-fill-rest', undefined), 'choices-knob-fill-rest', 'nothing', 'choices-box-fill-rest');
+  one(at('choices-box-fill-selected', undefined), 'choices-box-fill-selected', 'nothing', 'choices-box-fill-rest');
+  one(at('actions-primary-root-fill-rest', 'actions-dismiss-fill-rest'), 'actions-primary-root-fill-rest', 'actions-dismiss-fill-rest', 'nothing');
+  one(at('choices-knob-edge-rest', 'choices-knob-fill-rest'), 'choices-knob-edge-rest', 'choices-knob-fill-rest', 'choices-box-fill-rest');
+  one(at('fields-neutral-field-edge-rest', undefined), 'fields-neutral-field-edge-rest', 'nothing', 'fields-neutral-field-fill-rest');
+  const d = declared();
+  delete d.groups!.choices!.parts.knob!.on;
+  const lines = pairProblems(shipped(), d);
+  assert.ok(lines.includes('choices-knob-fill-rest: it sits on choices-box-fill-rest and the declarations give nothing'), lines.join('\n'));
+});
+
 test('a focusable member part declares its ring', () => {
   const c = edit((x) => { delete x.rings['ArenaButton.root']; });
   assert.equal(ringProblems(c, manifests).length, 1);
@@ -605,6 +626,9 @@ test('an exception level, a halo, an on and a member axis are checked as declara
   i.groups!.choices!.parts.field!.states = 'base';
   (i.groups!.choices!.parts.field as any).selected = { edge: '{x}' };
   assert.match(declarationProblems(i).join('\n'), /parts\.field\.selected: .* no selected state/);
+  const j = boxDeclared();
+  ((j.groups!.choices!.parts.field!.options as Record<string, GroupOption>).error as Record<string, unknown>).selected = { edge: '{edge-selected}' };
+  assert.match(declarationProblems(j).join('\n'), /options\.error: unknown key "selected"/, 'an option declares no selected answers; the part and the top level do');
 });
 
 test('an exception whose level alone differs is an exception', () => {
@@ -862,4 +886,11 @@ test('ArenaTag.close is no native control and reads its disabled states in its d
   for (const token of branch.split(/\s+/).filter((t) => /^(bg|text)-\[color:|^\[--arena-icon-ink:/.test(t))) {
     for (const modifier of ['hover:', 'active:']) assert.ok(branch.split(/\s+/).includes(`${modifier}${token}`), `${modifier}${token}: a hovered or pressed disabled close keeps its disabled answer`);
   }
+});
+
+test('Switch.icon paints the knob ink alone, inside the knob that paints its fill and edge', () => {
+  const c = readColorSlots();
+  assert.deepEqual(c.members['ArenaSwitch.icon']?.properties, ['ink']);
+  const sw = manifests.get('ArenaSwitch') as any;
+  for (const text of [sw.slots.icon, sw.variants.state.true.icon] as string[]) assert.ok(!/(^|\s)(bg|border)-\[color:/.test(text), text);
 });

@@ -2,8 +2,8 @@
  * of components, per option, property and state, and a plugin answers it with a role its accepts
  * set names. A member default replaces the group default at the end of that member's chain, and a
  * state deriving the same colour from it reads the member's chain (R5). A part with no fill sits
- * on the ground, and a halo is an option's edge-rest chain at the level it names. MeasuredSlots is what a
- * contrast measurement reads. The command ships this file, so it imports nothing outside it. */
+ * on the ground, and a halo is an option's edge-rest chain at the level it names. MeasuredSlots is
+ * what a contrast measurement reads. The command ships this file, so it imports nothing outside it. */
 
 export const SLOT_PROPERTIES = ['fill', 'ink', 'edge', 'icon'] as const;
 export const SLOT_STATES = ['rest', 'hover', 'pressed', 'selected', 'selected-hover', 'selected-pressed', 'disabled', 'selected-disabled'] as const;

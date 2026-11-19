@@ -13,7 +13,7 @@ type Answer = string | { role: string; level?: string };
 type StateSpec = string | string[];
 type Rest = Record<string, Answer>;
 
-export type GroupOption = { states?: StateSpec; properties?: string[]; rest: Rest; selected?: Rest; halo?: string; channel?: string | null; decision?: string };
+export type GroupOption = { states?: StateSpec; properties?: string[]; rest: Rest; halo?: string; channel?: string | null; decision?: string };
 export type GroupPart = {
   properties: string[];
   options?: string[] | Record<string, GroupOption>;
@@ -114,7 +114,7 @@ export function deriveSlots(d: SlotDeclarations): SlotCatalogue {
           const spec = o.states ?? p.states ?? fail(`${owner}: no states`);
           if (o.halo !== undefined) halos[owner] = o.halo;
           standing({
-            group, opt, part, rest: restOf(o.rest), selected: { ...p.selected, ...o.selected }, states: sets(spec),
+            group, opt, part, rest: restOf(o.rest), selected: { ...p.selected }, states: sets(spec),
             channel: o.channel !== undefined ? o.channel : p.channel, properties: o.properties ?? p.properties, on: p.on, selectedOn: p.selectedOn,
           });
         }

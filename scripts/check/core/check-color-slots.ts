@@ -162,17 +162,22 @@ export function fallbackProblems(c: SlotCatalogue): string[] {
   return out;
 }
 
+const SELECTED_ON = new Set(['selected', 'selected-hover', 'selected-pressed']);
+
 export function pairProblems(c: SlotCatalogue, d: SlotDeclarations = readSlotDeclarations()): string[] {
   const out: string[] = [];
-  const given = deriveSlots(d).slots;
   for (const [name, s] of entries(c)) {
-    const want = given[name]?.on;
-    if (given[name] === undefined || s.on === want) {
-      const target = s.on === undefined || s.on === 'ground' ? undefined : c.slots[s.on];
-      if (s.on !== undefined && s.on !== 'ground' && target?.property !== 'fill') out.push(`${name}: it sits on ${s.on}, which is no fill slot`);
-      continue;
-    }
-    out.push(`${name}: it sits on ${s.on ?? 'nothing'} and the declarations give ${want ?? 'nothing'}`);
+    const gp = d.groups?.[s.group]?.parts?.[s.part];
+    if (gp === undefined) continue;
+    const option = Array.isArray(gp.options) || s.option === undefined ? undefined : gp.options?.[s.option];
+    const own = (option?.properties ?? gp.properties).includes('fill') ? expectedName({ ...s, property: 'fill' }) : undefined;
+    const sibling = gp.on === undefined ? undefined : expectedName({ group: s.group, part: gp.on, property: 'fill', state: s.state });
+    let want: string | undefined;
+    if (s.property === 'ink' || s.property === 'icon') want = own ?? sibling ?? 'ground';
+    else if (s.property === 'fill') want = gp.selectedOn === 'rest' && SELECTED_ON.has(s.state) ? expectedName({ ...s, state: 'rest' }) : sibling;
+    else want = sibling ?? own;
+    if (s.on !== want) out.push(`${name}: it sits on ${s.on ?? 'nothing'} and the declarations give ${want ?? 'nothing'}`);
+    else if (s.on !== undefined && s.on !== 'ground' && c.slots[s.on]?.property !== 'fill') out.push(`${name}: it sits on ${s.on}, which is no fill slot`);
   }
   return out;
 }
@@ -301,10 +306,13 @@ export function memberReadProblems(c: SlotCatalogue, manifests: Manifests): stri
     const [comp, part] = key.split('.') as [string, string];
     const manifest = manifests.get(comp);
     if (!manifest || !inlineMember(c, m)) continue;
-    if (m.inkFrom !== undefined && inlineMember(c, m)) {
-      const name = `${m.inkFrom.replace('.', '-')}-ink-rest`;
-      const want = `text-[color:${memberValue(c, key, name, 'tailwind')}]`;
-      if (!branchTexts(manifest, part, []).some((text) => text.split(/\s+/).includes(want))) out.push(`${key}: its ink is not read from ${m.inkFrom} as ${want} in the base class`);
+    if (m.inkFrom !== undefined) {
+      // Every state the source part derives is read in the base class: fields.value derives rest alone (R8, D72).
+      const [group, from] = m.inkFrom.split('.');
+      for (const [name, s] of entries(c).filter(([, one]) => one.group === group && one.part === from && one.property === 'ink')) {
+        const want = `${MODIFIER[s.state] ?? ''}text-[color:${memberValue(c, key, name, 'tailwind')}]`;
+        if (!heldAt(manifest, part, [], want)) out.push(`${key}: its ink is not read from ${m.inkFrom} as ${want} in the base class`);
+      }
     }
     for (const [name, s] of memberSlots(c, m)) {
       const branch = branchOf(m, s);
@@ -422,7 +430,7 @@ const DECLARED = {
   top: ['$description', 'accepts', 'refused', 'states', 'stateSets', 'selected', 'exceptions', 'rings', 'groups', 'members'],
   group: ['parts'],
   groupPart: ['properties', 'options', 'states', 'channel', 'rest', 'selected', 'on', 'selectedOn', 'decision', 'paintedBy'],
-  option: ['states', 'properties', 'rest', 'selected', 'halo', 'channel', 'decision'],
+  option: ['states', 'properties', 'rest', 'halo', 'channel', 'decision'],
   member: ['group', 'parts'],
   memberPart: ['to', 'options', 'states', 'channels', 'defaults', 'decision', 'optionBy', 'selectedBy', 'disabledBy', 'hoverBy', 'onlyBy', 'inkFrom', 'properties', 'inline'],
   exception: ['default', 'decision', 'level'],
@@ -494,7 +502,6 @@ export function declarationProblems(d: SlotDeclarations): string[] {
           const at = `${where}.options.${opt}`;
           keys(at, o, DECLARED.option);
           channel(at, o.channel);
-          selectedOf(`${at}.selected`, o.selected, p, o.states ?? p.states);
           if (o.halo !== undefined && !LEVEL.test(String(o.halo))) out.push(`${at}.halo: "${String(o.halo)}" is no level, and a level is level-<name>`);
           if (o.halo !== undefined && !(o.properties ?? p.properties).includes('edge')) out.push(`${at}.halo: the part paints no edge for a halo to follow`);
           if (o.decision !== undefined) decision(at, o.decision, 'a decision');
