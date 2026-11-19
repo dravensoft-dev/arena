@@ -650,23 +650,71 @@
             "ink"
           ],
           "states": "static",
-          "options": [
-            "complete",
-            "current",
-            "upcoming",
-            "error"
-          ]
+          "options": {
+            "complete": {
+              "rest": {
+                "fill": "transparent",
+                "edge": "{edge-control-quiet}",
+                "ink": {
+                  "role": "{ink-body}",
+                  "level": "level-ink-body"
+                }
+              }
+            },
+            "current": {
+              "rest": {
+                "fill": "{emphasis-primary-fill}",
+                "edge": "{emphasis-primary-edge}",
+                "ink": "{emphasis-primary-ink}"
+              }
+            },
+            "upcoming": {
+              "rest": {
+                "fill": "transparent",
+                "edge": "{edge-control}",
+                "ink": {
+                  "role": "{ink-muted}",
+                  "level": "level-ink-muted"
+                }
+              }
+            },
+            "error": {
+              "rest": {
+                "fill": "transparent",
+                "edge": "{hue-danger-edge}",
+                "ink": "{hue-danger-ink}"
+              }
+            }
+          }
         },
         "label": {
           "properties": [
             "ink"
           ],
           "states": "static",
-          "options": [
-            "complete",
-            "current",
-            "upcoming"
-          ]
+          "options": {
+            "complete": {
+              "rest": {
+                "ink": {
+                  "role": "{ink-body}",
+                  "level": "level-ink-body"
+                }
+              }
+            },
+            "current": {
+              "rest": {
+                "ink": "{ink-heading}"
+              }
+            },
+            "upcoming": {
+              "rest": {
+                "ink": {
+                  "role": "{ink-muted}",
+                  "level": "level-ink-muted"
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -2123,7 +2171,25 @@
         "eyebrow": "text.eyebrow",
         "title": "text.heading",
         "body": "text.body",
-        "dot": "steps.marker@upcoming|current",
+        "dot": {
+          "to": "steps.marker",
+          "options": [
+            "upcoming",
+            "current"
+          ],
+          "properties": [
+            "fill",
+            "edge"
+          ],
+          "states": "static",
+          "optionBy": {
+            "axis": "current",
+            "values": {
+              "false": "upcoming",
+              "true": "current"
+            }
+          }
+        },
         "text": {
           "to": "actions.dismiss",
           "options": [],
@@ -2598,8 +2664,49 @@
             "value": "true"
           }
         },
-        "marker": "steps.marker",
-        "label": "steps.label",
+        "marker": {
+          "to": "steps.marker",
+          "options": [
+            "complete",
+            "current",
+            "upcoming",
+            "error"
+          ],
+          "states": "static",
+          "optionBy": [
+            {
+              "axis": "error",
+              "values": {
+                "true": "error"
+              }
+            },
+            {
+              "axis": "state",
+              "values": {
+                "complete": "complete",
+                "current": "current",
+                "upcoming": "upcoming"
+              }
+            }
+          ]
+        },
+        "label": {
+          "to": "steps.label",
+          "options": [
+            "complete",
+            "current",
+            "upcoming"
+          ],
+          "states": "static",
+          "optionBy": {
+            "axis": "state",
+            "values": {
+              "complete": "complete",
+              "current": "current",
+              "upcoming": "upcoming"
+            }
+          }
+        },
         "description": "text.muted",
         "connector": "surfaces.separator"
       }

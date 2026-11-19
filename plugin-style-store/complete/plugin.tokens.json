@@ -2410,5 +2410,57 @@
   "navigation-quiet-link-ink-rest": {
     "$type": "color",
     "$value": "{accent-plain-ink}"
+  },
+  "steps-complete-label-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-figure}"
+  },
+  "steps-complete-marker-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-field}"
+  },
+  "steps-complete-marker-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-figure}"
+  },
+  "steps-current-label-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-eyebrow}"
+  },
+  "steps-current-marker-edge-rest": {
+    "$type": "color",
+    "$value": "{fill-control-on}"
+  },
+  "steps-current-marker-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-control-on}"
+  },
+  "steps-current-marker-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-confirm-final}"
+  },
+  "steps-error-marker-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "steps-error-marker-fill-rest": {
+    "$type": "color",
+    "$value": "{hue-danger-fill-strong}"
+  },
+  "steps-error-marker-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "steps-upcoming-label-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-figure}"
+  },
+  "steps-upcoming-marker-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-separator}"
+  },
+  "steps-upcoming-marker-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-figure}"
   }
 }

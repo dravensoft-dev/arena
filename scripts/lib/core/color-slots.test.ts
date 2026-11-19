@@ -95,7 +95,7 @@ test('actions derives 124 slots and no component slot', () => {
   const c = deriveSlots(readSlotDeclarations());
   const slots = Object.values(c.slots);
   assert.equal(slots.filter((slot) => slot.group === 'actions').length, 124);
-  assert.deepEqual([...new Set(slots.map((slot) => slot.group))].sort(), ['actions', 'choices', 'fields', 'menus', 'navigation']);
+  assert.deepEqual([...new Set(slots.map((slot) => slot.group))].sort(), ['actions', 'choices', 'fields', 'menus', 'navigation', 'steps']);
   for (const slot of slots) {
     for (const key of ['scope', 'family', 'component', 'draws']) assert.equal(Object.hasOwn(slot, key), false, key);
   }
@@ -396,4 +396,30 @@ test('a selected hover and pressed edge follow the fill\'s mix', () => {
   }
   assert.deepEqual(edges.filter(([, slot]) => slot.derive?.mix !== undefined).map(([name]) => name).sort(), ['actions-ghost', 'actions-solid', 'navigation']
     .flatMap((stem) => ['hover', 'pressed'].map((state) => `${stem}${stem === 'navigation' ? '-item' : '-root'}-edge-selected-${state}`)).sort());
+});
+
+test('steps derives its slots', () => {
+  const c = deriveSlots(readSlotDeclarations());
+  const names = Object.keys(c.slots);
+  assert.deepEqual(names.filter((n) => n.startsWith('steps-')).sort(), [
+    ...['complete', 'current', 'upcoming', 'error'].flatMap((o) => ['fill', 'edge', 'ink'].map((p) => `steps-${o}-marker-${p}-rest`)),
+    ...['complete', 'current', 'upcoming'].map((o) => `steps-${o}-label-ink-rest`),
+  ].sort());
+  assert.equal(c.slots['steps-upcoming-marker-edge-rest']?.default, '{edge-control}');
+  assert.equal(c.slots['steps-complete-marker-edge-rest']?.default, '{edge-control-quiet}');
+  assert.equal(c.slots['steps-current-marker-fill-rest']?.default, '{emphasis-primary-fill}');
+  assert.equal(c.slots['steps-current-marker-edge-rest']?.default, '{emphasis-primary-edge}');
+  assert.equal(c.slots['steps-current-marker-ink-rest']?.default, '{emphasis-primary-ink}');
+  assert.equal(c.slots['steps-error-marker-edge-rest']?.default, '{hue-danger-edge}');
+  assert.equal(c.slots['steps-error-marker-ink-rest']?.default, '{hue-danger-ink}');
+  assert.equal(c.slots['steps-upcoming-marker-ink-rest']?.level, 'level-ink-muted');
+  assert.equal(c.slots['steps-complete-label-ink-rest']?.default, '{ink-body}');
+  assert.equal(c.slots['steps-current-label-ink-rest']?.default, '{ink-heading}');
+  assert.equal(c.slots['steps-upcoming-label-ink-rest']?.default, '{ink-muted}');
+  for (const o of ['complete', 'current', 'upcoming']) assert.equal(c.slots[`steps-${o}-label-ink-rest`]?.on, 'ground', `${o}: the label is measured over the ground`);
+  assert.deepEqual(c.members['ArenaStepper.marker']?.options, ['complete', 'current', 'upcoming', 'error']);
+  assert.deepEqual(c.members['ArenaStepper.marker']?.optionBy, [{ axis: 'error', values: { true: 'error' } }, { axis: 'state', values: { complete: 'complete', current: 'current', upcoming: 'upcoming' } }]);
+  assert.deepEqual(c.members['ArenaOnboarding.dot']?.options, ['upcoming', 'current']);
+  assert.deepEqual(c.members['ArenaOnboarding.dot']?.properties, ['fill', 'edge']);
+  assert.deepEqual(c.members['ArenaOnboarding.dot']?.optionBy, { axis: 'current', values: { false: 'upcoming', true: 'current' } });
 });

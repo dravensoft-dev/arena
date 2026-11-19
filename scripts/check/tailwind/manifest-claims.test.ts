@@ -81,7 +81,6 @@ const HUES = {
   ArenaConfirmDialog: { destructive: { true: 'danger' } },
   ArenaProgressBar: { tone: { success: 'success', danger: 'danger', info: 'info' } },
   ArenaToast: { tone: { success: 'success', danger: 'danger' } },
-  ArenaStepper: { error: { true: 'danger' } },
   ArenaTimeline: { tone: { success: 'success', warning: 'warning', danger: 'danger', info: 'info' } },
 } as Record<string, Record<string, Record<string, string>>>;
 
@@ -102,7 +101,7 @@ test('every status value maps to its own hue, and a neutral or editorial value t
     ['ArenaAlert', 'tone', ['neutral']], ['ArenaBadge', 'tone', ['neutral']],
     ['ArenaToast', 'tone', ['neutral']], ['ArenaAvatar', 'status', ['none', 'offline']],
     ['ArenaConfirmDialog', 'destructive', ['false']], ['ArenaTag', 'tone', ['neutral']],
-    ['ArenaStepper', 'error', ['false']], ['ArenaTimeline', 'tone', ['neutral']],
+    ['ArenaTimeline', 'tone', ['neutral']],
   ] as [string, string, string[]][])
     for (const value of values)
       assert.equal(manifests.get(component)?.hues?.[group]?.[value], null, `${component}.hues.${group}.${value} is not mapped to no hue`);

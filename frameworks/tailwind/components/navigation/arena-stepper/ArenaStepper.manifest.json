@@ -43,17 +43,22 @@
   "variants": {
     "state": {
       "complete": {
-        "label": "text-ink-body/(--level-ink-body)"
+        "label": "text-[color:color-mix(in_oklab,var(--steps-complete-label-ink-rest,var(--ink-body))_var(--level-ink-body),transparent)]",
+        "marker": "bg-[color:var(--steps-complete-marker-fill-rest,transparent)] border-[color:var(--steps-complete-marker-edge-rest,var(--edge-control-quiet))] text-[color:color-mix(in_oklab,var(--steps-complete-marker-ink-rest,var(--ink-body))_var(--level-ink-body),transparent)]"
       },
       "current": {
-        "label": "font-bold text-ink-heading"
+        "label": "font-bold text-[color:var(--steps-current-label-ink-rest,var(--ink-heading))]",
+        "marker": "bg-[color:var(--steps-current-marker-fill-rest,var(--emphasis-primary-fill))] border-[color:var(--steps-current-marker-edge-rest,var(--emphasis-primary-edge))] text-[color:var(--steps-current-marker-ink-rest,var(--emphasis-primary-ink))]"
       },
       "upcoming": {
-        "label": "text-ink-muted/(--level-ink-muted)"
+        "label": "text-[color:color-mix(in_oklab,var(--steps-upcoming-label-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",
+        "marker": "bg-[color:var(--steps-upcoming-marker-fill-rest,transparent)] border-[color:var(--steps-upcoming-marker-edge-rest,var(--edge-control))] text-[color:color-mix(in_oklab,var(--steps-upcoming-marker-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]"
       }
     },
     "error": {
-      "true": {},
+      "true": {
+        "marker": "bg-[color:var(--steps-error-marker-fill-rest,transparent)] border-[color:var(--steps-error-marker-edge-rest,var(--hue-danger-edge))] text-[color:var(--steps-error-marker-ink-rest,var(--hue-danger-ink))]"
+      },
       "false": {}
     },
     "reachable": {
@@ -65,44 +70,9 @@
       }
     }
   },
-  "compoundVariants": [
-    {
-      "error": true,
-      "class": {
-        "marker": "bg-transparent border-[color:var(--arena-hue-edge)] text-[color:var(--arena-hue-ink)]"
-      }
-    },
-    {
-      "error": false,
-      "state": "complete",
-      "class": {
-        "marker": "bg-transparent border-edge-control-quiet text-ink-body/(--level-ink-body)"
-      }
-    },
-    {
-      "error": false,
-      "state": "current",
-      "class": {
-        "marker": "bg-primary-fill border-primary-fill text-primary-content"
-      }
-    },
-    {
-      "error": false,
-      "state": "upcoming",
-      "class": {
-        "marker": "bg-transparent border-edge-control-quiet text-ink-muted/(--level-ink-muted)"
-      }
-    }
-  ],
   "defaultVariants": {
     "state": "upcoming",
     "error": false,
     "reachable": false
-  },
-  "hues": {
-    "error": {
-      "true": "danger",
-      "false": null
-    }
   }
 }

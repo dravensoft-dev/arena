@@ -52,6 +52,8 @@ import { ArenaTreeView } from '../components/navigation/arena-tree-view/ArenaTre
 import { ArenaPagination } from '../components/navigation/arena-pagination/ArenaPagination';
 import { ArenaBottomNav } from '../components/navigation/arena-bottom-nav/ArenaBottomNav';
 import { ArenaBottomNavItem } from '../components/navigation/arena-bottom-nav-item/ArenaBottomNavItem';
+import { ArenaStepper } from '../components/navigation/arena-stepper/ArenaStepper';
+import { ArenaOnboarding } from '../components/feedback/arena-onboarding/ArenaOnboarding';
 import { ArenaFooter } from '../ProjectionMarkers';
 import { LIB } from './Compliance';
 
@@ -166,6 +168,7 @@ const TEMPLATES: Record<string, string> = {
   'selected-edge-answer-moves-the-current-page-border': '<div style="--navigation-item-edge-selected: var(--hue-info-edge)"><arena-pagination ariaLabel="Deployments" [page]="1" [pageCount]="1" /></div>',
   'aria-disabled-member-fades-until-answered': '<div><arena-bottom-nav ariaLabel="Mobile"><arena-bottom-nav-item id="locked" label="Locked" icon="ph-bold ph-lock" disabled /></arena-bottom-nav></div>' + '<div><arena-tree-view label="Files" [nodes]="[{ id: \'src\', label: \'src\', disabled: true }]" /></div>' + '<div style="--navigation-item-fade-disabled: 1"><arena-bottom-nav ariaLabel="Mobile"><arena-bottom-nav-item id="locked" label="Locked" icon="ph-bold ph-lock" disabled /></arena-bottom-nav></div>',
   'answered-disabled-tree-item-stops-the-fade': '<div><arena-tree-view label="Files" [nodes]="[{ id: \'src\', label: \'src\', disabled: true }]" /></div>' + '<div style="--navigation-item-fade-disabled: 1"><arena-tree-view label="Files" [nodes]="[{ id: \'src\', label: \'src\', disabled: true }]" /></div>',
+  'current-step-answer-moves-marker-and-dot': '<div style="--steps-current-marker-fill-rest: var(--fill-surface)"><arena-stepper ariaLabel="Checkout" [steps]="[{ label: \'Account\' }]" [index]="0" /><arena-onboarding [open]="true" [steps]="[{ body: \'One\' }]" [index]="0" /></div>',
   'hover-answer-is-not-derived-from-the-rest-answer': '<div style="--actions-primary-root-fill-rest: var(--fill-surface); --actions-primary-root-fill-hover: var(--fill-hover)"><arena-button>Save</arena-button></div>',
 };
 
@@ -229,6 +232,7 @@ const SUBJECT: Record<string, { part: string; index: number }> = {
   'selected-edge-answer-moves-the-current-page-border': { part: 'pagination.page', index: 0 },
   'aria-disabled-member-fades-until-answered': { part: 'bottom-nav.item', index: -1 },
   'answered-disabled-tree-item-stops-the-fade': { part: 'tree-view.item', index: -1 },
+  'current-step-answer-moves-marker-and-dot': { part: 'stepper.marker', index: 0 },
   'class-on-copy-button-reaches-the-icon-button-it-draws': { part: 'icon-button', index: 0 },
 };
 
@@ -245,7 +249,7 @@ for (const kase of cases) {
     const Host = Component({
       selector: `proximity-${kase.name}-host`,
       standalone: true,
-      imports: [ArenaSideNav, ArenaSideNavItem, ArenaTabs, ArenaTab, ArenaTreeView, ArenaPagination, ArenaBottomNav, ArenaBottomNavItem, ArenaButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaIconButton, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaFooter, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope, ArenaSplitButton, ArenaCopyButton, ArenaCheckbox, ArenaRadioGroup, ArenaRadio, ArenaSwitch, ArenaSlider, ArenaInput, ArenaFileInput, ArenaMultiSelect, ArenaCommandPalette],
+      imports: [ArenaStepper, ArenaOnboarding, ArenaSideNav, ArenaSideNavItem, ArenaTabs, ArenaTab, ArenaTreeView, ArenaPagination, ArenaBottomNav, ArenaBottomNavItem, ArenaButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaIconButton, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaFooter, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope, ArenaSplitButton, ArenaCopyButton, ArenaCheckbox, ArenaRadioGroup, ArenaRadio, ArenaSwitch, ArenaSlider, ArenaInput, ArenaFileInput, ArenaMultiSelect, ArenaCommandPalette],
       template: BARE.has(kase.name) ? TEMPLATES[kase.name] : `<div class="${kase.container}">${TEMPLATES[kase.name]}</div>`,
     })(class {});
     const fixture = TestBed.createComponent(Host);

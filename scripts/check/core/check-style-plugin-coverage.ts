@@ -97,6 +97,9 @@ export const WITNESS_EXEMPT: ReadonlyMap<string, string> = new Map([
     + 'literal transparent, and no accepted edge role resolves to transparent in complete, so no other spelling resolves to what complete paints there'],
   ...['fill', 'ink', 'edge', 'icon'].map((property): [string, string] => [`navigation-item-${property}-disabled`, SLOT + 'the complete sink draws a disabled '
     + 'TreeView row, and any answer to a disabled slot of the navigation item stops that row\'s fade (D8), so every spelling moves the complete sink']),
+  ...['complete', 'upcoming'].map((option): [string, string] => [`steps-${option}-marker-fill-rest`, SLOT + 'the one accepted role complete paints transparent, '
+    + 'hue-danger-fill-strong, is a danger fill, and a step marker answered with it would say danger where it draws nothing; the kernel default is the literal '
+    + 'transparent, so no other spelling resolves to the key complete paints there']),
   ['fill-marker', 'complete answers it as default does, base-300, because complete paints the count beside a side navigation row that is not current '
     + 'base-300 and no other palette key resolves to it, and this role reaches a page through the navigation badge slot complete answers with a '
     + 'spelling of its own'],

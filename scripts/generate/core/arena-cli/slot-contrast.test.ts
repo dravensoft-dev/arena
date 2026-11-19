@@ -360,3 +360,19 @@ test('the selected edge clears 3:1 over the selected wash, hovered and pressed t
   assert.ok(near(figures.selected!, [4.38, 4.05, 5.04, 4.64]), `F4: ${figures.selected!.join(', ')}`);
   assert.ok(near(figures['selected-pressed']!, [3.37, 3.11, 4.48, 4.13]), `D85: ${figures['selected-pressed']!.join(', ')}`);
 });
+
+test('every steps ink clears AA in the default', () => {
+  const shipped = slotPairs(CATALOGUE.slots);
+  for (const slot of ['steps-complete-label-ink-rest', 'steps-current-label-ink-rest', 'steps-upcoming-label-ink-rest']) {
+    assert.ok(shipped.some((pair) => pair.slot === slot && pair.over === 'ground' && pair.min === 4.5), `${slot} is measured over every ground at 4.5:1`);
+  }
+  assert.ok(shipped.some((pair) => pair.slot === 'steps-current-marker-ink-rest' && pair.over === 'steps-current-marker-fill-rest' && pair.min === 4.5));
+  for (const theme of ['dark', 'light'] as const) {
+    const plugin = readPlugin('default', JSON.parse(readFileSync(join(repoRoot, 'plugin-style-store/default/plugin.tokens.json'), 'utf8')));
+    const roles = rolesFor(plugin, CATALOGUE, theme);
+    const answers = new Map([...roles].filter(([name]) => Object.hasOwn(SLOTS, name)));
+    const steps = slotReports(CATALOGUE.slots, answers, roles, coloursOf(theme), theme, LEVELS).map((one) => one.message).filter((line) => line.startsWith('--steps-'));
+    assert.deepEqual(steps, [], `${theme}: the default plugin draws every steps pair above its floor`);
+    assert.deepEqual(unresolvedPairs(CATALOGUE.slots, answers, roles, coloursOf(theme), LEVELS).filter((pair) => pair.slot.startsWith('steps-')), [], `${theme}: every steps pair resolves`);
+  }
+});

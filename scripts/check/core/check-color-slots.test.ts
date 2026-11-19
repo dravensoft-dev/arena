@@ -146,18 +146,18 @@ test('a member part on an option its manifest lacks, or a part its manifest lack
 
 test('the contract counts', () => {
   const slots = Object.values(shipped().slots);
-  assert.equal(slots.length, 271);
+  assert.equal(slots.length, 286);
   const by = (key: (s: (typeof slots)[number]) => string) => {
     const n: Record<string, number> = {};
     for (const s of slots) n[key(s)] = (n[key(s)] ?? 0) + 1;
     return n;
   };
-  assert.deepEqual(by((s) => s.option ?? ''), { '': 101, primary: 16, secondary: 16, ghost: 32, solid: 32, destructive: 28, neutral: 7, error: 7, valid: 7, readonly: 2, warning: 1, plain: 20, quiet: 2 });
-  assert.deepEqual(by((s) => s.state), { rest: 66, disabled: 47, hover: 48, pressed: 40, selected: 25, 'selected-hover': 14, 'selected-pressed': 14, 'selected-disabled': 17 });
+  assert.deepEqual(by((s) => s.option ?? ''), { '': 101, primary: 16, secondary: 16, ghost: 32, solid: 32, destructive: 28, neutral: 7, error: 10, valid: 7, readonly: 2, warning: 1, plain: 20, quiet: 2, complete: 4, current: 4, upcoming: 4 });
+  assert.deepEqual(by((s) => s.state), { rest: 81, disabled: 47, hover: 48, pressed: 40, selected: 25, 'selected-hover': 14, 'selected-pressed': 14, 'selected-disabled': 17 });
   assert.equal(slots.filter((s) => s.optional).length, 64);
   assert.equal(slots.filter((s) => s.derive?.mix === 'mix-pressed').length, 19);
   assert.equal(slots.filter((s) => s.derive?.mix === 'mix-hover').length, 7);
-  assert.equal(slots.filter((s) => s.channel === undefined).length, 175, 'the destructive option, the dismiss part and the choices, fields, menus and navigation groups carry no channel (R6)');
+  assert.equal(slots.filter((s) => s.channel === undefined).length, 190, 'the destructive option, the dismiss part and the choices, fields, menus, navigation and steps groups carry no channel (R6)');
 });
 
 test('every slot of the five buttons reaches its part under its state', () => {

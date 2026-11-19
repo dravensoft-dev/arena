@@ -6,7 +6,7 @@ import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
 import { mount, cleanup, act } from './Harness.tsx';
-import { ArenaButton, ArenaIconButton, ArenaSplitButton, ArenaCopyButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope, ArenaCheckbox, ArenaRadioGroup, ArenaRadio, ArenaSwitch, ArenaSlider, ArenaInput, ArenaFileInput, ArenaMultiSelect, ArenaSideNav, ArenaSideNavItem, ArenaTabs, ArenaTab, ArenaTreeView, ArenaPagination, ArenaBottomNav, ArenaBottomNavItem, ArenaCommandPalette } from '../Index.generated.ts';
+import { ArenaButton, ArenaIconButton, ArenaSplitButton, ArenaCopyButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope, ArenaCheckbox, ArenaRadioGroup, ArenaRadio, ArenaSwitch, ArenaSlider, ArenaInput, ArenaFileInput, ArenaMultiSelect, ArenaSideNav, ArenaSideNavItem, ArenaTabs, ArenaTab, ArenaTreeView, ArenaPagination, ArenaBottomNav, ArenaBottomNavItem, ArenaStepper, ArenaOnboarding, ArenaCommandPalette } from '../Index.generated.ts';
 import { readProximity, normalize, vocabularyClasses } from '../../../scripts/lib/arena/proximity.ts';
 
 afterEach(cleanup);
@@ -159,6 +159,10 @@ const COMPOSITIONS: Record<string, () => React.ReactElement> = {
     <div><ArenaTreeView label="Files" nodes={[{ id: 'src', label: 'src', disabled: true }]} /></div>
     <div style={answered({ '--navigation-item-fade-disabled': '1' })}><ArenaTreeView label="Files" nodes={[{ id: 'src', label: 'src', disabled: true }]} /></div>
   </>,
+  'current-step-answer-moves-marker-and-dot': () => <div style={answered({ '--steps-current-marker-fill-rest': 'var(--fill-surface)' })}>
+    <ArenaStepper ariaLabel="Checkout" steps={[{ label: 'Account' }]} index={0} />
+    <ArenaOnboarding open index={0} steps={[{ body: 'One' }]} />
+  </div>,
   'hover-answer-is-not-derived-from-the-rest-answer': () => <div style={answered({ '--actions-primary-root-fill-rest': 'var(--fill-surface)', '--actions-primary-root-fill-hover': 'var(--fill-hover)' })}><ArenaButton>Save</ArenaButton></div>,
 };
 
@@ -224,6 +228,7 @@ const SUBJECT: Record<string, { part: string; at: number }> = {
   'selected-edge-answer-moves-the-current-page-border': { part: 'pagination.page', at: 0 },
   'aria-disabled-member-fades-until-answered': { part: 'bottom-nav.item', at: -1 },
   'answered-disabled-tree-item-stops-the-fade': { part: 'tree-view.item', at: -1 },
+  'current-step-answer-moves-marker-and-dot': { part: 'stepper.marker', at: 0 },
   'class-on-copy-button-reaches-the-icon-button-it-draws': { part: 'icon-button', at: 0 },
 };
 
