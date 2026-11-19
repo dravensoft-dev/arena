@@ -122,6 +122,7 @@ const COMPOSITIONS: Record<string, () => React.ReactElement> = {
   'fields-error-zone-keeps-its-edge-while-dragged': () => <div style={answered({ '--fields-error-field-edge-hover': 'var(--hue-warning-edge)' })}><ArenaFileInput label="Upload" droppable error="Too big" /></div>,
   'fields-error-zone-draws-no-field-unless-droppable': () => <ArenaFileInput label="Upload" error="Too big" />,
   'answered-disabled-field-keeps-its-answer-while-hovered': () => <div style={answered({ '--fields-neutral-field-fill-disabled': 'var(--fill-surface)' })}><ArenaInput label="Email" disabled /></div>,
+  'hovered-enabled-field-takes-its-hover-answer': () => <div style={answered({ '--fields-neutral-field-fill-hover': 'var(--fill-surface)' })}><ArenaInput label="Email" /></div>,
   'hover-answer-is-not-derived-from-the-rest-answer': () => <div style={answered({ '--actions-primary-root-fill-rest': 'var(--fill-surface)', '--actions-primary-root-fill-hover': 'var(--fill-hover)' })}><ArenaButton>Save</ArenaButton></div>,
 };
 
@@ -173,6 +174,7 @@ const SUBJECT: Record<string, { part: string; at: number }> = {
   'fields-error-zone-keeps-its-edge-while-dragged': { part: 'file-input.zone', at: 0 },
   'fields-error-zone-draws-no-field-unless-droppable': { part: 'file-input.zone', at: 0 },
   'answered-disabled-field-keeps-its-answer-while-hovered': { part: 'input.field', at: 0 },
+  'hovered-enabled-field-takes-its-hover-answer': { part: 'input.field', at: 0 },
   'class-on-copy-button-reaches-the-icon-button-it-draws': { part: 'icon-button', at: 0 },
 };
 

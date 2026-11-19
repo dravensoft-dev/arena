@@ -226,7 +226,14 @@ export async function driveTab(cdp: Pick<Cdp, 'send' | 'on'>, plan: Plan) {
               `${kase.name}: the page never finished loading its sheets, within ${LOADED.ms}ms, which is that size because ${LOADED.why}`);
           });
           if (unloaded !== null) { problems.push(unloaded); continue; }
-          if (kase.hover) await forceHover(cdp, sessionId);
+          if (kase.hover) {
+            await forceHover(cdp, sessionId);
+            const seen = await evaluate(cdp, `JSON.stringify([document.querySelector('[${SUBJECT}]')?.matches(':hover'), matchMedia('(hover: hover)').matches])`, sessionId);
+            if (seen !== '[true,true]') {
+              problems.push(`${kase.name} (${layer}, ${order}): the subject is not :hover under a hover-capable pointer after it was forced (${String(seen)}), so the case would measure no hover`);
+              continue;
+            }
+          }
           const property = 'property' in kase.measure ? kase.measure.property : '--arena-fill-width';
           const parts = 'property' in kase.measure ? Object.keys(kase.measure.others ?? {}) : [];
           const result = await evaluate(cdp, MEASURE(property, parts), sessionId) as Measured | null;
@@ -278,7 +285,7 @@ async function main() {
   const witnessCss = families.map((family) => compileFamily(family, witnessManifests(family))).join('\n');
   const exe = browserOrExit('check-proximity');
   const server = await startStaticServer(root);
-  const chrome = await launchChromium(exe);
+  const chrome = await launchChromium(exe, undefined, { prefix: ['--blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4'] });
   const cdp = await connect(chrome.wsUrl);
   const plan = { port: server.port, cases, markup, classes, data, witnessCss, sheets };
   let outcome: Awaited<ReturnType<typeof driveTab>>;

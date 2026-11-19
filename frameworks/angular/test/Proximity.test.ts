@@ -138,6 +138,7 @@ const TEMPLATES: Record<string, string> = {
   'fields-error-zone-keeps-its-edge-while-dragged': '<div style="--fields-error-field-edge-hover: var(--hue-warning-edge)"><arena-file-input label="Upload" [droppable]="true" error="Too big" /></div>',
   'fields-error-zone-draws-no-field-unless-droppable': '<arena-file-input label="Upload" error="Too big" />',
   'answered-disabled-field-keeps-its-answer-while-hovered': '<div style="--fields-neutral-field-fill-disabled: var(--fill-surface)"><arena-input label="Email" disabled /></div>',
+  'hovered-enabled-field-takes-its-hover-answer': '<div style="--fields-neutral-field-fill-hover: var(--fill-surface)"><arena-input label="Email" /></div>',
   'hover-answer-is-not-derived-from-the-rest-answer': '<div style="--actions-primary-root-fill-rest: var(--fill-surface); --actions-primary-root-fill-hover: var(--fill-hover)"><arena-button>Save</arena-button></div>',
 };
 
@@ -188,6 +189,7 @@ const SUBJECT: Record<string, { part: string; index: number }> = {
   'fields-error-zone-keeps-its-edge-while-dragged': { part: 'file-input.zone', index: 0 },
   'fields-error-zone-draws-no-field-unless-droppable': { part: 'file-input.zone', index: 0 },
   'answered-disabled-field-keeps-its-answer-while-hovered': { part: 'input.field', index: 0 },
+  'hovered-enabled-field-takes-its-hover-answer': { part: 'input.field', index: 0 },
   'class-on-copy-button-reaches-the-icon-button-it-draws': { part: 'icon-button', index: 0 },
 };
 
