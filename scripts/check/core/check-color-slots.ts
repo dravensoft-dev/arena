@@ -307,7 +307,6 @@ export function memberReadProblems(c: SlotCatalogue, manifests: Manifests): stri
     const manifest = manifests.get(comp);
     if (!manifest || !inlineMember(c, m)) continue;
     if (m.inkFrom !== undefined) {
-      // Every state the source part derives is read in the base class: fields.value derives rest alone (R8, D72).
       const [group, from] = m.inkFrom.split('.');
       for (const [name, s] of entries(c).filter(([, one]) => one.group === group && one.part === from && one.property === 'ink')) {
         const want = `${MODIFIER[s.state] ?? ''}text-[color:${memberValue(c, key, name, 'tailwind')}]`;
