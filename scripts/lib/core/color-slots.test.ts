@@ -353,3 +353,47 @@ test('menus, the disclosure and the link derive their slots', () => {
   assert.deepEqual(c.members['ArenaCombobox.option']?.selectedBy, { axis: 'active', value: 'true' });
   assert.deepEqual(c.members['ArenaMenu.item']?.optionBy, { axis: 'destructive', values: { false: 'plain', true: 'destructive' } });
 });
+
+test('navigation item and badge derive their slots', () => {
+  const c = deriveSlots(readSlotDeclarations());
+  const names = Object.keys(c.slots);
+  const selectable = ['rest', 'hover', 'pressed', 'disabled', 'selected', 'selected-hover', 'selected-pressed', 'selected-disabled'];
+  assert.deepEqual(names.filter((n) => n.startsWith('navigation-item-')).sort(), ['fill', 'ink', 'edge', 'icon'].flatMap((p) => selectable.map((s) => `navigation-item-${p}-${s}`)).sort());
+  assert.deepEqual(names.filter((n) => n.startsWith('navigation-badge-')).sort(), ['fill', 'ink'].flatMap((p) => ['rest', 'selected'].map((s) => `navigation-badge-${p}-${s}`)).sort());
+  assert.equal(c.slots['navigation-item-edge-selected']?.default, '{edge-tab-selected}');
+  assert.equal(c.slots['navigation-item-fill-selected']?.default, '{fill-selected}');
+  assert.equal(c.slots['navigation-item-fill-selected']?.level, 'level-accent-soft-primary');
+  assert.equal(c.slots['navigation-item-ink-selected']?.default, '{ink-selected}');
+  assert.equal(c.slots['navigation-item-ink-rest']?.default, '{ink-muted}');
+  assert.equal(c.slots['navigation-item-ink-rest']?.level, 'level-ink-muted');
+  assert.equal(c.slots['navigation-item-fill-hover']?.default, '{fill-hover}');
+  assert.equal(c.slots['navigation-item-ink-hover']?.default, '{ink-body}');
+  assert.equal(c.slots['navigation-item-ink-hover']?.level, 'level-ink-body');
+  assert.equal(c.slots['navigation-badge-fill-rest']?.default, '{fill-marker}');
+  assert.equal(c.slots['navigation-badge-ink-rest']?.default, '{ink-body}');
+  assert.equal(c.slots['navigation-badge-fill-selected']?.default, '{emphasis-primary-fill}');
+  assert.equal(c.slots['navigation-badge-ink-selected']?.default, '{emphasis-primary-ink}');
+  assert.equal(Object.values(c.slots).some((slot) => slot.group === 'navigation' && slot.part === 'root'), false, 'no slot names the skip link\'s part');
+  assert.equal(c.members['ArenaSkipLink.root']?.to, 'actions.root');
+  assert.deepEqual(c.members['ArenaSkipLink.root']?.options, ['secondary']);
+  assert.equal(c.members['ArenaTabs.tab']?.edgeAs, 'rule');
+  assert.equal(c.members['ArenaBottomNav.item']?.disabledModifier, 'aria-disabled:');
+  assert.deepEqual(c.members['ArenaStepper.trigger']?.hoverIn, { axis: 'reachable', value: 'true' });
+  assert.deepEqual(c.members['ArenaTreeView.item']?.disabledBy, { axis: 'disabled', value: 'true' });
+  assert.deepEqual(c.members['ArenaSideNav.dot']?.states, ['selected']);
+});
+
+test('a selected hover and pressed edge follow the fill\'s mix', () => {
+  const c = deriveSlots(readSlotDeclarations());
+  const edges = Object.entries(c.slots).filter(([, slot]) => slot.property === 'edge' && slot.derive !== undefined);
+  assert.ok(edges.length > 0);
+  for (const [name, slot] of edges) {
+    const fill = c.slots[name.replace('-edge-', '-fill-')];
+    if (slot.state === 'selected-hover' || slot.state === 'selected-pressed') {
+      assert.equal(slot.derive?.mix, slot.state === 'selected-hover' ? 'mix-hover' : 'mix-pressed', name);
+      assert.equal(slot.derive?.mix, fill?.derive?.mix, `${name}: the edge takes the fill's blend (D85)`);
+    } else assert.equal(slot.derive?.mix, undefined, `${name}: only a selected hover or pressed edge mixes`);
+  }
+  assert.deepEqual(edges.filter(([, slot]) => slot.derive?.mix !== undefined).map(([name]) => name).sort(), ['actions-ghost', 'actions-solid', 'navigation']
+    .flatMap((stem) => ['hover', 'pressed'].map((state) => `${stem}${stem === 'navigation' ? '-item' : '-root'}-edge-selected-${state}`)).sort());
+});

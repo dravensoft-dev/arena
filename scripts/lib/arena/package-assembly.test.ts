@@ -574,5 +574,5 @@ test('default light answers reach the measurement', () => {
 });
 
 test('the token catalogue carries the slots', () => {
-  assert.equal(Object.keys(tokenCatalogue().slots.slots).length, 235);
+  assert.equal(Object.keys(tokenCatalogue().slots.slots).length, 271);
 });

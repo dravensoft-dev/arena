@@ -90,6 +90,7 @@
   --fill-field:var(--color-base-300);
   --fill-hover:var(--color-base-300);
   --fill-track:var(--color-base-300);
+  --fill-marker:var(--color-base-300);
   --fill-control:var(--color-neutral);
   --fill-control-on:var(--color-primary);
   --fill-knob:var(--color-primary-content);
@@ -287,6 +288,7 @@
   --fill-field:var(--color-base-300);
   --fill-hover:var(--color-base-300);
   --fill-track:var(--color-base-300);
+  --fill-marker:var(--color-base-300);
   --fill-control:var(--color-neutral);
   --fill-control-on:var(--color-primary);
   --fill-knob:var(--color-primary-content);
@@ -372,6 +374,7 @@
   --fill-field:var(--color-base-300);
   --fill-hover:var(--color-base-300);
   --fill-track:var(--color-base-300);
+  --fill-marker:var(--color-base-300);
   --fill-control:var(--color-neutral);
   --fill-control-on:var(--color-primary);
   --fill-knob:var(--color-primary-content);

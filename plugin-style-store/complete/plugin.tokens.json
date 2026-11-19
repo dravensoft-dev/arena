@@ -458,6 +458,10 @@
     "$type": "color",
     "$value": "{color.neutral}"
   },
+  "fill-marker": {
+    "$type": "color",
+    "$value": "{color.base-300}"
+  },
   "ink-heading": {
     "$type": "color",
     "$value": "{color.secondary}"
@@ -2237,6 +2241,22 @@
     "$type": "color",
     "$value": "{accent-plain-ink}"
   },
+  "navigation-badge-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface-sunken}"
+  },
+  "navigation-badge-fill-selected": {
+    "$type": "color",
+    "$value": "{fill-control-on}"
+  },
+  "navigation-badge-ink-rest": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "navigation-badge-ink-selected": {
+    "$type": "color",
+    "$value": "{ink-confirm-final}"
+  },
   "navigation-disclosure-fill-disabled": {
     "$type": "color",
     "$value": "transparent",
@@ -2264,6 +2284,113 @@
     "$value": "{accent-plain-ink}"
   },
   "navigation-disclosure-ink-rest": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "navigation-item-edge-hover": {
+    "$type": "color",
+    "$value": "transparent",
+    "$description": "complete paints a navigation row with no edge in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling."
+  },
+  "navigation-item-edge-pressed": {
+    "$type": "color",
+    "$value": "transparent",
+    "$description": "complete paints a navigation row with no edge in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling."
+  },
+  "navigation-item-edge-selected": {
+    "$type": "color",
+    "$value": "{accent-primary-edge}"
+  },
+  "navigation-item-edge-selected-disabled": {
+    "$type": "color",
+    "$value": "{accent-primary-edge}"
+  },
+  "navigation-item-edge-selected-hover": {
+    "$type": "color",
+    "$value": "{accent-primary-edge}"
+  },
+  "navigation-item-edge-selected-pressed": {
+    "$type": "color",
+    "$value": "{accent-primary-edge}"
+  },
+  "navigation-item-fill-hover": {
+    "$type": "color",
+    "$value": "{accent-plain-fill-soft}"
+  },
+  "navigation-item-fill-pressed": {
+    "$type": "color",
+    "$value": "transparent",
+    "$description": "complete paints an unselected navigation row transparent in every state but hover, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling."
+  },
+  "navigation-item-fill-selected": {
+    "$type": "color",
+    "$value": "{accent-primary-fill-soft}"
+  },
+  "navigation-item-fill-selected-disabled": {
+    "$type": "color",
+    "$value": "{accent-primary-fill-soft}"
+  },
+  "navigation-item-fill-selected-hover": {
+    "$type": "color",
+    "$value": "{accent-primary-fill-soft}"
+  },
+  "navigation-item-fill-selected-pressed": {
+    "$type": "color",
+    "$value": "{accent-primary-fill-soft}"
+  },
+  "navigation-item-icon-hover": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "navigation-item-icon-pressed": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "navigation-item-icon-rest": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "navigation-item-icon-selected": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "navigation-item-icon-selected-disabled": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "navigation-item-icon-selected-hover": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "navigation-item-icon-selected-pressed": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "navigation-item-ink-hover": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "navigation-item-ink-pressed": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "navigation-item-ink-rest": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "navigation-item-ink-selected": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "navigation-item-ink-selected-disabled": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "navigation-item-ink-selected-hover": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "navigation-item-ink-selected-pressed": {
     "$type": "color",
     "$value": "{accent-plain-ink}"
   },

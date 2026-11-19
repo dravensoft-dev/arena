@@ -93,6 +93,7 @@
   --fill-knob:var(--color-error-content);
   --fill-knob-off:var(--color-error-content);
   --fill-track:var(--color-neutral);
+  --fill-marker:var(--color-base-300);
   --ink-heading:var(--color-secondary);
   --ink-body:var(--color-neutral-content);
   --ink-eyebrow:var(--color-secondary);
@@ -488,6 +489,10 @@
   --menus-plain-item-ink-rest:var(--accent-plain-ink);
   --menus-plain-item-ink-selected:var(--accent-plain-ink);
   --menus-plain-item-ink-selected-disabled:var(--accent-plain-ink);
+  --navigation-badge-fill-rest:var(--fill-surface-sunken);
+  --navigation-badge-fill-selected:var(--fill-control-on);
+  --navigation-badge-ink-rest:var(--accent-plain-ink);
+  --navigation-badge-ink-selected:var(--ink-confirm-final);
   --navigation-disclosure-fill-disabled:transparent; /* complete paints a disclosure trigger transparent in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling. */
   --navigation-disclosure-fill-hover:var(--accent-plain-fill-soft);
   --navigation-disclosure-fill-pressed:transparent; /* complete paints a disclosure trigger transparent in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling. */
@@ -495,6 +500,32 @@
   --navigation-disclosure-ink-hover:var(--accent-plain-ink);
   --navigation-disclosure-ink-pressed:var(--accent-plain-ink);
   --navigation-disclosure-ink-rest:var(--accent-plain-ink);
+  --navigation-item-edge-hover:transparent; /* complete paints a navigation row with no edge in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling. */
+  --navigation-item-edge-pressed:transparent; /* complete paints a navigation row with no edge in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling. */
+  --navigation-item-edge-selected:var(--accent-primary-edge);
+  --navigation-item-edge-selected-disabled:var(--accent-primary-edge);
+  --navigation-item-edge-selected-hover:var(--accent-primary-edge);
+  --navigation-item-edge-selected-pressed:var(--accent-primary-edge);
+  --navigation-item-fill-hover:var(--accent-plain-fill-soft);
+  --navigation-item-fill-pressed:transparent; /* complete paints an unselected navigation row transparent in every state but hover, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling. */
+  --navigation-item-fill-selected:var(--accent-primary-fill-soft);
+  --navigation-item-fill-selected-disabled:var(--accent-primary-fill-soft);
+  --navigation-item-fill-selected-hover:var(--accent-primary-fill-soft);
+  --navigation-item-fill-selected-pressed:var(--accent-primary-fill-soft);
+  --navigation-item-icon-hover:var(--accent-muted-ink);
+  --navigation-item-icon-pressed:var(--accent-plain-ink);
+  --navigation-item-icon-rest:var(--accent-plain-ink);
+  --navigation-item-icon-selected:var(--accent-muted-ink);
+  --navigation-item-icon-selected-disabled:var(--accent-muted-ink);
+  --navigation-item-icon-selected-hover:var(--accent-muted-ink);
+  --navigation-item-icon-selected-pressed:var(--accent-muted-ink);
+  --navigation-item-ink-hover:var(--accent-plain-ink);
+  --navigation-item-ink-pressed:var(--accent-muted-ink);
+  --navigation-item-ink-rest:var(--accent-muted-ink);
+  --navigation-item-ink-selected:var(--accent-plain-ink);
+  --navigation-item-ink-selected-disabled:var(--accent-plain-ink);
+  --navigation-item-ink-selected-hover:var(--accent-plain-ink);
+  --navigation-item-ink-selected-pressed:var(--accent-plain-ink);
   --navigation-plain-link-ink-hover:var(--ink-eyebrow); /* complete draws a hovered link in the heading colour, secondary, and ink-eyebrow is the accepted role that resolves to it, since the kernel default ink-heading is the spelling the witness refuses. */
   --navigation-plain-link-ink-rest:var(--accent-plain-ink);
   --navigation-quiet-link-ink-hover:var(--accent-plain-ink);
@@ -518,6 +549,7 @@
   --menus-plain-item-fade-disabled:1;
   --menus-plain-item-fade-selected-disabled:1;
   --navigation-disclosure-fade-disabled:1;
+  --navigation-item-fade-selected-disabled:1;
 }
 @scope (.arena-dark) {
 :where(:scope).arena-complete, .arena-complete{
@@ -532,6 +564,7 @@
   --fill-knob:var(--color-error-content);
   --fill-knob-off:var(--color-error-content);
   --fill-track:var(--color-neutral);
+  --fill-marker:var(--color-base-300);
   --ink-heading:var(--color-secondary);
   --ink-body:var(--color-neutral-content);
   --ink-eyebrow:var(--color-secondary);
@@ -798,11 +831,38 @@
   --menus-plain-item-ink-rest:var(--accent-plain-ink);
   --menus-plain-item-ink-selected:var(--accent-plain-ink);
   --menus-plain-item-ink-selected-disabled:var(--accent-plain-ink);
+  --navigation-badge-fill-rest:var(--fill-surface-sunken);
+  --navigation-badge-fill-selected:var(--fill-control-on);
+  --navigation-badge-ink-rest:var(--accent-plain-ink);
+  --navigation-badge-ink-selected:var(--ink-confirm-final);
   --navigation-disclosure-fill-hover:var(--accent-plain-fill-soft);
   --navigation-disclosure-ink-disabled:var(--accent-plain-ink);
   --navigation-disclosure-ink-hover:var(--accent-plain-ink);
   --navigation-disclosure-ink-pressed:var(--accent-plain-ink);
   --navigation-disclosure-ink-rest:var(--accent-plain-ink);
+  --navigation-item-edge-selected:var(--accent-primary-edge);
+  --navigation-item-edge-selected-disabled:var(--accent-primary-edge);
+  --navigation-item-edge-selected-hover:var(--accent-primary-edge);
+  --navigation-item-edge-selected-pressed:var(--accent-primary-edge);
+  --navigation-item-fill-hover:var(--accent-plain-fill-soft);
+  --navigation-item-fill-selected:var(--accent-primary-fill-soft);
+  --navigation-item-fill-selected-disabled:var(--accent-primary-fill-soft);
+  --navigation-item-fill-selected-hover:var(--accent-primary-fill-soft);
+  --navigation-item-fill-selected-pressed:var(--accent-primary-fill-soft);
+  --navigation-item-icon-hover:var(--accent-muted-ink);
+  --navigation-item-icon-pressed:var(--accent-plain-ink);
+  --navigation-item-icon-rest:var(--accent-plain-ink);
+  --navigation-item-icon-selected:var(--accent-muted-ink);
+  --navigation-item-icon-selected-disabled:var(--accent-muted-ink);
+  --navigation-item-icon-selected-hover:var(--accent-muted-ink);
+  --navigation-item-icon-selected-pressed:var(--accent-muted-ink);
+  --navigation-item-ink-hover:var(--accent-plain-ink);
+  --navigation-item-ink-pressed:var(--accent-muted-ink);
+  --navigation-item-ink-rest:var(--accent-muted-ink);
+  --navigation-item-ink-selected:var(--accent-plain-ink);
+  --navigation-item-ink-selected-disabled:var(--accent-plain-ink);
+  --navigation-item-ink-selected-hover:var(--accent-plain-ink);
+  --navigation-item-ink-selected-pressed:var(--accent-plain-ink);
   --navigation-plain-link-ink-hover:var(--ink-eyebrow); /* complete draws a hovered link in the heading colour, secondary, and ink-eyebrow is the accepted role that resolves to it, since the kernel default ink-heading is the spelling the witness refuses. */
   --navigation-plain-link-ink-rest:var(--accent-plain-ink);
   --navigation-quiet-link-ink-hover:var(--accent-plain-ink);
@@ -822,6 +882,7 @@
   --fill-knob:var(--color-error-content);
   --fill-knob-off:var(--color-error-content);
   --fill-track:var(--color-neutral);
+  --fill-marker:var(--color-base-300);
   --ink-heading:var(--color-secondary);
   --ink-body:var(--color-neutral-content);
   --ink-eyebrow:var(--color-secondary);
@@ -1088,11 +1149,38 @@
   --menus-plain-item-ink-rest:var(--accent-plain-ink);
   --menus-plain-item-ink-selected:var(--accent-plain-ink);
   --menus-plain-item-ink-selected-disabled:var(--accent-plain-ink);
+  --navigation-badge-fill-rest:var(--fill-surface-sunken);
+  --navigation-badge-fill-selected:var(--fill-control-on);
+  --navigation-badge-ink-rest:var(--accent-plain-ink);
+  --navigation-badge-ink-selected:var(--ink-confirm-final);
   --navigation-disclosure-fill-hover:var(--accent-plain-fill-soft);
   --navigation-disclosure-ink-disabled:var(--accent-plain-ink);
   --navigation-disclosure-ink-hover:var(--accent-plain-ink);
   --navigation-disclosure-ink-pressed:var(--accent-plain-ink);
   --navigation-disclosure-ink-rest:var(--accent-plain-ink);
+  --navigation-item-edge-selected:var(--accent-primary-edge);
+  --navigation-item-edge-selected-disabled:var(--accent-primary-edge);
+  --navigation-item-edge-selected-hover:var(--accent-primary-edge);
+  --navigation-item-edge-selected-pressed:var(--accent-primary-edge);
+  --navigation-item-fill-hover:var(--accent-plain-fill-soft);
+  --navigation-item-fill-selected:var(--accent-primary-fill-soft);
+  --navigation-item-fill-selected-disabled:var(--accent-primary-fill-soft);
+  --navigation-item-fill-selected-hover:var(--accent-primary-fill-soft);
+  --navigation-item-fill-selected-pressed:var(--accent-primary-fill-soft);
+  --navigation-item-icon-hover:var(--accent-muted-ink);
+  --navigation-item-icon-pressed:var(--accent-plain-ink);
+  --navigation-item-icon-rest:var(--accent-plain-ink);
+  --navigation-item-icon-selected:var(--accent-muted-ink);
+  --navigation-item-icon-selected-disabled:var(--accent-muted-ink);
+  --navigation-item-icon-selected-hover:var(--accent-muted-ink);
+  --navigation-item-icon-selected-pressed:var(--accent-muted-ink);
+  --navigation-item-ink-hover:var(--accent-plain-ink);
+  --navigation-item-ink-pressed:var(--accent-muted-ink);
+  --navigation-item-ink-rest:var(--accent-muted-ink);
+  --navigation-item-ink-selected:var(--accent-plain-ink);
+  --navigation-item-ink-selected-disabled:var(--accent-plain-ink);
+  --navigation-item-ink-selected-hover:var(--accent-plain-ink);
+  --navigation-item-ink-selected-pressed:var(--accent-plain-ink);
   --navigation-plain-link-ink-hover:var(--ink-eyebrow); /* complete draws a hovered link in the heading colour, secondary, and ink-eyebrow is the accepted role that resolves to it, since the kernel default ink-heading is the spelling the witness refuses. */
   --navigation-plain-link-ink-rest:var(--accent-plain-ink);
   --navigation-quiet-link-ink-hover:var(--accent-plain-ink);
@@ -1112,6 +1200,7 @@
   --fill-knob:var(--color-error-content);
   --fill-knob-off:var(--color-error-content);
   --fill-track:var(--color-neutral);
+  --fill-marker:var(--color-base-300);
   --ink-heading:var(--color-secondary);
   --ink-body:var(--color-neutral-content);
   --ink-eyebrow:var(--color-secondary);
@@ -1378,11 +1467,38 @@
   --menus-plain-item-ink-rest:var(--accent-plain-ink);
   --menus-plain-item-ink-selected:var(--accent-plain-ink);
   --menus-plain-item-ink-selected-disabled:var(--accent-plain-ink);
+  --navigation-badge-fill-rest:var(--fill-surface-sunken);
+  --navigation-badge-fill-selected:var(--fill-control-on);
+  --navigation-badge-ink-rest:var(--accent-plain-ink);
+  --navigation-badge-ink-selected:var(--ink-confirm-final);
   --navigation-disclosure-fill-hover:var(--accent-plain-fill-soft);
   --navigation-disclosure-ink-disabled:var(--accent-plain-ink);
   --navigation-disclosure-ink-hover:var(--accent-plain-ink);
   --navigation-disclosure-ink-pressed:var(--accent-plain-ink);
   --navigation-disclosure-ink-rest:var(--accent-plain-ink);
+  --navigation-item-edge-selected:var(--accent-primary-edge);
+  --navigation-item-edge-selected-disabled:var(--accent-primary-edge);
+  --navigation-item-edge-selected-hover:var(--accent-primary-edge);
+  --navigation-item-edge-selected-pressed:var(--accent-primary-edge);
+  --navigation-item-fill-hover:var(--accent-plain-fill-soft);
+  --navigation-item-fill-selected:var(--accent-primary-fill-soft);
+  --navigation-item-fill-selected-disabled:var(--accent-primary-fill-soft);
+  --navigation-item-fill-selected-hover:var(--accent-primary-fill-soft);
+  --navigation-item-fill-selected-pressed:var(--accent-primary-fill-soft);
+  --navigation-item-icon-hover:var(--accent-muted-ink);
+  --navigation-item-icon-pressed:var(--accent-plain-ink);
+  --navigation-item-icon-rest:var(--accent-plain-ink);
+  --navigation-item-icon-selected:var(--accent-muted-ink);
+  --navigation-item-icon-selected-disabled:var(--accent-muted-ink);
+  --navigation-item-icon-selected-hover:var(--accent-muted-ink);
+  --navigation-item-icon-selected-pressed:var(--accent-muted-ink);
+  --navigation-item-ink-hover:var(--accent-plain-ink);
+  --navigation-item-ink-pressed:var(--accent-muted-ink);
+  --navigation-item-ink-rest:var(--accent-muted-ink);
+  --navigation-item-ink-selected:var(--accent-plain-ink);
+  --navigation-item-ink-selected-disabled:var(--accent-plain-ink);
+  --navigation-item-ink-selected-hover:var(--accent-plain-ink);
+  --navigation-item-ink-selected-pressed:var(--accent-plain-ink);
   --navigation-plain-link-ink-hover:var(--ink-eyebrow); /* complete draws a hovered link in the heading colour, secondary, and ink-eyebrow is the accepted role that resolves to it, since the kernel default ink-heading is the spelling the witness refuses. */
   --navigation-plain-link-ink-rest:var(--accent-plain-ink);
   --navigation-quiet-link-ink-hover:var(--accent-plain-ink);
@@ -1402,6 +1518,7 @@
   --fill-knob:var(--color-error-content);
   --fill-knob-off:var(--color-error-content);
   --fill-track:var(--color-neutral);
+  --fill-marker:var(--color-base-300);
   --ink-heading:var(--color-secondary);
   --ink-body:var(--color-neutral-content);
   --ink-eyebrow:var(--color-secondary);
@@ -1668,11 +1785,38 @@
   --menus-plain-item-ink-rest:var(--accent-plain-ink);
   --menus-plain-item-ink-selected:var(--accent-plain-ink);
   --menus-plain-item-ink-selected-disabled:var(--accent-plain-ink);
+  --navigation-badge-fill-rest:var(--fill-surface-sunken);
+  --navigation-badge-fill-selected:var(--fill-control-on);
+  --navigation-badge-ink-rest:var(--accent-plain-ink);
+  --navigation-badge-ink-selected:var(--ink-confirm-final);
   --navigation-disclosure-fill-hover:var(--accent-plain-fill-soft);
   --navigation-disclosure-ink-disabled:var(--accent-plain-ink);
   --navigation-disclosure-ink-hover:var(--accent-plain-ink);
   --navigation-disclosure-ink-pressed:var(--accent-plain-ink);
   --navigation-disclosure-ink-rest:var(--accent-plain-ink);
+  --navigation-item-edge-selected:var(--accent-primary-edge);
+  --navigation-item-edge-selected-disabled:var(--accent-primary-edge);
+  --navigation-item-edge-selected-hover:var(--accent-primary-edge);
+  --navigation-item-edge-selected-pressed:var(--accent-primary-edge);
+  --navigation-item-fill-hover:var(--accent-plain-fill-soft);
+  --navigation-item-fill-selected:var(--accent-primary-fill-soft);
+  --navigation-item-fill-selected-disabled:var(--accent-primary-fill-soft);
+  --navigation-item-fill-selected-hover:var(--accent-primary-fill-soft);
+  --navigation-item-fill-selected-pressed:var(--accent-primary-fill-soft);
+  --navigation-item-icon-hover:var(--accent-muted-ink);
+  --navigation-item-icon-pressed:var(--accent-plain-ink);
+  --navigation-item-icon-rest:var(--accent-plain-ink);
+  --navigation-item-icon-selected:var(--accent-muted-ink);
+  --navigation-item-icon-selected-disabled:var(--accent-muted-ink);
+  --navigation-item-icon-selected-hover:var(--accent-muted-ink);
+  --navigation-item-icon-selected-pressed:var(--accent-muted-ink);
+  --navigation-item-ink-hover:var(--accent-plain-ink);
+  --navigation-item-ink-pressed:var(--accent-muted-ink);
+  --navigation-item-ink-rest:var(--accent-muted-ink);
+  --navigation-item-ink-selected:var(--accent-plain-ink);
+  --navigation-item-ink-selected-disabled:var(--accent-plain-ink);
+  --navigation-item-ink-selected-hover:var(--accent-plain-ink);
+  --navigation-item-ink-selected-pressed:var(--accent-plain-ink);
   --navigation-plain-link-ink-hover:var(--ink-eyebrow); /* complete draws a hovered link in the heading colour, secondary, and ink-eyebrow is the accepted role that resolves to it, since the kernel default ink-heading is the spelling the witness refuses. */
   --navigation-plain-link-ink-rest:var(--accent-plain-ink);
   --navigation-quiet-link-ink-hover:var(--accent-plain-ink);

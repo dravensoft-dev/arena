@@ -6,7 +6,7 @@ import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
 import { mount, cleanup, act } from './Harness.tsx';
-import { ArenaButton, ArenaIconButton, ArenaSplitButton, ArenaCopyButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope, ArenaCheckbox, ArenaRadioGroup, ArenaRadio, ArenaSwitch, ArenaSlider, ArenaInput, ArenaFileInput, ArenaMultiSelect, ArenaCommandPalette } from '../Index.generated.ts';
+import { ArenaButton, ArenaIconButton, ArenaSplitButton, ArenaCopyButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope, ArenaCheckbox, ArenaRadioGroup, ArenaRadio, ArenaSwitch, ArenaSlider, ArenaInput, ArenaFileInput, ArenaMultiSelect, ArenaSideNav, ArenaSideNavItem, ArenaTabs, ArenaTab, ArenaTreeView, ArenaPagination, ArenaBottomNav, ArenaBottomNavItem, ArenaCommandPalette } from '../Index.generated.ts';
 import { readProximity, normalize, vocabularyClasses } from '../../../scripts/lib/arena/proximity.ts';
 
 afterEach(cleanup);
@@ -140,6 +140,25 @@ const COMPOSITIONS: Record<string, () => React.ReactElement> = {
     <div><ArenaMultiSelect label="Regions" options={[{ value: 'eu-west', label: 'Europe West' }]} value={[]} /></div>
     <div><ArenaMultiSelect label="Regions" options={[{ value: 'eu-west', label: 'Europe West' }]} value={[]} max={0} /></div>
   </>,
+  'navigation-answer-moves-every-current-item': () => <div style={answered({ '--navigation-item-fill-selected': 'var(--fill-surface)' })}>
+    <ArenaSideNav ariaLabel="Primary" active="home"><ArenaSideNavItem id="home" label="Home" /></ArenaSideNav>
+    <ArenaTreeView label="Files" nodes={[{ id: 'src', label: 'src' }]} selection={{ ids: ['src'] }} />
+    <ArenaPagination ariaLabel="Deployments" page={1} pageCount={1} />
+    <ArenaBottomNav ariaLabel="Mobile" active="home"><ArenaBottomNavItem id="home" label="Home" icon="ph-bold ph-house" /></ArenaBottomNav>
+  </div>,
+  'hovered-current-item-keeps-its-selected-look': () => <ArenaSideNav ariaLabel="Primary" active="home"><ArenaSideNavItem id="home" label="Home" /></ArenaSideNav>,
+  'hovered-selected-tab-keeps-its-selected-ink': () => <ArenaTabs value="one"><ArenaTab value="one" label="One">First</ArenaTab></ArenaTabs>,
+  'selected-edge-answer-moves-the-tab-rule': () => <div style={answered({ '--navigation-item-edge-selected': 'var(--hue-info-edge)' })}><ArenaTabs value="one"><ArenaTab value="one" label="One">First</ArenaTab></ArenaTabs></div>,
+  'selected-edge-answer-moves-the-current-page-border': () => <div style={answered({ '--navigation-item-edge-selected': 'var(--hue-info-edge)' })}><ArenaPagination ariaLabel="Deployments" page={1} pageCount={1} /></div>,
+  'aria-disabled-member-fades-until-answered': () => <>
+    <div><ArenaBottomNav ariaLabel="Mobile"><ArenaBottomNavItem id="locked" label="Locked" icon="ph-bold ph-lock" disabled /></ArenaBottomNav></div>
+    <div><ArenaTreeView label="Files" nodes={[{ id: 'src', label: 'src', disabled: true }]} /></div>
+    <div style={answered({ '--navigation-item-fade-disabled': '1' })}><ArenaBottomNav ariaLabel="Mobile"><ArenaBottomNavItem id="locked" label="Locked" icon="ph-bold ph-lock" disabled /></ArenaBottomNav></div>
+  </>,
+  'answered-disabled-tree-item-stops-the-fade': () => <>
+    <div><ArenaTreeView label="Files" nodes={[{ id: 'src', label: 'src', disabled: true }]} /></div>
+    <div style={answered({ '--navigation-item-fade-disabled': '1' })}><ArenaTreeView label="Files" nodes={[{ id: 'src', label: 'src', disabled: true }]} /></div>
+  </>,
   'hover-answer-is-not-derived-from-the-rest-answer': () => <div style={answered({ '--actions-primary-root-fill-rest': 'var(--fill-surface)', '--actions-primary-root-fill-hover': 'var(--fill-hover)' })}><ArenaButton>Save</ArenaButton></div>,
 };
 
@@ -198,6 +217,13 @@ const SUBJECT: Record<string, { part: string; at: number }> = {
   'menu-answer-moves-every-highlight': { part: 'combobox.option', at: 0 },
   'blocked-option-fades-until-answered': { part: 'combobox.option', at: -1 },
   'blocked-active-option-keeps-its-selected-wash': { part: 'combobox.option', at: -1 },
+  'navigation-answer-moves-every-current-item': { part: 'side-nav.item', at: 0 },
+  'hovered-current-item-keeps-its-selected-look': { part: 'side-nav.item', at: 0 },
+  'hovered-selected-tab-keeps-its-selected-ink': { part: 'tabs.tab', at: 0 },
+  'selected-edge-answer-moves-the-tab-rule': { part: 'tabs.tab', at: 0 },
+  'selected-edge-answer-moves-the-current-page-border': { part: 'pagination.page', at: 0 },
+  'aria-disabled-member-fades-until-answered': { part: 'bottom-nav.item', at: -1 },
+  'answered-disabled-tree-item-stops-the-fade': { part: 'tree-view.item', at: -1 },
   'class-on-copy-button-reaches-the-icon-button-it-draws': { part: 'icon-button', at: 0 },
 };
 

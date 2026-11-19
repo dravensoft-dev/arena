@@ -5,9 +5,9 @@
  * family is a context family the fixture declares, since phase 1 ships none. A tree keeps an open
  * surface, a floating one and a channel an element binds on its style: what a size class reaches,
  * stops at and is answered by. It keeps a destructive flag and a tone other than neutral, the meaning
- * an emphasis class and an accent class leave in place; the axis attribute a member takes its option
- * from, so an error field is rebuilt an error; a disabled, pressed or selected flag (a branch member's
- * by its data attribute); and a colour slot a case binds, standing in for a style plugin's answer. */
+ * an emphasis class and an accent class leave in place; the axis a member takes its option from; a
+ * disabled, pressed or selected flag (a branch member's by its data attribute, an aria-disabled
+ * member's by aria-disabled); and a colour slot a case binds, standing in for a style plugin's answer. */
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -86,6 +86,8 @@ const optionAxesOf = (root = repoRoot) => new Map(Object.entries(readColorSlots(
 const OPTION_AXES = optionAxesOf();
 const SELECTED_BY = branchAxes('selectedBy');
 const DISABLED_BY = branchAxes('disabledBy');
+const ARIA_DISABLED = new Set(Object.entries(readColorSlots().members).filter(([, member]) => member.disabledModifier === 'aria-disabled:')
+  .map(([key]) => { const [component, part] = key.split('.') as [string, string]; return `${kebab(component.replace(/^Arena/, ''))}.${kebab(part)}`; }));
 
 export const channelBindings = (style: string) => style.split(';').map((one) => one.replace(/\s+/g, ''))
   .filter((one) => one.startsWith('--arena-') || SLOT_CHANNELS.has(one.split(':')[0] ?? '')).join(';');
@@ -101,6 +103,7 @@ export function normalize(element: NodeLike, vocabulary: Set<string>, subject: N
   if (element.hasAttribute?.('disabled')) tree.disabled = true;
   const off = part ? DISABLED_BY.get(part) : undefined;
   if (off && element.hasAttribute?.(off) && element.getAttribute?.(off) !== 'false') tree.disabled = true;
+  if (part && ARIA_DISABLED.has(part) && element.getAttribute?.('aria-disabled') === 'true') tree.disabled = true;
   if (element.hasAttribute?.(DESTRUCTIVE) && element.getAttribute?.(DESTRUCTIVE) !== 'false') tree.destructive = true;
   if (element.hasAttribute?.(PRESSED) && element.getAttribute?.(PRESSED) !== 'false') tree.pressed = true;
   const selected = part ? SELECTED_BY.get(part) : undefined;
@@ -139,7 +142,7 @@ export function treeHtml(
   if (tree.part) attrs.push(`data-arena-part="${tree.part}"`);
   if (tree.boundary) attrs.push('data-arena-boundary=""');
   if (tree.open) attrs.push(`${OPEN}=""`);
-  if (tree.disabled) attrs.push('disabled=""');
+  if (tree.disabled) attrs.push(tree.part && ARIA_DISABLED.has(tree.part) ? 'aria-disabled="true"' : 'disabled=""');
   if (tree.subject) attrs.push(`${SUBJECT}=""`);
   if (tree.surface) attrs.push(`${SURFACE}="${tree.surface}"`);
   const styles = [tree.contents ? 'display: contents' : '', tree.vars ?? ''].filter(Boolean);

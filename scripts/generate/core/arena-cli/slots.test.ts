@@ -94,7 +94,7 @@ test('a member default reaches the derived states', () => {
   assert.equal(memberChain(c, 'ArenaIconButton.root', 'actions-ghost-root-edge-rest'), 'var(--actions-ghost-root-edge-rest,var(--emphasis-ghost-icon-edge))');
   assert.equal(slotChain(c, 'actions-ghost-root-edge-rest'), 'var(--actions-ghost-root-edge-rest,transparent)', 'the group keeps its own default');
   assert.equal(memberChain(c, 'ArenaIconButton.root', 'actions-ghost-root-edge-selected-hover'),
-    'var(--actions-ghost-root-edge-selected-hover,var(--arena-emphasis-icon-edge-selected))', 'a state the default does not reach reads the member channel');
+    'var(--actions-ghost-root-edge-selected-hover,color-mix(in_oklab,var(--arena-emphasis-icon-edge-selected),var(--arena-emphasis-ink-selected)_calc(var(--mix-hover)*100%)))', 'a state the default does not reach reads the member channel');
 });
 
 test('a member channel replaces the group channel only for the property it names, and a level still wraps the member chain', () => {

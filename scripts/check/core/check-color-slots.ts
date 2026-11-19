@@ -102,7 +102,8 @@ export function acceptsProblems(c: SlotCatalogue, roles: ReadonlySet<string>): s
   return out;
 }
 
-const mixIsFill = (s: ColorSlot) => s.derive?.mix === undefined || s.property === 'fill';
+const mixIsFill = (s: ColorSlot) => s.derive?.mix === undefined || s.property === 'fill'
+  || (s.property === 'edge' && (s.state === 'selected-hover' || s.state === 'selected-pressed'));
 
 export function defaultProblems(c: SlotCatalogue, roles: ReadonlySet<string>): string[] {
   const out: string[] = [];
@@ -118,7 +119,7 @@ export function defaultProblems(c: SlotCatalogue, roles: ReadonlySet<string>): s
       const base = expectedName({ ...s, state: s.state === 'selected-disabled' ? 'selected' : 'rest' });
       if (!Object.hasOwn(c.slots, base)) out.push(`${name}: it falls to ${base}, which is no slot`);
     }
-    if (!mixIsFill(s)) out.push(`${name}: mix is for a fill only`);
+    if (!mixIsFill(s)) out.push(`${name}: mix is for a fill, and for a selected hover or pressed edge, which follows its fill's mix (D85)`);
     if (s.derive?.mix !== undefined && !['mix-hover', 'mix-pressed'].includes(s.derive.mix)) out.push(`${name}: mix "${s.derive.mix}" is neither mix-hover nor mix-pressed`);
     if (s.default !== undefined) {
       const ref = REF.exec(s.default)?.[1];

@@ -590,8 +590,8 @@ export const CLAIMS = {
   ArenaPagination: [
     { slot: 'root', has: ['inline-flex', 'items-center'], why: 'a host-bound root is never the UA-default inline box' },
     { slot: 'nav', has: ['disabled:opacity-[var(--actions-secondary-root-fade-disabled,var(--fade-disabled))]', 'disabled:cursor-not-allowed'], hasNot: ['disabled:text-ink-muted/40', 'disabled:opacity-[var(--fade-disabled)]'], why: 'an unreachable step says so through a :disabled variant, which only a real disabled control matches, and fades by its own marker' },
-    { chosen: { current: true }, slot: 'page', has: ['bg-primary-fill', 'text-primary-content'], why: 'the current page is the one filled control in the row' },
-    { chosen: { current: false }, slot: 'page', has: ['bg-transparent'], hasNot: ['bg-primary-fill'], why: 'the current page is the one filled control in the row' },
+    { chosen: { current: true }, slot: 'page', has: [read('ArenaPagination.page', 'navigation-item-fill-selected', 'bg'), read('ArenaPagination.page', 'navigation-item-edge-selected', 'border'), read('ArenaPagination.page', 'navigation-item-ink-selected', 'text')], hasNot: ['bg-primary-fill', 'text-primary-content'], why: 'the current page is the navigation group\'s quiet selection: its wash, its selected ink and the selected edge its border draws' },
+    { chosen: { current: false }, slot: 'page', has: [read('ArenaPagination.page', 'navigation-item-fill-rest', 'bg'), read('ArenaPagination.page', 'navigation-item-edge-rest', 'border')], hasNot: ['bg-primary-fill', 'border-edge-control-quiet'], why: 'a resting page reads the transparent rest edge, so its border draws nothing until it is current' },
     { slot: 'page', has: ['min-h-ctl-h-sm', 'min-w-ctl-h-sm', 'border-[length:var(--bw-control)]'], why: 'the shared box is set once on the page slot, so a state slot never fights it, and it reads the density rather than a step, so a page number is a target a thumb can hit in the density chosen for one' },
   ],
   ArenaSegmentedControl: [
@@ -614,7 +614,8 @@ export const CLAIMS = {
       why: 'the display utility stays on the base, since the host binds the root slot and a placement class writes no display' },
   ],
   ArenaSideNav: [
-    { chosen: { current: true }, slot: 'item', has: ['bg-selected/(--level-accent-soft-primary)', 'text-ink-selected'], hasNot: ['bg-primary/14'], why: 'the current page is a wash in the selected ink, read from the roles' },
+    { chosen: { current: true }, slot: 'item', has: [read('ArenaSideNav.item', 'navigation-item-fill-selected', 'bg'), read('ArenaSideNav.item', 'navigation-item-ink-selected', 'text')], hasNot: ['bg-primary/14', 'bg-selected/(--level-accent-soft-primary)'], why: 'the current page is a wash in the selected ink, read from the navigation group\'s selected slots' },
+    { chosen: { current: false }, slot: 'badge', has: [read('ArenaSideNav.badge', 'navigation-badge-fill-rest', 'bg')], hasNot: ['bg-base-300'], why: 'the count beside a row that is not current is the quiet marker fill' },
     ...['item', 'trigger'].map((slot) => ({ slot, has: ['flex', 'items-center', 'gap-row', 'px-nav-row-x', 'py-nav-row-y', 'rounded-control'],
       why: 'the trigger matches the item metrics, or a collapsible header will not line up with its siblings' })),
     { slot: 'root', has: ['flex', 'flex-col'], why: 'the rail is a column, and it is a display utility because the host binds it' },
@@ -633,13 +634,13 @@ export const CLAIMS = {
     { chosen: { disabled: true }, slot: 'chip', has: ['opacity-[var(--fade-disabled)]', 'cursor-not-allowed'], hasNot: ['opacity-50'], why: 'a disabled control keeps its rest ink and fades by the role the skin answers' },
   ],
   ArenaTreeView: [
-    { chosen: { selected: true }, slot: 'item', has: ['bg-selected/(--level-accent-soft-primary)', 'text-ink-selected'], hasNot: ['bg-primary/14'], why: 'the selected row is a wash in the selected ink, read from the roles' },
-    { chosen: { disabled: true }, slot: 'item', has: ['opacity-[var(--fade-disabled)]', 'cursor-not-allowed'], hasNot: ['text-ink-muted/40'], why: 'a disabled control keeps its rest ink and fades by the role the skin answers' },
+    { chosen: { selected: true }, slot: 'item', has: [read('ArenaTreeView.item', 'navigation-item-fill-selected', 'bg'), read('ArenaTreeView.item', 'navigation-item-ink-selected', 'text')], hasNot: ['bg-primary/14', 'bg-selected/(--level-accent-soft-primary)'], why: 'the selected row is a wash in the selected ink, read from the navigation group\'s selected slots' },
+    { chosen: { disabled: true }, slot: 'item', has: ['opacity-[var(--navigation-item-fade-disabled,var(--fade-disabled))]', 'cursor-not-allowed'], hasNot: ['text-ink-muted/40', 'opacity-[var(--fade-disabled)]'], why: 'a disabled control keeps its rest ink and fades by its own marker until a disabled answer stops it' },
   ],
   ArenaTabs: [
     { slot: 'root', has: ['flex', 'border-b-[length:var(--bw-separator)]', 'border-edge-separator'], why: 'the tablist sits on a hairline rule that the selected tab overdraws' },
-    { chosen: { selected: true }, slot: 'tab', has: ['font-control', 'text-ink-selected', 'shadow-[inset_0_calc(var(--bw-strong)*-1)_0_var(--edge-tab-selected)]'], why: 'the selected tab is marked by an inset rule in the colour role edge-tab-selected rather than a fill' },
-    { chosen: { selected: false }, slot: 'tab', has: ['font-medium', 'text-ink-muted/(--level-ink-muted)', 'shadow-none'], why: 'an unselected tab is muted and carries no underline' },
+    { chosen: { selected: true }, slot: 'tab', has: ['font-control', read('ArenaTabs.tab', 'navigation-item-ink-selected', 'text'), `shadow-[inset_0_calc(var(--bw-strong)*-1)_0_${memberValue(SLOTS, 'ArenaTabs.tab', 'navigation-item-edge-selected', 'tailwind')}]`], why: 'the selected tab is marked by an inset rule in the navigation group\'s selected edge rather than a fill' },
+    { chosen: { selected: false }, slot: 'tab', has: ['font-medium', read('ArenaTabs.tab', 'navigation-item-ink-rest', 'text'), `shadow-[inset_0_calc(var(--bw-strong)*-1)_0_${memberValue(SLOTS, 'ArenaTabs.tab', 'navigation-item-edge-rest', 'tailwind')}]`], hasNot: ['shadow-none'], why: 'an unselected tab is muted and its rule reads the transparent rest edge, so it carries no underline' },
     { slot: 'tab', has: ['focus-visible:outline-none'], why: 'a directly focused slot removes the browser\'s own outline or that is what a keyboard user sees instead of Arena\'s' },
     {
       slot: 'tab',

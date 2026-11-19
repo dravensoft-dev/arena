@@ -1124,6 +1124,18 @@
       }
     }
   },
+  "fill-marker": {
+    "$type": "color",
+    "$description": "The fill of a small count or dot set on a navigation row rather than of a strip a value runs along: the count beside a side navigation row that is not current. Read through the navigation group's badge at rest, whose ink is measured over it at 4.5:1. A badge on the current row takes the primary emphasis instead, so this role answers only the quiet half of the pair.\n\nSeparate from fill-track because a track and a marker are different questions that happen to share a step: a style plugin that lightens its tracks to make a bar read as a measure has said nothing about the counts beside its rows, and one that fills its counts with a tint of its accent has said nothing about its bars.\n\nAn assignment and never a value, like every colour role: WHICH of the consumer's colours, never what that colour is.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{color.base-300}",
+        "audience": "component",
+        "task": "meaning-and-identity",
+        "question": "What colour fills the small count or dot set beside a navigation row that is not current?"
+      }
+    }
+  },
   "fill-control": {
     "$type": "color",
     "$description": "The fill of a selection control at rest: the box of a checkbox, the ring of a radio, the track of a switch, the rail of a slider, and the selected segment of a segmented control. Read through the choices group, whose box answers it at rest and whose selected segment takes it as its fill. Paired with fill-control-on, which has to stand 3:1 apart from it, because the fill is what tells on from off.",
@@ -1585,7 +1597,7 @@
   },
   "mix-hover": {
     "$type": "number",
-    "$description": "The share of its drawn ink a part's fill takes under the pointer: the fill is mixed toward the ink the part draws on it, in OKLab, by this fraction. A number and never a colour, so a style plugin that wants a firmer hover answers a share and the part keeps reading as itself.",
+    "$description": "The share of its drawn ink a part's fill takes under the pointer: the fill is mixed toward the ink the part draws on it, in OKLab, by this fraction. A number and never a colour, so a style plugin that wants a firmer hover answers a share and the part keeps reading as itself. A selected part's edge follows its fill under the pointer by the same share, toward the same ink, so the edge that marks the selection keeps its distance from the wash it sits on.",
     "$extensions": {
       "com.dravensoft.arena": {
         "default": "{blend.hover}",
@@ -1600,7 +1612,7 @@
   },
   "mix-pressed": {
     "$type": "number",
-    "$description": "The share of its drawn ink a part's fill takes while it is pressed: the fill is mixed toward the ink the part draws on it, in OKLab, by this fraction. A number and never a colour, kept apart from the hover share because a press is firmer than a hover and a plugin answers the two one at a time.",
+    "$description": "The share of its drawn ink a part's fill takes while it is pressed: the fill is mixed toward the ink the part draws on it, in OKLab, by this fraction. A number and never a colour, kept apart from the hover share because a press is firmer than a hover and a plugin answers the two one at a time. A selected part's edge follows its fill while pressed by the same share, toward the same ink, so the edge that marks the selection keeps its distance from the wash it sits on.",
     "$extensions": {
       "com.dravensoft.arena": {
         "default": "{blend.pressed}",

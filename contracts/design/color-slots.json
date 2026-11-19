@@ -164,6 +164,15 @@
     "navigation-plain-link-ink-hover": {
       "default": "{ink-heading}",
       "decision": "D19"
+    },
+    "navigation-item-fill-hover": {
+      "default": "{fill-hover}",
+      "decision": "D19"
+    },
+    "navigation-item-ink-hover": {
+      "default": "{ink-body}",
+      "decision": "D19",
+      "level": "level-ink-body"
     }
   },
   "rings": {
@@ -180,7 +189,13 @@
     "ArenaAccordion.trigger": "ground",
     "ArenaSheet.trigger": "ground",
     "ArenaBreadcrumbs.crumb": "ground",
-    "ArenaLink.root": "ground"
+    "ArenaLink.root": "ground",
+    "ArenaBottomNav.item": "ground",
+    "ArenaPagination.page": "ground",
+    "ArenaSideNav.item": "ground",
+    "ArenaSideNav.trigger": "ground",
+    "ArenaStepper.trigger": "ground",
+    "ArenaTabs.tab": "ground"
   },
   "groups": {
     "actions": {
@@ -539,7 +554,28 @@
             "edge",
             "icon"
           ],
-          "states": "selectable"
+          "states": "selectable",
+          "rest": {
+            "fill": "transparent",
+            "ink": {
+              "role": "{ink-muted}",
+              "level": "level-ink-muted"
+            },
+            "edge": "transparent",
+            "icon": "ink"
+          },
+          "selected": {
+            "fill": {
+              "role": "{fill-selected}",
+              "level": "level-accent-soft-primary"
+            },
+            "ink": {
+              "role": "{ink-selected}"
+            },
+            "edge": {
+              "role": "{edge-tab-selected}"
+            }
+          }
         },
         "badge": {
           "properties": [
@@ -549,7 +585,18 @@
           "states": [
             "rest",
             "selected"
-          ]
+          ],
+          "rest": {
+            "fill": "{fill-marker}",
+            "ink": {
+              "role": "{ink-body}",
+              "level": "level-ink-body"
+            }
+          },
+          "selected": {
+            "fill": "{emphasis-primary-fill}",
+            "ink": "{emphasis-primary-ink}"
+          }
         },
         "link": {
           "properties": [
@@ -1270,8 +1317,23 @@
       "group": "navigation",
       "parts": {
         "root": "surfaces.bar",
-        "item": "navigation.item",
-        "badge": "navigation.badge"
+        "item": {
+          "to": "navigation.item",
+          "options": [],
+          "states": "selectable",
+          "selectedBy": {
+            "axis": "current",
+            "value": "true"
+          },
+          "disabledModifier": "aria-disabled:"
+        },
+        "badge": {
+          "to": "navigation.badge",
+          "options": [],
+          "states": [
+            "selected"
+          ]
+        }
       }
     },
     "ArenaBreadcrumbs": {
@@ -2095,7 +2157,27 @@
           "states": "base",
           "inline": true
         },
-        "page": "navigation.item",
+        "page": {
+          "to": "navigation.item",
+          "options": [],
+          "properties": [
+            "fill",
+            "ink",
+            "edge"
+          ],
+          "states": [
+            "rest",
+            "hover",
+            "pressed",
+            "selected",
+            "selected-hover",
+            "selected-pressed"
+          ],
+          "selectedBy": {
+            "axis": "current",
+            "value": "true"
+          }
+        },
         "ellipsis": "text.muted"
       }
     },
@@ -2341,11 +2423,54 @@
     "ArenaSideNav": {
       "group": "navigation",
       "parts": {
-        "item": "navigation.item",
-        "badge": "navigation.badge",
+        "item": {
+          "to": "navigation.item",
+          "options": [],
+          "states": [
+            "rest",
+            "hover",
+            "pressed",
+            "selected",
+            "selected-hover",
+            "selected-pressed"
+          ],
+          "selectedBy": {
+            "axis": "current",
+            "value": "true"
+          }
+        },
+        "badge": {
+          "to": "navigation.badge",
+          "options": [],
+          "states": [
+            "rest",
+            "selected"
+          ],
+          "selectedBy": {
+            "axis": "current",
+            "value": "true"
+          }
+        },
         "sectionLabel": "text.muted",
-        "trigger": "navigation.item",
-        "dot": "navigation.badge",
+        "trigger": {
+          "to": "navigation.item",
+          "options": [],
+          "states": [
+            "rest",
+            "hover",
+            "pressed"
+          ]
+        },
+        "dot": {
+          "to": "navigation.badge",
+          "options": [],
+          "properties": [
+            "fill"
+          ],
+          "states": [
+            "selected"
+          ]
+        },
         "separator": "surfaces.separator"
       }
     },
@@ -2363,7 +2488,14 @@
     "ArenaSkipLink": {
       "group": "navigation",
       "parts": {
-        "root": "navigation.item"
+        "root": {
+          "to": "actions.root",
+          "options": [
+            "secondary"
+          ],
+          "states": "base",
+          "inline": true
+        }
       }
     },
     "ArenaSlider": {
@@ -2450,7 +2582,22 @@
     "ArenaStepper": {
       "group": "steps",
       "parts": {
-        "trigger": "navigation.item",
+        "trigger": {
+          "to": "navigation.item",
+          "options": [],
+          "properties": [
+            "fill"
+          ],
+          "states": [
+            "rest",
+            "hover",
+            "pressed"
+          ],
+          "hoverIn": {
+            "axis": "reachable",
+            "value": "true"
+          }
+        },
         "marker": "steps.marker",
         "label": "steps.label",
         "description": "text.muted",
@@ -2529,7 +2676,25 @@
       "group": "navigation",
       "parts": {
         "root": "surfaces.separator",
-        "tab": "navigation.item"
+        "tab": {
+          "to": "navigation.item",
+          "options": [],
+          "properties": [
+            "ink",
+            "edge"
+          ],
+          "states": [
+            "rest",
+            "hover",
+            "selected",
+            "selected-hover"
+          ],
+          "edgeAs": "rule",
+          "selectedBy": {
+            "axis": "selected",
+            "value": "true"
+          }
+        }
       }
     },
     "ArenaTag": {
@@ -2643,7 +2808,19 @@
     "ArenaTreeView": {
       "group": "navigation",
       "parts": {
-        "item": "navigation.item"
+        "item": {
+          "to": "navigation.item",
+          "options": [],
+          "states": "selectable",
+          "selectedBy": {
+            "axis": "selected",
+            "value": "true"
+          },
+          "disabledBy": {
+            "axis": "disabled",
+            "value": "true"
+          }
+        }
       }
     },
     "ArenaUnauthCard": {

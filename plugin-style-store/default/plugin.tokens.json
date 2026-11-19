@@ -471,6 +471,10 @@
     "$type": "color",
     "$value": "{color.base-300}"
   },
+  "fill-marker": {
+    "$type": "color",
+    "$value": "{color.base-300}"
+  },
   "fill-control": {
     "$type": "color",
     "$value": "{color.neutral}"

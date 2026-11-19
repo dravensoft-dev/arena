@@ -13,7 +13,7 @@
   "slots": {
     "root": "relative flex [flex-direction:var(--arena-orientation-direction,row)] gap-inline list-none m-0 p-0",
     "step": "block flex-1 min-w-0",
-    "trigger": "flex flex-wrap items-start gap-control w-full min-h-ctl-h-sm min-w-ctl-h-sm rounded-control text-start font-body focus-visible:outline-none focus-visible:ring-[length:var(--bw-focus)] focus-visible:ring-edge-focus",
+    "trigger": "flex flex-wrap items-start gap-control w-full min-h-ctl-h-sm min-w-ctl-h-sm rounded-control text-start font-body focus-visible:outline-none focus-visible:ring-[length:var(--bw-focus)] focus-visible:ring-edge-focus bg-[color:var(--navigation-item-fill-rest,transparent)]",
     "rail": "flex [flex-direction:var(--arena-orientation-direction,row)] items-center self-stretch gap-inline shrink-0 basis-[var(--arena-orientation-rule-w,100%)]",
     "marker": "inline-flex flex-none items-center justify-center size-ctl-h-sm rounded-pill border-[length:var(--bw-control)] font-mono tabular-nums text-ctl-xs",
     "icon": "inline-flex text-[length:var(--icon-sm)]",
@@ -58,7 +58,7 @@
     },
     "reachable": {
       "true": {
-        "trigger": "cursor-pointer hover:bg-hover"
+        "trigger": "cursor-pointer hover:bg-[color:var(--navigation-item-fill-hover,var(--fill-hover))] active:bg-[color:var(--navigation-item-fill-pressed,color-mix(in_oklab,var(--navigation-item-fill-rest,transparent),color-mix(in_oklab,var(--navigation-item-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)_calc(var(--mix-pressed)*100%)))]"
       },
       "false": {
         "trigger": "cursor-default"

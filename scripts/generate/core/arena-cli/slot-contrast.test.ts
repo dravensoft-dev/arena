@@ -176,9 +176,9 @@ test('a member default is measured as the member paints it, where it moves a pai
   const roles = rolesFor(null, CATALOGUE, 'dark');
   const colors = coloursOf('dark');
   const fixture = structuredClone(CATALOGUE.slots);
-  fixture.members!['ArenaIconButton.root']!.defaults = { 'actions-ghost-root-edge-selected': '{fill-selected}' };
+  fixture.members!['ArenaIconButton.root']!.defaults = { 'actions-ghost-root-edge-selected': '{fill-surface}' };
   const lines = slotReports(fixture, new Map(), roles, colors, 'dark', LEVELS).map((one) => one.message);
-  assert.ok(lines.some((line) => /^--actions-ghost-root-edge-selected(-pressed)? measures [0-9.]+:1 over --actions-ghost-root-fill-selected(-pressed)? .*as ArenaIconButton\.root paints it with its own default/.test(line)), lines.join('\n'));
+  assert.ok(lines.some((line) => /^--actions-ghost-root-edge-selected(-hover|-pressed)? measures [0-9.]+:1 over --actions-ghost-root-fill-selected(-hover|-pressed)? .*as ArenaIconButton\.root paints it with its own default/.test(line)), lines.join('\n'));
   assert.equal(slotReports(CATALOGUE.slots, new Map(), roles, colors, 'dark', LEVELS).some((one) => one.message.includes('ArenaIconButton.root')), false,
     'the shipped member default is a rest edge, which is no pair');
 });
@@ -339,4 +339,24 @@ test('the menu destructive press clears AA over every ground', () => {
     const menus = slotReports(CATALOGUE.slots, answers, roles, coloursOf(theme), theme, LEVELS).map((one) => one.message).filter((line) => line.startsWith('--menus-'));
     assert.deepEqual(menus, [], `${theme}: the default plugin draws every menus pair above its floor`);
   }
+});
+
+test('the selected edge clears 3:1 over the selected wash, hovered and pressed too', () => {
+  const states = ['selected', 'selected-hover', 'selected-pressed'];
+  for (const state of states) assert.ok(slotPairs(CATALOGUE.slots).some((pair) => pair.slot === `navigation-item-edge-${state}` && pair.over === `navigation-item-fill-${state}` && pair.min === 3), state);
+  const figures: Record<string, number[]> = {};
+  for (const theme of ['dark', 'light'] as const) {
+    const plugin = readPlugin('default', JSON.parse(readFileSync(join(repoRoot, 'plugin-style-store/default/plugin.tokens.json'), 'utf8')));
+    const roles = rolesFor(plugin, CATALOGUE, theme);
+    const answers = new Map([...roles].filter(([name]) => Object.hasOwn(SLOTS, name)));
+    const colors = coloursOf(theme);
+    for (const state of states) for (const ground of ['base-100', 'base-200']) {
+      const under = slotColour(CATALOGUE.slots, `navigation-item-fill-${state}`, answers, roles, colors, LEVELS, mixOf(roles), colors[ground] as string) as string;
+      (figures[state] ??= []).push(Number(contrast(slotColour(CATALOGUE.slots, `navigation-item-edge-${state}`, answers, roles, colors, LEVELS, mixOf(roles), under) as string, under).toFixed(2)));
+    }
+  }
+  for (const state of states) assert.ok(figures[state]!.every((one) => one >= 3), `${state}: ${figures[state]!.join(', ')}`);
+  const near = (got: number[], want: number[]) => got.every((one, i) => Math.abs(one - want[i]!) <= 0.02);
+  assert.ok(near(figures.selected!, [4.38, 4.05, 5.04, 4.64]), `F4: ${figures.selected!.join(', ')}`);
+  assert.ok(near(figures['selected-pressed']!, [3.37, 3.11, 4.48, 4.13]), `D85: ${figures['selected-pressed']!.join(', ')}`);
 });

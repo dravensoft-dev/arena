@@ -332,3 +332,13 @@ test('the mix numbers are states roles shown under hover and active', () => {
     assert.equal(ext(name)?.default, def, name);
   }
 });
+
+test('fill-marker is a colour role answering base-300', () => {
+  const shipped = readJson(join(repoRoot, ROLES)) as Record<string, any>;
+  const role = shipped['fill-marker'];
+  assert.equal(role?.$type, 'color');
+  const ext = role?.$extensions?.['com.dravensoft.arena'];
+  assert.equal(ext?.default, '{color.base-300}');
+  assert.equal(ext?.audience, 'component');
+  assert.match(String(ext?.question), /count or dot/);
+});

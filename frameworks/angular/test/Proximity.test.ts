@@ -44,6 +44,14 @@ import { ArenaInput } from '../components/forms/arena-input/ArenaInput';
 import { ArenaMultiSelect } from '../components/forms/arena-multi-select/ArenaMultiSelect';
 import { ArenaCommandPalette } from '../components/navigation/arena-command-palette/ArenaCommandPalette';
 import { ArenaFileInput } from '../components/forms/arena-file-input/ArenaFileInput';
+import { ArenaSideNav } from '../components/navigation/arena-side-nav/ArenaSideNav';
+import { ArenaSideNavItem } from '../components/navigation/arena-side-nav-item/ArenaSideNavItem';
+import { ArenaTabs } from '../components/navigation/arena-tabs/ArenaTabs';
+import { ArenaTab } from '../components/navigation/arena-tab/ArenaTab';
+import { ArenaTreeView } from '../components/navigation/arena-tree-view/ArenaTreeView';
+import { ArenaPagination } from '../components/navigation/arena-pagination/ArenaPagination';
+import { ArenaBottomNav } from '../components/navigation/arena-bottom-nav/ArenaBottomNav';
+import { ArenaBottomNavItem } from '../components/navigation/arena-bottom-nav-item/ArenaBottomNavItem';
 import { ArenaFooter } from '../ProjectionMarkers';
 import { LIB } from './Compliance';
 
@@ -151,6 +159,13 @@ const TEMPLATES: Record<string, string> = {
     + '<div style="--menus-plain-item-fade-selected-disabled: 1"><arena-multi-select label="Regions" [options]="[{ value: \'eu-west\', label: \'Europe West\' }]" [value]="[]" [max]="0" /></div>',
   'blocked-active-option-keeps-its-selected-wash': '<div><arena-multi-select label="Regions" [options]="[{ value: \'eu-west\', label: \'Europe West\' }]" [value]="[]" /></div>'
     + '<div><arena-multi-select label="Regions" [options]="[{ value: \'eu-west\', label: \'Europe West\' }]" [value]="[]" [max]="0" /></div>',
+  'navigation-answer-moves-every-current-item': '<div style="--navigation-item-fill-selected: var(--fill-surface)">' + '<arena-side-nav ariaLabel="Primary" active="home"><arena-side-nav-item id="home" label="Home" /></arena-side-nav>' + '<arena-tree-view label="Files" [nodes]="[{ id: \'src\', label: \'src\' }]" [selection]="{ ids: [\'src\'] }" />' + '<arena-pagination ariaLabel="Deployments" [page]="1" [pageCount]="1" />' + '<arena-bottom-nav ariaLabel="Mobile" active="home"><arena-bottom-nav-item id="home" label="Home" icon="ph-bold ph-house" /></arena-bottom-nav></div>',
+  'hovered-current-item-keeps-its-selected-look': '<arena-side-nav ariaLabel="Primary" active="home"><arena-side-nav-item id="home" label="Home" /></arena-side-nav>',
+  'hovered-selected-tab-keeps-its-selected-ink': '<arena-tabs value="one"><arena-tab value="one" label="One">First</arena-tab></arena-tabs>',
+  'selected-edge-answer-moves-the-tab-rule': '<div style="--navigation-item-edge-selected: var(--hue-info-edge)"><arena-tabs value="one"><arena-tab value="one" label="One">First</arena-tab></arena-tabs></div>',
+  'selected-edge-answer-moves-the-current-page-border': '<div style="--navigation-item-edge-selected: var(--hue-info-edge)"><arena-pagination ariaLabel="Deployments" [page]="1" [pageCount]="1" /></div>',
+  'aria-disabled-member-fades-until-answered': '<div><arena-bottom-nav ariaLabel="Mobile"><arena-bottom-nav-item id="locked" label="Locked" icon="ph-bold ph-lock" disabled /></arena-bottom-nav></div>' + '<div><arena-tree-view label="Files" [nodes]="[{ id: \'src\', label: \'src\', disabled: true }]" /></div>' + '<div style="--navigation-item-fade-disabled: 1"><arena-bottom-nav ariaLabel="Mobile"><arena-bottom-nav-item id="locked" label="Locked" icon="ph-bold ph-lock" disabled /></arena-bottom-nav></div>',
+  'answered-disabled-tree-item-stops-the-fade': '<div><arena-tree-view label="Files" [nodes]="[{ id: \'src\', label: \'src\', disabled: true }]" /></div>' + '<div style="--navigation-item-fade-disabled: 1"><arena-tree-view label="Files" [nodes]="[{ id: \'src\', label: \'src\', disabled: true }]" /></div>',
   'hover-answer-is-not-derived-from-the-rest-answer': '<div style="--actions-primary-root-fill-rest: var(--fill-surface); --actions-primary-root-fill-hover: var(--fill-hover)"><arena-button>Save</arena-button></div>',
 };
 
@@ -207,6 +222,13 @@ const SUBJECT: Record<string, { part: string; index: number }> = {
   'menu-answer-moves-every-highlight': { part: 'combobox.option', index: 0 },
   'blocked-option-fades-until-answered': { part: 'combobox.option', index: -1 },
   'blocked-active-option-keeps-its-selected-wash': { part: 'combobox.option', index: -1 },
+  'navigation-answer-moves-every-current-item': { part: 'side-nav.item', index: 0 },
+  'hovered-current-item-keeps-its-selected-look': { part: 'side-nav.item', index: 0 },
+  'hovered-selected-tab-keeps-its-selected-ink': { part: 'tabs.tab', index: 0 },
+  'selected-edge-answer-moves-the-tab-rule': { part: 'tabs.tab', index: 0 },
+  'selected-edge-answer-moves-the-current-page-border': { part: 'pagination.page', index: 0 },
+  'aria-disabled-member-fades-until-answered': { part: 'bottom-nav.item', index: -1 },
+  'answered-disabled-tree-item-stops-the-fade': { part: 'tree-view.item', index: -1 },
   'class-on-copy-button-reaches-the-icon-button-it-draws': { part: 'icon-button', index: 0 },
 };
 
@@ -223,7 +245,7 @@ for (const kase of cases) {
     const Host = Component({
       selector: `proximity-${kase.name}-host`,
       standalone: true,
-      imports: [ArenaButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaIconButton, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaFooter, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope, ArenaSplitButton, ArenaCopyButton, ArenaCheckbox, ArenaRadioGroup, ArenaRadio, ArenaSwitch, ArenaSlider, ArenaInput, ArenaFileInput, ArenaMultiSelect, ArenaCommandPalette],
+      imports: [ArenaSideNav, ArenaSideNavItem, ArenaTabs, ArenaTab, ArenaTreeView, ArenaPagination, ArenaBottomNav, ArenaBottomNavItem, ArenaButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaIconButton, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaFooter, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope, ArenaSplitButton, ArenaCopyButton, ArenaCheckbox, ArenaRadioGroup, ArenaRadio, ArenaSwitch, ArenaSlider, ArenaInput, ArenaFileInput, ArenaMultiSelect, ArenaCommandPalette],
       template: BARE.has(kase.name) ? TEMPLATES[kase.name] : `<div class="${kase.container}">${TEMPLATES[kase.name]}</div>`,
     })(class {});
     const fixture = TestBed.createComponent(Host);

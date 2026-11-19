@@ -1,13 +1,13 @@
 /* What Tailwind's `@supports` emit does to a compiled rule, and the two repairs it needs. An
  * opacity modifier compiles to the colour at full strength with the mix behind the at-rule, which
  * is progressive enhancement until the wash washes the INK'S OWN colour: then the fallback paints
- * the glyph in the ground it stands on. `dropBlindFallbacks` takes that half out, so the
- * background is invalid at computed-value time and does not paint, which leaves the ink on the
- * surface it was measured against; no engine resolving color-mix sees a change. `mergeSupports`
- * is the second: one rule states a condition once, because `bun build` keeps the FIRST block of a
- * repeated condition and discards the rest, which Bun 1.4.0 does. It merges into the LAST of a
- * group, and refuses any move a plain declaration of the same property would start losing to. The
- * block reader is a sibling of the shipped CLI, which reads these sheets and cannot import here. */
+ * the glyph in the ground it stands on. `dropBlindFallbacks` takes that half out, so the background
+ * is invalid at computed-value time and leaves the ink on the surface it was measured against.
+ * `mergeSupports` states a condition once per rule, because `bun build` keeps the FIRST block of a
+ * repeated condition and discards the rest (Bun 1.4.0). It merges into the LAST of a group, a block
+ * wrapping one rule into the last block wrapping the same selector, and refuses any move a plain
+ * declaration of the same property would start losing to. The block reader is a sibling of the
+ * shipped CLI, which reads these sheets and cannot import here. */
 
 import type { CssBlock } from '../../generate/core/arena-cli/css-blocks.ts';
 import { COLOUR_VAR, MIXED_VAR, parseBlocks, selectorPath, inkOf } from '../../generate/core/arena-cli/css-blocks.ts';
@@ -56,8 +56,21 @@ export function supportsGroups(block: CssBlock) {
   return [...groups.values()].filter((group) => group.length > 1);
 }
 
+const sameSelector = (a: CssBlock, b: CssBlock) => a.selector.replace(/\s+/g, ' ') === b.selector.replace(/\s+/g, ' ');
+
+function wrapped(block: CssBlock): CssBlock | undefined {
+  const [rule] = block.children;
+  return block.decls.length === 0 && block.children.length === 1 && rule && rule.children.length === 0 ? rule : undefined;
+}
+
 function movable(block: CssBlock, source: CssBlock, target: CssBlock) {
-  if (source.children.length > 0) return false;
+  if (source.children.length > 0) {
+    const [from, into] = [wrapped(source), wrapped(target)];
+    if (!from || !into || !sameSelector(from, into) || from.decls.length === 0) return false;
+    const between = block.children.filter((one) => one.open > source.close && one.open < target.head && sameSelector(one, from));
+    return from.decls.every((decl) => !into.decls.some((held) => held.name === decl.name)
+      && !between.some((one) => one.decls.some((plain) => plain.name === decl.name)));
+  }
   if (source.decls.length === 0) return false;
   return source.decls.every((decl) => {
     if (target.decls.some((held) => held.name === decl.name)) return false;
@@ -72,10 +85,11 @@ export function mergeSupports(css: string) {
       const target = group[group.length - 1] as CssBlock;
       const moved = group.slice(0, -1).filter((source) => movable(block, source, target));
       if (moved.length === 0) continue;
-      const indent = /\n([ \t]*)\S/.exec(css.slice(target.open, target.close))?.[1] ?? '  ';
-      const last = target.decls[target.decls.length - 1];
-      const at = last ? last.to + 1 : target.open;
-      const carried = moved.flatMap((source) => source.decls.map((decl) => css.slice(decl.from, decl.to).trim()));
+      const into = wrapped(target) ?? target;
+      const indent = /\n([ \t]*)\S/.exec(css.slice(into.open, into.close))?.[1] ?? '  ';
+      const last = into.decls[into.decls.length - 1];
+      const at = last ? last.to + 1 : into.open;
+      const carried = moved.flatMap((source) => (wrapped(source) ?? source).decls.map((decl) => css.slice(decl.from, decl.to).trim()));
       edits.push({ from: at, to: at, text: carried.map((one) => `\n${indent}${one};`).join('') });
       for (const source of moved) edits.push({ from: source.head, to: source.close + 1, text: '' });
     }

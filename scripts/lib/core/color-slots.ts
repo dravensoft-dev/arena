@@ -92,7 +92,8 @@ export function deriveSlots(d: SlotDeclarations): SlotCatalogue {
         } else if (st === 'rest') [f.default, f.level] = answer(rest[prop] as Answer);
         else if (st === 'selected') [f.default, f.level] = answer(selectedAnswer());
         else if (!DISABLED.includes(st)) {
-          const mix = prop === 'fill' && st !== 'hover' ? (st === 'selected-hover' ? 'mix-hover' : 'mix-pressed') : undefined;
+          const follows = prop === 'fill' ? st !== 'hover' : prop === 'edge' && st.startsWith('selected-');
+          const mix = follows ? (st === 'selected-hover' ? 'mix-hover' : 'mix-pressed') : undefined;
           f.derive = { from: slotName(group, opt, part, prop, st.startsWith('selected') ? 'selected' : 'rest'), ...(mix ? { mix } : {}) };
         }
         if (DISABLED.includes(st)) f.optional = true;
