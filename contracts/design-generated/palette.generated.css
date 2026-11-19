@@ -15,7 +15,7 @@
   --color-primary:#e25647; /* crimson */
   --color-primary-content:#ffffff;
   /*
-     The ground primary-content sits on: a filled button, a checked box, a current page.
+     The ground primary-content sits on: a filled button, a current page, a count badge.
      OPTIONAL, like error-fill: omit it and the fill is primary. It exists for a
      palette whose accent, tuned to read as ink on its page, is too light to carry
      its content; dark primary is a lighter crimson tuned to read as ink on warm black,
@@ -94,7 +94,7 @@
   --color-primary:#e25647; /* crimson */
   --color-primary-content:#ffffff;
   /*
-     The ground primary-content sits on: a filled button, a checked box, a current page.
+     The ground primary-content sits on: a filled button, a current page, a count badge.
      OPTIONAL, like error-fill: omit it and the fill is primary. It exists for a
      palette whose accent, tuned to read as ink on its page, is too light to carry
      its content; dark primary is a lighter crimson tuned to read as ink on warm black,
@@ -166,7 +166,7 @@
   --color-primary:#b52a20;
   --color-primary-content:#ffffff;
   /*
-     The ground primary-content sits on: a filled button, a checked box, a current page.
+     The ground primary-content sits on: a filled button, a current page, a count badge.
      OPTIONAL, like error-fill: omit it and the fill is primary. It exists for a
      palette whose accent, tuned to read as ink on its page, is too light to carry
      its content; dark primary is a lighter crimson tuned to read as ink on warm black,

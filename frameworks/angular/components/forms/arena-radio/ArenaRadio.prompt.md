@@ -51,7 +51,7 @@ One option inside an `arena-radio-group`. Standalone, `OnPush`, signal I/O. The 
 - To toggle one thing on and off, this is the wrong control: use `arena-switch` for an immediate
   effect and `arena-checkbox` for a pending form value.
 
-**By hand, in real Chromium**, the option's own visuals, on the group's page (`bun run demos`, `/frameworks/angular/components/forms/arena-radio-group/ArenaRadioGroup.demo.generated.html`): - Selecting changes **only** the ring's border colour and adds the dot. The ring's size and surface do not move, so the row does not shift by a pixel.
+**By hand, in real Chromium**, the option's own visuals, on the group's page (`bun run demos`, `/frameworks/angular/components/forms/arena-radio-group/ArenaRadioGroup.demo.generated.html`): - Selecting changes **only** the ring's colours, filling it in `fill-control-on`, and adds the dot. The ring's size does not move, so the row does not shift by a pixel.
 - With a hint present, the ring stays level with the first line of the label rather than centring
   against both lines.
 - `disabled` dims the whole option, label and hint included, and the cursor is not-allowed over

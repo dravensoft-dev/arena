@@ -54,9 +54,9 @@ edges rather than walking out into the page behind the scrim.
 
 ### Do / Don't
 
-- **Do** let `destructive` paint the button. The fill is `--danger-fill` over `--color-error-content`, the pair the confirm button reads.
-- **Don't** rebuild the filled button yourself with `--danger`. That token is tuned to be read *as text* on the base surfaces, so it is too light to carry white. The measurement is 3.67:1 in the dark theme, under WCAG AA. `--danger-fill` exists precisely for this.
-- **Don't** reach for `destructive` on a merely important action. The danger fill competes with the primary button; if it is not a point of no return, an ordinary `<ArenaButton destructive>` is the right shape.
+- **Do** let `destructive` paint the button. The button reads the destructive option of the `actions` group, `actions-destructive-root-*`, so the answer that moves a destructive `ArenaButton` moves it.
+- **Don't** rebuild the filled button yourself with `--danger`. That token is tuned to be read *as text* on the base surfaces, so it is too light to carry white. The measurement is 3.15:1 in the dark theme, under WCAG AA. `--danger-fill` exists precisely for this.
+- **Don't** reach for `destructive` on a merely important action. The danger look competes with the primary button; if it is not a point of no return, an ordinary `<ArenaButton destructive>` is the right shape.
 - **Do** add `requireText` when the action destroys data that cannot be rebuilt.
 - **Do** give every confirmation a `title` that says what is about to happen, not what the component is ("Delete project", never "Confirm").
 - **Don't** render it with an empty `title` while it is closed. `title` is required whatever `open` is. A screen that mounts one confirmation and feeds it a subject per row fails on the first render, so mount it when a subject exists instead. Keep the subject after a cancel and toggle only `open`, or focus never returns to the control that opened it.

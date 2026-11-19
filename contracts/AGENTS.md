@@ -8,7 +8,7 @@ in its directory.
 |---|---|---|
 | [`api/`](api/AGENTS.md) | the members a component's API presents | `api/AGENTS.md`, plus [`api/MemberForms.md`](api/MemberForms.md) |
 | [`behaviour/`](behaviour/AGENTS.md) | what a kind of component must do: roles, keys, focus, dismissal | `behaviour/AGENTS.md` |
-| [`design/`](design/AGENTS.md) | what a value is | `design/AGENTS.md`, plus [`design/Scales.md`](design/Scales.md), [`design/StylePlugins.md`](design/StylePlugins.md) and [`design/TokenTypes.md`](design/TokenTypes.md) |
+| [`design/`](design/AGENTS.md) | what a value is | `design/AGENTS.md`, plus [`design/ColorSlots.md`](design/ColorSlots.md), [`design/Scales.md`](design/Scales.md), [`design/StylePlugins.md`](design/StylePlugins.md) and [`design/TokenTypes.md`](design/TokenTypes.md) |
 
 **A level's statement is one file or several, and where it is several the split is by AUDIENCE
 rather than by topic.** The `AGENTS.md` is always the half that **decides**, and a sibling is
