@@ -91,7 +91,7 @@ return (
 | `eyebrow` | `string` | no | none | The short kicker above the title. |
 | `confirmLabel` | `string` | no | none | The confirming button. |
 | `cancelLabel` | `string` | no | none | The cancelling button. |
-| `destructive` | `boolean` | no | `false` | Whether confirming is the final irreversible step, drawn with fill-confirm-final. |
+| `destructive` | `boolean` | no | `false` | Whether confirming is the final irreversible step, drawn as the destructive option of the actions group. |
 | `requireText` | `string` | no | none | Text the reader must type before the confirming button is enabled. |
 
 <!-- @shared queues end -->

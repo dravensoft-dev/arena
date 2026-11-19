@@ -104,6 +104,7 @@ const TEMPLATES: Record<string, string> = {
     + '<arena-icon-button icon="ph-bold ph-x" label="Close" /></div>',
   'context-class-beats-the-default-block': '<div style="--actions-primary-root-fill-rest: var(--fill-surface-raised)"><arena-button>Save</arena-button></div>',
   'member-default-kept-while-the-group-is-silent': '<div><arena-icon-button icon="ph-bold ph-x" label="Close" /><arena-button class="arena-emphasis-ghost">Save</arena-button></div>',
+  'secondary-answer-reaches-the-calendar-nav': '<div style="--actions-secondary-root-fill-rest: var(--fill-surface)"><arena-button class="arena-emphasis-secondary">Save</arena-button><arena-calendar view="week" anchorDate="2025-03-03" /></div>',
   'group-answer-replaces-the-member-default': '<div style="--actions-ghost-root-edge-rest: var(--hue-danger-edge)"><arena-icon-button icon="ph-bold ph-x" label="Close" /><arena-button class="arena-emphasis-ghost">Save</arena-button></div>',
   'answered-disabled-stops-the-fade': '<div style="--actions-primary-root-ink-disabled: var(--ink-muted); --actions-primary-root-fade-disabled: 1"><arena-button disabled>Save</arena-button></div>',
   'answered-disabled-draws-its-ink': '<div style="--actions-primary-root-ink-disabled: var(--ink-muted); --actions-primary-root-fade-disabled: 1"><arena-button disabled>Save</arena-button></div>',
@@ -152,6 +153,7 @@ const SUBJECT: Record<string, { part: string; index: number }> = {
   'palette-scope-takes-the-surface-radius': { part: 'palette-scope', index: 0 },
   'member-default-kept-while-the-group-is-silent': { part: 'icon-button', index: 0 },
   'group-answer-replaces-the-member-default': { part: 'icon-button', index: 0 },
+  'secondary-answer-reaches-the-calendar-nav': { part: 'button', index: 0 },
   'selected-disabled-answer-stops-only-the-selected-fade': { part: 'icon-button', index: -1 },
   'class-on-copy-button-reaches-the-icon-button-it-draws': { part: 'icon-button', index: 0 },
 };

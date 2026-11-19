@@ -1402,6 +1402,50 @@
     "$type": "color",
     "$value": "{ink-invalid}"
   },
+  "actions-dismiss-fill-disabled": {
+    "$type": "color",
+    "$value": "transparent"
+  },
+  "actions-dismiss-fill-hover": {
+    "$type": "color",
+    "$value": "transparent"
+  },
+  "actions-dismiss-fill-pressed": {
+    "$type": "color",
+    "$value": "transparent"
+  },
+  "actions-dismiss-icon-disabled": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "actions-dismiss-icon-hover": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "actions-dismiss-icon-pressed": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "actions-dismiss-icon-rest": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "actions-dismiss-ink-disabled": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "actions-dismiss-ink-hover": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "actions-dismiss-ink-pressed": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "actions-dismiss-ink-rest": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
   "actions-ghost-root-edge-disabled": {
     "$type": "color",
     "$value": "{accent-gold-side-edge}"

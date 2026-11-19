@@ -267,8 +267,9 @@ plugin moves identity by moving the ramp in the palette. **Neutral is the
 absence of a hue**: its value writes every channel to `initial` and the slot keeps its own
 classes, so the matrix has no neutral row.
 
-**The final confirmation of `ArenaConfirmDialog` reads two roles of its own**, `fill-confirm-final`
-and `ink-confirm-final`, which a plugin answers as a pair.
+**The final confirmation of `ArenaConfirmDialog` reads the destructive option of the `actions` group**, so a plugin
+moves it with the answers that move a destructive Button; the roles `fill-confirm-final` and `ink-confirm-final`, which
+a plugin answers as a pair, have no manifest reader.
 
 ## Which floors a gate still holds, and which became reports
 

@@ -26,7 +26,7 @@ The projected `content` is the dialog's description, announced with it when the 
 | `content` | slot |  |  | The dialog body: the question and any detail. |
 | `confirmLabel` | primitive | `string` |  | The confirm button's label. Absent, the provided locale's confirmDialogConfirm answers it. |
 | `cancelLabel` | primitive | `string` |  | The cancel button's label. Absent, the provided locale's confirmDialogCancel answers it. |
-| `destructive` | primitive | `boolean` | `false` | Fills the confirm button with fill-confirm-final. |
+| `destructive` | primitive | `boolean` | `false` | Draws the confirm button as the destructive option of the actions group. |
 | `requireText` | primitive | `string` |  | Locks the confirm button until this exact word is typed. |
 | `cancel` | event |  |  | The dialog was dismissed -- by the Cancel action or by the Escape key, in both layers. A scrim click is deliberately NOT one of them: this component never closes on click-outside. No payload. |
 | `confirm` | event |  |  | The action was confirmed. |

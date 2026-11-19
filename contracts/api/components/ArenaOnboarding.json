@@ -1,7 +1,7 @@
 {
   "component": "ArenaOnboarding",
   "description": "Guided coachmark tour (H10): presents features within the product with progress dots, Skip and Next. Controlled: the host owns index and answers the four events.",
-  "affordances": [],
+  "affordances": ["hover", "press"],
   "api": {
     "open": { "form": "primitive", "type": "boolean", "required": true,
               "description": "Whether the tour is shown. Closed renders nothing, scrim included." },

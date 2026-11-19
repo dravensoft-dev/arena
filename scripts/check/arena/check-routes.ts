@@ -390,7 +390,7 @@ export const ROUTES: Route[] = [
       + 'and the shape a token is authored in',
     entry: 'contributor',
     stops: ['contracts/AGENTS.md', 'contracts/design/AGENTS.md', 'contracts/design/TokenTypes.md'],
-    budget: 77_000,
+    budget: 77_300,
     reason:
       'the normative half of the tree, where a stop is read for what a value means rather than for '
       + 'how to write one, so it is bounded by what a person can hold, not what an agent can afford. The level answers two readers: a contributor deciding a value, and a platform '
@@ -403,7 +403,7 @@ export const ROUTES: Route[] = [
       + 'may default to and the half spacing step. The ramp paragraph states how a chart counts a '
       + 'positional slot. It names the glyph component. The design level states the contrast floors as '
       + 'measured over the catalogue, the role metadata keys a role declares, which chart numbers and '
-      + 'two widths follow the reader\'s text size, and the group map, its member parts and their member defaults. '
+      + 'two widths follow the reader\'s text size, and the group map, its member parts, their member defaults and inline reads. '
       + 'It states the hex each accent is tuned to for the page it is read on, and the figures that gate it as ink.',
   },
   {

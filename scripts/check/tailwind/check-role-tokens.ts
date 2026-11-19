@@ -89,7 +89,6 @@ export const SCALE_USES = new Map<string, string>([
   ['ArenaSegmentedControl:segment:shadow-1', 'the lift that tells the selected segment from its track, and the one place a control carries depth at rest rather than under a pointer'],
   ['ArenaCalendar:chip:--bw', 'arithmetic rather than a border: the chip reserves room for the kebab beside it with calc(--dz-ctl-h-sm + --bw*2), so the token is a length being added up and not an edge this slot draws'],
   ['ArenaTabs:tab:shadow-none', 'cancels the inset rule the selected branch draws under a tab, and the slot paints no depth role for it to override. A tab has no resting depth to restore, so the literal is the whole answer here rather than a value written over a role'],
-  ['ArenaBulkActionBar:action:bg-base-200', 'the hover fill of a control INSIDE a floating surface: a control the user presses rather than a region something is placed inside, which is why it must not follow that surface when a style plugin moves it'],
   ['ArenaInput:field:bg-base-200', 'the readonly state of a field, which says a control cannot be typed into by matching the surface it sits on. It is a state of a control, not the surface itself, and a style plugin that moved it would be re-answering readonly rather than re-answering grouping'],
   ['ArenaNumberField:field:bg-base-200', 'the readonly state of a number field, the surface ArenaInput:field:bg-base-200 gives a field that cannot be typed into'],
   ['ArenaTextarea:field:bg-base-200', 'the same readonly state, for the same reason'],

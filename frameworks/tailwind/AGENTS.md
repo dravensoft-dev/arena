@@ -554,7 +554,7 @@ repository does not have.
   That is a colour role whose kernel default is `transparent`, so a slot reading
   `--arena-hue-fill-strong` is clear until a plugin answers it. Presence, feed and progress marks read
   `--arena-hue-fill-strong` for the other hues and the ink for danger, a chart legend swatch and the
-  tag's dot read the ink, and `ArenaConfirmDialog`'s final confirmation fills with `fill-confirm-final`.
+  tag's dot read the ink, and `ArenaConfirmDialog`'s final confirmation reads the destructive slots of the `actions` group.
 - **Focus is a ring, and which ring follows the shape of what is focused.** Every focus ring is
   the `edge-focus` role at `bw-focus`, so a skin that answers the role moves all of them. A
   surface an activation is drawn around (card, board, sheet, scroller, accordion, tab, stepper,

@@ -107,6 +107,11 @@
     "actions-destructive-root-fill-hover": {
       "default": "{fill-hover}",
       "decision": "R6"
+    },
+    "actions-dismiss-ink-hover": {
+      "default": "{ink-body}",
+      "decision": "D52",
+      "level": "level-ink-body"
     }
   },
   "rings": {
@@ -114,7 +119,10 @@
     "ArenaIconButton.root": "ground",
     "ArenaSplitButton.primary": "ground",
     "ArenaSplitButton.caret": "ground",
-    "ArenaFileInput.trigger": "ground"
+    "ArenaFileInput.trigger": "ground",
+    "ArenaSheet.close": "ground",
+    "ArenaConfirmDialog.confirm": "ground",
+    "ArenaPagination.nav": "ground"
   },
   "groups": {
     "actions": {
@@ -186,7 +194,15 @@
             "ink",
             "icon"
           ],
-          "states": "base"
+          "states": "base",
+          "rest": {
+            "fill": "transparent",
+            "ink": {
+              "role": "{ink-muted}",
+              "level": "level-ink-muted"
+            },
+            "icon": "ink"
+          }
         }
       }
     },
@@ -969,7 +985,11 @@
         "title": "text.heading",
         "message": "text.body",
         "action": "feedback.action",
-        "close": "actions.dismiss"
+        "close": {
+          "to": "actions.dismiss",
+          "options": [],
+          "states": "base"
+        }
       }
     },
     "ArenaAppBar": {
@@ -1042,8 +1062,27 @@
         "count": "text.body",
         "number": "text.figure",
         "divider": "surfaces.separator",
-        "action": "actions.root@secondary|destructive",
-        "clear": "actions.dismiss"
+        "action": {
+          "to": "actions.root",
+          "options": [
+            "secondary",
+            "destructive"
+          ],
+          "states": "base",
+          "optionBy": {
+            "axis": "destructive",
+            "values": {
+              "false": "secondary",
+              "true": "destructive"
+            }
+          },
+          "inline": true
+        },
+        "clear": {
+          "to": "actions.dismiss",
+          "options": [],
+          "states": "base"
+        }
       }
     },
     "ArenaButton": {
@@ -1065,8 +1104,22 @@
     "ArenaCalendar": {
       "group": "data",
       "parts": {
-        "nav": "actions.root@secondary",
-        "today": "actions.root@secondary",
+        "nav": {
+          "to": "actions.root",
+          "options": [
+            "secondary"
+          ],
+          "states": "base",
+          "inline": true
+        },
+        "today": {
+          "to": "actions.root",
+          "options": [
+            "secondary"
+          ],
+          "states": "base",
+          "inline": true
+        },
         "heading": "text.heading",
         "headStrip": "surfaces.separator",
         "dayHead": null,
@@ -1119,7 +1172,11 @@
         "more": "text.key",
         "input": "fields.value",
         "statusIcon": "fields.status",
-        "clear": "actions.dismiss",
+        "clear": {
+          "to": "actions.dismiss",
+          "options": [],
+          "states": "base"
+        },
         "caret": "text.muted",
         "hint": "text.muted",
         "error": "fields.error",
@@ -1154,7 +1211,22 @@
         "body": "text.body",
         "requireLabel": "text.muted",
         "input": "fields.field",
-        "confirm": "actions.root@primary|destructive"
+        "confirm": {
+          "to": "actions.root",
+          "options": [
+            "primary",
+            "destructive"
+          ],
+          "states": "base",
+          "optionBy": {
+            "axis": "destructive",
+            "values": {
+              "false": "primary",
+              "true": "destructive"
+            }
+          },
+          "inline": true
+        }
       }
     },
     "ArenaCopyButton": {
@@ -1254,7 +1326,11 @@
     "ArenaFilterBar": {
       "group": "navigation",
       "parts": {
-        "clear": "actions.dismiss"
+        "clear": {
+          "to": "actions.dismiss",
+          "options": [],
+          "states": "base"
+        }
       }
     },
     "ArenaFunnelChart": {
@@ -1421,8 +1497,19 @@
         "title": "text.heading",
         "body": "text.body",
         "dot": "steps.marker@upcoming|current",
-        "text": "actions.dismiss",
-        "next": "actions.root@primary"
+        "text": {
+          "to": "actions.dismiss",
+          "options": [],
+          "states": "base"
+        },
+        "next": {
+          "to": "actions.root",
+          "options": [
+            "primary"
+          ],
+          "states": "base",
+          "inline": true
+        }
       }
     },
     "ArenaPageHead": {
@@ -1435,7 +1522,14 @@
     "ArenaPagination": {
       "group": "navigation",
       "parts": {
-        "nav": "actions.root@secondary",
+        "nav": {
+          "to": "actions.root",
+          "options": [
+            "secondary"
+          ],
+          "states": "base",
+          "inline": true
+        },
         "page": "navigation.item",
         "ellipsis": "text.muted"
       }
@@ -1565,7 +1659,11 @@
         "head": "surfaces.separator",
         "trigger": "navigation.disclosure",
         "caret": "text.muted",
-        "close": "actions.dismiss",
+        "close": {
+          "to": "actions.dismiss",
+          "options": [],
+          "states": "base"
+        },
         "body": "text.body",
         "foot": "surfaces.separator"
       }
@@ -1710,7 +1808,11 @@
       "parts": {
         "root": "marks.outline",
         "dot": null,
-        "close": "actions.dismiss"
+        "close": {
+          "to": "actions.dismiss",
+          "options": [],
+          "states": "base"
+        }
       }
     },
     "ArenaTextarea": {
@@ -1742,7 +1844,11 @@
         "pinned": "marks.outline@neutral",
         "message": "text.muted",
         "action": "feedback.action@neutral",
-        "close": "actions.dismiss"
+        "close": {
+          "to": "actions.dismiss",
+          "options": [],
+          "states": "base"
+        }
       }
     },
     "ArenaToastHost": {

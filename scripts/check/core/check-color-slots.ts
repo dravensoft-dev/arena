@@ -258,7 +258,7 @@ const reads = (token: string, modifier: string, property: string, expected: stri
   return prefix === modifier && token.slice(prefix.length).startsWith(UTILITY[property] ?? '?') && expected.some((one) => token.includes(one));
 };
 
-const inlineMember = (c: SlotCatalogue, m: MemberPart) => m.channels === undefined && memberSlots(c, m).every(([, s]) => s.channel === undefined);
+const inlineMember = (c: SlotCatalogue, m: MemberPart) => m.inline === true || m.channels === undefined && memberSlots(c, m).every(([, s]) => s.channel === undefined);
 
 const branchOf = (m: MemberPart, s: ColorSlot): [string, string][] => {
   const out: [string, string][] = [];
@@ -351,7 +351,7 @@ const DECLARED = {
   groupPart: ['properties', 'options', 'states', 'channel', 'rest', 'selected', 'on', 'selectedOn', 'decision', 'paintedBy'],
   option: ['states', 'rest', 'selected', 'halo', 'channel', 'decision'],
   member: ['group', 'parts'],
-  memberPart: ['to', 'options', 'states', 'channels', 'defaults', 'decision', 'optionBy', 'selectedBy'],
+  memberPart: ['to', 'options', 'states', 'channels', 'defaults', 'decision', 'optionBy', 'selectedBy', 'inline'],
   exception: ['default', 'decision', 'level'],
 };
 const DECISION = /^[DR]\d+$/;

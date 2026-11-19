@@ -28,7 +28,7 @@ export type GroupPart = {
 };
 export type MemberDecl = {
   to: string; options: string[]; states: StateSpec; channels?: Record<string, string>; defaults?: Record<string, string>; decision?: string;
-  optionBy?: { axis: string; values: Record<string, string> }; selectedBy?: { axis: string; value: string };
+  optionBy?: { axis: string; values: Record<string, string> }; selectedBy?: { axis: string; value: string }; inline?: true;
 };
 
 export type SlotDeclarations = {
@@ -146,6 +146,7 @@ export function deriveSlots(d: SlotDeclarations): SlotCatalogue {
       if (to.defaults) one.defaults = to.defaults;
       if (to.optionBy) one.optionBy = to.optionBy;
       if (to.selectedBy) one.selectedBy = to.selectedBy;
+      if (to.inline) one.inline = true;
       members[key] = one;
     }
   }

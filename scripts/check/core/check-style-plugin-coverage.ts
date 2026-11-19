@@ -68,6 +68,9 @@ export const WITNESS_EXEMPT: ReadonlyMap<string, string> = new Map([
     + 'complete sink, and this role reaches a page through the destructive and danger-tone parts that default '
     + 'already paints'],
   ['actions-solid-root-edge-rest', NO_SECOND_SPELLING],
+  ['actions-dismiss-fill-rest', 'the one accepted role complete paints transparent, hue-danger-fill-strong, is a danger fill, '
+    + 'and a dismiss button answered with it would say danger where it draws nothing; the kernel default is the literal '
+    + 'transparent, so no other spelling resolves to the key complete paints there'],
   ...['rest', 'hover', 'pressed'].map((state): [string, string] => [`actions-ghost-root-edge-${state}`, MEMBER_DEFAULT]),
 ]);
 

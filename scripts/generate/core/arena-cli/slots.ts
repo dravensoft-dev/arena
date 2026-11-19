@@ -34,6 +34,7 @@ export type MemberPart = {
   defaults?: Record<string, string>;
   optionBy?: { axis: string; values: Record<string, string> };
   selectedBy?: { axis: string; value: string };
+  inline?: true;
 };
 
 export type SlotCatalogue = {
@@ -135,6 +136,7 @@ export function haloValue(catalogue: SlotCatalogue, member: string, option: stri
 }
 
 export function memberChannel(m: Member, slot: ColorSlot): string | undefined {
+  if (m?.inline) return undefined;
   const own = m?.channels?.[slot.property];
   if (slot.channel === undefined || own === undefined) return slot.channel;
   return own + (slot.state === 'rest' ? '' : `-${slot.state}`);

@@ -85,7 +85,6 @@ const HUES = {
   ArenaCombobox: { state: { error: 'danger', valid: 'success' } },
   ArenaSelect: { state: { error: 'danger', valid: 'success' } },
   ArenaTextarea: { state: { error: 'danger' }, near: { true: 'warning' } },
-  ArenaBulkActionBar: { destructive: { true: 'danger' } },
   ArenaMenu: { destructive: { true: 'danger' } },
   ArenaStepper: { error: { true: 'danger' } },
   ArenaTimeline: { tone: { success: 'success', warning: 'warning', danger: 'danger', info: 'info' } },
@@ -344,8 +343,8 @@ export const CLAIMS = {
     ]),
     { chosen: { tone: 'neutral' }, slot: 'root', has: ['border-edge-surface-floating'], hasNot: [SOFT, EDGE], why: 'the neutral tone is the absence of a hue, so its edge is the floating surface role rather than a status colour' },
     { chosen: { tone: 'neutral' }, slot: 'icon', has: ['text-neutral'], hasNot: [INK], why: 'the neutral tone is the absence of a hue, so its icon is the neutral ink' },
-    { slot: 'action', has: ['bg-transparent', 'border-none'], why: 'the close and action controls are text-only chrome, carrying no border or fill of their own' },
-    { slot: 'close', has: ['bg-transparent', 'border-none'], why: 'the close and action controls are text-only chrome, carrying no border or fill of their own' },
+    { slot: 'action', has: ['bg-transparent', 'border-none'], why: 'the action control is text-only chrome, carrying no border or fill of its own' },
+    { slot: 'close', has: ['bg-[color:var(--actions-dismiss-fill-rest,transparent)]', 'border-none'], hasNot: ['bg-transparent'], why: 'the close control is text-only chrome that reads the dismiss slots for its fill, and carries no border of its own' },
     { chosen: { titled: true }, slot: 'message', has: ['mt-1'], why: 'the message carries the title-separating margin only when a title is present' },
   ],
   ArenaAppBar: [
@@ -366,8 +365,8 @@ export const CLAIMS = {
     { slot: 'current', has: ['font-face-label', 'text-trail', 'tracking-trail'], why: 'the same register at the last segment, which is the one drawn bold' },
   ],
   ArenaBulkActionBar: [
-    { chosen: { destructive: true }, slot: 'action', has: [EDGE, INK], why: HUE_WHY },
-    { chosen: { destructive: false }, slot: 'action', hasNot: [EDGE, INK], why: 'a quiet action is the absence of a hue' },
+    { chosen: { destructive: true }, slot: 'action', has: ['border-[color:var(--actions-destructive-root-edge-rest,var(--hue-danger-edge))]', 'text-[color:var(--actions-destructive-root-ink-rest,var(--hue-danger-ink))]'], hasNot: [EDGE, INK], why: 'the destructive action reads the actions group\'s destructive option, so a style plugin answering it moves the action and the Button alike' },
+    { chosen: { destructive: false }, slot: 'action', has: ['border-[color:var(--actions-secondary-root-edge-rest,var(--emphasis-secondary-edge))]'], hasNot: [EDGE, INK], why: 'a quiet action reads the actions group\'s secondary option and is the absence of a hue' },
     { chosen: { open: true }, slot: 'root', has: ['flex'], why: 'the root carries a display utility in its own base string, independent of the open variant' },
     { slot: 'divider', has: ['w-px'], why: 'the divider uses the one-pixel utility rather than a border-width token, since it is not a border' },
   ],
@@ -377,8 +376,8 @@ export const CLAIMS = {
   ],
   ArenaConfirmDialog: [
     { chosen: { destructive: true }, slot: 'eyebrow', has: [INK], why: HUE_WHY },
-    { chosen: { destructive: true }, slot: 'confirm', has: ['bg-confirm-final', 'text-ink-confirm-final'], hasNot: ['bg-error', 'bg-error-fill', STRONG], why: 'the final confirmation fills with fill-confirm-final and sets its label in ink-confirm-final, roles of its own that the danger hue channels do not feed' },
-    { chosen: { destructive: false }, slot: 'confirm', has: ['bg-primary-fill', 'text-primary-content'], hasNot: ['bg-confirm-final'], why: 'a confirmation that is not destructive fills with the brand' },
+    { chosen: { destructive: true }, slot: 'confirm', has: ['bg-[color:var(--actions-destructive-root-fill-rest,var(--hue-danger-fill-strong))]', 'text-[color:var(--actions-destructive-root-ink-rest,var(--hue-danger-ink))]'], hasNot: ['bg-error', 'bg-error-fill', STRONG, 'bg-confirm-final', 'text-ink-confirm-final'], why: 'the final confirmation reads the actions group\'s destructive option, so the answer that moves a destructive Button moves it' },
+    { chosen: { destructive: false }, slot: 'confirm', has: ['bg-[color:var(--actions-primary-root-fill-rest,var(--emphasis-primary-fill))]', 'text-[color:var(--actions-primary-root-ink-rest,var(--emphasis-primary-ink))]'], hasNot: ['bg-confirm-final', 'bg-primary-fill'], why: 'a confirmation that is not destructive reads the actions group\'s primary option' },
     { chosen: { open: true }, slot: 'foot', has: ['flex-wrap'], why: 'the footer wraps the way ArenaDialog, ArenaPageHead and ArenaChartCard all do, and a third action row behaving differently is worse than none' },
     { chosen: { open: true }, slot: 'root', has: ['flex'], why: 'the root carries a display utility in its own base string, independent of the open variant' },
     { slot: 'input', has: ['focus-visible:ring-edge-focus'], hasNot: ['focus-visible:ring-error'], why: 'the require-text input focus reads the focus role like every field, and never the danger hue' },
@@ -924,7 +923,6 @@ test('an errored field carries no focus edge', () => {
 test('every slot that gained a ring keeps it under hover', () => {
   const RING = 'focus-visible:shadow-[inset_0_0_0_var(--bw-focus)_var(--edge-focus)]';
   const gained: [string, string][] = [
-    ['ArenaPagination', 'nav'],
     ['ArenaSideNav', 'item'], ['ArenaSideNav', 'trigger'], ['ArenaMenu', 'item'], ['ArenaBreadcrumbs', 'crumb'],
   ];
   for (const [component, slot] of gained) {
@@ -951,7 +949,7 @@ test('a focus ring never sits on a filled ground', () => {
   assert.equal(isFill('bg-[color:var(--arena-emphasis-fill,var(--x))]'), true);
   const filled: [string, string][] = [
     ['ArenaButton', 'root'], ['ArenaSplitButton', 'primary'], ['ArenaSplitButton', 'caret'], ['ArenaConfirmDialog', 'confirm'],
-    ['ArenaIconButton', 'root'], ['ArenaFileInput', 'trigger'], ['ArenaSwitch', 'track'], ['ArenaPagination', 'page'],
+    ['ArenaIconButton', 'root'], ['ArenaFileInput', 'trigger'], ['ArenaSwitch', 'track'], ['ArenaPagination', 'page'], ['ArenaPagination', 'nav'],
   ];
   for (const [component, slot] of filled) {
     const manifest = manifests.get(component) as { slots: Record<string, string> };

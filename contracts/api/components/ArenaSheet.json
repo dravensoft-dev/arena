@@ -1,7 +1,7 @@
 {
   "component": "ArenaSheet",
   "description": "A non-modal panel anchored to one edge of the page: a cart, a filter drawer, a detail pane. The sheet carries no scrim, traps no focus and takes nothing away from the page behind it, which is the whole difference from a dialog. The sheet's header stays on screen while its body folds away, so a reader keeps the panel without keeping its bulk.",
-  "affordances": ["hover", "focus"],
+  "affordances": ["hover", "focus", "press"],
   "api": {
     "open": { "form": "primitive", "type": "boolean", "required": true,
               "description": "Whether the panel is on the page at all. The host owns it, the same way it owns a dialog's. Closed renders nothing, which is what distinguishes it from collapsed." },

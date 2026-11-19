@@ -1,7 +1,7 @@
 {
   "component": "ArenaBulkActionBar",
   "description": "Appears when rows are selected and operates on the selection as a set. Renders nothing at a count of zero.",
-  "affordances": ["focus", "hover"],
+  "affordances": ["focus", "hover", "press"],
   "api": {
     "count": { "form": "primitive", "type": "number", "required": true,
                "description": "How many rows are selected. Zero renders no bar at all." },

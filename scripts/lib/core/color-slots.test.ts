@@ -91,16 +91,16 @@ test('a group slot carries its group, option, part and channel, and an option wi
   assert.equal(s['actions-danger-root-fill-selected'], undefined, 'a base option builds no selected slot');
 });
 
-test('actions derives 112 slots and no component slot', () => {
+test('actions derives 124 slots and no component slot', () => {
   const c = deriveSlots(readSlotDeclarations());
   const slots = Object.values(c.slots);
-  assert.equal(slots.length, 112);
+  assert.equal(slots.length, 124);
   for (const slot of slots) {
     assert.equal(slot.group, 'actions');
     for (const key of ['scope', 'family', 'component', 'draws']) assert.equal(Object.hasOwn(slot, key), false, key);
   }
   assert.equal(Object.hasOwn(c, 'families'), false);
-  assert.deepEqual(Object.keys(c.members).sort(), ['ArenaButton.root', 'ArenaFileInput.trigger', 'ArenaIconButton.root', 'ArenaSplitButton.caret', 'ArenaSplitButton.primary']);
+  for (const key of ['ArenaButton.root', 'ArenaFileInput.trigger', 'ArenaIconButton.root', 'ArenaSplitButton.caret', 'ArenaSplitButton.primary']) assert.ok(c.members[key], key);
   assert.deepEqual(c.members['ArenaIconButton.root']?.defaults, { 'actions-ghost-root-edge-rest': '{emphasis-ghost-icon-edge}' });
   assert.deepEqual(c.members['ArenaFileInput.trigger']?.states, ['rest', 'hover', 'pressed']);
 });
@@ -227,4 +227,19 @@ test('a halo and a member axis enter the catalogue', () => {
   assert.deepEqual(c.members['ArenaKnob.root']?.optionBy, { axis: 'state', values: { danger: 'danger' } });
   assert.deepEqual(c.members['ArenaKnob.root']?.selectedBy, { axis: 'on', value: 'true' });
   assert.equal(Object.hasOwn(deriveSlots(fixture()), 'halos'), false, 'no halo, no key');
+});
+
+test('actions.dismiss derives its slots with no option segment', () => {
+  const c = deriveSlots(readSlotDeclarations());
+  const names = Object.keys(c.slots).filter((n) => n.startsWith('actions-dismiss-'));
+  assert.equal(names.length, 12);
+  assert.ok(names.every((n) => /^actions-dismiss-(fill|ink|icon)-(rest|hover|pressed|disabled)$/.test(n)), names.join(', '));
+  const hover = c.slots['actions-dismiss-ink-hover'] as { default?: string; level?: string; derive?: unknown };
+  assert.equal(hover.default, '{ink-body}');
+  assert.equal(hover.level, 'level-ink-body');
+  assert.equal(hover.derive, undefined);
+  assert.equal((c.slots['actions-dismiss-icon-hover'] as { level?: string }).level, 'level-ink-body');
+  assert.deepEqual(c.members['ArenaAlert.close'], { to: 'actions.dismiss', options: [], states: ['rest', 'hover', 'pressed', 'disabled'] });
+  assert.equal(c.members['ArenaCalendar.nav']?.inline, true);
+  assert.deepEqual(c.members['ArenaConfirmDialog.confirm']?.optionBy, { axis: 'destructive', values: { true: 'destructive', false: 'primary' } });
 });

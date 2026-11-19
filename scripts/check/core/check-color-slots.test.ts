@@ -125,18 +125,18 @@ test('a member part on an option its manifest lacks, or a part its manifest lack
 
 test('the contract counts', () => {
   const slots = Object.values(shipped().slots);
-  assert.equal(slots.length, 112);
+  assert.equal(slots.length, 124);
   const by = (key: (s: (typeof slots)[number]) => string) => {
     const n: Record<string, number> = {};
     for (const s of slots) n[key(s)] = (n[key(s)] ?? 0) + 1;
     return n;
   };
-  assert.deepEqual(by((s) => s.option ?? ''), { primary: 16, secondary: 16, ghost: 32, solid: 32, destructive: 16 });
-  assert.deepEqual(by((s) => s.state), { rest: 20, disabled: 20, hover: 20, pressed: 20, selected: 8, 'selected-hover': 8, 'selected-pressed': 8, 'selected-disabled': 8 });
-  assert.equal(slots.filter((s) => s.optional).length, 28);
-  assert.equal(slots.filter((s) => s.derive?.mix === 'mix-pressed').length, 7);
+  assert.deepEqual(by((s) => s.option ?? ''), { '': 12, primary: 16, secondary: 16, ghost: 32, solid: 32, destructive: 16 });
+  assert.deepEqual(by((s) => s.state), { rest: 23, disabled: 23, hover: 23, pressed: 23, selected: 8, 'selected-hover': 8, 'selected-pressed': 8, 'selected-disabled': 8 });
+  assert.equal(slots.filter((s) => s.optional).length, 31);
+  assert.equal(slots.filter((s) => s.derive?.mix === 'mix-pressed').length, 8);
   assert.equal(slots.filter((s) => s.derive?.mix === 'mix-hover').length, 2);
-  assert.equal(slots.filter((s) => s.channel === undefined).length, 16, 'the destructive option carries no channel (R6)');
+  assert.equal(slots.filter((s) => s.channel === undefined).length, 28, 'the destructive option and the dismiss part carry no channel (R6)');
 });
 
 test('every slot of the five buttons reaches its part under its state', () => {
@@ -607,4 +607,27 @@ test('a slot sits on what the declarations give, no looser', () => {
   const sel = deriveSlots(e);
   sel.slots['choices-box-fill-selected']!.on = 'choices-box-fill-rest';
   assert.match(pairProblems(sel, e).join('\n'), /choices-box-fill-selected: it sits on choices-box-fill-rest and the declarations give nothing/);
+});
+
+test('the dismiss and string members read their chains', () => {
+  const c = shipped();
+  assert.deepEqual(memberReadProblems(c, manifests), []);
+  for (const key of ['ArenaAlert.close', 'ArenaCombobox.clear', 'ArenaCalendar.nav', 'ArenaCalendar.today', 'ArenaPagination.nav', 'ArenaBulkActionBar.action', 'ArenaConfirmDialog.confirm', 'ArenaOnboarding.next']) {
+    assert.ok(c.members[key], `${key} is a member part object`);
+  }
+  const old = structuredClone(manifests.get('ArenaCalendar')) as unknown as { slots: { nav: string } };
+  old.slots.nav = 'inline-flex items-center justify-center h-ctl-h-sm min-w-ctl-h-sm bg-transparent border-[length:var(--bw-control)] border-edge-control-quiet rounded-control text-ink-body/(--level-ink-body)';
+  const lines = memberReadProblems(c, new Map([...manifests, ['ArenaCalendar', old as never]]));
+  assert.ok(lines.length > 0 && lines.every((l) => l.startsWith('ArenaCalendar.nav: ')), lines.join('\n'));
+  assert.ok(lines.some((l) => /actions-secondary-nav-fill-rest|actions-secondary-root-fill-rest/.test(l)), lines.join('\n'));
+});
+
+test('an inline member reads its chains and a channelled one reads its channel', () => {
+  const c = shipped();
+  assert.equal(c.members['ArenaCalendar.nav']?.inline, true);
+  assert.deepEqual(readProblems(c, manifests), []);
+  const channelled = structuredClone(c);
+  delete channelled.members['ArenaCalendar.nav']!.inline;
+  assert.ok(readProblems(channelled, manifests).some((l) => l.startsWith('ArenaCalendar.nav does not read --arena-emphasis-')));
+  assert.deepEqual(memberReadProblems(channelled, manifests), [], 'a channelled member is readProblems\'s');
 });

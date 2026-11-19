@@ -246,6 +246,7 @@ export function memberChannels(family: Family, root = repoRoot): Set<string> {
   const prefix = channelPrefix(family.family);
   const out = new Set<string>();
   for (const m of Object.values(catalogue.members)) {
+    if (m.inline) continue;
     const [group, part] = m.to.split('.');
     for (const s of Object.values(catalogue.slots)) {
       if (s.group !== group || s.part !== part || s.channel === undefined || !s.channel.startsWith(prefix)) continue;

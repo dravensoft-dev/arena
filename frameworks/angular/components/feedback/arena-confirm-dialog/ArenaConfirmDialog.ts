@@ -87,7 +87,7 @@ export class ArenaConfirmDialog {
   readonly confirmLabel = input<string>();
   /** The cancel button's label. Absent, the provided locale's confirmDialogCancel answers it. */
   readonly cancelLabel = input<string>();
-  /** Fills the confirm button with fill-confirm-final. */
+  /** Draws the confirm button as the destructive option of the actions group. */
   readonly destructive = input(false, { transform: booleanAttribute });
   /** Locks the confirm button until this exact word is typed. */
   readonly requireText = input<string>();
