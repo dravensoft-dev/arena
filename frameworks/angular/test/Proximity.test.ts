@@ -1,7 +1,8 @@
 /* Each proximity case rendered in Angular and normalised to the tree the gate measures, held equal
  * to the fixture. A null tree is a case not yet recorded: the suite fails printing the tree it
  * rendered, which is read against the case's intent before it is pasted into the fixture. The
- * subject is the last drawn button in each case. */
+ * subject is the last drawn button in each case. An opened combobox's CDK overlay panel moves
+ * beside its field, so the normalised tree matches React's. */
 import { useTestEnvironment } from './TestbedEnv';
 useTestEnvironment();
 
@@ -157,7 +158,9 @@ const TEMPLATES: Record<string, string> = {
   'menu-answer-moves-every-highlight': '<div style="--menus-plain-item-fill-selected: var(--fill-surface)">'
     + '<arena-multi-select label="Regions" [options]="[{ value: \'eu-west\', label: \'Europe West\' }]" [value]="[]" />'
     + '<arena-command-palette [open]="true" [commands]="[{ id: \'home\', label: \'Go home\' }]" /></div>',
-  'blocked-option-fades-until-answered': '<div><arena-multi-select label="Regions" [options]="[{ value: \'eu-west\', label: \'Europe West\' }]" [value]="[]" [max]="0" /></div>'
+  'blocked-option-fades-until-answered': '<div><arena-multi-select label="Regions" [options]="[{ value: \'eu-west\', label: \'Europe West\' }, { value: \'us-east\', label: \'US East\' }]" [value]="[]" [max]="0" /></div>'
+    + '<div style="--menus-plain-item-fade-disabled: 1"><arena-multi-select label="Regions" [options]="[{ value: \'eu-west\', label: \'Europe West\' }, { value: \'us-east\', label: \'US East\' }]" [value]="[]" [max]="0" /></div>',
+  'blocked-active-option-fades-until-answered': '<div><arena-multi-select label="Regions" [options]="[{ value: \'eu-west\', label: \'Europe West\' }]" [value]="[]" [max]="0" /></div>'
     + '<div style="--menus-plain-item-fade-selected-disabled: 1"><arena-multi-select label="Regions" [options]="[{ value: \'eu-west\', label: \'Europe West\' }]" [value]="[]" [max]="0" /></div>',
   'blocked-active-option-keeps-its-selected-wash': '<div><arena-multi-select label="Regions" [options]="[{ value: \'eu-west\', label: \'Europe West\' }]" [value]="[]" /></div>'
     + '<div><arena-multi-select label="Regions" [options]="[{ value: \'eu-west\', label: \'Europe West\' }]" [value]="[]" [max]="0" /></div>',
@@ -168,6 +171,10 @@ const TEMPLATES: Record<string, string> = {
   'selected-edge-answer-moves-the-current-page-border': '<div style="--navigation-item-edge-selected: var(--hue-info-edge)"><arena-pagination ariaLabel="Deployments" [page]="1" [pageCount]="1" /></div>',
   'aria-disabled-member-fades-until-answered': '<div><arena-bottom-nav ariaLabel="Mobile"><arena-bottom-nav-item id="locked" label="Locked" icon="ph-bold ph-lock" disabled /></arena-bottom-nav></div>' + '<div><arena-tree-view label="Files" [nodes]="[{ id: \'src\', label: \'src\', disabled: true }]" /></div>' + '<div style="--navigation-item-fade-disabled: 1"><arena-bottom-nav ariaLabel="Mobile"><arena-bottom-nav-item id="locked" label="Locked" icon="ph-bold ph-lock" disabled /></arena-bottom-nav></div>',
   'answered-disabled-tree-item-stops-the-fade': '<div><arena-tree-view label="Files" [nodes]="[{ id: \'src\', label: \'src\', disabled: true }]" /></div>' + '<div style="--navigation-item-fade-disabled: 1"><arena-tree-view label="Files" [nodes]="[{ id: \'src\', label: \'src\', disabled: true }]" /></div>',
+  'answered-disabled-tree-item-keeps-its-answer-while-hovered': '<div style="--navigation-item-fill-disabled: var(--hue-info-fill-strong)"><arena-tree-view label="Files" [nodes]="[{ id: \'src\', label: \'src\', disabled: true }]" /></div>',
+  'answered-selected-disabled-tree-item-keeps-its-answer-while-hovered': '<div style="--navigation-item-fill-selected-disabled: var(--hue-info-fill-strong)"><arena-tree-view label="Files" [nodes]="[{ id: \'src\', label: \'src\', disabled: true }]" [selection]="{ ids: [\'src\'] }" /></div>',
+  'selected-edge-answer-draws-no-side-nav-line': '<div style="--navigation-item-edge-selected: var(--hue-info-edge)"><arena-side-nav ariaLabel="Primary" active="home"><arena-side-nav-item id="home" label="Home" /></arena-side-nav></div>',
+  'error-step-reads-the-error-chain-while-current': '<arena-stepper ariaLabel="Checkout" [steps]="[{ label: \'Account\', error: true }]" [index]="0" />',
   'current-step-answer-moves-marker-and-dot': '<div style="--steps-current-marker-fill-rest: var(--fill-surface)"><arena-stepper ariaLabel="Checkout" [steps]="[{ label: \'Account\' }]" [index]="0" /><arena-onboarding [open]="true" [steps]="[{ body: \'One\' }]" [index]="0" /></div>',
   'hover-answer-is-not-derived-from-the-rest-answer': '<div style="--actions-primary-root-fill-rest: var(--fill-surface); --actions-primary-root-fill-hover: var(--fill-hover)"><arena-button>Save</arena-button></div>',
 };
@@ -225,6 +232,11 @@ const SUBJECT: Record<string, { part: string; index: number }> = {
   'menu-answer-moves-every-highlight': { part: 'combobox.option', index: 0 },
   'blocked-option-fades-until-answered': { part: 'combobox.option', index: -1 },
   'blocked-active-option-keeps-its-selected-wash': { part: 'combobox.option', index: -1 },
+  'blocked-active-option-fades-until-answered': { part: 'combobox.option', index: -1 },
+  'answered-disabled-tree-item-keeps-its-answer-while-hovered': { part: 'tree-view.item', index: 0 },
+  'answered-selected-disabled-tree-item-keeps-its-answer-while-hovered': { part: 'tree-view.item', index: 0 },
+  'selected-edge-answer-draws-no-side-nav-line': { part: 'side-nav.item', index: 0 },
+  'error-step-reads-the-error-chain-while-current': { part: 'stepper.marker', index: 0 },
   'navigation-answer-moves-every-current-item': { part: 'side-nav.item', index: 0 },
   'hovered-current-item-keeps-its-selected-look': { part: 'side-nav.item', index: 0 },
   'hovered-selected-tab-keeps-its-selected-ink': { part: 'tabs.tab', index: 0 },
@@ -236,7 +248,7 @@ const SUBJECT: Record<string, { part: string; index: number }> = {
   'class-on-copy-button-reaches-the-icon-button-it-draws': { part: 'icon-button', index: 0 },
 };
 
-const OPENED = new Set(['menu-answer-moves-every-highlight', 'blocked-option-fades-until-answered', 'blocked-active-option-keeps-its-selected-wash']);
+const OPENED = new Set(['menu-answer-moves-every-highlight', 'blocked-option-fades-until-answered', 'blocked-active-option-fades-until-answered', 'blocked-active-option-keeps-its-selected-wash']);
 const { families, cases } = proximity.readProximity();
 const vocabulary = proximity.vocabularyClasses(families);
 

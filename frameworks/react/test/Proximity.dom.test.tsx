@@ -133,6 +133,10 @@ const COMPOSITIONS: Record<string, () => React.ReactElement> = {
     <ArenaCommandPalette open commands={[{ id: 'home', label: 'Go home' }]} />
   </div>,
   'blocked-option-fades-until-answered': () => <>
+    <div><ArenaMultiSelect label="Regions" options={[{ value: 'eu-west', label: 'Europe West' }, { value: 'us-east', label: 'US East' }]} value={[]} max={0} /></div>
+    <div style={answered({ '--menus-plain-item-fade-disabled': '1' })}><ArenaMultiSelect label="Regions" options={[{ value: 'eu-west', label: 'Europe West' }, { value: 'us-east', label: 'US East' }]} value={[]} max={0} /></div>
+  </>,
+  'blocked-active-option-fades-until-answered': () => <>
     <div><ArenaMultiSelect label="Regions" options={[{ value: 'eu-west', label: 'Europe West' }]} value={[]} max={0} /></div>
     <div style={answered({ '--menus-plain-item-fade-selected-disabled': '1' })}><ArenaMultiSelect label="Regions" options={[{ value: 'eu-west', label: 'Europe West' }]} value={[]} max={0} /></div>
   </>,
@@ -159,6 +163,10 @@ const COMPOSITIONS: Record<string, () => React.ReactElement> = {
     <div><ArenaTreeView label="Files" nodes={[{ id: 'src', label: 'src', disabled: true }]} /></div>
     <div style={answered({ '--navigation-item-fade-disabled': '1' })}><ArenaTreeView label="Files" nodes={[{ id: 'src', label: 'src', disabled: true }]} /></div>
   </>,
+  'answered-disabled-tree-item-keeps-its-answer-while-hovered': () => <div style={answered({ '--navigation-item-fill-disabled': 'var(--hue-info-fill-strong)' })}><ArenaTreeView label="Files" nodes={[{ id: 'src', label: 'src', disabled: true }]} /></div>,
+  'answered-selected-disabled-tree-item-keeps-its-answer-while-hovered': () => <div style={answered({ '--navigation-item-fill-selected-disabled': 'var(--hue-info-fill-strong)' })}><ArenaTreeView label="Files" nodes={[{ id: 'src', label: 'src', disabled: true }]} selection={{ ids: ['src'] }} /></div>,
+  'selected-edge-answer-draws-no-side-nav-line': () => <div style={answered({ '--navigation-item-edge-selected': 'var(--hue-info-edge)' })}><ArenaSideNav ariaLabel="Primary" active="home"><ArenaSideNavItem id="home" label="Home" /></ArenaSideNav></div>,
+  'error-step-reads-the-error-chain-while-current': () => <ArenaStepper ariaLabel="Checkout" steps={[{ label: 'Account', error: true }]} index={0} />,
   'current-step-answer-moves-marker-and-dot': () => <div style={answered({ '--steps-current-marker-fill-rest': 'var(--fill-surface)' })}>
     <ArenaStepper ariaLabel="Checkout" steps={[{ label: 'Account' }]} index={0} />
     <ArenaOnboarding open index={0} steps={[{ body: 'One' }]} />
@@ -167,7 +175,7 @@ const COMPOSITIONS: Record<string, () => React.ReactElement> = {
 };
 
 const DRAGGED = new Set(['fields-error-zone-keeps-its-edge-while-dragged']);
-const OPENED = new Set(['menu-answer-moves-every-highlight', 'blocked-option-fades-until-answered', 'blocked-active-option-keeps-its-selected-wash']);
+const OPENED = new Set(['menu-answer-moves-every-highlight', 'blocked-option-fades-until-answered', 'blocked-active-option-fades-until-answered', 'blocked-active-option-keeps-its-selected-wash']);
 const BARE = new Set(['meaning-wins-over-accent', 'accent-stops-at-the-card-body', 'small-badge-compacts-itself', 'small-badge-tightens-its-block', 'small-badge-tightens-its-ends']);
 const SUBJECT: Record<string, { part: string; at: number }> = {
   'people-list-face-follows-the-list': { part: 'avatar.box', at: -1 },
@@ -221,6 +229,11 @@ const SUBJECT: Record<string, { part: string; at: number }> = {
   'menu-answer-moves-every-highlight': { part: 'combobox.option', at: 0 },
   'blocked-option-fades-until-answered': { part: 'combobox.option', at: -1 },
   'blocked-active-option-keeps-its-selected-wash': { part: 'combobox.option', at: -1 },
+  'blocked-active-option-fades-until-answered': { part: 'combobox.option', at: -1 },
+  'answered-disabled-tree-item-keeps-its-answer-while-hovered': { part: 'tree-view.item', at: 0 },
+  'answered-selected-disabled-tree-item-keeps-its-answer-while-hovered': { part: 'tree-view.item', at: 0 },
+  'selected-edge-answer-draws-no-side-nav-line': { part: 'side-nav.item', at: 0 },
+  'error-step-reads-the-error-chain-while-current': { part: 'stepper.marker', at: 0 },
   'navigation-answer-moves-every-current-item': { part: 'side-nav.item', at: 0 },
   'hovered-current-item-keeps-its-selected-look': { part: 'side-nav.item', at: 0 },
   'hovered-selected-tab-keeps-its-selected-ink': { part: 'tabs.tab', at: 0 },

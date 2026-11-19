@@ -1,12 +1,13 @@
-/* Measures the vocabulary's cascade in Chromium: each case's tree for each layer, rebuilt with the
- * real component and family sheets plus the fixture's witness family, in both load orders, and
- * judged by the width of its subject or by a channel on it. Happy-dom implements no @scope and no
- * layout, so this is the only place proximity, boundaries and load order are proved; the suites
- * hold each layer's DOM to the tree measured here. A fixture with no recorded tree fails. The
- * markup cases measure the computed style of classes an adopter writes, in both orders and with
- * no layer; a null in a case's expect is unrecorded and fails with the map to paste. The page is
- * pinned at 800x600 on the fixture's own origin, where a face loads, and a markup case waits for
- * its subject's face, so a 100dvh and a ch measure the same on every machine. */
+/* Measures the vocabulary's cascade in Chromium: each case's tree for each layer, rebuilt with the real
+ * component and family sheets plus the fixture's witness family, in both load orders, and judged by the
+ * width of its subject or by a channel on it. Happy-dom implements no @scope and no layout, so this is the
+ * only place proximity, boundaries and load order are proved; the suites hold each layer's DOM to the tree
+ * measured here. A fixture with no recorded tree fails. The markup cases measure the computed style of
+ * classes an adopter writes, in both orders and with no layer; a null in a case's expect is unrecorded and
+ * fails with the map to paste. The page is pinned at 800x600 on the fixture's own origin, where a face
+ * loads, and a markup case waits for its subject's face, so a 100dvh and a ch measure the same on every
+ * machine. A forced hover finishes every transition it starts before it is measured, or a part that eases
+ * its background reads its rest colour. */
 
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
@@ -141,6 +142,8 @@ async function forceHover(cdp: Pick<Cdp, 'send'>, sessionId: string) {
   await cdp.send('CSS.forcePseudoState', { nodeId, forcedPseudoClasses: ['hover'] }, sessionId);
 }
 
+const FINISH_TRANSITIONS = 'document.getAnimations().forEach((one) => one.finish())';
+
 const MEASURE = (property: string, parts: string[] = []) => `(() => {
   const subject = document.querySelector('[${SUBJECT}]');
   const container = document.body.firstElementChild;
@@ -233,6 +236,7 @@ export async function driveTab(cdp: Pick<Cdp, 'send' | 'on'>, plan: Plan) {
               problems.push(`${kase.name} (${layer}, ${order}): the subject is not :hover under a hover-capable pointer after it was forced (${String(seen)}), so the case would measure no hover`);
               continue;
             }
+            await evaluate(cdp, FINISH_TRANSITIONS, sessionId);
           }
           const property = 'property' in kase.measure ? kase.measure.property : '--arena-fill-width';
           const parts = 'property' in kase.measure ? Object.keys(kase.measure.others ?? {}) : [];

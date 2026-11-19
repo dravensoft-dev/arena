@@ -76,3 +76,12 @@ test('a part keeps a tone that states something, and the gate writes it over the
   const html = treeHtml({ tag: 'span', part: 'badge', tone: 'success' }, () => '', () => ({ [TONE]: 'neutral' }));
   assert.equal(html, '<span data-arena-part="badge" data-arena-tone="success"></span>');
 });
+
+test('an aria-disabled member keeps its disabled flag from aria-disabled, and the gate writes it back as aria-disabled', () => {
+  const item = (attrs: Record<string, string>) => normalize(node('div', {}, [node('button', { 'data-arena-part': 'bottom-nav.item', ...attrs })]), new Set());
+  assert.deepEqual(item({ 'aria-disabled': 'true' }), { tag: 'div', children: [{ tag: 'button', part: 'bottom-nav.item', disabled: true }] });
+  assert.deepEqual(item({ 'aria-disabled': 'false' }), { tag: 'div', children: [{ tag: 'button', part: 'bottom-nav.item' }] });
+  assert.equal(normalize(node('button', { 'data-arena-part': 'button', 'aria-disabled': 'true' }), new Set())?.disabled, undefined, 'aria-disabled marks no other part disabled');
+  assert.equal(treeHtml({ tag: 'button', part: 'bottom-nav.item', disabled: true }, () => ''), '<button data-arena-part="bottom-nav.item" aria-disabled="true"></button>');
+  assert.equal(treeHtml({ tag: 'button', part: 'button', disabled: true }, () => ''), '<button data-arena-part="button" disabled=""></button>');
+});

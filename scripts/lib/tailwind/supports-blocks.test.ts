@@ -134,3 +134,21 @@ ${rule('--arena-icon-ink: color-mix(in oklab, var(--ink-body) 82%, transparent);
   const risky = wrapped('color: var(--ink-muted);');
   assert.equal(mergeSupports(risky), risky);
 });
+
+test('a wrapped block is not moved into a last block that already holds its property', () => {
+  const rule = (body: string) => `    .a:hover {\n      ${body}\n    }`;
+  const held = `@layer utilities {
+  @media (hover: hover) {
+${rule('color: var(--ink-body);')}
+    ${SUPPORTS} {
+${rule('color: color-mix(in oklab, var(--ink-body) 82%, transparent);')}
+    }
+    ${SUPPORTS} {
+${rule('color: color-mix(in oklab, var(--ink-muted) 64%, transparent);')}
+    }
+  }
+}
+`;
+  assert.equal(mergeSupports(held), held);
+  assert.equal(repeatedSupports(held).length, 1);
+});
