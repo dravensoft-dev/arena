@@ -1136,6 +1136,30 @@
       }
     }
   },
+  "fill-mark": {
+    "$type": "color",
+    "$description": "The fill of a filled neutral marker: the disc of a timeline milestone that is complete and carries no hue. Read through the marks group's dot at its neutral-complete option, whose glyph is measured over it at 3:1 and whose border takes transparent, so the disc paints its own edge.\n\nSeparate from ink-muted, which it matches in the default plugin, because a disc is a filled graphical object and not a run of quiet text: a style plugin that softens its secondary text has said nothing about the milestones a timeline has passed.\n\nAn assignment and never a value, like every colour role: WHICH of the consumer's colours, never what that colour is.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{color.base-content}",
+        "audience": "component",
+        "task": "meaning-and-identity",
+        "question": "What colour fills a neutral marker that is done, such as a complete timeline milestone?"
+      }
+    }
+  },
+  "fill-tile": {
+    "$type": "color",
+    "$description": "The ground behind a monogram: the tile an avatar draws its initials on when it has no image. Read through the marks group's tile, whose ink is measured over it.\n\nSeparate from fill-marker and fill-track, which share its step in the default plugin, because a face stands for a person and a count or a strip does not: a style plugin that tints its avatars has said nothing about the counts beside its navigation rows or the tracks its bars run along.\n\nAn assignment and never a value, like every colour role: WHICH of the consumer's colours, never what that colour is.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{color.base-300}",
+        "audience": "component",
+        "task": "meaning-and-identity",
+        "question": "What colour is the ground behind the initials of an avatar with no image?"
+      }
+    }
+  },
   "fill-control": {
     "$type": "color",
     "$description": "The fill of a selection control at rest: the box of a checkbox, the ring of a radio, the track of a switch, the rail of a slider, and the selected segment of a segmented control. Read through the choices group, whose box answers it at rest and whose selected segment takes it as its fill. Paired with fill-control-on, which has to stand 3:1 apart from it, because the fill is what tells on from off.",
@@ -1398,6 +1422,18 @@
       }
     }
   },
+  "edge-mark": {
+    "$type": "color",
+    "$description": "The ring of the current neutral marker: the border of the timeline milestone a reader is at, drawn around a disc filled with the surface. Read through the marks group's dot at its neutral-current option.\n\nSeparate from edge-control and edge-marker because the ring says where the reader is, which neither a control's frame nor an avatar's ring says: a style plugin that quiets its control frames keeps the current milestone as plain as before.\n\nAn assignment and never a value, like every colour role: WHICH of the consumer's colours, never what that colour is.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{color.base-content}",
+        "audience": "component",
+        "task": "meaning-and-identity",
+        "question": "What colour is the ring around the current neutral marker, such as the timeline milestone a reader is at?"
+      }
+    }
+  },
   "edge-control": {
     "$type": "color",
     "$description": "The colour of the line around a control the user presses. Born at neutral, which\nfifteen slots name, and separate from edge-surface because it is the boundary WCAG 1.4.11\nmeasures at 3:1 against what sits behind it.\n\nThat is also its limit. check:boundary-contrast already measures the step behind a control whose\nborder a style plugin set to zero; assigning this role moves the same question onto the colour, and the\nsame gate answers it.",
@@ -1652,6 +1688,18 @@
           "aria-invalid"
         ],
         "question": "What colour is the error text of a field that holds an invalid value?"
+      }
+    }
+  },
+  "ink-on-mark": {
+    "$type": "color",
+    "$description": "The glyph cut into a filled neutral marker: the tick inside a complete timeline milestone, which reads as a hole through fill-mark. Read through the marks group's dot at its neutral-complete option and measured over fill-mark at 3:1.\n\nSeparate from fill-surface, which it matches in the default plugin, because the glyph has to stand apart from the disc it is cut from and not from the card around it: a style plugin that moves its surfaces keeps the tick readable only if this role moves with fill-mark.\n\nAn assignment and never a value, like every colour role: WHICH of the consumer's colours, never what that colour is.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{color.base-200}",
+        "audience": "component",
+        "task": "meaning-and-identity",
+        "question": "What colour is the glyph cut into a filled neutral marker, such as the tick of a complete milestone?"
       }
     }
   },

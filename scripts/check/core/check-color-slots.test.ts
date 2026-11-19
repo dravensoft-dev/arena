@@ -146,18 +146,18 @@ test('a member part on an option its manifest lacks, or a part its manifest lack
 
 test('the contract counts', () => {
   const slots = Object.values(shipped().slots);
-  assert.equal(slots.length, 313);
+  assert.equal(slots.length, 369);
   const by = (key: (s: (typeof slots)[number]) => string) => {
     const n: Record<string, number> = {};
     for (const s of slots) n[key(s)] = (n[key(s)] ?? 0) + 1;
     return n;
   };
-  assert.deepEqual(by((s) => s.option ?? ''), { '': 101, primary: 16, secondary: 16, ghost: 32, solid: 32, destructive: 28, neutral: 12, error: 10, valid: 7, readonly: 2, warning: 6, plain: 21, quiet: 2, complete: 4, current: 4, upcoming: 4, danger: 5, success: 5, info: 5, gold: 1 });
-  assert.deepEqual(by((s) => s.state), { rest: 108, disabled: 47, hover: 48, pressed: 40, selected: 25, 'selected-hover': 14, 'selected-pressed': 14, 'selected-disabled': 17 });
+  assert.deepEqual(by((s) => s.option ?? ''), { '': 104, primary: 17, secondary: 16, ghost: 32, solid: 32, destructive: 28, neutral: 13, muted: 1, error: 10, valid: 7, readonly: 2, warning: 7, plain: 21, quiet: 2, complete: 4, current: 4, upcoming: 4, danger: 6, success: 6, info: 6, gold: 2, ...Object.fromEntries(['neutral', 'danger', 'success', 'warning', 'info'].flatMap((tone) => ['complete', 'current', 'upcoming'].map((state) => [`${tone}-${state}`, 3]))) });
+  assert.deepEqual(by((s) => s.state), { rest: 164, disabled: 47, hover: 48, pressed: 40, selected: 25, 'selected-hover': 14, 'selected-pressed': 14, 'selected-disabled': 17 });
   assert.equal(slots.filter((s) => s.optional).length, 64);
   assert.equal(slots.filter((s) => s.derive?.mix === 'mix-pressed').length, 19);
   assert.equal(slots.filter((s) => s.derive?.mix === 'mix-hover').length, 7);
-  assert.equal(slots.filter((s) => s.channel === undefined).length, 215, 'the destructive option, the dismiss part and the choices, fields, menus, navigation, steps and feedback groups carry no channel, bar the accent edge (R6, D95)');
+  assert.equal(slots.filter((s) => s.channel === undefined).length, 269, 'the destructive option, the dismiss part and the choices, fields, menus, navigation, steps, feedback and marks groups carry no channel, bar the accent edge and the accent dot ink (R6, D95)');
 });
 
 test('every slot of the five buttons reaches its part under its state', () => {

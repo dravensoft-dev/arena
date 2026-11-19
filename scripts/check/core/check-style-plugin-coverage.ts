@@ -108,6 +108,15 @@ export const WITNESS_EXEMPT: ReadonlyMap<string, string> = new Map([
     + 'transparent, hue-danger-fill-strong, is a danger fill, and an alert or toast action answered with it would say danger where it draws nothing; the kernel '
     + 'default is the literal transparent, so no other spelling resolves to the key complete paints there']),
   ['feedback-plain-banner-edge-rest', SLOT + NO_SECOND_SPELLING],
+  ...['neutral', 'success', 'warning', 'info'].map((option): [string, string] => [`marks-${option}-complete-dot-edge-rest`, SLOT + 'complete draws a complete '
+    + 'timeline disc with its border the colour of its fill, the kernel default is the literal transparent, which paints the same pixel, and no accepted edge role '
+    + 'resolves to transparent in complete, so no other spelling resolves to what complete paints there (D91)']),
+  ['marks-neutral-complete-dot-fill-rest', SLOT + NO_SECOND_SPELLING],
+  ...['success', 'warning', 'info'].map((option): [string, string] => [`marks-${option}-dot-ink-rest`, SLOT + `complete paints the ${option} presence and `
+    + `activity dots through hue-${option}-fill-strong, neutral in complete, and no role a dot ink accepts resolves to neutral in complete, so no spelling `
+    + 'resolves to the key complete paints there']),
+  ['fill-tile', 'complete answers it as default does, base-300, because complete paints the ground behind a monogram base-300 and no other palette key '
+    + 'resolves to it, and this role reaches a page through the marks tile slot complete answers with a spelling of its own'],
   ['fill-marker', 'complete answers it as default does, base-300, because complete paints the count beside a side navigation row that is not current '
     + 'base-300 and no other palette key resolves to it, and this role reaches a page through the navigation badge slot complete answers with a '
     + 'spelling of its own'],

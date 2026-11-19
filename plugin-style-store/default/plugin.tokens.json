@@ -475,6 +475,14 @@
     "$type": "color",
     "$value": "{color.base-300}"
   },
+  "fill-mark": {
+    "$type": "color",
+    "$value": "{color.base-content}"
+  },
+  "fill-tile": {
+    "$type": "color",
+    "$value": "{color.base-300}"
+  },
   "fill-control": {
     "$type": "color",
     "$value": "{color.neutral}"
@@ -547,6 +555,10 @@
     "$type": "color",
     "$value": "{color.neutral}"
   },
+  "edge-mark": {
+    "$type": "color",
+    "$value": "{color.base-content}"
+  },
   "edge-control": {
     "$type": "color",
     "$value": "{color.neutral}"
@@ -610,6 +622,10 @@
   "ink-invalid": {
     "$type": "color",
     "$value": "{color.error}"
+  },
+  "ink-on-mark": {
+    "$type": "color",
+    "$value": "{color.base-200}"
   },
   "bw-surface": {
     "$type": "dimension",

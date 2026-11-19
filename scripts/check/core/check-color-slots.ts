@@ -16,7 +16,7 @@ import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { colourNames, colourToken, colouredParts } from '../../lib/core/color-slot-map.ts';
 import type { ColouredPart } from '../../lib/core/color-slot-map.ts';
-import { COLOR_SLOTS, SLOT_KEYS, deriveSlots, isMemberDecl, readSlotDeclarations } from '../../lib/core/color-slots.ts';
+import { COLOR_SLOTS, SLOT_KEYS, deriveSlots, drawsNoEdge, isMemberDecl, readSlotDeclarations } from '../../lib/core/color-slots.ts';
 import type { GroupPart, MemberDecl, SlotDeclarations } from '../../lib/core/color-slots.ts';
 import { declarations } from '../../lib/tailwind/vocabulary.ts';
 import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
@@ -184,7 +184,7 @@ export function pairProblems(c: SlotCatalogue, d: SlotDeclarations = readSlotDec
     let want: string | undefined;
     if (gp.over !== undefined) want = sibling;
     else if (s.property === 'ink' || s.property === 'icon') want = own ?? sibling ?? 'ground';
-    else if (s.property === 'fill' && gp.mark === true && sibling === undefined) want = 'ground';
+    else if (s.property === 'fill' && gp.mark === true && sibling === undefined) want = drawsNoEdge(option?.rest ?? gp.rest) ? 'ground' : undefined;
     else if (s.property === 'fill') want = gp.selectedOn === 'rest' && SELECTED_ON.has(s.state) ? expectedName({ ...s, state: 'rest' }) : sibling;
     else want = sibling ?? own;
     if (s.on !== want) out.push(`${name}: it sits on ${s.on ?? 'nothing'} and the declarations give ${want ?? 'nothing'}`);

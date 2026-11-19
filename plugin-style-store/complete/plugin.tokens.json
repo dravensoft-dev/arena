@@ -462,6 +462,14 @@
     "$type": "color",
     "$value": "{color.base-300}"
   },
+  "fill-mark": {
+    "$type": "color",
+    "$value": "{color.neutral-content}"
+  },
+  "fill-tile": {
+    "$type": "color",
+    "$value": "{color.base-300}"
+  },
   "ink-heading": {
     "$type": "color",
     "$value": "{color.secondary}"
@@ -517,6 +525,10 @@
   "edge-marker": {
     "$type": "color",
     "$value": "{color.primary}"
+  },
+  "edge-mark": {
+    "$type": "color",
+    "$value": "{color.neutral-content}"
   },
   "edge-control": {
     "$type": "color",
@@ -581,6 +593,10 @@
   "ink-invalid": {
     "$type": "color",
     "$value": "{color.base-content}"
+  },
+  "ink-on-mark": {
+    "$type": "color",
+    "$value": "{color.base-100}"
   },
   "bw-surface": {
     "$type": "dimension",
@@ -2208,6 +2224,198 @@
     "$type": "color",
     "$value": "{hue-danger-ink}",
     "$description": "complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses."
+  },
+  "marks-danger-complete-dot-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "marks-danger-complete-dot-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface-floating}"
+  },
+  "marks-danger-complete-dot-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "marks-danger-current-dot-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "marks-danger-current-dot-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface-floating}"
+  },
+  "marks-danger-current-dot-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "marks-danger-dot-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "marks-danger-upcoming-dot-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "marks-danger-upcoming-dot-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface-floating}"
+  },
+  "marks-danger-upcoming-dot-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "marks-gold-dot-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-knob-off}"
+  },
+  "marks-info-complete-dot-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-track}"
+  },
+  "marks-info-complete-dot-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-on-mark}"
+  },
+  "marks-info-current-dot-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "marks-info-current-dot-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface-floating}"
+  },
+  "marks-info-current-dot-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "marks-info-upcoming-dot-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "marks-info-upcoming-dot-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface-floating}"
+  },
+  "marks-info-upcoming-dot-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "marks-muted-dot-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "marks-neutral-complete-dot-ink-rest": {
+    "$type": "color",
+    "$value": "{hue-info-on-ink}"
+  },
+  "marks-neutral-current-dot-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-selected}"
+  },
+  "marks-neutral-current-dot-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface-floating}"
+  },
+  "marks-neutral-current-dot-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-figure}"
+  },
+  "marks-neutral-dot-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-figure}"
+  },
+  "marks-neutral-upcoming-dot-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-field}"
+  },
+  "marks-neutral-upcoming-dot-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface-floating}"
+  },
+  "marks-neutral-upcoming-dot-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-figure}"
+  },
+  "marks-primary-dot-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-heading}"
+  },
+  "marks-success-complete-dot-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-track}"
+  },
+  "marks-success-complete-dot-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-on-mark}"
+  },
+  "marks-success-current-dot-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "marks-success-current-dot-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface-floating}"
+  },
+  "marks-success-current-dot-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "marks-success-upcoming-dot-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "marks-success-upcoming-dot-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface-floating}"
+  },
+  "marks-success-upcoming-dot-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "marks-tile-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-surface}"
+  },
+  "marks-tile-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-marker}"
+  },
+  "marks-tile-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-figure}"
+  },
+  "marks-warning-complete-dot-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-track}"
+  },
+  "marks-warning-complete-dot-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-on-mark}"
+  },
+  "marks-warning-current-dot-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "marks-warning-current-dot-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface-floating}"
+  },
+  "marks-warning-current-dot-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "marks-warning-upcoming-dot-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "marks-warning-upcoming-dot-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface-floating}"
+  },
+  "marks-warning-upcoming-dot-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
   },
   "menus-destructive-item-fill-hover": {
     "$type": "color",

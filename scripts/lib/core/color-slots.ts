@@ -13,6 +13,8 @@ type Answer = string | { role: string; level?: string };
 type StateSpec = string | string[];
 type Rest = Record<string, Answer>;
 
+export const drawsNoEdge = (rest: Record<string, unknown> | undefined) => rest?.edge === undefined || rest.edge === 'transparent';
+
 export type GroupOption = { states?: StateSpec; properties?: string[]; rest: Rest; halo?: string; channel?: string | null; decision?: string };
 export type GroupPart = {
   properties: string[];
@@ -87,7 +89,7 @@ export function deriveSlots(d: SlotDeclarations): SlotCatalogue {
         const sibling = under === undefined ? undefined : slotName(group, siblingOpt, under, 'fill', st);
         const own = properties.includes('fill') ? slotName(group, opt, part, 'fill', st) : undefined;
         if (over !== undefined) f.on = sibling;
-        else if (prop === 'fill' && mark && sibling === undefined) f.on = 'ground';
+        else if (prop === 'fill' && mark && sibling === undefined) f.on = drawsNoEdge(rest) ? 'ground' : undefined;
         else if (prop === 'fill') f.on = selectedOn && ['selected', 'selected-hover', 'selected-pressed'].includes(st) ? slotName(group, opt, part, 'fill', 'rest') : sibling;
         else if (prop === 'edge') f.on = sibling ?? own;
         else f.on = own ?? sibling ?? 'ground';

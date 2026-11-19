@@ -6,7 +6,8 @@
  * one of them mixes against `transparent`, so the value it paints does not exist until a
  * browser composites it over whatever surface is behind. That is what levelReports does.
  * A placeholder is not in EXEMPT: 1.4.3 exempts an INACTIVE component and a field waiting for
- * input is the opposite of one, so the hint inside it is text and is held to 4.5:1 like any. */
+ * input is the opposite of one, so the hint inside it is text and is held to 4.5:1 like any.
+ * The presence register paints a dot through bg-current, a mark at 3:1 in any property (D92). */
 
 import { contrast } from './validate-palette.mjs';
 import { parseBlocks, selectorPath, COLOUR_VAR, MIXED_VAR } from './css-blocks.ts';
@@ -288,7 +289,10 @@ export function exemptionFor(level: Level) {
 
 export const isMark = (variable: string) => /^ink-|^color-base-content$/.test(variable);
 
+export const MARK_LEVELS = new Set(['level-presence']);
+
 export function gateFor(level: Level) {
+  if (level.level !== null && MARK_LEVELS.has(level.level)) return MARK_MIN;
   if (level.property === 'color') return TEXT_MIN;
   return level.property === 'background-color' && isMark(level.variable) ? MARK_MIN : null;
 }

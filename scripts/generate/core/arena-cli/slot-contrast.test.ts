@@ -67,8 +67,9 @@ test('a rest edge is not a slot pair, a selected edge is', () => {
   assert.ok(selected.every((pair) => SLOTS[pair.slot]?.state.startsWith('selected') && pair.min === 3));
   assert.equal(pairs.some((pair) => /disabled$/.test(SLOTS[pair.slot]?.state ?? '') || /disabled$/.test(SLOTS[pair.over]?.state ?? '')), false,
     'a disabled and a selected-disabled slot is never a pair');
-  const mark = (name: string) => (SLOTS[name]?.group === 'choices' && ['mark', 'knob'].includes(SLOTS[name]?.part ?? '')) || (SLOTS[name]?.group === 'feedback' && SLOTS[name]?.part === 'icon');
-  assert.ok(pairs.every((pair) => pair.min === (SLOTS[pair.slot]?.property === 'ink' && !mark(pair.slot) ? 4.5 : 3)), 'an ink is text at 4.5:1, a mark, a knob glyph or a feedback icon at 3:1 (D69, D89)');
+  const mark = (name: string) => (SLOTS[name]?.group === 'choices' && ['mark', 'knob'].includes(SLOTS[name]?.part ?? '')) || (SLOTS[name]?.group === 'feedback' && SLOTS[name]?.part === 'icon')
+    || (SLOTS[name]?.group === 'marks' && SLOTS[name]?.part === 'dot');
+  assert.ok(pairs.every((pair) => pair.min === (SLOTS[pair.slot]?.property === 'ink' && !mark(pair.slot) ? 4.5 : 3)), 'an ink is text at 4.5:1, a mark, a knob glyph, a feedback icon or a dot at 3:1 (D69, D89, D92)');
 });
 
 test('an inset ring is measured over each state of its fill', () => {
@@ -429,5 +430,22 @@ test('the feedback icon and action clear their floors over the wash', () => {
     const roles = rolesFor(null, CATALOGUE, theme);
     const lines = slotReports(CATALOGUE.slots, new Map(), roles, coloursOf(theme), theme, LEVELS).map((one) => one.message).filter((line) => line.startsWith('--feedback-'));
     assert.deepEqual(lines, [], `${theme}: every feedback icon and action clears its floor over its wash`);
+  }
+});
+
+test('every marks dot pair is a 3:1 mark', () => {
+  const dots = slotPairs(CATALOGUE.slots).filter((pair) => /^marks-.+-dot-/.test(pair.slot));
+  assert.ok(dots.length >= 15, 'every dot is measured');
+  assert.ok(dots.every((pair) => pair.min === 3), 'a dot and its glyph are graphical objects (D92)');
+  const offline = dots.find((pair) => pair.slot === 'marks-muted-dot-ink-rest');
+  assert.equal(offline?.over, 'ground');
+  const roles = rolesFor(null, CATALOGUE, 'light');
+  const colors = coloursOf('light');
+  const ground = colors['base-200'] as string;
+  const ratio = contrast(slotColour(CATALOGUE.slots, 'marks-muted-dot-ink-rest', new Map(), roles, colors, LEVELS, mixOf(roles), ground) as string, ground);
+  assert.equal(ratio.toFixed(2), '3.46', 'the offline dot over base-200 in light');
+  for (const theme of ['dark', 'light'] as const) {
+    const lines = kernel(theme).filter((line) => line.startsWith('--marks-'));
+    assert.deepEqual(lines, [], `${theme}: every marks pair clears 3:1`);
   }
 });

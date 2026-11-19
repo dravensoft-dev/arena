@@ -72,14 +72,11 @@ test('every claim carries a reason, because one that cannot be judged stale is n
 });
 
 const HUES = {
-  ArenaActivityFeed: { tone: { success: 'success', warning: 'warning', danger: 'danger', info: 'info' } },
-  ArenaAvatar: { status: { online: 'success', busy: 'danger', away: 'warning' } },
   ArenaBadge: { tone: { success: 'success', warning: 'warning', danger: 'danger', info: 'info' } },
   ArenaStatCard: { tone: { success: 'success', warning: 'warning', danger: 'danger', info: 'info' }, deltaTone: { positive: 'success', negative: 'danger' } },
   ArenaTag: { tone: { success: 'success', warning: 'warning', danger: 'danger' } },
   ArenaConfirmDialog: { destructive: { true: 'danger' } },
   ArenaProgressBar: { tone: { success: 'success', danger: 'danger', info: 'info' } },
-  ArenaTimeline: { tone: { success: 'success', warning: 'warning', danger: 'danger', info: 'info' } },
 } as Record<string, Record<string, Record<string, string>>>;
 
 test('every status value maps to its own hue, and a neutral or editorial value to none', () => {
@@ -96,9 +93,8 @@ test('every status value maps to its own hue, and a neutral or editorial value t
     }
   }
   for (const [component, group, values] of [
-    ['ArenaBadge', 'tone', ['neutral']], ['ArenaAvatar', 'status', ['none', 'offline']],
+    ['ArenaBadge', 'tone', ['neutral']],
     ['ArenaConfirmDialog', 'destructive', ['false']], ['ArenaTag', 'tone', ['neutral']],
-    ['ArenaTimeline', 'tone', ['neutral']],
   ] as [string, string, string[]][])
     for (const value of values)
       assert.equal(manifests.get(component)?.hues?.[group]?.[value], null, `${component}.hues.${group}.${value} is not mapped to no hue`);
@@ -192,7 +188,6 @@ const DESTRUCTIVE = ['edge', 'ink', 'fill'].map((property) => {
   return `${utility}-[color:var(--actions-destructive-root-${property}-rest,var(--hue-danger-${hue}))]`;
 });
 const STRONG_INK = 'text-[color:var(--arena-hue-fill-strong)]';
-const FILLED_WHY = 'a solid status fill reads the strong fill channel, and danger, whose strong fill is hue-danger-fill-strong and transparent by default, draws the mark through its ink';
 const STATUS = ['success', 'warning', 'danger', 'info'];
 const FEEDBACK_WHY = 'a status colour is a read of the feedback slot of its tone, so the style plugin that answers the slot moves every surface wearing it';
 const HUE_WHY = 'a status colour is a read of the hue channel the hue sheet writes on this slot, so the style plugin that answers the hue roles moves every surface wearing it';
@@ -249,21 +244,21 @@ export const CLAIMS = {
   ],
   ArenaActivityFeed: [
     { slot: 'dot', has: ['bg-current'], hasNot: ['bg-error', 'bg-success', 'bg-warning', 'bg-info', 'bg-primary', 'bg-primary-fill', 'bg-secondary'], why: 'the dot carries the tone as a colour, never as a fill of its own' },
-    ...['success', 'warning', 'info'].map((tone) => ({ chosen: { tone }, slot: 'dot', has: [STRONG_INK], hasNot: [INK], why: FILLED_WHY })),
-    { chosen: { tone: 'danger' }, slot: 'dot', has: [INK], hasNot: [STRONG_INK], why: FILLED_WHY },
+    ...['neutral', 'success', 'warning', 'danger', 'info'].map((tone) => ({
+      chosen: { tone }, slot: 'dot', has: [`text-[color:${memberValue(SLOTS, 'ArenaActivityFeed.dot', `marks-${tone}-dot-ink-rest`, 'tailwind')}]`], hasNot: [INK, STRONG_INK],
+      why: 'a toned dot reads the marks dot of its tone inline, so an answer to that dot reaches it (D92)',
+    })),
     { chosen: { divided: true }, slot: 'item', has: ['border-t-[length:var(--bw-separator)]'], why: 'divided draws the rule between rows' },
     { chosen: { divided: false }, slot: 'item', has: ['border-t-0'], why: 'the first row carries no divider above it' },
   ],
   ArenaAvatar: [
     { chosen: { kind: 'person' }, slot: 'box', has: ['rounded-pill'], why: 'a person is drawn as a circle and a team as a rounded square, so the two read apart' },
     { chosen: { kind: 'team' }, slot: 'box', has: ['rounded-md'], why: 'a person is drawn as a circle and a team as a rounded square, so the two read apart' },
-    ...['online', 'away'].map((status) => ({
-      chosen: { status }, slot: 'status', has: [STRONG], hasNot: ['bg-success', 'bg-warning', 'bg-[color:var(--arena-hue-ink)]'],
-      why: 'a live presence dot is a solid fill, so it reads the strong fill channel of its status hue',
+    { slot: 'status', has: ['bg-current', 'border-surface'], hasNot: ['border-base-200'], why: 'the presence dot paints the ink of its marks dot, and its ring is the surface the dot is cut from, no slot read (R13)' },
+    ...Object.entries({ online: 'success', busy: 'danger', away: 'warning', offline: 'muted' }).map(([status, option]) => ({
+      chosen: { status }, slot: 'status', has: [`text-[color:${memberValue(SLOTS, 'ArenaAvatar.status', `marks-${option}-dot-ink-rest`, 'tailwind')}]`], hasNot: [STRONG, 'bg-[color:var(--arena-hue-ink)]'],
+      why: 'a presence tone maps to the marks dot of its status, never to a series colour (D92)',
     })),
-    { chosen: { status: 'busy' }, slot: 'status', has: ['bg-[color:var(--arena-hue-ink)]'], hasNot: ['bg-error', STRONG],
-      why: 'a busy dot is filled with the ink of the danger hue, so it shows whatever hue-danger-fill-strong answers' },
-    { chosen: { status: 'offline' }, slot: 'status', has: ['bg-base-content/(--level-presence)'], why: 'a presence tone maps to the status colour taxonomy, never to a series colour' },
     { slot: 'image', has: ['w-full', 'h-full', 'object-cover'], why: 'the image fills the box and crops to it, so a non-square source never distorts' },
   ],
   ArenaCard: [
@@ -746,7 +741,7 @@ const READS: [component: string, slot: string, question: string, reads: string[]
   ['ArenaStatCard', 'value', 'accent.ink', ['text-[color:var(--arena-accent-ink,var(--accent-plain-ink))]']],
   ['ArenaProgressBar', 'track', 'accent.ink', ['text-[color:var(--arena-accent-ink,var(--accent-primary-ink))]']],
   ['ArenaProgressBar', 'ring', 'accent.ink', ['text-[color:var(--arena-accent-ink,var(--accent-primary-ink))]']],
-  ['ArenaActivityFeed', 'dot', 'accent.ink', ['text-[color:var(--arena-accent-ink,var(--accent-primary-ink))]']],
+  ['ArenaActivityFeed', 'dot', 'accent.marks-dot-ink', ['text-[color:var(--arena-accent-marks-dot-ink)]']],
   ['ArenaSpinner', 'root', 'accent.ink', ['text-[color:var(--arena-accent-ink,var(--accent-primary-ink))]']],
   ['ArenaTag', 'root', 'accent.quiet-ink', ['text-[color:var(--arena-accent-quiet-ink,color-mix(in_oklab,var(--accent-plain-quiet-ink)_var(--level-ink-quiet),transparent))]']],
   ['ArenaCard', 'root', 'accent.edge', ['border-[color:var(--arena-accent-edge,var(--accent-plain-edge))]']],
@@ -831,13 +826,13 @@ test('a status a component states follows the accent read in the slot string, so
     ['ArenaTag', 'root', 'accent-edge', ['success', 'warning', 'danger']],
     ['ArenaToast', 'root', 'accent-feedback-banner-edge', ['success', 'danger']],
     ['ArenaProgressBar', 'track', 'accent-ink', ['success', 'danger', 'info']],
-    ['ArenaActivityFeed', 'dot', 'accent-ink', ['success', 'warning', 'danger', 'info']],
+    ['ArenaActivityFeed', 'dot', 'accent-marks-dot-ink', ['success', 'warning', 'danger', 'info']],
   ];
   for (const [component, slot, channel, tones] of stated) {
     for (const tone of tones) {
       const classes = resolve(component, { tone }, slot);
       const accent = classes.findIndex((one) => one.includes(`--arena-${channel},`) || one.includes(`--arena-${channel})`));
-      const meaning = classes.findIndex((one) => one.includes('--arena-hue-') || one.includes(`--feedback-${tone}-banner-`));
+      const meaning = classes.findIndex((one) => one.includes('--arena-hue-') || one.includes(`--feedback-${tone}-banner-`) || one.includes(`--marks-${tone}-dot-`));
       assert.ok(accent >= 0 && meaning > accent, `${component}.${slot} at tone ${tone} must write its hue read after the ${channel} read`);
     }
   }

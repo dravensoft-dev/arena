@@ -57,6 +57,8 @@ import { ArenaStepper } from '../components/navigation/arena-stepper/ArenaSteppe
 import { ArenaOnboarding } from '../components/feedback/arena-onboarding/ArenaOnboarding';
 import { ArenaAlert } from '../components/feedback/arena-alert/ArenaAlert';
 import { ArenaToast } from '../components/feedback/arena-toast/ArenaToast';
+import { ArenaAvatar } from '../components/display/arena-avatar/ArenaAvatar';
+import { ArenaActivityFeed } from '../components/display/arena-activity-feed/ArenaActivityFeed';
 import { ArenaFooter } from '../ProjectionMarkers';
 import { LIB } from './Compliance';
 
@@ -181,6 +183,7 @@ const TEMPLATES: Record<string, string> = {
   'banner-edge-answer-moves-alert-border-and-toast-stripe': '<div style="--feedback-success-banner-edge-rest: var(--hue-info-edge)"><arena-alert tone="success">Saved</arena-alert><arena-toast tone="success" title="Saved" message="Done"></arena-toast></div>',
   'banner-edge-answer-leaves-the-toast-quiet-sides': '<div style="--feedback-success-banner-edge-rest: var(--hue-info-edge)"><arena-alert tone="success">Saved</arena-alert><arena-toast tone="success" title="Saved" message="Done"></arena-toast></div>',
   'toast-tone-beats-its-accent': '<arena-toast class="arena-accent-gold" tone="success" title="Saved" message="Done"></arena-toast>',
+  'muted-dot-answer-moves-only-offline': '<div style="--marks-muted-dot-ink-rest: var(--hue-info-ink)"><arena-avatar name="Ada Fernandez" status="offline" /><arena-activity-feed label="Activity" [items]="[{ actor: \'Ada\', action: \'opened\', target: \'INF-1\', time: \'now\' }]" /></div>',
   'hover-answer-is-not-derived-from-the-rest-answer': '<div style="--actions-primary-root-fill-rest: var(--fill-surface); --actions-primary-root-fill-hover: var(--fill-hover)"><arena-button>Save</arena-button></div>',
 };
 
@@ -254,6 +257,7 @@ const SUBJECT: Record<string, { part: string; index: number }> = {
   'banner-edge-answer-moves-alert-border-and-toast-stripe': { part: 'alert', index: 0 },
   'banner-edge-answer-leaves-the-toast-quiet-sides': { part: 'toast', index: 0 },
   'toast-tone-beats-its-accent': { part: 'toast', index: 0 },
+  'muted-dot-answer-moves-only-offline': { part: 'avatar.status', index: 0 },
 };
 
 const OPENED = new Set(['menu-answer-moves-every-highlight', 'blocked-option-fades-until-answered', 'blocked-active-option-fades-until-answered', 'blocked-active-option-keeps-its-selected-wash']);
@@ -269,7 +273,7 @@ for (const kase of cases) {
     const Host = Component({
       selector: `proximity-${kase.name}-host`,
       standalone: true,
-      imports: [ArenaStepper, ArenaOnboarding, ArenaSideNav, ArenaSideNavItem, ArenaTabs, ArenaTab, ArenaTreeView, ArenaPagination, ArenaBottomNav, ArenaBottomNavItem, ArenaButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaIconButton, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaFooter, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope, ArenaSplitButton, ArenaCopyButton, ArenaCheckbox, ArenaRadioGroup, ArenaRadio, ArenaSwitch, ArenaSlider, ArenaInput, ArenaFileInput, ArenaMultiSelect, ArenaCommandPalette, ArenaAlert, ArenaToast],
+      imports: [ArenaStepper, ArenaOnboarding, ArenaSideNav, ArenaSideNavItem, ArenaTabs, ArenaTab, ArenaTreeView, ArenaPagination, ArenaBottomNav, ArenaBottomNavItem, ArenaButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaIconButton, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaFooter, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope, ArenaSplitButton, ArenaCopyButton, ArenaCheckbox, ArenaRadioGroup, ArenaRadio, ArenaSwitch, ArenaSlider, ArenaInput, ArenaFileInput, ArenaMultiSelect, ArenaCommandPalette, ArenaAlert, ArenaToast, ArenaAvatar, ArenaActivityFeed],
       template: BARE.has(kase.name) ? TEMPLATES[kase.name] : `<div class="${kase.container}">${TEMPLATES[kase.name]}</div>`,
     })(class {});
     const fixture = TestBed.createComponent(Host);

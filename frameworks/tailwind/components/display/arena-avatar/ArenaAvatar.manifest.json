@@ -14,9 +14,9 @@
   ],
   "slots": {
     "root": "relative inline-flex shrink-0 size-[var(--arena-size-avatar,var(--size-md-avatar))]",
-    "box": "inline-flex items-center justify-center overflow-hidden bg-base-300 border-[length:var(--bw-marker)] border-edge-marker font-display font-extrabold tracking-normal text-ink-body/(--level-ink-body) size-[var(--arena-size-avatar,var(--size-md-avatar))] text-[length:calc(var(--arena-size-avatar,var(--size-md-avatar))*0.4)]",
+    "box": "inline-flex items-center justify-center overflow-hidden bg-[color:var(--marks-tile-fill-rest,var(--fill-tile))] border-[length:var(--bw-marker)] border-[color:var(--marks-tile-edge-rest,var(--edge-marker))] font-display font-extrabold tracking-normal text-[color:color-mix(in_oklab,var(--marks-tile-ink-rest,var(--ink-body))_var(--level-ink-body),transparent)] size-[var(--arena-size-avatar,var(--size-md-avatar))] text-[length:calc(var(--arena-size-avatar,var(--size-md-avatar))*0.4)]",
     "image": "w-full h-full object-cover",
-    "status": "absolute right-0 bottom-0 rounded-pill border-[length:var(--bw-strong)] border-base-200 size-[max(calc(var(--sp-1)*2),calc(var(--arena-size-avatar,var(--size-md-avatar))*0.28))]"
+    "status": "absolute right-0 bottom-0 rounded-pill border-[length:var(--bw-strong)] border-surface bg-current size-[max(calc(var(--sp-1)*2),calc(var(--arena-size-avatar,var(--size-md-avatar))*0.28))]"
   },
   "kind": {
     "root": "none",
@@ -36,30 +36,21 @@
     "status": {
       "none": {},
       "online": {
-        "status": "bg-[color:var(--arena-hue-fill-strong)]"
+        "status": "text-[color:var(--marks-success-dot-ink-rest,var(--hue-success-ink))]"
       },
       "busy": {
-        "status": "bg-[color:var(--arena-hue-ink)]"
+        "status": "text-[color:var(--marks-danger-dot-ink-rest,var(--hue-danger-ink))]"
       },
       "away": {
-        "status": "bg-[color:var(--arena-hue-fill-strong)]"
+        "status": "text-[color:var(--marks-warning-dot-ink-rest,var(--hue-warning-ink))]"
       },
       "offline": {
-        "status": "bg-base-content/(--level-presence)"
+        "status": "text-[color:color-mix(in_oklab,var(--marks-muted-dot-ink-rest,var(--ink-muted))_var(--level-presence),transparent)]"
       }
     }
   },
   "defaultVariants": {
     "kind": "person",
     "status": "none"
-  },
-  "hues": {
-    "status": {
-      "none": null,
-      "online": "success",
-      "busy": "danger",
-      "away": "warning",
-      "offline": null
-    }
   }
 }

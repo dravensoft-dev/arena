@@ -95,7 +95,7 @@ test('actions derives 124 slots and no component slot', () => {
   const c = deriveSlots(readSlotDeclarations());
   const slots = Object.values(c.slots);
   assert.equal(slots.filter((slot) => slot.group === 'actions').length, 124);
-  assert.deepEqual([...new Set(slots.map((slot) => slot.group))].sort(), ['actions', 'choices', 'feedback', 'fields', 'menus', 'navigation', 'steps']);
+  assert.deepEqual([...new Set(slots.map((slot) => slot.group))].sort(), ['actions', 'choices', 'feedback', 'fields', 'marks', 'menus', 'navigation', 'steps']);
   for (const slot of slots) {
     for (const key of ['scope', 'family', 'component', 'draws']) assert.equal(Object.hasOwn(slot, key), false, key);
   }
@@ -439,7 +439,14 @@ test('a part on a sibling with options sits on the same option', () => {
       banner: banner(),
       icon: { properties: ['ink'], on: 'banner', options: { info: { states: 'base', rest: { ink: '{i-info}' } }, gold: { states: 'base', rest: { ink: '{i-gold}' } } } },
       action: { properties: ['fill', 'ink'], over: 'banner', options: { info: { states: 'base', rest: { fill: 'transparent', ink: '{i-action}' } } } },
-      dot: { properties: ['fill', 'ink'], mark: true, options: { info: { states: 'base', rest: { fill: '{f-info}', ink: '{i-info}' } }, gold: { states: 'base', properties: ['ink'], rest: { ink: '{i-gold}' } } } },
+      dot: {
+        properties: ['fill', 'edge', 'ink'], mark: true, options: {
+          info: { states: 'base', properties: ['fill', 'ink'], rest: { fill: '{f-info}', ink: '{i-info}' } },
+          gold: { states: 'base', properties: ['ink'], rest: { ink: '{i-gold}' } },
+          done: { states: 'base', rest: { fill: '{f-info}', edge: 'transparent', ink: '{i-info}' } },
+          ringed: { states: 'base', rest: { fill: '{f-surface}', edge: '{e-info}', ink: '{i-info}' } },
+        },
+      },
     },
   };
   const s = deriveSlots(d).slots;
@@ -454,6 +461,9 @@ test('a part on a sibling with options sits on the same option', () => {
   assert.equal(s['feedback-gold-dot-ink-rest']?.pair, 'mark');
   assert.equal(s['feedback-info-dot-fill-rest']?.pair, 'mark');
   assert.equal(s['feedback-info-dot-fill-rest']?.on, 'ground', 'a mark part\'s fill is a mark over the ground (D92)');
+  assert.equal(s['feedback-done-dot-fill-rest']?.on, 'ground', 'a mark whose edge is transparent is told by its fill');
+  assert.equal(s['feedback-ringed-dot-fill-rest']?.on, undefined, 'a mark with an opaque edge is told by its ring, so its fill is no pair');
+  assert.equal(s['feedback-ringed-dot-ink-rest']?.on, 'feedback-ringed-dot-fill-rest', 'its glyph still sits on its fill');
   assert.equal(s['feedback-info-banner-fill-rest']?.pair, undefined, 'a part with no over and no mark carries no pair');
 });
 
@@ -475,4 +485,26 @@ test('feedback derives its banner, icon and action', () => {
   assert.deepEqual(c.members['ArenaToast.root']?.options, ['plain', 'gold', 'success', 'danger']);
   assert.equal(c.members['ArenaToast.root']?.edgeAs, 'stripe');
   assert.deepEqual(c.members['ArenaAlert.action']?.options, ['neutral', 'info', 'success', 'warning', 'danger']);
+});
+
+test('marks derives its dot and tile', () => {
+  const c = deriveSlots(readSlotDeclarations());
+  assert.equal(c.slots['marks-muted-dot-ink-rest']?.default, '{ink-muted}');
+  assert.equal(c.slots['marks-muted-dot-ink-rest']?.level, 'level-presence');
+  assert.equal(c.slots['marks-muted-dot-ink-rest']?.on, 'ground', 'a dot with no fill is a mark over the ground (D92)');
+  assert.equal(c.slots['marks-muted-dot-ink-rest']?.pair, 'mark');
+  assert.equal(c.slots['marks-neutral-complete-dot-edge-rest']?.default, 'transparent', 'a border painted its own fill takes transparent (D91)');
+  assert.equal(c.slots['marks-neutral-complete-dot-fill-rest']?.default, '{fill-mark}');
+  assert.equal(c.slots['marks-neutral-complete-dot-ink-rest']?.default, '{ink-on-mark}');
+  assert.equal(c.slots['marks-neutral-current-dot-edge-rest']?.default, '{edge-mark}');
+  assert.equal(c.slots['marks-primary-dot-ink-rest']?.channel, '--arena-accent-marks-dot-ink');
+  assert.equal(c.slots['marks-primary-dot-fill-rest'], undefined, 'an accent dot derives its ink alone');
+  assert.equal(c.slots['marks-tile-fill-rest']?.default, '{fill-tile}');
+  assert.equal(c.slots['marks-tile-edge-rest']?.default, '{edge-marker}');
+  assert.equal(c.slots['marks-tile-ink-rest']?.level, 'level-ink-body');
+  const dots = Object.values(c.slots).filter((slot) => slot.group === 'marks' && slot.part === 'dot');
+  assert.equal(dots.some((slot) => /^identity-/.test(slot.option ?? '')), false, 'a series dot follows its hues channel (D75, D76)');
+  assert.equal(c.members['ArenaBoard.dot'], undefined, 'Board.dot is a series part, outside the slot tier');
+  assert.deepEqual(c.members['ArenaAvatar.status']?.options, ['success', 'danger', 'warning', 'muted']);
+  assert.equal(c.members['ArenaTimeline.dot']?.options.length, 15);
 });

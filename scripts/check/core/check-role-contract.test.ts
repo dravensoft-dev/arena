@@ -342,3 +342,20 @@ test('fill-marker is a colour role answering base-300', () => {
   assert.equal(ext?.audience, 'component');
   assert.match(String(ext?.question), /small count set beside a navigation row/);
 });
+
+test('the mark and tile roles answer their palette keys', () => {
+  const shipped = readJson(join(repoRoot, ROLES)) as Record<string, any>;
+  const plugin = readJson(join(repoRoot, 'plugin-style-store/default/plugin.tokens.json')) as Record<string, any>;
+  const keys: Record<string, string> = {
+    'fill-mark': '{color.base-content}', 'edge-mark': '{color.base-content}', 'ink-on-mark': '{color.base-200}', 'fill-tile': '{color.base-300}',
+  };
+  for (const [name, key] of Object.entries(keys)) {
+    const role = shipped[name];
+    assert.equal(role?.$type, 'color', name);
+    const ext = role?.$extensions?.['com.dravensoft.arena'];
+    assert.equal(ext?.default, key, name);
+    assert.equal(ext?.audience, 'component', name);
+    assert.ok(String(ext?.question ?? '').endsWith('?'), name);
+    assert.equal(plugin[name]?.$value, key, `${name}: the default plugin answers it as its default says`);
+  }
+});

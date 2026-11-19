@@ -74,9 +74,6 @@ export const PALETTE_HINTS = new Map<string, string>([
 ]);
 
 export const PALETTE_READS = new Map<string, string>([
-  ['ArenaAvatar:box:bg-base-300', 'marks: 5.1d moves the monogram ground onto the marks group slots'],
-  ['ArenaAvatar:status:border-base-200', 'marks: 5.1d moves the presence ring onto the marks group slots'],
-  ['ArenaAvatar:status:bg-base-content/(--level-presence)', 'marks: 5.1d moves the presence dot onto the marks group slots'],
   ['ArenaCalendar:dayNumber:text-primary', 'data: 5.1d moves the day number onto the data group slots'],
   ['ArenaCalendar:now:border-primary-fill', 'data: 5.1d moves the now marker onto the data group slots'],
   ['ArenaCalendar:nowDot:bg-primary-fill', 'data: 5.1d moves the now dot onto the data group slots'],

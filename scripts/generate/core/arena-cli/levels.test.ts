@@ -64,6 +64,12 @@ test('text is held to AA, a mark to 3:1, and a tint of a status colour to nothin
     'a soft wash is meant to be faint; holding it to a ratio would report the design');
 });
 
+test('the presence register is a mark at 3:1 whichever property carries it', () => {
+  const dot = { selector: '.arena-avatar__status', state: '.arena-avatar__status', property: 'color', variable: 'ink-muted', percent: 52, level: 'level-presence' };
+  assert.equal(gateFor(dot as never), 3, 'a presence dot paints bg-current from its ink, a graphical object (D92)');
+  assert.equal(gateFor({ ...dot, level: 'level-ink-muted' } as never), 4.5);
+});
+
 test('the surfaces are the page plus whatever the plugin answers with', () => {
   assert.deepEqual(surfaceKeys(ROLES), ['base-100']);
   assert.deepEqual(surfaceKeys(new Map([...ROLES, ['fill-surface', 'var(--color-base-200)']])),
