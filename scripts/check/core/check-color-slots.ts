@@ -26,6 +26,8 @@ import {
 } from '../../generate/core/arena-cli/slots.ts';
 import type { ColorSlot, MemberPart, SlotCatalogue } from '../../generate/core/arena-cli/slots.ts';
 import { slotPairs } from '../../generate/core/arena-cli/slot-contrast.ts';
+import { MARK_LEVELS, MARK_MIN } from '../../generate/core/arena-cli/levels.ts';
+import { classStringsBySlot } from '../arena/check-manifest-states.ts';
 
 export const EMPHASIS_FAMILY = 'frameworks/tailwind/vocabulary/arena-emphasis/Emphasis.family.json';
 export const ACCENT_FAMILY = 'frameworks/tailwind/vocabulary/arena-accent/Accent.family.json';
@@ -836,6 +838,28 @@ export function memberDefaultProblems(c: SlotCatalogue, roles: ReadonlySet<strin
   return out;
 }
 
+export function presenceProblems(c: SlotCatalogue, manifests: Manifests): string[] {
+  const out: string[] = [];
+  const held = new Set(Object.entries(c.slots).filter(([, s]) => s.level !== undefined && MARK_LEVELS.has(s.level)).map(([name]) => name));
+  const pairs = slotPairs(c);
+  for (const name of held) {
+    const own = pairs.filter((pair) => pair.slot === name);
+    if (own.length === 0) out.push(`${name} carries ${c.slots[name]?.level} and is measured in no pair, so nothing holds it to the mark it is gated as`);
+    for (const pair of own) if (pair.min !== MARK_MIN) out.push(`${name} carries ${c.slots[name]?.level} and pairs at ${pair.min}:1, and that level is gated as a mark at ${MARK_MIN}:1 (D92)`);
+  }
+  for (const m of manifests.values()) {
+    for (const [slot, texts] of classStringsBySlot(m)) {
+      for (const token of texts.flatMap((text) => text.split(/\s+/))) {
+        const level = [...MARK_LEVELS].find((one) => token.includes(`--${one})`) || token.includes(`--${one},`));
+        if (level === undefined) continue;
+        if ([...held].some((name) => token.includes(`var(--${name},`))) continue;
+        out.push(`${m.component}.${slot}: ${token} reads ${level} outside the chain of a presence slot, and that level is gated as a mark at ${MARK_MIN}:1, so a text would pass under its floor`);
+      }
+    }
+  }
+  return out;
+}
+
 export function collect(root = repoRoot): string[] {
   const d = readSlotDeclarations(root);
   const declared = declarationProblems(d);
@@ -856,7 +880,7 @@ export function collect(root = repoRoot): string[] {
   return [
     ...nameProblems(c), ...acceptsProblems(c, roles), ...defaultProblems(c, roles), ...memberDefaultProblems(c, roles), ...fallbackProblems(c),
     ...pairProblems(c, d), ...manifestProblems(c, manifests), ...ringProblems(c, manifests), ...readProblems(c, manifests), ...memberReadProblems(c, manifests), ...fadeProblems(c, manifests),
-    ...stripeProblems(c, manifests),
+    ...stripeProblems(c, manifests), ...presenceProblems(c, manifests),
     ...familyProblems(c, readJson(join(root, EMPHASIS_FAMILY)) as { variants?: Record<string, string> }, EMPHASIS_FAMILY),
     ...familyProblems(c, readJson(join(root, ACCENT_FAMILY)) as { variants?: Record<string, string> }, ACCENT_FAMILY),
     ...mapProblems(d, colouredParts(root), manifests, root),

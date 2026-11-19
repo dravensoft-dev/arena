@@ -1000,3 +1000,11 @@ test('an invalid field reads the fields group\'s error slots', () => {
     assert.ok(resolve(component, { state: 'error' }, slot).includes(`ring-[color:${haloValue(SLOTS, `${component}.${slot}`, 'error')}]`), `${component} keeps its error halo, read from its edge`);
   }
 });
+
+test('only the offline presence dot reads a muted marks slot, and the neutral feed dot reads its own', () => {
+  const muted = [...manifests.values()].flatMap((m) => [...classStringsBySlot(m)].filter(([, texts]) => texts.some((text) => text.includes('--marks-muted-'))).map(([slot]) => `${m.component}.${slot}`));
+  assert.deepEqual(muted, ['ArenaAvatar.status'], 'a marks-muted answer reaches the offline dot alone (D92)');
+  const neutral = resolve('ArenaActivityFeed', { tone: 'neutral' }, 'dot');
+  assert.ok(neutral.includes(`text-[color:${memberValue(SLOTS, 'ArenaActivityFeed.dot', 'marks-neutral-dot-ink-rest', 'tailwind')}]`), neutral.join(' '));
+  assert.ok(!neutral.some((one) => one.includes('--marks-muted-')), 'the neutral feed dot takes no muted answer');
+});

@@ -2,7 +2,7 @@ import test from 'node:test';
 import { readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
-import { collect, mapProblems, declarationProblems, exceptionProblems, memberDefaultProblems, shapeProblems, nameProblems, acceptsProblems, defaultProblems, fallbackProblems, pairProblems, manifestProblems, ringProblems, readProblems, memberReadProblems, fadeProblems, familyProblems, stripeProblems, colourRoleSet, slotManifests, ACCENT_FAMILY, EMPHASIS_FAMILY } from './check-color-slots.ts';
+import { collect, mapProblems, declarationProblems, exceptionProblems, memberDefaultProblems, shapeProblems, nameProblems, acceptsProblems, defaultProblems, fallbackProblems, pairProblems, manifestProblems, ringProblems, readProblems, memberReadProblems, fadeProblems, familyProblems, stripeProblems, colourRoleSet, slotManifests, ACCENT_FAMILY, EMPHASIS_FAMILY, presenceProblems } from './check-color-slots.ts';
 import { COLOR_SLOTS, deriveSlots, readColorSlots, readSlotDeclarations } from '../../lib/core/color-slots.ts';
 import type { GroupOption, GroupPart, MemberDecl, SlotDeclarations } from '../../lib/core/color-slots.ts';
 import { readJson } from '../../utils/read-file.ts';
@@ -1187,4 +1187,26 @@ test('an accent answer clears an option only where the member reads it through c
   assert.deepEqual(manifestProblems(shipped(), manifests).filter((l) => /ArenaToast/.test(l)), []);
   const bare = edit((x) => { delete x.members['ArenaToast.root']!.channels; });
   assert.ok(manifestProblems(bare, manifests).some((l) => /members\.ArenaToast\.root: ArenaToast answers no emphasis (plain|gold) and declares no variant/.test(l)), manifestProblems(bare, manifests).join('\n'));
+});
+
+test('the presence level is held to a mark pair and a mark slot chain', () => {
+  assert.deepEqual(presenceProblems(shipped(), manifests), []);
+  const text = edit((c) => { c.slots['feedback-neutral-action-ink-rest']!.level = 'level-presence'; });
+  assert.ok(presenceProblems(text, manifests).some((l) => /feedback-neutral-action-ink-rest carries level-presence and pairs at 4\.5:1/.test(l)), presenceProblems(text, manifests).join('\n'));
+  const loose = structuredClone(manifests) as Map<string, any>;
+  loose.get('ArenaTimeline').slots.time = loose.get('ArenaTimeline').slots.time.replace('text-ink-muted/(--level-ink-muted)', 'text-ink-muted/(--level-presence)');
+  assert.ok(presenceProblems(shipped(), loose).some((l) => /ArenaTimeline\.time: text-ink-muted\/\(--level-presence\) reads level-presence outside the chain of a presence slot/.test(l)), presenceProblems(shipped(), loose).join('\n'));
+});
+
+test('the accent feed dot is refused when its channel is not written, named or read', () => {
+  const accent = readJson(join(repoRoot, ACCENT_FAMILY)) as { variants: Record<string, string> };
+  const gold = accent.variants['arena-accent-gold']!.replace(/ \[--arena-accent-marks-dot-ink:[^\]]+\]/, '');
+  assert.deepEqual(familyProblems(shipped(), { variants: { ...accent.variants, 'arena-accent-gold': gold } }, ACCENT_FAMILY),
+    [`${ACCENT_FAMILY}: arena-accent-gold writes no --arena-accent-marks-dot-ink, and marks-gold-dot-ink-rest is read through it`]);
+  const d = declared();
+  (d.members!.ArenaActivityFeed!.parts.dot as any).channels = {};
+  assert.ok(declarationProblems(d).some((l) => /ArenaActivityFeed\.parts\.dot\.optionBy: more than one option is left with no value/.test(l)), declarationProblems(d).join('\n'));
+  const unread = structuredClone(manifests) as Map<string, any>;
+  unread.get('ArenaActivityFeed').slots.dot = unread.get('ArenaActivityFeed').slots.dot.replace(' text-[color:var(--arena-accent-marks-dot-ink)]', '');
+  assert.ok(readProblems(shipped(), unread).some((l) => /ArenaActivityFeed\.dot/.test(l) && /--arena-accent-marks-dot-ink/.test(l)), readProblems(shipped(), unread).join('\n'));
 });
