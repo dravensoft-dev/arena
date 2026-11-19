@@ -1126,13 +1126,13 @@
   },
   "fill-marker": {
     "$type": "color",
-    "$description": "The fill of a small count or dot set on a navigation row rather than of a strip a value runs along: the count beside a side navigation row that is not current. Read through the navigation group's badge at rest, whose ink is measured over it at 4.5:1. A badge on the current row takes the primary emphasis instead, so this role answers only the quiet half of the pair.\n\nSeparate from fill-track because a track and a marker are different questions that happen to share a step: a style plugin that lightens its tracks to make a bar read as a measure has said nothing about the counts beside its rows, and one that fills its counts with a tint of its accent has said nothing about its bars.\n\nAn assignment and never a value, like every colour role: WHICH of the consumer's colours, never what that colour is.",
+    "$description": "The fill of a small count set on a navigation row rather than of a strip a value runs along: the count beside a side navigation row that is not current. Read through the navigation group's badge at rest, whose ink is measured over it at 4.5:1. A badge on the current row takes the primary emphasis instead, so this role answers only the quiet half of the pair.\n\nSeparate from fill-track because a track and a marker are different questions that happen to share a step: a style plugin that lightens its tracks to make a bar read as a measure has said nothing about the counts beside its rows, and one that fills its counts with a tint of its accent has said nothing about its bars.\n\nAn assignment and never a value, like every colour role: WHICH of the consumer's colours, never what that colour is.",
     "$extensions": {
       "com.dravensoft.arena": {
         "default": "{color.base-300}",
         "audience": "component",
         "task": "meaning-and-identity",
-        "question": "What colour fills the small count or dot set beside a navigation row that is not current?"
+        "question": "What colour fills the small count set beside a navigation row that is not current?"
       }
     }
   },

@@ -95,8 +95,12 @@ export const WITNESS_EXEMPT: ReadonlyMap<string, string> = new Map([
     + 'complete paints there'],
   ['navigation-item-edge-rest', SLOT + 'complete draws a resting navigation row, a resting page and an unselected tab with no edge, the kernel default is the '
     + 'literal transparent, and no accepted edge role resolves to transparent in complete, so no other spelling resolves to what complete paints there'],
-  ...['fill', 'ink', 'edge', 'icon'].map((property): [string, string] => [`navigation-item-${property}-disabled`, SLOT + 'the complete sink draws a disabled '
-    + 'TreeView row, and any answer to a disabled slot of the navigation item stops that row\'s fade (D8), so every spelling moves the complete sink']),
+  ...[
+    ...['fill', 'ink', 'edge', 'icon'].flatMap((property) => ['disabled', 'selected-disabled'].map((state) => `navigation-item-${property}-${state}`)),
+    ...['plain', 'destructive'].flatMap((option) => ['fill', 'ink', 'icon'].map((property) => `menus-${option}-item-${property}-disabled`)),
+    ...['fill', 'ink', 'icon'].map((property) => `menus-plain-item-${property}-selected-disabled`),
+  ].map((name): [string, string] => [name, SLOT + 'any answer to a disabled or selected-disabled slot of a menu row or a navigation item stops that '
+    + 'part\'s fade (D8), which complete paints today on a disabled TreeView row, so complete leaves it unanswered and every spelling would move the complete sink']),
   ...['complete', 'upcoming'].map((option): [string, string] => [`steps-${option}-marker-fill-rest`, SLOT + 'the one accepted role complete paints transparent, '
     + 'hue-danger-fill-strong, is a danger fill, and a step marker answered with it would say danger where it draws nothing; the kernel default is the literal '
     + 'transparent, so no other spelling resolves to the key complete paints there']),

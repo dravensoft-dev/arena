@@ -2125,23 +2125,14 @@
     "$value": "{hue-danger-ink}",
     "$description": "complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses."
   },
-  "menus-destructive-item-fill-disabled": {
-    "$type": "color",
-    "$value": "transparent",
-    "$description": "complete paints a destructive menu row transparent in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling."
-  },
   "menus-destructive-item-fill-hover": {
     "$type": "color",
     "$value": "{accent-plain-fill-soft}"
   },
   "menus-destructive-item-fill-pressed": {
     "$type": "color",
-    "$value": "transparent",
-    "$description": "complete paints a destructive menu row transparent in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling."
-  },
-  "menus-destructive-item-icon-disabled": {
-    "$type": "color",
-    "$value": "{hue-info-ink}"
+    "$value": "{accent-plain-fill-soft}",
+    "$description": "complete paints a pressed destructive menu row with its hover fill, neutral, and accent-plain-fill-soft is a spelling of its own that resolves to it, so a held row keeps the wash it took on hover."
   },
   "menus-destructive-item-icon-hover": {
     "$type": "color",
@@ -2155,10 +2146,6 @@
     "$type": "color",
     "$value": "{hue-info-ink}"
   },
-  "menus-destructive-item-ink-disabled": {
-    "$type": "color",
-    "$value": "{hue-danger-ink}"
-  },
   "menus-destructive-item-ink-hover": {
     "$type": "color",
     "$value": "{hue-danger-ink}"
@@ -2171,31 +2158,18 @@
     "$type": "color",
     "$value": "{ink-invalid}"
   },
-  "menus-plain-item-fill-disabled": {
-    "$type": "color",
-    "$value": "transparent",
-    "$description": "complete paints a menu row transparent in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling."
-  },
   "menus-plain-item-fill-hover": {
     "$type": "color",
     "$value": "{accent-plain-fill-soft}"
   },
   "menus-plain-item-fill-pressed": {
     "$type": "color",
-    "$value": "transparent",
-    "$description": "complete paints a menu row transparent in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling."
+    "$value": "{accent-plain-fill-soft}",
+    "$description": "complete paints a pressed menu row with its hover fill, neutral, and accent-plain-fill-soft is a spelling of its own that resolves to it, so a held row keeps the wash it took on hover."
   },
   "menus-plain-item-fill-selected": {
     "$type": "color",
     "$value": "{accent-primary-fill-soft}"
-  },
-  "menus-plain-item-fill-selected-disabled": {
-    "$type": "color",
-    "$value": "{accent-primary-fill-soft}"
-  },
-  "menus-plain-item-icon-disabled": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
   },
   "menus-plain-item-icon-hover": {
     "$type": "color",
@@ -2213,14 +2187,6 @@
     "$type": "color",
     "$value": "{accent-muted-ink}"
   },
-  "menus-plain-item-icon-selected-disabled": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
-  "menus-plain-item-ink-disabled": {
-    "$type": "color",
-    "$value": "{accent-plain-ink}"
-  },
   "menus-plain-item-ink-hover": {
     "$type": "color",
     "$value": "{accent-plain-ink}"
@@ -2234,10 +2200,6 @@
     "$value": "{accent-plain-ink}"
   },
   "menus-plain-item-ink-selected": {
-    "$type": "color",
-    "$value": "{accent-plain-ink}"
-  },
-  "menus-plain-item-ink-selected-disabled": {
     "$type": "color",
     "$value": "{accent-plain-ink}"
   },
@@ -2260,7 +2222,7 @@
   "navigation-disclosure-fill-disabled": {
     "$type": "color",
     "$value": "transparent",
-    "$description": "complete paints a disclosure trigger transparent in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling."
+    "$description": "complete paints a disabled disclosure trigger transparent, as it paints one at rest, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling."
   },
   "navigation-disclosure-fill-hover": {
     "$type": "color",
@@ -2268,8 +2230,8 @@
   },
   "navigation-disclosure-fill-pressed": {
     "$type": "color",
-    "$value": "transparent",
-    "$description": "complete paints a disclosure trigger transparent in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling."
+    "$value": "{accent-plain-fill-soft}",
+    "$description": "complete paints a pressed disclosure trigger with its hover fill, neutral, and accent-plain-fill-soft is a spelling of its own that resolves to it, so a held row keeps the wash it took on hover. The Sheet trigger follows the Accordion trigger here, and paints the hover and pressed wash the disclosure group answers."
   },
   "navigation-disclosure-ink-disabled": {
     "$type": "color",
@@ -2290,18 +2252,14 @@
   "navigation-item-edge-hover": {
     "$type": "color",
     "$value": "transparent",
-    "$description": "complete paints a navigation row with no edge in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling."
+    "$description": "complete draws an unselected navigation row with no edge when hovered, as at rest, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling."
   },
   "navigation-item-edge-pressed": {
     "$type": "color",
     "$value": "transparent",
-    "$description": "complete paints a navigation row with no edge in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling."
+    "$description": "complete draws an unselected navigation row with no edge when pressed, as at rest, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling."
   },
   "navigation-item-edge-selected": {
-    "$type": "color",
-    "$value": "{accent-primary-edge}"
-  },
-  "navigation-item-edge-selected-disabled": {
     "$type": "color",
     "$value": "{accent-primary-edge}"
   },
@@ -2319,14 +2277,10 @@
   },
   "navigation-item-fill-pressed": {
     "$type": "color",
-    "$value": "transparent",
-    "$description": "complete paints an unselected navigation row transparent in every state but hover, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling."
+    "$value": "{accent-plain-fill-soft}",
+    "$description": "complete paints a pressed unselected navigation row with its hover fill, neutral, and accent-plain-fill-soft is a spelling of its own that resolves to it, so a held row keeps the wash it took on hover."
   },
   "navigation-item-fill-selected": {
-    "$type": "color",
-    "$value": "{accent-primary-fill-soft}"
-  },
-  "navigation-item-fill-selected-disabled": {
     "$type": "color",
     "$value": "{accent-primary-fill-soft}"
   },
@@ -2354,10 +2308,6 @@
     "$type": "color",
     "$value": "{accent-muted-ink}"
   },
-  "navigation-item-icon-selected-disabled": {
-    "$type": "color",
-    "$value": "{accent-muted-ink}"
-  },
   "navigation-item-icon-selected-hover": {
     "$type": "color",
     "$value": "{accent-muted-ink}"
@@ -2379,10 +2329,6 @@
     "$value": "{accent-muted-ink}"
   },
   "navigation-item-ink-selected": {
-    "$type": "color",
-    "$value": "{accent-plain-ink}"
-  },
-  "navigation-item-ink-selected-disabled": {
     "$type": "color",
     "$value": "{accent-plain-ink}"
   },

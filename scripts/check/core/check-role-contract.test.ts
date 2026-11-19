@@ -340,5 +340,5 @@ test('fill-marker is a colour role answering base-300', () => {
   const ext = role?.$extensions?.['com.dravensoft.arena'];
   assert.equal(ext?.default, '{color.base-300}');
   assert.equal(ext?.audience, 'component');
-  assert.match(String(ext?.question), /count or dot/);
+  assert.match(String(ext?.question), /small count set beside a navigation row/);
 });

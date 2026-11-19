@@ -15,7 +15,7 @@ Only Arena's components read the roles on this page. A role keeps its name until
 | `--fill-control-on` | What colour fills the box of a checked checkbox or radio, an on switch or a slider's range? | color | none | none |
 | `--fill-knob` | What colour fills the knob of an on switch or the thumb of a slider? | color | none | none |
 | `--fill-knob-off` | What colour fills the knob of a switch that is off? | color | none | none |
-| `--fill-marker` | What colour fills the small count or dot set beside a navigation row that is not current? | color | none | `{color.base-300}` |
+| `--fill-marker` | What colour fills the small count set beside a navigation row that is not current? | color | none | `{color.base-300}` |
 | `--hue-danger-edge` | What colour does the danger hue take as a border or a rule? | color | none | none |
 | `--hue-danger-fill-soft` | What colour does the danger hue take as a soft wash behind a surface? | color | none | none |
 | `--hue-danger-fill-strong` | What colour does the danger hue fill a surface with at full strength? | color | none | `transparent` |
