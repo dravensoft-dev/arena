@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
-import { scaleUsesIn, evaluateManifest, staleAllowances, zeroManifestProblem, derivedSetsProblem, padStems, gapRoles, SCALE_USES, STATE_LITERALS, stateLiteral, stateLiteralFindings } from './check-role-tokens.ts';
+import { scaleUsesIn, evaluateManifest, staleAllowances, zeroManifestProblem, derivedSetsProblem, padStems, gapRoles, SCALE_USES, STATE_LITERALS, stateLiteral, stateLiteralFindings, PALETTE_READS, paletteFindings, paletteUtility, stalePaletteReads, collect } from './check-role-tokens.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { manifestFiles } from '../../lib/tailwind/tailwind-compile.ts';
@@ -101,18 +101,19 @@ test('zeroManifestProblem is null for a non-empty file list', () => {
   assert.equal(zeroManifestProblem(['X.manifest.json']), null);
 });
 
-test('the palette step behind a track is a role position, so a manifest naming it is a finding', () => {
-  const manifest = { component: 'ArenaThing', slots: { track: 'relative rounded-pill bg-base-300' }, kind: { track: 'none' } };
-  const findings = evaluateManifest(manifest, new Map());
-  assert.deepEqual(findings.map((f) => f.utility), ['bg-base-300'],
-    'nothing else in that class string stands where a role belongs');
-  assert.match(findings[0]?.role ?? '', /bg-track/);
+test('the palette step behind a track is refused once, by the palette refusal, with the track hint', () => {
+  const manifest = { component: 'ArenaThing', slots: { track: 'relative rounded-pill bg-base-300' }, kind: { track: 'none' } } as never;
+  assert.deepEqual(evaluateManifest(manifest, new Map()).map((f) => f.utility), [], 'the scale check no longer names it');
+  const found = paletteFindings(manifest, new Map());
+  assert.deepEqual(found.map((f) => f.utility), ['bg-base-300']);
+  assert.match(found[0]?.hint ?? '', /bg-track/);
 });
 
-test('a fill utility is matched whole, so bg-base-300 is not read out of bg-base-300\\/40', () => {
-  assert.deepEqual(scaleUsesIn('bg-base-300'), ['bg-base-300']);
-  assert.deepEqual(scaleUsesIn('hover:bg-base-300'), ['bg-base-300'],
-    'a variant prefix does not change which utility is standing there');
+test('a palette utility is matched whole, so bg-base-300 is not read out of bg-base-300/40, and a variant prefix does not hide it', () => {
+  assert.equal(paletteUtility('bg-base-300'), 'bg-base-300');
+  assert.equal(paletteUtility('hover:bg-base-300/40'), 'bg-base-300');
+  assert.equal(paletteUtility('bg-base-3000'), undefined);
+  assert.equal(paletteUtility('bg-surface'), undefined);
 });
 
 const siblings = (trigger: string) => ({
@@ -359,4 +360,33 @@ test('the shipped manifests draw no state with a literal', () => {
   }
   assert.deepEqual(found, []);
   assert.deepEqual([...STATE_LITERALS.keys()].filter((k) => !seen.has(k)), []);
+});
+
+const palettePart = (slots: Record<string, string>, component = 'ArenaFixture') => ({ component, slots, kind: {} }) as never;
+
+test('a palette utility outside PALETTE_READS is refused', () => {
+  const found = paletteFindings(palettePart({ root: 'flex hover:bg-primary-fill/50 border-t-base-300 bg-surface' }), new Map());
+  assert.deepEqual(found.map((f) => [f.component, f.slot, f.utility]), [
+    ['ArenaFixture', 'root', 'hover:bg-primary-fill/50'],
+    ['ArenaFixture', 'root', 'border-t-base-300'],
+  ]);
+  assert.ok(found.every((f) => f.hint.length > 0));
+});
+
+test('a PALETTE_READS entry no manifest carries is stale', () => {
+  const stale = stalePaletteReads(new Set(), new Map([['ArenaGhost:root:bg-primary-fill', 'a reason']]));
+  assert.equal(stale.length, 1);
+  assert.match(stale[0] ?? '', /ArenaGhost:root:bg-primary-fill.*PALETTE_READS/);
+});
+
+test('the shipped manifests read no palette key outside PALETTE_READS', () => {
+  const { palette, stale } = collect();
+  assert.deepEqual(palette, []);
+  assert.deepEqual(stale, []);
+  assert.equal(PALETTE_READS.size, 16);
+});
+
+test('cat and heat keys are palette keys too', () => {
+  const found = paletteFindings(palettePart({ root: 'bg-cat-3 text-heat-5/60 fill-surface' }), new Map());
+  assert.deepEqual(found.map((f) => f.utility), ['bg-cat-3', 'text-heat-5/60']);
 });

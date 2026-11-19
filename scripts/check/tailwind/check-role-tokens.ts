@@ -3,11 +3,11 @@
  * spend. A role says WHICH air or corner is asked about, so a style plugin can answer it; the
  * kind of a slot says which roles it may ask. Scale utilities are banned by utility name, and a
  * border width, a duration and an easing by token name. SCALE_USES records the places that
- * genuinely mean the value, one entry per case with its reason, keyed by component, slot and
- * utility, and an entry no manifest carries any more fails as stale. A state is never drawn with
+ * genuinely mean the value, keyed by component, slot and utility, and a stale entry fails. A state is never drawn with
  * a literal either: an opacity step, an arbitrary literal opacity or a /<digits> or /[literal]
  * alpha, with or without an important mark, on a state branch or under a state modifier (a
- * group- or peer- form and data-[state=...] included) fails, since a state role carries the level. STATE_LITERALS ships empty. */
+ * group- or peer- form and data-[state=...] included) fails, since a state role carries the level.
+ * STATE_LITERALS ships empty. A palette utility fails unless PALETTE_READS lists it. */
 
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
@@ -18,6 +18,7 @@ import { classStringsBySlot } from '../arena/check-manifest-states.ts';
 import type { ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';
 import { KINDS, KIND_AIR, KIND_FREE, kindProblems } from '../../lib/tailwind/slot-kinds.ts';
 import type { SlotKind } from '../../lib/tailwind/slot-kinds.ts';
+import { PALETTE_KEYS } from '../../generate/core/arena-cli/palette-keys.ts';
 import { MANIFESTS } from '../../build/tailwind/build-tailwind.ts';
 
 export const node = {
@@ -38,17 +39,12 @@ export const SCALE_UTILITIES = new Map<string, string>([
   ['shadow-2', 'shadow-surface-floating or shadow-control-raised'],
   ['shadow-3', 'shadow-surface-deep'],
   ['shadow-none', 'nothing at all, when the branch means the depth the slot already paints'],
-  ['bg-base-200', 'bg-surface or bg-surface-floating, when the slot IS the surface'],
-  ['bg-base-300', 'bg-track, when the slot is the ground a value or a segment sits in, or bg-edge-separator when it is a rule drawn as a filled strip'],
   ['p-5', 'p-surface, when the slot is the room a surface gives its own content'],
   ['px-5', 'px-surface, for the same reason'],
   ['font-extrabold', 'font-heading, when the slot IS a heading in the display face'],
   ['tracking-tight', 'tracking-heading, for the same reason'],
   ['leading-body', 'leading-prose, when the slot is text somebody reads'],
   ['ease-out', 'ease-hover or ease-state, whichever duration the same transition names'],
-  ['text-base-content', 'text-ink-heading, text-ink-body or text-ink-muted, whichever text this is'],
-  ['border-base-300', 'an edge role: border-edge-surface, -field, -separator or -control-quiet'],
-  ['border-neutral', 'an edge role: border-edge-surface-floating, -control or -marker'],
   ['uppercase', 'case-eyebrow or case-label, so a style plugin can set the register in sentence case'],
   ['font-mono', 'font-face-eyebrow or font-face-label, when the slot is a register rather than a figure'],
   ['font-display', 'font-face-heading, when the slot is a heading rather than the brand itself'],
@@ -62,15 +58,41 @@ export const SCALE_UTILITIES = new Map<string, string>([
   ['tracking-column-header', 'tracking-label-role, since a column header is the register\'s own text'],
   ['tracking-badge', 'tracking-label-role, when the slot is in the label register rather than a figure'],
   ['tracking-uppercase-status', 'tracking-label-role, when the slot names a thing rather than reports a state'],
-  ['text-neutral', 'an ink role: text-ink-muted, text-ink-body or text-ink-heading, whichever text this is'],
   ['--bw', '--bw-surface, --bw-control, --bw-field, --bw-marker or --bw-separator'],
   ['--dur-fast', '--dur-hover'],
   ['--dur-mid', '--dur-state'],
   ['--ease-out', '--ease-hover or --ease-state, inside an arbitrary [transition:...] property'],
 ]);
 
+export const PALETTE_HINTS = new Map<string, string>([
+  ['bg-base-200', 'bg-surface or bg-surface-floating, when the slot IS the surface'],
+  ['bg-base-300', 'bg-track, when the slot is the ground a value or a segment sits in, or bg-edge-separator when it is a rule drawn as a filled strip'],
+  ['text-base-content', 'text-ink-heading, text-ink-body or text-ink-muted, whichever text this is'],
+  ['border-base-300', 'an edge role: border-edge-surface, -field, -separator or -control-quiet'],
+  ['border-neutral', 'an edge role: border-edge-surface-floating, -control or -marker'],
+  ['text-neutral', 'an ink role: text-ink-muted, text-ink-body or text-ink-heading, whichever text this is'],
+]);
+
+export const PALETTE_READS = new Map<string, string>([
+  ['ArenaAlert:icon:text-neutral', 'feedback: 5.1d moves the status glyph onto the feedback group slots'],
+  ['ArenaAlert:action:text-neutral', 'feedback: 5.1d moves the action word onto the feedback group slots'],
+  ['ArenaAvatar:box:bg-base-300', 'marks: 5.1d moves the monogram ground onto the marks group slots'],
+  ['ArenaAvatar:status:border-base-200', 'marks: 5.1d moves the presence ring onto the marks group slots'],
+  ['ArenaAvatar:status:bg-base-content/(--level-presence)', 'marks: 5.1d moves the presence dot onto the marks group slots'],
+  ['ArenaCalendar:dayNumber:text-primary', 'data: 5.1d moves the day number onto the data group slots'],
+  ['ArenaCalendar:now:border-primary-fill', 'data: 5.1d moves the now marker onto the data group slots'],
+  ['ArenaCalendar:nowDot:bg-primary-fill', 'data: 5.1d moves the now dot onto the data group slots'],
+  ['ArenaPaletteScope:root:bg-base-100', 'surfaces: 5.1d moves the island ground onto the surfaces group slots'],
+  ['ArenaPaletteScope:root:text-base-content', 'surfaces: 5.1d moves the island ink onto the surfaces group slots'],
+  ['ArenaProgressBar:ringTrack:stroke-base-300', 'meters: 5.1d moves the ring track onto the meters group slots'],
+  ['ArenaToast:root:border-t-base-300', 'feedback: 5.1d moves the toast edge onto the feedback group slots'],
+  ['ArenaToast:root:border-r-base-300', 'feedback: 5.1d moves the toast edge onto the feedback group slots'],
+  ['ArenaToast:root:border-b-base-300', 'feedback: 5.1d moves the toast edge onto the feedback group slots'],
+  ['ArenaTooltip:bubble:bg-base-content', 'overlays: 5.1d moves the bubble ground onto the overlays group slots'],
+  ['ArenaTooltip:bubble:text-base-100', 'overlays: 5.1d moves the bubble ink onto the overlays group slots'],
+]);
+
 export const SCALE_USES = new Map<string, string>([
-  ['ArenaPaletteScope:root:text-base-content', 'the ink an island paints in its own palette, which is the palette\'s base-content by definition: the island is the one slot that names the palette\'s ink itself, where an ink role is an assignment a style plugin answers for a kind of text'],
   ['ArenaDialog:panel:shadow-none', 'the panel of a dialog filling a narrow screen, which is the screen and has no depth: the literal cancels the deep role the panel paints everywhere else rather than answering a role of its own'],
   ['ArenaSideNav:item:ps-[calc(var(--pad-nav-row-x)*var(--dz-row-scale-x)+var(--pad-row-indent)*var(--arena-side-nav-depth,0))]', 'the inline start of a row that nests, at the row inset plus one indent step per level the component writes: it sizes the nesting depth, not the room around content, so it is this slot\'s own length'],
   ['ArenaSideNav:trigger:ps-[calc(var(--pad-nav-row-x)*var(--dz-row-scale-x)+var(--pad-row-indent)*var(--arena-side-nav-depth,0))]', 'the inline start of the trigger of a collapsible section, at the row inset plus one indent step per level the component writes: it sizes the nesting depth, not the room around content, so it is this slot\'s own length'],
@@ -83,12 +105,9 @@ export const SCALE_USES = new Map<string, string>([
   ['ArenaToast:action:tracking-uppercase-status', 'the same word on a toast'],
   ['ArenaOnboarding:text:tracking-uppercase-status', 'the step a coachmark reports, which is a reading of where somebody is in a sequence'],
   ['ArenaCalendar:hourLabel:tracking-uppercase-status', 'the hour down the side of a day, which is a clock being read rather than a column being named'],
-  ['ArenaAlert:icon:text-neutral', 'one branch of a tone variant whose other branches are the status colours, so the value is the tone the caller asked for rather than a colour this slot chose'],
-  ['ArenaAlert:action:text-neutral', 'the same tone on the word beside that glyph'],
   ['ArenaAvatar:box:rounded-md', 'the team branch of the kind variant, whose person branch is the pill, so the value is the shape that says a team rather than a surface tier'],
   ['ArenaSegmentedControl:segment:shadow-1', 'the lift that tells the selected segment from its track, and the one place a control carries depth at rest rather than under a pointer'],
   ['ArenaCalendar:chip:--bw', 'arithmetic rather than a border: the chip reserves room for the kebab beside it with calc(--dz-ctl-h-sm + --bw*2), so the token is a length being added up and not an edge this slot draws'],
-  ['ArenaAvatar:box:bg-base-300', 'the ground a monogram or a missing photograph sits on, which is a marker ground for the reason above and is the same slot that keeps font-display and font-extrabold for standing in for a face'],
 
   ['ArenaAvatar:box:font-extrabold', 'a monogram rather than a heading: two letters standing in for a face, weighted to read at 12px inside a circle. A style plugin that lightened its headings has said nothing about initials'],
   ['ArenaAppLogo:name:tracking-tight', 'the wordmark, which is the brand set as artwork rather than a heading in the document outline. It tracks with the mark beside it and follows no style plugin'],
@@ -560,19 +579,59 @@ export function stateMessage(f: StateFinding) {
   return `${f.component}:${f.slot} (${f.branch}) draws a state with the literal ${f.utility}; read the state role the skin answers: opacity-[var(--fade-disabled)] for a disabled level, bg-selected/(--level-accent-soft-primary) for a selected wash, ring-edge-focus/(--level-accent-soft-gold) for a focus halo, or a level token`;
 }
 
+const COLOUR_PREFIX = '(?:bg|text|border(?:-[trblxyse])?|ring|outline|fill|stroke|decoration|divide|from|via|to|caret|accent|placeholder)';
+const PALETTE_UTILITY = new RegExp(`^(${COLOUR_PREFIX})-(${[...PALETTE_KEYS].sort((a, b) => b.length - a.length).join('|')})(?:/.+)?$`);
+
+export type PaletteFinding = { component: string; slot: string; utility: string; hint: string };
+
+export function paletteUtility(token: string) {
+  const { utility } = splitModifiers(token);
+  const m = PALETTE_UTILITY.exec(utility);
+  return m ? `${m[1]}-${m[2]}` : undefined;
+}
+
+export function paletteFindings(manifest: ComponentManifest, allowed: ReadonlyMap<string, string> = PALETTE_READS): PaletteFinding[] {
+  const findings: PaletteFinding[] = [];
+  for (const [slot, classList] of classStringsBySlot(manifest) as Map<string, string[]>) {
+    const reported = new Set<string>();
+    for (const token of classList.flatMap((c) => c.split(/\s+/).filter(Boolean))) {
+      const bare = paletteUtility(token);
+      if (!bare || reported.has(token)) continue;
+      reported.add(token);
+      if (allowed.has(scaleUseKey(manifest.component, slot, token))) continue;
+      findings.push({ component: manifest.component, slot, utility: token, hint: PALETTE_HINTS.get(bare) ?? "a slot read of the part's group" });
+    }
+  }
+  return findings;
+}
+
+export function stalePaletteReads(seen: Set<string>, allowed: ReadonlyMap<string, string> = PALETTE_READS) {
+  return [...allowed.keys()]
+    .filter((key) => !seen.has(key))
+    .map((key) => `${key} is excused in PALETTE_READS but no manifest carries it -- drop the entry`);
+}
+
+export function paletteMessage(f: PaletteFinding) {
+  return `${f.component}:${f.slot} reads the palette utility ${f.utility}; use ${f.hint}, or record the reader in PALETTE_READS with the 5.1d group that moves it`;
+}
+
 export function collect(files = manifestFiles(COMPONENTS_DIR)) {
   const findings = [];
   const states: StateFinding[] = [];
   const seen = new Set<string>();
   const seenStates = new Set<string>();
+  const palette: PaletteFinding[] = [];
+  const seenPalette = new Set<string>();
   for (const p of files) {
     const manifest = readJson(p);
     findings.push(...evaluateManifest(manifest));
     for (const key of seenKeys(manifest)) seen.add(key);
     states.push(...stateLiteralFindings(manifest));
+    palette.push(...paletteFindings(manifest));
+    for (const f of paletteFindings(manifest, new Map())) seenPalette.add(scaleUseKey(f.component, f.slot, f.utility));
     for (const f of stateLiteralFindings(manifest, new Map())) seenStates.add(scaleUseKey(f.component, f.slot, f.utility));
   }
-  return { findings, stale: [...staleAllowances(seen), ...staleStateLiterals(seenStates)], states };
+  return { findings, stale: [...staleAllowances(seen), ...staleStateLiterals(seenStates), ...stalePaletteReads(seenPalette)], states, palette };
 }
 
 function main() {
@@ -587,18 +646,19 @@ function main() {
     console.error(`check-role-tokens: ${zero}`);
     process.exit(1);
   }
-  const { findings, stale, states } = collect(files);
-  if (findings.length || stale.length || states.length) {
-    console.error(`check-role-tokens: ${findings.length} finding(s) in a role position, ${states.length} state(s) drawn with a literal, ${stale.length} stale allowance(s)\n`);
+  const { findings, stale, states, palette } = collect(files);
+  if (findings.length || stale.length || states.length || palette.length) {
+    console.error(`check-role-tokens: ${findings.length} finding(s) in a role position, ${states.length} state(s) drawn with a literal, ${palette.length} palette utility(ies) outside PALETTE_READS, ${stale.length} stale allowance(s)\n`);
     for (const f of findings) {
       if (f.why === 'missing-kind') console.error(`  ${f.role} -- every slot declares a kind (${f.why})`);
       else console.error(`  ${f.component}:${f.slot} (${f.kind}) carries ${f.utility} where a role belongs (${f.why}) -- use ${f.role}, or record the case in SCALE_USES with the reason it means the length`);
     }
     for (const f of states) console.error(`  ${stateMessage(f)}`);
+    for (const f of palette) console.error(`  ${paletteMessage(f)}`);
     for (const s of stale) console.error(`  ${s}`);
     process.exit(1);
   }
-  console.log(`check-role-tokens: ${files.length} manifest(s) -- every slot declares a kind, every padding, gap, margin and radius names its kind's role or a recorded use, and every border, depth, duration, easing, ink, edge, face and case decision names a role, ${SCALE_USES.size} recorded scale use(s)`);
+  console.log(`check-role-tokens: ${files.length} manifest(s) -- every slot declares a kind, every padding, gap, margin and radius names its kind's role or a recorded use, and every border, depth, duration, easing, ink, edge, face and case decision names a role, ${SCALE_USES.size} recorded scale use(s), no palette utility outside the ${PALETTE_READS.size} reads 5.1d moves`);
 }
 
 if (isMainModule(import.meta.url)) main();
