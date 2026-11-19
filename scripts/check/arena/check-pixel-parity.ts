@@ -258,9 +258,27 @@ export function loaded(cdp: Pick<Cdp, 'on'>, sessionId: string) {
 
 export type Rect = { left: number; top: number; right: number; bottom: number };
 
+export const OVERFLOW_SOURCE = '(style) => { '
+  + 'const out = { left: 0, top: 0, right: 0, bottom: 0 }; '
+  + 'const grow = (l, t, r, b) => { out.left = Math.max(out.left, l); out.top = Math.max(out.top, t); out.right = Math.max(out.right, r); out.bottom = Math.max(out.bottom, b); }; '
+  + 'const list = []; let depth = 0, from = 0, text = String(style.boxShadow || "none"); '
+  + 'for (let i = 0; i <= text.length; i++) { const c = text[i]; if (c === "(") depth++; else if (c === ")") depth--; '
+  + 'else if ((c === "," && depth === 0) || i === text.length) { list.push(text.slice(from, i)); from = i + 1; } } '
+  + 'for (const one of list) { if (one.trim() === "none" || /\\binset\\b/.test(one)) continue; '
+  + 'const n = one.replace(/[a-z-]+\\([^)]*\\)/gi, " ").match(/-?[\\d.]+px/g) || []; '
+  + 'const [x = 0, y = 0, blur = 0, spread = 0] = n.map(parseFloat); const reach = blur + spread; '
+  + 'grow(reach - x, reach - y, reach + x, reach + y); } '
+  + 'if (style.outlineStyle && style.outlineStyle !== "none") { const w = (parseFloat(style.outlineWidth) || 0) + (parseFloat(style.outlineOffset) || 0); if (w > 0) grow(w, w, w, w); } '
+  + 'return out; }';
+
+export const paintedOverflow = new Function(`return ${OVERFLOW_SOURCE}`)() as
+  (style: { boxShadow?: string; outlineStyle?: string; outlineWidth?: string; outlineOffset?: string }) => Rect;
+
 export function rectsExpression(selector: string) {
-  return `[...document.querySelectorAll(${JSON.stringify(selector)})].flatMap((e) => { `
-    + 'const all = [e, ...e.querySelectorAll("*")].filter((n) => n.getClientRects().length > 0).map((n) => n.getBoundingClientRect()); '
+  return `[...document.querySelectorAll(${JSON.stringify(selector)})].flatMap((e) => { const overflow = ${OVERFLOW_SOURCE}; `
+    + 'const all = [e, ...e.querySelectorAll("*")].filter((n) => n.getClientRects().length > 0).map((n) => { '
+    + 'const r = n.getBoundingClientRect(); const o = overflow(getComputedStyle(n)); '
+    + 'return { left: r.left - o.left, top: r.top - o.top, right: r.right + o.right, bottom: r.bottom + o.bottom }; }); '
     + 'if (all.length === 0) return []; '
     + 'return [{ left: Math.min(...all.map((r) => r.left)) + scrollX, top: Math.min(...all.map((r) => r.top)) + scrollY, '
     + 'right: Math.max(...all.map((r) => r.right)) + scrollX, bottom: Math.max(...all.map((r) => r.bottom)) + scrollY }]; })';
