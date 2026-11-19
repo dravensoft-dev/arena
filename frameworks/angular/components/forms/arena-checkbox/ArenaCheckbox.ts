@@ -32,7 +32,7 @@ export const ARENA_CHECK_STROKE_STYLE = { strokeWidth: 'var(--bw-strong)' };
         }
       </span>
       @if (showLabel()) {
-        <span [class]="styles().label()" [attr.data-arena-part]="parts.label">{{ accessibleName() }}</span>
+        <span [class]="styles().label()" [arenaSlotData]="styles().$data.label()" [attr.data-arena-part]="parts.label">{{ accessibleName() }}</span>
       }
       <input type="checkbox" [class]="styles().input()" [attr.data-arena-part]="parts.input" [checked]="drawn()"
              [attr.aria-label]="showLabel() ? null : accessibleName()"

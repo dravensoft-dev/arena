@@ -272,7 +272,7 @@ test('a mark is measured over its box', () => {
   assert.ok(!shipped.some((pair) => pair.slot === 'choices-mark-ink-rest'), 'the mark has no rest slot (D70)');
 });
 
-test('a disabled selected box keeps the fade while selected-disabled is silent', () => {
+test('a disabled selected box keeps the fade while selected-disabled is silent, and an answered one stops the fade on its own part', () => {
   const box = SLOTS['choices-box-fill-selected-disabled'];
   assert.equal(box?.optional, true);
   assert.equal(box?.default, undefined, 'the default answers no selected-disabled slot');
@@ -287,4 +287,23 @@ test('a disabled selected box keeps the fade while selected-disabled is silent',
   const at = (name: string) => slotColour(CATALOGUE.slots, name, new Map(), roles, colors, LEVELS, mixOf(roles), colors['base-100'] as string);
   assert.equal(at('choices-box-fill-selected-disabled'), at('choices-box-fill-selected'));
   assert.equal(at('choices-knob-fill-disabled'), at('choices-knob-fill-rest'));
+  const manifestOf = (path: string) => JSON.parse(readFileSync(join(repoRoot, 'frameworks/tailwind/components/forms', path), 'utf8'));
+  for (const [path, part] of [['arena-checkbox/ArenaCheckbox.manifest.json', 'box'], ['arena-radio/ArenaRadio.manifest.json', 'ring']] as const) {
+    const m = manifestOf(path);
+    assert.doesNotMatch(m.variants.disabled.true.root ?? '', /opacity-/, `${path}: the root no longer fades the whole control`);
+    assert.match(m.variants.disabled.true[part], /opacity-\[var\(--choices-box-fade-disabled,var\(--fade-disabled\)\)\]/, `${path}: an answered disabled box stops its own fade`);
+    assert.match(m.compoundVariants[0].class[part], /opacity-\[var\(--choices-box-fade-selected-disabled,var\(--fade-disabled\)\)\]/, `${path}: an answered selected-disabled box stops its own fade`);
+  }
+  const sw = manifestOf('arena-switch/ArenaSwitch.manifest.json');
+  assert.match(sw.slots.track, /disabled:opacity-\[var\(--choices-box-fade-disabled,var\(--fade-disabled\)\)\]/, 'a native track fades under disabled:');
+});
+
+test('an answer that sinks the box under its white mark is reported below 3:1', () => {
+  const plugin = readPlugin('default', JSON.parse(readFileSync(join(repoRoot, 'plugin-style-store/default/plugin.tokens.json'), 'utf8')));
+  const roles = rolesFor(plugin, CATALOGUE, 'light');
+  const answers = new Map([['choices-box-fill-selected', 'var(--fill-surface)']]);
+  const lines = slotReports(CATALOGUE.slots, answers, roles, coloursOf('light'), 'light', LEVELS).map((one) => one.message)
+    .filter((line) => line.startsWith('--choices-mark-ink-selected measures '));
+  assert.ok(lines.length > 0, 'the white mark over fill-surface is reported');
+  assert.ok(lines.every((line) => / over --choices-box-fill-selected in the selected state of the light theme, below 3:1 \(WCAG 1\.4\.11\)/.test(line)), lines.join('\n'));
 });

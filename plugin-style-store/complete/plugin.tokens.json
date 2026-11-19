@@ -1888,11 +1888,13 @@
   },
   "choices-knob-fill-rest": {
     "$type": "color",
-    "$value": "{fill-knob}"
+    "$value": "{fill-knob}",
+    "$description": "complete paints the knob white on and off; fill-knob resolves to that white here, and it is a spelling of its own, since the kernel default fill-knob-off is the one the witness refuses."
   },
   "choices-knob-fill-selected": {
     "$type": "color",
-    "$value": "{fill-knob-off}"
+    "$value": "{fill-knob-off}",
+    "$description": "complete paints the knob white on and off; fill-knob-off resolves to that white here, and it is a spelling of its own, since the kernel default fill-knob is the one the witness refuses."
   },
   "choices-knob-fill-selected-disabled": {
     "$type": "color",

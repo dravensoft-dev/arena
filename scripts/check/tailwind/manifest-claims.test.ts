@@ -478,8 +478,10 @@ export const CLAIMS = {
     { chosen: { checked: true }, slot: 'box', has: ['bg-[color:var(--choices-box-fill-selected,var(--fill-control-on))]', 'border-[color:var(--choices-box-edge-selected,transparent)]'], why: 'a ticked box reads the choices box at selected, so a plugin answer moves every ticked box; unticked is the box at rest behind the control edge' },
     { chosen: { checked: false }, slot: 'box', has: ['bg-[color:var(--choices-box-fill-rest,var(--fill-control))]', 'border-[color:var(--choices-box-edge-rest,var(--edge-control))]'], why: 'a ticked box reads the choices box at selected, so a plugin answer moves every ticked box; unticked is the box at rest behind the control edge' },
     { chosen: { checked: true }, slot: 'check', has: ['text-[color:var(--choices-mark-ink-selected,var(--emphasis-primary-ink))]'], why: 'the tick is the choices mark over the ticked box, which is the one pairing that has to hold' },
-    { chosen: { disabled: true }, slot: 'root', has: ['opacity-[var(--fade-disabled)]', 'cursor-not-allowed'], hasNot: ['opacity-50'], why: 'disabled dims the whole control and takes the pointer away; enabled offers it' },
-    { chosen: { disabled: false }, slot: 'root', has: ['cursor-pointer'], why: 'disabled dims the whole control and takes the pointer away; enabled offers it' },
+    { chosen: { disabled: true }, slot: 'root', has: ['cursor-not-allowed'], hasNot: ['opacity-[var(--fade-disabled)]', 'opacity-50'], why: 'disabled takes the pointer away and fades each part, so an answered disabled box stops its own fade; enabled offers the pointer' },
+    { chosen: { disabled: true }, slot: 'box', has: ['opacity-[var(--choices-box-fade-disabled,var(--fade-disabled))]'], why: 'disabled takes the pointer away and fades each part, so an answered disabled box stops its own fade; enabled offers the pointer' },
+    { chosen: { disabled: true }, slot: 'label', has: ['opacity-[var(--fade-disabled)]'], why: 'disabled takes the pointer away and fades each part, so an answered disabled box stops its own fade; enabled offers the pointer' },
+    { chosen: { disabled: false }, slot: 'root', has: ['cursor-pointer'], why: 'disabled takes the pointer away and fades each part, so an answered disabled box stops its own fade; enabled offers the pointer' },
     { slot: 'input', has: ['opacity-0', 'size-0'], hasNot: ['hidden'], why: 'the native input is hidden by the recipe rather than by display none, so it stays focusable' },
     ...[true, false].map((checked) => ({
       chosen: { checked }, slot: 'box', has: ['size-5', 'rounded-control-sm', 'inline-flex'],
@@ -618,7 +620,8 @@ export const CLAIMS = {
     { chosen: { state: false }, slot: 'track', has: ['bg-[color:var(--choices-box-fill-rest,var(--fill-control))]'], why: 'on fills the track as a ticked box and off keeps the box at rest' },
     { chosen: { state: false }, slot: 'icon', has: ['text-[color:var(--choices-knob-ink-rest,var(--ink-knob-off))]'], why: 'the icon is the knob glyph, drawn on the knob it sits in' },
     { chosen: { state: false }, slot: 'knob', has: ['bg-[color:var(--choices-knob-fill-rest,var(--fill-knob-off))]'], why: 'the knob reads the choices knob, against the box it sits on' },
-    { chosen: { disabled: true }, slot: 'root', has: ['opacity-[var(--fade-disabled)]'], hasNot: ['opacity-50'], why: 'disabled dims the whole control' },
+    { chosen: { disabled: true }, slot: 'label', has: ['opacity-[var(--fade-disabled)]'], hasNot: ['opacity-50'], why: 'disabled fades the label, and the track fades under disabled: until a disabled box answer stops it' },
+    { slot: 'track', has: ['disabled:opacity-[var(--choices-box-fade-disabled,var(--fade-disabled))]'], why: 'disabled fades the label, and the track fades under disabled: until a disabled box answer stops it' },
   ],
   ArenaCalendar: [
     { chosen: { disabled: true }, slot: 'chip', has: ['opacity-[var(--fade-disabled)]', 'cursor-not-allowed'], hasNot: ['opacity-50'], why: 'a disabled control keeps its rest ink and fades by the role the skin answers' },

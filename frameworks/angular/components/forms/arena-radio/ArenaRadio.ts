@@ -20,7 +20,7 @@ import { ArenaSlotAttributes } from '../../../SlotData';
         }
       </span>
       @if (label() || hint()) {
-        <span [class]="styles().text()" [attr.data-arena-part]="parts.text">
+        <span [class]="styles().text()" [arenaSlotData]="styles().$data.text()" [attr.data-arena-part]="parts.text">
           @if (label(); as text) {
             <span [class]="styles().label()" [attr.data-arena-part]="parts.label">{{ text }}</span>
           }

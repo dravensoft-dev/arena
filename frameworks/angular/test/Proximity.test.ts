@@ -123,6 +123,8 @@ const TEMPLATES: Record<string, string> = {
   'answered-disabled-keeps-the-rest-fill': '<div style="--actions-primary-root-ink-disabled: var(--ink-muted); --actions-primary-root-fade-disabled: 1"><arena-button disabled>Save</arena-button></div>',
   'selected-disabled-answer-stops-only-the-selected-fade': '<div style="--actions-ghost-root-ink-disabled: var(--ink-muted); --actions-ghost-root-fade-disabled: 1"><arena-icon-button icon="ph-bold ph-x" label="Close" [pressed]="true" disabled /></div>'
     + '<div style="--actions-ghost-root-ink-selected-disabled: var(--ink-muted); --actions-ghost-root-fade-selected-disabled: 1"><arena-icon-button icon="ph-bold ph-x" label="Close" [pressed]="true" disabled /></div>',
+  'answered-disabled-choices-stops-the-fade': '<div><arena-checkbox disabled label="Notify" /></div>'
+    + '<div style="--choices-box-fill-disabled: var(--fill-surface); --choices-box-fade-disabled: 1"><arena-checkbox disabled label="Notify" /></div>',
   'hover-answer-is-not-derived-from-the-rest-answer': '<div style="--actions-primary-root-fill-rest: var(--fill-surface); --actions-primary-root-fill-hover: var(--fill-hover)"><arena-button>Save</arena-button></div>',
 };
 
@@ -164,6 +166,7 @@ const SUBJECT: Record<string, { part: string; index: number }> = {
   'secondary-answer-reaches-the-calendar-nav': { part: 'button', index: 0 },
   'choices-answer-moves-every-box': { part: 'checkbox.box', index: 0 },
   'selected-disabled-answer-stops-only-the-selected-fade': { part: 'icon-button', index: -1 },
+  'answered-disabled-choices-stops-the-fade': { part: 'checkbox.box', index: -1 },
   'class-on-copy-button-reaches-the-icon-button-it-draws': { part: 'icon-button', index: 0 },
 };
 

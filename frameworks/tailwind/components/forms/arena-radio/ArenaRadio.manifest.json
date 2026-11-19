@@ -32,9 +32,10 @@
     },
     "disabled": {
       "true": {
-        "root": "opacity-[var(--fade-disabled)] cursor-not-allowed",
-        "ring": "border-[color:var(--choices-box-edge-disabled,var(--choices-box-edge-rest,var(--edge-control)))] bg-[color:var(--choices-box-fill-disabled,var(--choices-box-fill-rest,var(--fill-control)))]",
-        "dot": "text-[color:var(--choices-mark-ink-selected-disabled,var(--choices-mark-ink-selected,var(--emphasis-primary-ink)))]"
+        "root": "cursor-not-allowed",
+        "ring": "border-[color:var(--choices-box-edge-disabled,var(--choices-box-edge-rest,var(--edge-control)))] bg-[color:var(--choices-box-fill-disabled,var(--choices-box-fill-rest,var(--fill-control)))] opacity-[var(--choices-box-fade-disabled,var(--fade-disabled))]",
+        "dot": "text-[color:var(--choices-mark-ink-selected-disabled,var(--choices-mark-ink-selected,var(--emphasis-primary-ink)))]",
+        "text": "opacity-[var(--fade-disabled)]"
       },
       "false": {
         "root": "cursor-pointer"
@@ -46,7 +47,7 @@
       "checked": true,
       "disabled": true,
       "class": {
-        "ring": "border-[color:var(--choices-box-edge-selected-disabled,var(--choices-box-edge-selected,transparent))] bg-[color:var(--choices-box-fill-selected-disabled,var(--choices-box-fill-selected,var(--fill-control-on)))]"
+        "ring": "border-[color:var(--choices-box-edge-selected-disabled,var(--choices-box-edge-selected,transparent))] bg-[color:var(--choices-box-fill-selected-disabled,var(--choices-box-fill-selected,var(--fill-control-on)))] opacity-[var(--choices-box-fade-selected-disabled,var(--fade-disabled))]"
       }
     }
   ],

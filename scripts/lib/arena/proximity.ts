@@ -6,8 +6,8 @@
  * A tree also keeps an open surface, a floating one and a channel an element binds on its style:
  * the three things a size class reaches, stops at and is answered by. A destructive part keeps its
  * flag too, and so does a tone other than neutral, since the meaning a part states is what an
- * emphasis class and an accent class have to leave in place. A disabled, pressed or selected part keeps its flag,
- * and a colour slot a case binds stands in for the answer a style plugin writes. */
+ * emphasis class and an accent class have to leave in place. A disabled, pressed or selected part keeps its flag (a
+ * branch member by its data attribute), and a colour slot a case binds stands in for a style plugin's answer. */
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -72,11 +72,13 @@ const slotChannels = (root = repoRoot) => {
 };
 const SLOT_CHANNELS = slotChannels();
 
-const selectedAxes = (root = repoRoot) => new Map(Object.entries(readColorSlots(root).members).flatMap(([key, member]) => {
+const branchAxes = (by: 'selectedBy' | 'disabledBy', root = repoRoot) => new Map(Object.entries(readColorSlots(root).members).flatMap(([key, member]) => {
   const [component, part] = key.split('.') as [string, string];
-  return member.selectedBy ? [[`${kebab(component.replace(/^Arena/, ''))}.${kebab(part)}`, `data-arena-${member.selectedBy.axis}`] as [string, string]] : [];
+  const axis = member[by]?.axis;
+  return axis ? [[`${kebab(component.replace(/^Arena/, ''))}.${kebab(part)}`, `data-arena-${axis}`] as [string, string]] : [];
 }));
-const SELECTED_BY = selectedAxes();
+const SELECTED_BY = branchAxes('selectedBy');
+const DISABLED_BY = branchAxes('disabledBy');
 
 export const channelBindings = (style: string) => style.split(';').map((one) => one.replace(/\s+/g, ''))
   .filter((one) => one.startsWith('--arena-') || SLOT_CHANNELS.has(one.split(':')[0] ?? '')).join(';');
@@ -90,6 +92,8 @@ export function normalize(element: NodeLike, vocabulary: Set<string>, subject: N
   if (/display:\s*contents/.test(style)) tree.contents = true;
   if (element.hasAttribute?.(OPEN)) tree.open = true;
   if (element.hasAttribute?.('disabled')) tree.disabled = true;
+  const off = part ? DISABLED_BY.get(part) : undefined;
+  if (off && element.hasAttribute?.(off) && element.getAttribute?.(off) !== 'false') tree.disabled = true;
   if (element.hasAttribute?.(DESTRUCTIVE) && element.getAttribute?.(DESTRUCTIVE) !== 'false') tree.destructive = true;
   if (element.hasAttribute?.(PRESSED) && element.getAttribute?.(PRESSED) !== 'false') tree.pressed = true;
   const selected = part ? SELECTED_BY.get(part) : undefined;
@@ -131,7 +135,8 @@ export function treeHtml(
   const classes = [tree.part ? classesOf(tree.part) : '', tree.class ?? ''].filter(Boolean).join(' ');
   if (classes) attrs.push(`class="${classes}"`);
   const data = { ...(tree.part ? dataOf(tree.part) : {}), ...(tree.destructive ? { [DESTRUCTIVE]: 'true' } : {}), ...(tree.pressed ? { [PRESSED]: '' } : {}),
-    ...(tree.selected && tree.part ? { [SELECTED_BY.get(tree.part) as string]: '' } : {}), ...(tree.tone ? { [TONE]: tree.tone } : {}) };
+    ...(tree.selected && tree.part ? { [SELECTED_BY.get(tree.part) as string]: '' } : {}),
+    ...(tree.disabled && tree.part && DISABLED_BY.has(tree.part) ? { [DISABLED_BY.get(tree.part) as string]: '' } : {}), ...(tree.tone ? { [TONE]: tree.tone } : {}) };
   for (const [name, value] of Object.entries(data)) attrs.push(`${name}="${value}"`);
   const inner = `${tree.text ? escape(tree.text) : ''}${(tree.children ?? []).map((one) => treeHtml(one, classesOf, dataOf)).join('')}`;
   return `<${tree.tag}${attrs.length ? ` ${attrs.join(' ')}` : ''}>${inner}</${tree.tag}>`;

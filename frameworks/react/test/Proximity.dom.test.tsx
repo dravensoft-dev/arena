@@ -101,6 +101,10 @@ const COMPOSITIONS: Record<string, () => React.ReactElement> = {
     <div style={answered({ '--actions-ghost-root-ink-disabled': 'var(--ink-muted)', '--actions-ghost-root-fade-disabled': '1' })}><ArenaIconButton icon="ph-bold ph-x" label="Close" pressed disabled /></div>
     <div style={answered({ '--actions-ghost-root-ink-selected-disabled': 'var(--ink-muted)', '--actions-ghost-root-fade-selected-disabled': '1' })}><ArenaIconButton icon="ph-bold ph-x" label="Close" pressed disabled /></div>
   </>,
+  'answered-disabled-choices-stops-the-fade': () => <>
+    <div><ArenaCheckbox disabled label="Notify" /></div>
+    <div style={answered({ '--choices-box-fill-disabled': 'var(--fill-surface)', '--choices-box-fade-disabled': '1' })}><ArenaCheckbox disabled label="Notify" /></div>
+  </>,
   'hover-answer-is-not-derived-from-the-rest-answer': () => <div style={answered({ '--actions-primary-root-fill-rest': 'var(--fill-surface)', '--actions-primary-root-fill-hover': 'var(--fill-hover)' })}><ArenaButton>Save</ArenaButton></div>,
 };
 
@@ -142,6 +146,7 @@ const SUBJECT: Record<string, { part: string; at: number }> = {
   'secondary-answer-reaches-the-calendar-nav': { part: 'button', at: 0 },
   'choices-answer-moves-every-box': { part: 'checkbox.box', at: 0 },
   'selected-disabled-answer-stops-only-the-selected-fade': { part: 'icon-button', at: -1 },
+  'answered-disabled-choices-stops-the-fade': { part: 'checkbox.box', at: -1 },
   'class-on-copy-button-reaches-the-icon-button-it-draws': { part: 'icon-button', at: 0 },
 };
 
