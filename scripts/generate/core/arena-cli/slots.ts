@@ -3,7 +3,8 @@
  * set names. A member default replaces the group default at the end of that member's chain, and a
  * state deriving the same colour from it reads the member's chain (R5). A part with no fill sits
  * on the ground, and a halo is an option's edge-rest chain at the level it names. MeasuredSlots is
- * what a contrast measurement reads. The command ships this file, so it imports nothing outside it. */
+ * what a contrast measurement reads, and a slot's pair says its part pairs as a mark at 3:1 or keeps
+ * each property's floor over a sibling. The command ships this file, so it imports nothing outside it. */
 
 export const SLOT_PROPERTIES = ['fill', 'ink', 'edge', 'icon'] as const;
 export const SLOT_STATES = ['rest', 'hover', 'pressed', 'selected', 'selected-hover', 'selected-pressed', 'disabled', 'selected-disabled'] as const;
@@ -24,9 +25,18 @@ export type ColorSlot = {
   derive?: { from: string; mix?: 'mix-hover' | 'mix-pressed' };
   level?: string;
   optional?: true;
+  pair?: 'mark' | 'own';
 };
 
-export type OptionAxis = { axis: string; values: Record<string, string> };
+export type OptionAxis = { axis: string; values: Record<string, string> } | { axes: [string, string]; values: Record<string, string> };
+
+export const axisNames = (one: OptionAxis): string[] => ('axes' in one ? [...one.axes] : [one.axis]);
+
+export function axisBranch(one: OptionAxis, value: string): [string, string][] {
+  if (!('axes' in one)) return [[one.axis, value]];
+  const values = value.split(',');
+  return one.axes.map((axis, at) => [axis, values[at] ?? ''] as [string, string]);
+}
 
 export type MemberPart = {
   to: string;
@@ -40,7 +50,8 @@ export type MemberPart = {
   hoverBy?: { axis: string; value: string };
   onlyBy?: { axis: string; value: string };
   hoverIn?: { axis: string; value: string };
-  edgeAs?: 'rule';
+  fillAs?: 'stroke';
+  edgeAs?: 'rule' | 'stripe';
   disabledModifier?: string;
   inkFrom?: string;
   properties?: SlotProperty[];

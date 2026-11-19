@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readColorSlots } from '../../../lib/core/color-slots.ts';
-import { channelValue, fadeMarkers, haloValue, memberChain, memberValue, slotChain } from './slots.ts';
+import { axisBranch, axisNames, channelValue, fadeMarkers, haloValue, memberChain, memberValue, slotChain } from './slots.ts';
 import type { SlotCatalogue } from './slots.ts';
 
 const c = readColorSlots();
@@ -142,4 +142,21 @@ test('a member declaring hoverIn, edgeAs and disabledModifier carries them into 
   ));
   const m = built.members['ArenaCrumb.box'];
   assert.deepEqual({ hoverIn: m?.hoverIn, edgeAs: m?.edgeAs, disabledModifier: m?.disabledModifier }, keys);
+});
+
+test('a member declaring fillAs, a stripe and two axes carries them into the catalogue', async () => {
+  const { deriveSlots } = await import('../../../lib/core/color-slots.ts');
+  const { slotFixture } = await import('../../../lib/core/color-slots-fixture.ts');
+  const keys = { fillAs: 'stroke' as const, edgeAs: 'stripe' as const, optionBy: { axes: ['tone', 'state'] as [string, string], values: { 'a,x': 'a' } } };
+  const built = deriveSlots(slotFixture(
+    { box: { properties: ['fill', 'edge'], options: { a: { states: ['rest'], rest: { fill: '{fill-control}', edge: '{edge-control}' } } } } },
+    { ArenaRing: { group: 'choices', parts: { box: { to: 'choices.box', options: ['a'], states: ['rest'], ...keys } } } },
+    'choices',
+  ));
+  const m = built.members['ArenaRing.box'];
+  assert.deepEqual({ fillAs: m?.fillAs, edgeAs: m?.edgeAs, optionBy: m?.optionBy }, keys);
+  assert.deepEqual(axisNames(keys.optionBy), ['tone', 'state']);
+  assert.deepEqual(axisNames({ axis: 'tone', values: {} }), ['tone']);
+  assert.deepEqual(axisBranch(keys.optionBy, 'a,x'), [['tone', 'a'], ['state', 'x']]);
+  assert.deepEqual(axisBranch({ axis: 'tone', values: {} }, 'a'), [['tone', 'a']]);
 });

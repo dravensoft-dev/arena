@@ -13,7 +13,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { repoRoot } from './repo-root.ts';
 import { readColorSlots } from '../core/color-slots.ts';
-import { fadeMarkers, optionAxes } from '../../generate/core/arena-cli/slots.ts';
+import { axisNames, fadeMarkers, optionAxes } from '../../generate/core/arena-cli/slots.ts';
 import type { Family } from '../tailwind/vocabulary.ts';
 import { readFamilies, SURFACE } from '../tailwind/vocabulary.ts';
 import { kebab } from '../../utils/case.ts';
@@ -80,7 +80,7 @@ const branchAxes = (by: 'selectedBy' | 'disabledBy', root = repoRoot) => new Map
 }));
 const optionAxesOf = (root = repoRoot) => new Map(Object.entries(readColorSlots(root).members).flatMap(([key, member]) => {
   const [component, part] = key.split('.') as [string, string];
-  const axes = [...optionAxes(member).map((one) => one.axis), ...[member.onlyBy, member.hoverBy].flatMap((one) => (one ? [one.axis] : []))].map((one) => `data-arena-${kebab(one)}`);
+  const axes = [...optionAxes(member).flatMap(axisNames), ...[member.onlyBy, member.hoverBy].flatMap((one) => (one ? [one.axis] : []))].map((one) => `data-arena-${kebab(one)}`);
   return axes.length ? [[`${kebab(component.replace(/^Arena/, ''))}.${kebab(part)}`, axes] as [string, string[]]] : [];
 }));
 const OPTION_AXES = optionAxesOf();

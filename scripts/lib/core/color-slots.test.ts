@@ -423,3 +423,35 @@ test('steps derives its slots', () => {
   assert.deepEqual(c.members['ArenaOnboarding.dot']?.properties, ['fill', 'edge']);
   assert.deepEqual(c.members['ArenaOnboarding.dot']?.optionBy, { axis: 'current', values: { false: 'upcoming', true: 'current' } });
 });
+
+const banner = () => ({
+  properties: ['fill', 'edge'],
+  options: {
+    neutral: { states: 'base', rest: { fill: '{f-surface}', edge: '{e-surface}' } },
+    info: { states: 'base', rest: { fill: '{f-info}', edge: '{e-info}' } },
+  },
+});
+
+test('a part on a sibling with options sits on the same option', () => {
+  const d = fixture();
+  d.groups!.feedback = {
+    parts: {
+      banner: banner(),
+      icon: { properties: ['ink'], on: 'banner', options: { info: { states: 'base', rest: { ink: '{i-info}' } }, gold: { states: 'base', rest: { ink: '{i-gold}' } } } },
+      action: { properties: ['fill', 'ink'], over: 'banner', options: { info: { states: 'base', rest: { fill: 'transparent', ink: '{i-action}' } } } },
+      dot: { properties: ['fill', 'ink'], mark: true, options: { info: { states: 'base', rest: { fill: '{f-info}', ink: '{i-info}' } }, gold: { states: 'base', properties: ['ink'], rest: { ink: '{i-gold}' } } } },
+    },
+  };
+  const s = deriveSlots(d).slots;
+  assert.equal(s['feedback-info-icon-ink-hover']?.on, 'feedback-info-banner-fill-hover', 'the icon sits on the banner of its own option');
+  assert.equal(s['feedback-gold-icon-ink-rest']?.on, 'feedback-banner-fill-rest', 'an option the banner lacks sits on the banner with no option');
+  assert.equal(s['feedback-info-action-ink-rest']?.on, 'feedback-info-banner-fill-rest', 'a part over a sibling sits its ink on the sibling, not on its own fill');
+  assert.equal(s['feedback-info-action-fill-pressed']?.on, 'feedback-info-banner-fill-pressed');
+  assert.equal(s['feedback-info-action-ink-rest']?.pair, 'own', 'an over part keeps its property floor');
+  assert.equal(s['feedback-info-icon-ink-rest']?.pair, undefined);
+  assert.equal(s['feedback-info-dot-ink-rest']?.on, 'feedback-info-dot-fill-rest', 'a mark sits on its own fill');
+  assert.equal(s['feedback-gold-dot-ink-rest']?.on, 'ground', 'a mark with no fill sits on the ground');
+  assert.equal(s['feedback-gold-dot-ink-rest']?.pair, 'mark');
+  assert.equal(s['feedback-info-dot-fill-rest']?.pair, 'mark');
+  assert.equal(s['feedback-info-banner-fill-rest']?.pair, undefined, 'a part with no over and no mark carries no pair');
+});

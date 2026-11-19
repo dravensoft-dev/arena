@@ -5,16 +5,16 @@
  * then the derived catalogue: each slot's name, the roles a property may be answered with, where a
  * default or derivation may point, what a slot sits on (its fill, a sibling's, its rest, the ground),
  * the member parts that read each slot under its state (a channel-less member reads its chain inline,
- * per axis branch), the Emphasis family's chains (R7), and the group map. A member default (D21's
- * grant, R5) is one rest slot of the member's part, unlike the group's answer. paintedByPaths names
- * the files the map stats, so a rename or a delete of one reruns the gate. */
+ * per axis branch), the chains the Emphasis and Accent families write (R7), and the group map. A
+ * member default (D21's grant, R5) is one rest slot of the member's part, unlike the group's answer.
+ * paintedByPaths names the files the map stats, so a rename or a delete of one reruns the gate. */
 
 import { statSync } from 'node:fs';
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
-import { colouredParts } from '../../lib/core/color-slot-map.ts';
+import { colourNames, colourToken, colouredParts } from '../../lib/core/color-slot-map.ts';
 import type { ColouredPart } from '../../lib/core/color-slot-map.ts';
 import { COLOR_SLOTS, SLOT_KEYS, deriveSlots, isMemberDecl, readSlotDeclarations } from '../../lib/core/color-slots.ts';
 import type { GroupPart, MemberDecl, SlotDeclarations } from '../../lib/core/color-slots.ts';
@@ -22,12 +22,14 @@ import { declarations } from '../../lib/tailwind/vocabulary.ts';
 import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
 import type { ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';
 import {
-  SLOT_PROPERTIES, SLOT_STATES, acceptedRole, channelValue, expectedName, glob, memberChain, memberChannel, memberValue, optionAxes,
+  SLOT_PROPERTIES, SLOT_STATES, acceptedRole, axisBranch, channelValue, expectedName, glob, memberChain, memberChannel, memberValue, optionAxes,
 } from '../../generate/core/arena-cli/slots.ts';
 import type { ColorSlot, MemberPart, SlotCatalogue } from '../../generate/core/arena-cli/slots.ts';
 import { slotPairs } from '../../generate/core/arena-cli/slot-contrast.ts';
 
 export const EMPHASIS_FAMILY = 'frameworks/tailwind/vocabulary/arena-emphasis/Emphasis.family.json';
+export const ACCENT_FAMILY = 'frameworks/tailwind/vocabulary/arena-accent/Accent.family.json';
+const SERIES = 'series';
 
 function paintedByPaths(): string[] {
   const groups = readSlotDeclarations().groups ?? {};
@@ -37,7 +39,7 @@ function paintedByPaths(): string[] {
 
 export const node = {
   name: 'check:color-slots',
-  reads: [COLOR_SLOTS, EMPHASIS_FAMILY, 'contracts/design/roles.json', 'contracts/design/palette.dark.json', 'frameworks/tailwind/Theme.css', 'frameworks/tailwind/components/**/*.manifest.json', ...paintedByPaths()],
+  reads: [COLOR_SLOTS, EMPHASIS_FAMILY, ACCENT_FAMILY, 'contracts/design/roles.json', 'contracts/design/palette.dark.json', 'frameworks/tailwind/Theme.css', 'frameworks/tailwind/components/**/*.manifest.json', ...paintedByPaths()],
   writes: [],
   feeds: [],
 };
@@ -78,6 +80,7 @@ export function shapeProblems(c: SlotCatalogue): string[] {
     else if (!parts.includes(s.part)) out.push(`${name}: part "${s.part}" is not a part of group ${s.group} (${parts.join(', ')})`);
     if (s.channel !== undefined && !/^--[a-z0-9-]+$/.test(s.channel)) out.push(`${name}: channel "${s.channel}" is no custom property`);
     if (s.optional !== undefined && s.optional !== true) out.push(`${name}: optional is true or absent`);
+    if (s.pair !== undefined && s.pair !== 'mark' && s.pair !== 'own') out.push(`${name}: pair is mark, own or absent`);
   }
   return out;
 }
@@ -172,9 +175,15 @@ export function pairProblems(c: SlotCatalogue, d: SlotDeclarations = readSlotDec
     if (gp === undefined) continue;
     const option = Array.isArray(gp.options) || s.option === undefined ? undefined : gp.options?.[s.option];
     const own = (option?.properties ?? gp.properties).includes('fill') ? expectedName({ ...s, property: 'fill' }) : undefined;
-    const sibling = gp.on === undefined ? undefined : expectedName({ group: s.group, part: gp.on, property: 'fill', state: s.state });
+    const under = gp.on ?? gp.over;
+    const siblingOptions = under === undefined ? undefined : d.groups?.[s.group]?.parts?.[under]?.options;
+    const siblingOpt = s.option !== undefined && siblingOptions !== undefined && !Array.isArray(siblingOptions) && Object.hasOwn(siblingOptions, s.option) ? s.option : undefined;
+    const sibling = under === undefined ? undefined : expectedName({ group: s.group, option: siblingOpt, part: under, property: 'fill', state: s.state });
+    const pair = gp.over !== undefined ? 'own' : gp.mark === true ? 'mark' : undefined;
+    if (s.pair !== pair) out.push(`${name}: it pairs as ${s.pair ?? 'nothing'} and the declarations give ${pair ?? 'nothing'}`);
     let want: string | undefined;
-    if (s.property === 'ink' || s.property === 'icon') want = own ?? sibling ?? 'ground';
+    if (gp.over !== undefined) want = sibling;
+    else if (s.property === 'ink' || s.property === 'icon') want = own ?? sibling ?? 'ground';
     else if (s.property === 'fill') want = gp.selectedOn === 'rest' && SELECTED_ON.has(s.state) ? expectedName({ ...s, state: 'rest' }) : sibling;
     else want = sibling ?? own;
     if (s.on !== want) out.push(`${name}: it sits on ${s.on ?? 'nothing'} and the declarations give ${want ?? 'nothing'}`);
@@ -217,13 +226,13 @@ export function manifestProblems(c: SlotCatalogue, manifests: Manifests): string
         out.push(`members.${key}: ${comp} answers no emphasis ${option} and declares no variant ${option}`);
       }
     }
-    const branches: [string, string][] = [...optionAxes(m).flatMap((one) => Object.keys(one.values).map((value) => [one.axis, value] as [string, string])),
+    const branches: [string, string][] = [...optionAxes(m).flatMap((one) => Object.keys(one.values).flatMap((value) => axisBranch(one, value))),
       ...(m.selectedBy && m.states.includes('rest') ? [[m.selectedBy.axis, m.selectedBy.value] as [string, string]] : []),
       ...(m.disabledBy && m.states.some((st) => DISABLED.has(st)) ? [[m.disabledBy.axis, m.disabledBy.value] as [string, string]] : []),
       ...(m.hoverBy && m.states.includes('hover') ? [[m.hoverBy.axis, m.hoverBy.value] as [string, string]] : []),
       ...(m.hoverIn && m.states.some((st) => st === 'hover' || st === 'pressed') ? [[m.hoverIn.axis, m.hoverIn.value] as [string, string]] : []),
       ...(m.onlyBy ? [[m.onlyBy.axis, m.onlyBy.value] as [string, string]] : [])];
-    for (const [axis, value] of branches) {
+    for (const [axis, value] of new Map(branches.map((one) => [one.join('='), one])).values()) {
       if (!Object.hasOwn(manifest.variants?.[axis] ?? {}, value)) out.push(`members.${key}: ${comp} declares no variant ${axis}=${value}`);
     }
   }
@@ -265,14 +274,19 @@ const MODIFIER: Record<string, string> = {
 };
 const UTILITY: Record<string, string> = { fill: 'bg-[color:', ink: 'text-[color:', edge: 'border-[color:', icon: '[--arena-icon-ink:' };
 const RULE = 'shadow-[inset_0_calc(var(--bw-strong)*-1)_0_';
+const STRIPE = 'border-l-[color:';
+const STROKE = 'stroke-[color:';
 const VARIANT = /^(?:[a-z][a-z0-9-]*:)+/;
 
-const reads = (token: string, modifier: string, property: string, expected: string[]) => {
+const reads = (token: string, modifier: string, utility: string | undefined, expected: string[]) => {
   const prefix = VARIANT.exec(token)?.[0] ?? '';
-  return prefix === modifier && token.slice(prefix.length).startsWith(UTILITY[property] ?? '?') && expected.some((one) => token.includes(one));
+  return prefix === modifier && token.slice(prefix.length).startsWith(utility ?? '?') && expected.some((one) => token.includes(one));
 };
 
-const utilityOf = (m: MemberPart, property: string) => (property === 'edge' && m.edgeAs === 'rule' ? RULE : UTILITY[property]);
+const utilityOf = (m: MemberPart, property: string) => {
+  if (property === 'edge' && m.edgeAs !== undefined) return m.edgeAs === 'rule' ? RULE : STRIPE;
+  return property === 'fill' && m.fillAs === 'stroke' ? STROKE : UTILITY[property];
+};
 const modifierOf = (m: MemberPart, s: ColorSlot) => {
   if (DISABLED.has(s.state) && m.disabledModifier !== undefined) return m.disabledModifier;
   return (m.disabledBy && DISABLED.has(s.state)) || (m.hoverBy && s.state === 'hover') ? '' : MODIFIER[s.state] ?? '';
@@ -288,7 +302,7 @@ const branchOf = (m: MemberPart, s: ColorSlot): [string, string][] => {
   if (m.onlyBy) out.push([m.onlyBy.axis, m.onlyBy.value]);
   for (const one of optionAxes(m)) {
     const by = Object.entries(one.values).find(([, option]) => option === s.option);
-    if (by) { out.push([one.axis, by[0]]); break; }
+    if (by) { out.push(...axisBranch(one, by[0])); break; }
   }
   if (m.selectedBy && m.states.includes('rest') && s.state.startsWith('selected')) out.push([m.selectedBy.axis, m.selectedBy.value]);
   if (m.disabledBy && DISABLED.has(s.state)) out.push([m.disabledBy.axis, m.disabledBy.value]);
@@ -309,7 +323,7 @@ const hoverless = (c: SlotCatalogue, m: MemberPart) => {
   const has = (option: string, state: string) => slots.some(([, s]) => s.option === option && s.state === state);
   const axisOf = (option: string) => optionAxes(m).find((one) => Object.values(one.values).includes(option));
   const without = m.states.includes('hover') ? m.options.filter((o) => has(o, 'rest') && !has(o, 'hover') && axisOf(o)) : [];
-  return without.flatMap((o) => m.options.filter((p) => has(p, 'hover') && axisOf(p) && axisOf(p)!.axis !== axisOf(o)!.axis).map((p) => [o, p] as [string, string]));
+  return without.flatMap((o) => m.options.filter((p) => has(p, 'hover') && axisOf(p) && axisOf(p) !== axisOf(o)).map((p) => [o, p] as [string, string]));
 };
 
 const heldAt = (manifest: ComponentManifest, part: string, branch: [string, string][], want: string) =>
@@ -421,7 +435,7 @@ export function readProblems(c: SlotCatalogue, manifests: Manifests): string[] {
       const channel = memberChannel(m, s);
       const expected = channel === undefined ? [memberChain(c, key, name)] : [`var(${channel},`, `var(${channel})`];
       const modifier = MODIFIER[s.state] ?? '';
-      const found = texts.some((text) => String(text ?? '').split(/\s+/).some((token) => reads(token, modifier, s.property, expected)));
+      const found = texts.some((text) => String(text ?? '').split(/\s+/).some((token) => reads(token, modifier, utilityOf(m, s.property), expected)));
       if (!found) {
         const line = `${key} does not read ${channel ?? 'its full chain'} under ${modifier || 'no variant'}${selected ? ' in the pressed branch' : ''}`;
         lines.set(line, [...(lines.get(line) ?? []), name]);
@@ -432,25 +446,52 @@ export function readProblems(c: SlotCatalogue, manifests: Manifests): string[] {
   return [...lines].map(([key, names]) => (names.length ? `${key}: ${names.join(', ')}` : key));
 }
 
-export function familyProblems(c: SlotCatalogue, family: { variants?: Record<string, string> }): string[] {
+const SIDE = /^border(?:-[trblxyse])?-\[color:/;
+
+export function stripeProblems(c: SlotCatalogue, manifests: Manifests): string[] {
+  const out = new Set<string>();
+  for (const [key, m] of Object.entries(c.members ?? {})) {
+    if (m.edgeAs !== 'stripe') continue;
+    const [comp, part] = key.split('.') as [string, string];
+    const manifest = manifests.get(comp);
+    const tokens = (manifest ? classesOf(manifest)[part] ?? [] : []).flatMap((text) => text.split(/\s+/));
+    for (const [name, s] of memberSlots(c, m).filter(([, one]) => one.property === 'edge')) {
+      const channel = memberChannel(m, s);
+      const read = [`var(--${name},`, ...(channel === undefined ? [] : [`var(${channel},`, `var(${channel})`])];
+      for (const token of tokens) {
+        const util = token.slice(VARIANT.exec(token)?.[0].length ?? 0);
+        if (SIDE.test(util) && !util.startsWith(STRIPE) && read.some((one) => util.includes(one))) out.add(`${key}: it reads ${name} as ${token}, and a stripe reads its edge on border-l alone (R5)`);
+      }
+    }
+  }
+  return [...out];
+}
+
+export function familyProblems(c: SlotCatalogue, family: { variants?: Record<string, string> }, path: string): string[] {
   const out: string[] = [];
   for (const [option, classes] of Object.entries(family.variants ?? {})) {
-    const opt = option.replace(/^arena-emphasis-/, '');
+    const named = /^arena-([a-z]+)-(.+)$/.exec(option);
+    if (!named) continue;
+    const [, kind, opt] = named as unknown as [string, string, string];
+    const prefix = `--arena-${kind}-`;
     const written = new Map(declarations(classes) as [string, string][]);
-    const slots = entries(c).filter(([, s]) => s.group === 'actions' && s.part === 'root' && s.option === opt && s.channel?.startsWith('--arena-emphasis-'));
+    const slots = entries(c).filter(([, s]) => s.option === opt && s.channel?.startsWith(prefix));
     for (const [name, s] of slots) {
       const want = channelValue(c, name, 'css');
       const value = written.get(s.channel as string);
       const readThrough = Object.values(c.members ?? {}).some((m) => memberSlots(c, m).some(([n]) => n === name) && memberChannel(m, s) === s.channel);
       if (!readThrough) {
-        if (value !== undefined) out.push(`${EMPHASIS_FAMILY}: ${option} writes ${s.channel}, and every member part reads ${name} through a channel of its own`);
-      } else if (value === undefined) out.push(`${EMPHASIS_FAMILY}: ${option} writes no ${s.channel}, and ${name} is read through it`);
-      else if (value !== want) out.push(`${EMPHASIS_FAMILY}: ${option} writes ${s.channel} as ${value}, and the chain of ${name} is ${want}`);
+        if (value !== undefined) out.push(`${path}: ${option} writes ${s.channel}, and every member part reads ${name} through a channel of its own`);
+      } else if (value === undefined) out.push(`${path}: ${option} writes no ${s.channel}, and ${name} is read through it`);
+      else if (value !== want) out.push(`${path}: ${option} writes ${s.channel} as ${value}, and the chain of ${name} is ${want}`);
     }
-    for (const state of ['disabled', 'selected-disabled']) {
-      if (!slots.some(([, s]) => s.state === state)) continue;
-      const marker = `var(--actions-${opt}-root-fade-${state},`;
-      if (!(written.get(`--arena-emphasis-fade-${state}`) ?? '').startsWith(marker)) out.push(`${EMPHASIS_FAMILY}: ${option} writes --arena-emphasis-fade-${state} without ${marker}…), so an answered ${state} slot never stops the fade`);
+    const wholes = new Map(slots.map(([, s]) => [`${s.group}-${opt}-${s.part}`, s] as const));
+    for (const [stem, whole] of wholes) {
+      for (const state of ['disabled', 'selected-disabled']) {
+        if (!slots.some(([, s]) => s.group === whole.group && s.part === whole.part && s.state === state)) continue;
+        const marker = `var(--${stem}-fade-${state},`;
+        if (!(written.get(`${prefix}fade-${state}`) ?? '').startsWith(marker)) out.push(`${path}: ${option} writes ${prefix}fade-${state} without ${marker}…), so an answered ${state} slot never stops the fade`);
+      }
     }
   }
   return out;
@@ -459,10 +500,10 @@ export function familyProblems(c: SlotCatalogue, family: { variants?: Record<str
 const DECLARED = {
   top: ['$description', 'accepts', 'refused', 'states', 'stateSets', 'selected', 'exceptions', 'rings', 'groups', 'members'],
   group: ['parts'],
-  groupPart: ['properties', 'options', 'states', 'channel', 'rest', 'selected', 'on', 'selectedOn', 'decision', 'paintedBy'],
+  groupPart: ['properties', 'options', 'states', 'channel', 'rest', 'selected', 'on', 'over', 'mark', 'selectedOn', 'decision', 'paintedBy'],
   option: ['states', 'properties', 'rest', 'halo', 'channel', 'decision'],
   member: ['group', 'parts'],
-  memberPart: ['to', 'options', 'states', 'channels', 'defaults', 'decision', 'optionBy', 'selectedBy', 'disabledBy', 'hoverBy', 'onlyBy', 'hoverIn', 'edgeAs', 'disabledModifier', 'inkFrom', 'properties', 'inline'],
+  memberPart: ['to', 'options', 'states', 'channels', 'defaults', 'decision', 'optionBy', 'selectedBy', 'disabledBy', 'hoverBy', 'onlyBy', 'hoverIn', 'fillAs', 'edgeAs', 'disabledModifier', 'inkFrom', 'properties', 'inline'],
   exception: ['default', 'decision', 'level'],
 };
 const DECISION = /^[DR]\d+$/;
@@ -522,7 +563,14 @@ export function declarationProblems(d: SlotDeclarations): string[] {
       keys(where, p, DECLARED.groupPart);
       for (const prop of p.properties ?? []) if (!['fill', 'ink', 'edge', 'icon'].includes(prop)) out.push(`${where}: property "${prop}" is outside fill, ink, edge, icon`);
       channel(where, p.channel);
-      if (p.on !== undefined && (p.on === part || !(group.parts[String(p.on)]?.properties ?? []).includes('fill'))) out.push(`${where}.on: "${String(p.on)}" is no part of ${g} that paints a fill, besides this one`);
+      for (const key of ['on', 'over'] as const) {
+        const sibling = p[key];
+        if (sibling !== undefined && (sibling === part || !(group.parts[String(sibling)]?.properties ?? []).includes('fill'))) out.push(`${where}.${key}: "${String(sibling)}" is no part of ${g} that paints a fill, besides this one`);
+      }
+      if (p.on !== undefined && p.over !== undefined) out.push(`${where}: it declares on and over, and a part sits on a sibling or over it, never both`);
+      if (p.mark !== undefined && p.mark !== true) out.push(`${where}.mark: "${String(p.mark)}" is not true`);
+      else if (p.mark !== undefined && p.over !== undefined) out.push(`${where}.mark: it stands beside over, and a mark pairs at 3:1 where over keeps each floor`);
+      else if (p.mark !== undefined && p.on !== undefined) out.push(`${where}.mark: it stands beside on, and a part on a sibling pairs at 3:1 already (D69)`);
       if (p.selectedOn !== undefined && p.selectedOn !== 'rest') out.push(`${where}.selectedOn: "${String(p.selectedOn)}" is not "rest"`);
       if (p.selectedOn !== undefined && !p.properties.includes('fill')) out.push(`${where}.selectedOn: the part paints no fill to sit on`);
       selectedOf(`${where}.selected`, p.selected, p, p.states);
@@ -565,11 +613,19 @@ export function declarationProblems(d: SlotDeclarations): string[] {
       const axes = optionAxes(to as MemberPart);
       const axisNames = new Set<string>();
       for (const by of axes) {
-        if (typeof by.axis !== 'string' || by.axis === '') out.push(`${where}.optionBy: it names no axis`);
-        else if (axisNames.has(by.axis)) out.push(`${where}.optionBy: the axis ${by.axis} is named twice`);
-        axisNames.add(by.axis);
+        const pairOf = 'axes' in by;
+        const names = pairOf ? (Array.isArray(by.axes) ? by.axes : []) : [by.axis];
+        if (pairOf && names.length !== 2) out.push(`${where}.optionBy: axes names two axes`);
+        for (const name of names) {
+          if (typeof name !== 'string' || name === '') out.push(`${where}.optionBy: it names no axis`);
+          else if (axisNames.has(name)) out.push(`${where}.optionBy: the axis ${name} is named twice`);
+          axisNames.add(name);
+        }
         for (const [value, option] of Object.entries(by.values ?? {})) {
-          if (!(to.options ?? []).includes(option)) out.push(`${where}.optionBy: "${option}" is not an option the member lists (${(to.options ?? []).join(', ') || 'none'}), for ${by.axis}=${value}`);
+          const parts = value.split(',');
+          if (pairOf && (parts.length !== 2 || parts.some((one) => one === ''))) out.push(`${where}.optionBy: "${value}" is not two values joined by a comma, one per axis of ${names.join(', ')}`);
+          const at = axisBranch(by, value).map(([axis, one]) => `${axis}=${one}`).join(' and ');
+          if (!(to.options ?? []).includes(option)) out.push(`${where}.optionBy: "${option}" is not an option the member lists (${(to.options ?? []).join(', ') || 'none'}), for ${at}`);
         }
         if (Object.keys(by.values ?? {}).length === 0) out.push(`${where}.optionBy: it maps no value onto an option`);
       }
@@ -612,8 +668,10 @@ export function declarationProblems(d: SlotDeclarations): string[] {
         }
       }
       const homeProps = to.properties ?? d.groups?.[homeGroup as string]?.parts?.[homePart as string]?.properties ?? [];
-      if (to.edgeAs !== undefined && to.edgeAs !== 'rule') out.push(`${where}.edgeAs: "${String(to.edgeAs)}" is not "rule"`);
-      else if (to.edgeAs !== undefined && !homeProps.includes('edge')) out.push(`${where}.edgeAs: ${to.to} paints no edge to draw as a rule`);
+      if (to.edgeAs !== undefined && to.edgeAs !== 'rule' && to.edgeAs !== 'stripe') out.push(`${where}.edgeAs: "${String(to.edgeAs)}" is neither "rule" nor "stripe"`);
+      else if (to.edgeAs !== undefined && !homeProps.includes('edge')) out.push(`${where}.edgeAs: ${to.to} paints no edge to draw as a ${to.edgeAs}`);
+      if (to.fillAs !== undefined && to.fillAs !== 'stroke') out.push(`${where}.fillAs: "${String(to.fillAs)}" is not "stroke"`);
+      else if (to.fillAs !== undefined && !homeProps.includes('fill')) out.push(`${where}.fillAs: ${to.to} paints no fill to draw as a stroke`);
       if (to.disabledModifier !== undefined && to.disabledModifier !== 'aria-disabled:') out.push(`${where}.disabledModifier: "${String(to.disabledModifier)}" is not "aria-disabled:"`);
       else if (to.disabledModifier !== undefined && to.disabledBy !== undefined) out.push(`${where}.disabledModifier: it stands beside disabledBy, and a member reads its disabled states under one of them`);
       if (to.properties !== undefined) {
@@ -651,11 +709,38 @@ const targetOf = (to: string) => {
   return { group: group ?? '', part: part ?? '', options: options === undefined ? [] : options.split('|') };
 };
 
+const HUE_READ = /^\[color:var\(--arena-hue-[a-z0-9-]+\)\]$/;
+
+function seriesProblems(key: string, painted: ColouredPart | undefined, manifest: ComponentManifest, part: string, names: ReadonlySet<string>): string[] {
+  if (!painted || painted.keywordsOnly || painted.focusOnly) return [`${key}: it is "series" and paints no colour, and "series" is for a part that paints its series through its hues channel (R6)`];
+  const hued = (axis: string) => Object.hasOwn(manifest.hues ?? {}, axis);
+  const text = (v: unknown) => (typeof v === 'string' ? v : '');
+  const at: [string, string, boolean][] = [
+    ['the base class', text((manifest.slots as Record<string, unknown> | undefined)?.[part]), false],
+    ...Object.entries(manifest.variants ?? {}).flatMap(([axis, values]) => Object.entries(values)
+      .map(([value, one]) => [`the ${axis}=${value} branch`, text((one as Record<string, unknown>)[part]), hued(axis)] as [string, string, boolean])),
+    ...(manifest.compoundVariants ?? []).map((cv) => {
+      const axes = Object.keys(cv).filter((k) => k !== 'class');
+      return [`the compound ${axes.map((a) => `${a}=${String(cv[a])}`).join(' and ')}`, text((cv.class as Record<string, unknown>)[part]), axes.some(hued)] as [string, string, boolean];
+    }),
+  ];
+  const out: string[] = [];
+  for (const [where, classes, ok] of at) {
+    for (const token of classes.split(/\s+/).filter(Boolean)) {
+      const read = colourToken(token, names);
+      if (!read || read.focus || (ok && HUE_READ.test(read.value))) continue;
+      out.push(`${key}: it is "series" and reads ${token} in ${where}, and a series part paints only var(--arena-hue-…) inside the branches of an axis with a hues entry (R6)`);
+    }
+  }
+  return out;
+}
+
 export function mapProblems(d: SlotDeclarations, coloured: ReadonlyMap<string, ColouredPart>, manifests: Manifests, root = repoRoot): string[] {
   const out: string[] = [];
   const groups = d.groups ?? {};
   const members = d.members ?? {};
   const used = new Set<string>();
+  let names: Set<string> | undefined;
   for (const [comp, m] of Object.entries(members)) {
     const manifest = manifests.get(comp);
     if (!manifest) { out.push(`members.${comp}: no manifest declares the component ${comp}`); continue; }
@@ -664,6 +749,10 @@ export function mapProblems(d: SlotDeclarations, coloured: ReadonlyMap<string, C
       const key = `${comp}.${part}`;
       if (!Object.hasOwn(manifest.slots ?? {}, part)) { out.push(`${key}: ${comp} has no slot ${part}`); continue; }
       const painted = coloured.get(key);
+      if (to === SERIES) {
+        out.push(...seriesProblems(key, painted, manifest, part, names ??= colourNames(root)));
+        continue;
+      }
       if (to === null) {
         if (!painted?.keywordsOnly) out.push(`${key}: it is null and paints ${painted ? 'a role' : 'no colour'}; null is for a part that paints only current or transparent`);
         continue;
@@ -681,7 +770,8 @@ export function mapProblems(d: SlotDeclarations, coloured: ReadonlyMap<string, C
         if (!source || !source.properties.includes('ink')) out.push(`${key}: inkFrom "${from}" is no group part that paints ink`);
         else used.add(from);
       }
-      const extra = (painted?.properties ?? []).filter((p) => !gp.properties.includes(p) && !(p === 'ink' && from !== undefined));
+      const stroked = isMemberDecl(to) && to.fillAs === 'stroke';
+      const extra = (painted?.properties ?? []).map((p) => (stroked && p === 'edge' ? 'fill' : p)).filter((p) => !gp.properties.includes(p) && !(p === 'ink' && from !== undefined));
       if (extra.length) out.push(`${key}: it paints ${extra.join(', ')}, which ${t.group}.${t.part} does not paint (${gp.properties.join(', ')})`);
     }
   }
@@ -748,7 +838,9 @@ export function collect(root = repoRoot): string[] {
   return [
     ...nameProblems(c), ...acceptsProblems(c, roles), ...defaultProblems(c, roles), ...memberDefaultProblems(c, roles), ...fallbackProblems(c),
     ...pairProblems(c, d), ...manifestProblems(c, manifests), ...ringProblems(c, manifests), ...readProblems(c, manifests), ...memberReadProblems(c, manifests), ...fadeProblems(c, manifests),
-    ...familyProblems(c, readJson(join(root, EMPHASIS_FAMILY)) as { variants?: Record<string, string> }),
+    ...stripeProblems(c, manifests),
+    ...familyProblems(c, readJson(join(root, EMPHASIS_FAMILY)) as { variants?: Record<string, string> }, EMPHASIS_FAMILY),
+    ...familyProblems(c, readJson(join(root, ACCENT_FAMILY)) as { variants?: Record<string, string> }, ACCENT_FAMILY),
     ...mapProblems(d, colouredParts(root), manifests, root),
   ];
 }

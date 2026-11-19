@@ -22,6 +22,8 @@ export type GroupPart = {
   rest?: Rest;
   selected?: Rest;
   on?: string;
+  over?: string;
+  mark?: true;
   selectedOn?: 'rest';
   decision?: string;
   paintedBy?: string | string[];
@@ -29,7 +31,7 @@ export type GroupPart = {
 export type MemberDecl = {
   to: string; options: string[]; states: StateSpec; channels?: Record<string, string>; defaults?: Record<string, string>; decision?: string;
   optionBy?: OptionAxis | OptionAxis[]; selectedBy?: { axis: string; value: string };
-  disabledBy?: { axis: string; value: string }; hoverBy?: { axis: string; value: string }; onlyBy?: { axis: string; value: string }; hoverIn?: { axis: string; value: string }; edgeAs?: 'rule'; disabledModifier?: string; inkFrom?: string; properties?: string[]; inline?: true;
+  disabledBy?: { axis: string; value: string }; hoverBy?: { axis: string; value: string }; onlyBy?: { axis: string; value: string }; hoverIn?: { axis: string; value: string }; fillAs?: 'stroke'; edgeAs?: 'rule' | 'stripe'; disabledModifier?: string; inkFrom?: string; properties?: string[]; inline?: true;
 };
 
 export type SlotDeclarations = {
@@ -45,7 +47,7 @@ export type SlotDeclarations = {
   rings: Record<string, string>;
 };
 
-export const SLOT_KEYS = ['group', 'option', 'part', 'property', 'state', 'channel', 'accepts', 'on', 'default', 'derive', 'level', 'optional'] as const;
+export const SLOT_KEYS = ['group', 'option', 'part', 'property', 'state', 'channel', 'accepts', 'on', 'pair', 'default', 'derive', 'level', 'optional'] as const;
 const DISABLED = ['disabled', 'selected-disabled'];
 const answer = (v: Answer): [string, string | undefined] => (typeof v === 'object' ? [v.role, v.level] : [v, undefined]);
 const restOf = (rest: Rest): Rest => {
@@ -60,7 +62,8 @@ export const isMemberDecl = (to: unknown): to is MemberDecl => typeof to === 'ob
 
 type Standing = {
   group: string; opt: string | undefined; part: string; rest: Rest; selected: Rest; states: string[]; channel: string | null | undefined;
-  properties: string[]; on: string | undefined; selectedOn: 'rest' | undefined;
+  properties: string[]; on: string | undefined; over: string | undefined; mark: true | undefined; selectedOn: 'rest' | undefined;
+  siblingOptions: string[];
 };
 
 export function deriveSlots(d: SlotDeclarations): SlotCatalogue {
@@ -71,7 +74,9 @@ export function deriveSlots(d: SlotDeclarations): SlotCatalogue {
     slots.set(name, Object.fromEntries(Object.entries(f).filter(([, v]) => v !== undefined && v !== null)));
   };
 
-  function standing({ group, opt, part, rest, selected, states, channel, properties, on, selectedOn }: Standing) {
+  function standing({ group, opt, part, rest, selected, states, channel, properties, on, over, mark, selectedOn, siblingOptions }: Standing) {
+    const under = on ?? over;
+    const siblingOpt = opt !== undefined && siblingOptions.includes(opt) ? opt : undefined;
     for (const prop of Object.keys(rest)) {
       for (const st of states) {
         const n = slotName(group, opt, part, prop, st);
@@ -79,11 +84,13 @@ export function deriveSlots(d: SlotDeclarations): SlotCatalogue {
           group, option: opt, part, property: prop, state: st,
           channel: channel ? channel.replace('{property}', prop) + (st === 'rest' ? '' : `-${st}`) : undefined, accepts: prop,
         };
-        const sibling = on === undefined ? undefined : slotName(group, undefined, on, 'fill', st);
+        const sibling = under === undefined ? undefined : slotName(group, siblingOpt, under, 'fill', st);
         const own = properties.includes('fill') ? slotName(group, opt, part, 'fill', st) : undefined;
-        if (prop === 'fill') f.on = selectedOn && ['selected', 'selected-hover', 'selected-pressed'].includes(st) ? slotName(group, opt, part, 'fill', 'rest') : sibling;
+        if (over !== undefined) f.on = sibling;
+        else if (prop === 'fill') f.on = selectedOn && ['selected', 'selected-hover', 'selected-pressed'].includes(st) ? slotName(group, opt, part, 'fill', 'rest') : sibling;
         else if (prop === 'edge') f.on = sibling ?? own;
         else f.on = own ?? sibling ?? 'ground';
+        f.pair = over !== undefined ? 'own' : mark ? 'mark' : undefined;
         const selectedAnswer = () => selected[prop] ?? d.selected[prop] ?? fail(`${n}: no selected answer for ${prop}`);
         if (prop === 'icon') {
           f.default = `{${slotName(group, opt, part, 'ink', st)}}`;
@@ -108,6 +115,9 @@ export function deriveSlots(d: SlotDeclarations): SlotCatalogue {
     groups[group] = { parts: Object.keys(decl.parts ?? {}) };
     for (const [part, p] of Object.entries(decl.parts ?? {})) {
       const options = p.options;
+      const under = decl.parts[p.on ?? p.over ?? '']?.options;
+      const siblingOptions = under === undefined || Array.isArray(under) ? [] : Object.keys(under);
+      const placed = { on: p.on, over: p.over, mark: p.mark, selectedOn: p.selectedOn, siblingOptions };
       if (options !== undefined && !Array.isArray(options)) {
         for (const [opt, o] of Object.entries(options)) {
           const owner = [group, opt, part].join('-');
@@ -116,7 +126,7 @@ export function deriveSlots(d: SlotDeclarations): SlotCatalogue {
           if (o.halo !== undefined) halos[owner] = o.halo;
           standing({
             group, opt, part, rest: restOf(o.rest), selected: { ...p.selected }, states: sets(spec),
-            channel: o.channel !== undefined ? o.channel : p.channel, properties: o.properties ?? p.properties, on: p.on, selectedOn: p.selectedOn,
+            channel: o.channel !== undefined ? o.channel : p.channel, properties: o.properties ?? p.properties, ...placed,
           });
         }
       } else if (p.rest !== undefined || p.selected !== undefined) {
@@ -125,7 +135,7 @@ export function deriveSlots(d: SlotDeclarations): SlotCatalogue {
         if (p.rest === undefined && states.includes('rest')) fail(`${group}-${part}: its states hold rest and it answers no rest`);
         standing({
           group, opt: undefined, part, rest: restOf(p.rest ?? p.selected ?? {}), selected: { ...p.selected }, states, channel: p.channel,
-          properties: p.properties, on: p.on, selectedOn: p.selectedOn,
+          properties: p.properties, ...placed,
         });
       }
     }
@@ -156,6 +166,7 @@ export function deriveSlots(d: SlotDeclarations): SlotCatalogue {
       if (to.hoverBy) one.hoverBy = to.hoverBy;
       if (to.onlyBy) one.onlyBy = to.onlyBy;
       if (to.hoverIn) one.hoverIn = to.hoverIn;
+      if (to.fillAs) one.fillAs = to.fillAs;
       if (to.edgeAs) one.edgeAs = to.edgeAs;
       if (to.disabledModifier) one.disabledModifier = to.disabledModifier;
       if (to.inkFrom) one.inkFrom = to.inkFrom;

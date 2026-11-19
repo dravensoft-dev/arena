@@ -6,7 +6,8 @@
  * from its rest. An answer sits inside the level its channel carries, as the emphasis sheet writes
  * it, and a member default is measured as the member paints it, where it moves a pair. Imports
  * nothing outside this directory, because the command ships it. Every pair of a part that sits on
- * another part's fill is a mark at 3:1 (D69). */
+ * another part's fill is a mark at 3:1 (D69), unless it sits over it and keeps each floor (R2), and
+ * every pair of a mark part is a mark at 3:1 (R3). */
 
 import { contrast } from './validate-palette.mjs';
 import { composite, mixOklab, oklabToHex, toOklab } from './oklab.ts';
@@ -140,10 +141,11 @@ export function slotPairs(catalogue: MeasuredSlots): SlotPair[] {
     const under = slot.on === undefined || slot.on === 'ground' ? undefined : catalogue.slots[slot.on];
     return under !== undefined && !sameWhole(slot, under);
   }).map(wholeOf));
+  const isMark = (slot: ColorSlot) => slot.pair === 'mark' || (slot.pair !== 'own' && marks.has(wholeOf(slot)));
   for (const [name, slot] of Object.entries(catalogue.slots)) {
     if (!slot.on || OFF.has(slot.state) || (slot.on !== 'ground' && !catalogue.slots[slot.on])) continue;
     if (slot.property === 'fill') out.push({ slot: name, over: slot.on, min: MARK_MIN });
-    else if (slot.property === 'ink') out.push({ slot: name, over: slot.on, min: marks.has(wholeOf(slot)) ? MARK_MIN : TEXT_MIN });
+    else if (slot.property === 'ink') out.push({ slot: name, over: slot.on, min: isMark(slot) ? MARK_MIN : TEXT_MIN });
     else if (slot.property === 'icon') out.push({ slot: name, over: slot.on, min: MARK_MIN });
     else if (slot.property === 'edge' && slot.state.startsWith('selected')) out.push({ slot: name, over: slot.on, min: MARK_MIN });
   }

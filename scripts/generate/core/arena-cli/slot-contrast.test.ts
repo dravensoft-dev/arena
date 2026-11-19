@@ -385,3 +385,34 @@ test('every steps ink clears AA in the default', () => {
     assert.deepEqual(unresolvedPairs(CATALOGUE.slots, answers, roles, coloursOf(theme), LEVELS).filter((pair) => pair.slot.startsWith('steps-')), [], `${theme}: every steps pair resolves`);
   }
 });
+
+test('a part over a sibling keeps its text floor', () => {
+  const c = declared({
+    banner: { properties: ['fill'], states: 'base', rest: { fill: '{fill-surface}' } },
+    action: { properties: ['fill', 'ink'], over: 'banner', states: 'base', rest: { fill: 'transparent', ink: '{ink-body}' } },
+    icon: { properties: ['ink'], on: 'banner', states: 'base', rest: { ink: '{ink-body}' } },
+  });
+  const pairs = slotPairs(c);
+  const pair = (slot: string) => pairs.find((one) => one.slot === slot);
+  assert.deepEqual(pair('fields-action-ink-rest'), { slot: 'fields-action-ink-rest', over: 'fields-banner-fill-rest', min: 4.5 }, 'the word over the banner is text at 4.5:1');
+  assert.deepEqual(pair('fields-action-ink-hover'), { slot: 'fields-action-ink-hover', over: 'fields-banner-fill-hover', min: 4.5 });
+  assert.deepEqual(pair('fields-action-fill-rest'), { slot: 'fields-action-fill-rest', over: 'fields-banner-fill-rest', min: 3 });
+  assert.deepEqual(pair('fields-icon-ink-rest'), { slot: 'fields-icon-ink-rest', over: 'fields-banner-fill-rest', min: 3 }, 'a part on a sibling stays a mark (D69)');
+});
+
+test('every pair of a mark part is 3:1 over the ground', () => {
+  const c = declared({
+    dot: { properties: ['ink', 'icon'], mark: true, states: 'base', rest: { ink: '{ink-body}', icon: 'ink' } },
+    disc: { properties: ['fill', 'ink'], mark: true, states: 'base', rest: { fill: '{fill-surface}', ink: '{ink-body}' } },
+  });
+  const pairs = slotPairs(c).filter((one) => /^fields-(dot|disc)-/.test(one.slot));
+  assert.deepEqual(pairs.map((one) => `${one.slot}>${one.over}@${one.min}`).sort(), [
+    'fields-disc-ink-hover>fields-disc-fill-hover@3', 'fields-disc-ink-pressed>fields-disc-fill-pressed@3', 'fields-disc-ink-rest>fields-disc-fill-rest@3',
+    'fields-dot-icon-hover>ground@3', 'fields-dot-icon-pressed>ground@3', 'fields-dot-icon-rest>ground@3',
+    'fields-dot-ink-hover>ground@3', 'fields-dot-ink-pressed>ground@3', 'fields-dot-ink-rest>ground@3',
+  ]);
+  const roles = rolesFor(null, CATALOGUE, 'dark');
+  const faint = new Map([['fields-dot-ink-rest', 'var(--color-base-300)']]);
+  const lines = slotReports(c, faint, roles, coloursOf('dark'), 'dark', LEVELS).map((one) => one.message).filter((line) => line.startsWith('--fields-dot-ink-rest measures'));
+  assert.ok(lines.length > 0 && lines.every((line) => /below 3:1 \(WCAG 1\.4\.11\)/.test(line)), lines.join('\n'));
+});

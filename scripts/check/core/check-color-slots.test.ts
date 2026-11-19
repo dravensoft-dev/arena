@@ -2,14 +2,14 @@ import test from 'node:test';
 import { readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
-import { collect, mapProblems, declarationProblems, exceptionProblems, memberDefaultProblems, shapeProblems, nameProblems, acceptsProblems, defaultProblems, fallbackProblems, pairProblems, manifestProblems, ringProblems, readProblems, memberReadProblems, fadeProblems, familyProblems, colourRoleSet, slotManifests, EMPHASIS_FAMILY } from './check-color-slots.ts';
-import { deriveSlots, readColorSlots, readSlotDeclarations } from '../../lib/core/color-slots.ts';
-import type { GroupOption, MemberDecl, SlotDeclarations } from '../../lib/core/color-slots.ts';
+import { collect, mapProblems, declarationProblems, exceptionProblems, memberDefaultProblems, shapeProblems, nameProblems, acceptsProblems, defaultProblems, fallbackProblems, pairProblems, manifestProblems, ringProblems, readProblems, memberReadProblems, fadeProblems, familyProblems, stripeProblems, colourRoleSet, slotManifests, ACCENT_FAMILY, EMPHASIS_FAMILY } from './check-color-slots.ts';
+import { COLOR_SLOTS, deriveSlots, readColorSlots, readSlotDeclarations } from '../../lib/core/color-slots.ts';
+import type { GroupOption, GroupPart, MemberDecl, SlotDeclarations } from '../../lib/core/color-slots.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { colouredParts } from '../../lib/core/color-slot-map.ts';
 import type { SlotCatalogue } from '../../generate/core/arena-cli/slots.ts';
-import { haloValue, memberValue } from '../../generate/core/arena-cli/slots.ts';
+import { channelValue, haloValue, memberValue } from '../../generate/core/arena-cli/slots.ts';
 import { fixtureManifests, slotFixture } from '../../lib/core/color-slots-fixture.ts';
 
 const shipped = () => structuredClone(readColorSlots());
@@ -230,19 +230,19 @@ test('a disabled and a selected disabled icon slot fall to the ink of their own 
 
 test('the Emphasis family writes each actions chain its options carry (R7)', () => {
   const family = readJson(join(repoRoot, EMPHASIS_FAMILY)) as { variants: Record<string, string> };
-  assert.deepEqual(familyProblems(shipped(), family), []);
+  assert.deepEqual(familyProblems(shipped(), family, EMPHASIS_FAMILY), []);
   const stale = structuredClone(family);
   stale.variants['arena-emphasis-primary'] = stale.variants['arena-emphasis-primary']!.replace('var(--actions-primary-root-fill-rest,', 'var(--emphasis-primary-root-fill-rest,');
-  assert.ok(familyProblems(shipped(), stale).some((l) => /arena-emphasis-primary writes --arena-emphasis-fill as var\(--emphasis-primary-root-fill-rest,.*and the chain of actions-primary-root-fill-rest is/.test(l)));
+  assert.ok(familyProblems(shipped(), stale, EMPHASIS_FAMILY).some((l) => /arena-emphasis-primary writes --arena-emphasis-fill as var\(--emphasis-primary-root-fill-rest,.*and the chain of actions-primary-root-fill-rest is/.test(l)));
   const silent = structuredClone(family);
   silent.variants['arena-emphasis-primary'] = silent.variants['arena-emphasis-primary']!.replace(/\[--arena-emphasis-edge:[^\]]*\] /, '');
-  assert.ok(familyProblems(shipped(), silent).some((l) => l.endsWith('arena-emphasis-primary writes no --arena-emphasis-edge, and actions-primary-root-edge-rest is read through it')));
+  assert.ok(familyProblems(shipped(), silent, EMPHASIS_FAMILY).some((l) => l.endsWith('arena-emphasis-primary writes no --arena-emphasis-edge, and actions-primary-root-edge-rest is read through it')));
   const unread = structuredClone(family);
   unread.variants['arena-emphasis-solid'] += ' [--arena-emphasis-edge:var(--actions-solid-root-edge-rest,transparent)]';
-  assert.ok(familyProblems(shipped(), unread).some((l) => l.endsWith('arena-emphasis-solid writes --arena-emphasis-edge, and every member part reads actions-solid-root-edge-rest through a channel of its own')));
+  assert.ok(familyProblems(shipped(), unread, EMPHASIS_FAMILY).some((l) => l.endsWith('arena-emphasis-solid writes --arena-emphasis-edge, and every member part reads actions-solid-root-edge-rest through a channel of its own')));
   const fade = structuredClone(family);
   fade.variants['arena-emphasis-ghost'] = fade.variants['arena-emphasis-ghost']!.replace('var(--actions-ghost-root-fade-disabled,', 'var(--emphasis-ghost-root-fade-disabled,');
-  assert.ok(familyProblems(shipped(), fade).some((l) => /arena-emphasis-ghost writes --arena-emphasis-fade-disabled without var\(--actions-ghost-root-fade-disabled,/.test(l)));
+  assert.ok(familyProblems(shipped(), fade, EMPHASIS_FAMILY).some((l) => /arena-emphasis-ghost writes --arena-emphasis-fade-disabled without var\(--actions-ghost-root-fade-disabled,/.test(l)));
 });
 
 const declared = () => structuredClone(readSlotDeclarations());
@@ -686,7 +686,7 @@ test('an inline member reads its chains and a channelled one reads its channel',
 test('the ring of an error or valid field reads the halo of its edge', () => {
   const c = readColorSlots();
   const ring = (comp: string, part: string, option: string) => {
-    const axis = [c.members[`${comp}.${part}`]!.optionBy].flat().find((one) => Object.values(one!.values).includes(option))!;
+    const axis = [c.members[`${comp}.${part}`]!.optionBy].flat().find((one) => Object.values(one!.values).includes(option)) as { axis: string; values: Record<string, string> };
     const value = Object.entries(axis.values).find(([, o]) => o === option)![0];
     const text = (manifests.get(comp)!.variants as Record<string, Record<string, Record<string, string>>>)[axis.axis]![value]![part]!;
     return text.split(/\s+/).includes(`ring-[color:${haloValue(c, `${comp}.${part}`, option)}]`);
@@ -929,7 +929,7 @@ test('an edge drawn as a rule is read inside the inset shadow', () => {
   assert.deepEqual(memberReadProblems(c, crumbManifest(`border-[color:${crumbValue(c, 'choices-box-edge-rest')}]`)),
     [`ArenaCrumb.box: choices-box-edge-rest is not read as ${rule} in the base class`]);
   assert.match(declarationProblems(crumbDeclared({ edgeAs: 'rule' }, ['fill'], ['rest'])).join('\n'), /ArenaCrumb\.parts\.box\.edgeAs: choices\.box paints no edge/);
-  assert.match(declarationProblems(crumbDeclared({ edgeAs: 'line' as 'rule' }, ['edge'], ['rest'])).join('\n'), /edgeAs: "line" is not "rule"/);
+  assert.match(declarationProblems(crumbDeclared({ edgeAs: 'line' as 'rule' }, ['edge'], ['rest'])).join('\n'), /edgeAs: "line" is neither "rule" nor "stripe"/);
 });
 
 test('an aria-disabled member reads its disabled states under aria-disabled:', () => {
@@ -1049,4 +1049,113 @@ test('the unselected branch of a selectable member is the complement of either b
   assert.deepEqual(memberReadProblems(c, manifest), []);
   assert.match(declarationProblems(crumbDeclared({ selectedBy: { axis: 'state', value: 'current' }, properties: ['fill'] }, ['fill', 'ink'], states)).join('\n'),
     /members\.ArenaCrumb\.parts\.box\.selectedBy: its value "current" is not true or false, and a member with a hover twin reads its rest hover in the complement branch \(R4\)/);
+});
+
+test('a fill drawn as a stroke is read inside stroke-[color:]', () => {
+  const d = crumbDeclared({ fillAs: 'stroke' }, ['fill'], ['rest']);
+  assert.deepEqual(declarationProblems(d), []);
+  const c = deriveSlots(d);
+  assert.equal(c.members['ArenaCrumb.box']?.fillAs, 'stroke');
+  const stroke = `stroke-[color:${crumbValue(c, 'choices-box-fill-rest')}]`;
+  assert.deepEqual(memberReadProblems(c, crumbManifest(stroke)), []);
+  assert.deepEqual(memberReadProblems(c, crumbManifest(`bg-[color:${crumbValue(c, 'choices-box-fill-rest')}]`)),
+    [`ArenaCrumb.box: choices-box-fill-rest is not read as ${stroke} in the base class`]);
+  const stroked = new Map([['ArenaCrumb.box', { focusOnly: false, keywordsOnly: false, properties: ['edge'] }]]);
+  assert.deepEqual(mapProblems(d, stroked, crumbManifest(stroke)), [], 'a stroke the map reads as an edge is the member\'s fill');
+  assert.match(declarationProblems(crumbDeclared({ fillAs: 'stroke' }, ['edge'], ['rest'])).join('\n'), /ArenaCrumb\.parts\.box\.fillAs: choices\.box paints no fill/);
+  assert.match(declarationProblems(crumbDeclared({ fillAs: 'line' as 'stroke' }, ['fill'], ['rest'])).join('\n'), /fillAs: "line" is not "stroke"/);
+});
+
+test('an edge drawn as a stripe is read on border-l only', () => {
+  const d = crumbDeclared({ edgeAs: 'stripe' }, ['edge'], ['rest']);
+  assert.deepEqual(declarationProblems(d), []);
+  const c = deriveSlots(d);
+  const value = crumbValue(c, 'choices-box-edge-rest');
+  const stripe = `border-l-[color:${value}]`;
+  assert.deepEqual(memberReadProblems(c, crumbManifest(`${stripe} border-t-edge-surface`)), []);
+  assert.deepEqual(stripeProblems(c, crumbManifest(`${stripe} border-t-edge-surface`)), []);
+  assert.deepEqual(memberReadProblems(c, crumbManifest(`border-[color:${value}]`)),
+    [`ArenaCrumb.box: choices-box-edge-rest is not read as ${stripe} in the base class`]);
+  assert.deepEqual(stripeProblems(c, crumbManifest(`${stripe} border-t-[color:${value}]`)),
+    [`ArenaCrumb.box: it reads choices-box-edge-rest as border-t-[color:${value}], and a stripe reads its edge on border-l alone (R5)`]);
+  assert.match(declarationProblems(crumbDeclared({ edgeAs: 'line' as 'rule' }, ['edge'], ['rest'])).join('\n'), /edgeAs: "line" is neither "rule" nor "stripe"/);
+});
+
+const seriesManifest = (dot: Record<string, unknown>) => new Map([['ArenaDots', { component: 'ArenaDots', slots: { dot: 'size-1.5 rounded-pill' }, ...dot } as never]]);
+const seriesDeclared = () => slotFixture({ box: { properties: ['fill'], paintedBy: COLOR_SLOTS } }, { ArenaDots: { group: null, parts: { dot: 'series' } } }, 'choices');
+const seriesLines = (dot: Record<string, unknown>) => mapProblems(seriesDeclared(), new Map([['ArenaDots.dot', { focusOnly: false, keywordsOnly: false, properties: ['fill'] }]]), seriesManifest(dot))
+  .filter((line) => line.startsWith('ArenaDots.dot'));
+
+test('a series part is accepted only where every read is a hues channel', () => {
+  const hue = 'bg-[color:var(--arena-hue-ink)]';
+  const hued = { variants: { colorId: { 1: { dot: hue }, 2: { dot: hue } } }, hues: { colorId: { 1: 'identity-1', 2: 'identity-2' } } };
+  assert.deepEqual(seriesLines(hued), []);
+  assert.deepEqual(seriesLines({ ...hued, slots: { dot: 'size-1.5 rounded-pill bg-surface' } }),
+    ['ArenaDots.dot: it is "series" and reads bg-surface in the base class, and a series part paints only var(--arena-hue-…) inside the branches of an axis with a hues entry (R6)']);
+  assert.deepEqual(seriesLines({ variants: hued.variants }).length, 2, 'an axis with no hues entry is no series branch');
+  assert.deepEqual(mapProblems(seriesDeclared(), new Map(), seriesManifest(hued)).filter((line) => line.startsWith('ArenaDots.dot')),
+    ['ArenaDots.dot: it is "series" and paints no colour, and "series" is for a part that paints its series through its hues channel (R6)']);
+});
+
+const axesDeclared = (optionBy: unknown) => slotFixture({
+  dot: { properties: ['fill'], options: { 'a-x': { states: ['rest'], rest: { fill: '{fill-control}' } }, 'b-x': { states: ['rest'], rest: { fill: '{fill-surface}' } } } },
+}, { ArenaLine: { group: 'choices', parts: { dot: { to: 'choices.dot', options: ['a-x', 'b-x'], states: ['rest'], inline: true, optionBy: optionBy as MemberDecl['optionBy'] } } } }, 'choices');
+
+test('an option from two axes is read in their compound', () => {
+  const d = axesDeclared({ axes: ['tone', 'state'], values: { 'a,x': 'a-x', 'b,x': 'b-x' } });
+  assert.deepEqual(declarationProblems(d), []);
+  const c = deriveSlots(d);
+  const read = (option: string) => `bg-[color:${memberValue(c, 'ArenaLine.dot', `choices-${option}-dot-fill-rest`, 'tailwind')}]`;
+  const manifest = (compounds: unknown[], tone: Record<string, unknown> = { a: {}, b: {} }) => new Map([['ArenaLine', {
+    component: 'ArenaLine', slots: { dot: 'size-2' }, variants: { tone, state: { x: {}, y: {} } }, compoundVariants: compounds,
+  } as never]]);
+  const both = manifest([{ tone: 'a', state: 'x', class: { dot: read('a-x') } }, { tone: 'b', state: 'x', class: { dot: read('b-x') } }]);
+  assert.deepEqual(memberReadProblems(c, both), []);
+  assert.deepEqual(manifestProblems(c, both), []);
+  const loose = manifest([{ tone: 'b', state: 'x', class: { dot: read('b-x') } }], { a: { dot: read('a-x') }, b: {} });
+  assert.deepEqual(memberReadProblems(c, loose), [`ArenaLine.dot: choices-a-x-dot-fill-rest is not read as ${read('a-x')} in the tone=a branch and the state=x branch`]);
+  assert.ok(manifestProblems(c, manifest([], { b: {} })).some((line) => line === 'members.ArenaLine.dot: ArenaLine declares no variant tone=a'));
+  assert.match(declarationProblems(axesDeclared({ axes: ['tone', 'state'], values: { a: 'a-x', 'b,x': 'b-x' } })).join('\n'), /optionBy: "a" is not two values joined by a comma, one per axis of tone, state/);
+  assert.match(declarationProblems(axesDeclared({ axes: ['tone', 'tone'], values: { 'a,x': 'a-x', 'b,x': 'b-x' } })).join('\n'), /optionBy: the axis tone is named twice/);
+  assert.match(declarationProblems(axesDeclared([{ axis: 'tone', values: { a: 'a-x' } }, { axes: ['tone', 'state'], values: { 'b,x': 'b-x' } }])).join('\n'), /optionBy: the axis tone is named twice/);
+});
+
+test('an accent option writes its channel in the accent family', () => {
+  const d = slotFixture({
+    track: { properties: ['fill', 'ink'], options: {
+      primary: { states: ['rest'], channel: '--arena-accent-meters-track-{property}', rest: { fill: '{fill-control}', ink: '{ink-body}' } },
+      danger: { states: ['rest'], rest: { fill: '{fill-control}', ink: '{ink-danger}' } },
+    } },
+  }, { ArenaGauge: { group: 'meters', parts: { track: { to: 'meters.track', options: ['primary', 'danger'], states: ['rest'], optionBy: { axis: 'tone', values: { danger: 'danger' } },
+    channels: { fill: '--arena-accent-meters-track-fill', ink: '--arena-accent-meters-track-ink' } } } } }, 'meters');
+  const c = deriveSlots(d);
+  const write = (prop: string) => `[--arena-accent-meters-track-${prop}:${channelValue(c, `meters-primary-track-${prop}-rest`, 'css').replaceAll(' ', '_')}]`;
+  const family = { variants: { 'arena-accent-primary': `${write('fill')} ${write('ink')}`, 'arena-accent-ink': '[--arena-accent-meters-track-ink:currentColor]' } };
+  assert.deepEqual(familyProblems(c, family, ACCENT_FAMILY), []);
+  assert.deepEqual(familyProblems(c, { variants: { ...family.variants, 'arena-accent-primary': write('fill') } }, ACCENT_FAMILY),
+    [`${ACCENT_FAMILY}: arena-accent-primary writes no --arena-accent-meters-track-ink, and meters-primary-track-ink-rest is read through it`]);
+  const accent = readJson(join(repoRoot, ACCENT_FAMILY)) as { variants: Record<string, string> };
+  assert.deepEqual(familyProblems(shipped(), accent, ACCENT_FAMILY), [], 'the shipped accent family is clean');
+});
+
+test('on beside over is refused', () => {
+  const parts = (extra: Partial<GroupPart>) => slotFixture({
+    banner: { properties: ['fill', 'edge'], states: 'base', rest: { fill: '{fill-surface}', edge: '{edge-surface}' } },
+    action: { properties: ['fill', 'ink'], states: 'base', rest: { fill: 'transparent', ink: '{ink-body}' }, ...extra },
+    label: { properties: ['ink'], states: 'base', rest: { ink: '{ink-body}' } },
+  }, {}, 'feedback');
+  assert.deepEqual(declarationProblems(parts({ over: 'banner' })), []);
+  assert.deepEqual(declarationProblems(parts({ mark: true })), []);
+  assert.deepEqual(declarationProblems(parts({ on: 'banner', over: 'banner' })), ['groups.feedback.parts.action: it declares on and over, and a part sits on a sibling or over it, never both']);
+  assert.deepEqual(declarationProblems(parts({ over: 'label' })), ['groups.feedback.parts.action.over: "label" is no part of feedback that paints a fill, besides this one']);
+  assert.deepEqual(declarationProblems(parts({ over: 'banner', mark: true })), ['groups.feedback.parts.action.mark: it stands beside over, and a mark pairs at 3:1 where over keeps each floor']);
+  assert.deepEqual(declarationProblems(parts({ on: 'banner', mark: true })), ['groups.feedback.parts.action.mark: it stands beside on, and a part on a sibling pairs at 3:1 already (D69)']);
+  assert.deepEqual(declarationProblems(parts({ mark: 'yes' as unknown as true })), ['groups.feedback.parts.action.mark: "yes" is not true']);
+  for (const extra of [{ over: 'banner' }, { mark: true as const }]) {
+    const d = parts(extra);
+    const c = deriveSlots(d);
+    assert.deepEqual(pairProblems(c, d), [], JSON.stringify(extra));
+    delete c.slots['feedback-action-ink-rest']!.pair;
+    assert.deepEqual(pairProblems(c, d), [`feedback-action-ink-rest: it pairs as nothing and the declarations give ${extra.over ? 'own' : 'mark'}`], JSON.stringify(extra));
+  }
 });
