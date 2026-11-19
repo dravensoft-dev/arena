@@ -72,11 +72,19 @@ test('a rest edge is not a slot pair, a selected edge is', () => {
 });
 
 test('an inset ring is measured over each state of its fill', () => {
-  const fixture: SlotCatalogue = { ...CATALOGUE.slots, rings: { ...CATALOGUE.slots.rings, 'ArenaButton.root': 'actions-primary-root-fill-rest' } };
+  const fixture: SlotCatalogue = { ...CATALOGUE.slots, rings: { 'ArenaButton.root': 'actions-primary-root-fill-rest' } };
   const rings = slotPairs(fixture).filter((pair) => pair.slot === 'edge-focus');
   assert.deepEqual(rings.map((pair) => pair.over).sort(), ['actions-primary-root-fill-hover', 'actions-primary-root-fill-pressed', 'actions-primary-root-fill-rest']);
+  const shared = slotPairs({ ...fixture, rings: { 'ArenaSideNav.item': 'navigation-item-fill-selected', 'ArenaTreeView.item': 'navigation-item-fill-selected' } });
+  const over = shared.filter((pair) => pair.slot === 'edge-focus').map((pair) => pair.over);
+  assert.deepEqual(over, [...new Set(over)], 'two parts whose rings sit on one fill measure it once');
   assert.ok(rings.every((pair) => pair.min === 3));
-  assert.deepEqual(slotPairs(CATALOGUE.slots).filter((pair) => pair.slot === 'edge-focus'), [], 'no ring ships naming a fill');
+  const shipped = slotPairs(CATALOGUE.slots).filter((pair) => pair.slot === 'edge-focus').map((pair) => pair.over).sort();
+  assert.deepEqual(shipped, [
+    'actions-secondary-root-fill-hover', 'actions-secondary-root-fill-pressed', 'actions-secondary-root-fill-rest',
+    'navigation-item-fill-hover', 'navigation-item-fill-pressed', 'navigation-item-fill-rest',
+    'navigation-item-fill-selected', 'navigation-item-fill-selected-hover', 'navigation-item-fill-selected-pressed',
+  ], 'the inset rings of the skip link and the navigation rows are measured over every state of the fill they sit on');
   const roles = rolesFor(null, CATALOGUE, 'dark');
   const colors = coloursOf('dark');
   const ringed = new Map(roles);
@@ -358,6 +366,7 @@ test('the selected edge clears 3:1 over the selected wash, hovered and pressed t
   for (const state of states) assert.ok(figures[state]!.every((one) => one >= 3), `${state}: ${figures[state]!.join(', ')}`);
   const near = (got: number[], want: number[]) => got.every((one, i) => Math.abs(one - want[i]!) <= 0.02);
   assert.ok(near(figures.selected!, [4.38, 4.05, 5.04, 4.64]), `F4: ${figures.selected!.join(', ')}`);
+  assert.ok(near(figures['selected-hover']!, [3.87, 3.57, 4.78, 4.38]), `D85: ${figures['selected-hover']!.join(', ')}`);
   assert.ok(near(figures['selected-pressed']!, [3.37, 3.11, 4.48, 4.13]), `D85: ${figures['selected-pressed']!.join(', ')}`);
 });
 

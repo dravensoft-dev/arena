@@ -19,7 +19,7 @@ export const slotFixture = (
     toggle: ['rest', 'hover', 'pressed', 'disabled', 'selected', 'selected-hover', 'selected-pressed', 'selected-disabled'],
     on: ['selected'],
     plain: ['rest', 'hover'],
-    light: ['rest', 'hover', 'selected'],
+    light: ['rest', 'hover', 'selected', 'selected-hover'],
   },
   selected: { fill: '{fill-selected}', ink: '{ink-selected}', edge: '{edge-selected}' },
   groups: { [group]: { parts } },
@@ -37,7 +37,10 @@ export const fixtureManifests = (c: SlotCatalogue): Map<string, ComponentManifes
   };
   const box = (state: string) => read('ArenaBox.box', 'fill', 'box', state);
   return new Map<string, ComponentManifest>([
-    ['ArenaBox', { component: 'ArenaBox', slots: { box: `${box('rest')} ${box('hover')}` }, variants: { checked: { true: { box: box('selected') } } } } as unknown as ComponentManifest],
+    ['ArenaBox', {
+      component: 'ArenaBox', slots: { box: box('rest') },
+      variants: { checked: { true: { box: `${box('selected')} ${box('selected-hover')}` }, false: { box: box('hover') } } },
+    } as unknown as ComponentManifest],
     ['ArenaField', {
       component: 'ArenaField',
       slots: { field: `${read('ArenaField.field', 'edge', 'field', 'rest', 'plain')} ${read('ArenaField.field', 'edge', 'field', 'hover', 'plain')}` },

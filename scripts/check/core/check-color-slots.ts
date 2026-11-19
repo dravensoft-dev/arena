@@ -238,13 +238,15 @@ export function manifestProblems(c: SlotCatalogue, manifests: Manifests): string
   return out;
 }
 
+const FOCUSES = /(?:^|\s)focus(?:-visible|-within)?:(?:outline(?!-none)|ring-|shadow-\[inset)/;
+
 export function ringProblems(c: SlotCatalogue, manifests: Manifests): string[] {
   const out: string[] = [];
   const focusable = new Set<string>();
   for (const key of Object.keys(c.members ?? {})) {
     const [comp, part] = key.split('.') as [string, string];
     const text = manifests.get(comp)?.slots?.[part as never] as unknown;
-    if (typeof text === 'string' && text.includes('focus-visible:outline')) focusable.add(key);
+    if (typeof text === 'string' && FOCUSES.test(text)) focusable.add(key);
   }
   const measured = new Set(slotPairs(c).filter((pair) => pair.slot === 'edge-focus').map((pair) => pair.over));
   for (const key of focusable) {
@@ -275,6 +277,8 @@ const modifierOf = (m: MemberPart, s: ColorSlot) => {
   if (DISABLED.has(s.state) && m.disabledModifier !== undefined) return m.disabledModifier;
   return (m.disabledBy && DISABLED.has(s.state)) || (m.hoverBy && s.state === 'hover') ? '' : MODIFIER[s.state] ?? '';
 };
+const BOOLEAN = new Set(['true', 'false']);
+const TWINS = [['hover', 'hover:', 'hovered'], ['pressed', 'active:', 'pressed']] as const;
 const whereOf = (branch: [string, string][]) => (branch.length ? branch.map(([axis, value]) => `the ${axis}=${value} branch`).join(' and ') : 'the base class');
 
 const inlineMember = (c: SlotCatalogue, m: MemberPart) => m.inline === true || m.channels === undefined && memberSlots(c, m).every(([, s]) => s.channel === undefined);
@@ -320,7 +324,7 @@ export function memberReadProblems(c: SlotCatalogue, manifests: Manifests): stri
     if (m.inkFrom !== undefined) {
       const [group, from] = m.inkFrom.split('.');
       for (const [name, s] of entries(c).filter(([, one]) => one.group === group && one.part === from && one.property === 'ink')) {
-        const want = `${MODIFIER[s.state] ?? ''}text-[color:${memberValue(c, key, name, 'tailwind')}]`;
+        const want = `${modifierOf(m, s)}text-[color:${memberValue(c, key, name, 'tailwind')}]`;
         if (!heldAt(manifest, part, [], want)) out.push(`${key}: its ink is not read from ${m.inkFrom} as ${want} in the base class`);
       }
     }
@@ -328,21 +332,27 @@ export function memberReadProblems(c: SlotCatalogue, manifests: Manifests): stri
       const branch = branchOf(m, s);
       const modifier = modifierOf(m, s);
       const want = `${utilityOf(m, s.property)}${memberValue(c, key, name, 'tailwind')}]`;
-      const holds = (at: [string, string][]) => branchTexts(manifest, part, at).some((text) => text.split(/\s+/).some((token) => {
+      const holds = (at: [string, string][], under = modifier) => branchTexts(manifest, part, at).some((text) => text.split(/\s+/).some((token) => {
         const prefix = VARIANT.exec(token)?.[0] ?? '';
-        return prefix === modifier && token.slice(prefix.length) === want;
+        return prefix === under && token.slice(prefix.length) === want;
       }));
       const twin = m.selectedBy !== undefined && (s.state === 'hover' || s.state === 'pressed') && modifier !== ''
         ? memberSlots(c, m).find(([, one]) => one.option === s.option && one.property === s.property && one.state === `selected-${s.state}`)?.[0] : undefined;
       if (twin !== undefined) {
         const unselected: [string, string][] = [...branch, [m.selectedBy!.axis, m.selectedBy!.value === 'true' ? 'false' : 'true']];
-        if (m.selectedBy!.value === 'true' && holds(unselected)) continue;
+        if (BOOLEAN.has(m.selectedBy!.value) && holds(unselected)) continue;
         if (holds(branch)) {
           out.push(`${key}: ${name} is read under ${modifier} in ${whereOf(branch)} and ${twin} under ${modifier} in ${whereOf([...branch, [m.selectedBy!.axis, m.selectedBy!.value]])}, and a selected part matches both with no rule for their order (R4): read ${name} in ${whereOf(unselected)}`);
           continue;
         }
       }
-      if (!holds(branch)) out.push(`${key}: ${name} is not read as ${modifier}${want} in ${whereOf(branch)}`);
+      if (!holds(branch)) { out.push(`${key}: ${name} is not read as ${modifier}${want} in ${whereOf(branch)}`); continue; }
+      if (m.disabledBy === undefined || !DISABLED.has(s.state)) continue;
+      for (const [state, under, verb] of TWINS) {
+        if (state === 'hover' && m.hoverBy !== undefined) continue;
+        if (!m.states.includes(state) && !(s.state === 'selected-disabled' && m.states.includes(`selected-${state}`))) continue;
+        if (!holds(branch, under)) out.push(`${key}: ${name} is read in ${whereOf(branch)} and not as ${under}${want} there, so a ${verb} disabled part paints a ${state} answer (D8)`);
+      }
     }
     const held = new Set<string>();
     for (const [still, moving] of hoverless(c, m)) {
@@ -350,7 +360,7 @@ export function memberReadProblems(c: SlotCatalogue, manifests: Manifests): stri
         const paints = memberSlots(c, m).find(([, one]) => one.option === still && one.state === 'rest' && one.property === s.property);
         const [name, rest] = paints ?? [expectedName({ ...s, state: 'rest' }), { ...s, state: 'rest' } as ColorSlot];
         const branch = paints ? branchOf(m, rest) : [...branchOf(m, { ...rest, option: still }), ...branchOf(m, rest).filter(([axis]) => !(m.onlyBy && axis === m.onlyBy.axis))];
-        const want = `hover:${UTILITY[s.property]}${memberValue(c, key, name, 'tailwind')}]`;
+        const want = `hover:${utilityOf(m, s.property)}${memberValue(c, key, name, 'tailwind')}]`;
         const where = branch.map(([axis, value]) => `the ${axis}=${value} branch`).join(' and ');
         if (held.has(`${name} ${where}`)) continue;
         held.add(`${name} ${where}`);
@@ -471,6 +481,7 @@ export function declarationProblems(d: SlotDeclarations): string[] {
       for (const st of spec) if (!(d.states ?? []).includes(st)) out.push(`${where}: state "${st}" is not declared in states`);
     } else out.push(`${where}: its states name a state set or list states, and this is neither`);
   };
+  const stateList = (spec: unknown): string[] => (typeof spec === 'string' ? d.stateSets?.[spec] ?? [] : Array.isArray(spec) ? spec as string[] : []);
   const decision = (where: string, value: unknown, what: string) => {
     if (value === undefined) out.push(`${where}: it declares ${what} and carries no decision, and needs D<n> or R<n>`);
     else if (!DECISION.test(String(value))) out.push(`${where}: its decision "${String(value)}" is neither D<n> nor R<n>`);
@@ -580,8 +591,15 @@ export function declarationProblems(d: SlotDeclarations): string[] {
       branch('onlyBy', ['optionBy', 'selectedBy', 'disabledBy', 'hoverBy']);
       branch('hoverIn', ['optionBy', 'selectedBy', 'disabledBy']);
       for (const other of ['hoverBy', 'onlyBy'] as const) if (to.hoverIn !== undefined && to[other] !== undefined) out.push(`${where}.hoverIn: it stands beside ${other}, and a member reads its hover in one branch or under one axis`);
+      const own = stateList(to.states);
+      if (to.disabledModifier !== undefined && !own.some((st) => DISABLED.has(st))) out.push(`${where}.disabledModifier: the member reads no disabled or selected-disabled state`);
+      if (to.hoverIn !== undefined && !own.some((st) => st === 'hover' || st === 'pressed')) out.push(`${where}.hoverIn: the member reads no hover or pressed state`);
+      if (to.selectedBy !== undefined) {
+        for (const st of ['hover', 'pressed']) if (own.includes(st) && !own.includes(`selected-${st}`)) out.push(`${where}.selectedBy: the member reads ${st} and no selected-${st}, so a ${st === 'hover' ? 'hovered' : 'pressed'} selected part paints the rest ${st} (R4)`);
+        const twinned = ['hover', 'pressed'].some((st) => own.includes(st) && own.includes(`selected-${st}`));
+        if (twinned && typeof to.selectedBy.value === 'string' && !BOOLEAN.has(to.selectedBy.value)) out.push(`${where}.selectedBy: its value "${to.selectedBy.value}" is not true or false, and a member with a hover twin reads its rest hover in the complement branch (R4)`);
+      }
       const [homeGroup, homePart] = String(to.to).split('.');
-      const stateList = (spec: unknown): string[] => (typeof spec === 'string' ? d.stateSets?.[spec] ?? [] : Array.isArray(spec) ? spec as string[] : []);
       const homeDecl = d.groups?.[homeGroup as string]?.parts?.[homePart as string];
       if (homeDecl !== undefined) {
         const homeOptions = homeDecl.options !== undefined && !Array.isArray(homeDecl.options) ? homeDecl.options : {};

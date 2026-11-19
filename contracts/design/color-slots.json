@@ -190,12 +190,17 @@
     "ArenaSheet.trigger": "ground",
     "ArenaBreadcrumbs.crumb": "ground",
     "ArenaLink.root": "ground",
-    "ArenaBottomNav.item": "ground",
+    "ArenaBottomNav.item": "navigation-item-fill-selected",
     "ArenaPagination.page": "ground",
-    "ArenaSideNav.item": "ground",
+    "ArenaSideNav.item": "navigation-item-fill-selected",
     "ArenaSideNav.trigger": "ground",
     "ArenaStepper.trigger": "ground",
-    "ArenaTabs.tab": "ground"
+    "ArenaTabs.tab": "ground",
+    "ArenaTreeView.item": "navigation-item-fill-selected",
+    "ArenaTable.link": "ground",
+    "ArenaSkipLink.root": "actions-secondary-root-fill-rest",
+    "ArenaConfirmDialog.input": "ground",
+    "ArenaSegmentedControl.track": "ground"
   },
   "groups": {
     "actions": {
@@ -2559,7 +2564,11 @@
           "options": [
             "secondary"
           ],
-          "states": "base",
+          "states": [
+            "rest",
+            "hover",
+            "pressed"
+          ],
           "inline": true
         }
       }

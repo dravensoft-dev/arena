@@ -147,9 +147,10 @@ export function slotPairs(catalogue: MeasuredSlots): SlotPair[] {
     else if (slot.property === 'icon') out.push({ slot: name, over: slot.on, min: MARK_MIN });
     else if (slot.property === 'edge' && slot.state.startsWith('selected')) out.push({ slot: name, over: slot.on, min: MARK_MIN });
   }
-  for (const [key, on] of Object.entries(catalogue.rings)) {
+  const ringed = new Set(Object.entries(catalogue.rings).filter(([key]) => key !== '').map(([, on]) => on));
+  for (const on of ringed) {
     const fill = catalogue.slots[on];
-    if (key === '' || !fill || fill.property !== 'fill') continue;
+    if (!fill || fill.property !== 'fill') continue;
     for (const [name, slot] of Object.entries(catalogue.slots)) {
       if (slot.property === 'fill' && sameWhole(slot, fill) && !OFF.has(slot.state)) out.push({ slot: 'edge-focus', over: name, min: MARK_MIN });
     }

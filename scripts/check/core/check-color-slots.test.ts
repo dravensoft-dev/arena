@@ -525,7 +525,7 @@ test('a member default equal to the group default is refused as redundant', () =
 });
 
 const boxDeclared = (): SlotDeclarations => slotFixture({
-  box: { properties: ['fill'], states: 'light', rest: { fill: '{fill-control}' } },
+  box: { properties: ['fill', 'ink'], states: 'light', rest: { fill: '{fill-control}', ink: '{ink-body}' } },
   field: {
     properties: ['edge'],
     states: 'plain',
@@ -534,7 +534,7 @@ const boxDeclared = (): SlotDeclarations => slotFixture({
   fill: { properties: ['fill'], states: 'on', rest: { fill: '{fill-control}' } },
   calm: { properties: ['fill'], states: 'plain', options: { only: { rest: { fill: '{fill-control}' } } } },
 }, {
-  ArenaBox: { group: 'choices', parts: { box: { to: 'choices.box', options: [], states: 'light', selectedBy: { axis: 'checked', value: 'true' } } } },
+  ArenaBox: { group: 'choices', parts: { box: { to: 'choices.box', options: [], states: 'light', selectedBy: { axis: 'checked', value: 'true' }, properties: ['fill'] } } },
   ArenaField: {
     group: 'choices',
     parts: { field: { to: 'choices.field', options: ['plain', 'error'], states: 'plain', optionBy: { axis: 'state', values: { error: 'error' } } } },
@@ -564,8 +564,8 @@ test('a member read that differs from its chain is refused', () => {
   const m = boxManifest(c);
   assert.deepEqual(memberReadProblems(c, m), []);
   const swapped = boxManifest(c);
-  const box = swapped.get('ArenaBox') as unknown as { slots: { box: string } };
-  box.slots.box = box.slots.box.replace('hover:bg-[color:', 'hover:text-[color:');
+  const box = swapped.get('ArenaBox') as unknown as { variants: { checked: { false: { box: string } } } };
+  box.variants.checked.false.box = box.variants.checked.false.box.replace('hover:bg-[color:', 'hover:text-[color:');
   assert.deepEqual(memberReadProblems(c, swapped), ['ArenaBox.box: choices-box-fill-hover is not read as hover:bg-[color:' + memberValue(c, 'ArenaBox.box', 'choices-box-fill-hover', 'tailwind') + '] in the base class']);
   const wrongBranch = boxManifest(c);
   (wrongBranch.get('ArenaField') as { variants: Record<string, Record<string, Record<string, string>>> }).variants.state!.error!.field = '';
@@ -884,9 +884,9 @@ test('ArenaTag.close is no native control and reads its disabled states in its d
   const close = (manifests.get('ArenaTag') as any).slots.close as string;
   assert.ok(!/(^|\s)disabled:/.test(close), 'the close carries aria-disabled, so a disabled: read never matches');
   const branch = (manifests.get('ArenaTag') as any).variants.disabled.true.close as string;
-  for (const token of branch.split(/\s+/).filter((t) => /^(bg|text)-\[color:|^\[--arena-icon-ink:/.test(t))) {
-    for (const modifier of ['hover:', 'active:']) assert.ok(branch.split(/\s+/).includes(`${modifier}${token}`), `${modifier}${token}: a hovered or pressed disabled close keeps its disabled answer`);
-  }
+  const broken = structuredClone(manifests) as Map<string, any>;
+  broken.get('ArenaTag').variants.disabled.true.close = branch.split(/\s+/).filter((t) => !t.startsWith('hover:')).join(' ');
+  assert.ok(memberReadProblems(c, broken).some((l) => /^ArenaTag\.close: actions-dismiss-fill-disabled is read in the disabled=true branch and not as hover:/.test(l)), 'the general gate row holds the twins');
 });
 
 test('Switch.icon paints the knob ink alone, inside the knob that paints its fill and edge', () => {
@@ -943,7 +943,7 @@ test('an aria-disabled member reads its disabled states under aria-disabled:', (
     [`ArenaCrumb.box: choices-box-fill-disabled is not read as aria-disabled:${value} in the base class`]);
   const marker = 'opacity-[var(--choices-box-fade-disabled,var(--fade-disabled))]';
   assert.deepEqual(fadeProblems(c, crumbManifest(`${rest} aria-disabled:${value} aria-disabled:${marker}`)), []);
-  assert.equal(fadeProblems(c, crumbManifest(`${rest} aria-disabled:${value} disabled:${marker}`)).length, 1, 'a marker under disabled: no longer carries the fade');
+  assert.equal(fadeProblems(c, crumbManifest(`${rest} aria-disabled:${value} disabled:${marker}`)).length, 1, 'a marker under disabled: carries no fade');
   assert.match(declarationProblems(crumbDeclared({ disabledModifier: 'disabled:' as 'aria-disabled:' }, ['fill'], ['rest', 'disabled'])).join('\n'), /disabledModifier: "disabled:" is not "aria-disabled:"/);
   assert.match(declarationProblems(crumbDeclared({ disabledModifier: 'aria-disabled:', disabledBy: { axis: 'disabled', value: 'true' } }, ['fill'], ['rest', 'disabled'])).join('\n'), /disabledModifier: it stands beside disabledBy/);
 });
@@ -974,4 +974,79 @@ test('a member state the group does not derive is refused', () => {
   const d = crumbDeclared({ states: ['rest', 'selected-disabled'] }, ['fill'], ['rest', 'hover']);
   assert.match(declarationProblems(d).join('\n'), /members\.ArenaCrumb\.parts\.box\.states: "selected-disabled" is a state none of choices\.box derives/);
   assert.deepEqual(declarationProblems(crumbDeclared({ states: ['rest'] }, ['fill'], ['rest', 'hover'])), [], 'a subset of the derived states is allowed');
+});
+
+test('a disabledBy member that hovers or presses repeats its disabled reads under hover: and active: (I1)', () => {
+  const toggle = ['rest', 'hover', 'pressed', 'disabled', 'selected', 'selected-hover', 'selected-pressed', 'selected-disabled'];
+  const d = crumbDeclared({ selectedBy: { axis: 'selected', value: 'true' }, disabledBy: { axis: 'disabled', value: 'true' }, properties: ['fill'] }, ['fill', 'ink'], toggle);
+  assert.deepEqual(declarationProblems(d), []);
+  const c = deriveSlots(d);
+  const read = (modifier: string, state: string) => `${modifier}bg-[color:${crumbValue(c, `choices-box-fill-${state}`)}]`;
+  const twins = (state: string) => `${read('', state)} ${read('hover:', state)} ${read('active:', state)}`;
+  const manifest = (disabled: string, both: string) => new Map([['ArenaCrumb', {
+    component: 'ArenaCrumb', slots: { box: read('', 'rest') },
+    variants: {
+      selected: { true: { box: `${read('', 'selected')} ${read('hover:', 'selected-hover')} ${read('active:', 'selected-pressed')}` }, false: { box: `${read('hover:', 'hover')} ${read('active:', 'pressed')}` } },
+      disabled: { true: { box: disabled }, false: {} },
+    },
+    compoundVariants: [{ selected: true, disabled: true, class: { box: both } }],
+  } as never]]);
+  assert.deepEqual(memberReadProblems(c, manifest(twins('disabled'), twins('selected-disabled'))), []);
+  assert.deepEqual(memberReadProblems(c, manifest(read('', 'disabled'), read('', 'selected-disabled'))), [
+    `ArenaCrumb.box: choices-box-fill-disabled is read in the disabled=true branch and not as ${read('hover:', 'disabled')} there, so a hovered disabled part paints a hover answer (D8)`,
+    `ArenaCrumb.box: choices-box-fill-disabled is read in the disabled=true branch and not as ${read('active:', 'disabled')} there, so a pressed disabled part paints a pressed answer (D8)`,
+    `ArenaCrumb.box: choices-box-fill-selected-disabled is read in the selected=true branch and the disabled=true branch and not as ${read('hover:', 'selected-disabled')} there, so a hovered disabled part paints a hover answer (D8)`,
+    `ArenaCrumb.box: choices-box-fill-selected-disabled is read in the selected=true branch and the disabled=true branch and not as ${read('active:', 'selected-disabled')} there, so a pressed disabled part paints a pressed answer (D8)`,
+  ]);
+  const still = crumbDeclared({ disabledBy: { axis: 'disabled', value: 'true' } }, ['fill'], ['rest', 'disabled']);
+  const calm = deriveSlots(still);
+  const calmRead = (state: string) => `bg-[color:${crumbValue(calm, `choices-box-fill-${state}`)}]`;
+  assert.deepEqual(memberReadProblems(calm, crumbManifest(calmRead('rest'), { disabled: { true: { box: calmRead('disabled') }, false: {} } })), [], 'a member that never hovers needs no twin');
+});
+
+test('a ring is counted on a part that focuses by focus: or focus-within: too (m2)', () => {
+  const c = readColorSlots();
+  const lines = ringProblems(edit((x) => { delete x.rings['ArenaTreeView.item']; }), manifests);
+  assert.deepEqual(lines, ['ArenaTreeView.item is focusable and a member part of a group, and rings does not say what its focus ring sits on']);
+  for (const key of ['ArenaSideNav.item', 'ArenaBottomNav.item', 'ArenaTreeView.item']) assert.equal(c.rings[key], 'navigation-item-fill-selected', key);
+  for (const key of ['ArenaPagination.page', 'ArenaTabs.tab']) assert.equal(c.rings[key], 'ground', key);
+  assert.ok(Object.hasOwn(c.rings, 'ArenaTable.link'));
+});
+
+test('the hoverless and inkFrom reads follow the member\'s utility and modifier (m3)', () => {
+  const d = crumbDeclared({ disabledModifier: 'aria-disabled:', inkFrom: 'choices.box' }, ['fill', 'ink'], ['rest', 'disabled']);
+  (d.members!.ArenaCrumb!.parts.box as MemberDecl).properties = ['fill'];
+  const c = deriveSlots(d);
+  const v = (name: string) => crumbValue(c, name);
+  const base = [`bg-[color:${v('choices-box-fill-rest')}]`, `aria-disabled:bg-[color:${v('choices-box-fill-disabled')}]`,
+    `text-[color:${v('choices-box-ink-rest')}]`, `aria-disabled:text-[color:${v('choices-box-ink-disabled')}]`].join(' ');
+  assert.deepEqual(memberReadProblems(c, crumbManifest(base)), []);
+  assert.deepEqual(memberReadProblems(c, crumbManifest(base.replace('aria-disabled:text-', 'disabled:text-'))),
+    [`ArenaCrumb.box: its ink is not read from choices.box as aria-disabled:text-[color:${v('choices-box-ink-disabled')}] in the base class`]);
+});
+
+test('disabledModifier with no disabled state and hoverIn with no hover or pressed state are refused (m4)', () => {
+  assert.match(declarationProblems(crumbDeclared({ disabledModifier: 'aria-disabled:' }, ['fill'], ['rest', 'hover'])).join('\n'),
+    /members\.ArenaCrumb\.parts\.box\.disabledModifier: the member reads no disabled or selected-disabled state/);
+  assert.match(declarationProblems(crumbDeclared({ hoverIn: { axis: 'linked', value: 'true' } }, ['fill'], ['rest', 'disabled'])).join('\n'),
+    /members\.ArenaCrumb\.parts\.box\.hoverIn: the member reads no hover or pressed state/);
+});
+
+test('a selectable member that hovers or presses reads its selected twin of each (m5)', () => {
+  assert.match(declarationProblems(crumbDeclared({ selectedBy: { axis: 'current', value: 'true' } }, ['fill'], ['rest', 'hover', 'pressed', 'selected', 'selected-hover'])).join('\n'),
+    /members\.ArenaCrumb\.parts\.box\.selectedBy: the member reads pressed and no selected-pressed, so a pressed selected part paints the rest pressed \(R4\)/);
+  assert.deepEqual(declarationProblems(crumbDeclared({ selectedBy: { axis: 'current', value: 'true' } }, ['fill'], ['rest', 'hover', 'selected', 'selected-hover'])), []);
+});
+
+test('the unselected branch of a selectable member is the complement of either boolean, and a hover twin asks a boolean axis (M1)', () => {
+  const states = ['rest', 'hover', 'selected', 'selected-hover'];
+  const d = crumbDeclared({ selectedBy: { axis: 'closed', value: 'false' }, properties: ['fill'] }, ['fill', 'ink'], states);
+  assert.deepEqual(declarationProblems(d), []);
+  const c = deriveSlots(d);
+  const v = (name: string) => crumbValue(c, name);
+  const selected = `bg-[color:${v('choices-box-fill-selected')}] hover:bg-[color:${v('choices-box-fill-selected-hover')}]`;
+  const manifest = crumbManifest(`bg-[color:${v('choices-box-fill-rest')}]`, { closed: { false: { box: selected }, true: { box: `hover:bg-[color:${v('choices-box-fill-hover')}]` } } });
+  assert.deepEqual(memberReadProblems(c, manifest), []);
+  assert.match(declarationProblems(crumbDeclared({ selectedBy: { axis: 'state', value: 'current' }, properties: ['fill'] }, ['fill', 'ink'], states)).join('\n'),
+    /members\.ArenaCrumb\.parts\.box\.selectedBy: its value "current" is not true or false, and a member with a hover twin reads its rest hover in the complement branch \(R4\)/);
 });

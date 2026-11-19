@@ -1638,7 +1638,9 @@ test('arena build reports a state pair that fails', () => {
   };
   const messages = (paletteReports(stateConfig(), COLOUR_ROLES as any, [answered(roles)])[0]?.messages ?? [])
     .filter((m) => m.kind === 'contrast' && m.message.startsWith('--edge-focus')).map((m) => m.message);
-  assert.equal(messages.length, 3, 'one per surface the focus ring can stand on');
+  assert.equal(messages.filter((m) => m.includes(' against --fill-')).length, 3, 'one per surface the focus ring can stand on');
+  assert.deepEqual(messages.filter((m) => !m.includes(' against --fill-')).map((m) => /over (--[a-z-]+)/.exec(m)?.[1]), ['--navigation-item-fill-rest', '--navigation-item-fill-rest'],
+    'and one per ground under the transparent navigation row its ring sits on');
   assert.match(messages[0] ?? '', /^--edge-focus measures 2\.\d\d:1 against --fill-page in the light theme, below 3:1 \(WCAG 1\.4\.11\)/);
 });
 
@@ -1655,7 +1657,7 @@ test('arena build reports a pale light focus ring a root plugin left unanswered,
   assert.ok(defaulted.includes('edge-focus'), 'the plugin never answered edge-focus');
   const messages = (paletteReports(stateConfig(), COLOUR_ROLES as any, plugins)[0]?.messages ?? [])
     .filter((m) => m.kind === 'contrast' && m.message.startsWith('--edge-focus')).map((m) => m.message);
-  assert.equal(messages.length, 3, messages.join('\n'));
+  assert.equal(messages.filter((m) => m.includes(' against --fill-')).length, 3, messages.join('\n'));
   for (const surface of ['--fill-page', '--fill-surface', '--fill-field']) {
     assert.ok(messages.some((m) => m.includes(`against ${surface} in the light theme, below 3:1 (WCAG 1.4.11)`)), surface);
   }
