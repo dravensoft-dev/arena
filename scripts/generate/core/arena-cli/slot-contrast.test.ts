@@ -11,6 +11,7 @@ import { repoRoot } from '../../../lib/arena/repo-root.ts';
 import type { SlotCatalogue } from './slots.ts';
 import { deriveSlots } from '../../../lib/core/color-slots.ts';
 import type { GroupPart } from '../../../lib/core/color-slots.ts';
+import { slotFixture } from '../../../lib/core/color-slots-fixture.ts';
 
 const CATALOGUE = tokenCatalogue();
 const SLOTS = CATALOGUE.slots.slots;
@@ -199,16 +200,7 @@ test('the default plugin paints its actions with the kernel answers, and their h
   assert.deepEqual(figures('light'), ['5.17', '6.41', '4.91', '4.53']);
 });
 
-const declared = (parts: Record<string, GroupPart>) => deriveSlots({
-  accepts: { fill: ['fill-*', 'transparent'], ink: ['ink-*'], edge: ['edge-*', 'transparent'], icon: ['ink-*'] },
-  refused: [],
-  states: ['rest', 'hover', 'pressed', 'disabled', 'selected', 'selected-hover', 'selected-pressed', 'selected-disabled'],
-  stateSets: { base: ['rest', 'hover', 'pressed', 'disabled'], toggle: ['rest', 'hover', 'pressed', 'disabled', 'selected', 'selected-hover', 'selected-pressed', 'selected-disabled'] },
-  selected: { fill: '{fill-surface}', ink: '{ink-body}', edge: '{edge-control}' },
-  groups: { fields: { parts } },
-  exceptions: {},
-  rings: {},
-});
+const declared = (parts: Record<string, GroupPart>) => deriveSlots(slotFixture(parts));
 
 test('an ink with no fill is measured over every ground', () => {
   const c = declared({ required: { properties: ['ink', 'icon'], states: 'base', rest: { ink: '{ink-body}', icon: 'ink' } } });
@@ -238,7 +230,9 @@ test('a mark is measured over its box', () => {
   const fill = (slot: string) => pairs.find((pair) => pair.slot === slot);
   assert.deepEqual(fill('fields-mark-fill-hover'), { slot: 'fields-mark-fill-hover', over: 'fields-box-fill-hover', min: 3 });
   assert.deepEqual(fill('fields-mark-fill-selected'), { slot: 'fields-mark-fill-selected', over: 'fields-mark-fill-rest', min: 3 });
-  assert.deepEqual(fill('fields-mark-fill-selected-hover'), { slot: 'fields-mark-fill-selected-hover', over: 'fields-box-fill-selected-hover', min: 3 });
+  assert.deepEqual(fill('fields-mark-fill-selected-hover'), { slot: 'fields-mark-fill-selected-hover', over: 'fields-mark-fill-rest', min: 3 });
+  assert.deepEqual(fill('fields-mark-fill-selected-pressed'), { slot: 'fields-mark-fill-selected-pressed', over: 'fields-mark-fill-rest', min: 3 });
+  assert.equal(fill('fields-mark-fill-selected-disabled'), undefined);
   assert.equal(fill('fields-mark-fill-disabled'), undefined);
   assert.equal(fill('fields-box-fill-rest'), undefined, 'a fill with no on is no pair');
   assert.deepEqual(fill('fields-mark-ink-pressed'), { slot: 'fields-mark-ink-pressed', over: 'fields-box-fill-pressed', min: 4.5 });

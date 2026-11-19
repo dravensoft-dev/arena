@@ -161,26 +161,17 @@ export function fallbackProblems(c: SlotCatalogue): string[] {
   return out;
 }
 
-const sibling = (c: SlotCatalogue, s: ColorSlot, on: string | undefined) => {
-  const target = on === undefined ? undefined : c.slots[on];
-  return target !== undefined && target.property === 'fill' && target.group === s.group && target.state === s.state && target.part !== s.part;
-};
-
-export function pairProblems(c: SlotCatalogue): string[] {
+export function pairProblems(c: SlotCatalogue, d: SlotDeclarations = readSlotDeclarations()): string[] {
   const out: string[] = [];
+  const given = deriveSlots(d).slots;
   for (const [name, s] of entries(c)) {
-    if (s.property === 'fill') {
-      const own = s.state === 'selected' && s.on === expectedName({ ...s, state: 'rest' });
-      if (s.on !== undefined && !own && !sibling(c, s, s.on)) out.push(`${name}: a fill sits on the fill of a sibling part at its own state, or on its own rest as selected, and this one sits on ${s.on}`);
+    const want = given[name]?.on;
+    if (given[name] === undefined || s.on === want) {
+      const target = s.on === undefined || s.on === 'ground' ? undefined : c.slots[s.on];
+      if (s.on !== undefined && s.on !== 'ground' && target?.property !== 'fill') out.push(`${name}: it sits on ${s.on}, which is no fill slot`);
       continue;
     }
-    const fill = expectedName({ ...s, property: 'fill' });
-    const hasFill = Object.hasOwn(c.slots, fill);
-    if (s.on === 'ground') {
-      if (hasFill || s.property === 'edge') out.push(`${name}: it sits on the ground, and only an ink or icon of a part with no fill does`);
-    } else if (s.on === undefined) {
-      if (s.property !== 'edge' || hasFill) out.push(`${name}: it sits on nothing and must sit on ${hasFill ? fill : 'the ground'}`);
-    } else if (!(s.on === fill && hasFill) && !sibling(c, s, s.on)) out.push(`${name}: it sits on ${s.on} and must sit on ${fill}`);
+    out.push(`${name}: it sits on ${s.on ?? 'nothing'} and the declarations give ${want ?? 'nothing'}`);
   }
   return out;
 }
@@ -588,7 +579,7 @@ export function collect(root = repoRoot): string[] {
   if (shape.length) return shape;
   return [
     ...nameProblems(c), ...acceptsProblems(c, roles), ...defaultProblems(c, roles), ...memberDefaultProblems(c, roles), ...fallbackProblems(c),
-    ...pairProblems(c), ...manifestProblems(c, manifests), ...ringProblems(c, manifests), ...readProblems(c, manifests), ...memberReadProblems(c, manifests),
+    ...pairProblems(c, d), ...manifestProblems(c, manifests), ...ringProblems(c, manifests), ...readProblems(c, manifests), ...memberReadProblems(c, manifests),
     ...familyProblems(c, readJson(join(root, EMPHASIS_FAMILY)) as { variants?: Record<string, string> }),
     ...mapProblems(d, colouredParts(root), manifests, root),
   ];

@@ -10,7 +10,7 @@ import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { colouredParts } from '../../lib/core/color-slot-map.ts';
 import type { SlotCatalogue } from '../../generate/core/arena-cli/slots.ts';
 import { memberValue } from '../../generate/core/arena-cli/slots.ts';
-import type { ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';
+import { fixtureManifests, slotFixture } from '../../lib/core/color-slots-fixture.ts';
 
 const shipped = () => structuredClone(readColorSlots());
 const roles = colourRoleSet();
@@ -503,69 +503,33 @@ test('a member default equal to the group default is refused as redundant', () =
   assert.ok(lines.some((l) => /actions-ghost-root-edge-rest/.test(l) && /already/.test(l)), lines.join('\n'));
 });
 
-const boxDeclared = (): SlotDeclarations => ({
-  accepts: { fill: ['fill-*', 'transparent'], ink: ['ink-*'], edge: ['edge-*', 'transparent'], icon: ['ink-*'] },
-  refused: [],
-  states: ['rest', 'hover', 'pressed', 'disabled', 'selected', 'selected-hover', 'selected-pressed', 'selected-disabled'],
-  stateSets: { base: ['rest', 'hover'], toggle: ['rest', 'hover', 'selected'], on: ['selected'] },
-  selected: { fill: '{fill-selected}', ink: '{ink-selected}', edge: '{edge-selected}' },
-  groups: {
-    choices: {
-      parts: {
-        box: { properties: ['fill'], states: 'toggle', rest: { fill: '{fill-control}' } },
-        field: {
-          properties: ['edge'],
-          states: 'base',
-          options: { plain: { rest: { edge: '{edge-control}' } }, error: { rest: { edge: '{edge-danger}' }, halo: 'level-hue-soft-danger' } },
-        },
-        fill: { properties: ['fill'], states: 'on', rest: { fill: '{fill-control}' } },
-        calm: { properties: ['fill'], states: 'base', options: { only: { rest: { fill: '{fill-control}' } } } },
-      },
-    },
+const boxDeclared = (): SlotDeclarations => slotFixture({
+  box: { properties: ['fill'], states: 'light', rest: { fill: '{fill-control}' } },
+  field: {
+    properties: ['edge'],
+    states: 'plain',
+    options: { plain: { rest: { edge: '{edge-control}' } }, error: { rest: { edge: '{edge-danger}' }, halo: 'level-hue-soft-danger' } },
   },
-  members: {
-    ArenaBox: { group: 'choices', parts: { box: { to: 'choices.box', options: [], states: 'toggle', selectedBy: { axis: 'checked', value: 'true' } } } },
-    ArenaField: {
-      group: 'choices',
-      parts: { field: { to: 'choices.field', options: ['plain', 'error'], states: 'base', optionBy: { axis: 'state', values: { error: 'error' } } } },
-    },
-    ArenaRange: { group: 'choices', parts: { fill: { to: 'choices.fill', options: [], states: 'on', selectedBy: { axis: 'checked', value: 'true' } } } },
-    ArenaCalm: { group: 'choices', parts: { calm: { to: 'choices.calm', options: ['only'], states: 'base' } } },
+  fill: { properties: ['fill'], states: 'on', rest: { fill: '{fill-control}' } },
+  calm: { properties: ['fill'], states: 'plain', options: { only: { rest: { fill: '{fill-control}' } } } },
+}, {
+  ArenaBox: { group: 'choices', parts: { box: { to: 'choices.box', options: [], states: 'light', selectedBy: { axis: 'checked', value: 'true' } } } },
+  ArenaField: {
+    group: 'choices',
+    parts: { field: { to: 'choices.field', options: ['plain', 'error'], states: 'plain', optionBy: { axis: 'state', values: { error: 'error' } } } },
   },
-  exceptions: {},
-  rings: {},
-});
+  ArenaRange: { group: 'choices', parts: { fill: { to: 'choices.fill', options: [], states: 'on', selectedBy: { axis: 'checked', value: 'true' } } } },
+  ArenaCalm: { group: 'choices', parts: { calm: { to: 'choices.calm', options: ['only'], states: 'plain' } } },
+}, 'choices');
 
-const boxManifest = (c: SlotCatalogue): Map<string, ComponentManifest> => {
-  const token = (name: string, member: string, modifier: string, utility: string) => `${modifier}${utility}${memberValue(c, member, name, 'tailwind')}]`;
-  const read = (member: string, group: string, part: string, state: string, option?: string) => {
-    const [mod, utility] = [{ rest: '', hover: 'hover:', selected: '', 'selected-hover': 'hover:' }[state] as string, group];
-    const name = option === undefined ? `choices-${part}-${group}-${state}` : `choices-${option}-${part}-${group}-${state}`;
-    return token(name, member, mod, group === 'fill' ? 'bg-[color:' : 'border-[color:');
-  };
-  const box = (state: string) => read('ArenaBox.box', 'fill', 'box', state);
-  return new Map<string, ComponentManifest>([
-    ['ArenaBox', { component: 'ArenaBox', slots: { box: `${box('rest')} ${box('hover')}` }, variants: { checked: { true: { box: box('selected') } } } } as unknown as ComponentManifest],
-    ['ArenaField', {
-      component: 'ArenaField',
-      slots: { field: `${read('ArenaField.field', 'edge', 'field', 'rest', 'plain')} ${read('ArenaField.field', 'edge', 'field', 'hover', 'plain')}` },
-      variants: { state: { error: { field: `${read('ArenaField.field', 'edge', 'field', 'rest', 'error')} ${read('ArenaField.field', 'edge', 'field', 'hover', 'error')}` } } },
-    } as unknown as ComponentManifest],
-    ['ArenaRange', {
-      component: 'ArenaRange',
-      slots: { fill: `${token('choices-fill-fill-selected', 'ArenaRange.fill', '', 'bg-[color:')}` },
-      variants: { checked: { true: {} } },
-    } as unknown as ComponentManifest],
-    ['ArenaCalm', { component: 'ArenaCalm', slots: { calm: `${token('choices-only-calm-fill-rest', 'ArenaCalm.calm', '', 'bg-[color:')} ${token('choices-only-calm-fill-hover', 'ArenaCalm.calm', 'hover:', 'bg-[color:')}` } } as unknown as ComponentManifest],
-  ]);
-};
+const boxManifest = (c: SlotCatalogue) => fixtureManifests(c);
 
 test('a fixed-option member and an axis member are accepted', () => {
   const c = deriveSlots(boxDeclared());
   const m = boxManifest(c);
   assert.deepEqual(declarationProblems(boxDeclared()), []);
   assert.deepEqual(manifestProblems(c, m), []);
-  assert.deepEqual(pairProblems(c), []);
+  assert.deepEqual(pairProblems(c, boxDeclared()), []);
   const noAxis = structuredClone(c);
   noAxis.members['ArenaField.field']!.optionBy = { axis: 'state', values: { error: 'nothing' } };
   assert.ok(manifestProblems(noAxis, m).some((l) => /ArenaField\.field/.test(l)));
@@ -619,11 +583,28 @@ test('an exception level, a halo, an on and a member axis are checked as declara
 
 test('an exception whose level alone differs is an exception', () => {
   const d = boxDeclared();
-  d.stateSets.base = ['rest', 'hover'];
-  d.groups!.choices!.parts.calm!.options = { only: { rest: { fill: { role: '{fill-control}', level: 'level-a' } } } };
+    d.groups!.choices!.parts.calm!.options = { only: { rest: { fill: { role: '{fill-control}', level: 'level-a' } } } };
   const base = deriveSlots(d).slots['choices-only-calm-fill-rest']!;
   d.exceptions['choices-only-calm-fill-rest'] = { default: base.default as string, decision: 'D1' };
   assert.deepEqual(exceptionProblems(d), [], 'dropping the level changes the slot');
   d.exceptions['choices-only-calm-fill-rest'] = { default: base.default as string, decision: 'D1', level: 'level-a' };
   assert.match(exceptionProblems(d).join('\n'), /the rule already gives/);
+});
+
+test('a slot sits on what the declarations give, no looser', () => {
+  const d = boxDeclared();
+  const calm = d.groups!.choices!.parts.calm!;
+  calm.properties = ['fill', 'ink'];
+  (calm.options as Record<string, GroupOption>).only!.rest.ink = '{ink-body}';
+  calm.on = 'box';
+  const c = deriveSlots(d);
+  assert.equal(c.slots['choices-only-calm-ink-rest']?.on, 'choices-box-fill-rest');
+  assert.deepEqual(pairProblems(c, d), []);
+  const own = structuredClone(c);
+  own.slots['choices-only-calm-ink-rest']!.on = 'choices-only-calm-fill-rest';
+  assert.match(pairProblems(own, d).join('\n'), /choices-only-calm-ink-rest: it sits on choices-only-calm-fill-rest and the declarations give choices-box-fill-rest/);
+  const e = boxDeclared();
+  const sel = deriveSlots(e);
+  sel.slots['choices-box-fill-selected']!.on = 'choices-box-fill-rest';
+  assert.match(pairProblems(sel, e).join('\n'), /choices-box-fill-selected: it sits on choices-box-fill-rest and the declarations give nothing/);
 });

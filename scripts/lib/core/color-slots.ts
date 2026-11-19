@@ -79,7 +79,7 @@ export function deriveSlots(d: SlotDeclarations): SlotCatalogue {
           channel: channel ? channel.replace('{property}', prop) + (st === 'rest' ? '' : `-${st}`) : undefined, accepts: prop,
         };
         const sibling = on === undefined ? undefined : slotName(group, undefined, on, 'fill', st);
-        if (prop === 'fill') f.on = st === 'selected' && selectedOn ? slotName(group, opt, part, 'fill', 'rest') : sibling;
+        if (prop === 'fill') f.on = selectedOn && ['selected', 'selected-hover', 'selected-pressed'].includes(st) ? slotName(group, opt, part, 'fill', 'rest') : sibling;
         else f.on = sibling ?? (properties.includes('fill') ? slotName(group, opt, part, 'fill', st) : prop === 'edge' ? undefined : 'ground');
         const selectedAnswer = () => selected[prop] ?? d.selected[prop] ?? fail(`${n}: no selected answer for ${prop}`);
         if (prop === 'icon') {
