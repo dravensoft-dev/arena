@@ -287,9 +287,9 @@
   --actions-destructive-root-ink-hover:var(--hue-danger-ink);
   --actions-destructive-root-ink-pressed:var(--hue-danger-ink);
   --actions-destructive-root-ink-rest:var(--ink-invalid);
-  --actions-dismiss-fill-disabled:transparent;
-  --actions-dismiss-fill-hover:transparent;
-  --actions-dismiss-fill-pressed:transparent;
+  --actions-dismiss-fill-disabled:transparent; /* complete paints a dismiss button transparent in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling. */
+  --actions-dismiss-fill-hover:transparent; /* complete paints a dismiss button transparent in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling. */
+  --actions-dismiss-fill-pressed:transparent; /* complete paints a dismiss button transparent in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling. */
   --actions-dismiss-icon-disabled:var(--accent-plain-ink);
   --actions-dismiss-icon-hover:var(--accent-plain-ink);
   --actions-dismiss-icon-pressed:var(--accent-plain-ink);

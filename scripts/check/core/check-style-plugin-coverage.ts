@@ -63,15 +63,17 @@ const NO_SECOND_SPELLING = 'no other accepted role resolves to the key complete 
 const MEMBER_DEFAULT = 'complete paints the ghost Button transparent here and the ghost IconButton in its member '
   + 'default (D21), two colours one group slot cannot carry, so any answer to it moves one of them in the complete sink';
 
+const SLOT = 'a colour slot, not a role: ';
+
 export const WITNESS_EXEMPT: ReadonlyMap<string, string> = new Map([
   ['hue-danger-fill-strong', 'complete answers it as default does, because a colour of its own would move the '
     + 'complete sink, and this role reaches a page through the destructive and danger-tone parts that default '
     + 'already paints'],
-  ['actions-solid-root-edge-rest', NO_SECOND_SPELLING],
-  ['actions-dismiss-fill-rest', 'the one accepted role complete paints transparent, hue-danger-fill-strong, is a danger fill, '
+  ['actions-solid-root-edge-rest', SLOT + NO_SECOND_SPELLING],
+  ['actions-dismiss-fill-rest', SLOT + 'the one accepted role complete paints transparent, hue-danger-fill-strong, is a danger fill, '
     + 'and a dismiss button answered with it would say danger where it draws nothing; the kernel default is the literal '
     + 'transparent, so no other spelling resolves to the key complete paints there'],
-  ...['rest', 'hover', 'pressed'].map((state): [string, string] => [`actions-ghost-root-edge-${state}`, MEMBER_DEFAULT]),
+  ...['rest', 'hover', 'pressed'].map((state): [string, string] => [`actions-ghost-root-edge-${state}`, SLOT + MEMBER_DEFAULT]),
 ]);
 
 export function staleExemptions(moved: string[], exempt: ReadonlyMap<string, string> = WITNESS_EXEMPT) {

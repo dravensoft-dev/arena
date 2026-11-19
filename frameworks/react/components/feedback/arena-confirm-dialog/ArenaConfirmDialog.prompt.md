@@ -38,7 +38,7 @@ Protects irreversible actions (H3, H5). Does not close on click-outside. For the
 - `Escape`: close.
 <!-- @keys end -->
 
-`destructive` fills the confirm button with `--danger-fill` through `fill-confirm-final`, and sets its label in `ink-confirm-final`.
+`destructive` draws the confirm button as the destructive option of the `actions` group: the danger edge and ink over `hue-danger-fill-strong`, the way a destructive `ArenaButton` is drawn.
 
 `title` is **required** and throws when missing. The title is what names the dialog for assistive technology, and the panel's `aria-labelledby` points at it. Nothing can derive a name for a confirmation, because its subject is editorial.
 
@@ -89,7 +89,7 @@ does not activate a button.
 
 **Words.** `eyebrow`, `confirmLabel` and `cancelLabel` answer first; when one is absent, the locale's `confirmDialogEyebrow`, `confirmDialogConfirm` or `confirmDialogCancel` does. `confirmDialogRequire` is the prompt above the field `requireText` asks for, with that text in `{text}`.
 
-**Asked from code.** A handler that needs a yes or a no before it goes on asks `useArenaConfirm()` rather than holding an `open` state of its own. `ask` returns the answer as a promise ([the wiring](../../../../../skills/design/references/exports.md#how-do-i-raise-a-confirmation-from-code-in-react)), and the one open request is rendered once, near the root, with this dialog. The dialog is still what draws the confirmation, its focus trap and its final confirmation, which fills with `fill-confirm-final`, included.
+**Asked from code.** A handler that needs a yes or a no before it goes on asks `useArenaConfirm()` rather than holding an `open` state of its own. `ask` returns the answer as a promise ([the wiring](../../../../../skills/design/references/exports.md#how-do-i-raise-a-confirmation-from-code-in-react)), and the one open request is rendered once, near the root, with this dialog. The dialog is still what draws the confirmation, its focus trap and its final confirmation, which reads the destructive option of the `actions` group, included.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

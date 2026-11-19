@@ -1404,15 +1404,18 @@
   },
   "actions-dismiss-fill-disabled": {
     "$type": "color",
-    "$value": "transparent"
+    "$value": "transparent",
+    "$description": "complete paints a dismiss button transparent in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling."
   },
   "actions-dismiss-fill-hover": {
     "$type": "color",
-    "$value": "transparent"
+    "$value": "transparent",
+    "$description": "complete paints a dismiss button transparent in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling."
   },
   "actions-dismiss-fill-pressed": {
     "$type": "color",
-    "$value": "transparent"
+    "$value": "transparent",
+    "$description": "complete paints a dismiss button transparent in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling."
   },
   "actions-dismiss-icon-disabled": {
     "$type": "color",
