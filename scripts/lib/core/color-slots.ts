@@ -25,7 +25,7 @@ export type GroupPart = {
   selected?: Rest;
   on?: string;
   over?: string;
-  mark?: true;
+  mark?: true | 'ink';
   selectedOn?: 'rest';
   decision?: string;
   paintedBy?: string | string[];
@@ -64,7 +64,7 @@ export const isMemberDecl = (to: unknown): to is MemberDecl => typeof to === 'ob
 
 type Standing = {
   group: string; opt: string | undefined; part: string; rest: Rest; selected: Rest; states: string[]; channel: string | null | undefined;
-  properties: string[]; on: string | undefined; over: string | undefined; mark: true | undefined; selectedOn: 'rest' | undefined;
+  properties: string[]; on: string | undefined; over: string | undefined; mark: true | 'ink' | undefined; selectedOn: 'rest' | undefined;
   siblingOptions: string[];
 };
 
@@ -89,11 +89,11 @@ export function deriveSlots(d: SlotDeclarations): SlotCatalogue {
         const sibling = under === undefined ? undefined : slotName(group, siblingOpt, under, 'fill', st);
         const own = properties.includes('fill') ? slotName(group, opt, part, 'fill', st) : undefined;
         if (over !== undefined) f.on = sibling;
-        else if (prop === 'fill' && mark && sibling === undefined) f.on = drawsNoEdge(rest) ? 'ground' : undefined;
+        else if (prop === 'fill' && mark === true && sibling === undefined) f.on = drawsNoEdge(rest) ? 'ground' : undefined;
         else if (prop === 'fill') f.on = selectedOn && ['selected', 'selected-hover', 'selected-pressed'].includes(st) ? slotName(group, opt, part, 'fill', 'rest') : sibling;
         else if (prop === 'edge') f.on = sibling ?? own;
         else f.on = own ?? sibling ?? 'ground';
-        f.pair = over !== undefined ? 'own' : mark ? 'mark' : undefined;
+        f.pair = over !== undefined ? 'own' : mark === true || (mark === 'ink' && (prop === 'ink' || prop === 'icon')) ? 'mark' : undefined;
         const selectedAnswer = () => selected[prop] ?? d.selected[prop] ?? fail(`${n}: no selected answer for ${prop}`);
         if (prop === 'icon') {
           f.default = `{${slotName(group, opt, part, 'ink', st)}}`;

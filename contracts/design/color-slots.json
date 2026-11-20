@@ -1199,6 +1199,7 @@
             "ink"
           ],
           "states": "static",
+          "mark": "ink",
           "options": {
             "primary": {
               "properties": [

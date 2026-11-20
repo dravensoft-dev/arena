@@ -68,8 +68,8 @@ test('a rest edge is not a slot pair, a selected edge is', () => {
   assert.equal(pairs.some((pair) => /disabled$/.test(SLOTS[pair.slot]?.state ?? '') || /disabled$/.test(SLOTS[pair.over]?.state ?? '')), false,
     'a disabled and a selected-disabled slot is never a pair');
   const mark = (name: string) => (SLOTS[name]?.group === 'choices' && ['mark', 'knob'].includes(SLOTS[name]?.part ?? '')) || (SLOTS[name]?.group === 'feedback' && SLOTS[name]?.part === 'icon')
-    || (SLOTS[name]?.group === 'marks' && SLOTS[name]?.part === 'dot');
-  assert.ok(pairs.every((pair) => pair.min === (SLOTS[pair.slot]?.property === 'ink' && !mark(pair.slot) ? 4.5 : 3)), 'an ink is text at 4.5:1, a mark, a knob glyph, a feedback icon or a dot at 3:1 (D69, D89, D92)');
+    || (SLOTS[name]?.group === 'marks' && SLOTS[name]?.part === 'dot') || (SLOTS[name]?.group === 'meters' && SLOTS[name]?.part === 'track');
+  assert.ok(pairs.every((pair) => pair.min === (SLOTS[pair.slot]?.property === 'ink' && !mark(pair.slot) ? 4.5 : 3)), 'an ink is text at 4.5:1, a mark, a knob glyph, a feedback icon, a dot or a range at 3:1 (D69, D89, D92)');
 });
 
 test('an inset ring is measured over each state of its fill', () => {
@@ -436,6 +436,7 @@ test('the feedback icon and action clear their floors over the wash', () => {
 test('every meter range clears 3:1 over its track', () => {
   const ranges = slotPairs(CATALOGUE.slots).filter((pair) => /^meters-.+-track-ink-/.test(pair.slot));
   assert.ok(ranges.length >= 7, 'every option of the track is measured');
+  for (const pair of ranges) assert.equal(pair.min, 3, `${pair.slot}: the shipped floor is 3:1, a range is a graphical object (mark: "ink")`);
   for (const theme of ['dark', 'light'] as const) {
     const roles = rolesFor(null, CATALOGUE, theme);
     const colors = coloursOf(theme);
@@ -443,7 +444,7 @@ test('every meter range clears 3:1 over its track', () => {
       const track = pair.over === 'ground' ? (colors['base-200'] as string) : slotColour(CATALOGUE.slots, pair.over, new Map(), roles, colors, LEVELS, mixOf(roles), colors['base-200'] as string) as string;
       const range = slotColour(CATALOGUE.slots, pair.slot, new Map(), roles, colors, LEVELS, mixOf(roles), track) as string;
       const ratio = contrast(range, track);
-      assert.ok(ratio >= 3, `${theme} ${pair.slot} over ${pair.over}: the floor is 3:1, a range is a graphical object`);
+      assert.ok(ratio >= pair.min, `${theme} ${pair.slot} over ${pair.over}: below its ${pair.min}:1 floor`);
       assert.ok(ratio >= 4.5, `${theme} ${pair.slot} over ${pair.over}: measured ${ratio.toFixed(2)}, and F4 records every range at 4.50 or more`);
     }
     assert.deepEqual(kernel(theme).filter((line) => line.startsWith('--meters-')), [], `${theme}: every meters pair clears its floor`);

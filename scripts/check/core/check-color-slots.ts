@@ -181,7 +181,7 @@ export function pairProblems(c: SlotCatalogue, d: SlotDeclarations = readSlotDec
     const siblingOptions = under === undefined ? undefined : d.groups?.[s.group]?.parts?.[under]?.options;
     const siblingOpt = s.option !== undefined && siblingOptions !== undefined && !Array.isArray(siblingOptions) && Object.hasOwn(siblingOptions, s.option) ? s.option : undefined;
     const sibling = under === undefined ? undefined : expectedName({ group: s.group, option: siblingOpt, part: under, property: 'fill', state: s.state });
-    const pair = gp.over !== undefined ? 'own' : gp.mark === true ? 'mark' : undefined;
+    const pair = gp.over !== undefined ? 'own' : gp.mark === true || (gp.mark === 'ink' && (s.property === 'ink' || s.property === 'icon')) ? 'mark' : undefined;
     if (s.pair !== pair) out.push(`${name}: it pairs as ${s.pair ?? 'nothing'} and the declarations give ${pair ?? 'nothing'}`);
     let want: string | undefined;
     if (gp.over !== undefined) want = sibling;
@@ -583,7 +583,7 @@ export function declarationProblems(d: SlotDeclarations): string[] {
         if (sibling !== undefined && (sibling === part || !(group.parts[String(sibling)]?.properties ?? []).includes('fill'))) out.push(`${where}.${key}: "${String(sibling)}" is no part of ${g} that paints a fill, besides this one`);
       }
       if (p.on !== undefined && p.over !== undefined) out.push(`${where}: it declares on and over, and a part sits on a sibling or over it, never both`);
-      if (p.mark !== undefined && p.mark !== true) out.push(`${where}.mark: "${String(p.mark)}" is not true`);
+      if (p.mark !== undefined && p.mark !== true && p.mark !== 'ink') out.push(`${where}.mark: "${String(p.mark)}" is neither true nor "ink"`);
       else if (p.mark !== undefined && p.over !== undefined) out.push(`${where}.mark: it stands beside over, and a mark pairs at 3:1 where over keeps each floor`);
       else if (p.mark !== undefined && p.on !== undefined) out.push(`${where}.mark: it stands beside on, and a part on a sibling pairs at 3:1 already (D69)`);
       if (p.selectedOn !== undefined && p.selectedOn !== 'rest') out.push(`${where}.selectedOn: "${String(p.selectedOn)}" is not "rest"`);
@@ -648,7 +648,8 @@ export function declarationProblems(d: SlotDeclarations): string[] {
       const partOptions = d.groups?.[toGroup ?? '']?.parts?.[toPart ?? ''] as { properties?: string[]; options?: Record<string, { channel?: string | null; properties?: string[] }> } | undefined;
       const channelled = (o: string) => {
         const one = partOptions?.options?.[o];
-        return typeof one?.channel === 'string' && (one.properties ?? partOptions?.properties ?? []).filter((prop) => to.properties === undefined || to.properties.includes(prop)).every((prop) => to.channels?.[prop] !== undefined);
+        const read = (one?.properties ?? partOptions?.properties ?? []).filter((prop) => to.properties === undefined || to.properties.includes(prop));
+        return typeof one?.channel === 'string' && read.length > 0 && read.every((prop) => to.channels?.[prop] !== undefined);
       };
       if (axes.length > 0 && (to.options ?? []).filter((o) => !axes.some((one) => Object.values(one.values ?? {}).includes(o)) && !channelled(o)).length > 1) {
         out.push(`${where}.optionBy: more than one option is left with no value, and only the base option has none, save an option its channel answers`);
@@ -853,7 +854,7 @@ export function presenceProblems(c: SlotCatalogue, manifests: Manifests): string
       for (const token of texts.flatMap((text) => text.split(/\s+/))) {
         const level = [...MARK_LEVELS].find((one) => token.includes(`--${one})`) || token.includes(`--${one},`));
         if (level === undefined) continue;
-        if ([...held].some((name) => token.includes(`var(--${name},`))) continue;
+        if ([...held].some((name) => token.includes(`color-mix(in_oklab,var(--${name},`) || token.includes(`[color:var(--${name},`))) continue;
         out.push(`${m.component}.${slot}: ${token} reads ${level} outside the chain of a presence slot, and that level is gated as a mark at ${MARK_MIN}:1, so a text would pass under its floor`);
       }
     }

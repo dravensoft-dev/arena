@@ -11,6 +11,7 @@ import { colouredParts } from '../../lib/core/color-slot-map.ts';
 import type { SlotCatalogue } from '../../generate/core/arena-cli/slots.ts';
 import { channelValue, haloValue, memberValue } from '../../generate/core/arena-cli/slots.ts';
 import { fixtureManifests, slotFixture } from '../../lib/core/color-slots-fixture.ts';
+import { slotPairs } from '../../generate/core/arena-cli/slot-contrast.ts';
 
 const shipped = () => structuredClone(readColorSlots());
 const roles = colourRoleSet();
@@ -1195,7 +1196,9 @@ test('on beside over is refused', () => {
   assert.deepEqual(declarationProblems(parts({ over: 'label' })), ['groups.feedback.parts.action.over: "label" is no part of feedback that paints a fill, besides this one']);
   assert.deepEqual(declarationProblems(parts({ over: 'banner', mark: true })), ['groups.feedback.parts.action.mark: it stands beside over, and a mark pairs at 3:1 where over keeps each floor']);
   assert.deepEqual(declarationProblems(parts({ on: 'banner', mark: true })), ['groups.feedback.parts.action.mark: it stands beside on, and a part on a sibling pairs at 3:1 already (D69)']);
-  assert.deepEqual(declarationProblems(parts({ mark: 'yes' as unknown as true })), ['groups.feedback.parts.action.mark: "yes" is not true']);
+  assert.deepEqual(declarationProblems(parts({ mark: 'yes' as unknown as true })), ['groups.feedback.parts.action.mark: "yes" is neither true nor "ink"']);
+  assert.deepEqual(declarationProblems(parts({ over: 'banner', mark: 'ink' })), ['groups.feedback.parts.action.mark: it stands beside over, and a mark pairs at 3:1 where over keeps each floor']);
+  assert.deepEqual(declarationProblems(parts({ on: 'banner', mark: 'ink' })), ['groups.feedback.parts.action.mark: it stands beside on, and a part on a sibling pairs at 3:1 already (D69)']);
   for (const extra of [{ over: 'banner' }, { mark: true as const }]) {
     const d = parts(extra);
     const c = deriveSlots(d);
@@ -1238,4 +1241,51 @@ test('the accent feed dot is refused when its channel is not written, named or r
   const unread = structuredClone(manifests) as Map<string, any>;
   unread.get('ArenaActivityFeed').slots.dot = unread.get('ArenaActivityFeed').slots.dot.replace(' text-[color:var(--arena-accent-marks-dot-ink)]', '');
   assert.ok(readProblems(shipped(), unread).some((l) => /ArenaActivityFeed\.dot/.test(l) && /--arena-accent-marks-dot-ink/.test(l)), readProblems(shipped(), unread).join('\n'));
+});
+
+test('an ink mark pairs its ink at 3:1 over its own fill or the ground, and its fill as it would without mark', () => {
+  const d = slotFixture({
+    track: { properties: ['fill', 'ink'], states: ['rest'], mark: 'ink', options: {
+      primary: { rest: { fill: '{fill-track}', ink: '{ink-body}' } },
+      muted: { properties: ['ink'], rest: { ink: '{ink-muted}' } },
+    } },
+  }, {}, 'meters');
+  assert.deepEqual(declarationProblems(d), []);
+  const c = deriveSlots(d);
+  assert.deepEqual(pairProblems(c, d), []);
+  const at = (name: string) => [c.slots[name]?.pair, c.slots[name]?.on];
+  assert.deepEqual(at('meters-primary-track-ink-rest'), ['mark', 'meters-primary-track-fill-rest']);
+  assert.deepEqual(at('meters-muted-track-ink-rest'), ['mark', 'ground']);
+  assert.deepEqual(at('meters-primary-track-fill-rest'), [undefined, undefined], 'the fill pairs as it would without mark');
+  const pairs = slotPairs(c);
+  assert.deepEqual(pairs.map((pair) => [pair.slot, pair.over, pair.min]).sort(), [
+    ['meters-muted-track-ink-rest', 'ground', 3],
+    ['meters-primary-track-ink-rest', 'meters-primary-track-fill-rest', 3],
+  ]);
+  const unpaired = structuredClone(c);
+  delete unpaired.slots['meters-primary-track-ink-rest']!.pair;
+  assert.deepEqual(pairProblems(unpaired, d), ['meters-primary-track-ink-rest: it pairs as nothing and the declarations give mark']);
+  const filled = structuredClone(c);
+  filled.slots['meters-primary-track-fill-rest']!.pair = 'mark';
+  assert.deepEqual(pairProblems(filled, d), ['meters-primary-track-fill-rest: it pairs as mark and the declarations give nothing']);
+});
+
+test('the shipped meter track is an ink mark', () => {
+  const track = readSlotDeclarations().groups!.meters!.parts.track!;
+  assert.equal(track.mark, 'ink');
+});
+
+test('a channelled option counts only where the member reads one of its properties through a channel', () => {
+  const d = declared();
+  (d.members!.ArenaToast!.parts.root as MemberDecl).properties = ['icon'];
+  assert.ok(declarationProblems(d).some((l) => /ArenaToast\.parts\.root\.optionBy: more than one option is left with no value/.test(l)), declarationProblems(d).join('\n'));
+});
+
+test('the presence escape holds only a slot chain in the colour position', () => {
+  const held = 'color-mix(in_oklab,var(--marks-muted-dot-ink-rest,var(--ink-muted))_var(--level-presence),transparent)';
+  const moved = structuredClone(manifests) as Map<string, any>;
+  const status = moved.get('ArenaAvatar').variants.status.offline;
+  assert.ok(status.status.includes(held), 'the offline dot reads its slot in the colour position');
+  status.status = status.status.replace(held, 'color-mix(in_oklab,var(--ink-body)_var(--level-presence),var(--marks-muted-dot-ink-rest,transparent))');
+  assert.ok(presenceProblems(shipped(), moved).some((l) => /ArenaAvatar\.status: .* reads level-presence outside the chain of a presence slot/.test(l)), presenceProblems(shipped(), moved).join('\n'));
 });
