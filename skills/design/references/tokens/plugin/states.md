@@ -1,6 +1,6 @@
-# Which roles answer a hover, a focus ring, a selection, a disabled control and an invalid field?
+# Which roles answer a hover, a focus ring, a selection, how far a fill mixes, a disabled control and an invalid field?
 
-Read this when your style plugin answers a hover, the keyboard focus ring, a selected or current item, a disabled control or an invalid field.
+Read this when your style plugin answers a hover, the keyboard focus ring, a selected or current item, how far a selected or pressed fill mixes, a disabled control or an invalid field.
 
 Thirteen roles are on this page. Eight are colour roles, so an answer is a palette colour as a `{color.*}` alias or another colour role: `edge-focus`, `edge-invalid`, `edge-selected`, `edge-tab-selected`, `fill-hover`, `fill-selected`, `ink-invalid` and `ink-selected`. `bw-focus` and `gap-focus` are fixed dimensions and `fade-disabled`, `mix-hover` and `mix-pressed` are numbers, so a plugin answers those with a value of that type. `mix-hover` and `mix-pressed` read the `blend` scale of [`effects.json`](../../../../../contracts/design/effects.json), `{blend.hover}` and `{blend.pressed}`. Each role carries a default, except `fill-hover`, and [`style-kernel.md`](../../style-kernel.md#the-two-rules-that-decide-everything-else) says what a silent plugin keeps there.
 

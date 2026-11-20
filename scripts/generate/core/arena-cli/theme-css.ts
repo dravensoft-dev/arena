@@ -912,7 +912,8 @@ export function lightGroupProblems(plugin: StylePlugin, catalogue: TokenCatalogu
     .filter(([key, raw]) => pluginValue(raw, catalogue, key) !== null
       && !restates(`--${key}:${pluginValue(raw, catalogue, key)};`, catalogue))
     .map(([key, raw]) => `stylePlugins.${plugin.name}.${THEME_GROUP}: "${key}" is ${JSON.stringify(raw)}. The ${THEME_GROUP} group takes colour answers `
-      + 'only, a {color.*} alias or another colour role, because it lays over the plain answers in a light palette and only a colour answer is restated there.');
+      + 'only, a {color.*} alias or another colour role, never `transparent`, because it lays over the plain answers in a light palette and only an answer that reads a palette colour is restated there'
+      + `${/^transparent$/i.test(pluginValue(raw, catalogue, key) ?? '') ? '; `transparent` reads none, so it is not restated under a palette\'s polarity' : ''}.`);
 }
 
 export type PolarityContext = {

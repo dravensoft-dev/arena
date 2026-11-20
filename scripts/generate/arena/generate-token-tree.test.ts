@@ -13,7 +13,7 @@ import { ARENA_EXT } from '../../lib/core/dtcg-shapes.ts';
 import { STATE_SELECTORS } from '../../check/core/check-role-contract.ts';
 import {
   TREE, TREE_DIR, TREE_OPEN, TREE_CLOSE, roleLeaf, markupLeaf, regionBodies, renderTree, writeTree,
-  COMPAT, roleUtilities, combination, stateRows, CONTROL_READS,
+  COMPAT, COMPAT_CONTROL, roleUtilities, combination, stateRows, CONTROL_READS,
 } from './generate-token-tree.ts';
 import { compileLayer, escapeClass } from '../../lib/tailwind/tailwind-compile.ts';
 
@@ -137,6 +137,13 @@ const rowOf = (leaf: string, name: string) => real.get(leaf)!.split('\n').find((
 test('a role region opens with the sentence of its audience', () => {
   for (const [leaf, audience] of [['plugin/edges.md', 'markup'], ['components/size-controls.md', 'component'], ['markup/edges.md', 'markup']] as const)
     assert.ok(real.get(leaf)!.startsWith(`${COMPAT[audience]}\n\n| role | question |`), leaf);
+});
+
+test('a component leaf that holds a CONTROL_READS role names the checkbox and switch exception, and the others keep COMPAT.component', () => {
+  const holders = ['components/controls-and-marks.md', 'components/emphasis-and-accent.md'];
+  for (const leaf of holders) assert.ok(real.get(leaf)!.startsWith(`${COMPAT_CONTROL}\n\n| role | question |`), leaf);
+  assert.ok(real.get('components/size-controls.md')!.startsWith(`${COMPAT.component}\n\n| role | question |`));
+  for (const leaf of holders) assert.ok(real.get(leaf)!.includes('keeps its name until a major release'), leaf);
 });
 
 test('a markup row carries question, utility and combination', () => {

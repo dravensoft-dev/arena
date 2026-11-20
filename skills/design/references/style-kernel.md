@@ -52,7 +52,7 @@ directory names the plugin:
 ```
 
 The file may also hold one group named `light`. It takes colour answers only, a `{color.*}` alias or another
-colour role, for a role or a [colour slot](./color-slots.md), and it lays them over the plain answers in every
+colour role, never `transparent`, for a role or a [colour slot](./color-slots.md), and it lays them over the plain answers in every
 palette whose `polarity` is `light`. A plain answer holds in every dark palette, and in a light one the group
 is silent on. Anything else in the group is refused. A palette picked at runtime reads the group by its
 polarity the same way.
@@ -255,7 +255,7 @@ plugin that carries no default. An answer whose `$type` is not its role's: a slo
 outside a keyword role's set. A `rem` or `em` length on a `fixed` role. A colour role answered with
 anything but a `{color.*}` alias, another colour role or `transparent`, or colour roles whose
 aliases lead back to themselves. A slot answered outside its accepts set, and `{transparent}` is always outside it,
-since a set that takes `transparent` takes it without braces. A key that is no role, no slot and no `fs-*` or `rhythm-*` step. An answer in the `light` group that is not a colour answer. An alias that resolves to nothing. A plugin that
+since a set that takes `transparent` takes it without braces. A key that is no role, no slot and no `fs-*` or `rhythm-*` step. An answer in the `light` group that is not a `{color.*}` alias or another colour role, `transparent` included. An alias that resolves to nothing. A plugin that
 answers nothing. And a broken reading floor. The command writes nothing and exits non-zero.
 The user scale column of each role sheet decides what a length does: `fixed` keeps it in px and
 refuses `rem` and `em`, `scales` emits a px answer as `rem` so it grows with the reader's text

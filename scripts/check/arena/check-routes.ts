@@ -302,7 +302,7 @@ export const ROUTES: Route[] = [
     stops: ['skills/design/references/tokens/markup/index.md', 'skills/design/references/tokens/markup/states.md', 'skills/design/references/tokens/markup/edges.md', 'skills/design/references/tokens/markup/depth-and-motion.md', 'skills/design/references/tokens/markup/space-and-layout.md'],
     budget: 19_400,
     reason:
-      'paid once per control a builder draws without a component. It buys the states a control wears, hover and the pressed lift and scale, with the motion and the space of each change, and the outline the control draws, its edge colour, width and radius, each role with its question, utility and combination and the paragraph that composes the leaf. Focus, selected, disabled and invalid each have a role on the states page, so a control reads them there. Each is read from its own page, not the media register, page or kernel. The data files beside the pages are not stops, as the gate charges Markdown only. The markup index carries one row more for the units page, which a toggle does not need. The states page carries thirteen roles with their utilities, among them the hover and pressed mixes, and a table that maps each state attribute to its selector and roles, including a checked row under aria-checked and under checked for focus, selection, a checked state, the disabled fade and an invalid field. The page also carries one html toggle, with its label and invalid edge, that shows every state. The states page names which selected item takes which edge and the checkbox and switch roles.',
+      'paid once per control a builder draws without a component. It buys the states a control wears, hover and the pressed lift and scale, with the motion and the space of each change, and the outline the control draws, its edge colour, width and radius, each role with its question, utility and combination and the paragraph that composes the leaf. Focus, selected, disabled and invalid each have a role on the states page, so a control reads them there. Each is read from its own page, not the media register, page or kernel. The data files beside the pages are not stops, as the gate charges Markdown only. The markup index carries one row more for the units page, which a toggle does not need. The states page carries thirteen roles with their utilities, among them the hover and pressed mixes, and a table that maps each state attribute to its selector and roles, which is what a control of this kind reads to draw focus, selection, a checked box or switch, the disabled fade and an invalid field. The page also carries one html toggle, with its label and invalid edge, that shows every state. The states page names which selected item takes which edge and the checkbox and switch roles.',
   },
   {
     name: 'consumer-layer',
@@ -389,7 +389,7 @@ export const ROUTES: Route[] = [
       + 'and the shape a token is authored in',
     entry: 'contributor',
     stops: ['contracts/AGENTS.md', 'contracts/design/AGENTS.md', 'contracts/design/TokenTypes.md'],
-    budget: 77_400,
+    budget: 77_600,
     reason:
       'the normative half of the tree, where a stop is read for what a value means rather than for '
       + 'how to write one, so it is bounded by what a person can hold, not what an agent can afford. The level answers two readers: a contributor deciding a value, and a platform '
@@ -398,7 +398,7 @@ export const ROUTES: Route[] = [
       + 'on each platform, the design level the floors, frames and roles a value is measured against and '
       + 'the hex each accent is tuned to, the roof the map of the tree. The slot tier keeps its summary '
       + 'and its gate on the design level, and its part-by-part material lives on ColorSlots.md, which '
-      + 'no route charges, so the number follows the decisions a value rests on and not the slots.',
+      + 'no route charges, so the number follows the decisions a value rests on and not the slots. TokenTypes.md also names the one markup page that states the checkbox and switch roles, which a contributor adding a role must know.',
   },
   {
     name: 'contributor-gate',

@@ -3,8 +3,9 @@
  * three segments below references/; a leaf stays under LEAF_MAX characters and an index under
  * INDEX_MAX; a markup page never writes a component role as a custom property, except that
  * markup/states.md may write the CONTROL_READS names; a role's row sits in exactly the leaf
- * roleLeaf names (and a markup role's second row in exactly markupLeaf's) and nowhere else; every child says when to read it; and each generated region is what
- * generate:token-tree would write. */
+ * roleLeaf names (and a markup role's second row in exactly markupLeaf's) and nowhere else;
+ * every child says when to read it; and each generated region is what generate:token-tree
+ * would write. */
 
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';

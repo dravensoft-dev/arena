@@ -1,6 +1,6 @@
 # What does a state draw, and which selector shows it?
 
-Read this when your own markup shows a state, such as hover, keyboard focus, selection, a pressed toggle, a disabled control or an invalid field.
+Read this when your own markup shows a state, such as hover, keyboard focus, selection, a pressed toggle, a checked checkbox or switch, a disabled control or an invalid field.
 
 **Thirteen roles answer the states of a control, and the second table says which attribute or pseudo-class shows each one.** `--fill-hover` covers a cell as well as a row. Focus, selection and invalidity reach utilities through `ring-edge-focus`, `outline-edge-focus`, `bg-selected`, `text-ink-selected`, `border-edge-selected`, `border-edge-invalid` and `text-ink-invalid`. The selected or current item of a navigation component takes `border-edge-tab-selected`, and any other selected item takes `border-edge-selected`. The focus width, the focus gap and the disabled fade have no key of their own. The three are read through arbitrary forms: `outline-[length:var(--bw-focus)]` or `ring-[length:var(--bw-focus)]`, `outline-offset-[var(--gap-focus)]` or `ring-offset-[var(--gap-focus)]`, and `opacity-[var(--fade-disabled)]`.
 

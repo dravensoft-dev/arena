@@ -1869,13 +1869,26 @@ test('a nested plugin over the default root keeps the default light answers unde
 const lightOf = (answers: Record<string, any>) => lightGroupProblems(readPlugin('p', { light: answers }), tokenCatalogue());
 
 test('the light group refuses a non-colour role, a step and transparent, which no palette would restate', () => {
-  const real = tokenCatalogue();
   assert.equal(lightOf({ 'r-surface': { $type: 'dimension', $value: '{r.xs}' } }).length, 1);
   assert.equal(lightOf({ 'fs-h3': { $type: 'dimension', $value: '{fs.h2}' } }).length, 1);
   const clear = lightOf({ 'fill-selected': { $type: 'color', $value: 'transparent' } });
   assert.equal(clear.length, 1, clear.join('\n'));
   assert.match(clear[0] ?? '', /light group takes colour answers/);
-  assert.ok(real.roles['r-surface']);
+  assert.match(clear[0] ?? '', /never `transparent`/);
+  assert.match(clear[0] ?? '', /not restated/);
+});
+
+test('configProblems reaches the light group of a root plugin and of a nested plugin, one problem each', () => {
+  const sheets = { ...SHEETS_FULL, catalogue: tokenCatalogue() };
+  const light = { light: { 'r-surface': { $type: 'dimension', $value: '{r.xs}' } } };
+  const root = readPlugin('console', light);
+  const nested = readPlugin('marketing', light);
+  const lightProblems = (plugins: any[]) => configProblems(listed(['console', 'marketing']), sheets, plugins)
+    .filter((p) => p.includes('light group takes colour answers'));
+  const found = lightProblems([root, nested]);
+  assert.equal(found.length, 2, found.join('\n'));
+  assert.equal(found.filter((p) => p.includes('stylePlugins.console.')).length, 1);
+  assert.equal(found.filter((p) => p.includes('stylePlugins.marketing.')).length, 1);
 });
 
 test('the light group accepts a {color.*} alias and a colour role reference', () => {
