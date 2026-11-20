@@ -158,6 +158,9 @@
      nothing could measure the contrast of. */
   --color-overlay-media: var(--overlay-media);
 
+  /* The wash a modal lays over the page it interrupts. The manifests read it through the overlays scrim slot at level-scrim, so this key only exposes the role to a utility. */
+  --color-overlay-scrim: var(--overlay-scrim);
+
   /* Ink ROLES, so text-* asks which text is being coloured rather than which palette step it
      takes. A hundred and twenty-two slots pointed at base-content directly, which is why a voice
      could change every shape on a page and not one word's colour. The LEVEL is not here: the

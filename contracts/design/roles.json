@@ -123,6 +123,17 @@
       }
     }
   },
+  "overlay-scrim": {
+    "$type": "color",
+    "$description": "The wash a modal lays over the page it interrupts, so the page reads as set back behind the surface that asks for an answer. An ASSIGNMENT like every colour role: a style plugin says which of the consumer's colours the wash takes and may not author one.\n\nThe page's own fill by default, so the cover reads as the page closing over itself rather than as a colour of its own. The level is held in colors.css as level-scrim, which is why this is a flat colour and not a translucent one: a value with alpha baked in would put the contrast floor out of reach of every gate that measures it.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "audience": "markup",
+        "task": "surfaces-and-text",
+        "question": "What colour wash does a modal lay over the page it interrupts?"
+      }
+    }
+  },
   "fw-heading": {
     "$type": "fontWeight",
     "$description": "The weight of a heading set in the display face: a card's title, a dialog's title, a\npage head, a stat card's value. fw is named by VALUE, which is what makes it a scale: extrabold\nis 800 whoever asked for it. This asks WHICH text is being weighted, and only a question can be\nanswered differently by one style plugin than by another.\n\nIt matters most to a style plugin that draws nothing. Once the boxes are gone, the distance between a\nheading and the text under it IS the hierarchy, and weight is half of that distance.",

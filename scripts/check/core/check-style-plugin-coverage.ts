@@ -131,6 +131,8 @@ export const WITNESS_EXEMPT: ReadonlyMap<string, string> = new Map([
   ['overlays-tip-fill-rest', SLOT + 'complete paints the tooltip bubble base-content, and fill-tip is the one accepted role resolving to it: ' + NO_SECOND_SPELLING],
   ['fill-tip', 'complete answers it as default does, base-content, because complete paints a tooltip bubble base-content and no other palette key resolves to it, '
     + 'and no other spelling of the overlays tip fill resolves to it either'],
+  ['overlay-scrim', 'complete answers it as default does, base-100, because complete paints the cover behind a modal base-100 at the scrim level and no other palette key '
+    + 'resolves to it, and this role reaches a page through the overlays scrim slot complete answers with a spelling of its own'],
   ['ink-tip', 'complete answers it as default does, base-100, because complete paints a tooltip word base-100 and no other palette key resolves to it, '
     + 'and this role reaches a page through the overlays tip ink slot complete answers with a spelling of its own'],
   ['fill-tile', 'complete answers it as default does, base-300, because complete paints the ground behind a monogram base-300 and no other palette key '

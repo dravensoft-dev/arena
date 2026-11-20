@@ -6,7 +6,7 @@
     "legendItem": "flex items-center gap-marker min-w-0",
     "legendSwatch": "size-2.5 rounded-marker shrink-0",
     "legendLabel": "overflow-hidden text-ellipsis whitespace-nowrap font-body text-ctl-sm text-ink-body/(--level-ink-body)",
-    "tooltip": "absolute -translate-x-1/2 -translate-y-full pointer-events-none whitespace-nowrap bg-surface-raised border-[length:var(--bw-surface)] border-edge-surface-floating rounded-control shadow-surface-floating px-2.5 py-1.5",
+    "tooltip": "absolute -translate-x-1/2 -translate-y-full pointer-events-none whitespace-nowrap bg-[color:var(--overlays-readout-fill-rest,var(--fill-surface-raised))] border-[length:var(--bw-surface)] border-[color:var(--overlays-readout-edge-rest,var(--edge-surface-floating))] rounded-control shadow-surface-floating px-2.5 py-1.5",
     "tooltipLabel": "font-body text-ctl-xs text-ink-muted/(--level-ink-muted)",
     "tooltipValue": "font-mono text-ctl-md text-ink-body"
   },

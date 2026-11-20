@@ -28,7 +28,7 @@
     "detail": "block truncate font-body text-ctl-2xs text-ink-muted/(--level-ink-muted)",
     "detailShed": "sr-only",
     "kebabWrap": "absolute right-0",
-    "panel": "absolute top-full right-0 z-dropdown flex gap-2 p-2 bg-surface-floating border-[length:var(--bw-surface)] border-edge-surface rounded-control shadow-surface-floating"
+    "panel": "absolute top-full right-0 z-dropdown flex gap-2 p-2 bg-[color:var(--overlays-panel-fill-rest,var(--fill-surface-floating))] border-[length:var(--bw-surface)] border-[color:var(--overlays-panel-edge-rest,var(--edge-surface-floating))] rounded-control shadow-surface-floating"
   },
   "kind": {
     "root": "none",

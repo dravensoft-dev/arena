@@ -1469,7 +1469,13 @@
           "properties": [
             "fill"
           ],
-          "states": "static"
+          "states": "static",
+          "rest": {
+            "fill": {
+              "role": "{overlay-scrim}",
+              "level": "level-scrim"
+            }
+          }
         },
         "panel": {
           "properties": [
@@ -1477,13 +1483,24 @@
             "edge",
             "ink"
           ],
-          "states": "static"
+          "states": "static",
+          "rest": {
+            "fill": "{fill-surface-floating}",
+            "edge": "{edge-surface-floating}",
+            "ink": {
+              "role": "{ink-body}",
+              "level": "level-ink-body"
+            }
+          }
         },
         "section": {
           "properties": [
             "fill"
           ],
-          "states": "static"
+          "states": "static",
+          "rest": {
+            "fill": "{fill-surface-floating}"
+          }
         },
         "tip": {
           "properties": [
@@ -1501,17 +1518,29 @@
             "fill",
             "edge"
           ],
-          "states": "static"
+          "states": "static",
+          "rest": {
+            "fill": "{fill-surface-raised}",
+            "edge": "{edge-surface-floating}"
+          }
         },
         "eyebrow": {
           "properties": [
             "ink"
           ],
           "states": "static",
-          "options": [
-            "plain",
-            "destructive"
-          ]
+          "options": {
+            "plain": {
+              "rest": {
+                "ink": "{ink-eyebrow}"
+              }
+            },
+            "destructive": {
+              "rest": {
+                "ink": "{hue-danger-ink}"
+              }
+            }
+          }
         }
       }
     },
@@ -1979,7 +2008,12 @@
       "parts": {
         "legendSwatch": "series",
         "legendLabel": "text.body",
-        "tooltip": "overlays.readout",
+        "tooltip": {
+          "to": "overlays.readout",
+          "options": [],
+          "states": "static",
+          "inline": true
+        },
         "tooltipLabel": "text.muted",
         "tooltipValue": "text.body"
       }
@@ -2063,7 +2097,16 @@
     "ArenaBulkActionBar": {
       "group": "overlays",
       "parts": {
-        "root": "overlays.panel",
+        "root": {
+          "to": "overlays.panel",
+          "options": [],
+          "states": "static",
+          "properties": [
+            "fill",
+            "edge"
+          ],
+          "inline": true
+        },
         "count": "text.body",
         "number": "text.figure",
         "divider": {
@@ -2179,7 +2222,16 @@
         "title": "text.heading",
         "time": "text.muted",
         "detail": "text.muted",
-        "panel": "overlays.panel"
+        "panel": {
+          "to": "overlays.panel",
+          "options": [],
+          "states": "static",
+          "properties": [
+            "fill",
+            "edge"
+          ],
+          "inline": true
+        }
       }
     },
     "ArenaCard": {
@@ -2319,7 +2371,16 @@
           "options": [],
           "states": "static"
         },
-        "panel": "overlays.panel",
+        "panel": {
+          "to": "overlays.panel",
+          "options": [],
+          "states": "static",
+          "properties": [
+            "fill",
+            "edge"
+          ],
+          "inline": true
+        },
         "option": {
           "to": "menus.item",
           "options": [
@@ -2347,8 +2408,22 @@
     "ArenaCommandPalette": {
       "group": "menus",
       "parts": {
-        "root": "overlays.scrim",
-        "panel": "overlays.panel",
+        "root": {
+          "to": "overlays.scrim",
+          "options": [],
+          "states": "static",
+          "inline": true
+        },
+        "panel": {
+          "to": "overlays.panel",
+          "options": [],
+          "states": "static",
+          "properties": [
+            "fill",
+            "edge"
+          ],
+          "inline": true
+        },
         "search": {
           "to": "fields.field",
           "options": [
@@ -2390,9 +2465,38 @@
     "ArenaConfirmDialog": {
       "group": "overlays",
       "parts": {
-        "root": "overlays.scrim",
-        "panel": "overlays.panel",
-        "eyebrow": "overlays.eyebrow",
+        "root": {
+          "to": "overlays.scrim",
+          "options": [],
+          "states": "static",
+          "inline": true
+        },
+        "panel": {
+          "to": "overlays.panel",
+          "options": [],
+          "states": "static",
+          "properties": [
+            "fill",
+            "edge"
+          ],
+          "inline": true
+        },
+        "eyebrow": {
+          "to": "overlays.eyebrow",
+          "options": [
+            "plain",
+            "destructive"
+          ],
+          "states": "static",
+          "optionBy": {
+            "axis": "destructive",
+            "values": {
+              "false": "plain",
+              "true": "destructive"
+            }
+          },
+          "inline": true
+        },
         "title": "text.heading",
         "body": "text.body",
         "requireLabel": "text.muted",
@@ -2440,13 +2544,45 @@
     "ArenaDialog": {
       "group": "overlays",
       "parts": {
-        "scrim": "overlays.scrim",
-        "panel": "overlays.panel",
-        "head": "overlays.section",
+        "scrim": {
+          "to": "overlays.scrim",
+          "options": [],
+          "states": "static",
+          "inline": true
+        },
+        "panel": {
+          "to": "overlays.panel",
+          "options": [],
+          "states": "static",
+          "properties": [
+            "fill",
+            "edge"
+          ],
+          "inline": true
+        },
+        "head": {
+          "to": "overlays.section",
+          "options": [],
+          "states": "static",
+          "onlyBy": {
+            "axis": "fill",
+            "value": "true"
+          },
+          "inline": true
+        },
         "eyebrow": "text.eyebrow",
         "title": "text.heading",
         "body": "text.body",
-        "foot": "overlays.section"
+        "foot": {
+          "to": "overlays.section",
+          "options": [],
+          "states": "static",
+          "onlyBy": {
+            "axis": "fill",
+            "value": "true"
+          },
+          "inline": true
+        }
       }
     },
     "ArenaDivider": {
@@ -2656,7 +2792,12 @@
     "ArenaFunnelChart": {
       "group": null,
       "parts": {
-        "tooltip": "overlays.readout",
+        "tooltip": {
+          "to": "overlays.readout",
+          "options": [],
+          "states": "static",
+          "inline": true
+        },
         "tooltipLabel": "text.muted",
         "tooltipValue": "text.body"
       }
@@ -2673,7 +2814,12 @@
       "group": null,
       "parts": {
         "legendLabel": "text.body",
-        "tooltip": "overlays.readout",
+        "tooltip": {
+          "to": "overlays.readout",
+          "options": [],
+          "states": "static",
+          "inline": true
+        },
         "tooltipLabel": "text.muted",
         "tooltipValue": "text.body"
       }
@@ -2691,7 +2837,12 @@
       "parts": {
         "legendSwatch": "series",
         "legendLabel": "text.body",
-        "tooltip": "overlays.readout",
+        "tooltip": {
+          "to": "overlays.readout",
+          "options": [],
+          "states": "static",
+          "inline": true
+        },
         "tooltipLabel": "text.muted",
         "tooltipValue": "text.body"
       }
@@ -2817,7 +2968,12 @@
       "parts": {
         "legendSwatch": "series",
         "legendLabel": "text.body",
-        "tooltip": "overlays.readout",
+        "tooltip": {
+          "to": "overlays.readout",
+          "options": [],
+          "states": "static",
+          "inline": true
+        },
         "tooltipLabel": "text.muted",
         "tooltipValue": "text.body"
       }
@@ -2844,7 +3000,12 @@
     "ArenaMenu": {
       "group": "menus",
       "parts": {
-        "panel": "overlays.panel",
+        "panel": {
+          "to": "overlays.panel",
+          "options": [],
+          "states": "static",
+          "inline": true
+        },
         "item": {
           "to": "menus.item",
           "options": [
@@ -3005,8 +3166,22 @@
     "ArenaOnboarding": {
       "group": "overlays",
       "parts": {
-        "root": "overlays.scrim",
-        "panel": "overlays.panel",
+        "root": {
+          "to": "overlays.scrim",
+          "options": [],
+          "states": "static",
+          "inline": true
+        },
+        "panel": {
+          "to": "overlays.panel",
+          "options": [],
+          "states": "static",
+          "properties": [
+            "fill",
+            "edge"
+          ],
+          "inline": true
+        },
         "eyebrow": "text.eyebrow",
         "title": "text.heading",
         "body": "text.body",
@@ -3172,7 +3347,12 @@
     "ArenaPopover": {
       "group": "overlays",
       "parts": {
-        "panel": "overlays.panel"
+        "panel": {
+          "to": "overlays.panel",
+          "options": [],
+          "states": "static",
+          "inline": true
+        }
       }
     },
     "ArenaProgressBar": {
@@ -3263,7 +3443,12 @@
       "parts": {
         "legendSwatch": "series",
         "legendLabel": "text.body",
-        "tooltip": "overlays.readout",
+        "tooltip": {
+          "to": "overlays.readout",
+          "options": [],
+          "states": "static",
+          "inline": true
+        },
         "tooltipLabel": "text.muted",
         "tooltipValue": "text.body"
       }
@@ -3273,7 +3458,12 @@
       "parts": {
         "legendSwatch": "series",
         "legendLabel": "text.body",
-        "tooltip": "overlays.readout",
+        "tooltip": {
+          "to": "overlays.readout",
+          "options": [],
+          "states": "static",
+          "inline": true
+        },
         "tooltipLabel": "text.muted",
         "tooltipValue": "text.body"
       }
@@ -3310,7 +3500,12 @@
       "parts": {
         "legendSwatch": "series",
         "legendLabel": "text.body",
-        "tooltip": "overlays.readout",
+        "tooltip": {
+          "to": "overlays.readout",
+          "options": [],
+          "states": "static",
+          "inline": true
+        },
         "tooltipLabel": "text.muted",
         "tooltipValue": "text.body"
       }
@@ -3392,7 +3587,16 @@
     "ArenaSheet": {
       "group": "overlays",
       "parts": {
-        "root": "overlays.panel",
+        "root": {
+          "to": "overlays.panel",
+          "options": [],
+          "states": "static",
+          "properties": [
+            "fill",
+            "edge"
+          ],
+          "inline": true
+        },
         "head": {
           "to": "surfaces.separator",
           "options": [],
@@ -3545,7 +3749,12 @@
     "ArenaSparkline": {
       "group": null,
       "parts": {
-        "tooltip": "overlays.readout",
+        "tooltip": {
+          "to": "overlays.readout",
+          "options": [],
+          "states": "static",
+          "inline": true
+        },
         "tooltipLabel": "text.muted",
         "tooltipValue": "text.body"
       }

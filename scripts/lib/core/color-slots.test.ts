@@ -531,10 +531,10 @@ test('marks derives its dot and tile', () => {
   assert.equal(c.members['ArenaTimeline.dot']?.options.length, 15);
 });
 
-test('no group named charts and the readout is a structure-only overlay part', () => {
+test('no group named charts and the readout is the overlay part every tooltip reads', () => {
   const d = readSlotDeclarations();
   assert.equal(d.groups!.charts, undefined);
-  assert.deepEqual(d.groups!.overlays!.parts.readout, { properties: ['fill', 'edge'], states: 'static' });
+  assert.deepEqual(d.groups!.overlays!.parts.readout, { properties: ['fill', 'edge'], states: 'static', rest: { fill: '{fill-surface-raised}', edge: '{edge-surface-floating}' } });
   const listed = (readJson(join(repoRoot, 'frameworks/Components.json')) as Record<string, string[]>).charts!;
   assert.equal(listed.length, 12, 'the charts category lists Bar, ChartCard, Doughnut, Funnel, Gauge, Heatmap, HorizontalBar, Line, Pyramid, Radar, Scatter and Sparkline');
   const charts = listed.map((name) => [name, d.members![name]] as const);
@@ -542,10 +542,11 @@ test('no group named charts and the readout is a structure-only overlay part', (
   for (const [name, m] of charts as [string, NonNullable<(typeof charts)[number][1]>][]) {
     assert.equal(m.group, null, name);
     for (const to of Object.values(m.parts)) assert.ok(to === null || typeof to !== 'string' || !to.startsWith('charts.'), `${name}: ${to}`);
-    if ('tooltip' in m.parts) assert.equal(m.parts.tooltip, 'overlays.readout', name);
+    if ('tooltip' in m.parts) assert.deepEqual(m.parts.tooltip, { to: 'overlays.readout', options: [], states: 'static', inline: true }, name);
   }
   const c = deriveSlots(d);
-  assert.deepEqual(Object.keys(c.slots).filter((key) => key.startsWith('charts-') || key.startsWith('overlays-readout-')), [], 'a readout derives no slot');
+  assert.deepEqual(Object.keys(c.slots).filter((key) => key.startsWith('charts-')), [], 'a chart declares no group of its own');
+  assert.deepEqual(Object.keys(c.slots).filter((key) => key.startsWith('overlays-readout-')), ['overlays-readout-edge-rest', 'overlays-readout-fill-rest'], 'a readout derives its fill and its edge');
 });
 
 test('a member part carries its ground, toBy, seriesBy, wrappedBy and a fill-drawn edge into the catalogue', () => {
@@ -593,4 +594,18 @@ test('data and surfaces derive their parts', () => {
   assert.equal(c.slots['surfaces-primary-card-edge-rest']?.channel, '--arena-accent-surfaces-card-edge');
   assert.equal(c.slots['meters-success-standing-ink-rest']?.default, '{hue-success-ink}');
   assert.deepEqual(Object.keys(c.slots).filter((n) => /^meters-info-standing-/.test(n)), [], 'no member reads an info standing');
+});
+
+test('overlays derive their scrim, panel, section, readout and eyebrow', () => {
+  const c = deriveSlots(readSlotDeclarations());
+  assert.equal(c.slots['overlays-scrim-fill-rest']?.default, '{overlay-scrim}');
+  assert.equal(c.slots['overlays-scrim-fill-rest']?.level, 'level-scrim', 'the scrim keeps 60 % through a named level (D105)');
+  assert.equal(c.slots['overlays-panel-fill-rest']?.default, '{fill-surface-floating}');
+  assert.equal(c.slots['overlays-panel-edge-rest']?.default, '{edge-surface-floating}');
+  assert.equal(c.slots['overlays-panel-ink-rest']?.default, '{ink-body}');
+  assert.equal(c.slots['overlays-section-fill-rest']?.default, '{fill-surface-floating}');
+  assert.equal(c.slots['overlays-readout-fill-rest']?.default, '{fill-surface-raised}');
+  assert.equal(c.slots['overlays-readout-edge-rest']?.default, '{edge-surface-floating}');
+  assert.equal(c.slots['overlays-plain-eyebrow-ink-rest']?.default, '{ink-eyebrow}');
+  assert.equal(c.slots['overlays-destructive-eyebrow-ink-rest']?.default, '{hue-danger-ink}');
 });

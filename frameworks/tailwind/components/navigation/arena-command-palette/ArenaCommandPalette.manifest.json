@@ -1,8 +1,8 @@
 {
   "component": "ArenaCommandPalette",
   "slots": {
-    "root": "fixed inset-0 z-palette flex items-start justify-center pt-[12vh] bg-scrim backdrop-blur-scrim",
-    "panel": "flex flex-col max-h-[88vh] w-140 max-w-[92vw] bg-surface-floating border-[length:var(--bw-surface)] border-edge-surface-floating rounded-surface shadow-surface-deep overflow-hidden",
+    "root": "fixed inset-0 z-palette flex items-start justify-center pt-[12vh] bg-[color:color-mix(in_oklab,var(--overlays-scrim-fill-rest,var(--overlay-scrim))_var(--level-scrim),transparent)] backdrop-blur-scrim",
+    "panel": "flex flex-col max-h-[88vh] w-140 max-w-[92vw] bg-[color:var(--overlays-panel-fill-rest,var(--fill-surface-floating))] border-[length:var(--bw-surface)] border-[color:var(--overlays-panel-edge-rest,var(--edge-surface-floating))] rounded-surface shadow-surface-deep overflow-hidden",
     "search": "flex items-center gap-2.5 px-4 py-3.5 border-b-[length:var(--bw-separator)] border-[color:var(--fields-neutral-field-edge-rest,var(--edge-field))]",
     "searchIcon": "text-ink-muted/(--level-ink-muted) text-[length:var(--icon-lg)]",
     "input": "flex-1 border-none outline-none font-body text-ctl bg-[color:var(--fields-value-fill-rest,transparent)] text-[color:var(--fields-value-ink-rest,var(--ink-body))] placeholder:text-[color:color-mix(in_oklab,var(--fields-value-ink-rest,var(--ink-body))_var(--level-ink-muted),transparent)]",

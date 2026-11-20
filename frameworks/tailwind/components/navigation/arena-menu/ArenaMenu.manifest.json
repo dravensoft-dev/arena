@@ -8,7 +8,7 @@
   ],
   "slots": {
     "root": "inline-flex w-[var(--arena-fill-width,fit-content)]",
-    "panel": "arena-menu z-dropdown min-w-50 p-1.5 text-ink-body/(--level-ink-body) bg-surface-floating border-[length:var(--bw-surface)] border-edge-surface-floating rounded-surface-floating shadow-surface-floating",
+    "panel": "arena-menu z-dropdown min-w-50 p-1.5 text-[color:color-mix(in_oklab,var(--overlays-panel-ink-rest,var(--ink-body))_var(--level-ink-body),transparent)] bg-[color:var(--overlays-panel-fill-rest,var(--fill-surface-floating))] border-[length:var(--bw-surface)] border-[color:var(--overlays-panel-edge-rest,var(--edge-surface-floating))] rounded-surface-floating shadow-surface-floating",
     "item": "flex items-center gap-row-floating w-full min-h-row-min text-left px-row-floating-x py-row-floating-y border-none rounded-control font-body text-md shadow-control-rest active:scale-[var(--press-scale)] motion-reduce:active:scale-100 focus-visible:outline-none focus-visible:shadow-[inset_0_0_0_var(--bw-focus)_var(--edge-focus)]",
     "group": "block",
     "icon": "inline-flex text-[length:var(--icon-md)]",

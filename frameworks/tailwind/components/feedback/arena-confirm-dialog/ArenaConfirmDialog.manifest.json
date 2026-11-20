@@ -1,8 +1,8 @@
 {
   "component": "ArenaConfirmDialog",
   "slots": {
-    "root": "fixed inset-0 z-modal-nested flex items-center justify-center bg-scrim backdrop-blur-scrim",
-    "panel": "w-[var(--confirm-dialog-width)] max-w-[92vw] bg-surface-floating border-[length:var(--bw-surface)] border-edge-surface-floating rounded-surface shadow-surface-deep overflow-hidden",
+    "root": "fixed inset-0 z-modal-nested flex items-center justify-center bg-[color:color-mix(in_oklab,var(--overlays-scrim-fill-rest,var(--overlay-scrim))_var(--level-scrim),transparent)] backdrop-blur-scrim",
+    "panel": "w-[var(--confirm-dialog-width)] max-w-[92vw] bg-[color:var(--overlays-panel-fill-rest,var(--fill-surface-floating))] border-[length:var(--bw-surface)] border-[color:var(--overlays-panel-edge-rest,var(--edge-surface-floating))] rounded-surface shadow-surface-deep overflow-hidden",
     "head": "px-floating-x pt-5.5",
     "eyebrow": "font-face-eyebrow text-eyebrow tracking-eyebrow case-eyebrow mb-2 font-eyebrow",
     "title": "font-face-heading font-heading text-title-section text-ink-heading tracking-heading leading-heading",
@@ -35,11 +35,11 @@
   "variants": {
     "destructive": {
       "true": {
-        "eyebrow": "text-[color:var(--arena-hue-ink)]",
+        "eyebrow": "text-[color:var(--overlays-destructive-eyebrow-ink-rest,var(--hue-danger-ink))]",
         "confirm": "border-[color:var(--actions-destructive-root-edge-rest,var(--hue-danger-edge))] bg-[color:var(--actions-destructive-root-fill-rest,var(--hue-danger-fill-strong))] [--arena-icon-ink:var(--actions-destructive-root-icon-rest,var(--actions-destructive-root-ink-rest,var(--hue-danger-ink)))] text-[color:var(--actions-destructive-root-ink-rest,var(--hue-danger-ink))] hover:border-[color:var(--actions-destructive-root-edge-hover,var(--actions-destructive-root-edge-rest,var(--hue-danger-edge)))] hover:bg-[color:var(--actions-destructive-root-fill-hover,var(--fill-hover))] hover:[--arena-icon-ink:var(--actions-destructive-root-icon-hover,var(--actions-destructive-root-ink-hover,var(--actions-destructive-root-ink-rest,var(--hue-danger-ink))))] hover:text-[color:var(--actions-destructive-root-ink-hover,var(--actions-destructive-root-ink-rest,var(--hue-danger-ink)))] active:border-[color:var(--actions-destructive-root-edge-pressed,var(--actions-destructive-root-edge-rest,var(--hue-danger-edge)))] active:bg-[color:var(--actions-destructive-root-fill-pressed,color-mix(in_oklab,var(--actions-destructive-root-fill-rest,var(--hue-danger-fill-strong)),var(--actions-destructive-root-ink-rest,var(--hue-danger-ink))_calc(var(--mix-pressed)*100%)))] active:[--arena-icon-ink:var(--actions-destructive-root-icon-pressed,var(--actions-destructive-root-ink-pressed,var(--actions-destructive-root-ink-rest,var(--hue-danger-ink))))] active:text-[color:var(--actions-destructive-root-ink-pressed,var(--actions-destructive-root-ink-rest,var(--hue-danger-ink)))] disabled:border-[color:var(--actions-destructive-root-edge-disabled,var(--actions-destructive-root-edge-rest,var(--hue-danger-edge)))] disabled:bg-[color:var(--actions-destructive-root-fill-disabled,var(--actions-destructive-root-fill-rest,var(--hue-danger-fill-strong)))] disabled:[--arena-icon-ink:var(--actions-destructive-root-icon-disabled,var(--actions-destructive-root-ink-disabled,var(--actions-destructive-root-ink-rest,var(--hue-danger-ink))))] disabled:text-[color:var(--actions-destructive-root-ink-disabled,var(--actions-destructive-root-ink-rest,var(--hue-danger-ink)))] disabled:opacity-[var(--actions-destructive-root-fade-disabled,var(--fade-disabled))]"
       },
       "false": {
-        "eyebrow": "text-ink-eyebrow",
+        "eyebrow": "text-[color:var(--overlays-plain-eyebrow-ink-rest,var(--ink-eyebrow))]",
         "confirm": "border-[color:var(--actions-primary-root-edge-rest,var(--emphasis-primary-edge))] bg-[color:var(--actions-primary-root-fill-rest,var(--emphasis-primary-fill))] [--arena-icon-ink:var(--actions-primary-root-icon-rest,var(--actions-primary-root-ink-rest,var(--emphasis-primary-ink)))] text-[color:var(--actions-primary-root-ink-rest,var(--emphasis-primary-ink))] hover:border-[color:var(--actions-primary-root-edge-hover,var(--actions-primary-root-edge-rest,var(--emphasis-primary-edge)))] hover:bg-[color:var(--actions-primary-root-fill-hover,var(--actions-primary-root-fill-rest,var(--emphasis-primary-fill)))] hover:[--arena-icon-ink:var(--actions-primary-root-icon-hover,var(--actions-primary-root-ink-hover,var(--actions-primary-root-ink-rest,var(--emphasis-primary-ink))))] hover:text-[color:var(--actions-primary-root-ink-hover,var(--actions-primary-root-ink-rest,var(--emphasis-primary-ink)))] active:border-[color:var(--actions-primary-root-edge-pressed,var(--actions-primary-root-edge-rest,var(--emphasis-primary-edge)))] active:bg-[color:var(--actions-primary-root-fill-pressed,color-mix(in_oklab,var(--actions-primary-root-fill-rest,var(--emphasis-primary-fill)),var(--actions-primary-root-ink-rest,var(--emphasis-primary-ink))_calc(var(--mix-pressed)*100%)))] active:[--arena-icon-ink:var(--actions-primary-root-icon-pressed,var(--actions-primary-root-ink-pressed,var(--actions-primary-root-ink-rest,var(--emphasis-primary-ink))))] active:text-[color:var(--actions-primary-root-ink-pressed,var(--actions-primary-root-ink-rest,var(--emphasis-primary-ink)))] disabled:border-[color:var(--actions-primary-root-edge-disabled,var(--actions-primary-root-edge-rest,var(--emphasis-primary-edge)))] disabled:bg-[color:var(--actions-primary-root-fill-disabled,var(--actions-primary-root-fill-rest,var(--emphasis-primary-fill)))] disabled:[--arena-icon-ink:var(--actions-primary-root-icon-disabled,var(--actions-primary-root-ink-disabled,var(--actions-primary-root-ink-rest,var(--emphasis-primary-ink))))] disabled:text-[color:var(--actions-primary-root-ink-disabled,var(--actions-primary-root-ink-rest,var(--emphasis-primary-ink)))] disabled:opacity-[var(--actions-primary-root-fade-disabled,var(--fade-disabled))]"
       }
     },
@@ -62,11 +62,5 @@
     "destructive": false,
     "invalid": false,
     "open": false
-  },
-  "hues": {
-    "destructive": {
-      "true": "danger",
-      "false": null
-    }
   }
 }

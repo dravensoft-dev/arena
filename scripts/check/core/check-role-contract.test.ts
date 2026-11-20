@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { declarationProblems, defaultProblems, singleAnswerProblems, emittedTypes, emittedWords, rosterProblems, zeroRoleProblems, collect, ROLES, metadataProblems, questionProblems, combineProblems, levelNames, QUESTION_MAX, SIZE_QUESTION_MAX, STATE_SELECTORS } from './check-role-contract.ts';
 import { join } from 'node:path';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
@@ -378,4 +378,19 @@ test('the tip roles answer their palette keys', () => {
 
 test('no role is named confirm-final', () => {
   assert.deepEqual(Object.keys(readJson(join(repoRoot, ROLES))).filter((name) => name.includes('confirm-final')), []);
+});
+
+test('the scrim role answers base-100 and the scrim mixes it at its level', () => {
+  const shipped = readJson(join(repoRoot, ROLES)) as Record<string, any>;
+  const plugin = readJson(join(repoRoot, 'plugin-style-store/default/plugin.tokens.json')) as Record<string, any>;
+  const role = shipped['overlay-scrim'];
+  assert.equal(role?.$type, 'color');
+  const ext = role?.$extensions?.['com.dravensoft.arena'];
+  assert.equal(ext?.audience, 'markup');
+  assert.ok(String(ext?.question ?? '').endsWith('?'));
+  assert.match(String(ext?.question), /modal/);
+  assert.equal(plugin['overlay-scrim']?.$value, '{color.base-100}', 'the default plugin answers the page floor');
+  const colors = readFileSync(join(repoRoot, 'contracts/design/colors.css'), 'utf8');
+  assert.match(colors, /--level-scrim:60%;/);
+  assert.match(colors, /--scrim:color-mix\(in oklab,var\(--overlay-scrim\) var\(--level-scrim\),transparent\);/);
 });

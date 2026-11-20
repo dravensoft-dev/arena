@@ -63,6 +63,7 @@
   --level-accent-soft-primary:14%;  /* the primary accent's wash */
   --level-accent-soft-gold:16%;     /* the gold accent's wash */
   --level-media:72%;                /* the wash under a caption laid over a figure */
+  --level-scrim:60%;                /* the wash a modal lays over the page */
 
   /* raw neutrals */
   --ink:var(--color-base-100);
@@ -127,6 +128,6 @@
   --on-accent:var(--color-primary-content);
 
   /* the cover behind anything that covers the app: the palette's own floor, held back */
-  --scrim:color-mix(in oklab,var(--color-base-100) 60%,transparent);
+  --scrim:color-mix(in oklab,var(--overlay-scrim) var(--level-scrim),transparent);
 }
 }

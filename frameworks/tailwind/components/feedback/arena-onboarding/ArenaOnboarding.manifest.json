@@ -1,8 +1,8 @@
 {
   "component": "ArenaOnboarding",
   "slots": {
-    "root": "fixed inset-0 z-onboarding block bg-scrim",
-    "panel": "fixed w-[var(--onboarding-width)] max-w-[92vw] bg-surface-floating border-[length:var(--bw-surface)] border-edge-surface-floating rounded-surface shadow-surface-deep p-5",
+    "root": "fixed inset-0 z-onboarding block bg-[color:color-mix(in_oklab,var(--overlays-scrim-fill-rest,var(--overlay-scrim))_var(--level-scrim),transparent)]",
+    "panel": "fixed w-[var(--onboarding-width)] max-w-[92vw] bg-[color:var(--overlays-panel-fill-rest,var(--fill-surface-floating))] border-[length:var(--bw-surface)] border-[color:var(--overlays-panel-edge-rest,var(--edge-surface-floating))] rounded-surface shadow-surface-deep p-5",
     "eyebrow": "font-face-eyebrow text-eyebrow tracking-eyebrow case-eyebrow text-ink-eyebrow mb-2 font-eyebrow",
     "title": "font-face-heading font-heading text-title-surface text-ink-heading tracking-heading leading-heading",
     "body": "font-body text-md leading-prose text-ink-body/(--level-ink-body) mt-2",

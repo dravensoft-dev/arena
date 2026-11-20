@@ -39,6 +39,10 @@
     "$type": "color",
     "$value": "{color.base-200}"
   },
+  "overlay-scrim": {
+    "$type": "color",
+    "$value": "{color.base-100}"
+  },
   "fw-heading": {
     "$type": "fontWeight",
     "$value": "{fw.black}"

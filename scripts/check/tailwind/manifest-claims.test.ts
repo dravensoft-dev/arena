@@ -73,7 +73,6 @@ test('every claim carries a reason, because one that cannot be judged stale is n
 
 const HUES = {
   ArenaBadge: { tone: { success: 'success', warning: 'warning', danger: 'danger', info: 'info' } },
-  ArenaConfirmDialog: { destructive: { true: 'danger' } },
 } as Record<string, Record<string, Record<string, string>>>;
 
 test('every status value maps to its own hue, and a neutral or editorial value to none', () => {
@@ -91,7 +90,6 @@ test('every status value maps to its own hue, and a neutral or editorial value t
   }
   for (const [component, group, values] of [
     ['ArenaBadge', 'tone', ['neutral']],
-    ['ArenaConfirmDialog', 'destructive', ['false']],
   ] as [string, string, string[]][])
     for (const value of values)
       assert.equal(manifests.get(component)?.hues?.[group]?.[value], null, `${component}.hues.${group}.${value} is not mapped to no hue`);
@@ -362,7 +360,7 @@ export const CLAIMS = {
     { chosen: { open: true }, slot: 'root', has: ['flex'], why: 'the root carries a display utility in its own base string, independent of the open variant' },
   ],
   ArenaConfirmDialog: [
-    { chosen: { destructive: true }, slot: 'eyebrow', has: [INK], why: HUE_WHY },
+    { chosen: { destructive: true }, slot: 'eyebrow', has: [read('ArenaConfirmDialog.eyebrow', 'overlays-destructive-eyebrow-ink-rest', 'text')], hasNot: [INK], why: 'the destructive eyebrow reads the overlays group\'s destructive option, so the answer that moves it is a slot answer and not a hue channel' },
     { chosen: { destructive: true }, slot: 'confirm', has: ['bg-[color:var(--actions-destructive-root-fill-rest,var(--hue-danger-fill-strong))]', 'text-[color:var(--actions-destructive-root-ink-rest,var(--hue-danger-ink))]'], hasNot: ['bg-error', 'bg-error-fill', STRONG], why: 'the final confirmation reads the actions group\'s destructive option, so the answer that moves a destructive Button moves it' },
     { chosen: { destructive: false }, slot: 'confirm', has: ['bg-[color:var(--actions-primary-root-fill-rest,var(--emphasis-primary-fill))]', 'text-[color:var(--actions-primary-root-ink-rest,var(--emphasis-primary-ink))]'], hasNot: ['bg-primary-fill'], why: 'a confirmation that is not destructive reads the actions group\'s primary option' },
     { chosen: { destructive: true }, slot: 'confirm', has: ['disabled:opacity-[var(--actions-destructive-root-fade-disabled,var(--fade-disabled))]'], hasNot: ['disabled:opacity-[var(--fade-disabled)]'], why: 'a locked destructive confirmation fades by the destructive marker, so an answered disabled slot stops the fade' },
@@ -566,11 +564,11 @@ export const CLAIMS = {
     { slot: 'panel', hasNot: ['absolute', 'top-full', 'left-0', 'mt-1.5', 'left-auto', 'right-0'],
       why: 'each layer places the panel and lines it up with the trigger, so no positioning class is left for either edge' },
     { slot: 'root', hasNot: ['relative'], why: 'nothing is positioned against the host once the panel has left it' },
-    { slot: 'panel', has: ['text-ink-body/(--level-ink-body)'], why: 'the panel writes its own ink over the platform default a top-layer panel starts from, and its rows inherit it' },
+    { slot: 'panel', has: [read('ArenaMenu.panel', 'overlays-panel-ink-rest', 'text')], why: 'the panel writes its own ink over the platform default a top-layer panel starts from, and its rows inherit it' },
   ],
   ArenaPopover: [
     { slot: 'root', has: ['inline-flex', 'w-[var(--arena-fill-width,fit-content)]'], why: 'a host-bound root is never the UA-default inline box, and the fill channel sizes the wrapper as it does the trigger' },
-    { slot: 'panel', has: ['w-max', 'max-w-[92vw]', 'z-dropdown', 'text-ink-body/(--level-ink-body)'], hasNot: ['absolute', 'fixed', 'relative'],
+    { slot: 'panel', has: ['w-max', 'max-w-[92vw]', 'z-dropdown', read('ArenaPopover.panel', 'overlays-panel-ink-rest', 'text')], hasNot: ['absolute', 'fixed', 'relative'],
       why: 'the panel takes its content\'s width up to the viewport bound, writes its own ink over the platform default a top-layer panel starts from, and leaves its position to the layer' },
   ],
   ArenaPageHead: [

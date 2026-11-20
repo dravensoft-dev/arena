@@ -10,6 +10,7 @@
   --aspect-media:1;
   --fit-media:cover;
   --overlay-media:var(--color-base-100);
+  --overlay-scrim:var(--color-base-100);
   --fw-heading:800;
   --track-heading:-0.02em;
   --lh-prose:1.6;
@@ -284,6 +285,7 @@
 }
 .arena-dark{
   --overlay-media:var(--color-base-100);
+  --overlay-scrim:var(--color-base-100);
   --fill-surface:var(--color-base-200);
   --fill-surface-floating:var(--color-base-200);
   --fill-surface-raised:var(--color-base-300);
@@ -374,6 +376,7 @@
 }
 .arena-light{
   --overlay-media:var(--color-base-100);
+  --overlay-scrim:var(--color-base-100);
   --fill-surface:var(--color-base-200);
   --fill-surface-floating:var(--color-base-200);
   --fill-surface-raised:var(--color-base-300);

@@ -2877,6 +2877,42 @@
     "$type": "color",
     "$value": "{accent-plain-ink}"
   },
+  "overlays-destructive-eyebrow-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "overlays-panel-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-control}"
+  },
+  "overlays-panel-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface}"
+  },
+  "overlays-panel-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-figure}"
+  },
+  "overlays-plain-eyebrow-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-heading}"
+  },
+  "overlays-readout-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-control}"
+  },
+  "overlays-readout-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-track}"
+  },
+  "overlays-scrim-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface}"
+  },
+  "overlays-section-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface}"
+  },
   "overlays-tip-ink-rest": {
     "$type": "color",
     "$value": "{ink-on-mark}"

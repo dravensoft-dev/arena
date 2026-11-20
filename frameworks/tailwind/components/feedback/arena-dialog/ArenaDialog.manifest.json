@@ -4,8 +4,8 @@
     "dialog-width"
   ],
   "slots": {
-    "scrim": "fixed inset-0 z-modal flex items-center justify-center bg-scrim backdrop-blur-scrim",
-    "panel": "arena-pop w-[var(--arena-dialog-width-size,var(--arena-dialog-width,var(--dialog-width-md)))] max-w-[92vw] bg-surface-floating border-[length:var(--bw-surface)] border-edge-surface-floating rounded-surface shadow-surface-deep overflow-hidden",
+    "scrim": "fixed inset-0 z-modal flex items-center justify-center bg-[color:color-mix(in_oklab,var(--overlays-scrim-fill-rest,var(--overlay-scrim))_var(--level-scrim),transparent)] backdrop-blur-scrim",
+    "panel": "arena-pop w-[var(--arena-dialog-width-size,var(--arena-dialog-width,var(--dialog-width-md)))] max-w-[92vw] bg-[color:var(--overlays-panel-fill-rest,var(--fill-surface-floating))] border-[length:var(--bw-surface)] border-[color:var(--overlays-panel-edge-rest,var(--edge-surface-floating))] rounded-surface shadow-surface-deep overflow-hidden",
     "head": "px-floating-x pt-5.5",
     "eyebrow": "font-face-eyebrow text-eyebrow tracking-eyebrow case-eyebrow text-ink-eyebrow mb-2 font-eyebrow",
     "title": "font-face-heading font-heading text-title-section text-ink-heading tracking-heading leading-heading",
@@ -38,9 +38,9 @@
       "true": {
         "scrim": "items-stretch justify-stretch",
         "panel": "flex flex-col w-full h-full max-w-none rounded-none shadow-none pr-[var(--pad-safe-right)] pl-[var(--pad-safe-left)]",
-        "head": "sticky top-0 bg-surface-floating pt-[calc(var(--sp-1)*5.5+var(--pad-safe-top))]",
+        "head": "sticky top-0 bg-[color:var(--overlays-section-fill-rest,var(--fill-surface-floating))] pt-[calc(var(--sp-1)*5.5+var(--pad-safe-top))]",
         "body": "flex-1 overflow-y-auto",
-        "foot": "sticky bottom-0 bg-surface-floating pb-[max(calc(var(--sp-1)*5.5),var(--pad-safe-bottom))]"
+        "foot": "sticky bottom-0 bg-[color:var(--overlays-section-fill-rest,var(--fill-surface-floating))] pb-[max(calc(var(--sp-1)*5.5),var(--pad-safe-bottom))]"
       },
       "false": {}
     }

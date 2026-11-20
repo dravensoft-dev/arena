@@ -94,10 +94,10 @@ function literalAliases(block: string) {
     .map(([, name]) => name);
 }
 
-test('the disabled text and the scrim are the two aliases in colors.css that hold a fixed percentage, with no level', () => {
+test('the disabled text is the one alias in colors.css that holds a fixed percentage, with no level', () => {
   const block = structureOf(readFileSync(join(repoRoot, 'contracts/design/colors.css'), 'utf8'), SELECTORS)
     .replace(/\/\*[\s\S]*?\*\//g, '');
-  assert.deepEqual(literalAliases(block), ['mute-2-disabled', 'scrim']);
+  assert.deepEqual(literalAliases(block), ['mute-2-disabled']);
 });
 
 test('a percentage inside a var() fallback is not a literal the alias holds', () => {
@@ -337,7 +337,7 @@ test('defaultBuildProblems is clean on Arena\'s skin', () => {
 
 test('the default plugin resolves and clears every slot pair the contract declares', () => {
   assert.deepEqual(defaultBuildProblems(), []);
-  assert.equal(slotPairs(tokenCatalogue().slots).length, 228, 'the sweep measures every slot pair the contract declares');
+  assert.equal(slotPairs(tokenCatalogue().slots).length, 231, 'the sweep measures every slot pair the contract declares');
 });
 
 test('complete and the catalogue report their slot pairs in the lines the gate prints', () => {

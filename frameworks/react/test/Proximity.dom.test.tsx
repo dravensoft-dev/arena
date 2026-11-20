@@ -6,7 +6,7 @@ import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
 import { mount, cleanup, act } from './Harness.tsx';
-import { ArenaBoardColumn, ArenaBarChart, ArenaButton, ArenaIconButton, ArenaSplitButton, ArenaCopyButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope, ArenaCheckbox, ArenaRadioGroup, ArenaRadio, ArenaSwitch, ArenaSlider, ArenaInput, ArenaFileInput, ArenaMultiSelect, ArenaSideNav, ArenaSideNavItem, ArenaTabs, ArenaTab, ArenaTreeView, ArenaPagination, ArenaBottomNav, ArenaBottomNavItem, ArenaStepper, ArenaOnboarding, ArenaCommandPalette, ArenaAlert, ArenaToast , ArenaAvatar, ArenaActivityFeed, ArenaMeter, ArenaProgressBar, ArenaSpinner, ArenaChartCard, ArenaDivider } from '../Index.generated.ts';
+import { ArenaBoardColumn, ArenaBarChart, ArenaButton, ArenaIconButton, ArenaSplitButton, ArenaCopyButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope, ArenaCheckbox, ArenaRadioGroup, ArenaRadio, ArenaSwitch, ArenaSlider, ArenaInput, ArenaFileInput, ArenaMultiSelect, ArenaSideNav, ArenaSideNavItem, ArenaTabs, ArenaTab, ArenaTreeView, ArenaPagination, ArenaBottomNav, ArenaBottomNavItem, ArenaStepper, ArenaOnboarding, ArenaCommandPalette, ArenaAlert, ArenaToast , ArenaAvatar, ArenaActivityFeed, ArenaMeter, ArenaProgressBar, ArenaSpinner, ArenaChartCard, ArenaDivider, ArenaConfirmDialog } from '../Index.generated.ts';
 import { readProximity, normalize, vocabularyClasses, markDotAnswers } from '../../../scripts/lib/arena/proximity.ts';
 
 afterEach(cleanup);
@@ -221,6 +221,10 @@ const COMPOSITIONS: Record<string, () => React.ReactElement> = {
     <ArenaCard className="arena-accent-primary">Body</ArenaCard>
     <ArenaChartCard title="Revenue">{null}</ArenaChartCard>
   </div>,
+  'scrim-answer-reaches-every-modal': () => <div style={answered({ '--overlays-scrim-fill-rest': 'var(--hue-info-fill-strong)' })}>
+    <ArenaDialog open onClose={() => {}} title="Discard">{null}</ArenaDialog>
+    <ArenaConfirmDialog open title="Delete">{null}</ArenaConfirmDialog>
+  </div>,
   'solid-badge-ignores-the-soft-answer': () => <div style={answered({ '--marks-plain-soft-fill-rest': 'var(--hue-info-fill-strong)' })}>
     <ArenaBadge className="arena-mark-solid">Live</ArenaBadge>
     <ArenaBadge>Draft</ArenaBadge>
@@ -310,6 +314,7 @@ const SUBJECT: Record<string, { part: string; at: number }> = {
   'separator-answer-moves-borders-and-rules': { part: 'tabs', at: 0 },
   'separator-answer-moves-a-rule-drawn-as-a-box': { part: 'divider', at: 0 },
   'card-accent-answer-reaches-only-its-class': { part: 'card', at: 0 },
+  'scrim-answer-reaches-every-modal': { part: 'dialog.scrim', at: 0 },
 };
 
 const { families, cases } = readProximity();
