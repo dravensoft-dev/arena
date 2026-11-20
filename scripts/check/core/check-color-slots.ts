@@ -628,6 +628,7 @@ export function declarationProblems(d: SlotDeclarations, roles: ReadonlySet<stri
   for (const [comp, m] of Object.entries(d.members ?? {})) {
     keys(`members.${comp}`, m, DECLARED.member);
     for (const [part, to] of Object.entries(m.parts ?? {})) {
+      if (typeof to === 'string' && to !== SERIES) out.push(`members.${comp}.parts.${part}: "${to}" is a string, and a member part is an object that reads its group, "series" or null (D86)`);
       if (!isMemberDecl(to)) continue;
       const where = `members.${comp}.parts.${part}`;
       keys(where, to, DECLARED.memberPart);
@@ -772,9 +773,8 @@ export function exceptionProblems(d: SlotDeclarations): string[] {
 }
 
 const targetOf = (to: string) => {
-  const [at, options] = to.split('@');
-  const [group, part] = (at ?? '').split('.');
-  return { group: group ?? '', part: part ?? '', options: options === undefined ? [] : options.split('|') };
+  const [group, part] = to.split('.');
+  return { group: group ?? '', part: part ?? '' };
 };
 
 const HUE_READ = /^\[color:var\(--arena-hue-[a-z0-9-]+\)\]$/;
@@ -856,22 +856,23 @@ export function mapProblems(d: SlotDeclarations, coloured: ReadonlyMap<string, C
         if (!painted?.keywordsOnly) out.push(`${key}: it is null and paints ${painted ? 'a role' : 'no colour'}; null is for a part that paints only current or transparent`);
         continue;
       }
-      const t = isMemberDecl(to) ? { ...targetOf(to.to), options: to.options } : targetOf(to);
+      if (!isMemberDecl(to)) continue;
+      const t = { ...targetOf(to.to), options: to.options };
       const gp = groups[t.group]?.parts?.[t.part];
       if (!gp) { out.push(`${key}: it maps onto ${t.group}.${t.part}, which is no group part declared in groups`); continue; }
       used.add(`${t.group}.${t.part}`);
       const known = Array.isArray(gp.options) ? gp.options : Object.keys(gp.options ?? {});
       for (const o of t.options) if (!known.includes(o)) out.push(`${key}: its option "${o}" is not an option of ${t.group}.${t.part} (${known.join(', ') || 'none'})`);
-      const from = isMemberDecl(to) ? to.inkFrom : undefined;
+      const from = to.inkFrom;
       if (from !== undefined) {
         const [fg, fp] = from.split('.');
         const source = groups[fg as string]?.parts?.[fp as string];
         if (!source || !source.properties.includes('ink')) out.push(`${key}: inkFrom "${from}" is no group part that paints ink`);
         else used.add(from);
       }
-      for (const target of isMemberDecl(to) ? Object.values(to.toBy?.values ?? {}) : []) used.add(target);
-      const stroked = isMemberDecl(to) && to.fillAs === 'stroke';
-      const ruled = isMemberDecl(to) && to.edgeAs === 'fill';
+      for (const target of Object.values(to.toBy?.values ?? {})) used.add(target);
+      const stroked = to.fillAs === 'stroke';
+      const ruled = to.edgeAs === 'fill';
       const extra = (painted?.properties ?? []).map((p) => (stroked && p === 'edge' ? 'fill' : ruled && p === 'fill' ? 'edge' : p)).filter((p) => !gp.properties.includes(p) && !(p === 'ink' && from !== undefined));
       if (extra.length) out.push(`${key}: it paints ${extra.join(', ')}, which ${t.group}.${t.part} does not paint (${gp.properties.join(', ')})`);
     }

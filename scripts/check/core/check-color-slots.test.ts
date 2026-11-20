@@ -389,9 +389,9 @@ test('a null part that paints a role is refused', () => {
 
 test('a mapping to an undeclared group part is refused', () => {
   const d = mapped();
-  d.members!.ArenaAlert!.parts.icon = 'feedback.nothing';
+  d.members!.ArenaAlert!.parts.icon = { to: 'feedback.nothing', options: [], states: 'static' };
   assert.match(mapLines(d).join('\n'), /ArenaAlert\.icon.*feedback\.nothing/);
-  d.members!.ArenaAlert!.parts.icon = 'nowhere.icon';
+  d.members!.ArenaAlert!.parts.icon = { to: 'nowhere.icon', options: [], states: 'static' };
   assert.match(mapLines(d).join('\n'), /nowhere/);
 });
 
@@ -403,13 +403,13 @@ test('a property the group part does not paint is refused', () => {
 
 test('an option the group part does not list, an undeclared home group and a part the manifest lacks are refused', () => {
   const d = mapped();
-  d.members!.ArenaCalendar!.parts.nav = 'actions.root@loud';
+  d.members!.ArenaCalendar!.parts.nav = { to: 'actions.root', options: ['loud'], states: 'base' };
   assert.match(mapLines(d).join('\n'), /ArenaCalendar\.nav.*loud/);
   const e = mapped();
   e.members!.ArenaAlert!.group = 'nowhere';
   assert.match(mapLines(e).join('\n'), /ArenaAlert.*nowhere/);
   const f = mapped();
-  f.members!.ArenaAlert!.parts.ghost = 'feedback.icon';
+  f.members!.ArenaAlert!.parts.ghost = { to: 'feedback.icon', options: [], states: 'static' };
   assert.match(mapLines(f).join('\n'), /ArenaAlert\.ghost/);
   const g = mapped();
   delete g.members!.ArenaAlert;
@@ -1375,6 +1375,12 @@ test('a toBy axis that seriesBy branches on is refused', () => {
   const d = slotFixture({ label: { properties: ['ink'], states: ['rest'], rest: { ink: '{ink-body}' } }, note: { properties: ['ink'], states: ['rest'], rest: { ink: '{ink-muted}' } } },
     { ArenaTitle: { group: 'marks', parts: { title: { to: 'marks.label', options: [], states: ['rest'], seriesBy: 'colorId', toBy: { axis: 'colorId', values: { 1: 'marks.note' } } } } } }, 'marks');
   assert.deepEqual(declarationProblems(d), ['members.ArenaTitle.parts.title.toBy: it shares the axis colorId with seriesBy, and a seriesBy branch reads only hue channels']);
+});
+
+test('a string member part other than series is refused (D86)', () => {
+  const d = slotFixture({ label: { properties: ['ink'], states: ['rest'], rest: { ink: '{ink-body}' } } },
+    { ArenaTitle: { group: 'marks', parts: { title: 'marks.label@neutral', swatch: 'series', bare: null } } }, 'marks');
+  assert.deepEqual(declarationProblems(d), ['members.ArenaTitle.parts.title: "marks.label@neutral" is a string, and a member part is an object that reads its group, "series" or null (D86)']);
 });
 
 const titleDeclared = () => slotFixture({ label: { properties: ['ink'], states: ['rest'], rest: { ink: '{ink-body}' } } },

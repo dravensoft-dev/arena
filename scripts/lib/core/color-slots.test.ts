@@ -38,7 +38,7 @@ const fixture = (): SlotDeclarations => ({
       group: 'actions',
       parts: { root: { to: 'actions.root', options: ['calm'], states: 'selectable', channels: { edge: '--arena-pin-edge' }, defaults: { 'actions-calm-root-edge-rest': '{pin-edge}' }, decision: 'D21' } },
     },
-    ArenaChip: { group: 'actions', parts: { root: 'actions.close', label: null } },
+    ArenaChip: { group: 'actions', parts: { root: 'series', label: null } },
   },
   exceptions: {},
   rings: { 'ArenaKnob.root': 'ground' },
@@ -113,7 +113,7 @@ test('a group part with no rest answers derives no slot', () => {
   assert.deepEqual(Object.keys(s).filter((n) => n.startsWith('actions-close-')), []);
   const c = deriveSlots(fixture());
   assert.deepEqual(c.groups.actions?.parts, ['root', 'dismiss', 'close']);
-  assert.equal(c.members['ArenaChip.root'], undefined, 'a member part mapped as a string enters no catalogue member');
+  assert.equal(c.members['ArenaChip.root'], undefined, 'a series member part enters no catalogue member');
 });
 
 test('an option with no axis drops its segment', () => {
