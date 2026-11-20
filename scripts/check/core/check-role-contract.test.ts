@@ -301,7 +301,7 @@ test('STATE_SELECTORS is the closed set of states and the selector each one is',
     hover: ':hover', 'focus-visible': ':focus-visible', 'aria-selected': '[aria-selected="true"]',
     'aria-current': '[aria-current]:not([aria-current="false"])', 'aria-pressed': '[aria-pressed="true"]',
     'aria-disabled': '[aria-disabled="true"]', disabled: ':disabled', 'aria-invalid': '[aria-invalid="true"]',
-    active: ':active',
+    active: ':active', 'aria-checked': '[aria-checked="true"]', checked: ':checked',
   });
 });
 
@@ -326,7 +326,7 @@ test('the mix numbers are states roles shown under hover and active', () => {
   const ext = (name: string) => shipped[name]?.$extensions?.['com.dravensoft.arena'];
   for (const [name, state, def] of [['mix-hover', 'hover', '{blend.hover}'], ['mix-pressed', 'active', '{blend.pressed}']] as const) {
     assert.equal(shipped[name]?.$type, 'number', name);
-    assert.equal(ext(name)?.audience, 'component', name);
+    assert.equal(ext(name)?.audience, 'markup', name);
     assert.equal(ext(name)?.task, 'states', name);
     assert.deepEqual(ext(name)?.state, [state], name);
     assert.equal(ext(name)?.default, def, name);

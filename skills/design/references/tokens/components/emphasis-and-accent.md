@@ -37,7 +37,5 @@ Only Arena's components read the roles on this page. A role keeps its name until
 | `--emphasis-secondary-ink` | What colour is the ink of a secondary action? | color | none | none |
 | `--emphasis-solid-fill` | What colour fills a solid icon button? | color | none | none |
 | `--emphasis-solid-ink` | What colour is the ink of a solid icon button? | color | none | none |
-| `--mix-hover` | How far toward its ink does a selected part's fill move under the pointer? | number | none | `{blend.hover}` |
-| `--mix-pressed` | How far toward its ink does a part's fill move while pressed? | number | none | `{blend.pressed}` |
 
 <!-- @tree end -->

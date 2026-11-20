@@ -2,7 +2,7 @@
 
 Read this when your style plugin answers a hover, the keyboard focus ring, a selected or current item, a disabled control or an invalid field.
 
-Eleven roles are on this page. Eight are colour roles, so an answer is a palette colour as a `{color.*}` alias or another colour role: `edge-focus`, `edge-invalid`, `edge-selected`, `edge-tab-selected`, `fill-hover`, `fill-selected`, `ink-invalid` and `ink-selected`. `bw-focus` and `gap-focus` are fixed dimensions and `fade-disabled` is a number, so a plugin answers those with a value of that type. Each role carries a default, except `fill-hover`, and [`style-kernel.md`](../../style-kernel.md#where-the-appearance-actually-comes-from) says what a silent plugin keeps there.
+Thirteen roles are on this page. Eight are colour roles, so an answer is a palette colour as a `{color.*}` alias or another colour role: `edge-focus`, `edge-invalid`, `edge-selected`, `edge-tab-selected`, `fill-hover`, `fill-selected`, `ink-invalid` and `ink-selected`. `bw-focus` and `gap-focus` are fixed dimensions and `fade-disabled`, `mix-hover` and `mix-pressed` are numbers, so a plugin answers those with a value of that type. Each role carries a default, except `fill-hover`, and [`style-kernel.md`](../../style-kernel.md#where-the-appearance-actually-comes-from) says what a silent plugin keeps there.
 
 **What a silent project gets.** The kernel answers `edge-focus` with the secondary and `edge-selected` with the body ink.
 
@@ -27,5 +27,7 @@ Your markup and Arena's components both read the roles on this page. A role keep
 | `--gap-focus` | How far is the keyboard focus ring from the edge of its control? | dimension | fixed | `{focus.offset}` |
 | `--ink-invalid` | What colour is the error text of a field that holds an invalid value? | color | none | `{hue-danger-ink}` |
 | `--ink-selected` | What colour is the text of a selected or current item? | color | none | `{ink-body}` |
+| `--mix-hover` | How far toward its ink does a selected part's fill move under the pointer? | number | none | `{blend.hover}` |
+| `--mix-pressed` | How far toward its ink does a part's fill move while pressed? | number | none | `{blend.pressed}` |
 
 <!-- @tree end -->

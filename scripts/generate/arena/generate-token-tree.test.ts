@@ -10,9 +10,10 @@ import { dirname, join } from 'node:path';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { ARENA_EXT } from '../../lib/core/dtcg-shapes.ts';
+import { STATE_SELECTORS } from '../../check/core/check-role-contract.ts';
 import {
   TREE, TREE_DIR, TREE_OPEN, TREE_CLOSE, roleLeaf, markupLeaf, regionBodies, renderTree, writeTree,
-  COMPAT, roleUtilities, combination, stateRows,
+  COMPAT, roleUtilities, combination, stateRows, CONTROL_READS,
 } from './generate-token-tree.ts';
 import { compileLayer, escapeClass } from '../../lib/tailwind/tailwind-compile.ts';
 
@@ -61,9 +62,9 @@ test('every role lands in exactly one role leaf', () => {
   }
   assert.deepEqual(counts, {
     'plugin/surfaces-and-text.md': 17, 'plugin/edges.md': 20, 'plugin/space-and-layout.md': 18, 'plugin/type.md': 20,
-    'plugin/depth-and-motion.md': 11, 'plugin/states.md': 11,
+    'plugin/depth-and-motion.md': 11, 'plugin/states.md': 13,
     'components/air.md': 33, 'components/type.md': 4, 'components/size-controls.md': 44, 'components/size-content.md': 42,
-    'components/emphasis-and-accent.md': 29, 'components/status-hues.md': 20,
+    'components/emphasis-and-accent.md': 27, 'components/status-hues.md': 20,
     'components/controls-and-marks.md': 13,
   });
 });
@@ -76,7 +77,7 @@ test('units is a markup leaf and the markup index links it', () => {
 
 test('a role no leaf rule takes throws', () => {
   assert.throws(() => roleLeaf('mystery-role', { audience: 'component', task: 'surfaces-and-text' }), /mystery-role/);
-  assert.equal(roleLeaf('mix-hover', { audience: 'component', task: 'states' }), 'components/emphasis-and-accent.md');
+  assert.equal(roleLeaf('mix-hover', { audience: 'markup', task: 'states' }), 'plugin/states.md');
   assert.throws(() => markupLeaf('component-size'), /markup\/component-size\.md/);
   assert.equal(markupLeaf('layers'), 'markup/layers.md');
   assert.throws(() => roleLeaf('mystery-role', { audience: 'markup', task: 'meaning-and-identity' }), /mystery-role/);
@@ -212,11 +213,15 @@ test('a fill role combines its level on its bg utility', () => {
 test('the states leaf maps every attribute to its selector and roles', () => {
   const body = real.get('markup/states.md')!;
   const rows = body.split('\n').filter((line) => /^\| `[a-z-]+` \| `/.test(line));
-  assert.equal(rows.length, 8);
+  assert.equal(rows.length, 11);
   assert.ok(body.includes('| attribute | selector | roles |'));
   const invalid = rows.find((line) => line.startsWith('| `aria-invalid` |'))!;
   assert.ok(invalid.includes('`--edge-invalid`') && invalid.includes('`--ink-invalid`'));
-  assert.ok(rows.find((line) => line.startsWith('| `hover` |'))!.includes('`--fill-hover`'));
+  assert.ok(rows.find((line) => line.startsWith('| `hover` |'))!.includes('`--fill-hover`, `--mix-hover`'));
+  assert.ok(rows.find((line) => line.startsWith('| `active` |'))!.includes('`--mix-pressed`'));
+  const control = '`--emphasis-primary-ink`, `--fill-control-on`, `--fill-knob`, `--ink-knob` |';
+  assert.ok(rows.includes('| `aria-checked` | `[aria-checked="true"]` | ' + control));
+  assert.ok(rows.includes('| `checked` | `:checked` | ' + control));
   assert.ok(rows.find((line) => line.startsWith('| `aria-pressed` |'))!.includes('`[aria-pressed="true"]`'));
 });
 
@@ -249,4 +254,12 @@ test("the layers sheet carries a step's whole description", () => {
   assert.ok(nav[0]!.trim().endsWith(`${last} |`));
   const dropdown = real.get('markup/layers.md')!.split('\n').find((line) => line.startsWith('| `--z-dropdown` |'))!;
   assert.ok(dropdown.includes('top layer') && dropdown.includes('overlay pane'));
+});
+
+test('every CONTROL_READS name is a component role', () => {
+  const roles = readJson(join(repoRoot, 'contracts/design/roles.json')) as Record<string, { $extensions: Record<string, { audience: string }> }>;
+  for (const [name, states] of Object.entries(CONTROL_READS)) {
+    assert.equal(roles[name]?.$extensions[ARENA_EXT]?.audience, 'component', name);
+    for (const state of states) assert.ok(state in STATE_SELECTORS, `${name} lists ${state}`);
+  }
 });

@@ -163,12 +163,25 @@ function indexBody(index: string, base: string) {
   }).join('\n');
 }
 
+export const CONTROL_READS: Readonly<Record<string, readonly string[]>> = {
+  'fill-control': [],
+  'fill-control-on': ['aria-checked', 'checked'],
+  'fill-knob': ['aria-checked', 'checked'],
+  'fill-knob-off': [],
+  'ink-knob': ['aria-checked', 'checked'],
+  'ink-knob-off': [],
+  'emphasis-primary-ink': ['aria-checked', 'checked'],
+};
+
 export function stateRows(roles: Record<string, RoleToken>) {
   return Object.entries(STATE_SELECTORS).flatMap(([attribute, selector]) => {
-    const named = Object.keys(roles).sort().filter((name) => {
-      const ext = roles[name]!.$extensions?.[ARENA_EXT] as Record<string, unknown> | undefined;
-      return ext?.audience === 'markup' && Array.isArray(ext.state) && ext.state.includes(attribute);
-    });
+    const named = [...new Set([
+      ...Object.keys(roles).filter((name) => {
+        const ext = roles[name]!.$extensions?.[ARENA_EXT] as Record<string, unknown> | undefined;
+        return ext?.audience === 'markup' && Array.isArray(ext.state) && ext.state.includes(attribute);
+      }),
+      ...Object.entries(CONTROL_READS).filter(([name, states]) => roles[name] && states.includes(attribute)).map(([name]) => name),
+    ])].sort();
     return named.length ? [`| \`${attribute}\` | \`${selector}\` | ${named.map((name) => `\`--${name}\``).join(', ')} |`] : [];
   });
 }

@@ -1664,7 +1664,7 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "default": "{blend.hover}",
-        "audience": "component",
+        "audience": "markup",
         "task": "states",
         "state": [
           "hover"
@@ -1679,7 +1679,7 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "default": "{blend.pressed}",
-        "audience": "component",
+        "audience": "markup",
         "task": "states",
         "state": [
           "active"
