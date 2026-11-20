@@ -202,8 +202,8 @@ const TEMPLATES: Record<string, string> = {
   'linear-track-follows-the-track-fill': '<div style="--meters-primary-track-fill-rest: var(--hue-info-fill-strong)"><arena-progress-bar label="Upload" [progressPercentage]="40" /></div>',
   'hover-answer-is-not-derived-from-the-rest-answer': '<div style="--actions-primary-root-fill-rest: var(--fill-surface); --actions-primary-root-fill-hover: var(--fill-hover)"><arena-button>Save</arena-button></div>',
   'tag-colour-id-outranks-its-tone': '<div style="--marks-success-outline-edge-rest: var(--hue-info-edge)"><arena-tag [colorId]="3" tone="success">Backend</arena-tag><arena-tag tone="success">Shipped</arena-tag></div>',
-  'separator-answer-moves-borders-and-rules': '<div style="--surfaces-separator-edge-rest: var(--hue-info-edge)"><arena-tabs value="one"><arena-tab value="one" label="One">First</arena-tab></arena-tabs><arena-chart-card title="Revenue"></arena-chart-card></div>',
-  'separator-answer-moves-a-rule-drawn-as-a-box': '<div style="--surfaces-separator-edge-rest: var(--hue-info-edge)"><arena-divider /><arena-divider label="or" /></div>',
+  'separator-answer-moves-borders-and-rules': '<div style="--surfaces-separator-edge-rest: var(--hue-info-edge)"><arena-tabs value="one"><arena-tab value="one" label="One">First</arena-tab></arena-tabs><arena-chart-card title="Revenue"></arena-chart-card><arena-card title="Plan" /></div>',
+  'separator-answer-moves-a-rule-drawn-as-a-box': '<div style="--surfaces-separator-edge-rest: var(--hue-info-edge)"><arena-divider /><arena-divider label="or" /><arena-timeline label="Order" [items]="[{ title: \'Placed\' }, { title: \'Shipped\' }]" /></div>',
   'card-accent-answer-reaches-only-its-class': '<div style="--surfaces-primary-card-edge-rest: var(--hue-info-edge)"><arena-card class="arena-accent-primary">Body</arena-card><arena-chart-card title="Revenue"></arena-chart-card></div>',
   'scrim-answer-reaches-every-modal': '<div style="--overlays-scrim-fill-rest: var(--hue-info-fill-strong)"><arena-dialog [open]="true" title="Discard"></arena-dialog><arena-confirm-dialog [open]="true" title="Delete"></arena-confirm-dialog></div>',
   'to-by-reads-its-branch': '<div style="--text-figure-ink-rest: var(--hue-info-ink); --text-muted-ink-rest: var(--hue-danger-ink)"><arena-table label="Deploys" [columns]="[{ header: \'Calls\', numeric: true }, { header: \'Service\' }]"><tr arena-table-row><td arena-table-cell>12</td><td arena-table-cell>checkout</td></tr></arena-table><arena-progress-bar label="Upload" [progressPercentage]="40" /><arena-progress-bar shape="radial" label="Sync" [progressPercentage]="40" /></div>',
@@ -305,6 +305,7 @@ function stubNarrow(width: number): () => void {
     private readonly callback: (entries: unknown[]) => void;
     constructor(callback: (entries: unknown[]) => void) { this.callback = callback; }
     observe(target: Element): void { this.callback([{ target, borderBoxSize: [{ inlineSize: width, blockSize: 0 }], contentRect: { width } }]); }
+    unobserve(): void {}
     disconnect(): void {}
   };
   return () => { globals.ResizeObserver = saved; };

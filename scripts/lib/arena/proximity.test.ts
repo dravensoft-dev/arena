@@ -71,8 +71,8 @@ test('a part keeps a tone that states something, and the gate writes it over the
   const badge = node('span', { 'data-arena-part': 'badge', 'data-arena-tone': 'success' });
   const quiet = node('span', { 'data-arena-part': 'badge', 'data-arena-tone': 'neutral' });
   assert.deepEqual(normalize(node('div', {}, [badge, quiet]), new Set()), {
-    tag: 'div', children: [{ tag: 'span', part: 'badge', tone: 'success' }, { tag: 'span', part: 'badge' }],
-  });
+    tag: 'div', children: [{ tag: 'span', part: 'badge', axes: { 'data-arena-tone': 'success' }, tone: 'success' }, { tag: 'span', part: 'badge' }],
+  }, 'a root part is hooked by the component name alone, so its option axis is kept too');
   const html = treeHtml({ tag: 'span', part: 'badge', tone: 'success' }, () => '', () => ({ [TONE]: 'neutral' }));
   assert.equal(html, '<span data-arena-part="badge" data-arena-tone="success"></span>');
 });

@@ -77,28 +77,26 @@ const SLOT_CHANNELS = slotChannels();
 export const markDotAnswers = (root = repoRoot): Record<string, string> => Object.fromEntries(
   Object.keys(readColorSlots(root).slots).filter((name) => /^marks-.+-dot-(fill|ink|edge)-rest$/.test(name)).map((name) => [`--${name}`, 'var(--hue-info-ink)']));
 
+const hookOf = (component: string, part: string) => kebab(component.replace(/^Arena/, '')) + (part === 'root' ? '' : `.${kebab(part)}`);
+const memberHook = (key: string) => { const [component, part] = key.split('.') as [string, string]; return hookOf(component, part); };
+
 const branchAxes = (by: 'selectedBy' | 'disabledBy', root = repoRoot) => new Map(Object.entries(readColorSlots(root).members).flatMap(([key, member]) => {
-  const [component, part] = key.split('.') as [string, string];
   const axis = member[by]?.axis;
-  return axis ? [[`${kebab(component.replace(/^Arena/, ''))}.${kebab(part)}`, `data-arena-${axis}`] as [string, string]] : [];
+  return axis ? [[memberHook(key), `data-arena-${axis}`] as [string, string]] : [];
 }));
 const optionAxesOf = (root = repoRoot) => new Map(Object.entries(readColorSlots(root).members).flatMap(([key, member]) => {
-  const [component, part] = key.split('.') as [string, string];
   const axes = [...optionAxes(member).flatMap(axisNames), ...[member.onlyBy, member.hoverBy, member.toBy].flatMap((one) => (one ? [one.axis] : []))].map((one) => `data-arena-${kebab(one)}`);
-  return axes.length ? [[`${kebab(component.replace(/^Arena/, ''))}.${kebab(part)}`, axes] as [string, string[]]] : [];
+  return axes.length ? [[memberHook(key), axes] as [string, string[]]] : [];
 }));
-const seriesByAxesOf = (root = repoRoot) => Object.entries(readColorSlots(root).members).flatMap(([key, member]) => {
-  const [component, part] = key.split('.') as [string, string];
-  const hook = kebab(component.replace(/^Arena/, '')) + (part === 'root' ? '' : `.${kebab(part)}`);
-  return member.seriesBy ? [[hook, [`data-arena-${kebab(member.seriesBy)}`]] as [string, string[]]] : [];
-});
+const seriesByAxesOf = (root = repoRoot) => Object.entries(readColorSlots(root).members).flatMap(([key, member]) =>
+  member.seriesBy ? [[memberHook(key), [`data-arena-${kebab(member.seriesBy)}`]] as [string, string[]]] : []);
 const seriesAxesOf = (root = repoRoot) => {
   const manifests = new Map([...layerManifests(root).values()].map((one) => [one.component, one]));
   return new Map(Object.entries(readSlotDeclarations(root).members ?? {}).flatMap(([component, member]) => Object.entries(member.parts)
     .filter(([, to]) => to === 'series')
     .flatMap(([part]) => {
       const axes = Object.keys(manifests.get(component)?.hues ?? {}).filter((one) => one !== 'on' && one !== 'tone').map((one) => `data-arena-${kebab(one)}`);
-      return axes.length ? [[`${kebab(component.replace(/^Arena/, ''))}.${kebab(part)}`, axes] as [string, string[]]] : [];
+      return axes.length ? [[hookOf(component, part), axes] as [string, string[]]] : [];
     })));
 };
 const OPTION_AXES = [...seriesByAxesOf()].reduce((all, [hook, axes]) => all.set(hook, [...all.get(hook) ?? [], ...axes]),
@@ -106,7 +104,7 @@ const OPTION_AXES = [...seriesByAxesOf()].reduce((all, [hook, axes]) => all.set(
 const SELECTED_BY = branchAxes('selectedBy');
 const DISABLED_BY = branchAxes('disabledBy');
 const ARIA_DISABLED = new Set(Object.entries(readColorSlots().members).filter(([, member]) => member.disabledModifier === 'aria-disabled:')
-  .map(([key]) => { const [component, part] = key.split('.') as [string, string]; return `${kebab(component.replace(/^Arena/, ''))}.${kebab(part)}`; }));
+  .map(([key]) => memberHook(key)));
 
 export const channelBindings = (style: string) => style.split(';').map((one) => one.replace(/\s+/g, ''))
   .filter((one) => one.startsWith('--arena-') || SLOT_CHANNELS.has(one.split(':')[0] ?? '')).join(';');

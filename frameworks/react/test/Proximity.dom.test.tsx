@@ -212,10 +212,12 @@ const COMPOSITIONS: Record<string, () => React.ReactElement> = {
   'separator-answer-moves-borders-and-rules': () => <div style={answered({ '--surfaces-separator-edge-rest': 'var(--hue-info-edge)' })}>
     <ArenaTabs value="one"><ArenaTab value="one" label="One">First</ArenaTab></ArenaTabs>
     <ArenaChartCard title="Revenue">{null}</ArenaChartCard>
+    <ArenaCard title="Plan">{null}</ArenaCard>
   </div>,
   'separator-answer-moves-a-rule-drawn-as-a-box': () => <div style={answered({ '--surfaces-separator-edge-rest': 'var(--hue-info-edge)' })}>
     <ArenaDivider />
     <ArenaDivider label="or" />
+    <ArenaTimeline label="Order" items={[{ title: 'Placed' }, { title: 'Shipped' }]} />
   </div>,
   'card-accent-answer-reaches-only-its-class': () => <div style={answered({ '--surfaces-primary-card-edge-rest': 'var(--hue-info-edge)' })}>
     <ArenaCard className="arena-accent-primary">Body</ArenaCard>
