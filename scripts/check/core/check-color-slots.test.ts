@@ -147,18 +147,18 @@ test('a member part on an option its manifest lacks, or a part its manifest lack
 
 test('the contract counts', () => {
   const slots = Object.values(shipped().slots);
-  assert.equal(slots.length, 459);
+  assert.equal(slots.length, 458);
   const by = (key: (s: (typeof slots)[number]) => string) => {
     const n: Record<string, number> = {};
     for (const s of slots) n[key(s)] = (n[key(s)] ?? 0) + 1;
     return n;
   };
-  assert.deepEqual(by((s) => s.option ?? ''), { '': 126, primary: 28, secondary: 16, ghost: 32, solid: 32, destructive: 28, neutral: 17, muted: 2, error: 10, valid: 7, readonly: 2, warning: 15, plain: 32, quiet: 2, complete: 4, current: 4, upcoming: 4, danger: 14, success: 14, info: 11, gold: 7, floating: 2, media: 3, page: 2, ...Object.fromEntries(['neutral', 'danger', 'success', 'warning', 'info'].flatMap((tone) => ['complete', 'current', 'upcoming'].map((state) => [`${tone}-${state}`, 3]))) });
-  assert.deepEqual(by((s) => s.state), { rest: 243, disabled: 47, hover: 57, pressed: 40, selected: 27, 'selected-hover': 14, 'selected-pressed': 14, 'selected-disabled': 17 });
+  assert.deepEqual(by((s) => s.option ?? ''), { '': 125, primary: 28, secondary: 16, ghost: 32, solid: 32, destructive: 28, neutral: 17, muted: 2, error: 10, valid: 7, readonly: 2, warning: 15, plain: 32, quiet: 2, complete: 4, current: 4, upcoming: 4, danger: 14, success: 14, info: 11, gold: 7, floating: 2, media: 3, page: 2, ...Object.fromEntries(['neutral', 'danger', 'success', 'warning', 'info'].flatMap((tone) => ['complete', 'current', 'upcoming'].map((state) => [`${tone}-${state}`, 3]))) });
+  assert.deepEqual(by((s) => s.state), { rest: 243, disabled: 47, hover: 57, pressed: 40, selected: 26, 'selected-hover': 14, 'selected-pressed': 14, 'selected-disabled': 17 });
   assert.equal(slots.filter((s) => s.optional).length, 64);
   assert.equal(slots.filter((s) => s.derive?.mix === 'mix-pressed').length, 19);
   assert.equal(slots.filter((s) => s.derive?.mix === 'mix-hover').length, 7);
-  assert.equal(slots.filter((s) => s.channel === undefined).length, 333, 'the destructive option, the dismiss part and the choices, fields, menus, navigation, steps, feedback, marks, meters, data, surfaces and overlays groups carry no channel, bar the accent edge, the accent dot ink, the accent soft, outline and label marks and the accent meter track (D95)');
+  assert.equal(slots.filter((s) => s.channel === undefined).length, 332, 'the destructive option, the dismiss part and the choices, fields, menus, navigation, steps, feedback, marks, meters, data, surfaces and overlays groups carry no channel, bar the accent edge, the accent dot ink, the accent soft, outline and label marks and the accent meter track (D95)');
 });
 
 test('every slot of the five buttons reaches its part under its state', () => {
@@ -1444,4 +1444,7 @@ test('fill accepts the overlay roles', () => {
   assert.deepEqual(defaultProblems(c, roles).filter((l) => /surfaces-media-fill-rest/.test(l)), [], 'the media wash answers with overlay-media');
   const refused = defaultProblems(edit((x) => { x.accepts.fill = x.accepts.fill.filter((p) => p !== 'overlay-*'); }), roles);
   assert.ok(refused.some((l) => /surfaces-media-fill-rest/.test(l)), 'without overlay-* the media wash is no accepted role');
+  assert.deepEqual(acceptsProblems(edit((x) => { x.accepts.fill.push('overlay-*'); }), roles), [], 'a pattern naming no other property is taken as it is, whatever its prefix');
+  assert.equal(acceptsProblems(edit((x) => { x.accepts.edge.push('overlay-*'); }), roles).length, 0, 'the same prefix on an edge slot names no ink or fill');
+  assert.equal(acceptsProblems(edit((x) => { x.accepts.fill.push('edge-*'); }), roles).length, 1, 'an edge role on a fill slot is still refused');
 });

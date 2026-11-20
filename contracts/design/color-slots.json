@@ -1646,16 +1646,11 @@
           ],
           "states": [
             "rest",
-            "hover",
-            "selected"
+            "hover"
           ],
           "rest": {
             "fill": "transparent",
             "edge": "{edge-separator}"
-          },
-          "selected": {
-            "fill": "{fill-surface-sunken}",
-            "edge": "transparent"
           }
         },
         "header": {
@@ -1695,6 +1690,17 @@
           "rest": {
             "fill": "{emphasis-primary-fill}",
             "edge": "{emphasis-primary-edge}"
+          }
+        },
+        "current": {
+          "properties": [
+            "fill"
+          ],
+          "states": [
+            "selected"
+          ],
+          "selected": {
+            "fill": "{fill-surface-sunken}"
           }
         }
       }
@@ -3094,14 +3100,13 @@
       "group": "data",
       "parts": {
         "row": {
-          "to": "data.row",
+          "to": "data.current",
           "options": [],
           "states": [
             "selected"
           ],
           "properties": [
-            "fill",
-            "edge"
+            "fill"
           ],
           "onlyBy": {
             "axis": "current",

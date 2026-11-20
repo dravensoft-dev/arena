@@ -426,6 +426,7 @@
   --choices-segment-ink-selected-pressed:var(--accent-muted-ink);
   --choices-track-edge-rest:var(--edge-field);
   --choices-track-fill-rest:var(--accent-plain-fill-soft);
+  --data-current-fill-selected:var(--fill-marker);
   --data-header-edge-hover:var(--edge-control-quiet);
   --data-header-edge-rest:var(--edge-control-quiet);
   --data-header-fill-hover:var(--fill-surface-raised);
@@ -436,7 +437,6 @@
   --data-row-edge-hover:var(--edge-control-quiet);
   --data-row-edge-rest:var(--edge-control-quiet);
   --data-row-fill-hover:var(--fill-surface-raised);
-  --data-row-fill-selected:var(--fill-marker);
   --data-today-ink-rest:var(--accent-gold-ink);
   --feedback-danger-action-ink-rest:var(--hue-danger-ink);
   --feedback-danger-banner-edge-rest:var(--edge-invalid);
@@ -921,6 +921,7 @@
   --choices-segment-ink-selected-pressed:var(--accent-muted-ink);
   --choices-track-edge-rest:var(--edge-field);
   --choices-track-fill-rest:var(--accent-plain-fill-soft);
+  --data-current-fill-selected:var(--fill-marker);
   --data-header-edge-hover:var(--edge-control-quiet);
   --data-header-edge-rest:var(--edge-control-quiet);
   --data-header-fill-hover:var(--fill-surface-raised);
@@ -931,7 +932,6 @@
   --data-row-edge-hover:var(--edge-control-quiet);
   --data-row-edge-rest:var(--edge-control-quiet);
   --data-row-fill-hover:var(--fill-surface-raised);
-  --data-row-fill-selected:var(--fill-marker);
   --data-today-ink-rest:var(--accent-gold-ink);
   --feedback-danger-action-ink-rest:var(--hue-danger-ink);
   --feedback-danger-banner-edge-rest:var(--edge-invalid);
@@ -1396,6 +1396,7 @@
   --choices-segment-ink-selected-pressed:var(--accent-muted-ink);
   --choices-track-edge-rest:var(--edge-field);
   --choices-track-fill-rest:var(--accent-plain-fill-soft);
+  --data-current-fill-selected:var(--fill-marker);
   --data-header-edge-hover:var(--edge-control-quiet);
   --data-header-edge-rest:var(--edge-control-quiet);
   --data-header-fill-hover:var(--fill-surface-raised);
@@ -1406,7 +1407,6 @@
   --data-row-edge-hover:var(--edge-control-quiet);
   --data-row-edge-rest:var(--edge-control-quiet);
   --data-row-fill-hover:var(--fill-surface-raised);
-  --data-row-fill-selected:var(--fill-marker);
   --data-today-ink-rest:var(--accent-gold-ink);
   --feedback-danger-action-ink-rest:var(--hue-danger-ink);
   --feedback-danger-banner-edge-rest:var(--edge-invalid);
@@ -1871,6 +1871,7 @@
   --choices-segment-ink-selected-pressed:var(--accent-muted-ink);
   --choices-track-edge-rest:var(--edge-field);
   --choices-track-fill-rest:var(--accent-plain-fill-soft);
+  --data-current-fill-selected:var(--fill-marker);
   --data-header-edge-hover:var(--edge-control-quiet);
   --data-header-edge-rest:var(--edge-control-quiet);
   --data-header-fill-hover:var(--fill-surface-raised);
@@ -1881,7 +1882,6 @@
   --data-row-edge-hover:var(--edge-control-quiet);
   --data-row-edge-rest:var(--edge-control-quiet);
   --data-row-fill-hover:var(--fill-surface-raised);
-  --data-row-fill-selected:var(--fill-marker);
   --data-today-ink-rest:var(--accent-gold-ink);
   --feedback-danger-action-ink-rest:var(--hue-danger-ink);
   --feedback-danger-banner-edge-rest:var(--edge-invalid);
@@ -2346,6 +2346,7 @@
   --choices-segment-ink-selected-pressed:var(--accent-muted-ink);
   --choices-track-edge-rest:var(--edge-field);
   --choices-track-fill-rest:var(--accent-plain-fill-soft);
+  --data-current-fill-selected:var(--fill-marker);
   --data-header-edge-hover:var(--edge-control-quiet);
   --data-header-edge-rest:var(--edge-control-quiet);
   --data-header-fill-hover:var(--fill-surface-raised);
@@ -2356,7 +2357,6 @@
   --data-row-edge-hover:var(--edge-control-quiet);
   --data-row-edge-rest:var(--edge-control-quiet);
   --data-row-fill-hover:var(--fill-surface-raised);
-  --data-row-fill-selected:var(--fill-marker);
   --data-today-ink-rest:var(--accent-gold-ink);
   --feedback-danger-action-ink-rest:var(--hue-danger-ink);
   --feedback-danger-banner-edge-rest:var(--edge-invalid);

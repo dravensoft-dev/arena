@@ -127,8 +127,6 @@ export const WITNESS_EXEMPT: ReadonlyMap<string, string> = new Map([
     + 'an edge slot accepts resolves to primary-fill in complete, so the slot keeps its kernel default there'],
   ['data-row-fill-rest', SLOT + 'the one accepted role complete paints transparent, hue-danger-fill-strong, is a danger fill, and a table or list row answered with it '
     + 'would say danger where it draws nothing; the kernel default is the literal transparent, so no other spelling resolves to the key complete paints there'],
-  ['data-row-edge-selected', SLOT + 'complete draws a selected row with no edge, the kernel default is the literal transparent, and no accepted edge role resolves to '
-    + 'transparent in complete, so no other spelling resolves to what complete paints there'],
   ['data-now-edge-rest', SLOT + 'complete paints the calendar now line primary-fill, and no accepted edge role resolves to it in complete: ' + NO_SECOND_SPELLING],
   ['overlays-tip-fill-rest', SLOT + 'complete paints the tooltip bubble base-content, and fill-tip is the one accepted role resolving to it: ' + NO_SECOND_SPELLING],
   ['fill-tip', 'complete answers it as default does, base-content, because complete paints a tooltip bubble base-content and no other palette key resolves to it, '

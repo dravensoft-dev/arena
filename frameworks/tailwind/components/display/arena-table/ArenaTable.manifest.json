@@ -1,9 +1,6 @@
 {
   "component": "ArenaTable",
-  "answers": [
-    "column",
-    "sticky"
-  ],
+  "answers": ["column", "sticky"],
   "slots": {
     "root": "block w-full [isolation:var(--arena-sticky-isolation,auto)] font-body shadow-surface-rest",
     "grid": "table w-full border-collapse",

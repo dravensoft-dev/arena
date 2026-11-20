@@ -582,7 +582,7 @@ test('data and surfaces derive their parts', () => {
   assert.equal(c.slots['data-header-fill-hover']?.default, '{fill-track}', 'the header keeps its track fill under hover (D19)');
   assert.equal(c.slots['data-header-ink-hover']?.default, '{ink-body}');
   assert.equal(c.slots['data-row-fill-hover']?.default, '{fill-hover}');
-  assert.equal(c.slots['data-row-fill-selected']?.default, '{fill-surface-sunken}');
+  assert.equal(c.slots['data-current-fill-selected']?.default, '{fill-surface-sunken}');
   assert.equal(c.slots['surfaces-floating-bar-edge-rest']?.default, '{edge-surface-floating}');
   assert.equal(c.slots['surfaces-page-bar-fill-rest']?.default, '{fill-surface}');
   assert.equal(c.slots['surfaces-media-sunken-ink-rest']?.default, '{ink-eyebrow}');

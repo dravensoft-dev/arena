@@ -1980,6 +1980,10 @@
     "$type": "color",
     "$value": "{accent-plain-fill-soft}"
   },
+  "data-current-fill-selected": {
+    "$type": "color",
+    "$value": "{fill-marker}"
+  },
   "data-header-edge-hover": {
     "$type": "color",
     "$value": "{edge-control-quiet}"
@@ -2019,10 +2023,6 @@
   "data-row-fill-hover": {
     "$type": "color",
     "$value": "{fill-surface-raised}"
-  },
-  "data-row-fill-selected": {
-    "$type": "color",
-    "$value": "{fill-marker}"
   },
   "data-today-ink-rest": {
     "$type": "color",

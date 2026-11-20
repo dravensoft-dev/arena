@@ -34,7 +34,7 @@
   "variants": {
     "current": {
       "true": {
-        "row": "border-[color:var(--data-row-edge-selected,transparent)] bg-[color:var(--data-row-fill-selected,var(--fill-surface-sunken))]"
+        "row": "bg-[color:var(--data-current-fill-selected,var(--fill-surface-sunken))]"
       },
       "false": {}
     }
