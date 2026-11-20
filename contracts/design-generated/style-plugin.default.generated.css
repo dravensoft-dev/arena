@@ -93,6 +93,7 @@
   --fill-marker:var(--color-base-300);
   --fill-mark:var(--color-base-content);
   --fill-tile:var(--color-base-300);
+  --fill-tip:var(--color-base-content);
   --fill-control:var(--color-neutral);
   --fill-control-on:var(--color-primary);
   --fill-knob:var(--color-primary-content);
@@ -129,6 +130,7 @@
   --edge-invalid:var(--color-error);
   --ink-invalid:var(--color-error);
   --ink-on-mark:var(--color-base-200);
+  --ink-tip:var(--color-base-100);
   --bw-surface:1px;
   --bw-control:1px;
   --bw-field:1px;
@@ -295,6 +297,7 @@
   --fill-marker:var(--color-base-300);
   --fill-mark:var(--color-base-content);
   --fill-tile:var(--color-base-300);
+  --fill-tip:var(--color-base-content);
   --fill-control:var(--color-neutral);
   --fill-control-on:var(--color-primary);
   --fill-knob:var(--color-primary-content);
@@ -326,6 +329,7 @@
   --edge-invalid:var(--color-error);
   --ink-invalid:var(--color-error);
   --ink-on-mark:var(--color-base-200);
+  --ink-tip:var(--color-base-100);
   --hue-danger-ink:var(--color-error);
   --hue-danger-on-ink:var(--color-base-100);
   --hue-danger-edge:var(--color-error);
@@ -385,6 +389,7 @@
   --fill-marker:var(--color-base-300);
   --fill-mark:var(--color-base-content);
   --fill-tile:var(--color-base-300);
+  --fill-tip:var(--color-base-content);
   --fill-control:var(--color-neutral);
   --fill-control-on:var(--color-primary);
   --fill-knob:var(--color-primary-content);
@@ -416,6 +421,7 @@
   --edge-invalid:var(--color-error);
   --ink-invalid:var(--color-error);
   --ink-on-mark:var(--color-base-200);
+  --ink-tip:var(--color-base-100);
   --hue-danger-ink:var(--color-error);
   --hue-danger-on-ink:var(--color-base-100);
   --hue-danger-edge:var(--color-error);

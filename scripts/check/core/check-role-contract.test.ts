@@ -359,3 +359,19 @@ test('the mark and tile roles answer their palette keys', () => {
     assert.equal(plugin[name]?.$value, key, `${name}: the default plugin answers it as its default says`);
   }
 });
+
+test('the tip roles answer their palette keys', () => {
+  const shipped = readJson(join(repoRoot, ROLES)) as Record<string, any>;
+  const plugin = readJson(join(repoRoot, 'plugin-style-store/default/plugin.tokens.json')) as Record<string, any>;
+  const keys: Record<string, string> = { 'fill-tip': '{color.base-content}', 'ink-tip': '{color.base-100}' };
+  for (const [name, key] of Object.entries(keys)) {
+    const role = shipped[name];
+    assert.equal(role?.$type, 'color', name);
+    const ext = role?.$extensions?.['com.dravensoft.arena'];
+    assert.equal(ext?.default, key, name);
+    assert.equal(ext?.audience, 'component', name);
+    assert.ok(String(ext?.question ?? '').endsWith('?'), name);
+    assert.match(String(ext?.question), /names a control under the pointer/, name);
+    assert.equal(plugin[name]?.$value, key, `${name}: the default plugin answers it as its default says`);
+  }
+});

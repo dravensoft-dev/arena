@@ -95,7 +95,7 @@ test('actions derives 124 slots and no component slot', () => {
   const c = deriveSlots(readSlotDeclarations());
   const slots = Object.values(c.slots);
   assert.equal(slots.filter((slot) => slot.group === 'actions').length, 124);
-  assert.deepEqual([...new Set(slots.map((slot) => slot.group))].sort(), ['actions', 'choices', 'feedback', 'fields', 'marks', 'menus', 'navigation', 'steps']);
+  assert.deepEqual([...new Set(slots.map((slot) => slot.group))].sort(), ['actions', 'choices', 'data', 'feedback', 'fields', 'marks', 'menus', 'meters', 'navigation', 'overlays', 'steps', 'surfaces']);
   for (const slot of slots) {
     for (const key of ['scope', 'family', 'component', 'draws']) assert.equal(Object.hasOwn(slot, key), false, key);
   }
@@ -485,6 +485,25 @@ test('feedback derives its banner, icon and action', () => {
   assert.deepEqual(c.members['ArenaToast.root']?.options, ['plain', 'gold', 'success', 'danger']);
   assert.equal(c.members['ArenaToast.root']?.edgeAs, 'stripe');
   assert.deepEqual(c.members['ArenaAlert.action']?.options, ['neutral', 'info', 'success', 'warning', 'danger']);
+});
+
+test('meters, data, the page and the tip derive their slots', () => {
+  const c = deriveSlots(readSlotDeclarations());
+  assert.equal(c.slots['meters-success-track-ink-rest']?.default, '{hue-success-ink}');
+  assert.equal(c.slots['meters-success-track-fill-rest']?.default, '{fill-track}');
+  assert.equal(c.slots['meters-muted-track-ink-rest']?.level, 'level-ink-muted');
+  assert.equal(c.slots['meters-primary-track-ink-rest']?.channel, '--arena-accent-meters-track-ink');
+  assert.equal(c.slots['meters-primary-track-fill-rest']?.channel, '--arena-accent-meters-track-fill');
+  assert.equal(Object.keys(c.slots).some((name) => /^meters-.*-track-edge-/.test(name)), false, 'no member paints a meter track edge');
+  assert.equal(Object.keys(c.slots).some((name) => /^meters-plain-track-|^meters-ink-track-/.test(name)), false, 'plain and ink derive nothing');
+  assert.equal(c.slots['data-now-fill-rest']?.default, '{emphasis-primary-fill}');
+  assert.equal(c.slots['data-now-edge-rest']?.default, '{emphasis-primary-edge}');
+  assert.equal(c.slots['data-today-ink-rest']?.default, '{accent-primary-ink}');
+  assert.equal(c.slots['surfaces-page-fill-rest']?.default, '{fill-page}');
+  assert.equal(c.slots['overlays-tip-fill-rest']?.default, '{fill-tip}');
+  assert.equal(c.slots['overlays-tip-ink-rest']?.default, '{ink-tip}');
+  assert.equal(c.members['ArenaProgressBar.ringTrack']?.fillAs, 'stroke');
+  assert.equal(c.members['ArenaTooltip.bubble']?.to, 'overlays.tip');
 });
 
 test('marks derives its dot and tile', () => {

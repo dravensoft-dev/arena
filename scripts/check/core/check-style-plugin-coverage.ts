@@ -115,6 +115,15 @@ export const WITNESS_EXEMPT: ReadonlyMap<string, string> = new Map([
   ...['success', 'warning', 'info'].map((option): [string, string] => [`marks-${option}-dot-ink-rest`, SLOT + `complete paints the ${option} presence and `
     + `activity dots through hue-${option}-fill-strong, neutral in complete, and no role a dot ink accepts resolves to neutral in complete, so no spelling `
     + 'resolves to the key complete paints there']),
+  ...['success', 'warning', 'info'].map((option): [string, string] => [`meters-${option}-track-ink-rest`, SLOT + `complete paints the ${option} meter and progress range `
+    + `through hue-${option}-fill-strong, neutral in complete, and no role an ink slot accepts resolves to neutral in complete, so no spelling resolves to `
+    + 'the key complete paints there']),
+  ['data-now-edge-rest', SLOT + 'complete paints the calendar now line primary-fill, and no accepted edge role resolves to it in complete: ' + NO_SECOND_SPELLING],
+  ['overlays-tip-fill-rest', SLOT + 'complete paints the tooltip bubble base-content, and fill-tip is the one accepted role resolving to it: ' + NO_SECOND_SPELLING],
+  ['fill-tip', 'complete answers it as default does, base-content, because complete paints a tooltip bubble base-content and no other palette key resolves to it, '
+    + 'and no other spelling of the overlays tip fill resolves to it either'],
+  ['ink-tip', 'complete answers it as default does, base-100, because complete paints a tooltip word base-100 and no other palette key resolves to it, '
+    + 'and this role reaches a page through the overlays tip ink slot complete answers with a spelling of its own'],
   ['fill-tile', 'complete answers it as default does, base-300, because complete paints the ground behind a monogram base-300 and no other palette key '
     + 'resolves to it, and this role reaches a page through the marks tile slot complete answers with a spelling of its own'],
   ['fill-marker', 'complete answers it as default does, base-300, because complete paints the count beside a side navigation row that is not current '

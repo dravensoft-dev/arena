@@ -470,6 +470,10 @@
     "$type": "color",
     "$value": "{color.base-300}"
   },
+  "fill-tip": {
+    "$type": "color",
+    "$value": "{color.base-content}"
+  },
   "ink-heading": {
     "$type": "color",
     "$value": "{color.secondary}"
@@ -595,6 +599,10 @@
     "$value": "{color.base-content}"
   },
   "ink-on-mark": {
+    "$type": "color",
+    "$value": "{color.base-100}"
+  },
+  "ink-tip": {
     "$type": "color",
     "$value": "{color.base-100}"
   },
@@ -1984,6 +1992,14 @@
     "$type": "color",
     "$value": "{accent-plain-fill-soft}"
   },
+  "data-now-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-control-on}"
+  },
+  "data-today-ink-rest": {
+    "$type": "color",
+    "$value": "{accent-gold-ink}"
+  },
   "feedback-danger-action-ink-rest": {
     "$type": "color",
     "$value": "{hue-danger-ink}"
@@ -2495,6 +2511,46 @@
     "$type": "color",
     "$value": "{accent-plain-ink}"
   },
+  "meters-danger-track-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-control}"
+  },
+  "meters-danger-track-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "meters-gold-track-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-control}"
+  },
+  "meters-gold-track-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-knob-off}"
+  },
+  "meters-info-track-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-control}"
+  },
+  "meters-muted-track-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-body}"
+  },
+  "meters-primary-track-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-control}"
+  },
+  "meters-primary-track-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-heading}"
+  },
+  "meters-success-track-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-control}"
+  },
+  "meters-warning-track-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-control}"
+  },
   "navigation-badge-fill-rest": {
     "$type": "color",
     "$value": "{fill-surface-sunken}"
@@ -2649,6 +2705,10 @@
     "$type": "color",
     "$value": "{accent-plain-ink}"
   },
+  "overlays-tip-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-on-mark}"
+  },
   "steps-complete-label-ink-rest": {
     "$type": "color",
     "$value": "{ink-figure}"
@@ -2700,5 +2760,13 @@
   "steps-upcoming-marker-ink-rest": {
     "$type": "color",
     "$value": "{ink-figure}"
+  },
+  "surfaces-page-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface}"
+  },
+  "surfaces-page-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
   }
 }

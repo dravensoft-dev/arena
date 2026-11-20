@@ -483,6 +483,10 @@
     "$type": "color",
     "$value": "{color.base-300}"
   },
+  "fill-tip": {
+    "$type": "color",
+    "$value": "{color.base-content}"
+  },
   "fill-control": {
     "$type": "color",
     "$value": "{color.neutral}"
@@ -626,6 +630,10 @@
   "ink-on-mark": {
     "$type": "color",
     "$value": "{color.base-200}"
+  },
+  "ink-tip": {
+    "$type": "color",
+    "$value": "{color.base-100}"
   },
   "bw-surface": {
     "$type": "dimension",

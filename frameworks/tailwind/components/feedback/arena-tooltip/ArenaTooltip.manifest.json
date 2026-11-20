@@ -8,7 +8,7 @@
   ],
   "slots": {
     "root": "inline-flex w-[var(--arena-fill-width,fit-content)]",
-    "bubble": "arena-fade z-tooltip whitespace-nowrap px-2.5 py-1.5 rounded-control shadow-surface-floating bg-base-content text-base-100 font-mono text-ctl-xs"
+    "bubble": "arena-fade z-tooltip whitespace-nowrap px-2.5 py-1.5 rounded-control shadow-surface-floating bg-[color:var(--overlays-tip-fill-rest,var(--fill-tip))] text-[color:var(--overlays-tip-ink-rest,var(--ink-tip))] font-mono text-ctl-xs"
   },
   "kind": {
     "root": "none",

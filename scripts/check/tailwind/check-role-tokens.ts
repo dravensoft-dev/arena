@@ -74,14 +74,6 @@ export const PALETTE_HINTS = new Map<string, string>([
 ]);
 
 export const PALETTE_READS = new Map<string, string>([
-  ['ArenaCalendar:dayNumber:text-primary', 'data: 5.1d moves the day number onto the data group slots'],
-  ['ArenaCalendar:now:border-primary-fill', 'data: 5.1d moves the now marker onto the data group slots'],
-  ['ArenaCalendar:nowDot:bg-primary-fill', 'data: 5.1d moves the now dot onto the data group slots'],
-  ['ArenaPaletteScope:root:bg-base-100', 'surfaces: 5.1d moves the island ground onto the surfaces group slots'],
-  ['ArenaPaletteScope:root:text-base-content', 'surfaces: 5.1d moves the island ink onto the surfaces group slots'],
-  ['ArenaProgressBar:ringTrack:stroke-base-300', 'meters: 5.1d moves the ring track onto the meters group slots'],
-  ['ArenaTooltip:bubble:bg-base-content', 'overlays: 5.1d moves the bubble ground onto the overlays group slots'],
-  ['ArenaTooltip:bubble:text-base-100', 'overlays: 5.1d moves the bubble ink onto the overlays group slots'],
 ]);
 
 export const SCALE_USES = new Map<string, string>([

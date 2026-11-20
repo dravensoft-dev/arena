@@ -19,8 +19,8 @@
     "rule": "absolute left-0 right-0 border-t-[length:var(--bw-separator)] border-edge-separator pointer-events-none",
     "column": "min-w-0 relative border-l-[length:var(--bw-separator)] border-edge-separator",
     "cell": "absolute left-0 right-0 outline-none focus-visible:shadow-[inset_0_0_0_var(--bw-focus)_var(--edge-focus)]",
-    "now": "absolute left-0 right-0 border-t-[length:var(--bw-strong)] border-primary-fill pointer-events-none",
-    "nowDot": "absolute -top-1 -left-1 size-1.5 rounded-pill bg-primary-fill",
+    "now": "absolute left-0 right-0 border-t-[length:var(--bw-strong)] border-[color:var(--data-now-edge-rest,var(--emphasis-primary-edge))] pointer-events-none",
+    "nowDot": "absolute -top-1 -left-1 size-1.5 rounded-pill bg-[color:var(--data-now-fill-rest,var(--emphasis-primary-fill))]",
     "chip": "absolute box-border flex flex-col overflow-hidden text-left font-body mx-0.5 px-marker-x py-marker-y min-h-6.5 rounded-control border-l-[length:var(--bw-strong)] border-t-0 border-r-0 border-b-0",
     "chipBody": "flex flex-col bg-transparent border-none p-0 m-0 text-left font-body",
     "title": "text-ctl-sm font-semibold text-ink-heading whitespace-nowrap overflow-hidden text-ellipsis",
@@ -71,7 +71,7 @@
   "variants": {
     "today": {
       "true": {
-        "dayNumber": "text-primary"
+        "dayNumber": "text-[color:var(--data-today-ink-rest,var(--accent-primary-ink))]"
       },
       "false": {
         "dayNumber": "text-ink-body/(--level-ink-body)"

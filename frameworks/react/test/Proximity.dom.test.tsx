@@ -6,7 +6,7 @@ import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
 import { mount, cleanup, act } from './Harness.tsx';
-import { ArenaButton, ArenaIconButton, ArenaSplitButton, ArenaCopyButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope, ArenaCheckbox, ArenaRadioGroup, ArenaRadio, ArenaSwitch, ArenaSlider, ArenaInput, ArenaFileInput, ArenaMultiSelect, ArenaSideNav, ArenaSideNavItem, ArenaTabs, ArenaTab, ArenaTreeView, ArenaPagination, ArenaBottomNav, ArenaBottomNavItem, ArenaStepper, ArenaOnboarding, ArenaCommandPalette, ArenaAlert, ArenaToast , ArenaAvatar, ArenaActivityFeed } from '../Index.generated.ts';
+import { ArenaButton, ArenaIconButton, ArenaSplitButton, ArenaCopyButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope, ArenaCheckbox, ArenaRadioGroup, ArenaRadio, ArenaSwitch, ArenaSlider, ArenaInput, ArenaFileInput, ArenaMultiSelect, ArenaSideNav, ArenaSideNavItem, ArenaTabs, ArenaTab, ArenaTreeView, ArenaPagination, ArenaBottomNav, ArenaBottomNavItem, ArenaStepper, ArenaOnboarding, ArenaCommandPalette, ArenaAlert, ArenaToast , ArenaAvatar, ArenaActivityFeed, ArenaMeter, ArenaProgressBar, ArenaSpinner } from '../Index.generated.ts';
 import { readProximity, normalize, vocabularyClasses } from '../../../scripts/lib/arena/proximity.ts';
 
 afterEach(cleanup);
@@ -184,6 +184,22 @@ const COMPOSITIONS: Record<string, () => React.ReactElement> = {
     <ArenaAvatar name="Ada Fernandez" status="offline" />
     <ArenaActivityFeed label="Activity" items={[{ actor: 'Ada', action: 'opened', target: 'INF-1', time: 'now' }]} />
   </div>,
+  'accent-answer-reaches-only-its-class': () => <div style={answered({ '--meters-gold-track-ink-rest': 'var(--hue-info-ink)' })}>
+    <ArenaMeter className="arena-accent-gold" label="Disk" value={60} />
+    <ArenaProgressBar className="arena-accent-gold" label="Upload" progressPercentage={40} />
+    <ArenaSpinner className="arena-accent-gold" />
+  </div>,
+  'accent-answer-leaves-the-default-accent-and-a-tone': () => <div style={answered({ '--meters-gold-track-ink-rest': 'var(--hue-info-ink)' })}>
+    <ArenaMeter label="Disk" value={60} />
+    <ArenaProgressBar tone="success" label="Upload" progressPercentage={40} />
+    <ArenaSpinner />
+  </div>,
+  'ring-track-follows-the-track-fill': () => <div style={answered({ '--meters-primary-track-fill-rest': 'var(--hue-info-fill-strong)' })}>
+    <ArenaProgressBar shape="radial" label="Upload" progressPercentage={40} />
+  </div>,
+  'linear-track-follows-the-track-fill': () => <div style={answered({ '--meters-primary-track-fill-rest': 'var(--hue-info-fill-strong)' })}>
+    <ArenaProgressBar label="Upload" progressPercentage={40} />
+  </div>,
   'hover-answer-is-not-derived-from-the-rest-answer': () => <div style={answered({ '--actions-primary-root-fill-rest': 'var(--fill-surface)', '--actions-primary-root-fill-hover': 'var(--fill-hover)' })}><ArenaButton>Save</ArenaButton></div>,
 };
 
@@ -260,6 +276,10 @@ const SUBJECT: Record<string, { part: string; at: number }> = {
   'banner-edge-answer-leaves-the-toast-quiet-sides': { part: 'toast', at: 0 },
   'toast-tone-beats-its-accent': { part: 'toast', at: 0 },
   'muted-dot-answer-moves-only-offline': { part: 'avatar.status', at: 0 },
+  'accent-answer-reaches-only-its-class': { part: 'meter.track', at: 0 },
+  'accent-answer-leaves-the-default-accent-and-a-tone': { part: 'meter.track', at: 0 },
+  'ring-track-follows-the-track-fill': { part: 'progress-bar.ring-track', at: 0 },
+  'linear-track-follows-the-track-fill': { part: 'progress-bar.track', at: 0 },
 };
 
 const { families, cases } = readProximity();

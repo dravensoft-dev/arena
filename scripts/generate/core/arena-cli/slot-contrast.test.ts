@@ -433,6 +433,21 @@ test('the feedback icon and action clear their floors over the wash', () => {
   }
 });
 
+test('every meter range clears 3:1 over its track', () => {
+  const ranges = slotPairs(CATALOGUE.slots).filter((pair) => /^meters-.+-track-ink-/.test(pair.slot));
+  assert.ok(ranges.length >= 7, 'every option of the track is measured');
+  for (const theme of ['dark', 'light'] as const) {
+    const roles = rolesFor(null, CATALOGUE, theme);
+    const colors = coloursOf(theme);
+    for (const pair of ranges) {
+      const track = pair.over === 'ground' ? (colors['base-200'] as string) : slotColour(CATALOGUE.slots, pair.over, new Map(), roles, colors, LEVELS, mixOf(roles), colors['base-200'] as string) as string;
+      const range = slotColour(CATALOGUE.slots, pair.slot, new Map(), roles, colors, LEVELS, mixOf(roles), track) as string;
+      assert.ok(contrast(range, track) >= (pair.slot.startsWith('meters-muted') ? 3 : 4.5), `${theme} ${pair.slot} over ${pair.over}`);
+    }
+    assert.deepEqual(kernel(theme).filter((line) => line.startsWith('--meters-')), [], `${theme}: every meters pair clears its floor`);
+  }
+});
+
 test('every marks dot pair is a 3:1 mark', () => {
   const dots = slotPairs(CATALOGUE.slots).filter((pair) => /^marks-.+-dot-/.test(pair.slot));
   assert.ok(dots.length >= 15, 'every dot is measured');

@@ -216,7 +216,7 @@ const memberSlots = (c: SlotCatalogue, m: MemberPart) => {
 };
 
 const byChannels = (c: SlotCatalogue, m: MemberPart, option: string) => {
-  const own = entries(c).filter(([, s]) => `${s.group}.${s.part}` === m.to && s.option === option);
+  const own = entries(c).filter(([, s]) => `${s.group}.${s.part}` === m.to && s.option === option && (m.properties === undefined || m.properties.includes(s.property)));
   return own.length > 0 && own.every(([, s]) => s.channel !== undefined && m.channels?.[s.property] !== undefined);
 };
 
@@ -498,7 +498,8 @@ export function familyProblems(c: SlotCatalogue, family: { variants?: Record<str
       const owner = Object.entries(c.groups ?? {}).flatMap(([g, one]) => one.parts.map((p) => `${g}.${p}`)).find((gp) => name.startsWith(`${prefix}${gp.replace('.', '-')}-`));
       if (owner === undefined || slots.some(([, s]) => s.channel === name)) continue;
       const declared = entries(c).some(([, s]) => s.channel === name);
-      if (!(declared && value.trim() === 'currentColor')) out.push(`${path}: ${option} writes ${name}, a channel of ${owner} that no slot of its ${opt} option declares`);
+      const derives = entries(c).some(([, s]) => s.option === opt && `${s.group}.${s.part}` === owner);
+      if (!(declared && !derives && value.trim() === 'currentColor')) out.push(`${path}: ${option} writes ${name}, a channel of ${owner} that no slot of its ${opt} option declares`);
     }
     for (const state of ['disabled', 'selected-disabled']) {
       const stems = [...new Set(slots.filter(([, s]) => s.state === state).map(([, s]) => `${s.group}-${opt}-${s.part}`))];
@@ -647,7 +648,7 @@ export function declarationProblems(d: SlotDeclarations): string[] {
       const partOptions = d.groups?.[toGroup ?? '']?.parts?.[toPart ?? ''] as { properties?: string[]; options?: Record<string, { channel?: string | null; properties?: string[] }> } | undefined;
       const channelled = (o: string) => {
         const one = partOptions?.options?.[o];
-        return typeof one?.channel === 'string' && (one.properties ?? partOptions?.properties ?? []).every((prop) => to.channels?.[prop] !== undefined);
+        return typeof one?.channel === 'string' && (one.properties ?? partOptions?.properties ?? []).filter((prop) => to.properties === undefined || to.properties.includes(prop)).every((prop) => to.channels?.[prop] !== undefined);
       };
       if (axes.length > 0 && (to.options ?? []).filter((o) => !axes.some((one) => Object.values(one.values ?? {}).includes(o)) && !channelled(o)).length > 1) {
         out.push(`${where}.optionBy: more than one option is left with no value, and only the base option has none, save an option its channel answers`);

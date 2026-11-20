@@ -1160,6 +1160,18 @@
       }
     }
   },
+  "fill-tip": {
+    "$type": "color",
+    "$description": "The ground of the small bubble that names a control under the pointer: a tooltip. Read through the overlays group's tip, whose ink is measured over it.\n\nSeparate from fill-surface-floating and fill-readout, which it does not share a step with in the default plugin, because a bubble that names a control is an inverse of the page it floats over where a menu or a dialog sits on the page's own steps and a chart readout annotates a plot: a style plugin that lifts its menus or flattens its readouts has said nothing about the bubbles that name a control.\n\nAn assignment and never a value, like every colour role: WHICH of the consumer's colours, never what that colour is.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{color.base-content}",
+        "audience": "component",
+        "task": "meaning-and-identity",
+        "question": "What colour is the bubble that names a control under the pointer?"
+      }
+    }
+  },
   "fill-control": {
     "$type": "color",
     "$description": "The fill of a selection control at rest: the box of a checkbox, the ring of a radio, the track of a switch, the rail of a slider, and the selected segment of a segmented control. Read through the choices group, whose box answers it at rest and whose selected segment takes it as its fill. Paired with fill-control-on, which has to stand 3:1 apart from it, because the fill is what tells on from off.",
@@ -1700,6 +1712,18 @@
         "audience": "component",
         "task": "meaning-and-identity",
         "question": "What colour is the glyph cut into a filled neutral marker, such as the tick of a complete milestone?"
+      }
+    }
+  },
+  "ink-tip": {
+    "$type": "color",
+    "$description": "The word inside the bubble that names a control under the pointer. Read through the overlays group's tip and measured over fill-tip at 4.5:1.\n\nSeparate from ink-body, because the bubble is the inverse of the page and its word has to stand apart from fill-tip: a style plugin that moves fill-tip keeps the word readable only if this role moves with it.\n\nAn assignment and never a value, like every colour role: WHICH of the consumer's colours, never what that colour is.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{color.base-100}",
+        "audience": "component",
+        "task": "meaning-and-identity",
+        "question": "What colour is the word inside the bubble that names a control under the pointer?"
       }
     }
   },

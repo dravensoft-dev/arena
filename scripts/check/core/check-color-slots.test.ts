@@ -146,18 +146,18 @@ test('a member part on an option its manifest lacks, or a part its manifest lack
 
 test('the contract counts', () => {
   const slots = Object.values(shipped().slots);
-  assert.equal(slots.length, 369);
+  assert.equal(slots.length, 389);
   const by = (key: (s: (typeof slots)[number]) => string) => {
     const n: Record<string, number> = {};
     for (const s of slots) n[key(s)] = (n[key(s)] ?? 0) + 1;
     return n;
   };
-  assert.deepEqual(by((s) => s.option ?? ''), { '': 104, primary: 17, secondary: 16, ghost: 32, solid: 32, destructive: 28, neutral: 13, muted: 1, error: 10, valid: 7, readonly: 2, warning: 7, plain: 21, quiet: 2, complete: 4, current: 4, upcoming: 4, danger: 6, success: 6, info: 6, gold: 2, ...Object.fromEntries(['neutral', 'danger', 'success', 'warning', 'info'].flatMap((tone) => ['complete', 'current', 'upcoming'].map((state) => [`${tone}-${state}`, 3]))) });
-  assert.deepEqual(by((s) => s.state), { rest: 164, disabled: 47, hover: 48, pressed: 40, selected: 25, 'selected-hover': 14, 'selected-pressed': 14, 'selected-disabled': 17 });
+  assert.deepEqual(by((s) => s.option ?? ''), { '': 111, primary: 19, secondary: 16, ghost: 32, solid: 32, destructive: 28, neutral: 13, muted: 2, error: 10, valid: 7, readonly: 2, warning: 9, plain: 21, quiet: 2, complete: 4, current: 4, upcoming: 4, danger: 8, success: 8, info: 8, gold: 4, ...Object.fromEntries(['neutral', 'danger', 'success', 'warning', 'info'].flatMap((tone) => ['complete', 'current', 'upcoming'].map((state) => [`${tone}-${state}`, 3]))) });
+  assert.deepEqual(by((s) => s.state), { rest: 184, disabled: 47, hover: 48, pressed: 40, selected: 25, 'selected-hover': 14, 'selected-pressed': 14, 'selected-disabled': 17 });
   assert.equal(slots.filter((s) => s.optional).length, 64);
   assert.equal(slots.filter((s) => s.derive?.mix === 'mix-pressed').length, 19);
   assert.equal(slots.filter((s) => s.derive?.mix === 'mix-hover').length, 7);
-  assert.equal(slots.filter((s) => s.channel === undefined).length, 269, 'the destructive option, the dismiss part and the choices, fields, menus, navigation, steps, feedback and marks groups carry no channel, bar the accent edge and the accent dot ink (R6, D95)');
+  assert.equal(slots.filter((s) => s.channel === undefined).length, 284, 'the destructive option, the dismiss part and the choices, fields, menus, navigation, steps, feedback, marks, meters, data, surfaces and overlays groups carry no channel, bar the accent edge, the accent dot ink and the accent meter track (D95)');
 });
 
 test('every slot of the five buttons reaches its part under its state', () => {
@@ -1140,6 +1140,20 @@ test('an accent option writes its channel in the accent family', () => {
     [`${ACCENT_FAMILY}: arena-accent-primary writes --arena-accent-meters-track-edge, a channel of meters.track that no slot of its primary option declares`]);
   assert.deepEqual(familyProblems(c, { variants: { 'arena-accent-ink': '[--arena-accent-meters-track-fill:red]' } }, ACCENT_FAMILY),
     [`${ACCENT_FAMILY}: arena-accent-ink writes --arena-accent-meters-track-fill, a channel of meters.track that no slot of its ink option declares`], 'only currentColor stands for an option that derives no slot');
+});
+
+test('currentColor on a channel stands only for an option that derives no slot of that part', () => {
+  const d = slotFixture({
+    track: { properties: ['fill', 'ink'], options: {
+      primary: { states: ['rest'], channel: '--arena-accent-meters-track-{property}', rest: { fill: '{fill-control}', ink: '{ink-body}' } },
+      danger: { states: ['rest'], rest: { fill: '{fill-control}', ink: '{ink-danger}' } },
+    } },
+  }, { ArenaGauge: { group: 'meters', parts: { track: { to: 'meters.track', options: ['primary', 'danger'], states: ['rest'], optionBy: { axis: 'tone', values: { danger: 'danger' } },
+    channels: { fill: '--arena-accent-meters-track-fill', ink: '--arena-accent-meters-track-ink' } } } } }, 'meters');
+  const c = deriveSlots(d);
+  assert.deepEqual(familyProblems(c, { variants: { 'arena-accent-ink': '[--arena-accent-meters-track-ink:currentColor]' } }, ACCENT_FAMILY), []);
+  assert.deepEqual(familyProblems(c, { variants: { 'arena-accent-danger': '[--arena-accent-meters-track-ink:currentColor]' } }, ACCENT_FAMILY),
+    [`${ACCENT_FAMILY}: arena-accent-danger writes --arena-accent-meters-track-ink, a channel of meters.track that no slot of its danger option declares`]);
 });
 
 test('one fade channel serves one whole of an option', () => {

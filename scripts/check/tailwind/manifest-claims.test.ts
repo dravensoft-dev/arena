@@ -76,7 +76,6 @@ const HUES = {
   ArenaStatCard: { tone: { success: 'success', warning: 'warning', danger: 'danger', info: 'info' }, deltaTone: { positive: 'success', negative: 'danger' } },
   ArenaTag: { tone: { success: 'success', warning: 'warning', danger: 'danger' } },
   ArenaConfirmDialog: { destructive: { true: 'danger' } },
-  ArenaProgressBar: { tone: { success: 'success', danger: 'danger', info: 'info' } },
 } as Record<string, Record<string, Record<string, string>>>;
 
 test('every status value maps to its own hue, and a neutral or editorial value to none', () => {
@@ -401,17 +400,23 @@ export const CLAIMS = {
     { slot: 'dot', has: ['duration-[var(--dur-state)]'], why: 'the dot width transition rides the token duration scale, never a literal' },
   ],
   ArenaProgressBar: [
-    ...Object.entries({ success: STRONG_INK, danger: INK, info: STRONG_INK })
-      .map(([tone, cls]) => ({ chosen: { tone }, slot: 'track', has: [cls], why: 'every tone inks the track, which is what the fill reads through bg-current' })),
+    ...['success', 'danger', 'info'].map((tone) => ({ chosen: { tone }, slot: 'track', has: [`text-[color:${memberValue(SLOTS, 'ArenaProgressBar.track', `meters-${tone}-track-ink-rest`, 'tailwind')}]`], hasNot: [INK, STRONG_INK],
+      why: 'every tone inks the track from the meters track slot of its tone, which is what the fill reads through bg-current (D93)' })),
     { slot: 'fill', has: ['bg-current'], why: 'the fill reads the tone the track inks rather than naming a colour' },
-    { chosen: { tone: 'danger' }, slot: 'track', has: [INK, 'bg-track'], hasNot: ['bg-error'], why: 'danger is a tone on the track, and the track stays the neutral rail whatever the tone, which is a role a style plugin answers rather than a palette step this slot names' },
+    { chosen: { tone: 'danger' }, slot: 'track', has: [`bg-[color:${memberValue(SLOTS, 'ArenaProgressBar.track', 'meters-danger-track-fill-rest', 'tailwind')}]`], hasNot: ['bg-error', 'bg-track'], why: 'danger is a tone on the track, and the track stays the neutral rail whatever the tone, read from the meters track fill slot rather than a palette step this slot names' },
     { chosen: { indeterminate: true }, slot: 'track', has: ['arena-prog-indeterminate'], why: 'the sweep is a shared animation utility, so no layer injects keyframes of its own' },
     { slot: 'track', has: ['overflow-hidden', 'rounded-pill'], hasNot: ['rounded-full'], why: 'the track clips its own fill and takes the pill radius' },
     { slot: 'root', has: ['grid', 'w-full'], why: 'w-full on an inline host does nothing, since an unknown element defaults to display inline, and the bar stacks its head over its track' },
     { chosen: { shape: 'radial' }, slot: 'root', has: ['grid', 'w-fit'], hasNot: ['w-full'], why: 'a ring is as wide as it is tall, so the root shrinks to it rather than filling the row the way a bar does' },
-    { chosen: { tone: 'danger' }, slot: 'ring', has: [INK], why: 'every tone inks the ring, which is what the arc reads through stroke-current' },
+    { chosen: { tone: 'danger' }, slot: 'ring', has: [`text-[color:${memberValue(SLOTS, 'ArenaProgressBar.ring', 'meters-danger-track-ink-rest', 'tailwind')}]`], hasNot: [INK], why: 'every tone inks the ring, which is what the arc reads through stroke-current' },
+    { chosen: { tone: 'danger' }, slot: 'ringTrack', has: [`stroke-[color:${memberValue(SLOTS, 'ArenaProgressBar.ringTrack', 'meters-danger-track-fill-rest', 'tailwind')}]`], hasNot: ['stroke-base-300'], why: 'the ring rail is the track fill of the meters group drawn as a stroke, so an answer to the track moves the bar and the ring together' },
     { slot: 'ringFill', has: ['stroke-current', '[stroke-dasharray:100]'], why: 'the arc reads the tone the ring inks, and its length is hundredths of the path, so the percentage is the offset and the radius is free' },
     { chosen: { indeterminate: true }, slot: 'ringFill', has: ['arena-prog-ring'], why: 'the turn is a shared animation utility, so no layer injects keyframes of its own' },
+  ],
+  ArenaMeter: [
+    ...Object.entries({ optimum: 'success', fair: 'warning', poor: 'danger' }).map(([standing, tone]) => ({ chosen: { standing }, slot: 'track',
+      has: [`text-[color:${memberValue(SLOTS, 'ArenaMeter.track', `meters-${tone}-track-ink-rest`, 'tailwind')}]`, `bg-[color:${memberValue(SLOTS, 'ArenaMeter.track', `meters-${tone}-track-fill-rest`, 'tailwind')}]`],
+      hasNot: [INK, STRONG_INK, 'bg-track'], why: 'the region the value sits in inks the track from the meters track slots of its tone, which is what the fill reads through bg-current (D93)' })),
   ],
   ArenaSpinner: [
     { slot: 'root', hasNot: ['text-primary', 'text-secondary', 'text-primary-content', 'text-ink-muted/(--level-ink-muted)'], why: 'the ink of the ring is the accent channel, so no accent is a class of this manifest any more' },
@@ -426,8 +431,9 @@ export const CLAIMS = {
     { slot: 'root', has: ['flex', 'z-toast'], why: 'the root sits on --z-toast, the one slot above every other overlay' },
   ],
   ArenaTooltip: [
-    { slot: 'bubble', has: ['arena-fade', 'z-tooltip', 'whitespace-nowrap', 'rounded-control', 'shadow-surface-floating', 'bg-base-content', 'text-base-100', 'font-mono', 'text-ctl-xs'],
-      hasNot: ['absolute', 'bottom-full', 'left-1/2', '-translate-x-1/2', '-translate-y-2'],
+    { slot: 'bubble', has: ['arena-fade', 'z-tooltip', 'whitespace-nowrap', 'rounded-control', 'shadow-surface-floating', 'font-mono', 'text-ctl-xs',
+      `bg-[color:${memberValue(SLOTS, 'ArenaTooltip.bubble', 'overlays-tip-fill-rest', 'tailwind')}]`, `text-[color:${memberValue(SLOTS, 'ArenaTooltip.bubble', 'overlays-tip-ink-rest', 'tailwind')}]`],
+      hasNot: ['absolute', 'bottom-full', 'left-1/2', '-translate-x-1/2', '-translate-y-2', 'bg-base-content', 'text-base-100'],
       why: 'the bubble is the inverted overlay and nothing in the manifest positions it: each layer places it over its trigger' },
     { slot: 'root', has: ['inline-flex'], hasNot: ['relative'], why: 'the bubble leaves the wrapper when it is shown, so nothing is positioned against the root' },
   ],
@@ -739,10 +745,14 @@ const READS: [component: string, slot: string, question: string, reads: string[]
   ['ArenaBadge', 'root', 'mark.fill', ['bg-[color:var(--arena-mark-fill,var(--arena-accent-fill-soft,var(--accent-plain-fill-soft)))]']],
   ['ArenaBadge', 'root', 'mark.ink', [MARK_INK]],
   ['ArenaStatCard', 'value', 'accent.ink', ['text-[color:var(--arena-accent-ink,var(--accent-plain-ink))]']],
-  ['ArenaProgressBar', 'track', 'accent.ink', ['text-[color:var(--arena-accent-ink,var(--accent-primary-ink))]']],
-  ['ArenaProgressBar', 'ring', 'accent.ink', ['text-[color:var(--arena-accent-ink,var(--accent-primary-ink))]']],
+  ['ArenaProgressBar', 'track', 'accent.meters-track-ink', ['text-[color:var(--arena-accent-meters-track-ink)]']],
+  ['ArenaProgressBar', 'track', 'accent.meters-track-fill', ['bg-[color:var(--arena-accent-meters-track-fill)]']],
+  ['ArenaProgressBar', 'ring', 'accent.meters-track-ink', ['text-[color:var(--arena-accent-meters-track-ink)]']],
+  ['ArenaProgressBar', 'ringTrack', 'accent.meters-track-fill', ['stroke-[color:var(--arena-accent-meters-track-fill)]']],
+  ['ArenaMeter', 'track', 'accent.meters-track-ink', ['text-[color:var(--arena-accent-meters-track-ink)]']],
+  ['ArenaMeter', 'track', 'accent.meters-track-fill', ['bg-[color:var(--arena-accent-meters-track-fill)]']],
   ['ArenaActivityFeed', 'dot', 'accent.marks-dot-ink', ['text-[color:var(--arena-accent-marks-dot-ink)]']],
-  ['ArenaSpinner', 'root', 'accent.ink', ['text-[color:var(--arena-accent-ink,var(--accent-primary-ink))]']],
+  ['ArenaSpinner', 'root', 'accent.meters-track-ink', ['text-[color:var(--arena-accent-meters-track-ink)]']],
   ['ArenaTag', 'root', 'accent.quiet-ink', ['text-[color:var(--arena-accent-quiet-ink,color-mix(in_oklab,var(--accent-plain-quiet-ink)_var(--level-ink-quiet),transparent))]']],
   ['ArenaCard', 'root', 'accent.edge', ['border-[color:var(--arena-accent-edge,var(--accent-plain-edge))]']],
   ['ArenaTag', 'root', 'accent.edge', ['border-[color:var(--arena-accent-edge,var(--accent-plain-edge))]']],
@@ -825,14 +835,14 @@ test('a status a component states follows the accent read in the slot string, so
     ['ArenaStatCard', 'value', 'accent-ink', ['success', 'warning', 'danger', 'info']],
     ['ArenaTag', 'root', 'accent-edge', ['success', 'warning', 'danger']],
     ['ArenaToast', 'root', 'accent-feedback-banner-edge', ['success', 'danger']],
-    ['ArenaProgressBar', 'track', 'accent-ink', ['success', 'danger', 'info']],
+    ['ArenaProgressBar', 'track', 'accent-meters-track-ink', ['success', 'danger', 'info']],
     ['ArenaActivityFeed', 'dot', 'accent-marks-dot-ink', ['success', 'warning', 'danger', 'info']],
   ];
   for (const [component, slot, channel, tones] of stated) {
     for (const tone of tones) {
       const classes = resolve(component, { tone }, slot);
       const accent = classes.findIndex((one) => one.includes(`--arena-${channel},`) || one.includes(`--arena-${channel})`));
-      const meaning = classes.findIndex((one) => one.includes('--arena-hue-') || one.includes(`--feedback-${tone}-banner-`) || one.includes(`--marks-${tone}-dot-`));
+      const meaning = classes.findIndex((one) => one.includes('--arena-hue-') || one.includes(`--feedback-${tone}-banner-`) || one.includes(`--marks-${tone}-dot-`) || one.includes(`--meters-${tone}-track-`));
       assert.ok(accent >= 0 && meaning > accent, `${component}.${slot} at tone ${tone} must write its hue read after the ${channel} read`);
     }
   }

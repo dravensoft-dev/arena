@@ -19,6 +19,7 @@ Only Arena's components read the roles on this page. A role keeps its name until
 | `--fill-mark` | What colour fills a neutral marker that is done, such as a complete timeline milestone? | color | none | `{color.base-content}` |
 | `--fill-marker` | What colour fills the small count set beside a navigation row that is not current? | color | none | `{color.base-300}` |
 | `--fill-tile` | What colour is the ground behind the initials of an avatar with no image? | color | none | `{color.base-300}` |
+| `--fill-tip` | What colour is the bubble that names a control under the pointer? | color | none | `{color.base-content}` |
 | `--hue-danger-edge` | What colour does the danger hue take as a border or a rule? | color | none | none |
 | `--hue-danger-fill-soft` | What colour does the danger hue take as a soft wash behind a surface? | color | none | none |
 | `--hue-danger-fill-strong` | What colour does the danger hue fill a surface with at full strength? | color | none | `transparent` |
@@ -43,5 +44,6 @@ Only Arena's components read the roles on this page. A role keeps its name until
 | `--ink-knob` | What colour is the glyph on the knob of an on switch? | color | none | none |
 | `--ink-knob-off` | What colour is the glyph on the knob of a switch that is off? | color | none | none |
 | `--ink-on-mark` | What colour is the glyph cut into a filled neutral marker, such as the tick of a complete milestone? | color | none | `{color.base-200}` |
+| `--ink-tip` | What colour is the word inside the bubble that names a control under the pointer? | color | none | `{color.base-100}` |
 
 <!-- @tree end -->

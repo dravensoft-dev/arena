@@ -1196,21 +1196,85 @@
         "track": {
           "properties": [
             "fill",
-            "ink",
-            "edge"
+            "ink"
           ],
-          "states": "static-disabled",
-          "options": [
-            "plain",
-            "primary",
-            "gold",
-            "muted",
-            "ink",
-            "danger",
-            "success",
-            "warning",
-            "info"
-          ]
+          "states": "static",
+          "options": {
+            "primary": {
+              "properties": [
+                "fill",
+                "ink"
+              ],
+              "channel": "--arena-accent-meters-track-{property}",
+              "rest": {
+                "fill": "{fill-track}",
+                "ink": "{accent-primary-ink}"
+              }
+            },
+            "gold": {
+              "properties": [
+                "fill",
+                "ink"
+              ],
+              "channel": "--arena-accent-meters-track-{property}",
+              "rest": {
+                "fill": "{fill-track}",
+                "ink": "{accent-gold-ink}"
+              }
+            },
+            "muted": {
+              "properties": [
+                "ink"
+              ],
+              "channel": "--arena-accent-meters-track-{property}",
+              "rest": {
+                "ink": {
+                  "role": "{accent-muted-ink}",
+                  "level": "level-ink-muted"
+                }
+              }
+            },
+            "danger": {
+              "properties": [
+                "fill",
+                "ink"
+              ],
+              "rest": {
+                "fill": "{fill-track}",
+                "ink": "{hue-danger-ink}"
+              }
+            },
+            "success": {
+              "properties": [
+                "fill",
+                "ink"
+              ],
+              "rest": {
+                "fill": "{fill-track}",
+                "ink": "{hue-success-ink}"
+              }
+            },
+            "warning": {
+              "properties": [
+                "fill",
+                "ink"
+              ],
+              "rest": {
+                "fill": "{fill-track}",
+                "ink": "{hue-warning-ink}"
+              }
+            },
+            "info": {
+              "properties": [
+                "fill",
+                "ink"
+              ],
+              "rest": {
+                "fill": "{fill-track}",
+                "ink": "{hue-info-ink}"
+              }
+            }
+          }
         },
         "standing": {
           "properties": [
@@ -1404,7 +1468,11 @@
             "fill",
             "ink"
           ],
-          "states": "static"
+          "states": "static",
+          "rest": {
+            "fill": "{fill-tip}",
+            "ink": "{ink-tip}"
+          }
         },
         "eyebrow": {
           "properties": [
@@ -1460,7 +1528,11 @@
             "fill",
             "ink"
           ],
-          "states": "static"
+          "states": "static",
+          "rest": {
+            "fill": "{fill-page}",
+            "ink": "{ink-body}"
+          }
         },
         "media": {
           "properties": [
@@ -1506,14 +1578,21 @@
           "properties": [
             "ink"
           ],
-          "states": "static"
+          "states": "static",
+          "rest": {
+            "ink": "{accent-primary-ink}"
+          }
         },
         "now": {
           "properties": [
             "fill",
             "edge"
           ],
-          "states": "static"
+          "states": "static",
+          "rest": {
+            "fill": "{emphasis-primary-fill}",
+            "edge": "{emphasis-primary-edge}"
+          }
         }
       }
     },
@@ -1875,12 +1954,34 @@
         "headStrip": "surfaces.separator",
         "dayHead": null,
         "weekday": "text.muted",
-        "dayNumber": "data.today",
+        "dayNumber": {
+          "to": "data.today",
+          "options": [],
+          "states": "static",
+          "onlyBy": {
+            "axis": "today",
+            "value": "true"
+          }
+        },
         "hourLabel": "text.muted",
         "rule": "surfaces.separator",
         "column": "surfaces.separator",
-        "now": "data.now",
-        "nowDot": "data.now",
+        "now": {
+          "to": "data.now",
+          "options": [],
+          "properties": [
+            "edge"
+          ],
+          "states": "static"
+        },
+        "nowDot": {
+          "to": "data.now",
+          "options": [],
+          "properties": [
+            "fill"
+          ],
+          "states": "static"
+        },
         "chip": "marks.soft",
         "chipBody": null,
         "title": "text.heading",
@@ -2514,7 +2615,29 @@
         "label": "text.body",
         "value": "text.muted",
         "standing": "meters.standing",
-        "track": "meters.track",
+        "track": {
+          "to": "meters.track",
+          "options": [
+            "primary",
+            "gold",
+            "success",
+            "warning",
+            "danger"
+          ],
+          "states": "static",
+          "optionBy": {
+            "axis": "standing",
+            "values": {
+              "optimum": "success",
+              "fair": "warning",
+              "poor": "danger"
+            }
+          },
+          "channels": {
+            "fill": "--arena-accent-meters-track-fill",
+            "ink": "--arena-accent-meters-track-ink"
+          }
+        },
         "fill": null
       }
     },
@@ -2679,7 +2802,11 @@
     "ArenaPaletteScope": {
       "group": "surfaces",
       "parts": {
-        "root": "surfaces.page"
+        "root": {
+          "to": "surfaces.page",
+          "options": [],
+          "states": "static"
+        }
       }
     },
     "ArenaPeopleList": {
@@ -2753,10 +2880,81 @@
       "parts": {
         "label": "text.body",
         "value": "text.muted",
-        "track": "meters.track",
+        "track": {
+          "to": "meters.track",
+          "options": [
+            "primary",
+            "gold",
+            "success",
+            "danger",
+            "info"
+          ],
+          "states": "static",
+          "optionBy": {
+            "axis": "tone",
+            "values": {
+              "success": "success",
+              "danger": "danger",
+              "info": "info"
+            }
+          },
+          "channels": {
+            "fill": "--arena-accent-meters-track-fill",
+            "ink": "--arena-accent-meters-track-ink"
+          }
+        },
         "fill": null,
-        "ring": "meters.track",
-        "ringTrack": "meters.track",
+        "ring": {
+          "to": "meters.track",
+          "options": [
+            "primary",
+            "gold",
+            "success",
+            "danger",
+            "info"
+          ],
+          "properties": [
+            "ink"
+          ],
+          "states": "static",
+          "optionBy": {
+            "axis": "tone",
+            "values": {
+              "success": "success",
+              "danger": "danger",
+              "info": "info"
+            }
+          },
+          "channels": {
+            "ink": "--arena-accent-meters-track-ink"
+          }
+        },
+        "ringTrack": {
+          "to": "meters.track",
+          "options": [
+            "primary",
+            "gold",
+            "success",
+            "danger",
+            "info"
+          ],
+          "properties": [
+            "fill"
+          ],
+          "states": "static",
+          "fillAs": "stroke",
+          "optionBy": {
+            "axis": "tone",
+            "values": {
+              "success": "success",
+              "danger": "danger",
+              "info": "info"
+            }
+          },
+          "channels": {
+            "fill": "--arena-accent-meters-track-fill"
+          }
+        },
         "ringFill": null
       }
     },
@@ -3037,7 +3235,21 @@
     "ArenaSpinner": {
       "group": "meters",
       "parts": {
-        "root": "meters.track",
+        "root": {
+          "to": "meters.track",
+          "options": [
+            "primary",
+            "gold",
+            "muted"
+          ],
+          "properties": [
+            "ink"
+          ],
+          "states": "static",
+          "channels": {
+            "ink": "--arena-accent-meters-track-ink"
+          }
+        },
         "circle": null
       }
     },
@@ -3415,7 +3627,11 @@
     "ArenaTooltip": {
       "group": "overlays",
       "parts": {
-        "bubble": "overlays.tip"
+        "bubble": {
+          "to": "overlays.tip",
+          "options": [],
+          "states": "static"
+        }
       }
     },
     "ArenaTreeView": {
