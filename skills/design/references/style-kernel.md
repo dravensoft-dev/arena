@@ -83,6 +83,7 @@ its own answer to the role the default names. A plugin that moves `pad-row-x` th
 later entry, and a root of `default` counts as silent there, because its answer is the default.
 
 **A colour role takes one of your palette colours as a `{color.*}` alias, or another colour role as `{ink-muted}`, and never a literal.**
+A role that paints nothing takes `transparent`, a colour answer too, written without braces.
 The palette is yours and what a role says is WHICH of your colours a surface takes. The reason is mechanical as well. A bare colour alias
 is restated under every palette. Anything else resolves to one theme's value and inherits it into
 the other, so a hex here is a light-mode colour showing through your dark theme.
@@ -233,10 +234,17 @@ Stated so you can plan around it rather than discover it.
 ## The loop
 
 **Some of this is refused rather than reported, and knowing which is which saves you an
-afternoon.** Five things are **hard failures of the plain command**. A role left unanswered
-by the root plugin that carries no default. A value of the wrong type. A colour role answered with anything but a
-`{color.*}` alias or another colour role, or two colour roles that name each other. An alias that resolves to nothing. And a broken reading floor. The command
-writes nothing and exits non-zero.
+afternoon.** These are **hard failures of the plain command**. A role left unanswered by the root
+plugin that carries no default. An answer whose `$type` is not its role's: a slot is a `color`, an
+`fs-*` or `rhythm-*` step is a `dimension`, and an answer with no `$type` is a mismatch. A word
+outside a keyword role's set. A `rem` or `em` length on a `fixed` role. A colour role answered with
+anything but a `{color.*}` alias, another colour role or `transparent`, or colour roles whose
+aliases lead back to themselves. A slot answered outside its accepts set, and `{transparent}` is always outside it,
+since a set that takes `transparent` takes it without braces. A key that is no role, no slot and no `fs-*` or `rhythm-*` step. An alias that resolves to nothing. A plugin that
+answers nothing. And a broken reading floor. The command writes nothing and exits non-zero.
+The user scale column of each role sheet decides what a length does: `fixed` keeps it in px and
+refuses `rem` and `em`, `scales` emits a px answer as `rem` so it grows with the reader's text
+size, and `none` marks a role whose answer is no length.
 Everything the audit says is a **report**, and stays one until you pass `--strict`.
 
 The reading floors are the trap in that list, because an ordinary-looking scale step can break one.

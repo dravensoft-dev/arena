@@ -125,22 +125,21 @@ export const ROUTES: Route[] = [
       'skills/design/references/config.md',
       'skills/design/references/cli.md',
     ],
-    budget: 51_300,
+    budget: 51_500,
     reason:
-      'paid once per project, not per screen, so it carries what the build route may not: '
-      + 'the install, the config file and the command. The config block is copied whole. '
-      + 'The install reference gives the evidence behind each package manager and the Tailwind '
-      + 'v4 entry sheet, and says how Vite and the Angular builder serve the sprite, since neither '
-      + 'serves a file of src at the root. The command reference quotes whole the scripts `arena '
+      'paid once per project, not per screen, so it carries what the build route may not: the install, '
+      + 'the config file and the command. The config block is copied whole. The install reference gives '
+      + 'the evidence behind each package manager and the Tailwind v4 entry sheet, and says how Vite and '
+      + 'the Angular builder serve the sprite. The command reference quotes whole the scripts `arena '
       + 'init` writes, tables every audit tag with its rule, names the sheets, the sprite and the cut '
-      + 'fonts the build writes, and lists the sheets a `--no-import` project imports under one rule '
-      + 'for every root, generated from the layer list `scopedImports` reads. It states the flat package sheet and the per-layer icon module, and which glyphs '
-      + 'reach the sprite\'s filled weight and when an icon expression widens that set or stills the '
-      + 'glyph report, and its audit section covers the two rules that read a plugin\'s names. '
-      + 'The config reference tables every '
-      + 'key, the names the build refuses and the 29 roles that carry a default, which it names. The install and command '
-      + 'references name the arena-defaults layer the defaults sit in, which the Tailwind entry '
-      + 'states first.',
+      + 'fonts the build writes, and lists the sheets a `--no-import` project imports under one rule for '
+      + 'every root, generated from the layer list `scopedImports` reads. It states the flat package '
+      + 'sheet, the per-layer icon module, which glyphs reach the filled weight and when an icon '
+      + 'expression widens that set or stills the glyph report. Its audit section covers the two rules '
+      + 'that read a plugin\'s names, its exit table a refused plugin answer, its contrast note which '
+      + 'plugins and states it measures. The config page tables every key, the names the '
+      + 'build refuses and the roles that carry a default. The install and command references name the '
+      + 'arena-defaults layer the defaults sit in, which the Tailwind entry states first.',
   },
   {
     name: 'consumer-skin',
@@ -148,21 +147,21 @@ export const ROUTES: Route[] = [
       + 'document that says what the questions are and which answers carry the difference',
     entry: 'consumer',
     stops: ['skills/design/references/style-kernel.md'],
-    budget: 19_300,
+    budget: 19_900,
     reason:
       'paid once per project and never per screen, which lets it carry the whole surface the kernel '
-      + 'exposes, not a pointer to it, so a project stops learning the kernel from a normative '
-      + 'contributor document. It links the plugin branch for which scale each role draws from, and states that a reading floor '
-      + 'refuses the build rather than reporting, which answers a project may inherit and which it '
-      + 'has to make, and how the one exception to the scale rule is keyed. The differentiation table '
-      + 'is a measurement over the catalogue, so it grows by remeasuring and not by writing. The '
-      + 'number is what the stops measure with room for the kernel to grow a section, and it moves '
-      + 'when it grows a question, not a paragraph. The root rule says where a role\'s default is '
-      + 'written and states first, in a region generated with the config page\'s, which of 29 roles carry a '
-      + 'default and that the root answers the rest. It says where a clone-less project fetches '
-      + 'the default plugin. The roster grows per role. The setup checklist names each unanswered role. It says what each kind of role may be answered '
-      + 'with, which the roster omits. It names the selected tab\'s rule and its default, and says a '
-      + 'plugin\'s own percentage stays put.',
+      + 'exposes, so a project stops learning the kernel from a normative contributor document. It links '
+      + 'the plugin branch for which scale each role draws from, says which answers a project may '
+      + 'inherit and which it has to make, and how the one exception to the scale rule is keyed. The '
+      + 'differentiation table is a measurement over the catalogue, so it grows by remeasuring and not '
+      + 'by writing. The number is what the stops measure with room for the kernel to grow a section, '
+      + 'and it moves when it grows a question, not a paragraph. The root rule says where a role\'s '
+      + 'default is written and states first, in a region generated with the config page\'s, which '
+      + 'roles carry a default and that the root answers the rest. It says where a clone-less project '
+      + 'fetches the default plugin. The roster grows per role. The setup checklist names each unanswered role. The page says what '
+      + 'each kind of role may be answered with, names the selected tab\'s rule and its default, and says '
+      + 'a plugin\'s own percentage stays put. The loop lists every answer the build refuses and what the '
+      + 'user scale column decides.',
   },
   {
     name: 'consumer-register',
