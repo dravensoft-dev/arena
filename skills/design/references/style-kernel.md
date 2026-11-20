@@ -36,10 +36,10 @@ this page costs you is paid when you decide to look like yourself, not to start.
 
 Arena ships two themes and is dark first, so a real config carries a dark palette as well as the
 light one above. The full colour list, the font slots and the rest of the config are in
-[`config.md`](./config.md). The file to copy is there rather than here.
+[`config.md`](./config.md).
 
-**`design/<name>/plugin.tokens.json`.** One entry per role, and the directory name becomes the
-plugin's name:
+**`design/<name>/plugin.tokens.json`.** One entry per role or [colour slot](./color-slots.md), and the
+directory names the plugin:
 
 ```json
 {
@@ -264,5 +264,4 @@ through the same part.** What one product paints is its own.
 
 Two things that look like evidence and are not. A rule that restates the slot's own answer raises
 the count without changing a pixel. And an ask whose whole content is a difference between two states of one part cannot become a
-role at all. A plugin selects by part and never by the
-value of a variant: the component renders one part in both states, and a plugin paints it once.
+role at all. A colour slot answers such a difference in colour ([`color-slots.md`](./color-slots.md)), and any other is the product's own markup.
