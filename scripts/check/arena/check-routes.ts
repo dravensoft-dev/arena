@@ -272,7 +272,7 @@ export const ROUTES: Route[] = [
       + 'column it sits in and how much air goes between two components',
     entry: 'consumer',
     stops: ['skills/design/references/page.md', 'skills/design/references/style.md'],
-    budget: 20_900,
+    budget: 21_000,
     reason:
       'paid per element a builder draws themselves, which every screen has. It buys the half of a '
       + 'page no component draws: the floor and where each layer puts it, which frame the viewport '
@@ -284,34 +284,34 @@ export const ROUTES: Route[] = [
       + 'column\'s width and each layer\'s sizing section, names each layer\'s breakpoint helper and '
       + 'the quiet ink level, and sends density values to the density page. Arena paints no '
       + 'selection or scrollbar, so a recipe gives one. It says which palette, style plugin and '
-      + 'density an overlay takes from its trigger, and where an island paints its ground. The page sends a panel, a toggle and a layer to the token tree, which owns what each is painted with.',
+      + 'density an overlay takes from its trigger, and where an island paints its ground, and the text colour its body fence reads at its level. The page sends a panel, a toggle and a layer to the token tree, which owns what each is painted with.',
   },
   {
     name: 'consumer-paint-panel',
     who: 'a builder painting a panel of their own markup: the router, then the markup tree index and the pages for surfaces and text, type, edges, space and layout, and depth and motion',
     entry: 'consumer',
     stops: ['skills/design/references/tokens/markup/index.md', 'skills/design/references/tokens/markup/surfaces-and-text.md', 'skills/design/references/tokens/markup/type.md', 'skills/design/references/tokens/markup/edges.md', 'skills/design/references/tokens/markup/space-and-layout.md', 'skills/design/references/tokens/markup/depth-and-motion.md'],
-    budget: 20_700,
+    budget: 20_900,
     reason:
-      'paid per panel a builder draws themselves. It buys the whole of what paints one: the ground and the ink on it, the title it carries and its size and weight, the edge and its radius, the air inside and around it, and the depth and motion it carries, each read at the page that owns it and not through the page, style and token references. On each leaf the route buys the question of every role, its utility and how it combines with the others, and the paragraph that composes them. The number is what the stops measure and moves when a page of the tree grows a decision, not a paragraph. The markup index, the first stop, carries one row more for the units page, which this panel route does not read. Its read-this line for the states page names the keyboard focus, the pressed toggle and the other states that page answers. The surfaces and text page carries the overlay-scrim role, the wash a modal lays over the page, which the leaf lists with its question like every other role.',
+      'paid per panel a builder draws themselves. It buys the whole of what paints one: the ground and the ink on it, the title it carries and its size and weight, the edge and its radius, the air inside and around it, and the depth and motion it carries, each read at the page that owns it and not through the page, style and token references. On each leaf the route buys the question of every role, its utility and how it combines with the others, and the paragraph that composes them. The number is what the stops measure and moves when a page of the tree grows a decision, not a paragraph. The markup index, the first stop, carries one row more for the units page, which this panel route does not read. Its read-this line for the states page names the keyboard focus, the pressed toggle and the other states that page answers. The surfaces and text page carries the overlay-scrim role, the wash a modal lays over the page, which the leaf lists with its question like every other role, and the media wash at its level.',
   },
   {
     name: 'consumer-own-toggle',
     who: 'a builder who owns a toggle of their own and draws every state of it: the router, then the markup tree index and the pages for states, edges, depth and motion, and space and layout',
     entry: 'consumer',
     stops: ['skills/design/references/tokens/markup/index.md', 'skills/design/references/tokens/markup/states.md', 'skills/design/references/tokens/markup/edges.md', 'skills/design/references/tokens/markup/depth-and-motion.md', 'skills/design/references/tokens/markup/space-and-layout.md'],
-    budget: 18_000,
+    budget: 19_400,
     reason:
-      'paid once per control a builder draws without a component. It buys the states a control wears, hover and the pressed lift and scale, with the motion and the space of each change, and the outline the control draws, its edge colour, width and radius, each role with its question, utility and combination and the paragraph that composes the leaf. Focus, selected, disabled and invalid each have a role on the states page, so a control reads them there. Each is read from its own page instead of the media register, the page and the kernel. The data files beside the pages are not stops, as the gate charges Markdown only. The markup index, the first stop, carries one row more for the units page, which a toggle does not need. The states page carries thirteen roles with their utilities, among them the hover and pressed mixes, and a table that maps each state attribute to its selector and roles, with a checked row under aria-checked and under checked for focus, selection, a checked state, the disabled fade and an invalid field. The page also carries one html toggle, with its label and its aria-invalid edge, that shows every state. The states page names which selected item takes which edge.',
+      'paid once per control a builder draws without a component. It buys the states a control wears, hover and the pressed lift and scale, with the motion and the space of each change, and the outline the control draws, its edge colour, width and radius, each role with its question, utility and combination and the paragraph that composes the leaf. Focus, selected, disabled and invalid each have a role on the states page, so a control reads them there. Each is read from its own page, not the media register, page or kernel. The data files beside the pages are not stops, as the gate charges Markdown only. The markup index carries one row more for the units page, which a toggle does not need. The states page carries thirteen roles with their utilities, among them the hover and pressed mixes, and a table that maps each state attribute to its selector and roles, including a checked row under aria-checked and under checked for focus, selection, a checked state, the disabled fade and an invalid field. The page also carries one html toggle, with its label and invalid edge, that shows every state. The states page names which selected item takes which edge and the checkbox and switch roles.',
   },
   {
     name: 'consumer-layer',
     who: 'a builder placing a layer over the page: the router, then the markup tree index and the layers page',
     entry: 'consumer',
     stops: ['skills/design/references/tokens/markup/index.md', 'skills/design/references/tokens/markup/layers.md'],
-    budget: 6_100,
+    budget: 6_700,
     reason:
-      'paid per overlay, sticky bar or panel a builder places. It buys the order layers stack in and what each one rests on, in one page, without the token reference and the shell page, with the whole caveat of each step on the layers page: what it is for, what it sits above and below, and where a panel in the top layer or an overlay pane stacks. The number is what the two stops measure and moves when the layers page grows a rule. The markup index is half of this route, and its row for the units page is part of what the two stops measure.',
+      'paid per overlay, sticky bar or panel a builder places. It buys the order layers stack in and what each one rests on, in one page, without the token reference and the shell page, with the whole caveat of each step on the layers page: what it is for, what it sits above and below, and where a panel in the top layer or an overlay pane stacks, with the five components whose panels do. The number is what the two stops measure and moves when the layers page grows a rule. The markup index is half of this route, and its row for the units page is part of what the two stops measure.',
   },
   {
     name: 'consumer-coldstart',

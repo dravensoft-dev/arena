@@ -1,6 +1,6 @@
 /* frameworks/angular/theme/arena-cdk.css: the CDK overlay's structural CSS, on Arena's z scale.
    Import this ONCE from the app's global stylesheet, alongside arena-tailwind.css, whenever the
-   app uses an Arena primitive that positions itself with @angular/cdk/overlay: ArenaTooltip, ArenaMenu, ArenaPopover.
+   app uses an Arena primitive that positions itself with @angular/cdk/overlay: ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCombobox, ArenaMultiSelect.
    Arena uses the CDK for POSITION only: focus and roles stay Arena's, in
    frameworks/angular/FocusTrap.ts.
 

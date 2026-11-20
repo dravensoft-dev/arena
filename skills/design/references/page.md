@@ -18,7 +18,7 @@ owns the whole viewport.
 body {
   background: var(--fill-page);
   font-family: var(--font-body);
-  color: var(--ink-body);
+  color: color-mix(in oklab, var(--ink-body) var(--level-ink-body), transparent);
 }
 ```
 
@@ -82,7 +82,7 @@ and are wide in a server's HTML.
 ## Taking the least of this, and taking all of it
 
 **The least is the classes and the roles as they stand.** Paint the floor with `--fill-page`,
-your text with `--ink-body` and `--ink-muted`, your own surfaces with `--fill-surface` and
+your text with `--ink-body` and `--ink-muted` at their levels (see [`tokens/markup/surfaces-and-text.md`](./tokens/markup/surfaces-and-text.md)), your own surfaces with `--fill-surface` and
 `--edge-surface`, put `.arena-shell`, `.arena-band` and `.arena-stack` on your markup (see [`style.md`](./style.md)). Nothing here needs a style plugin, and a screen built this way already follows whatever
 appearance the project adopts later.
 
