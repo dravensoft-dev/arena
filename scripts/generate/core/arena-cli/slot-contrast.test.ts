@@ -442,7 +442,9 @@ test('every meter range clears 3:1 over its track', () => {
     for (const pair of ranges) {
       const track = pair.over === 'ground' ? (colors['base-200'] as string) : slotColour(CATALOGUE.slots, pair.over, new Map(), roles, colors, LEVELS, mixOf(roles), colors['base-200'] as string) as string;
       const range = slotColour(CATALOGUE.slots, pair.slot, new Map(), roles, colors, LEVELS, mixOf(roles), track) as string;
-      assert.ok(contrast(range, track) >= (pair.slot.startsWith('meters-muted') ? 3 : 4.5), `${theme} ${pair.slot} over ${pair.over}`);
+      const ratio = contrast(range, track);
+      assert.ok(ratio >= 3, `${theme} ${pair.slot} over ${pair.over}: the floor is 3:1, a range is a graphical object`);
+      assert.ok(ratio >= 4.5, `${theme} ${pair.slot} over ${pair.over}: measured ${ratio.toFixed(2)}, and F4 records every range at 4.50 or more`);
     }
     assert.deepEqual(kernel(theme).filter((line) => line.startsWith('--meters-')), [], `${theme}: every meters pair clears its floor`);
   }
