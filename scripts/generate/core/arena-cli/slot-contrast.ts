@@ -1,13 +1,13 @@
 /* Contrast per colour slot and per state. A slot resolves down its chain, an answer of the plugin
  * first, else the kernel default by the rules slots.ts writes as CSS, to a palette colour at an
- * alpha; a level or a mix toward the ink makes the alpha, and the ground a caller names is what
- * a part with no fill, or a wash, stands on. A disabled and a selected-disabled slot is never a
- * pair (WCAG exempts an inactive control), and disabledReports only says when one is not told
- * from its rest. An answer sits inside the level its channel carries, as the emphasis sheet writes
- * it, and a member default is measured as the member paints it, where it moves a pair. Imports
- * nothing outside this directory, because the command ships it. Every pair of a part that sits on
- * another part's fill is a mark at 3:1 (D69), unless it sits over it and keeps each floor (D89), and
- * every pair of a mark part, its fill over the ground among them, is a mark at 3:1 (D92). */
+ * alpha; a level or a mix toward the ink makes the alpha, and the ground a caller names is what a
+ * part with no fill, or a wash, stands on. A disabled and a selected-disabled slot is never a pair
+ * (WCAG exempts an inactive control), and disabledReports only says when one is not told from its
+ * rest. An answer sits inside the level its channel carries, as the emphasis sheet writes it, a
+ * member default is measured as the member paints it, where it moves a pair, and a member ground
+ * (D96) measures again over the fill the member paints on. Imports nothing outside this directory,
+ * because the command ships it. A pair of a part on another part's fill is a mark at 3:1 (D69) unless
+ * it sits over it and keeps each floor (D89), as is every pair of a mark part, fill over ground too (D92). */
 
 import { contrast } from './validate-palette.mjs';
 import { composite, mixOklab, oklabToHex, toOklab } from './oklab.ts';
@@ -15,7 +15,7 @@ import type { Triple } from './oklab.ts';
 import { MARK_MIN, paletteKey, surfaceKeys, TEXT_MIN } from './levels.ts';
 import { report } from './report.ts';
 import type { Report } from './report.ts';
-import { expectedName, followsInk } from './slots.ts';
+import { expectedName, followsInk, memberSlotNames } from './slots.ts';
 import type { ColorSlot, MeasuredSlots, MemberPart } from './slots.ts';
 
 export type Paint = { hex: string; alpha: number } | null;
@@ -176,7 +176,8 @@ export function slotReports(
   const grounds = surfaceKeys(roles).filter((key) => colors[key]);
   const out: Report[] = [];
   const seen = new Set<string>();
-  for (const pair of slotPairs(catalogue)) for (const [member, ctx] of contexts(base)) {
+  const pairs = slotPairs(catalogue);
+  for (const pair of pairs) for (const [member, ctx] of contexts(base)) {
     if (!moved(base, ctx, pair)) continue;
     const mark = markOf(ctx, pair);
     const fill = fillOf(ctx, pair);
@@ -197,6 +198,33 @@ export function slotReports(
       if (seen.has(line)) continue;
       seen.add(line);
       out.push(report('contrast', line));
+    }
+  }
+  for (const line of groundLines(base, pairs, grounds, theme)) if (!seen.has(line)) { seen.add(line); out.push(report('contrast', line)); }
+  return out;
+}
+
+function groundLines(base: Context, pairs: SlotPair[], grounds: string[], theme: string): string[] {
+  const out: string[] = [];
+  for (const [member, m] of Object.entries(base.catalogue.members ?? {})) {
+    if (m.ground === undefined) continue;
+    const ctx = m.defaults === undefined ? base : { ...base, member: m };
+    const fill = m.ground === 'ground' ? null : valueColour(ctx, base.roles.get(m.ground));
+    if (fill === undefined) continue;
+    const unders = fill === null ? grounds.map((key) => [base.colors[key] as string, `--color-${key}`]) : [[fill.hex, `--${m.ground}`]];
+    const read = new Set(memberSlotNames(base.catalogue, m));
+    for (const pair of pairs) {
+      const slot = base.catalogue.slots[pair.slot];
+      if (!slot || !read.has(pair.slot) || slot.property === 'fill' || (slot.property === 'edge' && !slot.state.startsWith('selected'))) continue;
+      const mark = markOf(ctx, pair);
+      if (!mark) continue;
+      const standard = pair.min === MARK_MIN ? 'WCAG 1.4.11' : 'WCAG 1.4.3';
+      for (const [under, name] of unders as [string, string][]) {
+        const ratio = contrast(over(mark, under), under);
+        if (ratio >= pair.min) continue;
+        out.push(`--${pair.slot} measures ${ratio.toFixed(2)}:1 in the ${slot.state} state of the ${theme} theme, as ${member} paints it over ${name}, `
+          + `below ${pair.min}:1 (${standard}), so ${WHY[slot.property]}; answer the pair with colours that stand further apart`);
+      }
     }
   }
   return out;

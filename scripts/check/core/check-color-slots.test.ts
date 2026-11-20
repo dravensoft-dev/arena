@@ -2,12 +2,12 @@ import test from 'node:test';
 import { readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
-import { collect, mapProblems, declarationProblems, exceptionProblems, memberDefaultProblems, shapeProblems, nameProblems, acceptsProblems, defaultProblems, fallbackProblems, pairProblems, manifestProblems, ringProblems, readProblems, memberReadProblems, fadeProblems, familyProblems, stripeProblems, colourRoleSet, slotManifests, ACCENT_FAMILY, EMPHASIS_FAMILY, presenceProblems } from './check-color-slots.ts';
+import { collect, mapProblems, declarationProblems, exceptionProblems, memberDefaultProblems, shapeProblems, nameProblems, acceptsProblems, defaultProblems, fallbackProblems, pairProblems, manifestProblems, ringProblems, readProblems, memberReadProblems, fadeProblems, familyProblems, stripeProblems, colourRoleSet, slotManifests, ACCENT_FAMILY, EMPHASIS_FAMILY, presenceProblems, seriesByProblems } from './check-color-slots.ts';
 import { COLOR_SLOTS, deriveSlots, readColorSlots, readSlotDeclarations } from '../../lib/core/color-slots.ts';
 import type { GroupOption, GroupPart, MemberDecl, SlotDeclarations } from '../../lib/core/color-slots.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
-import { colouredParts } from '../../lib/core/color-slot-map.ts';
+import { colourNames, colouredParts } from '../../lib/core/color-slot-map.ts';
 import type { SlotCatalogue } from '../../generate/core/arena-cli/slots.ts';
 import { channelValue, haloValue, memberValue } from '../../generate/core/arena-cli/slots.ts';
 import { fixtureManifests, slotFixture } from '../../lib/core/color-slots-fixture.ts';
@@ -323,6 +323,9 @@ test('the shipped declarations are clean', () => {
   assert.deepEqual(declarationProblems(d), []);
   assert.deepEqual(exceptionProblems(d), []);
   assert.deepEqual(memberReadProblems(shipped(), manifests), []);
+  assert.deepEqual(seriesByProblems(shipped(), manifests, colourNames()), []);
+  assert.equal(shipped().members['ArenaToast.action']?.ground, 'fill-surface-floating', 'the toast action paints on the floating surface (D96)');
+  assert.equal(shipped().members['ArenaSpinner.root']?.ground, 'ground', 'the spinner arcs paint on the page (D96)');
 });
 
 test('a missing states on an option of a part with no states of its own is refused and named', () => {
@@ -945,7 +948,7 @@ test('an edge drawn as a rule is read inside the inset shadow', () => {
   assert.deepEqual(memberReadProblems(c, crumbManifest(`border-[color:${crumbValue(c, 'choices-box-edge-rest')}]`)),
     [`ArenaCrumb.box: choices-box-edge-rest is not read as ${rule} in the base class`]);
   assert.match(declarationProblems(crumbDeclared({ edgeAs: 'rule' }, ['fill'], ['rest'])).join('\n'), /ArenaCrumb\.parts\.box\.edgeAs: choices\.box paints no edge/);
-  assert.match(declarationProblems(crumbDeclared({ edgeAs: 'line' as 'rule' }, ['edge'], ['rest'])).join('\n'), /edgeAs: "line" is neither "rule" nor "stripe"/);
+  assert.match(declarationProblems(crumbDeclared({ edgeAs: 'line' as 'rule' }, ['edge'], ['rest'])).join('\n'), /edgeAs: "line" is not "rule", "stripe" or "fill"/);
 });
 
 test('an aria-disabled member reads its disabled states under aria-disabled:', () => {
@@ -1094,7 +1097,7 @@ test('an edge drawn as a stripe is read on border-l only', () => {
     [`ArenaCrumb.box: choices-box-edge-rest is not read as ${stripe} in the base class`]);
   assert.deepEqual(stripeProblems(c, crumbManifest(`${stripe} border-t-[color:${value}]`)),
     [`ArenaCrumb.box: it reads choices-box-edge-rest as border-t-[color:${value}], and a stripe reads its edge on border-l alone (D90)`]);
-  assert.match(declarationProblems(crumbDeclared({ edgeAs: 'line' as 'rule' }, ['edge'], ['rest'])).join('\n'), /edgeAs: "line" is neither "rule" nor "stripe"/);
+  assert.match(declarationProblems(crumbDeclared({ edgeAs: 'line' as 'rule' }, ['edge'], ['rest'])).join('\n'), /edgeAs: "line" is not "rule", "stripe" or "fill"/);
 });
 
 const seriesManifest = (dot: Record<string, unknown>) => new Map([['ArenaDots', { component: 'ArenaDots', slots: { dot: 'size-1.5 rounded-pill' }, ...dot } as never]]);
@@ -1208,17 +1211,34 @@ test('on beside over is refused', () => {
   }
 });
 
+const noteDeclared = (extra: Partial<MemberDecl> = {}) => slotFixture({
+  banner: { properties: ['fill', 'edge'], states: ['rest'], options: {
+    plain: { properties: ['edge'], channel: '--arena-accent-feedback-banner-{property}', rest: { edge: '{edge-control}' } },
+    gold: { properties: ['edge'], channel: '--arena-accent-feedback-banner-{property}', rest: { edge: '{edge-selected}' } },
+    success: { rest: { fill: '{fill-surface}', edge: '{edge-control}' } },
+    danger: { rest: { fill: '{fill-control}', edge: '{edge-control}' } },
+  } },
+}, { ArenaNote: { group: 'feedback', parts: { root: {
+  to: 'feedback.banner', options: ['plain', 'gold', 'success', 'danger'], properties: ['edge'], states: ['rest'],
+  optionBy: { axis: 'tone', values: { success: 'success', danger: 'danger' } }, channels: { edge: '--arena-accent-feedback-banner-edge' }, ...extra,
+} } } }, 'feedback');
+const noteManifest = new Map([['ArenaNote', {
+  component: 'ArenaNote', slots: { root: 'border-l-4' }, variants: { tone: { success: {}, danger: {} } },
+  answers: [{ family: 'accent', options: ['arena-accent-plain', 'arena-accent-gold'] }],
+} as never]]);
+
 test('a channelled option names a channel for each of its properties', () => {
-  const d = declared();
-  assert.ok(!declarationProblems(d).some((l) => /ArenaToast\.parts\.root\.optionBy/.test(l)), 'the shipped Toast.root is clean');
-  (d.members!.ArenaToast!.parts.root as any).channels = {};
-  assert.ok(declarationProblems(d).some((l) => /ArenaToast\.parts\.root\.optionBy: more than one option is left with no value/.test(l)), declarationProblems(d).join('\n'));
+  const d = noteDeclared();
+  assert.deepEqual(declarationProblems(d), [], 'the accent options read through channels leave one base option');
+  (d.members!.ArenaNote!.parts.root as MemberDecl).channels = {};
+  assert.ok(declarationProblems(d).some((l) => /ArenaNote\.parts\.root\.optionBy: more than one option is left with no value/.test(l)), declarationProblems(d).join('\n'));
 });
 
 test('an accent answer clears an option only where the member reads it through channels', () => {
-  assert.deepEqual(manifestProblems(shipped(), manifests).filter((l) => /ArenaToast/.test(l)), []);
-  const bare = edit((x) => { delete x.members['ArenaToast.root']!.channels; });
-  assert.ok(manifestProblems(bare, manifests).some((l) => /members\.ArenaToast\.root: ArenaToast answers no emphasis (plain|gold) and declares no variant/.test(l)), manifestProblems(bare, manifests).join('\n'));
+  const c = deriveSlots(noteDeclared());
+  assert.deepEqual(manifestProblems(c, noteManifest), []);
+  delete c.members['ArenaNote.root']!.channels;
+  assert.ok(manifestProblems(c, noteManifest).some((l) => /members\.ArenaNote\.root: ArenaNote answers no emphasis (plain|gold) and declares no variant/.test(l)), manifestProblems(c, noteManifest).join('\n'));
 });
 
 test('the presence level is held to a mark pair and a mark slot chain', () => {
@@ -1276,9 +1296,8 @@ test('the shipped meter track is an ink mark', () => {
 });
 
 test('a channelled option counts only where the member reads one of its properties through a channel', () => {
-  const d = declared();
-  (d.members!.ArenaToast!.parts.root as MemberDecl).properties = ['icon'];
-  assert.ok(declarationProblems(d).some((l) => /ArenaToast\.parts\.root\.optionBy: more than one option is left with no value/.test(l)), declarationProblems(d).join('\n'));
+  const d = noteDeclared({ properties: ['fill'] });
+  assert.ok(declarationProblems(d).some((l) => /ArenaNote\.parts\.root\.optionBy: more than one option is left with no value/.test(l)), declarationProblems(d).join('\n'));
 });
 
 test('the presence escape holds only a slot chain in the colour position', () => {
@@ -1288,4 +1307,107 @@ test('the presence escape holds only a slot chain in the colour position', () =>
   assert.ok(status.status.includes(held), 'the offline dot reads its slot in the colour position');
   status.status = status.status.replace(held, 'color-mix(in_oklab,var(--ink-body)_var(--level-presence),var(--marks-muted-dot-ink-rest,transparent))');
   assert.ok(presenceProblems(shipped(), moved).some((l) => /ArenaAvatar\.status: .* reads level-presence outside the chain of a presence slot/.test(l)), presenceProblems(shipped(), moved).join('\n'));
+});
+
+test('a member ground names a fill role', () => {
+  assert.deepEqual(declarationProblems(crumbDeclared({ ground: 'fill-surface-raised' })), []);
+  assert.deepEqual(declarationProblems(crumbDeclared({ ground: 'overlay-media' })), []);
+  assert.deepEqual(declarationProblems(crumbDeclared({ ground: 'ground' })), []);
+  assert.deepEqual(declarationProblems(crumbDeclared({ ground: 'ink-body' })),
+    ['members.ArenaCrumb.parts.box.ground: "ink-body" is neither "ground" nor a fill-* or overlay-* role of contracts/design/roles.json (D96)']);
+  const c = deriveSlots(crumbDeclared({ ground: 'fill-surface-raised' }));
+  assert.equal(c.members['ArenaCrumb.box']?.ground, 'fill-surface-raised');
+});
+
+const cellDeclared = (toBy: unknown, extra: Record<string, GroupPart> = {}) => slotFixture({
+  figure: { properties: ['ink'], states: ['rest'], rest: { ink: '{ink-figure}' } },
+  body: { properties: ['ink'], states: ['rest'], rest: { ink: '{ink-body}' } },
+  ...extra,
+}, { ArenaCell: { group: 'text', parts: { cell: { to: 'text.figure', options: [], states: ['rest'], toBy: toBy as MemberDecl['toBy'] } } } }, 'text');
+const cellManifest = (base: string, plain: string) => new Map([['ArenaCell', {
+  component: 'ArenaCell', slots: { cell: base }, variants: { numeric: { true: {}, false: { cell: plain } } },
+} as never]]);
+
+test('toBy reads another part of the group in its branch', () => {
+  const d = cellDeclared({ axis: 'numeric', values: { false: 'text.body' } });
+  assert.deepEqual(declarationProblems(d), []);
+  const c = deriveSlots(d);
+  assert.deepEqual(c.members['ArenaCell.cell']?.toBy, { axis: 'numeric', values: { false: 'text.body' } });
+  const read = (name: string) => `text-[color:${memberValue(c, 'ArenaCell.cell', name, 'tailwind')}]`;
+  assert.deepEqual(memberReadProblems(c, cellManifest(read('text-figure-ink-rest'), read('text-body-ink-rest'))), []);
+  assert.deepEqual(manifestProblems(c, cellManifest(read('text-figure-ink-rest'), read('text-body-ink-rest'))), []);
+  assert.deepEqual(readProblems(c, cellManifest(read('text-figure-ink-rest'), read('text-body-ink-rest'))), [], 'the toBy part counts as read');
+  assert.deepEqual(memberReadProblems(c, cellManifest(read('text-figure-ink-rest'), read('text-figure-ink-rest'))),
+    [`ArenaCell.cell: text-body-ink-rest is not read as ${read('text-body-ink-rest')} in the numeric=false branch`]);
+  assert.ok(manifestProblems(c, new Map([['ArenaCell', { component: 'ArenaCell', slots: { cell: '' } } as never]])).some((l) => /ArenaCell declares no variant numeric=false/.test(l)));
+  const coloured = new Map([['ArenaCell.cell', { focusOnly: false, keywordsOnly: false, properties: ['ink'] }]]);
+  assert.deepEqual(mapProblems(d, coloured, cellManifest(read('text-figure-ink-rest'), read('text-body-ink-rest'))), [], 'the member counts under to and under its toBy part');
+});
+
+test('a toBy part outside the member group is refused', () => {
+  const other = cellDeclared({ axis: 'numeric', values: { false: 'marks.label' } });
+  other.groups!.marks = { parts: { label: { properties: ['ink'], states: ['rest'], rest: { ink: '{ink-body}' } } } };
+  assert.deepEqual(declarationProblems(other),
+    ['members.ArenaCell.parts.cell.toBy: "marks.label" for numeric=false is no part of text, the group of text.figure (D104)']);
+  const toned = cellDeclared({ axis: 'numeric', values: { false: 'text.tone' } },
+    { tone: { properties: ['ink'], options: { a: { states: ['rest'], rest: { ink: '{ink-body}' } } } } });
+  assert.deepEqual(declarationProblems(toned),
+    ['members.ArenaCell.parts.cell.toBy: "text.tone" for numeric=false takes an option, and a part read by toBy takes none (D104)']);
+  assert.deepEqual(declarationProblems(cellDeclared({ axis: 'numeric', values: {} })), ['members.ArenaCell.parts.cell.toBy: it names an axis and maps a value onto a part']);
+});
+
+const titleDeclared = () => slotFixture({ label: { properties: ['ink'], states: ['rest'], rest: { ink: '{ink-body}' } } },
+  { ArenaTitle: { group: 'marks', parts: { title: { to: 'marks.label', options: [], states: ['rest'], seriesBy: 'colorId' } } } }, 'marks');
+const titleManifest = (base: string, branch: string, hues: unknown = { colorId: { 1: 'identity-1' } }) => new Map([['ArenaTitle', {
+  component: 'ArenaTitle', slots: { title: base }, variants: { colorId: { 1: { title: branch } } }, hues,
+} as never]]);
+
+test('seriesBy branches read only hue channels', () => {
+  const d = titleDeclared();
+  assert.deepEqual(declarationProblems(d), []);
+  const c = deriveSlots(d);
+  assert.equal(c.members['ArenaTitle.title']?.seriesBy, 'colorId');
+  const names = colourNames();
+  const slot = `text-[color:${memberValue(c, 'ArenaTitle.title', 'marks-label-ink-rest', 'tailwind')}]`;
+  const hue = 'text-[color:var(--arena-hue-ink)]';
+  assert.deepEqual(seriesByProblems(c, titleManifest(slot, hue), names), []);
+  assert.deepEqual(memberReadProblems(c, titleManifest(slot, hue)), []);
+  assert.deepEqual(seriesByProblems(c, titleManifest(slot, `${hue} ${slot}`), names),
+    [`ArenaTitle.title: it reads ${slot} in the colorId=1 branch, and a seriesBy branch reads only var(--arena-hue-…)`]);
+  assert.deepEqual(seriesByProblems(c, titleManifest(`${slot} ${hue}`, hue), names),
+    [`ArenaTitle.title: it reads ${hue} in the base class, and outside its colorId branches a seriesBy member reads only its slots`]);
+  assert.deepEqual(seriesByProblems(c, titleManifest(slot, hue, {}), names),
+    ['ArenaTitle.title: seriesBy names colorId, and ArenaTitle declares no hues entry for it']);
+  const twice = titleDeclared();
+  (twice.members!.ArenaTitle!.parts.title as MemberDecl).optionBy = { axis: 'colorId', values: {} };
+  assert.ok(declarationProblems(twice).some((l) => l === 'members.ArenaTitle.parts.title.seriesBy: it shares the axis colorId with optionBy'), declarationProblems(twice).join('\n'));
+});
+
+test('an edge drawn as a fill is read inside bg-[color:]', () => {
+  const d = crumbDeclared({ edgeAs: 'fill' }, ['edge'], ['rest']);
+  assert.deepEqual(declarationProblems(d), []);
+  const c = deriveSlots(d);
+  const value = crumbValue(c, 'choices-box-edge-rest');
+  assert.deepEqual(memberReadProblems(c, crumbManifest(`h-px bg-[color:${value}]`)), []);
+  assert.deepEqual(memberReadProblems(c, crumbManifest(`border-[color:${value}]`)),
+    [`ArenaCrumb.box: choices-box-edge-rest is not read as bg-[color:${value}] in the base class`]);
+  const filled = new Map([['ArenaCrumb.box', { focusOnly: false, keywordsOnly: false, properties: ['fill'] }]]);
+  assert.deepEqual(mapProblems(d, filled, crumbManifest(`h-px bg-[color:${value}]`)), [], 'a rule the map reads as a fill is the member\'s edge');
+  assert.match(declarationProblems(crumbDeclared({ edgeAs: 'fill' }, ['fill', 'edge'], ['rest'])).join('\n'),
+    /ArenaCrumb\.parts\.box\.edgeAs: choices\.box paints a fill too, and an edge drawn as a fill would read the fill's utility/);
+});
+
+test('a wrapped read holds its inner chain', () => {
+  const d = crumbDeclared({ wrappedBy: '--arena-mark-{property}' }, ['fill', 'ink'], ['rest']);
+  assert.deepEqual(declarationProblems(d), []);
+  const c = deriveSlots(d);
+  assert.equal(c.members['ArenaCrumb.box']?.wrappedBy, '--arena-mark-{property}');
+  const fill = `bg-[color:var(--arena-mark-fill,${crumbValue(c, 'choices-box-fill-rest')})]`;
+  const ink = `text-[color:var(--arena-mark-ink,${crumbValue(c, 'choices-box-ink-rest')})]`;
+  assert.deepEqual(memberReadProblems(c, crumbManifest(`${fill} ${ink}`)), []);
+  const wrong = `bg-[color:var(--arena-mark-fill,${crumbValue(c, 'choices-box-ink-rest')})]`;
+  assert.deepEqual(memberReadProblems(c, crumbManifest(`${wrong} ${ink}`)),
+    [`ArenaCrumb.box: choices-box-fill-rest is not read as ${fill} in the base class`]);
+  assert.deepEqual(declarationProblems(crumbDeclared({ wrappedBy: '--mark-fill' }, ['fill'], ['rest'])),
+    ['members.ArenaCrumb.parts.box.wrappedBy: "--mark-fill" is not --arena-<family>-{property} (D98)']);
 });

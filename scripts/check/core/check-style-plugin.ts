@@ -128,19 +128,18 @@ export function defaultAnswerProblems(roles: Record<string, KernelRole>, answers
   return problems;
 }
 
-export function slotAnswerProblems(where: string, tokens: Record<string, unknown>, kernel: Record<string, unknown>) {
+export function slotAnswerLines(where: string, tokens: Record<string, unknown>, kernel: Record<string, unknown>, rule: typeof keyProblems) {
   const slots = readColorSlots();
   const colourNames = colourNamesOf(kernel, '$type');
   return movedTokens(tokens).filter(({ key }) => slots.slots[key])
-    .flatMap(({ key, token }) => keyProblems(where, key, token, undefined, { slots, colourNames }));
+    .flatMap(({ key, token }) => rule(where, key, token, undefined, { slots, colourNames }));
 }
 
-export function slotAcceptsProblems(where: string, tokens: Record<string, unknown>, kernel: Record<string, unknown>) {
-  const slots = readColorSlots();
-  const colourNames = colourNamesOf(kernel, '$type');
-  return movedTokens(tokens).filter(({ key }) => slots.slots[key])
-    .flatMap(({ key, token }) => valueProblems(where, key, token, undefined, { slots, colourNames }));
-}
+export const slotAnswerProblems = (where: string, tokens: Record<string, unknown>, kernel: Record<string, unknown>) =>
+  slotAnswerLines(where, tokens, kernel, keyProblems);
+
+export const slotAcceptsProblems = (where: string, tokens: Record<string, unknown>, kernel: Record<string, unknown>) =>
+  slotAnswerLines(where, tokens, kernel, valueProblems);
 
 export function shippedSlotAcceptsProblems(kernel?: Record<string, unknown>) {
   const roles = kernel ?? readJson(join(repoRoot, ROLES)) as Record<string, unknown>;

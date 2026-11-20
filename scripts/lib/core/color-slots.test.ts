@@ -547,3 +547,15 @@ test('no group named charts and the readout is a structure-only overlay part', (
   const c = deriveSlots(d);
   assert.deepEqual(Object.keys(c.slots).filter((key) => key.startsWith('charts-') || key.startsWith('overlays-readout-')), [], 'a readout derives no slot');
 });
+
+test('a member part carries its ground, toBy, seriesBy, wrappedBy and a fill-drawn edge into the catalogue', () => {
+  const d = fixture();
+  const keys = {
+    ground: 'fill-surface-raised', toBy: { axis: 'numeric', values: { false: 'actions.dismiss' } }, seriesBy: 'colorId',
+    wrappedBy: '--arena-mark-{property}', edgeAs: 'fill' as const,
+  };
+  d.members!.ArenaKnob!.parts.root = { to: 'actions.root', options: ['calm', 'danger'], states: 'base', ...keys };
+  const m = deriveSlots(d).members['ArenaKnob.root'];
+  assert.deepEqual({ ground: m?.ground, toBy: m?.toBy, seriesBy: m?.seriesBy, wrappedBy: m?.wrappedBy, edgeAs: m?.edgeAs }, keys);
+  assert.equal(Object.hasOwn(deriveSlots(fixture()).members['ArenaKnob.root'] ?? {}, 'ground'), false, 'a member with none carries none');
+});

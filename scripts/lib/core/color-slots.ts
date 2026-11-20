@@ -33,7 +33,8 @@ export type GroupPart = {
 export type MemberDecl = {
   to: string; options: string[]; states: StateSpec; channels?: Record<string, string>; defaults?: Record<string, string>; decision?: string;
   optionBy?: OptionAxis | OptionAxis[]; selectedBy?: { axis: string; value: string };
-  disabledBy?: { axis: string; value: string }; hoverBy?: { axis: string; value: string }; onlyBy?: { axis: string; value: string }; hoverIn?: { axis: string; value: string }; fillAs?: 'stroke'; edgeAs?: 'rule' | 'stripe'; disabledModifier?: string; inkFrom?: string; properties?: string[]; inline?: true;
+  disabledBy?: { axis: string; value: string }; hoverBy?: { axis: string; value: string }; onlyBy?: { axis: string; value: string }; hoverIn?: { axis: string; value: string }; fillAs?: 'stroke'; edgeAs?: 'rule' | 'stripe' | 'fill'; disabledModifier?: string; inkFrom?: string; properties?: string[]; inline?: true;
+  ground?: string; toBy?: { axis: string; values: Record<string, string> }; seriesBy?: string; wrappedBy?: string;
 };
 
 export type SlotDeclarations = {
@@ -175,6 +176,10 @@ export function deriveSlots(d: SlotDeclarations): SlotCatalogue {
       if (to.inkFrom) one.inkFrom = to.inkFrom;
       if (to.properties) one.properties = to.properties as MemberPart['properties'];
       if (to.inline) one.inline = true;
+      if (to.ground) one.ground = to.ground;
+      if (to.toBy) one.toBy = to.toBy;
+      if (to.seriesBy) one.seriesBy = to.seriesBy;
+      if (to.wrappedBy) one.wrappedBy = to.wrappedBy;
       members[key] = one;
     }
   }

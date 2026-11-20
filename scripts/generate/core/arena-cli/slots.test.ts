@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readColorSlots } from '../../../lib/core/color-slots.ts';
-import { axisBranch, axisNames, channelValue, fadeMarkers, haloValue, memberChain, memberValue, slotChain } from './slots.ts';
+import { axisBranch, axisNames, channelValue, fadeMarkers, haloValue, memberChain, memberSlotNames, memberValue, slotChain } from './slots.ts';
 import type { SlotCatalogue } from './slots.ts';
 
 const c = readColorSlots();
@@ -159,4 +159,15 @@ test('a member declaring fillAs, a stripe and two axes carries them into the cat
   assert.deepEqual(axisNames({ axis: 'tone', values: {} }), ['tone']);
   assert.deepEqual(axisBranch(keys.optionBy, 'a,x'), [['tone', 'a'], ['state', 'x']]);
   assert.deepEqual(axisBranch({ axis: 'tone', values: {} }, 'a'), [['tone', 'a']]);
+});
+
+test('a member reads the slots of its own part and of each toBy part, at its states and properties', async () => {
+  const { deriveSlots } = await import('../../../lib/core/color-slots.ts');
+  const { slotFixture } = await import('../../../lib/core/color-slots-fixture.ts');
+  const built = deriveSlots(slotFixture({
+    figure: { properties: ['ink'], states: ['rest', 'hover'], rest: { ink: '{ink-figure}' } },
+    body: { properties: ['ink'], states: ['rest', 'hover'], rest: { ink: '{ink-body}' } },
+    muted: { properties: ['ink'], states: ['rest'], rest: { ink: '{ink-muted}' } },
+  }, { ArenaCell: { group: 'text', parts: { cell: { to: 'text.figure', options: [], states: ['rest'], toBy: { axis: 'numeric', values: { false: 'text.body' } } } } } }, 'text'));
+  assert.deepEqual(memberSlotNames(built, built.members['ArenaCell.cell']!), ['text-body-ink-rest', 'text-figure-ink-rest']);
 });

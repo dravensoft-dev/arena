@@ -8,7 +8,7 @@ import { readJson } from '../../utils/read-file.ts';
 import * as rules from '../../generate/core/arena-cli/style-plugin-rules.ts';
 import {
   LIGHT_BY_DESIGN, ROOT_PLUGIN, SCOPES, defaultSlotAnswers, slotAnswerProblems, slotAcceptsProblems, shippedSlotAcceptsProblems, collect, shippedFixedRemProblems, defaultAnswerProblems, floorProblems, keyProblems, movedTokens, nameProblems, resolvedFor, totalityProblems,
-  valueProblems, zeroScopeProblems,
+  slotAnswerLines, valueProblems, zeroScopeProblems,
 } from './check-style-plugin.ts';
 
 const roles = (over: Record<string, string> = {}) => new Map(Object.entries({
@@ -374,4 +374,19 @@ test('the default plugin answers no colour slot', () => {
     assert.equal(lines.length, 1, lines.join('\n'));
     assert.match(lines[0] as string, /actions-primary-root-fill-pressed/);
   } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('slot answer and accepts problems share one read', () => {
+  const kernel = { 'fill-surface': { $type: 'color' }, 'ink-body': { $type: 'color' } };
+  const tokens = {
+    'actions-primary-root-fill-rest': { $type: 'color', $value: '{ink-body}' },
+    'fill-surface': { $type: 'color', $value: '{color.base-100}' },
+    light: { 'actions-primary-root-ink-rest': { $type: 'color', $value: '{ink-body}' } },
+  };
+  const seen: string[] = [];
+  const spy = (where: string, key: string) => { seen.push(`${where}:${key}`); return [`${key} read`]; };
+  assert.deepEqual(slotAnswerLines('at', tokens, kernel, spy), ['actions-primary-root-fill-rest read', 'actions-primary-root-ink-rest read']);
+  assert.deepEqual(seen, ['at:actions-primary-root-fill-rest', 'at:actions-primary-root-ink-rest'], 'only slot keys reach the rule, a role key never does');
+  assert.deepEqual(slotAnswerProblems('at', tokens, kernel), slotAnswerLines('at', tokens, kernel, keyProblems));
+  assert.deepEqual(slotAcceptsProblems('at', tokens, kernel), slotAnswerLines('at', tokens, kernel, valueProblems));
 });

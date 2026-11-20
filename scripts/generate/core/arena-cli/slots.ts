@@ -51,11 +51,15 @@ export type MemberPart = {
   onlyBy?: { axis: string; value: string };
   hoverIn?: { axis: string; value: string };
   fillAs?: 'stroke';
-  edgeAs?: 'rule' | 'stripe';
+  edgeAs?: 'rule' | 'stripe' | 'fill';
   disabledModifier?: string;
   inkFrom?: string;
   properties?: SlotProperty[];
   inline?: true;
+  ground?: string;
+  toBy?: { axis: string; values: Record<string, string> };
+  seriesBy?: string;
+  wrappedBy?: string;
 };
 
 export const optionAxes = (m: Pick<MemberPart, 'optionBy'>): OptionAxis[] => (m.optionBy === undefined ? [] : [m.optionBy].flat());
@@ -70,6 +74,15 @@ export type SlotCatalogue = {
   halos?: Record<string, string>;
   slots: Record<string, ColorSlot>;
 };
+
+export function memberSlotNames(catalogue: Pick<SlotCatalogue, 'slots'>, m: MemberPart): string[] {
+  const by = new Set(Object.values(m.toBy?.values ?? {}));
+  return Object.entries(catalogue.slots).filter(([, s]) => {
+    const at = `${s.group}.${s.part}`;
+    const option = at === m.to ? (s.option === undefined ? m.options.length === 0 : m.options.includes(s.option)) : by.has(at) && s.option === undefined;
+    return option && m.states.includes(s.state) && (m.properties === undefined || m.properties.includes(s.property));
+  }).map(([name]) => name);
+}
 
 export type MeasuredSlots = Pick<SlotCatalogue, 'rings' | 'slots'> & Partial<Pick<SlotCatalogue, 'members'>>;
 

@@ -467,3 +467,34 @@ test('every marks dot pair is a 3:1 mark', () => {
     assert.deepEqual(lines, [], `${theme}: every marks pair clears 3:1`);
   }
 });
+
+test('a member ground measures its pairs over that fill', () => {
+  const d = slotFixture({
+    label: { properties: ['ink'], states: ['rest'], rest: { ink: '{ink-body}' } },
+    chip: { properties: ['fill', 'ink'], states: ['rest'], rest: { fill: '{fill-control}', ink: '{ink-body}' } },
+  }, {
+    ArenaTip: { group: 'fields', parts: {
+      label: { to: 'fields.label', options: [], states: ['rest'], ground: 'fill-surface-raised' },
+      chip: { to: 'fields.chip', options: [], states: ['rest'], ground: 'ground', properties: ['ink'] },
+    } },
+  });
+  const c = deriveSlots(d);
+  const roles = new Map(rolesFor(null, CATALOGUE, 'dark'));
+  const colors = coloursOf('dark');
+  const lines = (r: Map<string, string>, answers = new Map<string, string>()) => slotReports(c, answers, r, colors, 'dark', LEVELS).map((one) => one.message);
+  assert.deepEqual(lines(roles), [], 'the body ink clears its floor over the raised fill and over every ground');
+  roles.set('fill-surface-raised', roles.get('ink-body') as string);
+  const raised = lines(roles);
+  assert.equal(raised.length, 1, raised.join('\n'));
+  assert.match(raised[0] as string, /^--fields-label-ink-rest measures 1\.00:1 in the rest state of the dark theme, as ArenaTip\.label paints it over --fill-surface-raised, below 4\.5:1 \(WCAG 1\.4\.3\)/);
+  const page = lines(new Map(rolesFor(null, CATALOGUE, 'dark')), new Map([['fields-chip-ink-rest', 'var(--color-base-100)'], ['fields-chip-fill-rest', 'var(--color-base-content)']]));
+  assert.ok(page.some((line) => line.startsWith('--fields-chip-ink-rest measures 1.00:1 in the rest state of the dark theme, as ArenaTip.chip paints it over --color-base-100,')), page.join('\n'));
+  assert.ok(!page.some((line) => line.includes('over --fields-chip-fill-rest')), 'the chip ink clears its own fill');
+});
+
+test('the shipped member grounds clear their floors in the default', () => {
+  for (const theme of ['dark', 'light'] as const) {
+    const lines = slotReports(CATALOGUE.slots, new Map(), rolesFor(null, CATALOGUE, theme), coloursOf(theme), theme, LEVELS).map((one) => one.message);
+    assert.deepEqual(lines.filter((line) => / as Arena[A-Za-z]+\.[a-z]+ paints it over /.test(line)), [], theme);
+  }
+});

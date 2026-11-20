@@ -3106,7 +3106,8 @@
           "states": "static",
           "channels": {
             "ink": "--arena-accent-meters-track-ink"
-          }
+          },
+          "ground": "ground"
         },
         "circle": null
       }
@@ -3469,7 +3470,8 @@
             "neutral"
           ],
           "states": "static",
-          "inline": true
+          "inline": true,
+          "ground": "fill-surface-floating"
         },
         "close": {
           "to": "actions.dismiss",
