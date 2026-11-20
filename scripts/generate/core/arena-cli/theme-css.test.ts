@@ -1161,7 +1161,7 @@ test('a style plugin may not name a role the package does not ship', () => {
 test('a style plugin may not author a colour, only assign one', () => {
   assert.match(pluginProblems(listed(['console']),
     [total({ 'ink-eyebrow': { $type: 'color', $value: '#b52a20' } })])[0] ?? '',
-  /takes a \{color\.\*\} alias or another colour role/);
+  /takes a \{color\.\*\} alias, another colour role or transparent/);
   assert.deepEqual(pluginProblems(listed(['console']),
     [total({ 'ink-eyebrow': { $type: 'color', $value: '{color.secondary}' } })]), []);
 });
@@ -1200,6 +1200,9 @@ test('the sheet the package assembles is the first entry of the list or none of 
 test('a style plugin that answers nothing is a class nobody can tell from its absence', () => {
   assert.match(pluginProblems(listed(['console', 'empty']),
     [total(), readPlugin('empty', {})])[0] ?? '', /answers at least one role/);
+  assert.ok(!pluginProblems(listed(['console', 'lit']),
+    [total(), readPlugin('lit', { light: { 'edge-focus': { $type: 'color', $value: '{color.secondary}' } } })])
+    .some((p) => /answers at least one role/.test(p)));
 });
 
 test('a style plugin with no catalogue beside it is refused rather than emitted unchecked', () => {
@@ -1855,4 +1858,8 @@ test('a nested plugin over the default root keeps the default light answers unde
   const under = rolesFor(null, catalogue, 'light').get('edge-focus');
   assert.ok(under);
   assert.equal(nestedRolesFor(null, later, catalogue, 'light').get('edge-focus'), under);
+  const plain = readPlugin('plain', { 'edge-focus': { $type: 'color', $value: '{color.secondary}' } });
+  const won = nestedRolesFor(null, plain, catalogue, 'light').get('edge-focus');
+  assert.ok(won);
+  assert.notEqual(won, under);
 });

@@ -171,7 +171,7 @@ export function valueProblems(
       return [`${where}: --${key} authors a colour outright. A style plugin assigns a colour and never authors one: `
         + 'the palette is the consumer\'s, and what a style plugin may say is WHICH of them a surface takes.'];
     if (!colourAnswer(value, key, known))
-      return [`${where}: --${key} is ${value}, and a colour role takes a {color.*} alias or another colour role. `
+      return [`${where}: --${key} is ${value}, and a colour role takes a {color.*} alias, another colour role or transparent. `
         + 'It is mechanical as well as doctrinal: the emitter turns a bare colour alias into a var() it restates '
         + 'under every theme, and anything else resolves to one theme\'s hex and inherits it into the other.'];
     return [];
@@ -265,7 +265,7 @@ export function nameProblems(
   return problems;
 }
 
-export const stepName = (key: string): 'an fs step' | 'a rhythm step' | null =>
+const stepName = (key: string): 'an fs step' | 'a rhythm step' | null =>
   (FS_STEP.test(key) ? 'an fs step' : RHYTHM_STEP.test(key) ? 'a rhythm step' : null);
 
 export function typeProblem(

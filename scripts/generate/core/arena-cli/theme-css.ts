@@ -446,8 +446,8 @@ export function pluginTokenProblems(
     if (role?.type === 'color' && !colourAnswer(String(raw), key, known)) {
       const selfNamed = aliasName(String(raw)) === key;
       if (!selfNamed)
-        problems.push(`${where}: "${key}" is ${JSON.stringify(raw)}, and a colour role takes a {color.*} alias `
-          + 'or another colour role. A style plugin assigns one of your colours to a role and never authors one '
+        problems.push(`${where}: "${key}" is ${JSON.stringify(raw)}, and a colour role takes a {color.*} alias`
+          + ', another colour role or transparent. A style plugin assigns one of your colours to a role and never authors one '
           + 'of its own.');
     }
     if (role?.type === 'keyword' && Array.isArray(role.values) && !keywordAnswer(String(raw).trim(), role.values, known))
@@ -495,7 +495,7 @@ function resolvedProblems(
   const isRoot = plugin === root;
   const catalogue = sheets?.catalogue;
   const problems = [];
-  if (Object.keys(plugin.tokens).length === 0) {
+  if (Object.keys(plugin.tokens).length + Object.keys(plugin.light).length === 0) {
     problems.push(`${at}: a style plugin answers at least one role, or it is a class nobody can tell `
       + 'from its absence');
   }
