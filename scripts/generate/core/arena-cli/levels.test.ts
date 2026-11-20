@@ -302,7 +302,7 @@ const FAMILY = [
   '  @scope (.arena-accent-plain) to ([data-arena-boundary] > *) {',
   '    :scope[data-arena-part="tag"], [data-arena-part="tag"] {',
   '      --arena-accent-marks-outline-ink: color-mix(in oklab,var(--accent-plain-quiet-ink) var(--level-ink-quiet),transparent);',
-  '      --arena-accent-edge: var(--accent-plain-edge);',
+  '      --arena-accent-marks-outline-edge: var(--accent-plain-edge);',
   '    }',
   '  }',
   '  @scope (.arena-accent-gold) to ([data-arena-boundary] > *) {',

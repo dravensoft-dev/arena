@@ -1352,12 +1352,29 @@ test('a toBy part outside the member group is refused', () => {
   const other = cellDeclared({ axis: 'numeric', values: { false: 'marks.label' } });
   other.groups!.marks = { parts: { label: { properties: ['ink'], states: ['rest'], rest: { ink: '{ink-body}' } } } };
   assert.deepEqual(declarationProblems(other),
-    ['members.ArenaCell.parts.cell.toBy: "marks.label" for numeric=false is no part of text, the group of text.figure (D104)']);
+    ['members.ArenaCell.parts.cell.toBy: "marks.label" for numeric=false is no part of text, and toBy reads a part of the member\'s group, of the group of its to, or of text (D107)']);
   const toned = cellDeclared({ axis: 'numeric', values: { false: 'text.tone' } },
     { tone: { properties: ['ink'], options: { a: { states: ['rest'], rest: { ink: '{ink-body}' } } } } });
   assert.deepEqual(declarationProblems(toned),
     ['members.ArenaCell.parts.cell.toBy: "text.tone" for numeric=false takes an option, and a part read by toBy takes none (D104)']);
   assert.deepEqual(declarationProblems(cellDeclared({ axis: 'numeric', values: {} })), ['members.ArenaCell.parts.cell.toBy: it names an axis and maps a value onto a part']);
+});
+
+test('a toBy part of the member group or of text is read (D107)', () => {
+  const day = slotFixture({ today: { properties: ['ink'], states: ['rest'], rest: { ink: '{ink-figure}' } } },
+    { ArenaDay: { group: 'data', parts: { day: { to: 'text.body', options: [], states: ['rest'], toBy: { axis: 'today', values: { true: 'data.today' } } } } } }, 'data');
+  day.groups!.text = { parts: { body: { properties: ['ink'], states: ['rest'], rest: { ink: '{ink-body}' } } } };
+  assert.deepEqual(declarationProblems(day), [], 'a text base reads a part of the member group');
+  const label = slotFixture({ label: { properties: ['ink'], states: ['rest'], rest: { ink: '{ink-figure}' } } },
+    { ArenaDay: { group: 'marks', parts: { day: { to: 'marks.label', options: [], states: ['rest'], toBy: { axis: 'today', values: { false: 'text.body' } } } } } }, 'marks');
+  label.groups!.text = { parts: { body: { properties: ['ink'], states: ['rest'], rest: { ink: '{ink-body}' } } } };
+  assert.deepEqual(declarationProblems(label), [], 'a group base reads a text part');
+});
+
+test('a toBy axis that seriesBy branches on is refused', () => {
+  const d = slotFixture({ label: { properties: ['ink'], states: ['rest'], rest: { ink: '{ink-body}' } }, note: { properties: ['ink'], states: ['rest'], rest: { ink: '{ink-muted}' } } },
+    { ArenaTitle: { group: 'marks', parts: { title: { to: 'marks.label', options: [], states: ['rest'], seriesBy: 'colorId', toBy: { axis: 'colorId', values: { 1: 'marks.note' } } } } } }, 'marks');
+  assert.deepEqual(declarationProblems(d), ['members.ArenaTitle.parts.title.toBy: it shares the axis colorId with seriesBy, and a seriesBy branch reads only hue channels']);
 });
 
 const titleDeclared = () => slotFixture({ label: { properties: ['ink'], states: ['rest'], rest: { ink: '{ink-body}' } } },

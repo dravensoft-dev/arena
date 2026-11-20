@@ -477,7 +477,8 @@ test('a member ground measures its pairs over that fill', () => {
   }, {
     ArenaTip: { group: 'fields', parts: {
       label: { to: 'fields.label', options: [], states: ['rest'], ground: 'fill-surface-raised' },
-      chip: { to: 'fields.chip', options: [], states: ['rest'], ground: 'ground', properties: ['ink'] },
+      chip: { to: 'fields.chip', options: [], states: ['rest'], ground: 'ground' },
+      tag: { to: 'fields.chip', options: [], states: ['rest'], ground: 'ground', properties: ['ink'] },
     } },
   });
   const c = deriveSlots(d);
@@ -489,9 +490,16 @@ test('a member ground measures its pairs over that fill', () => {
   const raised = lines(roles);
   assert.equal(raised.length, 1, raised.join('\n'));
   assert.match(raised[0] as string, /^--fields-label-ink-rest measures 1\.00:1 in the rest state of the dark theme, as ArenaTip\.label paints it over --fill-surface-raised, below 4\.5:1 \(WCAG 1\.4\.3\)/);
-  const page = lines(new Map(rolesFor(null, CATALOGUE, 'dark')), new Map([['fields-chip-ink-rest', 'var(--color-base-100)'], ['fields-chip-fill-rest', 'var(--color-base-content)']]));
+  const answered = (fill: string) => lines(new Map(rolesFor(null, CATALOGUE, 'dark')), new Map([['fields-chip-ink-rest', 'var(--color-base-100)'], ['fields-chip-fill-rest', fill]]));
+  const page = answered('transparent');
   assert.ok(page.some((line) => line.startsWith('--fields-chip-ink-rest measures 1.00:1 in the rest state of the dark theme, as ArenaTip.chip paints it over --color-base-100,')), page.join('\n'));
-  assert.ok(!page.some((line) => line.includes('over --fields-chip-fill-rest')), 'the chip ink clears its own fill');
+  const opaque = answered('var(--color-base-content)');
+  assert.ok(!opaque.some((line) => line.includes('as ArenaTip.chip paints it')), 'an ink on an opaque fill the member paints is measured over that fill, which it clears');
+  assert.ok(opaque.some((line) => line.startsWith('--fields-chip-ink-rest measures 1.00:1 in the rest state of the dark theme, as ArenaTip.tag paints it over --color-base-100,')),
+    `a member that reads the ink alone paints it straight over the page:\n${opaque.join('\n')}`);
+  const own = answered('var(--color-base-100)');
+  assert.ok(own.some((line) => line.includes('over --fields-chip-fill-rest')), own.join('\n'));
+  assert.ok(!own.some((line) => line.includes('as ArenaTip.chip paints it')), 'the base pair reports an ink on its own opaque fill once');
 });
 
 test('the shipped member grounds clear their floors in the default', () => {

@@ -113,7 +113,7 @@ export const WITNESS_EXEMPT: ReadonlyMap<string, string> = new Map([
     + 'resolves to transparent in complete, so no other spelling resolves to what complete paints there (D91)']),
   ['marks-neutral-complete-dot-fill-rest', SLOT + NO_SECOND_SPELLING],
   ['marks-gold-soft-fill-rest', SLOT + 'complete washes a gold badge in primary at the gold soft level through accent-gold-fill-soft, the kernel '
-    + 'default, and no accepted fill role resolves to primary in complete: ' + NO_SECOND_SPELLING],
+    + 'default, and no other accepted fill role resolves to primary in complete: ' + NO_SECOND_SPELLING],
   ...['success', 'warning', 'info'].map((option): [string, string] => [`marks-${option}-dot-ink-rest`, SLOT + `complete paints the ${option} presence and `
     + `activity dots through hue-${option}-fill-strong, neutral in complete, and no role a dot ink accepts resolves to neutral in complete, so no spelling `
     + 'resolves to the key complete paints there']),

@@ -190,7 +190,7 @@
     "data-header-ink-hover": {
       "default": "{ink-body}",
       "decision": "D19",
-      "level": "level-ink-body"
+      "level": "level-ink-full"
     },
     "surfaces-plain-card-fill-hover": {
       "default": "{fill-hover}",
@@ -2296,12 +2296,14 @@
           "states": "static"
         },
         "dayNumber": {
-          "to": "data.today",
+          "to": "text.body",
           "options": [],
           "states": "static",
-          "onlyBy": {
+          "toBy": {
             "axis": "today",
-            "value": "true"
+            "values": {
+              "true": "data.today"
+            }
           }
         },
         "hourLabel": {
@@ -2492,7 +2494,13 @@
           "options": [],
           "states": "static"
         },
-        "more": "marks.outline@neutral",
+        "more": {
+          "to": "marks.outline",
+          "options": [
+            "neutral"
+          ],
+          "states": "static"
+        },
         "input": {
           "to": "fields.value",
           "options": [],
@@ -4938,7 +4946,13 @@
           "options": [],
           "states": "static"
         },
-        "pinned": "marks.outline@neutral",
+        "pinned": {
+          "to": "marks.outline",
+          "options": [
+            "neutral"
+          ],
+          "states": "static"
+        },
         "message": {
           "to": "text.muted",
           "options": [],

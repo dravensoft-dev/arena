@@ -10,7 +10,7 @@
     "headStrip": "grid pl-[var(--calendar-gutter-w)] border-b-[length:var(--bw-separator)] border-[color:var(--surfaces-separator-edge-rest,var(--edge-separator))]",
     "dayHead": "min-h-row-min min-w-0 px-[calc(var(--sp-1)*2*var(--dz-row-scale-x))] pt-[calc(var(--sp-1)*1.5*var(--dz-row-scale-y))] text-center",
     "weekday": "font-face-label text-label tracking-label-role case-label font-bold text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",
-    "dayNumber": "font-mono text-ctl font-bold mt-0.5",
+    "dayNumber": "font-mono text-ctl font-bold mt-0.5 text-[color:color-mix(in_oklab,var(--text-body-ink-rest,var(--ink-body))_var(--level-ink-body),transparent)]",
     "scroll": "flex-1 min-h-0 overflow-y-auto py-2",
     "body": "flex relative",
     "gutter": "w-[var(--calendar-gutter-w)] shrink-0 relative",
@@ -73,9 +73,7 @@
       "true": {
         "dayNumber": "text-[color:var(--data-today-ink-rest,var(--accent-primary-ink))]"
       },
-      "false": {
-        "dayNumber": "text-ink-body/(--level-ink-body)"
-      }
+      "false": {}
     },
     "firstColumn": {
       "true": {

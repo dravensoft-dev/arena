@@ -1,13 +1,13 @@
-/* Contrast per colour slot and per state. A slot resolves down its chain, an answer of the plugin
- * first, else the kernel default by the rules slots.ts writes as CSS, to a palette colour at an
- * alpha; a level or a mix toward the ink makes the alpha, and the ground a caller names is what a
- * part with no fill, or a wash, stands on. A disabled and a selected-disabled slot is never a pair
- * (WCAG exempts an inactive control), and disabledReports only says when one is not told from its
- * rest. An answer sits inside the level its channel carries, as the emphasis sheet writes it, a
- * member default is measured as the member paints it, where it moves a pair, and a member ground
- * (D96) measures again over the fill the member paints on. Imports nothing outside this directory,
- * because the command ships it. A pair of a part on another part's fill is a mark at 3:1 (D69) unless
- * it sits over it and keeps each floor (D89), as is every pair of a mark part, fill and ring over ground (D92, D97). */
+/* Contrast per colour slot and per state. A slot resolves down its chain, an answer of the plugin first, else
+ * the kernel default by the rules slots.ts writes as CSS, to a palette colour at an alpha; a level or a mix
+ * toward the ink makes the alpha, and the ground a caller names is what a part with no fill, or a wash, stands
+ * on. A disabled and a selected-disabled slot is never a pair (WCAG exempts an inactive control), and
+ * disabledReports only says when one is not told from its rest. An answer sits inside the level its channel
+ * carries, as the emphasis sheet writes it, a member default is measured as the member paints it, where it
+ * moves a pair, and a member ground (D96) measures again over the fill the member paints on, under the fill
+ * the member reads for the part unless it is opaque. Imports nothing outside this directory, as the command
+ * ships it. A pair of a part on another part's fill is a mark at 3:1 (D69) unless it sits over it and keeps each floor
+ * (D89), as is every pair of a mark part, fill and ring over ground (D92, D97). */
 
 import { contrast } from './validate-palette.mjs';
 import { composite, mixOklab, oklabToHex, toOklab } from './oklab.ts';
@@ -212,18 +212,22 @@ function groundLines(base: Context, pairs: SlotPair[], grounds: string[], theme:
     const ctx = m.defaults === undefined ? base : { ...base, member: m };
     const fill = m.ground === 'ground' ? null : valueColour(ctx, base.roles.get(m.ground));
     if (fill === undefined) continue;
-    const unders = fill === null ? grounds.map((key) => [base.colors[key] as string, `--color-${key}`]) : [[fill.hex, `--${m.ground}`]];
+    const unders: [string, string][] = fill !== null && fill.alpha >= 1 ? [[fill.hex, `--${m.ground}`]]
+      : grounds.map((key) => [over(fill, base.colors[key] as string), fill === null ? `--color-${key}` : `--${m.ground} over --color-${key}`]);
     const read = new Set(memberSlotNames(base.catalogue, m));
     for (const pair of pairs) {
       const slot = base.catalogue.slots[pair.slot];
       if (!slot || !read.has(pair.slot) || slot.property === 'fill' || (slot.property === 'edge' && !slot.state.startsWith('selected'))) continue;
       const mark = markOf(ctx, pair);
-      if (!mark) continue;
+      const own = read.has(pair.over) ? fillOf(ctx, pair) : null;
+      if (!mark || own === undefined || (own !== null && own.alpha >= 1)) continue;
       const standard = pair.min === MARK_MIN ? 'WCAG 1.4.11' : 'WCAG 1.4.3';
-      for (const [under, name] of unders as [string, string][]) {
+      for (const [ground, name] of unders) {
+        const under = over(own, ground);
         const ratio = contrast(over(mark, under), under);
         if (ratio >= pair.min) continue;
-        out.push(`--${pair.slot} measures ${ratio.toFixed(2)}:1 in the ${slot.state} state of the ${theme} theme, as ${member} paints it over ${name}, `
+        const on = own === null ? '' : ` through --${pair.over}`;
+        out.push(`--${pair.slot} measures ${ratio.toFixed(2)}:1 in the ${slot.state} state of the ${theme} theme, as ${member} paints it over ${name}${on}, `
           + `below ${pair.min}:1 (${standard}), so ${WHY[slot.property]}; answer the pair with colours that stand further apart`);
       }
     }

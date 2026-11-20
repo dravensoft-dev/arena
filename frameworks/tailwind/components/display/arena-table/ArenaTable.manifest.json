@@ -58,7 +58,7 @@
     },
     "sortable": {
       "true": {
-        "th": "cursor-pointer select-none hover:border-[color:var(--data-header-edge-hover,var(--edge-separator))] hover:bg-[color:var(--data-header-fill-hover,var(--fill-track))] hover:text-[color:color-mix(in_oklab,var(--data-header-ink-hover,var(--ink-body))_var(--level-ink-body),transparent)]"
+        "th": "cursor-pointer select-none hover:border-[color:var(--data-header-edge-hover,var(--edge-separator))] hover:bg-[color:var(--data-header-fill-hover,var(--fill-track))] hover:text-[color:color-mix(in_oklab,var(--data-header-ink-hover,var(--ink-body))_var(--level-ink-full),transparent)]"
       },
       "false": {}
     },

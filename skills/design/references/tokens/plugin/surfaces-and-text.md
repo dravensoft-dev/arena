@@ -28,6 +28,6 @@ Your markup and Arena's components both read the roles on this page. A role keep
 | `--ink-link` | What colour is a link inside running text? | color | none | `{ink-body}` |
 | `--ink-muted` | What colour is held-back text such as a caption, hint or timestamp? | color | none | none |
 | `--overlay-media` | What colour wash sits under a caption laid over an image? | color | none | none |
-| `--overlay-scrim` | What colour wash does a modal lay over the page it interrupts? | color | none | none |
+| `--overlay-scrim` | What colour wash does a modal lay over the page it interrupts? | color | none | `{color.base-100}` |
 
 <!-- @tree end -->

@@ -635,5 +635,5 @@ test('text derives its six parts', () => {
   assert.deepEqual(c.members['ArenaProgressBar.value']?.toBy, { axis: 'shape', values: { radial: 'text.body' } });
   assert.equal(c.members['ArenaProgressBar.value']?.to, 'text.muted');
   for (const key of ['ArenaKbd.separator', 'ArenaMenu.shortcut', 'ArenaCommandPalette.shortcut']) assert.deepEqual(c.members[key]?.properties, ['ink'], key);
-  assert.equal(readSlotDeclarations().members!.ArenaCombobox!.parts.more, 'marks.outline@neutral', 'a member that left text.key (D102) stays out of it');
+  assert.deepEqual(readSlotDeclarations().members!.ArenaCombobox!.parts.more, { to: 'marks.outline', options: ['neutral'], states: 'static' }, 'a member that left text.key (D102) stays out of it');
 });

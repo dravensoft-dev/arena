@@ -681,6 +681,7 @@ export function declarationProblems(d: SlotDeclarations, roles: ReadonlySet<stri
         const other = axis === undefined ? undefined : axisNames.has(axis) ? 'optionBy' : (['selectedBy', 'disabledBy', 'hoverBy', 'onlyBy', 'hoverIn'] as const).find((one) => to[one]?.axis === axis);
         if (other !== undefined) out.push(`${where}.${key}: it shares the axis ${axis} with ${other}`);
       }
+      if (to.toBy !== undefined && to.toBy.axis === to.seriesBy) out.push(`${where}.toBy: it shares the axis ${to.seriesBy} with seriesBy, and a seriesBy branch reads only hue channels`);
       if (to.ground !== undefined && to.ground !== 'ground' && !(GROUND_ROLE.test(String(to.ground)) && roles.has(String(to.ground)))) {
         out.push(`${where}.ground: "${String(to.ground)}" is neither "ground" nor a fill-* or overlay-* role of contracts/design/roles.json (D96)`);
       }
@@ -689,13 +690,13 @@ export function declarationProblems(d: SlotDeclarations, roles: ReadonlySet<stri
       if (to.toBy !== undefined) {
         const values = Object.entries(to.toBy.values ?? {});
         if (typeof to.toBy.axis !== 'string' || to.toBy.axis === '' || values.length === 0) out.push(`${where}.toBy: it names an axis and maps a value onto a part`);
-        const [ownGroup] = String(to.to).split('.');
+        const readable = [...new Set([String(to.to).split('.')[0] ?? '', String(m.group), 'text'])];
         const named = new Set<string>();
         for (const [value, target] of values) {
           const [g, part] = String(target).split('.');
           const gp = d.groups?.[g ?? '']?.parts?.[part ?? ''];
           const at = `${where}.toBy: "${String(target)}" for ${to.toBy.axis}=${value}`;
-          if (g !== ownGroup || gp === undefined) out.push(`${at} is no part of ${ownGroup}, the group of ${to.to} (D104)`);
+          if (!readable.includes(g ?? '') || gp === undefined) out.push(`${at} is no part of ${readable.join(' or ')}, and toBy reads a part of the member's group, of the group of its to, or of text (D107)`);
           else if (gp.options !== undefined) out.push(`${at} takes an option, and a part read by toBy takes none (D104)`);
           else if (target === to.to) out.push(`${at} is the part the base class reads`);
           else if (named.has(String(target))) out.push(`${at} is named for another value too, and a toBy part is read in one branch`);
