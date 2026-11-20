@@ -60,6 +60,8 @@ import { ArenaToast } from '../components/feedback/arena-toast/ArenaToast';
 import { ArenaAvatar } from '../components/display/arena-avatar/ArenaAvatar';
 import { ArenaActivityFeed } from '../components/display/arena-activity-feed/ArenaActivityFeed';
 import { ArenaMeter } from '../components/feedback/arena-meter/ArenaMeter';
+import { ArenaBoardColumn } from '../components/layout/arena-board-column/ArenaBoardColumn';
+import { ArenaBarChart } from '../components/charts/arena-bar-chart/ArenaBarChart';
 import { ArenaProgressBar } from '../components/feedback/arena-progress-bar/ArenaProgressBar';
 import { ArenaSpinner } from '../components/feedback/arena-spinner/ArenaSpinner';
 import { ArenaFooter } from '../ProjectionMarkers';
@@ -187,6 +189,7 @@ const TEMPLATES: Record<string, string> = {
   'banner-edge-answer-leaves-the-toast-quiet-sides': '<div style="--feedback-success-banner-edge-rest: var(--hue-info-edge)"><arena-alert tone="success">Saved</arena-alert><arena-toast tone="success" title="Saved" message="Done"></arena-toast></div>',
   'toast-tone-beats-its-accent': '<arena-toast class="arena-accent-gold" tone="success" title="Saved" message="Done"></arena-toast>',
   'muted-dot-answer-moves-only-offline': '<div style="--marks-muted-dot-ink-rest: var(--hue-info-ink)"><arena-avatar name="Ada Fernandez" status="offline" /><arena-activity-feed label="Activity" [items]="[{ actor: \'Ada\', action: \'opened\', target: \'INF-1\', time: \'now\' }]" /></div>',
+  'series-parts-take-no-slot-answer': `<div style="${Object.entries(proximity.markDotAnswers() as Record<string, string>).map(([name, value]) => `${name}: ${value}`).join('; ')}"><arena-board-column title="Backlog" [colorId]="1"></arena-board-column><arena-bar-chart label="Deploys" [labels]="['Mon', 'Tue']" [series]="[{ label: 'Ok', values: [1, 2], colorId: 1 }, { label: 'Late', values: [2, 1], colorId: 1 }]" /></div>`,
   'accent-answer-reaches-only-its-class': '<div style="--meters-gold-track-ink-rest: var(--hue-info-ink)"><arena-meter class="arena-accent-gold" label="Disk" [value]="60" /><arena-progress-bar class="arena-accent-gold" label="Upload" [progressPercentage]="40" /><arena-spinner class="arena-accent-gold" /></div>',
   'accent-answer-leaves-the-default-accent-and-a-tone': '<div style="--meters-gold-track-ink-rest: var(--hue-info-ink)"><arena-meter label="Disk" [value]="60" /><arena-progress-bar tone="success" label="Upload" [progressPercentage]="40" /><arena-spinner /></div>',
   'ring-track-follows-the-track-fill': '<div style="--meters-primary-track-fill-rest: var(--hue-info-fill-strong)"><arena-progress-bar shape="radial" label="Upload" [progressPercentage]="40" /></div>',
@@ -265,6 +268,7 @@ const SUBJECT: Record<string, { part: string; index: number }> = {
   'banner-edge-answer-leaves-the-toast-quiet-sides': { part: 'toast', index: 0 },
   'toast-tone-beats-its-accent': { part: 'toast', index: 0 },
   'muted-dot-answer-moves-only-offline': { part: 'avatar.status', index: 0 },
+  'series-parts-take-no-slot-answer': { part: 'board.dot', index: 0 },
   'accent-answer-reaches-only-its-class': { part: 'meter.track', index: 0 },
   'accent-answer-leaves-the-default-accent-and-a-tone': { part: 'meter.track', index: 0 },
   'ring-track-follows-the-track-fill': { part: 'progress-bar.ring-track', index: 0 },
@@ -284,7 +288,7 @@ for (const kase of cases) {
     const Host = Component({
       selector: `proximity-${kase.name}-host`,
       standalone: true,
-      imports: [ArenaStepper, ArenaOnboarding, ArenaSideNav, ArenaSideNavItem, ArenaTabs, ArenaTab, ArenaTreeView, ArenaPagination, ArenaBottomNav, ArenaBottomNavItem, ArenaButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaIconButton, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaFooter, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope, ArenaSplitButton, ArenaCopyButton, ArenaCheckbox, ArenaRadioGroup, ArenaRadio, ArenaSwitch, ArenaSlider, ArenaInput, ArenaFileInput, ArenaMultiSelect, ArenaCommandPalette, ArenaAlert, ArenaToast, ArenaAvatar, ArenaActivityFeed, ArenaMeter, ArenaProgressBar, ArenaSpinner],
+      imports: [ArenaBoardColumn, ArenaBarChart, ArenaStepper, ArenaOnboarding, ArenaSideNav, ArenaSideNavItem, ArenaTabs, ArenaTab, ArenaTreeView, ArenaPagination, ArenaBottomNav, ArenaBottomNavItem, ArenaButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaIconButton, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaFooter, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope, ArenaSplitButton, ArenaCopyButton, ArenaCheckbox, ArenaRadioGroup, ArenaRadio, ArenaSwitch, ArenaSlider, ArenaInput, ArenaFileInput, ArenaMultiSelect, ArenaCommandPalette, ArenaAlert, ArenaToast, ArenaAvatar, ArenaActivityFeed, ArenaMeter, ArenaProgressBar, ArenaSpinner],
       template: BARE.has(kase.name) ? TEMPLATES[kase.name] : `<div class="${kase.container}">${TEMPLATES[kase.name]}</div>`,
     })(class {});
     const fixture = TestBed.createComponent(Host);

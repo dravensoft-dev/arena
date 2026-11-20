@@ -12,7 +12,8 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { repoRoot } from './repo-root.ts';
-import { readColorSlots } from '../core/color-slots.ts';
+import { readColorSlots, readSlotDeclarations } from '../core/color-slots.ts';
+import { layerManifests } from '../tailwind/tailwind-compile.ts';
 import { axisNames, fadeMarkers, optionAxes } from '../../generate/core/arena-cli/slots.ts';
 import type { Family } from '../tailwind/vocabulary.ts';
 import { readFamilies, SURFACE } from '../tailwind/vocabulary.ts';
@@ -73,6 +74,9 @@ const slotChannels = (root = repoRoot) => {
 };
 const SLOT_CHANNELS = slotChannels();
 
+export const markDotAnswers = (root = repoRoot): Record<string, string> => Object.fromEntries(
+  Object.keys(readColorSlots(root).slots).filter((name) => /^marks-.+-dot-(fill|ink|edge)-rest$/.test(name)).map((name) => [`--${name}`, 'var(--hue-info-ink)']));
+
 const branchAxes = (by: 'selectedBy' | 'disabledBy', root = repoRoot) => new Map(Object.entries(readColorSlots(root).members).flatMap(([key, member]) => {
   const [component, part] = key.split('.') as [string, string];
   const axis = member[by]?.axis;
@@ -83,7 +87,16 @@ const optionAxesOf = (root = repoRoot) => new Map(Object.entries(readColorSlots(
   const axes = [...optionAxes(member).flatMap(axisNames), ...[member.onlyBy, member.hoverBy].flatMap((one) => (one ? [one.axis] : []))].map((one) => `data-arena-${kebab(one)}`);
   return axes.length ? [[`${kebab(component.replace(/^Arena/, ''))}.${kebab(part)}`, axes] as [string, string[]]] : [];
 }));
-const OPTION_AXES = optionAxesOf();
+const seriesAxesOf = (root = repoRoot) => {
+  const manifests = new Map([...layerManifests(root).values()].map((one) => [one.component, one]));
+  return new Map(Object.entries(readSlotDeclarations(root).members ?? {}).flatMap(([component, member]) => Object.entries(member.parts)
+    .filter(([, to]) => to === 'series')
+    .flatMap(([part]) => {
+      const axes = Object.keys(manifests.get(component)?.hues ?? {}).filter((one) => one !== 'on' && one !== 'tone').map((one) => `data-arena-${kebab(one)}`);
+      return axes.length ? [[`${kebab(component.replace(/^Arena/, ''))}.${kebab(part)}`, axes] as [string, string[]]] : [];
+    })));
+};
+const OPTION_AXES = new Map([...optionAxesOf(), ...seriesAxesOf()]);
 const SELECTED_BY = branchAxes('selectedBy');
 const DISABLED_BY = branchAxes('disabledBy');
 const ARIA_DISABLED = new Set(Object.entries(readColorSlots().members).filter(([, member]) => member.disabledModifier === 'aria-disabled:')

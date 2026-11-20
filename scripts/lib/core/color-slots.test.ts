@@ -527,3 +527,18 @@ test('marks derives its dot and tile', () => {
   assert.deepEqual(c.members['ArenaAvatar.status']?.options, ['success', 'danger', 'warning', 'muted']);
   assert.equal(c.members['ArenaTimeline.dot']?.options.length, 15);
 });
+
+test('no group named charts and the readout is a structure-only overlay part', () => {
+  const d = readSlotDeclarations();
+  assert.equal(d.groups!.charts, undefined);
+  assert.deepEqual(d.groups!.overlays!.parts.readout, { properties: ['fill', 'edge'], states: 'static' });
+  const charts = Object.entries(d.members!).filter(([name]) => /Chart$|^ArenaSparkline$|^ArenaChartCard$/.test(name));
+  assert.ok(charts.length >= 11);
+  for (const [name, m] of charts) {
+    assert.equal(m.group, null, name);
+    for (const to of Object.values(m.parts)) assert.ok(to === null || typeof to !== 'string' || !to.startsWith('charts.'), `${name}: ${to}`);
+    if ('tooltip' in m.parts) assert.equal(m.parts.tooltip, 'overlays.readout', name);
+  }
+  const c = deriveSlots(d);
+  assert.deepEqual(Object.keys(c.slots).filter((key) => key.startsWith('charts-') || key.startsWith('overlays-readout-')), [], 'a readout derives no slot');
+});

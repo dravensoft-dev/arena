@@ -1291,156 +1291,6 @@
         }
       }
     },
-    "charts": {
-      "parts": {
-        "series": {
-          "properties": [
-            "fill",
-            "edge"
-          ],
-          "states": "static",
-          "options": [
-            "cat-1",
-            "cat-2",
-            "cat-3",
-            "cat-4",
-            "cat-5",
-            "cat-6",
-            "cat-7",
-            "cat-8",
-            "neutral",
-            "danger",
-            "success",
-            "warning",
-            "info"
-          ]
-        },
-        "heat": {
-          "properties": [
-            "fill"
-          ],
-          "states": "static",
-          "options": [
-            "heat-1",
-            "heat-2",
-            "heat-3",
-            "heat-4",
-            "heat-5"
-          ],
-          "paintedBy": [
-            "frameworks/react/components/charts/arena-heatmap-chart/ArenaHeatmapChart.tsx",
-            "frameworks/angular/components/charts/arena-heatmap-chart/ArenaHeatmapChart.ts"
-          ]
-        },
-        "axis": {
-          "properties": [
-            "edge"
-          ],
-          "states": "static",
-          "paintedBy": [
-            "frameworks/react/components/charts/arena-bar-chart/ArenaBarChart.tsx",
-            "frameworks/react/components/charts/arena-gauge-chart/ArenaGaugeChart.tsx",
-            "frameworks/react/components/charts/arena-horizontal-bar-chart/ArenaHorizontalBarChart.tsx",
-            "frameworks/react/components/charts/arena-line-chart/ArenaLineChart.tsx",
-            "frameworks/react/components/charts/arena-pyramid-chart/ArenaPyramidChart.tsx",
-            "frameworks/react/components/charts/arena-radar-chart/ArenaRadarChart.tsx",
-            "frameworks/react/components/charts/arena-scatter-chart/ArenaScatterChart.tsx",
-            "frameworks/react/components/charts/arena-sparkline/ArenaSparkline.tsx",
-            "frameworks/angular/components/charts/arena-bar-chart/ArenaBarChart.ts",
-            "frameworks/angular/components/charts/arena-gauge-chart/ArenaGaugeChart.ts",
-            "frameworks/angular/components/charts/arena-horizontal-bar-chart/ArenaHorizontalBarChart.ts",
-            "frameworks/angular/components/charts/arena-line-chart/ArenaLineChart.ts",
-            "frameworks/angular/components/charts/arena-pyramid-chart/ArenaPyramidChart.ts",
-            "frameworks/angular/components/charts/arena-radar-chart/ArenaRadarChart.ts",
-            "frameworks/angular/components/charts/arena-scatter-chart/ArenaScatterChart.ts",
-            "frameworks/angular/components/charts/arena-sparkline/ArenaSparkline.ts"
-          ]
-        },
-        "grid": {
-          "properties": [
-            "edge"
-          ],
-          "states": "static",
-          "paintedBy": [
-            "frameworks/react/components/charts/arena-bar-chart/ArenaBarChart.tsx",
-            "frameworks/react/components/charts/arena-heatmap-chart/ArenaHeatmapChart.tsx",
-            "frameworks/react/components/charts/arena-horizontal-bar-chart/ArenaHorizontalBarChart.tsx",
-            "frameworks/react/components/charts/arena-line-chart/ArenaLineChart.tsx",
-            "frameworks/react/components/charts/arena-pyramid-chart/ArenaPyramidChart.tsx",
-            "frameworks/react/components/charts/arena-radar-chart/ArenaRadarChart.tsx",
-            "frameworks/react/components/charts/arena-scatter-chart/ArenaScatterChart.tsx",
-            "frameworks/angular/components/charts/arena-bar-chart/ArenaBarChart.ts",
-            "frameworks/angular/components/charts/arena-heatmap-chart/ArenaHeatmapChart.ts",
-            "frameworks/angular/components/charts/arena-horizontal-bar-chart/ArenaHorizontalBarChart.ts",
-            "frameworks/angular/components/charts/arena-line-chart/ArenaLineChart.ts",
-            "frameworks/angular/components/charts/arena-pyramid-chart/ArenaPyramidChart.ts",
-            "frameworks/angular/components/charts/arena-radar-chart/ArenaRadarChart.ts",
-            "frameworks/angular/components/charts/arena-scatter-chart/ArenaScatterChart.ts"
-          ]
-        },
-        "tick": {
-          "properties": [
-            "ink"
-          ],
-          "states": "static",
-          "paintedBy": [
-            "frameworks/react/components/charts/arena-bar-chart/ArenaBarChart.tsx",
-            "frameworks/react/components/charts/arena-funnel-chart/ArenaFunnelChart.tsx",
-            "frameworks/react/components/charts/arena-gauge-chart/ArenaGaugeChart.tsx",
-            "frameworks/react/components/charts/arena-heatmap-chart/ArenaHeatmapChart.tsx",
-            "frameworks/react/components/charts/arena-horizontal-bar-chart/ArenaHorizontalBarChart.tsx",
-            "frameworks/react/components/charts/arena-line-chart/ArenaLineChart.tsx",
-            "frameworks/react/components/charts/arena-pyramid-chart/ArenaPyramidChart.tsx",
-            "frameworks/react/components/charts/arena-radar-chart/ArenaRadarChart.tsx",
-            "frameworks/react/components/charts/arena-scatter-chart/ArenaScatterChart.tsx",
-            "frameworks/angular/components/charts/arena-bar-chart/ArenaBarChart.ts",
-            "frameworks/angular/components/charts/arena-funnel-chart/ArenaFunnelChart.ts",
-            "frameworks/angular/components/charts/arena-gauge-chart/ArenaGaugeChart.ts",
-            "frameworks/angular/components/charts/arena-heatmap-chart/ArenaHeatmapChart.ts",
-            "frameworks/angular/components/charts/arena-horizontal-bar-chart/ArenaHorizontalBarChart.ts",
-            "frameworks/angular/components/charts/arena-line-chart/ArenaLineChart.ts",
-            "frameworks/angular/components/charts/arena-pyramid-chart/ArenaPyramidChart.ts",
-            "frameworks/angular/components/charts/arena-radar-chart/ArenaRadarChart.ts",
-            "frameworks/angular/components/charts/arena-scatter-chart/ArenaScatterChart.ts"
-          ]
-        },
-        "halo": {
-          "properties": [
-            "edge"
-          ],
-          "states": "static",
-          "paintedBy": [
-            "frameworks/react/components/charts/arena-doughnut-chart/ArenaDoughnutChart.tsx",
-            "frameworks/react/components/charts/arena-line-chart/ArenaLineChart.tsx",
-            "frameworks/react/components/charts/arena-radar-chart/ArenaRadarChart.tsx",
-            "frameworks/react/components/charts/arena-scatter-chart/ArenaScatterChart.tsx",
-            "frameworks/react/components/charts/arena-sparkline/ArenaSparkline.tsx",
-            "frameworks/angular/components/charts/arena-doughnut-chart/ArenaDoughnutChart.ts",
-            "frameworks/angular/components/charts/arena-line-chart/ArenaLineChart.ts",
-            "frameworks/angular/components/charts/arena-radar-chart/ArenaRadarChart.ts",
-            "frameworks/angular/components/charts/arena-scatter-chart/ArenaScatterChart.ts",
-            "frameworks/angular/components/charts/arena-sparkline/ArenaSparkline.ts"
-          ]
-        },
-        "track": {
-          "properties": [
-            "fill"
-          ],
-          "states": "static",
-          "paintedBy": [
-            "frameworks/react/components/charts/arena-gauge-chart/ArenaGaugeChart.tsx",
-            "frameworks/angular/components/charts/arena-gauge-chart/ArenaGaugeChart.ts"
-          ]
-        },
-        "tooltip": {
-          "properties": [
-            "fill",
-            "edge"
-          ],
-          "states": "static"
-        }
-      }
-    },
     "overlays": {
       "parts": {
         "scrim": {
@@ -1473,6 +1323,13 @@
             "fill": "{fill-tip}",
             "ink": "{ink-tip}"
           }
+        },
+        "readout": {
+          "properties": [
+            "fill",
+            "edge"
+          ],
+          "states": "static"
         },
         "eyebrow": {
           "properties": [
@@ -1822,11 +1679,11 @@
       }
     },
     "ArenaBarChart": {
-      "group": "charts",
+      "group": null,
       "parts": {
-        "legendSwatch": "charts.series",
+        "legendSwatch": "series",
         "legendLabel": "text.body",
-        "tooltip": "charts.tooltip",
+        "tooltip": "overlays.readout",
         "tooltipLabel": "text.muted",
         "tooltipValue": "text.body"
       }
@@ -2000,7 +1857,7 @@
       }
     },
     "ArenaChartCard": {
-      "group": "charts",
+      "group": null,
       "parts": {
         "root": "surfaces.card@plain",
         "head": "surfaces.separator",
@@ -2231,10 +2088,10 @@
       }
     },
     "ArenaDoughnutChart": {
-      "group": "charts",
+      "group": null,
       "parts": {
         "legendRow": null,
-        "legendSwatch": "charts.series",
+        "legendSwatch": "series",
         "legendLabel": "text.body",
         "legendValue": "text.muted"
       }
@@ -2393,15 +2250,15 @@
       }
     },
     "ArenaFunnelChart": {
-      "group": "charts",
+      "group": null,
       "parts": {
-        "tooltip": "charts.tooltip",
+        "tooltip": "overlays.readout",
         "tooltipLabel": "text.muted",
         "tooltipValue": "text.body"
       }
     },
     "ArenaGaugeChart": {
-      "group": "charts",
+      "group": null,
       "parts": {}
     },
     "ArenaGrid": {
@@ -2409,10 +2266,10 @@
       "parts": {}
     },
     "ArenaHeatmapChart": {
-      "group": "charts",
+      "group": null,
       "parts": {
         "legendLabel": "text.body",
-        "tooltip": "charts.tooltip",
+        "tooltip": "overlays.readout",
         "tooltipLabel": "text.muted",
         "tooltipValue": "text.body"
       }
@@ -2426,11 +2283,11 @@
       }
     },
     "ArenaHorizontalBarChart": {
-      "group": "charts",
+      "group": null,
       "parts": {
-        "legendSwatch": "charts.series",
+        "legendSwatch": "series",
         "legendLabel": "text.body",
-        "tooltip": "charts.tooltip",
+        "tooltip": "overlays.readout",
         "tooltipLabel": "text.muted",
         "tooltipValue": "text.body"
       }
@@ -2548,11 +2405,11 @@
       }
     },
     "ArenaLineChart": {
-      "group": "charts",
+      "group": null,
       "parts": {
-        "legendSwatch": "charts.series",
+        "legendSwatch": "series",
         "legendLabel": "text.body",
-        "tooltip": "charts.tooltip",
+        "tooltip": "overlays.readout",
         "tooltipLabel": "text.muted",
         "tooltipValue": "text.body"
       }
@@ -2959,21 +2816,21 @@
       }
     },
     "ArenaPyramidChart": {
-      "group": "charts",
+      "group": null,
       "parts": {
-        "legendSwatch": "charts.series",
+        "legendSwatch": "series",
         "legendLabel": "text.body",
-        "tooltip": "charts.tooltip",
+        "tooltip": "overlays.readout",
         "tooltipLabel": "text.muted",
         "tooltipValue": "text.body"
       }
     },
     "ArenaRadarChart": {
-      "group": "charts",
+      "group": null,
       "parts": {
-        "legendSwatch": "charts.series",
+        "legendSwatch": "series",
         "legendLabel": "text.body",
-        "tooltip": "charts.tooltip",
+        "tooltip": "overlays.readout",
         "tooltipLabel": "text.muted",
         "tooltipValue": "text.body"
       }
@@ -3006,11 +2863,11 @@
       }
     },
     "ArenaScatterChart": {
-      "group": "charts",
+      "group": null,
       "parts": {
-        "legendSwatch": "charts.series",
+        "legendSwatch": "series",
         "legendLabel": "text.body",
-        "tooltip": "charts.tooltip",
+        "tooltip": "overlays.readout",
         "tooltipLabel": "text.muted",
         "tooltipValue": "text.body"
       }
@@ -3225,9 +3082,9 @@
       }
     },
     "ArenaSparkline": {
-      "group": "charts",
+      "group": null,
       "parts": {
-        "tooltip": "charts.tooltip",
+        "tooltip": "overlays.readout",
         "tooltipLabel": "text.muted",
         "tooltipValue": "text.body"
       }

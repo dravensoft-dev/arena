@@ -25,6 +25,8 @@ grants it (the `decision` field of `ArenaIconButton.root` names the one for its 
 
 A member part whose value is `"series"` paints the colour of the series or column it stands for, outside the slot tier: each colour it reads is `var(--arena-hue-…)` inside a branch of an axis with a `hues` entry, and `check:color-slots` refuses any other read (D75, D76).
 
+A group part with no `rest` and no option derives no slot and names the properties and states a part may be answered for: `overlays.readout` is the readout of a chart tooltip, and the chart components map their tooltips onto it with no home group (D75, D88).
+
 A member with `selectedBy` that reads `hover` or `pressed` reads `selected-hover` or `selected-pressed` too, and reads its rest hover in the unselected branch, the complement of a `true` or `false` value, so a hovered selected part never matches the rest hover (R4); `check:color-slots` refuses such a rest hover read in the base class, and a `selectedBy` value other than `true` or `false` on such a member. A `disabledBy` member that hovers or presses repeats each disabled and selected-disabled read under `hover:` and `active:` in the same branch, so a hovered disabled part keeps an answered disabled slot once its fade stops (D8); a hover read through `hoverBy` is no pointer hover and needs no repeat.
 
 A group's `pressed` state derives from its rest, mixed toward the part's own ink at `mix-pressed`, on every pressable member of `menus`, `navigation` and `steps`: Menu, Accordion, Sheet, SideNav, TreeView, Pagination, BottomNav and `ArenaStepper.trigger`. A selected hover or pressed edge mixes the selected edge toward the selected ink at its fill's mix (D85), so the rule under a hovered tab moves with the wash beside it.

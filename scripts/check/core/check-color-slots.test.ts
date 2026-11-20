@@ -426,28 +426,29 @@ test('the map ships its stateSets and its declarations are known keys', () => {
 
 test('an orphan group part without paintedBy is refused, and paintedBy on a mapped part or at a missing path is refused', () => {
   const d = mapped();
-  delete (d.groups!.charts!.parts.heat as any).paintedBy;
-  assert.match(mapLines(d).join('\n'), /charts\.parts\.heat/);
+  delete (d.groups!.surfaces!.parts.skeleton as any).paintedBy;
+  assert.match(mapLines(d).join('\n'), /surfaces\.parts\.skeleton/);
   const e = mapped();
   (e.groups!.feedback!.parts.icon as any).paintedBy = 'frameworks/react/DataVisuals.ts';
   assert.match(mapLines(e).join('\n'), /feedback\.parts\.icon.*paintedBy/);
   const f = mapped();
-  (f.groups!.charts!.parts.heat as any).paintedBy = 'frameworks/nowhere.ts';
-  assert.match(mapLines(f).join('\n'), /charts\.parts\.heat.*nowhere/);
+  (f.groups!.surfaces!.parts.skeleton as any).paintedBy = 'frameworks/nowhere.ts';
+  assert.match(mapLines(f).join('\n'), /surfaces\.parts\.skeleton.*nowhere/);
 });
 
 test('paintedBy may be a list, and each path of it must exist', () => {
   const d = mapped();
-  (d.groups!.charts!.parts.heat as any).paintedBy = ['frameworks/react/DataVisuals.ts', 'frameworks/angular/DataVisuals.ts'];
+  const skeleton = d.groups!.surfaces!.parts.skeleton as any;
+  skeleton.paintedBy = ['frameworks/react/DataVisuals.ts', 'frameworks/angular/DataVisuals.ts'];
   assert.deepEqual(mapLines(d), []);
-  (d.groups!.charts!.parts.heat as any).paintedBy = ['frameworks/react/DataVisuals.ts', 'frameworks/nowhere.ts'];
-  assert.match(mapLines(d).join('\n'), /charts\.parts\.heat.*nowhere/);
-  (d.groups!.charts!.parts.heat as any).paintedBy = [];
-  assert.match(mapLines(d).join('\n'), /charts\.parts\.heat/);
-  (d.groups!.charts!.parts.heat as any).paintedBy = '';
-  assert.match(mapLines(d).join('\n'), /charts\.parts\.heat.*no file/);
-  (d.groups!.charts!.parts.heat as any).paintedBy = ['frameworks/react'];
-  assert.match(mapLines(d).join('\n'), /charts\.parts\.heat.*no file/);
+  skeleton.paintedBy = ['frameworks/react/DataVisuals.ts', 'frameworks/nowhere.ts'];
+  assert.match(mapLines(d).join('\n'), /surfaces\.parts\.skeleton.*nowhere/);
+  skeleton.paintedBy = [];
+  assert.match(mapLines(d).join('\n'), /surfaces\.parts\.skeleton/);
+  skeleton.paintedBy = '';
+  assert.match(mapLines(d).join('\n'), /surfaces\.parts\.skeleton.*no file/);
+  skeleton.paintedBy = ['frameworks/react'];
+  assert.match(mapLines(d).join('\n'), /surfaces\.parts\.skeleton.*no file/);
 });
 
 test('a null part on a part that paints no colour at all is refused', () => {
@@ -458,13 +459,27 @@ test('a null part on a part that paints no colour at all is refused', () => {
 
 test('every shipped paintedBy path names a file that paints the part', () => {
   const read = (p: string) => readFileSync(p, 'utf8').split('\n').filter((l) => !/^\s*import\b/.test(l)).join('\n');
-  const needle: Record<string, RegExp> = { heat: /arenaHeatFill\(/, tick: /ARENA_INK_MUTED/, axis: /--edge-axis/, grid: /--edge-separator/, halo: /--fill-surface/, track: /--fill-track/ };
-  for (const [part, re] of Object.entries(needle)) {
-    const by = mapped().groups!.charts!.parts[part]!.paintedBy;
+  const needle: Record<string, [string, string, RegExp]> = { solid: ['marks', 'solid', /--arena-mark-fill/], skeleton: ['surfaces', 'skeleton', /--color-base-200/] };
+  for (const [name, [group, part, re]] of Object.entries(needle)) {
+    const by = mapped().groups![group]!.parts[part]!.paintedBy;
     const paths = typeof by === 'string' ? [by] : by ?? [];
-    assert.ok(paths.length > 0, part);
-    for (const p of paths) assert.match(read(p), re, `${part}: ${p}`);
+    assert.ok(paths.length > 0, name);
+    for (const p of paths) assert.match(read(p), re, `${name}: ${p}`);
   }
+});
+
+test('a chart legend swatch is a series part', () => {
+  const d = mapped();
+  const legends = Object.entries(d.members!).filter(([, m]) => 'legendSwatch' in m.parts);
+  assert.equal(legends.length, 7, 'Bar, Doughnut, HorizontalBar, Line, Pyramid, Radar and Scatter');
+  for (const [name, m] of legends) {
+    assert.equal(m.parts.legendSwatch, 'series', name);
+    assert.equal(m.group, null, `${name}: charts take no colour slot group (D75)`);
+  }
+  assert.deepEqual(mapLines(d), []);
+  const e = mapped();
+  e.members!.ArenaBarChart!.parts.legendSwatch = null;
+  assert.ok(mapLines(e).some((line) => line.startsWith('ArenaBarChart.legendSwatch')), 'a swatch is a coloured part and names its home');
 });
 
 test('a component-scoped slot is refused', () => {

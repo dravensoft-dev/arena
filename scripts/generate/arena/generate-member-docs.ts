@@ -26,7 +26,7 @@ export const node = {
   writes: COMPONENT_SOURCES,
   feeds: [
     'generate:prompt-api', 'check:prompts', 'build:sprite',
-    'check:families', 'check:color-slots', 'check:kitchen-sink', 'check:contracts-neutrality',
+    'check:families', 'check:kitchen-sink', 'check:contracts-neutrality',
     'check:architecture',
     'build:angular-package',
     'build:angular-tests',
