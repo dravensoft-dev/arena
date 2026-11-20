@@ -36,6 +36,25 @@ test('a component with a selector of its own collides with nothing', () => {
   assert.deepEqual(takeComponentIdCollisions(), []);
 });
 
+test('a case that leaves a fixture alive leaves its host in the document', () => {
+  TestBed.createComponent(Component({ selector: 'testbed-env-left', standalone: true, template: '<p id="testbed-env-left">left</p>' })(class {}));
+  assert.ok(document.getElementById('testbed-env-left'));
+});
+
+test('the next case finds no host the case before it left', () => {
+  assert.equal(document.getElementById('testbed-env-left'), null);
+});
+
+test('a component whose host strips the root\'s id is still removed with its root', () => {
+  const fixture = TestBed.createComponent(Component({
+    selector: 'testbed-env-idless', standalone: true, host: { '[attr.id]': 'null' }, template: '<p id="testbed-env-idless">idless</p>',
+  })(class {}));
+  fixture.detectChanges();
+  fixture.destroy();
+  TestBed.resetTestingModule();
+  assert.equal(document.getElementById('testbed-env-idless'), null);
+});
+
 test('an Arena warning no test captured is recorded, not printed', () => {
   console.warn('[arena] probe: a warning nothing asserted');
   const found = takeUnassertedWarnings();
