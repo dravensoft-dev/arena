@@ -507,7 +507,7 @@ test('a mark part pairs the ring that tells its disc', () => {
   const dot = d.groups!.marks!.parts.dot!.options as Record<string, { rest: Record<string, unknown> }>;
   dot['neutral-upcoming']!.rest.edge = '{edge-control-quiet}';
   const quiet = slotReports(deriveSlots(d), new Map(), rolesFor(null, CATALOGUE, 'dark'), coloursOf('dark'), 'dark', LEVELS).map((one) => one.message);
-  assert.ok(quiet.some((line) => line.startsWith(`--${ring} measures 1.06:1 over the ground in the rest state of the dark theme, where it is composited over --color-base-200,`)), `f9767bce's edge-control-quiet ring measures 1.06 dark over base-200 in D97's published pair figures, under its 3:1:\n${quiet.join('\n')}`);
+  assert.ok(quiet.some((line) => line.startsWith(`--${ring} measures 1.06:1 over the ground in the rest state of the dark theme, where it is composited over --color-base-200,`)), `the ring before D97, edge-control-quiet, measures 1.06 dark over base-200 in D97's published pair figures, under its 3:1:\n${quiet.join('\n')}`);
   const rings = slotPairs(CATALOGUE.slots).filter((pair) => /^marks-.+-dot-edge-rest$/.test(pair.slot));
   assert.equal(rings.length, 11, 'the marks.dot options that draw a ring: neutral current and upcoming, danger complete, current and upcoming, '
     + 'and success, warning and info current and upcoming (D97); a ring added to marks.dot raises this count and is measured below');
