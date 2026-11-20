@@ -207,6 +207,7 @@ const TEMPLATES: Record<string, string> = {
   'card-accent-answer-reaches-only-its-class': '<div style="--surfaces-primary-card-edge-rest: var(--hue-info-edge)"><arena-card class="arena-accent-primary">Body</arena-card><arena-chart-card title="Revenue"></arena-chart-card></div>',
   'scrim-answer-reaches-every-modal': '<div style="--overlays-scrim-fill-rest: var(--hue-info-fill-strong)"><arena-dialog [open]="true" title="Discard"></arena-dialog><arena-confirm-dialog [open]="true" title="Delete"></arena-confirm-dialog></div>',
   'to-by-reads-its-branch': '<div style="--text-figure-ink-rest: var(--hue-info-ink); --text-muted-ink-rest: var(--hue-danger-ink)"><arena-table label="Deploys" [columns]="[{ header: \'Calls\', numeric: true }, { header: \'Service\' }]"><tr arena-table-row><td arena-table-cell>12</td><td arena-table-cell>checkout</td></tr></arena-table><arena-progress-bar label="Upload" [progressPercentage]="40" /><arena-progress-bar shape="radial" label="Sync" [progressPercentage]="40" /></div>',
+  'to-by-reads-its-branch-in-a-card': '<div style="--text-figure-ink-rest: var(--hue-info-ink)"><arena-table label="Deploys" [columns]="[{ header: \'Calls\', numeric: true }, { header: \'Service\' }]"><tr arena-table-row><td arena-table-cell>12</td><td arena-table-cell>checkout</td></tr></arena-table></div>',
   'solid-badge-ignores-the-soft-answer': '<div style="--marks-plain-soft-fill-rest: var(--hue-info-fill-strong)"><arena-badge class="arena-mark-solid">Live</arena-badge><arena-badge>Draft</arena-badge></div>',
 };
 
@@ -277,6 +278,7 @@ const SUBJECT: Record<string, { part: string; index: number }> = {
   'card-accent-answer-reaches-only-its-class': { part: 'card', index: 0 },
   'scrim-answer-reaches-every-modal': { part: 'dialog.scrim', index: 0 },
   'to-by-reads-its-branch': { part: 'table.td', index: 0 },
+  'to-by-reads-its-branch-in-a-card': { part: 'table.card-value', index: 0 },
   'selected-edge-answer-moves-the-current-page-border': { part: 'pagination.page', index: 0 },
   'aria-disabled-member-fades-until-answered': { part: 'bottom-nav.item', index: -1 },
   'answered-disabled-tree-item-stops-the-fade': { part: 'tree-view.item', index: -1 },
@@ -295,6 +297,19 @@ const SUBJECT: Record<string, { part: string; index: number }> = {
   'solid-badge-ignores-the-soft-answer': { part: 'badge', index: 0 },
 };
 
+const NARROW = new Set(['to-by-reads-its-branch-in-a-card']);
+function stubNarrow(width: number): () => void {
+  const globals = globalThis as { ResizeObserver?: unknown };
+  const saved = globals.ResizeObserver;
+  globals.ResizeObserver = class {
+    private readonly callback: (entries: unknown[]) => void;
+    constructor(callback: (entries: unknown[]) => void) { this.callback = callback; }
+    observe(target: Element): void { this.callback([{ target, borderBoxSize: [{ inlineSize: width, blockSize: 0 }], contentRect: { width } }]); }
+    disconnect(): void {}
+  };
+  return () => { globals.ResizeObserver = saved; };
+}
+
 const OPENED = new Set(['menu-answer-moves-every-highlight', 'blocked-option-fades-until-answered', 'blocked-active-option-fades-until-answered', 'blocked-active-option-keeps-its-selected-wash']);
 const { families, cases } = proximity.readProximity();
 const vocabulary = proximity.vocabularyClasses(families);
@@ -311,6 +326,7 @@ for (const kase of cases) {
       imports: [ArenaTable, ArenaTableRow, ArenaTableCell, ArenaBoardColumn, ArenaBarChart, ArenaStepper, ArenaOnboarding, ArenaSideNav, ArenaSideNavItem, ArenaTabs, ArenaTab, ArenaTreeView, ArenaPagination, ArenaBottomNav, ArenaBottomNavItem, ArenaButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaIconButton, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaFooter, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope, ArenaSplitButton, ArenaCopyButton, ArenaCheckbox, ArenaRadioGroup, ArenaRadio, ArenaSwitch, ArenaSlider, ArenaInput, ArenaFileInput, ArenaMultiSelect, ArenaCommandPalette, ArenaAlert, ArenaToast, ArenaAvatar, ArenaActivityFeed, ArenaMeter, ArenaProgressBar, ArenaSpinner, ArenaChartCard, ArenaDivider, ArenaConfirmDialog],
       template: BARE.has(kase.name) ? TEMPLATES[kase.name] : `<div class="${kase.container}">${TEMPLATES[kase.name]}</div>`,
     })(class {});
+    const restore = NARROW.has(kase.name) ? stubNarrow(400) : () => {};
     const fixture = TestBed.createComponent(Host);
     try {
       fixture.detectChanges();
@@ -337,6 +353,7 @@ for (const kase of cases) {
       const tree = proximity.normalize(container, vocabulary, subject);
       assert.deepEqual(tree, kase.angular, `recorded tree for ${kase.name}:\n${JSON.stringify(tree)}`);
     } finally {
+      restore();
       fixture.destroy();
     }
   });

@@ -535,6 +535,11 @@ test('a tooltip label is measured over the readout it paints on', () => {
   const raised = lines(roles).filter((line) => /ArenaBarChart\.tooltipLabel/.test(line));
   assert.equal(raised.length, 1, raised.join('\n'));
   assert.match(raised[0] as string, /^--text-muted-ink-rest measures [0-9.]+:1 in the rest state of the dark theme, as ArenaBarChart\.tooltipLabel paints it over --fill-surface-raised, below 4\.5:1 \(WCAG 1\.4\.3\)/);
+  roles.set('fill-surface-raised', roles.get('ink-figure') as string);
+  const figure = lines(roles).filter((line) => /ArenaBarChart\.tooltipValue/.test(line));
+  assert.equal(figure.length, 1, figure.join('\n'));
+  assert.match(figure[0] as string, /^--text-figure-ink-rest measures [0-9.]+:1 in the rest state of the dark theme, as ArenaBarChart\.tooltipValue paints it over --fill-surface-raised, below 4\.5:1 \(WCAG 1\.4\.3\)/);
+  roles.set('fill-surface-raised', roles.get('ink-muted') as string);
   const page = lines(roles).filter((line) => /^--text-muted-ink-rest /.test(line) && !/ as Arena[A-Za-z]+\.tooltip/.test(line));
   assert.deepEqual(page, [], 'muted text on the page keeps its floor over every ground, the readout fill being no ground');
 });

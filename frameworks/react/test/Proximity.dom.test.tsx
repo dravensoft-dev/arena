@@ -232,6 +232,11 @@ const COMPOSITIONS: Record<string, () => React.ReactElement> = {
     <ArenaProgressBar label="Upload" progressPercentage={40} />
     <ArenaProgressBar shape="radial" label="Sync" progressPercentage={40} />
   </div>,
+  'to-by-reads-its-branch-in-a-card': () => <div style={answered({ '--text-figure-ink-rest': 'var(--hue-info-ink)' })}>
+    <ArenaTable label="Deploys" columns={[{ header: 'Calls', numeric: true }, { header: 'Service' }]}>
+      <ArenaTableRow><ArenaTableCell>12</ArenaTableCell><ArenaTableCell>checkout</ArenaTableCell></ArenaTableRow>
+    </ArenaTable>
+  </div>,
   'solid-badge-ignores-the-soft-answer': () => <div style={answered({ '--marks-plain-soft-fill-rest': 'var(--hue-info-fill-strong)' })}>
     <ArenaBadge className="arena-mark-solid">Live</ArenaBadge>
     <ArenaBadge>Draft</ArenaBadge>
@@ -323,7 +328,23 @@ const SUBJECT: Record<string, { part: string; at: number }> = {
   'card-accent-answer-reaches-only-its-class': { part: 'card', at: 0 },
   'scrim-answer-reaches-every-modal': { part: 'dialog.scrim', at: 0 },
   'to-by-reads-its-branch': { part: 'table.td', at: 0 },
+  'to-by-reads-its-branch-in-a-card': { part: 'table.card-value', at: 0 },
 };
+
+const NARROW = new Set(['to-by-reads-its-branch-in-a-card']);
+function stubNarrow(width: number): () => void {
+  const saved = globalThis.ResizeObserver;
+  globalThis.ResizeObserver = class {
+    callback: ResizeObserverCallback;
+    constructor(callback: ResizeObserverCallback) { this.callback = callback; }
+    observe(target: Element) {
+      this.callback([{ target, borderBoxSize: [{ inlineSize: width, blockSize: 0 }], contentRect: { width } }] as unknown as ResizeObserverEntry[], this as unknown as ResizeObserver);
+    }
+    unobserve() {}
+    disconnect() {}
+  } as unknown as typeof ResizeObserver;
+  return () => { globalThis.ResizeObserver = saved; };
+}
 
 const { families, cases } = readProximity();
 const vocabulary = vocabularyClasses(families);
@@ -334,9 +355,11 @@ test('every case has a React composition, and every composition a case', () => {
 
 for (const kase of cases) {
   test(`${kase.name}: React renders the tree the gate measures`, () => {
+    const restore = NARROW.has(kase.name) ? stubNarrow(400) : () => {};
     const root = BARE.has(kase.name)
       ? mount(COMPOSITIONS[kase.name]!())
       : mount(<div className={kase.container || undefined}>{COMPOSITIONS[kase.name]!()}</div>);
+    restore();
     const container = root.firstElementChild!;
     if (DRAGGED.has(kase.name)) {
       const zone = container.querySelector('[data-arena-part="file-input.zone"]')!;
