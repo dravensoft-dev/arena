@@ -27,13 +27,14 @@ import {
 } from '../../lib/tailwind/vocabulary.ts';
 import type { ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';
 import { readHues } from '../../lib/tailwind/hue-sheet.ts';
+import { COLOR_SLOTS } from '../../lib/core/color-slots.ts';
 
 export const node = {
   name: 'check:families',
   reads: [`${VOCABULARY_DIR}/**`, 'frameworks/tailwind/components/**/*.manifest.json',
     'frameworks/react/components/**', 'frameworks/angular/components/**', VOCABULARY_TARGET, ...SHEETS, 'frameworks/tailwind/consume/**/*.css',
     'contracts/api/components/*.json', 'contracts/api/types/*.json', 'contracts/design/density.*.json',
-    UTILITIES, ...THEME_SOURCES.theme, ...THEME_SOURCES.utilities, 'frameworks/tailwind/Hues.json'],
+    UTILITIES, ...THEME_SOURCES.theme, ...THEME_SOURCES.utilities, 'frameworks/tailwind/Hues.json', COLOR_SLOTS],
   writes: [],
   feeds: [],
 };

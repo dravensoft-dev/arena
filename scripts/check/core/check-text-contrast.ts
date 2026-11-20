@@ -23,7 +23,7 @@ import {
 import { ARENA_EXT } from '../../generate/core/arena-cli/style-plugin-rules.ts';
 import { CATALOGUE, entries } from './check-catalogue.ts';
 import { derivedColours, rolesFor, paletteMessages, readPlugin, resolvedPlugin, slotMessages } from '../../generate/core/arena-cli/theme-css.ts';
-import { tokenCatalogue } from '../../lib/arena/package-assembly.ts';
+import { TOKEN_CATALOGUE_READS, tokenCatalogue } from '../../lib/arena/package-assembly.ts';
 import { unresolvedPairs } from '../../generate/core/arena-cli/slot-contrast.ts';
 import {
   composite, darkenOklab, errorFill, FILL_FALLBACK_KEEP,
@@ -49,7 +49,7 @@ export const node = {
   name: 'check:text-contrast',
   reads: [PALETTE, COLORS, ...ROLE_SHEETS, ...COMPONENT_SHEETS, `${HUE_SHEETS}/**/*.hues.generated.css`, ROLES,
     `${CATALOGUE}/*/plugin.tokens.json`, `${CATALOGUE}/*/arena.config.json`,
-    'plugin-style-store/default/plugin.tokens.json', 'plugin-style-store/complete/plugin.tokens.json'],
+    'plugin-style-store/default/plugin.tokens.json', 'plugin-style-store/complete/plugin.tokens.json', ...TOKEN_CATALOGUE_READS],
   writes: [],
   feeds: [],
 };

@@ -139,6 +139,7 @@ export const node = {
     ...Object.values(RESOLVES_AGAINST).flat().map((source) => `${DESIGN_DIR}/${source}`),
     ...ROOT_ONLY_SOURCES,
     `${DESIGN_DIR}/roles.json`,
+    `${DESIGN_DIR}/*.json`,
     COLOR_SLOTS,
   ])],
   writes: [...CSS_TARGETS, ...SCRIPT_TARGETS, BREAKPOINT_TARGET],

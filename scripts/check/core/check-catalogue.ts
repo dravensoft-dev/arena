@@ -15,7 +15,7 @@ import { isMainModule } from '../../utils/main-module.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { colourNamesOf } from '../../generate/core/arena-cli/slots.ts';
-import { readColorSlots } from '../../lib/core/color-slots.ts';
+import { COLOR_SLOTS, readColorSlots } from '../../lib/core/color-slots.ts';
 import {
   POLARITIES, FONT_ROLES, requiredKeys,
 } from '../../generate/core/arena-cli/palette-keys.ts';
@@ -43,7 +43,7 @@ export const CARRIES = [TOKENS, SHEET, CONFIG, CARD];
 
 export const node = {
   name: 'check:catalogue',
-  reads: [ROLES, ALIAS_SOURCE, ...CSS_TARGETS, ...CHANNEL_SOURCES, `${CATALOGUE}/**`],
+  reads: [ROLES, ALIAS_SOURCE, ...CSS_TARGETS, ...CHANNEL_SOURCES, `${CATALOGUE}/**`, COLOR_SLOTS],
   writes: [],
   feeds: [],
 };

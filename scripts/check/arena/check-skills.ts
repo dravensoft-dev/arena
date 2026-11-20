@@ -32,6 +32,7 @@ export const node = {
     'frameworks/react/**', 'frameworks/angular/**',
     '!frameworks/angular/build/**', '!frameworks/react/dist/**', '!frameworks/angular/dist/**',
     'plugin-style-store/catalogue/**', ...skillsNode.reads, ...skillsNode.writes, ...npmPagesNode.reads, 'frameworks/VOCABULARY.md',
+    'contracts/**/*.md',
   ],
   writes: [],
   feeds: [],

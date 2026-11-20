@@ -28,12 +28,13 @@ import { readProximity, treeHtml, SUBJECT, type PartData, type ProximityCase, ty
 import { readManifests } from './check-measured-box.ts';
 import { loaded as loadFired } from './check-pixel-parity.ts';
 import type { ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';
+import { COLOR_SLOTS } from '../../lib/core/color-slots.ts';
 
 export const node = {
   name: 'check:proximity',
   reads: ['scripts/check/arena/proximity-cases.json', `${VOCABULARY_SHEETS}/**`, 'frameworks/tailwind/consume/**',
     'frameworks/tailwind/components/**/*.manifest.json', 'intro/styles.css', 'contracts/design-generated/**', 'contracts/design/*.css',
-    'plugin-style-store/complete/plugin.css', 'assets/fonts/*.woff2'],
+    'plugin-style-store/complete/plugin.css', 'assets/fonts/*.woff2', COLOR_SLOTS],
   writes: [],
   feeds: [],
 };

@@ -12,7 +12,7 @@ import { join, dirname, relative, basename } from 'node:path';
 import { relPosix } from '../../utils/posix-path.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { readJson } from '../../utils/read-file.ts';
-import { readColorSlots } from '../core/color-slots.ts';
+import { COLOR_SLOTS, readColorSlots } from '../core/color-slots.ts';
 import { repoRoot } from './repo-root.ts';
 import { kebab } from '../../utils/case.ts';
 import { componentMap, MAP_FILE } from './component-map.ts';
@@ -206,6 +206,8 @@ export function componentSheets(css: string, split: (css: string) => { base: str
 export const PART_SHEET_BANNER = (family: string, component: string) => `/* The ${family} family's blocks for ${component} alone: `
   + `arena build imports this in place of ${packageSheetName(family)} when a screen draws some of the family's components and not all. */\n`;
 
+export const FAMILY_PART_SHEET_READS = ['frameworks/tailwind/components/**/*.manifest.json', COLOR_SLOTS];
+
 export function familyPartSheets(root = repoRoot) {
   if (!existsSync(join(root, 'frameworks', 'tailwind', 'components'))) return [];
   const manifests = [...layerManifests(root).values()];
@@ -395,6 +397,10 @@ export function shippedChannels(root = repoRoot) {
 
 const DEFAULT_SHEET = 'contracts/design-generated/style-plugin.default.generated.css';
 const LIGHT_SELECTOR = '.arena-light';
+
+export const TOKEN_CATALOGUE_READS = [
+  ...CSS_TARGETS, DEFAULT_SHEET, 'contracts/design/roles.json', ALIAS_SOURCE, ...CHANNEL_SOURCES, COLOR_SLOTS,
+];
 
 export function tokenCatalogue(root = repoRoot) {
   const decls = new Map<string, Map<string, string>>();

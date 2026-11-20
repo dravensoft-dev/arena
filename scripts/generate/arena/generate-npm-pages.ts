@@ -11,7 +11,7 @@ import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { packageSheetName, sheetFamilies, VOCABULARY_DIR, FAMILY_SUFFIX } from '../../lib/tailwind/vocabulary.ts';
-import { CSS_CHAIN, CHANNEL_SOURCES, ALIAS_SOURCE, ANGULAR_EXTRA, arenaCssLayers, familyPartSheets, tokenCatalogue } from '../../lib/arena/package-assembly.ts';
+import { CSS_CHAIN, CHANNEL_SOURCES, ALIAS_SOURCE, ANGULAR_EXTRA, FAMILY_PART_SHEET_READS, TOKEN_CATALOGUE_READS, arenaCssLayers, familyPartSheets, tokenCatalogue } from '../../lib/arena/package-assembly.ts';
 import type { CssChainEntry } from '../../lib/arena/package-assembly.ts';
 import { NPM_PAGES, renderQuestions } from '../../lib/arena/npm-questions.ts';
 import { ARENA_EXT, POLARITY_HOOKS, RESERVED } from '../core/arena-cli/style-plugin-rules.ts';
@@ -225,7 +225,7 @@ export const TARGETS = [...new Set(Object.values(REGION_TARGETS).flat())];
 
 export const node = {
   name: 'generate:npm-pages',
-  reads: [...TARGETS, ALIAS_SOURCE, 'scripts/generate/core/arena-cli/audit.ts', 'scripts/generate/core/arena-cli/command-init.ts', 'scripts/lib/arena/language-rules.ts', `${DEFAULT_PLUGIN_DIR}/${PLUGIN_TOKENS}`, '.claude-plugin/plugin.json', 'scripts/generate/core/arena-cli/style-plugin-rules.ts', 'scripts/generate/core/arena-cli/theme-css.ts', LOCALE_CONTRACT, ROLE_CONTRACT, BEHAVIOUR_CONTRACT, ...Object.values(DENSITY_CONTRACTS), THEME_SHEET, 'contracts/api/components/*.json', 'contracts/design/spacing.json', BREAKPOINT_TARGET, TOAST_NOTICE_CONTRACT, CONFIRM_REQUEST_CONTRACT, ...CSS_TARGETS, ...CHANNEL_SOURCES, HUES_FILE, `${VOCABULARY_DIR}/**/*${FAMILY_SUFFIX}`],
+  reads: [...TARGETS, ALIAS_SOURCE, 'scripts/generate/core/arena-cli/audit.ts', 'scripts/generate/core/arena-cli/command-init.ts', 'scripts/lib/arena/language-rules.ts', `${DEFAULT_PLUGIN_DIR}/${PLUGIN_TOKENS}`, '.claude-plugin/plugin.json', 'scripts/generate/core/arena-cli/style-plugin-rules.ts', 'scripts/generate/core/arena-cli/theme-css.ts', LOCALE_CONTRACT, ROLE_CONTRACT, BEHAVIOUR_CONTRACT, ...Object.values(DENSITY_CONTRACTS), THEME_SHEET, 'contracts/api/components/*.json', 'contracts/design/spacing.json', BREAKPOINT_TARGET, TOAST_NOTICE_CONTRACT, CONFIRM_REQUEST_CONTRACT, ...CSS_TARGETS, ...CHANNEL_SOURCES, HUES_FILE, `${VOCABULARY_DIR}/**/*${FAMILY_SUFFIX}`, ...TOKEN_CATALOGUE_READS, ...FAMILY_PART_SHEET_READS],
   writes: TARGETS,
   feeds: [
     'generate:token-tree', 'check:token-tree',
