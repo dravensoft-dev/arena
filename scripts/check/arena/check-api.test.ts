@@ -938,15 +938,9 @@ test('a hues key naming no group, a value the group lacks or an unknown hue fail
   assert.deepEqual(sweep(manifest({ hues: { size: { sm: 'violet' } } })), []);
 });
 
-test('hues.always is no group, and an always entry naming a missing slot, an unknown hue or a hued slot fails', () => {
+test('hues.always names a group like any other key, so a manifest with no always group is refused', () => {
   const hued = (hues: ComponentManifest['hues']) => sweep(manifest({ hues }), thing(), noTypes, { hueNames: new Set(['danger']) });
-  assert.deepEqual(hued({ always: { root: 'danger' } }), []);
-  assert.match(hued({ always: { gone: 'danger' } })[0] ?? '', /ArenaThing\.hues\.always\.gone names a slot the manifest lacks/);
-  assert.match(hued({ always: { root: 'violet' } })[0] ?? '', /ArenaThing\.hues\.always\.root names hue "violet"/);
-  const reached = manifest({ variants: { size: { sm: { root: 'x' }, md: {} } }, hues: { always: { root: 'danger' }, size: { sm: 'danger', md: null } } });
-  assert.match(sweep(reached, thing(), noTypes, { hueNames: new Set(['danger']) }).join('\n'), /hues\.always\.root is a slot the hued group size also reaches/);
-  const groupless = manifest({ variants: {}, hues: { always: { gone: 'danger' } } });
-  assert.match(groupProblems(new Map([['a', manifest()], ['b', groupless]]), thing(), noTypes).join('\n'), /hues\.always\.gone names a slot the manifest lacks/);
+  assert.match(hued({ always: { root: 'danger' } })[0] ?? '', /ArenaThing\.hues\.always names no group/);
 });
 
 test('a sweep that finds no group fails', () => {

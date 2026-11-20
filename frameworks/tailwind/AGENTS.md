@@ -527,9 +527,8 @@ per slot and value on the element given the hue, never on an ancestor, so a badg
 alert reads its own colour. What each hue writes is authored once, in
 [`Hues.json`](./Hues.json), and not as a `:root` rule, since a `var()` resolves where it is
 declared and a root definition would freeze the plugin scope. A slot reads a channel,
-`bg-[color:var(--arena-hue-fill-soft)]`, and declares none. **A slot whose hue no value varies
-names it under `hues.always`**, `{ slot: hue }`, written on the bare slot class ahead of the group
-rules, and no hued group reaches that slot; `check:api` holds both.
+`bg-[color:var(--arena-hue-fill-soft)]`, and declares none. A key of `hues` names a group of the
+manifest, and `check:api` refuses one that does not.
 
 ## What a manifest is compiled into
 
@@ -552,9 +551,12 @@ repository does not have.
 
 - **The danger hue paints through its edge and its ink, and its strong fill is `hue-danger-fill-strong`.**
   That is a colour role whose kernel default is `transparent`, so a slot reading
-  `--arena-hue-fill-strong` is clear until a plugin answers it. Presence, feed and progress marks read
-  `--arena-hue-fill-strong` for the other hues and the ink for danger, a chart legend swatch and the
-  tag's dot read the ink, and `ArenaConfirmDialog`'s final confirmation reads the destructive slots of the `actions` group.
+  `--arena-hue-fill-strong` is clear until a plugin answers it. Presence, feed and timeline dots read
+  the `marks.dot` slots, and meter, progress and spinner ranges the `meters.track` slots, whose tone
+  defaults are the hue ink, `{hue-<h>-ink}`, so none of them reads a hue channel. The `--arena-hue-*`
+  channels are read by the badge, the tag, the stat card, the calendar chip and the confirm dialog,
+  and by the series parts, a chart legend swatch and a board column dot, which read the ink.
+  `ArenaConfirmDialog`'s final confirmation reads the destructive slots of the `actions` group.
 - **Focus is a ring, and which ring follows the shape of what is focused.** Every focus ring is
   the `edge-focus` role at `bw-focus`, so a skin that answers the role moves all of them. A
   surface an activation is drawn around (card, board, sheet, scroller, accordion, tab, stepper,

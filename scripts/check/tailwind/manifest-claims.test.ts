@@ -99,13 +99,6 @@ test('every status value maps to its own hue, and a neutral or editorial value t
       assert.equal(manifests.get(component)?.hues?.[group]?.[value], null, `${component}.hues.${group}.${value} is not mapped to no hue`);
 });
 
-const ALWAYS_HUES = {} as Record<string, Record<string, string>>;
-
-test('a slot whose meaning no value varies names its hue under always, and no other manifest does', () => {
-  for (const manifest of manifests.values())
-    assert.deepEqual(manifest.hues?.always ?? {}, ALWAYS_HUES[manifest.component] ?? {}, `${manifest.component}.hues.always is not what ALWAYS_HUES states`);
-});
-
 test('every manifest claim holds', () => {
   const problems = claimProblems(CLAIMS as unknown as Record<string, Claim[]>);
   assert.deepEqual(problems, [], problems.join('\n'));
