@@ -10,7 +10,7 @@
  * plugin answer in PLUGIN_ANSWERS and refuses an alias that lands on another axis than its role. */
 
 import { readdirSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, posix } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
@@ -105,8 +105,8 @@ export function answerFiles(base = root) {
     for (const part of pattern.split('/')) {
       found = part === '*'
         ? found.flatMap((dir) => readdirSync(join(base, dir), { withFileTypes: true })
-          .filter((e) => e.isDirectory()).map((e) => join(dir, e.name)).sort())
-        : found.map((dir) => join(dir, part));
+          .filter((e) => e.isDirectory()).map((e) => posix.join(dir, e.name)).sort())
+        : found.map((dir) => posix.join(dir, part));
     }
     files.push(...found);
   }
@@ -117,18 +117,18 @@ export function collectAnswers(base = root) {
   const unreadable: string[] = [];
   const read = (file: string, label: string) => {
     try {
-      return readJson(file) as Record<string, DtcgNode>;
+      return readJson(join(base, file)) as Record<string, DtcgNode>;
     } catch (err) {
       unreadable.push(`${file} cannot be read as ${label}: ${(err as Error).message}`);
       return {};
     }
   };
-  const roles = read(join(base, SOURCE_DIR, 'roles.json'), 'the role file');
+  const roles = read(posix.join(SOURCE_DIR, 'roles.json'), 'the role file');
   const files = answerFiles(base);
   const walked = files.map((f) => f.split('/').slice(1, -1).join('/'));
   const answers = files.map((file, i) => ({
     name: walked[i] as string,
-    tokens: read(join(base, file), 'a plugin answer'),
+    tokens: read(file, 'a plugin answer'),
   }));
   const result = answerAxisProblems(roles, tokenAxes(join(base, SOURCE_DIR)), answers);
   return { ...result, problems: [...unreadable, ...result.problems], walked };

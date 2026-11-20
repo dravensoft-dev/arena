@@ -1,5 +1,5 @@
 import test, { after } from 'node:test';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync, chmodSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, chmodSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import assert from 'node:assert/strict';
@@ -141,7 +141,24 @@ test('a named document that cannot be read throws, naming its path', () => {
   assert.throws(() => fragmentProblems(dir, ['skills/design/gone.md']), /skills\/design\/gone\.md/);
 });
 
-test('the default walk skips a consumer document it cannot read', () => {
+function modeDeniesRead() {
+  const dir = track(mkdtempSync(join(tmpdir(), 'arena-mode-')));
+  const file = join(dir, 'locked.md');
+  writeFileSync(file, 'x');
+  chmodSync(file, 0o000);
+  try {
+    readFileSync(file);
+    return false;
+  } catch {
+    return true;
+  } finally {
+    chmodSync(file, 0o644);
+  }
+}
+
+test('the default walk skips a consumer document it cannot read', {
+  skip: modeDeniesRead() ? false : 'a mode bit denies no read on this host, as on Windows or for root',
+}, () => {
   const dir = track(mkdtempSync(join(tmpdir(), 'arena-frag-')));
   for (const root of ['skills/design', 'frameworks', 'plugin-style-store']) mkdirSync(join(dir, root), { recursive: true });
   writeFileSync(join(dir, 'skills/design/SKILL.md'), '# S\n');
