@@ -627,3 +627,11 @@ test('the example answers clear their floors over the default plugin', () => {
     assert.deepEqual(lines, [], theme);
   }
 });
+
+test('a member default is named under the group whose slot it stands in for', () => {
+  const text = slotGroupSections(decl, cat);
+  for (const [key, member] of Object.entries(cat.members))
+    for (const [slot, value] of Object.entries(member.defaults ?? {}))
+      assert.ok(text.includes(`\`${key}\` paints \`${slot}\` with \`${value}\``), `${key} ${slot}`);
+  assert.match(text, /`ArenaIconButton\.root` paints `actions-ghost-root-edge-rest` with `\{emphasis-ghost-icon-edge\}`/);
+});

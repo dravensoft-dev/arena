@@ -269,6 +269,8 @@ export function slotGroupSections(declarations: SlotDeclarations, catalogue: Slo
     });
     const hovers = slots.filter(([, s]) => s.group === group && !['rest', 'selected'].includes(s.state) && s.property !== 'icon'
       && s.default !== undefined && s.derive === undefined).map(([name, s]) => `\`${name}\` reads ${answerText(s)}`);
+    const ownDefaults = Object.entries(catalogue.members).flatMap(([key, m]) => Object.entries(m.defaults ?? {})
+      .filter(([slot]) => catalogue.slots[slot]?.group === group).map(([slot, value]) => `\`${key}\` paints \`${slot}\` with \`${value}\``));
     const prose = [
       home.length === 0 ? '' : inSentences('Home of', home),
       readers.length === 0 ? '' : inSentences('Also read by', readers),
@@ -278,6 +280,7 @@ export function slotGroupSections(declarations: SlotDeclarations, catalogue: Slo
       ...(prose ? [prose, ''] : []),
       '| part | option | answers | states | silent at rest | silent when selected |', '| --- | --- | --- | --- | --- | --- |', ...rows,
       ...(hovers.length === 0 ? [] : ['', inSentences('Under the pointer,', hovers)]),
+      ...(ownDefaults.length === 0 ? [] : ['', inSentences('While its slot is silent,', ownDefaults)]),
     ].join('\n');
   }).join('\n\n');
 }
