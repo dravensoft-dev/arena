@@ -136,3 +136,25 @@ test('the icon rule sends a static page to the weight sheets and a build to the 
   assert.match(icons.body, /a raw `ph-\*` element needs the project's own `@phosphor-icons\/web`/);
   assert.match(icons.body, /static page has no build[^.]*weight sheets[^.]*references\/artifact\.md/);
 });
+
+test('the icon rule names the tag each case is reported as', () => {
+  const icons = RULES.find((one) => one.id === 'icons-are-strings');
+  assert.ok(icons);
+  assert.equal(icons.held, 'raw-glyph');
+  assert.deepEqual(icons.alsoHeld, ['icon-element']);
+  assert.match(icons.body, /passed to `icon` or `iconRight`[^.]*`icon-element`/);
+});
+
+test('the theme rule names Arena\'s own palettes and the project\'s', () => {
+  const themes = RULES.find((one) => one.id === 'two-themes');
+  assert.ok(themes);
+  assert.match(themes.body, /Arena's own/);
+  assert.match(themes.body, /\.arena-<name>/);
+});
+
+test('the own-class rule names the part classes and no slot', () => {
+  const own = RULES.find((one) => one.id === 'own-class');
+  assert.ok(own);
+  assert.ok(own.body.includes('arena-<component>__<part>'));
+  assert.ok(!own.body.includes('slot'));
+});

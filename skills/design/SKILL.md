@@ -104,7 +104,7 @@ source text cannot show, is `arena://rules` on the MCP server.
   such as `%`, `ch` or `vw`. **`arena audit` reports this one, as `raw-value`.**
 - **Only a class of the vocabulary goes on an Arena component.** Write it as a literal on the
   component, or on a container whose components all take it. Write no rule targeting a component:
-  its `arena-<component>__<slot>` classes are compiler output no contract names, and a slot may be
+  its `arena-<component>__<part>` classes are compiler output no contract names, and a part may be
   renamed. Every class you may write is on the vocabulary page; your own content uses the same
   tokens. React checks the class at compile time, Angular through the audit. **`arena audit`
   reports this one, as `own-class`.**
@@ -112,11 +112,12 @@ source text cannot show, is `arena://rules` on the MCP server.
   component is, is decided by a class, as `arena-fill`.
 - **No emoji, in product or in copy.** **`arena audit` reports this one, as `emoji`.**
 - **Icons are Phosphor class-name strings, drawn by Arena's components or by ArenaIcon; a raw ph-*
-  element paints nothing.** Write `icon="ph-bold ph-plus"`. Arena draws each glyph from the sprite
+  element paints nothing.** Write `icon="ph-bold ph-plus"`. An element passed to `icon` or
+  `iconRight` in braces is reported as `icon-element`. Arena draws each glyph from the sprite
   `arena build` writes, and a raw `ph-*` element needs the project's own `@phosphor-icons/web`,
   which Arena never bundles. A static page has no build, so it links the weight sheets for its raw
   `ph-*` elements, as `references/artifact.md` shows. **`arena audit` reports this one, as
-  `icon-element`.**
+  `raw-glyph`.**
 - **Never wrap an Arena component in your router's own link.** That nests an anchor inside an
   anchor, and in Angular it does not bind at all. Pass the href to the component and route from
   the event it reports. An `ArenaLink` inside a link of your own is reported as `wrapped-link`.
@@ -132,11 +133,12 @@ source text cannot show, is `arena://rules` on the MCP server.
   button, a link or a field inside that target runs the control and nothing else. A press
   elsewhere on the surface activates it. So a card or a row may hold controls of your own, or hand
   the press over entirely by not being interactive.
-- **Two themes, dark first.** Dark is `:root` and `.arena-dark`, light is `.arena-light`, and
-  either class goes on any element. Components never rewrite per theme; they read tokens.
-  `.arena-compact` and `.arena-comfortable` are the density family on the vocabulary page,
-  `frameworks/VOCABULARY.md`: the first re-densifies the controls, the second grows them to a 48px
-  touch target, and the two are exclusive.
+- **Two themes, dark first.** Arena's own palettes are dark on `:root` and `.arena-dark`, and
+  light on `.arena-light`. A project's palettes are the `.arena-<name>` classes its config
+  declares, its default on `:root`, and each class goes on any element. Components never rewrite
+  per theme; they read tokens. `.arena-compact` and `.arena-comfortable` are the density family on
+  the vocabulary page, `frameworks/VOCABULARY.md`: the first re-densifies the controls, the second
+  grows them to a 48px touch target, and the two are exclusive.
 - **Copy is formal and direct, in the product's language.** Concrete verbs, no boasting; an error
   is blame-free and says what to do next. Arena's words follow the locale.
 - **A required member absent is a caller bug.** It is not a state to render. Every layer fails

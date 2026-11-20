@@ -125,7 +125,7 @@ export const ROUTES: Route[] = [
       'skills/design/references/config.md',
       'skills/design/references/cli.md',
     ],
-    budget: 51_500,
+    budget: 51_600,
     reason:
       'paid once per project, not per screen, so it carries what the build route may not: the install, '
       + 'the config file and the command. The config block is copied whole. The install reference gives '
@@ -138,8 +138,8 @@ export const ROUTES: Route[] = [
       + 'expression widens that set or stills the glyph report. Its audit section covers the two rules '
       + 'that read a plugin\'s names, its exit table a refused plugin answer, its contrast note which '
       + 'plugins and states it measures. The config page tables every key, the names the '
-      + 'build refuses and the roles that carry a default. The install and command references name the '
-      + 'arena-defaults layer the defaults sit in, which the Tailwind entry states first.',
+      + 'build refuses, the families it splits and the roles that carry a default. The install and command references name the '
+      + 'arena-defaults layer the defaults sit in.',
   },
   {
     name: 'consumer-skin',

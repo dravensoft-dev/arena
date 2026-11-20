@@ -34,8 +34,8 @@ export const RULES: LanguageRule[] = [
     id: 'own-class',
     short: 'Only a class of the vocabulary goes on an Arena component.',
     body: 'Write it as a literal on the component, or on a container whose components all take it. '
-      + 'Write no rule targeting a component: its `arena-<component>__<slot>` classes are compiler output '
-      + 'no contract names, and a slot may be renamed. Every class you may write is on the '
+      + 'Write no rule targeting a component: its `arena-<component>__<part>` classes are compiler output '
+      + 'no contract names, and a part may be renamed. Every class you may write is on the '
       + 'vocabulary page; your own content uses the same tokens. '
       + 'React checks the class at compile time, Angular through the audit.',
     held: 'own-class',
@@ -59,11 +59,11 @@ export const RULES: LanguageRule[] = [
   {
     id: 'icons-are-strings',
     short: 'Icons are Phosphor class-name strings, drawn by Arena\'s components or by ArenaIcon; a raw ph-* element paints nothing.',
-    body: 'Write `icon="ph-bold ph-plus"`. Arena draws each glyph from the sprite `arena build` writes, '
+    body: 'Write `icon="ph-bold ph-plus"`. An element passed to `icon` or `iconRight` in braces is reported as `icon-element`. Arena draws each glyph from the sprite `arena build` writes, '
       + 'and a raw `ph-*` element needs the project\'s own `@phosphor-icons/web`, which Arena never bundles. A static page has no build, so it links the weight sheets for its raw `ph-*` elements, as '
       + '`references/artifact.md` shows.',
-    held: 'icon-element',
-    alsoHeld: ['raw-glyph'],
+    held: 'raw-glyph',
+    alsoHeld: ['icon-element'],
     unheld: null,
   },
   {
@@ -101,7 +101,7 @@ export const RULES: LanguageRule[] = [
   {
     id: 'two-themes',
     short: 'Two themes, dark first.',
-    body: 'Dark is `:root` and `.arena-dark`, light is `.arena-light`, and either class goes on any element. Components never rewrite per theme; they read '
+    body: 'Arena\'s own palettes are dark on `:root` and `.arena-dark`, and light on `.arena-light`. A project\'s palettes are the `.arena-<name>` classes its config declares, its default on `:root`, and each class goes on any element. Components never rewrite per theme; they read '
       + 'tokens. `.arena-compact` and `.arena-comfortable` are the density family on the vocabulary '
       + 'page, `frameworks/VOCABULARY.md`: the first re-densifies the controls, the second grows '
       + 'them to a 48px touch target, and the two are exclusive.',

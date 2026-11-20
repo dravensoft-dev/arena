@@ -13,7 +13,7 @@ import { LAYER_TOKENS, FORBIDDEN } from '../../check/arena/check-layer-independe
 import {
   TARGETS, atDefault, noImportSheets, openLine, closeLine, renderRegion, applyRegion, renderTarget, regionsOf,
   ROLE_CONTRACT, BEHAVIOUR_CONTRACT, densityValues, requiredLead, toastIntervals, defaultedRoles, defaultedSentence, defaultsStatement, roleRuns, unansweredCount,
-  SLOT_PAGE, EXAMPLE_SLOT_ANSWERS, slotGroupSections,
+  SLOT_PAGE, EXAMPLE_SLOT_ANSWERS, slotGroupSections, splitFamilyNames, splitFamilySentence,
 } from './generate-npm-pages.ts';
 import { readColorSlots, readSlotDeclarations } from '../../lib/core/color-slots.ts';
 import { slotAnswer } from '../core/arena-cli/slots.ts';
@@ -31,7 +31,7 @@ import { RULE_TAGS, RULE_DESCRIPTIONS } from '../core/arena-cli/audit.ts';
 import { run } from '../core/arena-cli/command-init.ts';
 import { ARENA_FONT_DEFAULTS, ARENA_FONT_KEYS } from '../core/arena-cli/theme-css.ts';
 import { FONT_ROLES } from '../core/arena-cli/palette-keys.ts';
-import { captureIo, hostRoot, removeFixtures } from '../core/arena-cli/cli-fixtures.ts';
+import { captureIo, hostRoot, removeFixtures, whileHeld } from '../core/arena-cli/cli-fixtures.ts';
 import { RULES } from '../../lib/arena/language-rules.ts';
 
 after(removeFixtures);
@@ -64,7 +64,7 @@ test('each target carries exactly the regions mapped to it', () => {
       assert.ok(text.includes(renderRegion(key, repoRoot, target)), `${target} carries a fresh ${key} region`);
   }
   assert.deepEqual(regionsOf('frameworks/react/PACKAGE.md'), ['repository', 'questions']);
-  assert.deepEqual(regionsOf('skills/design/references/config.md'), ['skin']);
+  assert.deepEqual(regionsOf('skills/design/references/config.md'), ['splitFamilies', 'skin']);
   assert.deepEqual(regionsOf('skills/design/references/stylesheets.md'), ['sheets']);
   const scales = 'skills/design/references/tokens/scales';
   assert.deepEqual(regionsOf(`${scales}/spacing-radius-border.md`), ['spacing']);
@@ -648,4 +648,34 @@ test('a member default is named under the group whose slot it stands in for', ()
     for (const [slot, value] of Object.entries(member.defaults ?? {}))
       assert.ok(text.includes(`\`${key}\` paints \`${slot}\` with \`${value}\``), `${key} ${slot}`);
   assert.match(text, /`ArenaIconButton\.root` paints `actions-ghost-root-edge-rest` with `\{emphasis-ghost-icon-edge\}`/);
+});
+
+test('the skin refuses a shipped name and promises no future one', async () => {
+  const skin = renderRegion('skin');
+  assert.ok(skin.includes('The command refuses a palette or style plugin named after a class Arena ships.'));
+  assert.ok(!skin.includes('going to ship') && !skin.includes('held ahead'));
+  const held = await whileHeld('held-name', () => renderRegion('skin'));
+  assert.ok(held.includes('held-name') && held.includes('ArenaHeld'));
+});
+
+test('the skin links theme.md where it says what a subtree takes', () => {
+  assert.ok(renderRegion('skin').includes('[`theme.md`](./theme.md#how-do-i-put-a-palette-on-part-of-a-page)'));
+});
+
+test('the split families are the ones the build splits', () => {
+  assert.deepEqual(splitFamilyNames(), ['accent', 'emphasis']);
+  for (const key of ['noImport', 'sheets', 'splitFamilies']) {
+    const text = renderRegion(key);
+    for (const name of splitFamilyNames()) assert.ok(text.includes(`\`${name}\``), `${key} names ${name}`);
+    assert.ok(!text.includes('whose components carry colour slots'), key);
+  }
+});
+
+test('the split family sentence reads true for one family and for none', () => {
+  const dir = track(mkdtempSync(join(tmpdir(), 'arena-split-')));
+  assert.equal(splitFamilyNames(dir).length, 0);
+  assert.equal(splitFamilySentence(dir), 'No family enters as a sheet per component.');
+  const full = splitFamilySentence();
+  assert.match(full, /The families `accent` and `emphasis` are the ones/);
+  assert.ok(!full.includes('read the colour slots'));
 });
