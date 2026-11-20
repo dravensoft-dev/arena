@@ -7,7 +7,7 @@ import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { readJson } from '../../utils/read-file.ts';
 import * as rules from '../../generate/core/arena-cli/style-plugin-rules.ts';
 import {
-  LIGHT_BY_DESIGN, ROOT_PLUGIN, SCOPES, defaultSlotAnswers, slotAnswerProblems, collect, shippedFixedRemProblems, defaultAnswerProblems, floorProblems, keyProblems, movedTokens, nameProblems, resolvedFor, totalityProblems,
+  LIGHT_BY_DESIGN, ROOT_PLUGIN, SCOPES, defaultSlotAnswers, slotAnswerProblems, slotAcceptsProblems, shippedSlotAcceptsProblems, collect, shippedFixedRemProblems, defaultAnswerProblems, floorProblems, keyProblems, movedTokens, nameProblems, resolvedFor, totalityProblems,
   valueProblems, zeroScopeProblems,
 } from './check-style-plugin.ts';
 
@@ -340,6 +340,18 @@ test('a slot answer in a plugin is held to its accepts set, and a role answer is
   const answer = (value: string) => ({ 'actions-primary-root-fill-rest': { $type: 'color', $value: value, $description: 'why' } });
   assert.deepEqual(slotAnswerProblems('at', answer('{fill-surface}'), kernel), []);
   assert.equal(slotAnswerProblems('at', answer('{ink-body}'), kernel).length, 1);
+});
+
+test('the accepts half holds a slot answer to its set and asks no description of it', () => {
+  const kernel = { 'fill-surface': { $type: 'color' }, 'ink-body': { $type: 'color' } };
+  const answer = (value: string) => ({ 'actions-primary-root-fill-rest': { $type: 'color', $value: value } });
+  assert.deepEqual(slotAcceptsProblems('at', answer('{fill-surface}'), kernel), []);
+  assert.deepEqual(slotAcceptsProblems('at', answer('{color.primary-content}'), kernel).length, 1);
+  assert.deepEqual(slotAcceptsProblems('at', { light: answer('{ink-body}') }, kernel).length, 1);
+});
+
+test('every shipped plugin answers each slot with a role its accepts set takes', () => {
+  assert.deepEqual(shippedSlotAcceptsProblems(), []);
 });
 
 test('a bad slot answer in the light group is refused', () => {

@@ -116,6 +116,14 @@ test('complete answers every slot with a spelling of its own', () => {
   for (const slot of EXEMPT_SLOTS) assert.equal(given[slot], undefined, `${slot} is exempt and complete leaves it unanswered`);
 });
 
+test('a slot no accepted role can answer as complete paints it is exempt, never answered with a palette key', () => {
+  const given = answers('plugin-style-store/complete/plugin.tokens.json');
+  for (const slot of ['choices-mark-ink-selected', 'navigation-badge-ink-selected', 'steps-current-marker-ink-rest', 'steps-current-marker-edge-rest']) {
+    assert.ok(WITNESS_EXEMPT.has(slot), `${slot} is exempt`);
+    assert.equal(given[slot], undefined, `${slot} is left unanswered`);
+  }
+});
+
 test('a slot complete answers as default does fails', () => {
   const ink = (option: string, state: 'rest' | 'hover') => ({ ...part, option, property: 'ink', state, default: '{ink-body}' }) as const;
   const catalogue = fixture({

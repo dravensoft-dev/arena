@@ -118,6 +118,11 @@ export const WITNESS_EXEMPT: ReadonlyMap<string, string> = new Map([
   ...['success', 'warning', 'info'].map((option): [string, string] => [`meters-${option}-track-ink-rest`, SLOT + `complete paints the ${option} meter and progress range `
     + `through hue-${option}-fill-strong, neutral in complete, and no role an ink slot accepts resolves to neutral in complete, so no spelling resolves to `
     + 'the key complete paints there']),
+  ...['choices-mark-ink-selected', 'navigation-badge-ink-selected', 'steps-current-marker-ink-rest'].map((name): [string, string] => [name, SLOT + 'the key '
+    + 'complete gives a ticked mark, a current navigation count and a current step number over their primary fill is primary-content, and no role an ink '
+    + 'slot accepts resolves to primary-content in complete, so the slot keeps its kernel default there']),
+  ['steps-current-marker-edge-rest', SLOT + 'the key complete gives the current step marker\'s edge is primary-fill, the colour of its fill, and no role '
+    + 'an edge slot accepts resolves to primary-fill in complete, so the slot keeps its kernel default there'],
   ['data-now-edge-rest', SLOT + 'complete paints the calendar now line primary-fill, and no accepted edge role resolves to it in complete: ' + NO_SECOND_SPELLING],
   ['overlays-tip-fill-rest', SLOT + 'complete paints the tooltip bubble base-content, and fill-tip is the one accepted role resolving to it: ' + NO_SECOND_SPELLING],
   ['fill-tip', 'complete answers it as default does, base-content, because complete paints a tooltip bubble base-content and no other palette key resolves to it, '

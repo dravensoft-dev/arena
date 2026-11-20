@@ -1926,10 +1926,6 @@
     "$type": "color",
     "$value": "{accent-gold-ink}"
   },
-  "choices-mark-ink-selected": {
-    "$type": "color",
-    "$value": "{color.primary-content}"
-  },
   "choices-segment-fill-hover": {
     "$type": "color",
     "$value": "transparent",
@@ -2555,10 +2551,6 @@
     "$type": "color",
     "$value": "{accent-plain-ink}"
   },
-  "navigation-badge-ink-selected": {
-    "$type": "color",
-    "$value": "{color.primary-content}"
-  },
   "navigation-disclosure-fill-disabled": {
     "$type": "color",
     "$value": "transparent",
@@ -2717,17 +2709,9 @@
     "$type": "color",
     "$value": "{ink-eyebrow}"
   },
-  "steps-current-marker-edge-rest": {
-    "$type": "color",
-    "$value": "{fill-control-on}"
-  },
   "steps-current-marker-fill-rest": {
     "$type": "color",
     "$value": "{fill-control-on}"
-  },
-  "steps-current-marker-ink-rest": {
-    "$type": "color",
-    "$value": "{color.primary-content}"
   },
   "steps-error-marker-edge-rest": {
     "$type": "color",

@@ -413,7 +413,6 @@
   --choices-knob-fill-selected:var(--fill-knob-off); /* complete paints the knob white on and off; fill-knob-off resolves to that white here, and it is a spelling of its own, since the kernel default fill-knob is the one the witness refuses. */
   --choices-knob-ink-rest:var(--accent-gold-ink);
   --choices-knob-ink-selected:var(--accent-gold-ink);
-  --choices-mark-ink-selected:var(--color-primary-content);
   --choices-segment-fill-hover:transparent; /* complete paints an unselected segment transparent in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling. */
   --choices-segment-fill-pressed:transparent; /* complete paints an unselected segment transparent in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling. */
   --choices-segment-fill-selected:var(--accent-plain-fill-soft);
@@ -568,7 +567,6 @@
   --navigation-badge-fill-rest:var(--fill-surface-sunken);
   --navigation-badge-fill-selected:var(--fill-control-on);
   --navigation-badge-ink-rest:var(--accent-plain-ink);
-  --navigation-badge-ink-selected:var(--color-primary-content);
   --navigation-disclosure-fill-disabled:transparent; /* complete paints a disabled disclosure trigger transparent, as it paints one at rest, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling. */
   --navigation-disclosure-fill-hover:var(--accent-plain-fill-soft);
   --navigation-disclosure-fill-pressed:var(--accent-plain-fill-soft); /* complete paints a pressed disclosure trigger with its hover fill, neutral, and accent-plain-fill-soft is a spelling of its own that resolves to it, so a held row keeps the wash it took on hover. The Sheet trigger follows the Accordion trigger here, and paints the hover and pressed wash the disclosure group answers. */
@@ -607,9 +605,7 @@
   --steps-complete-marker-edge-rest:var(--edge-field);
   --steps-complete-marker-ink-rest:var(--ink-figure);
   --steps-current-label-ink-rest:var(--ink-eyebrow);
-  --steps-current-marker-edge-rest:var(--fill-control-on);
   --steps-current-marker-fill-rest:var(--fill-control-on);
-  --steps-current-marker-ink-rest:var(--color-primary-content);
   --steps-error-marker-edge-rest:var(--edge-invalid);
   --steps-error-marker-fill-rest:var(--hue-danger-fill-strong);
   --steps-error-marker-ink-rest:var(--ink-invalid);
@@ -847,7 +843,6 @@
   --choices-knob-fill-selected:var(--fill-knob-off); /* complete paints the knob white on and off; fill-knob-off resolves to that white here, and it is a spelling of its own, since the kernel default fill-knob is the one the witness refuses. */
   --choices-knob-ink-rest:var(--accent-gold-ink);
   --choices-knob-ink-selected:var(--accent-gold-ink);
-  --choices-mark-ink-selected:var(--color-primary-content);
   --choices-segment-fill-selected:var(--accent-plain-fill-soft);
   --choices-segment-fill-selected-hover:var(--accent-plain-fill-soft);
   --choices-segment-fill-selected-pressed:var(--accent-plain-fill-soft);
@@ -998,7 +993,6 @@
   --navigation-badge-fill-rest:var(--fill-surface-sunken);
   --navigation-badge-fill-selected:var(--fill-control-on);
   --navigation-badge-ink-rest:var(--accent-plain-ink);
-  --navigation-badge-ink-selected:var(--color-primary-content);
   --navigation-disclosure-fill-hover:var(--accent-plain-fill-soft);
   --navigation-disclosure-fill-pressed:var(--accent-plain-fill-soft); /* complete paints a pressed disclosure trigger with its hover fill, neutral, and accent-plain-fill-soft is a spelling of its own that resolves to it, so a held row keeps the wash it took on hover. The Sheet trigger follows the Accordion trigger here, and paints the hover and pressed wash the disclosure group answers. */
   --navigation-disclosure-ink-disabled:var(--accent-plain-ink);
@@ -1034,9 +1028,7 @@
   --steps-complete-marker-edge-rest:var(--edge-field);
   --steps-complete-marker-ink-rest:var(--ink-figure);
   --steps-current-label-ink-rest:var(--ink-eyebrow);
-  --steps-current-marker-edge-rest:var(--fill-control-on);
   --steps-current-marker-fill-rest:var(--fill-control-on);
-  --steps-current-marker-ink-rest:var(--color-primary-content);
   --steps-error-marker-edge-rest:var(--edge-invalid);
   --steps-error-marker-fill-rest:var(--hue-danger-fill-strong);
   --steps-error-marker-ink-rest:var(--ink-invalid);
@@ -1259,7 +1251,6 @@
   --choices-knob-fill-selected:var(--fill-knob-off); /* complete paints the knob white on and off; fill-knob-off resolves to that white here, and it is a spelling of its own, since the kernel default fill-knob is the one the witness refuses. */
   --choices-knob-ink-rest:var(--accent-gold-ink);
   --choices-knob-ink-selected:var(--accent-gold-ink);
-  --choices-mark-ink-selected:var(--color-primary-content);
   --choices-segment-fill-selected:var(--accent-plain-fill-soft);
   --choices-segment-fill-selected-hover:var(--accent-plain-fill-soft);
   --choices-segment-fill-selected-pressed:var(--accent-plain-fill-soft);
@@ -1410,7 +1401,6 @@
   --navigation-badge-fill-rest:var(--fill-surface-sunken);
   --navigation-badge-fill-selected:var(--fill-control-on);
   --navigation-badge-ink-rest:var(--accent-plain-ink);
-  --navigation-badge-ink-selected:var(--color-primary-content);
   --navigation-disclosure-fill-hover:var(--accent-plain-fill-soft);
   --navigation-disclosure-fill-pressed:var(--accent-plain-fill-soft); /* complete paints a pressed disclosure trigger with its hover fill, neutral, and accent-plain-fill-soft is a spelling of its own that resolves to it, so a held row keeps the wash it took on hover. The Sheet trigger follows the Accordion trigger here, and paints the hover and pressed wash the disclosure group answers. */
   --navigation-disclosure-ink-disabled:var(--accent-plain-ink);
@@ -1446,9 +1436,7 @@
   --steps-complete-marker-edge-rest:var(--edge-field);
   --steps-complete-marker-ink-rest:var(--ink-figure);
   --steps-current-label-ink-rest:var(--ink-eyebrow);
-  --steps-current-marker-edge-rest:var(--fill-control-on);
   --steps-current-marker-fill-rest:var(--fill-control-on);
-  --steps-current-marker-ink-rest:var(--color-primary-content);
   --steps-error-marker-edge-rest:var(--edge-invalid);
   --steps-error-marker-fill-rest:var(--hue-danger-fill-strong);
   --steps-error-marker-ink-rest:var(--ink-invalid);
@@ -1671,7 +1659,6 @@
   --choices-knob-fill-selected:var(--fill-knob-off); /* complete paints the knob white on and off; fill-knob-off resolves to that white here, and it is a spelling of its own, since the kernel default fill-knob is the one the witness refuses. */
   --choices-knob-ink-rest:var(--accent-gold-ink);
   --choices-knob-ink-selected:var(--accent-gold-ink);
-  --choices-mark-ink-selected:var(--color-primary-content);
   --choices-segment-fill-selected:var(--accent-plain-fill-soft);
   --choices-segment-fill-selected-hover:var(--accent-plain-fill-soft);
   --choices-segment-fill-selected-pressed:var(--accent-plain-fill-soft);
@@ -1822,7 +1809,6 @@
   --navigation-badge-fill-rest:var(--fill-surface-sunken);
   --navigation-badge-fill-selected:var(--fill-control-on);
   --navigation-badge-ink-rest:var(--accent-plain-ink);
-  --navigation-badge-ink-selected:var(--color-primary-content);
   --navigation-disclosure-fill-hover:var(--accent-plain-fill-soft);
   --navigation-disclosure-fill-pressed:var(--accent-plain-fill-soft); /* complete paints a pressed disclosure trigger with its hover fill, neutral, and accent-plain-fill-soft is a spelling of its own that resolves to it, so a held row keeps the wash it took on hover. The Sheet trigger follows the Accordion trigger here, and paints the hover and pressed wash the disclosure group answers. */
   --navigation-disclosure-ink-disabled:var(--accent-plain-ink);
@@ -1858,9 +1844,7 @@
   --steps-complete-marker-edge-rest:var(--edge-field);
   --steps-complete-marker-ink-rest:var(--ink-figure);
   --steps-current-label-ink-rest:var(--ink-eyebrow);
-  --steps-current-marker-edge-rest:var(--fill-control-on);
   --steps-current-marker-fill-rest:var(--fill-control-on);
-  --steps-current-marker-ink-rest:var(--color-primary-content);
   --steps-error-marker-edge-rest:var(--edge-invalid);
   --steps-error-marker-fill-rest:var(--hue-danger-fill-strong);
   --steps-error-marker-ink-rest:var(--ink-invalid);
@@ -2083,7 +2067,6 @@
   --choices-knob-fill-selected:var(--fill-knob-off); /* complete paints the knob white on and off; fill-knob-off resolves to that white here, and it is a spelling of its own, since the kernel default fill-knob is the one the witness refuses. */
   --choices-knob-ink-rest:var(--accent-gold-ink);
   --choices-knob-ink-selected:var(--accent-gold-ink);
-  --choices-mark-ink-selected:var(--color-primary-content);
   --choices-segment-fill-selected:var(--accent-plain-fill-soft);
   --choices-segment-fill-selected-hover:var(--accent-plain-fill-soft);
   --choices-segment-fill-selected-pressed:var(--accent-plain-fill-soft);
@@ -2234,7 +2217,6 @@
   --navigation-badge-fill-rest:var(--fill-surface-sunken);
   --navigation-badge-fill-selected:var(--fill-control-on);
   --navigation-badge-ink-rest:var(--accent-plain-ink);
-  --navigation-badge-ink-selected:var(--color-primary-content);
   --navigation-disclosure-fill-hover:var(--accent-plain-fill-soft);
   --navigation-disclosure-fill-pressed:var(--accent-plain-fill-soft); /* complete paints a pressed disclosure trigger with its hover fill, neutral, and accent-plain-fill-soft is a spelling of its own that resolves to it, so a held row keeps the wash it took on hover. The Sheet trigger follows the Accordion trigger here, and paints the hover and pressed wash the disclosure group answers. */
   --navigation-disclosure-ink-disabled:var(--accent-plain-ink);
@@ -2270,9 +2252,7 @@
   --steps-complete-marker-edge-rest:var(--edge-field);
   --steps-complete-marker-ink-rest:var(--ink-figure);
   --steps-current-label-ink-rest:var(--ink-eyebrow);
-  --steps-current-marker-edge-rest:var(--fill-control-on);
   --steps-current-marker-fill-rest:var(--fill-control-on);
-  --steps-current-marker-ink-rest:var(--color-primary-content);
   --steps-error-marker-edge-rest:var(--edge-invalid);
   --steps-error-marker-fill-rest:var(--hue-danger-fill-strong);
   --steps-error-marker-ink-rest:var(--ink-invalid);

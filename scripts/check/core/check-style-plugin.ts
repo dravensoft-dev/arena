@@ -135,6 +135,18 @@ export function slotAnswerProblems(where: string, tokens: Record<string, unknown
     .flatMap(({ key, token }) => keyProblems(where, key, token, undefined, { slots, colourNames }));
 }
 
+export function slotAcceptsProblems(where: string, tokens: Record<string, unknown>, kernel: Record<string, unknown>) {
+  const slots = readColorSlots();
+  const colourNames = colourNamesOf(kernel, '$type');
+  return movedTokens(tokens).filter(({ key }) => slots.slots[key])
+    .flatMap(({ key, token }) => valueProblems(where, key, token, undefined, { slots, colourNames }));
+}
+
+export function shippedSlotAcceptsProblems(kernel?: Record<string, unknown>) {
+  const roles = kernel ?? readJson(join(repoRoot, ROLES)) as Record<string, unknown>;
+  return answerFiles().flatMap((file) => slotAcceptsProblems(file, readJson(join(repoRoot, file)) as Record<string, unknown>, roles));
+}
+
 export function defaultSlotAnswers(at = repoRoot): string[] {
   const slots = readColorSlots(at).slots;
   return movedTokens(readJson(join(at, ROOT_PLUGIN)) as Record<string, unknown>).filter(({ key }) => Object.hasOwn(slots, key))
@@ -171,6 +183,7 @@ export function collect(sheets?: string) {
   problems.push(...shippedFixedRemProblems(kernel));
   problems.push(...slotAnswerProblems(ROOT_PLUGIN, readJson(join(repoRoot, ROOT_PLUGIN)) as Record<string, unknown>, kernel));
   problems.push(...defaultSlotAnswers());
+  problems.push(...shippedSlotAcceptsProblems(kernel));
   return problems;
 }
 
