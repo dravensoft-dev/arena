@@ -87,6 +87,11 @@ const optionAxesOf = (root = repoRoot) => new Map(Object.entries(readColorSlots(
   const axes = [...optionAxes(member).flatMap(axisNames), ...[member.onlyBy, member.hoverBy].flatMap((one) => (one ? [one.axis] : []))].map((one) => `data-arena-${kebab(one)}`);
   return axes.length ? [[`${kebab(component.replace(/^Arena/, ''))}.${kebab(part)}`, axes] as [string, string[]]] : [];
 }));
+const seriesByAxesOf = (root = repoRoot) => Object.entries(readColorSlots(root).members).flatMap(([key, member]) => {
+  const [component, part] = key.split('.') as [string, string];
+  const hook = kebab(component.replace(/^Arena/, '')) + (part === 'root' ? '' : `.${kebab(part)}`);
+  return member.seriesBy ? [[hook, [`data-arena-${kebab(member.seriesBy)}`]] as [string, string[]]] : [];
+});
 const seriesAxesOf = (root = repoRoot) => {
   const manifests = new Map([...layerManifests(root).values()].map((one) => [one.component, one]));
   return new Map(Object.entries(readSlotDeclarations(root).members ?? {}).flatMap(([component, member]) => Object.entries(member.parts)
@@ -97,6 +102,7 @@ const seriesAxesOf = (root = repoRoot) => {
     })));
 };
 const OPTION_AXES = new Map([...optionAxesOf(), ...seriesAxesOf()]);
+for (const [hook, axes] of seriesByAxesOf()) OPTION_AXES.set(hook, [...OPTION_AXES.get(hook) ?? [], ...axes]);
 const SELECTED_BY = branchAxes('selectedBy');
 const DISABLED_BY = branchAxes('disabledBy');
 const ARIA_DISABLED = new Set(Object.entries(readColorSlots().members).filter(([, member]) => member.disabledModifier === 'aria-disabled:')

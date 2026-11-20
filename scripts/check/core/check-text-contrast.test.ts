@@ -149,10 +149,10 @@ test('a style plugin that moves no fill adds no scope, so the run is not the sam
 
 test('the vocabulary sheets are read with the component sheets, so a level a family writes is measured', () => {
   assert.ok(COMPONENT_SHEETS.includes(VOCABULARY_SHEETS), 'a family sheet is where the accent and emphasis inks now live');
-  assert.ok(componentSheets().some((css) => css.includes('--arena-accent-ink')), 'the accent family sheet is among those read');
+  assert.ok(componentSheets().some((css) => css.includes('--arena-accent-marks-label-ink')), 'the accent family sheet is among those read');
 });
 
-const accentSheet = () => componentSheets().find((css) => css.includes('--arena-accent-quiet-ink:')) as string;
+const accentSheet = () => componentSheets().find((css) => css.includes('--arena-accent-marks-outline-ink:')) as string;
 
 function measured(defaults: Record<string, number>) {
   const palette = readFileSync(join(repoRoot, PALETTE), 'utf8');
@@ -337,7 +337,7 @@ test('defaultBuildProblems is clean on Arena\'s skin', () => {
 
 test('the default plugin resolves and clears every slot pair the contract declares', () => {
   assert.deepEqual(defaultBuildProblems(), []);
-  assert.equal(slotPairs(tokenCatalogue().slots).length, 185, 'the sweep measures every slot pair the contract declares');
+  assert.equal(slotPairs(tokenCatalogue().slots).length, 217, 'the sweep measures every slot pair the contract declares');
 });
 
 test('complete and the catalogue report their slot pairs in the lines the gate prints', () => {

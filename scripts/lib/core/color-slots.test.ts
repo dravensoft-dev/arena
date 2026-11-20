@@ -559,3 +559,20 @@ test('a member part carries its ground, toBy, seriesBy, wrappedBy and a fill-dra
   assert.deepEqual({ ground: m?.ground, toBy: m?.toBy, seriesBy: m?.seriesBy, wrappedBy: m?.wrappedBy, edgeAs: m?.edgeAs }, keys);
   assert.equal(Object.hasOwn(deriveSlots(fixture()).members['ArenaKnob.root'] ?? {}, 'ground'), false, 'a member with none carries none');
 });
+
+test('marks derives its soft, outline and label parts', () => {
+  const c = deriveSlots(readSlotDeclarations());
+  assert.equal(c.slots['marks-plain-soft-ink-rest']?.default, '{ink-body}');
+  assert.equal(c.slots['marks-plain-soft-ink-rest']?.level, 'level-ink-body');
+  assert.equal(c.slots['marks-plain-soft-fill-rest']?.channel, '--arena-accent-marks-soft-fill');
+  assert.equal(c.slots['marks-neutral-outline-edge-rest']?.default, '{edge-marker}');
+  assert.equal(c.slots['marks-plain-outline-ink-rest']?.channel, '--arena-accent-marks-outline-ink');
+  assert.equal(c.slots['marks-neutral-label-ink-rest']?.default, '{ink-heading}');
+  assert.equal(c.slots['marks-gold-label-ink-rest']?.channel, '--arena-accent-marks-label-ink');
+  const marks = Object.entries(c.slots).filter(([, slot]) => slot.group === 'marks');
+  assert.deepEqual(marks.filter(([, slot]) => /^identity-/.test(slot.option ?? '')).map(([name]) => name), [], 'a series mark follows its hues channel (D75, D76)');
+  assert.deepEqual(marks.filter(([name]) => /^marks-.+-soft-edge-/.test(name)).map(([name]) => name), [], 'a wash draws no edge');
+  assert.deepEqual(marks.filter(([, slot]) => slot.part === 'outline' && slot.state !== 'rest').map(([name]) => name), [], 'an outline mark is static');
+  assert.equal(c.slots['marks-neutral-upcoming-dot-edge-rest']?.default, '{edge-mark}');
+  assert.equal(c.slots['marks-neutral-upcoming-dot-edge-rest']?.level, 'level-presence', 'the upcoming ring is told from its disc at 3:1 (D97)');
+});

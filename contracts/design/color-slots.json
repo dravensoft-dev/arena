@@ -728,28 +728,95 @@
         "soft": {
           "properties": [
             "fill",
-            "ink",
-            "edge"
+            "ink"
           ],
           "states": "static",
-          "options": [
-            "neutral",
-            "plain",
-            "primary",
-            "gold",
-            "danger",
-            "success",
-            "warning",
-            "info",
-            "identity-1",
-            "identity-2",
-            "identity-3",
-            "identity-4",
-            "identity-5",
-            "identity-6",
-            "identity-7",
-            "identity-8"
-          ]
+          "options": {
+            "plain": {
+              "channel": "--arena-accent-marks-soft-{property}",
+              "rest": {
+                "fill": "{accent-plain-fill-soft}",
+                "ink": {
+                  "role": "{ink-body}",
+                  "level": "level-ink-body"
+                }
+              }
+            },
+            "primary": {
+              "channel": "--arena-accent-marks-soft-{property}",
+              "rest": {
+                "fill": {
+                  "role": "{accent-primary-fill-soft}",
+                  "level": "level-accent-soft-primary"
+                },
+                "ink": {
+                  "role": "{ink-body}",
+                  "level": "level-ink-body"
+                }
+              }
+            },
+            "gold": {
+              "channel": "--arena-accent-marks-soft-{property}",
+              "rest": {
+                "fill": {
+                  "role": "{accent-gold-fill-soft}",
+                  "level": "level-accent-soft-gold"
+                },
+                "ink": {
+                  "role": "{ink-body}",
+                  "level": "level-ink-body"
+                }
+              }
+            },
+            "danger": {
+              "rest": {
+                "fill": {
+                  "role": "{hue-danger-fill-soft}",
+                  "level": "level-hue-soft-danger"
+                },
+                "ink": {
+                  "role": "{ink-body}",
+                  "level": "level-ink-body"
+                }
+              }
+            },
+            "success": {
+              "rest": {
+                "fill": {
+                  "role": "{hue-success-fill-soft}",
+                  "level": "level-hue-soft-success"
+                },
+                "ink": {
+                  "role": "{ink-body}",
+                  "level": "level-ink-body"
+                }
+              }
+            },
+            "warning": {
+              "rest": {
+                "fill": {
+                  "role": "{hue-warning-fill-soft}",
+                  "level": "level-hue-soft-warning"
+                },
+                "ink": {
+                  "role": "{ink-body}",
+                  "level": "level-ink-body"
+                }
+              }
+            },
+            "info": {
+              "rest": {
+                "fill": {
+                  "role": "{hue-info-fill-soft}",
+                  "level": "level-hue-soft-info"
+                },
+                "ink": {
+                  "role": "{ink-body}",
+                  "level": "level-ink-body"
+                }
+              }
+            }
+          }
         },
         "solid": {
           "properties": [
@@ -771,24 +838,53 @@
             "edge",
             "ink"
           ],
-          "states": "static-disabled",
-          "options": [
-            "neutral",
-            "plain",
-            "primary",
-            "danger",
-            "success",
-            "warning",
-            "info",
-            "identity-1",
-            "identity-2",
-            "identity-3",
-            "identity-4",
-            "identity-5",
-            "identity-6",
-            "identity-7",
-            "identity-8"
-          ]
+          "states": "static",
+          "options": {
+            "neutral": {
+              "rest": {
+                "edge": "{edge-marker}",
+                "ink": {
+                  "role": "{ink-muted}",
+                  "level": "level-ink-muted"
+                }
+              }
+            },
+            "plain": {
+              "channel": "--arena-accent-marks-outline-{property}",
+              "rest": {
+                "edge": "{accent-plain-edge}",
+                "ink": {
+                  "role": "{accent-plain-quiet-ink}",
+                  "level": "level-ink-quiet"
+                }
+              }
+            },
+            "primary": {
+              "channel": "--arena-accent-marks-outline-{property}",
+              "rest": {
+                "edge": "{accent-primary-edge}",
+                "ink": "{accent-primary-ink}"
+              }
+            },
+            "danger": {
+              "rest": {
+                "edge": "{hue-danger-edge}",
+                "ink": "{hue-danger-ink}"
+              }
+            },
+            "success": {
+              "rest": {
+                "edge": "{hue-success-edge}",
+                "ink": "{hue-success-ink}"
+              }
+            },
+            "warning": {
+              "rest": {
+                "edge": "{hue-warning-edge}",
+                "ink": "{hue-warning-ink}"
+              }
+            }
+          }
         },
         "dot": {
           "properties": [
@@ -891,7 +987,10 @@
             "neutral-upcoming": {
               "rest": {
                 "fill": "{fill-surface}",
-                "edge": "{edge-control-quiet}",
+                "edge": {
+                  "role": "{edge-mark}",
+                  "level": "level-presence"
+                },
                 "ink": {
                   "role": "{ink-muted}",
                   "level": "level-ink-muted"
@@ -1005,24 +1104,51 @@
             "ink"
           ],
           "states": "static",
-          "options": [
-            "neutral",
-            "plain",
-            "primary",
-            "gold",
-            "danger",
-            "success",
-            "warning",
-            "info",
-            "identity-1",
-            "identity-2",
-            "identity-3",
-            "identity-4",
-            "identity-5",
-            "identity-6",
-            "identity-7",
-            "identity-8"
-          ]
+          "options": {
+            "neutral": {
+              "rest": {
+                "ink": "{ink-heading}"
+              }
+            },
+            "plain": {
+              "channel": "--arena-accent-marks-label-{property}",
+              "rest": {
+                "ink": "{accent-plain-ink}"
+              }
+            },
+            "primary": {
+              "channel": "--arena-accent-marks-label-{property}",
+              "rest": {
+                "ink": "{accent-primary-ink}"
+              }
+            },
+            "gold": {
+              "channel": "--arena-accent-marks-label-{property}",
+              "rest": {
+                "ink": "{accent-gold-ink}"
+              }
+            },
+            "danger": {
+              "rest": {
+                "ink": "{hue-danger-ink}"
+              }
+            },
+            "success": {
+              "rest": {
+                "ink": "{hue-success-ink}"
+              }
+            },
+            "warning": {
+              "rest": {
+                "ink": "{hue-warning-ink}"
+              }
+            },
+            "info": {
+              "rest": {
+                "ink": "{hue-info-ink}"
+              }
+            }
+          }
         }
       }
     },
@@ -1675,7 +1801,33 @@
     "ArenaBadge": {
       "group": "marks",
       "parts": {
-        "root": "marks.soft",
+        "root": {
+          "to": "marks.soft",
+          "options": [
+            "plain",
+            "primary",
+            "gold",
+            "danger",
+            "success",
+            "warning",
+            "info"
+          ],
+          "states": "static",
+          "optionBy": {
+            "axis": "tone",
+            "values": {
+              "danger": "danger",
+              "success": "success",
+              "warning": "warning",
+              "info": "info"
+            }
+          },
+          "channels": {
+            "fill": "--arena-accent-marks-soft-fill",
+            "ink": "--arena-accent-marks-soft-ink"
+          },
+          "wrappedBy": "--arena-mark-{property}"
+        },
         "dot": null
       }
     },
@@ -1694,7 +1846,14 @@
       "parts": {
         "column": "surfaces.sunken",
         "dot": "series",
-        "title": "marks.label",
+        "title": {
+          "to": "marks.label",
+          "options": [
+            "neutral"
+          ],
+          "states": "static",
+          "seriesBy": "colorId"
+        },
         "count": "text.muted",
         "summary": "text.muted"
       }
@@ -1840,7 +1999,7 @@
           ],
           "states": "static"
         },
-        "chip": "marks.soft",
+        "chip": "series",
         "chipBody": null,
         "title": "text.heading",
         "time": "text.muted",
@@ -1917,7 +2076,7 @@
           }
         },
         "icon": "text.muted",
-        "more": "text.key",
+        "more": "marks.outline@neutral",
         "input": {
           "to": "fields.value",
           "options": [],
@@ -3144,8 +3303,48 @@
         "root": "surfaces.card@plain",
         "label": "text.muted",
         "icon": "text.muted",
-        "value": "marks.label",
-        "delta": "marks.outline",
+        "value": {
+          "to": "marks.label",
+          "options": [
+            "plain",
+            "primary",
+            "gold",
+            "danger",
+            "success",
+            "warning",
+            "info"
+          ],
+          "states": "static",
+          "optionBy": {
+            "axis": "tone",
+            "values": {
+              "danger": "danger",
+              "success": "success",
+              "warning": "warning",
+              "info": "info"
+            }
+          },
+          "channels": {
+            "ink": "--arena-accent-marks-label-ink"
+          }
+        },
+        "delta": {
+          "to": "marks.outline",
+          "options": [
+            "neutral",
+            "success",
+            "danger"
+          ],
+          "states": "static",
+          "optionBy": {
+            "axis": "deltaTone",
+            "values": {
+              "neutral": "neutral",
+              "positive": "success",
+              "negative": "danger"
+            }
+          }
+        },
         "sub": "text.muted"
       }
     },
@@ -3311,7 +3510,30 @@
     "ArenaTag": {
       "group": "marks",
       "parts": {
-        "root": "marks.outline",
+        "root": {
+          "to": "marks.outline",
+          "options": [
+            "plain",
+            "primary",
+            "danger",
+            "success",
+            "warning"
+          ],
+          "states": "static",
+          "optionBy": {
+            "axis": "tone",
+            "values": {
+              "danger": "danger",
+              "success": "success",
+              "warning": "warning"
+            }
+          },
+          "channels": {
+            "edge": "--arena-accent-marks-outline-edge",
+            "ink": "--arena-accent-marks-outline-ink"
+          },
+          "seriesBy": "colorId"
+        },
         "dot": null,
         "close": {
           "to": "actions.dismiss",

@@ -78,7 +78,7 @@
       "tone": "neutral",
       "state": "upcoming",
       "class": {
-        "dot": "bg-[color:var(--marks-neutral-upcoming-dot-fill-rest,var(--fill-surface))] border-[color:var(--marks-neutral-upcoming-dot-edge-rest,var(--edge-control-quiet))] text-[color:color-mix(in_oklab,var(--marks-neutral-upcoming-dot-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]"
+        "dot": "bg-[color:var(--marks-neutral-upcoming-dot-fill-rest,var(--fill-surface))] border-[color:color-mix(in_oklab,var(--marks-neutral-upcoming-dot-edge-rest,var(--edge-mark))_var(--level-presence),transparent)] text-[color:color-mix(in_oklab,var(--marks-neutral-upcoming-dot-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]"
       }
     },
     {

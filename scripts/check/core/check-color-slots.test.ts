@@ -147,18 +147,18 @@ test('a member part on an option its manifest lacks, or a part its manifest lack
 
 test('the contract counts', () => {
   const slots = Object.values(shipped().slots);
-  assert.equal(slots.length, 389);
+  assert.equal(slots.length, 423);
   const by = (key: (s: (typeof slots)[number]) => string) => {
     const n: Record<string, number> = {};
     for (const s of slots) n[key(s)] = (n[key(s)] ?? 0) + 1;
     return n;
   };
-  assert.deepEqual(by((s) => s.option ?? ''), { '': 111, primary: 19, secondary: 16, ghost: 32, solid: 32, destructive: 28, neutral: 13, muted: 2, error: 10, valid: 7, readonly: 2, warning: 9, plain: 21, quiet: 2, complete: 4, current: 4, upcoming: 4, danger: 8, success: 8, info: 8, gold: 4, ...Object.fromEntries(['neutral', 'danger', 'success', 'warning', 'info'].flatMap((tone) => ['complete', 'current', 'upcoming'].map((state) => [`${tone}-${state}`, 3]))) });
-  assert.deepEqual(by((s) => s.state), { rest: 184, disabled: 47, hover: 48, pressed: 40, selected: 25, 'selected-hover': 14, 'selected-pressed': 14, 'selected-disabled': 17 });
+  assert.deepEqual(by((s) => s.option ?? ''), { '': 111, primary: 24, secondary: 16, ghost: 32, solid: 32, destructive: 28, neutral: 16, muted: 2, error: 10, valid: 7, readonly: 2, warning: 14, plain: 26, quiet: 2, complete: 4, current: 4, upcoming: 4, danger: 13, success: 13, info: 11, gold: 7, ...Object.fromEntries(['neutral', 'danger', 'success', 'warning', 'info'].flatMap((tone) => ['complete', 'current', 'upcoming'].map((state) => [`${tone}-${state}`, 3]))) });
+  assert.deepEqual(by((s) => s.state), { rest: 218, disabled: 47, hover: 48, pressed: 40, selected: 25, 'selected-hover': 14, 'selected-pressed': 14, 'selected-disabled': 17 });
   assert.equal(slots.filter((s) => s.optional).length, 64);
   assert.equal(slots.filter((s) => s.derive?.mix === 'mix-pressed').length, 19);
   assert.equal(slots.filter((s) => s.derive?.mix === 'mix-hover').length, 7);
-  assert.equal(slots.filter((s) => s.channel === undefined).length, 284, 'the destructive option, the dismiss part and the choices, fields, menus, navigation, steps, feedback, marks, meters, data, surfaces and overlays groups carry no channel, bar the accent edge, the accent dot ink and the accent meter track (D95)');
+  assert.equal(slots.filter((s) => s.channel === undefined).length, 305, 'the destructive option, the dismiss part and the choices, fields, menus, navigation, steps, feedback, marks, meters, data, surfaces and overlays groups carry no channel, bar the accent edge, the accent dot ink, the accent soft, outline and label marks and the accent meter track (D95)');
 });
 
 test('every slot of the five buttons reaches its part under its state', () => {
@@ -1243,6 +1243,9 @@ test('an accent answer clears an option only where the member reads it through c
 
 test('the presence level is held to a mark pair and a mark slot chain', () => {
   assert.deepEqual(presenceProblems(shipped(), manifests), []);
+  assert.equal(shipped().slots['marks-neutral-upcoming-dot-edge-rest']?.level, 'level-presence', 'the ring a mark part draws pairs at 3:1 over the ground, so it may carry the presence level (D97)');
+  const unpaired = edit((c) => { c.slots['marks-tile-edge-rest']!.level = 'level-presence'; });
+  assert.ok(presenceProblems(unpaired, manifests).includes('marks-tile-edge-rest carries level-presence and is measured in no pair, so nothing holds it to the mark it is gated as'), presenceProblems(unpaired, manifests).join('\n'));
   const text = edit((c) => { c.slots['feedback-neutral-action-ink-rest']!.level = 'level-presence'; });
   assert.ok(presenceProblems(text, manifests).some((l) => /feedback-neutral-action-ink-rest carries level-presence and pairs at 4\.5:1/.test(l)), presenceProblems(text, manifests).join('\n'));
   const loose = structuredClone(manifests) as Map<string, any>;
@@ -1382,6 +1385,16 @@ test('seriesBy branches read only hue channels', () => {
   const twice = titleDeclared();
   (twice.members!.ArenaTitle!.parts.title as MemberDecl).optionBy = { axis: 'colorId', values: {} };
   assert.ok(declarationProblems(twice).some((l) => l === 'members.ArenaTitle.parts.title.seriesBy: it shares the axis colorId with optionBy'), declarationProblems(twice).join('\n'));
+});
+
+test('a seriesBy member reads a channelled option through its channel outside the series branches', () => {
+  const d = slotFixture({ label: { properties: ['ink'], states: ['rest'], options: { plain: { channel: '--arena-accent-marks-label-{property}', rest: { ink: '{ink-body}' } } } } },
+    { ArenaTitle: { group: 'marks', parts: { title: { to: 'marks.label', options: ['plain'], states: ['rest'], channels: { ink: '--arena-accent-marks-label-ink' }, seriesBy: 'colorId' } } } }, 'marks');
+  const c = deriveSlots(d);
+  const hue = 'text-[color:var(--arena-hue-ink)]';
+  assert.deepEqual(seriesByProblems(c, titleManifest('text-[color:var(--arena-accent-marks-label-ink)]', hue), colourNames()), []);
+  assert.deepEqual(seriesByProblems(c, titleManifest('text-[color:var(--arena-accent-marks-dot-ink)]', hue), colourNames()),
+    ['ArenaTitle.title: it reads text-[color:var(--arena-accent-marks-dot-ink)] in the base class, and outside its colorId branches a seriesBy member reads only its slots']);
 });
 
 test('an edge drawn as a fill is read inside bg-[color:]', () => {

@@ -1,13 +1,13 @@
 /* Contrast per colour slot and per state. A slot resolves down its chain, an answer of the plugin
- * first, else the kernel default by the rules slots.ts writes as CSS, to a palette colour at an
- * alpha; a level or a mix toward the ink makes the alpha, and the ground a caller names is what a
- * part with no fill, or a wash, stands on. A disabled and a selected-disabled slot is never a pair
- * (WCAG exempts an inactive control), and disabledReports only says when one is not told from its
- * rest. An answer sits inside the level its channel carries, as the emphasis sheet writes it, a
- * member default is measured as the member paints it, where it moves a pair, and a member ground
- * (D96) measures again over the fill the member paints on. Imports nothing outside this directory,
- * because the command ships it. A pair of a part on another part's fill is a mark at 3:1 (D69) unless
- * it sits over it and keeps each floor (D89), as is every pair of a mark part, fill over ground too (D92). */
+ * first, else the kernel default by the rules slots.ts writes as CSS, to a palette colour at an alpha;
+ * a level or a mix toward the ink makes the alpha, and the ground a caller names is what a part with no
+ * fill, or a wash, stands on. A disabled and a selected-disabled slot is never a pair (WCAG exempts an
+ * inactive control), and disabledReports only says when one is not told from its rest. An answer sits
+ * inside the level its channel carries, a member default is measured as the member paints it, where it
+ * moves a pair, and a member ground (D96) measures again over the fill the member paints on. Imports
+ * nothing outside this directory, because the command ships it. A pair on another part's fill is a mark
+ * at 3:1 (D69) unless it sits over it and keeps each floor (D89), as is every pair of a mark part: its
+ * fill over the ground where it draws no ring (D92), else that rest ring over the ground (D97). */
 
 import { contrast } from './validate-palette.mjs';
 import { composite, mixOklab, oklabToHex, toOklab } from './oklab.ts';
@@ -143,6 +143,7 @@ export function slotPairs(catalogue: MeasuredSlots): SlotPair[] {
   }).map(wholeOf));
   const isMark = (slot: ColorSlot) => slot.pair === 'mark' || (slot.pair !== 'own' && marks.has(wholeOf(slot)));
   for (const [name, slot] of Object.entries(catalogue.slots)) {
+    if (slot.property === 'edge' && slot.state === 'rest' && slot.pair === 'mark' && slot.default !== 'transparent') out.push({ slot: name, over: 'ground', min: MARK_MIN });
     if (!slot.on || OFF.has(slot.state) || (slot.on !== 'ground' && !catalogue.slots[slot.on])) continue;
     if (slot.property === 'fill') out.push({ slot: name, over: slot.on, min: MARK_MIN });
     else if (slot.property === 'ink') out.push({ slot: name, over: slot.on, min: isMark(slot) ? MARK_MIN : TEXT_MIN });

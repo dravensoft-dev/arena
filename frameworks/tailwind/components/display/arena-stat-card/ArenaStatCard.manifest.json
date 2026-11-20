@@ -16,7 +16,7 @@
     "head": "flex items-center justify-between gap-items",
     "label": "font-face-label text-label tracking-label-role case-label text-ink-muted/(--level-ink-muted)",
     "icon": "inline-flex text-[length:var(--icon-sm)] text-ink-muted/(--level-ink-muted) opacity-60",
-    "value": "font-face-heading font-heading text-h2 leading-snug tabular-nums tracking-heading text-[color:var(--arena-accent-ink,var(--accent-plain-ink))]",
+    "value": "font-face-heading font-heading text-h2 leading-snug tabular-nums tracking-heading text-[color:var(--arena-accent-marks-label-ink)]",
     "delta": "self-start inline-flex items-center gap-1 rounded-marker px-2 py-0.5 bg-transparent border-[length:var(--bw-marker)] font-body text-ctl-sm font-semibold",
     "sub": "font-body text-ctl-sm text-ink-muted/(--level-ink-muted)"
   },
@@ -36,46 +36,32 @@
     "tone": {
       "neutral": {},
       "success": {
-        "value": "text-[color:var(--arena-hue-ink)]"
+        "value": "text-[color:var(--marks-success-label-ink-rest,var(--hue-success-ink))]"
       },
       "warning": {
-        "value": "text-[color:var(--arena-hue-ink)]"
+        "value": "text-[color:var(--marks-warning-label-ink-rest,var(--hue-warning-ink))]"
       },
       "danger": {
-        "value": "text-[color:var(--arena-hue-ink)]"
+        "value": "text-[color:var(--marks-danger-label-ink-rest,var(--hue-danger-ink))]"
       },
       "info": {
-        "value": "text-[color:var(--arena-hue-ink)]"
+        "value": "text-[color:var(--marks-info-label-ink-rest,var(--hue-info-ink))]"
       }
     },
     "deltaTone": {
       "neutral": {
-        "delta": "border-edge-marker text-ink-muted/(--level-ink-muted)"
+        "delta": "border-[color:var(--marks-neutral-outline-edge-rest,var(--edge-marker))] text-[color:color-mix(in_oklab,var(--marks-neutral-outline-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]"
       },
       "positive": {
-        "delta": "border-[color:var(--arena-hue-edge)] text-[color:var(--arena-hue-ink)]"
+        "delta": "border-[color:var(--marks-success-outline-edge-rest,var(--hue-success-edge))] text-[color:var(--marks-success-outline-ink-rest,var(--hue-success-ink))]"
       },
       "negative": {
-        "delta": "border-[color:var(--arena-hue-edge)] text-[color:var(--arena-hue-ink)]"
+        "delta": "border-[color:var(--marks-danger-outline-edge-rest,var(--hue-danger-edge))] text-[color:var(--marks-danger-outline-ink-rest,var(--hue-danger-ink))]"
       }
     }
   },
   "defaultVariants": {
     "tone": "neutral",
     "deltaTone": "neutral"
-  },
-  "hues": {
-    "tone": {
-      "neutral": null,
-      "success": "success",
-      "warning": "warning",
-      "danger": "danger",
-      "info": "info"
-    },
-    "deltaTone": {
-      "neutral": null,
-      "positive": "success",
-      "negative": "danger"
-    }
   }
 }

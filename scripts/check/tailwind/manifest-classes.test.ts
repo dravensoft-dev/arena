@@ -14,19 +14,19 @@ const tag = readJson(join(repoRoot, 'frameworks/tailwind/components/display/aren
 test('the default variants apply when nothing is chosen', () => {
   const { root = '', dot = '' } = classesFor(tag);
   assert.ok(root.includes('rounded-marker'), 'the base slot is present');
-  assert.ok(root.includes('border-[color:var(--arena-accent-edge,var(--accent-plain-edge))]'), 'tone=neutral is the default, and it adds no class of its own');
+  assert.ok(root.includes('border-[color:var(--arena-accent-marks-outline-edge)]'), 'tone=neutral is the default, and it adds no class of its own');
   assert.equal(dot, 'size-1.5 rounded-pill bg-current');
 });
 
 test('a chosen variant replaces the default', () => {
   const { root = '' } = classesFor(tag, { tone: 'danger' });
-  assert.ok(root.includes('border-[color:var(--arena-hue-edge)]'), 'the chosen tone applies');
+  assert.ok(root.includes('border-[color:var(--marks-danger-outline-edge-rest,var(--hue-danger-edge))]'), 'the chosen tone applies');
   assert.ok(!root.includes('border-base-300'), 'the default tone does not');
 });
 
 test('the base slot always precedes the variant slot', () => {
   const { root = '' } = classesFor(tag, { tone: 'danger' });
-  assert.ok(root.indexOf('inline-flex') < root.indexOf('border-[color:var(--arena-hue-edge)]'));
+  assert.ok(root.indexOf('inline-flex') < root.indexOf('border-[color:var(--marks-danger-outline-edge-rest,var(--hue-danger-edge))]'));
 });
 
 test('an unknown variant value is a loud failure, not a silent base-only render', () => {

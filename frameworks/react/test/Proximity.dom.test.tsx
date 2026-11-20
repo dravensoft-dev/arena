@@ -205,6 +205,14 @@ const COMPOSITIONS: Record<string, () => React.ReactElement> = {
     <ArenaProgressBar label="Upload" progressPercentage={40} />
   </div>,
   'hover-answer-is-not-derived-from-the-rest-answer': () => <div style={answered({ '--actions-primary-root-fill-rest': 'var(--fill-surface)', '--actions-primary-root-fill-hover': 'var(--fill-hover)' })}><ArenaButton>Save</ArenaButton></div>,
+  'tag-colour-id-outranks-its-tone': () => <div style={answered({ '--marks-success-outline-edge-rest': 'var(--hue-info-edge)' })}>
+    <ArenaTag colorId={3} tone="success">Backend</ArenaTag>
+    <ArenaTag tone="success">Shipped</ArenaTag>
+  </div>,
+  'solid-badge-ignores-the-soft-answer': () => <div style={answered({ '--marks-plain-soft-fill-rest': 'var(--hue-info-fill-strong)' })}>
+    <ArenaBadge className="arena-mark-solid">Live</ArenaBadge>
+    <ArenaBadge>Draft</ArenaBadge>
+  </div>,
 };
 
 const DRAGGED = new Set(['fields-error-zone-keeps-its-edge-while-dragged']);
@@ -285,6 +293,8 @@ const SUBJECT: Record<string, { part: string; at: number }> = {
   'accent-answer-leaves-the-default-accent-and-a-tone': { part: 'meter.track', at: 0 },
   'ring-track-follows-the-track-fill': { part: 'progress-bar.ring-track', at: 0 },
   'linear-track-follows-the-track-fill': { part: 'progress-bar.track', at: 0 },
+  'tag-colour-id-outranks-its-tone': { part: 'tag', at: 0 },
+  'solid-badge-ignores-the-soft-answer': { part: 'badge', at: 0 },
 };
 
 const { families, cases } = readProximity();

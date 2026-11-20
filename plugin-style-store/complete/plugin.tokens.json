@@ -2257,6 +2257,26 @@
     "$type": "color",
     "$value": "{ink-invalid}"
   },
+  "marks-danger-label-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "marks-danger-outline-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "marks-danger-outline-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "marks-danger-soft-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-track}"
+  },
+  "marks-danger-soft-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-figure}"
+  },
   "marks-danger-upcoming-dot-edge-rest": {
     "$type": "color",
     "$value": "{edge-invalid}"
@@ -2272,6 +2292,14 @@
   "marks-gold-dot-ink-rest": {
     "$type": "color",
     "$value": "{ink-knob-off}"
+  },
+  "marks-gold-label-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-knob-off}"
+  },
+  "marks-gold-soft-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-figure}"
   },
   "marks-info-complete-dot-fill-rest": {
     "$type": "color",
@@ -2292,6 +2320,18 @@
   "marks-info-current-dot-ink-rest": {
     "$type": "color",
     "$value": "{ink-invalid}"
+  },
+  "marks-info-label-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "marks-info-soft-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-track}"
+  },
+  "marks-info-soft-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-figure}"
   },
   "marks-info-upcoming-dot-edge-rest": {
     "$type": "color",
@@ -2329,6 +2369,18 @@
     "$type": "color",
     "$value": "{ink-figure}"
   },
+  "marks-neutral-label-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-eyebrow}"
+  },
+  "marks-neutral-outline-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-surface}"
+  },
+  "marks-neutral-outline-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-figure}"
+  },
   "marks-neutral-upcoming-dot-edge-rest": {
     "$type": "color",
     "$value": "{edge-field}"
@@ -2341,9 +2393,49 @@
     "$type": "color",
     "$value": "{ink-figure}"
   },
+  "marks-plain-label-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-figure}"
+  },
+  "marks-plain-outline-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-surface}"
+  },
+  "marks-plain-outline-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-figure}"
+  },
+  "marks-plain-soft-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-track}"
+  },
+  "marks-plain-soft-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-figure}"
+  },
   "marks-primary-dot-ink-rest": {
     "$type": "color",
     "$value": "{ink-heading}"
+  },
+  "marks-primary-label-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-heading}"
+  },
+  "marks-primary-outline-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-control}"
+  },
+  "marks-primary-outline-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-heading}"
+  },
+  "marks-primary-soft-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-selected}"
+  },
+  "marks-primary-soft-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-figure}"
   },
   "marks-success-complete-dot-fill-rest": {
     "$type": "color",
@@ -2364,6 +2456,26 @@
   "marks-success-current-dot-ink-rest": {
     "$type": "color",
     "$value": "{ink-invalid}"
+  },
+  "marks-success-label-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "marks-success-outline-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "marks-success-outline-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "marks-success-soft-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-track}"
+  },
+  "marks-success-soft-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-figure}"
   },
   "marks-success-upcoming-dot-edge-rest": {
     "$type": "color",
@@ -2408,6 +2520,26 @@
   "marks-warning-current-dot-ink-rest": {
     "$type": "color",
     "$value": "{ink-invalid}"
+  },
+  "marks-warning-label-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "marks-warning-outline-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "marks-warning-outline-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "marks-warning-soft-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-track}"
+  },
+  "marks-warning-soft-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-figure}"
   },
   "marks-warning-upcoming-dot-edge-rest": {
     "$type": "color",

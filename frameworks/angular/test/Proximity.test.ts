@@ -195,6 +195,8 @@ const TEMPLATES: Record<string, string> = {
   'ring-track-follows-the-track-fill': '<div style="--meters-primary-track-fill-rest: var(--hue-info-fill-strong)"><arena-progress-bar shape="radial" label="Upload" [progressPercentage]="40" /></div>',
   'linear-track-follows-the-track-fill': '<div style="--meters-primary-track-fill-rest: var(--hue-info-fill-strong)"><arena-progress-bar label="Upload" [progressPercentage]="40" /></div>',
   'hover-answer-is-not-derived-from-the-rest-answer': '<div style="--actions-primary-root-fill-rest: var(--fill-surface); --actions-primary-root-fill-hover: var(--fill-hover)"><arena-button>Save</arena-button></div>',
+  'tag-colour-id-outranks-its-tone': '<div style="--marks-success-outline-edge-rest: var(--hue-info-edge)"><arena-tag [colorId]="3" tone="success">Backend</arena-tag><arena-tag tone="success">Shipped</arena-tag></div>',
+  'solid-badge-ignores-the-soft-answer': '<div style="--marks-plain-soft-fill-rest: var(--hue-info-fill-strong)"><arena-badge class="arena-mark-solid">Live</arena-badge><arena-badge>Draft</arena-badge></div>',
 };
 
 const BARE = new Set(['toast-tone-beats-its-accent', 'meaning-wins-over-accent', 'accent-stops-at-the-card-body', 'small-badge-compacts-itself', 'small-badge-tightens-its-block', 'small-badge-tightens-its-ends']);
@@ -273,6 +275,8 @@ const SUBJECT: Record<string, { part: string; index: number }> = {
   'accent-answer-leaves-the-default-accent-and-a-tone': { part: 'meter.track', index: 0 },
   'ring-track-follows-the-track-fill': { part: 'progress-bar.ring-track', index: 0 },
   'linear-track-follows-the-track-fill': { part: 'progress-bar.track', index: 0 },
+  'tag-colour-id-outranks-its-tone': { part: 'tag', index: 0 },
+  'solid-badge-ignores-the-soft-answer': { part: 'badge', index: 0 },
 };
 
 const OPENED = new Set(['menu-answer-moves-every-highlight', 'blocked-option-fades-until-answered', 'blocked-active-option-fades-until-answered', 'blocked-active-option-keeps-its-selected-wash']);

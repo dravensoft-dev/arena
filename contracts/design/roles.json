@@ -1419,7 +1419,7 @@
   },
   "edge-marker": {
     "$type": "color",
-    "$description": "The colour of the ring around a MARKER: an avatar, a delta badge. Born at\nneutral, which both slots name. The counterpart to bw-marker, and it exists for the reason that\nrole does: a marker is neither a surface nor a control, and without its own role a dozen\nidentical exceptions collect in check:roles.\n\nA tag takes edge-surface rather than this, although a tag is a marker by radius. It is drawn as\na small panel rather than as a ring, at base-300, and it is recorded here rather than folded in\nso the difference stays visible.",
+    "$description": "The colour of the ring around a MARKER: an avatar, and the neutral outline mark a delta badge,\na combobox's overflow count and a pinned toast's label read. Born at neutral, which those slots name. The counterpart to bw-marker, and it exists for the reason that\nrole does: a marker is neither a surface nor a control, and without its own role a dozen\nidentical exceptions collect in check:roles.\n\nA tag takes edge-surface rather than this, although a tag is a marker by radius. It is drawn as\na small panel rather than as a ring, at base-300, and it is recorded here rather than folded in\nso the difference stays visible.",
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
@@ -1436,7 +1436,7 @@
   },
   "edge-mark": {
     "$type": "color",
-    "$description": "The ring of the current neutral marker: the border of the timeline milestone a reader is at, drawn around a disc filled with the surface. Read through the marks group's dot at its neutral-current option.\n\nSeparate from edge-control and edge-marker because the ring says where the reader is, which neither a control's frame nor an avatar's ring says: a style plugin that quiets its control frames keeps the current milestone as plain as before.\n\nAn assignment and never a value, like every colour role: WHICH of the consumer's colours, never what that colour is.",
+    "$description": "The ring of a neutral timeline milestone drawn around a disc filled with the surface: the milestone a reader is at, and at the presence level the one still ahead, whose ring tells its disc from the page at 3:1 (D97). Read through the marks group's dot at its neutral-current and neutral-upcoming options.\n\nSeparate from edge-control and edge-marker because the ring says where the reader is, which neither a control's frame nor an avatar's ring says: a style plugin that quiets its control frames keeps the current milestone as plain as before.\n\nAn assignment and never a value, like every colour role: WHICH of the consumer's colours, never what that colour is.",
     "$extensions": {
       "com.dravensoft.arena": {
         "default": "{color.base-content}",

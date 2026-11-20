@@ -44,8 +44,8 @@ and a project name are identities, so they take a ramp slot and keep it everywhe
 <!-- @keys end -->
 
 **Do / Don't**
-- Use `tone="danger"` for a blocked/destructive status: the chip's border and
-  text render in the danger hue (`--arena-hue-ink`), over the danger hue's soft wash.
+- Use `tone="danger"` for a blocked/destructive status: the tag's border and
+  text render in the danger hue's edge and ink, the `marks.outline` danger slots.
 - The leading dot is filled (`bg-current`, coloured by `tone`) even for `tone="danger"`. A tone dot is an identity mark rather than a danger surface, in the same family as `ArenaActivityFeed`'s own dot and `ArenaAvatar`'s presence dot.
 - Use `removable` only when removing the tag is a real user action (applied
   filters), not on informational tags, and handle `(remove)`, or the × has

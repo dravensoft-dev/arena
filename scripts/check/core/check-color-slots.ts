@@ -814,7 +814,10 @@ export function seriesByProblems(c: SlotCatalogue, manifests: Manifests, names: 
     const manifest = manifests.get(comp);
     if (axis === undefined || !manifest) continue;
     if (!Object.hasOwn(manifest.hues ?? {}, axis)) { out.push(`${key}: seriesBy names ${axis}, and ${comp} declares no hues entry for it`); continue; }
-    const slots = memberSlotNames(c, m).map((name) => `var(--${name},`);
+    const slots = memberSlotNames(c, m).flatMap((name) => {
+      const channel = memberChannel(m, c.slots[name] as ColorSlot);
+      return channel === undefined ? [`var(--${name},`] : [`var(--${name},`, `var(${channel})`, `var(${channel},`];
+    });
     for (const [where, classes, series] of classPlaces(manifest, part, (one) => one === axis)) {
       for (const token of classes.split(/\s+/).filter(Boolean)) {
         const read = colourToken(token, names);

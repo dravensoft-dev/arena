@@ -10,7 +10,7 @@ import { tokenCatalogue } from '../../../lib/arena/package-assembly.ts';
 import { repoRoot } from '../../../lib/arena/repo-root.ts';
 import { fadeMarkers, memberValue } from './slots.ts';
 import type { SlotCatalogue } from './slots.ts';
-import { deriveSlots } from '../../../lib/core/color-slots.ts';
+import { deriveSlots, readSlotDeclarations } from '../../../lib/core/color-slots.ts';
 import type { GroupPart } from '../../../lib/core/color-slots.ts';
 import { slotFixture } from '../../../lib/core/color-slots-fixture.ts';
 
@@ -58,13 +58,14 @@ test('a ghost pair is measured over each ground', () => {
   assert.ok(ghost.every((one) => /composited over --color-base-\d+/.test(one.message)));
 });
 
-test('a rest edge is not a slot pair, a selected edge is', () => {
+test('a rest edge is not a slot pair, a selected edge and the rest ring of a mark part are', () => {
   const pairs = slotPairs(CATALOGUE.slots);
   assert.equal(pairs.some((pair) => pair.slot === 'actions-secondary-root-edge-rest'), false);
   assert.equal(pairs.some((pair) => pair.slot === 'actions-ghost-root-edge-hover'), false);
-  const selected = pairs.filter((pair) => SLOTS[pair.slot]?.property === 'edge');
-  assert.ok(selected.length > 0);
-  assert.ok(selected.every((pair) => SLOTS[pair.slot]?.state.startsWith('selected') && pair.min === 3));
+  const edges = pairs.filter((pair) => SLOTS[pair.slot]?.property === 'edge');
+  const ring = (pair: { slot: string; over: string }) => SLOTS[pair.slot]?.pair === 'mark' && SLOTS[pair.slot]?.state === 'rest' && pair.over === 'ground';
+  assert.ok(edges.some((pair) => !ring(pair)) && edges.some(ring));
+  assert.ok(edges.every((pair) => (SLOTS[pair.slot]?.state.startsWith('selected') || ring(pair)) && pair.min === 3));
   assert.equal(pairs.some((pair) => /disabled$/.test(SLOTS[pair.slot]?.state ?? '') || /disabled$/.test(SLOTS[pair.over]?.state ?? '')), false,
     'a disabled and a selected-disabled slot is never a pair');
   const mark = (name: string) => (SLOTS[name]?.group === 'choices' && ['mark', 'knob'].includes(SLOTS[name]?.part ?? '')) || (SLOTS[name]?.group === 'feedback' && SLOTS[name]?.part === 'icon')
@@ -496,5 +497,29 @@ test('the shipped member grounds clear their floors in the default', () => {
   for (const theme of ['dark', 'light'] as const) {
     const lines = slotReports(CATALOGUE.slots, new Map(), rolesFor(null, CATALOGUE, theme), coloursOf(theme), theme, LEVELS).map((one) => one.message);
     assert.deepEqual(lines.filter((line) => / as Arena[A-Za-z]+\.[a-z]+ paints it over /.test(line)), [], theme);
+  }
+});
+
+test('a mark part pairs the ring that tells its disc', () => {
+  const ring = 'marks-neutral-upcoming-dot-edge-rest';
+  assert.deepEqual(slotPairs(CATALOGUE.slots).filter((pair) => pair.slot === ring), [{ slot: ring, over: 'ground', min: 3 }]);
+  const d = readSlotDeclarations();
+  const dot = d.groups!.marks!.parts.dot!.options as Record<string, { rest: Record<string, unknown> }>;
+  dot['neutral-upcoming']!.rest.edge = '{edge-control-quiet}';
+  const quiet = slotReports(deriveSlots(d), new Map(), rolesFor(null, CATALOGUE, 'dark'), coloursOf('dark'), 'dark', LEVELS).map((one) => one.message);
+  assert.ok(quiet.some((line) => line.startsWith(`--${ring} measures 1.06:1 over the ground in the rest state of the dark theme, where it is composited over --color-base-200,`)), quiet.join('\n'));
+  const rings = slotPairs(CATALOGUE.slots).filter((pair) => /^marks-.+-dot-edge-rest$/.test(pair.slot));
+  assert.equal(rings.length, 11, 'every ring a dot draws is measured, and a border painted its own fill is not');
+  for (const theme of ['dark', 'light'] as const) {
+    const roles = rolesFor(null, CATALOGUE, theme);
+    const colors = coloursOf(theme);
+    for (const ground of ['base-100', 'base-200']) {
+      const under = colors[ground] as string;
+      for (const pair of rings) {
+        const ratio = contrast(slotColour(CATALOGUE.slots, pair.slot, new Map(), roles, colors, LEVELS, mixOf(roles), under) as string, under);
+        const floor = pair.slot === ring ? 3.46 : 4.77;
+        assert.ok(ratio >= floor - 0.005, `${theme} ${pair.slot} over ${ground}: ${ratio.toFixed(2)}, below ${floor}`);
+      }
+    }
   }
 });
