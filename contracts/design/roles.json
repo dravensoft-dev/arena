@@ -1658,7 +1658,7 @@
   },
   "mix-hover": {
     "$type": "number",
-    "$description": "The share a selected part's fill moves toward its selected ink under the pointer, in OKLab: the selected-hover state. A part at rest under the pointer paints its rest answer, or the hover role its group lists, and never this mix. A number and never a colour, so a style plugin that wants a firmer hover answers a share and the part keeps reading as itself. A selected part's edge follows its fill under the pointer by the same share, toward the same ink, so the edge that marks the selection keeps its distance from the wash it sits on. ArenaTabs has no fill, so only its edge moves.",
+    "$description": "The share a selected part's fill moves toward its selected ink under the pointer, in OKLab: the selected-hover state. An unselected part under the pointer paints its rest answer, or the hover role its group lists, and never this mix. A number and never a colour, so a style plugin that wants a firmer hover answers a share and the part keeps reading as itself. A selected part's edge follows its fill under the pointer by the same share, toward the same ink, so the edge that marks the selection keeps its distance from the wash it sits on. ArenaTabs has no fill, so only its edge moves.",
     "$extensions": {
       "com.dravensoft.arena": {
         "default": "{blend.hover}",

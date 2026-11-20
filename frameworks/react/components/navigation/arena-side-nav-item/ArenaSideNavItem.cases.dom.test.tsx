@@ -1,5 +1,5 @@
 /* The item renders an <a href> or a <button>, so no single interactive pattern always applies --
- * which is why it bound `none` with prose until the schema could say "this pattern
+ * which is why it bound `none` with prose for as long as the schema could not say "this pattern
  * applies only when href is absent". It can, so it does. The `link` case binds `none` on purpose:
  * there is no link pattern, because a link's role, keyboard and focusability all come from the
  * platform, and `none` there means "verified presentational" only in the sense that this
@@ -7,16 +7,16 @@
  * `states.disabled` is BEHAVIOURAL, so the verdict below is earned by rendering a disabled item
  * and acting on it rather than declared. The component gained `disabled` because casing it made
  * the gap visible: bound to `none` the requirement never applied, and a real <button> with no
- * disabled concept read as having no interactive pattern at all. The fade's slots: the sheet below. */
+ * disabled concept read as having no interactive pattern at all. The last case reads the generated sheet for the fade's slots. */
 import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import React from 'react';
 import { mount, cleanup, act } from '../../../test/Harness.tsx';
 import { assertPatternCases, REACT_COMPONENTS } from '../../../test/AssertPattern.tsx';
 import { commandButtonVerdict } from '../../../test/StateVerdicts.ts';
 import { ArenaSideNav } from '../arena-side-nav/ArenaSideNav.tsx';
-import { readFileSync } from 'node:fs';
 import { ArenaSideNavItem } from './ArenaSideNavItem.tsx';
 
 afterEach(cleanup);
@@ -107,7 +107,7 @@ test('a native button answers Enter and Space without the component handling eit
     + 'which is exactly why keyboard.Enter and keyboard.Space are BEHAVIOURAL and declared rather than measured here');
 });
 
-const SIDE_NAV_SHEET = readFileSync(new URL('../../../../tailwind/consume/components/navigation/arena-side-nav/ArenaSideNav.styles.generated.css', import.meta.url), 'utf8');
+const SIDE_NAV_SHEET = new URL('../../../../tailwind/consume/components/navigation/arena-side-nav/ArenaSideNav.styles.generated.css', import.meta.url);
 
 test('a disabled item fades through its own slot, and a current one through the selected-disabled slot', () => {
   const root = mount(
@@ -121,7 +121,8 @@ test('a disabled item fades through its own slot, and a current one through the 
   assert.equal(rest.hasAttribute('aria-current'), false, 'and the other is not');
   assert.equal(current.getAttribute('aria-disabled'), 'true');
   assert.equal(rest.getAttribute('aria-disabled'), 'true');
-  assert.match(SIDE_NAV_SHEET, /opacity:\s*var\(--navigation-item-fade-disabled,/);
-  assert.match(SIDE_NAV_SHEET, /opacity:\s*var\(--navigation-item-fade-selected-disabled,/);
-  assert.match(SIDE_NAV_SHEET, /\[aria-disabled="true"\]\s*\{\s*&:active\s*\{\s*--tw-scale-x: 100%/, 'a refused item does not press');
+  const css = readFileSync(SIDE_NAV_SHEET, 'utf8');
+  assert.match(css, /opacity:\s*var\(--navigation-item-fade-disabled,/);
+  assert.match(css, /opacity:\s*var\(--navigation-item-fade-selected-disabled,/);
+  assert.match(css, /\[aria-disabled="true"\]\s*\{\s*&:active\s*\{\s*--tw-scale-x: 100%/, 'a refused item does not press');
 });

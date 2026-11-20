@@ -405,5 +405,5 @@ test('the navigation edge and the hover mix are described by what they paint', (
   const mix = shipped['mix-hover'];
   assert.equal(mix.$extensions['com.dravensoft.arena'].question, "How far toward its ink does a selected part's fill move under the pointer?");
   assert.match(mix.$description, /selected-hover/);
-  assert.match(mix.$description, /at rest under the pointer paints its rest answer/);
+  assert.match(mix.$description, /unselected part under the pointer paints its rest answer/);
 });

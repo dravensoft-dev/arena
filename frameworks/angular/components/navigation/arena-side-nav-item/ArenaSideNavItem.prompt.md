@@ -61,7 +61,7 @@ Arena draws as an `aria-hidden` `<i>`, the single-icon convention, never a proje
   still a change to the contract rather than to a caller.
 
 - **`disabled` draws the destination and refuses it.** The member reflects through `aria-disabled` rather than by not rendering the item. An unavailable destination a user can see, and hear announced as unavailable, is what tells them it exists. The anchor keeps its `href`, so the shape does not
-  change; what changes is that the click is prevented and the nav is never told to activate. The item fades by `fade-disabled`, and the `navigation-item-*-disabled` and `*-selected-disabled` slots answer it, as on ArenaBottomNav; it does not scale when pressed.
+  change; what changes is that the click is prevented and the nav is never told to activate. The item fades by `fade-disabled`, and a plugin that answers the `navigation-item-*-disabled` or `*-selected-disabled` slots replaces that fade, as on ArenaBottomNav; it does not scale when pressed.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

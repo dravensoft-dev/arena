@@ -6,8 +6,8 @@
  * `states.disabled` is BEHAVIOURAL, so the verdict below is earned by rendering a disabled item
  * and acting on it rather than declared. The component gained `disabled` because casing it made
  * the gap visible: bound to `none` the requirement never applied.
- * The item pulls ArenaSideNavState from the nearest arena-side-nav, so both cases mount one.
- * The disabled fade's slot wiring is proven by check:color-slots; this layer asserts what is drawn. */
+ * The item pulls ArenaSideNavState from the nearest arena-side-nav, so every case mounts one.
+ * The disabled fade's slot wiring is proven by check:color-slots; this layer asserts the attributes the fade selects. */
 
 import { useTestEnvironment } from '../../../test/TestbedEnv';
 useTestEnvironment();
@@ -113,7 +113,7 @@ test('arena-side-nav-item meets both of the shapes href chooses between', () => 
 })
 class DisabledHost {}
 
-test('a disabled item fades through its own slot, and a current one through the selected-disabled slot', () => {
+test('a disabled item and a disabled current item both reflect aria-disabled, and only the current one is aria-current', () => {
   const fixture = TestBed.createComponent(DisabledHost);
   try {
     fixture.detectChanges();
