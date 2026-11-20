@@ -212,7 +212,10 @@ export const EXAMPLE_SLOT_ANSWERS: Record<string, string> = {
   'choices-mark-ink-selected': '{ink-on-mark}',
   'choices-knob-fill-selected': '{fill-page}',
   'choices-knob-ink-selected': '{ink-body}',
-  'navigation-item-edge-selected': '{edge-selected}',
+  'navigation-item-fill-selected': '{fill-marker}',
+  'navigation-item-edge-selected': '{edge-mark}',
+  'navigation-badge-fill-selected': '{fill-marker}',
+  'navigation-badge-ink-selected': '{ink-body}',
 };
 
 export function slotExample() {

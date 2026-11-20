@@ -30,16 +30,28 @@ A slot takes a role and never a palette colour. The role says which of your colo
     "$type": "color",
     "$value": "{ink-body}"
   },
+  "navigation-item-fill-selected": {
+    "$type": "color",
+    "$value": "{fill-marker}"
+  },
   "navigation-item-edge-selected": {
     "$type": "color",
-    "$value": "{edge-selected}"
+    "$value": "{edge-mark}"
+  },
+  "navigation-badge-fill-selected": {
+    "$type": "color",
+    "$value": "{fill-marker}"
+  },
+  "navigation-badge-ink-selected": {
+    "$type": "color",
+    "$value": "{ink-body}"
   }
 }
 ```
 
 <!-- @shared slotExample end -->
 
-The primary action needs no answer. `actions-primary-root-fill-rest` reads `emphasis-primary-fill`, which your plugin already answers with the brand. The first answer fills a checked box, a selected radio, a switch that is on and a slider's range with `fill-mark`. The second draws the check and the dot in `ink-on-mark`. The third sets the knob of a switch and a slider on the page colour, and the fourth draws the glyph on a switch's knob in the body ink. These components move together because each paints a part of the `choices` group. The fifth draws the edge of the current navigation item in `edge-selected`, the rule under the selected tab among them.
+The primary action needs no answer. `actions-primary-root-fill-rest` reads `emphasis-primary-fill`, which your plugin already answers with the brand. The first answer fills a checked box, a selected radio, a switch that is on and a slider's range with `fill-mark`. The second draws the check and the dot in `ink-on-mark`. The third sets the knob of a switch and a slider on the page colour, and the fourth draws the glyph on a switch's knob in the body ink. These components move together because each paints a part of the `choices` group. The other four quiet the current navigation item. The current item of a side nav, a bottom nav, a pagination and a tree view takes a `fill-marker` wash instead of the primary one, and the selected tab has no fill to wash. Its edge is `edge-mark` in both polarities, and that edge shows only where the item draws one: the rule under the selected tab and the border of the current page in a pagination, while a side nav, a bottom nav and a tree view item draw no border. The count on the current row of a side nav, every count on a bottom nav, and the dot on a collapsed side nav rail take the quiet `fill-marker` with the body ink.
 
 ## How a slot is named
 

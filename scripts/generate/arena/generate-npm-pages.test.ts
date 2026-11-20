@@ -623,8 +623,23 @@ test('the example answers clear their floors over the default plugin', () => {
     const roles = rolesFor(null, catalogue, theme);
     const answers = new Map(Object.entries(EXAMPLE_SLOT_ANSWERS).map(([name, value]) => [name, roles.get(value.slice(1, -1)) as string]));
     const lines = slotReports(catalogue.slots, answers, roles, colours, theme, levels).map((one) => one.message)
-      .filter((line) => /^--(choices-(box|mark|knob)|navigation-item)-/.test(line));
+      .filter((line) => /^--(choices-(box|mark|knob)|navigation-(item|badge))-/.test(line));
     assert.deepEqual(lines, [], theme);
+  }
+});
+
+test('the example quiets the navigation selection in both polarities', () => {
+  const catalogue = tokenCatalogue();
+  const names = ['navigation-item-fill-selected', 'navigation-item-edge-selected', 'navigation-badge-fill-selected', 'navigation-badge-ink-selected'];
+  for (const name of names) assert.ok(name in EXAMPLE_SLOT_ANSWERS, name);
+  for (const theme of ['dark', 'light']) {
+    const roles = rolesFor(null, catalogue, theme);
+    for (const name of names) {
+      const value = roles.get(EXAMPLE_SLOT_ANSWERS[name].slice(1, -1)) as string;
+      assert.ok(value, `${theme} ${name}`);
+      assert.notEqual(value, 'var(--color-primary)', `${theme} ${name}`);
+      assert.ok(!value.includes('--color-primary'), `${theme} ${name}`);
+    }
   }
 });
 
