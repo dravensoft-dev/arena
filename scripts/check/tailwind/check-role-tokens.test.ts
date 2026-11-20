@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
-import { scaleUsesIn, evaluateManifest, staleAllowances, zeroManifestProblem, derivedSetsProblem, padStems, gapRoles, SCALE_USES, STATE_LITERALS, stateLiteral, stateLiteralFindings, paletteFindings, paletteUtility, collect } from './check-role-tokens.ts';
+import { scaleUsesIn, evaluateManifest, staleAllowances, zeroManifestProblem, derivedSetsProblem, padStems, gapRoles, SCALE_USES, STATE_LITERALS, stateLiteral, stateLiteralFindings, paletteFindings, paletteMessage, paletteUtility, collect } from './check-role-tokens.ts';
+import * as roleTokens from './check-role-tokens.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { manifestFiles } from '../../lib/tailwind/tailwind-compile.ts';
@@ -364,17 +365,17 @@ test('the shipped manifests draw no state with a literal', () => {
 
 const palettePart = (slots: Record<string, string>, component = 'ArenaFixture') => ({ component, slots, kind: {} }) as never;
 
-test('a palette utility is refused with no allowance', async () => {
+test('a palette utility is refused with no allowance', () => {
   const found = paletteFindings(palettePart({ root: 'flex bg-base-300 hover:bg-primary-fill/50 border-t-base-300 bg-surface' }, 'ArenaFixture'));
   assert.deepEqual(found.map((f) => [f.component, f.slot, f.utility]), [
     ['ArenaFixture', 'root', 'bg-base-300'],
     ['ArenaFixture', 'root', 'hover:bg-primary-fill/50'],
     ['ArenaFixture', 'root', 'border-t-base-300'],
   ]);
-  assert.match(found[0]?.hint ?? '', /bg-track/);
-  const mod = (await import('./check-role-tokens.ts')) as Record<string, unknown>;
-  assert.equal('PALETTE_READS' in mod, false);
-  assert.equal('stalePaletteReads' in mod, false);
+  const message = paletteMessage(found[0]!);
+  for (const said of ['ArenaFixture', 'root', 'bg-base-300', 'bg-track']) assert.ok(message.includes(said), `the message names ${said}: ${message}`);
+  assert.equal('PALETTE_READS' in roleTokens, false);
+  assert.equal('stalePaletteReads' in roleTokens, false);
 });
 
 test('the shipped manifests read no palette key', () => {

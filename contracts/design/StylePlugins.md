@@ -237,11 +237,13 @@ manifest maps a member's value to a hue (`danger`, `success`, `warning`, `info`,
 renders the group as `data-arena-<group>`, and the hue sheet writes its channels on the slots that
 carry it: `--arena-hue-ink`, `--arena-hue-edge`, `--arena-hue-fill-strong`, `--arena-hue-fill-soft`
 and `--arena-hue-on-ink`. A slot reads the channel it needs and never a status colour by name, so a
-plugin that moves one role moves every surface wearing that hue. A slot whose hue no value varies,
-an error state's root and icon, names it under `hues.always`. A field's error message and edge, a status icon, FileInput's
-rejection and ConfirmDialog's invalid input read the `ink-invalid` and `edge-invalid` roles instead. A solid status mark (a presence or feed dot,
-a progress fill) reads the strong fill, and danger's marks the ink, its strong fill being closed;
-a chart legend swatch and the tag's dot read the ink, following series painted from the palette.
+plugin that moves one role moves every surface wearing that hue. An error state's root and icon read the danger banner and icon slots
+of the `feedback` group. A field's error message and edge, a status icon, FileInput's
+rejection and ConfirmDialog's invalid input read the `ink-invalid` and `edge-invalid` roles instead. A status mark (a presence, feed or timeline dot,
+a meter, progress or spinner range) reads its group's slots, `marks.dot` or `meters.track`, whose tone defaults are the hue ink, `{hue-<h>-ink}`,
+so a plugin moves those marks through the hue ink roles or the slots and never through a hue channel. The channels are read by the badge, the tag,
+the stat card, the calendar chip and the confirm dialog, and by the series parts: a chart legend swatch and a board column dot read the ink,
+following series painted from the palette, and the tag's dot reads the ink too.
 A badge written with `arena-mark-solid` fills with the ink and sets its label in the on-ink, which
 defaults to the hue's `{color.<hue>-content}` and, for danger, to the page colour
 `{color.base-100}`, because the danger ink is tuned as text and too light to carry white. The roles are in

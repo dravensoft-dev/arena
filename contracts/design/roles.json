@@ -1162,7 +1162,7 @@
   },
   "fill-tip": {
     "$type": "color",
-    "$description": "The ground of the small bubble that names a control under the pointer: a tooltip. Read through the overlays group's tip, whose ink is measured over it.\n\nSeparate from fill-surface-floating and fill-readout, which it does not share a step with in the default plugin, because a bubble that names a control is an inverse of the page it floats over where a menu or a dialog sits on the page's own steps and a chart readout annotates a plot: a style plugin that lifts its menus or flattens its readouts has said nothing about the bubbles that name a control.\n\nAn assignment and never a value, like every colour role: WHICH of the consumer's colours, never what that colour is.",
+    "$description": "The ground of the small bubble that names a control under the pointer: a tooltip. Read through the overlays group's tip, whose ink is measured over it.\n\nSeparate from fill-surface-floating and fill-surface-raised, which it does not share a step with in the default plugin, because a bubble that names a control is an inverse of the page it floats over where a menu or a dialog sits on the page's own steps and a chart readout annotates a plot: a style plugin that lifts its menus or flattens its readouts has said nothing about the bubbles that name a control.\n\nAn assignment and never a value, like every colour role: WHICH of the consumer's colours, never what that colour is.",
     "$extensions": {
       "com.dravensoft.arena": {
         "default": "{color.base-content}",
