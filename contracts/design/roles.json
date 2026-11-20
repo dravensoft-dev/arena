@@ -1522,15 +1522,16 @@
   },
   "edge-tab-selected": {
     "$type": "color",
-    "$description": "The colour of the rule that marks ArenaTabs' selected tab, read by no other component. Its default is the primary, because the selected tab says where the view is and the rule is the one accent the strip spends. A plugin answers it with one of its palette colours or with another colour role.",
+    "$description": "The colour of the edge that marks the selected or current item of a navigation component, read through navigation-item-edge-selected, whose default it is. It shows as the rule under ArenaTabs' selected tab and as the border of ArenaPagination's current page, while ArenaSideNav, ArenaBottomNav and ArenaTreeView read it and draw no border. Its default is the primary, because the selected item says where the view is and the edge is the one accent the navigation spends. A plugin answers it with one of its palette colours or with another colour role.",
     "$extensions": {
       "com.dravensoft.arena": {
         "default": "{color.primary}",
         "audience": "markup",
         "task": "states",
-        "question": "What colour is the rule that marks the selected tab?",
+        "question": "What colour is the edge that marks the selected item of a navigation component?",
         "state": [
-          "aria-selected"
+          "aria-selected",
+          "aria-current"
         ]
       }
     }
@@ -1657,7 +1658,7 @@
   },
   "mix-hover": {
     "$type": "number",
-    "$description": "The share of its drawn ink a part's fill takes under the pointer: the fill is mixed toward the ink the part draws on it, in OKLab, by this fraction. A number and never a colour, so a style plugin that wants a firmer hover answers a share and the part keeps reading as itself. A selected part's edge follows its fill under the pointer by the same share, toward the same ink, so the edge that marks the selection keeps its distance from the wash it sits on.",
+    "$description": "The share a selected part's fill moves toward its selected ink under the pointer, in OKLab: the selected-hover state. A part at rest under the pointer paints its rest answer, or the hover role its group lists, and never this mix. A number and never a colour, so a style plugin that wants a firmer hover answers a share and the part keeps reading as itself. A selected part's edge follows its fill under the pointer by the same share, toward the same ink, so the edge that marks the selection keeps its distance from the wash it sits on. ArenaTabs has no fill, so only its edge moves.",
     "$extensions": {
       "com.dravensoft.arena": {
         "default": "{blend.hover}",
@@ -1666,7 +1667,7 @@
         "state": [
           "hover"
         ],
-        "question": "How far toward its ink does a part's fill move under the pointer?"
+        "question": "How far toward its ink does a selected part's fill move under the pointer?"
       }
     }
   },

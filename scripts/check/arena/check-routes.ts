@@ -147,7 +147,7 @@ export const ROUTES: Route[] = [
       + 'document that says what the questions are and which answers carry the difference',
     entry: 'consumer',
     stops: ['skills/design/references/style-kernel.md'],
-    budget: 19_900,
+    budget: 20_000,
     reason:
       'paid once per project and never per screen, which lets it carry the whole surface the kernel '
       + 'exposes, so a project stops learning the kernel from a normative contributor document. It links '
@@ -155,11 +155,11 @@ export const ROUTES: Route[] = [
       + 'inherit and which it has to make, and how the one exception to the scale rule is keyed. The '
       + 'differentiation table is a measurement over the catalogue, so it grows by remeasuring and not '
       + 'by writing. The number is what the stops measure with room for the kernel to grow a section, '
-      + 'and it moves when it grows a question, not a paragraph. The root rule says where a role\'s '
+      + 'and it moves when it grows a question or a sentence names a new reader. The root rule says where a role\'s '
       + 'default is written and states first, in a region generated with the config page\'s, which '
       + 'roles carry a default and that the root answers the rest. It says where a clone-less project '
       + 'fetches the default plugin. The roster grows per role. The setup checklist names each unanswered role. The page says what '
-      + 'each kind of role may be answered with, names the selected tab\'s rule and its default, and says '
+      + 'each kind of role may be answered with, names the selected edge of navigation and its default, and says '
       + 'a plugin\'s own percentage stays put. The loop lists every answer the build refuses and what the '
       + 'user scale column decides.',
   },
@@ -300,9 +300,9 @@ export const ROUTES: Route[] = [
     who: 'a builder who owns a toggle of their own and draws every state of it: the router, then the markup tree index and the pages for states, edges, depth and motion, and space and layout',
     entry: 'consumer',
     stops: ['skills/design/references/tokens/markup/index.md', 'skills/design/references/tokens/markup/states.md', 'skills/design/references/tokens/markup/edges.md', 'skills/design/references/tokens/markup/depth-and-motion.md', 'skills/design/references/tokens/markup/space-and-layout.md'],
-    budget: 17_300,
+    budget: 17_500,
     reason:
-      'paid once per control a builder draws without a component. It buys the states a control wears, hover and the pressed lift and scale, with the motion and the space of each change, and the outline the control draws, its edge colour, width and radius, each role with its question, utility and combination and the paragraph that composes the leaf. Focus, selected, disabled and invalid each have a role on the states page, so a control of this kind reads them there and draws none itself. Each is read from the page that owns it instead of the media register, the page and the kernel. The data files beside the pages are not stops, since the gate charges the Markdown only. The markup index, the first stop, carries one row more for the units page, which a toggle does not need. The states page carries eleven roles with their utilities and a table that maps each state attribute to its selector and roles, which is what a control of this kind reads to draw focus, selection, the disabled fade and an invalid field. The page also carries one html toggle, with its label and its aria-invalid edge, that shows every state.',
+      'paid once per control a builder draws without a component. It buys the states a control wears, hover and the pressed lift and scale, with the motion and the space of each change, and the outline the control draws, its edge colour, width and radius, each role with its question, utility and combination and the paragraph that composes the leaf. Focus, selected, disabled and invalid each have a role on the states page, so a control of this kind reads them there and draws none itself. Each is read from the page that owns it instead of the media register, the page and the kernel. The data files beside the pages are not stops, since the gate charges the Markdown only. The markup index, the first stop, carries one row more for the units page, which a toggle does not need. The states page carries eleven roles with their utilities and a table that maps each state attribute to its selector and roles, which is what a control of this kind reads to draw focus, selection, the disabled fade and an invalid field. The page also carries one html toggle, with its label and its aria-invalid edge, that shows every state. The states page names which selected item takes which edge.',
   },
   {
     name: 'consumer-layer',

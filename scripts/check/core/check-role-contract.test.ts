@@ -394,3 +394,16 @@ test('the scrim role answers base-100 and the scrim mixes it at its level', () =
   assert.match(colors, /--level-scrim:60%;/);
   assert.match(colors, /--scrim:color-mix\(in oklab,var\(--overlay-scrim\) var\(--level-scrim\),transparent\);/);
 });
+
+test('the navigation edge and the hover mix are described by what they paint', () => {
+  const shipped = readJson(join(repoRoot, ROLES)) as Record<string, any>;
+  const edge = shipped['edge-tab-selected'];
+  assert.equal(edge.$extensions['com.dravensoft.arena'].question, 'What colour is the edge that marks the selected item of a navigation component?');
+  assert.match(edge.$description, /ArenaTabs/);
+  assert.match(edge.$description, /ArenaPagination/);
+  assert.doesNotMatch(edge.$description, /read by no other component/);
+  const mix = shipped['mix-hover'];
+  assert.equal(mix.$extensions['com.dravensoft.arena'].question, "How far toward its ink does a selected part's fill move under the pointer?");
+  assert.match(mix.$description, /selected-hover/);
+  assert.match(mix.$description, /at rest under the pointer paints its rest answer/);
+});

@@ -149,7 +149,7 @@ it is a second one answering the same roles differently. Read one before writing
 copying the default into `design/<name>/` and replacing one role at a time: `["default"]` is no
 start, because your root plugin inherits nothing from it.
 
-The rule under the selected tab is the role `edge-tab-selected`, and its default is `{color.primary}`. A plugin that stays silent keeps the primary there, and one that answers it names a palette colour or another colour role.
+The selected edge of navigation is the role `edge-tab-selected`, and its default is `{color.primary}`: it is drawn as the rule under the selected tab and around the current page of a pagination. A plugin that stays silent keeps the primary there, and one that answers it names a palette colour or another colour role.
 
 **The roles below are where a product lives**, and the eight measured products disagree on every one of
 them:
