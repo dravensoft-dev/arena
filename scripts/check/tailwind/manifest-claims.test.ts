@@ -258,7 +258,7 @@ export const CLAIMS = {
   ArenaCard: [
     { slot: 'root', has: ['block', 'bg-[color:var(--arena-accent-surfaces-card-fill)]'], hasNot: ['bg-base-200'], why: 'the card names WHICH surface it is rather than which step of the scale, so a style plugin can flatten it onto the page, and it is never a zero-area inline box' },
     { slot: 'root', hasNot: ['border-primary', 'border-edge-surface', 'shadow-surface-rest', 'shadow-surface-floating', 'shadow-none'], why: 'the edge colour and the depth are the accent and elevation channels, so no accent, no resting shadow and no lifted one is a class of this manifest any more' },
-    { slot: 'eyebrow', has: ['font-face-eyebrow', 'case-eyebrow', 'text-ink-eyebrow'], why: 'the eyebrow is the accent mono micro-label above the display-weight title' },
+    { slot: 'eyebrow', has: ['font-face-eyebrow', 'case-eyebrow', read('ArenaCard.eyebrow', 'text-eyebrow-ink-rest', 'text')], why: 'the eyebrow is the accent mono micro-label above the display-weight title' },
     { slot: 'title', has: ['font-face-heading', 'text-title-surface'], why: 'the eyebrow is the accent mono micro-label above the display-weight title' },
   ],
   ArenaSkeleton: [
@@ -342,10 +342,10 @@ export const CLAIMS = {
   ],
   ArenaBreadcrumbs: [
     { slot: 'root', has: ['flex'], why: 'a host-bound breadcrumbs trail has no other way to lay out' },
-    { slot: 'current', has: ['font-bold', 'text-ink-body'], why: 'only the current crumb is bold and full-strength; a linked crumb stays muted' },
+    { slot: 'current', has: ['font-bold', read('ArenaBreadcrumbs.current', 'text-body-ink-rest', 'text')], why: 'only the current crumb is bold and full-strength; a linked crumb stays muted' },
     { slot: 'crumb', has: [read('ArenaBreadcrumbs.crumb', 'navigation-quiet-link-ink-rest', 'text'), 'no-underline'], hasNot: ['font-bold'], why: 'a crumb stays muted and carries no underline, reading the quiet link ink of the navigation group' },
     { chosen: { linked: 'true' }, slot: 'crumb', has: ['cursor-pointer', read('ArenaBreadcrumbs.crumb', 'navigation-quiet-link-ink-hover', 'text', 'hover:')], hasNot: ['hover:text-ink-body/(--level-ink-body)'], why: 'a linked crumb reads as a pointer target and takes its hover as a state modifier inside the linked branch, so a crumb with no href never hovers' },
-    { slot: 'separator', has: ['text-ink-muted/(--level-ink-muted)'], why: 'the mark between two crumbs is held back to the level a crumb already sits at, because the muted step is the faintest level that clears AA and a mark under it is a mark nobody sees' },
+    { slot: 'separator', has: [read('ArenaBreadcrumbs.separator', 'text-muted-ink-rest', 'text')], why: 'the mark between two crumbs is held back to the level a crumb already sits at, because the muted step is the faintest level that clears AA and a mark under it is a mark nobody sees' },
     { slot: 'crumb', has: ['font-face-label', 'text-trail', 'tracking-trail'], why: 'the trail register, which wears the label face and none of its case, and which default answers at the size and the narrow nav tracking a crumb already had' },
     { slot: 'current', has: ['font-face-label', 'text-trail', 'tracking-trail'], why: 'the same register at the last segment, which is the one drawn bold' },
   ],
@@ -880,11 +880,11 @@ test('a key cap is drawn one way wherever it appears, so a plugin answers every 
   const cap = resolve('ArenaKbd', {}, 'key');
   assert.deepEqual(resolve('ArenaCommandPalette', {}, 'esc'), cap,
     'the escape cap and an ArenaKbd cap drifted apart, so a plugin moving the key register moves one of them');
-  for (const role of ['font-face-key', 'case-key', 'text-ink-key/', 'py-key-y'])
+  for (const role of ['font-face-key', 'case-key', 'text-[color:color-mix(in_oklab,var(--text-key-ink-rest,', 'py-key-y'])
     assert.ok(cap.some((one) => one.startsWith(role)), `the cap reads no ${role}, so a plugin cannot reach that part of it`);
   for (const [component, slot] of [['ArenaMenu', 'shortcut'], ['ArenaCommandPalette', 'shortcut'], ['ArenaKbd', 'separator']] as const) {
     const bare = resolve(component, {}, slot);
-    assert.ok(bare.includes('font-face-key') && bare.some((one) => one.startsWith('text-ink-key/')),
+    assert.ok(bare.includes('font-face-key') && bare.some((one) => one.startsWith('text-[color:color-mix(in_oklab,var(--text-key-ink-rest,')),
       `${component}.${slot} prints a key outside the key register, in a face or an ink no key role answers`);
   }
 });

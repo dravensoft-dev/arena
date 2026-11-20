@@ -3,9 +3,9 @@
   "slots": {
     "root": "fixed inset-0 z-onboarding block bg-[color:color-mix(in_oklab,var(--overlays-scrim-fill-rest,var(--overlay-scrim))_var(--level-scrim),transparent)]",
     "panel": "fixed w-[var(--onboarding-width)] max-w-[92vw] bg-[color:var(--overlays-panel-fill-rest,var(--fill-surface-floating))] border-[length:var(--bw-surface)] border-[color:var(--overlays-panel-edge-rest,var(--edge-surface-floating))] rounded-surface shadow-surface-deep p-5",
-    "eyebrow": "font-face-eyebrow text-eyebrow tracking-eyebrow case-eyebrow text-ink-eyebrow mb-2 font-eyebrow",
-    "title": "font-face-heading font-heading text-title-surface text-ink-heading tracking-heading leading-heading",
-    "body": "font-body text-md leading-prose text-ink-body/(--level-ink-body) mt-2",
+    "eyebrow": "font-face-eyebrow text-eyebrow tracking-eyebrow case-eyebrow text-[color:var(--text-eyebrow-ink-rest,var(--ink-eyebrow))] mb-2 font-eyebrow",
+    "title": "font-face-heading font-heading text-title-surface text-[color:var(--text-heading-ink-rest,var(--ink-heading))] tracking-heading leading-heading",
+    "body": "font-body text-md leading-prose text-[color:color-mix(in_oklab,var(--text-body-ink-rest,var(--ink-body))_var(--level-ink-body),transparent)] mt-2",
     "foot": "flex items-center gap-1.5 mt-4.5",
     "dots": "flex gap-1.5 flex-1",
     "dot": "h-2 rounded-pill border-[length:var(--bw-marker)] transition-[width] duration-[var(--dur-state)] ease-state",

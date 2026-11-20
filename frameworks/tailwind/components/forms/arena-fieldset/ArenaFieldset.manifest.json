@@ -2,10 +2,10 @@
   "component": "ArenaFieldset",
   "slots": {
     "root": "block border-0 p-0 m-0 min-w-0",
-    "legend": "p-0 mb-1.5 font-face-label text-ctl-xs tracking-label-role case-label text-ink-muted/(--level-ink-muted)",
+    "legend": "p-0 mb-1.5 font-face-label text-ctl-xs tracking-label-role case-label text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",
     "stack": "flex flex-col gap-1.5",
     "body": "flex flex-col gap-items",
-    "hint": "font-body text-ctl-sm text-ink-muted/(--level-ink-muted)",
+    "hint": "font-body text-ctl-sm text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",
     "error": "inline-flex items-center gap-inline font-body text-ctl-sm text-[color:var(--fields-error-ink-rest,var(--ink-invalid))]",
     "statusIcon": "text-[length:var(--icon-md)]"
   },

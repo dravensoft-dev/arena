@@ -84,7 +84,7 @@ const branchAxes = (by: 'selectedBy' | 'disabledBy', root = repoRoot) => new Map
 }));
 const optionAxesOf = (root = repoRoot) => new Map(Object.entries(readColorSlots(root).members).flatMap(([key, member]) => {
   const [component, part] = key.split('.') as [string, string];
-  const axes = [...optionAxes(member).flatMap(axisNames), ...[member.onlyBy, member.hoverBy].flatMap((one) => (one ? [one.axis] : []))].map((one) => `data-arena-${kebab(one)}`);
+  const axes = [...optionAxes(member).flatMap(axisNames), ...[member.onlyBy, member.hoverBy, member.toBy].flatMap((one) => (one ? [one.axis] : []))].map((one) => `data-arena-${kebab(one)}`);
   return axes.length ? [[`${kebab(component.replace(/^Arena/, ''))}.${kebab(part)}`, axes] as [string, string[]]] : [];
 }));
 const seriesByAxesOf = (root = repoRoot) => Object.entries(readColorSlots(root).members).flatMap(([key, member]) => {

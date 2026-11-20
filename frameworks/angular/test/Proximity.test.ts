@@ -28,6 +28,9 @@ import { ArenaCard } from '../components/display/arena-card/ArenaCard';
 import { ArenaChartCard } from '../components/charts/arena-chart-card/ArenaChartCard';
 import { ArenaDivider } from '../components/layout/arena-divider/ArenaDivider';
 import { ArenaConfirmDialog } from '../components/feedback/arena-confirm-dialog/ArenaConfirmDialog';
+import { ArenaTable } from '../components/display/arena-table/ArenaTable';
+import { ArenaTableRow } from '../components/display/arena-table-row/ArenaTableRow';
+import { ArenaTableCell } from '../components/display/arena-table-cell/ArenaTableCell';
 import { ArenaBadge } from '../components/display/arena-badge/ArenaBadge';
 import { ArenaSheet } from '../components/feedback/arena-sheet/ArenaSheet';
 import { ArenaGrid } from '../components/layout/arena-grid/ArenaGrid';
@@ -203,6 +206,7 @@ const TEMPLATES: Record<string, string> = {
   'separator-answer-moves-a-rule-drawn-as-a-box': '<div style="--surfaces-separator-edge-rest: var(--hue-info-edge)"><arena-divider /><arena-divider label="or" /></div>',
   'card-accent-answer-reaches-only-its-class': '<div style="--surfaces-primary-card-edge-rest: var(--hue-info-edge)"><arena-card class="arena-accent-primary">Body</arena-card><arena-chart-card title="Revenue"></arena-chart-card></div>',
   'scrim-answer-reaches-every-modal': '<div style="--overlays-scrim-fill-rest: var(--hue-info-fill-strong)"><arena-dialog [open]="true" title="Discard"></arena-dialog><arena-confirm-dialog [open]="true" title="Delete"></arena-confirm-dialog></div>',
+  'to-by-reads-its-branch': '<div style="--text-figure-ink-rest: var(--hue-info-ink); --text-muted-ink-rest: var(--hue-danger-ink)"><arena-table label="Deploys" [columns]="[{ header: \'Calls\', numeric: true }, { header: \'Service\' }]"><tr arena-table-row><td arena-table-cell>12</td><td arena-table-cell>checkout</td></tr></arena-table><arena-progress-bar label="Upload" [progressPercentage]="40" /><arena-progress-bar shape="radial" label="Sync" [progressPercentage]="40" /></div>',
   'solid-badge-ignores-the-soft-answer': '<div style="--marks-plain-soft-fill-rest: var(--hue-info-fill-strong)"><arena-badge class="arena-mark-solid">Live</arena-badge><arena-badge>Draft</arena-badge></div>',
 };
 
@@ -272,6 +276,7 @@ const SUBJECT: Record<string, { part: string; index: number }> = {
   'separator-answer-moves-a-rule-drawn-as-a-box': { part: 'divider', index: 0 },
   'card-accent-answer-reaches-only-its-class': { part: 'card', index: 0 },
   'scrim-answer-reaches-every-modal': { part: 'dialog.scrim', index: 0 },
+  'to-by-reads-its-branch': { part: 'table.td', index: 0 },
   'selected-edge-answer-moves-the-current-page-border': { part: 'pagination.page', index: 0 },
   'aria-disabled-member-fades-until-answered': { part: 'bottom-nav.item', index: -1 },
   'answered-disabled-tree-item-stops-the-fade': { part: 'tree-view.item', index: -1 },
@@ -303,7 +308,7 @@ for (const kase of cases) {
     const Host = Component({
       selector: `proximity-${kase.name}-host`,
       standalone: true,
-      imports: [ArenaBoardColumn, ArenaBarChart, ArenaStepper, ArenaOnboarding, ArenaSideNav, ArenaSideNavItem, ArenaTabs, ArenaTab, ArenaTreeView, ArenaPagination, ArenaBottomNav, ArenaBottomNavItem, ArenaButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaIconButton, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaFooter, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope, ArenaSplitButton, ArenaCopyButton, ArenaCheckbox, ArenaRadioGroup, ArenaRadio, ArenaSwitch, ArenaSlider, ArenaInput, ArenaFileInput, ArenaMultiSelect, ArenaCommandPalette, ArenaAlert, ArenaToast, ArenaAvatar, ArenaActivityFeed, ArenaMeter, ArenaProgressBar, ArenaSpinner, ArenaChartCard, ArenaDivider, ArenaConfirmDialog],
+      imports: [ArenaTable, ArenaTableRow, ArenaTableCell, ArenaBoardColumn, ArenaBarChart, ArenaStepper, ArenaOnboarding, ArenaSideNav, ArenaSideNavItem, ArenaTabs, ArenaTab, ArenaTreeView, ArenaPagination, ArenaBottomNav, ArenaBottomNavItem, ArenaButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaIconButton, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaFooter, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope, ArenaSplitButton, ArenaCopyButton, ArenaCheckbox, ArenaRadioGroup, ArenaRadio, ArenaSwitch, ArenaSlider, ArenaInput, ArenaFileInput, ArenaMultiSelect, ArenaCommandPalette, ArenaAlert, ArenaToast, ArenaAvatar, ArenaActivityFeed, ArenaMeter, ArenaProgressBar, ArenaSpinner, ArenaChartCard, ArenaDivider, ArenaConfirmDialog],
       template: BARE.has(kase.name) ? TEMPLATES[kase.name] : `<div class="${kase.container}">${TEMPLATES[kase.name]}</div>`,
     })(class {});
     const fixture = TestBed.createComponent(Host);

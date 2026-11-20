@@ -3048,5 +3048,33 @@
   "surfaces-separator-edge-rest": {
     "$type": "color",
     "$value": "{edge-control-quiet}"
+  },
+  "text-body-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-muted}"
+  },
+  "text-eyebrow-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-heading}"
+  },
+  "text-figure-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-key}"
+  },
+  "text-heading-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-eyebrow}"
+  },
+  "text-key-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-field}"
+  },
+  "text-key-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-figure}"
+  },
+  "text-muted-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-body}"
   }
 }

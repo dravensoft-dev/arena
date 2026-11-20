@@ -147,18 +147,18 @@ test('a member part on an option its manifest lacks, or a part its manifest lack
 
 test('the contract counts', () => {
   const slots = Object.values(shipped().slots);
-  assert.equal(slots.length, 467);
+  assert.equal(slots.length, 474);
   const by = (key: (s: (typeof slots)[number]) => string) => {
     const n: Record<string, number> = {};
     for (const s of slots) n[key(s)] = (n[key(s)] ?? 0) + 1;
     return n;
   };
-  assert.deepEqual(by((s) => s.option ?? ''), { '': 132, primary: 28, secondary: 16, ghost: 32, solid: 32, destructive: 29, neutral: 17, muted: 2, error: 10, valid: 7, readonly: 2, warning: 15, plain: 33, quiet: 2, complete: 4, current: 4, upcoming: 4, danger: 14, success: 14, info: 11, gold: 7, floating: 2, media: 3, page: 2, ...Object.fromEntries(['neutral', 'danger', 'success', 'warning', 'info'].flatMap((tone) => ['complete', 'current', 'upcoming'].map((state) => [`${tone}-${state}`, 3]))) });
-  assert.deepEqual(by((s) => s.state), { rest: 252, disabled: 47, hover: 57, pressed: 40, selected: 26, 'selected-hover': 14, 'selected-pressed': 14, 'selected-disabled': 17 });
+  assert.deepEqual(by((s) => s.option ?? ''), { '': 139, primary: 28, secondary: 16, ghost: 32, solid: 32, destructive: 29, neutral: 17, muted: 2, error: 10, valid: 7, readonly: 2, warning: 15, plain: 33, quiet: 2, complete: 4, current: 4, upcoming: 4, danger: 14, success: 14, info: 11, gold: 7, floating: 2, media: 3, page: 2, ...Object.fromEntries(['neutral', 'danger', 'success', 'warning', 'info'].flatMap((tone) => ['complete', 'current', 'upcoming'].map((state) => [`${tone}-${state}`, 3]))) });
+  assert.deepEqual(by((s) => s.state), { rest: 259, disabled: 47, hover: 57, pressed: 40, selected: 26, 'selected-hover': 14, 'selected-pressed': 14, 'selected-disabled': 17 });
   assert.equal(slots.filter((s) => s.optional).length, 64);
   assert.equal(slots.filter((s) => s.derive?.mix === 'mix-pressed').length, 19);
   assert.equal(slots.filter((s) => s.derive?.mix === 'mix-hover').length, 7);
-  assert.equal(slots.filter((s) => s.channel === undefined).length, 341, 'the destructive option, the dismiss part and the choices, fields, menus, navigation, steps, feedback, marks, meters, data, surfaces and overlays groups carry no channel, bar the accent edge, the accent dot ink, the accent soft, outline and label marks and the accent meter track (D95)');
+  assert.equal(slots.filter((s) => s.channel === undefined).length, 348, 'the destructive option, the dismiss part and the choices, fields, menus, navigation, steps, feedback, marks, meters, data, surfaces, overlays and text groups carry no channel, bar the accent edge, the accent dot ink, the accent soft, outline and label marks and the accent meter track (D95)');
 });
 
 test('every slot of the five buttons reaches its part under its state', () => {
@@ -1249,8 +1249,8 @@ test('the presence level is held to a mark pair and a mark slot chain', () => {
   const text = edit((c) => { c.slots['feedback-neutral-action-ink-rest']!.level = 'level-presence'; });
   assert.ok(presenceProblems(text, manifests).some((l) => /feedback-neutral-action-ink-rest carries level-presence and pairs at 4\.5:1/.test(l)), presenceProblems(text, manifests).join('\n'));
   const loose = structuredClone(manifests) as Map<string, any>;
-  loose.get('ArenaTimeline').slots.time = loose.get('ArenaTimeline').slots.time.replace('text-ink-muted/(--level-ink-muted)', 'text-ink-muted/(--level-presence)');
-  assert.ok(presenceProblems(shipped(), loose).some((l) => /ArenaTimeline\.time: text-ink-muted\/\(--level-presence\) reads level-presence outside the chain of a presence slot/.test(l)), presenceProblems(shipped(), loose).join('\n'));
+  loose.get('ArenaTimeline').slots.time = loose.get('ArenaTimeline').slots.time.replace('var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted)', 'var(--text-muted-ink-rest,var(--ink-muted))_var(--level-presence)');
+  assert.ok(presenceProblems(shipped(), loose).some((l) => /ArenaTimeline\.time: .* reads level-presence outside the chain of a presence slot/.test(l)), presenceProblems(shipped(), loose).join('\n'));
 });
 
 test('the accent feed dot is refused when its channel is not written, named or read', () => {

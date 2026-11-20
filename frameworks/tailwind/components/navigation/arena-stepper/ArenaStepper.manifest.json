@@ -19,7 +19,7 @@
     "icon": "inline-flex text-[length:var(--icon-sm)]",
     "text": "flex flex-col justify-center min-w-0 min-h-ctl-h-sm grow basis-[var(--arena-orientation-rule-w,100%)]",
     "label": "font-face-label text-ctl-xs tracking-label-role case-label",
-    "description": "font-body text-ctl-sm text-ink-muted/(--level-ink-muted)",
+    "description": "font-body text-ctl-sm text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",
     "name": "sr-only",
     "connector": "grow basis-6 w-[var(--arena-orientation-rule-w,100%)] h-[var(--arena-orientation-rule-h,var(--bw-separator))] bg-[color:var(--surfaces-separator-edge-rest,var(--edge-separator))]"
   },

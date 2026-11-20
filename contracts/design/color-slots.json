@@ -227,7 +227,8 @@
     "ArenaSkipLink.root": "actions-secondary-root-fill-rest",
     "ArenaConfirmDialog.input": "ground",
     "ArenaSegmentedControl.track": "ground",
-    "ArenaTable.th": "data-header-fill-rest"
+    "ArenaTable.th": "data-header-fill-rest",
+    "ArenaTable.td": "ground"
   },
   "groups": {
     "actions": {
@@ -1740,38 +1741,69 @@
           "properties": [
             "ink"
           ],
-          "states": "static"
+          "states": "static",
+          "rest": {
+            "ink": "{ink-heading}"
+          }
         },
         "body": {
           "properties": [
             "ink"
           ],
-          "states": "static"
+          "states": "static",
+          "rest": {
+            "ink": {
+              "role": "{ink-body}",
+              "level": "level-ink-body"
+            }
+          }
         },
         "muted": {
           "properties": [
             "ink"
           ],
-          "states": "static"
+          "states": "static",
+          "rest": {
+            "ink": {
+              "role": "{ink-muted}",
+              "level": "level-ink-muted"
+            }
+          }
         },
         "eyebrow": {
           "properties": [
             "ink"
           ],
-          "states": "static"
+          "states": "static",
+          "rest": {
+            "ink": "{ink-eyebrow}"
+          }
         },
         "figure": {
           "properties": [
             "ink"
           ],
-          "states": "static"
+          "states": "static",
+          "rest": {
+            "ink": {
+              "role": "{ink-figure}",
+              "level": "level-ink-full"
+            }
+          }
         },
         "key": {
           "properties": [
             "ink",
             "edge"
           ],
-          "states": "static"
+          "states": "static",
+          "rest": {
+            "ink": {
+              "role": "{ink-key}",
+              "level": "level-ink-muted"
+            },
+            "edge": "{edge-control-quiet}"
+          }
         }
       }
     }
@@ -1791,7 +1823,11 @@
           "states": "base",
           "disabledModifier": "aria-disabled:"
         },
-        "panel": "text.body"
+        "panel": {
+          "to": "text.body",
+          "options": [],
+          "states": "static"
+        }
       }
     },
     "ArenaActivityFeed": {
@@ -1835,10 +1871,26 @@
             "ink": "--arena-accent-marks-dot-ink"
           }
         },
-        "text": "text.body",
-        "actor": "text.body",
-        "target": "text.figure",
-        "time": "text.muted"
+        "text": {
+          "to": "text.body",
+          "options": [],
+          "states": "static"
+        },
+        "actor": {
+          "to": "text.body",
+          "options": [],
+          "states": "static"
+        },
+        "target": {
+          "to": "text.figure",
+          "options": [],
+          "states": "static"
+        },
+        "time": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        }
       }
     },
     "ArenaAlert": {
@@ -1888,8 +1940,16 @@
           },
           "inline": true
         },
-        "title": "text.heading",
-        "message": "text.body",
+        "title": {
+          "to": "text.heading",
+          "options": [],
+          "states": "static"
+        },
+        "message": {
+          "to": "text.body",
+          "options": [],
+          "states": "static"
+        },
         "action": {
           "to": "feedback.action",
           "options": [
@@ -1934,8 +1994,16 @@
     "ArenaAppLogo": {
       "group": "text",
       "parts": {
-        "name": "text.body",
-        "dim": "text.muted"
+        "name": {
+          "to": "text.body",
+          "options": [],
+          "states": "static"
+        },
+        "dim": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        }
       }
     },
     "ArenaAvatar": {
@@ -2007,15 +2075,29 @@
       "group": null,
       "parts": {
         "legendSwatch": "series",
-        "legendLabel": "text.body",
+        "legendLabel": {
+          "to": "text.body",
+          "options": [],
+          "states": "static"
+        },
         "tooltip": {
           "to": "overlays.readout",
           "options": [],
           "states": "static",
           "inline": true
         },
-        "tooltipLabel": "text.muted",
-        "tooltipValue": "text.body"
+        "tooltipLabel": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static",
+          "ground": "fill-surface-raised"
+        },
+        "tooltipValue": {
+          "to": "text.figure",
+          "options": [],
+          "states": "static",
+          "ground": "fill-surface-raised"
+        }
       }
     },
     "ArenaBoard": {
@@ -2040,8 +2122,16 @@
           "states": "static",
           "seriesBy": "colorId"
         },
-        "count": "text.muted",
-        "summary": "text.muted"
+        "count": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
+        "summary": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        }
       }
     },
     "ArenaBottomNav": {
@@ -2090,8 +2180,16 @@
             "value": "true"
           }
         },
-        "current": "text.body",
-        "separator": "text.muted"
+        "current": {
+          "to": "text.body",
+          "options": [],
+          "states": "static"
+        },
+        "separator": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        }
       }
     },
     "ArenaBulkActionBar": {
@@ -2107,8 +2205,16 @@
           ],
           "inline": true
         },
-        "count": "text.body",
-        "number": "text.figure",
+        "count": {
+          "to": "text.figure",
+          "options": [],
+          "states": "static"
+        },
+        "number": {
+          "to": "text.figure",
+          "options": [],
+          "states": "static"
+        },
         "divider": {
           "to": "surfaces.separator",
           "options": [],
@@ -2173,14 +2279,22 @@
           "states": "base",
           "inline": true
         },
-        "heading": "text.heading",
+        "heading": {
+          "to": "text.heading",
+          "options": [],
+          "states": "static"
+        },
         "headStrip": {
           "to": "surfaces.separator",
           "options": [],
           "states": "static"
         },
         "dayHead": null,
-        "weekday": "text.muted",
+        "weekday": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
         "dayNumber": {
           "to": "data.today",
           "options": [],
@@ -2190,7 +2304,11 @@
             "value": "true"
           }
         },
-        "hourLabel": "text.muted",
+        "hourLabel": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
         "rule": {
           "to": "surfaces.separator",
           "options": [],
@@ -2219,9 +2337,21 @@
         },
         "chip": "series",
         "chipBody": null,
-        "title": "text.heading",
-        "time": "text.muted",
-        "detail": "text.muted",
+        "title": {
+          "to": "text.heading",
+          "options": [],
+          "states": "static"
+        },
+        "time": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
+        "detail": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
         "panel": {
           "to": "overlays.panel",
           "options": [],
@@ -2261,8 +2391,16 @@
           "options": [],
           "states": "static"
         },
-        "eyebrow": "text.eyebrow",
-        "title": "text.heading"
+        "eyebrow": {
+          "to": "text.eyebrow",
+          "options": [],
+          "states": "static"
+        },
+        "title": {
+          "to": "text.heading",
+          "options": [],
+          "states": "static"
+        }
       }
     },
     "ArenaChartCard": {
@@ -2283,7 +2421,11 @@
           "options": [],
           "states": "static"
         },
-        "title": "text.muted"
+        "title": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        }
       }
     },
     "ArenaCheckbox": {
@@ -2309,13 +2451,21 @@
             "selected"
           ]
         },
-        "label": "text.body"
+        "label": {
+          "to": "text.body",
+          "options": [],
+          "states": "static"
+        }
       }
     },
     "ArenaCombobox": {
       "group": "fields",
       "parts": {
-        "label": "text.muted",
+        "label": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
         "field": {
           "to": "fields.field",
           "options": [
@@ -2337,7 +2487,11 @@
             "value": "true"
           }
         },
-        "icon": "text.muted",
+        "icon": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
         "more": "marks.outline@neutral",
         "input": {
           "to": "fields.value",
@@ -2364,8 +2518,16 @@
           "options": [],
           "states": "base"
         },
-        "caret": "text.muted",
-        "hint": "text.muted",
+        "caret": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
+        "hint": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
         "error": {
           "to": "fields.error",
           "options": [],
@@ -2401,8 +2563,16 @@
             "value": "true"
           }
         },
-        "empty": "text.muted",
-        "status": "text.muted"
+        "empty": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
+        "status": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        }
       }
     },
     "ArenaCommandPalette": {
@@ -2436,15 +2606,31 @@
             "edge"
           ]
         },
-        "searchIcon": "text.muted",
+        "searchIcon": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
         "input": {
           "to": "fields.value",
           "options": [],
           "states": "static"
         },
-        "esc": "text.key",
-        "empty": "text.muted",
-        "groupLabel": "text.muted",
+        "esc": {
+          "to": "text.key",
+          "options": [],
+          "states": "static"
+        },
+        "empty": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
+        "groupLabel": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
         "row": {
           "to": "menus.item",
           "options": [
@@ -2459,7 +2645,14 @@
             "value": "true"
           }
         },
-        "shortcut": "text.key"
+        "shortcut": {
+          "to": "text.key",
+          "options": [],
+          "states": "static",
+          "properties": [
+            "ink"
+          ]
+        }
       }
     },
     "ArenaConfirmDialog": {
@@ -2497,9 +2690,21 @@
           },
           "inline": true
         },
-        "title": "text.heading",
-        "body": "text.body",
-        "requireLabel": "text.muted",
+        "title": {
+          "to": "text.heading",
+          "options": [],
+          "states": "static"
+        },
+        "body": {
+          "to": "text.body",
+          "options": [],
+          "states": "static"
+        },
+        "requireLabel": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
         "input": {
           "to": "fields.field",
           "options": [
@@ -2570,9 +2775,21 @@
           },
           "inline": true
         },
-        "eyebrow": "text.eyebrow",
-        "title": "text.heading",
-        "body": "text.body",
+        "eyebrow": {
+          "to": "text.eyebrow",
+          "options": [],
+          "states": "static"
+        },
+        "title": {
+          "to": "text.heading",
+          "options": [],
+          "states": "static"
+        },
+        "body": {
+          "to": "text.body",
+          "options": [],
+          "states": "static"
+        },
         "foot": {
           "to": "overlays.section",
           "options": [],
@@ -2604,7 +2821,11 @@
           "states": "static",
           "edgeAs": "fill"
         },
-        "label": "text.muted"
+        "label": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        }
       }
     },
     "ArenaDoughnutChart": {
@@ -2612,8 +2833,16 @@
       "parts": {
         "legendRow": null,
         "legendSwatch": "series",
-        "legendLabel": "text.body",
-        "legendValue": "text.muted"
+        "legendLabel": {
+          "to": "text.body",
+          "options": [],
+          "states": "static"
+        },
+        "legendValue": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        }
       }
     },
     "ArenaEmptyState": {
@@ -2635,8 +2864,16 @@
           "states": "static",
           "inline": true
         },
-        "title": "text.heading",
-        "message": "text.muted"
+        "title": {
+          "to": "text.heading",
+          "options": [],
+          "states": "static"
+        },
+        "message": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        }
       }
     },
     "ArenaErrorState": {
@@ -2658,8 +2895,16 @@
           "states": "static",
           "inline": true
         },
-        "title": "text.heading",
-        "message": "text.body",
+        "title": {
+          "to": "text.heading",
+          "options": [],
+          "states": "static"
+        },
+        "message": {
+          "to": "text.body",
+          "options": [],
+          "states": "static"
+        },
         "code": {
           "to": "surfaces.sunken",
           "options": [
@@ -2676,8 +2921,16 @@
     "ArenaFieldset": {
       "group": "fields",
       "parts": {
-        "legend": "text.muted",
-        "hint": "text.muted",
+        "legend": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
+        "hint": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
         "error": {
           "to": "fields.error",
           "options": [],
@@ -2713,13 +2966,21 @@
           "options": [],
           "states": "static"
         },
-        "caption": "text.muted"
+        "caption": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        }
       }
     },
     "ArenaFileInput": {
       "group": "fields",
       "parts": {
-        "label": "text.muted",
+        "label": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
         "required": {
           "to": "fields.required",
           "options": [],
@@ -2764,14 +3025,26 @@
             "pressed"
           ]
         },
-        "prompt": "text.muted",
-        "size": "text.muted",
+        "prompt": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
+        "size": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
         "rejection": {
           "to": "fields.error",
           "options": [],
           "states": "static"
         },
-        "hint": "text.muted",
+        "hint": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
         "error": {
           "to": "fields.error",
           "options": [],
@@ -2798,8 +3071,18 @@
           "states": "static",
           "inline": true
         },
-        "tooltipLabel": "text.muted",
-        "tooltipValue": "text.body"
+        "tooltipLabel": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static",
+          "ground": "fill-surface-raised"
+        },
+        "tooltipValue": {
+          "to": "text.figure",
+          "options": [],
+          "states": "static",
+          "ground": "fill-surface-raised"
+        }
       }
     },
     "ArenaGaugeChart": {
@@ -2813,38 +3096,78 @@
     "ArenaHeatmapChart": {
       "group": null,
       "parts": {
-        "legendLabel": "text.body",
+        "legendLabel": {
+          "to": "text.body",
+          "options": [],
+          "states": "static"
+        },
         "tooltip": {
           "to": "overlays.readout",
           "options": [],
           "states": "static",
           "inline": true
         },
-        "tooltipLabel": "text.muted",
-        "tooltipValue": "text.body"
+        "tooltipLabel": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static",
+          "ground": "fill-surface-raised"
+        },
+        "tooltipValue": {
+          "to": "text.figure",
+          "options": [],
+          "states": "static",
+          "ground": "fill-surface-raised"
+        }
       }
     },
     "ArenaHero": {
       "group": "text",
       "parts": {
-        "eyebrow": "text.eyebrow",
-        "title": "text.heading",
-        "lede": "text.body"
+        "eyebrow": {
+          "to": "text.eyebrow",
+          "options": [],
+          "states": "static"
+        },
+        "title": {
+          "to": "text.heading",
+          "options": [],
+          "states": "static"
+        },
+        "lede": {
+          "to": "text.body",
+          "options": [],
+          "states": "static"
+        }
       }
     },
     "ArenaHorizontalBarChart": {
       "group": null,
       "parts": {
         "legendSwatch": "series",
-        "legendLabel": "text.body",
+        "legendLabel": {
+          "to": "text.body",
+          "options": [],
+          "states": "static"
+        },
         "tooltip": {
           "to": "overlays.readout",
           "options": [],
           "states": "static",
           "inline": true
         },
-        "tooltipLabel": "text.muted",
-        "tooltipValue": "text.body"
+        "tooltipLabel": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static",
+          "ground": "fill-surface-raised"
+        },
+        "tooltipValue": {
+          "to": "text.figure",
+          "options": [],
+          "states": "static",
+          "ground": "fill-surface-raised"
+        }
       }
     },
     "ArenaIcon": {
@@ -2876,7 +3199,11 @@
     "ArenaInput": {
       "group": "fields",
       "parts": {
-        "label": "text.muted",
+        "label": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
         "required": {
           "to": "fields.required",
           "options": [],
@@ -2912,8 +3239,16 @@
             "value": "true"
           }
         },
-        "icon": "text.muted",
-        "prefix": "text.muted",
+        "icon": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
+        "prefix": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
         "input": {
           "to": "fields.value",
           "options": [],
@@ -2934,7 +3269,11 @@
             }
           }
         },
-        "hint": "text.muted",
+        "hint": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
         "error": {
           "to": "fields.error",
           "options": [],
@@ -2945,37 +3284,78 @@
     "ArenaKbd": {
       "group": "text",
       "parts": {
-        "key": "text.key",
-        "separator": "text.key"
+        "key": {
+          "to": "text.key",
+          "options": [],
+          "states": "static"
+        },
+        "separator": {
+          "to": "text.key",
+          "options": [],
+          "states": "static",
+          "properties": [
+            "ink"
+          ]
+        }
       }
     },
     "ArenaKeyValue": {
       "group": "data",
       "parts": {
-        "term": "text.muted",
-        "value": "text.body",
+        "term": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
+        "value": {
+          "to": "text.body",
+          "options": [],
+          "states": "static"
+        },
         "total": {
           "to": "surfaces.separator",
           "options": [],
           "states": "static"
         },
-        "totalTerm": "text.heading",
-        "totalValue": "text.heading"
+        "totalTerm": {
+          "to": "text.heading",
+          "options": [],
+          "states": "static"
+        },
+        "totalValue": {
+          "to": "text.heading",
+          "options": [],
+          "states": "static"
+        }
       }
     },
     "ArenaLineChart": {
       "group": null,
       "parts": {
         "legendSwatch": "series",
-        "legendLabel": "text.body",
+        "legendLabel": {
+          "to": "text.body",
+          "options": [],
+          "states": "static"
+        },
         "tooltip": {
           "to": "overlays.readout",
           "options": [],
           "states": "static",
           "inline": true
         },
-        "tooltipLabel": "text.muted",
-        "tooltipValue": "text.body"
+        "tooltipLabel": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static",
+          "ground": "fill-surface-raised"
+        },
+        "tooltipValue": {
+          "to": "text.figure",
+          "options": [],
+          "states": "static",
+          "ground": "fill-surface-raised"
+        }
       }
     },
     "ArenaLink": {
@@ -3030,21 +3410,40 @@
             "value": "true"
           }
         },
-        "shortcut": "text.key",
+        "shortcut": {
+          "to": "text.key",
+          "options": [],
+          "states": "static",
+          "properties": [
+            "ink"
+          ]
+        },
         "divider": {
           "to": "surfaces.separator",
           "options": [],
           "states": "static",
           "edgeAs": "fill"
         },
-        "header": "text.muted"
+        "header": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        }
       }
     },
     "ArenaMeter": {
       "group": "meters",
       "parts": {
-        "label": "text.body",
-        "value": "text.muted",
+        "label": {
+          "to": "text.body",
+          "options": [],
+          "states": "static"
+        },
+        "value": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
         "standing": {
           "to": "meters.standing",
           "options": [
@@ -3092,7 +3491,11 @@
     "ArenaNumberField": {
       "group": "fields",
       "parts": {
-        "label": "text.muted",
+        "label": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
         "required": {
           "to": "fields.required",
           "options": [],
@@ -3133,13 +3536,21 @@
           "options": [],
           "states": "base"
         },
-        "prefix": "text.muted",
+        "prefix": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
         "input": {
           "to": "fields.value",
           "options": [],
           "states": "static"
         },
-        "suffix": "text.muted",
+        "suffix": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
         "statusIcon": {
           "to": "fields.status",
           "options": [
@@ -3155,7 +3566,11 @@
             }
           }
         },
-        "hint": "text.muted",
+        "hint": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
         "error": {
           "to": "fields.error",
           "options": [],
@@ -3182,9 +3597,21 @@
           ],
           "inline": true
         },
-        "eyebrow": "text.eyebrow",
-        "title": "text.heading",
-        "body": "text.body",
+        "eyebrow": {
+          "to": "text.eyebrow",
+          "options": [],
+          "states": "static"
+        },
+        "title": {
+          "to": "text.heading",
+          "options": [],
+          "states": "static"
+        },
+        "body": {
+          "to": "text.body",
+          "options": [],
+          "states": "static"
+        },
         "dot": {
           "to": "steps.marker",
           "options": [
@@ -3222,8 +3649,16 @@
     "ArenaPageHead": {
       "group": "text",
       "parts": {
-        "title": "text.heading",
-        "subtitle": "text.muted"
+        "title": {
+          "to": "text.heading",
+          "options": [],
+          "states": "static"
+        },
+        "subtitle": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        }
       }
     },
     "ArenaPagination": {
@@ -3258,7 +3693,11 @@
             "value": "true"
           }
         },
-        "ellipsis": "text.muted"
+        "ellipsis": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        }
       }
     },
     "ArenaPaletteScope": {
@@ -3288,16 +3727,36 @@
             "value": "true"
           }
         },
-        "rank": "text.muted",
-        "name": "text.heading",
-        "secondary": "text.muted",
-        "figure": "text.muted"
+        "rank": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
+        "name": {
+          "to": "text.heading",
+          "options": [],
+          "states": "static"
+        },
+        "secondary": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
+        "figure": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        }
       }
     },
     "ArenaPinInput": {
       "group": "fields",
       "parts": {
-        "label": "text.muted",
+        "label": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
         "required": {
           "to": "fields.required",
           "options": [],
@@ -3336,7 +3795,11 @@
             }
           }
         },
-        "hint": "text.muted",
+        "hint": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
         "error": {
           "to": "fields.error",
           "options": [],
@@ -3358,8 +3821,22 @@
     "ArenaProgressBar": {
       "group": "meters",
       "parts": {
-        "label": "text.body",
-        "value": "text.muted",
+        "label": {
+          "to": "text.body",
+          "options": [],
+          "states": "static"
+        },
+        "value": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static",
+          "toBy": {
+            "axis": "shape",
+            "values": {
+              "radial": "text.body"
+            }
+          }
+        },
         "track": {
           "to": "meters.track",
           "options": [
@@ -3442,30 +3919,58 @@
       "group": null,
       "parts": {
         "legendSwatch": "series",
-        "legendLabel": "text.body",
+        "legendLabel": {
+          "to": "text.body",
+          "options": [],
+          "states": "static"
+        },
         "tooltip": {
           "to": "overlays.readout",
           "options": [],
           "states": "static",
           "inline": true
         },
-        "tooltipLabel": "text.muted",
-        "tooltipValue": "text.body"
+        "tooltipLabel": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static",
+          "ground": "fill-surface-raised"
+        },
+        "tooltipValue": {
+          "to": "text.figure",
+          "options": [],
+          "states": "static",
+          "ground": "fill-surface-raised"
+        }
       }
     },
     "ArenaRadarChart": {
       "group": null,
       "parts": {
         "legendSwatch": "series",
-        "legendLabel": "text.body",
+        "legendLabel": {
+          "to": "text.body",
+          "options": [],
+          "states": "static"
+        },
         "tooltip": {
           "to": "overlays.readout",
           "options": [],
           "states": "static",
           "inline": true
         },
-        "tooltipLabel": "text.muted",
-        "tooltipValue": "text.body"
+        "tooltipLabel": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static",
+          "ground": "fill-surface-raised"
+        },
+        "tooltipValue": {
+          "to": "text.figure",
+          "options": [],
+          "states": "static",
+          "ground": "fill-surface-raised"
+        }
       }
     },
     "ArenaRadio": {
@@ -3491,23 +3996,45 @@
             "selected"
           ]
         },
-        "label": "text.body",
-        "hint": "text.muted"
+        "label": {
+          "to": "text.body",
+          "options": [],
+          "states": "static"
+        },
+        "hint": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        }
       }
     },
     "ArenaScatterChart": {
       "group": null,
       "parts": {
         "legendSwatch": "series",
-        "legendLabel": "text.body",
+        "legendLabel": {
+          "to": "text.body",
+          "options": [],
+          "states": "static"
+        },
         "tooltip": {
           "to": "overlays.readout",
           "options": [],
           "states": "static",
           "inline": true
         },
-        "tooltipLabel": "text.muted",
-        "tooltipValue": "text.body"
+        "tooltipLabel": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static",
+          "ground": "fill-surface-raised"
+        },
+        "tooltipValue": {
+          "to": "text.figure",
+          "options": [],
+          "states": "static",
+          "ground": "fill-surface-raised"
+        }
       }
     },
     "ArenaScroller": {
@@ -3521,9 +4048,21 @@
     "ArenaSection": {
       "group": "text",
       "parts": {
-        "eyebrow": "text.eyebrow",
-        "title": "text.heading",
-        "description": "text.muted"
+        "eyebrow": {
+          "to": "text.eyebrow",
+          "options": [],
+          "states": "static"
+        },
+        "title": {
+          "to": "text.heading",
+          "options": [],
+          "states": "static"
+        },
+        "description": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        }
       }
     },
     "ArenaSegmentedControl": {
@@ -3555,7 +4094,11 @@
     "ArenaSelect": {
       "group": "fields",
       "parts": {
-        "label": "text.muted",
+        "label": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
         "field": {
           "to": "fields.field",
           "options": [
@@ -3574,14 +4117,26 @@
           },
           "inkFrom": "fields.value"
         },
-        "caret": "text.muted",
-        "hint": "text.muted",
+        "caret": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
+        "hint": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
         "error": {
           "to": "fields.error",
           "options": [],
           "states": "static"
         },
-        "iconWrap": "text.muted"
+        "iconWrap": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        }
       }
     },
     "ArenaSheet": {
@@ -3611,13 +4166,21 @@
             "pressed"
           ]
         },
-        "caret": "text.muted",
+        "caret": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
         "close": {
           "to": "actions.dismiss",
           "options": [],
           "states": "base"
         },
-        "body": "text.body",
+        "body": {
+          "to": "text.body",
+          "options": [],
+          "states": "static"
+        },
         "foot": {
           "to": "surfaces.separator",
           "options": [],
@@ -3656,7 +4219,11 @@
             "value": "true"
           }
         },
-        "sectionLabel": "text.muted",
+        "sectionLabel": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
         "trigger": {
           "to": "navigation.item",
           "options": [],
@@ -3693,7 +4260,11 @@
           ],
           "states": "static"
         },
-        "note": "text.muted"
+        "note": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        }
       }
     },
     "ArenaSkeleton": {
@@ -3720,8 +4291,16 @@
     "ArenaSlider": {
       "group": "choices",
       "parts": {
-        "label": "text.body",
-        "value": "text.muted",
+        "label": {
+          "to": "text.body",
+          "options": [],
+          "states": "static"
+        },
+        "value": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
         "rail": {
           "to": "choices.box",
           "options": [],
@@ -3743,7 +4322,11 @@
             "selected"
           ]
         },
-        "hint": "text.muted"
+        "hint": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        }
       }
     },
     "ArenaSparkline": {
@@ -3755,8 +4338,18 @@
           "states": "static",
           "inline": true
         },
-        "tooltipLabel": "text.muted",
-        "tooltipValue": "text.body"
+        "tooltipLabel": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static",
+          "ground": "fill-surface-raised"
+        },
+        "tooltipValue": {
+          "to": "text.figure",
+          "options": [],
+          "states": "static",
+          "ground": "fill-surface-raised"
+        }
       }
     },
     "ArenaSpinner": {
@@ -3820,8 +4413,16 @@
           ],
           "inline": true
         },
-        "label": "text.muted",
-        "icon": "text.muted",
+        "label": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
+        "icon": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
         "value": {
           "to": "marks.label",
           "options": [
@@ -3864,7 +4465,11 @@
             }
           }
         },
-        "sub": "text.muted"
+        "sub": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        }
       }
     },
     "ArenaStepper": {
@@ -3929,7 +4534,11 @@
             }
           }
         },
-        "description": "text.muted",
+        "description": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
         "connector": {
           "to": "surfaces.separator",
           "options": [],
@@ -3977,8 +4586,16 @@
             "ink"
           ]
         },
-        "label": "text.body",
-        "guard": "text.muted"
+        "label": {
+          "to": "text.body",
+          "options": [],
+          "states": "static"
+        },
+        "guard": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        }
       }
     },
     "ArenaTable": {
@@ -4027,7 +4644,17 @@
             "value": "true"
           }
         },
-        "td": "text.figure",
+        "td": {
+          "to": "text.figure",
+          "options": [],
+          "states": "static",
+          "toBy": {
+            "axis": "numeric",
+            "values": {
+              "false": "text.body"
+            }
+          }
+        },
         "link": {
           "to": "navigation.link",
           "options": [
@@ -4038,7 +4665,11 @@
             "hover"
           ]
         },
-        "empty": "text.muted",
+        "empty": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
         "card": {
           "to": "surfaces.card",
           "options": [
@@ -4049,8 +4680,22 @@
           ],
           "inline": true
         },
-        "cardLabel": "text.muted",
-        "cardValue": "text.figure",
+        "cardLabel": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
+        "cardValue": {
+          "to": "text.figure",
+          "options": [],
+          "states": "static",
+          "toBy": {
+            "axis": "numeric",
+            "values": {
+              "false": "text.body"
+            }
+          }
+        },
         "cardBlock": {
           "to": "surfaces.separator",
           "options": [],
@@ -4129,7 +4774,11 @@
     "ArenaTextarea": {
       "group": "fields",
       "parts": {
-        "label": "text.muted",
+        "label": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
         "required": {
           "to": "fields.required",
           "options": [],
@@ -4160,7 +4809,11 @@
           ],
           "inkFrom": "fields.value"
         },
-        "hint": "text.muted",
+        "hint": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
         "error": {
           "to": "fields.error",
           "options": [],
@@ -4236,9 +4889,21 @@
           "states": "static",
           "edgeAs": "fill"
         },
-        "title": "text.heading",
-        "description": "text.body",
-        "time": "text.muted"
+        "title": {
+          "to": "text.heading",
+          "options": [],
+          "states": "static"
+        },
+        "description": {
+          "to": "text.body",
+          "options": [],
+          "states": "static"
+        },
+        "time": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        }
       }
     },
     "ArenaToast": {
@@ -4268,9 +4933,17 @@
             "edge": "--arena-accent-feedback-banner-edge"
           }
         },
-        "title": "text.heading",
+        "title": {
+          "to": "text.heading",
+          "options": [],
+          "states": "static"
+        },
         "pinned": "marks.outline@neutral",
-        "message": "text.muted",
+        "message": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        },
         "action": {
           "to": "feedback.action",
           "options": [
@@ -4322,9 +4995,21 @@
     "ArenaUnauthCard": {
       "group": "text",
       "parts": {
-        "eyebrow": "text.eyebrow",
-        "title": "text.heading",
-        "footer": "text.muted"
+        "eyebrow": {
+          "to": "text.eyebrow",
+          "options": [],
+          "states": "static"
+        },
+        "title": {
+          "to": "text.heading",
+          "options": [],
+          "states": "static"
+        },
+        "footer": {
+          "to": "text.muted",
+          "options": [],
+          "states": "static"
+        }
       }
     }
   }

@@ -2,16 +2,16 @@
   "component": "ArenaCombobox",
   "slots": {
     "root": "relative flex flex-col gap-1.5",
-    "label": "font-face-label text-ctl-xs tracking-label-role case-label text-ink-muted/(--level-ink-muted)",
+    "label": "font-face-label text-ctl-xs tracking-label-role case-label text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",
     "field": "flex items-center gap-control min-h-ctl-h px-control-x border-[length:var(--bw-field)] rounded-field transition-[border-color,box-shadow] duration-[var(--dur-hover)] ease-hover",
-    "icon": "inline-flex text-ink-muted/(--level-ink-muted) text-[length:var(--icon-md)]",
+    "icon": "inline-flex text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)] text-[length:var(--icon-md)]",
     "chips": "flex flex-1 flex-wrap items-center gap-inline py-1 min-w-0",
     "more": "inline-flex items-center rounded-marker border-[length:var(--bw-marker)] border-[color:var(--marks-neutral-outline-edge-rest,var(--edge-marker))] px-marker-x py-marker-y text-ctl-xs font-semibold text-[color:color-mix(in_oklab,var(--marks-neutral-outline-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",
     "input": "flex-1 min-w-0 border-none outline-none font-body text-ctl bg-[color:var(--fields-value-fill-rest,transparent)] text-[color:var(--fields-value-ink-rest,var(--ink-body))] placeholder:text-[color:color-mix(in_oklab,var(--fields-value-ink-rest,var(--ink-body))_var(--level-ink-muted),transparent)]",
     "statusIcon": "text-[length:var(--icon-md)]",
     "clear": "inline-flex items-center justify-center min-h-ctl-h-sm min-w-ctl-h-sm border-none cursor-pointer text-[length:var(--icon-sm)] bg-[color:var(--actions-dismiss-fill-rest,transparent)] [--arena-icon-ink:color-mix(in_oklab,var(--actions-dismiss-icon-rest,var(--actions-dismiss-ink-rest,var(--ink-muted)))_var(--level-ink-muted),transparent)] text-[color:color-mix(in_oklab,var(--actions-dismiss-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)] hover:bg-[color:var(--actions-dismiss-fill-hover,var(--actions-dismiss-fill-rest,transparent))] hover:[--arena-icon-ink:color-mix(in_oklab,var(--actions-dismiss-icon-hover,var(--actions-dismiss-ink-hover,var(--ink-body)))_var(--level-ink-body),transparent)] hover:text-[color:color-mix(in_oklab,var(--actions-dismiss-ink-hover,var(--ink-body))_var(--level-ink-body),transparent)] active:bg-[color:var(--actions-dismiss-fill-pressed,color-mix(in_oklab,var(--actions-dismiss-fill-rest,transparent),color-mix(in_oklab,var(--actions-dismiss-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)_calc(var(--mix-pressed)*100%)))] active:[--arena-icon-ink:var(--actions-dismiss-icon-pressed,var(--actions-dismiss-ink-pressed,color-mix(in_oklab,var(--actions-dismiss-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)))] active:text-[color:var(--actions-dismiss-ink-pressed,color-mix(in_oklab,var(--actions-dismiss-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent))] disabled:bg-[color:var(--actions-dismiss-fill-disabled,var(--actions-dismiss-fill-rest,transparent))] disabled:[--arena-icon-ink:var(--actions-dismiss-icon-disabled,var(--actions-dismiss-ink-disabled,color-mix(in_oklab,var(--actions-dismiss-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)))] disabled:text-[color:var(--actions-dismiss-ink-disabled,color-mix(in_oklab,var(--actions-dismiss-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent))]",
-    "caret": "inline-flex pointer-events-none text-ink-muted/(--level-ink-muted) text-[length:var(--icon-sm)]",
-    "hint": "font-body text-ctl-sm text-ink-muted/(--level-ink-muted)",
+    "caret": "inline-flex pointer-events-none text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)] text-[length:var(--icon-sm)]",
+    "hint": "font-body text-ctl-sm text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",
     "error": "font-body text-ctl-sm text-[color:var(--fields-error-ink-rest,var(--ink-invalid))]",
     "announcement": "sr-only",
     "panel": "grow z-dropdown max-h-80 overflow-auto p-1.5 bg-[color:var(--overlays-panel-fill-rest,var(--fill-surface-floating))] border-[length:var(--bw-surface)] border-[color:var(--overlays-panel-edge-rest,var(--edge-surface-floating))] rounded-surface-floating shadow-surface-floating",
@@ -19,8 +19,8 @@
     "option": "flex items-center gap-row-floating w-full min-h-row-min text-left px-row-floating-x py-row-floating-y rounded-control font-body text-md bg-[color:var(--menus-plain-item-fill-rest,transparent)] [--arena-icon-ink:color-mix(in_oklab,var(--menus-plain-item-icon-rest,var(--menus-plain-item-ink-rest,var(--ink-body)))_var(--level-ink-body),transparent)] text-[color:color-mix(in_oklab,var(--menus-plain-item-ink-rest,var(--ink-body))_var(--level-ink-body),transparent)]",
     "optionLabel": "flex-1",
     "optionMark": "inline-flex text-[length:var(--icon-sm)]",
-    "empty": "px-row-floating-x py-row-floating-y font-body text-md text-ink-muted/(--level-ink-muted)",
-    "status": "px-row-floating-x py-row-floating-y font-body text-md text-ink-muted/(--level-ink-muted)"
+    "empty": "px-row-floating-x py-row-floating-y font-body text-md text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",
+    "status": "px-row-floating-x py-row-floating-y font-body text-md text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]"
   },
   "kind": {
     "root": "none",

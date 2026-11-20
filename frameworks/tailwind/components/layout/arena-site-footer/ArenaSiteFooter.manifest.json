@@ -4,7 +4,7 @@
     "root": "block w-full border-[color:var(--surfaces-page-bar-edge-rest,var(--edge-surface))] bg-[color:var(--surfaces-page-bar-fill-rest,var(--fill-surface))] border-t-[length:var(--bw-surface)]",
     "band": "flex flex-col w-full mx-auto px-[min(var(--gutter),7%)] py-section gap-component",
     "columns": "grid gap-component",
-    "note": "font-body text-sm text-ink-muted/(--level-ink-muted) leading-prose m-0"
+    "note": "font-body text-sm text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)] leading-prose m-0"
   },
   "kind": {
     "root": "none",

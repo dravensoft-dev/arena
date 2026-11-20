@@ -230,8 +230,8 @@ const selectorsOf = (levels: { selector: string }[]) => [...new Set(levels.map((
 
 test('a table\'s figures are drawn in a role the contrast gate measures, and it clears AA in both themes', () => {
   const { levels, reports } = inkReports('.arena-table__td', 'ink-figure');
-  assert.deepEqual(selectorsOf(levels), ['.arena-table__card-value:where([data-arena-numeric])', '.arena-table__td:where([data-arena-numeric])'],
-    'a numeric cell and a numeric card value paint --ink-figure through a level, which is the one shape levelReports reads; '
+  assert.deepEqual(selectorsOf(levels), ['.arena-table__card-value', '.arena-table__td'],
+    'a cell and a card value read --ink-figure through a level in their base class, with the body ink in the numeric=false branch, which is the one shape levelReports reads; '
     + 'a raw var(--color-secondary) was an accent drawn as ink that nothing measured');
   assert.deepEqual(reports, [], 'the figures of a pricing table are the numbers a reader came for');
   assert.ok(inkReports('.arena-table__td', 'ink-figure', 'var(--color-neutral)').reports.some((one) => one.startsWith('light: --ink-figure')),
@@ -240,8 +240,8 @@ test('a table\'s figures are drawn in a role the contrast gate measures, and it 
 
 test('a bulk action bar\'s count is a figure, drawn in a role the contrast gate measures', () => {
   const { levels, reports } = inkReports('.arena-bulk-action-bar__number', 'ink-figure');
-  assert.deepEqual(selectorsOf(levels), ['.arena-bulk-action-bar__number'],
-    'the number of rows selected paints --ink-figure through a level; a raw var(--color-secondary) was gold drawn as ink that nothing measured');
+  assert.deepEqual(selectorsOf(levels), ['.arena-bulk-action-bar__count', '.arena-bulk-action-bar__number'],
+    'the number of rows selected and the count beside it paint --ink-figure through a level; a raw var(--color-secondary) was gold drawn as ink that nothing measured');
   assert.deepEqual(reports, [], 'the count is what the bar is about');
   assert.ok(inkReports('.arena-bulk-action-bar__number', 'ink-figure', 'var(--color-neutral)').reports.some((one) => one.startsWith('light: --ink-figure')),
     'a plugin raising a fill colour to the count owes 4.5:1, and neutral on the light floating surface does not clear it');
@@ -337,7 +337,7 @@ test('defaultBuildProblems is clean on Arena\'s skin', () => {
 
 test('the default plugin resolves and clears every slot pair the contract declares', () => {
   assert.deepEqual(defaultBuildProblems(), []);
-  assert.equal(slotPairs(tokenCatalogue().slots).length, 231, 'the sweep measures every slot pair the contract declares');
+  assert.equal(slotPairs(tokenCatalogue().slots).length, 237, 'the sweep measures every slot pair the contract declares');
 });
 
 test('complete and the catalogue report their slot pairs in the lines the gate prints', () => {

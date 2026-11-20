@@ -14,11 +14,11 @@
   "slots": {
     "root": "flex flex-col gap-2 border-[color:var(--surfaces-plain-card-edge-rest,var(--edge-surface))] bg-[color:var(--surfaces-plain-card-fill-rest,var(--fill-surface))] border-[length:var(--bw-surface)] rounded-surface p-surface min-h-30 shadow-surface-rest",
     "head": "flex items-center justify-between gap-items",
-    "label": "font-face-label text-label tracking-label-role case-label text-ink-muted/(--level-ink-muted)",
-    "icon": "inline-flex text-[length:var(--icon-sm)] text-ink-muted/(--level-ink-muted) opacity-60",
+    "label": "font-face-label text-label tracking-label-role case-label text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",
+    "icon": "inline-flex text-[length:var(--icon-sm)] text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)] opacity-60",
     "value": "font-face-heading font-heading text-h2 leading-snug tabular-nums tracking-heading text-[color:var(--arena-accent-marks-label-ink)]",
     "delta": "self-start inline-flex items-center gap-1 rounded-marker px-2 py-0.5 bg-transparent border-[length:var(--bw-marker)] font-body text-ctl-sm font-semibold",
-    "sub": "font-body text-ctl-sm text-ink-muted/(--level-ink-muted)"
+    "sub": "font-body text-ctl-sm text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]"
   },
   "kind": {
     "root": "surface",

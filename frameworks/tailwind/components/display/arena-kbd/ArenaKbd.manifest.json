@@ -2,8 +2,8 @@
   "component": "ArenaKbd",
   "slots": {
     "root": "relative inline-flex items-center gap-inline w-fit",
-    "key": "font-face-key text-ctl-xs case-key text-ink-key/(--level-ink-muted) border-[length:var(--bw-marker)] border-edge-control-quiet rounded-marker px-marker-x py-key-y",
-    "separator": "font-face-key text-ctl-xs text-ink-key/(--level-ink-muted)",
+    "key": "font-face-key text-ctl-xs case-key text-[color:color-mix(in_oklab,var(--text-key-ink-rest,var(--ink-key))_var(--level-ink-muted),transparent)] border-[length:var(--bw-marker)] border-[color:var(--text-key-edge-rest,var(--edge-control-quiet))] rounded-marker px-marker-x py-key-y",
+    "separator": "font-face-key text-ctl-xs text-[color:color-mix(in_oklab,var(--text-key-ink-rest,var(--ink-key))_var(--level-ink-muted),transparent)]",
     "name": "sr-only"
   },
   "kind": {

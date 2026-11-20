@@ -10,15 +10,15 @@
     "sortCaret": "inline-flex ms-1.5 align-middle text-[length:var(--icon-sm)]",
     "pager": "flex justify-end border-t-[length:var(--bw-separator)] border-[color:var(--surfaces-separator-edge-rest,var(--edge-separator))] px-row-px py-row-py",
     "row": "table-row border-t-[length:var(--bw-separator)] border-[color:var(--data-row-edge-rest,var(--edge-separator))] bg-[color:var(--data-row-fill-rest,transparent)] transition-[background] duration-[var(--dur-hover)] ease-hover",
-    "td": "table-cell w-[var(--arena-column-width,auto)] px-row-px py-row-py [text-align:var(--arena-column-align,left)] align-middle text-ctl outline-none focus:shadow-[inset_0_0_0_var(--bw-focus)_var(--edge-focus)]",
+    "td": "table-cell w-[var(--arena-column-width,auto)] px-row-px py-row-py [text-align:var(--arena-column-align,left)] align-middle text-ctl text-[color:color-mix(in_oklab,var(--text-figure-ink-rest,var(--ink-figure))_var(--level-ink-full),transparent)] outline-none focus:shadow-[inset_0_0_0_var(--bw-focus)_var(--edge-focus)]",
     "link": "inline-flex items-center min-h-ctl-h-sm cursor-pointer no-underline text-[color:color-mix(in_oklab,var(--navigation-plain-link-ink-rest,var(--ink-link))_var(--level-ink-body),transparent)] rounded-control outline-none transition-[color] duration-[var(--dur-hover)] ease-hover hover:text-[color:var(--navigation-plain-link-ink-hover,var(--ink-heading))] focus:shadow-[inset_0_0_0_var(--bw-focus)_var(--edge-focus)]",
-    "empty": "px-4 py-8 text-center align-middle text-ctl text-ink-muted/(--level-ink-muted)",
+    "empty": "px-4 py-8 text-center align-middle text-ctl text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",
     "sortBar": "flex items-center gap-inline w-full",
     "sortField": "min-w-0 flex-1",
     "card": "flex flex-col gap-stack border-[color:var(--surfaces-plain-card-edge-rest,var(--edge-surface))] bg-[color:var(--surfaces-plain-card-fill-rest,var(--fill-surface))] border-[length:var(--bw-surface)] rounded-surface p-row-px shadow-surface-rest",
     "cardRow": "flex items-baseline justify-between gap-items",
-    "cardLabel": "font-face-label text-label font-bold tracking-label-role case-label text-ink-muted/(--level-ink-muted)",
-    "cardValue": "min-w-0 text-right text-ctl",
+    "cardLabel": "font-face-label text-label font-bold tracking-label-role case-label text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",
+    "cardValue": "min-w-0 text-right text-ctl text-[color:color-mix(in_oklab,var(--text-figure-ink-rest,var(--ink-figure))_var(--level-ink-full),transparent)]",
     "cardBlock": "w-full flex justify-end gap-2 border-t-[length:var(--bw-separator)] border-[color:var(--surfaces-separator-edge-rest,var(--edge-separator))] pt-2"
   },
   "kind": {
@@ -76,12 +76,12 @@
     },
     "numeric": {
       "true": {
-        "td": "font-mono tabular-nums text-ink-figure/(--level-ink-full)",
-        "cardValue": "font-mono tabular-nums text-ink-figure/(--level-ink-full)"
+        "td": "font-mono tabular-nums",
+        "cardValue": "font-mono tabular-nums"
       },
       "false": {
-        "td": "font-body text-ink-body/(--level-ink-body)",
-        "cardValue": "font-body text-ink-body/(--level-ink-body)"
+        "td": "font-body text-[color:color-mix(in_oklab,var(--text-body-ink-rest,var(--ink-body))_var(--level-ink-body),transparent)]",
+        "cardValue": "font-body text-[color:color-mix(in_oklab,var(--text-body-ink-rest,var(--ink-body))_var(--level-ink-body),transparent)]"
       }
     }
   },

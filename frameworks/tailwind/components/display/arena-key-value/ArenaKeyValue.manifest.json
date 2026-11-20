@@ -3,11 +3,11 @@
   "slots": {
     "root": "flex flex-col gap-items m-0",
     "row": "flex flex-wrap items-baseline justify-between gap-inline font-body text-sm",
-    "term": "text-ink-muted/(--level-ink-muted) m-0",
-    "value": "text-ink-body text-end m-0",
+    "term": "text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)] m-0",
+    "value": "text-[color:color-mix(in_oklab,var(--text-body-ink-rest,var(--ink-body))_var(--level-ink-body),transparent)] text-end m-0",
     "total": "flex flex-wrap items-baseline justify-between gap-inline pt-3 border-t-[length:var(--bw-separator)] border-[color:var(--surfaces-separator-edge-rest,var(--edge-separator))] font-face-heading font-heading text-title-surface",
-    "totalTerm": "text-ink-heading m-0",
-    "totalValue": "text-ink-heading text-end m-0"
+    "totalTerm": "text-[color:var(--text-heading-ink-rest,var(--ink-heading))] m-0",
+    "totalValue": "text-[color:var(--text-heading-ink-rest,var(--ink-heading))] text-end m-0"
   },
   "kind": {
     "root": "none",

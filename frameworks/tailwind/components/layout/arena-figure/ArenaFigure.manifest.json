@@ -9,7 +9,7 @@
     "media": "col-start-1 row-start-1 w-full h-full min-w-0 min-h-0 [&>img]:fit-media [&>img]:w-full [&>img]:h-full [&>video]:fit-media [&>video]:w-full [&>video]:h-full",
     "fallback": "col-start-1 row-start-1 grid place-items-center w-full h-full",
     "overlay": "col-start-1 row-start-1 self-end flex flex-wrap items-center gap-inline p-surface bg-[color:color-mix(in_oklab,var(--surfaces-media-fill-rest,var(--overlay-media))_var(--level-media),transparent)] text-[color:var(--surfaces-media-ink-rest,var(--ink-heading))]",
-    "caption": "font-body text-sm text-ink-muted/(--level-ink-muted) leading-prose m-0"
+    "caption": "font-body text-sm text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)] leading-prose m-0"
   },
   "kind": {
     "root": "none",

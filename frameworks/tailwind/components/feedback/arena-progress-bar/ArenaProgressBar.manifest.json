@@ -22,8 +22,8 @@
   "slots": {
     "root": "grid",
     "head": "flex items-baseline justify-between gap-items mb-2",
-    "label": "font-body text-ctl-md text-ink-body/(--level-ink-body)",
-    "value": "font-mono text-ctl-sm text-ink-muted/(--level-ink-muted)",
+    "label": "font-body text-ctl-md text-[color:color-mix(in_oklab,var(--text-body-ink-rest,var(--ink-body))_var(--level-ink-body),transparent)]",
+    "value": "font-mono text-ctl-sm text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",
     "track": "relative rounded-pill overflow-hidden h-[var(--arena-size-meter,var(--size-md-meter))] bg-[color:var(--arena-accent-meters-track-fill)] text-[color:var(--arena-accent-meters-track-ink)]",
     "announcement": "sr-only",
     "fill": "absolute inset-0 bg-current rounded-[inherit] transition-[width] duration-[var(--dur-state)] ease-state",
@@ -55,7 +55,7 @@
       "radial": {
         "root": "w-fit justify-items-center gap-items",
         "label": "text-center",
-        "value": "font-mono text-ctl-md text-ink-body/(--level-ink-body) [grid-area:1/1]"
+        "value": "font-mono text-ctl-md text-[color:color-mix(in_oklab,var(--text-body-ink-rest,var(--ink-body))_var(--level-ink-body),transparent)] [grid-area:1/1]"
       }
     },
     "tone": {

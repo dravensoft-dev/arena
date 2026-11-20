@@ -51,6 +51,9 @@ export const ARENA_THEME_NAMED = new Map([
     'Arena\'s own frame token, and Theme.css clears Tailwind\'s aspect namespace so no default theme key writes it'] as [string, string]),
 ]);
 
+export const slotNamed = (slots: string[]) => new Map([...ARENA_THEME_NAMED,
+  ...slots.map((name) => [name, 'a colour slot Arena declares, which an adopter answers by that name'] as [string, string])]);
+
 export const EXTERNAL_PROPERTIES = new Map([
   ['picker-invert', 'written by arena build into the consuming project\'s own stylesheet, never by the package'],
   ['arena-side-nav-depth', 'written by ArenaSideNav\'s rows onto their own root as a unitless count of the row\'s '
@@ -135,7 +138,7 @@ export function sheetProblems(manifests: Manifests, base = root) {
       if (name !== undefined && !derived.has(name)) problems.push(`${manifest.component}: .${name} has a rule no manifest derives`);
     }
     for (const name of propertiesIn(css)) if (name !== undefined) readNames.add(name);
-    for (const leak of themeLeaks(css)) {
+    for (const leak of themeLeaks(css, slotNamed(Object.keys(catalogue.slots)))) {
       problems.push(`${manifest.component}: reads --${leak}, a Tailwind theme property, so the strip `
         + 'did not run over it and an adopter who declares that property rescales this component silently');
     }

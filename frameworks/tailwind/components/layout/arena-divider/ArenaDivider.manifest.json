@@ -13,7 +13,7 @@
   "slots": {
     "root": "flex self-stretch shrink-0 m-0 border-0",
     "rule": "flex-1 w-[var(--arena-orientation-rule-w,100%)] h-[var(--arena-orientation-rule-h,var(--bw-separator))] bg-[color:var(--surfaces-separator-edge-rest,var(--edge-separator))]",
-    "label": "font-face-label text-ctl-xs tracking-label-role case-label text-ink-muted/(--level-ink-muted)"
+    "label": "font-face-label text-ctl-xs tracking-label-role case-label text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]"
   },
   "kind": {
     "root": "none",

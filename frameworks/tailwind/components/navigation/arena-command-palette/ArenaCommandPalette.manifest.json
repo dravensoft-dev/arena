@@ -4,17 +4,17 @@
     "root": "fixed inset-0 z-palette flex items-start justify-center pt-[12vh] bg-[color:color-mix(in_oklab,var(--overlays-scrim-fill-rest,var(--overlay-scrim))_var(--level-scrim),transparent)] backdrop-blur-scrim",
     "panel": "flex flex-col max-h-[88vh] w-140 max-w-[92vw] bg-[color:var(--overlays-panel-fill-rest,var(--fill-surface-floating))] border-[length:var(--bw-surface)] border-[color:var(--overlays-panel-edge-rest,var(--edge-surface-floating))] rounded-surface shadow-surface-deep overflow-hidden",
     "search": "flex items-center gap-2.5 px-4 py-3.5 border-b-[length:var(--bw-separator)] border-[color:var(--fields-neutral-field-edge-rest,var(--edge-field))]",
-    "searchIcon": "text-ink-muted/(--level-ink-muted) text-[length:var(--icon-lg)]",
+    "searchIcon": "text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)] text-[length:var(--icon-lg)]",
     "input": "flex-1 border-none outline-none font-body text-ctl bg-[color:var(--fields-value-fill-rest,transparent)] text-[color:var(--fields-value-ink-rest,var(--ink-body))] placeholder:text-[color:color-mix(in_oklab,var(--fields-value-ink-rest,var(--ink-body))_var(--level-ink-muted),transparent)]",
-    "esc": "font-face-key text-ctl-xs case-key text-ink-key/(--level-ink-muted) border-[length:var(--bw-marker)] border-edge-control-quiet rounded-marker px-marker-x py-key-y",
+    "esc": "font-face-key text-ctl-xs case-key text-[color:color-mix(in_oklab,var(--text-key-ink-rest,var(--ink-key))_var(--level-ink-muted),transparent)] border-[length:var(--bw-marker)] border-[color:var(--text-key-edge-rest,var(--edge-control-quiet))] rounded-marker px-marker-x py-key-y",
     "list": "min-h-0 max-h-80 overflow-auto p-1.5",
-    "empty": "px-3 py-4.5 font-body text-md text-ink-muted/(--level-ink-muted)",
+    "empty": "px-3 py-4.5 font-body text-md text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",
     "group": "flex flex-col",
-    "groupLabel": "px-row-x pt-[calc(var(--sp-1)*3*var(--dz-row-scale-y))] pb-[calc(var(--sp-1)*1.5*var(--dz-row-scale-y))] font-face-label text-label font-bold tracking-label-role case-label text-ink-muted/(--level-ink-muted)",
+    "groupLabel": "px-row-x pt-[calc(var(--sp-1)*3*var(--dz-row-scale-y))] pb-[calc(var(--sp-1)*1.5*var(--dz-row-scale-y))] font-face-label text-label font-bold tracking-label-role case-label text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",
     "row": "flex items-center gap-row w-full min-h-ctl-h text-left px-row-x py-row-y rounded-control border-none cursor-pointer no-underline shadow-control-rest active:scale-[var(--press-scale)] motion-reduce:active:scale-100 bg-[color:var(--menus-plain-item-fill-rest,transparent)] [--arena-icon-ink:color-mix(in_oklab,var(--menus-plain-item-icon-rest,var(--menus-plain-item-ink-rest,var(--ink-body)))_var(--level-ink-body),transparent)] text-[color:color-mix(in_oklab,var(--menus-plain-item-ink-rest,var(--ink-body))_var(--level-ink-body),transparent)]",
     "rowIcon": "inline-flex text-[length:var(--icon-lg)]",
     "rowLabel": "flex-1 font-body text-ctl",
-    "shortcut": "font-face-key text-ctl-xs text-ink-key/(--level-ink-muted)"
+    "shortcut": "font-face-key text-ctl-xs text-[color:color-mix(in_oklab,var(--text-key-ink-rest,var(--ink-key))_var(--level-ink-muted),transparent)]"
   },
   "kind": {
     "root": "none",

@@ -690,6 +690,13 @@
   --surfaces-primary-card-fill-hover:var(--fill-surface-raised);
   --surfaces-primary-card-fill-rest:var(--fill-surface-floating);
   --surfaces-separator-edge-rest:var(--edge-control-quiet);
+  --text-body-ink-rest:var(--ink-muted);
+  --text-eyebrow-ink-rest:var(--ink-heading);
+  --text-figure-ink-rest:var(--ink-key);
+  --text-heading-ink-rest:var(--ink-eyebrow);
+  --text-key-edge-rest:var(--edge-field);
+  --text-key-ink-rest:var(--ink-figure);
+  --text-muted-ink-rest:var(--ink-body);
   --actions-destructive-root-fade-disabled:1;
   --actions-dismiss-fade-disabled:1;
   --actions-ghost-root-fade-disabled:1;
@@ -1189,6 +1196,13 @@
   --surfaces-primary-card-fill-hover:var(--fill-surface-raised);
   --surfaces-primary-card-fill-rest:var(--fill-surface-floating);
   --surfaces-separator-edge-rest:var(--edge-control-quiet);
+  --text-body-ink-rest:var(--ink-muted);
+  --text-eyebrow-ink-rest:var(--ink-heading);
+  --text-figure-ink-rest:var(--ink-key);
+  --text-heading-ink-rest:var(--ink-eyebrow);
+  --text-key-edge-rest:var(--edge-field);
+  --text-key-ink-rest:var(--ink-figure);
+  --text-muted-ink-rest:var(--ink-body);
 }
 }
 @scope (.arena-complete) {
@@ -1673,6 +1687,13 @@
   --surfaces-primary-card-fill-hover:var(--fill-surface-raised);
   --surfaces-primary-card-fill-rest:var(--fill-surface-floating);
   --surfaces-separator-edge-rest:var(--edge-control-quiet);
+  --text-body-ink-rest:var(--ink-muted);
+  --text-eyebrow-ink-rest:var(--ink-heading);
+  --text-figure-ink-rest:var(--ink-key);
+  --text-heading-ink-rest:var(--ink-eyebrow);
+  --text-key-edge-rest:var(--edge-field);
+  --text-key-ink-rest:var(--ink-figure);
+  --text-muted-ink-rest:var(--ink-body);
 }
 }
 @scope (.arena-light) {
@@ -2157,6 +2178,13 @@
   --surfaces-primary-card-fill-hover:var(--fill-surface-raised);
   --surfaces-primary-card-fill-rest:var(--fill-surface-floating);
   --surfaces-separator-edge-rest:var(--edge-control-quiet);
+  --text-body-ink-rest:var(--ink-muted);
+  --text-eyebrow-ink-rest:var(--ink-heading);
+  --text-figure-ink-rest:var(--ink-key);
+  --text-heading-ink-rest:var(--ink-eyebrow);
+  --text-key-edge-rest:var(--edge-field);
+  --text-key-ink-rest:var(--ink-figure);
+  --text-muted-ink-rest:var(--ink-body);
 }
 }
 @scope (.arena-complete) {
@@ -2641,6 +2669,13 @@
   --surfaces-primary-card-fill-hover:var(--fill-surface-raised);
   --surfaces-primary-card-fill-rest:var(--fill-surface-floating);
   --surfaces-separator-edge-rest:var(--edge-control-quiet);
+  --text-body-ink-rest:var(--ink-muted);
+  --text-eyebrow-ink-rest:var(--ink-heading);
+  --text-figure-ink-rest:var(--ink-key);
+  --text-heading-ink-rest:var(--ink-eyebrow);
+  --text-key-edge-rest:var(--edge-field);
+  --text-key-ink-rest:var(--ink-figure);
+  --text-muted-ink-rest:var(--ink-body);
 }
 }
 @scope (.arena-light) {

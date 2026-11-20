@@ -2,15 +2,15 @@
   "component": "ArenaNumberField",
   "slots": {
     "root": "flex flex-col gap-1.5",
-    "label": "font-face-label text-ctl-xs tracking-label-role case-label text-ink-muted/(--level-ink-muted)",
+    "label": "font-face-label text-ctl-xs tracking-label-role case-label text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",
     "required": "ml-1 text-[color:var(--fields-required-ink-rest,var(--accent-primary-ink))]",
     "field": "flex items-stretch gap-control h-ctl-h border-[length:var(--bw-field)] rounded-field overflow-hidden transition-[border-color,box-shadow] duration-[var(--dur-hover)] ease-hover",
     "stepper": "inline-flex items-center justify-center shrink-0 min-w-ctl-h-sm p-0 border-0 first:border-e-[length:var(--bw-control)] last:border-s-[length:var(--bw-control)] rounded-none cursor-pointer text-[length:var(--icon-sm)] transition-[background,color] duration-[var(--dur-hover)] ease-hover disabled:cursor-not-allowed disabled:opacity-[var(--fields-stepper-fade-disabled,var(--fade-disabled))] disabled:border-[color:var(--fields-stepper-edge-disabled,var(--fields-stepper-edge-rest,var(--edge-control)))] hover:border-[color:var(--fields-stepper-edge-hover,var(--fields-stepper-edge-rest,var(--edge-control)))] active:border-[color:var(--fields-stepper-edge-pressed,var(--fields-stepper-edge-rest,var(--edge-control)))] border-[color:var(--fields-stepper-edge-rest,var(--edge-control))] disabled:bg-[color:var(--fields-stepper-fill-disabled,var(--fields-stepper-fill-rest,transparent))] hover:bg-[color:var(--fields-stepper-fill-hover,var(--fill-hover))] active:bg-[color:var(--fields-stepper-fill-pressed,color-mix(in_oklab,var(--fields-stepper-fill-rest,transparent),color-mix(in_oklab,var(--fields-stepper-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)_calc(var(--mix-pressed)*100%)))] bg-[color:var(--fields-stepper-fill-rest,transparent)] disabled:text-[color:var(--fields-stepper-ink-disabled,color-mix(in_oklab,var(--fields-stepper-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent))] hover:text-[color:color-mix(in_oklab,var(--fields-stepper-ink-hover,var(--ink-body))_var(--level-ink-body),transparent)] active:text-[color:var(--fields-stepper-ink-pressed,color-mix(in_oklab,var(--fields-stepper-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent))] text-[color:color-mix(in_oklab,var(--fields-stepper-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",
-    "prefix": "self-center font-mono tabular-nums text-ctl-md text-ink-muted/(--level-ink-muted)",
+    "prefix": "self-center font-mono tabular-nums text-ctl-md text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",
     "input": "flex-1 min-w-0 border-none outline-none font-mono tabular-nums text-ctl bg-[color:var(--fields-value-fill-rest,transparent)] text-[color:var(--fields-value-ink-rest,var(--ink-body))] placeholder:text-[color:color-mix(in_oklab,var(--fields-value-ink-rest,var(--ink-body))_var(--level-ink-muted),transparent)]",
-    "suffix": "self-center font-mono tabular-nums text-ctl-md text-ink-muted/(--level-ink-muted)",
+    "suffix": "self-center font-mono tabular-nums text-ctl-md text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",
     "statusIcon": "self-center text-[length:var(--icon-md)]",
-    "hint": "font-body text-ctl-sm text-ink-muted/(--level-ink-muted)",
+    "hint": "font-body text-ctl-sm text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",
     "error": "font-body text-ctl-sm text-[color:var(--fields-error-ink-rest,var(--ink-invalid))]"
   },
   "kind": {

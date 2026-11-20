@@ -525,3 +525,16 @@ test('a mark part pairs the ring that tells its disc', () => {
     }
   }
 });
+
+test('a tooltip label is measured over the readout it paints on', () => {
+  const roles = new Map(rolesFor(null, CATALOGUE, 'dark'));
+  const colors = coloursOf('dark');
+  const lines = (r: Map<string, string>) => slotReports(CATALOGUE.slots, new Map(), r, colors, 'dark', LEVELS).map((one) => one.message);
+  assert.deepEqual(lines(roles).filter((line) => /ArenaBarChart\.tooltip/.test(line)), [], 'the shipped readout clears every tooltip pair');
+  roles.set('fill-surface-raised', roles.get('ink-muted') as string);
+  const raised = lines(roles).filter((line) => /ArenaBarChart\.tooltipLabel/.test(line));
+  assert.equal(raised.length, 1, raised.join('\n'));
+  assert.match(raised[0] as string, /^--text-muted-ink-rest measures [0-9.]+:1 in the rest state of the dark theme, as ArenaBarChart\.tooltipLabel paints it over --fill-surface-raised, below 4\.5:1 \(WCAG 1\.4\.3\)/);
+  const page = lines(roles).filter((line) => /^--text-muted-ink-rest /.test(line) && !/ as Arena[A-Za-z]+\.tooltip/.test(line));
+  assert.deepEqual(page, [], 'muted text on the page keeps its floor over every ground, the readout fill being no ground');
+});

@@ -3,7 +3,7 @@
   "slots": {
     "root": "flex flex-col gap-items border-[color:var(--surfaces-plain-card-edge-rest,var(--edge-surface))] bg-[color:var(--surfaces-plain-card-fill-rest,var(--fill-surface))] border-[length:var(--bw-surface)] rounded-surface p-surface shadow-surface-rest",
     "head": "flex flex-wrap items-center justify-between gap-items pb-surface-head border-b-[length:var(--bw-surface-head)] border-[color:var(--surfaces-separator-edge-rest,var(--edge-separator))]",
-    "title": "font-face-label text-label tracking-label-role case-label text-ink-muted/(--level-ink-muted)",
+    "title": "font-face-label text-label tracking-label-role case-label text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",
     "actions": "flex flex-wrap items-center gap-inline"
   },
   "kind": { "root": "surface", "head": "surface", "title": "none", "actions": "none" }

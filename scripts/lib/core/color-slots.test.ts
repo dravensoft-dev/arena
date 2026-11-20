@@ -98,7 +98,7 @@ test('actions derives 124 slots and no component slot', () => {
   const c = deriveSlots(readSlotDeclarations());
   const slots = Object.values(c.slots);
   assert.equal(slots.filter((slot) => slot.group === 'actions').length, 124);
-  assert.deepEqual([...new Set(slots.map((slot) => slot.group))].sort(), ['actions', 'choices', 'data', 'feedback', 'fields', 'marks', 'menus', 'meters', 'navigation', 'overlays', 'steps', 'surfaces']);
+  assert.deepEqual([...new Set(slots.map((slot) => slot.group))].sort(), ['actions', 'choices', 'data', 'feedback', 'fields', 'marks', 'menus', 'meters', 'navigation', 'overlays', 'steps', 'surfaces', 'text']);
   for (const slot of slots) {
     for (const key of ['scope', 'family', 'component', 'draws']) assert.equal(Object.hasOwn(slot, key), false, key);
   }
@@ -608,4 +608,32 @@ test('overlays derive their scrim, panel, section, readout and eyebrow', () => {
   assert.equal(c.slots['overlays-readout-edge-rest']?.default, '{edge-surface-floating}');
   assert.equal(c.slots['overlays-plain-eyebrow-ink-rest']?.default, '{ink-eyebrow}');
   assert.equal(c.slots['overlays-destructive-eyebrow-ink-rest']?.default, '{hue-danger-ink}');
+});
+
+test('text derives its six parts', () => {
+  const c = deriveSlots(readSlotDeclarations());
+  assert.equal(c.slots['text-heading-ink-rest']?.default, '{ink-heading}');
+  assert.equal(c.slots['text-body-ink-rest']?.default, '{ink-body}');
+  assert.equal(c.slots['text-body-ink-rest']?.level, 'level-ink-body');
+  assert.equal(c.slots['text-muted-ink-rest']?.default, '{ink-muted}');
+  assert.equal(c.slots['text-muted-ink-rest']?.level, 'level-ink-muted');
+  assert.equal(c.slots['text-eyebrow-ink-rest']?.default, '{ink-eyebrow}');
+  assert.equal(c.slots['text-figure-ink-rest']?.default, '{ink-figure}');
+  assert.equal(c.slots['text-figure-ink-rest']?.level, 'level-ink-full');
+  assert.equal(c.slots['text-key-ink-rest']?.default, '{ink-key}');
+  assert.equal(c.slots['text-key-ink-rest']?.level, 'level-ink-muted');
+  assert.equal(c.slots['text-key-edge-rest']?.default, '{edge-control-quiet}');
+  assert.equal(c.slots['text-key-edge-rest']?.level, undefined);
+  assert.deepEqual(Object.keys(c.slots).filter((name) => name.startsWith('text-')).length, 7, 'six parts, the key with an ink and an edge');
+  const ground = (key: string) => c.members[key]?.ground;
+  assert.equal(ground('ArenaBarChart.tooltipLabel'), 'fill-surface-raised');
+  assert.equal(ground('ArenaBarChart.tooltipValue'), 'fill-surface-raised');
+  assert.equal(c.members['ArenaBarChart.tooltipValue']?.to, 'text.figure');
+  assert.equal(c.members['ArenaBulkActionBar.count']?.to, 'text.figure');
+  assert.deepEqual(c.members['ArenaTable.td']?.toBy, { axis: 'numeric', values: { false: 'text.body' } });
+  assert.deepEqual(c.members['ArenaTable.cardValue']?.toBy, { axis: 'numeric', values: { false: 'text.body' } });
+  assert.deepEqual(c.members['ArenaProgressBar.value']?.toBy, { axis: 'shape', values: { radial: 'text.body' } });
+  assert.equal(c.members['ArenaProgressBar.value']?.to, 'text.muted');
+  for (const key of ['ArenaKbd.separator', 'ArenaMenu.shortcut', 'ArenaCommandPalette.shortcut']) assert.deepEqual(c.members[key]?.properties, ['ink'], key);
+  assert.equal(readSlotDeclarations().members!.ArenaCombobox!.parts.more, 'marks.outline@neutral', 'a member that left text.key (D102) stays out of it');
 });

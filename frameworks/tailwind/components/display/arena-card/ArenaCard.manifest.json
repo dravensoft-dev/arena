@@ -21,8 +21,8 @@
   "slots": {
     "root": "block bg-[color:var(--arena-accent-surfaces-card-fill)] border-[length:var(--bw-surface)] rounded-surface overflow-hidden border-[color:var(--arena-accent-surfaces-card-edge)] shadow-[var(--arena-elevation-shadow,var(--elevation-flat-shadow))]",
     "head": "flex items-start justify-between px-surface pt-surface-head-top pb-surface-head border-b-[length:var(--bw-surface-head)] border-[color:var(--surfaces-separator-edge-rest,var(--edge-separator))]",
-    "eyebrow": "font-face-eyebrow text-eyebrow tracking-eyebrow case-eyebrow text-ink-eyebrow mb-1.5 font-eyebrow",
-    "title": "font-face-heading font-heading text-title-surface text-ink-heading tracking-heading leading-heading",
+    "eyebrow": "font-face-eyebrow text-eyebrow tracking-eyebrow case-eyebrow text-[color:var(--text-eyebrow-ink-rest,var(--ink-eyebrow))] mb-1.5 font-eyebrow",
+    "title": "font-face-heading font-heading text-title-surface text-[color:var(--text-heading-ink-rest,var(--ink-heading))] tracking-heading leading-heading",
     "body": "p-surface flex flex-col gap-items min-w-0"
   },
   "kind": { "root": "surface", "head": "surface", "eyebrow": "none", "title": "none", "body": "surface" },
