@@ -38,7 +38,7 @@ export type ProximityCase = {
   name: string;
   container: string;
   hover?: true;
-  measure: { width: 'container' | 'own' } | { property: string; value: string; others?: Record<string, string> };
+  measure: { width: 'container' | 'own' } | { property: string; value: string; others?: Record<string, string | string[]> };
   react: Tree | null;
   angular: Tree | null;
 };

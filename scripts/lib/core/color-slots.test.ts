@@ -1,4 +1,7 @@
 import test from 'node:test';
+import { join } from 'node:path';
+import { readJson } from '../../utils/read-file.ts';
+import { repoRoot } from '../arena/repo-root.ts';
 import assert from 'node:assert/strict';
 import { SLOT_KEYS, deriveSlots, readSlotDeclarations } from './color-slots.ts';
 import type { SlotDeclarations } from './color-slots.ts';
@@ -532,9 +535,11 @@ test('no group named charts and the readout is a structure-only overlay part', (
   const d = readSlotDeclarations();
   assert.equal(d.groups!.charts, undefined);
   assert.deepEqual(d.groups!.overlays!.parts.readout, { properties: ['fill', 'edge'], states: 'static' });
-  const charts = Object.entries(d.members!).filter(([name]) => /Chart$|^ArenaSparkline$|^ArenaChartCard$/.test(name));
-  assert.ok(charts.length >= 11);
-  for (const [name, m] of charts) {
+  const listed = (readJson(join(repoRoot, 'frameworks/Components.json')) as Record<string, string[]>).charts!;
+  assert.equal(listed.length, 12, 'the charts category lists Bar, ChartCard, Doughnut, Funnel, Gauge, Heatmap, HorizontalBar, Line, Pyramid, Radar, Scatter and Sparkline');
+  const charts = listed.map((name) => [name, d.members![name]] as const);
+  for (const [name, m] of charts) assert.ok(m, `${name} is a chart and declares its members`);
+  for (const [name, m] of charts as [string, NonNullable<(typeof charts)[number][1]>][]) {
     assert.equal(m.group, null, name);
     for (const to of Object.values(m.parts)) assert.ok(to === null || typeof to !== 'string' || !to.startsWith('charts.'), `${name}: ${to}`);
     if ('tooltip' in m.parts) assert.equal(m.parts.tooltip, 'overlays.readout', name);

@@ -47,6 +47,14 @@ test('a measure that names other parts holds only when every one of them has the
   assert.match(verdict(kase, 'react', 'components-first', { width: 0, container: 0, property: '32px', others: { button: ['32px'] } }) ?? '', /height is "32px" on the subject/);
 });
 
+test('a measure that lists values for a part holds each instance in drawing order', () => {
+  const kase = { name: 's', container: '', measure: { property: 'height', value: '40px', others: { button: ['32px', '36px'] } }, react: null, angular: null };
+  const at = (others: Record<string, string[]>) => verdict(kase, 'react', 'components-first', { width: 0, container: 0, property: '40px', others });
+  assert.equal(at({ button: ['32px', '36px'] }), null);
+  assert.match(at({ button: ['36px', '32px'] }) ?? '', /height is "36px" on a button and the case expects "32px"/);
+  assert.match(at({ button: ['32px'] }) ?? '', /1 button/);
+});
+
 test('a markup case holds when every recorded property matches, names the property that does not, and refuses an unrecorded one', () => {
   const kase = { name: 'stack', html: '<div class="arena-stack" data-proximity-subject></div>', expect: { display: 'flex', 'row-gap': '16px' } };
   assert.equal(markupVerdict(kase, 'components-first', { display: 'flex', 'row-gap': '16px' }), null);

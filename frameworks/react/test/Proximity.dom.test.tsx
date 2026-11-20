@@ -185,8 +185,8 @@ const COMPOSITIONS: Record<string, () => React.ReactElement> = {
     <ArenaActivityFeed label="Activity" items={[{ actor: 'Ada', action: 'opened', target: 'INF-1', time: 'now' }]} />
   </div>,
   'series-parts-take-no-slot-answer': () => <div style={answered(markDotAnswers())}>
-    <ArenaBoardColumn title="Backlog" colorId={1}>{null}</ArenaBoardColumn>
-    <ArenaBarChart label="Deploys" labels={['Mon', 'Tue']} series={[{ label: 'Ok', values: [1, 2], colorId: 1 }, { label: 'Late', values: [2, 1], colorId: 1 }]} />
+    <ArenaBoardColumn title="Backlog" colorId={2}>{null}</ArenaBoardColumn>
+    <ArenaBarChart label="Deploys" labels={['Mon', 'Tue']} series={[{ label: 'Ok', values: [1, 2], colorId: 1 }, { label: 'Late', values: [2, 1], colorId: 3 }]} />
   </div>,
   'accent-answer-reaches-only-its-class': () => <div style={answered({ '--meters-gold-track-ink-rest': 'var(--hue-info-ink)' })}>
     <ArenaMeter className="arena-accent-gold" label="Disk" value={60} />

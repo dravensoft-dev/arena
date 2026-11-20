@@ -121,8 +121,10 @@ export function verdict(kase: ProximityCase, layer: string, order: Order, measur
     for (const [part, want] of Object.entries(kase.measure.others ?? {})) {
       const seen = measured.others?.[part] ?? [];
       if (seen.length === 0) return `${where}: the tree carries no ${part} beside the subject, so nothing measured ${kase.measure.property} on it`;
-      const wrong = seen.find((one) => one !== want);
-      if (wrong !== undefined) return `${where}: ${kase.measure.property} is "${wrong}" on a ${part} and the case expects "${want}"`;
+      const wants = typeof want === 'string' ? seen.map(() => want) : want;
+      if (wants.length !== seen.length) return `${where}: the tree carries ${seen.length} ${part} beside the subject and the case lists ${wants.length}`;
+      const at = seen.findIndex((one, i) => one !== wants[i]);
+      if (at >= 0) return `${where}: ${kase.measure.property} is "${seen[at]}" on a ${part} and the case expects "${wants[at]}"`;
     }
     return null;
   }
