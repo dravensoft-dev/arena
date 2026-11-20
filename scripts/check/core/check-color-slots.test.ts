@@ -1472,3 +1472,19 @@ test('fill accepts the overlay roles', () => {
   assert.equal(acceptsProblems(edit((x) => { x.accepts.edge.push('overlay-*'); }), roles).length, 1, 'overlay-media is a fill default and no edge default, so an edge slot may not accept it');
   assert.equal(acceptsProblems(edit((x) => { x.accepts.fill.push('edge-*'); }), roles).length, 1, 'an edge role on a fill slot is still refused');
 });
+
+test('a groundPart names a fill-painting part of its own member, never beside ground', () => {
+  const alert = (fn: (title: MemberDecl) => void) => {
+    const d = readSlotDeclarations();
+    fn(d.members!.ArenaAlert!.parts.title as MemberDecl);
+    return declarationProblems(d);
+  };
+  assert.deepEqual(alert(() => {}), []);
+  assert.deepEqual(alert((t) => { t.groundPart = 'shell'; }), ['members.ArenaAlert.parts.title.groundPart: "shell" names no part of ArenaAlert (D25)']);
+  assert.deepEqual(alert((t) => { t.groundPart = 'icon'; }), ['members.ArenaAlert.parts.title.groundPart: ArenaAlert.icon paints no fill (D25)']);
+  assert.deepEqual(alert((t) => { t.ground = 'ground'; }), ['members.ArenaAlert.parts.title: groundPart and ground are one choice (D25)']);
+  const series = readSlotDeclarations();
+  series.members!.ArenaAlert!.parts.stripe = null;
+  (series.members!.ArenaAlert!.parts.title as MemberDecl).groundPart = 'stripe';
+  assert.deepEqual(declarationProblems(series), ['members.ArenaAlert.parts.title.groundPart: ArenaAlert.stripe is no member part that paints a fill, only one that reads a group does (D25)']);
+});

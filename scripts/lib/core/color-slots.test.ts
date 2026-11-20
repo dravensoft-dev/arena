@@ -4,7 +4,7 @@ import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../arena/repo-root.ts';
 import assert from 'node:assert/strict';
 import { SLOT_KEYS, deriveSlots, readSlotDeclarations } from './color-slots.ts';
-import type { SlotDeclarations } from './color-slots.ts';
+import type { MemberDecl, SlotDeclarations } from './color-slots.ts';
 import { SLOT_STATES } from '../../generate/core/arena-cli/slots.ts';
 
 const fixture = (): SlotDeclarations => ({
@@ -132,6 +132,12 @@ test('a member part enters the catalogue with its resolved states, channels and 
     to: 'actions.root', options: ['calm'], states: ['rest', 'hover', 'pressed', 'disabled', 'selected', 'selected-hover', 'selected-pressed', 'selected-disabled'],
     channels: { edge: '--arena-pin-edge' }, defaults: { 'actions-calm-root-edge-rest': '{pin-edge}' },
   });
+});
+
+test('deriveSlots carries groundPart onto the member', () => {
+  const d = fixture();
+  (d.members!.ArenaKnob!.parts.root as MemberDecl).groundPart = 'root';
+  assert.equal(deriveSlots(d).members['ArenaKnob.root']?.groundPart, 'root');
 });
 
 test('a member default naming no slot the group builds throws, naming the member', () => {

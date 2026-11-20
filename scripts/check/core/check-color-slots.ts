@@ -483,6 +483,7 @@ export function stripeProblems(c: SlotCatalogue, manifests: Manifests): string[]
 
 export function familyProblems(c: SlotCatalogue, family: { variants?: Record<string, string> }, path: string): string[] {
   const out: string[] = [];
+  const through = new Set(Object.values(c.members ?? {}).flatMap((m) => memberSlots(c, m).filter(([, s]) => s.channel !== undefined && memberChannel(m, s) === s.channel).map(([n]) => n)));
   for (const [option, classes] of Object.entries(family.variants ?? {})) {
     const named = /^arena-([a-z]+)-(.+)$/.exec(option);
     if (!named) continue;
@@ -493,8 +494,7 @@ export function familyProblems(c: SlotCatalogue, family: { variants?: Record<str
     for (const [name, s] of slots) {
       const want = channelValue(c, name, 'css');
       const value = written.get(s.channel as string);
-      const readThrough = Object.values(c.members ?? {}).some((m) => memberSlots(c, m).some(([n]) => n === name) && memberChannel(m, s) === s.channel);
-      if (!readThrough) {
+      if (!through.has(name)) {
         if (value !== undefined) out.push(`${path}: ${option} writes ${s.channel}, and every member part reads ${name} through a channel of its own`);
       } else if (value === undefined) out.push(`${path}: ${option} writes no ${s.channel}, and ${name} is read through it`);
       else if (value !== want) out.push(`${path}: ${option} writes ${s.channel} as ${value}, and the chain of ${name} is ${want}`);
@@ -523,7 +523,7 @@ const DECLARED = {
   groupPart: ['properties', 'options', 'states', 'channel', 'rest', 'selected', 'on', 'over', 'mark', 'selectedOn', 'decision', 'paintedBy'],
   option: ['states', 'properties', 'rest', 'halo', 'channel', 'decision'],
   member: ['group', 'parts'],
-  memberPart: ['to', 'options', 'states', 'channels', 'defaults', 'decision', 'optionBy', 'selectedBy', 'disabledBy', 'hoverBy', 'onlyBy', 'hoverIn', 'fillAs', 'edgeAs', 'disabledModifier', 'inkFrom', 'properties', 'inline', 'ground', 'toBy', 'seriesBy', 'wrappedBy'],
+  memberPart: ['to', 'options', 'states', 'channels', 'defaults', 'decision', 'optionBy', 'selectedBy', 'disabledBy', 'hoverBy', 'onlyBy', 'hoverIn', 'fillAs', 'edgeAs', 'disabledModifier', 'inkFrom', 'properties', 'inline', 'ground', 'groundPart', 'toBy', 'seriesBy', 'wrappedBy'],
   exception: ['default', 'decision', 'level'],
 };
 const DECISION = /^[DR]\d+$/;
@@ -685,6 +685,15 @@ export function declarationProblems(d: SlotDeclarations, roles: ReadonlySet<stri
       if (to.toBy !== undefined && to.toBy.axis === to.seriesBy) out.push(`${where}.toBy: it shares the axis ${to.seriesBy} with seriesBy, and a seriesBy branch reads only hue channels`);
       if (to.ground !== undefined && to.ground !== 'ground' && !(GROUND_ROLE.test(String(to.ground)) && roles.has(String(to.ground)))) {
         out.push(`${where}.ground: "${String(to.ground)}" is neither "ground" nor a fill-* or overlay-* role of contracts/design/roles.json (D96)`);
+      }
+      if (to.groundPart !== undefined) {
+        const beneath = m.parts?.[String(to.groundPart)];
+        const [under, underPart] = isMemberDecl(beneath) ? String(beneath.to).split('.') : [];
+        const fills = isMemberDecl(beneath) && (beneath.properties ?? d.groups?.[under ?? '']?.parts?.[underPart ?? '']?.properties ?? []).includes('fill');
+        if (to.ground !== undefined) out.push(`${where}: groundPart and ground are one choice (D25)`);
+        if (!Object.hasOwn(m.parts ?? {}, String(to.groundPart))) out.push(`${where}.groundPart: "${String(to.groundPart)}" names no part of ${comp} (D25)`);
+        else if (!isMemberDecl(beneath)) out.push(`${where}.groundPart: ${comp}.${String(to.groundPart)} is no member part that paints a fill, only one that reads a group does (D25)`);
+        else if (!fills) out.push(`${where}.groundPart: ${comp}.${String(to.groundPart)} paints no fill (D25)`);
       }
       if (to.seriesBy !== undefined && (typeof to.seriesBy !== 'string' || to.seriesBy === '')) out.push(`${where}.seriesBy: it names no axis`);
       if (to.wrappedBy !== undefined && !WRAPPER.test(String(to.wrappedBy))) out.push(`${where}.wrappedBy: "${String(to.wrappedBy)}" is not --arena-<family>-{property} (D98)`);

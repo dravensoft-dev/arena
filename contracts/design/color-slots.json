@@ -1943,12 +1943,14 @@
         "title": {
           "to": "text.heading",
           "options": [],
-          "states": "static"
+          "states": "static",
+          "groundPart": "root"
         },
         "message": {
           "to": "text.body",
           "options": [],
-          "states": "static"
+          "states": "static",
+          "groundPart": "root"
         },
         "action": {
           "to": "feedback.action",

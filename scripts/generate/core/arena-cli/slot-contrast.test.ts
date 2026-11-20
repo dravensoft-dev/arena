@@ -502,6 +502,46 @@ test('a member ground measures its pairs over that fill', () => {
   assert.ok(!own.some((line) => line.includes('as ArenaTip.chip paints it')), 'the base pair reports an ink on its own opaque fill once');
 });
 
+test('a member that names its ground part is measured over that part\'s fill in each option', () => {
+  const d = slotFixture({
+    banner: { properties: ['fill'], states: ['rest'], options: {
+      plain: { rest: { fill: '{fill-surface}' } },
+      soft: { rest: { fill: { role: '{fill-surface}', level: 'level-hue-soft-info' } } },
+    } },
+  }, {
+    ArenaX: { group: 'fields', parts: {
+      root: { to: 'fields.banner', options: ['plain', 'soft'], states: ['rest'] },
+      title: { to: 'text.heading', options: [], states: ['rest'], groundPart: 'root' },
+    } },
+  });
+  d.groups.text = { parts: { heading: { properties: ['ink'], states: ['rest'], rest: { ink: '{ink-heading}' } } } };
+  const c = deriveSlots(d);
+  const colors = coloursOf('dark');
+  const lines = (r: Map<string, string>) => slotReports(c, new Map(), r, colors, 'dark', LEVELS).map((one) => one.message);
+  const roles = new Map(rolesFor(null, CATALOGUE, 'dark'));
+  assert.deepEqual(lines(roles).filter((line) => line.includes('as ArenaX.title')), [], 'the heading ink clears both banners in the default');
+  roles.set('fill-surface', roles.get('ink-heading') as string);
+  const plain = lines(roles);
+  assert.ok(plain.some((line) => /as ArenaX\.title paints it over --fields-plain-banner-fill-rest/.test(line)), plain.join('\n'));
+  const page = new Map(rolesFor(null, CATALOGUE, 'dark'));
+  page.set('ink-heading', 'var(--color-base-100)');
+  const soft = lines(page).filter((line) => line.includes('as ArenaX.title paints it over --fields-soft-banner-fill-rest over '));
+  for (const surface of ['base-100', 'base-200']) assert.ok(soft.some((line) => line.includes(`over --color-${surface}`)), soft.join('\n'));
+  const fresh = new Map(rolesFor(null, CATALOGUE, 'dark'));
+  assert.deepEqual(unresolvedPairs(c, new Map(), fresh, colors, LEVELS), []);
+  assert.deepEqual(unresolvedPairs(c, new Map([['fields-soft-banner-fill-rest', 'var(--color-nowhere)']]), fresh, colors, LEVELS),
+    [{ slot: 'text-heading-ink-rest', over: 'fields-soft-banner-fill-rest', min: 4.5 }], 'a ground part fill that resolves to no colour is named, never dropped');
+});
+
+test('ArenaAlert\'s title and message clear their floors over every banner in the default', () => {
+  assert.equal(CATALOGUE.slots.members?.['ArenaAlert.title']?.groundPart, 'root');
+  assert.equal(CATALOGUE.slots.members?.['ArenaAlert.message']?.groundPart, 'root');
+  for (const theme of ['dark', 'light'] as const) {
+    const lines = slotReports(CATALOGUE.slots, new Map(), rolesFor(null, CATALOGUE, theme), coloursOf(theme), theme, LEVELS).map((one) => one.message);
+    assert.deepEqual(lines.filter((line) => /as ArenaAlert\.(title|message) paints it over /.test(line)), [], theme);
+  }
+});
+
 test('the shipped member grounds clear their floors in the default', () => {
   for (const theme of ['dark', 'light'] as const) {
     const lines = slotReports(CATALOGUE.slots, new Map(), rolesFor(null, CATALOGUE, theme), coloursOf(theme), theme, LEVELS).map((one) => one.message);

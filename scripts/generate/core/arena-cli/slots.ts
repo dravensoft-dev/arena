@@ -59,6 +59,7 @@ export type MemberPart = {
   properties?: SlotProperty[];
   inline?: true;
   ground?: string;
+  groundPart?: string;
   toBy?: { axis: string; values: Record<string, string> };
   seriesBy?: string;
   wrappedBy?: string;
