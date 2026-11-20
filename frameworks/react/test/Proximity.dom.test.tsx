@@ -356,10 +356,14 @@ test('every case has a React composition, and every composition a case', () => {
 for (const kase of cases) {
   test(`${kase.name}: React renders the tree the gate measures`, () => {
     const restore = NARROW.has(kase.name) ? stubNarrow(400) : () => {};
-    const root = BARE.has(kase.name)
-      ? mount(COMPOSITIONS[kase.name]!())
-      : mount(<div className={kase.container || undefined}>{COMPOSITIONS[kase.name]!()}</div>);
-    restore();
+    let root: ReturnType<typeof mount>;
+    try {
+      root = BARE.has(kase.name)
+        ? mount(COMPOSITIONS[kase.name]!())
+        : mount(<div className={kase.container || undefined}>{COMPOSITIONS[kase.name]!()}</div>);
+    } finally {
+      restore();
+    }
     const container = root.firstElementChild!;
     if (DRAGGED.has(kase.name)) {
       const zone = container.querySelector('[data-arena-part="file-input.zone"]')!;
