@@ -335,9 +335,15 @@ export function resolvedPlugin(
       if (value !== null) at.set(key, value);
     }
   }
+  followColourChains(at, catalogue, at.keys());
+  return at;
+}
+
+function followColourChains(at: Map<string, string>, catalogue: TokenCatalogue | null, keys: Iterable<string>) {
   const roles = catalogue?.roles ?? {};
   const bound = Object.keys(roles).length;
-  for (const [key, first] of at) {
+  for (const key of [...keys]) {
+    const first = at.get(key) as string;
     let value = first;
     for (let hop = 0; hop < bound; hop += 1) {
       const name = /^var\(--([\w-]+)\)$/.exec(value)?.[1];
@@ -346,7 +352,6 @@ export function resolvedPlugin(
     }
     if (value !== first) at.set(key, value);
   }
-  return at;
 }
 
 function knownOf(catalogue: TokenCatalogue): KnownAnswers {
@@ -649,6 +654,23 @@ export function rolesFor(root: StylePlugin | null, catalogue: TokenCatalogue | n
     }));
 }
 
+export function nestedRolesFor(
+  root: StylePlugin | null, plugin: StylePlugin, catalogue: TokenCatalogue | null, polarity: string,
+) {
+  const at = rolesFor(root, catalogue, polarity);
+  const set = new Set<string>();
+  for (const group of polarity !== 'dark' ? [plugin.tokens, plugin.light] : [plugin.tokens]) {
+    for (const [key, raw] of Object.entries(group)) {
+      const value = pluginValue(raw, catalogue, key);
+      if (value === null) continue;
+      at.set(key, value);
+      set.add(key);
+    }
+  }
+  followColourChains(at, catalogue, set);
+  return at;
+}
+
 export function polarityReports(polarity: string, ground: string | undefined): Report[] {
   if (!ground || (polarity !== 'dark' && polarity !== 'light')) return [];
   const reads = toOklab(ground)[0] >= POLARITY_MIDPOINT ? 'light' : 'dark';
@@ -715,11 +737,19 @@ export function paletteReports(
   config: CheckedConfig, catalogue: TokenCatalogue | null = null, plugins: ResolvedPlugins = null,
   levels: Level[] = [], washes: Wash[] = [],
 ) {
-  const root = (plugins ?? [])[0] ?? null;
+  const [root = null, ...nested] = plugins ?? [];
+  const slots = catalogue?.slots ? { catalogue: catalogue.slots } : null;
   const out = [];
   for (const palette of config.palettes) {
-    const messages = paletteMessages(palette, rolesFor(root, catalogue, palette.polarity), levels, washes, catalogue?.slots ? { catalogue: catalogue.slots } : null);
+    const messages = paletteMessages(palette, rolesFor(root, catalogue, palette.polarity), levels, washes, slots);
     if (messages.length) out.push({ palette: palette.name, messages });
+    const held = new Set(messages.map((m) => m.message));
+    for (const plugin of nested) {
+      if (!plugin) continue;
+      const own = paletteMessages(palette, nestedRolesFor(root, plugin, catalogue, palette.polarity), levels, washes, slots)
+        .filter((m) => !held.has(m.message));
+      if (own.length) out.push({ palette: `${palette.name}, style plugin ${plugin.name}`, messages: own });
+    }
   }
   return out;
 }

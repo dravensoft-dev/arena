@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import {
   configProblems, heatReports, heatOrderReports, themeCss, packageLines, PACKAGE_HEADER, packageImports, paletteReports, defaultPalette, isStylesheet, scopedImports,
   pluginName, pluginValue, readPlugin, weightReports, rootWithDefaults, resolvedPlugin,
-  pluginBlocks, pluginTokenProblems, rolesFor,
+  pluginBlocks, pluginTokenProblems, rolesFor, nestedRolesFor,
   ARENA_FONT_DEFAULTS, ALWAYS_THEMED, RUNTIME_MARKER, polarityClass, polarityDeclarations, restatedBy, type CheckedStylesheet, type CheckedSheets,
 } from './theme-css.ts';
 import { PALETTE_KEYS, POLARITIES, heatKeys } from './palette-keys.ts';
@@ -1794,4 +1794,65 @@ test('every plugin under plugin-style-store passes the $type comparison', () => 
     ].filter((line) => mismatch.test(line));
     assert.deepEqual(lines, [], name);
   }
+});
+
+const nestedConfig = () => config({ palettes: [
+  { name: 'night', default: true, polarity: 'dark', colors: colors({ 'base-100': '#111111', 'base-200': '#1a1a1a', 'base-300': '#2a2a2a', 'base-content': '#eeeeee' }) },
+  { name: 'day', polarity: 'light', colors: colors({ 'base-100': '#ffffff', 'base-200': '#f4f4f4', 'base-300': '#e6e6e6', 'base-content': '#111111' }) },
+] });
+
+test('a nested plugin is measured in every palette and prints only what the root did not', () => {
+  const catalogue = tokenCatalogue();
+  const inkBodyOnGround = readPlugin('later', { 'ink-body': { $type: 'color', $value: '{color.base-100}' } });
+  const reports = paletteReports(nestedConfig(), catalogue, [null, inkBodyOnGround]);
+  for (const name of ['night', 'day']) {
+    const one = reports.find((r) => r.palette === `${name}, style plugin later`);
+    assert.ok(one, name);
+    assert.ok(one.messages.some((m) => /ink-rest/.test(m.message)), one.messages.map((m) => m.message).join('\n'));
+    const root = new Set(reports.find((r) => r.palette === name)?.messages.map((m) => m.message));
+    assert.deepEqual(one.messages.filter((m) => root.has(m.message)), []);
+  }
+});
+
+test('a nested plugin that keeps the root answer and moves another pair prints only its own new message', () => {
+  const catalogue = tokenCatalogue();
+  const colour = (value: string) => ({ $type: 'color', $value: value });
+  const root = readPlugin('root', { 'ink-body': colour('{color.base-100}') });
+  const nested = readPlugin('later', { 'ink-body': colour('{color.base-100}'), 'ink-heading': colour('{color.base-100}') });
+  const reports = paletteReports(nestedConfig(), catalogue, [root, nested]);
+  for (const name of ['night', 'day']) {
+    const rootMessages = reports.find((r) => r.palette === name)?.messages.map((m) => m.message) ?? [];
+    assert.ok(rootMessages.length > 0, name);
+    const one = reports.find((r) => r.palette === `${name}, style plugin later`);
+    assert.ok(one, name);
+    const own = one.messages.map((m) => m.message);
+    assert.ok(own.length > 0, name);
+    for (const message of rootMessages) assert.equal(own.includes(message), false, message);
+  }
+});
+
+test('over a non-null root, a nested light group wins in light and a nested plain answer wins over the root light answer', () => {
+  const catalogue = tokenCatalogue();
+  const colour = (value: string) => ({ $type: 'color', $value: value });
+  const root = readPlugin('root', { light: { 'edge-focus': colour('#ff0000') } });
+  const lightOver = readPlugin('later', { light: { 'edge-focus': colour('#0000ff') } });
+  const plainOver = readPlugin('plain', { 'edge-focus': colour('#00ff00') });
+  assert.equal(nestedRolesFor(root, lightOver, catalogue, 'light').get('edge-focus'), '#0000ff');
+  assert.equal(nestedRolesFor(root, lightOver, catalogue, 'dark').get('edge-focus'), rolesFor(root, catalogue, 'dark').get('edge-focus'));
+  assert.equal(rolesFor(root, catalogue, 'light').get('edge-focus'), '#ff0000');
+  assert.equal(nestedRolesFor(root, plainOver, catalogue, 'light').get('edge-focus'), '#00ff00');
+});
+
+test('a nested plugin that moves no measured pair prints nothing', () => {
+  const later = readPlugin('later', { 'r-surface': { $type: 'dimension', $value: '4px' } });
+  const reports = paletteReports(nestedConfig(), tokenCatalogue(), [null, later]);
+  assert.deepEqual(reports.filter((r) => /style plugin/.test(r.palette)), []);
+});
+
+test('a nested plugin over the default root keeps the default light answers underneath it', () => {
+  const catalogue = tokenCatalogue();
+  const later = readPlugin('later', { 'r-surface': { $type: 'dimension', $value: '4px' } });
+  const under = rolesFor(null, catalogue, 'light').get('edge-focus');
+  assert.ok(under);
+  assert.equal(nestedRolesFor(null, later, catalogue, 'light').get('edge-focus'), under);
 });
