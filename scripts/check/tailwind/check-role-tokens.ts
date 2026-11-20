@@ -7,7 +7,7 @@
  * arbitrary literal opacity or a /<digits> or /[literal] alpha, with or without an important mark, on a
  * state branch or under a state modifier (a group- or peer- form and data-[state=...] included) fails,
  * since a state role carries the level. STATE_LITERALS ships empty. A palette utility, or a --color-<key>
- * read in an arbitrary value, fails unless PALETTE_READS lists it. */
+ * read in an arbitrary value, fails in every manifest, and no list excuses it. */
 
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
@@ -71,9 +71,6 @@ export const PALETTE_HINTS = new Map<string, string>([
   ['border-base-300', 'an edge role: border-edge-surface, -field, -separator or -control-quiet'],
   ['border-neutral', 'an edge role: border-edge-surface-floating, -control or -marker'],
   ['text-neutral', 'an ink role: text-ink-muted, text-ink-body or text-ink-heading, whichever text this is'],
-]);
-
-export const PALETTE_READS = new Map<string, string>([
 ]);
 
 export const SCALE_USES = new Map<string, string>([
@@ -578,7 +575,7 @@ export function paletteUtility(token: string) {
   return read ? `var(--color-${read[1]})` : undefined;
 }
 
-export function paletteFindings(manifest: ComponentManifest, allowed: ReadonlyMap<string, string> = PALETTE_READS): PaletteFinding[] {
+export function paletteFindings(manifest: ComponentManifest): PaletteFinding[] {
   const findings: PaletteFinding[] = [];
   for (const [slot, classList] of classStringsBySlot(manifest)) {
     const reported = new Set<string>();
@@ -586,21 +583,14 @@ export function paletteFindings(manifest: ComponentManifest, allowed: ReadonlyMa
       const bare = paletteUtility(token);
       if (!bare || reported.has(token)) continue;
       reported.add(token);
-      if (allowed.has(scaleUseKey(manifest.component, slot, token))) continue;
       findings.push({ component: manifest.component, slot, utility: token, hint: PALETTE_HINTS.get(bare) ?? "a slot read of the part's group" });
     }
   }
   return findings;
 }
 
-export function stalePaletteReads(seen: Set<string>, allowed: ReadonlyMap<string, string> = PALETTE_READS) {
-  return [...allowed.keys()]
-    .filter((key) => !seen.has(key))
-    .map((key) => `${key} is excused in PALETTE_READS but no manifest carries it -- drop the entry`);
-}
-
 export function paletteMessage(f: PaletteFinding) {
-  return `${f.component}:${f.slot} reads the palette utility ${f.utility}; use ${f.hint}, or record the reader in PALETTE_READS with the 5.1d group that moves it`;
+  return `${f.component}:${f.slot} reads the palette utility ${f.utility}; use ${f.hint}`;
 }
 
 export function collect(files = manifestFiles(COMPONENTS_DIR)) {
@@ -609,17 +599,15 @@ export function collect(files = manifestFiles(COMPONENTS_DIR)) {
   const seen = new Set<string>();
   const seenStates = new Set<string>();
   const palette: PaletteFinding[] = [];
-  const seenPalette = new Set<string>();
   for (const p of files) {
     const manifest = readJson(p);
     findings.push(...evaluateManifest(manifest));
     for (const key of seenKeys(manifest)) seen.add(key);
     states.push(...stateLiteralFindings(manifest));
     palette.push(...paletteFindings(manifest));
-    for (const f of paletteFindings(manifest, new Map())) seenPalette.add(scaleUseKey(f.component, f.slot, f.utility));
     for (const f of stateLiteralFindings(manifest, new Map())) seenStates.add(scaleUseKey(f.component, f.slot, f.utility));
   }
-  return { findings, stale: [...staleAllowances(seen), ...staleStateLiterals(seenStates), ...stalePaletteReads(seenPalette)], states, palette };
+  return { findings, stale: [...staleAllowances(seen), ...staleStateLiterals(seenStates)], states, palette };
 }
 
 function main() {
@@ -636,7 +624,7 @@ function main() {
   }
   const { findings, stale, states, palette } = collect(files);
   if (findings.length || stale.length || states.length || palette.length) {
-    console.error(`check-role-tokens: ${findings.length} finding(s) in a role position, ${states.length} state(s) drawn with a literal, ${palette.length} palette utility(ies) outside PALETTE_READS, ${stale.length} stale allowance(s)\n`);
+    console.error(`check-role-tokens: ${findings.length} finding(s) in a role position, ${states.length} state(s) drawn with a literal, ${palette.length} palette utility(ies), ${stale.length} stale allowance(s)\n`);
     for (const f of findings) {
       if (f.why === 'missing-kind') console.error(`  ${f.role} -- every slot declares a kind (${f.why})`);
       else console.error(`  ${f.component}:${f.slot} (${f.kind}) carries ${f.utility} where a role belongs (${f.why}) -- use ${f.role}, or record the case in SCALE_USES with the reason it means the length`);
@@ -646,7 +634,7 @@ function main() {
     for (const s of stale) console.error(`  ${s}`);
     process.exit(1);
   }
-  console.log(`check-role-tokens: ${files.length} manifest(s) -- every slot declares a kind, every padding, gap, margin and radius names its kind's role or a recorded use, and every border, depth, duration, easing, ink, edge, face and case decision names a role, ${SCALE_USES.size} recorded scale use(s), no palette utility outside the ${PALETTE_READS.size} reads 5.1d moves`);
+  console.log(`check-role-tokens: ${files.length} manifest(s) -- every slot declares a kind, every padding, gap, margin and radius names its kind's role or a recorded use, and every border, depth, duration, easing, ink, edge, face and case decision names a role, ${SCALE_USES.size} recorded scale use(s), and no palette utility in any manifest`);
 }
 
 if (isMainModule(import.meta.url)) main();

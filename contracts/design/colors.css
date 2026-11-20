@@ -97,14 +97,13 @@
   --danger-strong:var(--color-error);
   --danger-soft:color-mix(in oklab,var(--color-error) var(--level-hue-soft-danger),transparent);
   /* The danger fill: the ground a filled danger carries --color-error-content
-     on. Never a border or text color: --danger is that. No manifest part
-     reads it; ArenaConfirmDialog's final confirmation reads the actions
-     group's destructive option.
+     on. Never a border or text color: --danger is that. ArenaConfirmDialog's
+     final confirmation reads the actions group's destructive option.
      A skin MAY pin --color-error-fill for an exact value (the Dravensoft skin
      does: #ce3838). A skin that doesn't gets one derived from --color-error,
-     emitted into the palette by arena build rather than composed here: the
-     role fill-confirm-final compiles to var(--color-error-fill) with no
-     fallback of its own, so a fallback living only in this alias is one
+     emitted into the palette by arena build rather than composed here: a role
+     answered with color.error-fill compiles to var(--color-error-fill) with
+     no fallback of its own, so a fallback living only in this alias is one
      nothing reads. */
   --danger-fill:var(--color-error-fill);
   --info:var(--color-info);

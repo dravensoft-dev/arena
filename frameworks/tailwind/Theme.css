@@ -188,8 +188,6 @@
   --color-edge-focus: var(--edge-focus);
   --color-edge-selected: var(--edge-selected);
   --color-edge-invalid: var(--edge-invalid);
-  --color-confirm-final: var(--fill-confirm-final);
-  --color-ink-confirm-final: var(--ink-confirm-final);
 
   /* overlay scrim → contracts/design-generated/effects.generated.css */
   --color-scrim: var(--scrim);

@@ -1737,9 +1737,9 @@ test('a disabled answer writes the part\'s fade marker', () => {
 
 test('an adopter\'s pressed pair below AA is a warning', () => {
   const catalogue = tokenCatalogue();
-  const plugin = readPlugin('mine', { 'actions-primary-root-fill-pressed': { $type: 'color', $value: '{fill-confirm-final}' } });
+  const plugin = readPlugin('mine', { 'actions-primary-root-fill-pressed': { $type: 'color', $value: '{fill-control-on}' } });
   assert.deepEqual(pluginTokenProblems('mine', plugin.tokens, catalogue), []);
-  const key = /--color-([\w-]+)/.exec(rolesFor(null, catalogue, 'dark').get('fill-confirm-final') ?? '')?.[1] as string;
+  const key = /--color-([\w-]+)/.exec(rolesFor(null, catalogue, 'dark').get('fill-control-on') ?? '')?.[1] as string;
   const palette = { name: 'night', default: true, polarity: 'dark', colors: colors({ [key]: '#8a8a8a', 'primary-content': '#ffffff', 'base-content': '#f3ede5', 'base-100': '#141010' }) };
   const [found] = paletteReports(config({ palettes: [palette] }), catalogue, [plugin]);
   const slots = (found?.messages ?? []).filter((one) => one.kind === 'contrast' && one.message.startsWith('--actions-primary-root-'));

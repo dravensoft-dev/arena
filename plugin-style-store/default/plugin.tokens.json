@@ -841,14 +841,6 @@
     "$type": "color",
     "$value": "{color.info}"
   },
-  "fill-confirm-final": {
-    "$type": "color",
-    "$value": "{color.error-fill}"
-  },
-  "ink-confirm-final": {
-    "$type": "color",
-    "$value": "{color.error-content}"
-  },
   "size-sm-control-h": {
     "$type": "dimension",
     "$value": "{dz.ctl-h-sm}"

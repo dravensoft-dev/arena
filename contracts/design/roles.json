@@ -2146,28 +2146,6 @@
       }
     }
   },
-  "fill-confirm-final": {
-    "$type": "color",
-    "$description": "Which colour the final irreversible confirmation of ArenaConfirmDialog is filled with. Paired with ink-confirm-final, which has to clear the contrast bar against it.",
-    "$extensions": {
-      "com.dravensoft.arena": {
-        "audience": "component",
-        "task": "meaning-and-identity",
-        "question": "What colour fills the final irreversible confirmation of a confirm dialog?"
-      }
-    }
-  },
-  "ink-confirm-final": {
-    "$type": "color",
-    "$description": "Which colour the label of the final irreversible confirmation of ArenaConfirmDialog is set in, on fill-confirm-final. The pair a plugin answers together: a fill moved without its ink is a label that may no longer be read.",
-    "$extensions": {
-      "com.dravensoft.arena": {
-        "audience": "component",
-        "task": "meaning-and-identity",
-        "question": "What colour is the label of the final irreversible confirmation of a confirm dialog?"
-      }
-    }
-  },
   "size-sm-control-h": {
     "$type": "dimension",
     "$description": "The height of a button and an icon button at arena-size-sm, read by ArenaButton, ArenaIconButton. An option of a family is a question by construction, so the plugin answers it.",

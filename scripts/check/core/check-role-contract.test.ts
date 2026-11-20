@@ -375,3 +375,7 @@ test('the tip roles answer their palette keys', () => {
     assert.equal(plugin[name]?.$value, key, `${name}: the default plugin answers it as its default says`);
   }
 });
+
+test('no role is named confirm-final', () => {
+  assert.deepEqual(Object.keys(readJson(join(repoRoot, ROLES))).filter((name) => name.includes('confirm-final')), []);
+});

@@ -365,8 +365,8 @@ export const CLAIMS = {
   ],
   ArenaConfirmDialog: [
     { chosen: { destructive: true }, slot: 'eyebrow', has: [INK], why: HUE_WHY },
-    { chosen: { destructive: true }, slot: 'confirm', has: ['bg-[color:var(--actions-destructive-root-fill-rest,var(--hue-danger-fill-strong))]', 'text-[color:var(--actions-destructive-root-ink-rest,var(--hue-danger-ink))]'], hasNot: ['bg-error', 'bg-error-fill', STRONG, 'bg-confirm-final', 'text-ink-confirm-final'], why: 'the final confirmation reads the actions group\'s destructive option, so the answer that moves a destructive Button moves it' },
-    { chosen: { destructive: false }, slot: 'confirm', has: ['bg-[color:var(--actions-primary-root-fill-rest,var(--emphasis-primary-fill))]', 'text-[color:var(--actions-primary-root-ink-rest,var(--emphasis-primary-ink))]'], hasNot: ['bg-confirm-final', 'bg-primary-fill'], why: 'a confirmation that is not destructive reads the actions group\'s primary option' },
+    { chosen: { destructive: true }, slot: 'confirm', has: ['bg-[color:var(--actions-destructive-root-fill-rest,var(--hue-danger-fill-strong))]', 'text-[color:var(--actions-destructive-root-ink-rest,var(--hue-danger-ink))]'], hasNot: ['bg-error', 'bg-error-fill', STRONG], why: 'the final confirmation reads the actions group\'s destructive option, so the answer that moves a destructive Button moves it' },
+    { chosen: { destructive: false }, slot: 'confirm', has: ['bg-[color:var(--actions-primary-root-fill-rest,var(--emphasis-primary-fill))]', 'text-[color:var(--actions-primary-root-ink-rest,var(--emphasis-primary-ink))]'], hasNot: ['bg-primary-fill'], why: 'a confirmation that is not destructive reads the actions group\'s primary option' },
     { chosen: { destructive: true }, slot: 'confirm', has: ['disabled:opacity-[var(--actions-destructive-root-fade-disabled,var(--fade-disabled))]'], hasNot: ['disabled:opacity-[var(--fade-disabled)]'], why: 'a locked destructive confirmation fades by the destructive marker, so an answered disabled slot stops the fade' },
     { chosen: { destructive: false }, slot: 'confirm', has: ['disabled:opacity-[var(--actions-primary-root-fade-disabled,var(--fade-disabled))]'], hasNot: ['disabled:opacity-[var(--fade-disabled)]'], why: 'a locked confirmation fades by the primary marker, so an answered disabled slot stops the fade' },
     { chosen: { open: true }, slot: 'foot', has: ['flex-wrap'], why: 'the footer wraps the way ArenaDialog, ArenaPageHead and ArenaChartCard all do, and a third action row behaving differently is worse than none' },
@@ -952,7 +952,7 @@ test('a focus ring never sits on a filled ground', () => {
     if (colour === undefined || /\/(?:\d|\(|\[)/.test(colour) || /^(?:transparent|hover|surface|track|field|base|raised|sunken|selected|\[?color:var\(--hover)/.test(colour)) return false;
     if (/fill-(?:soft|hover)/.test(colour)) return false;
     if (/^\[color:(?:color-mix\(in_oklab,)?var\(--(?:menus|navigation)-/.test(colour)) return false;
-    return /fill|confirm-final|^(?:primary|secondary|accent|neutral|error|success|warning|info)$/.test(colour);
+    return /fill|^(?:primary|secondary|accent|neutral|error|success|warning|info)$/.test(colour);
   };
   assert.equal(isFill('bg-[color:var(--arena-hue-fill-soft)]'), false);
   assert.equal(isFill('hover:bg-[color:var(--arena-emphasis-fill-hover,var(--x))]'), false);

@@ -277,7 +277,7 @@ test('a root plugin may answer a keyword role with a word alias and a colour rol
 test('an adopter\'s pressed pair below AA is one report more, arena check names it, and the build exits 0', async () => {
   const { core } = phosphor();
   const catalogue = tokenCatalogue();
-  const key = /--color-([\w-]+)/.exec(catalogue.tokens['fill-confirm-final'] ?? '')?.[1] as string;
+  const key = /--color-([\w-]+)/.exec(catalogue.tokens['fill-control-on'] ?? '')?.[1] as string;
   const palette = { ...readable.palettes[0]!, colors: { ...readable.palettes[0]!.colors, [key]: '#8a8a8a', 'primary-content': '#ffffff' } };
   const kernel = JSON.parse(readFileSync(join(repoRoot, 'plugin-style-store/default/plugin.tokens.json'), 'utf8'));
   const built = async (tokens: Record<string, unknown> | null) => {
@@ -293,7 +293,7 @@ test('an adopter\'s pressed pair below AA is one report more, arena check names 
     return { count: Number(/(\d+) report\(s\): arena check names them$/.exec(err.join('\n'))?.[1] ?? 0), named: checked.err };
   };
   const without = await built(null);
-  const answered = await built({ 'actions-primary-root-fill-pressed': { $value: '{fill-confirm-final}', $type: 'color' } });
+  const answered = await built({ 'actions-primary-root-fill-pressed': { $value: '{fill-control-on}', $type: 'color' } });
   assert.equal(answered.count, without.count + 1, `${answered.count} report(s) with the answer, ${without.count} without`);
   const pair = /--actions-primary-root-ink-pressed measures 3\.45:1 over --actions-primary-root-fill-pressed in the pressed state of the dark theme/;
   assert.ok(answered.named.some((line) => pair.test(line)), answered.named.join('\n'));

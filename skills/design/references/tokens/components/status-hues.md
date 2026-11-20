@@ -11,7 +11,6 @@ Only Arena's components read the roles on this page. A role keeps its name until
 | role | question | type | user scale | default |
 | --- | --- | --- | --- | --- |
 | `--edge-mark` | What colour is the ring around the current neutral marker, such as the timeline milestone a reader is at? | color | none | `{color.base-content}` |
-| `--fill-confirm-final` | What colour fills the final irreversible confirmation of a confirm dialog? | color | none | none |
 | `--fill-control` | What colour fills the box of a checkbox, radio, switch or slider at rest? | color | none | none |
 | `--fill-control-on` | What colour fills the box of a checked checkbox or radio, an on switch or a slider's range? | color | none | none |
 | `--fill-knob` | What colour fills the knob of an on switch or the thumb of a slider? | color | none | none |
@@ -40,7 +39,6 @@ Only Arena's components read the roles on this page. A role keeps its name until
 | `--hue-warning-fill-strong` | What colour does the warning hue take as a solid fill? | color | none | none |
 | `--hue-warning-ink` | What colour does the warning hue take as text and as an icon? | color | none | none |
 | `--hue-warning-on-ink` | What colour is the content set on a mark filled with the warning hue? | color | none | `{color.warning-content}` |
-| `--ink-confirm-final` | What colour is the label of the final irreversible confirmation of a confirm dialog? | color | none | none |
 | `--ink-knob` | What colour is the glyph on the knob of an on switch? | color | none | none |
 | `--ink-knob-off` | What colour is the glyph on the knob of a switch that is off? | color | none | none |
 | `--ink-on-mark` | What colour is the glyph cut into a filled neutral marker, such as the tick of a complete milestone? | color | none | `{color.base-200}` |

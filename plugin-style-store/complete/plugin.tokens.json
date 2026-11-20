@@ -757,10 +757,6 @@
     "$type": "color",
     "$value": "{color.neutral}"
   },
-  "fill-confirm-final": {
-    "$type": "color",
-    "$value": "{color.primary}"
-  },
   "fill-control": {
     "$type": "color",
     "$value": "{color.neutral}"
@@ -768,10 +764,6 @@
   "fill-control-on": {
     "$type": "color",
     "$value": "{color.primary-fill}"
-  },
-  "ink-confirm-final": {
-    "$type": "color",
-    "$value": "{color.primary-content}"
   },
   "size-sm-control-h": {
     "$type": "dimension",
@@ -1936,7 +1928,7 @@
   },
   "choices-mark-ink-selected": {
     "$type": "color",
-    "$value": "{ink-confirm-final}"
+    "$value": "{color.primary-content}"
   },
   "choices-segment-fill-hover": {
     "$type": "color",
@@ -2565,7 +2557,7 @@
   },
   "navigation-badge-ink-selected": {
     "$type": "color",
-    "$value": "{ink-confirm-final}"
+    "$value": "{color.primary-content}"
   },
   "navigation-disclosure-fill-disabled": {
     "$type": "color",
@@ -2735,7 +2727,7 @@
   },
   "steps-current-marker-ink-rest": {
     "$type": "color",
-    "$value": "{ink-confirm-final}"
+    "$value": "{color.primary-content}"
   },
   "steps-error-marker-edge-rest": {
     "$type": "color",

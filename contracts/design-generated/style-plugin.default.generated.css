@@ -168,8 +168,6 @@
   --hue-info-edge:var(--color-info);
   --hue-info-fill-strong:var(--color-info);
   --hue-info-fill-soft:var(--color-info);
-  --fill-confirm-final:var(--color-error-fill);
-  --ink-confirm-final:var(--color-error-content);
   --size-sm-control-h:var(--dz-ctl-h-sm);
   --size-md-control-h:var(--dz-ctl-h);
   --size-lg-control-h:var(--dz-ctl-h-lg);
@@ -349,8 +347,6 @@
   --hue-info-edge:var(--color-info);
   --hue-info-fill-strong:var(--color-info);
   --hue-info-fill-soft:var(--color-info);
-  --fill-confirm-final:var(--color-error-fill);
-  --ink-confirm-final:var(--color-error-content);
   --emphasis-primary-fill:var(--color-primary-fill);
   --emphasis-secondary-fill:var(--color-base-200);
   --emphasis-solid-fill:var(--color-primary-fill);
@@ -441,8 +437,6 @@
   --hue-info-edge:var(--color-info);
   --hue-info-fill-strong:var(--color-info);
   --hue-info-fill-soft:var(--color-info);
-  --fill-confirm-final:var(--color-error-fill);
-  --ink-confirm-final:var(--color-error-content);
   --emphasis-primary-fill:var(--color-primary-fill);
   --emphasis-secondary-fill:var(--color-base-200);
   --emphasis-solid-fill:var(--color-primary-fill);

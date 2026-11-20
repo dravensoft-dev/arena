@@ -815,10 +815,6 @@
     "$type": "color",
     "$value": "{color.info}"
   },
-  "fill-confirm-final": {
-    "$type": "color",
-    "$value": "{color.error-fill}"
-  },
   "fill-control": {
     "$type": "color",
     "$value": "{color.neutral}"
@@ -826,10 +822,6 @@
   "fill-control-on": {
     "$type": "color",
     "$value": "{color.primary}"
-  },
-  "ink-confirm-final": {
-    "$type": "color",
-    "$value": "{color.error-content}"
   },
   "size-sm-control-h": {
     "$type": "dimension",

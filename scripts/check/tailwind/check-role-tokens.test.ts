@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
-import { scaleUsesIn, evaluateManifest, staleAllowances, zeroManifestProblem, derivedSetsProblem, padStems, gapRoles, SCALE_USES, STATE_LITERALS, stateLiteral, stateLiteralFindings, PALETTE_READS, paletteFindings, paletteUtility, stalePaletteReads, collect } from './check-role-tokens.ts';
+import { scaleUsesIn, evaluateManifest, staleAllowances, zeroManifestProblem, derivedSetsProblem, padStems, gapRoles, SCALE_USES, STATE_LITERALS, stateLiteral, stateLiteralFindings, paletteFindings, paletteUtility, collect } from './check-role-tokens.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { manifestFiles } from '../../lib/tailwind/tailwind-compile.ts';
@@ -104,7 +104,7 @@ test('zeroManifestProblem is null for a non-empty file list', () => {
 test('the palette step behind a track is refused once, by the palette refusal, with the track hint', () => {
   const manifest = { component: 'ArenaThing', slots: { track: 'relative rounded-pill bg-base-300' }, kind: { track: 'none' } } as never;
   assert.deepEqual(evaluateManifest(manifest, new Map()).map((f) => f.utility), [], 'the scale check names nothing');
-  const found = paletteFindings(manifest, new Map());
+  const found = paletteFindings(manifest);
   assert.deepEqual(found.map((f) => f.utility), ['bg-base-300']);
   assert.match(found[0]?.hint ?? '', /bg-track/);
 });
@@ -364,34 +364,31 @@ test('the shipped manifests draw no state with a literal', () => {
 
 const palettePart = (slots: Record<string, string>, component = 'ArenaFixture') => ({ component, slots, kind: {} }) as never;
 
-test('a palette utility outside PALETTE_READS is refused', () => {
-  const found = paletteFindings(palettePart({ root: 'flex hover:bg-primary-fill/50 border-t-base-300 bg-surface' }), new Map());
+test('a palette utility is refused with no allowance', async () => {
+  const found = paletteFindings(palettePart({ root: 'flex bg-base-300 hover:bg-primary-fill/50 border-t-base-300 bg-surface' }, 'ArenaFixture'));
   assert.deepEqual(found.map((f) => [f.component, f.slot, f.utility]), [
+    ['ArenaFixture', 'root', 'bg-base-300'],
     ['ArenaFixture', 'root', 'hover:bg-primary-fill/50'],
     ['ArenaFixture', 'root', 'border-t-base-300'],
   ]);
-  assert.ok(found.every((f) => f.hint.length > 0));
+  assert.match(found[0]?.hint ?? '', /bg-track/);
+  const mod = (await import('./check-role-tokens.ts')) as Record<string, unknown>;
+  assert.equal('PALETTE_READS' in mod, false);
+  assert.equal('stalePaletteReads' in mod, false);
 });
 
-test('a PALETTE_READS entry no manifest carries is stale', () => {
-  const stale = stalePaletteReads(new Set(), new Map([['ArenaGhost:root:bg-primary-fill', 'a reason']]));
-  assert.equal(stale.length, 1);
-  assert.match(stale[0] ?? '', /ArenaGhost:root:bg-primary-fill.*PALETTE_READS/);
-});
-
-test('the shipped manifests read no palette key outside PALETTE_READS', () => {
+test('the shipped manifests read no palette key', () => {
   const { palette, stale } = collect();
   assert.deepEqual(palette, []);
   assert.deepEqual(stale, []);
-  assert.equal(PALETTE_READS.size, 0);
 });
 
 test('cat and heat keys are palette keys too', () => {
-  const found = paletteFindings(palettePart({ root: 'bg-cat-3 text-heat-5/60 fill-surface' }), new Map());
+  const found = paletteFindings(palettePart({ root: 'bg-cat-3 text-heat-5/60 fill-surface' }));
   assert.deepEqual(found.map((f) => f.utility), ['bg-cat-3', 'text-heat-5/60']);
 });
 
-const refused = (token: string) => paletteFindings(palettePart({ root: `flex ${token}` }), new Map()).map((f) => f.utility);
+const refused = (token: string) => paletteFindings(palettePart({ root: `flex ${token}` })).map((f) => f.utility);
 
 test('a palette key read through an arbitrary colour value is refused', () => {
   assert.deepEqual(refused('bg-[color:var(--color-primary)]'), ['bg-[color:var(--color-primary)]']);

@@ -63,7 +63,7 @@ test('every role lands in exactly one role leaf', () => {
     'plugin/surfaces-and-text.md': 16, 'plugin/edges.md': 20, 'plugin/space-and-layout.md': 18, 'plugin/type.md': 20,
     'plugin/depth-and-motion.md': 11, 'plugin/states.md': 11,
     'components/air.md': 33, 'components/type.md': 4, 'components/size-controls.md': 44, 'components/size-content.md': 42,
-    'components/emphasis-and-accent.md': 29, 'components/status-hues.md': 35,
+    'components/emphasis-and-accent.md': 29, 'components/status-hues.md': 33,
   });
 });
 
