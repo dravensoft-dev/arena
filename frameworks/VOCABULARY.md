@@ -116,7 +116,7 @@ Whether a surface rests on the page or lifts off it. Depth comes from the shadow
 
 ## emphasis
 
-How loudly an action speaks: filled in the accent, a quiet surface, or no surface at all. Emphasis is the treatment channel, and meaning composes with it: a destructive action keeps whichever emphasis it is given and draws it in danger.
+How loudly an action speaks: filled in the accent, a quiet surface, or no surface at all. A destructive action is not an emphasis: the `destructive` prop draws the border and label in the danger hue and fills with `hue-danger-fill-strong`, transparent by default, the same whatever emphasis the action is given.
 
 - **Options:** `arena-emphasis-ghost`, `arena-emphasis-primary` (default), `arena-emphasis-secondary`, `arena-emphasis-solid`.
 - **Reach:** context: it reaches every component inside, until a nearer class answers it again.

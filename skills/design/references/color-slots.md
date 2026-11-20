@@ -373,3 +373,5 @@ Home of `ArenaAppLogo`, `ArenaHero`, `ArenaKbd`, `ArenaPageHead`, `ArenaSection`
 - **The keyboard focus ring** is the role `edge-focus` on every part. No slot takes it.
 - **A solid badge and the loading shimmer** paint outside the slot tier. A solid badge reads the hue roles.
 - **How far a colour is held back** is a level, not a colour, and no slot answer moves it.
+- **A toast's own surface** reads roles directly: `ArenaToast.root` paints its floating fill with `fill-surface-floating` and its three quiet sides with `edge-surface`, so answer those roles.
+- **An avatar's status ring** is cut out of the surface: `ArenaAvatar.status` paints its ring with the role `fill-surface`, so the ring follows the surface you answer.
