@@ -110,3 +110,45 @@ test('a merge a plain declaration of the same property would win is refused rath
   assert.equal(mergeSupports(risky), risky);
   assert.equal(repeatedSupports(risky).length, 1);
 });
+
+test('two blocks that each wrap one rule of the same selector merge into the last, and a plain declaration of the same property between them refuses it', () => {
+  const rule = (body: string) => `    .a:hover {\n      ${body}\n    }`;
+  const wrapped = (head: string) => `@layer utilities {
+  @media (hover: hover) {
+${rule('color: var(--ink-body);')}
+    ${SUPPORTS} {
+${rule('color: color-mix(in oklab, var(--ink-body) 82%, transparent);')}
+    }
+${rule(head)}
+    ${SUPPORTS} {
+${rule('--arena-icon-ink: color-mix(in oklab, var(--ink-body) 82%, transparent);')}
+    }
+  }
+}
+`;
+  const merged = mergeSupports(wrapped('--arena-icon-ink: var(--ink-body);'));
+  assert.equal(repeatedSupports(merged).length, 0);
+  const mix = merged.indexOf('color: color-mix(in oklab, var(--ink-body) 82%');
+  assert.ok(mix > merged.indexOf('--arena-icon-ink: var(--ink-body);'), 'the moved mix lands in the last block, after the plain declarations it held back');
+  assert.ok(merged.includes('--arena-icon-ink: color-mix(in oklab, var(--ink-body) 82%, transparent);'));
+  const risky = wrapped('color: var(--ink-muted);');
+  assert.equal(mergeSupports(risky), risky);
+});
+
+test('a wrapped block is not moved into a last block that already holds its property', () => {
+  const rule = (body: string) => `    .a:hover {\n      ${body}\n    }`;
+  const held = `@layer utilities {
+  @media (hover: hover) {
+${rule('color: var(--ink-body);')}
+    ${SUPPORTS} {
+${rule('color: color-mix(in oklab, var(--ink-body) 82%, transparent);')}
+    }
+    ${SUPPORTS} {
+${rule('color: color-mix(in oklab, var(--ink-muted) 64%, transparent);')}
+    }
+  }
+}
+`;
+  assert.equal(mergeSupports(held), held);
+  assert.equal(repeatedSupports(held).length, 1);
+});

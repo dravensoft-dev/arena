@@ -12,17 +12,20 @@ import { join, dirname, relative, basename } from 'node:path';
 import { relPosix } from '../../utils/posix-path.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { readJson } from '../../utils/read-file.ts';
+import { COLOR_SLOTS, readColorSlots } from '../core/color-slots.ts';
 import { repoRoot } from './repo-root.ts';
 import { kebab } from '../../utils/case.ts';
 import { componentMap, MAP_FILE } from './component-map.ts';
 import { iconManifest, MANIFEST_FILE } from './icon-manifest.ts';
 import { shippedNames } from '../../generate/core/arena-cli/icon-css.ts';
-import { manifestFiles } from '../tailwind/tailwind-compile.ts';
+import { layerManifests, manifestFiles } from '../tailwind/tailwind-compile.ts';
 import { tailwindThemeSheet, THEME_SOURCES } from '../tailwind/theme-sheet.ts';
 import { preflightSheet } from '../tailwind/component-sheets.ts';
 import { huePath } from '../tailwind/hue-sheet.ts';
 import { CONSUME, sheetPath } from '../../build/tailwind/build-tailwind.ts';
-import { VOCABULARY_SHEETS, packageSheetName, sheetFamilies, sheetName } from '../tailwind/vocabulary.ts';
+import {
+  VOCABULARY_SHEETS, compileFamily, packagePartSheetName, packageSheetName, partSheetOwners, readFamilies, sheetFamilies, sheetName,
+} from '../tailwind/vocabulary.ts';
 import { DOMAIN, REPOSITORY } from './site-pages.ts';
 import { FRONTMATTER, unquote } from './llms-index.ts';
 import { parseDecls } from './css-decls.ts';
@@ -196,7 +199,25 @@ export function componentSheets(css: string, split: (css: string) => { base: str
       to: packageSheetName(family),
       content: readFileSync(join(root, ...VOCABULARY_SHEETS.split('/'), sheetName(family)), 'utf8'),
     })),
+    ...familyPartSheets(root),
   ];
+}
+
+export const PART_SHEET_BANNER = (family: string, component: string) => `/* The ${family} family's blocks for ${component} alone: `
+  + `arena build imports this in place of ${packageSheetName(family)} when a screen draws some of the family's components and not all. */\n`;
+
+export const FAMILY_PART_SHEET_READS = ['frameworks/tailwind/components/**/*.manifest.json', COLOR_SLOTS];
+
+export function familyPartSheets(root = repoRoot) {
+  if (!existsSync(join(root, 'frameworks', 'tailwind', 'components'))) return [];
+  const manifests = [...layerManifests(root).values()];
+  return [...readFamilies(root).values()].sort((a, b) => (a.family < b.family ? -1 : 1)).flatMap((family) =>
+    partSheetOwners(family, manifests, root).map((component) => ({
+      to: packagePartSheetName(family.family, component),
+      content: PART_SHEET_BANNER(family.family, component) + compileFamily(family, manifests, root, component),
+      linked: false,
+      family: family.family,
+    })));
 }
 
 export function repositoryBase(root = repoRoot) {
@@ -303,6 +324,11 @@ export function copyFonts(dir: string, root = repoRoot) {
 }
 
 export const BEHAVIOUR_DIR = 'contracts/behaviour';
+export const DERIVED_SLOTS = 'contracts/design/color-slots.derived.json';
+
+export function derivedSlotsText(root = repoRoot) {
+  return `${JSON.stringify(readColorSlots(root), null, 2)}\n`;
+}
 
 export function copyBehaviourContracts(dir: string, root = repoRoot) {
   const from = join(root, ...BEHAVIOUR_DIR.split('/'));
@@ -323,6 +349,12 @@ export function catalogueRole(role: Record<string, any>) {
     type: role.$type,
     ...(own.values ? { values: own.values } : {}),
     ...(own.default !== undefined ? { default: own.default } : {}),
+    ...(own.audience ? { audience: own.audience } : {}),
+    ...(own.task ? { task: own.task } : {}),
+    ...(own.userScale ? { userScale: own.userScale } : {}),
+    ...(own.question ? { question: own.question } : {}),
+    ...(own.combines ? { combines: own.combines } : {}),
+    ...(own.state ? { state: own.state } : {}),
   };
 }
 
@@ -333,7 +365,7 @@ export function aliasDeclarations(root = repoRoot) {
   const block = parseDecls(readFileSync(join(root, ALIAS_SOURCE), 'utf8')).get(ALIAS_BLOCK);
   if (!block) {
     throw new Error(`package-assembly: ${ALIAS_SOURCE} holds no ${ALIAS_BLOCK} block, so every palette arena build `
-      + 'writes would carry no alias and a component reading var(--focus-ring) would resolve to nothing');
+      + 'writes would carry no alias and a component reading a compatibility alias would resolve to nothing');
   }
   return Object.fromEntries([...block].filter(([name]) => !name.startsWith('level-')));
 }
@@ -363,6 +395,13 @@ export function shippedChannels(root = repoRoot) {
   return [...names];
 }
 
+const DEFAULT_SHEET = 'contracts/design-generated/style-plugin.default.generated.css';
+const LIGHT_SELECTOR = '.arena-light';
+
+export const TOKEN_CATALOGUE_READS = [
+  ...CSS_TARGETS, DEFAULT_SHEET, 'contracts/design/roles.json', ALIAS_SOURCE, ...CHANNEL_SOURCES, COLOR_SLOTS,
+];
+
 export function tokenCatalogue(root = repoRoot) {
   const decls = new Map<string, Map<string, string>>();
   for (const target of CSS_TARGETS) {
@@ -370,6 +409,7 @@ export function tokenCatalogue(root = repoRoot) {
       decls.set(selector, new Map([...(decls.get(selector) ?? []), ...pairs]));
   }
   const tokens = Object.fromEntries(decls.get(':root') ?? []);
+  const light = Object.fromEntries(parseDecls(readFileSync(join(root, DEFAULT_SHEET), 'utf8')).get(LIGHT_SELECTOR) ?? []);
 
   const roleFile = readJson(join(root, 'contracts', 'design', 'roles.json')) as Record<string, any>;
   const roles = Object.fromEntries(Object.entries(roleFile).map(([name, role]) => [name, catalogueRole(role)]));
@@ -378,7 +418,7 @@ export function tokenCatalogue(root = repoRoot) {
   const listed = new Set([...Object.keys(tokens), ...Object.keys(roles), ...Object.keys(aliases)].map((name) => `--${name.replace(/^--/, '')}`));
   const channels = shippedChannels(root).filter((name) => !listed.has(name) && !name.startsWith('--tw-')).sort();
 
-  return { tokens, roles, aliases, channels };
+  return { tokens, light, roles, aliases, channels, slots: readColorSlots(root) };
 }
 
 export const CLI_BINS = { arena: './bin/arena.mjs' };

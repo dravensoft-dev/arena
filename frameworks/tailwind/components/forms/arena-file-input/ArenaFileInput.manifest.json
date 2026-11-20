@@ -21,22 +21,22 @@
   ],
   "slots": {
     "root": "relative flex flex-col gap-1.5",
-    "label": "font-face-label text-ctl-xs tracking-label-role case-label text-ink-muted/(--level-ink-muted)",
-    "required": "text-primary ml-1",
+    "label": "font-face-label text-ctl-xs tracking-label-role case-label text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",
+    "required": "ml-1 text-[color:var(--fields-required-ink-rest,var(--accent-primary-ink))]",
     "requiredLabel": "sr-only",
     "zone": "relative grid justify-start items-center gap-inline transition-[background] duration-[var(--dur-state)] ease-state",
-    "trigger": "col-start-1 row-start-1 inline-flex items-center justify-center gap-control w-fit rounded-control font-body font-control tracking-normal border-[length:var(--bw-control)] cursor-pointer [transition:background_var(--dur-hover)_var(--ease-hover),translate_var(--dur-hover)_var(--ease-hover),scale_var(--dur-hover)_var(--ease-hover),box-shadow_var(--dur-state)_var(--ease-state)] active:scale-[var(--press-scale)] motion-reduce:active:scale-100 disabled:cursor-not-allowed shadow-control-rest outline-none focus-visible:shadow-[inset_0_0_0_var(--focus-width)_var(--focus-ring)] h-[var(--arena-size-control-h,var(--size-md-control-h))] px-[var(--arena-size-control-pad-x,var(--size-md-control-pad-x))] text-[length:var(--arena-size-control-step,var(--size-md-control-step))] bg-[color:var(--arena-emphasis-fill,var(--emphasis-secondary-fill))] text-[color:var(--arena-emphasis-ink,var(--emphasis-secondary-ink))] border-[color:var(--arena-emphasis-edge,var(--emphasis-secondary-edge))]",
+    "trigger": "col-start-1 row-start-1 inline-flex items-center justify-center gap-control w-fit rounded-control font-body font-control tracking-normal border-[length:var(--bw-control)] cursor-pointer [transition:background_var(--dur-hover)_var(--ease-hover),translate_var(--dur-hover)_var(--ease-hover),scale_var(--dur-hover)_var(--ease-hover),box-shadow_var(--dur-state)_var(--ease-state)] active:scale-[var(--press-scale)] motion-reduce:active:scale-100 disabled:cursor-not-allowed shadow-control-rest focus-visible:outline-[length:var(--bw-focus)] focus-visible:outline-edge-focus focus-visible:outline-offset-[var(--gap-focus)] h-[var(--arena-size-control-h,var(--size-md-control-h))] px-[var(--arena-size-control-pad-x,var(--size-md-control-pad-x))] text-[length:var(--arena-size-control-step,var(--size-md-control-step))] bg-[color:var(--arena-emphasis-fill)] text-[color:var(--arena-emphasis-ink)] border-[color:var(--arena-emphasis-edge)] [--arena-icon-ink:var(--arena-emphasis-icon)]",
     "icon": "inline-flex text-[length:var(--icon-md)]",
-    "prompt": "col-start-2 row-start-1 min-w-0 font-body text-ctl-sm text-ink-muted/(--level-ink-muted)",
+    "prompt": "col-start-2 row-start-1 min-w-0 font-body text-ctl-sm text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",
     "files": "flex flex-wrap items-center gap-inline",
     "file": "inline-flex items-center gap-inline min-w-0 max-w-full",
-    "size": "font-mono tabular-nums text-ctl-xs text-ink-muted/(--level-ink-muted)",
+    "size": "font-mono tabular-nums text-ctl-xs text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",
     "rejected": "flex flex-col gap-inline",
-    "rejection": "font-body text-ctl-sm text-[color:var(--arena-hue-ink)]",
+    "rejection": "font-body text-ctl-sm text-[color:var(--fields-error-ink-rest,var(--ink-invalid))]",
     "status": "sr-only",
     "input": "absolute inset-0 size-full col-start-1 col-end-2 row-start-1 row-end-2 opacity-0 pointer-events-none",
-    "hint": "font-body text-ctl-sm text-ink-muted/(--level-ink-muted)",
-    "error": "font-body text-ctl-sm text-[color:var(--arena-hue-ink)]"
+    "hint": "font-body text-ctl-sm text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",
+    "error": "font-body text-ctl-sm text-[color:var(--fields-error-ink-rest,var(--ink-invalid))]"
   },
   "kind": {
     "root": "none",
@@ -64,28 +64,35 @@
   "variants": {
     "droppable": {
       "true": {
-        "zone": "p-surface rounded-surface bg-surface border-[length:var(--bw-surface)] border-dashed border-edge-surface shadow-surface-rest"
+        "zone": "p-surface rounded-surface border-[length:var(--bw-surface)] border-dashed shadow-surface-rest"
       },
       "false": {}
     },
     "dragging": {
       "true": {
-        "zone": "bg-hover"
+        "zone": ""
       },
       "false": {}
     },
     "state": {
-      "neutral": {},
+      "neutral": {
+        "zone": ""
+      },
       "error": {
-        "zone": "border-[color:var(--arena-hue-edge)]"
+        "zone": ""
       }
     },
     "disabled": {
       "true": {
-        "root": "opacity-50"
+        "label": "opacity-[var(--fade-disabled)]",
+        "files": "opacity-[var(--fade-disabled)]",
+        "rejected": "opacity-[var(--fade-disabled)]",
+        "hint": "opacity-[var(--fade-disabled)]",
+        "error": "opacity-[var(--fade-disabled)]",
+        "zone": "opacity-[var(--fade-disabled)]"
       },
       "false": {
-        "trigger": "hover:-translate-y-[var(--lift-control)] hover:bg-[color:var(--arena-emphasis-fill-hover,var(--emphasis-secondary-fill-hover))] hover:shadow-[var(--arena-emphasis-shadow-hover,var(--shadow-control-rest))] focus-visible:shadow-[inset_0_0_0_var(--focus-width)_var(--focus-ring)]"
+        "trigger": "hover:-translate-y-[var(--lift-control)] hover:bg-[color:var(--arena-emphasis-fill-hover)] hover:text-[color:var(--arena-emphasis-ink-hover)] hover:border-[color:var(--arena-emphasis-edge-hover)] hover:[--arena-icon-ink:var(--arena-emphasis-icon-hover)] active:bg-[color:var(--arena-emphasis-fill-pressed)] active:text-[color:var(--arena-emphasis-ink-pressed)] active:border-[color:var(--arena-emphasis-edge-pressed)] active:[--arena-icon-ink:var(--arena-emphasis-icon-pressed)] hover:shadow-[var(--arena-emphasis-shadow-hover)]"
       }
     }
   },
@@ -95,14 +102,52 @@
     "state": "neutral",
     "disabled": false
   },
-  "hues": {
-    "always": {
-      "rejection": "danger",
-      "error": "danger"
+  "compoundVariants": [
+    {
+      "droppable": true,
+      "state": "neutral",
+      "class": {
+        "zone": "border-[color:var(--fields-neutral-field-edge-rest,var(--edge-field))] bg-[color:var(--fields-neutral-field-fill-rest,var(--fill-field))]"
+      }
     },
-    "state": {
-      "neutral": null,
-      "error": "danger"
+    {
+      "droppable": true,
+      "state": "neutral",
+      "dragging": true,
+      "class": {
+        "zone": "border-[color:var(--fields-neutral-field-edge-hover,var(--fields-neutral-field-edge-rest,var(--edge-field)))] bg-[color:var(--fields-neutral-field-fill-hover,var(--fill-hover))]"
+      }
+    },
+    {
+      "droppable": true,
+      "state": "neutral",
+      "disabled": true,
+      "class": {
+        "zone": "border-[color:var(--fields-neutral-field-edge-disabled,var(--fields-neutral-field-edge-rest,var(--edge-field)))] bg-[color:var(--fields-neutral-field-fill-disabled,var(--fields-neutral-field-fill-rest,var(--fill-field)))] opacity-[var(--fields-neutral-field-fade-disabled,var(--fade-disabled))]"
+      }
+    },
+    {
+      "droppable": true,
+      "state": "error",
+      "class": {
+        "zone": "border-[color:var(--fields-error-field-edge-rest,var(--edge-invalid))] bg-[color:var(--fields-error-field-fill-rest,var(--fill-field))]"
+      }
+    },
+    {
+      "droppable": true,
+      "state": "error",
+      "dragging": true,
+      "class": {
+        "zone": "border-[color:var(--fields-error-field-edge-hover,var(--fields-error-field-edge-rest,var(--edge-invalid)))] bg-[color:var(--fields-error-field-fill-hover,var(--fill-hover))]"
+      }
+    },
+    {
+      "droppable": true,
+      "state": "error",
+      "disabled": true,
+      "class": {
+        "zone": "border-[color:var(--fields-error-field-edge-disabled,var(--fields-error-field-edge-rest,var(--edge-invalid)))] bg-[color:var(--fields-error-field-fill-disabled,var(--fields-error-field-fill-rest,var(--fill-field)))] opacity-[var(--fields-error-field-fade-disabled,var(--fade-disabled))]"
+      }
     }
-  }
+  ]
 }

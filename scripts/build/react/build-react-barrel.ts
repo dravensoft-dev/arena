@@ -53,6 +53,7 @@ export const ROOT_PRIVATE = new Map([
     + 'the token layer warns about: a value bound at import time cannot re-theme and cannot '
     + 're-densify. Api.generated is exported because a consumer types their own data with it; '
     + 'nobody types data with calendarHourH.'],
+  ['RootScale', 'the root-font-size arithmetic behind arenaReadBreakpoint and the text scale: a consumer reads a breakpoint or the scale through those, and exporting the helpers would promise a second way to hold the same figure.'],
 ]);
 
 export function sourceExtension(base: string) {

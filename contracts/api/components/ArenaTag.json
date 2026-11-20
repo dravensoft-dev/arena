@@ -1,7 +1,7 @@
 {
   "component": "ArenaTag",
   "description": "A pill for filters, technologies and statuses. A tone for what state a thing is in or a ramp slot for which thing it is, and an optional dismiss.",
-  "affordances": [],
+  "affordances": ["hover", "press"],
   "api": {
     "content": { "form": "slot",
                  "description": "The tag's label." },

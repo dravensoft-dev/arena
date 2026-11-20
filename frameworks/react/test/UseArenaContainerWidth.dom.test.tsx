@@ -4,7 +4,7 @@ import React, { StrictMode, useRef, useState } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { mount, cleanup, act } from './Harness.tsx';
 import { laidOut, SilentObserver } from './LaidOut.ts';
-import { forgetArenaBreakpoints, arenaReadBreakpoint, useArenaContainerWidth } from '../UseArenaContainerWidth.ts';
+import { forgetArenaBreakpoints, arenaReadBreakpoint, useArenaContainerWidth, useArenaTextScale } from '../UseArenaContainerWidth.ts';
 
 function captureWarn<T>(fn: () => T): { result: T; messages: string[] } {
   const messages: string[] = [];
@@ -362,4 +362,25 @@ test('the observer watches the border box, so a padding or a border that changes
   assert.deepEqual(SilentObserver.made.flatMap((one) => one.options), [{ box: 'border-box' }],
     'an observer on the content box never fires when only the padding or the border of the box changes');
   cleanup();
+});
+
+test('the text scale is read at mount: the server markup is 1, and a later root size change does not move a mounted reader', () => {
+  let bump: () => void = () => {};
+  function Reader() {
+    const [, setTick] = useState(0);
+    bump = () => setTick((tick) => tick + 1);
+    return <i>{useArenaTextScale()}</i>;
+  }
+  root().fontSize = '32px';
+  try {
+    assert.equal(renderToStaticMarkup(<Reader />), '<i>1</i>');
+    const container = mount(<Reader />);
+    assert.equal(container.textContent, '2');
+    root().fontSize = '48px';
+    act(() => { bump(); });
+    assert.equal(container.textContent, '2', 'one read per mount');
+  } finally {
+    root().removeProperty('font-size');
+    cleanup();
+  }
 });

@@ -3,6 +3,9 @@ import assert from 'node:assert/strict';
 import {
   BOUNDARIES, removedBorders, boundaryProblems, collect, zeroBoundaryProblems, axisProblems, collectAxis,
 } from './check-boundary-contrast.ts';
+import { rmSync } from 'node:fs';
+import { stateProblems, stateReports } from './check-text-contrast.ts';
+import { scratchContrastTree } from '../../lib/core/contrast-fixtures.ts';
 
 const HEXES = {
   'color-base-100': '#141010',
@@ -83,6 +86,23 @@ test('an axis heavier than the separator passes, and one equal to it does not', 
   assert.doesNotMatch(equal[0] ?? '', /lighter/);
 });
 
-test('the real tree holds: every plugin Arena ships draws the axis heavier than the grid in both themes', () => {
+test('the default plugin draws the axis heavier than the grid in both themes', () => {
   assert.deepEqual(collectAxis(), []);
+});
+
+test('the default plugin clears 3:1 on its focus, selected and invalid edges in both themes', () => {
+  assert.deepEqual(stateProblems('edge-'), []);
+});
+
+test('a boundary pair below 3:1 is refused in a judged scope and reported in any other', () => {
+  const dir = scratchContrastTree({ 'edge-focus': '{color.base-content}' });
+  try {
+    const colors = { 'base-100': '#ffffff', strong: '#000000', 'base-content': '#cccccc' };
+    const scope = (judged: boolean) => [{ where: 'p/plugin.tokens.json', theme: 'light', colors, judged }];
+    assert.ok(stateProblems('edge-', scope(true), dir).length > 0);
+    assert.deepEqual(stateProblems('edge-', scope(false), dir), []);
+    assert.ok(stateReports('edge-', scope(false), dir).length > 0);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
 });

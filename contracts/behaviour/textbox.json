@@ -8,6 +8,7 @@
     "roles.label": "an accessible name is required",
     "states.multiline": "aria-multiline reflects whether the control accepts more than one line",
     "states.required": "aria-required set to true when a value is mandatory",
-    "states.readonly": "aria-readonly set to true when the value cannot be edited"
+    "states.readonly": "aria-readonly set to true when the value cannot be edited",
+    "states.invalid": "aria-invalid set to true while the value fails validation, and absent or false otherwise"
   }
 }

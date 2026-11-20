@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import React from 'react';
 import { mount, cleanup, act } from '../../test/Harness.tsx';
 import { assertPatternCases, REACT_COMPONENTS } from '../../test/AssertPattern.tsx';
+import { commandButtonVerdict } from '../../test/StateVerdicts.ts';
 import { ArenaTag } from './arena-tag/ArenaTag.tsx';
 import { ArenaCalendarEvent } from './arena-calendar-event/ArenaCalendarEvent.tsx';
 
@@ -48,7 +49,10 @@ test('ArenaTag meets both of its declared cases', () => {
         return {
           root,
           subjects: { default: button },
-          behavioural: { 'states.disabled': true, 'keyboard.Space': true, 'keyboard.Enter': true },
+          behavioural: {
+            'states.disabled': true, 'keyboard.Space': true, 'keyboard.Enter': true,
+            'states.pressed': commandButtonVerdict(button!),
+          },
         };
       },
 
@@ -92,7 +96,10 @@ test('ArenaCalendarEvent meets all three of its declared shapes, and `interactiv
 
         return {
           root,
-          behavioural: { 'states.disabled': true, 'keyboard.Space': true, 'keyboard.Enter': true },
+          behavioural: {
+            'states.disabled': true, 'keyboard.Space': true, 'keyboard.Enter': true,
+            'states.pressed': commandButtonVerdict(root.firstElementChild!),
+          },
         };
       },
 
@@ -124,7 +131,10 @@ test('ArenaCalendarEvent meets all three of its declared shapes, and `interactiv
         return {
           root,
           subjects: { default: body },
-          behavioural: { 'states.disabled': true, 'keyboard.Space': true, 'keyboard.Enter': true },
+          behavioural: {
+            'states.disabled': true, 'keyboard.Space': true, 'keyboard.Enter': true,
+            'states.pressed': commandButtonVerdict(body!),
+          },
         };
       },
 

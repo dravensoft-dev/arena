@@ -7,9 +7,9 @@
     "root": "flex flex-col gap-[var(--arena-rhythm-gap,var(--arena-rhythm,var(--rhythm-component)))]",
     "head": "flex flex-wrap items-baseline justify-between gap-items",
     "titles": "min-w-0",
-    "eyebrow": "font-face-eyebrow text-eyebrow tracking-eyebrow case-eyebrow text-ink-eyebrow mb-1.5 font-eyebrow",
-    "title": "font-face-heading font-heading text-title-section text-ink-heading tracking-heading leading-heading m-0",
-    "description": "font-body text-sm text-ink-muted/(--level-ink-muted) leading-prose mt-0.5 mb-0",
+    "eyebrow": "font-face-eyebrow text-eyebrow tracking-eyebrow case-eyebrow text-[color:var(--text-eyebrow-ink-rest,var(--ink-eyebrow))] mb-1.5 font-eyebrow",
+    "title": "font-face-heading font-heading text-title-section text-[color:var(--text-heading-ink-rest,var(--ink-heading))] tracking-heading leading-heading m-0",
+    "description": "font-body text-sm text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)] leading-prose mt-0.5 mb-0",
     "action": "flex items-center flex-wrap gap-inline shrink-0",
     "body": "min-w-0"
   },

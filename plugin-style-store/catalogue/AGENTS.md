@@ -15,6 +15,8 @@ is this directory.
 `bun run check:catalogue` is what holds an entry to being usable, which matters more here than
 anywhere else in the store: an entry that stopped answering a role the kernel gained is a broken
 build in every project that took it, and none of those projects is in this tree to report it.
+`check:text-contrast` and `check:boundary-contrast` measure every palette of an entry and print what
+falls short as `[REPORT]` lines. Arena measures an entry, reports it and lets it pass, and never repaints it.
 
 ## What an entry carries
 

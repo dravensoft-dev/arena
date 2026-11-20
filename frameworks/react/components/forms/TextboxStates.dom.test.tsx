@@ -11,6 +11,7 @@ import { join } from 'node:path';
 import React from 'react';
 import { mount, cleanup } from '../../test/Harness.tsx';
 import { assertPattern, REACT_COMPONENTS } from '../../test/AssertPattern.tsx';
+import { invalidVerdict } from '../../test/StateVerdicts.ts';
 import { ArenaInput } from './arena-input/ArenaInput.tsx';
 import { ArenaTextarea } from './arena-textarea/ArenaTextarea.tsx';
 
@@ -44,7 +45,13 @@ test('ArenaInput reflects readonly and required, and is a single-line textbox', 
     root,
     bindingPath: INPUT_BINDING,
     subjects: { default: el },
-    behavioural: { 'states.readonly': true, 'states.required': true },
+    behavioural: {
+      'states.readonly': true, 'states.required': true,
+      'states.invalid': invalidVerdict(
+        [mount(<ArenaInput label="Project" error="Taken" />).querySelector('input')!],
+        [mount(<ArenaInput label="Project" />).querySelector('input')!],
+      ),
+    },
   });
 });
 
@@ -63,6 +70,12 @@ test('ArenaTextarea reflects readonly and required, and is a multi-line textbox'
     root,
     bindingPath: TEXTAREA_BINDING,
     subjects: { default: el },
-    behavioural: { 'states.readonly': true, 'states.required': true },
+    behavioural: {
+      'states.readonly': true, 'states.required': true,
+      'states.invalid': invalidVerdict(
+        [mount(<ArenaTextarea label="Notes" error="Too short" />).querySelector('textarea')!],
+        [mount(<ArenaTextarea label="Notes" />).querySelector('textarea')!],
+      ),
+    },
   });
 });

@@ -1,9 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
-import { scaleUsesIn, evaluateManifest, staleAllowances, zeroManifestProblem, derivedSetsProblem, padStems, gapRoles, SCALE_USES } from './check-role-tokens.ts';
+import { scaleUsesIn, evaluateManifest, staleAllowances, zeroManifestProblem, derivedSetsProblem, padStems, gapRoles, SCALE_USES, STATE_LITERALS, stateLiteral, stateLiteralFindings, paletteFindings, paletteMessage, paletteUtility, collect } from './check-role-tokens.ts';
+import * as roleTokens from './check-role-tokens.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
+import { manifestFiles } from '../../lib/tailwind/tailwind-compile.ts';
 
 test('a radius scale step in a class string is reported', () => {
   assert.deepEqual(scaleUsesIn('bg-neutral rounded-lg overflow-hidden'), ['rounded-lg']);
@@ -80,7 +82,7 @@ test('a scale use inside a compoundVariants branch is found, so a class cannot h
   assert.deepEqual(evaluateManifest(manifest, new Map()).map((f) => f.slot), ['root']);
 });
 
-test('an allowance whose key no longer occurs fails as stale, so the map cannot outlive the code it excused', () => {
+test('an allowance whose key occurs nowhere fails as stale, so the map cannot outlive the code it excused', () => {
   const allowed = new Map([['Gone:root:rounded-lg', 'it was moved']]);
   const problems = staleAllowances(new Set(['Fixture:root:rounded-lg']), allowed);
   assert.equal(problems.length, 1);
@@ -100,18 +102,19 @@ test('zeroManifestProblem is null for a non-empty file list', () => {
   assert.equal(zeroManifestProblem(['X.manifest.json']), null);
 });
 
-test('the palette step behind a track is a role position, so a manifest naming it is a finding', () => {
-  const manifest = { component: 'ArenaThing', slots: { track: 'relative rounded-pill bg-base-300' }, kind: { track: 'none' } };
-  const findings = evaluateManifest(manifest, new Map());
-  assert.deepEqual(findings.map((f) => f.utility), ['bg-base-300'],
-    'nothing else in that class string stands where a role belongs');
-  assert.match(findings[0]?.role ?? '', /bg-track/);
+test('the palette step behind a track is refused once, by the palette refusal, with the track hint', () => {
+  const manifest = { component: 'ArenaThing', slots: { track: 'relative rounded-pill bg-base-300' }, kind: { track: 'none' } } as never;
+  assert.deepEqual(evaluateManifest(manifest, new Map()).map((f) => f.utility), [], 'the scale check names nothing');
+  const found = paletteFindings(manifest);
+  assert.deepEqual(found.map((f) => f.utility), ['bg-base-300']);
+  assert.match(found[0]?.hint ?? '', /bg-track/);
 });
 
-test('a fill utility is matched whole, so bg-base-300 is not read out of bg-base-300\\/40', () => {
-  assert.deepEqual(scaleUsesIn('bg-base-300'), ['bg-base-300']);
-  assert.deepEqual(scaleUsesIn('hover:bg-base-300'), ['bg-base-300'],
-    'a variant prefix does not change which utility is standing there');
+test('a palette utility is matched whole, so bg-base-300 is not read out of bg-base-300/40, and a variant prefix does not hide it', () => {
+  assert.equal(paletteUtility('bg-base-300'), 'bg-base-300');
+  assert.equal(paletteUtility('hover:bg-base-300/40'), 'bg-base-300');
+  assert.equal(paletteUtility('bg-base-3000'), undefined);
+  assert.equal(paletteUtility('bg-surface'), undefined);
 });
 
 const siblings = (trigger: string) => ({
@@ -273,4 +276,155 @@ test('a reason whose figure drifts from the default plugin fails, and a role wit
   assert.match(problems[0] ?? '', /pad-row-y answers 11px/);
   assert.equal(claimProblems([{ role: 'pad-nowhere', px: 4 }], defaultTokens(), spacing()).length, 1);
   assert.deepEqual(claimProblems(answerClaims(['a slot where gap-row answers 12px']), defaultTokens(), spacing()), []);
+});
+
+const fixture = (extra: Record<string, unknown>) => ({ component: 'ArenaFixture', slots: { root: 'flex' }, kind: { root: 'none' }, ...extra }) as never;
+
+test('a literal opacity on a disabled branch is refused', () => {
+  const found = stateLiteralFindings(fixture({ variants: { disabled: { true: { root: 'opacity-50' } } } }));
+  assert.equal(found.length, 1);
+  assert.equal(found[0]?.branch, 'disabled=true');
+  assert.equal(found[0]?.utility, 'opacity-50');
+});
+
+test('a literal alpha under a state modifier is refused', () => {
+  assert.equal(stateLiteralFindings(fixture({ slots: { root: 'hover:bg-primary/22' } })).length, 1);
+  assert.equal(stateLiteralFindings(fixture({ slots: { root: 'disabled:text-ink-muted/40' } })).length, 1);
+  assert.equal(stateLiteralFindings(fixture({ slots: { root: '[&:has(~input:focus-visible)]:ring-edge-focus/16' } })).length, 1);
+});
+
+test('visibility and base alphas are not states', () => {
+  const slots = { root: 'focus:opacity-100 opacity-0 bg-overlay-media/72 text-ink-body/(--level-ink-body) [&::-webkit-calendar-picker-indicator]:opacity-60 opacity-60 text-sm/6' };
+  assert.deepEqual(stateLiteralFindings(fixture({ slots })), []);
+  assert.deepEqual(stateLiteralFindings(fixture({ variants: { disabled: { true: { root: 'opacity-[var(--fade-disabled)]' } } } })), []);
+});
+
+test('a compound variant with a state key is a state branch', () => {
+  const found = stateLiteralFindings(fixture({ compoundVariants: [{ disabled: true, class: { item: 'opacity-60' } }] }));
+  assert.equal(found.length, 1);
+  assert.equal(found[0]?.branch, 'compound[disabled=true]');
+  assert.deepEqual(stateLiteralFindings(fixture({ compoundVariants: [{ size: 'sm', class: { item: 'opacity-60' } }] })), []);
+});
+
+test('stateLiteral judges the utility alone and the branch it sits in', () => {
+  assert.equal(stateLiteral('opacity-50', true), true);
+  assert.equal(stateLiteral('opacity-50', false), false);
+  assert.equal(stateLiteral('hover:bg-primary/22', false), true);
+  assert.equal(stateLiteral('aria-disabled:opacity-45', false), true);
+  assert.equal(stateLiteral('opacity-100', true), false);
+});
+
+test('an arbitrary literal opacity or alpha is a literal, a var level is not', () => {
+  for (const u of ['opacity-[.5]', 'opacity-[0.5]', 'opacity-[50%]', 'bg-x/[0.4]', 'bg-x/[40%]'])
+    assert.equal(stateLiteral(u, true), true, u);
+  for (const u of ['opacity-[var(--fade-disabled)]', 'opacity-(--fade-disabled)', 'bg-x/[var(--lvl)]', 'bg-x/(--lvl)'])
+    assert.equal(stateLiteral(u, true), false, u);
+});
+
+test('a suffix important does not hide a literal', () => {
+  assert.equal(stateLiteral('opacity-50!', true), true);
+  assert.equal(stateLiteral('bg-x/20!', true), true);
+  assert.equal(stateLiteral('!opacity-50', true), true);
+  assert.equal(stateLiteral('opacity-100!', true), false);
+  assert.equal(stateLiteral('opacity-50!', false), false);
+});
+
+test('group and peer modifiers naming a state are state modifiers', () => {
+  for (const u of ['group-hover:opacity-50', 'peer-checked:opacity-50', 'group-aria-selected:bg-x/20', 'group-hover/name:opacity-50', 'peer-disabled/field:opacity-40'])
+    assert.equal(stateLiteral(u, false), true, u);
+  assert.equal(stateLiteral('group-first:opacity-50', false), false);
+  assert.equal(stateLiteral('group:opacity-50', false), false);
+});
+
+test('a data-state variant is a state modifier', () => {
+  assert.equal(stateLiteral('data-[state=open]:opacity-50', false), true);
+  assert.equal(stateLiteral('data-[size=sm]:opacity-50', false), false);
+});
+
+test('the whole state vocabulary is a state branch', () => {
+  for (const key of ['checked', 'indeterminate', 'error', 'open', 'readOnly', 'dragging'])
+    assert.equal(stateLiteralFindings(fixture({ variants: { [key]: { true: { root: 'opacity-50' } } } })).length, 1, key);
+});
+
+test('an allowance in STATE_LITERALS suppresses one finding', () => {
+  const m = fixture({ variants: { disabled: { true: { root: 'opacity-50' } } } });
+  assert.deepEqual(stateLiteralFindings(m, new Map([['ArenaFixture:root:opacity-50', 'a reason']])), []);
+});
+
+test('the shipped manifests draw no state with a literal', () => {
+  const found = [];
+  const seen = new Set<string>();
+  for (const p of manifestFiles(join(repoRoot, 'frameworks/tailwind/components'))) {
+    const manifest = readJson(p);
+    found.push(...stateLiteralFindings(manifest));
+    for (const f of stateLiteralFindings(manifest, new Map())) seen.add(`${f.component}:${f.slot}:${f.utility}`);
+  }
+  assert.deepEqual(found, []);
+  assert.deepEqual([...STATE_LITERALS.keys()].filter((k) => !seen.has(k)), []);
+});
+
+const palettePart = (slots: Record<string, string>, component = 'ArenaFixture') => ({ component, slots, kind: {} }) as never;
+
+test('a palette utility is refused with no allowance', () => {
+  const found = paletteFindings(palettePart({ root: 'flex bg-base-300 hover:bg-primary-fill/50 border-t-base-300 bg-surface' }, 'ArenaFixture'));
+  assert.deepEqual(found.map((f) => [f.component, f.slot, f.utility]), [
+    ['ArenaFixture', 'root', 'bg-base-300'],
+    ['ArenaFixture', 'root', 'hover:bg-primary-fill/50'],
+    ['ArenaFixture', 'root', 'border-t-base-300'],
+  ]);
+  const message = paletteMessage(found[0]!);
+  for (const said of ['ArenaFixture', 'root', 'bg-base-300', 'bg-track']) assert.ok(message.includes(said), `the message names ${said}: ${message}`);
+  assert.equal('PALETTE_READS' in roleTokens, false);
+  assert.equal('stalePaletteReads' in roleTokens, false);
+});
+
+test('the shipped manifests read no palette key', () => {
+  const { palette, stale } = collect();
+  assert.deepEqual(palette, []);
+  assert.deepEqual(stale, []);
+});
+
+test('cat and heat keys are palette keys too', () => {
+  const found = paletteFindings(palettePart({ root: 'bg-cat-3 text-heat-5/60 fill-surface' }));
+  assert.deepEqual(found.map((f) => f.utility), ['bg-cat-3', 'text-heat-5/60']);
+});
+
+const refused = (token: string) => paletteFindings(palettePart({ root: `flex ${token}` })).map((f) => f.utility);
+
+test('a palette key read through an arbitrary colour value is refused', () => {
+  assert.deepEqual(refused('bg-[color:var(--color-primary)]'), ['bg-[color:var(--color-primary)]']);
+  assert.equal(paletteUtility('bg-[color:var(--color-primary)]'), 'var(--color-primary)');
+});
+
+test('a palette key read through a paren shorthand is refused', () => {
+  assert.deepEqual(refused('bg-(--color-primary)'), ['bg-(--color-primary)']);
+});
+
+test('a palette key written into an arbitrary property is refused', () => {
+  assert.deepEqual(refused('[--arena-icon-ink:var(--color-base-300)]'), ['[--arena-icon-ink:var(--color-base-300)]']);
+});
+
+test('a palette key inside an arbitrary value is matched whole', () => {
+  assert.deepEqual(refused('bg-[color:var(--color-primary-fill)]'), ['bg-[color:var(--color-primary-fill)]']);
+  assert.equal(paletteUtility('bg-[color:var(--color-primary-fill)]'), 'var(--color-primary-fill)');
+  assert.deepEqual(refused('bg-[color:var(--color-primary-soft)] bg-[color:var(--color-surface)] bg-[color:var(--fill-primary)]'), []);
+});
+
+test('a leading important mark does not hide a palette utility', () => {
+  assert.deepEqual(refused('!bg-base-300'), ['!bg-base-300']);
+  assert.equal(paletteUtility('hover:!bg-base-300'), 'bg-base-300');
+});
+
+test('a trailing important mark does not hide a palette utility', () => {
+  assert.deepEqual(refused('bg-base-300!'), ['bg-base-300!']);
+});
+
+for (const token of ['shadow-base-300', 'inset-shadow-neutral/40', 'inset-ring-primary', 'ring-offset-base-100', 'drop-shadow-neutral', 'text-shadow-base-content']) {
+  test(`a shadow, inset or offset colour reads a palette key too: ${token}`, () => {
+    assert.deepEqual(refused(token), [token]);
+  });
+}
+
+test('a shadow, inset, offset or drop shadow scale or role utility reads no palette key', () => {
+  assert.deepEqual(refused('shadow-sm shadow-none ring-offset-2 drop-shadow-lg text-shadow-xs inset-shadow-none shadow-surface-floating'), []);
 });

@@ -14,6 +14,7 @@ import { join } from 'node:path';
 import React from 'react';
 import { mount, cleanup, act } from '../../../test/Harness.tsx';
 import { assertPatternCases, REACT_COMPONENTS } from '../../../test/AssertPattern.tsx';
+import { commandButtonVerdict } from '../../../test/StateVerdicts.ts';
 import { ArenaSideNavItem } from './ArenaSideNavItem.tsx';
 
 afterEach(cleanup);
@@ -81,6 +82,7 @@ test('ArenaSideNavItem meets both of the shapes href chooses between', () => {
             'keyboard.Enter': true,
             'keyboard.Space': true,
             'states.disabled': true,
+            'states.pressed': commandButtonVerdict(el!),
           },
         };
       },

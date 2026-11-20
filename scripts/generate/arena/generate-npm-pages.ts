@@ -11,7 +11,7 @@ import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { packageSheetName, sheetFamilies, VOCABULARY_DIR, FAMILY_SUFFIX } from '../../lib/tailwind/vocabulary.ts';
-import { CSS_CHAIN, CHANNEL_SOURCES, ALIAS_SOURCE, ANGULAR_EXTRA, arenaCssLayers, tokenCatalogue } from '../../lib/arena/package-assembly.ts';
+import { CSS_CHAIN, CHANNEL_SOURCES, ALIAS_SOURCE, ANGULAR_EXTRA, FAMILY_PART_SHEET_READS, TOKEN_CATALOGUE_READS, arenaCssLayers, familyPartSheets, tokenCatalogue } from '../../lib/arena/package-assembly.ts';
 import type { CssChainEntry } from '../../lib/arena/package-assembly.ts';
 import { NPM_PAGES, renderQuestions } from '../../lib/arena/npm-questions.ts';
 import { ARENA_EXT, POLARITY_HOOKS, RESERVED } from '../core/arena-cli/style-plugin-rules.ts';
@@ -25,6 +25,7 @@ import type { ArenaConfig, ArenaFont } from '../core/arena-cli/theme-css.ts';
 import { FONT_ROLES } from '../core/arena-cli/palette-keys.ts';
 import { CSS_TARGETS, BREAKPOINT_TARGET } from './generate-tokens.ts';
 import { HUES_FILE } from '../../lib/tailwind/hue-sheet.ts';
+import { BROWSER_DEFAULT_PX, scaledLiteral } from '../core/arena-cli/serialize-token.ts';
 import { RULE_TAGS, RULE_DESCRIPTIONS } from '../core/arena-cli/audit.ts';
 import { LAYER_SCRIPTS, wiredScripts } from '../core/arena-cli/command-init.ts';
 import { rulesReportedAs } from '../../lib/arena/language-rules.ts';
@@ -40,7 +41,6 @@ const CONFIG_ROWS: Partial<Record<keyof ArenaConfig, Row>> = {
   fonts: { type: 'object, one entry per font role', required: 'yes', default: 'none' },
   stylePlugins: { type: 'array of `default` or a directory path', required: 'no', default: '`["default"]`' },
   stylesheet: { type: 'object', required: 'no', default: 'every sheet the package ships' },
-  gradientMark: { type: 'boolean', required: 'no', default: 'unset' },
   runtimePalettes: { type: 'boolean', required: 'no', default: 'unset' },
 };
 
@@ -100,21 +100,33 @@ export function roleRuns(roles: string[]) {
   return out;
 }
 
+const SENTENCE_RUNS = 20;
+
 export function defaultedSentence(roles: string[], total = 0) {
   if (roles.length === 0)
     return `No role in this package carries a default, so your root style plugin answers every one of the ${total} roles and the command refuses a root plugin silent on any.`;
-  return `The ${roles.length} roles carrying a default are ${roleRuns(roles).join(', ')}. Your root plugin answers the other ${total}.`;
+  const runs = roleRuns(roles);
+  const verb = runs.length > SENTENCE_RUNS ? 'include' : 'are';
+  const named = [`The ${roles.length} roles carrying a default ${verb} ${runs.slice(0, SENTENCE_RUNS).join(', ')}.`];
+  for (let at = SENTENCE_RUNS; at < runs.length; at += SENTENCE_RUNS)
+    named.push(`Roles carrying a default also include ${runs.slice(at, at + SENTENCE_RUNS).join(', ')}.`);
+  return `${named.join(' ')} Your root plugin answers the other ${total}.`;
 }
 
 export function defaultsStatement(base = root) {
   const roles = defaultedRoles(base);
-  return `${defaultedSentence(roles, unansweredCount(base))} A minor release may add a role that carries Arena's default. Your root plugin may then leave that role silent, and the role takes the default. The command notes it, as \`N role(s) your root style plugin leaves unanswered take Arena's default: …\`. Your package's \`arena.tokens.json\` writes a role's default beside its type.`;
+  return `${defaultedSentence(roles, unansweredCount(base))} A minor release may add a role that carries Arena's default, which your root plugin may then leave silent, and the role takes the default. The command notes it, as \`N role(s) your root style plugin leaves unanswered take Arena's default: …\`. Your package's \`arena.tokens.json\` writes a role's default beside its type.`;
 }
 
 export const TOAST_NOTICE_CONTRACT = 'contracts/api/types/arena-toast-notice.json';
 export const CONFIRM_REQUEST_CONTRACT = 'contracts/api/types/arena-confirm-request.json';
 
 const cell = (text: string) => text.replace(/\|/g, '\\|');
+
+export function atDefault(css: string): string {
+  const rem = /^(-?[\d.]+)rem$/.exec(css);
+  return rem ? `\`${css}\` = ${Number((Number(rem[1]) * BROWSER_DEFAULT_PX).toFixed(4))}px at the browser default` : `\`${css}\``;
+}
 
 export function fieldTable(base: string, typeFile: string) {
   const contract = readJson(join(base, typeFile)) as { fields?: unknown };
@@ -192,9 +204,10 @@ const CLI_PAGE = 'skills/design/references/cli.md';
 export const REGION_TARGETS: Record<string, string[]> = {
   repository: ['frameworks/react/PACKAGE.md', 'frameworks/angular/PACKAGE.md'],
   skin: ['skills/design/references/config.md'],
-  tokens: ['skills/design/references/tokens.md'],
-  density: ['skills/design/references/tokens.md'],
-  typography: ['skills/design/references/tokens.md'],
+  spacing: ['skills/design/references/tokens/scales/spacing-radius-border.md'],
+  motion: ['skills/design/references/tokens/scales/motion-and-layers.md'],
+  density: ['skills/design/references/tokens/scales/density.md'],
+  typography: ['skills/design/references/tokens/scales/type-scale.md'],
   defaults: ['skills/design/references/style-kernel.md'],
   sheets: ['skills/design/references/stylesheets.md'],
   locale: ['skills/design/references/locale.md'],
@@ -212,9 +225,10 @@ export const TARGETS = [...new Set(Object.values(REGION_TARGETS).flat())];
 
 export const node = {
   name: 'generate:npm-pages',
-  reads: [...TARGETS, ALIAS_SOURCE, 'scripts/generate/core/arena-cli/audit.ts', 'scripts/generate/core/arena-cli/command-init.ts', 'scripts/lib/arena/language-rules.ts', `${DEFAULT_PLUGIN_DIR}/${PLUGIN_TOKENS}`, '.claude-plugin/plugin.json', 'scripts/generate/core/arena-cli/style-plugin-rules.ts', 'scripts/generate/core/arena-cli/theme-css.ts', LOCALE_CONTRACT, ROLE_CONTRACT, BEHAVIOUR_CONTRACT, ...Object.values(DENSITY_CONTRACTS), THEME_SHEET, 'contracts/api/components/*.json', 'contracts/design/spacing.json', BREAKPOINT_TARGET, TOAST_NOTICE_CONTRACT, CONFIRM_REQUEST_CONTRACT, ...CSS_TARGETS, ...CHANNEL_SOURCES, HUES_FILE, `${VOCABULARY_DIR}/**/*${FAMILY_SUFFIX}`],
+  reads: [...TARGETS, ALIAS_SOURCE, 'scripts/generate/core/arena-cli/audit.ts', 'scripts/generate/core/arena-cli/command-init.ts', 'scripts/lib/arena/language-rules.ts', `${DEFAULT_PLUGIN_DIR}/${PLUGIN_TOKENS}`, '.claude-plugin/plugin.json', 'scripts/generate/core/arena-cli/style-plugin-rules.ts', 'scripts/generate/core/arena-cli/theme-css.ts', LOCALE_CONTRACT, ROLE_CONTRACT, BEHAVIOUR_CONTRACT, ...Object.values(DENSITY_CONTRACTS), THEME_SHEET, 'contracts/api/components/*.json', 'contracts/design/spacing.json', BREAKPOINT_TARGET, TOAST_NOTICE_CONTRACT, CONFIRM_REQUEST_CONTRACT, ...CSS_TARGETS, ...CHANNEL_SOURCES, HUES_FILE, `${VOCABULARY_DIR}/**/*${FAMILY_SUFFIX}`, ...TOKEN_CATALOGUE_READS, ...FAMILY_PART_SHEET_READS],
   writes: TARGETS,
   feeds: [
+    'generate:token-tree', 'check:token-tree',
     'build:angular-package',
     'build:contracts-package',
     'build:mcp-package', 'check:mcp',
@@ -253,6 +267,36 @@ function initFence(layer: string) {
   return ['```json', JSON.stringify({ scripts }, null, 2), '```'].join('\n');
 }
 
+function scaleRegion(groups: string[], base: string) {
+  const { tokens } = tokenCatalogue(base);
+  const roles = new Set(Object.keys(readJson(join(base, ROLE_CONTRACT)) as Record<string, unknown>));
+  const utilities = utilitiesOf(base, /^\s*--(spacing|radius|shadow|ease|z-index)-([a-z0-9-]+):\s*var\(--((?:sp|r|shadow|ease|z)-[a-z0-9-]+)\)\s*;/,
+    (kind, name) => ({ spacing: `*-${name}`, radius: `rounded-${name}`, 'z-index': `z-${name}` })[kind] ?? `${kind}-${name}`);
+  const unit = /^\s*--spacing:\s*var\(--([a-z0-9-]+)\)\s*;/m.exec(readFileSync(join(base, THEME_SHEET), 'utf8'))?.[1];
+  const pixels = (name: string) => {
+    const one = /^(-?[\d.]+)(px|rem)$/.exec(String(tokens[name]));
+    return one ? Number(one[1]) * (one[2] === 'rem' ? BROWSER_DEFAULT_PX : 1) : Number.NaN;
+  };
+  const multiple = (name: string) => {
+    const step = unit === undefined ? undefined : pixels(name) / pixels(unit);
+    return name.startsWith('sp-') && step !== undefined && Number.isFinite(step) ? `\`*-${step}\`` : undefined;
+  };
+  const variants = new Map([...readFileSync(join(base, BREAKPOINT_TARGET), 'utf8').matchAll(/^\s*--breakpoint-([a-z0-9-]+):/gm)]
+    .map((match) => [`bp-${match[1]}`, `\`${match[1]}:\``]));
+  const rows = groups.flatMap((group) => Object.entries(tokens)
+    .filter(([name]) => !roles.has(name) && (name === group || name.startsWith(`${group}-`)))
+    .map(([name, value]) => `| \`--${name}\` | ${atDefault(String(value))} | ${multiple(name) ?? variants.get(name) ?? utilities.get(name)?.join(', ') ?? 'none'} |`));
+  const resets = [['r', 'radius'], ['shadow', 'shadow'], ['ease', 'ease']].filter(([group]) => groups.includes(group!)).map(([, label]) => label!);
+  const reset = resets.length === 0 ? [] : [`Where the sheet resets a Tailwind default scale (${resets.length === 1 ? resets[0] : `${resets.slice(0, -1).join(', ')} and ${resets.at(-1)}`}), a utility of that default, such as \`${groups.includes('shadow') ? 'shadow-md' : 'ease-in'}\`, emits nothing and reports nothing.`];
+  const intro = [
+    ...(groups.includes('sp') ? ['`*-` stands for any spacing utility, such as `h-` or `py-`.', 'The sheet sets the spacing base to `--sp-1`, so a spacing utility resolves as its number times that step.'] : []),
+    'A row marked `none` has no utility named for its token, so read it with `var()`.',
+    ...reset,
+    ...(groups.includes('bp') ? ['A breakpoint row names the variant that reads it, and Tailwind\'s other default widths, such as `xl:`, stop resolving.'] : []),
+  ].join(' ');
+  return [intro, '', '| custom property | value | Tailwind |', '| --- | --- | --- |', ...rows].join('\n');
+}
+
 export const REGIONS: Record<string, (base?: string, target?: string) => string> = {
   repository: () => `## This package ships the components and not the language
 
@@ -272,26 +316,9 @@ Without one of them an agent guesses. \`arena audit\` reads your own sources for
 
 The package is the code. The server, the plugin and the repository are the language.`,
 
-  tokens: (base = root) => {
-    const groups = ['sp', 'r', 'bw', 'shadow', 'dur', 'loop', 'ease', 'z', 'bp'];
-    const { tokens } = tokenCatalogue(base);
-    const roles = new Set(Object.keys(readJson(join(base, ROLE_CONTRACT)) as Record<string, unknown>));
-    const utilities = utilitiesOf(base, /^\s*--(spacing|radius|shadow|ease|z-index)-([a-z0-9-]+):\s*var\(--((?:sp|r|shadow|ease|z)-[a-z0-9-]+)\)\s*;/,
-      (kind, name) => ({ spacing: `*-${name}`, radius: `rounded-${name}`, 'z-index': `z-${name}` })[kind] ?? `${kind}-${name}`);
-    const unit = /^\s*--spacing:\s*var\(--([a-z0-9-]+)\)\s*;/m.exec(readFileSync(join(base, THEME_SHEET), 'utf8'))?.[1];
-    const pixels = (name: string) => /^(-?[\d.]+)px$/.exec(String(tokens[name]))?.[1];
-    const multiple = (name: string) => {
-      const step = unit === undefined ? undefined : Number(pixels(name)) / Number(pixels(unit));
-      return name.startsWith('sp-') && step !== undefined && Number.isFinite(step) ? `\`*-${step}\`` : undefined;
-    };
-    const variants = new Map([...readFileSync(join(base, BREAKPOINT_TARGET), 'utf8').matchAll(/^\s*--breakpoint-([a-z0-9-]+):/gm)]
-      .map((match) => [`bp-${match[1]}`, `\`${match[1]}:\``]));
-    const rows = groups.flatMap((group) => Object.entries(tokens)
-      .filter(([name]) => !roles.has(name) && (name === group || name.startsWith(`${group}-`)))
-      .map(([name, value]) => `| \`--${name}\` | \`${value}\` | ${multiple(name) ?? variants.get(name) ?? utilities.get(name)?.join(', ') ?? 'none'} |`));
-    return ['`*-` stands for any spacing utility, such as `h-` or `py-`. The sheet sets the spacing base to `--sp-1`, so a spacing utility resolves as its number times that step. A row marked `none` has no utility named for its token, so read it with `var()`. Where the sheet resets a Tailwind default scale (radius, shadow and ease), a utility of that default, such as `shadow-md`, emits nothing and reports nothing. A breakpoint row names the variant that reads it, and Tailwind\'s other default widths, such as `xl:`, stop resolving.', '',
-      '| custom property | value | Tailwind |', '| --- | --- | --- |', ...rows].join('\n');
-  },
+  spacing: (base = root) => scaleRegion(['sp', 'r', 'bw', 'shadow', 'bp'], base),
+
+  motion: (base = root) => scaleRegion(['dur', 'loop', 'ease', 'z'], base),
 
   density: (base = root) => {
     const { tokens } = tokenCatalogue(base);
@@ -300,14 +327,15 @@ The package is the code. The server, the plugin and the repository are the langu
     const utilities = utilitiesOf(base, /^\s*--(spacing|text|leading)-([a-z0-9-]+):\s*([^;]*var\(--dz-[^;]*);/,
       (kind, name) => kind === 'spacing' ? `*-${name}` : `${kind}-${name}`,
       (match) => [...match[3]!.matchAll(/var\(--dz-([a-z0-9-]+)\)/g)].map((one) => one[1]!));
-    const shown = (value: string | undefined) => value === undefined ? 'base' : `\`${cell(value)}\``;
+    const shown = (value: string | undefined, name: string) => value === undefined ? 'base'
+      : atDefault(cell(String(tokens[name]).endsWith('rem') ? scaledLiteral(value, { axis: 'scales' }) : value));
     const sizes = (readJson(join(base, 'contracts/design/spacing.json')) as { dz: Record<string, { $description?: string }> }).dz;
     const rows = Object.entries(tokens).filter(([name]) => name.startsWith('dz-')).map(([name, value]) => {
       const key = name.slice(3);
       const reads = utilities.get(key)?.join(', ') ?? 'none';
       const sized = sizes[key]?.$description?.split(/\. /)[0]?.replace(/\.$/, '');
       if (!sized) throw new Error(`generate-npm-pages: contracts/design/spacing.json dz.${key} has no $description to say what it sizes`);
-      return `| \`--${name}\` | \`${value}\` | ${shown(compact(key))} | ${shown(comfortable(key))} | ${reads} | ${cell(sized)} |`;
+      return `| \`--${name}\` | ${atDefault(String(value))} | ${shown(compact(key), name)} | ${shown(comfortable(key), name)} | ${reads} | ${cell(sized)} |`;
     });
     return ['`*-` stands for any spacing utility, such as `h-` or `py-`.', '',
       '| custom property | base | .arena-compact | .arena-comfortable | Tailwind | what it sizes |', '| --- | --- | --- | --- | --- | --- |', ...rows].join('\n');
@@ -320,7 +348,7 @@ The package is the code. The server, the plugin and the repository are the langu
       (kind, name) => kind === 'font-weight' ? `font-${name}` : `${kind}-${name}`);
     const rows = TYPE_GROUPS.flatMap((group) => Object.entries(tokens)
       .filter(([name]) => !roles.has(name) && (name === group || name.startsWith(`${group}-`)))
-      .map(([name, value]) => `| \`--${name}\` | \`${value}\` | ${utilities.get(name)?.join(', ') ?? 'none'} |`));
+      .map(([name, value]) => `| \`--${name}\` | ${atDefault(String(value))} | ${utilities.get(name)?.join(', ') ?? 'none'} |`));
     return ['| custom property | value | Tailwind |', '| --- | --- | --- |', ...rows].join('\n');
   },
 
@@ -347,7 +375,7 @@ ${fieldTable(base, CONFIRM_REQUEST_CONTRACT)}`,
 
   noImport: (base = root) => {
     const fence = (name: string, extra: CssChainEntry[]) => ['```css', ...noImportSheets(name, base, extra), '```'].join('\n');
-    return `**React:**\n\n${fence('@dravensoft/arena-react', [])}\n\n**Angular:**\n\n${fence('@dravensoft/arena-angular', ANGULAR_EXTRA)}\n\nEach \`<component>\` stands for a sheet in the closed list \`arena build\` works out, for every root. That list is what \`arena.package.generated.css\` carries, each sheet written out in full, when a build writes it: the components the sources draw and the ones Arena draws for them. The \`"default"\` root adds \`css/style-plugin-default.css\` in its slot. Each \`<family>\` is a vocabulary sheet. \`css/base.css\` is left out when \`stylesheet.preflight\` is \`false\`. \`arena.generated.css\` goes in a stylesheet of its own, imported after the list, so the package's sheets and yours never share a file.`;
+    return `**React:**\n\n${fence('@dravensoft/arena-react', [])}\n\n**Angular:**\n\n${fence('@dravensoft/arena-angular', ANGULAR_EXTRA)}\n\nEach \`<component>\` stands for a sheet in the closed list \`arena build\` works out, for every root. That list is what \`arena.package.generated.css\` carries, each sheet written out in full, when a build writes it: the components the sources draw and the ones Arena draws for them. The \`"default"\` root adds \`css/style-plugin-default.css\` in its slot. Each \`<family>\` is a vocabulary sheet. A family whose components carry colour slots enters as the sheet of each listed component that answers it, under \`css/vocabulary/<family>/\`. The family's whole sheet enters when the list holds all of them. \`css/base.css\` is left out when \`stylesheet.preflight\` is \`false\`. \`arena.generated.css\` goes in a stylesheet of its own, imported after the list, so the package's sheets and yours never share a file.`;
   },
 
   scriptsReact: () => initFence('@dravensoft/arena-react'),
@@ -355,6 +383,16 @@ ${fieldTable(base, CONFIRM_REQUEST_CONTRACT)}`,
   scriptsAngular: () => initFence('@dravensoft/arena-angular'),
 
   sheets: (base = root) => {
+    const partRows = (at: string) => {
+      const byFamily = new Map<string, string[]>();
+      for (const { to, family } of familyPartSheets(at)) {
+        const dir = packageSheetName(family).replace(/\.css$/, '/');
+        byFamily.set(dir, [...(byFamily.get(dir) ?? []), `\`${to}\``]);
+      }
+      return [...byFamily].map(([dir, sheets]) => `| \`${dir}\` | One sheet per component of a family whose components carry colour slots: `
+        + `${sheets.join(', ')}. Each holds that component's blocks of the family. \`arena build\` imports the ones a screen draws, in place of `
+        + `the family's whole sheet. \`arena.css\` imports the whole sheet, and a project importing component sheets one by one imports either |\n`).join('');
+    };
     const families = sheetFamilies(base).map((one) => one.family).sort().map((family) => `\`${packageSheetName(family)}\``);
     const tokens = CSS_CHAIN.map(({ to }) => (to === PLUGIN_SHEET
       ? `the root plugin's slot, \`${to}\` for the default root`
@@ -374,7 +412,7 @@ ${fieldTable(base, CONFIRM_REQUEST_CONTRACT)}`,
 | \`css/components/<name>.css\` | one component, named for its sheet as \`arena-button.css\` or \`arena-stat-card.css\`. Each imports the prelude it needs itself, so importing one alone is safe |
 | \`css/hues/<name>.css\` | a component's hue sheet, imported by its sheet, writing ${channelList} from the component's \`data-arena\` values, or unconditionally on a slot whose hue no value varies |
 | \`css/vocabulary/\` | One sheet per family on the vocabulary page: ${sheetList}. \`arena.css\` imports them. A project importing component sheets one by one imports these too, or a vocabulary class does nothing |
-| \`css/tailwind-theme.css\` | Arena's theme and utilities for markup of your own compiled with \`tailwindcss\` v4. Import it right after \`@import 'tailwindcss'\`: every utility then resolves to Arena's scale, \`case-eyebrow\`, \`case-label\`, \`fit-media\` and the animation utilities are available, and the compiler's own defaults are unreachable. A key of yours survives only below this import. The sheet's \`sm:\`, \`md:\` and \`lg:\` variants and their \`max-*\` complements sit at the \`--bp-*\` thresholds the viewport helper reads. A wide frame marked \`max-md:hidden\` and a phone frame marked \`md:hidden\` are therefore right at the first paint, a server's HTML included |
+${partRows(base)}| \`css/tailwind-theme.css\` | Arena's theme and utilities for markup of your own compiled with \`tailwindcss\` v4. Import it right after \`@import 'tailwindcss'\`: every utility then resolves to Arena's scale, \`case-eyebrow\`, \`case-label\`, \`fit-media\` and the animation utilities are available, and the compiler's own defaults are unreachable. A key of yours survives only below this import. The sheet's \`sm:\`, \`md:\` and \`lg:\` variants and their \`max-*\` complements sit at the \`--bp-*\` thresholds the viewport helper reads. A wide frame marked \`max-md:hidden\` and a phone frame marked \`md:hidden\` are therefore right at the first paint, a server's HTML included |
 
 **The rest of what ships under \`css/\` is not a choice.** The token layer is these sheets, in this order: ${listed}. \`arena.css\` imports them in the order they have to be in, and \`css/prelude.css\` is what a single component sheet pulls in for itself. The one that IS a decision is \`css/style-plugin-default.css\`, the appearance this package installs with. The sheet arrives through \`arena.css\` like the rest. A \`stylePlugins\` list of your own that does not name \`default\` does not receive it, which is the point of writing one. A project's own root plugin has no sheet in that slot: it answers in \`arena.generated.css\`, which restates the high-contrast block after those answers.`;
   },
@@ -403,20 +441,20 @@ Write \`arena.config.json\` in your project root. The block below is the whole f
         "base-200": "#1d1715",
         "base-300": "#241c19",
         "base-content": "#f3ede5",
-        "primary": "#b52a20",
+        "primary": "#e25647",
         "primary-content": "#ffffff",
-        "primary-fill": "#b52a20",
+        "primary-fill": "#b4291f",
         "secondary": "#c5a059",
         "secondary-content": "#141010",
         "neutral": "#2c221e",
         "neutral-content": "#d8cfc4",
-        "info": "#3182ce",
+        "info": "#3888d5",
         "info-content": "#141010",
         "success": "#38a169",
         "success-content": "#141010",
         "warning": "#ecc94b",
         "warning-content": "#141010",
-        "error": "#e85151",
+        "error": "#f65e5c",
         "error-content": "#ffffff",
         "error-fill": "#ce3838",
         "cat-1": "#3c7b0a",
@@ -455,7 +493,7 @@ What each part means:
   ships or is going to ship, naming the component a future class belongs to. ${reserved} The names ${[...POLARITY_HOOKS].map((name) => `\`${name}\``).join(' and ')} are refused too, because a runtime palette wears them. A palette may still take its own polarity's name, \`dark\` or \`light\`, and a style plugin may not. A palette name is kebab-case, and a name declared twice is refused.
 - **\`polarity\`** is \`dark\` or \`light\`. The polarity decides the native date picker's colour, and it is what a first visit matches \`prefers-color-scheme\` against.
 - **\`colors\`** takes every key above, each a six-digit hex such as \`#141010\`. \`error-fill\`, \`primary-fill\` and the heat steps are optional. Leave
-  \`error-fill\` out and Arena darkens \`error\` in oklab for the single filled danger surface it has. Leave \`primary-fill\` out and every ground \`primary-content\` sits on, a filled button, a checked box, a current page, fills with \`primary\`. Declare it when the accent you tuned to read as ink on your page cannot also carry \`primary-content\`. A violet light enough to read on a dark page is too light to carry white. Name a deeper violet here and keep the light one as \`primary\`.
+  \`error-fill\` out and Arena darkens \`error\` in oklab for the danger fill. Leave \`primary-fill\` out and every ground \`primary-content\` sits on, a filled button, a current page, a count badge, fills with \`primary\`. Declare it when the accent you tuned to read as ink on your page cannot also carry \`primary-content\`. A violet light enough to read on a dark page is too light to carry white. Name a deeper violet here and keep the light one as \`primary\`.
 - **\`cat-1\`** through **\`cat-8\`** are the chart ramp. The order of the slots is their identity, so slot 3 is always slot 3. The slots are never used to mean anything, only to tell series apart.
 - **\`heat-1\`** through **\`heat-5\`** are a heatmap's ladder. Pin all five or none: left out, they are derived from \`cat-4\`, \`base-200\` and \`base-content\`.
 - **\`fonts\`** fills the three families Arena reads. \`src\` takes either a stylesheet URL, as
@@ -473,9 +511,6 @@ What each part means:
   your own holding \`plugin.tokens.json\` and optionally \`plugin.css\`. A \`stylePlugins\` path resolves against the directory that holds \`arena.config.json\`. The plugin's name is the name of that directory, so a directory called \`ember\` declares the plugin \`ember\`. The name must be kebab-case, and it may not repeat a palette name or another plugin's. The first entry answers every role that carries no default. ${defaultsStatement(base)} A custom property with no value is invalid at computed-value time, so an unanswered role is a missing border rather than a plainer look. Declare a list without \`default\` and you do not receive its stylesheet, the
   same way the preflight can already be dropped.
 - **\`runtimePalettes\`** is optional, a boolean, and says the app applies palettes its users design while it runs. With \`true\`, \`arena build\` also writes \`arena.runtime.generated.json\`, adds \`--arena-runtime-palettes:1\` to \`:root\` and emits the \`.arena-polarity-dark\` and \`.arena-polarity-light\` blocks. Without it, \`arena.generated.css\` is unchanged and the palette functions refuse. [\`theme.md\`](./theme.md) covers what a runtime palette may change and how to apply, check and keep one.
-- **\`gradientMark\`** is optional, a boolean, and says the mark your product is drawn with is a
-  gradient. Arena ships no element that is one, so yours lives in your own CSS, where \`arena audit\` reports it. The scope reads which directory a line sits in, which is right for a part hook and wrong for a brand. Declare it once and that rule goes quiet in your sources; the colours inside
-  the gradient are still reported, since they are the skin. The key replaces an \`arena-audit allow\` marker, which silences every rule on its line and is repeated wherever the mark is drawn.
 
 **A plugin carrying a \`plugin.css\` gets a third generated file**, \`plugin.generated.css\`, and
 you import it beside the other two. The sheet declares the cascade layer order itself and then opens the reserved layer. Where your bundler places it among your other stylesheets cannot change what wins.`;

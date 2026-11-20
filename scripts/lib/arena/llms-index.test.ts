@@ -8,13 +8,15 @@ import assert from 'node:assert/strict';
 import {
   LLMS_INDEX, ROUTER, INDEX, REFERENCE_DIR, LAYER_INDEX, BUILD_INTERMEDIATE, layerFile, docUrl,
   summary, categoryIndexes, prompts, layerDocs, servedDocs, references, headline, blurb, index,
-  corpus, nameOf, categoryOf, opening, when, sentenceEnd, balance, lift, onSite, sectionPages,
+  corpus, nameOf, categoryOf, opening, when, sentenceEnd, balance, lift, onSite, sectionPages, REFERENCE_LINK,
 } from './llms-index.ts';
 import { DOMAIN, LAYERS } from './site-pages.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 import { repoRoot } from './repo-root.ts';
 import { join } from 'node:path';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 
 test('the file is named where the specification says an agent looks for it', () => {
   assert.equal(LLMS_INDEX, 'llms.txt');
@@ -103,6 +105,22 @@ test('a section the router links by its index is served whole, the index first a
   assert.deepEqual(sectionPages(`${REFERENCE_DIR}/page.md`), [`${REFERENCE_DIR}/page.md`]);
 });
 
+test('a section orders its sub-sections by the link of their own index, never by a parent link', () => {
+  const base = mkdtempSync(join(tmpdir(), 'llms-sections-'));
+  try {
+    const dir = join(base, REFERENCE_DIR, 'sec');
+    for (const sub of ['a', 'b']) {
+      mkdirSync(join(dir, sub), { recursive: true });
+      writeFileSync(join(dir, sub, 'index.md'), `# ${sub}\n`);
+    }
+    writeFileSync(join(dir, 'index.md'), '# sec\n\n[b](./b/index.md), then [parent of a](../a/index.md) and [a](./a/index.md)\n');
+    const pages = sectionPages(`${REFERENCE_DIR}/sec/index.md`, base);
+    assert.deepEqual(pages, [`${REFERENCE_DIR}/sec/index.md`, `${REFERENCE_DIR}/sec/b/index.md`, `${REFERENCE_DIR}/sec/a/index.md`]);
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+});
+
 test('a reference names itself and says when it is read, so no second copy of either is written here', () => {
   for (const rel of references()) {
     assert.ok(headline(rel).length > 10, `${rel} carries no heading to be named by`);
@@ -189,4 +207,43 @@ test('a document is named by what it is, not by the path it sits at', () => {
 test('a pattern in a code span is not a relative link, and a link beside it is', () => {
   const span = '`' + String.raw`/node_modules[\\/](a|b)[\\/]/` + '`';
   assert.equal(onSite(`${span} [x](b.md)`, 'skills/design/a.md'), `${span} [x](${docUrl('skills/design/b.md')})`);
+});
+
+function treeFixture(base: string) {
+  const put = (rel: string, text = '# page\n') => {
+    mkdirSync(join(base, rel, '..'), { recursive: true });
+    writeFileSync(join(base, rel), text);
+  };
+  const refs = REFERENCE_DIR;
+  put(`${refs}/a.md`);
+  put(`${refs}/t/index.md`, '# t\n\n[p](./p/index.md) then [m](./m/index.md)\n');
+  put(`${refs}/t/m/index.md`);
+  put(`${refs}/t/m/x.md`);
+  put(`${refs}/t/m/y.md`);
+  put(`${refs}/t/p/index.md`);
+  put(`${refs}/t/p/z.md`);
+  put(`${refs}/t/q/index.md`);
+  put(`${refs}/t/k/index.md`);
+  put(ROUTER, '[a](./references/a.md) [t](./references/t/index.md) [m](./references/t/m/index.md)\n');
+  return refs;
+}
+
+test('a section index expands its branches depth first, linked ones in link order, unlinked ones after', () => {
+  const base = mkdtempSync(join(tmpdir(), 'arena-llms-tree-'));
+  try {
+    const refs = treeFixture(base);
+    assert.deepEqual(references(base), [
+      `${refs}/a.md`, `${refs}/t/index.md`,
+      `${refs}/t/p/index.md`, `${refs}/t/p/z.md`,
+      `${refs}/t/m/index.md`, `${refs}/t/m/x.md`, `${refs}/t/m/y.md`,
+      `${refs}/t/k/index.md`, `${refs}/t/q/index.md`,
+    ]);
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+});
+
+test('a router link two directories deep is a reference', () => {
+  assert.equal([...'(./references/t/m/index.md)'.matchAll(REFERENCE_LINK)][0]?.[1], 't/m/index.md');
+  assert.equal([...'(./references/a/b/c/d.md)'.matchAll(REFERENCE_LINK)].length, 0);
 });

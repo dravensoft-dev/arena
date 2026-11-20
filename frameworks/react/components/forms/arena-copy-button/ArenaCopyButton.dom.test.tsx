@@ -10,6 +10,7 @@ import React from 'react';
 import { mount, cleanup, act } from '../../../test/Harness.tsx';
 import { withIcons, domSymbols } from '../../../test/IconsHarness.tsx';
 import { assertPattern, REACT_COMPONENTS } from '../../../test/AssertPattern.tsx';
+import { commandButtonVerdict } from '../../../test/StateVerdicts.ts';
 import { ArenaCopyButton, ARENA_COPY_CONFIRMATION } from './ArenaCopyButton.tsx';
 
 const BINDING = join(REACT_COMPONENTS, 'forms/arena-copy-button/ArenaCopyButton.behaviour.json');
@@ -73,7 +74,10 @@ test('ArenaCopyButton meets the button pattern on the icon button it draws', () 
     root,
     bindingPath: BINDING,
     subjects: { default: button },
-    behavioural: { 'keyboard.Enter': true, 'keyboard.Space': true, 'states.disabled': true },
+    behavioural: {
+      'keyboard.Enter': true, 'keyboard.Space': true, 'states.disabled': true,
+      'states.pressed': commandButtonVerdict(button),
+    },
   });
 });
 

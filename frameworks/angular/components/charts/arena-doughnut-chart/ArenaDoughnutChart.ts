@@ -155,7 +155,7 @@ export class ArenaDoughnutChart {
     const values = only.values;
 
     const coloured = only.tone ? only : { ...only, colorIds: only.colorIds ?? values.map((_, index) => arenaCatRotate(this.colorStart(), index)) };
-    const colors = arenaSeriesColors(coloured, values.length, arenaCatRotate(this.colorStart(), 0), 'ArenaDoughnutChart', this.colorStart());
+    const colors = arenaSeriesColors(coloured, values.length, arenaCatRotate(this.colorStart(), 0), this.colorStart());
     const write = this.write();
     const centreX = this.centreX();
     const centreY = this.centreY();

@@ -1,6 +1,6 @@
 Arena confirmation for a high-consequence action. The dialog does not close on click-outside. Losing a half-finished decision to a stray click is the failure this component exists to prevent. `requireText` makes the user type a word before the confirm button
-enables. `destructive` draws the eyebrow in the danger tone and gives the confirm button Arena's
-**only filled danger surface**.
+enables. `destructive` draws the eyebrow in the danger tone and draws the confirm button as the destructive option
+of the `actions` group, the way a destructive `ArenaButton` is drawn.
 The projected `content` is the dialog's description, announced with it when the dialog opens, so put the question and what it costs there.
 
 ```html
@@ -26,7 +26,7 @@ The projected `content` is the dialog's description, announced with it when the 
 | `content` | slot |  |  | The dialog body: the question and any detail. |
 | `confirmLabel` | primitive | `string` |  | The confirm button's label. Absent, the provided locale's confirmDialogConfirm answers it. |
 | `cancelLabel` | primitive | `string` |  | The cancel button's label. Absent, the provided locale's confirmDialogCancel answers it. |
-| `destructive` | primitive | `boolean` | `false` | Gives the confirm button Arena's only filled danger surface. |
+| `destructive` | primitive | `boolean` | `false` | Draws the confirm button as the destructive option of the actions group. |
 | `requireText` | primitive | `string` |  | Locks the confirm button until this exact word is typed. |
 | `cancel` | event |  |  | The dialog was dismissed -- by the Cancel action or by the Escape key, in both layers. A scrim click is deliberately NOT one of them: this component never closes on click-outside. No payload. |
 | `confirm` | event |  |  | The action was confirmed. |
@@ -78,7 +78,7 @@ still on the page.
 
 **Words.** `eyebrow`, `confirmLabel` and `cancelLabel` answer first; when one is absent, the locale's `confirmDialogEyebrow`, `confirmDialogConfirm` or `confirmDialogCancel` does. `confirmDialogRequire` is the prompt above the field `requireText` asks for, with that text in `{text}`.
 
-**Asked from code.** A service that needs a yes or a no before it goes on asks `ArenaConfirmQueue` rather than holding an `open` signal of its own. `ask` returns the answer as a promise ([the wiring](../../../../../skills/design/references/exports.md#how-do-i-raise-a-confirmation-from-code-in-angular)), and the one open request is rendered once, in the shell, with this dialog. The dialog is still what draws the confirmation, its focus trap and its one filled danger surface included.
+**Asked from code.** A service that needs a yes or a no before it goes on asks `ArenaConfirmQueue` rather than holding an `open` signal of its own. `ask` returns the answer as a promise ([the wiring](../../../../../skills/design/references/exports.md#how-do-i-raise-a-confirmation-from-code-in-angular)), and the one open request is rendered once, in the shell, with this dialog. The dialog is still what draws the confirmation, its focus trap and its final confirmation, which reads the destructive option of the `actions` group, included.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

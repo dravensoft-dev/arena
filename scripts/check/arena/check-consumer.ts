@@ -97,16 +97,13 @@ export const BREAKING: Record<string, { files: Record<string, string>; rules: st
         + '    Go \u{1F680}\n'
         + '  </ArenaButton>\n'
         + '  <i className="ph-bold ph-x" />\n'
-        + '  <ArenaButton className="arena-emphasis-primary">Publish</ArenaButton>\n'
         + '  <Link to="/x">\n'
         + '    <ArenaCard>c</ArenaCard>\n'
         + '  </Link>\n'
         + '</div>);\n',
-      'src/app.css': '.arena-button__label { color: #fff; }\n'
-        + '.mine { background: var(--danger); }\n',
+      'src/app.css': '.arena-button__label { color: #fff; }\n',
     },
-    rules: ['own-class', 'router-link', 'raw-value', 'icon-element', 'raw-glyph', 'emoji', 'one-primary',
-      'danger-fill'],
+    rules: ['own-class', 'router-link', 'raw-value', 'icon-element', 'raw-glyph', 'emoji'],
   },
   angular: {
     files: {
@@ -115,16 +112,14 @@ export const BREAKING: Record<string, { files: Record<string, string>; rules: st
         + '  icon="ph-bold ph-bell"\n'
         + '>Go \u{1F680}</arena-button>\n'
         + '<i class="ph-bold ph-x"></i>\n'
-        + '<arena-button class="arena-emphasis-primary">Publish</arena-button>\n'
         + '<a\n'
         + '  routerLink="/x"\n'
         + '>\n'
         + '  <arena-card></arena-card>\n'
         + '</a>\n',
-      'src/app.css': '.arena-card__body { color: #fff; padding: 16px; }\n'
-        + '.mine { background: var(--color-error-fill); }\n',
+      'src/app.css': '.arena-card__body { color: #fff; padding: 16px; }\n',
     },
-    rules: ['own-class', 'router-link', 'raw-value', 'raw-glyph', 'emoji', 'one-primary', 'danger-fill'],
+    rules: ['own-class', 'router-link', 'raw-value', 'raw-glyph', 'emoji'],
   },
 };
 
@@ -268,11 +263,6 @@ export function scopeProblems(layer: string, audited: CliRun, used: CliRun) {
   if (!reported.some((line) => line.includes(REACHING_IN))) {
     problems.push(`${layer}: the same rule in ${REACHING_IN} was not reported, so the audit does not say `
       + 'where a project\'s appearance lives, which is half of what it reports');
-  }
-  if (audited.stderr.split('\n').some((line) => line.includes(PLUGIN_CSS) && line.includes('gradient'))) {
-    problems.push(`${layer}: arena audit reported a gradient inside a style plugin. A plugin paints one from its `
-      + 'own stylesheet whatever the token tier says, so the norm records it as a report rather than a '
-      + 'floor and --strict may not refuse what the norm permits');
   }
   if (!used.stdout.includes(`paint no part(s). 2 rule(s) reach nothing this project draws: ${PAINTED}, ${RESTATED}`)) {
     problems.push(`${layer}: arena usage does not name the plugin's rules for a component the project never draws `

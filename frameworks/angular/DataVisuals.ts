@@ -1,5 +1,6 @@
 import {
-  chartHeight, chartPadTop, chartPadRight, chartPadBottom, chartPadLeft, catSlots, heatSteps,
+  chartHeight, chartPadTop, chartPadRight, chartPadBottom, chartPadLeft, chartTickChar, chartLabelChar, chartPadCategory,
+  chartHeatmapRowH, chartLegendStrip, catSlots, heatSteps,
   tintArea, tintSoft, tintEdge,
 } from './Tokens.generated';
 import type { ArenaNumberFormat, ArenaSeriesTone, ArenaTone } from './Api.generated';
@@ -11,9 +12,32 @@ export const ARENA_HEAT_STEPS = heatSteps;
 
 export const ARENA_CHART_HEIGHT = chartHeight;
 
-export const ARENA_PAD = {
-  t: chartPadTop, r: chartPadRight, b: chartPadBottom, l: chartPadLeft,
-} as const;
+export type ArenaTextRoom = {
+  tickChar: number; labelChar: number; padBottom: number; padLeft: number; padCategory: number; heatmapRowH: number; legendStrip: number; padTop: number; padRight: number; scale: number;
+};
+
+export function arenaTextRoom(scale: number): ArenaTextRoom {
+  return {
+    tickChar: chartTickChar * scale,
+    labelChar: chartLabelChar * scale,
+    padBottom: chartPadBottom * scale,
+    padLeft: chartPadLeft * scale,
+    padCategory: chartPadCategory * scale,
+    heatmapRowH: chartHeatmapRowH * scale,
+    legendStrip: chartLegendStrip * scale,
+    padTop: chartPadTop * scale,
+    padRight: chartPadRight * scale,
+    scale,
+  };
+}
+
+export const ARENA_TEXT_ROOM = arenaTextRoom(1);
+
+export function arenaPad(room: ArenaTextRoom = ARENA_TEXT_ROOM): Readonly<{ t: number; r: number; b: number; l: number }> {
+  return { t: room.padTop, r: room.padRight, b: room.padBottom, l: room.padLeft };
+}
+
+export const ARENA_PAD = arenaPad();
 
 export const ARENA_SR_ONLY = {
   position: 'absolute', width: '1px', height: '1px', padding: '0', margin: '-1px',
@@ -123,9 +147,11 @@ export function arenaHeatFill(step: number): string {
   return `var(--color-heat-${step})`;
 }
 
-export function arenaPlotWidth(available: number, count: number, minPointSpacing: number | undefined): number {
+export function arenaPlotWidth(
+  available: number, count: number, minPointSpacing: number | undefined, room: ArenaTextRoom = ARENA_TEXT_ROOM,
+): number {
   if (!minPointSpacing || !(minPointSpacing > 0) || count < 2) return available;
-  const needed = ARENA_PAD.l + ARENA_PAD.r + minPointSpacing * (count - 1);
+  const needed = room.padLeft + room.padRight + minPointSpacing * (count - 1);
   return Math.max(available, needed);
 }
 export function arenaRailStyle(scrolls: boolean): Readonly<Record<string, string>> {

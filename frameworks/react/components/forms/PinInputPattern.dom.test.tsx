@@ -9,6 +9,7 @@ import { join } from 'node:path';
 import React from 'react';
 import { mount, cleanup } from '../../test/Harness.tsx';
 import { assertPattern, REACT_COMPONENTS } from '../../test/AssertPattern.tsx';
+import { invalidVerdict } from '../../test/StateVerdicts.ts';
 import { ArenaPinInput, type ArenaPinInputProps } from './arena-pin-input/ArenaPinInput.tsx';
 
 afterEach(cleanup);
@@ -51,6 +52,7 @@ test('ArenaPinInput meets the textbox pattern on every cell', () => {
     behavioural: {
       'states.required': cells.every((cell) => cell.required),
       'states.readonly': cells.every((cell) => !cell.readOnly),
+      'states.invalid': invalidVerdict(cells, render({ required: true }).cells),
     },
   });
   for (const cell of cells) {

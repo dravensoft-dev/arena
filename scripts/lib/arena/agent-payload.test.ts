@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  matchesSpec, inPayload, servedBy, classify, resolvePosix, relativePosix,
+  matchesSpec, CARRIED_SHARED, inPayload, servedBy, classify, resolvePosix, relativePosix,
   rewrite, rewriteTarget, retarget, carriedSpecs, isRepoPath, ROUTER_SOURCE, ROUTER_FILE,
 } from './agent-payload.ts';
 
@@ -30,7 +30,7 @@ test('the payload carries the references, the neutral index, the roles and the p
 });
 
 test('a spec list names the shared files plus the layer tree, and nothing else', () => {
-  assert.equal(carriedSpecs('react').length, 16);
+  assert.equal(carriedSpecs('react').length, 15);
   assert.ok(carriedSpecs('react').every((spec) => !spec.includes('angular')));
 });
 
@@ -152,4 +152,10 @@ test('a pattern in a code span is not a link to rewrite, and a link beside it is
   const out = rewrite(`${span} [x](../SKILL.md)`, 'skills/design/references/page.md', 'react', BASES);
   assert.equal(out, `${span} [x](../ROUTER.md)`);
   assert.equal(retarget(span, 'skills/design/references/page.md', 'tag'), span);
+});
+
+test('a reference three segments deep is carried', () => {
+  for (const rel of ['skills/design/references/tokens/markup/edges.md', 'skills/design/references/stack.md']) {
+    assert.ok(CARRIED_SHARED.some((spec) => matchesSpec(rel, spec)), rel);
+  }
 });

@@ -7,6 +7,11 @@ import { fileURLToPath } from 'node:url';
 import { hostManifest, hostPackage, hostPackageName, fontToolRoots, packageSheets, phosphorRoot, resolveEnvironment } from './host.ts';
 import { loadVocabulary, VOCABULARY_INDEX } from './audit.ts';
 import { hostRoot, phosphor, removeFixtures } from './cli-fixtures.ts';
+import { scopedImports } from './theme-css.ts';
+import type { CheckedStylesheet } from './theme-css.ts';
+import { flattenImports } from './flat-sheet.ts';
+import { familyPartSheets } from '../../../lib/arena/package-assembly.ts';
+import { bundledImports } from '../../../lib/tailwind/vocabulary-rules.ts';
 
 after(removeFixtures);
 
@@ -47,6 +52,15 @@ test('the sheets a package ships are read from beside the command, so no copy of
     rootOnly: { contrast: '', environment: '' },
     catalogue: undefined,
   });
+  rmSync(root, { recursive: true });
+});
+
+test('a family split per component lists its part sheets under the layer of the whole sheet', () => {
+  const root = installed("@import './css/components.css';\n@import './css/vocabulary/emphasis.css';\n@import './css/vocabulary/fill.css';\n", ['button']);
+  mkdirSync(join(root, 'css', 'vocabulary', 'emphasis'), { recursive: true });
+  for (const name of ['emphasis.css', 'fill.css']) writeFileSync(join(root, 'css', 'vocabulary', name), '');
+  for (const name of ['arena-icon-button.css', 'arena-button.css']) writeFileSync(join(root, 'css', 'vocabulary', 'emphasis', name), '');
+  assert.deepEqual(packageSheets(root)?.parts, { 'css/vocabulary/emphasis.css': ['arena-button', 'arena-icon-button'] });
   rmSync(root, { recursive: true });
 });
 
@@ -165,4 +179,25 @@ test('the command\'s own dependencies win over a project\'s copy of the same nam
   } finally {
     rmSync(decoy, { recursive: true, force: true });
   }
+});
+
+test('a screen drawing CopyButton and IconButton gets one IconButton default block, and no CopyButton block of its own', () => {
+  const root = installed("@import './css/components.css';\n@import './css/vocabulary/emphasis.css';\n", ['arena-copy-button', 'arena-icon-button']);
+  mkdirSync(join(root, 'css', 'vocabulary'), { recursive: true });
+  writeFileSync(join(root, 'css', 'vocabulary', 'emphasis.css'), '');
+  writeFileSync(join(root, 'components.json'), JSON.stringify({ match: 'symbol', draws: {}, needs: { 'arena-copy-button': ['arena-icon', 'arena-icon-button'] }, markers: {}, sheetless: [] }));
+  for (const sheet of familyPartSheets()) {
+    mkdirSync(dirname(join(root, sheet.to)), { recursive: true });
+    writeFileSync(join(root, sheet.to), sheet.content);
+  }
+  const sheets = packageSheets(root);
+  assert.ok(sheets);
+  const lines = scopedImports('@x/arena', { components: ['arena-copy-button', 'arena-icon-button'] } as CheckedStylesheet, sheets)
+    .filter((line) => line.includes('/vocabulary/'));
+  const own = ':where([data-arena-part="icon-button"]) {';
+  for (const css of [bundledImports(lines, root, '@x/arena'), flattenImports(lines, root, '@x/arena').css]) {
+    assert.equal(css.split(own).length - 1, 1, 'one IconButton default block');
+    assert.doesNotMatch(css, /:where\(\[data-arena-part="copy-button"\]/, 'a CopyButton draws an IconButton, a member, and needs no block of its own');
+  }
+  rmSync(root, { recursive: true });
 });

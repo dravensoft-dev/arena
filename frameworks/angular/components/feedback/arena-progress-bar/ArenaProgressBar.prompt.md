@@ -63,8 +63,7 @@ supply one for anything a user is waiting on.
 - **Do** reach for `indeterminate` the moment the percentage stops being knowable. A bar frozen
   at 90% is worse than one that says it is still working.
 - **Do** use `tone` for what the progress *means*: `danger` for a failing rollout, `success`
-  for one that finished. The track stays the neutral rail in every tone; only the fill is inked,
-  because danger is outline in Arena and a progress bar is not the exception.
+  for one that finished. The track stays the neutral rail in every tone; only the fill is inked.
 - **Do** put a ring where the progress is the tile rather than a line in one: a completion ring on
   a dashboard, a node on a path. `arena-size-*` moves its diameter and its band together, so there is
   nothing else to tune.

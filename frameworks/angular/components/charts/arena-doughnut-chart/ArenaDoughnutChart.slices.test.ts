@@ -176,8 +176,7 @@ test('a toned series renders a toned swatch for every slice', async () => {
         assert.equal(one.getAttribute('data-arena-tone'), 'success');
         assert.equal(one.getAttribute('data-arena-color-id'), null);
       }
-      assert.ok(!warnings.some((line) => /mutually exclusive/.test(line)),
-        'the component synthesizes no colour ids for a toned series, so nothing is said about the pair');
+      assert.deepEqual(warnings, [], 'a toned series logs no warning at all');
     } finally { fixture.destroy(); }
   } finally { console.warn = savedWarn; }
 });

@@ -1,6 +1,6 @@
 import React, { useId, useState } from 'react';
-import { useArenaContainerWidth } from '../../../UseArenaContainerWidth.ts';
-import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, arenaSrOnly, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals.ts';
+import { useArenaContainerWidth, useArenaTextScale } from '../../../UseArenaContainerWidth.ts';
+import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, arenaSrOnly, arenaTextRoom, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals.ts';
 import {
   arenaLinearScale, arenaBandScale, arenaBandCenter, arenaBandIndex, arenaBandMark, arenaBandSubBand, arenaScaleValue,
 } from '../ChartScales.ts';
@@ -67,6 +67,7 @@ export function ArenaHorizontalBarChart({ className,
   if (!labels) throw new Error('ArenaHorizontalBarChart: `labels` is required');
   if (!series) throw new Error('ArenaHorizontalBarChart: `series` is required');
   const [ref, measured] = useArenaContainerWidth();
+  const room = arenaTextRoom(useArenaTextScale());
   const gutterId = `gutter-${useId().replace(/:/g, '')}`;
   const [hover, setHover] = useState<number | null>(null);
 
@@ -75,15 +76,15 @@ export function ArenaHorizontalBarChart({ className,
   const fmt = arenaValueWriter({ prefix: valuePrefix, suffix: valueSuffix, format: valueFormat });
 
   const domain = stack ? arenaStackDomain(series) : arenaSeriesDomain(series);
-  const strip = arenaLegendStrip(height, series.length);
-  const box = arenaPlotBoxH(width, strip.plotH);
+  const strip = arenaLegendStrip(height, series.length, false, room);
+  const box = arenaPlotBoxH(width, strip.plotH, room);
   const xScale = arenaLinearScale(domain.min, domain.max, box.x, box.x + box.w);
   const bands = arenaBandScale(n, box.y, box.h, chartBarGap);
   const axis = arenaAxisModelX(xScale, domain, fmt);
-  const colors = series.map((one, s) => arenaSeriesColors(one, n, arenaCatRotate(colorStart, s), 'ArenaHorizontalBarChart', colorStart));
+  const colors = series.map((one, s) => arenaSeriesColors(one, n, arenaCatRotate(colorStart, s), colorStart));
   const table = arenaChartTable(locale.chartTableCategory, series, labels, fmt);
 
-  const gutter = arenaCategoryGutter(strip.plotH);
+  const gutter = arenaCategoryGutter(strip.plotH, room);
 
   const name = arenaPhrase(locale.horizontalBarChartName, { label });
 
@@ -148,7 +149,7 @@ export function ArenaHorizontalBarChart({ className,
         </defs>
         <g clipPath={`url(#${gutterId})`}>
           {Array.from({ length: n }, (_, i) => (
-            <text key={i} x={arenaCategoryLabelX()} y={arenaBandCenter(bands, i)} textAnchor="end" dominantBaseline="middle"
+            <text key={i} x={arenaCategoryLabelX(room)} y={arenaBandCenter(bands, i)} textAnchor="end" dominantBaseline="middle"
               fill={ARENA_INK_MUTED} fontFamily="var(--font-body)" style={{ fontSize: 'var(--dz-text-xs)' }}>
               <title>{labels[i] ?? ''}</title>
               {labels[i] ?? ''}

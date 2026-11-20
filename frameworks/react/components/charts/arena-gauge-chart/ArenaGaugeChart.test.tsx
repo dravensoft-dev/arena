@@ -125,23 +125,21 @@ test('ArenaGaugeChart a band wholly outside the scale draws no segment of the ri
   assert.deepEqual(rows(html).slice(3).map((r) => r[0]), ['Healthy', 'Critical'], 'the table still lists both bands');
 });
 
-test('ArenaGaugeChart ignores colorId beside bands, with a warning', () => {
+test('a gauge with bands and colorId warns nothing', () => {
   forgetArenaWarnings();
   let html = '';
   const warnings = captureWarnings(() => { html = draw({ colorId: 3 }); });
-  assert.equal(warnings.length, 1);
-  assert.match(warnings[0] as string, /ArenaGaugeChart: `colorId` is ignored while `bands` is given/);
+  assert.deepEqual(warnings, []);
   assert.ok(arc(html, 'var(--warning)'));
   assert.equal(arc(html, 'var(--color-cat-3)'), undefined);
   forgetArenaWarnings();
 });
 
-test('ArenaGaugeChart ignores colorId beside bands with a warning, even when the value draws no arc', () => {
+test('ArenaGaugeChart warns nothing about colorId beside bands, even when the value draws no arc', () => {
   for (const value of [-20, Number.NaN]) {
     forgetArenaWarnings();
     const warnings = captureWarnings(() => { draw({ colorId: 3, value }); });
-    assert.equal(warnings.length, 1, `value ${value}`);
-    assert.match(warnings[0] as string, /ArenaGaugeChart: `colorId` is ignored while `bands` is given/);
+    assert.deepEqual(warnings, [], `value ${value}`);
   }
   forgetArenaWarnings();
 });

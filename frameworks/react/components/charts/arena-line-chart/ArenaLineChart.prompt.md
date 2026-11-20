@@ -24,7 +24,7 @@ A line for a value over an ordered sequence, time, builds, releases. Hovering an
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `labels*` | array | `readonly string[]` |  | One label per point, in the same order as every series' `values`. A label with no value in a series ends that series' line there rather than dropping to zero. |
+| `labels*` | array | `readonly string[]` |  | One label per point, in the same order as every series' `values`. A label with no value in a series ends that series' line there rather than dropping to zero. Every n-th label is drawn when the labels do not fit their band, and the data table carries all of them. |
 | `series*` | array | `readonly ArenaSeries[]` |  | The plotted series, drawn as one polyline each over the same ordered sequence. One series is the common case and draws exactly what it drew before. The area fill is refused past one series, because two fills occlude each other and the reader cannot tell which value either edge belongs to. |
 | `colorStart` | enum | `ArenaCatSlot` | `1` | The ramp slot the first series takes when it names no colour of its own. Each later series takes the next slot, and after the last slot the count starts again at the first. A series' `colorId` or `colorIds` keeps the slot it names. Absent, 1. |
 | `label*` | primitive | `string` |  | Names the chart for its accessible name and for the caption of its data table. The name is the CHART's, not a series': a series names itself. Required and guarded rather than defaulted, because a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing. Two charts on one page would announce identically. |
@@ -61,7 +61,7 @@ A line for a value over an ordered sequence, time, builds, releases. Hovering an
 - Pass `valueSuffix` so the axis, the tooltip and the accessible table all carry the unit. The suffix is appended verbatim, so write the space yourself: `" ms"`, but `"%"`.
 
 **Don't**
-- Don't pass `tone` together with `colorId` on one series: identity or meaning, never both. The pair warns in development, and `tone` wins.
+- Don't pass `tone` together with `colorId` on one series. With `tone` the series takes the status colour and `colorId` is not read.
 - Don't add a second axis. Arena charts have one; a dual axis invents a correlation the data never claimed. Several series on one scale is what `series` is for; several series that do not share a scale are several charts.
 - Don't turn `area` on for more than one series. A second fill is refused and warns in development. Two fills occlude each other, and the reader cannot tell which value either edge belongs to. Use plain lines, or small multiples.
 - Use `valuePrefix` for a currency that goes in front, and `valueFormat` for the number itself: locale, fraction digits, grouping, compaction. Formatting before you pass them is not an option, because what you pass is `ArenaSeries[]` and the writing happens on labels Arena generates afterwards. With no `valueFormat` the raw JavaScript number is drawn, which is what a chart always did.

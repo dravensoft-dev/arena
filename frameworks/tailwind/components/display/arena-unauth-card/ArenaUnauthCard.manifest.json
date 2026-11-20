@@ -1,12 +1,12 @@
 {
   "component": "ArenaUnauthCard",
   "slots": {
-    "root": "block w-full max-w-[calc(var(--sp-1)*95+var(--sp-1)*18+var(--bw-surface)*2)] rounded-surface shadow-surface-deep",
+    "root": "block w-full max-w-[calc(var(--unauth-card-width)+var(--bw-surface)*2)] rounded-surface shadow-surface-deep",
     "body": "p-4",
     "brand": "flex mb-7",
-    "eyebrow": "font-face-eyebrow text-eyebrow tracking-eyebrow case-eyebrow text-ink-eyebrow mb-1.5 font-eyebrow",
-    "title": "font-face-heading font-heading text-title-section text-ink-heading mb-6 tracking-heading leading-heading",
-    "footer": "mt-5 text-center font-body text-ctl-md text-ink-muted/(--level-ink-muted)"
+    "eyebrow": "font-face-eyebrow text-eyebrow tracking-eyebrow case-eyebrow text-[color:var(--text-eyebrow-ink-rest,var(--ink-eyebrow))] mb-1.5 font-eyebrow",
+    "title": "font-face-heading font-heading text-title-section text-[color:var(--text-heading-ink-rest,var(--ink-heading))] mb-6 tracking-heading leading-heading",
+    "footer": "mt-5 text-center font-body text-ctl-md text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]"
   },
   "kind": { "root": "surface", "body": "surface", "brand": "none", "eyebrow": "none", "title": "none", "footer": "none" }
 }

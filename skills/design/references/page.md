@@ -58,7 +58,7 @@ resolves to a palette colour and follows the palette instead.
 
 **Markup of yours written with Tailwind v4 reads the same tokens.** Import the package's
 `css/tailwind-theme.css` right after `tailwindcss`, and `bg-base-100` or `p-4` on your own
-element resolves to the token a component reads. Where the sheet resets a Tailwind scale, a default utility such as `shadow-md` emits nothing and reports nothing, and [the token tables](./tokens.md) name the utilities that resolve.
+element resolves to the token a component reads. Where the sheet resets a Tailwind scale, a default utility such as `shadow-md` emits nothing and reports nothing, and [the token tables](./tokens/scales/index.md) name the utilities that resolve.
 
 **A page's frame is chosen by the viewport, and a component by its own box.** Wrap a wide screen's
 rail in an element of your own marked `max-md:hidden`, and a phone's drawer in one marked
@@ -69,83 +69,15 @@ and wide in a server's HTML. The `md:hidden` pair also chooses a side nav or a b
 app bar's `nav` slot or its phone toggle. Arena's components narrow before the client's first paint
 and are wide in a server's HTML.
 
-**The colour roles below are what a page of yours reaches for**; the kernel has more, each for a surface Arena draws.
-Each role's full description is one entry in
-[`contracts/design/roles.json`](../../../contracts/design/roles.json).
-
-| what you are drawing | the role |
-|---|---|
-| the page itself | `--fill-page` |
-| a surface belonging to the page: a panel, a tile, a block of yours that reads as a card | `--fill-surface` |
-| a surface floating over it: a popover, a layer of your own | `--fill-surface-floating` |
-| a region recessed into a surface: a code block, a well | `--fill-surface-sunken` |
-| a box somebody types into | `--fill-field` |
-| what a row or a cell of yours takes under the pointer | `--fill-hover` |
-| the ground a value runs along, or the box a set of segments sits in | `--fill-track` |
-| a heading | `--ink-heading` |
-| text somebody reads, and the default answer for any text slot | `--ink-body` |
-| the small line above a title that says what kind of thing this is | `--ink-eyebrow` |
-| text held back: a caption, a hint, a timestamp | `--ink-muted` |
-| a figure a reader compares: a price, a total, a column of numbers of yours | `--ink-figure` |
-| an action set as text rather than drawn as a button: an undo, a retry | `--ink-action` |
-| a key a reader presses, spelled in a cap or at a row's edge | `--ink-key` |
-| a link in running text, underlined however it is coloured | `--ink-link` |
-| the line enclosing a surface, and the default ground line | `--edge-surface` |
-| the line around a floating surface | `--edge-surface-floating` |
-| the line around a control, a quiet control, a field, a marker | `--edge-control`, `--edge-control-quiet`, `--edge-field`, `--edge-marker` |
-| the rule dividing one thing from the next inside a surface | `--edge-separator` |
-| the rule under the selected tab | `--edge-tab-selected` |
-| the wash a media frame draws under anything laid over it | `--overlay-media` |
-
-Each edge role has a width beside it: `--bw-surface`, `--bw-control`, `--bw-field`,
-`--bw-separator` and `--bw-marker`. So a border of yours takes two roles, never a length you chose.
-
-**A role says which colour the text takes, and a level says how far it is held back**, and text
-needs both. Under the default style plugin `--ink-muted` and `--ink-body` resolve to the same
-colour. What makes the held-back register held back is the level mixed into it. So a bare
-`var(--ink-muted)` paints a caption at the strength of body copy, and nothing reports it.
-Spend one the way every Arena component spends it:
-
-```css
-color: color-mix(in oklab, var(--ink-muted) var(--level-ink-muted), transparent);
-```
-
-`--level-ink-body`, `--level-ink-quiet` and `--level-ink-muted` are the held-back ones, the quiet one for a label that sits between body copy and a caption. `--level-ink-full` holds a figure or a text action at full strength. All of them are in
-[`contracts/design/colors.css`](../../../contracts/design/colors.css). Each is a floor rather than a
-constant. `arena build` raises one for a palette whose ink has too little room to clear its
-contrast bar. So a percentage of your own is the one value on this page that cannot follow the
-palette it was written against.
-
-**The aliases are in [`contracts/design/colors.css`](../../../contracts/design/colors.css)**:
-`--crimson` and `--gold` are the two accents, with a soft wash beside each. `--danger`,
-`--success`, `--warning` and `--info` are the four status colours, with the same. `--bone` and
-`--mute` are text at full strength and text held back. The aliases that hold text back and the soft washes read the levels, so they follow a level `arena build` raises for a palette. `--mute-2-disabled` holds a fixed 40%, because the disabled level is the one the scale never raises.
-Each key of a palette's `colors` becomes `--color-<key>`, so `base-100` is `--color-base-100`. [config.md](./config.md#declare-your-skin) lists the keys.
+**The colour roles of your own markup are in the markup tree.** [`tokens/markup/index.md`](./tokens/markup/index.md) names a page for each task: [surfaces and text](./tokens/markup/surfaces-and-text.md), [edges](./tokens/markup/edges.md) and [states](./tokens/markup/states.md). Each page carries the role for what you are drawing, and the surfaces and text page also carries the level a held-back text spends.
 
 ## Meaning and identity are two different colour sets
 
-**A status colour means something and a ramp slot identifies something, and neither does the
-other's job.** The components hold that rule, and markup of yours holds it the same
-way. Otherwise a reader learns that green is sometimes a category.
-
-- **Meaning** is the four status colours. `arenaToneColor(tone)` from `@dravensoft/arena-react` or `@dravensoft/arena-angular` resolves the
-  one a tone stands for, so a shape you draw yourself keeps meaning what the components mean by
-  it.
-- **Identity** is the eight ramp slots, `--color-cat-1` through `--color-cat-8`, in fixed order.
-  The order is the identity, so slot three is slot three in every chart on the screen.
-  `arenaCatIndex(slot)` and `arenaCatTint(colour)` are there for a legend or a chip you draw.
+**A status colour means something and a ramp slot identifies something.** [`tokens/markup/meaning-and-identity.md`](./tokens/markup/meaning-and-identity.md) says which one markup of yours reaches for, with the colour aliases.
 
 ## The rest of the scale, and the edges of the device
 
-**`--sp-*` is the spacing scale**, and everything the rhythm classes do not cover reads it. A bare length is a bug, and this scale makes it unnecessary. [`contracts/design/Scales.md`](../../../contracts/design/Scales.md) says what each step is for.
-
-**Every other group reads the same way.** [`tokens.md`](./tokens.md) tables the steps above and the radius, border, shadow, motion, layer, breakpoint, density and type scale values. Your package's `arena.tokens.json` lists every value, nested under `tokens` beside `roles`, with the type and density groups. The file's keys drop the leading `--`, so `sp-4` there is `--sp-4` here. A media query takes no `var()`, so a frame uses the `md:` variants or the breakpoint helper, `useArenaViewportBelow` in React and `arenaViewportBelow` in Angular, in [`exports.md`](./exports.md).
-
-**`--pad-safe-top`, `--pad-safe-right`, `--pad-safe-bottom` and `--pad-safe-left`** compose the
-device's own insets with that scale, in
-[`contracts/design/environment.css`](../../../contracts/design/environment.css). Use them on a
-shell you draw around Arena, so a bar pinned to the bottom of a phone screen clears the home
-indicator without you measuring one.
+**The spacing scale and the device's insets are on [`tokens/markup/space-and-layout.md`](./tokens/markup/space-and-layout.md).** Every other group reads the same way, and [`tokens/scales/index.md`](./tokens/scales/index.md) lists the pages that table the radius, border, shadow, motion, layer, breakpoint, density and type scale values. A media query takes no `var()`, so a frame uses the `md:` variants or the breakpoint helper, `useArenaViewportBelow` in React and `arenaViewportBelow` in Angular, in [`exports.md`](./exports.md).
 
 ## Taking the least of this, and taking all of it
 

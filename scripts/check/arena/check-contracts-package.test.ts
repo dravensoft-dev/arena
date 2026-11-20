@@ -6,9 +6,11 @@ import {
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import {
-  FORBIDDEN_FIELDS, NON_CONTRACT, catalogueProblems, collect, expectedCarried, manifestProblems,
-  payloadProblems, zeroDerivedProblems,
+  FORBIDDEN_FIELDS, NON_CONTRACT, catalogueProblems, collect, derivedProblems, expectedCarried,
+  manifestProblems, payloadProblems, zeroDerivedProblems,
 } from './check-contracts-package.ts';
+import { DERIVED_SLOTS, derivedSlotsText } from '../../lib/arena/package-assembly.ts';
+import { readFileSync } from 'node:fs';
 import { CATALOGUE, NAME, NOT_CARRIED, buildContractsPackage, catalogue, manifest, unmatchedExclusions } from '../../build/arena/build-contracts-package.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { linkDir, platform } from '../../lib/arena/platform.ts';
@@ -139,4 +141,57 @@ test('the derived set is every contract level and nothing else', () => {
   ]);
   assert.equal(expected.every((p) => p.endsWith('.json')), true,
     'a package carrying anything but JSON is carrying a mechanism rather than a value');
+});
+
+test('a package without the derived slot catalogue gives one line, and a present one is no stray contract', () => {
+  const { dir, put } = fixture();
+  try {
+    put('contracts/design/spacing.json', '{}');
+    for (const rel of NON_CONTRACT) put(rel, '{}');
+    const expected = ['contracts/design/spacing.json'];
+    assert.equal(NON_CONTRACT.includes(DERIVED_SLOTS), false);
+    const lines = [...payloadProblems(dir, expected, dir), ...derivedProblems(dir, repoRoot)];
+    assert.equal(lines.length, 1);
+    assert.match(lines[0] ?? '', /carries no contracts\/design\/color-slots\.derived\.json/);
+    put(DERIVED_SLOTS, derivedSlotsText(repoRoot));
+    assert.deepEqual(payloadProblems(dir, expected, dir), []);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('the derived slot catalogue is held equal to what readColorSlots derives, and absence is a problem', () => {
+  const { dir, put } = fixture();
+  try {
+    assert.match(derivedProblems(dir, repoRoot).join('\n'), /carries no contracts\/design\/color-slots\.derived\.json/);
+    put(DERIVED_SLOTS, '{}\n');
+    assert.match(derivedProblems(dir, repoRoot).join('\n'), /differs from what readColorSlots derives/);
+    put(DERIVED_SLOTS, derivedSlotsText(repoRoot));
+    assert.deepEqual(derivedProblems(dir, repoRoot), []);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('the built package carries the derived catalogue, lists it and the export glob reaches it', () => {
+  const temp = mkdtempSync(join(tmpdir(), 'arena-contracts-derived-'));
+  const links: string[] = [];
+  try {
+    for (const name of readdirSync(repoRoot).filter((entry) => !['dist', 'node_modules', '.git'].includes(entry))) {
+      const from = join(repoRoot, name);
+      if (!statSync(from).isDirectory()) copyFileSync(from, join(temp, name));
+      else if (LINKED_WHOLE.includes(name)) { linkDir(from, join(temp, name)); links.push(join(temp, name)); }
+    }
+    for (const [dir, file] of COPIED_ONE_FILE) {
+      mkdirSync(join(temp, dir));
+      copyFileSync(join(repoRoot, dir, file), join(temp, dir, file));
+    }
+    const { dir, carried } = buildContractsPackage(temp);
+    assert.ok(carried.includes(DERIVED_SLOTS));
+    assert.equal(readFileSync(join(dir, DERIVED_SLOTS), 'utf8'), derivedSlotsText(temp));
+    assert.deepEqual(collect(temp).problems, []);
+    writeFileSync(join(dir, DERIVED_SLOTS), '{}\n');
+    assert.match(collect(temp).problems.join('\n'), /differs from what readColorSlots derives/);
+  } finally {
+    for (const link of links) {
+      try { if (platform === 'win32') rmdirSync(link); else unlinkSync(link); } catch {  }
+    }
+    rmSync(temp, { recursive: true, force: true });
+  }
 });

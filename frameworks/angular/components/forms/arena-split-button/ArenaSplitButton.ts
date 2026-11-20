@@ -50,7 +50,7 @@ export class ArenaSplitButton {
 
   /** Phosphor class name drawn before the label through ArenaIcon. Replaced by the spinner while loading. */
   readonly icon = input<string>();
-  /** Whether the primary action destroys or removes something. Both halves draw the danger outline whatever emphasis the split is given: danger is never filled. */
+  /** Whether the primary action destroys or removes something. Both halves draw their border and label in the danger hue and fill with hue-danger-fill-strong, transparent by default, whatever emphasis the split is given. */
   readonly destructive = input(false, { transform: booleanAttribute });
   /** Replaces the leading icon with a spinner and blocks the primary half. The caret stays usable, so another action can start while this one runs. */
   readonly loading = input(false, { transform: booleanAttribute });

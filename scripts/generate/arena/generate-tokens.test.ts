@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, existsSync, mkdirSync, mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import nodePath, { join, win32, posix } from 'node:path';
 import { readJson } from '../../utils/read-file.ts';
-import { DESIGN_DIR, FILES, REDECLARED_GROUPS, RESOLVES_AGAINST, SCOPE_SELECTORS, SCRIPT_TARGETS, collectScriptTokens, designPath, isFrom, referenceOf, scopesRedeclaring } from './generate-tokens.ts';
+import { DESIGN_DIR, FILES, REDECLARED_GROUPS, RESOLVES_AGAINST, SCOPE_SELECTORS, SCRIPT_TARGETS, collectScriptTokens, buildAll, buildBreakpointTheme, designPath, isFrom, referenceOf, scopesRedeclaring } from './generate-tokens.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { readFamilies } from '../../lib/tailwind/vocabulary.ts';
 import { relPosix } from '../../utils/posix-path.ts';
@@ -187,7 +187,7 @@ test('the default palette wears a class: .arena-dark carries the :root block, an
   assert.equal(body(palette, '.arena-dark'), body(palette, ':root'));
   const plugin = built.get('style-plugin.default.generated.css') as string;
   const names = (selector: string) => [...(body(plugin, selector) ?? '').matchAll(/^\s*--([\w-]+):/gm)].map((m) => m[1]);
-  assert.equal(names('.arena-dark').length, 71);
+  assert.equal(names('.arena-dark').length, 89);
   assert.deepEqual(names('.arena-dark'), names('.arena-light'));
   const rootValue = (name: string) => new RegExp(`--${name}:([^;]+);`).exec(body(plugin, ':root') ?? '')?.[1];
   for (const line of (body(plugin, '.arena-dark') ?? '').split('\n').filter(Boolean)) {
@@ -201,6 +201,21 @@ test('the default palette wears a class: .arena-dark carries the :root block, an
   const fit = complete.indexOf('.arena-complete{\n  --title-hero-fit:');
   assert.ok(own >= 0 && media > own && fit > media, 'the contrast widths and the hero fit follow the class block');
   assert.match(complete, /--bw-surface:var\(--bw-strong\);/);
+});
+
+test('bw-focus and gap-focus emit the focus tokens by reference', async () => {
+  const plugin = (await buildAll()).get('style-plugin.default.generated.css') as string;
+  assert.match(plugin, /--bw-focus:var\(--focus-width\);/);
+  assert.match(plugin, /--gap-focus:var\(--focus-offset\);/);
+});
+
+test('the default light group lands in .arena-light', async () => {
+  const plugin = (await buildAll()).get('style-plugin.default.generated.css') as string;
+  const light = [...plugin.matchAll(/^\.arena-light\{\n([\s\S]*?)\n\}/gm)].map((one) => one[1]).join('\n');
+  assert.match(light, /--edge-focus:var\(--color-base-content\);/);
+  assert.match(light, /--edge-selected:var\(--color-primary\);/);
+  assert.ok(light.lastIndexOf('--edge-focus:var(--color-base-content);') > light.lastIndexOf('--edge-focus:var(--color-secondary);'),
+    'the light answer follows the restated dark one');
 });
 
 test('a dark group of a plugin source reaches the base selector as well as the .arena-dark scope', async () => {
@@ -219,4 +234,71 @@ test('a dark group of a plugin source reaches the base selector as well as the .
     assert.match(base, /--bw-field:3px;/, 'the dark answer is missing from the base selector');
     assert.match(css, /@scope \(\.arena-dark\)[\s\S]*--bw-field:3px;/);
   } finally { rmSync(tmp, { recursive: true, force: true }); }
+});
+
+test('a plugin answering a disabled slot emits the part\'s fade marker', async () => {
+  const { block } = await import('./generate-tokens.ts');
+  mkdirSync(join(repoRoot, '.cache'), { recursive: true });
+  const tmp = mkdtempSync(join(repoRoot, '.cache', 'arena-fade-marker-'));
+  try {
+    writeFileSync(join(tmp, 'plugin.tokens.json'), JSON.stringify({
+      'ink-muted': { $type: 'color', $value: '{color.base-content}' },
+      'actions-primary-root-ink-disabled': { $type: 'color', $value: '{ink-muted}' },
+    }));
+    const css = await block({ selector: '.arena-p', source: 'plugin.tokens.json', dir: relPosix(repoRoot, tmp) });
+    assert.equal((css.match(/--actions-primary-root-fade-disabled:1;/g) ?? []).length, 1, css);
+  } finally { rmSync(tmp, { recursive: true, force: true }); }
+});
+
+test('a slot answered with a colour role emits a reference to it in the base block and the light scope', async () => {
+  const { block } = await import('./generate-tokens.ts');
+  mkdirSync(join(repoRoot, '.cache'), { recursive: true });
+  const tmp = mkdtempSync(join(repoRoot, '.cache', 'arena-slot-ref-'));
+  try {
+    writeFileSync(join(tmp, 'plugin.tokens.json'), JSON.stringify({
+      'fill-surface': { $type: 'color', $value: '{color.base-200}' },
+      'actions-primary-root-fill-rest': { $type: 'color', $value: '{fill-surface}' },
+      'actions-primary-root-edge-rest': { $type: 'color', $value: 'transparent' },
+      light: { 'actions-primary-root-ink-rest': { $type: 'color', $value: '{fill-surface}' } },
+    }));
+    const css = await block({ selector: ':root', source: 'plugin.tokens.json', dir: relPosix(repoRoot, tmp) });
+    const base = /^:root\{\n([\s\S]*?)\n\}/m.exec(css)?.[1] ?? '';
+    assert.match(base, /--actions-primary-root-fill-rest:var\(--fill-surface\);/);
+    assert.match(base, /--actions-primary-root-edge-rest:transparent;/);
+    assert.match(css, /--actions-primary-root-ink-rest:var\(--fill-surface\);/);
+    assert.doesNotMatch(base, /--actions-primary-root-ink-rest/, 'the light answer stays in the light scope');
+  } finally { rmSync(tmp, { recursive: true, force: true }); }
+});
+
+test('fs, dz text and icon come out in rem, sp and bw in px', async () => {
+  const all = [...(await buildAll()).values()].join('\n');
+  assert.match(all, /--fs-h1:2\.75rem;/);
+  assert.match(all, /--dz-text:[^;]*0\.875rem/);
+  assert.match(all, /--icon-md:1rem;/);
+  assert.match(all, /--sp-4:16px;/);
+  assert.match(all, /--bw:1px;/);
+  assert.doesNotMatch(all, /--(sp|bw|r)-[a-z0-9-]+:[0-9.]+rem/);
+});
+
+test('a scales role answered by an fs alias is emitted in rem', async () => {
+  const sheet = (await buildAll()).get('style-plugin.default.generated.css') as string;
+  assert.match(sheet, /--step-title-page:[0-9.]+rem;/);
+  assert.match(sheet, /--step-title-surface:[0-9.]+rem;/);
+});
+
+test('breakpoints are rem tokens and em variants', async () => {
+  const all = [...(await buildAll()).values()].join('\n');
+  assert.match(all, /--bp-md:48rem;/);
+  assert.ok((await buildBreakpointTheme()).includes('--breakpoint-md:48em;'));
+});
+
+test('a slot answered with a colour role is restated under each theme scope, as a colour role is', async () => {
+  const { buildAll } = await import('./generate-tokens.ts');
+  const plugin = (await buildAll()).get('style-plugin.complete.generated.css') as string;
+  const declared = (selector: string) => new RegExp(`^@scope \\(${selector.replace('.', '\\.')}\\) \\{\\n[^{]*\\{\\n([\\s\\S]*?)\\n\\}`, 'm').exec(plugin)?.[1] ?? '';
+  for (const name of ['actions-primary-root-fill-pressed', 'actions-destructive-root-ink-hover']) {
+    for (const scope of ['.arena-dark', '.arena-light']) {
+      assert.match(declared(scope), new RegExp(`^\\s*--${name}:var\\(--[\\w-]+\\);`, 'm'), `${name} under ${scope}`);
+    }
+  }
 });

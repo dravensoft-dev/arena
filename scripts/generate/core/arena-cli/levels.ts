@@ -6,7 +6,8 @@
  * one of them mixes against `transparent`, so the value it paints does not exist until a
  * browser composites it over whatever surface is behind. That is what levelReports does.
  * A placeholder is not in EXEMPT: 1.4.3 exempts an INACTIVE component and a field waiting for
- * input is the opposite of one, so the hint inside it is text and is held to 4.5:1 like any. */
+ * input is the opposite of one, so the hint inside it is text and is held to 4.5:1 like any.
+ * The presence register paints a dot through bg-current, a mark at 3:1 in any property (D92). */
 
 import { contrast } from './validate-palette.mjs';
 import { parseBlocks, selectorPath, COLOUR_VAR, MIXED_VAR } from './css-blocks.ts';
@@ -47,6 +48,33 @@ export const DECORATIVE = new Map([
 const SELECTOR = /^\s*([.:&][^{}]*?)\s*\{\s*$/;
 const SCOPE = /^\s*@scope\s*\((\.[\w-]+)\)/;
 const MIX = /^\s*([\w-]+)\s*:\s*(?:var\(--[\w-]+\s*,\s*)?color-mix\(in oklab,\s*var\(--([\w-]+)\)\s*(?:([\d.]+)%|var\(--([\w-]+)\))\s*,\s*transparent\)/;
+const MIX_HEAD = /color-mix\(in oklab,\s*(?=var\(--)/g;
+const SLOT_VAR = /^var\(--[\w-]+\s*,\s*(var\(.*\))\)$/s;
+
+function spanEnd(text: string, open: number): number {
+  let depth = 0;
+  for (let k = open; k < text.length; k += 1) {
+    if (text[k] === '(') depth += 1;
+    else if (text[k] === ')' && (depth -= 1) === 0) return k + 1;
+  }
+  return -1;
+}
+
+export function collapseSlotFalls(line: string): string {
+  let out = '';
+  let at = 0;
+  for (const head of line.matchAll(MIX_HEAD)) {
+    const from = (head.index as number) + head[0].length;
+    if (from < at) continue;
+    const end = spanEnd(line, from + 3);
+    if (end < 0) continue;
+    let span = line.slice(from, end);
+    for (let inner = SLOT_VAR.exec(span)?.[1]; inner !== undefined && spanEnd(inner, 3) === inner.length; inner = SLOT_VAR.exec(span)?.[1]) span = inner;
+    out += line.slice(at, from) + span;
+    at = end;
+  }
+  return out + line.slice(at);
+}
 const REFERENCE = /^var\(--color-([\w-]+)\)$/;
 const DEFAULT = /--(level-[\w-]+)\s*:\s*([\d.]+)%/g;
 
@@ -94,7 +122,7 @@ export function levelsIn(
     const named = SELECTOR.exec(line)?.[1];
     if (named?.startsWith('.')) { selector = named; state = named; condition = states.get(named) ?? ''; }
     else if (named) state = `${selector}${named.replace(/:scope(?=\[)/g, '')}`;
-    const mix = MIX.exec(line);
+    const mix = MIX.exec(collapseSlotFalls(line));
     if (!mix) continue;
     const level = mix[4] ?? null;
     const declared = level === null ? Number(mix[3]) : defaults[level];
@@ -261,7 +289,10 @@ export function exemptionFor(level: Level) {
 
 export const isMark = (variable: string) => /^ink-|^color-base-content$/.test(variable);
 
+export const MARK_LEVELS = new Set(['level-presence']);
+
 export function gateFor(level: Level) {
+  if (level.level !== null && MARK_LEVELS.has(level.level)) return MARK_MIN;
   if (level.property === 'color') return TEXT_MIN;
   return level.property === 'background-color' && isMark(level.variable) ? MARK_MIN : null;
 }
@@ -400,23 +431,6 @@ export function axisReports(roles: Map<string, string>, colors: Record<string, s
     + 'no heavier than its grid')];
 }
 
-export const EMPHASIS_PAIRS = ['primary', 'solid'];
-
-export function emphasisReports(roles: Map<string, string>, colors: Record<string, string>, theme: string) {
-  const out: Report[] = [];
-  for (const name of EMPHASIS_PAIRS) {
-    const fill = colors[paletteKey(roles.get(`emphasis-${name}-fill`)) ?? ''];
-    const ink = colors[paletteKey(roles.get(`emphasis-${name}-ink`)) ?? ''];
-    if (!fill || !ink) continue;
-    const ratio = contrast(ink, fill);
-    if (ratio >= TEXT_MIN) continue;
-    out.push(report('contrast', `--emphasis-${name}-ink measures ${ratio.toFixed(2)}:1 over `
-      + `--emphasis-${name}-fill in the ${theme} theme, below ${TEXT_MIN}:1, so the label of a filled `
-      + 'button is hard to read; a palette that splits primary-fill from primary fills the button with primary-fill'));
-  }
-  return out;
-}
-
 export function onInkReports(roles: Map<string, string>, colors: Record<string, string>, theme: string) {
   const out: Report[] = [];
   for (const hue of STATUS_HUES) {
@@ -428,6 +442,65 @@ export function onInkReports(roles: Map<string, string>, colors: Record<string, 
     out.push(report('contrast', `--hue-${hue}-on-ink measures ${ratio.toFixed(2)}:1 over `
       + `--hue-${hue}-ink in the ${theme} theme, below ${TEXT_MIN}:1, so a solid badge's label is `
       + 'hard to read'));
+  }
+  return out;
+}
+
+export const STATE_PAIRS: readonly { role: string; over: string; min: number; wash?: { level: string } }[] = [
+  { role: 'edge-focus', over: 'fill-page', min: 3 },
+  { role: 'edge-focus', over: 'fill-surface', min: 3 },
+  { role: 'edge-focus', over: 'fill-field', min: 3 },
+  { role: 'edge-focus', over: 'fill-track', min: 3 },
+  { role: 'edge-selected', over: 'fill-surface', min: 3 },
+  { role: 'edge-invalid', over: 'fill-field', min: 3 },
+  { role: 'ink-invalid', over: 'fill-surface', min: 4.5 },
+  { role: 'ink-selected', over: 'fill-selected', min: 4.5, wash: { level: 'level-accent-soft-primary' } },
+];
+
+export const WASH_DEFAULT = 14;
+
+const STATE_WHY: Record<string, string> = {
+  'edge-focus': 'the focus ring is hard to see',
+  'edge-selected': 'the edge that marks a selected item is hard to see',
+  'edge-invalid': 'the edge of an invalid field is hard to see',
+  'ink-invalid': 'the message under an invalid field is hard to read',
+  'ink-selected': 'the label of a selected item is hard to read',
+};
+
+export function stateReports(
+  roles: Map<string, string>, colors: Record<string, string>, theme: string,
+  levels: Record<string, number> = {}, strict = false,
+): Report[] {
+  const out: Report[] = [];
+  const unresolved = new Set<string>();
+  const missing = (pair: string, role: string) => {
+    const seen = `${pair}|${role}`;
+    if (!strict || unresolved.has(seen)) return;
+    unresolved.add(seen);
+    out.push(report('contrast', pair === role
+      ? `--${role} resolves to no palette colour in the ${theme} theme, so its pairs cannot be measured; `
+        + 'answer it with a palette colour'
+      : `--${pair} is measured over --${role}, which resolves to no palette colour in the ${theme} theme, `
+        + 'so the pair cannot be measured; answer it with a palette colour'));
+  };
+  for (const pair of STATE_PAIRS) {
+    const ink = colors[paletteKey(roles.get(pair.role)) ?? ''];
+    const ground = colors[paletteKey(roles.get(pair.over)) ?? ''];
+    if (!ink) { missing(pair.role, pair.role); continue; }
+    if (!ground) { missing(pair.role, pair.over); continue; }
+    const surface = pair.wash ? colors[paletteKey(roles.get('fill-surface')) ?? ''] : undefined;
+    if (pair.wash && !surface) { missing(pair.role, 'fill-surface'); continue; }
+    const under = pair.wash
+      ? composite(ground, surface as string, levels[pair.wash.level] ?? WASH_DEFAULT) : ground;
+    const ratio = contrast(ink, under);
+    if (ratio >= pair.min) continue;
+    const standard = pair.min === MARK_MIN ? 'WCAG 1.4.11' : 'WCAG 1.4.3';
+    const against = pair.wash
+      ? `the wash of --${pair.over} at ${levels[pair.wash.level] ?? WASH_DEFAULT}% over --fill-surface`
+      : `--${pair.over}`;
+    out.push(report('contrast', `--${pair.role} measures ${ratio.toFixed(2)}:1 against ${against} in the `
+      + `${theme} theme, below ${pair.min}:1 (${standard}), so ${STATE_WHY[pair.role]}; `
+      + 'answer it with a colour that stands further from that ground'));
   }
   return out;
 }

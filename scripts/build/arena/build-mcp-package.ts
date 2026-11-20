@@ -16,8 +16,9 @@ import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { writeVocabularyIndex } from '../../lib/arena/vocabulary-index.ts';
 import {
   collectFiles, reset, write, copy, report, emitCli, pluginIdentity, SHARED_KEYWORDS,
-  copyAgentPayload,
+  copyAgentPayload, DERIVED_SLOTS, derivedSlotsText,
 } from '../../lib/arena/package-assembly.ts';
+import { payloadDir } from '../../lib/arena/agent-payload.ts';
 import { AGENT_DIR, PACKAGES } from '../../generate/core/arena-mcp/payload.ts';
 
 export const NAME = '@dravensoft/arena-mcp';
@@ -55,7 +56,7 @@ export const node = {
   reads: [
     `${SOURCE}/**`, `!${SOURCE}/*.test.ts`, AUDIT_SOURCE, ...AUDIT_COMPANIONS, NPM_PAGE,
     '.claude-plugin/plugin.json', 'LICENSE',
-    'skills/design/SKILL.md', 'skills/design/references/*.md', 'skills/design/references/*/*.md',
+    'skills/design/SKILL.md', 'skills/design/references/**/*.md',
     'frameworks/INDEX.md', 'frameworks/VOCABULARY.md', 'contracts/design/*.json', 'contracts/api/components/*.json', 'contracts/behaviour/*.json',
     'frameworks/angular/ProjectionMarkers.ts', 'frameworks/angular/forms/*.ts',
     'frameworks/*/INDEX.md', 'frameworks/*/components/*/INDEX.md',
@@ -129,6 +130,7 @@ export function buildMcpPackage(root = repoRoot, dir = join(root, DIST)) {
 
   for (const layer of LAYERS) {
     written.push(...copyAgentPayload(dir, layer, NAME, root));
+    written.push(write(dir, `${payloadDir(layer)}/${DERIVED_SLOTS}`, derivedSlotsText(root)));
     written.push(writeVocabularyIndex(join(dir, AGENT_DIR, layer), root));
   }
 

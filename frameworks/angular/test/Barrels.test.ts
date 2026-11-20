@@ -86,6 +86,8 @@ const ROOT_PRIVATE = new Map([
   ['LocaleDefaults.generated.ts',
    'generated from the locale contract, and reached through ArenaLocale.ts, which re-exports the '
    + 'one name in it a consumer holds.'],
+  ['RootScale.ts',
+   'the root-font-size arithmetic behind arenaReadBreakpoint and the text scale: a consumer reads a breakpoint or the scale through those, and exporting the helpers would promise a second way to hold the same figure.'],
   ['Phrase.ts',
    'the substitution behind every sentence Arena draws with a value in it. A consumer provides '
    + 'the template through the locale and never calls it; exporting it would promise a helper '

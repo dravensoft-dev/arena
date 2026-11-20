@@ -169,7 +169,7 @@ test('a toned doughnut is coloured by its tone and warns about nothing it was no
     <ArenaDoughnutChart labels={LABELS} series={[{ label: 'Revenue by channel', values: VALUES, tone: 'success' }]}
       label="Revenue by channel" />,
   ));
-  assert.deepEqual(messages.filter((m) => /mutually exclusive/.test(m)), []);
+  assert.deepEqual(messages, []);
   const tone = arenaToneColor('success');
   const paths = [...root.querySelectorAll('path')];
   assert.equal(paths.length, VALUES.filter((value) => value > 0).length, 'a zero-valued slice paints no path');

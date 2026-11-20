@@ -10,6 +10,7 @@ import { join } from 'node:path';
 import React from 'react';
 import { mount, cleanup, act } from '../../../test/Harness.tsx';
 import { assertPatternCases, REACT_COMPONENTS } from '../../../test/AssertPattern.tsx';
+import { commandButtonVerdict } from '../../../test/StateVerdicts.ts';
 import { ArenaCard } from './ArenaCard.tsx';
 
 afterEach(cleanup);
@@ -89,7 +90,10 @@ test('ArenaCard meets both of its declared shapes', () => {
         return {
           root,
           subjects: { default: el },
-          behavioural: { 'keyboard.Enter': true, 'keyboard.Space': true, 'states.disabled': true },
+          behavioural: {
+            'keyboard.Enter': true, 'keyboard.Space': true, 'states.disabled': true,
+            'states.pressed': commandButtonVerdict(el!),
+          },
         };
       },
     },

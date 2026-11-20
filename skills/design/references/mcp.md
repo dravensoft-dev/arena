@@ -80,7 +80,7 @@ Every document is also offered as an MCP resource under an `arena://` URI.
 | The rules of the language | `arena://rules` |
 | The support record | `arena://support` |
 
-The values travel too. Every JSON file of `contracts/design/` is one group at `arena://tokens/<group>`, such as `arena://tokens/spacing` for the `--sp-*` scale or `arena://tokens/palette.dark`. The group `arena://tokens/behaviour` holds the motion delays and is not a behaviour pattern. `arena://behaviour/<pattern>` is one behaviour contract: the roles, keys and focus a pattern requires.
+The values travel too. Every JSON file of `contracts/design/` is one group at `arena://tokens/<group>`, such as `arena://tokens/spacing` for the `--sp-*` scale or `arena://tokens/palette.dark`. The derived slots are `arena://tokens/color-slots.derived`. The group `arena://tokens/behaviour` holds the motion delays and is not a behaviour pattern. `arena://behaviour/<pattern>` is one behaviour contract: the roles, keys and focus a pattern requires.
 
 The style plugins Arena renders and the catalogue are served too, at the path they have under `plugin-style-store/`. `arena://style/default/plugin.tokens.json` is the default plugin, and `arena://style/complete/` holds the second worked answer, `plugin.tokens.json` and `plugin.css`. `arena://style/catalogue/INDEX.md` is the catalogue's index, and the links in it are `arena://style/catalogue/<entry>/ENTRY.md` and each file you copy beside it, `plugin.tokens.json`, `plugin.css` and `arena.config.json`. Call `arena_read` with one of these URIs, and `arena_find` with the name of a register to reach its entry. JSON and CSS arrive as text with their own mime type.
 
@@ -92,7 +92,7 @@ Read the router first. The router carries the rules of the language and routes e
 
 **`arena_check` is the half that reads your code rather than Arena's.** Pass the tool the source text. The tool reports what the rules of the language say about that text.
 
-The tool reports a class of your own on a component, a raw value where a token belongs, and a gradient. The tool also reports a filled danger surface and a second primary action. The tool also reports an icon as an element, an emoji, and a component wrapped in a link of your own. The last rule is a heading outline with a rung missing.
+The tool reports a class of your own on a component and a raw value where a token belongs. The tool also reports an icon as an element, an emoji, and a component wrapped in a link of your own. The last rule is a heading outline with a rung missing.
 
 The tool reads text and not files. A screen that is still in the conversation can be checked before it is written down.
 

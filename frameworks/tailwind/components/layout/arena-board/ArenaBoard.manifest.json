@@ -4,14 +4,14 @@
     "board-column"
   ],
   "slots": {
-    "root": "grid grid-flow-col auto-cols-[minmax(var(--arena-board-column-width,var(--arena-board-column,var(--board-column-md))),1fr)] items-start gap-component overflow-x-auto font-body rounded-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
-    "column": "grid gap-items p-2 rounded-surface bg-surface-sunken",
+    "root": "grid grid-flow-col auto-cols-[minmax(var(--arena-board-column-width,var(--arena-board-column,var(--board-column-md))),1fr)] items-start gap-component overflow-x-auto font-body rounded-surface focus-visible:outline-none focus-visible:ring-[length:var(--bw-focus)] focus-visible:ring-edge-focus",
+    "column": "grid gap-items p-2 rounded-surface bg-[color:var(--surfaces-plain-sunken-fill-rest,var(--fill-surface-sunken))]",
     "head": "flex items-center gap-items min-w-0",
     "dot": "size-1.5 shrink-0 rounded-pill",
-    "title": "min-w-0 truncate text-ctl-md font-medium text-ink-heading",
-    "count": "shrink-0 font-mono tabular-nums text-ctl-xs text-ink-muted/(--level-ink-muted)",
+    "title": "min-w-0 truncate text-ctl-md font-medium text-[color:var(--marks-neutral-label-ink-rest,var(--ink-heading))]",
+    "count": "shrink-0 font-mono tabular-nums text-ctl-xs text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",
     "action": "shrink-0 flex items-center ms-auto",
-    "summary": "font-mono tabular-nums text-ctl-xs text-ink-muted/(--level-ink-muted)",
+    "summary": "font-mono tabular-nums text-ctl-xs text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",
     "stack": "grid gap-items",
     "foot": "grid"
   },

@@ -163,4 +163,4 @@ the same style plugin travels whatever installs it and whatever assembles it.
   above it, so a version past the exercised one resolves and is untested: that is a permission, not
   a promise.
 - **Nothing runs your project.** No gate here opens your application, so no support row is
-  evidence about it. The closest thing is `arena audit`, which reads each source file for what a source text can show, a second primary action and a filled danger surface among them. Nothing reads the rendered view, the application as a whole, or the rules about meaning.
+  evidence about it. The closest thing is `arena audit`, which reads each source file for what a source text can show. A class of your own on a component and a raw value where a token belongs are two of those. Nothing reads the rendered view, the application as a whole, or the rules about meaning.

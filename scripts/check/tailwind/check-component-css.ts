@@ -15,6 +15,7 @@ import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { parseDecls } from '../../lib/arena/css-decls.ts';
 import { arenaTokenNames } from '../../lib/core/arena-tokens.ts';
+import { COLOR_SLOTS, readColorSlots } from '../../lib/core/color-slots.ts';
 import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
 import { DEFAULTS_LAYER, LAYER_ORDER } from '../../lib/tailwind/component-sheets.ts';
 import { applyRules } from '../../lib/tailwind/component-css.ts';
@@ -28,7 +29,7 @@ export const node = {
   name: 'check:component-css',
   reads: [
     MANIFESTS, `${CONSUME}/**/*.css`, `${VOCABULARY_DIR}/**`, 'frameworks/tailwind/components/**/*.card.html',
-    'contracts/design/environment.css', 'contracts/design/colors.css',
+    'contracts/design/environment.css', 'contracts/design/colors.css', COLOR_SLOTS,
     'contracts/design-generated/*.generated.css', ANIMATIONS,
   ],
   writes: [],
@@ -36,6 +37,8 @@ export const node = {
 };
 import type { Manifests } from '../../lib/tailwind/manifest-shapes.ts';
 import { axesOf, channelPrefix, readFamilies, VOCABULARY_DIR, type Family } from '../../lib/tailwind/vocabulary.ts';
+import { fadeMarkers } from '../../generate/core/arena-cli/slots.ts';
+import { HANDED_DOWN } from './check-channels.ts';
 import { HUE_CHANNELS } from '../../lib/tailwind/hue-sheet.ts';
 
 export const THEME_NAMESPACES = [
@@ -47,6 +50,9 @@ export const ARENA_THEME_NAMED = new Map([
   ...['media', 'square', 'video', 'portrait', 'wide'].map((n) => [`aspect-${n}`,
     'Arena\'s own frame token, and Theme.css clears Tailwind\'s aspect namespace so no default theme key writes it'] as [string, string]),
 ]);
+
+export const slotNamed = (slots: string[]) => new Map([...ARENA_THEME_NAMED,
+  ...slots.map((name) => [name, 'a colour slot Arena declares, which an adopter answers by that name'] as [string, string])]);
 
 export const EXTERNAL_PROPERTIES = new Map([
   ['picker-invert', 'written by arena build into the consuming project\'s own stylesheet, never by the package'],
@@ -108,6 +114,9 @@ export function sheetProblems(manifests: Manifests, base = root) {
   const readNames = new Set<string>();
   const tokens = arenaTokenNames(base);
   const families = readFamilies(base);
+  const catalogue = readColorSlots(base);
+  for (const slot of Object.keys(catalogue.slots)) tokens.add(slot);
+  for (const [marker] of fadeMarkers(Object.keys(catalogue.slots), catalogue)) tokens.add(marker.slice(2));
   for (const decls of parseDecls(readFileSync(join(base, 'contracts/design/environment.css'), 'utf8')).values())
     for (const name of decls.keys()) tokens.add(name);
 
@@ -129,13 +138,13 @@ export function sheetProblems(manifests: Manifests, base = root) {
       if (name !== undefined && !derived.has(name)) problems.push(`${manifest.component}: .${name} has a rule no manifest derives`);
     }
     for (const name of propertiesIn(css)) if (name !== undefined) readNames.add(name);
-    for (const leak of themeLeaks(css)) {
+    for (const leak of themeLeaks(css, slotNamed(Object.keys(catalogue.slots)))) {
       problems.push(`${manifest.component}: reads --${leak}, a Tailwind theme property, so the strip `
         + 'did not run over it and an adopter who declares that property rescales this component silently');
     }
     for (const name of propertiesIn(css)) {
       if (name === undefined) continue;
-      if (tokens.has(name) || name.startsWith('tw-') || EXTERNAL_PROPERTIES.has(name) || isFamilyChannel(name, families) || isHueChannel(name)) continue;
+      if (tokens.has(name) || name.startsWith('tw-') || EXTERNAL_PROPERTIES.has(name) || HANDED_DOWN.has(`--${name}`) || isFamilyChannel(name, families) || isHueChannel(name)) continue;
       problems.push(`${manifest.component}: reads --${name}, which is no Arena token and is not `
         + 'declared external, so nothing in either package defines it');
     }

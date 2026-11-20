@@ -19,6 +19,8 @@ arena.contracts.json          every path below, sorted, with the version that pr
 contracts/design/*.json       one file per group: palette.<polarity>, typography, spacing, density.<name>,
                               effects, layering, chart, icon, component, behaviour (delays and
                               limits) and roles (the style kernel's questions)
+contracts/design/color-slots.derived.json
+                              every colour slot the declarations derive, written at build
 contracts/api/components/*    one capability statement per component, in neutral member forms
 contracts/api/types/*         the shared enums and objects those members take
 contracts/behaviour/*.json    one accessibility pattern per file, cited to its source
@@ -103,7 +105,7 @@ A short checklist for a platform target. Each step names the file it reads.
 1. Read `arena.contracts.json` for the paths the installed version holds. [`contracts/AGENTS.md`](../../../contracts/AGENTS.md) says which of the three levels a fact belongs to.
 2. Read `contracts/api/components/*.json` for the members each component presents, and [`MemberForms.md`](../../../contracts/api/MemberForms.md) for the forms they are written in.
 3. Read `contracts/behaviour/*.json` for the role, keys, focus and dismissal each component owes.
-4. Read `contracts/design/*.json` for the tokens, and `contracts/design/roles.json` for the questions a style plugin answers. [`TokenTypes.md`](../../../contracts/design/TokenTypes.md) says what each `$type` is authored as.
+4. Read `contracts/design/*.json` for the tokens, and `contracts/design/roles.json` for the questions a style plugin answers, and the colour slots above them. `contracts/design/color-slots.json` declares the slots a plugin answers. The package carries every derived slot, with its chain and its channels, as `contracts/design/color-slots.derived.json`, so a target reads the leaves with no derivation code of its own. [`TokenTypes.md`](../../../contracts/design/TokenTypes.md) says what each `$type` is authored as.
 5. Resolve each alias against the palette of the polarity you build, as the section above shows.
 
 ## How do I version the contracts package?

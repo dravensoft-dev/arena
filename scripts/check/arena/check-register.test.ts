@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
   collect, sentenceProblems, sentencesIn, blocks, plain, clauseCount, unnamedSubject, inScope,
-  blanked, unregioned, descriptionsIn, descriptionProblems, contractScan,
+  blanked, unregioned, descriptionsIn, descriptionProblems, contractScan, roleQuestionScan,
   excusedBy, scoped, zeroScanProblems, staleSpecProblems, staleExemptProblems,
   NOT_YET_REWRITTEN, MAX_WORDS, MAX_CLAUSES,
 } from './check-register.ts';
@@ -153,6 +153,9 @@ function contractTree(descriptions: Record<string, unknown>) {
   const base = mkdtempSync(join(tmpdir(), 'arena-register-'));
   made.push(base);
   mkdirSync(join(base, 'contracts/api/components'), { recursive: true });
+  mkdirSync(join(base, 'contracts/design'), { recursive: true });
+  writeFileSync(join(base, 'contracts/design/roles.json'), JSON.stringify({
+    'r-0': { $extensions: { 'com.dravensoft.arena': { question: 'How wide is the gap?' } } } }));
   for (const [name, body] of Object.entries(descriptions))
     writeFileSync(join(base, 'contracts/api/components', name), JSON.stringify(body));
   return base;
@@ -181,4 +184,22 @@ test('a contract whose descriptions read in the register passes, and the root me
 test('a contract tree with no description to read is a problem rather than a pass over nothing', () => {
   const base = contractTree({ 'ArenaX.json': { name: 'ArenaX' } });
   assert.match(contractScan(base)[0] ?? '', /no contract description was read/);
+});
+
+test('a role question is held to the register', () => {
+  const base = mkdtempSync(join(tmpdir(), 'arena-register-roles-'));
+  after(() => rmSync(base, { recursive: true, force: true }));
+  mkdirSync(join(base, 'contracts/design'), { recursive: true });
+  const write = (...questions: string[]) => writeFileSync(join(base, 'contracts/design/roles.json'),
+    JSON.stringify(Object.fromEntries(questions.map((q, i) => [`r-${i}`,
+      { $type: 'dimension', $extensions: { 'com.dravensoft.arena': { question: q } } }]))));
+  write('It sets the gap?', `${thirtyOne}?`, 'What gap sits between rows, which the screen sets, so the list reads?');
+  const found = roleQuestionScan(base);
+  assert.ok(found.some((one) => /^contracts\/design\/roles\.json:r-0: a sentence opening/.test(one)), found.join('\n'));
+  assert.ok(found.some((one) => /^contracts\/design\/roles\.json:r-1: .*31 words, over 30/.test(one)), found.join('\n'));
+  assert.ok(found.some((one) => /^contracts\/design\/roles\.json:r-2: .*(subordinate|clause)/.test(one)), found.join('\n'));
+  write('How wide is the gap between rows?');
+  assert.deepEqual(roleQuestionScan(base), []);
+  write();
+  assert.match(roleQuestionScan(base)[0] ?? '', /no role question was read/);
 });

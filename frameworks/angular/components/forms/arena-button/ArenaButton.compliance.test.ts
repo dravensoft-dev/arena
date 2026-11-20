@@ -17,6 +17,7 @@ import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { ArenaButton } from './ArenaButton';
 import { assertPattern, ANGULAR_COMPONENTS } from '../../../test/Compliance';
+import { commandButtonVerdict } from '../../../test/StateVerdicts';
 
 const BINDING = join(ANGULAR_COMPONENTS, 'forms/arena-button/ArenaButton.behaviour.json');
 
@@ -121,7 +122,10 @@ test('arena-button meets the button pattern', () => {
       root: host,
       bindingPath: BINDING,
       subjects: { default: control },
-      behavioural: { 'states.disabled': true, 'keyboard.Space': true, 'keyboard.Enter': true },
+      behavioural: {
+        'states.disabled': true, 'keyboard.Space': true, 'keyboard.Enter': true,
+        'states.pressed': commandButtonVerdict(control),
+      },
     });
   } finally {
     fixture.destroy();

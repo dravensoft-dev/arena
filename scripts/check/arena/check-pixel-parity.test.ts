@@ -10,7 +10,7 @@ import {
   THEMES, VIEWPORT, STILL, PAINTED, SETTLE_TRIES, WATCH, FROZEN, SHOT, pagePath, sinksIn, shoot,
   pairProblems, sizeProblem, paintProblem, dumpDir,
   ALLOWED, staleAllowanceProblems, within, parseParityArgs, rasterProblem, maskedProblem, allowancesFor,
-  rectsExpression, rectsOf, matchedLine, SelectorProblem, type Rect,
+  rectsExpression, rectsOf, paintedOverflow, matchedLine, SelectorProblem, type Rect,
 } from './check-pixel-parity.ts';
 import { PageThrew } from '../../lib/arena/cdp.ts';
 import { PAGE_FILE } from '../../lib/arena/kitchen-sink-page.ts';
@@ -237,8 +237,8 @@ test('an allowance rect covers what the matched element paints, a descendant ove
   const unrendered = box(0, 0, 0, 0, false);
   const frame = { ...box(344, 12271, 644, 12551), querySelectorAll: () => [child, unrendered] };
   const bare = { ...box(0, 0, 10, 10), querySelectorAll: () => [] };
-  const run = (all: unknown[]) => new Function('document', 'scrollX', 'scrollY', `return ${rectsExpression('x')}`)(
-    { querySelectorAll: () => all }, 0, 0) as Rect[];
+  const run = (all: unknown[]) => new Function('document', 'scrollX', 'scrollY', 'getComputedStyle', `return ${rectsExpression('x')}`)(
+    { querySelectorAll: () => all }, 0, 0, () => ({ boxShadow: 'none', outlineStyle: 'none' })) as Rect[];
   const rects = run([frame, bare]);
   assert.equal(rects.length, 2);
   assert.deepEqual(rects[0], { left: 344, top: 12271, right: 645, bottom: 12551 });
@@ -291,4 +291,24 @@ test('the console warnings are collected before the page runs and compared betwe
   const main = source.slice(source.indexOf('async function main()'));
   assert.ok(main.includes('warningsProblem(name, { react: react.warnings, angular: angular.warnings })'),
     'collected and never compared, a warning one layer prints passes every page it is printed on');
+});
+
+test('an allowance rect grows by its part\'s own shadow and outline, so a pixel just outside the border box is the part\'s (T6-P1)', () => {
+  const part = { getBoundingClientRect: () => ({ left: 10, top: 10, right: 20, bottom: 20 }), getClientRects: () => [{}], querySelectorAll: () => [] };
+  const run = (style: Record<string, string>) => (new Function('document', 'scrollX', 'scrollY', 'getComputedStyle', `return ${rectsExpression('x')}`)(
+    { querySelectorAll: () => [part] }, 0, 0, () => style) as Rect[])[0]!;
+  const shadowed = run({ boxShadow: 'rgba(0, 0, 0, 0.3) 0px 2px 4px 1px, rgb(0, 0, 0) 0px 0px 0px 3px inset', outlineStyle: 'none' });
+  assert.deepEqual(shadowed, { left: 3, top: 5, right: 27, bottom: 29 }, 'Chromium draws a blur to three sigma, 1.5 times the blur, plus the spread; the offset moves the reach, and an inset shadow paints inside');
+  const pixel = (r: Rect) => maskedProblem('p', solid(30, 30, [0, 0, 0, 255]), paint(solid(30, 30, [0, 0, 0, 255]), 22, 15), [r]);
+  assert.equal(pixel(shadowed).problem, null, 'a pixel of the shadow just past the border box is spent inside the part');
+  const bare = run({ boxShadow: 'none', outlineStyle: 'none' });
+  assert.deepEqual(bare, { left: 10, top: 10, right: 20, bottom: 20 });
+  assert.match(pixel(bare).problem ?? '', /outside the allowed parts/, 'an unshadowed part covers its border box alone');
+  const complete = paintedOverflow({ boxShadow: 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.5) 0px 2px 6px -2px', outlineStyle: 'dotted', outlineWidth: '2px', outlineOffset: '4px' });
+  assert.deepEqual(paintedOverflow({ boxShadow: 'rgba(0, 0, 0, 0) 0px 4px 20px 8px, transparent 0px 0px 10px 0px', outlineStyle: 'none' }), { left: 0, top: 0, right: 0, bottom: 0 },
+    'a layer whose colour has alpha 0 paints nothing and grows nothing');
+  assert.deepEqual(paintedOverflow({ boxShadow: 'rgba(0, 0, 0, 0.05) 0px 0px 2px 0px', outlineStyle: 'none' }), { left: 3, top: 3, right: 3, bottom: 3 }, 'an alpha that only starts with 0 still paints');
+  assert.deepEqual(complete, { left: 7, top: 6, right: 7, bottom: 9 }, 'complete\'s control shadow reaches 9px below a part, past its 6px outline: the rows a locked confirm moved under it');
+  assert.deepEqual(paintedOverflow({ boxShadow: 'none', outlineStyle: 'solid', outlineWidth: '2px', outlineOffset: '1px' }), { left: 3, top: 3, right: 3, bottom: 3 }, 'a drawn outline grows the rect by its width and offset');
+  assert.deepEqual(paintedOverflow({ boxShadow: 'none', outlineStyle: 'none', outlineWidth: '2px', outlineOffset: '1px' }), { left: 0, top: 0, right: 0, bottom: 0 });
 });

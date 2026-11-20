@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
   DECORATIVE, derivedLevels, exemptionFor, gateFor, inlineHues, levelReports, levelsIn, raisedReports,
-  emphasisReports, surfaceKeys, washesIn, washReports,
+  levelDefaults, STATE_PAIRS, stateReports, surfaceKeys, WASH_DEFAULT, washesIn, washReports,
 } from './levels.ts';
 import { walkFiles } from '../../../utils/walk-files.ts';
 import { repoRoot } from '../../../lib/arena/repo-root.ts';
@@ -62,6 +62,12 @@ test('text is held to AA, a mark to 3:1, and a tint of a status colour to nothin
   assert.equal(gateFor(mark as never), 3);
   assert.equal(gateFor(tint as never), null,
     'a soft wash is meant to be faint; holding it to a ratio would report the design');
+});
+
+test('the presence register is a mark at 3:1 whichever property carries it', () => {
+  const dot = { selector: '.arena-avatar__status', state: '.arena-avatar__status', property: 'color', variable: 'ink-muted', percent: 52, level: 'level-presence' };
+  assert.equal(gateFor(dot as never), 3, 'a presence dot paints bg-current from its ink, a graphical object (D92)');
+  assert.equal(gateFor({ ...dot, level: 'level-ink-muted' } as never), 4.5);
 });
 
 test('the surfaces are the page plus whatever the plugin answers with', () => {
@@ -295,13 +301,13 @@ const FAMILY = [
   '@layer utilities {',
   '  @scope (.arena-accent-plain) to ([data-arena-boundary] > *) {',
   '    :scope[data-arena-part="tag"], [data-arena-part="tag"] {',
-  '      --arena-accent-quiet-ink: color-mix(in oklab,var(--accent-plain-quiet-ink) var(--level-ink-quiet),transparent);',
-  '      --arena-accent-edge: var(--accent-plain-edge);',
+  '      --arena-accent-marks-outline-ink: color-mix(in oklab,var(--accent-plain-quiet-ink) var(--level-ink-quiet),transparent);',
+  '      --arena-accent-marks-outline-edge: var(--accent-plain-edge);',
   '    }',
   '  }',
   '  @scope (.arena-accent-gold) to ([data-arena-boundary] > *) {',
   '    :scope[data-arena-part="badge"], [data-arena-part="badge"] {',
-  '      --arena-accent-fill-soft: color-mix(in oklab,var(--accent-gold-fill-soft) var(--level-accent-soft-gold),transparent);',
+  '      --arena-accent-marks-soft-fill: color-mix(in oklab,var(--accent-gold-fill-soft) var(--level-accent-soft-gold),transparent);',
   '    }',
   '  }',
   '}',
@@ -321,13 +327,27 @@ test('a mix nested in the fallback of a channel read is a level too', () => {
   const nested = [
     '.arena-tag__root {',
     '  @supports (color: color-mix(in lab, red, red)) {',
-    '    color: var(--arena-accent-quiet-ink,color-mix(in oklab,var(--accent-plain-quiet-ink) var(--level-ink-quiet),transparent));',
+    '    color: var(--arena-accent-marks-outline-ink,color-mix(in oklab,var(--accent-plain-quiet-ink) var(--level-ink-quiet),transparent));',
     '  }',
     '}',
   ].join('\n');
   const [only, ...more] = levelsIn(nested, { 'level-ink-quiet': 50 });
   assert.equal(more.length, 0);
   assert.equal(`${only?.property}/${only?.variable}/${only?.percent}`, 'color/accent-plain-quiet-ink/50');
+});
+
+test('a mix over a slot chain is a level over the role the chain falls to', () => {
+  const chain = FAMILY.replace('var(--accent-plain-quiet-ink) var(--level-ink-quiet)',
+    'var(--a-slot,var(--accent-plain-quiet-ink)) var(--level-ink-quiet)');
+  const [first] = levelsIn(chain, { 'level-ink-quiet': 50, 'level-accent-soft-gold': 16 });
+  assert.equal(`${first?.property}/${first?.variable}/${first?.percent}`, 'color/accent-plain-quiet-ink/50');
+});
+
+test('a mix over a chain of slots, to any depth, is a level over the role it ends in', () => {
+  const deep = FAMILY.replace('var(--accent-plain-quiet-ink) var(--level-ink-quiet)',
+    'var(--a-slot,var(--b-slot,var(--accent-plain-quiet-ink))) var(--level-ink-quiet)');
+  const [first] = levelsIn(deep, { 'level-ink-quiet': 50, 'level-accent-soft-gold': 16 });
+  assert.equal(`${first?.property}/${first?.variable}/${first?.percent}`, 'color/accent-plain-quiet-ink/50');
 });
 
 test('a wash whose percent is a level reads its default, and one with no default is left out', () => {
@@ -341,14 +361,61 @@ test('a wash whose percent is a level reads its default, and one with no default
   assert.deepEqual(washesIn(css), []);
 });
 
-test('a filled button\'s ink is measured on the fill the style plugin gives it', () => {
-  const colours = { 'primary': '#9e77ed', 'primary-fill': '#7f56d9', 'primary-content': '#ffffff' };
-  const roles = (fill: string) => new Map([
-    ['emphasis-primary-fill', fill], ['emphasis-primary-ink', 'var(--color-primary-content)'],
-    ['emphasis-solid-fill', fill], ['emphasis-solid-ink', 'var(--color-primary-content)'],
+const LIGHT = Object.fromEntries(Object.entries(
+  JSON.parse(readFileSync(join(repoRoot, 'contracts/design/palette.light.json'), 'utf8')).color as Record<string, { $value?: { hex: string } }>,
+).filter(([, token]) => token.$value?.hex).map(([key, token]) => [key, (token.$value as { hex: string }).hex]));
+
+const STATE_ROLES = (over: Record<string, string> = {}) => new Map(Object.entries({
+  'fill-page': 'var(--color-base-100)', 'fill-surface': 'var(--color-base-200)', 'fill-field': 'var(--color-base-300)', 'fill-track': 'var(--color-base-300)',
+  'edge-focus': 'var(--color-base-content)', 'edge-selected': 'var(--color-base-content)',
+  'edge-invalid': 'var(--color-error)', 'ink-invalid': 'var(--color-error)',
+  'fill-selected': 'var(--color-primary)', 'ink-selected': 'var(--color-base-content)',
+  ...over,
+}));
+
+const PALE = { ...LIGHT, secondary: '#c5a059' };
+
+test('a pale light secondary reports edge-focus under 3:1', () => {
+  const found = stateReports(STATE_ROLES({ 'edge-focus': 'var(--color-secondary)' }), PALE, 'light', {});
+  assert.deepEqual(found.map((one) => one.kind), ['contrast', 'contrast', 'contrast', 'contrast'], 'one report per surface');
+  for (const one of found) {
+    assert.match(one.message, /^--edge-focus measures \d\.\d\d:1 against --fill-(page|surface|field|track) in the light theme, below 3:1 \(WCAG 1\.4\.11\)/);
+  }
+  assert.equal(found[0]?.message, '--edge-focus measures 2.46:1 against --fill-page in the light theme, below 3:1 (WCAG 1.4.11), '
+    + 'so the focus ring is hard to see; answer it with a colour that stands further from that ground');
+});
+
+test('the selected wash is composited at its level', () => {
+  const colours = { ...LIGHT, 'base-content': '#1a1a1a', primary: '#b52a20', 'base-200': '#f7f4ef' };
+  assert.deepEqual(stateReports(STATE_ROLES(), colours, 'light', { 'level-accent-soft-primary': 14 }), []);
+  const pale = stateReports(STATE_ROLES({ 'ink-selected': 'var(--color-neutral)' }), { ...colours, neutral: '#cabcad' }, 'light', {});
+  assert.equal(pale.length, 1);
+  assert.match(pale[0]?.message ?? '', /^--ink-selected measures \d\.\d\d:1 against the wash of --fill-selected at 14% over --fill-surface in the light theme, below 4\.5:1 \(WCAG 1\.4\.3\)/);
+});
+
+test('strict reports an unresolved role, lax skips it', () => {
+  const roles = STATE_ROLES({ 'edge-focus': 'var(--ring)' });
+  assert.deepEqual(stateReports(roles, LIGHT, 'light', {}), []);
+  const strict = stateReports(roles, LIGHT, 'light', {}, true);
+  assert.equal(strict.length, 1, 'once, not once per surface');
+  assert.match(strict[0]?.message ?? '', /^--edge-focus resolves to no palette colour in the light theme/);
+});
+
+test('the state pairs are the ones D29 and the contrast rule name', () => {
+  assert.deepEqual(STATE_PAIRS.map((pair) => `${pair.role}/${pair.over}/${pair.min}`), [
+    'edge-focus/fill-page/3', 'edge-focus/fill-surface/3', 'edge-focus/fill-field/3', 'edge-focus/fill-track/3', 'edge-selected/fill-surface/3',
+    'edge-invalid/fill-field/3', 'ink-invalid/fill-surface/4.5', 'ink-selected/fill-selected/4.5',
   ]);
-  assert.deepEqual(emphasisReports(roles('var(--color-primary-fill)'), colours, 'dark'), []);
-  const stale = emphasisReports(roles('var(--color-primary)'), colours, 'dark');
-  assert.deepEqual(stale.map((one) => one.message.split(' measures')[0]), ['--emphasis-primary-ink', '--emphasis-solid-ink'],
-    'a plugin still filling the button with primary sets white on #9e77ed, 3.33:1, and the palette pair cannot see it');
+});
+
+test('a ring too pale for the track ground is reported against fill-track', () => {
+  const found = stateReports(STATE_ROLES({ 'edge-focus': 'var(--color-secondary)' }), PALE, 'light', {});
+  assert.ok(found.some((one) => /^--edge-focus measures \d\.\d\d:1 against --fill-track in the light theme/.test(one.message)));
+});
+
+test('the wash level arena build measures with is the level colors.css declares', () => {
+  const colors = readFileSync(join(repoRoot, 'contracts/design/colors.css'), 'utf8');
+  for (const pair of STATE_PAIRS.filter((one) => one.wash)) {
+    assert.equal(levelDefaults(colors)[pair.wash!.level], WASH_DEFAULT, pair.wash!.level);
+  }
 });

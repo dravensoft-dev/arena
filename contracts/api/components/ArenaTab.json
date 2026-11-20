@@ -1,7 +1,7 @@
 {
   "component": "ArenaTab",
   "description": "One tab in an ArenaTabs strip, and the panel it shows. ArenaTab draws the button; its content fills the tabpanel ArenaTabs renders beside the tablist.",
-  "affordances": ["focus"],
+  "affordances": ["focus", "hover"],
   "api": {
     "value": { "form": "primitive", "type": "string", "required": true,
                "description": "What this tab selects, and what the `valueChange` event of ArenaTabs carries." },

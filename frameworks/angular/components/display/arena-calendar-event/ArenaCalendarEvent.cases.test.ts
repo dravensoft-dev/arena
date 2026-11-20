@@ -15,6 +15,7 @@ import { TestBed, type ComponentFixture } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { assertNoNode, assertSameNode } from '../../../test/NodeAssert';
 import { assertPatternCases, ANGULAR_COMPONENTS } from '../../../test/Compliance';
+import { commandButtonVerdict } from '../../../test/StateVerdicts';
 import type { ArenaCatSlot } from '../../../Api.generated';
 import { ArenaCalendar } from '../arena-calendar/ArenaCalendar';
 import { ArenaCalendarEvent } from './ArenaCalendarEvent';
@@ -134,7 +135,10 @@ test('arena-calendar-event meets all three of its declared shapes, and `interact
 
           return {
             root: chip,
-            behavioural: { 'states.disabled': true, 'keyboard.Space': true, 'keyboard.Enter': true },
+            behavioural: {
+              'states.disabled': true, 'keyboard.Space': true, 'keyboard.Enter': true,
+              'states.pressed': commandButtonVerdict(chip),
+            },
           };
         },
 
@@ -168,7 +172,10 @@ test('arena-calendar-event meets all three of its declared shapes, and `interact
           return {
             root: chip,
             subjects: { default: body },
-            behavioural: { 'states.disabled': true, 'keyboard.Space': true, 'keyboard.Enter': true },
+            behavioural: {
+              'states.disabled': true, 'keyboard.Space': true, 'keyboard.Enter': true,
+              'states.pressed': commandButtonVerdict(body),
+            },
           };
         },
 

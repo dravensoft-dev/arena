@@ -9,6 +9,8 @@ import { repoRoot } from '../../../lib/arena/repo-root.ts';
 import { tokenCatalogue } from '../../../lib/arena/package-assembly.ts';
 import { MAP } from './cli-fixtures.ts';
 
+const SLOTS = tokenCatalogue().slots;
+
 test('the map is read from beside the command, by the name both packages write it under', () => {
   const root = mkdtempSync(join(tmpdir(), 'arena-installed-'));
   writeFileSync(join(root, COMPONENT_MAP), JSON.stringify(MAP));
@@ -21,6 +23,7 @@ test('the map is read from beside the command, by the name both packages write i
 
 test('a colour reference is derived from the catalogue, because a consumer palette has to restate it', () => {
   assert.deepEqual(roleReferencesIn({
+    slots: SLOTS,
     tokens: {
       'fill-surface': 'var(--color-base-200)',
       'r-surface': '14px',
@@ -34,7 +37,7 @@ test('a colour reference is derived from the catalogue, because a consumer palet
 });
 
 test('the aliases are written as declarations in the catalogue\'s order', () => {
-  assert.deepEqual(aliasesIn({ tokens: {}, roles: {}, aliases: { ink: 'var(--color-base-100)', scrim: 'x' } }),
+  assert.deepEqual(aliasesIn({ slots: SLOTS, tokens: {}, roles: {}, aliases: { ink: 'var(--color-base-100)', scrim: 'x' } }),
     ['--ink:var(--color-base-100);', '--scrim:x;']);
   assert.deepEqual(aliasesIn(null), []);
 });

@@ -1,9 +1,9 @@
 import {
   booleanAttribute, ChangeDetectionStrategy, Component, computed, ElementRef, inject, input, signal, viewChild,
 } from '@angular/core';
-import { arenaContainerWidth } from '../../../ContainerSize';
+import { arenaContainerWidth, arenaReadTextScale } from '../../../ContainerSize';
 import {
-  ARENA_CHART_HEIGHT, ARENA_INK_BODY, ARENA_INK_MUTED, ARENA_SR_ONLY, arenaAreaFill, arenaPercentWriter, arenaValueWriter,
+  ARENA_CHART_HEIGHT, ARENA_INK_BODY, ARENA_INK_MUTED, ARENA_SR_ONLY, arenaTextRoom, arenaAreaFill, arenaPercentWriter, arenaValueWriter,
   arenaCatRotate,
 } from '../../../DataVisuals';
 import {
@@ -139,6 +139,7 @@ export class ArenaFunnelChart {
     { transform: (value) => value ?? ARENA_CHART_HEIGHT },
   );
 
+  private readonly room = arenaTextRoom(arenaReadTextScale());
   protected readonly parts = manifest.parts;
   protected readonly styles = arenaFunnelChartStyles();
   protected readonly arenaSrOnly = ARENA_SR_ONLY;
@@ -148,7 +149,7 @@ export class ArenaFunnelChart {
   protected readonly nameStyle = NAME_STYLE;
   protected readonly numberStyle = NUMBER_STYLE;
   protected readonly markStyle = MARK_STYLE;
-  protected readonly nameX = arenaCategoryLabelX();
+  protected readonly nameX = arenaCategoryLabelX(this.room);
   protected readonly hover = signal<number | null>(null);
 
   private readonly write = computed(() => arenaValueWriter({
@@ -187,10 +188,10 @@ export class ArenaFunnelChart {
       ...(this.showConversion()
         ? this.conversions().flatMap(({ step }) => (step === null ? [] : [percent(step)]))
         : []),
-    ]);
+    ], this.room);
   });
 
-  private readonly box = computed(() => arenaFunnelBox(this.width(), this.height(), this.gutter()));
+  private readonly box = computed(() => arenaFunnelBox(this.width(), this.height(), this.gutter(), this.room));
   protected readonly plotLeft = computed(() => this.box().x);
   protected readonly plotTop = computed(() => this.box().y);
   protected readonly innerWidth = computed(() => this.box().w);
@@ -202,7 +203,7 @@ export class ArenaFunnelChart {
 
   private readonly bands = computed(() => arenaFunnelBands(this.points(), this.box().y, this.box().h));
 
-  private readonly colors = computed(() => arenaSeriesColors(this.one(), this.points(), arenaCatRotate(this.colorStart(), 0), 'ArenaFunnelChart', this.colorStart()));
+  private readonly colors = computed(() => arenaSeriesColors(this.one(), this.points(), arenaCatRotate(this.colorStart(), 0), this.colorStart()));
 
   private readonly widthOf = computed(() => {
     const scale = this.scale();

@@ -4,14 +4,12 @@
  * the point: the element reading a channel is the element the rule writes it on, so a badge inside
  * a danger alert reads its own colour and never the alert's. Hues.json is the table of what each
  * hue writes. Rules follow the manifest's group order, which decides a slot two groups reach, as a
- * tag's colorId after its tone. A slot whose hue no value varies, an error message, names it under
- * the reserved key `always`, `{ slot: hue }`, written on the bare slot class first; no hued group
- * reaches such a slot, since two writers on one element would leave its hue to rule order. */
+ * tag's colorId after its tone. */
 
 import { join } from 'node:path';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../arena/repo-root.ts';
-import { groupSlots, slotClass, variantSelector } from './component-css.ts';
+import { groupSlots, variantSelector } from './component-css.ts';
 import type { ComponentManifest } from './manifest-shapes.ts';
 
 export type HueChannels = Readonly<{ ink: string; edge: string; 'fill-strong': string; 'fill-soft': string; 'on-ink': string }>;
@@ -22,7 +20,6 @@ export const HUE_SHEETS = 'frameworks/tailwind/consume/hues';
 export const HUES_FILE = 'frameworks/tailwind/Hues.json';
 export const IDENTITY = 'identity-N';
 export const IDENTITY_COUNT = 8;
-export const ALWAYS = 'always';
 
 const KEYS = ['ink', 'edge', 'fill-strong', 'fill-soft', 'on-ink'] as const;
 
@@ -56,13 +53,8 @@ export function hueRules(manifest: ComponentManifest, hues: Map<string, HueChann
   if (!mapped) return '';
   const reached = groupSlots(manifest);
   const rules: string[] = [];
-  for (const [slot, hue] of Object.entries(mapped[ALWAYS] ?? {})) {
-    const named = typeof hue === 'string' ? hues.get(hue) : undefined;
-    if (!named) throw new Error(`hue-sheet: ${manifest.component}.hues.${ALWAYS}.${slot} names hue "${String(hue)}", which ${HUES_FILE} does not declare`);
-    rules.push(block(slotClass(manifest.component, slot), named));
-  }
   for (const group of Object.keys(manifest.variants ?? {})) {
-    const values = group === ALWAYS ? undefined : mapped[group];
+    const values = mapped[group];
     if (!values) continue;
     for (const [value, hue] of Object.entries(values)) {
       if (value === 'on') continue;
@@ -78,30 +70,10 @@ export function hueRules(manifest: ComponentManifest, hues: Map<string, HueChann
   return rules.join('\n');
 }
 
-export function alwaysProblems(manifest: ComponentManifest, hueNames?: ReadonlySet<string>) {
-  const problems: string[] = [];
-  const fixed = manifest.hues?.[ALWAYS];
-  if (!fixed) return problems;
-  const name = manifest.component;
-  if (manifest.variants?.[ALWAYS]) problems.push(`${name} has a group named ${ALWAYS}, which hues reserves for the slots whose hue no value varies`);
-  const reached = groupSlots(manifest);
-  const hued = Object.keys(manifest.hues ?? {}).filter((group) => group !== ALWAYS);
-  for (const [slot, hue] of Object.entries(fixed)) {
-    if (!(slot in (manifest.slots ?? {}))) problems.push(`${name}.hues.${ALWAYS}.${slot} names a slot the manifest lacks`);
-    if (typeof hue !== 'string') problems.push(`${name}.hues.${ALWAYS}.${slot} names no hue, and a slot with no hue is left out rather than written initial`);
-    else if (hueNames && !hueNames.has(hue)) problems.push(`${name}.hues.${ALWAYS}.${slot} names hue "${hue}", which ${HUES_FILE} does not declare`);
-    for (const group of hued)
-      if ((reached[group] ?? []).includes(slot))
-        problems.push(`${name}.hues.${ALWAYS}.${slot} is a slot the hued group ${group} also reaches, so the hue it reads would follow rule order`);
-  }
-  return problems;
-}
-
 export function hueProblems(manifest: ComponentManifest, hues: Map<string, HueChannels>) {
-  const problems: string[] = alwaysProblems(manifest, new Set(hues.keys()));
+  const problems: string[] = [];
   const slots = Object.keys(manifest.slots ?? {});
   for (const [group, values] of Object.entries(manifest.hues ?? {})) {
-    if (group === ALWAYS) continue;
     const own = manifest.variants?.[group];
     if (!own) { problems.push(`${manifest.component}.hues.${group} names no group of the manifest`); continue; }
     for (const [value, hue] of Object.entries(values)) {

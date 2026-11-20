@@ -21,6 +21,7 @@ import { ArenaTable } from '../arena-table/ArenaTable';
 import { ArenaTableRow } from './ArenaTableRow';
 import { ArenaTableCell } from '../arena-table-cell/ArenaTableCell';
 import { assertPatternCases, ANGULAR_COMPONENTS } from '../../../test/Compliance';
+import { commandButtonVerdict } from '../../../test/StateVerdicts';
 
 const BINDING = join(ANGULAR_COMPONENTS, 'display/arena-table-row/ArenaTableRow.behaviour.json');
 const LABEL = 'Recent deployments';
@@ -163,7 +164,10 @@ test('arena-table-row meets all three of its declared shapes', async () => {
           return {
             root: el,
             subjects: { default: el },
-            behavioural: { 'keyboard.Enter': true, 'keyboard.Space': true, 'states.disabled': true },
+            behavioural: {
+              'keyboard.Enter': true, 'keyboard.Space': true, 'states.disabled': true,
+              'states.pressed': commandButtonVerdict(el),
+            },
           };
         },
 

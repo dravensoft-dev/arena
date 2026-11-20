@@ -1,7 +1,7 @@
 {
   "component": "ArenaPaletteScope",
   "slots": {
-    "root": "bg-base-100 text-base-content rounded-surface"
+    "root": "bg-[color:var(--surfaces-page-fill-rest,var(--fill-page))] text-[color:var(--surfaces-page-ink-rest,var(--ink-body))] rounded-surface"
   },
   "kind": {
     "root": "surface"

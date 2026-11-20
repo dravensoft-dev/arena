@@ -36,6 +36,9 @@ export const EXEMPT = new Map([
    'the file records a component one layer lacks, and every component exists in both layers, so '
    + 'it correctly does not exist. The prose that names it says so, and check:behaviour reads it '
    + 'only when present, which is what keeps the next absence loud.'],
+  ['contracts/design/color-slots.derived.json',
+   'a file the contracts and MCP packages write at build from color-slots.json, and the tree never '
+   + 'commits it (D30), so it is absent here by design and check:contracts-package holds the copy.'],
 ]);
 
 export const BARE_EXEMPT = new Map([

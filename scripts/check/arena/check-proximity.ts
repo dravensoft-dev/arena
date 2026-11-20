@@ -1,12 +1,13 @@
-/* Measures the vocabulary's cascade in Chromium: each case's tree for each layer, rebuilt with the
- * real component and family sheets plus the fixture's witness family, in both load orders, and
- * judged by the width of its subject or by a channel on it. Happy-dom implements no @scope and no
- * layout, so this is the only place proximity, boundaries and load order are proved; the suites
- * hold each layer's DOM to the tree measured here. A fixture with no recorded tree fails. The
- * markup cases measure the computed style of classes an adopter writes, in both orders and with
- * no layer; a null in a case's expect is unrecorded and fails with the map to paste. The page is
- * pinned at 800x600 on the fixture's own origin, where a face loads, and a markup case waits for
- * its subject's face, so a 100dvh and a ch measure the same on every machine. */
+/* Measures the vocabulary's cascade in Chromium: each case's tree for each layer, rebuilt with the real
+ * component and family sheets plus the fixture's witness family, in both load orders, and judged by the
+ * width of its subject or by a channel on it. Happy-dom implements no @scope and no layout, so this is the
+ * only place proximity, boundaries and load order are proved; the suites hold each layer's DOM to the tree
+ * measured here. A fixture with no recorded tree fails. The markup cases measure the computed style of
+ * classes an adopter writes, in both orders and with no layer; a null in a case's expect is unrecorded and
+ * fails with the map to paste. The page is pinned at 800x600 on the fixture's own origin, where a face
+ * loads, and a markup case waits for its subject's face, so a 100dvh and a ch measure the same on every
+ * machine. A forced hover finishes every finite animation before it is measured, or a part that eases
+ * its background reads its rest colour. */
 
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
@@ -27,12 +28,13 @@ import { readProximity, treeHtml, SUBJECT, type PartData, type ProximityCase, ty
 import { readManifests } from './check-measured-box.ts';
 import { loaded as loadFired } from './check-pixel-parity.ts';
 import type { ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';
+import { COLOR_SLOTS } from '../../lib/core/color-slots.ts';
 
 export const node = {
   name: 'check:proximity',
   reads: ['scripts/check/arena/proximity-cases.json', `${VOCABULARY_SHEETS}/**`, 'frameworks/tailwind/consume/**',
     'frameworks/tailwind/components/**/*.manifest.json', 'intro/styles.css', 'contracts/design-generated/**', 'contracts/design/*.css',
-    'plugin-style-store/complete/plugin.css', 'assets/fonts/*.woff2'],
+    'plugin-style-store/complete/plugin.css', 'assets/fonts/*.woff2', COLOR_SLOTS],
   writes: [],
   feeds: [],
 };
@@ -120,8 +122,10 @@ export function verdict(kase: ProximityCase, layer: string, order: Order, measur
     for (const [part, want] of Object.entries(kase.measure.others ?? {})) {
       const seen = measured.others?.[part] ?? [];
       if (seen.length === 0) return `${where}: the tree carries no ${part} beside the subject, so nothing measured ${kase.measure.property} on it`;
-      const wrong = seen.find((one) => one !== want);
-      if (wrong !== undefined) return `${where}: ${kase.measure.property} is "${wrong}" on a ${part} and the case expects "${want}"`;
+      const wants = typeof want === 'string' ? seen.map(() => want) : want;
+      if (wants.length !== seen.length) return `${where}: the tree carries ${seen.length} ${part} beside the subject and the case lists ${wants.length}`;
+      const at = seen.findIndex((one, i) => one !== wants[i]);
+      if (at >= 0) return `${where}: ${kase.measure.property} is "${seen[at]}" on a ${part} and the case expects "${wants[at]}"`;
     }
     return null;
   }
@@ -132,6 +136,16 @@ export function verdict(kase: ProximityCase, layer: string, order: Order, measur
   return measured.width < measured.container - 1 ? null
     : `${where}: the subject is ${measured.width}px wide, the container's width, and the case expects its own width`;
 }
+
+async function forceHover(cdp: Pick<Cdp, 'send'>, sessionId: string) {
+  await cdp.send('DOM.enable', {}, sessionId);
+  await cdp.send('CSS.enable', {}, sessionId);
+  const { root } = await cdp.send('DOM.getDocument', { depth: 0 }, sessionId) as { root: { nodeId: number } };
+  const { nodeId } = await cdp.send('DOM.querySelector', { nodeId: root.nodeId, selector: `[${SUBJECT}]` }, sessionId) as { nodeId: number };
+  await cdp.send('CSS.forcePseudoState', { nodeId, forcedPseudoClasses: ['hover'] }, sessionId);
+}
+
+export const FINISH_TRANSITIONS = 'document.getAnimations().filter((one) => Number.isFinite(one.effect?.getComputedTiming().endTime)).forEach((one) => one.finish())';
 
 const MEASURE = (property: string, parts: string[] = []) => `(() => {
   const subject = document.querySelector('[${SUBJECT}]');
@@ -218,6 +232,15 @@ export async function driveTab(cdp: Pick<Cdp, 'send' | 'on'>, plan: Plan) {
               `${kase.name}: the page never finished loading its sheets, within ${LOADED.ms}ms, which is that size because ${LOADED.why}`);
           });
           if (unloaded !== null) { problems.push(unloaded); continue; }
+          if (kase.hover) {
+            await forceHover(cdp, sessionId);
+            const seen = await evaluate(cdp, `JSON.stringify([document.querySelector('[${SUBJECT}]')?.matches(':hover'), matchMedia('(hover: hover)').matches])`, sessionId);
+            if (seen !== '[true,true]') {
+              problems.push(`${kase.name} (${layer}, ${order}): the subject is not :hover under a hover-capable pointer after it was forced (${String(seen)}), so the case would measure no hover`);
+              continue;
+            }
+            await evaluate(cdp, FINISH_TRANSITIONS, sessionId);
+          }
           const property = 'property' in kase.measure ? kase.measure.property : '--arena-fill-width';
           const parts = 'property' in kase.measure ? Object.keys(kase.measure.others ?? {}) : [];
           const result = await evaluate(cdp, MEASURE(property, parts), sessionId) as Measured | null;
@@ -269,7 +292,7 @@ async function main() {
   const witnessCss = families.map((family) => compileFamily(family, witnessManifests(family))).join('\n');
   const exe = browserOrExit('check-proximity');
   const server = await startStaticServer(root);
-  const chrome = await launchChromium(exe);
+  const chrome = await launchChromium(exe, undefined, { prefix: ['--blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4'] });
   const cdp = await connect(chrome.wsUrl);
   const plan = { port: server.port, cases, markup, classes, data, witnessCss, sheets };
   let outcome: Awaited<ReturnType<typeof driveTab>>;

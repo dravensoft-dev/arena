@@ -1,10 +1,10 @@
 {
   "component": "ArenaEmptyState",
   "slots": {
-    "root": "flex flex-col items-center text-center gap-items px-8 py-14 bg-surface border-[length:var(--bw-surface)] border-dashed border-edge-surface-floating rounded-surface shadow-surface-rest",
-    "icon": "text-[length:var(--icon-xl)] text-ink-muted/(--level-ink-muted) leading-ctl pb-0.5",
-    "title": "font-face-heading font-heading text-title-surface text-ink-heading tracking-heading leading-heading",
-    "message": "font-body text-md text-ink-muted/(--level-ink-muted) leading-prose max-w-[42ch]",
+    "root": "flex flex-col items-center text-center gap-items px-8 py-14 bg-[color:var(--feedback-neutral-banner-fill-rest,var(--fill-surface))] border-[length:var(--bw-surface)] border-dashed border-[color:var(--feedback-neutral-banner-edge-rest,var(--edge-surface-floating))] rounded-surface shadow-surface-rest",
+    "icon": "text-[length:var(--icon-xl)] text-[color:color-mix(in_oklab,var(--feedback-neutral-icon-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)] leading-ctl pb-0.5",
+    "title": "font-face-heading font-heading text-title-surface text-[color:var(--text-heading-ink-rest,var(--ink-heading))] tracking-heading leading-heading",
+    "message": "font-body text-md text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)] leading-prose max-w-[42ch]",
     "action": "mt-1.5"
   },
   "kind": {

@@ -5,6 +5,7 @@
   "element": "navigation",
   "requires": {
     "roles.element": "navigation (native nav, or role=navigation when nav cannot be used)",
-    "roles.label": "when more than one navigation landmark exists on a page, each carries a unique aria-label or aria-labelledby -- unless two share an identical set of links, in which case they share one label"
+    "roles.label": "when more than one navigation landmark exists on a page, each carries a unique aria-label or aria-labelledby -- unless two share an identical set of links, in which case they share one label",
+    "states.current": "the item for the current page or step carries aria-current"
   }
 }

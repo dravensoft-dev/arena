@@ -8,7 +8,7 @@
     "eyebrow": { "form": "primitive", "type": "string", "description": "The short kicker above the title." },
     "confirmLabel": { "form": "primitive", "type": "string", "description": "The confirming button." },
     "cancelLabel": { "form": "primitive", "type": "string", "description": "The cancelling button." },
-    "destructive": { "form": "primitive", "type": "boolean", "default": false, "description": "Whether confirming is the final irreversible step, drawn as the one filled danger surface." },
+    "destructive": { "form": "primitive", "type": "boolean", "default": false, "description": "Whether confirming is the final irreversible step, drawn as the destructive option of the actions group." },
     "requireText": { "form": "primitive", "type": "string", "description": "Text the reader must type before the confirming button is enabled." }
   }
 }

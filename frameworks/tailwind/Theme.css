@@ -61,7 +61,7 @@
   --color-error: var(--color-error);
   --color-error-content: var(--color-error-content);
 
-  /* the system's only filled danger surface — ArenaConfirmDialog's final step */
+  /* the fill of ArenaConfirmDialog's final step */
   --color-error-fill: var(--color-error-fill);
 
   --color-neutral: var(--color-neutral);
@@ -150,12 +150,17 @@
   --color-field: var(--fill-field);
   --color-hover: var(--fill-hover);
   --color-track: var(--fill-track);
+  --color-selected: var(--fill-selected);
 
   /* The wash a media frame draws under anything laid over it. A colour key rather than one of
      its own, because bg-* is the namespace that paints it; the OPACITY stays in the manifest,
      so which colour and how held back are two decisions rather than one baked into a token
      nothing could measure the contrast of. */
   --color-overlay-media: var(--overlay-media);
+
+  /* The wash a modal lays over the page it interrupts. The manifests read it through the
+     overlays scrim slot at level-scrim, so this key only exposes the role to a utility. */
+  --color-overlay-scrim: var(--overlay-scrim);
 
   /* Ink ROLES, so text-* asks which text is being coloured rather than which palette step it
      takes. A hundred and twenty-two slots pointed at base-content directly, which is why a voice
@@ -170,6 +175,8 @@
   --color-ink-action: var(--ink-action);
   --color-ink-key: var(--ink-key);
   --color-ink-link: var(--ink-link);
+  --color-ink-selected: var(--ink-selected);
+  --color-ink-invalid: var(--ink-invalid);
 
   /* Edge ROLES. v4 has no border-color namespace: a border colour is a --color-* key read by
      border-<key>, which is why these sit here rather than beside the bw roles they pair with. */
@@ -182,8 +189,9 @@
   --color-edge-axis: var(--edge-axis);
   --color-edge-tab-selected: var(--edge-tab-selected);
   --color-edge-marker: var(--edge-marker);
-  --color-confirm-final: var(--fill-confirm-final);
-  --color-ink-confirm-final: var(--ink-confirm-final);
+  --color-edge-focus: var(--edge-focus);
+  --color-edge-selected: var(--edge-selected);
+  --color-edge-invalid: var(--edge-invalid);
 
   /* overlay scrim → contracts/design-generated/effects.generated.css */
   --color-scrim: var(--scrim);

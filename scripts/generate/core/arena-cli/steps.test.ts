@@ -11,6 +11,9 @@ import type { TokenCatalogue } from './theme-css.ts';
 import { vocabularyIndex } from '../../../lib/arena/vocabulary-index.ts';
 import { componentMap } from '../../../lib/arena/component-map.ts';
 import { repoRoot } from '../../../lib/arena/repo-root.ts';
+import { tokenCatalogue } from '../../../lib/arena/package-assembly.ts';
+
+const SLOTS = tokenCatalogue().slots;
 
 after(removeFixtures);
 
@@ -117,6 +120,7 @@ test('a typo that is a source\'s only Arena tag is still reported when no compon
 });
 
 const CATALOGUE: TokenCatalogue = {
+  slots: SLOTS,
   tokens: { 'spacing-gap': '4px' },
   roles: { 'ink-muted': { type: 'color' } },
   aliases: { 'text-soft': 'ink-muted' },

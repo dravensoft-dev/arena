@@ -6,7 +6,8 @@
  * than an average nobody experiences. A budget the tree has fallen far under fails as a stale
  * allowance, the shape SIZE_ALLOWANCE has in check-docs.ts, so decomposing a document returns the
  * pressure instead of ending it. A reason says why its number is right today, so it names no
- * figure, carries no raise and stays short: the history of a budget is the commit that moved it. */
+ * figure, carries no raise and stays short: the history of a budget is the commit that moved it.
+ * REASON_MAX_CHARS holds a reason to a paragraph, and a route whose stops state more moves material. */
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -51,7 +52,7 @@ export const ENTRIES: Entry[] = [
   {
     name: 'consumer',
     router: 'skills/design/SKILL.md',
-    budget: 21_700,
+    budget: 21_600,
     reason:
       'the page every consumer route opens with, declared once, not as the first stop of '
       + 'each route. What a route pays past it is its own, and each is argued where spent. '
@@ -66,7 +67,7 @@ export const ENTRIES: Entry[] = [
       + 'extends, as wrapped-link stands beside router-link. The vocabulary families name which '
       + 'style decision reaches which component owner and answer the route\'s questions about '
       + 'appearance sources at the decision layer. The tokens-only rule names the bracket values '
-      + 'audit holds. Rows route a mock, a toolchain and a bundler to their pages. The router-link rule names each member '
+      + 'audit holds. Rows route a mock, toolchain, bundler, panel, toggle and layer. The router-link rule names each member '
       + 'with an href, and the icon rule names production code and the component that draws a glyph.',
   },
   {
@@ -124,7 +125,7 @@ export const ROUTES: Route[] = [
       'skills/design/references/config.md',
       'skills/design/references/cli.md',
     ],
-    budget: 51_000,
+    budget: 51_300,
     reason:
       'paid once per project, not per screen, so it carries what the build route may not: '
       + 'the install, the config file and the command. The config block is copied whole. '
@@ -137,7 +138,7 @@ export const ROUTES: Route[] = [
       + 'reach the sprite\'s filled weight and when an icon expression widens that set or stills the '
       + 'glyph report, and its audit section covers the two rules that read a plugin\'s names. '
       + 'The config reference tables every '
-      + 'key, the names the build refuses and the roles that carry a default. The install and command '
+      + 'key, the names the build refuses and the 29 roles that carry a default, which it names. The install and command '
       + 'references name the arena-defaults layer the defaults sit in, which the Tailwind entry '
       + 'states first.',
   },
@@ -147,20 +148,19 @@ export const ROUTES: Route[] = [
       + 'document that says what the questions are and which answers carry the difference',
     entry: 'consumer',
     stops: ['skills/design/references/style-kernel.md'],
-    budget: 20_500,
+    budget: 19_300,
     reason:
       'paid once per project and never per screen, which lets it carry the whole surface the kernel '
       + 'exposes, not a pointer to it, so a project stops learning the kernel from a normative '
-      + 'contributor document. It states which scale each role draws from, that a reading floor '
+      + 'contributor document. It links the plugin branch for which scale each role draws from, and states that a reading floor '
       + 'refuses the build rather than reporting, which answers a project may inherit and which it '
       + 'has to make, and how the one exception to the scale rule is keyed. The differentiation table '
       + 'is a measurement over the catalogue, so it grows by remeasuring and not by writing. The '
       + 'number is what the stops measure with room for the kernel to grow a section, and it moves '
       + 'when it grows a question, not a paragraph. The root rule says where a role\'s default is '
-      + 'written and states first, in a region generated with the config page\'s, which roles carry a '
-      + 'default and that the root answers the rest. It says where a project with no clone fetches '
-      + 'the default plugin. The roster grows per role. The hand checklist names each unanswered '
-      + 'role. A plugin class goes on any element. It says what each kind of role may be answered '
+      + 'written and states first, in a region generated with the config page\'s, which of 29 roles carry a '
+      + 'default and that the root answers the rest. It says where a clone-less project fetches '
+      + 'the default plugin. The roster grows per role. The setup checklist names each unanswered role. It says what each kind of role may be answered '
       + 'with, which the roster omits. It names the selected tab\'s rule and its default, and says a '
       + 'plugin\'s own percentage stays put.',
   },
@@ -170,7 +170,7 @@ export const ROUTES: Route[] = [
       + 'then the page that says what Arena hands over instead of a component',
     entry: 'consumer',
     stops: ['skills/design/references/media-register.md'],
-    budget: 12_500,
+    budget: 12_700,
     reason:
       'paid once per project, by a reader the router has just told to write their own markup. It '
       + 'buys that the honest sentence sending them away from the component list stops costing '
@@ -180,10 +180,9 @@ export const ROUTES: Route[] = [
       + 'that look like the answer and are not, and the viewer that opens a picture at full size with '
       + 'the answers every walk otherwise invents: what dims the page, whether the picture is '
       + 'contained, what a control over it stands on, and which two patterns it still binds, roles and modal focus. It also says '
-      + 'where a value no step names is set. The number is what the stops measure, and it grows when '
-      + 'the register gains a part to hand over rather than when the page gains a paragraph. The feed\'s keys are written out as a function, because the component '
+      + 'where a value no step names is set. The number is what the stops measure. The feed\'s keys are written out as a function, because the component '
       + 'binding them ships compiled and no export hands them over, and the Angular component binding '
-      + 'them is shown whole. It answers the four media roles in a fragment, and places video and illustration in the figure.',
+      + 'them is shown whole. It answers the four media roles in a fragment, and places video and illustration in the figure. It ends with one line sending states to the markup states page.',
   },
   {
     name: 'consumer-seo',
@@ -212,20 +211,21 @@ export const ROUTES: Route[] = [
       + 'every part Arena ships, the three steps a project can stop at, and where Arena stops',
     entry: 'consumer',
     stops: ['skills/design/references/surface.md'],
-    budget: 11_650,
+    budget: 11_800,
     reason:
       'paid once per project and taken before the skin, register and seo routes, because each of '
       + 'them asks how much of a thing nobody has shown the reader yet. What it buys is that a '
       + 'consumer stops learning the offer by running out of it: every part Arena ships is named in '
       + 'one place, beside the document that owns it. The page is an index rather than a tutorial, '
-      + 'which is what keeps it inside this budget and keeps it from becoming a second router. It '
+      + 'which keeps it inside this budget and from becoming a second router. It '
       + 'also carries where Arena stops, each line a decision rather than a gap, because a limit kept '
       + 'in a component prompt is reached after the project has planned around it, and a page '
       + 'promising the whole line is falsified by any part of it kept elsewhere. The number is what '
       + 'the stops measure with room for one part, and it grows when Arena ships something new rather '
       + 'than when the page explains something better. The row naming the layout container and the '
       + 'spacing scale\'s half step are what the page spends beyond the parts it already listed. '
-      + 'The icon line says where the sprite comes from and that the components reach no dependency.',
+      + 'The icon line says where the sprite comes from and that the components reach no dependency. '
+      + 'The token layer row names the token tree beside the scales it lists. The audit line names what a source text shows.',
   },
   {
     name: 'consumer-stack',
@@ -234,7 +234,7 @@ export const ROUTES: Route[] = [
       + 'each of those answers has',
     entry: 'consumer',
     stops: ['skills/design/references/stack.md'],
-    budget: 13_300,
+    budget: 13_400,
     reason:
       'paid once per project like the surface, skin, register and seo routes, and taken beside the '
       + 'cold start tree rather than after it, because a toolchain settled after the first screen is '
@@ -245,7 +245,7 @@ export const ROUTES: Route[] = [
       + 'the render architecture, which are nodes of the cold start tree. The peers table says which '
       + 'peer is required and which optional, and why a command names no framework peer. Each bundler '
       + 'row names its evidence and the family page holding its config, which the bundler route pays for. '
-      + 'A bundler row measured by an adopter repository names the run: its date, the bundler version and the Arena tree. A row its latest run did not build keeps the date of the run that measured it.',
+      + 'A bundler row measured by an adopter repository names the run: its date, the bundler version and the Arena tree. A row its latest run did not build keeps the date of the run that measured it. The audit line names what a source text shows.',
   },
   {
     name: 'consumer-bundler',
@@ -273,22 +273,46 @@ export const ROUTES: Route[] = [
       + 'column it sits in and how much air goes between two components',
     entry: 'consumer',
     stops: ['skills/design/references/page.md', 'skills/design/references/style.md'],
-    budget: 25_600,
+    budget: 20_900,
     reason:
       'paid per element a builder draws themselves, which every screen has. It buys the half of a '
-      + 'page no component draws: which colour role each thing a builder draws takes and which level '
-      + 'holds it back, since a bare muted ink paints a caption at body strength; the three rhythm '
-      + 'steps as classes and as custom properties; the row as the horizontal half of those steps '
-      + 'rather than a wrapping line; what to wrap when the element is a component; the block air the '
-      + 'band leaves; the gutter as a ceiling; and which frame the viewport shows, through the theme '
-      + 'sheet\'s variants, where a value no step names is set, and the rule that paints the floor '
-      + 'with where each layer puts it. The page names the selected tab\'s rule and which aliases '
-      + 'follow a palette\'s level. The style reference holds the layout container, the page column\'s '
-      + 'width and each layer\'s sizing section, and names each layer\'s breakpoint helper and the '
-      + 'quiet ink level. It prints the default plugin\'s layout answers and sends density values to '
-      + 'the token table. Arena paints no selection or scrollbar, so a recipe gives one. It says '
-      + 'which palette, style plugin and density an overlay takes from its trigger, and where an '
-      + 'island paints its ground.',
+      + 'page no component draws: the floor and where each layer puts it, which frame the viewport '
+      + 'shows through the theme sheet\'s variants, the three rhythm steps as classes and as custom '
+      + 'properties, the row as the horizontal half of those steps, what to wrap when the element is '
+      + 'a component, the block air the band leaves and the gutter as a ceiling. The colour roles, '
+      + 'the level and the meaning set sit in the markup tree this page links, so the number is what '
+      + 'the stops measure without them. The style reference holds the layout container, the page '
+      + 'column\'s width and each layer\'s sizing section, names each layer\'s breakpoint helper and '
+      + 'the quiet ink level, and sends density values to the density page. Arena paints no '
+      + 'selection or scrollbar, so a recipe gives one. It says which palette, style plugin and '
+      + 'density an overlay takes from its trigger, and where an island paints its ground. The page sends a panel, a toggle and a layer to the token tree, which owns what each is painted with.',
+  },
+  {
+    name: 'consumer-paint-panel',
+    who: 'a builder painting a panel of their own markup: the router, then the markup tree index and the pages for surfaces and text, type, edges, space and layout, and depth and motion',
+    entry: 'consumer',
+    stops: ['skills/design/references/tokens/markup/index.md', 'skills/design/references/tokens/markup/surfaces-and-text.md', 'skills/design/references/tokens/markup/type.md', 'skills/design/references/tokens/markup/edges.md', 'skills/design/references/tokens/markup/space-and-layout.md', 'skills/design/references/tokens/markup/depth-and-motion.md'],
+    budget: 20_700,
+    reason:
+      'paid per panel a builder draws themselves. It buys the whole of what paints one: the ground and the ink on it, the title it carries and its size and weight, the edge and its radius, the air inside and around it, and the depth and motion it carries, each read at the page that owns it and not through the page, style and token references. On each leaf the route buys the question of every role, its utility and how it combines with the others, and the paragraph that composes them. The number is what the stops measure and moves when a page of the tree grows a decision, not a paragraph. The markup index, the first stop, carries one row more for the units page, which this panel route does not read. Its read-this line for the states page names the keyboard focus, the pressed toggle and the other states that page answers. The surfaces and text page carries the overlay-scrim role, the wash a modal lays over the page, which the leaf lists with its question like every other role.',
+  },
+  {
+    name: 'consumer-own-toggle',
+    who: 'a builder who owns a toggle of their own and draws every state of it: the router, then the markup tree index and the pages for states, edges, depth and motion, and space and layout',
+    entry: 'consumer',
+    stops: ['skills/design/references/tokens/markup/index.md', 'skills/design/references/tokens/markup/states.md', 'skills/design/references/tokens/markup/edges.md', 'skills/design/references/tokens/markup/depth-and-motion.md', 'skills/design/references/tokens/markup/space-and-layout.md'],
+    budget: 17_300,
+    reason:
+      'paid once per control a builder draws without a component. It buys the states a control wears, hover and the pressed lift and scale, with the motion and the space of each change, and the outline the control draws, its edge colour, width and radius, each role with its question, utility and combination and the paragraph that composes the leaf. Focus, selected, disabled and invalid each have a role on the states page, so a control of this kind reads them there and draws none itself. Each is read from the page that owns it instead of the media register, the page and the kernel. The data files beside the pages are not stops, since the gate charges the Markdown only. The markup index, the first stop, carries one row more for the units page, which a toggle does not need. The states page carries eleven roles with their utilities and a table that maps each state attribute to its selector and roles, which is what a control of this kind reads to draw focus, selection, the disabled fade and an invalid field. The page also carries one html toggle, with its label and its aria-invalid edge, that shows every state.',
+  },
+  {
+    name: 'consumer-layer',
+    who: 'a builder placing a layer over the page: the router, then the markup tree index and the layers page',
+    entry: 'consumer',
+    stops: ['skills/design/references/tokens/markup/index.md', 'skills/design/references/tokens/markup/layers.md'],
+    budget: 4_000,
+    reason:
+      'paid per overlay, sticky bar or panel a builder places. It buys the order layers stack in and what each one rests on, in one page, without the token reference and the shell page. The number is what the two stops measure and moves when the layers page grows a rule. The markup index is half of this route, and its row for the units page is part of what the two stops measure.',
   },
   {
     name: 'consumer-coldstart',
@@ -329,18 +353,17 @@ export const ROUTES: Route[] = [
       + 'layer that binds it',
     entry: 'contributor',
     stops: ['frameworks/AGENTS.md', 'frameworks/*/AGENTS.md'],
-    budget: 77_800,
+    budget: 79_000,
     reason:
       'the most-walked contributor route paid by '
-      + 'whoever changes Arena. No category\'s own tour: the '
-      + 'chart family has frameworks/CHARTS.md. What it carries is what every component meets: the ordered '
+      + 'whoever changes Arena. What it carries is what every component meets: the ordered '
       + 'steps a new component takes, including the barrel chain an Angular primitive needs and its '
       + 'suites; the architecture envelope, since a module-scope browser global '
-      + 'throws in a server render; when a primitive is an attribute on a native element; and the Angular default '
+      + 'throws on a server; when a primitive is an attribute on a native element; and the Angular default '
       + 'written twice, as initial value and fallback, a pair no gate holds. The roof '
       + 'carries what binds both layers and each layer carries its own envelope and peer, '
       + 'the split that keeps the pair from going stale in one. The roof states the '
-      + 'attribute the layers build from different values, what a browser proves about focus, the contract modal focus answers and why a radio group is one stop; each layer, the binding that interpolates a property name and why a root module has one consumer, and every method a component exposes, and the classes an open pane wears. The Tailwind page names the :scope part selector a family\'s block writes and why a bundler needs it. The kitchen-sink page holds the gate flags. The Angular page holds the marker rule.',
+      + 'attribute the layers build from different values, what a browser proves about focus, the contract modal focus answers and why a radio group is one stop; each layer, the binding that interpolates a property name and why a root module has one consumer, and every method a component exposes, and the classes an open pane wears. The Tailwind page names the :scope part selector a family\'s block writes, why a bundler needs it, bare reads, the three shapes a focus ring takes and the state-literal rule. The kitchen-sink page holds the gate flags. The Angular page holds the marker rule.',
   },
   {
     name: 'contributor-authoring',
@@ -367,21 +390,16 @@ export const ROUTES: Route[] = [
       + 'and the shape a token is authored in',
     entry: 'contributor',
     stops: ['contracts/AGENTS.md', 'contracts/design/AGENTS.md', 'contracts/design/TokenTypes.md'],
-    budget: 71_100,
+    budget: 77_400,
     reason:
       'the normative half of the tree, where a stop is read for what a value means rather than for '
-      + 'how to write one, so it is bounded by what a person can hold rather than by what an agent '
-      + 'can afford. The level answers two readers: a contributor deciding a value, and a platform '
-      + 'target that reads contracts/design/ first and is not a browser. So TokenTypes.md states the '
-      + 'one departure from DTCG and why, the axis a reader asking for larger text moves and what it '
-      + 'obliges on each platform, and the shapes in the type map that read one way on the web and '
-      + 'another elsewhere. The specification states the muted levels as floors a palette moves up '
-      + 'and never down, target size as the axis density answers, and what DTCG deliberately does not '
-      + 'model. It states the frame shapes and the roles a kind answers, and '
-      + 'names the filled status mark beside the presence dot. The type map names the keyword tokens a '
-      + 'role may default to and the half spacing step. The ramp paragraph states how a chart '
-      + 'counts a positional slot, which is part of what a slot means. It names the glyph component and its sprite. '
-      + 'The design level states the contrast floors as measured over the catalogue.',
+      + 'how to write one, so it is bounded by what a person can hold, not what an agent can afford. The level answers two readers: a contributor deciding a value, and a platform '
+      + 'target that reads contracts/design/ first and is not a browser. Each stop carries what one of '
+      + 'them cannot do without: TokenTypes.md the one departure from DTCG and what larger text obliges '
+      + 'on each platform, the design level the floors, frames and roles a value is measured against and '
+      + 'the hex each accent is tuned to, the roof the map of the tree. The slot tier keeps its summary '
+      + 'and its gate on the design level, and its part-by-part material lives on ColorSlots.md, which '
+      + 'no route charges, so the number follows the decisions a value rests on and not the slots.',
   },
   {
     name: 'contributor-gate',
@@ -389,7 +407,7 @@ export const ROUTES: Route[] = [
       + 'the domain the gate lands in',
     entry: 'contributor',
     stops: ['scripts/AGENTS.md', 'scripts/check/AGENTS.md', 'scripts/check/*/AGENTS.md'],
-    budget: 98_900,
+    budget: 101_300,
     reason:
       'the route a contributor takes most often after the component one, and the one whose last '
       + 'stop grows every time a gate lands, because each gate has a row in its domain\'s table. The '
@@ -397,12 +415,11 @@ export const ROUTES: Route[] = [
       + 'rather than the growth it is there to report. A row states the claim and the failure the '
       + 'gate exists for, and the rest of its argument belongs to the gate\'s own reason strings, '
       + 'which its paired suite asserts by name; check:docs caps a table cell, so a row cannot '
-      + 'become the page. Measure the longest row of a domain table before writing one. The rows of the arena domain table '
+      + 'become the page. The rows of the arena domain table '
       + 'state what their gates refuse, and the check page carries its section on the sweep running '
       + 'side by side, its pools and --jobs. The focus-trap row names both questions that gate puts '
-      + 'to a real browser, the trap and the handoff of a refused hidden control. The target-size and '
-      + 'contained-parts rows say why only a real browser answers them and name what each excepts. The palette-islands row names what it reads and what it does not. The scripts page names the two Angular runs, the emitted verdict, '
-      + 'the JIT loop a task runs and the file-URL rule.',
+      + 'to a real browser, the trap and the handoff of a refused hidden control. The token-tree row states its seven claims, and the route buys that one row of headroom. The scripts page names the two Angular runs, the emitted verdict, '
+      + 'the JIT loop a task runs and the file-URL rule. The text-scale row states the sweep at twice the browser default, its spill judge and the md probe it reads from the compiled sheet. Rows state the slot tier.',
   },
   {
     name: 'contributor-tailwind',
@@ -410,14 +427,18 @@ export const ROUTES: Route[] = [
       + 'then the one layer that owns an appearance decision for both frameworks at once',
     entry: 'contributor',
     stops: ['frameworks/tailwind/AGENTS.md'],
-    budget: 49_600,
+    budget: 52_300,
     reason:
       'the row a contributor takes when a shape, a colour or a state is wrong and the API is not. '
       + 'The file a corner radius actually moves in is a style plugin under plugin-style-store, '
       + 'because the appearance Arena installs with is itself a plugin, and a cold walk found no page '
       + 'on the way saying so. One stop, and it is the largest single page on the contributor branch, '
       + 'so what this budget holds down is the document most likely to grow by a hazard nobody routes '
-      + 'to and everybody meets. It states the axis, keyed and transparent rules of the vocabulary.',
+      + 'to and everybody meets. It states the axis, keyed and transparent rules of the vocabulary. '
+      + 'The focus rows name the edge-focus and bw-focus roles and the grep that finds each ring. '
+      + 'It states the rule that check:roles refuses a state drawn with a literal level, and the whole '
+      + 'vocabulary of states, modifiers and literal forms that rule covers. The focus row also states '
+      + 'that a ring never sits on a filled ground and which shape that takes. It states that a part whose family writes a default block reads its channels bare (colour slots, plan 5.1b).',
   },
   {
     name: 'contributor-behaviour',

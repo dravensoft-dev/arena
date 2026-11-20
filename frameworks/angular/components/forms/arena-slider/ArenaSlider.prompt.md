@@ -43,8 +43,6 @@ A number chosen inside a range by moving a thumb, or a span chosen with two thum
 
 **Answers** [`size`](../../../../VOCABULARY.md#size): `arena-size-lg`, `arena-size-md` (default), `arena-size-sm`. Write one as `class="arena-size-lg"` on the component, or on a container whose components should all take it.
 
-**Answers** [`accent`](../../../../VOCABULARY.md#accent): `arena-accent-plain`, `arena-accent-primary` (default). Write one as `class="arena-accent-plain"` on the component, or on a container whose components should all take it.
-
 <!-- @answers end -->
 
 <!-- @keys GENERATED from the binding. -->
@@ -67,7 +65,7 @@ A number chosen inside a range by moving a thumb, or a span chosen with two thum
 - **The readout.** `valueFormat`, `valuePrefix` and `valueSuffix` write the readout and the reading of each thumb. A format with no `locale` follows the `ArenaLocale` locale. A range reads as one span through the locale's own pattern.
 - **Reactive forms.** With `ArenaSliderControl` from `@dravensoft/arena-angular/forms`, `formControl`, `formControlName` and `ngModel` bind the slider. The control's value is a number, or a `[start, end]` array for a range. A `null` puts each thumb back at its own bound. `disable()` disables every thumb, and leaving a thumb marks the control touched.
 - **What a form submits.** `name` rides on a hidden input holding the number. A range posts two values under that one name, the start first.
-- **One primary accent per view.** The fill takes the primary accent by default, as a ticked box does. Set `arena-accent-plain` on the container of a settings panel that holds several sliders.
+- **The fill paints as a ticked box does.** The fill is the `choices` group's box at `selected`, the rail is the box at rest, and the thumb is the knob of a switch that is on.
 - **Why no range input.** `arena-input` has no `range` type. A native range cannot paint its filled part without a gradient, so this component stands in for it.
 
 **Do / Don't**

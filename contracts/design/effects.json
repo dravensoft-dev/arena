@@ -21,13 +21,24 @@
     "3": { "$value": { "offsetX": { "value": 0, "unit": "px" }, "offsetY": { "value": 30, "unit": "px" }, "blur": { "value": 60, "unit": "px" }, "spread": { "value": -20, "unit": "px" }, "color": { "colorSpace": "srgb", "components": [0, 0, 0], "alpha": 0.7 } } }
   },
   "scrim-blur": { "$type": "dimension", "$extensions": { "com.dravensoft.arena": { "userScale": "fixed" } }, "$value": { "value": 6, "unit": "px" },
-    "$description": "The blur behind an overlay scrim (the scrim's colour is --scrim in colors.css, the palette's base-100 at 60%). The blur is what separates a\nmodal from a coachmark: ArenaDialog/ArenaConfirmDialog/ArenaCommandPalette pair the scrim\nwith --scrim-blur, ArenaOnboarding uses the scrim alone, because a tour that\nblurs the product it is touring defeats itself." },
+    "$description": "The blur behind an overlay scrim (the scrim's colour is --scrim in colors.css, the overlay-scrim role held at level-scrim). The blur is what separates a\nmodal from a coachmark: ArenaDialog/ArenaConfirmDialog/ArenaCommandPalette pair the scrim\nwith --scrim-blur, ArenaOnboarding uses the scrim alone, because a tour that\nblurs the product it is touring defeats itself." },
   "focus": {
     "$type": "dimension",
     "$extensions": { "com.dravensoft.arena": { "userScale": "fixed" } },
     "$description": "Focus",
     "width": { "$value": { "value": 2, "unit": "px" } },
     "offset": { "$value": { "value": 2, "unit": "px" } }
+  },
+  "opacity": {
+    "$type": "number",
+    "$description": "Opacity",
+    "disabled": { "$value": 0.45, "$description": "The share of its opacity a disabled control keeps. A disabled control is exempt from contrast under WCAG 1.4.3 and 1.4.11, so the share is a fade and never a colour." }
+  },
+  "blend": {
+    "$type": "number",
+    "$description": "How far a part's fill moves toward the ink it draws, as a fraction of that ink. Read through the mix-hover and mix-pressed roles, so a style plugin answers each state's share.",
+    "hover": { "$value": 0.08, "$description": "The share a fill moves toward its ink under the pointer." },
+    "pressed": { "$value": 0.16, "$description": "The share a fill moves toward its ink while pressed: twice the hover share, so a press reads firmer than a hover." }
   },
   "dur": {
     "$type": "duration",

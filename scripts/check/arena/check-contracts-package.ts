@@ -11,7 +11,7 @@ import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
-import { collectFiles } from '../../lib/arena/package-assembly.ts';
+import { collectFiles, DERIVED_SLOTS, derivedSlotsText } from '../../lib/arena/package-assembly.ts';
 import {
   CATALOGUE, DIST, NAME, NOT_CARRIED, carriedFiles, catalogue, manifest, unmatchedExclusions,
   unusedNotShared,
@@ -56,7 +56,7 @@ export function zeroDerivedProblems(count: number) {
 export function payloadProblems(dir: string, expected: string[], repo = root) {
   const problems: string[] = [];
   const present = collectFiles(dir).map((f) => relPosix(dir, f)).sort();
-  const contracts = present.filter((p) => !NON_CONTRACT.includes(p));
+  const contracts = present.filter((p) => !NON_CONTRACT.includes(p) && p !== DERIVED_SLOTS);
 
   for (const rel of expected) {
     if (!contracts.includes(rel)) { problems.push(`${rel} is in the tree and not in the package`); continue; }
@@ -71,6 +71,17 @@ export function payloadProblems(dir: string, expected: string[], repo = root) {
     if (!present.includes(rel)) problems.push(`the package carries no ${rel}`);
   }
   return problems;
+}
+
+export function derivedProblems(dir: string, repo = root) {
+  const at = join(dir, DERIVED_SLOTS);
+  if (!existsSync(at)) {
+    return [`the package carries no ${DERIVED_SLOTS}, so a platform target would read the declarations and have to derive the slots itself`];
+  }
+  if (readFileSync(at, 'utf8') !== derivedSlotsText(repo)) {
+    return [`${DERIVED_SLOTS} in the package differs from what readColorSlots derives from the tree`];
+  }
+  return [];
 }
 
 export function catalogueProblems(dir: string, expected: string[], repo = root) {
@@ -129,7 +140,8 @@ export function collect(repo = root) {
   if (assembled) {
     problems.push(
       ...payloadProblems(dir, expected, repo),
-      ...catalogueProblems(dir, expected, repo),
+      ...derivedProblems(dir, repo),
+      ...catalogueProblems(dir, [...expected, DERIVED_SLOTS].sort(), repo),
       ...manifestProblems(dir, repo),
     );
   }

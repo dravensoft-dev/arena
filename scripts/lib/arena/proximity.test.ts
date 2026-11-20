@@ -4,7 +4,7 @@
  * gives a control its own width. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { normalize, treeHtml, DESTRUCTIVE, TONE, readProximity, vocabularyClasses, type NodeLike } from './proximity.ts';
+import { normalize, treeHtml, DESTRUCTIVE, TONE, readProximity, markDotAnswers, channelBindings, vocabularyClasses, type NodeLike } from './proximity.ts';
 
 const node = (tag: string, attrs: Record<string, string> = {}, children: NodeLike[] = [], text = ''): NodeLike => ({
   nodeType: 1, tagName: tag.toUpperCase(), getAttribute: (n) => attrs[n] ?? null, hasAttribute: (n) => n in attrs,
@@ -71,8 +71,25 @@ test('a part keeps a tone that states something, and the gate writes it over the
   const badge = node('span', { 'data-arena-part': 'badge', 'data-arena-tone': 'success' });
   const quiet = node('span', { 'data-arena-part': 'badge', 'data-arena-tone': 'neutral' });
   assert.deepEqual(normalize(node('div', {}, [badge, quiet]), new Set()), {
-    tag: 'div', children: [{ tag: 'span', part: 'badge', tone: 'success' }, { tag: 'span', part: 'badge' }],
-  });
+    tag: 'div', children: [{ tag: 'span', part: 'badge', axes: { 'data-arena-tone': 'success' }, tone: 'success' }, { tag: 'span', part: 'badge' }],
+  }, 'a root part is hooked by the component name alone, so its option axis is kept too');
   const html = treeHtml({ tag: 'span', part: 'badge', tone: 'success' }, () => '', () => ({ [TONE]: 'neutral' }));
   assert.equal(html, '<span data-arena-part="badge" data-arena-tone="success"></span>');
+});
+
+test('an aria-disabled member keeps its disabled flag from aria-disabled, and the gate writes it back as aria-disabled', () => {
+  const item = (attrs: Record<string, string>) => normalize(node('div', {}, [node('button', { 'data-arena-part': 'bottom-nav.item', ...attrs })]), new Set());
+  assert.deepEqual(item({ 'aria-disabled': 'true' }), { tag: 'div', children: [{ tag: 'button', part: 'bottom-nav.item', disabled: true }] });
+  assert.deepEqual(item({ 'aria-disabled': 'false' }), { tag: 'div', children: [{ tag: 'button', part: 'bottom-nav.item' }] });
+  assert.equal(normalize(node('button', { 'data-arena-part': 'button', 'aria-disabled': 'true' }), new Set())?.disabled, undefined, 'aria-disabled marks no other part disabled');
+  assert.equal(treeHtml({ tag: 'button', part: 'bottom-nav.item', disabled: true }, () => ''), '<button data-arena-part="bottom-nav.item" aria-disabled="true"></button>');
+  assert.equal(treeHtml({ tag: 'button', part: 'button', disabled: true }, () => ''), '<button data-arena-part="button" disabled=""></button>');
+});
+
+test('the series case binds exactly the answers the catalogue derives for every marks dot', () => {
+  const kase = readProximity().cases.find((one) => one.name === 'series-parts-take-no-slot-answer')!;
+  const binds = (tree: { vars?: string; children?: unknown[] } | null): string[] => tree === null ? [] : [...(tree.vars ? [tree.vars] : []), ...(tree.children ?? []).flatMap((one) => binds(one as never))];
+  const want = channelBindings(Object.entries(markDotAnswers()).map(([name, value]) => `${name}:${value}`).join(';'));
+  assert.ok(want.length > 0);
+  for (const tree of [kase.react, kase.angular]) assert.deepEqual(binds(tree as never), [want]);
 });

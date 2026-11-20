@@ -16,6 +16,9 @@ has a row in `FILES` in `scripts/generate/arena/generate-tokens.ts`, so no sheet
 class exists, and nothing in this repository renders one. What this repository renders is the two
 below; what it publishes for somebody else to run is the catalogue.
 
+`check:text-contrast` and `check:boundary-contrast` refuse a pair under its bar in `default` alone.
+`complete` and the catalogue are measured and reported, and pass.
+
 A plugin is a directory holding two files. [`default/plugin.tokens.json`](./default/plugin.tokens.json)
 answers roles. `plugin.css` beside it is CSS of the plugin's own, written against the
 `data-arena-part` hook every slot carries, and the build wraps it in the reserved cascade layer:

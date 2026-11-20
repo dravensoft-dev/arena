@@ -1,32 +1,30 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { basename, dirname, join } from 'node:path';
-import { DANGER_FLOOR, KEBAB, POLARITY_HOOKS, RESERVED, floorProblems, highContrastFor, nameProblems, reservedProblems, rootOnlyFor, withDefaults } from './style-plugin-rules.ts';
+import { KEBAB, NO_PAINT, colourAnswer, keyProblems, valueProblems, POLARITY_HOOKS, RESERVED, floorProblems, highContrastFor, nameProblems, reservedProblems, rootOnlyFor, withDefaults } from './style-plugin-rules.ts';
 import { scopesIn } from './sheets.ts';
 import { POLARITIES } from './palette-keys.ts';
 import { walkFiles } from '../../../utils/walk-files.ts';
 import { repoRoot } from '../../../lib/arena/repo-root.ts';
 import { readFamilies } from '../../../lib/tailwind/vocabulary.ts';
 import { whileHeld } from './cli-fixtures.ts';
+import { readColorSlots } from '../../../lib/core/color-slots.ts';
+import { readJson } from '../../../utils/read-file.ts';
 
 const reading = { 'lh-prose': '1.6', 'lh-heading': '1.15', 'measure-prose': '72ch' };
 
 const at = (over: Record<string, string> = {}) => new Map(Object.entries({ ...reading, ...over }));
 
-test('the danger floor is the strong fill of the danger hue', () => {
-  assert.equal(DANGER_FLOOR, 'hue-danger-fill-strong');
+test('a colour role takes transparent as the absence of paint', () => {
+  assert.equal(NO_PAINT, 'transparent');
+  assert.equal(colourAnswer('transparent', 'x'), true);
+  assert.equal(colourAnswer('Transparent', 'x'), false);
+  assert.equal(colourAnswer('none', 'x'), false);
+  assert.deepEqual(valueProblems('at', 'hue-danger-fill-strong', { $type: 'color', $value: 'transparent' }, { $type: 'color' }), []);
 });
 
-test('a danger strong fill that is transparent clears the floor', () => {
-  assert.deepEqual(floorProblems(at({ [DANGER_FLOOR]: 'transparent' }), 'dark', 'at'), []);
-});
-
-test('a danger strong fill that is a colour fails, naming the value, the scope and where the filled surface is', () => {
-  const problems = floorProblems(at({ [DANGER_FLOOR]: '#c00' }), 'light', 'at');
-  assert.equal(problems.length, 1);
-  assert.equal(problems[0],
-    'at: --hue-danger-fill-strong is #c00 in light, and danger is outline: its strong fill is transparent '
-    + 'in every answer, and the one filled danger surface reads fill-confirm-final');
+test('a coloured danger strong fill is an ordinary answer', () => {
+  assert.deepEqual(floorProblems(at({ 'hue-danger-fill-strong': 'var(--color-error)' }), 'dark', 'at'), []);
 });
 
 const shippedInTree = () => {
@@ -210,4 +208,45 @@ test('rootOnlyFor takes the :root inside the high-contrast query, not an earlier
     '@media (prefers-contrast: more) {\n.arena-x{\n  --bw-surface:var(--bw-strong);\n}\n}');
   assert.throws(() => rootOnlyFor('.arena-x', { contrast: '.a { --x: 1; }', environment: '' }), /no :root block inside @media/);
   assert.throws(() => rootOnlyFor('.arena-x', { contrast: '', environment: '.a { --x: 1; }' }), /no :root block/);
+});
+
+test('a silent root plugin takes transparent for a role whose default is the absence of paint', () => {
+  const { plugin, defaulted } = withDefaults({ tokens: {}, light: {} }, { 'hue-danger-fill-strong': { default: NO_PAINT } });
+  assert.equal(plugin.tokens['hue-danger-fill-strong'], 'transparent');
+  assert.ok(defaulted.includes('hue-danger-fill-strong'));
+});
+
+test('a slot answer outside its accepts set is refused', () => {
+  const colours = new Set(Object.entries(readJson(join(repoRoot, 'contracts/design/roles.json')) as Record<string, { $type?: string }>)
+    .filter(([, role]) => role.$type === 'color').map(([name]) => name));
+  const known = { slots: readColorSlots(), colourNames: colours, colourRoles: (name: string) => colours.has(name) };
+  const ask = (slot: string, value: string) =>
+    valueProblems('at', slot, { $type: 'color', $value: value }, undefined, known);
+  const fill = 'actions-primary-root-fill-rest';
+  for (const value of ['{color.primary}', '{ink-body}', '#fff', '{edge-focus}', '{actions-secondary-root-fill-rest}']) {
+    const problems = ask(fill, value);
+    assert.equal(problems.length, 1, `${value}: ${problems.join('\n')}`);
+    assert.match(problems[0] as string, new RegExp(`--${fill} is `), value);
+    for (const accepted of ['{fill-*}', '{emphasis-*-fill}', '{accent-*-fill-soft}, {overlay-*}, transparent. ']) assert.ok((problems[0] as string).includes(accepted), `${value}: names ${accepted}`);
+  }
+  assert.deepEqual(ask(fill, '{fill-surface}'), []);
+  assert.deepEqual(ask('actions-ghost-root-edge-rest', 'transparent'), []);
+  assert.equal(ask('actions-primary-root-ink-rest', 'transparent').length, 1);
+});
+
+test('an answer to a removed hue slot is refused as an unknown key', () => {
+  const known = { slots: readColorSlots() };
+  const token = { $type: 'color', $value: '{hue-danger-ink}', $description: 'x' };
+  const problems = keyProblems('at', 'hue-danger-mark-ink-rest', token, undefined, known);
+  assert.equal(problems.length, 1, problems.join('\n'));
+  assert.match(problems[0] as string, /neither a role/);
+});
+
+test('a removed component slot is refused as an unknown key', () => {
+  const known = { slots: readColorSlots() };
+  const token = { $type: 'color', $value: '{fill-surface}', $description: 'x' };
+  const problems = keyProblems('at', 'button-primary-root-fill-rest', token, undefined, known);
+  assert.equal(problems.length, 1, problems.join('\n'));
+  assert.match(problems[0] as string, /button-primary-root-fill-rest/);
+  assert.match(problems[0] as string, /neither a role/);
 });

@@ -6,11 +6,14 @@ function tokens(classString: string): string[] {
   return classString.split(/\s+/).filter(Boolean);
 }
 
-test('only the root varies with disabled -- the field, label, wrap and caret are constant', () => {
+test('disabled reaches each part that fades on its own, and the wrap fades the select with its caret and glyph', () => {
   const enabled = arenaSelectStyles({ disabled: false });
   const off = arenaSelectStyles({ disabled: true });
-  for (const slot of ['label', 'wrap', 'field', 'caret'] as const) {
-    assert.equal(JSON.stringify(enabled.$data[slot]()), JSON.stringify(off.$data[slot]()), `${slot} must not vary with disabled`);
+  assert.equal(JSON.stringify(enabled.$data.field()), JSON.stringify(off.$data.field()), 'the native field reads :disabled');
+  assert.equal(off.$data.wrap()['data-arena-disabled'], '', 'the wrap carries the fade');
+  for (const slot of ['label', 'hint', 'error'] as const) {
+    assert.equal(off.$data[slot]()['data-arena-disabled'], '', `${slot} fades on its own`);
   }
+  assert.equal(JSON.stringify(off.$data.root()), JSON.stringify({}), 'the root carries no fade');
 });
 

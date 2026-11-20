@@ -1,7 +1,7 @@
 {
   "component": "ArenaToast",
   "description": "Ephemeral notification with a tone-coloured side bar and one optional action.",
-  "affordances": [],
+  "affordances": ["hover", "press"],
   "api": {
     "title": { "form": "primitive", "type": "string",
                "description": "The bold lead line." },

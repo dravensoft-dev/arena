@@ -15,6 +15,7 @@ import { TestBed } from '@angular/core/testing';
 import type { ArenaFileSelection } from '../../../Api.generated';
 import { ArenaFileInput } from './ArenaFileInput';
 import { assertPattern, ANGULAR_COMPONENTS } from '../../../test/Compliance';
+import { commandButtonVerdict } from '../../../test/StateVerdicts';
 
 const BINDING = join(ANGULAR_COMPONENTS, 'forms/arena-file-input/ArenaFileInput.behaviour.json');
 
@@ -183,7 +184,10 @@ test('arena-file-input meets the button pattern on its trigger', () => {
       root,
       bindingPath: BINDING,
       subjects: { default: trigger },
-      behavioural: { 'keyboard.Enter': true, 'keyboard.Space': true, 'states.disabled': true },
+      behavioural: {
+        'keyboard.Enter': true, 'keyboard.Space': true, 'states.disabled': true,
+        'states.pressed': commandButtonVerdict(trigger),
+      },
     });
   } finally { fixture.destroy(); }
 });

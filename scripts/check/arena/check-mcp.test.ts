@@ -9,14 +9,15 @@ import {
   collect, unassembled, dependencyProblems, importedPackages, binProblems, corpusProblems, catalogueProblems,
   unresolvedTarget, targetsIn, registryProblems, SITE_BASE, REGISTRY_SCHEMA,
   REGISTRY_DESCRIPTION_LIMIT, flatProblems, ESCAPING_SPECIFIER, vocabularyProblems,
-  styleStoreProblems, identityProblems,
+  styleStoreProblems, identityProblems, derivedSlotsProblems,
 } from './check-mcp.ts';
+import { DERIVED_SLOTS, derivedSlotsText } from '../../lib/arena/package-assembly.ts';
 import {
   RUNTIME_DEPENDENCIES, ENTRY, NAME, LAYERS, DIST, REGISTRY_NAME, manifest, buildMcpPackage,
 } from '../../build/arena/build-mcp-package.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { IDENTITY_DIR as PAYLOAD_IDENTITY_DIR } from '../../lib/arena/agent-payload.ts';
-import { IDENTITY_DIR } from '../../generate/core/arena-mcp/catalogue.ts';
+import { IDENTITY_DIR, catalogue } from '../../generate/core/arena-mcp/catalogue.ts';
 
 const made: string[] = [];
 const track = (dir: string) => { made.push(dir); return dir; };
@@ -46,6 +47,18 @@ test('the tree passes its own claims, and an empty assembly does not', () => {
   assert.deepEqual(collect(root, assembly).problems, []);
   const empty = corpus({});
   assert.ok(collect(root, empty).problems.length > 0, 'an assembly holding no file cannot pass in vacuum');
+});
+
+test('each corpus carries the slot catalogue readColorSlots derives, and a stale or missing one is reported', () => {
+  assert.deepEqual(derivedSlotsProblems(assembly, root), []);
+  const put = (body: string | null) => corpus(Object.fromEntries(LAYERS.flatMap((layer) => (body === null ? [] : [
+    [`agent/${layer}/${DERIVED_SLOTS}`, body],
+  ]))));
+  assert.match(derivedSlotsProblems(put('{}\n'), root).join('\n'), /differs from what readColorSlots derives/);
+  assert.match(derivedSlotsProblems(put(null), root).join('\n'), /carries no contracts\/design\/color-slots\.derived\.json/);
+  assert.deepEqual(derivedSlotsProblems(put(derivedSlotsText(root)), root), []);
+  const served = catalogue(join(assembly, 'agent', 'react'), JSON.parse(MANIFEST));
+  assert.ok(served.entries.some((one: { uri: string }) => one.uri.endsWith('tokens/color-slots.derived')));
 });
 
 const refusal = (base: string, strict: string) => spawnSync(process.execPath, ['-e', [

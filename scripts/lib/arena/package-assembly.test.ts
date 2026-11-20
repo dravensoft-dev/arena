@@ -13,6 +13,7 @@ import { readJson } from '../../utils/read-file.ts';
 import { MARKERS_FILE, markerAttributes } from './component-map.ts';
 import { MAP_FILE } from './component-map.ts';
 import { repoRoot } from './repo-root.ts';
+import { rolesFor } from '../../generate/core/arena-cli/theme-css.ts';
 import { THEME_SOURCES } from '../tailwind/theme-sheet.ts';
 import { CONSUME } from '../../build/tailwind/build-tailwind.ts';
 import { CLI_DEPENDENCIES } from './support-matrix.ts';
@@ -340,7 +341,7 @@ test('a component sheet is reached through the barrel alone, never named twice i
 });
 
 test('the token catalogue offers roles and no catalogue of appearances', () => {
-  assert.deepEqual(Object.keys(tokenCatalogue()).sort(), ['aliases', 'channels', 'roles', 'tokens'],
+  assert.deepEqual(Object.keys(tokenCatalogue()).sort(), ['aliases', 'channels', 'light', 'roles', 'slots', 'tokens'],
     'a consumer resolves an alias against the tokens and answers a role itself, and a menu of '
     + 'appearances is a decision Arena took for somebody else');
 });
@@ -446,16 +447,35 @@ test('what a published copy leaves behind is read at the release tag and never a
   assert.equal(agentBases().repository, tag);
 });
 
-test('a catalogue role carries its type, its closed set and its kernel default, and nothing else', () => {
+test('a catalogue role carries its type, its closed set, its kernel default and its metadata, and nothing else', () => {
   assert.deepEqual(catalogueRole({
     $type: 'color', $description: 'x', $extensions: { 'com.dravensoft.arena': { default: '{ink-body}' } },
   }), { type: 'color', default: '{ink-body}' });
   assert.deepEqual(catalogueRole({ $type: 'keyword', $extensions: { 'com.dravensoft.arena': { values: ['none'] } } }),
     { type: 'keyword', values: ['none'] });
   assert.deepEqual(catalogueRole({ $type: 'dimension', $description: 'x' }), { type: 'dimension' });
+  assert.deepEqual(catalogueRole({
+    $type: 'dimension', $description: 'x',
+    $extensions: { 'com.dravensoft.arena': { audience: 'markup', task: 'edges', userScale: 'fixed',
+      question: 'How wide is the rule?', combines: [{ with: 'edge-surface', as: 'width' }] } },
+  }), { type: 'dimension', audience: 'markup', task: 'edges', userScale: 'fixed',
+    question: 'How wide is the rule?', combines: [{ with: 'edge-surface', as: 'width' }] });
   assert.deepEqual(Object.keys(catalogueRole({
-    $type: 'keyword', $extensions: { 'com.dravensoft.arena': { default: '{tt-label}', values: ['none'] } },
-  })), ['type', 'values', 'default'], 'type and values keep the order the catalogue file is written in');
+    $type: 'keyword',
+    $extensions: { 'com.dravensoft.arena': {
+      default: '{tt-label}', values: ['none'], cssUnit: 'px', audience: 'markup', task: 'states', userScale: 'follows',
+      question: 'Which case is the label?', combines: [{ with: 'ink-body', as: 'level' }],
+    } },
+  })), ['type', 'values', 'default', 'audience', 'task', 'userScale', 'question', 'combines'],
+  'type, values and default keep the order the catalogue file is written in, then the metadata follows; cssUnit stays out');
+});
+
+test('a catalogue role carries its state, so arena.tokens.json and the MCP see it', () => {
+  assert.deepEqual(catalogueRole({
+    $type: 'color', $description: 'x',
+    $extensions: { 'com.dravensoft.arena': { task: 'states', state: ['aria-invalid'] } },
+  }), { type: 'color', task: 'states', state: ['aria-invalid'] });
+  assert.equal('state' in catalogueRole({ $type: 'color' }), false);
 });
 
 test('copyCli writes bin/palette.d.mts with no import', () => {
@@ -543,4 +563,16 @@ test('inlineCdkPrebuilt throws on a bridge with no import, and angularExtra carr
   assert.equal(entry?.to, 'css/arena-cdk.css');
   assert.equal(entry?.from, undefined);
   assert.ok(!entry?.content?.includes('@import'));
+});
+
+test('default light answers reach the measurement', () => {
+  const catalogue = tokenCatalogue();
+  assert.equal(catalogue.light['edge-focus'], 'var(--color-base-content)');
+  assert.equal(catalogue.tokens['edge-focus'], 'var(--color-secondary)');
+  assert.equal(rolesFor(null, catalogue, 'light').get('edge-focus'), 'var(--color-base-content)');
+  assert.equal(rolesFor(null, catalogue, 'dark').get('edge-focus'), 'var(--color-secondary)');
+});
+
+test('the token catalogue carries the slots', () => {
+  assert.equal(Object.keys(tokenCatalogue().slots.slots).length, 474);
 });

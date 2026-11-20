@@ -11,6 +11,7 @@ import { join } from 'node:path';
 import React from 'react';
 import { mount, cleanup } from '../../test/Harness.tsx';
 import { assertPattern, REACT_COMPONENTS } from '../../test/AssertPattern.tsx';
+import { currentVerdict, itemNamed } from '../../test/StateVerdicts.ts';
 import { ArenaBreadcrumbs } from './arena-breadcrumbs/ArenaBreadcrumbs.tsx';
 import { ArenaPagination } from './arena-pagination/ArenaPagination.tsx';
 import { ArenaSideNav } from './arena-side-nav/ArenaSideNav.tsx';
@@ -34,7 +35,12 @@ test('ArenaBreadcrumbs is a named nav landmark, and two of them are told apart',
     root,
     bindingPath: join(REACT_COMPONENTS, 'navigation/arena-breadcrumbs/ArenaBreadcrumbs.behaviour.json'),
     subjects: { default: nav },
-    behavioural: { 'alternative.jsonLd': true },
+    behavioural: {
+      'alternative.jsonLd': true,
+      'states.current': currentVerdict(
+        itemNamed(nav!, 'span', 'Overview'), [...nav!.querySelectorAll('a, span')].filter((el) => el.closest('li')),
+      ),
+    },
   });
 });
 
@@ -52,6 +58,11 @@ test('ArenaPagination is a named nav landmark, and two of them are told apart', 
     root,
     bindingPath: join(REACT_COMPONENTS, 'navigation/arena-pagination/ArenaPagination.behaviour.json'),
     subjects: { default: nav },
+    behavioural: {
+      'states.current': currentVerdict(
+        itemNamed(nav!, 'button', '3'), [...nav!.querySelectorAll('button')],
+      ),
+    },
   });
 });
 
@@ -71,9 +82,23 @@ test('ArenaSideNav is a named nav landmark, and two of them are told apart', () 
   );
   assert.notEqual(other.querySelector<HTMLElement>('nav')!.getAttribute('aria-label'), nav!.getAttribute('aria-label'));
 
+  const later = mount(
+    <ArenaSideNav ariaLabel="Project sections" active="deployments" onNav={() => {}}>
+      <ArenaSideNavItem id="overview" label="Overview" />
+      <ArenaSideNavItem id="deployments" label="Deployments" />
+    </ArenaSideNav>,
+  ).querySelector<HTMLElement>('nav')!;
+
   assertPattern({
     root,
     bindingPath: join(REACT_COMPONENTS, 'navigation/arena-side-nav/ArenaSideNav.behaviour.json'),
     subjects: { default: nav },
+    behavioural: {
+      'states.current': currentVerdict(
+        itemNamed(nav!, 'a, button', 'Overview'), [...nav!.querySelectorAll('a, button')],
+      ) && currentVerdict(
+        itemNamed(later, 'a, button', 'Deployments'), [...later.querySelectorAll('a, button')],
+      ),
+    },
   });
 });

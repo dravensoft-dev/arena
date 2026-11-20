@@ -16,11 +16,11 @@ import { ArenaSlotAttributes } from '../../../SlotData';
     <label [class]="styles().root()" [arenaSlotData]="styles().$data.root()" [attr.data-arena-part]="parts.root">
       <span [class]="styles().ring()" [arenaSlotData]="styles().$data.ring()" [attr.data-arena-part]="parts.ring">
         @if (checked()) {
-          <span [class]="styles().dot()" [attr.data-arena-part]="parts.dot"></span>
+          <span [class]="styles().dot()" [arenaSlotData]="styles().$data.dot()" [attr.data-arena-part]="parts.dot"></span>
         }
       </span>
       @if (label() || hint()) {
-        <span [class]="styles().text()" [attr.data-arena-part]="parts.text">
+        <span [class]="styles().text()" [arenaSlotData]="styles().$data.text()" [attr.data-arena-part]="parts.text">
           @if (label(); as text) {
             <span [class]="styles().label()" [attr.data-arena-part]="parts.label">{{ text }}</span>
           }

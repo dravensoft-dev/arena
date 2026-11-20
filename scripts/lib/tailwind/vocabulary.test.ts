@@ -8,9 +8,10 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
-  declarations, compileFamily, readFamilies, channelReads, answerOf, answeredFamilies, markupDeclarations, restatedDeclarations, answeringParts, axisWrapped, LIMIT, sheetName, packageSheetName, type Family,
+  declarations, compileFamily, partSheetOwners, readFamilies, channelReads, answerOf, answeredFamilies, markupDeclarations, restatedDeclarations, answeringParts, axisWrapped, LIMIT, sheetName, packageSheetName, type Family,
 } from './vocabulary.ts';
 import { LAYER_ORDER } from './component-sheets.ts';
+import { familyRules } from './vocabulary-rules.ts';
 import { layerManifests } from './tailwind-compile.ts';
 import type { ComponentManifest } from './manifest-shapes.ts';
 
@@ -164,6 +165,21 @@ test('a restating option writes the literal values of the contract file it names
 `);
 });
 
+test('a restated density emits its text in rem and its boxes in px', () => {
+  const root = track(mkdtempSync(join(tmpdir(), 'vocabulary-')));
+  mkdirSync(join(root, 'contracts/design'), { recursive: true });
+  const ext = (axis: string) => ({ 'com.dravensoft.arena': { userScale: axis } });
+  writeFileSync(join(root, 'contracts/design/z.json'), JSON.stringify({ dz: {
+    $type: 'dimension', $extensions: ext('fixed'),
+    'ctl-h': { $value: { value: 32, unit: 'px' } },
+    text: { $value: { value: 13, unit: 'px' }, $extensions: ext('scales') } } }));
+  assert.deepEqual(restatedDeclarations('contracts/design/z.json', 'dz', root),
+    [['--dz-ctl-h', '32px'], ['--dz-text', '0.8125rem']]);
+  const real = Object.fromEntries(restatedDeclarations('contracts/design/density.compact.json', 'dz'));
+  assert.equal(real['--dz-text'], '0.8125rem');
+  assert.equal(real['--dz-ctl-h'], '32px');
+});
+
 const size: Family = { family: 'probe', reach: 'context', description: 'x', default: 'arena-probe-md',
   variants: { 'arena-probe-sm': '[--arena-probe-h:1px]', 'arena-probe-md': '[--arena-probe-h:2px]', 'arena-probe-xl': '[--arena-probe-h:9px]' } };
 const button: ComponentManifest = { component: 'ArenaButton',
@@ -246,4 +262,73 @@ test('arena-mark-solid fills a badge with its hue\'s ink and writes on-ink over 
   const soft = css.split('@scope (.arena-mark-soft)')[1]?.split('@scope')[0] ?? '';
   assert.match(soft, /--arena-mark-fill: initial;\n\s+--arena-mark-ink: initial;/,
     'initial is the guaranteed-invalid value of a registered channel, so the badge reads its fallbacks under a container written solid');
+});
+
+const emphasisSheet = () => compileFamily(readFamilies().get('emphasis') as Family, [...layerManifests().values()]);
+
+test('the emphasis sheet writes a default block per member part', () => {
+  const css = emphasisSheet();
+  const block = /^  :where\(\[data-arena-part="button"\]\) \{\n([^}]*)\}/m.exec(css)?.[1] ?? '';
+  assert.match(block, /--arena-emphasis-fill: var\(--actions-primary-root-fill-rest,var\(--emphasis-primary-fill\)\);/);
+  assert.ok(css.indexOf(':where([data-arena-part="button"]) {') > css.lastIndexOf('@scope'), 'the default blocks come after the option scopes');
+  assert.match(css, /:where\(\[data-arena-part="icon-button"\]\) \{[^}]*--arena-emphasis-fill: var\(--actions-ghost-root-fill-rest,/);
+  assert.match(css, /:where\(\[data-arena-part="split-button\.caret"\]\) \{/);
+  assert.match(css, /:where\(\[data-arena-part="file-input\.trigger"\]\) \{[^}]*--arena-emphasis-fill: var\(--actions-secondary-root-fill-rest,/);
+  assert.doesNotMatch(css, /:where\(\[data-arena-part="copy-button"\]/, 'a copy button is no member part, so it takes no block of its own');
+});
+
+test('an option block writes the group chains over every answering part in one selector list, and a member with a channel of its own adds its block', () => {
+  const css = emphasisSheet();
+  const ghost = css.split('@scope (.arena-emphasis-ghost)')[1]!.split('@scope (')[0]!;
+  const lists = [...ghost.matchAll(/((?:    :scope\[[^\n]*,\n)*    :scope\[[^\n]*) \{\n/g)].map((m) => m[1]!);
+  assert.equal(lists.length, 2, ghost);
+  for (const part of ['button', 'copy-button', 'icon-button', 'split-button.caret', 'split-button.primary', 'file-input.trigger']) {
+    assert.ok(lists[0]!.includes(`[data-arena-part="${part}"]`), part);
+  }
+  assert.equal(lists[1], '    :scope[data-arena-part="icon-button"], [data-arena-part="icon-button"]');
+  assert.match(ghost, /--arena-emphasis-icon-edge: var\(--actions-ghost-root-edge-rest,var\(--emphasis-ghost-icon-edge\)\);/);
+  assert.match(ghost, /--arena-emphasis-icon-edge-hover: var\(--actions-ghost-root-edge-hover,var\(--actions-ghost-root-edge-rest,var\(--emphasis-ghost-icon-edge\)\)\);/);
+  assert.doesNotMatch(css, /--(button|icon-button|copy-button|split-button|file-input)-(primary|secondary|ghost|solid|destructive)-/);
+});
+
+test('a group option writes its own fade marker around the family fade', () => {
+  const css = emphasisSheet();
+  assert.match(css, /--arena-emphasis-fade-disabled: var\(--actions-primary-root-fade-disabled,var\(--fade-disabled\)\);/);
+  assert.match(css, /--arena-emphasis-fade-selected-disabled: var\(--actions-ghost-root-fade-selected-disabled,var\(--fade-disabled\)\);/);
+});
+
+test('channelReads marks a read that sits inside the fallback of another when asked', () => {
+  const classes = 'a-[var(--arena-x-a,var(--arena-x-b))] b-[var(--arena-x-b)]';
+  assert.deepEqual(channelReads(classes), [
+    { channel: '--arena-x-a', fallback: 'var(--arena-x-b)' }, { channel: '--arena-x-b', fallback: null }, { channel: '--arena-x-b', fallback: null }]);
+  assert.deepEqual(channelReads(classes, true).map((one) => one.nested), [false, true, false]);
+});
+
+test('the levelled rest icon channel wraps the icon and ink slots inside the ink level', () => {
+  const css = emphasisSheet();
+  const inside = 'var(--actions-ghost-root-icon-rest,var(--actions-ghost-root-ink-rest,var(--emphasis-ghost-ink)))';
+  assert.ok(css.includes(`--arena-emphasis-icon: color-mix(in oklab,${inside} var(--level-ink-body),transparent);`), 'the ghost icon');
+  assert.ok(css.includes('--arena-emphasis-icon: var(--actions-primary-root-icon-rest,var(--arena-emphasis-ink));'), 'an unlevelled state ends in the resolved ink channel');
+  assert.ok(css.includes('--arena-emphasis-icon-disabled: var(--actions-primary-root-icon-disabled,var(--arena-emphasis-ink-disabled));'));
+  assert.ok(css.includes('--arena-emphasis-ink-selected-disabled: var(--actions-ghost-root-ink-selected-disabled,var(--arena-emphasis-ink-selected));'));
+});
+
+test('a family with colour slots compiles per component, each sheet importing nothing, and the parts carry the rules of the whole sheet', () => {
+  const family = readFamilies().get('emphasis') as Family;
+  const manifests = [...layerManifests().values()];
+  const owners = partSheetOwners(family, manifests);
+  assert.deepEqual(owners, ['ArenaButton', 'ArenaCopyButton', 'ArenaFileInput', 'ArenaIconButton', 'ArenaSplitButton']);
+  assert.deepEqual(partSheetOwners(readFamilies().get('fill') as Family, manifests), []);
+  const button = compileFamily(family, manifests, undefined, 'ArenaButton');
+  assert.ok(button.startsWith(LAYER_ORDER));
+  assert.doesNotMatch(button, /icon-button|split-button|file-input|copy-button/);
+  assert.match(button, /:where\(\[data-arena-part="button"\]\) \{/);
+  const copy = compileFamily(family, manifests, undefined, 'ArenaCopyButton');
+  assert.ok(copy.startsWith(`${LAYER_ORDER}@layer utilities {`), 'a part sheet imports nothing, so a bundler reads each once');
+  assert.match(copy, /\[data-arena-part="copy-button"\]/);
+  assert.doesNotMatch(copy, /icon-button/, 'a copy button draws an icon button, whose own sheet answers it');
+  const whole = emphasisSheet();
+  const parts = owners.map((one) => compileFamily(family, manifests, undefined, one)).join('\n');
+  assert.ok(familyRules(whole).size > 20);
+  assert.deepEqual([...familyRules(parts)].sort(), [...familyRules(whole)].sort());
 });

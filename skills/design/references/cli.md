@@ -61,7 +61,7 @@ One rule holds for every root. A `--no-import` project imports the list `arena b
 @import '@dravensoft/arena-angular/css/arena-cdk.css';
 ```
 
-Each `<component>` stands for a sheet in the closed list `arena build` works out, for every root. That list is what `arena.package.generated.css` carries, each sheet written out in full, when a build writes it: the components the sources draw and the ones Arena draws for them. The `"default"` root adds `css/style-plugin-default.css` in its slot. Each `<family>` is a vocabulary sheet. `css/base.css` is left out when `stylesheet.preflight` is `false`. `arena.generated.css` goes in a stylesheet of its own, imported after the list, so the package's sheets and yours never share a file.
+Each `<component>` stands for a sheet in the closed list `arena build` works out, for every root. That list is what `arena.package.generated.css` carries, each sheet written out in full, when a build writes it: the components the sources draw and the ones Arena draws for them. The `"default"` root adds `css/style-plugin-default.css` in its slot. Each `<family>` is a vocabulary sheet. A family whose components carry colour slots enters as the sheet of each listed component that answers it, under `css/vocabulary/<family>/`. The family's whole sheet enters when the list holds all of them. `css/base.css` is left out when `stylesheet.preflight` is `false`. `arena.generated.css` goes in a stylesheet of its own, imported after the list, so the package's sheets and yours never share a file.
 
 <!-- @shared noImport end -->
 
@@ -99,7 +99,7 @@ A report never changes the exit until `--strict` holds it. Bare, `--strict` hold
 
 `unknown-property` names a `var()` in a style plugin file that reads no role, token, alias, channel, palette colour or property your sources declare. A read such as `var(--arena-nothing, transparent)` takes its fallback in silence. The message gives the nearest listed name when one is close. `unknown-part` names a `[data-arena-part]` in a style plugin file that no component declares, so the rule reaches nothing. When the name is a part with a state written onto it, such as `menu.item-destructive`, the message gives the part and the `data-arena-*` hook that marks that state. Neither rule reads a file outside a style plugin directory, and neither reads when the package carries no list of channels or of parts. Mark a line `arena-audit allow` to silence either.
 
-`contrast` also reports a chart axis answered with no more contrast than the grid (`--edge-axis` against `--edge-separator` on base-100). `contrast` reports a status hue whose `--hue-<hue>-on-ink` measures under 4.5:1 over `--hue-<hue>-ink`, the label of a solid badge over its fill, in either polarity.
+`contrast` measures every text pair of a palette, in a light palette and a dark one, and reports each one that falls under 4.5:1 of WCAG AA. Arena measures the palette, reports what falls short and lets the build pass; `--strict=contrast` is how a project holds it. `contrast` also reports a chart axis answered with no more contrast than the grid (`--edge-axis` against `--edge-separator` on base-100). `contrast` reports a status hue whose `--hue-<hue>-on-ink` measures under 4.5:1 over `--hue-<hue>-ink`, the label of a solid badge over its fill, in either polarity. `contrast` measures each colour slot pair in every state: a label or glyph over its fill at rest, hover, pressed and selected. `contrast` reports each one under its floor, in a runtime palette too.
 
 `contrast` reports a palette whose `base-100` sits on the other side of its declared polarity. A dark palette wants an OKLab lightness under 0.5 and a light one wants 0.5 or more. The message reads `polarity, base-100 #fafafa reads as light, and the palette declares dark`, for a declared palette and for a runtime one alike.
 
@@ -122,14 +122,12 @@ The middle column is the rule of [the rules section of `SKILL.md`](../SKILL.md) 
 | tag | the rule it reports | what fires it |
 | --- | --- | --- |
 | `compat-alias` | none of the language rules | A stylesheet in a style plugin directory reads one of Arena's compatibility aliases through `var()`, which names a step of the ramp instead of a role. |
-| `danger-fill` | Danger is outline, never filled. | A background declaration outside a style plugin directory reads a danger token not mixed with transparent, which fills a surface where Arena draws danger as an outline. |
 | `emoji` | No emoji, in product or in copy. | A line of a source holds an emoji character. |
 | `icon-element` | Icons are Phosphor class-name strings, drawn by Arena's components or by ArenaIcon; a raw ph-* element paints nothing. | An `icon` or `iconRight` attribute is given an element in braces, where Arena takes a Phosphor class-name string. |
-| `one-primary` | One primary accent per view. | A second action in one view, or in one modal, takes the primary emphasis by class or by leaving a primary-default component without one. |
 | `outline-gap` | none of the language rules | A source draws Arena headings at two levels with a level missing between them, such as an h1 and an h3 with no h2. |
 | `own-class` | Only a class of the vocabulary goes on an Arena component. | A component carries a class outside its vocabulary or a computed one, or a stylesheet targets an `arena-` class anywhere or a `data-arena-part` hook outside a style plugin. |
 | `raw-glyph` | Icons are Phosphor class-name strings, drawn by Arena's components or by ArenaIcon; a raw ph-* element paints nothing. | An element other than `ArenaIcon` holds a Phosphor glyph class, or binds its class to a non-literal value in a file naming one; Arena ships no icon font. |
-| `raw-value` | Tokens are the only styling layer. No gradients, on any surface. | A style holds a hex, colour or bare pixel length, or a gradient outside a style plugin unless `gradientMark` is set, or a class holds a non-token bracket value. |
+| `raw-value` | Tokens are the only styling layer. | A style holds a hex, colour or bare pixel length, or a class holds a non-token bracket value. |
 | `router-link` | Never wrap an Arena component in your router's own link. | A link of your own, such as `a`, `Link` or `routerLink`, directly wraps an Arena card, side nav item, bottom nav item or table cell. |
 | `stale-allowance` | none of the language rules | An `arena-audit allow` marker sits on a line with nothing to exempt. |
 | `unknown-input` | none of the language rules | A static attribute on an `arena-` element in an Angular template names no input or output of that component. |
@@ -141,7 +139,7 @@ The middle column is the rule of [the rules section of `SKILL.md`](../SKILL.md) 
 
 ## What does the audit read?
 
-The rules it reports, and the ones nothing reads, are the router's: [the rules section of `SKILL.md`](../SKILL.md). The audit reads TypeScript, stylesheets and, in Angular, templates. **Every rule is read in a scope.** Inside a directory `stylePlugins` declares, a part hook is what you are meant to select and a gradient is yours to paint, so neither is reported there. A compiled `arena-` class and a raw value are reported in both scopes. A comment is prose and declares nothing. Exempt a line the audit is wrong about with an `arena-audit allow` comment on that line; the audit reports the allowance once nothing on the line needs it. Nothing else checks your sources against the rules. With no `arena.config.json`, audit and usage read no style plugin; a named `--config` that is not there exits 2.
+The rules it reports, and the ones nothing reads, are the router's: [the rules section of `SKILL.md`](../SKILL.md). The audit reads TypeScript, stylesheets and, in Angular, templates. **Every rule is read in a scope.** Inside a directory `stylePlugins` declares, a part hook is what you are meant to select, so it is not reported there. A compiled `arena-` class and a raw value are reported in both scopes. A comment is prose and declares nothing. Exempt a line the audit is wrong about with an `arena-audit allow` comment on that line; the audit reports the allowance once nothing on the line needs it. Nothing else checks your sources against the rules. With no `arena.config.json`, audit and usage read no style plugin; a named `--config` that is not there exits 2.
 
 ## How do I wire it into a React build?
 
@@ -155,7 +153,7 @@ Run `arena init` once. In a project on `@dravensoft/arena-react` it adds these s
     "prebuild": "arena build",
     "predev": "arena build",
     "arena:check": "arena check --strict=components,glyph,markers",
-    "arena:audit": "arena audit --strict=audit:compat-alias,audit:danger-fill,audit:emoji,audit:icon-element,audit:one-primary,audit:outline-gap,audit:own-class,audit:raw-glyph,audit:raw-value,audit:router-link,audit:stale-allowance,audit:unknown-input,audit:unknown-part,audit:unknown-property,audit:wrapped-link,restated"
+    "arena:audit": "arena audit --strict=audit:compat-alias,audit:emoji,audit:icon-element,audit:outline-gap,audit:own-class,audit:raw-glyph,audit:raw-value,audit:router-link,audit:stale-allowance,audit:unknown-input,audit:unknown-part,audit:unknown-property,audit:wrapped-link,restated"
   }
 }
 ```
@@ -176,7 +174,7 @@ The same, on `@dravensoft/arena-angular`, with `prestart` in place of `predev`.
     "prebuild": "arena build",
     "prestart": "arena build",
     "arena:check": "arena check --strict=components,glyph,markers",
-    "arena:audit": "arena audit --strict=audit:compat-alias,audit:danger-fill,audit:emoji,audit:icon-element,audit:one-primary,audit:outline-gap,audit:own-class,audit:raw-glyph,audit:raw-value,audit:router-link,audit:stale-allowance,audit:unknown-input,audit:unknown-part,audit:unknown-property,audit:wrapped-link,restated"
+    "arena:audit": "arena audit --strict=audit:compat-alias,audit:emoji,audit:icon-element,audit:outline-gap,audit:own-class,audit:raw-glyph,audit:raw-value,audit:router-link,audit:stale-allowance,audit:unknown-input,audit:unknown-part,audit:unknown-property,audit:wrapped-link,restated"
   }
 }
 ```

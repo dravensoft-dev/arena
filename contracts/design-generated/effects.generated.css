@@ -16,7 +16,7 @@
   --shadow-2:0px 12px 28px -12px rgba(0,0,0,.6);
   --shadow-3:0px 30px 60px -20px rgba(0,0,0,.7);
   /*
-     The blur behind an overlay scrim (the scrim's colour is --scrim in colors.css, the palette's base-100 at 60%). The blur is what separates a
+     The blur behind an overlay scrim (the scrim's colour is --scrim in colors.css, the overlay-scrim role held at level-scrim). The blur is what separates a
      modal from a coachmark: ArenaDialog/ArenaConfirmDialog/ArenaCommandPalette pair the scrim
      with --scrim-blur, ArenaOnboarding uses the scrim alone, because a tour that
      blurs the product it is touring defeats itself.
@@ -26,6 +26,13 @@
   /* Focus */
   --focus-width:2px;
   --focus-offset:2px;
+
+  /* Opacity */
+  --opacity-disabled:0.45; /* The share of its opacity a disabled control keeps. A disabled control is exempt from contrast under WCAG 1.4.3 and 1.4.11, so the share is a fade and never a colour. */
+
+  /* How far a part's fill moves toward the ink it draws, as a fraction of that ink. Read through the mix-hover and mix-pressed roles, so a style plugin answers each state's share. */
+  --blend-hover:0.08; /* The share a fill moves toward its ink under the pointer. */
+  --blend-pressed:0.16; /* The share a fill moves toward its ink while pressed: twice the hover share, so a press reads firmer than a hover. */
 
   /* Motion */
   --dur-fast:120ms;
@@ -113,8 +120,8 @@
   --chart-sparkline-height:20px;
   --chart-gauge-height:200px; /* A gauge's dial height. A chosen dimension: a 270 degree dial with its end labels and its centre reading fits a tile at 200px, where chart.height would spend a whole one on a single number. The dial's radius is derived from it, so the band ring, the track and the centre reading move together when it does. */
   --chart-heatmap-row-h:28px; /* A heatmap row's pitch. A CONSEQUENCE of the type scale, the way pad-bottom is: one line at --dz-text-xs with room above and below it, so a row name stays legible beside its cells. An absent height is computed from the row count times this pitch, plus the pads and the legend strip. If the type scale moves, revisit it; it will not fail loudly. */
-  --chart-pad-top:8px; /* The plot's top padding, one step of the base grid. */
-  --chart-pad-right:8px; /* The plot's right padding, one step of the base grid. */
+  --chart-pad-top:8px; /* The plot's top padding, one step of the base grid at the default text size. It holds half of the top tick label, so a chart multiplies it by the reader's text scale. */
+  --chart-pad-right:8px; /* The plot's right padding, one step of the base grid at the default text size. It holds half of the last tick label, so a chart multiplies it by the reader's text scale. */
   /*
      Holds the category labels. This is a CONSEQUENCE of the type scale, not a
      chosen dimension: it is enough room for a label at --dz-text-xs, which is the step a
@@ -157,6 +164,7 @@
      its glyphs' business and no arithmetic can answer it.
    */
   --chart-tick-char:6px;
+  --chart-label-char:6.6px; /* The advance one character of a radar spoke label is budgeted at, so the label can be cut to the room beside its ring without a DOM to ask. A CONSEQUENCE of two decisions rather than a chosen dimension: a spoke label is written in the body face at --dz-text-xs, which is 11px. Measured in the browser, the body face advances 5.2px to 5.9px a character over words such as Latency, Throughput and Engagement, which is up to 0.54em, and 6.6px is 0.6em of 11px, a margin of about an eighth over the widest of those. It is an estimate and not a measurement, because a proportional face makes a label's width its glyphs' business: a run of wide capitals such as W or M still outruns it, and the label then keeps its full name in a title and in the data table. If the label's size or face moves, revisit it; it will not fail loudly. */
   /*
      Breathing room between the doughnut's outer radius and its box, so a slice's
      stroke is not clipped. Not a multiplier deriving one dimension from another --
@@ -225,6 +233,7 @@
      the ring rather than from the caller.
    */
   --chart-legend-strip:26px;
+  --chart-gauge-reading-descent:6.4px; /* How far the gauge's centre reading reaches below its baseline at the default text size, 0.4 of the 16px line the reading is set in. A CONSEQUENCE of the type scale, the way pad-bottom is: the band word beneath it keeps --chart-label-gap at the default size and drops by this much for every default size the reading has grown past, so a larger text setting never lets the reading's descent touch the word. If the reading's step moves, revisit it; it will not fail loudly. */
 }
 :root{
   /*

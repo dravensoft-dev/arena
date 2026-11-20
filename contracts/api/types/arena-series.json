@@ -12,6 +12,6 @@
     "colorIds": { "form": "array", "of": "number",
                "description": "Per-mark identity override, one ramp slot each. Wins over `colorId`. For a chart whose marks are the identities rather than the series, which is what a single-series bar chart and a doughnut both are. An entry past the end of the list takes the slot its position gives, counted from the chart's `colorStart`." },
     "tone": { "form": "enum", "type": "ArenaSeriesTone",
-              "description": "Semantic colour, for a series that IS a state. Mutually exclusive with colorId/colorIds; passing both warns in development and tone wins, because a chart carries identity or meaning, never both." }
+              "description": "Semantic colour, for a series that IS a state. With `tone` the series takes the status colour and `colorId` and `colorIds` are not read." }
   }
 }

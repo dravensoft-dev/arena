@@ -2,7 +2,9 @@
  * vocabulary that package carries, and the one Phosphor install the command reads: phosphorRoot is
  * @phosphor-icons/core, whose assets/ the sprite is written from. hostPackage answers a path rather
  * than a name because the two steps want different things out of it. resolveEnvironment is the one
- * place an override a caller hands in wins over what the install would answer. */
+ * place an override a caller hands in wins over what the install would answer. A family's sheets per
+ * component are listed after the sheets of the components each one needs, so a block that rebinds a
+ * drawn part comes after that part's own block, as in the whole sheet. */
 
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -72,12 +74,18 @@ export function packageSheets(root: string): PackageSheets {
     const families = existsSync(familyDir)
       ? readdirSync(familyDir).filter((name) => name.endsWith('.css')).sort().map((name) => read(join(familyDir, name)))
       : [];
+    const parts = Object.fromEntries(layers.filter((layer) => /^css\/vocabulary\/[\w-]+\.css$/.test(layer)).flatMap((layer) => {
+      const dir = join(root, ...layer.replace(/\.css$/, '').split('/'));
+      if (!existsSync(dir)) return [];
+      return [[layer, afterNeeds(readdirSync(dir).filter((name) => name.endsWith('.css')).map((name) => basename(name, '.css')).sort(), needsOf(root))]];
+    }));
     const levels = [...sheets, ...families].flatMap((css) => levelsIn(css, defaults));
     const washes = [...sheets, ...families].flatMap((css) => washesIn(css, defaults));
     const layerCss = layers.map((layer) => read(join(root, ...layer.split('/'))));
     return {
       layers,
       components,
+      ...(Object.keys(parts).length ? { parts } : {}),
       levels,
       washes,
       scopes: [...new Set([...layerCss, ...sheets].flatMap(scopesIn))].sort(),
@@ -93,6 +101,26 @@ export function packageSheets(root: string): PackageSheets {
     if (error instanceof MissingSheet) throw error;
     return null;
   }
+}
+
+function needsOf(root: string): Record<string, string[]> {
+  try {
+    const map = JSON.parse(readFileSync(join(root, 'components.json'), 'utf8')) as { needs?: Record<string, string[]> };
+    return map.needs ?? {};
+  } catch {
+    return {};
+  }
+}
+
+export function afterNeeds(names: string[], needs: Record<string, string[]>): string[] {
+  const out: string[] = [];
+  const place = (name: string, path: string[]) => {
+    if (out.includes(name) || path.includes(name)) return;
+    for (const need of needs[name] ?? []) if (names.includes(need)) place(need, [...path, name]);
+    out.push(name);
+  };
+  for (const name of names) place(name, []);
+  return out;
 }
 
 export function phosphorRoot(from = process.cwd(), fallback = here) {

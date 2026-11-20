@@ -34,6 +34,16 @@ var POLARITY_HOOKS = new Set(POLARITIES.map((polarity) => `polarity-${polarity}`
 var scopeKey = (root, selector) => `@scope (${root}) ${selector}`;
 
 // scripts/lib/core/dtcg-shapes.ts
+var EXCLUDED = new Map([
+  [
+    "roles.json",
+    "it declares the questions the kernel asks and carries no value, so it is not a token file. " + "A DTCG token without $value is not a DTCG token, and check:role-contract holds it instead."
+  ],
+  [
+    "color-slots.json",
+    "it declares the colour slots a style plugin may answer and carries no value, so it is not a token file. " + "check:color-slots holds it instead."
+  ]
+]);
 function childEntries(node) {
   return Object.entries(node ?? {}).filter(([key, child]) => !key.startsWith("$") && child !== null && typeof child === "object").map(([key, child]) => [key, child]);
 }
@@ -212,7 +222,7 @@ var PREVIEW = {
     return node;
   },
   leading(token) {
-    const node = el("p", null, "Depth comes from the surface scale, the hairline border and the warm shadow, never from a gradient.");
+    const node = el("p", null, "Depth comes from the surface scale, the hairline border and the warm shadow. Arena's components paint flat backgrounds.");
     node.style.lineHeight = `var(--${token.name})`;
     node.style.fontSize = "var(--fs-sm)";
     node.style.margin = "0 0 var(--sp-3)";
@@ -374,7 +384,7 @@ async function main() {
     const sec = renderSection({
       eyebrow: "Color",
       title: "Categorical ramp",
-      note: "Identity only, never meaning. Slot order is fixed: slot N is always slot N, and a ninth series " + "folds to Other rather than generating a hue.",
+      note: "Identity. Slot order is fixed: slot N is always slot N, and a ninth series " + "folds to Other rather than generating a hue.",
       tokens: ramp
     });
     const strip = el("div", "ramp");
@@ -414,7 +424,7 @@ async function main() {
   sections.push(() => renderSection({
     eyebrow: "Effects",
     title: "Radius, elevation, focus and motion",
-    note: "Depth is the surface scale, the hairline border and the warm shadow — never a gradient, and never " + "a tinted glow. Easing curves are drawn from the value the browser resolved.",
+    note: "Depth is the surface scale, the hairline border and the warm shadow. Arena's components paint flat backgrounds and " + "no tinted glow. Easing curves are drawn from the value the browser resolved.",
     tokens: effects
   }));
   const colorsCss = await (await fetch("../contracts/design/colors.css")).text();

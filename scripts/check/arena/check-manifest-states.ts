@@ -70,12 +70,13 @@ export function sourceImplements(sourceText: string): Record<string, boolean> {
   };
 }
 
-export function classStringsBySlot(manifest: ManifestClassSource) {
-  const bySlot = new Map();
+export function classStringsBySlot(manifest: ManifestClassSource): Map<string, string[]> {
+  const bySlot = new Map<string, string[]>();
   const add = (slot: string, cls: string) => {
     if (typeof cls !== 'string') return;
-    if (!bySlot.has(slot)) bySlot.set(slot, []);
-    bySlot.get(slot).push(cls);
+    const list = bySlot.get(slot) ?? [];
+    bySlot.set(slot, list);
+    list.push(cls);
   };
   for (const [slot, cls] of Object.entries(manifest.slots || {}) as [string, string][]) add(slot, cls);
   for (const variantGroup of Object.values(manifest.variants || {}))

@@ -11,7 +11,7 @@ import { join } from 'node:path';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { LAYER_TOKENS, FORBIDDEN } from '../../check/arena/check-layer-independence.ts';
 import {
-  TARGETS, noImportSheets, openLine, closeLine, renderRegion, applyRegion, renderTarget, regionsOf,
+  TARGETS, atDefault, noImportSheets, openLine, closeLine, renderRegion, applyRegion, renderTarget, regionsOf,
   ROLE_CONTRACT, BEHAVIOUR_CONTRACT, densityValues, requiredLead, toastIntervals, defaultedRoles, defaultedSentence, defaultsStatement, roleRuns, unansweredCount,
 } from './generate-npm-pages.ts';
 import { tokenCatalogue, CSS_CHAIN, ANGULAR_EXTRA } from '../../lib/arena/package-assembly.ts';
@@ -59,7 +59,11 @@ test('each target carries exactly the regions mapped to it', () => {
   assert.deepEqual(regionsOf('frameworks/react/PACKAGE.md'), ['repository', 'questions']);
   assert.deepEqual(regionsOf('skills/design/references/config.md'), ['skin']);
   assert.deepEqual(regionsOf('skills/design/references/stylesheets.md'), ['sheets']);
-  assert.deepEqual(regionsOf('skills/design/references/tokens.md'), ['tokens', 'density', 'typography']);
+  const scales = 'skills/design/references/tokens/scales';
+  assert.deepEqual(regionsOf(`${scales}/spacing-radius-border.md`), ['spacing']);
+  assert.deepEqual(regionsOf(`${scales}/motion-and-layers.md`), ['motion']);
+  assert.deepEqual(regionsOf(`${scales}/density.md`), ['density']);
+  assert.deepEqual(regionsOf(`${scales}/type-scale.md`), ['typography']);
   assert.deepEqual(regionsOf('skills/design/references/style-kernel.md'), ['defaults']);
   assert.deepEqual(regionsOf('skills/design/references/style.md'), ['layout']);
   assert.deepEqual(regionsOf('mcp/NPM.md'), ['questions']);
@@ -184,6 +188,16 @@ test('the skin region names which roles carry a default, so an empty set reads a
     'the region on the page says what roles.json carries');
 });
 
+test('a long list of roles carrying a default is named in sentences the register reads', () => {
+  const roles = Array.from({ length: 29 }, (_, i) => `role-${String.fromCharCode(97 + (i % 26))}${i > 25 ? 'x' : ''}`);
+  const sentence = defaultedSentence(roles, 239);
+  for (const one of plain(sentence).split(/(?<=\.)\s+/))
+    assert.ok(words(one).length <= MAX_WORDS, `a sentence of ${words(one).length} words: ${one.slice(0, 60)}`);
+  assert.match(sentence, /^The 29 roles carrying a default include `role-a`/);
+  assert.match(sentence, /Roles carrying a default also include `role-u`.* Your root plugin answers the other 239\.$/);
+  for (const role of roles) assert.ok(sentence.includes(`\`${role}\``), role);
+});
+
 test('the skin region\'s key table names every ArenaFont field with its default', () => {
   const rows = renderRegion('skin').split('\n').filter((line) => line.startsWith('| `'));
   const row = (key: string) => rows.find((line) => line.startsWith(`| \`${key}\` |`)) ?? '';
@@ -300,15 +314,17 @@ test('a density value of a shape the table cannot show is refused, naming the fi
   }
 });
 
-test('the tokens region tables every value of its nine groups that no role answers, and no role at all', () => {
+const joined = () => `${renderRegion('spacing')}\n${renderRegion('motion')}`;
+
+test('the scale regions table every value of its nine groups that no role answers, and no role at all', () => {
   const { tokens } = tokenCatalogue(repoRoot);
   const roles = new Set(Object.keys(readJson(join(repoRoot, ROLE_CONTRACT)) as Record<string, unknown>));
-  const region = renderRegion('tokens');
+  const region = joined();
   for (const group of ['sp', 'r', 'bw', 'shadow', 'dur', 'loop', 'ease', 'z', 'bp']) {
     const names = Object.keys(tokens).filter((name) => (name === group || name.startsWith(`${group}-`)) && !roles.has(name));
     assert.ok(names.length > 0, `the catalogue holds the ${group} group`);
     for (const name of names)
-      assert.ok(region.includes(`| \`--${name}\` | \`${tokens[name]}\` |`), `--${name} is a row with its value`);
+      assert.ok(region.includes(`| \`--${name}\` | ${atDefault(String(tokens[name]))} |`), `--${name} is a row with its value`);
   }
   for (const role of roles) assert.ok(!region.includes(`| \`--${role}\` |`), `--${role} is a role a style plugin answers`);
   assert.ok(roles.has('r-surface') && region.includes('--r-xs'), 'the scale stays and the role goes');
@@ -316,7 +332,7 @@ test('the tokens region tables every value of its nine groups that no role answe
 });
 
 test('the tokens table carries a Tailwind column read from Theme.css', () => {
-  const rows = renderRegion('tokens').split('\n').filter((line) => line.startsWith('| `--'));
+  const rows = joined().split('\n').filter((line) => line.startsWith('| `--'));
   const rowOf = (name: string) => rows.find((row) => row.startsWith(`| \`--${name}\` |`))!.split('|').map((cell) => cell.trim());
   assert.equal(rowOf('r-lg')[3], '`rounded-lg`');
   assert.equal(rowOf('shadow-1')[3], '`shadow-1`');
@@ -326,7 +342,7 @@ test('the tokens table carries a Tailwind column read from Theme.css', () => {
   assert.equal(rowOf('z-modal')[3], '`z-modal`');
   assert.equal(rowOf('bp-md')[3], '`md:`');
   assert.equal(rowOf('loop-spin')[3], 'none');
-  assert.match(renderRegion('tokens'), /\| custom property \| value \| Tailwind \|/);
+  assert.match(renderRegion('spacing'), /\| custom property \| value \| Tailwind \|/);
 });
 
 test('the density table says what each property sizes, from its $description', () => {
@@ -355,7 +371,7 @@ test('the density region tables every --dz property once, with the value each cl
   assert.deepEqual(rows.map((row) => row.split('|')[1]!.trim()), names.map((name) => `\`--${name}\``));
   const rowOf = (name: string) => rows.find((row) => row.startsWith(`| \`--${name}\` |`))!.split('|').map((cell) => cell.trim());
   const ctl = rowOf('dz-ctl-h');
-  assert.equal(ctl[3], `\`${compact['ctl-h']!.$value.value}${compact['ctl-h']!.$value.unit}\``);
+  assert.equal(ctl[3], atDefault(`${compact['ctl-h']!.$value.value}${compact['ctl-h']!.$value.unit}`));
   assert.equal(ctl[5], '`*-ctl-h`');
   assert.equal(rowOf('dz-text-lg')[4], 'base');
   assert.equal(rowOf('dz-row-scale-x')[5], '`*-row-x`, `*-nav-row-x`, `*-row-floating-x`');
@@ -364,6 +380,11 @@ test('the density region tables every --dz property once, with the value each cl
   const planted = '| `--dz-planted` | `1px` | base | base | none |';
   assert.deepEqual(unreadButRead([...rows, planted], `${theme}\n  --spacing-planted: var(--dz-planted);`), ['`--dz-planted`']);
   assert.match(renderRegion('density'), /`\*-` stands for any spacing utility, such as `h-` or `py-`\./);
+});
+
+test('the compact column shows a text size in rem with its pixel', () => {
+  const row = renderRegion('density').split('\n').find((line) => line.startsWith('| `--dz-text` |'))!;
+  assert.equal(row.split('|')[3]!.trim(), '`0.8125rem` = 13px at the browser default');
 });
 
 test('the typography region tables every font, weight, size, leading and tracking token no role answers', () => {
@@ -393,9 +414,7 @@ test('the audit region has one row per tag in RULE_TAGS order, with the rules th
     assert.equal(cells[2], `${RULE_DESCRIPTIONS[tag]} |`, tag);
   });
   assert.ok(rows[RULE_TAGS.indexOf('raw-glyph')]!.includes('a raw ph-* element paints nothing'), 'raw-glyph names the rule it enforces');
-  assert.deepEqual(RULES.filter((rule) => rule.held === 'raw-value').length, 2, 'two rules hold raw-value');
-  assert.ok(rows[RULE_TAGS.indexOf('raw-value')]!.includes('Tokens are the only styling layer.')
-    && rows[RULE_TAGS.indexOf('raw-value')]!.includes('No gradients, on any surface.'));
+  assert.ok(rows[RULE_TAGS.indexOf('raw-value')]!.includes('Tokens are the only styling layer.'));
 });
 
 test('each fenced arena:audit script is what arena init writes for that layer', () => {
@@ -432,4 +451,96 @@ test('the noImport region lists what each package arena.css imports less the def
   assert.match(region, /`arena\.generated\.css` goes in a stylesheet of its own, imported after the list/);
   assert.match(region, /The `"default"` root adds `css\/style-plugin-default\.css` in its slot/);
   assert.doesNotMatch(region, /every component sheet when the config names none/);
+});
+
+const JOINED_TOKEN_ROWS = [
+  '| `--sp-0` | `0px` | `*-0` |',
+  '| `--sp-1` | `4px` | `*-1` |',
+  '| `--sp-2` | `8px` | `*-2` |',
+  '| `--sp-3` | `12px` | `*-3` |',
+  '| `--sp-4` | `16px` | `*-4` |',
+  '| `--sp-5` | `20px` | `*-5` |',
+  '| `--sp-6` | `24px` | `*-6` |',
+  '| `--sp-8` | `32px` | `*-8` |',
+  '| `--sp-10` | `40px` | `*-10` |',
+  '| `--sp-12` | `48px` | `*-12` |',
+  '| `--sp-16` | `64px` | `*-16` |',
+  '| `--sp-20` | `80px` | `*-20` |',
+  '| `--sp-24` | `96px` | `*-24` |',
+  '| `--sp-0-5` | `2px` | `*-0.5` |',
+  '| `--r-xs` | `4px` | `rounded-xs` |',
+  '| `--r-sm` | `6px` | `rounded-sm` |',
+  '| `--r-md` | `10px` | `rounded-md` |',
+  '| `--r-lg` | `14px` | `rounded-lg` |',
+  '| `--r-xl` | `22px` | `rounded-xl` |',
+  '| `--r-2xl` | `34px` | `rounded-2xl` |',
+  '| `--r-pill` | `999px` | `rounded-pill` |',
+  '| `--bw` | `1px` | none |',
+  '| `--bw-strong` | `2px` | none |',
+  '| `--shadow-1` | `0px 2px 6px -2px rgba(0,0,0,.5)` | `shadow-1` |',
+  '| `--shadow-2` | `0px 12px 28px -12px rgba(0,0,0,.6)` | `shadow-2` |',
+  '| `--shadow-3` | `0px 30px 60px -20px rgba(0,0,0,.7)` | `shadow-3` |',
+  '| `--dur-fast` | `120ms` | none |',
+  '| `--dur-mid` | `220ms` | none |',
+  '| `--dur-slow` | `420ms` | none |',
+  '| `--loop-spin` | `700ms` | none |',
+  '| `--loop-sweep` | `1150ms` | none |',
+  '| `--loop-shimmer` | `1400ms` | none |',
+  '| `--loop-brand` | `8000ms` | none |',
+  '| `--loop-reduced` | `2400ms` | none |',
+  '| `--loop-brand-reduced` | `24000ms` | none |',
+  '| `--ease-out` | `cubic-bezier(.2,.7,.3,1)` | `ease-out` |',
+  '| `--ease-in-out` | `cubic-bezier(.4,0,.2,1)` | `ease-in-out` |',
+  '| `--ease-emphatic` | `cubic-bezier(.2,.9,.1,1)` | `ease-emphatic` |',
+  '| `--z-nav` | `800` | `z-nav` |',
+  '| `--z-skip` | `820` | `z-skip` |',
+  '| `--z-sheet` | `850` | `z-sheet` |',
+  '| `--z-dropdown` | `900` | `z-dropdown` |',
+  '| `--z-tooltip` | `950` | `z-tooltip` |',
+  '| `--z-modal` | `1000` | `z-modal` |',
+  '| `--z-modal-nested` | `1050` | `z-modal-nested` |',
+  '| `--z-palette` | `1100` | `z-palette` |',
+  '| `--z-onboarding` | `1200` | `z-onboarding` |',
+  '| `--z-toast` | `1300` | `z-toast` |',
+  '| `--bp-sm` | `30rem` = 480px at the browser default | `sm:` |',
+  '| `--bp-md` | `48rem` = 768px at the browser default | `md:` |',
+  '| `--bp-lg` | `64rem` = 1024px at the browser default | `lg:` |',
+];
+
+test('a rem value shows its pixel at the browser default', () => {
+  assert.equal(atDefault('0.8125rem'), '`0.8125rem` = 13px at the browser default');
+  assert.equal(atDefault('48rem'), '`48rem` = 768px at the browser default');
+  assert.equal(atDefault('13px'), '`13px`');
+  assert.equal(atDefault('700ms'), '`700ms`');
+  assert.equal(atDefault('1.5'), '`1.5`');
+});
+
+test('the type table shows fs in rem with its pixel', () => {
+  const row = renderRegion('typography').split('\n').find((line) => line.startsWith('| `--fs-h1` |'))!;
+  assert.ok(row.includes('`2.75rem` = 44px at the browser default'), row);
+});
+
+test('breakpoint rows keep their variant', () => {
+  const row = renderRegion('spacing').split('\n').find((line) => line.startsWith('| `--bp-md` |'))!;
+  assert.ok(row.includes('`48rem` = 768px at the browser default') && row.endsWith('`md:` |'), row);
+});
+
+test('a spacing step keeps its multiple', () => {
+  const row = renderRegion('spacing').split('\n').find((line) => line.startsWith('| `--sp-4` |'))!;
+  assert.ok(row.includes('| `16px` |') && row.endsWith('`*-4` |'), row);
+});
+
+const rowsOf = (region: string) => region.split('\n').filter((line) => line.startsWith('| `--'));
+
+test('the scale regions keep every row of the joined table', () => {
+  const rows = [...rowsOf(renderRegion('spacing')), ...rowsOf(renderRegion('motion'))];
+  assert.deepEqual(rows.sort(), [...JOINED_TOKEN_ROWS].sort());
+});
+
+test('a scale region says only what its groups need', () => {
+  const spacing = renderRegion('spacing');
+  const motion = renderRegion('motion');
+  assert.ok(spacing.includes('The sheet sets the spacing base') && !motion.includes('The sheet sets the spacing base'));
+  assert.ok(spacing.includes('(radius and shadow)') && motion.includes('(ease)'));
+  assert.ok(spacing.includes('A breakpoint row names') && !motion.includes('A breakpoint row names'));
 });

@@ -80,7 +80,7 @@ nothing.
   since `<ng-content select="[trigger]">` matches what is projected and not what is nested
   inside it. The focusable control is still found by search, so the attributes land in the right place either way. What a misplaced marker loses is the projection, and the menu then renders no trigger at all.
 - **Do** put destructive entries last, behind a `divider`. `destructive: true` draws the row in
-  the danger ink and keeps it **outline**: a menu row is never a filled danger surface.
+  the danger ink, with no fill of its own.
 - **The trigger must be a control, not a picture of one.** An `arena-avatar`, a `<span>` or anything else that takes no focus receives the listeners and answers no key. The menu opens on a pointer, and a reader on a keyboard never reaches it. Arena reports that once at
   runtime; project an `arena-icon-button`, an `arena-button`, or your own element carrying a
   button role and a tabindex.

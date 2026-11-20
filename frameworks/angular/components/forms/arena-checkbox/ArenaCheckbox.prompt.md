@@ -59,7 +59,7 @@ Arena checkbox, one independent choice, checked showing the primary fill with a 
 
 **By hand, in real Chromium**: none of these is provable in happy-dom. Run `bun run demos` and open `/frameworks/angular/components/forms/arena-checkbox/ArenaCheckbox.demo.generated.html`: - The tick's stroke reads cleanly on the primary fill at 100% zoom. The tick's box is `--sp-3` inside an `--sp-5` square rather than filling it.
 - Clicking the label text toggles the box, and so does Space with the control focused.
-- `disabled` dims the whole control to 50% and the cursor turns to not-allowed over the label
+- `disabled` fades the whole control by `fade-disabled` and the cursor turns to not-allowed over the label
   as well as the box.
 - Tab to the control and the **box** takes the focus ring, even though the element the
   browser focused is the `opacity-0 size-0` native input. The `box` slot carries `[&:has(~input:focus-visible)]:shadow-[…]`, which reaches the input as a later sibling inside the same `<label>`. The input must stay after the box in the template, and moving it removes the ring with nothing failing.

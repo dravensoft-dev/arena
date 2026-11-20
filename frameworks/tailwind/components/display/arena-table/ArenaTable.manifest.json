@@ -6,20 +6,20 @@
     "grid": "table w-full border-collapse",
     "body": "table-row-group",
     "headRow": "table-row",
-    "th": "table-cell [position:var(--arena-sticky-position,static)] top-0 z-1 bg-track w-[var(--arena-column-width,auto)] px-row-px py-row-py [text-align:var(--arena-column-align,left)] align-middle font-face-label text-label font-bold tracking-label-role case-label text-ink-muted/(--level-ink-muted) border-b-[length:var(--bw-separator)] border-edge-separator outline-none focus:shadow-[inset_0_0_0_var(--focus-width)_var(--focus-ring)]",
+    "th": "table-cell [position:var(--arena-sticky-position,static)] top-0 z-1 border-[color:var(--data-header-edge-rest,var(--edge-separator))] bg-[color:var(--data-header-fill-rest,var(--fill-track))] text-[color:color-mix(in_oklab,var(--data-header-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)] w-[var(--arena-column-width,auto)] px-row-px py-row-py [text-align:var(--arena-column-align,left)] align-middle font-face-label text-label font-bold tracking-label-role case-label border-b-[length:var(--bw-separator)] outline-none focus:shadow-[inset_0_0_0_var(--bw-focus)_var(--edge-focus)]",
     "sortCaret": "inline-flex ms-1.5 align-middle text-[length:var(--icon-sm)]",
-    "pager": "flex justify-end border-t-[length:var(--bw-separator)] border-edge-separator px-row-px py-row-py",
-    "row": "table-row border-t-[length:var(--bw-separator)] border-edge-separator transition-[background] duration-[var(--dur-hover)] ease-hover",
-    "td": "table-cell w-[var(--arena-column-width,auto)] px-row-px py-row-py [text-align:var(--arena-column-align,left)] align-middle text-ctl outline-none focus:shadow-[inset_0_0_0_var(--focus-width)_var(--focus-ring)]",
-    "link": "inline-flex items-center min-h-ctl-h-sm cursor-pointer no-underline rounded-control outline-none transition-[color] duration-[var(--dur-hover)] ease-hover hover:text-ink-body focus:shadow-[inset_0_0_0_var(--focus-width)_var(--focus-ring)]",
-    "empty": "px-4 py-8 text-center align-middle text-ctl text-ink-muted/(--level-ink-muted)",
+    "pager": "flex justify-end border-t-[length:var(--bw-separator)] border-[color:var(--surfaces-separator-edge-rest,var(--edge-separator))] px-row-px py-row-py",
+    "row": "table-row border-t-[length:var(--bw-separator)] border-[color:var(--data-row-edge-rest,var(--edge-separator))] bg-[color:var(--data-row-fill-rest,transparent)] transition-[background] duration-[var(--dur-hover)] ease-hover",
+    "td": "table-cell w-[var(--arena-column-width,auto)] px-row-px py-row-py [text-align:var(--arena-column-align,left)] align-middle text-ctl text-[color:color-mix(in_oklab,var(--text-figure-ink-rest,var(--ink-figure))_var(--level-ink-full),transparent)] outline-none focus:shadow-[inset_0_0_0_var(--bw-focus)_var(--edge-focus)]",
+    "link": "inline-flex items-center min-h-ctl-h-sm cursor-pointer no-underline text-[color:color-mix(in_oklab,var(--navigation-plain-link-ink-rest,var(--ink-link))_var(--level-ink-body),transparent)] rounded-control outline-none transition-[color] duration-[var(--dur-hover)] ease-hover hover:text-[color:var(--navigation-plain-link-ink-hover,var(--ink-heading))] focus:shadow-[inset_0_0_0_var(--bw-focus)_var(--edge-focus)]",
+    "empty": "px-4 py-8 text-center align-middle text-ctl text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",
     "sortBar": "flex items-center gap-inline w-full",
     "sortField": "min-w-0 flex-1",
-    "card": "flex flex-col gap-stack bg-surface border-[length:var(--bw-surface)] border-edge-surface rounded-surface p-row-px shadow-surface-rest",
+    "card": "flex flex-col gap-stack border-[color:var(--surfaces-plain-card-edge-rest,var(--edge-surface))] bg-[color:var(--surfaces-plain-card-fill-rest,var(--fill-surface))] border-[length:var(--bw-surface)] rounded-surface p-row-px shadow-surface-rest",
     "cardRow": "flex items-baseline justify-between gap-items",
-    "cardLabel": "font-face-label text-label font-bold tracking-label-role case-label text-ink-muted/(--level-ink-muted)",
-    "cardValue": "min-w-0 text-right text-ctl",
-    "cardBlock": "w-full flex justify-end gap-2 border-t-[length:var(--bw-separator)] border-edge-separator pt-2"
+    "cardLabel": "font-face-label text-label font-bold tracking-label-role case-label text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",
+    "cardValue": "min-w-0 text-right text-ctl text-[color:color-mix(in_oklab,var(--text-figure-ink-rest,var(--ink-figure))_var(--level-ink-full),transparent)]",
+    "cardBlock": "w-full flex justify-end gap-2 border-t-[length:var(--bw-separator)] border-[color:var(--surfaces-separator-edge-rest,var(--edge-separator))] pt-2"
   },
   "kind": {
     "root": "surface",
@@ -48,7 +48,7 @@
   "variants": {
     "narrow": {
       "false": {
-        "root": "border-[length:var(--bw-surface)] border-edge-surface rounded-surface overflow-clip bg-surface"
+        "root": "border-[length:var(--bw-surface)] border-[color:var(--surfaces-plain-card-edge-rest,var(--edge-surface))] bg-[color:var(--surfaces-plain-card-fill-rest,var(--fill-surface))] rounded-surface overflow-clip"
       },
       "true": {
         "root": "flex flex-col gap-4",
@@ -58,7 +58,7 @@
     },
     "sortable": {
       "true": {
-        "th": "cursor-pointer select-none hover:text-ink-body"
+        "th": "cursor-pointer select-none hover:border-[color:var(--data-header-edge-hover,var(--edge-separator))] hover:bg-[color:var(--data-header-fill-hover,var(--fill-track))] hover:text-[color:color-mix(in_oklab,var(--data-header-ink-hover,var(--ink-body))_var(--level-ink-full),transparent)]"
       },
       "false": {}
     },
@@ -70,18 +70,18 @@
     },
     "interactive": {
       "true": {
-        "row": "cursor-pointer hover:bg-hover active:scale-[var(--press-scale)] motion-reduce:active:scale-100"
+        "row": "cursor-pointer hover:border-[color:var(--data-row-edge-hover,var(--data-row-edge-rest,var(--edge-separator)))] hover:bg-[color:var(--data-row-fill-hover,var(--fill-hover))] active:scale-[var(--press-scale)] motion-reduce:active:scale-100"
       },
       "false": {}
     },
     "numeric": {
       "true": {
-        "td": "font-mono tabular-nums text-ink-figure/(--level-ink-full)",
-        "cardValue": "font-mono tabular-nums text-ink-figure/(--level-ink-full)"
+        "td": "font-mono tabular-nums",
+        "cardValue": "font-mono tabular-nums"
       },
       "false": {
-        "td": "font-body text-ink-body/(--level-ink-body)",
-        "cardValue": "font-body text-ink-body/(--level-ink-body)"
+        "td": "font-body text-[color:color-mix(in_oklab,var(--text-body-ink-rest,var(--ink-body))_var(--level-ink-body),transparent)]",
+        "cardValue": "font-body text-[color:color-mix(in_oklab,var(--text-body-ink-rest,var(--ink-body))_var(--level-ink-body),transparent)]"
       }
     }
   },

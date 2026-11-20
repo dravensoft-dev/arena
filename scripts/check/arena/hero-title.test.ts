@@ -53,14 +53,21 @@ function page() {
 
 const MEASURE = `document.fonts.ready.then(() => {
   const title = document.querySelector('.arena-hero__title');
-  const root = getComputedStyle(document.documentElement);
+  const step = (name) => {
+    const probe = document.createElement('span');
+    probe.style.fontSize = 'var(' + name + ')';
+    document.body.append(probe);
+    const size = parseFloat(getComputedStyle(probe).fontSize);
+    probe.remove();
+    return size;
+  };
   const words = document.createRange();
   words.selectNodeContents(title);
   const right = Math.max(...[...words.getClientRects()].map((r) => r.right));
   return {
     size: parseFloat(getComputedStyle(title).fontSize),
-    page: parseFloat(root.getPropertyValue('--step-title-page')),
-    hero: parseFloat(root.getPropertyValue('--step-title-hero')),
+    page: step('--step-title-page'),
+    hero: step('--step-title-hero'),
     overflow: right - (innerWidth - ${GUTTER}),
   };
 })`;

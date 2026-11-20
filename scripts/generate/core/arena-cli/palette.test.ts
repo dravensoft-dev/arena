@@ -4,6 +4,10 @@ import { PALETTE_KEYS } from './palette-keys.ts';
 import { paletteReports, readPlugin, runtimeData, themeCss } from './theme-css.ts';
 import { parseDecls } from '../../../lib/arena/css-decls.ts';
 import { nodeImportsReachedFrom } from './cli-fixtures.ts';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { tokenCatalogue } from '../../../lib/arena/package-assembly.ts';
+import { repoRoot } from '../../../lib/arena/repo-root.ts';
 import { arenaCheckPalette, arenaPaletteDeclarations, arenaRuntimePalette } from './palette.ts';
 
 const colors = (overrides: Record<string, string> = {}): Record<string, string> => {
@@ -63,7 +67,9 @@ const PLUGINS = [
 const data = runtimeData(CONFIG, SHEETS, PLUGINS);
 
 test('the runtime data carries no field nothing reads', () => {
-  assert.deepEqual(Object.keys(data).sort(), ['arenaRuntimePalettes', 'declared', 'levels', 'roles', 'taken', 'washes']);
+  assert.deepEqual(Object.keys(data).sort(), ['arenaRuntimePalettes', 'declared', 'levels', 'roles', 'slots', 'taken', 'washes']);
+  const shipped = runtimeData(CONFIG, { ...SHEETS, catalogue: tokenCatalogue() }, PLUGINS);
+  assert.deepEqual(Object.keys(shipped.slots ?? {}).sort(), ['members', 'rings', 'slots'], 'the slot catalogue ships only what a measurement reads, the member defaults among it');
 });
 const css = themeCss(CONFIG, { sheets: SHEETS, plugins: PLUGINS });
 const decls = parseDecls(css);
@@ -183,4 +189,21 @@ test('arenaCheckPalette reports a base-100 that contradicts the declared polarit
   const declared = paletteReports({ ...CONFIG, palettes: [{ name: 'x', default: true, ...input }] }, SHEETS.catalogue, PLUGINS, SHEETS.levels, SHEETS.washes)[0]?.messages ?? [];
   assert.deepEqual(declared.filter((m) => m.message.startsWith('polarity,')).map((m) => m.message), lines.map((m) => m.message));
   assert.deepEqual(arenaCheckPalette({ polarity: 'dark', colors: colors() }, data).filter((m) => m.message.startsWith('polarity,')), []);
+});
+
+test('a runtime palette warns when a slot pair, the kernel pressed mix among them, falls below its floor', () => {
+  const shipped = tokenCatalogue();
+  const kernel = Object.fromEntries(Object.entries(shipped.tokens).filter(([name]) => !Object.hasOwn(shipped.slots.slots, name)));
+  const catalogue = { ...shipped, tokens: kernel };
+  const sheets = { ...SHEETS, catalogue, levels: [], washes: [] };
+  const live = runtimeData({ ...CONFIG, stylePlugins: [] }, sheets, null);
+  const palette = JSON.parse(readFileSync(join(repoRoot, 'contracts/design/palette.dark.json'), 'utf8')).color as Record<string, { $value?: { hex?: string } }>;
+  const shippedDark = Object.fromEntries(Object.entries(palette).filter(([, token]) => token.$value?.hex).map(([key, token]) => [key, token.$value?.hex as string]));
+  const dark = { ...shippedDark, 'primary-fill': '#b52a20' };
+  const reports = arenaCheckPalette({ polarity: 'dark', colors: dark }, live);
+  assert.ok(reports.some((one) => one.kind === 'contrast'
+    && one.message.startsWith('--actions-primary-root-ink-pressed measures 4.47:1 over --actions-primary-root-fill-pressed in the pressed state of the dark theme')),
+  reports.map((one) => one.message).join('\n'));
+  const built = paletteReports({ ...CONFIG, palettes: [{ name: 'x', default: true, polarity: 'dark', colors: dark }], stylePlugins: [] }, catalogue, null, [], [])[0]?.messages ?? [];
+  assert.deepEqual(reports, built, 'the browser says what the build says');
 });

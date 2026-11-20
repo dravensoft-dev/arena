@@ -1,8 +1,7 @@
 Arena bar chart. One axis, hand-written SVG, every colour a token, so it re-themes
 with the rest of Arena and costs no dependency. The chart takes series, and a series names itself. Identity comes from a series' `colorId` (one colour for the whole series) or its
 `colorIds` (a colour per bar, **in ramp order**); meaning comes from its
-`tone`. Passing both warns and `tone` wins, because a chart carries identity or meaning,
-never both. A series with no identity of its own takes the slot its position gives it,
+`tone`. With a `tone` the series takes the status colour, and `colorId` and `colorIds` are not read. A series with no identity of its own takes the slot its position gives it,
 so two series are never the same colour by accident.
 
 ```ts
@@ -26,7 +25,7 @@ readonly health = computed<ArenaSeries[]>(() => [{ label: 'Errors', values: this
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `labels*` | array | `readonly string[]` |  | One label per category, in the same order as every series' `values`. A category with no value in a series is drawn for the series that do have one. |
+| `labels*` | array | `readonly string[]` |  | One label per category, in the same order as every series' `values`. A category with no value in a series is drawn for the series that do have one. Every n-th label is drawn when the labels do not fit their band, and the data table carries all of them. |
 | `series*` | array | `readonly ArenaSeries[]` |  | The plotted series, drawn as one group of bars per category. One series is the common case and draws one bar per category. Two or more share each category's band, so the bars of one category stand side by side and the reader compares within a category before comparing across. After the last slot the positional count starts again at the first, so fold a ninth series into "Other" upstream. |
 | `colorStart` | enum | `ArenaCatSlot` | `1` | The ramp slot the first series takes when it names no colour of its own. Each later series takes the next slot, and after the last slot the count starts again at the first. A series' `colorId` or `colorIds` keeps the slot it names. Absent, 1. |
 | `label*` | primitive | `string` |  | Names the chart for its accessible name and for the caption of its data table. The label names the CHART, not a series: a series names itself. Required and guarded rather than defaulted, because a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing. Two charts on one page then announce identically. |

@@ -4,7 +4,9 @@
  * with a value `default` does not use and paints through every part hook. It reads the parts from
  * the manifests rather than from the generated modules, so a manifest that gained a slot and
  * never rebuilt is caught, and it reuses paintedParts from the shipped audit rather than parsing
- * a selector a second time. */
+ * a selector a second time. An icon slot falls to the ink of its own part and state, so an icon
+ * answered as complete answers the ink it follows is that ink's kernel default and counts as
+ * unanswered. */
 
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -20,6 +22,8 @@ import { ARENA_EXT, ROLES, ROOT_PLUGIN } from './check-style-plugin.ts';
 import { ALIAS_SOURCE, CHANNEL_SOURCES, tokenCatalogue } from '../../lib/arena/package-assembly.ts';
 import { readPlugin, resolvedPlugin } from '../../generate/core/arena-cli/theme-css.ts';
 import { CSS_TARGETS } from '../../generate/arena/generate-tokens.ts';
+import { COLOR_SLOTS, readColorSlots } from '../../lib/core/color-slots.ts';
+import { expectedName, type SlotCatalogue } from '../../generate/core/arena-cli/slots.ts';
 
 export const COMPLETE = 'plugin-style-store/complete/plugin.tokens.json';
 
@@ -27,7 +31,7 @@ export const COMPLETE_CSS = 'plugin-style-store/complete/plugin.css';
 
 export const node = {
   name: 'check:style-plugin-coverage',
-  reads: [ROLES, ALIAS_SOURCE, ...CHANNEL_SOURCES, ROOT_PLUGIN, COMPLETE, COMPLETE_CSS, 'frameworks/tailwind/components/**',
+  reads: [ROLES, ALIAS_SOURCE, ...CHANNEL_SOURCES, ROOT_PLUGIN, COMPLETE, COMPLETE_CSS, COLOR_SLOTS, 'frameworks/tailwind/components/**',
     ...CSS_TARGETS, 'frameworks/Components.json',
     'frameworks/tailwind/consume/components/**/*.styles.generated.css'],
   writes: [],
@@ -51,6 +55,133 @@ export function immovableRoles(roles: Record<string, Shape>) {
     const values = shape.$type === 'keyword' ? shape.$extensions?.[ARENA_EXT]?.values : undefined;
     return Array.isArray(values) && values.length === 1;
   }).map(([role]) => role);
+}
+
+const NO_SECOND_SPELLING = 'no other accepted role resolves to the key complete paints there, so a spelling of '
+  + 'its own would move the complete sink';
+
+const MEMBER_DEFAULT = 'complete paints the ghost Button transparent here and the ghost IconButton in its member '
+  + 'default (D21), two colours one group slot cannot carry, so any answer to it moves one of them in the complete sink';
+
+const SLOT = 'a colour slot, not a role: ';
+
+export const WITNESS_EXEMPT: ReadonlyMap<string, string> = new Map([
+  ['hue-danger-fill-strong', 'complete answers it as default does, because a colour of its own would move the '
+    + 'complete sink, and this role reaches a page through the destructive and danger-tone parts that default '
+    + 'already paints'],
+  ['fill-control', 'complete answers it as default does, neutral, because complete paints an off Switch track and a selected '
+    + 'segment neutral and no other palette key resolves to it, and this role reaches a page through the choices slots '
+    + 'complete answers with spellings of their own'],
+  ['actions-solid-root-edge-rest', SLOT + NO_SECOND_SPELLING],
+  ['actions-dismiss-fill-rest', SLOT + 'the one accepted role complete paints transparent, hue-danger-fill-strong, is a danger fill, '
+    + 'and a dismiss button answered with it would say danger where it draws nothing; the kernel default is the literal '
+    + 'transparent, so no other spelling resolves to the key complete paints there'],
+  ['choices-segment-fill-rest', SLOT + 'the one accepted role complete paints transparent, hue-danger-fill-strong, is a danger fill, '
+    + 'and an unselected segment answered with it would say danger where it draws nothing; the kernel default is the literal '
+    + 'transparent, so no other spelling resolves to the key complete paints there'],
+  ['choices-box-edge-selected', SLOT + 'complete draws a ticked box with no edge, the kernel default is the literal transparent, '
+    + 'and no accepted edge role resolves to transparent in complete, so no other spelling resolves to what complete paints there'],
+  ['choices-box-fill-selected', SLOT + 'complete fills a ticked box with primary-fill through fill-control-on, the kernel default: '
+    + NO_SECOND_SPELLING],
+  ...['fields-value-fill-rest', 'fields-stepper-fill-rest'].map((name): [string, string] => [name, SLOT + 'the one accepted role complete paints transparent, '
+    + 'hue-danger-fill-strong, is a danger fill, and a field part answered with it would say danger where it draws nothing; the kernel default is the '
+    + 'literal transparent, so no other spelling resolves to the key complete paints there']),
+  ...['rest', 'hover', 'pressed'].map((state): [string, string] => [`actions-ghost-root-edge-${state}`, SLOT + MEMBER_DEFAULT]),
+  ...['menus-plain-item-fill-rest', 'menus-destructive-item-fill-rest', 'navigation-disclosure-fill-rest'].map((name): [string, string] => [name, SLOT + 'the one accepted role complete paints '
+    + 'transparent, hue-danger-fill-strong, is a danger fill, and a menu row or a disclosure answered with it would say danger where it draws nothing; the kernel '
+    + 'default is the literal transparent, so no other spelling resolves to the key complete paints there']),
+  ['navigation-item-fill-rest', SLOT + 'the one accepted role complete paints transparent, hue-danger-fill-strong, is a danger fill, and a navigation row '
+    + 'answered with it would say danger where it draws nothing; the kernel default is the literal transparent, so no other spelling resolves to the key '
+    + 'complete paints there'],
+  ['navigation-item-edge-rest', SLOT + 'complete draws a resting navigation row, a resting page and an unselected tab with no edge, the kernel default is the '
+    + 'literal transparent, and no accepted edge role resolves to transparent in complete, so no other spelling resolves to what complete paints there'],
+  ...[
+    ...['fill', 'ink', 'edge', 'icon'].flatMap((property) => ['disabled', 'selected-disabled'].map((state) => `navigation-item-${property}-${state}`)),
+    ...['plain', 'destructive'].flatMap((option) => ['fill', 'ink', 'icon'].map((property) => `menus-${option}-item-${property}-disabled`)),
+    ...['fill', 'ink', 'icon'].map((property) => `menus-plain-item-${property}-selected-disabled`),
+  ].map((name): [string, string] => [name, SLOT + 'any answer to a disabled or selected-disabled slot of a menu row or a navigation item stops that '
+    + 'part\'s fade (D8), which complete paints today on a disabled TreeView row, so complete leaves it unanswered and every spelling would move the complete sink']),
+  ...['complete', 'upcoming'].map((option): [string, string] => [`steps-${option}-marker-fill-rest`, SLOT + 'the one accepted role complete paints transparent, '
+    + 'hue-danger-fill-strong, is a danger fill, and a step marker answered with it would say danger where it draws nothing; the kernel default is the literal '
+    + 'transparent, so no other spelling resolves to the key complete paints there']),
+  ...['neutral', 'danger', 'success', 'warning', 'info'].map((option): [string, string] => [`feedback-${option}-action-fill-rest`, SLOT + 'the one accepted role complete paints '
+    + 'transparent, hue-danger-fill-strong, is a danger fill, and an alert or toast action answered with it would say danger where it draws nothing; the kernel '
+    + 'default is the literal transparent, so no other spelling resolves to the key complete paints there']),
+  ['feedback-plain-banner-edge-rest', SLOT + NO_SECOND_SPELLING],
+  ...['neutral', 'success', 'warning', 'info'].map((option): [string, string] => [`marks-${option}-complete-dot-edge-rest`, SLOT + 'complete draws a complete '
+    + 'timeline disc with its border the colour of its fill, the kernel default is the literal transparent, which paints the same pixel, and no accepted edge role '
+    + 'resolves to transparent in complete, so no other spelling resolves to what complete paints there (D91)']),
+  ['marks-neutral-complete-dot-fill-rest', SLOT + NO_SECOND_SPELLING],
+  ['marks-gold-soft-fill-rest', SLOT + 'complete washes a gold badge in primary at the gold soft level through accent-gold-fill-soft, the kernel '
+    + 'default, and no other accepted fill role resolves to primary in complete: ' + NO_SECOND_SPELLING],
+  ...['success', 'warning', 'info'].map((option): [string, string] => [`marks-${option}-dot-ink-rest`, SLOT + `complete paints the ${option} presence and `
+    + `activity dots through hue-${option}-fill-strong, neutral in complete, and no role a dot ink accepts resolves to neutral in complete, so no spelling `
+    + 'resolves to the key complete paints there']),
+  ...['success', 'warning', 'info'].map((option): [string, string] => [`meters-${option}-track-ink-rest`, SLOT + `complete paints the ${option} meter and progress range `
+    + `through hue-${option}-fill-strong, neutral in complete, and no role an ink slot accepts resolves to neutral in complete, so no spelling resolves to `
+    + 'the key complete paints there']),
+  ...['choices-mark-ink-selected', 'navigation-badge-ink-selected', 'steps-current-marker-ink-rest'].map((name): [string, string] => [name, SLOT + 'the key '
+    + 'complete gives a ticked mark, a current navigation count and a current step number over their primary fill is primary-content, and no role an ink '
+    + 'slot accepts resolves to primary-content in complete, so the slot keeps its kernel default there']),
+  ['steps-current-marker-edge-rest', SLOT + 'the key complete gives the current step marker\'s edge is primary-fill, the colour of its fill, and no role '
+    + 'an edge slot accepts resolves to primary-fill in complete, so the slot keeps its kernel default there'],
+  ['data-row-fill-rest', SLOT + 'the one accepted role complete paints transparent, hue-danger-fill-strong, is a danger fill, and a table or list row answered with it '
+    + 'would say danger where it draws nothing; the kernel default is the literal transparent, so no other spelling resolves to the key complete paints there'],
+  ['data-now-edge-rest', SLOT + 'complete paints the calendar now line primary-fill, and no accepted edge role resolves to it in complete: ' + NO_SECOND_SPELLING],
+  ['overlays-tip-fill-rest', SLOT + 'complete paints the tooltip bubble base-content, and fill-tip is the one accepted role resolving to it: ' + NO_SECOND_SPELLING],
+  ['fill-tip', 'complete answers it as default does, base-content, because complete paints a tooltip bubble base-content and no other palette key resolves to it, '
+    + 'and no other spelling of the overlays tip fill resolves to it either'],
+  ['overlay-scrim', 'complete answers it as default does, base-100, because complete paints the cover behind a modal base-100 at the scrim level and no other palette key '
+    + 'resolves to it, and this role reaches a page through the overlays scrim slot complete answers with a spelling of its own'],
+  ['ink-tip', 'complete answers it as default does, base-100, because complete paints a tooltip word base-100 and no other palette key resolves to it, '
+    + 'and this role reaches a page through the overlays tip ink slot complete answers with a spelling of its own'],
+  ['fill-tile', 'complete answers it as default does, base-300, because complete paints the ground behind a monogram base-300 and no other palette key '
+    + 'resolves to it, and this role reaches a page through the marks tile slot complete answers with a spelling of its own'],
+  ['fill-marker', 'complete answers it as default does, base-300, because complete paints the count beside a side navigation row that is not current '
+    + 'base-300 and no other palette key resolves to it, and this role reaches a page through the navigation badge slot complete answers with a '
+    + 'spelling of its own'],
+]);
+
+export function staleExemptions(moved: string[], exempt: ReadonlyMap<string, string> = WITNESS_EXEMPT) {
+  const given = new Set(moved);
+  return [...exempt.keys()].filter((role) => given.has(role)).map((role) =>
+    `${role} is exempt from the witness and complete answers it with a value of its own, so the exemption `
+    + 'is stale: drop the entry from WITNESS_EXEMPT.');
+}
+
+function ownSpellings(
+  catalogue: SlotCatalogue, name: string, complete: Record<string, string>, root: Record<string, string>,
+): [string, string][] {
+  const slot = catalogue.slots[name];
+  const out: [string, string][] = [];
+  if (slot?.default !== undefined) out.push([JSON.stringify(slot.default), 'kernel default']);
+  if (root[name] !== undefined) out.push([root[name], 'default plugin']);
+  const ink = slot?.property === 'icon' ? complete[expectedName({ ...slot, property: 'ink' })] : undefined;
+  if (ink !== undefined) out.push([ink, 'ink the icon follows']);
+  return out;
+}
+
+export function unansweredSlots(
+  catalogue: SlotCatalogue, complete: Record<string, string>, root: Record<string, string>,
+  exempt: ReadonlyMap<string, string> = WITNESS_EXEMPT,
+) {
+  const problems: string[] = [];
+  for (const name of Object.keys(catalogue.slots).sort()) {
+    if (exempt.has(name)) continue;
+    const answer = complete[name];
+    if (answer === undefined) {
+      problems.push(`${name} is a colour slot and complete leaves it unanswered, so nothing in this tree `
+        + `shows the slot reaching a page: answer it in ${COMPLETE} with a role of its own.`);
+      continue;
+    }
+    const same = ownSpellings(catalogue, name, complete, root).find(([spelling]) => spelling === answer);
+    if (same) {
+      problems.push(`${name} is a colour slot and complete answers it ${answer} as the ${same[1]} does, so the `
+        + 'witness shows no reach: give it a spelling of its own, or exempt it in WITNESS_EXEMPT with the reason '
+        + 'no second spelling exists.');
+    }
+  }
+  return problems;
 }
 
 export function unreachedRoles(declared: string[], moved: string[], immovable: string[] = []) {
@@ -120,9 +251,12 @@ export function collect(base = repoRoot) {
     return path ? readFileSync(path, 'utf8') : null;
   };
 
+  const moved = movedRoles(root, complete);
   return {
     problems: [
-      ...unreachedRoles(declared, movedRoles(root, complete), immovableRoles(shapes)),
+      ...unansweredSlots(readColorSlots(base), complete, root),
+      ...unreachedRoles(declared, moved, [...immovableRoles(shapes), ...WITNESS_EXEMPT.keys()]),
+      ...staleExemptions(moved),
       ...unpaintedParts(parts, painted),
       ...phantomParts(parts, painted),
       ...restatedInWitness(witness, sheetOf, at),

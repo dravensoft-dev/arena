@@ -1,7 +1,7 @@
 {
   "component": "ArenaAppBar",
   "slots": {
-    "root": "block w-full bg-surface border-b-[length:var(--bw-surface)] border-edge-surface",
+    "root": "block w-full border-[color:var(--surfaces-page-bar-edge-rest,var(--edge-surface))] bg-[color:var(--surfaces-page-bar-fill-rest,var(--fill-surface))] border-b-[length:var(--bw-surface)]",
     "band": "flex flex-wrap items-center gap-items w-full mx-auto px-[min(var(--pad-band-x),7%)] py-band-y",
     "brand": "shrink-0",
     "nav": "flex flex-wrap items-center gap-inline min-w-0 me-auto",

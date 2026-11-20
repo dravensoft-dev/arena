@@ -1,6 +1,8 @@
 import {
-  chartLegendMin, chartLegendMax, chartLegendGap, chartLegendStrip, chartLabelGap, chartBubbleRMax,
+  chartLegendMin, chartLegendMax, chartLegendGap, chartLabelGap, chartBubbleRMax,
 } from '../../Tokens.generated.js';
+import { ARENA_TEXT_ROOM } from '../../DataVisuals.ts';
+import type { ArenaTextRoom } from '../../DataVisuals.ts';
 import type { ArenaChartLegendLayout } from '../../Api.generated';
 
 export interface ArenaLegendStrip {
@@ -30,12 +32,16 @@ export function arenaSizeKeyHeight(shows: boolean): number {
   return shows ? chartBubbleRMax * 2 + chartLabelGap : 0;
 }
 
-export function arenaLegendStrip(height: number, seriesCount: number, sizeKey = false): ArenaLegendStrip {
-  const stripH = arenaLegendShows(seriesCount) ? chartLegendStrip : 0;
+export function arenaLegendStrip(
+  height: number, seriesCount: number, sizeKey = false, room: ArenaTextRoom = ARENA_TEXT_ROOM,
+): ArenaLegendStrip {
+  const stripH = arenaLegendShows(seriesCount) ? room.legendStrip : 0;
   const sizeH = arenaSizeKeyHeight(sizeKey);
   return { plotH: Math.max(1, height - stripH - sizeH), stripH, sizeH };
 }
 
-export function arenaHeatLegendStrip(height: number): { plotH: number; stripH: number } {
-  return { plotH: Math.max(1, height - chartLegendStrip), stripH: chartLegendStrip };
+export function arenaHeatLegendStrip(
+  height: number, room: ArenaTextRoom = ARENA_TEXT_ROOM,
+): { plotH: number; stripH: number } {
+  return { plotH: Math.max(1, height - room.legendStrip), stripH: room.legendStrip };
 }

@@ -1,5 +1,5 @@
 /* No DOM and no TestBed: the recipe alone. destructive is the only variant, and it marks both halves
- * so each draws the danger outline. */
+ * so each draws the danger hue border and label. */
 
 import test from 'node:test';
 import assert from 'node:assert/strict';

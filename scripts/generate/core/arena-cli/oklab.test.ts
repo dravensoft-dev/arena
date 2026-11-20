@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { composite, darkenOklab, errorFill, FILL_FALLBACK_KEEP, heatCramped, heatLadder, ladderGaps, toOklab } from './oklab.ts';
+import { composite, darkenOklab, errorFill, FILL_FALLBACK_KEEP, heatCramped, heatLadder, ladderGaps, mixOklab, toOklab } from './oklab.ts';
 import { contrast } from './validate-palette.mjs';
 import { validateOrdinal } from '../../../lib/core/validate-palette.mjs';
 import { CVD_KINDS } from '../../../lib/core/cvd.ts';
@@ -104,4 +104,12 @@ test('heatCramped names each neighbouring pair of steps under the gap', () => {
   assert.deepEqual(heatCramped(steps).cramped.map(({ from, to }) => [from, to]), [[1, 2], [3, 4]]);
   assert.equal(heatCramped(steps).ordered, true);
   assert.deepEqual(heatCramped(['#101010', '#404040', '#707070', '#a0a0a0', '#d0d0d0']).cramped, []);
+});
+
+test('mixOklab mixes in oklab', () => {
+  assert.equal(contrast(mixOklab('#b52a20', '#ffffff', 0.16), '#ffffff').toFixed(2), '4.47');
+  assert.equal(mixOklab('#b52a20', '#ffffff', 0), '#b52a20');
+  assert.equal(mixOklab('#b52a20', '#ffffff', 1), '#ffffff');
+  const half = toOklab(mixOklab('#000000', '#ffffff', 0.5));
+  assert.ok(Math.abs(half[0] - 0.5) < 0.01, 'the midpoint of black and white is the middle of oklab lightness');
 });

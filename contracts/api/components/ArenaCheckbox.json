@@ -1,6 +1,6 @@
 {
   "component": "ArenaCheckbox",
-  "description": "A single checkbox. Checked shows the primary fill with a check.",
+  "description": "A single checkbox. Checked fills the box in fill-control-on with a check.",
   "affordances": ["focus"],
   "api": {
     "checked": { "form": "primitive", "type": "boolean", "default": false, "description": "Whether it is ticked." },

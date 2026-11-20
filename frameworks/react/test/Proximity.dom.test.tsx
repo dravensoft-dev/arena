@@ -5,15 +5,16 @@
 import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
-import { mount, cleanup } from './Harness.tsx';
-import { ArenaButton, ArenaIconButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope } from '../Index.generated.ts';
-import { readProximity, normalize, vocabularyClasses } from '../../../scripts/lib/arena/proximity.ts';
+import { mount, cleanup, act } from './Harness.tsx';
+import { ArenaBoardColumn, ArenaBarChart, ArenaButton, ArenaIconButton, ArenaSplitButton, ArenaCopyButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope, ArenaCheckbox, ArenaRadioGroup, ArenaRadio, ArenaSwitch, ArenaSlider, ArenaInput, ArenaFileInput, ArenaMultiSelect, ArenaSideNav, ArenaSideNavItem, ArenaTabs, ArenaTab, ArenaTreeView, ArenaPagination, ArenaBottomNav, ArenaBottomNavItem, ArenaStepper, ArenaOnboarding, ArenaCommandPalette, ArenaAlert, ArenaToast , ArenaAvatar, ArenaActivityFeed, ArenaMeter, ArenaProgressBar, ArenaSpinner, ArenaChartCard, ArenaDivider, ArenaConfirmDialog, ArenaTable, ArenaTableRow, ArenaTableCell } from '../Index.generated.ts';
+import { readProximity, normalize, vocabularyClasses, markDotAnswers } from '../../../scripts/lib/arena/proximity.ts';
 
 afterEach(cleanup);
 
 type NodeLike = Parameters<typeof normalize>[0];
 
 const axis = { display: 'contents', '--arena-grid-min': '300px' } as React.CSSProperties;
+const answered = (answers: Record<string, string>) => answers as React.CSSProperties;
 
 const COMPOSITIONS: Record<string, () => React.ReactElement> = {
   'class-on-component-beats-ancestor': () => <ArenaButton className="arena-fill">Save</ArenaButton>,
@@ -74,9 +75,179 @@ const COMPOSITIONS: Record<string, () => React.ReactElement> = {
   'timeline-connector-horizontal-keeps-block-margin': () => <ArenaTimeline label="Order" items={[{ title: 'Placed' }, { title: 'Shipped' }]} />,
   'tag-breaks-a-label-wider-than-its-container': () => <ArenaTag>{'InternationalisationInternationalisationInternationalisationInternationalisationInternationalisationInternationalisation'}</ArenaTag>,
   'palette-scope-takes-the-surface-radius': () => <ArenaPaletteScope palette="light"><span>Light</span></ArenaPaletteScope>,
+  'group-answer-moves-every-member': () => <div style={answered({ '--actions-primary-root-fill-rest': 'var(--fill-surface)' })}>
+    <ArenaButton>Save</ArenaButton>
+    <ArenaSplitButton label="Deployment" menuLabel="More deploy options" items={[{ label: 'Deploy' }]}>Deploy</ArenaSplitButton>
+    <ArenaIconButton icon="ph-bold ph-x" label="Close" />
+  </div>,
+  'context-class-beats-the-default-block': () => <div style={answered({ '--actions-primary-root-fill-rest': 'var(--fill-surface-raised)' })}><ArenaButton>Save</ArenaButton></div>,
+  'member-default-kept-while-the-group-is-silent': () => <div><ArenaIconButton icon="ph-bold ph-x" label="Close" /><ArenaButton className="arena-emphasis-ghost">Save</ArenaButton></div>,
+  'secondary-answer-reaches-the-calendar-nav': () => <div style={answered({ '--actions-secondary-root-fill-rest': 'var(--fill-surface)' })}><ArenaButton className="arena-emphasis-secondary">Save</ArenaButton><ArenaCalendar view="week" anchorDate="2025-03-03" /></div>,
+  'group-answer-replaces-the-member-default': () => <div style={answered({ '--actions-ghost-root-edge-rest': 'var(--hue-danger-edge)' })}><ArenaIconButton icon="ph-bold ph-x" label="Close" /><ArenaButton className="arena-emphasis-ghost">Save</ArenaButton></div>,
+  'answered-disabled-stops-the-fade': () => <div style={answered({ '--actions-primary-root-ink-disabled': 'var(--ink-muted)', '--actions-primary-root-fade-disabled': '1' })}><ArenaButton disabled>Save</ArenaButton></div>,
+  'answered-disabled-draws-its-ink': () => <div style={answered({ '--actions-primary-root-ink-disabled': 'var(--ink-muted)', '--actions-primary-root-fade-disabled': '1' })}><ArenaButton disabled>Save</ArenaButton></div>,
+  'answered-disabled-ink-reaches-the-glyph': () => <div style={answered({ '--actions-primary-root-ink-disabled': 'var(--ink-muted)', '--actions-primary-root-fade-disabled': '1' })}><ArenaButton disabled icon="ph-bold ph-x">Save</ArenaButton></div>,
+  'choices-answer-moves-every-box': () => <div style={answered({ '--choices-box-fill-selected': 'var(--fill-surface)' })}>
+    <ArenaCheckbox checked label="Notify" />
+    <ArenaRadioGroup ariaLabel="Cadence" value="daily"><ArenaRadio value="daily" label="Daily" /></ArenaRadioGroup>
+    <ArenaSwitch state label="Sync" />
+    <ArenaSlider label="Volume" value={40} />
+  </div>,
+  'ink-answer-reaches-the-glyph': () => <div style={answered({ '--actions-primary-root-ink-rest': 'var(--fill-surface)' })}><ArenaButton icon="ph-bold ph-x">Save</ArenaButton></div>,
+  'icon-rest-answer-keeps-the-level': () => <div style={answered({ '--actions-ghost-root-icon-rest': 'var(--hue-danger-ink)' })}><ArenaButton className="arena-emphasis-ghost" icon="ph-bold ph-x">Save</ArenaButton></div>,
+  'class-on-copy-button-reaches-the-icon-button-it-draws': () => <div style={answered({ '--actions-solid-root-fill-rest': 'var(--fill-surface-raised)' })}><ArenaCopyButton className="arena-emphasis-solid" text="x" label="Copy" /></div>,
+  'answered-disabled-keeps-the-rest-fill': () => <div style={answered({ '--actions-primary-root-ink-disabled': 'var(--ink-muted)', '--actions-primary-root-fade-disabled': '1' })}><ArenaButton disabled>Save</ArenaButton></div>,
+  'selected-disabled-answer-stops-only-the-selected-fade': () => <>
+    <div style={answered({ '--actions-ghost-root-ink-disabled': 'var(--ink-muted)', '--actions-ghost-root-fade-disabled': '1' })}><ArenaIconButton icon="ph-bold ph-x" label="Close" pressed disabled /></div>
+    <div style={answered({ '--actions-ghost-root-ink-selected-disabled': 'var(--ink-muted)', '--actions-ghost-root-fade-selected-disabled': '1' })}><ArenaIconButton icon="ph-bold ph-x" label="Close" pressed disabled /></div>
+  </>,
+  'answered-disabled-choices-stops-the-fade': () => <>
+    <div><ArenaCheckbox disabled label="Notify" /></div>
+    <div style={answered({ '--choices-box-fill-disabled': 'var(--fill-surface)', '--choices-box-fade-disabled': '1' })}><ArenaCheckbox disabled label="Notify" /></div>
+  </>,
+  'answered-disabled-radio-stops-the-fade': () => <>
+    <div><ArenaRadioGroup ariaLabel="Cadence" value="daily"><ArenaRadio value="daily" label="Daily" disabled /></ArenaRadioGroup></div>
+    <div style={answered({ '--choices-box-fill-selected-disabled': 'var(--fill-surface)', '--choices-box-fade-selected-disabled': '1' })}><ArenaRadioGroup ariaLabel="Cadence" value="daily"><ArenaRadio value="daily" label="Daily" disabled /></ArenaRadioGroup></div>
+  </>,
+  'answered-disabled-switch-stops-the-fade': () => <>
+    <div><ArenaSwitch label="Sync" disabled /></div>
+    <div style={answered({ '--choices-box-fill-disabled': 'var(--fill-surface)', '--choices-box-fade-disabled': '1' })}><ArenaSwitch label="Sync" disabled /></div>
+  </>,
+  'fields-edge-answer-moves-the-halo': () => <div style={answered({ '--fields-error-field-edge-rest': 'var(--hue-warning-edge)' })}><ArenaInput label="Email" error="Required" /></div>,
+  'answered-disabled-field-stops-the-fade': () => <>
+    <div><ArenaInput label="Email" disabled /></div>
+    <div style={answered({ '--fields-neutral-field-fill-disabled': 'var(--fill-surface)', '--fields-neutral-field-fade-disabled': '1' })}><ArenaInput label="Email" disabled /></div>
+  </>,
+  'fields-error-zone-keeps-its-edge-while-disabled': () => <div style={answered({ '--fields-error-field-edge-disabled': 'var(--hue-warning-edge)' })}><ArenaFileInput label="Upload" droppable error="Too big" disabled /></div>,
+  'fields-error-zone-keeps-its-edge-while-dragged': () => <div style={answered({ '--fields-error-field-edge-hover': 'var(--hue-warning-edge)' })}><ArenaFileInput label="Upload" droppable error="Too big" /></div>,
+  'fields-error-zone-draws-no-field-unless-droppable': () => <ArenaFileInput label="Upload" error="Too big" />,
+  'answered-disabled-field-keeps-its-answer-while-hovered': () => <div style={answered({ '--fields-neutral-field-fill-disabled': 'var(--fill-surface)' })}><ArenaInput label="Email" disabled /></div>,
+  'hovered-enabled-field-takes-its-hover-answer': () => <div style={answered({ '--fields-neutral-field-fill-hover': 'var(--fill-surface)' })}><ArenaInput label="Email" /></div>,
+  'hovered-readonly-field-keeps-its-readonly-fill': () => <ArenaInput label="Email" readOnly />,
+  'answered-disabled-dismiss-stops-the-fade': () => <>
+    <div><ArenaTag removable disabled>europe-west</ArenaTag></div>
+    <div style={answered({ '--actions-dismiss-ink-disabled': 'var(--ink-body)', '--actions-dismiss-fade-disabled': '1' })}><ArenaTag removable disabled>europe-west</ArenaTag></div>
+  </>,
+  'menu-answer-moves-every-highlight': () => <div style={answered({ '--menus-plain-item-fill-selected': 'var(--fill-surface)' })}>
+    <ArenaMultiSelect label="Regions" options={[{ value: 'eu-west', label: 'Europe West' }]} value={[]} />
+    <ArenaCommandPalette open commands={[{ id: 'home', label: 'Go home' }]} />
+  </div>,
+  'blocked-option-fades-until-answered': () => <>
+    <div><ArenaMultiSelect label="Regions" options={[{ value: 'eu-west', label: 'Europe West' }, { value: 'us-east', label: 'US East' }]} value={[]} max={0} /></div>
+    <div style={answered({ '--menus-plain-item-fade-disabled': '1' })}><ArenaMultiSelect label="Regions" options={[{ value: 'eu-west', label: 'Europe West' }, { value: 'us-east', label: 'US East' }]} value={[]} max={0} /></div>
+  </>,
+  'blocked-active-option-fades-until-answered': () => <>
+    <div><ArenaMultiSelect label="Regions" options={[{ value: 'eu-west', label: 'Europe West' }]} value={[]} max={0} /></div>
+    <div style={answered({ '--menus-plain-item-fade-selected-disabled': '1' })}><ArenaMultiSelect label="Regions" options={[{ value: 'eu-west', label: 'Europe West' }]} value={[]} max={0} /></div>
+  </>,
+  'blocked-active-option-keeps-its-selected-wash': () => <>
+    <div><ArenaMultiSelect label="Regions" options={[{ value: 'eu-west', label: 'Europe West' }]} value={[]} /></div>
+    <div><ArenaMultiSelect label="Regions" options={[{ value: 'eu-west', label: 'Europe West' }]} value={[]} max={0} /></div>
+  </>,
+  'navigation-answer-moves-every-current-item': () => <div style={answered({ '--navigation-item-fill-selected': 'var(--fill-surface)' })}>
+    <ArenaSideNav ariaLabel="Primary" active="home"><ArenaSideNavItem id="home" label="Home" /></ArenaSideNav>
+    <ArenaTreeView label="Files" nodes={[{ id: 'src', label: 'src' }]} selection={{ ids: ['src'] }} />
+    <ArenaPagination ariaLabel="Deployments" page={1} pageCount={1} />
+    <ArenaBottomNav ariaLabel="Mobile" active="home"><ArenaBottomNavItem id="home" label="Home" icon="ph-bold ph-house" /></ArenaBottomNav>
+  </div>,
+  'hovered-current-item-keeps-its-selected-look': () => <ArenaSideNav ariaLabel="Primary" active="home"><ArenaSideNavItem id="home" label="Home" /></ArenaSideNav>,
+  'hovered-selected-tab-keeps-its-selected-ink': () => <ArenaTabs value="one"><ArenaTab value="one" label="One">First</ArenaTab></ArenaTabs>,
+  'selected-edge-answer-moves-the-tab-rule': () => <div style={answered({ '--navigation-item-edge-selected': 'var(--hue-info-edge)' })}><ArenaTabs value="one"><ArenaTab value="one" label="One">First</ArenaTab></ArenaTabs></div>,
+  'selected-edge-answer-moves-the-current-page-border': () => <div style={answered({ '--navigation-item-edge-selected': 'var(--hue-info-edge)' })}><ArenaPagination ariaLabel="Deployments" page={1} pageCount={1} /></div>,
+  'aria-disabled-member-fades-until-answered': () => <>
+    <div><ArenaBottomNav ariaLabel="Mobile"><ArenaBottomNavItem id="locked" label="Locked" icon="ph-bold ph-lock" disabled /></ArenaBottomNav></div>
+    <div><ArenaTreeView label="Files" nodes={[{ id: 'src', label: 'src', disabled: true }]} /></div>
+    <div style={answered({ '--navigation-item-fade-disabled': '1' })}><ArenaBottomNav ariaLabel="Mobile"><ArenaBottomNavItem id="locked" label="Locked" icon="ph-bold ph-lock" disabled /></ArenaBottomNav></div>
+  </>,
+  'answered-disabled-tree-item-stops-the-fade': () => <>
+    <div><ArenaTreeView label="Files" nodes={[{ id: 'src', label: 'src', disabled: true }]} /></div>
+    <div style={answered({ '--navigation-item-fade-disabled': '1' })}><ArenaTreeView label="Files" nodes={[{ id: 'src', label: 'src', disabled: true }]} /></div>
+  </>,
+  'answered-disabled-tree-item-keeps-its-answer-while-hovered': () => <div style={answered({ '--navigation-item-fill-disabled': 'var(--hue-info-fill-strong)' })}><ArenaTreeView label="Files" nodes={[{ id: 'src', label: 'src', disabled: true }]} /></div>,
+  'answered-selected-disabled-tree-item-keeps-its-answer-while-hovered': () => <div style={answered({ '--navigation-item-fill-selected-disabled': 'var(--hue-info-fill-strong)' })}><ArenaTreeView label="Files" nodes={[{ id: 'src', label: 'src', disabled: true }]} selection={{ ids: ['src'] }} /></div>,
+  'selected-edge-answer-draws-no-side-nav-line': () => <div style={answered({ '--navigation-item-edge-selected': 'var(--hue-info-edge)' })}><ArenaSideNav ariaLabel="Primary" active="home"><ArenaSideNavItem id="home" label="Home" /></ArenaSideNav></div>,
+  'error-step-reads-the-error-chain-while-current': () => <ArenaStepper ariaLabel="Checkout" steps={[{ label: 'Account', error: true }]} index={0} />,
+  'current-step-answer-moves-marker-and-dot': () => <div style={answered({ '--steps-current-marker-fill-rest': 'var(--fill-surface)' })}>
+    <ArenaStepper ariaLabel="Checkout" steps={[{ label: 'Account' }]} index={0} />
+    <ArenaOnboarding open index={0} steps={[{ body: 'One' }]} />
+  </div>,
+  'banner-edge-answer-moves-alert-border-and-toast-stripe': () => <div style={answered({ '--feedback-success-banner-edge-rest': 'var(--hue-info-edge)' })}>
+    <ArenaAlert tone="success">Saved</ArenaAlert>
+    <ArenaToast tone="success" title="Saved" message="Done" />
+  </div>,
+  'banner-edge-answer-leaves-the-toast-quiet-sides': () => <div style={answered({ '--feedback-success-banner-edge-rest': 'var(--hue-info-edge)' })}>
+    <ArenaAlert tone="success">Saved</ArenaAlert>
+    <ArenaToast tone="success" title="Saved" message="Done" />
+  </div>,
+  'toast-tone-beats-its-accent': () => <ArenaToast className="arena-accent-gold" tone="success" title="Saved" message="Done" />,
+  'muted-dot-answer-moves-only-offline': () => <div style={answered({ '--marks-muted-dot-ink-rest': 'var(--hue-info-ink)' })}>
+    <ArenaAvatar name="Ada Fernandez" status="offline" />
+    <ArenaActivityFeed label="Activity" items={[{ actor: 'Ada', action: 'opened', target: 'INF-1', time: 'now' }]} />
+  </div>,
+  'series-parts-take-no-slot-answer': () => <div style={answered(markDotAnswers())}>
+    <ArenaBoardColumn title="Backlog" colorId={2}>{null}</ArenaBoardColumn>
+    <ArenaBarChart label="Deploys" labels={['Mon', 'Tue']} series={[{ label: 'Ok', values: [1, 2], colorId: 1 }, { label: 'Late', values: [2, 1], colorId: 3 }]} />
+  </div>,
+  'accent-answer-reaches-only-its-class': () => <div style={answered({ '--meters-gold-track-ink-rest': 'var(--hue-info-ink)' })}>
+    <ArenaMeter className="arena-accent-gold" label="Disk" value={60} />
+    <ArenaProgressBar className="arena-accent-gold" label="Upload" progressPercentage={40} />
+    <ArenaSpinner className="arena-accent-gold" />
+  </div>,
+  'accent-answer-leaves-the-default-accent-and-a-tone': () => <div style={answered({ '--meters-gold-track-ink-rest': 'var(--hue-info-ink)' })}>
+    <ArenaMeter label="Disk" value={60} />
+    <ArenaProgressBar tone="success" label="Upload" progressPercentage={40} />
+    <ArenaSpinner />
+  </div>,
+  'ring-track-follows-the-track-fill': () => <div style={answered({ '--meters-primary-track-fill-rest': 'var(--hue-info-fill-strong)' })}>
+    <ArenaProgressBar shape="radial" label="Upload" progressPercentage={40} />
+  </div>,
+  'linear-track-follows-the-track-fill': () => <div style={answered({ '--meters-primary-track-fill-rest': 'var(--hue-info-fill-strong)' })}>
+    <ArenaProgressBar label="Upload" progressPercentage={40} />
+  </div>,
+  'hover-answer-is-not-derived-from-the-rest-answer': () => <div style={answered({ '--actions-primary-root-fill-rest': 'var(--fill-surface)', '--actions-primary-root-fill-hover': 'var(--fill-hover)' })}><ArenaButton>Save</ArenaButton></div>,
+  'tag-colour-id-outranks-its-tone': () => <div style={answered({ '--marks-success-outline-edge-rest': 'var(--hue-info-edge)' })}>
+    <ArenaTag colorId={3} tone="success">Backend</ArenaTag>
+    <ArenaTag tone="success">Shipped</ArenaTag>
+  </div>,
+  'separator-answer-moves-borders-and-rules': () => <div style={answered({ '--surfaces-separator-edge-rest': 'var(--hue-info-edge)' })}>
+    <ArenaTabs value="one"><ArenaTab value="one" label="One">First</ArenaTab></ArenaTabs>
+    <ArenaChartCard title="Revenue">{null}</ArenaChartCard>
+    <ArenaCard title="Plan">{null}</ArenaCard>
+  </div>,
+  'separator-answer-moves-a-rule-drawn-as-a-box': () => <div style={answered({ '--surfaces-separator-edge-rest': 'var(--hue-info-edge)' })}>
+    <ArenaDivider />
+    <ArenaDivider label="or" />
+    <ArenaTimeline label="Order" items={[{ title: 'Placed' }, { title: 'Shipped' }]} />
+  </div>,
+  'card-accent-answer-reaches-only-its-class': () => <div style={answered({ '--surfaces-primary-card-edge-rest': 'var(--hue-info-edge)' })}>
+    <ArenaCard className="arena-accent-primary">Body</ArenaCard>
+    <ArenaChartCard title="Revenue">{null}</ArenaChartCard>
+  </div>,
+  'scrim-answer-reaches-every-modal': () => <div style={answered({ '--overlays-scrim-fill-rest': 'var(--hue-info-fill-strong)' })}>
+    <ArenaDialog open onClose={() => {}} title="Discard">{null}</ArenaDialog>
+    <ArenaConfirmDialog open title="Delete">{null}</ArenaConfirmDialog>
+  </div>,
+  'to-by-reads-its-branch': () => <div style={answered({ '--text-figure-ink-rest': 'var(--hue-info-ink)', '--text-muted-ink-rest': 'var(--hue-danger-ink)' })}>
+    <ArenaTable label="Deploys" columns={[{ header: 'Calls', numeric: true }, { header: 'Service' }]}>
+      <ArenaTableRow><ArenaTableCell>12</ArenaTableCell><ArenaTableCell>checkout</ArenaTableCell></ArenaTableRow>
+    </ArenaTable>
+    <ArenaProgressBar label="Upload" progressPercentage={40} />
+    <ArenaProgressBar shape="radial" label="Sync" progressPercentage={40} />
+  </div>,
+  'to-by-reads-its-branch-in-a-card': () => <div style={answered({ '--text-figure-ink-rest': 'var(--hue-info-ink)' })}>
+    <ArenaTable label="Deploys" columns={[{ header: 'Calls', numeric: true }, { header: 'Service' }]}>
+      <ArenaTableRow><ArenaTableCell>12</ArenaTableCell><ArenaTableCell>checkout</ArenaTableCell></ArenaTableRow>
+    </ArenaTable>
+  </div>,
+  'solid-badge-ignores-the-soft-answer': () => <div style={answered({ '--marks-plain-soft-fill-rest': 'var(--hue-info-fill-strong)' })}>
+    <ArenaBadge className="arena-mark-solid">Live</ArenaBadge>
+    <ArenaBadge>Draft</ArenaBadge>
+  </div>,
 };
 
-const BARE = new Set(['meaning-wins-over-accent', 'accent-stops-at-the-card-body', 'small-badge-compacts-itself', 'small-badge-tightens-its-block', 'small-badge-tightens-its-ends']);
+const DRAGGED = new Set(['fields-error-zone-keeps-its-edge-while-dragged']);
+const OPENED = new Set(['menu-answer-moves-every-highlight', 'blocked-option-fades-until-answered', 'blocked-active-option-fades-until-answered', 'blocked-active-option-keeps-its-selected-wash']);
+const BARE = new Set(['toast-tone-beats-its-accent', 'meaning-wins-over-accent', 'accent-stops-at-the-card-body', 'small-badge-compacts-itself', 'small-badge-tightens-its-block', 'small-badge-tightens-its-ends']);
 const SUBJECT: Record<string, { part: string; at: number }> = {
   'people-list-face-follows-the-list': { part: 'avatar.box', at: -1 },
   'meaning-follows-the-base': { part: 'button', at: 0 },
@@ -109,7 +280,73 @@ const SUBJECT: Record<string, { part: string; at: number }> = {
   'timeline-connector-horizontal-keeps-block-margin': { part: 'timeline.connector', at: 0 },
   'tag-breaks-a-label-wider-than-its-container': { part: 'tag', at: 0 },
   'palette-scope-takes-the-surface-radius': { part: 'palette-scope', at: 0 },
+  'member-default-kept-while-the-group-is-silent': { part: 'icon-button', at: 0 },
+  'group-answer-replaces-the-member-default': { part: 'icon-button', at: 0 },
+  'secondary-answer-reaches-the-calendar-nav': { part: 'button', at: 0 },
+  'choices-answer-moves-every-box': { part: 'checkbox.box', at: 0 },
+  'selected-disabled-answer-stops-only-the-selected-fade': { part: 'icon-button', at: -1 },
+  'answered-disabled-choices-stops-the-fade': { part: 'checkbox.box', at: -1 },
+  'answered-disabled-radio-stops-the-fade': { part: 'radio.ring', at: -1 },
+  'answered-disabled-switch-stops-the-fade': { part: 'switch.track', at: -1 },
+  'fields-edge-answer-moves-the-halo': { part: 'input.field', at: 0 },
+  'answered-disabled-field-stops-the-fade': { part: 'input.field', at: -1 },
+  'fields-error-zone-keeps-its-edge-while-disabled': { part: 'file-input.zone', at: 0 },
+  'fields-error-zone-keeps-its-edge-while-dragged': { part: 'file-input.zone', at: 0 },
+  'fields-error-zone-draws-no-field-unless-droppable': { part: 'file-input.zone', at: 0 },
+  'answered-disabled-field-keeps-its-answer-while-hovered': { part: 'input.field', at: 0 },
+  'hovered-enabled-field-takes-its-hover-answer': { part: 'input.field', at: 0 },
+  'hovered-readonly-field-keeps-its-readonly-fill': { part: 'input.field', at: 0 },
+  'answered-disabled-dismiss-stops-the-fade': { part: 'tag.close', at: -1 },
+  'menu-answer-moves-every-highlight': { part: 'combobox.option', at: 0 },
+  'blocked-option-fades-until-answered': { part: 'combobox.option', at: -1 },
+  'blocked-active-option-keeps-its-selected-wash': { part: 'combobox.option', at: -1 },
+  'blocked-active-option-fades-until-answered': { part: 'combobox.option', at: -1 },
+  'answered-disabled-tree-item-keeps-its-answer-while-hovered': { part: 'tree-view.item', at: 0 },
+  'answered-selected-disabled-tree-item-keeps-its-answer-while-hovered': { part: 'tree-view.item', at: 0 },
+  'selected-edge-answer-draws-no-side-nav-line': { part: 'side-nav.item', at: 0 },
+  'error-step-reads-the-error-chain-while-current': { part: 'stepper.marker', at: 0 },
+  'navigation-answer-moves-every-current-item': { part: 'side-nav.item', at: 0 },
+  'hovered-current-item-keeps-its-selected-look': { part: 'side-nav.item', at: 0 },
+  'hovered-selected-tab-keeps-its-selected-ink': { part: 'tabs.tab', at: 0 },
+  'selected-edge-answer-moves-the-tab-rule': { part: 'tabs.tab', at: 0 },
+  'selected-edge-answer-moves-the-current-page-border': { part: 'pagination.page', at: 0 },
+  'aria-disabled-member-fades-until-answered': { part: 'bottom-nav.item', at: -1 },
+  'answered-disabled-tree-item-stops-the-fade': { part: 'tree-view.item', at: -1 },
+  'current-step-answer-moves-marker-and-dot': { part: 'stepper.marker', at: 0 },
+  'class-on-copy-button-reaches-the-icon-button-it-draws': { part: 'icon-button', at: 0 },
+  'banner-edge-answer-moves-alert-border-and-toast-stripe': { part: 'alert', at: 0 },
+  'banner-edge-answer-leaves-the-toast-quiet-sides': { part: 'toast', at: 0 },
+  'toast-tone-beats-its-accent': { part: 'toast', at: 0 },
+  'muted-dot-answer-moves-only-offline': { part: 'avatar.status', at: 0 },
+  'series-parts-take-no-slot-answer': { part: 'board.dot', at: 0 },
+  'accent-answer-reaches-only-its-class': { part: 'meter.track', at: 0 },
+  'accent-answer-leaves-the-default-accent-and-a-tone': { part: 'meter.track', at: 0 },
+  'ring-track-follows-the-track-fill': { part: 'progress-bar.ring-track', at: 0 },
+  'linear-track-follows-the-track-fill': { part: 'progress-bar.track', at: 0 },
+  'tag-colour-id-outranks-its-tone': { part: 'tag', at: 0 },
+  'solid-badge-ignores-the-soft-answer': { part: 'badge', at: 0 },
+  'separator-answer-moves-borders-and-rules': { part: 'tabs', at: 0 },
+  'separator-answer-moves-a-rule-drawn-as-a-box': { part: 'divider', at: 0 },
+  'card-accent-answer-reaches-only-its-class': { part: 'card', at: 0 },
+  'scrim-answer-reaches-every-modal': { part: 'dialog.scrim', at: 0 },
+  'to-by-reads-its-branch': { part: 'table.td', at: 0 },
+  'to-by-reads-its-branch-in-a-card': { part: 'table.card-value', at: 0 },
 };
+
+const NARROW = new Set(['to-by-reads-its-branch-in-a-card']);
+function stubNarrow(width: number): () => void {
+  const saved = globalThis.ResizeObserver;
+  globalThis.ResizeObserver = class {
+    callback: ResizeObserverCallback;
+    constructor(callback: ResizeObserverCallback) { this.callback = callback; }
+    observe(target: Element) {
+      this.callback([{ target, borderBoxSize: [{ inlineSize: width, blockSize: 0 }], contentRect: { width } }] as unknown as ResizeObserverEntry[], this as unknown as ResizeObserver);
+    }
+    unobserve() {}
+    disconnect() {}
+  } as unknown as typeof ResizeObserver;
+  return () => { globalThis.ResizeObserver = saved; };
+}
 
 const { families, cases } = readProximity();
 const vocabulary = vocabularyClasses(families);
@@ -120,10 +357,27 @@ test('every case has a React composition, and every composition a case', () => {
 
 for (const kase of cases) {
   test(`${kase.name}: React renders the tree the gate measures`, () => {
-    const root = BARE.has(kase.name)
-      ? mount(COMPOSITIONS[kase.name]!())
-      : mount(<div className={kase.container || undefined}>{COMPOSITIONS[kase.name]!()}</div>);
+    const restore = NARROW.has(kase.name) ? stubNarrow(400) : () => {};
+    let root: ReturnType<typeof mount>;
+    try {
+      root = BARE.has(kase.name)
+        ? mount(COMPOSITIONS[kase.name]!())
+        : mount(<div className={kase.container || undefined}>{COMPOSITIONS[kase.name]!()}</div>);
+    } finally {
+      restore();
+    }
     const container = root.firstElementChild!;
+    if (DRAGGED.has(kase.name)) {
+      const zone = container.querySelector('[data-arena-part="file-input.zone"]')!;
+      const event = new Event('dragenter', { bubbles: true, cancelable: true });
+      Object.defineProperty(event, 'dataTransfer', { value: { types: ['Files'] } });
+      act(() => { zone.dispatchEvent(event); });
+    }
+    if (OPENED.has(kase.name)) {
+      for (const input of container.querySelectorAll('input[role="combobox"]')) {
+        act(() => { input.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true })); });
+      }
+    }
     const { part: subjectPart, at } = SUBJECT[kase.name] ?? { part: 'button', at: -1 };
     const found = [...container.querySelectorAll(`[data-arena-part="${subjectPart}"]`)];
     const subject = (BARE.has(kase.name) && container.getAttribute('data-arena-part') === subjectPart ? container : found.at(at)) ?? null;

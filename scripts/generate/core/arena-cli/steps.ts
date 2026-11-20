@@ -65,14 +65,6 @@ export function autoComponents(config: ArenaConfig, options: StepOptions,
   };
 }
 
-export function gradientMark(options: StepOptions) {
-  try {
-    return JSON.parse(readFileSync(options.config, 'utf8')).gradientMark === true;
-  } catch {
-    return false;
-  }
-}
-
 const VAR_READ = /var\(\s*(--[\w-]+)(?![\w-]|\$\{|#\{)/g;
 const PROPERTY_DECLARED = /(?<![\w-])(--[\w-]+)['"]?\s*:|@property\s+(--[\w-]+)/g;
 
@@ -132,7 +124,6 @@ export function auditStep(
 ) {
   const dirs = pluginDirs(options);
   const tokensAt = pluginTokenMaps(dirs, catalogue);
-  const declaredMark = gradientMark(options);
   const reports: Report[] = [];
   const painted = new Set<string>();
   let scanned = 0;
@@ -148,7 +139,7 @@ export function auditStep(
     const cited = toPosix(file);
     const text = readFileSync(file, 'utf8');
     const scope = sourceScope(resolve(file), dirs);
-    const audited = auditFindings(cited, text, scope, declaredMark, vocabulary);
+    const audited = auditFindings(cited, text, scope, vocabulary);
     if (scope !== 'plugin') {
       reports.push(...audited.map((one) => report('audit', one.text, one.rule)));
       continue;

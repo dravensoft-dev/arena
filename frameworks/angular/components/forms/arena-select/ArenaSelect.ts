@@ -23,11 +23,11 @@ import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
   },
   template: `
     @if (label(); as text) {
-      <label [class]="styles().label()" [attr.data-arena-part]="parts.label" [attr.for]="selectId">{{ text }}</label>
+      <label [class]="styles().label()" [arenaSlotData]="styles().$data.label()" [attr.data-arena-part]="parts.label" [attr.for]="selectId">{{ text }}</label>
     }
-    <div [class]="styles().wrap()" [attr.data-arena-part]="parts.wrap">
+    <div [class]="styles().wrap()" [arenaSlotData]="styles().$data.wrap()" [attr.data-arena-part]="parts.wrap">
       @if (icon(); as glyph) {
-        <span [class]="styles().iconWrap()" [attr.data-arena-part]="parts.iconWrap" aria-hidden="true"><arena-icon [icon]="glyph" /></span>
+        <span [class]="styles().iconWrap()" [arenaSlotData]="styles().$data.iconWrap()" [attr.data-arena-part]="parts.iconWrap" aria-hidden="true"><arena-icon [icon]="glyph" /></span>
       }
       <select [class]="styles().field()" [arenaSlotData]="styles().$data.field()" [attr.data-arena-part]="parts.field" [attr.id]="selectId" [disabled]="off()"
               [required]="required()" [attr.name]="name()"
@@ -40,12 +40,12 @@ import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
           <option [value]="option.value" [selected]="option.value === drawn()">{{ option.label }}</option>
         }
       </select>
-      <span [class]="styles().caret()" [attr.data-arena-part]="parts.caret" aria-hidden="true">&#9662;</span>
+      <span [class]="styles().caret()" [arenaSlotData]="styles().$data.caret()" [attr.data-arena-part]="parts.caret" aria-hidden="true">&#9662;</span>
     </div>
     @if (error(); as message) {
-      <span [class]="styles().error()" [attr.data-arena-part]="parts.error" [attr.id]="noteId">{{ message }}</span>
+      <span [class]="styles().error()" [arenaSlotData]="styles().$data.error()" [attr.data-arena-part]="parts.error" [attr.id]="noteId">{{ message }}</span>
     } @else if (hint(); as text) {
-      <span [class]="styles().hint()" [attr.data-arena-part]="parts.hint" [attr.id]="noteId">{{ text }}</span>
+      <span [class]="styles().hint()" [arenaSlotData]="styles().$data.hint()" [attr.data-arena-part]="parts.hint" [attr.id]="noteId">{{ text }}</span>
     }
   `,
 })

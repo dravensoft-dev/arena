@@ -10,7 +10,7 @@
       "form": "array",
       "of": "string",
       "required": true,
-      "description": "One label per point, in the same order as every series' `values`. A label with no value in a series ends that series' line there rather than dropping to zero."
+      "description": "One label per point, in the same order as every series' `values`. A label with no value in a series ends that series' line there rather than dropping to zero. Every n-th label is drawn when the labels do not fit their band, and the data table carries all of them."
     },
     "series": {
       "form": "array",

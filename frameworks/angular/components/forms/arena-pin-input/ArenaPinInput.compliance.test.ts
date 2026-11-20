@@ -14,6 +14,7 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ArenaPinInput } from './ArenaPinInput';
 import { assertPattern, ANGULAR_COMPONENTS } from '../../../test/Compliance';
+import { invalidVerdict } from '../../../test/StateVerdicts';
 
 const BINDING = join(ANGULAR_COMPONENTS, 'forms/arena-pin-input/ArenaPinInput.behaviour.json');
 
@@ -92,7 +93,9 @@ test('the host clears the name attribute the component takes as a member, and th
 
 test('ArenaPinInput meets the textbox pattern on every cell', () => {
   const { fixture, root, cells } = render({ required: true, error: 'That code does not match.' });
+  let valid: ReturnType<typeof render> | undefined;
   try {
+    valid = render({ required: true });
     assertPattern({
       root,
       bindingPath: BINDING,
@@ -100,11 +103,12 @@ test('ArenaPinInput meets the textbox pattern on every cell', () => {
       behavioural: {
         'states.required': cells.every((cell) => cell.required),
         'states.readonly': cells.every((cell) => !cell.readOnly),
+        'states.invalid': invalidVerdict(cells, valid.cells),
       },
     });
     for (const cell of cells) {
       assert.equal(cell.getAttribute('aria-multiline'), null);
       assert.equal(cell.getAttribute('aria-invalid'), 'true');
     }
-  } finally { fixture.destroy(); }
+  } finally { fixture.destroy(); valid?.fixture.destroy(); }
 });

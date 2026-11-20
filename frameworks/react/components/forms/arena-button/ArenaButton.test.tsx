@@ -30,7 +30,7 @@ test('ArenaButton defaults its native type to button and honours an override', (
   assert.match(renderIcons(<ArenaButton type="submit">x</ArenaButton>), /type="submit"/);
 });
 
-test('ArenaButton renders danger as outline, never filled', () => {
+test('ArenaButton draws destructive in the danger hue, with no unmodified bg-error', () => {
   const html = renderIcons(<ArenaButton destructive>Delete</ArenaButton>);
   assert.match(html, /data-arena-part="button"[^>]*\bdata-arena-destructive=""/);
   assert.doesNotMatch(html, /data-arena-variant/, 'emphasis is a class the adopter writes, never an attribute');

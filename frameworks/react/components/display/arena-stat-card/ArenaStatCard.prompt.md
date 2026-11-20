@@ -54,7 +54,7 @@ Single metric on the card surface: uppercase label, one big tabular-nums value, 
 
 **Don't**
 - Don't assume up is good. Scarcity is the whole reason `direction` and `tone` are separate props. Passing `tone: 'positive'` for every `up` re-creates the bug.
-- Don't fill the delta chip. Both signs are outline: the danger fill is reserved for `ArenaConfirmDialog`'s final irreversible confirmation, and a data chip has no business spending that signal.
+- Don't fill the delta chip. Both signs draw an edge and ink in their hue over a transparent background, and a data chip is a reading, not an action.
 - Don't put a sentence in `sub`: it is a short context fragment ("vs last week"), not a paragraph.
 - Don't use the card's `tone` to restate the delta. If the chip says the movement was bad, the danger tone on the value says it twice and leaves you nothing to say when the *state* turns bad too.
 

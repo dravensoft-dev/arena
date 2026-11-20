@@ -110,18 +110,6 @@ source text cannot show, is `arena://rules` on the MCP server.
   reports this one, as `own-class`.**
 - **Appearance is a class of the vocabulary, never a member.** How wide, how large or how quiet a
   component is, is decided by a class, as `arena-fill`.
-- **Danger is outline, never filled.** The background stays transparent, and the border and the
-  content read `--danger`. Arena draws one filled danger surface, the final irreversible
-  confirmation inside `ArenaConfirmDialog`. A surface of your own may carry the `--danger-soft`
-  tint. **`arena audit` reports this one, as `danger-fill`.**
-- **One primary accent per view.** The primary emphasis is the voice: one `arena-emphasis-primary`
-  action at most stands on a screen, and a button with no emphasis class is it. Gold is
-  distinction and focus, not a second primary. **`arena audit` reports this one, as
-  `one-primary`.**
-- **No gradients, on any surface.** Depth comes from the `base-100`, `base-200`, `base-300`
-  surface scale, the hairline border and the shadow roles. `ArenaSkeleton`'s neutral shimmer is
-  the one exception. A brand whose mark is a gradient sets `gradientMark` in `arena.config.json`.
-  **`arena audit` reports this one, as `raw-value`.**
 - **No emoji, in product or in copy.** **`arena audit` reports this one, as `emoji`.**
 - **Icons are Phosphor class-name strings, drawn by Arena's components or by ArenaIcon; a raw ph-*
   element paints nothing.** Write `icon="ph-bold ph-plus"`. Arena draws each glyph from the sprite
@@ -149,8 +137,6 @@ source text cannot show, is `arena://rules` on the MCP server.
   `.arena-compact` and `.arena-comfortable` are the density family on the vocabulary page,
   `frameworks/VOCABULARY.md`: the first re-densifies the controls, the second grows them to a 48px
   touch target, and the two are exclusive.
-- **A chart carries identity or meaning, never both.** The `--color-cat-*` ramp in fixed order is
-  identity. The status colours are meaning. A status colour is never a series colour.
 - **Copy is formal and direct, in the product's language.** Concrete verbs, no boasting; an error
   is blame-free and says what to do next. Arena's words follow the locale.
 - **A required member absent is a caller bug.** It is not a state to render. Every layer fails
@@ -174,7 +160,7 @@ source text cannot show, is `arena://rules` on the MCP server.
 | How do I make Arena look like my own product? | [`references/style-kernel.md`](./references/style-kernel.md), once per project and before the first screen |
 | Which of those answers actually change how it looks? | the table in [`references/style-kernel.md`](./references/style-kernel.md), measured over eight products built on this kernel |
 | Does what I am building have to be found from outside it? | [`references/seo.md`](./references/seo.md), once per project: what Arena writes into the `<head>`, and which layer writes it |
-| What questions does the kernel ask? | [`contracts/design/roles.json`](../../contracts/design/roles.json), one entry per role, with a type and a description and no value |
+| What is a role or a token called, what does it ask, and what is its value? | [`references/tokens/index.md`](./references/tokens/index.md), by who you are. Markup of yours starts at [`references/tokens/markup/index.md`](./references/tokens/markup/index.md). `contracts/design/roles.json` has one entry per role with no value, and the DTCG JSON for each group in `contracts/design/` is the machine-readable form. `contracts/design/colors.css` and `contracts/design/environment.css` hold what DTCG cannot, and [`references/page.md`](./references/page.md) reads both for you |
 | Does a component like this exist at all, and what if it does not? | [`frameworks/INDEX.md`](../../frameworks/INDEX.md), which also says which layers ship it. A no is one of three. Your product is a different register and the markup is yours: [`references/media-register.md`](./references/media-register.md). Arena ships none on purpose: the last section of [`references/surface.md`](./references/surface.md) states that with the reason. Or nobody has added one, which is the other branch, named at the top of this page |
 | Which category holds the component I am reaching for? | `frameworks/<layer>/INDEX.md`, which names every one of them and describes none |
 | What is it called in my framework, what does it take, and where is its prompt? | `frameworks/<layer>/components/<category>/INDEX.md` |
@@ -189,7 +175,6 @@ source text cannot show, is `arena://rules` on the MCP server.
 | How do I assemble a page: skip link, landmarks, side nav beside content? | [shell](./references/shell.md): the skeleton in each layer, which landmark each piece is, how wide the rail is and how the title follows the route |
 | What does Arena ship at all, and how much of it do I have to take? | [`references/surface.md`](./references/surface.md): every part in one table with the document that owns it, and three steps a project can stop at |
 | Where does Arena stop? | the last section of [`references/surface.md`](./references/surface.md), which is a list of decisions rather than gaps waiting to close |
-| What is the value of a token? | the DTCG JSON for its group in `contracts/design/` (`ls contracts/design/*.json`), which is the machine-readable form and is cheaper than the specification below. Two files hold what DTCG cannot: `contracts/design/colors.css` and `contracts/design/environment.css`, both of which [`references/page.md`](./references/page.md) reads for you. The values of spacing, radius, border, shadow, motion, layer and breakpoint are tabled in [`references/tokens.md`](./references/tokens.md) |
 | What does a value mean, and why is it that? | [`contracts/design/AGENTS.md`](../../contracts/design/AGENTS.md), the normative design specification |
 | What must this kind of component do to be accessible, and what does an Arena one promise? | `contracts/behaviour/<pattern>.json`, one file per pattern and shipped inside your package. The page handing you the markup names the file it binds: [`references/media-register.md`](./references/media-register.md) for a feed, a lightbox or a viewer, [`references/seo.md`](./references/seo.md) for structured data. What one of Arena's own components does is its `.prompt.md`; the file recording which pattern it binds is what Arena is held to, not a document you read |
 | I want a static mock or a throwaway prototype with no build step. What do I link? | [`references/artifact.md`](./references/artifact.md) |

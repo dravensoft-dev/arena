@@ -53,9 +53,9 @@ p.lede{color:var(--mute);font-size:var(--fs-lg);line-height:var(--lh-body);max-w
 /* construction */
 .constr{display:grid;grid-template-columns:.9fr 1.1fr;gap:calc(var(--sp-1) * 14);align-items:center;margin-top:calc(var(--sp-1) * 11)}
 .constr-stage{background:var(--ink2);border:var(--bw) solid var(--color-base-300);border-radius:var(--r-lg);padding:calc(var(--sp-1) * 14);display:flex;align-items:center;justify-content:center;position:relative;min-height:calc(var(--sp-1) * 85)}
-/* A hard-stop line grid, not a colour blend: each stop meets its neighbour at
-   1px with no transition, so this is texture rather than the gradient the
-   language forbids. Kept as a gradient function deliberately — the SVG data-URI
+/* A hard-stop line grid: each stop meets its neighbour at
+   1px with no transition, so this is texture.
+   Kept as a gradient function deliberately: the SVG data-URI
    alternative cannot read var(--token), which would trade this rule for the
    no-raw-hex one and stop the grid following the theme. Same for .avatarpat. */
 .grid-bg{position:absolute;inset:0;background-image:linear-gradient(var(--color-base-300) var(--bw),transparent var(--bw)),linear-gradient(90deg,var(--color-base-300) var(--bw),transparent var(--bw));background-size:var(--sp-8) var(--sp-8);opacity:.35;border-radius:var(--r-lg)}
@@ -89,8 +89,7 @@ p.lede{color:var(--mute);font-size:var(--fs-lg);line-height:var(--lh-body);max-w
 .bc-stack{display:flex;gap:calc(var(--sp-1) * 5.5);flex-wrap:wrap}
 .card3d{width:calc(var(--sp-1) * 85);height:calc(var(--sp-1) * 50);border-radius:var(--r-lg);padding:calc(var(--sp-1) * 6.5);display:flex;flex-direction:column;justify-content:space-between;box-shadow:var(--shadow-3)}
 /* The appcard behind this sits at base-200, so the card drops to base-100 to
-   read as an object on it — the surface scale is what carries depth here, since
-   the language forbids the gradient this used to use. */
+   read as an object on it, and the surface scale is what carries depth here. */
 .card-front{background:var(--color-base-100);border:var(--bw) solid var(--line-strong)}
 .card-back{background:var(--crimson);position:relative;overflow:hidden}
 .card-name{font-family:'Archivo';font-weight:var(--fw-extrabold);font-size:var(--fs-h4)}
@@ -110,8 +109,8 @@ p.lede{color:var(--mute);font-size:var(--fs-lg);line-height:var(--lh-body);max-w
 @media (prefers-reduced-motion: reduce){
   .splash .load i{animation-duration:15s}
 }
-/* A hard-stop dot pattern, not a colour blend: the stops meet at 2px with no
-   transition, so this is texture rather than the gradient the language forbids.
+/* A hard-stop dot pattern: the stops meet at 2px with no
+   transition, so this is texture.
    Kept as a gradient function for the reason given on .grid-bg. */
 .avatarpat{position:absolute;inset:0;opacity:.12;background:radial-gradient(circle at 30% 30%,var(--on-accent) 0 var(--bw-strong),transparent var(--bw-strong));background-size:var(--sp-5) var(--sp-5)}
 /* footer */
@@ -198,8 +197,8 @@ p.lede{color:var(--mute);font-size:var(--fs-lg);line-height:var(--lh-body);max-w
 <p class="lede">A warm black base for prestige, bone for breathing room, and two accents that light up the brand: crimson as the primary voice and gold as the mark of distinction.</p>
 <div class="swatches">
 <div class="sw"><div class="chip" style="background:#141010"></div><div class="meta"><div class="nm">Ink</div><div class="row"><span>#141010</span><span>Base</span></div></div></div>
-<div class="sw"><div class="chip" style="background:var(--crimson)"></div><div class="meta"><div class="nm">Crimson</div><div class="row"><span>#B52A20</span><span>Accent 1</span></div></div></div>
-<div class="sw"><div class="chip" style="background:var(--gold)"></div><div class="meta"><div class="nm">Gold</div><div class="row"><span>#C5A059</span><span>Accent 2</span></div></div></div>
+<div class="sw"><div class="chip" style="background:var(--crimson)"></div><div class="meta"><div class="nm">Crimson</div><div class="row"><span>#E25647 dark · #B52A20 light</span><span>Accent 1</span></div></div></div>
+<div class="sw"><div class="chip" style="background:var(--gold)"></div><div class="meta"><div class="nm">Gold</div><div class="row"><span>#C5A059 dark · #856214 light</span><span>Accent 2</span></div></div></div>
 <div class="sw"><div class="chip" style="background:#f3ede5"></div><div class="meta"><div class="nm">Bone</div><div class="row"><span>#F3EDE5</span><span>Text/BG</span></div></div></div>
 </div>
 </section>

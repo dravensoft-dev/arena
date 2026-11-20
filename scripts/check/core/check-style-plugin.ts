@@ -5,7 +5,9 @@
  * command, so this gate and a consumer's build hold the same claim and neither can be the weaker
  * of the two. The root plugin is held total with kernel defaults ignored, and its answer to a role
  * carrying one is that default completed the way a consumer's build completes a silent plugin, so
- * a project whose own copy is silent on the role renders it as this one does. */
+ * a project whose own copy is silent on the role renders it as this one does. A kernel default is
+ * the dark answer and carries no light group, so LIGHT_BY_DESIGN names the roles the plugin Arena
+ * installs with answers differently in light, for the WCAG 1.4.11 floor, and holds those on dark. */
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -17,9 +19,14 @@ import { THEME_SCOPES } from '../../generate/arena/generate-tokens.ts';
 import {
   ARENA_EXT, FS_STEP, KEBAB, MAX_PROSE_MEASURE, MIN_HEADING_LEADING, MIN_PROSE_LEADING,
   MIN_PROSE_MEASURE, RHYTHM_STEP, floorProblems, keyProblems, nameProblems, totalityProblems,
-  crossKeys, valueProblems, withDefaults,
+  crossKeys, fixedRemProblems, valueProblems, withDefaults,
 } from '../../generate/core/arena-cli/style-plugin-rules.ts';
 import { readPlugin } from '../../generate/core/arena-cli/theme-css.ts';
+import { colourNamesOf } from '../../generate/core/arena-cli/slots.ts';
+import { readColorSlots } from '../../lib/core/color-slots.ts';
+import type { DtcgNode } from '../../lib/core/dtcg-shapes.ts';
+import { declaredAxis } from '../../lib/core/user-scale.ts';
+import { answerFiles } from './check-user-scale.ts';
 import { emittedWords } from './check-role-contract.ts';
 
 export {
@@ -42,7 +49,7 @@ export const RESOLVED = [
 
 export const node = {
   name: 'check:style-plugin',
-  reads: [ROLES, ROOT_PLUGIN, 'contracts/design/*.json', 'scripts/generate/arena/generate-tokens.ts', ...RESOLVED],
+  reads: [ROLES, ROOT_PLUGIN, 'plugin-style-store/**/plugin.tokens.json', 'contracts/design/*.json', 'scripts/generate/arena/generate-tokens.ts', ...RESOLVED],
   writes: [],
   feeds: [],
 };
@@ -91,6 +98,8 @@ type KernelRole = { $extensions?: Record<string, { default?: unknown }> };
 const without = (record: Record<string, unknown>, key: string) =>
   Object.fromEntries(Object.entries(record).filter(([one]) => one !== key));
 
+export const LIGHT_BY_DESIGN: ReadonlySet<string> = new Set(['edge-focus', 'edge-selected']);
+
 const WORD_ALIAS = /^\{([a-z][\w-]*(?:\.[\w-]+)*)\}$/;
 
 export function defaultAnswerProblems(roles: Record<string, KernelRole>, answers: Record<string, unknown>,
@@ -108,14 +117,47 @@ export function defaultAnswerProblems(roles: Record<string, KernelRole>, answers
       const at = typeof value === 'string' ? WORD_ALIAS.exec(value.trim())?.[1]?.replace(/\./g, '-') : undefined;
       return at !== undefined && words.has(at) ? words.get(at) : value;
     };
-    const want = [word(completed.tokens[name]), word(completed.light[name])];
-    const got = [plugin.tokens[name], plugin.light[name]];
-    if (want[0] !== got[0] || want[1] !== got[1])
+    const own = LIGHT_BY_DESIGN.has(name) ? 1 : 2;
+    const want = [word(completed.tokens[name]), word(completed.light[name])].slice(0, own);
+    const got = [plugin.tokens[name], plugin.light[name]].slice(0, own);
+    if (want[0] !== got[0] || (own === 2 && want[1] !== got[1]))
       problems.push(`${ROOT_PLUGIN}: --${name} is ${said(got)} and its kernel default ${alias} comes to ${said(want)}. `
         + 'A project whose own plugin is silent on the role renders it through that default, so the plugin Arena '
         + 'installs with gives the same answer or the two appearances differ on the one role they were meant to share.');
   }
   return problems;
+}
+
+export function slotAnswerLines(where: string, tokens: Record<string, unknown>, kernel: Record<string, unknown>, rule: typeof keyProblems) {
+  const slots = readColorSlots();
+  const colourNames = colourNamesOf(kernel, '$type');
+  return movedTokens(tokens).filter(({ key }) => slots.slots[key])
+    .flatMap(({ key, token }) => rule(where, key, token, undefined, { slots, colourNames }));
+}
+
+export const slotAnswerProblems = (where: string, tokens: Record<string, unknown>, kernel: Record<string, unknown>) =>
+  slotAnswerLines(where, tokens, kernel, keyProblems);
+
+export const slotAcceptsProblems = (where: string, tokens: Record<string, unknown>, kernel: Record<string, unknown>) =>
+  slotAnswerLines(where, tokens, kernel, valueProblems);
+
+export function shippedSlotAcceptsProblems(kernel?: Record<string, unknown>) {
+  const roles = kernel ?? readJson(join(repoRoot, ROLES)) as Record<string, unknown>;
+  return answerFiles().flatMap((file) => slotAcceptsProblems(file, readJson(join(repoRoot, file)) as Record<string, unknown>, roles));
+}
+
+export function defaultSlotAnswers(at = repoRoot): string[] {
+  const slots = readColorSlots(at).slots;
+  return movedTokens(readJson(join(at, ROOT_PLUGIN)) as Record<string, unknown>).filter(({ key }) => Object.hasOwn(slots, key))
+    .map(({ key, theme }) => `${ROOT_PLUGIN}: --${key}${theme ? ` (${theme})` : ''} answers a colour slot. The default `
+      + 'plugin answers none: a pair it falls short on is corrected in the identity or the group default.');
+}
+
+export function shippedFixedRemProblems(kernel: Record<string, unknown>) {
+  const axes = Object.fromEntries(Object.entries(kernel)
+    .map(([name, role]) => [name, { userScale: declaredAxis(role as DtcgNode) }]));
+  return answerFiles().flatMap((file) =>
+    fixedRemProblems(file, readJson(join(repoRoot, file)) as Record<string, unknown>, axes));
 }
 
 export function collect(sheets?: string) {
@@ -127,15 +169,20 @@ export function collect(sheets?: string) {
     for (const scope of SCOPES)
       problems.push(...floorProblems(resolvedFor(css, name, scope), `${scope} under .arena-${name}`,
         `.arena-${name}`));
+  const kernel = readJson(join(repoRoot, ROLES)) as Record<string, KernelRole>;
   problems.push(...totalityProblems(
-    Object.keys(readJson(join(repoRoot, ROLES))),
+    Object.keys(kernel),
     Object.keys(readJson(join(repoRoot, ROOT_PLUGIN))),
   ));
   problems.push(...defaultAnswerProblems(
-    readJson(join(repoRoot, ROLES)) as Record<string, KernelRole>,
+    kernel,
     readJson(join(repoRoot, ROOT_PLUGIN)) as Record<string, unknown>,
     emittedWords(repoRoot),
   ));
+  problems.push(...shippedFixedRemProblems(kernel));
+  problems.push(...slotAnswerProblems(ROOT_PLUGIN, readJson(join(repoRoot, ROOT_PLUGIN)) as Record<string, unknown>, kernel));
+  problems.push(...defaultSlotAnswers());
+  problems.push(...shippedSlotAcceptsProblems(kernel));
   return problems;
 }
 

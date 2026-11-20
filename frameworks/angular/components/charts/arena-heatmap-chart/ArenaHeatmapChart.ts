@@ -1,10 +1,10 @@
 import {
   afterRenderEffect, ChangeDetectionStrategy, Component, computed, ElementRef, inject, input, signal, viewChild,
 } from '@angular/core';
-import { arenaContainerWidth } from '../../../ContainerSize';
+import { arenaContainerWidth, arenaReadTextScale } from '../../../ContainerSize';
 import { arenaWarnOnce } from '../../../WarnOnce';
 import {
-  ARENA_HEAT_STEPS, ARENA_INK_MUTED, ARENA_SR_ONLY, arenaHeatFill, arenaRailStyle, arenaValueWriter,
+  ARENA_HEAT_STEPS, ARENA_INK_MUTED, ARENA_SR_ONLY, arenaTextRoom, arenaHeatFill, arenaRailStyle, arenaValueWriter,
 } from '../../../DataVisuals';
 import {
   arenaBandCenter, arenaBandIndex, arenaBandMark, arenaBandScale, arenaHeatEdge, arenaHeatStep,
@@ -132,6 +132,7 @@ export class ArenaHeatmapChart {
   /** The plot's height in px. Absent, the height is computed from the row count, one row pitch for each row plus the pads and the legend strip. A chart with many rows therefore grows with its data. The height is the axis the rows run down, so a caller with a fixed tile passes the room it has. A number rather than a dimension string, because the chart does arithmetic with it to place every mark. */
   readonly height = input<number>();
 
+  private readonly room = arenaTextRoom(arenaReadTextScale());
   protected readonly parts = manifest.parts;
   protected readonly styles = arenaHeatmapChartStyles();
   protected readonly arenaSrOnly = ARENA_SR_ONLY;
@@ -140,7 +141,7 @@ export class ArenaHeatmapChart {
   protected readonly cursorStyle = CURSOR_STYLE;
   protected readonly rowNameStyle = ROW_NAME_STYLE;
   protected readonly columnNameStyle = COLUMN_NAME_STYLE;
-  protected readonly rowNameX = arenaCategoryLabelX();
+  protected readonly rowNameX = arenaCategoryLabelX(this.room);
   protected readonly cursor = signal<ArenaCell | null>(null);
   private readonly railView = arenaRailView(() => this.rail()?.nativeElement);
 
@@ -170,17 +171,17 @@ export class ArenaHeatmapChart {
 
   private readonly cols = computed(() => Math.max(this.labels().length, arenaSeriesPointCount(this.series())));
 
-  protected readonly total = computed(() => this.height() ?? arenaHeatmapHeight(this.rows()));
+  protected readonly total = computed(() => this.height() ?? arenaHeatmapHeight(this.rows(), this.room));
 
-  private readonly strip = computed(() => arenaHeatLegendStrip(this.total()));
+  private readonly strip = computed(() => arenaHeatLegendStrip(this.total(), this.room));
   protected readonly plotH = computed(() => this.strip().plotH);
   protected readonly stripH = computed(() => this.strip().stripH);
 
-  protected readonly width = computed(() => arenaHeatmapWidth(this.available(), this.cols(), this.minCellWidth()));
+  protected readonly width = computed(() => arenaHeatmapWidth(this.available(), this.cols(), this.minCellWidth(), this.room));
   protected readonly scrolls = computed(() => this.width() > this.available());
   protected readonly railStyle = computed(() => arenaRailStyle(this.scrolls()));
 
-  private readonly box = computed(() => arenaHeatmapBox(this.width(), this.plotH()));
+  private readonly box = computed(() => arenaHeatmapBox(this.width(), this.plotH(), this.room));
   protected readonly plotLeft = computed(() => this.box().x);
   protected readonly plotTop = computed(() => this.box().y);
   protected readonly innerWidth = computed(() => this.box().w);
@@ -227,7 +228,7 @@ export class ArenaHeatmapChart {
     return this.series().map((one, index) => ({ index, label: one.label, y: arenaBandCenter(scale, index) }));
   });
 
-  private readonly stride = computed(() => arenaLabelStride(this.colScale().step, this.labels()));
+  private readonly stride = computed(() => arenaLabelStride(this.colScale().step, this.labels(), this.room));
 
   protected readonly columnNameY = computed(() => arenaCategoryLabelY(this.plotH()));
 

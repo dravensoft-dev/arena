@@ -25,12 +25,12 @@
     },
     "pad-top": {
       "$value": "{sp.2}",
-      "$description": "The plot's top padding, one step of the base grid.",
+      "$description": "The plot's top padding, one step of the base grid at the default text size. It holds half of the top tick label, so a chart multiplies it by the reader's text scale.",
       "$extensions": { "com.dravensoft.arena": { "script": true } }
     },
     "pad-right": {
       "$value": "{sp.2}",
-      "$description": "The plot's right padding, one step of the base grid.",
+      "$description": "The plot's right padding, one step of the base grid at the default text size. It holds half of the last tick label, so a chart multiplies it by the reader's text scale.",
       "$extensions": { "com.dravensoft.arena": { "script": true } }
     },
     "pad-bottom": {
@@ -56,6 +56,11 @@
     "tick-char": {
       "$value": { "value": 6, "unit": "px" },
       "$description": "The advance of one character of a tick label, which is what lets the axis measure\nits widest tick without a DOM to ask. A CONSEQUENCE of two decisions rather than a\nchosen dimension: a tick is written in the mono face, whose advance is 0.6em, at\n--dz-text-2xs, which is 10px in both densities. Measured in the browser at 6.0016px\nand rounded down to the whole pixel, because the gutter takes the ceiling of what it\ncomputes and a hundredth of a pixel per character is not room anybody can see. It\nholds only while the ticks stay monospaced: a proportional face makes a label's width\nits glyphs' business and no arithmetic can answer it.",
+      "$extensions": { "com.dravensoft.arena": { "script": true } }
+    },
+    "label-char": {
+      "$value": { "value": 6.6, "unit": "px" },
+      "$description": "The advance one character of a radar spoke label is budgeted at, so the label can be cut to the room beside its ring without a DOM to ask. A CONSEQUENCE of two decisions rather than a chosen dimension: a spoke label is written in the body face at --dz-text-xs, which is 11px. Measured in the browser, the body face advances 5.2px to 5.9px a character over words such as Latency, Throughput and Engagement, which is up to 0.54em, and 6.6px is 0.6em of 11px, a margin of about an eighth over the widest of those. It is an estimate and not a measurement, because a proportional face makes a label's width its glyphs' business: a run of wide capitals such as W or M still outruns it, and the label then keeps its full name in a title and in the data table. If the label's size or face moves, revisit it; it will not fail loudly.",
       "$extensions": { "com.dravensoft.arena": { "script": true } }
     },
     "ring-inset": {
@@ -121,6 +126,11 @@
     "legend-strip": {
       "$value": { "value": 26, "unit": "px" },
       "$description": "The row of series keys a cartesian chart draws below its plot, height including\nthe separation from the plot. A CONSEQUENCE of the type scale rather than a chosen\ndimension, the way pad-bottom is: one line at --dz-text-sm stands 18px at the root line\nheight, the swatch beside it is smaller and rides inside that line, and one step of the base\ngrid separates the row from the plot. If the type scale moves, revisit it; it will not fail\nloudly.\nIt comes OUT of the plot rather than being added to the chart's box, so --chart-height stays\nthe height of the whole component whether a legend is drawn or not. That is the same trade\nthe doughnut already makes on the other axis, where the legend column takes its width from\nthe ring rather than from the caller.",
+      "$extensions": { "com.dravensoft.arena": { "script": true } }
+    },
+    "gauge-reading-descent": {
+      "$value": { "value": 6.4, "unit": "px" },
+      "$description": "How far the gauge's centre reading reaches below its baseline at the default text size, 0.4 of the 16px line the reading is set in. A CONSEQUENCE of the type scale, the way pad-bottom is: the band word beneath it keeps --chart-label-gap at the default size and drops by this much for every default size the reading has grown past, so a larger text setting never lets the reading's descent touch the word. If the reading's step moves, revisit it; it will not fail loudly.",
       "$extensions": { "com.dravensoft.arena": { "script": true } }
     }
   }

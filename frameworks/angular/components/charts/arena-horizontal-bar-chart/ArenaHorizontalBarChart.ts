@@ -1,8 +1,8 @@
 import {
   booleanAttribute, ChangeDetectionStrategy, Component, computed, ElementRef, inject, input, signal, viewChild,
 } from '@angular/core';
-import { arenaContainerWidth } from '../../../ContainerSize';
-import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, ARENA_SR_ONLY, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals';
+import { arenaContainerWidth, arenaReadTextScale } from '../../../ContainerSize';
+import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, ARENA_SR_ONLY, arenaTextRoom, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals';
 import {
   arenaLinearScale, arenaBandScale, arenaBandCenter, arenaBandIndex, arenaBandMark, arenaBandSubBand, arenaScaleValue,
 } from '../ChartScales';
@@ -154,6 +154,7 @@ export class ArenaHorizontalBarChart {
     { transform: (value) => value ?? ARENA_CHART_HEIGHT },
   );
 
+  private readonly room = arenaTextRoom(arenaReadTextScale());
   protected readonly parts = manifest.parts;
   protected readonly styles = arenaHorizontalBarChartStyles();
   protected readonly arenaSrOnly = ARENA_SR_ONLY;
@@ -163,7 +164,7 @@ export class ArenaHorizontalBarChart {
   protected readonly tickLabelStyle = TICK_LABEL_STYLE;
   protected readonly categoryLabelStyle = CATEGORY_LABEL_STYLE;
   protected readonly barStyle = BAR_STYLE;
-  protected readonly categoryLabelX = arenaCategoryLabelX();
+  protected readonly categoryLabelX = arenaCategoryLabelX(this.room);
   protected readonly hover = signal<number | null>(null);
   protected readonly gutterId = `${inject(ArenaIdGenerator).next('arena-horizontal-bar-chart')}-gutter`;
   protected readonly gutterClip = `url(#${this.gutterId})`;
@@ -189,16 +190,16 @@ export class ArenaHorizontalBarChart {
   );
 
   private readonly points = computed(() => arenaSeriesPointCount(this.series()));
-  private readonly strip = computed(() => arenaLegendStrip(this.height(), this.series().length));
+  private readonly strip = computed(() => arenaLegendStrip(this.height(), this.series().length, false, this.room));
   protected readonly plotH = computed(() => this.strip().plotH);
   protected readonly stripH = computed(() => this.strip().stripH);
-  private readonly box = computed(() => arenaPlotBoxH(this.width(), this.strip().plotH));
+  private readonly box = computed(() => arenaPlotBoxH(this.width(), this.strip().plotH, this.room));
   protected readonly plotLeft = computed(() => this.box().x);
   protected readonly plotTop = computed(() => this.box().y);
   protected readonly plotBottom = computed(() => this.box().y + this.box().h);
   protected readonly innerWidth = computed(() => this.box().w);
   protected readonly innerHeight = computed(() => this.box().h);
-  protected readonly gutter = computed(() => arenaCategoryGutter(this.strip().plotH));
+  protected readonly gutter = computed(() => arenaCategoryGutter(this.strip().plotH, this.room));
   protected readonly tickLabelY = computed(() => arenaTickLabelY(this.strip().plotH));
 
   private readonly xScale = computed(() => {
@@ -239,7 +240,7 @@ export class ArenaHorizontalBarChart {
             path: arenaBarPathH(arenaBandMark(bands, index), bands.band,
               arenaScaleValue(xScale, segment.to), arenaScaleValue(xScale, segment.from),
               segment.outer ? BAR_RADIUS : 0),
-            color: arenaSeriesColors(one, this.points(), arenaCatRotate(this.colorStart(), segment.seriesIndex), 'ArenaHorizontalBarChart', this.colorStart())[index],
+            color: arenaSeriesColors(one, this.points(), arenaCatRotate(this.colorStart(), segment.seriesIndex), this.colorStart())[index],
             value: write(one.values[index] as number),
           };
         })
@@ -253,7 +254,7 @@ export class ArenaHorizontalBarChart {
             x,
             name: series.length > 1 ? `${one.label}: ` : '',
             path: arenaBarPathH(sub.x, sub.width, x, zeroX, BAR_RADIUS),
-            color: arenaSeriesColors(one, this.points(), arenaCatRotate(this.colorStart(), s), 'ArenaHorizontalBarChart', this.colorStart())[index],
+            color: arenaSeriesColors(one, this.points(), arenaCatRotate(this.colorStart(), s), this.colorStart())[index],
             value: write(value),
           }];
         }),

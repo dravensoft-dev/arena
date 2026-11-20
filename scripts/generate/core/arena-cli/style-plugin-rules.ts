@@ -9,6 +9,7 @@
  * the widths alone, on :root, after a project's own root answers. */
 
 import { POLARITIES } from './palette-keys.ts';
+import { slotAnswer, slotProblem, type SlotCatalogue } from './slots.ts';
 
 export const ARENA_EXT = 'com.dravensoft.arena';
 
@@ -26,7 +27,7 @@ export const MIN_PROSE_MEASURE = 45;
 
 export const MAX_PROSE_MEASURE = 90;
 
-export const DANGER_FLOOR = 'hue-danger-fill-strong';
+export const NO_PAINT = 'transparent';
 
 export const RESERVED = new Map<string, string>();
 
@@ -72,6 +73,29 @@ export function rootOnlyFor(className: string, sources: { contrast: string; envi
   ].filter(Boolean).join('\n');
 }
 
+const REM_TEXT = /^-?\d*\.?\d+r?em$/;
+
+const isRem = (value: unknown) => {
+  if (typeof value === 'string') return REM_TEXT.test(value.trim());
+  const { unit, value: amount } = (value ?? {}) as { unit?: unknown; value?: unknown };
+  return typeof value === 'object' && Number.isFinite(amount) && (unit === 'rem' || unit === 'em');
+};
+
+export function fixedRemProblems(where: string, tokens: Record<string, unknown>,
+  roles: Record<string, { userScale?: string; type?: string }>) {
+  const problems: string[] = [];
+  for (const [key, answer] of Object.entries(tokens)) {
+    if (key.startsWith('$') || roles[key]?.userScale !== 'fixed') continue;
+    const value = (answer as { $value?: unknown } | null)?.$value ?? answer;
+    if (isRem(value)) {
+      problems.push(`${where}: "${key}" is ${JSON.stringify(value)}, and the role is fixed: the axis keeps it in px `
+        + 'while the text grows and the box around it grows instead, so a rem answer would move a size the role '
+        + 'says does not move. Answer it in px or with a spacing alias.');
+    }
+  }
+  return problems;
+}
+
 export type RoleShape = { $type?: string; $extensions?: Record<string, { values?: unknown }> };
 
 export type MovedToken = { $type?: string; $value?: unknown; $description?: string };
@@ -102,10 +126,6 @@ export function floorProblems(at: Map<string, string>, scope: string, where: str
       + `${MAX_PROSE_MEASURE}. Under the floor a line breaks mid-thought and over the ceiling the eye loses `
       + `which line it was on coming back, and both are failures of the same thing a measure exists to hold.`);
 
-  const danger = at.get(DANGER_FLOOR);
-  if (danger !== undefined && danger !== 'transparent')
-    problems.push(`${where}: --${DANGER_FLOOR} is ${danger} in ${scope}, and danger is outline: its strong `
-      + 'fill is transparent in every answer, and the one filled danger surface reads fill-confirm-final');
   return problems;
 }
 
@@ -115,12 +135,15 @@ const ANY_ALIAS = /^\{([a-z][\w-]*(?:\.[\w-]+)*)\}$/;
 
 export type KnownAnswers = {
   colourRoles?: (name: string) => boolean;
+  colourNames?: ReadonlySet<string>;
+  slots?: SlotCatalogue;
   resolve?: (flat: string) => string | undefined;
 };
 
 export const aliasName = (value: string) => ANY_ALIAS.exec(value.trim())?.[1] ?? null;
 
 export function colourAnswer(value: string, self: string, known: KnownAnswers = {}) {
+  if (value.trim() === NO_PAINT) return true;
   if (COLOUR_ALIAS.test(value.trim())) return true;
   const named = aliasName(value);
   return named !== null && named !== self && known.colourRoles?.(named) === true;
@@ -134,9 +157,15 @@ export function keywordAnswer(value: string, allowed: readonly unknown[], known:
 }
 
 export function valueProblems(
-  where: string, key: string, token: MovedToken, role: RoleShape, known: KnownAnswers = {},
+  where: string, key: string, token: MovedToken, role: RoleShape | undefined, known: KnownAnswers = {},
 ) {
-  if (role.$type === 'color') {
+  if (known.slots?.slots[key]) {
+    const value = token?.$value;
+    if (typeof value !== 'string' || !slotAnswer(value, key, known.slots, known.colourNames ?? new Set()))
+      return [slotProblem(where, key, String(value), known.slots)];
+    return [];
+  }
+  if (role?.$type === 'color') {
     const value = token?.$value;
     if (typeof value !== 'string')
       return [`${where}: --${key} authors a colour outright. A style plugin assigns a colour and never authors one: `
@@ -147,7 +176,7 @@ export function valueProblems(
         + 'under every theme, and anything else resolves to one theme\'s hex and inherits it into the other.'];
     return [];
   }
-  if (role.$type === 'keyword') {
+  if (role?.$type === 'keyword') {
     const allowed = role.$extensions?.[ARENA_EXT]?.values;
     if (!Array.isArray(allowed)) return [];
     const value = token?.$value;
@@ -183,6 +212,11 @@ export function withDefaults<P extends Answers>(
     const alias = Object.hasOwn(roles, role) ? roles[role]?.default : undefined;
     if (typeof alias !== 'string' || open.includes(role) || rootSaid(role)) return lightOnly;
     const target = ANY_ALIAS.exec(alias.trim())?.[1]?.replace(/\./g, '-');
+    if (alias.trim() === NO_PAINT) {
+      tokens[role] = NO_PAINT;
+      defaulted.push(role);
+      return true;
+    }
     if (target === undefined) return lightOnly;
     if (Object.hasOwn(roles, target)) {
       if (!answer(target, [...open, role])) return lightOnly;
@@ -241,6 +275,14 @@ export function keyProblems(
       problems.push(`${where}: --${key} is a ${token?.$type}, and ${named} is a dimension`);
     if (!token?.$description)
       problems.push(`${where}: --${key} carries no $description, and a style plugin is a set of decisions rather than a set of values`);
+    return problems;
+  }
+  if (!role && known.slots?.slots[key]) {
+    if (token?.$type !== 'color')
+      problems.push(`${where}: --${key} is a ${token?.$type}, and a colour slot is a colour`);
+    if (!token?.$description)
+      problems.push(`${where}: --${key} carries no $description, and a style plugin is a set of decisions rather than a set of values`);
+    problems.push(...valueProblems(where, key, token, role, known));
     return problems;
   }
   if (!role) {

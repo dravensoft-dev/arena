@@ -52,8 +52,20 @@ test('an identifier is kebab and unique, and a short half stands as a sentence b
   assert.match(shapeProblems([rule({ id: 'Not Kebab' })])[0] ?? '', /kebab-case/);
   assert.match(shapeProblems([rule(), rule()])[0] ?? '', /declared twice/);
   assert.match(shapeProblems([rule({ short: 'No full stop' })])[0] ?? '', /full stop/);
-  assert.equal(ID.test('one-primary'), true);
+  assert.equal(ID.test('tokens-only'), true);
   assert.equal(ID.test('one_primary'), false);
+});
+
+test('the colour choices are the adopter\'s, so no rule states them', () => {
+  const ids = RULES.map((one) => one.id);
+  for (const gone of ['danger-outline', 'one-primary', 'no-gradients', 'chart-identity']) {
+    assert.ok(!ids.includes(gone), `${gone} is a colour choice and stays out of the rules`);
+  }
+  for (const one of RULES) {
+    for (const tag of [one.held, ...(one.alsoHeld ?? [])]) {
+      assert.ok(tag !== 'danger-fill' && tag !== 'one-primary', `${one.id} names ${tag}`);
+    }
+  }
 });
 
 test('the short half of every rule is a sentence Context7 can carry alone', () => {

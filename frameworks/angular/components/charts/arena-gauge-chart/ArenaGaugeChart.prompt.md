@@ -19,8 +19,8 @@ readonly bands: ArenaGaugeBand[] = [
 | `min` | primitive | `number` | `0` | The low end of the scale, where the arc begins. The start of the dial and the table both write it. |
 | `max` | primitive | `number` | `100` | The high end of the scale, where the arc ends and where the last band stops. A `max` not greater than `min` warns once and draws the empty track, because there is no scale to place a value on. |
 | `bands` | array | `readonly ArenaGaugeBand[]` |  | What the scale means. Each band runs from its `from` to the next band's `from`, and the last to `max`, and the arc takes the colour of the band the value is in. A value below the first band is in no band and takes the `colorStart` slot. Absent, the arc is one identity colour and no band is drawn. Data rather than a threshold function, so the dial and the table are cut from the same list. An unsorted list is configuration and not data, so it warns once and is read in order of `from`. A band without a `label` throws, because a status colour never ships without its word. |
-| `colorId` | primitive | `number` |  | The identity slot of the arc when there are no `bands`, clamped to the ramp, `colorStart` when absent. With `bands` it is ignored with a development warning, because a chart carries identity or meaning and never both. |
-| `colorStart` | enum | `ArenaCatSlot` | `1` | The ramp slot the arc takes when there are no `bands` and no `colorId`, and the slot a value below the first band takes. With `bands`, the band's tone wins. Absent, 1. |
+| `colorId` | primitive | `number` |  | The identity slot of the arc when there are no `bands`, clamped to the ramp, `colorStart` when absent. With `bands`, the band's tone colours the arc and `colorId` is not read. |
+| `colorStart` | enum | `ArenaCatSlot` | `1` | The ramp slot the arc takes when there are no `bands` and no `colorId`, and the slot a value below the first band takes. With `bands`, the band's tone colours the arc. Absent, 1. |
 | `valueSuffix` | primitive | `string` |  | Appended verbatim to every number the gauge writes: the centre reading, the end labels, the band edges and the accessible table. Carries its own leading space if one is wanted. |
 | `valuePrefix` | primitive | `string` |  | Drawn verbatim before every number the gauge writes, as valueSuffix is drawn after it, for a currency that precedes its amount. |
 | `valueFormat` | object | `ArenaNumberFormat` |  | How each number is written before the prefix and suffix are added: which locale, how many fraction digits, whether thousands are grouped, whether large numbers are compacted. Absent, the raw JavaScript number. |
@@ -58,7 +58,7 @@ readonly bands: ArenaGaugeBand[] = [
 - Don't colour the arc from the number alone. Colour is a band, and a band has a word.
 - Don't pass a formatter or a threshold function. `bands` is data, so the dial and the table are cut from the same list.
 - Don't clamp the number before passing it. The drawing clamps and the words do not.
-- Don't pass `colorId` beside `bands`. A chart carries identity or meaning and never both, so the `colorId` is ignored with a development warning.
+- Don't pass `colorId` beside `bands`. The band's tone colours the arc and `colorId` is not read.
 - Don't use the gauge for a task that ends. An upload or a deploy is `arena-progress-bar`.
 - Don't use the gauge as a form-register indicator in a row. A scale read inline, with a name and a standing, is `arena-meter`.
 - Don't omit `value` or `label`. Both are required inputs, and Angular throws NG0950 on the first read rather than drawing an empty dial.

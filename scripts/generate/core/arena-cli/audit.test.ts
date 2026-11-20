@@ -8,18 +8,14 @@ import { repoRoot } from '../../../lib/arena/repo-root.ts';
 import {
   auditText, auditFindings, findings, lineFindings, isLegalBracket, scanText, scanFile, markerAllowlist,
   paintedParts, sourceScope, outlineGap, kebabTag, HEADING_RUNGS, OWN_CLASS_ATTRIBUTE,
-  LINKABLE_TAGS, WRAPPED_LINK_TAGS, statedRung, fillsWithDanger, namesAnAlias, RULE_TAGS, RULE_DESCRIPTIONS,
+  LINKABLE_TAGS, WRAPPED_LINK_TAGS, statedRung, namesAnAlias, RULE_TAGS, RULE_DESCRIPTIONS,
   UNMODELLED_UNITS, styleIdentifiers, styleObjectLines, unknownInputs,
-  iconMemberGlyphs, ownClassFindings, classValues, valueResults, RAW_GLYPH_BOUND_MESSAGE, RAW_COLOUR_MESSAGE, RAW_HEX_MESSAGE, GRADIENT_MESSAGE, primaryMessage, DANGER_FILL_MESSAGE, type VocabularyIndex,
+  iconMemberGlyphs, ownClassFindings, classValues, valueResults, RAW_GLYPH_BOUND_MESSAGE, RAW_COLOUR_MESSAGE, RAW_HEX_MESSAGE, type VocabularyIndex,
 } from './audit.ts';
 import { vocabularyIndex } from '../../../lib/arena/vocabulary-index.ts';
 
 function rules(source: string, path = 'src/App.tsx') {
   return auditText(path, source).join('\n');
-}
-
-function primaries(source: string, path = 'src/App.tsx') {
-  return auditText(path, source).filter((line) => line.includes('one-primary')).join('\n');
 }
 
 test('a class of your own on an Arena component is reported in either layer idiom', () => {
@@ -52,7 +48,6 @@ test('an ArenaLink inside a link of your own is a rule of its own, so a project 
 test('a raw value is reported where it styles something, and not where it is only a string', () => {
   assert.match(rules('<div style={{ color: "#b52a20" }} />'), /raw hex/);
   assert.match(rules('<div style={{ padding: "16px" }} />'), /bare pixel/);
-  assert.match(auditText('src/a.css', '.x { background: linear-gradient(a, b); }').join('\n'), /gradient/);
   assert.equal(rules('const id = "#b52a20";'), '');
   assert.equal(rules('const gap = "16px";'), '');
 });
@@ -246,16 +241,35 @@ test('a compiler class is reported in both scopes', () => {
   assert.equal(findings('a.css', rule, 'app').length, 1);
 });
 
-test('a raw value is reported in both scopes and a gradient only in the app', () => {
+test('a raw value is reported in both scopes, and a gradient of tokens in neither', () => {
   assert.equal(findings('p.css', '.x { color: #fff }', 'plugin')[0]?.rule, 'raw-value');
   const ramp = '.x { background: linear-gradient(var(--cat-1), var(--cat-3)) }';
-  assert.deepEqual(findings('p.css', ramp, 'plugin'), [],
-    'a plugin paints a gradient from its own stylesheet whatever the token tier says, so the norm '
-    + 'records it as a report rather than a floor and --strict may not refuse what the norm permits');
-  assert.equal(findings('a.css', ramp, 'app')[0]?.rule, 'raw-value');
+  assert.deepEqual(findings('p.css', ramp, 'plugin'), []);
+  assert.deepEqual(findings('a.css', ramp, 'app'), []);
   assert.equal(findings('p.css', '.x { background: linear-gradient(red, blue) }', 'plugin').length, 1,
-    'the gradient is the plugin\'s to paint and the colours in it are still the skin, which the '
-    + 'plugin assigns rather than authors');
+    'the colours in a gradient are still the skin, which the plugin assigns rather than authors');
+});
+
+test('a danger background is a colour choice and goes unreported', () => {
+  assert.deepEqual(findings('src/app.css', '.mine { background: var(--danger); }'), []);
+});
+
+test('two primary actions on one screen go unreported', () => {
+  const found = auditText('src/App.tsx', '<ArenaButton className="arena-emphasis-primary">Save</ArenaButton>\n'
+    + '<ArenaButton className="arena-emphasis-primary">Publish</ArenaButton>', 'app', vocabularyIndex());
+  assert.deepEqual(found, []);
+});
+
+test('a gradient in an application source goes unreported', () => {
+  assert.deepEqual(findings('src/app.css',
+    '.hero { background: linear-gradient(var(--color-base-100), var(--color-base-200)); }'), []);
+  assert.deepEqual(findings('src/app.css', '.hero { background: linear-gradient(#fff, #000); }').map((one) => one.rule),
+    ['raw-value']);
+});
+
+test('RULE_TAGS carries thirteen rules', () => {
+  assert.deepEqual([...RULE_TAGS], ['compat-alias', 'emoji', 'icon-element', 'outline-gap', 'own-class', 'raw-glyph',
+    'raw-value', 'router-link', 'stale-allowance', 'unknown-input', 'unknown-part', 'unknown-property', 'wrapped-link']);
 });
 
 test('a plugin assigning a colour through one of Arena\'s own aliases is reported', () => {
@@ -293,31 +307,6 @@ test('an alias is matched whole, so a longer name is not read as a shorter one i
 test('an alias inside a fallback is still an assignment, since the fallback is what paints', () => {
   assert.equal(findings('design/x/plugin.css', '.x { color: var(--mute, red) }', 'plugin')
     .filter((one) => one.rule === 'compat-alias').length, 1);
-});
-
-test('a project whose mark is a gradient is not told about one, and only about that', () => {
-  const rule = '.story__ring { background: conic-gradient(var(--color-cat-1), var(--color-cat-4)); }';
-  assert.match(auditText('src/a.css', rule, 'app').join('\n'), /gradient/,
-    'a gradient in an application source is the report the norm keeps');
-  assert.equal(auditText('src/a.css', rule, 'app', true).join('\n').includes('gradient'), false,
-    'a product whose mark IS a gradient draws that element itself, because Arena has none, so the '
-    + 'scope that reads the directory a line sits in asks the wrong question about a brand');
-});
-
-test('declaring the mark silences the gradient and nothing else on the line', () => {
-  const found = auditText('src/a.css', '.x { background: linear-gradient(red, blue); padding: 16px; }',
-    'app', true);
-  assert.match(found.join('\n'), /bare pixel length/,
-    'an allowance suppresses the whole line, which is what declaring the mark replaces');
-  assert.match(found.join('\n'), /raw colour/,
-    'the colours in the gradient are still the skin, which a project assigns rather than authors');
-});
-
-test('the declaration is not a way into the plugin scope, which already permits a gradient', () => {
-  const rule = '[data-arena-part="avatar.box"] { background: linear-gradient(var(--color-cat-1), var(--color-cat-4)); }';
-  assert.deepEqual(findings('design/x/plugin.css', rule, 'plugin'), [],
-    'a plugin paints one from its own stylesheet whatever the token tier says, declared or not');
-  assert.deepEqual(findings('design/x/plugin.css', rule, 'plugin', true), []);
 });
 
 test('the scope defaults to the application, so no caller changes meaning by accident', () => {
@@ -431,94 +420,14 @@ test('the components a link may wrap are the ones whose contract takes an href, 
 });
 
 
-test('a second primary action on one screen is reported, and the first one is not', () => {
-  assert.equal(primaries('<ArenaButton className="arena-emphasis-primary">Save</ArenaButton>'), '');
-  const two = primaries('<ArenaButton className="arena-emphasis-primary">Save</ArenaButton>\n'
-    + '<ArenaButton className="arena-emphasis-primary">Publish</ArenaButton>');
-  assert.match(two, /one-primary/);
-  assert.match(two, /at most one arena-emphasis-primary action stands in a view/);
-  assert.equal(two.split('\n').length, 1, 'the first primary is the one the screen is for, so only '
-    + 'the ones after it are findings');
-  assert.match(two, /line 1/);
-});
 
-test('a primary emphasis class is read in either layer idiom, and an expression is not read at all', () => {
-  assert.equal(primaries('<arena-button class="arena-emphasis-primary"></arena-button>', 'src/app.html'), '');
-  assert.match(primaries('<arena-button class="arena-emphasis-primary"></arena-button>\n'
-    + '<arena-button class="a arena-emphasis-primary"></arena-button>', 'src/app.html'), /one-primary/);
-  assert.match(primaries('<arena-button [class]="\'arena-emphasis-primary\'"></arena-button>\n'
-    + '<arena-button [class]="\'arena-emphasis-primary\'"></arena-button>', 'src/app.html'), /one-primary/);
-  assert.equal(primaries('<ArenaButton className={kind}>a</ArenaButton>\n'
-    + '<ArenaButton className={kind}>b</ArenaButton>'), '',
-    'a class an expression decides is not a class this file states, and reporting it would '
-    + 'report the one screen that cannot be read');
-  assert.equal(primaries('<ArenaButton className="arena-emphasis-primary-x">a</ArenaButton>\n'
-    + '<ArenaButton className="arena-emphasis-primary-x">b</ArenaButton>'), '');
-  assert.equal(primaries('<ArenaButton variant="primary">a</ArenaButton>\n'
-    + '<ArenaButton variant="primary">b</ArenaButton>').includes('one-primary'), false,
-    'the rule does not read variant="primary"');
-});
-
-
-test('a variant of your own that happens to be primary on a tag Arena does not draw is not counted', () => {
-  assert.equal(rules('<MyButton variant="primary">a</MyButton>\n'
-    + '<MyButton variant="primary">b</MyButton>'), '');
-});
-
-test('a filled danger surface is reported, and the tint and the outline are not', () => {
-  assert.match(auditText('src/a.css', '.mine { background: var(--danger); }').join('\n'),
-    /danger-fill/);
-  assert.match(auditText('src/a.css', '.mine { background-color: var(--color-error-fill); }').join('\n'),
-    /danger-fill/);
-  assert.equal(auditText('src/a.css', '.mine { background: var(--danger-soft); }').join('\n'), '',
-    'a soft tint is the surface a project of your own may carry');
-  assert.equal(auditText('src/a.css', '.mine { border-color: var(--danger); color: var(--danger); }').join('\n'), '',
-    'the border and the content in danger are what the rule asks for');
-});
-
-test('a filled danger surface is read in an inline style, and only in an application source', () => {
-  assert.match(rules('<div style={{ backgroundColor: \'var(--danger)\' }} />'), /danger-fill/);
-  assert.equal(auditText('plugin/skin.css', '.confirm { background: var(--danger-fill); }',
-    'plugin').join('\n').includes('danger-fill'), false,
-    'the one filled danger surface in the system is a part a style plugin paints, so the scope '
-    + 'that owns it is the scope that may draw it');
-});
-
-test('a danger tint is not a fill, in either operand order, and a full mix or a mix with a colour is', () => {
-  assert.equal(fillsWithDanger('.x { background: color-mix(in oklab, var(--color-error) 16%, transparent) }'), false);
-  assert.equal(fillsWithDanger('.x { background: color-mix(in oklab, transparent 84%, var(--danger)) }'), false);
-  assert.equal(fillsWithDanger('.x { background: color-mix(in srgb, var(--danger) 100%, transparent) }'), true);
-  assert.equal(fillsWithDanger('.x { background: color-mix(in oklab, var(--danger) 40%, white) }'), true);
-  assert.equal(fillsWithDanger('.x { background: color-mix(in oklab, var(--danger), transparent) }'), false);
-  assert.equal(fillsWithDanger('.x { background: var(--danger) }'), true);
-  assert.equal(fillsWithDanger('.x { background: color-mix(in oklab, transparent, var(--danger) 30%) }'), false);
-  assert.equal(fillsWithDanger('.x { background: color-mix(in oklab, transparent, var(--danger) 100%) }'), true);
-  assert.equal(fillsWithDanger('.x { background: color-mix(in oklab, transparent 0%, var(--danger)) }'), true);
-  assert.equal(fillsWithDanger('.x { background: color-mix(in oklab, transparent 100%, var(--danger)) }'), false);
-  assert.equal(fillsWithDanger('.x { background: color-mix(in oklab, var(--danger, red) 16%, transparent) }'), false);
-  assert.equal(fillsWithDanger('.x { background: color-mix(in oklch longer hue, var(--danger) 16%, transparent) }'), false);
-  assert.equal(fillsWithDanger('.x { background: color-mix(in oklch shorter hue, transparent, var(--danger, red) 100%) }'), true);
-});
-
-test('whitespace inside var() does not hide a danger fill or an alias reference', () => {
-  assert.equal(fillsWithDanger('.x { background: var( --danger ) }'), true);
+test('whitespace inside var() does not hide an alias reference', () => {
   assert.equal(namesAnAlias('.x { color: var( --level-presence ) }'), true);
 });
 
-test('the danger fill message names the filled status mark a screen writes instead', () => {
-  assert.match(DANGER_FILL_MESSAGE, /arena-mark-solid/);
-});
-
 test('no audit message names a palette colour', () => {
-  for (const message of [RAW_COLOUR_MESSAGE, primaryMessage(1), DANGER_FILL_MESSAGE, RAW_HEX_MESSAGE, GRADIENT_MESSAGE])
+  for (const message of [RAW_COLOUR_MESSAGE, RAW_HEX_MESSAGE])
     assert.doesNotMatch(message, /crimson|warm shadow/i);
-});
-
-test('a fill and a token are read as one pair, so a danger token elsewhere on the line is not a fill', () => {
-  assert.equal(fillsWithDanger('  border: 1px solid var(--danger);'), false);
-  assert.equal(fillsWithDanger('  background: var(--danger);'), true);
-  assert.equal(fillsWithDanger('  background: var(--danger-soft);'), false);
-  assert.equal(fillsWithDanger('  background: var(--surface-card);'), false);
 });
 
 test('every rule tag the audit can emit is declared, and every declared tag is one it emits', () => {
@@ -537,7 +446,7 @@ test('every rule tag the audit can emit is declared, and every declared tag is o
 test('a style hoisted into a constant is styling, so the raw-value rules read it there too', () => {
   const hoisted = ['const zone = {', "  background: 'var(--danger)',", "  padding: '16px',", '};',
     'export default function A() {', '  return <div style={zone}>x</div>;', '}'].join('\n');
-  assert.deepEqual(findings('src/App.tsx', hoisted).map((one) => one.rule), ['danger-fill', 'raw-value'],
+  assert.deepEqual(findings('src/App.tsx', hoisted).map((one) => one.rule), ['raw-value'],
     'style={{ ... }} and const zone = { ... } are the same declaration written two ways, and '
     + 'hoisting is what React authors do the moment an object outgrows the attribute. A rule that '
     + 'reads only the attribute is a rule any screen escapes by moving three lines up');
@@ -609,7 +518,7 @@ test('without a vocabulary index every class is own-class, which is the audit ru
 });
 
 test('findings carries the vocabulary through to the structural rules', () => {
-  assert.deepEqual(findings('src/a.tsx', '<ArenaButton className="arena-fill">Go</ArenaButton>', 'app', false, VOCABULARY)
+  assert.deepEqual(findings('src/a.tsx', '<ArenaButton className="arena-fill">Go</ArenaButton>', 'app', VOCABULARY)
     .filter((one) => one.rule === 'own-class'), []);
 });
 
@@ -645,7 +554,7 @@ test('a class and an axis of one family on one component are reported as decidin
     '<ArenaGrid className="arena-grid-min-sm" style={{ \'--arena-grid-min\': \'10rem\' }}>x</ArenaGrid>',
     '<arena-grid class="arena-grid-min-sm" style="--arena-grid-min: 10rem">x</arena-grid>',
   ]) {
-    const own = findings('src/a.tsx', source, 'app', false, AXES).filter((one) => one.rule === 'own-class');
+    const own = findings('src/a.tsx', source, 'app', AXES).filter((one) => one.rule === 'own-class');
     assert.deepEqual(own.map((one) => one.message), [message], source);
   }
   for (const source of [
@@ -653,225 +562,15 @@ test('a class and an axis of one family on one component are reported as decidin
     '<ArenaGrid style={{ \'--arena-grid-min\': \'10rem\' }}>x</ArenaGrid>',
     '<ArenaGrid className="arena-grid-min-sm" style={{ \'--arena-grid-min-width\': \'10rem\' }}>x</ArenaGrid>',
   ])
-    assert.deepEqual(findings('src/a.tsx', source, 'app', false, AXES).filter((one) => one.rule === 'own-class'), [], source);
+    assert.deepEqual(findings('src/a.tsx', source, 'app', AXES).filter((one) => one.rule === 'own-class'), [], source);
 });
 
 test('a shape class and the property a family composes with are no conflict, and a class that replaces an axis is, in both binding forms', () => {
   const index = vocabularyIndex(repoRoot);
-  const own = (source: string) => findings('src/a.tsx', source, 'app', false, index).filter((one) => one.rule === 'own-class');
+  const own = (source: string) => findings('src/a.tsx', source, 'app', index).filter((one) => one.rule === 'own-class');
   assert.deepEqual(own('<arena-skeleton class="arena-skeleton-line" style="--arena-skeleton-width: var(--sp-8)"></arena-skeleton>'), []);
   assert.equal(own('<arena-grid class="arena-grid-min-lg" [style.--arena-grid-min]="\'var(--sp-8)\'"></arena-grid>').length, 1);
   assert.equal(own('<arena-grid class="arena-grid-min-lg" style="--arena-grid-min: var(--sp-8)"></arena-grid>').length, 1);
-});
-
-const EMPHASIS_INDEX: VocabularyIndex = {
-  page: 'https://x/p',
-  classes: {
-    'arena-emphasis-primary': { family: 'emphasis', reach: 'context', target: 'component' },
-    'arena-emphasis-secondary': { family: 'emphasis', reach: 'context', target: 'component' },
-    'arena-emphasis-ghost': { family: 'emphasis', reach: 'context', target: 'component' },
-  },
-  answers: { ArenaButton: ['emphasis'], ArenaIconButton: ['emphasis'] },
-  options: {
-    ArenaButton: ['arena-emphasis-ghost', 'arena-emphasis-primary', 'arena-emphasis-secondary'],
-    ArenaIconButton: ['arena-emphasis-ghost'],
-  },
-  defaults: {
-    ArenaButton: { emphasis: 'arena-emphasis-primary' },
-    ArenaIconButton: { emphasis: 'arena-emphasis-ghost' },
-  },
-  modals: ['ArenaDialog'],
-};
-
-function defaultPrimaries(source: string, path = 'src/App.tsx', vocabulary: VocabularyIndex | null = EMPHASIS_INDEX) {
-  return auditText(path, source, 'app', false, vocabulary).filter((line) => line.includes('one-primary'));
-}
-
-test('a button with no emphasis class is the primary, so a second one is reported', () => {
-  const two = defaultPrimaries('<ArenaButton>Save</ArenaButton>\n<ArenaButton>Publish</ArenaButton>');
-  assert.equal(two.length, 1);
-  assert.match(two[0] ?? '', /:2:/);
-  assert.match(two[0] ?? '', /a button with no emphasis class is primary too/i);
-  assert.equal(defaultPrimaries('<arena-button>Save</arena-button>\n<arena-button>Go</arena-button>',
-    'src/app.html').length, 1, 'the Angular tag is read the same way');
-  assert.equal(defaultPrimaries('<ArenaButton className="arena-emphasis-primary">A</ArenaButton>\n'
-    + '<ArenaButton>B</ArenaButton>').length, 1, 'a stated primary and a bare one are two primaries');
-});
-
-test('explicit-others: one bare primary among stated secondaries and ghosts is clean', () => {
-  assert.deepEqual(defaultPrimaries('<ArenaButton>Save</ArenaButton>\n'
-    + '<ArenaButton className="arena-emphasis-secondary">Cancel</ArenaButton>\n'
-    + '<ArenaButton className="arena-emphasis-ghost arena-size-sm">More</ArenaButton>\n'
-    + '<ArenaIconButton className="arena-emphasis-ghost" icon="ph-bold ph-x" label="Close" />'), []);
-});
-
-test('a destructive button and a class an expression decides are not counted as bare', () => {
-  assert.deepEqual(defaultPrimaries('<ArenaButton destructive>Retire</ArenaButton>\n<ArenaButton>Add</ArenaButton>'), []);
-  assert.deepEqual(defaultPrimaries('<arena-button [destructive]="true">Retire</arena-button>\n'
-    + '<arena-button>Add</arena-button>', 'src/app.html'), []);
-  assert.deepEqual(defaultPrimaries('<ArenaButton className={kind}>A</ArenaButton>\n<ArenaButton>B</ArenaButton>'), []);
-  assert.deepEqual(defaultPrimaries('<ArenaButton {...props}>A</ArenaButton>\n<ArenaButton>B</ArenaButton>'), []);
-});
-
-test('container: bare buttons under a container that may carry an emphasis class are not guessed at', () => {
-  assert.deepEqual(defaultPrimaries('<div className="arena-emphasis-secondary">\n'
-    + '<ArenaButton>A</ArenaButton>\n<ArenaButton>B</ArenaButton>\n</div>'), []);
-  assert.equal(defaultPrimaries('<div className="arena-emphasis-secondary">\n'
-    + '<ArenaButton className="arena-emphasis-primary">A</ArenaButton>\n'
-    + '<ArenaButton className="arena-emphasis-primary">B</ArenaButton>\n</div>').length, 1,
-    'stated primaries are still counted');
-});
-
-test('no-vocabulary: with no index nothing new is counted, so the check never fires on a guess', () => {
-  assert.deepEqual(defaultPrimaries('<ArenaButton>Save</ArenaButton>\n<ArenaButton>Publish</ArenaButton>',
-    'src/App.tsx', null), []);
-});
-
-test('the shipped vocabulary makes ArenaButton and ArenaSplitButton default to primary and no other component', () => {
-  const index = vocabularyIndex();
-  const primary = Object.entries(index.defaults ?? {})
-    .filter(([, families]) => families.emphasis === 'arena-emphasis-primary').map(([name]) => name);
-  assert.deepEqual(primary, ['ArenaButton', 'ArenaSplitButton']);
-});
-
-test('Angular interpolation and attr.class in a class attribute are a computed class, not a bare button', () => {
-  assert.deepEqual(defaultPrimaries('<arena-button class="arena-size-sm {{k}}">A</arena-button>\n<arena-button>B</arena-button>',
-    'src/app.html'), []);
-  assert.deepEqual(defaultPrimaries('<arena-button [attr.class]="k">A</arena-button>\n<arena-button>B</arena-button>',
-    'src/app.html'), []);
-});
-
-test('a bare button inside a conditional branch is not guessed at', () => {
-  assert.deepEqual(defaultPrimaries('const a = cond ? <ArenaButton>A</ArenaButton> : <ArenaButton>B</ArenaButton>;'), []);
-  assert.deepEqual(defaultPrimaries('{cond && <ArenaButton>A</ArenaButton>}\n{other && (\n<ArenaButton>B</ArenaButton>)}'), []);
-  assert.deepEqual(defaultPrimaries('@if (a) {\n<arena-button>A</arena-button>\n} @else {\n<arena-button>B</arena-button>\n}',
-    'src/app.html'), []);
-  assert.deepEqual(defaultPrimaries('<arena-button *ngIf="a">A</arena-button>\n<arena-button *ngIf="!a">B</arena-button>',
-    'src/app.html'), []);
-  assert.deepEqual(defaultPrimaries('<div *ngIf="a"><arena-button>A</arena-button></div>\n'
-    + '<div *ngIf="!a"><arena-button>B</arena-button></div>', 'src/app.html'), []);
-  assert.equal(defaultPrimaries('<ArenaButton>A</ArenaButton>\n<ArenaButton className="arena-emphasis-primary">B</ArenaButton>').length, 1,
-    'stated primaries still count');
-  assert.equal(defaultPrimaries('@if (a) {\n<arena-button>A</arena-button>\n}\n<arena-button>B</arena-button>\n<arena-button>C</arena-button>',
-    'src/app.html').length, 2, 'buttons outside the block are still counted');
-  assert.equal(defaultPrimaries('<div *ngIf="a">x</div>\n<arena-button>A</arena-button>\n<arena-button>B</arena-button>',
-    'src/app.html').length, 1, 'a closed element is not an ancestor');
-});
-
-test('a bare primary in a branch counts against a primary the view always draws', () => {
-  const react = defaultPrimaries('<ArenaButton>Compose</ArenaButton>\n{open ? (<ArenaButton>Snooze</ArenaButton>) : null}');
-  assert.equal(react.length, 1);
-  assert.match(react[0] ?? '', /:2:/);
-  assert.match(react[0] ?? '', /line 1/);
-  const template = defaultPrimaries('<arena-button>Compose</arena-button>\n@if (open()) {\n<arena-button>Snooze</arena-button>\n}',
-    'src/app.html');
-  assert.equal(template.length, 1);
-  assert.match(template[0] ?? '', /:3:/);
-  const first = defaultPrimaries('{open && <ArenaButton>Snooze</ArenaButton>}\n<ArenaButton>Compose</ArenaButton>');
-  assert.equal(first.length, 1);
-  assert.match(first[0] ?? '', /:1:/);
-  assert.match(first[0] ?? '', /line 2/);
-});
-
-test('a bare primary under *ngIf counts against a primary the view always draws', () => {
-  const own = defaultPrimaries('<arena-button>Compose</arena-button>\n<arena-button *ngIf="open">Snooze</arena-button>', 'src/app.html');
-  assert.equal(own.length, 1);
-  assert.match(own[0] ?? '', /:2:/);
-  assert.match(own[0] ?? '', /line 1/);
-  const wrapped = defaultPrimaries('<arena-button>Compose</arena-button>\n<div *ngIf="open">\n<arena-button>Snooze</arena-button>\n</div>',
-    'src/app.html');
-  assert.equal(wrapped.length, 1);
-  assert.match(wrapped[0] ?? '', /:3:/);
-});
-
-test('a branch primary inside a modal counts only against what that modal always draws', () => {
-  assert.deepEqual(defaultPrimaries('<ArenaButton>Open</ArenaButton>\n<ArenaDialog open>\n{x && <ArenaButton>Retry</ArenaButton>}\n</ArenaDialog>'), []);
-  const inside = defaultPrimaries('<ArenaButton>Open</ArenaButton>\n<ArenaDialog open>\n{x && <ArenaButton>Retry</ArenaButton>}\n'
-    + '<ArenaButton>Confirm</ArenaButton>\n</ArenaDialog>');
-  assert.equal(inside.length, 1);
-  assert.match(inside[0] ?? '', /:3:/);
-});
-
-test('a statement-level branch is still not guessed at, beside a branch primary', () => {
-  assert.deepEqual(defaultPrimaries('if (e) return <ArenaButton>Retry</ArenaButton>;\n'
-    + 'return <>{a && <ArenaButton>A</ArenaButton>}<ArenaButton>B</ArenaButton></>;'), []);
-});
-
-test('a bare button inside an element a branch operator opens is in the branch', () => {
-  assert.deepEqual(defaultPrimaries('const a = cond ? (<div><ArenaButton>A</ArenaButton></div>) : (<div><ArenaButton>B</ArenaButton></div>);'), []);
-  assert.deepEqual(defaultPrimaries('const a = cond ? (\n<div>\n<ArenaButton>A</ArenaButton>\n</div>\n) : (\n<div>\n<ArenaButton>B</ArenaButton>\n</div>\n);'), []);
-  assert.deepEqual(defaultPrimaries('{a && (\n <div><ArenaButton>A</ArenaButton></div>\n)}\n{b && (\n <div><ArenaButton>B</ArenaButton></div>\n)}'), []);
-  assert.deepEqual(defaultPrimaries('{a && (\n <div><p><ArenaButton>A</ArenaButton></p><i/></div>\n)}\n{b && <><ArenaButton>B</ArenaButton></>}'), []);
-  assert.equal(defaultPrimaries('{a && <div>x</div>}\n<ArenaButton>A</ArenaButton>\n<ArenaButton>B</ArenaButton>').length, 1,
-    'a closed branch element is not an ancestor');
-  assert.equal(defaultPrimaries('<div><ArenaButton>A</ArenaButton></div>\n<div><ArenaButton>B</ArenaButton></div>').length, 1);
-});
-
-test('a brace in a string literal of a source file does not open a block', () => {
-  assert.equal(defaultPrimaries("const t = '@if (a) {';\nconst u = `@else {`;\n"
-    + '<ArenaButton>A</ArenaButton>\n<ArenaButton>B</ArenaButton>').length, 1);
-  assert.deepEqual(defaultPrimaries('@Component({ template: `@if (a) {\n<arena-button>A</arena-button>\n} @else {\n<arena-button>B</arena-button>\n}` })'), []);
-  assert.equal(defaultPrimaries("it's {\n<arena-button>A</arena-button>\n<arena-button>B</arena-button>", 'src/app.html').length, 1);
-});
-
-test('a branch element that has closed is not the ancestor of a later sibling of the same name', () => {
-  assert.equal(defaultPrimaries('{a && (\n<div>\n<p>x</p>\n</div>\n)}\n<div>\n<ArenaButton>A</ArenaButton>\n<ArenaButton>B</ArenaButton>\n</div>').length, 1);
-  assert.deepEqual(defaultPrimaries('{a && (\n<div>\n<div>y</div>\n<ArenaButton>A</ArenaButton>\n</div>\n)}\n{b && (\n<div>\n<ArenaButton>B</ArenaButton>\n</div>\n)}'), []);
-});
-
-test('a comment that names a button declares nothing, in any comment form', () => {
-  const one = '<ArenaButton>Save</ArenaButton>\n';
-  assert.deepEqual(defaultPrimaries(`${one}{/* <ArenaButton>Old</ArenaButton> */}`), []);
-  assert.deepEqual(defaultPrimaries(`${one}// Renders an <ArenaButton> for the old flow`), []);
-  assert.deepEqual(defaultPrimaries('<arena-button>Save</arena-button>\n<!-- <arena-button>Old</arena-button> -->',
-    'src/app.html'), []);
-  assert.equal(defaultPrimaries(`const u = 'https://x.dev';\n${one}<ArenaButton>Go</ArenaButton>`).length, 1,
-    'a URL is not a comment, so the code after it is still read');
-  assert.match(rules('<Link to="/x">\n  {/* <ArenaCard> */}\n  <ArenaCard>c</ArenaCard>\n</Link>'), /router-link/);
-});
-
-test('a type argument is not a tag, so a generic naming a button counts nothing', () => {
-  assert.deepEqual(defaultPrimaries('const r = useRef<ArenaButton>(null);\n<ArenaButton>Save</ArenaButton>'), []);
-  assert.deepEqual(defaultPrimaries('@ViewChildren(B) bs!: QueryList<ArenaButton>;\n<arena-button>Save</arena-button>',
-    'src/app.ts'), []);
-});
-
-test('a bare button in a statement-level branch is not guessed at', () => {
-  assert.deepEqual(defaultPrimaries('if (error) return <ArenaButton>Retry</ArenaButton>;\nreturn <ArenaButton>Save</ArenaButton>;'), []);
-  assert.deepEqual(defaultPrimaries('if (error) {\n  return <ArenaButton>Retry</ArenaButton>;\n}\nreturn <ArenaButton>Save</ArenaButton>;'), []);
-  assert.deepEqual(defaultPrimaries('switch (step) {\n  case 1: return <ArenaButton>Next</ArenaButton>;\n'
-    + '  default: return <ArenaButton>Finish</ArenaButton>;\n}'), []);
-  assert.equal(defaultPrimaries('if (ready) load();\nreturn <><ArenaButton>A</ArenaButton><ArenaButton>B</ArenaButton></>;').length, 1,
-    'a branch holding no button leaves the screen counted');
-});
-
-test('a container class an expression writes is still a container', () => {
-  assert.deepEqual(defaultPrimaries('<div className={`toolbar arena-emphasis-secondary ${x}`}>\n'
-    + '<ArenaButton>A</ArenaButton>\n<ArenaButton>B</ArenaButton>\n</div>'), []);
-});
-
-test('a modal counts its own primary, apart from the page under it', () => {
-  assert.deepEqual(defaultPrimaries('<ArenaButton>Open</ArenaButton>\n<ArenaDialog open>\n<ArenaButton>Confirm</ArenaButton>\n</ArenaDialog>'), []);
-  assert.deepEqual(defaultPrimaries('<arena-button>Open</arena-button>\n<arena-dialog>\n<arena-button>Confirm</arena-button>\n</arena-dialog>',
-    'src/app.html'), []);
-  assert.deepEqual(defaultPrimaries('<ArenaButton>Open</ArenaButton>\n<ArenaDialog open footer={<>\n<ArenaButton>Confirm</ArenaButton>\n</>} />'), []);
-  const two = defaultPrimaries('<ArenaButton className="arena-emphasis-secondary">Open</ArenaButton>\n'
-    + '<ArenaDialog open>\n<ArenaButton>Keep</ArenaButton>\n<ArenaButton>Confirm</ArenaButton>\n</ArenaDialog>');
-  assert.equal(two.length, 1, 'two bare buttons inside one dialog are two primaries of that dialog');
-  assert.match(two[0] ?? '', /:4:.*line 3/);
-  assert.deepEqual(defaultPrimaries('<ArenaButton className="arena-emphasis-primary">Open</ArenaButton>\n'
-    + '<ArenaDialog open>\n<ArenaButton className="arena-emphasis-primary">Confirm</ArenaButton>\n</ArenaDialog>'), []);
-  assert.equal(defaultPrimaries('<ArenaDialog open>\n<ArenaButton>A</ArenaButton>\n</ArenaDialog>\n'
-    + '<ArenaButton>B</ArenaButton>\n<ArenaButton>C</ArenaButton>').length, 1, 'a closed dialog gives the page back its own count');
-  assert.equal(defaultPrimaries('<ArenaButton>Open</ArenaButton>\n<ArenaDialog open>\n<ArenaButton>Confirm</ArenaButton>\n</ArenaDialog>',
-    'src/App.tsx', { ...EMPHASIS_INDEX, modals: undefined }).length, 1, 'with no modals indexed the file is one count, as before');
-});
-
-test('text that only looks like a comment does not carry a modal past its close tag', () => {
-  assert.deepEqual(defaultPrimaries('<>\n<ArenaDialog open><ArenaButton>Confirm</ArenaButton><p>Rate: 5 // month</p></ArenaDialog>\n'
-    + '<ArenaButton>New</ArenaButton>\n</>'), []);
-  assert.deepEqual(defaultPrimaries("<>\n<ArenaDialog open><ArenaButton>Confirm</ArenaButton><p>{'src/**/*.tsx'}</p></ArenaDialog>\n"
-    + '<ArenaButton>New</ArenaButton>\n</>\n/* a note */'), []);
 });
 
 test('every audit line carries its rule, and the line ends in it unless it is the stale allowance', () => {
@@ -896,7 +595,7 @@ test('the stale allowance line reads as it always has', () => {
 const INPUT_INDEX = vocabularyIndex();
 
 function inputRules(source: string, path = 'src/app.html') {
-  return auditText(path, source, 'app', false, INPUT_INDEX).join('\n');
+  return auditText(path, source, 'app', INPUT_INDEX).join('\n');
 }
 
 test('a static attribute an Arena component does not take is reported in a template', () => {

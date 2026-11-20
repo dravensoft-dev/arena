@@ -1,11 +1,11 @@
 import React from 'react';
-import { useArenaContainerWidth } from '../../../UseArenaContainerWidth.ts';
-import { arenaSrOnly, arenaAreaFill, arenaToneColor, arenaValueWriter, ARENA_INK_MUTED } from '../../../DataVisuals.ts';
+import { useArenaContainerWidth, useArenaTextScale } from '../../../UseArenaContainerWidth.ts';
+import { arenaSrOnly, arenaTextRoom, arenaAreaFill, arenaToneColor, arenaValueWriter, ARENA_INK_MUTED } from '../../../DataVisuals.ts';
 import { arenaGaugeFraction } from '../ChartScales.ts';
-import { arenaGaugeAngle, arenaGaugeAnchor, arenaGaugePoint, arenaGaugeRadii } from '../ChartPolar.ts';
+import { arenaGaugeAngle, arenaGaugeAnchor, arenaGaugePoint, arenaGaugeRadii, arenaGaugeWordY } from '../ChartPolar.ts';
 import { arenaArcPath } from '../ChartMarks.ts';
 import { arenaGaugeBand, arenaGaugeBands, arenaGaugeColor, arenaGaugeTable, arenaGaugeTicks } from '../ChartSeries.ts';
-import { chartGaugeHeight, chartLabelGap } from '../../../Tokens.generated.js';
+import { chartGaugeHeight } from '../../../Tokens.generated.js';
 
 import type { ArenaCatSlot, ArenaGaugeBand, ArenaNumberFormat } from '../../../Api.generated';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
@@ -34,10 +34,10 @@ export interface ArenaGaugeChartProps {
   /** What the scale means. Each band runs from its `from` to the next band's `from`, and the last to `max`, and the arc takes the colour of the band the value is in. A value below the first band is in no band and takes the `colorStart` slot. Absent, the arc is one identity colour and no band is drawn. Data rather than a threshold function, so the dial and the table are cut from the same list. An unsorted list is configuration and not data, so it warns once and is read in order of `from`. A band without a `label` throws, because a status colour never ships without its word. */
   bands?: readonly ArenaGaugeBand[];
 
-  /** The identity slot of the arc when there are no `bands`, clamped to the ramp, `colorStart` when absent. With `bands` it is ignored with a development warning, because a chart carries identity or meaning and never both. */
+  /** The identity slot of the arc when there are no `bands`, clamped to the ramp, `colorStart` when absent. With `bands`, the band's tone colours the arc and `colorId` is not read. */
   colorId?: number;
 
-  /** The ramp slot the arc takes when there are no `bands` and no `colorId`, and the slot a value below the first band takes. With `bands`, the band's tone wins. Absent, 1. */
+  /** The ramp slot the arc takes when there are no `bands` and no `colorId`, and the slot a value below the first band takes. With `bands`, the band's tone colours the arc. Absent, 1. */
   colorStart?: ArenaCatSlot;
 
   /** Appended verbatim to every number the gauge writes: the centre reading, the end labels, the band edges and the accessible table. Carries its own leading space if one is wanted. */
@@ -67,15 +67,16 @@ export function ArenaGaugeChart({ className,
     throw new Error('ArenaGaugeChart: every band needs a `label` (a status colour never ships without its word)');
   }
   const [ref, measured] = useArenaContainerWidth();
+  const room = arenaTextRoom(useArenaTextScale());
 
   const width = measured ?? 600;
   const cx = width / 2;
-  const { cy, band: ring, track, label: labelR } = arenaGaugeRadii(width, height);
+  const { cy, band: ring, track, label: labelR } = arenaGaugeRadii(width, height, room);
   const fmt = arenaValueWriter({ prefix: valuePrefix, suffix: valueSuffix, format: valueFormat });
   const sorted = arenaGaugeBands(bands ?? [], 'ArenaGaugeChart');
   const ticks = arenaGaugeTicks(sorted, min, max, 'ArenaGaugeChart');
   const index = arenaGaugeBand(sorted, value);
-  const color = arenaGaugeColor(sorted, index, colorId, 'ArenaGaugeChart', colorStart);
+  const color = arenaGaugeColor(sorted, index, colorId, colorStart);
   const fraction = arenaGaugeFraction(value, min, max);
   const word = sorted[index]?.label;
   const name = arenaPhrase(locale.gaugeChartName, { label });
@@ -127,7 +128,7 @@ export function ArenaGaugeChart({ className,
         )}
 
         {reads && word && (
-          <text x={cx} y={cy + chartLabelGap} textAnchor="middle" dominantBaseline="hanging"
+          <text x={cx} y={arenaGaugeWordY(cy, room)} textAnchor="middle" dominantBaseline="hanging"
             fill={ARENA_INK_MUTED} fontFamily="var(--font-body)" style={{ fontSize: 'var(--dz-text-xs)' }}>
             {word}
           </text>

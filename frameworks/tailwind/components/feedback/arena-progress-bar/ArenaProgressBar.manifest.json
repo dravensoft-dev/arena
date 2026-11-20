@@ -22,15 +22,15 @@
   "slots": {
     "root": "grid",
     "head": "flex items-baseline justify-between gap-items mb-2",
-    "label": "font-body text-ctl-md text-ink-body/(--level-ink-body)",
-    "value": "font-mono text-ctl-sm text-ink-muted/(--level-ink-muted)",
-    "track": "relative rounded-pill bg-track overflow-hidden h-[var(--arena-size-meter,var(--size-md-meter))] text-[color:var(--arena-accent-ink,var(--accent-primary-ink))]",
+    "label": "font-body text-ctl-md text-[color:color-mix(in_oklab,var(--text-body-ink-rest,var(--ink-body))_var(--level-ink-body),transparent)]",
+    "value": "font-mono text-ctl-sm text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",
+    "track": "relative rounded-pill overflow-hidden h-[var(--arena-size-meter,var(--size-md-meter))] bg-[color:var(--arena-accent-meters-track-fill)] text-[color:var(--arena-accent-meters-track-ink)]",
     "announcement": "sr-only",
     "fill": "absolute inset-0 bg-current rounded-[inherit] transition-[width] duration-[var(--dur-state)] ease-state",
-    "ring": "relative grid place-items-center shrink-0 size-[var(--arena-size-ring,var(--size-md-ring))] text-[color:var(--arena-accent-ink,var(--accent-primary-ink))]",
+    "ring": "relative grid place-items-center shrink-0 size-[var(--arena-size-ring,var(--size-md-ring))] text-[color:var(--arena-accent-meters-track-ink)]",
     "ringContent": "relative grid place-items-center [grid-area:1/1]",
     "ringGeometry": "absolute inset-0 size-full -rotate-90",
-    "ringTrack": "fill-none stroke-base-300 [vector-effect:non-scaling-stroke] [stroke-width:var(--arena-size-meter,var(--size-md-meter))]",
+    "ringTrack": "fill-none [vector-effect:non-scaling-stroke] [stroke-width:var(--arena-size-meter,var(--size-md-meter))] stroke-[color:var(--arena-accent-meters-track-fill)]",
     "ringFill": "fill-none stroke-current [vector-effect:non-scaling-stroke] [stroke-dasharray:100] [stroke-linecap:round] transition-[stroke-dashoffset] duration-[var(--dur-state)] ease-state [stroke-width:var(--arena-size-meter,var(--size-md-meter))]"
   },
   "kind": {
@@ -55,21 +55,24 @@
       "radial": {
         "root": "w-fit justify-items-center gap-items",
         "label": "text-center",
-        "value": "font-mono text-ctl-md text-ink-body/(--level-ink-body) [grid-area:1/1]"
+        "value": "font-mono text-ctl-md text-[color:color-mix(in_oklab,var(--text-body-ink-rest,var(--ink-body))_var(--level-ink-body),transparent)] [grid-area:1/1]"
       }
     },
     "tone": {
       "success": {
-        "track": "text-[color:var(--arena-hue-fill-strong)]",
-        "ring": "text-[color:var(--arena-hue-fill-strong)]"
+        "track": "bg-[color:var(--meters-success-track-fill-rest,var(--fill-track))] text-[color:var(--meters-success-track-ink-rest,var(--hue-success-ink))]",
+        "ring": "text-[color:var(--meters-success-track-ink-rest,var(--hue-success-ink))]",
+        "ringTrack": "stroke-[color:var(--meters-success-track-fill-rest,var(--fill-track))]"
       },
       "danger": {
-        "track": "text-[color:var(--arena-hue-ink)]",
-        "ring": "text-[color:var(--arena-hue-ink)]"
+        "track": "bg-[color:var(--meters-danger-track-fill-rest,var(--fill-track))] text-[color:var(--meters-danger-track-ink-rest,var(--hue-danger-ink))]",
+        "ring": "text-[color:var(--meters-danger-track-ink-rest,var(--hue-danger-ink))]",
+        "ringTrack": "stroke-[color:var(--meters-danger-track-fill-rest,var(--fill-track))]"
       },
       "info": {
-        "track": "text-[color:var(--arena-hue-fill-strong)]",
-        "ring": "text-[color:var(--arena-hue-fill-strong)]"
+        "track": "bg-[color:var(--meters-info-track-fill-rest,var(--fill-track))] text-[color:var(--meters-info-track-ink-rest,var(--hue-info-ink))]",
+        "ring": "text-[color:var(--meters-info-track-ink-rest,var(--hue-info-ink))]",
+        "ringTrack": "stroke-[color:var(--meters-info-track-fill-rest,var(--fill-track))]"
       }
     },
     "indeterminate": {
@@ -83,12 +86,5 @@
   "defaultVariants": {
     "shape": "linear",
     "indeterminate": false
-  },
-  "hues": {
-    "tone": {
-      "success": "success",
-      "danger": "danger",
-      "info": "info"
-    }
   }
 }

@@ -99,9 +99,9 @@ test('a plugin sheet writing a hue channel fails, and reading one stays allowed'
       new RegExp(`plugin-style-store/catalogue/y/plugin\\.css declares ${channel}, which only a hue sheet writes`));
 });
 
-test('a plugin sheet writing the danger hue strong fill role fails', () => {
-  assert.match(channelProblems(sheets([{ kind: 'plugin', rel: 'plugin-style-store/catalogue/y/plugin.css', css: ':root { --hue-danger-fill-strong: red; }' }])).join('\n'),
-    /plugin-style-store\/catalogue\/y\/plugin\.css declares --hue-danger-fill-strong/);
+test('a plugin sheet may declare --hue-danger-fill-strong', () => {
+  assert.doesNotMatch(channelProblems(sheets([{ kind: 'plugin', rel: 'plugin-style-store/catalogue/y/plugin.css', css: ':root { --hue-danger-fill-strong: red; }' }])).join('\n'),
+    /--hue-danger-fill-strong/);
 });
 
 test('no plugin sheet is a failure rather than a clean pass', () => {
@@ -115,4 +115,10 @@ test('an axis is written by the family sheet that resets it and by no other writ
     /--arena-grid-min has two writer kinds: family \(v\/Grid\.generated\.css\) and token \(t\/x\.css\)/);
   assert.match(channelProblems(sheets([reset, { kind: 'component', rel: 'c/ArenaGrid.styles.generated.css', css: '.x { --arena-grid-min: 8px; }' }])).join('\n'),
     /c\/ArenaGrid\.styles\.generated\.css declares --arena-grid-min/);
+});
+
+test('a component sheet may hand its icon an ink, and declares no other channel', () => {
+  const button = (css: string) => sheets().map((one) => (one.kind === 'component' ? { ...one, css } : one));
+  assert.deepEqual(channelProblems(button('.arena-button__root { --tw-shadow: 0 0 #0000; --arena-icon-ink: red; }')), []);
+  assert.match(channelProblems(button('.arena-button__root { --arena-icon-edge: red; }')).join('\n'), /declares --arena-icon-edge/);
 });

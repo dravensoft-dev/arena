@@ -44,12 +44,6 @@
   color: var(--ink-heading);
 }
 
-/* A tab is marked by weight and a dark rule, never by the accent. */
-[data-arena-part="tabs.tab"][aria-selected="true"] {
-  border-block-end-color: var(--ink-heading);
-  color: var(--ink-heading);
-}
-
 /* The palette is the product's front door and takes the room to say so. */
 [data-arena-part="command-palette.panel"] {
   inline-size: min(var(--container-max), 92vw);

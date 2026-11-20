@@ -1,8 +1,8 @@
 import {
   ChangeDetectionStrategy, Component, computed, ElementRef, inject, input, signal, viewChild,
 } from '@angular/core';
-import { arenaContainerWidth } from '../../../ContainerSize';
-import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, ARENA_SR_ONLY, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals';
+import { arenaContainerWidth, arenaReadTextScale } from '../../../ContainerSize';
+import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, ARENA_SR_ONLY, arenaTextRoom, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals';
 import {
   arenaLinearScale, arenaBandScale, arenaBandCenter, arenaBandIndex, arenaBandMark, arenaScaleValue,
 } from '../ChartScales';
@@ -144,6 +144,7 @@ export class ArenaPyramidChart {
     { transform: (value) => value ?? ARENA_CHART_HEIGHT },
   );
 
+  private readonly room = arenaTextRoom(arenaReadTextScale());
   protected readonly parts = manifest.parts;
   protected readonly styles = arenaPyramidChartStyles();
   protected readonly arenaSrOnly = ARENA_SR_ONLY;
@@ -153,7 +154,7 @@ export class ArenaPyramidChart {
   protected readonly tickLabelStyle = TICK_LABEL_STYLE;
   protected readonly categoryLabelStyle = CATEGORY_LABEL_STYLE;
   protected readonly barStyle = BAR_STYLE;
-  protected readonly categoryLabelX = arenaCategoryLabelX();
+  protected readonly categoryLabelX = arenaCategoryLabelX(this.room);
   protected readonly hover = signal<number | null>(null);
 
   private readonly write = computed(() => arenaValueWriter({
@@ -182,10 +183,10 @@ export class ArenaPyramidChart {
   private readonly domain = computed(() => arenaMirrorDomain(this.sides()));
 
   private readonly points = computed(() => arenaSeriesPointCount(this.sides()));
-  private readonly strip = computed(() => arenaLegendStrip(this.height(), this.sides().length));
+  private readonly strip = computed(() => arenaLegendStrip(this.height(), this.sides().length, false, this.room));
   protected readonly plotH = computed(() => this.strip().plotH);
   protected readonly stripH = computed(() => this.strip().stripH);
-  private readonly box = computed(() => arenaPlotBoxH(this.width(), this.strip().plotH));
+  private readonly box = computed(() => arenaPlotBoxH(this.width(), this.strip().plotH, this.room));
   protected readonly plotLeft = computed(() => this.box().x);
   protected readonly plotTop = computed(() => this.box().y);
   protected readonly plotBottom = computed(() => this.box().y + this.box().h);
@@ -229,7 +230,7 @@ export class ArenaPyramidChart {
           name: `${one.label}: `,
           path: arenaBarPathH(arenaBandMark(bands, index), bands.band,
             arenaScaleValue(xScale, signed), zeroX, BAR_RADIUS),
-          color: arenaSeriesColors(one, this.points(), arenaCatRotate(this.colorStart(), s), 'ArenaPyramidChart', this.colorStart())[index],
+          color: arenaSeriesColors(one, this.points(), arenaCatRotate(this.colorStart(), s), this.colorStart())[index],
           value: write(value),
         }];
       }),

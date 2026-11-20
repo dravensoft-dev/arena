@@ -1,7 +1,7 @@
 {
   "component": "ArenaSwitch",
   "description": "A controlled on/off switch showing an icon per state. `confirm` gates a high-impact change through an ArenaConfirmDialog before it applies.",
-  "affordances": [],
+  "affordances": ["focus"],
   "api": {
     "state": { "form": "primitive", "type": "boolean", "default": false,
                "description": "The current on/off value. Controlled: the consumer owns it and pushes it each render." },

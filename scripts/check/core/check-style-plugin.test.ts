@@ -1,12 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
+import { readJson } from '../../utils/read-file.ts';
 import * as rules from '../../generate/core/arena-cli/style-plugin-rules.ts';
 import {
-  SCOPES, collect, defaultAnswerProblems, floorProblems, keyProblems, movedTokens, nameProblems, resolvedFor, totalityProblems,
-  valueProblems, zeroScopeProblems,
+  LIGHT_BY_DESIGN, ROOT_PLUGIN, SCOPES, defaultSlotAnswers, slotAnswerProblems, slotAcceptsProblems, shippedSlotAcceptsProblems, collect, shippedFixedRemProblems, defaultAnswerProblems, floorProblems, keyProblems, movedTokens, nameProblems, resolvedFor, totalityProblems,
+  slotAnswerLines, valueProblems, zeroScopeProblems,
 } from './check-style-plugin.ts';
 
 const roles = (over: Record<string, string> = {}) => new Map(Object.entries({
@@ -29,9 +31,9 @@ const ROLES = {
 
 test('the rules module carries floors, shape checks and the kernel defaults, and no design theory', () => {
   assert.deepEqual(Object.keys(rules).sort(), [
-    'ARENA_EXT', 'DANGER_FLOOR', 'FS_STEP', 'KEBAB', 'MAX_PROSE_MEASURE', 'MIN_HEADING_LEADING',
-    'MIN_PROSE_LEADING', 'MIN_PROSE_MEASURE', 'POLARITY_HOOKS', 'RESERVED', 'RHYTHM_STEP',
-    'aliasName', 'colourAnswer', 'crossKeys', 'floorProblems', 'highContrastFor', 'highContrastNames', 'keyProblems', 'keywordAnswer', 'nameProblems', 'reservedProblems', 'rootOnlyFor', 'scopeKey', 'scopeOn',
+    'ARENA_EXT', 'FS_STEP', 'KEBAB', 'MAX_PROSE_MEASURE', 'MIN_HEADING_LEADING',
+    'MIN_PROSE_LEADING', 'MIN_PROSE_MEASURE', 'NO_PAINT', 'POLARITY_HOOKS', 'RESERVED', 'RHYTHM_STEP',
+    'aliasName', 'colourAnswer', 'crossKeys', 'fixedRemProblems', 'floorProblems', 'highContrastFor', 'highContrastNames', 'keyProblems', 'keywordAnswer', 'nameProblems', 'reservedProblems', 'rootOnlyFor', 'scopeKey', 'scopeOn',
     'totalityProblems', 'valueProblems', 'withDefaults',
   ], 'a rule that keeps a catalogue coherent is Arena design theory, and a floor is a claim about '
   + 'a reader: only the second one has any business binding somebody else\'s product');
@@ -226,53 +228,6 @@ test('a zero walk is a failure and not a clean pass', () => {
   assert.deepEqual(zeroScopeProblems(2), []);
 });
 
-const HUE_ROLE = {
-  $type: 'keyword', $extensions: { 'com.dravensoft.arena': { values: ['transparent'] } },
-};
-
-const FLOORED = ':root{--lh-prose:1.6;--lh-heading:1.15;--measure-prose:72ch;'
-  + '--hue-danger-fill-strong:transparent}';
-
-test('the danger floor is a closed set a colour alias cannot answer', () => {
-  const problems = keyProblems('at', 'hue-danger-fill-strong',
-    { $type: 'color', $value: '{color.error}', $description: 'why' }, HUE_ROLE);
-  assert.ok(problems.some((one) => /is a color here and a keyword in roles\.json/.test(one)));
-  assert.match(valueProblems('at', 'hue-danger-fill-strong',
-    { $type: 'keyword', $value: '{color.error}', $description: 'why' }, HUE_ROLE)[0] ?? '',
-  /not one of transparent/);
-  assert.deepEqual(valueProblems('at', 'hue-danger-fill-strong',
-    { $type: 'keyword', $value: 'transparent', $description: 'why' }, HUE_ROLE), []);
-});
-
-test('the danger floor fails a coloured answer in the root plugin, in every scope', () => {
-  assert.deepEqual(collect(FLOORED), []);
-  const problems = collect(FLOORED.replace('--hue-danger-fill-strong:transparent',
-    '--hue-danger-fill-strong:var(--color-error)'));
-  for (const scope of SCOPES)
-    assert.ok(problems.some((one) => one.includes(`--hue-danger-fill-strong is var(--color-error) in ${scope}`)),
-      scope);
-  assert.match(problems[0] ?? '', /danger is outline/);
-});
-
-test('the danger floor fails a coloured answer in a scoped plugin, in its scope', () => {
-  const problems = collect(`${FLOORED}\n.arena-showcase{--hue-danger-fill-strong:var(--color-error)}`);
-  assert.ok(problems.length > 0);
-  assert.ok(problems.some((one) => one.includes('--hue-danger-fill-strong is var(--color-error) in dark')));
-  assert.deepEqual(collect(`${FLOORED}\n.arena-showcase{--hue-danger-fill-strong:transparent}`), []);
-});
-
-test('a scoped plugin is measured through its own scope, so the floor fails there and nowhere else', () => {
-  const css = `${FLOORED}\n.arena-showcase{--hue-danger-fill-strong:#c00}`;
-  assert.deepEqual(floorProblems(resolvedFor(css, ''), 'dark', 'at'), []);
-  assert.equal(floorProblems(resolvedFor(css, 'showcase'), 'dark', 'at').length, 1);
-});
-
-test('the floor that is not stated is not measured here, because totality already asks for it', () => {
-  assert.deepEqual(floorProblems(roles(), 'dark', 'v'), []);
-  assert.match(floorProblems(roles({ 'hue-danger-fill-strong': '#c00' }), 'dark', 'v')[0] ?? '',
-    /--hue-danger-fill-strong is #c00 in dark, and danger is outline/);
-});
-
 test('the real tree holds: every scope this build emits clears the reading floors', () => {
   assert.deepEqual(collect(), []);
 });
@@ -341,4 +296,97 @@ test('a light answer is held too, and a role the default plugin is silent on is 
   assert.equal(defaultAnswerProblems(KERNEL, lit).length, 1);
   const silent = Object.fromEntries(Object.entries(answering()).filter(([key]) => key !== 'r-popover'));
   assert.deepEqual(defaultAnswerProblems(KERNEL, silent), []);
+});
+
+test('a role whose light answer is the default plugin\'s by design is held on its dark answer only', () => {
+  const kernel = { 'edge-focus': { $extensions: { 'com.dravensoft.arena': { default: '{color.secondary}' } } } };
+  const light = { 'edge-focus': { $type: 'color', $value: '{color.secondary}' }, light: { 'edge-focus': { $type: 'color', $value: '{color.base-content}' } } };
+  assert.deepEqual(defaultAnswerProblems(kernel, light), []);
+  const dark = { 'edge-focus': { $type: 'color', $value: '{color.base-content}' } };
+  assert.equal(defaultAnswerProblems(kernel, dark).length, 1);
+});
+
+const AXIS_ROLES = { 'gap-actions': { userScale: 'fixed' }, 'fs-body': { userScale: 'scales' } };
+
+test('a rem answer to a fixed role fails, naming it', () => {
+  const problems = rules.fixedRemProblems('p.json', { 'gap-actions': { $value: { value: 0.625, unit: 'rem' } } }, AXIS_ROLES);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /gap-actions/);
+  assert.match(problems[0] ?? '', /px/);
+  assert.equal(rules.fixedRemProblems('p', { 'gap-actions': { $value: '0.625rem' } }, AXIS_ROLES).length, 1);
+  assert.deepEqual(rules.fixedRemProblems('p', { 'gap-actions': { $value: { value: 10, unit: 'px' } } }, AXIS_ROLES), []);
+});
+
+test('a rem answer to a scales role passes', () => {
+  assert.deepEqual(rules.fixedRemProblems('p', { 'fs-body': { $value: { value: 1.125, unit: 'rem' } } }, AXIS_ROLES), []);
+});
+
+test('the shipped answer files carry no rem on a fixed role', () => {
+  assert.deepEqual(shippedFixedRemProblems(readJson(join(repoRoot, 'contracts/design/roles.json')) as Record<string, unknown>), []);
+});
+
+test('a unit with no finite value is not a rem answer', () => {
+  assert.deepEqual(rules.fixedRemProblems('p', { 'gap-actions': { $value: { unit: 'rem' } } }, AXIS_ROLES), []);
+  assert.deepEqual(rules.fixedRemProblems('p', { 'gap-actions': { $value: { value: 'x', unit: 'rem' } } }, AXIS_ROLES), []);
+});
+
+test('the roles a light answer is by design are the keys of the default plugin\'s light group', () => {
+  const plugin = readJson(join(repoRoot, 'plugin-style-store/default/plugin.tokens.json')) as { light?: Record<string, unknown> };
+  assert.deepEqual([...LIGHT_BY_DESIGN].sort(), Object.keys(plugin.light ?? {}).sort());
+});
+
+test('a slot answer in a plugin is held to its accepts set, and a role answer is not asked of a slot', () => {
+  const kernel = { 'fill-surface': { $type: 'color' }, 'ink-body': { $type: 'color' } };
+  const answer = (value: string) => ({ 'actions-primary-root-fill-rest': { $type: 'color', $value: value, $description: 'why' } });
+  assert.deepEqual(slotAnswerProblems('at', answer('{fill-surface}'), kernel), []);
+  assert.equal(slotAnswerProblems('at', answer('{ink-body}'), kernel).length, 1);
+});
+
+test('the accepts half holds a slot answer to its set and asks no description of it', () => {
+  const kernel = { 'fill-surface': { $type: 'color' }, 'ink-body': { $type: 'color' } };
+  const answer = (value: string) => ({ 'actions-primary-root-fill-rest': { $type: 'color', $value: value } });
+  assert.deepEqual(slotAcceptsProblems('at', answer('{fill-surface}'), kernel), []);
+  assert.deepEqual(slotAcceptsProblems('at', answer('{color.primary-content}'), kernel).length, 1);
+  assert.deepEqual(slotAcceptsProblems('at', { light: answer('{ink-body}') }, kernel).length, 1);
+});
+
+test('every shipped plugin answers each slot with a role its accepts set takes', () => {
+  assert.deepEqual(shippedSlotAcceptsProblems(), []);
+});
+
+test('a bad slot answer in the light group is refused', () => {
+  const kernel = { 'fill-surface': { $type: 'color' }, 'ink-body': { $type: 'color' } };
+  const light = { light: { 'actions-primary-root-fill-rest': { $type: 'color', $value: '{ink-body}', $description: 'why' } } };
+  assert.equal(slotAnswerProblems('at', light, kernel).length, 1);
+});
+
+test('the default plugin answers no colour slot', () => {
+  assert.deepEqual(defaultSlotAnswers(), [], 'D61: a sub-AA pair of the default is corrected in the identity, never by a slot answer');
+  const dir = mkdtempSync(join(tmpdir(), 'slot-answers-'));
+  try {
+    mkdirSync(join(dir, 'contracts/design'), { recursive: true });
+    mkdirSync(join(dir, 'plugin-style-store/default'), { recursive: true });
+    writeFileSync(join(dir, 'contracts/design/color-slots.json'), readFileSync(join(repoRoot, 'contracts/design/color-slots.json')));
+    const plugin = readJson(join(repoRoot, ROOT_PLUGIN)) as Record<string, unknown>;
+    writeFileSync(join(dir, ROOT_PLUGIN), JSON.stringify({ ...plugin,
+      'actions-primary-root-fill-pressed': { $type: 'color', $value: '{emphasis-primary-fill}', $description: 'why' } }));
+    const lines = defaultSlotAnswers(dir);
+    assert.equal(lines.length, 1, lines.join('\n'));
+    assert.match(lines[0] as string, /actions-primary-root-fill-pressed/);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('slot answer and accepts problems share one read', () => {
+  const kernel = { 'fill-surface': { $type: 'color' }, 'ink-body': { $type: 'color' } };
+  const tokens = {
+    'actions-primary-root-fill-rest': { $type: 'color', $value: '{ink-body}' },
+    'fill-surface': { $type: 'color', $value: '{color.base-100}' },
+    light: { 'actions-primary-root-ink-rest': { $type: 'color', $value: '{ink-body}' } },
+  };
+  const seen: string[] = [];
+  const spy = (where: string, key: string) => { seen.push(`${where}:${key}`); return [`${key} read`]; };
+  assert.deepEqual(slotAnswerLines('at', tokens, kernel, spy), ['actions-primary-root-fill-rest read', 'actions-primary-root-ink-rest read']);
+  assert.deepEqual(seen, ['at:actions-primary-root-fill-rest', 'at:actions-primary-root-ink-rest'], 'only slot keys reach the rule, a role key never does');
+  assert.deepEqual(slotAnswerProblems('at', tokens, kernel), slotAnswerLines('at', tokens, kernel, keyProblems));
+  assert.deepEqual(slotAcceptsProblems('at', tokens, kernel), slotAnswerLines('at', tokens, kernel, valueProblems));
 });

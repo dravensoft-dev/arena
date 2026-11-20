@@ -1,10 +1,11 @@
-import test from 'node:test';
+import test, { after } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
-  COLORS, COMPONENT_SHEETS, ON_INK_GATE, PAIRS, PALETTE, REMOVED, ROLE_SHEETS, SCOPED_PLUGINS, VOCABULARY_SHEETS,
-  answeredColour, catalogueOnInk, componentSheets, onInkPairs, paletteColours, resolvePercent, scopesToMeasure, structureOf, surfacesUnder, THEMES,
+  COLORS, COMPONENT_SHEETS, ON_INK_GATE, ON_SURFACE, PAIRS, PALETTE, REMOVED, ROLE_SHEETS, SCOPED_PLUGINS, VOCABULARY_SHEETS,
+  answeredColour, answeredKey, catalogueOnInk, catalogueReports, contrastScopes, slotReportLines, stateProblems, stateReports, defaultBuildProblems, JUDGED, componentSheets, onInkPairs, paletteColours, resolvePercent, scopesToMeasure, structureOf, surfacesUnder, THEMES,
 } from './check-text-contrast.ts';
 import { paletteBlock } from '../../lib/core/palette-read.ts';
 import { resolvedFor } from './check-style-plugin.ts';
@@ -14,7 +15,11 @@ import {
   derivedLevels, levelDefaults, levelReports, levelsIn, raisedReports, STATUS_HUES,
 } from '../../generate/core/arena-cli/levels.ts';
 import { CATALOGUE } from './check-catalogue.ts';
+import { scratchContrastTree } from '../../lib/core/contrast-fixtures.ts';
 import { FILL_PAIRS } from '../../generate/core/arena-cli/palette-keys.ts';
+import { slotPairs } from '../../generate/core/arena-cli/slot-contrast.ts';
+import { tokenCatalogue } from '../../lib/arena/package-assembly.ts';
+import { contrast } from '../../lib/core/validate-palette.mjs';
 
 test('this gate and the shipped command hold the same fills legible', () => {
   const key = (p: { fill: string, content: string }) => `${p.fill}/${p.content}`;
@@ -89,10 +94,10 @@ function literalAliases(block: string) {
     .map(([, name]) => name);
 }
 
-test('the disabled text and the scrim are the two aliases in colors.css that hold a fixed percentage, with no level', () => {
+test('the disabled text is the one alias in colors.css that holds a fixed percentage, with no level', () => {
   const block = structureOf(readFileSync(join(repoRoot, 'contracts/design/colors.css'), 'utf8'), SELECTORS)
     .replace(/\/\*[\s\S]*?\*\//g, '');
-  assert.deepEqual(literalAliases(block), ['mute-2-disabled', 'scrim']);
+  assert.deepEqual(literalAliases(block), ['mute-2-disabled']);
 });
 
 test('a percentage inside a var() fallback is not a literal the alias holds', () => {
@@ -144,10 +149,10 @@ test('a style plugin that moves no fill adds no scope, so the run is not the sam
 
 test('the vocabulary sheets are read with the component sheets, so a level a family writes is measured', () => {
   assert.ok(COMPONENT_SHEETS.includes(VOCABULARY_SHEETS), 'a family sheet is where the accent and emphasis inks now live');
-  assert.ok(componentSheets().some((css) => css.includes('--arena-accent-ink')), 'the accent family sheet is among those read');
+  assert.ok(componentSheets().some((css) => css.includes('--arena-accent-marks-label-ink')), 'the accent family sheet is among those read');
 });
 
-const accentSheet = () => componentSheets().find((css) => css.includes('--arena-accent-quiet-ink:')) as string;
+const accentSheet = () => componentSheets().find((css) => css.includes('--arena-accent-marks-outline-ink:')) as string;
 
 function measured(defaults: Record<string, number>) {
   const palette = readFileSync(join(repoRoot, PALETTE), 'utf8');
@@ -225,21 +230,21 @@ const selectorsOf = (levels: { selector: string }[]) => [...new Set(levels.map((
 
 test('a table\'s figures are drawn in a role the contrast gate measures, and it clears AA in both themes', () => {
   const { levels, reports } = inkReports('.arena-table__td', 'ink-figure');
-  assert.deepEqual(selectorsOf(levels), ['.arena-table__card-value:where([data-arena-numeric])', '.arena-table__td:where([data-arena-numeric])'],
-    'a numeric cell and a numeric card value paint --ink-figure through a level, which is the one shape levelReports reads; '
+  assert.deepEqual(selectorsOf(levels), ['.arena-table__card-value', '.arena-table__td'],
+    'a cell and a card value read --ink-figure through a level in their base class, with the body ink in the numeric=false branch, which is the one shape levelReports reads; '
     + 'a raw var(--color-secondary) was an accent drawn as ink that nothing measured');
   assert.deepEqual(reports, [], 'the figures of a pricing table are the numbers a reader came for');
-  assert.ok(inkReports('.arena-table__td', 'ink-figure', 'var(--color-secondary)').reports.some((one) => one.startsWith('light: --ink-figure')),
-    'a plugin raising gold to the figures owes 4.5:1, and on the light card it does not clear it');
+  assert.ok(inkReports('.arena-table__td', 'ink-figure', 'var(--color-neutral)').reports.some((one) => one.startsWith('light: --ink-figure')),
+    'a plugin raising a fill colour to the figures owes 4.5:1, and neutral on the light card does not clear it');
 });
 
 test('a bulk action bar\'s count is a figure, drawn in a role the contrast gate measures', () => {
   const { levels, reports } = inkReports('.arena-bulk-action-bar__number', 'ink-figure');
-  assert.deepEqual(selectorsOf(levels), ['.arena-bulk-action-bar__number'],
-    'the number of rows selected paints --ink-figure through a level; a raw var(--color-secondary) was gold drawn as ink that nothing measured');
+  assert.deepEqual(selectorsOf(levels), ['.arena-bulk-action-bar__count', '.arena-bulk-action-bar__number'],
+    'the number of rows selected and the count beside it paint --ink-figure through a level; a raw var(--color-secondary) was gold drawn as ink that nothing measured');
   assert.deepEqual(reports, [], 'the count is what the bar is about');
-  assert.ok(inkReports('.arena-bulk-action-bar__number', 'ink-figure', 'var(--color-secondary)').reports.some((one) => one.startsWith('light: --ink-figure')),
-    'a plugin raising gold to the count owes 4.5:1, and on the light floating surface it does not clear it');
+  assert.ok(inkReports('.arena-bulk-action-bar__number', 'ink-figure', 'var(--color-neutral)').reports.some((one) => one.startsWith('light: --ink-figure')),
+    'a plugin raising a fill colour to the count owes 4.5:1, and neutral on the light floating surface does not clear it');
 });
 
 test('an activity feed\'s target is a code, drawn in a role the contrast gate measures', () => {
@@ -247,18 +252,137 @@ test('an activity feed\'s target is a code, drawn in a role the contrast gate me
   assert.deepEqual(selectorsOf(levels), ['.arena-activity-feed__target'],
     'the identifier a row acted on paints --ink-figure through a level, as a table\'s codes do; a raw var(--color-secondary) was gold drawn as ink that nothing measured');
   assert.deepEqual(reports, [], 'the target is the half of the row a reader scans for');
-  assert.ok(inkReports('.arena-activity-feed__target', 'ink-figure', 'var(--color-secondary)').reports.some((one) => one.startsWith('light: --ink-figure')),
-    'a plugin raising gold to the target owes 4.5:1, and on the light page it does not clear it');
+  assert.ok(inkReports('.arena-activity-feed__target', 'ink-figure', 'var(--color-neutral)').reports.some((one) => one.startsWith('light: --ink-figure')),
+    'a plugin raising a fill colour to the target owes 4.5:1, and neutral on the light page does not clear it');
 });
 
 test('a toast\'s action reads one measured role in every tone, and it clears AA in both themes', () => {
   const { levels, reports } = inkReports('.arena-toast__action', 'ink-action');
   assert.deepEqual(selectorsOf(levels), ['.arena-toast__action'],
-    'the action paints --ink-action through a level in every tone; crimson in neutral and success and gold in danger were accents drawn as ink, '
-    + 'and crimson on the dark floating surface is 2.80:1');
+    'the action paints --ink-action through a level in every tone, one role measured as every ink is');
   assert.deepEqual(reports, [], 'an undo nobody can read is an undo nobody takes');
-  assert.ok(inkReports('.arena-toast__action', 'ink-action', 'var(--color-primary)').reports.some((one) => one.startsWith('dark: --ink-action')),
-    'a plugin raising crimson to the action owes 4.5:1, and on the dark floating surface it does not clear it');
-  assert.ok(inkReports('.arena-toast__action', 'ink-action', 'var(--color-secondary)').reports.some((one) => one.startsWith('light: --ink-action')),
-    'a plugin raising gold to the action owes 4.5:1, and on the light floating surface it does not clear it');
+  for (const theme of ['dark', 'light']) {
+    assert.ok(inkReports('.arena-toast__action', 'ink-action', 'var(--color-neutral)').reports.some((one) => one.startsWith(`${theme}: --ink-action`)),
+      `a plugin raising a fill colour to the action owes 4.5:1, and neutral on the ${theme} floating surface does not clear it`);
+  }
+});
+
+test('the default plugin clears 4.5:1 on its invalid and selected inks in both themes', () => {
+  assert.deepEqual(stateProblems('ink-'), []);
+});
+
+test('answeredKey follows the answer to the palette key a role names, and the light group only in a light theme', () => {
+  const answers = { 'edge-focus': { $value: '{color.secondary}' } };
+  const light = { 'edge-focus': { $value: '{color.base-content}' } };
+  assert.equal(answeredKey('edge-focus', answers, light, {}, 'dark'), 'secondary');
+  assert.equal(answeredKey('edge-focus', answers, light, {}, 'light'), 'base-content');
+  assert.equal(answeredKey('edge-selected', {}, {}, { 'edge-selected': '{ink-body}', 'ink-body': '{color.base-content}' }, 'dark'), 'base-content');
+});
+
+const made: string[] = [];
+after(() => { for (const dir of made) rmSync(dir, { recursive: true, force: true }); });
+
+test('a surface answered with no palette colour is reported by the gate of the pair that stands on it', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'state-'));
+  made.push(dir);
+  mkdirSync(join(dir, 'contracts/design'), { recursive: true });
+  mkdirSync(join(dir, 'p'));
+  writeFileSync(join(dir, 'contracts/design/roles.json'), '{}');
+  writeFileSync(join(dir, COLORS), readFileSync(join(repoRoot, COLORS)));
+  const answer = (role: string, value: string) => ({ [role]: { $value: value } });
+  writeFileSync(join(dir, 'p/plugin.tokens.json'), JSON.stringify({
+    ...answer('fill-page', '{color.base-100}'), ...answer('fill-surface', 'var(--ring)'), ...answer('fill-field', '{color.base-300}'),
+    ...answer('edge-focus', '{color.base-content}'), ...answer('edge-selected', '{color.base-content}'),
+    ...answer('edge-invalid', '{color.base-content}'), ...answer('ink-invalid', '{color.base-content}'),
+    ...answer('ink-selected', '{color.base-content}'), ...answer('fill-selected', '{color.primary}'),
+  }));
+  const colors = { 'base-100': '#ffffff', 'base-300': '#e5e5e5', 'base-content': '#111111', primary: '#b52a20' };
+  const scopes = [{ where: 'p/plugin.tokens.json', theme: 'light', colors, judged: true }];
+  const edges = stateProblems('edge-', scopes, dir);
+  const inks = stateProblems('ink-', scopes, dir);
+  assert.ok(edges.some((one) => /--edge-focus is measured over --fill-surface, which resolves to no palette colour/.test(one)));
+  assert.ok(inks.some((one) => /--ink-invalid is measured over --fill-surface, which resolves to no palette colour/.test(one)));
+  assert.ok(inks.some((one) => /--ink-selected is measured over --fill-surface/.test(one)));
+});
+
+function scratchTree(inkInvalid: string) {
+  const dir = scratchContrastTree({ 'ink-invalid': inkInvalid });
+  made.push(dir);
+  return dir;
+}
+
+const WEAK = { 'base-100': '#ffffff', strong: '#000000', 'base-content': '#bbbbbb' };
+
+test('a catalogue pair below AA is reported, not refused', () => {
+  const dir = scratchTree('{color.base-content}');
+  const scopes = [{ where: 'p/plugin.tokens.json', theme: 'light', colors: WEAK, judged: false }];
+  assert.deepEqual(stateProblems('ink-', scopes, dir), []);
+  assert.equal(stateReports('ink-', scopes, dir).length, 1);
+});
+
+test('a default pair below AA is refused', () => {
+  const dir = scratchTree('{color.base-content}');
+  const scopes = [{ where: 'p/plugin.tokens.json', theme: 'light', colors: WEAK, judged: true }];
+  assert.equal(stateProblems('ink-', scopes, dir).length, 1);
+  assert.deepEqual(stateReports('ink-', scopes, dir), []);
+});
+
+test('only the default plugin is judged', () => {
+  assert.deepEqual(JUDGED, ['plugin-style-store/default/plugin.tokens.json']);
+});
+
+test('defaultBuildProblems is clean on Arena\'s skin', () => {
+  assert.deepEqual(defaultBuildProblems(), []);
+});
+
+test('the default plugin resolves and clears every slot pair the contract declares', () => {
+  assert.deepEqual(defaultBuildProblems(), []);
+  assert.equal(slotPairs(tokenCatalogue().slots).length, 237, 'the sweep measures every slot pair the contract declares');
+});
+
+test('complete and the catalogue report their slot pairs in the lines the gate prints', () => {
+  const lines = slotReportLines(contrastScopes());
+  assert.ok(lines.length > 0, 'a sweep that reports nothing over complete and eight entries measured nothing');
+  assert.ok(lines.every((one) => one.startsWith('plugin-style-store/complete/') || one.startsWith(`${CATALOGUE}/`)),
+    'the default is refused through defaultBuildProblems, so only complete and the catalogue are reported here');
+});
+
+test('a catalogue palette below AA is reported with its entry and palette name', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'catalogue-'));
+  made.push(dir);
+  for (const name of readdirSync(repoRoot)) if (name !== 'plugin-style-store') symlinkSync(join(repoRoot, name), join(dir, name));
+  const store = join(dir, 'plugin-style-store');
+  mkdirSync(store);
+  for (const name of readdirSync(join(repoRoot, 'plugin-style-store'))) {
+    if (name !== 'catalogue') symlinkSync(join(repoRoot, 'plugin-style-store', name), join(store, name));
+  }
+  const entry = join(store, 'catalogue', 'weak-register');
+  mkdirSync(entry, { recursive: true });
+  writeFileSync(join(entry, 'plugin.tokens.json'), '{}');
+  writeFileSync(join(entry, 'arena.config.json'), JSON.stringify({
+    palettes: [{ name: 'faint', polarity: 'dark', colors: { 'base-100': '#141010', 'base-content': '#2a2323' } }],
+  }));
+  const found = catalogueReports(dir);
+  assert.ok(found.length > 0, 'a palette that fails AA reports nothing');
+  assert.ok(found.every((one) => one.startsWith('weak-register, faint: ')));
+});
+
+test('the accents and the status hues are gated as ink on the base surfaces', () => {
+  for (const token of ['primary', 'secondary', 'info', 'success', 'warning']) {
+    const row = ON_SURFACE.find((one) => one.token === token);
+    assert.equal(row?.gate, 4.5, `--color-${token} read as ink owes 4.5:1 like every ink`);
+    assert.doesNotMatch(row?.note ?? '', /NOT GATED/);
+  }
+});
+
+test('every Dravensoft key read as ink clears 4.5 over base-100, base-200 and base-300', () => {
+  const INK = ['primary', 'secondary', 'error', 'info', 'success', 'warning'];
+  for (const theme of ['dark', 'light']) {
+    const palette = JSON.parse(readFileSync(join(repoRoot, `contracts/design/palette.${theme}.json`), 'utf8')).color as Record<string, { $value?: { hex?: string } }>;
+    const hex = (key: string) => palette[key]?.$value?.hex as string;
+    for (const key of INK) for (const ground of ['base-100', 'base-200', 'base-300']) {
+      const ratio = contrast(hex(key), hex(ground));
+      assert.ok(ratio >= 4.5, `${theme}: ${key} ${hex(key)} over ${ground} ${hex(ground)} is ${ratio.toFixed(2)}:1`);
+    }
+  }
 });

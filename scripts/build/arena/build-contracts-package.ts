@@ -5,7 +5,9 @@
  * writes to dist/ rather than under contracts/ because check-contracts.ts admits an exact set of
  * entries there. NOT_CARRIED is the half worth reading: every exclusion names itself and says why,
  * and a pathspec matching nothing in the tree fails, which is what stops "the CSS chain is web-only"
- * from decaying the day a fourth stylesheet lands beside the three. */
+ * from decaying the day a fourth stylesheet lands beside the three. The slot catalogue is derived
+ * at build from the declarations and written beside them as DERIVED_SLOTS, so a platform target
+ * reads leaves with no derivation code, and the tree never holds the flat file. */
 
 import { readdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
@@ -14,7 +16,7 @@ import { relPosix } from '../../utils/posix-path.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import {
   collectFiles, reset, write, copy, copyBehaviourContracts, report, version,
-  pluginIdentity, SHARED_KEYWORDS,
+  pluginIdentity, SHARED_KEYWORDS, DERIVED_SLOTS, derivedSlotsText,
 } from '../../lib/arena/package-assembly.ts';
 
 export const NAME = '@dravensoft/arena-contracts';
@@ -150,6 +152,7 @@ export function buildContractsPackage(root = repoRoot) {
   const contracts: string[] = [];
   for (const file of carriedFiles(root)) contracts.push(copy(file, dir, relPosix(root, file)));
   contracts.push(...copyBehaviourContracts(dir, root));
+  contracts.push(write(dir, DERIVED_SLOTS, derivedSlotsText(root)));
 
   const carried = contracts.map((f) => relPosix(dir, f));
   const written = [...contracts];

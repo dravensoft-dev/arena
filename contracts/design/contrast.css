@@ -52,7 +52,10 @@
        moment every border thickens it would otherwise stop standing out
        against them. It takes the first step of the spacing grid rather
        than a width of its own, since a ring is a length and Arena has one
-       ladder of those. */
+       ladder of those. A plugin's own focus width widens too: --bw-focus is
+       restated here as a reference to --focus-width, so the preference
+       overrides what the plugin answered. */
     --focus-width: var(--sp-1);
+    --bw-focus: var(--focus-width);
   }
 }

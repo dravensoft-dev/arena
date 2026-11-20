@@ -1,14 +1,14 @@
 import {
   afterRenderEffect, booleanAttribute, ChangeDetectionStrategy, Component, computed, ElementRef, inject, input, signal, viewChild,
 } from '@angular/core';
-import { arenaContainerWidth } from '../../../ContainerSize';
+import { arenaContainerWidth, arenaReadTextScale } from '../../../ContainerSize';
 import { arenaWarnOnce } from '../../../WarnOnce';
-import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, ARENA_SR_ONLY, arenaAreaFill, arenaPlotWidth, arenaRailStyle, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals';
+import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, ARENA_SR_ONLY, arenaTextRoom, arenaAreaFill, arenaPlotWidth, arenaRailStyle, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals';
 import {
   arenaLinearScale, arenaPointScale, arenaPointAt, arenaScaleValue, arenaNearestPointIndex,
 } from '../ChartScales';
 import { arenaLinePoints, arenaLineAreaPath, arenaCurvePath, arenaCurveAreaPath } from '../ChartMarks';
-import { arenaPlotBox, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY, arenaValueGutter } from '../ChartAxis';
+import { arenaPlotBox, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY, arenaValueGutter, arenaLabelStride } from '../ChartAxis';
 import { arenaChartTable, arenaSeriesColors, arenaSwatchChoice, arenaSeriesDomain, arenaSeriesPointCount } from '../ChartSeries';
 import { arenaRailAnchorX, arenaTooltipAnchor } from '../ChartTooltip';
 import { arenaRailReveal, arenaRailView } from '../ChartRailView';
@@ -141,7 +141,7 @@ const POINT_LABEL_STYLE = { fontSize: 'var(--dz-text-xs)' } as const satisfies R
 })
 export class ArenaLineChart {
   protected readonly locale = inject(ARENA_LOCALE);
-  /** One label per point, in the same order as every series' `values`. A label with no value in a series ends that series' line there rather than dropping to zero. */
+  /** One label per point, in the same order as every series' `values`. A label with no value in a series ends that series' line there rather than dropping to zero. Every n-th label is drawn when the labels do not fit their band, and the data table carries all of them. */
   readonly labels = input.required<readonly string[]>();
   /** The plotted series, drawn as one polyline each over the same ordered sequence. One series is the common case and draws exactly what it drew before. The area fill is refused past one series, because two fills occlude each other and the reader cannot tell which value either edge belongs to. */
   readonly series = input.required<readonly ArenaSeries[]>();
@@ -170,6 +170,7 @@ export class ArenaLineChart {
   /** The narrowest gap, in px, the chart draws between two adjacent points. Below it the chart stops compressing and overflows its container horizontally instead, scrolled and anchored to the most recent point. Marker spacing is a legibility constant, not something that yields to the viewport, and thirty days in 390px is unreadable at any font size. Absent, the chart fits whatever width it is given. The rail it scrolls in is the same region the data cursor lives in, and it is keyboard-reachable whether it overflows or not. */
   readonly minPointSpacing = input<number>();
 
+  private readonly room = arenaTextRoom(arenaReadTextScale());
   protected readonly parts = manifest.parts;
   protected readonly styles = arenaLineChartStyles();
   protected readonly arenaSrOnly = ARENA_SR_ONLY;
@@ -193,7 +194,7 @@ export class ArenaLineChart {
   private readonly available = computed(() => this.measured() ?? ASSUMED_WIDTH);
 
   protected readonly width = computed(
-    () => arenaPlotWidth(this.available(), this.pointCount(), this.minPointSpacing()),
+    () => arenaPlotWidth(this.available(), this.pointCount(), this.minPointSpacing(), this.room),
   );
 
   protected readonly scrolls = computed(() => this.width() > this.available());
@@ -204,7 +205,7 @@ export class ArenaLineChart {
   private readonly railView = arenaRailView(() => this.rail()?.nativeElement);
 
   protected readonly colors = computed(
-    () => this.series().map((one, index) => arenaSeriesColors(one, 1, arenaCatRotate(this.colorStart(), index), 'ArenaLineChart', this.colorStart())[0] as string),
+    () => this.series().map((one, index) => arenaSeriesColors(one, 1, arenaCatRotate(this.colorStart(), index), this.colorStart())[0] as string),
   );
 
   protected readonly fills = computed(() => {
@@ -223,12 +224,12 @@ export class ArenaLineChart {
 
   private readonly domain = computed(() => arenaSeriesDomain(this.series()));
   protected readonly pointCount = computed(() => arenaSeriesPointCount(this.series()));
-  private readonly strip = computed(() => arenaLegendStrip(this.height(), this.series().length));
+  private readonly strip = computed(() => arenaLegendStrip(this.height(), this.series().length, false, this.room));
   protected readonly plotH = computed(() => this.strip().plotH);
   protected readonly stripH = computed(() => this.strip().stripH);
-  private readonly gutter = computed(() => arenaValueGutter(this.domain(), this.write()));
+  private readonly gutter = computed(() => arenaValueGutter(this.domain(), this.write(), this.room));
 
-  private readonly box = computed(() => arenaPlotBox(this.width(), this.strip().plotH, this.gutter()));
+  private readonly box = computed(() => arenaPlotBox(this.width(), this.strip().plotH, this.gutter(), this.room));
   protected readonly plotLeft = computed(() => this.box().x);
   protected readonly plotRight = computed(() => this.box().x + this.box().w);
   protected readonly plotTop = computed(() => this.box().y);
@@ -280,7 +281,9 @@ export class ArenaLineChart {
     const xScale = this.xScale();
     const labels = this.labels();
     const count = this.pointCount();
-    return Array.from({ length: count }, (_, index) => ({ index, x: arenaPointAt(xScale, index), label: labels[index] ?? '' }));
+    const stride = arenaLabelStride(xScale.step, labels, this.room);
+    return Array.from({ length: count }, (_, index) => ({ index, x: arenaPointAt(xScale, index), label: labels[index] ?? '' }))
+      .filter((one) => one.index % stride === 0);
   });
 
   protected readonly legend = computed(() => {

@@ -4,6 +4,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import React from 'react';
 import { ArenaBarChart } from './ArenaBarChart.tsx';
 import { arenaPointSeriesColor, arenaSeriesColors } from '../ChartSeries.ts';
+import { arenaToneColor } from '../../../DataVisuals.ts';
 import { forgetArenaWarnings } from '../../../WarnOnce.ts';
 
 const LABELS = ['Mon', 'Tue', 'Wed'];
@@ -135,18 +136,18 @@ test('a stack still names every series in the accessible table, which the segmen
   assert.match(html, /<td>-8<\/td>/, 'a negative segment is still its own number in the table');
 });
 
-test('the tone and colorId warning names the chart that drew it, so a second chart is heard too', () => {
+test('a series with tone and colorId takes the tone colour and warns nothing', () => {
   forgetArenaWarnings();
   const warnings: string[] = [];
   const original = console.warn;
   console.warn = (...args: unknown[]) => { warnings.push(args.map(String).join(' ')); };
   try {
     renderToStaticMarkup(<ArenaBarChart label="Deploys" labels={LABELS} series={[{ label: 'Deploys', values: VALUES, tone: 'danger', colorId: 3 }]} />);
-    arenaSeriesColors({ label: 'Trend', values: VALUES, tone: 'danger', colorId: 3 }, 1, 1, 'ArenaSparkline');
-    arenaPointSeriesColor({ label: 'Cloud', x: [], y: [], tone: 'danger', colorId: 3 }, 1, 'ArenaScatterChart');
+    assert.deepEqual(arenaSeriesColors({ label: 'Trend', values: VALUES, tone: 'danger', colorId: 3 }, 1, 1), [arenaToneColor('danger')]);
+    assert.equal(arenaPointSeriesColor({ label: 'Cloud', x: [], y: [], tone: 'danger', colorId: 3 }, 1), arenaToneColor('danger'));
   } finally { console.warn = original; }
   forgetArenaWarnings();
-  assert.deepEqual(warnings.map((line) => /^\[arena\] (\w+):/.exec(line)?.[1]), ['ArenaBarChart', 'ArenaSparkline', 'ArenaScatterChart']);
+  assert.deepEqual(warnings, []);
 });
 
 test('ArenaBarChart lets the end label overhang while its rail does not scroll, and clips once it does', () => {

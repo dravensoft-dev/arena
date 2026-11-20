@@ -39,6 +39,8 @@ the grid and the figure, the tag, the checkbox and the input.
 
 The document itself is markup you write. A paragraph, a heading, a quote, a callout, a toggle, a code block and a figure are the block family of a document editor. `skills/design/references/style-kernel.md` says in as many words that the kernel does not reach them. The skin still travels, so those blocks are written against the same tokens.
 
+A tab and a selected row are marked by weight and the heading ink, never by the accent's ink. The entry answers `ink-selected` and `edge-tab-selected` with `ink-heading`. The selected row's ink and the selected tab's rule follow the heading ink, and the components need no rule of the entry's own. The entry does not answer `fill-selected`, so a selected row keeps the selected wash.
+
 ## What it does not bring
 
 The palette and the fonts are the consumer's. This register leans harder on the type ramp than on
