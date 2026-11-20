@@ -125,7 +125,7 @@ export const ROUTES: Route[] = [
       'skills/design/references/config.md',
       'skills/design/references/cli.md',
     ],
-    budget: 51_600,
+    budget: 51_800,
     reason:
       'paid once per project, not per screen, so it carries what the build route may not: the install, '
       + 'the config file and the command. The config block is copied whole. The install reference gives '
@@ -210,7 +210,7 @@ export const ROUTES: Route[] = [
       + 'every part Arena ships, the three steps a project can stop at, and where Arena stops',
     entry: 'consumer',
     stops: ['skills/design/references/surface.md'],
-    budget: 11_800,
+    budget: 11_900,
     reason:
       'paid once per project and taken before the skin, register and seo routes, because each of '
       + 'them asks how much of a thing nobody has shown the reader yet. What it buys is that a '
@@ -220,11 +220,10 @@ export const ROUTES: Route[] = [
       + 'also carries where Arena stops, each line a decision rather than a gap, because a limit kept '
       + 'in a component prompt is reached after the project has planned around it, and a page '
       + 'promising the whole line is falsified by any part of it kept elsewhere. The number is what '
-      + 'the stops measure with room for one part, and it grows when Arena ships something new rather '
-      + 'than when the page explains something better. The row naming the layout container and the '
+      + 'the stops measure with room for one part, and it grows when Arena ships something new. The row naming the layout container and the '
       + 'spacing scale\'s half step are what the page spends beyond the parts it already listed. '
       + 'The icon line says where the sprite comes from and that the components reach no dependency. '
-      + 'The token layer row names the token tree beside the scales it lists. The audit line names what a source text shows.',
+      + 'The token layer row names the token tree beside the scales it lists. The palette row names every key of the set. The audit line names what a source text shows.',
   },
   {
     name: 'consumer-stack',
@@ -252,7 +251,7 @@ export const ROUTES: Route[] = [
       + 'of that bundler\'s family',
     entry: 'consumer',
     stops: ['skills/design/references/bundlers/index.md', 'skills/design/references/bundlers/rollup.md'],
-    budget: 18_600,
+    budget: 19_800,
     reason:
       'paid once per project, when the bundler config is written, and measured on the rollup family, '
       + 'the largest page a reader takes from the index. What it buys is that a reader stops '
@@ -262,7 +261,7 @@ export const ROUTES: Route[] = [
       + 'behaviour that differs, which a reader cannot rebuild from a hint. The rollup page holds the '
       + 'configs of four bundlers on two layers as measured: the chunk tests, the plugin that links the '
       + 'package sheet, the plugin that empties a CSS import, the Angular compiler and linker steps, and '
-      + 'the copy step for the sprite, and the plugin list the measured config uses. The other family pages are smaller. What moves this number is a '
+      + 'the copy step for the sprite, and the two measured Vite shapes, a React one with no plugin and an Angular one with the sheet plugin. The other family pages are smaller. What moves this number is a '
       + 'bundler measured, or a behaviour found, or a question every page answers: how the sprite is served. A bundler the latest run left out says which run measured it, in the index and in its family page. The index says Arena works on any bundler and what a measured one adds.',
   },
   {
@@ -329,7 +328,7 @@ export const ROUTES: Route[] = [
         ],
       },
     ],
-    budget: 31_400,
+    budget: 32_200,
     reason:
       'the route declared as a tree, charged its worst branch and never the sum, because a reader '
       + 'answers a question and walks one way. Handed a document stating the palette and the type, a '
@@ -340,7 +339,7 @@ export const ROUTES: Route[] = [
       + 'its last node derives the dependency list from answers. The index is generated from the one '
       + 'line every entry carries, grows a row per entry and keeps the last stop at a single entry. '
       + 'The tree names where an entry and the identity template are fetched without a clone, and '
-      + 'says an entry\'s config is a starting file whose plugin leads the list, and where the filled '
+      + 'says an entry\'s config is a starting file whose stylePlugins replaces the list arena init writes, and where the filled '
       + 'identity document is saved and served. Its architecture node points to the bundling '
       + 'section and the bundler record. The alternative to reading it is an agent '
       + 'inferring a palette from a screenshot, which costs nothing here and costs the project every '

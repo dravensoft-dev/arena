@@ -42,7 +42,7 @@ The required peers are `@angular/core`, `@angular/common` and `@angular/platform
 
 Angular's own Node floor is the stricter of the two, so Angular decides which Node the project runs. Arena never refuses a Node that the framework accepts.
 
-You do not need to run Tailwind. Every component's CSS ships compiled, and one `@import` is enough. A `--spacing` of your own moves nothing in Arena.
+You do not need to run Tailwind. Every component's CSS ships compiled. A `--spacing` of your own moves nothing in Arena.
 
 ## What is an icon in Arena?
 
@@ -95,7 +95,7 @@ Every other toolchain has a recipe on its page of [the bundler index](./bundlers
 
 ## How do I import the stylesheets in React?
 
-Run `arena build` first. The command writes the package sheet, the theme sheet, the icon sprite with its module, and a plugin sheet when a style plugin of yours carries CSS. Import the generated files before your own rules, in your entry file. `arena.package.generated.css` comes first and `arena.generated.css` after it. Under `--no-import` the package sheet is not written, and the sheets you import by hand take its place, before `arena.generated.css`. The package declares its colour and type defaults in the `arena-defaults` layer, which every order statement names first. `arena.generated.css` is unlayered, so it beats them in whatever order a bundler or dev server emits the two.
+Write `arena.config.json`, or run `arena init` to copy the example, before `arena build`: a build with no config exits 2 naming the file it cannot read. The command writes the package sheet, the theme sheet, the icon sprite with its module, and a plugin sheet when a style plugin of yours carries CSS. Import the generated files before your own rules, in your entry file. `arena.package.generated.css` comes first and `arena.generated.css` after it. Under `--no-import` the package sheet is not written, and the sheets you import by hand take its place, before `arena.generated.css`. The package declares its colour and type defaults in the `arena-defaults` layer, which every order statement names first. `arena.generated.css` is unlayered, so it beats them in whatever order a bundler or dev server emits the two.
 
 ```js
 import './arena.package.generated.css';

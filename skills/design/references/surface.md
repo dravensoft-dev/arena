@@ -12,7 +12,7 @@ where the part is written down, and that document is where you go once you know 
 
 | what it is | what you get | where it is written down |
 |---|---|---|
-| **The palette and the polarity** | The colours a build carries, declared by you. The set is the base surface scale, the two accents, the four status colours with the colour that goes legibly on top of each, and the eight ramp slots. One palette reaches `:root`, and every palette is a class for `<html>` or for a subtree, so a build carries as many skins as it declares. Each one states whether it is dark or light, and that answer is what a first visit is matched against. | [`config.md`](./config.md), the section about declaring a skin |
+| **The palette and the polarity** | The colours a build carries, declared by you. The set is the base surface scale with its ink, the two accents, `neutral` with `neutral-content`, the four status colours with the colour that goes legibly on top of each, the eight `cat-*` ramp slots, and the optional `primary-fill`, `error-fill` and five `heat-*` steps. One palette reaches `:root`, and every palette is a class for `<html>` or for a subtree, so a build carries as many skins as it declares. Each one states whether it is dark or light, and that answer is what a first visit is matched against. | [`config.md`](./config.md), the section about declaring a skin |
 | **The token layer** | Every value the components read, as custom properties you may read too. The spacing scale is `--sp-*`, from `--sp-0` to `--sp-24` with the half step `--sp-0-5`. The type ladder is `--fs-*`, with `--fw-*`, `--lh-*` and `--ls-*` beside it. The rest are the corners `--r-*`, the borders `--bw-*`, the shadows, the scrim blur, the durations `--dur-*` and the curves `--ease-*`. Then the stacking order `--z-*`, the three breakpoints `--bp-*`, the control and row sizes `--dz-*` the density classes re-answer, and the avatar and logo sizes. | [`tokens/index.md`](./tokens/index.md), over the DTCG JSON per group in `contracts/design/`, with [`contracts/design/Scales.md`](../../../contracts/design/Scales.md) for what each step is for |
 | **The colour aliases and the ink levels** | Short names over the palette for markup of your own: `--crimson`, `--gold`, `--danger`, `--success`, `--warning`, `--info`, `--bone`, `--mute`, `--bg`, and the soft washes beside each accent. The scrim behind a modal is one too. The percentages the held-back text registers stand at are tokens rather than literals, so a palette moves them, and the aliases read them. | [`contracts/design/colors.css`](../../../contracts/design/colors.css) |
 | **The style kernel** | A question for every decision about shape, space, weight, depth and which colour a surface takes, answered by a style plugin your project writes. The kernel is the part that decides whether the product looks like yours, and the palette is not. | [`style-kernel.md`](./style-kernel.md), over [`contracts/design/roles.json`](../../../contracts/design/roles.json) |
@@ -33,7 +33,7 @@ against them on purpose rather than by not knowing.
 
 **The first step, take the language as it comes.** Install the package, write
 `arena.config.json` with one palette and the three font slots, leave `stylePlugins` out or set
-it to `default`, import the whole stylesheet, and compose with components. Put the air between
+it to `["default"]`, a list, import the whole stylesheet, and compose with components. Put the air between
 them on containers of your own with the classes [`page.md`](./page.md) names, and paint the page
 through its role rather than a palette colour. That route is the shortest honest one, and the right
 one for a first screen, a prototype or a tool nobody outside the team will look at. **What it
@@ -41,7 +41,7 @@ leaves unresolved is the appearance**: the product wears the answers Arena insta
 are Dravensoft's, and every project on this step looks like every other one.
 
 **The second step, make it look like yours.** Write a style plugin, which is a directory holding
-one entry per role, and name it first in `stylePlugins`. Your palettes and your fonts go in the
+one entry per role, and replace the `stylePlugins` list with it, as `["./design/<name>"]`. Your palettes and your fonts go in the
 same config. From here the corners, the weights, the borders, the depth, the internal air and
 which colour each surface takes are the product's own. No component is rewritten to get there. [`style-kernel.md`](./style-kernel.md) is where that decision is made and which answers
 carry the visible difference.
