@@ -100,8 +100,8 @@ export function acceptsProblems(c: SlotCatalogue, roles: ReadonlySet<string>): s
       const re = glob(pattern);
       const hits = [...roles].filter((r) => re.test(r));
       if (hits.length === 0) out.push(`accepts.${p}: "${pattern}" matches no colour role`);
-      const others = [...new Set(Object.values(WORD))].filter((w) => w !== (WORD[p] ?? p));
-      const wrong = hits.filter((r) => !r.includes(WORD[p] ?? p) && others.some((w) => r.includes(w)));
+      const used = new Set(entries(c).filter(([, s]) => s.property === p).map(([, s]) => s.default?.replace(/[{}]/g, '')));
+      const wrong = hits.filter((r) => !r.includes(WORD[p] ?? p) && !used.has(r));
       if (wrong.length) out.push(`accepts.${p}: "${pattern}" matches ${wrong.join(', ')}, which name another property than ${WORD[p]}`);
     }
   }

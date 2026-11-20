@@ -1444,7 +1444,8 @@ test('fill accepts the overlay roles', () => {
   assert.deepEqual(defaultProblems(c, roles).filter((l) => /surfaces-media-fill-rest/.test(l)), [], 'the media wash answers with overlay-media');
   const refused = defaultProblems(edit((x) => { x.accepts.fill = x.accepts.fill.filter((p) => p !== 'overlay-*'); }), roles);
   assert.ok(refused.some((l) => /surfaces-media-fill-rest/.test(l)), 'without overlay-* the media wash is no accepted role');
-  assert.deepEqual(acceptsProblems(edit((x) => { x.accepts.fill.push('overlay-*'); }), roles), [], 'a pattern naming no other property is taken as it is, whatever its prefix');
-  assert.equal(acceptsProblems(edit((x) => { x.accepts.edge.push('overlay-*'); }), roles).length, 0, 'the same prefix on an edge slot names no ink or fill');
+  const withFoo = new Set([...roles, 'foo-bar']);
+  assert.equal(acceptsProblems(edit((x) => { x.accepts.fill.push('foo-*'); }), withFoo).length, 1, 'a role that names no property and is no slot default is refused on a fill slot');
+  assert.equal(acceptsProblems(edit((x) => { x.accepts.edge.push('overlay-*'); }), roles).length, 1, 'overlay-media is a fill default and no edge default, so an edge slot may not accept it');
   assert.equal(acceptsProblems(edit((x) => { x.accepts.fill.push('edge-*'); }), roles).length, 1, 'an edge role on a fill slot is still refused');
 });
