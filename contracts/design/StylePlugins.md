@@ -243,7 +243,7 @@ rejection and ConfirmDialog's invalid input read the `ink-invalid` and `edge-inv
 a soft badge, a tag, a stat card's value and delta, a meter, progress or spinner range) reads its group's slots, `marks.dot`, `marks.soft`,
 `marks.outline`, `marks.label` or `meters.track`, whose tone defaults are the hue roles, `{hue-<h>-ink}` and its edge and wash,
 so a plugin moves those marks through the hue roles or the slots and never through a hue channel. The channels are read by a badge
-written `arena-mark-solid`, the calendar chip and the confirm dialog, and by the series parts: a chart legend swatch, a board column's dot and
+written `arena-mark-solid` and the calendar chip, and by the series parts: a chart legend swatch, a board column's dot and
 title and a tag that names a `colorId` read them, following series painted from the palette.
 A badge written with `arena-mark-solid` fills with the ink and sets its label in the on-ink, which
 defaults to the hue's `{color.<hue>-content}` and, for danger, to the page colour
