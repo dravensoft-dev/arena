@@ -1746,3 +1746,19 @@ test('an adopter\'s pressed pair below AA is a warning', () => {
   assert.equal(slots.length, 1, JSON.stringify(slots));
   assert.match(slots[0]?.message ?? '', /^--actions-primary-root-ink-pressed measures 3\.\d\d:1 over --actions-primary-root-fill-pressed in the pressed state of the dark theme/);
 });
+
+test('arena build refuses {transparent} in a slot, in either group, and names the bare form', () => {
+  const plugin = readPlugin('p', {
+    'actions-ghost-root-fill-rest': { $type: 'color', $value: '{transparent}' },
+    light: { 'actions-ghost-root-edge-rest': { $type: 'color', $value: '{transparent}' } },
+  });
+  const flat = pluginTokenProblems('p', plugin.tokens, SHEETS_FULL.catalogue);
+  assert.equal(flat.filter((l) => /actions-ghost-root-fill-rest is "\{transparent\}"/.test(l)).length, 1);
+  const light = pluginTokenProblems('p.light', plugin.light, SHEETS_FULL.catalogue);
+  assert.equal(light.filter((l) => l.startsWith('stylePlugins.p.light') && /actions-ghost-root-edge-rest is "\{transparent\}"/.test(l)).length, 1);
+});
+
+test('a role answered {transparent} is refused with the bare form named', () => {
+  const problems = pluginTokenProblems('p', { 'fill-surface': '{transparent}' }, SHEETS_FULL.catalogue);
+  assert.equal(problems.filter((l) => l.includes('write transparent without braces')).length, 1);
+});

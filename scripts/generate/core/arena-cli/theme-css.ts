@@ -420,7 +420,9 @@ export function pluginTokenProblems(
     if (pluginValue(raw, catalogue, key) === null) {
       problems.push(`${where}: "${key}" is ${JSON.stringify(raw)}, which resolves to nothing this package `
         + 'ships. Write a value outright, or an alias like {fs.h3} or {color.base-200} naming a token '
-        + 'Arena emits.');
+        + 'Arena emits.'
+        + (aliasName(String(raw)) === 'transparent'
+          ? ' transparent is a colour answer of its own: write transparent without braces.' : ''));
       continue;
     }
     if (role?.type === 'color' && !colourAnswer(String(raw), key, known)) {

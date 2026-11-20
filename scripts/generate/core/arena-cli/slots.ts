@@ -116,7 +116,7 @@ export function slotAnswer(value: string, name: string, catalogue: SlotCatalogue
   const text = value.trim();
   if (text === 'transparent') return acceptedRole(catalogue, slot, text, colourRoles);
   const role = SLOT_ANSWER.exec(text)?.[1];
-  return role !== undefined && acceptedRole(catalogue, slot, role, colourRoles);
+  return role !== undefined && role !== 'transparent' && acceptedRole(catalogue, slot, role, colourRoles);
 }
 
 export function slotProblem(where: string, name: string, value: string, catalogue: SlotCatalogue): string {

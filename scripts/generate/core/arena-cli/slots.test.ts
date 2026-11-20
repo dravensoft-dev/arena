@@ -3,7 +3,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readColorSlots } from '../../../lib/core/color-slots.ts';
-import { axisBranch, axisNames, channelValue, fadeMarkers, haloValue, memberChain, memberSlotNames, memberValue, slotChain } from './slots.ts';
+import { axisBranch, axisNames, channelValue, fadeMarkers, haloValue, memberChain, memberSlotNames, memberValue, slotAnswer, slotChain } from './slots.ts';
+import { tokenCatalogue } from '../../../lib/arena/package-assembly.ts';
 import type { SlotCatalogue } from './slots.ts';
 
 const c = readColorSlots();
@@ -170,4 +171,12 @@ test('a member reads the slots of its own part and of each toBy part, at its sta
     muted: { properties: ['ink'], states: ['rest'], rest: { ink: '{ink-muted}' } },
   }, { ArenaCell: { group: 'text', parts: { cell: { to: 'text.figure', options: [], states: ['rest'], toBy: { axis: 'numeric', values: { false: 'text.body' } } } } } }, 'text'));
   assert.deepEqual(memberSlotNames(built, built.members['ArenaCell.cell']!), ['text-body-ink-rest', 'text-figure-ink-rest']);
+});
+
+test('a slot answered {transparent} is refused and the bare form is taken', () => {
+  const { slots } = tokenCatalogue();
+  const name = 'actions-ghost-root-fill-rest';
+  const roles = new Set<string>();
+  assert.equal(slotAnswer('{transparent}', name, slots, roles), false);
+  assert.equal(slotAnswer('transparent', name, slots, roles), true);
 });
