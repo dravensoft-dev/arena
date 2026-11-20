@@ -13,7 +13,14 @@ import { LAYER_TOKENS, FORBIDDEN } from '../../check/arena/check-layer-independe
 import {
   TARGETS, atDefault, noImportSheets, openLine, closeLine, renderRegion, applyRegion, renderTarget, regionsOf,
   ROLE_CONTRACT, BEHAVIOUR_CONTRACT, densityValues, requiredLead, toastIntervals, defaultedRoles, defaultedSentence, defaultsStatement, roleRuns, unansweredCount,
+  SLOT_PAGE, EXAMPLE_SLOT_ANSWERS, slotGroupSections,
 } from './generate-npm-pages.ts';
+import { readColorSlots, readSlotDeclarations } from '../../lib/core/color-slots.ts';
+import { slotAnswer } from '../core/arena-cli/slots.ts';
+import { slotReports } from '../core/arena-cli/slot-contrast.ts';
+import { levelDefaults } from '../core/arena-cli/levels.ts';
+import { rolesFor } from '../core/arena-cli/theme-css.ts';
+import { tableCells, MAX_CELL_CHARS, CONTRIBUTOR_PATHS, BANNED_PUNCTUATION } from '../../check/arena/check-docs.ts';
 import { tokenCatalogue, CSS_CHAIN, ANGULAR_EXTRA } from '../../lib/arena/package-assembly.ts';
 import type { CssChainEntry } from '../../lib/arena/package-assembly.ts';
 import { NPM_PAGES } from '../../lib/arena/npm-questions.ts';
@@ -543,4 +550,80 @@ test('a scale region says only what its groups need', () => {
   assert.ok(spacing.includes('The sheet sets the spacing base') && !motion.includes('The sheet sets the spacing base'));
   assert.ok(spacing.includes('(radius and shadow)') && motion.includes('(ease)'));
   assert.ok(spacing.includes('A breakpoint row names') && !motion.includes('A breakpoint row names'));
+});
+
+const decl = readSlotDeclarations(repoRoot);
+const cat = readColorSlots(repoRoot);
+const slotRegions = () => ['slotExample', 'slotAccepts', 'slotGroups'].map((key) => renderRegion(key)).join('\n');
+
+test('the slot page carries the three slot regions', () => {
+  assert.deepEqual(regionsOf(SLOT_PAGE).sort(), ['slotAccepts', 'slotExample', 'slotGroups']);
+});
+
+test('every declared group has a section, in declaration order', () => {
+  const headings = [...slotGroupSections(decl, cat).matchAll(/^### `([a-z]+)`$/gm)].map((m) => m[1]);
+  assert.deepEqual(headings, Object.keys(decl.groups!));
+});
+
+test('every derived slot has the row of its part and option', () => {
+  const text = slotGroupSections(decl, cat);
+  for (const s of Object.values(cat.slots))
+    assert.ok(text.includes(`| \`${s.part}\` | ${s.option === undefined ? '' : `\`${s.option}\``} |`), `${s.group}.${s.part} ${s.option ?? ''}`);
+});
+
+test('a row names the rest default of its part', () => {
+  const text = slotGroupSections(decl, cat);
+  assert.match(text, /\| `box` \|  \| fill, edge \|[^\n]*fill `\{fill-control\}`, edge `\{edge-control\}`/);
+  assert.match(text, /\| `field` \| `error` \|[^\n]*edge `\{edge-invalid\}`/);
+  assert.match(text, /\| `body` \|  \|[^\n]*ink `\{ink-body\}` at `level-ink-body`/);
+});
+
+test('a part with no rest shows its selected answer', () => {
+  assert.match(slotGroupSections(decl, cat), /\| `mark` \|  \| ink \| selected \|[^\n]*ink `\{emphasis-primary-ink\}`/);
+});
+
+test('a part that derives no slot says Arena paints it', () => {
+  const text = slotGroupSections(decl, cat);
+  for (const part of ['solid', 'skeleton'])
+    assert.match(text, new RegExp(`\\| \`${part}\` \\|[^\\n]*Arena paints it, and no slot answers it`));
+});
+
+test('every hover with a role of its own is listed under its group', () => {
+  const text = slotGroupSections(decl, cat);
+  for (const [name, s] of Object.entries(cat.slots))
+    if (!['rest', 'selected'].includes(s.state) && s.property !== 'icon' && s.default !== undefined && s.derive === undefined)
+      assert.ok(text.includes(`\`${name}\` reads \`${s.default}\``), name);
+});
+
+test('the slot regions print no decision, no gate and no contributor path', () => {
+  const text = slotRegions();
+  assert.doesNotMatch(text, /\b[DR]\d+\b/);
+  assert.doesNotMatch(text, /\bcheck:[a-z-]+/);
+  for (const [pattern] of CONTRIBUTOR_PATHS) assert.doesNotMatch(text, new RegExp((pattern as RegExp).source));
+  for (const [character] of BANNED_PUNCTUATION) assert.ok(!text.includes(character!));
+});
+
+test('no slot table cell passes the cell cap', () => {
+  for (const { line, chars } of tableCells(slotRegions())) assert.ok(chars <= MAX_CELL_CHARS, `line ${line}: ${chars}`);
+});
+
+test('the example answers are slots that accept them', () => {
+  const roles = readJson(join(repoRoot, ROLE_CONTRACT)) as Record<string, { $type: string }>;
+  const colour = new Set(Object.keys(roles).filter((name) => roles[name]!.$type === 'color'));
+  for (const [name, value] of Object.entries(EXAMPLE_SLOT_ANSWERS))
+    assert.ok(slotAnswer(value, name, cat, colour), `${name}: ${value}`);
+});
+
+test('the example answers clear their floors over the default plugin', () => {
+  const catalogue = tokenCatalogue();
+  const levels = levelDefaults(readFileSync(join(repoRoot, 'contracts/design/colors.css'), 'utf8'));
+  for (const theme of ['dark', 'light']) {
+    const palette = readJson(join(repoRoot, `contracts/design/palette.${theme}.json`)) as { color: Record<string, { $value?: { hex?: string } }> };
+    const colours = Object.fromEntries(Object.entries(palette.color).filter(([, t]) => t.$value?.hex).map(([k, t]) => [k, t.$value!.hex!]));
+    const roles = rolesFor(null, catalogue, theme);
+    const answers = new Map(Object.entries(EXAMPLE_SLOT_ANSWERS).map(([name, value]) => [name, roles.get(value.slice(1, -1)) as string]));
+    const lines = slotReports(catalogue.slots, answers, roles, colours, theme, levels).map((one) => one.message)
+      .filter((line) => /^--(choices-(box|mark|knob)|navigation-item)-/.test(line));
+    assert.deepEqual(lines, [], theme);
+  }
 });

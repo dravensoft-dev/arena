@@ -29,6 +29,10 @@ import { BROWSER_DEFAULT_PX, scaledLiteral } from '../core/arena-cli/serialize-t
 import { RULE_TAGS, RULE_DESCRIPTIONS } from '../core/arena-cli/audit.ts';
 import { LAYER_SCRIPTS, wiredScripts } from '../core/arena-cli/command-init.ts';
 import { rulesReportedAs } from '../../lib/arena/language-rules.ts';
+import { COLOR_SLOTS, isMemberDecl, readColorSlots, readSlotDeclarations } from '../../lib/core/color-slots.ts';
+import type { SlotDeclarations } from '../../lib/core/color-slots.ts';
+import { SLOT_PROPERTIES, SLOT_STATES } from '../core/arena-cli/slots.ts';
+import type { ColorSlot, SlotCatalogue } from '../core/arena-cli/slots.ts';
 
 export const LOCALE_CONTRACT = 'contracts/api/types/arena-locale.json';
 export const ROLE_CONTRACT = 'contracts/design/roles.json';
@@ -201,6 +205,83 @@ export function layoutAnswers(base = root) {
 
 const CLI_PAGE = 'skills/design/references/cli.md';
 
+export const SLOT_PAGE = 'skills/design/references/color-slots.md';
+
+export const EXAMPLE_SLOT_ANSWERS: Record<string, string> = {
+  'choices-box-fill-selected': '{fill-mark}',
+  'choices-mark-ink-selected': '{ink-on-mark}',
+  'choices-knob-fill-selected': '{fill-page}',
+  'choices-knob-ink-selected': '{ink-body}',
+  'navigation-item-edge-selected': '{edge-selected}',
+};
+
+export function slotExample() {
+  const answers = Object.fromEntries(Object.entries(EXAMPLE_SLOT_ANSWERS)
+    .map(([name, value]) => [name, { $type: 'color', $value: value }]));
+  return ['```json', JSON.stringify(answers, null, 2), '```'].join('\n');
+}
+
+const spans = (items: string[]) => items.map((one) => `\`${one}\``).join(', ');
+
+export function slotAcceptsTable(catalogue: SlotCatalogue) {
+  const rows = SLOT_PROPERTIES.map((property) => {
+    const patterns = catalogue.accepts[property] ?? [];
+    const ordered = [...patterns.filter((one) => one !== 'transparent'), ...patterns.filter((one) => one === 'transparent')];
+    return `| \`${property}\` | ${spans(ordered)} |`;
+  });
+  const refused = catalogue.refused.length === 0 ? [] : ['', `A slot never takes ${spans(catalogue.refused).replace(/, ([^,]*)$/, ' or $1')}.`];
+  return ['| property | a slot of it takes |', '| --- | --- |', ...rows, ...refused].join('\n');
+}
+
+function inSentences(lead: string, names: string[]) {
+  const out: string[] = [];
+  for (let at = 0; at < names.length; at += SENTENCE_RUNS) out.push(`${lead} ${names.slice(at, at + SENTENCE_RUNS).join(', ')}.`);
+  return out.join(' ');
+}
+
+const answerText = (slot: ColorSlot) => `\`${slot.default}\`${slot.level ? ` at \`${slot.level}\`` : ''}`;
+
+export function slotGroupSections(declarations: SlotDeclarations, catalogue: SlotCatalogue) {
+  const members = Object.entries(declarations.members ?? {});
+  const slots = Object.entries(catalogue.slots);
+  return Object.entries(declarations.groups ?? {}).map(([group, decl]) => {
+    const home = members.filter(([, m]) => m.group === group).map(([component]) => `\`${component}\``);
+    const readers = members.filter(([, m]) => m.group !== group).flatMap(([component, m]) => Object.entries(m.parts ?? {})
+      .filter(([, to]) => isMemberDecl(to) && to.to.split('.')[0] === group).map(([part]) => `\`${component}.${part}\``));
+    const rows = Object.entries(decl.parts ?? {}).flatMap(([part, p]) => {
+      const options = p.options === undefined ? [undefined] : Array.isArray(p.options) ? p.options : Object.keys(p.options);
+      return options.map((option) => {
+        const own = slots.filter(([, s]) => s.group === group && s.part === part && s.option === option).map(([, s]) => s);
+        const optionCell = option === undefined ? '' : `\`${option}\``;
+        if (own.length === 0) {
+          const declared = (p.options !== undefined && !Array.isArray(p.options) ? p.options[option as string]?.states : undefined) ?? p.states;
+          const states = typeof declared === 'string' ? declarations.stateSets[declared] ?? [] : declared ?? [];
+          return `| \`${part}\` | ${optionCell} | none | ${states.join(', ')} | Arena paints it, and no slot answers it |  |`;
+        }
+        const properties = SLOT_PROPERTIES.filter((property) => own.some((s) => s.property === property));
+        const states = SLOT_STATES.filter((state) => own.some((s) => s.state === state));
+        const at = (state: string) => properties.filter((property) => property !== 'icon').flatMap((property) => {
+          const slot = own.find((s) => s.property === property && s.state === state);
+          return slot?.default === undefined || slot.derive !== undefined ? [] : [`${property} ${answerText(slot)}`];
+        }).join(', ');
+        return `| \`${part}\` | ${optionCell} | ${properties.join(', ')} | ${states.join(', ')} | ${at('rest')} | ${at('selected')} |`;
+      });
+    });
+    const hovers = slots.filter(([, s]) => s.group === group && !['rest', 'selected'].includes(s.state) && s.property !== 'icon'
+      && s.default !== undefined && s.derive === undefined).map(([name, s]) => `\`${name}\` reads ${answerText(s)}`);
+    const prose = [
+      home.length === 0 ? '' : inSentences('Home of', home),
+      readers.length === 0 ? '' : inSentences('Also read by', readers),
+    ].filter(Boolean).join(' ');
+    return [
+      `### \`${group}\``, '',
+      ...(prose ? [prose, ''] : []),
+      '| part | option | answers | states | silent at rest | silent when selected |', '| --- | --- | --- | --- | --- | --- |', ...rows,
+      ...(hovers.length === 0 ? [] : ['', inSentences('Under the pointer,', hovers)]),
+    ].join('\n');
+  }).join('\n\n');
+}
+
 export const REGION_TARGETS: Record<string, string[]> = {
   repository: ['frameworks/react/PACKAGE.md', 'frameworks/angular/PACKAGE.md'],
   skin: ['skills/design/references/config.md'],
@@ -219,13 +300,16 @@ export const REGION_TARGETS: Record<string, string[]> = {
   scriptsAngular: [CLI_PAGE],
   questions: NPM_PAGES,
   layout: ['skills/design/references/style.md'],
+  slotExample: [SLOT_PAGE],
+  slotAccepts: [SLOT_PAGE],
+  slotGroups: [SLOT_PAGE],
 };
 
 export const TARGETS = [...new Set(Object.values(REGION_TARGETS).flat())];
 
 export const node = {
   name: 'generate:npm-pages',
-  reads: [...TARGETS, ALIAS_SOURCE, 'scripts/generate/core/arena-cli/audit.ts', 'scripts/generate/core/arena-cli/command-init.ts', 'scripts/lib/arena/language-rules.ts', `${DEFAULT_PLUGIN_DIR}/${PLUGIN_TOKENS}`, '.claude-plugin/plugin.json', 'scripts/generate/core/arena-cli/style-plugin-rules.ts', 'scripts/generate/core/arena-cli/theme-css.ts', LOCALE_CONTRACT, ROLE_CONTRACT, BEHAVIOUR_CONTRACT, ...Object.values(DENSITY_CONTRACTS), THEME_SHEET, 'contracts/api/components/*.json', 'contracts/design/spacing.json', BREAKPOINT_TARGET, TOAST_NOTICE_CONTRACT, CONFIRM_REQUEST_CONTRACT, ...CSS_TARGETS, ...CHANNEL_SOURCES, HUES_FILE, `${VOCABULARY_DIR}/**/*${FAMILY_SUFFIX}`, ...TOKEN_CATALOGUE_READS, ...FAMILY_PART_SHEET_READS],
+  reads: [...TARGETS, ALIAS_SOURCE, 'scripts/generate/core/arena-cli/audit.ts', 'scripts/generate/core/arena-cli/command-init.ts', 'scripts/lib/arena/language-rules.ts', `${DEFAULT_PLUGIN_DIR}/${PLUGIN_TOKENS}`, '.claude-plugin/plugin.json', 'scripts/generate/core/arena-cli/style-plugin-rules.ts', 'scripts/generate/core/arena-cli/theme-css.ts', LOCALE_CONTRACT, ROLE_CONTRACT, BEHAVIOUR_CONTRACT, ...Object.values(DENSITY_CONTRACTS), THEME_SHEET, 'contracts/api/components/*.json', 'contracts/design/spacing.json', BREAKPOINT_TARGET, TOAST_NOTICE_CONTRACT, CONFIRM_REQUEST_CONTRACT, ...CSS_TARGETS, ...CHANNEL_SOURCES, HUES_FILE, `${VOCABULARY_DIR}/**/*${FAMILY_SUFFIX}`, ...TOKEN_CATALOGUE_READS, ...FAMILY_PART_SHEET_READS, COLOR_SLOTS],
   writes: TARGETS,
   feeds: [
     'generate:token-tree', 'check:token-tree',
@@ -530,6 +614,12 @@ you import it beside the other two. The sheet declares the cascade layer order i
   },
 
   questions: (base = root, target = '') => renderQuestions(target, base),
+
+  slotExample: () => slotExample(),
+
+  slotAccepts: (base = root) => slotAcceptsTable(readColorSlots(base)),
+
+  slotGroups: (base = root) => slotGroupSections(readSlotDeclarations(base), readColorSlots(base)),
 
   layout: (base = root) => {
     const [container, gutter, measure] = layoutAnswers(base);
