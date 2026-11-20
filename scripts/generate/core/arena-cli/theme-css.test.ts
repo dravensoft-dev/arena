@@ -2,17 +2,19 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
 import {
   configProblems, heatReports, heatOrderReports, themeCss, packageLines, PACKAGE_HEADER, packageImports, paletteReports, defaultPalette, isStylesheet, scopedImports,
   pluginName, pluginValue, readPlugin, weightReports, rootWithDefaults, resolvedPlugin,
   pluginBlocks, pluginTokenProblems, rolesFor, nestedRolesFor,
-  ARENA_FONT_DEFAULTS, ALWAYS_THEMED, RUNTIME_MARKER, polarityClass, polarityDeclarations, restatedBy, type CheckedStylesheet, type CheckedSheets,
+  ARENA_FONT_DEFAULTS, ALWAYS_THEMED, RUNTIME_MARKER, polarityClass, polarityDeclarations, restatedBy, lightGroupProblems, type CheckedStylesheet, type CheckedSheets,
 } from './theme-css.ts';
 import { PALETTE_KEYS, POLARITIES, heatKeys } from './palette-keys.ts';
 import { heatLadder } from './oklab.ts';
 import { parseDecls } from '../../../lib/arena/css-decls.ts';
 import { roleReferencesIn } from './sheets.ts';
 import { tokenCatalogue } from '../../../lib/arena/package-assembly.ts';
+import { repoRoot } from '../../../lib/arena/repo-root.ts';
 import { goldenInput } from '../../../lib/arena/theme-css-golden-input.ts';
 import { crossKeys, reservedProblems, scopeOn } from './style-plugin-rules.ts';
 import { nodeImportsReachedFrom, whileHeld } from './cli-fixtures.ts';
@@ -1862,4 +1864,38 @@ test('a nested plugin over the default root keeps the default light answers unde
   const won = nestedRolesFor(null, plain, catalogue, 'light').get('edge-focus');
   assert.ok(won);
   assert.notEqual(won, under);
+});
+
+const lightOf = (answers: Record<string, any>) => lightGroupProblems(readPlugin('p', { light: answers }), tokenCatalogue());
+
+test('the light group refuses a non-colour role, a step and transparent, which no palette would restate', () => {
+  const real = tokenCatalogue();
+  assert.equal(lightOf({ 'r-surface': { $type: 'dimension', $value: '{r.xs}' } }).length, 1);
+  assert.equal(lightOf({ 'fs-h3': { $type: 'dimension', $value: '{fs.h2}' } }).length, 1);
+  const clear = lightOf({ 'fill-selected': { $type: 'color', $value: 'transparent' } });
+  assert.equal(clear.length, 1, clear.join('\n'));
+  assert.match(clear[0] ?? '', /light group takes colour answers/);
+  assert.ok(real.roles['r-surface']);
+});
+
+test('the light group accepts a {color.*} alias and a colour role reference', () => {
+  assert.deepEqual(lightOf({ 'edge-focus': { $type: 'color', $value: '{color.base-content}' } }), []);
+  assert.deepEqual(lightOf({ 'ink-key': { $type: 'color', $value: '{ink-muted}' } }), []);
+});
+
+test('the shipped style plugins keep their light group to colour answers', () => {
+  const root = join(repoRoot, 'plugin-style-store');
+  const found: string[] = [];
+  const walk = (dir: string) => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      if (entry.isDirectory()) walk(join(dir, entry.name));
+      else if (entry.name === 'plugin.tokens.json') found.push(join(dir, entry.name));
+    }
+  };
+  walk(root);
+  assert.ok(found.length >= 3, found.join('\n'));
+  for (const file of found) {
+    const plugin = readPlugin(file, JSON.parse(readFileSync(file, 'utf8')));
+    assert.deepEqual(lightGroupProblems(plugin, tokenCatalogue()), [], file);
+  }
 });

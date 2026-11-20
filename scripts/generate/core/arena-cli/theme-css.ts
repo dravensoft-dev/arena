@@ -507,6 +507,7 @@ function resolvedProblems(
   const { plugin: whole, defaulted } = withDefaults(plugin, catalogue.roles ?? {}, isRoot ? undefined : { root });
   problems.push(...pluginTokenProblems(plugin.name, plugin.tokens, catalogue, plugin.types));
   problems.push(...pluginTokenProblems(`${plugin.name}.${THEME_GROUP}`, plugin.light, catalogue, plugin.lightTypes));
+  problems.push(...lightGroupProblems(plugin, catalogue));
   if (isRoot) {
     problems.push(...totalityProblems(Object.keys(catalogue.roles ?? {}), Object.keys(whole.tokens))
       .map((problem) => `${at}: ${problem}`));
@@ -897,9 +898,21 @@ export function paletteDeclarations(
   return [...declared, ...stepped];
 }
 
+export function restates(declaration: string, catalogue: TokenCatalogue | null) {
+  const namesColourRole = catalogue?.roles?.[/:var\(--([\w-]+)\);$/.exec(declaration)?.[1] ?? '']?.type === 'color';
+  return declaration.includes('var(--color-') || namesColourRole;
+}
+
 export function restatedBy(plugin: StylePlugin, catalogue: TokenCatalogue | null, polarity: string) {
-  const namesColourRole = (d: string) => catalogue?.roles?.[/:var\(--([\w-]+)\);$/.exec(d)?.[1] ?? '']?.type === 'color';
-  return pluginBlocks(plugin, catalogue, polarity).filter((d) => d.includes('var(--color-') || namesColourRole(d));
+  return pluginBlocks(plugin, catalogue, polarity).filter((d) => restates(d, catalogue));
+}
+
+export function lightGroupProblems(plugin: StylePlugin, catalogue: TokenCatalogue) {
+  return Object.entries(plugin.light)
+    .filter(([key, raw]) => pluginValue(raw, catalogue, key) !== null
+      && !restates(`--${key}:${pluginValue(raw, catalogue, key)};`, catalogue))
+    .map(([key, raw]) => `stylePlugins.${plugin.name}.${THEME_GROUP}: "${key}" is ${JSON.stringify(raw)}. The ${THEME_GROUP} group takes colour answers `
+      + 'only, a {color.*} alias or another colour role, because it lays over the plain answers in a light palette and only a colour answer is restated there.');
 }
 
 export type PolarityContext = {

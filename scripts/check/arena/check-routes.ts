@@ -147,12 +147,12 @@ export const ROUTES: Route[] = [
       + 'document that says what the questions are and which answers carry the difference',
     entry: 'consumer',
     stops: ['skills/design/references/style-kernel.md'],
-    budget: 20_000,
+    budget: 20_800,
     reason:
       'paid once per project and never per screen, which lets it carry the whole surface the kernel '
       + 'exposes, so a project stops learning the kernel from a normative contributor document. It links '
       + 'the plugin branch for which scale each role draws from, says which answers a project may '
-      + 'inherit and which it has to make, and how the one exception to the scale rule is keyed. The '
+      + 'inherit and which it has to make, how the one scale exception is keyed, and the `light` group. The '
       + 'differentiation table is a measurement over the catalogue, so it grows by remeasuring and not '
       + 'by writing. The number is what the stops measure with room for the kernel to grow a section, '
       + 'and it moves when it grows a question or a sentence names a new reader. The root rule says where a role\'s '
