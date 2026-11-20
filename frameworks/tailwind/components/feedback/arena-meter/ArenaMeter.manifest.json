@@ -24,7 +24,7 @@
     "head": "flex items-baseline gap-items mb-2",
     "label": "flex-1 min-w-0 font-body text-ctl-md text-ink-body/(--level-ink-body)",
     "value": "font-mono text-ctl-sm text-ink-muted/(--level-ink-muted)",
-    "standing": "font-face-label text-ctl-xs tracking-label-role case-label text-ink-muted/(--level-ink-muted)",
+    "standing": "font-face-label text-ctl-xs tracking-label-role case-label text-[color:color-mix(in_oklab,var(--meters-neutral-standing-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",
     "track": "relative rounded-pill overflow-hidden h-[var(--arena-size-meter,var(--size-md-meter))] bg-[color:var(--arena-accent-meters-track-fill)] text-[color:var(--arena-accent-meters-track-ink)]",
     "fill": "absolute inset-0 bg-current rounded-[inherit]"
   },
@@ -40,15 +40,15 @@
   "variants": {
     "standing": {
       "optimum": {
-        "standing": "text-[color:var(--hue-success-ink)]",
+        "standing": "text-[color:var(--meters-success-standing-ink-rest,var(--hue-success-ink))]",
         "track": "bg-[color:var(--meters-success-track-fill-rest,var(--fill-track))] text-[color:var(--meters-success-track-ink-rest,var(--hue-success-ink))]"
       },
       "fair": {
-        "standing": "text-[color:var(--hue-warning-ink)]",
+        "standing": "text-[color:var(--meters-warning-standing-ink-rest,var(--hue-warning-ink))]",
         "track": "bg-[color:var(--meters-warning-track-fill-rest,var(--fill-track))] text-[color:var(--meters-warning-track-ink-rest,var(--hue-warning-ink))]"
       },
       "poor": {
-        "standing": "text-[color:var(--hue-danger-ink)]",
+        "standing": "text-[color:var(--meters-danger-standing-ink-rest,var(--hue-danger-ink))]",
         "track": "bg-[color:var(--meters-danger-track-fill-rest,var(--fill-track))] text-[color:var(--meters-danger-track-ink-rest,var(--hue-danger-ink))]"
       },
       "none": {}

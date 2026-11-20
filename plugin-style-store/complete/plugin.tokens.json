@@ -1980,9 +1980,49 @@
     "$type": "color",
     "$value": "{accent-plain-fill-soft}"
   },
+  "data-header-edge-hover": {
+    "$type": "color",
+    "$value": "{edge-control-quiet}"
+  },
+  "data-header-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-control-quiet}"
+  },
+  "data-header-fill-hover": {
+    "$type": "color",
+    "$value": "{fill-surface-raised}"
+  },
+  "data-header-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface-raised}"
+  },
+  "data-header-ink-hover": {
+    "$type": "color",
+    "$value": "{ink-muted}"
+  },
+  "data-header-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-body}"
+  },
   "data-now-fill-rest": {
     "$type": "color",
     "$value": "{fill-control-on}"
+  },
+  "data-row-edge-hover": {
+    "$type": "color",
+    "$value": "{edge-control-quiet}"
+  },
+  "data-row-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-control-quiet}"
+  },
+  "data-row-fill-hover": {
+    "$type": "color",
+    "$value": "{fill-surface-raised}"
+  },
+  "data-row-fill-selected": {
+    "$type": "color",
+    "$value": "{fill-marker}"
   },
   "data-today-ink-rest": {
     "$type": "color",
@@ -2631,6 +2671,10 @@
     "$type": "color",
     "$value": "{accent-plain-ink}"
   },
+  "meters-danger-standing-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
   "meters-danger-track-fill-rest": {
     "$type": "color",
     "$value": "{fill-control}"
@@ -2655,6 +2699,10 @@
     "$type": "color",
     "$value": "{ink-body}"
   },
+  "meters-neutral-standing-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-body}"
+  },
   "meters-primary-track-fill-rest": {
     "$type": "color",
     "$value": "{fill-control}"
@@ -2663,9 +2711,17 @@
     "$type": "color",
     "$value": "{ink-heading}"
   },
+  "meters-success-standing-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
   "meters-success-track-fill-rest": {
     "$type": "color",
     "$value": "{fill-control}"
+  },
+  "meters-warning-standing-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
   },
   "meters-warning-track-fill-rest": {
     "$type": "color",
@@ -2869,6 +2925,42 @@
     "$type": "color",
     "$value": "{ink-figure}"
   },
+  "surfaces-floating-bar-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-control}"
+  },
+  "surfaces-floating-bar-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface}"
+  },
+  "surfaces-media-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface-raised}"
+  },
+  "surfaces-media-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-eyebrow}"
+  },
+  "surfaces-media-sunken-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-marker}"
+  },
+  "surfaces-media-sunken-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-marker}"
+  },
+  "surfaces-media-sunken-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-heading}"
+  },
+  "surfaces-page-bar-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-marker}"
+  },
+  "surfaces-page-bar-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface-floating}"
+  },
   "surfaces-page-fill-rest": {
     "$type": "color",
     "$value": "{fill-surface}"
@@ -2876,5 +2968,49 @@
   "surfaces-page-ink-rest": {
     "$type": "color",
     "$value": "{ink-invalid}"
+  },
+  "surfaces-plain-card-edge-hover": {
+    "$type": "color",
+    "$value": "{edge-marker}"
+  },
+  "surfaces-plain-card-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-marker}"
+  },
+  "surfaces-plain-card-fill-hover": {
+    "$type": "color",
+    "$value": "{fill-surface-raised}"
+  },
+  "surfaces-plain-card-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface-floating}"
+  },
+  "surfaces-plain-sunken-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-marker}"
+  },
+  "surfaces-plain-sunken-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-body}"
+  },
+  "surfaces-primary-card-edge-hover": {
+    "$type": "color",
+    "$value": "{edge-surface-floating}"
+  },
+  "surfaces-primary-card-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-surface-floating}"
+  },
+  "surfaces-primary-card-fill-hover": {
+    "$type": "color",
+    "$value": "{fill-surface-raised}"
+  },
+  "surfaces-primary-card-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface-floating}"
+  },
+  "surfaces-separator-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-control-quiet}"
   }
 }

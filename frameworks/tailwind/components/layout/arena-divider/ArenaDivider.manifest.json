@@ -12,7 +12,7 @@
   ],
   "slots": {
     "root": "flex self-stretch shrink-0 m-0 border-0",
-    "rule": "flex-1 w-[var(--arena-orientation-rule-w,100%)] h-[var(--arena-orientation-rule-h,var(--bw-separator))] bg-edge-separator",
+    "rule": "flex-1 w-[var(--arena-orientation-rule-w,100%)] h-[var(--arena-orientation-rule-h,var(--bw-separator))] bg-[color:var(--surfaces-separator-edge-rest,var(--edge-separator))]",
     "label": "font-face-label text-ctl-xs tracking-label-role case-label text-ink-muted/(--level-ink-muted)"
   },
   "kind": {
@@ -26,7 +26,7 @@
   "variants": {
     "labelled": {
       "false": {
-        "root": "w-[var(--arena-orientation-rule-w,100%)] h-[var(--arena-orientation-rule-h,var(--bw-separator))] bg-edge-separator"
+        "root": "w-[var(--arena-orientation-rule-w,100%)] h-[var(--arena-orientation-rule-h,var(--bw-separator))] bg-[color:var(--surfaces-separator-edge-rest,var(--edge-separator))]"
       },
       "true": {
         "root": "items-center gap-inline [flex-direction:var(--arena-orientation-direction,row)]"

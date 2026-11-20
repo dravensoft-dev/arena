@@ -576,3 +576,21 @@ test('marks derives its soft, outline and label parts', () => {
   assert.equal(c.slots['marks-neutral-upcoming-dot-edge-rest']?.default, '{edge-mark}');
   assert.equal(c.slots['marks-neutral-upcoming-dot-edge-rest']?.level, 'level-presence', 'the upcoming ring is told from its disc at 3:1 (D97)');
 });
+
+test('data and surfaces derive their parts', () => {
+  const c = deriveSlots(readSlotDeclarations());
+  assert.equal(c.slots['data-header-fill-hover']?.default, '{fill-track}', 'the header keeps its track fill under hover (D19)');
+  assert.equal(c.slots['data-header-ink-hover']?.default, '{ink-body}');
+  assert.equal(c.slots['data-row-fill-hover']?.default, '{fill-hover}');
+  assert.equal(c.slots['data-row-fill-selected']?.default, '{fill-surface-sunken}');
+  assert.equal(c.slots['surfaces-floating-bar-edge-rest']?.default, '{edge-surface-floating}');
+  assert.equal(c.slots['surfaces-page-bar-fill-rest']?.default, '{fill-surface}');
+  assert.equal(c.slots['surfaces-media-sunken-ink-rest']?.default, '{ink-eyebrow}');
+  assert.equal(c.slots['surfaces-plain-sunken-ink-rest']?.default, '{ink-muted}');
+  assert.equal(c.slots['surfaces-media-fill-rest']?.default, '{overlay-media}');
+  assert.equal(c.slots['surfaces-media-fill-rest']?.level, 'level-media', 'the media wash keeps 72 % through a named level (D106)');
+  assert.equal(c.slots['surfaces-separator-edge-rest']?.default, '{edge-separator}');
+  assert.equal(c.slots['surfaces-primary-card-edge-rest']?.channel, '--arena-accent-surfaces-card-edge');
+  assert.equal(c.slots['meters-success-standing-ink-rest']?.default, '{hue-success-ink}');
+  assert.deepEqual(Object.keys(c.slots).filter((n) => /^meters-info-standing-/.test(n)), [], 'no member reads an info standing');
+});

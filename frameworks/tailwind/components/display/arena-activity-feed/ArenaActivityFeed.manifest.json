@@ -51,7 +51,7 @@
     },
     "divided": {
       "true": {
-        "item": "border-t-[length:var(--bw-separator)] border-edge-separator"
+        "item": "border-t-[length:var(--bw-separator)] border-[color:var(--surfaces-separator-edge-rest,var(--edge-separator))]"
       },
       "false": {
         "item": "border-t-0"

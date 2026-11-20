@@ -13,7 +13,7 @@
     "region": "flex flex-col gap-1",
     "itemLabel": "min-w-0",
     "dot": "absolute top-1 end-1 w-2 h-2 rounded-pill bg-[color:var(--navigation-badge-fill-selected,var(--emphasis-primary-fill))]",
-    "separator": "border-t-[length:var(--bw-separator)] border-edge-separator my-1"
+    "separator": "border-t-[length:var(--bw-separator)] border-[color:var(--surfaces-separator-edge-rest,var(--edge-separator))] my-1"
   },
   "kind": {
     "root": "none",

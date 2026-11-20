@@ -8,6 +8,7 @@
       "hue-*-fill-strong",
       "hue-*-fill-soft",
       "accent-*-fill-soft",
+      "overlay-*",
       "transparent"
     ],
     "ink": [
@@ -173,6 +174,31 @@
       "default": "{ink-body}",
       "decision": "D19",
       "level": "level-ink-body"
+    },
+    "data-row-fill-hover": {
+      "default": "{fill-hover}",
+      "decision": "D19"
+    },
+    "data-header-fill-hover": {
+      "default": "{fill-track}",
+      "decision": "D19"
+    },
+    "data-header-edge-hover": {
+      "default": "{edge-separator}",
+      "decision": "D19"
+    },
+    "data-header-ink-hover": {
+      "default": "{ink-body}",
+      "decision": "D19",
+      "level": "level-ink-body"
+    },
+    "surfaces-plain-card-fill-hover": {
+      "default": "{fill-hover}",
+      "decision": "D19"
+    },
+    "surfaces-primary-card-fill-hover": {
+      "default": "{fill-hover}",
+      "decision": "D19"
     }
   },
   "rings": {
@@ -200,7 +226,8 @@
     "ArenaTable.link": "ground",
     "ArenaSkipLink.root": "actions-secondary-root-fill-rest",
     "ArenaConfirmDialog.input": "ground",
-    "ArenaSegmentedControl.track": "ground"
+    "ArenaSegmentedControl.track": "ground",
+    "ArenaTable.th": "data-header-fill-rest"
   },
   "groups": {
     "actions": {
@@ -1408,13 +1435,31 @@
             "ink"
           ],
           "states": "static",
-          "options": [
-            "neutral",
-            "danger",
-            "success",
-            "warning",
-            "info"
-          ]
+          "options": {
+            "neutral": {
+              "rest": {
+                "ink": {
+                  "role": "{ink-muted}",
+                  "level": "level-ink-muted"
+                }
+              }
+            },
+            "danger": {
+              "rest": {
+                "ink": "{hue-danger-ink}"
+              }
+            },
+            "success": {
+              "rest": {
+                "ink": "{hue-success-ink}"
+              }
+            },
+            "warning": {
+              "rest": {
+                "ink": "{hue-warning-ink}"
+              }
+            }
+          }
         }
       }
     },
@@ -1481,10 +1526,22 @@
             "rest",
             "hover"
           ],
-          "options": [
-            "plain",
-            "primary"
-          ]
+          "options": {
+            "plain": {
+              "channel": "--arena-accent-surfaces-card-{property}",
+              "rest": {
+                "fill": "{fill-surface}",
+                "edge": "{edge-surface}"
+              }
+            },
+            "primary": {
+              "channel": "--arena-accent-surfaces-card-{property}",
+              "rest": {
+                "fill": "{fill-surface}",
+                "edge": "{accent-primary-edge}"
+              }
+            }
+          }
         },
         "sunken": {
           "properties": [
@@ -1492,20 +1549,59 @@
             "edge",
             "ink"
           ],
-          "states": "static"
+          "states": "static",
+          "options": {
+            "plain": {
+              "properties": [
+                "fill",
+                "ink"
+              ],
+              "rest": {
+                "fill": "{fill-surface-sunken}",
+                "ink": {
+                  "role": "{ink-muted}",
+                  "level": "level-ink-muted"
+                }
+              }
+            },
+            "media": {
+              "rest": {
+                "fill": "{fill-surface-sunken}",
+                "edge": "{edge-surface}",
+                "ink": "{ink-eyebrow}"
+              }
+            }
+          }
         },
         "bar": {
           "properties": [
             "fill",
             "edge"
           ],
-          "states": "static"
+          "states": "static",
+          "options": {
+            "page": {
+              "rest": {
+                "fill": "{fill-surface}",
+                "edge": "{edge-surface}"
+              }
+            },
+            "floating": {
+              "rest": {
+                "fill": "{fill-surface-floating}",
+                "edge": "{edge-surface-floating}"
+              }
+            }
+          }
         },
         "separator": {
           "properties": [
             "edge"
           ],
-          "states": "static"
+          "states": "static",
+          "rest": {
+            "edge": "{edge-separator}"
+          }
         },
         "page": {
           "properties": [
@@ -1523,7 +1619,14 @@
             "fill",
             "ink"
           ],
-          "states": "static"
+          "states": "static",
+          "rest": {
+            "fill": {
+              "role": "{overlay-media}",
+              "level": "level-media"
+            },
+            "ink": "{ink-heading}"
+          }
         },
         "skeleton": {
           "properties": [
@@ -1545,7 +1648,15 @@
             "rest",
             "hover",
             "selected"
-          ]
+          ],
+          "rest": {
+            "fill": "transparent",
+            "edge": "{edge-separator}"
+          },
+          "selected": {
+            "fill": "{fill-surface-sunken}",
+            "edge": "transparent"
+          }
         },
         "header": {
           "properties": [
@@ -1556,7 +1667,15 @@
           "states": [
             "rest",
             "hover"
-          ]
+          ],
+          "rest": {
+            "fill": "{fill-track}",
+            "edge": "{edge-separator}",
+            "ink": {
+              "role": "{ink-muted}",
+              "level": "level-ink-muted"
+            }
+          }
         },
         "today": {
           "properties": [
@@ -1626,7 +1745,11 @@
     "ArenaAccordion": {
       "group": "navigation",
       "parts": {
-        "item": "surfaces.separator",
+        "item": {
+          "to": "surfaces.separator",
+          "options": [],
+          "states": "static"
+        },
         "trigger": {
           "to": "navigation.disclosure",
           "options": [],
@@ -1639,7 +1762,15 @@
     "ArenaActivityFeed": {
       "group": "data",
       "parts": {
-        "item": "surfaces.separator",
+        "item": {
+          "to": "surfaces.separator",
+          "options": [],
+          "states": "static",
+          "onlyBy": {
+            "axis": "divided",
+            "value": "true"
+          }
+        },
         "dot": {
           "to": "marks.dot",
           "options": [
@@ -1756,7 +1887,13 @@
     "ArenaAppBar": {
       "group": "navigation",
       "parts": {
-        "root": "surfaces.bar"
+        "root": {
+          "to": "surfaces.bar",
+          "options": [
+            "page"
+          ],
+          "states": "static"
+        }
       }
     },
     "ArenaAppLogo": {
@@ -1844,7 +1981,16 @@
     "ArenaBoard": {
       "group": "surfaces",
       "parts": {
-        "column": "surfaces.sunken",
+        "column": {
+          "to": "surfaces.sunken",
+          "options": [
+            "plain"
+          ],
+          "states": "static",
+          "properties": [
+            "fill"
+          ]
+        },
         "dot": "series",
         "title": {
           "to": "marks.label",
@@ -1861,7 +2007,13 @@
     "ArenaBottomNav": {
       "group": "navigation",
       "parts": {
-        "root": "surfaces.bar",
+        "root": {
+          "to": "surfaces.bar",
+          "options": [
+            "floating"
+          ],
+          "states": "static"
+        },
         "item": {
           "to": "navigation.item",
           "options": [],
@@ -1908,7 +2060,12 @@
         "root": "overlays.panel",
         "count": "text.body",
         "number": "text.figure",
-        "divider": "surfaces.separator",
+        "divider": {
+          "to": "surfaces.separator",
+          "options": [],
+          "states": "static",
+          "edgeAs": "fill"
+        },
         "action": {
           "to": "actions.root",
           "options": [
@@ -1968,7 +2125,11 @@
           "inline": true
         },
         "heading": "text.heading",
-        "headStrip": "surfaces.separator",
+        "headStrip": {
+          "to": "surfaces.separator",
+          "options": [],
+          "states": "static"
+        },
         "dayHead": null,
         "weekday": "text.muted",
         "dayNumber": {
@@ -1981,8 +2142,16 @@
           }
         },
         "hourLabel": "text.muted",
-        "rule": "surfaces.separator",
-        "column": "surfaces.separator",
+        "rule": {
+          "to": "surfaces.separator",
+          "options": [],
+          "states": "static"
+        },
+        "column": {
+          "to": "surfaces.separator",
+          "options": [],
+          "states": "static"
+        },
         "now": {
           "to": "data.now",
           "options": [],
@@ -2010,8 +2179,30 @@
     "ArenaCard": {
       "group": "surfaces",
       "parts": {
-        "root": "surfaces.card",
-        "head": "surfaces.separator",
+        "root": {
+          "to": "surfaces.card",
+          "options": [
+            "plain",
+            "primary"
+          ],
+          "states": [
+            "rest",
+            "hover"
+          ],
+          "channels": {
+            "fill": "--arena-accent-surfaces-card-fill",
+            "edge": "--arena-accent-surfaces-card-edge"
+          },
+          "hoverIn": {
+            "axis": "interactive",
+            "value": "true"
+          }
+        },
+        "head": {
+          "to": "surfaces.separator",
+          "options": [],
+          "states": "static"
+        },
         "eyebrow": "text.eyebrow",
         "title": "text.heading"
       }
@@ -2019,8 +2210,21 @@
     "ArenaChartCard": {
       "group": null,
       "parts": {
-        "root": "surfaces.card@plain",
-        "head": "surfaces.separator",
+        "root": {
+          "to": "surfaces.card",
+          "options": [
+            "plain"
+          ],
+          "states": [
+            "rest"
+          ],
+          "inline": true
+        },
+        "head": {
+          "to": "surfaces.separator",
+          "options": [],
+          "states": "static"
+        },
         "title": "text.muted"
       }
     },
@@ -2242,8 +2446,22 @@
     "ArenaDivider": {
       "group": "surfaces",
       "parts": {
-        "root": "surfaces.separator",
-        "rule": "surfaces.separator",
+        "root": {
+          "to": "surfaces.separator",
+          "options": [],
+          "states": "static",
+          "edgeAs": "fill",
+          "onlyBy": {
+            "axis": "labelled",
+            "value": "false"
+          }
+        },
+        "rule": {
+          "to": "surfaces.separator",
+          "options": [],
+          "states": "static",
+          "edgeAs": "fill"
+        },
         "label": "text.muted"
       }
     },
@@ -2300,7 +2518,17 @@
         },
         "title": "text.heading",
         "message": "text.body",
-        "code": "surfaces.sunken"
+        "code": {
+          "to": "surfaces.sunken",
+          "options": [
+            "plain"
+          ],
+          "states": "static",
+          "properties": [
+            "fill",
+            "ink"
+          ]
+        }
       }
     },
     "ArenaFieldset": {
@@ -2331,8 +2559,18 @@
     "ArenaFigure": {
       "group": "surfaces",
       "parts": {
-        "frame": "surfaces.sunken",
-        "overlay": "surfaces.media",
+        "frame": {
+          "to": "surfaces.sunken",
+          "options": [
+            "media"
+          ],
+          "states": "static"
+        },
+        "overlay": {
+          "to": "surfaces.media",
+          "options": [],
+          "states": "static"
+        },
         "caption": "text.muted"
       }
     },
@@ -2559,7 +2797,11 @@
       "parts": {
         "term": "text.muted",
         "value": "text.body",
-        "total": "surfaces.separator",
+        "total": {
+          "to": "surfaces.separator",
+          "options": [],
+          "states": "static"
+        },
         "totalTerm": "text.heading",
         "totalValue": "text.heading"
       }
@@ -2622,7 +2864,12 @@
           }
         },
         "shortcut": "text.key",
-        "divider": "surfaces.separator",
+        "divider": {
+          "to": "surfaces.separator",
+          "options": [],
+          "states": "static",
+          "edgeAs": "fill"
+        },
         "header": "text.muted"
       }
     },
@@ -2631,7 +2878,24 @@
       "parts": {
         "label": "text.body",
         "value": "text.muted",
-        "standing": "meters.standing",
+        "standing": {
+          "to": "meters.standing",
+          "options": [
+            "neutral",
+            "success",
+            "warning",
+            "danger"
+          ],
+          "states": "static",
+          "optionBy": {
+            "axis": "standing",
+            "values": {
+              "optimum": "success",
+              "fair": "warning",
+              "poor": "danger"
+            }
+          }
+        },
         "track": {
           "to": "meters.track",
           "options": [
@@ -2829,7 +3093,21 @@
     "ArenaPeopleList": {
       "group": "data",
       "parts": {
-        "row": "data.row",
+        "row": {
+          "to": "data.row",
+          "options": [],
+          "states": [
+            "selected"
+          ],
+          "properties": [
+            "fill",
+            "edge"
+          ],
+          "onlyBy": {
+            "axis": "current",
+            "value": "true"
+          }
+        },
         "rank": "text.muted",
         "name": "text.heading",
         "secondary": "text.muted",
@@ -3110,7 +3388,11 @@
       "group": "overlays",
       "parts": {
         "root": "overlays.panel",
-        "head": "surfaces.separator",
+        "head": {
+          "to": "surfaces.separator",
+          "options": [],
+          "states": "static"
+        },
         "trigger": {
           "to": "navigation.disclosure",
           "options": [],
@@ -3127,7 +3409,11 @@
           "states": "base"
         },
         "body": "text.body",
-        "foot": "surfaces.separator"
+        "foot": {
+          "to": "surfaces.separator",
+          "options": [],
+          "states": "static"
+        }
       }
     },
     "ArenaSideNav": {
@@ -3181,13 +3467,23 @@
             "selected"
           ]
         },
-        "separator": "surfaces.separator"
+        "separator": {
+          "to": "surfaces.separator",
+          "options": [],
+          "states": "static"
+        }
       }
     },
     "ArenaSiteFooter": {
       "group": "surfaces",
       "parts": {
-        "root": "surfaces.bar",
+        "root": {
+          "to": "surfaces.bar",
+          "options": [
+            "page"
+          ],
+          "states": "static"
+        },
         "note": "text.muted"
       }
     },
@@ -3300,7 +3596,16 @@
     "ArenaStatCard": {
       "group": "data",
       "parts": {
-        "root": "surfaces.card@plain",
+        "root": {
+          "to": "surfaces.card",
+          "options": [
+            "plain"
+          ],
+          "states": [
+            "rest"
+          ],
+          "inline": true
+        },
         "label": "text.muted",
         "icon": "text.muted",
         "value": {
@@ -3411,7 +3716,12 @@
           }
         },
         "description": "text.muted",
-        "connector": "surfaces.separator"
+        "connector": {
+          "to": "surfaces.separator",
+          "options": [],
+          "states": "static",
+          "edgeAs": "fill"
+        }
       }
     },
     "ArenaSwitch": {
@@ -3460,10 +3770,49 @@
     "ArenaTable": {
       "group": "data",
       "parts": {
-        "root": "surfaces.card@plain",
-        "th": "data.header",
-        "pager": "surfaces.separator",
-        "row": "data.row",
+        "root": {
+          "to": "surfaces.card",
+          "options": [
+            "plain"
+          ],
+          "states": [
+            "rest"
+          ],
+          "onlyBy": {
+            "axis": "narrow",
+            "value": "false"
+          },
+          "inline": true
+        },
+        "th": {
+          "to": "data.header",
+          "options": [],
+          "states": [
+            "rest",
+            "hover"
+          ],
+          "hoverIn": {
+            "axis": "sortable",
+            "value": "true"
+          }
+        },
+        "pager": {
+          "to": "surfaces.separator",
+          "options": [],
+          "states": "static"
+        },
+        "row": {
+          "to": "data.row",
+          "options": [],
+          "states": [
+            "rest",
+            "hover"
+          ],
+          "hoverIn": {
+            "axis": "interactive",
+            "value": "true"
+          }
+        },
         "td": "text.figure",
         "link": {
           "to": "navigation.link",
@@ -3476,16 +3825,33 @@
           ]
         },
         "empty": "text.muted",
-        "card": "surfaces.card@plain",
+        "card": {
+          "to": "surfaces.card",
+          "options": [
+            "plain"
+          ],
+          "states": [
+            "rest"
+          ],
+          "inline": true
+        },
         "cardLabel": "text.muted",
         "cardValue": "text.figure",
-        "cardBlock": "surfaces.separator"
+        "cardBlock": {
+          "to": "surfaces.separator",
+          "options": [],
+          "states": "static"
+        }
       }
     },
     "ArenaTabs": {
       "group": "navigation",
       "parts": {
-        "root": "surfaces.separator",
+        "root": {
+          "to": "surfaces.separator",
+          "options": [],
+          "states": "static"
+        },
         "tab": {
           "to": "navigation.item",
           "options": [],
@@ -3650,7 +4016,12 @@
             }
           }
         },
-        "connector": "surfaces.separator",
+        "connector": {
+          "to": "surfaces.separator",
+          "options": [],
+          "states": "static",
+          "edgeAs": "fill"
+        },
         "title": "text.heading",
         "description": "text.body",
         "time": "text.muted"

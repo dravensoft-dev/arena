@@ -6,7 +6,7 @@ import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
 import { mount, cleanup, act } from './Harness.tsx';
-import { ArenaBoardColumn, ArenaBarChart, ArenaButton, ArenaIconButton, ArenaSplitButton, ArenaCopyButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope, ArenaCheckbox, ArenaRadioGroup, ArenaRadio, ArenaSwitch, ArenaSlider, ArenaInput, ArenaFileInput, ArenaMultiSelect, ArenaSideNav, ArenaSideNavItem, ArenaTabs, ArenaTab, ArenaTreeView, ArenaPagination, ArenaBottomNav, ArenaBottomNavItem, ArenaStepper, ArenaOnboarding, ArenaCommandPalette, ArenaAlert, ArenaToast , ArenaAvatar, ArenaActivityFeed, ArenaMeter, ArenaProgressBar, ArenaSpinner } from '../Index.generated.ts';
+import { ArenaBoardColumn, ArenaBarChart, ArenaButton, ArenaIconButton, ArenaSplitButton, ArenaCopyButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope, ArenaCheckbox, ArenaRadioGroup, ArenaRadio, ArenaSwitch, ArenaSlider, ArenaInput, ArenaFileInput, ArenaMultiSelect, ArenaSideNav, ArenaSideNavItem, ArenaTabs, ArenaTab, ArenaTreeView, ArenaPagination, ArenaBottomNav, ArenaBottomNavItem, ArenaStepper, ArenaOnboarding, ArenaCommandPalette, ArenaAlert, ArenaToast , ArenaAvatar, ArenaActivityFeed, ArenaMeter, ArenaProgressBar, ArenaSpinner, ArenaChartCard, ArenaDivider } from '../Index.generated.ts';
 import { readProximity, normalize, vocabularyClasses, markDotAnswers } from '../../../scripts/lib/arena/proximity.ts';
 
 afterEach(cleanup);
@@ -209,6 +209,18 @@ const COMPOSITIONS: Record<string, () => React.ReactElement> = {
     <ArenaTag colorId={3} tone="success">Backend</ArenaTag>
     <ArenaTag tone="success">Shipped</ArenaTag>
   </div>,
+  'separator-answer-moves-borders-and-rules': () => <div style={answered({ '--surfaces-separator-edge-rest': 'var(--hue-info-edge)' })}>
+    <ArenaTabs value="one"><ArenaTab value="one" label="One">First</ArenaTab></ArenaTabs>
+    <ArenaChartCard title="Revenue">{null}</ArenaChartCard>
+  </div>,
+  'separator-answer-moves-a-rule-drawn-as-a-box': () => <div style={answered({ '--surfaces-separator-edge-rest': 'var(--hue-info-edge)' })}>
+    <ArenaDivider />
+    <ArenaDivider label="or" />
+  </div>,
+  'card-accent-answer-reaches-only-its-class': () => <div style={answered({ '--surfaces-primary-card-edge-rest': 'var(--hue-info-edge)' })}>
+    <ArenaCard className="arena-accent-primary">Body</ArenaCard>
+    <ArenaChartCard title="Revenue">{null}</ArenaChartCard>
+  </div>,
   'solid-badge-ignores-the-soft-answer': () => <div style={answered({ '--marks-plain-soft-fill-rest': 'var(--hue-info-fill-strong)' })}>
     <ArenaBadge className="arena-mark-solid">Live</ArenaBadge>
     <ArenaBadge>Draft</ArenaBadge>
@@ -295,6 +307,9 @@ const SUBJECT: Record<string, { part: string; at: number }> = {
   'linear-track-follows-the-track-fill': { part: 'progress-bar.track', at: 0 },
   'tag-colour-id-outranks-its-tone': { part: 'tag', at: 0 },
   'solid-badge-ignores-the-soft-answer': { part: 'badge', at: 0 },
+  'separator-answer-moves-borders-and-rules': { part: 'tabs', at: 0 },
+  'separator-answer-moves-a-rule-drawn-as-a-box': { part: 'divider', at: 0 },
+  'card-accent-answer-reaches-only-its-class': { part: 'card', at: 0 },
 };
 
 const { families, cases } = readProximity();

@@ -1,7 +1,7 @@
 {
   "component": "ArenaTabs",
   "slots": {
-    "root": "flex gap-1 border-b-[length:var(--bw-separator)] border-edge-separator",
+    "root": "flex gap-1 border-b-[length:var(--bw-separator)] border-[color:var(--surfaces-separator-edge-rest,var(--edge-separator))]",
     "tab": "relative inline-flex items-center justify-center min-h-ctl-h px-[calc(var(--sp-1)*4*var(--dz-row-scale-x))] py-row-y bg-transparent border-none cursor-pointer font-body text-ctl transition-[color] duration-[var(--dur-hover)] ease-hover focus-visible:outline-none focus-visible:ring-[length:var(--bw-focus)] focus-visible:ring-edge-focus shadow-[inset_0_calc(var(--bw-strong)*-1)_0_var(--navigation-item-edge-rest,transparent)] text-[color:color-mix(in_oklab,var(--navigation-item-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",
     "panel": "block pt-[calc(var(--sp-1)*5.5)]"
   },

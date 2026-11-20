@@ -337,7 +337,7 @@ test('defaultBuildProblems is clean on Arena\'s skin', () => {
 
 test('the default plugin resolves and clears every slot pair the contract declares', () => {
   assert.deepEqual(defaultBuildProblems(), []);
-  assert.equal(slotPairs(tokenCatalogue().slots).length, 217, 'the sweep measures every slot pair the contract declares');
+  assert.equal(slotPairs(tokenCatalogue().slots).length, 229, 'the sweep measures every slot pair the contract declares');
 });
 
 test('complete and the catalogue report their slot pairs in the lines the gate prints', () => {

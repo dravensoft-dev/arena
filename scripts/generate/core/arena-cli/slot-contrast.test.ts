@@ -84,9 +84,10 @@ test('an inset ring is measured over each state of its fill', () => {
   const shipped = slotPairs(CATALOGUE.slots).filter((pair) => pair.slot === 'edge-focus').map((pair) => pair.over).sort();
   assert.deepEqual(shipped, [
     'actions-secondary-root-fill-hover', 'actions-secondary-root-fill-pressed', 'actions-secondary-root-fill-rest',
+    'data-header-fill-hover', 'data-header-fill-rest',
     'navigation-item-fill-hover', 'navigation-item-fill-pressed', 'navigation-item-fill-rest',
     'navigation-item-fill-selected', 'navigation-item-fill-selected-hover', 'navigation-item-fill-selected-pressed',
-  ], 'the inset rings of the skip link and the navigation rows are measured over every state of the fill they sit on');
+  ], 'the inset rings of the skip link, the table head and the navigation rows are measured over every state of the fill they sit on');
   const roles = rolesFor(null, CATALOGUE, 'dark');
   const colors = coloursOf('dark');
   const ringed = new Map(roles);

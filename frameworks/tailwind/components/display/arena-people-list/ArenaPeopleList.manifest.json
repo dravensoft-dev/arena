@@ -34,7 +34,7 @@
   "variants": {
     "current": {
       "true": {
-        "row": "bg-surface-sunken"
+        "row": "border-[color:var(--data-row-edge-selected,transparent)] bg-[color:var(--data-row-fill-selected,var(--fill-surface-sunken))]"
       },
       "false": {}
     }

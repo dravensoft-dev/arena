@@ -25,6 +25,8 @@ import { ArenaAppLogo } from '../components/brand/arena-app-logo/ArenaAppLogo';
 import { ArenaPeopleList } from '../components/display/arena-people-list/ArenaPeopleList';
 import { ArenaPersonRow } from '../components/display/arena-person-row/ArenaPersonRow';
 import { ArenaCard } from '../components/display/arena-card/ArenaCard';
+import { ArenaChartCard } from '../components/charts/arena-chart-card/ArenaChartCard';
+import { ArenaDivider } from '../components/layout/arena-divider/ArenaDivider';
 import { ArenaBadge } from '../components/display/arena-badge/ArenaBadge';
 import { ArenaSheet } from '../components/feedback/arena-sheet/ArenaSheet';
 import { ArenaGrid } from '../components/layout/arena-grid/ArenaGrid';
@@ -196,6 +198,9 @@ const TEMPLATES: Record<string, string> = {
   'linear-track-follows-the-track-fill': '<div style="--meters-primary-track-fill-rest: var(--hue-info-fill-strong)"><arena-progress-bar label="Upload" [progressPercentage]="40" /></div>',
   'hover-answer-is-not-derived-from-the-rest-answer': '<div style="--actions-primary-root-fill-rest: var(--fill-surface); --actions-primary-root-fill-hover: var(--fill-hover)"><arena-button>Save</arena-button></div>',
   'tag-colour-id-outranks-its-tone': '<div style="--marks-success-outline-edge-rest: var(--hue-info-edge)"><arena-tag [colorId]="3" tone="success">Backend</arena-tag><arena-tag tone="success">Shipped</arena-tag></div>',
+  'separator-answer-moves-borders-and-rules': '<div style="--surfaces-separator-edge-rest: var(--hue-info-edge)"><arena-tabs value="one"><arena-tab value="one" label="One">First</arena-tab></arena-tabs><arena-chart-card title="Revenue"></arena-chart-card></div>',
+  'separator-answer-moves-a-rule-drawn-as-a-box': '<div style="--surfaces-separator-edge-rest: var(--hue-info-edge)"><arena-divider /><arena-divider label="or" /></div>',
+  'card-accent-answer-reaches-only-its-class': '<div style="--surfaces-primary-card-edge-rest: var(--hue-info-edge)"><arena-card class="arena-accent-primary">Body</arena-card><arena-chart-card title="Revenue"></arena-chart-card></div>',
   'solid-badge-ignores-the-soft-answer': '<div style="--marks-plain-soft-fill-rest: var(--hue-info-fill-strong)"><arena-badge class="arena-mark-solid">Live</arena-badge><arena-badge>Draft</arena-badge></div>',
 };
 
@@ -261,6 +266,9 @@ const SUBJECT: Record<string, { part: string; index: number }> = {
   'hovered-current-item-keeps-its-selected-look': { part: 'side-nav.item', index: 0 },
   'hovered-selected-tab-keeps-its-selected-ink': { part: 'tabs.tab', index: 0 },
   'selected-edge-answer-moves-the-tab-rule': { part: 'tabs.tab', index: 0 },
+  'separator-answer-moves-borders-and-rules': { part: 'tabs', index: 0 },
+  'separator-answer-moves-a-rule-drawn-as-a-box': { part: 'divider', index: 0 },
+  'card-accent-answer-reaches-only-its-class': { part: 'card', index: 0 },
   'selected-edge-answer-moves-the-current-page-border': { part: 'pagination.page', index: 0 },
   'aria-disabled-member-fades-until-answered': { part: 'bottom-nav.item', index: -1 },
   'answered-disabled-tree-item-stops-the-fade': { part: 'tree-view.item', index: -1 },
@@ -292,7 +300,7 @@ for (const kase of cases) {
     const Host = Component({
       selector: `proximity-${kase.name}-host`,
       standalone: true,
-      imports: [ArenaBoardColumn, ArenaBarChart, ArenaStepper, ArenaOnboarding, ArenaSideNav, ArenaSideNavItem, ArenaTabs, ArenaTab, ArenaTreeView, ArenaPagination, ArenaBottomNav, ArenaBottomNavItem, ArenaButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaIconButton, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaFooter, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope, ArenaSplitButton, ArenaCopyButton, ArenaCheckbox, ArenaRadioGroup, ArenaRadio, ArenaSwitch, ArenaSlider, ArenaInput, ArenaFileInput, ArenaMultiSelect, ArenaCommandPalette, ArenaAlert, ArenaToast, ArenaAvatar, ArenaActivityFeed, ArenaMeter, ArenaProgressBar, ArenaSpinner],
+      imports: [ArenaBoardColumn, ArenaBarChart, ArenaStepper, ArenaOnboarding, ArenaSideNav, ArenaSideNavItem, ArenaTabs, ArenaTab, ArenaTreeView, ArenaPagination, ArenaBottomNav, ArenaBottomNavItem, ArenaButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaIconButton, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaFooter, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope, ArenaSplitButton, ArenaCopyButton, ArenaCheckbox, ArenaRadioGroup, ArenaRadio, ArenaSwitch, ArenaSlider, ArenaInput, ArenaFileInput, ArenaMultiSelect, ArenaCommandPalette, ArenaAlert, ArenaToast, ArenaAvatar, ArenaActivityFeed, ArenaMeter, ArenaProgressBar, ArenaSpinner, ArenaChartCard, ArenaDivider],
       template: BARE.has(kase.name) ? TEMPLATES[kase.name] : `<div class="${kase.container}">${TEMPLATES[kase.name]}</div>`,
     })(class {});
     const fixture = TestBed.createComponent(Host);

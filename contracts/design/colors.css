@@ -62,6 +62,7 @@
   --level-hue-soft-info:16%;     /* the info hue's wash */
   --level-accent-soft-primary:14%;  /* the primary accent's wash */
   --level-accent-soft-gold:16%;     /* the gold accent's wash */
+  --level-media:72%;                /* the wash under a caption laid over a figure */
 
   /* raw neutrals */
   --ink:var(--color-base-100);
