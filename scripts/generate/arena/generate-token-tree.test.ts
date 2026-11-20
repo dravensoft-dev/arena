@@ -11,7 +11,7 @@ import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { ARENA_EXT } from '../../lib/core/dtcg-shapes.ts';
 import {
-  TREE, TREE_DIR, TREE_OPEN, TREE_CLOSE, roleLeaf, markupLeaf, regionBodies, renderTree, writeTree, firstSentence,
+  TREE, TREE_DIR, TREE_OPEN, TREE_CLOSE, roleLeaf, markupLeaf, regionBodies, renderTree, writeTree,
   COMPAT, roleUtilities, combination, stateRows,
 } from './generate-token-tree.ts';
 import { compileLayer, escapeClass } from '../../lib/tailwind/tailwind-compile.ts';
@@ -63,7 +63,8 @@ test('every role lands in exactly one role leaf', () => {
     'plugin/surfaces-and-text.md': 17, 'plugin/edges.md': 20, 'plugin/space-and-layout.md': 18, 'plugin/type.md': 20,
     'plugin/depth-and-motion.md': 11, 'plugin/states.md': 11,
     'components/air.md': 33, 'components/type.md': 4, 'components/size-controls.md': 44, 'components/size-content.md': 42,
-    'components/emphasis-and-accent.md': 29, 'components/status-hues.md': 33,
+    'components/emphasis-and-accent.md': 29, 'components/status-hues.md': 20,
+    'components/controls-and-marks.md': 13,
   });
 });
 
@@ -93,7 +94,7 @@ test('a role row carries name, type, user scale and default, and a markup row it
   const bodies = regionBodies(base);
   assert.ok(bodies.get('components/size-controls.md')!.includes('| `--size-sm-control-h` | What is it? | dimension | fixed | `{sp-8}` |'));
   assert.ok(bodies.get('markup/edges.md')!.includes('| `--r-surface` | What is it? | `rounded-surface`, `rounded-surface-alt` | none |'));
-  assert.ok(bodies.get('markup/layers.md')!.includes('| `--z-nav` | Fixed page navigation |'));
+  assert.ok(bodies.get('markup/layers.md')!.includes('| `--z-nav` | Fixed page navigation. It sits low. |'));
   assert.ok(bodies.get('markup/layers.md')!.indexOf('--z-nav') < bodies.get('markup/layers.md')!.indexOf('--z-toast'));
 });
 
@@ -127,13 +128,6 @@ test('a child with no Read this sentence throws naming the child', () => {
   const base = fixture();
   put(base, `${TREE_DIR}/markup/edges.md`, `# edges leaf\n\nNothing to say.\n\n${TREE_OPEN}\n\n${TREE_CLOSE}\n`);
   assert.throws(() => regionBodies(base), /markup\/edges\.md has no sentence that starts "Read this"/);
-});
-
-test('a description is cut at its first sentence, whatever starts the second, and never inside e.g. or i.e.', () => {
-  assert.equal(firstSentence('Which face a heading takes. font names the family. This names WHICH text.'), 'Which face a heading takes');
-  assert.equal(firstSentence('The leading of prose. `lh-root` already calls the steps roles.'), 'The leading of prose');
-  assert.equal(firstSentence('A weight, e.g. Foo or bar, i.e. Baz. Then more.'), 'A weight, e.g. Foo or bar, i.e. Baz');
-  assert.equal(firstSentence('One sentence with 0.5 in it'), 'One sentence with 0.5 in it');
 });
 
 const real = regionBodies();
@@ -230,4 +224,29 @@ test('a state no role names has no row', () => {
   const stub: Parameters<typeof stateRows>[0] = { a: { $extensions: { [ARENA_EXT]: { audience: 'markup', state: ['hover'] } } } };
   const rows = stateRows(stub);
   assert.deepEqual(rows, ['| `hover` | `:hover` | `--a` |']);
+});
+
+test('a hue role is a status hue and every other meaning role is a control or a mark', () => {
+  const meaning = { audience: 'component', task: 'meaning-and-identity' };
+  assert.equal(roleLeaf('hue-info-ink', meaning), 'components/status-hues.md');
+  for (const name of ['fill-knob', 'fill-tip', 'edge-mark']) assert.equal(roleLeaf(name, meaning), 'components/controls-and-marks.md');
+  assert.deepEqual(TREE['components/index.md']!.slice(-2), ['status-hues', 'controls-and-marks']);
+});
+
+test('an overlay role combines its level on its bg utility', () => {
+  assert.equal(combination('overlay-scrim', { with: 'level-scrim', as: 'level' }, ['bg-overlay-scrim']), 'bg-overlay-scrim/(--level-scrim)');
+  assert.ok(rowOf('markup/surfaces-and-text.md', 'overlay-scrim').includes('`bg-overlay-scrim/(--level-scrim)`'));
+  assert.ok(rowOf('markup/surfaces-and-text.md', 'overlay-media').includes('`bg-overlay-media/(--level-media)`'));
+});
+
+test("the layers sheet carries a step's whole description", () => {
+  const layers = readJson(join(repoRoot, 'contracts/design/layering.json')) as { z: Record<string, { $description?: string }> };
+  const flat = (text: string) => text.replace(/\s+/g, ' ').trim();
+  const nav = real.get('markup/layers.md')!.split('\n').filter((line) => line.startsWith('| `--z-nav` |'));
+  assert.equal(nav.length, 1);
+  assert.ok(nav[0]!.includes('Fixed page navigation: a bottom bar, a sticky top bar.'));
+  const last = flat(layers.z.nav!.$description!).split(/(?<=\.) /).pop()!;
+  assert.ok(nav[0]!.trim().endsWith(`${last} |`));
+  const dropdown = real.get('markup/layers.md')!.split('\n').find((line) => line.startsWith('| `--z-dropdown` |'))!;
+  assert.ok(dropdown.includes('top layer') && dropdown.includes('overlay pane'));
 });

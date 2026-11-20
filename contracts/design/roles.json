@@ -114,12 +114,13 @@
   },
   "overlay-media": {
     "$type": "color",
-    "$description": "The wash a media frame draws under anything laid over it, so a caption or a mark stays readable against an image nobody chose. An ASSIGNMENT like every colour role: a style plugin says which of the consumer's colours the wash takes and may not author one.\n\nThe page's own fill by default, so the wash reads as the page closing over the picture rather than as a colour of its own. The manifest carries the opacity, which is why this is a flat colour and not a translucent one: a value with alpha baked in would put the contrast floor out of reach of every gate that measures it.",
+    "$description": "The wash a media frame draws under anything laid over it, so a caption or a mark stays readable against an image nobody chose. An ASSIGNMENT like every colour role: a style plugin says which of the consumer's colours the wash takes and may not author one.\n\nThe page's own fill by default, so the wash reads as the page closing over the picture rather than as a colour of its own. The level is held in colors.css as level-media, which is why this is a flat colour and not a translucent one: a value with alpha baked in would put the contrast floor out of reach of every gate that measures it.",
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
         "task": "surfaces-and-text",
-        "question": "What colour wash sits under a caption laid over an image?"
+        "question": "What colour wash sits under a caption laid over an image?",
+        "combines": [{ "with": "level-media", "as": "level" }]
       }
     }
   },
@@ -131,7 +132,8 @@
         "default": "{color.base-100}",
         "audience": "markup",
         "task": "surfaces-and-text",
-        "question": "What colour wash does a modal lay over the page it interrupts?"
+        "question": "What colour wash does a modal lay over the page it interrupts?",
+        "combines": [{ "with": "level-scrim", "as": "level" }]
       }
     }
   },

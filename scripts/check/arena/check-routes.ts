@@ -309,9 +309,9 @@ export const ROUTES: Route[] = [
     who: 'a builder placing a layer over the page: the router, then the markup tree index and the layers page',
     entry: 'consumer',
     stops: ['skills/design/references/tokens/markup/index.md', 'skills/design/references/tokens/markup/layers.md'],
-    budget: 4_000,
+    budget: 6_100,
     reason:
-      'paid per overlay, sticky bar or panel a builder places. It buys the order layers stack in and what each one rests on, in one page, without the token reference and the shell page. The number is what the two stops measure and moves when the layers page grows a rule. The markup index is half of this route, and its row for the units page is part of what the two stops measure.',
+      'paid per overlay, sticky bar or panel a builder places. It buys the order layers stack in and what each one rests on, in one page, without the token reference and the shell page, with the whole caveat of each step on the layers page: what it is for, what it sits above and below, and where a panel in the top layer or an overlay pane stacks. The number is what the two stops measure and moves when the layers page grows a rule. The markup index is half of this route, and its row for the units page is part of what the two stops measure.',
   },
   {
     name: 'consumer-coldstart',

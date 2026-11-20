@@ -28,7 +28,7 @@ export const TREE: Record<string, string[]> = {
   'index.md': ['markup/index.md', 'plugin/index.md', 'components/index.md', 'scales/index.md'],
   'markup/index.md': ['surfaces-and-text', 'edges', 'space-and-layout', 'type', 'depth-and-motion', 'layers', 'states', 'meaning-and-identity', 'units'],
   'plugin/index.md': ['surfaces-and-text', 'edges', 'space-and-layout', 'type', 'depth-and-motion', 'states'],
-  'components/index.md': ['air', 'type', 'size-controls', 'size-content', 'emphasis-and-accent', 'status-hues'],
+  'components/index.md': ['air', 'type', 'size-controls', 'size-content', 'emphasis-and-accent', 'status-hues', 'controls-and-marks'],
   'scales/index.md': ['spacing-radius-border', 'motion-and-layers', 'density', 'type-scale'],
 };
 
@@ -56,7 +56,7 @@ export function roleLeaf(name: string, meta: Meta) {
     if (task === 'space-and-layout' || task === 'edges') return 'components/air.md';
     if (task === 'type') return 'components/type.md';
     if (task === 'depth-and-motion' || task === 'states' || /^(emphasis|accent)-/.test(name)) return 'components/emphasis-and-accent.md';
-    if (task === 'meaning-and-identity') return 'components/status-hues.md';
+    if (task === 'meaning-and-identity') return /^hue-/.test(name) ? 'components/status-hues.md' : 'components/controls-and-marks.md';
   }
   throw new Error(`generate-token-tree: no leaf takes the role ${name} (audience ${audience}, task ${task}). `
     + 'Add the rule in roleLeaf, or the role is declared on the wrong axis.');
@@ -74,12 +74,6 @@ export function markupLeaf(task: string) {
 }
 
 const cell = (text: string) => text.replace(/\s+/g, ' ').replace(/\|/g, '\\|').trim();
-
-export function firstSentence(text: string) {
-  const flat = text.replace(/\s+/g, ' ').trim();
-  const stop = flat.search(/(?<!\be\.g|\bi\.e)\.\s+\S/);
-  return (stop < 0 ? flat : flat.slice(0, stop)).replace(/\.$/, '');
-}
 
 type Combine = { with: string; as: string };
 type RoleMeta = { audience?: string; task?: string; state?: string[]; userScale?: string; default?: string; question?: string; combines?: Combine[] };
@@ -149,7 +143,7 @@ export function combination(role: string, entry: Combine, utilities: string[]) {
     if (!found) throw new Error(`generate-token-tree: the role ${role} combines as ${entry.as} with --${entry.with}, but no ${prefix} utility reaches it.`);
     return found;
   };
-  if (entry.as === 'level') return `${need(role.startsWith('fill-') ? 'bg-' : 'text-')}/(--${entry.with})`;
+  if (entry.as === 'level') return `${need(/^(fill|overlay)-/.test(role) ? 'bg-' : 'text-')}/(--${entry.with})`;
   if (entry.as === 'width') return `${need('border-')} border-[length:var(--${entry.with})]`;
   if (entry.as === 'density') return `calc(var(--${role}) * var(--${entry.with}))`;
   throw new Error(`generate-token-tree: the role ${role} combines as ${entry.as}, which is not level, width or density.`);
@@ -222,7 +216,7 @@ export function regionBodies(base = root) {
   const steps = Object.entries(z).filter(([key, step]) => !key.startsWith('$') && typeof step.$value === 'number')
     .sort((a, b) => a[1].$value! - b[1].$value!);
   bodies.set('markup/layers.md', ['| custom property | what sits there |', '| --- | --- |',
-    ...steps.map(([step, token]) => `| \`--z-${step}\` | ${cell(firstSentence(token.$description ?? ''))} |`)].join('\n'));
+    ...steps.map(([step, token]) => `| \`--z-${step}\` | ${cell(token.$description ?? '')} |`)].join('\n'));
   return bodies;
 }
 
