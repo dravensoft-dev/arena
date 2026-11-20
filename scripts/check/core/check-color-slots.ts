@@ -723,6 +723,16 @@ export function declarationProblems(d: SlotDeclarations, roles: ReadonlySet<stri
         }
       }
       const homeProps = to.properties ?? d.groups?.[homeGroup as string]?.parts?.[homePart as string]?.properties ?? [];
+      if (to.ground !== undefined) {
+        const byProps = Object.values(to.toBy?.values ?? {}).flatMap((target) => {
+          const [g, part] = String(target).split('.');
+          return (d.groups?.[g ?? '']?.parts?.[part ?? '']?.properties ?? []).filter((prop) => to.properties === undefined || to.properties.includes(prop));
+        });
+        const props = new Set([...homeProps, ...byProps]);
+        const live = stateList(to.states).filter((st) => !DISABLED.has(st));
+        const paired = live.length > 0 && (props.has('ink') || props.has('icon') || (props.has('edge') && live.some((st) => st.startsWith('selected'))));
+        if (!paired) out.push(`${where}.ground: the member reads no ink, icon or selected edge, so its ground measures no pair (D96)`);
+      }
       if (to.edgeAs !== undefined && !['rule', 'stripe', 'fill'].includes(to.edgeAs)) out.push(`${where}.edgeAs: "${String(to.edgeAs)}" is not "rule", "stripe" or "fill"`);
       else if (to.edgeAs !== undefined && !homeProps.includes('edge')) out.push(`${where}.edgeAs: ${to.to} paints no edge to draw as a ${to.edgeAs}`);
       else if (to.edgeAs === 'fill' && homeProps.includes('fill')) out.push(`${where}.edgeAs: ${to.to} paints a fill too, and an edge drawn as a fill would read the fill's utility`);

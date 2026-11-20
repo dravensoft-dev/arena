@@ -1310,12 +1310,13 @@ test('the presence escape holds only a slot chain in the colour position', () =>
 });
 
 test('a member ground names a fill role', () => {
-  assert.deepEqual(declarationProblems(crumbDeclared({ ground: 'fill-surface-raised' })), []);
-  assert.deepEqual(declarationProblems(crumbDeclared({ ground: 'overlay-media' })), []);
-  assert.deepEqual(declarationProblems(crumbDeclared({ ground: 'ground' })), []);
-  assert.deepEqual(declarationProblems(crumbDeclared({ ground: 'ink-body' })),
+  const inked = (ground: string) => crumbDeclared({ ground }, ['ink'], ['rest']);
+  assert.deepEqual(declarationProblems(inked('fill-surface-raised')), []);
+  assert.deepEqual(declarationProblems(inked('overlay-media')), []);
+  assert.deepEqual(declarationProblems(inked('ground')), []);
+  assert.deepEqual(declarationProblems(inked('ink-body')),
     ['members.ArenaCrumb.parts.box.ground: "ink-body" is neither "ground" nor a fill-* or overlay-* role of contracts/design/roles.json (D96)']);
-  const c = deriveSlots(crumbDeclared({ ground: 'fill-surface-raised' }));
+  const c = deriveSlots(inked('fill-surface-raised'));
   assert.equal(c.members['ArenaCrumb.box']?.ground, 'fill-surface-raised');
 });
 
@@ -1410,4 +1411,15 @@ test('a wrapped read holds its inner chain', () => {
     [`ArenaCrumb.box: choices-box-fill-rest is not read as ${fill} in the base class`]);
   assert.deepEqual(declarationProblems(crumbDeclared({ wrappedBy: '--mark-fill' }, ['fill'], ['rest'])),
     ['members.ArenaCrumb.parts.box.wrappedBy: "--mark-fill" is not --arena-<family>-{property} (D98)']);
+});
+
+test('a member ground is refused where the member reads no pair it would measure', () => {
+  const refused = 'members.ArenaCrumb.parts.box.ground: the member reads no ink, icon or selected edge, so its ground measures no pair (D96)';
+  assert.deepEqual(declarationProblems(crumbDeclared({ ground: 'ground' }, ['fill'], ['rest', 'hover'])), [refused]);
+  assert.deepEqual(declarationProblems(crumbDeclared({ ground: 'ground' }, ['edge'], ['rest', 'hover'])), [refused], 'a rest edge is no pair');
+  assert.deepEqual(declarationProblems(crumbDeclared({ ground: 'ground' }, ['edge'], ['rest', 'selected'])), [], 'a selected edge is a pair');
+  assert.deepEqual(declarationProblems(crumbDeclared({ ground: 'ground', properties: ['fill'] }, ['fill', 'ink'], ['rest'])), [refused], 'the member paints the fill alone');
+  const cell = cellDeclared({ axis: 'numeric', values: { false: 'text.body' } });
+  (cell.members!.ArenaCell!.parts.cell as MemberDecl).ground = 'fill-surface-raised';
+  assert.deepEqual(declarationProblems(cell), []);
 });
