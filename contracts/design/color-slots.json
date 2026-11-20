@@ -4204,18 +4204,12 @@
         "item": {
           "to": "navigation.item",
           "options": [],
-          "states": [
-            "rest",
-            "hover",
-            "pressed",
-            "selected",
-            "selected-hover",
-            "selected-pressed"
-          ],
+          "states": "selectable",
           "selectedBy": {
             "axis": "current",
             "value": "true"
-          }
+          },
+          "disabledModifier": "aria-disabled:"
         },
         "badge": {
           "to": "navigation.badge",

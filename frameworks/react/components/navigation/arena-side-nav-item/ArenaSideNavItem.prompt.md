@@ -57,7 +57,7 @@ the selected ink at the control weight; the rest are transparent, in the muted i
 - **Don't** render one outside an `ArenaSideNav`. The item renders, and nothing injects the active id or the handler. The item is a link that reports nothing and never marks itself current.
 
 - **`disabled` draws the destination and refuses it.** The member reflects through `aria-disabled` rather than by not rendering the item. An unavailable destination a user can see, and hear announced as unavailable, is what tells them it exists. A feature behind a plan they do not have is worth showing. The anchor keeps its `href`, so the shape does not change; what changes is that the
-  click is prevented and the parent's `onNav` reports nothing.
+  click is prevented and the parent's `onNav` reports nothing. The item fades by `fade-disabled`, and the `navigation-item-*-disabled` and `*-selected-disabled` slots answer it, as on ArenaBottomNav; it does not scale when pressed.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

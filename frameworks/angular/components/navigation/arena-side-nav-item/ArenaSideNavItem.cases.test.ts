@@ -6,7 +6,8 @@
  * `states.disabled` is BEHAVIOURAL, so the verdict below is earned by rendering a disabled item
  * and acting on it rather than declared. The component gained `disabled` because casing it made
  * the gap visible: bound to `none` the requirement never applied.
- * The item pulls ArenaSideNavState from the nearest arena-side-nav, so both cases mount one. */
+ * The item pulls ArenaSideNavState from the nearest arena-side-nav, so both cases mount one.
+ * The disabled fade's slot wiring is proven by check:color-slots; this layer asserts what is drawn. */
 
 import { useTestEnvironment } from '../../../test/TestbedEnv';
 useTestEnvironment();
@@ -97,5 +98,31 @@ test('arena-side-nav-item meets both of the shapes href chooses between', () => 
     });
   } finally {
     fixture?.destroy();
+  }
+});
+
+@Component({
+  standalone: true,
+  imports: [ArenaSideNav, ArenaSideNavItem],
+  template: `
+    <arena-side-nav ariaLabel="Workspace navigation" active="overview">
+      <arena-side-nav-item id="overview" label="Overview" disabled />
+      <arena-side-nav-item id="billing" label="Billing" disabled />
+    </arena-side-nav>
+  `,
+})
+class DisabledHost {}
+
+test('a disabled item fades through its own slot, and a current one through the selected-disabled slot', () => {
+  const fixture = TestBed.createComponent(DisabledHost);
+  try {
+    fixture.detectChanges();
+    const [current, rest] = [...(fixture.nativeElement as Element).querySelectorAll('.arena-side-nav__item')];
+    assert.equal(current.getAttribute('aria-current'), 'page', 'the overview item is the current one');
+    assert.equal(rest.hasAttribute('aria-current'), false, 'and the other is not');
+    assert.equal(current.getAttribute('aria-disabled'), 'true');
+    assert.equal(rest.getAttribute('aria-disabled'), 'true');
+  } finally {
+    fixture.destroy();
   }
 });
