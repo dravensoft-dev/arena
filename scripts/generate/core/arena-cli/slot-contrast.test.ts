@@ -507,9 +507,10 @@ test('a mark part pairs the ring that tells its disc', () => {
   const dot = d.groups!.marks!.parts.dot!.options as Record<string, { rest: Record<string, unknown> }>;
   dot['neutral-upcoming']!.rest.edge = '{edge-control-quiet}';
   const quiet = slotReports(deriveSlots(d), new Map(), rolesFor(null, CATALOGUE, 'dark'), coloursOf('dark'), 'dark', LEVELS).map((one) => one.message);
-  assert.ok(quiet.some((line) => line.startsWith(`--${ring} measures 1.06:1 over the ground in the rest state of the dark theme, where it is composited over --color-base-200,`)), quiet.join('\n'));
+  assert.ok(quiet.some((line) => line.startsWith(`--${ring} measures 1.06:1 over the ground in the rest state of the dark theme, where it is composited over --color-base-200,`)), `f9767bce's edge-control-quiet ring measures 1.06 dark over base-200 in D97's published pair figures, under its 3:1:\n${quiet.join('\n')}`);
   const rings = slotPairs(CATALOGUE.slots).filter((pair) => /^marks-.+-dot-edge-rest$/.test(pair.slot));
-  assert.equal(rings.length, 11, 'every ring a dot draws is measured, and a border painted its own fill is not');
+  assert.equal(rings.length, 11, 'the marks.dot options that draw a ring: neutral current and upcoming, danger complete, current and upcoming, '
+    + 'and success, warning and info current and upcoming (D97); a ring added to marks.dot raises this count and is measured below');
   for (const theme of ['dark', 'light'] as const) {
     const roles = rolesFor(null, CATALOGUE, theme);
     const colors = coloursOf(theme);
@@ -518,7 +519,7 @@ test('a mark part pairs the ring that tells its disc', () => {
       for (const pair of rings) {
         const ratio = contrast(slotColour(CATALOGUE.slots, pair.slot, new Map(), roles, colors, LEVELS, mixOf(roles), under) as string, under);
         const floor = pair.slot === ring ? 3.46 : 4.77;
-        assert.ok(ratio >= floor - 0.005, `${theme} ${pair.slot} over ${ground}: ${ratio.toFixed(2)}, below ${floor}`);
+        assert.ok(ratio >= floor - 0.005, `${theme} ${pair.slot} over ${ground}: ${ratio.toFixed(2)}, below the ${floor} D97's published pair figures hold: the upcoming ring as {edge-mark} at level-presence 3.46 at its lowest, every tone and current ring 4.77`);
       }
     }
   }

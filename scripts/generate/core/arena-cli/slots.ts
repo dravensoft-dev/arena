@@ -9,6 +9,8 @@
 export const SLOT_PROPERTIES = ['fill', 'ink', 'edge', 'icon'] as const;
 export const SLOT_STATES = ['rest', 'hover', 'pressed', 'selected', 'selected-hover', 'selected-pressed', 'disabled', 'selected-disabled'] as const;
 
+export const drawsNoEdge = (rest: Record<string, unknown> | undefined) => rest?.edge === undefined || rest.edge === 'transparent';
+
 export type SlotProperty = (typeof SLOT_PROPERTIES)[number];
 export type SlotState = (typeof SLOT_STATES)[number];
 

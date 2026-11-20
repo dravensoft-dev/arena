@@ -5,6 +5,7 @@
 import { join } from 'node:path';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../arena/repo-root.ts';
+import { drawsNoEdge } from '../../generate/core/arena-cli/slots.ts';
 import type { ColorSlot, MemberPart, OptionAxis, SlotCatalogue, SlotState } from '../../generate/core/arena-cli/slots.ts';
 
 export const COLOR_SLOTS = 'contracts/design/color-slots.json';
@@ -13,7 +14,7 @@ type Answer = string | { role: string; level?: string };
 type StateSpec = string | string[];
 type Rest = Record<string, Answer>;
 
-export const drawsNoEdge = (rest: Record<string, unknown> | undefined) => rest?.edge === undefined || rest.edge === 'transparent';
+export { drawsNoEdge };
 
 export type GroupOption = { states?: StateSpec; properties?: string[]; rest: Rest; halo?: string; channel?: string | null; decision?: string };
 export type GroupPart = {

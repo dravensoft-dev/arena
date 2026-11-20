@@ -101,8 +101,8 @@ const seriesAxesOf = (root = repoRoot) => {
       return axes.length ? [[`${kebab(component.replace(/^Arena/, ''))}.${kebab(part)}`, axes] as [string, string[]]] : [];
     })));
 };
-const OPTION_AXES = new Map([...optionAxesOf(), ...seriesAxesOf()]);
-for (const [hook, axes] of seriesByAxesOf()) OPTION_AXES.set(hook, [...OPTION_AXES.get(hook) ?? [], ...axes]);
+const OPTION_AXES = [...seriesByAxesOf()].reduce((all, [hook, axes]) => all.set(hook, [...all.get(hook) ?? [], ...axes]),
+  new Map([...optionAxesOf(), ...seriesAxesOf()]));
 const SELECTED_BY = branchAxes('selectedBy');
 const DISABLED_BY = branchAxes('disabledBy');
 const ARIA_DISABLED = new Set(Object.entries(readColorSlots().members).filter(([, member]) => member.disabledModifier === 'aria-disabled:')
