@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { basename, dirname, join } from 'node:path';
-import { KEBAB, NO_PAINT, colourAnswer, keyProblems, valueProblems, POLARITY_HOOKS, RESERVED, floorProblems, highContrastFor, nameProblems, reservedProblems, rootOnlyFor, withDefaults } from './style-plugin-rules.ts';
+import { KEBAB, NO_PAINT, colourAnswer, keyProblems, typeProblem, valueProblems, POLARITY_HOOKS, RESERVED, floorProblems, highContrastFor, nameProblems, reservedProblems, rootOnlyFor, withDefaults } from './style-plugin-rules.ts';
 import { scopesIn } from './sheets.ts';
 import { POLARITIES } from './palette-keys.ts';
 import { walkFiles } from '../../../utils/walk-files.ts';
@@ -249,4 +249,16 @@ test('a removed component slot is refused as an unknown key', () => {
   assert.equal(problems.length, 1, problems.join('\n'));
   assert.match(problems[0] as string, /button-primary-root-fill-rest/);
   assert.match(problems[0] as string, /neither a role/);
+});
+
+test('typeProblem holds a role, a slot and a step to their types, and a missing type is a mismatch', () => {
+  const slots = readColorSlots();
+  const slot = Object.keys(slots.slots)[0] as string;
+  assert.match(typeProblem('w', 'fill-field', 'keyword', { $type: 'color' }) ?? '', /is a keyword here and a color in roles\.json.*transparent is a colour answer/);
+  assert.equal(typeProblem('w', 'fill-field', 'color', { $type: 'color' }), null);
+  assert.match(typeProblem('w', 'fs-h3', 'number', undefined) ?? '', /an fs step is a dimension/);
+  assert.match(typeProblem('w', slot, undefined, undefined, slots) ?? '', /a colour slot is a colour/);
+  assert.equal(typeProblem('w', 'unknown-key', 'x', undefined), null);
+  const lines = keyProblems('at', 'fill-field', { $type: 'keyword', $description: 'x', $value: 'a' }, { $type: 'dimension' });
+  assert.equal(lines[0], 'at: --fill-field is a keyword here and a dimension in roles.json, and the two cannot disagree');
 });

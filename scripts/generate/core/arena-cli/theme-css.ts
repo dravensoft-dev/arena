@@ -15,7 +15,7 @@ import {
 } from './palette-keys.ts';
 import { validate, contrast } from './validate-palette.mjs';
 import {
-  FS_STEP, RHYTHM_STEP, aliasName, colourAnswer, fixedRemProblems, keywordAnswer, type KnownAnswers, floorProblems, highContrastFor, nameProblems, reservedProblems, rootOnlyFor, scopeOn, totalityProblems, withDefaults,
+  FS_STEP, RHYTHM_STEP, aliasName, colourAnswer, fixedRemProblems, keywordAnswer, type KnownAnswers, floorProblems, highContrastFor, nameProblems, reservedProblems, rootOnlyFor, scopeOn, totalityProblems, typeProblem, withDefaults,
 } from './style-plugin-rules.ts';
 import { scaledLiteral, serialize } from './serialize-token.ts';
 import { HEAT_MIN_DL, errorFill, heatCramped, heatLadder, toOklab } from './oklab.ts';
@@ -241,6 +241,8 @@ export type StylePlugin = {
   name: string;
   tokens: Record<string, unknown>;
   light: Record<string, unknown>;
+  types?: Record<string, unknown>;
+  lightTypes?: Record<string, unknown>;
 };
 
 export type ResolvedPlugins = (StylePlugin | null)[] | null;
@@ -297,15 +299,22 @@ export function dtcgValue(node: unknown) {
 export function readPlugin(name: string, source: unknown): StylePlugin {
   const tokens: Record<string, unknown> = {};
   const light: Record<string, unknown> = {};
+  const types: Record<string, unknown> = {};
+  const lightTypes: Record<string, unknown> = {};
+  const typeOf = (node: unknown) => (isObject(node) ? node.$type : undefined);
   for (const [key, node] of Object.entries(isObject(source) ? source : {})) {
     if (key.startsWith('$')) continue;
     if (key === THEME_GROUP && isObject(node) && !('$value' in node)) {
-      for (const [role, token] of Object.entries(node)) light[role] = dtcgValue(token);
+      for (const [role, token] of Object.entries(node)) {
+        light[role] = dtcgValue(token);
+        lightTypes[role] = typeOf(token);
+      }
       continue;
     }
     tokens[key] = dtcgValue(node);
+    types[key] = typeOf(node);
   }
-  return { name, tokens, light };
+  return { name, tokens, light, types, lightTypes };
 }
 
 function declarationsOf(tokens: Record<string, unknown>, catalogue: TokenCatalogue | null) {
@@ -399,13 +408,17 @@ export function pluginBlocks(
 }
 
 export function pluginTokenProblems(
-  group: string, tokens: Record<string, unknown>, catalogue: TokenCatalogue,
+  group: string, tokens: Record<string, unknown>, catalogue: TokenCatalogue, types?: Record<string, unknown>,
 ) {
   const problems = [];
   const known = knownOf(catalogue);
   for (const [key, raw] of Object.entries(tokens)) {
     const where = `stylePlugins.${group}`;
     const role = catalogue.roles?.[key];
+    if (types && Object.hasOwn(types, key)) {
+      const wrong = typeProblem(where, key, types[key], role ? { $type: role.type } : undefined, catalogue.slots);
+      if (wrong) problems.push(wrong);
+    }
     if (!role && catalogue.slots?.slots[key]) {
       if (typeof raw !== 'string' || !slotAnswer(raw, key, catalogue.slots, known.colourNames ?? new Set()))
         problems.push(slotProblem(where, key, String(raw), catalogue.slots));
@@ -487,8 +500,8 @@ function resolvedProblems(
   }
 
   const { plugin: whole, defaulted } = withDefaults(plugin, catalogue.roles ?? {}, isRoot ? undefined : { root });
-  problems.push(...pluginTokenProblems(plugin.name, plugin.tokens, catalogue));
-  problems.push(...pluginTokenProblems(`${plugin.name}.${THEME_GROUP}`, plugin.light, catalogue));
+  problems.push(...pluginTokenProblems(plugin.name, plugin.tokens, catalogue, plugin.types));
+  problems.push(...pluginTokenProblems(`${plugin.name}.${THEME_GROUP}`, plugin.light, catalogue, plugin.lightTypes));
   if (isRoot) {
     problems.push(...totalityProblems(Object.keys(catalogue.roles ?? {}), Object.keys(whole.tokens))
       .map((problem) => `${at}: ${problem}`));

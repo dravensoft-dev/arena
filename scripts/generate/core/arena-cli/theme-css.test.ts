@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import {
   configProblems, heatReports, heatOrderReports, themeCss, packageLines, PACKAGE_HEADER, packageImports, paletteReports, defaultPalette, isStylesheet, scopedImports,
@@ -1761,4 +1761,37 @@ test('arena build refuses {transparent} in a slot, in either group, and names th
 test('a role answered {transparent} is refused with the bare form named', () => {
   const problems = pluginTokenProblems('p', { 'fill-surface': '{transparent}' }, SHEETS_FULL.catalogue);
   assert.equal(problems.filter((l) => l.includes('write transparent without braces')).length, 1);
+});
+
+test('arena build refuses an answer whose $type is not its role\'s, in either group', () => {
+  const plugin = readPlugin('p', {
+    'fill-surface': { $type: 'keyword', $value: 'transparent' },
+    'bw-surface': { $value: '{fs.h3}' },
+    [Object.keys(SLOTS.slots)[0] as string]: { $value: '{fill-surface}' },
+    'rhythm-group': { $type: 'number', $value: 12 },
+    light: { 'fs-h3': { $type: 'number', $value: 20 } },
+  });
+  const problems = configProblems(listed(['default', 'p']), SHEETS_FULL, [null, plugin]);
+  const has = (re: RegExp) => assert.ok(problems.some((line) => re.test(line)), problems.join('\n'));
+  has(/stylePlugins\.p: --fill-surface is a keyword here and a color/);
+  has(/stylePlugins\.p: --bw-surface is a undefined here and a dimension/);
+  has(/stylePlugins\.p: --\S+ is a undefined, and a colour slot is a colour/);
+  has(/stylePlugins\.p: --rhythm-group is a number, and a rhythm step is a dimension/);
+  has(/stylePlugins\.p\.light: --fs-h3 is a number.*fs step is a dimension/);
+});
+
+test('every plugin under plugin-style-store passes the $type comparison', () => {
+  const store = fileURLToPath(new URL('../../../../plugin-style-store/', import.meta.url));
+  const names = ['default', 'complete', ...readdirSync(`${store}catalogue`).filter((n) => !n.includes('.'))];
+  const catalogue = tokenCatalogue();
+  const mismatch = /here and a | is a .*, and (a colour slot|an fs step|a rhythm step)/;
+  for (const name of names) {
+    const file = name === 'default' || name === 'complete' ? `${store}${name}/plugin.tokens.json` : `${store}catalogue/${name}/plugin.tokens.json`;
+    const p = readPlugin(name, JSON.parse(readFileSync(file, 'utf8')));
+    const lines = [
+      ...pluginTokenProblems(name, p.tokens, catalogue, p.types),
+      ...pluginTokenProblems(`${name}.light`, p.light, catalogue, p.lightTypes),
+    ].filter((line) => mismatch.test(line));
+    assert.deepEqual(lines, [], name);
+  }
 });

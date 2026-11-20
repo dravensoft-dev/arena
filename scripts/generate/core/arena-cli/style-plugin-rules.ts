@@ -265,21 +265,37 @@ export function nameProblems(
   return problems;
 }
 
+export const stepName = (key: string): 'an fs step' | 'a rhythm step' | null =>
+  (FS_STEP.test(key) ? 'an fs step' : RHYTHM_STEP.test(key) ? 'a rhythm step' : null);
+
+export function typeProblem(
+  where: string, key: string, given: unknown, role: RoleShape | undefined, slots?: SlotCatalogue,
+) {
+  const named = stepName(key);
+  if (named) return given === 'dimension' ? null : `${where}: --${key} is a ${given}, and ${named} is a dimension`;
+  if (!role && slots?.slots[key])
+    return given === 'color' ? null : `${where}: --${key} is a ${given}, and a colour slot is a colour`;
+  if (!role || given === role.$type) return null;
+  return `${where}: --${key} is a ${given} here and a ${role.$type} in roles.json, and the two cannot disagree`
+    + (role.$type === 'color'
+      ? '; transparent is a colour answer, so a role answered transparent is "$type": "color" too' : '');
+}
+
 export function keyProblems(
   where: string, key: string, token: MovedToken, role: RoleShape | undefined, known: KnownAnswers = {},
 ) {
   const problems = [];
-  const named = FS_STEP.test(key) ? 'an fs step' : RHYTHM_STEP.test(key) ? 'a rhythm step' : null;
+  const named = stepName(key);
   if (named) {
-    if (token?.$type !== 'dimension')
-      problems.push(`${where}: --${key} is a ${token?.$type}, and ${named} is a dimension`);
+    const wrong = typeProblem(where, key, token?.$type, role, known.slots);
+    if (wrong) problems.push(wrong);
     if (!token?.$description)
       problems.push(`${where}: --${key} carries no $description, and a style plugin is a set of decisions rather than a set of values`);
     return problems;
   }
   if (!role && known.slots?.slots[key]) {
-    if (token?.$type !== 'color')
-      problems.push(`${where}: --${key} is a ${token?.$type}, and a colour slot is a colour`);
+    const wrong = typeProblem(where, key, token?.$type, role, known.slots);
+    if (wrong) problems.push(wrong);
     if (!token?.$description)
       problems.push(`${where}: --${key} carries no $description, and a style plugin is a set of decisions rather than a set of values`);
     problems.push(...valueProblems(where, key, token, role, known));
@@ -291,8 +307,8 @@ export function keyProblems(
       + 'every use that wants that value, so moving one is not a style plugin but a different Arena.');
     return problems;
   }
-  if (token?.$type !== role.$type)
-    problems.push(`${where}: --${key} is a ${token?.$type} here and a ${role.$type} in roles.json, and the two cannot disagree`);
+  const wrong = typeProblem(where, key, token?.$type, role, known.slots);
+  if (wrong) problems.push(wrong);
   if (!token?.$description)
     problems.push(`${where}: --${key} carries no $description, and a style plugin is a set of decisions rather than a set of values`);
   problems.push(...valueProblems(where, key, token, role, known));
