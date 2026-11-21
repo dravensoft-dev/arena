@@ -161,7 +161,7 @@ export function build(payload: string, manifest: Manifest, installed: Installed 
       + 'icon as an element, an emoji, a component wrapped in a link of your own, and a heading '
       + 'outline with a rung missing. Returns one line per finding, or says it found none. Every '
       + `rule it can report is in ${SCHEME}://rules, with the ones it cannot.`
-      + ' It does not compile classes: `arena audit` reports a Tailwind utility that emits nothing under Arena\'s theme.',
+      + ' It does not compile classes: `arena audit` reports a Tailwind utility that emits nothing under Arena\'s theme, with your project\'s `tailwindcss`.',
     inputSchema: z.object({
       source: z.string().describe('the code to check, as text'),
       path: z.string().optional().describe('the file name it will be saved as, which decides '
