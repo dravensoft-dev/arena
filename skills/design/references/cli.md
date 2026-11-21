@@ -124,6 +124,7 @@ The middle column is the rule of [the rules section of `SKILL.md`](../SKILL.md) 
 | `compat-alias` | none of the language rules | A stylesheet in a style plugin directory reads one of Arena's compatibility aliases through `var()`, which names a step of the ramp instead of a role. |
 | `emoji` | No emoji, in product or in copy. | A line of a source holds an emoji character. |
 | `icon-element` | Icons are Phosphor class-name strings, drawn by Arena's components or by ArenaIcon; a raw ph-* element paints nothing. | An `icon` or `iconRight` attribute is given an element in braces, where Arena takes a Phosphor class-name string. |
+| `missing-level` | A role that names a level is read with that level. | A class or a `var()` reads a role whose `combines` names a level without that level, or holds it back by a literal share. |
 | `outline-gap` | none of the language rules | A source draws Arena headings at two levels with a level missing between them, such as an h1 and an h3 with no h2. |
 | `own-class` | Only a class of the vocabulary goes on an Arena component. | A component carries a class outside its vocabulary or a computed one, or a stylesheet targets an `arena-` class anywhere or a `data-arena-part` hook outside a style plugin. |
 | `raw-glyph` | Icons are Phosphor class-name strings, drawn by Arena's components or by ArenaIcon; a raw ph-* element paints nothing. | An element other than `ArenaIcon` holds a Phosphor glyph class, or binds its class to a non-literal value in a file naming one; Arena ships no icon font. |
@@ -153,7 +154,7 @@ Run `arena init` once. In a project on `@dravensoft/arena-react` it adds these s
     "prebuild": "arena build",
     "predev": "arena build",
     "arena:check": "arena check --strict=components,glyph,markers",
-    "arena:audit": "arena audit --strict=audit:compat-alias,audit:emoji,audit:icon-element,audit:outline-gap,audit:own-class,audit:raw-glyph,audit:raw-value,audit:router-link,audit:stale-allowance,audit:unknown-input,audit:unknown-part,audit:unknown-property,audit:wrapped-link,restated"
+    "arena:audit": "arena audit --strict=audit:compat-alias,audit:emoji,audit:icon-element,audit:missing-level,audit:outline-gap,audit:own-class,audit:raw-glyph,audit:raw-value,audit:router-link,audit:stale-allowance,audit:unknown-input,audit:unknown-part,audit:unknown-property,audit:wrapped-link,restated"
   }
 }
 ```
@@ -174,7 +175,7 @@ The same, on `@dravensoft/arena-angular`, with `prestart` in place of `predev`.
     "prebuild": "arena build",
     "prestart": "arena build",
     "arena:check": "arena check --strict=components,glyph,markers",
-    "arena:audit": "arena audit --strict=audit:compat-alias,audit:emoji,audit:icon-element,audit:outline-gap,audit:own-class,audit:raw-glyph,audit:raw-value,audit:router-link,audit:stale-allowance,audit:unknown-input,audit:unknown-part,audit:unknown-property,audit:wrapped-link,restated"
+    "arena:audit": "arena audit --strict=audit:compat-alias,audit:emoji,audit:icon-element,audit:missing-level,audit:outline-gap,audit:own-class,audit:raw-glyph,audit:raw-value,audit:router-link,audit:stale-allowance,audit:unknown-input,audit:unknown-part,audit:unknown-property,audit:wrapped-link,restated"
   }
 }
 ```

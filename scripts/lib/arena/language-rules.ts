@@ -31,6 +31,17 @@ export const RULES: LanguageRule[] = [
     unheld: null,
   },
   {
+    id: 'levels',
+    short: 'A role that names a level is read with that level.',
+    body: 'Under the default skin `--ink-muted` and `--ink-body` are one colour, and the level is what holds a '
+      + 'caption back. Write `text-ink-muted/(--level-ink-muted)` in a class, and '
+      + '`color-mix(in oklab, var(--ink-muted) var(--level-ink-muted), transparent)` in a stylesheet. A literal '
+      + 'share, as `/62`, cannot follow a level `arena build` raises. The combines-with column of the token tree '
+      + 'names the level of each role.',
+    held: 'missing-level',
+    unheld: null,
+  },
+  {
     id: 'own-class',
     short: 'Only a class of the vocabulary goes on an Arena component.',
     body: 'Write it as a literal on the component, or on a container whose components all take it. '

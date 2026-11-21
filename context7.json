@@ -94,6 +94,7 @@
   ],
   "rules": [
     "Tokens are the only styling layer.",
+    "A role that names a level is read with that level.",
     "Only a class of the vocabulary goes on an Arena component.",
     "Appearance is a class of the vocabulary, never a member.",
     "No emoji, in product or in copy.",

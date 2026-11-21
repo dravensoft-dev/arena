@@ -102,6 +102,12 @@ source text cannot show, is `arena://rules` on the MCP server.
   a class, as `p-[13px]`, is the same raw value. A bracket may hold a `var()` of a token, a
   `calc()`, `min()`, `max()` or `clamp()` over tokens, or one value in a unit no token models,
   such as `%`, `ch` or `vw`. **`arena audit` reports this one, as `raw-value`.**
+- **A role that names a level is read with that level.** Under the default skin `--ink-muted` and
+  `--ink-body` are one colour, and the level is what holds a caption back. Write
+  `text-ink-muted/(--level-ink-muted)` in a class, and `color-mix(in oklab, var(--ink-muted)
+  var(--level-ink-muted), transparent)` in a stylesheet. A literal share, as `/62`, cannot follow
+  a level `arena build` raises. The combines-with column of the token tree names the level of each
+  role. **`arena audit` reports this one, as `missing-level`.**
 - **Only a class of the vocabulary goes on an Arena component.** Write it as a literal on the
   component, or on a container whose components all take it. Write no rule targeting a component:
   its `arena-<component>__<part>` classes are compiler output no contract names, and a part may be

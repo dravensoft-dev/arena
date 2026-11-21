@@ -126,13 +126,13 @@ export const ROUTES: Route[] = [
       'skills/design/references/config.md',
       'skills/design/references/cli.md',
     ],
-    budget: 51_850,
+    budget: 52_100,
     reason:
       'paid once per project, not per screen, so it carries what the build route may not: the install, '
       + 'the config file and the command. The config block is copied whole. The install reference gives '
-      + 'the evidence behind each package manager and the Tailwind v4 entry sheet, and says how Vite and '
+      + 'the evidence behind each package manager and the Tailwind v4 entry sheet, and how Vite and '
       + 'the Angular builder serve the sprite. The command reference quotes whole the scripts `arena '
-      + 'init` writes, tables every audit tag with its rule, names the sheets, the sprite and the cut '
+      + 'init` writes, tables every audit tag (`missing-level` among them), names the sheets, the sprite and the cut '
       + 'fonts the build writes, and lists the sheets a `--no-import` project imports under one rule for '
       + 'every root, generated from the layer list `scopedImports` reads. It states the flat package '
       + 'sheet, the per-layer icon module, which glyphs reach the filled weight and when an icon '
@@ -291,9 +291,9 @@ export const ROUTES: Route[] = [
     who: 'a builder painting a panel of their own markup: the router, then the markup tree index and the pages for surfaces and text, type, edges, space and layout, and depth and motion',
     entry: 'consumer',
     stops: ['skills/design/references/tokens/markup/index.md', 'skills/design/references/tokens/markup/surfaces-and-text.md', 'skills/design/references/tokens/markup/type.md', 'skills/design/references/tokens/markup/edges.md', 'skills/design/references/tokens/markup/space-and-layout.md', 'skills/design/references/tokens/markup/depth-and-motion.md'],
-    budget: 20_900,
+    budget: 21_050,
     reason:
-      'paid per panel a builder draws themselves. It buys the whole of what paints one: the ground and the ink on it, the title it carries and its size and weight, the edge and its radius, the air inside and around it, and the depth and motion it carries, each read at the page that owns it and not through the page, style and token references. On each leaf the route buys the question of every role, its utility and how it combines with the others, and the paragraph that composes them. The number is what the stops measure and moves when a page of the tree grows a decision, not a paragraph. The markup index, the first stop, carries one row more for the units page, which this panel route does not read. Its read-this line for the states page names the keyboard focus, the pressed toggle and the other states that page answers. The surfaces and text page carries the overlay-scrim role, the wash a modal lays over the page, which the leaf lists with its question like every other role, and the media wash at its level.',
+      'paid per panel a builder draws themselves. It buys the whole of what paints one: the ground and the ink on it, the title it carries and its size and weight, the edge and its radius, the air inside and around it, and the depth and motion it carries, each read at the page that owns it and not through the page, style and token references. On each leaf the route buys the question of every role, its utility and how it combines with the others, and the paragraph that composes them. The number is what the stops measure and moves when a page of the tree grows a decision, not a paragraph. The markup index, the first stop, carries one row more for the units page, which this panel route does not read. Its read-this line for the states page names the keyboard focus, the pressed toggle and the other states that page answers. The surfaces and text page carries the overlay-scrim role, the wash a modal lays over the page, which the leaf lists with its question like every other role, and the media wash at its level. It also states the missing-level rule, that `arena audit` reports a role read without its level.',
   },
   {
     name: 'consumer-own-toggle',
