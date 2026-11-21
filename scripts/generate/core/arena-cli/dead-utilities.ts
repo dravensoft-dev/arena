@@ -99,7 +99,7 @@ export function themePairs(sheet: string): Pair[] {
     if (!decl.name.startsWith('--') || decl.name.endsWith('*')) continue;
     const name = decl.name.slice(2);
     const ns = spaces.find((space) => name.startsWith(`${space}-`));
-    if (ns) pairs.push({ ns, key: name.slice(ns.length + 1), value: decl.value });
+    if (ns) pairs.push({ ns, key: name.replace(`${ns}-`, ''), value: decl.value });
   }
   return pairs;
 }
