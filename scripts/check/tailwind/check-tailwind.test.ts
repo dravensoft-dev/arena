@@ -153,7 +153,7 @@ test('a focus state drawn only as a shadow or ring, with no outline in the same 
 });
 
 test('a focus shadow paired with an outline under the same variant is accepted, a different variant is not', () => {
-  const paired = '[&:has(~input:focus-visible)]:shadow-[0_0_0_2px_red] [&:has(~input:focus-visible)]:outline-hidden focus-visible:ring-2 focus-visible:outline-edge-focus';
+  const paired = '[&:has(~input:focus-visible)]:shadow-[0_0_0_2px_red] [&:has(~input:focus-visible)]:outline-hidden focus-visible:ring-2 focus-visible:outline-2';
   assert.deepEqual(focusOutlineProblems({ component: 'Fixture', slots: { box: paired } }), []);
   assert.equal(focusOutlineProblems({ component: 'Fixture', slots: { box: 'focus-visible:ring-2 focus:outline-hidden' } }).length, 1);
 });
@@ -176,4 +176,37 @@ test('an inline key never reaches the compiled layer, so it is read where it is 
   assert.deepEqual([...inline.keys()], ['spacing-4', 'radius-nope']);
   assert.deepEqual(checkCompiled(compiled('', '.x {}'), new Map([['X.manifest.json', { slots: {} }]]), TOKENS, new Map([['spacing-4', 'var(--sp-4)']])), []);
   assert.match(checkCompiled(compiled('', '.x {}'), new Map([['X.manifest.json', { slots: {} }]]), TOKENS, inline).join('\n'), /--radius-nope: --r-nope is no such Arena token/);
+});
+
+test('an outline offset or colour is not an outline, and a bare outline-hidden says it draws under forced colours', () => {
+  for (const cls of ['focus-visible:outline-offset-2', 'focus-visible:outline-edge-focus']) {
+    const problems = focusOutlineProblems({ component: 'Fixture', slots: { box: `focus-visible:ring-2 ${cls}` } });
+    assert.equal(problems.length, 1, cls);
+  }
+  for (const cls of ['focus-visible:outline', 'focus-visible:outline-solid', 'focus-visible:outline-2', 'focus-visible:outline-[length:var(--bw-focus)]'])
+    assert.deepEqual(focusOutlineProblems({ component: 'Fixture', slots: { box: `focus-visible:ring-2 ${cls}` } }), [], cls);
+  const bare = focusOutlineProblems({ component: 'Fixture', slots: { cell: 'outline-hidden' } });
+  assert.match(bare[0] ?? '', /2px outline in every state under forced colours/);
+});
+
+test('a focus state drawn only as a border colour is refused, a border width is not a colour, an outline beside it is accepted', () => {
+  for (const cls of ['focus:border-edge-focus', 'focus-visible:border-[color:var(--edge-focus)]', 'focus-within:border-x-red-500'])
+    assert.equal(focusOutlineProblems({ component: 'Fixture', slots: { box: cls } }).length, 1, cls);
+  for (const cls of ['focus:border-2', 'focus:border-solid', 'focus:border-t-4', 'focus:border-[length:3px]'])
+    assert.deepEqual(focusOutlineProblems({ component: 'Fixture', slots: { box: cls } }), [], cls);
+  assert.deepEqual(focusOutlineProblems({ component: 'Fixture', slots: { box: 'focus:border-edge-focus focus:outline-hidden' } }), []);
+});
+
+test('an outline under a focus variant covers the same focus state under extra variants, and not a different focus variant', () => {
+  assert.deepEqual(focusOutlineProblems({ component: 'Fixture', slots: { box: 'focus-within:outline-hidden hover:focus-within:border-edge-focus' } }), []);
+  assert.equal(focusOutlineProblems({ component: 'Fixture', slots: { box: 'focus:outline-hidden focus-within:border-edge-focus' } }).length, 1);
+});
+
+test('forced-colors:focus:outline-none is accepted only beside a wrapper slot that draws the focus-within ring', () => {
+  const wrapped = { component: 'Fixture', slots: { field: 'focus-within:outline-hidden', input: 'focus:outline-hidden forced-colors:focus:outline-none' } };
+  assert.deepEqual(focusOutlineProblems(wrapped), []);
+  const alone = { component: 'Fixture', slots: { input: 'focus:outline-hidden forced-colors:focus:outline-none' } };
+  assert.equal(focusOutlineProblems(alone).length, 1);
+  const bare = { component: 'Fixture', slots: { field: 'focus-within:outline-hidden', input: 'forced-colors:outline-none' } };
+  assert.equal(focusOutlineProblems(bare).length, 1);
 });

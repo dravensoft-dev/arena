@@ -72,7 +72,14 @@ export function transitionProblems(manifest: ManifestClassSource) {
 const FOCUS_VARIANT = /^(?:(?:group|peer|in)-)?focus(?:-visible|-within)?(?:\/[\w-]+)?$|^has-\[[^\]]*focus[^\]]*\]$|^\[[^\]]*:focus(?:-visible|-within)?(?![\w-])[^\]]*\]$/;
 
 const SHADOW_PAINT = /^(?:inset-)?(?:shadow|ring)(?:-|$)/;
-const OUTLINE_PAINT = /^outline-/;
+const OUTLINE_PAINT = /^outline(?:-(?:hidden|solid|dashed|dotted|double|\d+|\[length:[^\]]*\]|\(length:[^)]*\)))?$/;
+const BORDER_SIDE = /^border(?:-[xyselrtb])?(?:-(.+))?$/;
+const BORDER_NOT_COLOUR = /^(?:\d+|solid|dashed|dotted|double|hidden|none|collapse|separate|spacing-.*|\[length:.*|\(length:.*|\[\d.*)$/;
+
+function bordersColour(utility: string) {
+  const rest = BORDER_SIDE.exec(utility)?.[1];
+  return rest !== undefined && !BORDER_NOT_COLOUR.test(rest);
+}
 
 function slotClasses(manifest: ManifestClassSource) {
   const bySlot = new Map<string, string[]>();
@@ -92,20 +99,29 @@ function slotClasses(manifest: ManifestClassSource) {
 
 const AMBIENT_VARIANT = /^(?:(?:sm|md|lg|xl|2xl|dark|light|print|portrait|landscape|rtl|ltr|noscript|starting|forced-colors|not-forced-colors|inverted-colors|contrast-more|contrast-less|motion-safe|motion-reduce|(?:max|min)-[\w\[\]./-]+|supports-[\w\[\]:()-]+|not-supports-[\w\[\]:()-]+)|@[\w\[\]./-]+)$/;
 
+function wrapperDrawsRing(all: Map<string, string[]>, slot: string) {
+  return [...all].some(([other, classes]) => other !== slot && classes.some((cls) => {
+    const parts = cls.replace(/!$/, '').split(/:(?![^[]*\])/);
+    return parts.pop() === 'outline-hidden' && parts.some((variant) => /^focus-within(?:\/[\w-]+)?$/.test(variant));
+  }));
+}
+
 export function focusOutlineProblems(manifest: ManifestClassSource) {
   const problems = [];
-  for (const [slot, classes] of slotClasses(manifest)) {
+  const all = slotClasses(manifest);
+  for (const [slot, classes] of all) {
     for (const cls of new Set(classes)) {
       const parts = cls.replace(/!$/, '').split(/:(?![^[]*\])/);
       const utility = parts.pop() ?? '';
       if (utility === 'outline-hidden' && parts.length === 0) {
         problems.push(
-          `${manifest.component}:${slot} writes a bare \`outline-hidden\`, which hides the outline in every state. `
-          + `Write it under the slot's own focus variant (\`focus-visible:outline-hidden\`), so the forced palette paints the focus ring.`,
+          `${manifest.component}:${slot} writes a bare \`outline-hidden\`, which draws a 2px outline in every state under forced colours. `
+          + `Write it under the slot's own focus variant (\`focus-visible:outline-hidden\`), so the forced palette paints it only while the slot is focused.`,
         );
         continue;
       }
       if (utility !== 'outline-none') continue;
+      if (parts.includes('forced-colors') && parts.some((variant) => FOCUS_VARIANT.test(variant)) && wrapperDrawsRing(all, slot)) continue;
       const focusVariants = parts.filter((variant) => FOCUS_VARIANT.test(variant));
       const ambient = parts.length > 0 && parts.every((variant) => AMBIENT_VARIANT.test(variant));
       if (parts.length && !focusVariants.length && !ambient) continue;
@@ -120,15 +136,16 @@ export function focusOutlineProblems(manifest: ManifestClassSource) {
     for (const cls of new Set(classes)) {
       const parts = cls.replace(/!$/, '').split(/:(?![^[]*\])/);
       const utility = parts.pop() ?? '';
-      if (!SHADOW_PAINT.test(utility) || !parts.some((variant) => FOCUS_VARIANT.test(variant))) continue;
+      const border = bordersColour(utility);
+      if (!(SHADOW_PAINT.test(utility) || border) || !parts.some((variant) => FOCUS_VARIANT.test(variant))) continue;
       const drawsOutline = classes.some((other) => {
         const otherParts = other.replace(/!$/, '').split(/:(?![^[]*\])/);
         const otherUtility = otherParts.pop() ?? '';
-        return OUTLINE_PAINT.test(otherUtility) && otherParts.join(':') === parts.join(':');
+        return (OUTLINE_PAINT.test(otherUtility) || otherUtility === 'outline-none') && otherParts.some((variant) => FOCUS_VARIANT.test(variant)) && otherParts.every((variant) => parts.includes(variant));
       });
       if (!drawsOutline)
         problems.push(
-          `${manifest.component}:${slot} draws a focus state as \`${cls}\` alone. Forced-colours mode drops box-shadow, `
+          `${manifest.component}:${slot} draws a focus state as \`${cls}\` alone. Forced-colours mode drops ${border ? 'border colours' : 'box-shadow'}, `
           + `so no focus shows: add \`${[...parts, 'outline-hidden'].join(':')}\`, a transparent outline the forced palette paints.`,
         );
     }
