@@ -18,7 +18,7 @@ Arena popover, a small panel a trigger opens, holding content of the consumer's 
 | `content*` | slot |  |  | What the panel holds: a short form, a pair of fields, a paragraph. The content fills the panel and never replaces it: the surface, its padding and its edge are Arena's. |
 | `label*` | primitive | `string` |  | Names the panel for assistive technology: what it holds, not that it is a panel. Required, and guarded at runtime: a dialog with no accessible name is announced unlabelled, and the trigger's own name says what opens it, never what the panel is for. "Filters", not "Popover". |
 | `open` | primitive | `boolean` | `false` | Whether the panel is shown. The consumer owns it: the component asks to change it through openChange and never changes it by itself, so content inside the panel can close it, an Apply button included. |
-| `align` | enum | `ArenaMenuAlign` | `"start"` | Which edge of the trigger the panel lines up with: start is the edge a line of text begins at and end the opposite one, so both follow the page direction. |
+| `align` | enum | `ArenaMenuAlign` | `"start"` | Which edge of the trigger the panel lines up with. Start is the edge a line of text begins at and end the opposite one, so both follow the page direction. |
 | `openChange` | event | `boolean` |  | The panel asks to be shown or hidden, carrying the state it asks for. The trigger was pressed, Escape was pressed while it was the topmost panel, a press landed outside it, or Tab left it. The panel moves only when open does. |
 
 <!-- @api end -->

@@ -19,7 +19,7 @@ unpositioned. The panel stays inside the visible part of the screen when a soft 
 |---|---|---|---|---|
 | `trigger*` | slot |  |  | The element that opens the menu. The consumer draws it -- an ArenaIconButton with ph-dots-three-vertical, a secondary ArenaButton -- so it is a slot, and it carries its own accessible name. |
 | `items*` | array | `readonly ArenaMenuItem[]` |  | The entries, in order: activatable rows, dividers and group headers. |
-| `align` | enum | `ArenaMenuAlign` | `"start"` | Which edge of the trigger the panel lines up with: start is the edge a line of text begins at and end the opposite one, so both follow the page direction. |
+| `align` | enum | `ArenaMenuAlign` | `"start"` | Which edge of the trigger the panel lines up with. Start is the edge a line of text begins at and end the opposite one, so both follow the page direction. |
 | `select` | event | `ArenaMenuItem` |  | An entry was activated; carries the whole item. A disabled entry reports nothing, and a divider or a header cannot be activated at all. |
 
 <!-- @api end -->
@@ -83,8 +83,8 @@ nothing.
 - **The trigger must be a control, not a picture of one.** An `arena-avatar`, a `<span>` or anything else that takes no focus receives the listeners and answers no key. The menu opens on a pointer, and a reader on a keyboard never reaches it. Arena reports that once at
   runtime; project an `arena-icon-button`, an `arena-button`, or your own element carrying a
   button role and a tabindex.
-- **Do** reach for `align="end"` when the trigger sits at the end edge of its row (the right in a left-to-right page, the left in a right-to-left one), so the panel
-  hangs inward instead of off the page. The panel flips above the trigger near the bottom of
+- **Do** reach for `align="end"` when the trigger sits at the end edge of its row, so the panel
+  hangs inward instead of off the page. The end edge is the right in a left-to-right page and the left in a right-to-left one. The panel flips above the trigger near the bottom of
   the viewport on its own.
 - **Don't** use `shortcut` expecting Arena to bind the key. The member is display only, and the contract says so. The host binds it or nothing does.
 - **Don't** use it to choose a form value. A short list is `arena-select`, and a long one the user
