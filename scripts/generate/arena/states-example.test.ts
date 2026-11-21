@@ -28,7 +28,7 @@ function example(): string {
   return fences[0]![1]!;
 }
 
-test('the toggle example passes arena audit --strict=audit', () => {
+test('the toggle example passes arena audit --strict=audit', async () => {
   const root = mkdtempSync(join(tmpdir(), 'arena-states-'));
   made.push(root);
   mkdirSync(join(root, 'src'), { recursive: true });
@@ -36,7 +36,7 @@ test('the toggle example passes arena audit --strict=audit', () => {
   writeFileSync(join(root, 'src', 'Toggle.html'), example());
   const arena = hostRoot('@dravensoft/arena-react', '1.0.0', {});
   const captured = captureIo(root, { arena, map: null, sheets: null, vocabulary: null, phosphor: null });
-  const code = run(['--strict=audit', '--src', 'src'], captured.io);
+  const code = await run(['--strict=audit', '--src', 'src'], captured.io);
   assert.equal(code, 0, captured.err.join('\n'));
   assert.equal(captured.err.concat(captured.out).some((line) => line.includes('[audit]')), false);
 });
