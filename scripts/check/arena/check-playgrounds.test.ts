@@ -266,6 +266,18 @@ test('every real fixture in the tree holds against its real contract', () => {
 const made: string[] = [];
 after(() => { for (const dir of made) rmSync(dir, { recursive: true, force: true }); });
 
+test('citingFiles reads a checks file', () => {
+  const temp = mkdtempSync(join(tmpdir(), 'arena-citing-'));
+  made.push(temp);
+  const dir = join(temp, 'frameworks/react/components/forms/arena-slider');
+  mkdirSync(dir, { recursive: true });
+  for (const name of ['ArenaSlider.checks.md', 'ArenaSlider.prompt.md', 'ArenaSlider.notes.md']) {
+    writeFileSync(join(dir, name), 'text\n');
+  }
+  const read = citingFiles(temp).map((path) => path.slice(dir.length + 1)).sort();
+  assert.deepEqual(read, ['ArenaSlider.checks.md', 'ArenaSlider.prompt.md']);
+});
+
 test('the codec emission is compared against the source, so a hand-edited copy fails', () => {
   const files = buildPlaygrounds(root).files;
   const temp = mkdtempSync(join(tmpdir(), 'arena-playgrounds-'));

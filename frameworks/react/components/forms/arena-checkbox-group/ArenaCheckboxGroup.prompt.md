@@ -49,7 +49,7 @@ A set of independent choices reported as one value. `ArenaCheckboxGroup` holds t
 - **Don't** hold the options as data. Each box is a component, so it carries its own label.
 - **Don't** reach for it for a single choice of one among many; that is `ArenaRadioGroup`.
 
-**By hand.** Tab visits each box once and Space toggles it. A native form submits every ticked value under the one `name`. A screen reader announces the group by its name on entering it.
+Tab visits each box once and Space toggles it. A native form submits every ticked value under the one `name`. A screen reader announces the group by its name on entering it.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

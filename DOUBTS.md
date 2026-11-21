@@ -41,10 +41,11 @@ paragraph does not. That is the entire argument for this order:
    [`contracts/behaviour/AGENTS.md`](./contracts/behaviour/AGENTS.md),
    [`contracts/design/AGENTS.md`](./contracts/design/AGENTS.md), or the layer's own `AGENTS.md` under
    `frameworks/`.
-5. **The component's `.prompt.md`.** A measured limit of one component, and every check only a
+5. **The component's `.prompt.md` and its `<Name>.checks.md`.** A measured limit of one component
+   stays on the prompt, and every check only a
    person can run, such as whether a name is a good name, whether motion reads as intended or
    whether a colour carries the meaning it should, belongs beside the component, in the by-hand
-   checklist the prompt already carries.
+   `<Name>.checks.md` that sits beside its prompt, in each layer.
 6. **The one header `scripts/` and test files are allowed**, at most ten lines: a measurement, a
    vendor's behaviour, a pinned version, a constraint of a test environment.
 

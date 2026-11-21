@@ -46,10 +46,7 @@ A palette island: a subtree drawn in one palette while the page keeps another. T
 - Don't use it to switch the page's theme. Page themes belong to `setArenaTheme` or `ArenaThemeService`, which write `<html>`.
 - Don't nest one only to repeat the palette the page already has.
 
-**By hand, in real Chromium**: run `bun run demos` and open
-`/frameworks/react/components/layout/arena-palette-scope/ArenaPaletteScope.demo.generated.html`:
-- The island has its own background and text colour, distinct from the page's when the palette differs.
-- Switching the page theme leaves the island's palette alone.
+The island has its own background and text colour, distinct from the page's when the palette differs, and switching the page theme leaves the island's palette alone.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

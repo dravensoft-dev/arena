@@ -279,8 +279,8 @@ leaving a gate's scope.
 **Editing a component means running `bun run build` in the same tree.** The suites import the
 source directly and stay green with the compiled sibling stale, but a demo page loads the
 sibling, so `bun run demos` shows the pre-fix component while the suites prove the fix, which is
-exactly the by-hand check every `.prompt.md` checklist depends on. How each layer compiles is
-its own document's.
+exactly the by-hand check that each component's `<Name>.checks.md`, beside its prompt in each
+layer, asks for. How each layer compiles is its own document's.
 
 **A demo page is generated, one per component per layer, and never hand-written.** The two
 layers' pages differ in one path segment and take the same query string, so **a difference

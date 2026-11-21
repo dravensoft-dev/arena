@@ -241,7 +241,8 @@ of element a reference must reach.
 The only remedy either has is the one the API layer takes: a member that only a human can supply
 is **required and guarded at runtime** rather than defaulted, which moves the judgement to the
 consumer instead of removing it. Whether the names that produces are good ones is a question no
-assertion answers and no gate can. See the by-hand checklist in each component's `.prompt.md`.
+assertion answers and no gate can. See the by-hand checklist in each component's
+`<Name>.checks.md`, beside its prompt in each layer.
 
 ### There is no static text scan, and one is not worth proposing
 

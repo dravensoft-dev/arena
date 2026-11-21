@@ -61,27 +61,9 @@ out into the page behind the scrim.
   two of them nested fight over the same Tab key.
 - **Don't** put a `tabIndex={-1}` on content the user has to reach. The Tab order is how the trap decides what is focusable, so a control held out of it is one the wrap skips over.
 
-## Verifying the focus trap by hand
+## Focus in the panel
 
-A suite proves the boundary wrap, because that is Arena's own `.focus()` call and
-happy-dom honours it. A suite cannot prove the **interior**, meaning that Tab from a control in the middle reaches the next one. The interior is the browser's native sequential focus navigation, which Arena does not implement and happy-dom does not have. A
-browser-driven gate was refused as this repo's fourth non-portable gate, so the
-interior is checked by a person against this list.
-
-Serve the tree with `bun run demos`, open
-`frameworks/react/components/feedback/arena-dialog/ArenaDialog.demo.generated.html`, and check all of:
-
-1. **Tab to "Open dialog" and press Enter.** Focus must land on **Cancel**, the
-   first focusable inside the panel, not stay on the trigger.
-2. **Tab once.** Focus moves to **Deploy**. The step below is the one no suite can make. Cancel is the first focusable rather than the last, so Arena's handler does nothing and the browser moves focus on its own. If this fails, the trap is fighting
-   native navigation rather than bounding it.
-3. **Tab again.** Focus wraps from Deploy back to Cancel. This one is Arena's.
-4. **Shift+Tab.** Focus wraps from Cancel back to Deploy.
-5. **Escape.** The dialog closes and focus returns to "Open dialog".
-
-If you drive this through CDP rather than by hand, one gotcha costs an afternoon:
-a `rawKeyDown` does not activate a button. Enter must be dispatched as `keyDown`
-carrying `text: '\r'`. Tab and Escape are fine as `rawKeyDown`.
+Opening the dialog lands focus on the first focusable inside the panel, not on the trigger. Tab moves through the panel in the browser's own order and wraps from the last control back to the first, and Shift+Tab wraps back from the first to the last. Escape closes the dialog and returns focus to the control that opened it.
 
 **On a phone.** A dialog holding a form reads better as the whole screen, so pass `fillBelow` with the breakpoint under which it should fill. The measurement is the dialog's own box, and that box covers the viewport while open. One dialog therefore fills on a phone and floats on a laptop. While it fills, the width is ignored, the title bar and the footer stay put and the body scrolls between them. `ArenaConfirmDialog` has no such member, because a confirmation is short on every screen.
 

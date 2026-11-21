@@ -75,14 +75,7 @@ With `interactive`, the plot is one keyboard region with the sparkline's name. A
 
 The sparkline fills the width of its container, so in a table cell the column decides it. `height` is the plot's height in px, the `--chart-sparkline-height` token by default. The default is the line box of a compact table row, so a sparkline in a cell leaves the row the height its text gives it. With `interactive`, the keyboard region is never shorter than the density's smallest control height, and the plot sits centred in it.
 
-### Checks to make by hand
-
-The suites run without layout, so five claims are checked in a browser:
-1. A table row at the base, comfortable and compact densities keeps its height when a sparkline is added to one of its cells.
-2. A table column of static sparklines adds no tab stop, so Tab leaves the grid in one press.
-3. A screen reader announces the hidden table inside a grid cell once, and row navigation in the grid still works.
-4. The end dot is not clipped at either edge, at all three densities.
-5. An interactive tooltip near the right edge of a card is not clipped by an ancestor with `overflow: hidden`.
+A sparkline added to a table cell leaves its row at the height the row has without it, at the base, comfortable and compact densities. A column of static sparklines adds no tab stop, so Tab leaves the grid in one press, and a screen reader announces the hidden table inside a grid cell once with row navigation intact. The end dot is not clipped at either edge.
 
 **Words.** A sparkline is named by the locale's `sparklineChartName`, where `{label}` stands for `label`; `chartTablePoint` heads the first column of the table it writes for a screen reader.
 

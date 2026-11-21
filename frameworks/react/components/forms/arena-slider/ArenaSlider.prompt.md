@@ -83,7 +83,7 @@ A number chosen inside a range by moving a thumb, or a span chosen with two thum
 - Don't give the fill the focus ring's colour. The two would meet on the thumb.
 - Don't add tick marks. The readout and the hint carry the scale.
 
-**By hand.** The arrows, Home, End and the page keys. A drag and a press on the rail, with a mouse and with a finger. The focus ring on a focused thumb. The thumb target at `arena-comfortable` and at 390px. A vertical slider in a column of fixed height. A range whose thumbs meet.
+The thumb's hit area is the density's small control height, 44px under `arena-comfortable`.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

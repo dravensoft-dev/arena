@@ -497,7 +497,8 @@ export function basenameIndex(base = root) {
 
 export function citingFiles(base = root): string[] {
   return CITING_TREES.flatMap((tree) => scanned(join(base, tree)))
-    .filter((path) => path.endsWith('.prompt.md') || basename(path) === 'AGENTS.md');
+    .filter((path) => path.endsWith('.prompt.md') || path.endsWith('.checks.md')
+      || basename(path) === 'AGENTS.md');
 }
 
 export function citationProblems(

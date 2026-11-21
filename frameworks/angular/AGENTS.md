@@ -384,7 +384,7 @@ proves a page exists, loads its own bundle and mounts a zoneless app, never that
 is right. What the pages catch is what a suite cannot. A carve-out host that blockifies as a flex item
 leaves an inner button's `w-full` measuring the shrunk host rather than the row, so a fill
 class renders as nothing at all, and happy-dom has no layout to see it.
-**A checklist line a real browser can decide belongs in a gate rather than in a checklist**,
+**A checklist line a real browser can decide belongs in a gate rather than in a `<Name>.checks.md` checklist**,
 which is what `check:focus-trap` took over for the one it covers. What is left for a
 person is what needs their **judgement**: whether a name is a good name, whether motion reads as
 intended, whether a colour carries the meaning it should. A green `bun run check` says nothing

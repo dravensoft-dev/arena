@@ -54,38 +54,13 @@ wire.
 **A caller who wants a useful name still supplies a
 step `title`**: a positional name is a floor, not a substitute. The progress dots inside the panel carry a name of their own, `Progress: step N of M`. An untitled step announces the dialog and its dots as two different things, rather than as the same string twice.
 
-**Checked in Chromium by hand**, because native sequential focus navigation is the browser's and no suite in this repo drives one. With the tour open, Tab repeatedly through Back, Skip and Next, and confirm focus never leaves the coachmark. Then Shift+Tab back through it. The
-boundary wraps at either end are covered by a render suite; the interior is this check.
+Tab moves through Back, Skip and Next without focus leaving the coachmark, and Shift+Tab walks back through it, wrapping at either end. Opening the tour lands focus on the first focusable in the coachmark: Skip on the first step, which has no Back button, and Back on a later one. Escape closes the tour through `onSkip`, the same channel the Skip button and the scrim click use, and focus returns to the control that started it.
 
 **Do / Don't**
 - Max 3–5 steps, and store that it was already completed so it isn't repeated.
 - Don't block critical tasks after the tour: "Skip" must always be available.
 - Give every step a `title` (or at least an `eyebrow`): without one the dialog names itself
   positionally and tells a screen-reader user nothing about what it is showing them.
-
-## Verifying the focus trap by hand
-
-A suite proves the boundary wrap: Arena's own `.focus()` call. A suite cannot prove the **interior**, meaning that Tab from a middle control reaches the next one. The interior is the browser's native sequential focus navigation, which happy-dom does not implement. A
-browser-driven gate stays refused, so this list is the check.
-
-Serve the tree with `bun run demos` and open
-`frameworks/react/components/feedback/arena-onboarding/ArenaOnboarding.demo.generated.html`.
-
-**Start by pressing Escape.** That card renders with the tour already open, because a specimen has to show something. Pressing "Start tour" while `open` is already `true` correctly does nothing, because the hook keys its effect on `open` changing. Skipping
-this step measures the closed-to-open transition that never happened.
-
-Then, with the tour closed:
-
-1. **Tab to "Start tour" and press Enter.** Focus must land on **Skip**, the first
-   focusable in the coachmark. On the first step there is no Back button, so Skip is
-   genuinely first; on a middle step it is Back.
-2. **Tab once.** Focus moves to **Next**. Native navigation, not Arena's.
-3. **Tab again.** Focus wraps back to Skip.
-4. **Shift+Tab.** Focus wraps from Skip to Next.
-5. **Escape.** The tour closes through `onSkip`, the same channel the Skip button and the scrim click use. One channel is how `modal-focus`'s `keyboard.Escape` is met without adding a member, and focus returns to "Start tour".
-
-Driving this through CDP: Enter must be `keyDown` with `text: '\r'`; a `rawKeyDown`
-does not activate a button.
 
 **Words.** `onboardingBack`, `onboardingSkip`, `onboardingNext` and `onboardingDone` are the buttons. A step with no title and no eyebrow is named by `onboardingStep`, and the dots by `onboardingProgress`, both with `{current}` counting from one and `{total}` the number of steps.
 

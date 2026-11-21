@@ -394,6 +394,10 @@ test('an index under frameworks/ is a consumer document, and the root router is 
   assert.equal(isConsumerDocument('docs/SKILL.md'), false, 'the tree decides, not the name alone');
 });
 
+test('a checks file beside a prompt is a contributor document', () => {
+  assert.equal(isConsumerDocument('frameworks/react/components/forms/arena-slider/ArenaSlider.checks.md'), false);
+});
+
 test('an index citing a contributor path fails the same way a prompt does', () => {
   const root = tree({
     'frameworks/react/INDEX.md': 'Emitted by `scripts/generate/arena/generate-skills.ts`.\n',

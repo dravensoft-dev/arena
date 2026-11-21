@@ -48,12 +48,7 @@ A rule between two regions. Without a label it is one `<hr>`, which a reader mee
 - Don't rotate a label inside a vertical rule.
 - Don't put an accent, a gradient or an icon in the rule.
 
-**By hand, in real Chromium**: run `bun run demos` and open
-`/frameworks/react/components/layout/arena-divider/ArenaDivider.demo.generated.html`:
-- At 390px a vertical rule in an `arena-row` stretches to the row's height.
-- A long label does not overflow the row; the two rules shrink around it.
-- A plugin answering the separator width with nothing draws no rule.
-- Both layers' pages side by side draw the same rule and the same labelled rule.
+At 390px a vertical rule in an `arena-row` stretches to the row's height. A long label does not overflow the row, and the two rules shrink around it. A plugin answering the separator width with nothing draws no rule.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

@@ -69,7 +69,7 @@ With `name`, every chosen value is submitted as a hidden input under that name, 
 - Keep `label` a name for the value, never an instruction. Put the instruction in `placeholder`.
 - Don't accept free text through it. A typed value that is not an option is `ArenaInput`.
 
-**By hand, in real Chromium.** Open the playground page and check that the field wraps its chips without covering the caret or the clear control. Tab lands on the field and never on a chip. A screen reader reads "Remove Berlin" on a chip. The list stays open across presses on rows and does not jump. At phone width, `max` and `maxVisible` still hold.
+The field wraps its chips without covering the caret or the clear control. Tab lands on the field and never on a chip. A screen reader reads a chip's remove control by its option, such as "Remove Berlin". The list stays open across presses on rows and does not jump. At phone width, `max` and `maxVisible` still hold.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

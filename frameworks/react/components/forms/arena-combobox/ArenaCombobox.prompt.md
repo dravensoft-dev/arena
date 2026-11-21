@@ -62,7 +62,7 @@ A text field that filters a list of options as the user types, for a form value 
 - Set `showLabel={false}` only where the row has no room for a label. The label still names the field.
 - Keep `label` a name for the value, never an instruction. Put the instruction in `placeholder`.
 
-**By hand, in real Chromium.** Open the playground page and check that the list escapes an `overflow: hidden` card. The list flips above the field near the bottom of the screen and is as wide as the field. The cursor row scrolls into view. A screen reader announces the count after typing. On a phone, the soft keyboard leaves the list in view.
+The list escapes an `overflow: hidden` card, flips above the field near the bottom of the screen and is at least as wide as the field. The cursor row scrolls into view, and a screen reader announces the count after typing.
 
 **Words.** `comboboxEmpty` is the empty line, with what was typed in `{query}`. `comboboxLoading` is the status line while `loading` holds. `comboboxCount` is the count announced after typing, with the number in `{count}`.
 

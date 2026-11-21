@@ -445,7 +445,7 @@ export const ROUTES: Route[] = [
       + 'the contracts roof, then the level that says what a kind of component must do',
     entry: 'contributor',
     stops: ['contracts/AGENTS.md', 'contracts/behaviour/AGENTS.md'],
-    budget: 42_000,
+    budget: 42_100,
     reason:
       'the route a bug report takes, and the one whose answer is most often that nothing in the '
       + 'code is broken: a requirement no suite pins is unfalsifiable rather than unverified, and '
@@ -458,7 +458,7 @@ export const ROUTES: Route[] = [
       + 'changing Arena, the npm page of the contracts package, and says who it is for. The roof '
       + 'also states where a value no option names is set. The additive-patterns section names '
       + 'focus and keys as something an additive pattern may answer, which is the sentence that '
-      + 'tells a reader why modal focus is its own pattern and not a copy inside each dialog.',
+      + 'tells a reader why modal focus is its own pattern and not a copy inside each dialog. The level names where a by-hand checklist lives, beside each prompt in each layer.',
   },
   {
     name: 'contributor-release',

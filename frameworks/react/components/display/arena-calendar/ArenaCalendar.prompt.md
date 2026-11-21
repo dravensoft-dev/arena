@@ -98,7 +98,7 @@ head that holds it.
 chip has a kebab. A chip without actions has a content box of its share less 18px; one with them
 has its share less 46px, because the kebab's 34px reserve comes out too. So the kebab-safe
 threshold is 124.02px where the plain one is 96.02px, and `--calendar-time-min-w` is set at the
-plain one. **At the browser default, in a band of 768px to 800px of container in week view, a chip that has actions can still wrap its time label onto two lines.** `ArenaCalendar.demo.generated.html` carries the measurement. Drive the viewport and read the container beneath it. The container is the viewport less the card's 24px body padding a side, and `--bp-md` is compared against the *container*. At an 812px container at the browser default
+plain one. **At the browser default, in a band of 768px to 800px of container in week view, a chip that has actions can still wrap its time label onto two lines.** The container is the viewport less the card's 24px body padding a side, and `--bp-md` is compared against the *container*. At an 812px container at the browser default
 the label fits on one line. Both alternatives are worse. The kebab-safe threshold suppresses the label on every ordinary chip through that band and well past it. A kebab-aware threshold puts `ArenaCalendarEvent`'s 34px reserve back inside `ArenaCalendar`, laundered through a second token but still a number that silently goes wrong if the reserve changes.
 
 **A chip is NOT a DOM child of its day's `role="row"`**: every chip is a child of the grid, and
