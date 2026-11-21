@@ -394,7 +394,7 @@ function scaleRegion(groups: string[], base: string) {
     .filter(([name]) => !roles.has(name) && (name === group || name.startsWith(`${group}-`)))
     .map(([name, value]) => `| \`--${name}\` | ${atDefault(String(value))} | ${multiple(name) ?? variants.get(name) ?? utilities.get(name)?.join(', ') ?? 'none'} |`));
   const resets = [['r', 'radius'], ['shadow', 'shadow'], ['ease', 'ease']].filter(([group]) => groups.includes(group!)).map(([, label]) => label!);
-  const reset = resets.length === 0 ? [] : [`Where the sheet resets a Tailwind default scale (${resets.length === 1 ? resets[0] : `${resets.slice(0, -1).join(', ')} and ${resets.at(-1)}`}), a utility of that default, such as \`${groups.includes('shadow') ? 'shadow-md' : 'ease-in'}\`, emits nothing, and \`arena audit\` reports it as \`dead-utility\` when your project resolves \`tailwindcss\`.`];
+  const reset = resets.length === 0 ? [] : [`Where the sheet resets a Tailwind default scale (${resets.length === 1 ? resets[0] : `${resets.slice(0, -1).join(', ')} and ${resets.at(-1)}`}), a utility of that default, such as \`${groups.includes('shadow') ? 'shadow-md' : 'ease-in'}\`, emits nothing. \`arena audit\` reports it as \`dead-utility\` when your project resolves \`tailwindcss\`.`];
   const intro = [
     ...(groups.includes('sp') ? ['`*-` stands for any spacing utility, such as `h-` or `py-`.', 'The sheet sets the spacing base to `--sp-1`, so a spacing utility resolves as its number times that step.'] : []),
     'A row marked `none` has no utility named for its token, so read it with `var()`.',
