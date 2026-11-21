@@ -193,7 +193,7 @@ colours changes the least and costs the most to undo.
 
 ## The part hooks
 
-Every element drawing a slot carries `data-arena-part="<component>.<slot>"`, and that is what your
+Every element drawing a part carries `data-arena-part="<component>.<part>"`, and that is what your
 `plugin.css` selects. **The hook is an attribute on the element, so the page you are looking at is
 the list.** Serve the application, inspect the element you want to paint, and take the value.
 Nothing enumerates the hooks in prose, and a name guessed from a component's member list is a
@@ -205,30 +205,30 @@ restates the layer order at its own head, so a bundler cannot reorder it into lo
 silently.
 
 Your application's own unlayered CSS still beats the plugin layer, and that order is right: your
-application is the last word. That order is also why reaching into an Arena slot from application CSS is reported. Reaching in
+application is the last word. That order is also why reaching into an Arena part from application CSS is reported. Reaching in
 works, and working is what makes it debt rather than an error.
 
 ## Gotchas
 
 Each of these was measured on a product, not reasoned about.
 
-- **A rule that restates what the slot already paints changes no pixel.** A restatement also
+- **A rule that restates what the part already paints changes no pixel.** A restatement also
   inflates the count of parts your plugins paint, which is the number a request for a new role is
   argued from. The report names a restatement.
 - **Arena's own colour aliases are a step of Arena's ramp under another name.** A rule reading `var(--mute)` assigns a colour without answering any role. The raw-colour
   rule stays quiet, because an alias is a token. Answer the role instead, or compose the shade out of your own
   palette: `color-mix(in oklab, var(--color-base-content) 64%, transparent)`. That percentage is a literal of your own, so a palette whose level `arena build` raises leaves your shade where you wrote it.
 - **A level is not a colour.** A colour role names which of your colours, never how far
-  back it is held. A slot that carries no opacity modifier cannot be held back by any answer to
+  back it is held. A part that carries no opacity modifier cannot be held back by any answer to
   any role.
   Composing it in your own CSS is the route.
 - **The charts that draw geometry from the data carry no part hook at all**, because their
-  coordinates are the data and they have no slots to hook. A plugin reaches the frame around a
+  coordinates are the data and they have no parts to hook. A plugin reaches the frame around a
   chart and nothing inside the plot; the palette is what skins a plot.
 - **Holding the report in CI takes kinds, not a switch.** A brand under 4.5:1 is a decision you
   already made and measured, and one switch over every kind would make that the price of holding
   the rest.
-- **A part that exists in a slot and never in the rendered page passes every check there is**,
+- **A part that exists in a manifest and never in the rendered page passes every check there is**,
   because every check over a part reads text. Open the page and look at it.
 - **The screen-reader-only idiom ships as a class**, so a rule selecting a part cannot compose it.
   A part you want hidden visually and kept for a reader is hidden by hand.
@@ -285,6 +285,6 @@ Paint the decision by hand through the part. The report names every part your pl
 evidence. **A role is added when several style plugins are measured painting the same decision
 through the same part.** What one product paints is its own.
 
-Two things that look like evidence and are not. A rule that restates the slot's own answer raises
+Two things that look like evidence and are not. A rule that restates the part's own answer raises
 the count without changing a pixel. And an ask whose whole content is a difference between two states of one part cannot become a
 role at all. A colour slot answers such a difference in colour ([`color-slots.md`](./color-slots.md)), and any other is the product's own markup.

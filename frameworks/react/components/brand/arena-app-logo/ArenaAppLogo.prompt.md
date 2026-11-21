@@ -32,7 +32,7 @@ Dravensoft's by accident.
 **Keys:** none.
 <!-- @keys end -->
 
-An `arena-size-*` class sizes both halves at once, the mark's slot and the wordmark. The scale is a fixed repertoire rather than a ratio. `arena-size-sm` (30/17) sits beside a product name in an application frame, and `arena-size-md` (40/24) heads a signed-out panel. `arena-size-lg` (54/34) is the brand manual's Primary horizontal, and `arena-size-xl` (124/78) is the hero case, where the lock-up is the only thing on the screen. All eight numbers are `--logo-*` tokens.
+An `arena-size-*` class sizes both halves at once, the mark part and the wordmark. The scale is a fixed repertoire rather than a ratio. `arena-size-sm` (30/17) sits beside a product name in an application frame, and `arena-size-md` (40/24) heads a signed-out panel. `arena-size-lg` (54/34) is the brand manual's Primary horizontal, and `arena-size-xl` (124/78) is the hero case, where the lock-up is the only thing on the screen. All eight numbers are `--logo-*` tokens.
 
 The manual's three lock-ups are two decisions and not three, and the `arena-orientation-vertical` class
 and the choice of mark and wordmark express them:
@@ -50,7 +50,7 @@ and the choice of mark and wordmark express them:
 - **Do** give the mark an empty `alt`, the wordmark beside it is the accessible name,
   and a mark announced separately reads the brand twice.
 - **Don't** put a `width` or `height` on the node you pass as `mark`. `ArenaAppLogo` sizes
-  the slot and the mark fills it; a mark that sizes itself fights the lock-up.
+  the mark part and the mark fills it; a mark that sizes itself fights the lock-up.
 - **Don't** look for a component that renders the mark on its own. Arena ships none:
   the mark is a brand asset (`assets/rotor-*.svg`), and the lock-up is this component,
   which takes that asset as `mark` alongside a product `name`.

@@ -14,12 +14,12 @@ Not one value of appearance.
 | The floors | WCAG contrast, the 3:1 a control's boundary and the focus ring carry, target size, the reduced-motion policy, prose leading that never closes below 1.5 |
 | The role declaration | every role's name, `$type`, `$description` and, for a keyword, its closed set, in [`roles.json`](./roles.json), and a kernel `default` where one is declared, which is an alias to another role or to a token the package emits. No value |
 | The value repertoire | the scales: the spacing grid, the radius, border, shadow, motion, weight, tracking, leading and type ladders, density, layering, chart and behaviour timing, all of them in this directory and catalogued in [`Scales.md`](./Scales.md) |
-| The part hooks | `data-arena-part="<component>.<slot>"` on every element drawing a slot of every manifest |
+| The part hooks | `data-arena-part="<component>.<part>"` on every element drawing a part of every manifest |
 | The cascade | `arena-plugin`, a layer declared after `utilities` |
 
 **A part hook belongs to a manifest, so the plot of a chart has none.** A chart draws geometry
-whose coordinates are the data, and a plot with no slot has no hook: a plugin reaches
-`ArenaChartCard`, the `frame` slot every chart draws inside, and the legend and tooltip each
+whose coordinates are the data, and a plot with no part has no hook: a plugin reaches
+`ArenaChartCard`, the `frame` part every chart draws inside, and the legend and tooltip each
 chart's own manifest carries, and nothing inside the plot. What carries the skin there instead is
 the token tier, since every value a chart paints is one the palette moves, and `edge-axis` is the
 role that draws the axis lines, the zero line and the crosshair, heavier than the grid rules

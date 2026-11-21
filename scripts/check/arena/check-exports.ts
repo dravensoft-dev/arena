@@ -66,7 +66,6 @@ export const INTERNAL = new Map<string, string>([
     + 'a control inside an activation target keeps to that control. The rule is what a consumer '
     + 'holds; this is how Arena finds the descendants, and a consumer matching on it by hand is '
     + 'writing against a list that moves'],
-  ['arenaThemeClass', THE_DOCUMENTED_SURFACE_IS_ABOVE_IT],
   ['ARENA_DEFAULT_THEMES', THE_DOCUMENTED_SURFACE_IS_ABOVE_IT],
   ['RUNTIME_CACHE_KEY', 'the localStorage key the theme surface writes the active runtime palette\'s '
     + 'cache under. theme.md names the key as the string `arena-runtime-palette`, which is what the '

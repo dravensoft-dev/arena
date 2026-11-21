@@ -60,7 +60,7 @@ so this is the only place it is checked at all. Run `bun run demos` and open
 - Arrow Down/Right and Up/Left move the selection and wrap at both ends.
 - The disabled option is skipped while arrowing, and cannot be reached by Tab.
 - Tab in and the focused option's **ring** takes the focus ring, though the focused element
-  is the `opacity-0 size-0` native input. The `ring` slot carries `[&:has(~input:focus-visible)]:shadow-[…]`, which reaches the input as a later sibling. The input must stay after the ring in the template, and moving it removes the ring silently.
+  is the `opacity-0 size-0` native input. The `ring` part carries `[&:has(~input:focus-visible)]:shadow-[…]`, which reaches the input as a later sibling. The input must stay after the ring in the template, and moving it removes the ring silently.
   `arena-checkbox` draws the identical ring the identical way.
 
 **With reactive forms.** `ArenaRadioGroupControl` from `@dravensoft/arena-angular/forms` goes on the group rather than on a radio, and the form control holds the chosen radio's `value`. Disabling the form control disables the group, and with it every radio inside. Binding the member the form replaces as well is a caller bug, and the layer warns about it once.

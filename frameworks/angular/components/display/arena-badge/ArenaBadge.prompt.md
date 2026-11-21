@@ -1,5 +1,5 @@
 Arena status label, mono, uppercase, short. Standalone, `OnPush`, signal input.
-The host **is** the chip: it binds the root slot, so an attribute you write on
+The host **is** the chip: it binds the root part, so an attribute you write on
 `<arena-badge>` lands on the chip itself.
 
 ```html
@@ -68,7 +68,7 @@ at `arena-size-md`, in the same face, weight and corner.
 - Don't reach for a badge when the label can be dismissed or acted on: that is
   `arena-tag`, which owns `removable` and a real `<button>`. A badge has no
   interactive affordance at all, and its behaviour binding says so.
-- Don't write a `class` or an ARIA attribute on `<arena-badge>` expecting it to reach the chip. The root slot is host-bound, so the host **is** the chip, and a static `class` on it is overwritten by Arena's own styling. Wrap it in your own element
+- Don't write a `class` or an ARIA attribute on `<arena-badge>` expecting it to reach the chip. The root part is host-bound, so the host **is** the chip, and a static `class` on it is overwritten by Arena's own styling. Wrap it in your own element
   when you need to position it.
 
 **By hand, in a real browser** (`bun run demos`, then this component's own playground or any page composing it): - Each of the five tones reads as its own colour against `--surface-card`. The mono uppercase treatment survives at the smallest text size.

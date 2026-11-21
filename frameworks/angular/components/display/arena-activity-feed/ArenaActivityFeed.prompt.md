@@ -45,7 +45,7 @@ time; `tone` colours the leading dot from ArenaBadge's vocabulary.
 - The dot is filled (`bg-current`, coloured by `tone`) even for `tone="danger"`. A tone dot is an identity mark rather than a danger surface, in the same family as `ArenaTag`'s own dot and `ArenaAvatar`'s presence dot.
 
 **No row escape hatch**, on either layer. The API contract declares no per-item renderer, because Angular has no binding for per-item projection. Per-item projection would need a structural directive and `ngTemplateOutlet`, which Arena does not ask a consumer to write. A consumer
-needing a different row imports the exported `arenaActivityFeedStyles` and composes the slots
+needing a different row imports the exported `arenaActivityFeedStyles` and composes the parts
 themselves.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->

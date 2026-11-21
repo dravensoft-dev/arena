@@ -57,7 +57,7 @@ The primary action needs no answer. `actions-primary-root-fill-rest` reads `emph
 
 A slot is named `<group>-<option>-<part>-<property>-<state>`, and a part with no options leaves the option out: `actions-primary-root-fill-hover`, `actions-dismiss-ink-hover`. The property is `fill`, `ink`, `edge` or `icon`. The state is `rest`, `hover`, `pressed`, `selected`, `selected-hover`, `selected-pressed`, `disabled` or `selected-disabled`, and a part answers only the states its row below lists.
 
-Your package's `arena.tokens.json` carries the catalogue under `slots`, and its own `slots` map names every slot. A slot that answers a role of its own carries a `default`, one that follows another slot carries a `derive`, and a disabled slot carries neither.
+Your package's `arena.tokens.json` carries the catalogue under `slots`, and its own `slots` map names every slot. A slot that answers a role of its own carries a `default` naming it, and so does every icon slot, a disabled one included, which names the ink slot of its part in the same state. A `rest` or `selected` slot carries the role it answers as a `default`. A silent `hover` or `pressed` state, and their `selected` forms, carries a `derive` naming the slot it follows, unless a role answers it instead. Any other disabled slot carries neither.
 
 ## What a slot takes
 

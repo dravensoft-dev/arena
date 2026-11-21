@@ -62,7 +62,7 @@ Arena checkbox, one independent choice, checked showing the primary fill with a 
 - `disabled` fades the whole control by `fade-disabled` and the cursor turns to not-allowed over the label
   as well as the box.
 - Tab to the control and the **box** takes the focus ring, even though the element the
-  browser focused is the `opacity-0 size-0` native input. The `box` slot carries `[&:has(~input:focus-visible)]:shadow-[…]`, which reaches the input as a later sibling inside the same `<label>`. The input must stay after the box in the template, and moving it removes the ring with nothing failing.
+  browser focused is the `opacity-0 size-0` native input. The `box` part carries `[&:has(~input:focus-visible)]:shadow-[…]`, which reaches the input as a later sibling inside the same `<label>`. The input must stay after the box in the template, and moving it removes the ring with nothing failing.
 
 **With reactive forms.** `ArenaCheckboxControl` from `@dravensoft/arena-angular/forms` binds the box to a form control holding a boolean, which replaces `checked` while the form is bound. The native `value` member is untouched: it is what a submitted form posts, not what the control holds. Binding the member the form replaces as well is a caller bug, and the layer warns about it once.
 

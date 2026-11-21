@@ -160,7 +160,7 @@ export function auditStep(
     const owner = owningPlugin(resolve(file), dirs);
     for (const one of restatedFindings(text, sheetOf, owner ? tokensAt.get(owner) ?? null : null)) {
       reports.push(report('restated', `${cited}: ${one.property} on [data-arena-part="${one.part}"] `
-        + `is already ${one.value} on that slot, so the declaration changes nothing. The audit `
+        + `is already ${one.value} on that part, so the declaration changes nothing. The audit `
         + 'counts a part as painted by reading source text, and a role is grown from that count, '
         + 'so a restatement is evidence for a question nobody asked'));
     }

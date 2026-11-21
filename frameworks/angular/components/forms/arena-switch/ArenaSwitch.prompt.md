@@ -1,5 +1,5 @@
 Arena switch, an on/off setting that takes effect immediately, not a pending form value.
-Standalone, `OnPush`, signal I/O. The host binds the root slot, so `<arena-switch>` is itself
+Standalone, `OnPush`, signal I/O. The host binds the root part, so `<arena-switch>` is itself
 the flex row its parent lays out. The control
 is a real `<button type="button" role="switch">`: the platform supplies activation, the role
 supplies the state.
@@ -78,7 +78,7 @@ open `/frameworks/angular/components/forms/arena-switch/ArenaSwitch.demo.generat
   colour crossfades with it.
 - Under `prefers-reduced-motion: reduce`, forced in DevTools' Rendering pane, **the knob stops
   travelling and the track colour still crossfades**. The colour is the intended answer for a state change. The travel is decorative and the colour is the report. `motion-reduce:transition-none`
-  on the `knob` slot is what does it.
+  on the `knob` part is what does it.
 - At every size the knob clears the track's padding on both ends, and the vertical transpose
   travels down rather than across.
 - The glyph is legible inside the knob at `sm`, which is the size that decides whether per-state

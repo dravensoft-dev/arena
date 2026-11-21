@@ -1,5 +1,5 @@
 Arena text field, label above, hint or error below, and a validation state the field wears.
-Standalone, `OnPush`, signal I/O. The host binds the root slot, so `<arena-input>` is itself
+Standalone, `OnPush`, signal I/O. The host binds the root part, so `<arena-input>` is itself
 the column its parent lays out. The control is a real `<input>`, named by a real
 `<label for>`.
 
@@ -83,7 +83,7 @@ Return the message, or the empty string when the value is good.
   first keystroke instead; reach for it on a field with a cheap, obvious rule.
 - The valid state (success-tone ring, check) is either `valid` set by the consumer, or a touched field
   whose validator returned nothing. The member is not "the field has a value".
-- The focus ring is the field's, not the control's: the `field` slot carries `focus-within:`,
+- The focus ring is the field's, not the control's: the `field` part carries `focus-within:`,
   so there is no focus signal to keep in sync with the DOM.
 - `id` is derived from `label` as `in-<slug>` when you do not pass one; the derivation
   `ArenaInput.json` states, so the same markup gets the same id in every layer. Pass `id` when two

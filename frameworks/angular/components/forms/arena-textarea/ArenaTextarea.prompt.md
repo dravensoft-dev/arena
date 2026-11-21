@@ -1,5 +1,5 @@
 Arena multi-line text field, label above, hint or error and an optional counter below.
-Standalone, `OnPush`, signal I/O. The host binds the root slot, so `<arena-textarea>` is
+Standalone, `OnPush`, signal I/O. The host binds the root part, so `<arena-textarea>` is
 itself the column its parent lays out. The control is
 a real `<textarea>`, named by a real `<label for>`.
 
@@ -58,7 +58,7 @@ a real `<textarea>`, named by a real `<label for>`.
 - There is **no validator here**, unlike `arena-input`. `error` is the only route to the error state, and it is the consumer's to compute. So the field has two state arms rather than three, and there is no valid success-tone check state at all.
 - The counter needs **both** `counter` and `maxLength`. A `maxLength` alone caps the field; it
   does not ask for the count to be shown. Past nine tenths of the cap the counter switches to the
-  warning slot, a different slot, not a variant, which is why Arena draws two.
+  warning ink, the `near` variant of the `counter` part.
 - `autoResize` forces `resize: none` and grows the box from its own `scrollHeight`.
   **The box resizes on mount and on every programmatic change, not only while typing.** An `afterRenderEffect` reads `value()`. A draft loaded from a server, or a template inserted by a button, sizes the box immediately. **`scrollHeight` is content plus padding and never the border.** A border-box element needs `offsetHeight - clientHeight` added, or the box lands short and keeps a permanent scrollbar. Measured before the fix at 720x340: `scrollHeight` 199 set as the height left `clientHeight` 197, and a scrollbar on a box just grown past it. Both layers carry the term,
   and no suite can see it, because happy-dom has no layout and reports `scrollHeight` as `0`.
