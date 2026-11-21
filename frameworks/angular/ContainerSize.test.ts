@@ -1,8 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { DOCUMENT, ElementRef, Injector, runInInjectionContext } from '@angular/core';
-import { arenaContainerWidth, forgetArenaBreakpoints, arenaReadBreakpoint } from '../../../ContainerSize';
-import { arenaPageHeadStyles } from './ArenaPageHead.variants';
+import { arenaContainerWidth, forgetArenaBreakpoints, arenaReadBreakpoint } from './ContainerSize';
 
 function injectorWith(properties: Record<string, string>): Injector {
   const doc = {

@@ -114,38 +114,6 @@ test('the active destination is filled and it is the only one, whatever weight t
   }
 });
 
-test('a primary click reports once and cancels the anchor; a modified or middle click reports nothing', () => {
-  const fixture = TestBed.createComponent(ItemHost);
-  fixture.detectChanges();
-  try {
-    const anchor = (fixture.nativeElement as Element).querySelector('a') as HTMLElement;
-    const reported = fixture.componentInstance.reported;
-
-    const primary = new MouseEvent('click', { button: 0, bubbles: true, cancelable: true });
-    anchor.dispatchEvent(primary);
-    fixture.detectChanges();
-    assert.deepEqual(reported, ['home'], 'a primary click must report exactly once');
-    assert.equal(primary.defaultPrevented, true, 'and must cancel the anchor, or the router competes with a page load');
-
-    for (const modifier of ['metaKey', 'ctrlKey', 'shiftKey', 'altKey'] as const) {
-      const event = new MouseEvent('click', { button: 0, [modifier]: true, bubbles: true, cancelable: true });
-      anchor.dispatchEvent(event);
-      fixture.detectChanges();
-      assert.equal(event.defaultPrevented, false, `${modifier}+click must stay the browser's`);
-    }
-
-    const middle = new MouseEvent('click', { button: 1, bubbles: true, cancelable: true });
-    anchor.dispatchEvent(middle);
-    fixture.detectChanges();
-    assert.equal(middle.defaultPrevented, false, 'a middle click must stay the browser\'s');
-
-    assert.deepEqual(reported, ['home'],
-      'a reader who asked for a new tab or for the address must get that, and no in-app route');
-  } finally {
-    fixture.destroy();
-  }
-});
-
 test('the badge draws nothing at zero, caps at 99+, and is announced rather than hidden', () => {
   @Component({
     standalone: true,

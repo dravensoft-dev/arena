@@ -3,7 +3,7 @@
  * the device that needs it most, where the reader cannot see the list at all. Reaching card mode
  * needs the same two levers ArenaTable.cases.test.ts uses and undoes: happy-dom's ResizeObserver never
  * fires, and --bp-md reads empty. 768 is the only value cached here, because
- * ArenaPageHead.variants.test.ts asserts that number on a cache hit and the cache is shared. */
+ * ContainerSize.test.ts asserts that number on a cache hit and the cache is shared. */
 
 import { useTestEnvironment } from '../../../test/TestbedEnv';
 useTestEnvironment();

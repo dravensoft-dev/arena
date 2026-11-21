@@ -148,8 +148,9 @@ was cached for the two callers that need it, a document that swapped its stylesh
 and a suite whose subject is the cache, and `arenaViewportBelow`, below),
 `AnchorActivation.ts` (the predicate behind the anchor convention: an anchor Arena draws cancels
 a primary click with no modifier and reports through its own navigation event, and everything
-else is the browser's, which `ArenaCard`, `ArenaBreadcrumbs`, `ArenaSideNavItem` and `ArenaCommandPalette` all read
-and `test/AnchorActivation.test.ts` holds one activation at a time),
+else is the browser's, which `ArenaCard`, `ArenaBreadcrumbs`, `ArenaSideNavItem`, `ArenaCommandPalette`, `ArenaLink`,
+`ArenaBottomNavItem` and `ArenaTableCell` all read, and `test/AnchorActivation.test.ts` holds them in one table, a row
+for each file that reads the predicate),
 `FocusTrap.ts` (the shared overlay focus trap, generalized out of `confirm-dialog` and
 used by it, `command-palette` and `onboarding`) and `ProjectionMarkers.ts` (the `[action]`,
 `[actions]`, `[brand]` and `[footer]` marker directives that let a component

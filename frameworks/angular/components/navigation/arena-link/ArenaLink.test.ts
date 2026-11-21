@@ -105,17 +105,6 @@ test('a _blank target is ignored and warned once, because a new tab is external'
   assert.match(said[0] ?? '', /^\[arena\] ArenaLink: target "_blank" is ignored/);
 });
 
-test('a primary click is cancelled and reported once, and a modified one stays the browser\'s', () => {
-  const { fixture, anchor } = render();
-  try {
-    assert.equal(press(anchor).defaultPrevented, true, 'the anchor was left to navigate on its own, so a router never gets the chance to');
-    for (const over of [{ metaKey: true }, { ctrlKey: true }, { shiftKey: true }, { altKey: true }, { button: 1 }])
-      assert.equal(press(anchor, over).defaultPrevented, false, `${JSON.stringify(over)} was cancelled`);
-    fixture.detectChanges();
-    assert.equal(fixture.componentInstance.went, 1, 'only the plain click reports through navigate');
-  } finally { fixture.destroy(); }
-});
-
 test('an ignored _blank target writes none, so the click is a plain one and routes', () => {
   const said = warnings(() => {
     const { fixture, anchor } = render({ target: '_blank' });

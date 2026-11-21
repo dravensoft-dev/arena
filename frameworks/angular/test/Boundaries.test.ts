@@ -95,7 +95,7 @@ const FLOATING: Record<string, string> = {
   'arena-combobox': 'panel',
 };
 
-test('every floating slot of a T9 component carries data-arena-surface="floating"', () => {
+test('every floating slot of a floating component carries data-arena-surface="floating"', () => {
   @Component({
     standalone: true,
     imports: [ArenaDialog, ArenaConfirmDialog, ArenaSheet, ArenaOnboarding, ArenaCommandPalette, ArenaToastHost, ArenaMenu, ArenaTooltip, ArenaButton, ArenaCombobox],
