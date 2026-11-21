@@ -19,8 +19,8 @@ type Pair = { ns: string; key: string; value: string };
 type Emitter = { emits(candidate: string): boolean; output(candidates: string[]): string };
 
 const SHOWN = 6;
-const CHANNELS: Record<string, string> = {
-  ink: 'color', fill: 'background-color', overlay: 'background-color', edge: 'border-color',
+const CHANNELS: Record<string, RegExp> = {
+  ink: /^color$/, fill: /^background-color$/, overlay: /^background-color$/, edge: /^border(-[a-z]+)*-color$/,
 };
 const FORMS = ['@theme', '@utility', '@custom-variant'];
 
@@ -28,29 +28,44 @@ export function tailwindRoot(from: string) {
   return packageRoot(['tailwindcss'], from, from);
 }
 
+type Entry = string | { import?: Entry; default?: Entry } | undefined;
+
+function entryFile(entry: Entry): string | undefined {
+  if (typeof entry === 'string') return entry;
+  return entry ? entryFile(entry.import ?? entry.default) : undefined;
+}
+
 export async function loadTailwind(root: string | null): Promise<Tailwind | { skip: string }> {
   if (root === null) {
     return { skip: 'no tailwindcss resolves from this project, so a utility that emits nothing under Arena\'s theme is not reported' };
   }
-  const manifest = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')) as {
-    version?: string;
-    exports?: Record<string, { import?: string } | string>;
-  };
+  const resolved = 'the tailwindcss this project resolves';
+  let manifest: { version?: string; exports?: Record<string, Entry> };
+  try {
+    manifest = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
+  } catch {
+    return { skip: `${resolved} has no readable package.json` };
+  }
   const version = manifest.version ?? '';
+  if (version === '') return { skip: `${resolved} names no version, and the rule compiles with v4` };
   if (version.split('.')[0] !== '4') {
-    return { skip: `the tailwindcss this project resolves is ${version}, and the rule compiles with v4` };
+    return { skip: `${resolved} is ${version}, and the rule compiles with v4` };
   }
-  const entry = manifest.exports?.['.'];
-  const file = typeof entry === 'string' ? entry : entry?.import;
-  const loaded = file ? (await import(pathToFileURL(join(root, file)).href)) as { compile?: unknown } : {};
-  if (typeof loaded.compile !== 'function') {
-    return { skip: 'the tailwindcss this project resolves exports no compile()' };
+  const file = entryFile(manifest.exports?.['.']);
+  let loaded: { compile?: unknown } = {};
+  try {
+    if (file) loaded = await import(pathToFileURL(join(root, file)).href) as { compile?: unknown };
+  } catch (error) {
+    return { skip: `${resolved} fails to load: ${error instanceof Error ? error.message : String(error)}` };
   }
-  return {
-    compile: loaded.compile as Compile,
-    version,
-    stock: readFileSync(join(root, 'theme.css'), 'utf8'),
-  };
+  if (typeof loaded.compile !== 'function') return { skip: `${resolved} exports no compile()` };
+  let stock: string;
+  try {
+    stock = readFileSync(join(root, 'theme.css'), 'utf8');
+  } catch {
+    return { skip: `${resolved} has no theme.css` };
+  }
+  return { compile: loaded.compile as Compile, version, stock };
 }
 
 function withoutComments(css: string) {
@@ -66,7 +81,8 @@ export function ownThemeBlocks(css: string) {
     }
   }
   for (const found of text.matchAll(/@custom-variant\s[^;{}]*;/g)) {
-    pieces.push({ at: found.index, text: found[0] });
+    const before = text.slice(0, found.index);
+    if (before.split('{').length === before.split('}').length) pieces.push({ at: found.index, text: found[0] });
   }
   return pieces.sort((a, b) => a.at - b.at).map((piece) => piece.text).join('\n');
 }
@@ -128,9 +144,11 @@ function propertiesOf(block: CssBlock): string[] {
   return [...block.decls.map((decl) => decl.name), ...block.children.flatMap(propertiesOf)];
 }
 
-function ruleOf(block: CssBlock, selector: string): CssBlock[] {
-  if (block.selector === selector) return [block];
-  return block.children.flatMap((child) => ruleOf(child, selector));
+function ruleOf(block: CssBlock, name: string): CssBlock[] {
+  const literal = escaped(name).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const token = new RegExp(`(^|[^a-zA-Z0-9_\\\\-])${literal}(?![a-zA-Z0-9_-])`);
+  if (token.test(block.selector)) return [block];
+  return block.children.flatMap((child) => ruleOf(child, name));
 }
 
 function valuesOf(block: CssBlock): string[] {
@@ -148,30 +166,38 @@ function listed(answers: string[]) {
 
 async function utilityAnswers(
   base: string, pairs: Pair[], stock: Emitter, tailwind: Tailwind, arenaCss: string, stockCss: string,
-  roles: ReadonlySet<string>,
+  roles: ReadonlySet<string>, prefix: string,
 ) {
   const bare = base.replace(/^!/, '').replace(/^-/, '').replace(/\/[^/[\]]*$/, '');
   const dashes = [...bare.matchAll(/-/g)].map((found) => found.index).reverse();
   const root = dashes.map((at) => bare.slice(0, at)).find((prefix) => stock.emits(`${prefix}-[x]`)) ?? bare;
   const own = await emitter(tailwind, stockCss);
-  const wanted = new Set(ruleOf(parseBlocks(own.output([bare])), escaped(bare)).flatMap(propertiesOf));
+  const wanted = new Set(ruleOf(parseBlocks(own.output([bare])), bare).flatMap(propertiesOf));
   const fresh = await emitter(tailwind, arenaCss);
   const names = pairs.map((pair) => `${root}-${pair.key}`);
   const rules = parseBlocks(fresh.output(names));
+  const roleOf = (pair: Pair) => {
+    const read = /^var\(--([a-z0-9-]+)\)$/.exec(pair.value.trim())?.[1];
+    if (read && roles.has(read)) return read;
+    return roles.has(pair.key) ? pair.key : null;
+  };
   const keep = pairs.filter((pair, index) => {
-    const found = ruleOf(rules, escaped(names[index] as string));
+    const found = ruleOf(rules, names[index] as string);
     if (found.length === 0) return false;
-    const reads = found.flatMap(valuesOf).some((value) => value.includes(`var(--${pair.ns}-${pair.key})`) || value.includes(pair.value));
+    const own = pair.value.trim();
+    const reads = found.flatMap(valuesOf).some((value) => value.includes(`var(--${pair.ns}-${pair.key})`)
+      || (own !== '' && value.trim() === own));
     const props = found.flatMap(propertiesOf);
     return reads && (wanted.size === 0 || props.some((name) => wanted.has(name)));
   });
-  const leads = (pair: Pair) => wanted.has(CHANNELS[pair.key.split('-')[0] as string] ?? '');
+  const channelOf = (pair: Pair) => CHANNELS[(roleOf(pair) ?? '').split('-')[0] as string];
+  const leads = (pair: Pair) => [...wanted].some((name) => channelOf(pair)?.test(name));
   const ordered = [
-    ...keep.filter((pair) => roles.has(pair.key) && leads(pair)),
-    ...keep.filter((pair) => roles.has(pair.key) && !leads(pair)),
-    ...keep.filter((pair) => !roles.has(pair.key)),
+    ...keep.filter((pair) => leads(pair)),
+    ...keep.filter((pair) => channelOf(pair) !== undefined && !leads(pair)),
+    ...keep.filter((pair) => channelOf(pair) === undefined),
   ];
-  return [...new Set(ordered.map((pair) => `${root}-${pair.key}`))];
+  return [...new Set(ordered.map((pair) => `${prefix}${root}-${pair.key}`))];
 }
 
 export async function deadUtilities(
@@ -200,7 +226,7 @@ export async function deadUtilities(
       head = `which has no \`${variant}:\` variant`;
       tail = listed(keys) ?? 'Arena\'s theme answers it with no variant';
     } else {
-      const answers = await utilityAnswers(base, pairs, stock, tailwind, arenaCss, tailwind.stock, roles);
+      const answers = await utilityAnswers(base, pairs, stock, tailwind, arenaCss, tailwind.stock, roles, variants.map((v) => `${v}:`).join(''));
       head = 'which clears the Tailwind default it names';
       tail = listed(answers) ?? 'Arena\'s theme answers it with no utility';
     }
