@@ -100,7 +100,7 @@ export const ROUTES: Route[] = [
       'frameworks/*/components/*/INDEX.md',
       'frameworks/*/components/**/*.prompt.md',
     ],
-    budget: 43_480,
+    budget: 43_600,
     reason:
       'the route every build takes, and the only one paid per screen rather than per project. The '
       + 'layer-neutral index is not a stop: it answers whether a component exists, which a builder who '
@@ -113,7 +113,8 @@ export const ROUTES: Route[] = [
       + 'description of a tree whose open set the consumer owns, and each component costs this route its '
       + 'row. The number is what the stops measure with room for one more such row, and the ceiling a new '
       + 'rule is argued against. Each prompt names its vocabulary families and their properties, and the '
-      + 'layer directory links the install references.',
+      + 'layer directory links the install references. The table\'s prompt also says the package types the '
+      + 'properties a container sets, beside the column example.',
   },
   {
     name: 'consumer-install',

@@ -36,6 +36,8 @@ The table is a **compound** component. `columns` says how each column is headed 
 </div>
 ```
 
+The package declares the `--arena-*` properties a family names on React's `CSSProperties`, so a misspelt one in a `style` object is a type error.
+
 <!-- @api GENERATED from contracts/api/components/ArenaTable.json. Edit the contract, not this table. -->
 
 **Members**, in contract order and under this layer's own names. `*` marks a required one.

@@ -116,7 +116,8 @@ test('a disabled item fades through its own slot, and a current one through the 
       <ArenaSideNavItem id="billing" label="Billing" disabled />
     </ArenaSideNav>,
   );
-  const [current, rest] = [...root.querySelectorAll('.arena-side-nav__item')];
+  const [current, rest] = [...root.querySelectorAll('.arena-side-nav__item')] as [Element, Element];
+  assert.ok(current && rest, 'both items render');
   assert.equal(current.getAttribute('aria-current'), 'page', 'the overview item is the current one');
   assert.equal(rest.hasAttribute('aria-current'), false, 'and the other is not');
   assert.equal(current.getAttribute('aria-disabled'), 'true');

@@ -28,7 +28,7 @@ import type { ArenaAnswer, ComponentManifest } from '../../lib/tailwind/manifest
 import { HUE_SHEETS, hueRules, huePath, readHues } from '../../lib/tailwind/hue-sheet.ts';
 import { readJson } from '../../utils/read-file.ts';
 import {
-  VOCABULARY_DIR, VOCABULARY_SHEETS, answerOf, compileFamily, familyFiles, readFamilies, sheetFamilies, sheetName, targetOf,
+  VOCABULARY_DIR, axesOf, VOCABULARY_SHEETS, answerOf, compileFamily, familyFiles, readFamilies, sheetFamilies, sheetName, targetOf,
   type Family,
 } from '../../lib/tailwind/vocabulary.ts';
 
@@ -249,6 +249,12 @@ export function componentVocabulary(families: Family[], answers: ReadonlyMap<str
   return [...context, ...takenBy(component, answers, boxes, options).flatMap(({ kept }) => kept)];
 }
 
+export function containerProperties(families: Family[]) {
+  const named = [...new Set(families.flatMap((family) => axesOf(family)))].sort();
+  const keyed = families.flatMap((family) => (family.properties ?? []).map((name) => name.replaceAll('<key>', '${string}')));
+  return { named, keyed };
+}
+
 export function vocabularyTypes(families: Family[], answers: Map<string, readonly ArenaAnswer[]>, components: string[], page: string,
   elementless: ReadonlyMap<string, string> = OWN_ELEMENTLESS) {
   const { options, context, boxes } = boxesOf(families);
@@ -266,6 +272,11 @@ export function vocabularyTypes(families: Family[], answers: Map<string, readonl
     const tokens = ['ArenaContextClass', ...taken.flatMap(({ one, kept, whole }) => (whole ? [typeName(one.family)] : kept.map((option) => `'${option}'`)))];
     lines.push(`export type ${component}Class = ArenaClassList<${tokens.join(' | ')}>;`);
   }
+  const { named, keyed } = containerProperties(families);
+  lines.push("declare module 'react' {", '  interface CSSProperties {',
+    ...named.map((name) => `    '${name}'?: string;`),
+    ...keyed.map((name) => `    [property: \`${name}\`]: string | undefined;`),
+    '  }', '}');
   return `${lines.join('\n')}\n`;
 }
 
