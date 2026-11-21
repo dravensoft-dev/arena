@@ -19,7 +19,7 @@
   padding-block: var(--sp-5);
 }
 
-/* A trail above a listing is chrome. Its size and its tracking are roles now; what is left is
+/* A trail above a listing is chrome. Its size and its tracking are roles; the rule below corrects
    that Arena bolds the page it is on, which reads as a second heading over a page that already
    has one. */
 [data-arena-part="breadcrumbs.current"] {

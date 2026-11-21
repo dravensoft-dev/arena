@@ -34,8 +34,8 @@
   color: var(--color-primary);
 }
 
-/* The wordmark's case is this product's own now, written into the name it passes. What is
-   left is the weight: this register sets its mark lighter than the black Arena's lock-up draws. */
+/* The wordmark's case is this product's own, written into the name it passes. The rule
+   writes the weight: this register draws its mark lighter than the black Arena's lock-up draws. */
 [data-arena-part="app-logo.name"] {
   font-weight: var(--fw-extrabold);
 }
