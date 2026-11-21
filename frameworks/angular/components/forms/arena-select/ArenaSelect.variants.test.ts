@@ -2,10 +2,6 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { arenaSelectStyles } from './ArenaSelect.variants';
 
-function tokens(classString: string): string[] {
-  return classString.split(/\s+/).filter(Boolean);
-}
-
 test('disabled reaches each part that fades on its own, and the wrap fades the select with its caret and glyph', () => {
   const enabled = arenaSelectStyles({ disabled: false });
   const off = arenaSelectStyles({ disabled: true });

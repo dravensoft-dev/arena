@@ -7,10 +7,6 @@ import { arenaMenuStyles } from './ArenaMenu.variants';
 import { ARENA_MENU_PLACEMENT, isArenaActivatable } from './ArenaMenu';
 import { sp1 } from '../../../Tokens.generated';
 
-function tokens(classString: string): string[] {
-  return classString.split(/\s+/).filter(Boolean);
-}
-
 test('the item carries disabled and destructive as two attributes, and an item that is both carries both', () => {
   const plain = JSON.stringify(arenaMenuStyles({ disabled: false, destructive: false }).$data.item());
   const destructive = JSON.stringify(arenaMenuStyles({ disabled: false, destructive: true }).$data.item());

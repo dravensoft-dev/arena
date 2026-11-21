@@ -12,7 +12,6 @@ test('the tooltip clears the mark by the token, never by a number a chart picked
 });
 
 test('both charts anchor identically, which is the whole reason this is one function', () => {
-  assert.deepEqual(arenaTooltipAnchor(0, 0), arenaTooltipAnchor(0, 0));
   assert.equal(arenaTooltipAnchor(7.5, 12.25).top, 'calc(12.25px - var(--chart-tooltip-offset))');
 });
 
