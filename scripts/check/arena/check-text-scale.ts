@@ -67,7 +67,7 @@ export const FIXED = new Map<string, string>(SINK_LAYERS.flatMap((layer) =>
   ['default', 'complete'].flatMap((sink) => ['app-logo.name', 'app-logo.dim'].map((part) =>
     [`${layer}/${sink}:${part}`, LOGO_WHY] as [string, string]))));
 
-const AVATAR_WHY = 'the initials follow the avatar box, a fixed density size (D4)';
+const AVATAR_WHY = 'the initials follow the avatar box, a fixed density size';
 
 for (const layer of SINK_LAYERS) for (const sink of ['default', 'complete']) FIXED.set(`${layer}/${sink}:avatar.box`, AVATAR_WHY);
 
@@ -86,7 +86,7 @@ const THINNED_WHY = 'the chart keeps every stride-th category or tick label and 
   + 'labels both sizes draw are still compared for doubling';
 
 const RADAR_WHY = 'a radar spoke label is shortened with an ellipsis to the room left beside the ring, so the label drawn at '
-  + '32px is a shorter text than the one at 16px by design (D23); its full name stays in the accessible name and a <title>';
+  + '32px is a shorter text than the one at 16px by design; its full name stays in the accessible name and a <title>';
 
 export const THINNED = new Map<string, string>([...SINK_LAYERS.flatMap((layer) =>
   [['charts', 'heatmap'], ['default', 'heatmap'], ['complete', 'heatmap'], ['charts', 'line'], ['default', 'line'],

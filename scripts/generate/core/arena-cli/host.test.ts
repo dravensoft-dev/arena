@@ -164,7 +164,7 @@ test('hostManifest reads name, version and engines, and null for no package.json
 
 test('the command\'s own dependencies win over a project\'s copy of the same name', () => {
   const here = dirname(fileURLToPath(import.meta.url));
-  const decoy = join(here, '..', '..', '..', '..', '.cache', 'plan-1.29', 'decoy-project');
+  const decoy = join(here, '..', '..', '..', '..', '.cache', 'test-scratch', 'decoy-project');
   rmSync(decoy, { recursive: true, force: true });
   for (const name of ['harfbuzzjs', 'wawoff2', '@phosphor-icons/core']) {
     mkdirSync(join(decoy, 'node_modules', ...name.split('/')), { recursive: true });

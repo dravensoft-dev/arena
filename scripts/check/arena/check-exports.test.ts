@@ -2,31 +2,15 @@
  * INTERNAL is asserted in both directions, since a symbol nobody declared and one the barrel has
  * stopped carrying are the two ways the map goes wrong. */
 
-import { test, after } from 'node:test';
+import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
 import {
   PAGE, HOMES, BARRELS, INTERNAL, EXPORTED, rootModules, symbolsOf, reachedSymbols,
   zeroReachProblems, homeProblems, staleInternalProblems, collect, parametersOf, signatureProblems,
 } from './check-exports.ts';
+import { scratchTree } from '../../utils/scratch-tree.ts';
 
-const made: string[] = [];
-const track = (dir: string) => { made.push(dir); return dir; };
-after(() => {
-  for (const dir of made) rmSync(dir, { recursive: true, force: true });
-});
-
-function tree(files: Record<string, string>) {
-  const base = track(mkdtempSync(join(tmpdir(), 'arena-exports-')));
-  for (const [rel, text] of Object.entries(files) as [string, string][]) {
-    const path = join(base, rel);
-    mkdirSync(join(path, '..'), { recursive: true });
-    writeFileSync(path, text);
-  }
-  return base;
-}
+const { tree } = scratchTree('arena-exports');
 
 const BARREL = "export * from './components/x/X.tsx';\nexport * from './Helpers.ts';\n";
 const HELPERS = 'export function arenaThing() {}\nexport const arenaOther = 1;\nexport type ArenaShape = string;\n';

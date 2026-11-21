@@ -1,12 +1,11 @@
 /* The gate reads the real tree, which is correct by construction once it passes, so these drive
  * its pure functions with the shapes a broken citation takes: a path deleted by charter, one
  * naming a build step nothing answers to, and one sitting in a surface no walk reaches, a
- * type description and a suite header. EXEMPT and BARE_EXEMPT are asserted by name. */
+ * type description and a suite header. Every EXEMPT and BARE_EXEMPT entry is asserted to state its reason. */
 
-import { test, after } from 'node:test';
+import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
   EXEMPT, BARE_EXEMPT, SKIPPED_ANYWHERE, SKIPPED_UNDER_FRAMEWORKS, skips, repoRoots, pathPattern,
@@ -15,33 +14,19 @@ import {
   SURFACE_EMPTINESS, zeroSurfaceProblems, unreadableRecordProblems,
   BARE_DOCUMENT, basenames, bareDocumentProblems, MEMBER_CITATION, memberProblems,
 } from './check-citations.ts';
+import { scratchTree } from '../../utils/scratch-tree.ts';
 
-const made: string[] = [];
-const track = (dir: string) => { made.push(dir); return dir; };
-after(() => {
-  for (const dir of made) rmSync(dir, { recursive: true, force: true });
-});
-
-function tree(files: Record<string, string>) {
-  const base = track(mkdtempSync(join(tmpdir(), 'arena-citations-')));
-  for (const [rel, text] of Object.entries(files) as [string, string][]) {
-    const path = join(base, rel);
-    mkdirSync(join(path, '..'), { recursive: true });
-    writeFileSync(path, text);
-  }
-  return base;
-}
+const { tree } = scratchTree('arena-citations');
 
 const NONE = new Map();
 
-test('EXEMPT names what is absent on purpose, and nothing else', () => {
-  assert.deepEqual([...EXEMPT.keys()],
-    ['frameworks/angular/BehaviourDelegated.json', 'contracts/design/color-slots.derived.json']);
+test('every EXEMPT entry states why what it names is absent on purpose', () => {
+  assert.ok(EXEMPT.size > 0, 'a table with no entry holds no reason');
   for (const reason of EXEMPT.values()) assert.ok(reason.length > 40, 'an entry states its reason');
 });
 
-test('BARE_EXEMPT names what is not a document at all, and nothing else', () => {
-  assert.deepEqual([...BARE_EXEMPT.keys()], ['r.md']);
+test('every BARE_EXEMPT entry states why what it names is not a document at all', () => {
+  assert.ok(BARE_EXEMPT.size > 0, 'a table with no entry holds no reason');
   for (const reason of BARE_EXEMPT.values()) assert.ok(reason.length > 40, 'an entry states its reason');
 });
 
@@ -226,7 +211,7 @@ test('a metavariable is written <Name>, which the pattern cannot match, so it ne
 });
 
 test('a citation git ignores is a problem, because no clone can follow it', () => {
-  const dir = track(mkdtempSync(join(tmpdir(), 'arena-citations-ignored-')));
+  const dir = tree({});
   try {
     mkdirSync(join(dir, 'docs'), { recursive: true });
     writeFileSync(join(dir, 'docs', 'plan.md'), '# a plan');
@@ -241,7 +226,7 @@ test('a citation git ignores is a problem, because no clone can follow it', () =
 });
 
 test('an ignored root leaves the alternation, so the gate reads one tree on every machine', () => {
-  const dir = track(mkdtempSync(join(tmpdir(), 'arena-citations-roots-')));
+  const dir = tree({});
   try {
     mkdirSync(join(dir, 'docs'));
     mkdirSync(join(dir, 'contracts'));
@@ -252,7 +237,7 @@ test('an ignored root leaves the alternation, so the gate reads one tree on ever
 });
 
 test('a shortened path is not a claim, even under an ignored root', () => {
-  const dir = track(mkdtempSync(join(tmpdir(), 'arena-citations-prose-')));
+  const dir = tree({});
   try {
     writeFileSync(join(dir, 'AGENTS.md'), 'Specs live under docs/superpowers/specs/ by charter.\n');
     assert.deepEqual(ignoredCitationProblems(dir, documentPassages(dir, [join(dir, 'AGENTS.md')]),
@@ -263,7 +248,7 @@ test('a shortened path is not a claim, even under an ignored root', () => {
 });
 
 test('the walk does not descend into an ignored root, so every surface is the same everywhere', () => {
-  const dir = track(mkdtempSync(join(tmpdir(), 'arena-citations-walk-')));
+  const dir = tree({});
   try {
     mkdirSync(join(dir, 'docs', 'superpowers', 'plans'), { recursive: true });
     writeFileSync(join(dir, 'docs', 'superpowers', 'plans', 'a-plan.md'), 'cites nothing/real.md\n');

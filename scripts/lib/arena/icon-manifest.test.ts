@@ -70,7 +70,7 @@ test('the file name is the one arena build looks for, spelled once', () => {
 });
 
 test('a file directly under a category that names a glyph throws, and one that names none is skipped', () => {
-  const root = join(repoRoot, '.cache', 'plan-1.29', 'manifest-stray');
+  const root = join(repoRoot, '.cache', 'test-scratch', 'manifest-stray');
   const category = join(root, 'frameworks', 'react', 'components', 'display');
   rmSync(root, { recursive: true, force: true });
   mkdirSync(category, { recursive: true });

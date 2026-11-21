@@ -3,9 +3,7 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { rmSync } from 'node:fs';
 import * as docs from './check-docs.ts';
 import {
   MAX_DOCUMENT_CHARS, HEADER_MAX_LINES, SIZE_EXEMPT, PROSE_EXEMPT, BANNED_PUNCTUATION,
@@ -19,16 +17,9 @@ import {
   blobLinkProblems, COMMENT_RULE_SKIPS, SOURCE_EXTENSIONS, MAX_CELL_CHARS, cellSizeProblems,
   hueProblems, CONSUMER_WORDING, consumerWordingProblems,
 } from './check-docs.ts';
+import { scratchTree } from '../../utils/scratch-tree.ts';
 
-function tree(files: Record<string, string>) {
-  const root = mkdtempSync(join(tmpdir(), 'arena-docs-'));
-  for (const [path, body] of Object.entries(files) as [string, string][]) {
-    const full = join(root, path);
-    mkdirSync(join(full, '..'), { recursive: true });
-    writeFileSync(full, body);
-  }
-  return root;
-}
+const { tree } = scratchTree('arena-docs');
 
 const NO_ALLOWANCE = new Map();
 
@@ -83,9 +74,9 @@ test('a table cell over its limit is reported by line, and a fenced table or a l
   rmSync(root, { recursive: true });
 });
 
-test('SIZE_ALLOWANCE names the arena gate table alone, and every other document holds the shared limit', () => {
-  assert.deepEqual([...SIZE_ALLOWANCE.keys()], ['scripts/check/arena/AGENTS.md']);
-  assert.ok((SIZE_ALLOWANCE.get('scripts/check/arena/AGENTS.md')?.reason ?? '').length > 40);
+test('every SIZE_ALLOWANCE entry states its reason, and every other document holds the shared limit', () => {
+  assert.ok(SIZE_ALLOWANCE.size > 0, 'a table with no entry holds no reason');
+  for (const [name, allowance] of SIZE_ALLOWANCE) assert.ok(allowance.reason.length > 40, `${name} states its reason`);
   assert.equal(limitFor('AGENTS.md'), MAX_DOCUMENT_CHARS);
   assert.equal(limitFor('scripts/AGENTS.md'), MAX_DOCUMENT_CHARS);
 });

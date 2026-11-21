@@ -293,7 +293,7 @@ test('the console warnings are collected before the page runs and compared betwe
     'collected and never compared, a warning one layer prints passes every page it is printed on');
 });
 
-test('an allowance rect grows by its part\'s own shadow and outline, so a pixel just outside the border box is the part\'s (T6-P1)', () => {
+test('an allowance rect grows by its part\'s own shadow and outline, so a pixel just outside the border box is the part\'s', () => {
   const part = { getBoundingClientRect: () => ({ left: 10, top: 10, right: 20, bottom: 20 }), getClientRects: () => [{}], querySelectorAll: () => [] };
   const run = (style: Record<string, string>) => (new Function('document', 'scrollX', 'scrollY', 'getComputedStyle', `return ${rectsExpression('x')}`)(
     { querySelectorAll: () => [part] }, 0, 0, () => style) as Rect[])[0]!;

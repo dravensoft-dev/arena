@@ -1,7 +1,6 @@
-import test, { after } from 'node:test';
+import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
@@ -18,29 +17,18 @@ import {
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { IDENTITY_DIR as PAYLOAD_IDENTITY_DIR } from '../../lib/arena/agent-payload.ts';
 import { IDENTITY_DIR, catalogue } from '../../generate/core/arena-mcp/catalogue.ts';
+import { scratchTree } from '../../utils/scratch-tree.ts';
 
-const made: string[] = [];
-const track = (dir: string) => { made.push(dir); return dir; };
-after(() => {
-  for (const dir of made) rmSync(dir, { recursive: true, force: true });
-});
+const scratch = scratchTree('arena-mcp');
 
 const MANIFEST = JSON.stringify({
   name: 'arena', description: 'd', homepage: 'h', version: '0.0.0',
   package: NAME, layer: 'react', router: 'skills/design/ROUTER.md',
 });
 
-function corpus(files: Record<string, string>) {
-  const dir = track(mkdtempSync(join(tmpdir(), 'arena-mcp-pkg-')));
-  for (const [path, body] of Object.entries(files)) {
-    const full = join(dir, path);
-    mkdirSync(join(full, '..'), { recursive: true });
-    writeFileSync(full, body);
-  }
-  return dir;
-}
+const corpus = scratch.tree;
 
-const assembly = track(mkdtempSync(join(tmpdir(), 'arena-mcp-asm-')));
+const assembly = scratch.tree({});
 buildMcpPackage(root, assembly);
 
 test('the tree passes its own claims, and an empty assembly does not', () => {
@@ -74,7 +62,7 @@ test('check:mcp refuses a tree with no dist/mcp and names the step that assemble
   assert.match(strict.stderr, /check:mcp/);
   assert.match(strict.stderr, /bun run build:packages first/);
   assert.doesNotMatch(strict.stdout, /went on/);
-  const base = track(mkdtempSync(join(tmpdir(), 'check-mcp-assembled-')));
+  const base = scratch.tree({});
   mkdirSync(join(base, ...DIST.split('/')), { recursive: true });
   assert.equal(unassembled(base), null);
 });
@@ -90,7 +78,7 @@ test('a dependency nothing imports is one every consumer installs for nothing', 
 });
 
 test('a bin the package declares and does not carry is a command an editor cannot spawn', () => {
-  const dir = track(mkdtempSync(join(tmpdir(), 'arena-mcp-pkg-')));
+  const dir = scratch.tree({});
   assert.match(binProblems(dir)[0] ?? '', /is declared as the bin and is not there/);
   mkdirSync(join(dir, 'bin'), { recursive: true });
   writeFileSync(join(dir, ...ENTRY.split('/')), '');
@@ -256,7 +244,7 @@ test('a schema that is not the one this tree is written against is refused by th
 
 
 test('a specifier that escapes the flat bin is reported, since bin/ has no directory above it', () => {
-  const dir = track(mkdtempSync(join(tmpdir(), 'arena-mcp-flat-')));
+  const dir = scratch.tree({});
   try {
     mkdirSync(join(dir, 'bin'), { recursive: true });
     writeFileSync(join(dir, 'bin', 'audit.mjs'), 'export const x = 1;\n');
@@ -274,7 +262,7 @@ test('a specifier that escapes the flat bin is reported, since bin/ has no direc
 });
 
 test('a specifier beside the module that names no file in bin is reported, since it throws at spawn', () => {
-  const dir = track(mkdtempSync(join(tmpdir(), 'arena-mcp-beside-')));
+  const dir = scratch.tree({});
   try {
     mkdirSync(join(dir, 'bin'), { recursive: true });
     writeFileSync(join(dir, 'bin', 'audit.mjs'), "import { scan } from './icon-css.mjs';\n");

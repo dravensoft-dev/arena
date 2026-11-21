@@ -7,15 +7,15 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { rmSync } from 'node:fs';
 import { join } from 'node:path';
-import { tmpdir } from 'node:os';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import {
   ANCHOR_FILE, MANIFEST, SCANNED_TREES, anchorsFrom, bindingProblems, buildsIn, builtProblems,
   literalProblems, literalsIn, namesAFile, namesOf, reachProblems, scannedFiles,
   staticImportsIn, zeroReachProblems,
 } from './check-script-reach.ts';
+import { scratchTree } from '../../utils/scratch-tree.ts';
 
 const ANCHORS = `
 export const REPO = findRepoRoot(here);
@@ -24,15 +24,7 @@ export const LIB = join(SCRIPTS, 'lib');
 export const UTILS = join(SCRIPTS, 'utils');
 `;
 
-function tree(files: Record<string, string>) {
-  const root = mkdtempSync(join(tmpdir(), 'arena-reach-'));
-  for (const [rel, body] of Object.entries(files)) {
-    const full = join(root, ...rel.split('/'));
-    mkdirSync(join(full, '..'), { recursive: true });
-    writeFileSync(full, body);
-  }
-  return root;
-}
+const { tree } = scratchTree('arena-reach');
 
 test('an anchor is resolved from where it is declared, and through another anchor', () => {
   const anchors = anchorsFrom(ANCHORS, '/repo');

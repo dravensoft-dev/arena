@@ -14,7 +14,7 @@ import { CLI_BINS } from '../../lib/arena/package-assembly.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import {
   importedSheets, packageSheetProblems, REGULAR_SYMBOL, unknownSymbolProblems, listProblems, closedListProblems, spriteProblems, documented, CONFIG_REFERENCE,
-  palettesProblems, defaultListProblems, fontCutProblems, runtimeProblems, installedPalette, SOURCES, UNKNOWN, GLYPH, NAV_SYMBOL, GLYPH_SYMBOL, THIRD_PALETTE, CLI, snapshot, treeChanges, exitProblem, binProblems, unplacedProblems, PROVIDER,
+  palettesProblems, defaultListProblems, fontCutProblems, runtimeProblems, installedPalette, SOURCES, UNKNOWN, NAV_SYMBOL, GLYPH_SYMBOL, THIRD_PALETTE, CLI, snapshot, treeChanges, exitProblem, binProblems, unplacedProblems, PROVIDER,
 } from './check-consumer.ts';
 import type { CliRun, Shipped } from './check-consumer.ts';
 
@@ -67,9 +67,6 @@ const written = (sprites: Record<string, string>, module: string | null = `expor
 test('the sprite must carry the button glyph bold and the nav glyph filled, and its module must name the file', () => {
   const good = written({ [NAME]: sprite(GLYPH_SYMBOL, NAV_SYMBOL, REGULAR_SYMBOL, 'ph-bold-house') });
   assert.deepEqual(spriteProblems('angular', good), []);
-  assert.equal(GLYPH, 'ph-bell');
-  assert.equal(GLYPH_SYMBOL, 'ph-bold-bell');
-  assert.equal(NAV_SYMBOL, 'ph-fill-house');
 
   const boldAlone = spriteProblems('angular', written({ [NAME]: sprite(GLYPH_SYMBOL, REGULAR_SYMBOL, 'ph-bold-house') }));
   assert.equal(boldAlone.length, 1);

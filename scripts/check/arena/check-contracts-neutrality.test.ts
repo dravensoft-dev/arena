@@ -4,7 +4,7 @@ import {
   BROWSER_BOUND, aliasProseProblems, zeroAliasProseProblems, collect, memberPath, proseProblems, strands,
   valueProblems, zeroWalkProblems,
 } from './check-contracts-neutrality.ts';
-import { COMPUTED, computedProblems, cssLengthProblems, functionBody, NOT_GEOMETRY, optionShapeProblems } from './check-contracts-neutrality.ts';
+import { computedProblems, cssLengthProblems, functionBody, NOT_GEOMETRY, optionShapeProblems } from './check-contracts-neutrality.ts';
 import type { ContractCandidate, TypeContract } from '../../lib/arena/contract-shapes.ts';
 
 const of = (rel: string, tree: unknown) => strands(rel, tree);
@@ -83,7 +83,7 @@ test('a COMPUTED entry fails when its function body does not read the member', (
 });
 
 test('the real COMPUTED holds', () => {
-  assert.equal(COMPUTED.size, 17);
+  assert.deepEqual(computedProblems(), []);
 });
 
 const probeContracts = new Map<string, ContractCandidate>([

@@ -33,7 +33,7 @@ test('a patched chunk with its predecessor as dictionary costs less than without
 });
 
 test('reactBundle keeps Arena in its own chunk', async () => {
-  const dist = join(repoRoot, '.cache', 'plan-1.29', 'weight-fixture');
+  const dist = join(repoRoot, '.cache', 'test-scratch', 'weight-fixture');
   rmSync(dist, { recursive: true, force: true });
   mkdirSync(dist, { recursive: true });
   try {

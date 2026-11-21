@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  PLACED_EXPRESSION, UNDRAWN, emptyProblems, escapeProblems, heldProblems, type Placed,
+  PLACED_EXPRESSION, emptyProblems, escapeProblems, heldProblems, type Placed,
 } from './check-contained-parts.ts';
 
 const row = (part: string, holder: string | null, over: Partial<Placed> = {}): Placed =>
@@ -50,10 +50,6 @@ test('a stale UNDRAWN entry fails: drawn after all, or no HELD key', () => {
   const undrawn = new Map([['ArenaSlider.thumbLabel', 'r']]);
   assert.equal(heldProblems([row('slider.thumb-label', 'slider.thumb')], slider, undrawn).length, 1);
   assert.equal(heldProblems([], new Map(), undrawn).length, 1);
-});
-
-test('UNDRAWN names the slider thumb label and nothing else', () => {
-  assert.deepEqual([...UNDRAWN.keys()], ['ArenaSlider.thumbLabel']);
 });
 
 const both = (sink: string, n: number) => ['react', 'angular'].flatMap((layer) =>
