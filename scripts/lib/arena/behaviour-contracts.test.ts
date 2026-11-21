@@ -4,7 +4,7 @@ import { existsSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import {
   validatePattern, loadPatterns, validateBinding, reactComponents, angularPrimitives,
-  angularBindingPath, reactBindingPath, crossLayerAgrees, loadBinding, bindingCases, bindingAlso,
+  angularBindingPath, reactBindingPath, crossLayerAgrees, loadBinding, bindingCases, bindingAlso, caseSetRefusal,
 } from './behaviour-contracts.ts';
 import { layerBindings } from './vocabulary-index.ts';
 import { pascal } from '../../utils/case.ts';
@@ -505,4 +505,47 @@ test('every binding of dialog-modal or alertdialog adds modal-focus', () => {
   assert.deepEqual(offenders, [],
     'focus and Escape are written once, in modal-focus, and a dialog owes them under its own role: '
     + 'a binding that names the role and not the focus is a dialog nobody checked the focus of');
+});
+
+const CASES_PATH = '/x/Alert.behaviour.json';
+const twoCases = bindingCases({
+  cases: [
+    { name: 'danger', when: 'tone is "danger"', pattern: 'alert', exceptions: [] },
+    { name: 'advisory', when: 'any other tone', pattern: 'status', exceptions: [] },
+  ],
+});
+
+test('caseSetRefusal refuses a flat binding', () => {
+  const flat = bindingCases({ pattern: 'status', exceptions: [] });
+  const refusal = caseSetRefusal(CASES_PATH, flat, ['only']) ?? '';
+  assert.match(refusal, /declares no cases/);
+  assert.ok(refusal.startsWith(CASES_PATH));
+});
+
+test('caseSetRefusal names the declared case a suite never rendered', () => {
+  const refusal = caseSetRefusal(CASES_PATH, twoCases, ['danger']) ?? '';
+  assert.match(refusal, /never rendered: advisory/);
+  assert.ok(refusal.startsWith(CASES_PATH));
+});
+
+test('caseSetRefusal names a rendered case the binding does not declare', () => {
+  const refusal = caseSetRefusal(CASES_PATH, twoCases, ['danger', 'advisory', 'typo']) ?? '';
+  assert.match(refusal, /not declared in the binding: typo/);
+  assert.ok(refusal.startsWith(CASES_PATH));
+});
+
+test('caseSetRefusal refuses a case name declared twice', () => {
+  const twice = bindingCases({
+    cases: [
+      { name: 'danger', when: 'tone is "danger"', pattern: 'alert', exceptions: [] },
+      { name: 'danger', when: 'tone is still "danger"', pattern: 'status', exceptions: [] },
+    ],
+  });
+  const refusal = caseSetRefusal(CASES_PATH, twice, ['danger']) ?? '';
+  assert.match(refusal, /declares the same case name more than once: danger/);
+  assert.ok(refusal.startsWith(CASES_PATH));
+});
+
+test('caseSetRefusal is null when the rendered set is the declared set', () => {
+  assert.equal(caseSetRefusal(CASES_PATH, twoCases, ['advisory', 'danger']), null);
 });

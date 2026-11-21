@@ -27,7 +27,7 @@ export const LIB = join(SCRIPTS, 'lib');
 export const UTILS = join(SCRIPTS, 'utils');
 export const CHECKS = join(SCRIPTS, 'check');
 const { comparePatterns, isFocusable } = await import(pathToFileURL(join(LIB, 'core', 'behaviour-compliance.ts')).href);
-const { loadBinding, loadPatterns, bindingCases, bindingAlso } = await import(pathToFileURL(join(LIB, 'arena', 'behaviour-contracts.ts')).href);
+const { loadBinding, loadPatterns, bindingCases, bindingAlso, caseSetRefusal } = await import(pathToFileURL(join(LIB, 'arena', 'behaviour-contracts.ts')).href);
 
 export { isFocusable };
 
@@ -145,32 +145,8 @@ export interface AssertPatternCasesOptions {
 export function assertPatternCases({ bindingPath, cases }: AssertPatternCasesOptions): void {
   const binding = loadBinding(bindingPath);
   const declared: BindingCase[] = bindingCases(binding);
-  if (declared.length === 1 && declared[0].name === null) {
-    throw new Error(`${bindingPath}\n  declares no cases — assert it with assertPattern instead.`);
-  }
-
-  const want = declared.map((c) => c.name);
-  const seen = new Set<string | null>();
-  const dupes = new Set<string | null>();
-  for (const n of want) {
-    if (seen.has(n)) dupes.add(n);
-    seen.add(n);
-  }
-  if (dupes.size) {
-    throw new Error(`${bindingPath}\n  declares the same case name more than once: ${[...dupes].join(', ')}`);
-  }
-  const got = Object.keys(cases);
-
-  const missing = want.filter((n) => !got.includes(n as string));
-  const unknown = got.filter((n) => !want.includes(n));
-  if (missing.length || unknown.length) {
-    throw new Error(
-      `${bindingPath}\n  the suite must render every declared case, and only those.\n` +
-      (missing.length ? `  - never rendered: ${missing.join(', ')}\n` : '') +
-      (unknown.length ? `  - not declared in the binding: ${unknown.join(', ')}\n` : '') +
-      `  declared: ${want.join(', ')}`,
-    );
-  }
+  const refusal = caseSetRefusal(bindingPath, declared, Object.keys(cases));
+  if (refusal) throw new Error(refusal);
 
   patternCache ??= loadPatterns(REPO) as Map<string, PatternFile>;
   const problems: string[] = [];
