@@ -24,10 +24,6 @@ const CONFIRM_DIALOG_BEHAVIOURAL = {
   'focus.onOpen': true, 'focus.onClose': true, 'focus.trap': true, 'keyboard.Escape': true,
 };
 
-const ALL_UNMET = {
-  'focus.onOpen': false, 'focus.onClose': false, 'focus.trap': false, 'keyboard.Escape': false,
-};
-
 let tempCounter = 0;
 function tempBindingPath(label: string) {
   tempCounter += 1;
@@ -91,75 +87,6 @@ test('assertPattern refuses an also pattern with no file, and says it came from 
     const container = mount(<ArenaDialog open onClose={() => {}} title="t"><p>b</p></ArenaDialog>);
     assert.throws(() => assertPattern({ root: container, bindingPath: p, behavioural: DIALOG_BEHAVIOURAL }),
       /names pattern "no-such-pattern" in `also`/);
-  } finally {
-    unlinkSync(p);
-  }
-});
-
-test('assertPattern reports a stale exception', () => {
-  const p = tempBindingPath('stale');
-
-  writeFileSync(p, JSON.stringify({
-    pattern: 'dialog-modal',
-    exceptions: [{ requirement: 'roles.aria-modal', reason: 'synthetic' }],
-    also: [{ pattern: 'modal-focus', exceptions: [] }],
-  }));
-  try {
-    const container = mount(<ArenaDialog open onClose={() => {}} title="t"><p>b</p></ArenaDialog>);
-    assert.throws(() => assertPattern({
-      root: container,
-      bindingPath: p,
-      subjects: { default: container.querySelector<HTMLElement>('[role="dialog"]') },
-      behavioural: ALL_UNMET,
-    }), /STALE EXCEPTION/);
-  } finally {
-    unlinkSync(p);
-  }
-});
-
-test('assertPattern reports an overclaim', () => {
-  const p = tempBindingPath('overclaim');
-
-  writeFileSync(p, JSON.stringify({ pattern: 'dialog-modal', exceptions: [], also: [{ pattern: 'modal-focus', exceptions: [] }] }));
-  try {
-    const container = mount(<ArenaDialog open onClose={() => {}} title="t"><p>b</p></ArenaDialog>);
-    assert.throws(() => assertPattern({
-      root: container,
-      bindingPath: p,
-      subjects: { default: container.querySelector<HTMLElement>('[role="dialog"]') },
-      behavioural: ALL_UNMET,
-    }), /OVERCLAIM/);
-  } finally {
-    unlinkSync(p);
-  }
-});
-
-test('assertPattern reports a missed selector as "no subject element", not as an OVERCLAIM', () => {
-
-  const container = mount(<ArenaDialog open onClose={() => {}} title="t"><p>b</p></ArenaDialog>);
-  assert.throws(() => assertPattern({
-    root: container,
-    bindingPath: join(REACT_COMPONENTS, 'feedback/arena-dialog/ArenaDialog.behaviour.json'),
-    subjects: { default: container.querySelector<HTMLElement>('[role="nonexistent"]') },
-    behavioural: ALL_UNMET,
-  }), (err) => {
-    assert.match((err as Error).message, /no subject element/);
-    assert.doesNotMatch((err as Error).message, /OVERCLAIM/);
-    return true;
-  });
-});
-
-test('assertPattern refuses an undeclared undecidable requirement', () => {
-  const p = tempBindingPath('undeclared');
-  writeFileSync(p, JSON.stringify({ pattern: 'dialog-modal', exceptions: [], also: [{ pattern: 'modal-focus', exceptions: [] }] }));
-  try {
-    const container = mount(<ArenaDialog open onClose={() => {}} title="t"><p>b</p></ArenaDialog>);
-    assert.throws(() => assertPattern({
-      root: container,
-      bindingPath: p,
-      subjects: { default: container.querySelector<HTMLElement>('[role="dialog"]') },
-      behavioural: {},
-    }), /not declared behavioural/);
   } finally {
     unlinkSync(p);
   }

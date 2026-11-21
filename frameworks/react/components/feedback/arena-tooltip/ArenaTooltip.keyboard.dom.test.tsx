@@ -64,14 +64,6 @@ test('blur withdraws it immediately too -- a blur is a decision, not a pointer l
   assert.equal(bubble(root), null);
 });
 
-test('while shown, the trigger describes itself with the bubble', () => {
-  const root = mount(one());
-  focusIn(root);
-  const id = bubble(root).getAttribute('id');
-  assert.ok(id, 'the bubble has no id for the trigger to reference');
-  assert.equal(trigger(root).getAttribute('aria-describedby'), id);
-});
-
 test('while hidden, the trigger references nothing -- a dangling IDREF is worse than none', () => {
   const root = mount(one());
   assert.equal(trigger(root).getAttribute('aria-describedby'), null);

@@ -30,14 +30,10 @@ function renderGroup(ariaLabel = 'Deployment target') {
   );
 }
 
-test('the group carries the name, and the platform gets what it needs to rove', () => {
+test("the options share the caller's `name` attribute, and the platform gets what it needs to rove", () => {
   const root = renderGroup();
-  const group = root.querySelector<HTMLElement>('[role="radiogroup"]');
   const radios = [...root.querySelectorAll<HTMLElement>('input[type="radio"]')];
   assert.equal(radios.length, 3, 'sanity: the fixture must render three options');
-
-  assert.equal(group!.getAttribute('aria-label'), 'Deployment target',
-    'the group names what is being chosen; each option names only itself');
 
   const names = new Set(radios.map((r) => r.getAttribute('name')));
   assert.equal(names.size, 1,

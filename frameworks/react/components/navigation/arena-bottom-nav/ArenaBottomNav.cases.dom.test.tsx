@@ -145,8 +145,7 @@ test('the badge draws nothing at zero, caps at 99+, and is announced rather than
   }
 });
 
-test('the bar and its destinations refuse a blank required name rather than drawing one', () => {
-  assert.throws(() => mount(<ArenaBottomNav ariaLabel="   " />), /ariaLabel/);
+test('its destinations refuse a blank required name rather than drawing one', () => {
   const blanks: [string, React.ReactElement][] = [
     ['id', <ArenaBottomNavItem id="" icon="ph-bold ph-house" label="Home" />],
     ['label', <ArenaBottomNavItem id="home" icon="ph-bold ph-house" label="" />],

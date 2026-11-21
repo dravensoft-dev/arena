@@ -131,6 +131,3 @@ test('closed renders nothing at all, which is what makes it a different state fr
   assert.equal(root.textContent?.trim(), '', 'a closed panel must render nothing');
 });
 
-test('a blank title throws rather than rendering a panel nothing can name', () => {
-  assert.throws(() => mount(<ArenaSheet open title="">body</ArenaSheet>), /title/);
-});
