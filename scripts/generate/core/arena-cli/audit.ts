@@ -12,13 +12,14 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { SYMBOL_REF, WEIGHT_CLASSES, glyphNames, scan } from './icon-css.ts';
 
-export const RULE_TAGS = ['compat-alias', 'emoji', 'icon-element',
+export const RULE_TAGS = ['compat-alias', 'emoji', 'icon-element', 'missing-level',
   'outline-gap', 'own-class', 'raw-glyph', 'raw-value', 'router-link', 'stale-allowance', 'unknown-input', 'unknown-part', 'unknown-property', 'wrapped-link'] as const;
 
 export const RULE_DESCRIPTIONS: Record<(typeof RULE_TAGS)[number], string> = {
   'compat-alias': 'A stylesheet in a style plugin directory reads one of Arena\'s compatibility aliases through `var()`, which names a step of the ramp instead of a role.',
   emoji: 'A line of a source holds an emoji character.',
   'icon-element': 'An `icon` or `iconRight` attribute is given an element in braces, where Arena takes a Phosphor class-name string.',
+  'missing-level': 'A class or a `var()` reads a role whose `combines` names a level without that level, or holds it back by a literal share.',
   'outline-gap': 'A source draws Arena headings at two levels with a level missing between them, such as an h1 and an h3 with no h2.',
   'own-class': 'A component carries a class outside its vocabulary or a computed one, or a stylesheet targets an `arena-` class anywhere or a `data-arena-part` hook outside a style plugin.',
   'raw-glyph': 'An element other than `ArenaIcon` holds a Phosphor glyph class, or binds its class to a non-literal value in a file naming one; Arena ships no icon font.',
@@ -855,14 +856,20 @@ export function styleObjectLines(text: string) {
 }
 
 export function findings(relPath: string, text: string, scope: Scope = 'app',
-  vocabulary: VocabularyIndex | null = null): Finding[] {
+  vocabulary: VocabularyIndex | null = null, levels: LevelledRoles = NO_LEVELS): Finding[] {
   const isStylesheet = STYLE_EXTENSIONS.some((ext) => relPath.endsWith(ext));
   const lines = text.split('\n');
   const stripped = withoutComments(text);
   const painted = isStylesheet ? new Set<number>() : styleObjectLines(stripped);
-  const perLine = stripped.split('\n').flatMap((line, index) =>
-    lineFindings(line, isStylesheet, scope, painted.has(index + 1))
-      .map((one) => at(index + 1, one.rule, one.message)));
+  const readsLevels = scope === 'app' && levels.size > 0;
+  let offset = 0;
+  const perLine = stripped.split('\n').flatMap((line, index) => {
+    const file = { text: stripped, offset, sheet: isStylesheet };
+    offset += line.length + 1;
+    return [...lineFindings(line, isStylesheet, scope, painted.has(index + 1)),
+      ...(readsLevels ? levelFindings(line, levels, file) : [])]
+      .map((one) => at(index + 1, one.rule, one.message));
+  });
   return [...perLine, ...structuralFindings(stripped, vocabulary), ...bracketFindings(text, lines)]
     .sort((a, b) => a.line - b.line);
 }
@@ -870,10 +877,10 @@ export function findings(relPath: string, text: string, scope: Scope = 'app',
 export type AuditLine = { rule: string; text: string };
 
 export function auditFindings(relPath: string, text: string, scope: Scope = 'app',
-  vocabulary: VocabularyIndex | null = null): AuditLine[] {
+  vocabulary: VocabularyIndex | null = null, levels: LevelledRoles = NO_LEVELS): AuditLine[] {
   const lines = text.split('\n');
   const byLine = new Map<number, Finding[]>();
-  for (const one of findings(relPath, text, scope, vocabulary)) {
+  for (const one of findings(relPath, text, scope, vocabulary, levels)) {
     if (!byLine.has(one.line)) byLine.set(one.line, []);
     (byLine.get(one.line) ?? []).push(one);
   }
@@ -898,8 +905,8 @@ export function auditFindings(relPath: string, text: string, scope: Scope = 'app
 }
 
 export function auditText(relPath: string, text: string, scope: Scope = 'app',
-  vocabulary: VocabularyIndex | null = null): string[] {
-  return auditFindings(relPath, text, scope, vocabulary).map((one) => one.text);
+  vocabulary: VocabularyIndex | null = null, levels: LevelledRoles = NO_LEVELS): string[] {
+  return auditFindings(relPath, text, scope, vocabulary, levels).map((one) => one.text);
 }
 
 const ICON_TAG = /^(?:ArenaIcon|arena-icon)$/;
@@ -941,4 +948,141 @@ export function iconMemberGlyphs(text: string): Set<string> {
     }
   }
   return glyphNames(found);
+}
+
+export type LevelledRoles = ReadonlyMap<string, string>;
+export const NO_LEVELS: LevelledRoles = new Map();
+export const LEVELS_INDEX = 'arena.levels.json';
+
+export function levelledRoles(roles: Record<string, { combines?: { with: string; as: string }[] }> | undefined): LevelledRoles {
+  const out = new Map<string, string>();
+  for (const [name, role] of Object.entries(roles ?? {})) {
+    const level = role.combines?.find((one) => one.as === 'level');
+    if (level) out.set(name, level.with);
+  }
+  return out;
+}
+
+function readJsonOrNull(path: string): unknown {
+  try { return JSON.parse(readFileSync(path, 'utf8')); } catch { return null; }
+}
+
+export function loadLevels(root: string): LevelledRoles | null {
+  const parsed = readJsonOrNull(join(root, LEVELS_INDEX));
+  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) return null;
+  const entries = Object.entries(parsed);
+  return entries.every(([, level]) => typeof level === 'string') ? new Map(entries as [string, string][]) : null;
+}
+
+export function catalogueLevels(root: string): LevelledRoles | null {
+  const parsed = readJsonOrNull(join(root, 'arena.tokens.json')) as { roles?: Parameters<typeof levelledRoles>[0] } | null;
+  return parsed === null || typeof parsed !== 'object' ? null : levelledRoles(parsed.roles);
+}
+
+const COLOUR_PREFIXES = ['bg', 'text', 'border', 'border-x', 'border-y', 'border-s', 'border-e', 'border-t', 'border-r',
+  'border-b', 'border-l', 'outline', 'ring', 'ring-offset', 'inset-ring', 'decoration', 'fill', 'stroke', 'caret', 'accent',
+  'placeholder', 'divide', 'shadow', 'inset-shadow', 'drop-shadow', 'text-shadow', 'from', 'via', 'to'];
+const CLASS_STOP = /[\s"'`(){}]/;
+const LITERAL_SHARE = /\d*\.?\d+%|(?<![\w.-])\d*\.?\d+(?![\w.%-])/;
+const LEVEL_CLASS_MODIFIER = /^(?:\(--level-|\[var\(--level-)/;
+const APPLY = /@apply\b/;
+const SHEET_EDGE = { back: /[{};]/, ahead: /[;}]/ };
+const MARKUP_EDGE = { back: /[{};'"`<>]/, ahead: /[;}'"`<>]/ };
+
+const levelPatterns = new WeakMap<LevelledRoles, { utility: RegExp; read: RegExp }>();
+
+function patternsFor(levels: LevelledRoles) {
+  const cached = levelPatterns.get(levels);
+  if (cached) return cached;
+  const roles = [...levels.keys()].map((name) => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+  const made = {
+    utility: new RegExp(`(?<![\\w-])(?:${COLOUR_PREFIXES.join('|')})-(${roles})(?![\\w-])(?:/(\\([^)]*\\)|\\[[^\\]]*\\]|[\\w.]+))?`, 'g'),
+    read: new RegExp(`var\\(\\s*--(?:color-)?(${roles})(?=\\s*[,)])`, 'g'),
+  };
+  levelPatterns.set(levels, made);
+  return made;
+}
+
+function callAround(line: string, from: number) {
+  let pos = from;
+  for (;;) {
+    let depth = 0;
+    let open = -1;
+    for (let i = pos - 1; i >= 0; i -= 1) {
+      const c = line[i];
+      if (c === ')') depth += 1;
+      else if (c === '(') { if (depth === 0) { open = i; break; } depth -= 1; }
+    }
+    if (open === -1) return null;
+    const name = /[\w-]*$/.exec(line.slice(0, open))?.[0] ?? '';
+    if (name === 'var') { pos = open - 3; continue; }
+    let nested = 0;
+    let close = line.length;
+    for (let i = open + 1; i < line.length; i += 1) {
+      if (line[i] === '(') nested += 1;
+      else if (line[i] === ')') { if (nested === 0) { close = i; break; } nested -= 1; }
+    }
+    return { name, args: line.slice(open + 1, close) };
+  }
+}
+
+function declarationAround(text: string, from: number, sheet: boolean) {
+  const edge = sheet ? SHEET_EDGE : MARKUP_EDGE;
+  let start = from;
+  while (start > 0 && !edge.back.test(text[start - 1] ?? '')) start -= 1;
+  let end = from;
+  while (end < text.length && !edge.ahead.test(text[end] ?? '')) end += 1;
+  return { text: text.slice(start, end), at: from - start };
+}
+
+function insideClassBracket(line: string, from: number) {
+  const open = line.lastIndexOf('[', from);
+  return open !== -1 && !/[\]\s'"`]/.test(line.slice(open, from));
+}
+
+function withoutVars(args: string) {
+  let out = args;
+  for (let next = out.replace(/var\([^()]*\)/g, ' '); next !== out; next = out.replace(/var\([^()]*\)/g, ' ')) out = next;
+  return out;
+}
+
+export function levelFindings(line: string, levels: LevelledRoles,
+  file: { text: string; offset: number; sheet: boolean } | null = null): Finding[] {
+  if (levels.size === 0) return [];
+  const { utility, read } = patternsFor(levels);
+  const found: Finding[] = [];
+  const sheet = file?.sheet === true;
+  const applied = sheet ? APPLY.exec(line) : null;
+  const classes = !sheet ? line
+    : applied === null ? '' : ' '.repeat(applied.index + applied[0].length) + line.slice(applied.index + applied[0].length);
+  for (const m of classes.matchAll(utility)) {
+    const role = group(m);
+    const level = levels.get(role) ?? '';
+    const modifier = m[2];
+    if (modifier !== undefined && LEVEL_CLASS_MODIFIER.test(modifier)) continue;
+    const start = m.index ?? 0;
+    let from = start;
+    while (from > 0 && !CLASS_STOP.test(classes[from - 1] ?? '')) from -= 1;
+    const stem = classes.slice(from, start + m[0].length - (modifier === undefined ? 0 : modifier.length + 1));
+    const cls = modifier === undefined ? stem : `${stem}/${modifier}`;
+    found.push(at(0, 'missing-level', modifier === undefined
+      ? `\`${cls}\` reads ${role} without its level, so it paints at full strength. Write \`${stem}/(--${level})\``
+      : `\`${cls}\` holds ${role} back by \`/${modifier}\`, a share that cannot follow a level \`arena build\` raises. Write \`${stem}/(--${level})\``));
+  }
+  for (const m of line.matchAll(read)) {
+    const role = group(m);
+    const level = levels.get(role) ?? '';
+    const index = m.index ?? 0;
+    const around = file === null ? { text: line, at: index } : declarationAround(file.text, file.offset + index, file.sheet);
+    const call = callAround(around.text, around.at);
+    if (call?.args.includes('var(--level-')) continue;
+    const share = call?.name === 'color-mix' ? LITERAL_SHARE.exec(withoutVars(call.args))?.[0] : undefined;
+    const form = insideClassBracket(line, index)
+      ? `color-mix(in_oklab,var(--${role})_var(--${level}),transparent)`
+      : `color-mix(in oklab, var(--${role}) var(--${level}), transparent)`;
+    found.push(at(0, 'missing-level', call && share !== undefined
+      ? `reads ${role} at a literal share of ${share} inside ${call.name}(), which cannot follow a level \`arena build\` raises. Write ${form}`
+      : `reads var(--${role}) without its level, so it paints at full strength. Write ${form}`));
+  }
+  return found;
 }
