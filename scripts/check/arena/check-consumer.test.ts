@@ -14,7 +14,7 @@ import { CLI_BINS } from '../../lib/arena/package-assembly.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import {
   importedSheets, packageSheetProblems, REGULAR_SYMBOL, unknownSymbolProblems, listProblems, closedListProblems, spriteProblems, documented, CONFIG_REFERENCE,
-  palettesProblems, defaultListProblems, fontCutProblems, runtimeProblems, installedPalette, SOURCES, UNKNOWN, NAV_SYMBOL, GLYPH_SYMBOL, THIRD_PALETTE, CLI, snapshot, treeChanges, exitProblem, binProblems, unplacedProblems, PROVIDER,
+  palettesProblems, defaultListProblems, fontCutProblems, runtimeProblems, installedPalette, SOURCES, UNKNOWN, NAV_SYMBOL, GLYPH_SYMBOL, THIRD_PALETTE, CLI, snapshot, treeChanges, exitProblem, binProblems, unplacedProblems, PROVIDER, deadNoteProblems,
 } from './check-consumer.ts';
 import type { CliRun, Shipped } from './check-consumer.ts';
 
@@ -461,4 +461,20 @@ test('a provider the run reports as a component it does not ship is a problem, a
   assert.equal(provider.length, 1);
   assert.match(provider[0] ?? '', new RegExp(`${PROVIDER} is a provider this package exports`));
   assert.equal(unplacedProblems('react', ok, 'ArenaWidget').length, 1, 'silence about a typo is still a problem');
+});
+
+const NOTE = 'dead-utility not read: no tailwindcss resolves from this project, so a utility that emits nothing under Arena\'s theme is not reported';
+
+const NOTE_ROWS: { name: string; stdout: string; want: number }[] = [
+  { name: 'one note line', stdout: `arena audit: ${NOTE}\narena audit: audited 2 file(s)\n`, want: 0 },
+  { name: 'no note line', stdout: 'audit: 3 findings\n', want: 1 },
+  { name: 'two note lines', stdout: `arena audit: ${NOTE}\narena audit: ${NOTE}\n`, want: 1 },
+];
+
+test('a project without tailwindcss is told once that dead utilities were not read', () => {
+  for (const row of NOTE_ROWS) {
+    const problems = deadNoteProblems('react', { ...ok, stdout: row.stdout });
+    assert.equal(problems.length, row.want, `${row.name}: ${JSON.stringify(problems)}`);
+    for (const one of problems) assert.ok(one.startsWith('react:'), `${row.name}: ${one}`);
+  }
 });

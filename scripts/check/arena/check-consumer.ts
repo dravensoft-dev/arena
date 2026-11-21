@@ -101,10 +101,11 @@ export const BREAKING: Record<string, { files: Record<string, string>; rules: st
         + '    <ArenaCard>c</ArenaCard>\n'
         + '  </Link>\n'
         + '  <li className="bg-selected">c</li>\n'
+        + '  <p className="shadow-md">c</p>\n'
         + '</div>);\n',
       'src/app.css': '.arena-button__label { color: #fff; }\n',
     },
-    rules: ['own-class', 'router-link', 'raw-value', 'icon-element', 'raw-glyph', 'emoji', 'missing-level'],
+    rules: ['own-class', 'router-link', 'raw-value', 'icon-element', 'raw-glyph', 'emoji', 'missing-level', 'dead-utility'],
   },
   angular: {
     files: {
@@ -118,10 +119,11 @@ export const BREAKING: Record<string, { files: Record<string, string>; rules: st
         + '>\n'
         + '  <arena-card></arena-card>\n'
         + '</a>\n'
-        + '<p class="text-ink-muted">c</p>\n',
+        + '<p class="text-ink-muted">c</p>\n'
+        + '<p class="xl:flex">c</p>\n',
       'src/app.css': '.arena-card__body { color: #fff; padding: 16px; }\n',
     },
-    rules: ['own-class', 'router-link', 'raw-value', 'raw-glyph', 'emoji', 'missing-level'],
+    rules: ['own-class', 'router-link', 'raw-value', 'raw-glyph', 'emoji', 'missing-level', 'dead-utility'],
   },
 };
 
@@ -645,6 +647,21 @@ export function auditProblems(layer: string, reported: CliRun, strict: CliRun, r
   return problems;
 }
 
+export function withTailwind(dir: string, base = root) {
+  const at = join(dir, 'node_modules', 'tailwindcss');
+  mkdirSync(join(at, '..'), { recursive: true });
+  if (!existsSync(at)) linkDir(join(base, 'node_modules', 'tailwindcss'), at);
+  return dir;
+}
+
+export function deadNoteProblems(layer: string, run: CliRun) {
+  const notes = run.stdout.split('\n').filter((line) => line.includes('dead-utility not read: no tailwindcss resolves'));
+  return notes.length === 1
+    ? []
+    : [`${layer}: arena audit printed ${notes.length} notes that no tailwindcss resolves from a project without it, `
+      + 'and a project that cannot be compiled against is told so exactly once'];
+}
+
 export function cleanAuditProblems(layer: string, clean: CliRun) {
   const tagged = new RegExp(`\\((${RULE_TAGS.join('|')})\\)`);
   const found = clean.stderr.split('\n').filter((line) => tagged.test(line));
@@ -902,7 +919,7 @@ export async function collect(base = root) {
   try {
     for (const { layer } of PACKAGES) {
       const sources = SOURCES[layer] ?? {};
-      const auto = fixture(layer, sources, AUTO, base);
+      const auto = withTailwind(fixture(layer, sources, AUTO, base), base);
       const unexported = fixture(layer, UNKNOWN[layer] ?? {}, AUTO, base);
       if (!list) {
         problems.push(`${layer}: ${CONFIG_REFERENCE} spells ${lists} stylesheet.components lists rather than one, `
@@ -916,13 +933,14 @@ export async function collect(base = root) {
       const strange = UNPLACED[layer];
       const unplaced = fixture(layer, strange?.files ?? {}, AUTO, base);
       const breaking = BREAKING[layer];
-      const broken = fixture(layer, breaking?.files ?? {}, AUTO, base);
+      const broken = withTailwind(fixture(layer, breaking?.files ?? {}, AUTO, base), base);
+      const bare = fixture(layer, breaking?.files ?? {}, AUTO, base);
       const plugged = pluginFixture(layer, [PLUGINS.total, PLUGINS.partial], base);
       const partialRoot = pluginFixture(layer, [PLUGINS.partial], base);
       const edited = fixture(layer, appOnlyEdit(layer, sources), AUTO, base);
       const palettes = palettesFixture(layer, base);
       const runtime = runtimeFixture(layer, base);
-      dirs.push(auto, edited, unexported, unnamed, named, closed, unknown, unplaced, broken, plugged, partialRoot, palettes, runtime);
+      dirs.push(auto, edited, unexported, unnamed, named, closed, unknown, unplaced, broken, bare, plugged, partialRoot, palettes, runtime);
 
       const result = runCli(layer, auto, base);
       problems.push(...mergeProblems(layer, result, base));
@@ -933,6 +951,7 @@ export async function collect(base = root) {
       problems.push(...listProblems(layer, runCli(layer, named, base), runCli(layer, unknown, base), list));
       problems.push(...closedListProblems(layer, runCli(layer, closed, base)));
       problems.push(...defaultListProblems(layer, runCli(layer, unnamed, base)));
+      problems.push(...deadNoteProblems(layer, runCli(layer, bare, base, ['audit'])));
       problems.push(...unplacedProblems(layer, runCli(layer, unplaced, base, ['check']), strange?.name ?? ''));
       problems.push(...auditProblems(
         layer,
