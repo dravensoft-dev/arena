@@ -1,6 +1,5 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
@@ -100,12 +99,6 @@ test('a layer row links the prompt beside the component rather than naming a pat
     '| `ArenaBadge` | Status label. | `children` `dot` | '
     + '[`ArenaBadge.prompt.md`](./arena-badge/ArenaBadge.prompt.md) |',
   );
-});
-
-test('every emitted index is what is committed, so a reader of the tag reads the truth', () => {
-  for (const target of skillTargets()) {
-    assert.equal(renderTarget(target), readFileSync(join(repoRoot, target), 'utf8'), `${target} is stale`);
-  }
 });
 
 test('the index names every component and stays clear of the punctuation rule', () => {

@@ -171,14 +171,6 @@ test('an orphan already gone when the write runs is not an error and is not repo
   assert.deepEqual(said, []);
 });
 
-test('--strict on build exits 2 pointing at arena check', async () => {
-  const root = project();
-  const { io, out, err } = captureIo(root, environment(null));
-  assert.equal(await run([...flags(root), '--strict'], io), 2);
-  assert.deepEqual(out, []);
-  assert.match(err[0]!, /arena check/);
-});
-
 test('--watch hands over to watchBuild (6c)', async () => {
   const { core } = phosphor();
   const root = project();

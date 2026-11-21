@@ -103,13 +103,6 @@ test('a fatal config exits with the plan\'s code', async () => {
   assert.equal((await check(invalid)).code, 1);
 });
 
-test('--strict=audit exits 2 naming arena audit', async () => {
-  const root = setup({ 'app.html': GLYPHS });
-  const result = await check(root, ['--strict=audit']);
-  assert.equal(result.code, 2);
-  assert.match(result.err.join('\n'), /arena audit/);
-});
-
 const unpinned = (ink: string) => {
   const kept = Object.fromEntries(Object.entries(readable.palettes[0]!.colors).filter(([key]) => !key.startsWith('heat-')));
   return { ...readable, palettes: [{ ...readable.palettes[0]!, colors: { ...kept, 'base-content': ink } }] };

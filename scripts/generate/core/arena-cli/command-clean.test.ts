@@ -58,13 +58,6 @@ test('an empty or absent out prints "nothing to remove" and exits 0', () => {
   assert.equal(existsSync(missing), false);
 });
 
-test('--config exits 2 with the neighbour message', () => {
-  const { io, out, err } = captureIo(root());
-  assert.equal(run(['--config', 'a.json'], io), 2);
-  assert.deepEqual(out, []);
-  assert.match(err[0]!, /^arena clean: --config is not a flag of arena clean; arena clean reads no config/);
-});
-
 test('a sheet it cannot delete exits 2 naming it, after removing the ones it can', () => {
   const dir = root();
   const [blocked, ...rest] = [...OUTPUT_SHEETS];

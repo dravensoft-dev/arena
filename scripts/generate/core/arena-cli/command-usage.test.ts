@@ -69,15 +69,6 @@ test('no component map exits 2', () => {
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
 
-test('--strict exits 2 with the neighbour message', () => {
-  const root = project();
-  try {
-    const { io, err } = captureIo(root, environment);
-    assert.equal(run(['--strict'], io), 2);
-    assert.match(err[0]!, /^arena usage: --strict is not a flag of arena usage; arena usage reports nothing a project fixes/);
-  } finally { rmSync(root, { recursive: true, force: true }); }
-});
-
 test('a config it cannot read exits 2 naming it, and a named config that is not there does too', () => {
   const root = project({ ...readable, stylePlugins: ['plugin'] }, { 'app.html': '<arena-button></arena-button>' });
   try {

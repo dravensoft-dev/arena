@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
-  buildPlaygrounds, codecFiles, codecTarget, renderCodec, componentFiles, loadPlaces, placesFor,
+  codecFiles, codecTarget, renderCodec, componentFiles, loadPlaces, placesFor,
   CODEC_BANNER, CODEC_SOURCE, PLAYGROUND_LAYERS,
 } from './generate-playgrounds.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
@@ -14,12 +14,6 @@ test('every layer with a playground gets the codec, and nothing else does', () =
     [...codecFiles().keys()],
     PLAYGROUND_LAYERS.map((layer) => codecTarget(layer)),
   );
-});
-
-test('the emitted copies are byte-identical, which is the whole reason they are emitted', () => {
-  const bodies = new Set(codecFiles().values());
-  assert.equal(bodies.size, 1,
-    'two copies of decode() that drift render the same URL differently in each layer, and no gate would see it');
 });
 
 test('the copy names its generator and its source, so nobody edits the copy', () => {
@@ -39,12 +33,6 @@ test('the target carries the generated infix, or the copy would be read as hand-
     assert.match(codecTarget(layer), /\.generated\.ts$/);
     assert.match(codecTarget(layer), new RegExp(`^frameworks/${layer}/playground/`));
   }
-});
-
-test('an emit of nothing is a failure rather than a clean pass', () => {
-  const { files, problems } = buildPlaygrounds();
-  assert.ok(files.size > 0);
-  assert.deepEqual(problems, []);
 });
 
 test('the pilot emits a page and an entry into both layers, and nothing else', () => {

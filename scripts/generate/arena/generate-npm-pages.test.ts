@@ -1,7 +1,7 @@
-/* The property that makes this safe to have written at all is that a region is placed by a person
- * and only filled by the script, so these hold both halves: a page with no markers is refused
- * rather than rewritten, and a page with them comes back byte-identical once it is current. The
- * generated text is emitted verbatim, so a page that is current comes back unchanged. */
+/* A region is placed by a person and only filled by the script, so these hold that half: a page
+ * with no markers is refused rather than rewritten, a region replaces only what sits between its
+ * markers, and each target carries exactly the regions mapped to it. That a committed page is
+ * current is held by check:skills. */
 
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
@@ -11,7 +11,7 @@ import { join } from 'node:path';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { LAYER_TOKENS, FORBIDDEN } from '../../check/arena/check-layer-independence.ts';
 import {
-  TARGETS, atDefault, noImportSheets, openLine, closeLine, renderRegion, applyRegion, renderTarget, regionsOf,
+  TARGETS, atDefault, noImportSheets, openLine, closeLine, renderRegion, applyRegion, regionsOf,
   ROLE_CONTRACT, BEHAVIOUR_CONTRACT, densityValues, requiredLead, toastIntervals, defaultedRoles, defaultedSentence, defaultsStatement, roleRuns, unansweredCount,
   SLOT_PAGE, EXAMPLE_SLOT_ANSWERS, slotGroupSections, splitFamilyNames, splitFamilySentence,
 } from './generate-npm-pages.ts';
@@ -60,8 +60,6 @@ test('each target carries exactly the regions mapped to it', () => {
     const text = readFileSync(join(repoRoot, target), 'utf8');
     const carried = [...text.matchAll(/^<!-- @shared (\S+) GENERATED /gm)].map((match) => match[1]);
     assert.deepEqual(carried.sort(), regionsOf(target).sort(), `${target} carries its mapped regions and no other`);
-    for (const key of regionsOf(target))
-      assert.ok(text.includes(renderRegion(key, repoRoot, target)), `${target} carries a fresh ${key} region`);
   }
   assert.deepEqual(regionsOf('frameworks/react/PACKAGE.md'), ['repository', 'questions']);
   assert.deepEqual(regionsOf('skills/design/references/config.md'), ['splitFamilies', 'skin']);
@@ -101,13 +99,6 @@ test('a question table cell stays under 2000 characters', () => {
   for (const page of NPM_PAGES)
     for (const line of renderRegion('questions', repoRoot, page).split('\n'))
       for (const cell of line.split(' | ')) assert.ok(cell.length < 2000, `a cell of ${cell.length} characters`);
-});
-
-test('a page that is current comes back byte-identical, so an emit is never a rewrite', () => {
-  for (const target of TARGETS) {
-    const source = readFileSync(join(repoRoot, target), 'utf8');
-    assert.equal(renderTarget(source, target), source, `${target} matches a fresh emit`);
-  }
 });
 
 test('a page with no markers is refused, because a person decides where a section sits', () => {
