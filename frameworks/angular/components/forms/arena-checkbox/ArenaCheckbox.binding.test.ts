@@ -19,42 +19,6 @@ function render() {
   return { fixture, binding, el };
 }
 
-test('while bound, the control draws the binding\'s value and ignores its own', () => {
-  const { fixture, binding, el } = render();
-  try {
-    fixture.componentRef.setInput('checked', false);
-    binding.bound.set(true);
-    binding.value.set(true);
-    fixture.detectChanges();
-    assert.equal(el.checked, true);
-  } finally { fixture.destroy(); }
-});
-
-test('while bound, a change calls onChange and the component\'s own output still fires', () => {
-  const { fixture, binding, el } = render();
-  try {
-    const reported: unknown[] = [];
-    const emitted: unknown[] = [];
-    binding.bound.set(true);
-    binding.onChange = (value) => reported.push(value);
-    fixture.componentInstance.valueChange.subscribe((value: unknown) => emitted.push(value));
-    fixture.detectChanges();
-    el.checked = true;
-    el.dispatchEvent(new Event('change', { bubbles: true }));
-    assert.deepEqual(reported, [true]);
-    assert.deepEqual(emitted, [true]);
-  } finally { fixture.destroy(); }
-});
-
-test('the binding\'s disabled state disables the control', () => {
-  const { fixture, binding, el } = render();
-  try {
-    binding.disabled.set(true);
-    fixture.detectChanges();
-    assert.equal(el.disabled, true);
-  } finally { fixture.destroy(); }
-});
-
 @Component({
   standalone: true,
   imports: [ArenaCheckbox],

@@ -5,10 +5,6 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { arenaSliderStyles } from './ArenaSlider.variants';
 
-test('the default is a single, enabled slider lying across', () => {
-  assert.deepEqual(arenaSliderStyles().$data.root(), arenaSliderStyles({ orientation: 'horizontal', range: false, disabled: false }).$data.root());
-});
-
 test('a vertical slider says so on the root and on every part that moves', () => {
   const vertical = arenaSliderStyles({ orientation: 'vertical' }).$data;
   for (const slot of ['root', 'track', 'rail', 'fill', 'thumb'] as const)

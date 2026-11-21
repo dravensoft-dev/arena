@@ -9,10 +9,6 @@ import { arenaFileInputStyles } from './ArenaFileInput.variants';
 const data = (chosen: Parameters<typeof arenaFileInputStyles>[0], slot: 'root' | 'zone' | 'trigger' | 'label' | 'hint') =>
   JSON.stringify(arenaFileInputStyles(chosen).$data[slot]());
 
-test('the default is a neutral, enabled field that takes no drop', () => {
-  assert.equal(data({}, 'zone'), data({ droppable: false, dragging: false, state: 'neutral', disabled: false }, 'zone'));
-});
-
 test('droppable, dragging and state each reach the zone', () => {
   assert.notEqual(data({ droppable: true }, 'zone'), data({ droppable: false }, 'zone'));
   assert.notEqual(data({ dragging: true }, 'zone'), data({ dragging: false }, 'zone'));

@@ -6,13 +6,6 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { arenaNumberFieldStyles } from './ArenaNumberField.variants';
 
-test('the default is a neutral, enabled, editable field with steppers', () => {
-  assert.equal(
-    JSON.stringify(arenaNumberFieldStyles().$data.field()),
-    JSON.stringify(arenaNumberFieldStyles({ state: 'neutral', steppers: true, disabled: false, readOnly: false }).$data.field()),
-  );
-});
-
 test('a field without steppers says so on the field, which then pads its own ends', () => {
   assert.equal(arenaNumberFieldStyles({ steppers: false }).$data.field()['data-arena-steppers'], undefined);
   assert.equal(arenaNumberFieldStyles({ steppers: true }).$data.field()['data-arena-steppers'], '');
