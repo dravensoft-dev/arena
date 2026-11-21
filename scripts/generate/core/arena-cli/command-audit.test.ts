@@ -163,19 +163,21 @@ test('a plugin rule reading a property nothing declares is reported, and held by
 
 const TAILWIND = tailwindRoot(repoRoot);
 
+const DEAD_ROWS = [
+  { name: 'with the project\'s tailwindcss', compiler: TAILWIND, dead: 1, notes: 0 },
+  { name: 'without a compiler', compiler: null, dead: 0, notes: 1 },
+];
+
 test('a dead utility is reported beside the other rules, and its absence is one note', async () => {
   const { root } = setup({ 'src/App.tsx': '<div className="p-2 shadow-md p-[13px]" />' });
   const arena = hostRoot('@dravensoft/arena-react', '1.0.0', { 'css/tailwind-theme.css': tailwindThemeSheet(repoRoot) });
-  const read = await audit(root, arena, [], TAILWIND);
-  const dead = read.err.filter((line) => line.includes('(dead-utility)'));
-  assert.equal(dead.length, 1, read.err.join('\n'));
-  assert.match(dead[0]!, /shadow-1/);
-  assert.equal(read.err.filter((line) => line.includes('(raw-value)')).length, 1, read.err.join('\n'));
-  assert.equal(read.code, 0);
-  assert.equal(read.out.filter((line) => line.includes('dead-utility not read')).length, 0);
-  const without = await audit(root, arena, [], null);
-  assert.equal(without.err.filter((line) => line.includes('(dead-utility)')).length, 0);
-  assert.equal(without.out.filter((line) => line.includes('dead-utility not read')).length, 1, without.out.join('\n'));
-  assert.equal(without.err.filter((line) => line.includes('(raw-value)')).length, 1);
-  assert.equal(without.code, 0);
+  for (const row of DEAD_ROWS) {
+    const read = await audit(root, arena, [], row.compiler);
+    const dead = read.err.filter((line) => line.includes('(dead-utility)'));
+    assert.equal(dead.length, row.dead, `${row.name}: dead-utility findings ${read.err.join('\n')}`);
+    if (row.dead > 0) assert.match(dead[0]!, /shadow-1/, `${row.name}: names an answer`);
+    assert.equal(read.err.filter((line) => line.includes('(raw-value)')).length, 1, `${row.name}: raw-value ${read.err.join('\n')}`);
+    assert.equal(read.out.filter((line) => line.includes('dead-utility not read')).length, row.notes, `${row.name}: notes ${read.out.join('\n')}`);
+    assert.equal(read.code, 0, `${row.name}: exit code`);
+  }
 });
