@@ -140,10 +140,10 @@ test('the vocabulary index is read from beside the command, and a file that is n
 });
 
 test('an override a caller hands in wins over what the install would answer, and a missing install answers nothing', () => {
-  const none = resolveEnvironment({ arena: null, phosphor: null });
+  const none = resolveEnvironment({ arena: null, phosphor: null, tailwind: null });
   assert.deepEqual(none, {
     arena: null, packageName: '@dravensoft/arena-react', sheets: null, map: null, vocabulary: null, phosphor: null,
-    fontTools: fontToolRoots(),
+    fontTools: fontToolRoots(), tailwind: null,
   });
   const named = resolveEnvironment({ arena: null, phosphor: '/p', packageName: '@dravensoft/arena-angular' });
   assert.equal(named.packageName, '@dravensoft/arena-angular');

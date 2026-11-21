@@ -6,9 +6,10 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { toPosix } from './posix.ts';
-import { auditFindings, levelledRoles, paintedParts, sourceScope, withoutComments, ALLOW_MARKER, PAINTED_PART, group } from './audit.ts';
+import { auditFindings, classCandidates, NO_DEAD, levelledRoles, paintedParts, sourceScope, withoutComments, ALLOW_MARKER, PAINTED_PART, group } from './audit.ts';
 import { knownParts, nearestName, unknownPart } from './names.ts';
-import type { VocabularyIndex } from './audit.ts';
+import type { DeadUtilities, VocabularyIndex } from './audit.ts';
+import { TAILWIND_THEME, deadUtilities, loadTailwind, ownThemeBlocks } from './dead-utilities.ts';
 import { markerProblems } from './markers.ts';
 import { restatedFindings, sheetFor } from './restated.ts';
 import { report } from './reports.ts';
@@ -118,9 +119,37 @@ function nameFindings(text: string, known: Set<string> | null, parts: Set<string
   return found;
 }
 
+export async function deadUtilityStep(
+  options: StepOptions, arena: string | null, tailwind: string | null, roles: ReadonlySet<string>,
+): Promise<{ dead: DeadUtilities; note: string | null }> {
+  const candidates: string[] = [];
+  let own = '';
+  const dirs = pluginDirs(options);
+  for (const file of auditFiles(options.paths, dirs)) {
+    if (sourceScope(resolve(file), dirs) !== 'app') continue;
+    const text = readFileSync(file, 'utf8');
+    for (const one of classCandidates(toPosix(file), text)) candidates.push(one.candidate);
+    if (file.endsWith('.css')) own += `${ownThemeBlocks(text)}\n`;
+  }
+  if (candidates.length === 0) return { dead: NO_DEAD, note: null };
+  const sheet = arena ? join(arena, 'css', TAILWIND_THEME) : null;
+  if (!sheet || !existsSync(sheet)) {
+    return { dead: NO_DEAD, note: 'dead-utility not read: the package ships no css/tailwind-theme.css to compile against' };
+  }
+  const tw = await loadTailwind(tailwind);
+  if ('skip' in tw) return { dead: NO_DEAD, note: `dead-utility not read: ${tw.skip}` };
+  try {
+    return { dead: await deadUtilities(candidates, { arena: readFileSync(sheet, 'utf8'), own }, tw, roles), note: null };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return { dead: NO_DEAD, note: 'dead-utility not read: tailwindcss could not compile Arena\'s theme with your own '
+      + `@theme, @utility and @custom-variant blocks (${message})` };
+  }
+}
+
 export function auditStep(
   options: StepOptions, arena: string | null = null, catalogue: TokenCatalogue | null = null,
-  vocabulary: VocabularyIndex | null = null,
+  vocabulary: VocabularyIndex | null = null, dead: DeadUtilities = NO_DEAD,
 ) {
   const dirs = pluginDirs(options);
   const tokensAt = pluginTokenMaps(dirs, catalogue);
@@ -140,7 +169,7 @@ export function auditStep(
     const cited = toPosix(file);
     const text = readFileSync(file, 'utf8');
     const scope = sourceScope(resolve(file), dirs);
-    const audited = auditFindings(cited, text, scope, vocabulary, levels);
+    const audited = auditFindings(cited, text, scope, vocabulary, levels, dead);
     if (scope !== 'plugin') {
       reports.push(...audited.map((one) => report('audit', one.text, one.rule)));
       continue;

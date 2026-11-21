@@ -7,9 +7,9 @@ import { resolveEnvironment } from './host.ts';
 import { heldMessage, reported } from './reports.ts';
 import { packageCatalogue } from './sheets.ts';
 import { missingSource, readPluginDirs } from './sources.ts';
-import { auditStep } from './steps.ts';
+import { auditStep, deadUtilityStep } from './steps.ts';
 
-export function run(argv: string[], io: Io): number {
+export async function run(argv: string[], io: Io): Promise<number> {
   const options = commandOptions('audit', argv, io);
   if (typeof options === 'number') return options;
   const say = voice(io, 'audit');
@@ -26,10 +26,13 @@ export function run(argv: string[], io: Io): number {
   }
 
   const env = resolveEnvironment(io.environment);
-  const found = auditStep(options, env.arena,
-    env.arena ? packageCatalogue(env.arena) : null, env.vocabulary);
+  const catalogue = env.arena ? packageCatalogue(env.arena) : null;
+  const swept = await deadUtilityStep(options, env.arena, env.tailwind,
+    new Set(Object.keys(catalogue?.roles ?? {})));
+  const found = auditStep(options, env.arena, catalogue, env.vocabulary, swept.dead);
 
   for (const one of found.reports) say.err(`[${one.kind}] ${one.message}`);
+  if (swept.note) say.out(swept.note);
   say.out(`audited ${found.scanned} file(s), ${found.reports.length || 'no'} finding(s). `
     + 'Nothing reads the rendered view or the application as a whole; what they show holds because you hold it');
 

@@ -8,6 +8,9 @@ import { join } from 'node:path';
 import { run } from './command-audit.ts';
 import { captureIo, hostRoot, readable, removeFixtures } from './cli-fixtures.ts';
 import { strictNames } from './reports.ts';
+import { tailwindRoot } from './dead-utilities.ts';
+import { tailwindThemeSheet } from '../../../lib/tailwind/theme-sheet.ts';
+import { repoRoot } from '../../../lib/arena/repo-root.ts';
 
 after(removeFixtures);
 
@@ -41,119 +44,138 @@ function setup(files: Record<string, string>, plugin = false) {
   return { root, arena };
 }
 
-function audit(root: string, arena: string, argv: string[] = []) {
-  const captured = captureIo(root, { arena, map: null, sheets: null, vocabulary: null, phosphor: null });
-  const code = run(argv, captured.io);
+async function audit(root: string, arena: string, argv: string[] = [], tailwind: string | null = null) {
+  const captured = captureIo(root, { arena, map: null, sheets: null, vocabulary: null, phosphor: null, tailwind });
+  const code = await run(argv, captured.io);
   return { code, out: captured.out, err: captured.err };
 }
 
-test('audit writes nothing', () => {
+test('audit writes nothing', async () => {
   const { root, arena } = setup({ 'src/App.tsx': BREAK });
   const before = tree(root);
-  audit(root, arena, ['--strict']);
+  await audit(root, arena, ['--strict']);
   assert.deepEqual(tree(root), before);
 });
 
-test('a rule break is reported, and exits 0 without --strict', () => {
+test('a rule break is reported, and exits 0 without --strict', async () => {
   const { root, arena } = setup({ 'src/App.tsx': BREAK });
-  const result = audit(root, arena);
+  const result = await audit(root, arena);
   assert.equal(result.code, 0);
   assert.match(result.err.join('\n'), /\[audit\] .*raw hex/);
 });
 
-test('--strict exits 1 on audit and on restated', () => {
+test('--strict exits 1 on audit and on restated', async () => {
   const broken = setup({ 'src/App.tsx': BREAK });
-  const first = audit(broken.root, broken.arena, ['--strict']);
+  const first = await audit(broken.root, broken.arena, ['--strict']);
   assert.equal(first.code, 1);
   assert.match(first.err.join('\n'), /--strict holds audit, restated, and this run reports 1 of them: audit/);
 
   const restated = setup({ 'src/App.tsx': '<p />', 'plugin/rules.css': RESTATE }, true);
-  const second = audit(restated.root, restated.arena, ['--strict']);
+  const second = await audit(restated.root, restated.arena, ['--strict']);
   assert.match(second.err.join('\n'), /\[restated\]/);
   assert.equal(second.code, 1);
 });
 
-test('--strict=restated does not hold an audit finding', () => {
+test('--strict=restated does not hold an audit finding', async () => {
   const { root, arena } = setup({ 'src/App.tsx': BREAK });
-  const result = audit(root, arena, ['--strict=restated']);
+  const result = await audit(root, arena, ['--strict=restated']);
   assert.equal(result.code, 0);
   assert.match(result.err.join('\n'), /\[audit\]/);
 });
 
-test('the summary line counts files and findings, and the painted note is absent', () => {
+test('the summary line counts files and findings, and the painted note is absent', async () => {
   const { root, arena } = setup({ 'src/App.tsx': BREAK, 'src/b.tsx': '<p />' });
-  const result = audit(root, arena);
+  const result = await audit(root, arena);
   assert.equal(result.out.length, 1);
   assert.match(result.out[0]!, /^arena audit: audited 2 file\(s\), 1 finding\(s\)\. Nothing reads the rendered view or the application as a whole; what they show holds because you hold it$/);
   assert.doesNotMatch(result.out.join('\n'), /paint/);
   const clean = setup({ 'src/b.tsx': '<p />' });
-  assert.match(audit(clean.root, clean.arena).out[0]!, /audited 1 file\(s\), no finding\(s\)/);
+  assert.match((await audit(clean.root, clean.arena)).out[0]!, /audited 1 file\(s\), no finding\(s\)/);
 });
 
-test('a missing --src exits 2', () => {
+test('a missing --src exits 2', async () => {
   const { root, arena } = setup({});
-  const result = audit(root, arena, ['--src', 'nowhere']);
+  const result = await audit(root, arena, ['--src', 'nowhere']);
   assert.equal(result.code, 2);
   assert.match(result.err.join('\n'), /arena audit: .*nowhere is not there/);
 });
 
-test('a config it cannot read exits 2 naming it, and a named config that is not there does too', () => {
+test('a config it cannot read exits 2 naming it, and a named config that is not there does too', async () => {
   const { root, arena } = setup({ 'src/App.tsx': '<p />', 'src/skin/plugin.css': '[data-arena-part="card.title"] { color: red; }' });
   const config = join(root, 'arena.config.json');
   writeFileSync(config, '{ "stylePlugins": ["./src/skin"], }');
-  const broken = audit(root, arena, ['--strict']);
+  const broken = await audit(root, arena, ['--strict']);
   assert.equal(broken.code, 2);
   assert.equal(broken.out.length, 0);
   assert.match(broken.err[0]!, new RegExp(`^arena audit: cannot read ${config.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}: `));
   assert.equal(broken.err.length, 1);
 
-  const named = audit(root, arena, ['--config', 'nope.json']);
+  const named = await audit(root, arena, ['--config', 'nope.json']);
   assert.equal(named.code, 2);
   assert.match(named.err[0]!, /^arena audit: cannot read .*nope\.json: /);
 });
 
-test('no config at the default path reads as no style plugin', () => {
+test('no config at the default path reads as no style plugin', async () => {
   const { root, arena } = setup({ 'src/b.tsx': '<p />' });
   rmSync(join(root, 'arena.config.json'));
-  const result = audit(root, arena);
+  const result = await audit(root, arena);
   assert.equal(result.code, 0);
   assert.match(result.out[0]!, /audited 1 file\(s\), no finding\(s\)/);
 });
 
-test('a --config spelled like the default that is not there exits 2, since it was named', () => {
+test('a --config spelled like the default that is not there exits 2, since it was named', async () => {
   const { root, arena } = setup({ 'src/b.tsx': '<p />' });
   rmSync(join(root, 'arena.config.json'));
-  const result = audit(root, arena, ['--config', 'arena.config.json']);
+  const result = await audit(root, arena, ['--config', 'arena.config.json']);
   assert.equal(result.code, 2);
   assert.match(result.err[0]!, /^arena audit: cannot read .*arena\.config\.json: /);
 });
 
-test('a rule the written list does not name is reported and not held, and held once named', () => {
+test('a rule the written list does not name is reported and not held, and held once named', async () => {
   const { root, arena } = setup({ 'src/App.tsx': BREAK });
   const named = strictNames('audit');
-  const unnamed = audit(root, arena, [`--strict=${named.filter((one) => one !== 'audit:raw-value').join(',')}`]);
+  const unnamed = await audit(root, arena, [`--strict=${named.filter((one) => one !== 'audit:raw-value').join(',')}`]);
   assert.equal(unnamed.code, 0);
   assert.match(unnamed.err.join('\n'), /\[audit\] .*\(raw-value\)/);
-  const held = audit(root, arena, [`--strict=${named.join(',')}`]);
+  const held = await audit(root, arena, [`--strict=${named.join(',')}`]);
   assert.equal(held.code, 1);
   assert.match(held.err.join('\n'), /and this run reports 1 of them: audit:raw-value$/m);
 });
 
-test('a stale allowance is held by the list init writes', () => {
+test('a stale allowance is held by the list init writes', async () => {
   const { root, arena } = setup({ 'src/App.tsx': 'const x = 1; // arena-audit allow\n' });
-  const result = audit(root, arena, [`--strict=${strictNames('audit').join(',')}`]);
+  const result = await audit(root, arena, [`--strict=${strictNames('audit').join(',')}`]);
   assert.equal(result.code, 1);
   assert.match(result.err.join('\n'), /reports 1 of them: audit:stale-allowance$/m);
 });
 
-test('a plugin rule reading a property nothing declares is reported, and held by its name', () => {
+test('a plugin rule reading a property nothing declares is reported, and held by its name', async () => {
   const { root } = setup({ 'src/App.tsx': '<p />', 'plugin/rules.css': '[data-arena-part="card.title"] { color: var(--arena-nothing, transparent); }\n' }, true);
   const arena = hostRoot('@dravensoft/arena-react', '1.0.0', {
     'arena.tokens.json': JSON.stringify({ tokens: {}, roles: {}, aliases: {}, channels: ['--spacing-row'] }),
   });
   const run = (argv: string[]) => audit(root, arena, argv);
-  const reported = run([]);
+  const reported = await run([]);
   assert.equal(reported.code, 0);
   assert.match(reported.err.join('\n'), /\[audit\] .*rules\.css:1: reads var\(--arena-nothing\).*\(unknown-property\)/);
-  assert.equal(run(['--strict=audit:unknown-property']).code, 1);
+  assert.equal((await run(['--strict=audit:unknown-property'])).code, 1);
+});
+
+const TAILWIND = tailwindRoot(repoRoot);
+
+test('a dead utility is reported beside the other rules, and its absence is one note', async () => {
+  const { root } = setup({ 'src/App.tsx': '<div className="p-2 shadow-md p-[13px]" />' });
+  const arena = hostRoot('@dravensoft/arena-react', '1.0.0', { 'css/tailwind-theme.css': tailwindThemeSheet(repoRoot) });
+  const read = await audit(root, arena, [], TAILWIND);
+  const dead = read.err.filter((line) => line.includes('(dead-utility)'));
+  assert.equal(dead.length, 1, read.err.join('\n'));
+  assert.match(dead[0]!, /shadow-1/);
+  assert.equal(read.err.filter((line) => line.includes('(raw-value)')).length, 1, read.err.join('\n'));
+  assert.equal(read.code, 0);
+  assert.equal(read.out.filter((line) => line.includes('dead-utility not read')).length, 0);
+  const without = await audit(root, arena, [], null);
+  assert.equal(without.err.filter((line) => line.includes('(dead-utility)')).length, 0);
+  assert.equal(without.out.filter((line) => line.includes('dead-utility not read')).length, 1, without.out.join('\n'));
+  assert.equal(without.err.filter((line) => line.includes('(raw-value)')).length, 1);
+  assert.equal(without.code, 0);
 });

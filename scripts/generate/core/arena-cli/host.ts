@@ -11,6 +11,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, basename, join } from 'node:path';
 import { loadVocabulary } from './audit.ts';
 import { packageRoot } from './package-root.ts';
+import { tailwindRoot } from './dead-utilities.ts';
 import type { FontToolRoots } from './font-files.ts';
 import type { VocabularyIndex } from './audit.ts';
 import { inlineHues, levelDefaults, levelsIn, washesIn } from './levels.ts';
@@ -139,6 +140,7 @@ export type HostEnvironment = {
   sheets?: PackageSheets;
   map?: ComponentMap | null;
   vocabulary?: VocabularyIndex | null;
+  tailwind?: string | null;
 };
 
 export function resolveEnvironment(environment: HostEnvironment = {}) {
@@ -153,7 +155,8 @@ export function resolveEnvironment(environment: HostEnvironment = {}) {
     ? environment.vocabulary : (arena ? loadVocabulary(arena) : null);
   const phosphor = ('phosphor' in environment ? environment.phosphor : phosphorRoot()) ?? null;
   const fontTools = environment.fontTools ?? fontToolRoots();
-  return { arena, packageName, sheets, map, vocabulary, phosphor, fontTools };
+  const tailwind = ('tailwind' in environment ? environment.tailwind : tailwindRoot(process.cwd())) ?? null;
+  return { arena, packageName, sheets, map, vocabulary, phosphor, fontTools, tailwind };
 }
 
 export function hostManifest(root: string | null): { name: string; version: string; engines?: { node?: string } } | null {

@@ -2,15 +2,17 @@ import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
-import { autoComponents, undrawnStep, auditStep, reportLines, paintedBy, namedComponents, drawsForYou } from './steps.ts';
+import { autoComponents, undrawnStep, auditStep, deadUtilityStep, reportLines, paintedBy, namedComponents, drawsForYou } from './steps.ts';
 import { report } from './reports.ts';
 import type { ComponentMap } from './components.ts';
-import { auto, MAP, options, project, readable, removeFixtures } from './cli-fixtures.ts';
+import { auto, MAP, hostRoot, options, project, readable, removeFixtures } from './cli-fixtures.ts';
 import type { VocabularyIndex } from './audit.ts';
 import type { TokenCatalogue } from './theme-css.ts';
 import { vocabularyIndex } from '../../../lib/arena/vocabulary-index.ts';
 import { componentMap } from '../../../lib/arena/component-map.ts';
 import { repoRoot } from '../../../lib/arena/repo-root.ts';
+import { tailwindRoot } from './dead-utilities.ts';
+import { tailwindThemeSheet } from '../../../lib/tailwind/theme-sheet.ts';
 import { tokenCatalogue } from '../../../lib/arena/package-assembly.ts';
 
 const SLOTS = tokenCatalogue().slots;
@@ -257,4 +259,36 @@ test('every component that declares a part has its sheet among the sheets each s
     }
   }
   assert.match(paintedBy(['menu.item'], vocabulary, ['arena-button']), /paint no part\(s\)\. 1 rule\(s\) reach nothing/);
+});
+
+const CLASSES = '<div className="p-2 shadow-md" />';
+const TW = tailwindRoot(repoRoot);
+const DEAD_ROWS: { name: string; files: Record<string, string>; plugin?: boolean; tailwind: string | null;
+  sheet: boolean; keys: string[]; note: RegExp | null }[] = [
+  { name: 'compiled', files: { 'App.tsx': CLASSES }, tailwind: TW, sheet: true, keys: ['shadow-md'], note: null },
+  { name: 'no compiler', files: { 'App.tsx': CLASSES }, tailwind: null, sheet: true, keys: [],
+    note: /^dead-utility not read: no tailwindcss resolves/ },
+  { name: 'no sheet', files: { 'App.tsx': CLASSES }, tailwind: TW, sheet: false, keys: [], note: /ships no css\/tailwind-theme\.css/ },
+  { name: 'own theme', files: { 'App.tsx': CLASSES, 'app.css': '@theme { --shadow-md: 0 1px 2px var(--ink-body); }\n' },
+    tailwind: TW, sheet: true, keys: [], note: null },
+  { name: 'refused block', files: { 'App.tsx': CLASSES, 'app.css': '@utility x { @apply shadow-md; }\n' },
+    tailwind: TW, sheet: true, keys: [],
+    note: /could not compile Arena's theme with your own @theme, @utility and @custom-variant blocks \(Cannot apply unknown utility class/ },
+  { name: 'plugin', files: { 'App.tsx': '<div className="p-2" />' }, plugin: true, tailwind: TW, sheet: true, keys: [], note: null },
+];
+
+test('the dead-utility step compiles what app sources read, and says once why it does not', async () => {
+  for (const row of DEAD_ROWS) {
+    const root = project(row.plugin ? { ...readable, stylePlugins: ['./design/x'] } : readable, row.files);
+    if (row.plugin) {
+      mkdirSync(join(root, 'design', 'x'), { recursive: true });
+      writeFileSync(join(root, 'design', 'x', 'plugin.css'), '.x { @apply shadow-md; }\n');
+    }
+    const arena = hostRoot('@dravensoft/arena-react', '1.0.0',
+      row.sheet ? { 'css/tailwind-theme.css': tailwindThemeSheet(repoRoot) } : {});
+    const step = await deadUtilityStep(options(root), arena, row.tailwind, new Set());
+    assert.deepEqual([...step.dead.keys()], row.keys, `${row.name}: keys`);
+    if (row.note) assert.match(step.note ?? '', row.note, `${row.name}: note`);
+    else assert.equal(step.note, null, `${row.name}: note`);
+  }
 });
