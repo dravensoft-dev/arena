@@ -140,6 +140,19 @@ function skinned(rules: string, extra: Record<string, string> = {}) {
   return root;
 }
 
+test('the audit step reads the levels from the catalogue it is handed, and none without one', () => {
+  const root = project(readable, { 'App.tsx': '<p className="text-ink-muted">x</p>' });
+  const levelled: TokenCatalogue = { ...CATALOGUE,
+    roles: { 'ink-muted': { type: 'color', combines: [{ with: 'level-ink-muted', as: 'level' }] } } };
+  const ROWS: [string, TokenCatalogue | null, number][] = [['a catalogue naming the level', levelled, 1], ['no catalogue', null, 0]];
+  for (const [name, catalogue, count] of ROWS) {
+    const found = auditStep(options(root), null, catalogue, null).reports.filter((one) => one.rule === 'missing-level');
+    assert.equal(found.length, count, `${name}: reports`);
+    if (count > 0) assert.match(found[0]?.message ?? '', /text-ink-muted\/\(--level-ink-muted\)/, `${name}: message`);
+  }
+  rmSync(root, { recursive: true, force: true });
+});
+
 const named = (found: { reports: { rule?: string; message: string }[] }, rule: string) => found.reports.filter((one) => one.rule === rule);
 
 test('a plugin rule reading a property nothing declares is unknown-property, with the nearest name when one is close', () => {

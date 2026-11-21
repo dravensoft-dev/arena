@@ -8,12 +8,13 @@ import {
   collect, unassembled, dependencyProblems, importedPackages, binProblems, corpusProblems,
   unresolvedTarget, targetsIn, registryProblems, SITE_BASE, REGISTRY_SCHEMA,
   REGISTRY_DESCRIPTION_LIMIT, flatProblems, ESCAPING_SPECIFIER, vocabularyProblems,
-  styleStoreProblems, identityProblems, derivedSlotsProblems,
+  styleStoreProblems, identityProblems, derivedSlotsProblems, levelsProblems,
 } from './check-mcp.ts';
-import { DERIVED_SLOTS, derivedSlotsText } from '../../lib/arena/package-assembly.ts';
+import { DERIVED_SLOTS, derivedSlotsText, levelIndexText } from '../../lib/arena/package-assembly.ts';
 import {
   RUNTIME_DEPENDENCIES, ENTRY, NAME, LAYERS, DIST, REGISTRY_NAME, manifest, buildMcpPackage,
 } from '../../build/arena/build-mcp-package.ts';
+import { LEVELS_INDEX } from '../../generate/core/arena-cli/audit.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { IDENTITY_DIR as PAYLOAD_IDENTITY_DIR } from '../../lib/arena/agent-payload.ts';
 import { IDENTITY_DIR, catalogue } from '../../generate/core/arena-mcp/catalogue.ts';
@@ -38,15 +39,31 @@ test('the tree passes its own claims, and an empty assembly does not', () => {
   assert.ok(collect(root, empty).problems.length > 0, 'an assembly holding no file cannot pass in vacuum');
 });
 
+const putAs = (file: string) => (body: string | null) => corpus(Object.fromEntries(LAYERS.flatMap((layer) => (body === null ? [] : [
+  [`agent/${layer}/${file}`, body],
+]))));
+
 test('each corpus carries the slot catalogue readColorSlots derives, and a stale or missing one is reported', () => {
-  const put = (body: string | null) => corpus(Object.fromEntries(LAYERS.flatMap((layer) => (body === null ? [] : [
-    [`agent/${layer}/${DERIVED_SLOTS}`, body],
-  ]))));
+  const put = putAs(DERIVED_SLOTS);
   assert.match(derivedSlotsProblems(put('{}\n'), root).join('\n'), /differs from what readColorSlots derives/);
   assert.match(derivedSlotsProblems(put(null), root).join('\n'), /carries no contracts\/design\/color-slots\.derived\.json/);
   assert.deepEqual(derivedSlotsProblems(put(derivedSlotsText(root)), root), []);
   const served = catalogue(join(assembly, 'agent', 'react'), JSON.parse(MANIFEST));
   assert.ok(served.entries.some((one: { uri: string }) => one.uri.endsWith('tokens/color-slots.derived')));
+});
+
+test('each corpus carries the levels table arena_check reads, and a stale or missing one is reported', () => {
+  const put = putAs(LEVELS_INDEX);
+  const ROWS: [string, string | null, RegExp | null][] = [
+    ['a stale table', '{}\n', /arena\.levels\.json in the .* corpus differs/],
+    ['no table', null, /carries no arena\.levels\.json/],
+    ['the exact table', levelIndexText(root), null],
+  ];
+  for (const [name, body, expected] of ROWS) {
+    const found = levelsProblems(put(body), root);
+    if (expected === null) assert.deepEqual(found, [], `${name}: problems`);
+    else assert.match(found.join('\n'), expected, `${name}: problems`);
+  }
 });
 
 const refusal = (base: string, strict: string) => spawnSync(process.execPath, ['-e', [

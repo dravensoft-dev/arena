@@ -151,6 +151,7 @@ export const node = {
     'build:angular-tests',
     'build:react-package',
     'build:tailwind',
+    'build:mcp-package', 'check:mcp',
     'check:arbitrary',
     'check:boundary-contrast',
     'check:classes',

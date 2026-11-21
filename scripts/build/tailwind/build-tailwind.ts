@@ -95,6 +95,7 @@ export const node = {
     'build:angular-tests',
     'build:demos',
     'build:react-package',
+    'build:mcp-package', 'check:mcp',
     'check:api', 'check:style-plugin-coverage',
     'check:appearance',
     'check:parts',

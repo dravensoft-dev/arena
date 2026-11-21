@@ -19,7 +19,7 @@ import {
   DIST, SOURCE, ENTRY, BIN, NAME, REGISTRY_NAME, RUNTIME_DEPENDENCIES, manifest, sources,
   node as mcpPackageNode,
 } from '../../build/arena/build-mcp-package.ts';
-import { loadVocabulary } from '../../generate/core/arena-cli/audit.ts';
+import { loadVocabulary, LEVELS_INDEX } from '../../generate/core/arena-cli/audit.ts';
 import {
   catalogue, textOf, MARKDOWN_LINK, ADDRESSED, STYLE_PREFIX, STYLE_DIR,
   IDENTITY_PREFIX, IDENTITY_DIR, COMPONENT_PREFIX,
@@ -28,7 +28,7 @@ import { manifestIn, bundledPayload } from '../../generate/core/arena-mcp/payloa
 import { servedDocs, writtenPages } from '../../lib/arena/llms-index.ts';
 import { PAGE_FILE } from '../../lib/arena/kitchen-sink-page.ts';
 import { matchOutsideCode } from '../../generate/core/arena-mcp/code-spans.ts';
-import { DERIVED_SLOTS, derivedSlotsText } from '../../lib/arena/package-assembly.ts';
+import { DERIVED_SLOTS, derivedSlotsText, levelIndexText } from '../../lib/arena/package-assembly.ts';
 import { LINK, INLINE, isRepoPath, inPayload, IDENTITY_PAGES, payloadDir } from '../../lib/arena/agent-payload.ts';
 import { LAYERS as BUILT_LAYERS } from '../../build/arena/build-mcp-package.ts';
 
@@ -402,12 +402,26 @@ export function derivedSlotsProblems(dir: string, base = root) {
   return problems;
 }
 
+export function levelsProblems(dir: string, base = root) {
+  const problems: string[] = [];
+  const want = levelIndexText(base);
+  for (const layer of BUILT_LAYERS) {
+    const at = join(dir, payloadDir(layer), LEVELS_INDEX);
+    if (!existsSync(at)) {
+      problems.push(`${NAME}: the ${layer} corpus carries no ${LEVELS_INDEX}, so arena_check cannot tell a role read without its level`);
+    } else if (readFileSync(at, 'utf8') !== want) {
+      problems.push(`${NAME}: ${LEVELS_INDEX} in the ${layer} corpus differs from the levels the token catalogue names`);
+    }
+  }
+  return problems;
+}
+
 export function collect(base = root, dir = assembled(base)) {
   return {
     problems: [
       ...dependencyProblems(base), ...registryProblems(base), ...binProblems(dir), ...flatProblems(dir),
       ...corpusProblems(dir), ...vocabularyProblems(dir), ...servedLinkProblems(dir),
-      ...derivedSlotsProblems(dir, base), ...catalogueProblems(dir, base), ...styleStoreProblems(dir, base), ...identityProblems(dir, base),
+      ...derivedSlotsProblems(dir, base), ...levelsProblems(dir, base), ...catalogueProblems(dir, base), ...styleStoreProblems(dir, base), ...identityProblems(dir, base),
     ],
   };
 }

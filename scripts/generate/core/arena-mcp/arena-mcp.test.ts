@@ -1,11 +1,12 @@
 import test, { after } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
-  parseArgs, listing, opening, build, isProgram, USAGE, NAME, checked, CHECKED_AS, vocabularyOf,
+  parseArgs, listing, opening, build, isProgram, USAGE, NAME, checked, CHECKED_AS, vocabularyOf, levelsOf,
 } from './arena-mcp.ts';
+import { InMemoryTransport, LATEST_PROTOCOL_VERSION } from '@modelcontextprotocol/server';
 import { manifestIn, bundledPayload } from './payload.ts';
 import { catalogue, entries, search, SCHEME, ROUTER_URI, COMPONENT_PREFIX } from './catalogue.ts';
 import { walkFiles } from '../../../utils/walk-files.ts';
@@ -103,6 +104,80 @@ test('arena_check reports the rules of the language over text, and says so when 
   assert.match(checked('<ArenaButton className="mine">Go</ArenaButton>'), /own-class/);
   assert.match(checked('<ArenaButton className="mine">Go</ArenaButton>'), /1 finding/);
   assert.match(checked('<ArenaButton>Go</ArenaButton>'), /^No finding\./);
+});
+
+test('arena_check reports a role read without its level once the levels are known', () => {
+  const levels = new Map([['ink-muted', 'level-ink-muted']]);
+  const source = '<p className="text-ink-muted">x</p>';
+  const ROWS: [string, ReturnType<typeof checked>, RegExp][] = [
+    ['with the levels', checked(source, CHECKED_AS, null, levels), /\(missing-level\)/],
+    ['without the levels', checked(source), /^No finding\./],
+  ];
+  for (const [name, out, expected] of ROWS) assert.match(out, expected, `${name}: arena_check`);
+});
+
+test('the levels come from the corpus table, else from the installed catalogue, else nowhere', () => {
+  const levels = new Map([['ink-muted', 'level-ink-muted']]);
+  const dirWith = (file: string, body: unknown) => {
+    const dir = mkdtempSync(join(tmpdir(), 'arena-levels-'));
+    writeFileSync(join(dir, file), JSON.stringify(body));
+    return dir;
+  };
+  const table = dirWith('arena.levels.json', { 'ink-muted': 'level-ink-muted' });
+  const bare = dirWith('other.json', {});
+  const installed = {
+    package: 'p', layer: 'react', version: '0', dir: dirWith('arena.tokens.json',
+      { roles: { 'ink-muted': { combines: [{ with: 'level-ink-muted', as: 'level' }] } } }),
+  };
+  try {
+    const ROWS: [string, string, typeof installed | null, Map<string, string> | null][] = [
+      ['a payload carrying the table', table, null, levels],
+      ['no table and nothing installed', bare, null, null],
+      ['no table and a catalogue installed', bare, installed, levels],
+    ];
+    for (const [name, payload, from, expected] of ROWS) assert.deepEqual(levelsOf(payload, from), expected, `${name}: levelsOf`);
+  } finally {
+    for (const dir of [table, bare, installed.dir]) rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('the arena_check tool, called over a linked transport, reads the levels the payload carries', async () => {
+  const manifest = manifestIn(PAYLOAD);
+  assert.ok(manifest, 'the assembled payload carries a manifest');
+  const withTable = mkdtempSync(join(tmpdir(), 'arena-check-'));
+  const without = mkdtempSync(join(tmpdir(), 'arena-check-'));
+  cpSync(PAYLOAD, withTable, { recursive: true });
+  cpSync(PAYLOAD, without, { recursive: true });
+  rmSync(join(without, 'arena.levels.json'), { force: true });
+  writeFileSync(join(withTable, 'arena.levels.json'), JSON.stringify({ 'ink-muted': 'level-ink-muted' }));
+  const ROWS: [string, string, RegExp][] = [
+    ['a payload carrying the table', withTable, /\(missing-level\)/],
+    ['a payload without it', without, /^No finding\./],
+  ];
+  try {
+    for (const [name, payload, expected] of ROWS) {
+      const { server } = build(payload, manifest);
+      const [near, far] = InMemoryTransport.createLinkedPair();
+      const replies = new Map<number, (message: any) => void>();
+      near.onmessage = (message: any) => replies.get(message.id)?.(message);
+      await server.connect(far);
+      let next = 0;
+      const ask = (method: string, params: object) => new Promise<any>((resolve) => {
+        next += 1;
+        replies.set(next, resolve);
+        void near.send({ jsonrpc: '2.0', id: next, method, params } as never);
+      });
+      await ask('initialize', { protocolVersion: LATEST_PROTOCOL_VERSION, capabilities: {},
+        clientInfo: { name: 'probe', version: '0' } });
+      await near.send({ jsonrpc: '2.0', method: 'notifications/initialized' } as never);
+      const answer = await ask('tools/call', { name: 'arena_check',
+        arguments: { source: '<p className="text-ink-muted">x</p>' } });
+      assert.match(answer.result?.content?.[0]?.text ?? JSON.stringify(answer), expected, `${name}: arena_check`);
+      await server.close();
+    }
+  } finally {
+    for (const dir of [withTable, without]) rmSync(dir, { recursive: true, force: true });
+  }
 });
 
 test('a class of the vocabulary on a component is the language and not a class of your own', () => {

@@ -6,7 +6,7 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { toPosix } from './posix.ts';
-import { auditFindings, paintedParts, sourceScope, withoutComments, ALLOW_MARKER, PAINTED_PART, group } from './audit.ts';
+import { auditFindings, levelledRoles, paintedParts, sourceScope, withoutComments, ALLOW_MARKER, PAINTED_PART, group } from './audit.ts';
 import { knownParts, nearestName, unknownPart } from './names.ts';
 import type { VocabularyIndex } from './audit.ts';
 import { markerProblems } from './markers.ts';
@@ -134,12 +134,13 @@ export function auditStep(
     const path = join(arena, 'css', 'components', sheetFor(part));
     return existsSync(path) ? readFileSync(path, 'utf8') : null;
   };
+  const levels = levelledRoles(catalogue?.roles);
   for (const file of auditFiles(options.paths, dirs)) {
     scanned += 1;
     const cited = toPosix(file);
     const text = readFileSync(file, 'utf8');
     const scope = sourceScope(resolve(file), dirs);
-    const audited = auditFindings(cited, text, scope, vocabulary);
+    const audited = auditFindings(cited, text, scope, vocabulary, levels);
     if (scope !== 'plugin') {
       reports.push(...audited.map((one) => report('audit', one.text, one.rule)));
       continue;

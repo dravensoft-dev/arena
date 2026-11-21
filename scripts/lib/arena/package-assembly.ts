@@ -17,6 +17,7 @@ import { repoRoot } from './repo-root.ts';
 import { kebab } from '../../utils/case.ts';
 import { componentMap, MAP_FILE } from './component-map.ts';
 import { iconManifest, MANIFEST_FILE } from './icon-manifest.ts';
+import { levelledRoles } from '../../generate/core/arena-cli/audit.ts';
 import { shippedNames } from '../../generate/core/arena-cli/icon-css.ts';
 import { layerManifests, manifestFiles } from '../tailwind/tailwind-compile.ts';
 import { tailwindThemeSheet, THEME_SOURCES } from '../tailwind/theme-sheet.ts';
@@ -328,6 +329,10 @@ export const DERIVED_SLOTS = 'contracts/design/color-slots.derived.json';
 
 export function derivedSlotsText(root = repoRoot) {
   return `${JSON.stringify(readColorSlots(root), null, 2)}\n`;
+}
+
+export function levelIndexText(root = repoRoot) {
+  return `${JSON.stringify(Object.fromEntries([...levelledRoles(tokenCatalogue(root).roles)].sort()), null, 2)}\n`;
 }
 
 export function copyBehaviourContracts(dir: string, root = repoRoot) {

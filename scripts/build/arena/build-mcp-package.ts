@@ -17,8 +17,10 @@ import { writeVocabularyIndex } from '../../lib/arena/vocabulary-index.ts';
 import {
   collectFiles, reset, write, copy, report, emitCli, pluginIdentity, SHARED_KEYWORDS,
   copyAgentPayload, DERIVED_SLOTS, derivedSlotsText,
+  levelIndexText, TOKEN_CATALOGUE_READS,
 } from '../../lib/arena/package-assembly.ts';
 import { payloadDir } from '../../lib/arena/agent-payload.ts';
+import { LEVELS_INDEX } from '../../generate/core/arena-cli/audit.ts';
 import { AGENT_DIR, PACKAGES } from '../../generate/core/arena-mcp/payload.ts';
 
 export const NAME = '@dravensoft/arena-mcp';
@@ -64,7 +66,7 @@ export const node = {
     'frameworks/*/components/**/*.behaviour.json',
     'plugin-style-store/default/*', 'plugin-style-store/complete/*', 'plugin-style-store/catalogue/INDEX.md',
     'plugin-style-store/catalogue/*/*', 'arena-from-scratch/identity*.html',
-    'frameworks/tailwind/vocabulary/**', 'frameworks/tailwind/components/**/*.json',
+    'frameworks/tailwind/vocabulary/**', 'frameworks/tailwind/components/**/*.json', ...TOKEN_CATALOGUE_READS,
   ],
   writes: [`${DIST}/**`],
   feeds: ['check:community', 'check:mcp'],
@@ -131,6 +133,7 @@ export function buildMcpPackage(root = repoRoot, dir = join(root, DIST)) {
   for (const layer of LAYERS) {
     written.push(...copyAgentPayload(dir, layer, NAME, root));
     written.push(write(dir, `${payloadDir(layer)}/${DERIVED_SLOTS}`, derivedSlotsText(root)));
+    written.push(write(dir, `${payloadDir(layer)}/${LEVELS_INDEX}`, levelIndexText(root)));
     written.push(writeVocabularyIndex(join(dir, AGENT_DIR, layer), root));
   }
 

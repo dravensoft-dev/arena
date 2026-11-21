@@ -92,7 +92,7 @@ Read the router first. The router carries the rules of the language and routes e
 
 **`arena_check` is the half that reads your code rather than Arena's.** Pass the tool the source text. The tool reports what the rules of the language say about that text.
 
-The tool reports a class of your own on a component and a raw value where a token belongs. The tool also reports an icon as an element, an emoji, and a component wrapped in a link of your own. The last rule is a heading outline with a rung missing.
+The tool reports a class of your own on a component, a raw value where a token belongs, and a role read without its level. The tool also reports an icon as an element, an emoji, and a component wrapped in a link of your own. The last rule is a heading outline with a rung missing.
 
 The tool reads text and not files. A screen that is still in the conversation can be checked before it is written down.
 
