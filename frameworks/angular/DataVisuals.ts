@@ -3,7 +3,7 @@ import {
   chartHeatmapRowH, chartLegendStrip, catSlots, heatSteps,
   tintArea, tintSoft, tintEdge,
 } from './Tokens.generated';
-import type { ArenaNumberFormat, ArenaSeriesTone, ArenaTone } from './Api.generated';
+import type { ArenaNumberFormat, ArenaTone } from './Api.generated';
 import { arenaWarnOnce } from './WarnOnce';
 
 export const ARENA_CAT_SLOTS = catSlots;

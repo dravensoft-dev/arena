@@ -8,7 +8,7 @@
 
 import { readFileSync, writeFileSync, mkdirSync, copyFileSync, rmSync, existsSync, statSync } from 'node:fs';
 import { preProcessFile, ModuleKind, ScriptTarget, transpileModule, transpileDeclaration, flattenDiagnosticMessageText } from 'typescript';
-import { join, dirname, relative, basename } from 'node:path';
+import { join, dirname, basename } from 'node:path';
 import { relPosix } from '../../utils/posix-path.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { readJson } from '../../utils/read-file.ts';

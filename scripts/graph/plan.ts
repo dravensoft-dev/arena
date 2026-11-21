@@ -5,8 +5,6 @@
  * moved. Declared outputs that are not on disk run the node whatever the fingerprint says, which is
  * what makes a deleted artifact and a fresh clone the same case. */
 
-import { existsSync } from 'node:fs';
-import { join } from 'node:path';
 import type { GraphNode } from './graph.ts';
 import type { Fingerprint } from './fingerprint.ts';
 import type { NodeEntry } from './state.ts';

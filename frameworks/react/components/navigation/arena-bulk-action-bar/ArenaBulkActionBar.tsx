@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { useArenaContainerWidth, arenaReadBreakpoint } from '../../../UseArenaContainerWidth.ts';
 
 import type { ArenaBulkAction, ArenaBulkActionBarLayout } from '../../../Api.generated';

@@ -11,7 +11,7 @@ import { kebab } from '../../utils/case.ts';
 import { childLists, placeOf, SUBJECT } from '../arena/playground-model.ts';
 import { captured } from '../../utils/captures.ts';
 import type { MemberSpec } from '../arena/contract-shapes.ts';
-import type { FixtureNode, Knob, Place, Places, PlaygroundEvent, PlaygroundModel }
+import type { FixtureNode, Knob, Place, Places, PlaygroundModel }
   from '../arena/playground-model.ts';
 
 type Field = { name: string; type: string; value: unknown; member: string; node: FixtureNode };

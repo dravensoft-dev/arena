@@ -11,13 +11,13 @@
 import { spawnSync } from 'node:child_process';
 import {
   mkdtempSync, mkdirSync, writeFileSync, readFileSync, copyFileSync, existsSync, readdirSync, rmSync,
-  statSync, symlinkSync, cpSync,
+  statSync, cpSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { readJson, readIfExists } from '../../utils/read-file.ts';
-import { arenaEnv, cannotRun } from '../../lib/arena/arena-scripts-vars.ts';
+import { arenaEnv } from '../../lib/arena/arena-scripts-vars.ts';
 import { hostBinary } from '../../lib/arena/host-binary.ts';
 import { linkDir } from '../../lib/arena/platform.ts';
 import { isForeignTree } from '../../lib/arena/foreign-trees.ts';

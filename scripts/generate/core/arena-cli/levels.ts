@@ -78,7 +78,6 @@ export function collapseSlotFalls(line: string): string {
 const REFERENCE = /^var\(--color-([\w-]+)\)$/;
 const DEFAULT = /--(level-[\w-]+)\s*:\s*([\d.]+)%/g;
 
-const INK = /^\s*color\s*:\s*var\(--([\w-]+)\)\s*;/;
 const OPACITY = /^\s*opacity\s*:\s*([\d.]+)%\s*;/;
 
 const CHANNEL_PROPERTIES: [RegExp, string][] = [[/-ink$/, 'color'], [/-fill(?:-[\w]+)?$/, 'background-color']];

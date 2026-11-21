@@ -8,7 +8,7 @@
  * it imports from beside itself, and check:mcp reports one that did not, so an import the
  * companion list misses fails the gate rather than the first spawn. */
 
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { relPosix } from '../../utils/posix-path.ts';

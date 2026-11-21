@@ -10,7 +10,7 @@
  * vocabulary, a component rendering no element takes none, and Angular takes the host class. */
 
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { buildApiModules, LOCALE_TARGETS } from '../../generate/arena/generate-api-types.ts';

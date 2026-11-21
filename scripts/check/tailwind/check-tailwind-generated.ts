@@ -1,5 +1,4 @@
 import { readFileSync } from 'node:fs';
-import { relative } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import {
   buildTailwind, buildManifestModules, buildComponentCss, buildClassModules,

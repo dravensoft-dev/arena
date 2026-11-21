@@ -16,7 +16,7 @@ import {
 } from './check-docs.ts';
 import { skips } from './check-routes.ts';
 import { AXES, EVIDENCE, PEERS, NODE_ENGINE } from '../../lib/arena/support-matrix.ts';
-import { TARGET, TARGETS, emit } from '../../generate/arena/generate-support.ts';
+import { TARGETS, emit } from '../../generate/arena/generate-support.ts';
 
 export const ALSO_CONSUMER_FACING = ['README.md'];
 

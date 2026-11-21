@@ -267,8 +267,6 @@ export function rootIsDefault(config: ArenaConfig) {
 
 const ALIAS = /^\{([a-z][\w-]*(?:\.[\w-]+)*)\}$/;
 
-const COLOUR_ALIAS = /^color\.[a-z0-9-]+$/;
-
 export const SKIN_ALIAS = /^(?:color|font|focus)\.[a-z0-9-]+$/;
 
 export function pluginValue(raw: unknown, catalogue: TokenCatalogue | null, key?: string) {

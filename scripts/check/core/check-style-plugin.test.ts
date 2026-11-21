@@ -7,7 +7,7 @@ import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { readJson } from '../../utils/read-file.ts';
 import * as rules from '../../generate/core/arena-cli/style-plugin-rules.ts';
 import {
-  LIGHT_BY_DESIGN, ROOT_PLUGIN, SCOPES, defaultSlotAnswers, slotAnswerProblems, slotAcceptsProblems, shippedSlotAcceptsProblems, collect, shippedFixedRemProblems, defaultAnswerProblems, keyProblems, movedTokens, resolvedFor, totalityProblems,
+  LIGHT_BY_DESIGN, ROOT_PLUGIN, defaultSlotAnswers, slotAnswerProblems, slotAcceptsProblems, shippedSlotAcceptsProblems, collect, shippedFixedRemProblems, defaultAnswerProblems, keyProblems, movedTokens, resolvedFor, totalityProblems,
   slotAnswerLines, valueProblems, zeroScopeProblems,
 } from './check-style-plugin.ts';
 

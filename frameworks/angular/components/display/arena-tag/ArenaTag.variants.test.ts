@@ -3,7 +3,6 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { TAILWIND_COMPONENTS } from '../../../test/Compliance';
-import { arenaTagStyles } from './ArenaTag.variants';
 
 
 test('a tag keeps its word whole in a row, and still breaks it when the container is narrower than the label', () => {

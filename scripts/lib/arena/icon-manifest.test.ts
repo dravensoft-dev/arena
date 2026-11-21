@@ -10,7 +10,7 @@ import assert from 'node:assert/strict';
 import { withoutComments, serialise, iconManifest, MANIFEST_FILE } from './icon-manifest.ts';
 import { kebab } from '../../utils/case.ts';
 import { scan } from '../../generate/core/arena-cli/icon-css.ts';
-import { shippedNames, iconNames } from '../../generate/core/arena-cli/icon-css.ts';
+import { shippedNames } from '../../generate/core/arena-cli/icon-css.ts';
 
 const scanned = (source: string) => serialise(scan(withoutComments(source, 'A.ts')));
 

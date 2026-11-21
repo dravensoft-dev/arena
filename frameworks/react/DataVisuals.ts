@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import type { ArenaNumberFormat, ArenaSeriesTone, ArenaTone } from './Api.generated';
+import type { ArenaNumberFormat, ArenaTone } from './Api.generated';
 import { arenaWarnOnce } from './WarnOnce.ts';
 import {
   chartHeight, chartPadTop, chartPadRight, chartPadBottom, chartPadLeft, chartTickChar, chartLabelChar, chartPadCategory,

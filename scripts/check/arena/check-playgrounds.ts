@@ -8,7 +8,7 @@
  * page that compiles and then throws on its first render is invisible to it; DOUBTS.md carries
  * what that leaves open. */
 
-import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { basename, join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';

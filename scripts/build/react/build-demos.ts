@@ -4,7 +4,7 @@
  * on the page with every suite still green, because a suite imports the source. */
 
 import { readFileSync, writeFileSync } from 'node:fs';
-import { basename, join, relative } from 'node:path';
+import { basename, join } from 'node:path';
 import { toPosix, relPosix } from '../../utils/posix-path.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';

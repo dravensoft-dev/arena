@@ -107,7 +107,7 @@ function mapFrom(
     if (!queried?.length) continue;
     for (const key of keys) markers[key] = [...queried].sort();
   }
-  for (const { symbol, sheet, uses } of entries) {
+  for (const { sheet, uses } of entries) {
     if (!sheet) continue;
     const bySymbol = new Map(entries.map((e) => [e.symbol, e.sheet]));
     const pulled = uses

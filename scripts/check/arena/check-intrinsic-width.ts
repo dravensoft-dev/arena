@@ -6,7 +6,6 @@
  * DRAWN names the slot of a component that has no root. A root neither answering fill nor listed
  * fails, as does an entry of either map that the tree no longer bears out. */
 
-import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import type { ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';

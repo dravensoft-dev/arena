@@ -7,7 +7,7 @@
  * its single source is the one that would notice if it did. */
 
 import { readFileSync, existsSync } from 'node:fs';
-import { join, basename, extname, relative } from 'node:path';
+import { join, basename, extname } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';

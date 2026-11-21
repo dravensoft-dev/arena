@@ -7,7 +7,7 @@
  * pos). */
 
 import { readFileSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { join } from 'node:path';
 import { camel } from '../../utils/case.ts';
 import { lineOf } from '../../utils/text.ts';
 import { isMainModule } from '../../utils/main-module.ts';

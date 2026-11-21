@@ -9,7 +9,7 @@
  * moduleResolution node reads no exports and npm's registry page reads only the root field. */
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
-import { join, relative, dirname } from 'node:path';
+import { join, dirname } from 'node:path';
 import { toPosix, relPosix } from '../../utils/posix-path.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
