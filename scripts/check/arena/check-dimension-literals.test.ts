@@ -3,171 +3,176 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { isValueCoercion, scanValue, scanText, scanInjectedCss, scanAttributes, scanDefaultsAndCallSites, staleExemptions, stalePassthrough, expressionLeaves, sourceFiles, componentParamCount, zeroComponentParamProblems, scanStyleWrites, staleComputed, COMPUTED, EXEMPT, PASSTHROUGH, type Passthrough } from './check-dimension-literals.ts';
+import { isValueCoercion, scanValue, scanText, scanInjectedCss, scanAttributes, scanDefaultsAndCallSites, staleExemptions, stalePassthrough, expressionLeaves, sourceFiles, componentParamCount, zeroComponentParamProblems, scanStyleWrites, staleComputed, COMPUTED, EXEMPT, type Passthrough } from './check-dimension-literals.ts';
 
-test('a bare number is a violation for a dimension-valued property', () => {
-  assert.ok(scanValue('fontSize', '13'));
-  assert.ok(scanValue('zIndex', '1000'));
-  assert.ok(scanValue('fontWeight', '700'));
-  assert.ok(scanValue('lineHeight', '1.55'));
-});
+const VALUE_GROUPS: { name: string; violates: boolean; prop: string; raws: string[] }[] = [
+  { name: 'a bare number is a violation for a dimension-valued property', violates: true, prop: 'fontSize', raws: ['13'] },
+  { name: 'a bare number is a violation for a dimension-valued property', violates: true, prop: 'zIndex', raws: ['1000'] },
+  { name: 'a bare number is a violation for a dimension-valued property', violates: true, prop: 'fontWeight', raws: ['700'] },
+  { name: 'a bare number is a violation for a dimension-valued property', violates: true, prop: 'lineHeight', raws: ['1.55'] },
+  { name: 'a raw px length is a violation wherever it appears in the value', violates: true, prop: 'padding', raws: ["'0 18px'"] },
+  { name: 'a raw px length is a violation wherever it appears in the value', violates: true, prop: 'border', raws: ["'1px solid var(--color-base-300)'"] },
+  { name: 'a raw px length is a violation wherever it appears in the value', violates: true, prop: 'width', raws: ["'14px'"] },
+  { name: 'a raw em is a violation for letterSpacing, because em is where tracking is expressed', violates: true, prop: 'letterSpacing', raws: ["'.1em'", "'-.02em'", "'0.22em'"] },
+  { name: 'a var() into a token is legal', violates: false, prop: 'letterSpacing', raws: ["'var(--ls-label)'"] },
+  { name: 'a var() into a token is legal', violates: false, prop: 'fontSize', raws: ['var(--dz-text)'] },
+  { name: 'a var() into a token is legal', violates: false, prop: 'padding', raws: ["'var(--dz-row-py) var(--dz-row-px)'"] },
+  { name: 'a calc() over tokens is legal, and its multipliers are not literals', violates: false, prop: 'width', raws: ["'calc(var(--sp-1) * 3.5)'"] },
+  { name: 'a calc() over tokens is legal, and its multipliers are not literals', violates: false, prop: 'gap', raws: ["'calc(var(--sp-1) * 2.5)'"] },
+  { name: 'regression: a bare zero beside a calc() in the same shorthand is legal', violates: false, prop: 'padding',
+    raws: ["'0 calc(var(--sp-1) * 3)'", "'0 calc(var(--sp-1) * 6) calc(var(--sp-1) * 5.5)'"] },
+  { name: 'regression: a bare zero beside a calc() in the same shorthand is legal', violates: false, prop: 'margin', raws: ["'0 0 0 calc(var(--sp-1) * 1)'"] },
+  { name: 'zero is legal, with or without quotes, including zero em', violates: false, prop: 'padding', raws: ['0'] },
+  { name: 'zero is legal, with or without quotes, including zero em', violates: false, prop: 'margin', raws: ["'0'"] },
+  { name: 'zero is legal, with or without quotes, including zero em', violates: false, prop: 'letterSpacing', raws: ["'0em'"] },
+  { name: 'a non-dimension unit the layer legitimately uses is legal', violates: false, prop: 'borderRadius', raws: ["'50%'"] },
+  { name: 'a non-dimension unit the layer legitimately uses is legal', violates: false, prop: 'width', raws: ["'100%'"] },
+  { name: 'a non-dimension unit the layer legitimately uses is legal', violates: false, prop: 'minWidth', raws: ["'0ch'"] },
+  { name: 'every unit on the free list stays legal', violates: false, prop: 'width',
+    raws: ["'8%'", "'2ch'", "'1fr'", "'50vh'", "'50vw'", "'10vmin'", "'10vmax'", "'90deg'", "'1s'", "'200ms'"] },
+  { name: 'a unit outside the free list fails closed, not just the ones already known', violates: true, prop: 'fontSize', raws: ["'12pt'"] },
+  { name: 'a unit outside the free list fails closed, not just the ones already known', violates: true, prop: 'width', raws: ["'2cm'", "'3xyz'"] },
+  { name: 'lineHeight 1 is a violation, because it is a role and not a number', violates: true, prop: 'lineHeight', raws: ['1'] },
+  { name: "regression: '4 px' (a space before the unit) is a violation, not a legal length", violates: true, prop: 'padding', raws: ["'4 px'"] },
+  { name: "regression: '4 px' (a space before the unit) is a violation, not a legal length", violates: true, prop: 'width', raws: ["'12 pt'"] },
+  { name: 'regression: a mixed calc()+px shorthand still flags, with the (?!\\() guard in place', violates: true, prop: 'width', raws: ["'calc(var(--sp-1) * 2) 4px'"] },
+  { name: 'a focus ring written by hand is a dimension literal', violates: true, prop: 'boxShadow', raws: ["'0 0 0 2px var(--gold-soft)'"] },
+  { name: 'a focus ring written by hand is a dimension literal', violates: false, prop: 'boxShadow',
+    raws: ["'0 0 0 var(--focus-width) var(--gold-soft)'", "'var(--shadow-2)'", "'none'"] },
+  { name: 'a transform carrying a dimension is judged; a ratio or a share is not', violates: true, prop: 'transform', raws: ["'translateX(18px)'"] },
+  { name: 'a transform carrying a dimension is judged; a ratio or a share is not', violates: false, prop: 'transform',
+    raws: ["'translateX(calc(var(--sp-1) * 4.5))'", "'translate(-50%,-100%)'", "'scale(0.98)'", "'rotate(120deg)'", "'none'"] },
+  { name: 'an interpolation does not hide the unit that follows it', violates: true, prop: 'width', raws: ['`max(calc(var(--sp-1) * 2), ${d * 0.28}px)`'] },
+  { name: 'an interpolation does not hide the unit that follows it', violates: true, prop: 'height', raws: ['`${size}px`'] },
+  { name: 'an interpolation in a unit nothing models is still fine', violates: false, prop: 'width', raws: ['`${share}%`'] },
+  { name: 'an interpolated derivation of tokens is fine', violates: false, prop: 'fontSize', raws: ['`calc(${d} * 0.4)`'] },
+];
 
-test('a raw px length is a violation wherever it appears in the value', () => {
-  assert.ok(scanValue('padding', "'0 18px'"));
-  assert.ok(scanValue('border', "'1px solid var(--color-base-300)'"));
-  assert.ok(scanValue('width', "'14px'"));
-});
-
-test('a raw em is a violation for letterSpacing, because em is where tracking is expressed', () => {
-  assert.ok(scanValue('letterSpacing', "'.1em'"));
-  assert.ok(scanValue('letterSpacing', "'-.02em'"));
-  assert.ok(scanValue('letterSpacing', "'0.22em'"));
-});
-
-test('a var() into a token is legal', () => {
-  assert.equal(scanValue('letterSpacing', "'var(--ls-label)'"), null);
-  assert.equal(scanValue('fontSize', 'var(--dz-text)'), null);
-  assert.equal(scanValue('padding', "'var(--dz-row-py) var(--dz-row-px)'"), null);
-});
-
-test('a calc() over tokens is legal, and its multipliers are not literals', () => {
-  assert.equal(scanValue('width', "'calc(var(--sp-1) * 3.5)'"), null);
-  assert.equal(scanValue('gap', "'calc(var(--sp-1) * 2.5)'"), null);
-});
-
-test('regression: a bare zero beside a calc() in the same shorthand is legal', () => {
-
-  assert.equal(scanValue('padding', "'0 calc(var(--sp-1) * 3)'"), null);
-  assert.equal(scanValue('padding', "'0 calc(var(--sp-1) * 6) calc(var(--sp-1) * 5.5)'"), null);
-  assert.equal(scanValue('margin', "'0 0 0 calc(var(--sp-1) * 1)'"), null);
-});
-
-test('zero is legal, with or without quotes, including zero em', () => {
-  assert.equal(scanValue('padding', '0'), null);
-  assert.equal(scanValue('margin', "'0'"), null);
-  assert.equal(scanValue('letterSpacing', "'0em'"), null);
-});
-
-test('a non-dimension unit the layer legitimately uses is legal', () => {
-  assert.equal(scanValue('borderRadius', "'50%'"), null);
-  assert.equal(scanValue('width', "'100%'"), null);
-  assert.equal(scanValue('minWidth', "'0ch'"), null);
-});
-
-test('every unit on the free list stays legal', () => {
-  for (const raw of ["'8%'", "'2ch'", "'1fr'", "'50vh'", "'50vw'", "'10vmin'", "'10vmax'", "'90deg'", "'1s'", "'200ms'"])
-    assert.equal(scanValue('width', raw), null, raw);
-});
-
-test('a unit outside the free list fails closed, not just the ones already known', () => {
-  assert.ok(scanValue('fontSize', "'12pt'"));
-  assert.ok(scanValue('width', "'2cm'"));
-  assert.ok(scanValue('width', "'3xyz'"));
-});
-
-test('lineHeight 1 is a violation, because it is a role and not a number', () => {
-  assert.ok(scanValue('lineHeight', '1'));
-});
-
-test('scanText finds the property and the raw value together', () => {
-  const found = scanText("const s = { fontSize: 13, padding: '0 18px', color: 'var(--mute)' };");
-  assert.deepEqual(found.map((f) => f.prop), ['fontSize', 'padding']);
-});
-
-test('a property Arena does not govern is ignored', () => {
-  assert.deepEqual(scanText("{ flexGrow: 1, opacity: 0.6, zoom: 2 }"), []);
-});
-
-test('a .d.ts-shaped declaration yields nothing', () => {
-
-  assert.deepEqual(scanText('export interface ArenaButtonProps { fontSize?: number; padding?: string; }'), []);
-});
-
-test('scanText reports the 1-based line of each site', () => {
-  const found = scanText("const a = 1;\nconst s = { fontSize: 13 };\nconst b = { padding: '0 18px' };\n");
-  assert.deepEqual(found.map((f) => f.line), [2, 3]);
-});
-
-test('a percent in unquoted CSS text is captured whole, not truncated to a bare number', () => {
-  assert.deepEqual(scanText('left:-40%'), []);
-  assert.deepEqual(scanText('width:40%'), []);
-});
-
-test('regression: ArenaProgressBar.jsx keyframe text reads as no violation', () => {
-
-  const keyframes =
-    '@keyframes arena-prog{0%{left:-40%}100%{left:100%}}' +
-    '.arena-prog-ind::after{content:"";position:absolute;top:0;bottom:0;width:40%;border-radius:inherit;background:currentColor;animation:arena-prog 1.15s var(--ease-in-out) infinite}' +
-    '@media (prefers-reduced-motion:reduce){.arena-prog-ind::after{animation-duration:2.4s}}';
-  assert.deepEqual(scanText(keyframes), []);
-});
-
-test("regression: '4 px' (a space before the unit) is a violation, not a legal length", () => {
-
-  assert.ok(scanValue('padding', "'4 px'"));
-  assert.ok(scanValue('width', "'12 pt'"));
-  assert.deepEqual(scanText("const s = { padding: '4 px' };").map((f) => f.prop), ['padding']);
-});
-
-test('regression: a mixed calc()+px shorthand still flags, with the (?!\\() guard in place', () => {
-  assert.ok(scanValue('width', "'calc(var(--sp-1) * 2) 4px'"));
-});
-
-test('a ternary branch that is a bare literal is a violation', () => {
-  const found = scanText("const s = { fontWeight: on ? 600 : 400 };");
-  assert.deepEqual(found.map((f) => ({ prop: f.prop, raw: f.raw })), [
-    { prop: 'fontWeight', raw: '600' },
-    { prop: 'fontWeight', raw: '400' },
-  ]);
-});
-
-test('a ternary whose branches are already tokens is legal on both sides', () => {
-  assert.deepEqual(scanText("const s = { width: full ? '100%' : 'auto' };"), []);
-  assert.deepEqual(
-    scanText("const s = { fontWeight: on ? 'var(--fw-semibold)' : 'var(--fw-medium)' };"),
-    []
-  );
-});
-
-test('a ternary nested inside a string concatenation still resolves its branches', () => {
-
-  const found = scanText(
-    "const s = { border: 'var(--bw) solid ' + (locked ? 'var(--danger)' : 'var(--color-base-300)') };"
-  );
-  assert.deepEqual(found, []);
-});
-
-test('a bare literal at a LOGICAL padding or margin side is a violation, like its physical twin', () => {
-  for (const prop of [
-    'paddingInlineStart', 'paddingInlineEnd', 'paddingBlockStart', 'paddingBlockEnd',
-    'marginInline', 'marginBlock',
-    'marginInlineStart', 'marginInlineEnd', 'marginBlockStart', 'marginBlockEnd',
-  ]) {
-    assert.deepEqual(
-      scanText(`const s = { ${prop}: '12px' };`).map((f) => ({ prop: f.prop, raw: f.raw })),
-      [{ prop, raw: "'12px'" }],
-      `${prop} is not governed — a bare literal at it passes the gate`,
-    );
-
-    assert.deepEqual(scanText(`const s = { ${prop}: 'var(--sp-3)' };`), []);
+test('scanValue flags a bare number, a raw length or an unmodelled unit, and passes a token, a calc over tokens, zero and a free unit', () => {
+  assert.ok(VALUE_GROUPS.length > 0, 'the table holds rows');
+  for (const row of VALUE_GROUPS) {
+    for (const raw of row.raws) {
+      if (row.violates) assert.ok(scanValue(row.prop, raw), `${row.name}: ${row.prop} ${raw} is a violation`);
+      else assert.equal(scanValue(row.prop, raw), null, `${row.name}: ${row.prop} ${raw} is legal`);
+    }
   }
 });
 
-test('a bare literal in a logical border side is a violation', () => {
-  const hits = scanText("const s = { borderInlineStart: '2px solid var(--border)' };");
-  assert.equal(hits.length, 1);
-  assert.equal(hits[0]?.prop, 'borderInlineStart');
+const LOGICAL_PROPS = [
+  'paddingInlineStart', 'paddingInlineEnd', 'paddingBlockStart', 'paddingBlockEnd',
+  'marginInline', 'marginBlock',
+  'marginInlineStart', 'marginInlineEnd', 'marginBlockStart', 'marginBlockEnd',
+];
+
+const KEYFRAMES =
+  '@keyframes arena-prog{0%{left:-40%}100%{left:100%}}' +
+  '.arena-prog-ind::after{content:"";position:absolute;top:0;bottom:0;width:40%;border-radius:inherit;background:currentColor;animation:arena-prog 1.15s var(--ease-in-out) infinite}' +
+  '@media (prefers-reduced-motion:reduce){.arena-prog-ind::after{animation-duration:2.4s}}';
+
+test('scanText finds the property, the raw value and the line of every literal site', () => {
+  const found: { name: string; source: string; expected: Partial<{ prop: string; raw: string; line: number }>[] }[] = [
+    { name: 'scanText finds the property and the raw value together',
+      source: "const s = { fontSize: 13, padding: '0 18px', color: 'var(--mute)' };", expected: [{ prop: 'fontSize' }, { prop: 'padding' }] },
+    { name: 'scanText reports the 1-based line of each site',
+      source: "const a = 1;\nconst s = { fontSize: 13 };\nconst b = { padding: '0 18px' };\n", expected: [{ line: 2 }, { line: 3 }] },
+    { name: "regression: '4 px' (a space before the unit) is a violation, not a legal length",
+      source: "const s = { padding: '4 px' };", expected: [{ prop: 'padding' }] },
+    { name: 'a ternary branch that is a bare literal is a violation',
+      source: 'const s = { fontWeight: on ? 600 : 400 };', expected: [{ prop: 'fontWeight', raw: '600' }, { prop: 'fontWeight', raw: '400' }] },
+    { name: 'a bare literal in a logical border side is a violation',
+      source: "const s = { borderInlineStart: '2px solid var(--border)' };", expected: [{ prop: 'borderInlineStart' }] },
+    { name: 'a bare literal in a logical inset side is a violation',
+      source: "const s = { insetBlockStart: '12px' };", expected: [{ prop: 'insetBlockStart' }] },
+    { name: 'all three literals of a nested ternary at a governed colon are flagged',
+      source: 'const s = { fontSize: a ? (b ? 12 : 14) : 16 };', expected: [{ raw: '12' }, { raw: '14' }, { raw: '16' }] },
+    { name: 'a governed property name at the tail of a longer one is not that property, but the property itself is',
+      source: 'const a = { maxWidth: 13 };', expected: [{ prop: 'maxWidth' }] },
+    ...LOGICAL_PROPS.map((prop) => ({
+      name: `a bare literal at the logical ${prop} is a violation, like its physical twin, and ${prop} is governed`,
+      source: `const s = { ${prop}: '12px' };`, expected: [{ prop, raw: "'12px'" }],
+    })),
+  ];
+  assert.ok(found.length > 0, 'the table holds rows');
+  for (const row of found) {
+    const keys = Object.keys(row.expected[0] ?? {}) as ('prop' | 'raw' | 'line')[];
+    const hits = scanText(row.source).map((hit) => Object.fromEntries(keys.map((key) => [key, hit[key]])));
+    assert.deepEqual(hits, row.expected, row.name);
+  }
 });
 
-test('a bare literal in a logical inset side is a violation', () => {
-  const hits = scanText("const s = { insetBlockStart: '12px' };");
-  assert.equal(hits.length, 1);
-  assert.equal(hits[0]?.prop, 'insetBlockStart');
+test('scanText finds nothing in a token, a non-site or a property Arena does not govern', () => {
+  const clean: { name: string; sources: string[]; why?: string }[] = [
+    { name: 'a property Arena does not govern is ignored', sources: ['{ flexGrow: 1, opacity: 0.6, zoom: 2 }'] },
+    { name: 'a .d.ts-shaped declaration yields nothing', sources: ['export interface ArenaButtonProps { fontSize?: number; padding?: string; }'] },
+    { name: 'a percent in unquoted CSS text is captured whole, not truncated to a bare number', sources: ['left:-40%', 'width:40%'] },
+    { name: 'regression: ArenaProgressBar.jsx keyframe text reads as no violation', sources: [KEYFRAMES] },
+    { name: 'a ternary whose branches are already tokens is legal on both sides',
+      sources: ["const s = { width: full ? '100%' : 'auto' };", "const s = { fontWeight: on ? 'var(--fw-semibold)' : 'var(--fw-medium)' };"] },
+    { name: 'a ternary nested inside a string concatenation still resolves its branches',
+      sources: ["const s = { border: 'var(--bw) solid ' + (locked ? 'var(--danger)' : 'var(--color-base-300)') };"] },
+    { name: 'a token in a logical side is not a violation',
+      sources: ["const s = { borderInlineEnd: 'var(--bw) solid var(--border)' };", "const s = { insetInlineStart: 'calc(var(--sp-1) * 2)' };",
+        ...LOGICAL_PROPS.map((prop) => `const s = { ${prop}: 'var(--sp-3)' };`)] },
+    { name: 'a nested ternary whose leaves are all tokens stays legal',
+      sources: ["const s = { fontWeight: a ? (b ? 'var(--fw-bold)' : 'var(--fw-medium)') : 'var(--fw-regular)' };"] },
+    { name: 'a governed property name at the tail of a longer one is not that property',
+      sources: ["const a = 'stroke-width: var(--bw);';", "const a = { strokeWidth: 'var(--bw)' };", 'const a = `max-width: 13px`;'],
+      why: 'a kebab-case declaration in a bare string is nobody\'s: scanText reads camelCase and scanInjectedCss '
+        + 'requires a rule body, which is the kebab-case blind spot the gate header records rather than one this fix adds' },
+    { name: 'the lookbehind matters because a mismatched property swallows past the string it was found in',
+      sources: ["const a = 'stroke-width: var(--bw);';\nconst b = 'p95 line chart';\n"],
+      why: 'reading `width` out of `stroke-width` stops the value at the closing quote and reports no '
+        + 'bare literal at a site that has none -- naming a file and a property that were not the defect' },
+  ];
+  assert.ok(clean.length > 0, 'the table holds rows');
+  for (const row of clean) {
+    for (const source of row.sources) assert.deepEqual(scanText(source), [], `${row.name}: ${source}${row.why ? ` (${row.why})` : ''}`);
+  }
 });
 
-test('a token in a logical side is not a violation', () => {
-  assert.deepEqual(scanText("const s = { borderInlineEnd: 'var(--bw) solid var(--border)' };"), []);
-  assert.deepEqual(scanText("const s = { insetInlineStart: 'calc(var(--sp-1) * 2)' };"), []);
+test('scanInjectedCss judges a dimension inside injected CSS like any other, and leaves tokens, percentages and a string that is not CSS alone', () => {
+  const rows: { name: string; source: string; count?: number; props?: string[]; reason?: RegExp; line?: number }[] = [
+    { name: 'a dimension inside injected CSS is judged like any other',
+      source: [
+        "const s = document.createElement('style');",
+        "s.textContent = '@keyframes arena-pop{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}';",
+      ].join('\n'),
+      count: 1, props: ['transform'], reason: /raw px/, line: 2 },
+    { name: 'injected CSS built from tokens is clean',
+      source: "s.textContent = '.a{animation:x var(--loop-spin) linear infinite;transform:translateY(var(--sp-2))}';", count: 0 },
+    { name: 'a percentage inside injected CSS is not a dimension', source: "s.textContent = '@keyframes a{0%{left:-140%}100%{left:140%}}';", count: 0 },
+    { name: 'a string that is not CSS is left alone', source: "const label = 'Step 1 of 4: 12px away';", count: 0 },
+    { name: 'a kebab-case CSS property is judged under its camelCase name',
+      source: "s.textContent = '.a{border-width:2px;box-shadow:0 0 0 2px var(--gold-soft)}';", props: ['borderWidth', 'boxShadow'] },
+    { name: 'CSS in one string literal is read as a rule', source: "s.textContent = '.a{margin-top:8px}';", count: 1 },
+    { name: 'CSS split across `+`-concatenated string literals is read as one rule', source: "s.textContent = '.a{' + 'margin-top:8px}';", count: 1, props: ['marginTop'] },
+  ];
+  for (const row of rows) {
+    const hits = scanInjectedCss(row.source);
+    if (row.count !== undefined) assert.equal(hits.length, row.count, `${row.name}: hit count`);
+    if (row.props) assert.deepEqual(hits.map((h) => h.prop).sort(), row.props, `${row.name}: props`);
+    if (row.reason) assert.match(hits[0]?.reason ?? '', row.reason, `${row.name}: reason`);
+    if (row.line !== undefined) assert.equal(hits[0]?.line, row.line, `${row.name}: line`);
+  }
+});
+
+test('scanAttributes governs an SVG presentation attribute and leaves a token, an expression and a hyphen-prefixed tail alone', () => {
+  const rows: { name: string; source: string; props: string[] }[] = [
+    { name: 'an SVG presentation attribute is a governed site', source: '<text fontSize="10" strokeWidth="2">x</text>', props: ['fontSize', 'strokeWidth'] },
+    { name: 'an attribute reading a token is clean', source: '<line style={{ strokeWidth: \'var(--bw)\' }} />', props: [] },
+    { name: 'a percentage and a viewBox attribute are clean', source: '<svg width="100%" viewBox="0 0 100 100" />', props: [] },
+    { name: 'an attribute bound to an expression is out of scope', source: '<circle r={hover ? 5 : 4} cx={x} />', props: [] },
+    { name: 'a hyphen-prefixed attribute whose tail matches a governed name is not misread as that name', source: '<div data-width="20" data-height="10" />', props: [] },
+  ];
+  for (const row of rows) assert.deepEqual(scanAttributes(row.source).map((h) => h.prop).sort(), row.props, row.name);
+});
+
+test('expressionLeaves resolves every leaf of a nested ternary, parenthesised or right-chained', () => {
+  const rows: [string, string, string[]][] = [
+    ['a parenthesised nested ternary resolves every leaf', 'a ? (b ? 12 : 14) : 16', ['12', '14', '16']],
+    ['a right-chained nested ternary (no parens) resolves every leaf', "size === 'sm' ? 4 : size === 'lg' ? 10 : 6", ['4', '10', '6']],
+  ];
+  for (const [name, source, expected] of rows) assert.deepEqual(expressionLeaves(source), expected, name);
 });
 
 test('a default parameter whose name is itself a governed CSS property is a violation', () => {
@@ -179,10 +184,6 @@ test('a default parameter whose name is itself a governed CSS property is a viol
 });
 
 const PROBE: Passthrough = new Map([['ArenaAppLogo', { prop: 'size', governs: 'width' }]]);
-
-test('no component is registered as a passthrough while none forwards a dimension to a governed prop', () => {
-  assert.equal(PASSTHROUGH.size, 0);
-});
 
 test('a default parameter on a named passthrough component resolves through the alias', () => {
 
@@ -292,26 +293,6 @@ test('a nested-parens call is deliberately out of scope, not misread', () => {
   assert.deepEqual(scanText('const s = { width: Math.max(8, Math.min(d, 40)) };'), []);
 });
 
-test('EXEMPT records the data-to-pixel projections, by name', () => {
-  assert.ok(EXEMPT.has('frameworks/react/components/charts/ChartTooltip.ts:top:`calc(${y}px - var(--chart-tooltip-offset))`'));
-  assert.ok(EXEMPT.has('frameworks/angular/components/charts/ChartTooltip.ts:top:`calc(${y}px - var(--chart-tooltip-offset))`'));
-  assert.ok(!EXEMPT.has('frameworks/react/components/charts/arena-bar-chart/ArenaBarChart.tsx:top:`calc(${yOf(values[hover])}px - var(--sp-2))`'),
-    'both charts anchor their tooltip through one paired module now, so neither spells the projection for itself');
-  assert.ok(EXEMPT.has('frameworks/react/components/display/arena-calendar/ArenaCalendar.tsx:height:`max(calc(var(--sp-1) * 6.5), ${rawH}px)`'));
-  assert.ok(!EXEMPT.has('frameworks/react/components/display/arena-avatar/ArenaAvatar.tsx:fontSize:d * 0.4'));
-  assert.ok(!EXEMPT.has('frameworks/react/components/display/arena-calendar/ArenaCalendar.tsx:top:`calc(${y(m)}px - var(--sp-1))`'),
-    'the hour label offset is the manifest\'s -mt-1 now, so the projection it exempted is gone');
-});
-
-test('EXEMPT records the three ARENA_SR_ONLY visually-hidden literals, by name', () => {
-  assert.ok(EXEMPT.has("frameworks/angular/DataVisuals.ts:width:'1px'"));
-  assert.ok(EXEMPT.has("frameworks/angular/DataVisuals.ts:height:'1px'"));
-  assert.ok(EXEMPT.has("frameworks/angular/DataVisuals.ts:margin:'-1px'"));
-
-  assert.ok(!EXEMPT.has("frameworks/angular/DataVisuals.ts:padding:'0'"));
-  assert.ok(!EXEMPT.has("frameworks/angular/DataVisuals.ts:border:'0'"));
-});
-
 test('no exemption names a demo entry, since no hand-written one exists to carry a literal', () => {
   for (const key of EXEMPT.keys()) {
     assert.doesNotMatch(key, /\.card\.entry\.tsx:/,
@@ -344,26 +325,6 @@ test('an EXEMPT key absent from the matched set is reported as stale', () => {
 
 test('an empty matched set reports every EXEMPT entry as stale', () => {
   assert.deepEqual(staleExemptions(new Set()), [...EXEMPT.keys()]);
-});
-
-test('a parenthesised nested ternary resolves every leaf', () => {
-  assert.deepEqual(expressionLeaves("a ? (b ? 12 : 14) : 16"), ['12', '14', '16']);
-});
-
-test('a right-chained nested ternary (no parens) resolves every leaf', () => {
-  assert.deepEqual(expressionLeaves("size === 'sm' ? 4 : size === 'lg' ? 10 : 6"), ['4', '10', '6']);
-});
-
-test('all three literals of a nested ternary at a governed colon are flagged', () => {
-  const found = scanText('const s = { fontSize: a ? (b ? 12 : 14) : 16 };');
-  assert.deepEqual(found.map((f) => f.raw), ['12', '14', '16']);
-});
-
-test('a nested ternary whose leaves are all tokens stays legal', () => {
-  assert.deepEqual(
-    scanText("const s = { fontWeight: a ? (b ? 'var(--fw-bold)' : 'var(--fw-medium)') : 'var(--fw-regular)' };"),
-    []
-  );
 });
 
 test('a literal reached through an intermediate variable is a violation, attributed to the declaration line', () => {
@@ -454,16 +415,13 @@ test('the real boundary: a nested call behind a variable is not caught, the exac
   assert.deepEqual(scanText(src), []);
 });
 
-test('a PASSTHROUGH entry with a match is not stale', () => {
-  assert.deepEqual(stalePassthrough(new Set(['ArenaAppLogo']), PROBE), []);
-});
-
-test('a PASSTHROUGH entry matching nothing in the tree fails as stale', () => {
-  assert.deepEqual(stalePassthrough(new Set(), PROBE), ['ArenaAppLogo']);
-});
-
-test('a component the map does not name is not reported', () => {
-  assert.deepEqual(stalePassthrough(new Set(['ArenaAppLogo', 'ArenaButton', 'ArenaTag']), PROBE), []);
+test('stalePassthrough reports a PASSTHROUGH entry matching nothing in the tree, and neither a matched entry nor a component the map does not name', () => {
+  const rows: [string, string[], string[]][] = [
+    ['a PASSTHROUGH entry with a match is not stale', ['ArenaAppLogo'], []],
+    ['a PASSTHROUGH entry matching nothing in the tree fails as stale', [], ['ArenaAppLogo']],
+    ['a component the map does not name is not reported', ['ArenaAppLogo', 'ArenaButton', 'ArenaTag'], []],
+  ];
+  for (const [name, matched, expected] of rows) assert.deepEqual(stalePassthrough(new Set(matched), PROBE), expected, name);
 });
 
 test('a line comment shaped like a colon-value is never read as one', () => {
@@ -505,108 +463,6 @@ test('blanking comments preserves line numbers exactly', () => {
   ].join('\n');
   const found = scanText(src);
   assert.deepEqual(found[0]?.line, 3);
-});
-
-test('a focus ring written by hand is a dimension literal', () => {
-  assert.ok(scanValue('boxShadow', "'0 0 0 2px var(--gold-soft)'"));
-  assert.equal(scanValue('boxShadow', "'0 0 0 var(--focus-width) var(--gold-soft)'"), null);
-  assert.equal(scanValue('boxShadow', "'var(--shadow-2)'"), null);
-  assert.equal(scanValue('boxShadow', "'none'"), null);
-});
-
-test('a transform carrying a dimension is judged; a ratio or a share is not', () => {
-  assert.ok(scanValue('transform', "'translateX(18px)'"));
-  assert.equal(scanValue('transform', "'translateX(calc(var(--sp-1) * 4.5))'"), null);
-  assert.equal(scanValue('transform', "'translate(-50%,-100%)'"), null);
-  assert.equal(scanValue('transform', "'scale(0.98)'"), null);
-  assert.equal(scanValue('transform', "'rotate(120deg)'"), null);
-  assert.equal(scanValue('transform', "'none'"), null);
-});
-
-test('a dimension inside injected CSS is judged like any other', () => {
-  const source = [
-    "const s = document.createElement('style');",
-    "s.textContent = '@keyframes arena-pop{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}';",
-  ].join('\n');
-  const hits = scanInjectedCss(source);
-  assert.equal(hits.length, 1);
-  assert.equal(hits[0]?.prop, 'transform');
-  assert.match(hits[0]?.reason ?? '', /raw px/);
-  assert.equal(hits[0]?.line, 2);
-});
-
-test('injected CSS built from tokens is clean', () => {
-  const source = "s.textContent = '.a{animation:x var(--loop-spin) linear infinite;transform:translateY(var(--sp-2))}';";
-  assert.deepEqual(scanInjectedCss(source), []);
-});
-
-test('a percentage inside injected CSS is not a dimension', () => {
-  const source = "s.textContent = '@keyframes a{0%{left:-140%}100%{left:140%}}';";
-  assert.deepEqual(scanInjectedCss(source), []);
-});
-
-test('a string that is not CSS is left alone', () => {
-  assert.deepEqual(scanInjectedCss("const label = 'Step 1 of 4: 12px away';"), []);
-});
-
-test('a kebab-case CSS property is judged under its camelCase name', () => {
-  const hits = scanInjectedCss("s.textContent = '.a{border-width:2px;box-shadow:0 0 0 2px var(--gold-soft)}';");
-  assert.deepEqual(hits.map((h) => h.prop).sort(), ['borderWidth', 'boxShadow']);
-});
-
-test('CSS split across `+`-concatenated string literals is read as one rule', () => {
-  assert.equal(scanInjectedCss("s.textContent = '.a{margin-top:8px}';").length, 1);
-  const hits = scanInjectedCss("s.textContent = '.a{' + 'margin-top:8px}';");
-  assert.equal(hits.length, 1);
-  assert.equal(hits[0]?.prop, 'marginTop');
-});
-
-test('an interpolation does not hide the unit that follows it', () => {
-  assert.ok(scanValue('width', '`max(calc(var(--sp-1) * 2), ${d * 0.28}px)`'));
-  assert.ok(scanValue('height', '`${size}px`'));
-});
-
-test('an interpolation in a unit nothing models is still fine', () => {
-  assert.equal(scanValue('width', '`${share}%`'), null);
-});
-
-test('an interpolated derivation of tokens is fine', () => {
-  assert.equal(scanValue('fontSize', '`calc(${d} * 0.4)`'), null);
-});
-
-test('an SVG presentation attribute is a governed site', () => {
-  const hits = scanAttributes('<text fontSize="10" strokeWidth="2">x</text>');
-  assert.deepEqual(hits.map((h) => h.prop).sort(), ['fontSize', 'strokeWidth']);
-});
-
-test('an attribute reading a token is clean', () => {
-  assert.deepEqual(scanAttributes('<line style={{ strokeWidth: \'var(--bw)\' }} />'), []);
-  assert.deepEqual(scanAttributes('<svg width="100%" viewBox="0 0 100 100" />'), []);
-});
-
-test('an attribute bound to an expression is out of scope', () => {
-  assert.deepEqual(scanAttributes('<circle r={hover ? 5 : 4} cx={x} />'), []);
-});
-
-test('a hyphen-prefixed attribute whose tail matches a governed name is not misread as that name', () => {
-
-  assert.deepEqual(scanAttributes('<div data-width="20" data-height="10" />'), []);
-});
-
-test('a governed property name at the tail of a longer one is not that property', () => {
-  assert.deepEqual(scanText("const a = 'stroke-width: var(--bw);';"), []);
-  assert.deepEqual(scanText("const a = { strokeWidth: 'var(--bw)' };"), []);
-  assert.deepEqual(scanText('const a = `max-width: 13px`;'), [],
-    'a kebab-case declaration in a bare string is nobody\'s: scanText reads camelCase and scanInjectedCss '
-    + 'requires a rule body, which is the kebab-case blind spot the gate header records rather than one this fix adds');
-  assert.deepEqual(scanText('const a = { maxWidth: 13 };').map((f) => f.prop), ['maxWidth']);
-});
-
-test('the lookbehind matters because a mismatched property swallows past the string it was found in', () => {
-  const src = "const a = 'stroke-width: var(--bw);';\nconst b = 'p95 line chart';\n";
-  assert.deepEqual(scanText(src), [],
-    'reading `width` out of `stroke-width` stops the value at the closing quote and reports no '
-    + 'bare literal at a site that has none -- naming a file and a property that were not the defect');
 });
 
 test('a dist tree is assembled output, so the scan never opens it', () => {

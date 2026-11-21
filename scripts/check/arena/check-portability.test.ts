@@ -109,36 +109,28 @@ test('the separator rules read a suite as well, and the rest still leave one alo
     + 'the assertion then passes on the machine that wrote it and nowhere else');
 });
 
-test('file-url-pathname fires on any file URL, not only import.meta.url', () => {
-  const found = violations('scripts/build/arena/made-up.ts', 'const p = pathToFileURL(x).pathname;\n');
-  assert.equal(found.length, 1);
-  assert.equal(found[0]?.line, 1);
-});
-
-test('file-url-pathname leaves location.pathname alone', () => {
-  assert.deepEqual(violations('frameworks/react/made-up.ts',
-    "history.replaceState(null, '', window.location.pathname);\n"), []);
-});
-
-test('file-url-pathname leaves an optional-chained location.pathname alone', () => {
-  assert.deepEqual(violations('frameworks/react/made-up.ts',
-    'const here = window.location?.pathname;\n'), []);
-});
-
-test('file-url-pathname exempts the static server, whose URL is an http request', () => {
-  const source = 'const path = new URL(request.url).pathname;\n';
-  assert.deepEqual(violations('scripts/lib/arena/static-server.ts', source), []);
-  assert.equal(violations('scripts/lib/arena/other-server.ts', source).length, 1);
-});
-
-test('file-url-pathname leaves fileURLToPath alone', () => {
-  assert.deepEqual(violations('scripts/build/arena/made-up.ts',
-    "const p = fileURLToPath(new URL('./x', import.meta.url));\n"), []);
-});
-
-test('file-url-pathname skips a template literal', () => {
-  assert.deepEqual(violations('scripts/build/arena/made-up.ts',
-    'const doc = `new URL(r.name).pathname`;\n'), []);
+test('file-url-pathname fires on any file URL, and leaves location.pathname, fileURLToPath, a template literal and the static server alone', () => {
+  const rows: { name: string; file: string; source: string; hits: number; line?: number }[] = [
+    { name: 'it fires on any file URL, not only import.meta.url', file: 'scripts/build/arena/made-up.ts',
+      source: 'const p = pathToFileURL(x).pathname;\n', hits: 1, line: 1 },
+    { name: 'it leaves location.pathname alone', file: 'frameworks/react/made-up.ts',
+      source: "history.replaceState(null, '', window.location.pathname);\n", hits: 0 },
+    { name: 'it leaves an optional-chained location.pathname alone', file: 'frameworks/react/made-up.ts',
+      source: 'const here = window.location?.pathname;\n', hits: 0 },
+    { name: 'it exempts the static server, whose URL is an http request', file: 'scripts/lib/arena/static-server.ts',
+      source: 'const path = new URL(request.url).pathname;\n', hits: 0 },
+    { name: 'it does not exempt any other server', file: 'scripts/lib/arena/other-server.ts',
+      source: 'const path = new URL(request.url).pathname;\n', hits: 1 },
+    { name: 'it leaves fileURLToPath alone', file: 'scripts/build/arena/made-up.ts',
+      source: "const p = fileURLToPath(new URL('./x', import.meta.url));\n", hits: 0 },
+    { name: 'it skips a template literal', file: 'scripts/build/arena/made-up.ts',
+      source: 'const doc = `new URL(r.name).pathname`;\n', hits: 0 },
+  ];
+  for (const row of rows) {
+    const found = violations(row.file, row.source);
+    assert.equal(found.length, row.hits, `file-url-pathname ${row.name}: hit count`);
+    if (row.line !== undefined) assert.equal(found[0]?.line, row.line, `file-url-pathname ${row.name}: line`);
+  }
 });
 
 test('file-url-pathname reaches the framework layers, suites and scripts', () => {
@@ -302,7 +294,6 @@ test('a matrix that disagrees with the declaration fails, whichever way it disag
   const absent = { solaris: { blocking: true, why: 'no runner offers it' } };
   assert.match(matrixProblems(repoRoot, absent).join('\n'), /the matrix does not run it/);
 });
-
 
 const CALLER = `name: Arena PR
 

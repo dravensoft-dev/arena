@@ -5,39 +5,17 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { numericConstants, sourceFiles } from './check-duplicate-constants.ts';
 
-test('finds a module-level numeric const', () => {
-  assert.deepEqual(numericConstants('export const ARENA_CHART_HEIGHT = 280;'), new Map([['ARENA_CHART_HEIGHT', '280']]));
-});
-
-test('finds a const that is not exported', () => {
-  assert.deepEqual(numericConstants('const HOUR_H = 44;'), new Map([['HOUR_H', '44']]));
-});
-
-test('finds a flat numeric object and normalises its whitespace', () => {
-  assert.deepEqual(
-    numericConstants('export const ARENA_PAD = { t: 8, r: 8, b: 28, l: 44 };'),
-    new Map([['ARENA_PAD', '{t:8,r:8,b:28,l:44}']]),
-  );
-});
-
-test('reads through an as const suffix', () => {
-  assert.deepEqual(
-    numericConstants('export const ARENA_PAD = { t: 8 } as const;'),
-    new Map([['ARENA_PAD', '{t:8}']]),
-  );
-});
-
-test('ignores a const initialised from an identifier', () => {
-  assert.deepEqual(numericConstants('export const ARENA_CHART_HEIGHT = chartHeight;'), new Map());
-});
-
-test('ignores a string const', () => {
-  assert.deepEqual(numericConstants("const GUTTER = 'calc(var(--sp-1) * 14)';"), new Map());
-});
-
-test('ignores a const declared inside a function body', () => {
-  const src = 'function f() {\n  const W = 320;\n}';
-  assert.deepEqual(numericConstants(src), new Map());
+test('numericConstants reads a module-level numeric const or flat numeric object, through an as const suffix, and ignores anything else', () => {
+  const rows: { name: string; source: string; expected: Map<string, string> }[] = [
+    { name: 'finds a module-level numeric const', source: 'export const ARENA_CHART_HEIGHT = 280;', expected: new Map([['ARENA_CHART_HEIGHT', '280']]) },
+    { name: 'finds a const that is not exported', source: 'const HOUR_H = 44;', expected: new Map([['HOUR_H', '44']]) },
+    { name: 'finds a flat numeric object and normalises its whitespace', source: 'export const ARENA_PAD = { t: 8, r: 8, b: 28, l: 44 };', expected: new Map([['ARENA_PAD', '{t:8,r:8,b:28,l:44}']]) },
+    { name: 'reads through an as const suffix', source: 'export const ARENA_PAD = { t: 8 } as const;', expected: new Map([['ARENA_PAD', '{t:8}']]) },
+    { name: 'ignores a const initialised from an identifier', source: 'export const ARENA_CHART_HEIGHT = chartHeight;', expected: new Map() },
+    { name: 'ignores a string const', source: "const GUTTER = 'calc(var(--sp-1) * 14)';", expected: new Map() },
+    { name: 'ignores a const declared inside a function body', source: 'function f() {\n  const W = 320;\n}', expected: new Map() },
+  ];
+  for (const row of rows) assert.deepEqual(numericConstants(row.source), row.expected, row.name);
 });
 
 test('a dist tree is assembled output, so its copy of a constant is never a duplicate', () => {

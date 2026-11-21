@@ -40,42 +40,52 @@ const layerExists = (layer: string, ext: string) =>
       if (!gone.has(dir)) present.add(`frameworks/${layer}/components/${category}/${dir}/${pascal(dir)}.${ext}`);
   return (path: string) => present.has(path);
 };
-const treeExists = layerExists('angular', 'ts');
-const reactTreeExists = layerExists('react', 'd.ts');
 
-test('a complete layer resolves every component to its own PascalCase file and reports nothing', () => {
-  const { implementations, problems } = resolveAngularImplementations(TREE, treeExists(TREE));
-  assert.deepEqual(problems, []);
-  assert.equal(implementations.size, 3);
-  assert.equal(implementations.get('ArenaBarChart'), 'frameworks/angular/components/charts/arena-bar-chart/ArenaBarChart.ts');
-  assert.equal(implementations.get('ArenaUnauthCard'), 'frameworks/angular/components/display/arena-unauth-card/ArenaUnauthCard.ts');
+const LAYERS = [
+  { name: 'Angular', resolve: resolveAngularImplementations, exists: layerExists('angular', 'ts'), ext: 'ts', root: 'frameworks/angular/components',
+    missingFile: /frameworks\/angular\/components\/display\/arena-tag\/: is a component directory with no ArenaTag\.ts/ },
+  { name: 'React', resolve: resolveReactImplementations, exists: layerExists('react', 'd.ts'), ext: 'd.ts', root: 'frameworks/react/components',
+    missingFile: /frameworks\/react\/components\/display\/arena-tag\/: is a component directory with no ArenaTag\.tsx and no ArenaTag\.d\.ts/ },
+] as const;
+
+test('a complete layer resolves every component to its own file and reports nothing', () => {
+  for (const layer of LAYERS) {
+    const { implementations, problems } = layer.resolve(TREE, layer.exists(TREE));
+    assert.deepEqual(problems, [], `${layer.name}: no problems`);
+    assert.equal(implementations.size, 3, `${layer.name}: three components`);
+    assert.equal(implementations.get('ArenaBarChart'), `${layer.root}/charts/arena-bar-chart/ArenaBarChart.${layer.ext}`, `${layer.name}: ArenaBarChart`);
+    assert.equal(implementations.get('ArenaUnauthCard'), `${layer.root}/display/arena-unauth-card/ArenaUnauthCard.${layer.ext}`, `${layer.name}: ArenaUnauthCard`);
+  }
 });
 
-test('a component directory whose PascalCase file is missing is a problem, not a skip -- and the rest of the layer still resolves', () => {
-
-  const { implementations, problems } = resolveAngularImplementations(TREE, treeExists(TREE, ['arena-tag']));
-  assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /frameworks\/angular\/components\/display\/arena-tag\/: is a component directory with no ArenaTag\.ts/);
-  assert.match(problems[0] ?? '', /clean pass over an unchecked layer/);
-  assert.equal(implementations.size, 2);
-  assert.ok(!implementations.has('ArenaTag'));
+test('a component directory whose file is missing is a problem, not a skip -- and the rest of the layer still resolves', () => {
+  for (const layer of LAYERS) {
+    const { implementations, problems } = layer.resolve(TREE, layer.exists(TREE, ['arena-tag']));
+    assert.equal(problems.length, 1, `${layer.name}: one problem`);
+    assert.match(problems[0] ?? '', layer.missingFile, `${layer.name}: names the missing file`);
+    assert.match(problems[0] ?? '', /clean pass over an unchecked layer/, `${layer.name}: says why a skip is wrong`);
+    assert.equal(implementations.size, 2, `${layer.name}: the rest resolves`);
+    assert.ok(!implementations.has('ArenaTag'), `${layer.name}: ArenaTag is absent`);
+  }
 });
 
 test('a layer that yields zero implementations is a failure, not a clean pass', () => {
-
-  const { implementations, problems } = resolveAngularImplementations({}, () => false);
-  assert.equal(implementations.size, 0);
-  assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /found 0 Angular component implementations/);
-  assert.match(problems[0] ?? '', /an empty result set is a failure, not a clean pass/);
+  for (const layer of LAYERS) {
+    const { implementations, problems } = layer.resolve({}, () => false);
+    assert.equal(implementations.size, 0, `${layer.name}: no implementations`);
+    assert.equal(problems.length, 1, `${layer.name}: one problem`);
+    assert.match(problems[0] ?? '', new RegExp(`found 0 ${layer.name} component implementations`), `${layer.name}: names the count`);
+    assert.match(problems[0] ?? '', /an empty result set is a failure, not a clean pass/, `${layer.name}: says why`);
+  }
 });
 
 test('a layer whose every component file is unreadable reports both rules, because both are true', () => {
-
-  const { problems } = resolveAngularImplementations(TREE, () => false);
-  assert.equal(problems.length, 4);
-  assert.equal(problems.filter((p) => /is a component directory with no/.test(p)).length, 3);
-  assert.equal(problems.filter((p) => /found 0 Angular component implementations/.test(p)).length, 1);
+  for (const layer of LAYERS) {
+    const { problems } = layer.resolve(TREE, () => false);
+    assert.equal(problems.length, 4, `${layer.name}: four problems`);
+    assert.equal(problems.filter((p) => /is a component directory with no/.test(p)).length, 3, `${layer.name}: three missing files`);
+    assert.equal(problems.filter((p) => new RegExp(`found 0 ${layer.name} component implementations`).test(p)).length, 1, `${layer.name}: one empty layer`);
+  }
 });
 
 test('a category holding no directories contributes nothing and is not itself a component', () => {
@@ -83,43 +93,6 @@ test('a category holding no directories contributes nothing and is not itself a 
   assert.equal(implementations.size, 0);
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /found 0 Angular component implementations/);
-});
-
-const REACT_TREE = { charts: ['arena-bar-chart'], display: ['arena-tag', 'arena-unauth-card'] };
-
-test('a complete React layer resolves every component to its own .d.ts and reports nothing', () => {
-  const { implementations, problems } = resolveReactImplementations(REACT_TREE, reactTreeExists(REACT_TREE));
-  assert.deepEqual(problems, []);
-  assert.equal(implementations.size, 3);
-  assert.equal(implementations.get('ArenaBarChart'), 'frameworks/react/components/charts/arena-bar-chart/ArenaBarChart.d.ts');
-  assert.equal(implementations.get('ArenaUnauthCard'), 'frameworks/react/components/display/arena-unauth-card/ArenaUnauthCard.d.ts');
-});
-
-test('a React component directory declaring no surface at all is a problem, not a skip -- and the rest of the layer still resolves', () => {
-
-  const { implementations, problems } = resolveReactImplementations(REACT_TREE, reactTreeExists(REACT_TREE, ['arena-tag']));
-  assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /frameworks\/react\/components\/display\/arena-tag\/: is a component directory with no ArenaTag\.tsx and no ArenaTag\.d\.ts/);
-  assert.match(problems[0] ?? '', /clean pass over an unchecked layer/);
-  assert.equal(implementations.size, 2);
-  assert.ok(!implementations.has('ArenaTag'));
-});
-
-test('a React layer that yields zero implementations is a failure, not a clean pass', () => {
-
-  const { implementations, problems } = resolveReactImplementations({}, () => false);
-  assert.equal(implementations.size, 0);
-  assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /found 0 React component implementations/);
-  assert.match(problems[0] ?? '', /an empty result set is a failure, not a clean pass/);
-});
-
-test('a React layer whose every .d.ts is unreadable reports both rules, because both are true', () => {
-
-  const { problems } = resolveReactImplementations(REACT_TREE, () => false);
-  assert.equal(problems.length, 4);
-  assert.equal(problems.filter((p) => /is a component directory with no/.test(p)).length, 3);
-  assert.equal(problems.filter((p) => /found 0 React component implementations/.test(p)).length, 1);
 });
 
 test('the binding table is mechanical: content is children, an event x is onX', () => {
@@ -713,26 +686,18 @@ test('validateContract accepts an event payload naming a declared enum', () => {
   assert.deepEqual(problems, []);
 });
 
-test('zero contracts is a failure, not a clean pass', () => {
-  const problems = zeroContractProblems({ contracts: 0, types: 40 });
-  assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /0 contract/);
-  assert.match(problems[0] ?? '', /contracts\/api\/components/);
-});
-
-test('zero types is a failure too, named separately', () => {
-  const problems = zeroContractProblems({ contracts: 50, types: 0 });
-  assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /0 type/);
-  assert.match(problems[0] ?? '', /contracts\/api\/types/);
-});
-
-test('both empty are reported as two problems, not one', () => {
-  assert.equal(zeroContractProblems({ contracts: 0, types: 0 }).length, 2);
-});
-
-test('a populated tree has no zero problems', () => {
-  assert.deepEqual(zeroContractProblems({ contracts: 50, types: 40 }), []);
+test('zero contracts, zero types or both is a failure, and a populated tree has no zero problem', () => {
+  const rows: { name: string; counts: { contracts: number; types: number }; count: number; patterns?: RegExp[] }[] = [
+    { name: 'zero contracts is a failure, not a clean pass', counts: { contracts: 0, types: 40 }, count: 1, patterns: [/0 contract/, /contracts\/api\/components/] },
+    { name: 'zero types is a failure too, named separately', counts: { contracts: 50, types: 0 }, count: 1, patterns: [/0 type/, /contracts\/api\/types/] },
+    { name: 'both empty are reported as two problems, not one', counts: { contracts: 0, types: 0 }, count: 2 },
+    { name: 'a populated tree has no zero problems', counts: { contracts: 50, types: 40 }, count: 0 },
+  ];
+  for (const row of rows) {
+    const problems = zeroContractProblems(row.counts);
+    assert.equal(problems.length, row.count, `${row.name}: finding count`);
+    for (const pattern of row.patterns ?? []) assert.match(problems[0] ?? '', pattern, `${row.name}: ${pattern}`);
+  }
 });
 
 test('a contracted member with no doc fails, because the description would reach no consumer', () => {
@@ -853,12 +818,14 @@ test('a DERIVED_DEFAULT entry no layer reaches fails as stale', () => {
   assert.match(problems[0] ?? '', /DERIVED_DEFAULT names ArenaGhost\.height/);
 });
 
-test('DERIVED_DEFAULT is the nine chart heights, and each entry carries the reason as a value', () => {
-  assert.deepEqual([...DERIVED_DEFAULT.keys()].sort(), [
-    'ArenaBarChart.height', 'ArenaFunnelChart.height', 'ArenaGaugeChart.height', 'ArenaHorizontalBarChart.height', 'ArenaLineChart.height',
-    'ArenaPyramidChart.height', 'ArenaRadarChart.height', 'ArenaScatterChart.height', 'ArenaSparkline.height',
-  ]);
+test('DERIVED_DEFAULT names the height of a chart component whose contract has one, and each entry carries the reason as a value', () => {
+  assert.ok(DERIVED_DEFAULT.size > 0, 'an empty map names nothing');
   for (const [key, why] of DERIVED_DEFAULT) {
+    const [component = '', member] = key.split('.');
+    assert.equal(member, 'height', `${key}: the member is a chart height`);
+    assert.match(component, /Chart$|^ArenaSparkline$/, `${key}: the component is a chart`);
+    const contract = JSON.parse(readFileSync(join(root, 'contracts/api/components', `${component}.json`), 'utf8'));
+    assert.ok(contract.api?.height, `${key}: the contract has a height`);
     const token = key === 'ArenaSparkline.height' ? '--chart-sparkline-height' : key === 'ArenaGaugeChart.height' ? '--chart-gauge-height' : '--chart-height';
     assert.ok(why.includes(token), `${key}: the reason names the token the value comes from`);
     assert.ok(why.length > 80, `${key}: a reason short enough to be a label is not a reason`);

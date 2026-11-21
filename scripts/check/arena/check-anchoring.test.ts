@@ -23,89 +23,12 @@ test('the table names both layers for every component it holds, or the sweep pro
   assert.equal(new Set(names).size, names.length, 'a case is declared twice');
 });
 
-test('a panel placed whole and flipped away from the edge passes', () => {
-  assert.deepEqual(anchoringProblems(below, { mounted: true, opened: true, painted: true, inside: true, side: 'above' }), []);
-  assert.deepEqual(anchoringProblems(above, { mounted: true, opened: true, painted: true, inside: true, side: 'below' }), []);
-});
-
-test('the in-flow panel fails three ways: clipped, out of the viewport, and never flipped', () => {
-  const problems = anchoringProblems(below, { mounted: true, opened: true, painted: false, inside: false, side: 'below' });
-  assert.equal(problems.length, 3);
-  assert.match(problems[0] ?? '', /is not what paints at its own centre/);
-  assert.match(problems[1] ?? '', /leaves the viewport/);
-  assert.match(problems[2] ?? '', /opened below it rather than flipping above/);
-});
-
-test('a panel that overlaps its trigger has not flipped either', () => {
-  assert.match(anchoringProblems(above, { mounted: true, opened: true, painted: true, inside: true, side: 'overlapping' })[0] ?? '',
-    /opened overlapping it rather than flipping below/);
-});
-
-test('a page that never mounted, and a trigger that opened nothing, each say which wait expired', () => {
-  assert.match(anchoringProblems(below, { mounted: false, opened: false })[0] ?? '', new RegExp(MOUNTED.name));
-  assert.match(anchoringProblems(below, { mounted: true, opened: false })[0] ?? '', new RegExp(OPENED.name));
-});
-
-test('a list whose smallest row is under a scope\'s floor fails in that scope alone', () => {
-  const list: Anchored = { ...below, name: 'Z:react', rows: '[role="option"]' };
-  const placed = { mounted: true, opened: true, painted: true, inside: true, side: 'above' as const };
-  assert.deepEqual(anchoringProblems(list, { ...placed, rows: [
-    { scope: 'base', floor: 24, count: 3, smallest: 37 }, { scope: 'comfortable', floor: 44, count: 3, smallest: 48 },
-    { scope: 'compact', floor: 24, count: 3, smallest: 26 },
-  ] }), []);
-  const short = anchoringProblems(list, { ...placed, rows: [
-    { scope: 'base', floor: 24, count: 3, smallest: 37 }, { scope: 'comfortable', floor: 44, count: 3, smallest: 40 },
-    { scope: 'compact', floor: 24, count: 3, smallest: 26 },
-  ] });
-  assert.equal(short.length, 1);
-  assert.match(short[0] ?? '', /is 40px tall in the comfortable scope, and the floor there is 44px/);
-});
-
-test('a list measured with no rows, or in one scope only, fails rather than passing over nothing', () => {
-  const list: Anchored = { ...below, name: 'Z:react', rows: '[role="option"]' };
-  const placed = { mounted: true, opened: true, painted: true, inside: true, side: 'above' as const };
-  assert.match(anchoringProblems(list, { ...placed, rows: [
-    { scope: 'base', floor: 24, count: 0, smallest: 0 }, { scope: 'comfortable', floor: 44, count: 2, smallest: 48 },
-    { scope: 'compact', floor: 24, count: 2, smallest: 26 },
-  ] })[0] ?? '', /drew no \[role="option"\] in the base scope/);
-  const names = SCOPES.map((s) => s.name).join(', ');
-  const fewer = anchoringProblems(list, { ...placed, rows: SCOPES.slice(0, SCOPES.length - 1)
-    .map((s) => ({ scope: s.name, floor: s.floor, count: 2, smallest: 48 })) });
-  assert.equal(fewer.length, 1);
-  assert.ok(fewer[0]?.includes(`(${names})`));
-});
-
-test('a compact row of 23px fails in compact alone', () => {
-  const list: Anchored = { ...below, name: 'Z:react', rows: '[role="option"]' };
-  const placed = { mounted: true, opened: true, painted: true, inside: true, side: 'above' as const };
-  const problems = anchoringProblems(list, { ...placed, rows: SCOPES.map((s) =>
-    ({ scope: s.name, floor: s.floor, count: 2, smallest: s.name === 'compact' ? 23 : 48 })) });
-  assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /is 23px tall in the compact scope, and the floor there is 24px/);
-});
-
 test('the read measures the rows in every scope the target-size gate declares, and a case with no rows measures none', () => {
   const list: Anchored = { ...below, name: 'Z:react', rows: '[role="option"]' };
   assert.match(readExpression(list), /"scope":"base","klass":"","floor":24/);
   assert.match(readExpression(list), /"scope":"comfortable","klass":"arena-comfortable","floor":44/);
   assert.match(readExpression(list), /"scope":"compact","klass":"arena-compact","floor":24/);
   assert.match(readExpression(below), /const rows = "" \?/);
-});
-
-test('a row exactly at the floor passes, and one a hair under it fails', () => {
-  const list: Anchored = { ...below, name: 'Z:react', rows: '[role="option"]' };
-  const placed = { mounted: true, opened: true, painted: true, inside: true, side: 'above' as const };
-  const at = (smallest: number) => anchoringProblems(list, { ...placed, rows: [
-    { scope: 'base', floor: 24, count: 3, smallest: 24 }, { scope: 'comfortable', floor: 44, count: 3, smallest },
-    { scope: 'compact', floor: 24, count: 3, smallest: 24 },
-  ] });
-  assert.deepEqual(at(44), []);
-  assert.equal(at(43.99).length, 1);
-});
-
-test('a reading that carries rows for a case naming none is not read as a list', () => {
-  const placed = { mounted: true, opened: true, painted: true, inside: true, side: 'above' as const };
-  assert.deepEqual(anchoringProblems(below, { ...placed, rows: [{ scope: 'base', floor: 24, count: 0, smallest: 0 }] }), []);
 });
 
 test('the smallest row is the least height, and none is zero', () => {
@@ -153,23 +76,6 @@ function readEdge(kase: Anchored, panelLeft: number) {
   };
   return new Function('document', 'innerWidth', 'innerHeight', `return ${readExpression(kase)}`)(fake, 1000, 760).edge;
 }
-
-test('a panel whose aligned edge sits on the named anchor\'s passes, and one a pixel or more off fails', () => {
-  assert.deepEqual(anchoringProblems(aligned, { ...placedWhole, edge: { wanted: 16, actual: 16.5 } }), []);
-  const off = anchoringProblems(aligned, { ...placedWhole, edge: { wanted: 16, actual: 117 } });
-  assert.equal(off.length, 1);
-  assert.match(off[0] ?? '', /starts at 117px, and its start edge measured from \[data-whole\] puts it at 16px/);
-});
-
-test('a panel placed against the caret instead of the whole control fails at start', () => {
-  assert.deepEqual(anchoringProblems(aligned, { ...placedWhole, edge: readEdge(aligned, 16) }), []);
-  const onCaret = anchoringProblems(aligned, { ...placedWhole, edge: readEdge(aligned, 117) });
-  assert.equal(onCaret.length, 1, 'a panel lined up with the caret passed as lined up with the whole control');
-});
-
-test('a case naming an edge with no anchor to measure from fails rather than passing over nothing', () => {
-  assert.match(anchoringProblems(aligned, placedWhole)[0] ?? '', /no \[data-whole\] was found/);
-});
 
 test('the read measures the aligned edge from the named anchor, the clamp to the viewport included', () => {
   assert.deepEqual(readEdge(aligned, 7), { wanted: 16, actual: 7 });
@@ -247,12 +153,6 @@ test('a keyboard case stubs the visual viewport, pins the trigger to the bottom 
   assert.match(readExpression(keyboard), /\{"top":200,"height":440\}/);
 });
 
-test('a panel outside the box a soft keyboard leaves fails, naming that box', () => {
-  const problems = anchoringProblems(keyboard, { ...placedWhole, inside: false });
-  assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /leaves the visual viewport \(200px to 640px\)/);
-});
-
 test('React and Angular must place a case alike within a pixel, and one reading missing is a failure', () => {
   const angular: Anchored = { ...keyboard, name: 'K:angular:keyboard-200' };
   const at = (left: number, top: number): Reading => ({ ...placedWhole, rect: { left, top, width: 100, height: 80 } });
@@ -277,21 +177,6 @@ test('every logical and keyboard case is declared in both layers, flagged alike,
 const crowded = (crowd: 'offset' | 'floor'): Anchored => ({ ...below, name: `K:react:keyboard-${crowd}`, visual: { top: 200, height: 100 }, crowd });
 const settled = { mounted: true, opened: true, painted: true, inside: true } as const;
 
-test('a trigger just under the top of the visual viewport keeps the preferred side, and a panel that flips fails', () => {
-  assert.deepEqual(anchoringProblems(crowded('offset'), { ...settled, side: 'below' }), []);
-  assert.match(anchoringProblems(crowded('offset'), { ...settled, side: 'above' })[0] ?? '', /counted from that top.*opened above it/);
-});
-
-test('a panel with no row of room must be capped, stay inside the box and keep its scroll position', () => {
-  const kept = { capped: true, kept: true, wanted: 10, actual: 10 };
-  assert.deepEqual(anchoringProblems(crowded('floor'), { ...settled, side: 'overlapping', scrolled: kept }), []);
-  assert.match(anchoringProblems(crowded('floor'), { ...settled, side: 'overlapping', scrolled: { ...kept, capped: false } })[0] ?? '', /not capped to scroll/);
-  assert.match(anchoringProblems(crowded('floor'), { ...settled, side: 'overlapping' })[0] ?? '', /not capped to scroll/);
-  assert.match(anchoringProblems(crowded('floor'), { ...settled, side: 'overlapping', scrolled: { capped: true, kept: false, wanted: 10, actual: 0 } })[0] ?? '',
-    /scrolled to 10px and was at 0px/);
-  assert.match(anchoringProblems(crowded('floor'), { ...settled, inside: false, side: 'overlapping', scrolled: kept })[0] ?? '', /leaves the visual viewport/);
-});
-
 test('the crowded cases scroll the panel, place it again through the stubbed visual viewport, and read it back', () => {
   assert.match(scrollExpression(crowded('floor')), /scrollTop = 10[\s\S]*dispatchEvent\(new Event\('resize'\)\)[\s\S]*kept/);
   const names = ANCHORED.filter((kase) => kase.crowd !== undefined).map((kase) => kase.name);
@@ -299,10 +184,95 @@ test('the crowded cases scroll the panel, place it again through the stubbed vis
   assert.ok(names.some((name) => name.startsWith('ArenaCombobox:angular:') && name.endsWith('floor')));
 });
 
-test('a panel whose box never settles is reported as unsettled, not as unopened', () => {
-  const kase = ANCHORED[0]!;
-  const problems = anchoringProblems(kase, { mounted: true, opened: true, unsettled: true });
-  assert.equal(problems.length, 1);
-  assert.match(problems[0]!, /still moving/);
-  assert.doesNotMatch(problems[0]!, /never opened/);
+test('anchoringProblems passes a panel placed whole, and names each way a panel is clipped, unflipped, unmounted, unopened, misaligned, outside the visual box, uncapped or unsettled', () => {
+  const rows: { name: string; kase: Anchored; reading: Reading; count?: number; patterns?: RegExp[]; notPatterns?: RegExp[]; why?: string }[] = [
+    { name: 'a panel placed whole and flipped away from the edge passes (below)', kase: below, count: 0,
+      reading: { mounted: true, opened: true, painted: true, inside: true, side: 'above' } },
+    { name: 'a panel placed whole and flipped away from the edge passes (above)', kase: above, count: 0,
+      reading: { mounted: true, opened: true, painted: true, inside: true, side: 'below' } },
+    { name: 'the in-flow panel fails three ways: clipped, out of the viewport, and never flipped', kase: below, count: 3,
+      reading: { mounted: true, opened: true, painted: false, inside: false, side: 'below' },
+      patterns: [/is not what paints at its own centre/, /leaves the viewport/, /opened below it rather than flipping above/] },
+    { name: 'a panel that overlaps its trigger has not flipped either', kase: above,
+      reading: { mounted: true, opened: true, painted: true, inside: true, side: 'overlapping' },
+      patterns: [/opened overlapping it rather than flipping below/] },
+    { name: 'a page that never mounted says which wait expired', kase: below, reading: { mounted: false, opened: false },
+      patterns: [new RegExp(MOUNTED.name)] },
+    { name: 'a trigger that opened nothing says which wait expired', kase: below, reading: { mounted: true, opened: false },
+      patterns: [new RegExp(OPENED.name)] },
+    { name: 'a panel whose aligned edge sits on the named anchor\'s passes', kase: aligned, count: 0,
+      reading: { ...placedWhole, edge: { wanted: 16, actual: 16.5 } } },
+    { name: 'a panel a pixel or more off its aligned edge fails', kase: aligned, count: 1,
+      reading: { ...placedWhole, edge: { wanted: 16, actual: 117 } },
+      patterns: [/starts at 117px, and its start edge measured from \[data-whole\] puts it at 16px/] },
+    { name: 'a panel placed against the whole control passes', kase: aligned, count: 0, reading: { ...placedWhole, edge: readEdge(aligned, 16) } },
+    { name: 'a panel placed against the caret instead of the whole control fails at start', kase: aligned, count: 1,
+      reading: { ...placedWhole, edge: readEdge(aligned, 117) },
+      why: 'a panel lined up with the caret passed as lined up with the whole control' },
+    { name: 'a case naming an edge with no anchor to measure from fails rather than passing over nothing', kase: aligned, reading: placedWhole,
+      patterns: [/no \[data-whole\] was found/] },
+    { name: 'a panel outside the box a soft keyboard leaves fails, naming that box', kase: keyboard, count: 1,
+      reading: { ...placedWhole, inside: false }, patterns: [/leaves the visual viewport \(200px to 640px\)/] },
+    { name: 'a trigger just under the top of the visual viewport keeps the preferred side', kase: crowded('offset'), count: 0,
+      reading: { ...settled, side: 'below' } },
+    { name: 'a trigger just under the top of the visual viewport fails when its panel flips', kase: crowded('offset'),
+      reading: { ...settled, side: 'above' }, patterns: [/counted from that top.*opened above it/] },
+    { name: 'a panel with no row of room, capped, inside the box and keeping its scroll position, passes', kase: crowded('floor'), count: 0,
+      reading: { ...settled, side: 'overlapping', scrolled: { capped: true, kept: true, wanted: 10, actual: 10 } } },
+    { name: 'a panel with no row of room that is not capped fails', kase: crowded('floor'),
+      reading: { ...settled, side: 'overlapping', scrolled: { capped: false, kept: true, wanted: 10, actual: 10 } }, patterns: [/not capped to scroll/] },
+    { name: 'a panel with no row of room and no scroll reading fails', kase: crowded('floor'),
+      reading: { ...settled, side: 'overlapping' }, patterns: [/not capped to scroll/] },
+    { name: 'a panel with no row of room that loses its scroll position fails', kase: crowded('floor'),
+      reading: { ...settled, side: 'overlapping', scrolled: { capped: true, kept: false, wanted: 10, actual: 0 } }, patterns: [/scrolled to 10px and was at 0px/] },
+    { name: 'a panel with no row of room that leaves the visual box fails', kase: crowded('floor'),
+      reading: { ...settled, inside: false, side: 'overlapping', scrolled: { capped: true, kept: true, wanted: 10, actual: 10 } },
+      patterns: [/leaves the visual viewport/] },
+    { name: 'a panel whose box never settles is reported as unsettled, not as unopened', kase: ANCHORED[0]!, count: 1,
+      reading: { mounted: true, opened: true, unsettled: true }, patterns: [/still moving/], notPatterns: [/never opened/] },
+  ];
+  assert.ok(ANCHORED.length > 0, 'the table of cases is not empty');
+  for (const row of rows) {
+    const problems = anchoringProblems(row.kase, row.reading);
+    if (row.count !== undefined) assert.equal(problems.length, row.count, `${row.name}: finding count${row.why ? ` (${row.why})` : ''}`);
+    (row.patterns ?? []).forEach((pattern, index) => assert.match(problems[index] ?? '', pattern, `${row.name}: ${pattern}`));
+    for (const pattern of row.notPatterns ?? []) assert.doesNotMatch(problems[0] ?? '', pattern, `${row.name}: ${pattern}`);
+  }
+});
+
+test('a list is held to the floor of every scope: a short row fails in that scope alone, no rows or one scope fails, and a reading with rows for a case naming none is no list', () => {
+  const list: Anchored = { ...below, name: 'Z:react', rows: '[role="option"]' };
+  const placed = { mounted: true, opened: true, painted: true, inside: true, side: 'above' as const };
+  const base = { scope: 'base', floor: 24, count: 3, smallest: 37 };
+  const compact = { scope: 'compact', floor: 24, count: 3, smallest: 26 };
+  const fewerScopes = SCOPES.slice(0, SCOPES.length - 1).map((s) => ({ scope: s.name, floor: s.floor, count: 2, smallest: 48 }));
+  const at = (smallest: number) => [
+    { scope: 'base', floor: 24, count: 3, smallest: 24 }, { scope: 'comfortable', floor: 44, count: 3, smallest },
+    { scope: 'compact', floor: 24, count: 3, smallest: 24 },
+  ];
+  const rows: { name: string; kase: Anchored; rows: Reading['rows']; count?: number; pattern?: RegExp; includes?: string }[] = [
+    { name: 'every scope above its floor passes', kase: list, count: 0,
+      rows: [base, { scope: 'comfortable', floor: 44, count: 3, smallest: 48 }, compact] },
+    { name: 'a list whose smallest row is under a scope\'s floor fails in that scope alone', kase: list, count: 1,
+      rows: [base, { scope: 'comfortable', floor: 44, count: 3, smallest: 40 }, compact],
+      pattern: /is 40px tall in the comfortable scope, and the floor there is 44px/ },
+    { name: 'a list measured with no rows fails rather than passing over nothing', kase: list,
+      rows: [{ scope: 'base', floor: 24, count: 0, smallest: 0 }, { scope: 'comfortable', floor: 44, count: 2, smallest: 48 }, { scope: 'compact', floor: 24, count: 2, smallest: 26 }],
+      pattern: /drew no \[role="option"\] in the base scope/ },
+    { name: 'a list measured in one scope fewer fails rather than passing over nothing', kase: list, count: 1, rows: fewerScopes,
+      includes: `(${SCOPES.map((s) => s.name).join(', ')})` },
+    { name: 'a compact row of 23px fails in compact alone', kase: list, count: 1,
+      rows: SCOPES.map((s) => ({ scope: s.name, floor: s.floor, count: 2, smallest: s.name === 'compact' ? 23 : 48 })),
+      pattern: /is 23px tall in the compact scope, and the floor there is 24px/ },
+    { name: 'a row exactly at the floor passes', kase: list, count: 0, rows: at(44) },
+    { name: 'a row a hair under the floor fails', kase: list, count: 1, rows: at(43.99) },
+    { name: 'a reading that carries rows for a case naming none is not read as a list', kase: below, count: 0,
+      rows: [{ scope: 'base', floor: 24, count: 0, smallest: 0 }] },
+  ];
+  for (const row of rows) {
+    const problems = anchoringProblems(row.kase, { ...placed, rows: row.rows });
+    if (row.count !== undefined) assert.equal(problems.length, row.count, `${row.name}: finding count`);
+    if (row.pattern) assert.match(problems[0] ?? '', row.pattern, row.name);
+    if (row.includes !== undefined) assert.ok(problems[0]?.includes(row.includes), `${row.name}: names ${row.includes}`);
+  }
 });

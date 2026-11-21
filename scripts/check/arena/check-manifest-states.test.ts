@@ -32,57 +32,44 @@ import {
 } from './check-manifest-states.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 
-test('a plain class carries no state family', () => {
-  assert.deepEqual([...stateFamilies('bg-primary text-base-content rounded-sm')], []);
-});
-
-test('hover: is detected as the hover family', () => {
-  assert.deepEqual([...stateFamilies('bg-transparent hover:bg-base-200')], ['hover']);
-});
-
-test('focus, focus-visible and focus-within all count as the focus family', () => {
-  assert.deepEqual([...stateFamilies('focus:ring-error')], ['focus']);
-  assert.deepEqual([...stateFamilies('focus-visible:ring-error')], ['focus']);
-  assert.deepEqual([...stateFamilies('focus-within:border-secondary')], ['focus']);
-});
-
-test('a stacked modifier still matches its family', () => {
-  assert.deepEqual([...stateFamilies('sm:hover:bg-base-200')], ['hover']);
-});
-
-test('a substring that is not modifier-shaped does not false-positive', () => {
-  assert.deepEqual([...stateFamilies('overflow-hidden shadow-2')], []);
-});
-
-test('a pointer spelling of hover counts as hover, because the affordance is the same one', () => {
-
-  const pointer = "function X() { return <rect onPointerMove={() => {}} onPointerLeave={() => {}} />; }";
-  assert.deepEqual(sourceImplements(pointer), { hover: true, focus: false, press: false });
-  assert.deepEqual(sourceImplements('<path (pointerenter)="x()" />'), { hover: true, focus: false, press: false });
-
-  assert.deepEqual(sourceImplements('<rect onPointerDown={() => {}} />'), { hover: false, focus: false, press: true },
-    'a press is its own affordance, and reading it as a hover would license the wrong one');
-});
-
-test('an active: modifier is a press, and the set is the three the gate reads', () => {
-  assert.deepEqual([...stateFamilies('active:scale-[var(--press-scale)]')], ['press']);
-  assert.deepEqual([...stateFamilies('motion-reduce:active:scale-100')], ['press']);
+test('stateFamilies reads hover, focus and press modifiers and nothing else, and the set is the three the gate reads', () => {
+  const rows: [string, string, string[]][] = [
+    ['a plain class carries no state family', 'bg-primary text-base-content rounded-sm', []],
+    ['hover: is detected as the hover family', 'bg-transparent hover:bg-base-200', ['hover']],
+    ['focus: counts as the focus family', 'focus:ring-error', ['focus']],
+    ['focus-visible: counts as the focus family', 'focus-visible:ring-error', ['focus']],
+    ['focus-within: counts as the focus family', 'focus-within:border-secondary', ['focus']],
+    ['a stacked modifier still matches its family', 'sm:hover:bg-base-200', ['hover']],
+    ['a substring that is not modifier-shaped does not false-positive', 'overflow-hidden shadow-2', []],
+    ['an active: modifier is a press', 'active:scale-[var(--press-scale)]', ['press']],
+    ['a stacked active: modifier is a press', 'motion-reduce:active:scale-100', ['press']],
+  ];
+  for (const [name, classes, expected] of rows) assert.deepEqual([...stateFamilies(classes)], expected, name);
   assert.deepEqual(FAMILIES, ['hover', 'focus', 'press']);
 });
 
-test('a component with onMouseEnter/onMouseLeave implements hover, not focus', () => {
-  const src = "function X() { return <button onMouseEnter={() => {}} onMouseLeave={() => {}} />; }";
-  assert.deepEqual(sourceImplements(src), { hover: true, focus: false, press: false });
-});
-
-test('a component with onFocus/onBlur implements focus, not hover', () => {
-  const src = "function X() { const [f,setF]=useState(false); return <input onFocus={()=>setF(true)} onBlur={()=>setF(false)} />; }";
-  assert.deepEqual(sourceImplements(src), { hover: false, focus: true, press: false });
-});
-
-test('an injected :hover in a template-literal style string counts as implementing hover', () => {
-  const src = "const css = '.arena-input::-webkit-calendar-picker-indicator:hover{opacity:1}';";
-  assert.equal(sourceImplements(src).hover, true);
+test('sourceImplements reads hover, focus and press from the spellings a component uses', () => {
+  const rows: { name: string; source: string; expected: Record<string, boolean>; message?: string }[] = [
+    { name: 'a pointer move and leave is a hover, because the affordance is the same one',
+      source: 'function X() { return <rect onPointerMove={() => {}} onPointerLeave={() => {}} />; }',
+      expected: { hover: true, focus: false, press: false } },
+    { name: 'a (pointerenter) binding is a hover', source: '<path (pointerenter)="x()" />', expected: { hover: true, focus: false, press: false } },
+    { name: 'a press is its own affordance', source: '<rect onPointerDown={() => {}} />', expected: { hover: false, focus: false, press: true },
+      message: 'a press is its own affordance, and reading it as a hover would license the wrong one' },
+    { name: 'a component with onMouseEnter/onMouseLeave implements hover, not focus',
+      source: 'function X() { return <button onMouseEnter={() => {}} onMouseLeave={() => {}} />; }',
+      expected: { hover: true, focus: false, press: false } },
+    { name: 'a component with onFocus/onBlur implements focus, not hover',
+      source: 'function X() { const [f,setF]=useState(false); return <input onFocus={()=>setF(true)} onBlur={()=>setF(false)} />; }',
+      expected: { hover: false, focus: true, press: false } },
+    { name: 'an injected :hover in a template-literal style string counts as implementing hover',
+      source: "const css = '.arena-input::-webkit-calendar-picker-indicator:hover{opacity:1}';", expected: { hover: true } },
+  ];
+  for (const row of rows) {
+    const found = sourceImplements(row.source);
+    if (Object.keys(row.expected).length === 3) assert.deepEqual(found, row.expected, `${row.name}${row.message ? ` (${row.message})` : ''}`);
+    else for (const [family, value] of Object.entries(row.expected)) assert.equal((found as Record<string, boolean>)[family], value, `${row.name}: ${family}`);
+  }
 });
 
 test('classStringsBySlot reads both slots and every variant branch, merging same-named slots', () => {
@@ -133,16 +120,18 @@ test('every contract declares the key, and only from the closed set', () => {
   }
 });
 
-test('THE CORE CLAIM: a manifest hover no covered contract declares is invented', () => {
-  const manifest = { component: 'ArenaPagination', slots: { nav: 'inline-flex items-center hover:bg-base-200' } };
-  const { findings } = manifestProblems(manifest, new Set());
-  assert.equal(findings.length, 1);
-  assert.deepEqual(findings[0], { half: 'manifest', component: 'ArenaPagination', slot: 'nav', family: 'hover' });
-});
-
-test('and the same modifier passes once a contract declares the affordance', () => {
-  const manifest = { component: 'ArenaPagination', slots: { nav: 'hover:bg-base-200' } };
-  assert.deepEqual(manifestProblems(manifest, new Set(['hover'])).findings, []);
+test('THE CORE CLAIM: a manifest hover no covered contract declares is invented, and the same modifier passes once a contract declares the affordance', () => {
+  const rows: { name: string; slot: string; declared: string[]; findings: object[] }[] = [
+    { name: 'a hover no covered contract declares is invented', slot: 'inline-flex items-center hover:bg-base-200', declared: [],
+      findings: [{ half: 'manifest', component: 'ArenaPagination', slot: 'nav', family: 'hover' }] },
+    { name: 'the same modifier passes once a contract declares the affordance', slot: 'hover:bg-base-200', declared: ['hover'], findings: [] },
+  ];
+  for (const row of rows) {
+    const manifest = { component: 'ArenaPagination', slots: { nav: row.slot } };
+    const { findings } = manifestProblems(manifest, new Set(row.declared));
+    assert.equal(findings.length, row.findings.length, `${row.name}: finding count`);
+    assert.deepEqual(findings, row.findings, row.name);
+  }
 });
 
 test('a source implementing an affordance its contract does not declare is a finding', () => {
@@ -161,7 +150,7 @@ test('a source implementing an affordance its contract does not declare is a fin
 
 test('the react half asks only the components that draw by hand, because the rest answer with their manifest', () => {
   assert.deepEqual([...HAND_DRAWN.keys()].sort(), ['ArenaBarChart', 'ArenaDoughnutChart', 'ArenaFunnelChart', 'ArenaGaugeChart', 'ArenaHeatmapChart', 'ArenaHorizontalBarChart', 'ArenaLineChart', 'ArenaPyramidChart', 'ArenaRadarChart', 'ArenaScatterChart', 'ArenaSparkline']);
-  assert.deepEqual(unaskedHandDrawn(['ArenaBarChart', 'ArenaDoughnutChart', 'ArenaFunnelChart', 'ArenaGaugeChart', 'ArenaHeatmapChart', 'ArenaHorizontalBarChart', 'ArenaLineChart', 'ArenaPyramidChart', 'ArenaRadarChart', 'ArenaScatterChart', 'ArenaSparkline']), []);
+  assert.deepEqual(unaskedHandDrawn([...HAND_DRAWN.keys()]), []);
 });
 
 test('a hand-drawn component the react half never opened is a failure, not a clean pass', () => {

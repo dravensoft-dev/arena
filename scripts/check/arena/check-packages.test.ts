@@ -42,7 +42,11 @@ const REPOSITORY: Deadline = deadline('check-packages:repository', 20_000,
   'collect() reads the real repository and compiles the theme sheet twice, 3.1 s alone and over '
   + '7 s with every core busy, and the bound only ends a hang');
 
-const BUDGET = budgetFor(REPOSITORY, TERM_GRACE);
+const ICON_RENDERS: Deadline = deadline('check-packages:icon-renders', 40_000,
+  'six rows each render the React icon manifest, a second and a half alone and several under a loaded '
+  + 'sweep, and the bound only ends a hang');
+
+const BUDGET = budgetFor(REPOSITORY, ICON_RENDERS, TERM_GRACE);
 
 const generated = ':root{--color-primary:#b52a20;--color-base-100:#141010;}';
 
@@ -107,18 +111,15 @@ const manifest = (overrides = {}) => ({
   ...overrides,
 });
 
-test('a well-formed manifest reports nothing', () => {
-  assert.deepEqual(manifestProblems(REACT_PACKAGE, manifest(), '4.1.0'), []);
-});
-
-test('a version out of step with plugin.json is reported with both', () => {
-  const problems = manifestProblems(REACT_PACKAGE, manifest({ version: '4.0.0' }), '4.1.0');
-  assert.deepEqual(problems, ['@dravensoft/arena-react: version 4.0.0, and .claude-plugin/plugin.json says 4.1.0']);
-});
-
-test('private is a problem, because a private package can never be published', () => {
-  assert.deepEqual(manifestProblems(REACT_PACKAGE, manifest({ private: true }), '4.1.0'),
-    ['@dravensoft/arena-react: private, so it can never be published']);
+test('manifestProblems reports nothing for a well-formed manifest, and names a version out of step with plugin.json and a private package', () => {
+  const rows: { name: string; overrides: Record<string, unknown>; expected: string[] }[] = [
+    { name: 'a well-formed manifest reports nothing', overrides: {}, expected: [] },
+    { name: 'a version out of step with plugin.json is reported with both', overrides: { version: '4.0.0' },
+      expected: ['@dravensoft/arena-react: version 4.0.0, and .claude-plugin/plugin.json says 4.1.0'] },
+    { name: 'private is a problem, because a private package can never be published', overrides: { private: true },
+      expected: ['@dravensoft/arena-react: private, so it can never be published'] },
+  ];
+  for (const row of rows) assert.deepEqual(manifestProblems(REACT_PACKAGE, manifest(row.overrides), '4.1.0'), row.expected, row.name);
 });
 
 test('an install script is refused, whichever of the three names it takes', () => {
@@ -513,51 +514,27 @@ test('a wash of a colour the ink is not, stated once, is what a clean package lo
   rmSync(dir, { recursive: true });
 });
 
-test('a package with no icons.json cannot tell a consumer what Arena draws for them', () => {
-  const problems = iconManifestProblems(PKG, track(mkdtempSync(join(tmpdir(), 'arena-pkg-'))));
-  assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /no icons\.json/);
-  assert.match(problems[0] ?? '', /reading this package as text/);
-});
-
-test('an icons.json that does not parse says so rather than reading as an empty list', () => {
-  const dir = track(mkdtempSync(join(tmpdir(), 'arena-pkg-')));
-  writeFileSync(join(dir, 'icons.json'), '{ not json');
-  const problems = iconManifestProblems(PKG, dir);
-  assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /does not parse/);
-});
-
-test('an icons.json that outlived its renders fails, which is what keeps the list honest', () => {
-  const dir = track(mkdtempSync(join(tmpdir(), 'arena-pkg-')));
-  writeFileSync(join(dir, 'icons.json'),
-    JSON.stringify({ components: { ArenaGhost: { pairs: { bold: ['ph-ghost'] }, loose: [] } }, fills: [] }));
-  const problems = iconManifestProblems(PKG, dir);
-  assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /is not what the renders say today/);
-});
-
-test('an icons.json that is one list for the whole package is not keyed by component and fails', () => {
-  const dir = track(mkdtempSync(join(tmpdir(), 'arena-pkg-')));
-  writeFileSync(join(dir, 'icons.json'), JSON.stringify({ pairs: { bold: ['ph-bell'] }, loose: [] }));
-  const problems = iconManifestProblems(PKG, dir);
-  assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /not keyed by component/);
-});
-
-test('an icons.json whose filled components drifted from the renders fails', () => {
-  const dir = track(mkdtempSync(join(tmpdir(), 'arena-pkg-')));
-  writeFileSync(join(dir, 'icons.json'), JSON.stringify({ ...iconManifest('react'), fills: [] }));
-  const problems = iconManifestProblems(PKG, dir);
-  assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /is not what the renders say today/);
-});
-
-test('a list assembled from the renders it was derived from is the passing case', () => {
-  const dir = track(mkdtempSync(join(tmpdir(), 'arena-pkg-')));
-  writeFileSync(join(dir, 'icons.json'), `${JSON.stringify(iconManifest('react'), null, 2)}\n`);
-  assert.deepEqual(iconManifestProblems(PKG, dir), []);
-  rmSync(dir, { recursive: true });
+test('iconManifestProblems refuses a package with no icons.json, one that does not parse, one that outlived its renders, one not keyed by component and one whose fills drifted, and passes the list the renders derive', { timeout: BUDGET }, () => {
+  const rows: { name: string; icons?: string; count: number; patterns: RegExp[] }[] = [
+    { name: 'a package with no icons.json cannot tell a consumer what Arena draws for them', count: 1,
+      patterns: [/no icons\.json/, /reading this package as text/] },
+    { name: 'an icons.json that does not parse says so rather than reading as an empty list', icons: '{ not json', count: 1, patterns: [/does not parse/] },
+    { name: 'an icons.json that outlived its renders fails, which is what keeps the list honest', count: 1, patterns: [/is not what the renders say today/],
+      icons: JSON.stringify({ components: { ArenaGhost: { pairs: { bold: ['ph-ghost'] }, loose: [] } }, fills: [] }) },
+    { name: 'an icons.json that is one list for the whole package is not keyed by component and fails', count: 1, patterns: [/not keyed by component/],
+      icons: JSON.stringify({ pairs: { bold: ['ph-bell'] }, loose: [] }) },
+    { name: 'an icons.json whose filled components drifted from the renders fails', count: 1, patterns: [/is not what the renders say today/],
+      icons: JSON.stringify({ ...iconManifest('react'), fills: [] }) },
+    { name: 'a list assembled from the renders it was derived from is the passing case', count: 0, patterns: [],
+      icons: `${JSON.stringify(iconManifest('react'), null, 2)}\n` },
+  ];
+  for (const row of rows) {
+    const dir = track(mkdtempSync(join(tmpdir(), 'arena-pkg-')));
+    if (row.icons !== undefined) writeFileSync(join(dir, 'icons.json'), row.icons);
+    const problems = iconManifestProblems(PKG, dir);
+    assert.equal(problems.length, row.count, `${row.name}: finding count`);
+    for (const pattern of row.patterns) assert.match(problems[0] ?? '', pattern, `${row.name}: ${pattern}`);
+  }
 });
 
 test('every secondary entry point is an exports key of the assembled Angular package', () => {
