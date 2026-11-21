@@ -11,7 +11,7 @@ import {
   paintedParts, sourceScope, outlineGap, kebabTag, HEADING_RUNGS,
   LINKABLE_TAGS, WRAPPED_LINK_TAGS, statedRung, namesAnAlias, RULE_TAGS, RULE_DESCRIPTIONS,
   styleIdentifiers, styleObjectLines, unknownInputs,
-  levelledRoles, loadLevels, catalogueLevels,
+  levelledRoles, loadLevels, catalogueLevels, classCandidates, NO_LEVELS, NO_DEAD,
   iconMemberGlyphs, ownClassFindings, classValues, valueResults, RAW_GLYPH_BOUND_MESSAGE, RAW_COLOUR_MESSAGE, RAW_HEX_MESSAGE, type VocabularyIndex,
 } from './audit.ts';
 import { vocabularyIndex } from '../../../lib/arena/vocabulary-index.ts';
@@ -909,5 +909,44 @@ test('the levels a directory carries are read from its table or its catalogue, a
       const got = reader(dir);
       assert.deepEqual(got === null ? null : [...got], want, name);
     } finally { rmSync(dir, { recursive: true, force: true }); }
+  }
+});
+
+test('class candidates are read from the class attributes of own elements and from @apply', () => {
+  const ROWS: { name: string; path: string; source: string; want: [number, string][] }[] = [
+    { name: 'static class', path: 'src/App.tsx', source: '<div className="p-2 shadow-md">x</div>', want: [[1, 'p-2'], [1, 'shadow-md']] },
+    { name: 'Arena element', path: 'src/App.tsx', source: '<ArenaButton className="arena-emphasis-primary" />', want: [] },
+    { name: 'call', path: 'src/App.tsx', source: "<div className={cn('flex', on && 'xl:flex')} />", want: [[1, 'flex'], [1, 'xl:flex']] },
+    { name: 'ternary', path: 'src/App.tsx', source: "<div className={on ? 'ease-in' : 'ease-out'} />", want: [[1, 'ease-in'], [1, 'ease-out']] },
+    { name: 'template', path: 'src/App.tsx', source: '<div className={`gap-2 ${x} rounded-3xl`} />', want: [[1, 'gap-2'], [1, 'rounded-3xl']] },
+    { name: 'template fragment', path: 'src/App.tsx', source: '<div className={`bg-${tone}`} />', want: [] },
+    { name: 'interpolation', path: 'src/app.html', source: '<p class="text-gray-500 {{ extra }}">x</p>', want: [[1, 'text-gray-500']] },
+    { name: 'ngClass keys', path: 'src/app.html', source: `<p [ngClass]="{ 'shadow-md': on }">x</p>`, want: [[1, 'shadow-md']] },
+    { name: 'class toggle', path: 'src/app.html', source: '<p [class.shadow-md]="on">x</p>', want: [[1, 'shadow-md']] },
+    { name: 'Angular element', path: 'src/app.html', source: '<arena-card class="arena-fill"></arena-card>', want: [] },
+    { name: 'apply', path: 'src/a.css', source: '.card { @apply p-4 shadow-md; }', want: [[1, 'p-4'], [1, 'shadow-md']] },
+    { name: 'no apply', path: 'src/a.css', source: '.card { box-shadow: var(--shadow-1); }', want: [] },
+    { name: 'comment', path: 'src/App.tsx', source: '{/* <div className="shadow-md" /> */}', want: [] },
+    { name: 'later line', path: 'src/App.tsx', source: '<div\n  className="flex\n    shadow-md"\n/>', want: [[2, 'flex'], [3, 'shadow-md']] },
+    { name: 'a string outside a class', path: 'src/App.tsx', source: "const label = 'shadow-md';", want: [] },
+  ];
+  for (const row of ROWS)
+    assert.deepEqual(classCandidates(row.path, row.source).map((c) => [c.line, c.candidate]), row.want, row.name);
+});
+
+test('a candidate the dead map names is dead-utility at its line, in app scope only', () => {
+  const DEAD = new Map([['shadow-md', 'MSG']]);
+  const ROWS: { name: string; source: string; scope: 'app' | 'plugin'; dead: ReadonlyMap<string, string>; want: string[] }[] = [
+    { name: 'reported', source: '<div className="p-2 shadow-md" />', scope: 'app', dead: DEAD, want: ['src/App.tsx:1: MSG (dead-utility)'] },
+    { name: 'allowed and not stale', source: '<div className="shadow-md" /> {/* arena-audit allow */}', scope: 'app', dead: DEAD, want: [] },
+    { name: 'Arena element', source: '<ArenaCard className="shadow-md" />', scope: 'app', dead: DEAD, want: [] },
+    { name: 'plugin', source: '<div className="shadow-md" />', scope: 'plugin', dead: DEAD, want: [] },
+    { name: 'no map', source: '<div className="shadow-md" />', scope: 'app', dead: NO_DEAD, want: [] },
+    { name: 'twice on a line', source: '<div className="shadow-md shadow-md" />', scope: 'app', dead: DEAD, want: ['src/App.tsx:1: MSG (dead-utility)'] },
+  ];
+  for (const row of ROWS) {
+    const got = auditText('src/App.tsx', row.source, row.scope, null, NO_LEVELS, row.dead)
+      .filter((line) => line.endsWith('(dead-utility)') || line.includes('stale'));
+    assert.deepEqual(got, row.want, row.name);
   }
 });

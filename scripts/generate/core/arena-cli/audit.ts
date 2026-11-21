@@ -12,11 +12,12 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { SYMBOL_REF, WEIGHT_CLASSES, glyphNames, scan } from './icon-css.ts';
 
-export const RULE_TAGS = ['compat-alias', 'emoji', 'icon-element', 'missing-level',
+export const RULE_TAGS = ['compat-alias', 'dead-utility', 'emoji', 'icon-element', 'missing-level',
   'outline-gap', 'own-class', 'raw-glyph', 'raw-value', 'router-link', 'stale-allowance', 'unknown-input', 'unknown-part', 'unknown-property', 'wrapped-link'] as const;
 
 export const RULE_DESCRIPTIONS: Record<(typeof RULE_TAGS)[number], string> = {
   'compat-alias': 'A stylesheet in a style plugin directory reads one of Arena\'s compatibility aliases through `var()`, which names a step of the ramp instead of a role.',
+  'dead-utility': 'A class of your own markup or an `@apply` names a Tailwind utility or variant that emits nothing under Arena\'s theme sheet and emits under Tailwind\'s own theme.',
   emoji: 'A line of a source holds an emoji character.',
   'icon-element': 'An `icon` or `iconRight` attribute is given an element in braces, where Arena takes a Phosphor class-name string.',
   'missing-level': 'A class or a `var()` reads a role whose `combines` names a level without that level, or holds it back by a literal share.',
@@ -855,8 +856,90 @@ export function styleObjectLines(text: string) {
   return inside;
 }
 
+export type ClassCandidate = { line: number; candidate: string };
+export type DeadUtilities = ReadonlyMap<string, string>;
+export const NO_DEAD: DeadUtilities = new Map();
+
+const APPLY_CLASSES = /@apply\s+([^;}]*)/g;
+
+function tokensOf(value: string, base: number, into: { index: number; token: string }[]) {
+  for (const m of value.matchAll(/\S+/g)) {
+    if (/[{}$]/.test(m[0])) continue;
+    into.push({ index: base + (m.index ?? 0), token: m[0] });
+  }
+}
+
+function blankedHoles(value: string): string {
+  let out = '';
+  for (let i = 0; i < value.length; i += 1) {
+    const opens = value.startsWith('${', i) || value.startsWith('{{', i);
+    if (!opens) { out += value[i]; continue; }
+    let depth = 0;
+    let end = i;
+    for (; end < value.length; end += 1) {
+      if (value[end] === '{') depth += 1;
+      else if (value[end] === '}') { depth -= 1; if (depth <= 0) break; }
+    }
+    out += '$'.repeat(Math.min(end, value.length - 1) - i + 1);
+    i = Math.min(end, value.length - 1);
+  }
+  return out;
+}
+
+function literalsOf(value: string, base: number, into: { index: number; token: string }[]) {
+  for (let i = 0; i < value.length; i += 1) {
+    const q = value[i] ?? '';
+    if (q !== '"' && q !== "'" && q !== '`') continue;
+    let end = i + 1;
+    for (; end < value.length && value[end] !== q; end += 1) {
+      if (value[end] === '\\') end += 1;
+      else if (q === '`' && value.startsWith('${', end)) {
+        let depth = 0;
+        for (; end < value.length; end += 1) {
+          if (value[end] === '{') depth += 1;
+          else if (value[end] === '}') { depth -= 1; if (depth === 0) break; }
+        }
+      }
+    }
+    tokensOf(blankedHoles(value.slice(i + 1, end)), base + i + 1, into);
+    i = end;
+  }
+}
+
+export function classCandidates(relPath: string, text: string): ClassCandidate[] {
+  const stripped = withoutComments(text);
+  const found: { index: number; token: string }[] = [];
+  if (STYLE_EXTENSIONS.some((ext) => relPath.endsWith(ext))) {
+    for (const m of stripped.matchAll(APPLY_CLASSES))
+      tokensOf(group(m), (m.index ?? 0) + m[0].length - group(m).length, found);
+  } else {
+    for (const m of stripped.matchAll(OPEN_TAG)) {
+      const name = m[1] ?? '';
+      const start = m.index ?? 0;
+      if (start > 0 && TAG_LEAD.test(stripped[start - 1] ?? '')) continue;
+      const ends = tagEnd(stripped, start);
+      if (ends === -1 || ARENA_TAG.test(name)) continue;
+      const base = start + name.length + 1;
+      const raw = stripped.slice(base, ends - 1);
+      for (const { name: attribute, from } of ownAttributeStarts(raw)) {
+        const value = attributeValueAt(raw, from);
+        const quoted = /^["']/.test(value);
+        if (quoted && /^(?:className|class)\s*=\s*$/.test(attribute))
+          tokensOf(blankedHoles(value.slice(1, -1)), base + from + 1, found);
+        else if (quoted) literalsOf(value.slice(1, -1), base + from + 1, found);
+        else literalsOf(value, base + from, found);
+      }
+      for (const m2 of ownAttributes(raw).matchAll(CLASS_TOGGLE))
+        found.push({ index: base + (m2.index ?? 0) + m2[0].indexOf('.') + 1, token: group(m2) });
+    }
+  }
+  return found.sort((a, b) => a.index - b.index)
+    .map(({ index, token }) => ({ line: lineAt(stripped, index), candidate: token }));
+}
+
 export function findings(relPath: string, text: string, scope: Scope = 'app',
-  vocabulary: VocabularyIndex | null = null, levels: LevelledRoles = NO_LEVELS): Finding[] {
+  vocabulary: VocabularyIndex | null = null, levels: LevelledRoles = NO_LEVELS,
+  dead: DeadUtilities = NO_DEAD): Finding[] {
   const isStylesheet = STYLE_EXTENSIONS.some((ext) => relPath.endsWith(ext));
   const lines = text.split('\n');
   const stripped = withoutComments(text);
@@ -870,17 +953,28 @@ export function findings(relPath: string, text: string, scope: Scope = 'app',
       ...(readsLevels ? levelFindings(line, levels, file) : [])]
       .map((one) => at(index + 1, one.rule, one.message));
   });
-  return [...perLine, ...structuralFindings(stripped, vocabulary), ...bracketFindings(text, lines)]
+  const deadFound: Finding[] = [];
+  if (scope === 'app' && dead.size > 0) {
+    const seen = new Set<string>();
+    for (const { line, candidate } of classCandidates(relPath, text)) {
+      const message = dead.get(candidate);
+      if (message === undefined || seen.has(`${line} ${candidate}`)) continue;
+      seen.add(`${line} ${candidate}`);
+      deadFound.push(at(line, 'dead-utility', message));
+    }
+  }
+  return [...perLine, ...structuralFindings(stripped, vocabulary), ...bracketFindings(text, lines), ...deadFound]
     .sort((a, b) => a.line - b.line);
 }
 
 export type AuditLine = { rule: string; text: string };
 
 export function auditFindings(relPath: string, text: string, scope: Scope = 'app',
-  vocabulary: VocabularyIndex | null = null, levels: LevelledRoles = NO_LEVELS): AuditLine[] {
+  vocabulary: VocabularyIndex | null = null, levels: LevelledRoles = NO_LEVELS,
+  dead: DeadUtilities = NO_DEAD): AuditLine[] {
   const lines = text.split('\n');
   const byLine = new Map<number, Finding[]>();
-  for (const one of findings(relPath, text, scope, vocabulary, levels)) {
+  for (const one of findings(relPath, text, scope, vocabulary, levels, dead)) {
     if (!byLine.has(one.line)) byLine.set(one.line, []);
     (byLine.get(one.line) ?? []).push(one);
   }
@@ -905,8 +999,9 @@ export function auditFindings(relPath: string, text: string, scope: Scope = 'app
 }
 
 export function auditText(relPath: string, text: string, scope: Scope = 'app',
-  vocabulary: VocabularyIndex | null = null, levels: LevelledRoles = NO_LEVELS): string[] {
-  return auditFindings(relPath, text, scope, vocabulary, levels).map((one) => one.text);
+  vocabulary: VocabularyIndex | null = null, levels: LevelledRoles = NO_LEVELS,
+  dead: DeadUtilities = NO_DEAD): string[] {
+  return auditFindings(relPath, text, scope, vocabulary, levels, dead).map((one) => one.text);
 }
 
 const ICON_TAG = /^(?:ArenaIcon|arena-icon)$/;
@@ -992,7 +1087,7 @@ const COLOUR_PREFIXES = ['bg', 'text', 'border', 'border-x', 'border-y', 'border
 const CLASS_STOP = /[\s"'`(){}]/;
 const LITERAL_SHARE = /\d*\.?\d+%|(?<![\w.-])\d*\.?\d+(?![\w.%-])/;
 const LEVEL_CLASS_MODIFIER = /^(?:\(--level-|\[var\(--level-)/;
-const APPLY = /@apply\b/;
+const APPLY_RULE = /@apply\b/;
 const SHEET_CUT = { back: /[{};]/, ahead: /[;}]/, open: /\(/, close: /\)/ };
 const MARKUP_CUT = { back: /['"`<>]/, ahead: /['"`<>]/, open: /[({]/, close: /[)}]/ };
 
@@ -1073,7 +1168,7 @@ export function levelFindings(line: string, levels: LevelledRoles,
   const { utility, read, roleOf } = patternsFor(levels);
   const found: Finding[] = [];
   const sheet = file?.sheet === true;
-  const applied = sheet ? APPLY.exec(line) : null;
+  const applied = sheet ? APPLY_RULE.exec(line) : null;
   const classes = !sheet ? line
     : applied === null ? '' : ' '.repeat(applied.index + applied[0].length) + line.slice(applied.index + applied[0].length);
   for (const m of classes.matchAll(utility)) {
