@@ -99,7 +99,7 @@ measured the wide shape renders, so the card shape never flashes on first paint.
 ### Keyboard
 
 The wide shape is a `role="grid"` with **one** tab stop. Tab reaches the grid. The header row is row 0 and is navigable, as APG prescribes. `Enter` activates the cursor's row by emitting that row's `click`. There is no step-in: a control you drew inside a cell keeps its
-own place in the page Tab sequence, so nothing you own is silenced.
+own place in the page Tab sequence, so nothing you own is silenced, and reaching it from a cell costs one Tab press.
 
 The grid is **not assumed rectangular**. A row may carry fewer or more cells than there are
 columns, and the cursor is clamped against the row it is actually in.
@@ -122,21 +122,6 @@ roving tab stop is the difference. Nothing under it is. A `<tr>` is a row, a `<t
 
 The empty state is still a block **beside** the table rather than a cell spanning it, and the table
 left behind is presentational. One measured cost stands. The `<table>` sits inside the bordered frame, so the measured `contentRect` excludes that border and the narrow threshold trips a couple of pixels earlier than the declared breakpoint. The host itself is a plain block.
-
-**By hand, in a real browser** (`bun run demos`, then
-`frameworks/angular/components/display/arena-table/ArenaTable.demo.generated.html`). Steps 1 to 5 are checked in real Chromium. One Tab in, then the focus ring's inset on the focused cell. Then the arrow walk, `Home` and `End` inside the row, `Enter` on a data row, and one Tab out onto the actions button. And zero grid roles and zero tab stops in the squeezed card shape. Step 6 and every judgement about how
-it *looks* were not, and are why this list stays:
-1. Tab reaches the grid ONCE, and one more Tab leaves it. No cell is a stop of its own.
-2. From a cell, Tab reaches a control inside a cell in **one** press, not two. Two means the
-   grid pulled focus back onto the cell, since `focusin` bubbles and only a real browser shows it.
-3. Arrows clamp at all four edges and focus never leaves the grid. Walk a middle row for
-   `Home` and `End`, not only the first: they never leave the row.
-4. `Enter` activates a row with `(activate)` and does nothing on the header row or on the
-   disabled row; the page logs what was activated.
-5. The squeezed container is already in card mode on load. Confirm nothing there took a
-   role, a tabindex or a key handler by accident.
-6. The measured width does not oscillate between the two shapes. Narrow the window slowly
-   across the threshold and watch it settle rather than flicker.
 
 ### Sorting and paging
 

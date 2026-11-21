@@ -48,7 +48,7 @@ A rule between two regions. Without a label it is one `<hr>`, which a reader mee
 - Don't rotate a label inside a vertical rule.
 - Don't put an accent, a gradient or an icon in the rule.
 
-At 390px a vertical rule in an `arena-row` stretches to the row's height. A long label does not overflow the row, and the two rules shrink around it. A plugin answering the separator width with nothing draws no rule.
+At 390px a vertical rule in an `arena-row` stretches to the row's height. A long label wraps rather than overflowing the row, and the two rules shrink around it. A plugin answering the separator width with nothing draws no rule.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

@@ -97,10 +97,6 @@ A Home at `/` compared with `startsWith` is active on every route.
 **Read `router.url` through the bridge and never in the template.** Reading the property directly appears to work. Swapping the routed component marks the shell dirty as a side effect of how `RouterOutlet` works. A zoneless `OnPush` shell then re-renders anyway.
 The appearance stops the moment a navigation reuses the component it is already showing, which is what a tab change or a parameter change does. Nothing reports it, and the rail simply keeps the previous destination lit.
 
-**By hand, in real Chromium.** Run `bun run demos` and open `/frameworks/angular/components/navigation/arena-side-nav/ArenaSideNav.demo.generated.html`: - Each level steps in by exactly one `pad-row-indent`. A row's icon stays aligned with its siblings' rather than with its parent's.
-- Switching the active destination moves the ink and the weight, and opens the group holding it.
-- The rail still reads at `.arena-compact`, where every indent shrinks with the token.
-
 ### The active row is filled, and you pass one string
 
 The item whose `id` matches `active` draws its glyph in `ph-fill`, whatever weight the string

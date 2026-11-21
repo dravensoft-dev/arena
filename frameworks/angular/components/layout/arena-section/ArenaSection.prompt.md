@@ -68,14 +68,6 @@ The `arena-rhythm` class is the distance from the head to the body. The class ta
 - **Don't** open a heading of your own inside the body at the level this one took. The section
   already opened one, and a reader walking headings will read two peers where there is one region.
 
-**By hand, in real Chromium**: run `bun run demos` and open
-`/frameworks/angular/components/layout/arena-section/ArenaSection.demo.generated.html`:
-- The eyebrow, the title and the description read as three registers and not as three sizes.
-- The action sits on the title's own baseline, and drops under it rather than squeezing when the
-  head runs out of room.
-- The four rhythm steps are visibly four distances between the head and the body.
-- With a screen reader running, the heading is announced as a level two, and a section set to `h3` announces as a level three. The section announces no landmark of its own at either.
-
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
 **The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.

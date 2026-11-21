@@ -37,7 +37,7 @@ sees and `<arena-skip-link>` itself occupies nothing.
 anchor pointing at a container the platform will not focus scrolls the page and leaves focus
 behind.
 
-**The link points at the page's `arena-main`, by an id Arena writes on both sides.** There is nothing to coordinate at the call site and no id to pass. A page has one main landmark. A page with a skip link and no `arena-main` has a link to nowhere. Nothing can detect that from inside either component, so it is the one thing to check by hand.
+**The link points at the page's `arena-main`, by an id Arena writes on both sides.** There is nothing to coordinate at the call site and no id to pass. A page has one main landmark. A page with a skip link and no `arena-main` has a link to nowhere. Nothing can detect that from inside either component, so it is the one thing to check in your own page.
 
 **Do / Don't**
 - **Do** say where the reader lands, in the application's own words. "Skip to content" and "Skip
@@ -48,12 +48,7 @@ behind.
 - **Don't** give it a `class` to make it visible for testing. Press Tab, which is the state a
   reader actually meets.
 
-**By hand, in real Chromium**: run `bun run demos` and open
-`/frameworks/angular/components/layout/arena-skip-link/ArenaSkipLink.demo.generated.html`:
-- With the page freshly loaded, the first Tab reveals it and nothing else has focus before it.
-- The link draws over whatever is beneath it rather than pushing the page down.
-- Enter moves focus into the main region, and the Tab after that continues from inside it.
-- A second Tab away from it makes it invisible again with no layout moving.
+On a freshly loaded page the first Tab reveals the link and nothing else has focus before it. The link draws over whatever is beneath it rather than pushing the page down. Enter moves focus into the main region, and the Tab after that continues from inside it. A second Tab away from the link hides it again, and no layout moves.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

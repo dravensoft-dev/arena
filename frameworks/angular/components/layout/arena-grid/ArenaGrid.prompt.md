@@ -57,13 +57,6 @@ is the page's own reading width. A class on the grid wins over a property on its
 - **Don't** wait for a fixed column count. A photo wall three across and a pair of lesson choices are both `grid-template-columns: repeat(N, 1fr)` on an element of your own, one line each. A count Arena took would contradict what this component is: the number comes from the room rather than from a breakpoint somebody picked. Two products measured wanting one, and neither would
   have written less than the line they wrote.
 
-**By hand, in real Chromium**: run `bun run demos` and open
-`/frameworks/angular/components/layout/arena-grid/ArenaGrid.demo.generated.html`:
-- Narrow the window from wide to 390px: the count falls one step at a time and never overflows.
-- At the narrowest, one column fills the width; the minimum is clamped rather than honoured.
-- Each gap is a visibly different step, and both axes get the same one.
-- With an `arena-grid-max` class written, the grid centres and stops growing; without one, it fills.
-
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
 **The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.

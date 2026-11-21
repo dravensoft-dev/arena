@@ -93,17 +93,6 @@ nothing.
 - **Don't** put a form, a submenu or anything focusable beyond the rows into `items`. `ArenaMenuItem`
   is three shapes and none of them projects content; a menu that needs more is a dialog.
 
-**By hand, in real Chromium**: none of this is provable in happy-dom, which has no layout and no
-platform activation. Run `bun run demos` and open
-`/frameworks/angular/components/navigation/arena-menu/ArenaMenu.demo.generated.html`:
-- The panel escapes an `overflow: hidden` ancestor and a scroll container, and repositions while
-  that container scrolls.
-- Near the bottom of the viewport it flips above its trigger; `align="end"` hangs it from the
-  trigger's right edge.
-- One Enter opens it **once**, and one Space does too. The double-open is exactly what the `preventDefault` is there to stop, and only a browser synthesizes the click that would cause it.
-- A menu opened from inside an `arena-dialog` paints above the panel, and a tooltip on a row
-  paints above the menu.
-
 To fill a row, put `class="arena-fill"` on the menu or on a container above it. The trigger is not a boundary, so the class reaches the control inside and both take the row. On the control alone it fills the menu's own box, which fits the control.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->

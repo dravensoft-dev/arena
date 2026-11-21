@@ -69,6 +69,10 @@ What "into the chip" means depends on the shape. A chip with no action panel *is
 
 **The panel's content is in the tree only while the panel is open.** Unmounting is what keeps the grid at one tab stop. The panel is therefore not a place to keep state, because it is created and destroyed with every open.
 
+## What the chip does in the grid
+
+Escape with the panel open closes the panel and puts focus back on the kebab, and a second Escape returns focus to the hour cell. Every chip sits inside its own day column with an even gutter each side, a full-width chip included, because the chip is `box-sizing: border-box` and the width `arena-calendar` injects is its outer edge. On a chip carrying a kebab the title stops before the button and ellipsises there rather than running underneath it. A short event, 30 minutes or less, still shows its whole title, because the chip's height floor is its outer height. A chip sharing its slot with an overlap draws no time label, and a chip that has the column to itself does. On a chip that shares its column and is tall enough, such as a 90-minute event beside an overlap, the kebab sits at the bottom right and the title runs the full width above it. On a short one it stays top right with the title stopping before it. The panel hangs below the chip rather than over its own body.
+
 **Do**
 - Give the same entity the same `colorId` everywhere it appears.
 - Preformat the `title`. Arena does no locale formatting and no truncation beyond the chip's own ellipsis.

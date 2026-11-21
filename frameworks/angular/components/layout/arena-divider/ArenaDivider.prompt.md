@@ -36,6 +36,8 @@ Arena's rule between two regions. With no label the component draws one `<hr>`, 
 
 **A vertical rule is a class, and it needs a row to stand in.** Write `arena-orientation-vertical` on the divider or on a container above it. The rule then stretches to the height of the flex row it sits in, such as an `arena-row`. Inside a block it has no height to take. A screen reader still announces a vertical rule as a separator, with no orientation: the class draws the line and changes nothing a reader hears.
 
+A long label wraps rather than overflowing the row, and the two rules shrink around it.
+
 **The hairline is a plugin's decision.** The rule is drawn with the separator's edge and width roles. A style plugin that answers the width with nothing removes every rule, which is the intended reading.
 
 **Do**
@@ -49,13 +51,6 @@ Arena's rule between two regions. With no label the component draws one `<hr>`, 
 - Don't use it as a section heading with a rule. A heading over a group is `ArenaSection`.
 - Don't rotate a label inside a vertical rule.
 - Don't put an accent, a gradient or an icon in the rule.
-
-**By hand, in real Chromium**: run `bun run demos` and open
-`/frameworks/angular/components/layout/arena-divider/ArenaDivider.demo.generated.html`:
-- At 390px a vertical rule in an `arena-row` stretches to the row's height.
-- A long label does not overflow the row; the two rules shrink around it.
-- A plugin answering the separator width with nothing draws no rule.
-- Both layers' pages side by side draw the same rule and the same labelled rule.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

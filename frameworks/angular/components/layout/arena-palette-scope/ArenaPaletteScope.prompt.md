@@ -46,11 +46,6 @@ A palette island: a subtree drawn in one palette while the page keeps another. S
 - Don't use it to switch the page's theme. Page themes belong to `setArenaTheme` or `ArenaThemeService`, which write `<html>`.
 - Don't nest one only to repeat the palette the page already has.
 
-**By hand, in real Chromium**: run `bun run demos` and open
-`/frameworks/angular/components/layout/arena-palette-scope/ArenaPaletteScope.demo.generated.html`:
-- The island has its own background and text colour, distinct from the page's when the palette differs.
-- Switching the page theme leaves the island's palette alone.
-
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
 **The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.

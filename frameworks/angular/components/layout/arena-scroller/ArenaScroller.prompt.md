@@ -60,12 +60,6 @@ Place the copy button after the scroller as a sibling, so the button stays put. 
   the reader gains nothing from. A command line is the exception, because the reader's screen sets how much of it fits.
 - **Don't** wrap the children in cells of your own other than `ArenaScrollerItem` to set their width. The width is what the `arena-scroller-item` class is, and a wrapper puts a box between the row and the card it is laying out.
 
-**By hand, in real Chromium.** Run `bun run demos` and open `/frameworks/angular/components/layout/arena-scroller/ArenaScroller.demo.generated.html`: - Tab into the row. The row takes focus as one stop and shows the focus ring, and the arrow keys scroll it.
-- Under `snap`, releasing a drag mid-item settles on an item edge; under `flow` it stays put.
-- Every `arena-scroller-item` is the same width whatever it contains, and a bare child keeps its own.
-- With a screen reader running, focus on the row announces the label rather than the word group
-  alone.
-
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
 **The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.

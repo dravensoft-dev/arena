@@ -59,12 +59,6 @@ own anchor against the same id if you need a second route in.
 - **Don't** write a second one for a route that renders inside another. The landmark is the
   shell's, once.
 
-**By hand, in real Chromium**: run `bun run demos` and open
-`/frameworks/angular/components/layout/arena-main/ArenaMain.demo.generated.html`:
-- The page looks the same with the component and with a plain `<div>` in its place.
-- The accessibility pane shows one `main` landmark.
-- Clicking a link to `#arena-main` moves focus into the region. The focus ring on the next Tab is what proves it: focus continues from inside the main rather than from the nav.
-
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
 **The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.

@@ -129,7 +129,7 @@ While the focused node is scrolled away, the nearest drawn node holds the one ta
 
 ## In a browser
 
-Tab reaches the tree once, and one more Tab leaves it; the focused node carries the ring. A screen reader announces level, position and state, such as "level 2, 3 of 5, collapsed". Two characters typed quickly land on the node that starts with both, and typed slowly each one starts a new search. Level 3 sits two `pad-row-indent` steps in from level 1, at base, under `.arena-comfortable` and under `.arena-compact`. A `windowed` tree inside a container of bounded height scrolls, and a node that takes focus scrolls into view. In the `complete` scope the selected row and the focus ring read as two different things.
+Tab reaches the tree once, and one more Tab leaves it; the focused node carries the ring. A screen reader announces level, position and state, such as "level 2, 3 of 5, collapsed". Two characters typed quickly land on the node that starts with both, and typed slowly each one starts a new search. Level 3 sits two `pad-row-indent` steps in from level 1, at base, under `.arena-comfortable` and under `.arena-compact`. A `windowed` tree inside a container of bounded height scrolls, and a node that takes focus scrolls into view.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

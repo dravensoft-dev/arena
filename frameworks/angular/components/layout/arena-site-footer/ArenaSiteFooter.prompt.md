@@ -49,12 +49,6 @@ form and an address all land as they were written.
 - **Don't** put a second `<footer>` at the top level of the page. Contentinfo is one per page.
 - **Don't** reach for it as a card's footer. The card's own footer is a slot on the card, and a `<footer>` inside a section is not this landmark.
 
-**By hand, in real Chromium**: run `bun run demos` and open
-`/frameworks/angular/components/layout/arena-site-footer/ArenaSiteFooter.demo.generated.html`:
-- Narrow the window: the column count falls one step at a time and never overflows.
-- The note sits under the columns and takes the muted ink in both themes.
-- The band lines up with the content above it at every width.
-
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
 **The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.

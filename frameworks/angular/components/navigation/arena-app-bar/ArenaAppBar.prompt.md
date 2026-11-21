@@ -64,12 +64,6 @@ judgement about your page rather than about this component.
 - **Don't** reach for it inside a card or a dialog. A `<header>` nested in a section is not a
   banner, and this component is one.
 
-**By hand, in real Chromium**: run `bun run demos` and open
-`/frameworks/angular/components/navigation/arena-app-bar/ArenaAppBar.demo.generated.html`:
-- Scroll the page: with `sticky` the bar holds the top edge and a dialog still covers it.
-- Narrow the window: the row wraps to two lines rather than squeezing its controls.
-- The band's contents line up with the content under the bar at every width.
-
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
 **The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.

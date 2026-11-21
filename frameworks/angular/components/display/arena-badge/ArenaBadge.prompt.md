@@ -36,7 +36,7 @@ The host **is** the chip: it binds the root part, so an attribute you write on
 
 **Tone taxonomy.** Two families, and they are not mixed:
 - **Status**: `success` `warning` `danger` `info`: the actual state of the system
-  (a deploy, a service, a version). `dot` reinforces "live status".
+  (a deploy, a service, a version). `dot` reinforces "live status" and takes the tone's own ink.
 - **Emphasis**: `arena-accent-primary` (new/featured) and `arena-accent-gold` (priority/distinction) colour the badge as editorial
   emphasis, never a state. `neutral` carries no semantic weight.
 
@@ -70,10 +70,6 @@ at `arena-size-md`, in the same face, weight and corner.
   interactive affordance at all, and its behaviour binding says so.
 - Don't write a `class` or an ARIA attribute on `<arena-badge>` expecting it to reach the chip. The root part is host-bound, so the host **is** the chip, and a static `class` on it is overwritten by Arena's own styling. Wrap it in your own element
   when you need to position it.
-
-**By hand, in a real browser** (`bun run demos`, then this component's own playground or any page composing it): - Each of the five tones reads as its own colour against `--surface-card`. The mono uppercase treatment survives at the smallest text size.
-- With `dot`, the dot takes the tone's own ink (`bg-current`) rather than a
-  second colour.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

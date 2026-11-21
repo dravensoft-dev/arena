@@ -46,7 +46,7 @@ A key, or a combination of keys, named in running text: a help line, an empty st
 - Don't use it as inline code. Code is a different element, `<code>`.
 - Don't detect the platform to swap Ctrl for the command glyph. The host knows its user.
 
-At 390px a combination does not wrap between caps. The command glyph renders in the key face rather than a substituted one. With a label set, a screen reader reads the label once and no glyph.
+At 390px a combination does not wrap between caps. With a label set, a screen reader reads the label once and no glyph.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

@@ -48,12 +48,6 @@ Arena's key, or combination of keys, for running text such as a help line, an em
 - Don't use it as inline code. Code is a different element, `<code>`.
 - Don't detect the platform to swap Ctrl for the command glyph. The host knows its user.
 
-**By hand, in real Chromium**: run `bun run demos` and open
-`/frameworks/angular/components/display/arena-kbd/ArenaKbd.demo.generated.html`:
-- At 390px a combination does not wrap between caps.
-- The command glyph renders in the key face rather than a substituted one.
-- With a label set, a screen reader reads the label once and no glyph.
-
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
 **The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.

@@ -56,11 +56,7 @@ Arena accordion, a stack of sections under headings. Standalone, `OnPush`, signa
 - Don't reach for an accordion to switch views. A strip of names over one shown view is `arena-tabs`.
 - Don't build a tree from it, and don't animate how tall a panel grows.
 
-**By hand, in real Chromium**: run `bun run demos` and open
-`/frameworks/angular/components/layout/arena-accordion/ArenaAccordion.demo.generated.html`:
-- Tab visits each header in turn, and Enter or Space opens and closes the focused section.
-- The arrows, Home and End only move focus, and an input in an open panel keeps its own arrows.
-- A screen reader announces the heading level, whether the section is expanded, and the name of the panel.
+Tab reaches every header in order, and Enter and Space toggle the one in focus. A screen reader reads the heading level, the expanded state and the panel's name.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

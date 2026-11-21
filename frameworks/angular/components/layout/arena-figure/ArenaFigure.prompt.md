@@ -63,13 +63,6 @@ loading wall wants.
 - **Don't** wrap it in a box of your own to size it. The figure fills the column it is in and takes its shape from the `arena-ratio` class.
 - **Don't** put a control in the overlay and expect it to be reachable before the caption. The slot is in the frame, which comes first in the reading order.
 
-**By hand, in real Chromium**: run `bun run demos` and open
-`/frameworks/angular/components/layout/arena-figure/ArenaFigure.demo.generated.html`:
-- The frame keeps its shape as the column narrows, and the picture crops rather than squashing.
-- With no media, the fallback sits centred and reads as a placeholder rather than as an error.
-- The overlay stays legible over the wash in both themes.
-- With a screen reader running, the caption is announced with the figure and not as a stray line.
-
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
 **The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.

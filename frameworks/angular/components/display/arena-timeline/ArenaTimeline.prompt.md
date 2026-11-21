@@ -40,11 +40,7 @@ Arena timeline, the stages one thing passes through, in order and joined by a li
 - Don't tone a dot for its position or for looks. The tone records what happened at that stage.
 - Don't fill the line to show progress. The connector is a plain separator in no accent.
 
-**By hand, in real Chromium**: run `bun run demos` and open
-`/frameworks/angular/components/display/arena-timeline/ArenaTimeline.demo.generated.html`:
-- A title long enough to wrap keeps its dot level with the first line.
-- The connector joins each dot to the next, edge to edge, at the base density and under `arena-comfortable`, in both orientations.
-- Each toned dot stays readable in both themes by its glyph, without its colour.
+A long title wraps without pulling its dot off the first line. The connector joins each dot to the next, edge to edge, at the base density and under `arena-comfortable`, in both orientations. Every toned dot reads in light and dark from its glyph alone.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

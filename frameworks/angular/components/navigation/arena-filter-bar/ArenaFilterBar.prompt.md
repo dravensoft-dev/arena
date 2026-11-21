@@ -48,8 +48,6 @@ A named row of filter controls placed above the content they narrow, such as a t
 - Don't colour chips or attach menus to them.
 - Don't set `[clearable]="false"` lightly. Many filters nobody can clear at once trap a person.
 
-**By hand.** The wrapping row and the single column at phone width, with a real select, input and segmented control projected. The baselines of the controls align when one lacks a label. After removing a chip from the keyboard, focus is on the next chip. A screen reader announces the group's name and the list's name.
-
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
 **The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.

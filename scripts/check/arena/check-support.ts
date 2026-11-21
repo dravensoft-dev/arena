@@ -41,8 +41,8 @@ export const RUNNERS = [
 export const ALTERNATIVES = [/\bnpx\b/, /\bpnpm exec\b/, /\byarn dlx\b/, /\bnpm run\b/];
 
 export const RUNNER_EXEMPT = new Map([
-  ['bun run', 'the form a prompt uses to open a demo page, which is a command in this repository '
-    + 'rather than one a consumer runs, and the pages carrying it are generated from the tree'],
+  ['bun run', 'the form the header comment of a generated page uses to name its generator, which is '
+    + 'a command in this repository rather than one a consumer runs'],
 ]);
 
 export function documents(base = root) {

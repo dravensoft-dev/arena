@@ -50,12 +50,6 @@ what a card does when it is picked up is a question about your data rather than 
   second one around it takes the keyboard's scroll away from the one that announces itself.
 - **Don't** use it for a fixed set of panels that always fit. The component for that is `arena-grid`, which wraps rather than scrolling.
 
-**By hand, in real Chromium**: run `bun run demos` and open
-`/frameworks/angular/components/layout/arena-board/ArenaBoard.demo.generated.html`:
-- Tab reaches the board itself, the ring lands on the whole frame, and the arrow keys scroll it.
-- Columns share the width while they fit and stop at the `arena-board-column` width, after which the board scrolls.
-- A column is as tall as its own stack: they do not stretch to match the tallest.
-
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
 **The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.

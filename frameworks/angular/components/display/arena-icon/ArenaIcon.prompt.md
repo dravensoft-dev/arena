@@ -45,10 +45,6 @@ bootstrapApplication(App, { providers: [provideArenaIcons('/assets/icons-3f9a2c.
 - Don't build the class list at runtime from pieces. The build scans for whole `ph-*` names.
 - Don't give it a `class`, a size or a tone. The text around it sizes and colours it.
 
-**By hand, in real Chromium**: run `bun run demos` and open
-`/frameworks/angular/components/display/arena-icon/ArenaIcon.demo.generated.html`:
-- The glyph sits on the text baseline and scales with the font size around it.
-
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
 **The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.

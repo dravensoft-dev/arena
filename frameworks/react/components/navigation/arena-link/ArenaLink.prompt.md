@@ -54,7 +54,7 @@ A link set in running text: a sentence in an empty state, a help line, a card bo
 - Don't add an icon for `external`. The hidden hint carries it for a reader, and the underline for the eye.
 - Don't expect the DOM event in `onNavigate`. The callback carries nothing, because you wrote the element.
 
-A link that wraps across two lines underlines both, and the focus ring follows each line. The link reads in both themes and under forced high contrast. With `external` on, a screen reader says the hint after the text.
+A link that wraps across two lines underlines both lines. With `external` on, a screen reader says the hint after the text.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

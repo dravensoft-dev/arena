@@ -101,7 +101,7 @@ A key held with Control, Meta or Alt goes to the page untouched.
 
 A `disabled` node stays focusable, so a keyboard user still finds it. The node is never selected or activated. The caret of a disabled node still opens it, because the children may be enabled.
 
-**The DOM is flat.** One `role="tree"` element holds the visible items in order. Each item carries `aria-level`, `aria-setsize` and `aria-posinset`. The three attributes carry the hierarchy, since the DOM is flat.
+**The DOM is flat.** One `role="tree"` element holds the visible items in order. Each item carries `aria-level`, `aria-setsize` and `aria-posinset`. The three attributes carry the hierarchy, since the DOM is flat. Each level steps in by one `pad-row-indent`, so level 3 sits two steps in from level 1 at every density.
 
 ## Long trees
 
@@ -129,17 +129,6 @@ While the focused node is scrolled away, the nearest drawn node holds the one ta
 - **Don't** nest the data. A child names its parent, and the component reads no nested children.
 - **Don't** put links or buttons in a node. A node is an icon and a label, and a row that needs actions is a table.
 - **Don't** expect the tree to navigate. Route from `activate`.
-
-## Verifying the tree by hand
-
-happy-dom has no layout and no native focus navigation, so six checks stay with you. Serve the tree with `bun run demos`, and open this component's demo page.
-
-1. Tab reaches the tree once, and one more Tab leaves it. The focused node is the one with the ring.
-2. ArrowDown, ArrowUp, ArrowRight and ArrowLeft walk as the table says. A screen reader announces level, position and state, such as "level 2, 3 of 5, collapsed".
-3. Type two characters quickly, and the prefix lands on the node that starts with both. Type them slowly, and each one starts a new search.
-4. Level 3 sits two `pad-row-indent` steps in from level 1, at base, under `.arena-comfortable` and under `.arena-compact`.
-5. The demo page draws five rows, so it cannot show this. Bind `windowed` on a tree of a few thousand nodes inside a container of bounded height. The tree scrolls, and a node that takes focus scrolls into view.
-6. In the `complete` scope, the selected row and the focus ring read as two different things.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

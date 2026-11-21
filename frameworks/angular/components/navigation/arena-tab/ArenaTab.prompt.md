@@ -41,13 +41,8 @@ style choice, a tabpanel may not sit inside a tablist, so the two cannot be one 
 - **Values must be distinct within one strip.** The parent resolves both ids by finding the tab
   with that value, so a duplicate makes two panels answer to one button.
 - **The panel's content mounts whether or not the panel is selected**, and it is hidden rather than removed when it is not. Anything expensive belongs behind a guard inside the content, not behind the tab.
-- The panel binds the `none` pattern, and that is not an absence. Every requirement that applies to a tab is a clause of the `tabs` pattern, which `arena-tabs` binds and its suite verifies.
+- The panel binds the `none` pattern, and that is not an absence. Every requirement that applies to a tab is a clause of the `tabs` pattern, which `arena-tabs` binds.
 - Don't reach for `arena-tab` to make a panel you place yourself. The panel renders where the parent puts it, which is after the tablist and nowhere else.
-
-**By hand, in real Chromium**: checked from the parent's page, since a tab alone renders nothing
-useful. Run `bun run demos` and open
-`/frameworks/angular/components/navigation/arena-tabs/ArenaTabs.demo.generated.html`, then walk the checklist in
-`ArenaTabs.prompt.md`.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
