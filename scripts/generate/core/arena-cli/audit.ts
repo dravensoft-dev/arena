@@ -1087,7 +1087,7 @@ const COLOUR_PREFIXES = ['bg', 'text', 'border', 'border-x', 'border-y', 'border
 const CLASS_STOP = /[\s"'`(){}]/;
 const LITERAL_SHARE = /\d*\.?\d+%|(?<![\w.-])\d*\.?\d+(?![\w.%-])/;
 const LEVEL_CLASS_MODIFIER = /^(?:\(--level-|\[var\(--level-)/;
-const APPLY_RULE = /@apply\b/;
+const APPLY = /@apply\b/;
 const SHEET_CUT = { back: /[{};]/, ahead: /[;}]/, open: /\(/, close: /\)/ };
 const MARKUP_CUT = { back: /['"`<>]/, ahead: /['"`<>]/, open: /[({]/, close: /[)}]/ };
 
@@ -1168,7 +1168,7 @@ export function levelFindings(line: string, levels: LevelledRoles,
   const { utility, read, roleOf } = patternsFor(levels);
   const found: Finding[] = [];
   const sheet = file?.sheet === true;
-  const applied = sheet ? APPLY_RULE.exec(line) : null;
+  const applied = sheet ? APPLY.exec(line) : null;
   const classes = !sheet ? line
     : applied === null ? '' : ' '.repeat(applied.index + applied[0].length) + line.slice(applied.index + applied[0].length);
   for (const m of classes.matchAll(utility)) {
