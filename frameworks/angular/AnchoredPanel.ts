@@ -25,7 +25,10 @@ export interface ArenaPanelPlacement {
   readonly x: number;
   readonly y: number;
   readonly side: ArenaPanelSide;
+  readonly maxHeight: number | null;
 }
+
+export type ArenaPanelDirection = 'ltr' | 'rtl';
 
 export interface ArenaPanelRegion<T> {
   contains(other: T): boolean;
@@ -47,23 +50,28 @@ export function arenaPanelSide(anchor: ArenaPanelRect, panel: ArenaPanelSize, vi
   return prefer === 'below' ? 'above' : 'below';
 }
 
-export function arenaPlacePanel(anchor: ArenaPanelRect, panel: ArenaPanelSize, viewport: ArenaPanelViewport, align: ArenaPanelAlign, offset: number, prefer: ArenaPanelSide = 'below'): ArenaPanelPlacement {
+export function arenaPlacePanel(anchor: ArenaPanelRect, panel: ArenaPanelSize, viewport: ArenaPanelViewport, align: ArenaPanelAlign, offset: number, prefer: ArenaPanelSide = 'below', direction: ArenaPanelDirection = 'ltr'): ArenaPanelPlacement {
   const side = arenaPanelSide(anchor, panel, viewport, offset, prefer);
-  const placed = side === 'below' ? anchor.top + anchor.height + offset : anchor.top - offset - panel.height;
   const top = viewport.top ?? 0;
-  const y = Math.max(top, Math.min(placed, top + viewport.height - panel.height));
+  const room = side === 'below' ? top + viewport.height - (anchor.top + anchor.height) - offset : anchor.top - top - offset;
+  const reach = Math.min(room, viewport.height);
+  const maxHeight = reach > 0 && panel.height > reach ? reach : null;
+  const height = maxHeight ?? panel.height;
+  const placed = side === 'below' ? anchor.top + anchor.height + offset : anchor.top - offset - height;
+  const y = Math.max(top, Math.min(placed, top + viewport.height - height));
+  const physical: ArenaPanelAlign = direction === 'rtl' && align !== 'center' ? (align === 'end' ? 'start' : 'end') : align;
   const alignedAt = (one: ArenaPanelAlign) => one === 'end' ? anchor.left + anchor.width - panel.width
     : one === 'center' ? anchor.left + (anchor.width - panel.width) / 2 : anchor.left;
   const left = viewport.left ?? 0;
   const fits = (at: number) => at >= left && at + panel.width <= left + viewport.width;
   const overflow = (at: number) => Math.max(0, left - at) + Math.max(0, at + panel.width - left - viewport.width);
-  let wanted = alignedAt(align);
-  if (align !== 'center' && !fits(wanted)) {
-    const flipped = alignedAt(align === 'end' ? 'start' : 'end');
+  let wanted = alignedAt(physical);
+  if (physical !== 'center' && !fits(wanted)) {
+    const flipped = alignedAt(physical === 'end' ? 'start' : 'end');
     if (overflow(flipped) < overflow(wanted)) wanted = flipped;
   }
   const x = Math.max(left, Math.min(wanted, left + viewport.width - panel.width));
-  return { x, y, side };
+  return { x, y, side, maxHeight };
 }
 
 export function arenaTopmostPanel<T>(stack: readonly T[]): T | null {

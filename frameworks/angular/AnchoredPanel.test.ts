@@ -16,7 +16,7 @@ const PANEL = size(200, 120);
 const TRIGGER = rect(100, 100, 80, 32);
 
 test('a panel opens below its anchor, starting at the anchor\'s left edge, an offset under it', () => {
-  assert.deepEqual(arenaPlacePanel(TRIGGER, PANEL, VIEWPORT, 'start', 6), { x: 100, y: 138, side: 'below' });
+  assert.deepEqual(arenaPlacePanel(TRIGGER, PANEL, VIEWPORT, 'start', 6), { x: 100, y: 138, side: 'below', maxHeight: null });
 });
 
 test('an end-aligned panel lines its right edge up with the anchor\'s', () => {
@@ -25,13 +25,13 @@ test('an end-aligned panel lines its right edge up with the anchor\'s', () => {
 
 test('a centred panel sits over the middle of its anchor', () => {
   assert.deepEqual(arenaPlacePanel(rect(400, 300, 80, 32), size(40, 20), VIEWPORT, 'center', 6, 'above'),
-    { x: 420, y: 274, side: 'above' });
+    { x: 420, y: 274, side: 'above', maxHeight: null });
 });
 
 test('near the bottom it flips above, because the room above is larger and the room below too small', () => {
   const low = rect(100, 540, 80, 32);
   assert.equal(arenaPanelSide(low, PANEL, VIEWPORT, 6, 'below'), 'above');
-  assert.deepEqual(arenaPlacePanel(low, PANEL, VIEWPORT, 'start', 6), { x: 100, y: 414, side: 'above' });
+  assert.deepEqual(arenaPlacePanel(low, PANEL, VIEWPORT, 'start', 6), { x: 100, y: 414, side: 'above', maxHeight: null });
 });
 
 test('it stays below when neither side holds it and below is still the larger room', () => {
@@ -105,12 +105,13 @@ test('from the panel itself Tab enters it and Shift+Tab leaves, and a panel with
   assert.equal(arenaTabLeavesPanel([], null, true), true);
 });
 
-test('a panel that fits neither side is pushed inside the viewport, and one taller than it starts at the top', () => {
+test('a panel that fits neither side takes the larger room and is capped to it, never pushed over its anchor', () => {
   const middle = rect(100, 200, 80, 32);
-  assert.deepEqual(arenaPlacePanel(middle, size(200, 590), VIEWPORT, 'start', 6), { x: 100, y: 10, side: 'below' });
-  assert.deepEqual(arenaPlacePanel(rect(100, 250, 80, 32), size(200, 330), VIEWPORT, 'start', 6), { x: 100, y: 270, side: 'below' });
-  assert.equal(arenaPlacePanel(middle, size(200, 700), VIEWPORT, 'start', 6).y, 0,
-    'a panel taller than the viewport starts at its top edge');
+  const shown = (placed: ReturnType<typeof arenaPlacePanel>) => [placed.x, placed.y, placed.side, placed.maxHeight];
+  assert.deepEqual(shown(arenaPlacePanel(middle, size(200, 590), VIEWPORT, 'start', 6)), [100, 238, 'below', 362]);
+  assert.deepEqual(shown(arenaPlacePanel(rect(100, 250, 80, 32), size(200, 330), VIEWPORT, 'start', 6)), [100, 288, 'below', 312]);
+  assert.deepEqual(shown(arenaPlacePanel(middle, size(200, 700), VIEWPORT, 'start', 6)), [100, 238, 'below', 362],
+    'a panel taller than the viewport is capped to the room under its anchor');
 });
 
 test('on an exact tie of the two rooms the preferred side is kept', () => {
@@ -145,6 +146,37 @@ test('an Escape from inside a modal that sits inside the panel belongs to that m
 });
 
 test('a visual viewport panned to the right keeps the panel inside its strip', () => {
-  const placed = arenaPlacePanel({ left: 0, top: 10, width: 40, height: 20 }, { width: 100, height: 50 }, { top: 0, left: 300, width: 200, height: 400 }, 'start', 4);
+  const placed = arenaPlacePanel(rect(0, 10, 40, 20), size(100, 50), rect(300, 0, 200, 400), 'start', 4);
   assert.equal(placed.x, 300);
+});
+
+test('start and end are logical: in a right-to-left anchor start lines up with the anchor\'s right edge and end with its left', () => {
+  const centred = rect(400, 100, 80, 32);
+  assert.equal(arenaPlacePanel(centred, PANEL, VIEWPORT, 'start', 6, 'below', 'rtl').x, 280, 'start stayed on the left edge in rtl');
+  assert.equal(arenaPlacePanel(centred, PANEL, VIEWPORT, 'end', 6, 'below', 'rtl').x, 400, 'end stayed on the right edge in rtl');
+  assert.equal(arenaPlacePanel(centred, PANEL, VIEWPORT, 'start', 6, 'below', 'ltr').x, 400);
+  assert.equal(arenaPlacePanel(centred, PANEL, VIEWPORT, 'end', 6).x, 280);
+  assert.equal(arenaPlacePanel(rect(400, 100, 80, 32), size(40, 20), VIEWPORT, 'center', 6, 'below', 'rtl').x, 420, 'center is the same in both directions');
+});
+
+test('a right-to-left panel that would leave the viewport still takes the opposite edge when that fits', () => {
+  assert.equal(arenaPlacePanel(rect(10, 100, 80, 32), PANEL, VIEWPORT, 'start', 6, 'below', 'rtl').x, 10,
+    'rtl start wants the right edge, which leaves on the left, so it takes the left edge');
+  assert.equal(arenaPlacePanel(rect(700, 100, 80, 32), PANEL, VIEWPORT, 'end', 6, 'below', 'rtl').x, 580);
+});
+
+test('a panel taller than the room on its side is capped at that room, so it scrolls instead of covering its anchor', () => {
+  const field = rect(20, 100, 200, 40);
+  const tall = size(200, 320);
+  const placed = arenaPlacePanel(field, tall, size(360, 360), 'start', 6);
+  assert.deepEqual([placed.x, placed.y, placed.side, placed.maxHeight], [20, 146, 'below', 214]);
+  assert.equal(placed.y + (placed.maxHeight ?? 0), 360, 'the capped panel ends at the viewport edge');
+  const raised = arenaPlacePanel(rect(20, 220, 200, 40), tall, size(360, 360), 'start', 6, 'above');
+  assert.deepEqual([raised.y, raised.side, raised.maxHeight], [0, 'above', 214], 'above, the cap is the room over the anchor');
+});
+
+test('a panel that fits its room is not capped, and a visual viewport offset moves the room', () => {
+  assert.equal(arenaPlacePanel(TRIGGER, PANEL, VIEWPORT, 'start', 6).maxHeight, null);
+  const placed = arenaPlacePanel(rect(0, 210, 100, 40), size(100, 400), rect(0, 200, 800, 300), 'start', 6);
+  assert.deepEqual([placed.y, placed.maxHeight], [256, 244]);
 });

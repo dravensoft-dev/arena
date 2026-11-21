@@ -123,12 +123,21 @@ export class ArenaAnchoredOverlay {
       ref.updatePosition();
       return;
     }
+    const panel = this.panelElement();
+    if (panel) {
+      panel.style.maxHeight = '';
+      panel.style.overflowY = '';
+    }
     strategy.left('0px').top('0px');
     ref.updatePosition();
     const own = ref.overlayElement.getBoundingClientRect();
     const { align, prefer, offset } = this.options.placement();
     const placed = arenaPlacePanel(anchor.getBoundingClientRect(), { width: own.width, height: own.height },
-      arenaViewportBox(view), align, offset, prefer);
+      arenaViewportBox(view), align, offset, prefer, view.getComputedStyle(anchor).direction === 'rtl' ? 'rtl' : 'ltr');
+    if (panel && placed.maxHeight !== null) {
+      panel.style.maxHeight = `${placed.maxHeight}px`;
+      panel.style.overflowY = 'auto';
+    }
     strategy.left(`${placed.x}px`).top(`${placed.y}px`);
     ref.updatePosition();
   }

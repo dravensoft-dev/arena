@@ -5,7 +5,10 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { ANCHORED, MOUNTED, OPENED, anchoringProblems, caseUrl, confineExpression, readExpression, smallestRow, type Anchored } from './check-anchoring.ts';
+import {
+  ANCHORED, MOUNTED, OPENED, alikeProblems, anchoringProblems, caseUrl, confineExpression, directionScript, initScripts, readExpression,
+  smallestRow, visualViewportScript, type Anchored, type Reading,
+} from './check-anchoring.ts';
 import { SCOPES } from './check-target-size.ts';
 
 const below: Anchored = { name: 'X:react', page: 'p.html', trigger: '[aria-haspopup]', panel: '[role="dialog"]', open: 'click', prefer: 'below' };
@@ -213,4 +216,60 @@ test('a pinned stage lines its trigger against the edge it names', () => {
   assert.match(confineExpression({ ...below, pin: 'start' }), /justifyContent: 'flex-start'/);
   assert.match(confineExpression({ ...below, pin: 'end' }), /justifyContent: 'flex-end'/);
   assert.doesNotMatch(confineExpression(below), /justifyContent/);
+});
+
+const rtl: Anchored = { ...aligned, name: 'R:react:rtl-start', rtl: true, centred: true, alike: true, seed: 'align=start' };
+
+test('a right-to-left case reads start as the anchor\'s right edge, and the problem names the direction', () => {
+  assert.deepEqual(readEdge(rtl, 7), { wanted: 0, actual: 7 }, 'rtl start lines the panel\'s right edge up with the anchor\'s, clamped at the page edge');
+  const end = { ...rtl, edge: { anchor: '[data-whole]', align: 'end' as const } };
+  assert.deepEqual(readEdge(end, 7), { wanted: 16, actual: 7 }, 'rtl end lines up with the anchor\'s left edge');
+  const off = anchoringProblems(rtl, { ...placedWhole, edge: { wanted: 16, actual: 117 } });
+  assert.match(off[0] ?? '', /its start edge in a right-to-left page measured from \[data-whole\]/);
+});
+
+test('a right-to-left case centres the trigger and sets the direction before the page runs', () => {
+  assert.match(confineExpression(rtl), /justifyContent: 'center'/);
+  assert.deepEqual(initScripts(rtl), [directionScript()]);
+  assert.match(directionScript(), /MutationObserver/);
+  assert.match(directionScript(), /setAttribute\('dir', 'rtl'\)/);
+  assert.deepEqual(initScripts(below), []);
+});
+
+const keyboard: Anchored = { ...below, name: 'K:react:keyboard-200', visual: { top: 200, height: 440 }, alike: true };
+
+test('a keyboard case stubs the visual viewport, pins the trigger to the bottom of the visible box, and reads inside that box', () => {
+  assert.match(visualViewportScript(keyboard.visual!), /offsetTop: \{ get: \(\) => 200 \}/);
+  assert.match(visualViewportScript(keyboard.visual!), /height: \{ get: \(\) => 440 \}/);
+  assert.deepEqual(initScripts(keyboard), [visualViewportScript(keyboard.visual!)]);
+  assert.match(confineExpression(keyboard), /top: \(640 - tall - 8\) \+ 'px'/);
+  assert.match(confineExpression({ ...keyboard, prefer: 'above' }), /top: '208px'/);
+  assert.match(readExpression(keyboard), /\{"top":200,"height":440\}/);
+});
+
+test('a panel outside the box a soft keyboard leaves fails, naming that box', () => {
+  const problems = anchoringProblems(keyboard, { ...placedWhole, inside: false });
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /leaves the visual viewport \(200px to 640px\)/);
+});
+
+test('React and Angular must place a case alike within a pixel, and one reading missing is a failure', () => {
+  const angular: Anchored = { ...keyboard, name: 'K:angular:keyboard-200' };
+  const at = (left: number, top: number): Reading => ({ ...placedWhole, rect: { left, top, width: 100, height: 80 } });
+  const cases = [keyboard, angular];
+  assert.deepEqual(alikeProblems(new Map([[keyboard.name, at(10, 20)], [angular.name, at(10.9, 19.2)]]), cases), []);
+  const apart = alikeProblems(new Map([[keyboard.name, at(10, 20)], [angular.name, at(10, 25)]]), cases);
+  assert.equal(apart.length, 1);
+  assert.match(apart[0] ?? '', /React and Angular place the panel apart by more than 1px in top \(20 against 25\)/);
+  assert.match(alikeProblems(new Map([[keyboard.name, at(10, 20)]]), cases)[0] ?? '', /no panel rect was read in Angular/);
+});
+
+test('every logical and keyboard case is declared in both layers, flagged alike, and covers start and end', () => {
+  const logical = ANCHORED.filter((kase) => kase.rtl !== undefined);
+  assert.deepEqual(logical.map((kase) => kase.name).sort(), ['ArenaMenu', 'ArenaSplitButton'].flatMap((component) => ['react', 'angular']
+    .flatMap((layer) => ['rtl-start', 'rtl-end'].map((kind) => `${component}:${layer}:${kind}`))).sort());
+  for (const kase of logical) assert.equal(kase.edge?.align, kase.name.endsWith('start') ? 'start' : 'end', kase.name);
+  const boxes = ANCHORED.filter((kase) => kase.visual !== undefined);
+  assert.deepEqual([...new Set(boxes.map((kase) => kase.visual?.top))].sort(), [0, 200]);
+  for (const kase of [...logical, ...boxes]) assert.ok(kase.alike, `${kase.name} is not compared across layers`);
 });

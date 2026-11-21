@@ -23,14 +23,15 @@ type ProbeProps = {
   focus?: boolean;
   tabOut?: boolean;
   matchAnchorWidth?: boolean;
+  align?: 'start' | 'end';
   children?: React.ReactNode;
 };
 
-function Probe({ name, open, seen, focus = false, tabOut = false, matchAnchorWidth = false, children }: ProbeProps) {
+function Probe({ name, open, seen, align, focus = false, tabOut = false, matchAnchorWidth = false, children }: ProbeProps) {
   const anchor = useRef<HTMLSpanElement | null>(null);
   const panel = useRef<HTMLDivElement | null>(null);
   const present = useArenaAnchoredPanel({
-    open, anchor, panel, offset: 6, matchAnchorWidth, tabOut, restoreFocus: focus,
+    open, anchor, panel, offset: 6, matchAnchorWidth, ...(align ? { align } : {}), tabOut, restoreFocus: focus,
     trigger: () => anchor.current?.querySelector('button') ?? null,
     onDismiss: (reason: ArenaPanelDismissal) => seen.push(`${name}:${reason}`),
     ...(focus ? { focusOnOpen: arenaFirstFocusable } : {}),
@@ -306,8 +307,16 @@ test('a closed panel leaves the stack for good, even if its node is put back in 
 
 type StubVisual = EventTarget & { offsetTop: number; offsetLeft: number; height: number; width: number };
 
+function visualBox(width: number, height: number, offsetTop: number) {
+  return { offsetTop, offsetLeft: 0, height, width };
+}
+
+function domRect(left: number, top: number, width: number, height: number) {
+  return { x: left, y: top, left, top, right: left + width, bottom: top + height, width, height, toJSON() { return this; } } as DOMRect;
+}
+
 function stubVisualViewport(height: number, offsetTop = 0) {
-  const visual = Object.assign(new EventTarget(), { offsetTop, offsetLeft: 0, height, width: 1024 }) as StubVisual;
+  const visual = Object.assign(new EventTarget(), visualBox(1024, height, offsetTop)) as StubVisual;
   const had = Object.getOwnPropertyDescriptor(window, 'visualViewport');
   Object.defineProperty(window, 'visualViewport', { configurable: true, value: visual });
   const restore = () => {
@@ -321,7 +330,7 @@ function drawn(anchorTop: number, anchorHeight: number, panelHeight: number) {
   Element.prototype.getBoundingClientRect = function sized(this: Element) {
     const top = this.hasAttribute('data-probe') ? anchorTop : 0;
     const height = this.hasAttribute('data-probe') ? anchorHeight : this.hasAttribute('data-panel') ? panelHeight : 0;
-    return { x: 0, y: top, left: 0, top, right: 100, bottom: top + height, width: 100, height, toJSON() { return this; } } as DOMRect;
+    return domRect(0, top, 100, height);
   };
   return () => { Element.prototype.getBoundingClientRect = rect; };
 }
@@ -392,5 +401,71 @@ test('a visual viewport resize re-places the panel, and closing removes the list
   } finally {
     undraw();
     stub.restore();
+  }
+});
+
+function drawnWide(anchor: [left: number, top: number, width: number, height: number], panel: [width: number, height: number]) {
+  const rect = Element.prototype.getBoundingClientRect;
+  Element.prototype.getBoundingClientRect = function sized(this: Element) {
+    if (this.hasAttribute('data-probe')) return domRect(...anchor);
+    if (this.hasAttribute('data-panel')) {
+      const cap = Number.parseFloat((this as HTMLElement).style.maxHeight);
+      return domRect(0, 0, panel[0], Number.isNaN(cap) ? panel[1] : Math.min(panel[1], cap));
+    }
+    return domRect(0, 0, 0, 0);
+  };
+  return () => { Element.prototype.getBoundingClientRect = rect; };
+}
+
+function leftOf(dir: 'ltr' | 'rtl', align: 'start' | 'end') {
+  const seen: string[] = [];
+  const stub = stubVisualViewport(800);
+  const undraw = drawnWide([300, 100, 100, 40], [60, 120]);
+  document.documentElement.setAttribute('dir', dir);
+  document.documentElement.style.direction = dir;
+  try {
+    mount(<Probe name="p" open seen={seen} align={align} />);
+    return panelOf('p')!.style.left;
+  } finally {
+    cleanup();
+    document.documentElement.removeAttribute('dir');
+    document.documentElement.style.direction = '';
+    undraw();
+    stub.restore();
+  }
+}
+
+test('start and end are logical: a right-to-left page lines start up with the anchor\'s right edge', () => {
+  assert.equal(leftOf('ltr', 'start'), '300px');
+  assert.equal(leftOf('ltr', 'end'), '340px');
+  assert.equal(leftOf('rtl', 'start'), '340px', 'start stayed on the anchor\'s left edge in rtl');
+  assert.equal(leftOf('rtl', 'end'), '300px', 'end stayed on the anchor\'s right edge in rtl');
+});
+
+test('a panel taller than the room under its field is capped to that room and scrolls, instead of covering the field', () => {
+  const seen: string[] = [];
+  const stub = stubVisualViewport(360);
+  const undraw = drawnWide([20, 100, 200, 40], [200, 320]);
+  try {
+    mount(<Probe name="p" open seen={seen} />);
+    const panel = panelOf('p')!;
+    assert.equal(panel.style.top, '146px', 'the panel did not stay under the field');
+    assert.equal(panel.style.maxHeight, '214px');
+    assert.equal(panel.style.overflowY, 'auto');
+  } finally {
+    undraw();
+    stub.restore();
+  }
+});
+
+test('a panel that fits writes no max-height', () => {
+  const seen: string[] = [];
+  const undraw = drawn(10, 40, 120);
+  try {
+    mount(<Probe name="p" open seen={seen} />);
+    assert.equal(panelOf('p')!.style.maxHeight, '');
+    assert.equal(panelOf('p')!.style.overflowY, '');
+  } finally {
+    undraw();
   }
 });

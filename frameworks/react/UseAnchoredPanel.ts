@@ -66,10 +66,17 @@ export function useArenaAnchoredPanel(options: ArenaAnchoredPanelOptions): boole
       panel.style.position = 'fixed';
       panel.style.inset = 'auto';
       panel.style.margin = '0';
+      panel.style.maxHeight = '';
+      panel.style.overflowY = '';
       const own = panel.getBoundingClientRect();
       const placed = arenaPlacePanel(box, { width: own.width, height: own.height },
         arenaViewportBox(view),
-        latest.current.align ?? 'start', latest.current.offset, latest.current.prefer ?? 'below');
+        latest.current.align ?? 'start', latest.current.offset, latest.current.prefer ?? 'below',
+        view.getComputedStyle(anchor).direction === 'rtl' ? 'rtl' : 'ltr');
+      if (placed.maxHeight !== null) {
+        panel.style.maxHeight = `${placed.maxHeight}px`;
+        panel.style.overflowY = 'auto';
+      }
       panel.style.left = `${placed.x}px`;
       panel.style.top = `${placed.y}px`;
     };
