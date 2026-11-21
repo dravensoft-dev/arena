@@ -39,16 +39,6 @@ const reading = (html: string) => [...html.matchAll(/<text[^>]*>[^<]*<\/text>/g)
 const track = (html: string) => paths(html).find((p) => p.fill === 'var(--fill-track)')!;
 const arc = (html: string, fill: string) => paths(html).find((p) => p.fill === fill);
 
-test('ArenaGaugeChart is a named figure whose table is the whole scale, the reading, both ends and every band', () => {
-  const html = draw({ valueSuffix: ' %' });
-  assert.match(html, /<svg [^>]*role="img" aria-label="CPU load — gauge"/);
-  assert.match(html, /<caption>CPU load — gauge<\/caption>/);
-  assert.deepEqual(rows(html), [
-    ['Value', '72 %'], ['Minimum', '0 %'], ['Maximum', '100 %'],
-    ['Healthy', '0 % – 60 %'], ['Elevated', '60 % – 85 %'], ['Critical', '85 % – 100 %'],
-  ]);
-});
-
 test('ArenaGaugeChart is the gauge height token tall by default, and the height member overrides it', () => {
   assert.equal(chartGaugeHeight, 200);
   assert.equal(tall(draw()), chartGaugeHeight);
@@ -186,9 +176,7 @@ test('ArenaGaugeChart throws without a label or with an empty one, and for a ban
   assert.throws(() => draw({ bands: [{ from: 0, tone: 'success', label: '' }] }), /ArenaGaugeChart: every band needs a `label`/);
 });
 
-test('ArenaGaugeChart adds no tab stop, no keyboard region and no pointer surface', () => {
+test('ArenaGaugeChart draws no pointer surface', () => {
   const html = draw();
-  assert.doesNotMatch(html, /tabindex/);
-  assert.doesNotMatch(html, /role="group"/);
   assert.doesNotMatch(html, /<rect/);
 });

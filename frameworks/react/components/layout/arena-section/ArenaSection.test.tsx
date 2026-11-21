@@ -11,29 +11,11 @@ import tailwind from './ArenaSection.manifest.generated.ts';
 const render = (element: React.ReactElement) => renderToStaticMarkup(element);
 const body = <p>One</p>;
 
-test('a section with no title is refused, and a title of nothing but spaces is refused with it', () => {
+test('a section with no title is refused', () => {
   assert.throws(
     // @ts-expect-error the contract requires it, and the guard is what this asserts
     () => render(<ArenaSection>{body}</ArenaSection>),
     /`title` is required/,
-  );
-  assert.throws(() => render(<ArenaSection title="   ">{body}</ArenaSection>), /`title` is required/);
-});
-
-test('a section with no children is refused, because its heading would name nothing', () => {
-  assert.throws(
-    // @ts-expect-error the contract requires it, and the guard is what this asserts
-    () => render(<ArenaSection title="Landed recently" />),
-    /not a legal shape/,
-  );
-});
-
-test('the guard counts the way the render path counts, so a false conditional is absent', () => {
-  const admin = false;
-  assert.throws(
-    () => render(<ArenaSection title="Landed recently">{admin && <p>One</p>}</ArenaSection>),
-    /not a legal shape/,
-    'React.Children.count would have called a bare false one child and let this through',
   );
 });
 

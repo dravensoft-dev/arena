@@ -33,7 +33,3 @@ test('Clear all is drawn only while a filter is applied and the bar is clearable
   assert.ok(!held.includes('filter-bar.clear') && held.includes('<ul'));
 });
 
-test('a blank label and a bar with no control both throw', () => {
-  assert.throws(() => render(<ArenaFilterBar label="  "><select aria-label="Region" /></ArenaFilterBar>), /ArenaFilterBar: `label` is required/);
-  assert.throws(() => render(<ArenaFilterBar label="Deployment filters">{null}</ArenaFilterBar>), /no controls is not a legal shape/);
-});

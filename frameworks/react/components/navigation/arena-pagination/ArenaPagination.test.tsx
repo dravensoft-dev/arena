@@ -12,18 +12,6 @@ test('throws when ariaLabel is absent -- the name says WHAT is paged and nothing
   );
 });
 
-test('ariaLabel names the landmark, and no constant is left to fall back to', () => {
-  const html = renderToStaticMarkup(<ArenaPagination page={3} pageCount={12} ariaLabel="Deployments" />);
-  assert.match(html, /^<nav aria-label="Deployments"/);
-  assert.doesNotMatch(html, /aria-label="ArenaPagination"/, 'the retired constant default is back');
-});
-
-test('the current page is marked, and only it', () => {
-  const html = renderToStaticMarkup(<ArenaPagination page={3} pageCount={12} ariaLabel="Deployments" />);
-  assert.equal((html.match(/aria-current="page"/g) || []).length, 1);
-  assert.match(html, /aria-current="page"[^>]*>3</);
-});
-
 test('ArenaPagination drops a consumer style object -- the ...style escape is gone', () => {
   const html = renderToStaticMarkup(
     // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts

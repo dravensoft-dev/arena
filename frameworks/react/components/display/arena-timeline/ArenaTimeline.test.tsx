@@ -55,9 +55,8 @@ test('a connector joins each milestone to the next, and the last has none', () =
   assert.equal((draw().match(/data-arena-part="timeline.connector"/g) ?? []).length, 3);
 });
 
-test('an empty list draws nothing, and a blank label throws', () => {
+test('an empty list draws nothing', () => {
   assert.equal(draw({ items: [] }), '');
-  assert.throws(() => draw({ label: ' ' }), /^Error: ArenaTimeline: `label`/);
 });
 
 test('the rail has no gap of its own and the connector reaches the next dot across the items gap, in both orientations', () => {

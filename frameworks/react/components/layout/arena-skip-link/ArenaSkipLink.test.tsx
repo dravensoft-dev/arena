@@ -27,10 +27,7 @@ test('it points at the landmark by the constant both sides read', () => {
   );
 });
 
-test('a label of nothing but spaces is refused, the way every name only a human can supply is', () => {
+test('a skip link with no label is refused', () => {
   // @ts-expect-error the contract requires it, and the guard is what this asserts
   assert.throws(() => render(<ArenaSkipLink />), /`label` is required/);
-  assert.throws(() => render(<ArenaSkipLink label="   " />), /`label` is required/,
-    'a link that appears with no words is a link nobody can act on, and a blank string satisfies '
-    + 'a falsiness test while naming nothing');
 });

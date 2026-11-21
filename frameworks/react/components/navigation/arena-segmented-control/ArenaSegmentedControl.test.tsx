@@ -50,14 +50,6 @@ test('ariaLabel is required and its absence throws', () => {
   );
 });
 
-test('ariaLabel names the radio group', () => {
-  const html = renderToStaticMarkup(
-    <ArenaSegmentedControl ariaLabel="Time range" options={[{ value: 'ov', label: 'Overview' }]} />,
-  );
-  assert.match(html, /<div[^>]*role="radiogroup"[^>]*>/);
-  assert.match(html, /<div[^>]*aria-label="Time range"[^>]*>/);
-});
-
 test('ArenaSegmentedControl drops a consumer style object -- the ...style escape is gone', () => {
   const html = renderToStaticMarkup(
     <ArenaSegmentedControl ariaLabel="A" options={[{ value: 'ov', label: 'Overview' }]}

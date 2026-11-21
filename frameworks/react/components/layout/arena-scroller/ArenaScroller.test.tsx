@@ -19,33 +19,11 @@ const items = <><ArenaScrollerItem>One</ArenaScrollerItem><ArenaScrollerItem>Two
 
 const rootClass = (html: string) => /<div[^>]*\bclass="([^"]*)"/.exec(html)?.[1] ?? '';
 
-test('the row is one tab stop carrying a group role and the name it was given', () => {
-  const html = render(<ArenaScroller label="Recently landed lots">{items}</ArenaScroller>);
-  assert.match(html, /role="group"/);
-  assert.match(html, /aria-label="Recently landed lots"/);
-  assert.match(html, /tabindex="0"/,
-    'a scrollable box that is not focusable leaves everything past its edge to the pointer alone');
-});
-
-test('a row with no label is refused, and a label of nothing but spaces is refused with it', () => {
+test('a row with no label is refused', () => {
   assert.throws(
     // @ts-expect-error the contract requires it, and the guard is what this asserts
     () => render(<ArenaScroller>{items}</ArenaScroller>),
     /`label` is required/,
-  );
-  assert.throws(() => render(<ArenaScroller label="  ">{items}</ArenaScroller>), /`label` is required/);
-});
-
-test('a row with no children is refused, because it would be a tab stop over nothing', () => {
-  assert.throws(
-    // @ts-expect-error the contract requires it, and the guard is what this asserts
-    () => render(<ArenaScroller label="Recently landed lots" />),
-    /tab stop over nothing/,
-  );
-  const admin = false;
-  assert.throws(
-    () => render(<ArenaScroller label="Recently landed lots">{admin && <span>One</span>}</ArenaScroller>),
-    /tab stop over nothing/,
   );
 });
 

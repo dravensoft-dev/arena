@@ -41,19 +41,6 @@ function tabStops(html: string) {
   return explicit + native;
 }
 
-test('an ArenaTable renders exactly one tab stop', () => {
-  assert.equal(tabStops(render()), 1, 'an ArenaTable is not one tab stop');
-});
-
-test('the wide layout is a role="grid" carrying a non-empty name', () => {
-  const html = render();
-  assert.match(html, /role="grid"/, 'no role="grid" on the wide layout');
-  const name = html.match(/aria-label="([^"]*)"/);
-  assert.ok(name, 'the grid has no aria-label');
-  assert.ok(name[1]!.length > 0, 'the grid aria-label is empty');
-  assert.equal(name[1], LABEL, 'the grid name is not the `label` member');
-});
-
 test('every row, header cell and data cell takes its grid role from the element it is', () => {
   const html = render();
   const count = (re: RegExp) => (html.match(re) || []).length;

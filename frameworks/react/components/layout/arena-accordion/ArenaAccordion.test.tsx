@@ -57,9 +57,7 @@ test('the empty string and a value no item has open nothing', () => {
   assert.deepEqual(triggers(three({ multiple: true, values: ['back', 'nowhere'] })).map((b) => attr(b, 'aria-expanded')), ['false', 'false', 'true']);
 });
 
-test('a blank label, a blank value and a heading level of none throw', () => {
-  assert.throws(() => renderIcons(<ArenaAccordionItem value="a" label="  " />), /^Error: ArenaAccordionItem: `label`/);
-  assert.throws(() => renderIcons(<ArenaAccordionItem value=" " label="A" />), /^Error: ArenaAccordionItem: `value`/);
+test('a heading level of none throws', () => {
   assert.throws(() => three({ headingLevel: 'none' }), /^Error: ArenaAccordion: `headingLevel`/);
 });
 

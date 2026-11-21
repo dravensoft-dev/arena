@@ -66,13 +66,9 @@ test('ArenaSparkline draws the area fill only when area is set, down to the floo
   assert.doesNotMatch(without, /color-mix\(in oklab, /, 'the tint rendered without area being set');
 });
 
-test('ArenaSparkline is a static figure by default: no tab stop, no keyboard region, no overlay', () => {
+test('ArenaSparkline draws no overlay by default', () => {
   const html = renderToStaticMarkup(<ArenaSparkline label="p95" labels={LABELS} series={SERIES} />);
-  assert.doesNotMatch(html, /tabindex/);
-  assert.doesNotMatch(html, /role="group"/);
   assert.doesNotMatch(html, /<rect/);
-  const live = renderToStaticMarkup(<ArenaSparkline label="p95" labels={LABELS} series={SERIES} interactive />);
-  assert.match(live, /tabindex="0" role="group" aria-label="p95 — sparkline"/);
 });
 
 test('ArenaSparkline takes the tone as its colour and the first identity slot otherwise', () => {

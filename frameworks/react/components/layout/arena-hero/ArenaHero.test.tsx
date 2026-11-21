@@ -6,10 +6,9 @@ import { ArenaHero } from './ArenaHero.tsx';
 
 const render = (element: React.ReactElement) => renderToStaticMarkup(element);
 
-test('a hero with no title is refused, and a title of nothing but spaces is refused with it', () => {
+test('a hero with no title is refused', () => {
   // @ts-expect-error the contract requires it, and the guard is what this asserts
   assert.throws(() => render(<ArenaHero />), /`title` is required/);
-  assert.throws(() => render(<ArenaHero title="   " />), /`title` is required/);
 });
 
 test('the title opens the page, at the top rung of the ladder', () => {

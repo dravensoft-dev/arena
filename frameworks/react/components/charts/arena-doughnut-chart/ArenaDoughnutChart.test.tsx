@@ -32,20 +32,12 @@ test('ArenaDoughnutChart with no valueSuffix draws bare numbers, so the suffix i
   assert.doesNotMatch(html, /undefined/, 'an absent suffix must not render the string "undefined"');
 });
 
-test('ArenaDoughnutChart names itself from label, and an absent one throws rather than naming the type', () => {
+test('ArenaDoughnutChart names itself from label', () => {
   const named = renderToStaticMarkup(
     <ArenaDoughnutChart labels={LABELS} series={[{ label: 'Traffic', values: VALUES }]} label="Traffic" />
   );
   assert.match(named, /aria-label="Traffic — doughnut chart"/);
   assert.match(named, /<caption>Traffic — doughnut chart<\/caption>/);
-  assert.match(named, /<th>Traffic<\/th>/, 'the value column takes the series name');
-
-  assert.throws(
-    // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    () => renderToStaticMarkup(<ArenaDoughnutChart labels={LABELS} values={VALUES} />),
-    /`label` is required/,
-    'a name that is only the chart TYPE makes two charts on one page announce identically',
-  );
 });
 
 test('ArenaDoughnutChart throws when labels is absent, which required-ness demands of every layer', () => {

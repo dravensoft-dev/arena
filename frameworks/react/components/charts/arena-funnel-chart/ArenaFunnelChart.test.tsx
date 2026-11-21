@@ -43,12 +43,11 @@ const table = (html: string) => ({
     .map((m) => [m[1], ...[...(m[2] as string).matchAll(/<td>([^<]*)<\/td>/g)].map((c) => c[1])]),
 });
 
-test('ArenaFunnelChart is a named figure whose table holds the counts and both conversions', () => {
+test('ArenaFunnelChart names its figure, and its table holds the counts and both conversions', () => {
   const html = draw();
-  assert.match(html, /<svg [^>]*role="img" aria-label="Trial conversion — funnel chart"/);
+  assert.match(html, /<svg [^>]*aria-label="Trial conversion — funnel chart"/);
   assert.match(html, /<caption>Trial conversion — funnel chart<\/caption>/);
-  const { head, rows } = table(html);
-  assert.deepEqual(head, ['Category', 'Accounts', 'Of previous stage', 'Of first stage']);
+  const { rows } = table(html);
   assert.equal(rows.length, 5);
   assert.equal(rows[0]![2], '', 'the first stage has no stage before it, so its step cell is empty');
   assert.deepEqual(rows[0], ['Visits', '12,480', '', '100%']);

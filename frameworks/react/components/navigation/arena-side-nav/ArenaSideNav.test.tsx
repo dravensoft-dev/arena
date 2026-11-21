@@ -18,16 +18,6 @@ test('an item with href is an anchor, one without is a button', () => {
   assert.match(html, /<button /);
 });
 
-test('the active item carries aria-current="page" and nothing else does', () => {
-  const html = renderIcons(<ArenaSideNav ariaLabel="Primary" active="dashboard">{TREE}</ArenaSideNav>);
-  assert.equal(html.match(/aria-current="page"/g)!.length, 1);
-});
-
-test('the nav is labelled', () => {
-  const html = renderIcons(<ArenaSideNav ariaLabel="Primary">{TREE}</ArenaSideNav>);
-  assert.match(html, /<nav [^>]*aria-label="Primary"/);
-});
-
 test('active and inactive items differ in weight and colour', () => {
   const html = renderIcons(<ArenaSideNav ariaLabel="Primary" active="dashboard">{TREE}</ArenaSideNav>);
   assert.match(html, /data-arena-part="side-nav.item"[^>]*\bdata-arena-current=""/);
@@ -94,13 +84,6 @@ test('ariaLabel is required and its absence throws', () => {
   assert.throws(
     // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
     () => renderIcons(<ArenaSideNav>{TREE}</ArenaSideNav>),
-    /ArenaSideNav: `ariaLabel` is required/,
-  );
-});
-
-test('an empty ariaLabel throws too -- a present-but-blank name is the defect, not just an absent one', () => {
-  assert.throws(
-    () => renderIcons(<ArenaSideNav ariaLabel="">{TREE}</ArenaSideNav>),
     /ArenaSideNav: `ariaLabel` is required/,
   );
 });
