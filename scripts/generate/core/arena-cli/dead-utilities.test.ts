@@ -93,17 +93,17 @@ test('ownThemeBlocks keeps the top-level @theme, @utility and @custom-variant of
 });
 
 const DEAD = [
-  { candidate: 'shadow-md', want: /^`shadow-md` emits nothing under Arena's theme, which clears the Tailwind default it names\. Write one of `shadow-1`, `shadow-2`, `shadow-3`/ },
-  { candidate: 'ease-in', want: /`ease-out`, `ease-in-out`, `ease-emphatic`, `ease-hover`, `ease-state`$/ },
-  { candidate: 'rounded-3xl', want: /`rounded-xs`.*, and 8 more in css\/tailwind-theme\.css$/ },
+  { candidate: 'shadow-md', want: /^`shadow-md` emits nothing under Arena's theme, which clears the Tailwind default it names\. Write one of `shadow-surface-rest`, `shadow-surface-floating`, `shadow-surface-deep`, `shadow-control-rest`, `shadow-control-raised`, `shadow-1`, and 2 more in css\/tailwind-theme\.css$/ },
+  { candidate: 'ease-in', want: /Write one of `ease-hover`, `ease-state`, `ease-out`, `ease-in-out`, `ease-emphatic`$/ },
+  { candidate: 'rounded-3xl', want: /Write one of `rounded-surface`, `rounded-surface-floating`.*, and 8 more in css\/tailwind-theme\.css$/ },
   { candidate: 'text-gray-500', want: /Write one of `text-ink-/, not: /`text-overlay-/ },
   { candidate: 'bg-gray-100', want: /Write one of `bg-(surface|page)[a-z-]*`/, not: /`bg-ink-/ },
   { candidate: 'divide-gray-200', want: /`divide-edge-separator`/ },
   { candidate: 'placeholder-gray-500', want: /`placeholder-ink-/ },
   { candidate: 'border-x-gray-200', want: /Write one of `border-x-edge-/ },
-  { candidate: 'font-sans', want: /`font-display`, `font-body`, `font-mono`/ },
+  { candidate: 'font-sans', want: /Write one of `font-face-heading`.*`font-display`, `font-body`, and 1 more in css\/tailwind-theme\.css$/ },
   { candidate: 'max-w-lg', want: /Write one of `max-w-page`$/ },
-  { candidate: 'hover:shadow-md', want: /^`hover:shadow-md` .*`hover:shadow-1`/ },
+  { candidate: 'hover:shadow-md', want: /^`hover:shadow-md` .*Write one of `hover:shadow-surface-rest`, .*`hover:shadow-1`/ },
   { candidate: 'xl:flex', want: /^`xl:flex` emits nothing under Arena's theme, which has no `xl:` variant\. Write one of `sm:`, `md:`, `lg:`$/ },
   { candidate: 'hover:xl:flex', want: /no `xl:` variant/ },
   { candidate: 'max-xl:p-2', want: /`max-sm:`, `max-md:`, `max-lg:`$/ },

@@ -194,8 +194,8 @@ async function utilityAnswers(
   const leads = (pair: Pair) => [...wanted].some((name) => channelOf(pair)?.test(name));
   const ordered = [
     ...keep.filter((pair) => leads(pair)),
-    ...keep.filter((pair) => channelOf(pair) !== undefined && !leads(pair)),
-    ...keep.filter((pair) => channelOf(pair) === undefined),
+    ...keep.filter((pair) => roleOf(pair) !== null && !leads(pair)),
+    ...keep.filter((pair) => roleOf(pair) === null),
   ];
   return [...new Set(ordered.map((pair) => `${prefix}${root}-${pair.key}`))];
 }
