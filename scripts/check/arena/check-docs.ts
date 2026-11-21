@@ -182,6 +182,7 @@ export const CONTRIBUTOR_PATHS = [
     'a Tailwind manifest, which is a source of the compiled stylesheet rather than a file a consumer has'],
   [/\b[\w-]+\.generated\b/g,
     'a build product, which a consumer reaches by importing the package rather than by name'],
+  [/\b[\w-]+\.checks\.md\b/g, 'a contributor checklist, which ships in no package'],
 ];
 
 export const FOREIGN_CODE = [

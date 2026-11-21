@@ -2,7 +2,7 @@
  * platform's and what is asserted is that Arena intercepts neither. The native file input is not
  * the bound element: its role is no button, so it sits beside the trigger out of the tab order and
  * out of the accessibility tree, and the trigger opens it. happy-dom opens no picker; the by-hand
- * list in the prompt names the real one. */
+ * list in ArenaFileInput.checks.md names the real one. */
 import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';

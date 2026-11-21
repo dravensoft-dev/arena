@@ -11,6 +11,10 @@ test('the tree states no range, engine or runner the packages do not', () => {
   assert.deepEqual(problems, []);
 });
 
+test('a name in code and a later span with a digit are not a range when another span sits between', () => {
+  assert.deepEqual(rangeProblems('page.md', 'the `react` clause of `manualChunks` goes; Vite 8 keeps `x`'), []);
+});
+
 test('the gate read a real result set rather than an empty one', () => {
   const { scanned } = collect();
   assert.ok(scanned > 100, `${scanned} consumer document(s) scanned, so a clean pass says nothing`);

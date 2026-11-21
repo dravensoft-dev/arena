@@ -110,9 +110,18 @@ test('a bare outline-none is refused, because it applies in the focus state too,
 });
 
 test('a stacked, group-, peer-, important and variant-branch focus form is read too', () => {
-  for (const cls of ['hover:focus:outline-none', 'group-focus:outline-none', 'peer-focus-visible:outline-none', 'group-focus-within/row:outline-none', 'focus:outline-none!', 'has-[:focus-visible]:outline-none']) {
+  for (const cls of ['hover:focus:outline-none', 'group-focus:outline-none', 'peer-focus-visible:outline-none', 'group-focus-within/row:outline-none', 'focus:outline-none!', 'has-[:focus-visible]:outline-none', 'in-focus:outline-none']) {
     const manifest = { component: 'Fixture', slots: { root: 'p-1' }, variants: { tone: { a: { root: cls } } } };
     assert.equal(focusOutlineProblems(manifest).length, 1, cls);
+  }
+});
+
+test('outline-none under a media, scheme or breakpoint variant is refused, because it still applies while the slot is focused', () => {
+  for (const cls of ['md:outline-none', 'forced-colors:outline-none', 'dark:outline-none', 'motion-reduce:outline-none', 'print:outline-none', 'max-md:outline-none', '@lg:outline-none']) {
+    const manifest = { component: 'Fixture', slots: { root: cls } };
+    const problems = focusOutlineProblems(manifest);
+    assert.equal(problems.length, 1, cls);
+    assert.match(problems[0] ?? '', /also applies when the slot is focused/, cls);
   }
 });
 

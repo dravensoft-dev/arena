@@ -31,9 +31,9 @@ Where two layers answer the same question differently, **the contract is what ma
 comparable**. A cross-layer *gate* under `scripts/check/arena/` reading several layers is that
 mechanism rather than an instance of the coupling, which is why `scripts/` is outside the gate's
 scope. **A fact only recorded as "matching the other layer" is a fact missing from a contract.**
-**An anchored panel is the one surface the layers place by different mechanisms**: React shows it
-as a manual `popover` in the top layer and places it by script, and Angular attaches it to a CDK
-overlay pane. The rules both answer, which side a panel opens on, where it lines up, which panel
+**An anchored panel is the one surface whose host differs between the layers**: both place it with
+the same arithmetic (`arenaPlacePanel` against `arenaViewportBox`), React in a manual `popover` in
+the top layer and Angular in a CDK overlay pane under a global position strategy. The rules both answer, which side a panel opens on, where it lines up, which panel
 Escape reaches and where Tab leaves, are one module written twice and held equal by
 `check:shared-arithmetic`; a manifest carries no positioning for either. Each layer's page states
 its own mechanism, and `check:anchoring` opens each one it declares, in both, in real Chromium.

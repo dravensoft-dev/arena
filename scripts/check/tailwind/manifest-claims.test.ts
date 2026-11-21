@@ -280,7 +280,7 @@ export const CLAIMS = {
   ArenaTable: [
     ...['th', 'td'].map((slot) => ({
       slot, has: ['focus:outline-hidden', 'focus:shadow-[inset_0_0_0_var(--bw-focus)_var(--edge-focus)]'],
-      why: 'a cell draws its focus ring from the focus tokens and suppresses the UA outline, or a keyboard user cannot see where the cursor is',
+      why: 'a cell draws its focus ring from the focus tokens and hides the UA outline while keeping a transparent one forced colours paint, or a keyboard user cannot see where the cursor is',
     })),
     ...['th', 'td'].map((slot) => ({
       slot, has: ['w-[var(--arena-column-width,auto)]', '[text-align:var(--arena-column-align,left)]'], hasNot: ['text-left', 'text-center', 'text-right'],

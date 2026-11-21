@@ -2,7 +2,7 @@
  * states.required and states.readonly are earned by the native attributes on the real
  * <textarea>; states.multiline the evaluator decides for itself from the element. autoResize is
  * NOT asserted here and cannot be: happy-dom has no layout, so scrollHeight is 0 and a growing
- * box and a broken one look identical. It is a by-hand item on the demo page. */
+ * box and a broken one look identical. It is a by-hand item in ArenaTextarea.checks.md. */
 
 import { useTestEnvironment } from '../../../test/TestbedEnv';
 useTestEnvironment();

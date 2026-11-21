@@ -3,7 +3,7 @@
  * it, uncancelled means the browser keeps it. The paths are asserted separately because they
  * diverged once, the same command routing twice with the mouse and once with the keyboard. On a
  * real anchor Enter is the platform's own synthesized click, which no test document
- * synthesizes, so that half is the by-hand Chromium check each prompt carries. */
+ * synthesizes, so that half is a Chromium check that no component checklist file holds. */
 
 import { useTestEnvironment } from './TestbedEnv';
 useTestEnvironment();

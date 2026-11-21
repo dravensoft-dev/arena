@@ -36,7 +36,7 @@ The package needs no CSS toolchain. Every component's CSS ships compiled against
 
 ## What comes down with the Angular package?
 
-The required peers are `@angular/core`, `@angular/common` and `@angular/platform-browser`, which the project already has. `@angular/cdk` is required as well. A primitive that anchors a surface to a trigger uses its overlay, and `arena-tabs` uses its roving-focus key manager. The CDK supplies position only. The roles, the keys and the focus are Arena's own.
+The required peers are `@angular/core`, `@angular/common` and `@angular/platform-browser`, which the project already has. `@angular/cdk` is required as well. A primitive that anchors a surface to a trigger uses its overlay, and `arena-tabs` uses its roving-focus key manager. The CDK supplies the overlay pane on `document.body`, so an `overflow: hidden` ancestor does not clip it. The placement, the roles, the keys and the focus are Arena's own.
 
 `@angular/router` and `@angular/forms` are optional peers, which no manager installs for you. Add them when you reach `@dravensoft/arena-angular/metadata` or `@dravensoft/arena-angular/forms`. `@phosphor-icons/web` is no peer. The package declares `tslib` and the same three `dependencies` as the React package (`@phosphor-icons/core`, `harfbuzzjs` and `wawoff2`), which only the `arena` command reads, at build.
 

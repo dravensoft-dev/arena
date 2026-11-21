@@ -3,7 +3,7 @@
  * inert and a <button> when they are not, and no one selector spans both. A guard
  * asserts that shape before every read. Native Enter/Space activation of the
  * header button is the BROWSER's and is not asserted: happy-dom does not have it,
- * and a test for it would pass against a <div> just as well. ArenaCalendar.prompt.md
+ * and a test for it would pass against a <div> just as well. ArenaCalendar.checks.md
  * carries it as a by-hand check instead. */
 
 import { useTestEnvironment } from '../../../test/TestbedEnv';

@@ -1,7 +1,7 @@
 /* `minPointSpacing` is the member that lets a chart refuse to compress. The width it computes is
  * pure arithmetic and is asserted directly; what a suite cannot see is the scroll position, since
  * this render has no layout, so scrollWidth is zero and the anchor-to-the-right effect has
- * nothing to measure. That half is on the by-hand list in the prompt. */
+ * nothing to measure. That half is left to a real browser, and no checklist file holds it. */
 
 import test from 'node:test';
 import assert from 'node:assert/strict';

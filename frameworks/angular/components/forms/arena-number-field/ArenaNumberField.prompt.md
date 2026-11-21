@@ -1,4 +1,4 @@
-A field that holds one number. A person types it, steps it with a key or with the two stepper buttons, and reads it in the locale's format. `(valueChange)` carries a number and `(clear)` carries nothing. The stepper glyphs come from the sprite handed to `provideArenaIcons`. Controlled, the field draws an edit as soon as it is made and follows `value` whenever the host moves it. A host that refuses an edit by leaving `value` as it was is not seen, and the edit stays drawn.
+A field that holds one number. A person types it, steps it with a key or with the two stepper buttons, and reads it in the locale's format. `(valueChange)` carries a number and `(clear)` carries nothing. The stepper and state glyphs come from the sprite handed to `provideArenaIcons`. Controlled, the field draws an edit as soon as it is made and follows `value` whenever the host moves it. A host that refuses an edit by leaving `value` as it was is not seen, and the edit stays drawn.
 
 ```html
 <arena-number-field label="Replicas" [value]="replicas()" (valueChange)="replicas.set($event)" [min]="1" [max]="20" />

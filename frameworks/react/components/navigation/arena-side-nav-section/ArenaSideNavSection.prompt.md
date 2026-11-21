@@ -38,7 +38,7 @@ The heading reads `label`, in the mono uppercase micro-label treatment, and it i
 - **Do** put a section only where a group of destinations shares one name. A single loose
   `ArenaSideNavItem` at the root needs no section at all.
 - **Do** nest an `ArenaSideNavSection` inside another, or inside an `ArenaSideNavCollapsible`, when the
-  navigation tree is more than two levels deep. Depth is injected, not counted by hand.
+  navigation tree is more than two levels deep. Depth is injected, not counted.
 - **Don't** write a section with no children. A childless section is not a legal shape and throws. Allowing an empty one would give the component two shapes a single behaviour binding cannot describe.
 - **Don't** leave `label` blank. The label is required and guarded. A blank one leaves the group with no accessible name, which is the defect the guard exists to catch.
 - **Don't** wrap its children in a fragment or a component of your own. `ArenaSideNavSection` injects into the children it is handed, and `React.Children.toArray` does not see through a `<>...</>`. Write items as siblings or in an array. `ArenaSideNav` itself carries the same limit.

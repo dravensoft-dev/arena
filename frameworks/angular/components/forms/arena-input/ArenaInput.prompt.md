@@ -4,7 +4,7 @@ the column its parent lays out. The control is a real `<input>`, named by a real
 `<label for>`. The state icons come from the sprite handed to `provideArenaIcons`.
 
 ```ts
-readonly notEmpty = (v: string) => (/.+@.+\..+/.test(v) ? '' : 'Invalid email format');
+readonly validEmail = (v: string) => (/.+@.+\..+/.test(v) ? '' : 'Invalid email format');
 ```
 
 ```html
@@ -15,7 +15,7 @@ readonly notEmpty = (v: string) => (/.+@.+\..+/.test(v) ? '' : 'Invalid email fo
              [value]="repo()" (valueChange)="repo.set($event)" />
 
 <arena-input label="Contact email" type="email" [value]="email()" (valueChange)="email.set($event)"
-             [validate]="notEmpty" validateOn="change" />
+             [validate]="validEmail" validateOn="change" />
 
 <arena-input label="Slug" [value]="slug()" [error]="serverError()" (valueChange)="slug.set($event)" />
 <arena-input label="Created" type="date" [value]="created()" readOnly />

@@ -48,7 +48,7 @@ the whole item, not a key into the list -- so the handler switches on whatever
 field it finds useful, usually `label`. There is deliberately no `id`. `{ divider:true }` and `{ header:'Text' }` are legitimate entries carrying neither a label nor anything to identify. A required `id` would force a meaningless one onto every rule and every group heading. A `disabled` entry reports nothing,
 and a divider or a header cannot be activated at all.
 
-`icon` is a **Phosphor class-name string**, never markup: Arena draws the `<i>`
+`icon` is a **Phosphor class-name string**, never markup: Arena draws an `<svg>` of the sprite, hidden from assistive technology,
 and the caller names the glyph. What that costs is the general price of the single-icon convention. An entry carries no markup of a consumer's own, so a row with an avatar, a coloured dot or a two-line body has no expression here. `items` is required and throws when absent; an empty array is a caller
 saying "no entries right now" and renders.
 

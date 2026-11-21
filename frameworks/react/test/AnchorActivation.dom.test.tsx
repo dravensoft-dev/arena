@@ -5,7 +5,7 @@
  * they diverged once: the same command routed twice with the mouse and once with the
  * keyboard. Enter is asserted only where a component handles the key itself: on a real anchor
  * Enter is the platform's own synthesized click, which happy-dom does not synthesize, so that
- * half is the by-hand Chromium check each prompt carries. */
+ * half is a Chromium check that no component checklist file holds. */
 import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';

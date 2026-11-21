@@ -2,7 +2,7 @@
  * with no label, which the platform names a separator, and with a label the word as plain text
  * between two rules nobody hears. The host draws no box, so a vocabulary class written on it
  * reaches the rule through the custom properties it sets; how a vertical rule stretches is a
- * layout question a browser answers, and the prompt carries it as a by-hand check. */
+ * layout question a browser answers, and ArenaDivider.checks.md carries it as a by-hand check. */
 import { useTestEnvironment } from '../../../test/TestbedEnv';
 useTestEnvironment();
 

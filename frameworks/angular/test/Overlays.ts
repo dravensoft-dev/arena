@@ -8,7 +8,7 @@
  * free. Remove the panes; keep the container. disposeStrays sweeps what a fixture appended to the
  * body, and for the reason above it keeps the container. */
 
-const PANE_PARTS = '.cdk-overlay-pane, .cdk-overlay-connected-position-bounding-box, .cdk-overlay-backdrop';
+const PANE_PARTS = '.cdk-overlay-pane, .cdk-global-overlay-wrapper, .cdk-overlay-backdrop';
 
 export function overlayContainers(doc: Document = document): HTMLElement[] {
   return Array.from(doc.querySelectorAll<HTMLElement>('.cdk-overlay-container'));

@@ -2,7 +2,7 @@
  * with no label, which the platform names a separator, and with a label the word as plain text
  * between two rules nobody hears. The vertical rule is a class and changes no markup, so it is
  * asserted as a class passed through and nothing else; how it stretches is a layout question a
- * browser answers, and the prompt carries it as a by-hand check. */
+ * browser answers, and ArenaDivider.checks.md carries it as a by-hand check. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { renderToStaticMarkup } from 'react-dom/server';

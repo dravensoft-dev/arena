@@ -87,6 +87,8 @@ function slotClasses(manifest: ManifestClassSource) {
   return bySlot;
 }
 
+const AMBIENT_VARIANT = /^(?:(?:sm|md|lg|xl|2xl|dark|light|print|portrait|landscape|rtl|ltr|noscript|starting|forced-colors|not-forced-colors|inverted-colors|contrast-more|contrast-less|motion-safe|motion-reduce|(?:max|min)-[\w\[\]./-]+|supports-[\w\[\]:()-]+|not-supports-[\w\[\]:()-]+)|@[\w\[\]./-]+)$/;
+
 export function focusOutlineProblems(manifest: ManifestClassSource) {
   const problems = [];
   for (const [slot, classes] of slotClasses(manifest)) {
@@ -94,10 +96,11 @@ export function focusOutlineProblems(manifest: ManifestClassSource) {
       const parts = cls.replace(/!$/, '').split(/:(?![^[]*\])/);
       if (parts.pop() !== 'outline-none') continue;
       const focusVariants = parts.filter((variant) => FOCUS_VARIANT.test(variant));
-      if (parts.length && !focusVariants.length) continue;
-      const fix = parts.length ? [...parts, 'outline-hidden'].join(':') : 'focus-visible:outline-hidden';
+      const ambient = parts.length > 0 && parts.every((variant) => AMBIENT_VARIANT.test(variant));
+      if (parts.length && !focusVariants.length && !ambient) continue;
+      const fix = focusVariants.length ? [...parts, 'outline-hidden'].join(':') : [...parts, 'focus-visible:outline-hidden'].join(':');
       problems.push(
-        `${manifest.component}:${slot} writes \`${cls}\`${parts.length ? ' in a focus state' : ', which also applies when the slot is focused'}. `
+        `${manifest.component}:${slot} writes \`${cls}\`${focusVariants.length ? ' in a focus state' : ', which also applies when the slot is focused'}. `
         + `Forced-colours mode drops box-shadow and borders, and Tailwind 4's outline-none is outline-style: none, `
         + `so a ring or border drawn for focus shows no focus there: write \`${fix}\` (the slot's own focus variant), `
         + `a transparent outline the forced palette paints, and never a bare outline-hidden.`,

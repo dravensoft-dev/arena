@@ -1,7 +1,7 @@
 /* Three of the link's four details are assertable from the markup: the element, where it points
  * and the guard on its words. The fourth, that it is the first focusable thing in the document,
- * is the consumer's placement and no component suite can see it, so the prompt carries it as the
- * one instruction the component cannot follow for itself. Visibility is CSS and is checked in a
+ * is the consumer's placement and no component suite can see it, so the prompt states it as the
+ * one instruction the component cannot follow for itself, and ArenaSkipLink.checks.md checks it. Visibility is CSS and is checked in a
  * real browser instead, which is why nothing here reads a class. */
 import test from 'node:test';
 import assert from 'node:assert/strict';

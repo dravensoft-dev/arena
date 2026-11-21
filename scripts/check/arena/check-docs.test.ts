@@ -371,6 +371,16 @@ test('a prompt citing a demo page fails, a generated demo page being a build pro
   rmSync(root, { recursive: true });
 });
 
+test('a prompt citing a contributor checklist fails, the file shipping in no package', () => {
+  const root = tree({
+    'frameworks/react/components/a/A.prompt.md': 'The by-hand steps are in `A.checks.md`.\n',
+  });
+  const { problems } = consumerBranchProblems(root);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /A\.checks\.md.*ships in no package/);
+  rmSync(root, { recursive: true });
+});
+
 test('the rule reaches prompts alone, and a sibling of the component is not a contributor path', () => {
   const root = tree({
     'frameworks/react/AGENTS.md': 'Read `scripts/build/react/build-demos.ts` for the emit.\n',
@@ -434,7 +444,7 @@ test('the boundary reads two file names and a reason-carrying list, all by name'
   assert.equal(CONSUMER_INDEX, 'INDEX.md');
   assert.deepEqual(Object.keys(BRANCH_SWITCH), ['skills/design/SKILL.md']);
   for (const reason of Object.values(BRANCH_SWITCH)) assert.match(reason, /\w/);
-  assert.equal(CONTRIBUTOR_PATHS.length, 9);
+  assert.equal(CONTRIBUTOR_PATHS.length, 10);
   for (const [pattern, reason] of CONTRIBUTOR_PATHS as [RegExp, string][]) {
     assert.ok(pattern.global, 'a non-global pattern reports only the first hit on a page');
     assert.match(reason, /\w/);

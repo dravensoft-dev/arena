@@ -111,10 +111,9 @@ all carry one.
 **What a component inherits is not the browser's.** The layer's pages and its package carry the
 compiled utility sheet, which is both the utilities the manifests resolve to and the `@layer
 base` where `button, input, select, textarea { font: inherit }` lives. Without that base a form
-control fell back to 13.33px Arial with `line-height: normal`, so an `<i>` inside a `<button>`
-drew the same glyph at 13.33px where the other layer drew 16px, and a row whose height came
-from its label's line box stood 4px shorter per row. Neither showed up in a suite, because
-happy-dom has no layout.
+control falls back to 13.33px Arial with `line-height: normal`, so a label inside a `<button>`
+and any `em`-sized glyph shrink, and a row whose height comes from its label's line box stands
+shorter. Neither shows up in a suite, because happy-dom has no layout.
 
 **Nothing injects a `<style>` tag, and that is a claim rather than an accident.** Every
 keyframe animation is a utility in the compiled sheet this layer loads, carrying its own

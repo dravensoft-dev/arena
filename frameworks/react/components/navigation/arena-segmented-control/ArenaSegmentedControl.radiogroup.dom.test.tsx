@@ -3,7 +3,7 @@
  * keys and Space are the PLATFORM's and happy-dom implements none of them. What
  * is asserted is the structural precondition the browser needs -- one shared
  * name, exactly one checked, and no authored tabindex fighting the native stop --
- * and the behaviour itself is left to the by-hand check on the card page. */
+ * and the behaviour itself is left to a real browser, and no checklist file of this layer holds it. */
 import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';

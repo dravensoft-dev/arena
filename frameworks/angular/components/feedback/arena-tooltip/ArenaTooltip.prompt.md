@@ -2,8 +2,8 @@ Arena tooltip, a short label revealed on pointer intent, the page's ink as its g
 signal I/O. Wrap the element the tooltip describes; Arena draws the bubble and names it
 from `label`.
 
-The bubble is positioned by `@angular/cdk/overlay`, not by the wrapper, so it escapes an
-`overflow: hidden` ancestor and stays anchored while the page scrolls. Positioning is the one thing Arena does not hand-roll here. Focus and roles stay Arena's. The app must import
+The bubble sits in an `@angular/cdk/overlay` pane on `document.body`, not in the wrapper, so it escapes an
+`overflow: hidden` ancestor, and Arena places that pane against the anchor and re-places it while the page scrolls. Placement, focus and roles are Arena's. The app must import
 `frameworks/angular/theme/arena-cdk.css` once, or the bubble renders unpositioned.
 
 ```html

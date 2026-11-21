@@ -2,7 +2,8 @@
  * renders a trigger and a panel template the way a component does. The pane sits on the body, so
  * every query starts there. What is held here is the stack: Escape reaches the topmost panel alone
  * and stops there, a press inside a panel above is inside, and focus moves only where an option
- * asks it to. Placement is the CDK's, and check:anchoring measures it in a real browser. */
+ * asks it to. Placement is arenaPlacePanel's against the visual viewport, handed to the CDK's global position
+ * strategy as left and top; the cases at the end hold it, and check:anchoring measures it in a real browser. */
 import { useTestEnvironment } from './TestbedEnv';
 useTestEnvironment();
 
@@ -10,6 +11,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Component, ElementRef, TemplateRef, input, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { Directionality } from '@angular/cdk/bidi';
+import { Subject } from 'rxjs';
 import {
   ArenaAnchoredOverlay, arenaFirstFocusable, arenaScopeDress,
 } from '../AnchoredOverlay';
@@ -46,6 +49,7 @@ class Probe {
   readonly modal = input(false);
   readonly wide = input(false);
   anchorAnswers: number | null = null;
+  align: 'start' | 'end' = 'start';
   readonly seen: string[] = [];
   readonly anchorRef = viewChild.required<ElementRef<HTMLElement>>('anchor');
   readonly panelRef = viewChild.required<TemplateRef<unknown>>('panel');
@@ -58,7 +62,7 @@ class Probe {
     },
     trigger: () => probe.anchorRef().nativeElement.querySelector('button'),
     panel: () => probe.panelRef(),
-    placement: () => ({ align: 'start', prefer: 'below', offset: 6 }),
+    placement: () => ({ align: probe.align, prefer: 'below', offset: 6 }),
     onDismiss: (reason: ArenaPanelDismissal) => {
       probe.seen.push(`${probe.name()}:${reason}`);
       probe.overlay.close();
@@ -680,4 +684,54 @@ test('a scroll anywhere on the page re-places the pane', () => {
     fixture.destroy();
     disposeOverlays();
   }
+});
+
+function placedLeft(rtl: boolean, align: 'start' | 'end') {
+  if (rtl) {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [{ provide: Directionality, useValue: { value: 'rtl', change: new Subject() } }] });
+  }
+  const rect = Element.prototype.getBoundingClientRect;
+  const width = Object.getOwnPropertyDescriptor(document.documentElement, 'clientWidth');
+  const height = Object.getOwnPropertyDescriptor(document.documentElement, 'clientHeight');
+  Object.defineProperty(document.documentElement, 'clientWidth', { configurable: true, value: 1024 });
+  Object.defineProperty(document.documentElement, 'clientHeight', { configurable: true, value: 800 });
+  Element.prototype.getBoundingClientRect = function sized(this: Element) {
+    const isAnchor = this.hasAttribute('data-anchor');
+    const isPane = this.classList.contains('cdk-overlay-pane');
+    const left = isAnchor ? 300 : 0;
+    const wide = isAnchor ? 100 : isPane ? 60 : 0;
+    const tall = isAnchor ? 40 : isPane ? 120 : 0;
+    return { x: left, y: 100, left, top: 100, right: left + wide, bottom: 100 + tall, width: wide, height: tall, toJSON() { return this; } } as DOMRect;
+  };
+  const { fixture, solo } = renderSolo({ plain: true });
+  solo.anchorRef().nativeElement.setAttribute('data-anchor', '');
+  solo.align = align;
+  try {
+    solo.overlay.open();
+    fixture.detectChanges();
+    const pane = panelOf('solo')!.closest<HTMLElement>('.cdk-overlay-pane')!;
+    const host = pane.parentElement!;
+    return { marginLeft: pane.style.marginLeft, dir: host.getAttribute('dir'), justifyContent: host.style.justifyContent };
+  } finally {
+    Element.prototype.getBoundingClientRect = rect;
+    for (const [name, had] of [['clientHeight', height], ['clientWidth', width]] as const) {
+      if (had) Object.defineProperty(document.documentElement, name, had); else delete (document.documentElement as unknown as Record<string, unknown>)[name];
+    }
+    fixture.destroy();
+    disposeOverlays();
+  }
+}
+
+test('start and end are the physical left and right in a left-to-right page', () => {
+  assert.equal(placedLeft(false, 'start').marginLeft, '300px', 'start did not meet the anchor left edge');
+  assert.equal(placedLeft(false, 'end').marginLeft, '340px', 'end did not meet the anchor right edge');
+});
+
+test('start and end stay the physical left and right in a right-to-left page', () => {
+  const start = placedLeft(true, 'start');
+  assert.equal(start.marginLeft, '300px', 'start left the anchor left edge under dir rtl');
+  assert.equal(start.dir, 'rtl');
+  assert.equal(start.justifyContent, 'flex-end', 'the row did not run from the left under dir rtl');
+  assert.equal(placedLeft(true, 'end').marginLeft, '340px', 'end left the anchor right edge under dir rtl');
 });

@@ -579,7 +579,11 @@ repository does not have.
   in its own focus variant (`focus:outline-hidden`, `focus-visible:outline-hidden`), never a bare
   `outline-none` and never a bare `outline-hidden`: it removes the browser's ring over Arena's and
   keeps a transparent outline the forced palette paints, because forced colours drops the shadow,
-  the ring and the border; `check:tailwind` refuses `outline-none` on a slot. A field whose ring
+  the ring and the border. `check:tailwind` refuses a bare `outline-none`, one in a focus state, and
+  one under only ambient variants such as a breakpoint, `dark:` or `forced-colors:`. A slot inside a scroll or clip container
+  (NumberField `input` in its `overflow-hidden` field, Table `th` and `td` under the tabular
+  root, TreeView `item` and Calendar `cell` in a scrolling box) also takes `-outline-offset-2` in its focus variant, so
+  the 2px forced-colours outline sits inside the box and no edge is clipped; no pixel moves outside forced colours. A field whose ring
   sits on a wrapper still writes it on the focused element. And `shadow-*` writes `--tw-shadow`, REPLACING whatever that
   slot held, so a slot whose shadow already means something, the selected tab's underline,
   takes `ring-*`, which writes its own slot and composes. A manifest painting no ring is

@@ -4,7 +4,7 @@
  * asserts that shape before every read, so a moved strip fails here rather than
  * selecting nothing and passing. Native Enter/Space activation of the header
  * button is the BROWSER's and is not asserted: happy-dom does not have it, and a
- * test for it would pass against a <div> just as well. ArenaCalendar.prompt.md carries
+ * test for it would pass against a <div> just as well. ArenaCalendar.checks.md carries
  * it as a by-hand check instead. */
 import test, { after } from 'node:test';
 import assert from 'node:assert/strict';

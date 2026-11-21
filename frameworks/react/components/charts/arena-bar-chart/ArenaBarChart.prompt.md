@@ -65,7 +65,7 @@ Bars for comparing a value across categories. Dependency-free SVG: it reads `var
 
 **Don't**
 - Don't pass `tone` together with `colorId`/`colorIds` on one series. With `tone` the series takes the status colour and `colorId` and `colorIds` are not read.
-- Don't use status colors as series colors by hand. A series painted `--danger` reads as an error, and that is exactly the bug this API exists to prevent.
+- Don't pick status colors as series colors. A series painted `--danger` reads as an error, and that is exactly the bug this API exists to prevent.
 - Don't reach past eight categories, or past eight series. Nine bars in eight slots means two of them lie about being the same.
 - Don't add a second axis. Arena charts have one; a dual axis invents a correlation the data never claimed.
 - Use `valuePrefix` for a currency that goes in front, and `valueFormat` for the number itself: locale, fraction digits, grouping, compaction. Formatting before you pass them is not an option, because what you pass is `ArenaSeries[]` and the writing happens on labels Arena generates afterwards. With no `valueFormat` the raw JavaScript number is drawn, which is what a chart always did.

@@ -18,7 +18,7 @@ slideshow. Standalone, `OnPush`, signal I/O. The host **is** the scrolling regio
 |---|---|---|---|---|
 | `label*` | primitive | `string` |  | Names the row to assistive technology, and nothing else supplies it: a group announced as a group tells a reader that focus moved and nothing about where it landed. Required, and guarded at runtime after trimming, the shape ArenaTable.label carries for the same reason, since the value the guard exists to catch is a present and useless one. |
 | `content*` | slot |  |  | The items in the row, one per child. Nothing is wrapped: a child is laid out exactly as it was written. An ArenaScrollerItem is laid out at the width the scroller-item family names, and a bare child at its own. Required, and guarded at runtime: an empty row is a tab stop over nothing, which is the dead stop a component with a group role must not ship. |
-| `behaviour` | enum | `ArenaScrollerBehaviour` | `"snap"` | Whether the row settles on an item or wherever it was left. Snap by default, because a rail of equal-width cards left halfway across one is a card the reader has to finish scrolling by hand. Nothing moves on its own under either value, so neither answers prefers-reduced-motion and no pause control is owed. |
+| `behaviour` | enum | `ArenaScrollerBehaviour` | `"snap"` | Whether the row settles on an item or wherever it was left. Snap by default, because a rail of equal-width cards left halfway across one is a card the reader has to finish scrolling. Nothing moves on its own under either value, so neither answers prefers-reduced-motion and no pause control is owed. |
 
 <!-- @api end -->
 

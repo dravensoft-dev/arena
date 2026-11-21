@@ -2,7 +2,7 @@
  * on Space, and happy-dom implements neither, so a test pressing them would pass against a
  * broken group as well as a working one. What is asserted is the structural precondition (one
  * role="group" carrying the name, one shared form name, no tabindex Arena authored) and the
- * set the group reports, which is Arena's own arithmetic. The walk is a by-hand check. */
+ * set the group reports, which is Arena's own arithmetic. The walk is a by-hand check in ArenaCheckboxGroup.checks.md. */
 import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
