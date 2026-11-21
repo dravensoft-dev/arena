@@ -69,7 +69,7 @@ const DEAD = [
   { candidate: 'shadow-md', want: /^`shadow-md` emits nothing under Arena's theme, which clears the Tailwind default it names\. Write one of `shadow-1`, `shadow-2`, `shadow-3`/ },
   { candidate: 'ease-in', want: /`ease-out`, `ease-in-out`, `ease-emphatic`, `ease-hover`, `ease-state`$/ },
   { candidate: 'rounded-3xl', want: /`rounded-xs`.*, and 8 more in css\/tailwind-theme\.css$/ },
-  { candidate: 'text-gray-500', want: /Write one of `text-overlay-media`, `text-overlay-scrim`, `text-ink-heading`/ },
+  { candidate: 'text-gray-500', want: /Write one of `text-ink-/, not: /`text-overlay-/ },
   { candidate: 'font-sans', want: /`font-display`, `font-body`, `font-mono`/ },
   { candidate: 'max-w-lg', want: /Write one of `max-w-page`$/ },
   { candidate: 'hover:shadow-md', want: /^`hover:shadow-md` .*`shadow-1`/ },
@@ -88,6 +88,7 @@ test('a candidate is dead when it emits nothing under Arena and something under 
   for (const row of DEAD) {
     if (row.want === null) assert.ok(!got.has(row.candidate), `${row.candidate}: alive or dead under both`);
     else assert.match(got.get(row.candidate) ?? '', row.want, row.candidate);
+    if ('not' in row && row.not) assert.doesNotMatch(got.get(row.candidate) ?? '', row.not, `${row.candidate}: leads with no wash`);
   }
 });
 

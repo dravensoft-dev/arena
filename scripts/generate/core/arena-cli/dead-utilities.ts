@@ -19,6 +19,9 @@ type Pair = { ns: string; key: string; value: string };
 type Emitter = { emits(candidate: string): boolean; output(candidates: string[]): string };
 
 const SHOWN = 6;
+const CHANNELS: Record<string, string> = {
+  ink: 'color', fill: 'background-color', overlay: 'background-color', edge: 'border-color',
+};
 const FORMS = ['@theme', '@utility', '@custom-variant'];
 
 export function tailwindRoot(from: string) {
@@ -162,8 +165,10 @@ async function utilityAnswers(
     const props = found.flatMap(propertiesOf);
     return reads && (wanted.size === 0 || props.some((name) => wanted.has(name)));
   });
+  const leads = (pair: Pair) => wanted.has(CHANNELS[pair.key.split('-')[0] as string] ?? '');
   const ordered = [
-    ...keep.filter((pair) => roles.has(pair.key)),
+    ...keep.filter((pair) => roles.has(pair.key) && leads(pair)),
+    ...keep.filter((pair) => roles.has(pair.key) && !leads(pair)),
     ...keep.filter((pair) => !roles.has(pair.key)),
   ];
   return [...new Set(ordered.map((pair) => `${root}-${pair.key}`))];
