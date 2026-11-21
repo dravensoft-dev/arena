@@ -100,10 +100,11 @@ export const BREAKING: Record<string, { files: Record<string, string>; rules: st
         + '  <Link to="/x">\n'
         + '    <ArenaCard>c</ArenaCard>\n'
         + '  </Link>\n'
+        + '  <p className="text-ink-muted">c</p>\n'
         + '</div>);\n',
       'src/app.css': '.arena-button__label { color: #fff; }\n',
     },
-    rules: ['own-class', 'router-link', 'raw-value', 'icon-element', 'raw-glyph', 'emoji'],
+    rules: ['own-class', 'router-link', 'raw-value', 'icon-element', 'raw-glyph', 'emoji', 'missing-level'],
   },
   angular: {
     files: {
@@ -116,10 +117,11 @@ export const BREAKING: Record<string, { files: Record<string, string>; rules: st
         + '  routerLink="/x"\n'
         + '>\n'
         + '  <arena-card></arena-card>\n'
-        + '</a>\n',
+        + '</a>\n'
+        + '<p class="text-ink-muted">c</p>\n',
       'src/app.css': '.arena-card__body { color: #fff; padding: 16px; }\n',
     },
-    rules: ['own-class', 'router-link', 'raw-value', 'raw-glyph', 'emoji'],
+    rules: ['own-class', 'router-link', 'raw-value', 'raw-glyph', 'emoji', 'missing-level'],
   },
 };
 
