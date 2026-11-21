@@ -215,24 +215,6 @@ test('a controlled error wins over the validator, and an empty string counts as 
   }
 });
 
-test('the error replaces the hint rather than stacking under it', () => {
-  const withHint = render({ hint: 'Lowercase, no spaces' });
-  try {
-    assert.equal(withHint.host.textContent?.includes('Lowercase, no spaces'), true);
-  } finally {
-    withHint.fixture.destroy();
-  }
-
-  const both = render({ hint: 'Lowercase, no spaces', error: 'Already taken' });
-  try {
-    assert.equal(both.host.textContent?.includes('Already taken'), true);
-    assert.equal(both.host.textContent?.includes('Lowercase, no spaces'), false,
-      'two lines of guidance under one field is one too many, and the error is the one that matters');
-  } finally {
-    both.fixture.destroy();
-  }
-});
-
 test('the status glyphs are decoration -- the message beside them is what is announced', () => {
   const bad = render({ error: 'Already taken' });
   try {

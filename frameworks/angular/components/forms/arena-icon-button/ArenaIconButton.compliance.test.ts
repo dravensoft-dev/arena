@@ -162,6 +162,7 @@ test('no pressed member means no aria-pressed at all -- a plain button is not an
   try {
     assert.equal(control.getAttribute('aria-pressed'), null,
       'a control that is not a toggle announced itself as one that is off');
+    assert.equal(control.hasAttribute('data-arena-pressed'), false);
   } finally {
     fixture.destroy();
   }
@@ -171,6 +172,7 @@ test('pressed reflects both of its states, and the name never moves between them
   const on = render({ pressed: true });
   try {
     assert.equal(on.control.getAttribute('aria-pressed'), 'true');
+    assert.equal(on.control.hasAttribute('data-arena-pressed'), true);
     assert.equal(on.control.getAttribute('aria-label'), 'Delete project');
   } finally {
     on.fixture.destroy();
@@ -179,6 +181,7 @@ test('pressed reflects both of its states, and the name never moves between them
   const off = render({ pressed: false });
   try {
     assert.equal(off.control.getAttribute('aria-pressed'), 'false');
+    assert.equal(off.control.hasAttribute('data-arena-pressed'), false);
     assert.equal(off.control.getAttribute('aria-label'), 'Delete project',
       'a toggle that renames itself is announced as another control rather than the same one in another state');
   } finally {

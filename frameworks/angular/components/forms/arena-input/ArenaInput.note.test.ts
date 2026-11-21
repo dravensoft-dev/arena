@@ -44,9 +44,3 @@ test('a note takes the id the consumer gives, and a field with neither carries n
   } finally { bare.fixture.destroy(); }
 });
 
-test('a field with neither a hint nor an error carries no aria-describedby', () => {
-  const { fixture, control } = render({});
-  try {
-    assert.equal(control.hasAttribute('aria-describedby'), false);
-  } finally { fixture.destroy(); }
-});

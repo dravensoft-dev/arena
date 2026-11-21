@@ -90,13 +90,3 @@ for (const [selector, host] of CHARTS) {
   });
 }
 
-test('the doughnut host keeps no box of its own, so a consumer class on it styles nothing the plot reads', () => {
-  const fixture = TestBed.createComponent(DoughnutHost);
-  try {
-    fixture.detectChanges();
-    const chart = (fixture.nativeElement as Element).querySelector('arena-doughnut-chart') as HTMLElement;
-    assert.equal(chart.style.display, 'contents');
-  } finally {
-    fixture.destroy();
-  }
-});

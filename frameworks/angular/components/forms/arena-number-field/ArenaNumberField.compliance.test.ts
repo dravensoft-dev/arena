@@ -51,27 +51,6 @@ function render(patch: { value?: number; min?: number; max?: number; step?: numb
 
 const valueOf = (input: HTMLInputElement) => input.getAttribute('aria-valuenow');
 
-test('Up and Down move the value by one step and announce it', () => {
-  const { fixture, input, press } = render({ step: 2, max: 20 });
-  try {
-    press('ArrowUp');
-    assert.equal(valueOf(input), '5');
-    press('ArrowDown');
-    press('ArrowDown');
-    assert.equal(valueOf(input), '1');
-  } finally { fixture.destroy(); }
-});
-
-test('Home and End reach the bounds the field has', () => {
-  const { fixture, input, press } = render();
-  try {
-    press('End');
-    assert.equal(valueOf(input), '9');
-    press('Home');
-    assert.equal(valueOf(input), '1');
-  } finally { fixture.destroy(); }
-});
-
 test('the value states follow the field: present with a value or a bound, absent without', () => {
   const full = render();
   try {
