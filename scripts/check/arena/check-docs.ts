@@ -6,8 +6,8 @@
  * consumer's last stop and, through RULE_OWNERS, a rule off the branch that does not own it,
  * FOREIGN_CODE, which keeps another design system out of the examples a reader copies, and
  * the claim a consumer page makes about what SHIPS: how many components, and a GitHub address
- * for a link into this repository. SIZE_ALLOWANCE names the one document that outgrew the shared
- * limit, and a document falling back inside it fails. */
+ * for a link into this repository, and the wording a consumer page may not carry. SIZE_ALLOWANCE
+ * names the one document that outgrew the shared limit; falling back inside it fails. */
 
 import { readFileSync, existsSync } from 'node:fs';
 import { join, basename } from 'node:path';
@@ -42,11 +42,12 @@ export const PROSE_EXEMPT = {
 
 export const SIZE_ALLOWANCE = new Map<string, { limit: number; reason: string }>([
   ['scripts/check/arena/AGENTS.md', {
-    limit: 63_800,
+    limit: 64_000,
     reason: 'the domain table of the arena gates, one row per gate, where a row states the claim and the '
       + 'failure its gate exists for and the table cell cap keeps each row from becoming a page; the '
       + 'real-browser gates (target size, contained parts, text scale) carry the longest rows because the reason a '
-      + 'unit tier cannot answer them is part of what each one claims',
+      + 'unit tier cannot answer them is part of what each one claims, and the check-docs row, which names '
+      + 'every rule the branch boundary runs',
   }],
 ]);
 
@@ -179,9 +180,8 @@ export const CONTRIBUTOR_PATHS = [
     "a layer's own styling recipe, which is compiled away before a package ships"],
   [/\b[\w-]+\.manifest\.json\b/g,
     'a Tailwind manifest, which is a source of the compiled stylesheet rather than a file a consumer has'],
-  [/\b[\w-]+\.generated\b(?!\.html)/g,
-    'a build product, which a consumer reaches by importing the package rather than by name. '
-    + 'A generated demo page is the exception, being the one a by-hand check opens'],
+  [/\b[\w-]+\.generated\b/g,
+    'a build product, which a consumer reaches by importing the package rather than by name'],
 ];
 
 export const FOREIGN_CODE = [
@@ -228,6 +228,20 @@ export const RULE_OWNERS = [
     reason:
       'a gate. Nobody consuming a package has the repository that runs one, so citing it as the '
       + 'reason for an API decision explains nothing and names a thing the reader cannot look at.',
+  },
+  {
+    phrase: /\bninth form\b/i,
+    owner: CONTRIBUTOR_BRANCH,
+    reason:
+      "the API contract's own vocabulary: the form ordinal names a place in a rulebook, and a "
+      + 'consumer reads the member type from the prompt table instead.',
+  },
+  {
+    phrase: /\(H\d+\)/,
+    owner: CONTRIBUTOR_BRANCH,
+    reason:
+      'the number of a usability heuristic a component answers, a list the consumer branch hands '
+      + 'nobody, so the page states the behaviour instead.',
   },
 ];
 
@@ -435,6 +449,35 @@ export function consumerBranchProblems(root = ROOT) {
   return { problems, scanned: scanned.length };
 }
 
+export const CONSUMER_WORDING: [RegExp, string][] = [
+  [/\bbun run\b/gi, 'a Bun script invocation, which reads to a consumer as Arena\'s own runner; name the adopter\'s command in its npm and pnpm forms'],
+  [/\bhappy-dom\b/gi, 'the test DOM of this repository\'s suites, which no consumer runs'],
+  [/\bpre-redesign\b/gi, 'what Arena was rather than what it is, which a consumer cannot act on'],
+  [/\bexisting call sites?\b/gi, 'what Arena was rather than what it is, which a consumer cannot act on'],
+  [/\bexists to replace\b/gi, 'what Arena was rather than what it is, which a consumer cannot act on'],
+  [/\b(?:is|are) now\b(?! (?:on|in|at|focused|selected|open|checked|expanded|active)\b)/gi, 'what Arena was rather than what it is, which a consumer cannot act on'],
+  [/\bremoved members?\b/gi, 'what Arena was rather than what it is, which a consumer cannot act on'],
+];
+
+const HTML_COMMENT = /<!--[\s\S]*?-->/g;
+
+export function consumerWordingProblems(root = ROOT) {
+  const scanned = documents(root).filter((p) => isConsumerDocument(relPosix(root, p)));
+  const problems: string[] = [];
+  for (const path of scanned) {
+    const rel = relPosix(root, path);
+    const read = unfenced(readFileSync(path, 'utf8').replace(HTML_COMMENT, blankKeepingLines));
+    read.split('\n').forEach((text, at) => {
+      for (const [pattern, reason] of CONSUMER_WORDING) {
+        for (const hit of text.match(pattern) ?? []) {
+          problems.push(`${rel}:${at + 1}: says "${hit}", ${reason}`);
+        }
+      }
+    });
+  }
+  return { problems, scanned: scanned.length };
+}
+
 export const COMPONENT_COUNT_CLAIM = /\b(\d+) components\b/g;
 
 export function componentCountProblems(root = ROOT) {
@@ -609,10 +652,11 @@ function main() {
   const foreign = foreignCodeProblems();
   const counts = componentCountProblems();
   const cells = cellSizeProblems();
+  const wording = consumerWordingProblems();
   const problems = [
     ...empty, ...branchSwitchProblems(), ...sizes.problems, ...cells.problems, ...punctuation.problems,
     ...comments.problems, ...branch.problems, ...ruleOwnerProblems(), ...foreign.problems,
-    ...counts.problems, ...blobLinkProblems(), ...hueProblems(),
+    ...counts.problems, ...wording.problems, ...blobLinkProblems(), ...hueProblems(),
   ];
 
   if (problems.length > 0) {
@@ -626,8 +670,8 @@ function main() {
     + `${MAX_CELL_CHARS}, and clear of `
     + `banned punctuation; ${comments.scanned} hand-written source(s) hold to the comment rule; `
     + `${branch.scanned} consumer document(s) cite no contributor path, offer no foreign framework `
-    + `in a fenced example, and neither branch states one of the other's ${RULE_OWNERS.length} `
-    + `registered rules; ${counts.scanned} package page(s) count ${counts.shipped} components`,
+    + `in a fenced example, hold to the wording rules, and neither branch states one of the other's `
+    + `${RULE_OWNERS.length} registered rules; ${counts.scanned} package page(s) count ${counts.shipped} components`,
   );
 }
 
