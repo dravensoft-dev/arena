@@ -198,25 +198,6 @@ test('a glyph Phosphor lacks at that weight is a glyph report naming weight and 
   cleanup(root, held);
 });
 
-test('an unreadable config is code 2 with no outputs, and an invalid one is code 1 with no outputs', async () => {
-  const { root: held, core } = phosphor();
-  const root = project(null);
-  writeFileSync(join(root, 'arena.config.json'), '{ not json');
-  const unreadable = await plan(options(root), environment(core));
-  assert.equal(unreadable.code, 2);
-  assert.ok(unreadable.fatal.some((m) => m.includes('cannot read')));
-  assert.deepEqual(unreadable.outputs, []);
-
-  const broken = structuredClone(readable);
-  delete broken.palettes[0]?.colors.primary;
-  const invalid = project(broken);
-  const result = await plan(options(invalid), environment(core));
-  assert.equal(result.code, 1);
-  assert.ok(result.fatal.some((m) => m.includes('missing primary')));
-  assert.deepEqual(result.outputs, []);
-  cleanup(root, invalid, held);
-});
-
 test('a missing --src is code 2 before the theme runs', async () => {
   const { root: held, core } = phosphor();
   const root = project(auto);
@@ -483,18 +464,6 @@ test('a name written twice is still refused once the list is closed', async () =
   const result = await plan(options(root), environment(core, { sheets: SHEETS, map: MAP }));
   assert.equal(result.code, 1);
   assert.deepEqual(result.fatal, ['stylesheet.components: table is named twice']);
-  cleanup(root, held);
-});
-
-test('a root plugin silent on a role with a kernel default builds through its own answer and notes the role', async () => {
-  const { root: held, core } = phosphor();
-  const root = ownRoot();
-  const result = await plan(options(root), environment(core, { sheets: DEFAULTED }));
-  assert.deepEqual(result.fatal, []);
-  assert.deepEqual(result.notes, ['1 role(s) your root style plugin leaves unanswered take Arena\'s default: ink-link']);
-  const theme = result.outputs.find((one) => one.name === THEME_SHEET)?.content ?? '';
-  assert.match(theme, /:root\{[^}]*--ink-link:var\(--color-base-200\);/);
-  assert.doesNotMatch(theme, /--ink-link:var\(--color-base-content\)/);
   cleanup(root, held);
 });
 

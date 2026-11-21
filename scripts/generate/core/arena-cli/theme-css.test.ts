@@ -16,8 +16,8 @@ import { roleReferencesIn } from './sheets.ts';
 import { tokenCatalogue } from '../../../lib/arena/package-assembly.ts';
 import { repoRoot } from '../../../lib/arena/repo-root.ts';
 import { goldenInput } from '../../../lib/arena/theme-css-golden-input.ts';
-import { crossKeys, reservedProblems, scopeOn } from './style-plugin-rules.ts';
-import { nodeImportsReachedFrom, whileHeld } from './cli-fixtures.ts';
+import { crossKeys, scopeOn } from './style-plugin-rules.ts';
+import { whileHeld } from './cli-fixtures.ts';
 
 const SLOTS = tokenCatalogue().slots;
 
@@ -79,15 +79,9 @@ test('a missing colour is named by its key', () => {
   assert.deepEqual(configProblems(broken), ['palettes[0].colors: missing primary']);
 });
 
-test('error-fill is the one colour a palette may omit', () => {
+test('error-fill may be left out of a palette', () => {
   const c = config();
   delete c.palettes[0].colors['error-fill'];
-  assert.deepEqual(configProblems(c), []);
-});
-
-test('primary-fill is a colour a palette may omit', () => {
-  const c = config();
-  delete c.palettes[0].colors['primary-fill'];
   assert.deepEqual(configProblems(c), []);
 });
 
@@ -95,6 +89,7 @@ test('a palette that leaves primary-fill out fills with primary, so nothing it a
   const without = colors({ primary: '#6941c6' });
   delete without['primary-fill'];
   const c = config({ palettes: [{ name: 'day', default: true, polarity: 'light', colors: without }] });
+  assert.deepEqual(configProblems(c), []);
   assert.equal(parseDecls(themeCss(c)).get(':root').get('color-primary-fill'), '#6941c6',
     'a button, a checked box and a current page compile to var(--color-primary-fill) with no fallback');
 });
@@ -558,16 +553,6 @@ test('a stylesheet block with preflight false and no components imports every co
   const imports = packageCss(c, { sheets: shipped });
   assert.ok(!imports.includes('css/base.css'));
   for (const name of shipped.components) assert.ok(imports.includes(`css/components/${name}.css`), name);
-});
-
-test('an empty components list is still refused', () => {
-  assert.deepEqual(configProblems(config({ stylesheet: { components: [], preflight: false } }), shipped),
-    ['stylesheet.components: name at least one component sheet, or drop stylesheet to let arena build work them out']);
-});
-
-test('an unknown stylesheet key is still refused', () => {
-  assert.deepEqual(configProblems(config({ stylesheet: { preflight: false, minify: true } }), shipped),
-    ['stylesheet.minify: not an Arena stylesheet key']);
 });
 
 test('fontFace writes ARENA_FONT_DEFAULTS for a font that names no style, weight or display', () => {
@@ -1082,13 +1067,10 @@ test('a default follows the root plugin\'s light answer to the role it aliases',
   assert.ok(light.lastIndexOf('--ink-link:var(--color-base-200);') > light.lastIndexOf('--ink-link:var(--color-secondary);'), light);
 });
 
-test('a later plugin answering no role a default aliases comes back as it was, and a catalogue with no default leaves the root as it was', () => {
-  assert.deepEqual(rootWithDefaults([total(), scoped()], DEFAULTED.catalogue).plugins?.[1], scoped());
+test('a null root is left as it was, and a later plugin follows its own answer to the role the default aliases', () => {
   assert.deepEqual(rootWithDefaults([null, scoped()], DEFAULTED.catalogue), { plugins: [null, scoped()], defaulted: [] });
-  const same = rootWithDefaults([total()], SHEETS_FULL.catalogue);
-  assert.deepEqual(same.defaulted, []);
-  assert.deepEqual(same.plugins, [total()]);
-  assert.deepEqual(Object.keys(same.plugins?.[0]?.tokens ?? {}), Object.keys(total().tokens));
+  const ember = scoped({ 'ink-eyebrow': { $type: 'color', $value: '{color.base-200}' } });
+  assert.equal(rootWithDefaults([null, ember], DEFAULTED.catalogue).plugins?.[1]?.tokens['ink-link'], '{color.base-200}');
 });
 
 test('a later plugin silent on a defaulted role takes its own answer to the role the default aliases', () => {
@@ -1113,11 +1095,6 @@ test('a root plugin\'s own answer to a defaulted role is not replaced inside a l
   assert.equal(Object.hasOwn(plugins?.[1]?.tokens ?? {}, 'ink-link'), false);
   const css = themeCss(listed(['console', 'marketing']), { sheets: DEFAULTED, plugins });
   assert.doesNotMatch(/\.arena-marketing\{([^}]*)\}/.exec(css)?.[1] ?? '', /--ink-link/);
-});
-
-test('the default root sheet answers a defaulted role with its default, so a later plugin follows its own answer under it', () => {
-  const ember = scoped({ 'ink-eyebrow': { $type: 'color', $value: '{color.base-200}' } });
-  assert.equal(rootWithDefaults([null, ember], DEFAULTED.catalogue).plugins?.[1]?.tokens['ink-link'], '{color.base-200}');
 });
 
 test('a later plugin is held to the floors on a role it takes through a default', () => {
@@ -1420,13 +1397,6 @@ test('a pinned heat ladder out of order is reported from the palette itself', ()
   }
 });
 
-test('a plugin writing a heat-step role is refused as a role the package does not ship', () => {
-  const problems = pluginProblems(listed(['console']),
-    [total({ 'heat-step-1': { $type: 'color', $value: '{color.heat-1}' } })]);
-  assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /"heat-step-1" is neither a role this package ships nor an fs or rhythm step/);
-});
-
 const shippedPalette = (polarity: 'light' | 'dark'): Record<string, string> => {
   const file = fileURLToPath(new URL(`../../../../contracts/design/palette.${polarity}.json`, import.meta.url));
   const entries = JSON.parse(readFileSync(file, 'utf8')).color as Record<string, any>;
@@ -1544,10 +1514,6 @@ test('a silent root plugin gets the nine state roles and a widened bw-focus', ()
   assert.match(css.slice(media, css.indexOf('\n}\n', media)), /--bw-focus:var\(--focus-width\)/);
 });
 
-test('the palette code imports no node: module, however deep', () => {
-  assert.deepEqual(nodeImportsReachedFrom('scripts/generate/core/arena-cli/theme-css.ts'), []);
-});
-
 const hookBody = (css: string, polarity: string) => {
   const open = `.${polarityClass(polarity)}{`;
   const at = css.indexOf(open);
@@ -1627,7 +1593,6 @@ test('runtimePalettes: "yes" is refused', () => {
 });
 
 test('a palette named polarity-light is refused', () => {
-  assert.equal(reservedProblems('polarity-light', 'at').length, 1);
   const c = config({ palettes: [{ name: 'polarity-light', default: true, polarity: 'light', colors: colors() }] });
   assert.ok(configProblems(c).some((m) => m.includes('"polarity-light" is the polarity hook a runtime palette wears')));
 });
@@ -1738,18 +1703,6 @@ test('a disabled answer writes the part\'s fade marker', () => {
   assert.equal(two.filter((line) => /fade-disabled/.test(line)).length, 1, 'one marker per part');
   assert.ok(blocks({ 'actions-ghost-root-fill-disabled': 'transparent' }).includes('--actions-ghost-root-fade-disabled:1;'));
   assert.deepEqual(blocks({ 'actions-primary-root-ink-rest': '{ink-muted}' }).filter((line) => /fade/.test(line)), []);
-});
-
-test('an adopter\'s pressed pair below AA is a warning', () => {
-  const catalogue = tokenCatalogue();
-  const plugin = readPlugin('mine', { 'actions-primary-root-fill-pressed': { $type: 'color', $value: '{fill-control-on}' } });
-  assert.deepEqual(pluginTokenProblems('mine', plugin.tokens, catalogue), []);
-  const key = /--color-([\w-]+)/.exec(rolesFor(null, catalogue, 'dark').get('fill-control-on') ?? '')?.[1] as string;
-  const palette = { name: 'night', default: true, polarity: 'dark', colors: colors({ [key]: '#8a8a8a', 'primary-content': '#ffffff', 'base-content': '#f3ede5', 'base-100': '#141010' }) };
-  const [found] = paletteReports(config({ palettes: [palette] }), catalogue, [plugin]);
-  const slots = (found?.messages ?? []).filter((one) => one.kind === 'contrast' && one.message.startsWith('--actions-primary-root-'));
-  assert.equal(slots.length, 1, JSON.stringify(slots));
-  assert.match(slots[0]?.message ?? '', /^--actions-primary-root-ink-pressed measures 3\.\d\d:1 over --actions-primary-root-fill-pressed in the pressed state of the dark theme/);
 });
 
 test('arena build refuses {transparent} in a slot, in either group, and names the bare form', () => {

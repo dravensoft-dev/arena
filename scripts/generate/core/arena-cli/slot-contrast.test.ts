@@ -533,16 +533,9 @@ test('a member that names its ground part is measured over that part\'s fill in 
     [{ slot: 'text-heading-ink-rest', over: 'fields-soft-banner-fill-rest', min: 4.5 }], 'a ground part fill that resolves to no colour is named, never dropped');
 });
 
-test('ArenaAlert\'s title and message clear their floors over every banner in the default', () => {
+test('the shipped member grounds clear their floors in the default', () => {
   assert.equal(CATALOGUE.slots.members?.['ArenaAlert.title']?.groundPart, 'root');
   assert.equal(CATALOGUE.slots.members?.['ArenaAlert.message']?.groundPart, 'root');
-  for (const theme of ['dark', 'light'] as const) {
-    const lines = slotReports(CATALOGUE.slots, new Map(), rolesFor(null, CATALOGUE, theme), coloursOf(theme), theme, LEVELS).map((one) => one.message);
-    assert.deepEqual(lines.filter((line) => /as ArenaAlert\.(title|message) paints it over /.test(line)), [], theme);
-  }
-});
-
-test('the shipped member grounds clear their floors in the default', () => {
   for (const theme of ['dark', 'light'] as const) {
     const lines = slotReports(CATALOGUE.slots, new Map(), rolesFor(null, CATALOGUE, theme), coloursOf(theme), theme, LEVELS).map((one) => one.message);
     assert.deepEqual(lines.filter((line) => / as Arena[A-Za-z]+\.[a-z]+ paints it over /.test(line)), [], theme);

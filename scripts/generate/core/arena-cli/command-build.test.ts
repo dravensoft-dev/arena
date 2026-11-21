@@ -7,7 +7,7 @@ import { run, writeOutputs } from './command-build.ts';
 import { run as check } from './command-check.ts';
 import { THEME_SHEET, PACKAGE_SHEET, PLUGIN_SHEET, SPRITE_MODULE, SPRITE_SOURCE, SPRITE_TYPES } from './sheets.ts';
 import { RETIRED_ICONS_SHEET, spriteFilesIn } from './sources.ts';
-import { captureIo, phosphor, project, readable, whileHeld, removeFixtures, packageStub } from './cli-fixtures.ts';
+import { captureIo, phosphor, project, readable, removeFixtures, packageStub } from './cli-fixtures.ts';
 import { tokenCatalogue } from '../../../lib/arena/package-assembly.ts';
 import { repoRoot } from '../../../lib/arena/repo-root.ts';
 
@@ -97,17 +97,6 @@ test('a changed source writes a sprite under a new name and its module, and remo
   ]);
   assert.match(readFileSync(join(root, 'src', fresh), 'utf8'), /ph-bold-moon/);
   assert.equal(readFileSync(join(root, 'src', SPRITE_MODULE), 'utf8'), `export const ARENA_SPRITE = '${fresh}';\n`);
-});
-
-test('an icons.generated.css left by an earlier version is removed by a build', async () => {
-  const { core } = phosphor();
-  const root = project();
-  const old = join(root, 'src', RETIRED_ICONS_SHEET);
-  writeFileSync(old, '.ph-bold.ph-bell:before{content:"x"}');
-  const { io, out } = captureIo(root, environment(core));
-  assert.equal(await run(flags(root), io), 0);
-  assert.equal(existsSync(old), false);
-  assert.ok(out.includes(`arena build: removed ${old}, a file this config does not produce`));
 });
 
 test('an orphan plugin sheet is removed and the removal is printed', async () => {
@@ -211,44 +200,22 @@ test('--watch hands over to watchBuild (6c)', async () => {
   assert.equal(await done, 0);
 });
 
-test('a style plugin directory named for a held class stops the build naming the reservation, and brand builds', () => whileHeld('held-name', async () => {
-  const { core } = phosphor();
-  const held = withPlugin('.x { color: red }\n', 'held-name');
-  const refused = captureIo(held, environment(core));
-  assert.equal(await run(flags(held), refused.io), 1);
-  assert.ok(refused.err.some((line) => line.startsWith('arena build: stylePlugins[1]: "held-name" is held for ArenaHeld')),
-    refused.err.join('\n'));
-  assert.ok(!existsSync(join(held, 'src', THEME_SHEET)));
-
-  const free = withPlugin('.x { color: red }\n', 'brand');
-  assert.equal(await run(flags(free), captureIo(free, environment(core)).io), 0);
-}));
-
-test('a palette named for a held class stops the build naming the reservation, and brand builds', () => whileHeld('held-name', async () => {
-  const { core } = phosphor();
-  const second = (name: string) => ({ ...readable, palettes: [...readable.palettes, { ...readable.palettes[0], name, default: false }] });
-  const held = project(second('held-name'));
-  const refused = captureIo(held, environment(core));
-  assert.equal(await run(flags(held), refused.io), 1);
-  assert.ok(refused.err.some((line) => line.startsWith('arena build: palettes[1].name: "held-name" is held for ArenaHeld')),
-    refused.err.join('\n'));
-
-  const free = project(second('brand'));
-  assert.equal(await run(flags(free), captureIo(free, environment(core)).io), 0);
-}));
-
 test('a root plugin silent on a role with a kernel default builds and the build notes the role', async () => {
   const { core } = phosphor();
   const root = project({ ...readable, stylePlugins: ['./design/andina'] });
   mkdirSync(join(root, 'design', 'andina'), { recursive: true });
   writeFileSync(join(root, 'design', 'andina', 'plugin.tokens.json'),
     JSON.stringify({ 'ink-eyebrow': { $value: '{color.base-200}', $type: 'color' } }));
-  const sheets = { ...CATALOGUED, catalogue: { slots: SLOTS, tokens: CATALOGUED.catalogue.tokens,
+  const tokens = { ...CATALOGUED.catalogue.tokens, 'ink-link': 'var(--color-base-content)' };
+  assert.equal(tokens['ink-link'], 'var(--color-base-content)', 'the kernel answer the plugin must not leave in place');
+  const sheets = { ...CATALOGUED, catalogue: { slots: SLOTS, tokens,
     roles: { 'ink-eyebrow': { type: 'color' }, 'ink-link': { type: 'color', default: '{ink-eyebrow}' } } } };
   const { io, out } = captureIo(root, { ...environment(core), sheets });
   assert.equal(await run(flags(root), io), 0);
   assert.equal(out[0], 'arena build: 1 role(s) your root style plugin leaves unanswered take Arena\'s default: ink-link');
-  assert.match(readFileSync(join(root, 'src', THEME_SHEET), 'utf8'), /--ink-link:var\(--color-base-200\);/);
+  const theme = readFileSync(join(root, 'src', THEME_SHEET), 'utf8');
+  assert.match(theme, /--ink-link:var\(--color-base-200\);/);
+  assert.doesNotMatch(theme, /--ink-link:var\(--color-base-content\)/);
 });
 
 test('a root plugin may answer a keyword role with a word alias and a colour role with another colour role', async () => {

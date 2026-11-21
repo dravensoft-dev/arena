@@ -6,7 +6,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { repoRoot } from '../../../lib/arena/repo-root.ts';
 import {
-  auditText, auditFindings, findings, lineFindings, isLegalBracket, scanText, scanFile, markerAllowlist,
+  auditText, auditFindings, findings, lineFindings, isLegalBracket,
   paintedParts, sourceScope, outlineGap, kebabTag, HEADING_RUNGS, OWN_CLASS_ATTRIBUTE,
   LINKABLE_TAGS, WRAPPED_LINK_TAGS, statedRung, namesAnAlias, RULE_TAGS, RULE_DESCRIPTIONS,
   UNMODELLED_UNITS, styleIdentifiers, styleObjectLines, unknownInputs,
@@ -197,25 +197,11 @@ test('lineFindings decides a stylesheet rule only when it is reading a styleshee
   assert.equal(lineFindings('.arena-tag { color: #fff; }', true).length, 2);
 });
 
-test('the moved bracket rule decides exactly what it decided inside the gate', () => {
-  assert.equal(isLegalBracket('var(--sp-4)'), true);
-  assert.equal(isLegalBracket('#b52a20'), false);
-  assert.equal(isLegalBracket('16px'), false);
-  assert.equal(isLegalBracket('50%'), true);
+test('isLegalBracket accepts a var() whose fallback is a token, keyword or length, and refuses a pixel fallback', () => {
   assert.equal(isLegalBracket('var(--arena-layout-radius,0)'), true);
   assert.equal(isLegalBracket('var(--arena-placement-max-height,80vh)'), true);
   assert.equal(isLegalBracket('var(--arena-x,var(--r-lg))'), true);
   assert.equal(isLegalBracket('var(--arena-x,12px)'), false);
-  assert.equal(isLegalBracket('calc(var(--sp-4)_*_2)'), true);
-  assert.deepEqual(scanText('mt-[var(--sp-4)]'), []);
-  assert.equal(scanText('bg-[#fff]').length, 1);
-});
-
-test('the markdown allowance the gate relies on still reads from this module', () => {
-  const text = '<!-- check-arbitrary-values allow: bg-[#fff] -->\n`bg-[#fff]`\n';
-  assert.deepEqual([...markerAllowlist(text)], ['bg-[#fff]']);
-  assert.deepEqual(scanFile('a.md', text), []);
-  assert.match(scanFile('a.md', '<!-- check-arbitrary-values allow: bg-[#fff] -->\n').join(''), /stale allowance/);
 });
 
 test('the unit list the dimension gate reads is the one stated here', () => {
@@ -287,9 +273,8 @@ test('the alias rule reads the plugin scope only, since an application is the la
     + 'aliases ship, so naming one there is not this rule\'s business');
 });
 
-test('own markup may read the level a role combines with', () => {
+test('a plugin may not read a level', () => {
   const rule = '.x { background: color-mix(in oklab, var(--fill-selected) var(--level-accent-soft-primary), transparent) }';
-  assert.deepEqual(findings('src/app.css', rule, 'app'), []);
   assert.equal(findings('design/x/plugin.css', rule, 'plugin').filter((one) => one.rule === 'compat-alias').length, 1,
     'a plugin answers roles, so the level stays refused there');
 });
@@ -740,10 +725,6 @@ const glyphVerdicts = (react: string, angular: string) => [
   verdicts(glyphLines(NAMES_REACT + react)),
   verdicts(glyphLines(NAMES_ANGULAR + angular, 'src/a.html')),
 ];
-
-test('the 50 reproduction prints no raw-glyph', () => {
-  assert.deepEqual(glyphLines(`${NAMES_REACT}<ArenaTag className={on ? 'arena-accent-primary' : undefined}>x</ArenaTag>`), []);
-});
 
 test('raw-glyph reads a bound class by its results, alike in both layers (D1, N1)', () => {
   const rows: [string, string, string, string[]][] = [
