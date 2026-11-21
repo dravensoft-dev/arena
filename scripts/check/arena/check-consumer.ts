@@ -31,6 +31,7 @@ import { RETIRED_ICONS_SHEET, spriteFilesIn } from '../../generate/core/arena-cl
 import { DEFAULT_PLUGIN, PLUGIN_TOKENS, pluginName } from '../../generate/core/arena-cli/theme-css.ts';
 import { ROOT_PLUGIN } from '../core/check-style-plugin.ts';
 import { RULE_TAGS } from '../../generate/core/arena-cli/audit.ts';
+import { NOT_READ, NO_TAILWIND } from '../../generate/core/arena-cli/dead-utilities.ts';
 import { captured } from '../../utils/captures.ts';
 import { parseDecls } from '../../lib/arena/css-decls.ts';
 import { browserOrExit, launchChromium } from '../../lib/arena/chromium.ts';
@@ -655,7 +656,7 @@ export function withTailwind(dir: string, base = root) {
 }
 
 export function deadNoteProblems(layer: string, run: CliRun) {
-  const notes = run.stdout.split('\n').filter((line) => line.includes('dead-utility not read: no tailwindcss resolves'));
+  const notes = run.stdout.split('\n').filter((line) => line.includes(`${NOT_READ}${NO_TAILWIND}`));
   return notes.length === 1
     ? []
     : [`${layer}: arena audit printed ${notes.length} notes that no tailwindcss resolves from a project without it, `

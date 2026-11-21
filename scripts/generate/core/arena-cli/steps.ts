@@ -9,7 +9,7 @@ import { toPosix } from './posix.ts';
 import { auditFindings, classCandidates, NO_DEAD, levelledRoles, paintedParts, sourceScope, withoutComments, ALLOW_MARKER, PAINTED_PART, group } from './audit.ts';
 import { knownParts, nearestName, unknownPart } from './names.ts';
 import type { DeadUtilities, VocabularyIndex } from './audit.ts';
-import { TAILWIND_THEME, deadUtilities, loadTailwind, ownThemeBlocks } from './dead-utilities.ts';
+import { NOT_READ, TAILWIND_THEME, deadUtilities, loadTailwind, ownThemeBlocks } from './dead-utilities.ts';
 import { markerProblems } from './markers.ts';
 import { restatedFindings, sheetFor } from './restated.ts';
 import { report } from './reports.ts';
@@ -134,15 +134,15 @@ export async function deadUtilityStep(
   if (candidates.length === 0) return { dead: NO_DEAD, note: null };
   const sheet = arena ? join(arena, 'css', TAILWIND_THEME) : null;
   if (!sheet || !existsSync(sheet)) {
-    return { dead: NO_DEAD, note: 'dead-utility not read: the package ships no css/tailwind-theme.css to compile against' };
+    return { dead: NO_DEAD, note: `${NOT_READ}the package ships no css/tailwind-theme.css to compile against` };
   }
   const tw = await loadTailwind(tailwind);
-  if ('skip' in tw) return { dead: NO_DEAD, note: `dead-utility not read: ${tw.skip}` };
+  if ('skip' in tw) return { dead: NO_DEAD, note: `${NOT_READ}${tw.skip}` };
   try {
     return { dead: await deadUtilities(candidates, { arena: readFileSync(sheet, 'utf8'), own }, tw, roles), note: null };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    return { dead: NO_DEAD, note: 'dead-utility not read: tailwindcss could not compile Arena\'s theme with your own '
+    return { dead: NO_DEAD, note: `${NOT_READ}tailwindcss could not compile Arena's theme with your own `
       + `@theme, @utility and @custom-variant blocks (${message})` };
   }
 }

@@ -12,6 +12,8 @@ import { packageRoot } from './package-root.ts';
 import { parseBlocks, type CssBlock } from './css-blocks.ts';
 
 export const TAILWIND_THEME = 'tailwind-theme.css';
+export const NOT_READ = 'dead-utility not read: ';
+export const NO_TAILWIND = 'no tailwindcss resolves from this project, so a utility that emits nothing under Arena\'s theme is not reported';
 
 export type Compile = (css: string) => Promise<{ build(candidates: string[]): string }>;
 export type Tailwind = { compile: Compile; version: string; stock: string };
@@ -37,7 +39,7 @@ function entryFile(entry: Entry): string | undefined {
 
 export async function loadTailwind(root: string | null): Promise<Tailwind | { skip: string }> {
   if (root === null) {
-    return { skip: 'no tailwindcss resolves from this project, so a utility that emits nothing under Arena\'s theme is not reported' };
+    return { skip: NO_TAILWIND };
   }
   const resolved = 'the tailwindcss this project resolves';
   let manifest: { version?: string; exports?: Record<string, Entry> };

@@ -10,11 +10,12 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSyn
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { NOT_READ, NO_TAILWIND } from '../../generate/core/arena-cli/dead-utilities.ts';
 import { CLI_BINS } from '../../lib/arena/package-assembly.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import {
   importedSheets, packageSheetProblems, REGULAR_SYMBOL, unknownSymbolProblems, listProblems, closedListProblems, spriteProblems, documented, CONFIG_REFERENCE,
-  palettesProblems, defaultListProblems, fontCutProblems, runtimeProblems, installedPalette, SOURCES, UNKNOWN, NAV_SYMBOL, GLYPH_SYMBOL, THIRD_PALETTE, CLI, snapshot, treeChanges, exitProblem, binProblems, unplacedProblems, PROVIDER, deadNoteProblems,
+  palettesProblems, defaultListProblems, fontCutProblems, runtimeProblems, installedPalette, SOURCES, UNKNOWN, NAV_SYMBOL, GLYPH_SYMBOL, THIRD_PALETTE, CLI, snapshot, treeChanges, exitProblem, binProblems, unplacedProblems, PROVIDER, deadNoteProblems, withTailwind,
 } from './check-consumer.ts';
 import type { CliRun, Shipped } from './check-consumer.ts';
 
@@ -463,7 +464,7 @@ test('a provider the run reports as a component it does not ship is a problem, a
   assert.equal(unplacedProblems('react', ok, 'ArenaWidget').length, 1, 'silence about a typo is still a problem');
 });
 
-const NOTE = 'dead-utility not read: no tailwindcss resolves from this project, so a utility that emits nothing under Arena\'s theme is not reported';
+const NOTE = `${NOT_READ}${NO_TAILWIND}`;
 
 const NOTE_ROWS: { name: string; stdout: string; want: number }[] = [
   { name: 'one note line', stdout: `arena audit: ${NOTE}\narena audit: audited 2 file(s)\n`, want: 0 },
@@ -476,5 +477,30 @@ test('a project without tailwindcss is told once that dead utilities were not re
     const problems = deadNoteProblems('react', { ...ok, stdout: row.stdout });
     assert.equal(problems.length, row.want, `${row.name}: ${JSON.stringify(problems)}`);
     for (const one of problems) assert.ok(one.startsWith('react:'), `${row.name}: ${one}`);
+  }
+});
+
+const LINKS = [
+  { name: 'absent', present: false },
+  { name: 'present', present: true },
+];
+
+test('withTailwind links the compiler into a project once and leaves one already there', () => {
+  for (const row of LINKS) {
+    const base = mkdtempSync(join(tmpdir(), 'with-tw-base-'));
+    const dir = mkdtempSync(join(tmpdir(), 'with-tw-dir-'));
+    try {
+      mkdirSync(join(base, 'node_modules', 'tailwindcss'), { recursive: true });
+      writeFileSync(join(base, 'node_modules', 'tailwindcss', 'marker.txt'), 'linked');
+      if (row.present) {
+        mkdirSync(join(dir, 'node_modules', 'tailwindcss'), { recursive: true });
+        writeFileSync(join(dir, 'node_modules', 'tailwindcss', 'marker.txt'), 'own');
+      }
+      assert.equal(withTailwind(dir, base), dir, `${row.name}: returns the project`);
+      assert.equal(readFileSync(join(dir, 'node_modules', 'tailwindcss', 'marker.txt'), 'utf8'), row.present ? 'own' : 'linked', row.name);
+    } finally {
+      rmSync(base, { recursive: true, force: true });
+      rmSync(dir, { recursive: true, force: true });
+    }
   }
 });
