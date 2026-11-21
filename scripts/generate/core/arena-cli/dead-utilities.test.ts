@@ -104,6 +104,10 @@ const DEAD = [
   { candidate: 'font-sans', want: /Write one of `font-face-heading`.*`font-display`, `font-body`, and 1 more in css\/tailwind-theme\.css$/ },
   { candidate: 'max-w-lg', want: /Write one of `max-w-page`$/ },
   { candidate: 'hover:shadow-md', want: /^`hover:shadow-md` .*Write one of `hover:shadow-surface-rest`, .*`hover:shadow-1`/ },
+  { candidate: 'xl:shadow-md', want: /^`xl:shadow-md` emits nothing under Arena's theme, which has no `xl:` variant and clears the Tailwind default it names\. Write one of `sm:`, `md:`, `lg:` with one of `shadow-surface-rest`, .*`shadow-1`, and 2 more in css\/tailwind-theme\.css$/ },
+  { candidate: 'xl:hover:shadow-md', want: /no `xl:` variant and clears.*Write one of `sm:`, `md:`, `lg:` with one of `hover:shadow-surface-rest`, .*`hover:shadow-1`, and 2 more/, not: /`xl:hover:shadow-(surface|control|1)/ },
+  { candidate: 'blur-sm', want: /Write one of `blur-scrim`$/ },
+  { candidate: 'backdrop-blur-sm', want: /Write one of `backdrop-blur-scrim`$/ },
   { candidate: 'xl:flex', want: /^`xl:flex` emits nothing under Arena's theme, which has no `xl:` variant\. Write one of `sm:`, `md:`, `lg:`$/ },
   { candidate: 'hover:xl:flex', want: /no `xl:` variant/ },
   { candidate: 'max-xl:p-2', want: /`max-sm:`, `max-md:`, `max-lg:`$/ },
@@ -119,7 +123,7 @@ test('a candidate is dead when it emits nothing under Arena and something under 
   for (const row of DEAD) {
     if (row.want === null) assert.ok(!got.has(row.candidate), `${row.candidate}: alive or dead under both`);
     else assert.match(got.get(row.candidate) ?? '', row.want, row.candidate);
-    if ('not' in row && row.not) assert.doesNotMatch(got.get(row.candidate) ?? '', row.not, `${row.candidate}: leads with no wash`);
+    if ('not' in row && row.not) assert.doesNotMatch(got.get(row.candidate) ?? '', row.not, `${row.candidate}: names nothing matching ${row.not}`);
   }
 });
 

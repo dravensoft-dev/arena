@@ -157,11 +157,22 @@ function valuesOf(block: CssBlock): string[] {
 
 const escaped = (name: string) => `.${name.replace(/[^a-zA-Z0-9_-]/g, (char) => `\\${char}`)}`;
 
-function listed(answers: string[]) {
-  if (answers.length === 0) return null;
+function oneOf(answers: string[]) {
   const shown = answers.slice(0, SHOWN).map((name) => `\`${name}\``).join(', ');
   const more = answers.length - SHOWN;
-  return `Write one of ${shown}${more > 0 ? `, and ${more} more in css/${TAILWIND_THEME}` : ''}`;
+  return `one of ${shown}${more > 0 ? `, and ${more} more in css/${TAILWIND_THEME}` : ''}`;
+}
+
+function listed(answers: string[]) {
+  return answers.length === 0 ? null : `Write ${oneOf(answers)}`;
+}
+
+function variantAlternatives(variant: string, pairs: Pair[], emits: (alt: string) => boolean) {
+  const [, sigil, limit, name] = /^(@?)(max-|min-)?(.*)$/.exec(variant) as RegExpExecArray;
+  return pairs
+    .filter((pair) => pair.ns === (sigil ? 'container' : 'breakpoint'))
+    .map((pair) => `${sigil}${limit ?? ''}${pair.key}`)
+    .filter((alt) => name !== '' && emits(alt));
 }
 
 async function utilityAnswers(
@@ -170,7 +181,7 @@ async function utilityAnswers(
 ) {
   const bare = base.replace(/^!/, '').replace(/^-/, '').replace(/\/[^/[\]]*$/, '');
   const dashes = [...bare.matchAll(/-/g)].map((found) => found.index).reverse();
-  const root = dashes.map((at) => bare.slice(0, at)).find((prefix) => stock.emits(`${prefix}-[x]`)) ?? bare;
+  const root = dashes.map((at) => bare.slice(0, at)).find((stem) => stock.emits(`${stem}-[x]`)) ?? bare;
   const own = await emitter(tailwind, stockCss);
   const wanted = new Set(ruleOf(parseBlocks(own.output([bare])), bare).flatMap(propertiesOf));
   const fresh = await emitter(tailwind, arenaCss);
@@ -184,9 +195,10 @@ async function utilityAnswers(
   const keep = pairs.filter((pair, index) => {
     const found = ruleOf(rules, names[index] as string);
     if (found.length === 0) return false;
-    const own = pair.value.trim();
+    const held = pair.value.trim();
+    const single = /^var\(--[a-z0-9-]+\)$/.test(held);
     const reads = found.flatMap(valuesOf).some((value) => value.includes(`var(--${pair.ns}-${pair.key})`)
-      || (own !== '' && value.trim() === own));
+      || (held !== '' && (single ? value.includes(held) : value.trim() === held)));
     const props = found.flatMap(propertiesOf);
     return reads && (wanted.size === 0 || props.some((name) => wanted.has(name)));
   });
@@ -217,18 +229,27 @@ export async function deadUtilities(
     if (variants.length > 0 && arena.emits(base)) {
       const at = variants.findIndex((_, index) => !arena.emits(`${variants[index]}:${base}`));
       const variant = variants[at < 0 ? variants.length - 1 : at] as string;
-      const [, sigil, limit, name] = /^(@?)(max-|min-)?(.*)$/.exec(variant) as RegExpExecArray;
-      const keys = pairs
-        .filter((pair) => pair.ns === (sigil ? 'container' : 'breakpoint'))
-        .map((pair) => `${sigil}${limit ?? ''}${pair.key}`)
-        .filter((alt) => name !== '' && arena.emits(`${alt}:${base}`))
-        .map((alt) => `${alt}:`);
+      const keys = variantAlternatives(variant, pairs, (alt) => arena.emits(`${alt}:${base}`)).map((alt) => `${alt}:`);
       head = `which has no \`${variant}:\` variant`;
       tail = listed(keys) ?? 'Arena\'s theme answers it with no variant';
     } else {
-      const answers = await utilityAnswers(base, pairs, stock, tailwind, arenaCss, tailwind.stock, roles, variants.map((v) => `${v}:`).join(''));
-      head = 'which clears the Tailwind default it names';
-      tail = listed(answers) ?? 'Arena\'s theme answers it with no utility';
+      const answers = await utilityAnswers(base, pairs, stock, tailwind, arenaCss, tailwind.stock, roles, '');
+      const probe = answers[0];
+      const at = probe === undefined ? -1 : variants.findIndex((variant) => !arena.emits(`${variant}:${probe}`));
+      if (at < 0) {
+        const prefix = variants.map((variant) => `${variant}:`).join('');
+        head = 'which clears the Tailwind default it names';
+        tail = listed(answers.map((name) => `${prefix}${name}`)) ?? 'Arena\'s theme answers it with no utility';
+      } else {
+        const gone = variants[at] as string;
+        const kept = variants.filter((_, index) => index !== at).map((variant) => `${variant}:`).join('');
+        const alternatives = variantAlternatives(gone, pairs, (alt) => arena.emits(`${alt}:${kept}${probe}`)).map((alt) => `${alt}:`);
+        const names = answers.map((name) => `${kept}${name}`).filter((name) => arena.emits(name));
+        head = `which has no \`${gone}:\` variant and clears the Tailwind default it names`;
+        tail = alternatives.length > 0 && names.length > 0
+          ? `Write ${oneOf(alternatives)} with ${oneOf(names)}`
+          : 'Arena\'s theme answers it with no variant or utility';
+      }
     }
     dead.set(candidate, `\`${candidate}\` emits nothing under Arena's theme, ${head}. ${tail}`);
   }
