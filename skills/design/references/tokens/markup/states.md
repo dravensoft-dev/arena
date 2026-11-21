@@ -44,17 +44,18 @@ Your markup and Arena's components both read the roles on this page. A role keep
 
 ## A toggle that shows every state
 
-A pressed toggle washes with `--fill-selected` and reads `--ink-selected`, and under the pointer an unpressed one takes `--fill-hover`. The `aria-pressed:` rules come after the `hover:` ones, so a pressed toggle keeps its wash under the pointer unless an `aria-pressed:hover:` class answers it. The example answers it by mixing the pressed fill toward `--ink-selected` by `--mix-hover`, after washing the fill at `--level-accent-soft-primary`, the level `--fill-selected` combines with. The order is the components': the wash first, then the mix toward the ink. A keyboard user sees `--edge-focus` at `--bw-focus` and `--gap-focus`, and a disabled one keeps `--fade-disabled` of its opacity. An invalid field takes `--edge-invalid` on its edge only while `aria-invalid` is true and `--ink-invalid` on its message.
+`arena-interactive` draws the fill and ink of a control of yours in every state, as Arena's navigation rows draw them. At rest the fill is transparent and the ink is `--ink-muted` at `--level-ink-muted`. Under the pointer the fill takes `--fill-hover` and the ink `--ink-body` at `--level-ink-body`. A press mixes the fill toward the ink by `--mix-pressed`. While `aria-pressed`, `aria-selected` or `aria-current` is true, the fill washes with `--fill-selected` at `--level-accent-soft-primary` and the ink reads `--ink-selected`. Under the pointer or a press, the wash mixes toward `--ink-selected` by `--mix-hover` or `--mix-pressed`. A disabled control keeps `--fade-disabled` of its opacity, and the pointer and a press leave it as it is. `arena-focus` draws `--edge-focus` at `--bw-focus`, `--gap-focus` away from the edge, while the control holds keyboard focus. `arena-invalid` draws `--edge-invalid` on a field's edge while `aria-invalid` is true, and `arena-invalid__message` draws its message in `--ink-invalid`. The classes read roles only, so a colour slot answer does not reach them. Both packages ship them in `css/vocabulary/state.css`, which a page without Tailwind takes too.
 
 ```html
-<button type="button" aria-pressed="false"
-  class="hover:bg-hover aria-pressed:bg-selected/(--level-accent-soft-primary) aria-pressed:hover:bg-[color:color-mix(in_oklab,color-mix(in_oklab,var(--fill-selected)_var(--level-accent-soft-primary),transparent),var(--ink-selected)_calc(var(--mix-hover)*100%))] aria-pressed:text-ink-selected focus-visible:outline-edge-focus focus-visible:outline-[length:var(--bw-focus)] focus-visible:outline-offset-[var(--gap-focus)] disabled:opacity-[var(--fade-disabled)]">
+<button type="button" aria-pressed="false" class="arena-interactive arena-focus">
   Notify me
 </button>
 
 <label for="email">Email address</label>
-<input id="email" aria-invalid="true" aria-describedby="email-error" class="border border-edge-field aria-[invalid=true]:border-edge-invalid" />
-<p id="email-error" class="text-ink-invalid">Enter an address such as name@example.com.</p>
+<input id="email" aria-invalid="true" aria-describedby="email-error" class="arena-invalid arena-focus border border-edge-field" />
+<p id="email-error" class="arena-invalid__message">Enter an address such as name@example.com.</p>
 ```
+
+A markup class beats a rule of yours of equal specificity, whatever order the sheets load in. To draw a state another way, write the roles of the tables above on an element that wears none of the classes.
 
 A nested style plugin's answer reaches `--edge-focus` and the other roles, and your markup reads those roles, never `--focus-ring`. Under a nested plugin class `--edge-focus` follows the subtree's answer, while `--focus-ring` keeps the root's.

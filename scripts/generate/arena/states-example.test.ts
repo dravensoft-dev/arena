@@ -7,6 +7,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { run } from '../core/arena-cli/command-audit.ts';
 import { namesAnAlias } from '../core/arena-cli/audit.ts';
+import { readFamilies } from '../../lib/tailwind/vocabulary.ts';
 import { captureIo, hostRoot, readable, removeFixtures } from '../core/arena-cli/cli-fixtures.ts';
 
 after(removeFixtures);
@@ -53,21 +54,30 @@ test('the example reads no compatibility alias but the level a role combines wit
   }
 });
 
-test('a selected hover washes the fill first and mixes toward the ink second, as the components draw it', () => {
-  assert.ok(example().includes('color-mix(in_oklab,color-mix(in_oklab,var(--fill-selected)_var(--level-accent-soft-primary),transparent),var(--ink-selected)_calc(var(--mix-hover)*100%))'));
+test('every arena- class the example writes is a state class, and it writes all four', () => {
+  const written = new Set<string>();
+  for (const [, value] of example().matchAll(/class="([^"]*)"/g))
+    for (const token of value!.split(/\s+/)) if (token.startsWith('arena-')) written.add(token);
+  const family = Object.keys(readFamilies().get('state')!.variants).sort();
+  assert.deepEqual([...written].sort(), family);
 });
 
-test('the example names every state attribute', () => {
+test('the toggle and the field carry the attributes the classes read', () => {
   const html = example();
-  for (const needle of ['aria-pressed', 'focus-visible:', 'disabled:', 'aria-invalid']) assert.ok(html.includes(needle), needle);
+  assert.match(html.match(/<button\b[^>]*>/)![0], /\baria-pressed=/, 'the toggle carries aria-pressed');
+  assert.match(html.match(/<input\b[^>]*>/)![0], /\baria-invalid="true"/, 'the field carries aria-invalid');
+  for (const variant of ['hover:', 'aria-pressed:', 'focus-visible:', 'disabled:', 'aria-[']) assert.equal(html.includes(variant), false, variant);
 });
 
-test('the invalid edge sits under an aria-invalid variant and the field is labelled', () => {
+test('the field is labelled and describes itself by its message', () => {
   const html = example();
-  assert.match(html, /aria-\[invalid=true\]:border-edge-invalid/);
-  assert.equal(/(?<!aria-\[invalid=true\]:)border-edge-invalid/.test(html), false, 'a bare border-edge-invalid never turns off');
   const input = html.match(/<input\b[^>]*>/)![0];
   const id = input.match(/\bid="([^"]+)"/)?.[1];
   assert.ok(id, 'the input has an id');
   assert.ok(html.includes(`<label for="${id}">`), 'the input is labelled');
+  const described = input.match(/\baria-describedby="([^"]+)"/)?.[1];
+  assert.ok(described, 'the input names its message');
+  const message = html.match(new RegExp(`<[a-z]+\\b[^>]*\\bid="${described}"[^>]*>`))?.[0];
+  assert.ok(message, 'the described element exists');
+  assert.match(message, /class="[^"]*\barena-invalid__message\b/, 'the message wears the message class');
 });
