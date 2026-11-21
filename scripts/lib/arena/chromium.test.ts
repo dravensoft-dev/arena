@@ -9,7 +9,7 @@ import { EventEmitter } from 'node:events';
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join, win32 } from 'node:path';
-import { execFileSync, spawn, spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import {
   DARWIN_APPS, DEVTOOLS, GRACE, LINUX_CANDIDATES, PROFILE_PREFIX, REAP, SIGNALS, WINDOWS_APPS, browserFlags,
   candidates, findChromium, launchChromium, observerFor, orphanProfiles, ownerOf, processesNaming,
@@ -34,8 +34,7 @@ const ENDED: Deadline = deadline('chromium:ended', 10_000,
   + 'before the wait is a hang rather than a slow start under a loaded runner');
 
 const BUDGET_MS = budgetFor(DEVTOOLS, GRACE, REAP, SETTLE, OBSERVE, ENDED);
-import { createDispatcher } from './cdp.ts';
-import { platform, type Platform } from './platform.ts';
+import { platform } from './platform.ts';
 import { hostBinary } from './host-binary.ts';
 
 function chromiumTempDirs() {
@@ -145,62 +144,6 @@ test('WSL is told that a browser under /mnt/c cannot reach the gate own server',
   const plain = findChromium({}, () => false, 'linux');
   assert.ok(!/WSL/.test(plain.reason ?? ''),
     'a message that names WSL on every Linux machine is one a Linux contributor learns to skip');
-});
-
-test('the dispatcher numbers requests and resolves the matching reply', async () => {
-  const d = createDispatcher();
-  const a = d.next('Page.navigate', { url: 'x' });
-  const b = d.next('Runtime.evaluate', { expression: '1' }, 'sess-1');
-
-  assert.equal(a.frame.id, 1);
-  assert.equal(b.frame.id, 2);
-  assert.equal(b.frame.sessionId, 'sess-1');
-  assert.equal(a.frame.sessionId, undefined);
-  assert.equal(d.pending.size, 2);
-
-  assert.equal(d.settle({ id: 2, result: { ok: true } }), true);
-  assert.deepEqual(await b.result, { ok: true });
-  assert.equal(d.pending.size, 1);
-});
-
-test('an error reply rejects with the protocol message', async () => {
-  const d = createDispatcher();
-  const a = d.next('Bad.method', {});
-  d.settle({ id: 1, error: { code: -32601, message: 'Bad.method wasn\'t found' } });
-  await assert.rejects(a.result, /Bad\.method wasn't found/);
-});
-
-test('an event (no id) is not a reply and settles nothing', () => {
-  const d = createDispatcher();
-  d.next('Page.enable', {});
-  assert.equal(d.settle({ method: 'Page.loadEventFired', params: {} }), false);
-  assert.equal(d.pending.size, 1);
-});
-
-test('drain rejects every pending request and clears the map', async () => {
-  const d = createDispatcher();
-  const a = d.next('Page.enable');
-  const b = d.next('Runtime.enable');
-  d.drain(new Error('CDP: connection closed'));
-  await assert.rejects(a.result, /connection closed/);
-  await assert.rejects(b.result, /connection closed/);
-  assert.equal(d.pending.size, 0);
-});
-
-test('drain on an empty dispatcher is a no-op', () => {
-  const d = createDispatcher();
-  assert.doesNotThrow(() => d.drain(new Error('unused')));
-  assert.equal(d.pending.size, 0);
-});
-
-test('a request made after drain still gets its own promise, unaffected by the earlier rejection', async () => {
-  const d = createDispatcher();
-  const a = d.next('Page.enable');
-  d.drain(new Error('closed'));
-  await assert.rejects(a.result);
-  const b = d.next('Runtime.enable');
-  assert.equal(d.settle({ id: b.frame.id, result: { ok: true } }), true);
-  assert.deepEqual(await b.result, { ok: true });
 });
 
 test('launchChromium rejects instead of crashing when spawn cannot start the binary, and leaves no temp profile behind',

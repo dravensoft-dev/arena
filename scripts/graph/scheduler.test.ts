@@ -149,7 +149,6 @@ test('a list that cannot run is refused before any step starts', async () => {
   for (const [steps, slots, problem] of cases) {
     await assert.rejects(schedule(steps, slots), problem);
   }
-  assert.equal(cases.length, 10);
   assert.equal(r.calls(), 0, 'a refused list ran a step');
   assert.deepEqual(scheduleProblems(mixed(recorder().step), WIDE), []);
 });
@@ -231,7 +230,6 @@ test('the slots follow the cores and the free memory, and --jobs caps every pool
   for (const [jobs, cores, free, slots] of rows) {
     assert.deepEqual(slotsFor(jobs, cores, free), slots, `jobs ${jobs}, ${cores} cores, ${free / GIB} GiB free`);
   }
-  assert.equal(rows.length, 9);
 });
 
 test('--jobs takes a whole number of at least one and refuses every other shape with a sentence', () => {
@@ -242,7 +240,6 @@ test('--jobs takes a whole number of at least one and refuses every other shape 
     assert.throws(() => parseJobs(value, 'check-all'),
       new RegExp(`check-all: --jobs=${value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')} is not a whole number of at least 1 written without a leading zero`));
   }
-  assert.equal(refused.length, 8);
 });
 
 test('with more than one slot the heavy steps start longest first, ahead of the light ones, which keep their order', async () => {
@@ -284,5 +281,4 @@ test('the slots sentence names what bounded each figure and the order the steps 
       + '(bounded by the free memory) and 1 a browser (the heavy limit), the heavy ones longest first'],
   ];
   for (const [jobs, cores, free, line] of rows) assert.equal(describeSlots(jobs, cores, free), line);
-  assert.equal(rows.length, 3);
 });

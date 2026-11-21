@@ -36,9 +36,6 @@ export const SPANS_AS_DATA = new Map([
   ['scripts/utils/with-timeout.test.ts',
    'the spans here are the parameter of the function under test, so a deadline declared for them '
    + 'would be a bound on nothing'],
-  ['scripts/utils/concurrency.test.ts',
-   'the span manufactures overlapping in-flight work for the limiter to be observed against, and '
-   + 'the assertion is on peak concurrency rather than on anything timed'],
   ['scripts/lib/arena/deadline.test.ts',
    'it declares deadlines and derives budgets as fixtures of the mechanism it is the suite of, so '
    + 'its budgets bound no case and its closure is itself'],

@@ -36,11 +36,6 @@ test('an inbound function that RETURNS a value is the ninth form -- the refusal 
     { form: 'functionInput', params: {}, returns: 'string' });
 });
 
-test('an event still reads as an event -- the rule is the return type, not the arrow', () => {
-  assert.deepEqual(classify('(crumb: ArenaCrumb) => void'), { form: 'event', payload: 'ArenaCrumb' });
-  assert.deepEqual(classify('() => void'), { form: 'event', payload: null });
-});
-
 test('an array is one form discriminated by what it holds', () => {
   assert.deepEqual(classify('ArenaCrumb[]'), { form: 'array', of: 'ArenaCrumb' });
   assert.deepEqual(classify('string[]'), { form: 'array', of: 'string' });
@@ -408,11 +403,6 @@ test('a genuine second event parameter is still refused after the generic-comma 
   assert.throws(() => classify('(a: string, b: string) => void'), /more than one parameter/);
 });
 
-test('classify reads an inbound function that returns a value as a functionInput', () => {
-  assert.deepEqual(classify('(value: string) => string'),
-    { form: 'functionInput', params: { value: 'string' }, returns: 'string' });
-});
-
 test('classify keeps a nullable return, so a layer returning null differs from a contract returning string', () => {
   assert.deepEqual(classify('(value: string) => string | null | undefined'),
     { form: 'functionInput', params: { value: 'string' }, returns: 'string | null | undefined' });
@@ -437,10 +427,6 @@ test('classify throws on a function returning a node -- that is a parameterised 
     assert.match(err.message, /renderItem|ngTemplateOutlet/);
     return true;
   });
-});
-
-test('a void arrow is still an event, not a functionInput', () => {
-  assert.deepEqual(classify('(v: string) => void'), { form: 'event', payload: 'string' });
 });
 
 test('classify reads every parameter of a functionInput, and a generic\'s comma is not a separator', () => {

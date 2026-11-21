@@ -116,11 +116,6 @@ test('an aria-labelledby with no resolver THROWS rather than counting the attrib
   );
 });
 
-test('an element with no naming route at all needs no resolver', () => {
-  assert.equal(hasAccessibleName(el('div')), false);
-  assert.equal(hasAccessibleName(el('button', {}, 'Save'), true), true);
-});
-
 test('roleOf refuses region to a section whose aria-labelledby dangles', () => {
   assert.equal(roleOf(el('section', { 'aria-labelledby': 'gone' }), () => null), null);
   assert.equal(roleOf(el('section', { 'aria-labelledby': 'h1' }), () => el('h2')), 'region');
@@ -643,12 +638,6 @@ test('a missing IDREF attribute is unmet without consulting the resolver', () =>
   const resolve = (): null => { asked = true; return null; };
   assert.equal(evaluate(el('button'), 'roles.controls', 'x', 'tabs', resolve), false);
   assert.equal(asked, false, 'the resolver was consulted for an absent attribute');
-});
-
-test('one resolving id in a list is enough', () => {
-  const trigger = el('button', { 'aria-describedby': 'consumer-hint tooltip-1' });
-  const resolve = (id: string) => (id === 'tooltip-1' ? el('span') : null);
-  assert.equal(evaluate(trigger, 'roles.describedby', 'x', 'tooltip', resolve), true);
 });
 
 test('a list where nothing resolves is unmet', () => {

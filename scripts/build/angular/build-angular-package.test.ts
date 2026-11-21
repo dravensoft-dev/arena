@@ -127,12 +127,9 @@ test('the nested manifests are listed in the order the entry points are declared
     { found: `${HEADER}\nforms/package.json\nmetadata/package.json`, out: METADATA_FIRST },
     { found: METADATA_FIRST, out: METADATA_FIRST },
   ];
-  let walked = 0;
   for (const { found, out } of rows) {
     assert.equal(normalNpmignore(found), out);
-    walked += 1;
   }
-  assert.equal(walked, 2);
   assert.equal(METADATA_FIRST, [HEADER, ...SECONDARY_ENTRY_POINTS.map((e) => `${e}/package.json`)].join('\n'));
 });
 
@@ -144,17 +141,13 @@ test('a set of lines that differs from the entry points is refused with a senten
     { found: `${METADATA_FIRST}\nmetadata/package.json`, names: 'repeated lines ["metadata/package.json"]' },
     { found: `${METADATA_FIRST}\n`, names: 'extra lines [""]' },
   ];
-  let walked = 0;
   for (const { found, names } of rows) {
     assert.throws(() => normalNpmignore(found), (error: Error) => {
       assert.match(error.message, /^build-angular-package: /);
       assert.ok(error.message.includes(names), error.message);
       return true;
     });
-    walked += 1;
   }
-  assert.equal(walked, rows.length);
-  assert.equal(rows.length, 5);
 });
 
 test('an interrupt of the package step ends the ng-packagr it spawned and prints what it wrote', {

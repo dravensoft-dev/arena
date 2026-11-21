@@ -1,12 +1,12 @@
-/* The half of the dispatcher a gate touches, and the rule that keeps it the only half.
+/* The dispatcher a gate touches, and the rule that keeps evaluate() the only reader of its answer.
  * Runtime.evaluate answers an expression that threw with an EMPTY value and the throw in
  * exceptionDetails, so a caller reading .result.value alone reads {} and carries on: that is
  * how a TypeError inside the ready poll was reported as a page that never painted in 40000ms
  * by a gate that had run for six seconds. evaluate() is where that answer is read, the last
- * test is what keeps a second reader from being written, and both are here rather than beside
- * a gate because all three browser gates ask the same question. The last test reads the method
- * QUOTED and skips suites: naming it in prose is not a second reader, and the dispatcher's own
- * suite names it as a stand-in for any command while sending nothing to a browser. */
+ * test keeps a second reader from being written, and the dispatcher's own tests (numbering,
+ * settling, drain) sit between them, all here because all three browser gates ask the same
+ * question. The last test reads the method QUOTED and skips suites: naming it in prose is not
+ * a second reader, and the dispatcher's tests name it as a stand-in for any command. */
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -65,6 +65,55 @@ test('the dispatcher rejects a command the browser answered with an error', asyn
   const { frame, result } = dispatcher.next(METHOD, {});
   dispatcher.settle({ id: frame.id, error: { code: -32000, message: 'Inspected target navigated or closed' } });
   await assert.rejects(() => result as Promise<unknown>, /Inspected target navigated or closed/);
+});
+
+test('the dispatcher numbers requests and resolves the matching reply', async () => {
+  const d = createDispatcher();
+  const a = d.next('Page.navigate', { url: 'x' });
+  const b = d.next('Runtime.evaluate', { expression: '1' }, 'sess-1');
+
+  assert.equal(a.frame.id, 1);
+  assert.equal(b.frame.id, 2);
+  assert.equal(b.frame.sessionId, 'sess-1');
+  assert.equal(a.frame.sessionId, undefined);
+  assert.equal(d.pending.size, 2);
+
+  assert.equal(d.settle({ id: 2, result: { ok: true } }), true);
+  assert.deepEqual(await b.result, { ok: true });
+  assert.equal(d.pending.size, 1);
+});
+
+test('an event (no id) is not a reply and settles nothing', () => {
+  const d = createDispatcher();
+  d.next('Page.enable', {});
+  assert.equal(d.settle({ method: 'Page.loadEventFired', params: {} }), false);
+  assert.equal(d.pending.size, 1);
+});
+
+test('drain rejects every pending request and clears the map', async () => {
+  const d = createDispatcher();
+  const a = d.next('Page.enable');
+  const b = d.next('Runtime.enable');
+  d.drain(new Error('CDP: connection closed'));
+  await assert.rejects(a.result, /connection closed/);
+  await assert.rejects(b.result, /connection closed/);
+  assert.equal(d.pending.size, 0);
+});
+
+test('drain on an empty dispatcher is a no-op', () => {
+  const d = createDispatcher();
+  assert.doesNotThrow(() => d.drain(new Error('unused')));
+  assert.equal(d.pending.size, 0);
+});
+
+test('a request made after drain still gets its own promise, unaffected by the earlier rejection', async () => {
+  const d = createDispatcher();
+  const a = d.next('Page.enable');
+  d.drain(new Error('closed'));
+  await assert.rejects(a.result);
+  const b = d.next('Runtime.enable');
+  assert.equal(d.settle({ id: b.frame.id, result: { ok: true } }), true);
+  assert.deepEqual(await b.result, { ok: true });
 });
 
 test('evaluate() is the only reader of that answer in the tree', () => {

@@ -90,20 +90,15 @@ test('no stamp rebuilds, and no input found rebuilds rather than skipping on a w
   assert.match(stalenessReason(repo, [], { inputs: {} }) ?? '', /no input is found/);
 });
 
-test('a stamp in the old shape, paths only, compiles with a sentence', () => {
-  const repo = tree({ ...FILES, 'stamp': JSON.stringify({ at: 'x', paths: ['layer/a.ts'] }) });
-  const read = readStamp(join(repo, 'stamp'));
-  assert.ok(read && 'problem' in read);
-  assert.match(stalenessReason(repo, gather(repo), read) ?? '', /holds no content hashes/);
-});
-
-test('a stamp that is not JSON, or whose rows are not fingerprints, compiles with a sentence', () => {
-  const repo = tree({ ...FILES, 'junk': '{not json', 'rows': JSON.stringify({ inputs: { 'layer/a.ts': 3 } }) });
-  for (const name of ['junk', 'rows']) {
+test('a stamp that is not JSON, whose rows are not fingerprints, or that is in the old shape (paths only), compiles with a sentence', () => {
+  const repo = tree({ ...FILES, 'junk': '{not json', 'rows': JSON.stringify({ inputs: { 'layer/a.ts': 3 } }),
+    'old': JSON.stringify({ at: 'x', paths: ['layer/a.ts'] }) });
+  for (const name of ['junk', 'rows', 'old']) {
     const read = readStamp(join(repo, name));
     assert.ok(read && 'problem' in read, name);
     assert.ok(stalenessReason(repo, gather(repo), read), name);
   }
+  assert.match(stalenessReason(repo, gather(repo), readStamp(join(repo, 'old'))) ?? '', /holds no content hashes/);
   assert.equal(readStamp(join(repo, 'absent')), null);
 });
 

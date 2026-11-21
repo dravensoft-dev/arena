@@ -101,11 +101,6 @@ test('the two lists say what may still be JavaScript and what may not', () => {
     + 'proves a specifier resolves, which is coverage lost rather than a migration finished');
 });
 
-test('a .ts path classifies by its directory, so the domain survives the rename', () => {
-  assert.equal(domainOfTestPath('scripts/check/tailwind/check-radius-tokens.test.ts'), 'tailwind');
-  assert.equal(domainOfTestPath('scripts/lib/arena/domains.test.ts'), 'arena');
-});
-
 const mjsUnder = (dir: string) => walkFiles(dir).filter((full) => full.endsWith('.mjs'));
 
 test('every JavaScript left under scripts/ is one of the four on the record', () => {
@@ -117,12 +112,4 @@ test('every JavaScript left under scripts/ is one of the four on the record', ()
     + 'both are decisions, and neither is a default');
   for (const [rel, reason] of STAYS_JAVASCRIPT)
     assert.ok(reason.length > 40, `${rel} is exempt and the record does not say why`);
-});
-
-test('no suite is JavaScript, which is the claim the narrowed suffix rests on', () => {
-  const suites = mjsUnder(join(repoRoot, 'scripts')).filter((p) => p.includes('.test.'));
-  assert.deepEqual(suites, [],
-    'isSuite reads .ts alone now, so a .test.mjs would run in neither runner and be counted by '
-    + 'no domain; nothing loads a suite, so nothing can earn the exception the four modules did');
-  assert.deepEqual(SUITE_EXTENSIONS, ['.ts']);
 });

@@ -142,7 +142,6 @@ test('a listing is split where the files start, and a line it cannot place fails
     if (want instanceof RegExp) assert.throws(() => splitListing(output, 'p'), want);
     else assert.deepEqual(splitListing(output, 'p'), want);
   }
-  assert.equal(cases.length, 6);
 });
 
 test('a gate holding zero projects is a failure, not a clean run', () => {

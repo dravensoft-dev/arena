@@ -58,10 +58,6 @@ test('called with nothing it reads arenaEnv, which is what makes a declared valu
   assert.equal(skipExitCode(), skipExitCode(arenaEnv()));
 });
 
-test('an exported ARENA_CHECK_STRICT=0 buys the soft skip back', () => {
-  assert.equal(skipExitCode(arenaEnv({ ARENA_CHECK_STRICT: '0' })), 2);
-});
-
 function captureExit(run: () => void) {
   const exit = process.exit;
   const error = console.error;

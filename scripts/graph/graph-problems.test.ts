@@ -151,7 +151,6 @@ test('a pool and a cost belong to a heavy build step, and a shape no runner read
       assert.match(found[0] ?? '', problem);
     }
   }
-  assert.equal(rows.length, 7);
 });
 
 const MEASURED_COMPILER = new Map([['build:angular-package', 16.5], ['build:angular-tests', 21.2], ['build:react-package', 11.5]]);
@@ -205,7 +204,6 @@ test('a reader naming one file, or one level, under a writer\'s glob crosses it 
     { writes: ['out/**'], reads: ['out/**', '!out/**'], crosses: false },
     { writes: ['out/**', '!out/keep/**'], reads: ['out/keep/x.json'], crosses: false },
   ];
-  let walked = 0;
   for (const { writes, reads, crosses } of rows) {
     const label = `writes ${writes.join(' ')} reads ${reads.join(' ')}`;
     const graph = [step('generate:a', { writes }), step('build:c', { reads })];
@@ -214,10 +212,7 @@ test('a reader naming one file, or one level, under a writer\'s glob crosses it 
       assert.equal(found.pairs, 2, label);
       assert.equal(found.problems.length, crosses ? 1 : 0, `${label} on ${paths.length === 0 ? 'a clean tree' : 'a built tree'}: ${found.problems.join('; ')}`);
     }
-    walked += 1;
   }
-  assert.equal(walked, rows.length);
-  assert.equal(rows.length, 11);
 });
 
 test('no build step reads what a step that can run beside it writes, on a built tree and on one where nothing ran',

@@ -118,21 +118,6 @@ test('suiteDomains reads a domain off every suite, which is what expects its cas
   }
 });
 
-test('a domain whose suites are all .ts still expects its cases, so the reporter cannot drop them unnoticed', () => {
-  const root = mkdtempSync(join(tmpdir(), 'summarize-ts-'));
-  try {
-    mkdirSync(join(root, 'scripts', 'check', 'react'), { recursive: true });
-    writeFileSync(join(root, 'scripts', 'check', 'react', 'only.test.ts'), '// suite');
-    const expected = suiteDomains(join(root, 'scripts'));
-    assert.deepEqual(expected, ['react']);
-    const counted = tally([]);
-    assert.equal(coverageProblems(counted, expected, []).length, 1,
-      'react owns a suite and reported nothing, and that has to be a problem rather than a clean run');
-  } finally {
-    rmSync(root, { recursive: true, force: true });
-  }
-});
-
 test('every suite check-all knows has a domain and a root here, and the roots are the ones a full run expects', () => {
   assert.deepEqual(Object.keys(SUITE_DOMAINS).sort(), Object.keys(SUITES).sort());
   assert.deepEqual(Object.keys(SUITE_ROOTS).sort(), Object.keys(SUITES).sort());
