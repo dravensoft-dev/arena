@@ -40,6 +40,11 @@ import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
           <option [value]="option.value" [selected]="option.value === drawn()">{{ option.label }}</option>
         }
       </select>
+      @if (hasError()) {
+        <span [class]="styles().statusIcon()" [arenaSlotData]="styles().$data.statusIcon()" [attr.data-arena-part]="parts.statusIcon" aria-hidden="true"><arena-icon icon="ph-fill ph-warning-circle" /></span>
+      } @else if (valid()) {
+        <span [class]="styles().statusIcon()" [arenaSlotData]="styles().$data.statusIcon()" [attr.data-arena-part]="parts.statusIcon" aria-hidden="true"><arena-icon icon="ph-fill ph-check-circle" /></span>
+      }
       <span [class]="styles().caret()" [arenaSlotData]="styles().$data.caret()" [attr.data-arena-part]="parts.caret" aria-hidden="true">&#9662;</span>
     </div>
     @if (error(); as message) {

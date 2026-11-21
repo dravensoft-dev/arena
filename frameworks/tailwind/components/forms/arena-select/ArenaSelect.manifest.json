@@ -6,6 +6,7 @@
     "wrap": "relative",
     "field": "appearance-none w-full h-ctl-h pl-3 pr-9 border-[length:var(--bw-field)] rounded-field font-body text-ctl cursor-pointer transition-[border-color,box-shadow] duration-[var(--dur-hover)] ease-hover focus:outline-none text-[color:var(--fields-value-ink-rest,var(--ink-body))]",
     "caret": "absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)] text-[length:var(--icon-sm)]",
+    "statusIcon": "absolute right-9 top-1/2 -translate-y-1/2 pointer-events-none inline-flex text-[length:var(--icon-md)]",
     "hint": "font-body text-ctl-sm text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",
     "error": "font-body text-ctl-sm text-[color:var(--fields-error-ink-rest,var(--ink-invalid))]",
     "iconWrap": "absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none inline-flex text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)] text-[length:var(--icon-md)]"
@@ -16,6 +17,7 @@
     "wrap": "none",
     "field": "field",
     "caret": "none",
+    "statusIcon": "none",
     "hint": "none",
     "error": "none",
     "iconWrap": "none"
@@ -31,12 +33,14 @@
         "wrap": ""
       },
       "error": {
-        "field": "ring-[length:var(--focus-width)] disabled:border-[color:var(--fields-error-field-edge-disabled,var(--fields-error-field-edge-rest,var(--edge-invalid)))] hover:border-[color:var(--fields-error-field-edge-hover,var(--fields-error-field-edge-rest,var(--edge-invalid)))] border-[color:var(--fields-error-field-edge-rest,var(--edge-invalid))] disabled:bg-[color:var(--fields-error-field-fill-disabled,var(--fields-error-field-fill-rest,var(--fill-field)))] hover:bg-[color:var(--fields-error-field-fill-hover,var(--fill-hover))] bg-[color:var(--fields-error-field-fill-rest,var(--fill-field))] ring-[color:color-mix(in_oklab,var(--fields-error-field-edge-rest,var(--edge-invalid))_var(--level-hue-soft-danger),transparent)]",
-        "wrap": ""
+        "field": "ring-[length:var(--focus-width)] disabled:border-[color:var(--fields-error-field-edge-disabled,var(--fields-error-field-edge-rest,var(--edge-invalid)))] hover:border-[color:var(--fields-error-field-edge-hover,var(--fields-error-field-edge-rest,var(--edge-invalid)))] border-[color:var(--fields-error-field-edge-rest,var(--edge-invalid))] disabled:bg-[color:var(--fields-error-field-fill-disabled,var(--fields-error-field-fill-rest,var(--fill-field)))] hover:bg-[color:var(--fields-error-field-fill-hover,var(--fill-hover))] bg-[color:var(--fields-error-field-fill-rest,var(--fill-field))] ring-[color:color-mix(in_oklab,var(--fields-error-field-edge-rest,var(--edge-invalid))_var(--level-hue-soft-danger),transparent)] pr-16",
+        "wrap": "",
+        "statusIcon": "text-[color:var(--fields-error-status-ink-rest,var(--ink-invalid))]"
       },
       "valid": {
-        "field": "ring-[length:var(--focus-width)] focus:border-edge-focus focus:ring-[length:var(--bw-focus)] focus:ring-edge-focus/(--level-accent-soft-gold) disabled:border-[color:var(--fields-valid-field-edge-disabled,var(--fields-valid-field-edge-rest,var(--hue-success-edge)))] hover:border-[color:var(--fields-valid-field-edge-hover,var(--fields-valid-field-edge-rest,var(--hue-success-edge)))] border-[color:var(--fields-valid-field-edge-rest,var(--hue-success-edge))] disabled:bg-[color:var(--fields-valid-field-fill-disabled,var(--fields-valid-field-fill-rest,var(--fill-field)))] hover:bg-[color:var(--fields-valid-field-fill-hover,var(--fill-hover))] bg-[color:var(--fields-valid-field-fill-rest,var(--fill-field))] ring-[color:color-mix(in_oklab,var(--fields-valid-field-edge-rest,var(--hue-success-edge))_var(--level-hue-soft-success),transparent)]",
-        "wrap": ""
+        "field": "ring-[length:var(--focus-width)] focus:border-edge-focus focus:ring-[length:var(--bw-focus)] focus:ring-edge-focus/(--level-accent-soft-gold) disabled:border-[color:var(--fields-valid-field-edge-disabled,var(--fields-valid-field-edge-rest,var(--hue-success-edge)))] hover:border-[color:var(--fields-valid-field-edge-hover,var(--fields-valid-field-edge-rest,var(--hue-success-edge)))] border-[color:var(--fields-valid-field-edge-rest,var(--hue-success-edge))] disabled:bg-[color:var(--fields-valid-field-fill-disabled,var(--fields-valid-field-fill-rest,var(--fill-field)))] hover:bg-[color:var(--fields-valid-field-fill-hover,var(--fill-hover))] bg-[color:var(--fields-valid-field-fill-rest,var(--fill-field))] ring-[color:color-mix(in_oklab,var(--fields-valid-field-edge-rest,var(--hue-success-edge))_var(--level-hue-soft-success),transparent)] pr-16",
+        "wrap": "",
+        "statusIcon": "text-[color:var(--fields-valid-status-ink-rest,var(--hue-success-ink))]"
       }
     },
     "disabled": {

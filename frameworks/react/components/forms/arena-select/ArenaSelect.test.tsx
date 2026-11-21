@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { renderIcons, symbols } from '../../../test/IconsHarness.tsx';
 import React from 'react';
 import { ArenaSelect } from './ArenaSelect.tsx';
+import tailwind from './ArenaSelect.manifest.generated.ts';
 
 test('an option draws its label as the text and its value as the attribute, and the two differ', () => {
   const html = renderIcons(
@@ -98,4 +99,30 @@ test('an icon shifts the field padding through a variant rather than a computed 
 
 test('focus is a modifier the control answers, so nothing reports it to a state', () => {
   assert.match(renderIcons(<ArenaSelect label="A" options={[]} />), /arena-select__field/);
+});
+
+test('an error draws the warning mark', () => {
+  const html = renderIcons(<ArenaSelect label="A" options={[]} error="No" />);
+  assert.deepEqual(symbols(html), ['fill-warning-circle']);
+  assert.match(html, /data-arena-part="select.status-icon"[^>]*aria-hidden="true"[^>]*><svg/, 'the mark is hidden and sits in the statusIcon slot');
+  assert.ok(html.indexOf('select.status-icon') > html.indexOf('</select>') && html.indexOf('select.status-icon') < html.indexOf('select.caret'), 'the mark follows the select and precedes the caret');
+});
+
+test('valid draws the check mark', () => {
+  assert.deepEqual(symbols(renderIcons(<ArenaSelect label="A" options={[]} valid />)), ['fill-check-circle']);
+  assert.deepEqual(symbols(renderIcons(<ArenaSelect label="A" options={[]} valid error="No" />)), ['fill-warning-circle']);
+});
+
+test('a neutral select draws no mark', () => {
+  const html = renderIcons(<ArenaSelect label="A" options={[]} />);
+  assert.doesNotMatch(html, /select\.status-icon/);
+  assert.deepEqual(symbols(html), []);
+});
+
+test('the field makes room for the mark', () => {
+  const padded = (state: 'neutral' | 'error' | 'valid') => tailwind.variants.state[state].field.split(/\s+/).includes('pr-16');
+  assert.equal(padded('error'), true);
+  assert.equal(padded('valid'), true);
+  assert.equal(padded('neutral'), false);
+  assert.match(renderIcons(<ArenaSelect label="A" options={[]} error="No" />), /data-arena-part="select.field"[^>]*\bdata-arena-state="error"/);
 });

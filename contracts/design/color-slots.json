@@ -4132,6 +4132,21 @@
           "options": [],
           "states": "static"
         },
+        "statusIcon": {
+          "to": "fields.status",
+          "options": [
+            "error",
+            "valid"
+          ],
+          "states": "static",
+          "optionBy": {
+            "axis": "state",
+            "values": {
+              "error": "error",
+              "valid": "valid"
+            }
+          }
+        },
         "hint": {
           "to": "text.muted",
           "options": [],
