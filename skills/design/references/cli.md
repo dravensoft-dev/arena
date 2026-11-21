@@ -122,6 +122,7 @@ The middle column is the rule of [the rules section of `SKILL.md`](../SKILL.md) 
 | tag | the rule it reports | what fires it |
 | --- | --- | --- |
 | `compat-alias` | none of the language rules | A stylesheet in a style plugin directory reads one of Arena's compatibility aliases through `var()`, which names a step of the ramp instead of a role. |
+| `dead-utility` | none of the language rules | A class of your own markup or an `@apply` names a Tailwind utility or variant that emits nothing under Arena's theme sheet and emits under Tailwind's own theme. |
 | `emoji` | No emoji, in product or in copy. | A line of a source holds an emoji character. |
 | `icon-element` | Icons are Phosphor class-name strings, drawn by Arena's components or by ArenaIcon; a raw ph-* element paints nothing. | An `icon` or `iconRight` attribute is given an element in braces, where Arena takes a Phosphor class-name string. |
 | `missing-level` | A role that names a level is read with that level. | A class or a `var()` reads a role whose `combines` names a level without that level, or holds it back by a literal share. |
@@ -142,6 +143,8 @@ The middle column is the rule of [the rules section of `SKILL.md`](../SKILL.md) 
 
 The rules it reports, and the ones nothing reads, are the router's: [the rules section of `SKILL.md`](../SKILL.md). The audit reads TypeScript, stylesheets and, in Angular, templates. **Every rule is read in a scope.** Inside a directory `stylePlugins` declares, a part hook is what you are meant to select, so it is not reported there. A compiled `arena-` class and a raw value are reported in both scopes. A comment is prose and declares nothing. Exempt a line the audit is wrong about with an `arena-audit allow` comment on that line; the audit reports the allowance once nothing on the line needs it. Nothing else checks your sources against the rules. With no `arena.config.json`, audit and usage read no style plugin; a named `--config` that is not there exits 2.
 
+`dead-utility` compiles each class of your own markup, and each `@apply`, with the `tailwindcss` your project resolves, against the package's `css/tailwind-theme.css` and the `@theme`, `@utility` and `@custom-variant` blocks of your stylesheets. A class that emits nothing there and emits under Tailwind's own theme is reported, with the utilities of Arena's theme that answer it. Without `tailwindcss` v4 the audit says so once and reads the other rules.
+
 ## How do I wire it into a React build?
 
 Run `arena init` once. In a project on `@dravensoft/arena-react` it adds these scripts, and the config when it is absent:
@@ -154,7 +157,7 @@ Run `arena init` once. In a project on `@dravensoft/arena-react` it adds these s
     "prebuild": "arena build",
     "predev": "arena build",
     "arena:check": "arena check --strict=components,glyph,markers",
-    "arena:audit": "arena audit --strict=audit:compat-alias,audit:emoji,audit:icon-element,audit:missing-level,audit:outline-gap,audit:own-class,audit:raw-glyph,audit:raw-value,audit:router-link,audit:stale-allowance,audit:unknown-input,audit:unknown-part,audit:unknown-property,audit:wrapped-link,restated"
+    "arena:audit": "arena audit --strict=audit:compat-alias,audit:dead-utility,audit:emoji,audit:icon-element,audit:missing-level,audit:outline-gap,audit:own-class,audit:raw-glyph,audit:raw-value,audit:router-link,audit:stale-allowance,audit:unknown-input,audit:unknown-part,audit:unknown-property,audit:wrapped-link,restated"
   }
 }
 ```
@@ -175,7 +178,7 @@ The same, on `@dravensoft/arena-angular`, with `prestart` in place of `predev`.
     "prebuild": "arena build",
     "prestart": "arena build",
     "arena:check": "arena check --strict=components,glyph,markers",
-    "arena:audit": "arena audit --strict=audit:compat-alias,audit:emoji,audit:icon-element,audit:missing-level,audit:outline-gap,audit:own-class,audit:raw-glyph,audit:raw-value,audit:router-link,audit:stale-allowance,audit:unknown-input,audit:unknown-part,audit:unknown-property,audit:wrapped-link,restated"
+    "arena:audit": "arena audit --strict=audit:compat-alias,audit:dead-utility,audit:emoji,audit:icon-element,audit:missing-level,audit:outline-gap,audit:own-class,audit:raw-glyph,audit:raw-value,audit:router-link,audit:stale-allowance,audit:unknown-input,audit:unknown-part,audit:unknown-property,audit:wrapped-link,restated"
   }
 }
 ```

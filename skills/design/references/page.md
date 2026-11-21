@@ -58,7 +58,7 @@ resolves to a palette colour and follows the palette instead.
 
 **Markup of yours written with Tailwind v4 reads the same tokens.** Import the package's
 `css/tailwind-theme.css` right after `tailwindcss`, and `bg-base-100` or `p-4` on your own
-element resolves to the token a component reads. Where the sheet resets a Tailwind scale, a default utility such as `shadow-md` emits nothing and reports nothing, and [the token tables](./tokens/scales/index.md) name the utilities that resolve.
+element resolves to the token a component reads. Where the sheet resets a Tailwind scale, a default utility such as `shadow-md` emits nothing. `arena audit` reports it as `dead-utility` when your project resolves `tailwindcss`, and [the token tables](./tokens/scales/index.md) name the utilities that resolve.
 
 **A page's frame is chosen by the viewport, and a component by its own box.** Wrap a wide screen's
 rail in an element of your own marked `max-md:hidden`, and a phone's drawer in one marked
