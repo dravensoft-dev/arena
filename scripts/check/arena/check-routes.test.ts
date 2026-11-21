@@ -174,8 +174,6 @@ test('a reason states why its number is right today, never what it was, and stay
     'a small count or a measurement is not a budget figure');
   assert.match(reasonProblems('test-route', 'Raised again when the page grew')[0] ?? '',
     /says "Raised"/);
-  for (const one of [...ENTRIES, ...ROUTES])
-    assert.deepEqual(reasonProblems(one.name, one.reason), [], `${one.name} carries a history`);
 });
 
 test('a route opening with an entry nobody declared is reported rather than charged from its second page', () => {

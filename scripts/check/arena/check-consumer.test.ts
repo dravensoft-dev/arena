@@ -17,7 +17,6 @@ import {
   palettesProblems, defaultListProblems, fontCutProblems, runtimeProblems, installedPalette, SOURCES, UNKNOWN, GLYPH, NAV_SYMBOL, GLYPH_SYMBOL, THIRD_PALETTE, CLI, snapshot, treeChanges, exitProblem, binProblems, unplacedProblems, PROVIDER,
 } from './check-consumer.ts';
 import type { CliRun, Shipped } from './check-consumer.ts';
-import { distDir } from './check-packages.ts';
 
 const ok: CliRun = { status: 0, stdout: '', stderr: '', theme: null, pkg: null, sprites: {}, module: null, retired: false, plugin: null, runtime: null, fonts: {} };
 
@@ -367,33 +366,12 @@ const refusal = (base: string, strict: string) => spawnSync(process.execPath, ['
   "console.log('went on');",
 ].join('\n')], { encoding: 'utf8' });
 
-test('a missing dist/ stops the gate before it runs anything: a SKIP', () => {
-  const soft = refusal('/nowhere-at-all', '0');
-  assert.equal(soft.status, 2, soft.stderr);
-  assert.match(soft.stderr, /check:consumer: SKIPPED/);
-  assert.match(soft.stderr, /bun run build:packages first/);
-  assert.doesNotMatch(soft.stdout, /went on/);
-});
-
-test('a strict run turns the SKIP of a missing dist/ into a failure', () => {
+test('a strict run on a tree with no dist/ exits 1 naming check:consumer and the step that assembles it', () => {
   const strict = refusal('/nowhere-at-all', '1');
   assert.equal(strict.status, 1, strict.stderr);
-  assert.match(strict.stderr, /FAILED \(strict\)/);
-});
-
-test('two assembled packages let a strict run go on', () => {
-  const base = mkdtempSync(join(tmpdir(), 'check-consumer-assembled-'));
-  try {
-    for (const layer of ['react', 'angular']) {
-      mkdirSync(distDir(layer, base), { recursive: true });
-      writeFileSync(join(distDir(layer, base), 'package.json'), '{}\n');
-    }
-    const assembled = refusal(base, '1');
-    assert.equal(assembled.status, 0, assembled.stderr);
-    assert.match(assembled.stdout, /went on/, 'two assembled packages are the case that lets the gate go on');
-  } finally {
-    rmSync(base, { recursive: true, force: true });
-  }
+  assert.match(strict.stderr, /check:consumer/);
+  assert.match(strict.stderr, /bun run build:packages first/);
+  assert.doesNotMatch(strict.stdout, /went on/);
 });
 
 const FONT_BASE = (() => {

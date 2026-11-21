@@ -103,10 +103,9 @@ test('an exclusion matching nothing in the tree fails, so it cannot outlive what
   const problems = unmatchedExclusions(repoRoot, ghost);
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /outlived what it excluded/);
-  assert.deepEqual(unmatchedExclusions(repoRoot), [], 'every real exclusion still matches the tree');
 });
 
-test('the tree passes its own claim, over more than nothing', () => {
+test('the tree passes its own claim, and the built package carries and lists the derived catalogue', () => {
   const temp = mkdtempSync(join(tmpdir(), 'arena-contracts-tree-'));
   const links: string[] = [];
   try {
@@ -119,12 +118,16 @@ test('the tree passes its own claim, over more than nothing', () => {
       mkdirSync(join(temp, dir));
       copyFileSync(join(repoRoot, dir, file), join(temp, dir, file));
     }
-    buildContractsPackage(temp);
+    const { dir, carried } = buildContractsPackage(temp);
     const { problems, expected, assembled } = collect(temp);
     assert.deepEqual(problems, []);
     assert.ok(expected.length > 0);
     assert.ok(NOT_CARRIED.size > 0, 'a package that excludes nothing is one nobody decided the shape of');
     assert.equal(assembled, true);
+    assert.ok(carried.includes(DERIVED_SLOTS));
+    assert.equal(readFileSync(join(dir, DERIVED_SLOTS), 'utf8'), derivedSlotsText(temp));
+    writeFileSync(join(dir, DERIVED_SLOTS), '{}\n');
+    assert.match(collect(temp).problems.join('\n'), /differs from what readColorSlots derives/);
   } finally {
     for (const link of links) {
       try { if (platform === 'win32') rmdirSync(link); else unlinkSync(link); } catch {  }
@@ -167,31 +170,4 @@ test('the derived slot catalogue is held equal to what readColorSlots derives, a
     put(DERIVED_SLOTS, derivedSlotsText(repoRoot));
     assert.deepEqual(derivedProblems(dir, repoRoot), []);
   } finally { rmSync(dir, { recursive: true, force: true }); }
-});
-
-test('the built package carries the derived catalogue, lists it and the export glob reaches it', () => {
-  const temp = mkdtempSync(join(tmpdir(), 'arena-contracts-derived-'));
-  const links: string[] = [];
-  try {
-    for (const name of readdirSync(repoRoot).filter((entry) => !['dist', 'node_modules', '.git'].includes(entry))) {
-      const from = join(repoRoot, name);
-      if (!statSync(from).isDirectory()) copyFileSync(from, join(temp, name));
-      else if (LINKED_WHOLE.includes(name)) { linkDir(from, join(temp, name)); links.push(join(temp, name)); }
-    }
-    for (const [dir, file] of COPIED_ONE_FILE) {
-      mkdirSync(join(temp, dir));
-      copyFileSync(join(repoRoot, dir, file), join(temp, dir, file));
-    }
-    const { dir, carried } = buildContractsPackage(temp);
-    assert.ok(carried.includes(DERIVED_SLOTS));
-    assert.equal(readFileSync(join(dir, DERIVED_SLOTS), 'utf8'), derivedSlotsText(temp));
-    assert.deepEqual(collect(temp).problems, []);
-    writeFileSync(join(dir, DERIVED_SLOTS), '{}\n');
-    assert.match(collect(temp).problems.join('\n'), /differs from what readColorSlots derives/);
-  } finally {
-    for (const link of links) {
-      try { if (platform === 'win32') rmdirSync(link); else unlinkSync(link); } catch {  }
-    }
-    rmSync(temp, { recursive: true, force: true });
-  }
 });

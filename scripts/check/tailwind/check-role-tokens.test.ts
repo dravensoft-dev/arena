@@ -1,11 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
-import { scaleUsesIn, evaluateManifest, staleAllowances, zeroManifestProblem, derivedSetsProblem, padStems, gapRoles, SCALE_USES, STATE_LITERALS, stateLiteral, stateLiteralFindings, paletteFindings, paletteMessage, paletteUtility, collect } from './check-role-tokens.ts';
+import { scaleUsesIn, evaluateManifest, staleAllowances, zeroManifestProblem, derivedSetsProblem, padStems, gapRoles, SCALE_USES, stateLiteral, stateLiteralFindings, paletteFindings, paletteMessage, paletteUtility, collect } from './check-role-tokens.ts';
 import * as roleTokens from './check-role-tokens.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
-import { manifestFiles } from '../../lib/tailwind/tailwind-compile.ts';
 
 test('a radius scale step in a class string is reported', () => {
   assert.deepEqual(scaleUsesIn('bg-neutral rounded-lg overflow-hidden'), ['rounded-lg']);
@@ -234,8 +233,7 @@ test('a pad stem in roles.json that no kind lists fails on a slot of every kind'
   }
 });
 
-test('the derived sets are not empty, and an empty one is a failure', () => {
-  assert.equal(derivedSetsProblem(), null);
+test('an empty derived set is a failure', () => {
   assert.notEqual(derivedSetsProblem(new Set(), gapRoles()), null);
   assert.notEqual(derivedSetsProblem(padStems(), new Set()), null);
 });
@@ -351,18 +349,6 @@ test('an allowance in STATE_LITERALS suppresses one finding', () => {
   assert.deepEqual(stateLiteralFindings(m, new Map([['ArenaFixture:root:opacity-50', 'a reason']])), []);
 });
 
-test('the shipped manifests draw no state with a literal', () => {
-  const found = [];
-  const seen = new Set<string>();
-  for (const p of manifestFiles(join(repoRoot, 'frameworks/tailwind/components'))) {
-    const manifest = readJson(p);
-    found.push(...stateLiteralFindings(manifest));
-    for (const f of stateLiteralFindings(manifest, new Map())) seen.add(`${f.component}:${f.slot}:${f.utility}`);
-  }
-  assert.deepEqual(found, []);
-  assert.deepEqual([...STATE_LITERALS.keys()].filter((k) => !seen.has(k)), []);
-});
-
 const palettePart = (slots: Record<string, string>, component = 'ArenaFixture') => ({ component, slots, kind: {} }) as never;
 
 test('a palette utility is refused with no allowance', () => {
@@ -378,8 +364,9 @@ test('a palette utility is refused with no allowance', () => {
   assert.equal('stalePaletteReads' in roleTokens, false);
 });
 
-test('the shipped manifests read no palette key', () => {
-  const { palette, stale } = collect();
+test('the shipped manifests draw no state with a literal and read no palette key, and every STATE_LITERALS key was seen', () => {
+  const { states, palette, stale } = collect();
+  assert.deepEqual(states, []);
   assert.deepEqual(palette, []);
   assert.deepEqual(stale, []);
 });

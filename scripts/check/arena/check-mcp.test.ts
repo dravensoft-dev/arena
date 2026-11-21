@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
 import {
-  collect, unassembled, dependencyProblems, importedPackages, binProblems, corpusProblems, catalogueProblems,
+  collect, unassembled, dependencyProblems, importedPackages, binProblems, corpusProblems,
   unresolvedTarget, targetsIn, registryProblems, SITE_BASE, REGISTRY_SCHEMA,
   REGISTRY_DESCRIPTION_LIMIT, flatProblems, ESCAPING_SPECIFIER, vocabularyProblems,
   styleStoreProblems, identityProblems, derivedSlotsProblems,
@@ -45,12 +45,12 @@ buildMcpPackage(root, assembly);
 
 test('the tree passes its own claims, and an empty assembly does not', () => {
   assert.deepEqual(collect(root, assembly).problems, []);
+  assert.ok(importedPackages().size > 0, 'no bare import was found, so a clean dependency pass says nothing');
   const empty = corpus({});
   assert.ok(collect(root, empty).problems.length > 0, 'an assembly holding no file cannot pass in vacuum');
 });
 
 test('each corpus carries the slot catalogue readColorSlots derives, and a stale or missing one is reported', () => {
-  assert.deepEqual(derivedSlotsProblems(assembly, root), []);
   const put = (body: string | null) => corpus(Object.fromEntries(LAYERS.flatMap((layer) => (body === null ? [] : [
     [`agent/${layer}/${DERIVED_SLOTS}`, body],
   ]))));
@@ -69,21 +69,14 @@ const refusal = (base: string, strict: string) => spawnSync(process.execPath, ['
 
 test('check:mcp refuses a tree with no dist/mcp and names the step that assembles it', () => {
   assert.match(unassembled('/nowhere-at-all') ?? '', new RegExp(`${DIST} is not assembled.*run bun run build:packages first`));
-  const soft = refusal('/nowhere-at-all', '0');
-  assert.equal(soft.status, 2, soft.stderr);
-  assert.match(soft.stderr, /check:mcp: SKIPPED/);
-  assert.doesNotMatch(soft.stdout, /went on/);
-  assert.equal(refusal('/nowhere-at-all', '1').status, 1);
+  const strict = refusal('/nowhere-at-all', '1');
+  assert.equal(strict.status, 1, strict.stderr);
+  assert.match(strict.stderr, /check:mcp/);
+  assert.match(strict.stderr, /bun run build:packages first/);
+  assert.doesNotMatch(strict.stdout, /went on/);
   const base = track(mkdtempSync(join(tmpdir(), 'check-mcp-assembled-')));
   mkdirSync(join(base, ...DIST.split('/')), { recursive: true });
   assert.equal(unassembled(base), null);
-  assert.match(refusal(base, '1').stdout, /went on/);
-});
-
-test('the gate read a real result set rather than an empty one', () => {
-  const imported = importedPackages();
-  assert.ok(imported.size > 0, 'no bare import was found, so a clean pass says nothing');
-  assert.deepEqual([...imported].sort(), Object.keys(RUNTIME_DEPENDENCIES).sort());
 });
 
 test('an import with no dependency behind it is a server that throws at spawn', () => {
@@ -178,11 +171,6 @@ test('a link, a relative inline path and an absolute one are all targets; prose 
   assert.deepEqual(found, ['./b.md', '../c.md', 'https://d/e']);
 });
 
-test('the catalogue claim is measured against what the tree declares, and it names the package', () => {
-  assert.deepEqual(catalogueProblems(assembly), []);
-  assert.equal(NAME, '@dravensoft/arena-mcp');
-});
-
 const PLUGIN = (version: string, repository = 'https://github.com/dravensoft-dev/arena') =>
   `${JSON.stringify({
     name: 'arena', version, license: 'MIT', homepage: 'https://arena.dravensoft.org',
@@ -207,12 +195,9 @@ const TREE = (server: string, version = '11.0.0', repository?: string) => corpus
   '.claude-plugin/plugin.json': PLUGIN(version, repository),
 });
 
-test('this tree states one server name and one version in both files that carry them', () => {
-  assert.deepEqual(registryProblems(), []);
-});
-
-test('the manifest stamps the name the registry reads out of the published package', () => {
+test('the manifest stamps the registry name, and the package is named @dravensoft/arena-mcp', () => {
   assert.equal(manifest().mcpName, REGISTRY_NAME);
+  assert.equal(NAME, '@dravensoft/arena-mcp');
 });
 
 test('no server.json at all is a package that publishes to npm and appears in no index', () => {

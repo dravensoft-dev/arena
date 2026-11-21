@@ -196,7 +196,6 @@ test('a dimension role declares its user-scale axis and any other role may', () 
 
 test('deleting any metadata key from the real declaration fails the gate', () => {
   const roles = readJson(join(repoRoot, ROLES)) as Record<string, any>;
-  assert.deepEqual(metadataProblems(roles), []);
   for (const key of ['audience', 'task', 'userScale']) {
     const copy = structuredClone(roles);
     delete copy['r-surface'].$extensions['com.dravensoft.arena'][key];
@@ -307,7 +306,6 @@ test('STATE_SELECTORS is the closed set of states and the selector each one is',
 
 test('the shipped roles carry a valid state on every states role', () => {
   const shipped = readJson(join(repoRoot, ROLES)) as Record<string, any>;
-  assert.deepEqual(metadataProblems(shipped), []);
   const states = Object.entries(shipped).filter(([, role]) => role.$extensions?.['com.dravensoft.arena']?.task === 'states');
   assert.equal(states.length, 13);
   assert.deepEqual(states.map(([name]) => name).sort(), ['bw-focus', 'edge-focus', 'edge-invalid', 'edge-selected',

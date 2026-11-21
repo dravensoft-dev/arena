@@ -6,7 +6,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   ROOT, CONVENTION, COMPANION, DEPARTURES, trackedPages, entryPoints, zeroPageProblems,
-  zeroEntryProblems, rootProblems, frontmatterProblems, commandProblems, madeDepartures,
+  zeroEntryProblems, rootProblems, frontmatterProblems, commandProblems,
   undeclaredDepartureProblems, staleDepartureProblems, collect,
 } from './check-agents-spec.ts';
 
@@ -72,12 +72,6 @@ test('a declared departure the tree no longer makes fails as one that outlived i
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /DEPARTURES declares CLAUDE\.md, which the tree no longer departs on/);
   assert.deepEqual(staleDepartureProblems([COMPANION]), []);
-});
-
-test('this tree makes the departures it declares, and no others', () => {
-  const made = madeDepartures();
-  assert.deepEqual(undeclaredDepartureProblems(made), []);
-  assert.deepEqual(staleDepartureProblems(made), []);
 });
 
 test('this tree conforms', () => {

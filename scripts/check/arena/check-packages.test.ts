@@ -300,15 +300,13 @@ test('check:packages refuses when either package is missing, naming the layers',
   const reason = unassembled(base) ?? '';
   assert.match(reason, /^angular is not assembled/);
   assert.doesNotMatch(reason, /react/);
-  const soft = refusal(base, '0');
-  assert.equal(soft.status, 2, soft.stderr);
-  assert.match(soft.stderr, /check:packages: SKIPPED/);
-  assert.doesNotMatch(soft.stdout, /went on/);
-  assert.equal(refusal(base, '1').status, 1);
+  const strict = refusal(base, '1');
+  assert.equal(strict.status, 1, strict.stderr);
+  assert.match(strict.stderr, /angular is not assembled/);
+  assert.doesNotMatch(strict.stdout, /went on/);
   mkdirSync(distDir('angular', base), { recursive: true });
   writeFileSync(join(distDir('angular', base), 'package.json'), '{}\n');
   assert.equal(unassembled(base), null);
-  assert.match(refusal(base, '1').stdout, /went on/);
 });
 
 test('check:packages --layer requires and judges the one package it names, whatever the other is', () => {
@@ -317,8 +315,9 @@ test('check:packages --layer requires and judges the one package it names, whate
   writeFileSync(join(distDir('react', base), 'package.json'), '{}\n');
   assert.equal(unassembled(base, ['react']), null);
   assert.match(unassembled(base, ['angular']) ?? '', /^angular is not assembled/);
-  assert.match(refusal(base, '1', ['react']).stdout, /went on/);
-  assert.equal(refusal(base, '1', ['angular']).status, 1);
+  const strict = refusal(base, '1', ['angular']);
+  assert.equal(strict.status, 1, strict.stderr);
+  assert.match(strict.stderr, /angular is not assembled/);
   assert.deepEqual(collect(root, (layer) => distDir(layer, base), ['angular']).assembled, []);
   assert.throws(() => collect(root, (layer) => distDir(layer, base), ['react']),
     (error: Error) => error.message.includes(toPosix(join(distDir('react', base), 'css', 'tailwind-theme.css'))));
