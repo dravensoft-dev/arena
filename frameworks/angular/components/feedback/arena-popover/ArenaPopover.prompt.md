@@ -41,7 +41,7 @@ Arena popover, a small panel a trigger opens, holding content of the consumer's 
 
 **Escape closes the topmost panel and nothing under it.** A menu or a tooltip opened inside the popover closes first, and the next Escape closes the popover. A popover inside an `arena-dialog` closes alone.
 
-**Where it opens.** Below its trigger, above when the room below is too small and the room above larger, pushed inside the viewport, and following its trigger on scroll. The panel takes its content's width, up to 92% of the viewport. The CDK container sits under the toast layer, so a toast stays above an open popover.
+**Where it opens.** Below its trigger, above when the room below is too small and the room above larger, pushed inside the viewport, and following its trigger on scroll. The panel takes its content's width, up to 92% of the viewport. The CDK container sits under the toast layer, so a toast stays above an open popover. The panel stays inside the visible part of the screen when a soft keyboard covers the rest.
 
 **The content is constructed while the panel is closed.** The content is projected once, into a template the overlay attaches. A component inside it is built when the popover is, and keeps its state across openings. Don't put cost in a popover's content. A server render draws the trigger alone.
 

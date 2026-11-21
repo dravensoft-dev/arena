@@ -86,7 +86,7 @@ nothing.
   button role and a tabindex.
 - **Do** reach for `align="end"` when the trigger sits at the right edge of its row, so the panel
   hangs inward instead of off the page. The CDK will flip it above the trigger near the bottom of
-  the viewport on its own.
+  the viewport on its own. The panel stays inside the visible part of the screen when a soft keyboard covers the rest.
 - **Don't** use `shortcut` expecting Arena to bind the key. The member is display only, and the contract says so. The host binds it or nothing does.
 - **Don't** use it to choose a form value. A short list is `arena-select`, and a long one the user
   searches is `arena-combobox`.

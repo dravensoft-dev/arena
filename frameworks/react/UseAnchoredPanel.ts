@@ -2,7 +2,7 @@ import type * as React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import {
   arenaEscapeInsideModal, arenaOpeningFocus, arenaPanelsAbove, arenaPlacePanel, arenaPressInside, arenaTabLeavesPanel,
-  arenaTopmostPanel,
+  arenaTopmostPanel, arenaViewportBox,
 } from './AnchoredPanel.ts';
 import type { ArenaPanelAlign, ArenaPanelDismissal, ArenaPanelSide } from './AnchoredPanel.ts';
 import { arenaFocusableElements, arenaTabStopOf } from './UseDialogModal.ts';
@@ -51,6 +51,7 @@ export function useArenaAnchoredPanel(options: ArenaAnchoredPanelOptions): boole
     if (!present || !panel) return undefined;
     const doc = panel.ownerDocument;
     const view = doc.defaultView;
+    const visual = view?.visualViewport;
     if (panel.isConnected && typeof panel.showPopover === 'function') panel.showPopover();
 
     let matched = '';
@@ -67,7 +68,7 @@ export function useArenaAnchoredPanel(options: ArenaAnchoredPanelOptions): boole
       panel.style.margin = '0';
       const own = panel.getBoundingClientRect();
       const placed = arenaPlacePanel(box, { width: own.width, height: own.height },
-        { width: doc.documentElement.clientWidth, height: view.innerHeight },
+        arenaViewportBox(view),
         latest.current.align ?? 'start', latest.current.offset, latest.current.prefer ?? 'below');
       panel.style.left = `${placed.x}px`;
       panel.style.top = `${placed.y}px`;
@@ -107,6 +108,8 @@ export function useArenaAnchoredPanel(options: ArenaAnchoredPanelOptions): boole
     doc.addEventListener('scroll', place, true);
     panel.addEventListener('keydown', onTab);
     view?.addEventListener('resize', place);
+    visual?.addEventListener('resize', place);
+    visual?.addEventListener('scroll', place);
     const observer = view && typeof view.ResizeObserver === 'function' ? new view.ResizeObserver(place) : null;
     observer?.observe(panel);
     const anchorNow = latest.current.anchor.current;
@@ -120,6 +123,8 @@ export function useArenaAnchoredPanel(options: ArenaAnchoredPanelOptions): boole
       doc.removeEventListener('scroll', place, true);
       panel.removeEventListener('keydown', onTab);
       view?.removeEventListener('resize', place);
+      visual?.removeEventListener('resize', place);
+      visual?.removeEventListener('scroll', place);
       observer?.disconnect();
       const at = stack.indexOf(entry);
       if (at !== -1) stack.splice(at, 1);

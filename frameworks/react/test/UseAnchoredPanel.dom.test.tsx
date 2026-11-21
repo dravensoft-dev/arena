@@ -8,6 +8,7 @@ import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import React, { useRef } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
+import { createRoot } from 'react-dom/client';
 import { mount, cleanup, act } from './Harness.tsx';
 import {
   ARENA_PANEL_POPOVER, arenaFirstFocusable, useArenaAnchoredPanel, type ArenaPanelDismissal,
@@ -300,5 +301,95 @@ test('a closed panel leaves the stack for good, even if its node is put back in 
     assert.deepEqual(seen, ['lower:escape']);
   } finally {
     node.remove();
+  }
+});
+
+type StubVisual = EventTarget & { offsetTop: number; offsetLeft: number; height: number; width: number };
+
+function stubVisualViewport(height: number, offsetTop = 0) {
+  const visual = Object.assign(new EventTarget(), { offsetTop, offsetLeft: 0, height, width: 1024 }) as StubVisual;
+  const had = Object.getOwnPropertyDescriptor(window, 'visualViewport');
+  Object.defineProperty(window, 'visualViewport', { configurable: true, value: visual });
+  const restore = () => {
+    if (had) Object.defineProperty(window, 'visualViewport', had); else delete (window as { visualViewport?: unknown }).visualViewport;
+  };
+  return { visual, restore };
+}
+
+function drawn(anchorTop: number, anchorHeight: number, panelHeight: number) {
+  const rect = Element.prototype.getBoundingClientRect;
+  Element.prototype.getBoundingClientRect = function sized(this: Element) {
+    const top = this.hasAttribute('data-probe') ? anchorTop : 0;
+    const height = this.hasAttribute('data-probe') ? anchorHeight : this.hasAttribute('data-panel') ? panelHeight : 0;
+    return { x: 0, y: top, left: 0, top, right: 100, bottom: top + height, width: 100, height, toJSON() { return this; } } as DOMRect;
+  };
+  return () => { Element.prototype.getBoundingClientRect = rect; };
+}
+
+test('a panel below a field that the keyboard covers flips above it', () => {
+  const seen: string[] = [];
+  const stub = stubVisualViewport(300);
+  const undraw = drawn(250, 40, 120);
+  try {
+    mount(<Probe name="p" open seen={seen} />);
+    assert.equal(panelOf('p')!.style.top, `${250 - 6 - 120}px`, 'the panel stayed under the keyboard');
+  } finally {
+    undraw();
+    stub.restore();
+  }
+});
+
+test('a panel is placed inside a visual viewport that is scrolled down', () => {
+  const seen: string[] = [];
+  const stub = stubVisualViewport(300, 200);
+  const undraw = drawn(210, 40, 120);
+  try {
+    mount(<Probe name="p" open seen={seen} />);
+    assert.equal(panelOf('p')!.style.top, '256px', 'the panel left the visible part of the screen');
+  } finally {
+    undraw();
+    stub.restore();
+  }
+});
+
+test('no visual viewport keeps the inner height', () => {
+  const seen: string[] = [];
+  const stub = stubVisualViewport(300);
+  stub.restore();
+  const undraw = drawn(250, 40, 120);
+  try {
+    mount(<Probe name="p" open seen={seen} />);
+    assert.equal(panelOf('p')!.style.top, '296px', 'the placement moved without a visual viewport');
+  } finally {
+    undraw();
+  }
+});
+
+test('a visual viewport resize re-places the panel, and closing removes the listeners', () => {
+  const seen: string[] = [];
+  const stub = stubVisualViewport(800);
+  const undraw = drawn(250, 40, 120);
+  try {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const root = createRoot(host);
+    act(() => { root.render(<Probe name="p" open seen={seen} />); });
+    const panel = panelOf('p')!;
+    assert.equal(panel.style.top, '296px');
+    stub.visual.height = 300;
+    act(() => { stub.visual.dispatchEvent(new Event('resize')); });
+    assert.equal(panel.style.top, '124px', 'a keyboard that opened later did not move the panel');
+    stub.visual.height = 800;
+    act(() => { stub.visual.dispatchEvent(new Event('scroll')); });
+    assert.equal(panel.style.top, '296px', 'a visual viewport scroll did not re-place the panel');
+    act(() => { root.render(<Probe name="p" open={false} seen={seen} />); });
+    stub.visual.height = 300;
+    stub.visual.dispatchEvent(new Event('resize'));
+    assert.equal(panelOf('p'), null);
+    act(() => { root.unmount(); });
+    host.remove();
+  } finally {
+    undraw();
+    stub.restore();
   }
 });

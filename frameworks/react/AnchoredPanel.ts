@@ -16,6 +16,10 @@ export interface ArenaPanelSize {
   readonly height: number;
 }
 
+export interface ArenaPanelViewport extends ArenaPanelSize {
+  readonly top?: number;
+}
+
 export interface ArenaPanelPlacement {
   readonly x: number;
   readonly y: number;
@@ -26,19 +30,27 @@ export interface ArenaPanelRegion<T> {
   contains(other: T): boolean;
 }
 
-export function arenaPanelSide(anchor: ArenaPanelRect, panel: ArenaPanelSize, viewport: ArenaPanelSize, offset: number, prefer: ArenaPanelSide): ArenaPanelSide {
-  const below = viewport.height - (anchor.top + anchor.height) - offset;
-  const above = anchor.top - offset;
+export function arenaViewportBox(view: Window): { top: number; height: number; width: number } {
+  const visual = view.visualViewport;
+  if (visual) return { top: visual.offsetTop, height: visual.height, width: visual.width };
+  return { top: 0, height: view.innerHeight, width: view.document.documentElement.clientWidth };
+}
+
+export function arenaPanelSide(anchor: ArenaPanelRect, panel: ArenaPanelSize, viewport: ArenaPanelViewport, offset: number, prefer: ArenaPanelSide): ArenaPanelSide {
+  const top = viewport.top ?? 0;
+  const below = top + viewport.height - (anchor.top + anchor.height) - offset;
+  const above = anchor.top - top - offset;
   const room = prefer === 'below' ? below : above;
   const other = prefer === 'below' ? above : below;
   if (room >= panel.height || other <= room) return prefer;
   return prefer === 'below' ? 'above' : 'below';
 }
 
-export function arenaPlacePanel(anchor: ArenaPanelRect, panel: ArenaPanelSize, viewport: ArenaPanelSize, align: ArenaPanelAlign, offset: number, prefer: ArenaPanelSide = 'below'): ArenaPanelPlacement {
+export function arenaPlacePanel(anchor: ArenaPanelRect, panel: ArenaPanelSize, viewport: ArenaPanelViewport, align: ArenaPanelAlign, offset: number, prefer: ArenaPanelSide = 'below'): ArenaPanelPlacement {
   const side = arenaPanelSide(anchor, panel, viewport, offset, prefer);
   const placed = side === 'below' ? anchor.top + anchor.height + offset : anchor.top - offset - panel.height;
-  const y = Math.max(0, Math.min(placed, viewport.height - panel.height));
+  const top = viewport.top ?? 0;
+  const y = Math.max(top, Math.min(placed, top + viewport.height - panel.height));
   const alignedAt = (one: ArenaPanelAlign) => one === 'end' ? anchor.left + anchor.width - panel.width
     : one === 'center' ? anchor.left + (anchor.width - panel.width) / 2 : anchor.left;
   const fits = (at: number) => at >= 0 && at + panel.width <= viewport.width;

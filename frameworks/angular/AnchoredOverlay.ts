@@ -1,15 +1,17 @@
 import {
-  DOCUMENT, DestroyRef, Injector, ViewContainerRef, afterNextRender, effect, inject, signal, untracked,
+  DOCUMENT, DestroyRef, EnvironmentInjector, Injectable, Injector, ViewContainerRef, afterNextRender, createEnvironmentInjector,
+  effect, inject, signal, untracked,
   type Signal, type TemplateRef,
 } from '@angular/core';
 import {
   type ConnectedPosition, type OverlayRef, createFlexibleConnectedPositionStrategy,
-  createOverlayRef, createRepositionScrollStrategy,
+  ViewportRuler, createOverlayRef, createRepositionScrollStrategy,
 } from '@angular/cdk/overlay';
 import { Directionality } from '@angular/cdk/bidi';
 import { TemplatePortal } from '@angular/cdk/portal';
 import {
   arenaEscapeInsideModal, arenaOpeningFocus, arenaPanelsAbove, arenaPressInside, arenaTabLeavesPanel, arenaTopmostPanel,
+  arenaViewportBox,
   type ArenaPanelAlign, type ArenaPanelDismissal, type ArenaPanelSide,
 } from './AnchoredPanel';
 import { arenaFocusableElements, arenaTabStopOf } from './FocusTrap';
@@ -76,15 +78,33 @@ export function arenaScopeDress(anchor: Element, theme: ArenaThemeService | null
   return { classes, properties: runtime ? { ...runtime.properties } : {} };
 }
 
+@Injectable()
+export class ArenaVisualViewportRuler extends ViewportRuler {
+  override getViewportSize(): Readonly<{ width: number; height: number }> {
+    const view = this._document.defaultView;
+    if (!view) return super.getViewportSize();
+    const box = arenaViewportBox(view);
+    return { width: box.width, height: box.height };
+  }
+
+  override getViewportScrollPosition(): { top: number; left: number } {
+    const scroll = super.getViewportScrollPosition();
+    const visual = this._document.defaultView?.visualViewport;
+    return visual ? { top: scroll.top + visual.offsetTop, left: scroll.left + visual.offsetLeft } : scroll;
+  }
+}
+
 export class ArenaAnchoredOverlay {
   private readonly injector = inject(Injector);
   private readonly viewContainer = inject(ViewContainerRef);
   private readonly doc = inject(DOCUMENT);
   private readonly directionality = inject(Directionality);
+  private readonly environment = inject(EnvironmentInjector);
   private readonly options: ArenaAnchoredOverlayOptions;
   private readonly shown = signal(false);
   private ref: OverlayRef | null = null;
   private detach: (() => void) | null = null;
+  private ruler: EnvironmentInjector | null = null;
   private paneClasses: string[] = [];
   private paneProperties: string[] = [];
   private following = false;
@@ -135,8 +155,9 @@ export class ArenaAnchoredOverlay {
     const anchor = this.options.anchor();
     if (this.ref || !anchor) return;
     const { classes, properties } = arenaScopeDress(anchor, this.injector.get(ArenaThemeService, null));
+    const ruler = createEnvironmentInjector([{ provide: ViewportRuler, useClass: ArenaVisualViewportRuler }], this.environment);
     const ref = createOverlayRef(this.injector, {
-      positionStrategy: createFlexibleConnectedPositionStrategy(this.injector, anchor)
+      positionStrategy: createFlexibleConnectedPositionStrategy(ruler, anchor)
         .withPositions(arenaPhysicalPositions(this.options.positions(), this.directionality.value === 'rtl'))
         .withPush(true),
       scrollStrategy: createRepositionScrollStrategy(this.injector),
@@ -145,6 +166,7 @@ export class ArenaAnchoredOverlay {
     if (this.options.matchAnchorWidth) ref.updateSize({ minWidth: anchor.getBoundingClientRect().width });
     ref.attach(new TemplatePortal(this.options.panel(), this.viewContainer));
     this.ref = ref;
+    this.ruler = ruler;
     this.paneClasses = classes;
     this.paneProperties = [];
     this.wearProperties(ref, properties);
@@ -165,6 +187,8 @@ export class ArenaAnchoredOverlay {
     this.detach = null;
     this.ref?.dispose();
     this.ref = null;
+    this.ruler?.destroy();
+    this.ruler = null;
     this.paneClasses = [];
     this.paneProperties = [];
     this.shown.set(false);
@@ -210,8 +234,14 @@ export class ArenaAnchoredOverlay {
     }) : null;
     observer?.observe(ref.overlayElement);
     if (anchor) observer?.observe(anchor);
+    const visual = this.doc.defaultView?.visualViewport;
+    const replace = (): void => ref.updatePosition();
+    visual?.addEventListener('resize', replace);
+    visual?.addEventListener('scroll', replace);
     this.detach = () => {
       observer?.disconnect();
+      visual?.removeEventListener('resize', replace);
+      visual?.removeEventListener('scroll', replace);
       this.doc.removeEventListener('keydown', onKey, true);
       this.doc.removeEventListener('mousedown', onPress, true);
       ref.overlayElement.removeEventListener('keydown', onTab);

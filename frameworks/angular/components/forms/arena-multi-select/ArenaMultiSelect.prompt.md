@@ -50,6 +50,8 @@ Arena multi-select, a text field that filters a list of options and holds a set 
 
 **The keys.** Typing opens the list and keeps the rows whose label holds the text. Enter on an available cursor row chooses or unchooses it, clears the text and closes the list. Enter on a blocked row chooses nothing, announces the cap and keeps the list open. A press on a row chooses or unchooses it and keeps the list open, so the next row can be pressed. Escape, Tab and a press elsewhere close the list and clear the typed text.
 
+The list stays inside the visible part of the screen when a soft keyboard covers the rest.
+
 **The chips.** On an empty field, ArrowLeft or Backspace moves to the last chip, and a second Backspace removes it. ArrowLeft and ArrowRight walk the chips, and ArrowRight past the last one returns to the field. Enter and Space press the remove button, and Delete and Backspace remove the focused chip too. Focus then moves to its neighbour, or back to the field. Each remove button reads its chip's text after the remove word.
 
 **`max` caps the set.** At the cap, every row not chosen is unavailable, and choosing one is announced as blocked. Removing a value stays possible. **`maxVisible`** draws that many chips and a count for the rest. The collapsed values stay in the open list as chosen rows.

@@ -41,7 +41,7 @@ const [open, setOpen] = useState(false);
 
 **Escape closes the topmost panel and nothing under it.** A menu or a tooltip opened inside the popover closes first, and the next Escape closes the popover. A popover inside an `ArenaDialog` closes alone, and the dialog stays.
 
-**The panel escapes its container.** The panel opens in the top layer, so no `overflow: hidden` or transformed ancestor clips it. The top layer sits above every other layer, an open dialog and the toast stack included. The panel opens below its trigger and flips above when the room below is too small and the room above larger. The panel stays inside the viewport and follows its trigger on scroll. The panel takes its content's width, up to 92% of the viewport.
+**The panel escapes its container.** The panel opens in the top layer, so no `overflow: hidden` or transformed ancestor clips it. The top layer sits above every other layer, an open dialog and the toast stack included. The panel opens below its trigger and flips above when the room below is too small and the room above larger. The panel stays inside the viewport and follows its trigger on scroll. The panel takes its content's width, up to 92% of the viewport. The panel stays inside the visible part of the screen when a soft keyboard covers the rest.
 
 **A server render draws the trigger alone.** The panel is placed by script, so it mounts once the page has hydrated, even when `open` starts true.
 

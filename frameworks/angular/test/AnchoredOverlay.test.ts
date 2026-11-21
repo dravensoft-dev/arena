@@ -11,7 +11,7 @@ import assert from 'node:assert/strict';
 import { Component, ElementRef, TemplateRef, input, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
-  ArenaAnchoredOverlay, arenaConnectedPositions, arenaFirstFocusable, arenaPhysicalPositions, arenaScopeDress,
+  ArenaAnchoredOverlay, ArenaVisualViewportRuler, arenaConnectedPositions, arenaFirstFocusable, arenaPhysicalPositions, arenaScopeDress,
 } from '../AnchoredOverlay';
 import type { ArenaAnchoredOverlayOptions, ArenaPanelDismissal } from '../AnchoredOverlay';
 import { assertNotSameNode, assertSameNode } from './NodeAssert';
@@ -584,6 +584,80 @@ test('a pane open while the runtime palette is re-registered follows it', () => 
     unmark();
     window.localStorage?.removeItem('arena-theme');
     window.localStorage?.removeItem('arena-runtime-palette');
+    fixture.destroy();
+    disposeOverlays();
+  }
+});
+
+type StubVisual = EventTarget & { offsetTop: number; offsetLeft: number; height: number; width: number };
+
+function stubVisualViewport(height: number, offsetTop = 0) {
+  const visual = Object.assign(new EventTarget(), { offsetTop, offsetLeft: 0, height, width: 1024 }) as StubVisual;
+  const had = Object.getOwnPropertyDescriptor(window, 'visualViewport');
+  Object.defineProperty(window, 'visualViewport', { configurable: true, value: visual });
+  const restore = () => {
+    if (had) Object.defineProperty(window, 'visualViewport', had); else delete (window as { visualViewport?: unknown }).visualViewport;
+  };
+  return { visual, restore };
+}
+
+const strategyOf = (solo: Probe) => (solo.overlay as unknown as {
+  ref: { getConfig(): { positionStrategy: { _viewportRuler: ArenaVisualViewportRuler } } };
+}).ref.getConfig().positionStrategy;
+
+test('the overlay places a pane in the visual viewport: a keyboard-short height, scrolled by its offset', () => {
+  const stub = stubVisualViewport(300, 200);
+  const { fixture, solo } = renderSolo({ plain: true });
+  try {
+    solo.overlay.open();
+    fixture.detectChanges();
+    const ruler = strategyOf(solo)._viewportRuler;
+    assert.ok(ruler instanceof ArenaVisualViewportRuler, 'the position strategy measures the layout viewport');
+    assert.deepEqual(ruler.getViewportSize(), { width: 1024, height: 300 }, 'the height is not the visual viewport\'s');
+    assert.equal(ruler.getViewportScrollPosition().top - 200, ruler.getViewportRect().top - 200, "the rect is not the scroll position");
+    assert.ok(ruler.getViewportScrollPosition().top >= 200, "the offset was not added to the scroll");
+    assert.equal(ruler.getViewportRect().bottom - ruler.getViewportRect().top, 300);
+  } finally {
+    stub.restore();
+    fixture.destroy();
+    disposeOverlays();
+  }
+});
+
+test('no visual viewport keeps the inner height', () => {
+  const stub = stubVisualViewport(300);
+  stub.restore();
+  const { fixture, solo } = renderSolo({ plain: true });
+  try {
+    solo.overlay.open();
+    fixture.detectChanges();
+    assert.equal(strategyOf(solo)._viewportRuler.getViewportSize().height, window.innerHeight);
+  } finally {
+    fixture.destroy();
+    disposeOverlays();
+  }
+});
+
+test('a visual viewport resize or scroll re-places the pane, and closing removes the listeners', () => {
+  const stub = stubVisualViewport(800);
+  const { fixture, solo } = renderSolo({ plain: true });
+  try {
+    solo.overlay.open();
+    fixture.detectChanges();
+    const ref = (solo.overlay as unknown as { ref: { updatePosition(): void } }).ref;
+    let placed = 0;
+    const original = ref.updatePosition.bind(ref);
+    ref.updatePosition = () => { placed += 1; original(); };
+    stub.visual.dispatchEvent(new Event('resize'));
+    assert.equal(placed, 1, 'a keyboard that opened later did not re-place the pane');
+    stub.visual.dispatchEvent(new Event('scroll'));
+    assert.equal(placed, 2, 'a visual viewport scroll did not re-place the pane');
+    solo.overlay.close();
+    stub.visual.dispatchEvent(new Event('resize'));
+    stub.visual.dispatchEvent(new Event('scroll'));
+    assert.equal(placed, 2, 'a closed pane still hears the visual viewport');
+  } finally {
+    stub.restore();
     fixture.destroy();
     disposeOverlays();
   }
