@@ -12,6 +12,7 @@ import { join } from 'node:path';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { assertPattern, ANGULAR_COMPONENTS } from '../../../test/Compliance';
+import { assertSameNode } from '../../../test/NodeAssert';
 import type { ArenaSelectOption } from '../../../Api.generated';
 import { ArenaSelect } from './ArenaSelect';
 
@@ -232,8 +233,8 @@ test('an error draws the warning mark, hidden, between the select and the caret'
     assert.ok(mark, 'an error drew no status mark');
     assert.equal(mark.getAttribute('aria-hidden'), 'true');
     assert.deepEqual(glyphIds(mark as HTMLElement), [symbol('fill', 'warning-circle')]);
-    assert.equal(host.querySelector('select')!.nextElementSibling, mark);
-    assert.equal(mark.nextElementSibling, host.querySelector('[data-arena-part="select.caret"]'));
+    assertSameNode(host.querySelector('select')!.nextElementSibling, mark);
+    assertSameNode(mark.nextElementSibling, host.querySelector('[data-arena-part="select.caret"]'));
   } finally {
     fixture.destroy();
   }

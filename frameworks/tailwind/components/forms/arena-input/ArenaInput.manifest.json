@@ -30,14 +30,14 @@
   "variants": {
     "state": {
       "neutral": {
-        "field": "focus-within:border-edge-focus focus-within:ring-[length:var(--bw-focus)] focus-within:ring-edge-focus/(--level-accent-soft-gold) hover:border-[color:var(--fields-neutral-field-edge-hover,var(--fields-neutral-field-edge-rest,var(--edge-field)))] border-[color:var(--fields-neutral-field-edge-rest,var(--edge-field))] hover:bg-[color:var(--fields-neutral-field-fill-hover,var(--fill-hover))] bg-[color:var(--fields-neutral-field-fill-rest,var(--fill-field))] hover:focus-within:border-edge-focus"
+        "field": "focus-within:border-edge-focus focus-within:outline-hidden focus-within:ring-[length:var(--bw-focus)] focus-within:ring-edge-focus/(--level-accent-soft-gold) hover:border-[color:var(--fields-neutral-field-edge-hover,var(--fields-neutral-field-edge-rest,var(--edge-field)))] border-[color:var(--fields-neutral-field-edge-rest,var(--edge-field))] hover:bg-[color:var(--fields-neutral-field-fill-hover,var(--fill-hover))] bg-[color:var(--fields-neutral-field-fill-rest,var(--fill-field))] hover:focus-within:border-edge-focus"
       },
       "error": {
         "field": "ring-[length:var(--focus-width)] hover:border-[color:var(--fields-error-field-edge-hover,var(--fields-error-field-edge-rest,var(--edge-invalid)))] border-[color:var(--fields-error-field-edge-rest,var(--edge-invalid))] hover:bg-[color:var(--fields-error-field-fill-hover,var(--fill-hover))] bg-[color:var(--fields-error-field-fill-rest,var(--fill-field))] ring-[color:color-mix(in_oklab,var(--fields-error-field-edge-rest,var(--edge-invalid))_var(--level-hue-soft-danger),transparent)]",
         "statusIcon": "text-[color:var(--fields-error-status-ink-rest,var(--ink-invalid))]"
       },
       "valid": {
-        "field": "ring-[length:var(--focus-width)] focus-within:border-edge-focus focus-within:ring-[length:var(--bw-focus)] focus-within:ring-edge-focus/(--level-accent-soft-gold) hover:border-[color:var(--fields-valid-field-edge-hover,var(--fields-valid-field-edge-rest,var(--hue-success-edge)))] border-[color:var(--fields-valid-field-edge-rest,var(--hue-success-edge))] hover:bg-[color:var(--fields-valid-field-fill-hover,var(--fill-hover))] bg-[color:var(--fields-valid-field-fill-rest,var(--fill-field))] ring-[color:color-mix(in_oklab,var(--fields-valid-field-edge-rest,var(--hue-success-edge))_var(--level-hue-soft-success),transparent)] hover:focus-within:border-edge-focus",
+        "field": "ring-[length:var(--focus-width)] focus-within:border-edge-focus focus-within:outline-hidden focus-within:ring-[length:var(--bw-focus)] focus-within:ring-edge-focus/(--level-accent-soft-gold) hover:border-[color:var(--fields-valid-field-edge-hover,var(--fields-valid-field-edge-rest,var(--hue-success-edge)))] border-[color:var(--fields-valid-field-edge-rest,var(--hue-success-edge))] hover:bg-[color:var(--fields-valid-field-fill-hover,var(--fill-hover))] bg-[color:var(--fields-valid-field-fill-rest,var(--fill-field))] ring-[color:color-mix(in_oklab,var(--fields-valid-field-edge-rest,var(--hue-success-edge))_var(--level-hue-soft-success),transparent)] hover:focus-within:border-edge-focus",
         "statusIcon": "text-[color:var(--fields-valid-status-ink-rest,var(--hue-success-ink))]"
       }
     },

@@ -7,7 +7,7 @@
  * and acting on it rather than declared. The component gained `disabled` because casing it made
  * the gap visible: bound to `none` the requirement never applied.
  * The item pulls ArenaSideNavState from the nearest arena-side-nav, so every case mounts one.
- * The disabled fade's slot wiring is proven by check:color-slots; this layer asserts the attributes the fade selects. */
+ * What the disabled fade draws is proven by check:color-slots; this layer asserts only the attributes the fade selects. */
 
 import { useTestEnvironment } from '../../../test/TestbedEnv';
 useTestEnvironment();

@@ -248,6 +248,7 @@ export const SCALE_USES = new Map<string, string>([
   ['ArenaSelect:field:pl-3', 'the field of a select, at 12px before its value: it sizes the value inset, not the room around content, so it is this slot\'s own length'],
   ['ArenaSelect:field:pl-9', 'the field of a select with a leading icon, at 36px before its value: it sizes the clearance of that icon, not the room around content, so it is this slot\'s own length'],
   ['ArenaSelect:field:pr-9', 'the field of a select, at 36px after its value: it sizes the clearance of its caret, not the room around content, so it is this slot\'s own length'],
+  ['ArenaSelect:field:pr-16', 'the field of a select in its error or valid state, at 64px after its value: it sizes the clearance of the status mark beside the caret, not the room around content, so it is this slot\'s own length'],
   ['ArenaSelect:root:gap-1.5', 'a select, between its label, its field and its hint: 6px of gap inside the component, which no role answers'],
   ['ArenaSideNav:region:gap-1', 'the collapsible region under a side nav trigger, between one item and the next: 4px of gap inside the component, which no role answers'],
   ['ArenaSideNav:root:gap-1', 'a side nav, between one item or section and the next: 4px of gap inside the component, which no role answers'],

@@ -102,7 +102,7 @@ test('a focus state that writes outline-none is refused, naming the slot and for
 });
 
 test('a bare outline-none is refused, because it applies in the focus state too, and the fix is never a bare outline-hidden', () => {
-  const manifest = { component: 'Fixture', slots: { cell: 'outline-none focus:shadow-[inset_0_0_0_2px_red]', plain: 'p-1' } };
+  const manifest = { component: 'Fixture', slots: { cell: 'outline-none focus:bg-red-500', plain: 'p-1' } };
   const problems = focusOutlineProblems(manifest);
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /Fixture:cell/);
@@ -128,6 +128,34 @@ test('outline-none under a media, scheme or breakpoint variant is refused, becau
 test('outline-hidden in a focus state, and outline-none under a non-focus variant, are accepted', () => {
   const manifest = { component: 'Fixture', slots: { root: 'focus-visible:outline-hidden focus-within:outline-hidden group-focus:outline-hidden hover:outline-none' } };
   assert.deepEqual(focusOutlineProblems(manifest), []);
+});
+
+test('a bare outline-hidden is refused, and the same class under a focus variant is not', () => {
+  const problems = focusOutlineProblems({ component: 'Fixture', slots: { cell: 'outline-hidden', ok: 'focus-visible:outline-hidden' } });
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /Fixture:cell/);
+  assert.match(problems[0] ?? '', /bare `outline-hidden`/);
+});
+
+test('an arbitrary focus variant is read as a focus state', () => {
+  for (const cls of ['[&:focus-visible]:outline-none', '[&:has(~input:focus-visible)]:outline-none', '[&:focus-within]:outline-none']) {
+    assert.equal(focusOutlineProblems({ component: 'Fixture', slots: { root: cls } }).length, 1, cls);
+  }
+});
+
+test('a focus state drawn only as a shadow or ring, with no outline in the same variant, is refused', () => {
+  for (const cls of ['[&:has(~input:focus-visible)]:shadow-[0_0_0_2px_red]', 'focus-visible:ring-2', 'focus:inset-shadow-sm']) {
+    const problems = focusOutlineProblems({ component: 'Fixture', slots: { box: `p-1 ${cls}` } });
+    assert.equal(problems.length, 1, cls);
+    assert.match(problems[0] ?? '', /Fixture:box/);
+    assert.match(problems[0] ?? '', /outline-hidden/);
+  }
+});
+
+test('a focus shadow paired with an outline under the same variant is accepted, a different variant is not', () => {
+  const paired = '[&:has(~input:focus-visible)]:shadow-[0_0_0_2px_red] [&:has(~input:focus-visible)]:outline-hidden focus-visible:ring-2 focus-visible:outline-edge-focus';
+  assert.deepEqual(focusOutlineProblems({ component: 'Fixture', slots: { box: paired } }), []);
+  assert.equal(focusOutlineProblems({ component: 'Fixture', slots: { box: 'focus-visible:ring-2 focus:outline-hidden' } }).length, 1);
 });
 
 test('accepts a theme key that is a calc over Arena tokens only', () => {

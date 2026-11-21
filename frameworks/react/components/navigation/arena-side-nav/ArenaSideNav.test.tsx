@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { renderIcons, symbols } from '../../../test/IconsHarness.tsx';
 import React from 'react';
@@ -148,4 +149,14 @@ test('ArenaSideNavItem drops a consumer style object', () => {
 test('ArenaSideNavItem drops a consumer attribute -- no {...rest} spread reaches the root', () => {
   const html = renderIcons(<ArenaSideNavItem id="a" label="A" data-stray="x" />);
   assert.doesNotMatch(html, /data-stray/, 'a consumer attribute reached the rendered root');
+});
+
+test('a disabled item that is not current paints its disabled slots under hover and press, after the rules that would lift it', () => {
+  const css = readFileSync(new URL('../../../../tailwind/consume/components/navigation/arena-side-nav/ArenaSideNav.styles.generated.css', import.meta.url), 'utf8');
+  const start = css.indexOf('.arena-side-nav__item:where(:not([data-arena-current])) {');
+  assert.ok(start >= 0, 'the sheet has no rule for an item that is not current');
+  const block = css.slice(start, css.indexOf('\n  }\n', start));
+  for (const state of ['hover', 'active'])
+    for (const paint of ['border-color: var(--navigation-item-edge-disabled', 'background-color: var(--navigation-item-fill-disabled', ' color: var(--navigation-item-ink-disabled', '--arena-icon-ink: var(--navigation-item-icon-disabled'])
+      assert.match(block, new RegExp(`\\[aria-disabled="true"\\] \\{\\s*&:${state} \\{(?:(?!\\n    &)[^])*?${paint.replace(/[()]/g, '\\$&')}`), `a disabled item under ${state} does not paint ${paint}`);
 });

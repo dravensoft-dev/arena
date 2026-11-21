@@ -1778,6 +1778,10 @@
   letter-spacing: var(--track-eyebrow);
   text-wrap: balance;
 }
+.arena-complete [data-arena-part="select.status-icon"] {
+  opacity: 0.72;
+  transform: rotate(-4deg);
+}
 .arena-complete [data-arena-part="select.wrap"] {
   outline: var(--bw-marker) dotted var(--edge-marker);
   outline-offset: var(--sp-1);

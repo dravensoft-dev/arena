@@ -69,7 +69,10 @@ export function transitionProblems(manifest: ManifestClassSource) {
   return problems;
 }
 
-const FOCUS_VARIANT = /^(?:(?:group|peer|in)-)?focus(?:-visible|-within)?(?:\/[\w-]+)?$|^has-\[[^\]]*focus[^\]]*\]$/;
+const FOCUS_VARIANT = /^(?:(?:group|peer|in)-)?focus(?:-visible|-within)?(?:\/[\w-]+)?$|^has-\[[^\]]*focus[^\]]*\]$|^\[[^\]]*:focus(?:-visible|-within)?(?![\w-])[^\]]*\]$/;
+
+const SHADOW_PAINT = /^(?:inset-)?(?:shadow|ring)(?:-|$)/;
+const OUTLINE_PAINT = /^outline-/;
 
 function slotClasses(manifest: ManifestClassSource) {
   const bySlot = new Map<string, string[]>();
@@ -94,7 +97,15 @@ export function focusOutlineProblems(manifest: ManifestClassSource) {
   for (const [slot, classes] of slotClasses(manifest)) {
     for (const cls of new Set(classes)) {
       const parts = cls.replace(/!$/, '').split(/:(?![^[]*\])/);
-      if (parts.pop() !== 'outline-none') continue;
+      const utility = parts.pop() ?? '';
+      if (utility === 'outline-hidden' && parts.length === 0) {
+        problems.push(
+          `${manifest.component}:${slot} writes a bare \`outline-hidden\`, which hides the outline in every state. `
+          + `Write it under the slot's own focus variant (\`focus-visible:outline-hidden\`), so the forced palette paints the focus ring.`,
+        );
+        continue;
+      }
+      if (utility !== 'outline-none') continue;
       const focusVariants = parts.filter((variant) => FOCUS_VARIANT.test(variant));
       const ambient = parts.length > 0 && parts.every((variant) => AMBIENT_VARIANT.test(variant));
       if (parts.length && !focusVariants.length && !ambient) continue;
@@ -105,6 +116,21 @@ export function focusOutlineProblems(manifest: ManifestClassSource) {
         + `so a ring or border drawn for focus shows no focus there: write \`${fix}\` (the slot's own focus variant), `
         + `a transparent outline the forced palette paints, and never a bare outline-hidden.`,
       );
+    }
+    for (const cls of new Set(classes)) {
+      const parts = cls.replace(/!$/, '').split(/:(?![^[]*\])/);
+      const utility = parts.pop() ?? '';
+      if (!SHADOW_PAINT.test(utility) || !parts.some((variant) => FOCUS_VARIANT.test(variant))) continue;
+      const drawsOutline = classes.some((other) => {
+        const otherParts = other.replace(/!$/, '').split(/:(?![^[]*\])/);
+        const otherUtility = otherParts.pop() ?? '';
+        return OUTLINE_PAINT.test(otherUtility) && otherParts.join(':') === parts.join(':');
+      });
+      if (!drawsOutline)
+        problems.push(
+          `${manifest.component}:${slot} draws a focus state as \`${cls}\` alone. Forced-colours mode drops box-shadow, `
+          + `so no focus shows: add \`${[...parts, 'outline-hidden'].join(':')}\`, a transparent outline the forced palette paints.`,
+        );
     }
   }
   return problems;

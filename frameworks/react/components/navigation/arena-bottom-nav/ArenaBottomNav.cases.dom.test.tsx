@@ -7,6 +7,7 @@ import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
 import { join } from 'node:path';
+import { readFileSync } from 'node:fs';
 
 import { mount, cleanup, act } from '../../../test/Harness.tsx';
 import { withIcons, domSymbols } from '../../../test/IconsHarness.tsx';
@@ -184,4 +185,11 @@ test('the active column takes the accent from the variant, and its badge from th
     'exactly the current column is accented');
   assert.match(columns[0]!.getAttribute('class') ?? '', /arena-bottom-nav__item/, 'and every column lifts through a modifier');
   assert.match(root.querySelector('nav')!.innerHTML, /\barena-bottom-nav__badge\b/, 'the badge is the accent chip');
+});
+
+test('a disabled item that is not current paints its disabled slots under hover and press, at a higher specificity than the rules that would lift it', () => {
+  const css = readFileSync(new URL('../../../../tailwind/consume/components/navigation/arena-bottom-nav/ArenaBottomNav.styles.generated.css', import.meta.url), 'utf8');
+  for (const state of ['hover', 'active'])
+    for (const paint of ['border-color: var(--navigation-item-edge-disabled', 'background-color: var(--navigation-item-fill-disabled', ' color: var(--navigation-item-ink-disabled', '--arena-icon-ink: var(--navigation-item-icon-disabled'])
+      assert.match(css, new RegExp(`:where\\(:not\\(\\[data-arena-current\\]\\)\\)\\[aria-disabled="true"\\]:${state} \\{[^}]*${paint.replace(/[()]/g, '\\$&')}`), `a disabled item under ${state} does not paint ${paint}`);
 });

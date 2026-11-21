@@ -322,7 +322,7 @@ test('fields derives its slots', () => {
   assert.equal(c.slots['fields-stepper-fill-hover']?.default, '{fill-hover}');
   assert.equal(c.slots['fields-value-ink-disabled'], undefined, 'a value fades with its field (D72)');
   assert.equal(Object.values(c.slots).some((s) => s.group === 'fields' && s.channel !== undefined), false, 'no fields part declares a channel');
-  assert.deepEqual(Object.keys(c.members).filter((k) => c.members[k]!.to.startsWith('fields.')).length, 34);
+  assert.deepEqual(Object.keys(c.members).filter((k) => c.members[k]!.to.startsWith('fields.')).length, 35);
   assert.deepEqual(c.members['ArenaInput.field']?.optionBy, [
     { axis: 'state', values: { neutral: 'neutral', error: 'error', valid: 'valid' } }, { axis: 'readOnly', values: { true: 'readonly' } },
   ]);
