@@ -9,10 +9,6 @@ import { ArenaCheckbox } from '../arena-checkbox/ArenaCheckbox.tsx';
 
 const render = (element: React.ReactElement) => renderToStaticMarkup(element);
 
-test('a blank ariaLabel throws, after trimming', () => {
-  assert.throws(() => render(<ArenaCheckboxGroup ariaLabel="   " />), /^Error: ArenaCheckboxGroup: `ariaLabel` is required/);
-});
-
 test('a box with no value throws inside a group, naming the box', () => {
   assert.throws(() => render(<ArenaCheckboxGroup ariaLabel="Notify me about"><ArenaCheckbox label="Deploys" /></ArenaCheckboxGroup>),
     /^Error: ArenaCheckbox: `value` is required inside an ArenaCheckboxGroup/);

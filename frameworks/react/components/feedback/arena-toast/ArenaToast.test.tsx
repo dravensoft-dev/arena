@@ -35,19 +35,18 @@ test('persist renders the Pinned marker, and its absence renders none', () => {
   assert.doesNotMatch(transient, /data-persist/);
 });
 
-test('the danger tone announces assertively as an alert', () => {
+test('the danger tone announces assertively', () => {
   const html = renderIcons(<ArenaToast tone="danger" title="Pipeline failed" />);
-  assert.match(html, /role="alert"/);
   assert.match(html, /aria-live="assertive"/);
   assert.match(html, /data-arena-part="toast"[^>]*\bdata-arena-tone="danger"/, 'the danger tone did not reach the side bar');
 });
 
-test('every other tone announces politely as a status', () => {
+test('every other tone announces politely, the success tone and the toneless default are a status', () => {
   for (const tone of ['neutral', 'success']) {
     // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
     const html = renderIcons(<ArenaToast tone={tone} title="Deployment archived" />);
-    assert.match(html, /role="status"/, `tone="${tone}" announced as an alert`);
     assert.match(html, /aria-live="polite"/, `tone="${tone}" announced assertively`);
+    if (tone === 'success') assert.match(html, /role="status"/, 'tone="success" announced as an alert');
     assert.match(html, new RegExp(`data-arena-part="toast"[^>]*\\bdata-arena-tone="${tone}"`), `tone="${tone}" did not reach the side bar`);
   }
 

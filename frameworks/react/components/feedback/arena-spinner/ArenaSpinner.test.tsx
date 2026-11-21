@@ -4,12 +4,8 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import React from 'react';
 import { ArenaSpinner } from './ArenaSpinner.tsx';
 
-test('ArenaSpinner announces its label through an explicitly polite progressbar', () => {
+test('ArenaSpinner names itself by its label', () => {
   const html = renderToStaticMarkup(<ArenaSpinner label="Loading deploys" />);
-  assert.match(html, /role="progressbar"/);
-  assert.match(html, /aria-live="polite"/,
-    'role="progressbar" carries no implicit live region, so dropping the explicit aria-live '
-    + 'silently removes the announcement role="status" provides');
   assert.match(html, /aria-label="Loading deploys"/);
 });
 

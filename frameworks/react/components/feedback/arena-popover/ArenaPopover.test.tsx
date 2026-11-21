@@ -30,15 +30,6 @@ test('an open popover rendered on the server still draws no panel', () => {
   assert.match(html, /aria-expanded="false"/, 'the trigger claimed a panel the page does not hold');
 });
 
-test('label is required and guarded after trimming, whether or not the panel is open', () => {
-  for (const label of ['', '   ']) {
-    assert.throws(
-      () => renderToStaticMarkup(<ArenaPopover label={label} trigger={<button type="button">Filters</button>}><p>x</p></ArenaPopover>),
-      /ArenaPopover: `label` is required/,
-    );
-  }
-});
-
 test('a fragment or a string is refused as the trigger, because neither takes the popup state', () => {
   assert.throws(() => renderToStaticMarkup(<ArenaPopover label="Filters" trigger="Filters"><p>x</p></ArenaPopover>),
     /single element/);

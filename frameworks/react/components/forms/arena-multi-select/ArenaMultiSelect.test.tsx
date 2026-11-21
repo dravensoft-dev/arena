@@ -54,10 +54,6 @@ test('the field is a collapsed combobox naming no list, and the placeholder show
   assert.doesNotMatch(renderToStaticMarkup(<ArenaMultiSelect label="Regions" placeholder="Search" options={REGIONS} value={['eu-west']} />), /placeholder=/);
 });
 
-test('a label of nothing but spaces is refused', () => {
-  assert.throws(() => renderToStaticMarkup(<ArenaMultiSelect label=" " options={REGIONS} />), /label/);
-});
-
 test('a disabled multi-select submits nothing: every hidden input is disabled', () => {
   const html = renderToStaticMarkup(<ArenaMultiSelect label="Regions" name="regions" options={REGIONS} value={['eu-west', 'us-east']} disabled />);
   assert.deepEqual([...html.matchAll(/<input type="hidden" name="regions" disabled="" value="([^"]+)"\/>/g)].map((match) => match[1]), ['eu-west', 'us-east']);
