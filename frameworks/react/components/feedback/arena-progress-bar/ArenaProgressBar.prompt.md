@@ -1,4 +1,4 @@
-Progress bar (H1). Gives visible status to measurable processes outside the splash: deployments, uploads, migrations. Respects `prefers-reduced-motion` in indeterminate mode.
+Progress bar. Gives visible status to measurable processes outside the splash: deployments, uploads, migrations. Respects `prefers-reduced-motion` in indeterminate mode.
 
 ```tsx
 <ArenaProgressBar label="Deploying build #4821" progressPercentage={64} />
@@ -63,7 +63,7 @@ which is what that name means everywhere else in this library. `showPercentage` 
   about which of the page's bars it is.
 
 **Don't**
-- Don't use `indeterminate` for processes you do know: it degrades visibility (H1).
+- Don't use `indeterminate` for processes you do know: it degrades visibility.
 - Don't pass markup as `label`. The label is a plain string, precisely so the accessible name is the same words the sighted reader sees.
 - Don't replace a result ArenaToast with the bar; the bar reports progress, the ArenaToast reports the outcome.
 - Don't expect the bar to narrate every step. The bar carries `aria-live="polite"`, because `role="progressbar"` has no implicit live region. The percentage is repeated inside that region as visually-hidden text, so the announcement is an ordinary content change rather than an attribute-only one. A bar that ticks continuously is chatty by construction. Announce

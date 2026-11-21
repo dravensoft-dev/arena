@@ -56,8 +56,8 @@ protected readonly incidents: ArenaStatDelta = { value: '2', direction: 'up', to
 **Keys:** none.
 <!-- @keys end -->
 
-`icon` is a Phosphor class name, not a slot, Arena draws the `<i>` and its
-aria-hidden wrapper, and an unfilled `icon` renders no wrapper at all:
+`icon` is a Phosphor class name, not a slot, Arena draws an `<svg>` of the sprite and its
+hidden wrapper, and an unfilled `icon` renders no wrapper at all:
 
 ```html
 <arena-stat-card label="Build time" value="4m 12s" [delta]="buildTime" icon="ph-bold ph-timer" />

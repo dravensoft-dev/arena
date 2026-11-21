@@ -104,10 +104,9 @@ carries. Pass `icon="ph-bold ph-house"` once per destination; do not concatenate
 yourself against a condition, which is Arena's own convention reimplemented in every project
 that adopts it. The swap is idempotent, so passing `ph-fill` yourself changes nothing.
 
-**A misspelled `ph-` name renders an empty box, silently**, because an icon is a class name
-and a class that matches no glyph is not an error. Nothing on your side catches that for you,
-so check a name against the `@phosphor-icons/web` you installed if a wrong one would be
-expensive.
+**A misspelled `ph-` name draws nothing**, because an icon is a class name and a name that
+matches no glyph is not an error at render. `arena check` reports it as `glyph`, because the
+name is not an icon Phosphor draws at that weight.
 
 **As a rail.** `collapsed` narrows the list to an icon rail and leaves the frame around it to you: the drawer, the button that collapses it and the page column are yours. Every item needs an `icon` while collapsed, and one without is refused. Each label stays the item's accessible name and shows as a tooltip on hover and on focus. A badge becomes a dot, and its count joins the name. Section labels are hidden but still name their groups, and a collapsible lays its items out in the rail with no trigger of its own. Which of the two is on screen is the viewport's question. Put `max-md:hidden` on an element of your own around the rail and `md:hidden` on one around the drawer, or branch on `arenaViewportBelow('md')`.
 

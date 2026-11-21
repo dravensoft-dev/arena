@@ -22,7 +22,7 @@ readonly errors = computed<ArenaSeries[]>(() => [{ label: 'Error rate', values: 
 | `valueSuffix` | primitive | `string` |  | Appended verbatim to every number the sparkline writes: the tooltip and the accessible table. Carries its own leading space if one is wanted. |
 | `valuePrefix` | primitive | `string` |  | Drawn verbatim before every number the sparkline writes, as valueSuffix is drawn after it, for a currency that precedes its amount. |
 | `valueFormat` | object | `ArenaNumberFormat` |  | How each number is written before the prefix and suffix are added: which locale, how many fraction digits, whether thousands are grouped, whether large numbers are compacted. Absent, the raw JavaScript number. |
-| `height` | primitive | `number` | `20` | The plot's height in px, the --chart-sparkline-height token by default. That token is the line box of a compact table row, so a sparkline in a cell leaves the row the height its text gives it. The plot is inset by the end dot's radius, so the end dot is not clipped at either edge. A number rather than a dimension string, because the sparkline does arithmetic with it to place every point. |
+| `height` | primitive | `number` | `20` | The plot's height in px, the --chart-sparkline-height token by default. That token is the line box of a compact table row, so a sparkline in a cell leaves the row the height its text gives it. A number rather than a dimension string, because the sparkline does arithmetic with it to place every point. |
 
 <!-- @api end -->
 

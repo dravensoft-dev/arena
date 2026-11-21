@@ -70,8 +70,7 @@ Cells are **positional**: the nth cell takes the nth column.
 <!-- @keys end -->
 
 **Do / Don't** - **A grid showing part of a list owes its true size.** `page` pays that on its own. Bind `slice` when the rows in the DOM are a window rather than a page, and count `offset` from 0. A windowed grid that states neither tells a reader the list is as long as the rows it happens to have rendered.
-- **`page` is what the table knows and `pageControl` is what it draws.** Bind `[page]` whenever the list is longer than the screen, so the table sizes and resets it. Pass `pageControl="none"` when you want the `arena-pagination` somewhere else, or want one control over two tables. Withholding `[page]` to move the control is the shape this member
-  exists to replace: it left the table knowing nothing about paging at all.
+- **`page` is what the table knows and `pageControl` is what it draws.** Bind `[page]` whenever the list is longer than the screen, so the table sizes and resets it. Pass `pageControl="none"` when you want the `arena-pagination` somewhere else, or want one control over two tables. Withholding `[page]` to move the control leaves the table knowing nothing about paging at all.
 - `label` is required and names the grid for a screen reader. Say what the rows *are*, as
   in "Recent deployments" or "Team members", and never "Table". Nothing can derive it, which is why it **throws** rather than falling back. `input.required` alone is not the guard: it only proves something was bound, and `[label]="row.title"` with an empty title satisfies it.
 - Put your own components in a cell: an `arena-badge` for a status, an `arena-button` for

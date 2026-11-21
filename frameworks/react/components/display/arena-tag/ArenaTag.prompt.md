@@ -1,6 +1,6 @@
 Filter/technology/status chip. `tone` is `neutral`, `success`, `warning` or `danger`, never
 ArenaBadge's `info`, and colours the chip's border, text and leading dot together. `removable` shows a dismiss
-`×`, which uses the standard Phosphor icon `ph-x` (H4), the same close as
+`×`, which uses the standard Phosphor icon `ph-x`, the same close as
 ArenaToast.
 
 `colorId` is the other colour a tag can take, and it answers a different question: `tone` says

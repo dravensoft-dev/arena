@@ -47,7 +47,7 @@ Action button. The main action is the default emphasis, `arena-emphasis-primary`
 <!-- @keys end -->
 The `arena-emphasis-*` classes pick primary, secondary or ghost, and `destructive` draws the border and label in the danger hue and fills with `hue-danger-fill-strong`, transparent by default. The `arena-size-*` classes pick sm, md or lg. Props: icon, iconRight, loading, disabled. A vocabulary class decides the width: `className="arena-fill"` spans the container, and with no class it fits its label.
 
-- Pass `icon` and `iconRight` as Phosphor class names: `icon="ph-bold ph-plus"`. Arena draws each `<i>` and hides it from assistive technology; `icon` sits before the label, `iconRight` after it. While `loading`, the spinner replaces the leading icon.
+- Pass `icon` and `iconRight` as Phosphor class names: `icon="ph-bold ph-plus"`. Arena draws each as an `<svg>` of the sprite, hidden from assistive technology; `icon` sits before the label, `iconRight` after it. While `loading`, the spinner replaces the leading icon.
 - Keyboard focus draws Arena's own focus ring at every emphasis, including `arena-emphasis-ghost`, whose border is transparent. The ring is an outline outside the control, so a hover shadow never hides it. The treatment comes from the manifest, so nothing you write turns it on and no `className` of yours is how to change it.
 - Don't pass an element as `icon` or `iconRight`. A single icon is a class name in Arena, which keeps the glyph inside Arena's own iconography and inside the markup Arena is answerable for.
 

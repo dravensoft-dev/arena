@@ -1,7 +1,7 @@
 Arena text field, label above, hint or error below, and a validation state the field wears.
 Standalone, `OnPush`, signal I/O. The host binds the root part, so `<arena-input>` is itself
 the column its parent lays out. The control is a real `<input>`, named by a real
-`<label for>`.
+`<label for>`. The state icons come from the sprite handed to `provideArenaIcons`.
 
 ```html
 <arena-input label="Project name" [value]="name()" (valueChange)="name.set($event)"
@@ -91,8 +91,7 @@ Return the message, or the empty string when the value is good.
 - `required` and `readOnly` land on the native attributes rather than on `aria-required` and
   `aria-readonly`. A native control's accessibility tree already reports both. Writing both would be two claims that can disagree.
 - `icon`, `prefix` and the status glyphs are decoration and all four are `aria-hidden`. The error
-  message beside the glyph is what carries the state, so nothing announces a Phosphor
-  ligature beside the message it duplicates.
+  message beside the glyph is what carries the state, so nothing announces a glyph beside the message it duplicates.
 - The error line **replaces** the hint rather than stacking under it. Two lines of guidance under
   one field is one too many.
 - `type` is the `ArenaInputType` enum. `checkbox` and `radio` are not among them: those are

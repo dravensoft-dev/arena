@@ -1,4 +1,4 @@
-A field that holds one number. A person types it, steps it with a key or with the two stepper buttons, and reads it in a locale's format. Requires the Phosphor sheets loaded for the stepper glyphs. Controlled, the field draws `value` as given, so a host that leaves `value` as it was refuses the edit.
+A field that holds one number. A person types it, steps it with a key or with the two stepper buttons, and reads it in a locale's format. The stepper glyphs come from the sprite handed to `ArenaIconsProvider`. Controlled, the field draws `value` as given, so a host that leaves `value` as it was refuses the edit.
 
 ```tsx
 <ArenaNumberField label="Replicas" value={replicas} onValueChange={setReplicas} min={1} max={20} />
@@ -70,7 +70,7 @@ A field that holds one number. A person types it, steps it with a key or with th
 
 **The steppers stay out of the Tab sequence.** The field is the one stop, and its arrow keys reach every step. A stepper at a bound is disabled. Set `steppers={false}` for a dense row where the keys suffice.
 
-`validate` is the **ninth form**, a function Arena calls on a committed number. The function returns the error message, or an empty string for a valid number. Arena never calls `validate` for an empty field; mark the field `required` for that.
+**`validate` is the one member that takes a function.** Arena calls it on a committed number. The function returns the error message, or an empty string for a valid number. Arena never calls `validate` for an empty field; mark the field `required` for that.
 
 **`ArenaInput type="number"` is a different control.** That one is a text field with the browser's spinner and a string value. This one is a number Arena owns, clamps and writes in a locale.
 

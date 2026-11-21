@@ -45,7 +45,7 @@ the selected ink at the control weight; the rest are transparent, in the muted i
 - **Do** give it an `href` when it navigates, even in a single-page app. The `href` is what lets the destination be opened in a new tab, copied, and announced as a link. An
   item that only changes local state is correctly a `<button>`.
 - **Do** name the glyph, not the markup. `icon` is a Phosphor class name and Arena
-  draws the `<i>`.
+  draws it as an `<svg>` of the sprite.
 - **Do** pass a count as `badge`, a number rather than a string. Arena draws it at the
   trailing edge, draws nothing at zero, and reads `99+` above ninety-nine; a value you
   have already formatted takes both rules away.

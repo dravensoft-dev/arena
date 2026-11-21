@@ -1,4 +1,4 @@
-Guided in-product onboarding (H10). Complements `ArenaEmptyState`: presents features step by step the first time. Controlled: store `index` and whether it was already completed (e.g. in localStorage) so it isn't repeated.
+Guided in-product onboarding. Complements `ArenaEmptyState`: presents features step by step the first time. Controlled: store `index` and whether it was already completed (e.g. in localStorage) so it isn't repeated.
 
 ```tsx
 const [step, setStep] = useState(0);

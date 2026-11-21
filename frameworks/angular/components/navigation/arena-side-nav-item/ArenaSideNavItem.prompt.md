@@ -44,7 +44,7 @@ Two elements are also why the binding is `none` rather than `button`. No single 
 the platform and from `ArenaSideNav`'s own `navigation` binding.
 
 `id` and `label` are both **required and guarded at runtime**. `icon` is a Phosphor class name that
-Arena draws as an `aria-hidden` `<i>`, the single-icon convention, never a projected node.
+Arena draws as an `<svg>` of the sprite, hidden from assistive technology, the single-icon convention, never a projected node.
 
 `aria-current="page"` is present on the active row and **absent** on the rest, never `false`.
 

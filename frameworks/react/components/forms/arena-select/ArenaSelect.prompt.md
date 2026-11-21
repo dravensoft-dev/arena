@@ -38,7 +38,7 @@ Styled native dropdown selector. `options` is an array of `{value, label}` objec
 **Keys:** none (`select`).
 <!-- @keys end -->
 
-`options` takes **only** `ArenaSelectOption` objects. The bare-string form, `options={['Production','Staging']}`, is gone. `(string | ArenaSelectOption)[]` is a union between two shapes, which a member never is. The object form carries strictly more, because a stable `value` with a translatable `label` cannot be said in the string form at all.
+`options` takes **only** `ArenaSelectOption` objects. A bare string is not an option, so `options={['Production','Staging']}` does not type-check. A list of strings or objects would be a union between two shapes, which a member never is. The object form carries strictly more, because a stable `value` with a translatable `label` cannot be said in the string form at all.
 Where value and label are the same, write it: `{value:'QA', label:'QA'}`.
 
 `onValueChange` carries the **chosen option's value as a string** rather than the `ChangeEvent`. A platform's own event type never travels in a payload, so the event does not reach you.

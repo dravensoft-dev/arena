@@ -1,4 +1,4 @@
-Ephemeral notification. Use `actionLabel` + `onAction` to give the user an out: **Undo** after an action (H3) or **Retry / View logs** after an error (H9). Error/critical toasts carry **`persist`** so the host does NOT auto-dismiss them (H1); they only close via the × or an action.
+Ephemeral notification. Use `actionLabel` + `onAction` to give the user an out: **Undo** after an action or **Retry / View logs** after an error. Error/critical toasts carry **`persist`** so the host does NOT auto-dismiss them; they only close via the × or an action.
 
 ```tsx
 <ArenaToast tone="neutral" title="Deployment archived" actionLabel="Undo" onAction={undo} dismissible onClose={dismiss} />
@@ -51,7 +51,7 @@ Writing the clock yourself is still fine, and then it is three branches rather t
 and answers `null` for a notice that must not be taken away. The two are tokens, so a host that reads them stays in step with a release that moves one. A host that retypes 4200 does not.
 
 **Do / Don't**
-- `persist` on every error/critical toast; the close uses the standard `ph-x` icon (H4).
+- `persist` on every error/critical toast; the close uses the standard `ph-x` icon.
 - Don't cram long messages into all caps, and don't use the ArenaToast for destructive confirmations (that's `ArenaConfirmDialog`).
 - Don't render `<ArenaToast>` straight into a statically-positioned parent. ArenaToast carries `zIndex: var(--z-toast)` and no `position` of its own. CSS only honors `z-index` on a positioned box or a flex or grid item. On plain static flow the token does nothing, and the one thing that must float above everything quietly stops floating. Put it in a `<ArenaToastHost>`, which is the fixed, `display:flex` container that makes each `<ArenaToast>` a flex item and lets `--z-toast` take effect.
 
