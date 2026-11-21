@@ -75,14 +75,7 @@ Escape reaches the panel only while focus is inside it. Nothing here took focus 
 - **Don't** put a form a reader must finish in it. Nothing stops them clicking away mid-way, which
   is the whole point of a non-modal panel and the whole reason a confirmation is not one.
 
-**By hand, in real Chromium**: run `bun run demos` and open
-`/frameworks/angular/components/feedback/arena-sheet/ArenaSheet.demo.generated.html`:
-- The page behind the panel still scrolls and its buttons still take a click, at every placement.
-- Folding leaves the header and the footer in place and moves nothing else; the caret turns with it.
-- A `ArenaMenu` opened from inside the panel paints over the panel, and the panel paints over a fixed
-  bottom bar.
-- Tab from the last control in the panel leaves it and lands on the page; nothing is trapped.
-- At 390px the bottom panel clears the home indicator when the browser emulates a device inset.
+Escape is the only key the panel takes, so Tab from the last control leaves the panel for the page.
 
 **Words.** `sheetClose` names the close button.
 

@@ -54,8 +54,6 @@ const [open, setOpen] = useState(false);
 - Don't use it as a menu of actions: that is `ArenaMenu`. Don't open it on hover: a hover-only panel is unreachable from a keyboard, and a description on hover is `ArenaTooltip`.
 - Don't make it modal and don't nest a popover in a popover. A menu or a select inside it is fine.
 
-With the panel open and the page scrolled, the panel follows its trigger. A popover opened from inside a dialog draws its panel above the dialog.
-
 To fill a row, put `className="arena-fill"` on the popover or on a container above it. The trigger is not a boundary, so the class reaches the control inside and both take the row.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->

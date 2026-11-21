@@ -59,13 +59,6 @@ The bubble is positioned by `@angular/cdk/overlay`, not by the wrapper, so it es
 - Don't set `label` to the trigger's own text. `aria-describedby` is read **in addition** to the
   name, so a bubble repeating the label just says everything twice.
 
-**By hand, in real Chromium**: none of these is provable in happy-dom. Run `bun run demos` and open `/frameworks/angular/components/feedback/arena-tooltip/ArenaTooltip.demo.generated.html`, which lays out one section per item below. - The bubble sits centred above the trigger with a `--sp-2` gap. The bubble **flips below** when the trigger is near the top of the viewport.
-- The bubble escapes a scrolling `overflow: hidden` container and stays anchored while that container scrolls, which is the whole reason for the overlay.
-- The reveal genuinely waits on pointer rest and is instant on Tab; travelling from the trigger
-  onto the bubble does not dismiss it.
-- Layering: a tooltip on an `arena-menu` item, and one inside an open dialog, both land above
-  what they annotate.
-
 **When the label repeats the name.** A trigger whose accessible name already says the label, such as an icon button named by that word, still references the tooltip. The bubble draws the same text and contributes no description, so a screen reader does not announce the word twice.
 
 To fill a row, put `class="arena-fill"` on the tooltip or on a container above it. The trigger is not a boundary, so the class reaches the control inside and both take the row. On the control alone it fills the tooltip's own box, which fits the control.

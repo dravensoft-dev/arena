@@ -52,16 +52,7 @@ the accessible name and the column layout, so there is no wrapper inside it.
 - Don't put a lone `arena-radio` outside a group. A single radio is a checkbox with worse
   semantics, and this one will throw for want of its provider.
 
-**By hand, in real Chromium**: the platform behaviour above is exactly what happy-dom cannot show,
-so this is the only place it is checked at all. Run `bun run demos` and open
-`/frameworks/angular/components/forms/arena-radio-group/ArenaRadioGroup.demo.generated.html`:
-- Tab into the group **once**: focus lands on the checked option, and Tab again leaves the group
-  entirely rather than walking the other options.
-- Arrow Down/Right and Up/Left move the selection and wrap at both ends.
-- The disabled option is skipped while arrowing, and cannot be reached by Tab.
-- Tab in and the focused option's **ring** takes the focus ring, though the focused element
-  is the `opacity-0 size-0` native input. The `ring` part carries `[&:has(~input:focus-visible)]:shadow-[…]`, which reaches the input as a later sibling. The input must stay after the ring in the template, and moving it removes the ring silently.
-  `arena-checkbox` draws the identical ring the identical way.
+Tab into the group once and focus lands on the checked option; Tab again leaves the group rather than walking the other options. The arrow keys move the selection and wrap at both ends, and skip a disabled option.
 
 **With reactive forms.** `ArenaRadioGroupControl` from `@dravensoft/arena-angular/forms` goes on the group rather than on a radio, and the form control holds the chosen radio's `value`. Disabling the form control disables the group, and with it every radio inside. Binding the member the form replaces as well is a caller bug, and the layer warns about it once.
 

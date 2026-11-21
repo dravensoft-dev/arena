@@ -54,7 +54,7 @@ name in every state regardless. Standalone, `OnPush`, signal I/O. The host stays
   button without it announces nothing at all, which is why this input has no default.
 - **`pressed` is what makes it a toggle, and its absence is a state of its own.** Bound, Arena writes `aria-pressed`. Arena draws the on state with the accent tint a current `arena-side-nav` item takes. Unbound, the control is not a toggle at all. Never default it to `false`. On a plain button, `aria-pressed="false"` announces a toggle that is off rather than a button, so every icon button in the app would read as an unpressed toggle.
 - **A toggle keeps its `label` in both states.** Changing the name to carry the state is the workaround `pressed` exists to end. A screen reader then announces a different control instead of the same one in another state. Name what it does, not what pressing it will do next.
-- `icon` is a Phosphor class-name string Arena draws inside an `aria-hidden` `<i>`, never a slot.
+- `icon` is a Phosphor class-name string Arena draws as an `<svg>` of the sprite, hidden from assistive technology, never a slot.
   One icon is the convention, and it is why this component projects nothing.
 - The `title` is dropped the moment `showLabel` is set. A title beside a visible label makes the
   browser draw a tooltip repeating what is already on screen.
@@ -68,16 +68,6 @@ name in every state regardless. Standalone, `OnPush`, signal I/O. The host stays
   toolbar. Set the same size class on both or they will not line up.
 - Reach for `tabStop="false"` only inside a composite that manages its own focus, such as a grid with a roving tab stop or a menu. Use it where reaching this control by Tab would be a second way in.
 - Bind `(activate)` on the `<arena-icon-button>` itself. The inner button's native click reaches every ancestor, and `activate` reports only a press the button accepts: never while `disabled`. `type="submit"` still submits, because the default action is untouched.
-
-**By hand, in real Chromium**: none of these is provable in happy-dom. Run `bun run demos` and
-open `/frameworks/angular/components/forms/arena-icon-button/ArenaIconButton.demo.generated.html`:
-- The focus ring is visible on keyboard focus for both emphases, including `arena-emphasis-ghost`, whose
-  background is transparent.
-- Without `showLabel` the control is square at every size, and the glyph is optically centred
-  rather than merely boxed in the middle.
-- Hovering shows the `title`, and setting `showLabel` stops it appearing at all.
-- `disabled` fades by `fade-disabled` and the cursor turns to not-allowed; both come from `:disabled`
-  pseudo-class variants, so they prove the native attribute is really set.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

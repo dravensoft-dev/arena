@@ -50,14 +50,6 @@ under it, and nothing about the device's own geometry is retyped.
   same notice twice.
 - **Don't** put anything but notices in it. The host is one positioned box above every overlay in the system, the CDK layer included. Anything else parked there covers the whole app.
 
-**By hand, in real Chromium**: run `bun run demos` and open
-`/frameworks/angular/components/feedback/arena-toast-host/ArenaToastHost.demo.generated.html`:
-- Each of the four corners pins where it says, and the stack grows away from its own edge.
-- The gap between two notices is the same in all four, and the standoff from the edges is too.
-- With the browser emulating a device that reports a bottom inset, the bottom stack moves up by it
-  and the top one does not move at all.
-- A notice raised while a dialog is open paints over the dialog.
-
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
 **The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.

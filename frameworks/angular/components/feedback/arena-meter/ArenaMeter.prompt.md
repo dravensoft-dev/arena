@@ -53,11 +53,7 @@ Arena meter, a static measurement inside a known range: disk used, a quota, a sc
 - **Don't** use it for a scale with labelled bands in a chart tile. Reach for `arena-gauge-chart`, which writes both ends and every band on its dial.
 - **Don't** animate the fill or make it focusable. A reading a person drags is a slider.
 
-**By hand, in real Chromium**: run `bun run demos` and open
-`/frameworks/angular/components/feedback/arena-meter/ArenaMeter.demo.generated.html`:
-- Check the fill against the track at `arena-size-sm`, `md` and `lg`.
-- Read Good, Fair and Poor in both themes, each word beside its reading.
-- With a screen reader, the name, the reading and the standing are spoken once, and nothing is spoken on load.
+The fill's width is the reading's share of the range at every size, and the meter has no live region, so a screen reader hears nothing when the page loads.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

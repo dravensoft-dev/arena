@@ -60,8 +60,7 @@ a real `<textarea>`, named by a real `<label for>`.
   does not ask for the count to be shown. Past nine tenths of the cap the counter switches to the
   warning ink, the `near` variant of the `counter` part.
 - `autoResize` forces `resize: none` and grows the box from its own `scrollHeight`.
-  **The box resizes on mount and on every programmatic change, not only while typing.** An `afterRenderEffect` reads `value()`. A draft loaded from a server, or a template inserted by a button, sizes the box immediately. **`scrollHeight` is content plus padding and never the border.** A border-box element needs `offsetHeight - clientHeight` added, or the box lands short and keeps a permanent scrollbar. Measured before the fix at 720x340: `scrollHeight` 199 set as the height left `clientHeight` 197, and a scrollbar on a box just grown past it. Both layers carry the term,
-  and no suite can see it, because happy-dom has no layout and reports `scrollHeight` as `0`.
+  **The box resizes on mount and on every programmatic change, not only while typing.** An `afterRenderEffect` reads `value()`. A draft loaded from a server, or a template inserted by a button, sizes the box immediately. **`scrollHeight` is content plus padding and never the border.** A border-box element needs `offsetHeight - clientHeight` added, or the box lands short and keeps a permanent scrollbar.
 - `rows` is the *initial* height and still applies under `autoResize`; it is what the box is
   before it has content to measure.
 - `required` and `readOnly` land on the native attributes rather than on `aria-required` and `aria-readonly`. A native control already reports both, and writing them twice is two claims that can disagree. `aria-multiline` is likewise absent on purpose: a `<textarea>` is multiline
@@ -73,17 +72,6 @@ a real `<textarea>`, named by a real `<label for>`.
 - `id` is derived from `label` as `ta-<slug>`, the derivation `ArenaTextarea.json` states. Note the
   prefix differs from `arena-input`'s `in-`, so the two never collide on a form that labels
   both the same.
-
-**By hand, in real Chromium.** None of these is provable in happy-dom, and the first one cannot be. happy-dom has no layout, so `scrollHeight` is `0`, and a growing box and a broken one look identical to any suite. Run `bun run demos` and open
-`/frameworks/angular/components/forms/arena-textarea/ArenaTextarea.demo.generated.html`:
-- **`autoResize`**: the box grows line by line as you type and shrinks again when you delete, with
-  no scrollbar ever appearing. The one seeded with a long value is already tall on load; that is
-  the `afterRenderEffect` at work: the box is sized before the first paint, not on first keystroke.
-- Without `autoResize` the grip in the corner resizes vertically and not horizontally.
-- The focus ring lands on the textarea itself, where `arena-input`'s lands on a wrapping
-  group.
-- The counter takes the warning tone between 90% and 100% of the cap, and the field stops accepting input at
-  the cap because `maxlength` is native.
 
 **With reactive forms.** `ArenaTextareaControl` from `@dravensoft/arena-angular/forms` binds this field to a form control holding a string. The counter and the auto-resize read the form's value, so they follow `setValue` as they follow typing. Binding the member the form replaces as well is a caller bug, and the layer warns about it once.
 

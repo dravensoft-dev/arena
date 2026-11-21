@@ -22,7 +22,7 @@ readonly errors = computed<ArenaSeries[]>(() => [{ label: 'Error rate', values: 
 | `valueSuffix` | primitive | `string` |  | Appended verbatim to every number the sparkline writes: the tooltip and the accessible table. Carries its own leading space if one is wanted. |
 | `valuePrefix` | primitive | `string` |  | Drawn verbatim before every number the sparkline writes, as valueSuffix is drawn after it, for a currency that precedes its amount. |
 | `valueFormat` | object | `ArenaNumberFormat` |  | How each number is written before the prefix and suffix are added: which locale, how many fraction digits, whether thousands are grouped, whether large numbers are compacted. Absent, the raw JavaScript number. |
-| `height` | primitive | `number` | `20` | The plot's height in px, the --chart-sparkline-height token by default. That token is the line box of a compact table row, so a sparkline in a cell leaves the row the height its text gives it. A number rather than a dimension string, because the sparkline does arithmetic with it to place every point. |
+| `height` | primitive | `number` | `20` | The plot's height in px, the --chart-sparkline-height token by default. That token is the line box of a compact table row, so a sparkline in a cell leaves the row the height its text gives it. The plot is inset by the end dot's radius, so the end dot is not clipped at either edge. A number rather than a dimension string, because the sparkline does arithmetic with it to place every point. |
 
 <!-- @api end -->
 
@@ -75,15 +75,6 @@ With `interactive`, the plot is one keyboard region with the sparkline's name. A
 ### Size
 
 The sparkline fills the width of its container, so in a table cell the column decides it. The host is boxless, and the frame inside it carries the box. `height` is the plot's height in px, the `--chart-sparkline-height` token by default. The default is the line box of a compact table row, so a sparkline in a cell leaves the row the height its text gives it. With `interactive`, the keyboard region is never shorter than the density's smallest control height, and the plot sits centred in it.
-
-### Checks to make by hand
-
-The suites run without layout, so five claims are checked in a browser:
-1. A table row at the base, comfortable and compact densities keeps its height when a sparkline is added to one of its cells.
-2. A table column of static sparklines adds no tab stop, so Tab leaves the grid in one press.
-3. A screen reader announces the hidden table inside a grid cell once, and row navigation in the grid still works.
-4. The end dot is not clipped at either edge, at all three densities.
-5. An interactive tooltip near the right edge of a card is not clipped by an ancestor with `overflow: hidden`.
 
 **Words.** A sparkline is named by the locale's `sparklineChartName`, where `{label}` stands for `label`; `chartTablePoint` heads the first column of the table it writes for a screen reader.
 

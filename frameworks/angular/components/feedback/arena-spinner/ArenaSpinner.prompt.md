@@ -52,14 +52,7 @@ button, on a banner in the primary fill. There the accent ink would disappear in
 - **Don't** leave it on screen with nothing behind it. A spinner that never resolves is the one
   state `arena-error-state` is for.
 
-**By hand, in real Chromium**: the rotation is an animation and happy-dom has none. Run
-`bun run demos` and open `/frameworks/angular/components/feedback/arena-spinner/ArenaSpinner.demo.generated.html`:
-- The ring rotates continuously on `--loop-spin`, and **slows** to `--loop-reduced` under
-  `prefers-reduced-motion` rather than stopping, motion reporting work in progress keeps
-  reporting it.
-- The gap in the ring is the transparent top border, so the rotation is legible at every size. At `sm` it must still read as a ring rather than a dot.
-- `arena-accent-ink` is the only accent that stays legible on a surface filled with the primary, the card puts
-  all four on one to show it.
+The ring turns continuously and slows rather than stops under `prefers-reduced-motion`, because motion that reports work in progress keeps reporting it.
 
 **Words.** `label` names the spinner, and when it is absent the locale's `spinnerLabel` does.
 

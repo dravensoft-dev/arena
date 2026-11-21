@@ -64,8 +64,7 @@ clause. Opening moves focus to the first focusable element inside the panel; clo
 returns it to whatever held focus before. Removing the dialog while it is open counts as
 closing it for focus, though the removal reports no `close`. The rule holds only while
 focus is inside the dialog or nowhere and the element that opened it is still on the
-page. Tab and Shift+Tab wrap at the panel's edges, and that wrap is verified against a
-real browser rather than asserted. The CDK is **not** involved: this dialog is in flow,
+page. Tab and Shift+Tab wrap at the panel's edges, and between the edges the browser's own order moves focus. The CDK is **not** involved: this dialog is in flow,
 on `--z-modal`.
 
 Arena dismisses two ways and both report through `close`: **Escape**, and a click on the scrim.
@@ -81,25 +80,6 @@ third path is yours, a button in `[footer]` wired to the same handler, and it ad
   `--z-modal-nested` for exactly this and is the one that belongs on top; two traps nested inside
   one panel fight over the same Tab key.
 - **Don't** put `tabindex="-1"` on content the user has to reach. The Tab order is how the trap decides what is focusable, so a control held out of it is one the wrap skips.
-
-**By hand, in real Chromium.** The trap's **interior** is the browser's own sequential focus navigation, which Arena does not implement and happy-dom does not have. A suite asserting it would pass identically against a perfect trap and against none. The boundary wrap is Arena's own
-`.focus()` call and is asserted for real; the rest is this list. Run `bun run demos` and open
-`/frameworks/angular/components/feedback/arena-dialog/ArenaDialog.demo.generated.html`:
-
-1. **Tab to "Promote build" and press Enter.** Focus lands on **Cancel**, the first focusable
-   inside the panel, not on the trigger.
-2. **Tab once.** Focus moves to **Promote**. The step below is the one no suite can make. Cancel is first rather than last, so Arena's handler does nothing and the browser moves focus on its own. If this
-   fails, the trap is fighting native navigation rather than bounding it.
-3. **Tab again.** Focus wraps from Promote back to Cancel. This one is Arena's.
-4. **Shift+Tab.** Focus wraps from Cancel back to Promote.
-5. **Escape**, then a click on the scrim, then a click inside the panel. The first two close and
-   return focus to "Promote build"; the third does nothing.
-6. The scrim blurs what is behind it, and the panel enters with `arena-pop`, which drops its
-   travel and keeps its fade under `prefers-reduced-motion`.
-
-Driving it through CDP costs an afternoon on one gotcha: a `rawKeyDown` does not activate a
-button. Enter must be dispatched as `keyDown` carrying `text: '\r'`. Tab and Escape are fine as
-`rawKeyDown`.
 
 **On a phone.** A dialog holding a form reads better as the whole screen, so pass `fillBelow` with the breakpoint under which it should fill. The measurement is the dialog's own box, and that box covers the viewport while open. One dialog therefore fills on a phone and floats on a laptop. While it fills, the width is ignored, the title bar and the footer stay put and the body scrolls between them. `ArenaConfirmDialog` has no such member, because a confirmation is short on every screen.
 

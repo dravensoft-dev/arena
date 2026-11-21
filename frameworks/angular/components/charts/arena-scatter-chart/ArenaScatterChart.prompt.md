@@ -75,8 +75,7 @@ pair does nothing and is not consumed, so the page keeps its own scroll.
 A series that carries `r` turns this into a bubble chart. The member is a third parallel array, paired with `x` and `y` at the same index, for the reason those two are arrays rather than an array of pairs.
 
 **The mapping is by area, not by radius**, and that is the whole of the member. A reader compares the blot, and doubling a radius quadruples the blot. Mapping the value onto the radius directly would show a value four times larger as sixteen times the ink. `arenaRadiusAt` interpolates the
-squared radius instead, so four times the value really is four times the area, and the suite
-asserts that ratio rather than a table of radii.
+squared radius instead, so four times the value really is four times the area.
 
 `sizeLabel` becomes required the moment any series carries `r`. The member is guarded at render rather than declared required in the contract. A scatter with no sizes has no third quantity to name, and a member required only sometimes cannot say so in a contract. A column headed "Size"
 would satisfy the table mechanically and tell a reader nothing, which is the reason `label` is

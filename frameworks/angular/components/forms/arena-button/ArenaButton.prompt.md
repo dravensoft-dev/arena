@@ -68,14 +68,7 @@ signal I/O. The host stays bare and unstyled, and Arena's own styling lands on a
 - Don't wrap `<arena-button>` in another button or an anchor. The component renders a real `<button>`, and nesting interactive elements is invalid regardless of how it looks.
 - Bind `(activate)` on the `<arena-button>` itself. The inner button's native click reaches every ancestor, and `activate` reports only a press the button accepts: never while `disabled` or `loading`. `type="submit"` still submits, because the default action is untouched.
 
-**By hand, in real Chromium**: none of these is provable in happy-dom. Run `bun run demos` and
-open `/frameworks/angular/components/forms/arena-button/ArenaButton.demo.generated.html`:
-- With `loading` set, the spinner turns; with `prefers-reduced-motion: reduce` forced in
-  DevTools' Rendering pane, it keeps turning and only slows.
-- `active:scale-98` gives a real press response. The focus ring is visible on
-  keyboard focus at every emphasis, including `arena-emphasis-ghost`, whose border is
-  transparent. The ring is an outline outside the control, so a hover shadow never hides it.
-- `arena-fill` on the host spans the row. The host carries `display: contents`, so the class scopes over the button it draws. Without that the host would blockify to shrink-to-fit as a flex item, and the button would measure the host instead of the row.
+With `loading` set, the spinner turns, and under `prefers-reduced-motion` it slows rather than stops.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

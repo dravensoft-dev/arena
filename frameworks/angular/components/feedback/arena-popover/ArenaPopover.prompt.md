@@ -1,4 +1,4 @@
-Arena popover, a small panel a trigger opens, holding content of the consumer's own. A filter form with its Apply button, a pair of dates or a paragraph that explains a figure is what it holds. Standalone, `OnPush`, signal I/O. The host wraps the trigger and nothing else; the panel lives in a `@angular/cdk/overlay` pane on `document.body`, so an `overflow: hidden` ancestor does not clip it. The app must import `@dravensoft/arena-angular/css/arena-cdk.css` once, or the panel renders unpositioned. Don't confuse it with `arena-menu` (a list of actions), `arena-tooltip` (a description on hover or focus) or `arena-dialog` (a modal that takes the whole interaction).
+Arena popover, a small panel a trigger opens, holding content of the consumer's own. A filter form with its Apply button, a pair of dates or a paragraph that explains a figure is what it holds. Standalone, `OnPush`, signal I/O. The host wraps the trigger and nothing else; the panel lives in a `@angular/cdk/overlay` pane on `document.body`, so an `overflow: hidden` ancestor does not clip it. The panel follows its trigger when the page scrolls and draws above an open dialog. The app must import `@dravensoft/arena-angular/css/arena-cdk.css` once, or the panel renders unpositioned. Don't confuse it with `arena-menu` (a list of actions), `arena-tooltip` (a description on hover or focus) or `arena-dialog` (a modal that takes the whole interaction).
 
 ```html
 <arena-popover label="Filters" [open]="filtersOpen()" (openChange)="filtersOpen.set($event)">
@@ -53,8 +53,6 @@ Arena popover, a small panel a trigger opens, holding content of the consumer's 
 - Give the panel's action `arena-emphasis-secondary` when the view behind it already holds its primary. The action takes the primary only when it is the view's own action, because a popover is part of the view and not a scope of its own.
 - Don't use it as a menu of actions: that is `arena-menu`. Don't open it on hover: a hover-only panel is unreachable from a keyboard.
 - Don't make it modal and don't nest a popover in a popover. A menu or a select inside it is fine.
-
-**Check by hand** what a suite cannot see, having no layout. Scroll the page with the panel open and see the panel follow its trigger. Open one from inside a dialog and see the panel above the dialog.
 
 To fill a row, put `class="arena-fill"` on the popover or on a container above it. The trigger is not a boundary, so the class reaches the control inside and both take the row.
 

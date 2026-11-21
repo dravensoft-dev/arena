@@ -1,4 +1,4 @@
-A field that holds one number. A person types it, steps it with a key or with the two stepper buttons, and reads it in the locale's format. `(valueChange)` carries a number and `(clear)` carries nothing. Requires the Phosphor sheets loaded for the stepper glyphs. Controlled, the field draws an edit as soon as it is made and follows `value` whenever the host moves it. A host that refuses an edit by leaving `value` as it was is not seen, and the edit stays drawn.
+A field that holds one number. A person types it, steps it with a key or with the two stepper buttons, and reads it in the locale's format. `(valueChange)` carries a number and `(clear)` carries nothing. The stepper glyphs come from the sprite handed to `provideArenaIcons`. Controlled, the field draws an edit as soon as it is made and follows `value` whenever the host moves it. A host that refuses an edit by leaving `value` as it was is not seen, and the edit stays drawn.
 
 ```html
 <arena-number-field label="Replicas" [value]="replicas()" (valueChange)="replicas.set($event)" [min]="1" [max]="20" />
@@ -76,7 +76,7 @@ A field that holds one number. A person types it, steps it with a key or with th
 - Don't put a currency or a unit in `format`. Use `prefix` and `suffix` instead.
 - Don't expect the mouse wheel or a held press to step the number.
 
-**By hand.** A phone's decimal keypad, where iOS has no minus key and the steppers reach a negative number. The stepper target under `arena-comfortable`. Home and End against a bound. The focus ring on the field.
+On a phone's decimal keypad iOS has no minus key, so a negative number comes from the steppers.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

@@ -70,7 +70,7 @@ With `name`, every chosen value is submitted as a hidden input under that name, 
 - **Do** keep `label` a name for the value, never an instruction. Put the instruction in `placeholder`.
 - **Don't** accept free text through it. A typed value that is not an option is `arena-input`.
 
-**By hand, in real Chromium.** Open the playground page and check that the field wraps its chips without covering the caret or the clear control. Tab lands on the field and never on a chip. A screen reader reads "Remove Berlin" on a chip. The list stays open across presses on rows and does not jump. At phone width, `max` and `maxVisible` still hold.
+The field wraps its chips without covering the caret or the clear control. Tab lands on the field and never on a chip. The list stays open across presses on rows and does not jump. At phone width, `max` and `maxVisible` still hold.
 
 **With reactive forms.** `ArenaMultiSelectControl` from `@dravensoft/arena-angular/forms` binds the field to a form control holding a `string[]`, never the event object. A form value that is no array draws no chips. Binding the member the form replaces as well is a caller bug, and the layer warns about it once.
 

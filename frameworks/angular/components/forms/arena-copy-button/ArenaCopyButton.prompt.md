@@ -76,13 +76,7 @@ Arena copy button, an icon button that writes a string to the clipboard and conf
 - **Don't** send the confirmation to `arena-toast`. A toast speaks away from the press, and the region speaks beside it.
 - **Don't** hand it markup or an image. The clipboard receives the plain string in `text`.
 
-**By hand, in real Chromium**: run `bun run demos` and open
-`/frameworks/angular/components/forms/arena-copy-button/ArenaCopyButton.demo.generated.html`:
-- Press it on `localhost` and paste the result. The check appears, and the copy glyph comes back unaided.
-- Open the demo over plain HTTP from another host and press it. The warning glyph and the failure word appear.
-- Run a screen reader and press once. "Copied" is spoken once, and the button's name is unchanged.
-- Press twice within the window. The check holds for a full window after the second press.
-- Place it in an `arena-fill` container. The button stays the width of its glyph.
+Inside an `arena-fill` container the button keeps the width of its glyph.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

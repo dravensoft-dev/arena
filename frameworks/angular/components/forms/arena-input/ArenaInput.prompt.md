@@ -103,17 +103,6 @@ Return the message, or the empty string when the value is good.
   number Arena owns.
 - Don't reach for `valueChange` to run an expensive query. The output fires per keystroke by design. Debounce in the consumer, where the interval is a decision about that query rather than about the field.
 
-**By hand, in real Chromium**: none of these is provable in happy-dom. Run `bun run demos` and
-open `/frameworks/angular/components/forms/arena-input/ArenaInput.demo.generated.html`:
-- `type="date"`: the picker indicator is **visible** on the dark field and brightens on hover.
-  Arena's own `[&::-webkit-calendar-picker-indicator]:` styling reads `--picker-invert` for that. Without it the browser draws a black glyph on a dark surface. Toggle
-  `.arena-light` on `<html>` and it must invert with the theme.
-- The focus ring appears on the field group, not on the input, and a valid field keeps its
-  success-tone border while showing that ring.
-- The error border and ring appear at rest, with no focus needed.
-- Typing into the validated field and leaving it produces the message on blur, and the
-  `validateOn="change"` one produces it while typing and clears it again.
-
 ### Taking focus, the one method on the component
 
 `arena-input` exposes `focus()` and `select()` on the class. Reach them with a `viewChild`, and

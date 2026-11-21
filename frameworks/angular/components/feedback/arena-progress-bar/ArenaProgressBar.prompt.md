@@ -74,13 +74,7 @@ supply one for anything a user is waiting on.
   harder to read, and the figure inside it is the point.
 - **Don't** put two bars in one row expecting them to read as one process. The two are separate live regions, and a screen reader will announce both.
 
-**By hand, in real Chromium**: the sweep is an animation and happy-dom has none. Run `bun run demos` and open `/frameworks/angular/components/feedback/arena-progress-bar/ArenaProgressBar.demo.generated.html`: - The indeterminate sweep travels left to right, continuously. The sweep **slows** rather than stops under `prefers-reduced-motion`, because motion that reports work in progress must keep reporting it.
-- The determinate fill animates its width on `--dur-state`/`--ease-state` when the value changes,
-  and does not
-  animate on first paint.
-- Each tone inks the fill only; the track behind it stays `--color-base-300` in all five.
-- The three sizes differ in track height alone; the head row does not move with them.
-- With `shape="radial"` the arc sweeps clockwise from twelve o'clock, and its band is the weight of the bar it replaces. An indeterminate ring turns a fixed quarter arc, slowing rather than stopping under `prefers-reduced-motion` for the reason the sweep gives.
+Under `prefers-reduced-motion` the indeterminate sweep and the indeterminate ring slow rather than stop, because motion that reports work in progress keeps reporting it.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

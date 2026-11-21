@@ -75,7 +75,7 @@ The sweep is 270 degrees clockwise, from the 7:30 position to the 4:30 position.
 
 The gauge fills the width of its container and takes the height of `height`, the `--chart-gauge-height` token by default. The dial's radius is the largest that fits both the width and the height, so the band ring, the track and the centre reading move together.
 
-The centre reading stays clear of the arc at the base, comfortable and compact densities and in a container 390px wide, and the band edge numbers stay apart on a narrow dial. The arc and the band ring read as two things in the dark and in the light scope. A screen reader reads the table's value row with its unit.
+The centre reading stays clear of the arc at the base, comfortable and compact densities and in a container 390px wide. The arc and the band ring read as two things in the dark and in the light scope. A screen reader reads the table's value row with its unit.
 
 **Words.** A gauge is named by the locale's `gaugeChartName`, where `{label}` stands for `label`. The table is headed by `gaugeTableMeasure` and `gaugeTableValue`, its first rows are named by `gaugeTableValue`, `gaugeTableMinimum` and `gaugeTableMaximum`, and a band's range is written through `gaugeTableRange`.
 
