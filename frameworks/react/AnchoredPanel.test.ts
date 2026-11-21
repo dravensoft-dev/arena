@@ -1,7 +1,7 @@
 /* The rules every anchored panel follows, held with rect literals because the suite has no layout:
  * which side a panel opens on, where it lines up, how it stays inside the viewport, which panel of
  * the stack is the one Escape reaches, what counts as a press inside, and where Tab leaves. The
- * other layer's copy carries the same file, and check:shared-arithmetic keeps the bodies equal. */
+ * other layer's module is one text with this one, so check:shared-arithmetic holds it to this suite. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
