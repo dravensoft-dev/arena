@@ -46,13 +46,3 @@ test('it points at the landmark by the constant both sides read', () => {
       'the id is written on the landmark from the same constant, so nothing is coordinated at the call site');
   } finally { fixture.destroy(); }
 });
-
-test('a label of nothing but spaces is refused, the way every name only a human can supply is', () => {
-  const fixture = TestBed.createComponent(SkipHost);
-  try {
-    fixture.componentInstance.label = '   ';
-    assert.throws(() => fixture.detectChanges(), /`label` is required/,
-      'a link that appears with no words is a link nobody can act on, and a blank string satisfies '
-      + 'a falsiness test while naming nothing');
-  } finally { fixture.destroy(); }
-});

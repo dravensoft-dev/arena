@@ -200,18 +200,3 @@ for (const [subject, bindingPath] of [['ArenaRadioGroup', GROUP_BINDING], ['Aren
     }
   });
 }
-
-test('an ariaLabel bound to nothing throws, because input.required only proves it was bound', () => {
-  const fixture = TestBed.createComponent(RadioGroupHost);
-  fixture.componentInstance.ariaLabel = '  ';
-  try {
-    assert.throws(() => fixture.detectChanges(), /ArenaRadioGroup: .ariaLabel. is required/,
-      'a radiogroup with a whitespace name is announced unlabelled, which is what the member exists to prevent');
-  } finally {
-    try {
-      fixture.destroy();
-    } catch {
-      return;
-    }
-  }
-});

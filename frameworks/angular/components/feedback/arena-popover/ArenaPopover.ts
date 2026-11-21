@@ -53,7 +53,7 @@ export class ArenaPopover {
   protected readonly styles = computed(() => arenaPopoverStyles());
   protected readonly labelText = computed(() => {
     const label = this.label();
-    if (!label.trim()) throw new Error('arena-popover: `label` is required, and names the panel for assistive technology');
+    if (!label.trim()) throw new Error('ArenaPopover: `label` is required, and names the panel for assistive technology');
     return label;
   });
 

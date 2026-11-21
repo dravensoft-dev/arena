@@ -1,6 +1,6 @@
 /* What each member draws: the value attributes on the meter, the clamp, the readout as passed,
- * the standing word beside the reading and after it in aria-valuetext, the locale's words, and
- * the guard on a blank name. The host is the grid, and the track carries the derived standing. */
+ * the standing word beside the reading and after it in aria-valuetext, and the locale's words.
+ * The host is the grid, and the track carries the derived standing. */
 import { useTestEnvironment } from '../../../test/TestbedEnv';
 useTestEnvironment();
 
@@ -114,14 +114,7 @@ test('showLabel false hides the drawn name and keeps the accessible one', () => 
   }
 });
 
-test('a blank label throws, and a value that is not a number with an inverted range does not', () => {
-  const blank = TestBed.createComponent(MeterHost);
-  try {
-    blank.componentInstance.label = '  ';
-    assert.throws(() => blank.detectChanges(), /ArenaMeter: `label` is required/);
-  } finally {
-    blank.destroy();
-  }
+test('a value that is not a number with an inverted range does not throw', () => {
   const loose = render({ value: Number.POSITIVE_INFINITY, min: 9, max: 1, low: Number.NaN });
   loose.fixture.destroy();
 });

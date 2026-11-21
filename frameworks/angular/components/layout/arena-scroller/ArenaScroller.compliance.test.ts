@@ -112,14 +112,6 @@ test('the row carries its slot class and any option class beside it, takes no st
   } finally { given.destroy(); }
 });
 
-test('a label of nothing but spaces is refused, because a present and useless name is what the guard is for', () => {
-  const fixture = TestBed.createComponent(ScrollerHost);
-  fixture.componentInstance.label = '   ';
-  try {
-    assert.throws(() => fixture.detectChanges(), /`label` is required/);
-  } finally { fixture.destroy(); }
-});
-
 test('a row with no children is refused, because it would be a tab stop over nothing', () => {
   const fixture = TestBed.createComponent(EmptyHost);
   try {

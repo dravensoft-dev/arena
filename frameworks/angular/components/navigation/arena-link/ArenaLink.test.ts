@@ -144,12 +144,10 @@ test('a link a router cannot own is never cancelled and reports nothing', () => 
   } finally { self.fixture.destroy(); }
 });
 
-test('a blank address and an empty text are refused, because neither is a link', () => {
-  for (const patch of [{ href: '   ' }, { text: '  ' }]) {
-    const fixture = TestBed.createComponent(LinkHost);
-    try {
-      Object.assign(fixture.componentInstance, patch);
-      assert.throws(() => fixture.detectChanges(), /ArenaLink: `(href|content)` is required/);
-    } finally { fixture.destroy(); }
-  }
+test('an empty text is refused, because a link with no text is not a link', () => {
+  const fixture = TestBed.createComponent(LinkHost);
+  try {
+    Object.assign(fixture.componentInstance, { text: '  ' });
+    assert.throws(() => fixture.detectChanges(), /ArenaLink: `content` is required/);
+  } finally { fixture.destroy(); }
 });

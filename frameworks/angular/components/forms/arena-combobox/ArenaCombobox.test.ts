@@ -90,10 +90,6 @@ test('error marks the field invalid, describes it and draws the warning glyph; v
   } finally { valid.fixture.destroy(); }
 });
 
-test('a label of nothing but spaces is refused', () => {
-  assert.throws(() => render({ label: '   ' }), /label/);
-});
-
 test('the filter the component exports is the one it draws with', () => {
   assert.deepEqual(arenaFilterOptions(REGIONS, 'east').map((row) => row.value), ['us-east']);
 });

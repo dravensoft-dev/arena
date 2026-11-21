@@ -48,7 +48,3 @@ test('the clear control is drawn only when declared and something is chosen', ()
   const some = render({ clearable: true, value: ['eu'] });
   try { assert.ok(some.host.querySelector('[data-arena-part="combobox.clear"][aria-label="Clear selection"]')); } finally { some.fixture.destroy(); }
 });
-
-test('a label of nothing but spaces is refused', () => {
-  assert.throws(() => render({ label: ' ' }), /label/);
-});

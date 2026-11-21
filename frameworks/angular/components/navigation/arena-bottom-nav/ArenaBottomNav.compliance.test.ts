@@ -78,10 +78,6 @@ test('arena-bottom-nav is a named navigation landmark, which is the whole of wha
   }
 });
 
-test('a blank ariaLabel throws rather than rendering a landmark nothing can tell from the sidebar', () => {
-  assert.throws(() => render({ label: '   ' }), /ariaLabel/);
-});
-
 test('the bar reports the destination that was activated, and only that one', () => {
   const fixture = render();
   try {

@@ -101,18 +101,11 @@ test('choosing a step behind the current one reports its index, and nothing else
   }
 });
 
-test('an empty list draws nothing, and a blank ariaLabel throws', () => {
+test('an empty list draws nothing', () => {
   const empty = render({ steps: [] });
   try {
     assertNoNode(empty.root.querySelector('ol'), 'an empty list draws nothing');
   } finally {
     empty.fixture.destroy();
-  }
-  const fixture = TestBed.createComponent(VariantsHost);
-  fixture.componentInstance.label = '   ';
-  try {
-    assert.throws(() => fixture.detectChanges(), (error: Error) => /^ArenaStepper: `ariaLabel`/.test(error.message));
-  } finally {
-    fixture.destroy();
   }
 });

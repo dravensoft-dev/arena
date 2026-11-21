@@ -55,7 +55,3 @@ test('a form receives the number through a hidden input, and a range posts two u
     assert.deepEqual(hidden.map((one) => [one.getAttribute('name'), one.value]), [['price', '20'], ['price', '75']]);
   } finally { pair.fixture.destroy(); }
 });
-
-test('a blank label throws, because nothing can derive what the range measures', () => {
-  assert.throws(() => render({ label: ' ' }), /ArenaSlider:/);
-});

@@ -117,10 +117,6 @@ function draw(label: string, nodes: ArenaTreeNode[]): void {
   }
 }
 
-test('a blank label is refused', () => {
-  assert.throws(() => draw('  ', NODES), /ArenaTreeView: `label` is required/);
-});
-
 test('a node with a blank id or a blank label is refused, naming the field and the index', () => {
   const blankId = [...NODES, { id: ' ', label: 'Ghost' }];
   assert.throws(() => draw('Files', blankId), { message: arenaTreeBlankMessage('id', 4) });

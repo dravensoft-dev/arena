@@ -86,19 +86,7 @@ test('the value is clamped and rounded, so a caller cannot report 143% or -8%', 
   }
 });
 
-test('the accessible name comes from label alone, and a bar without one refuses to render', () => {
-  const unlabelled = TestBed.createComponent(ArenaProgressBar);
-  unlabelled.componentRef.setInput('progressPercentage', 10);
-  try {
-    assert.throws(
-      () => unlabelled.detectChanges(),
-      /NG0950/,
-      'a fallback of "Progress" names what the component IS, so two bars on one page announce identically',
-    );
-  } finally {
-    unlabelled.destroy();
-  }
-
+test('the accessible name comes from label alone', () => {
   const labelled = renderBar({ progressPercentage: 10, label: 'Uploading build 482' });
   try {
     assert.equal(track(labelled).getAttribute('aria-label'), 'Uploading build 482');

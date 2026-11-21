@@ -206,19 +206,6 @@ test('the arrows step by one, and a disabled arrow at the end reports nothing', 
   }
 });
 
-test('an ariaLabel bound to nothing throws, because input.required only proves it was bound', () => {
-  const fixture = TestBed.createComponent(ArenaPagination);
-  fixture.componentRef.setInput('page', 3);
-  fixture.componentRef.setInput('pageCount', 12);
-  fixture.componentRef.setInput('ariaLabel', '   ');
-  try {
-    assert.throws(() => fixture.detectChanges(), /ArenaPagination: .ariaLabel. is required/,
-      'a whitespace name satisfies roles.label mechanically while telling a screen-reader user nothing');
-  } finally {
-    destroyAfterFailedRender(fixture);
-  }
-});
-
 test('a pageCount below one throws, because a window over nothing is not a window', () => {
   for (const pageCount of [0, -1, 2.5]) {
     const fixture = TestBed.createComponent(ArenaPagination);

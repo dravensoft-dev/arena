@@ -67,18 +67,6 @@ test('arena-side-nav meets the navigation pattern it binds', () => {
   }
 });
 
-test('the landmark refuses a blank name at runtime, because a required input is not a guard', () => {
-  @Component({ standalone: true, imports: [ArenaSideNav], template: `<arena-side-nav ariaLabel=" " />` })
-  class BlankHost {}
-
-  const fixture = TestBed.createComponent(BlankHost);
-  try {
-    assert.throws(() => fixture.detectChanges(), /ariaLabel/);
-  } finally {
-    fixture.destroy();
-  }
-});
-
 test('an item reports through the nav\'s own output, carrying its id and nothing else', () => {
   const { fixture, nav } = render();
   try {

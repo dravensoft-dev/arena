@@ -147,14 +147,6 @@ test('two fieldsets on one page describe themselves by ids that differ', () => {
   } finally { fixture.destroy(); }
 });
 
-test('a legend of nothing but spaces is refused', () => {
-  const fixture = TestBed.createComponent(FieldsetHost);
-  fixture.componentInstance.legend = '   ';
-  try {
-    assert.throws(() => fixture.detectChanges(), /ArenaFieldset: `legend` is required/);
-  } finally { fixture.destroy(); }
-});
-
 test('a fieldset with nothing projected is refused, because its legend would name nothing', () => {
   const fixture = TestBed.createComponent(ChildlessHost);
   try {

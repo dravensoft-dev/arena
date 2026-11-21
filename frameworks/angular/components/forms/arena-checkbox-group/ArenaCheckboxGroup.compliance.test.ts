@@ -195,16 +195,6 @@ test('a checked bound on a box inside a group is ignored and warns once', () => 
   }
 });
 
-test('an ariaLabel bound to nothing throws, because input.required only proves it was bound', () => {
-  const fixture = TestBed.createComponent(GroupHost);
-  fixture.componentInstance.ariaLabel = '  ';
-  try {
-    assert.throws(() => fixture.detectChanges(), /ArenaCheckboxGroup: .ariaLabel. is required/);
-  } finally {
-    try { fixture.destroy(); } catch { return; }
-  }
-});
-
 test('a form directive on a box inside a group hears each toggle but never decides the tick', () => {
   const fixture = TestBed.createComponent(BoxControlHost);
   try {

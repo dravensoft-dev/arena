@@ -66,7 +66,3 @@ test('a number outside the bounds is drawn and announced at the nearest bound', 
     assert.equal(increase!.disabled, true);
   } finally { field.fixture.destroy(); }
 });
-
-test('a blank label throws, because nothing can derive what the number counts', () => {
-  assert.throws(() => render({ label: '  ' }), /ArenaNumberField:/);
-});

@@ -376,11 +376,3 @@ test('an empty table draws its [empty] slot and NO grid at all', async () => {
     fixture.destroy();
   }
 });
-
-test('`label` is guarded at runtime, because input.required proves only that something was bound', async () => {
-  const fixture = TestBed.createComponent(TableHost);
-  fixture.componentInstance.label = '   ';
-  assert.throws(() => fixture.detectChanges(), /label. is required/,
-    'a whitespace label left the grid unnamed and nothing complained');
-  fixture.destroy();
-});

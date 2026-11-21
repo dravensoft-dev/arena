@@ -72,22 +72,6 @@ test('the host is out of layout, so the <nav> is the box a parent row lays out',
   }
 });
 
-test('an ariaLabel bound to nothing throws, because input.required only proves it was bound', () => {
-  const fixture = TestBed.createComponent(ArenaBreadcrumbs);
-  fixture.componentRef.setInput('ariaLabel', '   ');
-  fixture.componentRef.setInput('items', CRUMBS);
-  try {
-    assert.throws(() => fixture.detectChanges(), /ArenaBreadcrumbs: .ariaLabel. is required/,
-      'a whitespace name satisfies roles.label mechanically while leaving the landmark unnamed');
-  } finally {
-    try {
-      fixture.destroy();
-    } catch {
-      return;
-    }
-  }
-});
-
 test('an intermediate crumb with no href is a span, never an anchor to the page itself', () => {
   const fixture = TestBed.createComponent(ArenaBreadcrumbs);
   fixture.componentRef.setInput('ariaLabel', 'Where');

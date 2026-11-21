@@ -167,7 +167,7 @@ export class ArenaCombobox {
   protected readonly describedBy = computed(() => (this.error() || this.hint() ? this.noteId : null));
   protected readonly labelText = computed(() => {
     const label = this.label();
-    if (!label.trim()) throw new Error('arena-combobox: `label` is required, and names the field');
+    if (!label.trim()) throw new Error('ArenaCombobox: `label` is required, and names the field');
     return label;
   });
   protected readonly rows = computed(() => {

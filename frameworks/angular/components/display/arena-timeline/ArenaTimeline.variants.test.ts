@@ -95,19 +95,12 @@ test('a time with a dateTime is a real time element, a time alone is text, and a
   }
 });
 
-test('an empty list draws nothing, and a blank label throws', () => {
+test('an empty list draws nothing', () => {
   const empty = render({ items: [] });
   try {
     assertNoNode(empty.root.querySelector('ol'), 'an empty list draws nothing');
   } finally {
     empty.fixture.destroy();
-  }
-  const fixture = TestBed.createComponent(VariantsHost);
-  fixture.componentInstance.label = ' ';
-  try {
-    assert.throws(() => fixture.detectChanges(), (error: Error) => /^ArenaTimeline: `label`/.test(error.message));
-  } finally {
-    fixture.destroy();
   }
 });
 

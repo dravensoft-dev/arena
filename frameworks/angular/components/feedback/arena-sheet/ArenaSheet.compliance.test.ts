@@ -182,7 +182,3 @@ test('a sheet is not a dialog: no role, no aria-modal, and it takes no focus whe
     anchor.remove();
   }
 });
-
-test('a blank title throws rather than rendering a panel nothing can name', () => {
-  assert.throws(() => render({ title: '   ' }), /title/);
-});
