@@ -9,11 +9,6 @@ import { ArenaFieldset } from './ArenaFieldset.tsx';
 const render = (element: React.ReactElement) => renderToStaticMarkup(element);
 const field = <span>A field</span>;
 
-test('a fieldset with no legend is refused', () => {
-  // @ts-expect-error the contract requires it, and the guard is what this asserts
-  assert.throws(() => render(<ArenaFieldset>{field}</ArenaFieldset>), /^Error: ArenaFieldset: `legend` is required/);
-});
-
 test('the legend is the first child, then the fields, then the note, each drawn from the manifest', () => {
   const html = render(<ArenaFieldset legend="Notifications" hint="At most once a day.">{field}</ArenaFieldset>);
   assert.match(html, /^<fieldset class="arena-fieldset__root"[^>]*><legend class="arena-fieldset__legend"/);

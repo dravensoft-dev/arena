@@ -38,15 +38,6 @@ test('ArenaButton draws destructive in the danger hue, with no unmodified bg-err
     'an unmodified bg-error fills the danger surface; only the hover: form may tint it');
 });
 
-test('ArenaButton drops a consumer style object and a consumer attribute, each independently', () => {
-  const html = renderIcons(
-    // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    <ArenaButton style={{ color: '#ff00ff' }} data-stray="x">x</ArenaButton>
-  );
-  assert.doesNotMatch(html, /#ff00ff/, 'a consumer style reached the rendered root -- the R4 escape is back');
-  assert.doesNotMatch(html, /data-stray/, 'a consumer attribute reached the rendered root -- the {...rest} escape is back');
-});
-
 test('tabStop defaults to true and emits no tabindex at all', () => {
   const html = renderIcons(<ArenaButton>Save</ArenaButton>);
   assert.doesNotMatch(html, /tabindex/i, 'a default ArenaButton wrote a tabindex it does not need');

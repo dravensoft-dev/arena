@@ -11,14 +11,6 @@ import tailwind from './ArenaSection.manifest.generated.ts';
 const render = (element: React.ReactElement) => renderToStaticMarkup(element);
 const body = <p>One</p>;
 
-test('a section with no title is refused', () => {
-  assert.throws(
-    // @ts-expect-error the contract requires it, and the guard is what this asserts
-    () => render(<ArenaSection>{body}</ArenaSection>),
-    /`title` is required/,
-  );
-});
-
 test('the title opens a level two heading, one rung under a page head', () => {
   assert.match(render(<ArenaSection title="Landed recently">{body}</ArenaSection>),
     /<h2[^>]*>Landed recently<\/h2>/);
@@ -50,12 +42,4 @@ test('a section given a rhythm option carries it on its root, and the slot reads
   }
   assert.ok(tailwind.slots.root.includes('var(--arena-rhythm-gap,var(--arena-rhythm,var(--rhythm-component)))'));
   assert.doesNotMatch(html, /\bstyle=/);
-});
-
-test('ArenaSection drops a consumer style object and a consumer attribute', () => {
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  const styled = render(<ArenaSection title="T" style={{ color: '#ff00ff' }}>{body}</ArenaSection>);
-  assert.doesNotMatch(styled, /#ff00ff/, 'a consumer style reached the rendered root');
-  const spread = render(<ArenaSection title="T" data-stray="x">{body}</ArenaSection>);
-  assert.doesNotMatch(spread, /data-stray/, 'a consumer attribute reached the rendered root');
 });

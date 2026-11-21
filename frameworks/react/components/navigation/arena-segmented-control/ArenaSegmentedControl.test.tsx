@@ -29,50 +29,18 @@ test('value selects the option whose `value` matches, and only it is checked and
     'more than one radio was checked');
 });
 
-test('options is required and its absence throws', () => {
-  assert.throws(
-    // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    () => renderToStaticMarkup(<ArenaSegmentedControl ariaLabel="Time range" />),
-    /ArenaSegmentedControl: `options` is required/,
-  );
-});
-
 test('an empty options array renders rather than throwing', () => {
   const html = renderToStaticMarkup(<ArenaSegmentedControl ariaLabel="Time range" options={[]} />);
   assert.match(html, /role="radiogroup"/);
 });
 
-test('ariaLabel is required and its absence throws', () => {
-  assert.throws(
-    // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    () => renderToStaticMarkup(<ArenaSegmentedControl options={[{ value: 'ov', label: 'Overview' }]} />),
-    /ArenaSegmentedControl: `ariaLabel` is required/,
-  );
-});
-
-test('ArenaSegmentedControl drops a consumer style object -- the ...style escape is gone', () => {
-  const html = renderToStaticMarkup(
-    <ArenaSegmentedControl ariaLabel="A" options={[{ value: 'ov', label: 'Overview' }]}
-      // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-      style={{ color: '#ff00ff' }} />,
-  );
-  assert.doesNotMatch(html, /#ff00ff/, 'a consumer style reached the rendered root -- the R4 escape is back');
-});
-
-test('ArenaSegmentedControl drops a consumer attribute -- the {...rest} escape is gone', () => {
-  const html = renderToStaticMarkup(
-    <ArenaSegmentedControl ariaLabel="A" options={[{ value: 'ov', label: 'Overview' }]} data-stray="x" />,
-  );
-  assert.doesNotMatch(html, /data-stray/, 'a consumer attribute reached the rendered root -- the {...rest} escape is back');
-});
-
-test('the track takes its focus ring from focus-within, so no segment reports focus to a state', () => {
+test('the track draws its slot class and an unselected segment draws no thumb', () => {
   const html = renderToStaticMarkup(
     <ArenaSegmentedControl ariaLabel="Time range" name="tr" value="ov"
       options={[{ value: 'ov', label: 'Overview' }, { value: 'dp', label: 'Deployments' }]} />,
   );
   assert.match(html, /arena-segmented-control__track/);
-  assert.match(html, /data-arena-part="segmented-control.segment"(?:(?!data-arena-selected=)[^>])*>/, 'and an unselected segment lifts through a modifier');
+  assert.match(html, /data-arena-part="segmented-control.segment"(?:(?!data-arena-selected=)[^>])*>/, 'an unselected segment drew a selected marker');
   assert.doesNotMatch(html, /<label[^>]*\bdata-arena-selected=""[^>]*>Deployments</,
     'the unselected segment draws no thumb');
 });

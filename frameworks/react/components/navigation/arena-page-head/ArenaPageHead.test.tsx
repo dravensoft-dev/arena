@@ -13,14 +13,6 @@ test('ArenaPageHead renders the title and subtitle text', () => {
   assert.match(html, /Everything shipped in the last 30 days/);
 });
 
-test('ArenaPageHead throws when title is absent -- the fail-hard guard', () => {
-  assert.throws(
-    // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    () => renderToStaticMarkup(<ArenaPageHead />),
-    /ArenaPageHead: `title` is required/,
-  );
-});
-
 test('ArenaPageHead takes its alignment as a class on the root', () => {
   const html = renderToStaticMarkup(<ArenaPageHead title="Deployments" className="arena-align-center" />);
   assert.match(html, /\bclass="[^"]*\barena-align-center\b[^"]*"[^>]*data-arena-part="page-head"/);

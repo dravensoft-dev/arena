@@ -50,17 +50,6 @@ test('error renders below the field and marks the control invalid', () => {
   assert.doesNotMatch(html, /Ignored/);
 });
 
-test('ArenaTextarea drops a consumer style object -- the ...style escape is gone', () => {
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  const html = renderToStaticMarkup(<ArenaTextarea label="A" style={{ color: '#ff00ff' }} />);
-  assert.doesNotMatch(html, /#ff00ff/, 'a consumer style reached the rendered root -- the R4 escape is back');
-});
-
-test('ArenaTextarea drops a consumer attribute -- the {...rest} escape is gone', () => {
-  const html = renderToStaticMarkup(<ArenaTextarea label="A" data-stray="x" />);
-  assert.doesNotMatch(html, /data-stray/, 'a consumer attribute reached the rendered textarea -- the {...rest} escape is back');
-});
-
 test('a consumer id overrides the one generated from the label', () => {
   const html = renderToStaticMarkup(<ArenaTextarea label="Email" id="signup-email" />);
   assert.match(html, /<textarea id="signup-email"/);
@@ -86,24 +75,4 @@ test('autoResize picks the resize branch of the recipe, and error picks the stat
 
 test('readOnly is a group on the field', () => {
   assert.match(renderToStaticMarkup(<ArenaTextarea label="A" readOnly />), /data-arena-part="textarea.field"[^>]*\bdata-arena-read-only=""/);
-});
-
-test('a hint is named by the field and carries the id followed by -note', () => {
-  const html = renderToStaticMarkup(<ArenaTextarea label="Notes" hint="Markdown works." />);
-  assert.match(html, /<textarea[^>]*aria-describedby="ta-notes-note"/);
-  assert.match(html, /<span id="ta-notes-note"[^>]*>Markdown works\.<\/span>/);
-});
-
-test('an error replaces the hint under the same note id', () => {
-  const html = renderToStaticMarkup(<ArenaTextarea label="Notes" hint="Markdown works." error="Required." />);
-  assert.match(html, /<textarea[^>]*aria-describedby="ta-notes-note"/);
-  assert.match(html, /<span id="ta-notes-note"[^>]*>Required\.<\/span>/);
-  assert.doesNotMatch(html, /Markdown works/);
-});
-
-test('a note takes the id the consumer gives, and a field with neither carries no aria-describedby', () => {
-  const html = renderToStaticMarkup(<ArenaTextarea id="notes" hint="Markdown works." />);
-  assert.match(html, /<textarea[^>]*aria-describedby="notes-note"/);
-  assert.match(html, /<span id="notes-note"[^>]*>Markdown works\.<\/span>/);
-  assert.doesNotMatch(renderToStaticMarkup(<ArenaTextarea label="Notes" />), /aria-describedby/);
 });

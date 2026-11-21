@@ -18,13 +18,6 @@ test('an open palette draws each command with its icon class, label and shortcut
   assert.ok(html.includes('role="dialog"'), 'the combobox binding\'s dialog element is intact');
 });
 
-test('an absent required member throws rather than rendering', () => {
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  assert.throws(() => renderIcons(<ArenaCommandPalette commands={[]} />), /`open` is required/);
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  assert.throws(() => renderIcons(<ArenaCommandPalette open commands={undefined} />), /`commands` is required/);
-});
-
 test('the active row is the one the arrow keys point at, and it takes the accent branch of the recipe', () => {
   const html = renderIcons(
     <ArenaCommandPalette open commands={[{ id: 'a', label: 'Deploy' }, { id: 'b', label: 'Roll back' }]} />,

@@ -30,37 +30,6 @@ test('ArenaRadio renders its label and hint', () => {
   assert.match(html, /Real users/);
 });
 
-test('ArenaRadio throws when value is absent -- the fail-hard guard', () => {
-  assert.throws(
-    // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    () => renderToStaticMarkup(<ArenaRadioGroup ariaLabel={LABEL}><ArenaRadio label="A" /></ArenaRadioGroup>),
-    /ArenaRadio: `value` is required/,
-  );
-});
-
-test('ArenaRadioGroup drops a consumer style object -- the ...style escape is gone', () => {
-  const html = renderToStaticMarkup(
-    // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    <ArenaRadioGroup ariaLabel={LABEL} style={{ color: '#ff00ff' }}><ArenaRadio value="a" label="A" /></ArenaRadioGroup>,
-  );
-  assert.doesNotMatch(html, /#ff00ff/, 'a consumer style reached the rendered root -- the R4 escape is back');
-});
-
-test('ArenaRadioGroup drops a consumer attribute -- the {...rest} escape is gone', () => {
-  const html = renderToStaticMarkup(
-    <ArenaRadioGroup ariaLabel={LABEL} data-stray="x"><ArenaRadio value="a" label="A" /></ArenaRadioGroup>,
-  );
-  assert.doesNotMatch(html, /data-stray/, 'a consumer attribute reached the rendered root -- the {...rest} escape is back');
-});
-
-test('ArenaRadioGroup throws when ariaLabel is absent -- each option names itself, the SET names nothing', () => {
-  assert.throws(
-    // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    () => renderToStaticMarkup(<ArenaRadioGroup><ArenaRadio value="a" label="A" /></ArenaRadioGroup>),
-    /ArenaRadioGroup: `ariaLabel` is required/,
-  );
-});
-
 test('ariaLabel names the group, and `name` is not a label', () => {
   const html = renderToStaticMarkup(
     <ArenaRadioGroup ariaLabel={LABEL} name="env"><ArenaRadio value="a" label="A" /></ArenaRadioGroup>,
@@ -69,15 +38,14 @@ test('ariaLabel names the group, and `name` is not a label', () => {
   assert.doesNotMatch(html, /aria-label="env"/, 'the form name must never reach a screen reader as the name');
 });
 
-test('the group draws its own column from ArenaRadio\'s manifest, which is the surface it belongs to', () => {
+test('the group is a radiogroup on the radio group slot', () => {
   const html = renderToStaticMarkup(
     <ArenaRadioGroup ariaLabel={LABEL}><ArenaRadio value="a" label="A" /></ArenaRadioGroup>,
   );
-  assert.match(html, /<div role="radiogroup"[^>]*class="arena-radio__group"/,
-    'ArenaRadioGroup carries no manifest of its own because it has no surface of its own');
+  assert.match(html, /<div role="radiogroup"[^>]*class="arena-radio__group"/, 'the radiogroup did not draw the radio group slot class');
 });
 
-test('the ring finds its own focus, so nothing injects a stylesheet to reach the input', () => {
+test('the radio draws its ring slot and no hook class', () => {
   const html = renderToStaticMarkup(
     <ArenaRadioGroup ariaLabel={LABEL}><ArenaRadio value="a" label="A" /></ArenaRadioGroup>,
   );

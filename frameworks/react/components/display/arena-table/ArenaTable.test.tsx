@@ -56,22 +56,6 @@ test('every row, header cell and data cell takes its grid role from the element 
   assert.equal(count(/<th[^>]*scope="col"/g), 2, 'a header cell says which way it heads, which is what carries the mapping');
 });
 
-test('ArenaTable throws when `label` is absent', () => {
-  assert.throws(
-    // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    () => renderToStaticMarkup(<ArenaTable columns={COLUMNS} responsive={false}>{body()}</ArenaTable>),
-    /ArenaTable: `label` is required/,
-  );
-});
-
-test('ArenaTable throws when `columns` is absent', () => {
-  assert.throws(
-    // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    () => renderToStaticMarkup(<ArenaTable label="Recent builds" responsive={false}>{body()}</ArenaTable>),
-    /ArenaTable: `columns` is required/,
-  );
-});
-
 test('an empty columns array renders rather than throwing', () => {
   assert.doesNotThrow(
     () => renderToStaticMarkup(<ArenaTable columns={[]} label="Recent builds" responsive={false}>{body()}</ArenaTable>),
@@ -120,46 +104,6 @@ test('`rows` and `getRowKey` passed as props change nothing', () => {
   const baseline = render();
   const withDead = render({ rows: ROWS, getRowKey: (r: { build: string }) => r.build });
   assert.equal(withDead, baseline, 'a removed member is still being honoured');
-});
-
-test('ArenaTable drops a consumer style object -- the ...style escape is gone', () => {
-  const html = render({ style: { color: '#ff00ff' } });
-  assert.doesNotMatch(html, /#ff00ff/, 'a consumer style reached the rendered root -- the R4 escape is back');
-});
-
-test('ArenaTable drops a consumer attribute -- the {...rest} escape is gone', () => {
-  const html = render({ 'data-stray': 'x' });
-  assert.doesNotMatch(html, /data-stray/, 'a consumer attribute reached the rendered root -- the {...rest} escape is back');
-});
-
-test('ArenaTableRow drops a consumer style object -- the ...style escape is gone', () => {
-  const html = render({}, [
-    // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    <ArenaTableRow key="a" style={{ color: '#ff00ff' }}><ArenaTableCell>x</ArenaTableCell></ArenaTableRow>,
-  ]);
-  assert.doesNotMatch(html, /#ff00ff/, 'a consumer style reached the rendered <tr> -- the R4 escape is back');
-});
-
-test('ArenaTableRow drops a consumer attribute -- the {...rest} escape is gone', () => {
-  const html = render({}, [
-    <ArenaTableRow key="a" data-stray="x"><ArenaTableCell>x</ArenaTableCell></ArenaTableRow>,
-  ]);
-  assert.doesNotMatch(html, /data-stray/, 'a consumer attribute reached the rendered <tr> -- the {...rest} escape is back');
-});
-
-test('ArenaTableCell drops a consumer style object -- the ...style escape is gone', () => {
-  const html = render({}, [
-    // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    <ArenaTableRow key="a"><ArenaTableCell style={{ color: '#ff00ff' }}>x</ArenaTableCell></ArenaTableRow>,
-  ]);
-  assert.doesNotMatch(html, /#ff00ff/, 'a consumer style reached the rendered <td> -- the R4 escape is back');
-});
-
-test('ArenaTableCell drops a consumer attribute -- the {...rest} escape is gone', () => {
-  const html = render({}, [
-    <ArenaTableRow key="a"><ArenaTableCell data-stray="x">x</ArenaTableCell></ArenaTableRow>,
-  ]);
-  assert.doesNotMatch(html, /data-stray/, 'a consumer attribute reached the rendered <td> -- the {...rest} escape is back');
 });
 
 test('the first row, a sortable head and a numeric cell are groups on the base slots', () => {

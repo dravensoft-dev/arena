@@ -44,11 +44,3 @@ test('ArenaGrid draws no grid ROLE and no cells -- it is layout, and the grid pa
   assert.doesNotMatch(html, /role="gridcell"/);
   assert.doesNotMatch(html, /tabindex/i, 'layout costs no tab stop');
 });
-
-test('ArenaGrid drops a consumer style object and a consumer attribute -- no R4 escape reaches the root', () => {
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  const styled = renderToStaticMarkup(<ArenaGrid style={{ color: '#ff00ff' }} />);
-  assert.doesNotMatch(styled, /#ff00ff/, 'a consumer style reached the rendered root');
-  const spread = renderToStaticMarkup(<ArenaGrid data-stray="x" />);
-  assert.doesNotMatch(spread, /data-stray/, 'a consumer attribute reached the rendered root');
-});

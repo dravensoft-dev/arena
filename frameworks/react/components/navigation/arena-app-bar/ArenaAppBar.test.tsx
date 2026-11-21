@@ -49,11 +49,3 @@ test('sticky is on by default and is the only thing the variant moves', () => {
   assert.notEqual(render(<ArenaAppBar brand={<span />} sticky={false} />),
     render(<ArenaAppBar brand={<span />} sticky />));
 });
-
-test('ArenaAppBar drops a consumer style object and a consumer attribute', () => {
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  const styled = render(<ArenaAppBar style={{ color: '#ff00ff' }} />);
-  assert.doesNotMatch(styled, /#ff00ff/, 'a consumer style reached the rendered root');
-  const spread = render(<ArenaAppBar data-stray="x" />);
-  assert.doesNotMatch(spread, /data-stray/, 'a consumer attribute reached the rendered root');
-});

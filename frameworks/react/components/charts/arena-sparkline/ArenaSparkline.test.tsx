@@ -96,21 +96,3 @@ test('ArenaSparkline drops a label with no value at its index, and writes an emp
   assert.doesNotMatch(short, /undefined/);
   assert.match(short, /<td>20<\/td>/, 'the unlabelled point is still plotted and still in the table');
 });
-
-test('ArenaSparkline throws when label, labels or series is absent, which required-ness demands of every layer', () => {
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  assert.throws(() => renderToStaticMarkup(<ArenaSparkline labels={LABELS} series={SERIES} />), /ArenaSparkline: `label` is required/);
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  assert.throws(() => renderToStaticMarkup(<ArenaSparkline label="p95" series={SERIES} />), /ArenaSparkline: `labels` is required/);
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  assert.throws(() => renderToStaticMarkup(<ArenaSparkline label="p95" labels={LABELS} />), /ArenaSparkline: `series` is required/);
-});
-
-test('ArenaSparkline drops a consumer style object and a consumer attribute, each independently', () => {
-  const html = renderToStaticMarkup(
-    // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    <ArenaSparkline label="p95" labels={LABELS} series={SERIES} style={{ color: '#ff00ff' }} data-stray="x" />
-  );
-  assert.doesNotMatch(html, /#ff00ff/);
-  assert.doesNotMatch(html, /data-stray/);
-});

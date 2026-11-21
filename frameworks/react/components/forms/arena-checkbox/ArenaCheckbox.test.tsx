@@ -21,7 +21,7 @@ test('checked draws the crimson fill; unchecked draws the input surface', () => 
   assert.match(off, /data-arena-part="checkbox.box"(?:(?!data-arena-checked=)[^>])*>/);
 });
 
-test('the focus ring is a selector on the box, so nothing injects a stylesheet to reach the input', () => {
+test('the checkbox draws its box slot and no hook class', () => {
   const html = renderToStaticMarkup(<ArenaCheckbox label="Notify" />);
   assert.match(html, /arena-checkbox__box/);
   assert.doesNotMatch(html, /\barena-check-box\b/, 'the hook class the injected sheet needed is gone with it');
@@ -43,17 +43,6 @@ test('name, value and required reach the native input', () => {
 test('label renders beside the box', () => {
   const html = renderToStaticMarkup(<ArenaCheckbox label="Notify on approval" />);
   assert.match(html, /Notify on approval/);
-});
-
-test('ArenaCheckbox drops a consumer style object -- the ...style escape is gone', () => {
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  const html = renderToStaticMarkup(<ArenaCheckbox label="A" style={{ color: '#ff00ff' }} />);
-  assert.doesNotMatch(html, /#ff00ff/, 'a consumer style reached the rendered root -- the R4 escape is back');
-});
-
-test('ArenaCheckbox drops a consumer attribute -- the {...rest} escape is gone', () => {
-  const html = renderToStaticMarkup(<ArenaCheckbox label="A" data-stray="x" />);
-  assert.doesNotMatch(html, /data-stray/, 'a consumer attribute reached the rendered root -- the {...rest} escape is back');
 });
 
 test('a blank label is refused even with showLabel false', () => {

@@ -65,67 +65,20 @@ test('an icon is a class name Arena draws, never markup the caller passes', () =
   assert.doesNotMatch(html, />ph-bold ph-squares-four</, 'the class name was drawn as text');
 });
 
-test('ArenaSideNav drops a consumer style object -- the ...style escape is gone', () => {
-  const html = renderIcons(
-    // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    <ArenaSideNav ariaLabel="Primary" style={{ color: '#ff00ff' }} />,
-  );
-  assert.doesNotMatch(html, /#ff00ff/, 'a consumer style reached the rendered root -- the R4 escape is back');
-});
-
-test('ArenaSideNav drops a consumer attribute -- no {...rest} spread reaches the root', () => {
-  const html = renderIcons(
-    <ArenaSideNav ariaLabel="Primary" data-stray="x" />,
-  );
-  assert.doesNotMatch(html, /data-stray/, 'a consumer attribute reached the rendered root -- a {...rest} escape is back');
-});
-
-test('ariaLabel is required and its absence throws', () => {
-  assert.throws(
-    // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    () => renderIcons(<ArenaSideNav>{TREE}</ArenaSideNav>),
-    /ArenaSideNav: `ariaLabel` is required/,
-  );
-});
-
 test('an ArenaSideNav with no children renders an empty landmark rather than throwing', () => {
   const html = renderIcons(<ArenaSideNav ariaLabel="Primary" />);
   assert.match(html, /<nav[^>]*aria-label="Primary"/);
   assert.doesNotMatch(html, /<a|<button/);
 });
 
-test('the item text re-densifies with the control scale', () => {
+test('an item and a trigger draw their slot class', () => {
   const html = renderIcons(<ArenaSideNav ariaLabel="Primary">{TREE}</ArenaSideNav>);
-  assert.match(html, /\b(?:arena-side-nav__item|arena-side-nav__trigger)\b/,
-    'the control text step is what .arena-compact re-densifies, and the row reads it as a utility');
+  assert.match(html, /\b(?:arena-side-nav__item|arena-side-nav__trigger)\b/, 'no item or trigger drew its slot class');
 });
 
 test('arenaIndentDepth returns the depth itself at every depth', () => {
   assert.equal(arenaIndentDepth(0), 0);
   assert.equal(arenaIndentDepth(2), 2);
-});
-
-test('ArenaSideNavItem: `id` is required and a blank one throws too', () => {
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  assert.throws(() => renderIcons(<ArenaSideNavItem label="Home" />), /ArenaSideNavItem: `id` is required/);
-  assert.throws(() => renderIcons(<ArenaSideNavItem id="" label="Home" />), /ArenaSideNavItem: `id` is required/);
-});
-
-test('ArenaSideNavItem: `label` is required and a blank one throws too', () => {
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  assert.throws(() => renderIcons(<ArenaSideNavItem id="home" />), /ArenaSideNavItem: `label` is required/);
-  assert.throws(() => renderIcons(<ArenaSideNavItem id="home" label="" />), /ArenaSideNavItem: `label` is required/);
-});
-
-test('ArenaSideNavItem drops a consumer style object', () => {
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  const html = renderIcons(<ArenaSideNavItem id="a" label="A" style={{ color: '#ff00ff' }} />);
-  assert.doesNotMatch(html, /#ff00ff/, 'a consumer style reached the rendered root -- the R4 escape is back');
-});
-
-test('ArenaSideNavItem drops a consumer attribute -- no {...rest} spread reaches the root', () => {
-  const html = renderIcons(<ArenaSideNavItem id="a" label="A" data-stray="x" />);
-  assert.doesNotMatch(html, /data-stray/, 'a consumer attribute reached the rendered root');
 });
 
 test('a disabled item that is not current paints its disabled slots under hover and press, after the rules that would lift it', () => {

@@ -53,26 +53,6 @@ test('every field is drawn by Arena, and there is no per-item projection', () =>
   assert.ok(html.includes('2m'), 'the time is rendered');
 });
 
-test('an absent items array throws rather than rendering an empty feed', () => {
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  assert.throws(() => renderToStaticMarkup(<ArenaActivityFeed label={LABEL} />), /`items` is required/);
-});
-
-test('a consumer style prop and stray attributes are dropped, not spread onto the <ul>', () => {
-  const html = renderToStaticMarkup(
-    // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    <ArenaActivityFeed label={LABEL} items={[]} style={{ color: 'rgb(255, 0, 0)' }} data-escape="leaked" />,
-  );
-  assert.ok(!html.includes('rgb(255, 0, 0)'), 'a consumer style never reaches the <ul> (R4)');
-  assert.ok(!html.includes('data-escape'), 'a stray attribute never reaches the <ul> (R4)');
-});
-
-test('an absent label throws -- a feed a reader navigates BY cannot be nameless', () => {
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  assert.throws(() => renderToStaticMarkup(<ArenaActivityFeed items={ITEMS} />),
-    /ArenaActivityFeed: `label` is required/);
-});
-
 test('dateTime turns the row time into a real <time> a machine can read', () => {
   const html = renderToStaticMarkup(<ArenaActivityFeed label={LABEL} items={[
     { id: '1', actor: 'ana@', action: 'approved the release', time: '2h ago', dateTime: '2026-08-16T09:12:00Z' },

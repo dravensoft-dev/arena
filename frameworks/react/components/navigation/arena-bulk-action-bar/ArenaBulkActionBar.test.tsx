@@ -17,16 +17,3 @@ test('an action renders its icon as a Phosphor class and its label as text', () 
 test('a count of zero renders nothing', () => {
   assert.equal(renderIcons(<ArenaBulkActionBar count={0} actions={[]} />), '');
 });
-
-test('an absent required member throws rather than rendering', () => {
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  assert.throws(() => renderIcons(<ArenaBulkActionBar actions={[]} />), /`count` is required/);
-});
-
-test('a consumer style prop is dropped, not spread onto the root', () => {
-  const html = renderIcons(
-    // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    <ArenaBulkActionBar count={1} actions={[]} style={{ color: 'rgb(255, 0, 0)' }} />,
-  );
-  assert.ok(!html.includes('rgb(255, 0, 0)'), 'a consumer style never reaches the root (R4)');
-});

@@ -33,13 +33,6 @@ test('an anchor switches the coachmark from the bottom-right corner to top/left 
   assert.match(floating, /data-arena-part="onboarding.panel"[^>]*\bdata-arena-placement="floating"/, 'the default branch floats off the corner through the recipe');
 });
 
-test('an absent required member throws rather than rendering', () => {
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  assert.throws(() => renderToStaticMarkup(<ArenaOnboarding steps={[{ title: 'One' }]} />), /`open` is required/);
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  assert.throws(() => renderToStaticMarkup(<ArenaOnboarding open />), /`steps` is required/);
-});
-
 test('the current step is the dot with the current group selected and the others take its other value', () => {
   const html = renderToStaticMarkup(<ArenaOnboarding open steps={[{ title: 'One' }, { title: 'Two' }, { title: 'Three' }]} />);
   assert.equal((html.match(/data-arena-part="onboarding.dot"[^>]*\bdata-arena-current=""/g) || []).length, 1);

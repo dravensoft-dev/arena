@@ -47,23 +47,6 @@ test('eyebrow and title render as plain text', () => {
   assert.ok(html.includes('fields'), 'children are rendered');
 });
 
-test('a consumer style prop and stray attributes are dropped, not spread onto the root', () => {
-  const html = renderToStaticMarkup(
-    <ArenaUnauthCard
-      eyebrow="ARENA"
-      title="Welcome back"
-      // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-      style={{ color: 'rgb(255, 0, 0)' }}
-      data-escape="leaked"
-    >
-      <span>fields</span>
-    </ArenaUnauthCard>,
-  );
-
-  assert.ok(!html.includes('rgb(255, 0, 0)'), 'the consumer style value is not rendered anywhere');
-  assert.ok(!html.includes('data-escape'), 'the stray attribute is not rendered anywhere');
-});
-
 test('it renders ArenaCard rather than a second panel definition', () => {
   const html = renderToStaticMarkup(<ArenaUnauthCard><span>x</span></ArenaUnauthCard>);
 

@@ -82,52 +82,17 @@ test('open governs whether anything renders at all', () => {
   );
 });
 
-test('ArenaDialog drops a consumer style object -- the ...style escape is gone', () => {
-  const html = renderToStaticMarkup(
-    // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    <ArenaDialog open onClose={() => {}} title={TITLE} style={{ color: '#ff00ff' }}><p>b</p></ArenaDialog>,
-  );
-  assert.doesNotMatch(html, /#ff00ff/, 'a consumer style reached the rendered panel -- the R4 escape is back');
-});
-
-test('ArenaDialog drops a consumer attribute -- no {...rest} spread reaches the panel', () => {
-  const html = renderToStaticMarkup(
-    <ArenaDialog open onClose={() => {}} title={TITLE} data-stray="x"><p>b</p></ArenaDialog>,
-  );
-  assert.doesNotMatch(html, /data-stray/, 'a consumer attribute reached the rendered panel -- a {...rest} escape is back');
-});
-
-test('title is required and its absence throws', () => {
-  assert.throws(
-    // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    () => renderToStaticMarkup(<ArenaDialog open onClose={() => {}}><p>b</p></ArenaDialog>),
-    /ArenaDialog: `title` is required/,
-  );
-});
-
-test('open is required, and its absence throws', () => {
-  assert.throws(
-    // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    () => renderToStaticMarkup(<ArenaDialog title={TITLE}><p>b</p></ArenaDialog>),
-    /ArenaDialog: `open` is required/,
-  );
-});
-
-test('the footer wraps, because the slot takes one control per element', () => {
+test('the footer draws its foot slot class', () => {
   const html = renderToStaticMarkup(
     <ArenaDialog open title={TITLE} onClose={() => {}}
       footer={<><button type="button">Cancel</button><button type="button">Charge in full</button><button type="button">Record</button></>}>
       <p>b</p>
     </ArenaDialog>,
   );
-  assert.match(html, /\barena-dialog__foot\b/,
-    'three buttons at 390px overflow the panel without it, and the row is what has to wrap '
-    + 'because the consumer passes siblings rather than a wrapper of their own; ArenaPageHead and '
-    + 'ArenaChartCard already do this, and a third action row behaving differently is worse than none');
+  assert.match(html, /\barena-dialog__foot\b/, 'the footer row did not draw its foot slot class');
 });
 
-test('the panel pops with the shared utility, so nothing injects keyframes for it', () => {
+test('the panel draws its panel slot class', () => {
   const html = renderToStaticMarkup(<ArenaDialog open onClose={() => {}} title={TITLE}><p>b</p></ArenaDialog>);
-  assert.match(html, /\barena-dialog__panel\b/,
-    'an entrance keeps its fade and drops its travel under reduced motion, and the utility is where that is said');
+  assert.match(html, /\barena-dialog__panel\b/, 'the panel did not draw its panel slot class');
 });

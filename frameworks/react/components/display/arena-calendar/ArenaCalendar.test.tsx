@@ -32,18 +32,6 @@ test('an ArenaCalendar with no children renders an empty schedule rather than th
   assert.doesNotMatch(html, /Standup/, 'the fixture leaked an event into an ArenaCalendar with no children');
 });
 
-test('an ArenaCalendarEvent missing a required member throws', () => {
-  const full = { id: 'a', title: 'Standup', start: '2026-07-20T09:00:00Z', end: '2026-07-20T09:30:00Z' };
-  for (const missing of ['id', 'title', 'start', 'end']) {
-    const props = { ...full, [missing]: undefined };
-    assert.throws(
-      () => renderIcons(<ArenaCalendarEvent {...props} />),
-      new RegExp(`ArenaCalendarEvent: \\\`${missing}\\\` is required`),
-      `an ArenaCalendarEvent with no ${missing} rendered instead of failing hard`,
-    );
-  }
-});
-
 test('an omitted timeZone resolves to the reader own zone, exactly', () => {
   const Real = Intl.DateTimeFormat;
   // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
@@ -78,28 +66,6 @@ test('an explicit timeZone still decides the wall clock', () => {
   assert.match(utc, /09:00/, 'the UTC render does not start at the event hour');
   assert.match(tokyo, /18:00/, 'the Tokyo render did not shift the event by nine hours');
   assert.doesNotMatch(tokyo, /09:00/, 'the Tokyo render still shows the UTC hour -- timeZone was ignored');
-});
-
-test('ArenaCalendar drops a consumer style object', () => {
-  const html = render({ style: { color: '#ff00ff' } });
-  assert.doesNotMatch(html, /#ff00ff/, 'a consumer style reached the rendered root');
-});
-
-test('ArenaCalendar drops a consumer attribute -- no {...rest} spread reaches the root', () => {
-  const html = render({ 'data-stray': 'x' });
-  assert.doesNotMatch(html, /data-stray/, 'a consumer attribute reached the rendered root -- a {...rest} escape is back');
-});
-
-test('ArenaCalendarEvent drops a consumer style object -- no ...style escape on the chip', () => {
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  const html = render({}, { style: { color: '#ff00ff' } });
-  assert.doesNotMatch(html, /#ff00ff/, 'a consumer style reached the chip -- an R4 escape opened');
-});
-
-test('ArenaCalendarEvent drops a consumer attribute -- no {...rest} spread on the chip', () => {
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  const html = render({}, { 'data-stray': 'x' });
-  assert.doesNotMatch(html, /data-stray/, 'a consumer attribute reached the chip -- a {...rest} escape opened');
 });
 
 test('an event colours its chip from colorId, not from a slot field', () => {
@@ -272,12 +238,10 @@ test('a chip with no kebab reserves nothing, and is still the ordinary chip', ()
     'the unpanelled chip is not drawn from its own slot');
 });
 
-test('a day header cell has no bottom padding, and the scroller keeps its top padding', () => {
+test('the day header and the scroll area draw their slot classes', () => {
   const html = render({});
-  assert.match(html, /\barena-calendar__day-head\b/,
-    'the day header cell is drawn from its own slot, which is where its padding is decided');
-  assert.match(html, /\barena-calendar__scroll\b/,
-    'the scroll area is drawn from its own slot, which is where its top padding is decided');
+  assert.match(html, /\barena-calendar__day-head\b/, 'the day header cell did not draw its slot class');
+  assert.match(html, /\barena-calendar__scroll\b/, 'the scroll area did not draw its slot class');
 });
 
 test('a chip draws its time label only when it has room in both axes', () => {

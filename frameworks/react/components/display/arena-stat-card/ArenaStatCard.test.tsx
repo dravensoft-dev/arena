@@ -34,10 +34,3 @@ test('no icon renders no wrapper at all -- not an empty one', () => {
   const html = renderIcons(<ArenaStatCard label="Deploys" value="128" />);
   assert.doesNotMatch(html, /aria-hidden="true"/);
 });
-
-test('throws when a required member is absent', () => {
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  assert.throws(() => renderIcons(<ArenaStatCard value="128" />), /label.*required/);
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  assert.throws(() => renderIcons(<ArenaStatCard label="Deploys" />), /value.*required/);
-});

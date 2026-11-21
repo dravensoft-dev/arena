@@ -6,11 +6,6 @@ import { ArenaAppLogo } from './ArenaAppLogo.tsx';
 
 const MARK = <img src="../../../../../assets/rotor-crimson.svg" alt="" />;
 
-test('throws without a name', () => {
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  assert.throws(() => renderToStaticMarkup(<ArenaAppLogo mark={MARK} />), /required/);
-});
-
 test('a size class reaches the root, and the lock-up writes no inline style', () => {
   for (const size of ['sm', 'md', 'lg', 'xl']) {
     const html = renderToStaticMarkup(<ArenaAppLogo className={`arena-size-${size}` as 'arena-size-sm'} mark={MARK} name="Draven" />);

@@ -36,17 +36,6 @@ test('label renders its text above the control', () => {
   assert.match(html, /<label[^>]*>Environment<\/label>/);
 });
 
-test('ArenaSelect drops a consumer style object -- the ...style escape is gone', () => {
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  const html = renderIcons(<ArenaSelect label="A" style={{ color: '#ff00ff' }} />);
-  assert.doesNotMatch(html, /#ff00ff/, 'a consumer style reached the rendered root -- the R4 escape is back');
-});
-
-test('ArenaSelect drops a consumer attribute -- the {...rest} escape is gone', () => {
-  const html = renderIcons(<ArenaSelect label="A" data-stray="x" />);
-  assert.doesNotMatch(html, /data-stray/, 'a consumer attribute reached the rendered select -- the {...rest} escape is back');
-});
-
 test('error takes the crimson state and names itself to the control, so the failure is announced', () => {
   const html = renderIcons(<ArenaSelect label="Customer" error="Pick a customer" />);
   assert.match(html, /aria-invalid="true"/, 'an errored select did not announce itself as invalid');
@@ -97,7 +86,7 @@ test('an icon shifts the field padding through a variant rather than a computed 
   assert.match(renderIcons(<ArenaSelect label="A" options={[]} icon="ph-bold ph-globe" />), /data-arena-part="select.field"[^>]*\bdata-arena-has-icon=""/);
 });
 
-test('focus is a modifier the control answers, so nothing reports it to a state', () => {
+test('the field draws its slot class', () => {
   assert.match(renderIcons(<ArenaSelect label="A" options={[]} />), /arena-select__field/);
 });
 

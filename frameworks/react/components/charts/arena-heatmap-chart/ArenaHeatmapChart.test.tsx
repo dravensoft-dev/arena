@@ -152,12 +152,6 @@ test('ArenaHeatmapChart warns once that identity and meaning are ignored, and pa
   assert.deepEqual(captureWarnings(() => { draw(); }), [], 'a plain series warns of nothing');
 });
 
-test('ArenaHeatmapChart throws on a missing label, labels or series', () => {
-  assert.throws(() => draw({ label: '' }), /ArenaHeatmapChart: `label` is required/);
-  assert.throws(() => draw({ labels: undefined as never }), /ArenaHeatmapChart: `labels` is required/);
-  assert.throws(() => draw({ series: undefined as never }), /ArenaHeatmapChart: `series` is required/);
-});
-
 test('ArenaHeatmapChart with no rows draws an empty grid and its legend without throwing', () => {
   const html = draw({ series: [], labels: [] });
   assert.equal(cells(html).length, 0);

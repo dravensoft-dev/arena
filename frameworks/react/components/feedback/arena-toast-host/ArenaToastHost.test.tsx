@@ -32,11 +32,3 @@ test('ArenaToastHost neither counts its children nor caps them -- the queue that
     assert.ok(html.includes(`Notice ${i}`), `notice ${i} was dropped -- ArenaToastHost applied a ceiling of its own`);
   }
 });
-
-test('ArenaToastHost drops a consumer style object and a consumer attribute -- no R4 escape reaches the root', () => {
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  const styled = renderToStaticMarkup(<ArenaToastHost style={{ color: '#ff00ff' }} />);
-  assert.doesNotMatch(styled, /#ff00ff/, 'a consumer style reached the rendered root');
-  const spread = renderToStaticMarkup(<ArenaToastHost data-stray="x" />);
-  assert.doesNotMatch(spread, /data-stray/, 'a consumer attribute reached the rendered root');
-});

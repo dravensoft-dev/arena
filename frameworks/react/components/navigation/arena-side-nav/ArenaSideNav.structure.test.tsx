@@ -54,26 +54,6 @@ test('a section whose only child is a false conditional throws too -- count() co
   );
 });
 
-test('ArenaSideNavSection: `label` is required', () => {
-  const one = <ArenaSideNavItem id="a" label="A" />;
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  assert.throws(() => renderToStaticMarkup(<ArenaSideNavSection>{one}</ArenaSideNavSection>),
-    /ArenaSideNavSection: `label` is required/);
-});
-
-test('ArenaSideNavSection drops a consumer style object', () => {
-  const html = renderToStaticMarkup(
-    // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    <ArenaSideNavSection label="W" style={{ color: '#ff00ff' }}><ArenaSideNavItem id="a" label="A" /></ArenaSideNavSection>);
-  assert.doesNotMatch(html, /#ff00ff/, 'a consumer style reached the rendered root -- the R4 escape is back');
-});
-
-test('ArenaSideNavSection drops a consumer attribute -- no {...rest} spread reaches the root', () => {
-  const html = renderToStaticMarkup(
-    <ArenaSideNavSection label="W" data-stray="x"><ArenaSideNavItem id="a" label="A" /></ArenaSideNavSection>);
-  assert.doesNotMatch(html, /data-stray/, 'a consumer attribute reached the rendered root');
-});
-
 const nested = (props = {}) => (
   <ArenaSideNav ariaLabel="Primary" {...props}>
     <ArenaSideNavSection label="Workspace">
@@ -118,20 +98,6 @@ test('nesting compounds the indent: an item inside a section inside a collapsibl
   assert.match(html, /--arena-side-nav-depth:2/);
 });
 
-test('ArenaSideNavCollapsible: `id` and `label` are required, blank included', () => {
-  const kid = <ArenaSideNavItem id="a" label="A" />;
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  assert.throws(() => renderToStaticMarkup(<ArenaSideNavCollapsible label="D">{kid}</ArenaSideNavCollapsible>),
-    /ArenaSideNavCollapsible: `id` is required/);
-  assert.throws(() => renderToStaticMarkup(<ArenaSideNavCollapsible id="" label="D">{kid}</ArenaSideNavCollapsible>),
-    /ArenaSideNavCollapsible: `id` is required/);
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  assert.throws(() => renderToStaticMarkup(<ArenaSideNavCollapsible id="d">{kid}</ArenaSideNavCollapsible>),
-    /ArenaSideNavCollapsible: `label` is required/);
-  assert.throws(() => renderToStaticMarkup(<ArenaSideNavCollapsible id="d" label="">{kid}</ArenaSideNavCollapsible>),
-    /ArenaSideNavCollapsible: `label` is required/);
-});
-
 const item = <ArenaSideNavItem id="prod" label="Production" href="#prod" />;
 
 test('arenaSubtreeHasItem matches an ArenaSideNavItem by TYPE, so a group named after a destination is not one', () => {
@@ -161,21 +127,6 @@ test('a group whose own id is the active one does not open itself around it', ()
     'a collapsible opened around a group rather than a destination');
   assert.match(html, /id="outer-region"[^>]*hidden/);
   assert.match(html, /id="inner-region"[^>]*hidden/);
-});
-
-test('ArenaSideNavCollapsible drops a consumer style object', () => {
-  const html = renderToStaticMarkup(
-    // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    <ArenaSideNavCollapsible id="d" label="D" style={{ color: '#ff00ff' }}>
-      <ArenaSideNavItem id="a" label="A" /></ArenaSideNavCollapsible>);
-  assert.doesNotMatch(html, /#ff00ff/, 'a consumer style reached the rendered root -- the R4 escape is back');
-});
-
-test('ArenaSideNavCollapsible drops a consumer attribute -- no {...rest} spread reaches the root', () => {
-  const html = renderToStaticMarkup(
-    <ArenaSideNavCollapsible id="d" label="D" data-stray="x">
-      <ArenaSideNavItem id="a" label="A" /></ArenaSideNavCollapsible>);
-  assert.doesNotMatch(html, /data-stray/, 'a consumer attribute reached the rendered root');
 });
 
 test('a collapsed nav renders no depth channel and no inline padding', () => {

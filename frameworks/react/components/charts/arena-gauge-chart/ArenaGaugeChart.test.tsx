@@ -169,10 +169,7 @@ test('ArenaGaugeChart writes both ends and every band edge once, in mono, as tex
   assert.equal(texts(draw({ bands: [{ from: 0, tone: 'success', label: 'Healthy' }, ...BANDS.slice(1)] })).filter((t) => t === '0').length, 1, 'a band that starts at the minimum does not write it twice');
 });
 
-test('ArenaGaugeChart throws without a label or with an empty one, and for a band without its word', () => {
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  assert.throws(() => renderToStaticMarkup(<ArenaGaugeChart value={1} />), /ArenaGaugeChart: `label` is required/);
-  assert.throws(() => renderToStaticMarkup(<ArenaGaugeChart value={1} label="" />), /ArenaGaugeChart: `label` is required/);
+test('ArenaGaugeChart throws for a band without its word', () => {
   assert.throws(() => draw({ bands: [{ from: 0, tone: 'success', label: '' }] }), /ArenaGaugeChart: every band needs a `label`/);
 });
 

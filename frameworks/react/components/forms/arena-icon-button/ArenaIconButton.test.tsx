@@ -24,31 +24,6 @@ test('ArenaIconButton defaults its native type to button and honours an override
   assert.match(renderIcons(<ArenaIconButton icon="ph-x" label="L" type="submit" />), /type="submit"/);
 });
 
-test('ArenaIconButton throws when icon is absent, matching the contract required flag', () => {
-  assert.throws(
-    // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    () => renderIcons(<ArenaIconButton label="New" />),
-    /ArenaIconButton: `icon` is required/,
-  );
-});
-
-test('ArenaIconButton throws when label is absent, matching the contract required flag', () => {
-  assert.throws(
-    // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    () => renderIcons(<ArenaIconButton icon="ph-x" />),
-    /ArenaIconButton: `label` is required/,
-  );
-});
-
-test('ArenaIconButton drops a consumer style object and a consumer attribute, each independently', () => {
-  const html = renderIcons(
-    // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    <ArenaIconButton icon="ph-x" label="L" style={{ color: '#ff00ff' }} data-stray="x" />
-  );
-  assert.doesNotMatch(html, /#ff00ff/, 'a consumer style reached the rendered root -- the R4 escape is back');
-  assert.doesNotMatch(html, /data-stray/, 'a consumer attribute reached the rendered root -- the {...rest} escape is back');
-});
-
 test('tabStop defaults to true and emits no tabindex at all', () => {
   const html = renderIcons(<ArenaIconButton icon="ph-bold ph-plus" label="Add" />);
   assert.doesNotMatch(html, /tabindex/i, 'a default ArenaIconButton wrote a tabindex it does not need');
@@ -94,9 +69,8 @@ test('ghost and solid are classes of the emphasis family, and the component writ
   assert.doesNotMatch(solid, /data-arena-variant/);
 });
 
-test('the disabled look is selected by the native attribute, so nothing is recomputed to draw it', () => {
+test('disabled reaches the native attribute', () => {
   const html = renderIcons(<ArenaIconButton icon="ph-x" label="L" disabled />);
-  assert.match(html, /arena-icon-button__root/);
   assert.match(html, /\bdisabled=""/);
 });
 

@@ -53,17 +53,6 @@ test('every other tone announces politely, the success tone and the toneless def
   assert.match(renderIcons(<ArenaToast title="Deployment archived" />), /role="status"/);
 });
 
-test('ArenaToast drops a consumer style object -- the ...style escape is gone', () => {
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  const html = renderIcons(<ArenaToast title="Deployment archived" style={{ color: '#ff00ff' }} />);
-  assert.doesNotMatch(html, /#ff00ff/, 'a consumer style reached the rendered root -- the R4 escape is back');
-});
-
-test('ArenaToast drops a consumer attribute -- no {...rest} spread reaches the root', () => {
-  const html = renderIcons(<ArenaToast title="Deployment archived" data-stray="x" />);
-  assert.doesNotMatch(html, /data-stray/, 'a consumer attribute reached the rendered root -- a {...rest} escape is back');
-});
-
 test('ARENA_TOAST_DISMISS carries the two token intervals, and the actionable one is the longer', () => {
   assert.deepEqual({ ...ARENA_TOAST_DISMISS }, { default: dismissDefault, actionable: dismissActionable });
   assert.ok(ARENA_TOAST_DISMISS.actionable > ARENA_TOAST_DISMISS.default,

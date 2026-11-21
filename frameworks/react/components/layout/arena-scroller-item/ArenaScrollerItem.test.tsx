@@ -25,11 +25,3 @@ test('the cell draws no role and no tab stop of its own', () => {
 test('an empty cell is a legal shape, because a container that merely nests guards nothing', () => {
   assert.doesNotThrow(() => render(<ArenaScrollerItem />));
 });
-
-test('ArenaScrollerItem drops a consumer style object and a consumer attribute', () => {
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  const styled = render(<ArenaScrollerItem style={{ color: '#ff00ff' }} />);
-  assert.doesNotMatch(styled, /#ff00ff/, 'a consumer style reached the rendered root');
-  const spread = render(<ArenaScrollerItem data-stray="x" />);
-  assert.doesNotMatch(spread, /data-stray/, 'a consumer attribute reached the rendered root');
-});

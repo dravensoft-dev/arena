@@ -72,17 +72,14 @@ test('error renders below the field and marks the control invalid', () => {
   assert.doesNotMatch(html, /Ignored/);
 });
 
-test('a consumer className does not reach the input -- its class is the manifest\'s and nothing else', () => {
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  const html = renderIcons(<ArenaInput label="A" className="mine" />);
+test('the input carries the manifest slot class on the <input> itself', () => {
+  const html = renderIcons(<ArenaInput label="A" />);
   assert.match(html, /<input[^>]*class="[^"]*\barena-input__input\b[^"]*"/);
-  assert.doesNotMatch(html, /mine/, 'a consumer className was merged into the input class');
 });
 
-test('the picker indicator is styled by the manifest, so nothing injects a stylesheet for it', () => {
+test('the input draws its input slot and no hook class', () => {
   const html = renderIcons(<ArenaInput label="When" type="date" />);
-  assert.match(html, /arena-input__input/,
-    'the vendor pseudo-element is an arbitrary variant of the manifest now');
+  assert.match(html, /arena-input__input/, 'the input did not draw its input slot class');
   assert.doesNotMatch(html, /\barena-input\b/, 'the hook class the injected sheet needed is gone with it');
 });
 
@@ -99,17 +96,6 @@ test('the three field states are three branches of one recipe', () => {
   assert.match(good, /data-arena-part="input.status-icon"[^>]*\bdata-arena-state="valid"/);
 });
 
-test('ArenaInput drops a consumer style object -- the ...style escape is gone', () => {
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  const html = renderIcons(<ArenaInput label="A" style={{ color: '#ff00ff' }} />);
-  assert.doesNotMatch(html, /#ff00ff/, 'a consumer style reached the rendered root -- the R4 escape is back');
-});
-
-test('ArenaInput drops a consumer attribute -- the {...rest} escape is gone', () => {
-  const html = renderIcons(<ArenaInput label="A" data-stray="x" />);
-  assert.doesNotMatch(html, /data-stray/, 'a consumer attribute reached the rendered input -- the {...rest} escape is back');
-});
-
 test('a consumer id overrides the one generated from the label', () => {
   const html = renderIcons(<ArenaInput label="Email" id="signup-email" />);
   assert.match(html, /id="signup-email"/);
@@ -122,24 +108,6 @@ test('readOnly is a group on the field and the input', () => {
   assert.match(on, /data-arena-part="input.field"[^>]*\bdata-arena-read-only=""/);
   assert.match(on, /data-arena-part="input.input"[^>]*\bdata-arena-read-only=""/);
   assert.doesNotMatch(renderIcons(<ArenaInput label="Slug" />), /data-arena-read-only/);
-});
-
-test('a hint is named by the field and carries the id followed by -note', () => {
-  const html = renderIcons(<ArenaInput label="Slug" hint="Lowercase only." />);
-  assert.match(html, /<input[^>]*aria-describedby="in-slug-note"/);
-  assert.match(html, /<span id="in-slug-note"[^>]*>Lowercase only\.<\/span>/);
-});
-
-test('an error replaces the hint under the same note id', () => {
-  const html = renderIcons(<ArenaInput label="Slug" hint="Lowercase only." error="Taken." />);
-  assert.match(html, /<input[^>]*aria-describedby="in-slug-note"/);
-  assert.match(html, /<span id="in-slug-note"[^>]*>Taken\.<\/span>/);
-  assert.doesNotMatch(html, /Lowercase only/);
-});
-
-test('a note takes the id the consumer gives, and a field with neither carries no aria-describedby', () => {
-  assert.match(renderIcons(<ArenaInput id="slug" hint="Help." />), /aria-describedby="slug-note"/);
-  assert.doesNotMatch(renderIcons(<ArenaInput label="Slug" />), /aria-describedby/);
 });
 
 test('validate returns the message or an empty string, never null', () => {

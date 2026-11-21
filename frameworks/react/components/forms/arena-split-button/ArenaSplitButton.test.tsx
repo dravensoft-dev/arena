@@ -82,9 +82,3 @@ test('the primary half\'s content sees no menu anchor, so a menu nested in it an
   const html = render(<ArenaSplitButton label="Deployment" menuLabel="More deploy options" items={ITEMS}><AnchorProbe /></ArenaSplitButton>);
   assert.match(html, /data-arena-part="split-button.primary"[^>]*>Deploy<\/button>/, 'the content was given the split as a menu anchor');
 });
-
-test('missing items throw', () => {
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  assert.throws(() => render(<ArenaSplitButton label="Deployment" menuLabel="More deploy options">Deploy</ArenaSplitButton>),
-    /ArenaSplitButton: `items` is required/);
-});

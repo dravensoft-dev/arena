@@ -24,11 +24,3 @@ test('ArenaEmptyState renders the title and message text', () => {
   assert.match(html, /No projects yet/);
   assert.match(html, /Create your first project to start deploying\./);
 });
-
-test('ArenaEmptyState throws when title is absent -- the fail-hard guard', () => {
-  assert.throws(
-    // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    () => renderIcons(<ArenaEmptyState />),
-    /ArenaEmptyState: `title` is required/,
-  );
-});

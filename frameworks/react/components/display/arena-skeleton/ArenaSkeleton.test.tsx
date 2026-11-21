@@ -39,7 +39,7 @@ test('no render of the skeleton carries a style attribute', () => {
   }
 });
 
-test('a skeleton drops a consumer style object and a consumer width, height and radius', () => {
+test('a skeleton takes no inline geometry', () => {
   // @ts-expect-error the contract refuses these on purpose, and the render is what this asserts
   const html = renderToStaticMarkup(<ArenaSkeleton style={{ color: '#ff00ff' }} width="var(--sp-1)" height="var(--sp-2)" radius="4px" variant="circle" />);
   assert.doesNotMatch(html, /style=|var\(--sp-1\)|var\(--sp-2\)|4px|ff00ff|data-arena-variant/);

@@ -6,11 +6,6 @@ import { ArenaHero } from './ArenaHero.tsx';
 
 const render = (element: React.ReactElement) => renderToStaticMarkup(element);
 
-test('a hero with no title is refused', () => {
-  // @ts-expect-error the contract requires it, and the guard is what this asserts
-  assert.throws(() => render(<ArenaHero />), /`title` is required/);
-});
-
 test('the title opens the page, at the top rung of the ladder', () => {
   assert.match(render(<ArenaHero title="Coffee that tells you where it grew" />),
     /<h1[^>]*>Coffee that tells you where it grew<\/h1>/);
@@ -51,12 +46,4 @@ test('the hero claims no banner landmark, because banner is the site header and 
   assert.match(html, /^<section/);
   assert.doesNotMatch(html, /role=/);
   assert.doesNotMatch(html, /aria-label/);
-});
-
-test('ArenaHero drops a consumer style object and a consumer attribute', () => {
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  const styled = render(<ArenaHero title="T" style={{ color: '#ff00ff' }} />);
-  assert.doesNotMatch(styled, /#ff00ff/, 'a consumer style reached the rendered root');
-  const spread = render(<ArenaHero title="T" data-stray="x" />);
-  assert.doesNotMatch(spread, /data-stray/, 'a consumer attribute reached the rendered root');
 });

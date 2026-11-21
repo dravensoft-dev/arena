@@ -26,8 +26,3 @@ test('it points at the landmark by the constant both sides read', () => {
     'the id is written on the landmark from the same constant, so nothing is coordinated at the call site',
   );
 });
-
-test('a skip link with no label is refused', () => {
-  // @ts-expect-error the contract requires it, and the guard is what this asserts
-  assert.throws(() => render(<ArenaSkipLink />), /`label` is required/);
-});

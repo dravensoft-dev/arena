@@ -33,7 +33,7 @@ test('the group ticks the boxes its value names and overrides a box\'s own check
   for (const input of inputs) assert.match(input, /name="notify"/);
 });
 
-test('the group draws its own column from ArenaCheckbox\'s manifest and names itself', () => {
+test('the group is a named role=group on the checkbox group slot', () => {
   const html = render(<ArenaCheckboxGroup ariaLabel="Notify me about"><ArenaCheckbox value="a" label="A" /></ArenaCheckboxGroup>);
   assert.match(html, /^<div role="group" aria-label="Notify me about" class="arena-checkbox__group" data-arena-part="checkbox.group" data-arena-boundary="">/);
 });

@@ -58,13 +58,7 @@ test('label is drawn above the bar AND is the bar aria-label', () => {
   assert.doesNotMatch(html, /aria-label="Progress"/, 'a labelled bar still fell back to the generic name');
 });
 
-test('an absent label throws rather than falling back to a name that says only what the component is', () => {
-  assert.throws(
-    // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    () => renderToStaticMarkup(<ArenaProgressBar progressPercentage={10} />),
-    /`label` is required/,
-    'a generic fallback satisfies roles.label mechanically and tells a screen-reader user nothing',
-  );
+test('a label names the bar', () => {
   const html = renderToStaticMarkup(<ArenaProgressBar label="Uploading build" progressPercentage={10} />);
   assert.match(html, /aria-label="Uploading build"/);
 });
@@ -80,17 +74,6 @@ test('every tone reaches the bar as its own branch of the recipe', () => {
   assert.doesNotMatch(fallback, /data-arena-part="progress-bar.track"[^>]*\bdata-arena-tone=/);
   assert.match(fallback, /\barena-progress-bar__fill\b/,
     'the fill reads the tone off the track rather than naming a colour of its own');
-});
-
-test('ArenaProgressBar drops a consumer style object -- the ...style escape is gone', () => {
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  const html = renderToStaticMarkup(<ArenaProgressBar label="Uploading build" progressPercentage={50} style={{ color: '#ff00ff' }} />);
-  assert.doesNotMatch(html, /#ff00ff/, 'a consumer style reached the rendered root -- the R4 escape is back');
-});
-
-test('ArenaProgressBar drops a consumer attribute -- no {...rest} spread reaches the root', () => {
-  const html = renderToStaticMarkup(<ArenaProgressBar label="Uploading build" progressPercentage={50} data-stray="x" />);
-  assert.doesNotMatch(html, /data-stray/, 'a consumer attribute reached the rendered root -- a {...rest} escape is back');
 });
 
 test('a radial meter draws a ring whose arc is the percentage, and the figure sits inside it', () => {

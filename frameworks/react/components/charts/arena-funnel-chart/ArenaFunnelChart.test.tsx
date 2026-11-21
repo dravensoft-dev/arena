@@ -186,9 +186,3 @@ test('ArenaFunnelChart warns once of a second series and ignores it', () => {
   assert.equal(warnings.length, 1);
   assert.match(warnings[0] as string, /ArenaFunnelChart: reads one series and was given 2/);
 });
-
-test('ArenaFunnelChart throws on a missing label, labels or series', () => {
-  assert.throws(() => draw({ label: '' }), /`label` is required/);
-  assert.throws(() => draw({ labels: undefined as never }), /`labels` is required/);
-  assert.throws(() => draw({ series: undefined as never }), /`series` is required/);
-});

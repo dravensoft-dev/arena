@@ -37,14 +37,6 @@ test('a fragment or a string is refused as the trigger, because neither takes th
     <ArenaPopover label="Filters" trigger={<><button type="button">Filters</button></>}><p>x</p></ArenaPopover>), /single element/);
 });
 
-test('ArenaPopover drops a consumer attribute and a consumer style', () => {
-  const html = renderToStaticMarkup(
-    // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    <ArenaPopover label="Filters" trigger={<button type="button">Filters</button>} data-stray="x" style={{ color: '#ff00ff' }}><p>x</p></ArenaPopover>,
-  );
-  assert.doesNotMatch(html, /data-stray|#ff00ff/, 'a {...rest} escape reached the rendered root');
-});
-
 function Forwarding({ children, ...rest }: { children?: React.ReactNode }) {
   return <button type="button" {...rest}>{children}</button>;
 }

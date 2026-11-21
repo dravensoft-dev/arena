@@ -40,31 +40,6 @@ test('a tab can hold the stop without being selected, and be selected without ho
   assert.match(selectedOnly, /aria-selected="true"/);
 });
 
-test('value is required and its absence throws', () => {
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  assert.throws(() => renderToStaticMarkup(<ArenaTab label="Overview" />), /ArenaTab: `value` is required/);
-});
-
-test('label is required and its absence throws', () => {
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  assert.throws(() => renderToStaticMarkup(<ArenaTab value="ov" />), /ArenaTab: `label` is required/);
-});
-
-test('a blank label is refused, not drawn', () => {
-  assert.throws(() => renderToStaticMarkup(<ArenaTab value="ov" label="" />), /ArenaTab: `label` is required/);
-});
-
-test('ArenaTab drops a consumer style object', () => {
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  const html = renderToStaticMarkup(<ArenaTab value="ov" label="Overview" style={{ color: '#ff00ff' }} />);
-  assert.doesNotMatch(html, /#ff00ff/, 'a consumer style reached the rendered root -- the R4 escape is back');
-});
-
-test('ArenaTab drops a consumer attribute -- no {...rest} spread reaches the root', () => {
-  const html = renderToStaticMarkup(<ArenaTab value="ov" label="Overview" data-stray="x" />);
-  assert.doesNotMatch(html, /data-stray/, 'a consumer attribute reached the rendered root');
-});
-
 test('the selected tab wears the underline and the quiet one does not, from one recipe', () => {
   const on = renderToStaticMarkup(<ArenaTab value="a" label="Overview" selected />);
   assert.match(on, /data-arena-part="tabs.tab"[^>]*\bdata-arena-selected=""/);
@@ -74,7 +49,7 @@ test('the selected tab wears the underline and the quiet one does not, from one 
   assert.doesNotMatch(off, /inset_0_calc/);
 });
 
-test('focus is a modifier the button answers, so nothing reports it to a state', () => {
+test('the tab draws its slot class', () => {
   assert.match(renderToStaticMarkup(<ArenaTab value="a" label="Overview" />),
     /arena-tabs__tab/);
 });

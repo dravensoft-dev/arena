@@ -16,9 +16,7 @@ test('destructive marks the confirm button, and a plain confirm carries no mark'
   assert.match(plain, /data-arena-part="confirm-dialog.confirm"(?:(?!data-arena-destructive=)[^>])*>/, 'the ordinary confirm lost its primary surface');
 });
 
-test('the footer wraps, the way ArenaDialog, ArenaPageHead and ArenaChartCard all do', () => {
+test('the footer draws its foot slot class', () => {
   const html = renderToStaticMarkup(<ArenaConfirmDialog open title="Delete" onConfirm={() => {}} />);
-  assert.match(html, /\barena-confirm-dialog__foot\b/,
-    'the system has one action row, and a confirmation that overflows at 390px is the worst '
-    + 'place for it, since the reader is being asked to decide');
+  assert.match(html, /\barena-confirm-dialog__foot\b/, 'the footer row did not draw its foot slot class');
 });

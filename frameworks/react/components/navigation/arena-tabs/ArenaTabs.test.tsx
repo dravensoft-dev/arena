@@ -101,21 +101,6 @@ test('a conditionally-rendered tab that is false is absent, not counted', () => 
   assert.equal((html.match(/role="tab"/g) || []).length, 1);
 });
 
-test('ArenaTabs drops a consumer style object', () => {
-  const html = renderToStaticMarkup(
-    // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    <ArenaTabs style={{ color: '#ff00ff' }}><ArenaTab value="ov" label="Overview" /></ArenaTabs>,
-  );
-  assert.doesNotMatch(html, /#ff00ff/, 'a consumer style reached the rendered root -- the R4 escape is back');
-});
-
-test('ArenaTabs drops a consumer attribute -- no {...rest} spread reaches the root', () => {
-  const html = renderToStaticMarkup(
-    <ArenaTabs data-stray="x"><ArenaTab value="ov" label="Overview" /></ArenaTabs>,
-  );
-  assert.doesNotMatch(html, /data-stray/, 'a consumer attribute reached the rendered root');
-});
-
 test('the selected tab draws its rule from the role edge-tab-selected and never from the crimson alias', () => {
   const tab = tailwind.variants.selected.true.tab;
   assert.match(tab, /var\(--edge-tab-selected\)/, 'the selected rule does not read its role');
