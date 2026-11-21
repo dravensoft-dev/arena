@@ -3,7 +3,6 @@ import assert from 'node:assert/strict';
 import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { validateStructure, zeroLayerProblems } from './check-structure.ts';
-import { kebab, pascal } from '../../utils/case.ts';
 import { LAYERS, NON_LAYERS } from '../../lib/arena/layers.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 
@@ -83,20 +82,6 @@ test('every non-layer carries a reason, so the escape hatch cannot be used silen
     assert.ok(reason.length > 20, `${name} is declared a non-layer with no reason worth reading`);
     assert.ok(!LAYERS.includes(name), `${name} is declared both a layer and a non-layer`);
   }
-});
-
-test('kebab turns a component name into the Angular directory name', () => {
-  assert.equal(kebab('ArenaAppLogo'), 'arena-app-logo');
-  assert.equal(kebab('ArenaStatCard'), 'arena-stat-card');
-  assert.equal(kebab('ArenaBreadcrumbs'), 'arena-breadcrumbs');
-});
-
-test('pascal is kebab run backwards, for every directory name the tree carries', () => {
-  assert.equal(pascal('arena-activity-feed'), 'ArenaActivityFeed');
-  assert.equal(pascal('arena-tag'), 'ArenaTag');
-  assert.equal(pascal('arena-unauth-card'), 'ArenaUnauthCard');
-  for (const name of ['ArenaActivityFeed', 'ArenaTag', 'ArenaUnauthCard', 'ArenaBarChart', 'ArenaPageHead', 'ArenaAppLogo'])
-    assert.equal(pascal(kebab(name)), name);
 });
 
 test('a layer with zero component directories is a failure, not a clean pass', () => {

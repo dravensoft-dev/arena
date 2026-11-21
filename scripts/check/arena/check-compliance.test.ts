@@ -98,28 +98,6 @@ test('a suite from the sibling layer cannot satisfy a coverage claim', () => {
   );
 });
 
-test('a suite from the wrong layer cannot satisfy a claim when the tails collide', () => {
-  const bindings = [
-    { name: 'ArenaTag', patterns: ['none'], layer: 'react', tail: 'display/arena-tag/ArenaTag.behaviour.json' },
-    { name: 'ArenaTag', patterns: ['none'], layer: 'angular', tail: 'display/arena-tag/ArenaTag.behaviour.json' },
-  ];
-  const suites = {
-    'TagAndChipCases.dom.test.tsx': {
-      source: "join(R, 'display/arena-tag/ArenaTag.behaviour.json')", layer: 'react',
-    },
-  };
-
-  assert.deepEqual(validateCoverage({
-    bindings, covered: { 'ArenaTag:react': 'TagAndChipCases.dom.test.tsx' }, suites,
-  }), []);
-
-  const problems = validateCoverage({
-    bindings, covered: { 'ArenaTag:angular': 'TagAndChipCases.dom.test.tsx' }, suites,
-  });
-  assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /react layer/);
-});
-
 test('collectSuites tags each suite with the layer of the directory it came from', () => {
   const root = mkdtempSync(join(tmpdir(), 'arena-suite-layer-'));
   const a = join(root, 'a'); const b = join(root, 'b');

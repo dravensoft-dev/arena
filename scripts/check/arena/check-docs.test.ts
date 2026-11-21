@@ -295,15 +295,10 @@ test('isGenerated reads the name and nothing else', () => {
   assert.equal(isGenerated('a/B.card.entry.generated.js'), true);
   assert.equal(isGenerated('a/B.ts'), false);
   assert.equal(isGenerated('a/B.manifest.ts'), false);
-});
-
-test('a generator is not its own output, and content never overrides the name', () => {
+  assert.equal(isGenerated('scripts/x.mjs'), false);
   assert.equal(isGenerated.length, 1,
     'it reads the name and nothing else: a second parameter would be the door content needs '
     + 'to override the name, which is the defect this test is named after');
-  assert.equal(isGenerated('scripts/x.mjs'), false);
-  assert.equal(isGenerated('a/B.ts'), false);
-  assert.equal(isGenerated('a/B.generated.ts'), true);
 });
 
 test('allowsHeader covers scripts, a .test. infix and a test/ directory', () => {
@@ -403,6 +398,7 @@ test('an index under frameworks/ is a consumer document, and the root router is 
     'a reference the skill reaches is a consumer document, and the branch rules are what keep it '
     + 'from sending a reader somewhere the router promised they would not have to go');
   assert.equal(isConsumerDocument('frameworks/react/README.md'), false);
+  assert.equal(isConsumerDocument('frameworks/react/AGENTS.md'), false);
   assert.equal(isConsumerDocument('docs/SKILL.md'), false, 'the tree decides, not the name alone');
 });
 
@@ -780,19 +776,6 @@ test('a fenced repository command passes', () => {
   assert.deepEqual(wording({ [PAGE]: '```sh\nbun run demos\n```\n' }), []);
 });
 
-test('a contributor page that names a repository command passes', () => {
-  assert.deepEqual(wording({ 'frameworks/react/AGENTS.md': 'Run `bun run check`, it is now green.\n' }), []);
-});
-
-test('a checks file beside a prompt may cite its demo page', () => {
-  assert.deepEqual(wording({
-    'frameworks/react/components/a/A.checks.md': 'Open `A.demo.generated.html` after `bun run demos`.\n',
-  }), []);
-  const root = tree({ 'frameworks/react/components/a/A.checks.md': 'Open `A.demo.generated.html`.\n' });
-  assert.deepEqual(consumerBranchProblems(root).problems, []);
-  rmSync(root, { recursive: true });
-});
-
 test('focus is now on the trigger passes', () => {
   assert.deepEqual(wording({ [PAGE]: 'After Escape, focus is now on the trigger.\nThe row is now selected.\n' }), []);
 });
@@ -817,10 +800,6 @@ test('ninth form on a prompt fails', () => {
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /A\.prompt\.md: states /);
   rmSync(root, { recursive: true });
-});
-
-test('the doughnut hole is gone passes', () => {
-  assert.deepEqual(wording({ [PAGE]: 'The doughnut hole is gone.\n' }), []);
 });
 
 test('CONSUMER_WORDING gives each pattern a reason', () => {

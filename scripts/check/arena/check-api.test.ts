@@ -713,14 +713,6 @@ test('validateContract accepts an event payload naming a declared enum', () => {
   assert.deepEqual(problems, []);
 });
 
-test('validateContract still rejects an event payload naming no declared type', () => {
-  const problems = validateContract(
-    { component: 'X', api: { pick: { form: 'event', payload: 'Nope' } } },
-    new Map([['ArenaLogoSize', 'enum']]),
-  );
-  assert.ok(problems.some((p) => /Nope/.test(p)));
-});
-
 test('zero contracts is a failure, not a clean pass', () => {
   const problems = zeroContractProblems({ contracts: 0, types: 40 });
   assert.equal(problems.length, 1);

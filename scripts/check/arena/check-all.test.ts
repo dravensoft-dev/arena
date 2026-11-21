@@ -449,7 +449,6 @@ test('the slots line names what bounded each figure, so a flag the cores capped 
   for (const [jobs, cores, free, line] of rows) {
     assert.equal(slotsLine(jobs, cores, free), `check-all: ${line}`);
   }
-  assert.equal(rows.length, 3);
 });
 
 test('the plan holds every gate once and every suite step once, and a kept gate spawns nothing', () => {

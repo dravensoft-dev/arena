@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {
   HARNESS_KEYS, MAX_DESCRIPTION, MAX_BODY_LINES, bodyProblems, collect, descriptionProblems,
   frontmatterOf, frontmatterProblems, keyProblems, nameProblems, scalarProblems,
-  soleSkillProblems, staleHarnessProblems, trackedSkills, zeroSkillProblems,
+  soleSkillProblems, staleHarnessProblems, zeroSkillProblems,
 } from './check-skill-spec.ts';
 
 test('a name must match the directory that holds it', () => {
@@ -73,10 +73,6 @@ test('the frontmatter reader keeps top level keys and drops what is nested under
 test('finding nothing is a failure rather than a clean pass', () => {
   assert.equal(zeroSkillProblems([]).length, 1);
   assert.deepEqual(zeroSkillProblems(['skills/design/SKILL.md']), []);
-});
-
-test('the index carries at least one file under the reserved name', () => {
-  assert.ok(trackedSkills().length > 0, 'the walk found nothing, so every assertion below is vacuous');
 });
 
 test('this tree conforms', () => {

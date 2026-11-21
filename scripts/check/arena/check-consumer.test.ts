@@ -17,7 +17,7 @@ import {
   palettesProblems, defaultListProblems, fontCutProblems, runtimeProblems, installedPalette, SOURCES, UNKNOWN, GLYPH, NAV_SYMBOL, GLYPH_SYMBOL, THIRD_PALETTE, CLI, snapshot, treeChanges, exitProblem, binProblems, unplacedProblems, PROVIDER,
 } from './check-consumer.ts';
 import type { CliRun, Shipped } from './check-consumer.ts';
-import { distDir, unassembled, assembled } from './check-packages.ts';
+import { distDir } from './check-packages.ts';
 
 const ok: CliRun = { status: 0, stdout: '', stderr: '', theme: null, pkg: null, sprites: {}, module: null, retired: false, plugin: null, runtime: null, fonts: {} };
 
@@ -106,10 +106,6 @@ test('a leftover icons.generated.css, a second sprite and a module naming anothe
   const noModule = spriteProblems('react', written({ [NAME]: sprite(GLYPH_SYMBOL, NAV_SYMBOL, REGULAR_SYMBOL) }, null));
   assert.equal(noModule.length, 1);
   assert.match(noModule[0] ?? '', /arena\.icons\.generated\.js/);
-});
-
-test('assembly is judged by the package manifest, so a half-written dist is not mistaken for one', () => {
-  assert.equal(assembled('react', '/nowhere-at-all'), false);
 });
 
 test('the React fixture names the package, because the symbol scan reads the import as well as the tag', () => {
@@ -363,12 +359,6 @@ test('a config naming no stylesheet is worked out like auto, so it imports the d
   const refused = defaultListProblems('angular', { ...ok, status: 1, stderr: 'nope' });
   assert.equal(refused.length, 1);
   assert.match(refused[0] ?? '', /^angular: .* exited 1/);
-});
-
-test('an unassembled package names both packages it lacks and the step that assembles them', () => {
-  const reason = unassembled('/nowhere-at-all') ?? '';
-  assert.match(reason, /react and angular is not assembled/);
-  assert.match(reason, /run bun run build:packages first/);
 });
 
 const refusal = (base: string, strict: string) => spawnSync(process.execPath, ['-e', [

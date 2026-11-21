@@ -331,10 +331,6 @@ test('only the default plugin is judged', () => {
   assert.deepEqual(JUDGED, ['plugin-style-store/default/plugin.tokens.json']);
 });
 
-test('defaultBuildProblems is clean on Arena\'s skin', () => {
-  assert.deepEqual(defaultBuildProblems(), []);
-});
-
 test('the default plugin resolves and clears every slot pair the contract declares', () => {
   assert.deepEqual(defaultBuildProblems(), []);
   assert.equal(slotPairs(tokenCatalogue().slots).length, 237, 'the sweep measures every slot pair the contract declares');

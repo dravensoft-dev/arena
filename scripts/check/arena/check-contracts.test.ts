@@ -16,10 +16,6 @@ test('the declared shape is three levels and one generated sibling, and nothing 
   assert.deepEqual([...SHAPE.keys()], LEVELS);
 });
 
-test('the real root shape has no problems', () => {
-  assert.deepEqual(rootProblems(ROOT_OK), []);
-});
-
 test('the npm page is admitted here and nowhere else, because its reader is not on this branch', () => {
   assert.deepEqual(rootProblems(ROOT_OK), []);
   const without = rootProblems(ROOT_OK.filter((entry) => entry !== 'NPM.md'));

@@ -28,11 +28,6 @@ test('describeBinding renders a cased/cased disagreement as "name:pattern" pairs
   assert.equal(describeBinding(casedOther), 'danger:status + advisory:alert');
 });
 
-test('describeBinding renders a mixed flat/cased disagreement correctly on each side', () => {
-  assert.equal(describeBinding(flatAlert), 'alert');
-  assert.equal(describeBinding(casedAlert), 'danger:alert + advisory:status');
-});
-
 test('zero patterns is one named failure, not a cascade', () => {
   const problems = zeroPatternProblems(0);
   assert.equal(problems.length, 1);

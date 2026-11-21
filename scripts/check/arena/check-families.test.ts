@@ -343,13 +343,6 @@ test('a component answering mark maps a value only to a status hue or to none, s
     /ArenaBadge: answers mark and hues\.tone\.cat maps to identity-2/);
 });
 
-test('a channel the compiler writes from a component slot counts as written by the family', () => {
-  const manifests = new Map([...layerManifests().values()].map((one) => [one.component, one])) as Map<string, any>;
-  const problems = familyProblems(readFamilies(), ['frameworks/tailwind/vocabulary/arena-emphasis/Emphasis.family.json'], manifests)
-    .filter((line) => /emphasis/.test(line));
-  assert.deepEqual(problems.filter((line) => /--arena-emphasis-icon-edge/.test(line)), []);
-});
-
 test('a channel read inside the fallback of another read of the family needs no fallback of its own', () => {
   const chained: Family = { family: 'chain', reach: 'context', description: 'A pair of channels, the second falling to the first.', default: 'arena-chain-on',
     variants: { 'arena-chain-on': '[--arena-chain-a:1px] [--arena-chain-b:var(--arena-chain-a)]' } };

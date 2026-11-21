@@ -7,13 +7,21 @@ import {
   promptProblems, regionOf, rulesRegionOf, answersRegionOf, answersProblem, zeroScanProblems, keysProblem, markersProblem,
 } from './check-prompts.ts';
 import {
-  openLine, CLOSE_LINE, renderAnswersRegion, answeredFamilies, RULES_OPEN, RULES_CLOSE_LINE, ROUTER_FROM_PROMPT, renderKeysRegion,
+  openLine, CLOSE_LINE, renderAnswersRegion, answeredFamilies, RULES_OPEN, RULES_CLOSE_LINE, ROUTER_FROM_PROMPT, renderRulesRegion, renderKeysRegion,
   renderMarkersRegion,
 } from '../../generate/arena/generate-prompt-api.ts';
 
 test('every committed prompt carries the region its contract emits', () => {
   const { problems } = promptProblems();
   assert.deepEqual(problems, []);
+  for (const layer of ['react', 'angular']) {
+    assert.ok(renderRulesRegion(layer).includes(ROUTER_FROM_PROMPT), `the ${layer} rules region names the router`);
+  }
+  const source = readFileSync(
+    join(repoRoot, 'frameworks/react/components/forms/arena-button/ArenaButton.prompt.md'),
+    'utf8',
+  );
+  assert.ok((rulesRegionOf(source) ?? '').includes(ROUTER_FROM_PROMPT), 'every prompt names the router, which is the whole point of the note');
 });
 
 test('the gate read a real corpus rather than an empty one', () => {
@@ -33,16 +41,6 @@ test('a file with no region is reported for each, since each answers its own que
   assert.ok(problems.some((one) => /carries no @keys region/.test(one)));
   assert.ok(problems.some((one) => /carries no @api region/.test(one)));
   assert.ok(problems.some((one) => /carries no @rules region/.test(one)));
-});
-
-test('every prompt names the router, which is the whole point of the note', () => {
-  const { problems } = promptProblems();
-  assert.deepEqual(problems, []);
-  const source = readFileSync(
-    join(repoRoot, 'frameworks/react/components/forms/arena-button/ArenaButton.prompt.md'),
-    'utf8',
-  );
-  assert.ok((rulesRegionOf(source) ?? '').includes(ROUTER_FROM_PROMPT));
 });
 
 test('rulesRegionOf reads its own region and not the @api one beside it', () => {

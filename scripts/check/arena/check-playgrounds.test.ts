@@ -295,11 +295,6 @@ test('the codec emission is compared against the source, so a hand-edited copy f
   assert.match(emissionProblems(temp, files)[0] ?? '', /missing — run bun run generate:playgrounds/);
 });
 
-test('a missing copy is named with the command that writes it', () => {
-  const files = new Map([['frameworks/react/playground/Nothing.generated.ts', 'x']]);
-  assert.match(emissionProblems(root, files)[0] ?? '', /missing — run bun run generate:playgrounds/);
-});
-
 test('copies that are not byte-identical fail, which is the claim the whole emission exists to make', () => {
   const files = new Map([
     ['frameworks/react/playground/PlaygroundCodec.generated.ts', 'a'],

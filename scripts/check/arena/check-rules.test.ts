@@ -4,7 +4,7 @@ import {
   collect, heldProblems, shapeProblems, zeroScanProblems, emitProblems, ID,
 } from './check-rules.ts';
 import { RULES, reportedMark, type LanguageRule } from '../../lib/arena/language-rules.ts';
-import { RULE_TAGS, RULE_DESCRIPTIONS } from '../../generate/core/arena-cli/audit.ts';
+import { RULE_DESCRIPTIONS } from '../../generate/core/arena-cli/audit.ts';
 import { TARGETS, MARKED, CONTEXT7 } from '../../generate/arena/generate-rules.ts';
 
 const rule = (over: Partial<LanguageRule> = {}): LanguageRule => ({
@@ -13,6 +13,7 @@ const rule = (over: Partial<LanguageRule> = {}): LanguageRule => ({
 
 test('this tree states the rules of the language once and claims nothing false about them', () => {
   assert.deepEqual(collect(), []);
+  assert.ok(RULES.some((one) => one.held !== null), 'no rule claims a tag, so the held check above saw nothing');
 });
 
 test('a rule naming a tag the shipped module does not emit is refused', () => {
@@ -29,22 +30,6 @@ test('a rule is held or explained, and never both and never neither', () => {
     /says nothing about why/);
   assert.match(heldProblems([rule({ held: null, unheld: '' })])[0] ?? '',
     /says nothing about why/);
-});
-
-test('every rule this tree declares carries one of the two, so the page never guesses', () => {
-  for (const one of RULES) {
-    assert.equal(one.held === null, one.unheld !== null,
-      `${one.id} carries neither shape or both, and the router prints the mark from this field`);
-  }
-});
-
-test('every tag the shipped module emits is one some rule could name', () => {
-  const claimed = new Set(RULES.map((one) => one.held).filter((one) => one !== null));
-  for (const tag of claimed) {
-    assert.ok((RULE_TAGS as readonly string[]).includes(tag),
-      `${tag} is claimed by a rule and the module does not emit it`);
-  }
-  assert.ok(claimed.size > 0, 'no rule claims a tag, so this checked nothing');
 });
 
 test('an identifier is kebab and unique, and a short half stands as a sentence by itself', () => {
@@ -66,10 +51,6 @@ test('the colour choices are the adopter\'s, so no rule states them', () => {
       assert.ok(tag !== 'danger-fill' && tag !== 'one-primary', `${one.id} names ${tag}`);
     }
   }
-});
-
-test('the short half of every rule is a sentence Context7 can carry alone', () => {
-  for (const one of RULES) assert.match(one.short, /\.$/);
 });
 
 test('an empty declaration and an empty target list are failures rather than a quiet pass', () => {

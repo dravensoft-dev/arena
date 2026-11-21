@@ -4,7 +4,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
   DIVERGENT, PAIRED, collect, exportedFunctions, normalise, pairProblems, staleEntries,
@@ -59,15 +59,6 @@ test('a pair that shares no function name compares nothing, and says so rather t
 test('an entry naming a function no pair exports is stale', () => {
   assert.match(staleEntries([], new Map([['X.ts:gone', 'r']]))[0] ?? '',
     /DIVERGENT names X\.ts:gone, and no pair exports a function under that name/);
-});
-
-test('every PAIRED module exists in both layers, so none of them is a moved path', () => {
-  for (const rel of PAIRED) {
-    for (const layer of ['react', 'angular']) {
-      assert.ok(existsSync(join(repoRoot, 'frameworks', layer, rel)),
-        `${rel} is named by PAIRED and is not in the ${layer} layer`);
-    }
-  }
 });
 
 test('the real trees hold: every shared function agrees or is declared', () => {

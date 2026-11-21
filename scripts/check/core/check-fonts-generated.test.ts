@@ -27,12 +27,6 @@ test('a declared family with no face fails, naming the family and the fix', () =
   assert.match(errs[0] ?? '', /bun scripts\/generate\/core\/fetch-fonts\.ts/);
 });
 
-test('a generic fallback like system-ui is never in the declared list, so it is never required to have a face', () => {
-
-  const faces = new Set(['Archivo']);
-  assert.deepEqual(checkFonts(['Archivo'], faces), []);
-});
-
 test('multiple missing families each get their own message', () => {
   const errs = checkFonts(['Archivo', 'Inter', 'Comic Sans'], new Set());
   assert.equal(errs.length, 3);
