@@ -3,8 +3,8 @@ over it: a cart, a filter drawer, a detail pane. Standalone, `OnPush`, signal I/
 **is** the panel, so `<arena-sheet>` is the element you place.
 
 The sheet carries no scrim, traps no focus and takes nothing away from the page behind it. **When a panel
-is meant to take the whole interaction until it is answered, that is `arena-dialog`**, two stacking
-slots higher, and the scrim is how it says so.
+is meant to take the whole interaction until it is answered, that is `arena-dialog`**, three stacking
+steps higher, and the scrim is how it says so.
 
 ```html
 <arena-sheet [open]="cartOpen()" title="Cart"
@@ -71,7 +71,7 @@ Escape reaches the panel only while focus is inside it. Nothing here took focus 
 - **Do** put the one action the panel exists for in the `footer` slot. The footer sits outside the folding body, so a folded panel still carries it.
 - **Do** pair it with a rail when it is the navigation drawer on a phone. Put `md:hidden` on an element of your own around the sheet and `max-md:hidden` on one around the rail. A branch on `arenaViewportBelow('md')` gives the same split in code. A project that compiles none of these utilities writes the same pair as `@media (width < 48em)` and `@media (width >= 48em)` on those two elements.
 - **Don't** reach for it as a menu or a popover. The sheet spans a whole edge and stays. `arena-menu` is the transient list that hangs off a trigger.
-- **Don't** open two at once on the same edge. The two share a stacking slot and one lands on the other. A second surface at the same time is a sign the first should have been a dialog.
+- **Don't** open two at once on the same edge. The two share a stacking step and one lands on the other. A second surface at the same time is a sign the first should have been a dialog.
 - **Don't** put a form a reader must finish in it. Nothing stops them clicking away mid-way, which
   is the whole point of a non-modal panel and the whole reason a confirmation is not one.
 

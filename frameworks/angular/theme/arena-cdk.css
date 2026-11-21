@@ -10,7 +10,7 @@
    context, a z-* utility on a pane inside it can never lift that pane past Arena's in-flow
    overlays. So a menu or a tooltip opened from a trigger inside a dialog paints behind the very
    surface it belongs to: against a modal by accident of mount order, and against the three
-   higher slots outright. A CDK overlay is always anchored to a trigger that already sits inside
+   higher steps outright. A CDK overlay is always anchored to a trigger that already sits inside
    whatever is on top, so it belongs ABOVE every in-flow overlay and below --z-toast, which floats
    above everything. Derived at the point of use, the way --z-onboarding's scrim is.
 
@@ -19,7 +19,7 @@
    backdrop stays under its own pane. Do not rewrite them: they are internally consistent, and
    lowering one relative to its siblings is how a backdrop ends up over the panel it dims.
 
-   Two consequences. Every CDK overlay shares one z slot, so a tooltip
+   Two consequences. Every CDK overlay shares one z step, so a tooltip
    over a menu item wins by being appended later rather than by --z-tooltip being 950, the
    outcome --z-tooltip exists for, reached by a different mechanism. And a toast outranks every CDK
    overlay, which is the order --z-toast declares rather than a cost: arena-toast is an in-flow

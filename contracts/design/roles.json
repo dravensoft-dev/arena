@@ -1984,7 +1984,7 @@
   },
   "hue-danger-fill-soft": {
     "$type": "color",
-    "$description": "Which colour the danger hue takes as a wash. Read by every slot that tints a surface with the hue, held back to the hue's own level (--level-hue-soft-<hue>): an alert's background, a badge's background, a field's ring wash. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the danger variant (--arena-hue-fill-soft), so a plugin that moves it moves every danger surface at once.",
+    "$description": "Which colour the danger hue takes as a wash. Read by every slot that tints a surface with the hue: an alert's background and a badge's background. The level belongs to the slot the role is put in: each such slot carries the hue's soft level, --level-hue-soft-<hue>, as its own level. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the danger variant (--arena-hue-fill-soft), so a plugin that moves it moves every danger surface at once.",
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
@@ -2040,7 +2040,7 @@
   },
   "hue-success-fill-soft": {
     "$type": "color",
-    "$description": "Which colour the success hue takes as a wash. Read by every slot that tints a surface with the hue, held back to the hue's own level (--level-hue-soft-<hue>): an alert's background, a badge's background, a field's ring wash. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the success variant (--arena-hue-fill-soft), so a plugin that moves it moves every success surface at once.",
+    "$description": "Which colour the success hue takes as a wash. Read by every slot that tints a surface with the hue: an alert's background and a badge's background. The level belongs to the slot the role is put in: each such slot carries the hue's soft level, --level-hue-soft-<hue>, as its own level. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the success variant (--arena-hue-fill-soft), so a plugin that moves it moves every success surface at once.",
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
@@ -2096,7 +2096,7 @@
   },
   "hue-warning-fill-soft": {
     "$type": "color",
-    "$description": "Which colour the warning hue takes as a wash. Read by every slot that tints a surface with the hue, held back to the hue's own level (--level-hue-soft-<hue>): an alert's background, a badge's background, a field's ring wash. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the warning variant (--arena-hue-fill-soft), so a plugin that moves it moves every warning surface at once.",
+    "$description": "Which colour the warning hue takes as a wash. Read by every slot that tints a surface with the hue: an alert's background and a badge's background. The level belongs to the slot the role is put in: each such slot carries the hue's soft level, --level-hue-soft-<hue>, as its own level. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the warning variant (--arena-hue-fill-soft), so a plugin that moves it moves every warning surface at once.",
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",
@@ -2152,7 +2152,7 @@
   },
   "hue-info-fill-soft": {
     "$type": "color",
-    "$description": "Which colour the info hue takes as a wash. Read by every slot that tints a surface with the hue, held back to the hue's own level (--level-hue-soft-<hue>): an alert's background, a badge's background, a field's ring wash. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the info variant (--arena-hue-fill-soft), so a plugin that moves it moves every info surface at once.",
+    "$description": "Which colour the info hue takes as a wash. Read by every slot that tints a surface with the hue: an alert's background and a badge's background. The level belongs to the slot the role is put in: each such slot carries the hue's soft level, --level-hue-soft-<hue>, as its own level. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the info variant (--arena-hue-fill-soft), so a plugin that moves it moves every info surface at once.",
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "component",

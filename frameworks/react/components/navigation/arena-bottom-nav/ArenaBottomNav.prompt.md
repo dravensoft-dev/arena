@@ -36,7 +36,7 @@ one reports.
 
 **The bar is not an `ArenaSideNav` lying down.** A sidebar is a stack of indented rows, with the glyph before the label and arbitrary nesting. The bottom bar is a row of equal columns, with the glyph above the label and no nesting at all. The bar is not `ArenaTabs` either, which mounts every panel at once and announces tablist, tab and tabpanel. Nor is it an `ArenaSegmentedControl`, which is a radio group that chooses rather than navigates.
 
-The bar's geometry is Arena's tokens rather than a number. `--layout-bar` sets the height, `--z-nav` the stacking slot, and `--pad-safe-bottom` clears the home indicator on a device that has one.
+The bar's geometry is Arena's tokens rather than a number. `--layout-bar` sets the height, `--z-nav` the stacking step, and `--pad-safe-bottom` clears the home indicator on a device that has one.
 Reserve the same height at the foot of the page it covers, or the last row of content sits under it.
 
 **`ariaLabel` is required and guarded**, trimmed before it decides. A phone shell usually carries
