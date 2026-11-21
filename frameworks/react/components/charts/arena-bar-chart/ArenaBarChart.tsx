@@ -30,10 +30,10 @@ export interface ArenaBarChartProps {
   /** One label per category, in the same order as every series' `values`. A category with no value in a series is drawn for the series that do have one. Every n-th label is drawn when the labels do not fit their band, and the data table carries all of them. */
   labels: readonly string[];
 
-  /** The plotted series, drawn as one group of bars per category. One series is the common case and draws one bar per category. Two or more share each category's band, so the bars of one category stand side by side and the reader compares within a category before comparing across. After the last slot the positional count starts again at the first, so fold a ninth series into "Other" upstream. */
+  /** The plotted series, drawn as one group of bars per category. One series is the common case and draws one bar per category. Two or more share each category's band, so the bars of one category stand side by side and the reader compares within a category before comparing across. After the last ramp colour the positional count starts again at the first, so fold a ninth series into "Other" upstream. */
   series: readonly ArenaSeries[];
 
-  /** The ramp slot the first series takes when it names no colour of its own. Each later series takes the next slot, and after the last slot the count starts again at the first. A series' `colorId` or `colorIds` keeps the slot it names. Absent, 1. */
+  /** The ramp colour the first series takes when it names no colour of its own. Each later series takes the next ramp colour, and after the last ramp colour the count starts again at the first. A series' `colorId` or `colorIds` keeps the ramp colour it names. Absent, 1. */
   colorStart?: ArenaCatSlot;
 
   /** Names the chart for its accessible name and for the caption of its data table. The label names the CHART, not a series: a series names itself. Required and guarded rather than defaulted, because a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing. Two charts on one page then announce identically. */

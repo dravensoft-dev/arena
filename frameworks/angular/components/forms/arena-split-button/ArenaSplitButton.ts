@@ -67,7 +67,7 @@ export class ArenaSplitButton {
   readonly menuLabel = input.required<string>();
   /** The menu's entries, in order: activatable rows, dividers and group headers. */
   readonly items = input.required<readonly ArenaMenuItem[]>();
-  /** Which edge of the whole split the panel lines up with: start is the primary half's outer edge, end the caret's outer edge. */
+  /** Which edge of the whole split the panel lines up with: start is the primary half's outer edge, end the caret's outer edge, in either page direction. */
   readonly align = input<ArenaMenuAlign, ArenaMenuAlign | undefined>(
     'end',
     { transform: (value) => value ?? 'end' },

@@ -22,7 +22,7 @@ One action with a menu of its alternatives, drawn as one control. The primary ha
 | `label*` | primitive | `string` |  | Names the group of both halves, such as "Deployment". Required, and guarded at runtime after trimming: a group with no name announces only that a group began. |
 | `menuLabel*` | primitive | `string` |  | Names the caret half, such as "More deploy options". Required, and guarded at runtime after trimming: a caret is a glyph, so this name is all a screen reader hears. |
 | `items*` | array | `readonly ArenaMenuItem[]` |  | The menu's entries, in order: activatable rows, dividers and group headers. |
-| `align` | enum | `ArenaMenuAlign` | `"end"` | Which edge of the whole split the panel lines up with: start is the primary half's outer edge, end the caret's outer edge. |
+| `align` | enum | `ArenaMenuAlign` | `"end"` | Which edge of the whole split the panel lines up with: start is the primary half's outer edge, end the caret's outer edge, in either page direction. |
 | `activate` | event |  |  | The primary half was activated, by pointer or by keyboard. Never reported while loading or disabled. The native click is never stopped, so a listener on the document hears every click inside the primary half; this event reports only the activation. |
 | `select` | event | `ArenaMenuItem` |  | A menu entry was activated; carries the whole item. A disabled entry reports nothing, and a divider or a header cannot be activated at all. |
 

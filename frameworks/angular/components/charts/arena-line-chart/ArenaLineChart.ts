@@ -145,7 +145,7 @@ export class ArenaLineChart {
   readonly labels = input.required<readonly string[]>();
   /** The plotted series, drawn as one polyline each over the same ordered sequence. One series is the common case and draws exactly what it drew before. The area fill is refused past one series, because two fills occlude each other and the reader cannot tell which value either edge belongs to. */
   readonly series = input.required<readonly ArenaSeries[]>();
-  /** The ramp slot the first series takes when it names no colour of its own. Each later series takes the next slot, and after the last slot the count starts again at the first. A series' `colorId` or `colorIds` keeps the slot it names. Absent, 1. */
+  /** The ramp colour the first series takes when it names no colour of its own. Each later series takes the next ramp colour, and after the last ramp colour the count starts again at the first. A series' `colorId` or `colorIds` keeps the ramp colour it names. Absent, 1. */
   readonly colorStart = input<ArenaCatSlot, ArenaCatSlot | undefined>(
     1,
     { transform: (value) => value ?? 1 },

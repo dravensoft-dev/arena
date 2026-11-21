@@ -126,7 +126,7 @@ export const ROUTES: Route[] = [
       'skills/design/references/config.md',
       'skills/design/references/cli.md',
     ],
-    budget: 51_800,
+    budget: 51_850,
     reason:
       'paid once per project, not per screen, so it carries what the build route may not: the install, '
       + 'the config file and the command. The config block is copied whole. The install reference gives '
@@ -211,7 +211,7 @@ export const ROUTES: Route[] = [
       + 'every part Arena ships, the three steps a project can stop at, and where Arena stops',
     entry: 'consumer',
     stops: ['skills/design/references/surface.md'],
-    budget: 11_980,
+    budget: 12_020,
     reason:
       'paid once per project and taken before the skin, register and seo routes, because each of '
       + 'them asks how much of a thing nobody has shown the reader yet. What it buys is that a '

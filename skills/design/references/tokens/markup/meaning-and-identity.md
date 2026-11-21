@@ -8,14 +8,14 @@ Read this when your own markup draws a status, a tone, a category or a chart ser
 `--mute` are text at full strength and text held back. The aliases that hold text back and the soft washes read the levels, so they follow a level `arena build` raises for a palette. `--mute-2-disabled` holds a fixed 40%, because the disabled level is the one the scale never raises.
 Each key of a palette's `colors` becomes `--color-<key>`, so `base-100` is `--color-base-100`. [config.md](../../config.md#declare-your-skin) lists the keys.
 
-**A status colour means something and a ramp slot identifies something, and neither does the
+**A status colour means something and a ramp colour identifies something, and neither does the
 other's job.** The components hold that rule, and markup of yours holds it the same
 way. Otherwise a reader learns that green is sometimes a category.
 
 - **Meaning** is the four status colours. `arenaToneColor(tone)` from `@dravensoft/arena-react` or `@dravensoft/arena-angular` resolves the
   one a tone stands for, so a shape you draw yourself keeps meaning what the components mean by
   it.
-- **Identity** is the eight ramp slots, `--color-cat-1` through `--color-cat-8`, in fixed order.
+- **Identity** is the eight ramp colours, `--color-cat-1` through `--color-cat-8`, in fixed order.
   The order is the identity, so slot three is slot three in every chart on the screen.
   `arenaCatIndex(slot)` and `arenaCatTint(colour)` are there for a legend or a chip you draw.
 

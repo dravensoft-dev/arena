@@ -26,7 +26,7 @@ export interface ArenaPopoverProps {
   /** Whether the panel is shown. The consumer owns it: the component asks to change it through openChange and never changes it by itself, so content inside the panel can close it, an Apply button included. */
   open?: boolean;
 
-  /** Which edge of the trigger the panel lines up with. */
+  /** Which edge of the trigger the panel lines up with: start is the edge a line of text begins at and end the opposite one, so both follow the page direction. */
   align?: ArenaMenuAlign;
 
   /** The panel asks to be shown or hidden, carrying the state it asks for. The trigger was pressed, Escape was pressed while it was the topmost panel, a press landed outside it, or Tab left it. The panel moves only when open does. */

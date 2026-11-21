@@ -113,7 +113,7 @@ export class ArenaMenu {
 
   /** The entries, in order: activatable rows, dividers and group headers. */
   readonly items = input.required<readonly ArenaMenuItem[]>();
-  /** Which edge of the trigger the panel lines up with. */
+  /** Which edge of the trigger the panel lines up with: start is the edge a line of text begins at and end the opposite one, so both follow the page direction. */
   readonly align = input<ArenaMenuAlign, ArenaMenuAlign | undefined>(
     'start',
     { transform: (value) => value ?? 'start' },

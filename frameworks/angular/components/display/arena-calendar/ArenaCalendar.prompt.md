@@ -85,15 +85,15 @@ The boolean is not ceremony. What a component draws may never be derived from wh
 - Preformat every `title` you pass. The calendar does no locale and no truncation of your own text beyond the chip's ellipsis.
 
 **Don't**
-- Don't try to paint an event `--danger` to mean cancelled. You cannot: `colorId` picks a ramp slot and nothing else, and identity and meaning in one palette makes both unreadable. Same rule the charts enforce.
-- Don't reach past `colorId: 8`. There are eight slots and they never cycle; a ninth entity wrapping to slot 1 claims two different things are the same thing.
+- Don't try to paint an event `--danger` to mean cancelled. You cannot: `colorId` picks a ramp colour and nothing else, and identity and meaning in one palette makes both unreadable. Same rule the charts enforce.
+- Don't reach past `colorId: 8`. There are eight ramp colours and they never cycle; a ninth entity wrapping to ramp colour 1 claims two different things are the same thing.
 - Don't feed it multi-day or all-day events. There is no all-day row: an event running past midnight is clamped to the end of the day it started on.
 - Don't project anything but `arena-calendar-event` into the default slot. Anything else lands in the grid as a track of its own.
 - Don't wrap it to add a month view or a mini datepicker and call it Arena. Arena ships no month grid, and the date control is the native one, `type="date"` on `arena-input`. A hand-rolled one in your product is exactly the `fullcalendar-overrides.css` story that put this component here.
 
 **Words.** `calendarToday`, `calendarPrevious` and `calendarNext` name the toolbar's buttons, and `calendarRegion` and `calendarGrid` name the schedule and its grid, each with the range title in `{range}`. Every date the calendar writes, the range title, the day headers and the day names, is formatted in the locale's `locale`. Hour labels keep a 24-hour clock whatever it says, and the week starts where `weekStartsOn` says, never where the locale would put it.
 
-**What a chip can carry.** A chip draws its title, its time and `details`, a list of short lines the calendar sheds as the chip shrinks. A per-detail icon or tone, a template of your own and a colour beyond the eight ramp slots stay outside what a chip can carry.
+**What a chip can carry.** A chip draws its title, its time and `details`, a list of short lines the calendar sheds as the chip shrinks. A per-detail icon or tone, a template of your own and a colour beyond the eight ramp colours stay outside what a chip can carry.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

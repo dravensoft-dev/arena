@@ -51,7 +51,7 @@ A slot takes a role and never a palette colour. The role says which of your colo
 
 <!-- @shared slotExample end -->
 
-The primary action needs no answer. `actions-primary-root-fill-rest` reads `emphasis-primary-fill`, which your plugin already answers with the brand. The first answer fills a checked box, a selected radio, a switch that is on and a slider's range with `fill-mark`. The second draws the check and the dot in `ink-on-mark`. The third sets the knob of a switch and a slider on the page colour, and the fourth draws the glyph on a switch's knob in the body ink. These components move together because each paints a part of the `choices` group. The other four quiet the navigation selection. The current or selected item of a side nav, a bottom nav, a pagination and a tree view takes a `fill-marker` wash instead of the primary one, and the selected tab has no fill to wash. Its edge is `edge-mark` in both polarities, and that edge shows only where the item draws one: the rule under the selected tab and the border of the current page in a pagination, while a side nav, a bottom nav and a tree view item draw no border. The count on the current row of a side nav and every count on a bottom nav take the quiet `fill-marker` with the body ink, and the dot on a collapsed side nav rail takes `fill-marker`.
+The primary action needs no answer. `actions-primary-root-fill-rest` reads `emphasis-primary-fill`, which your plugin already answers with the brand. The first answer fills a checked box, a selected radio, a switch that is on and a slider's range with `fill-mark`. The second draws the check and the dot in `ink-on-mark`. The third sets the knob of a switch and a slider on the page colour, and the fourth draws the glyph on a switch's knob in the body ink. These components move together because each paints a part of the `choices` group. Four other groups quiet the navigation selection. The current or selected item of a side nav, a bottom nav, a pagination and a tree view takes a `fill-marker` wash instead of the primary one. The selected tab has no fill to wash. The selected edge is `edge-mark` in both polarities. That edge shows only where the item draws one, which is the rule under the selected tab and the border of the current page in a pagination. A side nav, a bottom nav and a tree view item draw no border. The count on the current row of a side nav and every count on a bottom nav take the quiet `fill-marker` with the body ink. The dot on a collapsed side nav rail takes `fill-marker`.
 
 ## How a slot is named
 
@@ -94,16 +94,17 @@ A slot that defaults to a role follows your answer to that role. Answer `hue-dan
 
 `arena build` measures the slot pairs in every palette, in the `rest`, `hover`, `pressed`, `selected`, `selected-hover` and `selected-pressed` states:
 
-- each ink, icon and fill over the fill of the part it sits on, and a part with no fill over the ground;
-- each selected edge over the fill of its part;
-- a resting edge only on a mark, over the ground, so look at an edge you answer;
-- the focus ring over the fill of a part whose ring sits on that fill, in each state the fill paints: a navigation item over its selected fill, the skip link over its fill and a table header over its fill. A ring that sits on the ground is measured over the page, surface, field and track fills instead;
-- ArenaAlert's title and message over the banner of each tone, composited over each surface where the banner is translucent;
-- a part a component sets on a surface of its own over that surface, such as a chart's tooltip label over the raised surface, and a part a component paints with a default of its own as the component paints it.
+- each ink, icon and fill over the fill of the part it sits on, and a part with no fill over the ground.
+- each selected edge over the fill of its part.
+- a resting edge only on a mark, over the ground, so look at an edge you answer.
+- the focus ring over the fill of a part whose ring sits on that fill, in each state the fill paints. The parts measured so are a navigation item over its selected fill, the skip link over its fill and a table header over its fill. A ring that sits on the ground is measured over the page, surface, field and track fills instead.
+- ArenaAlert's title and message over the banner of each tone, composited over each surface where the banner is translucent.
+- a part a component sets on a surface of its own over that surface, such as a chart's tooltip label over the raised surface.
+- a part a component paints with a default of its own, as the component paints it.
 
-A fill with nothing under it is not a pair. A pair falls short under 4.5:1 for text, and under 3:1 for a fill, an icon, an edge or a mark. A `disabled` or `selected-disabled` slot is never measured. The build reports instead a `disabled` answer that draws the part's rest colours, or a `selected-disabled` one that draws its selected colours, since that control is not told from an enabled one.
+A fill with nothing under it is not a pair. A pair falls short under 4.5:1 for text, and under 3:1 for a fill, an icon, an edge or a mark. A `disabled` or `selected-disabled` slot is never measured. The build reports instead a `disabled` answer that draws the part's rest colours. The build reports a `selected-disabled` one that draws its selected colours in the same way. Either control would not be told from an enabled one.
 
-The build measures the root plugin and every later one. A later plugin is measured in every palette, its answers over the root's, and a line it prints starts with `<palette>, style plugin <name>:` and appears only when the root's measurement in that palette did not print the same line. Each is a report, the build goes on, and `--strict=contrast` holds it. A runtime palette measures the same pairs through the root plugin, in `arenaCheckPalette` as in `arenaRuntimePalette`.
+The build measures the root plugin and every later one. A later plugin is measured in every palette, its answers over the root's. A line it prints starts with `<palette>, style plugin <name>:` and appears only when the root's measurement in that palette did not print the same line. Each is a report, the build goes on, and `--strict=contrast` holds it. A runtime palette measures the same pairs through the root plugin, in `arenaCheckPalette` as in `arenaRuntimePalette`.
 
 ## The groups
 
@@ -365,7 +366,7 @@ Home of `ArenaAppLogo`, `ArenaHero`, `ArenaKbd`, `ArenaPageHead`, `ArenaSection`
 
 ## A slot and plugin.css
 
-**A `plugin.css` rule wins over the slot of the part it styles.** The sheet sits in a cascade layer after the component rules that read the slots, so a declaration on a part's property paints over that part's slot in every state the rule selects, and a rule with no state selector paints every state, hover and selected included. Answer a slot for a colour that is a state of the part, and keep `plugin.css` for what no slot carries. `arena audit` reports a rule that repeats its slot as `restated`.
+**A `plugin.css` rule wins over the slot of the part it styles.** The sheet sits in a cascade layer after the component rules that read the slots. A declaration on a part's property therefore paints over that part's slot in every state the rule selects. A rule with no state selector paints every state, hover and selected included. Answer a slot for a colour that is a state of the part, and keep `plugin.css` for what no slot carries. `arena audit` reports a rule that repeats its slot as `restated`.
 
 ## What no slot reaches
 

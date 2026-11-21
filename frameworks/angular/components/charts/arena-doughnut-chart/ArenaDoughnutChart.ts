@@ -87,7 +87,7 @@ export class ArenaDoughnutChart {
   /** The parts, as one series whose values are read as shares of their own total. Exactly one series: a ring of two series is a sunburst, which is a different chart and not this one. A second series warns in development and is ignored. Per-slice identity goes in that series' `colorIds`. */
   readonly series = input.required<readonly ArenaSeries[]>();
 
-  /** The ramp slot the first slice takes when the series gives no `colorIds`. Each later slice takes the next slot, and after the last slot the count starts again at the first. A slice past the end of `colorIds` takes the slot its position gives, counted the same way. Absent, 1. */
+  /** The ramp colour the first slice takes when the series gives no `colorIds`. Each later slice takes the next ramp colour, and after the last ramp colour the count starts again at the first. A slice past the end of `colorIds` takes the ramp colour its position gives, counted the same way. Absent, 1. */
   readonly colorStart = input<ArenaCatSlot, ArenaCatSlot | undefined>(
     1,
     { transform: (value) => value ?? 1 },
@@ -100,7 +100,7 @@ export class ArenaDoughnutChart {
   readonly valuePrefix = input<string>();
   /** How each number is written before the prefix and suffix are added: which locale, how many fraction digits, whether thousands are grouped, whether large numbers are compacted. Absent, the raw JavaScript number, which is what this chart drew before the member existed. */
   readonly valueFormat = input<ArenaNumberFormat>();
-  /** Whether the ring keeps its hole or fills to the centre. 'pie' is the same chart with the same slices, the same legend and the same table, drawn solid. The pie costs the centre percentage, which has nowhere to go once the hole is gone. Over a wedge it would put the heading ink on a --color-cat slot, a pair nothing checks for contrast because nothing else draws it. The figure is not lost, it is in the legend row and in the accessible table, which is where every other number the chart writes already is. */
+  /** Whether the ring keeps its hole or fills to the centre. 'pie' is the same chart with the same slices, the same legend and the same table, drawn solid. The pie costs the centre percentage, which has nowhere to go once the hole is gone. Over a wedge it would put the heading ink on a --color-cat ramp colour, a pair nothing checks for contrast because nothing else draws it. The figure is not lost, it is in the legend row and in the accessible table, which is where every other number the chart writes already is. */
   readonly shape = input<ArenaChartShape, ArenaChartShape | undefined>(
     'doughnut',
     { transform: (value) => value ?? 'doughnut' },

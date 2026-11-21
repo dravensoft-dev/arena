@@ -19,7 +19,7 @@ One event on an `arena-calendar`'s schedule. The chip is content of a calendar a
 | `title*` | primitive | `string` |  | What the chip reads. |
 | `start*` | primitive | `string` |  | ISO datetime the event begins. |
 | `end*` | primitive | `string` |  | ISO datetime the event ends. |
-| `colorId` | enum | `ArenaCatSlot` |  | Identity colour. Give the same entity the same slot everywhere and it keeps its colour across views. |
+| `colorId` | enum | `ArenaCatSlot` |  | Identity colour. Give the same entity the same ramp colour everywhere and it keeps its colour across views. |
 | `details` | array | `readonly string[]` | `[]` | Lines drawn under the time label, one per entry, each truncated to a single line: the people involved, a room, a capacity. Arena decides how many fit, shedding the last first and then the time label, and every entry reaches what the chip announces whether it is drawn or shed. |
 | `interactive` | primitive | `boolean` | `false` | Whether the chip can be activated. A boolean rather than "is `activate` bound?", because Arena never derives what it draws from what a consumer listens for. `ArenaTableRow.interactive` is a member for the same reason. An interactive chip is a <button> a keyboard user reaches with Enter from the hour cell it overlaps. A non-interactive one draws the same chip with no role and no activation, so a read-only schedule announces events rather than a screenful of buttons that do nothing. |
 | `actionsEnabled` | primitive | `boolean` | `false` | Whether the chip shows its action button. A boolean rather than "is the actions slot filled?": Arena never derives what it draws from what a consumer listens for. Projected content is not inspectable in at least one platform, so gating the drawing on it is a divergence waiting to happen. |
@@ -71,7 +71,7 @@ What "into the chip" means depends on the shape. A chip with no action panel *is
 
 ## What the chip does in the grid
 
-Escape with the panel open closes the panel and puts focus back on the kebab, and a second Escape returns focus to the hour cell. Every chip sits inside its own day column with an even gutter each side, a full-width chip included, because the chip is `box-sizing: border-box` and the width `arena-calendar` injects is its outer edge. On a chip carrying a kebab the title stops before the button and ellipsises there rather than running underneath it. A short event, 30 minutes or less, still shows its whole title, because the chip's height floor is its outer height. A chip draws its time label when it is at least 32px high and its slot is at least 100px wide, so a chip sharing its slot with an overlap usually draws none, and a chip that has the column to itself does once it is 32px high. On a chip that is at least 56px high and draws no time label, such as a 90-minute event beside an overlap, the kebab sits at the bottom right and the title runs the full width above it. On a short one it stays top right with the title stopping before it. The panel hangs below the chip rather than over its own body.
+Escape with the panel open closes the panel and puts focus back on the kebab, and a second Escape returns focus to the hour cell. Every chip sits inside its own day column with an even gutter each side, a full-width chip included. The chip is `box-sizing: border-box` and the width `arena-calendar` injects is its outer edge. On a chip carrying a kebab the title stops before the button and ellipsises there rather than running underneath it. A short event, 30 minutes or less, still shows its whole title, because the chip's height floor is its outer height. A chip draws its time label when it is at least 32px high and its slot is at least 100px wide. A chip sharing its slot with an overlap usually draws none. A chip that has the column to itself draws one once it is 32px high. A chip at least 56px high that draws no time label, such as a 90-minute event beside an overlap, puts the kebab at the bottom right. The title runs the full width above it. A short chip keeps the kebab top right with the title stopping before it. The panel hangs below the chip rather than over its own body.
 
 **Do**
 - Give the same entity the same `colorId` everywhere it appears.
@@ -84,7 +84,7 @@ Escape with the panel open closes the panel and puts focus back on the kebab, an
 - Don't project content into it other than `[actions]`. The title and the time line are the chip body, and Arena draws both.
 - Don't render one outside an `arena-calendar`. The chip has no position of its own and will throw.
 - Don't use `disabled` to make a chip inert. Leave `interactive` off for that: an inert chip is a `<div>` with nothing to press, where a disabled one is a button that announces it cannot be pressed right now. The two read differently to a screen reader on purpose.
-- Don't reach past `colorId: 8`. There are eight ramp slots and they never cycle.
+- Don't reach past `colorId: 8`. There are eight ramp colours and they never cycle.
 - Don't reach for `style` or `class` to place it. The chip's geometry is the calendar's, and a `class` on the host lands on an element that declares `display: contents`.
 
 **Words.** `calendarEventActions` names the button that opens the action panel.

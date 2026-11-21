@@ -65,7 +65,7 @@ reach a page through classes a consumer applies rather than through any role. `p
 of the plugin's own, written against the part hooks; the build wraps it in the reserved layer, so
 its author never spells `@layer arena-plugin`.
 
-A plugin may also answer a colour slot the catalogue derives from `color-slots.json` with a role from that slot's accepts set. A slot belongs to a group of components, so an answer moves every member part that reads it. An unanswered slot reads the kernel's chain, and a member keeps its own default there where a decision grants one. [`color-slots.md`](../../skills/design/references/color-slots.md) lists the slots by group for an adopter.
+A plugin may also answer a colour slot the catalogue derives from `color-slots.json` with a role from that slot's accepts set. A colour slot belongs to a group of components, so an answer moves every member part that reads it. An unanswered colour slot reads the kernel's chain, and a member keeps its own default there where a decision grants one. [`color-slots.md`](../../skills/design/references/color-slots.md) lists the colour slots by group for an adopter. On this page "slot" alone is a manifest slot, the entry of a manifest's `slots` key that names a part; a colour slot is always written in full.
 
 **Colour stays an assignment and never an authorship.** A colour role takes one of the consumer's
 palette colours as a `{color.*}` alias, or follows another colour role as `{ink-muted}`, and a plugin
@@ -239,12 +239,12 @@ manifest maps a member's value to a hue (`danger`, `success`, `warning`, `info`,
 renders the group as `data-arena-<group>`, and the hue sheet writes its channels on the slots that
 carry it: `--arena-hue-ink`, `--arena-hue-edge`, `--arena-hue-fill-strong`, `--arena-hue-fill-soft`
 and `--arena-hue-on-ink`. A slot reads the channel it needs and never a status colour by name, so a
-plugin that moves one role moves every surface wearing that hue. An error state's root and icon read the danger banner and icon slots
+plugin that moves one role moves every surface wearing that hue. An error state's root and icon read the danger banner and icon colour slots
 of the `feedback` group. A field's error message and edge, a status icon, FileInput's
 rejection and ConfirmDialog's invalid input read the `ink-invalid` and `edge-invalid` roles instead. A status mark (a presence, feed or timeline dot,
-a soft badge, a tag, a stat card's value and delta, a meter, progress or spinner range) reads its group's slots, `marks.dot`, `marks.soft`,
+a soft badge, a tag, a stat card's value and delta, a meter, progress or spinner range) reads its group's colour slots, `marks.dot`, `marks.soft`,
 `marks.outline`, `marks.label` or `meters.track`, whose tone defaults are the hue roles, `{hue-<h>-ink}` and its edge and wash,
-so a plugin moves those marks through the hue roles or the slots and never through a hue channel. The channels are read by a badge
+so a plugin moves those marks through the hue roles or the colour slots and never through a hue channel. The channels are read by a badge
 written `arena-mark-solid` and the calendar chip, and by the series parts: a chart legend swatch, a board column's dot and
 title and a tag that names a `colorId` read them, following series painted from the palette.
 A badge written with `arena-mark-solid` fills with the ink and sets its label in the on-ink, which
@@ -377,8 +377,8 @@ and the held-back register is the one that spells its level. Moving a slot from 
 other is a decision about one product's appearance, so it belongs to a rule through the part, which
 is what the escape hatch is and why the audit permits it inside a plugin directory.
 
-This is how the current tier was derived, by counting the slots that named a palette step, a face
-or a case directly. What changes is that the count now has a source that keeps producing: the
+The current tier is derived by counting the slots that name a palette step, a face
+or a case directly, and the count has a source that keeps producing: the
 audit reports which parts a plugin paints, and that note is where the evidence for promoting one
 comes from. **A count is evidence only once each part in it is remeasured against the sheet the
 slot compiles to**, because a plugin declaration restating what the slot already paints raises the

@@ -39,7 +39,7 @@ export interface ArenaSplitButtonProps {
   /** The menu's entries, in order: activatable rows, dividers and group headers. */
   items: readonly ArenaMenuItem[];
 
-  /** Which edge of the whole split the panel lines up with: start is the primary half's outer edge, end the caret's outer edge. */
+  /** Which edge of the whole split the panel lines up with: start is the primary half's outer edge, end the caret's outer edge, in either page direction. */
   align?: ArenaMenuAlign;
 
   /** The primary half was activated, by pointer or by keyboard. Never reported while loading or disabled. The native click is never stopped, so a listener on the document hears every click inside the primary half; this event reports only the activation. */

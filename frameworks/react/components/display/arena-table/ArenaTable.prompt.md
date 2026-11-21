@@ -129,7 +129,7 @@ Each column picks its card-mode layout with `mobileLayout`:
 
 ### Keyboard
 
-The wide layout is a `role="grid"` with **one** tab stop. Tab reaches the grid. The header row is row 0 and is navigable, as APG prescribes. `Enter` activates the cursor's row by calling that `ArenaTableRow`'s `onActivate`. There is no step-in: a control you drew inside a cell keeps its own place in the page Tab sequence, so nothing you own is silenced, and reaching it from a cell costs one Tab press.
+The wide layout is a `role="grid"` with **one** tab stop. Tab reaches the grid. The header row is row 0 and is navigable, as APG prescribes. `Enter` activates the cursor's row by calling that `ArenaTableRow`'s `onActivate`. There is no step-in. A control you drew inside a cell keeps its own place in the page Tab sequence, so nothing you own is silenced. Reaching it from a cell costs one Tab press.
 
 The grid is **not assumed rectangular**. A row may carry fewer or more cells than there are columns, and the cursor is clamped against the row it is actually in. With no rows there is no grid at all: no header row and no `role="grid"`, only the `empty` block.
 
@@ -209,7 +209,7 @@ Bind `onRowRequest` together with `slice`. The hook's `slice` turns the four key
 
 Without `view` the table emits nothing and leaves PageUp and PageDown to the page. Control plus Home and Control plus End then act as Home and End within the row. Card mode answers none of the four keys, because a card is reached with Tab.
 
-The hook gives the box no tab stop of its own, so Tab reaches the grid once, and below `--bp-md` an interactive card is a tab stop of its own that Tab and Shift+Tab walk.
+The hook gives the box no tab stop of its own, so Tab reaches the grid once. Below `--bp-md` an interactive card is a tab stop of its own that Tab and Shift+Tab walk.
 
 `arena-sticky-head` keeps the header row in view inside your box, on the table or on a container of it. The box takes `scroll-padding-top` equal to the head's height, so a focus move never leaves the row under the head. The hook writes that padding for you.
 

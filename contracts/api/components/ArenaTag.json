@@ -1,14 +1,14 @@
 {
   "component": "ArenaTag",
-  "description": "A pill for filters, technologies and statuses. A tone for what state a thing is in or a ramp slot for which thing it is, and an optional dismiss.",
+  "description": "A pill for filters, technologies and statuses. A tone for what state a thing is in or a ramp colour for which thing it is, and an optional dismiss.",
   "affordances": ["hover", "press"],
   "api": {
     "content": { "form": "slot",
                  "description": "The tag's label." },
     "tone": { "form": "enum", "type": "ArenaTagTone", "default": "neutral",
-              "description": "What state the tag reports; neutral reports none. Ignored while `colorId` names a ramp slot, because a tag draws one colour and the two mean different things." },
+              "description": "What state the tag reports; neutral reports none. Ignored while `colorId` names a ramp colour, because a tag draws one colour and the two mean different things." },
     "colorId": { "form": "enum", "type": "ArenaCatSlot",
-                 "description": "An identity colour from the categorical ramp, the ramp the charts and the calendar read, so one entity keeps its colour across a chart, a schedule and a label. Colour here means which thing and never what state, which is why it replaces `tone` rather than joining it. A label reading \"Backend\" is not a warning, and a tag that could say both at once would say neither. Optional, and its absence is the tone tag. The slot reaches the tag as `data-arena-color-id` and its colour through the hue channels (`--arena-hue-ink`, `--arena-hue-edge`, `--arena-hue-fill-strong`, `--arena-hue-fill-soft`). An appearance that fills the marker rather than outlining it is therefore a style plugin's to write and needs no member here." },
+                 "description": "An identity colour from the categorical ramp, the ramp the charts and the calendar read, so one entity keeps its colour across a chart, a schedule and a label. Colour here means which thing and never what state, which is why it replaces `tone` rather than joining it. A label reading \"Backend\" is not a warning, and a tag that could say both at once would say neither. Optional, and its absence is the tone tag. The ramp colour reaches the tag as `data-arena-color-id` and its colour through the hue channels (`--arena-hue-ink`, `--arena-hue-edge`, `--arena-hue-fill-strong`, `--arena-hue-fill-soft`). An appearance that fills the marker rather than outlining it is therefore a style plugin's to write and needs no member here." },
     "removable": { "form": "primitive", "type": "boolean", "default": false,
                    "description": "Whether the dismiss × is shown. Every layer gates the × on this member and never on whether anything listens for `remove`, because Arena never derives what it draws from what a consumer listens for. Removability is a declared input, not something inferred from the event." },
     "disabled": { "form": "primitive", "type": "boolean", "default": false,

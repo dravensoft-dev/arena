@@ -24,7 +24,7 @@ export interface ArenaMenuProps {
   /** The entries, in order: activatable rows, dividers and group headers. */
   items: readonly ArenaMenuItem[];
 
-  /** Which edge of the trigger the panel lines up with. */
+  /** Which edge of the trigger the panel lines up with: start is the edge a line of text begins at and end the opposite one, so both follow the page direction. */
   align?: ArenaMenuAlign;
 
   /** An entry was activated; carries the whole item. A disabled entry reports nothing, and a divider or a header cannot be activated at all. */

@@ -1,8 +1,8 @@
 # Which roles answer a part of a component?
 
-Read this when your style plugin answers a role a component reads, whose name carries a family option such as a size or an elevation, or that answers one part of a component.
+Read this when your style plugin answers a role a component reads. Such a role carries a family option such as a size or an elevation in its name, or answers one part of a component.
 
-The component reads a component role. Your markup reads none but the checkbox and switch roles of [the states page](../markup/states.md). The `<option>` roles are stated in [`contracts/design/StylePlugins.md`](../../../../../contracts/design/StylePlugins.md#the-option-roles). A component role draws from the scale of the plugin role with its prefix, on the [plugin pages](../plugin/index.md): `pad-*` and `gap-*` from `sp`, and `timeline-dot` reads `sp` though no plugin role has its prefix. A `size-*` role reads the scale of the part its name ends in, `-gap` and `-pad-x` from `sp`, and takes a literal where no step fits, as most `size-*` lengths and every `grid-*`, `board-*`, `dialog-*` and `scroller-*` do. The `hue`, `accent`, `emphasis` and `elevation` roles answer as their type does. Three groups of names read another scale, each in [`spacing.json`](../../../../../contracts/design/spacing.json):
+The component reads a component role. Your markup reads none but the checkbox and switch roles of [the states page](../markup/states.md). The `<option>` roles are stated in [`contracts/design/StylePlugins.md`](../../../../../contracts/design/StylePlugins.md#the-option-roles). A component role draws from the scale of the plugin role with its prefix, on the [plugin pages](../plugin/index.md). `pad-*` and `gap-*` read `sp`, and `timeline-dot` reads `sp` though no plugin role has its prefix. A `size-*` role reads the scale of the part its name ends in, `-gap` and `-pad-x` from `sp`. A `size-*` role takes a literal where no step fits, as most `size-*` lengths and every `grid-*`, `board-*`, `dialog-*` and `scroller-*` do. The `hue`, `accent`, `emphasis` and `elevation` roles answer as their type does. Three groups of names read another scale, each in [`spacing.json`](../../../../../contracts/design/spacing.json):
 
 - `size-*-avatar` and `size-*-face` read `avatar`.
 - `size-*-logo-*` reads `logo`.
@@ -18,6 +18,6 @@ The component reads a component role. Your markup reads none but the checkbox an
 - [Which roles answer the size of content at each option?](./size-content.md): Read this when your style plugin answers the size of a part that is content rather than a control, at one size option.
 - [Which roles answer an emphasis and an accent?](./emphasis-and-accent.md): Read this when your style plugin answers how loud an emphasis is, how deep an elevation stands or which accent a component takes.
 - [Which roles answer a status hue?](./status-hues.md): Read this when your style plugin answers the hue a status, a tone or a category takes inside a component.
-- [Which roles answer a control, a knob, a tip, a tile and a mark?](./controls-and-marks.md): Read this when your style plugin answers the box and knob of a checkbox, radio, switch or slider, the bubble of a tooltip, the tile behind an avatar's initials, or a marker or mark inside a component.
+- [Which roles answer a control, a knob, a tip, a tile and a mark?](./controls-and-marks.md): Read this when your style plugin answers the box and knob of a checkbox, radio, switch or slider, the bubble of a tooltip or the tile behind an avatar's initials.
 
 <!-- @tree end -->

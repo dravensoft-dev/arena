@@ -186,7 +186,7 @@ A fixed set of slots for colouring N arbitrary entities: chart series, calendar 
 
 The ramp is one system with one clamp: `arenaCatIndex(slot)`, which every layer carries in its own `DataVisuals` module. A chart's colour and `ArenaCalendar`'s `colorId` both read it rather than keeping their own copy: two clamps over one ramp is how a ramp stops being a ramp. `arenaCatRotate(start, position)` is the one rotation: a chart counts a positional slot from `colorStart` through it and wraps after the last slot.
 
-Where a component has no `tone` escape hatch, **state goes on a non-chromatic channel**, so the ramp slot keeps carrying the entity. `ArenaCalendar` is the strict case: it draws every event chip itself, so a consumer has no chromatic channel *and* no non-chromatic one, and a cancelled class says so in its title or does not appear on the schedule. That is a capability the API contract does not offer, and `ArenaCalendar.prompt.md` records it.
+Where a component has no `tone` escape hatch, **state goes on a non-chromatic channel**, so the ramp colour keeps carrying the entity. `ArenaCalendar` is the strict case: it draws every event chip itself, so a consumer has no chromatic channel *and* no non-chromatic one, and a cancelled class says so in its title or does not appear on the schedule. That is a capability the API contract does not offer, and `ArenaCalendar.prompt.md` records it.
 
 | Slot | Name | Hue | Dark | Light |
 |---|---|---|---|---|

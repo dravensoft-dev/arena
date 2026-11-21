@@ -121,7 +121,7 @@ codeSplitting: { groups: [
 
 With either config, the Arena CSS file keeps its bytes and its name when the app changes. Measured on 2026-10-25, on React and on Angular, by changing the app's text and its own sheet.
 
-The `arena-sheet` plugin serves a page that links `styles.css` itself, as an Angular project's `index.html` does. The `href` it writes is root-relative to the project root, which is Vite's root when the config sets none: `/src/arena.package.generated.css` names the file under `src/`, beside the `styles.css` the plugin takes the import out of. A config with `root: 'src'` makes that root `src`, so a React project imports the sheets from its entry instead and needs only the chunk test.
+The `arena-sheet` plugin serves a page that links `styles.css` itself, as an Angular project's `index.html` does. The `href` it writes is root-relative to the project root, which is Vite's root when the config sets none. `/src/arena.package.generated.css` names the file under `src/`, beside the `styles.css` the plugin takes the import out of. A config with `root: 'src'` makes that root `src`, so a React project imports the sheets from its entry instead and needs only the chunk test.
 
 **rollup and rolldown** import no CSS, and stop the build on a CSS import. Map every `.css` import to an empty module, and link the sheets `arena build` writes from your page, in the order [`install.md`](../install.md) gives. The module id must end in `.js`, because rolldown refuses a `.css` id before `load` runs:
 

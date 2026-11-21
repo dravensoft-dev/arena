@@ -25,13 +25,13 @@ export interface ArenaDoughnutChartProps {
   /** The parts, as one series whose values are read as shares of their own total. Exactly one series: a ring of two series is a sunburst, which is a different chart and not this one. A second series warns in development and is ignored. Per-slice identity goes in that series' `colorIds`. */
   series: readonly ArenaSeries[];
 
-  /** The ramp slot the first slice takes when the series gives no `colorIds`. Each later slice takes the next slot, and after the last slot the count starts again at the first. A slice past the end of `colorIds` takes the slot its position gives, counted the same way. Absent, 1. */
+  /** The ramp colour the first slice takes when the series gives no `colorIds`. Each later slice takes the next ramp colour, and after the last ramp colour the count starts again at the first. A slice past the end of `colorIds` takes the ramp colour its position gives, counted the same way. Absent, 1. */
   colorStart?: ArenaCatSlot;
 
   /** Names the chart for its accessible name and for the caption of its data table. Required and guarded rather than defaulted, because a fallback of the chart TYPE would satisfy roles.label mechanically and tell a screen-reader user nothing. Two doughnuts on one page would then announce identically. */
   label: string;
 
-  /** Whether the ring keeps its hole or fills to the centre. 'pie' is the same chart with the same slices, the same legend and the same table, drawn solid. The pie costs the centre percentage, which has nowhere to go once the hole is gone. Over a wedge it would put the heading ink on a --color-cat slot, a pair nothing checks for contrast because nothing else draws it. The figure is not lost, it is in the legend row and in the accessible table, which is where every other number the chart writes already is. */
+  /** Whether the ring keeps its hole or fills to the centre. 'pie' is the same chart with the same slices, the same legend and the same table, drawn solid. The pie costs the centre percentage, which has nowhere to go once the hole is gone. Over a wedge it would put the heading ink on a --color-cat ramp colour, a pair nothing checks for contrast because nothing else draws it. The figure is not lost, it is in the legend row and in the accessible table, which is where every other number the chart writes already is. */
   shape?: ArenaChartShape;
 
   /** How each legend row arranges its label and its figure. 'inline' puts them on one line, which is what fits a wide tile. 'stacked' puts the label above the figure. 'auto' measures the legend column and stacks when the row does not give. The member exists because the two do not degrade equally: on one line the figure does not yield, so the label is what gets truncated. A legend of numbers with nothing saying what they count is the opposite of a legend. The threshold is already declared, as the chart-legend-min and chart-legend-max tokens the ring width is clamped between; what was missing was the behaviour. */

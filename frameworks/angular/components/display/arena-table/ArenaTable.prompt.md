@@ -97,8 +97,8 @@ measured the wide shape renders, so the card shape never flashes on first paint.
 
 ### Keyboard
 
-The wide shape is a `role="grid"` with **one** tab stop. Tab reaches the grid. The header row is row 0 and is navigable, as APG prescribes. `Enter` activates the cursor's row by emitting that row's `click`. There is no step-in: a control you drew inside a cell keeps its
-own place in the page Tab sequence, so nothing you own is silenced, and reaching it from a cell costs one Tab press.
+The wide shape is a `role="grid"` with **one** tab stop. Tab reaches the grid. The header row is row 0 and is navigable, as APG prescribes. `Enter` activates the cursor's row by emitting that row's `click`. There is no step-in. A control you drew inside a cell keeps its
+own place in the page Tab sequence, so nothing you own is silenced. Reaching it from a cell costs one Tab press.
 
 The grid is **not assumed rectangular**. A row may carry fewer or more cells than there are
 columns, and the cursor is clamped against the row it is actually in.

@@ -110,7 +110,7 @@ export class ArenaCalendarEvent {
   readonly start = input.required<string>();
   /** ISO datetime the event ends. */
   readonly end = input.required<string>();
-  /** Identity colour. Give the same entity the same slot everywhere and it keeps its colour across views. */
+  /** Identity colour. Give the same entity the same ramp colour everywhere and it keeps its colour across views. */
   readonly colorId = input<ArenaCatSlot>();
   /** Lines drawn under the time label, one per entry, each truncated to a single line: the people involved, a room, a capacity. Arena decides how many fit, shedding the last first and then the time label, and every entry reaches what the chip announces whether it is drawn or shed. */
   readonly details = input<readonly string[], readonly string[] | undefined>([], { transform: (value) => value ?? [] });

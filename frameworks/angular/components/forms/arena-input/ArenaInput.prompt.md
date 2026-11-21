@@ -65,7 +65,7 @@ readonly validEmail = (v: string) => (/.+@.+\..+/.test(v) ? '' : 'Invalid email 
 <!-- @keys end -->
 
 **`validate` is the one member that takes a function.** You supply it, the component calls it on
-the field's value, and it returns the error message or the empty string. It and the `validate` of `ArenaNumberField` are the only function members Arena takes, legal because both fields are data-entry controls. Bind it as a bare
+the field's value, and it returns the error message or the empty string. This member and the `validate` of `ArenaNumberField` are the only function members Arena takes, legal because both fields are data-entry controls. Bind it as a bare
 arrow: the input is optional already, so a `| undefined` arm in the type says a second time what
 leaving it unbound says once.
 

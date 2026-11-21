@@ -8,7 +8,7 @@
     "items": { "form": "array", "of": "ArenaMenuItem", "required": true,
                "description": "The entries, in order: activatable rows, dividers and group headers." },
     "align": { "form": "enum", "type": "ArenaMenuAlign", "default": "start",
-               "description": "Which edge of the trigger the panel lines up with." },
+               "description": "Which edge of the trigger the panel lines up with: start is the edge a line of text begins at and end the opposite one, so both follow the page direction." },
     "select": { "form": "event", "payload": "ArenaMenuItem",
                 "description": "An entry was activated; carries the whole item. A disabled entry reports nothing, and a divider or a header cannot be activated at all." }
   }

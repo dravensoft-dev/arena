@@ -20,7 +20,7 @@ Actions menu on a trigger (overflow "⋮", more actions, context). Don't confuse
 |---|---|---|---|---|
 | `trigger*` | slot |  |  | The element that opens the menu. The consumer draws it -- an ArenaIconButton with ph-dots-three-vertical, a secondary ArenaButton -- so it is a slot, and it carries its own accessible name. |
 | `items*` | array | `readonly ArenaMenuItem[]` |  | The entries, in order: activatable rows, dividers and group headers. |
-| `align` | enum | `ArenaMenuAlign` | `"start"` | Which edge of the trigger the panel lines up with. |
+| `align` | enum | `ArenaMenuAlign` | `"start"` | Which edge of the trigger the panel lines up with: start is the edge a line of text begins at and end the opposite one, so both follow the page direction. |
 | `onSelect` | event | `ArenaMenuItem` |  | An entry was activated; carries the whole item. A disabled entry reports nothing, and a divider or a header cannot be activated at all. |
 
 <!-- @api end -->

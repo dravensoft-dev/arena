@@ -15,7 +15,7 @@ Your own markup reads roles and scales, and a style plugin answers roles. A valu
 
 - [Which role does my own markup read?](./markup/index.md): Read this when you write markup of your own and need the custom property for a fill, a line, a space, a type, a shadow or a layer.
 - [Which roles does my style plugin answer, by task?](./plugin/index.md): Read this when you write a style plugin and need the roles of one task, the type each role takes and the scale its answer draws from.
-- [Which roles answer a part of a component?](./components/index.md): Read this when your style plugin answers a role a component reads, whose name carries a family option such as a size or an elevation, or that answers one part of a component.
+- [Which roles answer a part of a component?](./components/index.md): Read this when your style plugin answers a role a component reads.
 - [How do I use a spacing, motion, density or type value?](./scales/index.md): Read this when markup of yours needs a length, a time, a stacking order, a control size or a type size.
 
 <!-- @tree end -->

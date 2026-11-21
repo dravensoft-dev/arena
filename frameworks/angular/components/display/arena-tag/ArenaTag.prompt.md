@@ -5,7 +5,7 @@ Arena-drawn dismiss `×` that emits `remove` on click.
 
 `colorId` is the other colour a tag can take, and it answers a different question: `tone` says
 what state a thing is in, `colorId` says which thing it is. A database label, a workflow status
-and a project name are identities, so they take a ramp slot and keep it everywhere.
+and a project name are identities, so they take a ramp colour and keep it everywhere.
 
 ```html
 <arena-tag>Neutral</arena-tag>
@@ -22,8 +22,8 @@ and a project name are identities, so they take a ramp slot and keep it everywhe
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
 | `content` | slot |  |  | The tag's label. |
-| `tone` | enum | `ArenaTagTone` | `"neutral"` | What state the tag reports; neutral reports none. Ignored while `colorId` names a ramp slot, because a tag draws one colour and the two mean different things. |
-| `colorId` | enum | `ArenaCatSlot` |  | An identity colour from the categorical ramp, the ramp the charts and the calendar read, so one entity keeps its colour across a chart, a schedule and a label. Colour here means which thing and never what state, which is why it replaces `tone` rather than joining it. A label reading "Backend" is not a warning, and a tag that could say both at once would say neither. Optional, and its absence is the tone tag. The slot reaches the tag as `data-arena-color-id` and its colour through the hue channels (`--arena-hue-ink`, `--arena-hue-edge`, `--arena-hue-fill-strong`, `--arena-hue-fill-soft`). An appearance that fills the marker rather than outlining it is therefore a style plugin's to write and needs no member here. |
+| `tone` | enum | `ArenaTagTone` | `"neutral"` | What state the tag reports; neutral reports none. Ignored while `colorId` names a ramp colour, because a tag draws one colour and the two mean different things. |
+| `colorId` | enum | `ArenaCatSlot` |  | An identity colour from the categorical ramp, the ramp the charts and the calendar read, so one entity keeps its colour across a chart, a schedule and a label. Colour here means which thing and never what state, which is why it replaces `tone` rather than joining it. A label reading "Backend" is not a warning, and a tag that could say both at once would say neither. Optional, and its absence is the tone tag. The ramp colour reaches the tag as `data-arena-color-id` and its colour through the hue channels (`--arena-hue-ink`, `--arena-hue-edge`, `--arena-hue-fill-strong`, `--arena-hue-fill-soft`). An appearance that fills the marker rather than outlining it is therefore a style plugin's to write and needs no member here. |
 | `removable` | primitive | `boolean` | `false` | Whether the dismiss × is shown. Every layer gates the × on this member and never on whether anything listens for `remove`, because Arena never derives what it draws from what a consumer listens for. Removability is a declared input, not something inferred from the event. |
 | `disabled` | primitive | `boolean` | `false` | Whether removal is unavailable while the tag stays visible: a filter a consumer's permissions lock, not a tag that is merely inert. The × carries `aria-disabled` rather than the native `disabled` attribute. A screen-reader user finds it where `tabStop` puts it and is told the action is unavailable. With `removable` false there is no × and nothing to disable. |
 | `tabStop` | primitive | `boolean` | `true` | Whether the remove button is reached from the page's Tab sequence. Set false when the tag lives inside a composite that manages its own focus. A field holding its chosen values as chips, with one tab stop and arrow keys between them, is one such composite. Reaching the button by Tab there would be a second way in. Arena writes tabindex="-1" and the button stays programmatically focusable; a positive tab order is not expressible and never should be. With `removable` false there is no button and nothing to hold out. |

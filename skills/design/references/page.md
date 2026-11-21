@@ -73,7 +73,7 @@ and are wide in a server's HTML.
 
 ## Meaning and identity are two different colour sets
 
-**A status colour means something and a ramp slot identifies something.** [`tokens/markup/meaning-and-identity.md`](./tokens/markup/meaning-and-identity.md) says which one markup of yours reaches for, with the colour aliases.
+**A status colour means something and a ramp colour identifies something.** [`tokens/markup/meaning-and-identity.md`](./tokens/markup/meaning-and-identity.md) says which one markup of yours reaches for, with the colour aliases.
 
 ## The rest of the scale, and the edges of the device
 
@@ -82,8 +82,8 @@ and are wide in a server's HTML.
 ## Taking the least of this, and taking all of it
 
 **The least is the classes and the roles as they stand.** Paint the floor with `--fill-page`,
-your text with `--ink-body` and `--ink-muted` at their levels (see [`tokens/markup/surfaces-and-text.md`](./tokens/markup/surfaces-and-text.md)), your own surfaces with `--fill-surface` and
-`--edge-surface`, put `.arena-shell`, `.arena-band` and `.arena-stack` on your markup (see [`style.md`](./style.md)). Nothing here needs a style plugin, and a screen built this way already follows whatever
+your text with `--ink-body` and `--ink-muted` at their levels (see [`tokens/markup/surfaces-and-text.md`](./tokens/markup/surfaces-and-text.md)) and your own surfaces with `--fill-surface` and
+`--edge-surface`. Put `.arena-shell`, `.arena-band` and `.arena-stack` on your markup (see [`style.md`](./style.md)). Nothing here needs a style plugin, and a screen built this way already follows whatever
 appearance the project adopts later.
 
 **All of it is the same page with the roles re-answered.** Every name above that is a role rather

@@ -1,7 +1,7 @@
 /* A project tracker's appearance, painted through the part hooks the kernel exposes.
    Everything answerable as a role is answered in plugin.tokens.json, so what is left here is
    what this register paints and the kernel does not ask: a status that is an identity rather
-   than a state, and a board column named by a filled bar in its own ramp slot. */
+   than a state, and a board column named by a filled bar in its own ramp colour. */
 
 /* A space tree row is dense and fills on hover, and the current one wears the accent. */
 [data-arena-part="side-nav.item"],
@@ -40,8 +40,8 @@
   font-weight: var(--fw-extrabold);
 }
 
-/* A status is an identity, so the pill fills with the ramp slot the tag carries rather than
-   outlining it, and reads as a label. A tag with no slot falls back to Arena's own outline. */
+/* A status is an identity, so the pill fills with the ramp colour the tag carries rather than
+   outlining it, and reads as a label. A tag with no ramp colour falls back to Arena's own outline. */
 [data-arena-part="tag"][data-arena-color-id] {
   background: var(--arena-hue-ink);
 }
@@ -57,7 +57,7 @@
 [data-arena-part="tag.dot"] { display: none; }
 
 /* A board column is named by a filled bar in its own identity colour, which is the one thing
-   this product's board is read by. The column carries the ramp slot as data-arena-color-id, so
+   this product's board is read by. The column carries the ramp colour as data-arena-color-id, so
    the head fills with it and the title sits on top rather than beside a dot. */
 [data-arena-part="board.column"][data-arena-color-id] [data-arena-part="board.head"] {
   background: var(--arena-hue-ink);

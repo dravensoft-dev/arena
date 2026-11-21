@@ -90,9 +90,9 @@ failure as a screenshot read silently, with a better result and the same missing
 **An entry is copied rather than cited.** An entry has three files: `plugin.tokens.json`, `plugin.css` and
 `arena.config.json`. The first two become your project's own under `design/<name>/` as they are, and
 node 11 is where they land. The config is a starting file for the root of your project. With no
-`arena.config.json` there, copy it and replace the palette and the fonts. With one already there
-(the one `arena init` writes holds `["default"]` and Dravensoft's palette and fonts), replace its `stylePlugins` list with
+`arena.config.json` there, copy it and replace the palette and the fonts. With one already there, replace its `stylePlugins` list with
 the entry's and replace the palette and the fonts with the project's own, since a catalogue entry answers every role.
+The config `arena init` writes holds `["default"]` and Dravensoft's palette and fonts.
 
 **The catalogue is on the site and in the repository, not the package.** Each entry's files sit
 beside its `ENTRY.md`.
@@ -235,7 +235,7 @@ writes: its own markup, and on Angular its forms. **Take every row that is true*
 | If your code | Take | What it gets you |
 |---|---|---|
 | draws markup of its own with Tailwind v4 | Arena's `@layer` order statement from [`install.md`](./install.md), then `@import 'tailwindcss';` and `@import '@dravensoft/arena-<layer>/css/tailwind-theme.css';`. Declare a key of your own below that import, never above it | every utility resolves to Arena's scale and none to Tailwind's defaults. Arena's own utilities work by name: `case-eyebrow`, `case-label`, `fit-media` and the ones its components animate with. The air between components is `gap-group`, `gap-component` and `gap-section` |
-| draws markup of its own, styled with CSS of its own | the tokens through `var()`, and the vocabulary page for the air between components: `.arena-stack`, whose `arena-stack--group` and `arena-stack--section` set the step and whose `arena-stack--start` and `arena-stack--end` set only the alignment, and `.arena-row`, whose `arena-row--component` sets the step and whose `arena-row--baseline`, `arena-row--between` and `arena-row--start` set only the alignment | the lengths and the air the components are spaced with, as named steps rather than a number you pick |
+| draws markup of its own, styled with CSS of its own | the tokens through `var()`, and the vocabulary page for the air between components. `.arena-stack` has `arena-stack--group` and `arena-stack--section` for the step and `arena-stack--start` and `arena-stack--end` for the alignment alone. `.arena-row` has `arena-row--component` for the step and `arena-row--baseline`, `arena-row--between` and `arena-row--start` for the alignment alone | the lengths and the air the components are spaced with, as named steps rather than a number you pick |
 | is an Angular project binding Arena's controls with `@angular/forms` | `@dravensoft/arena-angular/forms`, and `ARENA_FORM_CONTROLS` in the component's `imports` | `formControlName` and `ngModel` on every data-entry control. Reaching that entry point makes `@angular/forms` required |
 
 ## 11. Now write it
@@ -272,17 +272,17 @@ Then, in this order, because each file is read by the next.
   then depth, and leave the colour roles at the answers
   [`style-kernel.md`](./style-kernel.md) reports eight products converged on.
 - `design/<name>/plugin.css`, only for a decision no role reaches.
-- Run `arena build`, which writes the package sheet, the theme sheet and, when a style plugin of yours carries CSS,
-  the plugin sheet, plus the icon sprite for the glyphs your screens draw, with its module, and the local font cuts. [`install.md`](./install.md)
+- Run `arena build`. The command writes the package sheet, the theme sheet and, when a style plugin of yours carries CSS,
+  the plugin sheet. The command also writes the icon sprite for the glyphs your screens draw, with its module, and the local font cuts. [`install.md`](./install.md)
   gives the order to import them in.
 - Then the first screen, through the per-screen route in [`../SKILL.md`](../SKILL.md).
 
 **A catalogue entry from node 4 answers part of this list.** The entry's `plugin.tokens.json` and
 `plugin.css` are the second and third bullets, copied as they are. The entry's `arena.config.json`
 is the starting file of the first bullet. With no config in the project, copy it and replace the
-palette and the fonts. With one already there
-(the one `arena init` writes holds `["default"]` and Dravensoft's palette and fonts), replace its `stylePlugins` list with the entry's and replace the palette and the fonts with the project's
-own, since a catalogue entry answers every role.
+palette and the fonts. With one already there, replace its `stylePlugins` list with the entry's and
+replace the palette and the fonts with the project's own, since a catalogue entry answers every role.
+The config `arena init` writes holds `["default"]` and Dravensoft's palette and fonts.
 
 The identity document from node 5 is what each of these is checked against, and it stays in the
 project. The next agent to open the project starts at node 2 with the good answer instead of at

@@ -118,7 +118,7 @@ export class ArenaFunnelChart {
   /** Exactly one series, the count at each stage in order. A second series warns and is ignored, because two funnels are two charts. `colorIds` is per-stage identity. `tone`, when given, colours the whole series and never a position, because a later stage is not worse for being later. */
   readonly series = input.required<readonly ArenaSeries[]>();
 
-  /** The ramp slot the stages take when the series names no colour of its own. A stage past the end of `colorIds` takes the slot its position gives, counted from this one, and after the last slot the count starts again at the first. Absent, 1. */
+  /** The ramp colour the stages take when the series names no colour of its own. A stage past the end of `colorIds` takes the ramp colour its position gives, counted from this one. After the last ramp colour the count starts again at the first. Absent, 1. */
   readonly colorStart = input<ArenaCatSlot, ArenaCatSlot | undefined>(
     1,
     { transform: (value) => value ?? 1 },

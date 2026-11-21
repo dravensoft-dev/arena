@@ -51,8 +51,8 @@ directory names the plugin:
 }
 ```
 
-The file may also hold one group named `light`. It takes colour answers only, a `{color.*}` alias or another
-colour role, never `transparent`, for a role or a [colour slot](./color-slots.md), and it lays them over the plain answers in every
+The file may also hold one group named `light`. The group takes colour answers only, a `{color.*}` alias or another
+colour role, never `transparent`, for a role or a [colour slot](./color-slots.md). The group lays them over the plain answers in every
 palette whose `polarity` is `light`. A plain answer holds in every dark palette, and in a light one the group
 is silent on. Anything else in the group is refused. A palette picked at runtime reads the group by its
 polarity the same way.
@@ -164,7 +164,7 @@ it is a second one answering the same roles differently. Read one before writing
 copying the default into `design/<name>/` and replacing one role at a time: `["default"]` is no
 start, because your root plugin inherits nothing from it.
 
-The selected edge of navigation is the role `edge-tab-selected`, and its default is `{color.primary}`: it is drawn as the rule under the selected tab and around the current page of a pagination. A plugin that stays silent keeps the primary there, and one that answers it names a palette colour or another colour role.
+The selected edge of navigation is the role `edge-tab-selected`, and its default is `{color.primary}`. The role is drawn as the rule under the selected tab and around the current page of a pagination. A plugin that stays silent keeps the primary there, and one that answers it names a palette colour or another colour role.
 
 **The roles below are where a product lives**, and the eight measured products disagree on every one of
 them:
@@ -249,7 +249,7 @@ Stated so you can plan around it rather than discover it.
 ## The loop
 
 **Some of this is refused rather than reported, and knowing which is which saves you an
-afternoon.** These are **hard failures of the plain command**. A role left unanswered by the root
+afternoon.** The **hard failures of the plain command** are these. A role left unanswered by the root
 plugin that carries no default. An answer whose `$type` is not its role's: a slot is a `color`, an
 `fs-*` or `rhythm-*` step is a `dimension`, and an answer with no `$type` is a mismatch. A word
 outside a keyword role's set. A `rem` or `em` length on a `fixed` role. A colour role answered with
@@ -257,9 +257,9 @@ anything but a `{color.*}` alias, another colour role or `transparent`, or colou
 aliases lead back to themselves. A slot answered outside its accepts set, and `{transparent}` is always outside it,
 since a set that takes `transparent` takes it without braces. A key that is no role, no slot and no `fs-*` or `rhythm-*` step. An answer in the `light` group that is not a `{color.*}` alias or another colour role, `transparent` included. An alias that resolves to nothing. A plugin that
 answers nothing. And a broken reading floor. The command writes nothing and exits non-zero.
-The user scale column of each role sheet decides what a length does: `fixed` keeps it in px and
-refuses `rem` and `em`, `scales` emits a px answer as `rem` so it grows with the reader's text
-size, and `none` marks a role whose answer is no length.
+The user scale column of each role sheet decides what a length does. `fixed` keeps it in px and
+refuses `rem` and `em`. `scales` emits a px answer as `rem` so it grows with the reader's text
+size. `none` marks a role whose answer is no length.
 Everything the audit says is a **report**, and stays one until you pass `--strict`.
 
 The reading floors are the trap in that list, because an ordinary-looking scale step can break one.

@@ -33,7 +33,7 @@ export interface ArenaFunnelChartProps {
   /** Exactly one series, the count at each stage in order. A second series warns and is ignored, because two funnels are two charts. `colorIds` is per-stage identity. `tone`, when given, colours the whole series and never a position, because a later stage is not worse for being later. */
   series: readonly ArenaSeries[];
 
-  /** The ramp slot the stages take when the series names no colour of its own. A stage past the end of `colorIds` takes the slot its position gives, counted from this one, and after the last slot the count starts again at the first. Absent, 1. */
+  /** The ramp colour the stages take when the series names no colour of its own. A stage past the end of `colorIds` takes the ramp colour its position gives, counted from this one. After the last ramp colour the count starts again at the first. Absent, 1. */
   colorStart?: ArenaCatSlot;
 
   /** Names the chart for its accessible name and for the caption of its data table. The label is the CHART's name, not a series': a series names itself. A fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing, so two charts on one page announce identically. Required and guarded rather than defaulted for that reason. */

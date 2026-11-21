@@ -32,7 +32,7 @@ export interface ArenaPyramidChartProps {
   /** Exactly two series, one for each side of the centre line, in order: the first is drawn to the left and the second to the right. Both carry counts rather than signed values, and the chart negates the first when it draws it. The accessible table therefore reads the numbers that were passed, and the picture reads the shape they make. A third series has nowhere to go and warns; a single one is a horizontal bar chart and should be one. */
   series: readonly ArenaSeries[];
 
-  /** The ramp slot the first series takes when it names no colour of its own. Each later series takes the next slot, and after the last slot the count starts again at the first. A series' `colorId` or `colorIds` keeps the slot it names. Absent, 1. */
+  /** The ramp colour the first series takes when it names no colour of its own. Each later series takes the next ramp colour, and after the last ramp colour the count starts again at the first. A series' `colorId` or `colorIds` keeps the ramp colour it names. Absent, 1. */
   colorStart?: ArenaCatSlot;
 
   /** Names the chart for its accessible name and for the caption of its data table. The CHART gets the name, and a series names itself. Required and guarded rather than defaulted, because a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing. Two charts on one page would announce identically. */

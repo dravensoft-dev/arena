@@ -125,9 +125,9 @@ export class ArenaRadarChart {
   protected readonly locale = inject(ARENA_LOCALE);
   /** One label per axis, in the same order as every series' `values`, running clockwise from 12 o'clock. Keep the count small: past eight or so the labels collide and the shape stops being readable, which is a limit of the form rather than of the drawing. At a larger browser text size a label that grows past the room beside the ring is cut with an ellipsis, and never below its width at the default. The full name of a cut label stays in a title on it and in the data table. The room is read when the chart is created. */
   readonly labels = input.required<readonly string[]>();
-  /** The plotted series, drawn as one closed polygon each over the same axes. The shape is the reading, so two or three series is the useful case and more is a tangle. After the last slot the positional count starts again at the first, so fold a ninth series into "Other" upstream. */
+  /** The plotted series, drawn as one closed polygon each over the same axes. The shape is the reading, so two or three series is the useful case and more is a tangle. After the last ramp colour the positional count starts again at the first, so fold a ninth series into "Other" upstream. */
   readonly series = input.required<readonly ArenaSeries[]>();
-  /** The ramp slot the first series takes when it names no colour of its own. Each later series takes the next slot, and after the last slot the count starts again at the first. A series' `colorId` or `colorIds` keeps the slot it names. Absent, 1. */
+  /** The ramp colour the first series takes when it names no colour of its own. Each later series takes the next ramp colour, and after the last ramp colour the count starts again at the first. A series' `colorId` or `colorIds` keeps the ramp colour it names. Absent, 1. */
   readonly colorStart = input<ArenaCatSlot, ArenaCatSlot | undefined>(
     1,
     { transform: (value) => value ?? 1 },

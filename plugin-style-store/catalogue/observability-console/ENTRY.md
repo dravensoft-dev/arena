@@ -26,7 +26,7 @@ the reader is comparing two panels rather than reading one.
 finding this entry exists to record. Seven of the eight charts draw geometry whose coordinates are
 the data, so they carry no part hook at all: a plugin reaches the frame and nothing inside the plot.
 What skins a plot is `cat-1` through `cat-8` in `arena.config.json`, in the order they are declared,
-because a slot means the same thing in every chart on the screen.
+because a ramp colour means the same thing in every chart on the screen.
 
 ## The page it assumes
 
@@ -52,6 +52,6 @@ and a panel title tracked the way every other label is. That sheet says which an
 
 ## What it does not bring
 
-The palette and the fonts are the consumer's, and in this register the palette is most of the appearance. Replacing the eight ramp slots changes this entry more than replacing every other answer in it. The ramp shipped here is measured against the contrast and colour-vision gates on both surfaces. Measure a replacement the same way, or the charts stop being readable for somebody.
+The palette and the fonts are the consumer's, and in this register the palette is most of the appearance. Replacing the eight ramp colours changes this entry more than replacing every other answer in it. The ramp shipped here is measured against the contrast and colour-vision gates on both surfaces. Measure a replacement the same way, or the charts stop being readable for somebody.
 
 The copy, the brand mark, the alert rules and the question of being found from outside are still open. A console behind a login answers the last of those no.

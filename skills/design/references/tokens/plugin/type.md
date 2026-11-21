@@ -24,7 +24,7 @@ Read this when your style plugin answers a font family, a weight, a leading, a t
 not: `track-heading`, `track-eyebrow`, `track-label` and `track-trail` take `em`, and `measure-prose` takes
 `ch`. Only a literal needs it, because every `ls.*` step carries `em` already and an alias of one emits
 `em` with no `$extensions`. A tracking role answered with a bare number and no unit emits that
-number, which is not a valid letter spacing, and the declaration is dropped, so the text keeps the spacing it inherits, normally `normal`.
+number, which is not a valid letter spacing. The declaration is dropped, so the text keeps the spacing it inherits, normally `normal`.
 
 ```json
 "measure-prose": { "$type": "number", "$value": 86,
