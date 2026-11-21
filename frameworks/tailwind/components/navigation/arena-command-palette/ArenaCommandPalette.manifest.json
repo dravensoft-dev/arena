@@ -5,7 +5,7 @@
     "panel": "flex flex-col max-h-[88vh] w-140 max-w-[92vw] bg-[color:var(--overlays-panel-fill-rest,var(--fill-surface-floating))] border-[length:var(--bw-surface)] border-[color:var(--overlays-panel-edge-rest,var(--edge-surface-floating))] rounded-surface shadow-surface-deep overflow-hidden",
     "search": "flex items-center gap-2.5 px-4 py-3.5 border-b-[length:var(--bw-separator)] border-[color:var(--fields-neutral-field-edge-rest,var(--edge-field))]",
     "searchIcon": "text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)] text-[length:var(--icon-lg)]",
-    "input": "flex-1 border-none outline-none font-body text-ctl bg-[color:var(--fields-value-fill-rest,transparent)] text-[color:var(--fields-value-ink-rest,var(--ink-body))] placeholder:text-[color:color-mix(in_oklab,var(--fields-value-ink-rest,var(--ink-body))_var(--level-ink-muted),transparent)]",
+    "input": "flex-1 border-none focus:outline-hidden font-body text-ctl bg-[color:var(--fields-value-fill-rest,transparent)] text-[color:var(--fields-value-ink-rest,var(--ink-body))] placeholder:text-[color:color-mix(in_oklab,var(--fields-value-ink-rest,var(--ink-body))_var(--level-ink-muted),transparent)]",
     "esc": "font-face-key text-ctl-xs case-key text-[color:color-mix(in_oklab,var(--text-key-ink-rest,var(--ink-key))_var(--level-ink-muted),transparent)] border-[length:var(--bw-marker)] border-[color:var(--text-key-edge-rest,var(--edge-control-quiet))] rounded-marker px-marker-x py-key-y",
     "list": "min-h-0 max-h-80 overflow-auto p-1.5",
     "empty": "px-3 py-4.5 font-body text-md text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",

@@ -4,7 +4,7 @@
     "root": "flex flex-col gap-1.5",
     "label": "font-face-label text-ctl-xs tracking-label-role case-label text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",
     "wrap": "relative",
-    "field": "appearance-none w-full h-ctl-h pl-3 pr-9 border-[length:var(--bw-field)] rounded-field font-body text-ctl cursor-pointer transition-[border-color,box-shadow] duration-[var(--dur-hover)] ease-hover focus:outline-none text-[color:var(--fields-value-ink-rest,var(--ink-body))]",
+    "field": "appearance-none w-full h-ctl-h pl-3 pr-9 border-[length:var(--bw-field)] rounded-field font-body text-ctl cursor-pointer transition-[border-color,box-shadow] duration-[var(--dur-hover)] ease-hover focus:outline-hidden text-[color:var(--fields-value-ink-rest,var(--ink-body))]",
     "caret": "absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)] text-[length:var(--icon-sm)]",
     "statusIcon": "absolute right-9 top-1/2 -translate-y-1/2 pointer-events-none inline-flex text-[length:var(--icon-md)]",
     "hint": "font-body text-ctl-sm text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",

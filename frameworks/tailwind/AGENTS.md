@@ -575,9 +575,12 @@ repository does not have.
   it is the accent at 16%, and a real browser reads it as a wash rather than an edge.
 - **A ring is composed from several utilities rather than named by one**, which is why
   `check:coverage` excludes the namespace and why nothing fails a manifest painting none,
-  and the composition is two decisions. A slot focused directly also carries `outline-none`,
-  or the browser draws its own ring over Arena's; one focused through a sized-to-nothing
-  input has none to remove. And `shadow-*` writes `--tw-shadow`, REPLACING whatever that
+  and the composition is two decisions. A slot focused directly also carries `outline-hidden`
+  in its own focus variant (`focus:outline-hidden`, `focus-visible:outline-hidden`), never a bare
+  `outline-none` and never a bare `outline-hidden`: it removes the browser's ring over Arena's and
+  keeps a transparent outline the forced palette paints, because forced colours drops the shadow,
+  the ring and the border; `check:tailwind` refuses `outline-none` on a slot. A field whose ring
+  sits on a wrapper still writes it on the focused element. And `shadow-*` writes `--tw-shadow`, REPLACING whatever that
   slot held, so a slot whose shadow already means something, the selected tab's underline,
   takes `ring-*`, which writes its own slot and composes. A manifest painting no ring is
   quiet in every gate and loud on the page.

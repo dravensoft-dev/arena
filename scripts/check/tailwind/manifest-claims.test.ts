@@ -279,7 +279,7 @@ export const CLAIMS = {
   ],
   ArenaTable: [
     ...['th', 'td'].map((slot) => ({
-      slot, has: ['outline-none', 'focus:shadow-[inset_0_0_0_var(--bw-focus)_var(--edge-focus)]'],
+      slot, has: ['focus:outline-hidden', 'focus:shadow-[inset_0_0_0_var(--bw-focus)_var(--edge-focus)]'],
       why: 'a cell draws its focus ring from the focus tokens and suppresses the UA outline, or a keyboard user cannot see where the cursor is',
     })),
     ...['th', 'td'].map((slot) => ({
@@ -599,7 +599,7 @@ export const CLAIMS = {
     { slot: 'field', has: ['appearance-none', 'pr-9'], why: 'the field strips the platform chrome and reserves the room the caret Arena draws sits in' },
     { slot: 'root', has: ['flex'], why: 'a host-bound root is never the UA-default inline box' },
     { slot: 'caret', has: ['pointer-events-none'], why: 'the caret is decoration over the native control and must not swallow the click' },
-    { slot: 'field', has: ['focus:border-edge-focus', 'focus:outline-none'], why: 'a select takes focus itself, so the ring is focus rather than focus-within' },
+    { slot: 'field', has: ['focus:border-edge-focus', 'focus:outline-hidden'], why: 'a select takes focus itself, so the ring is focus rather than focus-within' },
   ],
   ArenaSheet: [
     { chosen: { open: true }, slot: 'root', has: ['flex'],
@@ -633,7 +633,7 @@ export const CLAIMS = {
     { slot: 'root', has: ['flex', 'border-b-[length:var(--bw-separator)]', `border-[color:${memberValue(SLOTS, 'ArenaTabs.root', 'surfaces-separator-edge-rest', 'tailwind')}]`], why: 'the tablist sits on a hairline rule that the selected tab overdraws' },
     { chosen: { selected: true }, slot: 'tab', has: ['font-control', read('ArenaTabs.tab', 'navigation-item-ink-selected', 'text'), `shadow-[inset_0_calc(var(--bw-strong)*-1)_0_${memberValue(SLOTS, 'ArenaTabs.tab', 'navigation-item-edge-selected', 'tailwind')}]`], why: 'the selected tab is marked by an inset rule in the navigation group\'s selected edge rather than a fill' },
     { chosen: { selected: false }, slot: 'tab', has: ['font-medium', read('ArenaTabs.tab', 'navigation-item-ink-rest', 'text'), `shadow-[inset_0_calc(var(--bw-strong)*-1)_0_${memberValue(SLOTS, 'ArenaTabs.tab', 'navigation-item-edge-rest', 'tailwind')}]`], hasNot: ['shadow-none'], why: 'an unselected tab is muted and its rule reads the transparent rest edge, so it carries no underline' },
-    { slot: 'tab', has: ['focus-visible:outline-none'], why: 'a directly focused slot removes the browser\'s own outline or that is what a keyboard user sees instead of Arena\'s' },
+    { slot: 'tab', has: ['focus-visible:outline-hidden'], why: 'a directly focused slot hides the browser\'s own outline and keeps a transparent one for forced colours' },
     {
       slot: 'tab',
       has: ['focus-visible:ring-[length:var(--bw-focus)]', 'focus-visible:ring-edge-focus'],

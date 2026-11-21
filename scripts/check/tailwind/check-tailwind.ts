@@ -69,6 +69,44 @@ export function transitionProblems(manifest: ManifestClassSource) {
   return problems;
 }
 
+const FOCUS_VARIANT = /^(?:(?:group|peer|in)-)?focus(?:-visible|-within)?(?:\/[\w-]+)?$|^has-\[[^\]]*focus[^\]]*\]$/;
+
+function slotClasses(manifest: ManifestClassSource) {
+  const bySlot = new Map<string, string[]>();
+  const add = (slot: string, cls: unknown) => {
+    if (typeof cls !== 'string') return;
+    if (!bySlot.has(slot)) bySlot.set(slot, []);
+    bySlot.get(slot)?.push(...cls.split(/\s+/).filter(Boolean));
+  };
+  for (const [slot, cls] of Object.entries(manifest.slots || {})) add(slot, cls);
+  for (const group of Object.values(manifest.variants || {}))
+    for (const branch of Object.values(group || {}))
+      for (const [slot, cls] of Object.entries(branch || {})) add(slot, cls);
+  for (const compound of manifest.compoundVariants || [])
+    for (const [slot, cls] of Object.entries(compound.class || {})) add(slot, cls);
+  return bySlot;
+}
+
+export function focusOutlineProblems(manifest: ManifestClassSource) {
+  const problems = [];
+  for (const [slot, classes] of slotClasses(manifest)) {
+    for (const cls of new Set(classes)) {
+      const parts = cls.replace(/!$/, '').split(/:(?![^[]*\])/);
+      if (parts.pop() !== 'outline-none') continue;
+      const focusVariants = parts.filter((variant) => FOCUS_VARIANT.test(variant));
+      if (parts.length && !focusVariants.length) continue;
+      const fix = parts.length ? [...parts, 'outline-hidden'].join(':') : 'focus-visible:outline-hidden';
+      problems.push(
+        `${manifest.component}:${slot} writes \`${cls}\`${parts.length ? ' in a focus state' : ', which also applies when the slot is focused'}. `
+        + `Forced-colours mode drops box-shadow and borders, and Tailwind 4's outline-none is outline-style: none, `
+        + `so a ring or border drawn for focus shows no focus there: write \`${fix}\` (the slot's own focus variant), `
+        + `a transparent outline the forced palette paints, and never a bare outline-hidden.`,
+      );
+    }
+  }
+  return problems;
+}
+
 export function checkCompiled(
   css: string, manifests: Map<string, ManifestClassSource>, tokens: Set<string>, inline = new Map<string, string>(),
 ) {
@@ -107,7 +145,7 @@ function main() {
   const { css, manifests } = compileLayer();
   const inline = inlineThemeKeys(readFileSync(join(repoRoot, 'frameworks/tailwind/Theme.css'), 'utf8'));
   const errs = checkCompiled(css, manifests, arenaTokenNames(repoRoot), inline);
-  for (const m of manifests.values()) errs.push(...transitionProblems(m));
+  for (const m of manifests.values()) { errs.push(...transitionProblems(m)); errs.push(...focusOutlineProblems(m)); }
   if (errs.length) {
     console.error(`check-tailwind: ${errs.length} violation(s) in the compiled Tailwind layer\n`);
     for (const e of errs) console.error(`  ${e}`);

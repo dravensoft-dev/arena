@@ -2,7 +2,7 @@
   "component": "ArenaBreadcrumbs",
   "slots": {
     "root": "flex items-center flex-wrap gap-inline",
-    "crumb": "inline-flex items-center justify-center min-h-ctl-h-sm min-w-ctl-h-sm font-face-label text-trail tracking-trail no-underline text-[color:color-mix(in_oklab,var(--navigation-quiet-link-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)] active:scale-[var(--press-scale)] motion-reduce:active:scale-100 focus-visible:outline-none focus-visible:shadow-[inset_0_0_0_var(--bw-focus)_var(--edge-focus)]",
+    "crumb": "inline-flex items-center justify-center min-h-ctl-h-sm min-w-ctl-h-sm font-face-label text-trail tracking-trail no-underline text-[color:color-mix(in_oklab,var(--navigation-quiet-link-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)] active:scale-[var(--press-scale)] motion-reduce:active:scale-100 focus-visible:outline-hidden focus-visible:shadow-[inset_0_0_0_var(--bw-focus)_var(--edge-focus)]",
     "current": "font-face-label text-trail tracking-trail text-[color:color-mix(in_oklab,var(--text-body-ink-rest,var(--ink-body))_var(--level-ink-body),transparent)] font-bold",
     "separator": "font-face-label text-trail tracking-trail text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]"
   },

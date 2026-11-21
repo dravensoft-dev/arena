@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { themeKeys, inlineThemeKeys, checkCompiled, transitionProblems } from './check-tailwind.ts';
+import { themeKeys, inlineThemeKeys, checkCompiled, transitionProblems, focusOutlineProblems } from './check-tailwind.ts';
 
 const TOKENS = new Set(['color-primary', 'sp-1', 'sp-4', 'r-sm']);
 
@@ -89,6 +89,36 @@ test('a transitioned property painted only in a variant branch counts as painted
 test('a static centring transform needs no transition, so a slot that transitions nothing is not reported', () => {
   const manifest = { component: 'Fixture', slots: { caret: '-translate-y-1/2' } };
   assert.deepEqual(transitionProblems(manifest), []);
+});
+
+test('a focus state that writes outline-none is refused, naming the slot and forced colours', () => {
+  const manifest = { component: 'Fixture', slots: { root: 'focus-visible:outline-none focus-visible:shadow-[inset_0_0_0_2px_red]' } };
+  const problems = focusOutlineProblems(manifest);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /Fixture:root/);
+  assert.match(problems[0] ?? '', /focus-visible:outline-none/);
+  assert.match(problems[0] ?? '', /forced-colou?rs/i);
+  assert.match(problems[0] ?? '', /focus-visible:outline-hidden/);
+});
+
+test('a bare outline-none is refused, because it applies in the focus state too, and the fix is never a bare outline-hidden', () => {
+  const manifest = { component: 'Fixture', slots: { cell: 'outline-none focus:shadow-[inset_0_0_0_2px_red]', plain: 'p-1' } };
+  const problems = focusOutlineProblems(manifest);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /Fixture:cell/);
+  assert.match(problems[0] ?? '', /never a bare outline-hidden/);
+});
+
+test('a stacked, group-, peer-, important and variant-branch focus form is read too', () => {
+  for (const cls of ['hover:focus:outline-none', 'group-focus:outline-none', 'peer-focus-visible:outline-none', 'group-focus-within/row:outline-none', 'focus:outline-none!', 'has-[:focus-visible]:outline-none']) {
+    const manifest = { component: 'Fixture', slots: { root: 'p-1' }, variants: { tone: { a: { root: cls } } } };
+    assert.equal(focusOutlineProblems(manifest).length, 1, cls);
+  }
+});
+
+test('outline-hidden in a focus state, and outline-none under a non-focus variant, are accepted', () => {
+  const manifest = { component: 'Fixture', slots: { root: 'focus-visible:outline-hidden focus-within:outline-hidden group-focus:outline-hidden hover:outline-none' } };
+  assert.deepEqual(focusOutlineProblems(manifest), []);
 });
 
 test('accepts a theme key that is a calc over Arena tokens only', () => {

@@ -4,7 +4,7 @@
     "root": "flex flex-col gap-1.5",
     "label": "font-face-label text-ctl-xs tracking-label-role case-label text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",
     "required": "ml-1 text-[color:var(--fields-required-ink-rest,var(--accent-primary-ink))]",
-    "field": "w-full px-control-x py-control-text-y border-[length:var(--bw-field)] rounded-field font-body text-ctl leading-body outline-none transition-[border-color,box-shadow] duration-[var(--dur-hover)] ease-hover placeholder:text-[color:color-mix(in_oklab,var(--fields-value-ink-rest,var(--ink-body))_var(--level-ink-muted),transparent)] text-[color:var(--fields-value-ink-rest,var(--ink-body))]",
+    "field": "w-full px-control-x py-control-text-y border-[length:var(--bw-field)] rounded-field font-body text-ctl leading-body focus:outline-hidden transition-[border-color,box-shadow] duration-[var(--dur-hover)] ease-hover placeholder:text-[color:color-mix(in_oklab,var(--fields-value-ink-rest,var(--ink-body))_var(--level-ink-muted),transparent)] text-[color:var(--fields-value-ink-rest,var(--ink-body))]",
     "foot": "flex justify-between gap-items",
     "hint": "font-body text-ctl-sm text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",
     "error": "font-body text-ctl-sm text-[color:var(--fields-error-ink-rest,var(--ink-invalid))]",
