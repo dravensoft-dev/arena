@@ -10,7 +10,7 @@
  * not mistaken for a citation of the layer itself. */
 
 import { readFileSync } from 'node:fs';
-import { join, basename, relative, extname, dirname, resolve } from 'node:path';
+import { join, basename, extname, dirname, resolve } from 'node:path';
 import { toPosix, relPosix } from '../../utils/posix-path.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
@@ -153,8 +153,8 @@ export function staleExemptions(matchedKeys: string[]) {
   return [...EXEMPT.keys()].filter((k) => !matched.has(k));
 }
 
-export function staleSpecifierAllowances(allowedHits: string[]) {
-  return [...ALLOWED_SPECIFIERS.keys()]
+export function staleSpecifierAllowances(allowedHits: string[], allowed: Map<RegExp, string> = ALLOWED_SPECIFIERS) {
+  return [...allowed.keys()]
     .filter((re) => !allowedHits.some((spec: string) => re.test(spec)))
     .map((re) => `${re} matches nothing any layer references, so it authorises an edge nobody takes`);
 }

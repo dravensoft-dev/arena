@@ -5,7 +5,8 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readdirSync } from 'node:fs';
+import { readdirSync, mkdtempSync, mkdirSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { readJson } from '../../utils/read-file.ts';
 import {
@@ -144,13 +145,18 @@ test('and the same modifier passes once a contract declares the affordance', () 
   assert.deepEqual(manifestProblems(manifest, new Set(['hover'])).findings, []);
 });
 
-test('THE OTHER HALF: React implementing an affordance its contract does not declare is invented too', () => {
-  const contract = readJson(join(repoRoot, 'contracts/api/components/ArenaBarChart.json'));
-  assert.ok(contract.affordances.includes('hover'), 'ArenaBarChart hovers, and the contract is where that is said');
-  assert.deepEqual(reactProblems('ArenaBarChart', 'charts').findings, []);
-
-  const invented = reactProblems('ArenaBarChart', 'charts');
-  assert.ok(invented.sites > 0, 'a half examining zero sites finds zero violations by construction');
+test('a source implementing an affordance its contract does not declare is a finding', () => {
+  const source = 'export const X = () => <rect onMouseEnter={() => {}} />;';
+  const sites = Object.values(sourceImplements(source)).filter(Boolean).length;
+  assert.equal(sites, 1, 'the source implements hover and nothing else');
+  assert.deepEqual(
+    reactProblems('ArenaX', 'forms', { contract: { affordances: ['focus'] }, source }),
+    { findings: [{ half: 'react', component: 'ArenaX', family: 'hover' }], sites },
+  );
+  assert.deepEqual(
+    reactProblems('ArenaX', 'forms', { contract: { affordances: ['hover'] }, source }),
+    { findings: [], sites },
+  );
 });
 
 test('the react half asks only the components that draw by hand, because the rest answer with their manifest', () => {
@@ -181,6 +187,14 @@ test('a component directory holding no source is a finding, not a silent skip', 
   assert.equal(missingReactSource('NoSuchComponentAtAll', 'display'), null,
     'an absent directory is check:structure\'s claim, not this one\'s');
   assert.equal(missingReactSource('ArenaButton', 'forms'), null);
+  const tmp = mkdtempSync(join(tmpdir(), 'arena-manifest-states-'));
+  try {
+    mkdirSync(join(tmp, 'forms', 'arena-x'), { recursive: true });
+    assert.match(missingReactSource('ArenaX', 'forms', tmp) ?? '',
+      /^ArenaX: frameworks\/react\/components\/forms\/arena-x\/ holds no ArenaX\.tsx and no ArenaX\.jsx/);
+  } finally {
+    rmSync(tmp, { recursive: true, force: true });
+  }
   assert.equal(zeroReactSourceProblems(0).length, 1);
   assert.match(zeroReactSourceProblems(0)[0] ?? '', /checked nothing/);
   assert.deepEqual(zeroReactSourceProblems(1), []);
@@ -200,5 +214,10 @@ test('running against the real tree today produces no findings and no stale entr
 
 test('EXEMPT is empty, and that is a claim: composition is expressed by MANIFEST_COVERS instead', () => {
   assert.equal(EXEMPT.size, 0);
-  assert.deepEqual(staleExemptions([]), []);
+});
+
+test('an EXEMPT key nothing matched is stale, and a matched one is not', () => {
+  const exempt = new Map([['k', 'why']]);
+  assert.deepEqual(staleExemptions([], exempt), ['k']);
+  assert.deepEqual(staleExemptions(['k'], exempt), []);
 });

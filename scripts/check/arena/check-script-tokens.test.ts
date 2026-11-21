@@ -166,10 +166,18 @@ test('a different number is not a shadow, and neither is a non-numeric constant'
   assert.deepEqual(shadowedTokenProblems([sp2], layers), []);
 });
 
-test('SHADOW_EXEMPT is empty, and an entry naming no real constant fails rather than sitting there', () => {
+test('SHADOW_EXEMPT is empty, and that is a claim', () => {
   assert.equal(SHADOW_EXEMPT.size, 0);
-  const layers = [layerWith('react', [], [{ name: 'GAP', value: '8', path: 'a.jsx' }])];
-  assert.deepEqual(staleShadowExemptions(layers), []);
+});
+
+test('a SHADOW_EXEMPT key no layer declares is stale, and a declared one is not', () => {
+  const exempt = new Map([['react:GAP', 'why']]);
+  const gone = [layerWith('react', [], [{ name: 'OTHER', value: '8', path: 'a.jsx' }])];
+  const stale = staleShadowExemptions(gone, exempt);
+  assert.equal(stale.length, 1, 'the key names a constant the layer does not declare');
+  assert.match(stale[0] ?? '', /react:GAP/);
+  const kept = [layerWith('react', [], [{ name: 'GAP', value: '8', path: 'a.jsx' }])];
+  assert.deepEqual(staleShadowExemptions(kept, exempt), []);
 });
 
 test('a dist tree is assembled output, so the gate never reads its copy of a layer', () => {

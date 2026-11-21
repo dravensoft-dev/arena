@@ -182,9 +182,9 @@ export function zeroScanProblems(docs: string[]) {
     : [];
 }
 
-export function staleExemptProblems(docs: string[]) {
+export function staleExemptProblems(docs: string[], exempt: Map<string, string> = EXEMPT) {
   const known = new Set(docs);
-  return [...EXEMPT.keys()]
+  return [...exempt.keys()]
     .filter((rel) => !known.has(rel))
     .map((rel) => `${rel}: is exempt here and is not a consumer document this gate reads`);
 }

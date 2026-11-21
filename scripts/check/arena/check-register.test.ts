@@ -112,10 +112,17 @@ test('an allowance whose every document already reads in this register fails as 
   assert.match(staleSpecProblems(new Map(), entries)[0] ?? '', /matches no document/);
 });
 
-test('an empty scan and a stale exemption are failures rather than a quiet pass', () => {
+test('an empty scan is a failure rather than a quiet pass', () => {
   assert.deepEqual(zeroScanProblems(['a.md']), []);
   assert.match(zeroScanProblems([])[0] ?? '', /passed over nothing/);
-  assert.deepEqual(staleExemptProblems(['a.md']), []);
+});
+
+test('an EXEMPT doc no scan read is stale, and a read one is not', () => {
+  const exempt = new Map([['a.md', 'why']]);
+  const stale = staleExemptProblems([], exempt);
+  assert.equal(stale.length, 1, 'the doc is exempt and no scan read it');
+  assert.match(stale[0] ?? '', /a\.md/);
+  assert.deepEqual(staleExemptProblems(['a.md'], exempt), []);
 });
 
 test('the two limits are the ones the reports name, so a message cannot drift from the rule', () => {

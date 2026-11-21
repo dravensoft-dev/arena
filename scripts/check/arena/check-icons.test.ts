@@ -91,9 +91,12 @@ test('the token pattern takes a class name and leaves ordinary prose alone', () 
   assert.deepEqual(of('ph-arrow-fat-line-up'), ['ph-arrow-fat-line-up']);
 });
 
-test('a stale exemption fails, the way every reason-carrying map here does', () => {
-  assert.deepEqual(staleExemptions(new Set()), [],
-    'nothing is exempt today, so nothing can be stale');
+test('an EXEMPT entry no scan saw is stale, and one it saw is not', () => {
+  const exempt = new Map([['x.svg', 'why']]);
+  const stale = staleExemptions(new Set(), exempt);
+  assert.equal(stale.length, 1, 'the entry is exempt and nothing saw it');
+  assert.match(stale[0] ?? '', /x\.svg/);
+  assert.deepEqual(staleExemptions(new Set(['x.svg']), exempt), []);
 });
 
 test('the walk skips the directories that hold copies, and takes the roots by name', () => {
