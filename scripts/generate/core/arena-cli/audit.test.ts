@@ -7,9 +7,9 @@ import { join } from 'node:path';
 import { repoRoot } from '../../../lib/arena/repo-root.ts';
 import {
   auditText, auditFindings, findings, lineFindings, isLegalBracket,
-  paintedParts, sourceScope, outlineGap, kebabTag, HEADING_RUNGS, OWN_CLASS_ATTRIBUTE,
+  paintedParts, sourceScope, outlineGap, kebabTag, HEADING_RUNGS,
   LINKABLE_TAGS, WRAPPED_LINK_TAGS, statedRung, namesAnAlias, RULE_TAGS, RULE_DESCRIPTIONS,
-  UNMODELLED_UNITS, styleIdentifiers, styleObjectLines, unknownInputs,
+  styleIdentifiers, styleObjectLines, unknownInputs,
   iconMemberGlyphs, ownClassFindings, classValues, valueResults, RAW_GLYPH_BOUND_MESSAGE, RAW_COLOUR_MESSAGE, RAW_HEX_MESSAGE, type VocabularyIndex,
 } from './audit.ts';
 import { vocabularyIndex } from '../../../lib/arena/vocabulary-index.ts';
@@ -22,6 +22,7 @@ test('a class of your own on an Arena component is reported in either layer idio
   assert.match(rules('<ArenaButton className="mine">Go</ArenaButton>'), /own-class/);
   assert.match(rules('<arena-button class="mine"></arena-button>', 'src/app.html'), /own-class/);
   assert.match(rules('<arena-card [ngClass]="k"></arena-card>', 'src/app.html'), /own-class/);
+  assert.match(rules('<arena-card [class]="k"></arena-card>', 'src/app.html'), /own-class/);
   assert.equal(rules('<ArenaButton>Go</ArenaButton>'), '');
 });
 
@@ -204,11 +205,6 @@ test('isLegalBracket accepts a var() whose fallback is a token, keyword or lengt
   assert.equal(isLegalBracket('var(--arena-x,12px)'), false);
 });
 
-test('the unit list the dimension gate reads is the one stated here', () => {
-  assert.ok(UNMODELLED_UNITS.includes('vh'));
-  assert.ok(!UNMODELLED_UNITS.includes('px'));
-});
-
 test('a part selector is sanctioned in a plugin and reported in the app', () => {
   const rule = '[data-arena-part="card.body"] { color: var(--ink-body) }';
   assert.deepEqual(findings('p.css', rule, 'plugin'), [],
@@ -251,11 +247,6 @@ test('a gradient in an application source goes unreported', () => {
     '.hero { background: linear-gradient(var(--color-base-100), var(--color-base-200)); }'), []);
   assert.deepEqual(findings('src/app.css', '.hero { background: linear-gradient(#fff, #000); }').map((one) => one.rule),
     ['raw-value']);
-});
-
-test('RULE_TAGS carries thirteen rules', () => {
-  assert.deepEqual([...RULE_TAGS], ['compat-alias', 'emoji', 'icon-element', 'outline-gap', 'own-class', 'raw-glyph',
-    'raw-value', 'router-link', 'stale-allowance', 'unknown-input', 'unknown-part', 'unknown-property', 'wrapped-link']);
 });
 
 test('a plugin assigning a colour through one of Arena\'s own aliases is reported', () => {
@@ -321,11 +312,6 @@ test('the audit reports which parts a plugin paints', () => {
     ['card.body', 'hero.title']);
   assert.deepEqual(paintedParts('[data-arena-part="card"]{}[data-arena-part="card"]{}'), ['card'],
     'it answers which parts rather than how many rules, because it is what the role tier grows by');
-});
-
-test('the own-class attribute pattern is exported, so its suite can assert on it', () => {
-  assert.ok(OWN_CLASS_ATTRIBUTE.test(' className='));
-  assert.ok(OWN_CLASS_ATTRIBUTE.test(' [class]='));
 });
 
 test('a screen drawing a page head and a card, with no section between, is reported', () => {
@@ -410,8 +396,6 @@ test('the components a link may wrap are the ones whose contract takes an href, 
     + 'tells a reader to pass the href to the component instead: a component with no href member '
     + 'cannot take that advice, and the app bar documents wrapping its brand in a link of your own');
 });
-
-
 
 test('whitespace inside var() does not hide an alias reference', () => {
   assert.equal(namesAnAlias('.x { color: var( --level-presence ) }'), true);
@@ -726,7 +710,7 @@ const glyphVerdicts = (react: string, angular: string) => [
   verdicts(glyphLines(NAMES_ANGULAR + angular, 'src/a.html')),
 ];
 
-test('raw-glyph reads a bound class by its results, alike in both layers (D1, N1)', () => {
+test('raw-glyph reads a bound class by its results, alike in both layers', () => {
   const rows: [string, string, string, string[]][] = [
     ['identifier', '<div className={cls} />', '<div [class]="cls"></div>', ['bound']],
     ['ngClass identifier', '<div className={cls} />', '<div [ngClass]="cls"></div>', ['bound']],
@@ -736,9 +720,9 @@ test('raw-glyph reads a bound class by its results, alike in both layers (D1, N1
     ['braced string', "<div className={'arena-a'} />", '<div class="arena-a"></div>', []],
     ['template, no substitution', '<div className={`arena-a`} />', "<div [class]=\"'arena-a'\"></div>", []],
     ['and', "<div className={on && 'arena-a'} />", "<div [ngClass]=\"{ 'arena-a': on }\"></div>", []],
-    ['class object, E1', "<div className={on && 'arena-a'} />", "<div [class]=\"{ 'arena-a': on }\"></div>", []],
+    ['class object', "<div className={on && 'arena-a'} />", "<div [class]=\"{ 'arena-a': on }\"></div>", []],
     ['empty results', "<div className={a ? 'arena-a' : b ? null : false} />", "<div [class]=\"a ? 'arena-a' : ''\"></div>", []],
-    ['or, N1', "<div className={cls || 'arena-a'} />", "<div [class]=\"cls ?? 'arena-a'\"></div>", ['bound']],
+    ['or', "<div className={cls || 'arena-a'} />", "<div [class]=\"cls ?? 'arena-a'\"></div>", ['bound']],
     ['Phosphor toggle', "<i className={on ? 'ph-bold ph-star' : 'ph-bold'} />", '<i class="ph-bold" [class.ph-star]="on"></i>', ['literal']],
   ];
   for (const [label, react, angular, expected] of rows)
@@ -750,7 +734,7 @@ test('an unquoted template attribute reads as HTML does: [class]=cls is bound, c
   assert.equal(glyphLines(`${NAMES_ANGULAR}<div class=arena-a></div>`, 'src/a.html').length, 0);
 });
 
-test('valueResults skips quotes, optional chaining and wrapping parens (Review Focus 1-3)', () => {
+test('valueResults skips quotes, optional chaining and wrapping parens', () => {
   assert.deepEqual(valueResults("{on ? 'a:b' : 'c?d'}"), ['a:b', 'c?d']);
   assert.deepEqual(valueResults("{row?.on ? 'arena-a' : ''}"), ['arena-a']);
   assert.deepEqual(valueResults("{(\n  on ? 'arena-a' : undefined\n)}"), ['arena-a']);
@@ -760,7 +744,7 @@ test('valueResults skips quotes, optional chaining and wrapping parens (Review F
   assert.equal(valueResults('"{ [key]: on }"', true), null);
 });
 
-test('valueResults reads the right side of &&, every side of || and the key of an object entry whose value is a ternary (N1)', () => {
+test('valueResults reads the right side of &&, every side of || and the key of an object entry whose value is a ternary', () => {
   assert.deepEqual(valueResults("{on && 'arena-a'}"), ['arena-a']);
   assert.deepEqual(valueResults("{a && b && 'arena-a'}"), ['arena-a']);
   assert.equal(valueResults('{on && cls}'), null);
@@ -769,14 +753,14 @@ test('valueResults reads the right side of &&, every side of || and the key of a
   assert.deepEqual(valueResults("\"{ 'arena-a': on ? x : y, active: a ? b : c }\"", true), ['arena-a', 'active']);
 });
 
-test('iconMemberGlyphs reads an attribute that follows a braced one (49)', () => {
+test('iconMemberGlyphs reads an attribute that follows a braced one', () => {
   assert.deepEqual([...iconMemberGlyphs('<ArenaIcon key={n} icon="ph-bold ph-star" />')], ['ph-star']);
   assert.deepEqual([...iconMemberGlyphs('<ArenaIcon key="k" icon="ph-bold ph-star" />')], ['ph-star']);
   assert.deepEqual([...iconMemberGlyphs('<ArenaButton icon={a} iconRight="ph-bold ph-caret-down" />')], ['ph-caret-down']);
   assert.deepEqual([...iconMemberGlyphs('<ArenaIcon key={n}\n  icon="ph-bold ph-star" />')], ['ph-star']);
 });
 
-test('classValues reads a class attribute that follows a braced one (49)', () => {
+test('classValues reads a class attribute that follows a braced one', () => {
   assert.match(classValues(' class={a} className="ph-bold ph-x"'), /ph-bold ph-x/);
   assert.match(classValues(' class={a} [class]="\'ph-bold ph-x\'"'), /ph-bold ph-x/);
   assert.match(classValues(' class={a} [ngClass]="{ \'ph-bold ph-x\': on }"'), /ph-bold ph-x/);

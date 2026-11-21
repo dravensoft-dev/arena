@@ -7,7 +7,7 @@
  * browser composites it over whatever surface is behind. That is what levelReports does.
  * A placeholder is not in EXEMPT: 1.4.3 exempts an INACTIVE component and a field waiting for
  * input is the opposite of one, so the hint inside it is text and is held to 4.5:1 like any.
- * The presence register paints a dot through bg-current, a mark at 3:1 in any property (D92). */
+ * The presence register paints a dot through bg-current, a mark at 3:1 in any property. */
 
 import { contrast } from './validate-palette.mjs';
 import { parseBlocks, selectorPath, COLOUR_VAR, MIXED_VAR } from './css-blocks.ts';

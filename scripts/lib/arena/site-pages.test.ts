@@ -111,7 +111,7 @@ test('a specimen with no title is named by its @dsCard header rather than by its
 test('the site ships the repo sprite and no Phosphor font', async () => {
   const site = await import('./site-pages.ts');
   for (const gone of ['PHOSPHOR', 'PHOSPHOR_KEEP', 'PHOSPHOR_FORMATS', 'phosphorKeeps', 'phosphorDrops', 'phosphorFiles']) {
-    assert.ok(!(gone in site), `${gone} is the site's Phosphor copy, which D20 removes`);
+    assert.ok(!(gone in site), `${gone} is the site's Phosphor copy, which the site does not ship`);
   }
   assert.equal(SPRITE_FILE, 'assets/Icons.generated.svg');
   assert.ok(COPIED.includes('assets') || COPIED_FILES.includes(SPRITE_FILE) || existsSync(join(repoRoot, SPRITE_FILE)),

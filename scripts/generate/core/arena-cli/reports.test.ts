@@ -34,12 +34,6 @@ test('holder names the command that holds a kind, and null for wash or an unknow
   assert.equal(holder('nonsense'), null);
 });
 
-test('heldMessage names the held kinds once each, in first-seen order', () => {
-  const held = [report('glyph', 'a'), report('contrast', 'b'), report('glyph', 'c')];
-  assert.equal(heldMessage(['contrast', 'glyph'], held),
-    '--strict holds contrast, glyph, and this run reports 3 of them: glyph, contrast');
-});
-
 test('a report carries a rule only when it is given one', () => {
   assert.deepEqual(report('glyph', 'a'), { kind: 'glyph', message: 'a' });
   assert.deepEqual(report('audit', 'a', 'emoji'), { kind: 'audit', message: 'a', rule: 'emoji' });
@@ -72,8 +66,22 @@ test('heldAs names the whole kind when it is held whole, and kind:rule otherwise
   assert.equal(heldAs(report('audit', 'b'), ['audit:emoji']), null);
 });
 
-test('heldMessage names a report held by its rule as kind:rule', () => {
-  const held = [report('audit', 'a', 'emoji'), report('restated', 'b'), report('audit', 'c', 'emoji')];
-  assert.equal(heldMessage(['audit:emoji', 'restated'], held),
-    '--strict holds audit:emoji, restated, and this run reports 3 of them: audit:emoji, restated');
+const HELD_MESSAGES: { name: string; holds: string[]; reports: ReturnType<typeof report>[]; expected: string }[] = [
+  {
+    name: 'heldMessage names the held kinds once each, in first-seen order',
+    holds: ['contrast', 'glyph'],
+    reports: [report('glyph', 'a'), report('contrast', 'b'), report('glyph', 'c')],
+    expected: '--strict holds contrast, glyph, and this run reports 3 of them: glyph, contrast',
+  },
+  {
+    name: 'heldMessage names a report held by its rule as kind:rule',
+    holds: ['audit:emoji', 'restated'],
+    reports: [report('audit', 'a', 'emoji'), report('restated', 'b'), report('audit', 'c', 'emoji')],
+    expected: '--strict holds audit:emoji, restated, and this run reports 3 of them: audit:emoji, restated',
+  },
+];
+
+test('heldMessage names the held kinds once each, and a rule-held report as kind:rule', () => {
+  assert.ok(HELD_MESSAGES.length > 0, 'the table has rows');
+  for (const row of HELD_MESSAGES) assert.equal(heldMessage(row.holds, row.reports), row.expected, row.name);
 });

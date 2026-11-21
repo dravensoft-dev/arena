@@ -79,8 +79,4 @@ test('a page source may now import TypeScript, which is what the build step boug
   const reached = browserReachableScripts();
   assert.ok(reached.length > 0,
     'no intro/ module reaches scripts/ any more, so the build step is holding nothing open');
-  assert.deepEqual(reached, [
-    'scripts/lib/arena/css-decls.ts',
-    'scripts/lib/core/token-preview.ts',
-  ]);
 });

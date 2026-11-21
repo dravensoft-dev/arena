@@ -66,7 +66,7 @@ test('text is held to AA, a mark to 3:1, and a tint of a status colour to nothin
 
 test('the presence register is a mark at 3:1 whichever property carries it', () => {
   const dot = { selector: '.arena-avatar__status', state: '.arena-avatar__status', property: 'color', variable: 'ink-muted', percent: 52, level: 'level-presence' };
-  assert.equal(gateFor(dot as never), 3, 'a presence dot paints bg-current from its ink, a graphical object (D92)');
+  assert.equal(gateFor(dot as never), 3, 'a presence dot paints bg-current from its ink, a graphical object');
   assert.equal(gateFor({ ...dot, level: 'level-ink-muted' } as never), 4.5);
 });
 
@@ -401,7 +401,7 @@ test('strict reports an unresolved role, lax skips it', () => {
   assert.match(strict[0]?.message ?? '', /^--edge-focus resolves to no palette colour in the light theme/);
 });
 
-test('the state pairs are the ones D29 and the contrast rule name', () => {
+test('the state pairs are the ones the contrast rule names', () => {
   assert.deepEqual(STATE_PAIRS.map((pair) => `${pair.role}/${pair.over}/${pair.min}`), [
     'edge-focus/fill-page/3', 'edge-focus/fill-surface/3', 'edge-focus/fill-field/3', 'edge-focus/fill-track/3', 'edge-selected/fill-surface/3',
     'edge-invalid/fill-field/3', 'ink-invalid/fill-surface/4.5', 'ink-selected/fill-selected/4.5',

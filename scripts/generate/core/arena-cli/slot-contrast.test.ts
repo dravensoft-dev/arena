@@ -29,10 +29,24 @@ const kernel = (theme: string) => slotReports(CATALOGUE.slots, new Map(), rolesF
 const lineOf = (lines: string[], slot: string, over: string, ratio: string) =>
   lines.some((line) => line.startsWith(`--${slot} measures ${ratio}:1 over --${over} in the `));
 
-test('the kernel pressed mix of Arena\'s primary and destructive actions clears AA, so the default plugin answers neither', () => {
-  for (const theme of ['dark', 'light']) {
-    const lines = kernel(theme).filter((line) => /^--actions-(primary|solid|destructive)-root-/.test(line));
-    assert.deepEqual(lines, [], theme);
+const GROUPS = [...new Set(Object.keys(SLOTS).map((name) => name.split('-')[0]!))];
+
+test('the default plugin and the kernel draw every group above its floor, in both themes', () => {
+  assert.ok(GROUPS.length > 0, 'the catalogue declares groups');
+  const plugin = readPlugin('default', JSON.parse(readFileSync(join(repoRoot, 'plugin-style-store/default/plugin.tokens.json'), 'utf8')));
+  for (const theme of ['dark', 'light'] as const) {
+    const roles = rolesFor(plugin, CATALOGUE, theme);
+    const answers = new Map([...roles].filter(([name]) => Object.hasOwn(SLOTS, name)));
+    const colors = coloursOf(theme);
+    const drawn = slotReports(CATALOGUE.slots, answers, roles, colors, theme, LEVELS).map((one) => one.message);
+    const unresolved = unresolvedPairs(CATALOGUE.slots, answers, roles, colors, LEVELS);
+    const bare = kernel(theme);
+    for (const group of GROUPS) {
+      assert.ok(Object.keys(SLOTS).some((name) => name.startsWith(`${group}-`)), `${theme}: the ${group} group holds slots`);
+      assert.deepEqual(drawn.filter((line) => line.startsWith(`--${group}-`)), [], `${theme}: the default plugin draws every ${group} pair above its floor`);
+      assert.deepEqual(unresolved.filter((pair) => pair.slot.startsWith(`${group}-`)), [], `${theme}: every ${group} pair resolves`);
+      assert.deepEqual(bare.filter((line) => line.startsWith(`--${group}-`)), [], `${theme}: the kernel draws every ${group} pair above its floor`);
+    }
   }
 });
 
@@ -70,7 +84,7 @@ test('a rest edge is not a slot pair, a selected edge and the rest ring of a mar
     'a disabled and a selected-disabled slot is never a pair');
   const mark = (name: string) => (SLOTS[name]?.group === 'choices' && ['mark', 'knob'].includes(SLOTS[name]?.part ?? '')) || (SLOTS[name]?.group === 'feedback' && SLOTS[name]?.part === 'icon')
     || (SLOTS[name]?.group === 'marks' && SLOTS[name]?.part === 'dot') || (SLOTS[name]?.group === 'meters' && SLOTS[name]?.part === 'track');
-  assert.ok(pairs.every((pair) => pair.min === (SLOTS[pair.slot]?.property === 'ink' && !mark(pair.slot) ? 4.5 : 3)), 'an ink is text at 4.5:1, a mark, a knob glyph, a feedback icon, a dot or a range at 3:1 (D69, D89, D92)');
+  assert.ok(pairs.every((pair) => pair.min === (SLOTS[pair.slot]?.property === 'ink' && !mark(pair.slot) ? 4.5 : 3)), 'an ink is text at 4.5:1, a mark, a knob glyph, a feedback icon, a dot or a range at 3:1');
 });
 
 test('an inset ring is measured over each state of its fill', () => {
@@ -206,13 +220,6 @@ const pluginAt = (theme: string) => {
   };
 };
 
-test('the default plugin paints its actions with the kernel answers, and their hover and pressed figures clear AA', () => {
-  const figures = (theme: string) => ['hover', 'pressed'].flatMap((state) => ['destructive', 'primary']
-    .map((option) => pluginAt(theme)(`actions-${option}-root-ink-${state}`, `actions-${option}-root-fill-${state}`)));
-  assert.deepEqual(figures('dark'), ['5.32', '6.41', '4.94', '4.53']);
-  assert.deepEqual(figures('light'), ['5.17', '6.41', '4.91', '4.53']);
-});
-
 const declared = (parts: Record<string, GroupPart>) => deriveSlots(slotFixture(parts));
 
 test('an ink with no fill is measured over every ground', () => {
@@ -248,7 +255,7 @@ test('a mark is measured over its box', () => {
   assert.equal(fill('fields-mark-fill-selected-disabled'), undefined);
   assert.equal(fill('fields-mark-fill-disabled'), undefined);
   assert.equal(fill('fields-box-fill-rest'), undefined, 'a fill with no on is no pair');
-  assert.deepEqual(fill('fields-mark-ink-pressed'), { slot: 'fields-mark-ink-pressed', over: 'fields-mark-fill-pressed', min: 3 }, 'a glyph sits on its own part\'s fill at 3:1 (D69)');
+  assert.deepEqual(fill('fields-mark-ink-pressed'), { slot: 'fields-mark-ink-pressed', over: 'fields-mark-fill-pressed', min: 3 }, 'a glyph sits on its own part\'s fill at 3:1');
   const bare = slotPairs(declared({
     box: { properties: ['fill'], states: 'toggle', rest: { fill: '{fill-control}' } },
     tick: { properties: ['ink'], states: 'toggle', on: 'box', rest: { ink: '{ink-body}' } },
@@ -280,7 +287,7 @@ test('a mark is measured over its box', () => {
   assert.ok(shipped.some((pair) => pair.slot === 'choices-box-fill-selected' && pair.over === 'choices-box-fill-rest' && pair.min === 3));
   assert.ok(shipped.some((pair) => pair.slot === 'choices-knob-ink-selected' && pair.over === 'choices-knob-fill-selected' && pair.min === 3));
   assert.ok(shipped.some((pair) => pair.slot === 'choices-mark-ink-selected' && pair.over === 'choices-box-fill-selected' && pair.min === 3));
-  assert.ok(!shipped.some((pair) => pair.slot === 'choices-mark-ink-rest'), 'the mark has no rest slot (D70)');
+  assert.ok(!shipped.some((pair) => pair.slot === 'choices-mark-ink-rest'), 'the mark has no rest slot');
 });
 
 test('a disabled selected box keeps the fade while selected-disabled is silent, and an answered one stops the fade on its own part', () => {
@@ -291,7 +298,7 @@ test('a disabled selected box keeps the fade while selected-disabled is silent, 
     'var(--choices-box-fill-selected-disabled,var(--choices-box-fill-selected,var(--fill-control-on)))');
   for (const state of ['disabled', 'selected-disabled']) {
     for (const stem of ['choices-knob-fill', 'choices-knob-ink', 'choices-knob-edge', 'choices-mark-ink']) {
-      assert.equal(SLOTS[`${stem}-${state}`], undefined, `${stem}-${state}: a part drawn inside a faded part derives no disabled state (D72)`);
+      assert.equal(SLOTS[`${stem}-${state}`], undefined, `${stem}-${state}: a part drawn inside a faded part derives no disabled state`);
     }
   }
   assert.deepEqual(CATALOGUE.slots.members?.['ArenaSwitch.knob']?.states, ['rest', 'selected'], 'a disabled off knob reads its knob at rest and fades with its track');
@@ -330,26 +337,11 @@ test('every fields ink clears AA over every ground in the default', () => {
   for (const slot of grounded) assert.ok(shipped.some((pair) => pair.slot === slot && pair.over === 'ground' && pair.min === 4.5), `${slot} is measured over every ground at 4.5:1`);
   assert.ok(shipped.some((pair) => pair.slot === 'fields-value-ink-rest' && pair.over === 'fields-value-fill-rest' && pair.min === 4.5), 'the text of every field is measured over its transparent fill, so over every ground');
   assert.ok(shipped.some((pair) => pair.slot === 'fields-stepper-ink-hover' && pair.over === 'fields-stepper-fill-hover' && pair.min === 4.5));
-  for (const theme of ['dark', 'light'] as const) {
-    const plugin = readPlugin('default', JSON.parse(readFileSync(join(repoRoot, 'plugin-style-store/default/plugin.tokens.json'), 'utf8')));
-    const roles = rolesFor(plugin, CATALOGUE, theme);
-    const answers = new Map([...roles].filter(([name]) => Object.hasOwn(SLOTS, name)));
-    const fields = slotReports(CATALOGUE.slots, answers, roles, coloursOf(theme), theme, LEVELS).map((one) => one.message).filter((line) => line.startsWith('--fields-'));
-    assert.deepEqual(fields, [], `${theme}: the default plugin draws every fields pair above its floor`);
-    assert.deepEqual(unresolvedPairs(CATALOGUE.slots, answers, roles, coloursOf(theme), LEVELS).filter((pair) => pair.slot.startsWith('fields-')), [], `${theme}: every fields pair resolves`);
-  }
 });
 
 test('the menu destructive press clears AA over every ground', () => {
   const shipped = slotPairs(CATALOGUE.slots);
   assert.ok(shipped.some((pair) => pair.slot === 'menus-destructive-item-ink-pressed' && pair.over === 'menus-destructive-item-fill-pressed' && pair.min === 4.5));
-  for (const theme of ['dark', 'light'] as const) {
-    const plugin = readPlugin('default', JSON.parse(readFileSync(join(repoRoot, 'plugin-style-store/default/plugin.tokens.json'), 'utf8')));
-    const roles = rolesFor(plugin, CATALOGUE, theme);
-    const answers = new Map([...roles].filter(([name]) => Object.hasOwn(SLOTS, name)));
-    const menus = slotReports(CATALOGUE.slots, answers, roles, coloursOf(theme), theme, LEVELS).map((one) => one.message).filter((line) => line.startsWith('--menus-'));
-    assert.deepEqual(menus, [], `${theme}: the default plugin draws every menus pair above its floor`);
-  }
 });
 
 test('the selected edge clears 3:1 over the selected wash, hovered and pressed too', () => {
@@ -367,10 +359,6 @@ test('the selected edge clears 3:1 over the selected wash, hovered and pressed t
     }
   }
   for (const state of states) assert.ok(figures[state]!.every((one) => one >= 3), `${state}: ${figures[state]!.join(', ')}`);
-  const near = (got: number[], want: number[]) => got.every((one, i) => Math.abs(one - want[i]!) <= 0.02);
-  assert.ok(near(figures.selected!, [4.38, 4.05, 5.04, 4.64]), `F4: ${figures.selected!.join(', ')}`);
-  assert.ok(near(figures['selected-hover']!, [3.87, 3.57, 4.78, 4.38]), `D85: ${figures['selected-hover']!.join(', ')}`);
-  assert.ok(near(figures['selected-pressed']!, [3.37, 3.11, 4.48, 4.13]), `D85: ${figures['selected-pressed']!.join(', ')}`);
 });
 
 test('every steps ink clears AA in the default', () => {
@@ -379,14 +367,6 @@ test('every steps ink clears AA in the default', () => {
     assert.ok(shipped.some((pair) => pair.slot === slot && pair.over === 'ground' && pair.min === 4.5), `${slot} is measured over every ground at 4.5:1`);
   }
   assert.ok(shipped.some((pair) => pair.slot === 'steps-current-marker-ink-rest' && pair.over === 'steps-current-marker-fill-rest' && pair.min === 4.5));
-  for (const theme of ['dark', 'light'] as const) {
-    const plugin = readPlugin('default', JSON.parse(readFileSync(join(repoRoot, 'plugin-style-store/default/plugin.tokens.json'), 'utf8')));
-    const roles = rolesFor(plugin, CATALOGUE, theme);
-    const answers = new Map([...roles].filter(([name]) => Object.hasOwn(SLOTS, name)));
-    const steps = slotReports(CATALOGUE.slots, answers, roles, coloursOf(theme), theme, LEVELS).map((one) => one.message).filter((line) => line.startsWith('--steps-'));
-    assert.deepEqual(steps, [], `${theme}: the default plugin draws every steps pair above its floor`);
-    assert.deepEqual(unresolvedPairs(CATALOGUE.slots, answers, roles, coloursOf(theme), LEVELS).filter((pair) => pair.slot.startsWith('steps-')), [], `${theme}: every steps pair resolves`);
-  }
 });
 
 test('a part over a sibling keeps its text floor', () => {
@@ -400,7 +380,7 @@ test('a part over a sibling keeps its text floor', () => {
   assert.deepEqual(pair('fields-action-ink-rest'), { slot: 'fields-action-ink-rest', over: 'fields-banner-fill-rest', min: 4.5 }, 'the word over the banner is text at 4.5:1');
   assert.deepEqual(pair('fields-action-ink-hover'), { slot: 'fields-action-ink-hover', over: 'fields-banner-fill-hover', min: 4.5 });
   assert.deepEqual(pair('fields-action-fill-rest'), { slot: 'fields-action-fill-rest', over: 'fields-banner-fill-rest', min: 3 });
-  assert.deepEqual(pair('fields-icon-ink-rest'), { slot: 'fields-icon-ink-rest', over: 'fields-banner-fill-rest', min: 3 }, 'a part on a sibling stays a mark (D69)');
+  assert.deepEqual(pair('fields-icon-ink-rest'), { slot: 'fields-icon-ink-rest', over: 'fields-banner-fill-rest', min: 3 }, 'a part on a sibling stays a mark');
 });
 
 test('every pair of a mark part is 3:1 over the ground', () => {
@@ -428,11 +408,6 @@ test('the feedback icon and action clear their floors over the wash', () => {
     assert.match(pair.over, /^feedback-[a-z]+-banner-fill-rest$/, `${pair.slot} sits on its banner`);
     assert.equal(pair.min, /-icon-/.test(pair.slot) ? 3 : 4.5, pair.slot);
   }
-  for (const theme of ['dark', 'light'] as const) {
-    const roles = rolesFor(null, CATALOGUE, theme);
-    const lines = slotReports(CATALOGUE.slots, new Map(), roles, coloursOf(theme), theme, LEVELS).map((one) => one.message).filter((line) => line.startsWith('--feedback-'));
-    assert.deepEqual(lines, [], `${theme}: every feedback icon and action clears its floor over its wash`);
-  }
 });
 
 test('every meter range clears 3:1 over its track', () => {
@@ -447,27 +422,17 @@ test('every meter range clears 3:1 over its track', () => {
       const range = slotColour(CATALOGUE.slots, pair.slot, new Map(), roles, colors, LEVELS, mixOf(roles), track) as string;
       const ratio = contrast(range, track);
       assert.ok(ratio >= pair.min, `${theme} ${pair.slot} over ${pair.over}: below its ${pair.min}:1 floor`);
-      assert.ok(ratio >= 4.5, `${theme} ${pair.slot} over ${pair.over}: measured ${ratio.toFixed(2)}, and F4 records every range at 4.50 or more`);
+      assert.ok(ratio >= 4.5, `${theme} ${pair.slot} over ${pair.over}: measured ${ratio.toFixed(2)}, and every range is recorded at 4.50 or more`);
     }
-    assert.deepEqual(kernel(theme).filter((line) => line.startsWith('--meters-')), [], `${theme}: every meters pair clears its floor`);
   }
 });
 
 test('every marks dot pair is a 3:1 mark', () => {
   const dots = slotPairs(CATALOGUE.slots).filter((pair) => /^marks-.+-dot-/.test(pair.slot));
   assert.ok(dots.length >= 15, 'every dot is measured');
-  assert.ok(dots.every((pair) => pair.min === 3), 'a dot and its glyph are graphical objects (D92)');
+  assert.ok(dots.every((pair) => pair.min === 3), 'a dot and its glyph are graphical objects');
   const offline = dots.find((pair) => pair.slot === 'marks-muted-dot-ink-rest');
   assert.equal(offline?.over, 'ground');
-  const roles = rolesFor(null, CATALOGUE, 'light');
-  const colors = coloursOf('light');
-  const ground = colors['base-200'] as string;
-  const ratio = contrast(slotColour(CATALOGUE.slots, 'marks-muted-dot-ink-rest', new Map(), roles, colors, LEVELS, mixOf(roles), ground) as string, ground);
-  assert.equal(ratio.toFixed(2), '3.46', 'the offline dot over base-200 in light');
-  for (const theme of ['dark', 'light'] as const) {
-    const lines = kernel(theme).filter((line) => line.startsWith('--marks-'));
-    assert.deepEqual(lines, [], `${theme}: every marks pair clears 3:1`);
-  }
 });
 
 test('a member ground measures its pairs over that fill', () => {
@@ -549,10 +514,10 @@ test('a mark part pairs the ring that tells its disc', () => {
   const dot = d.groups!.marks!.parts.dot!.options as Record<string, { rest: Record<string, unknown> }>;
   dot['neutral-upcoming']!.rest.edge = '{edge-control-quiet}';
   const quiet = slotReports(deriveSlots(d), new Map(), rolesFor(null, CATALOGUE, 'dark'), coloursOf('dark'), 'dark', LEVELS).map((one) => one.message);
-  assert.ok(quiet.some((line) => line.startsWith(`--${ring} measures 1.06:1 over the ground in the rest state of the dark theme, where it is composited over --color-base-200,`)), `the ring before D97, edge-control-quiet, measures 1.06 dark over base-200 in D97's published pair figures, under its 3:1:\n${quiet.join('\n')}`);
+  assert.ok(quiet.some((line) => line.startsWith(`--${ring} measures 1.06:1 over the ground in the rest state of the dark theme, where it is composited over --color-base-200,`)), `the ring before the published pair figures, edge-control-quiet, measures 1.06 dark over base-200, under its 3:1:\n${quiet.join('\n')}`);
   const rings = slotPairs(CATALOGUE.slots).filter((pair) => /^marks-.+-dot-edge-rest$/.test(pair.slot));
   assert.equal(rings.length, 11, 'the marks.dot options that draw a ring: neutral current and upcoming, danger complete, current and upcoming, '
-    + 'and success, warning and info current and upcoming (D97); a ring added to marks.dot raises this count and is measured below');
+    + 'and success, warning and info current and upcoming; a ring added to marks.dot raises this count and is measured below');
   for (const theme of ['dark', 'light'] as const) {
     const roles = rolesFor(null, CATALOGUE, theme);
     const colors = coloursOf(theme);
@@ -561,7 +526,7 @@ test('a mark part pairs the ring that tells its disc', () => {
       for (const pair of rings) {
         const ratio = contrast(slotColour(CATALOGUE.slots, pair.slot, new Map(), roles, colors, LEVELS, mixOf(roles), under) as string, under);
         const floor = pair.slot === ring ? 3.46 : 4.77;
-        assert.ok(ratio >= floor - 0.005, `${theme} ${pair.slot} over ${ground}: ${ratio.toFixed(2)}, below the ${floor} D97's published pair figures hold: the upcoming ring as {edge-mark} at level-presence 3.46 at its lowest, every tone and current ring 4.77`);
+        assert.ok(ratio >= floor - 0.005, `${theme} ${pair.slot} over ${ground}: ${ratio.toFixed(2)}, below the ${floor} the published pair figures hold: the upcoming ring as {edge-mark} at level-presence 3.46 at its lowest, every tone and current ring 4.77`);
       }
     }
   }

@@ -27,7 +27,7 @@ export function removeFixtures() {
 }
 
 export async function whileHeld<T>(name: string, body: () => T | Promise<T>): Promise<T> {
-  RESERVED.set(name, 'ArenaHeld, a name held for one case (spec 00)');
+  RESERVED.set(name, 'ArenaHeld, a name held for one case');
   try {
     return await body();
   } finally {

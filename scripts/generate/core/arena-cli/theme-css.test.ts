@@ -201,7 +201,7 @@ test('a palette named after a class Arena is going to ship is refused, with or w
   for (const sheets of [withScopes(['light', 'stat-card']), undefined]) {
     const problems = configProblems(c, sheets);
     assert.equal(problems.length, 1);
-    assert.match(problems[0] ?? '', /^palettes\[1\]\.name: "held-name" is held for ArenaHeld, a name held for one case \(spec 00\)/);
+    assert.match(problems[0] ?? '', /^palettes\[1\]\.name: "held-name" is held for ArenaHeld, a name held for one case/);
   }
 }));
 
@@ -849,39 +849,42 @@ test('resolvedPlugin follows a role alias to the colour the named role resolves 
   assert.equal(resolvedPlugin(plugin, ALIASED).get('ink-key'), 'var(--color-primary)');
 });
 
-test('a weight a role asks for and the face never carries is reported', () => {
-  const c = config();
-  c.fonts.display.family = 'Baloo 2';
-  c.fonts.display.src = 'https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&display=swap';
-  const plugin = readPlugin('bank', {
-    'ff-heading': { $type: 'fontFamily', $value: '{font.display}' },
-    'fw-heading': { $type: 'fontWeight', $value: '{fw.black}' },
-  });
-  const messages = weightReports(c, SHEETS_FULL.catalogue, [plugin]);
-  assert.ok(messages.some((m) => m.kind === 'weight' && m.message.includes('900')
-    && m.message.includes('Baloo 2')),
-  'the face tops out at 800, so 900 is a weight the browser draws by smearing the 800');
-});
+const WEIGHT_REPORTS: { name: string; family?: string; src: string; expected: string[] | null; why?: string }[] = [
+  {
+    name: 'a weight a role asks for and the face never carries is reported',
+    family: 'Baloo 2',
+    src: 'https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&display=swap',
+    expected: ['900', 'Baloo 2'],
+    why: 'the face tops out at 800, so 900 is a weight the browser draws by smearing the 800',
+  },
+  {
+    name: 'a weight the face does carry is not reported',
+    src: 'https://fonts.googleapis.com/css2?family=Baloo+2:wght@400..900&display=swap',
+    expected: null,
+  },
+  {
+    name: 'a src that says nothing about weight is left alone rather than guessed at',
+    src: './fonts/display.woff2',
+    expected: null,
+    why: 'a self-hosted file declares its own range and this command cannot open it',
+  },
+];
 
-test('a weight the face does carry is not reported', () => {
-  const c = config();
-  c.fonts.display.src = 'https://fonts.googleapis.com/css2?family=Baloo+2:wght@400..900&display=swap';
-  const plugin = readPlugin('bank', {
-    'ff-heading': { $type: 'fontFamily', $value: '{font.display}' },
-    'fw-heading': { $type: 'fontWeight', $value: '{fw.black}' },
-  });
-  assert.deepEqual(weightReports(c, SHEETS_FULL.catalogue, [plugin]), []);
-});
-
-test('a src that says nothing about weight is left alone rather than guessed at', () => {
-  const c = config();
-  const plugin = readPlugin('bank', {
-    'ff-heading': { $type: 'fontFamily', $value: '{font.display}' },
-    'fw-heading': { $type: 'fontWeight', $value: '{fw.black}' },
-  });
-  c.fonts.display.src = './fonts/display.woff2';
-  assert.deepEqual(weightReports(c, SHEETS_FULL.catalogue, [plugin]), [],
-    'a self-hosted file declares its own range and this command cannot open it');
+test('a weight a role asks for is reported when the face never carries it, and not when it may', () => {
+  assert.ok(WEIGHT_REPORTS.length > 0, 'the table has rows');
+  for (const row of WEIGHT_REPORTS) {
+    const c = config();
+    if (row.family) c.fonts.display.family = row.family;
+    c.fonts.display.src = row.src;
+    const plugin = readPlugin('bank', {
+      'ff-heading': { $type: 'fontFamily', $value: '{font.display}' },
+      'fw-heading': { $type: 'fontWeight', $value: '{fw.black}' },
+    });
+    const messages = weightReports(c, SHEETS_FULL.catalogue, [plugin]);
+    const message = row.why ? `${row.name}: ${row.why}` : row.name;
+    if (row.expected === null) assert.deepEqual(messages, [], message);
+    else assert.ok(messages.some((m) => m.kind === 'weight' && row.expected!.every((part) => m.message.includes(part))), message);
+  }
 });
 
 test('a face alias becomes a var() too, because the face is the consumer\'s', () => {
@@ -1250,7 +1253,7 @@ test('a colour reference is restated inside every palette, because a var() compu
     + 'into every other one, so a second palette keeps the first one\'s card fill');
 });
 
-test('gradientMark is an unknown config key', () => {
+test('a top-level configuration key Arena does not have is a problem, naming the key and the keys it has', () => {
   const problems = configProblems(config({ gradientMark: true } as never));
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /gradientMark/);
@@ -1298,53 +1301,81 @@ const contrastMessages = (c: any, answers: Record<string, string>) =>
   (paletteReports(c, COLOUR_ROLES as any, [answered(answers)])[0]?.messages ?? [])
     .filter((m) => m.kind === 'contrast' && /^--(edge|hue)-/.test(m.message)).map((m) => m.message);
 
-test('an axis answered with no more contrast than the grid is reported under contrast, in words that hold for a darker one too', () => {
-  const [message] = contrastMessages(axisConfig(),
-    { 'edge-separator': '{color.base-300}', 'edge-axis': '{color.neutral}' });
-  assert.match(message ?? '', new RegExp('^--edge-axis has no more contrast than --edge-separator in the light theme '
-    + `\\(${RATIO} against ${RATIO} on base-100\\), so a chart's axis reads no heavier than its grid$`));
-  assert.doesNotMatch(message ?? '', /lighter/);
+const AXIS_REPORTS: { name: string; config: () => ReturnType<typeof axisConfig>; answers: Record<string, string>; expected: RegExp | null }[] = [
+  {
+    name: 'an axis answered with no more contrast than the grid is reported under contrast, in words that hold for a darker one too',
+    config: axisConfig,
+    answers: { 'edge-separator': '{color.base-300}', 'edge-axis': '{color.neutral}' },
+    expected: new RegExp('^--edge-axis has no more contrast than --edge-separator in the light theme '
+      + `\\(${RATIO} against ${RATIO} on base-100\\), so a chart's axis reads no heavier than its grid$`),
+  },
+  {
+    name: 'an axis answered with the same neutral as the grid is reported as having the same contrast',
+    config: axisConfig,
+    answers: { 'edge-separator': '{color.neutral}', 'edge-axis': '{color.neutral}' },
+    expected: new RegExp('^--edge-axis has the same contrast as --edge-separator in the light theme '
+      + `\\(${RATIO} against ${RATIO} on base-100\\), so a chart's axis reads no heavier than its grid$`),
+  },
+  {
+    name: 'an axis darker than the grid on a dark base-100, with no more contrast than it, is reported in the same words',
+    config: darkAxisConfig,
+    answers: { 'edge-separator': '{color.base-300}', 'edge-axis': '{color.neutral}' },
+    expected: new RegExp('^--edge-axis has no more contrast than --edge-separator in the dark theme '
+      + `\\(${RATIO} against ${RATIO} on base-100\\), so a chart's axis reads no heavier than its grid$`),
+  },
+  {
+    name: 'an axis answered with base-content, heavier than the grid, is not reported',
+    config: axisConfig,
+    answers: { 'edge-separator': '{color.base-300}', 'edge-axis': '{color.base-content}' },
+    expected: null,
+  },
+];
+
+test('an axis with no more contrast than its grid is reported, and one heavier than it is not', () => {
+  assert.ok(AXIS_REPORTS.length > 0, 'the table has rows');
+  for (const row of AXIS_REPORTS) {
+    const messages = contrastMessages(row.config(), row.answers);
+    if (row.expected === null) {
+      assert.deepEqual(messages, [], row.name);
+      continue;
+    }
+    const [message] = messages;
+    assert.match(message ?? '', row.expected, row.name);
+    assert.doesNotMatch(message ?? '', /lighter/, row.name);
+  }
 });
 
-test('an axis answered with the same neutral as the grid is reported as having the same contrast', () => {
-  const [message] = contrastMessages(axisConfig(),
-    { 'edge-separator': '{color.neutral}', 'edge-axis': '{color.neutral}' });
-  assert.match(message ?? '', new RegExp('^--edge-axis has the same contrast as --edge-separator in the light theme '
-    + `\\(${RATIO} against ${RATIO} on base-100\\), so a chart's axis reads no heavier than its grid$`));
-  assert.doesNotMatch(message ?? '', /lighter/);
-});
+const HUE_ON_INK: { name: string; palette: Record<string, string>; answers: Record<string, string>; expected: RegExp | null }[] = [
+  {
+    name: 'a status hue whose on-ink measures under 4.5:1 over its ink is reported with its ratio',
+    palette: { 'base-100': '#101010', error: '#aa3333', info: '#334455', 'base-content': '#f0f0f0' },
+    answers: {
+      'hue-danger-ink': '{color.error}', 'hue-danger-on-ink': '{color.base-100}',
+      'hue-info-ink': '{color.info}', 'hue-info-on-ink': '{color.base-content}',
+    },
+    expected: new RegExp('^--hue-danger-on-ink measures \\d\\.\\d\\d:1 over '
+      + '--hue-danger-ink in the dark theme, below 4\\.5:1, so a solid badge\'s label is hard to read$'),
+  },
+  {
+    name: 'a status hue whose on-ink clears 4.5:1 over its ink is not reported',
+    palette: { 'base-100': '#101010', error: '#ff8888' },
+    answers: { 'hue-danger-ink': '{color.error}', 'hue-danger-on-ink': '{color.base-100}' },
+    expected: null,
+  },
+];
 
-test('an axis darker than the grid on a dark base-100, with no more contrast than it, is reported in the same words', () => {
-  const [message] = contrastMessages(darkAxisConfig(),
-    { 'edge-separator': '{color.base-300}', 'edge-axis': '{color.neutral}' });
-  assert.match(message ?? '', new RegExp('^--edge-axis has no more contrast than --edge-separator in the dark theme '
-    + `\\(${RATIO} against ${RATIO} on base-100\\), so a chart's axis reads no heavier than its grid$`));
-  assert.doesNotMatch(message ?? '', /lighter/);
-});
-
-test('an axis answered with base-content, heavier than the grid, is not reported', () => {
-  assert.deepEqual(contrastMessages(axisConfig(),
-    { 'edge-separator': '{color.base-300}', 'edge-axis': '{color.base-content}' }), []);
-});
-
-test('a status hue whose on-ink measures under 4.5:1 over its ink is reported with its ratio', () => {
-  const c = config({ palettes: [{ name: 'night', default: true, polarity: 'dark', colors: colors({
-    'base-100': '#101010', error: '#aa3333', info: '#334455', 'base-content': '#f0f0f0',
-  }) }] });
-  const messages = contrastMessages(c, {
-    'hue-danger-ink': '{color.error}', 'hue-danger-on-ink': '{color.base-100}',
-    'hue-info-ink': '{color.info}', 'hue-info-on-ink': '{color.base-content}',
-  });
-  assert.equal(messages.length, 1);
-  assert.match(messages[0] ?? '', new RegExp('^--hue-danger-on-ink measures \\d\\.\\d\\d:1 over '
-    + '--hue-danger-ink in the dark theme, below 4\\.5:1, so a solid badge\'s label is hard to read$'));
-});
-
-test('a status hue whose on-ink clears 4.5:1 over its ink is not reported', () => {
-  const c = config({ palettes: [{ name: 'night', default: true, polarity: 'dark', colors: colors({
-    'base-100': '#101010', error: '#ff8888',
-  }) }] });
-  assert.deepEqual(contrastMessages(c, { 'hue-danger-ink': '{color.error}', 'hue-danger-on-ink': '{color.base-100}' }), []);
+test('a status hue whose on-ink falls under 4.5:1 over its ink is reported, and one that clears it is not', () => {
+  assert.ok(HUE_ON_INK.length > 0, 'the table has rows');
+  for (const row of HUE_ON_INK) {
+    const c = config({ palettes: [{ name: 'night', default: true, polarity: 'dark', colors: colors(row.palette) }] });
+    const messages = contrastMessages(c, row.answers);
+    if (row.expected === null) {
+      assert.deepEqual(messages, [], row.name);
+      continue;
+    }
+    assert.equal(messages.length, 1, row.name);
+    assert.match(messages[0] ?? '', row.expected, row.name);
+  }
 });
 
 test('a derived heat ladder whose steps do not rise or fall in lightness is reported once, by its order', () => {
@@ -1354,18 +1385,39 @@ test('a derived heat ladder whose steps do not rise or fall in lightness is repo
   assert.match(JSON.stringify(reports[0]), /do not rise or fall in lightness/);
 });
 
-test('heatOrderReports accepts a ladder that moves away from the surface, on a light and on a dark surface', () => {
-  assert.deepEqual(heatOrderReports(['#e0e0e0', '#b0b0b0', '#808080', '#505050', '#101010'], '#ffffff'), []);
-  assert.deepEqual(heatOrderReports(['#202020', '#505050', '#808080', '#b0b0b0', '#f0f0f0'], '#000000'), []);
-});
+const HEAT_ORDER: { name: string; ladder: string[]; surface: string; length: number; at?: number; message?: RegExp; why?: string }[] = [
+  { name: 'heatOrderReports accepts a ladder that moves away from a light surface', ladder: ['#e0e0e0', '#b0b0b0', '#808080', '#505050', '#101010'], surface: '#ffffff', length: 0 },
+  { name: 'heatOrderReports accepts a ladder that moves away from a dark surface', ladder: ['#202020', '#505050', '#808080', '#b0b0b0', '#f0f0f0'], surface: '#000000', length: 0 },
+  {
+    name: 'heatOrderReports reports a step no further from the surface than the one before, naming both steps',
+    ladder: ['#101010', '#505050', '#808080', '#b0b0b0', '#e0e0e0'],
+    surface: '#ffffff',
+    length: 4,
+    at: 0,
+    message: /heat, steps 1 and 2: step 2 is no further from the surface than step 1/,
+  },
+  {
+    name: 'heatOrderReports reports a reversed ladder on a dark surface as it does on a light one',
+    ladder: ['#f0f0f0', '#b0b0b0', '#808080', '#505050', '#202020'],
+    surface: '#000000',
+    length: 4,
+    at: 3,
+    message: /steps 4 and 5/,
+    why: 'a reversed ladder on a dark surface is reported as it is on a light one',
+  },
+];
 
-test('heatOrderReports reports a step no further from the surface than the one before, naming both steps', () => {
-  const light = heatOrderReports(['#101010', '#505050', '#808080', '#b0b0b0', '#e0e0e0'], '#ffffff');
-  assert.equal(light.length, 4);
-  assert.match(JSON.stringify(light[0]), /heat, steps 1 and 2: step 2 is no further from the surface than step 1/);
-  const dark = heatOrderReports(['#f0f0f0', '#b0b0b0', '#808080', '#505050', '#202020'], '#000000');
-  assert.equal(dark.length, 4, 'a reversed ladder on a dark surface is reported as it is on a light one');
-  assert.match(JSON.stringify(dark[3]), /steps 4 and 5/);
+test('heatOrderReports accepts a ladder that moves away from the surface and reports a step that does not', () => {
+  assert.ok(HEAT_ORDER.length > 0, 'the table has rows');
+  for (const row of HEAT_ORDER) {
+    const reports = heatOrderReports(row.ladder, row.surface);
+    if (row.length === 0) {
+      assert.deepEqual(reports, [], row.name);
+      continue;
+    }
+    assert.equal(reports.length, row.length, row.why ? `${row.name}: ${row.why}` : row.name);
+    assert.match(JSON.stringify(reports[row.at!]), row.message!, row.name);
+  }
 });
 
 const HEAT_ROLES = {
@@ -1420,7 +1472,9 @@ const ROOT_ONLY = {
   environment: ':root {\n  --pad-safe-top: max(var(--sp-0), env(safe-area-inset-top));\n  --title-hero-fit: clamp(1px, 2px, 3px);\n}\n',
 };
 
-test('each later plugin restates the high-contrast widths and the hero fit after its own block', () => {
+const HC_ROOT = '@media (prefers-contrast: more) {\n:root{';
+
+test('each later plugin restates the high-contrast widths and the hero fit after its own block, once', () => {
   const css = themeCss(listed(['console', 'marketing', 'ops']), {
     sheets: { ...SHEETS_FULL, rootOnly: ROOT_ONLY }, plugins: [total(), scoped(), readPlugin('ops', { 'bw-surface': { $type: 'dimension', $value: { value: 2, unit: 'px' } } })],
   });
@@ -1432,54 +1486,83 @@ test('each later plugin restates the high-contrast widths and the hero fit after
   }
   assert.doesNotMatch(css, /:root\{[^}]*--title-hero-fit/, 'the root plugin takes the high-contrast block and not the hero fit');
   assert.doesNotMatch(css, /pad-safe/, 'only the hero fit is taken from environment.css');
-});
-
-const HC_ROOT = '@media (prefers-contrast: more) {\n:root{';
-
-test('a project\'s own root plugin is followed by the high-contrast :root block, and not by the hero fit', () => {
-  const css = themeCss(listed(['console', 'marketing']), {
-    sheets: { ...SHEETS_FULL, rootOnly: ROOT_ONLY }, plugins: [total(), scoped()],
-  });
-  const answers = css.search(/:root\{[^}]*--bw-surface:1px;/);
-  const media = css.indexOf(HC_ROOT);
-  assert.ok(answers >= 0 && media > answers, 'the media block follows the root answers block');
-  assert.match(css.slice(media, css.indexOf('\n}\n', media)), /--bw-surface:var\(--bw-strong\);/);
-  assert.doesNotMatch(css, /:root\{[^}]*--title-hero-fit/);
-});
-
-test('a default root emits no :root restatement', () => {
-  const css = themeCss(listed(['default', 'marketing']), {
-    sheets: { ...SHEETS_FULL, rootOnly: ROOT_ONLY }, plugins: [null, scoped()],
-  });
-  assert.ok(!css.includes(HC_ROOT));
-  assert.ok(css.includes('@media (prefers-contrast: more) {\n.arena-marketing{'));
-});
-
-test('each of several plugins gets exactly one high-contrast block', () => {
-  const css = themeCss(listed(['console', 'marketing', 'ops']), {
-    sheets: { ...SHEETS_FULL, rootOnly: ROOT_ONLY },
-    plugins: [total(), scoped(), readPlugin('ops', { 'bw-surface': { $type: 'dimension', $value: { value: 2, unit: 'px' } } })],
-  });
   const count = (text: string) => css.split(text).length - 1;
   assert.equal(count(HC_ROOT), 1);
   for (const name of ['marketing', 'ops']) assert.equal(count(`@media (prefers-contrast: more) {\n.arena-${name}{`), 1, name);
 });
 
-test('a root plugin that answers bw-strong does not change the :root high-contrast block', () => {
-  const css = themeCss(listed(['console', 'marketing']), {
-    sheets: { ...SHEETS_FULL, rootOnly: ROOT_ONLY },
-    plugins: [total({ 'bw-strong': { $type: 'dimension', $value: { value: 3, unit: 'px' } } }), scoped()],
-  });
-  assert.match(css, /--bw-strong:3px;/);
-  const media = css.indexOf(HC_ROOT);
-  assert.match(css.slice(media, css.indexOf('\n}\n', media)), /--bw-surface:var\(--bw-strong\);/);
+const NO_RESTATEMENT: {
+  name: string;
+  names: string[];
+  sheets: () => typeof SHEETS_FULL;
+  plugins: () => (ReturnType<typeof total> | null)[];
+  without: (string | RegExp)[];
+  with?: string[];
+}[] = [
+  {
+    name: 'a default root emits no :root restatement',
+    names: ['default', 'marketing'],
+    sheets: () => ({ ...SHEETS_FULL, rootOnly: ROOT_ONLY }) as typeof SHEETS_FULL,
+    plugins: () => [null, scoped()],
+    without: [HC_ROOT],
+    with: ['@media (prefers-contrast: more) {\n.arena-marketing{'],
+  },
+  {
+    name: 'a package whose sheets carry no root-only text emits no restatement',
+    names: ['console', 'marketing'],
+    sheets: () => SHEETS_FULL,
+    plugins: () => [total(), scoped()],
+    without: [/prefers-contrast|title-hero-fit/],
+  },
+];
+
+test('a root that answers nothing, or a package with nothing to restate, emits no restatement', () => {
+  assert.ok(NO_RESTATEMENT.length > 0, 'the table has rows');
+  for (const row of NO_RESTATEMENT) {
+    const css = themeCss(listed(row.names), { sheets: row.sheets(), plugins: row.plugins() } as never);
+    for (const absent of row.without) {
+      if (typeof absent === 'string') assert.ok(!css.includes(absent), row.name);
+      else assert.doesNotMatch(css, absent, row.name);
+    }
+    for (const present of row.with ?? []) assert.ok(css.includes(present), row.name);
+  }
 });
 
-test('a package whose sheets carry no root-only text emits no restatement', () => {
-  const css = themeCss(listed(['console', 'marketing']), {
-    sheets: SHEETS_FULL, plugins: [total(), scoped()],
-  });
-  assert.doesNotMatch(css, /prefers-contrast|title-hero-fit/);
+const HC_ROOT_BLOCKS: {
+  name: string;
+  plugin: () => ReturnType<typeof total>;
+  answered: RegExp;
+  has?: RegExp;
+  before?: RegExp;
+  noHeroFit?: boolean;
+}[] = [
+  {
+    name: 'a project\'s own root plugin is followed by the high-contrast :root block, and not by the hero fit',
+    plugin: () => total(),
+    answered: /--bw-surface:var\(--bw-strong\);/,
+    before: /:root\{[^}]*--bw-surface:1px;/,
+    noHeroFit: true,
+  },
+  {
+    name: 'a root plugin that answers bw-strong does not change the :root high-contrast block',
+    plugin: () => total({ 'bw-strong': { $type: 'dimension', $value: { value: 3, unit: 'px' } } }),
+    answered: /--bw-surface:var\(--bw-strong\);/,
+    has: /--bw-strong:3px;/,
+  },
+];
+
+test('a root plugin is followed by the high-contrast :root block', () => {
+  assert.ok(HC_ROOT_BLOCKS.length > 0, 'the table has rows');
+  for (const row of HC_ROOT_BLOCKS) {
+    const css = themeCss(listed(['console', 'marketing']), {
+      sheets: { ...SHEETS_FULL, rootOnly: ROOT_ONLY }, plugins: [row.plugin(), scoped()],
+    });
+    const media = css.indexOf(HC_ROOT);
+    if (row.has) assert.match(css, row.has, row.name);
+    if (row.before) assert.ok(css.search(row.before) >= 0 && media > css.search(row.before), `${row.name}: the media block follows the root answers block`);
+    assert.match(css.slice(media, css.indexOf('\n}\n', media)), row.answered, row.name);
+    if (row.noHeroFit) assert.doesNotMatch(css, /:root\{[^}]*--title-hero-fit/, row.name);
+  }
 });
 
 const STATE_ROLES = ['edge-focus', 'bw-focus', 'gap-focus', 'fill-selected', 'ink-selected', 'edge-selected',

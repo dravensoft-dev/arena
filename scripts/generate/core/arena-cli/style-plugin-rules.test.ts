@@ -70,7 +70,7 @@ test('every reserved name is kebab, is no polarity, and carries a reason and no 
 
 test('a reserved name is refused as a style plugin, naming the component that holds it', () => whileHeld('held-name', () => {
   assert.deepEqual(nameProblems('held-name', POLARITIES, 'stylePlugins[1]'), [
-    'stylePlugins[1]: "held-name" is held for ArenaHeld, a name held for one case (spec 00), which '
+    'stylePlugins[1]: "held-name" is held for ArenaHeld, a name held for one case, which '
     + 'Arena is going to ship as the class .arena-held-name. A build naming it would fail on the release that ships '
     + 'that class, so the name is refused while renaming costs nothing.',
   ]);

@@ -6,17 +6,66 @@ import { join } from 'node:path';
 import { relPosix } from '../../utils/posix-path.ts';
 import { findSourceFiles, rewriteRelativeSourceImports, loaderFor, outputPathFor, ROOT_MODULES, ROOTS } from './build-demos.ts';
 
-test('a relative .jsx import points at the .generated.js sibling this script writes', () => {
-  const code = 'import { ArenaButton } from "./ArenaButton.jsx";\nimport { A } from "../a/A.jsx";\n';
-  assert.equal(
-    rewriteRelativeSourceImports(code),
-    'import { ArenaButton } from "./ArenaButton.generated.js";\nimport { A } from "../a/A.generated.js";\n',
-  );
+const IMPORTS: { name: string; code: string; expected: string; why?: string }[] = [
+  {
+    name: 'a relative .jsx import points at the .generated.js sibling this script writes',
+    code: 'import { ArenaButton } from "./ArenaButton.jsx";\nimport { A } from "../a/A.jsx";\n',
+    expected: 'import { ArenaButton } from "./ArenaButton.generated.js";\nimport { A } from "../a/A.generated.js";\n',
+  },
+  {
+    name: 'a bare package specifier ending in .jsx is left alone',
+    code: 'import x from "some-pkg/thing.jsx";\n',
+    expected: 'import x from "some-pkg/thing.jsx";\n',
+  },
+  {
+    name: 'a relative .tsx import points at the same .generated.js sibling a .jsx one does',
+    code: 'import { ArenaBadge } from "./ArenaBadge.tsx";\nimport { A } from "../a/A.jsx";\n',
+    expected: 'import { ArenaBadge } from "./ArenaBadge.generated.js";\nimport { A } from "../a/A.generated.js";\n',
+  },
+  {
+    name: 'a .ts specifier is rewritten too, because a browser cannot execute TypeScript',
+    code: 'import { useArenaDialogModal } from "../../../UseDialogModal.ts";\n',
+    expected: 'import { useArenaDialogModal } from "../../../UseDialogModal.generated.js";\n',
+  },
+  {
+    name: 'a module already compiled is not rewritten onto itself',
+    code: 'import { sp1 } from "../../../Tokens.generated.js";\n',
+    expected: 'import { sp1 } from "../../../Tokens.generated.js";\n',
+    why: 'a module already compiled must not be rewritten onto itself',
+  },
+  {
+    name: 'a source that already names itself generated does not gain a second segment (the specifier)',
+    code: 'import { M } from "./ArenaCard.demo.entry.generated.tsx";\n',
+    expected: 'import { M } from "./ArenaCard.demo.entry.generated.js";\n',
+    why: 'the specifier and the output path have to agree, or the import resolves to nothing',
+  },
+];
+
+test('a relative source import is written as the .generated.js a browser can load', () => {
+  assert.ok(IMPORTS.length > 0, 'the table has rows');
+  for (const row of IMPORTS) {
+    assert.equal(rewriteRelativeSourceImports(row.code), row.expected, row.why ? `${row.name}: ${row.why}` : row.name);
+  }
 });
 
-test('a bare package specifier ending in .jsx is left alone', () => {
-  const code = 'import x from "some-pkg/thing.jsx";\n';
-  assert.equal(rewriteRelativeSourceImports(code), code);
+const LOADERS: { name: string; read: (path: string) => string; path: string; expected: string; why?: string }[] = [
+  { name: 'the loader follows the file rather than the call site, so both extensions compile in one pass (tsx)', read: loaderFor, path: '/x/ArenaBadge.tsx', expected: 'tsx' },
+  { name: 'the loader follows the file rather than the call site, so both extensions compile in one pass (jsx)', read: loaderFor, path: '/x/ArenaTag.jsx', expected: 'jsx' },
+  { name: 'a .tsx output path is the .generated.js sibling', read: outputPathFor, path: 'a/ArenaBadge.tsx', expected: 'a/ArenaBadge.generated.js' },
+  { name: 'a .jsx output path is the .generated.js sibling', read: outputPathFor, path: 'a/ArenaTag.jsx', expected: 'a/ArenaTag.generated.js' },
+  { name: 'a .ts output path is the .generated.js sibling', read: outputPathFor, path: 'a/DataVisuals.ts', expected: 'a/DataVisuals.generated.js' },
+  {
+    name: 'a source that already names itself generated does not gain a second segment (the output path)',
+    read: outputPathFor,
+    path: 'a/ArenaCard.demo.entry.generated.tsx',
+    expected: 'a/ArenaCard.demo.entry.generated.js',
+    why: 'ArenaCard.demo.entry.generated.generated.js is what the page would then fail to load',
+  },
+];
+
+test('the loader and the output path follow the source file', () => {
+  assert.ok(LOADERS.length > 0, 'the table has rows');
+  for (const row of LOADERS) assert.equal(row.read(row.path), row.expected, row.why ? `${row.name}: ${row.why}` : row.name);
 });
 
 test('findSourceFiles keeps every module a page loads and drops a suite or a declaration', () => {
@@ -46,46 +95,6 @@ test('findSourceFiles keeps every module a page loads and drops a suite or a dec
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
-});
-
-test('a relative .tsx import points at the same .generated.js sibling a .jsx one does', () => {
-  const code = 'import { ArenaBadge } from "./ArenaBadge.tsx";\nimport { A } from "../a/A.jsx";\n';
-  assert.equal(
-    rewriteRelativeSourceImports(code),
-    'import { ArenaBadge } from "./ArenaBadge.generated.js";\nimport { A } from "../a/A.generated.js";\n',
-  );
-});
-
-test('the loader follows the file rather than the call site, so both extensions compile in one pass', () => {
-  assert.equal(loaderFor('/x/ArenaBadge.tsx'), 'tsx');
-  assert.equal(loaderFor('/x/ArenaTag.jsx'), 'jsx');
-  assert.equal(outputPathFor('a/ArenaBadge.tsx'), 'a/ArenaBadge.generated.js');
-  assert.equal(outputPathFor('a/ArenaTag.jsx'), 'a/ArenaTag.generated.js');
-});
-
-test('a .ts specifier is rewritten too, because a browser cannot execute TypeScript', () => {
-  assert.equal(
-    rewriteRelativeSourceImports('import { useArenaDialogModal } from "../../../UseDialogModal.ts";\n'),
-    'import { useArenaDialogModal } from "../../../UseDialogModal.generated.js";\n',
-  );
-  assert.equal(
-    rewriteRelativeSourceImports('import { sp1 } from "../../../Tokens.generated.js";\n'),
-    'import { sp1 } from "../../../Tokens.generated.js";\n',
-    'a module already compiled must not be rewritten onto itself',
-  );
-  assert.equal(outputPathFor('a/DataVisuals.ts'), 'a/DataVisuals.generated.js');
-});
-
-test('a source that already names itself generated does not gain a second segment', () => {
-  assert.equal(
-    outputPathFor('a/ArenaCard.demo.entry.generated.tsx'), 'a/ArenaCard.demo.entry.generated.js',
-    'ArenaCard.demo.entry.generated.generated.js is what the page would then fail to load',
-  );
-  assert.equal(
-    rewriteRelativeSourceImports('import { M } from "./ArenaCard.demo.entry.generated.tsx";\n'),
-    'import { M } from "./ArenaCard.demo.entry.generated.js";\n',
-    'the specifier and the output path have to agree, or the import resolves to nothing',
-  );
 });
 
 test('the playground harness is compiled, because the generated entries import it', () => {

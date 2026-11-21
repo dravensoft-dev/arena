@@ -380,11 +380,6 @@ test('the density region tables every --dz property once, with the value each cl
   assert.match(renderRegion('density'), /`\*-` stands for any spacing utility, such as `h-` or `py-`\./);
 });
 
-test('the compact column shows a text size in rem with its pixel', () => {
-  const row = renderRegion('density').split('\n').find((line) => line.startsWith('| `--dz-text` |'))!;
-  assert.equal(row.split('|')[3]!.trim(), '`0.8125rem` = 13px at the browser default');
-});
-
 test('the typography region tables every font, weight, size, leading and tracking token no role answers', () => {
   const { tokens } = tokenCatalogue(repoRoot);
   const roles = new Set(Object.keys(readJson(join(repoRoot, ROLE_CONTRACT)) as Record<string, unknown>));
@@ -513,19 +508,38 @@ test('a rem value shows its pixel at the browser default', () => {
   assert.equal(atDefault('1.5'), '`1.5`');
 });
 
-test('the type table shows fs in rem with its pixel', () => {
-  const row = renderRegion('typography').split('\n').find((line) => line.startsWith('| `--fs-h1` |'))!;
-  assert.ok(row.includes('`2.75rem` = 44px at the browser default'), row);
-});
+const ROW_FORMATS: { name: string; region: string; prefix: string; cell3?: string; includes?: string; endsWith?: string }[] = [
+  {
+    name: 'the compact column shows a text size in rem with its pixel',
+    region: 'density',
+    prefix: '| `--dz-text` |',
+    cell3: '`0.8125rem` = 13px at the browser default',
+  },
+  {
+    name: 'the type table shows fs in rem with its pixel',
+    region: 'typography',
+    prefix: '| `--fs-h1` |',
+    includes: '`2.75rem` = 44px at the browser default',
+  },
+  {
+    name: 'breakpoint rows keep their variant',
+    region: 'spacing',
+    prefix: '| `--bp-md` |',
+    includes: '`48rem` = 768px at the browser default',
+    endsWith: '`md:` |',
+  },
+  { name: 'a spacing step keeps its multiple', region: 'spacing', prefix: '| `--sp-4` |', includes: '| `16px` |', endsWith: '`*-4` |' },
+];
 
-test('breakpoint rows keep their variant', () => {
-  const row = renderRegion('spacing').split('\n').find((line) => line.startsWith('| `--bp-md` |'))!;
-  assert.ok(row.includes('`48rem` = 768px at the browser default') && row.endsWith('`md:` |'), row);
-});
-
-test('a spacing step keeps its multiple', () => {
-  const row = renderRegion('spacing').split('\n').find((line) => line.startsWith('| `--sp-4` |'))!;
-  assert.ok(row.includes('| `16px` |') && row.endsWith('`*-4` |'), row);
+test('a token row shows its value, its pixel and its variant as the page writes them', () => {
+  assert.ok(ROW_FORMATS.length > 0, 'the table has rows');
+  for (const row of ROW_FORMATS) {
+    const line = renderRegion(row.region).split('\n').find((l) => l.startsWith(row.prefix));
+    assert.ok(line, `${row.name}: the region has a row starting ${row.prefix}`);
+    if (row.cell3 !== undefined) assert.equal(line.split('|')[3]!.trim(), row.cell3, row.name);
+    if (row.includes !== undefined) assert.ok(line.includes(row.includes), `${row.name}: ${line}`);
+    if (row.endsWith !== undefined) assert.ok(line.endsWith(row.endsWith), `${row.name}: ${line}`);
+  }
 });
 
 const rowsOf = (region: string) => region.split('\n').filter((line) => line.startsWith('| `--'));

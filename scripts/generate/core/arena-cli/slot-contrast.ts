@@ -4,10 +4,10 @@
  * on. A disabled and a selected-disabled slot is never a pair (WCAG exempts an inactive control), and
  * disabledReports only says when one is not told from its rest. An answer sits inside the level its channel
  * carries, as the emphasis sheet writes it, a member default is measured as the member paints it, where it
- * moves a pair, and a member ground (D96), or the rest fill its ground part paints in each option (D25), measures
+ * moves a pair, and a member ground, or the rest fill its ground part paints in each option, measures
  * again under the fill the member reads for the part unless it is opaque. Imports nothing outside this directory,
- * as the command ships it. A pair of a part on another part's fill is a mark at 3:1 (D69) unless it sits over it
- * and keeps each floor (D89), as is every pair of a mark part, fill and ring over ground (D92, D97). */
+ * as the command ships it. A pair of a part on another part's fill is a mark at 3:1 unless it sits over it
+ * and keeps each floor, as is every pair of a mark part, fill and ring over ground. */
 
 import { contrast } from './validate-palette.mjs';
 import { composite, mixOklab, oklabToHex, toOklab } from './oklab.ts';
