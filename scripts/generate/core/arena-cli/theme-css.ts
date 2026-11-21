@@ -33,7 +33,7 @@ export type TokenCatalogue = {
   tokens: Record<string, string>;
   light?: Record<string, string>;
   roles: Record<string, { type?: string; values?: string[]; default?: string; audience?: string; task?: string; userScale?: string;
-    question?: string; combines?: { with: string; as: string }[] }>;
+    question?: string; combines?: { with: string; as: string }[]; keys?: string[] }>;
   aliases?: Record<string, string>;
   channels?: string[];
   slots: SlotCatalogue;

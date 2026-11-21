@@ -107,7 +107,7 @@ test('arena_check reports the rules of the language over text, and says so when 
 });
 
 test('arena_check reports a role read without its level once the levels are known', () => {
-  const levels = new Map([['ink-muted', 'level-ink-muted']]);
+  const levels = new Map([['ink-muted', { level: 'level-ink-muted', keys: ['ink-muted'] }]]);
   const source = '<p className="text-ink-muted">x</p>';
   const ROWS: [string, ReturnType<typeof checked>, RegExp][] = [
     ['with the levels', checked(source, CHECKED_AS, null, levels), /\(missing-level\)/],
@@ -117,20 +117,21 @@ test('arena_check reports a role read without its level once the levels are know
 });
 
 test('the levels come from the corpus table, else from the installed catalogue, else nowhere', () => {
-  const levels = new Map([['ink-muted', 'level-ink-muted']]);
+  const level = { level: 'level-ink-muted', keys: ['ink-muted'] };
+  const levels = new Map([['ink-muted', level]]);
   const dirWith = (file: string, body: unknown) => {
     const dir = mkdtempSync(join(tmpdir(), 'arena-levels-'));
     writeFileSync(join(dir, file), JSON.stringify(body));
     return dir;
   };
-  const table = dirWith('arena.levels.json', { 'ink-muted': 'level-ink-muted' });
+  const table = dirWith('arena.levels.json', { 'ink-muted': level });
   const bare = dirWith('other.json', {});
   const installed = {
     package: 'p', layer: 'react', version: '0', dir: dirWith('arena.tokens.json',
-      { roles: { 'ink-muted': { combines: [{ with: 'level-ink-muted', as: 'level' }] } } }),
+      { roles: { 'ink-muted': { combines: [{ with: 'level-ink-muted', as: 'level' }], keys: ['ink-muted'] } } }),
   };
   try {
-    const ROWS: [string, string, typeof installed | null, Map<string, string> | null][] = [
+    const ROWS: [string, string, typeof installed | null, Map<string, typeof level> | null][] = [
       ['a payload carrying the table', table, null, levels],
       ['no table and nothing installed', bare, null, null],
       ['no table and a catalogue installed', bare, installed, levels],
@@ -149,7 +150,7 @@ test('the arena_check tool, called over a linked transport, reads the levels the
   cpSync(PAYLOAD, withTable, { recursive: true });
   cpSync(PAYLOAD, without, { recursive: true });
   rmSync(join(without, 'arena.levels.json'), { force: true });
-  writeFileSync(join(withTable, 'arena.levels.json'), JSON.stringify({ 'ink-muted': 'level-ink-muted' }));
+  writeFileSync(join(withTable, 'arena.levels.json'), JSON.stringify({ 'ink-muted': { level: 'level-ink-muted', keys: ['ink-muted'] } }));
   const ROWS: [string, string, RegExp][] = [
     ['a payload carrying the table', withTable, /\(missing-level\)/],
     ['a payload without it', without, /^No finding\./],

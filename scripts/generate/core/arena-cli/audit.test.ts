@@ -806,23 +806,29 @@ const LEVELS = levelledRoles(tokenCatalogue(repoRoot).roles);
 
 test('a role whose combines names a level is reported when it is read without one, with the levelled form in the message', () => {
   assert.equal(LEVELS.size, 9, 'the catalogue names nine levelled roles');
-  assert.equal(LEVELS.get('ink-muted'), 'level-ink-muted');
+  assert.deepEqual(LEVELS.get('ink-muted'), { level: 'level-ink-muted', keys: ['ink-muted'] });
+  assert.deepEqual(LEVELS.get('fill-selected'), { level: 'level-accent-soft-primary', keys: ['selected'] });
   const MIX = 'color-mix(in oklab, var(--ink-muted) var(--level-ink-muted), transparent)';
   const ROWS: { name: string; path: string; source: string; want: RegExp | null }[] = [
     { name: 'bare class', path: 'src/App.tsx', source: '<p className="text-ink-muted">x</p>', want: /`text-ink-muted\/\(--level-ink-muted\)`/ },
     { name: 'levelled class', path: 'src/App.tsx', source: '<p className="text-ink-muted/(--level-ink-muted)">x</p>', want: null },
-    { name: 'bracket level', path: 'src/App.tsx', source: '<p className="bg-fill-selected/[var(--level-accent-soft-primary)]">x</p>', want: null },
+    { name: 'bracket level', path: 'src/App.tsx', source: '<li className="bg-selected/[var(--level-accent-soft-primary)]">x</li>', want: null },
+    { name: 'renamed key', path: 'src/App.tsx', source: '<li className="bg-selected">x</li>', want: /`bg-selected` reads fill-selected .*`bg-selected\/\(--level-accent-soft-primary\)`/ },
+    { name: 'renamed key in a variant', path: 'src/App.tsx', source: '<li className="aria-selected:bg-selected">x</li>', want: /`aria-selected:bg-selected\/\(--level-accent-soft-primary\)`/ },
     { name: 'another level counts', path: 'src/App.tsx', source: '<p className="text-ink-body/(--level-ink-muted)">x</p>', want: null },
     { name: 'literal share', path: 'src/App.tsx', source: '<div className="bg-overlay-scrim/60" />', want: /`\/60`.*`bg-overlay-scrim\/\(--level-scrim\)`/ },
     { name: 'variants kept', path: 'src/App.tsx', source: '<p className="[&>p]:hover:text-ink-muted">x</p>', want: /`\[&>p\]:hover:text-ink-muted\/\(--level-ink-muted\)`/ },
     { name: 'Angular template', path: 'src/app.html', source: '<span class="text-ink-key">K</span>', want: /text-ink-key\/\(--level-ink-muted\)/ },
     { name: 'a string label', path: 'src/App.tsx', source: "const label = 'caption on bg-overlay-media';", want: /bg-overlay-media\/\(--level-media\)/ },
     { name: 'role without a level', path: 'src/App.tsx', source: '<h2 className="text-ink-heading">t</h2>', want: null },
-    { name: 'longer name', path: 'src/App.tsx', source: '<p className="bg-fill-selected-hover text-ink-muted-strong">x</p>', want: null },
+    { name: 'longer name', path: 'src/App.tsx', source: '<p className="bg-selected-hover text-ink-muted-strong">x</p>', want: null },
     { name: 'comment', path: 'src/App.tsx', source: '/* text-ink-muted */', want: null },
     { name: 'allowed', path: 'src/App.tsx', source: '<p className="text-ink-muted">x</p> {/* arena-audit allow */}', want: null },
     { name: 'bare var', path: 'src/a.css', source: '.cap { color: var(--ink-muted); }', want: /color-mix\(in oklab, var\(--ink-muted\) var\(--level-ink-muted\), transparent\)/ },
-    { name: 'colour key', path: 'src/a.css', source: '.cap { color: var(--color-ink-muted); }', want: /var\(--level-ink-muted\)/ },
+    { name: 'colour key', path: 'src/a.css', source: '.cap { color: var(--color-ink-muted); }', want: /reads var\(--color-ink-muted\) without its level.*var\(--level-ink-muted\)/ },
+    { name: 'renamed colour key', path: 'src/a.css', source: '.row { background: var(--color-selected); }', want: /reads var\(--color-selected\) without its level.*Write color-mix\(in oklab, var\(--color-selected\) var\(--level-accent-soft-primary\), transparent\)/ },
+    { name: 'renamed colour key levelled', path: 'src/a.css', source: '.row { background: color-mix(in oklab, var(--color-selected) var(--level-accent-soft-primary), transparent); }', want: null },
+    { name: 'colour key of the role name', path: 'src/a.css', source: '.cap { color: var(--color-fill-selected); }', want: null },
     { name: 'levelled mix', path: 'src/a.css', source: `.cap { color: ${MIX}; }`, want: null },
     { name: 'role in a fallback', path: 'src/a.css', source: '.cap { color: color-mix(in oklab, var(--mine, var(--ink-muted)) var(--level-ink-muted), transparent); }', want: null },
     { name: 'literal mix', path: 'src/a.css', source: '.cap { color: color-mix(in oklab, var(--ink-muted) 62%, transparent); }', want: /62%/ },
@@ -834,6 +840,13 @@ test('a role whose combines names a level is reported when it is read without on
     { name: 'inline style over two lines', path: 'src/App.tsx', source: '<p style={{ color: `color-mix(in oklab,\n  var(--ink-muted) var(--level-ink-muted), transparent)` }}>x</p>', want: null },
     { name: 'style attribute over two lines', path: 'src/app.html', source: '<p style="color: color-mix(in oklab, var(--ink-muted)\n  var(--level-ink-muted), transparent)">x</p>', want: null },
     { name: 'inline share on the next line', path: 'src/App.tsx', source: '<p style={{ color: `color-mix(in oklab,\n  var(--ink-muted) 62%, transparent)` }}>x</p>', want: /^src\/App\.tsx:2: reads ink-muted at a literal share of 62%/ },
+    { name: 'a template slot inside a levelled mix', path: 'src/App.tsx', source: '<p style={{ color: `color-mix(in oklab, ${a}, var(--ink-muted) var(--level-ink-muted))` }}>x</p>', want: null },
+    { name: 'a quoted fallback inside a levelled mix', path: 'src/App.tsx', source: '<p style={{ color: \'color-mix(in oklab, var(--ink-muted, "red") var(--level-ink-muted), transparent)\' }}>x</p>', want: null },
+    { name: 'a template slot inside a bare mix', path: 'src/App.tsx', source: '<p style={{ color: `color-mix(in oklab, var(--ink-muted) ${a}, transparent)` }}>x</p>', want: /reads var\(--ink-muted\) without its level/ },
+    { name: 'a comparison before the read', path: 'src/App.tsx', source: "const tone = x < 3 ? 'var(--ink-muted)' : '';", want: /reads var\(--ink-muted\) without its level/ },
+    { name: 'inline share on one line', path: 'src/App.tsx', source: "<p style={{ color: 'color-mix(in oklab, var(--ink-muted) 62%, transparent)' }}>x</p>", want: /reads ink-muted at a literal share of 62%/ },
+    { name: 'a bracket of another class', path: 'src/App.tsx', source: '<p className="grid-cols-[repeat(2,1fr)] text-[var(--ink-link)]">a</p>', want: /Write color-mix\(in_oklab,var\(--ink-link\)_var\(--level-ink-body\),transparent\) \(missing-level\)$/ },
+    { name: 'an index, not a class', path: 'src/App.tsx', source: '<p data-tone=tones[var(--ink-link)]>a</p>', want: /Write color-mix\(in oklab, var\(--ink-link\) var\(--level-ink-body\), transparent\) \(missing-level\)$/ },
     { name: 'call on the line above', path: 'src/a.css', source: '.cap {\n  color: color-mix(in oklab,\n    var(--ink-muted) var(--level-ink-muted), transparent);\n}', want: null },
     { name: 'level on the next line', path: 'src/a.css', source: '.cap {\n  color: color-mix(in oklab, var(--ink-muted)\n    var(--level-ink-muted), transparent);\n}', want: null },
     { name: 'share on the next line', path: 'src/a.css', source: '.cap {\n  color: color-mix(in oklab,\n    var(--ink-muted) 62%, transparent);\n}', want: /^src\/a\.css:3: reads ink-muted at a literal share of 62%/ },
@@ -860,25 +873,33 @@ test('the level rule is silent where nothing names the levels and in a style plu
 });
 
 test('levelledRoles keeps the roles whose combines names a level, and nothing else', () => {
-  const ROWS: { name: string; roles: Parameters<typeof levelledRoles>[0]; want: [string, string][] }[] = [
+  type Level = { level: string; keys: string[] };
+  const ROWS: { name: string; roles: Parameters<typeof levelledRoles>[0]; want: [string, Level][] }[] = [
     { name: 'no roles', roles: undefined, want: [] },
-    { name: 'one level among others', want: [['ink-muted', 'level-ink-muted']], roles: {
+    { name: 'one level among others', want: [['ink-muted', { level: 'level-ink-muted', keys: ['ink-muted'] }]], roles: {
       'pad-row-x': { combines: [{ with: 'dz-row-scale-x', as: 'density' }] },
-      'ink-muted': { combines: [{ with: 'level-ink-muted', as: 'level' }] },
+      'ink-muted': { combines: [{ with: 'level-ink-muted', as: 'level' }], keys: ['ink-muted'] },
       'ink-heading': {},
     } },
+    { name: 'a renamed key', want: [['fill-selected', { level: 'level-accent-soft-primary', keys: ['selected'] }]], roles: {
+      'fill-selected': { combines: [{ with: 'level-accent-soft-primary', as: 'level' }], keys: ['selected'] },
+    } },
+    { name: 'no keys', want: [['a', { level: 'level-a', keys: [] }]], roles: { a: { combines: [{ with: 'level-a', as: 'level' }] } } },
   ];
   for (const row of ROWS) assert.deepEqual([...levelledRoles(row.roles)], row.want, row.name);
 });
 
 test('the levels a directory carries are read from its table or its catalogue, and nothing from a missing or malformed one', () => {
-  const catalogue = JSON.stringify({ roles: { a: { combines: [{ with: 'level-a', as: 'level' }] } } });
-  const ROWS: [string, string, string | null, typeof loadLevels, [string, string][] | null][] = [
+  const a = { level: 'level-a', keys: ['a-key'] };
+  const catalogue = JSON.stringify({ roles: { a: { combines: [{ with: 'level-a', as: 'level' }], keys: ['a-key'] } } });
+  const ROWS: [string, string, string | null, typeof loadLevels, [string, typeof a][] | null][] = [
     ['no table', 'arena.levels.json', null, loadLevels, null],
-    ['a table', 'arena.levels.json', '{"ink-muted":"level-ink-muted"}', loadLevels, [['ink-muted', 'level-ink-muted']]],
+    ['a table', 'arena.levels.json', JSON.stringify({ a }), loadLevels, [['a', a]]],
     ['a table holding an array', 'arena.levels.json', '[1]', loadLevels, null],
+    ['a table without keys', 'arena.levels.json', '{"a":{"level":"level-a"}}', loadLevels, null],
+    ['a table of bare levels', 'arena.levels.json', '{"a":"level-a"}', loadLevels, null],
     ['no catalogue', 'arena.tokens.json', null, catalogueLevels, null],
-    ['a catalogue', 'arena.tokens.json', catalogue, catalogueLevels, [['a', 'level-a']]],
+    ['a catalogue', 'arena.tokens.json', catalogue, catalogueLevels, [['a', a]]],
     ['an unreadable catalogue', 'arena.tokens.json', '{nope', catalogueLevels, null],
   ];
   for (const [name, file, body, reader, want] of ROWS) {

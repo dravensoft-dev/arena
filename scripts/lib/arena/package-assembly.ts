@@ -18,6 +18,7 @@ import { kebab } from '../../utils/case.ts';
 import { componentMap, MAP_FILE } from './component-map.ts';
 import { iconManifest, MANIFEST_FILE } from './icon-manifest.ts';
 import { levelledRoles } from '../../generate/core/arena-cli/audit.ts';
+import { roleColourKeys } from '../../generate/arena/generate-token-tree.ts';
 import { shippedNames } from '../../generate/core/arena-cli/icon-css.ts';
 import { layerManifests, manifestFiles } from '../tailwind/tailwind-compile.ts';
 import { tailwindThemeSheet, THEME_SOURCES } from '../tailwind/theme-sheet.ts';
@@ -332,7 +333,8 @@ export function derivedSlotsText(root = repoRoot) {
 }
 
 export function levelIndexText(root = repoRoot) {
-  return `${JSON.stringify(Object.fromEntries([...levelledRoles(tokenCatalogue(root).roles)].sort()), null, 2)}\n`;
+  const levels = [...levelledRoles(tokenCatalogue(root).roles)].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
+  return `${JSON.stringify(Object.fromEntries(levels), null, 2)}\n`;
 }
 
 export function copyBehaviourContracts(dir: string, root = repoRoot) {
@@ -348,7 +350,7 @@ export function copyBehaviourContracts(dir: string, root = repoRoot) {
 
 export const CATALOGUE_FILE = 'arena.tokens.json';
 
-export function catalogueRole(role: Record<string, any>) {
+export function catalogueRole(role: Record<string, any>, keys: string[] = []) {
   const own = role.$extensions?.[ARENA_EXT] ?? {};
   return {
     type: role.$type,
@@ -360,6 +362,7 @@ export function catalogueRole(role: Record<string, any>) {
     ...(own.question ? { question: own.question } : {}),
     ...(own.combines ? { combines: own.combines } : {}),
     ...(own.state ? { state: own.state } : {}),
+    ...(keys.length > 0 && own.combines?.some((one: { as: string }) => one.as === 'level') ? { keys } : {}),
   };
 }
 
@@ -417,7 +420,8 @@ export function tokenCatalogue(root = repoRoot) {
   const light = Object.fromEntries(parseDecls(readFileSync(join(root, DEFAULT_SHEET), 'utf8')).get(LIGHT_SELECTOR) ?? []);
 
   const roleFile = readJson(join(root, 'contracts', 'design', 'roles.json')) as Record<string, any>;
-  const roles = Object.fromEntries(Object.entries(roleFile).map(([name, role]) => [name, catalogueRole(role)]));
+  const colourKeys = roleColourKeys(root);
+  const roles = Object.fromEntries(Object.entries(roleFile).map(([name, role]) => [name, catalogueRole(role, colourKeys.get(name))]));
 
   const aliases = aliasDeclarations(root);
   const listed = new Set([...Object.keys(tokens), ...Object.keys(roles), ...Object.keys(aliases)].map((name) => `--${name.replace(/^--/, '')}`));

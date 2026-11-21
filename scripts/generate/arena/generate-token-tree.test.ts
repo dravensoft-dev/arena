@@ -13,7 +13,7 @@ import { ARENA_EXT } from '../../lib/core/dtcg-shapes.ts';
 import { STATE_SELECTORS } from '../../check/core/check-role-contract.ts';
 import {
   TREE, TREE_DIR, TREE_OPEN, TREE_CLOSE, roleLeaf, markupLeaf, regionBodies, renderTree, writeTree,
-  COMPAT, COMPAT_CONTROL, roleUtilities, combination, stateRows, CONTROL_READS,
+  COMPAT, COMPAT_CONTROL, roleUtilities, roleColourKeys, combination, stateRows, CONTROL_READS,
 } from './generate-token-tree.ts';
 import { compileLayer, escapeClass } from '../../lib/tailwind/tailwind-compile.ts';
 
@@ -210,6 +210,17 @@ test('every rendered utility compiles', () => {
 
 test('edge-focus reaches ring and outline', () => {
   assert.deepEqual(roleUtilities().get('edge-focus'), ['ring-edge-focus', 'outline-edge-focus']);
+});
+
+test('a role is read in a class by the colour keys of the theme, which a role may rename', () => {
+  const keys = roleColourKeys();
+  const ROWS: [string, string, string[] | undefined][] = [
+    ['a key equal to the role', 'ink-muted', ['ink-muted']],
+    ['a renamed key', 'fill-selected', ['selected']],
+    ['one key read by two prefixes', 'edge-focus', ['edge-focus']],
+    ['a role in no colour namespace', 'gap-items', undefined],
+  ];
+  for (const [name, role, want] of ROWS) assert.deepEqual(keys.get(role), want, name);
 });
 
 test('a fill role combines its level on its bg utility', () => {

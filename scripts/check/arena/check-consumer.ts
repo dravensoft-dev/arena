@@ -100,7 +100,7 @@ export const BREAKING: Record<string, { files: Record<string, string>; rules: st
         + '  <Link to="/x">\n'
         + '    <ArenaCard>c</ArenaCard>\n'
         + '  </Link>\n'
-        + '  <p className="text-ink-muted">c</p>\n'
+        + '  <li className="bg-selected">c</li>\n'
         + '</div>);\n',
       'src/app.css': '.arena-button__label { color: #fff; }\n',
     },

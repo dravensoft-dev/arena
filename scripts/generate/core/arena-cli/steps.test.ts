@@ -143,7 +143,7 @@ function skinned(rules: string, extra: Record<string, string> = {}) {
 test('the audit step reads the levels from the catalogue it is handed, and none without one', () => {
   const root = project(readable, { 'App.tsx': '<p className="text-ink-muted">x</p>' });
   const levelled: TokenCatalogue = { ...CATALOGUE,
-    roles: { 'ink-muted': { type: 'color', combines: [{ with: 'level-ink-muted', as: 'level' }] } } };
+    roles: { 'ink-muted': { type: 'color', combines: [{ with: 'level-ink-muted', as: 'level' }], keys: ['ink-muted'] } } };
   const ROWS: [string, TokenCatalogue | null, number][] = [['a catalogue naming the level', levelled, 1], ['no catalogue', null, 0]];
   for (const [name, catalogue, count] of ROWS) {
     const found = auditStep(options(root), null, catalogue, null).reports.filter((one) => one.rule === 'missing-level');

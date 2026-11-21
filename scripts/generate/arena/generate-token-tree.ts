@@ -117,25 +117,38 @@ const arithmeticOnly = (value: string, role: string) => {
   return /^calc\(/.test(value.trim()) && !/[a-z]\(/.test(stripped.replace(/calc\(|var\(--[a-z0-9-]+\)/g, ''));
 };
 
-export function roleUtilities(base = root) {
+function roleThemeKeys(base: string) {
   const css = readFileSync(join(base, THEME), 'utf8');
   const decls = new Map(themeDeclarations(css));
   const namespaces = deriveNamespaces(new Map([...decls].map(([key, value]) => [key.slice(2), value])));
   const nsOf = new Map<string, [string, string]>();
   for (const [ns, keys] of namespaces as Map<string, string[]>) for (const key of keys) nsOf.set(`${ns}-${key}`, [ns, key]);
   const roles = Object.keys(readJson(join(base, ROLES)) as Record<string, unknown>);
-  const out = new Map<string, string[]>();
+  const out: { name: string; role: string; ns: string; key: string }[] = [];
   for (const [name, value] of decls) {
     const hit = nsOf.get(name.slice(2));
     for (const role of roles) {
       if (!arithmeticOnly(value, role)) continue;
       if (!hit) throw new Error(`generate-token-tree: the theme key ${name} reads the role ${role}, and no theme namespace places that key.`);
-      const [ns, key] = hit;
-      const one = ns === 'color' ? colorPrefix(role, key) : [ns === 'spacing' ? spacingPrefix(role) : NAMESPACE_PREFIX[ns]];
-      if (!one[0]) throw new Error(`generate-token-tree: the theme key ${name} reads the role ${role}, and the namespace ${ns} has no utility prefix here.`);
-      out.set(role, [...(out.get(role) ?? []), ...one.map((prefix) => `${prefix}${key}`)]);
+      out.push({ name, role, ns: hit[0], key: hit[1] });
     }
   }
+  return out;
+}
+
+export function roleUtilities(base = root) {
+  const out = new Map<string, string[]>();
+  for (const { name, role, ns, key } of roleThemeKeys(base)) {
+    const one = ns === 'color' ? colorPrefix(role, key) : [ns === 'spacing' ? spacingPrefix(role) : NAMESPACE_PREFIX[ns]];
+    if (!one[0]) throw new Error(`generate-token-tree: the theme key ${name} reads the role ${role}, and the namespace ${ns} has no utility prefix here.`);
+    out.set(role, [...(out.get(role) ?? []), ...one.map((prefix) => `${prefix}${key}`)]);
+  }
+  return out;
+}
+
+export function roleColourKeys(base = root) {
+  const out = new Map<string, string[]>();
+  for (const { role, ns, key } of roleThemeKeys(base)) if (ns === 'color') out.set(role, [...(out.get(role) ?? []), key]);
   return out;
 }
 

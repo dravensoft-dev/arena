@@ -475,6 +475,18 @@ test('a catalogue role carries its state, so arena.tokens.json and the MCP see i
   assert.equal('state' in catalogueRole({ $type: 'color' }), false);
 });
 
+test('a levelled catalogue role carries the colour keys a class reads it by, and no other role does', () => {
+  const level = { $type: 'color', $extensions: { 'com.dravensoft.arena': { combines: [{ with: 'level-x', as: 'level' }] } } };
+  const width = { $type: 'color', $extensions: { 'com.dravensoft.arena': { combines: [{ with: 'bw-x', as: 'width' }] } } };
+  const ROWS: [string, Record<string, any>, string[] | undefined, string[] | undefined][] = [
+    ['a levelled role', level, ['selected'], ['selected']],
+    ['a levelled role with no key', level, undefined, undefined],
+    ['a role combined otherwise', width, ['edge-x'], undefined],
+    ['a role with no combination', { $type: 'color' }, ['x'], undefined],
+  ];
+  for (const [name, role, keys, want] of ROWS) assert.deepEqual(catalogueRole(role, keys).keys, want, name);
+});
+
 test('copyCli writes bin/palette.d.mts with no import', () => {
   const to = tree({});
   const written = copyCli(to, repoRoot);
