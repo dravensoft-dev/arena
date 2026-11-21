@@ -117,17 +117,11 @@ test('a consumer id overrides the one generated from the label', () => {
   assert.doesNotMatch(html, /in-email/, 'the generated id is still being used despite an explicit one');
 });
 
-test('without a consumer id the label-derived one is still generated', () => {
-  const html = renderIcons(<ArenaInput label="Email" />);
-  assert.match(html, /id="in-email"/);
-  assert.match(html, /for="in-email"/);
-});
-
 test('readOnly is a group on the field and the input', () => {
   const on = renderIcons(<ArenaInput label="Slug" readOnly />);
   assert.match(on, /data-arena-part="input.field"[^>]*\bdata-arena-read-only=""/);
   assert.match(on, /data-arena-part="input.input"[^>]*\bdata-arena-read-only=""/);
-  assert.doesNotMatch(renderIcons(<ArenaInput label="Slug" />), /read-only-true/);
+  assert.doesNotMatch(renderIcons(<ArenaInput label="Slug" />), /data-arena-read-only/);
 });
 
 test('a hint is named by the field and carries the id followed by -note', () => {

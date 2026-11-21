@@ -74,7 +74,25 @@ test('a list of unknown length passes the sentinel through rather than inventing
   assert.deepEqual(dataRows(root).map((r) => r.getAttribute('aria-rowindex')), ['2', '3']);
 });
 
-test('card mode carries neither, because that shape draws no grid for them to describe', () => {
+function narrowWidths<T>(width: number, body: () => T): T {
+  const saved = globalThis.ResizeObserver;
+  globalThis.ResizeObserver = class {
+    callback: ResizeObserverCallback;
+    constructor(callback: ResizeObserverCallback) { this.callback = callback; }
+    observe(target: Element) {
+      this.callback([{ target, borderBoxSize: [{ inlineSize: width, blockSize: 0 }], contentRect: { width } }] as unknown as ResizeObserverEntry[], this as unknown as ResizeObserver);
+    }
+    unobserve() {}
+    disconnect() {}
+  } as unknown as typeof ResizeObserver;
+  try {
+    return body();
+  } finally {
+    globalThis.ResizeObserver = saved;
+  }
+}
+
+test('the empty shape carries neither, because that shape draws no grid for them to describe', () => {
   const root = mount(
     <ArenaTable label={LABEL} columns={COLUMNS} responsive={false} slice={{ total: 500, offset: 40 }}>
       {rows(0)}
@@ -83,4 +101,19 @@ test('card mode carries neither, because that shape draws no grid for them to de
   assert.equal(grid(root)?.getAttribute('aria-rowcount'), null,
     'the empty shape strips the grid role, and an attribute describing a grid that is not there '
     + 'is a size claim over nothing');
+});
+
+test('card mode carries neither, because that shape draws no grid for them to describe', () => {
+  narrowWidths(400, () => {
+    const root = mount(
+      <ArenaTable label={LABEL} columns={COLUMNS} slice={{ total: 500, offset: 40 }}>
+        {rows(2)}
+      </ArenaTable>,
+    );
+    assert.equal(grid(root)?.getAttribute('role'), 'presentation', 'sanity: below --bp-md the table is in card mode');
+    assert.equal(grid(root)?.getAttribute('aria-rowcount'), null);
+    const data = dataRows(root);
+    assert.equal(data.length, 2, 'sanity: the card shape still has its two rows');
+    assert.deepEqual(data.map((r) => r.getAttribute('aria-rowindex')), [null, null]);
+  });
 });

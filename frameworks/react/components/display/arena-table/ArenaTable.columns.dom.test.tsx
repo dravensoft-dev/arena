@@ -76,9 +76,13 @@ test('a valid key binds both properties on the header and on the cell', () => {
 });
 
 test('a column with no key writes initial on both channels and warns nothing', () => {
-  for (const cell of cellsOf(mount(table(undefined)))) {
+  const cells = cellsOf(mount(table(undefined)));
+  assert.ok(cells.length > 0, 'sanity: the table drew cells');
+  for (const cell of cells) {
     assert.equal(channel(cell, WIDTH), 'initial');
     assert.equal(channel(cell, ALIGN), 'initial');
+    assert.equal((cell.getAttribute('style') ?? '').split(';').filter(Boolean).length, 2,
+      'the cell writes its two channels and nothing else');
   }
   assert.equal(warnings.length, 0);
 });

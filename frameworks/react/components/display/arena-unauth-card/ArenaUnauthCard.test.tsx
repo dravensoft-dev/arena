@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { renderToStaticMarkup } from 'react-dom/server';
 import React from 'react';
@@ -24,10 +25,15 @@ test('every slot is optional — a bare panel of children still renders', () => 
 
 test('it constrains its own width and does not centre itself', () => {
   const html = renderToStaticMarkup(<ArenaUnauthCard><span>x</span></ArenaUnauthCard>);
-
   assert.match(html, /arena-unauth-card__root/);
-  assert.doesNotMatch(html, /\bjustify-/, 'the card centres nothing; the page it sits on decides that');
-  assert.doesNotMatch(html, /\bmin-h-/);
+
+  const css = readFileSync(new URL('../../../../tailwind/consume/components/display/arena-unauth-card/ArenaUnauthCard.styles.generated.css', import.meta.url), 'utf8');
+  const start = css.indexOf('.arena-unauth-card__root {');
+  assert.ok(start >= 0, 'the sheet has no __root rule');
+  const rule = css.slice(start, css.indexOf('\n  }\n', start));
+  assert.match(rule, /max-width/, 'the card constrains its own width');
+  assert.doesNotMatch(rule, /justify-content|align-items|min-height|margin-inline: auto/,
+    'the card centres nothing; the page it sits on decides that');
 });
 
 test('eyebrow and title render as plain text', () => {

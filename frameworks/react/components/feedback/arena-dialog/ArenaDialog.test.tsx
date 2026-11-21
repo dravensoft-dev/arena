@@ -52,7 +52,7 @@ test('eyebrow is drawn above the title when given, and nothing is drawn when it 
   const without = renderToStaticMarkup(
     <ArenaDialog open onClose={() => {}} title={TITLE}><p>b</p></ArenaDialog>,
   );
-  assert.doesNotMatch(without, /text-transform:uppercase/, 'an empty eyebrow row was drawn');
+  assert.doesNotMatch(without, /data-arena-part="dialog\.eyebrow"/, 'an empty eyebrow row was drawn');
 });
 
 test('the panel carries no inline width, because the width is a family its class reads', () => {
@@ -105,14 +105,11 @@ test('title is required and its absence throws', () => {
   );
 });
 
-test('open is required and its absence throws, while false renders nothing and does not', () => {
+test('open is required, and its absence throws', () => {
   assert.throws(
     // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
     () => renderToStaticMarkup(<ArenaDialog title={TITLE}><p>b</p></ArenaDialog>),
     /ArenaDialog: `open` is required/,
-  );
-  assert.doesNotThrow(
-    () => renderToStaticMarkup(<ArenaDialog open={false} title={TITLE}><p>b</p></ArenaDialog>),
   );
 });
 

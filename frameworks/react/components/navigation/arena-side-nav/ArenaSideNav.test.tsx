@@ -31,8 +31,6 @@ test('the nav is labelled', () => {
 test('active and inactive items differ in weight and colour', () => {
   const html = renderIcons(<ArenaSideNav ariaLabel="Primary" active="dashboard">{TREE}</ArenaSideNav>);
   assert.match(html, /data-arena-part="side-nav.item"[^>]*\bdata-arena-current=""/);
-  assert.match(html, /data-arena-part="side-nav.item"[^>]*\bdata-arena-current=""/);
-  assert.match(html, /data-arena-part="side-nav.item"[^>]*\bdata-arena-current=""/);
   assert.match(html, /data-arena-part="side-nav.item"(?:(?!data-arena-current=)[^>])*>/);
 });
 
@@ -58,20 +56,16 @@ test('onNav carries the activated id alone, and no DOM event reaches the handler
 test('an item in a nav that wired no onNav still clicks rather than throwing', () => {
   const bare = ArenaSideNav({ children: TREE, ariaLabel: 'Primary' });
   const [anchor, button] = bare.props.children.map((el: React.ReactElement) => ArenaSideNavItem(el.props));
-  assert.doesNotThrow(() => anchor.props.onClick({}),
+  const event = {
+    button: 0, metaKey: false, ctrlKey: false, shiftKey: false, altKey: false,
+    preventDefault() { this.defaultPrevented = true; }, defaultPrevented: false,
+  };
+  assert.doesNotThrow(() => anchor.props.onClick(event),
     'clicking an item in a nav with no onNav threw -- ArenaSideNavItem lost its `onActivate &&` guard');
+  assert.equal(event.defaultPrevented, true,
+    'the primary click did not pass isArenaPrimaryActivation, so the onActivate guard was never reached');
   assert.doesNotThrow(() => button.props.onClick({}),
     'clicking an item in a nav with no onNav threw -- ArenaSideNavItem lost its `onActivate &&` guard');
-});
-
-test('the anchor keeps its native navigation: nothing in the click path suppresses it', () => {
-  const tree = ArenaSideNav({ children: TREE, ariaLabel: 'Primary', onNav: () => {} });
-  const anchor = ArenaSideNavItem(tree.props.children[0].props);
-  assert.equal(anchor.props.href, '/projects', 'the anchor lost its href and stopped being a link');
-  const event = { preventDefault() { this.defaultPrevented = true; }, defaultPrevented: false };
-  anchor.props.onClick(event);
-  assert.equal(event.defaultPrevented, false,
-    'something called preventDefault -- ctrl-click and open-in-new-tab are what that costs');
 });
 
 test('an icon is a class name Arena draws, never markup the caller passes', () => {

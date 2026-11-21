@@ -180,6 +180,10 @@ test('the first row, a sortable head and a numeric cell are groups on the base s
   assert.match(html, /data-arena-part="table.th"[^>]*\bdata-arena-sortable=""/);
   assert.equal((html.match(/data-arena-part="table.row"[^>]*\bdata-arena-first=""/g) || []).length, 1, 'only the first body row');
   assert.match(html, /data-arena-part="table.td"[^>]*\bdata-arena-numeric=""/);
+  const plain = render({ columns: [{ header: 'Project' }, { header: 'Owner' }] });
+  assert.match(plain, /<td\b/, 'sanity: a data cell was drawn');
+  assert.doesNotMatch(plain, /data-arena-numeric/,
+    'a plain column drew the numeric group');
 });
 
 test('an interactive row selects the interactive group', () => {

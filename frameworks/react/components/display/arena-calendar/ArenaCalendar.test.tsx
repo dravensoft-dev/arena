@@ -264,13 +264,12 @@ test('a chip carrying a kebab reserves the width the kebab occupies', () => {
     'a panelled chip reserves nothing for its kebab, so the title is drawn underneath it');
 });
 
-test('a chip with no kebab reserves nothing, and keeps its ordinary right padding', () => {
+test('a chip with no kebab reserves nothing, and is still the ordinary chip', () => {
   const html = render({});
-  assert.doesNotMatch(html, /var\(--dz-ctl-h-sm\)/,
+  assert.doesNotMatch(html, /data-arena-reserve/,
     'a chip with no kebab reserved a gutter for a button it never renders');
   assert.match(html, /\barena-calendar__chip\b/,
-    'the unpanelled chip lost its ordinary lateral padding');
-  assert.match(html, /\barena-calendar__chip\b/);
+    'the unpanelled chip is not drawn from its own slot');
 });
 
 test('a day header cell has no bottom padding, and the scroller keeps its top padding', () => {
@@ -326,7 +325,8 @@ test('a stacked chip anchors its kebab to the bottom and reserves no lateral ban
   );
   assert.match(stacked, /data-arena-part="calendar.kebab-wrap"[^>]*\bdata-arena-actions-below=""/,
     'the kebab is not anchored to the chip bottom');
-  assert.doesNotMatch(stacked, /pr-\[calc\(var\(--dz-ctl-h-sm\)/,
+  assert.match(stacked, /data-arena-part="calendar.chip"/, 'sanity: the chip is drawn');
+  assert.doesNotMatch(stacked, /data-arena-part="calendar.chip"[^>]*\bdata-arena-reserve=""/,
     'a stacked chip still reserves the lateral band, so the title gains nothing');
 });
 
