@@ -1,23 +1,10 @@
 import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import React, { useState } from 'react';
-import { join } from 'node:path';
 import { mount, cleanup, act } from '../../../test/Harness.tsx';
-import { assertPattern, REACT_COMPONENTS } from '../../../test/AssertPattern.tsx';
 import { ArenaOnboarding } from './ArenaOnboarding.tsx';
 
 afterEach(cleanup);
-
-const ONBOARDING_BEHAVIOURAL = {
-
-  'focus.onOpen': true,
-
-  'focus.onClose': true,
-
-  'focus.trap': true,
-
-  'keyboard.Escape': true,
-};
 
 function press(el: Element, key: string, init: KeyboardEventInit = {}) {
   act(() => {
@@ -37,41 +24,6 @@ const THREE_STEPS = [
   { title: 'All set', body: 'Three' },
 ];
 
-test('ArenaOnboarding matches its dialog-modal binding, in both directions', () => {
-  const container = mount(
-    <ArenaOnboarding open steps={[{ title: 'Welcome', body: 'Body' }]} index={0} onSkip={() => {}} />,
-  );
-  assertPattern({
-    root: container,
-    bindingPath: join(REACT_COMPONENTS, 'feedback/arena-onboarding/ArenaOnboarding.behaviour.json'),
-
-    subjects: { default: container.querySelector<HTMLElement>('[role="dialog"]') },
-    behavioural: ONBOARDING_BEHAVIOURAL,
-  });
-});
-
-test('ArenaOnboarding dismisses on Escape -- keyboard.Escape is met', () => {
-
-  let skipped = false;
-  const container = mount(
-    <ArenaOnboarding open steps={THREE_STEPS} index={1} onSkip={() => { skipped = true; }} />,
-  );
-  press(container!.querySelector<HTMLElement>('[role="dialog"]')!, 'Escape');
-  assert.equal(skipped, true, 'Escape did not reach the coachmark\'s own dismissal channel');
-});
-
-test('ArenaOnboarding still dismisses on a scrim click -- the mouse path Escape joins rather than replaces', () => {
-
-  let skipped = false;
-  const container = mount(
-    <ArenaOnboarding open steps={THREE_STEPS} index={1} onSkip={() => { skipped = true; }} />,
-  );
-  const scrim = container.querySelector<HTMLElement>('[role="dialog"]')!.parentElement;
-  assert.notEqual(scrim, null, 'precondition: the panel sits inside the scrim');
-  click(scrim!);
-  assert.equal(skipped, true, 'the scrim click must still dismiss');
-});
-
 test('a click inside the panel does not reach the scrim, which is what stopPropagation buys once they share an ancestor', () => {
   let skipped = false;
   const container = mount(
@@ -86,84 +38,6 @@ test('a click inside the panel does not reach the scrim, which is what stopPropa
   const back = [...panel!.querySelectorAll<HTMLElement>('button')].find((b) => b.textContent === 'Back');
   click(back!);
   assert.equal(skipped, false, 'a click on Back dismissed the tour through the scrim listener behind it');
-});
-
-test('ArenaOnboarding moves focus to the first focusable inside the panel on open -- focus.onOpen is met', () => {
-
-  const invoker = document.createElement('button');
-  document.body.appendChild(invoker);
-  invoker.focus();
-  assert.equal(document.activeElement, invoker, 'precondition: the invoker holds focus');
-
-  const container = mount(
-    <ArenaOnboarding open steps={THREE_STEPS} index={1} onSkip={() => {}} />,
-  );
-  const panel = container.querySelector<HTMLElement>('[role="dialog"]');
-  assert.notEqual(document.activeElement, invoker, 'focus stayed on the invoker, outside the coachmark');
-  assert.equal(
-    document.activeElement,
-    panel!.querySelector<HTMLElement>('button')!,
-    'the coachmark\'s first focusable descendant did not receive focus',
-  );
-  invoker.remove();
-});
-
-function OnboardingHarness() {
-  const [open, setOpen] = React.useState(false);
-  return (
-    <div>
-      <button type="button" data-role="invoker" onClick={() => setOpen(true)}>Open</button>
-      <ArenaOnboarding open={open} steps={THREE_STEPS} index={1} onSkip={() => setOpen(false)} />
-    </div>
-  );
-}
-
-test('ArenaOnboarding restores focus to the invoker on close -- focus.onClose is met', () => {
-  const container = mount(<OnboardingHarness />);
-  const invoker = container.querySelector<HTMLElement>('[data-role="invoker"]');
-  invoker!.focus();
-  assert.equal(document.activeElement, invoker, 'precondition: the invoker holds focus');
-  assert.equal(container.querySelector<HTMLElement>('[role="dialog"]')!, null, 'precondition: the coachmark starts closed');
-
-  click(invoker!);
-  const panel = container.querySelector<HTMLElement>('[role="dialog"]');
-  assert.notEqual(panel, null, 'precondition: the click opened the coachmark');
-
-  assert.equal(document.activeElement, panel!.querySelector<HTMLElement>('button')!, 'precondition: opening put focus inside the coachmark');
-
-  click(panel!.parentElement!);
-  assert.equal(container.querySelector<HTMLElement>('[role="dialog"]')!, null, 'precondition: the scrim click really closed the coachmark');
-
-  assert.equal(document.activeElement, invoker, 'focus was not restored to the invoker that opened the coachmark');
-});
-
-test('ArenaOnboarding wraps Shift+Tab from the first focusable to the last -- focus.trap is met at the boundary', () => {
-  const container = mount(
-    <ArenaOnboarding open steps={THREE_STEPS} index={1} onSkip={() => {}} onBack={() => {}} onNext={() => {}} />,
-  );
-  const panel = container.querySelector<HTMLElement>('[role="dialog"]');
-  const buttons = panel!.querySelectorAll<HTMLElement>('button');
-  assert.equal(buttons.length, 3, 'precondition: a middle step renders Back, Skip and Next');
-  const first = buttons[0];
-  const last = buttons[buttons.length - 1];
-  act(() => { first!.focus(); });
-  assert.equal(document.activeElement, first, 'precondition: the first focusable holds focus');
-  press(first!, 'Tab', { shiftKey: true });
-  assert.equal(document.activeElement, last, 'Shift+Tab at the first boundary did not wrap to the last');
-});
-
-test('ArenaOnboarding wraps Tab from the last focusable to the first -- the other boundary', () => {
-  const container = mount(
-    <ArenaOnboarding open steps={THREE_STEPS} index={1} onSkip={() => {}} onBack={() => {}} onNext={() => {}} />,
-  );
-  const panel = container.querySelector<HTMLElement>('[role="dialog"]');
-  const buttons = panel!.querySelectorAll<HTMLElement>('button');
-  const first = buttons[0];
-  const last = buttons[buttons.length - 1];
-  act(() => { last!.focus(); });
-  assert.equal(document.activeElement, last, 'precondition: the last focusable holds focus');
-  press(last!, 'Tab');
-  assert.equal(document.activeElement, first, 'Tab at the last boundary did not wrap to the first');
 });
 
 test('ArenaOnboarding falls back to the step eyebrow when the step has no title -- roles.label is met on an untitled step', () => {

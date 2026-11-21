@@ -23,13 +23,6 @@ function render(props: Partial<React.ComponentProps<typeof ArenaLink>> = {}) {
   return { seen, anchor: root.querySelector('a') as HTMLAnchorElement };
 }
 
-test('a primary click is cancelled and reported once, so a router owns it', () => {
-  const { seen, anchor } = render();
-  const event = press(anchor);
-  assert.equal(event.defaultPrevented, true, 'the anchor was left to navigate on its own, so a router never gets the chance to');
-  assert.equal(seen.went, 1);
-});
-
 test('a primary click is cancelled whether or not anything listens for it', () => {
   const root = mount(<p>Read <ArenaLink href="/notes">the release notes</ArenaLink> first.</p>);
   const event = press(root.querySelector('a') as Element);
@@ -48,16 +41,6 @@ test('an ignored _blank target writes none, so the click is a plain one and rout
     assert.equal(seen.went, 1);
   } finally { console.warn = warn; }
   assert.equal(said.length, 1, 'the ignored target warns once');
-});
-
-test('a modified click and a middle click stay the browser\'s, and report nothing', () => {
-  const { seen, anchor } = render();
-  for (const over of [{ metaKey: true }, { ctrlKey: true }, { shiftKey: true }, { altKey: true }, { button: 1 }]) {
-    const event = press(anchor, over);
-    assert.equal(event.defaultPrevented, false,
-      `${JSON.stringify(over)} was cancelled -- the reader asked for a new tab or for the address`);
-  }
-  assert.equal(seen.went, 0, 'a modified activation reported through navigate');
 });
 
 test('a link a router cannot own is never cancelled and reports nothing', () => {

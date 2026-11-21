@@ -1,8 +1,8 @@
-/* The four true entries in the two maps below are verdicts this suite does not earn: nothing
- * here presses a key or reads document.activeElement. They are earned beside it, in
- * Behavioural.dom.test.tsx, which dispatches Escape and asserts focus returns to the invoker.
+/* The four true entries in each behavioural map below are verdicts this suite does not earn:
+ * nothing here presses a key or reads document.activeElement. They are earned beside it, in
+ * ModalScript.dom.test.tsx, which dispatches Escape and asserts focus returns to the invoker.
  * Nothing connected the two files, so deleting the suite that earns them left this one green
- * over four literals. The last test reads that file, which is what makes the deletion red. */
+ * over literals. The last test reads that file, which is what makes the deletion red. */
 import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
@@ -13,6 +13,7 @@ import { mount, cleanup } from '../../test/Harness.tsx';
 import { assertPattern, REACT_COMPONENTS } from '../../test/AssertPattern.tsx';
 import { ArenaDialog } from './arena-dialog/ArenaDialog.tsx';
 import { ArenaConfirmDialog } from './arena-confirm-dialog/ArenaConfirmDialog.tsx';
+import { ArenaOnboarding } from './arena-onboarding/ArenaOnboarding.tsx';
 
 afterEach(cleanup);
 
@@ -21,6 +22,10 @@ const DIALOG_BEHAVIOURAL = {
 };
 
 const CONFIRM_DIALOG_BEHAVIOURAL = {
+  'focus.onOpen': true, 'focus.onClose': true, 'focus.trap': true, 'keyboard.Escape': true,
+};
+
+const ONBOARDING_BEHAVIOURAL = {
   'focus.onOpen': true, 'focus.onClose': true, 'focus.trap': true, 'keyboard.Escape': true,
 };
 
@@ -60,6 +65,18 @@ test('ArenaConfirmDialog matches its alertdialog binding, in both directions', (
 
     subjects: { default: container.querySelector<HTMLElement>('[role="dialog"], [role="alertdialog"]') },
     behavioural: CONFIRM_DIALOG_BEHAVIOURAL,
+  });
+});
+
+test('ArenaOnboarding matches its dialog-modal binding, in both directions', () => {
+  const container = mount(
+    <ArenaOnboarding open steps={[{ title: 'Welcome', body: 'Body' }]} index={0} onSkip={() => {}} />,
+  );
+  assertPattern({
+    root: container,
+    bindingPath: join(REACT_COMPONENTS, 'feedback/arena-onboarding/ArenaOnboarding.behaviour.json'),
+    subjects: { default: container.querySelector<HTMLElement>('[role="dialog"]') },
+    behavioural: ONBOARDING_BEHAVIOURAL,
   });
 });
 
@@ -112,18 +129,36 @@ test('the require-text input substitutes a focus ring for the outline it removes
     'and nothing renders one inline either, which would ship one tag per instance');
 });
 
-test('the behavioural verdicts above are earned in Behavioural.dom.test.tsx, which is read here', () => {
-  const pinning = readFileSync(join(REACT_COMPONENTS, 'feedback/Behavioural.dom.test.tsx'), 'utf8');
-  for (const [component, behavioural] of [
-    ['ArenaDialog', DIALOG_BEHAVIOURAL],
-    ['ArenaConfirmDialog', CONFIRM_DIALOG_BEHAVIOURAL],
-  ] as const) {
+function unearned(source: string, claims: ReadonlyArray<readonly [string, Record<string, boolean>]>) {
+  const missing: string[] = [];
+  for (const [component, behavioural] of claims) {
+    if (!source.includes(`name: '${component}'`)) missing.push(`${component} (no row)`);
     for (const [requirement, met] of Object.entries(behavioural)) {
       if (!met) continue;
-      const earns = new RegExp(`test\\('${component}[^']*${requirement.replace('.', '\\.')} is met`);
-      assert.match(pinning, earns,
-        `${component} claims ${requirement} met here and nothing in Behavioural.dom.test.tsx earns it: `
-        + 'either that test went, or the claim did');
+      if (!source.includes(`${requirement} is met`)) missing.push(`${component} ${requirement}`);
     }
   }
+  return missing;
+}
+
+const CLAIMS = [
+  ['ArenaDialog', DIALOG_BEHAVIOURAL],
+  ['ArenaConfirmDialog', CONFIRM_DIALOG_BEHAVIOURAL],
+  ['ArenaOnboarding', ONBOARDING_BEHAVIOURAL],
+] as const;
+
+test('a requirement the script file does not earn fails the reader', () => {
+  const source = readFileSync(join(REACT_COMPONENTS, 'feedback/ModalScript.dom.test.tsx'), 'utf8');
+  assert.deepEqual(unearned(source.replaceAll('focus.trap is met', 'focus.trap'), CLAIMS),
+    ['ArenaDialog focus.trap', 'ArenaConfirmDialog focus.trap', 'ArenaOnboarding focus.trap'],
+    'a requirement absent from the file must be reported for every component that claims it');
+  assert.deepEqual(unearned(source.replaceAll("name: 'ArenaOnboarding'", "name: 'Other'"), CLAIMS),
+    ['ArenaOnboarding (no row)'], 'a component with no row in the file must be reported');
+});
+
+test('the behavioural verdicts above are earned in ModalScript.dom.test.tsx, which is read here', () => {
+  const pinning = readFileSync(join(REACT_COMPONENTS, 'feedback/ModalScript.dom.test.tsx'), 'utf8');
+  assert.deepEqual(unearned(pinning, CLAIMS), [],
+    'a claimed requirement or a component row is absent from ModalScript.dom.test.tsx: '
+    + 'either that test went, or the claim did');
 });

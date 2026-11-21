@@ -8,6 +8,7 @@ import React from 'react';
 import { mount, cleanup, act } from './Harness.tsx';
 import { ArenaBoardColumn, ArenaBarChart, ArenaButton, ArenaIconButton, ArenaSplitButton, ArenaCopyButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope, ArenaCheckbox, ArenaRadioGroup, ArenaRadio, ArenaSwitch, ArenaSlider, ArenaInput, ArenaFileInput, ArenaMultiSelect, ArenaSideNav, ArenaSideNavItem, ArenaTabs, ArenaTab, ArenaTreeView, ArenaPagination, ArenaBottomNav, ArenaBottomNavItem, ArenaStepper, ArenaOnboarding, ArenaCommandPalette, ArenaAlert, ArenaToast , ArenaAvatar, ArenaActivityFeed, ArenaMeter, ArenaProgressBar, ArenaSpinner, ArenaChartCard, ArenaDivider, ArenaConfirmDialog, ArenaTable, ArenaTableRow, ArenaTableCell } from '../Index.generated.ts';
 import { readProximity, normalize, vocabularyClasses, markDotAnswers } from '../../../scripts/lib/arena/proximity.ts';
+import { stubNarrow } from './NarrowWidths.ts';
 
 afterEach(cleanup);
 
@@ -334,19 +335,6 @@ const SUBJECT: Record<string, { part: string; at: number }> = {
 };
 
 const NARROW = new Set(['to-by-reads-its-branch-in-a-card']);
-function stubNarrow(width: number): () => void {
-  const saved = globalThis.ResizeObserver;
-  globalThis.ResizeObserver = class {
-    callback: ResizeObserverCallback;
-    constructor(callback: ResizeObserverCallback) { this.callback = callback; }
-    observe(target: Element) {
-      this.callback([{ target, borderBoxSize: [{ inlineSize: width, blockSize: 0 }], contentRect: { width } }] as unknown as ResizeObserverEntry[], this as unknown as ResizeObserver);
-    }
-    unobserve() {}
-    disconnect() {}
-  } as unknown as typeof ResizeObserver;
-  return () => { globalThis.ResizeObserver = saved; };
-}
 
 const { families, cases } = readProximity();
 const vocabulary = vocabularyClasses(families);

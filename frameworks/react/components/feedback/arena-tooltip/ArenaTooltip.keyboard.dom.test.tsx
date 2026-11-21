@@ -172,7 +172,7 @@ test('the description reaches a child that drops every prop it is handed', () =>
     'the reference outlived the bubble it named');
 });
 
-test('the bubble takes the shared fade utility rather than a keyframe of its own', () => {
+test('the bubble draws its slot class and nothing injects a stylesheet for it', () => {
   const root = mount(one());
   focusIn(root);
   assert.match(bubble(root).getAttribute('class') ?? '', /\barena-tooltip__bubble\b/);

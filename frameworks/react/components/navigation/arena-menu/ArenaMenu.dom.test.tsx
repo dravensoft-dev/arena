@@ -95,20 +95,15 @@ test('icon is a class name Arena draws, and never reaches the page as text', () 
   assert.equal(panel.textContent, 'View logs', 'the icon class name was drawn as text');
 });
 
-test('a consumer style object reaches no part of the opened panel', () => {
+test('a consumer style object and a consumer attribute reach no part of the opened panel', () => {
   const root = mount(
     // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    <ArenaMenu trigger={<button type="button">Open</button>} items={[{ label: 'Rename' }]} style={{ color: '#ff00ff' }} />,
+    <ArenaMenu trigger={<button type="button">Open</button>} items={[{ label: 'Rename' }]} style={{ color: '#ff00ff' }} data-stray="x" />,
   );
-  assert.doesNotMatch(open(root).outerHTML, /#ff00ff/,
+  const panel = open(root).outerHTML;
+  assert.doesNotMatch(panel, /#ff00ff/,
     'a consumer style reached the panel -- the R4 escape is back');
-});
-
-test('a consumer attribute reaches no part of the opened panel', () => {
-  const root = mount(
-    <ArenaMenu trigger={<button type="button">Open</button>} items={[{ label: 'Rename' }]} data-stray="x" />,
-  );
-  assert.doesNotMatch(open(root).outerHTML, /data-stray/,
+  assert.doesNotMatch(panel, /data-stray/,
     'a consumer attribute reached the panel -- a {...rest} escape is back');
 });
 

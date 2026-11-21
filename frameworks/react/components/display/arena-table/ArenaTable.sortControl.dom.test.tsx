@@ -12,6 +12,7 @@ import { forgetArenaWarnings } from '../../../WarnOnce.ts';
 import { ArenaTableRow } from '../arena-table-row/ArenaTableRow.tsx';
 import { ArenaTableCell } from '../arena-table-cell/ArenaTableCell.tsx';
 import type { ArenaTableColumn, ArenaTableSort, ArenaTableSortControl } from '../../../Api.generated';
+import { narrowWidths } from '../../../test/NarrowWidths.ts';
 
 afterEach(cleanup);
 
@@ -23,24 +24,6 @@ const COLUMNS: ArenaTableColumn[] = [
   { header: 'Status' },
   { header: 'Total', sortable: true },
 ];
-
-function narrowWidths<T>(width: number, body: () => T): T {
-  const saved = globalThis.ResizeObserver;
-  globalThis.ResizeObserver = class {
-    callback: ResizeObserverCallback;
-    constructor(callback: ResizeObserverCallback) { this.callback = callback; }
-    observe(target: Element) {
-      this.callback([{ target, borderBoxSize: [{ inlineSize: width, blockSize: 0 }], contentRect: { width } }] as unknown as ResizeObserverEntry[], this as unknown as ResizeObserver);
-    }
-    unobserve() {}
-    disconnect() {}
-  } as unknown as typeof ResizeObserver;
-  try {
-    return body();
-  } finally {
-    globalThis.ResizeObserver = saved;
-  }
-}
 
 function render(options: {
   sort?: ArenaTableSort;

@@ -7,26 +7,9 @@ import assert from 'node:assert/strict';
 import React from 'react';
 import { mount, cleanup } from '../../../test/Harness.tsx';
 import { ArenaFilterBar } from './ArenaFilterBar.tsx';
+import { narrowWidths as measured } from '../../../test/NarrowWidths.ts';
 
 afterEach(cleanup);
-
-function measured<T>(width: number, body: () => T): T {
-  const saved = globalThis.ResizeObserver;
-  globalThis.ResizeObserver = class {
-    callback: ResizeObserverCallback;
-    constructor(callback: ResizeObserverCallback) { this.callback = callback; }
-    observe(target: Element) {
-      this.callback([{ target, borderBoxSize: [{ inlineSize: width, blockSize: 0 }], contentRect: { width } }] as unknown as ResizeObserverEntry[], this as unknown as ResizeObserver);
-    }
-    unobserve() {}
-    disconnect() {}
-  } as unknown as typeof ResizeObserver;
-  try {
-    return body();
-  } finally {
-    globalThis.ResizeObserver = saved;
-  }
-}
 
 const render = () => mount(
   <ArenaFilterBar label="Deployment filters" applied={[{ id: 'region', label: 'Region: Europe West' }]}>

@@ -1,4 +1,4 @@
-/* One rule, four components, three activations each, which is why this sits here rather than
+/* One rule, seven components, three activations each, which is why this sits here rather than
  * beside any one of them. happy-dom does not follow a link, so what is asserted is
  * defaultPrevented: cancelled means Arena took the activation and the handler owns it,
  * uncancelled means the browser keeps it. The three paths are asserted separately because
@@ -9,11 +9,23 @@
 import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
+import { readdirSync, readFileSync } from 'node:fs';
+import { join, basename } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { mount, cleanup, act } from './Harness.tsx';
+import { withIcons } from './IconsHarness.tsx';
 import { ArenaCard } from '../components/display/arena-card/ArenaCard.tsx';
 import { ArenaBreadcrumbs } from '../components/navigation/arena-breadcrumbs/ArenaBreadcrumbs.tsx';
 import { ArenaSideNavItem } from '../components/navigation/arena-side-nav-item/ArenaSideNavItem.tsx';
 import { ArenaCommandPalette } from '../components/navigation/arena-command-palette/ArenaCommandPalette.tsx';
+import { ArenaLink } from '../components/navigation/arena-link/ArenaLink.tsx';
+import { ArenaBottomNav } from '../components/navigation/arena-bottom-nav/ArenaBottomNav.tsx';
+import { ArenaBottomNavItem } from '../components/navigation/arena-bottom-nav-item/ArenaBottomNavItem.tsx';
+import { ArenaTable } from '../components/display/arena-table/ArenaTable.tsx';
+import { ArenaTableRow } from '../components/display/arena-table-row/ArenaTableRow.tsx';
+import { ArenaTableCell } from '../components/display/arena-table-cell/ArenaTableCell.tsx';
+
+const ROOT = fileURLToPath(new URL('..', import.meta.url));
 
 afterEach(cleanup);
 
@@ -27,12 +39,15 @@ function click(el: Element, init: MouseEventInit = {}): MouseEvent {
 
 const MODIFIERS: Modifier[] = ['ctrlKey', 'metaKey', 'shiftKey', 'altKey'];
 
-function assertConvention(name: string, anchor: () => Element, reported: () => number) {
+function assertConvention(
+  name: string, anchor: () => Element, reported: () => number, values?: () => unknown[], expected?: unknown[],
+) {
   const before = reported();
   const plain = click(anchor());
   assert.equal(reported(), before + 1, `${name}: a primary click with no modifier must report`);
   assert.equal(plain.defaultPrevented, true,
     `${name}: the anchor must be cancelled, or the router and the browser both navigate`);
+  if (values && expected) assert.deepEqual(values(), expected, `${name}: a primary click must report exactly the destination`);
 
   for (const modifier of MODIFIERS) {
     const count = reported();
@@ -47,39 +62,90 @@ function assertConvention(name: string, anchor: () => Element, reported: () => n
   const middle = click(anchor(), { button: 1 });
   assert.equal(reported(), count, `${name}: a middle click is the browser's`);
   assert.equal(middle.defaultPrevented, false, `${name}: a middle click must reach the browser`);
+  if (values && expected) assert.deepEqual(values(), expected, `${name}: a modified or middle click reports nothing more`);
 }
 
-test('ArenaCard.href reports the primary click and leaves every other one to the browser', () => {
-  let clicked = 0;
-  const root = mount(<ArenaCard href="/clients/acme" title="Acme Corp" onActivate={() => { clicked += 1; }} />);
-  assertConvention('ArenaCard', () => root.firstElementChild!, () => clicked);
-});
+interface AnchorRow {
+  name: string;
+  source: string;
+  render: (report: (value?: unknown) => void) => HTMLElement;
+  anchor: (root: HTMLElement) => Element;
+  values?: unknown[];
+}
 
-test('an ArenaCrumb reports the primary click and leaves every other one to the browser', () => {
-  let navigated = 0;
-  const root = mount(
-    <ArenaBreadcrumbs ariaLabel="Project navigation" onNavigate={() => { navigated += 1; }}
-      items={[{ label: 'Clients', href: '/clients' }, { label: 'Acme' }]} />,
-  );
-  assertConvention('ArenaBreadcrumbs', () => root.querySelector('a')!, () => navigated);
-});
+const ROWS: AnchorRow[] = [
+  {
+    name: 'ArenaCard', source: 'ArenaCard',
+    render: (report) => mount(<ArenaCard href="/clients/acme" title="Acme Corp" onActivate={() => report()} />),
+    anchor: (root) => root.firstElementChild!,
+  },
+  {
+    name: 'ArenaBreadcrumbs', source: 'ArenaBreadcrumbs',
+    render: (report) => mount(
+      <ArenaBreadcrumbs ariaLabel="Project navigation" onNavigate={() => report()}
+        items={[{ label: 'Clients', href: '/clients' }, { label: 'Acme' }]} />,
+    ),
+    anchor: (root) => root.querySelector('a')!,
+  },
+  {
+    name: 'ArenaSideNavItem', source: 'ArenaSideNavItem',
+    render: (report) => mount(
+      <ArenaSideNavItem id="prod" label="Production" href="/deploys/prod" onActivate={() => report()} />,
+    ),
+    anchor: (root) => root.querySelector('a')!,
+  },
+  {
+    name: 'ArenaCommandPalette', source: 'ArenaCommandPalette',
+    render: (report) => mount(
+      <ArenaCommandPalette open commands={[{ id: 'clients', label: 'Clients', route: '/clients' }]}
+        onClose={() => {}} onRun={() => report()} />,
+    ),
+    anchor: (root) => root.querySelector('a[role="option"]')!,
+  },
+  {
+    name: 'ArenaLink', source: 'ArenaLink',
+    render: (report) => mount(<p><ArenaLink href="/notes" onNavigate={() => report()}>x</ArenaLink></p>),
+    anchor: (root) => root.querySelector('a')!,
+  },
+  {
+    name: 'ArenaBottomNav', source: 'ArenaBottomNavItem',
+    render: (report) => mount(withIcons(
+      <ArenaBottomNav ariaLabel="Primary" active="home" onNav={(id) => report(id)}>
+        <ArenaBottomNavItem id="home" icon="ph-bold ph-house" label="Home" href="/home" />
+        <ArenaBottomNavItem id="more" icon="ph-bold ph-dots-three" label="More" />
+      </ArenaBottomNav>,
+    )),
+    anchor: (root) => root.querySelector('a')!,
+    values: ['home'],
+  },
+  {
+    name: 'ArenaTableCell', source: 'ArenaTableCell',
+    render: (report) => mount(
+      <ArenaTable label="Recent sales" columns={[{ header: 'Sale' }]} responsive={false}>
+        <ArenaTableRow interactive onActivate={() => {}}>
+          <ArenaTableCell href="/sales/4f2a1c9" onNavigate={() => report()}>4f2a1c9</ArenaTableCell>
+        </ArenaTableRow>
+      </ArenaTable>,
+    ),
+    anchor: (root) => root.querySelector('td a')!,
+  },
+];
 
-test('ArenaSideNavItem with href reports the primary click and leaves every other one alone', () => {
-  let navigated = 0;
-  const root = mount(
-    <ArenaSideNavItem id="prod" label="Production" href="/deploys/prod"
-      onActivate={() => { navigated += 1; }} />,
-  );
-  assertConvention('ArenaSideNavItem', () => root.querySelector('a')!, () => navigated);
-});
-
-test('an ArenaCommand with route reports the primary click and leaves every other one alone', () => {
-  let ran = 0;
-  const root = mount(
-    <ArenaCommandPalette open commands={[{ id: 'clients', label: 'Clients', route: '/clients' }]}
-      onClose={() => {}} onRun={() => { ran += 1; }} />,
-  );
-  assertConvention('ArenaCommandPalette', () => root.querySelector('a[role="option"]')!, () => ran);
+test('every anchor that routes reports the primary click and leaves every other one to the browser', () => {
+  const callers = readdirSync(ROOT, { recursive: true, encoding: 'utf8' })
+    .filter((file) => /\.tsx?$/.test(file) && !/\.test\.|\.d\.ts$|node_modules|^dist|AnchorActivation\.ts$/.test(file))
+    .filter((file) => readFileSync(join(ROOT, file), 'utf8').includes('isArenaPrimaryActivation('))
+    .map((file) => basename(file).replace(/\.tsx?$/, ''))
+    .sort();
+  assert.ok(callers.length > 0, 'the scan found no component that calls isArenaPrimaryActivation');
+  assert.deepEqual(ROWS.map((row) => row.source).sort(), callers,
+    'a component calls isArenaPrimaryActivation with no row here, or a row names one that no longer does');
+  for (const row of ROWS) {
+    const got: unknown[] = [];
+    const root = row.render((value) => { got.push(value); });
+    assertConvention(row.name, () => row.anchor(root), () => got.length, () => got, row.values);
+    cleanup();
+  }
 });
 
 test('Enter on a routed row runs it exactly once, through the palette and not the anchor', () => {

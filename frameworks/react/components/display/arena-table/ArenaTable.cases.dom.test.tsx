@@ -15,6 +15,7 @@ import { assertPattern, assertPatternCases, REACT_COMPONENTS } from '../../../te
 import { ArenaTable } from './ArenaTable.tsx';
 import { ArenaTableRow } from '../arena-table-row/ArenaTableRow.tsx';
 import { ArenaTableCell } from '../arena-table-cell/ArenaTableCell.tsx';
+import { narrowWidths } from '../../../test/NarrowWidths.ts';
 
 afterEach(cleanup);
 
@@ -29,24 +30,6 @@ function rows() {
     <ArenaTableRow key="a"><ArenaTableCell>checkout-api</ArenaTableCell><ArenaTableCell>Healthy</ArenaTableCell></ArenaTableRow>,
     <ArenaTableRow key="b"><ArenaTableCell>billing-worker</ArenaTableCell><ArenaTableCell>Degraded</ArenaTableCell></ArenaTableRow>,
   ];
-}
-
-function narrowWidths<T>(width: number, body: () => T): T {
-  const saved = globalThis.ResizeObserver;
-  globalThis.ResizeObserver = class {
-    callback: ResizeObserverCallback;
-    constructor(callback: ResizeObserverCallback) { this.callback = callback; }
-    observe(target: Element) {
-      this.callback([{ target, borderBoxSize: [{ inlineSize: width, blockSize: 0 }], contentRect: { width } }] as unknown as ResizeObserverEntry[], this as unknown as ResizeObserver);
-    }
-    unobserve() {}
-    disconnect() {}
-  } as unknown as typeof ResizeObserver;
-  try {
-    return body();
-  } finally {
-    globalThis.ResizeObserver = saved;
-  }
 }
 
 function press(key: string) {

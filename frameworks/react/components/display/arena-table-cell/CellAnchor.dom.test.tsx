@@ -57,30 +57,18 @@ test('a cell with no href draws no anchor, so nothing announces a destination th
   assert.equal(plain.querySelector('a'), null, 'a cell with no href drew an anchor');
 });
 
-test('a primary click is cancelled and reported, and the row it sits in does not fire', () => {
-  const root = render();
-  const event = press(root.querySelector('td a') as Element);
-
-  assert.equal(seen.went, 1, 'the anchor did not report the one activation a router owns');
-  assert.equal(event.defaultPrevented, true,
-    'the anchor was left to navigate on its own, so a router never gets the chance to');
-  assert.equal(seen.rows, 0,
-    'the row fired under its own cell anchor, so one press ran two destinations: the precedence is '
-    + 'that a press landing on a control inside the row was never the row\'s');
-});
-
-test('a modified click and a middle click stay the browser\'s, and report nothing', () => {
+test('the row does not fire under its own cell anchor, for a primary click or a modified one', () => {
   const root = render();
   const anchor = root.querySelector('td a') as Element;
 
+  press(anchor);
+  assert.equal(seen.rows, 0,
+    'the row fired under its own cell anchor, so one press ran two destinations: the precedence is '
+    + 'that a press landing on a control inside the row was never the row\'s');
   for (const over of [{ metaKey: true }, { ctrlKey: true }, { shiftKey: true }, { altKey: true }, { button: 1 }]) {
-    const event = press(anchor, over);
-    assert.equal(event.defaultPrevented, false,
-      `${JSON.stringify(over)} was cancelled -- the reader asked for a new tab or for the address, and `
-      + 'answering with an in-app route is the defect the convention exists to avoid');
+    press(anchor, over);
+    assert.equal(seen.rows, 0, `${JSON.stringify(over)}: a modified activation reached the row instead`);
   }
-  assert.equal(seen.went, 0, 'a modified activation reported through `navigate`');
-  assert.equal(seen.rows, 0, 'a modified activation reached the row instead');
 });
 
 test('the row still activates from a cell that carries no anchor, so the two coexist', () => {

@@ -11,6 +11,7 @@ import { ArenaTableRow } from '../arena-table-row/ArenaTableRow.tsx';
 import { ArenaTableCell } from '../arena-table-cell/ArenaTableCell.tsx';
 import classes from './ArenaTable.classes.generated.ts';
 import tailwind from './ArenaTable.manifest.generated.ts';
+import { narrowWidths } from '../../../test/NarrowWidths.ts';
 
 const WIDTH = '--arena-column-width';
 const ALIGN = '--arena-column-align';
@@ -23,24 +24,6 @@ beforeEach(() => {
   console.warn = (message: string) => { warnings.push(message); };
 });
 afterEach(() => { cleanup(); console.warn = savedWarn; });
-
-function narrowWidths<T>(width: number, body: () => T): T {
-  const saved = globalThis.ResizeObserver;
-  globalThis.ResizeObserver = class {
-    callback: ResizeObserverCallback;
-    constructor(callback: ResizeObserverCallback) { this.callback = callback; }
-    observe(target: Element) {
-      this.callback([{ target, borderBoxSize: [{ inlineSize: width, blockSize: 0 }], contentRect: { width } }] as unknown as ResizeObserverEntry[], this as unknown as ResizeObserver);
-    }
-    unobserve() {}
-    disconnect() {}
-  } as unknown as typeof ResizeObserver;
-  try {
-    return body();
-  } finally {
-    globalThis.ResizeObserver = saved;
-  }
-}
 
 const table = (key: string | undefined, responsive = false) => (
   <ArenaTable label="Deployments" columns={[{ header: 'Status', key }]} responsive={responsive}>

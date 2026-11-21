@@ -12,29 +12,12 @@ import { ArenaDoughnutChart } from './ArenaDoughnutChart.tsx';
 import { arenaToneColor } from '../../../DataVisuals.ts';
 import { forgetArenaWarnings } from '../../../WarnOnce.ts';
 import type { ArenaChartLegendLayout } from '../../../Api.generated';
+import { narrowWidths as widths } from '../../../test/NarrowWidths.ts';
 
 afterEach(cleanup);
 
 const LABELS = ['Retail', 'Wholesale', 'Consignment', 'Export'];
 const VALUES = [40, 25, 0, 35];
-
-function widths<T>(width: number, body: () => T): T {
-  const saved = globalThis.ResizeObserver;
-  globalThis.ResizeObserver = class {
-    callback: ResizeObserverCallback;
-    constructor(callback: ResizeObserverCallback) { this.callback = callback; }
-    observe(target: Element) {
-      this.callback([{ target, borderBoxSize: [{ inlineSize: width, blockSize: 0 }], contentRect: { width } }] as unknown as ResizeObserverEntry[], this as unknown as ResizeObserver);
-    }
-    unobserve() {}
-    disconnect() {}
-  } as unknown as typeof ResizeObserver;
-  try {
-    return body();
-  } finally {
-    globalThis.ResizeObserver = saved;
-  }
-}
 
 function render(options: { seen?: number[]; legendLayout?: ArenaChartLegendLayout } = {}) {
   return mount(

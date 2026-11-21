@@ -104,31 +104,6 @@ test('the active destination is filled and it is the only one, whatever weight t
   assert.equal(root.querySelectorAll('[aria-current="page"]').length, 1);
 });
 
-test('a primary click reports once and cancels the anchor; a modified or middle click reports nothing', () => {
-  const reported: string[] = [];
-  const root = mount(bar((id) => reported.push(id)));
-  const anchor = root.querySelector('a')!;
-
-  const fire = (init: MouseEventInit) => {
-    const event = new MouseEvent('click', { bubbles: true, cancelable: true, ...init });
-    act(() => { anchor.dispatchEvent(event); });
-    return event;
-  };
-
-  assert.equal(fire({ button: 0 }).defaultPrevented, true,
-    'a primary click must cancel the anchor, or the router competes with a page load');
-  assert.deepEqual(reported, ['home'], 'and must report exactly once');
-
-  for (const modifier of ['metaKey', 'ctrlKey', 'shiftKey', 'altKey'] as const) {
-    assert.equal(fire({ button: 0, [modifier]: true }).defaultPrevented, false,
-      `${modifier}+click must stay the browser's`);
-  }
-  assert.equal(fire({ button: 1 }).defaultPrevented, false, 'a middle click must stay the browser\'s');
-
-  assert.deepEqual(reported, ['home'],
-    'a reader who asked for a new tab or for the address must get that, and no in-app route');
-});
-
 test('the badge draws nothing at zero, caps at 99+, and is announced rather than hidden', () => {
   const root = mount(
     <ArenaBottomNav ariaLabel="Primary">
@@ -158,18 +133,14 @@ test('its destinations refuse a blank required name rather than drawing one', ()
   }
 });
 
-test('the bar adds the safe-area inset to its height rather than eating into it', () => {
+test('the bar draws its own root slot class', () => {
   const root = mount(
     <ArenaBottomNav ariaLabel="Sections" active="home">
       <ArenaBottomNavItem id="home" label="Home" icon="ph-bold ph-house" />
     </ArenaBottomNav>,
   );
   const bar = root.querySelector('nav')!.getAttribute('class') ?? '';
-  assert.match(bar, /\barena-bottom-nav__root\b/);
-  assert.match(bar, /arena-bottom-nav__root/);
-  assert.match(bar, /\barena-bottom-nav__root\b/,
-    'under border-box the device inset would come out of the row rather than below it, '
-    + 'so the bar would stand shorter on a phone than on a desktop');
+  assert.match(bar, /\barena-bottom-nav__root\b/, 'the bar did not draw its root slot class');
 });
 
 test('the active column takes the accent from the variant, and its badge from the same recipe', () => {

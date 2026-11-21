@@ -10,6 +10,7 @@ import { ArenaTable } from './ArenaTable.tsx';
 import { ArenaTableRow } from '../arena-table-row/ArenaTableRow.tsx';
 import { ArenaTableCell } from '../arena-table-cell/ArenaTableCell.tsx';
 import type { ArenaTableColumn } from '../../../Api.generated';
+import { narrowWidths } from '../../../test/NarrowWidths.ts';
 
 afterEach(cleanup);
 
@@ -73,24 +74,6 @@ test('a list of unknown length passes the sentinel through rather than inventing
     'a feed that loads as it scrolls says -1 rather than a total it would have to correct');
   assert.deepEqual(dataRows(root).map((r) => r.getAttribute('aria-rowindex')), ['2', '3']);
 });
-
-function narrowWidths<T>(width: number, body: () => T): T {
-  const saved = globalThis.ResizeObserver;
-  globalThis.ResizeObserver = class {
-    callback: ResizeObserverCallback;
-    constructor(callback: ResizeObserverCallback) { this.callback = callback; }
-    observe(target: Element) {
-      this.callback([{ target, borderBoxSize: [{ inlineSize: width, blockSize: 0 }], contentRect: { width } }] as unknown as ResizeObserverEntry[], this as unknown as ResizeObserver);
-    }
-    unobserve() {}
-    disconnect() {}
-  } as unknown as typeof ResizeObserver;
-  try {
-    return body();
-  } finally {
-    globalThis.ResizeObserver = saved;
-  }
-}
 
 test('the empty shape carries neither, because that shape draws no grid for them to describe', () => {
   const root = mount(

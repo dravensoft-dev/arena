@@ -55,6 +55,7 @@ import { ArenaCopyButton } from '../components/forms/arena-copy-button/ArenaCopy
 import { ArenaMeter } from '../components/feedback/arena-meter/ArenaMeter.tsx';
 import { ArenaStepper } from '../components/navigation/arena-stepper/ArenaStepper.tsx';
 import { ArenaTimeline } from '../components/display/arena-timeline/ArenaTimeline.tsx';
+import { narrowWidths } from './NarrowWidths.ts';
 
 afterEach(() => cleanup());
 
@@ -93,24 +94,6 @@ export function strayWords(host: Element, allowed: readonly string[]): string[] 
     }
   }
   return found;
-}
-
-export function narrowWidths<T>(width: number, body: () => T): T {
-  const saved = globalThis.ResizeObserver;
-  globalThis.ResizeObserver = class {
-    callback: ResizeObserverCallback;
-    constructor(callback: ResizeObserverCallback) { this.callback = callback; }
-    observe(target: Element) {
-      this.callback([{ target, borderBoxSize: [{ inlineSize: width, blockSize: 0 }], contentRect: { width } }] as unknown as ResizeObserverEntry[], this as unknown as ResizeObserver);
-    }
-    unobserve() {}
-    disconnect() {}
-  } as unknown as typeof ResizeObserver;
-  try {
-    return body();
-  } finally {
-    globalThis.ResizeObserver = saved;
-  }
 }
 
 type Case = { renders: (() => React.ReactElement)[]; consumer: string[]; accept?: () => string[]; narrow?: boolean };
