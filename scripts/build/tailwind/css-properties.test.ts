@@ -7,10 +7,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import ts from 'typescript';
 import { join, resolve } from 'node:path';
+import { budgetFor, deadline } from '../../lib/arena/deadline.ts';
 
 const root = resolve(import.meta.dirname, '../../..');
 const generated = join(root, 'frameworks/react/Vocabulary.generated.ts');
 const example = join(root, 'frameworks/react/css-properties-example.tsx');
+const PROGRAM_BUILT = deadline('typescript program built', 30_000, 'each case builds a full program rooted at the vocabulary types and @types/react, which took 5.6 s on a loaded machine; 30 s ends a hang, not a slow run');
 
 function diagnose(style: string) {
   const options: ts.CompilerOptions = {
@@ -26,7 +28,7 @@ function diagnose(style: string) {
   return ts.getPreEmitDiagnostics(ts.createProgram([generated, example], options, host));
 }
 
-test('the column example compiles', () => {
+test('the column example compiles', { timeout: budgetFor(PROGRAM_BUILT, PROGRAM_BUILT) }, () => {
   assert.deepEqual(diagnose("{ '--arena-column-build-width': 'calc(var(--sp-1) * 24)', '--arena-column-p95-align': 'right' }").map((d) => ts.flattenDiagnosticMessageText(d.messageText, ' ')), []);
   assert.deepEqual(diagnose("{ display: 'flex', gap: 'var(--sp-3)', '--arena-skeleton-height': 'calc(var(--sp-1) * 10)', '--arena-skeleton-width': 'calc(var(--sp-1) * 55)' }").map((d) => ts.flattenDiagnosticMessageText(d.messageText, ' ')), []);
 });

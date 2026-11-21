@@ -162,7 +162,7 @@ export const PLUGINS = { total: './design/console', partial: './design/marketing
 
 export const PARTIAL_ANSWERS = {
   'r-surface': { $type: 'dimension', $value: '{r.xs}' },
-  'fill-surface': { $type: 'color', $value: '{color.base-300}' },
+  'fill-surface': { $type: 'color', $value: '{color.base-200}' },
 };
 
 export const PAINTED = 'card.body';

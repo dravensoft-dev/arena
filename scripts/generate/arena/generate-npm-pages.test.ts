@@ -635,7 +635,7 @@ test('the example quiets the navigation selection in both polarities', () => {
   for (const theme of ['dark', 'light']) {
     const roles = rolesFor(null, catalogue, theme);
     for (const name of names) {
-      const value = roles.get(EXAMPLE_SLOT_ANSWERS[name].slice(1, -1)) as string;
+      const value = roles.get((EXAMPLE_SLOT_ANSWERS[name] as string).slice(1, -1)) as string;
       assert.ok(value, `${theme} ${name}`);
       assert.ok(!value.includes('--color-primary'), `${theme} ${name}`);
     }

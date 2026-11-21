@@ -9,6 +9,7 @@ import {
   loadContracts, loadFixtures, loadTypes, citingFiles, basenameIndex, emissionProblems,
   pagePaths, classProblems, variantProblems,
 } from './check-playgrounds.ts';
+import { relPosix } from '../../utils/posix-path.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { buildPlaygrounds } from '../../generate/arena/generate-playgrounds.ts';
 import type { ComponentContract, TypeContract } from '../../lib/arena/contract-shapes.ts';
@@ -274,7 +275,7 @@ test('citingFiles reads a checks file', () => {
   for (const name of ['ArenaSlider.checks.md', 'ArenaSlider.prompt.md', 'ArenaSlider.notes.md']) {
     writeFileSync(join(dir, name), 'text\n');
   }
-  const read = citingFiles(temp).map((path) => path.slice(dir.length + 1)).sort();
+  const read = citingFiles(temp).map((path) => relPosix(dir, path)).sort();
   assert.deepEqual(read, ['ArenaSlider.checks.md', 'ArenaSlider.prompt.md']);
 });
 

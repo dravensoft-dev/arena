@@ -514,7 +514,7 @@ test('a member that names its ground part is measured over that part\'s fill in 
       title: { to: 'text.heading', options: [], states: ['rest'], groundPart: 'root' },
     } },
   });
-  d.groups.text = { parts: { heading: { properties: ['ink'], states: ['rest'], rest: { ink: '{ink-heading}' } } } };
+  (d.groups as Record<string, unknown>).text = { parts: { heading: { properties: ['ink'], states: ['rest'], rest: { ink: '{ink-heading}' } } } };
   const c = deriveSlots(d);
   const colors = coloursOf('dark');
   const lines = (r: Map<string, string>) => slotReports(c, new Map(), r, colors, 'dark', LEVELS).map((one) => one.message);
