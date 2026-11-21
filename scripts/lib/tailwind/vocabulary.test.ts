@@ -8,7 +8,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
-  declarations, compileFamily, partSheetOwners, readFamilies, channelReads, answerOf, answeredFamilies, markupDeclarations, restatedDeclarations, answeringParts, axisWrapped, LIMIT, sheetName, packageSheetName, type Family,
+  declarations, compileFamily, partSheetOwners, readFamilies, channelReads, answerOf, answeredFamilies, markupDeclarations, statedDeclarations, stateSelector, restatedDeclarations, answeringParts, axisWrapped, LIMIT, sheetName, packageSheetName, type Family, type MarkupState,
 } from './vocabulary.ts';
 import { LAYER_ORDER } from './component-sheets.ts';
 import { familyRules } from './vocabulary-rules.ts';
@@ -331,4 +331,76 @@ test('a family with colour slots compiles per component, each sheet importing no
   const parts = owners.map((one) => compileFamily(family, manifests, undefined, one)).join('\n');
   assert.ok(familyRules(whole).size > 20);
   assert.deepEqual([...familyRules(parts)].sort(), [...familyRules(whole)].sort());
+});
+
+const STATED_ROWS: { name: string; classes: string; want: unknown }[] = [
+  { name: 'rest', classes: '[color:red]', want: [{ states: [], property: 'color', value: 'red' }] },
+  { name: 'one state', classes: 'hover:[background-color:var(--fill-hover)]',
+    want: [{ states: ['hover'], property: 'background-color', value: 'var(--fill-hover)' }] },
+  { name: 'chain in any order', classes: 'hover:selected:[color:x]', want: [{ states: ['hover', 'selected'], property: 'color', value: 'x' }] },
+  { name: 'underscore is a space', classes: 'pressed:[color:color-mix(in_oklab,a,b)]',
+    want: [{ states: ['pressed'], property: 'color', value: 'color-mix(in oklab,a,b)' }] },
+  { name: 'unknown state', classes: 'wobble:[color:red]',
+    want: /names the state "wobble", and a markup state is one of hover, pressed, selected, focus, disabled, invalid/ },
+  { name: 'repeated state', classes: 'hover:hover:[color:red]', want: /names hover twice/ },
+  { name: 'a utility', classes: 'hover:flex', want: /not an arbitrary CSS property/ },
+];
+
+test('a markup declaration names its states, and an unknown or repeated state is refused', () => {
+  for (const row of STATED_ROWS) {
+    if (row.want instanceof RegExp) assert.throws(() => statedDeclarations(row.classes), row.want, row.name);
+    else assert.deepEqual(statedDeclarations(row.classes), row.want, row.name);
+  }
+});
+
+const SELECTED = '[aria-selected="true"], [aria-current]:not([aria-current="false"]), [aria-pressed="true"]';
+const NOT_DISABLED = ':not(:disabled, [aria-disabled="true"])';
+
+const SELECTOR_ROWS: { name: string; states: MarkupState[]; want: string }[] = [
+  { name: 'rest', states: [], want: ':scope' },
+  { name: 'hover', states: ['hover'], want: `:scope:hover${NOT_DISABLED}` },
+  { name: 'pressed', states: ['pressed'], want: `:scope:active${NOT_DISABLED}` },
+  { name: 'selected', states: ['selected'], want: `:scope:is(${SELECTED})` },
+  { name: 'selected hover', states: ['hover', 'selected'], want: `:scope:hover:is(${SELECTED})${NOT_DISABLED}` },
+  { name: 'focus', states: ['focus'], want: ':scope:focus-visible' },
+  { name: 'disabled', states: ['disabled'], want: ':scope:is(:disabled, [aria-disabled="true"])' },
+  { name: 'invalid', states: ['invalid'], want: ':scope[aria-invalid="true"]' },
+];
+
+test('a state chain selects its attributes, and the pointer and a press stop on a disabled control', () => {
+  for (const row of SELECTOR_ROWS) assert.equal(stateSelector(row.states), row.want, row.name);
+});
+
+test('a markup family writes a rule per state chain, the pointer under (hover: hover)', () => {
+  const probe: Family = {
+    family: 'probe', reach: 'box', target: 'markup', description: 'x',
+    variants: {
+      'arena-probe': '[color:red] hover:[color:blue] selected:hover:[color:green] pressed:[color:gray]',
+      'arena-probe-focus': 'focus:[outline-color:var(--edge-focus)]',
+    },
+  };
+  assert.equal(compileFamily(probe, []), `${LAYER_ORDER}@scope (.arena-probe) {
+  :scope {
+    color: red;
+  }
+  @media (hover: hover) {
+    :scope:hover${NOT_DISABLED} {
+      color: blue;
+    }
+  }
+  @media (hover: hover) {
+    :scope:hover:is(${SELECTED})${NOT_DISABLED} {
+      color: green;
+    }
+  }
+  :scope:active${NOT_DISABLED} {
+    color: gray;
+  }
+}
+@scope (.arena-probe-focus) {
+  :scope:focus-visible {
+    outline-color: var(--edge-focus);
+  }
+}
+`);
 });

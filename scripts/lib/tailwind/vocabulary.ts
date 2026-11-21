@@ -7,7 +7,7 @@
  * its limit is inclusive, since the boundary is usually the component's own root. An option
  * block writes its family's group chains over every answering part at once, a member part with
  * channels or defaults adds its member chains, and each member part takes a zero-specificity default
- * block, so its reads take no fallback. A markup family writes its element's declarations unlayered. */
+ * block, so its reads take no fallback. A markup family writes unlayered, and an option may carry states. */
 
 import { existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
@@ -19,6 +19,7 @@ import { declaredAxis } from '../core/user-scale.ts';
 import { emittedLength } from '../../generate/core/arena-cli/serialize-token.ts';
 import { channelValue, memberChannel, memberValue } from '../../generate/core/arena-cli/slots.ts';
 import type { ColorSlot, MemberPart, SlotCatalogue } from '../../generate/core/arena-cli/slots.ts';
+import { STATE_SELECTORS } from '../../check/core/check-role-contract.ts';
 import { COLOR_SLOTS, readColorSlots } from '../core/color-slots.ts';
 import type { DtcgNode } from '../core/dtcg-shapes.ts';
 import { classesManifest } from './component-css.ts';
@@ -82,15 +83,62 @@ export function declarations(classes: string): [string, string][] {
   });
 }
 
-export function markupDeclarations(classes: string): [string, string][] {
+export const MARKUP_STATES = ['hover', 'pressed', 'selected', 'focus', 'disabled', 'invalid'] as const;
+export type MarkupState = typeof MARKUP_STATES[number];
+
+const stateSelectorOf = (key: string) => STATE_SELECTORS[key] as string;
+
+export const MARKUP_STATE_SELECTORS: Readonly<Record<MarkupState, readonly string[]>> = {
+  hover: [stateSelectorOf('hover')],
+  pressed: [stateSelectorOf('active')],
+  selected: [stateSelectorOf('aria-selected'), stateSelectorOf('aria-current'), stateSelectorOf('aria-pressed')],
+  focus: [stateSelectorOf('focus-visible')],
+  disabled: [stateSelectorOf('disabled'), stateSelectorOf('aria-disabled')],
+  invalid: [stateSelectorOf('aria-invalid')],
+};
+
+export type StatedDeclaration = { states: MarkupState[]; property: string; value: string };
+
+const isMarkupState = (name: string): name is MarkupState => (MARKUP_STATES as readonly string[]).includes(name);
+
+export function statedDeclarations(classes: string): StatedDeclaration[] {
   return classes.split(/\s+/).filter(Boolean).map((token) => {
-    const match = MARKUP_PROPERTY.exec(token);
-    if (!match) {
+    const at = token.indexOf('[');
+    const prefix = at < 0 ? token : token.slice(0, at);
+    const match = MARKUP_PROPERTY.exec(at < 0 ? token : token.slice(at));
+    if (!match || (prefix !== '' && !/^([a-z-]+:)+$/.test(prefix))) {
       throw new Error(`vocabulary: ${JSON.stringify(token)} is not an arbitrary CSS property. A markup family `
         + 'writes the declarations of the element its class is on, as [display:flex]');
     }
-    return [captured(match), captured(match, 2).replaceAll('_', ' ')];
+    const named = prefix === '' ? [] : prefix.slice(0, -1).split(':');
+    for (const name of named) {
+      if (!isMarkupState(name)) {
+        throw new Error(`vocabulary: ${JSON.stringify(token)} names the state ${JSON.stringify(name)}, `
+          + `and a markup state is one of ${MARKUP_STATES.join(', ')}`);
+      }
+    }
+    const repeated = named.find((name, index) => named.indexOf(name) !== index);
+    if (repeated !== undefined) throw new Error(`vocabulary: ${JSON.stringify(token)} names ${repeated} twice`);
+    return {
+      states: MARKUP_STATES.filter((state) => named.includes(state)),
+      property: captured(match),
+      value: captured(match, 2).replaceAll('_', ' '),
+    };
   });
+}
+
+export function stateSelector(states: readonly MarkupState[]): string {
+  const chain = MARKUP_STATES.filter((state) => states.includes(state)).map((state) => {
+    const selectors = MARKUP_STATE_SELECTORS[state];
+    return selectors.length === 1 ? selectors[0] : `:is(${selectors.join(', ')})`;
+  });
+  const pointer = (states.includes('hover') || states.includes('pressed')) && !states.includes('disabled');
+  const stop = pointer ? `:not(${MARKUP_STATE_SELECTORS.disabled.join(', ')})` : '';
+  return `:scope${chain.join('')}${stop}`;
+}
+
+export function markupDeclarations(classes: string): [string, string][] {
+  return statedDeclarations(classes).map((one) => [one.property, one.value]);
 }
 
 export function restatedDeclarations(rel: string, group: string, root = repoRoot): [string, string][] {
@@ -288,11 +336,22 @@ export function compileFamily(family: Family, manifests: Iterable<ComponentManif
         + 'a markup family applies to the element its class is written on, so no manifest answers it');
     }
     const blocks = Object.keys(family.variants).map((option) => {
-      const named: [string, string][] = family.reach === 'context'
-        ? [[`--arena-${family.family}`, option.replace(/^arena-/, '')]] : [];
-      const body = [...named, ...optionDeclarations(family, option, root)]
-        .map(([name, value]) => `    ${name}: ${value};`).join('\n');
-      return `@scope (.${option}) {\n  :scope {\n${body}\n  }\n}`;
+      const named: StatedDeclaration[] = family.reach === 'context'
+        ? [{ states: [], property: `--arena-${family.family}`, value: option.replace(/^arena-/, '') }] : [];
+      const written: StatedDeclaration[] = family.restates
+        ? optionDeclarations(family, option, root).map(([property, value]) => ({ states: [], property, value }))
+        : statedDeclarations(family.variants[option] ?? '');
+      const chains = new Map<string, { states: MarkupState[]; writes: Map<string, string> }>();
+      for (const one of [...named, ...written]) {
+        const key = one.states.join(':');
+        const chain = chains.get(key) ?? { states: one.states, writes: new Map<string, string>() };
+        chain.writes.set(one.property, one.value);
+        chains.set(key, chain);
+      }
+      const rules = [...chains.values()].map(({ states, writes }) => (states.includes('hover')
+        ? `  @media (hover: hover) {\n${rule(stateSelector(states), writes, '    ')}\n  }`
+        : rule(stateSelector(states), writes, '  ')));
+      return `@scope (.${option}) {\n${rules.join('\n')}\n}`;
     });
     return `${LAYER_ORDER}${blocks.join('\n')}\n`;
   }
