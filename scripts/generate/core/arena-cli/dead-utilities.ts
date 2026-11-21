@@ -21,6 +21,7 @@ type Pair = { ns: string; key: string; value: string };
 type Emitter = { emits(candidate: string): boolean; output(candidates: string[]): string };
 
 const SHOWN = 6;
+const PROBE = '[--arena-probe:1]';
 const CHANNELS: Record<string, RegExp> = {
   ink: /^color$/, fill: /^background-color$/, overlay: /^background-color$/, edge: /^border(-[a-z]+)*-color$/,
 };
@@ -179,7 +180,7 @@ function variantAlternatives(variant: string, pairs: Pair[], emits: (alt: string
 
 async function utilityAnswers(
   base: string, pairs: Pair[], stock: Emitter, tailwind: Tailwind, arenaCss: string, stockCss: string,
-  roles: ReadonlySet<string>, prefix: string,
+  roles: ReadonlySet<string>,
 ) {
   const bare = base.replace(/^!/, '').replace(/^-/, '').replace(/\/[^/[\]]*$/, '');
   const dashes = [...bare.matchAll(/-/g)].map((found) => found.index).reverse();
@@ -211,7 +212,7 @@ async function utilityAnswers(
     ...keep.filter((pair) => roleOf(pair) !== null && !leads(pair)),
     ...keep.filter((pair) => roleOf(pair) === null),
   ];
-  return [...new Set(ordered.map((pair) => `${prefix}${root}-${pair.key}`))];
+  return [...new Set(ordered.map((pair) => `${root}-${pair.key}`))];
 }
 
 export async function deadUtilities(
@@ -235,22 +236,23 @@ export async function deadUtilities(
       head = `which has no \`${variant}:\` variant`;
       tail = listed(keys) ?? 'Arena\'s theme answers it with no variant';
     } else {
-      const answers = await utilityAnswers(base, pairs, stock, tailwind, arenaCss, tailwind.stock, roles, '');
-      const probe = answers[0];
-      const at = probe === undefined ? -1 : variants.findIndex((variant) => !arena.emits(`${variant}:${probe}`));
-      if (at < 0) {
-        const prefix = variants.map((variant) => `${variant}:`).join('');
+      const answers = await utilityAnswers(base, pairs, stock, tailwind, arenaCss, tailwind.stock, roles);
+      const gone = variants.filter((variant) => !arena.emits(`${variant}:${PROBE}`));
+      const kept = variants.filter((variant) => !gone.includes(variant)).map((variant) => `${variant}:`).join('');
+      const names = answers.map((name) => `${kept}${name}`).filter((name) => gone.length === 0 || arena.emits(name));
+      if (gone.length === 0) {
         head = 'which clears the Tailwind default it names';
-        tail = listed(answers.map((name) => `${prefix}${name}`)) ?? 'Arena\'s theme answers it with no utility';
+        tail = listed(names) ?? 'Arena\'s theme answers it with no utility';
       } else {
-        const gone = variants[at] as string;
-        const kept = variants.filter((_, index) => index !== at).map((variant) => `${variant}:`).join('');
-        const alternatives = variantAlternatives(gone, pairs, (alt) => arena.emits(`${alt}:${kept}${probe}`)).map((alt) => `${alt}:`);
-        const names = answers.map((name) => `${kept}${name}`).filter((name) => arena.emits(name));
-        head = `which has no \`${gone}:\` variant and clears the Tailwind default it names`;
-        tail = alternatives.length > 0 && names.length > 0
-          ? `Write ${oneOf(alternatives)} with ${oneOf(names)}`
-          : 'Arena\'s theme answers it with no variant or utility';
+        const alternatives = gone.length === 1
+          ? variantAlternatives(gone[0] as string, pairs, (alt) => arena.emits(`${alt}:${kept}${PROBE}`)).map((alt) => `${alt}:`)
+          : [];
+        const quoted = gone.map((variant) => `\`${variant}:\``);
+        head = `which has no ${quoted.length > 1 ? `${quoted.slice(0, -1).join(', ')} or ${quoted.at(-1)}` : quoted[0]} variant and clears the Tailwind default it names`;
+        if (names.length === 0) tail = alternatives.length === 0 ? 'Arena\'s theme answers it with no variant or utility' : 'Arena\'s theme answers it with no utility';
+        else tail = alternatives.length === 0
+          ? `Arena's theme answers it with no variant. Write ${oneOf(names)}`
+          : `Write ${oneOf(alternatives)} with ${oneOf(names)}`;
       }
     }
     dead.set(candidate, `\`${candidate}\` emits nothing under Arena's theme, ${head}. ${tail}`);
