@@ -18,6 +18,7 @@ export interface ArenaPanelSize {
 
 export interface ArenaPanelViewport extends ArenaPanelSize {
   readonly top?: number;
+  readonly left?: number;
 }
 
 export interface ArenaPanelPlacement {
@@ -30,10 +31,10 @@ export interface ArenaPanelRegion<T> {
   contains(other: T): boolean;
 }
 
-export function arenaViewportBox(view: Window): { top: number; height: number; width: number } {
+export function arenaViewportBox(view: Window): { top: number; left: number; height: number; width: number } {
   const visual = view.visualViewport;
-  if (visual) return { top: visual.offsetTop, height: visual.height, width: visual.width };
-  return { top: 0, height: view.innerHeight, width: view.document.documentElement.clientWidth };
+  if (visual) return { top: visual.offsetTop, left: visual.offsetLeft, height: visual.height, width: visual.width };
+  return { top: 0, left: 0, height: view.innerHeight, width: view.document.documentElement.clientWidth };
 }
 
 export function arenaPanelSide(anchor: ArenaPanelRect, panel: ArenaPanelSize, viewport: ArenaPanelViewport, offset: number, prefer: ArenaPanelSide): ArenaPanelSide {
@@ -53,14 +54,15 @@ export function arenaPlacePanel(anchor: ArenaPanelRect, panel: ArenaPanelSize, v
   const y = Math.max(top, Math.min(placed, top + viewport.height - panel.height));
   const alignedAt = (one: ArenaPanelAlign) => one === 'end' ? anchor.left + anchor.width - panel.width
     : one === 'center' ? anchor.left + (anchor.width - panel.width) / 2 : anchor.left;
-  const fits = (at: number) => at >= 0 && at + panel.width <= viewport.width;
-  const overflow = (at: number) => Math.max(0, -at) + Math.max(0, at + panel.width - viewport.width);
+  const left = viewport.left ?? 0;
+  const fits = (at: number) => at >= left && at + panel.width <= left + viewport.width;
+  const overflow = (at: number) => Math.max(0, left - at) + Math.max(0, at + panel.width - left - viewport.width);
   let wanted = alignedAt(align);
   if (align !== 'center' && !fits(wanted)) {
     const flipped = alignedAt(align === 'end' ? 'start' : 'end');
     if (overflow(flipped) < overflow(wanted)) wanted = flipped;
   }
-  const x = Math.max(0, Math.min(wanted, viewport.width - panel.width));
+  const x = Math.max(left, Math.min(wanted, left + viewport.width - panel.width));
   return { x, y, side };
 }
 

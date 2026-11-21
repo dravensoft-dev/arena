@@ -143,3 +143,8 @@ test('an Escape from inside a modal that sits inside the panel belongs to that m
   const modalPanel = node('modal panel', null, true);
   assert.equal(arenaEscapeInsideModal(node('field', modalPanel), modalPanel), false, 'the panel being modal itself is not a modal inside it');
 });
+
+test('a visual viewport panned to the right keeps the panel inside its strip', () => {
+  const placed = arenaPlacePanel({ left: 0, top: 10, width: 40, height: 20 }, { width: 100, height: 50 }, { top: 0, left: 300, width: 200, height: 400 }, 'start', 4);
+  assert.equal(placed.x, 300);
+});

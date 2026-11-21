@@ -386,6 +386,7 @@ test('a visual viewport resize re-places the panel, and closing removes the list
     stub.visual.height = 300;
     stub.visual.dispatchEvent(new Event('resize'));
     assert.equal(panelOf('p'), null);
+    assert.equal(panel.style.top, '296px', 'a closed panel still heard the visual viewport');
     act(() => { root.unmount(); });
     host.remove();
   } finally {

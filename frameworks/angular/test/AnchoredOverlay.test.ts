@@ -11,7 +11,7 @@ import assert from 'node:assert/strict';
 import { Component, ElementRef, TemplateRef, input, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
-  ArenaAnchoredOverlay, ArenaVisualViewportRuler, arenaConnectedPositions, arenaFirstFocusable, arenaPhysicalPositions, arenaScopeDress,
+  ArenaAnchoredOverlay, arenaConnectedPositions, arenaFirstFocusable, arenaPhysicalPositions, arenaScopeDress,
 } from '../AnchoredOverlay';
 import type { ArenaAnchoredOverlayOptions, ArenaPanelDismissal } from '../AnchoredOverlay';
 import { assertNotSameNode, assertSameNode } from './NodeAssert';
@@ -601,23 +601,46 @@ function stubVisualViewport(height: number, offsetTop = 0) {
   return { visual, restore };
 }
 
-const strategyOf = (solo: Probe) => (solo.overlay as unknown as {
-  ref: { getConfig(): { positionStrategy: { _viewportRuler: ArenaVisualViewportRuler } } };
-}).ref.getConfig().positionStrategy;
+type Strategy = { _lastPosition: { originY: string } | null };
 
-test('the overlay places a pane in the visual viewport: a keyboard-short height, scrolled by its offset', () => {
-  const stub = stubVisualViewport(300, 200);
+const strategyOf = (solo: Probe) => (solo.overlay as unknown as { strategy: Strategy }).strategy;
+
+function drawn(anchorTop: number, anchorHeight: number, paneHeight: number, layoutHeight: number) {
+  const rect = Element.prototype.getBoundingClientRect;
+  const height = Object.getOwnPropertyDescriptor(document.documentElement, 'clientHeight');
+  const width = Object.getOwnPropertyDescriptor(document.documentElement, 'clientWidth');
+  Object.defineProperty(document.documentElement, 'clientHeight', { configurable: true, value: layoutHeight });
+  Object.defineProperty(document.documentElement, 'clientWidth', { configurable: true, value: 1024 });
+  Element.prototype.getBoundingClientRect = function sized(this: Element) {
+    const tall = this.classList.contains('cdk-overlay-pane') || this.classList.contains('cdk-overlay-connected-position-bounding-box')
+      ? paneHeight : this.hasAttribute('data-anchor') ? anchorHeight : 0;
+    const top = this.hasAttribute('data-anchor') ? anchorTop : 0;
+    return { x: 0, y: top, left: 0, top, right: 100, bottom: top + tall, width: 100, height: tall, toJSON() { return this; } } as DOMRect;
+  };
+  return () => {
+    Element.prototype.getBoundingClientRect = rect;
+    for (const [name, had] of [['clientHeight', height], ['clientWidth', width]] as const) {
+      if (had) Object.defineProperty(document.documentElement, name, had); else delete (document.documentElement as unknown as Record<string, unknown>)[name];
+    }
+  };
+}
+
+function placedSide(solo: Probe, fixture: { detectChanges(): void }): string | undefined {
+  solo.overlay.open();
+  fixture.detectChanges();
+  (solo.overlay as unknown as { ref: { updatePosition(): void } }).ref.updatePosition();
+  return strategyOf(solo)._lastPosition?.originY;
+}
+
+test('a panel below a field that the keyboard covers flips above it', () => {
+  const stub = stubVisualViewport(300);
+  const undraw = drawn(250, 40, 120, 800);
   const { fixture, solo } = renderSolo({ plain: true });
+  solo.anchorRef().nativeElement.setAttribute('data-anchor', '');
   try {
-    solo.overlay.open();
-    fixture.detectChanges();
-    const ruler = strategyOf(solo)._viewportRuler;
-    assert.ok(ruler instanceof ArenaVisualViewportRuler, 'the position strategy measures the layout viewport');
-    assert.deepEqual(ruler.getViewportSize(), { width: 1024, height: 300 }, 'the height is not the visual viewport\'s');
-    assert.equal(ruler.getViewportScrollPosition().top - 200, ruler.getViewportRect().top - 200, "the rect is not the scroll position");
-    assert.ok(ruler.getViewportScrollPosition().top >= 200, "the offset was not added to the scroll");
-    assert.equal(ruler.getViewportRect().bottom - ruler.getViewportRect().top, 300);
+    assert.equal(placedSide(solo, fixture), 'top', 'the pane stayed below the field, under the keyboard');
   } finally {
+    undraw();
     stub.restore();
     fixture.destroy();
     disposeOverlays();
@@ -627,12 +650,13 @@ test('the overlay places a pane in the visual viewport: a keyboard-short height,
 test('no visual viewport keeps the inner height', () => {
   const stub = stubVisualViewport(300);
   stub.restore();
+  const undraw = drawn(250, 40, 120, 800);
   const { fixture, solo } = renderSolo({ plain: true });
+  solo.anchorRef().nativeElement.setAttribute('data-anchor', '');
   try {
-    solo.overlay.open();
-    fixture.detectChanges();
-    assert.equal(strategyOf(solo)._viewportRuler.getViewportSize().height, window.innerHeight);
+    assert.equal(placedSide(solo, fixture), 'bottom', 'the pane moved without a visual viewport');
   } finally {
+    undraw();
     fixture.destroy();
     disposeOverlays();
   }
