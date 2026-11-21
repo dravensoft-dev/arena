@@ -59,7 +59,7 @@ What covers what is a system-wide invariant, not a per-component choice, so it i
 | `--z-modal-nested` | 1050 | `ArenaConfirmDialog`, which opens *from* an `ArenaDialog` and so must sit above one |
 | `--z-palette` | 1100 | `ArenaCommandPalette` |
 | `--z-onboarding` | 1200 | `ArenaOnboarding`'s coachmark card |
-| `--z-toast` | 1300 | `ArenaToast`, which floats above everything, including onboarding, because a transient notice raised by an action taken inside a dialog must stay visible |
+| `--z-toast` | 1300 | `ArenaToast`, which floats above every other step, including onboarding, because a transient notice raised by an action taken inside a dialog must stay visible |
 
 `ArenaOnboarding`'s scrim is not a second token: it is one step with two uses, and the two are separated by containment rather than by a number. The scrim takes the step and the coachmark is drawn inside it, so it paints above by DOM order within one stacking context. That keeps "the scrim sits just under the coachmark" true by construction instead of requiring a second magic number nearby, and nothing else on the page can land between them, which is what a single step means here.
 

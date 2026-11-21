@@ -19,6 +19,6 @@ A layer of yours reads `--z-*`, the same scale Arena's layers read. The table be
 | `--z-modal-nested` | ArenaConfirmDialog, which opens from an ArenaDialog |
 | `--z-palette` | ArenaCommandPalette |
 | `--z-onboarding` | the coachmark and the scrim beneath it: one step, two uses. The scrim takes the step and the coachmark is drawn inside it, so the two are separated by containment rather than by a second number; nothing else on the page may sit between them, which is what a single step means here. |
-| `--z-toast` | floats above everything, including onboarding: a transient notice raised by an action taken inside a dialog must stay visible |
+| `--z-toast` | floats above every other step, including onboarding: a transient notice raised by an action taken inside a dialog must stay visible |
 
 <!-- @tree end -->

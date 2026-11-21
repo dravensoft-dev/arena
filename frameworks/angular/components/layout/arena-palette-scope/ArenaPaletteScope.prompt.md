@@ -27,7 +27,7 @@ A palette island: a subtree drawn in one palette while the page keeps another. S
 **Keys:** none.
 <!-- @keys end -->
 
-**The scope paints the ground, and the class alone does not.** A palette class such as `arena-light` sets variables and paints nothing, which is what lets it sit on `<html>` or on a component. The scope adds `base-100` as the ground and `base-content` as the ink, so an island reads as its own palette whatever the page is. Nest one inside another and the inner one wins for everything below it.
+**The scope paints the ground, and the class alone does not.** A palette class such as `arena-light` sets variables and paints nothing, which is what lets it sit on `<html>` or on a component. The scope paints the `surfaces` group's page slots, `surfaces-page-fill-rest` and `surfaces-page-ink-rest`, which fall back to `fill-page` and `ink-body`, and rounds with `r-surface`, so an island reads as its own palette whatever the page is. Nest one inside another and the inner one wins for everything below it.
 
 **Read the palette with `injectArenaPalette()`.** The function returns a signal of the nearest `[arenaPalette]` above the caller, over the token `ARENA_PALETTE`, and `ArenaThemeService.theme` where there is none. An overlay opened from inside the island takes the island's palette, so a tooltip over a light island is light. `ArenaThemeService` stays page-wide.
 

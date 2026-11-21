@@ -57,7 +57,7 @@ taken away on a timer.
   View logs. A notice with two choices is a dialog.
 - **Don't** reach for `tone="danger"` for anything a user can ignore. Assertive announcement cuts
   a screen reader off mid-sentence, and a tone that always interrupts stops meaning anything.
-- **Don't** give it a `position` of its own. The notice carries `--z-toast`, the one slot above every other overlay including the CDK layer. A statically-positioned element ignores `z-index`, so the stack's own container is what places it.
+- **Don't** give it a `position` of its own. The notice carries `--z-toast`, the one step above every other overlay including the CDK layer. A statically-positioned element ignores `z-index`, so the stack's own container is what places it.
 
 **By hand, in real Chromium**: the announcement is a screen reader's, not a browser's, so what
 this page shows is the rest. Run `bun run demos` and open

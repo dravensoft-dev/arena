@@ -35,7 +35,7 @@
 }
 
 /* The wordmark's case is this product's own, written into the name it passes. The rule
-   writes the weight: this register draws its mark lighter than the black Arena's lock-up draws. */
+   writes the weight: this register sets its mark lighter than Arena's black lock-up. */
 [data-arena-part="app-logo.name"] {
   font-weight: var(--fw-extrabold);
 }

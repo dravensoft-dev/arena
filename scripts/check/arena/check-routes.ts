@@ -147,7 +147,7 @@ export const ROUTES: Route[] = [
       + 'document that says what the questions are and which answers carry the difference',
     entry: 'consumer',
     stops: ['skills/design/references/style-kernel.md'],
-    budget: 20_800,
+    budget: 20_850,
     reason:
       'paid once per project and never per screen, which lets it carry the whole surface the kernel '
       + 'exposes, so a project stops learning the kernel from a normative contributor document. It links '
@@ -155,10 +155,10 @@ export const ROUTES: Route[] = [
       + 'inherit and which it has to make, how the one scale exception is keyed, and the `light` group. The '
       + 'differentiation table is a measurement over the catalogue, so it grows by remeasuring and not '
       + 'by writing. The number is what the stops measure with room for the kernel to grow a section, '
-      + 'and it moves when it grows a question or a sentence names a new reader. The root rule says where a role\'s '
+      + 'and it moves with a new question or reader. The roster grows per role. The root rule says where a role\'s '
       + 'default is written and states first, in a region generated with the config page\'s, which '
       + 'roles carry a default and that the root answers the rest. It says where a clone-less project '
-      + 'fetches the default plugin. The roster grows per role. The setup checklist names each unanswered role. The page says what '
+      + 'fetches the default plugin. The setup checklist names each unanswered role and the sheet order. The page says what '
       + 'each kind of role may be answered with, names the selected edge of navigation and its default, and says '
       + 'a plugin\'s own percentage stays put. The loop lists every answer the build refuses and what the '
       + 'user scale column decides.',
@@ -210,20 +210,20 @@ export const ROUTES: Route[] = [
       + 'every part Arena ships, the three steps a project can stop at, and where Arena stops',
     entry: 'consumer',
     stops: ['skills/design/references/surface.md'],
-    budget: 11_900,
+    budget: 11_980,
     reason:
       'paid once per project and taken before the skin, register and seo routes, because each of '
       + 'them asks how much of a thing nobody has shown the reader yet. What it buys is that a '
       + 'consumer stops learning the offer by running out of it: every part Arena ships is named in '
-      + 'one place, beside the document that owns it. The page is an index rather than a tutorial, '
-      + 'which keeps it inside this budget and from becoming a second router. It '
+      + 'one place, beside the document that owns it. The page is an index, not a tutorial or a second router. '
+      + 'The audit line names what a source text shows. It '
       + 'also carries where Arena stops, each line a decision rather than a gap, because a limit kept '
       + 'in a component prompt is reached after the project has planned around it, and a page '
       + 'promising the whole line is falsified by any part of it kept elsewhere. The number is what '
       + 'the stops measure with room for one part, and it grows when Arena ships something new. The row naming the layout container and the '
       + 'spacing scale\'s half step are what the page spends beyond the parts it already listed. '
       + 'The icon line says where the sprite comes from and that the components reach no dependency. '
-      + 'The token layer row names the token tree beside the scales it lists. The palette row names every key of the set. The audit line names what a source text shows.',
+      + 'The token layer row names the token tree beside the scales it lists. The palette row names every key of the set. The command line names the sheets it writes.',
   },
   {
     name: 'consumer-stack',

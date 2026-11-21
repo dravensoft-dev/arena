@@ -142,7 +142,7 @@ test('the sheets region lists the token layer in CSS_CHAIN order and names where
   const at = CSS_CHAIN.map(({ to }) => paragraph.indexOf(`\`${to}\``));
   assert.ok(at.every((place) => place >= 0), `a CSS_CHAIN entry is missing from the token layer sentence: ${at}`);
   assert.deepEqual([...at].sort((a, b) => a - b), at, 'the token layer sentence is not in CSS_CHAIN order');
-  assert.match(paragraph, /the root plugin's slot/);
+  assert.match(paragraph, /the root plugin's place/);
 });
 
 const sheetNamesIn = (region: string) => {
@@ -456,7 +456,7 @@ test('the noImport region lists what each package arena.css imports less the def
   const region = renderRegion('noImport', repoRoot, CLI_PAGE);
   assert.ok(!region.includes("@import './arena.generated.css'"));
   assert.match(region, /`arena\.generated\.css` goes in a stylesheet of its own, imported after the list/);
-  assert.match(region, /The `"default"` root adds `css\/style-plugin-default\.css` in its slot/);
+  assert.match(region, /The `"default"` root adds `css\/style-plugin-default\.css` in its place/);
   assert.doesNotMatch(region, /every component sheet when the config names none/);
 });
 

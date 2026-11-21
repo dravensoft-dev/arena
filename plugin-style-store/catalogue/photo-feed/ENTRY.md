@@ -43,4 +43,4 @@ The post, the wall and the viewer are markup you write. `skills/design/reference
 
 The palette and the fonts are the consumer's, and here most of the screen is a photograph and takes its colour from the photograph.
 
-The copy, the brand mark, and whether anything has to be found from outside are still open. Whether anything has to be found from outside is the question to settle before the first route rather than after.
+The copy, the brand mark, and whether anything has to be found from outside are still open; settle the last before the first route rather than after.
