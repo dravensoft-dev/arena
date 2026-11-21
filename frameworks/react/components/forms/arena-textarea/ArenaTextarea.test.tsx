@@ -68,12 +68,6 @@ test('a consumer id overrides the one generated from the label', () => {
   assert.doesNotMatch(html, /ta-email/, 'the generated id is still being used despite an explicit one');
 });
 
-test('without a consumer id the label-derived one is still generated', () => {
-  const html = renderToStaticMarkup(<ArenaTextarea label="Email" />);
-  assert.match(html, /<textarea id="ta-email"/);
-  assert.match(html, /for="ta-email"/);
-});
-
 test('the counter warns near the cap through its own slot, not a recomputed colour', () => {
   const calm = renderToStaticMarkup(<ArenaTextarea label="A" counter maxLength={100} value={'x'.repeat(50)} />);
   assert.match(calm, /50\/100/);
@@ -111,9 +105,5 @@ test('a note takes the id the consumer gives, and a field with neither carries n
   const html = renderToStaticMarkup(<ArenaTextarea id="notes" hint="Markdown works." />);
   assert.match(html, /<textarea[^>]*aria-describedby="notes-note"/);
   assert.match(html, /<span id="notes-note"[^>]*>Markdown works\.<\/span>/);
-  assert.doesNotMatch(renderToStaticMarkup(<ArenaTextarea label="Notes" />), /aria-describedby/);
-});
-
-test('a field with neither a hint nor an error carries no aria-describedby', () => {
   assert.doesNotMatch(renderToStaticMarkup(<ArenaTextarea label="Notes" />), /aria-describedby/);
 });

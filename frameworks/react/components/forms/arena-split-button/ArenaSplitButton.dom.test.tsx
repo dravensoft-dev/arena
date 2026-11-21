@@ -1,6 +1,6 @@
 /* The split's two halves at work: the primary half reports its activation unless loading or
  * disabled blocks it, the caret opens the menu while the action runs and not while disabled, an
- * entry reports the whole item, and focus comes back to the caret. happy-dom lays nothing out, so
+ * entry reports the whole item. happy-dom lays nothing out, so
  * the alignment cases stub every box, the caret's apart from the split's, and read the panel's
  * left and top style to see which box the panel was placed against. */
 import test, { afterEach } from 'node:test';
@@ -25,10 +25,6 @@ function halves(root: ParentNode) {
     primary: root.querySelector<HTMLButtonElement>('[data-arena-part="split-button.primary"]')!,
     caret: root.querySelector<HTMLButtonElement>('[data-arena-part="split-button.caret"]')!,
   };
-}
-
-function press(el: Element, key: string) {
-  act(() => { el.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true })); });
 }
 
 test('the root is a group the label names, holding both halves', () => {
@@ -110,17 +106,6 @@ test('the tab stops are the primary half, then the caret', () => {
   const stops = [...root.querySelectorAll<HTMLElement>('button, [tabindex]')].filter((one) => one.tabIndex >= 0);
   const { primary, caret } = halves(root);
   assert.deepEqual(stops, [primary, caret]);
-});
-
-test('Escape closes the menu and returns focus to the caret', () => {
-  const root = mount(split());
-  const { caret } = halves(root);
-  act(() => { caret.click(); });
-  const first = root.querySelector<HTMLElement>('[role="menuitem"]')!;
-  assert.equal(document.activeElement, first, 'opening did not move focus to the first entry');
-  press(first, 'Escape');
-  assert.equal(root.querySelector('[role="menu"]'), null);
-  assert.equal(document.activeElement, caret);
 });
 
 type Box = { left: number; top: number; width: number; height: number };

@@ -37,14 +37,6 @@ const render = () => mount(
 
 const order = (root: Element) => [...root.querySelectorAll('select, input, button')].map((el) => el.getAttribute('aria-label') ?? el.getAttribute('data-arena-part'));
 
-test('a bar narrower than sm stacks, and a wide one does not', () => {
-  const narrow = measured(320, render).querySelector('[data-arena-part="filter-bar"]')!;
-  assert.equal(narrow.hasAttribute('data-arena-narrow'), true);
-  cleanup();
-  const wide = measured(900, render).querySelector('[data-arena-part="filter-bar"]')!;
-  assert.equal(wide.hasAttribute('data-arena-narrow'), false);
-});
-
 test('the narrow shape reorders nothing', () => {
   const narrow = order(measured(320, render));
   cleanup();

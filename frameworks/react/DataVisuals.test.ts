@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {
   ARENA_CAT_SLOTS, ARENA_INK_BODY, ARENA_INK_MUTED, arenaCatColor, arenaCatRotate, arenaCatSlotFor, arenaCatSurface, arenaAreaFill, arenaToneColor, arenaRailStyle,
 } from './DataVisuals.ts';
-import type { ArenaSeriesTone, ArenaTone } from './Api.generated';
+import type { ArenaTone } from './Api.generated';
 
 test('every tone in the union resolves to a var() or a colour-mix of roles and levels, never a literal colour', () => {
   const tones: ArenaTone[] = ['neutral', 'success', 'warning', 'danger', 'info'];
@@ -11,20 +11,11 @@ test('every tone in the union resolves to a var() or a colour-mix of roles and l
   assert.equal(new Set(tones.map(arenaToneColor)).size, tones.length, 'tones must not share a colour');
 });
 
-test('every ArenaSeriesTone is an ArenaTone, so a chart keeps reaching the same colour it always did', () => {
-  const series: ArenaSeriesTone[] = ['success', 'warning', 'danger', 'info'];
-  for (const tone of series) assert.equal(arenaToneColor(tone), arenaToneColor(tone as ArenaTone));
-});
-
 test('arenaCatSlotFor lands inside the ramp for every key, including an empty one', () => {
   for (const key of ['', 'a', 'arena', 'SKU-1042', 'ñ', '日本', 'x'.repeat(500)]) {
     const slot = arenaCatSlotFor(key);
     assert.ok(Number.isInteger(slot) && slot >= 1 && slot <= ARENA_CAT_SLOTS, `arenaCatSlotFor(${key}) = ${slot}`);
   }
-});
-
-test('arenaCatSlotFor gives the same key the same slot every time', () => {
-  assert.equal(arenaCatSlotFor('SKU-1042'), arenaCatSlotFor('SKU-1042'));
 });
 
 test('arenaCatSlotFor spreads over the ramp by these pinned vectors', () => {

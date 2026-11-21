@@ -29,11 +29,8 @@ test('an interactive card carries the manifest\'s own hover and focus classes, n
   assert.match(inert, /data-arena-part="card"(?:(?!data-arena-interactive=)[^>])*>/);
 
   const live = renderToStaticMarkup(<ArenaCard interactive>x</ArenaCard>);
-  assert.match(live, /data-arena-part="card"[^>]*\bdata-arena-interactive=""/);
-  assert.match(live, /data-arena-part="card"[^>]*\bdata-arena-interactive=""/);
-  assert.match(live, /data-arena-part="card"[^>]*\bdata-arena-interactive=""/);
   assert.match(live, /data-arena-part="card"[^>]*\bdata-arena-interactive=""/,
-    'the disabled look is a state the attribute selects, so nothing has to be recomputed to draw it');
+    'the interactive look is a state the attribute selects, so nothing has to be recomputed to draw it');
 });
 
 test('accent and elevation reach the card as classes, and it writes no attribute for either', () => {

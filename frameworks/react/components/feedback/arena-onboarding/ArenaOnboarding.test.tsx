@@ -31,7 +31,6 @@ test('an anchor switches the coachmark from the bottom-right corner to top/left 
 
   assert.doesNotMatch(floating, /style="top:/, 'the default branch pins nothing computed');
   assert.match(floating, /data-arena-part="onboarding.panel"[^>]*\bdata-arena-placement="floating"/, 'the default branch floats off the corner through the recipe');
-  assert.match(floating, /data-arena-part="onboarding.panel"[^>]*\bdata-arena-placement="floating"/);
 });
 
 test('an absent required member throws rather than rendering', () => {

@@ -18,8 +18,6 @@ test('checked draws the crimson fill; unchecked draws the input surface', () => 
   const on = renderToStaticMarkup(<ArenaCheckbox checked label="Notify" />);
   const off = renderToStaticMarkup(<ArenaCheckbox label="Notify" />);
   assert.match(on, /data-arena-part="checkbox.box"[^>]*\bdata-arena-checked=""/);
-  assert.match(on, /data-arena-part="checkbox.box"[^>]*\bdata-arena-checked=""/);
-  assert.match(off, /data-arena-part="checkbox.box"(?:(?!data-arena-checked=)[^>])*>/);
   assert.match(off, /data-arena-part="checkbox.box"(?:(?!data-arena-checked=)[^>])*>/);
 });
 

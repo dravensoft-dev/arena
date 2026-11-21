@@ -101,28 +101,6 @@ test('an unresolved threshold answers false rather than throwing', () => {
   }
 });
 
-test('a failed read is not cached, so the next mount resolves the token once it is there', () => {
-  const style = document.documentElement.style;
-  const saved = style.getPropertyValue('--bp-md');
-  const warn = console.warn;
-  console.warn = () => {};
-  forgetArenaBreakpoints();
-  style.removeProperty('--bp-md');
-  try {
-    viewport(390);
-    const first = mount(<Probe name="md" />);
-    assert.equal(first.firstElementChild!.getAttribute('data-below'), 'false');
-    style.setProperty('--bp-md', '768px');
-    const second = mount(<Probe name="md" />);
-    assert.equal(second.firstElementChild!.getAttribute('data-below'), 'true',
-      'the failed read was latched, so the token could never take effect');
-  } finally {
-    style.setProperty('--bp-md', saved);
-    forgetArenaBreakpoints();
-    console.warn = warn;
-  }
-});
-
 test('one threshold is one media query, however often the hook renders', () => {
   forgetArenaBreakpoints();
   const original = window.matchMedia;

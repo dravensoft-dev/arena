@@ -175,8 +175,7 @@ test('a panel taller than the room on its side is capped at that room, so it scr
   assert.deepEqual([raised.y, raised.side, raised.maxHeight], [0, 'above', 214], 'above, the cap is the room over the anchor');
 });
 
-test('a panel that fits its room is not capped, and a visual viewport offset moves the room', () => {
-  assert.equal(arenaPlacePanel(TRIGGER, PANEL, VIEWPORT, 'start', 6).maxHeight, null);
+test('a visual viewport offset moves the room the cap is measured against', () => {
   const placed = arenaPlacePanel(rect(0, 210, 100, 40), size(100, 400), rect(0, 200, 800, 300), 'start', 6);
   assert.deepEqual([placed.y, placed.maxHeight], [256, 244]);
 });

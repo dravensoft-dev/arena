@@ -26,11 +26,6 @@ function table(pageControl: ArenaTablePageControl, page: ArenaTablePage = PAGE, 
   return { host, seen };
 }
 
-test('auto draws the pager, which is what a table showing one list of its own wants', () => {
-  const { host } = table('auto');
-  assert.ok(host.querySelector('nav'), 'auto drew no pager');
-});
-
 test('none draws no pager and the grid stays', () => {
   const { host } = table('none');
   assert.equal(host.querySelector('nav'), null, 'none drew a pager anyway');

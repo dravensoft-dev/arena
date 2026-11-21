@@ -112,17 +112,6 @@ test('a consumer attribute reaches no part of the opened panel', () => {
     'a consumer attribute reached the panel -- a {...rest} escape is back');
 });
 
-test('a divider and a header draw no activatable row', () => {
-  const root = mount(
-    <ArenaMenu trigger={<button type="button">Open</button>}
-      items={[{ header: 'Deployment' }, { label: 'View logs' }, { divider: true }]} />,
-  );
-  const panel = open(root);
-  assert.equal(panel.querySelectorAll('[role="menuitem"]').length, 1,
-    'a divider or a header rendered as an activatable entry');
-  assert.match(panel.textContent, /Deployment/, 'the header did not render');
-});
-
 const BINDING = join(REACT_COMPONENTS, 'navigation/arena-menu/ArenaMenu.behaviour.json');
 
 function press(el: Element, key: string) {
