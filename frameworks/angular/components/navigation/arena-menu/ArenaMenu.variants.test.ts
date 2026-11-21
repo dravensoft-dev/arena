@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { REPO } from '../../../test/Compliance';
 import assert from 'node:assert/strict';
 import { arenaMenuStyles } from './ArenaMenu.variants';
-import { ARENA_MENU_POSITIONS, isArenaActivatable } from './ArenaMenu';
+import { ARENA_MENU_PLACEMENT, isArenaActivatable } from './ArenaMenu';
 import { sp1 } from '../../../Tokens.generated';
 
 function tokens(classString: string): string[] {
@@ -33,15 +33,9 @@ test('a divider and a header are not activatable; everything else is', () => {
     'a disabled row is still a row -- it renders as a menuitem and reports nothing');
 });
 
-test('both alignments offer a flip above the trigger, and the gap is derived from the token rather than written', () => {
-  for (const align of ['start', 'end'] as const) {
-    const positions = ARENA_MENU_POSITIONS[align];
-    assert.equal(positions.length, 4, `${align} must offer both alignments below the trigger and above it`);
-    assert.deepEqual(positions.map((position) => position.offsetY), [sp1 * 1.5, sp1 * 1.5, -sp1 * 1.5, -sp1 * 1.5]);
-    assert.deepEqual(positions.map((position) => position.originY), ['bottom', 'bottom', 'top', 'top']);
-  }
-  assert.deepEqual(ARENA_MENU_POSITIONS.start.map((position) => position.originX), ['start', 'end', 'start', 'end']);
-  assert.deepEqual(ARENA_MENU_POSITIONS.end.map((position) => position.originX), ['end', 'start', 'end', 'start']);
+test('both alignments prefer below the trigger, and the gap is derived from the token rather than written', () => {
+  assert.deepEqual(ARENA_MENU_PLACEMENT.start, { align: 'start', prefer: 'below', offset: sp1 * 1.5 });
+  assert.deepEqual(ARENA_MENU_PLACEMENT.end, { align: 'end', prefer: 'below', offset: sp1 * 1.5 });
 });
 
 test('the sheet positions the panel at neither edge, because the overlay places it', () => {

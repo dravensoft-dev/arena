@@ -6,7 +6,7 @@ import type { ArenaMenuAlign } from '../../../Api.generated';
 import { sp1 } from '../../../Tokens.generated';
 import { arenaWarnOnce } from '../../../WarnOnce';
 import { ArenaIdGenerator } from '../../../ArenaIds';
-import { ArenaAnchoredOverlay, arenaConnectedPositions, arenaFirstFocusable } from '../../../AnchoredOverlay';
+import { ArenaAnchoredOverlay, arenaFirstFocusable } from '../../../AnchoredOverlay';
 import { arenaPopoverStyles } from './ArenaPopover.variants';
 import manifest from './ArenaPopover.classes.generated';
 import { ArenaSlotAttributes } from '../../../SlotData';
@@ -71,7 +71,7 @@ export class ArenaPopover {
     anchor: () => this.host.nativeElement,
     trigger: () => this.trigger(),
     panel: () => this.panel(),
-    positions: () => arenaConnectedPositions(this.align(), 'below', sp1 * 1.5),
+    placement: () => ({ align: this.align(), prefer: 'below', offset: sp1 * 1.5 }),
     onDismiss: () => this.openChange.emit(false),
     focusOnOpen: arenaFirstFocusable,
     restoreFocus: true,

@@ -4,13 +4,12 @@ import {
   type Signal, type TemplateRef,
 } from '@angular/core';
 import {
-  type ConnectedPosition, type OverlayRef, createFlexibleConnectedPositionStrategy,
-  type FlexibleConnectedPositionStrategy, createOverlayRef, createRepositionScrollStrategy,
+  type GlobalPositionStrategy, type OverlayRef, createGlobalPositionStrategy,
+  createNoopScrollStrategy, createOverlayRef,
 } from '@angular/cdk/overlay';
-import { Directionality } from '@angular/cdk/bidi';
 import { TemplatePortal } from '@angular/cdk/portal';
 import {
-  arenaEscapeInsideModal, arenaOpeningFocus, arenaPanelsAbove, arenaPressInside, arenaTabLeavesPanel, arenaTopmostPanel,
+  arenaEscapeInsideModal, arenaOpeningFocus, arenaPanelsAbove, arenaPlacePanel, arenaPressInside, arenaTabLeavesPanel, arenaTopmostPanel,
   arenaViewportBox,
   type ArenaPanelAlign, type ArenaPanelDismissal, type ArenaPanelSide,
 } from './AnchoredPanel';
@@ -19,11 +18,17 @@ import { ArenaThemeService, arenaPolarityClass } from './theme/ArenaThemeService
 
 export type { ArenaPanelAlign, ArenaPanelDismissal, ArenaPanelSide };
 
+export interface ArenaAnchoredPlacement {
+  align: ArenaPanelAlign;
+  prefer: ArenaPanelSide;
+  offset: number;
+}
+
 export interface ArenaAnchoredOverlayOptions {
   anchor: () => HTMLElement | null;
   trigger: () => HTMLElement | null;
   panel: () => TemplateRef<unknown>;
-  positions: () => readonly ConnectedPosition[];
+  placement: () => ArenaAnchoredPlacement;
   onDismiss: (reason: ArenaPanelDismissal) => void;
   matchAnchorWidth?: boolean;
   focusOnOpen?: (panel: HTMLElement) => HTMLElement | null;
@@ -39,24 +44,6 @@ interface StackEntry {
 const stack: StackEntry[] = [];
 
 const live = () => stack.filter((entry) => entry.panel.isConnected);
-
-export function arenaConnectedPositions(align: ArenaPanelAlign, prefer: ArenaPanelSide, offset: number): ConnectedPosition[] {
-  const opposite = { start: 'end', end: 'start', center: 'center' } as const;
-  const at = (side: ArenaPanelSide, edge: ArenaPanelAlign): ConnectedPosition => side === 'below'
-    ? { originX: edge, originY: 'bottom', overlayX: edge, overlayY: 'top', offsetY: offset }
-    : { originX: edge, originY: 'top', overlayX: edge, overlayY: 'bottom', offsetY: -offset };
-  const other: ArenaPanelSide = prefer === 'below' ? 'above' : 'below';
-  const edges: ArenaPanelAlign[] = align === 'center' ? [align] : [align, opposite[align]];
-  return [prefer, other].flatMap((side) => edges.map((edge) => at(side, edge)));
-}
-
-export function arenaPhysicalPositions(positions: readonly ConnectedPosition[], rtl: boolean): ConnectedPosition[] {
-  const swap = { start: 'end', end: 'start', center: 'center' } as const;
-  if (!rtl) return [...positions];
-  return positions.map((position) => ({
-    ...position, originX: swap[position.originX], overlayX: swap[position.overlayX],
-  }));
-}
 
 export function arenaFirstFocusable(panel: HTMLElement): HTMLElement {
   return arenaOpeningFocus(arenaFocusableElements(panel), panel);
@@ -82,12 +69,11 @@ export class ArenaAnchoredOverlay {
   private readonly injector = inject(Injector);
   private readonly viewContainer = inject(ViewContainerRef);
   private readonly doc = inject(DOCUMENT);
-  private readonly directionality = inject(Directionality);
   private readonly options: ArenaAnchoredOverlayOptions;
   private readonly shown = signal(false);
   private ref: OverlayRef | null = null;
   private detach: (() => void) | null = null;
-  private strategy: FlexibleConnectedPositionStrategy | null = null;
+  private strategy: GlobalPositionStrategy | null = null;
   private paneClasses: string[] = [];
   private paneProperties: string[] = [];
   private following = false;
@@ -129,21 +115,21 @@ export class ArenaAnchoredOverlay {
     this.paneProperties = Object.keys(properties);
   }
 
-  private fitVisualViewport(): void {
+  private place(ref: OverlayRef): void {
+    const strategy = this.strategy;
+    const anchor = this.options.anchor();
     const view = this.doc.defaultView;
-    const root = this.doc.documentElement;
-    if (!this.strategy || !view) return;
-    const box = arenaViewportBox(view);
-    this.strategy.withViewportMargin({
-      top: box.top,
-      bottom: Math.max(0, root.clientHeight - box.top - box.height),
-      start: box.left,
-      end: Math.max(0, root.clientWidth - box.left - box.width),
-    });
-  }
-
-  private replace(ref: OverlayRef): void {
-    this.fitVisualViewport();
+    if (!strategy || !anchor || !view) {
+      ref.updatePosition();
+      return;
+    }
+    strategy.left('0px').top('0px');
+    ref.updatePosition();
+    const own = ref.overlayElement.getBoundingClientRect();
+    const { align, prefer, offset } = this.options.placement();
+    const placed = arenaPlacePanel(anchor.getBoundingClientRect(), { width: own.width, height: own.height },
+      arenaViewportBox(view), align, offset, prefer);
+    strategy.left(`${placed.x}px`).top(`${placed.y}px`);
     ref.updatePosition();
   }
 
@@ -156,19 +142,17 @@ export class ArenaAnchoredOverlay {
     const anchor = this.options.anchor();
     if (this.ref || !anchor) return;
     const { classes, properties } = arenaScopeDress(anchor, this.injector.get(ArenaThemeService, null));
-    const strategy = createFlexibleConnectedPositionStrategy(this.injector, anchor)
-      .withPositions(arenaPhysicalPositions(this.options.positions(), this.directionality.value === 'rtl'))
-      .withPush(true);
+    const strategy = createGlobalPositionStrategy(this.injector);
     this.strategy = strategy;
-    this.fitVisualViewport();
     const ref = createOverlayRef(this.injector, {
       positionStrategy: strategy,
-      scrollStrategy: createRepositionScrollStrategy(this.injector),
+      scrollStrategy: createNoopScrollStrategy(),
       panelClass: classes,
     });
     if (this.options.matchAnchorWidth) ref.updateSize({ minWidth: anchor.getBoundingClientRect().width });
     ref.attach(new TemplatePortal(this.options.panel(), this.viewContainer));
     this.ref = ref;
+    this.place(ref);
     this.paneClasses = classes;
     this.paneProperties = [];
     this.wearProperties(ref, properties);
@@ -231,16 +215,21 @@ export class ArenaAnchoredOverlay {
     const anchor = this.options.anchor();
     const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(() => {
       if (anchor && this.options.matchAnchorWidth) ref.updateSize({ minWidth: anchor.getBoundingClientRect().width });
-      this.replace(ref);
+      this.place(ref);
     }) : null;
     observer?.observe(ref.overlayElement);
     if (anchor) observer?.observe(anchor);
     const visual = this.doc.defaultView?.visualViewport;
-    const replace = (): void => this.replace(ref);
+    const view = this.doc.defaultView;
+    const replace = (): void => this.place(ref);
+    this.doc.addEventListener('scroll', replace, true);
+    view?.addEventListener('resize', replace);
     visual?.addEventListener('resize', replace);
     visual?.addEventListener('scroll', replace);
     this.detach = () => {
       observer?.disconnect();
+      this.doc.removeEventListener('scroll', replace, true);
+      view?.removeEventListener('resize', replace);
       visual?.removeEventListener('resize', replace);
       visual?.removeEventListener('scroll', replace);
       this.doc.removeEventListener('keydown', onKey, true);

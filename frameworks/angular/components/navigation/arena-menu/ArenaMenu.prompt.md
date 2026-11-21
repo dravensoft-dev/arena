@@ -2,9 +2,9 @@ Arena menu, a dropdown of actions hanging off a trigger the consumer draws. Stan
 `OnPush`, signal I/O. The host wraps the trigger and nothing else; the panel lives in a
 `@angular/cdk/overlay` pane on `document.body`.
 
-The clipping is the whole reason for the overlay. A menu's canonical home is an overflow row in a table or a card, and an absolutely-positioned panel is clipped by the first `overflow: hidden` ancestor. Arena uses the CDK for **position only**: the roles, the keys and the focus are The panel stays inside the visible part of the screen when a soft keyboard covers the rest.
+The clipping is the whole reason for the overlay. A menu's canonical home is an overflow row in a table or a card, and an absolutely-positioned panel is clipped by the first `overflow: hidden` ancestor. Arena uses the CDK for **position only**: the roles, the keys and the focus are
 Arena's. The app must import `frameworks/angular/theme/arena-cdk.css` once, or the panel renders
-unpositioned.
+unpositioned. The panel stays inside the visible part of the screen when a soft keyboard covers the rest.
 
 ```html
 <arena-menu [items]="rowActions" align="end" (select)="run($event)">
@@ -85,7 +85,7 @@ nothing.
   runtime; project an `arena-icon-button`, an `arena-button`, or your own element carrying a
   button role and a tabindex.
 - **Do** reach for `align="end"` when the trigger sits at the right edge of its row, so the panel
-  hangs inward instead of off the page. The CDK will flip it above the trigger near the bottom of
+  hangs inward instead of off the page. The panel flips above the trigger near the bottom of
   the viewport on its own.
 - **Don't** use `shortcut` expecting Arena to bind the key. The member is display only, and the contract says so. The host binds it or nothing does.
 - **Don't** use it to choose a form value. A short list is `arena-select`, and a long one the user

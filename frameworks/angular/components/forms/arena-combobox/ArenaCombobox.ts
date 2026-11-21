@@ -7,7 +7,7 @@ import { sp1 } from '../../../Tokens.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
 import { arenaPhrase } from '../../../Phrase';
 import { ArenaIdGenerator } from '../../../ArenaIds';
-import { ArenaAnchoredOverlay, arenaConnectedPositions } from '../../../AnchoredOverlay';
+import { ArenaAnchoredOverlay, type ArenaAnchoredPlacement } from '../../../AnchoredOverlay';
 import { ArenaControlBinding, arenaWarnDoubleBinding } from '../../../ControlBinding';
 import { ArenaSlotAttributes } from '../../../SlotData';
 import {
@@ -20,7 +20,7 @@ import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
 
 export { arenaFilterOptions } from './ComboboxRules';
 
-export const ARENA_COMBOBOX_POSITIONS = arenaConnectedPositions('start', 'below', sp1 * 1.5);
+export const ARENA_COMBOBOX_PLACEMENT: ArenaAnchoredPlacement = { align: 'start', prefer: 'below', offset: sp1 * 1.5 };
 
 @Component({
   selector: 'arena-combobox',
@@ -155,7 +155,7 @@ export class ArenaCombobox {
     anchor: () => this.fieldRef().nativeElement,
     trigger: () => this.inputRef().nativeElement,
     panel: () => this.panel(),
-    positions: () => ARENA_COMBOBOX_POSITIONS,
+    placement: () => ARENA_COMBOBOX_PLACEMENT,
     matchAnchorWidth: true,
     onDismiss: (reason) => { if (reason === 'escape') this.restore(); else this.commit(); },
   });

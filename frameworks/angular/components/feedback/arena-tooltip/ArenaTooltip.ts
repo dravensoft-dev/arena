@@ -2,16 +2,15 @@ import {
   ChangeDetectionStrategy, Component, DestroyRef, ElementRef, TemplateRef, computed, inject, input,
   signal, viewChild,
 } from '@angular/core';
-import type { ConnectedPosition } from '@angular/cdk/overlay';
 import { delayClose, delayOpen, sp2 } from '../../../Tokens.generated';
-import { ArenaAnchoredOverlay, arenaConnectedPositions } from '../../../AnchoredOverlay';
+import { ArenaAnchoredOverlay, type ArenaAnchoredPlacement } from '../../../AnchoredOverlay';
 import { arenaTooltipStyles } from './ArenaTooltip.variants';
 import manifest from './ArenaTooltip.classes.generated';
 import { ArenaIdGenerator } from '../../../ArenaIds';
 import { arenaAccessibleText, arenaTooltipRedundant } from './TooltipName';
 import { ArenaSlotAttributes } from '../../../SlotData';
 
-export const ARENA_TOOLTIP_POSITIONS: ConnectedPosition[] = arenaConnectedPositions('center', 'above', sp2);
+export const ARENA_TOOLTIP_PLACEMENT: ArenaAnchoredPlacement = { align: 'center', prefer: 'above', offset: sp2 };
 
 export function arenaJoinDescribedBy(own: string | null, bubbleId: string): string {
   return own ? `${own} ${bubbleId}` : bubbleId;
@@ -62,7 +61,7 @@ export class ArenaTooltip {
     anchor: () => this.host.nativeElement,
     trigger: () => this.trigger(),
     panel: () => this.bubble(),
-    positions: () => ARENA_TOOLTIP_POSITIONS,
+    placement: () => ARENA_TOOLTIP_PLACEMENT,
     onDismiss: () => this.closeNow(),
   });
 

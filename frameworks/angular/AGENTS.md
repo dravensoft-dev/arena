@@ -298,10 +298,12 @@ A styled **native** control does not either: `arena-select` is a real `<select>`
 its keyboard and its type-ahead are the user agent's.
 
 **An anchored panel is attached through `AnchoredOverlay.ts:ArenaAnchoredOverlay`**, which a component
-constructs in its own injection context. It attaches the panel's template to a CDK pane placed by
-the connected positions `arenaConnectedPositions(align, prefer, offset)` returns. They try the
-preferred side at the alignment, then at the opposite alignment, then the other side the same way;
-when none fits, the pane is pushed inside the viewport at the alignment that overflows least. The
+constructs in its own injection context. It attaches the panel's template to a CDK pane that a global
+position strategy places at the left and top `arenaPlacePanel(anchor, pane, arenaViewportBox(window), align, offset, prefer)`
+computes. The pane takes the preferred side, flips to the other
+when the room there is too small and the other is larger, and is held inside the visual viewport, so
+a soft keyboard never covers it. It is placed again on scroll, on a window or visual viewport resize
+and when the pane or its anchor changes size. The
 overlay also keeps the stack Escape and an outside press consult. Focus on open, focus restore
 and Tab-out are options it takes. The pane wears the palette, plugin and density classes the anchor resolves: it reads
 `arenaScopeDress(anchor, theme)` on each open and again whenever `ArenaThemeService.theme` changes or a runtime palette is registered while it is open. A runtime palette gives the pane its polarity hook in place of `arena-<name>`, and its properties through `style.setProperty`. `ArenaMenu`,

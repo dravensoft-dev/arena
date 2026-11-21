@@ -10,7 +10,7 @@ import { ArenaAnchoredOverlay } from '../../../AnchoredOverlay';
 import { ArenaControlBinding, arenaWarnDoubleBinding } from '../../../ControlBinding';
 import { ArenaSlotAttributes } from '../../../SlotData';
 import { ArenaTag } from '../../display/arena-tag/ArenaTag';
-import { ARENA_COMBOBOX_POSITIONS } from '../arena-combobox/ArenaCombobox';
+import { ARENA_COMBOBOX_PLACEMENT } from '../arena-combobox/ArenaCombobox';
 import {
   arenaActiveOptionId, arenaAtCap, arenaChipAfterRemoval, arenaChipWindow, arenaFilterOptions,
   arenaOpeningOption, arenaOptionId, arenaStepChip, arenaStepOption, arenaToggleValue, arenaUniqueValues,
@@ -181,7 +181,7 @@ export class ArenaMultiSelect {
     anchor: () => this.fieldRef().nativeElement,
     trigger: () => this.inputRef().nativeElement,
     panel: () => this.panel(),
-    positions: () => ARENA_COMBOBOX_POSITIONS,
+    placement: () => ARENA_COMBOBOX_PLACEMENT,
     matchAnchorWidth: true,
     onDismiss: () => this.closeList(),
   });
