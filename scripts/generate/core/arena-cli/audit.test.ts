@@ -287,6 +287,13 @@ test('the alias rule reads the plugin scope only, since an application is the la
     + 'aliases ship, so naming one there is not this rule\'s business');
 });
 
+test('own markup may read the level a role combines with', () => {
+  const rule = '.x { background: color-mix(in oklab, var(--fill-selected) var(--level-accent-soft-primary), transparent) }';
+  assert.deepEqual(findings('src/app.css', rule, 'app'), []);
+  assert.equal(findings('design/x/plugin.css', rule, 'plugin').filter((one) => one.rule === 'compat-alias').length, 1,
+    'a plugin answers roles, so the level stays refused there');
+});
+
 test('a plugin naming a role or a palette colour is not naming an alias', () => {
   for (const value of ['var(--ink-eyebrow)', 'var(--color-neutral-content)',
     'color-mix(in oklab, var(--color-base-content) 62%, transparent)']) {

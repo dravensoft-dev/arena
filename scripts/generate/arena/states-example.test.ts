@@ -41,8 +41,20 @@ test('the toggle example passes arena audit --strict=audit', () => {
   assert.equal(captured.err.concat(captured.out).some((line) => line.includes('[audit]')), false);
 });
 
-test('the example reads no compatibility alias', () => {
-  for (const line of example().split('\n')) assert.equal(namesAnAlias(line), false, line);
+test('the example reads no compatibility alias but the level a role combines with', () => {
+  const roles = JSON.parse(readFileSync(join(import.meta.dirname, '..', '..', '..', 'contracts', 'design', 'roles.json'), 'utf8'));
+  const levels = new Set<string>();
+  for (const role of Object.values(roles) as { $extensions?: Record<string, { combines?: { with: string }[] }> }[])
+    for (const one of role.$extensions?.['com.dravensoft.arena']?.combines ?? []) levels.add(one.with);
+  assert.ok(levels.has('level-accent-soft-primary'), 'fill-selected combines with its level');
+  for (const line of example().split('\n')) {
+    const bare = line.replaceAll(/var\(\s*--(level-[a-z-]+)\s*[,)]/g, (all, name) => (levels.has(name) ? 'x' : all));
+    assert.equal(namesAnAlias(bare), false, line);
+  }
+});
+
+test('a selected hover washes the fill first and mixes toward the ink second, as the components draw it', () => {
+  assert.ok(example().includes('color-mix(in_oklab,color-mix(in_oklab,var(--fill-selected)_var(--level-accent-soft-primary),transparent),var(--ink-selected)_calc(var(--mix-hover)*100%))'));
 });
 
 test('the example names every state attribute', () => {

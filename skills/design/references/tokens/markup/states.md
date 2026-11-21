@@ -44,11 +44,11 @@ Your markup and Arena's components both read the roles on this page. A role keep
 
 ## A toggle that shows every state
 
-A pressed toggle washes with `--fill-selected` and reads `--ink-selected`, and under the pointer an unpressed one takes `--fill-hover`. The `aria-pressed:` rules come after the `hover:` ones, so a pressed toggle keeps its wash under the pointer unless an `aria-pressed:hover:` class answers it. The example answers it by mixing the pressed fill toward `--ink-selected` by `--mix-hover` and washing the result at the level of the selected wash. A keyboard user sees `--edge-focus` at `--bw-focus` and `--gap-focus`, and a disabled one keeps `--fade-disabled` of its opacity. An invalid field takes `--edge-invalid` on its edge only while `aria-invalid` is true and `--ink-invalid` on its message.
+A pressed toggle washes with `--fill-selected` and reads `--ink-selected`, and under the pointer an unpressed one takes `--fill-hover`. The `aria-pressed:` rules come after the `hover:` ones, so a pressed toggle keeps its wash under the pointer unless an `aria-pressed:hover:` class answers it. The example answers it by mixing the pressed fill toward `--ink-selected` by `--mix-hover`, after washing the fill at `--level-accent-soft-primary`, the level `--fill-selected` combines with. The order is the components': the wash first, then the mix toward the ink. A keyboard user sees `--edge-focus` at `--bw-focus` and `--gap-focus`, and a disabled one keeps `--fade-disabled` of its opacity. An invalid field takes `--edge-invalid` on its edge only while `aria-invalid` is true and `--ink-invalid` on its message.
 
 ```html
 <button type="button" aria-pressed="false"
-  class="hover:bg-hover aria-pressed:bg-selected/(--level-accent-soft-primary) aria-pressed:hover:bg-[color:color-mix(in_oklab,var(--fill-selected),var(--ink-selected)_calc(var(--mix-hover)*100%))]/(--level-accent-soft-primary) aria-pressed:text-ink-selected focus-visible:outline-edge-focus focus-visible:outline-[length:var(--bw-focus)] focus-visible:outline-offset-[var(--gap-focus)] disabled:opacity-[var(--fade-disabled)]">
+  class="hover:bg-hover aria-pressed:bg-selected/(--level-accent-soft-primary) aria-pressed:hover:bg-[color:color-mix(in_oklab,color-mix(in_oklab,var(--fill-selected)_var(--level-accent-soft-primary),transparent),var(--ink-selected)_calc(var(--mix-hover)*100%))] aria-pressed:text-ink-selected focus-visible:outline-edge-focus focus-visible:outline-[length:var(--bw-focus)] focus-visible:outline-offset-[var(--gap-focus)] disabled:opacity-[var(--fade-disabled)]">
   Notify me
 </button>
 
