@@ -136,7 +136,7 @@ const LEVELS = [
 export const PAIRS = [
   { fill: 'primary-fill', content: 'primary-content', gate: 4.5, note: 'every ground primary-content sits on: a filled button, a current page, a current step, a count badge; primary itself is the accent read as ink and as a line, and the checked box and the switch track read fill-control-on, which slotPairs measures at 3:1' },
 
-  { fill: 'error-fill', content: 'error-content', gate: 4.5, deriveFrom: 'error', keep: FILL_FALLBACK_KEEP, note: 'the danger fill a skin pins or the emitter derives; no manifest part reads it, since the final confirmation reads the actions group\'s destructive option (D54)' },
+  { fill: 'error-fill', content: 'error-content', gate: 4.5, deriveFrom: 'error', keep: FILL_FALLBACK_KEEP, note: 'the danger fill a skin pins or the emitter derives; no manifest part reads it, since the final confirmation reads the actions group\'s destructive option' },
   { fill: 'secondary', content: 'secondary-content', gate: 4.5, note: 'daisyUI pair — legible content on the fill' },
   { fill: 'neutral', content: 'neutral-content', gate: 4.5, note: 'daisyUI pair — legible content on the fill' },
   { fill: 'info', content: 'info-content', gate: 4.5, note: 'daisyUI pair — legible content on the fill' },

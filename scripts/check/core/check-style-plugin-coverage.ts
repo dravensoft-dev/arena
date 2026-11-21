@@ -61,7 +61,7 @@ const NO_SECOND_SPELLING = 'no other accepted role resolves to the key complete 
   + 'its own would move the complete sink';
 
 const MEMBER_DEFAULT = 'complete paints the ghost Button transparent here and the ghost IconButton in its member '
-  + 'default (D21), two colours one group slot cannot carry, so any answer to it moves one of them in the complete sink';
+  + 'default, two colours one group slot cannot carry, so any answer to it moves one of them in the complete sink';
 
 const SLOT = 'a colour slot, not a role: ';
 
@@ -100,7 +100,7 @@ export const WITNESS_EXEMPT: ReadonlyMap<string, string> = new Map([
     ...['plain', 'destructive'].flatMap((option) => ['fill', 'ink', 'icon'].map((property) => `menus-${option}-item-${property}-disabled`)),
     ...['fill', 'ink', 'icon'].map((property) => `menus-plain-item-${property}-selected-disabled`),
   ].map((name): [string, string] => [name, SLOT + 'any answer to a disabled or selected-disabled slot of a menu row or a navigation item stops that '
-    + 'part\'s fade (D8), which complete paints today on a disabled TreeView row, so complete leaves it unanswered and every spelling would move the complete sink']),
+    + 'part\'s fade, which complete paints today on a disabled TreeView row, so complete leaves it unanswered and every spelling would move the complete sink']),
   ...['complete', 'upcoming'].map((option): [string, string] => [`steps-${option}-marker-fill-rest`, SLOT + 'the one accepted role complete paints transparent, '
     + 'hue-danger-fill-strong, is a danger fill, and a step marker answered with it would say danger where it draws nothing; the kernel default is the literal '
     + 'transparent, so no other spelling resolves to the key complete paints there']),
@@ -110,7 +110,7 @@ export const WITNESS_EXEMPT: ReadonlyMap<string, string> = new Map([
   ['feedback-plain-banner-edge-rest', SLOT + NO_SECOND_SPELLING],
   ...['neutral', 'success', 'warning', 'info'].map((option): [string, string] => [`marks-${option}-complete-dot-edge-rest`, SLOT + 'complete draws a complete '
     + 'timeline disc with its border the colour of its fill, the kernel default is the literal transparent, which paints the same pixel, and no accepted edge role '
-    + 'resolves to transparent in complete, so no other spelling resolves to what complete paints there (D91)']),
+    + 'resolves to transparent in complete, so no other spelling resolves to what complete paints there']),
   ['marks-neutral-complete-dot-fill-rest', SLOT + NO_SECOND_SPELLING],
   ['marks-gold-soft-fill-rest', SLOT + 'complete washes a gold badge in primary at the gold soft level through accent-gold-fill-soft, the kernel '
     + 'default, and no other accepted fill role resolves to primary in complete: ' + NO_SECOND_SPELLING],

@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { basename, dirname, join } from 'node:path';
-import { KEBAB, NO_PAINT, colourAnswer, keyProblems, typeProblem, valueProblems, POLARITY_HOOKS, RESERVED, floorProblems, highContrastFor, nameProblems, reservedProblems, rootOnlyFor, withDefaults } from './style-plugin-rules.ts';
+import * as rules from './style-plugin-rules.ts';
+import { KEBAB, NO_PAINT, colourAnswer, fixedRemProblems, keyProblems, typeProblem, valueProblems, POLARITY_HOOKS, RESERVED, floorProblems, highContrastFor, nameProblems, reservedProblems, rootOnlyFor, withDefaults } from './style-plugin-rules.ts';
 import { scopesIn } from './sheets.ts';
 import { POLARITIES } from './palette-keys.ts';
 import { walkFiles } from '../../../utils/walk-files.ts';
@@ -49,7 +50,7 @@ test('a reserved name is never a class the tree ships, so a component that lands
   const shipped = shippedInTree();
   assert.deepEqual(stale(RESERVED, shipped), [],
     'an entry the tree ships is stale: the change that ships the class deletes the entry');
-  assert.deepEqual(stale(new Map([...RESERVED, ['table', 'ArenaTable, a planted entry (spec 00)']]), shipped), ['table']);
+  assert.deepEqual(stale(new Map([...RESERVED, ['table', 'ArenaTable, a planted entry']]), shipped), ['table']);
 });
 
 test('no class is held ahead, and a held entry is gone when the case that planted it ends', async () => {
@@ -58,11 +59,11 @@ test('no class is held ahead, and a held entry is gone when the case that plante
   assert.equal(RESERVED.size, 0);
 });
 
-test('every reserved name is kebab, is no polarity, and carries a reason naming its spec and no version', () => {
+test('every reserved name is kebab, is no polarity, and carries a reason and no version', () => {
   for (const [name, reason] of RESERVED) {
     assert.match(name, KEBAB, name);
     assert.ok(!POLARITIES.includes(name), `${name} is a polarity, and a palette may always take its own`);
-    assert.match(reason, /\(spec \d{2}\)$/, name);
+    assert.ok(reason.length > 0, `${name} carries a reason`);
     assert.doesNotMatch(reason, /\bv?\d+\.\d+/, `${name} names a version`);
   }
 });
@@ -263,4 +264,164 @@ test('typeProblem holds a role, a slot and a step to their types, and a missing 
   assert.equal(typeProblem('w', 'unknown-key', 'x', undefined), null);
   const lines = keyProblems('at', 'fill-field', { $type: 'keyword', $description: 'x', $value: 'a' }, { $type: 'dimension' });
   assert.equal(lines[0], 'at: --fill-field is a keyword here and a dimension in roles.json, and the two cannot disagree');
+});
+
+test('the rules module carries floors, shape checks and the kernel defaults, and no design theory', () => {
+  assert.deepEqual(Object.keys(rules).sort(), [
+    'ARENA_EXT', 'FS_STEP', 'KEBAB', 'MAX_PROSE_MEASURE', 'MIN_HEADING_LEADING',
+    'MIN_PROSE_LEADING', 'MIN_PROSE_MEASURE', 'NO_PAINT', 'POLARITY_HOOKS', 'RESERVED', 'RHYTHM_STEP',
+    'aliasName', 'colourAnswer', 'crossKeys', 'fixedRemProblems', 'floorProblems', 'highContrastFor', 'highContrastNames', 'keyProblems', 'keywordAnswer', 'nameProblems', 'reservedProblems', 'rootOnlyFor', 'scopeKey', 'scopeOn',
+    'totalityProblems', 'typeProblem', 'valueProblems', 'withDefaults',
+  ], 'a rule that keeps a catalogue coherent is Arena design theory, and a floor is a claim about '
+  + 'a reader: only the second one has any business binding somebody else\'s product');
+});
+
+const MOVE_ROLES: Record<string, { $type: string }> = {
+  'r-surface': { $type: 'dimension' },
+  'bw-surface': { $type: 'dimension' },
+  'dur-hover': { $type: 'duration' },
+};
+
+type MoveRow = { name: string; key: string; token: Record<string, unknown>; role?: { $type: string }; count?: number; patterns?: RegExp[] };
+
+const moved = (type: string, value: unknown, description?: string) => ({ $type: type, $value: value, ...(description ? { $description: description } : {}) });
+const FS_PX = { value: 80, unit: 'px' };
+
+const KEY_ROWS: MoveRow[] = [
+  { name: 'a move that re-values a role is accepted', key: 'r-surface', token: moved('dimension', '{r.xl}', 'why'), role: MOVE_ROLES['r-surface'], count: 0 },
+  { name: 'a move that is not a role fails, naming the token', key: 'color-primary', token: moved('color', '#fff', 'why'), count: 1, patterns: [/color-primary/] },
+  { name: 'a move that reaches for a raw scale step fails, because a scale is not a role to move', key: 'r-lg', token: moved('dimension', '{r.xl}', 'why'), patterns: [/r-lg/] },
+  {
+    name: 'a type that disagrees with the role it answers fails, so the two cannot drift',
+    key: 'dur-hover',
+    token: moved('dimension', '{dur.mid}', 'why'),
+    role: MOVE_ROLES['dur-hover'],
+    patterns: [/dimension.*duration|duration.*dimension/],
+  },
+  { name: 'a token moved without a reason fails, because a move is a decision', key: 'r-surface', token: moved('dimension', '{r.xl}'), role: MOVE_ROLES['r-surface'], patterns: [/\$description/] },
+  { name: 'an fs step is movable, because the type ladder is already a set of roles', key: 'fs-display', token: moved('dimension', FS_PX, 'why'), count: 0 },
+  { name: 'an fs step still needs a reason, like any other move', key: 'fs-display', token: moved('dimension', FS_PX), patterns: [/\$description/] },
+  { name: 'an fs step declared as something other than a dimension fails', key: 'fs-display', token: moved('duration', '{dur.mid}', 'why'), patterns: [/dimension/] },
+  { name: 'a token that merely starts with fs is not an fs step', key: 'fsx-display', token: moved('dimension', FS_PX, 'why'), patterns: [/fsx-display/] },
+  { name: 'a rhythm step is movable for the same reason an fs step is', key: 'rhythm-section', token: moved('dimension', '{sp.10}', 'why'), count: 0 },
+  { name: 'a rhythm step still needs a reason', key: 'rhythm-section', token: moved('dimension', '{sp.10}'), patterns: [/\$description/] },
+  { name: 'a rhythm step declared as something other than a dimension fails', key: 'rhythm-section', token: moved('duration', '{dur.mid}', 'why'), patterns: [/rhythm step is a dimension/] },
+  { name: 'a spacing step that is not a rhythm step is still a scale, so nothing may reach it', key: 'sp-5', token: moved('dimension', '{sp.8}', 'why'), patterns: [/sp-5/] },
+];
+
+const checkMoves = (rows: MoveRow[], run: (row: MoveRow) => string[]) => {
+  assert.ok(rows.length > 0);
+  for (const row of rows) {
+    const problems = run(row);
+    if (row.count !== undefined) assert.equal(problems.length, row.count, `${row.name}: ${problems.join('\n')}`);
+    for (const pattern of row.patterns ?? []) assert.match(problems[0] ?? '', pattern, row.name);
+  }
+};
+
+test('keyProblems accepts a role move, a fs step and a rhythm step, and refuses a scale, a type that disagrees and a move with no reason', () => {
+  checkMoves(KEY_ROWS, (row) => keyProblems('at', row.key, row.token, row.role));
+});
+
+const NAME_ROWS: [name: string, input: string, count: number | undefined, pattern?: RegExp][] = [
+  ['a name that is not kebab-case fails, since it becomes a class', 'Showcase', undefined, /kebab/i],
+  ['a name that is a theme polarity fails, since that class is already the palette own scope', 'light', undefined, /polarity/],
+  ['"none" is an ordinary name: a build declares the plugins it wants and never the absence of one', 'none', 0],
+  ['a name that is merely unused by the config is ordinary', 'default', 0],
+];
+
+test('nameProblems refuses a name that is not kebab-case or is a polarity, and takes any other', () => {
+  for (const [name, input, count, pattern] of NAME_ROWS) {
+    const problems = nameProblems(input, ['light'], 'at');
+    if (count !== undefined) assert.equal(problems.length, count, name);
+    if (pattern) assert.match(problems[0] ?? '', pattern, name);
+  }
+});
+
+const COLOUR_KNOWN = {
+  colourRoles: (name: string) => name === 'ink-muted' || name === 'ink-key',
+  resolve: (flat: string) => (flat === 'case-none' ? 'none' : flat === 'fs-h3' ? '24px' : undefined),
+};
+const FILL_ROLE = { $type: 'color' };
+const KEYWORD_ROLE = { $type: 'keyword', $extensions: { 'com.dravensoft.arena': { values: ['none', 'uppercase'] } } };
+
+type ValueRow = { name: string; key: string; token: Record<string, unknown>; role: Record<string, unknown>; known?: typeof COLOUR_KNOWN; count: number; pattern?: RegExp };
+
+const VALUE_ROWS: ValueRow[] = [
+  { name: 'a colour role admits a reference', key: 'fill-surface', token: moved('color', '{color.base-300}', 'why'), role: FILL_ROLE, count: 0 },
+  {
+    name: 'a colour role never admits a literal, because it assigns and never authors',
+    key: 'fill-surface',
+    token: moved('color', { colorSpace: 'srgb', components: [0, 0, 0] }, 'why'),
+    role: FILL_ROLE,
+    count: 1,
+    pattern: /assigns a colour and never authors one/,
+  },
+  { name: 'a colour role may not point outside the palette, since only a colour alias is re-emitted per theme', key: 'fill-surface', token: moved('color', '{scrim}', 'why'), role: FILL_ROLE, count: 1, pattern: /\{color\./ },
+  { name: 'a colour role may name another colour role', key: 'ink-key', token: moved('color', '{ink-muted}', 'why'), role: FILL_ROLE, known: COLOUR_KNOWN, count: 0 },
+  { name: 'a role may not name itself', key: 'ink-key', token: moved('color', '{ink-key}', 'why'), role: FILL_ROLE, known: COLOUR_KNOWN, count: 1 },
+  { name: 'a keyword role is not a colour', key: 'ink-key', token: moved('color', '{tt-key}', 'why'), role: FILL_ROLE, known: COLOUR_KNOWN, count: 1 },
+  { name: 'a keyword role takes an alias resolving to one of its words', key: 'tt-key', token: moved('keyword', '{case.none}', 'why'), role: KEYWORD_ROLE, known: COLOUR_KNOWN, count: 0 },
+  { name: 'a keyword role refuses an alias resolving to anything else', key: 'tt-key', token: moved('keyword', '{fs.h3}', 'why'), role: KEYWORD_ROLE, known: COLOUR_KNOWN, count: 1 },
+  { name: 'a keyword role takes a word of its own set', key: 'tt-eyebrow', token: moved('keyword', 'none', 'why'), role: KEYWORD_ROLE, count: 0 },
+  { name: 'a keyword role is held to the set its own role declares', key: 'tt-eyebrow', token: moved('keyword', 'smallcaps', 'why'), role: KEYWORD_ROLE, count: 1, pattern: /not one of none, uppercase/ },
+];
+
+test('valueProblems holds a colour role to a reference to the palette or another colour role, and a keyword role to its own set', () => {
+  assert.ok(VALUE_ROWS.length > 0);
+  for (const row of VALUE_ROWS) {
+    const problems = valueProblems('at', row.key, row.token, row.role, row.known);
+    assert.equal(problems.length, row.count, `${row.name}: ${problems.join('\n')}`);
+    if (row.pattern) assert.match(problems[0] ?? '', row.pattern, row.name);
+  }
+});
+
+type FloorRow = { name: string; over: Record<string, string> | null; scope: string; count?: number; first?: RegExp; joined?: RegExp[] };
+
+const FLOOR_ROWS: FloorRow[] = [
+  { name: 'a heading leading of 1.15 clears the floor', over: { 'lh-heading': '1.15' }, scope: 'dark', count: 0 },
+  { name: 'a heading leading under 1 is a heading whose lines overlap', over: { 'lh-heading': '0.8' }, scope: 'dark', first: /--lh-heading is 0.8/ },
+  { name: 'a prose measure of 68ch clears the floor', over: { 'measure-prose': '68ch' }, scope: 'dark', count: 0 },
+  { name: 'a prose measure under 45 characters stops being a measure', over: { 'measure-prose': '30ch' }, scope: 'dark', first: /45/ },
+  { name: 'a prose measure over 90 characters stops being a measure', over: { 'measure-prose': '120ch' }, scope: 'dark', first: /90/ },
+  { name: 'the reading floor is measured, and an answer may sit far above it', over: { 'lh-prose': '1.8' }, scope: 'dark', count: 0 },
+  { name: 'the reading floor is measured, and an answer may sit on it', over: { 'lh-prose': '1.5' }, scope: 'dark', count: 0 },
+  { name: 'the reading floor is measured, and an answer under it fails', over: { 'lh-prose': '1.15' }, scope: 'dark', first: /--lh-prose is 1\.15 in dark, under the 1\.5/ },
+  { name: 'the reading floor is measured, and an unresolved one fails', over: null, scope: 'light', joined: [/--lh-prose does not resolve to a number in light/] },
+  {
+    name: 'a floor that does not resolve is reported per floor, so one missing token hides no other: prose leading, heading leading and prose measure, each named',
+    over: null,
+    scope: 'dark',
+    count: 3,
+    joined: [/--lh-heading does not resolve/, /--measure-prose does not resolve/],
+  },
+];
+
+test('floorProblems holds the heading leading, the prose measure and the prose leading to their floors and reports each unresolved floor on its own', () => {
+  assert.ok(FLOOR_ROWS.length > 0);
+  for (const row of FLOOR_ROWS) {
+    const problems = floorProblems(row.over === null ? new Map() : at(row.over), row.scope, 'v');
+    if (row.count !== undefined) assert.equal(problems.length, row.count, row.name);
+    if (row.first) assert.match(problems[0] ?? '', row.first, row.name);
+    for (const pattern of row.joined ?? []) assert.match(problems.join('\n'), pattern, row.name);
+  }
+});
+
+const AXIS_ROLES = { 'gap-actions': { userScale: 'fixed' }, 'fs-body': { userScale: 'scales' } };
+
+const REM_ROWS: { name: string; answers: Record<string, unknown>; count: number; patterns?: RegExp[] }[] = [
+  { name: 'a rem answer to a fixed role fails, naming it and the unit it takes', answers: { 'gap-actions': { $value: { value: 0.625, unit: 'rem' } } }, count: 1, patterns: [/gap-actions/, /px/] },
+  { name: 'a rem string answer to a fixed role fails', answers: { 'gap-actions': { $value: '0.625rem' } }, count: 1 },
+  { name: 'a px answer to a fixed role passes', answers: { 'gap-actions': { $value: { value: 10, unit: 'px' } } }, count: 0 },
+  { name: 'a rem answer to a scales role passes', answers: { 'fs-body': { $value: { value: 1.125, unit: 'rem' } } }, count: 0 },
+  { name: 'a unit with no value is not a rem answer', answers: { 'gap-actions': { $value: { unit: 'rem' } } }, count: 0 },
+  { name: 'a unit with a non-finite value is not a rem answer', answers: { 'gap-actions': { $value: { value: 'x', unit: 'rem' } } }, count: 0 },
+];
+
+test('fixedRemProblems refuses a rem answer to a fixed role only', () => {
+  assert.ok(REM_ROWS.length > 0);
+  for (const row of REM_ROWS) {
+    const problems = fixedRemProblems('p.json', row.answers, AXIS_ROLES);
+    assert.equal(problems.length, row.count, row.name);
+    for (const pattern of row.patterns ?? []) assert.match(problems[0] ?? '', pattern, row.name);
+  }
 });

@@ -1,6 +1,6 @@
 /* The colour slot contract: contracts/design/color-slots.json declares the groups, their parts,
  * options, states and rest answers, the members that map their parts onto them, and the exceptions,
- * and deriveSlots expands them into the catalogue every gate and generator reads, in memory (D29, D30). */
+ * and deriveSlots expands them into the catalogue every gate and generator reads, in memory. */
 
 import { join } from 'node:path';
 import { readJson } from '../../utils/read-file.ts';

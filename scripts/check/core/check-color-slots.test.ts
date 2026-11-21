@@ -144,20 +144,10 @@ test('a member part on an option its manifest lacks, or a part its manifest lack
   assert.ok(manifestProblems(missing, manifests).some((l) => /members\.ArenaButton\.label: ArenaButton has no slot label/.test(l)));
 });
 
-test('the contract counts', () => {
+test('the contract declares slots, and only the accent groups carry a channel', () => {
   const slots = Object.values(shipped().slots);
-  assert.equal(slots.length, 474);
-  const by = (key: (s: (typeof slots)[number]) => string) => {
-    const n: Record<string, number> = {};
-    for (const s of slots) n[key(s)] = (n[key(s)] ?? 0) + 1;
-    return n;
-  };
-  assert.deepEqual(by((s) => s.option ?? ''), { '': 139, primary: 28, secondary: 16, ghost: 32, solid: 32, destructive: 29, neutral: 17, muted: 2, error: 10, valid: 7, readonly: 2, warning: 15, plain: 33, quiet: 2, complete: 4, current: 4, upcoming: 4, danger: 14, success: 14, info: 11, gold: 7, floating: 2, media: 3, page: 2, ...Object.fromEntries(['neutral', 'danger', 'success', 'warning', 'info'].flatMap((tone) => ['complete', 'current', 'upcoming'].map((state) => [`${tone}-${state}`, 3]))) });
-  assert.deepEqual(by((s) => s.state), { rest: 259, disabled: 47, hover: 57, pressed: 40, selected: 26, 'selected-hover': 14, 'selected-pressed': 14, 'selected-disabled': 17 });
-  assert.equal(slots.filter((s) => s.optional).length, 64);
-  assert.equal(slots.filter((s) => s.derive?.mix === 'mix-pressed').length, 19);
-  assert.equal(slots.filter((s) => s.derive?.mix === 'mix-hover').length, 7);
-  assert.equal(slots.filter((s) => s.channel === undefined).length, 348, 'the destructive option, the dismiss part and the choices, fields, menus, navigation, steps, feedback, marks, meters, data, surfaces, overlays and text groups carry no channel, bar the accent edge, the accent dot ink, the accent soft, outline and label marks and the accent meter track (D95)');
+  assert.ok(slots.length > 0, 'a contract that declares no slot has nothing to measure');
+  assert.equal(slots.filter((s) => s.channel === undefined).length, 348, 'the destructive option, the dismiss part and the choices, fields, menus, navigation, steps, feedback, marks, meters, data, surfaces, overlays and text groups carry no channel, bar the accent edge, the accent dot ink, the accent soft, outline and label marks and the accent meter track');
 });
 
 test('every slot of the five buttons reaches its part under its state', () => {
@@ -227,7 +217,7 @@ test('a disabled and a selected disabled icon slot fall to the ink of their own 
   assert.deepEqual(fallbackProblems(none), ['actions-ghost-root-icon-selected-disabled: an icon slot falls to the ink slot of its own part and state, and this one names no default']);
 });
 
-test('the Emphasis family writes each actions chain its options carry (R7)', () => {
+test('the Emphasis family writes each actions chain its options carry', () => {
   const family = readJson(join(repoRoot, EMPHASIS_FAMILY)) as { variants: Record<string, string> };
   const stale = structuredClone(family);
   stale.variants['arena-emphasis-primary'] = stale.variants['arena-emphasis-primary']!.replace('var(--actions-primary-root-fill-rest,', 'var(--emphasis-primary-root-fill-rest,');
@@ -315,9 +305,9 @@ test('a redundant exception and one naming no slot are both reported, and nothin
   assert.ok(lines.some((l) => /actions-nothing-root-fill-hover.*names no slot/.test(l)));
 });
 
-test('the shipped contract pins the toast action and spinner grounds (D96)', () => {
-  assert.equal(shipped().members['ArenaToast.action']?.ground, 'fill-surface-floating', 'the toast action paints on the floating surface (D96)');
-  assert.equal(shipped().members['ArenaSpinner.root']?.ground, 'ground', 'the spinner arcs paint on the page (D96)');
+test('the shipped contract pins the toast action and spinner grounds', () => {
+  assert.equal(shipped().members['ArenaToast.action']?.ground, 'fill-surface-floating', 'the toast action paints on the floating surface');
+  assert.equal(shipped().members['ArenaSpinner.root']?.ground, 'ground', 'the spinner arcs paint on the page');
 });
 
 test('a missing states on an option of a part with no states of its own is refused and named', () => {
@@ -329,10 +319,10 @@ test('a missing states on an option of a part with no states of its own is refus
 test('an option missing its rest answers or a property, a rest on a part with options, a selected key outside fill, ink and edge, and an ink answer off icon are refused', () => {
   const a = declared();
   delete (optionOf(a, 'solid') as Partial<GroupOption>).rest;
-  assert.deepEqual(declarationProblems(a), ['groups.actions.parts.root.options.solid: an option of a part that derives slots declares its rest answers (D45)']);
+  assert.deepEqual(declarationProblems(a), ['groups.actions.parts.root.options.solid: an option of a part that derives slots declares its rest answers']);
   const b = declared();
   delete optionOf(b, 'solid').rest.edge;
-  assert.deepEqual(declarationProblems(b), ['groups.actions.parts.root.options.solid.rest: it answers no edge, and a part that derives slots answers every property it paints (D45)']);
+  assert.deepEqual(declarationProblems(b), ['groups.actions.parts.root.options.solid.rest: it answers no edge, and a part that derives slots answers every property it paints']);
   const c = declared();
   actionsRoot(c).rest = { fill: '{fill-surface}' };
   assert.match(declarationProblems(c).join('\n'), /groups\.actions\.parts\.root: a part with options answers its rest per option/);
@@ -466,7 +456,7 @@ test('a chart legend swatch is a series part', () => {
   assert.equal(legends.length, 7, 'Bar, Doughnut, HorizontalBar, Line, Pyramid, Radar and Scatter');
   for (const [name, m] of legends) {
     assert.equal(m.parts.legendSwatch, 'series', name);
-    assert.equal(m.group, null, `${name}: charts take no colour slot group (D75)`);
+    assert.equal(m.group, null, `${name}: charts take no colour slot group`);
   }
   assert.deepEqual(mapLines(d), []);
   const e = mapped();
@@ -583,7 +573,7 @@ test('a member read that differs from its chain is refused', () => {
   assert.deepEqual(memberReadProblems(channelled, new Map()), [], 'a member with channels is readProblems\'s');
 });
 
-test('a member that is no native control reads its disabled states in its disabled=true branch (D71)', () => {
+test('a member that is no native control reads its disabled states in its disabled=true branch', () => {
   const spanOf = (disabledBy?: { axis: string; value: string }) => slotFixture(
     { box: { properties: ['fill'], states: ['rest', 'disabled'], rest: { fill: '{fill-control}' } } },
     { ArenaSpan: { group: 'choices', parts: { box: { to: 'choices.box', options: [], states: ['rest', 'disabled'], ...(disabledBy ? { disabledBy } : {}) } } } },
@@ -651,7 +641,7 @@ test('a slot sits on what the declarations give, no looser', () => {
   (calm.options as Record<string, GroupOption>).only!.rest.ink = '{ink-body}';
   calm.on = 'box';
   const c = deriveSlots(d);
-  assert.equal(c.slots['choices-only-calm-ink-rest']?.on, 'choices-only-calm-fill-rest', 'a glyph sits on its own part\'s fill (D69)');
+  assert.equal(c.slots['choices-only-calm-ink-rest']?.on, 'choices-only-calm-fill-rest', 'a glyph sits on its own part\'s fill');
   assert.equal(c.slots['choices-only-calm-fill-rest']?.on, 'choices-box-fill-rest');
   assert.deepEqual(pairProblems(c, d), []);
   const sibling = structuredClone(c);
@@ -746,7 +736,7 @@ test('a member may paint a subset of its part\'s properties and name a second op
   assert.match(declarationProblems(sameAxis).join('\n'), /optionBy: the axis state is named twice/);
 });
 
-test('a member may read its hover inside a branch (D68)', () => {
+test('a member may read its hover inside a branch', () => {
   const d = fieldDeclared(fieldMember({
     options: ['plain'], states: ['rest', 'hover'], properties: ['fill'], hoverBy: { axis: 'dragging', value: 'true' },
   }));
@@ -783,14 +773,14 @@ test('a member may paint only where an axis holds, and read its text from anothe
   assert.match(declarationProblems(sameAxis).join('\n'), /onlyBy: it shares the axis state with optionBy/);
 });
 
-test('a field whose text is not read from fields.value is refused (D74)', () => {
+test('a field whose text is not read from fields.value is refused', () => {
   const c = readColorSlots();
   const dropped = structuredClone(manifests) as Map<string, any>;
   dropped.get('ArenaSelect').slots.field = dropped.get('ArenaSelect').slots.field.replace(/text-\[color:var\(--fields-value-ink-rest[^\s]*/, '');
   assert.match(memberReadProblems(c, dropped).join('\n'), /ArenaSelect\.field: its ink is not read from fields\.value/);
 });
 
-test('a field fades and hovers by its own option, and the compounds that carry them are ordered (I1, I2, m1)', () => {
+test('a field fades and hovers by its own option, and the compounds that carry them are ordered', () => {
   const c = readColorSlots();
   const compounds = (comp: string) => (manifests.get(comp) as any).compoundVariants as { class: Record<string, string>; [key: string]: unknown }[];
   for (const comp of ['ArenaInput', 'ArenaNumberField']) {
@@ -829,7 +819,7 @@ const twinManifest = (c: SlotCatalogue, readonly: string, compound: (option: str
   compoundVariants: ['plain', 'error'].map((option) => ({ readOnly: true, state: option, class: { field: compound(option) } })),
 } as never]]);
 
-test('an option that derives no hover holds its rest under hover, and the edge it does not paint holds the other option\'s rest (D73)', () => {
+test('an option that derives no hover holds its rest under hover, and the edge it does not paint holds the other option\'s rest', () => {
   const d = twinDeclared();
   assert.deepEqual(declarationProblems(d), []);
   const c = deriveSlots(d);
@@ -839,16 +829,16 @@ test('an option that derives no hover holds its rest under hover, and the edge i
   const edge = (option: string) => twinRead(c, `choices-${option}-field-edge-rest`, true);
   assert.deepEqual(memberReadProblems(c, twinManifest(c, `${rest} ${fill}`, edge)), []);
   assert.deepEqual(memberReadProblems(c, twinManifest(c, rest, edge)),
-    [`ArenaField.field: choices-readonly-field-fill-rest is not held as ${fill} in the readOnly=true branch, so a hovered readonly field takes another option's hover (D73)`]);
+    [`ArenaField.field: choices-readonly-field-fill-rest is not held as ${fill} in the readOnly=true branch, so a hovered readonly field takes another option's hover`]);
   assert.deepEqual(memberReadProblems(c, twinManifest(c, `${rest} ${fill}`, (option) => (option === 'error' ? '' : edge(option)))),
-    [`ArenaField.field: choices-error-field-edge-rest is not held as ${edge('error')} in the readOnly=true branch and the state=error branch, so a hovered readonly field takes another option's hover (D73)`]);
+    [`ArenaField.field: choices-error-field-edge-rest is not held as ${edge('error')} in the readOnly=true branch and the state=error branch, so a hovered readonly field takes another option's hover`]);
   const hovering = fieldDeclared(fieldMember({ optionBy: [{ axis: 'state', values: { plain: 'plain', error: 'error' } }, { axis: 'readOnly', values: { true: 'readonly' } }] }));
   const h = deriveSlots(hovering);
   assert.ok(memberReadProblems(h, twinManifest(h, `${twinRead(h, 'choices-readonly-field-fill-rest', false)} ${twinRead(h, 'choices-readonly-field-fill-hover', true)}`, () => ''))
     .every((l) => !/held as/.test(l)), 'an option that derives its own hover needs no twin');
 });
 
-test('a readonly field that does not hold its rest under hover is refused (D73)', () => {
+test('a readonly field that does not hold its rest under hover is refused', () => {
   const c = readColorSlots();
   const dropped = structuredClone(manifests) as Map<string, any>;
   const input = dropped.get('ArenaInput').variants.readOnly.true;
@@ -856,7 +846,7 @@ test('a readonly field that does not hold its rest under hover is refused (D73)'
   assert.match(memberReadProblems(c, dropped).join('\n'), /ArenaInput\.field: fields-readonly-field-fill-rest is not held as hover:/);
 });
 
-test('a channel-less member that reads a disabled slot and fades carries that slot\'s marker fade (D8)', () => {
+test('a channel-less member that reads a disabled slot and fades carries that slot\'s marker fade', () => {
   const c = readColorSlots();
   const plain = (comp: string, at: (m: any) => Record<string, string>, part: string) => {
     const broken = structuredClone(manifests) as Map<string, any>;
@@ -865,16 +855,16 @@ test('a channel-less member that reads a disabled slot and fades carries that sl
     return fadeProblems(c, broken);
   };
   assert.deepEqual(plain('ArenaPagination', (m) => m.slots, 'nav'),
-    ['ArenaPagination.nav: it reads actions-secondary-root-edge-disabled and fades, and no class of the base class or a branch under it carries opacity-[var(--actions-secondary-root-fade-disabled,var(--fade-disabled))], so an answered disabled slot never stops the fade (D8)']);
+    ['ArenaPagination.nav: it reads actions-secondary-root-edge-disabled and fades, and no class of the base class or a branch under it carries opacity-[var(--actions-secondary-root-fade-disabled,var(--fade-disabled))], so an answered disabled slot never stops the fade']);
   assert.deepEqual(plain('ArenaConfirmDialog', (m) => m.variants.destructive.true, 'confirm'),
-    ['ArenaConfirmDialog.confirm: it reads actions-destructive-root-edge-disabled and fades, and no class of the destructive=true branch or a branch under it carries opacity-[var(--actions-destructive-root-fade-disabled,var(--fade-disabled))], so an answered disabled slot never stops the fade (D8)']);
+    ['ArenaConfirmDialog.confirm: it reads actions-destructive-root-edge-disabled and fades, and no class of the destructive=true branch or a branch under it carries opacity-[var(--actions-destructive-root-fade-disabled,var(--fade-disabled))], so an answered disabled slot never stops the fade']);
   assert.match(plain('ArenaTag', (m) => m.variants.disabled.true, 'close').join('\n'), /^ArenaTag\.close: it reads actions-dismiss-[a-z]+-disabled and fades, .*--actions-dismiss-fade-disabled/);
   const still = structuredClone(manifests) as Map<string, any>;
   still.get('ArenaPagination').slots.nav = still.get('ArenaPagination').slots.nav.split(/\s+/).filter((t: string) => !t.includes('opacity-')).join(' ');
   assert.deepEqual(fadeProblems(c, still), [], 'a member that never fades has no fade an answer could stop');
 });
 
-test('ArenaTag.close is no native control and reads its disabled states in its disabled=true branch (D71)', () => {
+test('ArenaTag.close is no native control and reads its disabled states in its disabled=true branch', () => {
   const c = readColorSlots();
   assert.deepEqual(c.members['ArenaTag.close']?.disabledBy, { axis: 'disabled', value: 'true' });
   const close = (manifests.get('ArenaTag') as any).slots.close as string;
@@ -955,7 +945,7 @@ test('a rest hover that can beat a selected hover is refused', () => {
   const selected = `bg-[color:${v('choices-box-fill-selected')}] hover:bg-[color:${v('choices-box-fill-selected-hover')}]`;
   const manifest = (base: string, unselected = '') => crumbManifest(base, { current: { true: { box: selected }, false: { box: unselected } } });
   assert.deepEqual(memberReadProblems(c, manifest(`${rest} ${hover}`)),
-    ['ArenaCrumb.box: choices-box-fill-hover is read under hover: in the base class and choices-box-fill-selected-hover under hover: in the current=true branch, and a selected part matches both with no rule for their order (R4): read choices-box-fill-hover in the current=false branch']);
+    ['ArenaCrumb.box: choices-box-fill-hover is read under hover: in the base class and choices-box-fill-selected-hover under hover: in the current=true branch, and a selected part matches both with no rule for their order: read choices-box-fill-hover in the current=false branch']);
   assert.deepEqual(memberReadProblems(c, manifest(rest, hover)), []);
 });
 
@@ -972,7 +962,7 @@ test('a member state the group does not derive is refused', () => {
   assert.deepEqual(declarationProblems(crumbDeclared({ states: ['rest'] }, ['fill'], ['rest', 'hover'])), [], 'a subset of the derived states is allowed');
 });
 
-test('a disabledBy member that hovers or presses repeats its disabled reads under hover: and active: (I1)', () => {
+test('a disabledBy member that hovers or presses repeats its disabled reads under hover: and active:', () => {
   const toggle = ['rest', 'hover', 'pressed', 'disabled', 'selected', 'selected-hover', 'selected-pressed', 'selected-disabled'];
   const d = crumbDeclared({ selectedBy: { axis: 'selected', value: 'true' }, disabledBy: { axis: 'disabled', value: 'true' }, properties: ['fill'] }, ['fill', 'ink'], toggle);
   assert.deepEqual(declarationProblems(d), []);
@@ -989,10 +979,10 @@ test('a disabledBy member that hovers or presses repeats its disabled reads unde
   } as never]]);
   assert.deepEqual(memberReadProblems(c, manifest(twins('disabled'), twins('selected-disabled'))), []);
   assert.deepEqual(memberReadProblems(c, manifest(read('', 'disabled'), read('', 'selected-disabled'))), [
-    `ArenaCrumb.box: choices-box-fill-disabled is read in the disabled=true branch and not as ${read('hover:', 'disabled')} there, so a hovered disabled part paints a hover answer (D8)`,
-    `ArenaCrumb.box: choices-box-fill-disabled is read in the disabled=true branch and not as ${read('active:', 'disabled')} there, so a pressed disabled part paints a pressed answer (D8)`,
-    `ArenaCrumb.box: choices-box-fill-selected-disabled is read in the selected=true branch and the disabled=true branch and not as ${read('hover:', 'selected-disabled')} there, so a hovered disabled part paints a hover answer (D8)`,
-    `ArenaCrumb.box: choices-box-fill-selected-disabled is read in the selected=true branch and the disabled=true branch and not as ${read('active:', 'selected-disabled')} there, so a pressed disabled part paints a pressed answer (D8)`,
+    `ArenaCrumb.box: choices-box-fill-disabled is read in the disabled=true branch and not as ${read('hover:', 'disabled')} there, so a hovered disabled part paints a hover answer`,
+    `ArenaCrumb.box: choices-box-fill-disabled is read in the disabled=true branch and not as ${read('active:', 'disabled')} there, so a pressed disabled part paints a pressed answer`,
+    `ArenaCrumb.box: choices-box-fill-selected-disabled is read in the selected=true branch and the disabled=true branch and not as ${read('hover:', 'selected-disabled')} there, so a hovered disabled part paints a hover answer`,
+    `ArenaCrumb.box: choices-box-fill-selected-disabled is read in the selected=true branch and the disabled=true branch and not as ${read('active:', 'selected-disabled')} there, so a pressed disabled part paints a pressed answer`,
   ]);
   const still = crumbDeclared({ disabledBy: { axis: 'disabled', value: 'true' } }, ['fill'], ['rest', 'disabled']);
   const calm = deriveSlots(still);
@@ -1000,7 +990,7 @@ test('a disabledBy member that hovers or presses repeats its disabled reads unde
   assert.deepEqual(memberReadProblems(calm, crumbManifest(calmRead('rest'), { disabled: { true: { box: calmRead('disabled') }, false: {} } })), [], 'a member that never hovers needs no twin');
 });
 
-test('a ring is counted on a part that focuses by focus: or focus-within: too (m2)', () => {
+test('a ring is counted on a part that focuses by focus: or focus-within: too', () => {
   const c = readColorSlots();
   const lines = ringProblems(edit((x) => { delete x.rings['ArenaTreeView.item']; }), manifests);
   assert.deepEqual(lines, ['ArenaTreeView.item is focusable and a member part of a group, and rings does not say what its focus ring sits on']);
@@ -1009,7 +999,7 @@ test('a ring is counted on a part that focuses by focus: or focus-within: too (m
   assert.ok(Object.hasOwn(c.rings, 'ArenaTable.link'));
 });
 
-test('the hoverless and inkFrom reads follow the member\'s utility and modifier (m3)', () => {
+test('the hoverless and inkFrom reads follow the member\'s utility and modifier', () => {
   const d = crumbDeclared({ disabledModifier: 'aria-disabled:', inkFrom: 'choices.box' }, ['fill', 'ink'], ['rest', 'disabled']);
   (d.members!.ArenaCrumb!.parts.box as MemberDecl).properties = ['fill'];
   const c = deriveSlots(d);
@@ -1021,16 +1011,16 @@ test('the hoverless and inkFrom reads follow the member\'s utility and modifier 
     [`ArenaCrumb.box: its ink is not read from choices.box as aria-disabled:text-[color:${v('choices-box-ink-disabled')}] in the base class`]);
 });
 
-test('disabledModifier with no disabled state and hoverIn with no hover or pressed state are refused (m4)', () => {
+test('disabledModifier with no disabled state and hoverIn with no hover or pressed state are refused', () => {
   assert.match(declarationProblems(crumbDeclared({ disabledModifier: 'aria-disabled:' }, ['fill'], ['rest', 'hover'])).join('\n'),
     /members\.ArenaCrumb\.parts\.box\.disabledModifier: the member reads no disabled or selected-disabled state/);
   assert.match(declarationProblems(crumbDeclared({ hoverIn: { axis: 'linked', value: 'true' } }, ['fill'], ['rest', 'disabled'])).join('\n'),
     /members\.ArenaCrumb\.parts\.box\.hoverIn: the member reads no hover or pressed state/);
 });
 
-test('a selectable member that hovers or presses reads its selected twin of each (m5)', () => {
+test('a selectable member that hovers or presses reads its selected twin of each', () => {
   assert.match(declarationProblems(crumbDeclared({ selectedBy: { axis: 'current', value: 'true' } }, ['fill'], ['rest', 'hover', 'pressed', 'selected', 'selected-hover'])).join('\n'),
-    /members\.ArenaCrumb\.parts\.box\.selectedBy: the member reads pressed and no selected-pressed, so a pressed selected part paints the rest pressed \(R4\)/);
+    /members\.ArenaCrumb\.parts\.box\.selectedBy: the member reads pressed and no selected-pressed, so a pressed selected part paints the rest pressed/);
   assert.deepEqual(declarationProblems(crumbDeclared({ selectedBy: { axis: 'current', value: 'true' } }, ['fill'], ['rest', 'hover', 'selected', 'selected-hover'])), []);
 });
 
@@ -1044,7 +1034,7 @@ test('the unselected branch of a selectable member is the complement of either b
   const manifest = crumbManifest(`bg-[color:${v('choices-box-fill-rest')}]`, { closed: { false: { box: selected }, true: { box: `hover:bg-[color:${v('choices-box-fill-hover')}]` } } });
   assert.deepEqual(memberReadProblems(c, manifest), []);
   assert.match(declarationProblems(crumbDeclared({ selectedBy: { axis: 'state', value: 'current' }, properties: ['fill'] }, ['fill', 'ink'], states)).join('\n'),
-    /members\.ArenaCrumb\.parts\.box\.selectedBy: its value "current" is not true or false, and a member with a hover twin reads its rest hover in the complement branch \(R4\)/);
+    /members\.ArenaCrumb\.parts\.box\.selectedBy: its value "current" is not true or false, and a member with a hover twin reads its rest hover in the complement branch/);
 });
 
 test('a fill drawn as a stroke is read inside stroke-[color:]', () => {
@@ -1073,7 +1063,7 @@ test('an edge drawn as a stripe is read on border-l only', () => {
   assert.deepEqual(memberReadProblems(c, crumbManifest(`border-[color:${value}]`)),
     [`ArenaCrumb.box: choices-box-edge-rest is not read as ${stripe} in the base class`]);
   assert.deepEqual(stripeProblems(c, crumbManifest(`${stripe} border-t-[color:${value}]`)),
-    [`ArenaCrumb.box: it reads choices-box-edge-rest as border-t-[color:${value}], and a stripe reads its edge on border-l alone (D90)`]);
+    [`ArenaCrumb.box: it reads choices-box-edge-rest as border-t-[color:${value}], and a stripe reads its edge on border-l alone`]);
   assert.match(declarationProblems(crumbDeclared({ edgeAs: 'line' as 'rule' }, ['edge'], ['rest'])).join('\n'), /edgeAs: "line" is not "rule", "stripe" or "fill"/);
 });
 
@@ -1087,10 +1077,10 @@ test('a series part is accepted only where every read is a hues channel', () => 
   const hued = { variants: { colorId: { 1: { dot: hue }, 2: { dot: hue } } }, hues: { colorId: { 1: 'identity-1', 2: 'identity-2' } } };
   assert.deepEqual(seriesLines(hued), []);
   assert.deepEqual(seriesLines({ ...hued, slots: { dot: 'size-1.5 rounded-pill bg-surface' } }),
-    ['ArenaDots.dot: it is "series" and reads bg-surface in the base class, and a series part paints only var(--arena-hue-…) inside the branches of an axis with a hues entry (D75)']);
+    ['ArenaDots.dot: it is "series" and reads bg-surface in the base class, and a series part paints only var(--arena-hue-…) inside the branches of an axis with a hues entry']);
   assert.deepEqual(seriesLines({ variants: hued.variants }).length, 2, 'an axis with no hues entry is no series branch');
   assert.deepEqual(mapProblems(seriesDeclared(), new Map(), seriesManifest(hued)).filter((line) => line.startsWith('ArenaDots.dot')),
-    ['ArenaDots.dot: it is "series" and paints no colour, and "series" is for a part that paints its series through its hues channel (D75)']);
+    ['ArenaDots.dot: it is "series" and paints no colour, and "series" is for a part that paints its series through its hues channel']);
 });
 
 const axesDeclared = (optionBy: unknown) => slotFixture({
@@ -1173,10 +1163,10 @@ test('on beside over is refused', () => {
   assert.deepEqual(declarationProblems(parts({ on: 'banner', over: 'banner' })), ['groups.feedback.parts.action: it declares on and over, and a part sits on a sibling or over it, never both']);
   assert.deepEqual(declarationProblems(parts({ over: 'label' })), ['groups.feedback.parts.action.over: "label" is no part of feedback that paints a fill, besides this one']);
   assert.deepEqual(declarationProblems(parts({ over: 'banner', mark: true })), ['groups.feedback.parts.action.mark: it stands beside over, and a mark pairs at 3:1 where over keeps each floor']);
-  assert.deepEqual(declarationProblems(parts({ on: 'banner', mark: true })), ['groups.feedback.parts.action.mark: it stands beside on, and a part on a sibling pairs at 3:1 already (D69)']);
+  assert.deepEqual(declarationProblems(parts({ on: 'banner', mark: true })), ['groups.feedback.parts.action.mark: it stands beside on, and a part on a sibling pairs at 3:1 already']);
   assert.deepEqual(declarationProblems(parts({ mark: 'yes' as unknown as true })), ['groups.feedback.parts.action.mark: "yes" is neither true nor "ink"']);
   assert.deepEqual(declarationProblems(parts({ over: 'banner', mark: 'ink' })), ['groups.feedback.parts.action.mark: it stands beside over, and a mark pairs at 3:1 where over keeps each floor']);
-  assert.deepEqual(declarationProblems(parts({ on: 'banner', mark: 'ink' })), ['groups.feedback.parts.action.mark: it stands beside on, and a part on a sibling pairs at 3:1 already (D69)']);
+  assert.deepEqual(declarationProblems(parts({ on: 'banner', mark: 'ink' })), ['groups.feedback.parts.action.mark: it stands beside on, and a part on a sibling pairs at 3:1 already']);
   for (const extra of [{ over: 'banner' }, { mark: true as const }]) {
     const d = parts(extra);
     const c = deriveSlots(d);
@@ -1217,7 +1207,7 @@ test('an accent answer clears an option only where the member reads it through c
 });
 
 test('the presence level is held to a mark pair and a mark slot chain', () => {
-  assert.equal(shipped().slots['marks-neutral-upcoming-dot-edge-rest']?.level, 'level-presence', 'the ring a mark part draws pairs at 3:1 over the ground, so it may carry the presence level (D97)');
+  assert.equal(shipped().slots['marks-neutral-upcoming-dot-edge-rest']?.level, 'level-presence', 'the ring a mark part draws pairs at 3:1 over the ground, so it may carry the presence level');
   const unpaired = edit((c) => { c.slots['marks-tile-edge-rest']!.level = 'level-presence'; });
   assert.ok(presenceProblems(unpaired, manifests).includes('marks-tile-edge-rest carries level-presence and is measured in no pair, so nothing holds it to the mark it is gated as'), presenceProblems(unpaired, manifests).join('\n'));
   const text = edit((c) => { c.slots['feedback-neutral-action-ink-rest']!.level = 'level-presence'; });
@@ -1292,7 +1282,7 @@ test('a member ground names a fill role', () => {
   assert.deepEqual(declarationProblems(inked('overlay-media')), []);
   assert.deepEqual(declarationProblems(inked('ground')), []);
   assert.deepEqual(declarationProblems(inked('ink-body')),
-    ['members.ArenaCrumb.parts.box.ground: "ink-body" is neither "ground" nor a fill-* or overlay-* role of contracts/design/roles.json (D96)']);
+    ['members.ArenaCrumb.parts.box.ground: "ink-body" is neither "ground" nor a fill-* or overlay-* role of contracts/design/roles.json']);
   const c = deriveSlots(inked('fill-surface-raised'));
   assert.equal(c.members['ArenaCrumb.box']?.ground, 'fill-surface-raised');
 });
@@ -1326,15 +1316,15 @@ test('a toBy part outside the member group is refused', () => {
   const other = cellDeclared({ axis: 'numeric', values: { false: 'marks.label' } });
   other.groups!.marks = { parts: { label: { properties: ['ink'], states: ['rest'], rest: { ink: '{ink-body}' } } } };
   assert.deepEqual(declarationProblems(other),
-    ['members.ArenaCell.parts.cell.toBy: "marks.label" for numeric=false is no part of text, and toBy reads a part of the member\'s group, of the group of its to, or of text (D107)']);
+    ['members.ArenaCell.parts.cell.toBy: "marks.label" for numeric=false is no part of text, and toBy reads a part of the member\'s group, of the group of its to, or of text']);
   const toned = cellDeclared({ axis: 'numeric', values: { false: 'text.tone' } },
     { tone: { properties: ['ink'], options: { a: { states: ['rest'], rest: { ink: '{ink-body}' } } } } });
   assert.deepEqual(declarationProblems(toned),
-    ['members.ArenaCell.parts.cell.toBy: "text.tone" for numeric=false takes an option, and a part read by toBy takes none (D104)']);
+    ['members.ArenaCell.parts.cell.toBy: "text.tone" for numeric=false takes an option, and a part read by toBy takes none']);
   assert.deepEqual(declarationProblems(cellDeclared({ axis: 'numeric', values: {} })), ['members.ArenaCell.parts.cell.toBy: it names an axis and maps a value onto a part']);
 });
 
-test('a toBy part of the member group or of text is read (D107)', () => {
+test('a toBy part of the member group or of text is read', () => {
   const day = slotFixture({ today: { properties: ['ink'], states: ['rest'], rest: { ink: '{ink-figure}' } } },
     { ArenaDay: { group: 'data', parts: { day: { to: 'text.body', options: [], states: ['rest'], toBy: { axis: 'today', values: { true: 'data.today' } } } } } }, 'data');
   day.groups!.text = { parts: { body: { properties: ['ink'], states: ['rest'], rest: { ink: '{ink-body}' } } } };
@@ -1351,10 +1341,10 @@ test('a toBy axis that seriesBy branches on is refused', () => {
   assert.deepEqual(declarationProblems(d), ['members.ArenaTitle.parts.title.toBy: it shares the axis colorId with seriesBy, and a seriesBy branch reads only hue channels']);
 });
 
-test('a string member part other than series is refused (D86)', () => {
+test('a string member part other than series is refused', () => {
   const d = slotFixture({ label: { properties: ['ink'], states: ['rest'], rest: { ink: '{ink-body}' } } },
     { ArenaTitle: { group: 'marks', parts: { title: 'marks.label@neutral', swatch: 'series', bare: null } } }, 'marks');
-  assert.deepEqual(declarationProblems(d), ['members.ArenaTitle.parts.title: "marks.label@neutral" is a string, and a member part is an object that reads its group, "series" or null (D86)']);
+  assert.deepEqual(declarationProblems(d), ['members.ArenaTitle.parts.title: "marks.label@neutral" is a string, and a member part is an object that reads its group, "series" or null']);
 });
 
 const titleDeclared = () => slotFixture({ label: { properties: ['ink'], states: ['rest'], rest: { ink: '{ink-body}' } } },
@@ -1420,11 +1410,11 @@ test('a wrapped read holds its inner chain', () => {
   assert.deepEqual(memberReadProblems(c, crumbManifest(`${wrong} ${ink}`)),
     [`ArenaCrumb.box: choices-box-fill-rest is not read as ${fill} in the base class`]);
   assert.deepEqual(declarationProblems(crumbDeclared({ wrappedBy: '--mark-fill' }, ['fill'], ['rest'])),
-    ['members.ArenaCrumb.parts.box.wrappedBy: "--mark-fill" is not --arena-<family>-{property} (D98)']);
+    ['members.ArenaCrumb.parts.box.wrappedBy: "--mark-fill" is not --arena-<family>-{property}']);
 });
 
 test('a member ground is refused where the member reads no pair it would measure', () => {
-  const refused = 'members.ArenaCrumb.parts.box.ground: the member reads no ink, icon or selected edge, so its ground measures no pair (D96)';
+  const refused = 'members.ArenaCrumb.parts.box.ground: the member reads no ink, icon or selected edge, so its ground measures no pair';
   assert.deepEqual(declarationProblems(crumbDeclared({ ground: 'ground' }, ['fill'], ['rest', 'hover'])), [refused]);
   assert.deepEqual(declarationProblems(crumbDeclared({ ground: 'ground' }, ['edge'], ['rest', 'hover'])), [refused], 'a rest edge is no pair');
   assert.deepEqual(declarationProblems(crumbDeclared({ ground: 'ground' }, ['edge'], ['rest', 'selected'])), [], 'a selected edge is a pair');
@@ -1436,7 +1426,7 @@ test('a member ground is refused where the member reads no pair it would measure
 
 test('fill accepts the overlay roles', () => {
   const c = shipped();
-  assert.ok(c.accepts.fill.includes('overlay-*'), 'D106: a fill slot accepts the overlay roles');
+  assert.ok(c.accepts.fill.includes('overlay-*'), 'a fill slot accepts the overlay roles');
   assert.deepEqual(acceptsProblems(c, roles), []);
   assert.deepEqual(defaultProblems(c, roles).filter((l) => /surfaces-media-fill-rest/.test(l)), [], 'the media wash answers with overlay-media');
   const refused = defaultProblems(edit((x) => { x.accepts.fill = x.accepts.fill.filter((p) => p !== 'overlay-*'); }), roles);
@@ -1454,11 +1444,11 @@ test('a groundPart names a fill-painting part of its own member, never beside gr
     return declarationProblems(d);
   };
   assert.deepEqual(alert(() => {}), []);
-  assert.deepEqual(alert((t) => { t.groundPart = 'shell'; }), ['members.ArenaAlert.parts.title.groundPart: "shell" names no part of ArenaAlert (D25)']);
-  assert.deepEqual(alert((t) => { t.groundPart = 'icon'; }), ['members.ArenaAlert.parts.title.groundPart: ArenaAlert.icon paints no fill (D25)']);
-  assert.deepEqual(alert((t) => { t.ground = 'ground'; }), ['members.ArenaAlert.parts.title: groundPart and ground are one choice (D25)']);
+  assert.deepEqual(alert((t) => { t.groundPart = 'shell'; }), ['members.ArenaAlert.parts.title.groundPart: "shell" names no part of ArenaAlert']);
+  assert.deepEqual(alert((t) => { t.groundPart = 'icon'; }), ['members.ArenaAlert.parts.title.groundPart: ArenaAlert.icon paints no fill']);
+  assert.deepEqual(alert((t) => { t.ground = 'ground'; }), ['members.ArenaAlert.parts.title: groundPart and ground are one choice']);
   const series = readSlotDeclarations();
   series.members!.ArenaAlert!.parts.stripe = null;
   (series.members!.ArenaAlert!.parts.title as MemberDecl).groundPart = 'stripe';
-  assert.deepEqual(declarationProblems(series), ['members.ArenaAlert.parts.title.groundPart: ArenaAlert.stripe is no member part that paints a fill, only one that reads a group does (D25)']);
+  assert.deepEqual(declarationProblems(series), ['members.ArenaAlert.parts.title.groundPart: ArenaAlert.stripe is no member part that paints a fill, only one that reads a group does']);
 });

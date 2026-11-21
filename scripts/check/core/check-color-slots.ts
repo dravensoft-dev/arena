@@ -5,8 +5,8 @@
  * then the derived catalogue: each slot's name, the roles a property may be answered with, where a
  * default or derivation may point, what a slot sits on (its fill, a sibling's, its rest, the ground),
  * the member parts that read each slot under its state (a channel-less member reads its chain inline,
- * per axis branch), the chains the Emphasis family (R7) and the Accent family (D95) write, and the group map. A
- * member default (D21's grant, R5) is one rest slot of the member's part, unlike the group's answer.
+ * per axis branch), the chains the Emphasis family and the Accent family write, and the group map. A
+ * member default is one rest slot of the member's part, unlike the group's answer.
  * paintedByPaths names the files the map stats, so a rename or a delete of one reruns the gate. */
 
 import { statSync } from 'node:fs';
@@ -125,7 +125,7 @@ export function defaultProblems(c: SlotCatalogue, roles: ReadonlySet<string>): s
       const base = expectedName({ ...s, state: s.state === 'selected-disabled' ? 'selected' : 'rest' });
       if (!Object.hasOwn(c.slots, base)) out.push(`${name}: it falls to ${base}, which is no slot`);
     }
-    if (!mixIsFill(s)) out.push(`${name}: mix is for a fill, and for a selected hover or pressed edge, which follows its fill's mix (D85)`);
+    if (!mixIsFill(s)) out.push(`${name}: mix is for a fill, and for a selected hover or pressed edge, which follows its fill's mix`);
     if (s.derive?.mix !== undefined && !['mix-hover', 'mix-pressed'].includes(s.derive.mix)) out.push(`${name}: mix "${s.derive.mix}" is neither mix-hover nor mix-pressed`);
     if (s.default !== undefined) {
       const ref = REF.exec(s.default)?.[1];
@@ -370,7 +370,7 @@ export function memberReadProblems(c: SlotCatalogue, manifests: Manifests): stri
         const unselected: [string, string][] = [...branch, [m.selectedBy!.axis, m.selectedBy!.value === 'true' ? 'false' : 'true']];
         if (BOOLEAN.has(m.selectedBy!.value) && holds(unselected)) continue;
         if (holds(branch)) {
-          out.push(`${key}: ${name} is read under ${modifier} in ${whereOf(branch)} and ${twin} under ${modifier} in ${whereOf([...branch, [m.selectedBy!.axis, m.selectedBy!.value]])}, and a selected part matches both with no rule for their order (R4): read ${name} in ${whereOf(unselected)}`);
+          out.push(`${key}: ${name} is read under ${modifier} in ${whereOf(branch)} and ${twin} under ${modifier} in ${whereOf([...branch, [m.selectedBy!.axis, m.selectedBy!.value]])}, and a selected part matches both with no rule for their order: read ${name} in ${whereOf(unselected)}`);
           continue;
         }
       }
@@ -379,7 +379,7 @@ export function memberReadProblems(c: SlotCatalogue, manifests: Manifests): stri
       for (const [state, under, verb] of TWINS) {
         if (state === 'hover' && m.hoverBy !== undefined) continue;
         if (!m.states.includes(state) && !(s.state === 'selected-disabled' && m.states.includes(`selected-${state}`))) continue;
-        if (!holds(branch, under)) out.push(`${key}: ${name} is read in ${whereOf(branch)} and not as ${under}${want} there, so a ${verb} disabled part paints a ${state} answer (D8)`);
+        if (!holds(branch, under)) out.push(`${key}: ${name} is read in ${whereOf(branch)} and not as ${under}${want} there, so a ${verb} disabled part paints a ${state} answer`);
       }
     }
     const held = new Set<string>();
@@ -392,7 +392,7 @@ export function memberReadProblems(c: SlotCatalogue, manifests: Manifests): stri
         const where = branch.map(([axis, value]) => `the ${axis}=${value} branch`).join(' and ');
         if (held.has(`${name} ${where}`)) continue;
         held.add(`${name} ${where}`);
-        if (!heldAt(manifest, part, branch, want)) out.push(`${key}: ${name} is not held as ${want} in ${where}, so a hovered ${still} field takes another option's hover (D73)`);
+        if (!heldAt(manifest, part, branch, want)) out.push(`${key}: ${name} is not held as ${want} in ${where}, so a hovered ${still} field takes another option's hover`);
       }
     }
   }
@@ -427,7 +427,7 @@ export function fadeProblems(c: SlotCatalogue, manifests: Manifests): string[] {
       const carried = textsUnder(manifest, part, branch).some((text) => text.split(/\s+/).some((token) => token === marker || token === `${m.disabledModifier ?? 'disabled:'}${marker}`));
       if (!carried) {
         const where = branch.length ? branch.map(([axis, value]) => `the ${axis}=${value} branch`).join(' and ') : 'the base class';
-        out.push(`${key}: it reads ${name} and fades, and no class of ${where} or a branch under it carries ${marker}, so an answered ${s.state} slot never stops the fade (D8)`);
+        out.push(`${key}: it reads ${name} and fades, and no class of ${where} or a branch under it carries ${marker}, so an answered ${s.state} slot never stops the fade`);
       }
     }
   }
@@ -474,7 +474,7 @@ export function stripeProblems(c: SlotCatalogue, manifests: Manifests): string[]
       const read = [`var(--${name},`, ...(channel === undefined ? [] : [`var(${channel},`, `var(${channel})`])];
       for (const token of tokens) {
         const util = token.slice(VARIANT.exec(token)?.[0].length ?? 0);
-        if (SIDE.test(util) && !util.startsWith(STRIPE) && read.some((one) => util.includes(one))) out.add(`${key}: it reads ${name} as ${token}, and a stripe reads its edge on border-l alone (D90)`);
+        if (SIDE.test(util) && !util.startsWith(STRIPE) && read.some((one) => util.includes(one))) out.add(`${key}: it reads ${name} as ${token}, and a stripe reads its edge on border-l alone`);
       }
     }
   }
@@ -555,7 +555,7 @@ export function declarationProblems(d: SlotDeclarations, roles: ReadonlySet<stri
       if (!part.properties.includes(prop)) out.push(`${where}.${prop}: the part paints no ${prop} (${part.properties.join(', ')})`);
       if (a === 'ink' && prop !== 'icon') out.push(`${where}.${prop}: the answer "ink" belongs to icon only`);
     }
-    for (const prop of part.properties) if (!Object.hasOwn(answers ?? {}, prop)) out.push(`${where}: it answers no ${prop}, and a part that derives slots answers every property it paints (D45)`);
+    for (const prop of part.properties) if (!Object.hasOwn(answers ?? {}, prop)) out.push(`${where}: it answers no ${prop}, and a part that derives slots answers every property it paints`);
   };
   const channel = (where: string, value: unknown) => {
     if (value !== undefined && value !== null && !/^--[a-z0-9-]+(\{property\}[a-z0-9-]*)?$/.test(String(value))) out.push(`${where}.channel: "${String(value)}" is neither null nor a custom property`);
@@ -593,7 +593,7 @@ export function declarationProblems(d: SlotDeclarations, roles: ReadonlySet<stri
       if (p.on !== undefined && p.over !== undefined) out.push(`${where}: it declares on and over, and a part sits on a sibling or over it, never both`);
       if (p.mark !== undefined && p.mark !== true && p.mark !== 'ink') out.push(`${where}.mark: "${String(p.mark)}" is neither true nor "ink"`);
       else if (p.mark !== undefined && p.over !== undefined) out.push(`${where}.mark: it stands beside over, and a mark pairs at 3:1 where over keeps each floor`);
-      else if (p.mark !== undefined && p.on !== undefined) out.push(`${where}.mark: it stands beside on, and a part on a sibling pairs at 3:1 already (D69)`);
+      else if (p.mark !== undefined && p.on !== undefined) out.push(`${where}.mark: it stands beside on, and a part on a sibling pairs at 3:1 already`);
       if (p.selectedOn !== undefined && p.selectedOn !== 'rest') out.push(`${where}.selectedOn: "${String(p.selectedOn)}" is not "rest"`);
       if (p.selectedOn !== undefined && !p.properties.includes('fill')) out.push(`${where}.selectedOn: the part paints no fill to sit on`);
       selectedOf(`${where}.selected`, p.selected, p, p.states);
@@ -607,7 +607,7 @@ export function declarationProblems(d: SlotDeclarations, roles: ReadonlySet<stri
           if (o.halo !== undefined && !LEVEL.test(String(o.halo))) out.push(`${at}.halo: "${String(o.halo)}" is no level, and a level is level-<name>`);
           if (o.halo !== undefined && !(o.properties ?? p.properties).includes('edge')) out.push(`${at}.halo: the part paints no edge for a halo to follow`);
           if (o.decision !== undefined) decision(at, o.decision, 'a decision');
-          if (o.rest === undefined) out.push(`${at}: an option of a part that derives slots declares its rest answers (D45)`);
+          if (o.rest === undefined) out.push(`${at}: an option of a part that derives slots declares its rest answers`);
           else rest(`${at}.rest`, o.rest, { ...p, properties: o.properties ?? p.properties });
           for (const prop of o.properties ?? []) if (!p.properties.includes(prop)) out.push(`${at}.properties: "${prop}" is a property the part does not paint (${p.properties.join(', ')})`);
           if (o.properties !== undefined && o.properties.length === 0) out.push(`${at}.properties: it lists no property`);
@@ -628,7 +628,7 @@ export function declarationProblems(d: SlotDeclarations, roles: ReadonlySet<stri
   for (const [comp, m] of Object.entries(d.members ?? {})) {
     keys(`members.${comp}`, m, DECLARED.member);
     for (const [part, to] of Object.entries(m.parts ?? {})) {
-      if (typeof to === 'string' && to !== SERIES) out.push(`members.${comp}.parts.${part}: "${to}" is a string, and a member part is an object that reads its group, "series" or null (D86)`);
+      if (typeof to === 'string' && to !== SERIES) out.push(`members.${comp}.parts.${part}: "${to}" is a string, and a member part is an object that reads its group, "series" or null`);
       if (!isMemberDecl(to)) continue;
       const where = `members.${comp}.parts.${part}`;
       keys(where, to, DECLARED.memberPart);
@@ -684,19 +684,19 @@ export function declarationProblems(d: SlotDeclarations, roles: ReadonlySet<stri
       }
       if (to.toBy !== undefined && to.toBy.axis === to.seriesBy) out.push(`${where}.toBy: it shares the axis ${to.seriesBy} with seriesBy, and a seriesBy branch reads only hue channels`);
       if (to.ground !== undefined && to.ground !== 'ground' && !(GROUND_ROLE.test(String(to.ground)) && roles.has(String(to.ground)))) {
-        out.push(`${where}.ground: "${String(to.ground)}" is neither "ground" nor a fill-* or overlay-* role of contracts/design/roles.json (D96)`);
+        out.push(`${where}.ground: "${String(to.ground)}" is neither "ground" nor a fill-* or overlay-* role of contracts/design/roles.json`);
       }
       if (to.groundPart !== undefined) {
         const beneath = m.parts?.[String(to.groundPart)];
         const [under, underPart] = isMemberDecl(beneath) ? String(beneath.to).split('.') : [];
         const fills = isMemberDecl(beneath) && (beneath.properties ?? d.groups?.[under ?? '']?.parts?.[underPart ?? '']?.properties ?? []).includes('fill');
-        if (to.ground !== undefined) out.push(`${where}: groundPart and ground are one choice (D25)`);
-        if (!Object.hasOwn(m.parts ?? {}, String(to.groundPart))) out.push(`${where}.groundPart: "${String(to.groundPart)}" names no part of ${comp} (D25)`);
-        else if (!isMemberDecl(beneath)) out.push(`${where}.groundPart: ${comp}.${String(to.groundPart)} is no member part that paints a fill, only one that reads a group does (D25)`);
-        else if (!fills) out.push(`${where}.groundPart: ${comp}.${String(to.groundPart)} paints no fill (D25)`);
+        if (to.ground !== undefined) out.push(`${where}: groundPart and ground are one choice`);
+        if (!Object.hasOwn(m.parts ?? {}, String(to.groundPart))) out.push(`${where}.groundPart: "${String(to.groundPart)}" names no part of ${comp}`);
+        else if (!isMemberDecl(beneath)) out.push(`${where}.groundPart: ${comp}.${String(to.groundPart)} is no member part that paints a fill, only one that reads a group does`);
+        else if (!fills) out.push(`${where}.groundPart: ${comp}.${String(to.groundPart)} paints no fill`);
       }
       if (to.seriesBy !== undefined && (typeof to.seriesBy !== 'string' || to.seriesBy === '')) out.push(`${where}.seriesBy: it names no axis`);
-      if (to.wrappedBy !== undefined && !WRAPPER.test(String(to.wrappedBy))) out.push(`${where}.wrappedBy: "${String(to.wrappedBy)}" is not --arena-<family>-{property} (D98)`);
+      if (to.wrappedBy !== undefined && !WRAPPER.test(String(to.wrappedBy))) out.push(`${where}.wrappedBy: "${String(to.wrappedBy)}" is not --arena-<family>-{property}`);
       if (to.toBy !== undefined) {
         const values = Object.entries(to.toBy.values ?? {});
         if (typeof to.toBy.axis !== 'string' || to.toBy.axis === '' || values.length === 0) out.push(`${where}.toBy: it names an axis and maps a value onto a part`);
@@ -706,8 +706,8 @@ export function declarationProblems(d: SlotDeclarations, roles: ReadonlySet<stri
           const [g, part] = String(target).split('.');
           const gp = d.groups?.[g ?? '']?.parts?.[part ?? ''];
           const at = `${where}.toBy: "${String(target)}" for ${to.toBy.axis}=${value}`;
-          if (!readable.includes(g ?? '') || gp === undefined) out.push(`${at} is no part of ${readable.join(' or ')}, and toBy reads a part of the member's group, of the group of its to, or of text (D107)`);
-          else if (gp.options !== undefined) out.push(`${at} takes an option, and a part read by toBy takes none (D104)`);
+          if (!readable.includes(g ?? '') || gp === undefined) out.push(`${at} is no part of ${readable.join(' or ')}, and toBy reads a part of the member's group, of the group of its to, or of text`);
+          else if (gp.options !== undefined) out.push(`${at} takes an option, and a part read by toBy takes none`);
           else if (target === to.to) out.push(`${at} is the part the base class reads`);
           else if (named.has(String(target))) out.push(`${at} is named for another value too, and a toBy part is read in one branch`);
           named.add(String(target));
@@ -718,9 +718,9 @@ export function declarationProblems(d: SlotDeclarations, roles: ReadonlySet<stri
       if (to.disabledModifier !== undefined && !own.some((st) => DISABLED.has(st))) out.push(`${where}.disabledModifier: the member reads no disabled or selected-disabled state`);
       if (to.hoverIn !== undefined && !own.some((st) => st === 'hover' || st === 'pressed')) out.push(`${where}.hoverIn: the member reads no hover or pressed state`);
       if (to.selectedBy !== undefined) {
-        for (const st of ['hover', 'pressed']) if (own.includes(st) && !own.includes(`selected-${st}`)) out.push(`${where}.selectedBy: the member reads ${st} and no selected-${st}, so a ${st === 'hover' ? 'hovered' : 'pressed'} selected part paints the rest ${st} (R4)`);
+        for (const st of ['hover', 'pressed']) if (own.includes(st) && !own.includes(`selected-${st}`)) out.push(`${where}.selectedBy: the member reads ${st} and no selected-${st}, so a ${st === 'hover' ? 'hovered' : 'pressed'} selected part paints the rest ${st}`);
         const twinned = ['hover', 'pressed'].some((st) => own.includes(st) && own.includes(`selected-${st}`));
-        if (twinned && typeof to.selectedBy.value === 'string' && !BOOLEAN.has(to.selectedBy.value)) out.push(`${where}.selectedBy: its value "${to.selectedBy.value}" is not true or false, and a member with a hover twin reads its rest hover in the complement branch (R4)`);
+        if (twinned && typeof to.selectedBy.value === 'string' && !BOOLEAN.has(to.selectedBy.value)) out.push(`${where}.selectedBy: its value "${to.selectedBy.value}" is not true or false, and a member with a hover twin reads its rest hover in the complement branch`);
       }
       const [homeGroup, homePart] = String(to.to).split('.');
       const homeDecl = d.groups?.[homeGroup as string]?.parts?.[homePart as string];
@@ -743,7 +743,7 @@ export function declarationProblems(d: SlotDeclarations, roles: ReadonlySet<stri
         const props = new Set([...homeProps, ...byProps]);
         const live = stateList(to.states).filter((st) => !DISABLED.has(st));
         const paired = live.length > 0 && (props.has('ink') || props.has('icon') || (props.has('edge') && live.some((st) => st.startsWith('selected'))));
-        if (!paired) out.push(`${where}.ground: the member reads no ink, icon or selected edge, so its ground measures no pair (D96)`);
+        if (!paired) out.push(`${where}.ground: the member reads no ink, icon or selected edge, so its ground measures no pair`);
       }
       if (to.edgeAs !== undefined && !['rule', 'stripe', 'fill'].includes(to.edgeAs)) out.push(`${where}.edgeAs: "${String(to.edgeAs)}" is not "rule", "stripe" or "fill"`);
       else if (to.edgeAs !== undefined && !homeProps.includes('edge')) out.push(`${where}.edgeAs: ${to.to} paints no edge to draw as a ${to.edgeAs}`);
@@ -802,14 +802,14 @@ const classPlaces = (manifest: ComponentManifest, part: string, inside: (axis: s
 };
 
 function seriesProblems(key: string, painted: ColouredPart | undefined, manifest: ComponentManifest, part: string, names: ReadonlySet<string>): string[] {
-  if (!painted || painted.keywordsOnly || painted.focusOnly) return [`${key}: it is "series" and paints no colour, and "series" is for a part that paints its series through its hues channel (D75)`];
+  if (!painted || painted.keywordsOnly || painted.focusOnly) return [`${key}: it is "series" and paints no colour, and "series" is for a part that paints its series through its hues channel`];
   const at = classPlaces(manifest, part, (axis) => Object.hasOwn(manifest.hues ?? {}, axis));
   const out: string[] = [];
   for (const [where, classes, ok] of at) {
     for (const token of classes.split(/\s+/).filter(Boolean)) {
       const read = colourToken(token, names);
       if (!read || read.focus || (ok && HUE_READ.test(read.value))) continue;
-      out.push(`${key}: it is "series" and reads ${token} in ${where}, and a series part paints only var(--arena-hue-…) inside the branches of an axis with a hues entry (D75)`);
+      out.push(`${key}: it is "series" and reads ${token} in ${where}, and a series part paints only var(--arena-hue-…) inside the branches of an axis with a hues entry`);
     }
   }
   return out;
@@ -918,7 +918,7 @@ export function memberDefaultProblems(c: SlotCatalogue, roles: ReadonlySet<strin
       if (slot.group !== to.group || slot.part !== to.part) out.push(`${where} is a slot of ${slot.group}.${slot.part}, and the member maps onto ${m.to}`);
       if (slot.option !== undefined && !m.options.includes(slot.option)) out.push(`${where} is on option ${slot.option}, which the member does not list (${m.options.join(', ')})`);
       if (!m.states.includes(slot.state)) out.push(`${where} is at state ${slot.state}, which the member does not list`);
-      if (slot.state !== 'rest') out.push(`${where} is at ${slot.state}: a member default answers the rest slot, and the states that derive from it read the member's chain (R5)`);
+      if (slot.state !== 'rest') out.push(`${where} is at ${slot.state}: a member default answers the rest slot, and the states that derive from it read the member's chain`);
       const ref = REF.exec(value)?.[1];
       if (!(value === 'transparent' ? acceptedRole(c, slot, 'transparent', roles) : ref !== undefined && acceptedRole(c, slot, ref, roles))) {
         out.push(`${where} is ${value}, which is not transparent where ${slot.accepts} accepts it or a role ${slot.accepts} accepts`);
@@ -936,7 +936,7 @@ export function presenceProblems(c: SlotCatalogue, manifests: Manifests): string
   for (const name of held) {
     const own = pairs.filter((pair) => pair.slot === name);
     if (own.length === 0) out.push(`${name} carries ${c.slots[name]?.level} and is measured in no pair, so nothing holds it to the mark it is gated as`);
-    for (const pair of own) if (pair.min !== MARK_MIN) out.push(`${name} carries ${c.slots[name]?.level} and pairs at ${pair.min}:1, and that level is gated as a mark at ${MARK_MIN}:1 (D92)`);
+    for (const pair of own) if (pair.min !== MARK_MIN) out.push(`${name} carries ${c.slots[name]?.level} and pairs at ${pair.min}:1, and that level is gated as a mark at ${MARK_MIN}:1`);
   }
   for (const m of manifests.values()) {
     for (const [slot, texts] of classStringsBySlot(m)) {

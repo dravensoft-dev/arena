@@ -7,6 +7,8 @@ import { tmpdir } from 'node:os';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 
+const SHIPPED = readJson(join(repoRoot, ROLES)) as Record<string, any>;
+
 const described = { $type: 'dimension', $description: 'x' };
 
 test('a role carrying a value is not a declaration', () => {
@@ -128,7 +130,7 @@ test('the package emits a keyword token and a half spacing step a role can defau
 });
 
 test('the side nav row and app bar band padding roles default to what they read', () => {
-  const roles = readJson(join(repoRoot, ROLES)) as Record<string, { $extensions?: Record<string, { default?: string }> }>;
+  const roles = SHIPPED as Record<string, { $extensions?: Record<string, { default?: string }> }>;
   const defaults = Object.fromEntries(['pad-nav-row-x', 'pad-nav-row-y', 'pad-band-x', 'pad-band-y']
     .map((name) => [name, roles[name]?.$extensions?.[ARENA]?.default]));
   assert.deepEqual(defaults, {
@@ -137,7 +139,7 @@ test('the side nav row and app bar band padding roles default to what they read'
 });
 
 test('a badge at arena-size-sm defaults to a smaller label and tighter padding than at arena-size-md', () => {
-  const roles = readJson(join(repoRoot, ROLES)) as Record<string, { $extensions?: Record<string, { default?: string }> }>;
+  const roles = SHIPPED as Record<string, { $extensions?: Record<string, { default?: string }> }>;
   const defaults = Object.fromEntries(['size-sm-badge-pad-x', 'size-sm-badge-pad-y', 'size-sm-badge-step']
     .map((name) => [name, roles[name]?.$extensions?.[ARENA]?.default]));
   assert.deepEqual(defaults, {
@@ -157,7 +159,7 @@ test('no role has only its default as a valid answer', () => {
     'x-ink': defaulted('color', '{ink-muted}'),
     'x-floor': { ...typed('keyword'), $extensions: { [ARENA]: { values: ['transparent'] } } },
   }), []);
-  assert.deepEqual(singleAnswerProblems(readJson(join(repoRoot, ROLES)) as any), []);
+  assert.deepEqual(singleAnswerProblems(SHIPPED), []);
 });
 
 const meta = (extra: Record<string, unknown> = {}) => ({
@@ -195,9 +197,8 @@ test('a dimension role declares its user-scale axis and any other role may', () 
 });
 
 test('deleting any metadata key from the real declaration fails the gate', () => {
-  const roles = readJson(join(repoRoot, ROLES)) as Record<string, any>;
   for (const key of ['audience', 'task', 'userScale']) {
-    const copy = structuredClone(roles);
+    const copy = structuredClone(SHIPPED);
     delete copy['r-surface'].$extensions['com.dravensoft.arena'][key];
     const problems = metadataProblems(copy);
     assert.equal(problems.length, 1, key);
@@ -305,7 +306,7 @@ test('STATE_SELECTORS is the closed set of states and the selector each one is',
 });
 
 test('the shipped roles carry a valid state on every states role', () => {
-  const shipped = readJson(join(repoRoot, ROLES)) as Record<string, any>;
+  const shipped = SHIPPED;
   const states = Object.entries(shipped).filter(([, role]) => role.$extensions?.['com.dravensoft.arena']?.task === 'states');
   assert.equal(states.length, 13);
   assert.deepEqual(states.map(([name]) => name).sort(), ['bw-focus', 'edge-focus', 'edge-invalid', 'edge-selected',
@@ -320,7 +321,7 @@ test('a colour role may default to transparent and to nothing else literal', () 
 });
 
 test('the mix numbers are states roles shown under hover and active', () => {
-  const shipped = readJson(join(repoRoot, ROLES)) as Record<string, any>;
+  const shipped = SHIPPED;
   const ext = (name: string) => shipped[name]?.$extensions?.['com.dravensoft.arena'];
   for (const [name, state, def] of [['mix-hover', 'hover', '{blend.hover}'], ['mix-pressed', 'active', '{blend.pressed}']] as const) {
     assert.equal(shipped[name]?.$type, 'number', name);
@@ -332,7 +333,7 @@ test('the mix numbers are states roles shown under hover and active', () => {
 });
 
 test('fill-marker is a colour role answering base-300', () => {
-  const shipped = readJson(join(repoRoot, ROLES)) as Record<string, any>;
+  const shipped = SHIPPED;
   const role = shipped['fill-marker'];
   assert.equal(role?.$type, 'color');
   const ext = role?.$extensions?.['com.dravensoft.arena'];
@@ -342,7 +343,7 @@ test('fill-marker is a colour role answering base-300', () => {
 });
 
 test('the mark and tile roles answer their palette keys', () => {
-  const shipped = readJson(join(repoRoot, ROLES)) as Record<string, any>;
+  const shipped = SHIPPED;
   const plugin = readJson(join(repoRoot, 'plugin-style-store/default/plugin.tokens.json')) as Record<string, any>;
   const keys: Record<string, string> = {
     'fill-mark': '{color.base-content}', 'edge-mark': '{color.base-content}', 'ink-on-mark': '{color.base-200}', 'fill-tile': '{color.base-300}',
@@ -359,7 +360,7 @@ test('the mark and tile roles answer their palette keys', () => {
 });
 
 test('the tip roles answer their palette keys', () => {
-  const shipped = readJson(join(repoRoot, ROLES)) as Record<string, any>;
+  const shipped = SHIPPED;
   const plugin = readJson(join(repoRoot, 'plugin-style-store/default/plugin.tokens.json')) as Record<string, any>;
   const keys: Record<string, string> = { 'fill-tip': '{color.base-content}', 'ink-tip': '{color.base-100}' };
   for (const [name, key] of Object.entries(keys)) {
@@ -375,11 +376,11 @@ test('the tip roles answer their palette keys', () => {
 });
 
 test('no role is named confirm-final', () => {
-  assert.deepEqual(Object.keys(readJson(join(repoRoot, ROLES))).filter((name) => name.includes('confirm-final')), []);
+  assert.deepEqual(Object.keys(SHIPPED).filter((name) => name.includes('confirm-final')), []);
 });
 
 test('the scrim role answers base-100 and the scrim mixes it at its level', () => {
-  const shipped = readJson(join(repoRoot, ROLES)) as Record<string, any>;
+  const shipped = SHIPPED;
   const plugin = readJson(join(repoRoot, 'plugin-style-store/default/plugin.tokens.json')) as Record<string, any>;
   const role = shipped['overlay-scrim'];
   assert.equal(role?.$type, 'color');
@@ -394,7 +395,7 @@ test('the scrim role answers base-100 and the scrim mixes it at its level', () =
 });
 
 test('the navigation edge and the hover mix are described by what they paint', () => {
-  const shipped = readJson(join(repoRoot, ROLES)) as Record<string, any>;
+  const shipped = SHIPPED;
   const edge = shipped['edge-tab-selected'];
   assert.equal(edge.$extensions['com.dravensoft.arena'].question, 'What colour is the edge that marks the selected item of a navigation component?');
   assert.match(edge.$description, /ArenaTabs/);

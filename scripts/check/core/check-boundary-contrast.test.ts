@@ -13,37 +13,33 @@ const HEXES = {
   'color-base-300': '#2a2323',
 };
 
-test('an answer that leaves the control borders alone removes no boundary', () => {
-  assert.deepEqual(removedBorders({ 'r-surface': { $value: '{r.xl}' } }), []);
+const REMOVED_ROWS: [name: string, tokens: Parameters<typeof removedBorders>[0], expected: string[]][] = [
+  ['an answer that leaves the control borders alone removes no boundary', { 'r-surface': { $value: '{r.xl}' } }, []],
+  ['a border set to zero is a removed boundary', { 'bw-field': { $value: { value: 0, unit: 'px' } } }, ['bw-field']],
+  ['a border merely made thinner is not removed, because a hairline is still a boundary', { 'bw-field': { $value: { value: 1, unit: 'px' } } }, []],
+  ['a surface border set to zero is not a boundary WCAG 1.4.11 asks about, since a card is not a control', { 'bw-surface': { $value: { value: 0, unit: 'px' } } }, []],
+];
+
+test('removedBorders names a control border set to zero and nothing else', () => {
+  for (const [name, tokens, expected] of REMOVED_ROWS) assert.deepEqual(removedBorders(tokens), expected, name);
 });
 
-test('a border set to zero is a removed boundary', () => {
-  const tokens = { 'bw-field': { $value: { value: 0, unit: 'px' } } };
-  assert.deepEqual(removedBorders(tokens), ['bw-field']);
-});
+const BOUNDARY_ROWS: { name: string; hexes: Record<string, string>; count: number; patterns?: RegExp[] }[] = [
+  { name: 'a removed boundary whose fill clears 3:1 against its surroundings passes', hexes: { ...HEXES, 'color-base-300': '#8a8080' }, count: 0 },
+  {
+    name: 'a removed boundary whose fill does not clear 3:1 fails, naming the pair and the ratio',
+    hexes: HEXES,
+    count: 1,
+    patterns: [/bw-field/, /1\.4\.11|3:1/, /dark/],
+  },
+];
 
-test('a border merely made thinner is not removed, because a hairline is still a boundary', () => {
-  const tokens = { 'bw-field': { $value: { value: 1, unit: 'px' } } };
-  assert.deepEqual(removedBorders(tokens), []);
-});
-
-test('a surface border set to zero is not a boundary WCAG 1.4.11 asks about, since a card is not a control', () => {
-  assert.deepEqual(removedBorders({ 'bw-surface': { $value: { value: 0, unit: 'px' } } }), []);
-});
-
-test('a removed boundary whose fill clears 3:1 against its surroundings passes', () => {
-  const problems = boundaryProblems('probe', ['bw-field'], 'dark', {
-    ...HEXES, 'color-base-300': '#8a8080',
-  });
-  assert.deepEqual(problems, []);
-});
-
-test('a removed boundary whose fill does not clear 3:1 fails, naming the pair and the ratio', () => {
-  const problems = boundaryProblems('probe', ['bw-field'], 'dark', HEXES);
-  assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /bw-field/);
-  assert.match(problems[0] ?? '', /1\.4\.11|3:1/);
-  assert.match(problems[0] ?? '', /dark/);
+test('boundaryProblems passes a removed boundary whose fill clears 3:1 and names the pair and the ratio of one that does not', () => {
+  for (const row of BOUNDARY_ROWS) {
+    const problems = boundaryProblems('probe', ['bw-field'], 'dark', row.hexes);
+    assert.equal(problems.length, row.count, row.name);
+    for (const pattern of row.patterns ?? []) assert.match(problems[0] ?? '', pattern, row.name);
+  }
 });
 
 test('every declared boundary names the fill, the surround and the role that draws its border', () => {
@@ -61,29 +57,44 @@ test('a zero walk is a failure and not a clean pass', () => {
   assert.deepEqual(zeroBoundaryProblems(BOUNDARIES.length), []);
 });
 
-test('an axis with no more contrast than the separator on base-100 is one problem naming the plugin and the theme', () => {
-  const problems = axisProblems('probe/plugin.tokens.json', 'light',
-    { axis: '#999999', separator: '#555555', page: '#ffffff' });
-  assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /probe\/plugin\.tokens\.json/);
-  assert.match(problems[0] ?? '', /light/);
-  assert.match(problems[0] ?? '', /answers --edge-axis with no more contrast than/);
-  assert.doesNotMatch(problems[0] ?? '', /lighter/);
-});
+const AXIS_ROWS: { name: string; where: string; theme: string; colours: { axis: string; separator: string; page: string }; count: number; patterns?: RegExp[]; notPatterns?: RegExp[] }[] = [
+  {
+    name: 'an axis with no more contrast than the separator on base-100 is one problem naming the plugin and the theme',
+    where: 'probe/plugin.tokens.json',
+    theme: 'light',
+    colours: { axis: '#999999', separator: '#555555', page: '#ffffff' },
+    count: 1,
+    patterns: [/probe\/plugin\.tokens\.json/, /light/, /answers --edge-axis with no more contrast than/],
+    notPatterns: [/lighter/],
+  },
+  {
+    name: 'an axis darker than the separator on a dark base-100 that still has no more contrast is one problem in the same words',
+    where: 'probe',
+    theme: 'dark',
+    colours: { axis: '#222222', separator: '#444444', page: '#111111' },
+    count: 1,
+    patterns: [/with no more contrast than/],
+    notPatterns: [/lighter/],
+  },
+  { name: 'an axis heavier than the separator passes', where: 'probe', theme: 'light', colours: { axis: '#555555', separator: '#999999', page: '#ffffff' }, count: 0 },
+  {
+    name: 'an axis equal to the separator does not pass',
+    where: 'probe',
+    theme: 'dark',
+    colours: { axis: '#555555', separator: '#555555', page: '#ffffff' },
+    count: 1,
+    patterns: [/with the same contrast as/],
+    notPatterns: [/lighter/],
+  },
+];
 
-test('an axis darker than the separator on a dark base-100 that still has no more contrast is one problem in the same words', () => {
-  const problems = axisProblems('probe', 'dark', { axis: '#222222', separator: '#444444', page: '#111111' });
-  assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /with no more contrast than/);
-  assert.doesNotMatch(problems[0] ?? '', /lighter/);
-});
-
-test('an axis heavier than the separator passes, and one equal to it does not', () => {
-  assert.deepEqual(axisProblems('probe', 'light', { axis: '#555555', separator: '#999999', page: '#ffffff' }), []);
-  const equal = axisProblems('probe', 'dark', { axis: '#555555', separator: '#555555', page: '#ffffff' });
-  assert.equal(equal.length, 1);
-  assert.match(equal[0] ?? '', /with the same contrast as/);
-  assert.doesNotMatch(equal[0] ?? '', /lighter/);
+test('axisProblems refuses an axis with no more contrast than the separator, in the same words in either theme, and passes a heavier one', () => {
+  for (const row of AXIS_ROWS) {
+    const problems = axisProblems(row.where, row.theme, row.colours);
+    assert.equal(problems.length, row.count, row.name);
+    for (const pattern of row.patterns ?? []) assert.match(problems[0] ?? '', pattern, row.name);
+    for (const pattern of row.notPatterns ?? []) assert.doesNotMatch(problems[0] ?? '', pattern, row.name);
+  }
 });
 
 test('the default plugin draws the axis heavier than the grid in both themes', () => {

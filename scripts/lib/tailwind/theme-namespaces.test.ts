@@ -1,13 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { parseDecls } from '../../lib/arena/css-decls.ts';
+import { parseDecls } from '../arena/css-decls.ts';
 import { CSS_TARGETS } from '../../generate/arena/generate-tokens.ts';
-import { repoRoot } from '../../lib/arena/repo-root.ts';
+import { repoRoot } from '../arena/repo-root.ts';
 import { join } from 'node:path';
 import {
   attributedNames, deriveNamespaces, namespacedPropertyCandidates,
-} from '../../lib/tailwind/theme-namespaces.ts';
+} from './theme-namespaces.ts';
 
 const themeCssPath = new URL('../../../frameworks/tailwind/Theme.css', import.meta.url);
 const themeDecls = new Map<string, string>([...parseDecls(readFileSync(themeCssPath, 'utf8')).values()].flatMap((decls) => [...decls]));

@@ -185,8 +185,6 @@ const STRONG_INK = 'text-[color:var(--arena-hue-fill-strong)]';
 const STATUS = ['success', 'warning', 'danger', 'info'];
 const FEEDBACK_WHY = 'a status colour is a read of the feedback slot of its tone, so the style plugin that answers the slot moves every surface wearing it';
 const HUE_WHY = 'a status colour is a read of the hue channel the hue sheet writes on this slot, so the style plugin that answers the hue roles moves every surface wearing it';
-const hueClaims = (slot: string, tones: Record<string, string[]>, group = 'tone') =>
-  Object.entries(tones).map(([tone, has]) => ({ chosen: { [group]: tone }, slot, has, why: HUE_WHY }));
 
 export const CLAIMS = {
   ArenaSection: [
@@ -240,7 +238,7 @@ export const CLAIMS = {
     { slot: 'dot', has: ['bg-current'], hasNot: ['bg-error', 'bg-success', 'bg-warning', 'bg-info', 'bg-primary', 'bg-primary-fill', 'bg-secondary'], why: 'the dot carries the tone as a colour, never as a fill of its own' },
     ...['neutral', 'success', 'warning', 'danger', 'info'].map((tone) => ({
       chosen: { tone }, slot: 'dot', has: [`text-[color:${memberValue(SLOTS, 'ArenaActivityFeed.dot', `marks-${tone}-dot-ink-rest`, 'tailwind')}]`], hasNot: [INK, STRONG_INK],
-      why: 'a toned dot reads the marks dot of its tone inline, so an answer to that dot reaches it (D92)',
+      why: 'a toned dot reads the marks dot of its tone inline, so an answer to that dot reaches it',
     })),
     { chosen: { divided: true }, slot: 'item', has: ['border-t-[length:var(--bw-separator)]'], why: 'divided draws the rule between rows' },
     { chosen: { divided: false }, slot: 'item', has: ['border-t-0'], why: 'the first row carries no divider above it' },
@@ -248,10 +246,10 @@ export const CLAIMS = {
   ArenaAvatar: [
     { chosen: { kind: 'person' }, slot: 'box', has: ['rounded-pill'], why: 'a person is drawn as a circle and a team as a rounded square, so the two read apart' },
     { chosen: { kind: 'team' }, slot: 'box', has: ['rounded-md'], why: 'a person is drawn as a circle and a team as a rounded square, so the two read apart' },
-    { slot: 'status', has: ['bg-current', 'border-surface'], hasNot: ['border-base-200'], why: 'the presence dot paints the ink of its marks dot, and its ring is the surface the dot is cut from, no slot read (R13)' },
+    { slot: 'status', has: ['bg-current', 'border-surface'], hasNot: ['border-base-200'], why: 'the presence dot paints the ink of its marks dot, and its ring is the surface the dot is cut from, no slot read' },
     ...Object.entries({ online: 'success', busy: 'danger', away: 'warning', offline: 'muted' }).map(([status, option]) => ({
       chosen: { status }, slot: 'status', has: [`text-[color:${memberValue(SLOTS, 'ArenaAvatar.status', `marks-${option}-dot-ink-rest`, 'tailwind')}]`], hasNot: [STRONG, 'bg-[color:var(--arena-hue-ink)]'],
-      why: 'a presence tone maps to the marks dot of its status, never to a series colour (D92)',
+      why: 'a presence tone maps to the marks dot of its status, never to a series colour',
     })),
     { slot: 'image', has: ['w-full', 'h-full', 'object-cover'], why: 'the image fills the box and crops to it, so a non-square source never distorts' },
   ],
@@ -397,7 +395,7 @@ export const CLAIMS = {
   ],
   ArenaProgressBar: [
     ...['success', 'danger', 'info'].map((tone) => ({ chosen: { tone }, slot: 'track', has: [`text-[color:${memberValue(SLOTS, 'ArenaProgressBar.track', `meters-${tone}-track-ink-rest`, 'tailwind')}]`], hasNot: [INK, STRONG_INK],
-      why: 'every tone inks the track from the meters track slot of its tone, which is what the fill reads through bg-current (D93)' })),
+      why: 'every tone inks the track from the meters track slot of its tone, which is what the fill reads through bg-current' })),
     { slot: 'fill', has: ['bg-current'], why: 'the fill reads the tone the track inks rather than naming a colour' },
     { chosen: { tone: 'danger' }, slot: 'track', has: [`bg-[color:${memberValue(SLOTS, 'ArenaProgressBar.track', 'meters-danger-track-fill-rest', 'tailwind')}]`], hasNot: ['bg-error', 'bg-track'], why: 'danger is a tone on the track, and the track stays the neutral rail whatever the tone, read from the meters track fill slot rather than a palette step this slot names' },
     { chosen: { indeterminate: true }, slot: 'track', has: ['arena-prog-indeterminate'], why: 'the sweep is a shared animation utility, so no layer injects keyframes of its own' },
@@ -412,7 +410,7 @@ export const CLAIMS = {
   ArenaMeter: [
     ...Object.entries({ optimum: 'success', fair: 'warning', poor: 'danger' }).map(([standing, tone]) => ({ chosen: { standing }, slot: 'track',
       has: [`text-[color:${memberValue(SLOTS, 'ArenaMeter.track', `meters-${tone}-track-ink-rest`, 'tailwind')}]`, `bg-[color:${memberValue(SLOTS, 'ArenaMeter.track', `meters-${tone}-track-fill-rest`, 'tailwind')}]`],
-      hasNot: [INK, STRONG_INK, 'bg-track'], why: 'the region the value sits in inks the track from the meters track slots of its tone, which is what the fill reads through bg-current (D93)' })),
+      hasNot: [INK, STRONG_INK, 'bg-track'], why: 'the region the value sits in inks the track from the meters track slots of its tone, which is what the fill reads through bg-current' })),
   ],
   ArenaSpinner: [
     { slot: 'root', hasNot: ['text-primary', 'text-secondary', 'text-primary-content', 'text-ink-muted/(--level-ink-muted)'], why: 'the ink of the ring is the accent channel, so no accent is a class of this manifest any more' },
@@ -977,10 +975,14 @@ test('a focus ring never sits on a filled ground', () => {
 });
 
 test('an invalid field reads the fields group\'s error slots', () => {
-  const fields: [string, string][] = [
-    ['ArenaInput', 'field'], ['ArenaNumberField', 'field'], ['ArenaCombobox', 'field'], ['ArenaSelect', 'field'],
-    ['ArenaTextarea', 'field'], ['ArenaPinInput', 'cell'], ['ArenaFileInput', 'zone'],
-  ];
+  const answersError = (member: { optionBy?: unknown }) => [member.optionBy ?? []].flat().some((by) => (by as { axis: string; values: object }).axis === 'state' && Object.hasOwn((by as { values: object }).values, 'error'));
+  const readers = (to: string, part?: string) => Object.entries(SLOTS.members ?? {})
+    .filter(([key, member]) => member.to === to && (part === undefined ? answersError(member) : key.endsWith(`.${part}`)))
+    .map(([key]) => key.split('.') as [string, string]);
+  const fields = readers('fields.field');
+  const statusIcons = readers('fields.status').filter(([, part]) => part === 'statusIcon').map(([component]) => component);
+  const errors = readers('fields.error', 'error').map(([component]) => component);
+  assert.ok(fields.length > 0 && statusIcons.length > 0 && errors.length > 0, 'the fields group answers an error to no member, so this asserts nothing');
   const HUE_EDGE = 'border-[color:var(--arena-hue-edge)]';
   const HUE_INK = 'text-[color:var(--arena-hue-ink)]';
   for (const [component, slot] of fields) {
@@ -988,12 +990,12 @@ test('an invalid field reads the fields group\'s error slots', () => {
     assert.ok(classes.includes(read(`${component}.${slot}`, 'fields-error-field-edge-rest', 'border')), `${component}.${slot} state=error lacks the error edge read`);
     assert.ok(!classes.includes(HUE_EDGE) && !classes.includes('border-edge-invalid'), `${component}.${slot} state=error still reads a role directly`);
   }
-  for (const component of ['ArenaInput', 'ArenaNumberField', 'ArenaCombobox', 'ArenaPinInput', 'ArenaFieldset']) {
+  for (const component of statusIcons) {
     const classes = resolve(component, { state: 'error' }, 'statusIcon');
     assert.ok(classes.includes(read(`${component}.statusIcon`, 'fields-error-status-ink-rest', 'text')), `${component}.statusIcon state=error lacks the status ink read`);
     assert.ok(!classes.includes(HUE_INK) && !classes.includes('text-ink-invalid'), `${component}.statusIcon state=error still reads a role directly`);
   }
-  for (const component of ['ArenaInput', 'ArenaNumberField', 'ArenaCombobox', 'ArenaPinInput', 'ArenaFieldset', 'ArenaFileInput', 'ArenaSelect', 'ArenaTextarea']) {
+  for (const component of errors) {
     const classes = resolve(component, {}, 'error');
     assert.ok(classes.includes(ERROR_INK(`${component}.error`)), `${component}.error lacks the error ink read`);
     assert.ok(!classes.includes(HUE_INK) && !classes.includes('text-ink-invalid'), `${component}.error still reads a role directly`);
@@ -1010,7 +1012,7 @@ test('an invalid field reads the fields group\'s error slots', () => {
 
 test('only the offline presence dot reads a muted marks slot, and the neutral feed dot reads its own', () => {
   const muted = [...manifests.values()].flatMap((m) => [...classStringsBySlot(m)].filter(([, texts]) => texts.some((text) => text.includes('--marks-muted-'))).map(([slot]) => `${m.component}.${slot}`));
-  assert.deepEqual(muted, ['ArenaAvatar.status'], 'a marks-muted answer reaches the offline dot alone (D92)');
+  assert.deepEqual(muted, ['ArenaAvatar.status'], 'a marks-muted answer reaches the offline dot alone');
   const neutral = resolve('ArenaActivityFeed', { tone: 'neutral' }, 'dot');
   assert.ok(neutral.includes(`text-[color:${memberValue(SLOTS, 'ArenaActivityFeed.dot', 'marks-neutral-dot-ink-rest', 'tailwind')}]`), neutral.join(' '));
   assert.ok(!neutral.some((one) => one.includes('--marks-muted-')), 'the neutral feed dot takes no muted answer');

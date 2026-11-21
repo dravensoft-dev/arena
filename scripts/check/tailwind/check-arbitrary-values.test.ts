@@ -6,108 +6,77 @@ import { join } from 'node:path';
 import { relPosix } from '../../utils/posix-path.ts';
 import { scanText, scanFile, markerAllowlist, walk, SKIPPED_NAMES } from './check-arbitrary-values.ts';
 
-const found = (s: string) => scanText(s).map((f) => f.cls);
+const SCAN_ROWS: { name: string; source: string; classes?: string[]; sorted?: boolean; count?: number }[] = [
+  { name: 'flags a raw length', source: '"root": "px-3 text-[13px] font-semibold"', classes: ['text-[13px]'] },
+  { name: 'flags a raw hex and a raw rgb', source: 'bg-[#b52a20] text-[rgb(20,16,16)]', classes: ['bg-[#b52a20]', 'text-[rgb(20,16,16)]'] },
+  { name: 'allows a var() reference to a token, with or without a type hint', source: 'h-[var(--dz-ctl-h)] duration-[var(--dur-mid)] border-[length:var(--bw-strong)]', classes: [] },
+  { name: 'allows a bracket that names properties rather than values', source: 'transition-[background,transform,box-shadow]', classes: [] },
+  { name: 'allows a keyword', source: 'bg-[currentColor]', classes: [] },
+  { name: 'does not flag array indexing or object access in JS', source: 'const s = SIZES[size] || SIZES.md; rows[0].cells[2]', classes: [] },
+  { name: 'does not flag a React inline style with a literal px', source: "style={{ padding: '0 12px', fontSize: 13 }}", classes: [] },
+  { name: 'a calc() over a token times a number is a derivation, not a literal', source: 'text-[length:calc(var(--avatar-md)*0.4)]', classes: [] },
+  { name: 'a calc() inside a shadow is a derivation, not a literal', source: 'shadow-[inset_0_calc(var(--bw-strong)*-1)_0_var(--crimson)]', classes: [] },
+  { name: 'a calc() over two tokens is a derivation, not a literal', source: 'w-[calc(var(--container-max)-var(--layout-sidebar))]', classes: [] },
+  { name: 'a min() over tokens is a derivation, not a literal', source: 'h-[min(var(--dz-ctl-h),var(--icon-xl))]', classes: [] },
+  { name: 'a bracket carrying a unit the token layer does not model is legal', source: 'max-w-[42ch] max-w-[92vw] pt-[12vh] w-[62%] rotate-[120deg]', classes: [] },
+  {
+    name: 'a modelled unit is still a violation, inside calc() or not',
+    source: 'text-[13px] duration-[200ms] p-[1rem] w-[calc(var(--sp-4)+8px)]',
+    classes: ['duration-[200ms]', 'p-[1rem]', 'text-[13px]', 'w-[calc(var(--sp-4)+8px)]'],
+    sorted: true,
+  },
+  { name: 'a bare number outside a math function is still a violation', source: 'z-[900]', classes: ['z-[900]'] },
+  { name: 'a hex is a violation however it is wrapped', source: 'bg-[#b52a20] bg-[color-mix(in_oklab,#b52a20_14%,transparent)]', count: 2 },
+  { name: 'a bare number after a calc() of a bare token is still a violation', source: 'z-[calc(var(--z-modal))_900]', classes: ['z-[calc(var(--z-modal))_900]'] },
+  { name: 'a bare number after a calc() of a product is still a violation', source: 'z-[calc(var(--sp-1)*2)_900]', classes: ['z-[calc(var(--sp-1)*2)_900]'] },
+  { name: 'a bare number after a calc() in a shadow is still a violation', source: 'shadow-[shadow_calc(var(--bw))_5]', classes: ['shadow-[shadow_calc(var(--bw))_5]'] },
+];
 
-test('flags a raw length', () => {
-  assert.deepEqual(found('"root": "px-3 text-[13px] font-semibold"'), ['text-[13px]']);
+test('scanText flags a raw value however it is wrapped and lets a token reference, a keyword, a property list and a derivation through', () => {
+  for (const row of SCAN_ROWS) {
+    const hits = scanText(row.source);
+    if (row.count !== undefined) assert.equal(hits.length, row.count, row.name);
+    if (row.classes) {
+      const classes = hits.map((h) => h.cls);
+      assert.deepEqual(row.sorted ? classes.sort() : classes, row.classes, row.name);
+    }
+  }
 });
 
-test('flags a raw hex and a raw rgb', () => {
-  assert.deepEqual(found('bg-[#b52a20] text-[rgb(20,16,16)]'), ['bg-[#b52a20]', 'text-[rgb(20,16,16)]']);
-});
+const MARKER = (cls: string) => `<!-- check-arbitrary-values allow: ${cls} -->\n`;
+const TWO_MARKERS = "Don't: `text-[13px]` or `bg-[#b52a20]`\n\n" + MARKER('text-[13px]') + MARKER('bg-[#b52a20]');
 
-test('allows a var() reference to a token, with or without a type hint', () => {
-  assert.deepEqual(found('h-[var(--dz-ctl-h)] duration-[var(--dur-mid)] border-[length:var(--bw-strong)]'), []);
-});
+const FILE_ROWS: { name: string; file: string; text: string; patterns: RegExp[]; allowlist?: Set<string> }[] = [
+  { name: 'a marker exempts the class it lists, in a .md file', file: 'a.prompt.md', text: "Don't: `text-[13px]`\n\n" + MARKER('text-[13px]'), patterns: [] },
+  { name: 'a listed class still fails in a .md file with no marker', file: 'a.prompt.md', text: "Don't: `text-[13px]`\n", patterns: [/`text-\[13px\]` — a raw value, not a token/] },
+  {
+    name: 'an unlisted class still fails in a .md file that has a marker',
+    file: 'a.prompt.md',
+    text: "Don't: `text-[13px]` or `bg-[#b52a20]`\n\n" + MARKER('text-[13px]'),
+    patterns: [/`bg-\[#b52a20\]` — a raw value, not a token/],
+  },
+  { name: 'two markers in one file union their allowances', file: 'a.prompt.md', text: TWO_MARKERS, patterns: [], allowlist: new Set(['text-[13px]', 'bg-[#b52a20]']) },
+  {
+    name: 'a stale allowance fails: a marker naming a class the file does not carry',
+    file: 'a.prompt.md',
+    text: 'No bad examples here.\n\n' + MARKER('text-[13px]'),
+    patterns: [/stale allowance `text-\[13px\]`/],
+  },
+  {
+    name: 'a marker in a non-.md file is itself reported as an error',
+    file: 'a.jsx',
+    text: '// ' + MARKER('text-[13px]') + 'const x = "text-[13px]";\n',
+    patterns: [/marker is only honoured in \.md files/, /`text-\[13px\]` — a raw value, not a token/],
+  },
+];
 
-test('allows a bracket that names properties rather than values', () => {
-  assert.deepEqual(found('transition-[background,transform,box-shadow]'), []);
-});
-
-test('allows a keyword', () => {
-  assert.deepEqual(found('bg-[currentColor]'), []);
-});
-
-test('does not flag array indexing or object access in JS', () => {
-  assert.deepEqual(found('const s = SIZES[size] || SIZES.md; rows[0].cells[2]'), []);
-});
-
-test('does not flag a React inline style with a literal px', () => {
-  assert.deepEqual(found("style={{ padding: '0 12px', fontSize: 13 }}"), []);
-});
-
-test('a marker exempts the class it lists, in a .md file', () => {
-  const text = 'Don\'t: `text-[13px]`\n\n<!-- check-arbitrary-values allow: text-[13px] -->\n';
-  assert.deepEqual(scanFile('a.prompt.md', text), []);
-});
-
-test('a listed class still fails in a .md file with no marker', () => {
-  const errs = scanFile('a.prompt.md', 'Don\'t: `text-[13px]`\n');
-  assert.equal(errs.length, 1);
-  assert.match(errs[0] ?? '', /`text-\[13px\]` — a raw value, not a token/);
-});
-
-test('an unlisted class still fails in a .md file that has a marker', () => {
-  const text =
-    'Don\'t: `text-[13px]` or `bg-[#b52a20]`\n\n<!-- check-arbitrary-values allow: text-[13px] -->\n';
-  const errs = scanFile('a.prompt.md', text);
-  assert.equal(errs.length, 1);
-  assert.match(errs[0] ?? '', /`bg-\[#b52a20\]` — a raw value, not a token/);
-});
-
-test('two markers in one file union their allowances', () => {
-  const text =
-    'Don\'t: `text-[13px]` or `bg-[#b52a20]`\n\n' +
-    '<!-- check-arbitrary-values allow: text-[13px] -->\n' +
-    '<!-- check-arbitrary-values allow: bg-[#b52a20] -->\n';
-  assert.deepEqual(markerAllowlist(text), new Set(['text-[13px]', 'bg-[#b52a20]']));
-  assert.deepEqual(scanFile('a.prompt.md', text), []);
-});
-
-test('a stale allowance fails: a marker naming a class the file does not carry', () => {
-  const text = 'No bad examples here.\n\n<!-- check-arbitrary-values allow: text-[13px] -->\n';
-  const errs = scanFile('a.prompt.md', text);
-  assert.equal(errs.length, 1);
-  assert.match(errs[0] ?? '', /stale allowance `text-\[13px\]`/);
-});
-
-test('a marker in a non-.md file is itself reported as an error', () => {
-  const text = '// <!-- check-arbitrary-values allow: text-[13px] -->\nconst x = "text-[13px]";\n';
-  const errs = scanFile('a.jsx', text);
-  assert.equal(errs.length, 2);
-  assert.match(errs[0] ?? '', /marker is only honoured in \.md files/);
-  assert.match(errs[1] ?? '', /`text-\[13px\]` — a raw value, not a token/);
-});
-
-test('a calc() over tokens is a derivation, not a literal', () => {
-  assert.deepEqual(scanText('text-[length:calc(var(--avatar-md)*0.4)]'), []);
-  assert.deepEqual(scanText('shadow-[inset_0_calc(var(--bw-strong)*-1)_0_var(--crimson)]'), []);
-  assert.deepEqual(scanText('w-[calc(var(--container-max)-var(--layout-sidebar))]'), []);
-  assert.deepEqual(scanText('h-[min(var(--dz-ctl-h),var(--icon-xl))]'), []);
-});
-
-test('a bracket carrying a unit the token layer does not model is legal', () => {
-  assert.deepEqual(scanText('max-w-[42ch] max-w-[92vw] pt-[12vh] w-[62%] rotate-[120deg]'), []);
-});
-
-test('a modelled unit is still a violation, inside calc() or not', () => {
-  const hits = scanText('text-[13px] duration-[200ms] p-[1rem] w-[calc(var(--sp-4)+8px)]');
-  assert.deepEqual(hits.map((h) => h.cls).sort(),
-    ['duration-[200ms]', 'p-[1rem]', 'text-[13px]', 'w-[calc(var(--sp-4)+8px)]']);
-});
-
-test('a bare number outside a math function is still a violation', () => {
-  assert.deepEqual(scanText('z-[900]').map((h) => h.cls), ['z-[900]']);
-});
-
-test('a hex is a violation however it is wrapped', () => {
-  assert.deepEqual(scanText('bg-[#b52a20] bg-[color-mix(in_oklab,#b52a20_14%,transparent)]').length, 2);
-});
-
-test('a bare number outside the math function is still a violation, even when the bracket also contains one', () => {
-  assert.deepEqual(scanText('z-[calc(var(--z-modal))_900]').map((h) => h.cls), ['z-[calc(var(--z-modal))_900]']);
-  assert.deepEqual(scanText('z-[calc(var(--sp-1)*2)_900]').map((h) => h.cls), ['z-[calc(var(--sp-1)*2)_900]']);
-  assert.deepEqual(scanText('shadow-[shadow_calc(var(--bw))_5]').map((h) => h.cls), ['shadow-[shadow_calc(var(--bw))_5]']);
+test('scanFile honours a marker in a .md file only, reports an unlisted class and a stale allowance, and reports a marker anywhere else', () => {
+  for (const row of FILE_ROWS) {
+    if (row.allowlist) assert.deepEqual(markerAllowlist(row.text), row.allowlist, row.name);
+    const errs = scanFile(row.file, row.text);
+    assert.equal(errs.length, row.patterns.length, row.name);
+    row.patterns.forEach((pattern, i) => assert.match(errs[i] ?? '', pattern, row.name));
+  }
 });
 
 test('a compiled copy is not a second source, and only copies are skipped', () => {
