@@ -113,26 +113,34 @@ const DEAD = [
   { candidate: 'max-xl:p-2', want: /`max-sm:`, `max-md:`, `max-lg:`$/ },
   { candidate: '@xl:p-2', want: /answers it with no variant$/ },
   { candidate: 'aspect-video', want: /answers it with no utility$/ },
-  ...['p-7', 'gap-1.5', 'md:flex', 'bg-selected', 'text-ink-muted/62', 'text-[13px]', 'container',
-    'bg-fill-selected', 'text-wrapper', 'arena-stack'].map((candidate) => ({ candidate, want: null })),
+  ...([
+    ['p-7', 'emits under both'], ['gap-1.5', 'emits under both'], ['md:flex', 'emits under both'],
+    ['text-[13px]', 'emits under both'], ['container', 'emits under both'],
+    ['bg-selected', 'emits under Arena only'], ['text-ink-muted/62', 'emits under Arena only'],
+    ['bg-fill-selected', 'emits under neither'], ['text-wrapper', 'emits under neither'], ['arena-stack', 'emits under neither'],
+  ] as [string, string][]).map(([candidate, claim]) => ({ candidate, want: null, claim })),
 ];
 
 test('a candidate is dead when it emits nothing under Arena and something under Tailwind, with the answers named', async () => {
   const tailwind = await loadTailwind(TW) as Tailwind;
   const got = await deadUtilities(DEAD.map((row) => row.candidate), { arena: ARENA, own: '' }, tailwind, ROLES);
   for (const row of DEAD) {
-    if (row.want === null) assert.ok(!got.has(row.candidate), `${row.candidate}: alive or dead under both`);
+    if (row.want === null) assert.ok(!got.has(row.candidate), `${row.candidate}: ${'claim' in row ? row.claim : ''}, so it is not reported`);
     else assert.match(got.get(row.candidate) ?? '', row.want, row.candidate);
     if ('not' in row && row.not) assert.doesNotMatch(got.get(row.candidate) ?? '', row.not, `${row.candidate}: names nothing matching ${row.not}`);
   }
 });
 
+const OWN = [
+  { name: 'a key the adopter declares', own: '@theme { --shadow-md: 0 1px 2px var(--ink-body); }', alive: true },
+  { name: 'a block Tailwind refuses', own: '@utility x { @apply shadow-md; }', alive: false },
+];
+
 test('the adopter\'s own theme compiles with Arena\'s, and a block Tailwind refuses rejects', async () => {
   const tailwind = await loadTailwind(TW) as Tailwind;
-  const themed = await deadUtilities(['shadow-md'], { arena: ARENA, own: '@theme { --shadow-md: 0 1px 2px var(--ink-body); }' }, tailwind, ROLES);
-  assert.ok(!themed.has('shadow-md'), 'a key the adopter declares is alive');
-  await assert.rejects(
-    deadUtilities(['shadow-md'], { arena: ARENA, own: '@utility x { @apply shadow-md; }' }, tailwind, ROLES),
-    'a block Tailwind refuses rejects',
-  );
+  for (const row of OWN) {
+    const run = deadUtilities(['shadow-md'], { arena: ARENA, own: row.own }, tailwind, ROLES);
+    if (row.alive) assert.ok(!(await run).has('shadow-md'), `${row.name}: shadow-md is alive`);
+    else await assert.rejects(run, `${row.name}: rejects`);
+  }
 });
