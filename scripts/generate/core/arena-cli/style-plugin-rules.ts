@@ -268,15 +268,19 @@ export function nameProblems(
 const stepName = (key: string): 'an fs step' | 'a rhythm step' | null =>
   (FS_STEP.test(key) ? 'an fs step' : RHYTHM_STEP.test(key) ? 'a rhythm step' : null);
 
+const declared = (key: string, given: unknown) =>
+  (given === undefined ? `--${key} carries no $type` : `--${key} is a ${given}`);
+
 export function typeProblem(
   where: string, key: string, given: unknown, role: RoleShape | undefined, slots?: SlotCatalogue,
 ) {
   const named = stepName(key);
-  if (named) return given === 'dimension' ? null : `${where}: --${key} is a ${given}, and ${named} is a dimension`;
+  if (named) return given === 'dimension' ? null : `${where}: ${declared(key, given)}, and ${named} is a dimension`;
   if (!role && slots?.slots[key])
-    return given === 'color' ? null : `${where}: --${key} is a ${given}, and a colour slot is a colour`;
+    return given === 'color' ? null : `${where}: ${declared(key, given)}, and a colour slot is a colour`;
   if (!role || given === role.$type) return null;
-  return `${where}: --${key} is a ${given} here and a ${role.$type} in roles.json, and the two cannot disagree`
+  const here = given === undefined ? declared(key, given) : `${declared(key, given)} here`;
+  return `${where}: ${here} and a ${role.$type} in roles.json, and the two cannot disagree`
     + (role.$type === 'color'
       ? '; transparent is a colour answer, so a role answered transparent is "$type": "color" too' : '');
 }

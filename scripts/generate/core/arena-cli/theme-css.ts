@@ -306,6 +306,7 @@ export function readPlugin(name: string, source: unknown): StylePlugin {
     if (key.startsWith('$')) continue;
     if (key === THEME_GROUP && isObject(node) && !('$value' in node)) {
       for (const [role, token] of Object.entries(node)) {
+        if (role.startsWith('$')) continue;
         light[role] = dtcgValue(token);
         lightTypes[role] = typeOf(token);
       }

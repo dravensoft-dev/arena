@@ -257,7 +257,9 @@ test('typeProblem holds a role, a slot and a step to their types, and a missing 
   assert.match(typeProblem('w', 'fill-field', 'keyword', { $type: 'color' }) ?? '', /is a keyword here and a color in roles\.json.*transparent is a colour answer/);
   assert.equal(typeProblem('w', 'fill-field', 'color', { $type: 'color' }), null);
   assert.match(typeProblem('w', 'fs-h3', 'number', undefined) ?? '', /an fs step is a dimension/);
-  assert.match(typeProblem('w', slot, undefined, undefined, slots) ?? '', /a colour slot is a colour/);
+  assert.match(typeProblem('w', slot, undefined, undefined, slots) ?? '', /carries no \$type, and a colour slot is a colour/);
+  assert.match(typeProblem('w', 'fill-field', undefined, { $type: 'color' }) ?? '', /--fill-field carries no \$type and a color in roles\.json/);
+  assert.doesNotMatch(typeProblem('w', 'fs-h3', undefined, undefined) ?? '', /undefined/);
   assert.equal(typeProblem('w', 'unknown-key', 'x', undefined), null);
   const lines = keyProblems('at', 'fill-field', { $type: 'keyword', $description: 'x', $value: 'a' }, { $type: 'dimension' });
   assert.equal(lines[0], 'at: --fill-field is a keyword here and a dimension in roles.json, and the two cannot disagree');

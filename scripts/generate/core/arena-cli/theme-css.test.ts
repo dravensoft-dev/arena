@@ -466,7 +466,7 @@ test('every fill a consumer declares is measured against its content, not only p
   'a fill carrying illegible content reached the consumer as silence');
 });
 
-test('a ramp slot invisible against the surface it is drawn on is reported', () => {
+test('a ramp colour invisible against the surface it is drawn on is reported', () => {
   const pale = ['#ffe9a8', '#ffd6e0', '#d9f2d0', '#cfe6ff', '#f0dcff', '#d0f2ee', '#ffe4cc', '#e6e6c8'];
   const overrides: Record<string, string> = { 'base-100': '#ffffff', 'base-200': '#ffffff' };
   pale.forEach((hex, i) => { overrides[`cat-${i + 1}`] = hex; });
@@ -1779,10 +1779,16 @@ test('arena build refuses an answer whose $type is not its role\'s, in either gr
   const problems = configProblems(listed(['default', 'p']), SHEETS_FULL, [null, plugin]);
   const has = (re: RegExp) => assert.ok(problems.some((line) => re.test(line)), problems.join('\n'));
   has(/stylePlugins\.p: --fill-surface is a keyword here and a color/);
-  has(/stylePlugins\.p: --bw-surface is a undefined here and a dimension/);
-  has(/stylePlugins\.p: --\S+ is a undefined, and a colour slot is a colour/);
+  has(/stylePlugins\.p: --bw-surface carries no \$type and a dimension/);
+  has(/stylePlugins\.p: --\S+ carries no \$type, and a colour slot is a colour/);
   has(/stylePlugins\.p: --rhythm-group is a number, and a rhythm step is a dimension/);
   has(/stylePlugins\.p\.light: --fs-h3 is a number.*fs step is a dimension/);
+});
+
+test('a $description inside the light group is not an answer', () => {
+  const plugin = readPlugin('p', { light: { $description: 'only prose', 'fill-surface': { $type: 'color', $value: '#fff' } } });
+  assert.deepEqual(Object.keys(plugin.light), ['fill-surface']);
+  assert.deepEqual(Object.keys(readPlugin('p', { light: { $description: 'only prose' } }).light), []);
 });
 
 test('every plugin under plugin-style-store passes the $type comparison', () => {
