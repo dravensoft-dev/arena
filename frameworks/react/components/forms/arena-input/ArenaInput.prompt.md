@@ -52,7 +52,7 @@ Text field with validation. Focus = the focus ring, error = the danger tone with
 
 Rules: validates on `blur` by default; use `validateOn="change"` only for live feedback (passwords, availability). Mark required fields with `required`.
 
-**`validate` is the one member that takes a function.** You hand Arena a function it calls on the field's value and whose result it uses. The function takes the value as a string and returns the error message, or an empty string when the value is valid. It is the only function Arena takes from you, and it is legal only because `ArenaInput` is a data-entry control.
+**`validate` is the one member that takes a function.** You hand Arena a function it calls on the field's value and whose result it uses. The function takes the value as a string and returns the error message, or an empty string when the value is valid. The `validate` of `ArenaInput` and of `ArenaNumberField` are the only function members Arena takes, and they are legal because both are data-entry controls.
 
 `onValueChange` and `onBlur` carry the **value as a string** rather than the `ChangeEvent` or `FocusEvent`. A platform's own event type never travels in a payload, so the event does not reach you. Read the value directly (`onValueChange={setEmail}`); there is no `e.target` and no `preventDefault()`.
 

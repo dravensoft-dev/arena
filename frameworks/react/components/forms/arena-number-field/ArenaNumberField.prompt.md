@@ -70,7 +70,7 @@ A field that holds one number. A person types it, steps it with a key or with th
 
 **The steppers stay out of the Tab sequence.** The field is the one stop, and its arrow keys reach every step. A stepper at a bound is disabled. Set `steppers={false}` for a dense row where the keys suffice.
 
-**`validate` is the one member that takes a function.** Arena calls it on a committed number. The function returns the error message, or an empty string for a valid number. Arena never calls `validate` for an empty field; mark the field `required` for that.
+**`validate` is the one member that takes a function.** Arena calls it on a committed number. The function returns the error message, or an empty string for a valid number. It and the `validate` of `ArenaInput` are the only function members Arena takes, legal because both fields are data-entry controls. Arena never calls `validate` for an empty field; mark the field `required` for that.
 
 **`ArenaInput type="number"` is a different control.** That one is a text field with the browser's spinner and a string value. This one is a number Arena owns, clamps and writes in a locale.
 

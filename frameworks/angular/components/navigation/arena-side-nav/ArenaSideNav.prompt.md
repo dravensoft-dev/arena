@@ -104,7 +104,7 @@ carries. Pass `icon="ph-bold ph-house"` once per destination; do not concatenate
 yourself against a condition, which is Arena's own convention reimplemented in every project
 that adopts it. The swap is idempotent, so passing `ph-fill` yourself changes nothing.
 
-**A misspelled `ph-` name draws nothing**, because an icon is a class name and a name that
+**A misspelled `ph-` name draws an empty glyph box**, because an icon is a class name and a name that
 matches no glyph is not an error at render. `arena check` reports it as `glyph`, because the
 name is not an icon Phosphor draws at that weight.
 

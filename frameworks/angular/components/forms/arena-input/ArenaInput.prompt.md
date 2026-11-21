@@ -3,6 +3,10 @@ Standalone, `OnPush`, signal I/O. The host binds the root part, so `<arena-input
 the column its parent lays out. The control is a real `<input>`, named by a real
 `<label for>`. The state icons come from the sprite handed to `provideArenaIcons`.
 
+```ts
+readonly notEmpty = (v: string) => (/.+@.+\..+/.test(v) ? '' : 'Invalid email format');
+```
+
 ```html
 <arena-input label="Project name" [value]="name()" (valueChange)="name.set($event)"
              hint="Lowercase, no spaces" required />
@@ -61,7 +65,7 @@ the column its parent lays out. The control is a real `<input>`, named by a real
 <!-- @keys end -->
 
 **`validate` is the one member that takes a function.** You supply it, the component calls it on
-the field's value, and it returns the error message or the empty string. Bind it as a bare
+the field's value, and it returns the error message or the empty string. It and the `validate` of `ArenaNumberField` are the only function members Arena takes, legal because both fields are data-entry controls. Bind it as a bare
 arrow: the input is optional already, so a `| undefined` arm in the type says a second time what
 leaving it unbound says once.
 
