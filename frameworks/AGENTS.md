@@ -42,6 +42,12 @@ Angular copy to it. In a module the gate names, a function whose body it holds e
 in React, and what differs is tested in each layer. Each layer's page states
 its own mechanism, and `check:anchoring` opens each one it declares, in both, in real Chromium.
 
+**A suite that derives from a contract, or cuts across components, replaces the per-component
+copies of what it derives**: `GuardedNames`, `RequiredSlots`, `RequiredMembers`,
+`NativeEventsReach`, `ConsumerDrops` and `assertPattern` each read the whole set once. A component
+suite then tests only what is its own, and a branch every component shares is asserted there and
+nowhere else.
+
 This page sits at the `frameworks/` root rather than inside a layer, which is why it may name
 all three. So does `Components.json`, and so do `demos/` and `kitchen-sink/`: each is a fact
 about the layers that belongs to none of them, and a copy per layer is a copy that can disagree.
@@ -104,6 +110,9 @@ says a component was never opened rather than that a test hard-coded a position.
 Find them all with `bun test scripts` before assuming a count is a count. Verify with the merged
 process, the args array in `testStep()`, because `bun test frameworks/react` never matches
 `scripts/` and reports green over a tree whose run is red.
+
+The literal inventories above stay: each one holds a count or a roster that a new
+component must move on purpose, and none is a copy of what a contract derives.
 
 **The consumer index tree moves too**, `frameworks/INDEX.md` and one `INDEX.md` per layer. It is
 generated, so nothing is written by hand: `bun run generate:skills`, which `bun run build`

@@ -6,15 +6,15 @@
  * consumer's last stop and, through RULE_OWNERS, a rule off the branch that does not own it,
  * FOREIGN_CODE, which keeps another design system out of the examples a reader copies, and
  * the claim a consumer page makes about what SHIPS: how many components, and a GitHub address
- * for a link into this repository, and the wording a consumer page may not carry. SIZE_ALLOWANCE
- * names the one document that outgrew the shared limit; falling back inside it fails. */
+ * for a link into this repository, the wording a consumer page may not carry, a test name free of
+ * spec, plan and audit ids, and a suite with a test. SIZE_ALLOWANCE names the one outgrown document. */
 
 import { readFileSync, existsSync } from 'node:fs';
 import { join, basename } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { readJson } from '../../utils/read-file.ts';
-import { findComments } from '../../lib/arena/comments.ts';
+import { findComments, literalRanges, insideLiteral } from '../../lib/arena/comments.ts';
 import { proseSegments, fencedLines, unfenced } from '../../lib/arena/markdown-prose.ts';
 import { repoRoot as ROOT } from '../../lib/arena/repo-root.ts';
 import { emittedTree } from '../../lib/arena/layers.ts';
@@ -42,12 +42,13 @@ export const PROSE_EXEMPT = {
 
 export const SIZE_ALLOWANCE = new Map<string, { limit: number; reason: string }>([
   ['scripts/check/arena/AGENTS.md', {
-    limit: 64_000,
+    limit: 64_400,
     reason: 'the domain table of the arena gates, one row per gate, where a row states the claim and the '
       + 'failure its gate exists for and the table cell cap keeps each row from becoming a page; the '
       + 'real-browser gates (target size, contained parts, text scale) carry the longest rows because the reason a '
       + 'unit tier cannot answer them is part of what each one claims, and the check-docs row, which names '
-      + 'every rule the branch boundary runs',
+      + 'every rule the branch boundary runs, and the paragraph under the table that keeps what the cell cap '
+      + 'would otherwise cut from that row',
   }],
 ]);
 
@@ -640,6 +641,67 @@ export function hueProblems(root = ROOT) {
   return problems;
 }
 
+export const ID_IN_NAME = /\(\s*(?:D\d+|N\d+|T\d+-P\d+|P\d+)(?:\s*,\s*(?:D\d+|N\d+|P\d+))*\s*\)|\bD\d{1,3}\b|\bReview Focus\b|\(\d{2,3}\)|\bpending-\d|\b(?:plan|spec) \d+\.\d|\bAUDIT \d/;
+
+const TEST_OPENED = /(?<![.\w$])\b(?:test|it)(?:\.\w+)*\(/g;
+const TEST_CALL = /(?<![.\w$])\b(?:test|it|describe)(?:\.\w+)*\(\s*(['"`])/g;
+
+function suites(root: string) {
+  return SCANNED_TREES
+    .map((tree) => join(root, tree))
+    .filter((dir) => existsSync(dir))
+    .flatMap((dir) => walk(dir, (p: string) => SOURCE_EXTENSIONS.some((e) => p.endsWith(e))
+      && basename(p).includes('.test.'), emittedTree(root)));
+}
+
+function nameAt(source: string, from: number, ranges: [number, number][], quote: string) {
+  const first = ranges.find(([start]) => start === from);
+  if (!first) return '';
+  if (quote !== '`') return source.slice(from, first[1]);
+  let end = first[1];
+  while (source[end] !== '`') {
+    const next = ranges.find(([start]) => start >= end);
+    if (!next) break;
+    end = next[1];
+  }
+  return source.slice(from, end);
+}
+
+function testCalls(source: string) {
+  const ranges = literalRanges(source);
+  const calls: { line: number; name: string }[] = [];
+  for (const m of source.matchAll(TEST_CALL)) {
+    if (insideLiteral(ranges, m.index)) continue;
+    const from = m.index + m[0].length;
+    const name = nameAt(source, from, ranges, m[1] ?? '');
+    calls.push({ line: source.slice(0, m.index).split('\n').length, name });
+  }
+  return calls;
+}
+
+export function testNameProblems(root = ROOT) {
+  const problems: string[] = [];
+  for (const path of suites(root)) {
+    const rel = relPosix(root, path);
+    for (const { line, name } of testCalls(readFileSync(path, 'utf8'))) {
+      if (ID_IN_NAME.test(name)) {
+        problems.push(`${rel}:${line}: the test name "${name}" carries a spec, plan or audit id; a name says what is asserted`);
+      }
+    }
+  }
+  return problems;
+}
+
+export function emptySuiteProblems(root = ROOT) {
+  return suites(root)
+    .filter((path) => {
+      const source = readFileSync(path, 'utf8');
+      const ranges = literalRanges(source);
+      return ![...source.matchAll(TEST_OPENED)].some((m) => !insideLiteral(ranges, m.index));
+    })
+    .map((path) => `${relPosix(root, path)}: a suite with no test`);
+}
+
 function main() {
   const sizes = documentSizeProblems();
   const punctuation = punctuationProblems();
@@ -658,6 +720,7 @@ function main() {
     ...empty, ...branchSwitchProblems(), ...sizes.problems, ...cells.problems, ...punctuation.problems,
     ...comments.problems, ...branch.problems, ...ruleOwnerProblems(), ...foreign.problems,
     ...counts.problems, ...wording.problems, ...blobLinkProblems(), ...hueProblems(),
+    ...testNameProblems(), ...emptySuiteProblems(),
   ];
 
   if (problems.length > 0) {

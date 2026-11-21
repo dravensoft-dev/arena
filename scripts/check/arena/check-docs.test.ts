@@ -16,7 +16,9 @@ import {
   FOREIGN_CODE, foreignCodeProblems, componentCountProblems,
   blobLinkProblems, COMMENT_RULE_SKIPS, SOURCE_EXTENSIONS, MAX_CELL_CHARS, cellSizeProblems,
   hueProblems, CONSUMER_WORDING, consumerWordingProblems,
+  testNameProblems, emptySuiteProblems,
 } from './check-docs.ts';
+import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { scratchTree } from '../../utils/scratch-tree.ts';
 
 const { tree } = scratchTree('arena-docs');
@@ -799,4 +801,61 @@ test('CONSUMER_WORDING gives each pattern a reason', () => {
     assert.equal(pattern.flags, 'gi');
     assert.ok(reason.length > 40);
   }
+});
+
+const REFUSED_NAMES = ['x (D96)', 'y (N1)', 'z (T6-P1)', 'Review Focus 1', 'w (49)', 'v ${1} (D96)'];
+const KEPT_NAMES = [
+  'an h1 heading', 'WCAG 1.4.11', 'arena audit reports a stale file', 'R3 slots', '(H5) on a prompt fails',
+];
+
+test('a test named after a spec, plan or audit id fails naming its line, and a behaviour name passes', () => {
+  assert.ok(REFUSED_NAMES.length > 0 && KEPT_NAMES.length > 0);
+  for (const name of REFUSED_NAMES) {
+    const root = tree({ 'scripts/a.test.ts': `import test from 'node:test';\n\ntest('${name}', () => {});\n` });
+    const problems = testNameProblems(root);
+    assert.equal(problems.length, 1, `${name}: one problem`);
+    assert.match(problems[0] ?? '', /scripts\/a\.test\.ts:3: /, `${name}: names its line`);
+  }
+  for (const name of KEPT_NAMES) {
+    const root = tree({ 'scripts/a.test.ts': `import test from 'node:test';\n\ntest('${name}', () => {});\n` });
+    assert.deepEqual(testNameProblems(root), [], `${name}: passes`);
+  }
+});
+
+test('a name inside a comment is not read, a backtick name is, and an emitted tree is skipped', () => {
+  const root = tree({
+    'scripts/a.test.ts': "// test('x (D96)', () => {})\n/* test('y (D96)', () => {}) */\ntest(`z ${1} (D96)`, () => {});\n",
+    'frameworks/angular/build/b.test.ts': "test('built (D96)', () => {});\n",
+  });
+  const problems = testNameProblems(root);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /^scripts\/a\.test\.ts:3: /);
+});
+
+test('describe and it names are read, a name inside a string is not, and an emitted tree is skipped', () => {
+  const root = tree({
+    'frameworks/react/a.test.tsx': "describe('group (D3)', () => { it('case (N2)', () => {}); });\n",
+    'frameworks/react/b.test.ts': "const s = \"test('x (D96)', () => {})\";\ntest('fine', () => {});\n",
+    'frameworks/react/dist/c.test.ts': "test('built (D96)', () => {});\n",
+  });
+  const problems = testNameProblems(root);
+  assert.equal(problems.length, 2);
+  assert.ok(problems.every((p) => p.startsWith('frameworks/react/a.test.tsx:')));
+});
+
+test('a suite with no test fails, and one with a test passes', () => {
+  const empty = tree({ 'scripts/a.test.ts': "import test from 'node:test';\nconst x = 1;\n" });
+  const problems = emptySuiteProblems(empty);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /scripts\/a\.test\.ts: .*no test/);
+  const full = tree({ 'scripts/a.test.ts': "test('does a thing', () => {});\n", 'scripts/helper.ts': 'export const a = 1;\n' });
+  assert.deepEqual(emptySuiteProblems(full), []);
+});
+
+test('no test name in the tree carries a spec, plan or audit id', () => {
+  assert.deepEqual(testNameProblems(repoRoot), []);
+});
+
+test('every suite in the tree holds a test', () => {
+  assert.deepEqual(emptySuiteProblems(repoRoot), []);
 });

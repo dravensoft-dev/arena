@@ -352,17 +352,9 @@ export const ROUTES: Route[] = [
       + 'layer that binds it',
     entry: 'contributor',
     stops: ['frameworks/AGENTS.md', 'frameworks/*/AGENTS.md'],
-    budget: 80_400,
+    budget: 80_800,
     reason:
-      'the most-walked contributor route paid by '
-      + 'every change. It carries what every component meets: the ordered '
-      + 'steps a new component takes, with the barrel chain an Angular primitive needs and its '
-      + 'suites; the architecture envelope, since a module-scope browser global '
-      + 'throws on a server; when a primitive is an attribute on a native element; and the Angular default '
-      + 'written twice, as initial value and fallback, a pair no gate holds. The roof '
-      + 'carries what binds both layers and each layer carries its own envelope and peer, '
-      + 'so the pair cannot go stale in one. The roof states the '
-      + 'attribute the layers build from different values, what a browser proves about focus, the contract modal focus answers and why a radio group is one stop; each layer, the binding that interpolates a property name and why a root module has one consumer, every method a component exposes and the classes of an open pane. The Tailwind page names the :scope part selector a family\'s block writes, why a bundler needs it, bare reads, the three shapes a focus ring takes, the state-literal rule and the forced-colours outline a focused slot keeps. The kitchen-sink page holds the gate flags. The Angular page holds the marker rule.',
+      'the most-walked route, paid by every change. It carries what every component meets: the steps a new component takes, with the Angular barrel chain and its suites; the architecture envelope, as a module-scope browser global throws on a server; when a primitive is an attribute on a native element; the Angular default written twice, as initial value and fallback, a pair no gate holds. The roof carries what binds both layers and each layer carries its own envelope and peer, so the pair cannot go stale in one: the attribute the layers build differently, what a browser proves about focus, the contract modal focus answers, why a radio group is one stop, which suites read a whole contract, what a component keeps, that the literal inventories stay; each layer, the binding that interpolates a property name, why a root module has one consumer, every method a component exposes and the classes of an open pane. The Tailwind page names the :scope part selector a family\'s block writes, why a bundler needs it, bare reads, three focus-ring shapes, the state-literal rule, the forced-colours outline a focused slot keeps. The kitchen-sink page holds the gate flags, the Angular page the marker rule.',
   },
   {
     name: 'contributor-authoring',
@@ -406,19 +398,9 @@ export const ROUTES: Route[] = [
       + 'the domain the gate lands in',
     entry: 'contributor',
     stops: ['scripts/AGENTS.md', 'scripts/check/AGENTS.md', 'scripts/check/*/AGENTS.md'],
-    budget: 101_300,
+    budget: 102_900,
     reason:
-      'the route a contributor takes most often after the component one, and the one whose last '
-      + 'stop grows every time a gate lands, because each gate has a row in its domain\'s table. The '
-      + 'headroom is a few rows wide on purpose: a budget a single new row breaks reports the row '
-      + 'rather than the growth it is there to report. A row states the claim and the failure the '
-      + 'gate exists for, and the rest of its argument belongs to the gate\'s own reason strings, '
-      + 'which its paired suite asserts by name; check:docs caps a table cell, so a row cannot '
-      + 'become the page. The rows of the arena domain table '
-      + 'state what their gates refuse, and the check page carries its section on the sweep running '
-      + 'side by side, its pools and --jobs. The focus-trap row names both questions that gate puts '
-      + 'to a real browser, the trap and the handoff of a refused hidden control. The token-tree row states its seven claims, and the route buys that one row of headroom. The scripts page names the two Angular runs, the emitted verdict, '
-      + 'the JIT loop a task runs and the file-URL rule. The text-scale row states the sweep at twice the browser default, its spill judge and the md probe it reads from the compiled sheet. Rows state the slot tier.',
+      'the route a contributor takes most often after the component one; its last stop grows every time a gate lands, since each gate has a row in its domain\'s table. The headroom is a few rows wide on purpose: a budget a single new row breaks reports the row rather than the growth. A row states the claim and the failure its gate exists for, and the rest belongs to the gate\'s reason strings, which its suite asserts by name; check:docs caps a table cell. The rows of the arena domain table state what their gates refuse. The check page carries the sweep running side by side, its pools and --jobs. The focus-trap row names both questions that gate puts to a real browser, the trap and the handoff of a refused hidden control. The token-tree row states its seven claims, and the route buys that one row of headroom. The scripts page names the two Angular runs, the emitted verdict, the JIT loop a task runs, the file-URL rule, where a test lives and what its name may carry. The text-scale row states the sweep at twice the browser default, its spill judge and the md probe it reads from the compiled sheet. Rows state the slot tier.',
   },
   {
     name: 'contributor-tailwind',
