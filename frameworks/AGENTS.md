@@ -35,7 +35,11 @@ scope. **A fact only recorded as "matching the other layer" is a fact missing fr
 the same arithmetic (`arenaPlacePanel` against `arenaViewportBox`), React in a manual `popover` in
 the top layer and Angular in a CDK overlay pane under a global position strategy. The rules both answer, which side a panel opens on, where it lines up, which panel
 Escape reaches and where Tab leaves, are one module written twice and held equal by
-`check:shared-arithmetic`; a manifest carries no positioning for either. Each layer's page states
+`check:shared-arithmetic`; a manifest carries no positioning for either. A module both layers author
+at one path is one text up to the extension of a relative specifier, unless the gate's `BODIES_ONLY`
+names it with its reason; such a module is tested once, in React, and the gate is what holds the
+Angular copy to it. In a module the gate names, a function whose body it holds equal is tested once,
+in React, and what differs is tested in each layer. Each layer's page states
 its own mechanism, and `check:anchoring` opens each one it declares, in both, in real Chromium.
 
 This page sits at the `frameworks/` root rather than inside a layer, which is why it may name

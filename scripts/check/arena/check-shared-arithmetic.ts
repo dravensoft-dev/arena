@@ -1,10 +1,10 @@
-/* Six modules are authored once per layer at the same path, and nothing held any of them
- * together: two are byte-identical today and four have drifted apart in their type shapes while
- * their algorithms stayed the same. A calendar whose layers disagree by arithmetic renders two
- * different schedules from one set of events, and no other gate can see it, because
- * check:duplicate-constants reads module-level NUMBERS and an exported function is invisible to
- * it. This compares the BODY of every function the two copies export under one name, normalised
- * for whitespace, and DIVERGENT carries the ones that legitimately differ with the reason. */
+/* Modules are authored once per layer at the same path. Those the gate holds to one text, up to
+ * a relative specifier's extension (React spells `.ts` or `.js`, Angular's resolver forbids
+ * both), are tested once, in React: this gate is what holds the Angular copy to that suite.
+ * BODIES_ONLY names the ones that differ as files, each with its reason. The body of every
+ * function both copies export under one name is compared for all of them, normalised for
+ * whitespace, and DIVERGENT carries the bodies that legitimately differ. An exception that has
+ * stopped being true fails, so neither map outlives the difference it records. */
 
 import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
@@ -59,6 +59,24 @@ export const PAIRED = [
   'RootScale.ts',
 ];
 
+export const BODIES_ONLY = new Map([
+  ['ArenaLocale.ts',
+   'the binding to each framework\'s provider: a React context with its provider component and hook '
+   + 'against an Angular InjectionToken with a provide function, over the same merge of the locale.'],
+  ['DataVisuals.ts',
+   'the screen-reader-only style is spelt in each layer\'s own style type, arenaSrOnly with numeric '
+   + 'React values against ARENA_SR_ONLY with strings, and arenaRailStyle returns each layer\'s style type.'],
+  ['components/charts/ChartSeries.ts',
+   'arenaSwatchHue against arenaSwatchChoice: the swatch answer each layer\'s legend binds, '
+   + 'a tone or colour id object against the Angular selection type, over the same rules.'],
+  ['components/display/arena-calendar/CalendarInternals.ts',
+   'the DIVERGENT entries\' signatures, plus local names, a helper spelt as an arrow against a '
+   + 'function and the import lines each layer needs, over the same calendar arithmetic.'],
+  ['components/navigation/arena-pagination/PaginationWindow.ts',
+   'the gap is spelt as a literal in React against a named ELLIPSIS and its PageSlot type in '
+   + 'Angular, so what differs is how the gap is spelt, not where one falls.'],
+]);
+
 export const DIVERGENT = new Map([
   ['components/display/arena-calendar/CalendarInternals.ts:arenaAddDays',
    'the same UTC day step; one hands arenaIsoDateOf a date and the other the full parts shape its own '
@@ -85,6 +103,19 @@ export const DIVERGENT = new Map([
 
 export function normalise(body: string) {
   return body.replace(/\s+/g, ' ').trim();
+}
+
+const RELATIVE_EXT = String.raw`(?<q>['"])(?<path>\.\.?\/[^'"\n]*?)\.(?:tsx?|js)\k<q>`;
+const SPECIFIER_FORMS = [
+  new RegExp(String.raw`(^[ \t]*(?:import|export)\b[^;'"]*?\bfrom\s*)${RELATIVE_EXT}`, 'gm'),
+  new RegExp(String.raw`(^[ \t]*import\s*)${RELATIVE_EXT}`, 'gm'),
+  new RegExp(String.raw`(\bimport\s*\(\s*)${RELATIVE_EXT}`, 'g'),
+];
+
+export function normaliseSpecifiers(source: string) {
+  let out = source;
+  for (const form of SPECIFIER_FORMS) out = out.replace(form, '$1$<q>$<path>$<q>');
+  return out;
 }
 
 export function exportedFunctions(source: string) {
@@ -128,10 +159,31 @@ export function pairProblems(
   return { problems, claimed };
 }
 
-export function collect(base = root, paired = PAIRED, divergent = DIVERGENT) {
+export function fileProblems(rel: string, react: string, angular: string, bodiesOnly = BODIES_ONLY) {
+  const a = normaliseSpecifiers(react);
+  const b = normaliseSpecifiers(angular);
+  const same = a === b;
+  if (bodiesOnly.has(rel)) {
+    return same
+      ? [`${rel}: BODIES_ONLY names it and the two copies are one text now — delete the entry`]
+      : [];
+  }
+  if (same) return [];
+  const [x, y] = [a.split('\n'), b.split('\n')];
+  let line = 0;
+  while (line < x.length && line < y.length && x[line] === y[line]) line += 1;
+  return [`${rel}: the two copies differ at line ${line + 1} of the normalised text. This module is `
+    + 'tested once, in React, so a drift is untested in the other layer; make them one text, or '
+    + 'declare it in BODIES_ONLY with the reason'];
+}
+
+export function collect(
+  base = root, paired = PAIRED, divergent = DIVERGENT, bodiesOnly = BODIES_ONLY,
+) {
   const problems = [];
   const claimed = [];
   let compared = 0;
+  let oneText = 0;
   for (const rel of paired) {
     const react = join(base, 'frameworks/react', rel);
     const angular = join(base, 'frameworks/angular', rel);
@@ -139,9 +191,14 @@ export function collect(base = root, paired = PAIRED, divergent = DIVERGENT) {
       problems.push(`${rel}: PAIRED names it and it does not exist in both layers`);
       continue;
     }
+    const reactSource = readFileSync(react, 'utf8');
+    const angularSource = readFileSync(angular, 'utf8');
+    const whole = fileProblems(rel, reactSource, angularSource, bodiesOnly);
+    problems.push(...whole);
+    if (whole.length === 0 && !bodiesOnly.has(rel)) oneText += 1;
     const found = pairProblems(rel,
-      exportedFunctions(readFileSync(react, 'utf8')),
-      exportedFunctions(readFileSync(angular, 'utf8')),
+      exportedFunctions(reactSource),
+      exportedFunctions(angularSource),
       divergent);
     problems.push(...found.problems);
     claimed.push(...found.claimed);
@@ -150,7 +207,7 @@ export function collect(base = root, paired = PAIRED, divergent = DIVERGENT) {
   if (compared === 0) {
     problems.push('compared 0 pairs — an empty result set is a failure rather than a clean pass');
   }
-  return { problems, claimed, compared };
+  return { problems, claimed, compared, oneText };
 }
 
 export function staleEntries(claimed: string[], divergent = DIVERGENT) {
@@ -160,16 +217,22 @@ export function staleEntries(claimed: string[], divergent = DIVERGENT) {
     .map((key) => `DIVERGENT names ${key}, and no pair exports a function under that name`);
 }
 
+export function staleBodiesOnly(paired: readonly string[] = PAIRED, bodiesOnly = BODIES_ONLY) {
+  return [...bodiesOnly.keys()]
+    .filter((key) => !paired.includes(key))
+    .map((key) => `BODIES_ONLY names ${key}, and PAIRED does not hold it`);
+}
+
 function main() {
-  const { problems, claimed, compared } = collect();
-  problems.push(...staleEntries(claimed));
+  const { problems, claimed, compared, oneText } = collect();
+  problems.push(...staleEntries(claimed), ...staleBodiesOnly());
   if (problems.length > 0) {
     console.error(`check-shared-arithmetic: ${problems.length} problem(s)\n`);
     for (const one of problems) console.error(`  ${one}`);
     process.exit(1);
   }
   console.log(`check-shared-arithmetic: ${compared} module(s) authored in both layers agree on every `
-    + `function they share, ${DIVERGENT.size} declared with a reason`);
+    + `function they share, ${oneText} of them one text, ${BODIES_ONLY.size} declared with a reason`);
 }
 
 if (isMainModule(import.meta.url)) main();

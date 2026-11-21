@@ -352,7 +352,7 @@ export const ROUTES: Route[] = [
       + 'layer that binds it',
     entry: 'contributor',
     stops: ['frameworks/AGENTS.md', 'frameworks/*/AGENTS.md'],
-    budget: 79_900,
+    budget: 80_400,
     reason:
       'the most-walked contributor route paid by '
       + 'every change. It carries what every component meets: the ordered '
