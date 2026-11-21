@@ -34,6 +34,16 @@
       "$extensions": { "com.dravensoft.arena": { "script": true } }
     }
   },
+  "panel": {
+    "$type": "dimension",
+    "$extensions": { "com.dravensoft.arena": { "userScale": "fixed" } },
+    "$description": "An anchored panel: a menu, a popover, a combobox or multi-select list.",
+    "row-floor": {
+      "$value": { "value": 44, "unit": "px" },
+      "$description": "The least height an anchored panel is capped to when the room beside its\nanchor is short: one row at the comfortable density's 44px target, the largest\nrow floor a panel's rows are held to. Below it the panel takes the larger side\nand stays inside the viewport. Script-readable because it is compared against\nthe measured room in both layers' placement arithmetic.",
+      "$extensions": { "com.dravensoft.arena": { "script": true } }
+    }
+  },
   "onboarding": {
     "$type": "dimension",
     "$extensions": { "com.dravensoft.arena": { "userScale": "fixed" } },

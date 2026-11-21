@@ -192,6 +192,16 @@
    */
   --calendar-actions-below-min-h:56px;
 
+  /* An anchored panel: a menu, a popover, a combobox or multi-select list. */
+  /*
+     The least height an anchored panel is capped to when the room beside its
+     anchor is short: one row at the comfortable density's 44px target, the largest
+     row floor a panel's rows are held to. Below it the panel takes the larger side
+     and stays inside the viewport. Script-readable because it is compared against
+     the measured room in both layers' placement arithmetic.
+   */
+  --panel-row-floor:44px;
+
   /* ArenaOnboarding coachmark. */
   /*
      The popover's width. Script-readable because Math.min/Math.max compare it

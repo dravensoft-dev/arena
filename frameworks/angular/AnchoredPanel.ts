@@ -1,3 +1,5 @@
+import { panelRowFloor } from './Tokens.generated';
+
 export type ArenaPanelAlign = 'start' | 'end' | 'center';
 
 export type ArenaPanelSide = 'below' | 'above';
@@ -34,8 +36,6 @@ export interface ArenaPanelRegion<T> {
   contains(other: T): boolean;
 }
 
-const PANEL_FLOOR = 44;
-
 export function arenaViewportBox(view: Window): { top: number; left: number; height: number; width: number } {
   const visual = view.visualViewport;
   if (visual) return { top: visual.offsetTop, left: visual.offsetLeft, height: visual.height, width: visual.width };
@@ -56,7 +56,7 @@ export function arenaPlacePanel(anchor: ArenaPanelRect, panel: ArenaPanelSize, v
   const side = arenaPanelSide(anchor, panel, viewport, offset, prefer);
   const top = viewport.top ?? 0;
   const room = side === 'below' ? top + viewport.height - (anchor.top + anchor.height) - offset : anchor.top - top - offset;
-  const cap = Math.min(viewport.height, Math.max(room, Math.min(panel.height, PANEL_FLOOR)));
+  const cap = Math.min(viewport.height, Math.max(room, Math.min(panel.height, panelRowFloor)));
   const maxHeight = cap > 0 && panel.height > cap ? cap : null;
   const height = maxHeight ?? panel.height;
   const placed = side === 'below' ? anchor.top + anchor.height + offset : anchor.top - offset - height;
