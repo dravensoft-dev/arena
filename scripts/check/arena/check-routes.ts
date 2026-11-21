@@ -272,7 +272,7 @@ export const ROUTES: Route[] = [
       + 'column it sits in and how much air goes between two components',
     entry: 'consumer',
     stops: ['skills/design/references/page.md', 'skills/design/references/style.md'],
-    budget: 21_050,
+    budget: 21_543,
     reason:
       'paid per element a builder draws themselves, which every screen has. It buys the half of a '
       + 'page no component draws: the floor and where each layer puts it, which frame the viewport '
@@ -284,7 +284,7 @@ export const ROUTES: Route[] = [
       + 'column\'s width and each layer\'s sizing section, names each layer\'s breakpoint helper and '
       + 'the quiet ink level, and sends density values to the density page. Arena paints no '
       + 'selection or scrollbar, so a recipe gives one. It says which palette, style plugin and '
-      + 'density an overlay takes from its trigger, and where an island paints its ground, and the text colour its body fence reads at its level. It names the `dead-utility` the audit reports. The page sends a panel, a toggle and a layer to the token tree, which owns what each is painted with.',
+      + 'density an overlay takes from its trigger, and where an island paints its ground, and the text colour its body fence reads at its level. It names the `dead-utility` the audit reports and the state classes. The page sends a panel, a toggle and a layer to the token tree, which owns what each is painted with.',
   },
   {
     name: 'consumer-paint-panel',

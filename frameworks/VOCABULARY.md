@@ -2,7 +2,7 @@
 
 # The vocabulary
 
-**Every vocabulary class you write is on this page.** A component family's class goes on the component, or on a container of yours whose components should all take it. The class nearest the component wins, whatever order your stylesheets load in. A markup family's box class goes on an element you wrote, never on a component. A markup family's context class, density, goes on an element you wrote or on a component. The families you write on markup of your own are `band`, `num`, `prose`, `row`, `shell`, `sr-only`, `stack` and the `density` context. A markup class beats a rule of yours of equal specificity, whatever order the sheets load in. Write yours more specific to override it. Palette and style-plugin classes are not vocabulary: they go on any element, and theme.md says what a subtree takes. A class that is not on this page does nothing on an Arena component, and the audit reports it. A project compiling Tailwind through `css/tailwind-theme.css` also has utilities such as `arena-spinner` and `arena-fade`. Those utilities are Tailwind utilities that a manifest names, and not vocabulary classes.
+**Every vocabulary class you write is on this page.** A component family's class goes on the component, or on a container of yours whose components should all take it. The class nearest the component wins, whatever order your stylesheets load in. A markup family's box class goes on an element you wrote, never on a component. A markup family's context class, density, goes on an element you wrote or on a component. The families you write on markup of your own are `band`, `num`, `prose`, `row`, `shell`, `sr-only`, `stack`, `state` and the `density` context. A markup class beats a rule of yours of equal specificity, whatever order the sheets load in. Write yours more specific to override it. Palette and style-plugin classes are not vocabulary: they go on any element, and theme.md says what a subtree takes. A class that is not on this page does nothing on an Arena component, and the audit reports it. A project compiling Tailwind through `css/tailwind-theme.css` also has utilities such as `arena-spinner` and `arena-fade`. Those utilities are Tailwind utilities that a manifest names, and not vocabulary classes.
 
 | Family | Reach | Options | Property | Answered by |
 |---|---|---|---|---|
@@ -34,6 +34,7 @@
 | [`skeleton`](#skeleton) | box | `arena-skeleton-block` (default), `arena-skeleton-circle`, `arena-skeleton-line` | `--arena-skeleton-width`, `--arena-skeleton-height`, `--arena-skeleton-radius` | ArenaSkeleton ([React](./react/components/display/arena-skeleton/ArenaSkeleton.prompt.md), [Angular](./angular/components/display/arena-skeleton/ArenaSkeleton.prompt.md)) |
 | [`sr-only`](#sr-only) | box | `arena-sr-only` |  | markup you write |
 | [`stack`](#stack) | box | `arena-stack`, `arena-stack--end`, `arena-stack--group`, `arena-stack--section`, `arena-stack--start` |  | markup you write |
+| [`state`](#state) | box | `arena-focus`, `arena-interactive`, `arena-invalid`, `arena-invalid__message` |  | markup you write |
 | [`sticky`](#sticky) | box | `arena-sticky-head`, `arena-sticky-none` (default) |  | ArenaTable ([React](./react/components/display/arena-table/ArenaTable.prompt.md), [Angular](./angular/components/display/arena-table/ArenaTable.prompt.md)) |
 
 ## accent
@@ -311,6 +312,14 @@ A label a screen reader announces and nothing paints, such as the name of an ico
 The air between peers in a column of yours, as three named steps rather than a number you pick. Arena draws no outer margin on anything. The space between one component and the next is always yours to place, and this class applies the rhythm tokens to it. arena-stack is the step between peers, arena-stack--group the step inside one unit, and arena-stack--section the step between two sections. arena-stack--start and arena-stack--end line the items up and carry no length, because where items line up is a question about your content. Write it on an element of yours: a component's own element may carry no box.
 
 - **Options:** `arena-stack`, `arena-stack--end`, `arena-stack--group`, `arena-stack--section`, `arena-stack--start`.
+- **Reach:** box: it goes on an element you wrote, and it decides that element alone.
+- **Written on:** an element you wrote, never a component.
+
+## state
+
+The states of a control you drew yourself, composed from roles alone as Arena's navigation rows and buttons compose them. arena-interactive draws the fill and ink at rest, under the pointer, when pressed and when selected, pressed or current, and the disabled fade. arena-focus draws the keyboard focus ring. arena-invalid draws the edge of a field while aria-invalid is true, and arena-invalid__message draws the ink of its message. A colour slot answer moves Arena's components and not these classes. Write them on an element of yours: a component draws its own states.
+
+- **Options:** `arena-focus`, `arena-interactive`, `arena-invalid`, `arena-invalid__message`.
 - **Reach:** box: it goes on an element you wrote, and it decides that element alone.
 - **Written on:** an element you wrote, never a component.
 

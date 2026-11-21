@@ -1,0 +1,12 @@
+{
+  "family": "state",
+  "reach": "box",
+  "target": "markup",
+  "description": "The states of a control you drew yourself, composed from roles alone as Arena's navigation rows and buttons compose them. arena-interactive draws the fill and ink at rest, under the pointer, when pressed and when selected, pressed or current, and the disabled fade. arena-focus draws the keyboard focus ring. arena-invalid draws the edge of a field while aria-invalid is true, and arena-invalid__message draws the ink of its message. A colour slot answer moves Arena's components and not these classes. Write them on an element of yours: a component draws its own states.",
+  "variants": {
+    "arena-interactive": "[background-color:transparent] [color:color-mix(in_oklab,var(--ink-muted)_var(--level-ink-muted),transparent)] hover:[background-color:var(--fill-hover)] hover:[color:color-mix(in_oklab,var(--ink-body)_var(--level-ink-body),transparent)] pressed:[background-color:color-mix(in_oklab,transparent,color-mix(in_oklab,var(--ink-muted)_var(--level-ink-muted),transparent)_calc(var(--mix-pressed)*100%))] pressed:[color:color-mix(in_oklab,var(--ink-muted)_var(--level-ink-muted),transparent)] selected:[background-color:color-mix(in_oklab,var(--fill-selected)_var(--level-accent-soft-primary),transparent)] selected:[color:var(--ink-selected)] selected:hover:[background-color:color-mix(in_oklab,color-mix(in_oklab,var(--fill-selected)_var(--level-accent-soft-primary),transparent),var(--ink-selected)_calc(var(--mix-hover)*100%))] selected:hover:[color:var(--ink-selected)] selected:pressed:[background-color:color-mix(in_oklab,color-mix(in_oklab,var(--fill-selected)_var(--level-accent-soft-primary),transparent),var(--ink-selected)_calc(var(--mix-pressed)*100%))] selected:pressed:[color:var(--ink-selected)] disabled:[opacity:var(--fade-disabled)]",
+    "arena-focus": "focus:[outline-style:solid] focus:[outline-width:var(--bw-focus)] focus:[outline-offset:var(--gap-focus)] focus:[outline-color:var(--edge-focus)]",
+    "arena-invalid": "invalid:[border-color:var(--edge-invalid)]",
+    "arena-invalid__message": "[color:var(--ink-invalid)]"
+  }
+}

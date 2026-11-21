@@ -85,6 +85,13 @@ digit and does not jitter as it counts. `.arena-sr-only` is a label a
 screen reader announces and nothing paints, which is where the name of an icon-only control you
 drew yourself goes.
 
+**Four more classes draw the states of a control you drew yourself.** `.arena-interactive` draws
+its fill and ink in every state, with the disabled fade. `.arena-focus` draws the keyboard focus
+ring. `.arena-invalid` draws a field's edge while `aria-invalid` is true, and
+`.arena-invalid__message` draws the ink of that field's message. The four read roles and nothing
+else, and their sheet is `css/vocabulary/state.css`. [The states page](./tokens/markup/states.md)
+lists the roles each state reads.
+
 ## The air between two components
 
 **Arena draws no outer margin on anything**, so the space between one component and the next is
