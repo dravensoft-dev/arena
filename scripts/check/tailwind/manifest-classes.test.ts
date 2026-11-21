@@ -21,7 +21,7 @@ test('the default variants apply when nothing is chosen', () => {
 test('a chosen variant replaces the default', () => {
   const { root = '' } = classesFor(tag, { tone: 'danger' });
   assert.ok(root.includes('border-[color:var(--marks-danger-outline-edge-rest,var(--hue-danger-edge))]'), 'the chosen tone applies');
-  assert.ok(!root.includes('border-base-300'), 'the default tone does not');
+  assert.ok(!(classesFor(tag).root ?? '').includes('--marks-danger-outline-edge-rest'), 'the default tone does not');
 });
 
 test('the base slot always precedes the variant slot', () => {
@@ -52,7 +52,10 @@ test('a compoundVariant matches the defaulted variant value, not only a chosen o
 test('a compoundVariant is appended after the single-variant slots', () => {
   const withCompound = { ...tag, compoundVariants: [{ tone: 'danger', class: { root: 'ring-2' } }] };
   const { root = '' } = classesFor(withCompound, { tone: 'danger' });
-  assert.ok(root.indexOf('border-error') < root.indexOf('ring-2'), 'the compound class follows the variant class');
+  const DANGER = 'border-[color:var(--marks-danger-outline-edge-rest,var(--hue-danger-edge))]';
+  const at = root.indexOf(DANGER);
+  assert.ok(at >= 0, 'the danger edge is present');
+  assert.ok(at < root.indexOf('ring-2'), 'the compound class follows the variant class');
 });
 
 test('the harness spells a class the way the generator does, for every manifest that ships', () => {

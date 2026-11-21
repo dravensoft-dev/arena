@@ -135,6 +135,7 @@ test('a bare outline-hidden is refused, and the same class under a focus variant
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /Fixture:cell/);
   assert.match(problems[0] ?? '', /bare `outline-hidden`/);
+  assert.match(problems[0] ?? '', /2px outline in every state under forced colours/);
 });
 
 test('an arbitrary focus variant is read as a focus state', () => {
@@ -178,15 +179,13 @@ test('an inline key never reaches the compiled layer, so it is read where it is 
   assert.match(checkCompiled(compiled('', '.x {}'), new Map([['X.manifest.json', { slots: {} }]]), TOKENS, inline).join('\n'), /--radius-nope: --r-nope is no such Arena token/);
 });
 
-test('an outline offset or colour is not an outline, and a bare outline-hidden says it draws under forced colours', () => {
+test('an outline offset or colour is not an outline', () => {
   for (const cls of ['focus-visible:outline-offset-2', 'focus-visible:outline-edge-focus']) {
     const problems = focusOutlineProblems({ component: 'Fixture', slots: { box: `focus-visible:ring-2 ${cls}` } });
     assert.equal(problems.length, 1, cls);
   }
   for (const cls of ['focus-visible:outline', 'focus-visible:outline-solid', 'focus-visible:outline-2', 'focus-visible:outline-[length:var(--bw-focus)]'])
     assert.deepEqual(focusOutlineProblems({ component: 'Fixture', slots: { box: `focus-visible:ring-2 ${cls}` } }), [], cls);
-  const bare = focusOutlineProblems({ component: 'Fixture', slots: { cell: 'outline-hidden' } });
-  assert.match(bare[0] ?? '', /2px outline in every state under forced colours/);
 });
 
 test('a focus state drawn only as a border colour is refused, a border width is not a colour, an outline beside it is accepted', () => {

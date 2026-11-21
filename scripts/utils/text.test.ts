@@ -32,6 +32,7 @@ test('a star stops at a separator, which is what a package export target means b
 test('a double star crosses separators, and a pattern without one reduces to the narrower build', () => {
   assert.equal(globToRegExp('frameworks/**/*.generated.js').test('frameworks/react/a.generated.js'), true);
   assert.equal(globToRegExp('frameworks/**/*.generated.js').test('frameworks/a/b/c.generated.js'), true);
+  assert.equal(globToRegExp('a/**/*.generated.js').test('a/B.generated.js'), true);
   assert.equal(globToRegExp('a*b').source, '^a[^/]*b$',
     'no ** means one part, so the wider builder is the narrower one and the unification costs nothing');
 });
