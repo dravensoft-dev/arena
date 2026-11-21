@@ -469,3 +469,47 @@ test('a panel that fits writes no max-height', () => {
     undraw();
   }
 });
+
+function keepsScroll(panel: HTMLElement, at: number) {
+  const writes: number[] = [];
+  Object.defineProperty(panel, 'scrollTop', { configurable: true, get: () => at, set: (value: number) => { writes.push(value); } });
+  return writes;
+}
+
+test('a scroll inside a capped panel does not place it again, and a scroll elsewhere keeps its scroll position', () => {
+  const seen: string[] = [];
+  const stub = stubVisualViewport(360);
+  const undraw = drawnWide([20, 100, 200, 40], [200, 320]);
+  try {
+    mount(<Probe name="p" open seen={seen}><button type="button">inner</button></Probe>);
+    const panel = panelOf('p')!;
+    const writes = keepsScroll(panel, 30);
+    panel.style.top = '1px';
+    act(() => { panel.dispatchEvent(new Event('scroll')); });
+    act(() => { panel.querySelector('button')!.dispatchEvent(new Event('scroll')); });
+    assert.equal(panel.style.top, '1px', 'a scroll inside the panel placed it again');
+    assert.deepEqual(writes, [], 'a scroll inside the panel rewrote its scroll position');
+    act(() => { document.dispatchEvent(new Event('scroll')); });
+    assert.equal(panel.style.top, '146px', 'a scroll elsewhere did not place the panel');
+    assert.equal(panel.style.maxHeight, '214px');
+    assert.deepEqual(writes, [30], 'the scroll position was not restored after the cap was rewritten');
+  } finally {
+    undraw();
+    stub.restore();
+  }
+});
+
+test('a panel with no room either side keeps one row of height inside the visual viewport', () => {
+  const seen: string[] = [];
+  const stub = stubVisualViewport(100);
+  const undraw = drawnWide([20, 20, 200, 60], [200, 320]);
+  try {
+    mount(<Probe name="p" open seen={seen} />);
+    const panel = panelOf('p')!;
+    assert.equal(panel.style.maxHeight, '44px', 'the cap fell below one row');
+    assert.equal(panel.style.top, '56px', 'the panel was not clamped into the box');
+  } finally {
+    undraw();
+    stub.restore();
+  }
+});

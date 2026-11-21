@@ -66,6 +66,7 @@ export function useArenaAnchoredPanel(options: ArenaAnchoredPanelOptions): boole
       panel.style.position = 'fixed';
       panel.style.inset = 'auto';
       panel.style.margin = '0';
+      const kept = panel.scrollTop;
       panel.style.maxHeight = '';
       panel.style.overflowY = '';
       const own = panel.getBoundingClientRect();
@@ -76,6 +77,7 @@ export function useArenaAnchoredPanel(options: ArenaAnchoredPanelOptions): boole
       if (placed.maxHeight !== null) {
         panel.style.maxHeight = `${placed.maxHeight}px`;
         panel.style.overflowY = 'auto';
+        panel.scrollTop = kept;
       }
       panel.style.left = `${placed.x}px`;
       panel.style.top = `${placed.y}px`;
@@ -112,7 +114,11 @@ export function useArenaAnchoredPanel(options: ArenaAnchoredPanelOptions): boole
     };
     doc.addEventListener('keydown', onKey, true);
     doc.addEventListener('mousedown', onPress, true);
-    doc.addEventListener('scroll', place, true);
+    const onScroll = (event: Event) => {
+      if (event.target instanceof Node && panel.contains(event.target)) return;
+      place();
+    };
+    doc.addEventListener('scroll', onScroll, true);
     panel.addEventListener('keydown', onTab);
     view?.addEventListener('resize', place);
     visual?.addEventListener('resize', place);
@@ -127,7 +133,7 @@ export function useArenaAnchoredPanel(options: ArenaAnchoredPanelOptions): boole
     return () => {
       doc.removeEventListener('keydown', onKey, true);
       doc.removeEventListener('mousedown', onPress, true);
-      doc.removeEventListener('scroll', place, true);
+      doc.removeEventListener('scroll', onScroll, true);
       panel.removeEventListener('keydown', onTab);
       view?.removeEventListener('resize', place);
       visual?.removeEventListener('resize', place);

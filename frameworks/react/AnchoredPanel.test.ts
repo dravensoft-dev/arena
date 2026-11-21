@@ -165,7 +165,7 @@ test('a right-to-left panel that would leave the viewport still takes the opposi
   assert.equal(arenaPlacePanel(rect(700, 100, 80, 32), PANEL, VIEWPORT, 'end', 6, 'below', 'rtl').x, 580);
 });
 
-test('a panel taller than the room on its side is capped at that room, so it scrolls instead of covering its anchor', () => {
+test('a panel taller than the room on its side is capped at that room, so it scrolls instead of covering its anchor while one row of room is left', () => {
   const field = rect(20, 100, 200, 40);
   const tall = size(200, 320);
   const placed = arenaPlacePanel(field, tall, size(360, 360), 'start', 6);
@@ -179,4 +179,15 @@ test('a panel that fits its room is not capped, and a visual viewport offset mov
   assert.equal(arenaPlacePanel(TRIGGER, PANEL, VIEWPORT, 'start', 6).maxHeight, null);
   const placed = arenaPlacePanel(rect(0, 210, 100, 40), size(100, 400), rect(0, 200, 800, 300), 'start', 6);
   assert.deepEqual([placed.y, placed.maxHeight], [256, 244]);
+});
+
+test('a cap never goes below one row: with little or no room either side the larger side is kept and the panel is clamped into the box', () => {
+  const tall = size(200, 320);
+  const sliver = arenaPlacePanel(rect(0, 20, 200, 60), tall, size(360, 100), 'start', 6);
+  assert.deepEqual([sliver.y, sliver.side, sliver.maxHeight], [56, 'below', 44], 'a 14px room gave a sliver');
+  const none = arenaPlacePanel(rect(0, 0, 200, 100), tall, size(360, 100), 'start', 6);
+  assert.deepEqual([none.y, none.maxHeight], [56, 44], 'no room left the panel uncapped over its anchor');
+  const larger = arenaPlacePanel(rect(0, 60, 200, 20), tall, size(360, 100), 'start', 6);
+  assert.deepEqual([larger.y, larger.side, larger.maxHeight], [0, 'above', 54], 'the side that reaches the floor was not taken');
+  assert.equal(arenaPlacePanel(rect(0, 0, 200, 100), size(200, 30), size(360, 100), 'start', 6).maxHeight, null, 'a panel shorter than the floor was capped');
 });

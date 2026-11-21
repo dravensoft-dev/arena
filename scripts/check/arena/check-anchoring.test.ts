@@ -6,7 +6,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  ANCHORED, MOUNTED, OPENED, alikeProblems, anchoringProblems, caseUrl, confineExpression, directionScript, initScripts, readExpression,
+  ANCHORED, MOUNTED, OPENED, alikeProblems, anchoringProblems, caseUrl, confineExpression, directionScript, initScripts, readExpression, scrollExpression,
   smallestRow, visualViewportScript, type Anchored, type Reading,
 } from './check-anchoring.ts';
 import { SCOPES } from './check-target-size.ts';
@@ -272,4 +272,37 @@ test('every logical and keyboard case is declared in both layers, flagged alike,
   const boxes = ANCHORED.filter((kase) => kase.visual !== undefined);
   assert.deepEqual([...new Set(boxes.map((kase) => kase.visual?.top))].sort(), [0, 200]);
   for (const kase of [...logical, ...boxes]) assert.ok(kase.alike, `${kase.name} is not compared across layers`);
+});
+
+const crowded = (crowd: 'offset' | 'floor'): Anchored => ({ ...below, name: `K:react:keyboard-${crowd}`, visual: { top: 200, height: 100 }, crowd });
+const settled = { mounted: true, opened: true, painted: true, inside: true } as const;
+
+test('a trigger just under the top of the visual viewport keeps the preferred side, and a panel that flips fails', () => {
+  assert.deepEqual(anchoringProblems(crowded('offset'), { ...settled, side: 'below' }), []);
+  assert.match(anchoringProblems(crowded('offset'), { ...settled, side: 'above' })[0] ?? '', /counted from that top.*opened above it/);
+});
+
+test('a panel with no row of room must be capped, stay inside the box and keep its scroll position', () => {
+  const kept = { capped: true, kept: true, wanted: 10, actual: 10 };
+  assert.deepEqual(anchoringProblems(crowded('floor'), { ...settled, side: 'overlapping', scrolled: kept }), []);
+  assert.match(anchoringProblems(crowded('floor'), { ...settled, side: 'overlapping', scrolled: { ...kept, capped: false } })[0] ?? '', /not capped to scroll/);
+  assert.match(anchoringProblems(crowded('floor'), { ...settled, side: 'overlapping' })[0] ?? '', /not capped to scroll/);
+  assert.match(anchoringProblems(crowded('floor'), { ...settled, side: 'overlapping', scrolled: { capped: true, kept: false, wanted: 10, actual: 0 } })[0] ?? '',
+    /scrolled to 10px and was at 0px/);
+  assert.match(anchoringProblems(crowded('floor'), { ...settled, inside: false, side: 'overlapping', scrolled: kept })[0] ?? '', /leaves the visual viewport/);
+});
+
+test('the crowded cases scroll the panel, place it again through the stubbed visual viewport, and read it back', () => {
+  assert.match(scrollExpression(crowded('floor')), /scrollTop = 10[\s\S]*dispatchEvent\(new Event\('resize'\)\)[\s\S]*kept/);
+  const names = ANCHORED.filter((kase) => kase.crowd !== undefined).map((kase) => kase.name);
+  assert.equal(names.length, 12);
+  assert.ok(names.some((name) => name.startsWith('ArenaCombobox:angular:') && name.endsWith('floor')));
+});
+
+test('a panel whose box never settles is reported as unsettled, not as unopened', () => {
+  const kase = ANCHORED[0]!;
+  const problems = anchoringProblems(kase, { mounted: true, opened: true, unsettled: true });
+  assert.equal(problems.length, 1);
+  assert.match(problems[0]!, /still moving/);
+  assert.doesNotMatch(problems[0]!, /never opened/);
 });

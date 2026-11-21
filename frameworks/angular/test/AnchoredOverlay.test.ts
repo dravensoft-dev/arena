@@ -780,3 +780,48 @@ test('a pane that fits writes no max-height', () => {
     disposeOverlays();
   }
 });
+
+test('a scroll inside a capped pane does not place it again, and a scroll elsewhere keeps its scroll position', () => {
+  const stub = stubVisualViewport(360, 0);
+  const undraw = drawn(100, 40, 320, 800);
+  const { fixture, solo } = renderSolo({ plain: true });
+  solo.anchorRef().nativeElement.setAttribute('data-anchor', '');
+  try {
+    solo.overlay.open();
+    fixture.detectChanges();
+    const panel = panelOf('solo')!;
+    const pane = panel.closest<HTMLElement>('.cdk-overlay-pane')!;
+    const writes: number[] = [];
+    Object.defineProperty(panel, 'scrollTop', { configurable: true, get: () => 30, set: (value: number) => { writes.push(value); } });
+    pane.style.marginTop = '1px';
+    panel.dispatchEvent(new Event('scroll'));
+    assert.equal(pane.style.marginTop, '1px', 'a scroll inside the pane placed it again');
+    assert.deepEqual(writes, [], 'a scroll inside the pane rewrote its scroll position');
+    document.dispatchEvent(new Event('scroll'));
+    assert.equal(pane.style.marginTop, '146px', 'a scroll elsewhere did not place the pane');
+    assert.deepEqual(writes, [30], 'the scroll position was not restored after the cap was rewritten');
+  } finally {
+    undraw();
+    stub.restore();
+    fixture.destroy();
+    disposeOverlays();
+  }
+});
+
+test('a pane with no room either side keeps one row of height inside the visual viewport', () => {
+  const stub = stubVisualViewport(100, 0);
+  const undraw = drawn(20, 60, 320, 800);
+  const { fixture, solo } = renderSolo({ plain: true });
+  solo.anchorRef().nativeElement.setAttribute('data-anchor', '');
+  try {
+    solo.overlay.open();
+    fixture.detectChanges();
+    assert.equal(panelOf('solo')!.style.maxHeight, '44px', 'the cap fell below one row');
+    assert.equal(panelOf('solo')!.closest<HTMLElement>('.cdk-overlay-pane')!.style.marginTop, '56px', 'the pane was not clamped into the box');
+  } finally {
+    undraw();
+    stub.restore();
+    fixture.destroy();
+    disposeOverlays();
+  }
+});

@@ -5,8 +5,9 @@
  * align and lines the panel up with the named anchor; a pin or a width forces a flip; rows are
  * measured against each density floor. A right-to-left case with a centred trigger reads start and
  * end as the logical edges; a keyboard case stubs a shrunk, panned visual viewport and keeps the
- * panel inside it; each such case must land alike in React and Angular. A wait is for a condition
- * with a declared deadline, never a span. */
+ * panel inside it, on the preferred side when the trigger sits just under the box top, and capped at
+ * one row, scroll kept, when no side has a row of room; each such case must land alike in React and
+ * Angular. A wait is for a condition with a declared deadline, never a span. */
 
 import { withTimeout } from '../../utils/with-timeout.ts';
 import { deadline, type Deadline } from '../../lib/arena/deadline.ts';
@@ -44,15 +45,21 @@ export const OPENED: Deadline = deadline('anchoring:opened', 5_000,
   'the panel is shown and placed after the press, in an effect or an after-render hook, and a '
   + 'transition may run before its box settles');
 
+export const SETTLED: Deadline = deadline('anchoring:settled', 5_000,
+  'a panel is placed again by a resize observer and a visual viewport event after it opens, and its box '
+  + 'is read only once it has not moved across two animation frames');
+
 export type Edge = 'below' | 'above';
 
 export type Aligned = { anchor: string; align: 'start' | 'end' };
 
 export type VisualBox = { top: number; height: number };
 
-export type Anchored = { name: string; page: string; trigger: string; panel: string; open: 'click' | 'focus'; prefer: Edge; rows?: string; edge?: Aligned; seed?: string; pin?: Aligned['align']; width?: number; rtl?: true; centred?: true; visual?: VisualBox; alike?: true };
+export type Anchored = { name: string; page: string; trigger: string; panel: string; open: 'click' | 'focus'; prefer: Edge; rows?: string; edge?: Aligned; seed?: string; pin?: Aligned['align']; width?: number; rtl?: true; centred?: true; visual?: VisualBox; crowd?: 'offset' | 'floor'; alike?: true };
 
 export type EdgeReading = { wanted: number; actual: number };
+
+export type Scrolled = { capped: boolean; kept: boolean; wanted: number; actual: number };
 
 export type PanelRect = { left: number; top: number; width: number; height: number };
 
@@ -68,6 +75,10 @@ const MENU = '[aria-haspopup="menu"]';
 const FITS_NEITHER = 208;
 
 const KEYBOARD_BOXES: VisualBox[] = [{ top: 0, height: 440 }, { top: 200, height: 440 }];
+
+const CROWDED_BOXES: Record<'offset' | 'floor', VisualBox> = { offset: { top: 200, height: 120 }, floor: { top: 200, height: 80 } };
+
+const SCROLLED_TO = 10;
 
 const PAGE_HEIGHT = 760;
 
@@ -105,9 +116,14 @@ function keyboard(layer: 'react' | 'angular', root: string): Anchored[] {
     { page: menu, trigger: MENU, panel: '[role="menu"]', component: 'ArenaMenu' },
     { page: popover, trigger: '[aria-haspopup="dialog"]', panel: '[role="dialog"]', component: 'ArenaPopover' },
   ];
-  return kinds.flatMap(({ component, ...rest }) => KEYBOARD_BOXES.map((visual) => ({
+  const sets = [...kinds, { page: `${root}/forms/arena-combobox/ArenaCombobox.demo.generated.html`, trigger: '[role="combobox"]', panel: '.arena-combobox__panel', component: 'ArenaCombobox' }];
+  const plain = kinds.flatMap(({ component, ...rest }) => KEYBOARD_BOXES.map((visual) => ({
     ...rest, name: `${component}:${layer}:keyboard-${visual.top}`, open: 'click', prefer: 'below', visual, alike: true,
   } satisfies Anchored)));
+  const crowded = sets.flatMap(({ component, ...rest }) => (['offset', 'floor'] as const).map((crowd) => ({
+    ...rest, name: `${component}:${layer}:keyboard-${crowd}`, open: 'click', prefer: 'below', visual: CROWDED_BOXES[crowd], crowd, alike: true,
+  } satisfies Anchored)));
+  return [...plain, ...crowded];
 }
 
 export const ANCHORED: Anchored[] = [
@@ -136,12 +152,14 @@ export type Reading = {
   changed?: Lost[];
   mounted: boolean;
   opened: boolean;
+  unsettled?: boolean;
   painted?: boolean;
   inside?: boolean;
   side?: Edge | 'overlapping';
   rows?: RowReading[];
   edge?: EdgeReading;
   rect?: PanelRect;
+  scrolled?: Scrolled;
 };
 
 export function caseUrl(origin: string, kase: Anchored) {
@@ -192,7 +210,7 @@ export function confineExpression(kase: Anchored) {
   const pin = lane === null ? '' : `Object.assign(stage.style, { display: 'flex', justifyContent: '${lane}' });`;
   const visual = kase.visual;
   const place = visual === undefined ? `${edge}: '${EDGE_GAP}px'`
-    : kase.prefer === 'below' ? `top: (${visual.top + visual.height} - tall - ${EDGE_GAP}) + 'px'` : `top: '${visual.top + EDGE_GAP}px'`;
+    : kase.prefer === 'below' && kase.crowd === undefined ? `top: (${visual.top + visual.height} - tall - ${EDGE_GAP}) + 'px'` : `top: '${visual.top + EDGE_GAP}px'`;
   return `(() => {
     const trigger = document.querySelector(${JSON.stringify(kase.trigger)});
     const stage = trigger && trigger.closest('.pg-stage');
@@ -212,6 +230,33 @@ export function openExpression(kase: Anchored) {
 
 export function smallestRow(heights: number[]) {
   return heights.length ? Math.min(...heights) : 0;
+}
+
+export function scrollExpression(kase: Anchored) {
+  return `(() => {
+    const panel = document.querySelector(${JSON.stringify(kase.panel)});
+    const capped = panel.scrollHeight > panel.clientHeight && getComputedStyle(panel).overflowY === 'auto';
+    panel.scrollTop = ${SCROLLED_TO};
+    const wanted = panel.scrollTop;
+    window.visualViewport.dispatchEvent(new Event('resize'));
+    return { capped, kept: Math.abs(panel.scrollTop - wanted) <= 1 && wanted > 0, wanted, actual: panel.scrollTop };
+  })()`;
+}
+
+export function settleExpression(kase: Anchored, bound: Deadline) {
+  return `new Promise((resolve) => {
+    const until = Date.now() + ${bound.ms};
+    const panel = document.querySelector(${JSON.stringify(kase.panel)});
+    const key = () => { const b = panel.getBoundingClientRect(); return [b.left, b.top, b.width, b.height].join(); };
+    let last = key();
+    const tick = () => requestAnimationFrame(() => requestAnimationFrame(() => {
+      const now = key();
+      if (now === last) resolve(true);
+      else if (Date.now() >= until) resolve(false);
+      else { last = now; tick(); }
+    }));
+    tick();
+  })`;
 }
 
 export function readExpression(kase: Anchored, scopes: Scope[] = SCOPES) {
@@ -262,6 +307,10 @@ export function anchoringProblems(kase: Anchored, reading: Reading) {
     return [`${kase.name}: ${OPENED.name} saw no laid-out ${kase.panel} within ${OPENED.ms}ms after the `
       + `trigger was ${kase.open === 'click' ? 'pressed' : 'focused'}, so the panel never opened with a box`];
   }
+  if (reading.unsettled) {
+    return [`${kase.name}: ${SETTLED.name} saw the panel's box still moving after ${SETTLED.ms}ms, so it was never `
+      + 'placed for good and was not read'];
+  }
   const problems: string[] = [];
   if (!reading.painted) {
     problems.push(`${kase.name}: the panel is not what paints at its own centre, so the clipped, `
@@ -272,7 +321,20 @@ export function anchoringProblems(kase: Anchored, reading: Reading) {
       : `visual viewport (${kase.visual.top}px to ${kase.visual.top + kase.visual.height}px) a soft keyboard leaves`}`);
   }
   const away: Edge = kase.prefer === 'below' ? 'above' : 'below';
-  if (reading.side !== away) {
+  if (kase.crowd === 'offset') {
+    if (reading.side !== kase.prefer) {
+      problems.push(`${kase.name}: the trigger sits a few px under the top of the visual viewport, so the room over it is `
+        + `counted from that top and the panel stays ${kase.prefer} it, but it opened ${reading.side} it`);
+    }
+  } else if (kase.crowd === 'floor') {
+    if (!reading.scrolled?.capped) {
+      problems.push(`${kase.name}: the visual viewport leaves less than one row on either side of the trigger and the panel `
+        + 'is not capped to scroll inside it');
+    } else if (!reading.scrolled.kept) {
+      problems.push(`${kase.name}: the panel scrolled to ${reading.scrolled.wanted}px and was at ${reading.scrolled.actual}px `
+        + 'once it was placed again, so placing it clears the scroll position');
+    }
+  } else if (reading.side !== away) {
     problems.push(`${kase.name}: the trigger sits at the ${kase.prefer === 'below' ? 'bottom' : 'top'} edge and `
       + `the panel opened ${reading.side} it rather than flipping ${away}`);
   }
@@ -329,7 +391,10 @@ async function readIn(cdp: Cdp, sessionId: string, url: string, kase: Anchored):
   await ev(openExpression(kase));
   const opened = await ev(waitExpression(kase.panel, OPENED));
   if (!opened) return { mounted: true, opened: false };
-  return { mounted: true, opened: true, ...(await ev(readExpression(kase))) };
+  if (!(await ev(settleExpression(kase, SETTLED)))) return { mounted: true, opened: true, unsettled: true };
+  const scrolled = kase.crowd === 'floor' ? await ev(scrollExpression(kase)) : undefined;
+  if (scrolled !== undefined && !(await ev(settleExpression(kase, SETTLED)))) return { mounted: true, opened: true, unsettled: true };
+  return { mounted: true, opened: true, ...(await ev(readExpression(kase))), ...(scrolled === undefined ? {} : { scrolled }) };
 }
 
 async function readCase(cdp: Cdp, url: string, kase: Anchored): Promise<Reading> {
@@ -371,12 +436,14 @@ async function main() {
   }
   const measured = ANCHORED.filter((kase) => kase.rows !== undefined).length;
   console.log(`check-anchoring: ${ANCHORED.length} panel(s) opened from a trigger pinned to a clipped, `
-    + 'transformed edge, and each painted whole, inside the viewport, on the far side of its trigger; '
+    + 'transformed edge, and each painted whole and inside the viewport, on the far side of its trigger unless no row of room is left on either side; '
     + `${ANCHORED.filter((kase) => kase.edge !== undefined).length} lined up with the edge they name, `
     + `${ANCHORED.filter((kase) => kase.pin !== undefined).length} of them pinned to a horizontal edge so the aligned panel had to flip, `
     + `${ANCHORED.filter((kase) => kase.width !== undefined).length} in a viewport narrower than the panel plus its anchor so it fit neither alignment; `
     + `${ANCHORED.filter((kase) => kase.rtl !== undefined).length} read right to left from a centred trigger, start and end on the logical edge; `
-    + `${ANCHORED.filter((kase) => kase.visual !== undefined).length} stayed inside a visual viewport a soft keyboard shrinks; `
+    + `${ANCHORED.filter((kase) => kase.visual !== undefined).length} stayed inside a visual viewport a soft keyboard shrinks, `
+    + `${ANCHORED.filter((kase) => kase.crowd === 'offset').length} of them with the trigger under its panned top and `
+    + `${ANCHORED.filter((kase) => kase.crowd === 'floor').length} with no row of room, capped and keeping their scroll; `
     + `${ANCHORED.filter((kase) => kase.alike !== undefined).length / 2} placed alike by React and Angular within ${ALIKE_PX}px; `
     + `the rows of ${measured} clear the floor of every density scope`);
 }

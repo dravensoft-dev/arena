@@ -124,6 +124,7 @@ export class ArenaAnchoredOverlay {
       return;
     }
     const panel = this.panelElement();
+    const kept = panel?.scrollTop ?? 0;
     if (panel) {
       panel.style.maxHeight = '';
       panel.style.overflowY = '';
@@ -137,6 +138,7 @@ export class ArenaAnchoredOverlay {
     if (panel && placed.maxHeight !== null) {
       panel.style.maxHeight = `${placed.maxHeight}px`;
       panel.style.overflowY = 'auto';
+      panel.scrollTop = kept;
     }
     strategy.left(`${placed.x}px`).top(`${placed.y}px`);
     ref.updatePosition();
@@ -231,13 +233,17 @@ export class ArenaAnchoredOverlay {
     const visual = this.doc.defaultView?.visualViewport;
     const view = this.doc.defaultView;
     const replace = (): void => this.place(ref);
-    this.doc.addEventListener('scroll', replace, true);
+    const onScroll = (event: Event): void => {
+      if (event.target instanceof Node && ref.overlayElement.contains(event.target)) return;
+      replace();
+    };
+    this.doc.addEventListener('scroll', onScroll, true);
     view?.addEventListener('resize', replace);
     visual?.addEventListener('resize', replace);
     visual?.addEventListener('scroll', replace);
     this.detach = () => {
       observer?.disconnect();
-      this.doc.removeEventListener('scroll', replace, true);
+      this.doc.removeEventListener('scroll', onScroll, true);
       view?.removeEventListener('resize', replace);
       visual?.removeEventListener('resize', replace);
       visual?.removeEventListener('scroll', replace);
