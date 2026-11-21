@@ -39,7 +39,7 @@ const hasText = (children: React.ReactNode) => React.Children.toArray(children)
 
 export function ArenaLink({ className, children, href, external = false, download = false, rel, target, onNavigate }: ArenaLinkProps) {
   if (!href?.trim()) throw new Error('ArenaLink: `href` is required, and is where the link goes: an anchor with no address is not a link');
-  if (!hasText(children)) throw new Error('ArenaLink: `content` is required, and is the link text: a link with no text has no name');
+  if (!hasText(children)) throw new Error('ArenaLink: `children` is required, and is the link text: a link with no text has no name');
   const locale = useArenaLocale();
   const styles = arenaLinkStyles();
   const routed = arenaLinkRoutes(external, download, target);

@@ -1,7 +1,8 @@
 /* contracts/api/AGENTS.md requires a guarded name to be refused when it is blank AFTER TRIMMING:
  * a name of nothing but spaces satisfies a falsiness test and names nothing, and it is the one
- * input the guard exists to catch. The set is derived from the contracts rather than listed here,
- * so an eighth guarded name joins by being declared. */
+ * input the guard exists to catch. Each guarded member is refused on its own, in a render that
+ * blanks that member only, and the message names it. The set is derived from the contracts
+ * rather than listed here, so a guarded name joins by being declared. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
@@ -51,41 +52,43 @@ const CONTRACTS = join(REACT_COMPONENTS, '../../../contracts/api/components');
 const BLANK = '   ';
 
 const WITH_A_BLANK_NAME = new Map([
-  ['ArenaSideNav', () => <ArenaSideNav ariaLabel={BLANK}><ArenaSideNavItem id="a" label="Alpha" /></ArenaSideNav>],
-  ['ArenaSideNavSection', () => <ArenaSideNavSection label={BLANK}><ArenaSideNavItem id="a" label="Alpha" /></ArenaSideNavSection>],
-  ['ArenaRadioGroup', () => <ArenaRadioGroup ariaLabel={BLANK} value="a" />],
-  ['ArenaCheckbox', () => <ArenaCheckbox label={BLANK} />],
-  ['ArenaCheckboxGroup', () => <ArenaCheckboxGroup ariaLabel={BLANK} />],
-  ['ArenaCombobox', () => <ArenaCombobox label={BLANK} options={[]} />],
-  ['ArenaMultiSelect', () => <ArenaMultiSelect label={BLANK} options={[]} />],
-  ['ArenaBreadcrumbs', () => <ArenaBreadcrumbs ariaLabel={BLANK} items={[{ label: 'Home' }]} />],
-  ['ArenaActivityFeed', () => <ArenaActivityFeed label={BLANK} items={[]} />],
-  ['ArenaPeopleList', () => <ArenaPeopleList label={BLANK}><ArenaPersonRow name="Ada" /></ArenaPeopleList>],
-  ['ArenaPersonRow', () => <ArenaPersonRow name={BLANK} />],
-  ['ArenaBoard', () => <ArenaBoard label={BLANK}><ArenaBoardColumn title="To do" /></ArenaBoard>],
-  ['ArenaBoardColumn', () => <ArenaBoardColumn title={BLANK} />],
-  ['ArenaTable', () => <ArenaTable label={BLANK} columns={[{ header: 'A' }]} />],
-  ['ArenaScroller', () => <ArenaScroller label={BLANK}><span>One</span></ArenaScroller>],
-  ['ArenaSection', () => <ArenaSection title={BLANK}><span>One</span></ArenaSection>],
-  ['ArenaFieldset', () => <ArenaFieldset legend={BLANK}><span>One</span></ArenaFieldset>],
-  ['ArenaHero', () => <ArenaHero title={BLANK} />],
-  ['ArenaPagination', () => <ArenaPagination ariaLabel={BLANK} page={1} pageCount={3} />],
-  ['ArenaPopover', () => <ArenaPopover label={BLANK} trigger={<button type="button">Filters</button>}><p>Only failing builds.</p></ArenaPopover>],
-  ['ArenaSheet', () => <ArenaSheet open title={BLANK}>Two line items.</ArenaSheet>],
-  ['ArenaBottomNav', () => <ArenaBottomNav ariaLabel={BLANK} />],
-  ['ArenaSkipLink', () => <ArenaSkipLink label={BLANK} />],
-  ['ArenaFileInput', () => <ArenaFileInput label={BLANK} />],
-  ['ArenaNumberField', () => <ArenaNumberField label={BLANK} />],
-  ['ArenaSlider', () => <ArenaSlider label={BLANK} />],
-  ['ArenaPinInput', () => <ArenaPinInput label={BLANK} />],
-  ['ArenaFilterBar', () => <ArenaFilterBar label={BLANK}><select aria-label="Region" /></ArenaFilterBar>],
-  ['ArenaLink', () => <ArenaLink href={BLANK}>Release notes</ArenaLink>],
-  ['ArenaMeter', () => <ArenaMeter label={BLANK} value={1} />],
-  ['ArenaAccordionItem', () => <ArenaAccordionItem value={BLANK} label={BLANK} />],
-  ['ArenaStepper', () => <ArenaStepper ariaLabel={BLANK} steps={[]} />],
-  ['ArenaTimeline', () => <ArenaTimeline label={BLANK} items={[]} />],
-  ['ArenaSplitButton', () => <ArenaSplitButton label={BLANK} menuLabel={BLANK} items={[]}>Deploy</ArenaSplitButton>],
-  ['ArenaTreeView', () => <ArenaTreeView label={BLANK} nodes={[]} />],
+  ['ArenaSideNav.ariaLabel', () => <ArenaSideNav ariaLabel={BLANK}><ArenaSideNavItem id="a" label="Alpha" /></ArenaSideNav>],
+  ['ArenaSideNavSection.label', () => <ArenaSideNavSection label={BLANK}><ArenaSideNavItem id="a" label="Alpha" /></ArenaSideNavSection>],
+  ['ArenaRadioGroup.ariaLabel', () => <ArenaRadioGroup ariaLabel={BLANK} value="a" />],
+  ['ArenaCheckbox.label', () => <ArenaCheckbox label={BLANK} />],
+  ['ArenaCheckboxGroup.ariaLabel', () => <ArenaCheckboxGroup ariaLabel={BLANK} />],
+  ['ArenaCombobox.label', () => <ArenaCombobox label={BLANK} options={[]} />],
+  ['ArenaMultiSelect.label', () => <ArenaMultiSelect label={BLANK} options={[]} />],
+  ['ArenaBreadcrumbs.ariaLabel', () => <ArenaBreadcrumbs ariaLabel={BLANK} items={[{ label: 'Home' }]} />],
+  ['ArenaActivityFeed.label', () => <ArenaActivityFeed label={BLANK} items={[]} />],
+  ['ArenaPeopleList.label', () => <ArenaPeopleList label={BLANK}><ArenaPersonRow name="Ada" /></ArenaPeopleList>],
+  ['ArenaPersonRow.name', () => <ArenaPersonRow name={BLANK} />],
+  ['ArenaBoard.label', () => <ArenaBoard label={BLANK}><ArenaBoardColumn title="To do" /></ArenaBoard>],
+  ['ArenaBoardColumn.title', () => <ArenaBoardColumn title={BLANK} />],
+  ['ArenaTable.label', () => <ArenaTable label={BLANK} columns={[{ header: 'A' }]} />],
+  ['ArenaScroller.label', () => <ArenaScroller label={BLANK}><span>One</span></ArenaScroller>],
+  ['ArenaSection.title', () => <ArenaSection title={BLANK}><span>One</span></ArenaSection>],
+  ['ArenaFieldset.legend', () => <ArenaFieldset legend={BLANK}><span>One</span></ArenaFieldset>],
+  ['ArenaHero.title', () => <ArenaHero title={BLANK} />],
+  ['ArenaPagination.ariaLabel', () => <ArenaPagination ariaLabel={BLANK} page={1} pageCount={3} />],
+  ['ArenaPopover.label', () => <ArenaPopover label={BLANK} trigger={<button type="button">Filters</button>}><p>Only failing builds.</p></ArenaPopover>],
+  ['ArenaSheet.title', () => <ArenaSheet open title={BLANK}>Two line items.</ArenaSheet>],
+  ['ArenaBottomNav.ariaLabel', () => <ArenaBottomNav ariaLabel={BLANK} />],
+  ['ArenaSkipLink.label', () => <ArenaSkipLink label={BLANK} />],
+  ['ArenaFileInput.label', () => <ArenaFileInput label={BLANK} />],
+  ['ArenaNumberField.label', () => <ArenaNumberField label={BLANK} />],
+  ['ArenaSlider.label', () => <ArenaSlider label={BLANK} />],
+  ['ArenaPinInput.label', () => <ArenaPinInput label={BLANK} />],
+  ['ArenaFilterBar.label', () => <ArenaFilterBar label={BLANK}><select aria-label="Region" /></ArenaFilterBar>],
+  ['ArenaLink.href', () => <ArenaLink href={BLANK}>Release notes</ArenaLink>],
+  ['ArenaMeter.label', () => <ArenaMeter label={BLANK} value={1} />],
+  ['ArenaAccordionItem.value', () => <ArenaAccordionItem value={BLANK} label="Details" />],
+  ['ArenaAccordionItem.label', () => <ArenaAccordionItem value="details" label={BLANK} />],
+  ['ArenaStepper.ariaLabel', () => <ArenaStepper ariaLabel={BLANK} steps={[]} />],
+  ['ArenaTimeline.label', () => <ArenaTimeline label={BLANK} items={[]} />],
+  ['ArenaSplitButton.label', () => <ArenaSplitButton label={BLANK} menuLabel="More deploy options" items={[]}>Deploy</ArenaSplitButton>],
+  ['ArenaSplitButton.menuLabel', () => <ArenaSplitButton label="Deploy" menuLabel={BLANK} items={[]}>Deploy</ArenaSplitButton>],
+  ['ArenaTreeView.label', () => <ArenaTreeView label={BLANK} nodes={[]} />],
 ]);
 
 export function guardedNames(dir: string, read = readFileSync, list = readdirSync) {
@@ -102,25 +105,26 @@ export function guardedNames(dir: string, read = readFileSync, list = readdirSyn
   return found;
 }
 
-test('a name of nothing but spaces is refused, which is what the contract asks of a guard', () => {
+test('a name of nothing but spaces is refused, which is what the contract asks of a guard, naming it', () => {
   const declared = guardedNames(CONTRACTS);
   assert.ok(declared.length > 0, 'no contract declares a guarded name -- this suite matched nothing, so it proves nothing');
 
   for (const { component, member } of declared) {
-    const render = WITH_A_BLANK_NAME.get(component);
+    const render = WITH_A_BLANK_NAME.get(`${component}.${member}`);
     assert.ok(render, `${component}.${member} is a guarded name and this suite has no case for it -- add one`);
     assert.throws(
       () => renderToStaticMarkup(render()),
-      (error) => error instanceof Error && error.message.startsWith(`${component}:`),
-      `${component} accepted a \`${member}\` of nothing but spaces. A guard trims before it decides, `
+      (error) => error instanceof Error && error.message.startsWith(`${component}:`)
+        && error.message.includes('`' + member + '`'),
+      `${component} accepted a \`${member}\` of nothing but spaces, or refused it without naming it. A guard trims before it decides, `
       + 'or it misses the one value a present-but-useless name arrives as.',
     );
   }
 });
 
 test('the cases are the guarded names and nothing else, so a retired one cannot sit here unnoticed', () => {
-  const declared = new Set(guardedNames(CONTRACTS).map((g) => g.component));
-  for (const component of WITH_A_BLANK_NAME.keys()) {
-    assert.ok(declared.has(component), `${component} has a case here and declares no guarded name -- stale, delete it`);
+  const declared = new Set(guardedNames(CONTRACTS).map((g) => `${g.component}.${g.member}`));
+  for (const key of WITH_A_BLANK_NAME.keys()) {
+    assert.ok(declared.has(key), `${key} has a case here and declares no guarded name -- stale, delete it`);
   }
 });

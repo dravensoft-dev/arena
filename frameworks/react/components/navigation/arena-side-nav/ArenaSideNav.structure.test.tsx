@@ -42,7 +42,7 @@ test('a section with no children throws -- a childless section is not a legal sh
   assert.throws(
     // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
     () => renderToStaticMarkup(<ArenaSideNav ariaLabel="Primary"><ArenaSideNavSection label="Empty" /></ArenaSideNav>),
-    /ArenaSideNavSection: a section with no children is not a legal shape/,
+    /ArenaSideNavSection: `children` is required, and a section with no children is not a legal shape/,
   );
 });
 
@@ -50,7 +50,7 @@ test('a section whose only child is a false conditional throws too -- count() co
   assert.throws(
     () => renderToStaticMarkup(
       <ArenaSideNav ariaLabel="Primary"><ArenaSideNavSection label="Admin">{false && <ArenaSideNavItem id="a" label="A" />}</ArenaSideNavSection></ArenaSideNav>),
-    /ArenaSideNavSection: a section with no children is not a legal shape/,
+    /ArenaSideNavSection: `children` is required, and a section with no children is not a legal shape/,
   );
 });
 

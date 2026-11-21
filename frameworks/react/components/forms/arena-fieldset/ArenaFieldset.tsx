@@ -32,7 +32,7 @@ export function ArenaFieldset({ className, legend, children, hint, error, disabl
     throw new Error('ArenaFieldset: `legend` is required, and names the set of fields it draws');
   }
   if (React.Children.toArray(children).length === 0) {
-    throw new Error('ArenaFieldset: a fieldset with no children is not a legal shape, because its legend would name nothing');
+    throw new Error('ArenaFieldset: `children` is required, and a fieldset with no children is not a legal shape, because its legend would name nothing');
   }
   const styles = arenaFieldsetStyles({ state: error ? 'error' : 'neutral', disabled });
   return (

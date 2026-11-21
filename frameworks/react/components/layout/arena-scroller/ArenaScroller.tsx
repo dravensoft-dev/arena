@@ -32,7 +32,7 @@ export function ArenaScroller({ className,
     throw new Error('ArenaScroller: `label` is required, and names the row a reader lands on');
   }
   if (React.Children.toArray(children).length === 0) {
-    throw new Error('ArenaScroller: a row with no children is a tab stop over nothing');
+    throw new Error('ArenaScroller: `children` is required, and a row with no children is a tab stop over nothing');
   }
 
   return (
