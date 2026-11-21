@@ -54,16 +54,20 @@ export const GLYPH_SYMBOL = 'ph-bold-bell';
 export const NAV_SYMBOL = 'ph-fill-house';
 export const REGULAR_SYMBOL = 'ph-regular-star';
 
+export const STATE_SHEET = 'css/vocabulary/state.css';
+
 export const SOURCES: Record<string, Record<string, string>> = {
   react: {
     'src/App.tsx': "import { ArenaButton, ArenaTable } from '@dravensoft/arena-react';\n"
       + "export const App = () => <><ArenaButton icon=\"ph-bold ph-bell\">Go</ArenaButton><ArenaButton className=\"arena-emphasis-secondary\" icon=\"ph ph-star\">Star</ArenaButton></>;\n",
     'src/Nav.tsx': "import { ArenaSideNavItem } from '@dravensoft/arena-react';\n"
       + "export const Nav = () => <ArenaSideNavItem icon=\"ph-bold ph-house\" active />;\n",
+    'src/Toggle.tsx': 'export const Toggle = () => <button type="button" aria-pressed="false" className="arena-interactive arena-focus">Notify</button>;\n',
     'src/Old.txt': 'not a source extension, so the walk never reads it\n',
   },
   angular: {
     'src/app.html': '<arena-button icon="ph-bold ph-bell">Go</arena-button>\n<arena-button class="arena-emphasis-secondary" icon="ph ph-star">Star</arena-button>\n<arena-table></arena-table>\n',
+    'src/toggle.html': '<button type="button" aria-pressed="false" class="arena-interactive arena-focus">Notify</button>\n',
     'src/nav.html': '<arena-side-nav-item icon="ph-bold ph-house" [active]="true"></arena-side-nav-item>\n',
   },
 };
@@ -757,6 +761,9 @@ export function packageSheetProblems(layer: string, run: CliRun, edited: CliRun,
   }
   if (!run.pkg.includes(`/* ${packageName}/css/vocabulary/`)) {
     problems.push(`${layer}: ${PACKAGE_SHEET} carries no vocabulary sheet`);
+  }
+  if (!run.pkg.includes(`/* ${packageName}/${STATE_SHEET} */`)) {
+    problems.push(`${layer}: ${PACKAGE_SHEET} carries no ${packageName}/${STATE_SHEET}, so the state classes of own markup draw nothing`);
   }
   if (/@import\b/.test(run.pkg)) {
     problems.push(`${layer}: ${PACKAGE_SHEET} holds an @import, so a page that links it would request a package specifier relative to itself`);
