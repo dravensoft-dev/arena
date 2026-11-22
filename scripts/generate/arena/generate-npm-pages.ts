@@ -6,7 +6,7 @@
  * pages names no layer: `check:layer-independence` refuses a page under `frameworks/<A>/` that
  * cites layer B, and the test here holds every shared region to that. */
 
-import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
@@ -293,49 +293,67 @@ function inSentences(lead: string, names: string[]) {
 
 const answerText = (slot: ColorSlot) => `\`${slot.default}\`${slot.level ? ` at \`${slot.level}\`` : ''}`;
 
-export function slotGroupSections(declarations: SlotDeclarations, catalogue: SlotCatalogue) {
+export const SLOT_GROUP_DIR = 'skills/design/references/color-slots';
+
+const groupHome = (group: string, declarations: SlotDeclarations) => Object.entries(declarations.members ?? {})
+  .filter(([, m]) => m.group === group).map(([component]) => component);
+
+export function slotGroupTable(declarations: SlotDeclarations) {
+  const rows = Object.keys(declarations.groups ?? {}).map((group) => `| [\`${group}\`](./color-slots/${group}.md) | ${groupHome(group, declarations).map((component) => `\`${component}\``).join(', ')} |`);
+  return ['| group | home of |', '| --- | --- |', ...rows].join('\n');
+}
+
+export function slotGroupPage(group: string, declarations: SlotDeclarations, catalogue: SlotCatalogue) {
   const members = Object.entries(declarations.members ?? {});
   const slots = Object.entries(catalogue.slots);
-  return Object.entries(declarations.groups ?? {}).map(([group, decl]) => {
-    const home = members.filter(([, m]) => m.group === group).map(([component]) => `\`${component}\``);
-    const readers = members.filter(([, m]) => m.group !== group).flatMap(([component, m]) => Object.entries(m.parts ?? {})
-      .filter(([, to]) => isMemberDecl(to) && to.to.split('.')[0] === group).map(([part]) => `\`${component}.${part}\``));
-    const rows = Object.entries(decl.parts ?? {}).flatMap(([part, p]) => {
-      const options = p.options === undefined ? [undefined] : Array.isArray(p.options) ? p.options : Object.keys(p.options);
-      return options.map((option) => {
-        const own = slots.filter(([, s]) => s.group === group && s.part === part && s.option === option).map(([, s]) => s);
-        const optionCell = option === undefined ? '' : `\`${option}\``;
-        if (own.length === 0) {
-          const declared = (p.options !== undefined && !Array.isArray(p.options) ? p.options[option as string]?.states : undefined) ?? p.states;
-          const states = typeof declared === 'string' ? declarations.stateSets[declared] ?? [] : declared ?? [];
-          return `| \`${part}\` | ${optionCell} | none | ${states.join(', ')} | Arena paints it, and no slot answers it |  |`;
-        }
-        const properties = SLOT_PROPERTIES.filter((property) => own.some((s) => s.property === property));
-        const states = SLOT_STATES.filter((state) => own.some((s) => s.state === state));
-        const at = (state: string) => properties.filter((property) => property !== 'icon').flatMap((property) => {
-          const slot = own.find((s) => s.property === property && s.state === state);
-          return slot?.default === undefined || slot.derive !== undefined ? [] : [`${property} ${answerText(slot)}`];
-        }).join(', ');
-        return `| \`${part}\` | ${optionCell} | ${properties.join(', ')} | ${states.join(', ')} | ${at('rest')} | ${at('selected')} |`;
-      });
+  const decl = declarations.groups?.[group];
+  if (!decl) throw new Error(`generate-npm-pages: no colour-slot group called ${group}`);
+  const home = members.filter(([, m]) => m.group === group).map(([component]) => `\`${component}\``);
+  const readers = members.filter(([, m]) => m.group !== group).flatMap(([component, m]) => Object.entries(m.parts ?? {})
+    .filter(([, to]) => isMemberDecl(to) && to.to.split('.')[0] === group).map(([part]) => `\`${component}.${part}\``));
+  const rows = Object.entries(decl.parts ?? {}).flatMap(([part, p]) => {
+    const options = p.options === undefined ? [undefined] : Array.isArray(p.options) ? p.options : Object.keys(p.options);
+    return options.map((option) => {
+      const own = slots.filter(([, s]) => s.group === group && s.part === part && s.option === option).map(([, s]) => s);
+      const optionCell = option === undefined ? '' : `\`${option}\``;
+      if (own.length === 0) {
+        const declared = (p.options !== undefined && !Array.isArray(p.options) ? p.options[option as string]?.states : undefined) ?? p.states;
+        const states = typeof declared === 'string' ? declarations.stateSets[declared] ?? [] : declared ?? [];
+        return `| \`${part}\` | ${optionCell} | none | ${states.join(', ')} | Arena paints it, and no slot answers it |  |`;
+      }
+      const properties = SLOT_PROPERTIES.filter((property) => own.some((s) => s.property === property));
+      const states = SLOT_STATES.filter((state) => own.some((s) => s.state === state));
+      const at = (state: string) => properties.filter((property) => property !== 'icon').flatMap((property) => {
+        const slot = own.find((s) => s.property === property && s.state === state);
+        return slot?.default === undefined || slot.derive !== undefined ? [] : [`${property} ${answerText(slot)}`];
+      }).join(', ');
+      return `| \`${part}\` | ${optionCell} | ${properties.join(', ')} | ${states.join(', ')} | ${at('rest')} | ${at('selected')} |`;
     });
-    const hovers = slots.filter(([, s]) => s.group === group && !['rest', 'selected'].includes(s.state) && s.property !== 'icon'
-      && s.default !== undefined && s.derive === undefined).map(([name, s]) => `\`${name}\` reads ${answerText(s)}`);
-    const ownDefaults = Object.entries(catalogue.members).flatMap(([key, m]) => Object.entries(m.defaults ?? {})
-      .filter(([slot]) => catalogue.slots[slot]?.group === group).map(([slot, value]) => `\`${key}\` paints \`${slot}\` with \`${value}\``));
-    const prose = [
-      home.length === 0 ? '' : inSentences('Home of', home),
-      readers.length === 0 ? '' : inSentences('Also read by', readers),
-    ].filter(Boolean).join(' ');
-    return [
-      `### \`${group}\``, '',
-      ...(prose ? [prose, ''] : []),
-      '| part | option | answers | states | silent at rest | silent when selected |', '| --- | --- | --- | --- | --- | --- |', ...rows,
-      ...(hovers.length === 0 ? [] : ['', inSentences('Under the pointer,', hovers)]),
-      ...(ownDefaults.length === 0 ? [] : ['', inSentences('While its slot is silent,', ownDefaults)]),
-    ].join('\n');
-  }).join('\n\n');
+  });
+  const hovers = slots.filter(([, s]) => s.group === group && !['rest', 'selected'].includes(s.state) && s.property !== 'icon'
+    && s.default !== undefined && s.derive === undefined).map(([name, s]) => `\`${name}\` reads ${answerText(s)}`);
+  const ownDefaults = Object.entries(catalogue.members).flatMap(([key, m]) => Object.entries(m.defaults ?? {})
+    .filter(([slot]) => catalogue.slots[slot]?.group === group).map(([slot, value]) => `\`${key}\` paints \`${slot}\` with \`${value}\``));
+  const prose = [
+    home.length === 0 ? '' : inSentences('Home of', home),
+    readers.length === 0 ? '' : inSentences('Also read by', readers),
+  ].filter(Boolean).join(' ');
+  return [
+    `# Colouring the \`${group}\` group`, '',
+    `Read this when your style plugin answers a slot of the \`${group}\` group. [\`color-slots.md\`](../color-slots.md) holds the routes, the rules and what a silent slot paints.`, '',
+    ...(prose ? [prose, ''] : []),
+    '| part | option | answers | states | silent at rest | silent when selected |', '| --- | --- | --- | --- | --- | --- |', ...rows,
+    ...(hovers.length === 0 ? [] : ['', inSentences('Under the pointer,', hovers)]),
+    ...(ownDefaults.length === 0 ? [] : ['', inSentences('While its slot is silent,', ownDefaults)]),
+    '',
+  ].join('\n');
 }
+
+export const slotGroupPages = (base = root) => {
+  const declarations = readSlotDeclarations(base);
+  const catalogue = readColorSlots(base);
+  return Object.keys(declarations.groups ?? {}).map((group) => [`${SLOT_GROUP_DIR}/${group}.md`, slotGroupPage(group, declarations, catalogue)] as const);
+};
 
 export const REGION_TARGETS: Record<string, string[]> = {
   repository: ['frameworks/react/PACKAGE.md', 'frameworks/angular/PACKAGE.md'],
@@ -364,10 +382,12 @@ export const REGION_TARGETS: Record<string, string[]> = {
 
 export const TARGETS = [...new Set(Object.values(REGION_TARGETS).flat())];
 
+export const GROUP_PAGES = Object.keys(readSlotDeclarations(root).groups ?? {}).map((group) => `${SLOT_GROUP_DIR}/${group}.md`);
+
 export const node = {
   name: 'generate:npm-pages',
   reads: [...TARGETS, ALIAS_SOURCE, 'scripts/generate/core/arena-cli/audit.ts', 'scripts/generate/core/arena-cli/command-init.ts', 'scripts/lib/arena/language-rules.ts', `${DEFAULT_PLUGIN_DIR}/${PLUGIN_TOKENS}`, '.claude-plugin/plugin.json', 'scripts/generate/core/arena-cli/style-plugin-rules.ts', 'scripts/generate/core/arena-cli/theme-css.ts', LOCALE_CONTRACT, ROLE_CONTRACT, BEHAVIOUR_CONTRACT, ...Object.values(DENSITY_CONTRACTS), THEME_SHEET, 'contracts/api/components/*.json', 'contracts/design/spacing.json', BREAKPOINT_TARGET, TOAST_NOTICE_CONTRACT, CONFIRM_REQUEST_CONTRACT, ...CSS_TARGETS, ...CHANNEL_SOURCES, HUES_FILE, `${VOCABULARY_DIR}/**/*${FAMILY_SUFFIX}`, ...TOKEN_CATALOGUE_READS, ...FAMILY_PART_SHEET_READS, COLOR_SLOTS],
-  writes: TARGETS,
+  writes: [...TARGETS, ...GROUP_PAGES],
   feeds: [
     'generate:token-tree', 'check:token-tree',
     'build:angular-package',
@@ -696,7 +716,7 @@ you import it beside the other two. The sheet declares the cascade layer order i
 
   slotAccepts: (base = root) => slotAcceptsTable(readColorSlots(base)),
 
-  slotGroups: (base = root) => slotGroupSections(readSlotDeclarations(base), readColorSlots(base)),
+  slotGroups: (base = root) => slotGroupTable(readSlotDeclarations(base)),
 
   layout: (base = root) => {
     const [container, gutter, measure] = layoutAnswers(base);
@@ -743,13 +763,21 @@ export function writePages({ base = root, read = readFileSync, write = writeFile
     write(path, after);
     written.push(target);
   }
+  for (const [path, page] of slotGroupPages(base)) {
+    let before = '';
+    try { before = read(join(base, path), 'utf8'); } catch { before = ''; }
+    if (page === before) continue;
+    mkdirSync(join(base, SLOT_GROUP_DIR), { recursive: true });
+    write(join(base, path), page);
+    written.push(path);
+  }
   return written;
 }
 
 function main() {
   const written = writePages();
   for (const target of written) console.log(`generate-npm-pages: wrote ${target}`);
-  console.log(`generate-npm-pages: ${TARGETS.length} target(s) carry their generated regions`);
+  console.log(`generate-npm-pages: ${TARGETS.length} target(s) carry their generated regions, ${GROUP_PAGES.length} group page(s) are whole`);
 }
 
 if (isMainModule(import.meta.url)) main();

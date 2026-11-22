@@ -7,13 +7,14 @@ import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { join } from 'node:path';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { LAYER_TOKENS, FORBIDDEN } from '../../check/arena/check-layer-independence.ts';
 import {
   TARGETS, atDefault, noImportSheets, openLine, closeLine, renderRegion, applyRegion, regionsOf,
   ROLE_CONTRACT, BEHAVIOUR_CONTRACT, densityValues, requiredLead, toastIntervals, defaultedRoles, defaultedSentence, defaultsStatement, roleRuns, unansweredCount,
-  SLOT_PAGE, EXAMPLE_SLOT_ANSWERS, brandReaders, quietAnswers, slotGroupSections, splitFamilyNames, splitFamilySentence,
+  SLOT_PAGE, EXAMPLE_SLOT_ANSWERS, brandReaders, quietAnswers, slotGroupPage, slotGroupPages, SLOT_GROUP_DIR, GROUP_PAGES, splitFamilyNames, splitFamilySentence,
 } from './generate-npm-pages.ts';
 import { readColorSlots, readSlotDeclarations } from '../../lib/core/color-slots.ts';
 import { slotAnswer } from '../core/arena-cli/slots.ts';
@@ -559,42 +560,43 @@ test('a scale region says only what its groups need', () => {
 
 const decl = readSlotDeclarations(repoRoot);
 const cat = readColorSlots(repoRoot);
-const slotRegions = () => ['slotExample', 'slotQuiet', 'slotAccepts', 'slotGroups'].map((key) => renderRegion(key)).join('\n');
+const groupText = () => Object.keys(decl.groups!).map((group) => slotGroupPage(group, decl, cat)).join('\n');
+const slotRegions = () => [...['slotExample', 'slotQuiet', 'slotAccepts', 'slotGroups'].map((key) => renderRegion(key)), groupText()].join('\n');
 
 test('the slot page carries the four slot regions', () => {
   assert.deepEqual(regionsOf(SLOT_PAGE).sort(), ['slotAccepts', 'slotExample', 'slotGroups', 'slotQuiet']);
 });
 
-test('every declared group has a section, in declaration order', () => {
-  const headings = [...slotGroupSections(decl, cat).matchAll(/^### `([a-z]+)`$/gm)].map((m) => m[1]);
+test('every declared group has a page, in declaration order', () => {
+  const headings = [...groupText().matchAll(/^# Colouring the `([a-z]+)` group$/gm)].map((m) => m[1]);
   assert.deepEqual(headings, Object.keys(decl.groups!));
 });
 
 test('every derived slot has the row of its part and option', () => {
-  const text = slotGroupSections(decl, cat);
+  const text = groupText();
   for (const s of Object.values(cat.slots))
     assert.ok(text.includes(`| \`${s.part}\` | ${s.option === undefined ? '' : `\`${s.option}\``} |`), `${s.group}.${s.part} ${s.option ?? ''}`);
 });
 
 test('a row names the rest default of its part', () => {
-  const text = slotGroupSections(decl, cat);
+  const text = groupText();
   assert.match(text, /\| `box` \|  \| fill, edge \|[^\n]*fill `\{fill-control\}`, edge `\{edge-control\}`/);
   assert.match(text, /\| `field` \| `error` \|[^\n]*edge `\{edge-invalid\}`/);
   assert.match(text, /\| `body` \|  \|[^\n]*ink `\{ink-body\}` at `level-ink-body`/);
 });
 
 test('a part with no rest shows its selected answer', () => {
-  assert.match(slotGroupSections(decl, cat), /\| `mark` \|  \| ink \| selected \|[^\n]*ink `\{emphasis-primary-ink\}`/);
+  assert.match(groupText(), /\| `mark` \|  \| ink \| selected \|[^\n]*ink `\{emphasis-primary-ink\}`/);
 });
 
 test('a part that derives no slot says Arena paints it', () => {
-  const text = slotGroupSections(decl, cat);
+  const text = groupText();
   for (const part of ['solid', 'skeleton'])
     assert.match(text, new RegExp(`\\| \`${part}\` \\|[^\\n]*Arena paints it, and no slot answers it`));
 });
 
 test('every hover with a role of its own is listed under its group', () => {
-  const text = slotGroupSections(decl, cat);
+  const text = groupText();
   for (const [name, s] of Object.entries(cat.slots))
     if (!['rest', 'selected'].includes(s.state) && s.property !== 'icon' && s.default !== undefined && s.derive === undefined)
       assert.ok(text.includes(`\`${name}\` reads \`${s.default}\``), name);
@@ -701,7 +703,7 @@ test('the example quiets the navigation selection in both polarities', () => {
 });
 
 test('a member default is named under the group whose slot it stands in for', () => {
-  const text = slotGroupSections(decl, cat);
+  const text = groupText();
   for (const [key, member] of Object.entries(cat.members))
     for (const [slot, value] of Object.entries(member.defaults ?? {}))
       assert.ok(text.includes(`\`${key}\` paints \`${slot}\` with \`${value}\``), `${key} ${slot}`);
@@ -736,4 +738,27 @@ test('the split family sentence reads true for one family and for none', () => {
   const full = splitFamilySentence();
   assert.match(full, /The families `accent` and `emphasis` are the ones/);
   assert.ok(!full.includes('read the colour slots'));
+});
+
+const BASELINE = execFileSync('git', ['show', '6cd96962:skills/design/references/color-slots.md'], { cwd: repoRoot, encoding: 'utf8' });
+
+test('every group page is linked from the slot page, and no link names a group anchor there', () => {
+  const groups = Object.keys((readJson(join(repoRoot, 'contracts/design/color-slots.json')) as { groups: Record<string, unknown> }).groups);
+  assert.equal(groups.length, 13);
+  const slotPage = readFileSync(join(repoRoot, SLOT_PAGE), 'utf8');
+  for (const group of groups) {
+    const page = readFileSync(join(repoRoot, SLOT_GROUP_DIR, `${group}.md`), 'utf8');
+    assert.ok(page.startsWith('# '), `${group}: opens with a heading`);
+    assert.match(page, /\nRead this /, `${group}: Read this sentence`);
+    const section = BASELINE.split(`### \`${group}\`\n`)[1]!.split(/\n### |\n<!-- @shared slotGroups end/)[0]!;
+    const rows = section.split('\n').filter((line) => line.startsWith('| '));
+    assert.ok(rows.length > 2, `${group}: baseline rows`);
+    for (const row of rows) assert.ok(page.includes(row), `${group}: ${row}`);
+    assert.ok(page.includes('](../color-slots.md)'), `${group}: links back`);
+    assert.ok(slotPage.includes(`](./color-slots/${group}.md)`), `${group}: linked from the slot page`);
+    const hits = spawnSync('git', ['grep', '-l', `color-slots.md#${group}`, '--', ':!.superpowers', ':!docs'], { cwd: repoRoot, encoding: 'utf8' });
+    assert.equal(hits.stdout, '', `${group}: anchor links`);
+  }
+  assert.deepEqual(GROUP_PAGES, groups.map((group) => `${SLOT_GROUP_DIR}/${group}.md`));
+  assert.equal(slotGroupPages().length, groups.length);
 });
