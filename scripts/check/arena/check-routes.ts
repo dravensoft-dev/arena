@@ -54,21 +54,21 @@ export const ENTRIES: Entry[] = [
     router: 'skills/design/SKILL.md',
     budget: 21_657,
     reason:
-      'the page every consumer route opens with, declared once and not as each route\'s first stop. '
-      + 'A route\'s own cost is argued where spent. '
-      + 'A question earns a row only when it is asked before a builder knows their '
-      + 'situation: whether a component exists, how much of Arena a project takes, what it '
-      + 'installs Arena with, where the appearance comes from, whether the product '
-      + 'has to be found, how a page is assembled, and where a proved Arena defect goes. The rules list is '
-      + 'emitted from one declaration, so each rule names its audit tag, or says why '
+      'the page every consumer route opens with, declared once, not as each route\'s first stop. '
+      + 'What a route pays past it is argued where spent. '
+      + 'A question earns a row only when asked before a builder knows their situation. '
+      + 'Some ask whether a component exists, how much of Arena to take, what to install it with '
+      + 'and where the appearance comes from. '
+      + 'Others ask whether the product has to be found, how a page is assembled and where a proved Arena defect goes. The rules list '
+      + 'comes from one declaration, so each rule names its audit tag or says why '
       + 'none reads it. What moves this number is a new question, a helper '
       + 'a reader cannot ask for by name, or a tag beside the one it '
       + 'extends, as wrapped-link stands beside router-link. The vocabulary families name which '
-      + 'style decision reaches which component owner and answer the appearance-source questions '
+      + 'style decision reaches which component owner and answer appearance questions '
       + 'at the decision layer. The tokens-only rule names the bracket values audit holds. Rows route a mock, '
       + 'toolchain, bundler, panel, toggle and layer. One row lists every export topic, and the cold-start '
       + 'paragraph names the project-wide branch. The router-link rule names each member with an href, and the '
-      + 'icon rule names production code and the glyph\'s component.',
+      + 'icon rule names production code and the component that draws a glyph.',
   },
   {
     name: 'contributor',
@@ -126,19 +126,19 @@ export const ROUTES: Route[] = [
       'skills/design/references/config.md',
       'skills/design/references/cli.md',
     ],
-    budget: 53_191,
+    budget: 53_193,
     reason:
       'paid once per project, not per screen, so it carries what the build route may not: the '
       + 'install, the config file and the command. The install reference gives the evidence behind each '
       + 'package manager and the Tailwind v4 entry sheet, and how Vite and the Angular builder serve '
       + 'the sprite. The command reference quotes the scripts `arena init` writes, whole, tables every '
       + 'audit tag (`missing-level`, `dead-utility`) and names the identity report over '
-      + '`design/identity.html`. The command page names the sheets, the sprite and the cut fonts the '
-      + 'build writes, and the `--no-import` imports under one rule for every root. The flat package '
+      + '`design/identity.html`. The command page names the sheets, sprite and cut fonts the '
+      + 'build writes, and the sheets a `--no-import` project imports, under one rule for every root. The flat package '
       + 'sheet, the per-layer icon module and the glyphs that reach the filled weight are stated there. '
       + 'An icon expression '
       + 'widens that set or stills the glyph report. The audit section covers the two rules that read a '
-      + 'plugin\'s names, its exit table a refused plugin answer, its contrast note which plugins and '
+      + 'plugin\'s names, its exit table a refused answer, its contrast note which plugins and '
       + 'states it measures. The config page '
       + 'tables every key, the names and keys it '
       + 'refuses, the families it splits and the roles that carry a default. The references name the '
@@ -359,22 +359,22 @@ export const ROUTES: Route[] = [
         ],
       },
     ],
-    budget: 36_225,
+    budget: 36_734,
     reason:
-      'the route declared as a tree, charged its worst branch and never the sum, because a '
-      + 'reader answers a question and walks one way. Handed a document stating the palette and '
-      + 'type, a reader reads the tree and goes on; choosing a measured register, they read the '
-      + 'tree, the catalogue\'s index and one entry, and that last stop is a glob so the charge is '
-      + 'the largest entry. The tree carries the decisions that reach an install rather than a '
+      'the route declared as a tree, charged its worst branch, never the sum, because a '
+      + 'reader answers a question and walks one way. Given a document stating the palette and '
+      + 'type, a reader reads the tree and goes on. Choosing a measured register, they read the '
+      + 'tree, the catalogue\'s index and one entry, the last stop a glob, so the charge is '
+      + 'the largest entry. The tree carries decisions that reach an install, not a '
       + 'screen: whether the product has to be found, what it is built on and what the code '
-      + 'around Arena imports, so its last node derives the dependency list. Node 7 asks the '
+      + 'around Arena imports. The last node derives the dependency list. A node asks the '
       + 'project-wide decisions: colour slots, density, locale, palette switching and the page '
-      + 'skeleton. The index comes from the line every entry carries, grows a row per entry and '
-      + 'keeps the last stop at a single entry. The tree names where an entry and the template '
-      + 'are fetched without a clone, that an entry\'s config is a starting file whose '
-      + 'stylePlugins replaces arena init\'s list, and where the filled document is saved and '
-      + 'served. The architecture node points to the bundling section and the bundler record. The '
-      + 'alternative is an agent inferring a palette from a screenshot, which costs every screen.',
+      + 'skeleton. The index comes from a line per entry, grows a row per entry and '
+      + 'keeps the last stop at a single entry. The tree names where an entry and the identity template '
+      + 'are fetched without a clone and where the filled identity document is saved and served. '
+      + 'An entry\'s config is a starting file whose stylePlugins replaces arena init\'s list. '
+      + 'The architecture node points to the bundling section and bundler record. The '
+      + 'alternative is an agent inferring a palette from a screenshot, which costs nothing here and the project every screen.',
   },
   {
     name: 'contributor-component',
