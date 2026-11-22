@@ -9,14 +9,18 @@
      The hosted sheet renders this page from a local file and over HTTP alike.
      A project that has run arena build may point the link at its own arena.generated.css
      instead, and the page then draws that project's own answers.
-     A local sheet loads from a file and over HTTP alike, and the web fonts it names load only over HTTP. -->
+     A local sheet loads from a file and over HTTP alike, and the web fonts it names load only over HTTP.
+
+     The page's palettes are declared in the first style block, under .arena-light and .arena-dark.
+     The page wears arena-light because its leading palette is the light one. Each panel below
+     wears its own class, so both polarities are drawn at once. -->
 <link rel="stylesheet" href="https://arena.dravensoft.org/intro/styles.css">
 
 <style>
 @import url("https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;600;700&display=swap");
-  :root {
+  .arena-light {
     --color-base-100: #ffffff;
     --color-base-200: #f7f7f7;
     --color-base-300: #e5e5e5;
@@ -27,15 +31,15 @@
     --color-secondary-content: #ffffff;
     --color-neutral: #e5e5e5;
     --color-neutral-content: #777777;
-    --color-info: #1cb0f6;
+    --color-info: #007eb5;
     --color-info-content: #ffffff;
-    --color-success: #58cc02;
+    --color-success: #378700;
     --color-success-content: #ffffff;
     --color-warning: #ffc800;
     --color-warning-content: #4b4b4b;
-    --color-error: #ff4b4b;
+    --color-error: #e32b33;
     --color-error-content: #ffffff;
-    --color-error-fill: #ea2b2b;
+    --color-error-fill: #e62527;
     --color-cat-1: #58cc02;
     --color-cat-2: #1cb0f6;
     --color-cat-3: #ce82ff;
@@ -44,6 +48,39 @@
     --color-cat-6: #ff9600;
     --color-cat-7: #2b70c9;
     --color-cat-8: #00cd9c;
+    --color-primary-fill: var(--color-primary);
+  }
+  .arena-dark {
+    --color-base-100: #131f24;
+    --color-base-200: #202f36;
+    --color-base-300: #37464f;
+    --color-base-content: #f1f7fb;
+    --color-primary: #93d333;
+    --color-primary-content: #131f24;
+    --color-secondary: #ce82ff;
+    --color-secondary-content: #131f24;
+    --color-neutral: #37464f;
+    --color-neutral-content: #a3b5bd;
+    --color-info: #49c0f8;
+    --color-info-content: #131f24;
+    --color-success: #93d333;
+    --color-success-content: #131f24;
+    --color-warning: #ffc800;
+    --color-warning-content: #131f24;
+    --color-error: #ff6b6b;
+    --color-error-content: #131f24;
+    --color-error-fill: #e25453;
+    --color-cat-1: #93d333;
+    --color-cat-2: #49c0f8;
+    --color-cat-3: #ce82ff;
+    --color-cat-4: #ffc800;
+    --color-cat-5: #ff6b6b;
+    --color-cat-6: #ffa640;
+    --color-cat-7: #6ba3e8;
+    --color-cat-8: #2fd6ad;
+    --color-primary-fill: var(--color-primary);
+  }
+  :root {
     --font-display: "Baloo 2", system-ui, sans-serif;
     --font-body: "Nunito", system-ui, sans-serif;
     --font-mono: "Roboto Mono", system-ui, sans-serif;
@@ -53,22 +90,31 @@
 <style>
   /* Every colour here is a role rather than a palette step, so this page follows whatever skin
      the linked sheet carries. --ink is the page's own fill and never its text: the text roles are
-     ink-heading, ink-body, ink-muted and ink-eyebrow. */
+     ink-heading, ink-body, ink-muted and ink-eyebrow. The two panels wear a palette class each,
+     so a role inside one answers that polarity whatever the page itself wears. */
   body { margin: 0; background: var(--fill-page); color: var(--ink-body);
          font-family: var(--font-body); padding: var(--sp-8) var(--sp-6); }
-  main { max-inline-size: var(--measure-prose); margin-inline: auto; }
+  main { max-inline-size: calc(var(--measure-prose) * 1.6); margin-inline: auto; }
   h1, h2 { font-family: var(--ff-heading); color: var(--ink-heading);
            letter-spacing: var(--track-heading); }
   h1 { font-size: var(--fs-display); line-height: var(--lh-heading); margin-block: 0 var(--sp-2); }
   h2 { font-size: var(--fs-h2); margin-block: var(--sp-10) var(--sp-2); }
-  p  { line-height: var(--lh-prose); }
+  p, li { line-height: var(--lh-prose); max-inline-size: var(--measure-prose); }
   .ask { color: var(--ink-muted); font-style: italic; }
-  .fill { display: block; border: var(--bw-separator) dashed var(--edge-separator);
+  div[data-arena-unfilled] { display: block; border: var(--bw-separator) dashed var(--edge-separator);
           border-radius: var(--r-surface); padding: var(--sp-3); margin-block: var(--sp-3);
-          color: var(--ink-muted); }
-  .row { display: flex; flex-wrap: wrap; gap: var(--sp-3); margin-block: var(--sp-4); }
-  .chip { inline-size: calc(var(--sp-1) * 22); }
-  .chip i { display: block; block-size: calc(var(--sp-1) * 14);
+          color: var(--ink-muted); max-inline-size: var(--measure-prose); }
+  td[data-arena-unfilled] { outline: var(--bw-separator) dashed var(--edge-separator);
+          outline-offset: calc(var(--sp-1) * -1); }
+  .pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(calc(var(--sp-1) * 80), 1fr));
+          gap: var(--sp-4); margin-block: var(--sp-4); }
+  .panel { background: var(--fill-page); color: var(--ink-body); border-radius: var(--r-surface);
+           border: var(--bw-surface) solid var(--edge-surface); padding: var(--sp-4); }
+  .panel .tag { margin-block: 0 var(--sp-3); font-family: var(--font-mono); font-size: var(--fs-xs);
+                color: var(--ink-muted); }
+  .row { display: flex; flex-wrap: wrap; gap: var(--sp-3); margin-block: var(--sp-3); }
+  .chip { inline-size: calc(var(--sp-1) * 16); }
+  .chip i { display: block; block-size: calc(var(--sp-1) * 10);
             border: var(--bw-surface) solid var(--edge-surface);
             border-radius: var(--r-surface); }
   .chip span, .swatch { display: block; font-family: var(--font-mono); font-size: var(--fs-xs);
@@ -76,6 +122,52 @@
   .box { inline-size: calc(var(--sp-1) * 26); block-size: calc(var(--sp-1) * 18);
          background: var(--fill-surface-sunken);
          border: var(--bw-surface) solid var(--edge-surface); }
+  .panel .s-surface { background: var(--fill-surface); border: var(--bw-surface) solid var(--edge-surface);
+         border-radius: var(--r-surface); padding: var(--sp-4); color: var(--ink-body);
+         font-family: var(--font-mono); font-size: var(--fs-xs); }
+  .panel .s-sunken { background: var(--fill-surface-sunken); border: var(--bw-control) solid var(--edge-control);
+         border-radius: var(--r-surface); padding: var(--sp-3); margin-block-start: var(--sp-3); }
+  .panel .s-field { background: var(--fill-field); border: var(--bw-field) solid var(--edge-field);
+         border-radius: var(--r-field); padding: var(--sp-2) var(--sp-3); margin-block-start: var(--sp-3); }
+  .panel .s-ctl { display: inline-block; box-sizing: border-box; background: var(--fill-control);
+         color: var(--ink-body); border: var(--bw-control) solid var(--edge-control);
+         border-radius: var(--r-control); padding: var(--sp-2) var(--sp-3);
+         font-family: var(--font-body); font-size: var(--fs-sm); line-height: 1.25; margin: 0; }
+  .panel .s-ctl[data-state="hover"] { background: var(--fill-hover); }
+  .panel .s-ctl[data-state="focus"] { outline: calc(var(--bw-control) * 2) solid var(--edge-focus);
+         outline-offset: var(--bw-control); }
+  .panel .s-ctl[data-state="selected"] { background: color-mix(in oklab, var(--fill-selected) var(--level-accent-soft-primary), transparent);
+         color: var(--ink-selected); }
+  .panel .s-ctl[data-state="invalid"] { border-color: var(--edge-invalid); }
+  .panel .s-ctl[data-state="disabled"] { opacity: var(--fade-disabled); }
+  .panel .s-btn { display: inline-block; box-sizing: border-box; margin: 0; font-family: var(--font-body);
+         font-size: var(--fs-sm); font-weight: var(--fw-control); line-height: 1.25;
+         border-radius: var(--r-control); padding: var(--sp-2) var(--sp-4);
+         border: var(--bw-control) solid var(--edge-control); background: transparent; color: var(--ink-body); }
+  .panel .s-btn[data-specimen="primary"] { background: var(--emphasis-primary-fill);
+         color: var(--emphasis-primary-ink); border-color: var(--emphasis-primary-edge); }
+  .panel .s-input { display: block; box-sizing: border-box; inline-size: 100%; background: var(--fill-field);
+         color: var(--ink-body); border: var(--bw-field) solid var(--edge-field);
+         border-radius: var(--r-field); padding: var(--sp-2) var(--sp-3); font-size: var(--fs-sm);
+         margin-block-start: var(--sp-2); }
+  .panel .s-input[data-state="focus"] { outline: calc(var(--bw-field) * 2) solid var(--edge-focus);
+         outline-offset: var(--bw-field); }
+  .panel .s-input[data-specimen="invalid"] { border-color: var(--edge-invalid); }
+  .panel .s-msg { color: var(--ink-invalid); font-size: var(--fs-xs); margin-block: var(--sp-1) 0; }
+  .panel .s-box { display: inline-grid; place-items: center; inline-size: calc(var(--sp-1) * 5);
+         block-size: calc(var(--sp-1) * 5); border-radius: var(--r-control);
+         background: var(--fill-control-on); color: var(--emphasis-primary-ink);
+         font-size: var(--fs-xs); vertical-align: middle; margin-inline-end: var(--sp-2); }
+  .panel .s-nav { display: flex; gap: var(--sp-2); margin-block-end: var(--sp-3); }
+  .panel .s-item { padding: var(--sp-2) var(--sp-3); border-radius: var(--r-control);
+         color: var(--ink-muted); font-size: var(--fs-sm); }
+  .panel .s-item[data-state="selected"] { background: color-mix(in oklab, var(--fill-selected) var(--level-accent-soft-primary), transparent);
+         color: var(--ink-selected); }
+  .panel .s-notice { background: var(--fill-surface); border: var(--bw-surface) solid var(--edge-surface-floating);
+         border-radius: var(--r-surface); padding: var(--sp-3); margin-block: var(--sp-3);
+         font-size: var(--fs-sm); color: var(--ink-body); }
+  .panel .s-line { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3);
+         margin-block: var(--sp-3); }
   table { border-collapse: collapse; inline-size: 100%; margin-block: var(--sp-4); }
   th, td { text-align: start; padding: var(--sp-2);
            border-block-end: var(--bw-separator) solid var(--edge-separator);
@@ -100,6 +192,7 @@
   can approve.
 </p>
 
+<section data-identity-section="product">
 <h2>The product</h2>
 <p class="ask">What is being built, who works in it, and on what.</p>
 <p>A language course. A lesson path, a streak, a progress bar, and one large button that is the screen's reason. It is used in short bursts, mostly by a thumb, and getting the next thing pressed matters more than getting more onto the screen. The lesson path itself is a game map rather than furniture, so that part is markup we write.</p>
@@ -108,14 +201,18 @@
   furniture Arena ships. A photo wall, a feed of posts, a slideshow, a document editor or a game map
   is markup you write, and the skin still travels.
 </p>
+</section>
 
+<section data-identity-section="palette">
 <h2>The palette</h2>
 <p class="ask">
   Whose brand this is, which polarity leads, and which colour is the voice. Arena installs with
   Dravensoft's palette, and a project's own is the one entry it replaces.
 </p>
-<p>Ours. Light leads, because the product is used outdoors and in daylight as often as not. Green is the voice and gold is distinction, and every status colour is louder here than a console would want, because a wrong answer has to be legible at a glance.</p>
-
+<p>Ours. Light leads, because the product is used outdoors and in daylight as often as not. A dark palette exists beside it for the evening. Green is the voice and gold is distinction, and every status colour is louder here than a console would want, because a wrong answer has to be legible at a glance.</p>
+<div class="pair">
+<div class="panel arena-dark">
+<p class="tag">arena-dark</p>
 <div class="row">
   <div class="chip"><i style="background: var(--color-base-100)"></i><span>base-100</span></div>
   <div class="chip"><i style="background: var(--color-base-200)"></i><span>base-200</span></div>
@@ -141,17 +238,83 @@
   <div class="chip"><i style="background: var(--color-cat-7)"></i><span>cat-7</span></div>
   <div class="chip"><i style="background: var(--color-cat-8)"></i><span>cat-8</span></div>
 </div>
+</div>
+<div class="panel arena-light">
+<p class="tag">arena-light</p>
+<div class="row">
+  <div class="chip"><i style="background: var(--color-base-100)"></i><span>base-100</span></div>
+  <div class="chip"><i style="background: var(--color-base-200)"></i><span>base-200</span></div>
+  <div class="chip"><i style="background: var(--color-base-300)"></i><span>base-300</span></div>
+  <div class="chip"><i style="background: var(--color-base-content)"></i><span>base-content</span></div>
+  <div class="chip"><i style="background: var(--color-primary)"></i><span>primary</span></div>
+  <div class="chip"><i style="background: var(--color-secondary)"></i><span>secondary</span></div>
+  <div class="chip"><i style="background: var(--color-neutral)"></i><span>neutral</span></div>
+</div>
+<div class="row">
+  <div class="chip"><i style="background: var(--color-info)"></i><span>info</span></div>
+  <div class="chip"><i style="background: var(--color-success)"></i><span>success</span></div>
+  <div class="chip"><i style="background: var(--color-warning)"></i><span>warning</span></div>
+  <div class="chip"><i style="background: var(--color-error)"></i><span>error</span></div>
+</div>
+<div class="row">
+  <div class="chip"><i style="background: var(--color-cat-1)"></i><span>cat-1</span></div>
+  <div class="chip"><i style="background: var(--color-cat-2)"></i><span>cat-2</span></div>
+  <div class="chip"><i style="background: var(--color-cat-3)"></i><span>cat-3</span></div>
+  <div class="chip"><i style="background: var(--color-cat-4)"></i><span>cat-4</span></div>
+  <div class="chip"><i style="background: var(--color-cat-5)"></i><span>cat-5</span></div>
+  <div class="chip"><i style="background: var(--color-cat-6)"></i><span>cat-6</span></div>
+  <div class="chip"><i style="background: var(--color-cat-7)"></i><span>cat-7</span></div>
+  <div class="chip"><i style="background: var(--color-cat-8)"></i><span>cat-8</span></div>
+</div>
+</div>
+</div>
 <p>
   Both polarities are declared or the build has one nobody authored. The categorical ramp tells series apart, and the status colours carry a state.
 </p>
+</section>
 
+<section data-identity-section="surfaces">
+<h2>The surfaces</h2>
+<p class="ask">Which surface is the page, which is a panel, and which is a field.</p>
+<p>The page and its panels sit on one surface. The sunken surface and the field sit one step under it, and the edges tell them apart.</p>
+<div class="pair">
+<div class="panel arena-dark">
+<p class="tag">arena-dark</p>
+<div class="s-surface" data-specimen="surface" data-fills="fill-surface">fill-surface
+  <div class="s-sunken" data-fills="fill-surface-sunken">fill-surface-sunken, edge-control</div>
+  <div class="s-field" data-fills="fill-field">fill-field, edge-field</div>
+</div>
+</div>
+<div class="panel arena-light">
+<p class="tag">arena-light</p>
+<div class="s-surface" data-specimen="surface" data-fills="fill-surface">fill-surface
+  <div class="s-sunken" data-fills="fill-surface-sunken">fill-surface-sunken, edge-control</div>
+  <div class="s-field" data-fills="fill-field">fill-field, edge-field</div>
+</div>
+</div>
+</div>
+<table>
+  <tr><th>Role</th><th>What it paints</th><th>This product's answer</th></tr>
+  <tr><td><code>fill-page</code></td><td>the ground the screen sits on</td><td>Base-100, the same step as a panel, so a card reads by its edge and not by its fill.</td></tr>
+  <tr><td><code>fill-surface</code></td><td>a panel, a card or a sheet</td><td>Base-100 as well, with the surface edge drawn at the character below.</td></tr>
+  <tr><td><code>fill-surface-sunken</code></td><td>a well set into a surface</td><td>Base-200, one step under the page.</td></tr>
+  <tr><td><code>fill-field</code></td><td>the inside of an input</td><td>Base-200, with a base-300 field edge.</td></tr>
+</table>
+<p>
+  Which surface is the page follows from what the screen is, as <code>skills/design/references/style-kernel.md</code> says under "Where the appearance actually comes from".
+</p>
+</section>
+
+<section data-identity-section="type">
 <h2>The type</h2>
 <p class="ask">Which three faces: the display face, the body face, the mono face.</p>
 <p>Display Baloo 2, body Nunito, mono Roboto Mono, all three from Google Fonts. The display face carries more weight here than in any other register, because it sets the buttons as well as the headings: a replacement face with no black weight changes this product more than it looks like it will.</p>
 <div style="font-family: var(--ff-heading); font-weight: var(--fw-heading); font-size: var(--fs-display); line-height: var(--lh-heading); letter-spacing: var(--track-heading); color: var(--ink-heading)">Display</div>
 <div style="font-family: var(--font-body); font-size: var(--fs-md); color: var(--ink-body)">Body, which is what a paragraph of this product reads like at the size it is read at.</div>
 <div style="font-family: var(--font-mono); font-size: var(--fs-sm); color: var(--ink-muted)">Mono 0123456789</div>
+</section>
 
+<section data-identity-section="character">
 <h2>The character</h2>
 <p class="ask">
   How round, how drawn, how heavy and how deep. One answer, because these move together: a product
@@ -173,7 +336,9 @@
   <tr><td>whether depth is real</td><td><code>shadow-surface-floating</code>, <code>shadow-surface-deep</code>, <code>shadow-control-raised</code>, <code>elevation-&lt;option&gt;-shadow</code>, <code>emphasis-primary-shadow-hover</code></td><td>A hard offset with no blur at all. Depth here is a solid edge under the object rather than a soft cloud behind it.</td></tr>
   <tr><td>how it answers a hand</td><td><code>press-scale</code>, <code>lift-control</code>, <code>dur-state</code>, <code>ease-state</code></td><td>No shrink and no rise, on an emphatic curve. The press is a travel instead, and no role reaches a press travel, so <code>plugin.css</code> paints it through the button hooks. It is the clearest case of the kernel not reaching something, and it costs a few rules rather than a fork.</td></tr>
 </table>
+</section>
 
+<section data-identity-section="air">
 <h2>The air</h2>
 <p class="ask">How tight it is to the hand, and how wide it breathes.</p>
 <p>Comfortable, which grows the controls to a touch target, because a thumb drives this and not a pointer. A moderate container and the narrowest prose measure of the four registers, because a lesson is read one short line at a time.</p>
@@ -183,25 +348,126 @@
   <tr><td>how wide it breathes</td><td><code>container-max</code>, <code>measure-prose</code>, <code>grid-min</code>, <code>gutter</code></td><td>A moderate container, the narrowest prose measure of the four, a mid grid cell and a middling gutter.</td></tr>
   <tr><td>which density class</td><td><code>arena-compact</code>, <code>arena-comfortable</code>, or neither</td><td><code>arena-comfortable</code>, and it is the only one of the four registers that asks for it.</td></tr>
 </table>
+<p>Density is a class on an ancestor, apart from the plugin.</p>
+</section>
 
+<section data-identity-section="slots">
+<h2>Where the colour goes</h2>
+<p class="ask">
+  Three questions about how far the brand reaches. The slots are listed in <code>skills/design/references/color-slots.md</code>, which also gives the quiet answer for each.
+</p>
+<p class="ask">Where does the brand go: the primary action only, or also selection and navigation?</p>
+<p>The primary action, every selection and the navigation. Green is the voice, so a checked box, a selected lesson and the current step all read it.</p>
+<p class="ask">How does a selected item read?</p>
+<p>A soft green wash behind the body ink, with the checked box filled solid. A selected item is found by its colour first.</p>
+<p class="ask">How does an invalid field read?</p>
+<p>A red edge and a red message under the field. Red is loud on purpose, because a wrong answer has to be legible at a glance.</p>
+</section>
+
+<section data-identity-section="states">
+<h2>The states</h2>
+<p class="ask">How a control reads at rest, under the pointer, focused, selected, invalid and disabled.</p>
+<p>Rest draws a base-300 edge on the control fill. Hover fills with the hover surface, and focus draws a ring in the focus edge. Selected washes with the brand, invalid draws the red edge, and disabled fades.</p>
+<div class="pair">
+<div class="panel arena-dark">
+<p class="tag">arena-dark</p>
+<div class="s-line">
+  <span class="s-ctl" data-state="rest" data-fills="fill-control">rest</span>
+  <span class="s-ctl" data-state="hover" data-fills="fill-hover">hover</span>
+  <span class="s-ctl" data-state="focus" data-fills="fill-control">focus</span>
+  <span class="s-ctl" data-state="selected" data-wash>selected</span>
+  <span class="s-ctl" data-state="invalid" data-fills="fill-control">invalid</span>
+  <span class="s-ctl" data-state="disabled" data-fills="fill-control">disabled</span>
+</div>
+</div>
+<div class="panel arena-light">
+<p class="tag">arena-light</p>
+<div class="s-line">
+  <span class="s-ctl" data-state="rest" data-fills="fill-control">rest</span>
+  <span class="s-ctl" data-state="hover" data-fills="fill-hover">hover</span>
+  <span class="s-ctl" data-state="focus" data-fills="fill-control">focus</span>
+  <span class="s-ctl" data-state="selected" data-wash>selected</span>
+  <span class="s-ctl" data-state="invalid" data-fills="fill-control">invalid</span>
+  <span class="s-ctl" data-state="disabled" data-fills="fill-control">disabled</span>
+</div>
+</div>
+</div>
+<p>
+  Each specimen is painted with the roles the silent slots name. Focus takes <code>edge-focus</code> for the ring, and disabled takes <code>fade-disabled</code>.
+</p>
+</section>
+
+<section data-identity-section="media">
 <h2>The media</h2>
 <p class="ask">What shape a picture is, before any of it is cropped.</p>
 <p>Square, contained. An illustration teaches by being whole, so nothing is cropped, and a square survives every breakpoint this product has.</p>
+</section>
 
+<section data-identity-section="page">
 <h2>The page</h2>
 <p class="ask">
   Arena ships the floor, the column, the air and the components, and no shape they must make. This
   is the shape.
 </p>
 <p>Two columns: a sticky side rail wider than a console's, holding the lesson path, and a main column on <code>minmax(0, 1fr)</code>. The main column is a single centred stack and never a board. The component step goes between almost every pair of things, because there are few things on screen and each gets room.</p>
+</section>
 
-<h2>What this document does not settle</h2>
-<p>
-  The copy and the brand mark are still open. Whether anybody outside the product has to find it
-  is answered here rather than left open, because it reaches the install and the layer rather than a
-  screen: yes for the marketing pages and the course catalogue, no for everything behind the login,
-  which means the metadata entry point and the layer that ships it.
+<section data-identity-section="language">
+<h2>The language</h2>
+<p class="ask">
+  The product's language and its <code>lang</code> tag, and whether every word Arena's components say is translated.
 </p>
+<p>English, with <code>lang="en"</code>. Every word Arena's components say stays in its English default.</p>
+<p>
+  Arena writes no <code>lang</code> of its own. The words its components say are listed in <code>skills/design/references/locale.md</code>.
+</p>
+</section>
+
+<section data-identity-section="theme">
+<h2>Switching the theme</h2>
+<p class="ask">Whether the user switches polarity, which one a first visit sees, and how the first paint avoids a flash.</p>
+<p>The user switches. A first visit follows the system preference, and the no-flash snippet sets the class before the first paint.</p>
+<p>
+  The no-flash snippet and both switches are in <code>skills/design/references/theme.md</code>.
+</p>
+</section>
+
+<section data-identity-section="preview">
+<h2>The preview</h2>
+<p class="ask">What the first screen looks like once the answers above are built.</p>
+<div class="pair">
+<div class="panel arena-dark">
+<p class="tag">arena-dark</p>
+<div class="s-nav"><span class="s-item" data-state="selected" data-wash>Lessons</span><span class="s-item">Practice</span></div>
+<div class="s-line"><button type="button" class="s-btn" data-specimen="primary" data-fills="emphasis-primary-fill">Continue</button><button type="button" class="s-btn">Skip</button></div>
+<span class="s-box" data-fills="fill-control-on">&#10003;</span>Remind me tomorrow
+<div class="s-input" data-fills="fill-field">Rest</div>
+<div class="s-input" data-state="focus" data-fills="fill-field">Focused</div>
+<div class="s-input" data-specimen="invalid" data-fills="fill-field">Invalid</div>
+<p class="s-msg">Say what is wrong and how to fix it.</p>
+<div class="s-notice" data-fills="fill-surface">A notice sits on the surface, with a floating edge.</div>
+</div>
+<div class="panel arena-light">
+<p class="tag">arena-light</p>
+<div class="s-nav"><span class="s-item" data-state="selected" data-wash>Lessons</span><span class="s-item">Practice</span></div>
+<div class="s-line"><button type="button" class="s-btn" data-specimen="primary" data-fills="emphasis-primary-fill">Continue</button><button type="button" class="s-btn">Skip</button></div>
+<span class="s-box" data-fills="fill-control-on">&#10003;</span>Remind me tomorrow
+<div class="s-input" data-fills="fill-field">Rest</div>
+<div class="s-input" data-state="focus" data-fills="fill-field">Focused</div>
+<div class="s-input" data-specimen="invalid" data-fills="fill-field">Invalid</div>
+<p class="s-msg">Say what is wrong and how to fix it.</p>
+<div class="s-notice" data-fills="fill-surface">A notice sits on the surface, with a floating edge.</div>
+</div>
+</div>
+<p>
+  Every specimen is own markup, painted with the roles and silent-slot defaults the components read. The specimens show what Arena's components paint with these answers, and the first screen after <code>arena build</code> confirms them.
+</p>
+</section>
+
+<section data-identity-section="unsettled">
+<h2>What this document does not settle</h2>
+<p>The copy and the brand mark are still open. Whether anybody outside the product has to find it is answered here rather than left open, because it reaches the install and the layer rather than a screen: yes for the marketing pages and the course catalogue, no for everything behind the login, which means the metadata entry point and the layer that ships it.</p>
+</section>
 
 </main>
 </body>
