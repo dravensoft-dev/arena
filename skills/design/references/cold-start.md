@@ -156,7 +156,7 @@ A project decides each row below once, and every screen reads the answer without
 | **Palette switching.** Every palette is a class, and the default one reaches `:root`. A switch puts a class on `<html>`. A page that applies a stored choice only after its stylesheet loads paints the default first, and the flash is that first paint | Does the user switch? Which polarity does a first visit see? | [`theme.md`](./theme.md#how-do-i-avoid-a-flash-on-first-paint) and its two switch sections, [React](./theme.md#how-do-i-switch-palettes-in-react) and [Angular](./theme.md#how-do-i-switch-palettes-in-angular) |
 | **The page skeleton.** The frame every screen sits in is the skip link, the app bar, the side navigation, the main region and the footer, each a landmark. Arena ships the pieces and no shape | Which pieces does the frame carry? Where does the navigation live? | [`shell.md`](./shell.md) |
 
-The answers join the sections of the identity document that carry the same names.
+Each answer has a section in the identity document. The colour slots go in "Where the colour goes", and density in the density-class row of "The air". The locale and `lang` go in "The language", and switching in "Switching the theme". The skeleton goes in "The page".
 
 | You arrived with | Go to |
 |---|---|
