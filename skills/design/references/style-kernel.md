@@ -115,14 +115,13 @@ the other, so a hex here is a light-mode colour showing through your dark theme.
   "alpha": 0 }`, beside `offsetX`, `offsetY`, `blur` and `spread`.
 - **A unit the type does not carry**, through `$extensions`. [`tokens/plugin/type.md`](./tokens/plugin/type.md) names the five roles that need one.
 
-**Each role draws from one scale, or from none.** [`tokens/plugin/index.md`](./tokens/plugin/index.md) lists the roles by task, with the type and the scale beside each.
+**Each role draws from one scale, or from none.** [`tokens/plugin/index.md`](./tokens/plugin/index.md) lists the roles by task, with the type and the scale beside each. [`tokens/components/index.md`](./tokens/components/index.md) lists the roles a component reads, such as `--fill-control` and `--fill-knob`, and your root plugin answers those too.
 
 **What an answer may never be is a scale itself.** A scale step is shared by every use that wants
 that value, so moving one is not a style plugin but a different Arena. **The type and page-rhythm
 ladders are the one exception**, because they reach a page through classes you apply rather than
 through any role. Answer them in the plugin beside the roles. A key named `fs-<step>` or
-`rhythm-<step>` is read as that step rather than as a role nothing ships. Both are dimensions and
-both carry a `$description`, because a step a plugin moves is a decision rather than a value. Move one step or every one of them, as the product needs. Completeness binds a role, which
+`rhythm-<step>` is read as that step rather than as a role nothing ships. Both are dimensions. A `$description` beside a step is optional and records why the plugin moved it. Move one step or every one of them, as the product needs. Completeness binds a role, which
 disappears unanswered. Completeness never binds a step, which keeps the value Arena ships. Every other scale key is refused
 by name, so a different type scale is answered here or it is not answered.
 
@@ -274,6 +273,7 @@ last step is the only one that checks the thing you care about.
 - [ ] Run `arena audit`. Your plugin directory is in scope because the config
       declares it, so the audit measures your application and your plugin together.
 - [ ] Read the report. Fix what it names, and re-run it until it names nothing.
+- [ ] Run `arena check` and read every contrast line it prints. A pair under its floor names the slot or role to answer again.
 - [ ] Run `arena build`, which writes the sheets the next step imports.
 - [ ] Import the sheets `arena build` writes: `arena.package.generated.css` first, then `arena.generated.css`
       and, when your plugin carries CSS, `plugin.generated.css`. [`install.md`](./install.md) gives the order.

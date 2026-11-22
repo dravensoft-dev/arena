@@ -90,9 +90,9 @@ A silent slot follows the slot of its own part that you did answer, so answering
 
 A slot that defaults to a role follows your answer to that role. Answer `hue-danger-ink` and every silent slot whose default is `hue-danger-ink` moves, in every group.
 
-## What the build measures
+## What arena check measures
 
-`arena build` measures the slot pairs in every palette, in the `rest`, `hover`, `pressed`, `selected`, `selected-hover` and `selected-pressed` states:
+`arena check` measures the slot pairs in every palette, in the `rest`, `hover`, `pressed`, `selected`, `selected-hover` and `selected-pressed` states:
 
 - each ink, icon and fill over the fill of the part it sits on, and a part with no fill over the ground.
 - each selected edge over the fill of its part.
@@ -104,7 +104,7 @@ A slot that defaults to a role follows your answer to that role. Answer `hue-dan
 
 A fill with nothing under it is not a pair. A pair falls short under 4.5:1 for text, and under 3:1 for a fill, an icon, an edge or a mark. A `disabled` or `selected-disabled` slot is never measured. The build reports instead a `disabled` answer that draws the part's rest colours. The build reports a `selected-disabled` one that draws its selected colours in the same way. Either control would not be told from an enabled one.
 
-The build measures the root plugin and every later one. A later plugin is measured in every palette, its answers over the root's. A line it prints starts with `<palette>, style plugin <name>:` and appears only when the root's measurement in that palette did not print the same line. Each is a report, the build goes on, and `--strict=contrast` holds it. A runtime palette measures the same pairs through the root plugin, in `arenaCheckPalette` as in `arenaRuntimePalette`.
+`arena check` measures the root plugin and every later one. A later plugin is measured in every palette, its answers over the root's. A line it prints starts with `<palette>, style plugin <name>:` and appears only when the root's measurement in that palette did not print the same line. Each is a report, `arena build` prints only their count, and `arena check --strict=contrast` holds them. A runtime palette measures the same pairs through the root plugin, in `arenaCheckPalette` as in `arenaRuntimePalette`.
 
 ## The groups
 

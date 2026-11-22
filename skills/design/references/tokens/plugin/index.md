@@ -2,6 +2,8 @@
 
 Read this when you write a style plugin and need the roles of one task, the type each role takes and the scale its answer draws from. [`style-kernel.md`](../../style-kernel.md) holds the loop.
 
+A role a component reads, such as `--fill-control` or `--fill-knob`, sits on the [component pages](../components/index.md), and your root plugin answers it too.
+
 The type of a role does not tell you which scale its answer comes from. A `dimension` role draws from four different places depending on what it is for, so each page below names the scale beside the roles it covers.
 
 The user scale column beside each role is how a length meets the reader's text size: `fixed` keeps it in px and `scales` grows it with that size. `none` means the answer is no length.
