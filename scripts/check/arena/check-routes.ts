@@ -476,21 +476,22 @@ export const ROUTES: Route[] = [
       + 'package is, and what CI does with the tag once it exists',
     entry: 'contributor',
     stops: ['versioning_steps.md', 'frameworks/PACKAGING.md', '.github/workflows/AGENTS.md'],
-    budget: 76_300,
+    budget: 76_322,
     reason:
-      'the least frequent route and the costliest to get wrong, because '
-      + 'each failure publishes nothing and errors nowhere. The sequence is the first stop '
-      + 'because a reader needs it first, and the other two are where it sends them. The route '
-      + 'carries every precondition no other route reaches: main takes no push, so the tag rides '
-      + 'develop and the release lands as a merge; the operating system matrix runs on develop, so '
-      + 'the merge request opens on a green develop; the tag exists before Arena main finishes; '
-      + 'server.json is a version surface the release check never reads; each package has a '
-      + 'publisher of its own, and a first publish needs one configured by hand; the corpus and '
-      + 'the components travel apart; the packaging page says what the strip makes of a Tailwind theme key. The workflow page states how pull requests, develop and main '
-      + 'verify through one reusable workflow, what each of its jobs runs and how long it may run, '
-      + 'and which target a publish that misses its cache builds and which layer it hands '
-      + 'check:packages. Each of these fails in silence, '
-      + 'which is what the budget is there to keep visible. The packaging page names what the command reads at build, the icon module of each layer included.',
+      'the least frequent route and the costliest to get wrong, because each failure publishes '
+      + 'nothing and errors nowhere. The sequence is the first stop because a reader needs it '
+      + 'first, and the other two are where it sends them. The route carries every precondition '
+      + 'no other route reaches. Main takes no push, so the tag rides develop and the release '
+      + 'lands as a merge. The operating system matrix runs on develop, so the merge request '
+      + 'opens on a green develop. The tag exists before Arena main finishes. The file '
+      + 'server.json is a version surface the release check never reads. Each package has a '
+      + 'publisher of its own, and a first publish needs one configured by hand. The corpus and '
+      + 'the components travel apart. The packaging page says what the strip makes of a Tailwind '
+      + 'theme key and which defaults sit in `arena-defaults`. The page names what the command '
+      + 'reads at build, the icon module of each layer included. The workflow page states how '
+      + 'pull requests, develop and main verify through one reusable workflow, and what each of '
+      + 'its jobs runs and how long it may run. The page also says which target a publish that '
+      + 'misses its cache builds and which layer it hands check:packages.',
   },
 ];
 
