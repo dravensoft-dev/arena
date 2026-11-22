@@ -7,6 +7,7 @@ import { resolveEnvironment } from './host.ts';
 import { plan } from './plan.ts';
 import { heldMessage, reported } from './reports.ts';
 import { markersStep } from './steps.ts';
+import { identityStep } from './identity.ts';
 
 export async function run(argv: string[], io: Io): Promise<number> {
   const options = commandOptions('check', argv, io);
@@ -21,7 +22,7 @@ export async function run(argv: string[], io: Io): Promise<number> {
   }
 
   const markers = markersStep(options, env.map);
-  const reports = [...planned.reports, ...markers.reports];
+  const reports = [...planned.reports, ...markers.reports, ...identityStep(options.config).reports];
   for (const one of reports) say.err(`[${one.kind}] ${one.message}`);
   for (const note of planned.notes) say.out(note);
   say.out(`${reports.length || 'no'} report(s)`);

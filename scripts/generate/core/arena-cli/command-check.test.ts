@@ -1,5 +1,6 @@
-/* arena check against throwaway projects: the reports of the plan and of the marker check, the strict
- * set and the exit codes. A project is a temp directory, so every case reads real files. */
+/* arena check against throwaway projects: the reports of the plan, of the marker check and of the
+ * identity document, the strict set and the exit codes. A project is a temp directory, so every case
+ * reads real files. */
 import test, { after } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdirSync, mkdtempSync, readdirSync, readFileSync, statSync, writeFileSync, rmSync } from 'node:fs';
@@ -75,7 +76,7 @@ test('--strict holds a check kind and exits 1 with heldMessage', async () => {
   const result = await check(root, ['--strict']);
   assert.equal(result.code, 1);
   assert.match(result.err.join('\n'),
-    /--strict holds components, contrast, ramp, weight, font, glyph, markers, heat, and this run reports \d+ of them: contrast, font, glyph/);
+    /--strict holds components, contrast, ramp, weight, font, glyph, markers, heat, identity, and this run reports \d+ of them: contrast, font, glyph/);
 });
 
 test('--strict=components does not hold a glyph report', async () => {
@@ -83,6 +84,26 @@ test('--strict=components does not hold a glyph report', async () => {
   const result = await check(root, ['--strict=components']);
   assert.match(result.err.join('\n'), /\[glyph\]/);
   assert.equal(result.code, 0);
+});
+
+const UNFILLED_PAGE = '<section data-identity-section="palette"><div data-arena-unfilled></div></section>';
+
+test('arena check names an unfilled identity document and exits 0 without --strict', async () => {
+  const root = setup({ 'app.html': GLYPHS }, DIM);
+  mkdirSync(join(root, 'design'));
+  writeFileSync(join(root, 'design', 'identity.html'), UNFILLED_PAGE);
+  const result = await check(root);
+  assert.match(result.err.join('\n'), /\[identity\] design\/identity\.html: the section "The palette" still holds 1 unfilled block/);
+  assert.equal(result.code, 0);
+});
+
+test('--strict=identity holds an unfilled identity document and exits 1', async () => {
+  const root = setup({ 'app.html': GLYPHS }, DIM);
+  mkdirSync(join(root, 'design'));
+  writeFileSync(join(root, 'design', 'identity.html'), UNFILLED_PAGE);
+  const result = await check(root, ['--strict=identity']);
+  assert.equal(result.code, 1);
+  assert.match(result.err.join('\n'), /this run reports \d+ of them: identity$/m);
 });
 
 test('a wash report is printed and never held', async () => {

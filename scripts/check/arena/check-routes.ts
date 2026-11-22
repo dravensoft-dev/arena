@@ -126,18 +126,20 @@ export const ROUTES: Route[] = [
       'skills/design/references/config.md',
       'skills/design/references/cli.md',
     ],
-    budget: 53_030,
+    budget: 53_191,
     reason:
       'paid once per project, not per screen, so it carries what the build route may not: the '
       + 'install, the config file and the command. The install reference gives the evidence behind each '
       + 'package manager and the Tailwind v4 entry sheet, and how Vite and the Angular builder serve '
-      + 'the sprite. The command reference quotes the scripts `arena init` writes, whole. The command '
-      + 'reference tables every audit tag (`missing-level`, `dead-utility`) and names the '
-      + 'sheets, the sprite and the cut fonts the build writes. The command reference lists the sheets a '
-      + '`--no-import` project imports under one rule for every root. The command reference states the flat package sheet, the per-layer icon '
-      + 'module and the glyphs that reach the filled weight. An icon expression widens that set or stills the glyph '
-      + 'report. The audit section covers the two rules that read a plugin\'s names, its exit table a '
-      + 'refused plugin answer, its contrast note which plugins and states it measures. The config page '
+      + 'the sprite. The command reference quotes the scripts `arena init` writes, whole, tables every '
+      + 'audit tag (`missing-level`, `dead-utility`) and names the identity report over '
+      + '`design/identity.html`. The command page names the sheets, the sprite and the cut fonts the '
+      + 'build writes, and the `--no-import` imports under one rule for every root. The flat package '
+      + 'sheet, the per-layer icon module and the glyphs that reach the filled weight are stated there. '
+      + 'An icon expression '
+      + 'widens that set or stills the glyph report. The audit section covers the two rules that read a '
+      + 'plugin\'s names, its exit table a refused plugin answer, its contrast note which plugins and '
+      + 'states it measures. The config page '
       + 'tables every key, the names and keys it '
       + 'refuses, the families it splits and the roles that carry a default. The references name the '
       + 'arena-defaults layer and every default in it, and the install one where the five panels open.',
