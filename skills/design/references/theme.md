@@ -106,7 +106,7 @@ Each layer stores a user's choice and, for a runtime palette, a copy of it. Reac
 
 ## How do I follow the system setting while the page is open?
 
-The sentence above stands: nothing in Arena listens. A project that wants the page to follow the system listens itself, and re-applies only while `localStorage` holds no `arena-theme`, so a stored choice always wins.
+Arena listens for no change of the system setting while the page is open. A project that wants the page to follow the system listens itself, and re-applies only while `localStorage` holds no `arena-theme`, so a stored choice always wins.
 
 In React, call `initArenaTheme(themes)` again. With nothing stored it reads the system setting and applies the matching palette.
 
