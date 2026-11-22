@@ -1,12 +1,11 @@
-/* The MCP package against what it promises, in seven claims. It declares the dependencies it imports and
+/* The MCP package against what it promises, in nine claims. It declares the dependencies it imports and
  * no others, since a server that resolves at build and throws at spawn reads as a broken configuration.
- * Its bin resolves to a file that is there. It carries the corpus and one vocabulary index per layer,
- * since a package with the transport and no documents answers every question with silence. Every path
- * inside it resolves to something the package carries or the site publishes. Every `arena://` URI a
- * document of the corpus writes resolves in that layer's catalogue, since `arena_read` answers any other
- * with an error. The catalogue reaches every component the tree declares. And server.json states this
- * tree's own name and version. dist/ is git-ignored, so an unassembled tree stops the gate through
- * cannotRun. */
+ * Its bin resolves to a file that is there. It carries the corpus and one vocabulary index per layer.
+ * Every path inside it resolves to something the package carries or the site publishes. Every `arena://`
+ * URI a document writes resolves in that layer's catalogue. The catalogue reaches every component the
+ * tree declares. server.json states this tree's own name and version, and declares the flags the server
+ * parses. The MCP page names every exit code and error the server returns. dist/ is git-ignored, so an
+ * unassembled tree stops the gate through cannotRun. */
 
 import { existsSync, readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
@@ -25,6 +24,7 @@ import {
   catalogue, textOf, MARKDOWN_LINK, ADDRESSED, STYLE_PREFIX, STYLE_DIR,
   IDENTITY_PREFIX, IDENTITY_DIR, COMPONENT_PREFIX,
 } from '../../generate/core/arena-mcp/catalogue.ts';
+import { USAGE } from '../../generate/core/arena-mcp/arena-mcp.ts';
 import { manifestIn, bundledPayload, readIn } from '../../generate/core/arena-mcp/payload.ts';
 import { servedDocs, writtenPages } from '../../lib/arena/llms-index.ts';
 import { PAGE_FILE } from '../../lib/arena/kitchen-sink-page.ts';
@@ -43,7 +43,10 @@ export type ServerJson = {
   name?: string;
   description?: string;
   version?: string;
-  packages?: { registryType?: string; identifier?: string; version?: string }[];
+  packages?: {
+    registryType?: string; identifier?: string; version?: string;
+    packageArguments?: { type?: string; name?: string; isRequired?: boolean }[];
+  }[];
 };
 
 export const node = {
@@ -171,6 +174,45 @@ export function unresolvedTarget(target: string, from: string, agent: string, se
   return existsSync(at) ? null : `${target} resolves to nothing a consumer installs`;
 }
 
+export const MCP_SERVER_SOURCE = 'scripts/generate/core/arena-mcp/arena-mcp.ts';
+export const MCP_PAGE = 'skills/design/references/mcp.md';
+
+export function flagsOf(usage: string) {
+  return [...usage.matchAll(/^ {2}(--[a-z][a-z-]*)/gm)].map((one) => one[1] ?? '');
+}
+
+export function exitCodesOf(source: string) {
+  const start = source.indexOf('export async function main');
+  const rest = source.slice(start);
+  const end = rest.indexOf('\nexport ', 1);
+  const body = end === -1 ? rest : rest.slice(0, end);
+  return [...new Set([...body.matchAll(/\breturn (\d+);/g)].map((one) => Number(one[1])))].sort();
+}
+
+export function errorPathsOf(source: string) {
+  return [...source.matchAll(/\bisError: true/g)].length;
+}
+
+export function registryArgumentProblems(server: ServerJson, flags: string[]) {
+  const declared = (server.packages?.[0]?.packageArguments ?? [])
+    .filter((one) => one.type === 'named').map((one) => one.name ?? '');
+  return [
+    ...flags.filter((flag) => !declared.includes(flag)).map((flag) => `the server parses ${flag} `
+      + `and ${REGISTRY_FILE} declares no such argument, so a registry client never offers it`),
+    ...declared.filter((name) => !flags.includes(name)).map((name) => `${REGISTRY_FILE} declares ${name} `
+      + 'and the server does not parse it, so the server refuses the argument a client passes'),
+  ];
+}
+
+export function failureClaimProblems(page: string, codes: number[], errors: number) {
+  const problems = codes.filter((code) => !new RegExp(`\\bexits? ${code}\\b`).test(page)).map((code) =>
+    `${MCP_PAGE} never says the server exits ${code}, and main returns it`);
+  if (errors > 0 && !page.includes('isError')) {
+    problems.push(`${MCP_PAGE} never names isError, and arena_read answers it on ${errors} paths`);
+  }
+  return problems;
+}
+
 export function registryProblems(base = root) {
   const path = join(base, REGISTRY_FILE);
   if (!existsSync(path)) {
@@ -241,6 +283,16 @@ export function registryProblems(base = root) {
   }
 
   return problems;
+}
+
+export function serverClaimProblems(base = root) {
+  const server = readJson(join(base, REGISTRY_FILE)) as ServerJson;
+  const source = readFileSync(join(base, ...MCP_SERVER_SOURCE.split('/')), 'utf8');
+  const page = readFileSync(join(base, ...MCP_PAGE.split('/')), 'utf8');
+  return [
+    ...registryArgumentProblems(server, flagsOf(USAGE)),
+    ...failureClaimProblems(page, exitCodesOf(source), errorPathsOf(source)),
+  ];
 }
 
 export function corpusProblems(dir: string) {
@@ -475,7 +527,7 @@ export function collect(base = root, dir = assembled(base)) {
   return {
     counts: uris.counts,
     problems: [
-      ...dependencyProblems(base), ...registryProblems(base), ...binProblems(dir), ...flatProblems(dir),
+      ...dependencyProblems(base), ...registryProblems(base), ...serverClaimProblems(base), ...binProblems(dir), ...flatProblems(dir),
       ...corpusProblems(dir), ...vocabularyProblems(dir), ...servedLinkProblems(dir),
       ...derivedSlotsProblems(dir, base), ...levelsProblems(dir, base), ...catalogueProblems(dir, base), ...styleStoreProblems(dir, base), ...identityProblems(dir, base),
       ...uris.problems,

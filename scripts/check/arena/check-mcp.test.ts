@@ -9,7 +9,11 @@ import {
   unresolvedTarget, targetsIn, registryProblems, SITE_BASE, REGISTRY_SCHEMA,
   REGISTRY_DESCRIPTION_LIMIT, flatProblems, ESCAPING_SPECIFIER, vocabularyProblems,
   styleStoreProblems, identityProblems, derivedSlotsProblems, levelsProblems, writtenUriProblems,
+  registryArgumentProblems, failureClaimProblems, flagsOf, exitCodesOf, errorPathsOf, MCP_SERVER_SOURCE,
 } from './check-mcp.ts';
+import { readFileSync } from 'node:fs';
+import { USAGE } from '../../generate/core/arena-mcp/arena-mcp.ts';
+import { readJson } from '../../utils/read-file.ts';
 import { DERIVED_SLOTS, derivedSlotsText, levelIndexText } from '../../lib/arena/package-assembly.ts';
 import {
   RUNTIME_DEPENDENCIES, ENTRY, NAME, LAYERS, DIST, REGISTRY_NAME, manifest, buildMcpPackage,
@@ -392,5 +396,46 @@ test('a URI a served document writes resolves as arena_read would answer it', ()
     const found = writtenUriProblems('react', [{ rel: 'doc.md', text }], served);
     assert.equal(found.length, count, `${name}: ${found.join(' | ')}`);
     if (naming) assert.match(found.join('\n'), naming, name);
+  }
+});
+
+const SERVER_WITH = (names: string[]) => ({
+  packages: [{ packageArguments: names.map((name) => ({ type: 'named', name, isRequired: false })) }],
+});
+
+test('server.json declares exactly the flags the server parses', () => {
+  assert.deepEqual(flagsOf(USAGE), ['--layer', '--payload'], 'the reader finds both flags of USAGE');
+  const flags = flagsOf(USAGE);
+  const ROWS: [string, unknown, RegExp | null][] = [
+    ['the live server.json', readJson(join(root, 'server.json')), null],
+    ['a server.json missing --payload', SERVER_WITH(['--layer']), /--payload.*server\.json declares no such argument/],
+    ['a server.json with both', SERVER_WITH(['--layer', '--payload']), null],
+    ['a server.json with an extra --debug', SERVER_WITH(['--layer', '--payload', '--debug']), /--debug.*server does not parse/],
+  ];
+  for (const [name, server, expected] of ROWS) {
+    const found = registryArgumentProblems(server as never, flags).join('\n');
+    if (expected === null) assert.equal(found, '', `${name}: problems`);
+    else assert.match(found, expected, `${name}: problems`);
+  }
+});
+
+test('the MCP page names every exit code and error the server returns', () => {
+  const source = readFileSync(join(root, ...MCP_SERVER_SOURCE.split('/')), 'utf8');
+  const codes = exitCodesOf(source);
+  const errors = errorPathsOf(source);
+  assert.deepEqual(codes, [0, 2], 'the reader finds exit 0 and exit 2 in main');
+  assert.equal(errors, 2, 'the reader finds both isError paths');
+  const live = readFileSync(join(root, 'skills', 'design', 'references', 'mcp.md'), 'utf8');
+  const ROWS: [string, string, RegExp | null][] = [
+    ['the live page', live, null],
+    ['a page naming nothing', 'The server serves documents.\n', /exits 0.*exits 2.*isError/s],
+    ['a page naming exit 0, exit 2 and isError', '--help exits 0. A bad argument exits 2. `isError: true` marks a failed read.\n', null],
+    ['a page without exit 2', '--help exits 0. `isError: true` marks a failed read.\n', /exits 2/],
+    ['a page without isError', '--help exits 0. A bad argument exits 2.\n', /isError/],
+  ];
+  for (const [name, page, expected] of ROWS) {
+    const found = failureClaimProblems(page, codes, errors).join('\n');
+    if (expected === null) assert.equal(found, '', `${name}: problems`);
+    else assert.match(found, expected, `${name}: problems`);
   }
 });

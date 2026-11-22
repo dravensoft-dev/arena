@@ -23,6 +23,12 @@
           "description": "Which half of the corpus to serve. Defaults to the framework package installed beside it.",
           "isRequired": false,
           "choices": ["react", "angular"]
+        },
+        {
+          "type": "named",
+          "name": "--payload",
+          "description": "A corpus directory to serve in place of the ones the package carries, for a build of Arena that is not installed.",
+          "isRequired": false
         }
       ]
     }
