@@ -1,19 +1,10 @@
 # Colouring a group of components
 
-Read this when your style plugin gives a group of components a colour of its own, or gives one state of a part a colour of its own. [`style-kernel.md`](./style-kernel.md) holds the roles and the loop.
+Read this when your style plugin gives a group of components a colour of its own, or gives one state of a part a colour of its own. [`style-kernel.md`](./style-kernel.md) holds the roles and the loop, and [its two routes](./style-kernel.md#the-three-files-you-write) say which plugin answers a slot as they do a role.
 
 A colour slot is one coloured part of one group of components, in one option, one property and one state. Your style plugin answers a slot with a colour role, in `plugin.tokens.json` beside the roles. **An answer moves every component that paints that part of the group.** Two components of one group move together, and a group is the smallest thing a slot colours.
 
 A slot takes a role and never a palette colour. The role says which of your colours, and the slot says where it lands. A slot you leave silent paints what this page lists, so a plugin answers only the slots it changes.
-
-## Which plugin answers
-
-Two routes lead to a slot answer. Pick the row that fits before you write one.
-
-| You want | The route |
-| --- | --- |
-| I change a few roles or slots | List a later plugin after `"default"`, as `["default", "./design/<name>"]`. The later plugin answers only what it changes. Put its `.arena-<name>` class on `<html>`, since nothing it answers reaches the page without the class. The rule is in [`style-kernel.md`](./style-kernel.md#the-two-rules-that-decide-everything-else). |
-| I want my product's own appearance | Write a root plugin that answers every role carrying no default. Start it from a copy of `plugin-style-store/default/` or of a catalogue entry. Both sit in the repository and on the site, not in the package. |
 
 ## The common case first
 

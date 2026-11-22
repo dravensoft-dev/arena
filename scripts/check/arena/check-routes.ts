@@ -52,10 +52,9 @@ export const ENTRIES: Entry[] = [
   {
     name: 'consumer',
     router: 'skills/design/SKILL.md',
-    budget: 21_657,
+    budget: 21_773,
     reason:
       'the page every consumer route opens with, declared once, not as each route\'s first stop. '
-      + 'What a route pays past it is argued where spent. '
       + 'A question earns a row only when asked before a builder knows their situation. '
       + 'Some ask whether a component exists, how much of Arena to take, what to install it with '
       + 'and where the appearance comes from. '
@@ -66,9 +65,9 @@ export const ENTRIES: Entry[] = [
       + 'extends, as wrapped-link stands beside router-link. The vocabulary families name which '
       + 'style decision reaches which component owner and answer appearance questions '
       + 'at the decision layer. The tokens-only rule names the bracket values audit holds. Rows route a mock, '
-      + 'toolchain, bundler, panel, toggle and layer. One row lists every export topic, and the cold-start '
+      + 'toolchain, bundler, panel, toggle, layer and density, and keep the floor of a page apart from markup paint. One row lists every export topic, and the cold-start '
       + 'paragraph names the project-wide branch. The router-link rule names each member with an href, and the '
-      + 'icon rule names production code and the component that draws a glyph.',
+      + 'icon rule names the component that draws a glyph.',
   },
   {
     name: 'contributor',
@@ -357,7 +356,7 @@ export const ROUTES: Route[] = [
         ],
       },
     ],
-    budget: 36_733,
+    budget: 36_737,
     reason:
       'the route declared as a tree, charged its worst branch, never the sum, because a '
       + 'reader answers a question and walks one way. Given a document stating the palette and '

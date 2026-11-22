@@ -6,8 +6,7 @@ write, and Arena hands you every value to write it with.
 
 Run `arena init` and `arena build` first ([`cli.md`](./cli.md#which-commands-are-there)), then import their sheets ([React](./install.md#how-do-i-import-the-stylesheets-in-react), [Angular](./install.md#how-do-i-import-the-stylesheets-in-angular)).
 
-Read this page first. Three questions are its own: what colour your own markup takes,
-how wide the content column gets, and how much space goes between one component and the next.
+Read this page first for what your page stands on. The colour of your own markup is on [the markup tree](./tokens/markup/index.md), and the column and the air are on [`style.md`](./style.md).
 
 ## The floor, and Arena does not paint it
 
@@ -51,10 +50,7 @@ The page canvas follows the palette of the root element alone, whether that is `
 
 ## Which colour your own markup takes
 
-**Reach for a role when the thing you are drawing is furniture, and an alias when it is voice.**
-A style plugin
-re-answers a role, so markup painted through one follows the appearance it is handed. An alias
-resolves to a palette colour and follows the palette instead.
+**The role your own markup takes is answered on [`tokens/markup/index.md`](./tokens/markup/index.md).** The markup index names a page for each task: [surfaces and text](./tokens/markup/surfaces-and-text.md), [edges](./tokens/markup/edges.md) and [states](./tokens/markup/states.md).
 
 **Markup of yours written with Tailwind v4 reads the same tokens.** Import the package's
 `css/tailwind-theme.css` right after `tailwindcss`, and `bg-base-100` or `p-4` on your own
@@ -68,8 +64,6 @@ so branch a heavy frame on your layer's viewport helper instead, right at the fi
 and wide in a server's HTML. The `md:hidden` pair also chooses a side nav or a bottom nav, and an
 app bar's `nav` slot or its phone toggle. Arena's components narrow before the client's first paint
 and are wide in a server's HTML.
-
-**The colour roles of your own markup are in the markup tree.** [`tokens/markup/index.md`](./tokens/markup/index.md) names a page for each task: [surfaces and text](./tokens/markup/surfaces-and-text.md), [edges](./tokens/markup/edges.md) and [states](./tokens/markup/states.md). Each page carries the role for what you are drawing, and the surfaces and text page also carries the level a held-back text spends.
 
 ## Meaning and identity are two different colour sets
 

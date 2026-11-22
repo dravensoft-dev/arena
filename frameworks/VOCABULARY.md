@@ -89,7 +89,7 @@ How wide a column of a table is and how its cells align, which is the adopter's 
 
 ## density
 
-How much a region holds, which is a question about who is pointing at it rather than about the register the product speaks in. arena-compact re-densifies the controls, the rows and their text, for an expert view that has to hold more. arena-comfortable grows the controls to a 48px touch target for a screen a thumb drives, and leaves the text the size it was. The two are exclusive: a container wearing both gets arena-comfortable. Write it on an element of yours or on a component, and it reaches every component inside until a nearer density answers it again. The air between components does not re-densify.
+How much a region holds, which is a question about who is pointing at it rather than about the register the product speaks in. The class to write and what each one re-answers are on [the density section of the style page](../skills/design/references/style.md#density).
 
 - **Options:** `arena-comfortable`, `arena-compact`.
 - **Reach:** context: it goes on an element you wrote or on a component, and reaches every component inside until a nearer class answers it again.

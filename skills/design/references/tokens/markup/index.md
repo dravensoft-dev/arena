@@ -2,7 +2,7 @@
 
 Read this when you write markup of your own and need the custom property for a fill, a line, a space, a type, a shadow or a layer.
 
-**Reach for a role when the thing you are drawing is furniture.** A style plugin re-answers a role, so markup painted through one follows the appearance the project adopts. Each page below is one task, and each gives the roles of that task.
+**Reach for a role when the thing you are drawing is furniture, and an alias when it is voice.** A style plugin re-answers a role, so markup painted through one follows the appearance the project adopts. An alias resolves to a palette colour and follows the palette instead. Each page below is one task, and each gives the roles of that task.
 
 Your markup reads the roles on these pages. A role under [`../components/`](../components/index.md) answers a part only Arena's components draw, so your markup reads the vocabulary class for that part, as [`frameworks/VOCABULARY.md`](../../../../../frameworks/VOCABULARY.md) names.
 
