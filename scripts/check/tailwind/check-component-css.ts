@@ -1,13 +1,13 @@
-/* Seven claims about the CSS a component renders, none of which needs a browser. Every class a
- * manifest names has a rule and every rule came from a manifest, so a renamed slot cannot leave a
- * component drawing a class nothing defines. No emitted file reads a Tailwind theme property,
- * which is the assertion that the strip ran and therefore that an adopter's own `--spacing`
- * cannot reach in, and every property the CSS does read resolves to a token Arena ships. The
- * seven `arena-*` animation utilities are excluded by name, since `Animations.css` owns that
- * namespace. The specimen's is that a page links one sheet per manifest it fetches, a missing
- * link rendering that part unstyled with nothing opening the page to see it. The last two read
- * the `@supports` emit and supports-blocks.ts states what each is, a block nested in a pseudo-element
- * rule included; a survivor reports a sheet emitted before those transforms, not a manifest to edit. */
+/* Eight claims about the CSS a component renders, none of which needs a browser. Every class a manifest names
+ * has a rule and every rule came from a manifest, so a renamed slot cannot leave a component drawing a class
+ * nothing defines. No emitted file reads a Tailwind theme property, which is the assertion that the strip ran
+ * and therefore that an adopter's own `--spacing` cannot reach in, and every property the CSS does read
+ * resolves to a token Arena ships. The seven `arena-*` animation utilities are excluded by name, since
+ * `Animations.css` owns that namespace. The specimen's is that a page links one sheet per manifest it
+ * fetches, a missing link rendering that part unstyled with nothing opening the page to see it. The last
+ * three read the `@supports` emit: a blind fallback, a repeated condition and a block nested in a
+ * pseudo-element rule, each stated in supports-blocks.ts. A survivor reports a sheet emitted before those
+ * transforms, not a manifest to edit. */
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
