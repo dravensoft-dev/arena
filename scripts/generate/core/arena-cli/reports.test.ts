@@ -100,8 +100,7 @@ test('the cli page names every kind each command reports and holds', () => {
   }
   const row = page.find((line) => line.startsWith('| `arena check` |'));
   assert.ok(row, 'the arena check row');
-  const reports = row.split('|')[2] ?? '';
-  for (const kind of KINDS_BY_COMMAND.check) {
-    assert.match(reports, new RegExp(`\\b${spoken[kind] ?? kind}\\b`), `check: the report list names ${kind}`);
-  }
+  const reports = /get wrong: (.+?) reports\b/.exec(row.split('|')[2] ?? '')?.[1] ?? '';
+  const named = reports.split(/, | and /).map((word) => Object.entries(spoken).find(([, said]) => said === word)?.[0] ?? word);
+  assert.deepEqual([...named].sort(), [...KINDS_BY_COMMAND.check].sort(), 'check: the report list names exactly the kinds the command reports');
 });
