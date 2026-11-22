@@ -1,11 +1,12 @@
-/* The MCP package against what it promises, in seven claims. It declares the dependencies it
- * imports and no others, since a server that resolves at build and throws at spawn reads as a
- * broken configuration. Its bin resolves to a file that is there. It carries the corpus and one
- * vocabulary index per layer, since a package with the transport and no documents answers every
- * question with silence. Every path inside it resolves to something the package carries or the
- * site publishes. Every `arena://` URI a document of the corpus writes resolves in that layer's catalogue, since `arena_read` answers any other with an error. The catalogue reaches every component the tree declares. And server.json states
- * this tree's own name and version. dist/ is git-ignored, so an unassembled tree stops the gate
- * through cannotRun. */
+/* The MCP package against what it promises, in seven claims. It declares the dependencies it imports and
+ * no others, since a server that resolves at build and throws at spawn reads as a broken configuration.
+ * Its bin resolves to a file that is there. It carries the corpus and one vocabulary index per layer,
+ * since a package with the transport and no documents answers every question with silence. Every path
+ * inside it resolves to something the package carries or the site publishes. Every `arena://` URI a
+ * document of the corpus writes resolves in that layer's catalogue, since `arena_read` answers any other
+ * with an error. The catalogue reaches every component the tree declares. And server.json states this
+ * tree's own name and version. dist/ is git-ignored, so an unassembled tree stops the gate through
+ * cannotRun. */
 
 import { existsSync, readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
@@ -470,20 +471,21 @@ export function uriProblems(dir: string) {
 }
 
 export function collect(base = root, dir = assembled(base)) {
+  const uris = uriProblems(dir);
   return {
+    counts: uris.counts,
     problems: [
       ...dependencyProblems(base), ...registryProblems(base), ...binProblems(dir), ...flatProblems(dir),
       ...corpusProblems(dir), ...vocabularyProblems(dir), ...servedLinkProblems(dir),
       ...derivedSlotsProblems(dir, base), ...levelsProblems(dir, base), ...catalogueProblems(dir, base), ...styleStoreProblems(dir, base), ...identityProblems(dir, base),
-      ...uriProblems(dir).problems,
+      ...uris.problems,
     ],
   };
 }
 
 function main() {
   refuseUnassembled();
-  const { problems } = collect();
-  const { counts } = uriProblems(assembled());
+  const { problems, counts } = collect();
   if (problems.length > 0) {
     console.error(`check-mcp: ${problems.length} problem(s)\n`);
     for (const problem of problems) console.error(`  ${problem}`);
