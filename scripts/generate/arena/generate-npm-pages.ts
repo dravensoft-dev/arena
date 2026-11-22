@@ -6,12 +6,14 @@
  * pages names no layer: `check:layer-independence` refuses a page under `frameworks/<A>/` that
  * cites layer B, and the test here holds every shared region to that. */
 
-import { mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
-import { packageSheetName, sheetFamilies, VOCABULARY_DIR, FAMILY_SUFFIX } from '../../lib/tailwind/vocabulary.ts';
-import { CSS_CHAIN, CHANNEL_SOURCES, ALIAS_SOURCE, ANGULAR_EXTRA, FAMILY_PART_SHEET_READS, TOKEN_CATALOGUE_READS, arenaCssLayers, familyPartSheets, tokenCatalogue } from '../../lib/arena/package-assembly.ts';
+import { packageSheetName, sheetFamilies, sheetName, VOCABULARY_DIR, VOCABULARY_SHEETS, FAMILY_SUFFIX } from '../../lib/tailwind/vocabulary.ts';
+import { tailwindThemeSheet } from '../../lib/tailwind/theme-sheet.ts';
+import { walkFiles } from '../../utils/walk-files.ts';
+import { CSS_CHAIN, SHEET_BANNERS, CHANNEL_SOURCES, ALIAS_SOURCE, ANGULAR_EXTRA, FAMILY_PART_SHEET_READS, TOKEN_CATALOGUE_READS, arenaCssLayers, familyPartSheets, tokenCatalogue } from '../../lib/arena/package-assembly.ts';
 import type { CssChainEntry } from '../../lib/arena/package-assembly.ts';
 import { NPM_PAGES, renderQuestions } from '../../lib/arena/npm-questions.ts';
 import { ARENA_EXT, POLARITY_HOOKS, RESERVED } from '../core/arena-cli/style-plugin-rules.ts';
@@ -476,6 +478,42 @@ function scaleRegion(groups: string[], base: string) {
   return [intro, '', '| custom property | value | Tailwind |', '| --- | --- | --- |', ...rows].join('\n');
 }
 
+
+const CONSUME_SHEETS = 'frameworks/tailwind/consume';
+const LAYER_BLOCK = /^\s*@layer\s+([\w-]+)\s*\{/m;
+const layerOf = (css: string) => LAYER_BLOCK.exec(css)?.[1] ?? 'unlayered';
+const NAMES_PER_SENTENCE = 20;
+
+function layerCell(sheets: { name: string; css: string }[]) {
+  const groups = new Map<string, string[]>();
+  for (const { name, css } of sheets) groups.set(layerOf(css), [...(groups.get(layerOf(css)) ?? []), name]);
+  if (groups.size <= 1) return [...groups.keys()].map((layer) => (layer === 'unlayered' ? layer : `\`${layer}\``)).join('') || 'unlayered';
+  return [...groups].sort(([a], [b]) => (a < b ? -1 : 1)).flatMap(([layer, names]) =>
+    Array.from({ length: Math.ceil(names.length / NAMES_PER_SENTENCE) }, (_, at) =>
+      `${layer === 'unlayered' ? layer : `\`${layer}\``}: ${names.slice(at * NAMES_PER_SENTENCE, (at + 1) * NAMES_PER_SENTENCE).join(', ')}.`)).join(' ');
+}
+
+const sheetsUnder = (base: string, dir: string) => (existsSync(join(base, CONSUME_SHEETS, dir))
+  ? walkFiles(join(base, CONSUME_SHEETS, dir)).filter((file) => file.endsWith('.css')).sort()
+    .map((file) => ({ name: file.slice(join(base, CONSUME_SHEETS, dir).length + 1).replace(/\.css$/, ''), css: readFileSync(file, 'utf8') }))
+  : []);
+
+function sheetLayers(base: string) {
+  const preflight = join(base, CONSUME_SHEETS, 'Preflight.generated.css');
+  const families = sheetFamilies(base).map((one) => one.family).sort();
+  const vocabulary = existsSync(join(base, ...VOCABULARY_SHEETS.split('/')))
+    ? families.map((family) => ({ name: family, css: readFileSync(join(base, ...VOCABULARY_SHEETS.split('/'), sheetName(family)), 'utf8') }))
+    : [];
+  return {
+    base: layerCell(existsSync(preflight) ? [{ name: 'base', css: readFileSync(preflight, 'utf8') }] : []),
+    barrel: layerCell([{ name: 'components', css: SHEET_BANNERS.components }]),
+    components: layerCell(sheetsUnder(base, 'components')),
+    hues: layerCell(sheetsUnder(base, 'hues')),
+    vocabulary: layerCell(vocabulary),
+    theme: layerCell(existsSync(join(base, 'frameworks/tailwind/Theme.css')) ? [{ name: 'tailwind-theme', css: tailwindThemeSheet(base) }] : []),
+  };
+}
+
 export const REGIONS: Record<string, (base?: string, target?: string) => string> = {
   repository: () => `## This package ships the components and not the language
 
@@ -570,7 +608,7 @@ ${fieldTable(base, CONFIRM_REQUEST_CONTRACT)}`,
         const dir = packageSheetName(family).replace(/\.css$/, '/');
         byFamily.set(dir, { family, sheets: [...(byFamily.get(dir)?.sheets ?? []), `\`${to}\``] });
       }
-      return [...byFamily].map(([dir, { family, sheets }]) => `| \`${dir}\` | One sheet per component that answers the \`${family}\` family, a family some of whose components answer their options through colour slots: `
+      return [...byFamily].map(([dir, { family, sheets }]) => `| \`${dir}\` | ${layerCell(familyPartSheets(at).filter((one) => packageSheetName(one.family).replace(/\.css$/, '/') === dir).map((one) => ({ name: one.to.slice(dir.length).replace(/\.css$/, ''), css: one.content })))} | One sheet per component that answers the \`${family}\` family, a family some of whose components answer their options through colour slots: `
         + `${sheets.join(', ')}. Each holds that component's blocks of the family. \`arena build\` imports the ones a screen draws, in place of `
         + `the family's whole sheet. \`arena.css\` imports the whole sheet, and a project importing component sheets one by one imports either |\n`).join('');
     };
@@ -586,14 +624,15 @@ ${fieldTable(base, CONFIRM_REQUEST_CONTRACT)}`,
     const hues = readJson(join(base, HUES_FILE)) as { hues: Record<string, Record<string, string>> };
     const channels = [...new Set(Object.values(hues.hues).flatMap((one) => Object.keys(one)))].map((name) => `\`--arena-hue-${name}\``);
     const channelList = `${channels.slice(0, -1).join(', ')} and ${channels.at(-1)}`;
-    return `| stylesheet | what it is |
-| --- | --- |
-| \`css/base.css\` | the browser reset and nothing of Arena's. Arena needs one: without \`button, input, select, textarea { font: inherit }\` a control falls back to the browser's 13.33px Arial. Every control in the library is then 20% off, with nothing to tell you. Keep yours or keep this one, but keep one |
-| \`css/components.css\` | every component Arena draws |
-| \`css/components/<name>.css\` | one component, named for its sheet as \`arena-button.css\` or \`arena-stat-card.css\`. Each imports the prelude it needs itself, so importing one alone is safe |
-| \`css/hues/<name>.css\` | a component's hue sheet, imported by its sheet, writing ${channelList} from the component's \`data-arena\` values, or unconditionally on a part whose hue no value varies |
-| \`css/vocabulary/\` | One sheet per family on the vocabulary page: ${sheetList}. \`arena.css\` imports them. A project importing component sheets one by one imports these too, or a vocabulary class does nothing |
-${partRows(base)}| \`css/tailwind-theme.css\` | Arena's theme and utilities for markup of your own compiled with \`tailwindcss\` v4. Import it right after \`@import 'tailwindcss'\`: every utility then resolves to Arena's scale, \`case-eyebrow\`, \`case-label\`, \`fit-media\` and the animation utilities are available, and the compiler's own defaults are unreachable. A key of yours survives only below this import. The sheet's \`sm:\`, \`md:\` and \`lg:\` variants and their \`max-*\` complements sit at the \`--bp-*\` thresholds the viewport helper reads. A wide frame marked \`max-md:hidden\` and a phone frame marked \`md:hidden\` are therefore right at the first paint, a server's HTML included |
+    const layers = sheetLayers(base);
+    return `| stylesheet | layer | what it is |
+| --- | --- | --- |
+| \`css/base.css\` | ${layers.base} | the browser reset and nothing of Arena's. Arena needs one: without \`button, input, select, textarea { font: inherit }\` a control falls back to the browser's 13.33px Arial. Every control in the library is then 20% off, with nothing to tell you. Keep yours or keep this one, but keep one |
+| \`css/components.css\` | ${layers.barrel} | every component Arena draws |
+| \`css/components/<name>.css\` | ${layers.components} | one component, named for its sheet as \`arena-button.css\` or \`arena-stat-card.css\`. Each imports the prelude it needs itself, so importing one alone is safe |
+| \`css/hues/<name>.css\` | ${layers.hues} | a component's hue sheet, imported by its sheet, writing ${channelList} from the component's \`data-arena\` values, or unconditionally on a part whose hue no value varies |
+| \`css/vocabulary/\` | ${layers.vocabulary} | One sheet per family on the vocabulary page: ${sheetList}. \`arena.css\` imports them. A project importing component sheets one by one imports these too, or a vocabulary class does nothing |
+${partRows(base)}| \`css/tailwind-theme.css\` | ${layers.theme} | Arena's theme and utilities for markup of your own compiled with \`tailwindcss\` v4. Import it right after \`@import 'tailwindcss'\`: every utility then resolves to Arena's scale, \`case-eyebrow\`, \`case-label\`, \`fit-media\` and the animation utilities are available, and the compiler's own defaults are unreachable. A key of yours survives only below this import. The sheet's \`sm:\`, \`md:\` and \`lg:\` variants and their \`max-*\` complements sit at the \`--bp-*\` thresholds the viewport helper reads. A wide frame marked \`max-md:hidden\` and a phone frame marked \`md:hidden\` are therefore right at the first paint, a server's HTML included |
 
 **The rest of what ships under \`css/\` is not a choice.** The token layer is these sheets, in this order: ${listed}. \`arena.css\` imports them in the order they have to be in, and \`css/prelude.css\` is what a single component sheet pulls in for itself. The one that IS a decision is \`css/style-plugin-default.css\`, the appearance this package installs with. The sheet arrives through \`arena.css\` like the rest. A \`stylePlugins\` list of your own that does not name \`default\` does not receive it, which is the point of writing one. A project's own root plugin has no sheet in that place: it answers in \`arena.generated.css\`, which restates the high-contrast block after those answers.`;
   },

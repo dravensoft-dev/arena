@@ -5,7 +5,7 @@
 
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { readFileSync, readdirSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { spawnSync } from 'node:child_process';
 import { join } from 'node:path';
@@ -165,7 +165,7 @@ test('the sheets region splits a long list into sentences within the register wo
   assert.equal(named.length, 45);
   assert.deepEqual(named, sheetFamilies(base).map((family) => family.family).sort().map(packageSheetName));
   const cell = region.split('\n').find((line) => line.startsWith('| `css/vocabulary/`')) ?? '';
-  const sentences = plain(cell.split('|')[2] ?? '').split(/(?<=\.)\s+/);
+  const sentences = plain(cell.split('|')[3] ?? '').split(/(?<=\.)\s+/);
   assert.ok(sentences.length >= 3, 'more than two chunks');
   for (const sentence of sentences)
     assert.ok(words(sentence).length <= MAX_WORDS, `a sentence of ${words(sentence).length} words: ${sentence.slice(0, 60)}`);
@@ -821,4 +821,28 @@ test('the spacing table carries the rhythm steps', () => {
     assert.ok(region.includes(`| \`--rhythm-${name}\` | \`${size.value}${size.unit}\` | \`gap-${name}\` |`), `rhythm ${name} is a row with its px and its utility`);
   }
   assert.ok(region.includes('style.md#the-air-between-two-components'), 'the table says where the classes are');
+});
+
+test('the sheet table names each sheet\'s layer', () => {
+  const dir = (path: string) => readdirSync(join(repoRoot, path), { recursive: true, withFileTypes: true })
+    .filter((one) => one.isFile() && one.name.endsWith('.css')).map((one) => join(one.parentPath, one.name));
+  const opens = (file: string) => /^\s*@layer\s+([\w-]+)\s*\{/m.exec(readFileSync(file, 'utf8'))?.[1] ?? 'unlayered';
+  const layersOf = (files: string[]) => [...new Set(files.map(opens))].sort();
+  const consume = 'frameworks/tailwind/consume';
+  const rows = [
+    { sheet: '`css/base.css`', layers: layersOf([join(repoRoot, consume, 'Preflight.generated.css')]) },
+    { sheet: '`css/components/<name>.css`', layers: layersOf(dir(`${consume}/components`)) },
+    { sheet: '`css/hues/<name>.css`', layers: layersOf(dir(`${consume}/hues`)) },
+    { sheet: '`css/vocabulary/`', layers: layersOf(readdirSync(join(repoRoot, consume, 'vocabulary')).filter((name) => name.endsWith('.css')).map((name) => join(repoRoot, consume, 'vocabulary', name))) },
+    { sheet: '`css/components.css`', layers: ['unlayered'] },
+  ];
+  const table = renderRegion('sheets').split('\n').filter((line) => line.startsWith('| `css/'));
+  assert.ok(renderRegion('sheets').includes('| stylesheet | layer | what it is |'), 'the table has a layer column');
+  for (const row of rows) {
+    const line = table.find((one) => one.startsWith(`| ${row.sheet} |`)) ?? '';
+    assert.ok(line !== '', `${row.sheet} is a row`);
+    const cell = line.split(/(?<!\\)\|/)[2] ?? '';
+    const named = [...cell.matchAll(/`([\w-]+)`/g)].map((one) => one[1]!).concat(/unlayered/.test(cell) ? ['unlayered'] : []);
+    assert.deepEqual([...new Set(named)].sort(), row.layers, `${row.sheet} names the layers its sheets open`);
+  }
 });
