@@ -9,7 +9,7 @@ import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { findChromium, launchChromium, DEVTOOLS, GRACE, REAP } from '../../lib/arena/chromium.ts';
 import { connect, evaluate } from '../../lib/arena/cdp.ts';
-import { budgetFor, deadline, type Deadline } from '../../lib/arena/deadline.ts';
+import { BUDGET_SLACK, budgetFor, deadline, type Deadline } from '../../lib/arena/deadline.ts';
 import { LAYER_ORDER } from '../../lib/tailwind/component-sheets.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { withTimeout } from '../../utils/with-timeout.ts';
@@ -22,7 +22,7 @@ const NEEDS_A_BROWSER = BROWSER.path ? false : `no Chromium available to measure
 const SHEETS = ['frameworks/react/dist/arena.css', 'contracts/design-generated/palette.generated.css']
   .map((sheet) => pathToFileURL(join(repoRoot, sheet)).href);
 
-type Row = { name: string; markup: string; css: string; property: string; want: string | { reads: string } };
+type Row = { name: string; markup: string; css: string; root?: string; property: string; want: string | { reads: string } };
 const SURFACE = { reads: 'var(--fill-surface)' };
 const ROWS: Row[] = [
   { name: 'an unlayered fill of the adopter beats arena-interactive at rest',
@@ -45,9 +45,12 @@ const ROWS: Row[] = [
   { name: 'a density class on a component still re-answers its control height',
     markup: '<button id="a" class="arena-button__root arena-compact">x</button>', css: '',
     property: 'min-height', want: '32px' },
+  { name: 'a density class on <html> re-answers the control height',
+    markup: '<button id="a" class="arena-button__root">x</button>', css: '', root: 'arena-compact',
+    property: 'min-height', want: '32px' },
 ];
 
-const page = (row: Row) => `<!doctype html><html><head><meta charset="utf-8"><style>${row.css}</style>`
+const page = (row: Row) => `<!doctype html><html${row.root ? ` class="${row.root}"` : ''}><head><meta charset="utf-8"><style>${row.css}</style>`
   + `${SHEETS.map((href) => `<link rel="stylesheet" href="${href}">`).join('')}</head><body>${row.markup}</body></html>`;
 
 const MEASURE = (property: string, reads: string | null) => `(() => {
@@ -90,7 +93,7 @@ async function drawn(): Promise<{ own: string; want: string }[]> {
   }
 }
 
-const BUDGET_MS = budgetFor(DEVTOOLS, GRACE, REAP, ...ROWS.map(() => LOAD));
+const BUDGET_MS = budgetFor(DEVTOOLS, GRACE, REAP, LOAD) + (ROWS.length - 1) * LOAD.ms * BUDGET_SLACK;
 
 test('a markup class sits under the adopter and over the preflight',
   { timeout: BUDGET_MS, skip: NEEDS_A_BROWSER }, async () => {

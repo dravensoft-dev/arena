@@ -44,7 +44,7 @@ export const FILES = [
   { out: 'typography.generated.css', layer: DEFAULTS_LAYER, blocks: [
     { selector: ':root', source: 'typography.json' },
   ] },
-  { out: 'spacing.generated.css', blocks: [
+  { out: 'spacing.generated.css', layer: DEFAULTS_LAYER, blocks: [
     { selector: ':root', source: 'spacing.json' },
     { selector: ':root', source: 'icon.json' },
     { selector: ':root', source: 'component.json' },
