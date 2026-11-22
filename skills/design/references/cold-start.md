@@ -137,7 +137,10 @@ Each is settled before the first screen and never per screen. The four are in th
 | How does it answer the kernel's roles | [`style-kernel.md`](./style-kernel.md) | node 8 found a plugin that already answers every role that carries no default |
 | Does anybody outside it have to find it | [`seo.md`](./seo.md) | never, because a no that was never chosen is announced by nothing and reaches the install rather than a screen |
 
-Then go to 9, because the last of those four is a yes or a no and the next node is how much.
+| You arrived from | Go to |
+|---|---|
+| 5, with the document approved | 7 |
+| 8, a project already carrying Arena | 7 for the rows node 8 found unanswered only, then the per-screen route in [`../SKILL.md`](../SKILL.md) |
 
 ## 7. The decisions every screen inherits
 
@@ -169,16 +172,14 @@ anything:
   not answer is a property that disappears rather than a plainer look.
 - Read its `plugin.css`, if it has one, to see which decisions the project paints by hand. Those decisions are the ones no role reaches, and they are the ones your new screen has to
   keep.
+- Read which density class, which locale, which `lang`, which first-paint snippet and which frame the project already sets, and which slots its plugin answers.
 - Run `arena audit` and report what it names before you write anything. The audit reads the project's own sources and its declared plugin directories for the rules a
   source text can show.
 
 Say what you found. A project whose plugin answers every role that carries no default needs no style plugin work, and
 saying so is what stops an agent rewriting an appearance somebody already chose.
 
-Then go to 6, and skip the rows it says you may skip. **Stop there rather than going on to 9**,
-because the nodes past it decide an install a project carrying Arena has already made. The route
-from here is the per-screen one in [`../SKILL.md`](../SKILL.md). Reach 9 only when this screen is
-the first that has to be found from outside the product.
+Then go to 6, and skip the rows it says you may skip. Its last table sends a project carrying Arena on from there.
 
 ## 9. How much does it have to be found?
 
