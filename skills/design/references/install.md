@@ -190,3 +190,19 @@ An optional value binds straight through. Every input that carries a default res
 A component renders `.arena-button__root`, spelt from the component's own name. A rule of yours written against that class is a rule about that component and nothing else.
 
 Every sheet is named the same way. `css/components/arena-button.css` is the file, and `arena-button` is what you write in a `stylesheet` list. [`config.md`](./config.md) covers that list.
+
+## How do I confirm the install works?
+
+Run the three commands from the project, through the runner of your manager.
+
+```bash
+npx --no-install arena doctor     # or: pnpm exec arena doctor
+npx --no-install arena build      # or: pnpm exec arena build
+npx --no-install arena check      # or: pnpm exec arena check
+```
+
+A clean `arena doctor` prints `package` with its name and version, `node` with its version, `config` as valid, and each sheet as `is current`, then exits 0 and writes nothing. On a fresh project the sheets are missing, so `doctor` exits 1 and says `arena build writes` each one. A failing `doctor` names what is missing: a sheet, a config that does not parse, or a node older than the package asks for.
+
+`arena build` prints `wrote` and the path for each sheet it writes, or `no sheet changed` when the sheets are already current. Run `doctor` again and it exits 0.
+
+A clean `arena check` prints `no report(s)` and exits 0. [`cli.md`](./cli.md) covers every command and flag.
