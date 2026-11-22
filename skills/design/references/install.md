@@ -201,7 +201,7 @@ npx --no-install arena build      # or: pnpm exec arena build
 npx --no-install arena check      # or: pnpm exec arena check
 ```
 
-A clean `arena doctor` prints `package` with its name and version, `node` with its version, `config` as valid, and each sheet as `is current`, then exits 0 and writes nothing. On a fresh project the sheets are missing, so `doctor` exits 1 and says `arena build writes` each one. A failing `doctor` names what is missing: a sheet, a config that does not parse, or a node older than the package asks for.
+A clean `arena doctor` prints `package` with its name and version, `node` with its version, `config` as valid, and each sheet as `is current`, then exits 0 and writes nothing. On a fresh project the sheets are missing, so `doctor` exits 1 and says `arena build writes` each one. A failing `doctor` names what is missing: a sheet or a config that does not parse. A node outside `engines.node` is an `environment` report, which fails `doctor` only under `--strict`, as [`cli.md`](./cli.md) says.
 
 `arena build` prints `wrote` and the path for each sheet it writes, or `no sheet changed` when the sheets are already current. Run `doctor` again and it exits 0.
 
