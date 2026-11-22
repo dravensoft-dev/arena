@@ -1,12 +1,13 @@
-/* Loads the kitchen sinks at a 32px browser default against a 16px reference (dark only, matched by slot)
- * and reports text that did not double, is clipped by its box (a scroller that holds it inside the clip
- * is not a clip), spills out of its part's box (unless it already did at 16px), or overlaps a sibling. A root
- * that is not 32px fails naming it. FIXED, CLIPS, OVERLAPS, SPILLS and THINNED are keyed
- * <layer>/<sink>:<data-arena-part or tag>, carry a reason and fail when they silence nothing. The md
- * breakpoint is read from the rule Arena compiles for a probe carrying `md:block`, at 1530px and 1540px.
- * Truncating slots, 1px clip boxes, out-of-flow boxes and the stage of an overlay are not measured.
- * On the default sink, twelve controls narrowed to a 300px column fail when the box is shorter than its
- * content, four of them with a label longer than a line. */
+/* Loads the kitchen sinks at a 32px browser default against a 16px reference (dark only, matched by slot) and
+ * reports text that did not double, is clipped by its box (a scroller that holds it inside the clip is not a
+ * clip), spills out of its part's box (unless it already did at 16px), or overlaps a sibling. A root that is
+ * not 32px fails naming it. FIXED, CLIPS, OVERLAPS, SPILLS and THINNED are keyed
+ * <layer>/<sink>:<data-arena-part or tag>, carry a reason and fail when they silence nothing. THINNED matches
+ * by slot, text and occurrence, since its labels differ at each size by design. The md breakpoint is read
+ * from the rule Arena compiles for a probe carrying `md:block`, at 1530px and 1540px. Truncating slots, 1px
+ * clip boxes, out-of-flow boxes and the stage of an overlay are not measured. On the default sink, twelve
+ * controls narrowed to a 300px column fail when the box is shorter than its content, four of them with a
+ * label longer than a line. */
 
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -571,6 +572,7 @@ async function main() {
   const usedSpills = new Set<string>();
   const usedThinned = new Set<string>();
   let measured = 0;
+  let wrappedBoxes = 0;
   try {
     const cdpBig = await connect(big.wsUrl);
     const cdpSmall = await connect(small.wsUrl);
@@ -611,6 +613,7 @@ async function main() {
       const what = `${layer}/${WRAPPED_SINK}:dark wrapped`;
       const got = await wrappedPage(cdpBig, url(page), layer);
       if (!got.value) { note(unpainted(what, got), what); continue; }
+      wrappedBoxes += got.value.length;
       for (const one of wrappedProblems(got.value)) note(one, what);
     }
   } finally {
@@ -635,7 +638,8 @@ async function main() {
     process.exit(1);
   }
   console.log(`check-text-scale: ${measured} text box(es) measured at a ${ENLARGED_PX}px browser default across `
-    + `${pages.length} page(s), every one doubled, unclipped and clear of its siblings`);
+    + `${pages.length} page(s), every one doubled, unclipped and clear of its siblings, and ${wrappedBoxes} wrapped `
+    + `control box(es) at a ${COLUMN_PX}px column held their content`);
 }
 
 function unpainted(what: string, got: { painted: Painted; silence?: Silence; threw?: string; changed: any[] }) {
