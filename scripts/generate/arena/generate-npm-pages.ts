@@ -218,10 +218,56 @@ export const EXAMPLE_SLOT_ANSWERS: Record<string, string> = {
   'navigation-badge-ink-selected': '{ink-body}',
 };
 
+export const QUIET_ROLE_ANSWERS: Record<string, string> = {
+  'fill-selected': '{fill-marker}',
+  'edge-selected': '{edge-mark}',
+  'ink-eyebrow': '{ink-body}',
+  'accent-primary-fill-soft': '{fill-marker}',
+  'accent-primary-ink': '{ink-body}',
+  'accent-primary-edge': '{edge-mark}',
+  'emphasis-solid-fill': '{emphasis-secondary-fill}',
+  'emphasis-solid-ink': '{emphasis-secondary-ink}',
+};
+
+export const QUIET_SLOT_ANSWERS: Record<string, string> = { fill: '{fill-mark}', ink: '{ink-on-mark}', edge: '{edge-mark}' };
+
+const readsBrand = (value: string | undefined) => /--color-primary\b/.test(value ?? '');
+
+export function brandReaders(base = root) {
+  const catalogue = tokenCatalogue(base);
+  const plugin = readPlugin('default', readJson(join(base, DEFAULT_PLUGIN_DIR, PLUGIN_TOKENS)));
+  const polarities = ['dark', 'light'].map((polarity) => resolvedPlugin(plugin, catalogue, polarity));
+  const brand = (role: string) => polarities.some((at) => readsBrand(at.get(role)));
+  const slots = Object.entries(catalogue.slots.slots).filter(([name, slot]) => slot.default !== undefined
+    && !(name in EXAMPLE_SLOT_ANSWERS) && !(slot.group === 'actions' && slot.option === 'primary') && brand(slot.default.slice(1, -1)));
+  const reads = new Set(slots.map(([, slot]) => (slot.default as string).slice(1, -1)));
+  const roles = Object.keys(catalogue.roles).filter((role) => catalogue.roles[role]?.type === 'color'
+    && !role.startsWith('emphasis-primary-') && reads.has(role) && brand(role));
+  return { roles, slots: slots.filter(([, slot]) => !roles.includes((slot.default as string).slice(1, -1))).map(([name]) => name) };
+}
+
+export function quietAnswers(base = root) {
+  const { roles, slots } = brandReaders(base);
+  const catalogue = readColorSlots(base);
+  const answer = (name: string, value: string | undefined) => {
+    if (value === undefined) throw new Error(`generate-npm-pages: ${name} reads the brand and has no quiet answer`);
+    return value;
+  };
+  return Object.fromEntries([
+    ...roles.map((role) => [role, answer(role, QUIET_ROLE_ANSWERS[role])] as const),
+    ...slots.map((name) => [name, answer(name, QUIET_SLOT_ANSWERS[catalogue.slots[name]!.property])] as const),
+  ]);
+}
+
+const jsonAnswers = (answers: Record<string, string>) => ['```json',
+  JSON.stringify(Object.fromEntries(Object.entries(answers).map(([name, value]) => [name, { $type: 'color', $value: value }])), null, 2), '```'].join('\n');
+
 export function slotExample() {
-  const answers = Object.fromEntries(Object.entries(EXAMPLE_SLOT_ANSWERS)
-    .map(([name, value]) => [name, { $type: 'color', $value: value }]));
-  return ['```json', JSON.stringify(answers, null, 2), '```'].join('\n');
+  return jsonAnswers(EXAMPLE_SLOT_ANSWERS);
+}
+
+export function slotQuiet(base = root) {
+  return jsonAnswers(quietAnswers(base));
 }
 
 const spans = (items: string[]) => items.map((one) => `\`${one}\``).join(', ');
@@ -308,6 +354,7 @@ export const REGION_TARGETS: Record<string, string[]> = {
   questions: NPM_PAGES,
   layout: ['skills/design/references/style.md'],
   slotExample: [SLOT_PAGE],
+  slotQuiet: [SLOT_PAGE],
   slotAccepts: [SLOT_PAGE],
   slotGroups: [SLOT_PAGE],
 };
@@ -641,6 +688,8 @@ you import it beside the other two. The sheet declares the cascade layer order i
   questions: (base = root, target = '') => renderQuestions(target, base),
 
   slotExample: () => slotExample(),
+
+  slotQuiet: (base = root) => slotQuiet(base),
 
   slotAccepts: (base = root) => slotAcceptsTable(readColorSlots(base)),
 

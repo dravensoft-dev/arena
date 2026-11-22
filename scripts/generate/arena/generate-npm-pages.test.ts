@@ -13,7 +13,7 @@ import { LAYER_TOKENS, FORBIDDEN } from '../../check/arena/check-layer-independe
 import {
   TARGETS, atDefault, noImportSheets, openLine, closeLine, renderRegion, applyRegion, regionsOf,
   ROLE_CONTRACT, BEHAVIOUR_CONTRACT, densityValues, requiredLead, toastIntervals, defaultedRoles, defaultedSentence, defaultsStatement, roleRuns, unansweredCount,
-  SLOT_PAGE, EXAMPLE_SLOT_ANSWERS, slotGroupSections, splitFamilyNames, splitFamilySentence,
+  SLOT_PAGE, EXAMPLE_SLOT_ANSWERS, brandReaders, quietAnswers, slotGroupSections, splitFamilyNames, splitFamilySentence,
 } from './generate-npm-pages.ts';
 import { readColorSlots, readSlotDeclarations } from '../../lib/core/color-slots.ts';
 import { slotAnswer } from '../core/arena-cli/slots.ts';
@@ -559,10 +559,10 @@ test('a scale region says only what its groups need', () => {
 
 const decl = readSlotDeclarations(repoRoot);
 const cat = readColorSlots(repoRoot);
-const slotRegions = () => ['slotExample', 'slotAccepts', 'slotGroups'].map((key) => renderRegion(key)).join('\n');
+const slotRegions = () => ['slotExample', 'slotQuiet', 'slotAccepts', 'slotGroups'].map((key) => renderRegion(key)).join('\n');
 
-test('the slot page carries the three slot regions', () => {
-  assert.deepEqual(regionsOf(SLOT_PAGE).sort(), ['slotAccepts', 'slotExample', 'slotGroups']);
+test('the slot page carries the four slot regions', () => {
+  assert.deepEqual(regionsOf(SLOT_PAGE).sort(), ['slotAccepts', 'slotExample', 'slotGroups', 'slotQuiet']);
 });
 
 test('every declared group has a section, in declaration order', () => {
@@ -630,6 +630,39 @@ test('the example answers clear their floors over the default plugin', () => {
     const lines = slotReports(catalogue.slots, answers, roles, colours, theme, levels).map((one) => one.message)
       .filter((line) => /^--(choices-(box|mark|knob)|navigation-(item|badge))-/.test(line));
     assert.deepEqual(lines, [], theme);
+  }
+});
+
+const NOWHERE_ELSE = [
+  { name: 'every role whose silent answer reads the brand outside the primary action is in the nowhere-else list', entry: 'ink-eyebrow', answer: '{ink-body}' },
+  { name: 'a toggled button and a selected option are quieted through the selected fill role', entry: 'fill-selected', answer: '{fill-marker}' },
+  { name: 'a solid icon button is quieted the way the secondary emphasis is answered', entry: 'emphasis-solid-fill', answer: '{emphasis-secondary-fill}' },
+  { name: 'the current step is quieted in its own slots', entry: 'steps-current-marker-fill-rest', answer: '{fill-mark}' },
+  { name: 'the now marker of a calendar is quieted in its own slots', entry: 'data-now-edge-rest', answer: '{edge-mark}' },
+];
+
+test('the nowhere-else list answers every silent reader of the brand outside the primary action', () => {
+  const answers = quietAnswers();
+  for (const row of NOWHERE_ELSE) assert.equal(answers[row.entry], row.answer, row.name);
+  const { roles, slots } = brandReaders();
+  assert.deepEqual(Object.keys(answers).sort(), [...roles, ...slots].sort());
+  for (const name of Object.keys(answers)) {
+    assert.ok(!name.startsWith('actions-primary-') && !name.startsWith('emphasis-primary-'), name);
+    assert.ok(!(name in EXAMPLE_SLOT_ANSWERS), name);
+  }
+});
+
+test('the nowhere-else answers leave no slot reading the brand under the default plugin', () => {
+  const catalogue = tokenCatalogue();
+  const answers = quietAnswers();
+  const bare = (value: string) => value.slice(1, -1);
+  for (const theme of ['dark', 'light']) {
+    const roles = rolesFor(null, catalogue, theme);
+    for (const [name, slot] of Object.entries(catalogue.slots.slots)) {
+      if (slot.default === undefined || (slot.group === 'actions' && slot.option === 'primary')) continue;
+      const answered = EXAMPLE_SLOT_ANSWERS[name] ?? answers[name] ?? answers[bare(slot.default)] ?? slot.default;
+      assert.ok(!/--color-primary\b/.test(roles.get(bare(answered)) as string), `${theme} ${name}`);
+    }
   }
 });
 
