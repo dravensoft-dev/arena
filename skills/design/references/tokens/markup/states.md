@@ -45,7 +45,7 @@ Your markup and Arena's components both read the roles on this page. A role keep
 | `active` | `:active` | `--mix-pressed` |
 | `aria-checked` | `[aria-checked="true"]` | `--emphasis-primary-ink`, `--fill-control-on`, `--fill-knob`, `--ink-knob` |
 | `checked` | `:checked` | `--emphasis-primary-ink`, `--fill-control-on`, `--fill-knob`, `--ink-knob` |
-| `unchecked` | `[aria-checked="false"], :not(:checked)` | `--fill-control`, `--fill-knob-off`, `--ink-knob-off` |
+| `unchecked` | `:not(:checked, [aria-checked="true"])` | `--fill-control`, `--fill-knob-off`, `--ink-knob-off` |
 
 <!-- @tree end -->
 

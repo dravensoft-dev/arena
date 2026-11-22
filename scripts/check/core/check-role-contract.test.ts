@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { Window } from 'happy-dom';
 import assert from 'node:assert/strict';
 import { declarationProblems, defaultProblems, singleAnswerProblems, emittedTypes, emittedWords, rosterProblems, zeroRoleProblems, collect, ROLES, metadataProblems, questionProblems, combineProblems, levelNames, QUESTION_MAX, SIZE_QUESTION_MAX, STATE_SELECTORS } from './check-role-contract.ts';
 import { join } from 'node:path';
@@ -309,13 +310,30 @@ test('state is named by a markup role of any task and by no component role', () 
   }
 });
 
+const UNCHECKED_ROWS = [
+  { name: 'an unchecked ARIA switch is matched', html: '<button role="switch" aria-checked="false"></button>', want: true },
+  { name: 'a checked ARIA switch is not matched', html: '<button role="switch" aria-checked="true"></button>', want: false },
+  { name: 'an unchecked native checkbox is matched', html: '<input type="checkbox">', want: true },
+  { name: 'a checked native checkbox is not matched', html: '<input type="checkbox" checked>', want: false },
+];
+
+test('the unchecked state matches an element at rest and never a checked one', () => {
+  for (const { name, html, want } of UNCHECKED_ROWS) {
+    const window = new Window();
+    window.document.body.innerHTML = html;
+    const element = window.document.body.firstElementChild!;
+    assert.equal(element.matches(STATE_SELECTORS.unchecked!), want, name);
+    window.close();
+  }
+});
+
 test('STATE_SELECTORS is the closed set of states and the selector each one is', () => {
   assert.deepEqual(STATE_SELECTORS, {
     hover: ':hover', 'focus-visible': ':focus-visible', 'aria-selected': '[aria-selected="true"]',
     'aria-current': '[aria-current]:not([aria-current="false"])', 'aria-pressed': '[aria-pressed="true"]',
     'aria-disabled': '[aria-disabled="true"]', disabled: ':disabled', 'aria-invalid': '[aria-invalid="true"]',
     active: ':active', 'aria-checked': '[aria-checked="true"]', checked: ':checked',
-    unchecked: '[aria-checked="false"], :not(:checked)',
+    unchecked: ':not(:checked, [aria-checked="true"])',
   });
 });
 

@@ -308,7 +308,7 @@ test('the states leaf maps every attribute to its selector and roles', () => {
   const rest = '`--fill-control`, `--fill-knob-off`, `--ink-knob-off` |';
   assert.ok(rows.includes('| `aria-checked` | `[aria-checked="true"]` | ' + control));
   assert.ok(rows.includes('| `checked` | `:checked` | ' + control));
-  assert.ok(rows.includes('| `unchecked` | `[aria-checked="false"], :not(:checked)` | ' + rest));
+  assert.ok(rows.includes('| `unchecked` | `:not(:checked, [aria-checked="true"])` | ' + rest));
   assert.ok(rows.find((line) => line.startsWith('| `aria-pressed` |'))!.includes('`[aria-pressed="true"]`'));
 });
 
