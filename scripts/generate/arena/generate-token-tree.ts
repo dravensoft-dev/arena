@@ -4,7 +4,8 @@
  * a markup leaf gives each markup role its question, utilities and combination, and the layers leaf
  * lists the z steps. Every row is derived from contracts/design/ and frameworks/tailwind/Theme.css,
  * so no page can disagree with the role file. The scales leaves are
- * written by generate:npm-pages, and this only lists them in their index. */
+ * written by generate:npm-pages, and this only lists them in their index. A page with no rows carries
+ * no marker pair, and a pair left on one is removed. */
 
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -258,10 +259,16 @@ function place(text: string, body: string, path: string) {
   const lines = text.split('\n');
   const from = lines.findIndex((line) => line === TREE_OPEN);
   const to = from === -1 ? -1 : lines.indexOf(TREE_CLOSE, from);
+  if (body === '' && from === -1) return text;
   if (from === -1 || to === -1)
     throw new Error(`generate-token-tree: ${TREE_DIR}/${path} has no marker pair to write into. A person places the markers, `
       + `${TREE_OPEN} and ${TREE_CLOSE}, because where a section sits is the page's decision and only what it says belongs to this script.`);
-  return [...lines.slice(0, from), TREE_OPEN, ...(body === '' ? [] : ['', body, '']), TREE_CLOSE, ...lines.slice(to + 1)].join('\n');
+  if (body === '') {
+    const before = lines.slice(0, from);
+    while (before.length > 0 && before[before.length - 1] === '') before.pop();
+    return [...before, ...lines.slice(to + 1)].join('\n').replace(/\n*$/, '\n');
+  }
+  return [...lines.slice(0, from), TREE_OPEN, '', body, '', TREE_CLOSE, ...lines.slice(to + 1)].join('\n');
 }
 
 export function renderTree(base = root) {

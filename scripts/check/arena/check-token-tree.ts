@@ -24,8 +24,8 @@ export const LEAF_MAX = 8000;
 export const INDEX_MAX = 3000;
 export const LEAF_ALLOWANCE: Readonly<Record<string, { max: number; reason: string }>> = {
   'markup/states.md': {
-    max: 8800,
-    reason: 'The one leaf that teaches an own control by example, with a toggle, a checkbox and a switch that arena audit passes. The tables of the thirteen state roles sit beside them.',
+    max: 8926,
+    reason: 'The one leaf that teaches an own control by example, with a toggle, a checkbox and a switch that arena audit passes. The tables of the thirteen state roles sit beside them. It also says that a markup class sits in the components layer, so a rule of yours beats it.',
   },
 };
 export const DEPTH_MAX = 3;
@@ -139,6 +139,10 @@ export function treeProblems(base = root): string[] {
       const text = texts.get(path);
       if (text === undefined) continue;
       const region = regionOf(text);
+      if (body.trim() === '') {
+        if (region !== null) problems.push(`${TREE_DIR}/${path} holds a region that is not what generate:token-tree writes. Run bun run generate:token-tree.`);
+        continue;
+      }
       if (region === null) problems.push(`${TREE_DIR}/${path} has no ${TREE_OPEN} pair.`);
       else if (region !== body.trim()) problems.push(`${TREE_DIR}/${path} holds a region that is not what generate:token-tree writes. Run bun run generate:token-tree.`);
     }

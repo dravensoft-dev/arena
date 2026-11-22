@@ -182,12 +182,15 @@ Give the wrapper a display. The wrapper is the flex or grid item now, so it is w
 A row and a control of your own, once in CSS and once in the Tailwind utilities that table names:
 
 ```css
-.my-row { padding: var(--dz-row-py) var(--dz-row-px); }
+.my-row {
+  padding-inline: calc(var(--pad-row-x) * var(--dz-row-scale-x));
+  padding-block: calc(var(--pad-row-y) * var(--dz-row-scale-y));
+}
 .my-control { height: var(--dz-ctl-h); font-size: var(--dz-text); }
 ```
 
 ```html
-<div class="py-row-py px-row-px">
+<div class="px-row-x py-row-y">
   <button class="h-ctl-h text-ctl">Save</button>
 </div>
 ```

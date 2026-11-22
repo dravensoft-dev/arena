@@ -23,7 +23,7 @@ Your markup and Arena's components both read the roles on this page. A role keep
 | `--gap-actions` | How far apart are the buttons in the action row of a dialog or sheet? | dimension | fixed | none |
 | `--gap-control` | How far apart are the parts inside one control, such as an icon and its label? | dimension | fixed | none |
 | `--gap-inline` | How far apart are siblings that sit on one line, such as toolbar actions or chips? | dimension | fixed | none |
-| `--gap-items` | How far apart are the members of a group, such as form fields or grid cards? | dimension | fixed | none |
+| `--gap-items` | How far apart are the children a component of yours lays out itself, such as the cells of your own grid? | dimension | fixed | none |
 | `--gap-row` | How far apart are the parts of a row, such as an icon and its text? | dimension | fixed | none |
 | `--gutter` | How much air sits between the content column and the viewport edge? | dimension | fixed | none |
 | `--pad-control-text-y` | How much room sits above and below a field or skip link sized by its text? | dimension | fixed | none |

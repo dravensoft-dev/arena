@@ -497,7 +497,7 @@
         "audience": "markup",
         "task": "space-and-layout",
         "userScale": "fixed",
-        "question": "How far apart are the members of a group, such as form fields or grid cards?"
+        "question": "How far apart are the children a component of yours lays out itself, such as the cells of your own grid?"
       }
     }
   },

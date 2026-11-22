@@ -115,14 +115,17 @@ test('a written tree is a fixed point', () => {
   assert.ok(!readFileSync(join(base, TREE_DIR, 'markup/edges.md'), 'utf8').includes('\nold\n'));
 });
 
-test('a leaf no row lands in gets an emptied region', () => {
+test('a page with no rows gets no tree block', () => {
   const base = fixture();
   const path = `${TREE_DIR}/markup/meaning-and-identity.md`;
   assert.ok(readFileSync(join(base, path), 'utf8').includes('\nold\n'));
   writeTree(base);
   const after = readFileSync(join(base, path), 'utf8');
-  assert.ok(after.includes(`${TREE_OPEN}\n${TREE_CLOSE}`) && !after.includes('old'));
+  assert.ok(!after.includes(TREE_OPEN) && !after.includes(TREE_CLOSE) && !after.includes('old'));
+  assert.ok(after.endsWith('Tail.\n'), after);
   assert.equal(renderTree(base).get('markup/meaning-and-identity.md'), after);
+  put(base, path, '# leaf\n\nRead this when you want it.\n');
+  assert.equal(renderTree(base).get('markup/meaning-and-identity.md'), '# leaf\n\nRead this when you want it.\n');
 });
 
 test('a child with no Read this sentence throws naming the child', () => {

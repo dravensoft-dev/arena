@@ -270,49 +270,45 @@ export const ROUTES: Route[] = [
       + 'column it sits in and how much air goes between two components',
     entry: 'consumer',
     stops: ['skills/design/references/page.md', 'skills/design/references/style.md'],
-    budget: 21_560,
+    budget: 21_633,
     reason:
       'paid per element a builder draws themselves, which every screen has. It buys the half of a '
       + 'page no component draws: the floor and where each layer puts it, which frame the viewport '
       + 'shows through the theme sheet\'s variants, the three rhythm steps as classes and as custom '
       + 'properties, the row as the horizontal half of those steps, what to wrap when the element is '
-      + 'a component, the block air the band leaves and the gutter as a ceiling. The colour roles, '
-      + 'the level and the meaning set sit in the markup tree this page links, so the number is what '
-      + 'the stops measure without them. The style reference holds the layout container, the page '
+      + 'a component, the block air the band leaves and the gutter as a ceiling. The colour roles '
+      + 'sit in the markup tree this page links, so the number is what the stops measure without them. The style reference holds the layout container, the page '
       + 'column\'s width and each layer\'s sizing section, names each layer\'s breakpoint helper and '
       + 'the quiet ink level, and sends density values to the density page. Arena paints no '
       + 'selection or scrollbar, so a recipe gives one. It says which palette, style plugin and '
-      + 'density an overlay takes from its trigger, and where an island paints its ground, and the text colour its body fence reads at its level. It names the `dead-utility` the audit reports and the state classes. The page sends a panel, a toggle and a layer to the token tree, which owns what each is painted with.',
+      + 'density an overlay takes from its trigger, and where an island paints its ground. It names the `dead-utility` the audit reports and the state classes. The page sends a panel, a toggle and a layer to the token tree, which owns what each is painted with. The router names the token pages that link the colour and environment sheets.',
   },
   {
     name: 'consumer-paint-panel',
     who: 'a builder painting a panel of their own markup: the router, then the markup tree index and the pages for surfaces and text, type, edges, space and layout, and depth and motion',
     entry: 'consumer',
     stops: ['skills/design/references/tokens/markup/index.md', 'skills/design/references/tokens/markup/surfaces-and-text.md', 'skills/design/references/tokens/markup/type.md', 'skills/design/references/tokens/markup/edges.md', 'skills/design/references/tokens/markup/space-and-layout.md', 'skills/design/references/tokens/markup/depth-and-motion.md'],
-    budget: 21_458,
+    budget: 21_914,
     reason:
       'paid per panel a builder draws themselves. The route buys the whole of what paints one: the '
       + 'ground and its ink, the title with its size and weight, and the edge with its radius. The air '
       + 'inside and around the panel and the depth and motion it carries are bought too. Each is read '
       + 'at the page that owns it, not through the page, style and token references. On each leaf the '
-      + 'route buys the question of every role, its utility, how it combines and the paragraph that '
-      + 'composes them. The number is what the stops measure and moves when a page of the tree grows a '
+      + 'route buys the question of every role, its utility and how it combines. The number is what the stops measure and moves when a page of the tree grows a '
       + 'decision, not a paragraph. The markup index, the first stop, carries one row more for the '
-      + 'units page, which this panel route does not read. The states page names the keyboard focus and '
-      + 'the pressed toggle, and draws a switch track with no edge. The surfaces and text page carries '
+      + 'units page, which this panel route does not read. The states page draws a switch track with no edge. The surfaces and text page carries '
       + 'the overlay-scrim role, the wash a modal lays over the page, with its question like every '
-      + 'other role. The page also lists the media wash at its level and states the missing-level rule, '
-      + 'that `arena audit` reports a role read without its level. The space and layout page says where '
-      + 'a half step lands.',
+      + 'other role. The page also lists the media wash and states the missing-level rule. The space and layout page says where '
+      + 'a half step lands, and that the rhythm is the air between two things you placed. The edges page says the control border reaches a checkbox and a radio.',
   },
   {
     name: 'consumer-own-toggle',
     who: 'a builder who owns a toggle of their own and draws every state of it: the router, then the markup tree index and the pages for states, edges, depth and motion, and space and layout',
     entry: 'consumer',
     stops: ['skills/design/references/tokens/markup/index.md', 'skills/design/references/tokens/markup/states.md', 'skills/design/references/tokens/markup/edges.md', 'skills/design/references/tokens/markup/depth-and-motion.md', 'skills/design/references/tokens/markup/space-and-layout.md'],
-    budget: 22_239,
+    budget: 22_616,
     reason:
-      'paid once per control a builder draws without a component. The route buys the states a control wears, hover and the pressed lift and scale, with the motion and the space of each change. The outline a control draws is bought too, with its edge colour, width and radius, each role with its question, utility and combination. Focus, selected, disabled and invalid each have a role on the states page, so a control reads them there. Each is read from its own page, not the media register, page or kernel. The space and layout page says where a half step lands. The data files beside the pages are not stops, as the gate charges Markdown only. The states page carries thirteen roles with their utilities, among them the hover and pressed mixes. A table on the page maps each state attribute to its selector and roles. The page names which selected item takes which edge and the four classes that draw every state. The page ends with an own checkbox and switch example, a stylesheet that arena audit passes. The switch track in that example draws no edge of its own. The page also names the layer the classes sit in, and the fill and ink they paint.',
+      'paid once per control a builder draws without a component. The route buys the states a control wears, hover and the pressed lift and scale, with the motion and the space of each change. The outline a control draws is bought too, with its edge colour, width and radius, each role with its question, utility and combination. Focus, selected, disabled and invalid each have a role on the states page, so a control reads them there. The space and layout page says where a half step lands, and that the rhythm is the air between two things you placed. The edges page says the control border reaches a checkbox and a radio. The data files beside the pages are not stops, as the gate charges Markdown only. The states page carries thirteen roles with their utilities, among them the hover and pressed mixes. A table on the page maps each state attribute to its selector and roles. The page ends with an own checkbox and switch example, a stylesheet that arena audit passes. The switch track in that example draws no edge of its own. The page also names the layer the classes sit in, and the fill and ink they paint.',
   },
   {
     name: 'consumer-layer',
