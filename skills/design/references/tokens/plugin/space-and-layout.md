@@ -15,25 +15,25 @@ Read this when your style plugin answers the padding of a control, a surface or 
 
 Your markup and Arena's components both read the roles on this page. A role keeps its name until a major release, and its value is the style plugin's to change in any release.
 
-| role | question | type | user scale | default |
-| --- | --- | --- | --- | --- |
-| `--aspect-media` | What width to height ratio does a media frame take? | number | none | none |
-| `--container-max` | How wide does the content column of a page get? | dimension | fixed | none |
-| `--fit-media` | How does an image fill the edges of its media frame? | keyword | none | none |
-| `--gap-actions` | How far apart are the buttons in the action row of a dialog or sheet? | dimension | fixed | none |
-| `--gap-control` | How far apart are the parts inside one control, such as an icon and its label? | dimension | fixed | none |
-| `--gap-inline` | How far apart are siblings that sit on one line, such as toolbar actions or chips? | dimension | fixed | none |
-| `--gap-items` | How far apart are the children a component of yours lays out itself, such as the cells of your own grid? | dimension | fixed | none |
-| `--gap-row` | How far apart are the parts of a row, such as an icon and its text? | dimension | fixed | none |
-| `--gutter` | How much air sits between the content column and the viewport edge? | dimension | fixed | none |
-| `--pad-control-text-y` | How much room sits above and below a field or skip link sized by its text? | dimension | fixed | none |
-| `--pad-control-x` | How much room does a button leave on its left and right? | dimension | fixed | none |
-| `--pad-control-y` | How much room does a button leave above and below its content? | dimension | fixed | none |
-| `--pad-row-indent` | How far does each level of nesting indent a row? | dimension | fixed | none |
-| `--pad-row-x` | How much room does a list, feed or side nav row leave on its left and right? | dimension | fixed | none |
-| `--pad-row-y` | How much room does a list, feed or side nav row leave above and below? | dimension | fixed | none |
-| `--pad-surface` | How much room does a card or panel leave around its content? | dimension | fixed | none |
-| `--pad-surface-head` | How much room does a surface leave under its head? | dimension | fixed | none |
-| `--pad-surface-head-top` | How much room does a surface leave above its title? | dimension | fixed | none |
+| role | question | type | user scale | role default | `default` answers |
+| --- | --- | --- | --- | --- | --- |
+| `--aspect-media` | What width to height ratio does a media frame take? | number | none | none | `1` |
+| `--container-max` | How wide does the content column of a page get? | dimension | fixed | none | `1240px` |
+| `--fit-media` | How does an image fill the edges of its media frame? | keyword | none | none | `cover` |
+| `--gap-actions` | How far apart are the buttons in the action row of a dialog or sheet? | dimension | fixed | none | `10px` |
+| `--gap-control` | How far apart are the parts inside one control, such as an icon and its label? | dimension | fixed | none | `{sp.2}` |
+| `--gap-inline` | How far apart are siblings that sit on one line, such as toolbar actions or chips? | dimension | fixed | none | `{sp.2}` |
+| `--gap-items` | How far apart are the children a component of yours lays out itself, such as the cells of your own grid? | dimension | fixed | none | `{sp.3}` |
+| `--gap-row` | How far apart are the parts of a row, such as an icon and its text? | dimension | fixed | none | `{sp.3}` |
+| `--gutter` | How much air sits between the content column and the viewport edge? | dimension | fixed | none | `88px` |
+| `--pad-control-text-y` | How much room sits above and below a field or skip link sized by its text? | dimension | fixed | none | `10px` |
+| `--pad-control-x` | How much room does a button leave on its left and right? | dimension | fixed | none | `{sp.3}` |
+| `--pad-control-y` | How much room does a button leave above and below its content? | dimension | fixed | none | `{sp.2}` |
+| `--pad-row-indent` | How far does each level of nesting indent a row? | dimension | fixed | none | `{sp.3}` |
+| `--pad-row-x` | How much room does a list, feed or side nav row leave on its left and right? | dimension | fixed | none | `{sp.3}` |
+| `--pad-row-y` | How much room does a list, feed or side nav row leave above and below? | dimension | fixed | none | `10px` |
+| `--pad-surface` | How much room does a card or panel leave around its content? | dimension | fixed | none | `{sp.5}` |
+| `--pad-surface-head` | How much room does a surface leave under its head? | dimension | fixed | none | `0px` |
+| `--pad-surface-head-top` | How much room does a surface leave above its title? | dimension | fixed | none | `18px` |
 
 <!-- @tree end -->

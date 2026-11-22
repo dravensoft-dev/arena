@@ -14,7 +14,7 @@ import { ARENA_EXT } from '../../lib/core/dtcg-shapes.ts';
 import { STATE_SELECTORS } from '../../check/core/check-role-contract.ts';
 import {
   TREE, TREE_DIR, TREE_OPEN, TREE_CLOSE, roleLeaf, markupLeaf, regionBodies, renderTree, writeTree,
-  COMPAT, roleUtilities, roleColourKeys, combination, stateRows,
+  COMPAT, roleUtilities, roleColourKeys, combination, stateRows, defaultAnswer,
 } from './generate-token-tree.ts';
 import { compileLayer, escapeClass } from '../../lib/tailwind/tailwind-compile.ts';
 
@@ -41,6 +41,10 @@ const fixture = () => {
   put(base, 'contracts/design/layering.json', JSON.stringify({
     z: { $type: 'number', $description: 'Layering.', nav: { $value: 800, $description: 'Fixed page navigation. It sits low.' }, toast: { $value: 1300, $description: 'Above all.' } },
   }));
+  put(base, 'plugin-style-store/default/plugin.tokens.json', JSON.stringify({
+    'r-surface': { $type: 'dimension', $value: '{r.lg}' },
+    'size-sm-control-h': { $type: 'dimension', $value: '{dz.ctl-h}' },
+  }));
   for (const [index, children] of Object.entries(TREE)) {
     const dir = dirname(index);
     const own = index === 'index.md' ? 'Tokens' : `${dir} index`;
@@ -63,7 +67,7 @@ test('every role lands in exactly one role leaf', () => {
   }
   assert.deepEqual(counts, {
     'plugin/surfaces-and-text.md': 20, 'plugin/edges.md': 22, 'plugin/space-and-layout.md': 18, 'plugin/type.md': 20,
-    'plugin/depth-and-motion.md': 11, 'plugin/states.md': 20,
+    'plugin/depth-and-motion.md': 15, 'plugin/states.md': 20,
     'components/air.md': 33, 'components/type.md': 4, 'components/size-controls.md': 44, 'components/size-content.md': 42,
     'components/emphasis-and-accent.md': 21, 'components/status-hues.md': 20,
     'components/controls-and-marks.md': 7,
@@ -89,6 +93,48 @@ test('an index row is the child headline and its Read this sentence', () => {
   const bodies = regionBodies(base);
   assert.equal(bodies.get('index.md')!.split('\n')[0], '- [markup index](./markup/index.md): Read this when you pick a token for markup.');
   assert.ok(bodies.get('markup/index.md')!.includes('- [edges leaf](./edges.md): Read this when you want edges.'));
+});
+
+const HEADER = '| role | question | type | user scale | role default | `default` answers |';
+const anyRow = (bodies: Map<string, string>, name: string) => {
+  const rows = [...bodies].filter(([path]) => /^(plugin|components)\//.test(path)).flatMap(([, body]) => body.split('\n')).filter((line) => line.startsWith(`| \`--${name}\` | `));
+  assert.equal(rows.length, 1, `${name} has one row among the plugin and component leaves`);
+  return rows[0]!;
+};
+const plugin = readJson(join(repoRoot, 'plugin-style-store/default/plugin.tokens.json')) as Record<string, any>;
+const answerOf = (name: string, light: boolean) => (light ? plugin.light[name] : undefined)?.$value ?? plugin[name].$value;
+
+test('the default column reads the default plugin per polarity', () => {
+  const real = regionBodies(repoRoot);
+  const lastCell = (row: string) => row.replace(/ \|$/, '').split(' | ').pop();
+  const fixed = (roles: Record<string, unknown>, answers: Record<string, unknown>) => {
+    const base = fixture();
+    put(base, 'contracts/design/roles.json', JSON.stringify(roles));
+    put(base, 'plugin-style-store/default/plugin.tokens.json', JSON.stringify(answers));
+    return regionBodies(base);
+  };
+  const table: { name: string; cell: () => string | undefined }[] = [
+    { name: 'ink-body', cell: () => lastCell(anyRow(real, 'ink-body')) },
+    { name: 'edge-focus', cell: () => lastCell(anyRow(real, 'edge-focus')) },
+    { name: 'chained', cell: () => lastCell(anyRow(fixed(
+      { 'r-surface': role('markup', 'edges', { default: '{r-control}' }), 'r-control': role('markup', 'edges') },
+      { 'r-surface': { $type: 'dimension', $value: '{r-control}' }, 'r-control': { $type: 'dimension', $value: '{r.sm}' }, light: { 'r-control': { $type: 'dimension', $value: '{r.xs}' } } },
+    ), 'r-surface')) },
+    { name: 'silent', cell: () => lastCell(anyRow(fixed(
+      { 'r-surface': role('markup', 'edges', { default: '{r.lg}' }), 'r-control': role('markup', 'edges') },
+      { 'r-control': { $type: 'dimension', $value: '{r.sm}' } },
+    ), 'r-surface')) },
+  ];
+  const expected: Record<string, string> = {
+    'ink-body': `\`${answerOf('ink-body', false)}\``,
+    'edge-focus': `light \`${answerOf('edge-focus', true)}\`; dark \`${answerOf('edge-focus', false)}\``,
+    chained: 'light `{r.xs}`; dark `{r.sm}`',
+    silent: 'silent, falls to `{r.lg}`',
+  };
+  assert.notEqual(answerOf('edge-focus', true), answerOf('edge-focus', false), 'edge-focus answers differ by polarity');
+  for (const { name, cell } of table) assert.equal(cell(), expected[name], name);
+  for (const [path, body] of real) if (/^(plugin|components)\/(?!index)[a-z-]+\.md$/.test(path) && body !== '') assert.ok(body.includes(HEADER), path);
+  assert.equal(defaultAnswer('ink-body', plugin, readJson(join(repoRoot, 'contracts/design/roles.json')) as any)?.dark, answerOf('ink-body', false));
 });
 
 test('a role row carries name, type, user scale and default, and a markup row its question, utilities and combination', () => {

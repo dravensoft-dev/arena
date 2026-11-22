@@ -8,28 +8,28 @@ These roles answer three family options: `emphasis` (ghost, primary, secondary, 
 
 Only Arena's components read the roles on this page. A role keeps its name until a major release, and its value is the style plugin's to change in any release.
 
-| role | question | type | user scale | default |
-| --- | --- | --- | --- | --- |
-| `--accent-gold-fill-soft` | What colour is the soft wash of a badge in the gold accent? | color | none | none |
-| `--accent-gold-ink` | What colour is the ink of a figure, a bar or a spinner in the gold accent? | color | none | none |
-| `--accent-gold-side-edge` | What colour is the side bar of a toast in the gold accent? | color | none | none |
-| `--accent-muted-ink` | What colour is the ink of a spinner in the muted accent? | color | none | none |
-| `--accent-plain-edge` | What colour is the edge of a card or a tag in the plain accent? | color | none | none |
-| `--accent-plain-fill-soft` | What colour is the soft wash of a badge in the plain accent? | color | none | none |
-| `--accent-plain-ink` | What colour is the ink of a figure in the plain accent? | color | none | none |
-| `--accent-plain-quiet-ink` | What colour is the quiet ink of a tag in the plain accent? | color | none | none |
-| `--accent-plain-side-edge` | What colour is the side bar of a toast in the plain accent? | color | none | none |
-| `--accent-primary-edge` | What colour is the edge of a card or a tag in the primary accent? | color | none | none |
-| `--accent-primary-fill-soft` | What colour is the soft wash of a badge in the primary accent? | color | none | none |
-| `--accent-primary-ink` | What colour is the ink of a figure, a bar or a spinner in the primary accent? | color | none | none |
-| `--elevation-flat-shadow` | What shadow does a card cast at the flat elevation? | shadow | none | none |
-| `--elevation-floating-shadow` | What shadow does a card cast at the floating elevation? | shadow | none | none |
-| `--emphasis-ghost-fill-hover` | What colour fills a ghost action under the pointer? | color | none | none |
-| `--emphasis-ghost-icon-edge` | What colour is the edge of a ghost icon button? | color | none | none |
-| `--emphasis-ghost-ink` | What colour is the ink of a ghost action? | color | none | none |
-| `--emphasis-primary-shadow-hover` | What shadow lifts a primary button under the pointer? | shadow | none | none |
-| `--emphasis-secondary-fill-hover` | What colour fills a secondary action under the pointer? | color | none | none |
-| `--emphasis-solid-fill` | What colour fills a solid icon button? | color | none | none |
-| `--emphasis-solid-ink` | What colour is the ink of a solid icon button? | color | none | none |
+| role | question | type | user scale | role default | `default` answers |
+| --- | --- | --- | --- | --- | --- |
+| `--accent-gold-fill-soft` | What colour is the soft wash of a badge in the gold accent? | color | none | none | `{color.secondary}` |
+| `--accent-gold-ink` | What colour is the ink of a figure, a bar or a spinner in the gold accent? | color | none | none | `{color.secondary}` |
+| `--accent-gold-side-edge` | What colour is the side bar of a toast in the gold accent? | color | none | none | `{color.secondary}` |
+| `--accent-muted-ink` | What colour is the ink of a spinner in the muted accent? | color | none | none | `{color.base-content}` |
+| `--accent-plain-edge` | What colour is the edge of a card or a tag in the plain accent? | color | none | none | `{color.base-300}` |
+| `--accent-plain-fill-soft` | What colour is the soft wash of a badge in the plain accent? | color | none | none | `{color.base-300}` |
+| `--accent-plain-ink` | What colour is the ink of a figure in the plain accent? | color | none | none | `{color.base-content}` |
+| `--accent-plain-quiet-ink` | What colour is the quiet ink of a tag in the plain accent? | color | none | none | `{color.base-content}` |
+| `--accent-plain-side-edge` | What colour is the side bar of a toast in the plain accent? | color | none | none | `{color.neutral}` |
+| `--accent-primary-edge` | What colour is the edge of a card or a tag in the primary accent? | color | none | none | `{color.primary}` |
+| `--accent-primary-fill-soft` | What colour is the soft wash of a badge in the primary accent? | color | none | none | `{color.primary}` |
+| `--accent-primary-ink` | What colour is the ink of a figure, a bar or a spinner in the primary accent? | color | none | none | `{color.primary}` |
+| `--elevation-flat-shadow` | What shadow does a card cast at the flat elevation? | shadow | none | none | `{"offsetX":{"value":0,"unit":"px"},"offsetY":{"value":0,"unit":"px"},"blur":{"value":0,"unit":"px"},"spread":{"value":0,"unit":"px"},"color":{"colorSpace":"srgb","components":[0,0,0],"alpha":0}}` |
+| `--elevation-floating-shadow` | What shadow does a card cast at the floating elevation? | shadow | none | none | `{shadow.2}` |
+| `--emphasis-ghost-fill-hover` | What colour fills a ghost action under the pointer? | color | none | none | `{color.base-200}` |
+| `--emphasis-ghost-icon-edge` | What colour is the edge of a ghost icon button? | color | none | none | `{color.base-300}` |
+| `--emphasis-ghost-ink` | What colour is the ink of a ghost action? | color | none | none | `{color.base-content}` |
+| `--emphasis-primary-shadow-hover` | What shadow lifts a primary button under the pointer? | shadow | none | none | `{shadow.2}` |
+| `--emphasis-secondary-fill-hover` | What colour fills a secondary action under the pointer? | color | none | none | `{color.base-300}` |
+| `--emphasis-solid-fill` | What colour fills a solid icon button? | color | none | none | `{color.primary-fill}` |
+| `--emphasis-solid-ink` | What colour is the ink of a solid icon button? | color | none | none | `{color.primary-content}` |
 
 <!-- @tree end -->

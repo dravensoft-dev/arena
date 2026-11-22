@@ -37,27 +37,27 @@ A plugin answers each `ff-*`, `fw-*`, `track-*`, `lh-*` and `step-*` role with a
 
 Your markup and Arena's components both read the roles on this page. A role keeps its name until a major release, and its value is the style plugin's to change in any release.
 
-| role | question | type | user scale | default |
-| --- | --- | --- | --- | --- |
-| `--ff-eyebrow` | Which font family does an eyebrow line above a title use? | fontFamily | none | none |
-| `--ff-heading` | Which font family does a heading use? | fontFamily | none | none |
-| `--ff-label` | Which font family do field labels, column headers and badges use? | fontFamily | none | none |
-| `--fw-control` | How heavy is the label text on a button, tab or menu item? | fontWeight | none | none |
-| `--fw-eyebrow` | How heavy is the type of an eyebrow line above a title? | fontWeight | none | none |
-| `--fw-heading` | How heavy is the type of a heading in the display face? | fontWeight | none | none |
-| `--lh-heading` | How much leading does a heading have? | number | none | none |
-| `--lh-prose` | How much leading does body text people read have? | number | none | none |
-| `--measure-prose` | How wide may a column of prose get, in characters? | number | none | none |
-| `--step-eyebrow` | Which step of the type ladder does an eyebrow take? | dimension | scales | none |
-| `--step-label` | Which step of the type ladder does a label take? | dimension | scales | none |
-| `--step-title-hero` | Which step of the type ladder does the headline of a landing page take? | dimension | scales | none |
-| `--step-title-page` | Which step of the type ladder does the heading that names the whole page take? | dimension | scales | none |
-| `--step-title-section` | Which step of the type ladder does the heading of a page section take? | dimension | scales | none |
-| `--step-title-surface` | Which step of the type ladder does the title of a card, panel or tile take? | dimension | scales | none |
-| `--track-eyebrow` | How widely are the letters of an eyebrow line spaced? | number | none | none |
-| `--track-heading` | How widely are the letters of a heading spaced? | number | none | none |
-| `--track-label` | How widely are the letters of a label spaced? | number | none | none |
-| `--tt-eyebrow` | Is an eyebrow line above a title set in capitals? | keyword | none | none |
-| `--tt-label` | Are field labels, column headers and badges set in capitals? | keyword | none | none |
+| role | question | type | user scale | role default | `default` answers |
+| --- | --- | --- | --- | --- | --- |
+| `--ff-eyebrow` | Which font family does an eyebrow line above a title use? | fontFamily | none | none | `{font.mono}` |
+| `--ff-heading` | Which font family does a heading use? | fontFamily | none | none | `{font.display}` |
+| `--ff-label` | Which font family do field labels, column headers and badges use? | fontFamily | none | none | `{font.mono}` |
+| `--fw-control` | How heavy is the label text on a button, tab or menu item? | fontWeight | none | none | `{fw.semibold}` |
+| `--fw-eyebrow` | How heavy is the type of an eyebrow line above a title? | fontWeight | none | none | `{fw.regular}` |
+| `--fw-heading` | How heavy is the type of a heading in the display face? | fontWeight | none | none | `{fw.extrabold}` |
+| `--lh-heading` | How much leading does a heading have? | number | none | none | `{lh.root}` |
+| `--lh-prose` | How much leading does body text people read have? | number | none | none | `{lh.body}` |
+| `--measure-prose` | How wide may a column of prose get, in characters? | number | none | none | `72` |
+| `--step-eyebrow` | Which step of the type ladder does an eyebrow take? | dimension | scales | none | `{dz.text-xs}` |
+| `--step-label` | Which step of the type ladder does a label take? | dimension | scales | none | `{dz.text-2xs}` |
+| `--step-title-hero` | Which step of the type ladder does the headline of a landing page take? | dimension | scales | none | `{fs.display}` |
+| `--step-title-page` | Which step of the type ladder does the heading that names the whole page take? | dimension | scales | none | `{fs.h1}` |
+| `--step-title-section` | Which step of the type ladder does the heading of a page section take? | dimension | scales | none | `{fs.h3}` |
+| `--step-title-surface` | Which step of the type ladder does the title of a card, panel or tile take? | dimension | scales | none | `{fs.h4}` |
+| `--track-eyebrow` | How widely are the letters of an eyebrow line spaced? | number | none | none | `{ls.label}` |
+| `--track-heading` | How widely are the letters of a heading spaced? | number | none | none | `{ls.tight}` |
+| `--track-label` | How widely are the letters of a label spaced? | number | none | none | `{ls.field-label}` |
+| `--tt-eyebrow` | Is an eyebrow line above a title set in capitals? | keyword | none | none | `uppercase` |
+| `--tt-label` | Are field labels, column headers and badges set in capitals? | keyword | none | none | `uppercase` |
 
 <!-- @tree end -->

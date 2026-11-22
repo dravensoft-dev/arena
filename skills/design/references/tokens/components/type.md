@@ -8,11 +8,11 @@ These roles answer the type of the key and trail parts of a component, `ff-key`,
 
 Only Arena's components read the roles on this page. A role keeps its name until a major release, and its value is the style plugin's to change in any release.
 
-| role | question | type | user scale | default |
-| --- | --- | --- | --- | --- |
-| `--ff-key` | Which font family is a keyboard key set in? | fontFamily | none | `{font.mono}` |
-| `--step-trail` | Which step of the type ladder does the breadcrumb trail above a page take? | dimension | scales | none |
-| `--track-trail` | How widely are the letters of the breadcrumb trail above a page spaced? | number | none | none |
-| `--tt-key` | Is a keyboard key set in capitals? | keyword | none | `{case.none}` |
+| role | question | type | user scale | role default | `default` answers |
+| --- | --- | --- | --- | --- | --- |
+| `--ff-key` | Which font family is a keyboard key set in? | fontFamily | none | `{font.mono}` | `{font.mono}` |
+| `--step-trail` | Which step of the type ladder does the breadcrumb trail above a page take? | dimension | scales | none | `{dz.text-sm}` |
+| `--track-trail` | How widely are the letters of the breadcrumb trail above a page spaced? | number | none | none | `{ls.mono-nav}` |
+| `--tt-key` | Is a keyboard key set in capitals? | keyword | none | `{case.none}` | `none` |
 
 <!-- @tree end -->

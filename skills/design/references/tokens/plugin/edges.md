@@ -19,29 +19,29 @@ An answer of `0` for `--bw-control` erases the border of a button, the box of a 
 
 Your markup and Arena's components both read the roles on this page. A role keeps its name until a major release, and its value is the style plugin's to change in any release.
 
-| role | question | type | user scale | default |
-| --- | --- | --- | --- | --- |
-| `--bw-control` | How thick is the border of a button or other pressable control, the box of a checkbox and the ring of a radio? | dimension | fixed | none |
-| `--bw-field` | How thick is the border of an input, textarea or select? | dimension | fixed | none |
-| `--bw-marker` | How thick is the border of a tag, badge or avatar ring? | dimension | fixed | none |
-| `--bw-separator` | How thick is the rule dividing one thing from the next inside a surface? | dimension | fixed | none |
-| `--bw-surface` | How thick is the border enclosing a card or panel? | dimension | fixed | none |
-| `--edge-axis` | What colour are the axis lines, zero line and crosshair of a chart? | color | none | none |
-| `--edge-control` | What colour is the line around a button or other pressable control? | color | none | none |
-| `--edge-control-quiet` | What colour is the line around a control that is present but not offering itself? | color | none | none |
-| `--edge-field` | What colour is the line around an input, textarea or select? | color | none | none |
-| `--edge-marker` | What colour is the ring around an avatar or delta badge? | color | none | none |
-| `--edge-separator` | What colour is the rule dividing one thing from the next inside a surface? | color | none | none |
-| `--edge-surface` | What colour is the line enclosing a card or panel? | color | none | none |
-| `--edge-surface-floating` | What colour is the line around a menu, dialog or toast floating over the page? | color | none | none |
-| `--emphasis-primary-edge` | What colour is the edge of a primary button? | color | none | none |
-| `--emphasis-secondary-edge` | What colour is the edge of a secondary button? | color | none | none |
-| `--r-control` | How round is the corner of a button, menu item or navigation row? | dimension | fixed | none |
-| `--r-control-sm` | How round is the corner of a small control such as a checkbox box or a segment? | dimension | fixed | none |
-| `--r-field` | How round is the corner of an input, select or textarea? | dimension | fixed | none |
-| `--r-marker` | How round is the corner of a tag, badge, keyboard cap or inline code chip? | dimension | fixed | none |
-| `--r-media` | How round is the corner of the frame an image or video is clipped to? | dimension | fixed | none |
-| `--r-surface` | How round is the corner of a card, panel, dialog or table frame? | dimension | fixed | none |
-| `--r-surface-floating` | How round is the corner of a menu, toast, alert or bulk action bar floating over the page? | dimension | fixed | none |
+| role | question | type | user scale | role default | `default` answers |
+| --- | --- | --- | --- | --- | --- |
+| `--bw-control` | How thick is the border of a button or other pressable control, the box of a checkbox and the ring of a radio? | dimension | fixed | none | `{bw}` |
+| `--bw-field` | How thick is the border of an input, textarea or select? | dimension | fixed | none | `{bw}` |
+| `--bw-marker` | How thick is the border of a tag, badge or avatar ring? | dimension | fixed | none | `{bw}` |
+| `--bw-separator` | How thick is the rule dividing one thing from the next inside a surface? | dimension | fixed | none | `{bw}` |
+| `--bw-surface` | How thick is the border enclosing a card or panel? | dimension | fixed | none | `{bw}` |
+| `--edge-axis` | What colour are the axis lines, zero line and crosshair of a chart? | color | none | none | `{color.neutral}` |
+| `--edge-control` | What colour is the line around a button or other pressable control? | color | none | none | `{color.neutral}` |
+| `--edge-control-quiet` | What colour is the line around a control that is present but not offering itself? | color | none | none | `{color.base-300}` |
+| `--edge-field` | What colour is the line around an input, textarea or select? | color | none | none | `{color.base-300}` |
+| `--edge-marker` | What colour is the ring around an avatar or delta badge? | color | none | none | `{color.neutral}` |
+| `--edge-separator` | What colour is the rule dividing one thing from the next inside a surface? | color | none | none | `{color.base-300}` |
+| `--edge-surface` | What colour is the line enclosing a card or panel? | color | none | none | `{color.base-300}` |
+| `--edge-surface-floating` | What colour is the line around a menu, dialog or toast floating over the page? | color | none | none | `{color.neutral}` |
+| `--emphasis-primary-edge` | What colour is the edge of a primary button? | color | none | none | `{color.primary-fill}` |
+| `--emphasis-secondary-edge` | What colour is the edge of a secondary button? | color | none | none | `{color.neutral}` |
+| `--r-control` | How round is the corner of a button, menu item or navigation row? | dimension | fixed | none | `{r.sm}` |
+| `--r-control-sm` | How round is the corner of a small control such as a checkbox box or a segment? | dimension | fixed | none | `{r.xs}` |
+| `--r-field` | How round is the corner of an input, select or textarea? | dimension | fixed | none | `{r.sm}` |
+| `--r-marker` | How round is the corner of a tag, badge, keyboard cap or inline code chip? | dimension | fixed | none | `{r.xs}` |
+| `--r-media` | How round is the corner of the frame an image or video is clipped to? | dimension | fixed | none | `{r.lg}` |
+| `--r-surface` | How round is the corner of a card, panel, dialog or table frame? | dimension | fixed | none | `{r.lg}` |
+| `--r-surface-floating` | How round is the corner of a menu, toast, alert or bulk action bar floating over the page? | dimension | fixed | none | `{r.md}` |
 
 <!-- @tree end -->

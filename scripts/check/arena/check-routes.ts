@@ -293,38 +293,38 @@ export const ROUTES: Route[] = [
     who: 'a builder painting a panel of their own markup: the router, then the markup tree index and the pages for surfaces and text, type, edges, space and layout, and depth and motion',
     entry: 'consumer',
     stops: ['skills/design/references/tokens/markup/index.md', 'skills/design/references/tokens/markup/surfaces-and-text.md', 'skills/design/references/tokens/markup/type.md', 'skills/design/references/tokens/markup/edges.md', 'skills/design/references/tokens/markup/space-and-layout.md', 'skills/design/references/tokens/markup/depth-and-motion.md'],
-    budget: 23_389,
+    budget: 23_776,
     reason:
-      'paid per panel a builder draws themselves. The route buys the whole of what paints one: the '
+      'paid per panel a builder draws themselves. The route buys all of what paints one: the '
       + 'ground and its ink, the title with its size and weight, and the edge with its radius. The air '
-      + 'inside and around the panel and the depth and motion it carries are bought too. Each is read '
-      + 'at the page that owns it, not through the page, style and token references. On each leaf the '
+      + 'in and around it and the depth and motion it carries are bought too. Each is read '
+      + 'at its own page, not through the page, style and token references. On each leaf the '
       + 'route buys the question of every role, its utility and how it combines. The number moves when a page of the tree grows a '
       + 'decision, not a paragraph. The markup index carries one row more for the '
       + 'units page, which this route does not read. The states page draws a switch track with no edge. The surfaces and text page carries '
       + 'the overlay-scrim role, the wash a modal lays over the page, with its question like every '
-      + 'other role. The page also lists the media wash and states the missing-level rule. The page names the fill of both actions and the ink of the secondary. The space and layout page says where '
-      + 'a half step lands, and that the rhythm is the air between two things you placed. The edges page says the control border reaches a checkbox and a radio. The depth and motion page names four entrance roles.',
+      + 'other role. The page lists the media wash, states the missing-level rule and names the fill of both actions and the ink of the secondary. The space and layout page says where '
+      + 'a half step lands, and that the rhythm is the air between two things you placed. Space and layout names the band, shell and prose classes. The edges page says the control border reaches a checkbox and a radio. The depth and motion page names four entrance roles.',
   },
   {
     name: 'consumer-own-toggle',
     who: 'a builder who owns a toggle of their own and draws every state of it: the router, then the markup tree index and the pages for states, edges, depth and motion, and space and layout',
     entry: 'consumer',
     stops: ['skills/design/references/tokens/markup/index.md', 'skills/design/references/tokens/markup/states.md', 'skills/design/references/tokens/markup/edges.md', 'skills/design/references/tokens/markup/depth-and-motion.md', 'skills/design/references/tokens/markup/space-and-layout.md'],
-    budget: 24_651,
+    budget: 25_038,
     reason:
       'paid once per control a builder draws without a component. The route buys the states a'
-      + ' control wears, hover and the pressed lift and scale, with the motion and the space of'
-      + ' each change. The outline a control draws is bought too, with its edge colour, width '
-      + 'and radius, each role with its question, utility and combination. A control reads '
+      + ' control wears, hover and the pressed lift and scale, with the motion and space of'
+      + ' each change. The outline is bought too, with its edge colour, width '
+      + 'and radius, each with its question, utility and combination. A control reads '
       + 'focus, selected, disabled and invalid roles on the states page. The space and layout page says where a half step lands, and that the rhythm is '
-      + 'the air between two things you placed. The edges page says the control border reaches '
+      + 'the air between two things you placed. Space and layout names the band, shell and prose classes. The edges page says the control border reaches '
       + 'a checkbox and a radio. The data files beside the pages are not stops, as the gate '
       + 'charges Markdown only. The states page carries twenty roles with their utilities, '
-      + 'among them the hover and pressed mixes and the roles of a checkbox and a switch. A table maps each state attribute '
+      + 'among them the hover and pressed mixes and the checkbox and switch roles. A table maps each state attribute '
       + 'to its selector and roles. The page ends with an own checkbox and switch example that '
-      + 'arena audit passes, the switch track drawing no edge. The page names the layer the classes sit in and the fill and ink they '
-      + 'paint. The page says that a fill of your own beats the hover and selected wash. The depth and motion page names four entrance roles.',
+      + 'arena audit passes, the track drawing no edge. The page names the layer the classes sit in and the fill and ink they '
+      + 'paint, and says a fill of your own beats the hover and selected wash. The depth and motion page names four entrance roles.',
   },
   {
     name: 'consumer-layer',

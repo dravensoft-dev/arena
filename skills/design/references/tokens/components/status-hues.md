@@ -8,27 +8,27 @@ These roles answer the family option `hue`: each name carries the status (danger
 
 Only Arena's components read the roles on this page. A role keeps its name until a major release, and its value is the style plugin's to change in any release.
 
-| role | question | type | user scale | default |
-| --- | --- | --- | --- | --- |
-| `--hue-danger-edge` | What colour does the danger hue take as a border or a rule? | color | none | none |
-| `--hue-danger-fill-soft` | What colour does the danger hue take as a soft wash behind a surface? | color | none | none |
-| `--hue-danger-fill-strong` | What colour does the danger hue fill a surface with at full strength? | color | none | `transparent` |
-| `--hue-danger-ink` | What colour does the danger hue take as text and as an icon? | color | none | none |
-| `--hue-danger-on-ink` | What colour is the content set on a mark filled with the danger hue? | color | none | `{color.base-100}` |
-| `--hue-info-edge` | What colour does the info hue take as a border or a rule? | color | none | none |
-| `--hue-info-fill-soft` | What colour does the info hue take as a soft wash behind a surface? | color | none | none |
-| `--hue-info-fill-strong` | What colour does the info hue take as a solid fill? | color | none | none |
-| `--hue-info-ink` | What colour does the info hue take as text and as an icon? | color | none | none |
-| `--hue-info-on-ink` | What colour is the content set on a mark filled with the info hue? | color | none | `{color.info-content}` |
-| `--hue-success-edge` | What colour does the success hue take as a border or a rule? | color | none | none |
-| `--hue-success-fill-soft` | What colour does the success hue take as a soft wash behind a surface? | color | none | none |
-| `--hue-success-fill-strong` | What colour does the success hue take as a solid fill? | color | none | none |
-| `--hue-success-ink` | What colour does the success hue take as text and as an icon? | color | none | none |
-| `--hue-success-on-ink` | What colour is the content set on a mark filled with the success hue? | color | none | `{color.success-content}` |
-| `--hue-warning-edge` | What colour does the warning hue take as a border or a rule? | color | none | none |
-| `--hue-warning-fill-soft` | What colour does the warning hue take as a soft wash behind a surface? | color | none | none |
-| `--hue-warning-fill-strong` | What colour does the warning hue take as a solid fill? | color | none | none |
-| `--hue-warning-ink` | What colour does the warning hue take as text and as an icon? | color | none | none |
-| `--hue-warning-on-ink` | What colour is the content set on a mark filled with the warning hue? | color | none | `{color.warning-content}` |
+| role | question | type | user scale | role default | `default` answers |
+| --- | --- | --- | --- | --- | --- |
+| `--hue-danger-edge` | What colour does the danger hue take as a border or a rule? | color | none | none | `{color.error}` |
+| `--hue-danger-fill-soft` | What colour does the danger hue take as a soft wash behind a surface? | color | none | none | `{color.error}` |
+| `--hue-danger-fill-strong` | What colour does the danger hue fill a surface with at full strength? | color | none | `transparent` | `transparent` |
+| `--hue-danger-ink` | What colour does the danger hue take as text and as an icon? | color | none | none | `{color.error}` |
+| `--hue-danger-on-ink` | What colour is the content set on a mark filled with the danger hue? | color | none | `{color.base-100}` | `{color.base-100}` |
+| `--hue-info-edge` | What colour does the info hue take as a border or a rule? | color | none | none | `{color.info}` |
+| `--hue-info-fill-soft` | What colour does the info hue take as a soft wash behind a surface? | color | none | none | `{color.info}` |
+| `--hue-info-fill-strong` | What colour does the info hue take as a solid fill? | color | none | none | `{color.info}` |
+| `--hue-info-ink` | What colour does the info hue take as text and as an icon? | color | none | none | `{color.info}` |
+| `--hue-info-on-ink` | What colour is the content set on a mark filled with the info hue? | color | none | `{color.info-content}` | `{color.info-content}` |
+| `--hue-success-edge` | What colour does the success hue take as a border or a rule? | color | none | none | `{color.success}` |
+| `--hue-success-fill-soft` | What colour does the success hue take as a soft wash behind a surface? | color | none | none | `{color.success}` |
+| `--hue-success-fill-strong` | What colour does the success hue take as a solid fill? | color | none | none | `{color.success}` |
+| `--hue-success-ink` | What colour does the success hue take as text and as an icon? | color | none | none | `{color.success}` |
+| `--hue-success-on-ink` | What colour is the content set on a mark filled with the success hue? | color | none | `{color.success-content}` | `{color.success-content}` |
+| `--hue-warning-edge` | What colour does the warning hue take as a border or a rule? | color | none | none | `{color.warning}` |
+| `--hue-warning-fill-soft` | What colour does the warning hue take as a soft wash behind a surface? | color | none | none | `{color.warning}` |
+| `--hue-warning-fill-strong` | What colour does the warning hue take as a solid fill? | color | none | none | `{color.warning}` |
+| `--hue-warning-ink` | What colour does the warning hue take as text and as an icon? | color | none | none | `{color.warning}` |
+| `--hue-warning-on-ink` | What colour is the content set on a mark filled with the warning hue? | color | none | `{color.warning-content}` | `{color.warning-content}` |
 
 <!-- @tree end -->

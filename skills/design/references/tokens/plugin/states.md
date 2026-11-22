@@ -14,27 +14,27 @@ A plugin answers each colour role with one colour.
 
 Your markup and Arena's components both read the roles on this page. A role keeps its name until a major release, and its value is the style plugin's to change in any release.
 
-| role | question | type | user scale | default |
-| --- | --- | --- | --- | --- |
-| `--bw-focus` | How wide is the ring a control draws while it holds keyboard focus? | dimension | fixed | `{focus.width}` |
-| `--edge-focus` | What colour is the ring a control draws while it holds keyboard focus? | color | none | `{color.secondary}` |
-| `--edge-invalid` | What colour is the edge of a field that holds an invalid value? | color | none | `{hue-danger-edge}` |
-| `--edge-selected` | What colour is the edge that marks a selected or current item? | color | none | `{ink-body}` |
-| `--edge-tab-selected` | What colour is the edge that marks the selected item of a navigation component? | color | none | `{color.primary}` |
-| `--emphasis-primary-ink` | What colour is the ink of a primary action? | color | none | none |
-| `--fade-disabled` | What share of its opacity does a disabled control keep? | number | none | `{opacity.disabled}` |
-| `--fill-control` | What colour fills the box of a checkbox, radio, switch or slider at rest? | color | none | none |
-| `--fill-control-on` | What colour fills the box of a checked checkbox or radio, an on switch or a slider's range? | color | none | none |
-| `--fill-hover` | What colour does a table row, link card or navigation row take under the pointer? | color | none | none |
-| `--fill-knob` | What colour fills the knob of an on switch or the thumb of a slider? | color | none | none |
-| `--fill-knob-off` | What colour fills the knob of a switch that is off? | color | none | none |
-| `--fill-selected` | What colour washes the background of a selected or current item? | color | none | `{color.primary}` |
-| `--gap-focus` | How far is the keyboard focus ring from the edge of its control? | dimension | fixed | `{focus.offset}` |
-| `--ink-invalid` | What colour is the error text of a field that holds an invalid value? | color | none | `{hue-danger-ink}` |
-| `--ink-knob` | What colour is the glyph on the knob of an on switch? | color | none | none |
-| `--ink-knob-off` | What colour is the glyph on the knob of a switch that is off? | color | none | none |
-| `--ink-selected` | What colour is the text of a selected or current item? | color | none | `{ink-body}` |
-| `--mix-hover` | How far toward its ink does a selected part's fill move under the pointer? | number | none | `{blend.hover}` |
-| `--mix-pressed` | How far toward its ink does a part's fill move while pressed? | number | none | `{blend.pressed}` |
+| role | question | type | user scale | role default | `default` answers |
+| --- | --- | --- | --- | --- | --- |
+| `--bw-focus` | How wide is the ring a control draws while it holds keyboard focus? | dimension | fixed | `{focus.width}` | `{focus.width}` |
+| `--edge-focus` | What colour is the ring a control draws while it holds keyboard focus? | color | none | `{color.secondary}` | light `{color.base-content}`; dark `{color.secondary}` |
+| `--edge-invalid` | What colour is the edge of a field that holds an invalid value? | color | none | `{hue-danger-edge}` | `{color.error}` |
+| `--edge-selected` | What colour is the edge that marks a selected or current item? | color | none | `{ink-body}` | light `{color.primary}`; dark `{color.base-content}` |
+| `--edge-tab-selected` | What colour is the edge that marks the selected item of a navigation component? | color | none | `{color.primary}` | `{color.primary}` |
+| `--emphasis-primary-ink` | What colour is the ink of a primary action? | color | none | none | `{color.primary-content}` |
+| `--fade-disabled` | What share of its opacity does a disabled control keep? | number | none | `{opacity.disabled}` | `{opacity.disabled}` |
+| `--fill-control` | What colour fills the box of a checkbox, radio, switch or slider at rest? | color | none | none | `{color.neutral}` |
+| `--fill-control-on` | What colour fills the box of a checked checkbox or radio, an on switch or a slider's range? | color | none | none | `{color.primary}` |
+| `--fill-hover` | What colour does a table row, link card or navigation row take under the pointer? | color | none | none | `{color.base-300}` |
+| `--fill-knob` | What colour fills the knob of an on switch or the thumb of a slider? | color | none | none | `{color.primary-content}` |
+| `--fill-knob-off` | What colour fills the knob of a switch that is off? | color | none | none | `{color.neutral-content}` |
+| `--fill-selected` | What colour washes the background of a selected or current item? | color | none | `{color.primary}` | `{color.primary}` |
+| `--gap-focus` | How far is the keyboard focus ring from the edge of its control? | dimension | fixed | `{focus.offset}` | `{focus.offset}` |
+| `--ink-invalid` | What colour is the error text of a field that holds an invalid value? | color | none | `{hue-danger-ink}` | `{color.error}` |
+| `--ink-knob` | What colour is the glyph on the knob of an on switch? | color | none | none | `{color.primary}` |
+| `--ink-knob-off` | What colour is the glyph on the knob of a switch that is off? | color | none | none | `{color.neutral}` |
+| `--ink-selected` | What colour is the text of a selected or current item? | color | none | `{ink-body}` | `{color.base-content}` |
+| `--mix-hover` | How far toward its ink does a selected part's fill move under the pointer? | number | none | `{blend.hover}` | `{blend.hover}` |
+| `--mix-pressed` | How far toward its ink does a part's fill move while pressed? | number | none | `{blend.pressed}` | `{blend.pressed}` |
 
 <!-- @tree end -->

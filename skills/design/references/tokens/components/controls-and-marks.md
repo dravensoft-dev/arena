@@ -8,14 +8,14 @@ These roles carry no family option: each answers one part, named by the role.
 
 Only Arena's components read the roles on this page. A role keeps its name until a major release, and its value is the style plugin's to change in any release.
 
-| role | question | type | user scale | default |
-| --- | --- | --- | --- | --- |
-| `--edge-mark` | What colour is the ring around the current neutral marker, such as the timeline milestone a reader is at? | color | none | `{color.base-content}` |
-| `--fill-mark` | What colour fills a neutral marker that is done, such as a complete timeline milestone? | color | none | `{color.base-content}` |
-| `--fill-marker` | What colour fills the small count set beside a navigation row that is not current? | color | none | `{color.base-300}` |
-| `--fill-tile` | What colour is the ground behind the initials of an avatar with no image? | color | none | `{color.base-300}` |
-| `--fill-tip` | What colour is the bubble that names a control under the pointer? | color | none | `{color.base-content}` |
-| `--ink-on-mark` | What colour is the glyph cut into a filled neutral marker, such as the tick of a complete milestone? | color | none | `{color.base-200}` |
-| `--ink-tip` | What colour is the word inside the bubble that names a control under the pointer? | color | none | `{color.base-100}` |
+| role | question | type | user scale | role default | `default` answers |
+| --- | --- | --- | --- | --- | --- |
+| `--edge-mark` | What colour is the ring around the current neutral marker, such as the timeline milestone a reader is at? | color | none | `{color.base-content}` | `{color.base-content}` |
+| `--fill-mark` | What colour fills a neutral marker that is done, such as a complete timeline milestone? | color | none | `{color.base-content}` | `{color.base-content}` |
+| `--fill-marker` | What colour fills the small count set beside a navigation row that is not current? | color | none | `{color.base-300}` | `{color.base-300}` |
+| `--fill-tile` | What colour is the ground behind the initials of an avatar with no image? | color | none | `{color.base-300}` | `{color.base-300}` |
+| `--fill-tip` | What colour is the bubble that names a control under the pointer? | color | none | `{color.base-content}` | `{color.base-content}` |
+| `--ink-on-mark` | What colour is the glyph cut into a filled neutral marker, such as the tick of a complete milestone? | color | none | `{color.base-200}` | `{color.base-200}` |
+| `--ink-tip` | What colour is the word inside the bubble that names a control under the pointer? | color | none | `{color.base-100}` | `{color.base-100}` |
 
 <!-- @tree end -->

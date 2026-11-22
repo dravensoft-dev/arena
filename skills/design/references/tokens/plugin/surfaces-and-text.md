@@ -10,27 +10,27 @@ A plugin answers each role of this page with one colour, and no role of it has a
 
 Your markup and Arena's components both read the roles on this page. A role keeps its name until a major release, and its value is the style plugin's to change in any release.
 
-| role | question | type | user scale | default |
-| --- | --- | --- | --- | --- |
-| `--emphasis-primary-fill` | What colour fills a primary action? | color | none | none |
-| `--emphasis-secondary-fill` | What colour fills a secondary action? | color | none | none |
-| `--emphasis-secondary-ink` | What colour is the ink of a secondary action? | color | none | none |
-| `--fill-field` | What colour fills an input, textarea or select? | color | none | none |
-| `--fill-page` | What colour fills the page itself behind every surface? | color | none | none |
-| `--fill-surface` | What colour fills a card, panel or table frame at rest? | color | none | none |
-| `--fill-surface-floating` | What colour fills a menu, dialog, toast or sheet floating over the page? | color | none | none |
-| `--fill-surface-raised` | What colour fills a small readout, such as a chart tooltip, raised over content? | color | none | none |
-| `--fill-surface-sunken` | What colour fills a region recessed into a surface, such as a code block or preview well? | color | none | none |
-| `--fill-track` | What colour is the strip a progress bar or segmented control runs along? | color | none | none |
-| `--ink-action` | What colour is an action set as text, such as a toast undo? | color | none | `{color.base-content}` |
-| `--ink-body` | What colour is the text people read? | color | none | none |
-| `--ink-eyebrow` | What colour is an eyebrow line above a title? | color | none | none |
-| `--ink-figure` | What colour are the numbers and codes a reader scans, such as table figures? | color | none | `{color.base-content}` |
-| `--ink-heading` | What colour is the text of a heading? | color | none | none |
-| `--ink-key` | What colour is the text of a keyboard cap or shortcut? | color | none | `{ink-muted}` |
-| `--ink-link` | What colour is a link inside running text? | color | none | `{ink-body}` |
-| `--ink-muted` | What colour is held-back text such as a caption, hint or timestamp? | color | none | none |
-| `--overlay-media` | What colour wash sits under a caption laid over an image? | color | none | none |
-| `--overlay-scrim` | What colour wash does a modal lay over the page it interrupts? | color | none | `{color.base-100}` |
+| role | question | type | user scale | role default | `default` answers |
+| --- | --- | --- | --- | --- | --- |
+| `--emphasis-primary-fill` | What colour fills a primary action? | color | none | none | `{color.primary-fill}` |
+| `--emphasis-secondary-fill` | What colour fills a secondary action? | color | none | none | `{color.base-200}` |
+| `--emphasis-secondary-ink` | What colour is the ink of a secondary action? | color | none | none | `{color.base-content}` |
+| `--fill-field` | What colour fills an input, textarea or select? | color | none | none | `{color.base-300}` |
+| `--fill-page` | What colour fills the page itself behind every surface? | color | none | none | `{color.base-100}` |
+| `--fill-surface` | What colour fills a card, panel or table frame at rest? | color | none | none | `{color.base-200}` |
+| `--fill-surface-floating` | What colour fills a menu, dialog, toast or sheet floating over the page? | color | none | none | `{color.base-200}` |
+| `--fill-surface-raised` | What colour fills a small readout, such as a chart tooltip, raised over content? | color | none | none | `{color.base-300}` |
+| `--fill-surface-sunken` | What colour fills a region recessed into a surface, such as a code block or preview well? | color | none | none | `{color.base-100}` |
+| `--fill-track` | What colour is the strip a progress bar or segmented control runs along? | color | none | none | `{color.base-300}` |
+| `--ink-action` | What colour is an action set as text, such as a toast undo? | color | none | `{color.base-content}` | `{color.base-content}` |
+| `--ink-body` | What colour is the text people read? | color | none | none | `{color.base-content}` |
+| `--ink-eyebrow` | What colour is an eyebrow line above a title? | color | none | none | `{color.primary}` |
+| `--ink-figure` | What colour are the numbers and codes a reader scans, such as table figures? | color | none | `{color.base-content}` | `{color.base-content}` |
+| `--ink-heading` | What colour is the text of a heading? | color | none | none | `{color.base-content}` |
+| `--ink-key` | What colour is the text of a keyboard cap or shortcut? | color | none | `{ink-muted}` | `{color.base-content}` |
+| `--ink-link` | What colour is a link inside running text? | color | none | `{ink-body}` | `{color.base-content}` |
+| `--ink-muted` | What colour is held-back text such as a caption, hint or timestamp? | color | none | none | `{color.base-content}` |
+| `--overlay-media` | What colour wash sits under a caption laid over an image? | color | none | none | `{color.base-100}` |
+| `--overlay-scrim` | What colour wash does a modal lay over the page it interrupts? | color | none | `{color.base-100}` | `{color.base-100}` |
 
 <!-- @tree end -->
