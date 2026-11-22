@@ -6,6 +6,15 @@ A colour slot is one coloured part of one group of components, in one option, on
 
 A slot takes a role and never a palette colour. The role says which of your colours, and the slot says where it lands. A slot you leave silent paints what this page lists, so a plugin answers only the slots it changes.
 
+## Which plugin answers
+
+Two routes lead to a slot answer. Pick the row that fits before you write one.
+
+| You want | The route |
+| --- | --- |
+| I change a few roles or slots | List a later plugin after `"default"`, as `["default", "./design/<name>"]`. The later plugin answers only what it changes. Put its `.arena-<name>` class on `<html>`, since nothing it answers reaches the page without the class. The rule is in [`style-kernel.md`](./style-kernel.md#the-two-rules-that-decide-everything-else). |
+| I want my product's own appearance | Write a root plugin that answers every role carrying no default. Start it from a copy of `plugin-style-store/default/` or of a catalogue entry. Both sit in the repository and on the site, not in the package. |
+
 ## The common case first
 
 **Keep the brand on the primary action and take it off the selection.** A screen reads its brand where its one main action is. A checked box, a switch that is on and the current navigation item read quieter when they do not repeat it. These answers do that:
@@ -52,6 +61,19 @@ A slot takes a role and never a palette colour. The role says which of your colo
 <!-- @shared slotExample end -->
 
 The primary action needs no answer. `actions-primary-root-fill-rest` reads `emphasis-primary-fill`, which your plugin already answers with the brand. The first answer fills a checked box, a selected radio, a switch that is on and a slider's range with `fill-mark`. The second draws the check and the dot in `ink-on-mark`. The third sets the knob of a switch and a slider on the page colour, and the fourth draws the glyph on a switch's knob in the body ink. These components move together because each paints a part of the `choices` group. Four other groups quiet the navigation selection. The current or selected item of a side nav, a bottom nav, a pagination and a tree view takes a `fill-marker` wash instead of the primary one. The selected tab has no fill to wash. The selected edge is `edge-mark` in both polarities. That edge shows only where the item draws one, which is the rule under the selected tab and the border of the current page in a pagination. A side nav, a bottom nav and a tree view item draw no border. The count on the current row of a side nav and every count on a bottom nav take the quiet `fill-marker` with the body ink. The dot on a collapsed side nav rail takes `fill-marker`.
+
+The brand also reads in four roles that example leaves alone. Under the default plugin, `ink-eyebrow`, `accent-primary-fill-soft`, `accent-primary-ink` and `accent-primary-edge` each read `{color.primary}`. An eyebrow, a primary badge, a required marker and a primary card edge show the brand through them. A brief that keeps the brand on the primary action and nowhere else answers these four as well, each with a quiet role this page already names:
+
+```json
+{
+  "ink-eyebrow": { "$type": "color", "$value": "{ink-body}" },
+  "accent-primary-fill-soft": { "$type": "color", "$value": "{fill-marker}" },
+  "accent-primary-ink": { "$type": "color", "$value": "{ink-body}" },
+  "accent-primary-edge": { "$type": "color", "$value": "{edge-mark}" }
+}
+```
+
+The four `choices` answers belong to the same request. A brief that says "nowhere else" does not make them optional.
 
 ## How a slot is named
 

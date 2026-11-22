@@ -148,7 +148,7 @@ export const ROUTES: Route[] = [
       + 'document that says what the questions are and which answers carry the difference',
     entry: 'consumer',
     stops: ['skills/design/references/style-kernel.md'],
-    budget: 21_118,
+    budget: 21_794,
     reason:
       'paid once per project and never per screen, so it carries the whole surface the kernel '
       + 'exposes. A project stops learning the kernel from a normative contributor document. The page links '
@@ -160,7 +160,8 @@ export const ROUTES: Route[] = [
       + 'unanswered role and the sheet order. The page says what each kind of role may be answered with, '
       + 'names the selected edge of navigation and its default, and says a plugin\'s own percentage stays put. '
       + 'The loop lists every answer the build refuses, what the user scale column decides, the contrast step '
-      + 'of `arena check` and the components index the kernel names.',
+      + 'of `arena check` and the components index the kernel names. Two routes open the three-files section, '
+      + 'one for a later plugin that changes a few roles and one for a root plugin that is the product\'s own.',
   },
   {
     name: 'consumer-register',

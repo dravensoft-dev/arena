@@ -13,6 +13,13 @@ Read this once per project, before the first screen. The rules of the language a
 
 ## The three files you write
 
+Two routes decide what you write. Pick the row that fits.
+
+| You want | The route |
+| --- | --- |
+| I change a few roles or slots | List a later plugin after `"default"`, as `["default", "./design/<name>"]`. The later plugin answers only what it changes. Put its `.arena-<name>` class on `<html>`, since nothing it answers reaches the page without the class. The rule is [below](#the-two-rules-that-decide-everything-else). |
+| I want my product's own appearance | Write a root plugin that answers every role carrying no default. Start it from a copy of `plugin-style-store/default/` or of a catalogue entry. Both sit in the repository and on the site, not in the package. |
+
 **`arena.config.json`, in your project root.** The palettes, the fonts and the plugins, and
 nothing about components. **The shape below is abridged, and it is not a file to copy.** Every palette answers
 the whole colour set rather than the three shown, and a config carrying three keys is refused
