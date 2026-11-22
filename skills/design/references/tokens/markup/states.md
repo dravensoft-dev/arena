@@ -2,7 +2,7 @@
 
 Read this when your own markup shows a state, such as hover, keyboard focus, selection, a pressed toggle, a checked checkbox or switch, a disabled control or an invalid field.
 
-**Thirteen roles answer the states of a control, and the second table says which attribute or pseudo-class shows each one.** `--fill-hover` covers a cell as well as a row. Focus, selection and invalidity reach utilities through `ring-edge-focus`, `outline-edge-focus`, `bg-selected`, `text-ink-selected`, `border-edge-selected`, `border-edge-invalid` and `text-ink-invalid`. The selected or current item of a navigation component takes `border-edge-tab-selected`, and any other selected item takes `border-edge-selected`. The focus width, the focus gap and the disabled fade have no key of their own. The three are read through arbitrary forms: `outline-[length:var(--bw-focus)]` or `ring-[length:var(--bw-focus)]`, `outline-offset-[var(--gap-focus)]` or `ring-offset-[var(--gap-focus)]`, and `opacity-[var(--fade-disabled)]`.
+**Thirteen roles answer the states of a control, and the second table says which attribute or pseudo-class shows each one.** `--fill-hover` covers a cell as well as a row. Focus, selection and invalidity reach utilities through `ring-edge-focus`, `outline-edge-focus`, `bg-selected/(--level-accent-soft-primary)`, `text-ink-selected`, `border-edge-selected`, `border-edge-invalid` and `text-ink-invalid`. The selected or current item of a navigation component takes `border-edge-tab-selected`, and any other selected item takes `border-edge-selected`. The focus width, the focus gap and the disabled fade have no key of their own. The three are read through arbitrary forms: `outline-[length:var(--bw-focus)]` or `ring-[length:var(--bw-focus)]`, `outline-offset-[var(--gap-focus)]` or `ring-offset-[var(--gap-focus)]`, and `opacity-[var(--fade-disabled)]`.
 
 **A control of yours that is a checkbox or a switch reads what ArenaCheckbox and ArenaSwitch read.** The checked rows below and their rest partners name component roles that the markup index otherwise leaves to components. This page is the one exception to the rule on the [markup index](./index.md). The box takes `--fill-control` at rest and `--fill-control-on` when checked, and a checkbox draws `--edge-control` around it at rest and no edge when checked. A switch track draws no edge, so it reads the two fills alone. The knob takes `--fill-knob-off` and `--ink-knob-off` when off, and `--fill-knob` and `--ink-knob` when on. The tick of a checkbox takes `--emphasis-primary-ink`. A colour slot answer moves Arena's components, and markup of yours reads roles, so a slot does not reach your control.
 
@@ -52,10 +52,71 @@ Your markup and Arena's components both read the roles on this page. A role keep
 </button>
 
 <label for="email">Email address</label>
-<input id="email" aria-invalid="true" aria-describedby="email-error" class="arena-invalid arena-focus border border-edge-field" />
+<input id="email" aria-invalid="true" aria-describedby="email-error" class="arena-invalid arena-focus border-edge-field border-[length:var(--bw-field)]" />
 <p id="email-error" class="arena-invalid__message">Enter an address such as name@example.com.</p>
 ```
 
 A markup class beats a rule of yours of equal specificity, whatever order the sheets load in. To draw a state another way, write the roles of the tables above on an element that wears none of the classes.
 
 A nested style plugin's answer reaches `--edge-focus` and the other roles, and your markup reads those roles, never `--focus-ring`. Under a nested plugin class `--edge-focus` follows the subtree's answer, while `--focus-ring` keeps the root's.
+
+## A checkbox and a switch of your own
+
+A checkbox of yours hides the native box with `appearance: none` and fills it with `--fill-control`. The tick is a rotated corner in `--emphasis-primary-ink`, stroked at `--bw-strong` as ArenaCheckbox strokes its own. A switch of yours is a track in the two control fills and a knob in the two knob fills. The example passes `arena audit` in either layer.
+
+```html
+<label class="own-check">
+  <input type="checkbox" class="own-check__box arena-focus" />
+  Email me a weekly summary
+</label>
+
+<span id="dark-label">Dark mode</span>
+<button type="button" role="switch" aria-checked="false" aria-labelledby="dark-label" class="own-switch arena-focus">
+  <span class="own-switch__knob"></span>
+</button>
+```
+
+```css
+.own-check__box {
+  appearance: none;
+  inline-size: var(--sp-5);
+  block-size: var(--sp-5);
+  border: var(--bw-control) solid var(--edge-control);
+  border-radius: var(--r-control);
+  background: var(--fill-control);
+}
+.own-check__box:checked {
+  border-color: transparent;
+  background: var(--fill-control-on);
+}
+.own-check__box:checked::after {
+  content: "";
+  display: block;
+  inline-size: var(--sp-1);
+  block-size: var(--sp-2);
+  margin: var(--sp-1) auto 0;
+  border: solid var(--emphasis-primary-ink);
+  border-width: 0 var(--bw-strong) var(--bw-strong) 0;
+  rotate: 45deg;
+}
+.own-switch {
+  display: flex;
+  inline-size: var(--sp-10);
+  padding: var(--sp-0);
+  border-radius: var(--r-pill);
+  background: var(--fill-control);
+}
+.own-switch[aria-checked="true"] {
+  justify-content: flex-end;
+  background: var(--fill-control-on);
+}
+.own-switch__knob {
+  inline-size: var(--sp-5);
+  block-size: var(--sp-5);
+  border-radius: var(--r-pill);
+  background: var(--fill-knob-off);
+}
+.own-switch[aria-checked="true"] .own-switch__knob {
+  background: var(--fill-knob);
+}
+```

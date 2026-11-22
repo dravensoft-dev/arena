@@ -1,7 +1,7 @@
 /* The token tree under skills/design/references/tokens/ against the shape it promises. Seven
  * claims: every page the tree names exists and no page sits outside it; nothing is deeper than
- * three segments below references/; a leaf stays under LEAF_MAX characters and an index under
- * INDEX_MAX; a markup page never writes a component role as a custom property, except that
+ * three segments below references/; a leaf stays under LEAF_MAX characters, or its LEAF_ALLOWANCE, and an
+ * index under INDEX_MAX; a markup page never writes a component role as a custom property, except that
  * markup/states.md may write the CONTROL_READS names; a role's row sits in exactly the leaf
  * roleLeaf names (and a markup role's second row in exactly markupLeaf's) and nowhere else;
  * every child says when to read it; and each generated region is what generate:token-tree
@@ -22,6 +22,12 @@ import {
 
 export const LEAF_MAX = 8000;
 export const INDEX_MAX = 3000;
+export const LEAF_ALLOWANCE: Readonly<Record<string, { max: number; reason: string }>> = {
+  'markup/states.md': {
+    max: 8800,
+    reason: 'The one leaf that teaches an own control by example, with a toggle, a checkbox and a switch that arena audit passes. The tables of the thirteen state roles sit beside them.',
+  },
+};
 export const DEPTH_MAX = 3;
 
 const ROLES = 'contracts/design/roles.json';
@@ -77,7 +83,7 @@ export function treeProblems(base = root): string[] {
   for (const path of onDisk) texts.set(path, readFileSync(join(dir, path), 'utf8'));
 
   for (const [path, text] of texts) {
-    const max = path.endsWith('index.md') ? INDEX_MAX : LEAF_MAX;
+    const max = LEAF_ALLOWANCE[path]?.max ?? (path.endsWith('index.md') ? INDEX_MAX : LEAF_MAX);
     if (text.length > max)
       problems.push(`${TREE_DIR}/${path} holds ${text.length} characters; ${path.endsWith('index.md') ? 'an index' : 'a leaf'} may hold at most ${max}.`);
   }

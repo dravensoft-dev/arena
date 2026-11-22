@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, cpSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { treeProblems, treePaths, LEAF_MAX, INDEX_MAX, node } from './check-token-tree.ts';
+import { treeProblems, treePaths, LEAF_MAX, INDEX_MAX, LEAF_ALLOWANCE, node } from './check-token-tree.ts';
 import { TREE_DIR } from '../../generate/arena/generate-token-tree.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 
@@ -55,12 +55,35 @@ test('a fourth segment below references/ is a problem', () => {
   assert.equal(only(base, /4 segments below references/).length, 1);
 });
 
-test('an index over INDEX_MAX and a leaf over LEAF_MAX are each a problem', () => {
+test('an index over INDEX_MAX is a problem', () => {
   const base = copy();
   edit(base, 'markup/index.md', (text) => `${text}\n${'x'.repeat(INDEX_MAX + 1 - text.length)}`);
   assert.equal(only(base, /markup\/index\.md holds \d+ characters; an index may hold at most 3000/).length, 1);
-  edit(base, 'markup/edges.md', (text) => `${text}\n${'x'.repeat(LEAF_MAX)}`);
-  assert.equal(only(base, /markup\/edges\.md holds \d+ characters; a leaf may hold at most 8000/).length, 1);
+});
+
+const LEAF_ROWS = [
+  { name: 'edges.md one over LEAF_MAX', page: 'markup/edges.md', length: LEAF_MAX + 1, problems: 1 },
+  { name: 'edges.md at LEAF_MAX', page: 'markup/edges.md', length: LEAF_MAX, problems: 0 },
+  { name: 'states.md one over LEAF_MAX', page: 'markup/states.md', length: LEAF_MAX + 1, problems: 0 },
+  { name: 'states.md at its allowance', page: 'markup/states.md', length: LEAF_ALLOWANCE['markup/states.md']!.max, problems: 0 },
+  { name: 'states.md one over its allowance', page: 'markup/states.md', length: LEAF_ALLOWANCE['markup/states.md']!.max + 1, problems: 1 },
+];
+
+test('a leaf over its length is a problem, and the allowance lifts only the page it names', () => {
+  for (const row of LEAF_ROWS) {
+    const base = copy();
+    const pattern = new RegExp(`${row.page.replace('.', '\\.')} holds \\d+ characters; a leaf may hold at most`);
+    const probe = (text: string) => (text.length >= row.length ? text.slice(0, row.length) : `${text}${'x'.repeat(row.length - text.length)}`);
+    edit(base, row.page, probe);
+    assert.equal(only(base, pattern).length, row.problems, row.name);
+  }
+});
+
+test('every leaf allowance carries a reason of at most 1,200 characters', () => {
+  for (const [page, one] of Object.entries(LEAF_ALLOWANCE)) {
+    assert.ok(one.reason.length > 0, `${page} has no reason`);
+    assert.ok(one.reason.length <= 1200, `${page} reason holds ${one.reason.length} characters`);
+  }
 });
 
 test('a component role as a custom property in a markup page is a problem, the bare name is not', () => {

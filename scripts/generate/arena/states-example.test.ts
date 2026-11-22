@@ -17,17 +17,22 @@ after(() => { for (const dir of made) rmSync(dir, { recursive: true, force: true
 
 const PAGE = join(import.meta.dirname, '..', '..', '..', 'skills', 'design', 'references', 'tokens', 'markup', 'states.md');
 
-function example(): string {
+function section(title: string): string {
   const text = readFileSync(PAGE, 'utf8');
-  const at = text.indexOf('## A toggle that shows every state');
-  assert.notEqual(at, -1, 'the page has no toggle section');
+  const at = text.indexOf(`## ${title}`);
+  assert.notEqual(at, -1, `the page has no ${title} section`);
   const heading = text.indexOf('\n', at);
   const next = text.indexOf('\n## ', heading);
-  const section = text.slice(heading, next === -1 ? undefined : next);
-  const fences = [...section.matchAll(/```html\n([\s\S]*?)```/g)];
-  assert.equal(fences.length, 1, 'the toggle section carries one html fence');
+  return text.slice(heading, next === -1 ? undefined : next);
+}
+
+function fence(title: string, language: string): string {
+  const fences = [...section(title).matchAll(new RegExp(`\`\`\`${language}\\n([\\s\\S]*?)\`\`\``, 'g'))];
+  assert.equal(fences.length, 1, `${title} carries one ${language} fence`);
   return fences[0]![1]!;
 }
+
+const example = () => fence('A toggle that shows every state', 'html');
 
 test('the toggle example passes arena audit --strict=audit', async () => {
   const root = mkdtempSync(join(tmpdir(), 'arena-states-'));
@@ -35,6 +40,21 @@ test('the toggle example passes arena audit --strict=audit', async () => {
   mkdirSync(join(root, 'src'), { recursive: true });
   writeFileSync(join(root, 'arena.config.json'), JSON.stringify(readable));
   writeFileSync(join(root, 'src', 'Toggle.html'), example());
+  const arena = hostRoot('@dravensoft/arena-react', '1.0.0', {});
+  const captured = captureIo(root, { arena, map: null, sheets: null, vocabulary: null, phosphor: null });
+  const code = await run(['--strict=audit', '--src', 'src'], captured.io);
+  assert.equal(code, 0, captured.err.join('\n'));
+  assert.equal(captured.err.concat(captured.out).some((line) => line.includes('[audit]')), false);
+});
+
+test('the checkbox and switch example passes arena audit --strict=audit', async () => {
+  const title = 'A checkbox and a switch of your own';
+  const root = mkdtempSync(join(tmpdir(), 'arena-states-'));
+  made.push(root);
+  mkdirSync(join(root, 'src'), { recursive: true });
+  writeFileSync(join(root, 'arena.config.json'), JSON.stringify(readable));
+  writeFileSync(join(root, 'src', 'Own.html'), fence(title, 'html'));
+  writeFileSync(join(root, 'src', 'own.css'), fence(title, 'css'));
   const arena = hostRoot('@dravensoft/arena-react', '1.0.0', {});
   const captured = captureIo(root, { arena, map: null, sheets: null, vocabulary: null, phosphor: null });
   const code = await run(['--strict=audit', '--src', 'src'], captured.io);
