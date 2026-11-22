@@ -716,9 +716,8 @@ export function localeTagProblems(rel: string, source: string, tag: string) {
 }
 
 export function localeTagScan(root = ROOT, tag = ARENA_DEFAULT_LOCALE.locale) {
-  const found = documents(root).flatMap((path) =>
+  return documents(root).flatMap((path) =>
     localeTagProblems(relPosix(root, path), readFileSync(path, 'utf8'), tag));
-  return found;
 }
 
 export const PROPERTY_READ = /\bvar\(\s*(--[a-z0-9]+(?:-[a-z0-9]+)*)/g;

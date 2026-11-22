@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
@@ -11,7 +11,6 @@ import {
   styleStoreProblems, identityProblems, derivedSlotsProblems, levelsProblems, writtenUriProblems,
   registryArgumentProblems, failureClaimProblems, flagsOf, exitCodesOf, errorPathsOf, MCP_SERVER_SOURCE,
 } from './check-mcp.ts';
-import { readFileSync } from 'node:fs';
 import { USAGE } from '../../generate/core/arena-mcp/arena-mcp.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { DERIVED_SLOTS, derivedSlotsText, levelIndexText } from '../../lib/arena/package-assembly.ts';

@@ -1,11 +1,11 @@
 // The per-command strict sets: which kinds each command may hold, and the text it prints when it does.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { KINDS_BY_COMMAND, STRICT_KINDS, REPORT_KINDS, UNHOLDABLE_KINDS, holder, heldMessage, report,
   RULES_BY_KIND, heldAs, reported, strictNames } from './reports.ts';
 import { RULE_TAGS } from './audit.ts';
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
 import { repoRoot } from '../../../lib/arena/repo-root.ts';
 
 const sets = Object.entries(KINDS_BY_COMMAND) as [string, readonly string[]][];

@@ -539,7 +539,8 @@ export function collect(base = root, dir = assembled(base)) {
     problems: [
       ...dependencyProblems(base), ...registryProblems(base), ...serverClaimProblems(base), ...binProblems(dir), ...flatProblems(dir),
       ...corpusProblems(dir), ...vocabularyProblems(dir), ...servedLinkProblems(dir),
-      ...derivedSlotsProblems(dir, base), ...levelsProblems(dir, base), ...catalogueProblems(dir, base), ...styleStoreProblems(dir, base), ...identityProblems(dir, base),
+      ...derivedSlotsProblems(dir, base), ...levelsProblems(dir, base), ...catalogueProblems(dir, base),
+      ...styleStoreProblems(dir, base), ...identityProblems(dir, base),
       ...uris.problems,
     ],
   };

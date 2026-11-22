@@ -129,7 +129,7 @@ export function manifestProblems(dir: string, repo = root) {
 }
 
 export const GROUP_PAGE = 'skills/design/references/contracts.md';
-export const PATTERNED = new Map([['palette', 'polarity'], ['density', 'name']]);
+const PATTERNED = new Map([['palette', 'polarity'], ['density', 'name']]);
 
 export function shippedGroups(expected: string[]) {
   const stems = expected.filter((rel) => /^contracts\/design\/[^/]+\.json$/.test(rel))

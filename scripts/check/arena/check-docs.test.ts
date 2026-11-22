@@ -3,7 +3,7 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { rmSync } from 'node:fs';
+import { readFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import * as docs from './check-docs.ts';
 import {
@@ -20,7 +20,6 @@ import {
   testNameProblems, emptySuiteProblems, localeTagProblems, LOCALE_FIELD_TABLE,
   unnamedPropertyProblems, unnamedPropertyScan,
 } from './check-docs.ts';
-import { readFileSync } from 'node:fs';
 import { ARENA_DEFAULT_LOCALE } from '../../../frameworks/react/LocaleDefaults.generated.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { scratchTree } from '../../utils/scratch-tree.ts';
