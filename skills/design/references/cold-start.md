@@ -29,7 +29,7 @@ answered is a decision the agent made alone.
 | A document stating the palette, the type and the roles | 5 | nothing, and this is the case the rest of this page exists to reach |
 | A public URL to copy | 3, then 5 | every role that lives behind a state, and probably the register |
 | A screenshot | 3, then 5 | every role outside the one polarity, density and state it caught |
-| One of the registers Arena measured, picked rather than invented | 4 | the palette is still yours to state, and nothing else about the product is settled |
+| One of the registers Arena measured, picked rather than invented | 4 | the palette is still yours to state, and an entry is the fastest complete root plugin |
 | Nothing yet | 3 | the whole interview, which is the honest price |
 
 **A public site hides its own states.** Hover, focus, disabled, error, empty and loading are behind
@@ -66,14 +66,14 @@ reads as two products sharing a screen.
 
 | The answer | Go to |
 |---|---|
-| The user answers them | 5 |
+| The user answers them, and takes no entry | 5 |
+| The user answers them, and one entry's `Take this entry when` line fits the product | 4 |
 | The user will not answer them | 4 |
 
 ## 4. Start from a register Arena measured
 
-**Two arrivals reach this node**, one that would rather pick than answer and one that will not
-answer at all, and it is a real answer to both. Ask for one thing only: a short description of
-the app. Then match that description against the catalogue's index,
+**Three arrivals reach this node.** One would rather pick than answer. One will not answer at all. One answered the interview and wants the fastest complete root plugin. Each is a real answer. The third keeps its answers, and they replace the entry's palette, fonts and any role the character answered differently. Ask for one thing only: a short description of
+the app, unless the answers gave it. Then match that description against the catalogue's index,
 [`plugin-style-store/catalogue/INDEX.md`](../../../plugin-style-store/catalogue/INDEX.md), one row
 per register measured on a real product, each with its own `ENTRY.md` and the files you copy.
 Without a clone, fetch the index at `https://arena.dravensoft.org/plugin-style-store/catalogue/INDEX.md` and the entry files it links, or call `arena_read` on `arena://style/catalogue/INDEX.md` and on each entry's URI that the index links. The package does not carry them.
@@ -106,7 +106,7 @@ beside its `ENTRY.md`.
 
 Whatever route reached this node, the output is the same. The output is a page stating the palette
 in both polarities, the three faces, the character, the air, the media shape and the page shape,
-with the reason beside each.
+with the reason beside each. It also lists the surfaces, the slots, the states, the language and the theme.
 [`arena-from-scratch/identity.html`](../../../arena-from-scratch/identity.html) in a clone of the
 Arena repository is the template, and
 [`identity.example.html`](../../../arena-from-scratch/identity.example.html) beside it is one worked
@@ -117,6 +117,8 @@ answer to read first. Without a clone, fetch the template at
 
 The output is a page rather than a list, because a palette described in prose is a palette nobody
 can approve. Save the filled document as `design/identity.html` in the project, and serve it over HTTP with `npx serve design`, so the web fonts it names load. Show it to the user, and change what they change.
+
+**The document is the template with every section kept and every dashed block replaced.** A page of prose in its place is not the document. [`arena check`](./cli.md) reports a `design/identity.html` that keeps a block or drops a section, as the `identity` kind.
 
 **Then stop.** The next node writes files, and files written against an unapproved appearance are
 the ones that get rewritten.
