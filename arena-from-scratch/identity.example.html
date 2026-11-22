@@ -88,6 +88,9 @@
     --fill-control: var(--color-neutral);
     --edge-control: var(--color-base-300);
     --edge-field: var(--color-base-300);
+    --emphasis-secondary-fill: var(--color-base-200);
+    --emphasis-secondary-ink: var(--color-base-content);
+    --emphasis-secondary-edge: var(--color-base-300);
   }
   :root {
     --font-display: "Baloo 2", system-ui, sans-serif;
@@ -155,6 +158,8 @@
          border: var(--bw-control) solid var(--edge-control); background: transparent; color: var(--ink-body); }
   .panel .s-btn[data-specimen="primary"] { background: var(--emphasis-primary-fill);
          color: var(--emphasis-primary-ink); border-color: var(--emphasis-primary-edge); }
+  .panel .s-btn[data-specimen="secondary"] { background: var(--emphasis-secondary-fill);
+         color: var(--emphasis-secondary-ink); border-color: var(--emphasis-secondary-edge); }
   .panel .s-input { display: block; box-sizing: border-box; inline-size: 100%; background: var(--fill-field);
          color: var(--ink-body); border: var(--bw-field) solid var(--edge-field);
          border-radius: var(--r-field); padding: var(--sp-2) var(--sp-3); font-size: var(--fs-sm);
@@ -450,7 +455,7 @@
 <div class="panel arena-dark">
 <p class="tag">arena-dark</p>
 <div class="s-nav"><span class="s-item" data-state="selected" data-wash>Lessons</span><span class="s-item">Practice</span></div>
-<div class="s-line"><button type="button" class="s-btn" data-specimen="primary" data-fills="emphasis-primary-fill">Continue</button><button type="button" class="s-btn">Skip</button></div>
+<div class="s-line"><button type="button" class="s-btn" data-specimen="primary" data-fills="emphasis-primary-fill">Continue</button><button type="button" class="s-btn" data-specimen="secondary" data-fills="emphasis-secondary-fill">Skip</button></div>
 <span class="s-box" data-fills="fill-control-on">&#10003;</span>Remind me tomorrow
 <div class="s-input" data-fills="fill-field">Rest</div>
 <div class="s-input" data-state="focus" data-fills="fill-field">Focused</div>
@@ -461,7 +466,7 @@
 <div class="panel arena-light">
 <p class="tag">arena-light</p>
 <div class="s-nav"><span class="s-item" data-state="selected" data-wash>Lessons</span><span class="s-item">Practice</span></div>
-<div class="s-line"><button type="button" class="s-btn" data-specimen="primary" data-fills="emphasis-primary-fill">Continue</button><button type="button" class="s-btn">Skip</button></div>
+<div class="s-line"><button type="button" class="s-btn" data-specimen="primary" data-fills="emphasis-primary-fill">Continue</button><button type="button" class="s-btn" data-specimen="secondary" data-fills="emphasis-secondary-fill">Skip</button></div>
 <span class="s-box" data-fills="fill-control-on">&#10003;</span>Remind me tomorrow
 <div class="s-input" data-fills="fill-field">Rest</div>
 <div class="s-input" data-state="focus" data-fills="fill-field">Focused</div>
