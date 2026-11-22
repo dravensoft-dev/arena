@@ -1,6 +1,6 @@
 # Colouring the `fields` group
 
-Read this when your style plugin answers a slot of the `fields` group. [`color-slots.md`](../color-slots.md) holds the routes, the rules and what a silent slot paints.
+Read this when your style plugin answers a slot of the `fields` group. [`index.md`](./index.md) holds the routes, the rules and what a silent slot paints.
 
 Home of `ArenaCombobox`, `ArenaFieldset`, `ArenaFileInput`, `ArenaInput`, `ArenaNumberField`, `ArenaPinInput`, `ArenaSelect`, `ArenaTextarea`. Also read by `ArenaCommandPalette.search`, `ArenaCommandPalette.input`, `ArenaConfirmDialog.input`.
 

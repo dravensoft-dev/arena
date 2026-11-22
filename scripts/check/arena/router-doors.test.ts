@@ -30,8 +30,8 @@ const DOORS: Door[] = [
     pointers: [`${REF}tokens/scales/density.md`, 'frameworks/VOCABULARY.md'],
     ownerHeadings: ['Density'],
   },
-  { question: 'How do I make Arena look like my own product?', owner: `${REF}style-kernel.md`, pointers: [`${REF}color-slots.md`] },
-  { question: 'What changes the look, and what colours a group?', owner: `${REF}style-kernel.md`, pointers: [`${REF}color-slots.md`] },
+  { question: 'How do I make Arena look like my own product?', owner: `${REF}style-kernel.md`, pointers: [`${REF}color-slots/index.md`] },
+  { question: 'What changes the look, and what colours a group?', owner: `${REF}color-slots/index.md`, pointers: [`${REF}style-kernel.md`] },
 ];
 
 const rows = () => {

@@ -1,6 +1,6 @@
 # Colouring the `menus` group
 
-Read this when your style plugin answers a slot of the `menus` group. [`color-slots.md`](../color-slots.md) holds the routes, the rules and what a silent slot paints.
+Read this when your style plugin answers a slot of the `menus` group. [`index.md`](./index.md) holds the routes, the rules and what a silent slot paints.
 
 Home of `ArenaCommandPalette`, `ArenaMenu`. Also read by `ArenaCombobox.option`.
 

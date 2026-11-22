@@ -1,6 +1,6 @@
 # Colouring the `data` group
 
-Read this when your style plugin answers a slot of the `data` group. [`color-slots.md`](../color-slots.md) holds the routes, the rules and what a silent slot paints.
+Read this when your style plugin answers a slot of the `data` group. [`index.md`](./index.md) holds the routes, the rules and what a silent slot paints.
 
 Home of `ArenaActivityFeed`, `ArenaCalendar`, `ArenaKeyValue`, `ArenaPeopleList`, `ArenaStatCard`, `ArenaTable`, `ArenaTimeline`.
 

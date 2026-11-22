@@ -1,6 +1,6 @@
 # Colouring the `marks` group
 
-Read this when your style plugin answers a slot of the `marks` group. [`color-slots.md`](../color-slots.md) holds the routes, the rules and what a silent slot paints.
+Read this when your style plugin answers a slot of the `marks` group. [`index.md`](./index.md) holds the routes, the rules and what a silent slot paints.
 
 Home of `ArenaAvatar`, `ArenaBadge`, `ArenaTag`. Also read by `ArenaActivityFeed.dot`, `ArenaBoard.title`, `ArenaCombobox.more`, `ArenaStatCard.value`, `ArenaStatCard.delta`, `ArenaTimeline.dot`, `ArenaToast.pinned`.
 

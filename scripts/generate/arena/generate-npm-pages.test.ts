@@ -753,9 +753,9 @@ test('every group page is linked from the slot page, and no link names a group a
     const rows = section.split('\n').filter((line) => line.startsWith('| '));
     assert.ok(rows.length > 2, `${group}: baseline rows`);
     for (const row of rows) assert.ok(page.includes(row), `${group}: ${row}`);
-    assert.ok(page.includes('](../color-slots.md)'), `${group}: links back`);
-    assert.ok(slotPage.includes(`](./color-slots/${group}.md)`), `${group}: linked from the slot page`);
-    const hits = spawnSync('git', ['grep', '-l', `color-slots.md#${group}`, '--', ':!.superpowers', ':!docs'], { cwd: repoRoot, encoding: 'utf8' });
+    assert.ok(page.includes('](./index.md)'), `${group}: links back`);
+    assert.ok(slotPage.includes(`](./${group}.md)`), `${group}: linked from the slot page`);
+    const hits = spawnSync('git', ['grep', '-l', `color-slots/index.md#${group}`, '--', ':!.superpowers', ':!docs'], { cwd: repoRoot, encoding: 'utf8' });
     assert.equal(hits.stdout, '', `${group}: anchor links`);
   }
   assert.deepEqual(GROUP_PAGES, groups.map((group) => `${SLOT_GROUP_DIR}/${group}.md`));

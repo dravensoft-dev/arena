@@ -1,6 +1,6 @@
 # Colouring the `actions` group
 
-Read this when your style plugin answers a slot of the `actions` group. [`color-slots.md`](../color-slots.md) holds the routes, the rules and what a silent slot paints.
+Read this when your style plugin answers a slot of the `actions` group. [`index.md`](./index.md) holds the routes, the rules and what a silent slot paints.
 
 Home of `ArenaButton`, `ArenaCopyButton`, `ArenaIconButton`, `ArenaSplitButton`. Also read by `ArenaAlert.close`, `ArenaBulkActionBar.action`, `ArenaBulkActionBar.clear`, `ArenaCalendar.nav`, `ArenaCalendar.today`, `ArenaCombobox.clear`, `ArenaConfirmDialog.confirm`, `ArenaFileInput.trigger`, `ArenaFilterBar.clear`, `ArenaOnboarding.text`, `ArenaOnboarding.next`, `ArenaPagination.nav`, `ArenaSheet.close`, `ArenaSkipLink.root`, `ArenaTag.close`, `ArenaToast.close`.
 

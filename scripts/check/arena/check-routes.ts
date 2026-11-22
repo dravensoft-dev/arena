@@ -52,22 +52,22 @@ export const ENTRIES: Entry[] = [
   {
     name: 'consumer',
     router: 'skills/design/SKILL.md',
-    budget: 21_773,
+    budget: 21_760,
     reason:
       'the page every consumer route opens with, declared once, not as each route\'s first stop. '
       + 'A question earns a row only when asked before a builder knows their situation. '
       + 'Some ask whether a component exists, how much of Arena to take, what to install it with '
       + 'and where the appearance comes from. '
-      + 'Others ask whether the product has to be found, how a page is assembled and where a proved Arena defect goes. The rules list '
+      + 'Others ask whether the product must be found, how a page is assembled and where a proved Arena defect goes. The rules list '
       + 'comes from one declaration, so each rule names its audit tag or says why '
       + 'none reads it. What moves this number is a new question, a helper '
-      + 'a reader cannot ask for by name, or a tag beside the one it '
-      + 'extends, as wrapped-link stands beside router-link. The vocabulary families name which '
-      + 'style decision reaches which component owner and answer appearance questions '
+      + 'no reader asks for by name, or a tag beside its '
+      + 'sibling, as wrapped-link stands beside router-link. The vocabulary families name which '
+      + 'style decision reaches which component owner and answer appearance '
       + 'at the decision layer. The tokens-only rule names the bracket values audit holds. Rows route a mock, '
       + 'toolchain, bundler, panel, toggle, layer and density, and keep the floor of a page apart from markup paint. One row lists every export topic, and the cold-start '
-      + 'paragraph names the project-wide branch. The router-link rule names each member with an href, and the '
-      + 'icon rule names the component that draws a glyph.',
+      + 'paragraph names the project-wide branch. The router-link rule names each member with an href, the '
+      + 'icon rule the component that draws a glyph. The colour row links the slot index.',
   },
   {
     name: 'contributor',
@@ -125,7 +125,7 @@ export const ROUTES: Route[] = [
       'skills/design/references/config.md',
       'skills/design/references/cli.md',
     ],
-    budget: 53_313,
+    budget: 53_325,
     reason:
       'paid once per project, not per screen, so it carries what the build route may not: the '
       + 'install, the config file and the command. The install reference gives the evidence behind each '
@@ -149,7 +149,7 @@ export const ROUTES: Route[] = [
       + 'document that says what the questions are and which answers carry the difference',
     entry: 'consumer',
     stops: ['skills/design/references/style-kernel.md'],
-    budget: 20_729,
+    budget: 20_753,
     reason:
       'paid once per project and never per screen, so it carries the whole surface the kernel '
       + 'exposes. A project stops learning the kernel from a normative contributor document. The page links '
@@ -356,7 +356,7 @@ export const ROUTES: Route[] = [
         ],
       },
     ],
-    budget: 36_737,
+    budget: 36_749,
     reason:
       'the route declared as a tree, charged its worst branch, never the sum, because a '
       + 'reader answers a question and walks one way. Given a document stating the palette and '

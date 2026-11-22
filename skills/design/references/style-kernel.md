@@ -45,7 +45,7 @@ Arena ships two themes and is dark first, so a real config carries a dark palett
 light one above. The full colour list, the font slots and the rest of the config are in
 [`config.md`](./config.md).
 
-**`design/<name>/plugin.tokens.json`.** One entry per role or [colour slot](./color-slots.md), and the
+**`design/<name>/plugin.tokens.json`.** One entry per role or [colour slot](./color-slots/index.md), and the
 directory names the plugin:
 
 ```json
@@ -59,7 +59,7 @@ directory names the plugin:
 ```
 
 The file may also hold one group named `light`. The group takes colour answers only, a `{color.*}` alias or another
-colour role, never `transparent`, for a role or a [colour slot](./color-slots.md). The group lays them over the plain answers in every
+colour role, never `transparent`, for a role or a [colour slot](./color-slots/index.md). The group lays them over the plain answers in every
 palette whose `polarity` is `light`. A plain answer holds in every dark palette, and in a light one the group
 is silent on. Anything else in the group is refused. A palette picked at runtime reads the group by its
 polarity the same way.
@@ -290,4 +290,4 @@ through the same part.** What one product paints is its own.
 
 Two things that look like evidence and are not. A rule that restates the part's own answer raises
 the count without changing a pixel. And an ask whose whole content is a difference between two states of one part cannot become a
-role at all. A colour slot answers such a difference in colour ([`color-slots.md`](./color-slots.md)), and any other is the product's own markup.
+role at all. A colour slot answers such a difference in colour ([`color-slots/index.md`](./color-slots/index.md)), and any other is the product's own markup.

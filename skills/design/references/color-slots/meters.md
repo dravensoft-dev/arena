@@ -1,6 +1,6 @@
 # Colouring the `meters` group
 
-Read this when your style plugin answers a slot of the `meters` group. [`color-slots.md`](../color-slots.md) holds the routes, the rules and what a silent slot paints.
+Read this when your style plugin answers a slot of the `meters` group. [`index.md`](./index.md) holds the routes, the rules and what a silent slot paints.
 
 Home of `ArenaMeter`, `ArenaProgressBar`, `ArenaSpinner`.
 

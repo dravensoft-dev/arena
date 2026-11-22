@@ -205,7 +205,8 @@ export function layoutAnswers(base = root) {
 
 const CLI_PAGE = 'skills/design/references/cli.md';
 
-export const SLOT_PAGE = 'skills/design/references/color-slots.md';
+export const SLOT_GROUP_DIR = 'skills/design/references/color-slots';
+export const SLOT_PAGE = `${SLOT_GROUP_DIR}/index.md`;
 
 export const EXAMPLE_SLOT_ANSWERS: Record<string, string> = {
   'choices-box-fill-selected': '{fill-mark}',
@@ -293,13 +294,12 @@ function inSentences(lead: string, names: string[]) {
 
 const answerText = (slot: ColorSlot) => `\`${slot.default}\`${slot.level ? ` at \`${slot.level}\`` : ''}`;
 
-export const SLOT_GROUP_DIR = 'skills/design/references/color-slots';
 
 const groupHome = (group: string, declarations: SlotDeclarations) => Object.entries(declarations.members ?? {})
   .filter(([, m]) => m.group === group).map(([component]) => component);
 
-export function slotGroupTable(declarations: SlotDeclarations) {
-  const rows = Object.keys(declarations.groups ?? {}).map((group) => `| [\`${group}\`](./color-slots/${group}.md) | ${groupHome(group, declarations).map((component) => `\`${component}\``).join(', ')} |`);
+export function slotGroupTable(declarations: SlotDeclarations, from = './') {
+  const rows = Object.keys(declarations.groups ?? {}).map((group) => `| [\`${group}\`](${from}${group}.md) | ${groupHome(group, declarations).map((component) => `\`${component}\``).join(', ')} |`);
   return ['| group | home of |', '| --- | --- |', ...rows].join('\n');
 }
 
@@ -340,7 +340,7 @@ export function slotGroupPage(group: string, declarations: SlotDeclarations, cat
   ].filter(Boolean).join(' ');
   return [
     `# Colouring the \`${group}\` group`, '',
-    `Read this when your style plugin answers a slot of the \`${group}\` group. [\`color-slots.md\`](../color-slots.md) holds the routes, the rules and what a silent slot paints.`, '',
+    `Read this when your style plugin answers a slot of the \`${group}\` group. [\`index.md\`](./index.md) holds the routes, the rules and what a silent slot paints.`, '',
     ...(prose ? [prose, ''] : []),
     '| part | option | answers | states | silent at rest | silent when selected |', '| --- | --- | --- | --- | --- | --- |', ...rows,
     ...(hovers.length === 0 ? [] : ['', inSentences('Under the pointer,', hovers)]),

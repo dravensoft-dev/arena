@@ -1,6 +1,6 @@
 # Colouring a group of components
 
-Read this when your style plugin gives a group of components a colour of its own, or gives one state of a part a colour of its own. [`style-kernel.md`](./style-kernel.md) holds the roles and the loop, and [its two routes](./style-kernel.md#the-three-files-you-write) say which plugin answers a slot as they do a role.
+Read this when your style plugin gives a group of components a colour of its own, or gives one state of a part a colour of its own. [`style-kernel.md`](../style-kernel.md) holds the roles and the loop, and [its two routes](../style-kernel.md#the-three-files-you-write) say which plugin answers a slot as they do a role.
 
 A colour slot is one coloured part of one group of components, in one option, one property and one state. Your style plugin answers a slot with a colour role, in `plugin.tokens.json` beside the roles. **An answer moves every component that paints that part of the group.** Two components of one group move together, and a group is the smallest thing a slot colours.
 
@@ -195,19 +195,19 @@ One page per group, linked from the table below. Each row is one part in one opt
 
 | group | home of |
 | --- | --- |
-| [`actions`](./color-slots/actions.md) | `ArenaButton`, `ArenaCopyButton`, `ArenaIconButton`, `ArenaSplitButton` |
-| [`choices`](./color-slots/choices.md) | `ArenaCheckbox`, `ArenaRadio`, `ArenaSegmentedControl`, `ArenaSlider`, `ArenaSwitch` |
-| [`fields`](./color-slots/fields.md) | `ArenaCombobox`, `ArenaFieldset`, `ArenaFileInput`, `ArenaInput`, `ArenaNumberField`, `ArenaPinInput`, `ArenaSelect`, `ArenaTextarea` |
-| [`menus`](./color-slots/menus.md) | `ArenaCommandPalette`, `ArenaMenu` |
-| [`navigation`](./color-slots/navigation.md) | `ArenaAccordion`, `ArenaAppBar`, `ArenaBottomNav`, `ArenaBreadcrumbs`, `ArenaFilterBar`, `ArenaLink`, `ArenaPagination`, `ArenaSideNav`, `ArenaSkipLink`, `ArenaTabs`, `ArenaTreeView` |
-| [`steps`](./color-slots/steps.md) | `ArenaStepper` |
-| [`marks`](./color-slots/marks.md) | `ArenaAvatar`, `ArenaBadge`, `ArenaTag` |
-| [`feedback`](./color-slots/feedback.md) | `ArenaAlert`, `ArenaEmptyState`, `ArenaErrorState`, `ArenaToast` |
-| [`meters`](./color-slots/meters.md) | `ArenaMeter`, `ArenaProgressBar`, `ArenaSpinner` |
-| [`overlays`](./color-slots/overlays.md) | `ArenaBulkActionBar`, `ArenaConfirmDialog`, `ArenaDialog`, `ArenaOnboarding`, `ArenaPopover`, `ArenaSheet`, `ArenaTooltip` |
-| [`surfaces`](./color-slots/surfaces.md) | `ArenaBoard`, `ArenaCard`, `ArenaDivider`, `ArenaFigure`, `ArenaPaletteScope`, `ArenaSiteFooter`, `ArenaSkeleton` |
-| [`data`](./color-slots/data.md) | `ArenaActivityFeed`, `ArenaCalendar`, `ArenaKeyValue`, `ArenaPeopleList`, `ArenaStatCard`, `ArenaTable`, `ArenaTimeline` |
-| [`text`](./color-slots/text.md) | `ArenaAppLogo`, `ArenaHero`, `ArenaKbd`, `ArenaPageHead`, `ArenaSection`, `ArenaUnauthCard` |
+| [`actions`](./actions.md) | `ArenaButton`, `ArenaCopyButton`, `ArenaIconButton`, `ArenaSplitButton` |
+| [`choices`](./choices.md) | `ArenaCheckbox`, `ArenaRadio`, `ArenaSegmentedControl`, `ArenaSlider`, `ArenaSwitch` |
+| [`fields`](./fields.md) | `ArenaCombobox`, `ArenaFieldset`, `ArenaFileInput`, `ArenaInput`, `ArenaNumberField`, `ArenaPinInput`, `ArenaSelect`, `ArenaTextarea` |
+| [`menus`](./menus.md) | `ArenaCommandPalette`, `ArenaMenu` |
+| [`navigation`](./navigation.md) | `ArenaAccordion`, `ArenaAppBar`, `ArenaBottomNav`, `ArenaBreadcrumbs`, `ArenaFilterBar`, `ArenaLink`, `ArenaPagination`, `ArenaSideNav`, `ArenaSkipLink`, `ArenaTabs`, `ArenaTreeView` |
+| [`steps`](./steps.md) | `ArenaStepper` |
+| [`marks`](./marks.md) | `ArenaAvatar`, `ArenaBadge`, `ArenaTag` |
+| [`feedback`](./feedback.md) | `ArenaAlert`, `ArenaEmptyState`, `ArenaErrorState`, `ArenaToast` |
+| [`meters`](./meters.md) | `ArenaMeter`, `ArenaProgressBar`, `ArenaSpinner` |
+| [`overlays`](./overlays.md) | `ArenaBulkActionBar`, `ArenaConfirmDialog`, `ArenaDialog`, `ArenaOnboarding`, `ArenaPopover`, `ArenaSheet`, `ArenaTooltip` |
+| [`surfaces`](./surfaces.md) | `ArenaBoard`, `ArenaCard`, `ArenaDivider`, `ArenaFigure`, `ArenaPaletteScope`, `ArenaSiteFooter`, `ArenaSkeleton` |
+| [`data`](./data.md) | `ArenaActivityFeed`, `ArenaCalendar`, `ArenaKeyValue`, `ArenaPeopleList`, `ArenaStatCard`, `ArenaTable`, `ArenaTimeline` |
+| [`text`](./text.md) | `ArenaAppLogo`, `ArenaHero`, `ArenaKbd`, `ArenaPageHead`, `ArenaSection`, `ArenaUnauthCard` |
 
 <!-- @shared slotGroups end -->
 

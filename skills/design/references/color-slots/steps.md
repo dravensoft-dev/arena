@@ -1,6 +1,6 @@
 # Colouring the `steps` group
 
-Read this when your style plugin answers a slot of the `steps` group. [`color-slots.md`](../color-slots.md) holds the routes, the rules and what a silent slot paints.
+Read this when your style plugin answers a slot of the `steps` group. [`index.md`](./index.md) holds the routes, the rules and what a silent slot paints.
 
 Home of `ArenaStepper`. Also read by `ArenaOnboarding.dot`.
 

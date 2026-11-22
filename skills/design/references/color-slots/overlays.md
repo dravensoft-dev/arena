@@ -1,6 +1,6 @@
 # Colouring the `overlays` group
 
-Read this when your style plugin answers a slot of the `overlays` group. [`color-slots.md`](../color-slots.md) holds the routes, the rules and what a silent slot paints.
+Read this when your style plugin answers a slot of the `overlays` group. [`index.md`](./index.md) holds the routes, the rules and what a silent slot paints.
 
 Home of `ArenaBulkActionBar`, `ArenaConfirmDialog`, `ArenaDialog`, `ArenaOnboarding`, `ArenaPopover`, `ArenaSheet`, `ArenaTooltip`. Also read by `ArenaBarChart.tooltip`, `ArenaCalendar.panel`, `ArenaCombobox.panel`, `ArenaCommandPalette.root`, `ArenaCommandPalette.panel`, `ArenaFunnelChart.tooltip`, `ArenaHeatmapChart.tooltip`, `ArenaHorizontalBarChart.tooltip`, `ArenaLineChart.tooltip`, `ArenaMenu.panel`, `ArenaPyramidChart.tooltip`, `ArenaRadarChart.tooltip`, `ArenaScatterChart.tooltip`, `ArenaSparkline.tooltip`.
 
