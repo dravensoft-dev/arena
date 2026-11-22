@@ -118,7 +118,7 @@ answer to read first. Without a clone, fetch the template at
 The output is a page rather than a list, because a palette described in prose is a palette nobody
 can approve. Save the filled document as `design/identity.html` in the project, and serve it over HTTP with `npx serve design`, so the web fonts it names load. Show it to the user, and change what they change.
 
-**The document is the template with every section kept and every dashed block replaced.** A page of prose in its place is not the document. [`arena check`](./cli.md) reports a `design/identity.html` that keeps a block or drops a section, as the `identity` kind.
+**The document is the template with every section kept and every dashed block replaced.** A page of prose in its place is not the document. Five blocks stay dashed until node 7 explains them: "Where the colour goes", the density-class row of "The air", "The language", "Switching the theme" and the frame in "The page". [`arena check`](./cli.md) reports a `design/identity.html` that keeps a block or drops a section, as the `identity` kind.
 
 **Then stop.** The next node writes files, and files written against an unapproved appearance are
 the ones that get rewritten.
@@ -157,6 +157,8 @@ A project decides each row below once, and every screen reads the answer without
 | **The page skeleton.** The frame every screen sits in is the skip link, the app bar, the side navigation, the main region and the footer, each a landmark. Arena ships the pieces and no shape | Which pieces does the frame carry? Where does the navigation live? | [`shell.md`](./shell.md) |
 
 Each answer has a section in the identity document. The colour slots go in "Where the colour goes", and density in the density-class row of "The air". The locale and `lang` go in "The language", and switching in "Switching the theme". The skeleton goes in "The page".
+
+Write each answer into its section of `design/identity.html`, and show the document again before going on.
 
 | You arrived with | Go to |
 |---|---|
