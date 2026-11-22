@@ -1,14 +1,16 @@
-/* frameworks/angular/theme/arena-cdk.css: the CDK overlay's structural CSS, and no rule of Arena's.
-   Import this ONCE from the app's global stylesheet, alongside arena-tailwind.css, whenever the
-   app uses an Arena primitive that anchors a panel on @angular/cdk/overlay: ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCombobox, ArenaMultiSelect.
-   The CDK supplies the overlay container and the pane on the body; Arena computes the pane's left
-   and top with arenaPlacePanel, and focus and roles stay Arena's, in frameworks/angular/FocusTrap.ts.
+/* @dravensoft/arena-angular/css/arena-cdk.css: the structural CSS of the @angular/cdk overlay, and
+   no rule of Arena's. ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCombobox and ArenaMultiSelect
+   anchor their panel on that overlay: the CDK supplies the container and the pane on the body, and
+   Arena places the pane and keeps its focus and roles.
 
-   The CDK pinned in package.json opens every pane in the top layer, as a host wearing
-   popover="manual", because each browser of Arena's baseline has showPopover. A pane there stacks
-   by the order it was shown, above every --z-* step, ArenaDialog and the toast included. No z-index
-   reaches the top layer, so the bridge overrides none of the five 1000s the prebuilt sheet declares,
-   and check:cdk refuses a rule here.
+   arena.package.generated.css, which arena build writes, already carries these rules, and the
+   package's arena.css imports this sheet. A project imports it once, from its global stylesheet,
+   only when it builds under --no-import.
 
-   The package's css/arena-cdk.css carries the CDK's own rules in place of the import below. */
+   The CDK this sheet is built from opens every pane in the top layer, as a host wearing
+   popover="manual". A pane there stacks in the order it was shown, above every --z-* step,
+   ArenaDialog and the toast included. No z-index reaches the top layer, so this sheet overrides
+   none of the z-index values the CDK declares.
+
+   What follows this comment is the CDK's own overlay-prebuilt.css. */
 @import '@angular/cdk/overlay-prebuilt.css';
