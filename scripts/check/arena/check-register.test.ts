@@ -216,7 +216,7 @@ test('a description opens on Whether or not at all', () => {
   const rows = [
     { name: 'Whether opens the first sentence', text: 'Whether the bar stays.', found: 0 },
     { name: 'Whether opens a later sentence', text: "The side bar's colour. Whether the toast announces assertively.", found: 1 },
-    { name: 'a later sentence on Whether with its own verb', text: 'One step. Whether it is complete is not a field.', found: 0 },
+    { name: 'the old stepper sentence', text: 'One step of an ArenaStepper. Whether it is complete, current or upcoming is not a field.', found: 1 },
     { name: 'whether inside a sentence', text: 'Say whether the bar stays. Then close it.', found: 0 },
   ];
   for (const row of rows) {

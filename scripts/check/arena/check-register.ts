@@ -216,16 +216,14 @@ export function descriptionsIn(value: unknown, path = ''): { member: string; tex
 }
 
 export const WHETHER_SENTENCE = /(?<=[.!?]\s+)(Whether\b[^.!?]*)[.!?]/g;
-export const COPULA = /\b(?:is|are|was|were)\b/;
 
 export function whetherFragments(text: string) {
-  return [...text.matchAll(WHETHER_SENTENCE)]
-    .filter((hit) => !COPULA.test(hit[1] ?? '')).map((hit) => hit[1] ?? '');
+  return [...text.matchAll(WHETHER_SENTENCE)].map((hit) => hit[1] ?? '');
 }
 
 export function descriptionProblems(rel: string, member: string, text: string) {
   const fragment = whetherFragments(text).map((one) => `${rel}:${member}: "${one}" opens a later `
-    + 'sentence on Whether and has no verb of its own, so it is a fragment. Say what the member does');
+    + 'sentence on Whether and is not the first. Open the description on it, or name who decides it');
   return [...sentenceProblems(`${rel}:${member}`, text)
     .map((one) => one.replace(/^([^ ]*?):\d+: /, '$1: ')), ...fragment];
 }
