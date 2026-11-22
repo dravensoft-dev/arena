@@ -6,7 +6,7 @@
  * which IS the package. Beside the sheets it checks what each subcommand leaves behind: the
  * read-only ones change no byte, init and clean touch only what they name, and the exit codes hold.
  * A missing dist/ stops it through cannotRun: a gate that built what it judges would race every
- * gate running beside it. */
+ * gate running beside it. The classes and blocks the markup pages teach are audited as a project. */
 
 import { spawnSync } from 'node:child_process';
 import {
@@ -39,9 +39,12 @@ import { connect, type Cdp } from '../../lib/arena/cdp.ts';
 import { networkChangedProblem } from '../../lib/arena/page-load.ts';
 import { contrastProblems, readContrast } from '../../lib/arena/consumer-contrast.ts';
 
+export const MARKUP_PAGES = 'skills/design/references/tokens/markup';
+
 export const node = {
   name: 'check:consumer',
-  reads: ['frameworks/react/dist/**', 'frameworks/angular/dist/**', 'skills/design/references/config.md'],
+  reads: ['frameworks/react/dist/**', 'frameworks/angular/dist/**', 'skills/design/references/config.md',
+    `${MARKUP_PAGES}/*.md`],
   writes: [],
   feeds: [],
 };
@@ -902,6 +905,33 @@ export function defaultListProblems(layer: string, result: CliRun) {
 
 const AUTO = { components: 'auto', preflight: false };
 
+const TREE_REGION = /<!-- @tree GENERATED[\s\S]*?<!-- @tree end -->/g;
+const FENCE = /```(html|css)\n([\s\S]*?)```/g;
+const SPAN = /`([^`\n]+)`/g;
+
+export function utilitySpan(span: string) {
+  if (!span.includes('-') || /\s/.test(span)) return false;
+  if (/^(--|@|aria-|var\()/.test(span) || span.endsWith(':')) return false;
+  return !/\.(css|json|md|ts)$/.test(span);
+}
+
+export function pageSources(base: string) {
+  const dir = join(base, ...MARKUP_PAGES.split('/'));
+  const files: Record<string, string> = {};
+  for (const name of readdirSync(dir).filter((one) => one.endsWith('.md')).sort()) {
+    const page = name.slice(0, -3);
+    const text = readFileSync(join(dir, name), 'utf8').replace(TREE_REGION, '');
+    const counts: Record<string, number> = { html: 0, css: 0 };
+    for (const [, kind = '', body = ''] of text.matchAll(FENCE)) {
+      counts[kind] = (counts[kind] ?? 0) + 1;
+      files[`src/pages/${page}-${counts[kind]}.${kind}`] = body;
+    }
+    const spans = [...text.replace(FENCE, '').matchAll(SPAN)].map((one) => captured(one)).filter(utilitySpan);
+    if (spans.length) files[`src/pages/${page}-prose.html`] = spans.map((one) => `<div class="${one}"></div>\n`).join('');
+  }
+  return files;
+}
+
 export const CONFIG_REFERENCE = 'skills/design/references/config.md';
 
 export const DOCUMENTED_LIST = /"components":\s*\[([^\]]*)\]/g;
@@ -945,10 +975,11 @@ export async function collect(base = root) {
       const bare = fixture(layer, breaking?.files ?? {}, AUTO, base);
       const plugged = pluginFixture(layer, [PLUGINS.total, PLUGINS.partial], base);
       const partialRoot = pluginFixture(layer, [PLUGINS.partial], base);
+      const pages = withTailwind(fixture(layer, pageSources(base), AUTO, base), base);
       const edited = fixture(layer, appOnlyEdit(layer, sources), AUTO, base);
       const palettes = palettesFixture(layer, base);
       const runtime = runtimeFixture(layer, base);
-      dirs.push(auto, edited, unexported, unnamed, named, closed, unknown, unplaced, broken, bare, plugged, partialRoot, palettes, runtime);
+      dirs.push(auto, pages, edited, unexported, unnamed, named, closed, unknown, unplaced, broken, bare, plugged, partialRoot, palettes, runtime);
 
       const result = runCli(layer, auto, base);
       problems.push(...mergeProblems(layer, result, base));
@@ -968,6 +999,7 @@ export async function collect(base = root) {
         breaking?.rules ?? [],
       ));
       problems.push(...cleanAuditProblems(layer, runCli(layer, auto, base, ['audit'])));
+      problems.push(...cleanAuditProblems(layer, runCli(layer, pages, base, ['audit'])));
       const valid = runCli(layer, plugged, base);
       problems.push(...stylePluginProblems(layer, valid, runCli(layer, partialRoot, base)));
       problems.push(...layerProblems(layer, valid));
