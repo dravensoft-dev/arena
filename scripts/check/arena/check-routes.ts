@@ -359,22 +359,22 @@ export const ROUTES: Route[] = [
         ],
       },
     ],
-    budget: 32_200,
+    budget: 36_225,
     reason:
-      'the route declared as a tree, charged its worst branch and never the sum, because a reader '
-      + 'answers a question and walks one way. Handed a document stating the palette and the type, a '
-      + 'reader reads the tree and goes on; choosing a measured register, they read the tree, the '
-      + 'catalogue\'s index and one entry, and that last stop is a glob so the charge is the largest '
-      + 'entry. The tree carries the decisions that reach an install rather than a screen: whether the '
-      + 'product has to be found, what it is assembled on and what the code around Arena imports, so '
-      + 'its last node derives the dependency list from answers. The index is generated from the one '
-      + 'line every entry carries, grows a row per entry and keeps the last stop at a single entry. '
-      + 'The tree names where an entry and the identity template are fetched without a clone, and '
-      + 'says an entry\'s config is a starting file whose stylePlugins replaces the list arena init writes, and where the filled '
-      + 'identity document is saved and served. Its architecture node points to the bundling '
-      + 'section and the bundler record. The alternative to reading it is an agent '
-      + 'inferring a palette from a screenshot, which costs nothing here and costs the project every '
-      + 'screen.',
+      'the route declared as a tree, charged its worst branch and never the sum, because a '
+      + 'reader answers a question and walks one way. Handed a document stating the palette and '
+      + 'type, a reader reads the tree and goes on; choosing a measured register, they read the '
+      + 'tree, the catalogue\'s index and one entry, and that last stop is a glob so the charge is '
+      + 'the largest entry. The tree carries the decisions that reach an install rather than a '
+      + 'screen: whether the product has to be found, what it is built on and what the code '
+      + 'around Arena imports, so its last node derives the dependency list. Node 7 asks the '
+      + 'project-wide decisions: colour slots, density, locale, palette switching and the page '
+      + 'skeleton. The index comes from the line every entry carries, grows a row per entry and '
+      + 'keeps the last stop at a single entry. The tree names where an entry and the template '
+      + 'are fetched without a clone, that an entry\'s config is a starting file whose '
+      + 'stylePlugins replaces arena init\'s list, and where the filled document is saved and '
+      + 'served. The architecture node points to the bundling section and the bundler record. The '
+      + 'alternative is an agent inferring a palette from a screenshot, which costs every screen.',
   },
   {
     name: 'contributor-component',

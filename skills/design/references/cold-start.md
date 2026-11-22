@@ -106,7 +106,7 @@ beside its `ENTRY.md`.
 
 Whatever route reached this node, the output is the same. The output is a page stating the palette
 in both polarities, the three faces, the character, the air, the media shape and the page shape,
-with the reason beside each. It also lists the surfaces, the slots, the states, the language and the theme.
+with the reason beside each. The document also lists the surfaces, the slots, the states, the language and the theme.
 [`arena-from-scratch/identity.html`](../../../arena-from-scratch/identity.html) in a clone of the
 Arena repository is the template, and
 [`identity.example.html`](../../../arena-from-scratch/identity.example.html) beside it is one worked
@@ -174,14 +174,14 @@ anything:
   not answer is a property that disappears rather than a plainer look.
 - Read its `plugin.css`, if it has one, to see which decisions the project paints by hand. Those decisions are the ones no role reaches, and they are the ones your new screen has to
   keep.
-- Read which density class, which locale, which `lang`, which first-paint snippet and which frame the project already sets, and which slots its plugin answers.
+- Read the density class, the locale, the `lang`, the first-paint snippet and the frame the project already sets, and the slots its plugin answers.
 - Run `arena audit` and report what it names before you write anything. The audit reads the project's own sources and its declared plugin directories for the rules a
   source text can show.
 
 Say what you found. A project whose plugin answers every role that carries no default needs no style plugin work, and
 saying so is what stops an agent rewriting an appearance somebody already chose.
 
-Then go to 6, and skip the rows it says you may skip. Its last table sends a project carrying Arena on from there.
+Then go to 6, and skip the rows it says you may skip. The last table of node 6 sends a project carrying Arena on from there.
 
 ## 9. How much does it have to be found?
 
