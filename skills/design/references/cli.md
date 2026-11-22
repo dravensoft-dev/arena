@@ -9,7 +9,7 @@ The command ships inside both component packages, so installing Arena installs i
 | command | what it does | writes | flags |
 | --- | --- | --- | --- |
 | `arena build` | Writes the package, theme and plugin sheets, the icon sprite and its module, and each local font cut to what the build paints, from your config and sources. | the sheets, the sprite, the cut fonts | `--config`, `--src`, `-o`, `--out`, `--no-import`, `--watch` |
-| `arena check` | Names what the sheets a build would write, and your sources, get wrong: contrast, ramp, heat, weight, glyph, component, marker and identity reports. | nothing | `--config`, `--src`, `--strict` |
+| `arena check` | Names what the sheets a build would write, and your sources, get wrong: contrast, ramp, heat, weight, font, glyph, component, marker and identity reports. | nothing | `--config`, `--src`, `--strict` |
 | `arena audit` | Reads your sources and style plugins against the rules of the language. | nothing | `--config`, `--src`, `--strict` |
 | `arena usage` | Names the components the package ships that your sources draw nowhere, and the parts your style plugins paint. A component Arena draws on your behalf counts as undrawn, because you never wrote it. | nothing | `--config`, `--src` |
 | `arena init` | Copies the example config and wires the scripts below into `package.json`. | the config and `package.json`, only what is absent | `--config` |

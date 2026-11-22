@@ -4,6 +4,9 @@ import assert from 'node:assert/strict';
 import { KINDS_BY_COMMAND, STRICT_KINDS, REPORT_KINDS, UNHOLDABLE_KINDS, holder, heldMessage, report,
   RULES_BY_KIND, heldAs, reported, strictNames } from './reports.ts';
 import { RULE_TAGS } from './audit.ts';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { repoRoot } from '../../../lib/arena/repo-root.ts';
 
 const sets = Object.entries(KINDS_BY_COMMAND) as [string, readonly string[]][];
 
@@ -84,4 +87,21 @@ const HELD_MESSAGES: { name: string; holds: string[]; reports: ReturnType<typeof
 test('heldMessage names the held kinds once each, and a rule-held report as kind:rule', () => {
   assert.ok(HELD_MESSAGES.length > 0, 'the table has rows');
   for (const row of HELD_MESSAGES) assert.equal(heldMessage(row.holds, row.reports), row.expected, row.name);
+});
+
+test('the cli page names every kind each command reports and holds', () => {
+  const page = readFileSync(join(repoRoot, 'skills/design/references/cli.md'), 'utf8').split('\n');
+  const spoken: Record<string, string> = { components: 'component', markers: 'marker' };
+  const kindsOf = (row: string) => [...row.matchAll(/`([a-z]+)`/g)].map((hit) => hit[1]);
+  for (const [command, kinds] of sets) {
+    const held = page.find((line) => line.startsWith(`| \`arena ${command} --strict\` |`));
+    assert.ok(held, `${command}: the --strict row`);
+    assert.deepEqual(kindsOf(held), [...kinds], `${command}: the kinds the --strict row holds`);
+  }
+  const row = page.find((line) => line.startsWith('| `arena check` |'));
+  assert.ok(row, 'the arena check row');
+  const reports = row.split('|')[2] ?? '';
+  for (const kind of KINDS_BY_COMMAND.check) {
+    assert.match(reports, new RegExp(`\\b${spoken[kind] ?? kind}\\b`), `check: the report list names ${kind}`);
+  }
 });
