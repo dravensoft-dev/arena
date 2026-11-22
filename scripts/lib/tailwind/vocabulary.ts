@@ -7,7 +7,7 @@
  * its limit is inclusive, since the boundary is usually the component's own root. An option
  * block writes its family's group chains over every answering part at once, a member part with
  * channels or defaults adds its member chains, and each member part takes a zero-specificity default
- * block, so its reads take no fallback. A markup family writes unlayered, and an option may carry states. */
+ * block, so its reads take no fallback. A markup family writes inside @layer components, and an option may carry states. */
 
 import { existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
@@ -355,7 +355,8 @@ export function compileFamily(family: Family, manifests: Iterable<ComponentManif
         : rule(stateSelector(states), writes, '  ')));
       return `@scope (.${option}) {\n${rules.join('\n')}\n}`;
     });
-    return `${LAYER_ORDER}${blocks.join('\n')}\n`;
+    const inLayer = blocks.map((block) => block.split('\n').map((line) => `  ${line}`).join('\n'));
+    return `${LAYER_ORDER}@layer components {\n${inLayer.join('\n')}\n}\n`;
   }
   if (parts.length === 0) {
     throw new Error(`vocabulary: no manifest answers ${family.family} and reads its channels, so every `

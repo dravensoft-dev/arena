@@ -167,7 +167,7 @@ layout included, and a key that cannot name a property warns once.
 **A markup family has no default, no axis, and no answering manifest.** Its options are
 `[property:value]` tokens. A non-restating option writes declarations and never a custom property.
 A `restates` family names a contract file per option instead, and writes only the custom
-properties of that contract group. A markup family compiles unlayered to
+properties of that contract group. A markup family compiles inside `@layer components` to
 `@scope (.option) { :scope {…} }` in the order the file writes its options, because two modifiers
 writing one property are decided by that order. It ships at `css/vocabulary/<family>.css` like
 every family. **A component family is the one that carries a specimen card.** An adopter writes

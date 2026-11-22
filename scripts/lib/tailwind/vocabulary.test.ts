@@ -114,25 +114,31 @@ const STACK: Family = {
   },
 };
 
-test('a markup family compiles unlayered, one scope per option over its own root, in the order the file writes them', () => {
-  assert.equal(compileFamily(STACK, []), `${LAYER_ORDER}@scope (.arena-stack) {
-  :scope {
-    display: flex;
-    flex-direction: column;
-    gap: var(--rhythm-component);
+test('a markup family compiles inside @layer components, one scope per option over its own root, in the order the file writes them', () => {
+  assert.equal(compileFamily(STACK, []), `${LAYER_ORDER}@layer components {
+  @scope (.arena-stack) {
+    :scope {
+      display: flex;
+      flex-direction: column;
+      gap: var(--rhythm-component);
+    }
   }
-}
-@scope (.arena-stack--start) {
-  :scope {
-    align-items: flex-start;
+  @scope (.arena-stack--start) {
+    :scope {
+      align-items: flex-start;
+    }
   }
-}
-@scope (.arena-stack--end) {
-  :scope {
-    align-items: flex-end;
+  @scope (.arena-stack--end) {
+    :scope {
+      align-items: flex-end;
+    }
   }
 }
 `);
+  for (const [name, family] of readFamilies()) {
+    if (family.target !== 'markup') continue;
+    assert.ok(compileFamily(family, []).startsWith(LAYER_ORDER), `${name}: the sheet opens on the layer order`);
+  }
 });
 
 test('no manifest answers a markup family', () => {
@@ -155,11 +161,13 @@ test('a restating option writes the literal values of the contract file it names
   assert.throws(() => restatedDeclarations('contracts/design/y.json', 'dz', root), /not a literal value/);
   const density: Family = { family: 'density', reach: 'context', target: 'markup', restates: 'dz', description: 'd',
     variants: { 'arena-compact': 'contracts/design/x.json' } };
-  assert.equal(compileFamily(density, [], root), `${LAYER_ORDER}@scope (.arena-compact) {
-  :scope {
-    --arena-density: compact;
-    --dz-ctl-h: 32px;
-    --dz-lh: 1;
+  assert.equal(compileFamily(density, [], root), `${LAYER_ORDER}@layer components {
+  @scope (.arena-compact) {
+    :scope {
+      --arena-density: compact;
+      --dz-ctl-h: 32px;
+      --dz-lh: 1;
+    }
   }
 }
 `);
@@ -379,27 +387,29 @@ test('a markup family writes a rule per state chain, the pointer under (hover: h
       'arena-probe-focus': 'focus:[outline-color:var(--edge-focus)]',
     },
   };
-  assert.equal(compileFamily(probe, []), `${LAYER_ORDER}@scope (.arena-probe) {
-  :scope {
-    color: red;
-  }
-  @media (hover: hover) {
-    :scope:hover${NOT_DISABLED} {
-      color: blue;
+  assert.equal(compileFamily(probe, []), `${LAYER_ORDER}@layer components {
+  @scope (.arena-probe) {
+    :scope {
+      color: red;
+    }
+    @media (hover: hover) {
+      :scope:hover${NOT_DISABLED} {
+        color: blue;
+      }
+    }
+    @media (hover: hover) {
+      :scope:hover:is(${SELECTED})${NOT_DISABLED} {
+        color: green;
+      }
+    }
+    :scope:active${NOT_DISABLED} {
+      color: gray;
     }
   }
-  @media (hover: hover) {
-    :scope:hover:is(${SELECTED})${NOT_DISABLED} {
-      color: green;
+  @scope (.arena-probe-focus) {
+    :scope:focus-visible {
+      outline-color: var(--edge-focus);
     }
-  }
-  :scope:active${NOT_DISABLED} {
-    color: gray;
-  }
-}
-@scope (.arena-probe-focus) {
-  :scope:focus-visible {
-    outline-color: var(--edge-focus);
   }
 }
 `);
