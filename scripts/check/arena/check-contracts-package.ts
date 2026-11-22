@@ -128,6 +128,39 @@ export function manifestProblems(dir: string, repo = root) {
   return problems;
 }
 
+export const GROUP_PAGE = 'skills/design/references/contracts.md';
+export const PATTERNED = new Map([['palette', 'polarity'], ['density', 'name']]);
+
+export function shippedGroups(expected: string[]) {
+  const stems = expected.filter((rel) => /^contracts\/design\/[^/]+\.json$/.test(rel))
+    .map((rel) => rel.slice('contracts/design/'.length, -'.json'.length));
+  return [...new Set(stems.map((stem) => {
+    const [head, rest] = stem.split('.');
+    return rest === undefined ? stem : `${head}.<${PATTERNED.get(head ?? '') ?? rest}>`;
+  }))].sort();
+}
+
+export function groupListProblems(page: string, shipped: string[]) {
+  const lines = page.split('\n');
+  const at = lines.findIndex((line) => line.startsWith('contracts/design/*.json'));
+  if (at < 0) return [`${GROUP_PAGE} has no contracts/design/*.json line, so no group list was read`];
+  const block = [lines[at]?.slice('contracts/design/*.json'.length) ?? ''];
+  for (const line of lines.slice(at + 1)) {
+    if (!/^ {20,}\S/.test(line) || /\.json\s/.test(line)) break;
+    block.push(line);
+  }
+  const named = block.join(' ').replace(/\([^)]*\)/g, '').replace(/^\s*one file per group:/, '')
+    .split(/,|\band\b/).map((one) => one.trim()).filter(Boolean).sort();
+  const problems: string[] = [];
+  for (const group of shipped) {
+    if (!named.includes(group)) problems.push(`${GROUP_PAGE} does not name the group ${group}, which the package ships`);
+  }
+  for (const group of named) {
+    if (!shipped.includes(group)) problems.push(`${GROUP_PAGE} names the group ${group}, which the package does not ship`);
+  }
+  return problems;
+}
+
 export function collect(repo = root) {
   const dir = join(repo, DIST);
   const expected = expectedCarried(repo);
@@ -150,6 +183,7 @@ export function collect(repo = root) {
 
 function main() {
   const { problems, expected, assembled } = collect();
+  problems.push(...groupListProblems(readFileSync(join(root, GROUP_PAGE), 'utf8'), shippedGroups(expected)));
   if (problems.length) {
     console.error(`check-contracts-package: ${problems.length} problem(s)\n`);
     for (const p of problems) console.error(`  ${p}`);

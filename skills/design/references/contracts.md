@@ -18,7 +18,8 @@ Pin an exact version, as the last section says.
 arena.contracts.json          every path below, sorted, with the version that produced them
 contracts/design/*.json       one file per group: palette.<polarity>, typography, spacing, density.<name>,
                               effects, layering, chart, icon, component, behaviour (delays and
-                              limits) and roles (the style kernel's questions)
+                              limits), color-slots (the colour each group of components paints) and
+                              roles (the style kernel's questions)
 contracts/design/color-slots.derived.json
                               every colour slot the declarations derive, written at build
 contracts/api/components/*    one capability statement per component, in neutral member forms

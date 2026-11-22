@@ -7,7 +7,7 @@ import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import {
   FORBIDDEN_FIELDS, NON_CONTRACT, catalogueProblems, collect, derivedProblems, expectedCarried,
-  manifestProblems, payloadProblems, zeroDerivedProblems,
+  manifestProblems, payloadProblems, zeroDerivedProblems, groupListProblems, shippedGroups, GROUP_PAGE,
 } from './check-contracts-package.ts';
 import { DERIVED_SLOTS, derivedSlotsText } from '../../lib/arena/package-assembly.ts';
 import { readFileSync } from 'node:fs';
@@ -170,4 +170,18 @@ test('the derived slot catalogue is held equal to what readColorSlots derives, a
     put(DERIVED_SLOTS, derivedSlotsText(repoRoot));
     assert.deepEqual(derivedProblems(dir, repoRoot), []);
   } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('the contracts page names every group the package ships', () => {
+  const shipped = shippedGroups(expectedCarried(repoRoot));
+  assert.ok(shipped.includes('color-slots'), 'the groups read from the tree');
+  assert.ok(shipped.includes('palette.<polarity>') && shipped.includes('density.<name>'), 'the patterned groups');
+  const page = readFileSync(join(repoRoot, GROUP_PAGE), 'utf8');
+  assert.deepEqual(groupListProblems(page, shipped), [], 'the live page');
+  const rows = [
+    { name: 'a group dropped from the page', page: page.replace(/, color-slots \([^)]*\) and/, ' and'), found: 1 },
+    { name: 'a group the package does not ship', page: page.replace('effects,', 'effects, ghost,'), found: 1 },
+    { name: 'a page with no group list', page: 'nothing\n', found: 1 },
+  ];
+  for (const row of rows) assert.equal(groupListProblems(row.page, shipped).length, row.found, row.name);
 });
