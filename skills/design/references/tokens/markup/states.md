@@ -101,6 +101,7 @@ A checkbox of yours hides the native box with `appearance: none` and fills it wi
 }
 .own-switch {
   display: flex;
+  border: none;
   inline-size: var(--sp-10);
   padding: var(--sp-0);
   border-radius: var(--r-pill);
