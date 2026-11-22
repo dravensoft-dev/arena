@@ -94,14 +94,19 @@ test('a component role as a custom property in a markup page is a problem, the b
   assert.equal(only(base, /markup\/edges\.md writes the component role --size-sm-control-h/).length, 1);
 });
 
-test('only markup/states.md may name the control roles, and no other component role passes there', () => {
-  const base = copy();
-  edit(base, 'markup/edges.md', (text) => `${text}\nThe track is --fill-control-on here.\n`);
-  assert.equal(only(base, /markup\/edges\.md writes the component role --fill-control-on/).length, 1);
-  edit(base, 'markup/states.md', (text) => `${text}\nThe knob is --fill-knob-off here.\n`);
-  assert.deepEqual(only(base, /markup\/states\.md writes the component role --fill-knob-off/), []);
-  edit(base, 'markup/states.md', (text) => `${text}\nThe hue is --hue-info-ink here.\n`);
-  assert.equal(only(base, /markup\/states\.md writes the component role --hue-info-ink/).length, 1);
+const MARKUP_PAGE_ROWS = [
+  { name: 'a component role on states.md', page: 'markup/states.md', line: 'The fill is --emphasis-solid-fill here.', refused: true },
+  { name: 'a component role on edges.md', page: 'markup/edges.md', line: 'The fill is --emphasis-solid-fill here.', refused: true },
+  { name: 'a control role on states.md', page: 'markup/states.md', line: 'The track is --fill-control-on here.', refused: false },
+  { name: 'an action role on surfaces-and-text.md', page: 'markup/surfaces-and-text.md', line: 'The fill is --emphasis-primary-fill here.', refused: false },
+];
+
+test('a markup page naming a component role is refused on every page alike', () => {
+  for (const row of MARKUP_PAGE_ROWS) {
+    const base = copy();
+    edit(base, row.page, (text) => `${text}\n${row.line}\n`);
+    assert.equal(only(base, /writes the component role/).length, row.refused ? 1 : 0, row.name);
+  }
 });
 
 test('markup/index.md may name a component role on the line that links the components index', () => {

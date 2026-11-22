@@ -23,6 +23,8 @@ Your markup and Arena's components both read the roles on this page. A role keep
 | `--edge-separator` | What colour is the rule dividing one thing from the next inside a surface? | `border-edge-separator` | `border-edge-separator border-[length:var(--bw-separator)]` |
 | `--edge-surface` | What colour is the line enclosing a card or panel? | `border-edge-surface` | `border-edge-surface border-[length:var(--bw-surface)]` |
 | `--edge-surface-floating` | What colour is the line around a menu, dialog or toast floating over the page? | `border-edge-surface-floating` | `border-edge-surface-floating border-[length:var(--bw-surface)]` |
+| `--emphasis-primary-edge` | What colour is the edge of a primary button? | none | none |
+| `--emphasis-secondary-edge` | What colour is the edge of a secondary button? | none | none |
 | `--r-control` | How round is the corner of a button, menu item or navigation row? | `rounded-control` | none |
 | `--r-control-sm` | How round is the corner of a small control such as a checkbox box or a segment? | `rounded-control-sm` | none |
 | `--r-field` | How round is the corner of an input, select or textarea? | `rounded-field` | none |

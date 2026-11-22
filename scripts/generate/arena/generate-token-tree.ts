@@ -85,8 +85,6 @@ export const COMPAT: Record<'markup' | 'component', string> = {
   component: "Only Arena's components read the roles on this page. A role keeps its name until a major release, and its value is the style plugin's to change in any release.",
 };
 
-export const COMPAT_CONTROL = "Only Arena's components read the roles on this page, except the checkbox and switch roles that markup/states.md names, which a checkbox or switch of yours reads too. A role keeps its name until a major release, and its value is the style plugin's to change in any release.";
-
 const THEME = 'frameworks/tailwind/Theme.css';
 const NAMESPACE_PREFIX: Record<string, string> = {
   radius: 'rounded-', shadow: 'shadow-', ease: 'ease-', font: 'font-', 'font-weight': 'font-',
@@ -179,25 +177,12 @@ function indexBody(index: string, base: string) {
   }).join('\n');
 }
 
-export const CONTROL_READS: Readonly<Record<string, readonly string[]>> = {
-  'fill-control': [],
-  'fill-control-on': ['aria-checked', 'checked'],
-  'fill-knob': ['aria-checked', 'checked'],
-  'fill-knob-off': [],
-  'ink-knob': ['aria-checked', 'checked'],
-  'ink-knob-off': [],
-  'emphasis-primary-ink': ['aria-checked', 'checked'],
-};
-
 export function stateRows(roles: Record<string, RoleToken>) {
   return Object.entries(STATE_SELECTORS).flatMap(([attribute, selector]) => {
-    const named = [...new Set([
-      ...Object.keys(roles).filter((name) => {
-        const ext = roles[name]!.$extensions?.[ARENA_EXT] as Record<string, unknown> | undefined;
-        return ext?.audience === 'markup' && Array.isArray(ext.state) && ext.state.includes(attribute);
-      }),
-      ...Object.entries(CONTROL_READS).filter(([name, states]) => roles[name] && states.includes(attribute)).map(([name]) => name),
-    ])].sort();
+    const named = Object.keys(roles).filter((name) => {
+      const ext = roles[name]!.$extensions?.[ARENA_EXT] as Record<string, unknown> | undefined;
+      return ext?.audience === 'markup' && Array.isArray(ext.state) && ext.state.includes(attribute);
+    }).sort();
     return named.length ? [`| \`${attribute}\` | \`${selector}\` | ${named.map((name) => `\`--${name}\``).join(', ')} |`] : [];
   });
 }
@@ -232,12 +217,8 @@ export function regionBodies(base = root) {
         `| \`--${name}\` | ${question} | ${own.length ? own.map((utility) => `\`${utility}\``).join(', ') : 'none'} | ${forms.length ? forms.join('; ') : 'none'} |`]);
     }
   }
-  const controlLeaves = new Set(Object.keys(CONTROL_READS).filter((name) => roles[name]).map((name) => {
-    const meta = roles[name]!.$extensions![ARENA_EXT] as RoleMeta;
-    return roleLeaf(name, { audience: meta.audience!, task: meta.task! });
-  }));
   for (const [leaf, rows] of byLeaf) {
-    const opening = leaf.startsWith('plugin/') ? COMPAT.markup : controlLeaves.has(leaf) ? COMPAT_CONTROL : COMPAT.component;
+    const opening = leaf.startsWith('plugin/') ? COMPAT.markup : COMPAT.component;
     bodies.set(leaf, [opening, '',
       '| role | question | type | user scale | default |', '| --- | --- | --- | --- | --- |', ...rows].join('\n'));
   }

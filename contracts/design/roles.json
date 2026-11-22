@@ -1191,9 +1191,13 @@
     "$description": "The fill of a selection control at rest: the box of a checkbox, the ring of a radio, the track of a switch, the rail of a slider, and the selected segment of a segmented control. Read through the choices group, whose box answers it at rest and whose selected segment takes it as its fill. Paired with fill-control-on, which has to stand 3:1 apart from it, because the fill is what tells on from off.",
     "$extensions": {
       "com.dravensoft.arena": {
-        "audience": "component",
-        "task": "meaning-and-identity",
-        "question": "What colour fills the box of a checkbox, radio, switch or slider at rest?"
+        "audience": "markup",
+        "task": "states",
+        "question": "What colour fills the box of a checkbox, radio, switch or slider at rest?",
+        "state": [
+          "aria-checked",
+          "checked"
+        ]
       }
     }
   },
@@ -1202,9 +1206,13 @@
     "$description": "The fill of a selection control that is on: a checked box or radio, a switch that is on, the range of a slider. Read through the choices group's box at selected, which sits on fill-control at 3:1, and the mark and the knob drawn on it are measured over it at 3:1.",
     "$extensions": {
       "com.dravensoft.arena": {
-        "audience": "component",
-        "task": "meaning-and-identity",
-        "question": "What colour fills the box of a checked checkbox or radio, an on switch or a slider's range?"
+        "audience": "markup",
+        "task": "states",
+        "question": "What colour fills the box of a checked checkbox or radio, an on switch or a slider's range?",
+        "state": [
+          "aria-checked",
+          "checked"
+        ]
       }
     }
   },
@@ -1213,9 +1221,13 @@
     "$description": "The fill of the knob of a selection control that is on: the knob of a switch that is on and the thumb of a slider. Read through the choices group's knob at selected, measured over fill-control-on at 3:1.",
     "$extensions": {
       "com.dravensoft.arena": {
-        "audience": "component",
-        "task": "meaning-and-identity",
-        "question": "What colour fills the knob of an on switch or the thumb of a slider?"
+        "audience": "markup",
+        "task": "states",
+        "question": "What colour fills the knob of an on switch or the thumb of a slider?",
+        "state": [
+          "aria-checked",
+          "checked"
+        ]
       }
     }
   },
@@ -1224,9 +1236,13 @@
     "$description": "The fill of the knob of a switch that is off. Read through the choices group's knob at rest, measured over fill-control at 3:1, so the off knob is seen on its track in both themes.",
     "$extensions": {
       "com.dravensoft.arena": {
-        "audience": "component",
-        "task": "meaning-and-identity",
-        "question": "What colour fills the knob of a switch that is off?"
+        "audience": "markup",
+        "task": "states",
+        "question": "What colour fills the knob of a switch that is off?",
+        "state": [
+          "aria-checked",
+          "checked"
+        ]
       }
     }
   },
@@ -1363,9 +1379,13 @@
     "$description": "The glyph drawn on the knob of a switch that is on. Read through the choices group's knob ink at selected. Paired with fill-knob, the knob it is drawn on.",
     "$extensions": {
       "com.dravensoft.arena": {
-        "audience": "component",
-        "task": "meaning-and-identity",
-        "question": "What colour is the glyph on the knob of an on switch?"
+        "audience": "markup",
+        "task": "states",
+        "question": "What colour is the glyph on the knob of an on switch?",
+        "state": [
+          "aria-checked",
+          "checked"
+        ]
       }
     }
   },
@@ -1374,9 +1394,13 @@
     "$description": "The glyph drawn on the knob of a switch that is off. Read through the choices group's knob ink at rest. Paired with fill-knob-off, the knob it is drawn on.",
     "$extensions": {
       "com.dravensoft.arena": {
-        "audience": "component",
-        "task": "meaning-and-identity",
-        "question": "What colour is the glyph on the knob of a switch that is off?"
+        "audience": "markup",
+        "task": "states",
+        "question": "What colour is the glyph on the knob of a switch that is off?",
+        "state": [
+          "aria-checked",
+          "checked"
+        ]
       }
     }
   },
@@ -3201,8 +3225,8 @@
     "$description": "The fill of an action at arena-emphasis-primary, read by ArenaButton. An option of a family is a question by construction, so the plugin answers it.",
     "$extensions": {
       "com.dravensoft.arena": {
-        "audience": "component",
-        "task": "meaning-and-identity",
+        "audience": "markup",
+        "task": "surfaces-and-text",
         "question": "What colour fills a primary action?"
       }
     }
@@ -3212,8 +3236,8 @@
     "$description": "The fill of an action at arena-emphasis-secondary, read by ArenaButton. An option of a family is a question by construction, so the plugin answers it.",
     "$extensions": {
       "com.dravensoft.arena": {
-        "audience": "component",
-        "task": "meaning-and-identity",
+        "audience": "markup",
+        "task": "surfaces-and-text",
         "question": "What colour fills a secondary action?"
       }
     }
@@ -3234,9 +3258,13 @@
     "$description": "The ink of an action at arena-emphasis-primary, read by ArenaButton. An option of a family is a question by construction, so the plugin answers it.",
     "$extensions": {
       "com.dravensoft.arena": {
-        "audience": "component",
-        "task": "meaning-and-identity",
-        "question": "What colour is the ink of a primary action?"
+        "audience": "markup",
+        "task": "states",
+        "question": "What colour is the ink of a primary action?",
+        "state": [
+          "aria-checked",
+          "checked"
+        ]
       }
     }
   },
@@ -3245,8 +3273,8 @@
     "$description": "The ink of an action at arena-emphasis-secondary, read by ArenaButton. An option of a family is a question by construction, so the plugin answers it.",
     "$extensions": {
       "com.dravensoft.arena": {
-        "audience": "component",
-        "task": "meaning-and-identity",
+        "audience": "markup",
+        "task": "surfaces-and-text",
         "question": "What colour is the ink of a secondary action?"
       }
     }
@@ -3278,8 +3306,8 @@
     "$description": "The edge of a button at arena-emphasis-primary, read by ArenaButton. An option of a family is a question by construction, so the plugin answers it.",
     "$extensions": {
       "com.dravensoft.arena": {
-        "audience": "component",
-        "task": "meaning-and-identity",
+        "audience": "markup",
+        "task": "edges",
         "question": "What colour is the edge of a primary button?"
       }
     }
@@ -3289,8 +3317,8 @@
     "$description": "The edge of a button at arena-emphasis-secondary, read by ArenaButton. An option of a family is a question by construction, so the plugin answers it.",
     "$extensions": {
       "com.dravensoft.arena": {
-        "audience": "component",
-        "task": "meaning-and-identity",
+        "audience": "markup",
+        "task": "edges",
         "question": "What colour is the edge of a secondary button?"
       }
     }

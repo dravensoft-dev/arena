@@ -9,11 +9,12 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { readJson } from '../../utils/read-file.ts';
+import { walkFiles } from '../../utils/walk-files.ts';
 import { ARENA_EXT } from '../../lib/core/dtcg-shapes.ts';
 import { STATE_SELECTORS } from '../../check/core/check-role-contract.ts';
 import {
   TREE, TREE_DIR, TREE_OPEN, TREE_CLOSE, roleLeaf, markupLeaf, regionBodies, renderTree, writeTree,
-  COMPAT, COMPAT_CONTROL, roleUtilities, roleColourKeys, combination, stateRows, CONTROL_READS,
+  COMPAT, roleUtilities, roleColourKeys, combination, stateRows,
 } from './generate-token-tree.ts';
 import { compileLayer, escapeClass } from '../../lib/tailwind/tailwind-compile.ts';
 
@@ -61,11 +62,11 @@ test('every role lands in exactly one role leaf', () => {
     counts[leaf] = (counts[leaf] ?? 0) + 1;
   }
   assert.deepEqual(counts, {
-    'plugin/surfaces-and-text.md': 17, 'plugin/edges.md': 20, 'plugin/space-and-layout.md': 18, 'plugin/type.md': 20,
-    'plugin/depth-and-motion.md': 11, 'plugin/states.md': 13,
+    'plugin/surfaces-and-text.md': 20, 'plugin/edges.md': 22, 'plugin/space-and-layout.md': 18, 'plugin/type.md': 20,
+    'plugin/depth-and-motion.md': 11, 'plugin/states.md': 20,
     'components/air.md': 33, 'components/type.md': 4, 'components/size-controls.md': 44, 'components/size-content.md': 42,
-    'components/emphasis-and-accent.md': 27, 'components/status-hues.md': 20,
-    'components/controls-and-marks.md': 13,
+    'components/emphasis-and-accent.md': 21, 'components/status-hues.md': 20,
+    'components/controls-and-marks.md': 7,
   });
 });
 
@@ -140,13 +141,6 @@ const rowOf = (leaf: string, name: string) => real.get(leaf)!.split('\n').find((
 test('a role region opens with the sentence of its audience', () => {
   for (const [leaf, audience] of [['plugin/edges.md', 'markup'], ['components/size-controls.md', 'component'], ['markup/edges.md', 'markup']] as const)
     assert.ok(real.get(leaf)!.startsWith(`${COMPAT[audience]}\n\n| role | question |`), leaf);
-});
-
-test('a component leaf that holds a CONTROL_READS role names the checkbox and switch exception, and the others keep COMPAT.component', () => {
-  const holders = ['components/controls-and-marks.md', 'components/emphasis-and-accent.md'];
-  for (const leaf of holders) assert.ok(real.get(leaf)!.startsWith(`${COMPAT_CONTROL}\n\n| role | question |`), leaf);
-  assert.ok(real.get('components/size-controls.md')!.startsWith(`${COMPAT.component}\n\n| role | question |`));
-  for (const leaf of holders) assert.ok(real.get(leaf)!.includes('keeps its name until a major release'), leaf);
 });
 
 test('a markup row carries question, utility and combination', () => {
@@ -240,7 +234,7 @@ test('the states leaf maps every attribute to its selector and roles', () => {
   assert.ok(invalid.includes('`--edge-invalid`') && invalid.includes('`--ink-invalid`'));
   assert.ok(rows.find((line) => line.startsWith('| `hover` |'))!.includes('`--fill-hover`, `--mix-hover`'));
   assert.ok(rows.find((line) => line.startsWith('| `active` |'))!.includes('`--mix-pressed`'));
-  const control = '`--emphasis-primary-ink`, `--fill-control-on`, `--fill-knob`, `--ink-knob` |';
+  const control = '`--emphasis-primary-ink`, `--fill-control`, `--fill-control-on`, `--fill-knob`, `--fill-knob-off`, `--ink-knob`, `--ink-knob-off` |';
   assert.ok(rows.includes('| `aria-checked` | `[aria-checked="true"]` | ' + control));
   assert.ok(rows.includes('| `checked` | `:checked` | ' + control));
   assert.ok(rows.find((line) => line.startsWith('| `aria-pressed` |'))!.includes('`[aria-pressed="true"]`'));
@@ -277,10 +271,26 @@ test("the layers sheet carries a step's whole description", () => {
   assert.ok(dropdown.includes('top layer') && dropdown.includes('a dialog and the toast stack included'));
 });
 
-test('every CONTROL_READS name is a component role', () => {
-  const roles = readJson(join(repoRoot, 'contracts/design/roles.json')) as Record<string, { $extensions: Record<string, { audience: string }> }>;
-  for (const [name, states] of Object.entries(CONTROL_READS)) {
-    assert.equal(roles[name]?.$extensions[ARENA_EXT]?.audience, 'component', name);
-    for (const state of states) assert.ok(state in STATE_SELECTORS, `${name} lists ${state}`);
+const RECLASSIFIED = [
+  { name: 'fill-control', task: 'states' }, { name: 'fill-control-on', task: 'states' }, { name: 'fill-knob', task: 'states' },
+  { name: 'fill-knob-off', task: 'states' }, { name: 'ink-knob', task: 'states' }, { name: 'ink-knob-off', task: 'states' },
+  { name: 'emphasis-primary-fill', task: 'surfaces-and-text' }, { name: 'emphasis-primary-ink', task: 'states' },
+  { name: 'emphasis-secondary-fill', task: 'surfaces-and-text' }, { name: 'emphasis-secondary-ink', task: 'surfaces-and-text' },
+  { name: 'emphasis-primary-edge', task: 'edges' }, { name: 'emphasis-secondary-edge', task: 'edges' },
+];
+
+test('every role your markup draws is a markup role', () => {
+  const roles = readJson(join(repoRoot, 'contracts/design/roles.json')) as Record<string, { $extensions: Record<string, { audience: string; task: string }> }>;
+  for (const { name, task } of RECLASSIFIED) {
+    const meta = roles[name]!.$extensions[ARENA_EXT]!;
+    assert.deepEqual({ audience: meta.audience, task: meta.task }, { audience: 'markup', task }, name);
+    assert.ok(rowOf(`plugin/${task}.md`, name), `${name} on plugin/${task}.md`);
+    assert.ok(rowOf(`markup/${task}.md`, name), `${name} on markup/${task}.md`);
   }
+  const table = real.get('markup/states.md')!.split('\n').filter((line) => /^\| `(aria-checked|checked)` \|/.test(line));
+  assert.equal(table.length, 2);
+  for (const line of table)
+    for (const name of ['fill-control-on', 'fill-knob', 'ink-knob', 'emphasis-primary-ink']) assert.ok(line.includes(`\`--${name}\``), `${name} in ${line}`);
+  for (const file of walkFiles(join(repoRoot, TREE_DIR)))
+    assert.doesNotMatch(readFileSync(file, 'utf8'), /except the checkbox|one exception|but the checkbox/i, file);
 });

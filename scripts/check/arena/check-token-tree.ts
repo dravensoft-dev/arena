@@ -1,9 +1,8 @@
 /* The token tree under skills/design/references/tokens/ against the shape it promises. Seven
  * claims: every page the tree names exists and no page sits outside it; nothing is deeper than
  * three segments below references/; a leaf stays under LEAF_MAX characters, or its LEAF_ALLOWANCE, and an
- * index under INDEX_MAX; a markup page never writes a component role as a custom property, except that
- * markup/states.md may write the CONTROL_READS names; a role's row sits in exactly the leaf
- * roleLeaf names (and a markup role's second row in exactly markupLeaf's) and nowhere else;
+ * index under INDEX_MAX; a markup page never writes a component role as a custom property;
+ * a role's row sits in exactly the leaf roleLeaf names (and a markup role's second row in exactly markupLeaf's) and nowhere else;
  * every child says when to read it; and each generated region is what generate:token-tree
  * would write. */
 
@@ -17,15 +16,15 @@ import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { ARENA_EXT } from '../../lib/core/dtcg-shapes.ts';
 import { when } from '../../lib/arena/llms-index.ts';
 import {
-  TREE_DIR, TREE, TREE_OPEN, TREE_CLOSE, GENERATED_PATHS, CONTROL_READS, roleLeaf, markupLeaf, regionBodies,
+  TREE_DIR, TREE, TREE_OPEN, TREE_CLOSE, GENERATED_PATHS, roleLeaf, markupLeaf, regionBodies,
 } from '../../generate/arena/generate-token-tree.ts';
 
 export const LEAF_MAX = 8000;
 export const INDEX_MAX = 3000;
 export const LEAF_ALLOWANCE: Readonly<Record<string, { max: number; reason: string }>> = {
   'markup/states.md': {
-    max: 9053,
-    reason: 'The one leaf that teaches an own control by example, with a toggle, a checkbox and a switch that arena audit passes. The tables of the thirteen state roles sit beside them. The page also says that a markup class sits in the components layer, so a rule of yours beats it. The page says that an element with a fill of its own draws its own states.',
+    max: 9747,
+    reason: 'The one leaf that teaches an own control by example, with a toggle, a checkbox and a switch that arena audit passes. The tables of the twenty state roles sit beside them. The page also says that a markup class sits in the components layer, so a rule of yours beats it. The page says that an element with a fill of its own draws its own states.',
   },
 };
 export const DEPTH_MAX = 3;
@@ -99,9 +98,8 @@ export function treeProblems(base = root): string[] {
     for (const line of text.split('\n')) {
       if (path === 'markup/index.md' && line.includes(COMPONENT_INDEX_LINK)) continue;
       for (const name of component) {
-        const allowed = path === 'markup/states.md' && Object.hasOwn(CONTROL_READS, name);
         const written = new RegExp(`--${name}(?![a-z0-9-])`).test(line.replace(new RegExp(`[a-z0-9-]--${name}`, 'g'), ''));
-        if (written && !allowed)
+        if (written)
           problems.push(`${TREE_DIR}/${path} writes the component role --${name}, which a markup page may not name.`);
       }
     }

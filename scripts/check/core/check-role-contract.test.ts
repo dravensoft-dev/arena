@@ -308,9 +308,10 @@ test('STATE_SELECTORS is the closed set of states and the selector each one is',
 test('the shipped roles carry a valid state on every states role', () => {
   const shipped = SHIPPED;
   const states = Object.entries(shipped).filter(([, role]) => role.$extensions?.['com.dravensoft.arena']?.task === 'states');
-  assert.equal(states.length, 13);
+  assert.equal(states.length, 20);
   assert.deepEqual(states.map(([name]) => name).sort(), ['bw-focus', 'edge-focus', 'edge-invalid', 'edge-selected',
-    'edge-tab-selected', 'fade-disabled', 'fill-hover', 'fill-selected', 'gap-focus', 'ink-invalid', 'ink-selected',
+    'edge-tab-selected', 'emphasis-primary-ink', 'fade-disabled', 'fill-control', 'fill-control-on', 'fill-hover', 'fill-knob',
+    'fill-knob-off', 'fill-selected', 'gap-focus', 'ink-invalid', 'ink-knob', 'ink-knob-off', 'ink-selected',
     'mix-hover', 'mix-pressed']);
 });
 

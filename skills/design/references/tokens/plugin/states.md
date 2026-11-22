@@ -2,7 +2,7 @@
 
 Read this when your style plugin answers a hover, the keyboard focus ring or a selected or current item. Read it also for how far a selected or pressed fill mixes, a disabled control or an invalid field.
 
-Thirteen roles are on this page. Eight are colour roles, so an answer is a palette colour as a `{color.*}` alias or another colour role: `edge-focus`, `edge-invalid`, `edge-selected`, `edge-tab-selected`, `fill-hover`, `fill-selected`, `ink-invalid` and `ink-selected`. `bw-focus` and `gap-focus` are fixed dimensions and `fade-disabled`, `mix-hover` and `mix-pressed` are numbers, so a plugin answers those with a value of that type. `mix-hover` and `mix-pressed` read the `blend` scale of [`effects.json`](../../../../../contracts/design/effects.json), `{blend.hover}` and `{blend.pressed}`. Each role carries a default, except `fill-hover`, and [`style-kernel.md`](../../style-kernel.md#the-two-rules-that-decide-everything-else) says what a silent plugin keeps there.
+Twenty roles are on this page. Fifteen are colour roles: `edge-focus`, `edge-invalid`, `edge-selected`, `edge-tab-selected`, `emphasis-primary-ink`, `fill-control`, `fill-control-on`, `fill-hover`, `fill-knob`, `fill-knob-off`, `fill-selected`, `ink-invalid`, `ink-knob`, `ink-knob-off` and `ink-selected`. An answer to one is a palette colour, as a `{color.*}` alias or another colour role. `bw-focus` and `gap-focus` are fixed dimensions and `fade-disabled`, `mix-hover` and `mix-pressed` are numbers, so a plugin answers those with a value of that type. `mix-hover` and `mix-pressed` read the `blend` scale of [`effects.json`](../../../../../contracts/design/effects.json), `{blend.hover}` and `{blend.pressed}`. `fill-hover` and the six control and knob roles carry no default, and [`style-kernel.md`](../../style-kernel.md#the-two-rules-that-decide-everything-else) says what a silent plugin keeps there.
 
 **What a silent project gets.** The kernel answers `edge-focus` with the secondary and `edge-selected` with the body ink.
 
@@ -21,11 +21,18 @@ Your markup and Arena's components both read the roles on this page. A role keep
 | `--edge-invalid` | What colour is the edge of a field that holds an invalid value? | color | none | `{hue-danger-edge}` |
 | `--edge-selected` | What colour is the edge that marks a selected or current item? | color | none | `{ink-body}` |
 | `--edge-tab-selected` | What colour is the edge that marks the selected item of a navigation component? | color | none | `{color.primary}` |
+| `--emphasis-primary-ink` | What colour is the ink of a primary action? | color | none | none |
 | `--fade-disabled` | What share of its opacity does a disabled control keep? | number | none | `{opacity.disabled}` |
+| `--fill-control` | What colour fills the box of a checkbox, radio, switch or slider at rest? | color | none | none |
+| `--fill-control-on` | What colour fills the box of a checked checkbox or radio, an on switch or a slider's range? | color | none | none |
 | `--fill-hover` | What colour does a table row, link card or navigation row take under the pointer? | color | none | none |
+| `--fill-knob` | What colour fills the knob of an on switch or the thumb of a slider? | color | none | none |
+| `--fill-knob-off` | What colour fills the knob of a switch that is off? | color | none | none |
 | `--fill-selected` | What colour washes the background of a selected or current item? | color | none | `{color.primary}` |
 | `--gap-focus` | How far is the keyboard focus ring from the edge of its control? | dimension | fixed | `{focus.offset}` |
 | `--ink-invalid` | What colour is the error text of a field that holds an invalid value? | color | none | `{hue-danger-ink}` |
+| `--ink-knob` | What colour is the glyph on the knob of an on switch? | color | none | none |
+| `--ink-knob-off` | What colour is the glyph on the knob of a switch that is off? | color | none | none |
 | `--ink-selected` | What colour is the text of a selected or current item? | color | none | `{ink-body}` |
 | `--mix-hover` | How far toward its ink does a selected part's fill move under the pointer? | number | none | `{blend.hover}` |
 | `--mix-pressed` | How far toward its ink does a part's fill move while pressed? | number | none | `{blend.pressed}` |

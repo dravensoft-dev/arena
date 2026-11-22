@@ -293,7 +293,7 @@ export const ROUTES: Route[] = [
     who: 'a builder painting a panel of their own markup: the router, then the markup tree index and the pages for surfaces and text, type, edges, space and layout, and depth and motion',
     entry: 'consumer',
     stops: ['skills/design/references/tokens/markup/index.md', 'skills/design/references/tokens/markup/surfaces-and-text.md', 'skills/design/references/tokens/markup/type.md', 'skills/design/references/tokens/markup/edges.md', 'skills/design/references/tokens/markup/space-and-layout.md', 'skills/design/references/tokens/markup/depth-and-motion.md'],
-    budget: 21_914,
+    budget: 22_374,
     reason:
       'paid per panel a builder draws themselves. The route buys the whole of what paints one: the '
       + 'ground and its ink, the title with its size and weight, and the edge with its radius. The air '
@@ -303,7 +303,7 @@ export const ROUTES: Route[] = [
       + 'decision, not a paragraph. The markup index, the first stop, carries one row more for the '
       + 'units page, which this panel route does not read. The states page draws a switch track with no edge. The surfaces and text page carries '
       + 'the overlay-scrim role, the wash a modal lays over the page, with its question like every '
-      + 'other role. The page also lists the media wash and states the missing-level rule. The space and layout page says where '
+      + 'other role. The page also lists the media wash and states the missing-level rule. The page names the fill of both actions and the ink of the secondary. The space and layout page says where '
       + 'a half step lands, and that the rhythm is the air between two things you placed. The edges page says the control border reaches a checkbox and a radio.',
   },
   {
@@ -311,7 +311,7 @@ export const ROUTES: Route[] = [
     who: 'a builder who owns a toggle of their own and draws every state of it: the router, then the markup tree index and the pages for states, edges, depth and motion, and space and layout',
     entry: 'consumer',
     stops: ['skills/design/references/tokens/markup/index.md', 'skills/design/references/tokens/markup/states.md', 'skills/design/references/tokens/markup/edges.md', 'skills/design/references/tokens/markup/depth-and-motion.md', 'skills/design/references/tokens/markup/space-and-layout.md'],
-    budget: 22_743,
+    budget: 23_636,
     reason:
       'paid once per control a builder draws without a component. The route buys the states a'
       + ' control wears, hover and the pressed lift and scale, with the motion and the space of'
@@ -321,11 +321,10 @@ export const ROUTES: Route[] = [
       + 'there. The space and layout page says where a half step lands, and that the rhythm is '
       + 'the air between two things you placed. The edges page says the control border reaches '
       + 'a checkbox and a radio. The data files beside the pages are not stops, as the gate '
-      + 'charges Markdown only. The states page carries thirteen roles with their utilities, '
-      + 'among them the hover and pressed mixes. A table on the page maps each state attribute '
-      + 'to its selector and roles. The page ends with an own checkbox and switch example, a '
-      + 'stylesheet that arena audit passes. The switch track in that example draws no edge of '
-      + 'its own. The page also names the layer the classes sit in, and the fill and ink they '
+      + 'charges Markdown only. The states page carries twenty roles with their utilities, '
+      + 'among them the hover and pressed mixes and the roles of a checkbox and a switch. A table on the page maps each state attribute '
+      + 'to its selector and roles. The page ends with an own checkbox and switch example that '
+      + 'arena audit passes. The switch track in the example draws no edge. The page also names the layer the classes sit in, and the fill and ink they '
       + 'paint. The page says that a fill of your own beats the hover and selected wash.',
   },
   {
@@ -420,7 +419,7 @@ export const ROUTES: Route[] = [
       + 'on each platform, the design level the floors, frames and roles a value is measured against and '
       + 'the hex each accent is tuned to, the roof the map of the tree. The slot tier keeps its summary '
       + 'and its gate on the design level, and its part-by-part material lives on ColorSlots.md, which '
-      + 'no route charges, so the number follows the decisions a value rests on and not the slots. TokenTypes.md also names the one markup page that states the checkbox and switch roles, which a contributor adding a role must know.',
+      + 'no route charges, so the number follows the decisions a value rests on and not the slots.',
   },
   {
     name: 'contributor-gate',

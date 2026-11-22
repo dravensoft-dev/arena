@@ -65,7 +65,7 @@ A page with no network needs the glyph sheets locally. Install `@phosphor-icons/
 vocabulary class. The page above uses the roles [`page.md`](./page.md) teaches. The floor is
 `--fill-page`, a card is `--fill-surface` with `--edge-surface`, `--bw-surface` and `--r-surface`, and
 the text takes `--ink-heading`, `--ink-body` and `--ink-muted`. `--measure-prose` is the column's width,
-and `--accent-primary-ink` colours the icon. The type roles are `--font-display` and `--font-body`
+and `--accent-primary-ink` colours the icon. The one primary action takes `--emphasis-primary-fill`, `--emphasis-primary-ink` and `--emphasis-primary-edge`, and a second action takes the three `--emphasis-secondary-*` roles. The type roles are `--font-display` and `--font-body`
 with `--fs-*`, `--fw-*`, `--ls-*` and `--lh-*`, and the spacing steps are `--sp-*`. The reset makes
 every box `border-box`. A class such as `arena-stack` is an Arena vocabulary class. The package ships
 it in its `css/vocabulary/` sheets and `intro/styles.css` does not import those, so a static page

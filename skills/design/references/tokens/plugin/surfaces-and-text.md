@@ -12,6 +12,9 @@ Your markup and Arena's components both read the roles on this page. A role keep
 
 | role | question | type | user scale | default |
 | --- | --- | --- | --- | --- |
+| `--emphasis-primary-fill` | What colour fills a primary action? | color | none | none |
+| `--emphasis-secondary-fill` | What colour fills a secondary action? | color | none | none |
+| `--emphasis-secondary-ink` | What colour is the ink of a secondary action? | color | none | none |
 | `--fill-field` | What colour fills an input, textarea or select? | color | none | none |
 | `--fill-page` | What colour fills the page itself behind every surface? | color | none | none |
 | `--fill-surface` | What colour fills a card, panel or table frame at rest? | color | none | none |
