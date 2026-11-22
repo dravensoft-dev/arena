@@ -16,6 +16,7 @@ import { walkFiles } from '../../utils/walk-files.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { findComments, literalRanges, insideLiteral } from '../../lib/arena/comments.ts';
 import { proseSegments, fencedLines, unfenced } from '../../lib/arena/markdown-prose.ts';
+import { ARENA_DEFAULT_LOCALE } from '../../../frameworks/react/LocaleDefaults.generated.ts';
 import { repoRoot as ROOT } from '../../lib/arena/repo-root.ts';
 import { emittedTree } from '../../lib/arena/layers.ts';
 import { relPosix } from '../../utils/posix-path.ts';
@@ -701,6 +702,25 @@ export function emptySuiteProblems(root = ROOT) {
     .map((path) => `${relPosix(root, path)}: a suite with no test`);
 }
 
+export const LOCALE_TAG = /\ben-[A-Z]{2}\b/g;
+export const LOCALE_FIELD_TABLE = 'skills/design/references/locale.md';
+export const LOCALE_TAG_UNSCOPED = ['scripts/', DATED_PROCESS_DOCUMENTS];
+
+export function localeTagProblems(rel: string, source: string, tag: string) {
+  if (LOCALE_TAG_UNSCOPED.some((tree) => rel.startsWith(tree))) return [];
+  return unfenced(source).split('\n').flatMap((text, index) => {
+    if (rel === LOCALE_FIELD_TABLE && TABLE_ROW.test(text)) return [];
+    return [...text.matchAll(LOCALE_TAG)].filter((hit) => hit[0] !== tag)
+      .map((hit) => `${rel}:${index + 1}: the locale tag ${hit[0]} in prose, and Arena's default is ${tag}`);
+  });
+}
+
+export function localeTagScan(root = ROOT, tag = ARENA_DEFAULT_LOCALE.locale) {
+  const found = documents(root).flatMap((path) =>
+    localeTagProblems(relPosix(root, path), readFileSync(path, 'utf8'), tag));
+  return found;
+}
+
 function main() {
   const sizes = documentSizeProblems();
   const punctuation = punctuationProblems();
@@ -719,7 +739,7 @@ function main() {
     ...empty, ...branchSwitchProblems(), ...sizes.problems, ...cells.problems, ...punctuation.problems,
     ...comments.problems, ...branch.problems, ...ruleOwnerProblems(), ...foreign.problems,
     ...counts.problems, ...wording.problems, ...blobLinkProblems(), ...hueProblems(),
-    ...testNameProblems(), ...emptySuiteProblems(),
+    ...testNameProblems(), ...emptySuiteProblems(), ...localeTagScan(),
   ];
 
   if (problems.length > 0) {

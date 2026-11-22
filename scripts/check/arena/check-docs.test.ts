@@ -4,6 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { rmSync } from 'node:fs';
+import { join } from 'node:path';
 import * as docs from './check-docs.ts';
 import {
   MAX_DOCUMENT_CHARS, HEADER_MAX_LINES, SIZE_EXEMPT, PROSE_EXEMPT, BANNED_PUNCTUATION,
@@ -16,8 +17,10 @@ import {
   FOREIGN_CODE, foreignCodeProblems, componentCountProblems,
   blobLinkProblems, COMMENT_RULE_SKIPS, SOURCE_EXTENSIONS, MAX_CELL_CHARS, cellSizeProblems,
   hueProblems, CONSUMER_WORDING, consumerWordingProblems,
-  testNameProblems, emptySuiteProblems,
+  testNameProblems, emptySuiteProblems, localeTagProblems, LOCALE_FIELD_TABLE,
 } from './check-docs.ts';
+import { readFileSync } from 'node:fs';
+import { ARENA_DEFAULT_LOCALE } from '../../../frameworks/react/LocaleDefaults.generated.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { scratchTree } from '../../utils/scratch-tree.ts';
 
@@ -875,4 +878,24 @@ test('no test name in the tree carries a spec, plan or audit id', () => {
 
 test('every suite in the tree holds a test', () => {
   assert.deepEqual(emptySuiteProblems(repoRoot), []);
+});
+
+test('a locale tag in prose is the default locale', () => {
+  const tag = ARENA_DEFAULT_LOCALE.locale;
+  const rows = [
+    { name: 'en-US in prose', rel: 'a.md', source: 'English (en-US neutral).\n', found: 1 },
+    { name: 'en-GB in prose', rel: 'a.md', source: `English (${tag}).\n`, found: 0 },
+    { name: 'en-US in a code fence', rel: 'a.md', source: '```\nen-US\n```\n', found: 0 },
+    { name: 'en-US in the field table of locale.md', rel: LOCALE_FIELD_TABLE,
+      source: '| `locale` | `en-US` | A tag. |\n', found: 0 },
+    { name: 'en-US in a table of another page', rel: 'a.md', source: '| `locale` | `en-US` |\n', found: 1 },
+    { name: 'en-US in prose of locale.md', rel: LOCALE_FIELD_TABLE, source: 'It is en-US.\n', found: 1 },
+  ];
+  for (const row of rows) {
+    assert.equal(localeTagProblems(row.rel, row.source, tag).length, row.found, row.name);
+  }
+  const live = readFileSync(join(repoRoot, 'contracts/design/AGENTS.md'), 'utf8');
+  assert.deepEqual(localeTagProblems('contracts/design/AGENTS.md', live, tag), [], 'the live contracts page');
+  const old = live.replace('English (en-GB)', 'English (en-US neutral)');
+  assert.equal(localeTagProblems('contracts/design/AGENTS.md', old, tag).length, 1, 'the live page with the old tag');
 });
