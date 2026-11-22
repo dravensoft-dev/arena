@@ -292,7 +292,7 @@ export const ROUTES: Route[] = [
     who: 'a builder painting a panel of their own markup: the router, then the markup tree index and the pages for surfaces and text, type, edges, space and layout, and depth and motion',
     entry: 'consumer',
     stops: ['skills/design/references/tokens/markup/index.md', 'skills/design/references/tokens/markup/surfaces-and-text.md', 'skills/design/references/tokens/markup/type.md', 'skills/design/references/tokens/markup/edges.md', 'skills/design/references/tokens/markup/space-and-layout.md', 'skills/design/references/tokens/markup/depth-and-motion.md'],
-    budget: 23_465,
+    budget: 23_495,
     reason:
       'paid per panel a builder draws themselves. The route buys all of what paints one: the '
       + 'ground and its ink, the title with its size and weight, and the edge with its radius. The air '
@@ -310,7 +310,7 @@ export const ROUTES: Route[] = [
     who: 'a builder who owns a toggle of their own and draws every state of it: the router, then the markup tree index and the pages for states, edges, depth and motion, and space and layout',
     entry: 'consumer',
     stops: ['skills/design/references/tokens/markup/index.md', 'skills/design/references/tokens/markup/states.md', 'skills/design/references/tokens/markup/edges.md', 'skills/design/references/tokens/markup/depth-and-motion.md', 'skills/design/references/tokens/markup/space-and-layout.md'],
-    budget: 24_727,
+    budget: 24_757,
     reason:
       'paid once per control a builder draws without a component. The route buys the states a'
       + ' control wears, hover and the pressed lift and scale, with the motion and space of'

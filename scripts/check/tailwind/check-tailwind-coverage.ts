@@ -89,6 +89,8 @@ export const EXCLUDED = new Map([
   ['lift-control', 'a travel distance rather than a length on the spacing grid, so no @theme namespace owns it; reached as hover:-translate-y-[var(--lift-control)], the shape check:arbitrary accepts for a value with no namespace'],
   ['dur-hover', 'v4 has no duration namespace, the same wall dur-mid meets; reached as duration-[var(--dur-hover)]'],
   ['dur-state', 'the same, as duration-[var(--dur-state)]'],
+  ['dur-enter-deep', 'the same, as duration-[var(--dur-enter-deep)]'],
+  ['dur-enter-floating', 'the same, as duration-[var(--dur-enter-floating)]'],
   ['focus-width', 'no namespace — the focus ring is composed, not a single utility'],
   ['focus-offset', 'no namespace — the focus ring is composed, not a single utility'],
   ['tint-area', 'script-readable: a ratio JS interpolates into a color-mix() string, and v4 has no namespace for one'],

@@ -20,8 +20,8 @@ Your markup and Arena's components both read the roles on this page. A role keep
 | `--dur-enter-floating` | How long does a menu, tooltip or other surface floating over the page take to arrive? | none | none |
 | `--dur-hover` | How long does a hover or press response take? | none | none |
 | `--dur-state` | How long does a state change the user follows, such as a switch moving, take? | none | none |
-| `--ease-enter-deep` | What easing curve does a surface that commands the screen follow as it arrives? | none | none |
-| `--ease-enter-floating` | What easing curve does a surface floating over the page follow as it arrives? | none | none |
+| `--ease-enter-deep` | What easing curve does a surface that commands the screen follow as it arrives? | `ease-enter-deep` | none |
+| `--ease-enter-floating` | What easing curve does a surface floating over the page follow as it arrives? | `ease-enter-floating` | none |
 | `--ease-hover` | What easing curve does a hover or press response follow? | `ease-hover` | none |
 | `--ease-state` | What easing curve does a state change the user watches, such as a switch moving, use? | `ease-state` | none |
 | `--lift-control` | How far does a control rise under the pointer? | none | none |

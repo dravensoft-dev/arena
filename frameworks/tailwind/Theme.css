@@ -128,6 +128,8 @@
      reduced-motion policy rather than a voice. */
   --ease-hover: var(--ease-hover);
   --ease-state: var(--ease-state);
+  --ease-enter-deep: var(--ease-enter-deep);
+  --ease-enter-floating: var(--ease-enter-floating);
 
   --blur-*: initial;
 
