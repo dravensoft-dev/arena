@@ -210,6 +210,11 @@ test('a metavariable is written <Name>, which the pattern cannot match, so it ne
   assert.deepEqual('see X.prompt.md'.match(BARE_DOCUMENT), ['X.prompt.md']);
 });
 
+test('a token alias in braces is not a bare document name', () => {
+  assert.equal('answers `{avatar.md}` here'.match(BARE_DOCUMENT), null);
+  assert.deepEqual('see avatar.md'.match(BARE_DOCUMENT), ['avatar.md']);
+});
+
 test('a citation git ignores is a problem, because no clone can follow it', () => {
   const dir = tree({});
   try {

@@ -155,7 +155,7 @@ export function namesAFile(cited: string) {
   return EXTENSION.test(cited);
 }
 
-export const BARE_DOCUMENT = /(?<![A-Za-z0-9._/-])[A-Za-z][A-Za-z0-9-]*(?:\.[a-z0-9-]+)*\.md\b/g;
+export const BARE_DOCUMENT = /(?<![A-Za-z0-9._/{-])[A-Za-z][A-Za-z0-9-]*(?:\.[a-z0-9-]+)*\.md\b/g;
 
 export function basenames(base = root, ignored = ignoredRoots(base)) {
   return new Set(walkFiles(base, { skip: entrySkip(base, ignored) }).map((path) => basename(path)));
