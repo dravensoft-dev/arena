@@ -129,6 +129,12 @@ export function pseudoSupports(css: string) {
   return found;
 }
 
+function hoistable(rule: CssBlock, child: CssBlock, css: string) {
+  const last = child.decls[child.decls.length - 1];
+  if (child.children.length > 0 || !last || css.slice(last.to + 1, child.close).trim() !== '') return false;
+  return !rule.decls.some((plain) => plain.from > child.close && child.decls.some((decl) => decl.name === plain.name));
+}
+
 export function hoistPseudoSupports(css: string) {
   const edits: { from: number; to: number; text: string }[] = [];
   const walk = (rule: CssBlock) => {
@@ -137,7 +143,7 @@ export function hoistPseudoSupports(css: string) {
     const indent = /^[ \t]*/.exec(css.slice(lineStart, rule.head))?.[0] ?? '';
     let written = '';
     for (const child of rule.children) {
-      if (pseudo && child.selector.startsWith('@supports') && child.children.length === 0 && child.decls.length > 0) {
+      if (pseudo && child.selector.startsWith('@supports') && hoistable(rule, child, css)) {
         const decls = child.decls.map((decl) => `\n${indent}    ${css.slice(decl.from, decl.to).trim()};`).join('');
         written += `\n${indent}${child.selector.trim()} {\n${indent}  ${rule.selector.trim()} {${decls}\n${indent}  }\n${indent}}`;
         const before = css.lastIndexOf('\n', child.head) + 1;

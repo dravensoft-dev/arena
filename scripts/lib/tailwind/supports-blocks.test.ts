@@ -173,6 +173,44 @@ const PSEUDO_ROWS = [
     want: `.a {\n  &:focus {\n    color: A;\n    ${SUPPORTS} {\n      color: B;\n    }\n  }\n}\n`,
     found: 0,
   },
+  {
+    name: 'a last declaration without a semicolon keeps the block in place',
+    css: `.a {\n  &::placeholder {\n    color: A;\n    ${SUPPORTS} {\n      color: B;\n      opacity: 1\n    }\n  }\n}\n`,
+    want: `.a {\n  &::placeholder {\n    color: A;\n    ${SUPPORTS} {\n      color: B;\n      opacity: 1\n    }\n  }\n}\n`,
+    found: 1,
+    left: 1,
+  },
+  {
+    name: 'a later declaration of the same property keeps the block in place',
+    css: `.a {\n  &::placeholder {\n    ${SUPPORTS} {\n      color: B;\n    }\n    color: A;\n  }\n}\n`,
+    want: `.a {\n  &::placeholder {\n    ${SUPPORTS} {\n      color: B;\n    }\n    color: A;\n  }\n}\n`,
+    found: 1,
+    left: 1,
+  },
+  {
+    name: 'a later declaration of another property lets the block move',
+    css: `.a {\n  &::placeholder {\n    ${SUPPORTS} {\n      color: B;\n    }\n    opacity: 1;\n  }\n}\n`,
+    want: `.a {\n  &::placeholder {\n    opacity: 1;\n  }\n  ${SUPPORTS} {\n    &::placeholder {\n      color: B;\n    }\n  }\n}\n`,
+    found: 1,
+  },
+  {
+    name: 'two pseudo-element rules in one parent each move after their own rule',
+    css: `.a {\n  &::before {\n    color: A;\n    ${SUPPORTS} {\n      color: B;\n    }\n  }\n  &::after {\n    color: C;\n    ${SUPPORTS} {\n      color: D;\n    }\n  }\n}\n`,
+    want: `.a {\n  &::before {\n    color: A;\n  }\n  ${SUPPORTS} {\n    &::before {\n      color: B;\n    }\n  }\n  &::after {\n    color: C;\n  }\n  ${SUPPORTS} {\n    &::after {\n      color: D;\n    }\n  }\n}\n`,
+    found: 2,
+  },
+  {
+    name: 'a comma list of pseudo-elements moves whole',
+    css: `.a {\n  &::placeholder, &::-webkit-input-placeholder {\n    color: A;\n    ${SUPPORTS} {\n      color: B;\n    }\n  }\n}\n`,
+    want: `.a {\n  &::placeholder, &::-webkit-input-placeholder {\n    color: A;\n  }\n  ${SUPPORTS} {\n    &::placeholder, &::-webkit-input-placeholder {\n      color: B;\n    }\n  }\n}\n`,
+    found: 1,
+  },
+  {
+    name: 'a top-level pseudo-element rule moves its block after itself',
+    css: `::placeholder {\n  color: A;\n  ${SUPPORTS} {\n    color: B;\n  }\n}\n`,
+    want: `::placeholder {\n  color: A;\n}\n${SUPPORTS} {\n  ::placeholder {\n    color: B;\n  }\n}\n`,
+    found: 1,
+  },
 ];
 
 test('a block nested in a pseudo-element rule moves after the rule, and one in a pseudo-class rule stays', () => {
@@ -180,6 +218,6 @@ test('a block nested in a pseudo-element rule moves after the rule, and one in a
     const out = hoistPseudoSupports(row.css);
     assert.equal(out, row.want, `${row.name}: the hoisted sheet`);
     assert.equal(pseudoSupports(row.css).length, row.found, `${row.name}: survivors before`);
-    assert.equal(pseudoSupports(out).length, 0, `${row.name}: survivors after`);
+    assert.equal(pseudoSupports(out).length, row.left ?? 0, `${row.name}: survivors after`);
   }
 });
