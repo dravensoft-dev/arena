@@ -227,6 +227,10 @@ export const QUIET_ROLE_ANSWERS: Record<string, string> = {
   'accent-primary-edge': '{edge-mark}',
   'emphasis-solid-fill': '{emphasis-secondary-fill}',
   'emphasis-solid-ink': '{emphasis-secondary-ink}',
+  'fill-control-on': '{fill-mark}',
+  'fill-knob': '{fill-page}',
+  'ink-knob': '{ink-body}',
+  'edge-tab-selected': '{edge-mark}',
 };
 
 export const QUIET_SLOT_ANSWERS: Record<string, string> = { fill: '{fill-mark}', ink: '{ink-on-mark}', edge: '{edge-mark}' };
@@ -240,9 +244,8 @@ export function brandReaders(base = root) {
   const brand = (role: string) => polarities.some((at) => readsBrand(at.get(role)));
   const slots = Object.entries(catalogue.slots.slots).filter(([name, slot]) => slot.default !== undefined
     && !(name in EXAMPLE_SLOT_ANSWERS) && !(slot.group === 'actions' && slot.option === 'primary') && brand(slot.default.slice(1, -1)));
-  const reads = new Set(slots.map(([, slot]) => (slot.default as string).slice(1, -1)));
   const roles = Object.keys(catalogue.roles).filter((role) => catalogue.roles[role]?.type === 'color'
-    && !role.startsWith('emphasis-primary-') && reads.has(role) && brand(role));
+    && !role.startsWith('emphasis-primary-') && brand(role));
   return { roles, slots: slots.filter(([, slot]) => !roles.includes((slot.default as string).slice(1, -1))).map(([name]) => name) };
 }
 

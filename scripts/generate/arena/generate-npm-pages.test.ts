@@ -652,6 +652,17 @@ test('the nowhere-else list answers every silent reader of the brand outside the
   }
 });
 
+const BRAND_ROLES = ['fill-control-on', 'fill-knob', 'ink-knob', 'edge-tab-selected'];
+
+test('the nowhere-else list answers every role the default plugin points at the brand, markup of yours included', () => {
+  const tokens = readJson(join(repoRoot, 'plugin-style-store/default/plugin.tokens.json')) as Record<string, unknown>;
+  const pointed = Object.entries(tokens).filter(([name, entry]) => !name.startsWith('emphasis-primary-') && !name.startsWith('$')
+    && '$type' in (entry as object) && /\{color\.primary[-}]/.test(JSON.stringify(entry))).map(([name]) => name);
+  const answers = quietAnswers();
+  for (const role of pointed) assert.ok(role in answers, role);
+  for (const role of BRAND_ROLES) assert.ok(pointed.includes(role) && role in answers, role);
+});
+
 test('the nowhere-else answers leave no slot reading the brand under the default plugin', () => {
   const catalogue = tokenCatalogue();
   const answers = quietAnswers();
