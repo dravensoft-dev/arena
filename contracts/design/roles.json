@@ -1756,13 +1756,13 @@
   },
   "bw-control": {
     "$type": "dimension",
-    "$description": "The border of a pressable control. Distinct from bw-surface because a button's\noutline is an affordance, saying where the pressable area ends, while a card's is a grouping\nsignal. A style plugin can drop one and keep the other.",
+    "$description": "The border of a pressable control, the box of a checkbox and the ring of a radio. Distinct from bw-surface because a button's\noutline is an affordance, saying where the pressable area ends, while a card's is a grouping\nsignal. A style plugin can drop one and keep the other.",
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
         "task": "edges",
         "userScale": "fixed",
-        "question": "How thick is the border of a button or other pressable control?"
+        "question": "How thick is the border of a button or other pressable control, the box of a checkbox and the ring of a radio?"
       }
     }
   },

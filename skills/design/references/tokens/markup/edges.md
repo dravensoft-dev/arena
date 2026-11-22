@@ -10,7 +10,7 @@ Your markup and Arena's components both read the roles on this page. A role keep
 
 | role | question | utility | combines with |
 | --- | --- | --- | --- |
-| `--bw-control` | How thick is the border of a button or other pressable control? | none | read with `--edge-control`; read with `--edge-control-quiet` |
+| `--bw-control` | How thick is the border of a button or other pressable control, the box of a checkbox and the ring of a radio? | none | read with `--edge-control`; read with `--edge-control-quiet` |
 | `--bw-field` | How thick is the border of an input, textarea or select? | none | read with `--edge-field` |
 | `--bw-marker` | How thick is the border of a tag, badge or avatar ring? | none | read with `--edge-marker` |
 | `--bw-separator` | How thick is the rule dividing one thing from the next inside a surface? | none | read with `--edge-separator` |
