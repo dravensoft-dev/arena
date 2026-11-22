@@ -272,7 +272,7 @@ export const ROUTES: Route[] = [
       + 'column it sits in and how much air goes between two components',
     entry: 'consumer',
     stops: ['skills/design/references/page.md', 'skills/design/references/style.md'],
-    budget: 21_633,
+    budget: 21_484,
     reason:
       'paid per element a builder draws themselves. The route buys the half of a '
       + 'page no component draws. The half is the floor and where each layer puts it, the viewport '
@@ -292,7 +292,7 @@ export const ROUTES: Route[] = [
     who: 'a builder painting a panel of their own markup: the router, then the markup tree index and the pages for surfaces and text, type, edges, space and layout, and depth and motion',
     entry: 'consumer',
     stops: ['skills/design/references/tokens/markup/index.md', 'skills/design/references/tokens/markup/surfaces-and-text.md', 'skills/design/references/tokens/markup/type.md', 'skills/design/references/tokens/markup/edges.md', 'skills/design/references/tokens/markup/space-and-layout.md', 'skills/design/references/tokens/markup/depth-and-motion.md'],
-    budget: 23_776,
+    budget: 23_465,
     reason:
       'paid per panel a builder draws themselves. The route buys all of what paints one: the '
       + 'ground and its ink, the title with its size and weight, and the edge with its radius. The air '
@@ -310,7 +310,7 @@ export const ROUTES: Route[] = [
     who: 'a builder who owns a toggle of their own and draws every state of it: the router, then the markup tree index and the pages for states, edges, depth and motion, and space and layout',
     entry: 'consumer',
     stops: ['skills/design/references/tokens/markup/index.md', 'skills/design/references/tokens/markup/states.md', 'skills/design/references/tokens/markup/edges.md', 'skills/design/references/tokens/markup/depth-and-motion.md', 'skills/design/references/tokens/markup/space-and-layout.md'],
-    budget: 25_038,
+    budget: 24_727,
     reason:
       'paid once per control a builder draws without a component. The route buys the states a'
       + ' control wears, hover and the pressed lift and scale, with the motion and space of'
