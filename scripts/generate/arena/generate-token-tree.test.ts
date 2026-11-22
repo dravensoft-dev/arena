@@ -103,36 +103,47 @@ const anyRow = (bodies: Map<string, string>, name: string) => {
 const plugin = readJson(join(repoRoot, 'plugin-style-store/default/plugin.tokens.json')) as Record<string, any>;
 const answerOf = (name: string, light: boolean) => (light ? plugin.light[name] : undefined)?.$value ?? plugin[name].$value;
 
+const lastCell = (row: string) => row.replace(/ \|$/, '').split(' | ').pop();
+
+const DEFAULT_COLUMN: { name: string; role: string; roles?: Record<string, unknown>; answers?: Record<string, unknown>; want: string }[] = [
+  { name: 'a role answered alike in both polarities shows one answer', role: 'ink-body', want: `\`${answerOf('ink-body', false)}\`` },
+  { name: 'a role answered differently by polarity shows light and dark', role: 'edge-focus', want: `light \`${answerOf('edge-focus', true)}\`; dark \`${answerOf('edge-focus', false)}\`` },
+  {
+    name: 'an answer chained through another role resolves per polarity',
+    role: 'r-surface',
+    roles: { 'r-surface': role('markup', 'edges', { default: '{r-control}' }), 'r-control': role('markup', 'edges') },
+    answers: { 'r-surface': { $type: 'dimension', $value: '{r-control}' }, 'r-control': { $type: 'dimension', $value: '{r.sm}' }, light: { 'r-control': { $type: 'dimension', $value: '{r.xs}' } } },
+    want: 'light `{r.xs}`; dark `{r.sm}`',
+  },
+  {
+    name: 'a role the plugin is silent on shows the role default it falls to',
+    role: 'r-surface',
+    roles: { 'r-surface': role('markup', 'edges', { default: '{r.lg}' }), 'r-control': role('markup', 'edges') },
+    answers: { 'r-control': { $type: 'dimension', $value: '{r.sm}' } },
+    want: 'silent, falls to `{r.lg}`',
+  },
+];
+
 test('the default column reads the default plugin per polarity', () => {
-  const real = regionBodies(repoRoot);
-  const lastCell = (row: string) => row.replace(/ \|$/, '').split(' | ').pop();
-  const fixed = (roles: Record<string, unknown>, answers: Record<string, unknown>) => {
-    const base = fixture();
-    put(base, 'contracts/design/roles.json', JSON.stringify(roles));
-    put(base, 'plugin-style-store/default/plugin.tokens.json', JSON.stringify(answers));
-    return regionBodies(base);
-  };
-  const table: { name: string; cell: () => string | undefined }[] = [
-    { name: 'ink-body', cell: () => lastCell(anyRow(real, 'ink-body')) },
-    { name: 'edge-focus', cell: () => lastCell(anyRow(real, 'edge-focus')) },
-    { name: 'chained', cell: () => lastCell(anyRow(fixed(
-      { 'r-surface': role('markup', 'edges', { default: '{r-control}' }), 'r-control': role('markup', 'edges') },
-      { 'r-surface': { $type: 'dimension', $value: '{r-control}' }, 'r-control': { $type: 'dimension', $value: '{r.sm}' }, light: { 'r-control': { $type: 'dimension', $value: '{r.xs}' } } },
-    ), 'r-surface')) },
-    { name: 'silent', cell: () => lastCell(anyRow(fixed(
-      { 'r-surface': role('markup', 'edges', { default: '{r.lg}' }), 'r-control': role('markup', 'edges') },
-      { 'r-control': { $type: 'dimension', $value: '{r.sm}' } },
-    ), 'r-surface')) },
-  ];
-  const expected: Record<string, string> = {
-    'ink-body': `\`${answerOf('ink-body', false)}\``,
-    'edge-focus': `light \`${answerOf('edge-focus', true)}\`; dark \`${answerOf('edge-focus', false)}\``,
-    chained: 'light `{r.xs}`; dark `{r.sm}`',
-    silent: 'silent, falls to `{r.lg}`',
-  };
   assert.notEqual(answerOf('edge-focus', true), answerOf('edge-focus', false), 'edge-focus answers differ by polarity');
-  for (const { name, cell } of table) assert.equal(cell(), expected[name], name);
-  for (const [path, body] of real) if (/^(plugin|components)\/(?!index)[a-z-]+\.md$/.test(path) && body !== '') assert.ok(body.includes(HEADER), path);
+  const real = regionBodies(repoRoot);
+  for (const { name, role: target, roles, answers, want } of DEFAULT_COLUMN) {
+    let bodies = real;
+    if (roles !== undefined) {
+      const base = fixture();
+      put(base, 'contracts/design/roles.json', JSON.stringify(roles));
+      put(base, 'plugin-style-store/default/plugin.tokens.json', JSON.stringify(answers ?? {}));
+      bodies = regionBodies(base);
+    }
+    assert.equal(lastCell(anyRow(bodies, target)), want, name);
+  }
+});
+
+test('every plugin and component leaf carries the default-column header', () => {
+  for (const [path, body] of regionBodies(repoRoot)) if (/^(plugin|components)\/(?!index)[a-z-]+\.md$/.test(path) && body !== '') assert.ok(body.includes(HEADER), path);
+});
+
+test('defaultAnswer resolves a role to its dark answer', () => {
   assert.equal(defaultAnswer('ink-body', plugin, readJson(join(repoRoot, 'contracts/design/roles.json')) as any)?.dark, answerOf('ink-body', false));
 });
 
