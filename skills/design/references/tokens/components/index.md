@@ -20,6 +20,6 @@ A group's colours sit in [slot pages](../../color-slots/index.md#the-groups).
 - [Which roles answer the size of content at each option?](./size-content.md): Read this when your style plugin answers the size of a part that is content rather than a control, at one size option.
 - [Which roles answer an emphasis and an accent?](./emphasis-and-accent.md): Read this when your style plugin answers how loud an emphasis is, how deep an elevation stands or which accent a component takes.
 - [Which roles answer a status hue?](./status-hues.md): Read this when your style plugin answers the hue a status, a tone or a category takes inside a component.
-- [Which roles answer a control, a knob, a tip, a tile and a mark?](./controls-and-marks.md): Read this when your style plugin answers the box and knob of a checkbox, radio, switch or slider, the bubble of a tooltip or the tile behind an avatar's initials.
+- [Which roles answer a tip, a tile and a mark?](./controls-and-marks.md): Read this when your style plugin answers the bubble of a tooltip or the tile behind an avatar's initials.
 
 <!-- @tree end -->

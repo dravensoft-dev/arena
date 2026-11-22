@@ -19,6 +19,6 @@ A group of components takes its colour answers from slots, and [`color-slots/ind
 - [Which roles answer a pad, a gap and a column?](./space-and-layout.md): Read this when your style plugin answers the padding of a control, a surface or a row, a gap, a gutter or the width of a column.
 - [Which roles answer a face, a weight, a size and a tracking?](./type.md): Read this when your style plugin answers a font family, a weight, a leading, a tracking, a text transform or a size.
 - [Which roles answer a shadow, a lift and a transition?](./depth-and-motion.md): Read this when your style plugin answers the depth a surface casts, how far a control lifts or presses, or how long and how smooth a change runs.
-- [Which roles answer a hover, a focus ring, a selection, how far a fill mixes, a disabled control and an invalid field?](./states.md): Read this when your style plugin answers a hover, the keyboard focus ring or a selected or current item.
+- [Which roles answer a hover, a focus ring, a selection, how far a fill mixes, a disabled control, an invalid field and the box and knob of a switch?](./states.md): Read this when your style plugin answers a hover, the keyboard focus ring or a selected or current item.
 
 <!-- @tree end -->

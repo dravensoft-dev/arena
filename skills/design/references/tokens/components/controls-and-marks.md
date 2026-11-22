@@ -1,6 +1,6 @@
-# Which roles answer a control, a knob, a tip, a tile and a mark?
+# Which roles answer a tip, a tile and a mark?
 
-Read this when your style plugin answers the box and knob of a checkbox, radio, switch or slider, the bubble of a tooltip or the tile behind an avatar's initials. Read it also for a marker or mark inside a component.
+Read this when your style plugin answers the bubble of a tooltip or the tile behind an avatar's initials. Read it also for a marker or mark inside a component.
 
 These roles carry no family option: each answers one part, named by the role.
 
