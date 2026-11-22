@@ -13,7 +13,7 @@ import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { packageSheetName, sheetFamilies, sheetName, VOCABULARY_DIR, VOCABULARY_SHEETS, FAMILY_SUFFIX } from '../../lib/tailwind/vocabulary.ts';
 import { tailwindThemeSheet } from '../../lib/tailwind/theme-sheet.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
-import { CSS_CHAIN, SHEET_BANNERS, CHANNEL_SOURCES, ALIAS_SOURCE, ANGULAR_EXTRA, FAMILY_PART_SHEET_READS, TOKEN_CATALOGUE_READS, arenaCssLayers, familyPartSheets, tokenCatalogue } from '../../lib/arena/package-assembly.ts';
+import { CSS_CHAIN, CHANNEL_SOURCES, ALIAS_SOURCE, ANGULAR_EXTRA, FAMILY_PART_SHEET_READS, TOKEN_CATALOGUE_READS, arenaCssLayers, familyPartSheets, tokenCatalogue } from '../../lib/arena/package-assembly.ts';
 import type { CssChainEntry } from '../../lib/arena/package-assembly.ts';
 import { NPM_PAGES, renderQuestions } from '../../lib/arena/npm-questions.ts';
 import { ARENA_EXT, POLARITY_HOOKS, RESERVED } from '../core/arena-cli/style-plugin-rules.ts';
@@ -492,6 +492,12 @@ function layerCell(sheets: { name: string; css: string }[]) {
       `${layer === 'unlayered' ? layer : `\`${layer}\``}: ${names.slice(at * NAMES_PER_SENTENCE, (at + 1) * NAMES_PER_SENTENCE).join(', ')}.`)).join(' ');
 }
 
+function compiledLayerCell(css: string) {
+  const names = [...(/^\s*@theme\b/m.test(css) ? ['theme'] : []), ...(/^\s*@utility\b/m.test(css) ? ['utilities'] : [])];
+  if (names.length === 0 || layerOf(css) !== 'unlayered') return layerCell([{ name: 'tailwind-theme', css }]);
+  return `${names.map((name) => `\`${name}\``).join(' and ')}, once the compiler reads its \`@theme\` and \`@utility\` blocks`;
+}
+
 const sheetsUnder = (base: string, dir: string) => (existsSync(join(base, CONSUME_SHEETS, dir))
   ? walkFiles(join(base, CONSUME_SHEETS, dir)).filter((file) => file.endsWith('.css')).sort()
     .map((file) => ({ name: file.slice(join(base, CONSUME_SHEETS, dir).length + 1).replace(/\.css$/, ''), css: readFileSync(file, 'utf8') }))
@@ -505,11 +511,11 @@ function sheetLayers(base: string) {
     : [];
   return {
     base: layerCell(existsSync(preflight) ? [{ name: 'base', css: readFileSync(preflight, 'utf8') }] : []),
-    barrel: layerCell([{ name: 'components', css: SHEET_BANNERS.components }]),
+    barrel: layerCell(sheetsUnder(base, 'components')),
     components: layerCell(sheetsUnder(base, 'components')),
     hues: layerCell(sheetsUnder(base, 'hues')),
     vocabulary: layerCell(vocabulary),
-    theme: layerCell(existsSync(join(base, 'frameworks/tailwind/Theme.css')) ? [{ name: 'tailwind-theme', css: tailwindThemeSheet(base) }] : []),
+    theme: existsSync(join(base, 'frameworks/tailwind/Theme.css')) ? compiledLayerCell(tailwindThemeSheet(base)) : 'unlayered',
   };
 }
 

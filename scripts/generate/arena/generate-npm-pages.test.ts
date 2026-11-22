@@ -22,7 +22,7 @@ import { slotReports } from '../core/arena-cli/slot-contrast.ts';
 import { levelDefaults } from '../core/arena-cli/levels.ts';
 import { rolesFor } from '../core/arena-cli/theme-css.ts';
 import { tableCells, MAX_CELL_CHARS, CONTRIBUTOR_PATHS, BANNED_PUNCTUATION } from '../../check/arena/check-docs.ts';
-import { tokenCatalogue, CSS_CHAIN, ANGULAR_EXTRA, SHEET_BANNERS, familyPartSheets } from '../../lib/arena/package-assembly.ts';
+import { tokenCatalogue, CSS_CHAIN, ANGULAR_EXTRA, componentSheets, familyPartSheets } from '../../lib/arena/package-assembly.ts';
 import type { CssChainEntry } from '../../lib/arena/package-assembly.ts';
 import { NPM_PAGES } from '../../lib/arena/npm-questions.ts';
 import { readJson } from '../../utils/read-file.ts';
@@ -831,9 +831,14 @@ test('the sheet table names each sheet\'s layer', () => {
   const layersOf = (sheets: string[]) => [...new Set(sheets.map(opens))].sort();
   const consume = 'frameworks/tailwind/consume';
   const parts = familyPartSheets(repoRoot);
+  const shipped = componentSheets('', () => ({ base: '' }), repoRoot);
+  const barrel = shipped.find((one) => one.to === 'css/components.css')!.content;
+  const imported = [...barrel.matchAll(/@import '\.\/components\/([^']+)';/g)].map((one) => shipped.find((sheet) => sheet.to === `css/components/${one[1]}`)!.content);
+  assert.ok(imported.length > 0, 'the barrel imports component sheets');
+  const compiled = (css: string) => [...(/^\s*@theme\b/m.test(css) ? ['theme'] : []), ...(/^\s*@utility\b/m.test(css) ? ['utilities'] : [])];
   const sources: Record<string, string[]> = {
     '`css/base.css`': [readFileSync(join(repoRoot, consume, 'Preflight.generated.css'), 'utf8')],
-    '`css/components.css`': [SHEET_BANNERS.components],
+    '`css/components.css`': imported,
     '`css/components/<name>.css`': dir(`${consume}/components`),
     '`css/hues/<name>.css`': dir(`${consume}/hues`),
     '`css/vocabulary/`': readdirSync(join(repoRoot, consume, 'vocabulary')).filter((name) => name.endsWith('.css'))
@@ -850,6 +855,7 @@ test('the sheet table names each sheet\'s layer', () => {
     const sheet = line.split(' | ')[0]!.slice(2);
     const cell = line.split(/(?<!\\)\|/)[2] ?? '';
     const named = [...cell.matchAll(/`([\w-]+)`/g)].map((one) => one[1]!).concat(/unlayered/.test(cell) ? ['unlayered'] : []);
-    assert.deepEqual([...new Set(named)].sort(), layersOf(sources[sheet]!), `${sheet} names the layers its sheets open`);
+    const expected = sheet === '`css/tailwind-theme.css`' ? compiled(sources[sheet]![0]!).sort() : layersOf(sources[sheet]!);
+    assert.deepEqual([...new Set(named)].sort(), expected, `${sheet} names the layers its sheets open`);
   }
 });
