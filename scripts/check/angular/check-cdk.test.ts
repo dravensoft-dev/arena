@@ -1,4 +1,5 @@
-/* A bridge that stops importing the prebuilt sheet, or starts declaring a rule, fails here. The published copy is held to the installed CDK byte for byte. */
+/* A bridge that stops importing the prebuilt sheet, or starts declaring a rule, fails here. The
+ * published copy is held to the installed CDK byte for byte. */
 
 import test from 'node:test';
 import assert from 'node:assert/strict';

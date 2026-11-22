@@ -1,4 +1,7 @@
-/* The CDK overlay bridge fails silently three ways: a sheet it stops importing, an import that resolves to nothing, and a published copy that drifts from the installed CDK. Every pane the pinned CDK opens sits in the top layer, where no z-index reaches, so a rule in the bridge orders nothing. What the gate cannot check is how a pane paints. */
+/* The CDK overlay bridge fails silently three ways: a sheet it stops importing, an import that resolves
+ * to nothing, and a published copy that drifts from the installed CDK. Every pane the pinned CDK opens
+ * sits in the top layer, where no z-index reaches, so a rule in the bridge orders nothing. What the gate
+ * cannot check is how a pane paints. */
 
 import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
@@ -44,11 +47,11 @@ export function checkBridge(bridgeCss: string, resolveSheet: (sheet: string) => 
   if (selectors.length)
     errs.push(`${BRIDGE} declares ${selectors.join(', ')}, and every pane the pinned @angular/cdk opens sits in the top layer, where a rule of the bridge orders nothing`);
   if (imported.size === 0)
-    errs.push(`${BRIDGE} imports no stylesheet, and the CDK overlay needs its prebuilt structural CSS in scope, and without it every overlay renders unpositioned`);
+    errs.push(`${BRIDGE} imports no stylesheet, so every CDK overlay renders unpositioned`);
 
   for (const sheet of [...imported].sort())
     if (!resolveSheet(sheet))
-      errs.push(`@import '${sheet}' resolves to no file under node_modules, and the import is silently dropped and every overlay renders unpositioned`);
+      errs.push(`@import '${sheet}' resolves to no file under node_modules, so the import is dropped and every overlay renders unpositioned`);
 
   return errs;
 }
@@ -59,7 +62,7 @@ export function publishedBridgeProblems(published: string, bridgeSource: string,
   const bare = [...stripped.matchAll(/@import\s+(?:url\(\s*)?['"]([^'"]+)['"]/g)].map((m) => captured(m)).filter((spec) => !/^\.{1,2}\//.test(spec));
   if (bare.length) errs.push(`${PUBLISHED} has an @import of ${bare.map((b) => `'${b}'`).join(', ')} — a bare specifier needs the resolver to know the CDK's style condition, and esbuild without it cannot`);
   if (published !== inlineCdkPrebuilt(bridgeSource, prebuilt, version))
-    errs.push(`${PUBLISHED} is not the bridge with the installed @angular/cdk ${version} overlay-prebuilt.css inlined in place of its import, byte for byte — the overlay renders unpositioned, with rules the installed CDK no longer has, or with a rule ahead of the CDK's own`);
+    errs.push(`${PUBLISHED} is not the bridge with the installed @angular/cdk ${version} overlay-prebuilt.css inlined in place of its import, byte for byte. The overlay renders unpositioned, with rules the installed CDK no longer has, or with a rule ahead of the CDK's own`);
   return errs;
 }
 
