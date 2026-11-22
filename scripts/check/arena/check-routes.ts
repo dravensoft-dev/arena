@@ -310,7 +310,7 @@ export const ROUTES: Route[] = [
     who: 'a builder who owns a toggle of their own and draws every state of it: the router, then the markup tree index and the pages for states, edges, depth and motion, and space and layout',
     entry: 'consumer',
     stops: ['skills/design/references/tokens/markup/index.md', 'skills/design/references/tokens/markup/states.md', 'skills/design/references/tokens/markup/edges.md', 'skills/design/references/tokens/markup/depth-and-motion.md', 'skills/design/references/tokens/markup/space-and-layout.md'],
-    budget: 22_616,
+    budget: 22_753,
     reason:
       'paid once per control a builder draws without a component. The route buys the states a'
       + ' control wears, hover and the pressed lift and scale, with the motion and the space of'
@@ -325,7 +325,7 @@ export const ROUTES: Route[] = [
       + 'to its selector and roles. The page ends with an own checkbox and switch example, a '
       + 'stylesheet that arena audit passes. The switch track in that example draws no edge of '
       + 'its own. The page also names the layer the classes sit in, and the fill and ink they '
-      + 'paint.',
+      + 'paint. The page says that a fill of your own beats the hover and selected wash.',
   },
   {
     name: 'consumer-layer',
