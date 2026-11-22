@@ -21,7 +21,7 @@ Arena's stylesheet is served by `https://arena.dravensoft.org` and Phosphor's tw
   <style>
     body { margin: 0; background: var(--fill-page); color: var(--ink-body); font-family: var(--font-body); }
     main { max-width: var(--measure-prose); margin: 0 auto; padding: var(--sp-10) var(--sp-6); }
-    h1 { font-family: var(--font-display); font-weight: var(--fw-black); font-size: var(--fs-h2);
+    h1 { font-family: var(--font-display); font-weight: var(--fw-black); font-size: var(--step-title-section);
          color: var(--ink-heading); letter-spacing: var(--ls-tight); margin: 0 0 var(--sp-4); }
     p { color: color-mix(in oklab, var(--ink-muted) var(--level-ink-muted), transparent);
         line-height: var(--lh-body); }
