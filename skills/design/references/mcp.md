@@ -1,6 +1,6 @@
 # Serving Arena to your editor over MCP
 
-How do I install `@dravensoft/arena-mcp`? How do I configure it in my editor? What do `--layer` and `--payload` do? Which tools and `arena://` resources does it serve? What does `arena_check` read? What does it do when its version and my installed package differ? Read this when your editor speaks MCP.
+How do I install `@dravensoft/arena-mcp`? How do I configure it in my editor? What do `--layer` and `--payload` do? Which tools and `arena://` resources does it serve? What does `arena_check` read? What does each tool return, and what happens when a call fails? What does it do when its version and my installed package differ? Read this when your editor speaks MCP.
 
 Arena over the Model Context Protocol serves the router, the references and every component document of Arena to an agent in your editor. The server offers them as MCP resources and as tools.
 
@@ -56,15 +56,23 @@ not installed anywhere.
 
 ## Which tools does the server offer?
 
-| Tool | What it answers |
-|---|---|
-| `arena_start` | What is installed, and the one document to read before writing a screen. Call it first |
-| `arena_list` | Every Arena document, as addressable URIs |
-| `arena_find` | Which documents answer a question, by words in their name and their opening. Takes `query` |
-| `arena_read` | One document by its URI, for a client that calls tools and does not read resources. Takes `uri`, as `arena_list` gives it |
-| `arena_check` | The code you just wrote, against the rules of the language, before you save it. Takes `source`, and an optional `path` whose extension decides whether the text is read as a stylesheet or as markup |
+| Tool | What it answers | Returns |
+|---|---|---|
+| `arena_start` | What is installed, and the one document to read before writing a screen. Call it first | One text block: the start note, with the version, the layer, the component count and the router to read first |
+| `arena_list` | Every Arena document, as addressable URIs | One text block: the list of URIs |
+| `arena_find` | Which documents answer a question, by words in their name and their opening. Takes `query` | One text block: the matching URIs, each with its title, or a line saying nothing matches |
+| `arena_read` | One document by its URI, for a client that calls tools and does not read resources. Takes `uri`, as `arena_list` gives it | One text block: the document |
+| `arena_check` | The code you just wrote, against the rules of the language, before you save it. Takes `source`, and an optional `path` whose extension decides whether the text is read as a stylesheet or as markup | One text block: one line per finding, or a line saying it found none |
 
 `arena_find` matches the words of a name and an opening, and leaves the rows of a role table out. Read `arena://reference/tokens/components` for a role a component reads, such as `fill-control`.
+
+## What does the server do when something fails?
+
+`arena_read` answers `isError: true` with a message when the URI is not one the payload carries. `arena_read` answers the same way when the payload names a file and lacks it. `arena_list` names every URI the payload carries.
+
+A bad argument prints the usage to stderr and the server exits 2. A payload that resolves to nothing exits 2, and so does one that carries no manifest. `--help` prints the usage and exits 0.
+
+The server reads only the payload it carries or is given, and never the network, so the server answers the same offline.
 
 ## Which arena:// resources does the server offer?
 
