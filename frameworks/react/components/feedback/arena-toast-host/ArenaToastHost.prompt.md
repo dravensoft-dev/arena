@@ -46,7 +46,7 @@ under it.
 - **Do** leave the notices in the order they were raised. The stack is a plain column, so what is read is what is seen. Reversing the array to put the newest on top puts it last in the reading order.
 - **Don't** wrap a `<ArenaToast>` in a `<div>` inside it. The gap is a flex gap between the notices
   themselves, and a wrapper takes the flex-item role away from the notice.
-- **Don't** put anything but notices in it. The host is one positioned box with a z-index above every overlay in the system. Anything else parked there covers the whole app.
+- **Don't** put anything but notices in it. The host is one positioned box at the top of the `--z-*` stack, above every overlay drawn in the page. Anything else parked there covers the whole app.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

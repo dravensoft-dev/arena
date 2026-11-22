@@ -44,11 +44,11 @@ export function checkBridge(bridgeCss: string, resolveSheet: (sheet: string) => 
   if (selectors.length)
     errs.push(`${BRIDGE} declares ${selectors.join(', ')}, and every pane the pinned @angular/cdk opens sits in the top layer, where a rule of the bridge orders nothing`);
   if (imported.size === 0)
-    errs.push(`${BRIDGE} imports no stylesheet — the CDK overlay needs its prebuilt structural CSS in scope, and without it every overlay renders unpositioned`);
+    errs.push(`${BRIDGE} imports no stylesheet, and the CDK overlay needs its prebuilt structural CSS in scope, and without it every overlay renders unpositioned`);
 
   for (const sheet of [...imported].sort())
     if (!resolveSheet(sheet))
-      errs.push(`@import '${sheet}' resolves to no file under node_modules — the import is silently dropped and every overlay renders unpositioned`);
+      errs.push(`@import '${sheet}' resolves to no file under node_modules, and the import is silently dropped and every overlay renders unpositioned`);
 
   return errs;
 }
