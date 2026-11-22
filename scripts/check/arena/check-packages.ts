@@ -1,13 +1,11 @@
-/* Five claims. First, that the CLI shipped inside both packages emits what Style Dictionary
- * emits: a second emitter exists, so something has to hold the two together. Second, that each
- * package is registry-standard: the version comes from plugin.json, every exports target resolves,
- * the entry declaration is advertised at the root, and no peer leaked into dependencies. Third,
- * that the stylesheets resolve and each is named in its layer's stylesheet and install references.
- * Fourth, that the component map reaches every sheet both ways. Fifth is the one the ASSEMBLED CSS
- * is the only honest subject for: supports-blocks.ts states each half of it, and a block nested
- * in a pseudo-element rule is one more. dist/ is
- * git-ignored, so an unassembled tree stops the gate through cannotRun, and --layer=<name> judges
- * and requires that one package, as a publish job that assembles only its own does. */
+/* Five claims. First, that the CLI shipped inside both packages emits what Style Dictionary emits: a second
+ * emitter exists, so something has to hold the two together. Second, that each package is registry-standard:
+ * the version comes from plugin.json, every exports target resolves, the entry declaration is advertised at
+ * the root, and no peer leaked into dependencies. Third, that the stylesheets resolve and each is named in
+ * its layer's stylesheet and install references. Fourth, that the component map reaches every sheet both
+ * ways. Fifth is the one the ASSEMBLED CSS is the only honest subject for: the three refusals
+ * supports-blocks.ts states. dist/ is git-ignored, so an unassembled tree stops the gate through cannotRun,
+ * and --layer=<name> judges and requires that one package, as a publish job that assembles only its own does. */
 
 import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
