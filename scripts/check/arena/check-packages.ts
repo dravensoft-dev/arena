@@ -1,10 +1,10 @@
 /* Five claims. First, that the CLI shipped inside both packages emits what Style Dictionary emits: a second
  * emitter exists, so something has to hold the two together. Second, that each package is registry-standard:
  * the version comes from plugin.json, every exports target resolves, the entry declaration is advertised at
- * the root, and no peer leaked into dependencies. Third, that the stylesheets resolve and each is named in
- * its layer's stylesheet and install references. Fourth, that the component map reaches every sheet both
- * ways. Fifth is the one the ASSEMBLED CSS is the only honest subject for: the three refusals
- * supports-blocks.ts states. dist/ is git-ignored, so an unassembled tree stops the gate through cannotRun,
+ * the root, and no peer leaked into dependencies. Third, that the stylesheets resolve, each is named in its
+ * layer's stylesheet and install references, and none carries the banner telling a contributor what to
+ * edit. Fourth, that the component map reaches every sheet both ways. Fifth is the one the ASSEMBLED CSS is
+ * the only honest subject for: the three refusals supports-blocks.ts states. dist/ is git-ignored, so an unassembled tree stops the gate through cannotRun,
  * and --layer=<name> judges and requires that one package, as a publish job that assembles only its own does. */
 
 import { readFileSync, existsSync, readdirSync } from 'node:fs';
@@ -32,6 +32,7 @@ import { SECONDARY_ENTRY_POINTS, RUNTIME_DEPENDENCIES as ANGULAR_RUNTIME_DEPENDE
 import { THEME_SOURCES, tailwindThemeSheet, topLevelBlocks } from '../../lib/tailwind/theme-sheet.ts';
 import { compileEntry } from '../../lib/tailwind/tailwind-compile.ts';
 import { REFERENCES, referenceText } from '../../lib/arena/consumer-references.ts';
+import { BUILD_BANNER } from '../../lib/arena/package-assembly.ts';
 
 export const CSS_HOMES = ['stylesheets.md', 'install.md'];
 
@@ -423,6 +424,13 @@ export function directiveProblems(pkg: { layer: string; name: string }, dir: str
   return problems;
 }
 
+export function bannerProblems(pkg: { layer: string; name: string }, dir: string) {
+  return shippedSheets(dir)
+    .filter((path) => new RegExp(BUILD_BANNER.source, 'm').test(readFileSync(path, 'utf8')))
+    .map((path) => `${pkg.name}: ${relPosix(dir, path)} carries a GENERATED banner, which names a file of this `
+      + 'repository and tells an adopter to edit it, in a package that ships neither the file nor the build that reads it');
+}
+
 export const THEME_SHEET = 'css/tailwind-theme.css';
 
 export function themeSheetProblems(pkg: { layer: string; name: string }, dir: string, expected: string) {
@@ -606,6 +614,7 @@ export function collect(base = root, dirOf = distDir, layers = LAYERS) {
     problems.push(...cssListProblems(pkg, dir, referenceText(base, CSS_HOMES, pkg.layer === 'angular' ? 'angular' : 'react')));
     problems.push(...bundledCssProblems(pkg, dir));
     problems.push(...directiveProblems(pkg, dir));
+    problems.push(...bannerProblems(pkg, dir));
     problems.push(...themeSheetProblems(pkg, dir, tailwindThemeSheet(base)));
     problems.push(...themeCompileProblems(pkg, dir));
     problems.push(...unlayeredTokenProblems(pkg, dir));
