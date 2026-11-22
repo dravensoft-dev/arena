@@ -58,11 +58,11 @@ not installed anywhere.
 
 | Tool | What it answers | Returns |
 |---|---|---|
-| `arena_start` | What is installed, and the one document to read before writing a screen. Call it first | One text block: the start note, with the version, the layer, the component count and the router to read first |
-| `arena_list` | Every Arena document, as addressable URIs | One text block: the list of URIs |
-| `arena_find` | Which documents answer a question, by words in their name and their opening. Takes `query` | One text block: the matching URIs, each with its title, or a line saying nothing matches |
+| `arena_start` | What is installed, and the one document to read before writing a screen. Call it first | One text block: the start note with the version, layer, component count and router to read first, and a note when the installed version differs |
+| `arena_list` | Every Arena document, as addressable URIs | One text block: each URI, with its title on the next line |
+| `arena_find` | Which documents answer a question, by words in their name and their opening. Takes `query` | One text block: each matching URI with its match count, then its title on the next line, or a line saying nothing matches |
 | `arena_read` | One document by its URI, for a client that calls tools and does not read resources. Takes `uri`, as `arena_list` gives it | One text block: the document |
-| `arena_check` | The code you just wrote, against the rules of the language, before you save it. Takes `source`, and an optional `path` whose extension decides whether the text is read as a stylesheet or as markup | One text block: one line per finding, or a line saying it found none |
+| `arena_check` | The code you just wrote, against the rules of the language, before you save it. Takes `source`, and an optional `path` whose extension decides whether the text is read as a stylesheet or as markup | One text block: `N finding(s):` and one line per finding, or `No finding.`, and the scope note last either way |
 
 `arena_find` matches the words of a name and an opening, and leaves the rows of a role table out. Read `arena://reference/tokens/components` for a role a component reads, such as `fill-control`.
 
