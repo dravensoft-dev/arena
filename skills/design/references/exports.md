@@ -191,6 +191,8 @@ function Lightbox({ open, label, onClose, children }: { open: boolean; label: st
 
 Tab wraps inside the panel and Escape calls `onDismiss`. Focus goes back to the invoker when `open` turns false. Unmounting the component that calls the hook while open returns focus too, if focus was inside the panel or nowhere and the invoker is still on the page. Unmounting reports nothing to `onDismiss`, so close the overlay through `open`. [`media-register.md`](./media-register.md) says what the overlay itself draws.
 
+**Two overlays of your own, one inside the other.** Escape closes the innermost one only, because the hook skips an Escape that another panel already handled. Tab stays in the panel that holds focus. Arena writes no `inert` and locks no scroll for an overlay of yours, so mark the page behind `inert` and hold its scroll yourself if you want either. Give the inner overlay a `--z-*` step above the layer it covers, such as `--z-modal-nested` over a layer at `--z-modal`. [`motion-and-layers.md`](./tokens/scales/motion-and-layers.md) lists the steps.
+
 ## What does the Angular package export besides components?
 
 Every component is standalone, so import the ones a template uses. **A parent does not bring its children with it.** A table needs `ArenaTableRow` and `ArenaTableCell` in the same `imports` array. So does every other family whose parts are separate elements. Everything else that reaches the package root is in this table.
@@ -314,7 +316,12 @@ export class Lightbox {
 
   protected onKeydown(event: KeyboardEvent) {
     if (!this.open()) return;
-    if (event.key === 'Escape') { event.preventDefault(); this.close.emit(); return; }
+    if (event.key === 'Escape') {
+      if (event.defaultPrevented) return;
+      event.preventDefault();
+      this.close.emit();
+      return;
+    }
     const panel = this.panel()?.nativeElement;
     if (event.key === 'Tab' && panel) arenaTrapTabKey(panel, event, this.doc.activeElement);
   }
@@ -322,6 +329,8 @@ export class Lightbox {
 ```
 
 The transition focuses the first focusable element on open, or the panel itself when there is none, and gives focus back to the invoker on close. The teardown returns focus too when the host removes the overlay while open, if focus was inside the panel or nowhere and the invoker is still on the page. Escape is yours to wire, as above. [`media-register.md`](./media-register.md) says what the overlay itself draws.
+
+**Two overlays of your own, one inside the other.** Escape closes the innermost one only, because the handler above returns when the event was already handled. Tab stays in the panel that holds focus. Arena writes no `inert` and locks no scroll for an overlay of yours, so mark the page behind `inert` and hold its scroll yourself if you want either. Give the inner overlay a `--z-*` step above the layer it covers, such as `--z-modal-nested` over a layer at `--z-modal`. [`motion-and-layers.md`](./tokens/scales/motion-and-layers.md) lists the steps.
 
 ## Is there a roving-focus helper?
 
