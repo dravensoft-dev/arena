@@ -65,7 +65,7 @@ it instead of waiting for it.
   React project carries its own through whatever its framework offers.
 - **No prerender tooling and no sitemap.** How an application is assembled is the project's
   answer rather than Arena's, and both layers are written for a server render.
-  [`cold-start.md`](./cold-start.md)'s ninth node answers each architecture with the evidence
+  [`cold-start.md`](./cold-start.md)'s tenth node answers each architecture with the evidence
   behind it. What Arena ships no tooling for is producing the pages or listing them, and it
   writes into the head of whatever page your application renders.
 - **Nothing reads your application running.** `arena audit` reads your source files one at a time, for what a source text can show. A class of your own on a component, a raw value where a token belongs and an emoji are among them. What no tool reads is the rendered view, the screen your files compose together, and every rule about meaning. Those hold because you hold them.
