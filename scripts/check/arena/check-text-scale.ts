@@ -487,8 +487,8 @@ export type WrappedBox = { path: string; part: string; height: number; content: 
 
 export function wrappedProblems(boxes: WrappedBox[]): string[] {
   return boxes.flatMap((one) => {
-    if ('missing' in one) {
-      return [`${one.path}: the ${WRAPPED_SINK} sink draws no part ${one.part}, so this row measured nothing and is stale`];
+    if ('missing' in one || one.height === 0) {
+      return [`${one.path}: the ${WRAPPED_SINK} sink draws no box for part ${one.part}, so this row measured nothing and is stale`];
     }
     if (one.content <= one.height + 1) return [];
     return [`${one.path}: the box is ${one.height}px tall and its content is ${one.content}px at a ${COLUMN_PX}px column, `

@@ -215,12 +215,13 @@ test('a spill present at both sizes is reported once it grows past twice its 16p
     { overX: 10, overY: 0 });
 });
 
-test('a control box shorter than its content fails, and a part the sink does not draw is stale', () => {
+test('a control box shorter than its content fails, and a part the sink does not draw or paints with no box is stale', () => {
   const rows: [row: string, box: WrappedBox, mentions: string[]][] = [
     ['a box as tall as its content', { path: 'react/default:button', part: 'button', height: 48, content: 48 }, []],
     ['a content one pixel taller is within tolerance', { path: 'react/default:button', part: 'button', height: 48, content: 49 }, []],
     ['a box shorter than its content', { path: 'react/default:button', part: 'button', height: 32, content: 77 }, ['button', '32', '77']],
     ['a part the sink does not draw', { path: 'angular/default:sheet.close', part: 'sheet.close', missing: true }, ['sheet.close']],
+    ['a part present and not drawn', { path: 'angular/default:sheet.close', part: 'sheet.close', height: 0, content: 0 }, ['sheet.close', 'stale']],
   ];
   for (const [row, one, mentions] of rows) {
     const problems = wrappedProblems([one]);
