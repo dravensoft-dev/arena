@@ -272,7 +272,7 @@ export const ROUTES: Route[] = [
       + 'column it sits in and how much air goes between two components',
     entry: 'consumer',
     stops: ['skills/design/references/page.md', 'skills/design/references/style.md'],
-    budget: 21_484,
+    budget: 21_489,
     reason:
       'paid per element a builder draws themselves. The route buys the half of a '
       + 'page no component draws. The half is the floor and where each layer puts it, the viewport '

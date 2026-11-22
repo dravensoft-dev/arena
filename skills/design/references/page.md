@@ -50,7 +50,7 @@ The page canvas follows the palette of the root element alone, whether that is `
 
 ## Which colour your own markup takes
 
-**The role your own markup takes is answered on [`tokens/markup/index.md`](./tokens/markup/index.md).** The markup index names a page for each task: [surfaces and text](./tokens/markup/surfaces-and-text.md), [edges](./tokens/markup/edges.md) and [states](./tokens/markup/states.md).
+**The role your own markup takes is answered on [`tokens/markup/index.md`](./tokens/markup/index.md).** The markup index names one page per task, such as [surfaces and text](./tokens/markup/surfaces-and-text.md), [edges](./tokens/markup/edges.md) and [states](./tokens/markup/states.md).
 
 **Markup of yours written with Tailwind v4 reads the same tokens.** Import the package's
 `css/tailwind-theme.css` right after `tailwindcss`, and `bg-base-100` or `p-4` on your own
