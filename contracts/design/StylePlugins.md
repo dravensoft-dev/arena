@@ -40,9 +40,8 @@ set, a keyword token whose word the role refuses, and a chain that leads back to
 question belongs to the kernel and the answer never does.**
 
 A role is born with `audience`, `task`, a `question` and, for a dimension, `userScale`, and
-`scripts/check/core/check-role-contract.ts` refuses one that lacks them. Pick `audience` by who reads it:
-`component` when only a family file, a manifest or an `--arena-*` channel references the role, `markup`
-when an adopter's own markup may. Pick `task` by what the role draws, one of the eight words listed under
+`scripts/check/core/check-role-contract.ts` refuses one that lacks them. Pick `audience` by the part the role answers:
+`markup` when it answers a part your markup also draws, `component` when it answers a part only Arena's components draw. Pick `task` by what the role draws, one of the eight words listed under
 `Role metadata` in [`TokenTypes.md`](./TokenTypes.md). Pick `userScale` by what the role answers: `scales`
 when it grows with the reader's text setting, as a font size does (the font size steps are the example),
 `follows` when it is a multiplier of a size that scales and so needs no transform of its own, `fixed` when

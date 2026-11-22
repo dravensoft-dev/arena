@@ -150,8 +150,8 @@ reads.
 - `values`: the closed set of words a `keyword` role takes.
 - `cssUnit`: the render hint of a `number` that becomes a CSS length, as `ls` takes `em`.
 - `audience`: `markup` when an adopter may read the role in their own markup, and `component` when only a
-  component reads it. A role referenced only from `frameworks/tailwind/vocabulary/*/*.family.json`, a manifest
-  or an `--arena-*` channel is `component`; every other role is `markup`. Required on every role. The
+  component reads it. A role is `markup` when it answers a part your markup also draws. A role is `component` when it
+  answers a part only Arena's components draw. Required on every role. The
   compatibility promise is derived from this key and never stored beside it.
 - `task`: the one task the role is documented under, from `surfaces-and-text`, `edges`, `space-and-layout`,
   `type`, `depth-and-motion`, `states`, `meaning-and-identity` and `component-size`. Required on every role.
