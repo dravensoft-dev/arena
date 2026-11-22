@@ -31,7 +31,8 @@ const DOORS: Door[] = [
     ownerHeadings: ['Density'],
   },
   { question: 'How do I make Arena look like my own product?', owner: `${REF}style-kernel.md`, pointers: [`${REF}color-slots/index.md`] },
-  { question: 'What changes the look, and what colours a group?', owner: `${REF}color-slots/index.md`, pointers: [`${REF}style-kernel.md`] },
+  { question: 'What changes the look?', owner: `${REF}style-kernel.md`, pointers: [`${REF}color-slots/index.md`] },
+  { question: 'What colours a group of components?', owner: `${REF}color-slots/index.md`, pointers: [`${REF}style-kernel.md`] },
 ];
 
 const rows = () => {
