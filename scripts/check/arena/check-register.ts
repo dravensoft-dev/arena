@@ -215,9 +215,19 @@ export function descriptionsIn(value: unknown, path = ''): { member: string; tex
       : descriptionsIn(one, path ? `${path}.${key}` : key));
 }
 
+export const WHETHER_SENTENCE = /(?<=[.!?]\s+)(Whether\b[^.!?]*)[.!?]/g;
+export const COPULA = /\b(?:is|are|was|were)\b/;
+
+export function whetherFragments(text: string) {
+  return [...text.matchAll(WHETHER_SENTENCE)]
+    .filter((hit) => !COPULA.test(hit[1] ?? '')).map((hit) => hit[1] ?? '');
+}
+
 export function descriptionProblems(rel: string, member: string, text: string) {
-  return sentenceProblems(`${rel}:${member}`, text)
-    .map((one) => one.replace(/^([^ ]*?):\d+: /, '$1: '));
+  const fragment = whetherFragments(text).map((one) => `${rel}:${member}: "${one}" opens a later `
+    + 'sentence on Whether and has no verb of its own, so it is a fragment. Say what the member does');
+  return [...sentenceProblems(`${rel}:${member}`, text)
+    .map((one) => one.replace(/^([^ ]*?):\d+: /, '$1: ')), ...fragment];
 }
 
 export function contractScan(base = root) {

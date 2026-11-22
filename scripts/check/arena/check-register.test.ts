@@ -1,6 +1,6 @@
 import test, { after } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
@@ -9,6 +9,7 @@ import {
   excusedBy, scoped, zeroScanProblems, staleSpecProblems, staleExemptProblems,
   NOT_YET_REWRITTEN, MAX_WORDS, MAX_CLAUSES,
 } from './check-register.ts';
+import { repoRoot } from '../../lib/arena/repo-root.ts';
 
 const long = `A sentence written to run past the limit this gate holds, carrying one claim and `
   + 'then a second one about something else entirely, and a third about a fourth thing nobody '
@@ -209,4 +210,23 @@ test('a role question is held to the register', () => {
   assert.deepEqual(roleQuestionScan(base), []);
   write();
   assert.match(roleQuestionScan(base)[0] ?? '', /no role question was read/);
+});
+
+test('a description opens on Whether or not at all', () => {
+  const rows = [
+    { name: 'Whether opens the first sentence', text: 'Whether the bar stays.', found: 0 },
+    { name: 'Whether opens a later sentence', text: "The side bar's colour. Whether the toast announces assertively.", found: 1 },
+    { name: 'a later sentence on Whether with its own verb', text: 'One step. Whether it is complete is not a field.', found: 0 },
+    { name: 'whether inside a sentence', text: 'Say whether the bar stays. Then close it.', found: 0 },
+  ];
+  for (const row of rows) {
+    const found = descriptionProblems('c.json', 'api.x', row.text).filter((one) => /Whether/.test(one));
+    assert.equal(found.length, row.found, row.name);
+  }
+  const toast = JSON.parse(readFileSync(join(repoRoot, 'contracts/api/components/ArenaToast.json'), 'utf8'));
+  const tone = descriptionsIn(toast).filter((one) => one.member === 'api.tone');
+  assert.equal(tone.length, 1, 'the live toast tone description');
+  assert.deepEqual(descriptionProblems('ArenaToast.json', 'api.tone', tone[0]?.text ?? '')
+    .filter((one) => /Whether/.test(one)), [], 'the live toast tone');
+  assert.deepEqual(contractScan().filter((one) => /Whether/.test(one)), [], 'the live contracts');
 });
