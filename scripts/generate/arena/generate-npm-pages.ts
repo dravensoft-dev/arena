@@ -478,7 +478,6 @@ function scaleRegion(groups: string[], base: string) {
   return [intro, '', '| custom property | value | Tailwind |', '| --- | --- | --- |', ...rows].join('\n');
 }
 
-
 const CONSUME_SHEETS = 'frameworks/tailwind/consume';
 const LAYER_BLOCK = /^\s*@layer\s+([\w-]+)\s*\{/m;
 const layerOf = (css: string) => LAYER_BLOCK.exec(css)?.[1] ?? 'unlayered';

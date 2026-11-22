@@ -8,7 +8,7 @@ A shadow role names the depth a surface casts, and a motion role names how long 
 
 **An entrance reads the deep pair or the floating pair.** A surface of yours that commands the screen arrives on `--dur-enter-deep` with `--ease-enter-deep`, and one floating over the page arrives on `--dur-enter-floating` with `--ease-enter-floating`. ArenaDialog reads the deep pair, and ArenaMenu and ArenaTooltip read the floating pair.
 
-**`--scrim-blur` is the blur drawn with `--scrim`, 6px.** A dialog blurs the page it dims, and a tour dims without it.
+**`--scrim-blur` is the blur drawn with `--scrim`.** A dialog blurs the page it dims, a tour dims without it, and `prefers-contrast: more` takes the blur to zero.
 
 **Reduced motion is one rule.** Under `prefers-reduced-motion: reduce`, an entrance keeps its fade and drops its travel. A loop that reports work slows to `--loop-reduced`, and a decorative loop stops.
 

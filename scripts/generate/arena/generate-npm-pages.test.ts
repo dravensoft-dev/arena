@@ -22,10 +22,11 @@ import { slotReports } from '../core/arena-cli/slot-contrast.ts';
 import { levelDefaults } from '../core/arena-cli/levels.ts';
 import { rolesFor } from '../core/arena-cli/theme-css.ts';
 import { tableCells, MAX_CELL_CHARS, CONTRIBUTOR_PATHS, BANNED_PUNCTUATION } from '../../check/arena/check-docs.ts';
-import { tokenCatalogue, CSS_CHAIN, ANGULAR_EXTRA } from '../../lib/arena/package-assembly.ts';
+import { tokenCatalogue, CSS_CHAIN, ANGULAR_EXTRA, SHEET_BANNERS, familyPartSheets } from '../../lib/arena/package-assembly.ts';
 import type { CssChainEntry } from '../../lib/arena/package-assembly.ts';
 import { NPM_PAGES } from '../../lib/arena/npm-questions.ts';
 import { readJson } from '../../utils/read-file.ts';
+import { tailwindThemeSheet } from '../../lib/tailwind/theme-sheet.ts';
 import { resolvePosix } from '../../lib/arena/agent-payload.ts';
 import { packageSheetName, sheetFamilies } from '../../lib/tailwind/vocabulary.ts';
 import { MAX_WORDS, plain, words } from '../../check/arena/check-register.ts';
@@ -825,24 +826,30 @@ test('the spacing table carries the rhythm steps', () => {
 
 test('the sheet table names each sheet\'s layer', () => {
   const dir = (path: string) => readdirSync(join(repoRoot, path), { recursive: true, withFileTypes: true })
-    .filter((one) => one.isFile() && one.name.endsWith('.css')).map((one) => join(one.parentPath, one.name));
-  const opens = (file: string) => /^\s*@layer\s+([\w-]+)\s*\{/m.exec(readFileSync(file, 'utf8'))?.[1] ?? 'unlayered';
-  const layersOf = (files: string[]) => [...new Set(files.map(opens))].sort();
+    .filter((one) => one.isFile() && one.name.endsWith('.css')).map((one) => readFileSync(join(one.parentPath, one.name), 'utf8'));
+  const opens = (css: string) => /^\s*@layer\s+([\w-]+)\s*\{/m.exec(css)?.[1] ?? 'unlayered';
+  const layersOf = (sheets: string[]) => [...new Set(sheets.map(opens))].sort();
   const consume = 'frameworks/tailwind/consume';
-  const rows = [
-    { sheet: '`css/base.css`', layers: layersOf([join(repoRoot, consume, 'Preflight.generated.css')]) },
-    { sheet: '`css/components/<name>.css`', layers: layersOf(dir(`${consume}/components`)) },
-    { sheet: '`css/hues/<name>.css`', layers: layersOf(dir(`${consume}/hues`)) },
-    { sheet: '`css/vocabulary/`', layers: layersOf(readdirSync(join(repoRoot, consume, 'vocabulary')).filter((name) => name.endsWith('.css')).map((name) => join(repoRoot, consume, 'vocabulary', name))) },
-    { sheet: '`css/components.css`', layers: ['unlayered'] },
-  ];
-  const table = renderRegion('sheets').split('\n').filter((line) => line.startsWith('| `css/'));
-  assert.ok(renderRegion('sheets').includes('| stylesheet | layer | what it is |'), 'the table has a layer column');
-  for (const row of rows) {
-    const line = table.find((one) => one.startsWith(`| ${row.sheet} |`)) ?? '';
-    assert.ok(line !== '', `${row.sheet} is a row`);
+  const parts = familyPartSheets(repoRoot);
+  const sources: Record<string, string[]> = {
+    '`css/base.css`': [readFileSync(join(repoRoot, consume, 'Preflight.generated.css'), 'utf8')],
+    '`css/components.css`': [SHEET_BANNERS.components],
+    '`css/components/<name>.css`': dir(`${consume}/components`),
+    '`css/hues/<name>.css`': dir(`${consume}/hues`),
+    '`css/vocabulary/`': readdirSync(join(repoRoot, consume, 'vocabulary')).filter((name) => name.endsWith('.css'))
+      .map((name) => readFileSync(join(repoRoot, consume, 'vocabulary', name), 'utf8')),
+    '`css/tailwind-theme.css`': [tailwindThemeSheet(repoRoot)],
+  };
+  for (const family of new Set(parts.map((one) => one.family)))
+    sources[`\`${packageSheetName(family).replace(/\.css$/, '/')}\``] = parts.filter((one) => one.family === family).map((one) => one.content);
+  const region = renderRegion('sheets');
+  assert.ok(region.includes('| stylesheet | layer | what it is |'), 'the table has a layer column');
+  const table = region.split('\n').filter((line) => line.startsWith('| `css/'));
+  assert.deepEqual(table.map((line) => line.split(' | ')[0]!.slice(2)).sort(), Object.keys(sources).sort(), 'every sheet row has a source');
+  for (const line of table) {
+    const sheet = line.split(' | ')[0]!.slice(2);
     const cell = line.split(/(?<!\\)\|/)[2] ?? '';
     const named = [...cell.matchAll(/`([\w-]+)`/g)].map((one) => one[1]!).concat(/unlayered/.test(cell) ? ['unlayered'] : []);
-    assert.deepEqual([...new Set(named)].sort(), row.layers, `${row.sheet} names the layers its sheets open`);
+    assert.deepEqual([...new Set(named)].sort(), layersOf(sources[sheet]!), `${sheet} names the layers its sheets open`);
   }
 });
