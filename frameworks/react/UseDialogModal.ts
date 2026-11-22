@@ -120,7 +120,12 @@ export function useArenaDialogModal({ open, panelRef, onDismiss }: ArenaDialogMo
   }, [open]);
 
   return (event: React.KeyboardEvent) => {
-    if (event.key === 'Escape') { event.preventDefault(); if (onDismiss) onDismiss(); return; }
+    if (event.key === 'Escape') {
+      if (event.defaultPrevented) return;
+      event.preventDefault();
+      if (onDismiss) onDismiss();
+      return;
+    }
     if (event.key !== 'Tab') return;
     const panel = panelRef.current;
     if (panel) arenaTrapTabKey(panel, event, panel.ownerDocument.activeElement);
