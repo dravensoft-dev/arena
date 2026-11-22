@@ -104,6 +104,52 @@ export class Island {}
 
 Each layer stores a user's choice and, for a runtime palette, a copy of it. React's `setArenaTheme`, `toggleArenaTheme` and the setter `useArenaTheme` returns write the `arena-theme` key, and so do Angular's `set` and `toggle`. Neither `initArenaTheme` nor injecting the service writes it. Until a choice is stored the page follows the system. Remove the `arena-theme` key to follow the system again. In React call `initArenaTheme(themes)` after removing it, and in Angular the next load follows the system. Nothing listens for a change of the system setting while the page is open. The copy lives under `arena-runtime-palette`. A layer writes it when a runtime palette becomes the current one, by setting it or by registering the name that is already current. A layer removes it when a declared palette is chosen, and when the current runtime palette is removed. At start each layer registers the copy and makes it current. This happens when the stored `arena-theme` names a palette that is neither declared nor registered and the copy holds a valid palette of that name. The app calls `unregisterArenaPalette` in React or `unregister` in Angular when its own store no longer has that palette.
 
+## How do I follow the system setting while the page is open?
+
+The sentence above stands: nothing in Arena listens. A project that wants the page to follow the system listens itself, and re-applies only while `localStorage` holds no `arena-theme`, so a stored choice always wins.
+
+In React, call `initArenaTheme(themes)` again. With nothing stored it reads the system setting and applies the matching palette.
+
+```tsx
+import { initArenaTheme, type ArenaThemeConfig } from '@dravensoft/arena-react';
+
+const themes: ArenaThemeConfig = {
+  palettes: [
+    { name: 'dark', polarity: 'dark' },
+    { name: 'light', polarity: 'light' },
+  ],
+  default: 'dark',
+};
+
+initArenaTheme(themes);
+
+window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
+  if (localStorage.getItem('arena-theme') === null) initArenaTheme(themes);
+});
+```
+
+`ArenaThemeService` has no method that applies the system choice. In Angular, find the palette whose polarity matches and set the `theme` signal, which applies it and stores nothing. `set()` would store it as a choice.
+
+```ts
+import { Component, inject } from '@angular/core';
+import { ArenaThemeService } from '@dravensoft/arena-angular';
+
+@Component({ selector: 'app-root', template: `<router-outlet />` })
+export class App {
+  private readonly themes = inject(ArenaThemeService);
+
+  constructor() {
+    const query = window.matchMedia('(prefers-color-scheme: light)');
+    query.addEventListener('change', () => {
+      if (localStorage.getItem('arena-theme') !== null) return;
+      const polarity = query.matches ? 'light' : 'dark';
+      const match = this.themes.palettes.find((palette) => palette.polarity === polarity);
+      if (match) this.themes.theme.set(match.name);
+    });
+  }
+}
+```
+
 ## How do I avoid a flash on first paint?
 
 Apply the class before your stylesheet loads. In React put the script in the HTML document your bundler or server sends, in `<head>` before the stylesheet link. In Angular put it in `index.html`.
@@ -167,6 +213,16 @@ The default reaches `:root` and also has its class, `.arena-dark` in Arena's own
 ## Why does the snippet read the media query?
 
 On a first visit nothing is stored. The theme surface falls back to the first palette whose polarity matches the device. A snippet that reads only storage paints the default first. The app corrects it after boot, and that correction is the flash the snippet exists to prevent.
+
+## What does prefers-contrast change?
+
+Under `prefers-contrast: more`, `css/contrast.css` points three groups of roles at a different step of a scale Arena already carries, and defines no value of its own.
+
+- **Boundaries.** `--bw-surface`, `--bw-surface-head`, `--bw-control`, `--bw-field`, `--bw-separator` and `--bw-marker` all take `--bw-strong`.
+- **Transparency.** `--scrim-blur` takes `--sp-0`, so a scrim stops blurring the page behind it. The scrim's own colour is untouched.
+- **Focus.** `--focus-width` takes `--sp-1`, and `--bw-focus` follows it.
+
+A project that re-values `--bw` or `--bw-strong` gets its own two widths there. A root plugin of the project's own gets the same block after its answers, because `arena build` restates it in `arena.generated.css`. A nested plugin keeps it too.
 
 ## What is a runtime palette?
 
