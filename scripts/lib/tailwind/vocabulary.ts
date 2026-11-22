@@ -345,6 +345,8 @@ export function compileFamily(family: Family, manifests: Iterable<ComponentManif
       for (const one of [...named, ...written]) {
         const key = one.states.join(':');
         const chain = chains.get(key) ?? { states: one.states, writes: new Map<string, string>() };
+        if (chain.writes.has(one.property))
+          throw new Error(`vocabulary: ${option} writes ${one.property} twice${key ? ` under ${key}` : ''}, and one state chain writes a property once`);
         chain.writes.set(one.property, one.value);
         chains.set(key, chain);
       }

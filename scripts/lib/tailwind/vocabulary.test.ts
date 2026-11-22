@@ -404,3 +404,8 @@ test('a markup family writes a rule per state chain, the pointer under (hover: h
 }
 `);
 });
+
+test('a state chain writes a property once, and a second write is refused', () => {
+  const probe: Family = { family: 'probe', reach: 'box', target: 'markup', description: 'x', variants: { 'arena-probe': 'hover:[color:red] hover:[color:blue]' } };
+  assert.throws(() => compileFamily(probe, []), /arena-probe writes color twice under hover/);
+});
