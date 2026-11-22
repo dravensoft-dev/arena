@@ -6,6 +6,8 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'nod
 import { tmpdir } from 'node:os';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
+import { withDefaults } from '../../generate/core/arena-cli/style-plugin-rules.ts';
+import { defaultedNote } from '../../generate/core/arena-cli/theme-css.ts';
 
 const SHIPPED = readJson(join(repoRoot, ROLES)) as Record<string, any>;
 
@@ -406,4 +408,17 @@ test('the navigation edge and the hover mix are described by what they paint', (
   assert.equal(mix.$extensions['com.dravensoft.arena'].question, "How far toward its ink does a selected part's fill move under the pointer?");
   assert.match(mix.$description, /selected-hover/);
   assert.match(mix.$description, /unselected part under the pointer paints its rest answer/);
+});
+
+const ENTRANCE_ROLES = ['dur-enter-deep', 'ease-enter-deep', 'dur-enter-floating', 'ease-enter-floating'];
+
+test('a root plugin silent on the entrance roles builds and is told so', () => {
+  const entrance = Object.fromEntries(ENTRANCE_ROLES.map((name) => [name, SHIPPED[name]]));
+  assert.deepEqual(defaultProblems(entrance, emittedTypes()), []);
+  const roles = Object.fromEntries(ENTRANCE_ROLES.map((name) => [name,
+    { default: SHIPPED[name]?.$extensions?.['com.dravensoft.arena']?.default }]));
+  const { defaulted } = withDefaults({ tokens: {}, light: {} }, roles);
+  assert.deepEqual([...defaulted].sort(), [...ENTRANCE_ROLES].sort());
+  const note = defaultedNote(defaulted);
+  for (const name of ENTRANCE_ROLES) assert.match(note, new RegExp(name), `the note names ${name}`);
 });

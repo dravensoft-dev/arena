@@ -148,6 +148,10 @@
   --dur-state:220ms;
   --ease-hover:cubic-bezier(.2,.7,.3,1);
   --ease-state:cubic-bezier(.2,.7,.3,1);
+  --dur-enter-deep:220ms;
+  --ease-enter-deep:cubic-bezier(.2,.9,.1,1);
+  --dur-enter-floating:120ms;
+  --ease-enter-floating:cubic-bezier(.2,.7,.3,1);
   --press-scale:0.98;
   --hue-danger-ink:var(--color-error);
   --hue-danger-on-ink:var(--color-base-100);

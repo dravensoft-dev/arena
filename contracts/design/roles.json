@@ -1949,6 +1949,54 @@
       }
     }
   },
+  "dur-enter-deep": {
+    "$type": "duration",
+    "$description": "How long a surface that commands the screen takes to arrive. ArenaDialog reads it for its panel.\nA plugin answers it apart from dur-enter-floating, so a heavier dialog does not slow every menu.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "audience": "markup",
+        "task": "depth-and-motion",
+        "default": "{dur.mid}",
+        "question": "How long does a dialog, sheet or other surface that commands the screen take to arrive?"
+      }
+    }
+  },
+  "ease-enter-deep": {
+    "$type": "cubicBezier",
+    "$description": "The curve a surface that commands the screen follows as it arrives. ArenaDialog reads it for its panel.\nThe curve pairs with dur-enter-deep and moves apart from the floating pair.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "audience": "markup",
+        "task": "depth-and-motion",
+        "default": "{ease.emphatic}",
+        "question": "What easing curve does a surface that commands the screen follow as it arrives?"
+      }
+    }
+  },
+  "dur-enter-floating": {
+    "$type": "duration",
+    "$description": "How long a surface floating over the page takes to arrive. ArenaMenu and ArenaTooltip read it.\nA plugin answers it apart from dur-enter-deep, so a quicker menu leaves the dialog alone.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "audience": "markup",
+        "task": "depth-and-motion",
+        "default": "{dur.fast}",
+        "question": "How long does a menu, tooltip or other surface floating over the page take to arrive?"
+      }
+    }
+  },
+  "ease-enter-floating": {
+    "$type": "cubicBezier",
+    "$description": "The curve a surface floating over the page follows as it arrives. ArenaMenu and ArenaTooltip read it.\nThe curve pairs with dur-enter-floating and moves apart from the deep pair.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "audience": "markup",
+        "task": "depth-and-motion",
+        "default": "{ease.out}",
+        "question": "What easing curve does a surface floating over the page follow as it arrives?"
+      }
+    }
+  },
   "press-scale": {
     "$type": "number",
     "$description": "How far a control sinks under the pointer while it is held, and the other half of\nlift-control: that one says how far a control rises, this says how far it goes down. A style plugin that\ngives a control mass has a reason to answer both, which a scale shared by every use that wants that value could not carry.\n\nAuthored as a literal rather than as an alias, for the reason lift-control is: neither has a scale\nto alias, because nothing else in Arena travels under a pointer and nothing else compresses. Those\ntwo are the only numbers in this tier whose value is its own.\n\nUnitless on purpose: it is a transform scale, not a length, so it carries no dimension type and\ndoes not re-densify. Both layers press by the same amount, and one custom property holds that one design decision\nrather than a literal in each layer. NOT script-readable: nothing does arithmetic\non it, both layers reference the custom property directly, and the flag is only for a value JS must\nconsume to produce a position.",

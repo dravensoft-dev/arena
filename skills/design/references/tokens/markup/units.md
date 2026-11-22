@@ -10,6 +10,8 @@ Read this when your own markup sets a size, a breakpoint or a measurement in scr
 
 **The Tailwind breakpoints `sm:`, `md:` and `lg:` are in `em`.** Media queries answer in `em` against the browser default font size, and no sheet of yours moves them. The variant `md:` is `48em`, which is 768px at the browser default. A reader who raises the default text size meets the layout change at a wider window, since the same `em` is then more pixels.
 
+**A media query in a stylesheet of yours writes `em`.** Write `30em`, `48em` and `64em` for `sm`, `md` and `lg`, since a media query takes no `var()`.
+
 **In script, read a breakpoint with `arenaReadBreakpoint`.** React and Angular both export it. The function takes `sm`, `md` or `lg` and returns the width in pixels, resolved against the root font size at the moment of the call. Never call `parseFloat` on a token. The value `48rem` would read as 48. A project that re-declares `--bp-md` in `px` gets those pixels back.
 
 **A sheet that sets the root font size moves `rem` and leaves `em` alone.** Take a project whose own sheet says `html { font-size: 62.5% }`. Every `rem` token then follows that root, so `--bp-md` reads as 480px through `arenaReadBreakpoint`, and a font size in `rem` draws smaller. An `em` media query still follows the browser default, so `md:` still fires at 768px. Nothing throws, and the two readings differ by design: the script follows the root, the query follows the reader's browser. If you change the root, test the layout at both, and keep the sizes of text in `rem` so the root and the reader both reach them.

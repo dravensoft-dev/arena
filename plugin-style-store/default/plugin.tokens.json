@@ -761,6 +761,22 @@
     "$type": "cubicBezier",
     "$value": "{ease.out}"
   },
+  "dur-enter-deep": {
+    "$type": "duration",
+    "$value": "{dur.mid}"
+  },
+  "ease-enter-deep": {
+    "$type": "cubicBezier",
+    "$value": "{ease.emphatic}"
+  },
+  "dur-enter-floating": {
+    "$type": "duration",
+    "$value": "{dur.fast}"
+  },
+  "ease-enter-floating": {
+    "$type": "cubicBezier",
+    "$value": "{ease.out}"
+  },
   "press-scale": {
     "$type": "number",
     "$value": 0.98

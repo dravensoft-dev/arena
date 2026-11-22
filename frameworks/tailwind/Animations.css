@@ -4,9 +4,10 @@
    else and a manifest reaches them by name.
 
    A manifest holds class names and a keyframe is not one, so they are authored
-   here rather than smuggled into a bracket. Every value below is a var() into a
-   token, the durations included: they are the --loop-* family precisely because
-   a loop is not a transition, so nothing here restates a number stated elsewhere.
+   here rather than smuggled into a bracket. Every value below is a var() and states
+   no number: a loop reads the --loop-* family, because a loop is not a transition,
+   and an entrance reads the --dur-enter-* and --ease-enter-* roles, the deep pair for
+   ArenaDialog and the floating pair for ArenaMenu and ArenaTooltip.
 
    Reduced motion is answered per animation, on the terms the motion sets: the
    shimmer is decorative, so it stops outright; ArenaProgressBar's indeterminate
@@ -66,16 +67,16 @@
 }
 
 @utility arena-pop {
-  animation: arena-pop var(--dur-mid) var(--ease-emphatic);
+  animation: arena-pop var(--dur-enter-deep) var(--ease-enter-deep);
 }
 
 @utility arena-menu {
-  animation: arena-menu var(--dur-fast) var(--ease-out);
+  animation: arena-menu var(--dur-enter-floating) var(--ease-enter-floating);
 }
 
 /* Opacity only — no reduced-motion clause on purpose. */
 @utility arena-fade {
-  animation: arena-fade var(--dur-fast) var(--ease-out);
+  animation: arena-fade var(--dur-enter-floating) var(--ease-enter-floating);
 }
 
 /* The indeterminate sweep is a pseudo-element, so no utility and no inline style

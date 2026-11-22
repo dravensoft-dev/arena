@@ -17,8 +17,12 @@ Your markup and Arena's components both read the roles on this page. A role keep
 
 | role | question | type | user scale | default |
 | --- | --- | --- | --- | --- |
+| `--dur-enter-deep` | How long does a dialog, sheet or other surface that commands the screen take to arrive? | duration | none | `{dur.mid}` |
+| `--dur-enter-floating` | How long does a menu, tooltip or other surface floating over the page take to arrive? | duration | none | `{dur.fast}` |
 | `--dur-hover` | How long does a hover or press response take? | duration | none | none |
 | `--dur-state` | How long does a state change the user follows, such as a switch moving, take? | duration | none | none |
+| `--ease-enter-deep` | What easing curve does a surface that commands the screen follow as it arrives? | cubicBezier | none | `{ease.emphatic}` |
+| `--ease-enter-floating` | What easing curve does a surface floating over the page follow as it arrives? | cubicBezier | none | `{ease.out}` |
 | `--ease-hover` | What easing curve does a hover or press response follow? | cubicBezier | none | none |
 | `--ease-state` | What easing curve does a state change the user watches, such as a switch moving, use? | cubicBezier | none | none |
 | `--lift-control` | How far does a control rise under the pointer? | dimension | fixed | none |
