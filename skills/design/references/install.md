@@ -95,7 +95,7 @@ Every other toolchain has a recipe on its page of [the bundler index](./bundlers
 
 ## How do I import the stylesheets in React?
 
-Write `arena.config.json`, or run `arena init` to copy the example, before `arena build`: a build with no config exits 2 naming the file it cannot read. The command writes the package sheet, the theme sheet, the icon sprite with its module, and a plugin sheet when a style plugin of yours carries CSS. Import the generated files before your own rules, in your entry file. `arena.package.generated.css` comes first and `arena.generated.css` after it. Under `--no-import` the package sheet is not written, and the sheets you import by hand take its place, before `arena.generated.css`. The package declares its colour and type defaults in the `arena-defaults` layer, which every order statement names first. `arena.generated.css` is unlayered, so it beats them in whatever order a bundler or dev server emits the two.
+Write `arena.config.json`, or run `arena init` to copy the example, before `arena build`: a build with no config exits 2 naming the file it cannot read. The command writes the package sheet, the theme sheet, the icon sprite with its module, and a plugin sheet when a style plugin of yours carries CSS. Import the generated files before your own rules, in your entry file. `arena.package.generated.css` comes first and `arena.generated.css` after it. Under `--no-import` the package sheet is not written, and the sheets you import by hand take its place, before `arena.generated.css`. The package declares its colour, type, spacing, density, icon and component-size defaults in the `arena-defaults` layer, which every order statement names first. `arena.generated.css` is unlayered, so it beats them in whatever order a bundler or dev server emits the two.
 
 ```js
 import './arena.package.generated.css';
@@ -107,7 +107,7 @@ The import happens in JavaScript. A bundler resolves each specifier as a stylesh
 
 ## How do I import the stylesheets in Angular?
 
-Import the generated files from `src/styles.css`. Import the generated files before your own rules. `arena.package.generated.css` comes first and `arena.generated.css` after it. Under `--no-import` the package sheet is not written, and the sheets you import by hand take its place, before `arena.generated.css`. The package declares its colour and type defaults in the `arena-defaults` layer, which every order statement names first. `arena.generated.css` is unlayered, so it beats them in whatever order a bundler or dev server emits the two.
+Import the generated files from `src/styles.css`. Import the generated files before your own rules. `arena.package.generated.css` comes first and `arena.generated.css` after it. Under `--no-import` the package sheet is not written, and the sheets you import by hand take its place, before `arena.generated.css`. The package declares its colour, type, spacing, density, icon and component-size defaults in the `arena-defaults` layer, which every order statement names first. `arena.generated.css` is unlayered, so it beats them in whatever order a bundler or dev server emits the two.
 
 ```css
 @import './arena.package.generated.css';
