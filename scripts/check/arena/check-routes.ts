@@ -195,12 +195,12 @@ export const ROUTES: Route[] = [
       + 'against code already written. The page makes the metadata entry point reachable from the '
       + 'decision. Every default it surfaces is silent in the direction that costs: a route is born '
       + 'unindexed, and an application with no origin publishes no canonical. The page states which layer '
-      + 'supplies a head and that a framework picked to be found supplies its own, and points at the node '
+      + 'supplies a head and that a framework picked to be found supplies its own. The page points at the node '
       + 'carrying the server-rendering evidence, without choosing an architecture. The page tables what the '
       + 'Angular head entry point exports and says how each layer mounts a structured-data script. The '
       + 'page names each Open Graph tag Angular writes, and shows React a head and a JSON-LD script of its '
-      + 'own, because React ships no writer. The page names the breadcrumb serialiser beside the escape, gives the '
-      + 'page fields and the title the writer composes, and gives React 18 a hook that writes the title, '
+      + 'own, because React ships no writer. The page names the breadcrumb serialiser beside the escape and gives the '
+      + 'page fields and the title the writer composes. A React 18 reader gets a hook that writes the title, '
       + 'the robots default and the canonical.',
   },
   {
