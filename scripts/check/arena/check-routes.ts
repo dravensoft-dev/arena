@@ -126,21 +126,21 @@ export const ROUTES: Route[] = [
       'skills/design/references/config.md',
       'skills/design/references/cli.md',
     ],
-    budget: 52_800,
+    budget: 52_803,
     reason:
-      'paid once per project, not per screen, so it carries what the build route may not: the install, '
-      + 'the config file and the command. The config block is copied whole. The install reference gives '
-      + 'the evidence behind each package manager and the Tailwind v4 entry sheet, and how Vite and '
-      + 'the Angular builder serve the sprite. The command reference quotes whole the scripts `arena '
-      + 'init` writes, tables every audit tag (`missing-level`, `dead-utility` among them), names the sheets, the sprite and the cut '
-      + 'fonts the build writes, and lists the sheets a `--no-import` project imports under one rule for '
-      + 'every root, generated from the layer list `scopedImports` reads. It states the flat package '
-      + 'sheet, the per-layer icon module, which glyphs reach the filled weight and when an icon '
-      + 'expression widens that set or stills the glyph report. Its audit section covers the two rules '
-      + 'that read a plugin\'s names, its exit table a refused plugin answer, its contrast note which '
-      + 'plugins and states it measures. The config page tables every key, the names the '
-      + 'build refuses, the families it splits and the roles that carry a default. The install and command references name the '
-      + 'arena-defaults layer the defaults sit in.',
+      'paid once per project, not per screen, so it carries what the build route may not: the '
+      + 'install, the config file and the command. The install reference gives the evidence behind each '
+      + 'package manager and the Tailwind v4 entry sheet, and how Vite and the Angular builder serve '
+      + 'the sprite. The command reference quotes whole the scripts `arena init` writes, tables every '
+      + 'audit tag (`missing-level`, `dead-utility` among them), names the sheets, the sprite and the '
+      + 'cut fonts the build writes, and lists the sheets a `--no-import` project imports under one '
+      + 'rule for every root, generated from the layer list `scopedImports` reads. It states the flat '
+      + 'package sheet, the per-layer icon module, which glyphs reach the filled weight and when an '
+      + 'icon expression widens that set or stills the glyph report. Its audit section covers the two '
+      + 'rules that read a plugin\'s names, its exit table a refused plugin answer, its contrast note '
+      + 'which plugins and states it measures. The config page tables every key, the names the build '
+      + 'refuses, the families it splits and the roles that carry a default. The references name the '
+      + 'arena-defaults layer the defaults sit in, and the install one where the five panels open.',
   },
   {
     name: 'consumer-skin',
@@ -289,18 +289,30 @@ export const ROUTES: Route[] = [
     who: 'a builder painting a panel of their own markup: the router, then the markup tree index and the pages for surfaces and text, type, edges, space and layout, and depth and motion',
     entry: 'consumer',
     stops: ['skills/design/references/tokens/markup/index.md', 'skills/design/references/tokens/markup/surfaces-and-text.md', 'skills/design/references/tokens/markup/type.md', 'skills/design/references/tokens/markup/edges.md', 'skills/design/references/tokens/markup/space-and-layout.md', 'skills/design/references/tokens/markup/depth-and-motion.md'],
-    budget: 21_442,
+    budget: 21_458,
     reason:
-      'paid per panel a builder draws themselves. It buys the whole of what paints one: the ground and the ink on it, the title it carries and its size and weight, the edge and its radius, the air inside and around it, and the depth and motion it carries, each read at the page that owns it and not through the page, style and token references. On each leaf the route buys the question of every role, its utility and how it combines with the others, and the paragraph that composes them. The number is what the stops measure and moves when a page of the tree grows a decision, not a paragraph. The markup index, the first stop, carries one row more for the units page, which this panel route does not read. Its read-this line for the states page names the keyboard focus, the pressed toggle and the other states that page answers. The surfaces and text page carries the overlay-scrim role, the wash a modal lays over the page, which the leaf lists with its question like every other role, and the media wash at its level. It also states the missing-level rule, that `arena audit` reports a role read without its level. The space and layout page says where a half step lands.',
+      'paid per panel a builder draws themselves. The route buys the whole of what paints one: the '
+      + 'ground and its ink, the title with its size and weight, and the edge with its radius. The air '
+      + 'inside and around the panel and the depth and motion it carries are bought too. Each is read '
+      + 'at the page that owns it, not through the page, style and token references. On each leaf the '
+      + 'route buys the question of every role, its utility, how it combines and the paragraph that '
+      + 'composes them. The number is what the stops measure and moves when a page of the tree grows a '
+      + 'decision, not a paragraph. The markup index, the first stop, carries one row more for the '
+      + 'units page, which this panel route does not read. The states page names the keyboard focus and '
+      + 'the pressed toggle, and draws a switch track with no edge. The surfaces and text page carries '
+      + 'the overlay-scrim role, the wash a modal lays over the page, with its question like every '
+      + 'other role. The page also lists the media wash at its level and states the missing-level rule, '
+      + 'that `arena audit` reports a role read without its level. The space and layout page says where '
+      + 'a half step lands.',
   },
   {
     name: 'consumer-own-toggle',
     who: 'a builder who owns a toggle of their own and draws every state of it: the router, then the markup tree index and the pages for states, edges, depth and motion, and space and layout',
     entry: 'consumer',
     stops: ['skills/design/references/tokens/markup/index.md', 'skills/design/references/tokens/markup/states.md', 'skills/design/references/tokens/markup/edges.md', 'skills/design/references/tokens/markup/depth-and-motion.md', 'skills/design/references/tokens/markup/space-and-layout.md'],
-    budget: 21_971,
+    budget: 22_003,
     reason:
-      'paid once per control a builder draws without a component. The route buys the states a control wears, hover and the pressed lift and scale, with the motion and the space of each change. The outline a control draws is bought too, with its edge colour, width and radius, each role with its question, utility and combination. Focus, selected, disabled and invalid each have a role on the states page, so a control reads them there. Each is read from its own page, not the media register, page or kernel. The space and layout page says where a half step lands. The data files beside the pages are not stops, as the gate charges Markdown only. The states page carries thirteen roles with their utilities, among them the hover and pressed mixes. A table on the page maps each state attribute to its selector and roles. The page names which selected item takes which edge and the four classes that draw every state. The page ends with an own checkbox and switch example, a stylesheet that arena audit passes.',
+      'paid once per control a builder draws without a component. The route buys the states a control wears, hover and the pressed lift and scale, with the motion and the space of each change. The outline a control draws is bought too, with its edge colour, width and radius, each role with its question, utility and combination. Focus, selected, disabled and invalid each have a role on the states page, so a control reads them there. Each is read from its own page, not the media register, page or kernel. The space and layout page says where a half step lands. The data files beside the pages are not stops, as the gate charges Markdown only. The states page carries thirteen roles with their utilities, among them the hover and pressed mixes. A table on the page maps each state attribute to its selector and roles. The page names which selected item takes which edge and the four classes that draw every state. The page ends with an own checkbox and switch example, a stylesheet that arena audit passes. The switch track in that example draws no edge of its own.',
   },
   {
     name: 'consumer-layer',
@@ -309,7 +321,13 @@ export const ROUTES: Route[] = [
     stops: ['skills/design/references/tokens/markup/index.md', 'skills/design/references/tokens/markup/layers.md'],
     budget: 6_700,
     reason:
-      'paid per overlay, sticky bar or panel a builder places. It buys the order layers stack in and what each one rests on, in one page, without the token reference and the shell page, with the whole caveat of each step on the layers page: what it is for, what it sits above and below, and where a panel in the top layer stacks, with the five components whose panels open there. The number is what the two stops measure and moves when the layers page grows a rule. The markup index is half of this route, and its row for the units page is part of what the two stops measure.',
+      'paid per overlay, sticky bar or panel a builder places. The route buys the order layers stack  '
+      + 'in and what each one rests on, in one page. The token reference and the shell page stay out.  '
+      + 'The layers page gives the whole caveat of each step: what it is for and what it sits above and  '
+      + 'below. The page also says where a panel in the top layer stacks, with the five components  '
+      + 'whose panels open there. The number is what the two stops measure and moves when the layers  '
+      + 'page grows a rule. The markup index is half of this route, and its row for the units page is  '
+      + 'part of what the two stops measure.',
   },
   {
     name: 'consumer-coldstart',
