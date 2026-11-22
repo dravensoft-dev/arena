@@ -1,5 +1,5 @@
 /* Every overlay Arena draws takes Escape once: a key whose default something inside already prevented
- * closes nothing, a fresh one closes the overlay, and two dialogs nested in place close one at a time. */
+ * closes nothing and a fresh one closes the overlay. A calendar inside a dialog handles its own Escape and leaves the dialog open. */
 
 import { useTestEnvironment } from './TestbedEnv';
 useTestEnvironment();
