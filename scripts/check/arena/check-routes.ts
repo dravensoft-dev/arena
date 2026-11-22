@@ -301,7 +301,7 @@ export const ROUTES: Route[] = [
       + 'units page, which this route does not read. The states page draws a switch track with no edge. The surfaces and text page carries '
       + 'the overlay-scrim role, the wash a modal lays over the page, with its question like every '
       + 'other role. The page lists the media wash, states the missing-level rule and names the fill and ink of both actions. The space and layout page says where '
-      + 'a half step lands. The page sends placed air to the style page and names the rhythm tokens and the band, shell and prose classes. The edges page says the control border reaches a checkbox and a radio. The depth and motion page names four entrance roles.',
+      + 'a half step lands. The page sends placed air to the style page and names the rhythm tokens and the band, shell and prose classes. The edges page says the control border reaches a checkbox and a radio. The depth and motion page names four entrance roles and the scrim blur.',
   },
   {
     name: 'consumer-own-toggle',
@@ -316,12 +316,12 @@ export const ROUTES: Route[] = [
       + 'and radius, each with its question, utility and combination. A control reads '
       + 'focus, selected, disabled and invalid roles on the states page. The space and layout page says where a half step lands. '
       + 'The page sends placed air to the style page and names the rhythm tokens and the band, shell and prose classes. The edges page says the control border reaches '
-      + 'a checkbox and a radio. The data files beside the pages are not stops, as the gate '
-      + 'charges Markdown only. The states page carries nineteen roles and their utilities, '
+      + 'a checkbox and a radio. Data files beside the pages are not stops. '
+      + 'The states page carries nineteen roles and their utilities, '
       + 'among them the hover and pressed mixes and the checkbox and switch roles. A table maps each state attribute '
       + 'to its selector and roles. The page ends with an own checkbox and switch example that '
       + 'arena audit passes, the track drawing no edge. The page names the layer the classes sit in and the fill and ink they '
-      + 'paint, and says a fill of your own beats the hover and selected wash. The depth and motion page names four entrance roles.',
+      + 'paint, and says a fill of your own beats the hover and selected wash. The depth and motion page names four entrance roles and the scrim blur.',
   },
   {
     name: 'consumer-layer',
@@ -362,10 +362,10 @@ export const ROUTES: Route[] = [
       + 'tree, the catalogue\'s index and one entry, the last stop a glob, so the charge is '
       + 'the largest entry. The tree carries decisions that reach an install, not a '
       + 'screen: whether the product has to be found, what it is built on and what the code '
-      + 'around Arena imports. The last node derives the dependency list. A node asks the '
+      + 'around Arena imports. The last node derives the dependency list. A node asks '
       + 'project-wide decisions: colour slots, density, locale, palette switching and the page '
-      + 'skeleton. The index comes from a line per entry, grows a row per entry and '
-      + 'keeps the last stop at a single entry. The tree names where an entry and the identity template '
+      + 'skeleton. The index grows a row per entry, keeps the last stop at one entry '
+      + 'and says how a copied entry is adjusted. The tree names where an entry and the identity template '
       + 'are fetched without a clone and where the filled identity document is saved and served. '
       + 'An entry\'s config is a starting file whose stylePlugins replaces arena init\'s list. '
       + 'The architecture node points to the bundling section and bundler record. The '
