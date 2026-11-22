@@ -1,4 +1,4 @@
-Bars for comparing a value across categories. Dependency-free SVG: it reads `var(--color-cat-N)` directly, so it re-themes with the page for free. Hover gives a per-bar tooltip; the numbers are also exposed as a table for screen readers.
+Bars for comparing a value across categories. Dependency-free SVG: it reads the ramp properties `--color-cat-1` to `--color-cat-8` directly, so it re-themes with the page for free. Hover gives a per-bar tooltip; the numbers are also exposed as a table for screen readers.
 
 ```tsx
 {/* identity: the default, one color for the whole series */}

@@ -346,7 +346,7 @@ protected readonly ARENA_SR_ONLY = ARENA_SR_ONLY;
 
 ## How do I colour a legend or a chip of my own?
 
-`arenaCatColor(slot)` returns `var(--color-cat-n)` for a slot of the ramp, and a slot past the ramp takes the last one. `arenaCatSurface(slot)` returns `{ fill, border }`, the tinted surface and edge of that colour. `arenaToneColor(tone)` returns the colour of a status tone. All three read the `--color-cat-*` properties and the tone colours that `arena build` writes from your palette. Load the stylesheet that build produces. `arenaCatRotate(start, position)` returns the slot a chart assigns by position, counted from its `colorStart` and wrapping after the last slot. A legend of your own then matches a chart drawn with `colorStart`.
+`arenaCatColor(slot)` returns the `var()` of the ramp colour a slot names, such as `var(--color-cat-1)` for slot 1, and a slot past the ramp takes the last one. `arenaCatSurface(slot)` returns `{ fill, border }`, the tinted surface and edge of that colour. `arenaToneColor(tone)` returns the colour of a status tone. All three read the `--color-cat-*` properties and the tone colours that `arena build` writes from your palette. Load the stylesheet that build produces. `arenaCatRotate(start, position)` returns the slot a chart assigns by position, counted from its `colorStart` and wrapping after the last slot. A legend of your own then matches a chart drawn with `colorStart`.
 
 ```tsx
 // React

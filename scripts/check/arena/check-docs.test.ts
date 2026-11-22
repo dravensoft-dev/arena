@@ -18,6 +18,7 @@ import {
   blobLinkProblems, COMMENT_RULE_SKIPS, SOURCE_EXTENSIONS, MAX_CELL_CHARS, cellSizeProblems,
   hueProblems, CONSUMER_WORDING, consumerWordingProblems,
   testNameProblems, emptySuiteProblems, localeTagProblems, LOCALE_FIELD_TABLE,
+  unnamedPropertyProblems, unnamedPropertyScan,
 } from './check-docs.ts';
 import { readFileSync } from 'node:fs';
 import { ARENA_DEFAULT_LOCALE } from '../../../frameworks/react/LocaleDefaults.generated.ts';
@@ -898,4 +899,21 @@ test('a locale tag in prose is the default locale', () => {
   assert.deepEqual(localeTagProblems('contracts/design/AGENTS.md', live, tag), [], 'the live contracts page');
   const old = live.replace('English (en-GB)', 'English (en-US neutral)');
   assert.equal(localeTagProblems('contracts/design/AGENTS.md', old, tag).length, 1, 'the live page with the old tag');
+});
+
+test('every custom property the consumer branch reads is named on a tokens page', () => {
+  const named = new Set(['--sp-4', '--gold-soft']);
+  const read = (source: string) => [{ rel: 'skills/design/references/a.md', source }];
+  const rows = [
+    { name: 'a property no tokens page names', source: 'color: var(--gold-soft);', names: new Set<string>(), found: 1 },
+    { name: 'the same property a tokens page names', source: 'color: var(--gold-soft);', names: named, found: 0 },
+    { name: 'a fallback after the name', source: 'gap: var(--sp-4, 0);', names: named, found: 0 },
+    { name: 'a family property the vocabulary page names', source: 'gap: var(--arena-grid-gap);', names: new Set(['--arena-grid-gap']), found: 0 },
+    { name: 'a name that only starts like a named one', source: 'gap: var(--sp-40);', names: named, found: 1 },
+    { name: 'two reads of one unnamed property', source: 'var(--x-y) var(--x-y)', names: named, found: 1 },
+  ];
+  for (const row of rows) {
+    assert.equal(unnamedPropertyProblems(read(row.source), row.names).length, row.found, row.name);
+  }
+  assert.deepEqual(unnamedPropertyScan(repoRoot), [], 'the live consumer branch');
 });

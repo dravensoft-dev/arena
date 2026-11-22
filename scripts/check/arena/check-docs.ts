@@ -4,10 +4,10 @@
  * scripts and tests carry one header of at most HEADER_MAX_LINES and every other
  * hand-written source none, the branch boundary, which keeps a contributor path out of a
  * consumer's last stop and, through RULE_OWNERS, a rule off the branch that does not own it,
- * FOREIGN_CODE, which keeps another design system out of the examples a reader copies, and
- * the claim a consumer page makes about what SHIPS: how many components, and a GitHub address
- * for a link into this repository, the wording a consumer page may not carry, a test name free of
- * spec, plan and audit ids, and a suite with a test. SIZE_ALLOWANCE names the one outgrown document. */
+ * FOREIGN_CODE, which keeps another design system out of the examples a reader copies, the claim a consumer
+ * page makes about what SHIPS (its component count, a GitHub address for a link into this repository), the
+ * wording it may not carry, a test name free of spec, plan and audit ids, a suite with a test, a locale tag
+ * not the default and a custom property no tokens page names. SIZE_ALLOWANCE names the one outgrown document. */
 
 import { readFileSync, existsSync } from 'node:fs';
 import { join, basename } from 'node:path';
@@ -721,6 +721,28 @@ export function localeTagScan(root = ROOT, tag = ARENA_DEFAULT_LOCALE.locale) {
   return found;
 }
 
+export const PROPERTY_READ = /\bvar\(\s*(--[a-z0-9]+(?:-[a-z0-9]+)*)/g;
+export const PROPERTY_NAME = /--[a-z0-9]+(?:-[a-z0-9]+)*/g;
+export const PROPERTY_OWNERS = ['skills/design/references/tokens/', CONSUMER_VOCABULARY];
+
+export function unnamedPropertyProblems(sources: { rel: string; source: string }[], named: Set<string>) {
+  const found = new Map<string, string>();
+  for (const { rel, source } of sources) {
+    for (const hit of source.matchAll(PROPERTY_READ)) {
+      if (!named.has(hit[1]!) && !found.has(hit[1]!)) found.set(hit[1]!, rel);
+    }
+  }
+  return [...found].map(([name, rel]) =>
+    `${rel}: reads var(${name}), and no tokens page or the vocabulary page names it`);
+}
+
+export function unnamedPropertyScan(root = ROOT) {
+  const all = documents(root).map((path) => ({ rel: relPosix(root, path), source: readFileSync(path, 'utf8') }));
+  const named = new Set(all.filter(({ rel }) => PROPERTY_OWNERS.some((owner) => rel.startsWith(owner)))
+    .flatMap(({ source }) => source.match(PROPERTY_NAME) ?? []));
+  return unnamedPropertyProblems(all.filter(({ rel }) => isConsumerDocument(rel)), named);
+}
+
 function main() {
   const sizes = documentSizeProblems();
   const punctuation = punctuationProblems();
@@ -739,7 +761,7 @@ function main() {
     ...empty, ...branchSwitchProblems(), ...sizes.problems, ...cells.problems, ...punctuation.problems,
     ...comments.problems, ...branch.problems, ...ruleOwnerProblems(), ...foreign.problems,
     ...counts.problems, ...wording.problems, ...blobLinkProblems(), ...hueProblems(),
-    ...testNameProblems(), ...emptySuiteProblems(), ...localeTagScan(),
+    ...testNameProblems(), ...emptySuiteProblems(), ...localeTagScan(), ...unnamedPropertyScan(),
   ];
 
   if (problems.length > 0) {
