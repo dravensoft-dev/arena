@@ -1,12 +1,12 @@
-/* What Tailwind's `@supports` emit does to a compiled rule, and the three repairs it needs. An
- * opacity modifier compiles to the colour at full strength with the mix behind the at-rule, which
- * is progressive enhancement until the wash washes the INK'S OWN colour: then the fallback paints
- * the glyph in the ground it stands on. `dropBlindFallbacks` takes that half out, so the ink stays.
- * `mergeSupports` states a condition once per rule, because `bun build` keeps the FIRST block of a
- * repeated condition (Bun 1.4.0); it merges into the LAST of a group and refuses any move a plain
- * declaration of the same property would start losing to. `hoistPseudoSupports` writes a block
- * nested in a pseudo-element rule after that rule, because Bun's development server rewrites it
- * into a rule browsers drop. The block reader is a sibling of the shipped CLI, which cannot import here. */
+/* What Tailwind's `@supports` emit does to a compiled rule, and the three repairs it needs. An opacity
+ * modifier compiles to the colour at full strength with the mix behind the at-rule, which is progressive
+ * enhancement until the wash washes the INK'S OWN colour: then the fallback paints the glyph in the
+ * ground it stands on. `dropBlindFallbacks` takes that half out, so the ink stays. `mergeSupports`
+ * states a condition once per rule, because `bun build` keeps the FIRST block of a repeated condition
+ * (Bun 1.4.0). The pass merges into the LAST of a group and refuses any move a plain declaration of the
+ * same property would start losing to. `hoistPseudoSupports` writes a block nested in a pseudo-element
+ * rule after that rule, because Bun's development server rewrites it into a rule browsers drop. The
+ * block reader is a sibling of the shipped CLI, which cannot import here. */
 
 import type { CssBlock } from '../../generate/core/arena-cli/css-blocks.ts';
 import { COLOUR_VAR, MIXED_VAR, parseBlocks, selectorPath, inkOf } from '../../generate/core/arena-cli/css-blocks.ts';
