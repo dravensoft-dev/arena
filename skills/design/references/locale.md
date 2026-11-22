@@ -10,6 +10,14 @@ The calendar also formats its dates in the `locale` the value carries. The zone 
 
 A chart's numbers are not words. Those numbers follow the chart's own `valueFormat.locale`.
 
+## Which language does the document declare?
+
+Arena writes no `lang` attribute. Set `<html lang>` to the product's language as a BCP 47 tag, such as `es`. A screen reader, the browser's translation and its hyphenation read it.
+
+In React it goes in the HTML document the bundler or server sends, which is `index.html` under Vite. In Angular it goes in `index.html`.
+
+A product that switches language at runtime sets `document.documentElement.lang` beside the locale it passes. A part of the page in another language carries its own `lang`.
+
 ## In what order does a word resolve?
 
 A word resolves from the component's own member first, the one the last column of the table below names. Your locale comes next. The English default comes last.
