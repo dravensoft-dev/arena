@@ -1,9 +1,9 @@
-/* The MCP package against what it promises, in six claims. It declares the dependencies it
+/* The MCP package against what it promises, in seven claims. It declares the dependencies it
  * imports and no others, since a server that resolves at build and throws at spawn reads as a
  * broken configuration. Its bin resolves to a file that is there. It carries the corpus and one
  * vocabulary index per layer, since a package with the transport and no documents answers every
  * question with silence. Every path inside it resolves to something the package carries or the
- * site publishes. The catalogue reaches every component the tree declares. And server.json states
+ * site publishes. Every `arena://` URI a document of the corpus writes resolves in that layer's catalogue, since `arena_read` answers any other with an error. The catalogue reaches every component the tree declares. And server.json states
  * this tree's own name and version. dist/ is git-ignored, so an unassembled tree stops the gate
  * through cannotRun. */
 
@@ -24,7 +24,7 @@ import {
   catalogue, textOf, MARKDOWN_LINK, ADDRESSED, STYLE_PREFIX, STYLE_DIR,
   IDENTITY_PREFIX, IDENTITY_DIR, COMPONENT_PREFIX,
 } from '../../generate/core/arena-mcp/catalogue.ts';
-import { manifestIn, bundledPayload } from '../../generate/core/arena-mcp/payload.ts';
+import { manifestIn, bundledPayload, readIn } from '../../generate/core/arena-mcp/payload.ts';
 import { servedDocs, writtenPages } from '../../lib/arena/llms-index.ts';
 import { PAGE_FILE } from '../../lib/arena/kitchen-sink-page.ts';
 import { matchOutsideCode } from '../../generate/core/arena-mcp/code-spans.ts';
@@ -416,12 +416,66 @@ export function levelsProblems(dir: string, base = root) {
   return problems;
 }
 
+export const WRITTEN_URI = /arena:\/\/[A-Za-z0-9_./<>-]*/g;
+
+export function writtenUris(text: string) {
+  return [...text.matchAll(WRITTEN_URI)]
+    .map((one) => one[0].replace(/\.+$/, ''))
+    .filter((uri) => uri !== 'arena://');
+}
+
+export function uriResolves(uri: string, served: Set<string>) {
+  if (served.has(uri)) return true;
+  if (uri.endsWith('/')) return [...served].some((one) => one.startsWith(uri));
+  if (!uri.includes('<')) return false;
+  const pattern = new RegExp(`^${uri.split(/<[^>]*>/).map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('.+')}$`);
+  return [...served].some((one) => pattern.test(one));
+}
+
+export function writtenUriProblems(
+  layer: string, docs: { rel: string; text: string }[], served: Set<string>,
+) {
+  const problems: string[] = [];
+  let found = 0;
+  for (const doc of docs) {
+    for (const uri of writtenUris(doc.text)) {
+      found += 1;
+      if (uriResolves(uri, served)) continue;
+      problems.push(`${NAME}: ${layer}/${doc.rel} writes ${uri} and the ${layer} catalogue serves no such `
+        + 'address, so arena_read answers a reader who follows it with an error');
+    }
+  }
+  if (found === 0) {
+    problems.push(`${NAME}: no document of the ${layer} corpus writes an arena:// URI, so the claim that `
+      + 'each one resolves reads nothing and passes in vacuum');
+  }
+  return problems;
+}
+
+export function uriProblems(dir: string) {
+  const problems: string[] = [];
+  const counts: string[] = [];
+  for (const layer of BUILT_LAYERS) {
+    const payload = bundledPayload(layer, dir);
+    const manifest = payload === null ? null : manifestIn(payload);
+    if (payload === null || manifest === null) continue;
+    const { entries } = catalogue(payload, manifest);
+    const served = new Set(entries.map((one) => one.uri));
+    const rels = [...new Set(entries.filter((one) => one.mime === 'text/markdown').map((one) => one.rel))];
+    const docs = rels.map((rel) => ({ rel, text: readIn(payload, rel) ?? '' }));
+    problems.push(...writtenUriProblems(layer, docs, served));
+    counts.push(`${layer}: ${docs.length} documents and ${docs.flatMap((one) => writtenUris(one.text)).length} URIs`);
+  }
+  return { problems, counts };
+}
+
 export function collect(base = root, dir = assembled(base)) {
   return {
     problems: [
       ...dependencyProblems(base), ...registryProblems(base), ...binProblems(dir), ...flatProblems(dir),
       ...corpusProblems(dir), ...vocabularyProblems(dir), ...servedLinkProblems(dir),
       ...derivedSlotsProblems(dir, base), ...levelsProblems(dir, base), ...catalogueProblems(dir, base), ...styleStoreProblems(dir, base), ...identityProblems(dir, base),
+      ...uriProblems(dir).problems,
     ],
   };
 }
@@ -429,6 +483,7 @@ export function collect(base = root, dir = assembled(base)) {
 function main() {
   refuseUnassembled();
   const { problems } = collect();
+  const { counts } = uriProblems(assembled());
   if (problems.length > 0) {
     console.error(`check-mcp: ${problems.length} problem(s)\n`);
     for (const problem of problems) console.error(`  ${problem}`);
@@ -438,7 +493,7 @@ function main() {
     + `it imports and states ${REGISTRY_NAME} at the version ${PLUGIN_MANIFEST} hands out`
     + ', ships its bin, carries one corpus per layer whose every path resolves, serves '
     + 'every one of them with its links addressed as this server answers them, '
-    + 'and would serve every component the tree declares');
+    + `and would serve every component the tree declares, and every arena:// URI the corpus writes resolves (${counts.join('; ')})`);
 }
 
 if (isMainModule(import.meta.url)) main();

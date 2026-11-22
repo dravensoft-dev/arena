@@ -8,7 +8,7 @@ import {
   collect, unassembled, dependencyProblems, importedPackages, binProblems, corpusProblems,
   unresolvedTarget, targetsIn, registryProblems, SITE_BASE, REGISTRY_SCHEMA,
   REGISTRY_DESCRIPTION_LIMIT, flatProblems, ESCAPING_SPECIFIER, vocabularyProblems,
-  styleStoreProblems, identityProblems, derivedSlotsProblems, levelsProblems,
+  styleStoreProblems, identityProblems, derivedSlotsProblems, levelsProblems, writtenUriProblems,
 } from './check-mcp.ts';
 import { DERIVED_SLOTS, derivedSlotsText, levelIndexText } from '../../lib/arena/package-assembly.ts';
 import {
@@ -369,4 +369,27 @@ test('the identity directory the payload list names is the one the served catalo
 test('a pattern in a code span is not a target, and a link beside it is', () => {
   const span = '`' + String.raw`/node_modules[\\/](a|b)[\\/]/` + '`';
   assert.deepEqual(targetsIn(`${span} [x](./b.md)`), ['./b.md']);
+});
+
+test('a URI a served document writes resolves as arena_read would answer it', () => {
+  const served = new Set([
+    'arena://rules', 'arena://reference/tokens/components', 'arena://component/ArenaButton',
+    'arena://style/complete/plugin.css',
+  ]);
+  const ROWS: [string, string, number, RegExp | null][] = [
+    ['a URI in a code span', 'Read `arena://rules`.', 0, null],
+    ['a URI ending a sentence', 'Read arena://rules.', 0, null],
+    ['a trap below a served URI', '`arena://reference/tokens/components/index`', 1,
+      /doc\.md writes arena:\/\/reference\/tokens\/components\/index/],
+    ['a template one URI matches', '`arena://component/<Name>`', 0, null],
+    ['a template no URI matches', '`arena://widget/<Name>`', 1, /arena:\/\/widget\/<Name>/],
+    ['a directory a URI starts with', '`arena://style/complete/`', 0, null],
+    ['a directory no URI starts with', '`arena://style/missing/`', 1, /arena:\/\/style\/missing\//],
+    ['the bare scheme alone', 'Which arena:// resources', 1, /no document of the react corpus writes an arena:\/\/ URI/],
+  ];
+  for (const [name, text, count, naming] of ROWS) {
+    const found = writtenUriProblems('react', [{ rel: 'doc.md', text }], served);
+    assert.equal(found.length, count, `${name}: ${found.join(' | ')}`);
+    if (naming) assert.match(found.join('\n'), naming, name);
+  }
 });
