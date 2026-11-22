@@ -7,7 +7,7 @@ import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { execFileSync, spawnSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import { join } from 'node:path';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { LAYER_TOKENS, FORBIDDEN } from '../../check/arena/check-layer-independence.ts';
@@ -26,6 +26,7 @@ import { tokenCatalogue, CSS_CHAIN, ANGULAR_EXTRA } from '../../lib/arena/packag
 import type { CssChainEntry } from '../../lib/arena/package-assembly.ts';
 import { NPM_PAGES } from '../../lib/arena/npm-questions.ts';
 import { readJson } from '../../utils/read-file.ts';
+import { resolvePosix } from '../../lib/arena/agent-payload.ts';
 import { packageSheetName, sheetFamilies } from '../../lib/tailwind/vocabulary.ts';
 import { MAX_WORDS, plain, words } from '../../check/arena/check-register.ts';
 import { RULE_TAGS, RULE_DESCRIPTIONS } from '../core/arena-cli/audit.ts';
@@ -739,25 +740,65 @@ test('the split family sentence reads true for one family and for none', () => {
   assert.ok(!full.includes('read the colour slots'));
 });
 
-const BASELINE = execFileSync('git', ['show', '6cd96962:skills/design/references/color-slots.md'], { cwd: repoRoot, encoding: 'utf8' });
+type SlotGroupJson = { parts?: Record<string, { options?: string[] | Record<string, unknown> }> };
+
+const rowPrefixesOf = (group: SlotGroupJson) => Object.entries(group.parts ?? {}).flatMap(([part, one]) => {
+  const options = one.options === undefined ? [undefined] : Array.isArray(one.options) ? one.options : Object.keys(one.options);
+  return options.map((option) => (option === undefined ? `| \`${part}\` | ` : `| \`${part}\` | \`${option}\` | `));
+});
+
+const markdownLinks = (text: string) => [...text.replace(/```[\s\S]*?```/g, '').matchAll(/\]\(([^)\s]+)\)/g)].map((match) => match[1] ?? '');
+
+const SLOT_INDEX = `${SLOT_GROUP_DIR}/index.md`;
 
 test('every group page is linked from the slot page, and no link names a group anchor there', () => {
-  const groups = Object.keys((readJson(join(repoRoot, 'contracts/design/color-slots.json')) as { groups: Record<string, unknown> }).groups);
+  const declared = (readJson(join(repoRoot, 'contracts/design/color-slots.json')) as { groups: Record<string, SlotGroupJson> }).groups;
+  const groups = Object.keys(declared);
   assert.equal(groups.length, 13);
   const slotPage = readFileSync(join(repoRoot, SLOT_PAGE), 'utf8');
   for (const group of groups) {
     const page = readFileSync(join(repoRoot, SLOT_GROUP_DIR, `${group}.md`), 'utf8');
     assert.ok(page.startsWith('# '), `${group}: opens with a heading`);
     assert.match(page, /\nRead this /, `${group}: Read this sentence`);
-    const section = BASELINE.split(`### \`${group}\`\n`)[1]!.split(/\n### |\n<!-- @shared slotGroups end/)[0]!;
-    const rows = section.split('\n').filter((line) => line.startsWith('| '));
-    assert.ok(rows.length > 2, `${group}: baseline rows`);
-    for (const row of rows) assert.ok(page.includes(row), `${group}: ${row}`);
+    const prefixes = rowPrefixesOf(declared[group]!);
+    assert.ok(prefixes.length > 0, `${group}: declared rows`);
+    for (const prefix of prefixes) assert.ok(page.includes(`\n${prefix}`), `${group}: a row opens ${prefix}`);
     assert.ok(page.includes('](./index.md)'), `${group}: links back`);
     assert.ok(slotPage.includes(`](./${group}.md)`), `${group}: linked from the slot page`);
-    const hits = spawnSync('git', ['grep', '-l', `color-slots/index.md#${group}`, '--', ':!.superpowers', ':!docs'], { cwd: repoRoot, encoding: 'utf8' });
+    const hits = spawnSync('git', ['grep', '-l', `color-slots/index.md#${group}`, '--', ':!.superpowers', ':!docs', ':!scripts/generate/arena/generate-npm-pages.test.ts'], { cwd: repoRoot, encoding: 'utf8' });
     assert.equal(hits.stdout, '', `${group}: anchor links`);
   }
   assert.deepEqual(GROUP_PAGES, groups.map((group) => `${SLOT_GROUP_DIR}/${group}.md`));
   assert.equal(slotGroupPages().length, groups.length);
+});
+
+const WALKED = spawnSync('git', ['ls-files', '*.md', ':!:.superpowers', ':!:docs'], { cwd: repoRoot, encoding: 'utf8' }).stdout.split('\n').filter(Boolean);
+
+const groupFragmentLinks = (from: string, text: string, groups: string[]) => markdownLinks(text).filter((target) => {
+  const [path = '', fragment = ''] = target.split('#');
+  if (/^[a-z]+:/i.test(path)) return false;
+  const resolved = path === '' ? from : resolvePosix(from, path);
+  return resolved === SLOT_INDEX && groups.includes(fragment);
+});
+
+const ANCHOR_ROWS = [
+  { name: 'an absolute-from-root path with a group fragment', from: 'skills/design/SKILL.md', text: '[x](./references/color-slots/index.md#actions)', want: 1 },
+  { name: 'a relative anchor from a group page', from: `${SLOT_GROUP_DIR}/menus.md`, text: '[x](./index.md#actions)', want: 1 },
+  { name: 'a bare file name from the index', from: SLOT_INDEX, text: '[x](index.md#actions)', want: 1 },
+  { name: 'a bare fragment inside the index', from: SLOT_INDEX, text: '[x](#actions)', want: 1 },
+  { name: 'a link to the index with no fragment', from: 'skills/design/SKILL.md', text: '[x](./references/color-slots/index.md)', want: 0 },
+  { name: 'a link to the index with a heading that is no group', from: 'skills/design/SKILL.md', text: '[x](./references/color-slots/index.md#the-groups)', want: 0 },
+  { name: 'a link to a group page', from: `${SLOT_GROUP_DIR}/index.md`, text: '[x](./actions.md)', want: 0 },
+  { name: 'a site URL', from: 'skills/design/SKILL.md', text: '[x](https://example.org/color-slots/index.md#actions)', want: 0 },
+];
+
+test('a link to a group anchor of the slot index is found however it is written', () => {
+  for (const { name, from, text, want } of ANCHOR_ROWS) assert.equal(groupFragmentLinks(from, text, ['actions', 'menus']).length, want, name);
+});
+
+test('no Markdown link of the corpus resolves to the slot index with a group fragment', () => {
+  const groups = Object.keys((readJson(join(repoRoot, 'contracts/design/color-slots.json')) as { groups: Record<string, unknown> }).groups);
+  assert.ok(WALKED.includes(SLOT_INDEX), 'the walk reaches the slot index');
+  const found = WALKED.flatMap((from) => groupFragmentLinks(from, readFileSync(join(repoRoot, from), 'utf8'), groups).map((target) => `${from} -> ${target}`));
+  assert.deepEqual(found, [], 'a link to a group goes to its group page');
 });
