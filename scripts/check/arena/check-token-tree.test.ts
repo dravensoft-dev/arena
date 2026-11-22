@@ -99,6 +99,7 @@ const MARKUP_PAGE_ROWS = [
   { name: 'a component role on states.md', page: 'markup/states.md', line: 'The fill is --emphasis-solid-fill here.', refused: true },
   { name: 'a component role on edges.md', page: 'markup/edges.md', line: 'The fill is --emphasis-solid-fill here.', refused: true },
   { name: 'a control role on states.md', page: 'markup/states.md', line: 'The track is --fill-control-on here.', refused: false },
+  { name: 'a control role on edges.md, a page the role does not belong to', page: 'markup/edges.md', line: 'The track is --fill-control-on here.', refused: false },
   { name: 'an action role on surfaces-and-text.md', page: 'markup/surfaces-and-text.md', line: 'The fill is --emphasis-primary-fill here.', refused: false },
 ];
 
