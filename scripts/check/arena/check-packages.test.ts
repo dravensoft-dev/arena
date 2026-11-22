@@ -504,6 +504,16 @@ test('a shipped rule stating one condition twice is reported, because a bundler 
   rmSync(dir, { recursive: true });
 });
 
+test('a shipped pseudo-element rule nesting a condition is reported, because the Bun development server drops it', () => {
+  const dir = assembled({
+    'css/a.css': `.a {\n  &::placeholder {\n    color: red;\n    ${CONDITION} {\n      color: blue;\n    }\n  }\n}\n`,
+  });
+  const problems = bundledCssProblems(PKG, dir);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /::placeholder/);
+  rmSync(dir, { recursive: true });
+});
+
 test('a wash of a colour the ink is not, stated once, is what a clean package looks like', () => {
   const dir = assembled({
     'css/a.css': `.a {\n  background-color: var(--fill-surface-sunken);\n  color: var(--ink-muted);\n  ${CONDITION} {\n`

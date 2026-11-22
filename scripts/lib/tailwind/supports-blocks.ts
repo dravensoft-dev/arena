@@ -1,13 +1,12 @@
-/* What Tailwind's `@supports` emit does to a compiled rule, and the two repairs it needs. An
+/* What Tailwind's `@supports` emit does to a compiled rule, and the three repairs it needs. An
  * opacity modifier compiles to the colour at full strength with the mix behind the at-rule, which
  * is progressive enhancement until the wash washes the INK'S OWN colour: then the fallback paints
- * the glyph in the ground it stands on. `dropBlindFallbacks` takes that half out, so the background
- * is invalid at computed-value time and leaves the ink on the surface it was measured against.
+ * the glyph in the ground it stands on. `dropBlindFallbacks` takes that half out, so the ink stays.
  * `mergeSupports` states a condition once per rule, because `bun build` keeps the FIRST block of a
- * repeated condition and discards the rest (Bun 1.4.0). It merges into the LAST of a group, a block
- * wrapping one rule into the last block wrapping the same selector, and refuses any move a plain
- * declaration of the same property would start losing to. The block reader is a sibling of the
- * shipped CLI, which reads these sheets and cannot import here. */
+ * repeated condition (Bun 1.4.0); it merges into the LAST of a group and refuses any move a plain
+ * declaration of the same property would start losing to. `hoistPseudoSupports` writes a block
+ * nested in a pseudo-element rule after that rule, because Bun's development server rewrites it
+ * into a rule browsers drop. The block reader is a sibling of the shipped CLI, which cannot import here. */
 
 import type { CssBlock } from '../../generate/core/arena-cli/css-blocks.ts';
 import { COLOUR_VAR, MIXED_VAR, parseBlocks, selectorPath, inkOf } from '../../generate/core/arena-cli/css-blocks.ts';
@@ -115,4 +114,45 @@ export function repeatedSupports(css: string) {
   };
   walk(parseBlocks(css));
   return found;
+}
+
+export function pseudoSupports(css: string) {
+  const found: { selector: string; condition: string }[] = [];
+  const walk = (rule: CssBlock) => {
+    const pseudo = !rule.selector.startsWith('@') && rule.selector.includes('::');
+    for (const child of rule.children) {
+      if (pseudo && child.selector.startsWith('@supports')) found.push({ selector: rule.selector, condition: child.selector });
+      walk(child);
+    }
+  };
+  walk(parseBlocks(css));
+  return found;
+}
+
+export function hoistPseudoSupports(css: string) {
+  const edits: { from: number; to: number; text: string }[] = [];
+  const walk = (rule: CssBlock) => {
+    const pseudo = !rule.selector.startsWith('@') && rule.selector.includes('::');
+    const lineStart = css.lastIndexOf('\n', rule.head) + 1;
+    const indent = /^[ \t]*/.exec(css.slice(lineStart, rule.head))?.[0] ?? '';
+    let written = '';
+    for (const child of rule.children) {
+      if (pseudo && child.selector.startsWith('@supports') && child.children.length === 0 && child.decls.length > 0) {
+        const decls = child.decls.map((decl) => `\n${indent}    ${css.slice(decl.from, decl.to).trim()};`).join('');
+        written += `\n${indent}${child.selector.trim()} {\n${indent}  ${rule.selector.trim()} {${decls}\n${indent}  }\n${indent}}`;
+        const before = css.lastIndexOf('\n', child.head) + 1;
+        const from = /^[ \t]*$/.test(css.slice(before, child.head)) ? before : child.head;
+        const to = css[child.close + 1] === '\n' ? child.close + 2 : child.close + 1;
+        edits.push({ from, to, text: '' });
+      } else walk(child);
+    }
+    if (written) edits.push({ from: rule.close + 1, to: rule.close + 1, text: written });
+  };
+  walk(parseBlocks(css));
+
+  let out = css;
+  for (const edit of edits.sort((a, b) => b.from - a.from)) {
+    out = `${out.slice(0, edit.from)}${edit.text}${out.slice(edit.to)}`;
+  }
+  return out;
 }

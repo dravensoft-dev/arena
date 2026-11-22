@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  blindFallbacks, dropBlindFallbacks, inkOf, mergeSupports, parseBlocks, repeatedSupports,
+  blindFallbacks, dropBlindFallbacks, hoistPseudoSupports, inkOf, mergeSupports, parseBlocks, pseudoSupports, repeatedSupports,
 } from './supports-blocks.ts';
 
 const SUPPORTS = '@supports (color: color-mix(in lab, red, red))';
@@ -151,4 +151,35 @@ ${rule('color: color-mix(in oklab, var(--ink-muted) 64%, transparent);')}
 `;
   assert.equal(mergeSupports(held), held);
   assert.equal(repeatedSupports(held).length, 1);
+});
+
+const MIX = 'color-mix(in oklab, currentcolor 50%, transparent)';
+const PSEUDO_ROWS = [
+  {
+    name: 'the emitted form nests the block in `&::placeholder`',
+    css: `.arena-input__input {\n    &::placeholder {\n      color: A;\n      ${SUPPORTS} {\n        color: B;\n      }\n    }\n}\n`,
+    want: `.arena-input__input {\n    &::placeholder {\n      color: A;\n    }\n    ${SUPPORTS} {\n      &::placeholder {\n        color: B;\n      }\n    }\n}\n`,
+    found: 1,
+  },
+  {
+    name: 'the preflight form nests the block in `::placeholder` inside an outer condition',
+    css: `@supports (a: b) {\n  ::placeholder {\n    color: currentcolor;\n    ${SUPPORTS} {\n      color: ${MIX};\n    }\n  }\n}\n`,
+    want: `@supports (a: b) {\n  ::placeholder {\n    color: currentcolor;\n  }\n  ${SUPPORTS} {\n    ::placeholder {\n      color: ${MIX};\n    }\n  }\n}\n`,
+    found: 1,
+  },
+  {
+    name: 'a block inside a pseudo-class rule stays',
+    css: `.a {\n  &:focus {\n    color: A;\n    ${SUPPORTS} {\n      color: B;\n    }\n  }\n}\n`,
+    want: `.a {\n  &:focus {\n    color: A;\n    ${SUPPORTS} {\n      color: B;\n    }\n  }\n}\n`,
+    found: 0,
+  },
+];
+
+test('a block nested in a pseudo-element rule moves after the rule, and one in a pseudo-class rule stays', () => {
+  for (const row of PSEUDO_ROWS) {
+    const out = hoistPseudoSupports(row.css);
+    assert.equal(out, row.want, `${row.name}: the hoisted sheet`);
+    assert.equal(pseudoSupports(row.css).length, row.found, `${row.name}: survivors before`);
+    assert.equal(pseudoSupports(out).length, 0, `${row.name}: survivors after`);
+  }
 });

@@ -6,8 +6,8 @@
  * seven `arena-*` animation utilities are excluded by name, since `Animations.css` owns that
  * namespace. The specimen's is that a page links one sheet per manifest it fetches, a missing
  * link rendering that part unstyled with nothing opening the page to see it. The last two read
- * the `@supports` emit and supports-blocks.ts states what each is; a survivor of either reports a
- * sheet emitted before those transforms rather than a manifest to edit. */
+ * the `@supports` emit and supports-blocks.ts states what each is, a block nested in a pseudo-element
+ * rule included; a survivor reports a sheet emitted before those transforms, not a manifest to edit. */
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
@@ -19,7 +19,7 @@ import { COLOR_SLOTS, readColorSlots } from '../../lib/core/color-slots.ts';
 import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
 import { DEFAULTS_LAYER, LAYER_ORDER } from '../../lib/tailwind/component-sheets.ts';
 import { applyRules } from '../../lib/tailwind/component-css.ts';
-import { blindFallbacks, repeatedSupports } from '../../lib/tailwind/supports-blocks.ts';
+import { blindFallbacks, pseudoSupports, repeatedSupports } from '../../lib/tailwind/supports-blocks.ts';
 import { PREFLIGHT, PRELUDE, sheetPath } from '../../build/tailwind/build-tailwind.ts';
 import { CONSUME, MANIFESTS } from '../../build/tailwind/build-tailwind.ts';
 
@@ -162,6 +162,9 @@ export function sheetProblems(manifests: Manifests, base = root) {
         + 'is a solid block with nothing in it. A wash of its own colour has no full-strength '
         + 'fallback: drop it and let the background not paint');
     }
+    for (const nested of pseudoSupports(css)) {
+      problems.push(`${manifest.component}: ${nested.selector} nests ${nested.condition}. ${NESTED_REASON}`);
+    }
   }
   const sheets = join(base, CONSUME, 'vocabulary');
   if (existsSync(sheets)) {
@@ -215,13 +218,18 @@ export function defaultsProblems(base = root) {
   return problems;
 }
 
+const NESTED_REASON = "Bun's development server rewrites the nested block into a rule browsers drop, so the placeholder "
+  + 'paints the fallback; a survivor is a sheet emitted before hoistPseudoSupports';
+
 export function preflightProblems(base = root) {
   const path = join(base, PREFLIGHT);
   if (!existsSync(path)) {
     return [`${PREFLIGHT} was never emitted; without it a form control falls back to the browser's `
       + 'own size and every measurement over it is off'];
   }
-  return layerOrderProblems(PREFLIGHT, readFileSync(path, 'utf8'));
+  const css = readFileSync(path, 'utf8');
+  const nested = pseudoSupports(css).map((one) => `${PREFLIGHT}: ${one.selector} nests ${one.condition}. ${NESTED_REASON}`);
+  return [...layerOrderProblems(PREFLIGHT, css), ...nested];
 }
 
 export function preludeProblems(base = root) {

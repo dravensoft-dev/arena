@@ -9,6 +9,8 @@
  * `utilities` and holds nothing here: every compiled rule lands in `utilities` at one class of
  * specificity, so a style plugin declared earlier would need `!important` to reach anything. */
 
+import { hoistPseudoSupports } from './supports-blocks.ts';
+
 const LAYER_UTILITIES = '@layer utilities {';
 export const DEFAULTS_LAYER = 'arena-defaults';
 export const LAYER_ORDER = '@layer properties;\n@layer arena-defaults, theme, base, components, utilities, arena-plugin;\n';
@@ -122,5 +124,5 @@ export function preludeSheet(shared: string, keyframes: string) {
 }
 
 export function preflightSheet(base: string) {
-  return LAYER_ORDER + base.replace(/^@layer [^{};]*;\n/gm, '');
+  return LAYER_ORDER + hoistPseudoSupports(base.replace(/^@layer [^{};]*;\n/gm, ''));
 }
