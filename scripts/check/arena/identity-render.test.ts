@@ -51,7 +51,7 @@ function compared(panels: Panel[], what: string, pick: (p: Panel) => Pair[]): st
 const ROWS: { name: string; problems: (m: Measured) => string[] }[] = [
   { name: 'each polarity panel answers its own surface',
     problems: ({ panels }) => {
-      const want = (polarity: string) => panels.find((p) => p.polarity === polarity)?.surface?.want;
+      const want = (polarity: string) => panels.find((p) => p.polarity === polarity && p.surface)?.surface?.want;
       return [...compared(panels, 'surface specimen', (p) => p.surface ? [p.surface] : []),
         ...(want('dark') !== undefined && want('dark') === want('light') ? [`both panels answer ${want('dark')}`] : [])];
     } },
