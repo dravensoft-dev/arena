@@ -190,8 +190,13 @@ export function exitCodesOf(source: string) {
 }
 
 export function errorPathsOf(source: string) {
-  return [...source.matchAll(/\bisError: true/g)].length;
+  return [...source.matchAll(/\bisError: true,\s*content: \[\{[^}]*?text:\s*([`'"])([\s\S]*?)\1\s*\}/g)].map((one) => one[2] ?? '');
 }
+
+export const ERROR_CAUSES = [
+  { message: /is not a document this payload carries/, said: /not one the payload carries/, cause: 'a URI the payload does not carry' },
+  { message: /is not there/, said: /names a file and lacks it/, cause: 'a file the payload names and lacks' },
+];
 
 export function registryArgumentProblems(server: ServerJson, flags: string[]) {
   const declared = (server.packages?.[0]?.packageArguments ?? [])
@@ -204,11 +209,16 @@ export function registryArgumentProblems(server: ServerJson, flags: string[]) {
   ];
 }
 
-export function failureClaimProblems(page: string, codes: number[], errors: number) {
+export function failureClaimProblems(page: string, codes: number[], errors: string[]) {
   const problems = codes.filter((code) => !new RegExp(`\\bexits? ${code}\\b`).test(page)).map((code) =>
     `${MCP_PAGE} never says the server exits ${code}, and main returns it`);
-  if (errors > 0 && !page.includes('isError')) {
-    problems.push(`${MCP_PAGE} never names isError, and arena_read answers it on ${errors} paths`);
+  if (errors.length > 0 && !page.includes('isError')) {
+    problems.push(`${MCP_PAGE} never names isError, and arena_read answers it on ${errors.length} paths`);
+  }
+  for (const message of errors) {
+    const known = ERROR_CAUSES.find((one) => one.message.test(message));
+    if (known === undefined) problems.push(`arena_read answers isError with "${message}", a path no cause names, so ${MCP_PAGE} cannot say it`);
+    else if (!known.said.test(page)) problems.push(`${MCP_PAGE} never names the isError cause ${known.cause}`);
   }
   return problems;
 }

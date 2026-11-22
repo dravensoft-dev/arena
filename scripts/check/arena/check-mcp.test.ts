@@ -424,17 +424,20 @@ test('the MCP page names every exit code and error the server returns', () => {
   const codes = exitCodesOf(source);
   const errors = errorPathsOf(source);
   assert.deepEqual(codes, [0, 2], 'the reader finds exit 0 and exit 2 in main');
-  assert.equal(errors, 2, 'the reader finds both isError paths');
+  assert.equal(errors.length, 2, 'the reader finds both isError paths');
   const live = readFileSync(join(root, 'skills', 'design', 'references', 'mcp.md'), 'utf8');
-  const ROWS: [string, string, RegExp | null][] = [
-    ['the live page', live, null],
-    ['a page naming nothing', 'The server serves documents.\n', /exits 0.*exits 2.*isError/s],
-    ['a page naming exit 0, exit 2 and isError', '--help exits 0. A bad argument exits 2. `isError: true` marks a failed read.\n', null],
-    ['a page without exit 2', '--help exits 0. `isError: true` marks a failed read.\n', /exits 2/],
-    ['a page without isError', '--help exits 0. A bad argument exits 2.\n', /isError/],
+  const BOTH = '--help exits 0. A bad argument exits 2. `isError: true` marks a read of a URI that is not one the payload carries or when the payload names a file and lacks it.\n';
+  const ROWS: [string, string, string[], RegExp | null][] = [
+    ['the live page', live, errors, null],
+    ['a page naming nothing', 'The server serves documents.\n', errors, /exits 0.*exits 2.*isError/s],
+    ['a page naming both exits and both causes', BOTH, errors, null],
+    ['a page without exit 2', BOTH.replace('A bad argument exits 2. ', ''), errors, /exits 2/],
+    ['a page without isError', '--help exits 0. A bad argument exits 2.\n', errors, /isError/],
+    ['a page naming isError and one cause', BOTH.replace(' or when the payload names a file and lacks it', ''), errors, /a file the payload names and lacks/],
+    ['a third isError path the page does not name', BOTH, [...errors, '${uri} cannot be read'], /cannot be read/],
   ];
-  for (const [name, page, expected] of ROWS) {
-    const found = failureClaimProblems(page, codes, errors).join('\n');
+  for (const [name, page, paths, expected] of ROWS) {
+    const found = failureClaimProblems(page, codes, paths).join('\n');
     if (expected === null) assert.equal(found, '', `${name}: problems`);
     else assert.match(found, expected, `${name}: problems`);
   }
