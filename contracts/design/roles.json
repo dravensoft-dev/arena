@@ -1195,8 +1195,7 @@
         "task": "states",
         "question": "What colour fills the box of a checkbox, radio, switch or slider at rest?",
         "state": [
-          "aria-checked",
-          "checked"
+          "unchecked"
         ]
       }
     }
@@ -1240,8 +1239,7 @@
         "task": "states",
         "question": "What colour fills the knob of a switch that is off?",
         "state": [
-          "aria-checked",
-          "checked"
+          "unchecked"
         ]
       }
     }
@@ -1398,8 +1396,7 @@
         "task": "states",
         "question": "What colour is the glyph on the knob of a switch that is off?",
         "state": [
-          "aria-checked",
-          "checked"
+          "unchecked"
         ]
       }
     }

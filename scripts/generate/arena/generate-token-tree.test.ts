@@ -273,15 +273,17 @@ test('a fill role combines its level on its bg utility', () => {
 test('the states leaf maps every attribute to its selector and roles', () => {
   const body = real.get('markup/states.md')!;
   const rows = body.split('\n').filter((line) => /^\| `[a-z-]+` \| `/.test(line));
-  assert.equal(rows.length, 11);
+  assert.equal(rows.length, 12);
   assert.ok(body.includes('| attribute | selector | roles |'));
   const invalid = rows.find((line) => line.startsWith('| `aria-invalid` |'))!;
   assert.ok(invalid.includes('`--edge-invalid`') && invalid.includes('`--ink-invalid`'));
   assert.ok(rows.find((line) => line.startsWith('| `hover` |'))!.includes('`--fill-hover`, `--mix-hover`'));
   assert.ok(rows.find((line) => line.startsWith('| `active` |'))!.includes('`--mix-pressed`'));
-  const control = '`--emphasis-primary-ink`, `--fill-control`, `--fill-control-on`, `--fill-knob`, `--fill-knob-off`, `--ink-knob`, `--ink-knob-off` |';
+  const control = '`--emphasis-primary-ink`, `--fill-control-on`, `--fill-knob`, `--ink-knob` |';
+  const rest = '`--fill-control`, `--fill-knob-off`, `--ink-knob-off` |';
   assert.ok(rows.includes('| `aria-checked` | `[aria-checked="true"]` | ' + control));
   assert.ok(rows.includes('| `checked` | `:checked` | ' + control));
+  assert.ok(rows.includes('| `unchecked` | `[aria-checked="false"], :not(:checked)` | ' + rest));
   assert.ok(rows.find((line) => line.startsWith('| `aria-pressed` |'))!.includes('`[aria-pressed="true"]`'));
 });
 

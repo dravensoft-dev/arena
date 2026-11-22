@@ -315,6 +315,7 @@ test('STATE_SELECTORS is the closed set of states and the selector each one is',
     'aria-current': '[aria-current]:not([aria-current="false"])', 'aria-pressed': '[aria-pressed="true"]',
     'aria-disabled': '[aria-disabled="true"]', disabled: ':disabled', 'aria-invalid': '[aria-invalid="true"]',
     active: ':active', 'aria-checked': '[aria-checked="true"]', checked: ':checked',
+    unchecked: '[aria-checked="false"], :not(:checked)',
   });
 });
 
