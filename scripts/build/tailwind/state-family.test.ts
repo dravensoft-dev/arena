@@ -58,6 +58,7 @@ const LEFT_OUT: Record<string, Record<string, string>> = {
     scale: 'the press scale is motion a component carries',
     cursor: 'the pointer and not-allowed cursors belong to the element',
     'font-weight': 'a current navigation item weight is navigation',
+    '--arena-icon-ink': 'the icon ink is a channel a component hands its own glyph, and a glyph of yours takes the ink of its element',
   },
   '.arena-input__field': {
     'background-color': 'the field fill is its own',
@@ -66,7 +67,7 @@ const LEFT_OUT: Record<string, Record<string, string>> = {
 };
 
 const atomsOf = (text: string) => new Set(text.split(' ').filter(Boolean));
-const plain = (map: ReturnType<typeof stateDeclarations>) => new Map([...map].filter(([name]) => !name.startsWith('--')));
+const plain = (map: ReturnType<typeof stateDeclarations>) => new Map([...map].filter(([name]) => !name.startsWith('--tw-')));
 
 test('each state class compiles to the declarations the component draws for the same state', () => {
   const met = new Set<string>();
