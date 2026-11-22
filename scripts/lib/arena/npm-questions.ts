@@ -109,7 +109,7 @@ const layerSections = (layer: 'React' | 'Angular'): Section[] => {
         ...only([
           row('Which projection markers must I import?', 'references/exports.md', 'Which Angular projection markers must I import?'),
           row('What does the head entry point export?', 'references/seo.md', 'What does the Angular head entry point export?'),
-          row('Which sheet re-bases the CDK overlay?', 'references/stylesheets.md', 'Which sheet re-bases the Angular CDK overlay?'),
+          row('Which sheet carries the CDK overlay rules?', 'references/stylesheets.md', 'Which sheet carries the Angular CDK overlay rules?'),
           row('Does my project need a Tailwind source for Arena?', 'references/stylesheets.md', 'Does Angular need a Tailwind `@source` for Arena?'),
         ], !react),
         row(react ? 'Does the package write my head?' : 'Why is the head writer a separate entry point?', 'references/seo.md', 'Which layer writes the head, and why is it a separate entry point?'),

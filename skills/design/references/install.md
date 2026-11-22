@@ -117,7 +117,7 @@ Import the generated files from `src/styles.css`. Import the generated files bef
 
 The CDK overlay sheet comes with them: `arena.package.generated.css` carries the rules of `css/arena-cdk.css`, and `arena.css` imports it. That sheet carries the CDK overlay's rules as text.
 
-That sheet re-bases the CDK overlay onto Arena's `--z-*` scale. Without it a dialog's menu paints behind the dialog. Write the import yourself only under `--no-import`, which writes no package sheet. Import `arena.generated.css` as well, because it alone holds the colours: `arena.css` by itself paints with no colour.
+The five anchored panels open in the top layer above every `--z-*` step, as [`layers.md`](./tokens/markup/layers.md) says. Write the import yourself only under `--no-import`, which writes no package sheet. Import `arena.generated.css` as well, because it alone holds the colours: `arena.css` by itself paints with no colour.
 
 ## How do I combine the sheets with Tailwind v4?
 

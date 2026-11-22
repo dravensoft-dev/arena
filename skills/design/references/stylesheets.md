@@ -25,9 +25,9 @@ The stylesheets are a tree, and you pick your depth. `@dravensoft/arena-react/ar
 
 The two halves are the token layer and `css/components.css`. Importing them in place of `arena.css` makes the order yours. By hand it is the order `arena.css` itself uses. The token layer comes first as listed above, with `css/style-plugin-default.css` right after `css/effects.css` for the `"default"` root only. A project's own root puts no sheet there: its answers arrive in `arena.generated.css`, imported last, which restates the high-contrast widths after them. Then come `css/base.css`, `css/prelude.css`, the component sheets and the vocabulary sheets. The `@layer` order statement must come before any sheet that opens a layer, and `arena-defaults` is the first layer it names. `css/colors.css`, `css/typography.css`, `css/prelude.css`, `css/base.css`, each component sheet and `plugin.generated.css` lead with it, so only a sheet of yours that opens `@layer arena-plugin` above them loses. Arena's components have to come before your own rules if you want yours to win. The Angular order ends with the CDK sheet the next section names.
 
-## Which sheet re-bases the Angular CDK overlay?
+## Which sheet carries the Angular CDK overlay rules?
 
-`css/arena-cdk.css` ships in the Angular package. That sheet re-bases the CDK overlay onto Arena's layering, and it carries the CDK overlay's rules as text. The text holds the rules of the CDK version the package was built with, which a comment at the top of that text names. `arena.css` imports it, and so does a `stylesheet` block, which [`config.md`](./config.md) covers under Build to production.
+`css/arena-cdk.css` ships in the Angular package. The sheet carries the CDK overlay's rules as text. The text holds the rules of the CDK version the package was built with, which a comment at the top of that text names. `arena.css` imports it, and so does a `stylesheet` block, which [`config.md`](./config.md) covers under Build to production.
 
 ## Does Angular need a Tailwind `@source` for Arena?
 

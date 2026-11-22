@@ -665,7 +665,7 @@ test('a sheet only the other layer\'s section names does not count, and one nami
   const base = track(mkdtempSync(join(tmpdir(), 'refs-')));
   mkdirSync(join(base, 'skills/design/references'), { recursive: true });
   writeFileSync(join(base, 'skills/design/references/stylesheets.md'),
-    '| `css/base.css` | x |\n\n## Which sheet re-bases the Angular CDK overlay?\n\n`css/arena-cdk.css` ships here.\n');
+    '| `css/base.css` | x |\n\n## Which sheet carries the Angular CDK overlay rules?\n\n`css/arena-cdk.css` ships here.\n');
   const text = (layer: 'react' | 'angular') => referenceText(base, CSS_HOMES, layer);
   const pkg = { layer: 'react', name: '@x/react' };
   assert.deepEqual(cssListProblems(pkg, dir, text('react')), []);
