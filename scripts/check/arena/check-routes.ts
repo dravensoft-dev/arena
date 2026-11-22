@@ -135,7 +135,7 @@ export const ROUTES: Route[] = [
       + 'reference tables every audit tag (`missing-level`, `dead-utility`) and names the '
       + 'sheets, the sprite and the cut fonts the build writes. The command reference lists the sheets a '
       + '`--no-import` project imports under one rule for every root. The command reference states the flat package sheet, the per-layer icon '
-      + 'module, the glyphs that reach the filled weight. An icon expression widens that set or stills the glyph '
+      + 'module and the glyphs that reach the filled weight. An icon expression widens that set or stills the glyph '
       + 'report. The audit section covers the two rules that read a plugin\'s names, its exit table a '
       + 'refused plugin answer, its contrast note which plugins and states it measures. The config page '
       + 'tables every key, the names and keys it '
