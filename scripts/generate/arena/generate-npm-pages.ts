@@ -363,7 +363,6 @@ export const REGION_TARGETS: Record<string, string[]> = {
   motion: ['skills/design/references/tokens/scales/motion-and-layers.md'],
   density: ['skills/design/references/tokens/scales/density.md'],
   typography: ['skills/design/references/tokens/scales/type-scale.md'],
-  defaults: ['skills/design/references/style-kernel.md'],
   sheets: ['skills/design/references/stylesheets.md'],
   locale: ['skills/design/references/locale.md'],
   toast: ['skills/design/references/exports.md'],
@@ -694,8 +693,6 @@ What each part means:
 **A plugin carrying a \`plugin.css\` gets a third generated file**, \`plugin.generated.css\`, and
 you import it beside the other two. The sheet declares the cascade layer order itself and then opens the reserved layer. Where your bundler places it among your other stylesheets cannot change what wins.`;
   },
-
-  defaults: (base = root) => defaultsStatement(base),
 
   locale: (base = root) => {
     const contract = readJson(join(base, LOCALE_CONTRACT)) as {

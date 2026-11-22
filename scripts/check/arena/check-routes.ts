@@ -150,14 +150,14 @@ export const ROUTES: Route[] = [
       + 'document that says what the questions are and which answers carry the difference',
     entry: 'consumer',
     stops: ['skills/design/references/style-kernel.md'],
-    budget: 21_914,
+    budget: 20_729,
     reason:
       'paid once per project and never per screen, so it carries the whole surface the kernel '
       + 'exposes. A project stops learning the kernel from a normative contributor document. The page links '
       + 'the plugin branch for the scale each role draws from. The kernel names the answers a project may '
       + 'inherit and the ones it has to make, how the one scale exception is keyed, and the `light` group. The '
       + 'differentiation table is a measurement over the catalogue, so it grows by remeasuring. The root rule '
-      + 'says where a role\'s default is written, which roles carry one and that the root answers the rest. '
+      + 'says where a role\'s default is written, that the root answers the rest and which page lists the roles that carry one. '
       + 'A clone-less project is told where to fetch the default plugin. The setup checklist names each '
       + 'unanswered role and the sheet order. The page says what each kind of role may be answered with, '
       + 'names the selected edge of navigation and its default, and says a plugin\'s own percentage stays put. '

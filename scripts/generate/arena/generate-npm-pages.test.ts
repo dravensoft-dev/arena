@@ -43,7 +43,7 @@ after(() => {
   for (const dir of made) rmSync(dir, { recursive: true, force: true });
 });
 
-const SHARED = ['repository', 'skin', 'defaults', 'sheets', 'toast', 'layout', 'queues'];
+const SHARED = ['repository', 'skin', 'sheets', 'toast', 'layout', 'queues'];
 
 test('a region shared by several pages names no layer, because it is written into each at once', () => {
   const tokens = Object.entries(LAYER_TOKENS)
@@ -70,7 +70,7 @@ test('each target carries exactly the regions mapped to it', () => {
   assert.deepEqual(regionsOf(`${scales}/motion-and-layers.md`), ['motion']);
   assert.deepEqual(regionsOf(`${scales}/density.md`), ['density']);
   assert.deepEqual(regionsOf(`${scales}/type-scale.md`), ['typography']);
-  assert.deepEqual(regionsOf('skills/design/references/style-kernel.md'), ['defaults']);
+  assert.deepEqual(regionsOf('skills/design/references/style-kernel.md'), []);
   assert.deepEqual(regionsOf('skills/design/references/style.md'), ['layout']);
   assert.deepEqual(regionsOf('mcp/NPM.md'), ['questions']);
 });
@@ -236,8 +236,7 @@ test('the defaults statement leads with the fact and cites the roles the roles-w
   const mechanism = statement.indexOf('A minor release may add a role');
   assert.ok(mechanism > 0, 'the mechanism sentence is present');
   assert.ok(statement.indexOf(fact) + fact.length <= mechanism, 'the fact sentence ends before the mechanism sentence begins');
-  for (const target of ['skills/design/references/config.md', 'skills/design/references/style-kernel.md'])
-    assert.ok(readFileSync(join(repoRoot, target), 'utf8').includes(statement), `${target} carries the statement`);
+  assert.ok(readFileSync(join(repoRoot, 'skills/design/references/config.md'), 'utf8').includes(statement), 'config.md carries the statement');
 });
 
 test('the toast region writes the intervals the behaviour contract holds, and no number is typed by hand', () => {
