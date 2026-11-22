@@ -61,6 +61,9 @@ export type ArenaPalette = {
   colors?: Record<string, string>;
 };
 
+export const PALETTE_OBJECT_KEYS = ['name', 'default', 'polarity', 'colors'] as const satisfies readonly (keyof ArenaPalette)[];
+export type PaletteKeysAreClosed = Exclude<keyof ArenaPalette, (typeof PALETTE_OBJECT_KEYS)[number]> extends never ? true : never;
+
 export type ArenaFont = {
   family?: string;
   src?: string;
@@ -151,6 +154,12 @@ function paletteProblems(
   const at = `palettes[${index}]`;
   const problems = [];
   if (!isObject(palette)) return [`${at}: not an object`];
+
+  for (const key of Object.keys(palette)) {
+    if (!(PALETTE_OBJECT_KEYS as readonly string[]).includes(key)) {
+      problems.push(`${at}.${key}: not a key of a palette. The keys are ${PALETTE_OBJECT_KEYS.join(', ')}`);
+    }
+  }
 
   if (typeof palette.name !== 'string' || !KEBAB.test(palette.name)) {
     problems.push(`${at}.name: ${JSON.stringify(palette.name)} is not a kebab-case name`);

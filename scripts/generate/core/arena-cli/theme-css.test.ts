@@ -177,6 +177,24 @@ test('an unknown polarity is rejected, because it decides --picker-invert and co
   assert.deepEqual(configProblems(c), ['palettes[0].polarity: "midnight" is not one of dark, light']);
 });
 
+test('a palette refuses a key it does not know and takes the four it does', () => {
+  const rows: { name: string; palette: Record<string, unknown>; expected: string[] }[] = [
+    {
+      name: 'a palette carrying an unknown key is refused naming the key and the keys a palette takes',
+      palette: { name: 'dark', polarity: 'dark', colors: colors(), './design/soft': true },
+      expected: ['palettes[0]../design/soft: not a key of a palette. The keys are name, default, polarity, colors'],
+    },
+    {
+      name: 'a palette carrying only known keys has no key problem',
+      palette: { name: 'dark', default: true, polarity: 'dark', colors: colors() },
+      expected: [],
+    },
+  ];
+  for (const { name, palette, expected } of rows) {
+    assert.deepEqual(configProblems(config({ palettes: [palette] })), expected, name);
+  }
+});
+
 const withScopes = (scopes: string[]): any => ({ layers: [], components: [], scopes });
 
 test('a palette named after a class the package ships is refused, and its own polarity is the exception', () => {

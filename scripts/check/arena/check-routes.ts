@@ -126,7 +126,7 @@ export const ROUTES: Route[] = [
       'skills/design/references/config.md',
       'skills/design/references/cli.md',
     ],
-    budget: 52_803,
+    budget: 52_950,
     reason:
       'paid once per project, not per screen, so it carries what the build route may not: the '
       + 'install, the config file and the command. The install reference gives the evidence behind each '
@@ -138,7 +138,7 @@ export const ROUTES: Route[] = [
       + 'package sheet, the per-layer icon module, which glyphs reach the filled weight and when an '
       + 'icon expression widens that set or stills the glyph report. Its audit section covers the two '
       + 'rules that read a plugin\'s names, its exit table a refused plugin answer, its contrast note '
-      + 'which plugins and states it measures. The config page tables every key, the names the build '
+      + 'which plugins and states it measures. The config page tables every key, the names and keys it '
       + 'refuses, the families it splits and the roles that carry a default. The references name the '
       + 'arena-defaults layer the defaults sit in, and the install one where the five panels open.',
   },
