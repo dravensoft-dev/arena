@@ -2,8 +2,7 @@ Arena menu, a dropdown of actions hanging off a trigger the consumer draws. Stan
 `OnPush`, signal I/O. The trigger is the host's only content, and the panel lives in a
 `@angular/cdk/overlay` pane on `document.body`.
 
-The clipping is the whole reason for the overlay. A menu's canonical home is an overflow row in a table or a card, and an absolutely-positioned panel is clipped by the first `overflow: hidden` ancestor. The CDK supplies the overlay pane on `document.body`, so an `overflow: hidden` ancestor does not clip it. Arena places the pane, as it supplies the roles, the keys and the focus. Without a single import of `frameworks/angular/theme/arena-cdk.css` in the app, the panel renders
-unpositioned. The panel stays inside the visible part of the screen when a soft keyboard covers the rest.
+The clipping is the whole reason for the overlay. A menu's canonical home is an overflow row in a table or a card, and an absolutely-positioned panel is clipped by the first `overflow: hidden` ancestor. The CDK supplies the overlay pane on `document.body`, so an `overflow: hidden` ancestor does not clip it. Arena places the pane, as it supplies the roles, the keys and the focus. The package sheet `arena.package.generated.css` carries the CDK overlay rules, so a project that runs `arena build` imports nothing more. A project under `--no-import` imports `@dravensoft/arena-angular/css/arena-cdk.css` once. The panel stays inside the visible part of the screen when a soft keyboard covers the rest.
 
 ```html
 <arena-menu [items]="rowActions" align="end" (select)="run($event)">

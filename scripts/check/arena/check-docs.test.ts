@@ -369,6 +369,23 @@ test('a prompt citing a contributor checklist fails, the file shipping in no pac
   rmSync(root, { recursive: true });
 });
 
+const STYLESHEET_ROWS: [string, string, number][] = [
+  ['a layer source stylesheet path', 'Import `frameworks/angular/theme/arena-cdk.css` once.', 1],
+  ['the package stylesheet path', 'Import `@dravensoft/arena-angular/css/arena-cdk.css` once.', 0],
+  ['a stylesheet path inside a package', 'See `css/vocabulary/state.css`.', 0],
+  ['a prompt path of another layer', 'See `frameworks/react/components/navigation/arena-side-nav/ArenaSideNav.prompt.md`.', 0],
+];
+
+test('a stylesheet named by its place in a layer source is a problem, and its package path is not', () => {
+  for (const [name, text, expected] of STYLESHEET_ROWS) {
+    const root = tree({ 'frameworks/angular/components/a/A.prompt.md': `${text}\n` });
+    const { problems } = consumerBranchProblems(root);
+    assert.equal(problems.length, expected, `${name}: ${JSON.stringify(problems)}`);
+    if (expected) assert.ok(problems[0]?.includes('frameworks/angular/theme/arena-cdk.css'), `${name}: names the path`);
+    rmSync(root, { recursive: true });
+  }
+});
+
 test('the rule reaches prompts alone, and a sibling of the component is not a contributor path', () => {
   const root = tree({
     'frameworks/react/AGENTS.md': 'Read `scripts/build/react/build-demos.ts` for the emit.\n',
@@ -433,7 +450,7 @@ test('the boundary reads two file names and a reason-carrying list, all by name'
   assert.equal(CONSUMER_INDEX, 'INDEX.md');
   assert.deepEqual(Object.keys(BRANCH_SWITCH), ['skills/design/SKILL.md']);
   for (const reason of Object.values(BRANCH_SWITCH)) assert.match(reason, /\w/);
-  assert.equal(CONTRIBUTOR_PATHS.length, 10);
+  assert.equal(CONTRIBUTOR_PATHS.length, 11);
   for (const [pattern, reason] of CONTRIBUTOR_PATHS as [RegExp, string][]) {
     assert.ok(pattern.global, 'a non-global pattern reports only the first hit on a page');
     assert.match(reason, /\w/);

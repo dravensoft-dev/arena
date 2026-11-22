@@ -3,8 +3,7 @@ signal I/O. Wrap the element the tooltip describes; Arena draws the bubble and n
 from `label`.
 
 The bubble sits in an `@angular/cdk/overlay` pane on `document.body`, not in the wrapper, so it escapes an
-`overflow: hidden` ancestor. Arena places that pane against the anchor and re-places it while the page scrolls. Placement, focus and roles are Arena's. The app must import
-`frameworks/angular/theme/arena-cdk.css` once, or the bubble renders unpositioned.
+`overflow: hidden` ancestor. Arena places that pane against the anchor and re-places it while the page scrolls. Placement, focus and roles are Arena's. The package sheet `arena.package.generated.css` carries the CDK overlay rules, so a project that runs `arena build` imports nothing more. A project under `--no-import` imports `@dravensoft/arena-angular/css/arena-cdk.css` once.
 
 ```html
 <arena-tooltip label="Everything shipped in the last 30 days">

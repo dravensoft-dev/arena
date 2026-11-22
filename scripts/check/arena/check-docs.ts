@@ -184,6 +184,8 @@ export const CONTRIBUTOR_PATHS = [
   [/\b[\w-]+\.generated\b/g,
     'a build product, which a consumer reaches by importing the package rather than by name'],
   [/\b[\w-]+\.checks\.md\b/g, 'a contributor checklist, which ships in no package'],
+  [/\bframeworks\/[a-z-]+\/[\w./-]+\.css\b/g,
+    'a stylesheet by its place in a layer\'s source, which a consumer imports from the package as @dravensoft/arena-<layer>/css/<name>.css'],
 ];
 
 export const FOREIGN_CODE = [
