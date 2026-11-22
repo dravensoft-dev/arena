@@ -180,6 +180,92 @@ Use `auto` when the rail should be as wide as its longest label, or when one rul
 
 At the `md` breakpoint, and the viewport decides it. Put `max-md:hidden` on an element of your own around the rail and `md:hidden` on one around the drawer, which is right at the first paint and in a server's HTML. A class on the rail itself is not in the vocabulary. Both exist in the page, so branch on the viewport helper instead when the drawer is heavy. The helper is `useArenaViewportBelow('md')` in React and `arenaViewportBelow('md')` in Angular, both in [`exports.md`](./exports.md). The drawer, the button that opens it and the page column around it are yours. [React](../../../frameworks/react/components/navigation/arena-side-nav/ArenaSideNav.prompt.md) and [Angular](../../../frameworks/angular/components/navigation/arena-side-nav/ArenaSideNav.prompt.md) show both ways under "As a rail".
 
+## What goes in the drawer?
+
+**Arena ships `ArenaSheet` for it, and the button that opens it is yours.** The sheet is a panel on one edge that takes no focus, draws no scrim and locks no scroll. `arena-placement-start` puts it on the start edge, `title` names it, and Escape inside it reports through `onClose`. Put the rail inside it as an `ArenaSideNav`.
+
+The opener is a `<button type="button">` of your own. The button carries `aria-expanded`, the state of the drawer, and `aria-controls`, the id of an element of yours around the sheet. The sheet draws nothing while closed, so that element is empty until it opens. Wrap the pair in `md:hidden`, as the section above says.
+
+```tsx
+import { useState } from 'react';
+import { ArenaSheet, ArenaSideNav, ArenaSideNavItem } from '@dravensoft/arena-react';
+
+export function NavDrawer({ active, onNav }: { active?: string; onNav: (id: string) => void }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="md:hidden">
+      <button type="button" className="arena-interactive arena-focus" aria-expanded={open} aria-controls="nav-drawer"
+        onClick={() => setOpen(!open)}>Menu</button>
+      <div id="nav-drawer">
+        <ArenaSheet open={open} title="Menu" className="arena-placement-start" dismissible onClose={() => setOpen(false)}>
+          <ArenaSideNav ariaLabel="Primary" active={active} onNav={(id) => { onNav(id); setOpen(false); }}>
+            <ArenaSideNavItem id="orders" icon="ph-bold ph-package" label="Orders" href="/orders" />
+            <ArenaSideNavItem id="cash" icon="ph-bold ph-coins" label="Cash" href="/cash" />
+          </ArenaSideNav>
+        </ArenaSheet>
+      </div>
+    </div>
+  );
+}
+```
+
+The Angular drawer is the same pair written as elements, with the open state in a signal.
+
+```ts
+import { Component, input, output, signal } from '@angular/core';
+import { ArenaSheet, ArenaSideNav, ArenaSideNavItem } from '@dravensoft/arena-angular';
+
+@Component({
+  selector: 'app-nav-drawer',
+  imports: [ArenaSheet, ArenaSideNav, ArenaSideNavItem],
+  template: `
+    <div class="md:hidden">
+      <button type="button" class="arena-interactive arena-focus" [attr.aria-expanded]="open()" aria-controls="nav-drawer"
+        (click)="open.set(!open())">Menu</button>
+      <div id="nav-drawer">
+        <arena-sheet [open]="open()" title="Menu" class="arena-placement-start" dismissible (close)="open.set(false)">
+          <arena-side-nav ariaLabel="Primary" [active]="active()" (nav)="go($event)">
+            <arena-side-nav-item id="orders" icon="ph-bold ph-package" label="Orders" href="/orders" />
+            <arena-side-nav-item id="cash" icon="ph-bold ph-coins" label="Cash" href="/cash" />
+          </arena-side-nav>
+        </arena-sheet>
+      </div>
+    </div>`,
+})
+export class NavDrawer {
+  readonly active = input<string>();
+  readonly navigate = output<string>();
+  protected readonly open = signal(false);
+
+  protected go(id: string) {
+    this.navigate.emit(id);
+    this.open.set(false);
+  }
+}
+```
+
+The sheet moves no focus on open or on close, so the opener keeps focus until the reader tabs into the panel.
+
+## How much air sits inside ArenaMain?
+
+**None.** `ArenaMain` draws `display: block` and nothing else, so no padding or width comes from it. The column a page sits in is `.arena-band` on an element of yours inside it, which carries the width and the gutter and no block air. The space above and below the content is a `padding-block` of yours on the `--sp-*` scale.
+
+```tsx
+<ArenaMain>
+  <div className="arena-band app-page">
+    <Outlet />
+  </div>
+</ArenaMain>
+```
+
+```css
+.app-page {
+  padding-block: var(--sp-8);
+}
+```
+
+In Angular the same `div` goes inside `<arena-main>` around the `<router-outlet />`, and the rule goes in the global stylesheet. [`style.md`](./style.md#the-column-the-page-sits-in) names the band and the scale.
+
 ## How does the document title follow the route?
 
 Each layer answers on its own. Angular's `title` on a route keeps its meaning when `provideArenaMetadata` is installed, and gains the suffix and the description beside it. Arena ships no head writer for React, so the title comes from your framework, or from a `<title>` rendered in the route on React 19. [`seo.md`](./seo.md) holds both, with the exports.
