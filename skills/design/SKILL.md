@@ -20,10 +20,10 @@ editor or a game map is markup you write yourself. The skin travels either way, 
 plugin's answers hold whatever the product is. **When that is your product**, or one screen of
 it, read [`references/media-register.md`](./references/media-register.md). That page is what Arena
 hands you instead of a component: the pattern your markup binds, the parts the package already
-ships for it, and the one rule that bends.
+ships for it, and how the rules read there.
 
 **This file routes. Read only what your task needs.** The rules below bind the code you write.
-The table under them routes. Read the rules once per project rather than once per screen.
+The table under them routes. Read the rules once per project, not once per screen.
 
 ## Which job is this?
 

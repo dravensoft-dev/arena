@@ -4,6 +4,8 @@ Arena's component list is the furniture of an application somebody works in. A p
 ring, a feed of posts, a slideshow, a document editor and a game map are outside that list. The
 router says so before it says anything else. This page is what that sentence owes you.
 
+**No rule of the router bends here.** Each one binds the markup you write, and this page says how each reads on a media surface.
+
 **The answer is not that Arena is the wrong choice.** The skin travels either way: a style plugin's
 answers hold whatever the product is, and one of the products measured on this kernel is a
 photo feed. What changes is that you write the markup and Arena hands you the parts. The

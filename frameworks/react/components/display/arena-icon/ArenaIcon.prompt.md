@@ -15,7 +15,7 @@ Arena's glyph, one Phosphor icon drawn from the sprite the project serves. The `
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `icon*` | primitive | `string` |  | Phosphor class names, a weight and a glyph such as ph-bold ph-plus. The weight defaults to regular. |
+| `icon*` | primitive | `string` |  | Phosphor class names, a weight and a glyph such as ph-bold ph-plus. A string with no weight class draws the regular weight. Arena's own screens write ph-bold, and ph-fill for an active or selected state. |
 
 <!-- @api end -->
 

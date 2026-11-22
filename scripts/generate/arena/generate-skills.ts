@@ -418,6 +418,7 @@ export function renderCatalogueIndex(base = root) {
       + 'files into `design/<entry>/` of your project, where they become yours as they are. '
       + '`arena.config.json` is a starting file for the root of your project. With no config there, copy it '
       + 'and replace the palette and the fonts. With one already there, replace its `stylePlugins` list with the entry\'s and replace the palette and the fonts with the project\'s own, since a catalogue entry answers every role. '
+      + 'Once copied, the entry is your root plugin: change an answer as [`style-kernel.md`](../../skills/design/references/style-kernel.md) says, then run `arena build` and `arena check`. '
       + 'The config `arena init` writes holds `["default"]` and Dravensoft\'s palette and fonts. '
       + 'Node 4 of [`cold-start.md`](../../skills/design/references/cold-start.md) is where this choice is made.',
     '',

@@ -3,6 +3,6 @@
   "description": "Draws one glyph from the sprite the project serves and hides it from assistive technology, so the component that draws it owns the name. Absent a sprite or a glyph it renders nothing.",
   "affordances": [],
   "api": {
-    "icon": { "form": "primitive", "type": "string", "required": true, "description": "Phosphor class names, a weight and a glyph such as ph-bold ph-plus. The weight defaults to regular." }
+    "icon": { "form": "primitive", "type": "string", "required": true, "description": "Phosphor class names, a weight and a glyph such as ph-bold ph-plus. A string with no weight class draws the regular weight. Arena's own screens write ph-bold, and ph-fill for an active or selected state." }
   }
 }

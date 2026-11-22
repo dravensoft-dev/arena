@@ -37,7 +37,7 @@ this register neither compacts nor grows its controls, since almost none of the 
 Very few, and that is the register rather than a gap. The list is the avatar, the button and icon button, the menu, the dialog, the scroller for the story rail, and the people list. `frameworks/react/INDEX.md`
 names each under its category.
 
-The post, the wall and the viewer are markup you write. `skills/design/references/media-register.md` is what Arena hands you instead of a component. That page carries the behaviour contract each element binds, the figure component for the frame, the parts already shipped for a viewer, and the one rule that bends here.
+The post, the wall and the viewer are markup you write. `skills/design/references/media-register.md` is what Arena hands you instead of a component. That page carries the behaviour contract each element binds, the figure component for the frame, the parts already shipped for a viewer, and how the router's rules read there.
 
 ## What it does not bring
 

@@ -89,8 +89,8 @@ full and says which of them a gate reads your own sources for.
 bun add @dravensoft/arena-react     # or @dravensoft/arena-angular
 ```
 
-**That is the whole install.** Bun installs the peers a project lacks. A manager that
-installs no peer, Yarn among them, needs them named, as the commands in `install.md` do. No icon font is a peer: `arena build`
+**That is the whole install.** npm 7 and later, pnpm 8 and later and Bun install the peers a project
+lacks. Yarn reports a missing peer, so name it, as the commands in `install.md` do. No icon font is a peer: `arena build`
 writes the sprite that `ArenaIcon` draws from.
 [`install.md`](./skills/design/references/install.md#how-do-i-install-a-package) lists the
 commands per layer, and the layer page below says which peers each package declares.
@@ -190,7 +190,7 @@ component ships under both names and the two documents are not interchangeable.
 
 The two packages and the plugin do not always carry the same number, because a
 package publishes only when something it ships changed.
-[`skills/design/references/versioning.md`](./skills/design/references/versioning.md#how-do-i-install-a-version)
+[`skills/design/references/versioning.md`](./skills/design/references/versioning.md#why-might-a-packages-latest-version-not-match-arenas-latest-version)
 explains what that means.
 
 ## Latest project artifacts

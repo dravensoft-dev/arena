@@ -52,7 +52,7 @@ export const ENTRIES: Entry[] = [
   {
     name: 'consumer',
     router: 'skills/design/SKILL.md',
-    budget: 21_924,
+    budget: 21_918,
     reason:
       'the page every consumer route opens with, declared once, not as each route\'s first stop. '
       + 'A question earns a row only when asked before a builder knows their situation. '
@@ -356,7 +356,7 @@ export const ROUTES: Route[] = [
         ],
       },
     ],
-    budget: 36_749,
+    budget: 36_929,
     reason:
       'the route declared as a tree, charged its worst branch, never the sum, because a '
       + 'reader answers a question and walks one way. Given a document stating the palette and '
