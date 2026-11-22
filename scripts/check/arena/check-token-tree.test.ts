@@ -23,6 +23,7 @@ function copy() {
   cpSync(join(repoRoot, TREE_DIR), join(base, TREE_DIR), { recursive: true });
   cpSync(join(repoRoot, 'contracts', 'design'), join(base, 'contracts', 'design'), { recursive: true });
   cpSync(join(repoRoot, 'frameworks', 'tailwind', 'Theme.css'), join(base, 'frameworks', 'tailwind', 'Theme.css'));
+  cpSync(join(repoRoot, 'plugin-style-store', 'default'), join(base, 'plugin-style-store', 'default'), { recursive: true });
   return base;
 }
 const file = (base: string, rel: string) => join(base, TREE_DIR, rel);
