@@ -273,19 +273,19 @@ export const ROUTES: Route[] = [
     stops: ['skills/design/references/page.md', 'skills/design/references/style.md'],
     budget: 21_633,
     reason:
-      'paid per element a builder draws themselves, which every screen has. It buys the half of a '
-      + 'page no component draws: the floor and where each layer puts it, which frame the viewport '
-      + 'shows through the theme sheet\'s variants, the three rhythm steps as classes and as custom '
-      + 'properties, the row as the horizontal half of those steps, what to wrap when the element is '
-      + 'a component, the block air the band leaves and the gutter as a ceiling. The colour roles '
-      + 'sit in the markup tree this page links, so the number is what the stops measure without them. The style reference holds the layout container, the page '
-      + 'column\'s width and each layer\'s sizing section, names each layer\'s breakpoint helper and '
-      + 'the quiet ink level, and sends density values to the density page. Arena paints no '
-      + 'selection or scrollbar, so a recipe gives one. It says which palette, style plugin and '
-      + 'density an overlay takes from its trigger, and where an island paints its ground. It '
-      + 'names the `dead-utility` the audit reports and the state classes. The page sends a '
-      + 'panel, a toggle and a layer to the token tree, which owns what each is painted with. '
-      + 'The router names the token pages that link the colour and environment sheets.',
+      'paid per element a builder draws themselves. The route buys the half of a '
+      + 'page no component draws. That half is the floor and where each layer puts it, the viewport '
+      + 'frame of the theme sheet\'s variants, and the three rhythm steps as classes and custom properties. The row is their horizontal half. The page says what to wrap when the '
+      + 'element is a component, the block air the band leaves and the gutter as a ceiling. The colour '
+      + 'roles sit in the markup tree this page links, so the number is what the stops measure without '
+      + 'them. The style reference holds the layout container and the page column\'s width. The style '
+      + 'reference gives each layer\'s sizing section, breakpoint helper and quiet ink level, and sends '
+      + 'density values to the density page. Arena paints no selection or scrollbar, so a recipe gives '
+      + 'one. The style reference says which palette, style plugin and density an overlay takes from its '
+      + 'trigger, and where an island paints its ground. The page names the `dead-utility` the audit '
+      + 'reports and the state classes. The page sends a panel, a toggle and a layer to the token tree, '
+      + 'which owns what each is painted with. The router names the token pages that link the colour and '
+      + 'environment sheets.',
   },
   {
     name: 'consumer-paint-panel',
