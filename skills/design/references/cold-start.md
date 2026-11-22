@@ -19,7 +19,7 @@ answered is a decision the agent made alone.
 
 | The answer | Go to |
 |---|---|
-| Yes, it has an `arena.config.json` and screens built on it | 7 |
+| Yes, it has an `arena.config.json` and screens built on it | 8 |
 | No, or it has the package installed and nothing written against it | 2 |
 
 ## 2. Where does the appearance come from?
@@ -89,7 +89,7 @@ failure as a screenshot read silently, with a better result and the same missing
 
 **An entry is copied rather than cited.** An entry has three files: `plugin.tokens.json`, `plugin.css` and
 `arena.config.json`. The first two become your project's own under `design/<name>/` as they are, and
-node 11 is where they land. The config is a starting file for the root of your project. With no
+node 12 is where they land. The config is a starting file for the root of your project. With no
 `arena.config.json` there, copy it and replace the palette and the fonts. With one already there, replace its `stylePlugins` list with
 the entry's and replace the palette and the fonts with the project's own, since a catalogue entry answers every role.
 The config `arena init` writes holds `["default"]` and Dravensoft's palette and fonts.
@@ -134,12 +134,31 @@ Each is settled before the first screen and never per screen. The four are in th
 |---|---|---|
 | What does Arena ship, and how much of it am I taking | [`surface.md`](./surface.md) | never, because the three below ask how much of a thing you have not been shown |
 | Is Arena's component list right for this product | [`media-register.md`](./media-register.md) | the register is an application somebody works in and nothing on screen is a wall, a feed, a viewer or a document |
-| How does it answer the kernel's roles | [`style-kernel.md`](./style-kernel.md) | node 7 found a plugin that already answers every role that carries no default |
+| How does it answer the kernel's roles | [`style-kernel.md`](./style-kernel.md) | node 8 found a plugin that already answers every role that carries no default |
 | Does anybody outside it have to find it | [`seo.md`](./seo.md) | never, because a no that was never chosen is announced by nothing and reaches the install rather than a screen |
 
-Then go to 8, because the last of those four is a yes or a no and the next node is how much.
+Then go to 9, because the last of those four is a yes or a no and the next node is how much.
 
-## 7. Read what is already there
+## 7. The decisions every screen inherits
+
+A project decides each row below once, and every screen reads the answer without asking again. The first column says what the decision shapes on the finished screen, so the question means something before you put it. Ask the user in the second column's words, then read the page in the third.
+
+| The decision, and what it shapes on screen | Ask | Read |
+|---|---|---|
+| **Colour slots.** A slot is one coloured part of one group of components in one state, answered with a role. The answers decide whether the brand appears once per screen or on every selected thing, and how an invalid field reads | Where does the brand go? How quiet is selection? How loud is an error? | [`color-slots.md`](./color-slots.md#which-plugin-answers): its two routes, then its common case |
+| **Density.** Density is an axis apart from the plugin. `.arena-compact` and `.arena-comfortable` re-answer the control and row sizes only, and the second gives a 48px touch target. Either one is a class on an ancestor. Node 3's question set the plugin's padding and gaps, and this row sets the class | Who points at the product, and on what screen? Does the density change with the width? | [`style.md`](./style.md#density), then [`exports.md`](./exports.md#how-do-i-change-density-below-a-breakpoint) for a swap below a breakpoint |
+| **Locale and `<html lang>`.** Arena's components draw words of their own, such as a close button's name, `Today` and a table's empty line, and the locale answers them. `<html lang>` tells a screen reader, the browser's translation and hyphenation which language the page is in, and Arena writes none | Which language does the product ship in? | [`locale.md`](./locale.md), and its section on [the document's language](./locale.md#which-language-does-the-document-declare) |
+| **Palette switching.** Every palette is a class, and the default one reaches `:root`. A switch puts a class on `<html>`. A page that applies a stored choice after its stylesheet first paints the default, and that is the flash | Does the user switch? Which polarity does a first visit see? | [`theme.md`](./theme.md#how-do-i-avoid-a-flash-on-first-paint) and its two switch sections, [React](./theme.md#how-do-i-switch-palettes-in-react) and [Angular](./theme.md#how-do-i-switch-palettes-in-angular) |
+| **The page skeleton.** The frame every screen sits in is the skip link, the app bar, the side navigation, the main region and the footer, each a landmark. Arena ships the pieces and no shape | Which pieces does the frame carry? Where does the navigation live? | [`shell.md`](./shell.md) |
+
+The answers join the sections of the identity document that carry the same names.
+
+| You arrived with | Go to |
+|---|---|
+| No Arena in the project yet | 9 |
+| A project from node 8 | the per-screen route in [`../SKILL.md`](../SKILL.md), or 9 only when this screen is the first that has to be found from outside the product |
+
+## 8. Read what is already there
 
 An identity somebody already established is context to acquire, not a step to skip. Before adding
 anything:
@@ -156,12 +175,12 @@ anything:
 Say what you found. A project whose plugin answers every role that carries no default needs no style plugin work, and
 saying so is what stops an agent rewriting an appearance somebody already chose.
 
-Then go to 6, and skip the rows it says you may skip. **Stop there rather than going on to 8**,
+Then go to 6, and skip the rows it says you may skip. **Stop there rather than going on to 9**,
 because the nodes past it decide an install a project carrying Arena has already made. The route
-from here is the per-screen one in [`../SKILL.md`](../SKILL.md). Reach 8 only when this screen is
+from here is the per-screen one in [`../SKILL.md`](../SKILL.md). Reach 9 only when this screen is
 the first that has to be found from outside the product.
 
-## 8. How much does it have to be found?
+## 9. How much does it have to be found?
 
 Node 6 answered whether anybody outside the product has to arrive at it. This asks how much, and it
 is a separate question because the answer decides a layer and a peer dependency rather than a
@@ -169,9 +188,9 @@ screen. **Both layers draw the same components; only one of them writes the docu
 
 | The answer | Go to | What it takes |
 |---|---|---|
-| Nothing. The product is behind a login, or it is a console | 9 | neither layer, and no metadata anything. That row is the honest answer for most tools |
-| A title and a description per route | 9 | either layer. Angular has it in the package; React carries it through whatever its own framework offers |
-| Everything: canonical, `og:*`, a default that keeps a route out of an index until it says otherwise | 9 | on Angular, `@dravensoft/arena-angular/metadata`, where `@angular/router` stops being optional; on React, your own framework's head, since Arena writes none there |
+| Nothing. The product is behind a login, or it is a console | 10 | neither layer, and no metadata anything. That row is the honest answer for most tools |
+| A title and a description per route | 10 | either layer. Angular has it in the package; React carries it through whatever its own framework offers |
+| Everything: canonical, `og:*`, a default that keeps a route out of an index until it says otherwise | 10 | on Angular, `@dravensoft/arena-angular/metadata`, where `@angular/router` stops being optional; on React, your own framework's head, since Arena writes none there |
 
 **The third row is a decision about the framework, and it is worth making while it is still cheap.**
 `@dravensoft/arena-react` writes no `<head>` at all, by design, so a React project answering that
@@ -185,7 +204,7 @@ reached by choosing is a decision the project can defend later, and a no reached
 is announced by nothing. Read it on the third row to learn what you are taking on,
 and on the first to learn what you are declining.
 
-## 9. What is it built on?
+## 10. What is it built on?
 
 **Arena takes no position on how an application is assembled**, and that is a real property rather
 than a slogan. The React layer imports `react`, `react-dom` and its own two bundled styling
@@ -194,11 +213,11 @@ what that buys per architecture, and where it stops.
 
 | The answer | Go to | What is true, and what you carry |
 |---|---|---|
-| A single-page application | 10 | the ordinary case, and everything below is a variation on it |
-| Server rendering with hydration | 10 | supported. React's own suites server-render, and neither layer reads a browser global at module scope |
-| Static generation or prerender | 10 | the components take the same path they take under server rendering. Arena ships no prerender tooling, so producing the pages is your framework's job |
-| React Server Components | 10 | **Arena ships no `use client` directive**, so the boundary is yours to draw, and it is one line |
-| A microfrontend inside a host | 10 | the components are safe; the stylesheet is document-wide. Read the paragraph below before choosing this |
+| A single-page application | 11 | the ordinary case, and everything below is a variation on it |
+| Server rendering with hydration | 11 | supported. React's own suites server-render, and neither layer reads a browser global at module scope |
+| Static generation or prerender | 11 | the components take the same path they take under server rendering. Arena ships no prerender tooling, so producing the pages is your framework's job |
+| React Server Components | 11 | **Arena ships no `use client` directive**, so the boundary is yours to draw, and it is one line |
+| A microfrontend inside a host | 11 | the components are safe; the stylesheet is document-wide. Read the paragraph below before choosing this |
 
 **Server rendering is the claim with the most evidence behind it.** Much of the React suite renders
 through `react-dom/server` on every run, so the layer is exercised rather than merely believed.
@@ -227,10 +246,10 @@ host. Take this row knowing the host is being changed, or give the fragment a do
 
 **Which bundler, and where Arena's JavaScript and stylesheet land.** [`bundlers/index.md`](./bundlers/index.md) says how to keep Arena's JS and package sheet in files of their own, with one page per bundler family. [`environments.md`](./environments.md) holds what each bundler measured, as a record and not a recommendation.
 
-## 10. What does the code you write around Arena bring with it?
+## 11. What does the code you write around Arena bring with it?
 
 Arena's components carry their own appearance, so this node is about everything else a project
-writes: its own markup, and on Angular its forms. **Take every row that is true**, then go to 11.
+writes: its own markup, and on Angular its forms. **Take every row that is true**, then go to 12.
 
 | If your code | Take | What it gets you |
 |---|---|---|
@@ -238,22 +257,22 @@ writes: its own markup, and on Angular its forms. **Take every row that is true*
 | draws markup of its own, styled with CSS of its own | the tokens through `var()`, and the vocabulary page for the air between components. `.arena-stack` has `arena-stack--group` and `arena-stack--section` for the step and `arena-stack--start` and `arena-stack--end` for the alignment alone. `.arena-row` has `arena-row--component` for the step and `arena-row--baseline`, `arena-row--between` and `arena-row--start` for the alignment alone | the lengths and the air the components are spaced with, as named steps rather than a number you pick |
 | is an Angular project binding Arena's controls with `@angular/forms` | `@dravensoft/arena-angular/forms`, and `ARENA_FORM_CONTROLS` in the component's `imports` | `formControlName` and `ngModel` on every data-entry control. Reaching that entry point makes `@angular/forms` required |
 
-## 11. Now write it
+## 12. Now write it
 
 **What the answers made necessary.** Nothing here is a preference, and no further question about
 dependencies is the skill's to ask: past this table the stack is the project's own.
 
 | Always | Which layer | Why |
 |---|---|---|
-| `@dravensoft/arena-react` **or** `@dravensoft/arena-angular` | one of them, never both | the layer nodes 8 and 9 settled. The package is Arena itself. Every package its components load is a peer, and a list of peers with the package missing installs nothing that draws |
+| `@dravensoft/arena-react` **or** `@dravensoft/arena-angular` | one of them, never both | the layer nodes 9 and 10 settled. The package is Arena itself. Every package its components load is a peer, and a list of peers with the package missing installs nothing that draws |
 | `@angular/cdk` | Angular only | a peer of that layer, and **not** something a React project installs |
 | `@angular/core`, `@angular/common`, `@angular/platform-browser` | Angular only | the peers the layer is built on |
 | `react`, `react-dom` | React only | the peers that layer is built on |
 
 | Added by an answer | When | From which node |
 |---|---|---|
-| `@angular/router` | the third row of node 8, on Angular | the router is an optional peer until the metadata entry point is reached, and reaching that entry point makes it required |
-| `@angular/forms` | the second row of node 10 | an optional peer until the forms entry point is reached, like the router above it |
+| `@angular/router` | the third row of node 9, on Angular | the router is an optional peer until the metadata entry point is reached, and reaching that entry point makes it required |
+| `@angular/forms` | the third row of node 11 | an optional peer until the forms entry point is reached, like the router above it |
 
 **Any of npm, bun or pnpm installs this.** The packages declare their peers rather than assuming a
 flat tree. The strict layout of pnpm is the one worth naming, because it is the one that would
