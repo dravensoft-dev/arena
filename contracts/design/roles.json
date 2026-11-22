@@ -3307,7 +3307,7 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "audience": "markup",
-        "task": "states",
+        "task": "surfaces-and-text",
         "question": "What colour is the ink of a primary action?",
         "state": [
           "aria-checked",

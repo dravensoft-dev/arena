@@ -227,8 +227,8 @@ export function metadataProblems(roles: Record<string, Role>) {
         problems.push(`${name} has no state. A role of the states task says which state shows it; declare a non-empty list of ${keys.join(', ')}.`);
         continue;
       }
-    } else if (state !== undefined) {
-      problems.push(`${name} declares state on the ${String(ext?.task)} task. Only a role of the states task names the state that shows it.`);
+    } else if (state !== undefined && ext?.audience !== 'markup') {
+      problems.push(`${name} declares state on a ${String(ext?.audience)} role. Only a markup role names the state that shows it.`);
       continue;
     }
     if (state === undefined) continue;

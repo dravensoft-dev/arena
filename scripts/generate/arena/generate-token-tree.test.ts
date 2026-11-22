@@ -65,8 +65,8 @@ test('every role lands in exactly one role leaf', () => {
     counts[leaf] = (counts[leaf] ?? 0) + 1;
   }
   assert.deepEqual(counts, {
-    'plugin/surfaces-and-text.md': 20, 'plugin/edges.md': 22, 'plugin/space-and-layout.md': 18, 'plugin/type.md': 20,
-    'plugin/depth-and-motion.md': 15, 'plugin/states.md': 20,
+    'plugin/surfaces-and-text.md': 21, 'plugin/edges.md': 22, 'plugin/space-and-layout.md': 18, 'plugin/type.md': 20,
+    'plugin/depth-and-motion.md': 15, 'plugin/states.md': 19,
     'components/air.md': 33, 'components/type.md': 4, 'components/size-controls.md': 44, 'components/size-content.md': 42,
     'components/emphasis-and-accent.md': 21, 'components/status-hues.md': 20,
     'components/controls-and-marks.md': 7,
@@ -319,7 +319,7 @@ test("the layers sheet carries a step's whole description", () => {
 const RECLASSIFIED = [
   { name: 'fill-control', task: 'states' }, { name: 'fill-control-on', task: 'states' }, { name: 'fill-knob', task: 'states' },
   { name: 'fill-knob-off', task: 'states' }, { name: 'ink-knob', task: 'states' }, { name: 'ink-knob-off', task: 'states' },
-  { name: 'emphasis-primary-fill', task: 'surfaces-and-text' }, { name: 'emphasis-primary-ink', task: 'states' },
+  { name: 'emphasis-primary-fill', task: 'surfaces-and-text' }, { name: 'emphasis-primary-ink', task: 'surfaces-and-text' },
   { name: 'emphasis-secondary-fill', task: 'surfaces-and-text' }, { name: 'emphasis-secondary-ink', task: 'surfaces-and-text' },
   { name: 'emphasis-primary-edge', task: 'edges' }, { name: 'emphasis-secondary-edge', task: 'edges' },
 ];

@@ -292,7 +292,7 @@ export const ROUTES: Route[] = [
     who: 'a builder painting a panel of their own markup: the router, then the markup tree index and the pages for surfaces and text, type, edges, space and layout, and depth and motion',
     entry: 'consumer',
     stops: ['skills/design/references/tokens/markup/index.md', 'skills/design/references/tokens/markup/surfaces-and-text.md', 'skills/design/references/tokens/markup/type.md', 'skills/design/references/tokens/markup/edges.md', 'skills/design/references/tokens/markup/space-and-layout.md', 'skills/design/references/tokens/markup/depth-and-motion.md'],
-    budget: 23_495,
+    budget: 23_584,
     reason:
       'paid per panel a builder draws themselves. The route buys all of what paints one: the '
       + 'ground and its ink, the title with its size and weight, and the edge with its radius. The air '
@@ -302,7 +302,7 @@ export const ROUTES: Route[] = [
       + 'decision, not a paragraph. The markup index carries one row more for the '
       + 'units page, which this route does not read. The states page draws a switch track with no edge. The surfaces and text page carries '
       + 'the overlay-scrim role, the wash a modal lays over the page, with its question like every '
-      + 'other role. The page lists the media wash, states the missing-level rule and names the fill of both actions and the ink of the secondary. The space and layout page says where '
+      + 'other role. The page lists the media wash, states the missing-level rule and names the fill and ink of both actions. The space and layout page says where '
       + 'a half step lands, and that the rhythm is the air between two things you placed. Space and layout names the band, shell and prose classes. The edges page says the control border reaches a checkbox and a radio. The depth and motion page names four entrance roles.',
   },
   {
@@ -319,7 +319,7 @@ export const ROUTES: Route[] = [
       + 'focus, selected, disabled and invalid roles on the states page. The space and layout page says where a half step lands, and that the rhythm is '
       + 'the air between two things you placed. Space and layout names the band, shell and prose classes. The edges page says the control border reaches '
       + 'a checkbox and a radio. The data files beside the pages are not stops, as the gate '
-      + 'charges Markdown only. The states page carries twenty roles with their utilities, '
+      + 'charges Markdown only. The states page carries nineteen roles and their utilities, '
       + 'among them the hover and pressed mixes and the checkbox and switch roles. A table maps each state attribute '
       + 'to its selector and roles. The page ends with an own checkbox and switch example that '
       + 'arena audit passes, the track drawing no edge. The page names the layer the classes sit in and the fill and ink they '

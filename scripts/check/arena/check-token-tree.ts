@@ -24,7 +24,7 @@ export const INDEX_MAX = 3000;
 export const LEAF_ALLOWANCE: Readonly<Record<string, { max: number; reason: string }>> = {
   'markup/states.md': {
     max: 9747,
-    reason: 'The one leaf that teaches an own control by example, with a toggle, a checkbox and a switch that arena audit passes. The tables of the twenty state roles sit beside them. The page also says that a markup class sits in the components layer, so a rule of yours beats it. The page says that an element with a fill of its own draws its own states.',
+    reason: 'The one leaf that teaches an own control by example, with a toggle, a checkbox and a switch that arena audit passes. The tables of the nineteen state roles sit beside them. The page also says that a markup class sits in the components layer, so a rule of yours beats it. The page says that an element with a fill of its own draws its own states.',
   },
 };
 export const DEPTH_MAX = 3;

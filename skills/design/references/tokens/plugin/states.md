@@ -2,7 +2,7 @@
 
 Read this when your style plugin answers a hover, the keyboard focus ring or a selected or current item. Read it also for how far a selected or pressed fill mixes, a disabled control or an invalid field.
 
-Twenty roles are on this page. Fifteen are colour roles: `edge-focus`, `edge-invalid`, `edge-selected`, `edge-tab-selected`, `emphasis-primary-ink`, `fill-control`, `fill-control-on`, `fill-hover`, `fill-knob`, `fill-knob-off`, `fill-selected`, `ink-invalid`, `ink-knob`, `ink-knob-off` and `ink-selected`. An answer to one is a palette colour, as a `{color.*}` alias or another colour role. `bw-focus` and `gap-focus` are fixed dimensions and `fade-disabled`, `mix-hover` and `mix-pressed` are numbers, so a plugin answers those with a value of that type. `mix-hover` and `mix-pressed` read the `blend` scale of [`effects.json`](../../../../../contracts/design/effects.json), `{blend.hover}` and `{blend.pressed}`. `fill-hover` and the six control and knob roles carry no default, and [`style-kernel.md`](../../style-kernel.md#the-two-rules-that-decide-everything-else) says what a silent plugin keeps there.
+Nineteen roles are on this page. Fourteen are colour roles: `edge-focus`, `edge-invalid`, `edge-selected`, `edge-tab-selected`, `fill-control`, `fill-control-on`, `fill-hover`, `fill-knob`, `fill-knob-off`, `fill-selected`, `ink-invalid`, `ink-knob`, `ink-knob-off` and `ink-selected`. An answer to one is a palette colour, as a `{color.*}` alias or another colour role. `bw-focus` and `gap-focus` are fixed dimensions and `fade-disabled`, `mix-hover` and `mix-pressed` are numbers, so a plugin answers those with a value of that type. `mix-hover` and `mix-pressed` read the `blend` scale of [`effects.json`](../../../../../contracts/design/effects.json), `{blend.hover}` and `{blend.pressed}`. `fill-hover` and the six control and knob roles carry no default, and [`style-kernel.md`](../../style-kernel.md#the-two-rules-that-decide-everything-else) says what a silent plugin keeps there.
 
 **What a silent project gets.** The kernel answers `edge-focus` with the secondary and `edge-selected` with the body ink.
 
@@ -21,7 +21,6 @@ Your markup and Arena's components both read the roles on this page. A role keep
 | `--edge-invalid` | What colour is the edge of a field that holds an invalid value? | color | none | `{hue-danger-edge}` | `{color.error}` |
 | `--edge-selected` | What colour is the edge that marks a selected or current item? | color | none | `{ink-body}` | light `{color.primary}`; dark `{color.base-content}` |
 | `--edge-tab-selected` | What colour is the edge that marks the selected item of a navigation component? | color | none | `{color.primary}` | `{color.primary}` |
-| `--emphasis-primary-ink` | What colour is the ink of a primary action? | color | none | none | `{color.primary-content}` |
 | `--fade-disabled` | What share of its opacity does a disabled control keep? | number | none | `{opacity.disabled}` | `{opacity.disabled}` |
 | `--fill-control` | What colour fills the box of a checkbox, radio, switch or slider at rest? | color | none | none | `{color.neutral}` |
 | `--fill-control-on` | What colour fills the box of a checked checkbox or radio, an on switch or a slider's range? | color | none | none | `{color.primary}` |

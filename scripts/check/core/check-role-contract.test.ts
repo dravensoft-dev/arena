@@ -292,10 +292,21 @@ test('a state outside STATE_SELECTORS is refused, and so are an empty list and a
   assert.deepEqual(metadataProblems({ 'fill-hover': stated('states', ['hover']) }), []);
 });
 
-test('state on a role of another task is refused', () => {
-  const problems = metadataProblems({ 'fill-surface': stated('surfaces-and-text', ['hover']) });
-  assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /fill-surface declares state on the surfaces-and-text task/);
+const STATE_ON_TASK = [
+  { name: 'a component role naming a state is refused', audience: 'component', task: 'meaning-and-identity', want: /fill-surface declares state on a component role/ },
+  { name: 'a markup role of another task may name the state that shows it', audience: 'markup', task: 'surfaces-and-text', want: null },
+];
+
+test('state is named by a markup role of any task and by no component role', () => {
+  for (const { name, audience, task, want } of STATE_ON_TASK) {
+    const role = { $type: 'color', $description: 'x', $extensions: { 'com.dravensoft.arena': { audience, task, state: ['hover'] } } };
+    const problems = metadataProblems({ 'fill-surface': role });
+    if (want === null) assert.deepEqual(problems, [], name);
+    else {
+      assert.equal(problems.length, 1, name);
+      assert.match(problems[0] ?? '', want, name);
+    }
+  }
 });
 
 test('STATE_SELECTORS is the closed set of states and the selector each one is', () => {
@@ -310,9 +321,9 @@ test('STATE_SELECTORS is the closed set of states and the selector each one is',
 test('the shipped roles carry a valid state on every states role', () => {
   const shipped = SHIPPED;
   const states = Object.entries(shipped).filter(([, role]) => role.$extensions?.['com.dravensoft.arena']?.task === 'states');
-  assert.equal(states.length, 20);
+  assert.equal(states.length, 19);
   assert.deepEqual(states.map(([name]) => name).sort(), ['bw-focus', 'edge-focus', 'edge-invalid', 'edge-selected',
-    'edge-tab-selected', 'emphasis-primary-ink', 'fade-disabled', 'fill-control', 'fill-control-on', 'fill-hover', 'fill-knob',
+    'edge-tab-selected', 'fade-disabled', 'fill-control', 'fill-control-on', 'fill-hover', 'fill-knob',
     'fill-knob-off', 'fill-selected', 'gap-focus', 'ink-invalid', 'ink-knob', 'ink-knob-off', 'ink-selected',
     'mix-hover', 'mix-pressed']);
 });
