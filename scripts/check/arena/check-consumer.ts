@@ -907,6 +907,7 @@ const AUTO = { components: 'auto', preflight: false };
 
 const TREE_REGION = /<!-- @tree GENERATED[\s\S]*?<!-- @tree end -->/g;
 const FENCE = /```(html|css)\n([\s\S]*?)```/g;
+const ANY_FENCE = /```[^\n]*\n[\s\S]*?```/g;
 const SPAN = /`([^`\n]+)`/g;
 
 export function utilitySpan(span: string) {
@@ -926,7 +927,7 @@ export function pageSources(base: string) {
       counts[kind] = (counts[kind] ?? 0) + 1;
       files[`src/pages/${page}-${counts[kind]}.${kind}`] = body;
     }
-    const spans = [...text.replace(FENCE, '').matchAll(SPAN)].map((one) => captured(one)).filter(utilitySpan);
+    const spans = [...text.replace(ANY_FENCE, '').matchAll(SPAN)].map((one) => captured(one)).filter(utilitySpan);
     if (spans.length) files[`src/pages/${page}-prose.html`] = spans.map((one) => `<div class="${one}"></div>\n`).join('');
   }
   return files;

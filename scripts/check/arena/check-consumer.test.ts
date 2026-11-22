@@ -550,6 +550,11 @@ const PAGE_ROWS: { name: string; pages: Record<string, string>; want: Record<str
     pages: { 'three.md': `${FENCE}css\n.a { color: red; }\n${FENCE}\n` },
     want: { 'src/pages/three-1.css': '.a { color: red; }\n' },
   },
+  {
+    name: 'a utility span inside a fence of another language',
+    pages: { 'four.md': `${FENCE}ts\nconst a = \`bg-selected\`;\n${FENCE}\n` },
+    want: {},
+  },
 ];
 
 test('the markup pages become one source per fence and one prose file of their utility spans, minus generated regions', () => {
