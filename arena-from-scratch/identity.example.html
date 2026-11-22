@@ -80,6 +80,15 @@
     --color-cat-8: #2fd6ad;
     --color-primary-fill: var(--color-primary);
   }
+  .arena-light, .arena-dark {
+    --fill-page: var(--color-base-100);
+    --fill-surface: var(--color-base-100);
+    --fill-surface-sunken: var(--color-base-200);
+    --fill-field: var(--color-base-200);
+    --fill-control: var(--color-neutral);
+    --edge-control: var(--color-base-300);
+    --edge-field: var(--color-base-300);
+  }
   :root {
     --font-display: "Baloo 2", system-ui, sans-serif;
     --font-body: "Nunito", system-ui, sans-serif;
@@ -462,7 +471,7 @@
 </div>
 </div>
 <p>
-  Every specimen is own markup, painted with the roles and silent-slot defaults the components read. The specimens show what Arena's components paint with these answers, and the first screen after <code>arena build</code> confirms them.
+  Every specimen is own markup, painted with the roles and silent-slot defaults the components read. The panels draw them through the linked sheet's role answers, and through the project's own once the link points at its <code>arena.generated.css</code>. The first screen after <code>arena build</code> confirms them.
 </p>
 </section>
 
