@@ -8,12 +8,14 @@ useTestEnvironment();
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { Component, DOCUMENT, DestroyRef, ElementRef, afterRenderEffect, inject, input, output, untracked, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { type FocusTrapState, arenaHandleOpenTransition, arenaHandleTeardown, arenaTrapTabKey } from '../FocusTrap';
 import { ArenaDialog } from '../components/feedback/arena-dialog/ArenaDialog';
+import { REPO } from './Compliance';
 
-const EXPORTS_PAGE = new URL('../../../skills/design/references/exports.md', import.meta.url);
+const EXPORTS_PAGE = join(REPO, 'skills/design/references/exports.md');
 
 @Component({
   selector: 'app-lightbox',
