@@ -46,6 +46,8 @@ const ROWS: Row[] = [
   { name: 'disabled', class: '.arena-interactive', atoms: ':disabled', ref: ITEM, refAtoms: '[aria-disabled="true"]', properties: FILL_INK_FADE },
   { name: 'disabled through aria-disabled', class: '.arena-interactive', atoms: '[aria-disabled="true"]', ref: ITEM, refAtoms: '[aria-disabled="true"]', properties: FILL_INK_FADE },
   { name: 'disabled under the pointer and a press', class: '.arena-interactive', atoms: ':disabled :hover :active', ref: ITEM, refAtoms: '[aria-disabled="true"] :hover :active', properties: FILL_INK_FADE },
+  { name: 'aria-disabled under the pointer and a press', class: '.arena-interactive', atoms: '[aria-disabled="true"] :hover :active', ref: ITEM, refAtoms: '[aria-disabled="true"] :hover :active', properties: FILL_INK_FADE },
+  { name: 'selected and disabled under the pointer and a press', class: '.arena-interactive', atoms: '[aria-pressed="true"] :disabled :hover :active', ref: ITEM, refAtoms: '[data-arena-current] [aria-disabled="true"] :hover :active', properties: FILL_INK_FADE },
   { name: 'focus', class: '.arena-focus', atoms: ':focus-visible', ref: '.arena-icon-button__root', refAtoms: ':focus-visible', properties: ['outline-color', 'outline-offset', 'outline-style', 'outline-width'] },
   { name: 'invalid', class: '.arena-invalid', atoms: '[aria-invalid="true"]', ref: '.arena-input__field', refAtoms: '[data-arena-state="error"]', properties: ['border-color'] },
   { name: 'aria-invalid false draws no edge', class: '.arena-invalid', atoms: '[aria-invalid="false"]', ref: '.arena-input__field', refAtoms: '', properties: [] },
