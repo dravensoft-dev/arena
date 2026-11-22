@@ -149,7 +149,7 @@ export function stateDeclarations(css: string, element: string, active: Readonly
     for (const child of block.children) {
       const head = child.selector;
       if (head.startsWith('@layer')) walk(child, context);
-      else if (head.startsWith('@scope')) walk(child, { ...context, scope: /\((.*)\)/.exec(head)?.[1]?.trim() ?? null });
+      else if (head.startsWith('@scope')) { const open = head.indexOf('('); walk(child, { ...context, scope: open < 0 ? null : head.slice(open + 1, closing(head, open)).trim() }); }
       else if (head.startsWith('@supports')) { if (COLOR_MIX_SUPPORTS.test(head)) walk(child, context); }
       else if (head.startsWith('@media')) { if (HOVER_MEDIA.test(head)) walk(child, { ...context, media: [...context.media, '(hover: hover)'] }); }
       else if (head.startsWith('@')) continue;

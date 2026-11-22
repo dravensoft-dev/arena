@@ -18,6 +18,7 @@ const WINS: Row[] = [
   { name: 'attribute false', css: SCOPE, element: '.y', active: ['[aria-current="false"]'], property: 'color', want: 'red' },
   { name: 'supports holds, forced colours do not', css: '.x { color: var(--a); @supports (color: color-mix(in lab, red, red)) { color: mix; } @media (forced-colors: active) { color: CanvasText; } }', element: '.x', active: [], property: 'color', want: 'mix', media: [] },
   { name: 'a combinator is another element', css: '.x .y { color: red; }', element: '.x', active: [], property: 'color', want: undefined },
+  { name: 'scope with a limit', css: '@scope (.y) to (.z) { :scope { color: red; } }', element: '.y', active: [], property: 'color', want: 'red' },
   { name: 'one of a list', css: '.w, .x:hover { color: red; }', element: '.x', active: [':hover'], property: 'color', want: 'red' },
   { name: 'disabled stops the pointer', css: '.x:hover:not(:disabled, [aria-disabled="true"]) { color: blue; }', element: '.x', active: [':hover', ':disabled'], property: 'color', want: undefined },
 ];
