@@ -652,15 +652,24 @@ test('the nowhere-else list answers every silent reader of the brand outside the
   }
 });
 
-const BRAND_ROLES = ['fill-control-on', 'fill-knob', 'ink-knob', 'edge-tab-selected'];
+const BRAND_ROLES = ['fill-control-on', 'fill-knob', 'ink-knob', 'edge-tab-selected', 'edge-selected'];
 
 test('the nowhere-else list answers every role the default plugin points at the brand, markup of yours included', () => {
-  const tokens = readJson(join(repoRoot, 'plugin-style-store/default/plugin.tokens.json')) as Record<string, unknown>;
-  const pointed = Object.entries(tokens).filter(([name, entry]) => !name.startsWith('emphasis-primary-') && !name.startsWith('$')
-    && '$type' in (entry as object) && /\{color\.primary[-}]/.test(JSON.stringify(entry))).map(([name]) => name);
+  type Entry = { $value?: unknown };
+  const tokens = readJson(join(repoRoot, 'plugin-style-store/default/plugin.tokens.json')) as Record<string, Record<string, Entry> | Entry>;
+  const own = (block: Record<string, unknown>) => Object.entries(block).filter(([name, entry]) => !name.startsWith('$') && typeof entry === 'object' && entry !== null && '$type' in entry);
+  const pointed = new Set<string>();
+  for (const polarity of ['dark', 'light']) {
+    const at = new Map<string, string>([...own(tokens), ...own((tokens[polarity] ?? {}) as Record<string, unknown>)].map(([name, entry]) => [name, JSON.stringify(entry)]));
+    const reads = (name: string, seen: string[]): boolean => {
+      const text = at.get(name) ?? '';
+      return /\{color\.primary[-}]/.test(text) || [...text.matchAll(/\{([a-z][a-z0-9-]*)\}/g)].some(([, next]) => !seen.includes(next!) && reads(next!, [...seen, next!]));
+    };
+    for (const name of at.keys()) if (!name.startsWith('emphasis-primary-') && reads(name, [name])) pointed.add(name);
+  }
   const answers = quietAnswers();
   for (const role of pointed) assert.ok(role in answers, role);
-  for (const role of BRAND_ROLES) assert.ok(pointed.includes(role) && role in answers, role);
+  for (const role of BRAND_ROLES) assert.ok(pointed.has(role) && role in answers, role);
 });
 
 test('the nowhere-else answers leave no slot reading the brand under the default plugin', () => {
