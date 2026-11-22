@@ -4,10 +4,9 @@
    else and a manifest reaches them by name.
 
    A manifest holds class names and a keyframe is not one, so they are authored
-   here rather than smuggled into a bracket. Every value below is a var() and states
-   no number: a loop reads the --loop-* family, because a loop is not a transition,
-   and an entrance reads the --dur-enter-* and --ease-enter-* roles, the deep pair for
-   ArenaDialog and the floating pair for ArenaMenu and ArenaTooltip.
+   here rather than smuggled into a bracket. Every duration and curve below is a var().
+   A loop reads the --loop-* family. An entrance reads the --dur-enter-* and --ease-enter-*
+   roles: the deep pair for ArenaDialog, the floating pair for ArenaMenu and ArenaTooltip.
 
    Reduced motion is answered per animation, on the terms the motion sets: the
    shimmer is decorative, so it stops outright; ArenaProgressBar's indeterminate
