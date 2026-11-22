@@ -13,7 +13,9 @@
 
      The page's palettes are declared in the first style block, under .arena-light and .arena-dark.
      The page wears arena-light because its leading palette is the light one. Each panel below
-     wears its own class, so both polarities are drawn at once. -->
+     wears its own class, so both polarities are drawn at once.
+     A palette that leaves out primary-fill also declares --color-primary-fill: var(--color-primary),
+     the fill arena build derives for it, as the two palettes here do. -->
 <link rel="stylesheet" href="https://arena.dravensoft.org/intro/styles.css">
 
 <style>
