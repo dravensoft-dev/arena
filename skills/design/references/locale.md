@@ -452,3 +452,16 @@ const spanish = {
 
 bootstrapApplication(App, { providers: [provideArenaLocale(spanish)] });
 ```
+
+## How does Arena read text direction?
+
+Arena writes no `dir`. The project sets `dir` on `<html>`, or on a region whose text runs the other way. Under `dir="rtl"` each row below behaves as the table says, with the evidence level [`stack.md`](./stack.md) names.
+
+| What | Under dir="rtl" | Evidence |
+|---|---|---|
+| `align` `start` and `end` on an anchored panel: tooltip, popover, menu, multi-select, combobox, split button | `start` maps to the physical right and `end` to the left. `center` is unchanged | held by a gate (`check-anchoring`, both layers) |
+| `ArenaSlider` | ArrowLeft raises and ArrowRight lowers a horizontal slider. A pointer measures from the right edge | exercised by Arena's own suites |
+| `ArenaPinInput` | ArrowLeft moves to the next cell and ArrowRight to the previous | exercised by Arena's own suites |
+| tabs, tree view, calendar, calendar event, table, combobox chips, multi-select chips, bulk action bar, chart pointer, and the indeterminate progress keyframe | ArrowLeft stays "previous" in each, and the keyframe moves physically left to right | does not work |
+
+Everything else is allowed by the manifest, not exercised.
