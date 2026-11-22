@@ -448,6 +448,8 @@ function scaleRegion(groups: string[], base: string) {
   const roles = new Set(Object.keys(readJson(join(base, ROLE_CONTRACT)) as Record<string, unknown>));
   const utilities = utilitiesOf(base, /^\s*--(spacing|radius|shadow|ease|z-index)-([a-z0-9-]+):\s*var\(--((?:sp|r|shadow|ease|z)-[a-z0-9-]+)\)\s*;/,
     (kind, name) => ({ spacing: `*-${name}`, radius: `rounded-${name}`, 'z-index': `z-${name}` })[kind] ?? `${kind}-${name}`);
+  const rhythm = utilitiesOf(base, /^\s*--(spacing)-([a-z0-9-]+):\s*var\(--(rhythm-[a-z0-9-]+)\)\s*;/, (_kind, name) => `gap-${name}`);
+  for (const [name, found] of rhythm) utilities.set(name, found);
   const unit = /^\s*--spacing:\s*var\(--([a-z0-9-]+)\)\s*;/m.exec(readFileSync(join(base, THEME_SHEET), 'utf8'))?.[1];
   const pixels = (name: string) => {
     const one = /^(-?[\d.]+)(px|rem)$/.exec(String(tokens[name]));
@@ -466,6 +468,7 @@ function scaleRegion(groups: string[], base: string) {
   const reset = resets.length === 0 ? [] : [`Where the sheet resets a Tailwind default scale (${resets.length === 1 ? resets[0] : `${resets.slice(0, -1).join(', ')} and ${resets.at(-1)}`}), a utility of that default, such as \`${groups.includes('shadow') ? 'shadow-md' : 'ease-in'}\`, emits nothing. \`arena audit\` reports it as \`dead-utility\` when your project resolves \`tailwindcss\`.`];
   const intro = [
     ...(groups.includes('sp') ? ['`*-` stands for any spacing utility, such as `h-` or `py-`.', 'The sheet sets the spacing base to `--sp-1`, so a spacing utility resolves as its number times that step.'] : []),
+    ...(groups.includes('rhythm') ? ['The three `--rhythm-*` steps are the air between two components, and [`style.md`](../../style.md#the-air-between-two-components) says which class carries each.'] : []),
     'A row marked `none` has no utility named for its token, so read it with `var()`.',
     ...reset,
     ...(groups.includes('bp') ? ['A breakpoint row names the variant that reads it, and Tailwind\'s other default widths, such as `xl:`, stop resolving, and the audit reports them the same way.'] : []),
@@ -492,7 +495,7 @@ Without one of them an agent guesses. \`arena audit\` reads your own sources for
 
 The package is the code. The server, the plugin and the repository are the language.`,
 
-  spacing: (base = root) => scaleRegion(['sp', 'r', 'bw', 'shadow', 'bp'], base),
+  spacing: (base = root) => scaleRegion(['sp', 'rhythm', 'r', 'bw', 'shadow', 'bp'], base),
 
   motion: (base = root) => scaleRegion(['dur', 'loop', 'ease', 'z'], base),
 

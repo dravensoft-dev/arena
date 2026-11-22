@@ -462,6 +462,9 @@ const JOINED_TOKEN_ROWS = [
   '| `--sp-20` | `80px` | `*-20` |',
   '| `--sp-24` | `96px` | `*-24` |',
   '| `--sp-0-5` | `2px` | `*-0.5` |',
+  '| `--rhythm-group` | `12px` | `gap-group` |',
+  '| `--rhythm-component` | `16px` | `gap-component` |',
+  '| `--rhythm-section` | `24px` | `gap-section` |',
   '| `--r-xs` | `4px` | `rounded-xs` |',
   '| `--r-sm` | `6px` | `rounded-sm` |',
   '| `--r-md` | `10px` | `rounded-md` |',
@@ -801,4 +804,21 @@ test('no Markdown link of the corpus resolves to the slot index with a group fra
   assert.ok(WALKED.includes(SLOT_INDEX), 'the walk reaches the slot index');
   const found = WALKED.flatMap((from) => groupFragmentLinks(from, readFileSync(join(repoRoot, from), 'utf8'), groups).map((target) => `${from} -> ${target}`));
   assert.deepEqual(found, [], 'a link to a group goes to its group page');
+});
+
+test('the spacing table carries the rhythm steps', () => {
+  type Step = { $value: string };
+  const spacing = readJson(join(repoRoot, 'contracts/design/spacing.json')) as {
+    sp: Record<string, { $value: { value: number; unit: string } }>;
+    rhythm: Record<string, Step | string>;
+  };
+  const region = renderRegion('spacing');
+  const steps = Object.entries(spacing.rhythm).filter(([, step]) => typeof step === 'object' && '$value' in step);
+  assert.equal(steps.length, 3, 'the contract holds three rhythm steps');
+  for (const [name, step] of steps) {
+    const alias = /^\{sp\.([^}]+)\}$/.exec((step as Step).$value)?.[1] ?? '';
+    const size = spacing.sp[alias]!.$value;
+    assert.ok(region.includes(`| \`--rhythm-${name}\` | \`${size.value}${size.unit}\` | \`gap-${name}\` |`), `rhythm ${name} is a row with its px and its utility`);
+  }
+  assert.ok(region.includes('style.md#the-air-between-two-components'), 'the table says where the classes are');
 });
