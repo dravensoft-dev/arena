@@ -31,6 +31,7 @@ import { RETIRED_ICONS_SHEET, spriteFilesIn } from '../../generate/core/arena-cl
 import { DEFAULT_PLUGIN, PLUGIN_TOKENS, pluginName } from '../../generate/core/arena-cli/theme-css.ts';
 import { ROOT_PLUGIN } from '../core/check-style-plugin.ts';
 import { RULE_TAGS } from '../../generate/core/arena-cli/audit.ts';
+import { PALETTE_KEYS } from '../../generate/core/arena-cli/palette-keys.ts';
 import { NOT_READ, NO_TAILWIND } from '../../generate/core/arena-cli/dead-utilities.ts';
 import { captured } from '../../utils/captures.ts';
 import { parseDecls } from '../../lib/arena/css-decls.ts';
@@ -910,7 +911,10 @@ const FENCE = /```(html|css)\n([\s\S]*?)```/g;
 const ANY_FENCE = /```[^\n]*\n[\s\S]*?```/g;
 const SPAN = /`([^`\n]+)`/g;
 
+const CSS_PROPERTIES = ['z-index'];
+
 export function utilitySpan(span: string) {
+  if ([...RULE_TAGS, ...PALETTE_KEYS, ...CSS_PROPERTIES].includes(span)) return false;
   if (!span.includes('-') || /\s/.test(span)) return false;
   if (/^(--|@|aria-|var\()/.test(span) || span.endsWith(':')) return false;
   return !/\.(css|json|md|ts)$/.test(span);
@@ -1039,7 +1043,7 @@ async function main() {
     + `scope a style plugin of the project's own, widen the boundaries of a card under Increase Contrast `
     + `in Chromium, emit a block carrying `
     + `its own polarity for each of three palettes, hold a runtime palette from the shipped module equal to `
-    + `the class the CLI builds, and every subcommand leaves the tree and the exit code `
+    + `the class the CLI builds, audit the classes and blocks the markup pages teach clean in both layers, and every subcommand leaves the tree and the exit code `
     + `it promises`);
 }
 

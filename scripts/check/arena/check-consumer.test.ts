@@ -523,6 +523,9 @@ const SPAN_ROWS: { span: string; want: boolean }[] = [
   { span: '@dravensoft/arena-react', want: false },
   { span: 'calc', want: false },
   { span: 'z index', want: false },
+  { span: 'z-index', want: false },
+  { span: 'missing-level', want: false },
+  { span: 'base-100', want: false },
 ];
 
 test('an inline span is a utility only when it is one hyphenated token that is no variable, scope, path or attribute', () => {
