@@ -1,12 +1,12 @@
 /* Arena's three entrances are drawn in Chromium against the tree's intro/styles.css, because a
  * utility that reads a role the sheet never defines computes no duration and passes on nothing.
- * The animation utilities are read from the built Utilities.generated.css, and an answer is a class
- * rule the way a later plugin writes one. Each entrance is created and read in the same turn so its
+ * The animation utilities are the @utility blocks of Animations.css lifted into plain rules, and an
+ * answer is a class rule the way a later plugin writes one. Each entrance is created and read in the same turn so its
  * animation has not finished, and a probe painted in the same scope gives the duration and curve the
  * role is expected to answer. A skip is DECLARED and never called. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -22,8 +22,8 @@ const LOAD: Deadline = deadline('entrance-roles:load', 30_000,
 const BROWSER = findChromium();
 const NEEDS_A_BROWSER = BROWSER.path ? false : `no Chromium available to measure in: ${BROWSER.reason}`;
 const SHEET = pathToFileURL(join(repoRoot, 'intro', 'styles.css')).href;
-const UTILITIES = join(repoRoot, 'frameworks', 'tailwind', 'Utilities.generated.css');
-const NEEDS_THE_BUILD = existsSync(UTILITIES) ? false : 'frameworks/tailwind/Utilities.generated.css is not built; run bun run build:tailwind';
+const ANIMATIONS = readFileSync(join(repoRoot, 'frameworks', 'tailwind', 'Animations.css'), 'utf8')
+  .replace(/@utility ([\w-]+) \{/g, '.$1 {');
 const LATER = '.arena-later';
 
 type Row = {
@@ -89,7 +89,7 @@ async function drawn(): Promise<{ row: Row; got: Measured }[]> {
   try {
     const file = join(dir, 'page.html');
     const later = (row: Row) => `${LATER} { ${Object.entries(row.answers).map(([prop, value]) => `${prop}: ${value};`).join(' ')} }`;
-    writeFileSync(file, `<!doctype html><link rel="stylesheet" href="${SHEET}"><link rel="stylesheet" href="${pathToFileURL(UTILITIES).href}"><style id="later"></style><body></body>`);
+    writeFileSync(file, `<!doctype html><link rel="stylesheet" href="${SHEET}"><style>${ANIMATIONS}</style><style id="later"></style><body></body>`);
     const out: { row: Row; got: Measured }[] = [];
     for (const row of ENTRANCES) {
       const { targetId } = await cdp.send('Target.createTarget', { url: 'about:blank' });
@@ -119,7 +119,7 @@ async function drawn(): Promise<{ row: Row; got: Measured }[]> {
 const BUDGET_MS = budgetFor(DEVTOOLS, GRACE, REAP, LOAD) + ENTRANCES.length * 2_000;
 
 test('an answer to the deep entrance moves the dialog and leaves the floating ones',
-  { timeout: BUDGET_MS, skip: NEEDS_A_BROWSER || NEEDS_THE_BUILD }, async () => {
+  { timeout: BUDGET_MS, skip: NEEDS_A_BROWSER }, async () => {
   const wrong = (await drawn()).flatMap(({ row, got }) => {
     if (!got.found) return [`${row.name}: no animation ran on the ${row.utility} element`];
     const travel = got.transforms.some((t) => t !== 'none');
