@@ -35,14 +35,14 @@ const DOORS: Door[] = [
 ];
 
 const rows = () => {
-  const table = read(SKILL).split('## Where each question is answered')[1].split('\n').filter((line) => line.startsWith('| ') && !line.startsWith('| Question') && !line.startsWith('|---'));
+  const table = (read(SKILL).split('## Where each question is answered')[1] ?? '').split('\n').filter((line) => line.startsWith('| ') && !line.startsWith('| Question') && !line.startsWith('|---'));
   return table.map((line) => {
     const cells = line.split(/ \| /);
-    return { question: cells[0].replace(/^\| /, ''), read: cells.slice(1).join(' | ') };
+    return { question: (cells[0] ?? '').replace(/^\| /, ''), read: cells.slice(1).join(' | ') };
   });
 };
 
-const pagesOf = (cell: string, from: string) => [...new Set([...cell.matchAll(/\]\(([^)]+\.md)(#[^)]*)?\)/g)].map((m) => normalize(join(dirname(from), m[1]))))];
+const pagesOf = (cell: string, from: string) => [...new Set([...cell.matchAll(/\]\(([^)]+\.md)(#[^)]*)?\)/g)].map((m) => normalize(join(dirname(from), m[1] ?? ''))))];
 
 const sentencesOf = (text: string) => text.replace(/<!--[\s\S]*?-->/g, '').replace(/```[\s\S]*?```/g, '').replace(/^\|.*$/gm, '')
   .split(/(?<=[.!?])\s+/).map((one) => one.replace(/\s+/g, ' ').trim()).filter((one) => one.split(' ').length >= 8);
@@ -50,7 +50,7 @@ const sentencesOf = (text: string) => text.replace(/<!--[\s\S]*?-->/g, '').repla
 const sectionOf = (path: string, headings: string[] | undefined) => {
   const text = read(path);
   if (!headings) return text;
-  return headings.map((heading) => text.split(new RegExp(`^## ${heading}\\n`, 'm'))[1].split(/^## /m)[0]).join('\n');
+  return headings.map((heading) => (text.split(new RegExp(`^## ${heading}\\n`, 'm'))[1] ?? '').split(/^## /m)[0] ?? '').join('\n');
 };
 
 test('each question the router asks names one page', () => {
@@ -58,6 +58,7 @@ test('each question the router asks names one page', () => {
   for (const door of DOORS) {
     const row = table.find((one) => one.question === door.question);
     assert.ok(row, `${door.question}: the router has no such row`);
+    if (!row) continue;
     const named = pagesOf(row.read, SKILL).filter((page) => !(door.values ?? []).includes(page));
     assert.deepEqual(named, [door.owner], `${door.question}: the row names ${named.join(', ')}`);
     for (const pointer of door.pointers) {
@@ -72,8 +73,8 @@ test('each question the router asks names one page', () => {
 
 test('the locale page shows a whole product in every field', () => {
   const page = read(`${REF}locale.md`);
-  const blocks = [...page.matchAll(/```(tsx|ts)\n([\s\S]*?)```/g)].filter((one) => one[2].includes('satisfies Required<ArenaLocale>'));
+  const blocks = [...page.matchAll(/```(tsx|ts)\n([\s\S]*?)```/g)].filter((one) => (one[2] ?? '').includes('satisfies Required<ArenaLocale>'));
   assert.equal(blocks.length, 2, 'locale.md holds one whole-locale block per layer');
-  assert.ok(blocks[0][2].includes('@dravensoft/arena-react'), 'the first whole-locale block imports the React package');
-  assert.ok(blocks[1][2].includes('@dravensoft/arena-angular'), 'the second whole-locale block imports the Angular package');
+  assert.ok((blocks[0]?.[2] ?? '').includes('@dravensoft/arena-react'), 'the first whole-locale block imports the React package');
+  assert.ok((blocks[1]?.[2] ?? '').includes('@dravensoft/arena-angular'), 'the second whole-locale block imports the Angular package');
 });

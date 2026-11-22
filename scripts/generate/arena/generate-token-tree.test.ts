@@ -11,7 +11,6 @@ import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { ARENA_EXT } from '../../lib/core/dtcg-shapes.ts';
-import { STATE_SELECTORS } from '../../check/core/check-role-contract.ts';
 import {
   TREE, TREE_DIR, TREE_OPEN, TREE_CLOSE, roleLeaf, markupLeaf, regionBodies, renderTree, writeTree,
   COMPAT, roleUtilities, roleColourKeys, combination, stateRows, defaultAnswer,
