@@ -52,23 +52,23 @@ export const ENTRIES: Entry[] = [
   {
     name: 'consumer',
     router: 'skills/design/SKILL.md',
-    budget: 21_600,
+    budget: 21_657,
     reason:
-      'the page every consumer route opens with, declared once, not as the first stop of '
-      + 'each route. What a route pays past it is its own, and each is argued where spent. '
+      'the page every consumer route opens with, declared once and not as each route\'s first stop. '
+      + 'A route\'s own cost is argued where spent. '
       + 'A question earns a row only when it is asked before a builder knows their '
       + 'situation: whether a component exists, how much of Arena a project takes, what it '
-      + 'installs Arena with, where the appearance comes from, whether anybody outside the product '
-      + 'has to find it, how a page is assembled, and where a defect goes once it is proved to be '
-      + 'Arena\'s. The rules list is '
+      + 'installs Arena with, where the appearance comes from, whether the product '
+      + 'has to be found, how a page is assembled, and where a proved Arena defect goes. The rules list is '
       + 'emitted from one declaration, so each rule names its audit tag, or says why '
-      + 'none reads it. What moves this number is a new question, or a helper '
+      + 'none reads it. What moves this number is a new question, a helper '
       + 'a reader cannot ask for by name, or a tag beside the one it '
       + 'extends, as wrapped-link stands beside router-link. The vocabulary families name which '
-      + 'style decision reaches which component owner and answer the route\'s questions about '
-      + 'appearance sources at the decision layer. The tokens-only rule names the bracket values '
-      + 'audit holds. Rows route a mock, toolchain, bundler, panel, toggle and layer. The router-link rule names each member '
-      + 'with an href, and the icon rule names production code and the component that draws a glyph.',
+      + 'style decision reaches which component owner and answer the appearance-source questions '
+      + 'at the decision layer. The tokens-only rule names the bracket values audit holds. Rows route a mock, '
+      + 'toolchain, bundler, panel, toggle and layer. One row lists every export topic, and the cold-start '
+      + 'paragraph names the project-wide branch. The router-link rule names each member with an href, and the '
+      + 'icon rule names production code and the glyph\'s component.',
   },
   {
     name: 'contributor',

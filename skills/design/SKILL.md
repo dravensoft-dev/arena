@@ -49,18 +49,17 @@ are the exceptions.
 plugin, and so does the corpus `@dravensoft/arena-mcp` serves. Read the path on the repository
 above when you have none of the three.
 
-**Everything here is one component at a time.**
-
 ## In this order
 
 **Settle what this product is and what it looks like before the first screen**, once per project
 rather than once per screen. A screen written ahead of those decisions is written against
 decisions nobody made. [`references/cold-start.md`](./references/cold-start.md) is where that
 happens, and that page is a tree rather than a list. The tree's branches reach the four decisions
-a project settles once. Three more branches reach past them. One is the interview that comes
+a project settles once. Four more branches reach past them. One is the interview that comes
 first when there is no appearance to read. One is the catalogue of measured style plugins a
 project can start from instead. One is the identity document every branch converges on before a
-file is written. Two questions on the
+file is written. One is the [node for the decisions every screen inherits](./references/cold-start.md#7-the-decisions-every-screen-inherits):
+colour slots, density, language, theme switching and the page skeleton. Two questions on the
 tree decide an install rather than a screen: how much of the product has to be found from outside
 it, and what it is assembled on. The tree's last node derives the dependency list from those two
 answers, so nothing has to be guessed at install time.
@@ -177,7 +176,7 @@ source text cannot show, is `arena://rules` on the MCP server.
 | Where is each style decision made, and which of them are mine? | [`references/style.md`](./references/style.md): the five places, and the two you write in |
 | What exactly does this member take? | the members table in that same prompt |
 | Why does this member exist at all? | `contracts/api/components/<Name>.json` |
-| What else is exported: density by breakpoint, a focus trap, toast and confirmation queues, router predicates, tabular figures, hidden labels, and chart colours (categorical ramp, tones, heat ladder)? How do I size a layout or a panel? | [exports](./references/exports.md), then [shell](./references/shell.md) for a frame. Switching palettes is [theme](./references/theme.md) and Arena's words are [locale](./references/locale.md) |
+| What else is exported: what each export promises; confirmations and toasts raised from code; a focus trap and roving focus; hidden labels and tabular figures? How do I colour a legend, a chip or a chart library, route an activation of your own, or change density below a breakpoint? How do I window a long table, or take Angular projection markers, reactive forms and the file input? How do I size a layout or a panel? | [exports](./references/exports.md), then [shell](./references/shell.md) for a frame. Switching palettes is [theme](./references/theme.md) and Arena's words are [locale](./references/locale.md) |
 | What do I paint my page and my own markup with? | [`references/page.md`](./references/page.md): the floor, the colour roles, and why a role follows the skin where an alias follows the palette. **Arena paints no page of yours** |
 | How much air goes between two components, and what column does the page sit in? | [`references/style.md`](./references/style.md): the four classes the column is made of, and the stack and row steps as classes and as tokens. That page also draws the cut between air you place and air the kernel answers |
 | How do I assemble a page: skip link, landmarks, side nav beside content? | [shell](./references/shell.md): the skeleton in each layer, which landmark each piece is, how wide the rail is and how the title follows the route |
