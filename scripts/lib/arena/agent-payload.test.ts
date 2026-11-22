@@ -172,23 +172,50 @@ function markdownUnder(dir: string): string[] {
   });
 }
 
+const CONTRIBUTOR_LINK = 'contracts/design/AGENTS.md';
+
+const LINKS_ROWS = [
+  { name: 'a carried page with a fragment keeps the fragment and stays relative', from: 'skills/design/references/tokens/components/index.md', target: '../../../../../contracts/design/StylePlugins.md#the-option-roles', want: /^\]\(\.\.\/.*contracts\/design\/StylePlugins\.md#the-option-roles\)$/ },
+  { name: 'a carried reference with a fragment keeps the fragment', from: 'frameworks/VOCABULARY.md', target: '../skills/design/references/style.md#density', want: /^\]\(\.\.?\/.*style\.md#density\)$/ },
+];
+
+test('a link with a fragment is rewritten to a relative href with the fragment kept', () => {
+  for (const { name, from, target, want } of LINKS_ROWS) {
+    const out = rewrite(`[x](${target})`, from, 'react', BASES);
+    assert.match(out.slice(2), want, `${name}: ${out}`);
+    assert.ok(!out.includes('https://'), `${name}: ${out} leaves the payload`);
+  }
+});
+
 test('every corpus link into the design contracts resolves inside the payload', () => {
-  const sources = [...markdownUnder('skills/design/references'), 'frameworks/INDEX.md',
-    'frameworks/VOCABULARY.md', 'plugin-style-store/catalogue/INDEX.md'];
-  const found = new Map<string, string>();
+  const sources = [...markdownUnder('skills/design/references'), 'frameworks/INDEX.md', 'frameworks/VOCABULARY.md',
+    'plugin-style-store/catalogue/INDEX.md', ROUTER_SOURCE, ...markdownUnder('contracts/design').filter((page) => inPayload(page, 'react'))];
+  const found = new Map<string, { from: string; target: string }>();
   for (const from of sources) {
     const text = readFileSync(join(ROOT, from), 'utf8').replace(/```[\s\S]*?```/g, '');
     for (const match of text.matchAll(LINK)) {
-      const target = (match[1] ?? '').split('#')[0] ?? '';
-      if (target === '' || /^[a-z]+:/i.test(target)) continue;
-      const real = resolvePosix(from, target);
-      if (real.startsWith('contracts/design/')) found.set(`${from} -> ${real}`, real);
+      const target = match[1] ?? '';
+      if (target === '' || target.startsWith('#') || /^[a-z]+:/i.test(target)) continue;
+      const real = resolvePosix(from, target.split('#')[0] ?? '');
+      if (real.startsWith('contracts/design/')) found.set(`${from} -> ${target}`, { from, target });
     }
   }
-  assert.ok(found.has('skills/design/references/tokens/markup/meaning-and-identity.md -> contracts/design/colors.css'),
-    'the walk reaches the link to colors.css');
+  assert.ok([...found.keys()].some((link) => link.endsWith('contracts/design/colors.css')), 'the walk reaches the link to colors.css');
+  assert.ok([...found.keys()].some((link) => link.startsWith(`${ROUTER_SOURCE} ->`)), 'the walk reaches the router');
+  assert.ok([...found.keys()].some((link) => link.startsWith('contracts/design/')), 'the walk reaches a carried contract page');
   for (const layer of ['react', 'angular']) {
-    for (const [link, real] of found) assert.ok(inPayload(real, layer), `${link} is not carried in ${layer}`);
-    assert.equal(inPayload('contracts/design/AGENTS.md', layer), false, `AGENTS.md is carried in ${layer}`);
+    for (const [link, { from, target }] of found) {
+      const real = resolvePosix(from, target.split('#')[0] ?? '');
+      const out = rewrite(`[x](${target})`, from, layer, BASES);
+      if (real === CONTRIBUTOR_LINK) {
+        assert.equal(out, `[x](${BASES.repository}/${CONTRIBUTOR_LINK})`, `${link} names the one target the payload leaves out, so it goes to the repository in ${layer}`);
+        continue;
+      }
+      assert.ok(!out.includes('://'), `${link} leaves the payload in ${layer}: ${out}`);
+      const fragment = target.includes('#') ? `#${target.split('#').slice(1).join('#')}` : '';
+      assert.ok(out.endsWith(`${fragment})`), `${link} loses its fragment in ${layer}: ${out}`);
+      assert.ok(inPayload(real, layer) || real === ROUTER_SOURCE, `${link} is not carried in ${layer}`);
+    }
+    assert.equal(inPayload(CONTRIBUTOR_LINK, layer), false, `AGENTS.md is carried in ${layer}`);
   }
 });

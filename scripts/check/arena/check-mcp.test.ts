@@ -148,7 +148,8 @@ test('a target inside the corpus is judged by whether it is there', () => {
   });
   const payload = join(dir, 'agent', 'react');
   assert.equal(unresolvedTarget('./references/page.md', 'skills/design/ROUTER.md', payload, new Set()), null);
-  assert.match(unresolvedTarget('./references/gone.md', 'skills/design/ROUTER.md', payload, new Set()) ?? '',
+  assert.equal(unresolvedTarget('./references/page.md#a-heading', 'skills/design/ROUTER.md', payload, new Set()), null);
+  assert.match(unresolvedTarget('./references/gone.md#a-heading', 'skills/design/ROUTER.md', payload, new Set()) ?? '',
     /resolves to nothing a consumer installs/);
   rmSync(dir, { recursive: true });
 });

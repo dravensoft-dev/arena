@@ -167,7 +167,7 @@ export function unresolvedTarget(target: string, from: string, agent: string, se
   }
   if (/^[a-z]+:/i.test(target) || target.startsWith('#')) return null;
   if (target.includes('*') || target.includes('<')) return null;
-  const at = join(dirname(join(agent, from)), target);
+  const at = join(dirname(join(agent, from)), target.replace(/[#?].*$/, ''));
   return existsSync(at) ? null : `${target} resolves to nothing a consumer installs`;
 }
 

@@ -164,7 +164,9 @@ export const INLINE = /`([^`\n]+)`/g;
 export function rewrite(text: string, from: string, layer: string, bases: Bases) {
   const linked = replaceOutsideCode(text, LINK, (whole, target = '') => {
     if (/^[a-z]+:/i.test(target) || target.startsWith('#')) return whole;
-    return `](${rewriteTarget(resolvePosix(from, target), from, layer, bases)})`;
+    const [path = '', ...rest] = target.split('#');
+    const fragment = rest.length > 0 ? `#${rest.join('#')}` : '';
+    return `](${rewriteTarget(resolvePosix(from, path), from, layer, bases)}${fragment})`;
   });
   return linked.replace(INLINE, (whole, target: string) => {
     if (target.startsWith('./') || target.startsWith('../')) {

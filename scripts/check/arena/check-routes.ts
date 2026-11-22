@@ -52,7 +52,7 @@ export const ENTRIES: Entry[] = [
   {
     name: 'consumer',
     router: 'skills/design/SKILL.md',
-    budget: 21_760,
+    budget: 21_769,
     reason:
       'the page every consumer route opens with, declared once, not as each route\'s first stop. '
       + 'A question earns a row only when asked before a builder knows their situation. '
