@@ -1,6 +1,6 @@
 # Arena's own words in your language
 
-How do I translate the words Arena draws itself? Which words are those? What do `ArenaLocaleProvider`, `useArenaLocale`, `provideArenaLocale` and `ARENA_LOCALE` do? Does the locale switch at runtime? Read this when the product ships in a language other than English.
+How do I translate the words Arena draws itself? Which words are those? What do `ArenaLocaleProvider`, `useArenaLocale`, `provideArenaLocale` and `ARENA_LOCALE` do? Does the locale switch at runtime? Which `lang` does the document declare? Read this when the product ships in a language other than English, or sets `<html lang>`.
 
 ## Which words does Arena draw itself?
 
