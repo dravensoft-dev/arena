@@ -45,12 +45,11 @@ change touches how a component reaches the document.
   fonts declared in `contracts/design-generated/fonts.generated.css`, binaries in `assets/fonts/`)
   plus the shared `frameworks/tailwind/Theme.css` `@theme` preset into scope. It reaches those
   through repository paths, so its readers are here and not in a consuming project.
-- `theme/arena-cdk.css`: the `@angular/cdk` overlay's structural stylesheet, re-based onto
-  Arena's `--z-*` scale, needed once the app uses a primitive that positions itself with
-  `@angular/cdk/overlay`. The file states why the container's z-index is overridden and why
-  the four other hardcoded ones are left alone. **It is verified against the installed
-  `@angular/cdk`; read [CDK bridge](#cdk-bridge-supported-and-verified) for what that
-  means and what it does not.**
+- `theme/arena-cdk.css`: the `@angular/cdk` overlay's structural stylesheet and no rule of Arena's, needed
+  once the app uses a primitive that positions itself with `@angular/cdk/overlay`. The file states why it
+  overrides no z-index: the pinned CDK opens every pane in the top layer, where no z-index reaches.
+  **`check:cdk` verifies the file against the installed `@angular/cdk`; read
+  [CDK bridge](#cdk-bridge-supported-and-verified) for what that means and what it does not.**
 
 **The files under `theme/` keep their lowercase names, and they do not share one reason.**
 `arena-cdk.css` is named **inside an adopter's own source, verbatim**, as
@@ -332,20 +331,14 @@ trusting this, with `grep -rho "from '@[a-z@/-]*'" --include='*.ts' --exclude='*
 positions an overlay imports it, so it is pinned in the root `package.json` at an exact
 version, and the app must import `theme/arena-cdk.css` once.
 
-**The bridge is verified, not rendered.** `bun run check:cdk` reads the bridge with
-`scripts/lib/arena/css-decls.ts` and asserts that every Arena token it references exists and that
-every `cdk-*` class it overrides is one the installed `@angular/cdk` really defines. It
-checks the **selectors** as well as the values, which it can because
-`@angular/cdk/overlay-prebuilt.css` ships installed and is the oracle: a class renamed
-upstream leaves the override matching nothing, and that is decidable against the sheet. It
-also carries four zero-result guards (no rule, no `cdk-*` class, no `var()`, no `@import`)
-so a bridge that has stopped being a bridge cannot pass by having nothing left to check.
+**The bridge is verified, not rendered.** `bun run check:cdk` asserts that the bridge imports the
+installed `@angular/cdk/overlay-prebuilt.css` and declares no rule of its own. The published copy must be
+the bridge with that sheet inlined byte for byte, under the version the root `package.json` pins. A rule
+in the bridge fails, because the pinned CDK opens every pane in the top layer and no z-index reaches there.
 
-**What the gate does not cover** is whether an override's *value* is the right one for the
-class it lands on: the gate reads names and selectors, never paint, so only a real render
-catches that. `ArenaTooltip.demo.generated.html`, `ArenaMenu.demo.generated.html` and `ArenaPopover.demo.generated.html` are that render: each opens a real CDK
-overlay in a real browser, which is where a z-index that stacks wrongly is visible at all.
-`check:cdk` fails the moment the bridge and the installed package disagree.
+**What the gate does not cover** is how a pane paints. The demo pages of `ArenaTooltip`, `ArenaMenu` and
+`ArenaPopover` open a real CDK overlay in a real browser, where a pane drawn under its own surface is
+visible. `check:cdk` fails the moment the bridge and the installed package disagree.
 
 ## Verifying the layer
 

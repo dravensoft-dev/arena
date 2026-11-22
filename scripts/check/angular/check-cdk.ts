@@ -1,15 +1,10 @@
-/* The CDK overlay bridge fails silently three ways: a rule that overrides nothing, a token
- * that resolves to nothing, and a class the CDK renamed upstream leaving the override
- * matching nothing. This gate DOES examine the selectors — it can, because the bridge's whole
- * job is overriding a class the prebuilt sheet defines, and that sheet is the oracle.
- * What it still cannot check is whether the override is the RIGHT value for that class. */
+/* The CDK overlay bridge fails silently three ways: a sheet it stops importing, an import that resolves to nothing, and a published copy that drifts from the installed CDK. Every pane the pinned CDK opens sits in the top layer, where no z-index reaches, so a rule in the bridge orders nothing. What the gate cannot check is how a pane paints. */
 
 import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { parseDecls } from '../../lib/arena/css-decls.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
-import { arenaTokenNames, referencedTokens } from '../../lib/core/arena-tokens.ts';
 import { captured } from '../../utils/captures.ts';
 import { arenaEnv, refuseWhen, unassembledReason } from '../../lib/arena/arena-scripts-vars.ts';
 import { cdkVersion, inlineCdkPrebuilt } from '../../lib/arena/package-assembly.ts';
@@ -20,7 +15,7 @@ const PUBLISHED = 'frameworks/angular/dist/css/arena-cdk.css';
 
 export const node = {
   name: 'check:cdk',
-  reads: [BRIDGE, 'contracts/design-generated/*.generated.css', 'contracts/design/colors.css',
+  reads: [BRIDGE,
     'package.json', 'bun.lock', PUBLISHED],
   writes: [],
   feeds: [],
@@ -34,13 +29,6 @@ export function bridgeSelectors(css: string) {
   return out;
 }
 
-export function cdkClasses(css: string) {
-  const out = new Set<string>();
-  const stripped = css.replace(/\/\*[\s\S]*?\*\//g, '');
-  for (const m of stripped.matchAll(/\.(cdk-[a-z0-9-]+)/g)) out.add(captured(m));
-  return out;
-}
-
 export function importedSheets(css: string) {
   const out = new Set<string>();
   const stripped = css.replace(/\/\*[\s\S]*?\*\//g, '');
@@ -48,30 +36,15 @@ export function importedSheets(css: string) {
   return out;
 }
 
-export function checkBridge(bridgeCss: string, prebuiltCss: string, tokens: Set<string>, resolveSheet: (sheet: string) => boolean) {
+export function checkBridge(bridgeCss: string, resolveSheet: (sheet: string) => boolean) {
   const errs = [];
-  const selectors = bridgeSelectors(bridgeCss);
-  const named = cdkClasses(bridgeCss);
-  const defined = cdkClasses(prebuiltCss);
-  const referenced = referencedTokens(bridgeCss);
+  const selectors = [...bridgeSelectors(bridgeCss)].sort();
   const imported = importedSheets(bridgeCss);
 
-  if (selectors.size === 0)
-    errs.push(`${BRIDGE} declares no rule at all — a bridge that overrides nothing is not a bridge, and this gate would pass it by finding nothing to check`);
-  if (named.size === 0)
-    errs.push(`${BRIDGE} names no cdk-* class — it cannot be overriding the CDK, so either the selectors are wrong or this file has stopped being the CDK bridge`);
-  if (referenced.size === 0)
-    errs.push(`${BRIDGE} references no Arena token — its whole reason to exist is putting the CDK's hardcoded z-index on Arena's scale, and a bridge with no var() has stopped doing that`);
+  if (selectors.length)
+    errs.push(`${BRIDGE} declares ${selectors.join(', ')} — every pane the pinned @angular/cdk opens sits in the top layer, where a rule of the bridge orders nothing`);
   if (imported.size === 0)
     errs.push(`${BRIDGE} imports no stylesheet — the CDK overlay needs its prebuilt structural CSS in scope, and without it every overlay renders unpositioned`);
-
-  for (const name of [...named].sort())
-    if (!defined.has(name))
-      errs.push(`.${name} is defined by no installed @angular/cdk overlay class — the override matches nothing, and the CDK renaming a class is exactly how this breaks with the whole suite green`);
-
-  for (const name of [...referenced].sort())
-    if (!tokens.has(name))
-      errs.push(`var(--${name}) names no Arena token — it resolves to nothing`);
 
   for (const sheet of [...imported].sort())
     if (!resolveSheet(sheet))
@@ -86,7 +59,7 @@ export function publishedBridgeProblems(published: string, bridgeSource: string,
   const bare = [...stripped.matchAll(/@import\s+(?:url\(\s*)?['"]([^'"]+)['"]/g)].map((m) => captured(m)).filter((spec) => !/^\.{1,2}\//.test(spec));
   if (bare.length) errs.push(`${PUBLISHED} has an @import of ${bare.map((b) => `'${b}'`).join(', ')} — a bare specifier needs the resolver to know the CDK's style condition, and esbuild without it cannot`);
   if (published !== inlineCdkPrebuilt(bridgeSource, prebuilt, version))
-    errs.push(`${PUBLISHED} is not the bridge with the installed @angular/cdk ${version} overlay-prebuilt.css inlined in place of its import, byte for byte — the overlay renders unpositioned, with rules the installed CDK no longer has, or with the override ahead of the CDK's own rules`);
+    errs.push(`${PUBLISHED} is not the bridge with the installed @angular/cdk ${version} overlay-prebuilt.css inlined in place of its import, byte for byte — the overlay renders unpositioned, with rules the installed CDK no longer has, or with a rule ahead of the CDK's own`);
   return errs;
 }
 
@@ -97,12 +70,7 @@ function main() {
     process.exit(1);
   }
   const css = readFileSync(join(repoRoot, BRIDGE), 'utf8');
-  const errs = checkBridge(
-    css,
-    readFileSync(prebuilt, 'utf8'),
-    arenaTokenNames(repoRoot),
-    (sheet: string) => existsSync(join(repoRoot, 'node_modules', sheet)),
-  );
+  const errs = checkBridge(css, (sheet: string) => existsSync(join(repoRoot, 'node_modules', sheet)));
 
   if (errs.length) {
     console.error(`check-cdk: ${errs.length} problem${errs.length === 1 ? '' : 's'} in ${BRIDGE}\n`);
@@ -118,8 +86,7 @@ function main() {
     process.exit(1);
   }
   console.log(`check-cdk: ${PUBLISHED} carries the CDK overlay rules inline`);
-  const n = cdkClasses(css).size;
-  console.log(`check-cdk: ${n} overridden CDK class${n === 1 ? ' exists' : 'es exist'}, every Arena token resolves, every @import resolves`);
+  console.log('check-cdk: the bridge imports the installed sheet and declares no rule');
 }
 
 if (isMainModule(import.meta.url)) main();
