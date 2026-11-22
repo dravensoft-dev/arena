@@ -321,12 +321,12 @@ export const ROUTES: Route[] = [
     stops: ['skills/design/references/tokens/markup/index.md', 'skills/design/references/tokens/markup/layers.md'],
     budget: 6_700,
     reason:
-      'paid per overlay, sticky bar or panel a builder places. The route buys the order layers stack  '
-      + 'in and what each one rests on, in one page. The token reference and the shell page stay out.  '
-      + 'The layers page gives the whole caveat of each step: what it is for and what it sits above and  '
-      + 'below. The page also says where a panel in the top layer stacks, with the five components  '
-      + 'whose panels open there. The number is what the two stops measure and moves when the layers  '
-      + 'page grows a rule. The markup index is half of this route, and its row for the units page is  '
+      'paid per overlay, sticky bar or panel a builder places. The route buys the order layers stack '
+      + 'in and what each one rests on, in one page. The token reference and the shell page stay out. '
+      + 'The layers page gives the whole caveat of each step: what it is for and what it sits above and '
+      + 'below. The page also says where a panel in the top layer stacks, with the five components '
+      + 'whose panels open there. The number is what the two stops measure and moves when the layers '
+      + 'page grows a rule. The markup index is half of this route, and its row for the units page is '
       + 'part of what the two stops measure.',
   },
   {
