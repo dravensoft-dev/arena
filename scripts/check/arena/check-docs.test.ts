@@ -891,6 +891,9 @@ test('a locale tag in prose is the default locale', () => {
       source: '| `locale` | `en-US` | A tag. |\n', found: 0 },
     { name: 'en-US in a table of another page', rel: 'a.md', source: '| `locale` | `en-US` |\n', found: 1 },
     { name: 'en-US in prose of locale.md', rel: LOCALE_FIELD_TABLE, source: 'It is en-US.\n', found: 1 },
+    { name: 'en-US in the contributor document of scripts', rel: 'scripts/AGENTS.md', source: 'Sorts with en-US.\n', found: 0 },
+    { name: 'en-US in the contributor document of utils', rel: 'scripts/utils/AGENTS.md', source: 'Sorts with en-US.\n', found: 0 },
+    { name: 'en-US in another document under scripts', rel: 'scripts/check/NOTES.md', source: 'Sorts with en-US.\n', found: 1 },
   ];
   for (const row of rows) {
     assert.equal(localeTagProblems(row.rel, row.source, tag).length, row.found, row.name);

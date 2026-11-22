@@ -7,7 +7,7 @@
  * FOREIGN_CODE, which keeps another design system out of the examples a reader copies, the claim a consumer
  * page makes about what SHIPS (its component count, a GitHub address for a link into this repository), the
  * wording it may not carry, a test name free of spec, plan and audit ids, a suite with a test, a locale tag
- * not the default and a custom property no tokens page names. SIZE_ALLOWANCE names the one outgrown document. */
+ * not the default, outside the two contributor documents that name sort locales, and a custom property no tokens page names. SIZE_ALLOWANCE names the one outgrown document. */
 
 import { readFileSync, existsSync } from 'node:fs';
 import { join, basename } from 'node:path';
@@ -704,10 +704,10 @@ export function emptySuiteProblems(root = ROOT) {
 
 export const LOCALE_TAG = /\ben-[A-Z]{2}\b/g;
 export const LOCALE_FIELD_TABLE = 'skills/design/references/locale.md';
-export const LOCALE_TAG_UNSCOPED = ['scripts/', DATED_PROCESS_DOCUMENTS];
+export const LOCALE_TAG_UNSCOPED = ['scripts/AGENTS.md', 'scripts/utils/AGENTS.md', DATED_PROCESS_DOCUMENTS];
 
 export function localeTagProblems(rel: string, source: string, tag: string) {
-  if (LOCALE_TAG_UNSCOPED.some((tree) => rel.startsWith(tree))) return [];
+  if (LOCALE_TAG_UNSCOPED.some((tree) => (tree.endsWith('/') ? rel.startsWith(tree) : rel === tree))) return [];
   return unfenced(source).split('\n').flatMap((text, index) => {
     if (rel === LOCALE_FIELD_TABLE && TABLE_ROW.test(text)) return [];
     return [...text.matchAll(LOCALE_TAG)].filter((hit) => hit[0] !== tag)
