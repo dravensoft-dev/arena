@@ -1,4 +1,4 @@
-# Which roles answer a hover, a focus ring, a selection, how far a fill mixes, a disabled control, an invalid field and the box and knob of a switch?
+# Which roles answer a hover, a focus ring, a selection, a mix, a disabled control, an invalid field and the box and knob of a checkbox, radio, switch or slider?
 
 Read this when your style plugin answers a hover, the keyboard focus ring or a selected or current item. Read it also for the box and knob of a checkbox, radio, switch or slider. Read it also for how far a selected or pressed fill mixes, a disabled control or an invalid field.
 
