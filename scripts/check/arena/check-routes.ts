@@ -359,7 +359,7 @@ export const ROUTES: Route[] = [
         ],
       },
     ],
-    budget: 36_734,
+    budget: 36_754,
     reason:
       'the route declared as a tree, charged its worst branch, never the sum, because a '
       + 'reader answers a question and walks one way. Given a document stating the palette and '

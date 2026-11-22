@@ -118,7 +118,7 @@ answer to read first. Without a clone, fetch the template at
 The output is a page rather than a list, because a palette described in prose is a palette nobody
 can approve. Save the filled document as `design/identity.html` in the project, and serve it over HTTP with `npx serve design`, so the web fonts it names load. Show it to the user, and change what they change.
 
-**The document is the template with every section kept and every dashed block replaced.** A page of prose in its place is not the document. Five blocks stay dashed until node 7 explains them: "Where the colour goes", the density-class row of "The air", "The language", "Switching the theme" and the frame in "The page". [`arena check`](./cli.md) reports a `design/identity.html` that keeps a block or drops a section, as the `identity` kind.
+**The document is the template with every section kept and every dashed block replaced.** A page of prose in its place is not the document. The blocks node 7 explains stay dashed until node 7. These sit in "Where the colour goes", the density-class row of "The air", "The language", "Switching the theme" and the frame block of "The page". [`arena check`](./cli.md) reports a `design/identity.html` that keeps a block or drops a section, as the `identity` kind.
 
 **Then stop.** The next node writes files, and files written against an unapproved appearance are
 the ones that get rewritten.
