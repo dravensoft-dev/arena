@@ -253,11 +253,18 @@ The sheet moves no focus on open or on close, so the opener keeps focus until th
 **None.** `ArenaMain` draws `display: block` and nothing else, so no padding or width comes from it. The column a page sits in is `.arena-band` on an element of yours inside it, which carries the width and the gutter and no block air. The space above and below the content is a `padding-block` of yours on the `--sp-*` scale.
 
 ```tsx
-<ArenaMain>
-  <div className="arena-band app-page">
-    <Outlet />
-  </div>
-</ArenaMain>
+import { ArenaMain } from '@dravensoft/arena-react';
+import { Outlet } from 'react-router';
+
+export function AppMain() {
+  return (
+    <ArenaMain>
+      <div className="arena-band app-page">
+        <Outlet />
+      </div>
+    </ArenaMain>
+  );
+}
 ```
 
 ```css
