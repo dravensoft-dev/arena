@@ -1,6 +1,6 @@
 /* Which Arena tokens a stylesheet reads, which names the generated CSS defines, the union of
  * those with the hand-authored aliases, and which SCOPE CLASSES those same sheets answer to.
- * They sit in lib rather than in any one gate because check-cdk, check-tailwind,
+ * They sit in lib rather than in any one gate because check-tailwind,
  * check-tailwind-coverage and check-docs all read them, and a library must not reach up into a
  * gate to do it. The last one is read off the SELECTORS rather than the declarations, and it is
  * the same files because a scope class only means anything where a token is re-valued under it.

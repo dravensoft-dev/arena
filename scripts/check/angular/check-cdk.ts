@@ -42,7 +42,7 @@ export function checkBridge(bridgeCss: string, resolveSheet: (sheet: string) => 
   const imported = importedSheets(bridgeCss);
 
   if (selectors.length)
-    errs.push(`${BRIDGE} declares ${selectors.join(', ')} — every pane the pinned @angular/cdk opens sits in the top layer, where a rule of the bridge orders nothing`);
+    errs.push(`${BRIDGE} declares ${selectors.join(', ')}, and every pane the pinned @angular/cdk opens sits in the top layer, where a rule of the bridge orders nothing`);
   if (imported.size === 0)
     errs.push(`${BRIDGE} imports no stylesheet — the CDK overlay needs its prebuilt structural CSS in scope, and without it every overlay renders unpositioned`);
 

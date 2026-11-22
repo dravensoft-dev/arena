@@ -13,7 +13,6 @@ const PREBUILT = readFileSync(
 );
 
 const CSS = `
-/* a comment naming .cdk-invented-by-the-comment and var(--invented-token) */
 @import '@angular/cdk/overlay-prebuilt.css';
 
 .cdk-overlay-container {

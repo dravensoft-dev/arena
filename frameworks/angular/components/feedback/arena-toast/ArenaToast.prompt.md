@@ -57,7 +57,7 @@ taken away on a timer.
   View logs. A notice with two choices is a dialog.
 - **Don't** reach for `tone="danger"` for anything a user can ignore. Assertive announcement cuts
   a screen reader off mid-sentence, and a tone that always interrupts stops meaning anything.
-- **Don't** give it a `position` of its own. The notice carries `--z-toast`, the one step above every other overlay including the CDK layer. A statically-positioned element ignores `z-index`, so the stack's own container is what places it.
+- **Don't** give it a `position` of its own. The notice carries `--z-toast`, the top step of the `--z-*` stack, above every overlay drawn in the page. A statically-positioned element ignores `z-index`, so the stack's own container is what places it.
 
 **Words.** `toastClose` names the close button; `toastPinned` is the mark a toast that does not dismiss itself carries, and `toastPinnedHint` its title.
 
