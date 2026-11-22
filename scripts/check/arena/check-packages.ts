@@ -524,6 +524,8 @@ export function unlayeredTokenProblems(pkg: { layer: string; name: string }, dir
         }
         continue;
       }
+      const layered = [...body.matchAll(/(--(?!tw-|arena-)[\w-]+)\s*:/g)].map((m) => m[1] as string);
+      if (!layered.some((name) => selfReferenced.has(name))) continue;
       problems.push(`${pkg.name}: ${from} declares an Arena custom property inside a cascade layer, and the theme's `
         + `self-reference in ${THEME_SHEET} resolves to Arena's value only while the token sheets load unlayered`);
       break;

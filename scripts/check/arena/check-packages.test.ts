@@ -615,7 +615,7 @@ test('in the Tailwind entry a project compiles, arena-defaults ranks below base,
 
 test('the token sheets arena.css reaches declare their custom properties outside any cascade layer', () => {
   assert.deepEqual(unlayeredTokenProblems(REACT_PKG, distTree({ 'arena.css': "@import './css/colors.css';", 'css/colors.css': ':root{--color-base-100:#141010}' })), []);
-  assert.match(unlayeredTokenProblems(REACT_PKG, distTree({ 'arena.css': "@import './css/colors.css';", 'css/colors.css': '@layer x{:root{--color-base-100:#141010}}' })).join('\n'), /css\/colors\.css/);
+  assert.match(unlayeredTokenProblems(REACT_PKG, distTree({ 'arena.css': "@import './css/colors.css';", 'css/colors.css': '@layer x{:root{--color-base-100:#141010}}', 'css/tailwind-theme.css': selfReferences('--color-base-100') })).join('\n'), /css\/colors\.css/);
 });
 
 const selfReferences = (...names: string[]) => `@theme { ${names.map((n) => `${n}: var(${n});`).join(' ')} }`;
@@ -646,7 +646,18 @@ test('a self-reference in an inline theme block emits no variable, so the defaul
 test('a family channel declared inside a layer is not a token, and a token beside it still is', () => {
   const sheet = '@layer utilities{@scope (.arena-fill){[data-arena-part="button"]{--arena-fill-width:100%}}}';
   assert.deepEqual(unlayeredTokenProblems(REACT_PKG, distTree({ 'arena.css': "@import './css/vocabulary/fill.css';", 'css/vocabulary/fill.css': sheet })), []);
-  assert.match(unlayeredTokenProblems(REACT_PKG, distTree({ 'arena.css': "@import './css/x.css';", 'css/x.css': '@layer x{:root{--arena-fill-width:1px;--sp-1:4px}}' })).join('\n'), /css\/x\.css/);
+  const themed = selfReferences('--sp-1');
+  assert.match(unlayeredTokenProblems(REACT_PKG, distTree({ 'arena.css': "@import './css/x.css';", 'css/x.css': '@layer x{:root{--arena-fill-width:1px;--sp-1:4px}}', 'css/tailwind-theme.css': themed })).join('\n'), /css\/x\.css/);
+});
+
+test('a markup family restating a token the theme never self-references may sit in a layer, and one restating a self-referenced token may not', () => {
+  const family = (name: string) => distTree({
+    'arena.css': "@import './css/vocabulary/density.css';",
+    'css/vocabulary/density.css': `@layer components{@scope (.arena-compact){:scope{${name}:32px}}}`,
+    'css/tailwind-theme.css': selfReferences('--font-body'),
+  });
+  assert.deepEqual(unlayeredTokenProblems(REACT_PKG, family('--dz-ctl-h')), []);
+  assert.match(unlayeredTokenProblems(REACT_PKG, family('--font-body')).join('\n'), /css\/vocabulary\/density\.css/);
 });
 
 test('a shipped css file the page never names fails, and a css path the page names that does not ship fails', () => {
