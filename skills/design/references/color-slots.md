@@ -102,7 +102,7 @@ A slot that defaults to a role follows your answer to that role. Answer `hue-dan
 - a part a component sets on a surface of its own over that surface, such as a chart's tooltip label over the raised surface.
 - a part a component paints with a default of its own, as the component paints it.
 
-A fill with nothing under it is not a pair. A pair falls short under 4.5:1 for text, and under 3:1 for a fill, an icon, an edge or a mark. A `disabled` or `selected-disabled` slot is never measured. The build reports instead a `disabled` answer that draws the part's rest colours. The build reports a `selected-disabled` one that draws its selected colours in the same way. Either control would not be told from an enabled one.
+A fill with nothing under it is not a pair. A pair falls short under 4.5:1 for text, and under 3:1 for a fill, an icon, an edge or a mark. A `disabled` or `selected-disabled` slot is never measured. `arena check` reports instead a `disabled` answer that draws the part's rest colours. `arena check` reports a `selected-disabled` answer that draws its selected colours in the same way. Either control would not be told from an enabled one.
 
 `arena check` measures the root plugin and every later one. A later plugin is measured in every palette, its answers over the root's. A line it prints starts with `<palette>, style plugin <name>:` and appears only when the root's measurement in that palette did not print the same line. Each is a report, `arena build` prints only their count, and `arena check --strict=contrast` holds them. A runtime palette measures the same pairs through the root plugin, in `arenaCheckPalette` as in `arenaRuntimePalette`.
 
