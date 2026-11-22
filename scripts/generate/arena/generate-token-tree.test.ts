@@ -271,7 +271,7 @@ test("the layers sheet carries a step's whole description", () => {
   const last = flat(layers.z.nav!.$description!).split(/(?<=\.) /).pop()!;
   assert.ok(nav[0]!.trim().endsWith(`${last} |`));
   const dropdown = real.get('markup/layers.md')!.split('\n').find((line) => line.startsWith('| `--z-dropdown` |'))!;
-  assert.ok(dropdown.includes('top layer') && dropdown.includes('overlay pane'));
+  assert.ok(dropdown.includes('top layer') && dropdown.includes('a dialog and the toast stack included'));
 });
 
 test('every CONTROL_READS name is a component role', () => {
