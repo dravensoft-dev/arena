@@ -151,12 +151,12 @@ export const ROUTES: Route[] = [
     budget: 21_118,
     reason:
       'paid once per project and never per screen, which lets it carry the whole surface the kernel '
-      + 'exposes, so a project stops learning the kernel from a normative contributor document. It links '
-      + 'the plugin branch for which scale each role draws from, says which answers a project may '
-      + 'inherit and which it has to make, how the one scale exception is keyed, and the `light` group. The '
+      + 'exposes, so a project stops learning the kernel from a normative contributor document. The page links '
+      + 'the plugin branch for the scale each role draws from. The kernel names the answers a project may '
+      + 'inherit and the ones it has to make, how the one scale exception is keyed, and the `light` group. The '
       + 'differentiation table is a measurement over the catalogue, so it grows by remeasuring. The root rule '
       + 'says where a role\'s default is written, which roles carry one and that the root answers the rest. '
-      + 'It says where a clone-less project fetches the default plugin. The setup checklist names each '
+      + 'A clone-less project is told where to fetch the default plugin. The setup checklist names each '
       + 'unanswered role and the sheet order. The page says what each kind of role may be answered with, '
       + 'names the selected edge of navigation and its default, and says a plugin\'s own percentage stays put. '
       + 'The loop lists every answer the build refuses, what the user scale column decides, the contrast step '
