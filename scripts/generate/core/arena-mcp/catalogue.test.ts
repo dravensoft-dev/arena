@@ -237,6 +237,25 @@ test('a token group and a behaviour pattern each get a URI, and the roles keep t
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
+test('a carried contract page or sheet is served under its file name and its link resolves to that URI', () => {
+  const dir = payload({
+    'skills/design/references/page.md': '# The page\n\n[colours](../../../contracts/design/colors.css) '
+      + 'and [scales](../../../contracts/design/Scales.md)\n',
+    'contracts/design/colors.css': ':root { --a: 1; }',
+    'contracts/design/Scales.md': '# Scales\n\nA scale answers.\n',
+  });
+  try {
+    const { byUri, byRel } = catalogue(dir, MANIFEST);
+    assert.equal(byUri.get(`${SCHEME}://tokens/colors.css`)?.mime, 'text/css');
+    assert.equal(byUri.get(`${SCHEME}://tokens/Scales.md`)?.mime, 'text/markdown');
+    const page = byUri.get(`${SCHEME}://reference/page`);
+    assert.ok(page);
+    const text = textOf(dir, page, byRel) ?? '';
+    assert.match(text, /\]\(arena:\/\/tokens\/colors\.css\)/);
+    assert.match(text, /\]\(arena:\/\/tokens\/Scales\.md\)/);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
 test('a relative link to a carried token group or pattern resolves to its URI', () => {
   const dir = payload({
     'skills/design/references/page.md': '# The page\n\n[spacing](../../../contracts/design/spacing.json) '

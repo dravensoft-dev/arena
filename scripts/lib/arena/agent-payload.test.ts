@@ -1,8 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import {
   matchesSpec, CARRIED_SHARED, inPayload, servedBy, classify, resolvePosix, relativePosix,
-  rewrite, rewriteTarget, retarget, carriedSpecs, isRepoPath, ROUTER_SOURCE, ROUTER_FILE,
+  rewrite, rewriteTarget, retarget, carriedSpecs, isRepoPath, ROUTER_SOURCE, ROUTER_FILE, LINK,
 } from './agent-payload.ts';
 
 const BASES = {
@@ -30,7 +32,7 @@ test('the payload carries the references, the neutral index, the roles and the p
 });
 
 test('a spec list names the shared files plus the layer tree, and nothing else', () => {
-  assert.equal(carriedSpecs('react').length, 15);
+  assert.equal(carriedSpecs('react').length, 20);
   assert.ok(carriedSpecs('react').every((spec) => !spec.includes('angular')));
 });
 
@@ -120,8 +122,8 @@ test('the payload carries every token group, so a value a reference names can be
   for (const rel of ['contracts/design/spacing.json', 'contracts/design/typography.json']) {
     assert.ok(inPayload(rel, 'react'), `${rel} is not carried`);
   }
-  assert.equal(inPayload('contracts/design/Scales.md', 'react'), false,
-    'the prose specification stays on the site, only the DTCG groups travel');
+  assert.equal(inPayload('contracts/design/AGENTS.md', 'react'), false,
+    'the contributor page stays on the repository');
 });
 
 test('the default style plugin and the catalogue travel in both layers, and what is not a copy does not', () => {
@@ -157,5 +159,36 @@ test('a pattern in a code span is not a link to rewrite, and a link beside it is
 test('a reference three segments deep is carried', () => {
   for (const rel of ['skills/design/references/tokens/markup/edges.md', 'skills/design/references/stack.md']) {
     assert.ok(CARRIED_SHARED.some((spec) => matchesSpec(rel, spec)), rel);
+  }
+});
+
+const ROOT = join(import.meta.dir, '../../..');
+
+function markdownUnder(dir: string): string[] {
+  return readdirSync(join(ROOT, dir), { withFileTypes: true }).flatMap((entry) => {
+    const rel = `${dir}/${entry.name}`;
+    if (entry.isDirectory()) return markdownUnder(rel);
+    return entry.name.endsWith('.md') ? [rel] : [];
+  });
+}
+
+test('every corpus link into the design contracts resolves inside the payload', () => {
+  const sources = [...markdownUnder('skills/design/references'), 'frameworks/INDEX.md',
+    'frameworks/VOCABULARY.md', 'plugin-style-store/catalogue/INDEX.md'];
+  const found = new Map<string, string>();
+  for (const from of sources) {
+    const text = readFileSync(join(ROOT, from), 'utf8').replace(/```[\s\S]*?```/g, '');
+    for (const match of text.matchAll(LINK)) {
+      const target = (match[1] ?? '').split('#')[0] ?? '';
+      if (target === '' || /^[a-z]+:/i.test(target)) continue;
+      const real = resolvePosix(from, target);
+      if (real.startsWith('contracts/design/')) found.set(`${from} -> ${real}`, real);
+    }
+  }
+  assert.ok(found.has('skills/design/references/tokens/markup/meaning-and-identity.md -> contracts/design/colors.css'),
+    'the walk reaches the link to colors.css');
+  for (const layer of ['react', 'angular']) {
+    for (const [link, real] of found) assert.ok(inPayload(real, layer), `${link} is not carried in ${layer}`);
+    assert.equal(inPayload('contracts/design/AGENTS.md', layer), false, `AGENTS.md is carried in ${layer}`);
   }
 });

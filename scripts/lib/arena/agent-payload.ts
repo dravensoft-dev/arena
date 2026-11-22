@@ -24,6 +24,13 @@ export const LAYER_NEUTRAL_INDEX = 'frameworks/INDEX.md';
 export const ROLES = 'contracts/design/roles.json';
 export const TOKENS = 'contracts/design/*.json';
 export const BEHAVIOUR = 'contracts/behaviour/*.json';
+export const READER_CONTRACTS = [
+  'contracts/design/*.css',
+  'contracts/design/Scales.md',
+  'contracts/design/StylePlugins.md',
+  'contracts/design/ColorSlots.md',
+  'contracts/design/TokenTypes.md',
+];
 
 export const STYLE_STORE = 'plugin-style-store';
 export const IDENTITY_DIR = 'arena-from-scratch';
@@ -35,6 +42,7 @@ export const CARRIED_SHARED = [
   'frameworks/VOCABULARY.md',
   ROLES,
   TOKENS,
+  ...READER_CONTRACTS,
   BEHAVIOUR,
   `${STYLE_STORE}/default/*`,
   `${STYLE_STORE}/complete/*`,
