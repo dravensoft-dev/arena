@@ -1,5 +1,6 @@
-/* arena check: it names what the sheets a build would write, and your sources, get wrong, and writes
- * nothing. A report is held only by --strict, and only when its kind is one check holds. */
+/* arena check: it names what the sheets a build would write, your sources, and the identity document
+ * beside the config get wrong or leave open, and writes nothing. A report is held only by --strict,
+ * and only when its kind is one check holds. */
 import { commandOptions, DEFAULT_OUT } from './args.ts';
 import { voice, under } from './io.ts';
 import type { Io } from './io.ts';
