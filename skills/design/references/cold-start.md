@@ -72,7 +72,7 @@ reads as two products sharing a screen.
 
 ## 4. Start from a register Arena measured
 
-**Three arrivals reach this node.** One would rather pick than answer. One will not answer at all. One answered the interview and wants the fastest complete root plugin. Each is a real answer. The third keeps its answers, and they replace the entry's palette, fonts and any role the character answered differently. Ask for one thing only: a short description of
+**Three arrivals reach this node.** One would rather pick than answer. One will not answer at all. One answered the interview and wants the fastest complete root plugin. Each is a real answer. The third keeps its answers, and they replace the entry's palette, fonts and any role the character or the air answered differently. Ask for one thing only: a short description of
 the app, unless the answers gave it. Then match that description against the catalogue's index,
 [`plugin-style-store/catalogue/INDEX.md`](../../../plugin-style-store/catalogue/INDEX.md), one row
 per register measured on a real product, each with its own `ENTRY.md` and the files you copy.
@@ -99,7 +99,7 @@ beside its `ENTRY.md`.
 
 | The answer | Go to | What it costs you |
 |---|---|---|
-| The user confirms an entry | 5 | the palette is still theirs to replace, and nothing else is settled |
+| The user confirms an entry | 5 | the palette is still theirs to replace unless the interview gave it, and nothing else is settled |
 | Nothing in the catalogue is close | 5 | the appearance Arena installs with, which every project on that step shares |
 
 ## 5. Write the identity document, and stop
