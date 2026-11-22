@@ -150,8 +150,8 @@ export const ROUTES: Route[] = [
     stops: ['skills/design/references/style-kernel.md'],
     budget: 21_118,
     reason:
-      'paid once per project and never per screen, which lets it carry the whole surface the kernel '
-      + 'exposes, so a project stops learning the kernel from a normative contributor document. The page links '
+      'paid once per project and never per screen, so it carries the whole surface the kernel '
+      + 'exposes. A project stops learning the kernel from a normative contributor document. The page links '
       + 'the plugin branch for the scale each role draws from. The kernel names the answers a project may '
       + 'inherit and the ones it has to make, how the one scale exception is keyed, and the `light` group. The '
       + 'differentiation table is a measurement over the catalogue, so it grows by remeasuring. The root rule '
