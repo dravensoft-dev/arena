@@ -142,7 +142,7 @@ Each is settled before the first screen and never per screen. The four are in th
 | You arrived from | Go to |
 |---|---|
 | 5, with the document approved | 7 |
-| 8, a project already carrying Arena | 7 for the rows node 8 found unanswered only, then the per-screen route in [`../SKILL.md`](../SKILL.md) |
+| 8, a project already carrying Arena | 7 for the rows node 8 found unanswered only, then the last table of node 7 |
 
 ## 7. The decisions every screen inherits
 
