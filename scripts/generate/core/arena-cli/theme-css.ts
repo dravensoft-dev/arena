@@ -61,8 +61,8 @@ export type ArenaPalette = {
   colors?: Record<string, string>;
 };
 
-export const PALETTE_OBJECT_KEYS = ['name', 'default', 'polarity', 'colors'] as const satisfies readonly (keyof ArenaPalette)[];
-export type PaletteKeysAreClosed = Exclude<keyof ArenaPalette, (typeof PALETTE_OBJECT_KEYS)[number]> extends never ? true : never;
+const PALETTE_KEY_TABLE: Record<keyof ArenaPalette, true> = { name: true, default: true, polarity: true, colors: true };
+export const PALETTE_OBJECT_KEYS: readonly (keyof ArenaPalette)[] = Object.keys(PALETTE_KEY_TABLE) as (keyof ArenaPalette)[];
 
 export type ArenaFont = {
   family?: string;
