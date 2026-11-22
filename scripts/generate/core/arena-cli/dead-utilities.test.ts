@@ -94,7 +94,7 @@ test('ownThemeBlocks keeps the top-level @theme, @utility and @custom-variant of
 
 const DEAD = [
   { candidate: 'shadow-md', want: /^`shadow-md` emits nothing under Arena's theme, which clears the Tailwind default it names\. Write one of `shadow-surface-rest`, `shadow-surface-floating`, `shadow-surface-deep`, `shadow-control-rest`, `shadow-control-raised`, `shadow-1`, and 2 more in css\/tailwind-theme\.css$/ },
-  { candidate: 'ease-in', want: /Write one of `ease-hover`, `ease-state`, `ease-enter-deep`, `ease-enter-floating`, `ease-out`, `ease-in-out`, `ease-emphatic`$/ },
+  { candidate: 'ease-in', want: /Write one of `ease-hover`, `ease-state`, `ease-enter-deep`, `ease-enter-floating`, `ease-out`, `ease-in-out`, and 1 more in css\/tailwind-theme\.css$/ },
   { candidate: 'rounded-3xl', want: /Write one of `rounded-surface`, `rounded-surface-floating`.*, and 8 more in css\/tailwind-theme\.css$/ },
   { candidate: 'text-gray-500', want: /Write one of `text-ink-/, not: /`text-overlay-/ },
   { candidate: 'bg-gray-100', want: /Write one of `bg-(surface|page)[a-z-]*`/, not: /`bg-ink-/ },
