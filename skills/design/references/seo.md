@@ -110,6 +110,40 @@ export function Orders() {
 
 A project on React 18 uses the head API of its framework instead. The values to decide are the same: a private default, a canonical built from an origin you supply, and a title that composes.
 
+With no framework, a `useEffect` writes the title and the head elements itself. The title composes with a suffix, the canonical comes from an origin the caller supplies, and a page is `noindex` until it says `index`.
+
+```tsx
+import { useEffect } from 'react';
+
+interface PageHead {
+  origin: string;
+  path: string;
+  title: string;
+  suffix: string;
+  index?: boolean;
+}
+
+function headElement<T extends HTMLElement>(selector: string, tag: string, attributes: Record<string, string>): T {
+  let element = document.head.querySelector<T>(selector);
+  if (!element) {
+    element = document.createElement(tag) as T;
+    for (const [name, value] of Object.entries(attributes)) element.setAttribute(name, value);
+    document.head.append(element);
+  }
+  return element;
+}
+
+export function usePageHead({ origin, path, title, suffix, index = false }: PageHead): void {
+  useEffect(() => {
+    document.title = `${title} · ${suffix}`;
+    headElement('meta[name="robots"]', 'meta', { name: 'robots' }).setAttribute('content', index ? 'index,follow' : 'noindex,nofollow');
+    headElement('link[rel="canonical"]', 'link', { rel: 'canonical' }).setAttribute('href', new URL(path, origin).href);
+  }, [origin, path, title, suffix, index]);
+}
+```
+
+Call `usePageHead({ origin: 'https://andina.example', path: '/orders', title: 'Orders', suffix: 'Andina', index: true })` in the screen.
+
 ## What both layers publish
 
 `ArenaBreadcrumbs` describes the trail it draws in `schema.org` terms beside the markup, under both

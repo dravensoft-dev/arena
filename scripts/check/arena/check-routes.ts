@@ -188,20 +188,20 @@ export const ROUTES: Route[] = [
       + 'then the page that says what Arena writes into the head and which layer writes it',
     entry: 'consumer',
     stops: ['skills/design/references/seo.md'],
-    budget: 10_400,
+    budget: 11_757,
     reason:
-      'paid once per project and taken before the first screen, because the answer reaches the '
-      + 'layer and the install rather than a component, so a project that settles it afterwards '
-      + 'settles it against code already written. It makes the metadata entry point reachable from '
-      + 'the decision. Every default it surfaces is silent in the direction that costs: a route is '
-      + 'born unindexed, and an application with no origin publishes no canonical, so both are '
-      + 'correct until a screen is missing from a result nobody checked. It states which layer '
-      + 'supplies a head and that a framework picked to be found supplies its own, and it points at '
-      + 'the node carrying the server-rendering evidence at the decision, without choosing an '
-      + 'architecture for the project. It tables what the Angular head entry point exports. The '
-      + 'number is what the stops measure, and it grows when Arena gains something to write into the head. It says how each layer mounts a structured-data script, '
-      + 'names each Open Graph tag Angular writes, and shows React a head and a JSON-LD script of its '
-      + 'own, because React ships no writer, and names the breadcrumb serialiser beside the escape. It gives the page fields and the title the writer composes.',
+      'paid once per project and taken before the first screen, because the answer reaches the layer '
+      + 'and the install rather than a component. A project that settles it afterwards settles it '
+      + 'against code already written. The page makes the metadata entry point reachable from the '
+      + 'decision. Every default it surfaces is silent in the direction that costs: a route is born '
+      + 'unindexed, and an application with no origin publishes no canonical. The page states which layer '
+      + 'supplies a head and that a framework picked to be found supplies its own, and points at the node '
+      + 'carrying the server-rendering evidence, without choosing an architecture. The page tables what the '
+      + 'Angular head entry point exports and says how each layer mounts a structured-data script. The '
+      + 'page names each Open Graph tag Angular writes, and shows React a head and a JSON-LD script of its '
+      + 'own, because React ships no writer. The page names the breadcrumb serialiser beside the escape, gives the '
+      + 'page fields and the title the writer composes, and gives React 18 a hook that writes the title, '
+      + 'the robots default and the canonical.',
   },
   {
     name: 'consumer-surface',
