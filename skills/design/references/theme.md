@@ -131,7 +131,7 @@ window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', ()
 `ArenaThemeService` has no method that applies the system choice. In Angular, find the palette whose polarity matches and set the `theme` signal, which applies it and stores nothing. `set()` would store it as a choice.
 
 ```ts
-import { Component, inject } from '@angular/core';
+import { Component, DOCUMENT, DestroyRef, inject } from '@angular/core';
 import { ArenaThemeService } from '@dravensoft/arena-angular';
 
 @Component({ selector: 'app-root', template: `<router-outlet />` })
@@ -139,13 +139,17 @@ export class App {
   private readonly themes = inject(ArenaThemeService);
 
   constructor() {
-    const query = window.matchMedia('(prefers-color-scheme: light)');
-    query.addEventListener('change', () => {
-      if (localStorage.getItem('arena-theme') !== null) return;
+    const view = inject(DOCUMENT).defaultView;
+    if (!view) return;
+    const query = view.matchMedia('(prefers-color-scheme: light)');
+    const follow = () => {
+      if (view.localStorage.getItem('arena-theme') !== null) return;
       const polarity = query.matches ? 'light' : 'dark';
       const match = this.themes.palettes.find((palette) => palette.polarity === polarity);
       if (match) this.themes.theme.set(match.name);
-    });
+    };
+    query.addEventListener('change', follow);
+    inject(DestroyRef).onDestroy(() => query.removeEventListener('change', follow));
   }
 }
 ```
