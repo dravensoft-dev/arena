@@ -22,7 +22,7 @@ Only Arena's components read the roles on this page. A role keeps its name until
 | `--accent-primary-edge` | What colour is the edge of a card or a tag in the primary accent? | color | none | none | `{color.primary}` |
 | `--accent-primary-fill-soft` | What colour is the soft wash of a badge in the primary accent? | color | none | none | `{color.primary}` |
 | `--accent-primary-ink` | What colour is the ink of a figure, a bar or a spinner in the primary accent? | color | none | none | `{color.primary}` |
-| `--elevation-flat-shadow` | What shadow does a card cast at the flat elevation? | shadow | none | none | `{"offsetX":{"value":0,"unit":"px"},"offsetY":{"value":0,"unit":"px"},"blur":{"value":0,"unit":"px"},"spread":{"value":0,"unit":"px"},"color":{"colorSpace":"srgb","components":[0,0,0],"alpha":0}}` |
+| `--elevation-flat-shadow` | What shadow does a card cast at the flat elevation? | shadow | none | none | `none` |
 | `--elevation-floating-shadow` | What shadow does a card cast at the floating elevation? | shadow | none | none | `{shadow.2}` |
 | `--emphasis-ghost-fill-hover` | What colour fills a ghost action under the pointer? | color | none | none | `{color.base-200}` |
 | `--emphasis-ghost-icon-edge` | What colour is the edge of a ghost icon button? | color | none | none | `{color.base-300}` |

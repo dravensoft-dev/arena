@@ -80,8 +80,23 @@ type PluginTokens = Record<string, any>;
 
 const ROLE_ALIAS = /^\{([a-z][\w-]*)\}$/;
 
+const length = (one: any) => `${one.value}${one.unit}`;
+
+function renderShadow(layer: any): string {
+  const { offsetX, offsetY, blur, spread, color, inset } = layer;
+  const flat = [offsetX, offsetY, blur, spread].every((one) => Number(one.value) === 0) && Number(color.alpha ?? 1) === 0;
+  if (flat) return 'none';
+  const [r = 0, g = 0, b = 0] = color.components as number[];
+  const channels = [r, g, b].map((one) => Math.round(one * 255)).join(' ');
+  const alpha = Number(color.alpha ?? 1);
+  return `${inset === true ? 'inset ' : ''}${[offsetX, offsetY, blur, spread].map(length).join(' ')} rgb(${channels}${alpha === 1 ? '' : ` / ${alpha}`})`;
+}
+
 function renderValue(value: unknown): string {
   if (typeof value === 'object' && value !== null && 'unit' in value && 'value' in value) return `${value.value}${value.unit}`;
+  if (Array.isArray(value) && value.length > 0 && value.every((one) => typeof one === 'object' && one !== null && 'offsetX' in one))
+    return value.map(renderShadow).join(', ');
+  if (typeof value === 'object' && value !== null && 'offsetX' in value && 'color' in value) return renderShadow(value);
   return typeof value === 'string' ? value : JSON.stringify(value);
 }
 

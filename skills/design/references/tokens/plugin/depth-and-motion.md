@@ -28,9 +28,9 @@ Your markup and Arena's components both read the roles on this page. A role keep
 | `--lift-control` | How far does a control rise under the pointer? | dimension | fixed | none | `0px` |
 | `--press-scale` | What scale does a control shrink to while it is held down? | number | none | none | `0.98` |
 | `--shadow-control-raised` | What shadow does a control rise to under the pointer? | shadow | none | none | `{shadow.2}` |
-| `--shadow-control-rest` | What shadow does a button carry at rest? | shadow | none | none | `{"offsetX":{"value":0,"unit":"px"},"offsetY":{"value":0,"unit":"px"},"blur":{"value":0,"unit":"px"},"spread":{"value":0,"unit":"px"},"color":{"colorSpace":"srgb","components":[0,0,0],"alpha":0}}` |
+| `--shadow-control-rest` | What shadow does a button carry at rest? | shadow | none | none | `none` |
 | `--shadow-surface-deep` | What shadow does a dialog, sheet or sign-in card carry as it commands the screen? | shadow | none | none | `{shadow.3}` |
 | `--shadow-surface-floating` | What shadow does a menu, toast or tooltip floating over the page carry at rest? | shadow | none | none | `{shadow.2}` |
-| `--shadow-surface-rest` | What shadow does a card or panel carry at rest on the page? | shadow | none | none | `{"offsetX":{"value":0,"unit":"px"},"offsetY":{"value":0,"unit":"px"},"blur":{"value":0,"unit":"px"},"spread":{"value":0,"unit":"px"},"color":{"colorSpace":"srgb","components":[0,0,0],"alpha":0}}` |
+| `--shadow-surface-rest` | What shadow does a card or panel carry at rest on the page? | shadow | none | none | `none` |
 
 <!-- @tree end -->

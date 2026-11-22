@@ -116,6 +116,20 @@ const DEFAULT_COLUMN: { name: string; role: string; roles?: Record<string, unkno
     want: 'light `{r.xs}`; dark `{r.sm}`',
   },
   {
+    name: 'a shadow answer shows its CSS shorthand, and none when every length and the alpha are zero',
+    role: 'shadow-surface-rest',
+    roles: { 'shadow-surface-rest': { $type: 'shadow', $description: 'x', $extensions: { [ARENA_EXT]: { audience: 'markup', task: 'depth-and-motion', question: 'What is it?' } } } },
+    answers: { 'shadow-surface-rest': { $type: 'shadow', $value: { offsetX: { value: 0, unit: 'px' }, offsetY: { value: 0, unit: 'px' }, blur: { value: 0, unit: 'px' }, spread: { value: 0, unit: 'px' }, color: { colorSpace: 'srgb', components: [0, 0, 0], alpha: 0 } } } },
+    want: '`none`',
+  },
+  {
+    name: 'a shadow with a length and an alpha shows offsets, blur, spread and an rgb colour',
+    role: 'shadow-surface-rest',
+    roles: { 'shadow-surface-rest': { $type: 'shadow', $description: 'x', $extensions: { [ARENA_EXT]: { audience: 'markup', task: 'depth-and-motion', question: 'What is it?' } } } },
+    answers: { 'shadow-surface-rest': { $type: 'shadow', $value: { offsetX: { value: 0, unit: 'px' }, offsetY: { value: 2, unit: 'px' }, blur: { value: 8, unit: 'px' }, spread: { value: 0, unit: 'px' }, color: { colorSpace: 'srgb', components: [0, 0, 0], alpha: 0.25 } } } },
+    want: '`0px 2px 8px 0px rgb(0 0 0 / 0.25)`',
+  },
+  {
     name: 'a role the plugin is silent on shows the role default it falls to',
     role: 'r-surface',
     roles: { 'r-surface': role('markup', 'edges', { default: '{r.lg}' }), 'r-control': role('markup', 'edges') },
