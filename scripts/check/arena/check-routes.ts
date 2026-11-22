@@ -272,7 +272,7 @@ export const ROUTES: Route[] = [
       + 'column it sits in and how much air goes between two components',
     entry: 'consumer',
     stops: ['skills/design/references/page.md', 'skills/design/references/style.md'],
-    budget: 21_543,
+    budget: 21_560,
     reason:
       'paid per element a builder draws themselves, which every screen has. It buys the half of a '
       + 'page no component draws: the floor and where each layer puts it, which frame the viewport '
@@ -300,7 +300,7 @@ export const ROUTES: Route[] = [
     who: 'a builder who owns a toggle of their own and draws every state of it: the router, then the markup tree index and the pages for states, edges, depth and motion, and space and layout',
     entry: 'consumer',
     stops: ['skills/design/references/tokens/markup/index.md', 'skills/design/references/tokens/markup/states.md', 'skills/design/references/tokens/markup/edges.md', 'skills/design/references/tokens/markup/depth-and-motion.md', 'skills/design/references/tokens/markup/space-and-layout.md'],
-    budget: 20_000,
+    budget: 20_010,
     reason:
       'paid once per control a builder draws without a component. It buys the states a control wears, hover and the pressed lift and scale, with the motion and the space of each change, and the outline the control draws, its edge colour, width and radius, each role with its question, utility and combination and the paragraph that composes the leaf. Focus, selected, disabled and invalid each have a role on the states page, so a control reads them there. Each is read from its own page, not the media register, page or kernel. The space and layout page states that a number is the 4px grid. The data files beside the pages are not stops, as the gate charges Markdown only. The markup index carries one row more for the units page, which a toggle does not need. The states page carries thirteen roles with their utilities, among them the hover and pressed mixes, and a table that maps each state attribute to its selector and roles, which is what a control of this kind reads to draw focus, selection, a checked box or switch, the disabled fade and an invalid field. The states page names the three classes that draw every state and the example written on them.',
   },

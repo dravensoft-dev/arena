@@ -317,7 +317,7 @@ The air between peers in a column of yours, as three named steps rather than a n
 
 ## state
 
-The states of a control you drew yourself, composed from roles alone as Arena's navigation rows and buttons compose them. arena-interactive draws the fill and ink at rest, under the pointer, when pressed and when selected, pressed or current, and the disabled fade. arena-focus draws the keyboard focus ring. arena-invalid draws the edge of a field while aria-invalid is true, and arena-invalid__message draws the ink of its message. A colour slot answer moves Arena's components and not these classes. Write them on an element of yours: a component draws its own states.
+The states of a control you drew yourself, composed from roles and their levels alone as Arena's navigation rows and buttons compose them. arena-interactive draws the fill and ink at rest, under the pointer, when pressed and when selected, pressed or current, and the disabled fade. arena-focus draws the keyboard focus ring. arena-invalid draws the edge of a field while aria-invalid is true, and arena-invalid__message draws the ink of its message. A colour slot answer moves Arena's components and not these classes. Write them on an element of yours: a component draws its own states.
 
 - **Options:** `arena-focus`, `arena-interactive`, `arena-invalid`, `arena-invalid__message`.
 - **Reach:** box: it goes on an element you wrote, and it decides that element alone.
