@@ -274,7 +274,7 @@ export const ROUTES: Route[] = [
     budget: 21_633,
     reason:
       'paid per element a builder draws themselves. The route buys the half of a '
-      + 'page no component draws. That half is the floor and where each layer puts it, the viewport '
+      + 'page no component draws. The half is the floor and where each layer puts it, the viewport '
       + 'frame of the theme sheet\'s variants, and the three rhythm steps as classes and custom properties. The row is their horizontal half. The page says what to wrap when the '
       + 'element is a component, the block air the band leaves and the gutter as a ceiling. The colour '
       + 'roles sit in the markup tree this page links, so the number is what the stops measure without '
