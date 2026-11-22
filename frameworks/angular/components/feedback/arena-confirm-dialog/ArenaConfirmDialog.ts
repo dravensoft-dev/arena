@@ -132,6 +132,7 @@ export class ArenaConfirmDialog {
   protected onKeydown(event: KeyboardEvent): void {
     if (!this.open()) return;
     if (event.key === 'Escape') {
+      if (event.defaultPrevented) return;
       event.preventDefault();
       this.cancel.emit();
       return;

@@ -70,9 +70,10 @@ export function arenaRestoreOnTeardown(invoker: Element | null, panel: Element |
 
 export function arenaTrapTabKey(
   container: Element,
-  event: Pick<KeyboardEvent, 'shiftKey'> & { key?: string; preventDefault(): void },
+  event: Pick<KeyboardEvent, 'shiftKey'> & { key?: string; defaultPrevented?: boolean; preventDefault(): void },
   activeElement: Element | null,
 ): void {
+  if (event.defaultPrevented) return;
   const focusables = arenaFocusableElements(container);
   const stopNow = arenaTabStopOf(focusables, activeElement);
   const first = focusables[0];

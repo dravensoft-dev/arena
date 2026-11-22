@@ -90,7 +90,7 @@ export class ArenaSheet {
   }
 
   protected onKeydown(event: KeyboardEvent): void {
-    if (!this.open() || event.key !== 'Escape') return;
+    if (!this.open() || event.key !== 'Escape' || event.defaultPrevented) return;
     event.preventDefault();
     this.close.emit();
   }

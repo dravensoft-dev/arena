@@ -66,6 +66,7 @@ export function arenaRestoreOnTeardown(invoker: Element | null, panel: Element |
 }
 
 export function arenaTrapTabKey(container: HTMLElement, event: KeyboardEvent, activeElement: Element | null): void {
+  if (event.defaultPrevented) return;
   const focusables = arenaFocusableElements(container);
   if (focusables.length === 0) {
     event.preventDefault();

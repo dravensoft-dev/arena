@@ -161,6 +161,7 @@ export class ArenaOnboarding {
   protected onKeydown(event: KeyboardEvent): void {
     if (!this.visible()) return;
     if (event.key === 'Escape') {
+      if (event.defaultPrevented) return;
       event.preventDefault();
       this.skip.emit();
       return;

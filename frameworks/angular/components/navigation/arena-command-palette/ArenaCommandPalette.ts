@@ -252,6 +252,7 @@ export class ArenaCommandPalette {
       const command = this.filtered()[this.active()];
       if (command) this.onRun(command);
     } else if (event.key === 'Escape') {
+      if (event.defaultPrevented) return;
       event.preventDefault();
       this.close.emit();
     } else if (event.key === 'Tab') {
