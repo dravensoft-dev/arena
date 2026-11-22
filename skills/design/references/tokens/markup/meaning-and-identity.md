@@ -17,4 +17,4 @@ way. Otherwise a reader learns that green is sometimes a category.
   it.
 - **Identity** is the eight ramp colours, `--color-cat-1` through `--color-cat-8`, in fixed order.
   The order is the identity, so slot three is slot three in every chart on the screen.
-  `arenaCatColor`, `arenaCatIndex`, `arenaCatSurface`, `arenaCatTint`, `arenaCatSlotFor` and `arenaCatRotate` are there for a legend or a chip you draw, and [`exports.md`](../../exports.md#how-do-i-colour-a-legend-or-a-chip-of-my-own) says what each returns.
+  `arenaCatColor`, `arenaCatIndex`, `arenaCatSurface`, `arenaCatTint`, `arenaCatSlotFor` and `arenaCatRotate` are there for a legend or a chip you draw. For a status tone, use `arenaToneColor`. [`exports.md`](../../exports.md#how-do-i-colour-a-legend-or-a-chip-of-my-own) shows how to use them, and [its React table](../../exports.md#what-does-the-react-package-export-besides-components) and [Angular table](../../exports.md#what-does-the-angular-package-export-besides-components) say what each returns.
