@@ -308,7 +308,7 @@ export const CLAIMS = {
       chosen: { tone }, slot: 'root', has: ['rounded-marker', 'text-ctl-xs'],
       why: 'every tone keeps the shared marker base and its control font size, which an unregistered suffix would lose to the tone colour',
     })),
-    { slot: 'close', has: ['relative', "before:content-['']", 'before:absolute', 'before:w-ctl-h-sm', 'before:h-ctl-h-sm'], hasNot: ['min-h-ctl-h-sm', 'min-w-ctl-h-sm'],
+    { slot: 'close', has: ['relative', "before:content-['']", 'before:absolute', 'before:w-ctl-h-sm', 'before:min-h-ctl-h-sm'], hasNot: ['min-h-ctl-h-sm', 'min-w-ctl-h-sm'],
       why: 'the remove control answers a thumb through a hit area centred on the glyph, so the chip keeps its own height' },
     { slot: 'closeLabel', has: ['sr-only'], why: 'the remove word is read and never seen' },
     { slot: 'root', has: ['wrap-anywhere'],
@@ -668,11 +668,11 @@ export const CLAIMS = {
 };
 
 const READS: [component: string, slot: string, question: string, reads: string[], chosen?: Record<string, string>][] = [
-  ['ArenaButton', 'root', 'size.control-h', ['h-[var(--arena-size-control-h,var(--size-md-control-h))]']],
-  ['ArenaIconButton', 'root', 'size.control-h', ['h-[var(--arena-size-control-h,var(--size-md-control-h))]', 'min-w-[var(--arena-size-control-h,var(--size-md-control-h))]']],
+  ['ArenaButton', 'root', 'size.control-h', ['min-h-[var(--arena-size-control-h,var(--size-md-control-h))]']],
+  ['ArenaIconButton', 'root', 'size.control-h', ['min-h-[var(--arena-size-control-h,var(--size-md-control-h))]', 'min-w-[var(--arena-size-control-h,var(--size-md-control-h))]']],
   ['ArenaButton', 'root', 'size.control-pad-x', ['px-[var(--arena-size-control-pad-x,var(--size-md-control-pad-x))]']],
   ['ArenaButton', 'root', 'size.control-step', ['text-[length:var(--arena-size-control-step,var(--size-md-control-step))]']],
-  ['ArenaFileInput', 'trigger', 'size.control-h', ['h-[var(--arena-size-control-h,var(--size-md-control-h))]']],
+  ['ArenaFileInput', 'trigger', 'size.control-h', ['min-h-[var(--arena-size-control-h,var(--size-md-control-h))]']],
   ['ArenaFileInput', 'trigger', 'size.control-pad-x', ['px-[var(--arena-size-control-pad-x,var(--size-md-control-pad-x))]']],
   ['ArenaFileInput', 'trigger', 'size.control-step', ['text-[length:var(--arena-size-control-step,var(--size-md-control-step))]']],
   ['ArenaFileInput', 'trigger', 'emphasis.fill', ['bg-[color:var(--arena-emphasis-fill)]']],
@@ -765,8 +765,8 @@ const READS: [component: string, slot: string, question: string, reads: string[]
   ['ArenaSheet', 'root', 'placement.top', ['top-[var(--arena-placement-top,auto)]', 'bottom-[var(--arena-placement-bottom,0)]', 'start-[var(--arena-placement-start,0)]', 'end-[var(--arena-placement-end,0)]', 'w-[var(--arena-placement-width,auto)]', 'max-w-[var(--arena-placement-max-width,none)]', 'max-h-[var(--arena-placement-max-height,80vh)]', 'rounded-ss-[var(--arena-placement-radius-ss,var(--r-lg))]', 'rounded-se-[var(--arena-placement-radius-se,var(--r-lg))]', 'rounded-es-[var(--arena-placement-radius-es,0)]', 'rounded-ee-[var(--arena-placement-radius-ee,0)]', 'pt-[var(--arena-placement-pad-top,0)]', 'pb-[var(--pad-safe-bottom)]']],
   ['ArenaToastHost', 'root', 'placement.top', ['top-[var(--arena-placement-top,auto)]', 'bottom-[var(--arena-placement-bottom,max(var(--sp-6),var(--pad-safe-bottom)))]', 'start-[var(--arena-placement-start,auto)]', 'end-[var(--arena-placement-end,var(--sp-6))]']],
   ['ArenaButton', 'root', 'emphasis.shadow-hover', ['hover:shadow-[var(--arena-emphasis-shadow-hover)]']],
-  ['ArenaSplitButton', 'primary', 'size.control-h', ['h-[var(--arena-size-control-h,var(--size-md-control-h))]']],
-  ['ArenaSplitButton', 'caret', 'size.control-h', ['h-[var(--arena-size-control-h,var(--size-md-control-h))]']],
+  ['ArenaSplitButton', 'primary', 'size.control-h', ['min-h-[var(--arena-size-control-h,var(--size-md-control-h))]']],
+  ['ArenaSplitButton', 'caret', 'size.control-h', ['min-h-[var(--arena-size-control-h,var(--size-md-control-h))]']],
   ['ArenaSplitButton', 'primary', 'size.control-pad-x', ['px-[var(--arena-size-control-pad-x,var(--size-md-control-pad-x))]']],
   ['ArenaSplitButton', 'primary', 'size.control-step', ['text-[length:var(--arena-size-control-step,var(--size-md-control-step))]']],
   ['ArenaSplitButton', 'primary', 'emphasis.fill', ['bg-[color:var(--arena-emphasis-fill)]']],
@@ -791,6 +791,42 @@ for (const [component, slot, question, reads, chosen] of READS) {
       : `the ${slot} answers ${question} through its channel, which the family's default block writes on the part, so no option written is the look of the default`,
   });
 }
+
+const FLOOR_WHY = 'the control token is a floor the content grows past, so a wrapped label or larger text grows the box';
+
+const CONTROL_H = '[var(--arena-size-control-h,var(--size-md-control-h))]';
+
+const FLOORS: [component: string, slot: string, from: string, to: string[]][] = [
+  ['ArenaAlert', 'close', 'size-ctl-h-sm', ['w-ctl-h-sm', 'min-h-ctl-h-sm']],
+  ['ArenaButton', 'root', `h-${CONTROL_H}`, [`min-h-${CONTROL_H}`]],
+  ['ArenaCalendar', 'nav', 'h-ctl-h-sm', ['min-h-ctl-h-sm']],
+  ['ArenaConfirmDialog', 'input', 'h-ctl-h', ['min-h-ctl-h']],
+  ['ArenaConfirmDialog', 'confirm', 'h-ctl-h', ['min-h-ctl-h']],
+  ['ArenaFileInput', 'trigger', `h-${CONTROL_H}`, [`min-h-${CONTROL_H}`]],
+  ['ArenaIconButton', 'root', `h-${CONTROL_H}`, [`min-h-${CONTROL_H}`]],
+  ['ArenaInput', 'field', 'h-ctl-h', ['min-h-ctl-h']],
+  ['ArenaNumberField', 'field', 'h-ctl-h', ['min-h-ctl-h']],
+  ['ArenaSelect', 'field', 'h-ctl-h', ['min-h-ctl-h']],
+  ['ArenaPagination', 'nav', 'h-ctl-h-sm', ['min-h-ctl-h-sm']],
+  ['ArenaPinInput', 'cell', 'size-ctl-h', ['w-ctl-h', 'min-h-ctl-h']],
+  ['ArenaSheet', 'close', 'size-ctl-h-sm', ['w-ctl-h-sm', 'min-h-ctl-h-sm']],
+  ['ArenaToast', 'close', 'size-ctl-h-sm', ['w-ctl-h-sm', 'min-h-ctl-h-sm']],
+  ['ArenaStepper', 'marker', 'size-ctl-h-sm', ['w-ctl-h-sm', 'min-h-ctl-h-sm']],
+  ['ArenaTreeView', 'caret', 'size-ctl-h-sm', ['w-ctl-h-sm', 'min-h-ctl-h-sm']],
+  ['ArenaSlider', 'track', 'h-ctl-h', ['min-h-ctl-h']],
+  ['ArenaSlider', 'thumb', 'before:h-ctl-h-sm', ['before:min-h-ctl-h-sm']],
+  ['ArenaSplitButton', 'primary', `h-${CONTROL_H}`, [`min-h-${CONTROL_H}`]],
+  ['ArenaSplitButton', 'caret', `h-${CONTROL_H}`, [`min-h-${CONTROL_H}`]],
+  ['ArenaSwitch', 'track', 'after:h-ctl-h-sm', ['after:min-h-ctl-h-sm']],
+  ['ArenaTag', 'close', 'before:h-ctl-h-sm', ['before:min-h-ctl-h-sm']],
+];
+for (const [component, slot, from, to] of FLOORS) {
+  (mutable[component] ??= []).push({ slot, has: to, hasNot: [from], why: FLOOR_WHY });
+}
+mutable.ArenaConfirmDialog!.push({
+  slot: 'confirm', has: ['self-start'],
+  why: 'the footer stretches its items, so a floor on the confirm would grow it to the height of the Cancel beside it',
+});
 
 test('every size, orientation, emphasis, accent, mark, elevation, align, layout and placement question a slot answers is read through its own channel, with a fallback unless the part\'s default block writes it', () => {
   const blocks = new Map([...['emphasis', 'accent'].flatMap((family) => [...defaultBlockChannels(readFamilies().get(family) as Family, [...layerManifests().values()])])]);

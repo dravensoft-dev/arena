@@ -4,7 +4,7 @@
     "root": "flex flex-col gap-1",
     "rows": "flex flex-col gap-1",
     "item": "flex items-center gap-row min-h-ctl-h px-row-x py-row-y rounded-control cursor-pointer font-body text-ctl focus:outline-hidden focus:-outline-offset-2 focus:shadow-[inset_0_0_0_var(--bw-focus)_var(--edge-focus)] transition-[background] duration-[var(--dur-hover)] ease-hover ps-[calc(var(--pad-row-x)*var(--dz-row-scale-x)+var(--pad-row-indent)*var(--arena-tree-depth,0))] border-[color:var(--navigation-item-edge-rest,transparent)] bg-[color:var(--navigation-item-fill-rest,transparent)] [--arena-icon-ink:color-mix(in_oklab,var(--navigation-item-icon-rest,var(--navigation-item-ink-rest,var(--ink-muted)))_var(--level-ink-muted),transparent)] text-[color:color-mix(in_oklab,var(--navigation-item-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",
-    "caret": "inline-flex items-center justify-center size-ctl-h-sm -my-row-y shrink-0 text-[length:var(--icon-md)]",
+    "caret": "inline-flex items-center justify-center w-ctl-h-sm min-h-ctl-h-sm -my-row-y shrink-0 text-[length:var(--icon-md)]",
     "icon": "inline-flex shrink-0 text-[length:var(--icon-lg)]",
     "label": "min-w-0 truncate"
   },

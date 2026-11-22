@@ -6,7 +6,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   ENLARGED_PX, rootProblems, doublingProblems, clipProblems, overlapProblems, staleAllowanceProblems,
-  breakpointProblems, breakpointProbeCss, breakpointExpression, THINNED, spillsOut, overrunOf, spillProblems, halfLeadingDeficit, scrolls, clippedBy, declaresTruncation, takesPartInFlow, collectExpression, firstCutting, referenceProblem, type TextBox,
+  breakpointProblems, breakpointProbeCss, breakpointExpression, THINNED, spillsOut, overrunOf, spillProblems, halfLeadingDeficit, scrolls, clippedBy, declaresTruncation, takesPartInFlow, collectExpression, firstCutting, referenceProblem, wrappedProblems, type TextBox, type WrappedBox,
 } from './check-text-scale.ts';
 
 const box = (over: Partial<TextBox> = {}): TextBox => ({
@@ -213,4 +213,18 @@ test('a spill present at both sizes is reported once it grows past twice its 16p
   assert.equal(spillProblems([at({ spillY: true, overY: 20 })], none, new Set(), [at({ spillY: true, overY: 2 })]).length, 1);
   assert.deepEqual(overrunOf({ left: -3, top: 0, right: 110, bottom: 30 }, { left: 0, top: 0, right: 100, bottom: 32 }),
     { overX: 10, overY: 0 });
+});
+
+test('a control box shorter than its content fails, and a part the sink does not draw is stale', () => {
+  const rows: [row: string, box: WrappedBox, mentions: string[]][] = [
+    ['a box as tall as its content', { path: 'react/default:button', part: 'button', height: 48, content: 48 }, []],
+    ['a content one pixel taller is within tolerance', { path: 'react/default:button', part: 'button', height: 48, content: 49 }, []],
+    ['a box shorter than its content', { path: 'react/default:button', part: 'button', height: 32, content: 77 }, ['button', '32', '77']],
+    ['a part the sink does not draw', { path: 'angular/default:sheet.close', part: 'sheet.close', missing: true }, ['sheet.close']],
+  ];
+  for (const [row, one, mentions] of rows) {
+    const problems = wrappedProblems([one]);
+    assert.equal(problems.length, mentions.length === 0 ? 0 : 1, row);
+    for (const word of mentions) assert.ok((problems[0] ?? '').includes(word), `${row}: the message holds ${word}`);
+  }
 });

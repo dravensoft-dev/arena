@@ -1,13 +1,12 @@
 /* Loads the kitchen sinks at a 32px browser default against a 16px reference (dark only, matched by slot)
  * and reports text that did not double, is clipped by its box (a scroller that holds it inside the clip
- * is not a clip), spills out of its part's box (unless it already did at 16px), or overlaps a sibling. A root that is not 32px fails
- * naming it. Truncating slots, 1px clip boxes and out-of-flow boxes are not reported; a line height below
- * the content area is slack. FIXED, CLIPS, OVERLAPS, SPILLS and THINNED are keyed
- * <layer>/<sink>:<data-arena-part or tag>, carry a reason and fail when they silence nothing; a THINNED
- * slot draws different labels at each size by design and is matched by slot, text and occurrence. The md
- * breakpoint is read from the rule Arena compiles for a probe carrying `md:block`, on a page at 1530px and at
- * 1540px, so a regressed Breakpoints sheet fails here. The kitchen-sink stage grows with the text, so an
- * overlay whose text doubles inside a fixed small viewport is not measured. */
+ * is not a clip), spills out of its part's box (unless it already did at 16px), or overlaps a sibling. A root
+ * that is not 32px fails naming it. FIXED, CLIPS, OVERLAPS, SPILLS and THINNED are keyed
+ * <layer>/<sink>:<data-arena-part or tag>, carry a reason and fail when they silence nothing. The md
+ * breakpoint is read from the rule Arena compiles for a probe carrying `md:block`, at 1530px and 1540px.
+ * Truncating slots, 1px clip boxes, out-of-flow boxes and the stage of an overlay are not measured.
+ * On the default sink, twelve controls narrowed to a 300px column fail when the box is shorter than its
+ * content, four of them with a label longer than a line. */
 
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -463,6 +462,75 @@ export async function collectPage(cdp: Cdp, url: string, layer: string, sink: st
   }, VIEWPORT);
 }
 
+export const WRAPPED_SINK = 'default';
+
+export const LONG_LABEL = 'A label that is longer than one line of text';
+
+export const COLUMN_PX = 300;
+
+export const WRAPPED: ReadonlyArray<{ part: string; fill: 'label' | 'drawn' }> = [
+  { part: 'button', fill: 'label' },
+  { part: 'split-button.primary', fill: 'label' },
+  { part: 'file-input.trigger', fill: 'label' },
+  { part: 'confirm-dialog.confirm', fill: 'label' },
+  { part: 'input.field', fill: 'drawn' },
+  { part: 'select.field', fill: 'drawn' },
+  { part: 'calendar.nav', fill: 'drawn' },
+  { part: 'pagination.nav', fill: 'drawn' },
+  { part: 'alert.close', fill: 'drawn' },
+  { part: 'sheet.close', fill: 'drawn' },
+  { part: 'toast.close', fill: 'drawn' },
+  { part: 'tree-view.caret', fill: 'drawn' },
+];
+
+export type WrappedBox = { path: string; part: string; height: number; content: number } | { path: string; part: string; missing: true };
+
+export function wrappedProblems(boxes: WrappedBox[]): string[] {
+  return boxes.flatMap((one) => {
+    if ('missing' in one) {
+      return [`${one.path}: the ${WRAPPED_SINK} sink draws no part ${one.part}, so this row measured nothing and is stale`];
+    }
+    if (one.content <= one.height + 1) return [];
+    return [`${one.path}: the box is ${one.height}px tall and its content is ${one.content}px at a ${COLUMN_PX}px column, `
+      + 'so the control token is a ceiling and not a floor'];
+  });
+}
+
+export const wrappedExpression = (layer: string, scope: string) => `(() => {
+  const html = document.documentElement;
+  for (const one of ${JSON.stringify([...SCOPES])}) html.classList.remove(one);
+  html.classList.add(${JSON.stringify(scope)});
+  const out = [];
+  for (const row of ${JSON.stringify(WRAPPED)}) {
+    const path = ${JSON.stringify(`${layer}/${WRAPPED_SINK}/${scope}:`)} + row.part;
+    const el = document.querySelector('[data-arena-part="' + row.part + '"]');
+    if (!el) { out.push({ path, part: row.part, missing: true }); continue; }
+    el.style.maxWidth = '${COLUMN_PX}px';
+    if (row.fill === 'label') {
+      const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+      let longest = null;
+      for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        if (node.textContent.trim() && (!longest || node.textContent.trim().length > longest.textContent.trim().length)) longest = node;
+      }
+      if (longest) longest.textContent = ${JSON.stringify(LONG_LABEL)};
+    }
+    const round = (value) => Math.round(value * 10) / 10;
+    out.push({ path, part: row.part, height: round(el.getBoundingClientRect().height), content: round(el.scrollHeight) });
+  }
+  return out;
+})()`;
+
+export async function wrappedPage(cdp: Cdp, url: string, layer: string) {
+  return visit(cdp, url, async (ev) => {
+    const found: WrappedBox[] = [];
+    for (const scope of SCOPES) {
+      await ev(stableHeightExpression(PAINTED));
+      found.push(...await ev(wrappedExpression(layer, scope)) as WrappedBox[]);
+    }
+    return found;
+  }, VIEWPORT);
+}
+
 export async function breakpointPage(cdp: Cdp, url: string, css: string) {
   return visit(cdp, url, async (ev, sessionId) => {
     const read = async (width: number) => {
@@ -537,6 +605,13 @@ async function main() {
         for (const one of spillProblems(collected.boxes, SPILLS, usedSpills, base?.boxes)) note(one, where);
         for (const one of overlapProblems(collected.boxes, OVERLAPS, usedOverlaps)) note(one, where);
       }
+    }
+    for (const layer of SINK_LAYERS) {
+      const page = { layer, sink: WRAPPED_SINK, theme: 'dark' };
+      const what = `${layer}/${WRAPPED_SINK}:dark wrapped`;
+      const got = await wrappedPage(cdpBig, url(page), layer);
+      if (!got.value) { note(unpainted(what, got), what); continue; }
+      for (const one of wrappedProblems(got.value)) note(one, what);
     }
   } finally {
     await big.kill?.();

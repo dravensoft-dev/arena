@@ -5,7 +5,7 @@
     "label": "font-face-label text-ctl-xs tracking-label-role case-label text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",
     "required": "ml-1 text-[color:var(--fields-required-ink-rest,var(--accent-primary-ink))]",
     "group": "flex items-center gap-inline min-w-0",
-    "cell": "size-ctl-h min-w-0 shrink p-0 text-center border-[length:var(--bw-field)] rounded-field focus:outline-hidden font-mono tabular-nums text-ctl transition-[border-color,box-shadow] duration-[var(--dur-hover)] ease-hover text-[color:var(--fields-value-ink-rest,var(--ink-body))]",
+    "cell": "w-ctl-h min-h-ctl-h min-w-0 shrink p-0 text-center border-[length:var(--bw-field)] rounded-field focus:outline-hidden font-mono tabular-nums text-ctl transition-[border-color,box-shadow] duration-[var(--dur-hover)] ease-hover text-[color:var(--fields-value-ink-rest,var(--ink-body))]",
     "statusIcon": "shrink-0 text-[length:var(--icon-md)]",
     "hint": "font-body text-ctl-sm text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",
     "error": "font-body text-ctl-sm text-[color:var(--fields-error-ink-rest,var(--ink-invalid))]"

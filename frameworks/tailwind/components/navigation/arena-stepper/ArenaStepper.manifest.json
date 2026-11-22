@@ -15,7 +15,7 @@
     "step": "block flex-1 min-w-0",
     "trigger": "flex flex-wrap items-start gap-control w-full min-h-ctl-h-sm min-w-ctl-h-sm rounded-control text-start font-body focus-visible:outline-hidden focus-visible:ring-[length:var(--bw-focus)] focus-visible:ring-edge-focus bg-[color:var(--navigation-item-fill-rest,transparent)]",
     "rail": "flex [flex-direction:var(--arena-orientation-direction,row)] items-center self-stretch gap-inline shrink-0 basis-[var(--arena-orientation-rule-w,100%)]",
-    "marker": "inline-flex flex-none items-center justify-center size-ctl-h-sm rounded-pill border-[length:var(--bw-control)] font-mono tabular-nums text-ctl-xs",
+    "marker": "inline-flex flex-none items-center justify-center w-ctl-h-sm min-h-ctl-h-sm rounded-pill border-[length:var(--bw-control)] font-mono tabular-nums text-ctl-xs",
     "icon": "inline-flex text-[length:var(--icon-sm)]",
     "text": "flex flex-col justify-center min-w-0 min-h-ctl-h-sm grow basis-[var(--arena-orientation-rule-w,100%)]",
     "label": "font-face-label text-ctl-xs tracking-label-role case-label",

@@ -21,7 +21,7 @@
     }
   ],
   "slots": {
-    "root": "inline-flex items-center justify-center rounded-control cursor-pointer transition-[background] duration-[var(--dur-hover)] ease-hover disabled:cursor-not-allowed shadow-control-rest active:scale-[var(--press-scale)] motion-reduce:active:scale-100 w-[var(--arena-fill-width,fit-content)] h-[var(--arena-size-control-h,var(--size-md-control-h))] min-w-[var(--arena-size-control-h,var(--size-md-control-h))] bg-[color:var(--arena-emphasis-fill)] text-[color:var(--arena-emphasis-ink)] [--arena-icon-ink:var(--arena-emphasis-icon)] border-[length:var(--bw-control)] border-[color:var(--arena-emphasis-icon-edge)] [border-style:var(--arena-emphasis-edge-style)] focus-visible:outline-[length:var(--bw-focus)] focus-visible:outline-edge-focus focus-visible:outline-offset-[var(--gap-focus)]",
+    "root": "inline-flex items-center justify-center rounded-control cursor-pointer transition-[background] duration-[var(--dur-hover)] ease-hover disabled:cursor-not-allowed shadow-control-rest active:scale-[var(--press-scale)] motion-reduce:active:scale-100 w-[var(--arena-fill-width,fit-content)] min-h-[var(--arena-size-control-h,var(--size-md-control-h))] min-w-[var(--arena-size-control-h,var(--size-md-control-h))] bg-[color:var(--arena-emphasis-fill)] text-[color:var(--arena-emphasis-ink)] [--arena-icon-ink:var(--arena-emphasis-icon)] border-[length:var(--bw-control)] border-[color:var(--arena-emphasis-icon-edge)] [border-style:var(--arena-emphasis-edge-style)] focus-visible:outline-[length:var(--bw-focus)] focus-visible:outline-edge-focus focus-visible:outline-offset-[var(--gap-focus)]",
     "label": "font-body font-control text-ctl leading-ctl"
   },
   "kind": {
