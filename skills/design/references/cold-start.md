@@ -284,19 +284,20 @@ it reads at build ([`install.md`](./install.md) names them) through the symlinke
 
 Then, in this order, because each file is read by the next.
 
-- `arena.config.json`, with both palettes, the three font slots, and `stylePlugins` naming the
+- [`arena.config.json`](./config.md), with both palettes, the three font slots, and `stylePlugins` naming the
   directory the next two bullets write, as `["./design/<name>"]`. **A plugin the config never
   names is a plugin nothing loads**, and nothing reports it: the build succeeds and the product
   wears the answers Arena installs with, which are Dravensoft's. `["default"]`, or leaving the key out, is that same appearance chosen on purpose rather than
   by omission. That answer is a finished one for a first screen, or for a tool nobody
   outside the team looks at.
 - `design/<name>/plugin.tokens.json`, answering every role that carries no default. Shapes first, then space, then weight,
-  then depth, and leave the colour roles at the answers
-  [`style-kernel.md`](./style-kernel.md) reports eight products converged on.
+  then depth. Leave the ink roles and the four quiet edges at the answers
+  [`style-kernel.md`](./style-kernel.md#where-the-appearance-actually-comes-from) reports eight products converged on. Answer the surface fills and the control edges from the page shape the identity document settled.
 - `design/<name>/plugin.css`, only for a decision no role reaches.
-- Run `arena build`. The command writes the package sheet, the theme sheet and, when a style plugin of yours carries CSS,
+- Run [`arena build`](./cli.md). The command writes the package sheet, the theme sheet and, when a style plugin of yours carries CSS,
   the plugin sheet. The command also writes the icon sprite for the glyphs your screens draw, with its module, and the local font cuts. [`install.md`](./install.md)
   gives the order to import them in.
+- The slot answers node 7 settled go in the same `plugin.tokens.json`, or in a later plugin as the first route of [`color-slots.md`](./color-slots.md#which-plugin-answers) says.
 - Then the first screen, through the per-screen route in [`../SKILL.md`](../SKILL.md).
 
 **A catalogue entry from node 4 answers part of this list.** The entry's `plugin.tokens.json` and
