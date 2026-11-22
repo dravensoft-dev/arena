@@ -172,7 +172,9 @@ const spanish = { locale: 'es-ES', calendarToday: 'Hoy', paginationNext: 'Siguie
 </ArenaLocaleProvider>
 ```
 
-`useArenaLocale` reads the value the nearest provider holds. `arenaMergeLocale` is the merge the provider applies. The provider renders on a server and switches language on re-render.
+`useArenaLocale` reads the value the nearest provider holds. `arenaMergeLocale(base: ArenaLocale, value: Partial<ArenaLocale>): ArenaLocale` is the merge the provider applies, and it ignores a key of `value` that is not a string. The provider renders on a server and switches language on re-render.
+
+A `{count}` field takes one form for every count. A language whose plural differs writes a form that reads for any number, such as `Seleccionados: {count}`.
 
 ## How do I set the locale in Angular?
 
@@ -186,7 +188,9 @@ bootstrapApplication(App, {
 });
 ```
 
-Inject `ARENA_LOCALE` to read the value the injector holds. `arenaMergeLocale` is the merge the provider applies. The value is fixed for the life of its injector, as `LOCALE_ID` is. Switching language means re-creating the subtree.
+Inject `ARENA_LOCALE` to read the value the injector holds. `arenaMergeLocale(base: ArenaLocale, value: Partial<ArenaLocale>): ArenaLocale` is the merge the provider applies, and it ignores a key of `value` that is not a string. The value is fixed for the life of its injector, as `LOCALE_ID` is. Switching language means re-creating the subtree.
+
+A `{count}` field takes one form for every count. A language whose plural differs writes a form that reads for any number, such as `Seleccionados: {count}`.
 
 `provideArenaLocale` in a component's `providers` does the same: it merges onto the default, never onto the value of the injector above it. A component that changes one word repeats the outer value, kept as a `const`, and overrides that word.
 
