@@ -168,6 +168,8 @@ export class App {
 }
 ```
 
+**What a screen reader hears after that move.** `ArenaMain` renders a `<main>` with `tabindex="-1"` and the id `ARENA_MAIN_ID`, in both layers, and gives it no `aria-label` or `aria-labelledby`. The landmark is announced by its role, with no name of its own. The document title is set by your framework in React and by `provideArenaMetadata` in Angular, as [`seo.md`](./seo.md) says. Arena writes no live region for a route change. A project that wants the new page announced adds an element of its own with `role="status"` and `arena-sr-only`, then sets its text to the page title after each navigation.
+
 ## How wide is the rail?
 
 The collapsed rail sizes itself. The width is a control's height plus a step of padding on each side, and it holds in an `auto` column and in a definite one alike.
