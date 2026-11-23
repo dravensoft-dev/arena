@@ -18,12 +18,14 @@ import {
 } from '../../build/arena/build-contracts-package.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 
+export const GROUP_PAGE = 'skills/design/references/contracts.md';
+
 export const node = {
   name: 'check:contracts-package',
   reads: [
     'contracts/design/*.json', 'contracts/api/components/*.json', 'contracts/api/types/*.json',
     'contracts/behaviour/*.json', 'contracts/NPM.md', `${DIST}/**`, '.claude-plugin/plugin.json',
-    'frameworks/Components.json',
+    'frameworks/Components.json', GROUP_PAGE,
   ],
   writes: [],
   feeds: [],
@@ -128,7 +130,6 @@ export function manifestProblems(dir: string, repo = root) {
   return problems;
 }
 
-export const GROUP_PAGE = 'skills/design/references/contracts.md';
 const PATTERNED = new Map([['palette', 'polarity'], ['density', 'name']]);
 
 export function shippedGroups(expected: string[]) {

@@ -60,7 +60,7 @@ export const node = {
     '.claude-plugin/plugin.json', 'LICENSE',
     'skills/design/SKILL.md', 'skills/design/references/**/*.md',
     'frameworks/INDEX.md', 'frameworks/VOCABULARY.md', 'contracts/design/*.json', 'contracts/api/components/*.json', 'contracts/behaviour/*.json',
-    'frameworks/angular/ProjectionMarkers.ts', 'frameworks/angular/forms/*.ts',
+    'contracts/design/*.md', 'frameworks/angular/ProjectionMarkers.ts', 'frameworks/angular/forms/*.ts',
     'frameworks/*/INDEX.md', 'frameworks/*/components/*/INDEX.md',
     'frameworks/*/components/**/*.prompt.md',
     'frameworks/*/components/**/*.behaviour.json',
