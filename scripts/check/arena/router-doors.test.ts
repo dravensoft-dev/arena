@@ -4,7 +4,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { dirname, join, normalize } from 'node:path';
+import { join } from 'node:path';
+import { dirname, join as joinPosix, normalize } from 'node:path/posix';
 
 const root = join(import.meta.dirname, '..', '..', '..');
 const SKILL = 'skills/design/SKILL.md';
@@ -43,7 +44,7 @@ const rows = () => {
   });
 };
 
-const pagesOf = (cell: string, from: string) => [...new Set([...cell.matchAll(/\]\(([^)]+\.md)(#[^)]*)?\)/g)].map((m) => normalize(join(dirname(from), m[1] ?? ''))))];
+const pagesOf = (cell: string, from: string) => [...new Set([...cell.matchAll(/\]\(([^)]+\.md)(#[^)]*)?\)/g)].map((m) => normalize(joinPosix(dirname(from), m[1] ?? ''))))];
 
 const sentencesOf = (text: string) => text.replace(/<!--[\s\S]*?-->/g, '').replace(/```[\s\S]*?```/g, '').replace(/^\|.*$/gm, '')
   .split(/(?<=[.!?])\s+/).map((one) => one.replace(/\s+/g, ' ').trim()).filter((one) => one.split(' ').length >= 8);

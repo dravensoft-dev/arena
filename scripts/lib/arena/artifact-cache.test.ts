@@ -7,7 +7,7 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, rmSync, statSync, utimesSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, rmSync, linkSync, utimesSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { VERSION, CACHE_DIR, cached, cachedReading, cachedReadingAsync, digestOf, entryPath, purge, read, write } from './artifact-cache.ts';
@@ -160,9 +160,12 @@ test('an entry is replaced through a rename, so two gates keeping one entry leav
   try {
     write('tailwind-0123456789ab', [], { value: 1 }, root);
     const path = entryPath('tailwind-0123456789ab', root);
-    const before = statSync(path).ino;
-    write('tailwind-0123456789ab', [], { value: 1 }, root);
-    assert.notEqual(statSync(path).ino, before);
+    const held = join(root, 'held.json');
+    linkSync(path, held);
+    write('tailwind-0123456789ab', [], { value: 2 }, root);
+    assert.equal(JSON.parse(readFileSync(held, 'utf8')).value.value, 1, 'a link to the old entry keeps its bytes, which a write in place would not');
+    assert.equal(JSON.parse(readFileSync(path, 'utf8')).value.value, 2);
+    rmSync(held);
     assert.deepEqual(readdirSync(join(root, CACHE_DIR)), ['tailwind-0123456789ab.json']);
   } finally {
     rmSync(root, { recursive: true, force: true });

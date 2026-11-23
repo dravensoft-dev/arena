@@ -22,9 +22,10 @@ function diagnose(style: string) {
   const host = ts.createCompilerHost(options);
   const load = host.getSourceFile.bind(host);
   const text = `export const el = <div style={${style}} />;\n`;
-  host.getSourceFile = (file, language, ...rest) => (file === example ? ts.createSourceFile(file, text, language) : load(file, language, ...rest));
+  const isExample = (file: string) => resolve(file) === example;
+  host.getSourceFile = (file, language, ...rest) => (isExample(file) ? ts.createSourceFile(file, text, language) : load(file, language, ...rest));
   const read = host.fileExists.bind(host);
-  host.fileExists = (file) => file === example || read(file);
+  host.fileExists = (file) => isExample(file) || read(file);
   return ts.getPreEmitDiagnostics(ts.createProgram([generated, example], options, host));
 }
 
