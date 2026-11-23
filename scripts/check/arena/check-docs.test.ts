@@ -17,10 +17,9 @@ import {
   FOREIGN_CODE, foreignCodeProblems, componentCountProblems,
   blobLinkProblems, COMMENT_RULE_SKIPS, SOURCE_EXTENSIONS, MAX_CELL_CHARS, cellSizeProblems,
   hueProblems, CONSUMER_WORDING, consumerWordingProblems,
-  testNameProblems, emptySuiteProblems, localeTagProblems, LOCALE_FIELD_TABLE,
+  testNameProblems, emptySuiteProblems, localeTagProblems, LOCALE_FIELD_TABLE, defaultLocaleTag,
   unnamedPropertyProblems, unnamedPropertyScan,
 } from './check-docs.ts';
-import { ARENA_DEFAULT_LOCALE } from '../../../frameworks/react/LocaleDefaults.generated.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { scratchTree } from '../../utils/scratch-tree.ts';
 
@@ -881,7 +880,7 @@ test('every suite in the tree holds a test', () => {
 });
 
 test('a locale tag in prose is the default locale', () => {
-  const tag = ARENA_DEFAULT_LOCALE.locale;
+  const tag = defaultLocaleTag();
   const rows = [
     { name: 'en-US in prose', rel: 'a.md', source: 'English (en-US neutral).\n', found: 1 },
     { name: 'en-GB in prose', rel: 'a.md', source: `English (${tag}).\n`, found: 0 },

@@ -16,7 +16,6 @@ import { walkFiles } from '../../utils/walk-files.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { findComments, literalRanges, insideLiteral } from '../../lib/arena/comments.ts';
 import { proseSegments, fencedLines, unfenced } from '../../lib/arena/markdown-prose.ts';
-import { ARENA_DEFAULT_LOCALE } from '../../../frameworks/react/LocaleDefaults.generated.ts';
 import { repoRoot as ROOT } from '../../lib/arena/repo-root.ts';
 import { emittedTree } from '../../lib/arena/layers.ts';
 import { relPosix } from '../../utils/posix-path.ts';
@@ -715,7 +714,12 @@ export function localeTagProblems(rel: string, source: string, tag: string) {
   });
 }
 
-export function localeTagScan(root = ROOT, tag = ARENA_DEFAULT_LOCALE.locale) {
+export const LOCALE_CONTRACT = 'contracts/api/types/arena-locale.json';
+
+export const defaultLocaleTag = (root = ROOT): string =>
+  JSON.parse(readFileSync(join(root, LOCALE_CONTRACT), 'utf8')).fields.locale.default;
+
+export function localeTagScan(root = ROOT, tag = defaultLocaleTag(root)) {
   return documents(root).flatMap((path) =>
     localeTagProblems(relPosix(root, path), readFileSync(path, 'utf8'), tag));
 }
