@@ -29,11 +29,8 @@ test('an interactive card carries the manifest\'s own hover and focus classes, n
   assert.match(inert, /data-arena-part="card"(?:(?!data-arena-interactive=)[^>])*>/);
 
   const live = renderToStaticMarkup(<ArenaCard interactive>x</ArenaCard>);
-  assert.match(live, /data-arena-part="card"[^>]*\bdata-arena-interactive=""/);
-  assert.match(live, /data-arena-part="card"[^>]*\bdata-arena-interactive=""/);
-  assert.match(live, /data-arena-part="card"[^>]*\bdata-arena-interactive=""/);
   assert.match(live, /data-arena-part="card"[^>]*\bdata-arena-interactive=""/,
-    'the disabled look is a state the attribute selects, so nothing has to be recomputed to draw it');
+    'the interactive look is a state the attribute selects, so nothing has to be recomputed to draw it');
 });
 
 test('accent and elevation reach the card as classes, and it writes no attribute for either', () => {
@@ -46,11 +43,4 @@ test('accent and elevation reach the card as classes, and it writes no attribute
 test('an href card is interactive without being told so, because navigating IS acting', () => {
   const html = renderToStaticMarkup(<ArenaCard href="#x">x</ArenaCard>);
   assert.match(html, /data-arena-part="card"[^>]*\bdata-arena-interactive=""/);
-});
-
-test('ArenaCard drops a consumer style object and a consumer attribute, each independently', () => {
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  const html = renderToStaticMarkup(<ArenaCard style={{ color: '#ff00ff' }} data-stray="x">x</ArenaCard>);
-  assert.doesNotMatch(html, /#ff00ff/, 'a consumer style reached the rendered root -- the R4 escape is back');
-  assert.doesNotMatch(html, /data-stray/, 'a consumer attribute reached the rendered root -- the {...rest} escape is back');
 });

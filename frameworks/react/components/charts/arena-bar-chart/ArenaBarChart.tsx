@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useArenaContainerWidth } from '../../../UseArenaContainerWidth.ts';
-import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, arenaSrOnly, arenaPlotWidth, arenaRailStyle, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals.ts';
+import { useArenaContainerWidth, useArenaTextScale } from '../../../UseArenaContainerWidth.ts';
+import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, arenaSrOnly, arenaTextRoom, arenaPlotWidth, arenaRailStyle, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals.ts';
 import {
   arenaLinearScale, arenaBandScale, arenaBandCenter, arenaBandIndex, arenaBandMark, arenaBandSubBand, arenaScaleValue,
 } from '../ChartScales.ts';
 import { arenaBarPath } from '../ChartMarks.ts';
-import { arenaPlotBox, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY, arenaValueGutter } from '../ChartAxis.ts';
+import { arenaPlotBox, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY, arenaValueGutter, arenaLabelStride } from '../ChartAxis.ts';
 import {
   arenaChartTable, arenaSeriesColors, arenaSwatchHue, arenaSeriesDomain, arenaSeriesPointCount, arenaStackSegments, arenaStackDomain,
 } from '../ChartSeries.ts';
@@ -27,13 +27,13 @@ export interface ArenaBarChartProps {
   className?: ArenaBarChartClass;
 
 
-  /** One label per category, in the same order as every series' `values`. A category with no value in a series is drawn for the series that do have one. */
+  /** One label per category, in the same order as every series' `values`. A category with no value in a series is drawn for the series that do have one. Every n-th label is drawn when the labels do not fit their band, and the data table carries all of them. */
   labels: readonly string[];
 
-  /** The plotted series, drawn as one group of bars per category. One series is the common case and draws one bar per category. Two or more share each category's band, so the bars of one category stand side by side and the reader compares within a category before comparing across. After the last slot the positional count starts again at the first, so fold a ninth series into "Other" upstream. */
+  /** The plotted series, drawn as one group of bars per category. One series is the common case and draws one bar per category. Two or more share each category's band, so the bars of one category stand side by side and the reader compares within a category before comparing across. After the last ramp colour the positional count starts again at the first, so fold a ninth series into "Other" upstream. */
   series: readonly ArenaSeries[];
 
-  /** The ramp slot the first series takes when it names no colour of its own. Each later series takes the next slot, and after the last slot the count starts again at the first. A series' `colorId` or `colorIds` keeps the slot it names. Absent, 1. */
+  /** The ramp colour the first series takes when it names no colour of its own. Each later series takes the next ramp colour, and after the last ramp colour the count starts again at the first. A series' `colorId` or `colorIds` keeps the ramp colour it names. Absent, 1. */
   colorStart?: ArenaCatSlot;
 
   /** Names the chart for its accessible name and for the caption of its data table. The label names the CHART, not a series: a series names itself. Required and guarded rather than defaulted, because a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing. Two charts on one page then announce identically. */
@@ -71,12 +71,13 @@ export function ArenaBarChart({ className,
   if (!labels) throw new Error('ArenaBarChart: `labels` is required');
   if (!series) throw new Error('ArenaBarChart: `series` is required');
   const [ref, measured] = useArenaContainerWidth();
+  const room = arenaTextRoom(useArenaTextScale());
   const rail = useRef<HTMLDivElement>(null);
   const [hover, setHover] = useState<number | null>(null);
 
   const available = measured ?? 600;
   const n = arenaSeriesPointCount(series);
-  const width = arenaPlotWidth(available, n, minPointSpacing);
+  const width = arenaPlotWidth(available, n, minPointSpacing, room);
   const scrolls = width > available;
   const [view, syncView] = useArenaRailView(rail, [measured, scrolls, width]);
   const fmt = arenaValueWriter({ prefix: valuePrefix, suffix: valueSuffix, format: valueFormat });
@@ -89,11 +90,12 @@ export function ArenaBarChart({ className,
   }, [scrolls, width]);
 
   const domain = stack ? arenaStackDomain(series) : arenaSeriesDomain(series);
-  const strip = arenaLegendStrip(height, series.length);
-  const gutter = arenaValueGutter(domain, fmt);
-  const box = arenaPlotBox(width, strip.plotH, gutter);
+  const strip = arenaLegendStrip(height, series.length, false, room);
+  const gutter = arenaValueGutter(domain, fmt, room);
+  const box = arenaPlotBox(width, strip.plotH, gutter, room);
   const yScale = arenaLinearScale(domain.min, domain.max, box.y + box.h, box.y);
   const bands = arenaBandScale(n, box.x, box.w, chartBarGap);
+  const stride = arenaLabelStride(bands.step, labels, room);
 
   useEffect(() => {
     const region = rail.current;
@@ -104,7 +106,7 @@ export function ArenaBarChart({ className,
     syncView();
   }, [hover, scrolls, bands.step, measured]);
   const axis = arenaAxisModel(yScale, domain, fmt);
-  const colors = series.map((one, s) => arenaSeriesColors(one, n, arenaCatRotate(colorStart, s), 'ArenaBarChart', colorStart));
+  const colors = series.map((one, s) => arenaSeriesColors(one, n, arenaCatRotate(colorStart, s), colorStart));
   const table = arenaChartTable(locale.chartTableCategory, series, labels, fmt);
 
   const name = arenaPhrase(locale.barChartName, { label });
@@ -166,7 +168,7 @@ export function ArenaBarChart({ className,
         {
 
 }
-        {Array.from({ length: n }, (_, i) => (
+        {Array.from({ length: n }, (_, i) => i % stride === 0 && (
           <text key={i} x={arenaBandCenter(bands, i)} y={arenaCategoryLabelY(strip.plotH)} textAnchor="middle"
             fill={ARENA_INK_MUTED} fontFamily="var(--font-body)" style={{ fontSize: 'var(--dz-text-xs)' }}>{labels[i] ?? ''}</text>
         ))}

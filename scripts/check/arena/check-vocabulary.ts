@@ -143,7 +143,7 @@ export function conventionProblems(base = root, files = treeFiles(base), present
   return problems;
 }
 
-export const BARE_FILENAME = /(?<![\w/.-])([A-Za-z][\w-]*(?:\.[A-Za-z0-9]+)+)(?![\w./-])/g;
+export const BARE_FILENAME = /(?<![\w/.{-])([A-Za-z][\w-]*(?:\.[A-Za-z0-9]+)+)(?![\w./-])/g;
 
 const THE_CONSUMER_WRITES = 'a file in the reader\'s own project rather than in this tree. The '
   + 'package carries the language and never the skin, so what a consumer declares, and the shell '

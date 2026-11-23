@@ -28,109 +28,212 @@ function el(tagName: string, attrs: Record<string, unknown> = {}, text = '') {
   };
 }
 
-test('roleOf prefers an explicit role', () => {
-  assert.equal(roleOf(el('div', { role: 'dialog' })), 'dialog');
-});
+type Elem = ReturnType<typeof el>;
+type Resolve = (id: string) => Elem | null;
+type Call = {
+  el: Elem;
+  resolver?: Resolve;
+  textOk?: boolean;
+  expected?: unknown;
+  throws?: RegExp;
+  unconsulted?: string;
+  why?: string;
+};
+type Row = { name: string; calls: Call[]; evaluating?: [key: string, text: string, pattern: string] };
 
-test('roleOf takes the first token of a multi-token role', () => {
-
-  assert.equal(roleOf(el('div', { role: 'doc-abstract  region' })), 'doc-abstract');
-  assert.equal(roleOf(el('div', { role: '  button ' })), 'button');
-});
-
-test('roleOf resolves the implicit role of a native button', () => {
-  assert.equal(roleOf(el('button')), 'button');
-});
-
-test('roleOf resolves input types to their distinct implicit roles', () => {
-  assert.equal(roleOf(el('input', { type: 'checkbox' })), 'checkbox');
-  assert.equal(roleOf(el('input', { type: 'radio' })), 'radio');
-  assert.equal(roleOf(el('input', {})), 'textbox');
-});
-
-test('roleOf gives a section a role only when it is named', () => {
-  assert.equal(roleOf(el('section')), null);
-  assert.equal(roleOf(el('section', { 'aria-label': 'Schedule' })), 'region');
-});
-
-test('roleOf does not let text content name a section', () => {
-
-  assert.equal(roleOf(el('section', {}, 'Schedule')), null);
-});
-
-test('roleOf returns null for an element with no role of any kind', () => {
-  assert.equal(roleOf(el('div')), null);
-  assert.equal(roleOf(el('span')), null);
-});
-
-test('hasAccessibleName accepts aria-label, and returns false with no naming route', () => {
-
-  assert.equal(hasAccessibleName(el('div', { 'aria-label': 'Loading' })), true);
-  assert.equal(hasAccessibleName(el('div')), false);
-});
-
-test('hasAccessibleName credits text content only when asked to', () => {
-  assert.equal(hasAccessibleName(el('button', {}, 'Save'), true), true);
-  assert.equal(hasAccessibleName(el('button', {}, 'Save')), false, 'strict by default');
-  assert.equal(hasAccessibleName(el('button', {}, '   '), true), false, 'whitespace is not a name');
-});
-
-test('aria-label alone names the element without consulting the resolver', () => {
+function run(row: Row, call: Call, read: (e: Elem, resolve: Resolve | undefined) => unknown) {
+  const message = `${row.name}${call.why ? `: ${call.why}` : ''}`;
   let asked = false;
-  const resolve = (): null => { asked = true; return null; };
-  assert.equal(hasAccessibleName(el('div', { 'aria-label': 'Schedule' }), false, resolve), true);
-  assert.equal(asked, false, 'the resolver was consulted for an element aria-label already named');
+  const resolve: Resolve | undefined = call.unconsulted && call.resolver
+    ? (id) => { asked = true; return call.resolver!(id); }
+    : call.resolver;
+  if (call.throws) {
+    assert.throws(() => read(call.el, resolve), call.throws, message);
+    return;
+  }
+  assert.equal(read(call.el, resolve), call.expected, message);
+  if (call.unconsulted) assert.equal(asked, false, `${row.name}: ${call.unconsulted}`);
+}
+
+const none = (): null => null;
+const onlyA = (id: string) => (id === 'a' ? el('span') : null);
+const anyId = () => el('span');
+
+const ROLE_OF: Row[] = [
+  { name: 'roleOf prefers an explicit role', calls: [{ el: el('div', { role: 'dialog' }), expected: 'dialog' }] },
+  {
+    name: 'roleOf takes the first token of a multi-token role',
+    calls: [
+      { el: el('div', { role: 'doc-abstract  region' }), expected: 'doc-abstract' },
+      { el: el('div', { role: '  button ' }), expected: 'button' },
+    ],
+  },
+  { name: 'roleOf resolves the implicit role of a native button', calls: [{ el: el('button'), expected: 'button' }] },
+  {
+    name: 'roleOf resolves input types to their distinct implicit roles',
+    calls: [
+      { el: el('input', { type: 'checkbox' }), expected: 'checkbox' },
+      { el: el('input', { type: 'radio' }), expected: 'radio' },
+      { el: el('input', {}), expected: 'textbox' },
+    ],
+  },
+  {
+    name: 'roleOf gives a section a role only when it is named',
+    calls: [
+      { el: el('section'), expected: null },
+      { el: el('section', { 'aria-label': 'Schedule' }), expected: 'region' },
+    ],
+  },
+  { name: 'roleOf does not let text content name a section', calls: [{ el: el('section', {}, 'Schedule'), expected: null }] },
+  {
+    name: 'roleOf returns null for an element with no role of any kind',
+    calls: [{ el: el('div'), expected: null }, { el: el('span'), expected: null }],
+  },
+  {
+    name: 'roleOf refuses region to a section whose aria-labelledby dangles',
+    calls: [
+      { el: el('section', { 'aria-labelledby': 'gone' }), resolver: none, expected: null },
+      { el: el('section', { 'aria-labelledby': 'h1' }), resolver: () => el('h2'), expected: 'region' },
+    ],
+  },
+  {
+    name: 'a section named only by aria-labelledby THROWS through roleOf with no resolver',
+    calls: [{ el: el('section', { 'aria-labelledby': 'x' }), throws: /aria-labelledby.*resolveId/s }],
+  },
+];
+
+test('roleOf reads the explicit role, the implicit one, and refuses a name it cannot resolve', () => {
+  assert.ok(ROLE_OF.length > 0, 'the table has rows');
+  for (const row of ROLE_OF) for (const call of row.calls) run(row, call, (e, r) => roleOf(e, r));
 });
 
-test('a resolving aria-labelledby names the element', () => {
-  assert.equal(hasAccessibleName(el('div', { 'aria-labelledby': 'title-1' }), false, () => el('h2')), true);
+const NAME_OF: Row[] = [
+  {
+    name: 'hasAccessibleName accepts aria-label, and returns false with no naming route',
+    calls: [{ el: el('div', { 'aria-label': 'Loading' }), expected: true }, { el: el('div'), expected: false }],
+  },
+  {
+    name: 'hasAccessibleName credits text content only when asked to',
+    calls: [
+      { el: el('button', {}, 'Save'), textOk: true, expected: true },
+      { el: el('button', {}, 'Save'), expected: false, why: 'strict by default' },
+      { el: el('button', {}, '   '), textOk: true, expected: false, why: 'whitespace is not a name' },
+    ],
+  },
+  {
+    name: 'aria-label alone names the element without consulting the resolver',
+    calls: [{
+      el: el('div', { 'aria-label': 'Schedule' }), resolver: none, expected: true,
+      unconsulted: 'the resolver was consulted for an element aria-label already named',
+    }],
+  },
+  {
+    name: 'a resolving aria-labelledby names the element',
+    calls: [{ el: el('div', { 'aria-labelledby': 'title-1' }), resolver: () => el('h2'), expected: true }],
+  },
+  {
+    name: 'a dangling aria-labelledby does NOT name the element',
+    calls: [{ el: el('div', { 'aria-labelledby': 'gone' }), resolver: none, expected: false }],
+  },
+  {
+    name: 'every id in an aria-labelledby list must resolve',
+    calls: [
+      { el: el('div', { 'aria-labelledby': 'a b' }), resolver: onlyA, expected: false },
+      { el: el('div', { 'aria-labelledby': 'a b' }), resolver: anyId, expected: true },
+    ],
+  },
+  {
+    name: 'text content still names an element whose aria-labelledby dangles',
+    calls: [{
+      el: el('button', { 'aria-labelledby': 'gone' }, 'Save'), textOk: true, resolver: none, expected: true,
+      unconsulted: 'the resolver was consulted although the text already named the element',
+    }],
+  },
+  {
+    name: 'text content does not rescue a pattern that does not admit it',
+    calls: [{ el: el('div', { 'aria-labelledby': 'gone' }, 'Delete project'), resolver: none, expected: false }],
+  },
+  {
+    name: 'an aria-labelledby with no resolver THROWS rather than counting the attribute',
+    calls: [{ el: el('div', { 'aria-labelledby': 'x' }), throws: /aria-labelledby.*resolveId/s }],
+  },
+];
+
+test('hasAccessibleName credits only a name it can resolve, and says so when it cannot', () => {
+  assert.ok(NAME_OF.length > 0, 'the table has rows');
+  for (const row of NAME_OF) for (const call of row.calls) run(row, call, (e, r) => hasAccessibleName(e, call.textOk ?? false, r));
 });
 
-test('a dangling aria-labelledby does NOT name the element', () => {
-  assert.equal(hasAccessibleName(el('div', { 'aria-labelledby': 'gone' }), false, () => null), false);
-});
+const panel = (id: string) => (id === 'panel-1' ? el('div') : null);
+const IDREF_ROWS: Row[] = [
+  {
+    name: 'an IDREF that resolves meets the requirement',
+    evaluating: ['roles.controls', 'each tab…', 'tabs'],
+    calls: [{ el: el('button', { 'aria-controls': 'panel-1' }), resolver: panel, expected: true }],
+  },
+  {
+    name: 'an IDREF that dangles does NOT meet it, though the attribute is present',
+    evaluating: ['roles.controls', 'each tab…', 'tabs'],
+    calls: [{ el: el('button', { 'aria-controls': 'panel-9' }), resolver: none, expected: false }],
+  },
+  {
+    name: 'a missing IDREF attribute is unmet without consulting the resolver',
+    evaluating: ['roles.controls', 'x', 'tabs'],
+    calls: [{
+      el: el('button'), resolver: none, expected: false,
+      unconsulted: 'the resolver was consulted for an absent attribute',
+    }],
+  },
+  {
+    name: 'a list where nothing resolves is unmet',
+    evaluating: ['roles.describedby', 'x', 'tooltip'],
+    calls: [{ el: el('button', { 'aria-describedby': 'a b' }), resolver: none, expected: false }],
+  },
+  {
+    name: 'an IDREF requirement with no resolver THROWS rather than falling back',
+    evaluating: ['roles.controls', 'x', 'tabs'],
+    calls: [{ el: el('button', { 'aria-controls': 'panel-1' }), throws: /roles\.controls.*resolveId/s }],
+  },
+  {
+    name: 'a non-IDREF attribute requirement still needs no resolver',
+    evaluating: ['states.selected', 'x', 'tabs'],
+    calls: [{ el: el('button', { 'aria-selected': 'false' }), expected: true }],
+  },
+  {
+    name: 'an aria-controls list is met only when EVERY id resolves',
+    evaluating: ['roles.controls', 'x', 'tabs'],
+    calls: [
+      {
+        el: el('button', { 'aria-controls': 'panel-1 panel-2' }),
+        resolver: (id) => (id === 'panel-1' || id === 'panel-2' ? el('div') : null),
+        expected: true,
+      },
+      { el: el('button', { 'aria-controls': 'panel-1 panel-2' }), resolver: panel, expected: false },
+    ],
+  },
+  {
+    name: 'aria-describedby keeps the one-resolving-id rule, and keeps its reason',
+    evaluating: ['roles.describedby', 'x', 'tooltip'],
+    calls: [{
+      el: el('button', { 'aria-describedby': 'consumer-hint tooltip-1' }),
+      resolver: (id) => (id === 'tooltip-1' ? el('span') : null),
+      expected: true,
+    }],
+  },
+  {
+    name: 'a reference attribute holding only whitespace names nothing',
+    evaluating: ['roles.controls', 'x', 'tabs'],
+    calls: [{ el: el('button', { 'aria-controls': '   ' }), resolver: () => el('div'), expected: false }],
+  },
+];
 
-test('every id in an aria-labelledby list must resolve', () => {
-  const d = el('div', { 'aria-labelledby': 'a b' });
-  const onlyA = (id: string) => (id === 'a' ? el('span') : null);
-  assert.equal(hasAccessibleName(d, false, onlyA), false);
-  assert.equal(hasAccessibleName(d, false, () => el('span')), true);
-});
-
-test('text content still names an element whose aria-labelledby dangles', () => {
-  let asked = false;
-  const b = el('button', { 'aria-labelledby': 'gone' }, 'Save');
-  assert.equal(hasAccessibleName(b, true, () => { asked = true; return null; }), true);
-  assert.equal(asked, false);
-});
-
-test('text content does not rescue a pattern that does not admit it', () => {
-  const d = el('div', { 'aria-labelledby': 'gone' }, 'Delete project');
-  assert.equal(hasAccessibleName(d, false, () => null), false);
-});
-
-test('an aria-labelledby with no resolver THROWS rather than counting the attribute', () => {
-  assert.throws(
-    () => hasAccessibleName(el('div', { 'aria-labelledby': 'x' })),
-    /aria-labelledby.*resolveId/s,
-  );
-});
-
-test('an element with no naming route at all needs no resolver', () => {
-  assert.equal(hasAccessibleName(el('div')), false);
-  assert.equal(hasAccessibleName(el('button', {}, 'Save'), true), true);
-});
-
-test('roleOf refuses region to a section whose aria-labelledby dangles', () => {
-  assert.equal(roleOf(el('section', { 'aria-labelledby': 'gone' }), () => null), null);
-  assert.equal(roleOf(el('section', { 'aria-labelledby': 'h1' }), () => el('h2')), 'region');
-});
-
-test('a section named only by aria-labelledby THROWS through roleOf with no resolver', () => {
-  assert.throws(
-    () => roleOf(el('section', { 'aria-labelledby': 'x' })),
-    /aria-labelledby.*resolveId/s,
-  );
+test('evaluate meets an IDREF requirement only by resolving every id it needs', () => {
+  assert.ok(IDREF_ROWS.length > 0, 'the table has rows');
+  for (const row of IDREF_ROWS) {
+    const [key, text, pattern] = row.evaluating!;
+    for (const call of row.calls) run(row, call, (e, r) => evaluate(e, key, text, pattern, r));
+  }
+  assert.equal(IDREF_ATTRIBUTES.get('aria-describedby')?.match, 'some');
 });
 
 test('evaluate decides roles.label by resolving, not by counting', () => {
@@ -366,6 +469,14 @@ test('evaluate treats the conditional states as behavioural, not as presence', (
   }
 });
 
+test('pressed, invalid and current are behavioural', () => {
+  for (const [key, pattern] of [['states.pressed', 'button'], ['states.invalid', 'textbox'], ['states.current', 'navigation']] as const) {
+    assert.ok(BEHAVIOURAL.has(key), `${key} should be listed behavioural`);
+    assert.equal(DECIDABLE.has(key), false, `${key} should not be listed decidable`);
+    assert.equal(evaluate(el('div'), key, '', pattern), null, key);
+  }
+});
+
 test('evaluate throws on an unrecognised requirement key', () => {
 
   assert.throws(() => evaluate(el('div'), 'states.chekced', '', 'checkbox'), /states\.chekced/);
@@ -457,13 +568,32 @@ test('comparePattern reports an overclaim when a requirement is unmet and unexce
 test('comparePattern is silent for a correct button', () => {
 
   const button = PATTERNS.get('button');
+  const subject = el('button', {}, 'Save');
   const problems = comparePattern({
     pattern: button,
     binding: { pattern: 'button', exceptions: [] },
-    fallback: el('button', {}, 'Save'),
-    behavioural: { 'keyboard.Space': true, 'keyboard.Enter': true, 'states.disabled': true },
+    fallback: subject,
+    behavioural: {
+      'keyboard.Space': true, 'keyboard.Enter': true, 'states.disabled': true,
+      'states.pressed': subject.getAttribute('aria-pressed') === null,
+    },
   });
   assert.deepEqual(problems, []);
+});
+
+test('a command button carrying aria-pressed makes states.pressed unmet', () => {
+  const subject = el('button', { 'aria-pressed': 'false' }, 'Save');
+  const problems = comparePattern({
+    pattern: PATTERNS.get('button'),
+    binding: { pattern: 'button', exceptions: [] },
+    fallback: subject,
+    behavioural: {
+      'keyboard.Space': true, 'keyboard.Enter': true, 'states.disabled': true,
+      'states.pressed': subject.getAttribute('aria-pressed') === null,
+    },
+  });
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /states\.pressed/);
 });
 
 test('comparePattern refuses an undecidable requirement that was not declared behavioural', () => {
@@ -597,69 +727,6 @@ test('comparePattern reports a missing subject once per requirement', () => {
 
   for (const p of unreached) assert.match(p, /because a subject element above was missing/);
   assert.equal(problems.length, missing.length + unreached.length);
-});
-
-test('an IDREF that resolves meets the requirement', () => {
-  const tab = el('button', { 'aria-controls': 'panel-1' });
-  const resolve = (id: string) => (id === 'panel-1' ? el('div') : null);
-  assert.equal(evaluate(tab, 'roles.controls', 'each tab…', 'tabs', resolve), true);
-});
-
-test('an IDREF that dangles does NOT meet it, though the attribute is present', () => {
-  const tab = el('button', { 'aria-controls': 'panel-9' });
-  const resolve = (): null => null;
-  assert.equal(evaluate(tab, 'roles.controls', 'each tab…', 'tabs', resolve), false);
-});
-
-test('a missing IDREF attribute is unmet without consulting the resolver', () => {
-  let asked = false;
-  const resolve = (): null => { asked = true; return null; };
-  assert.equal(evaluate(el('button'), 'roles.controls', 'x', 'tabs', resolve), false);
-  assert.equal(asked, false, 'the resolver was consulted for an absent attribute');
-});
-
-test('one resolving id in a list is enough', () => {
-  const trigger = el('button', { 'aria-describedby': 'consumer-hint tooltip-1' });
-  const resolve = (id: string) => (id === 'tooltip-1' ? el('span') : null);
-  assert.equal(evaluate(trigger, 'roles.describedby', 'x', 'tooltip', resolve), true);
-});
-
-test('a list where nothing resolves is unmet', () => {
-  const trigger = el('button', { 'aria-describedby': 'a b' });
-  assert.equal(evaluate(trigger, 'roles.describedby', 'x', 'tooltip', () => null), false);
-});
-
-test('an IDREF requirement with no resolver THROWS rather than falling back', () => {
-  const tab = el('button', { 'aria-controls': 'panel-1' });
-  assert.throws(
-    () => evaluate(tab, 'roles.controls', 'x', 'tabs'),
-    /roles\.controls.*resolveId/s,
-  );
-});
-
-test('a non-IDREF attribute requirement still needs no resolver', () => {
-  const t = el('button', { 'aria-selected': 'false' });
-  assert.equal(evaluate(t, 'states.selected', 'x', 'tabs'), true);
-});
-
-test('an aria-controls list is met only when EVERY id resolves', () => {
-  const tab = el('button', { 'aria-controls': 'panel-1 panel-2' });
-  const both = (id: string) => (id === 'panel-1' || id === 'panel-2' ? el('div') : null);
-  const onlyOne = (id: string) => (id === 'panel-1' ? el('div') : null);
-  assert.equal(evaluate(tab, 'roles.controls', 'x', 'tabs', both), true);
-  assert.equal(evaluate(tab, 'roles.controls', 'x', 'tabs', onlyOne), false);
-});
-
-test('aria-describedby keeps the one-resolving-id rule, and keeps its reason', () => {
-  const trigger = el('button', { 'aria-describedby': 'consumer-hint tooltip-1' });
-  const resolve = (id: string) => (id === 'tooltip-1' ? el('span') : null);
-  assert.equal(evaluate(trigger, 'roles.describedby', 'x', 'tooltip', resolve), true);
-  assert.equal(IDREF_ATTRIBUTES.get('aria-describedby')?.match, 'some');
-});
-
-test('a reference attribute holding only whitespace names nothing', () => {
-  const tab = el('button', { 'aria-controls': '   ' });
-  assert.equal(evaluate(tab, 'roles.controls', 'x', 'tabs', () => el('div')), false);
 });
 
 test('IDREF holds exactly the reference keys that reach ATTRIBUTE_FOR', () => {

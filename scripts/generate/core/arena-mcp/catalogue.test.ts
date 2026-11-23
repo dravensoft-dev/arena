@@ -237,6 +237,25 @@ test('a token group and a behaviour pattern each get a URI, and the roles keep t
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
+test('a carried contract page or sheet is served under its file name and its link resolves to that URI', () => {
+  const dir = payload({
+    'skills/design/references/page.md': '# The page\n\n[colours](../../../contracts/design/colors.css) '
+      + 'and [scales](../../../contracts/design/Scales.md)\n',
+    'contracts/design/colors.css': ':root { --a: 1; }',
+    'contracts/design/Scales.md': '# Scales\n\nA scale answers.\n',
+  });
+  try {
+    const { byUri, byRel } = catalogue(dir, MANIFEST);
+    assert.equal(byUri.get(`${SCHEME}://tokens/colors.css`)?.mime, 'text/css');
+    assert.equal(byUri.get(`${SCHEME}://tokens/Scales.md`)?.mime, 'text/markdown');
+    const page = byUri.get(`${SCHEME}://reference/page`);
+    assert.ok(page);
+    const text = textOf(dir, page, byRel) ?? '';
+    assert.match(text, /\]\(arena:\/\/tokens\/colors\.css\)/);
+    assert.match(text, /\]\(arena:\/\/tokens\/Scales\.md\)/);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
 test('a relative link to a carried token group or pattern resolves to its URI', () => {
   const dir = payload({
     'skills/design/references/page.md': '# The page\n\n[spacing](../../../contracts/design/spacing.json) '
@@ -387,4 +406,18 @@ test('a pattern in a code span is not a link to resolve, and a link beside it is
   const at = 'skills/design/references/a.md';
   const byRel = new Map([['skills/design/references/b.md', `${SCHEME}://reference/b`]]);
   assert.equal(withUris(`${span} [x](./b.md)`, at, byRel), `${span} [x](${SCHEME}://reference/b)`);
+});
+
+test('a reference is titled by its own first heading, and by its path when it has none', () => {
+  const dir = payload({
+    'skills/design/references/pad.md': '# What do I pad with?\n\nthe room around.\n',
+    'skills/design/references/bare.md': 'no heading here\n',
+  });
+  try {
+    const found = entries(dir, MANIFEST);
+    const title = (name: string) => found.find((one) => one.uri === `${SCHEME}://reference/${name}`)?.title;
+    assert.equal(title('pad'), 'What do I pad with?');
+    assert.equal(title('bare'), 'Reference: bare');
+    assert.equal(search(dir, found, 'pad')[0]?.entry.uri, `${SCHEME}://reference/pad`);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
 });

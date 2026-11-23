@@ -10,7 +10,7 @@
       "form": "array",
       "of": "string",
       "required": true,
-      "description": "One label per point, in the same order as every series' `values`. A label with no value in a series ends that series' line there rather than dropping to zero."
+      "description": "One label per point, in the same order as every series' `values`. A label with no value in a series ends that series' line there rather than dropping to zero. Every n-th label is drawn when the labels do not fit their band, and the data table carries all of them."
     },
     "series": {
       "form": "array",
@@ -22,7 +22,7 @@
       "form": "enum",
       "type": "ArenaCatSlot",
       "default": 1,
-      "description": "The ramp slot the first series takes when it names no colour of its own. Each later series takes the next slot, and after the last slot the count starts again at the first. A series' `colorId` or `colorIds` keeps the slot it names. Absent, 1."
+      "description": "The ramp colour the first series takes when it names no colour of its own. Each later series takes the next ramp colour, and after the last ramp colour the count starts again at the first. A series' `colorId` or `colorIds` keeps the ramp colour it names. Absent, 1."
     },
     "label": {
       "form": "primitive",

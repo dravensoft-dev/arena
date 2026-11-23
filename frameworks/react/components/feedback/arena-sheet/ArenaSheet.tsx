@@ -53,7 +53,7 @@ export function ArenaSheet({ className,
   const bodyId = `${id}-body`;
 
   const onKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key !== 'Escape') return;
+    if (event.key !== 'Escape' || event.defaultPrevented) return;
     event.preventDefault();
     onClose?.();
   };

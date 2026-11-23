@@ -52,8 +52,8 @@ The measurement helper is public too. `arenaContainerWidth()` is exported from `
 `arenaContainerWidth()` measures the caller's own host by default, and takes an `ElementRef` when the box to measure is a different one. A component whose responsive question is about an inner panel does not have to make that panel a component of its own. The injection context is
 required either way, and not because of the element: `DestroyRef` disconnects the observer and
 `afterNextRender` decides when there is a box to measure at all. For page CSS rather than a
-component, write the media query yourself against the same three thresholds Arena uses,
-480px, 768px and 1024px. A media query condition holds no `var()`, so there is no token form
+component, write the media query yourself against the same three thresholds Arena uses.
+The thresholds are `30em`, `48em` and `64em`, which are 480px, 768px and 1024px at the browser default. A media query condition holds no `var()`, so there is no token form
 of them to import.
 
 **Do / Don't**

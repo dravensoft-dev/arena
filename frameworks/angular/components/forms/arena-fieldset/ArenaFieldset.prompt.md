@@ -47,7 +47,7 @@ Arena fieldset, a named set of related fields. Standalone, `OnPush`, signal I/O.
 - **Don't** wrap fields in a fieldset to disable an `aria-disabled` component; the cascade stops at it.
 - **Don't** hide the legend. A name only a reader hears is a group's `ariaLabel`, not a fieldset.
 
-**By hand.** In a browser, a disabled fieldset disables the checkboxes inside it. The legend sits above the fields at 390px, and a long legend wraps. A field disabled on its own inside a disabled set dims twice, and that reads as acceptable.
+The legend sits above the fields at 390px, and a long legend wraps.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

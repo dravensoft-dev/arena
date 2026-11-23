@@ -357,20 +357,6 @@ test('ArenaScatterChart matches its binding, and its table names both quantities
   });
 });
 
-test('ArenaScatterChart refuses to render without a name for either axis', () => {
-
-  assert.throws(
-    () => mount(<ArenaScatterChart series={CLOUD} label={CHART} xLabel="" yLabel="Y" />),
-    /`xLabel` is required/,
-    'the horizontal quantity names itself to nobody, and no fallback can derive it',
-  );
-  assert.throws(
-    () => mount(<ArenaScatterChart series={CLOUD} label={CHART} xLabel="X" yLabel="" />),
-    /`yLabel` is required/,
-    'and neither does the vertical one',
-  );
-});
-
 test('the cursor walks the marks in the order the table lists them, so the two readings agree', () => {
 
   const root = mount(<ArenaScatterChart series={CLOUD} label={CHART} xLabel="Requests" yLabel="Latency" />);

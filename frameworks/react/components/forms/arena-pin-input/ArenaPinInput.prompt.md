@@ -57,7 +57,7 @@ A short code entered one character per cell, such as the one-time code a text me
 
 **Each cell is named by its position**, from the locale's `pinInputCell` word. The group is named by `label`, and a blank `label` throws. The hint, or the error that replaces it, describes every cell.
 
-**The wrapper is a `group`, held by the suite.** The cells bind `textbox`; the group's role and name are asserted directly.
+**The wrapper is a `group`.** The cells bind `textbox`, and the group carries its role and its name.
 
 ### Taking focus
 
@@ -77,7 +77,7 @@ otp.current?.focus();
 - Don't verify, resend or time out the code here; `onComplete` reports and the host decides.
 - Don't empty `value` on each keystroke; empty it once when the code is wrong, then call `focus()`.
 
-**By hand.** The text message autofill on iOS and Android lands the whole code. The number pad appears for `numeric`. Tab leaves the group in one press. The focus ring sits on one cell only. Six cells fit at 390px.
+Text message autofill on iOS and Android lands the whole code. The number pad appears for `numeric`. Tab leaves the group in one press, the focus ring sits on one cell only, and six cells fit at 390px.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

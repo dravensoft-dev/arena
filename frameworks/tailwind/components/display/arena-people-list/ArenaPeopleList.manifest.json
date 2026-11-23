@@ -14,11 +14,11 @@
   "slots": {
     "root": "grid list-none m-0 p-0 font-body gap-[var(--arena-size-list-gap,var(--size-md-list-gap))]",
     "row": "flex items-center min-w-0 rounded-control gap-[var(--arena-size-row-gap,var(--size-md-row-gap))] px-[calc(var(--arena-size-row-pad-x,var(--size-md-row-pad-x))*var(--dz-row-scale-x))] py-[calc(var(--arena-size-row-pad-y,var(--size-md-row-pad-y))*var(--dz-row-scale-y))]",
-    "rank": "shrink-0 text-center font-mono tabular-nums font-bold text-ink-muted/(--level-ink-muted) w-[var(--arena-size-rank,var(--size-md-rank))] text-[length:var(--arena-size-caption-step,var(--size-md-caption-step))]",
+    "rank": "shrink-0 text-center font-mono tabular-nums font-bold text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)] w-[var(--arena-size-rank,var(--size-md-rank))] text-[length:var(--arena-size-caption-step,var(--size-md-caption-step))]",
     "text": "grid min-w-0 flex-1",
-    "name": "min-w-0 truncate text-ink-heading font-medium text-[length:var(--arena-size-name-step,var(--size-md-name-step))]",
-    "secondary": "min-w-0 truncate text-ink-muted/(--level-ink-muted) text-[length:var(--arena-size-caption-step,var(--size-md-caption-step))]",
-    "figure": "shrink-0 font-mono tabular-nums text-ink-muted/(--level-ink-muted) text-[length:var(--arena-size-figure-step,var(--size-md-figure-step))]",
+    "name": "min-w-0 truncate text-[color:var(--text-heading-ink-rest,var(--ink-heading))] font-medium text-[length:var(--arena-size-name-step,var(--size-md-name-step))]",
+    "secondary": "min-w-0 truncate text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)] text-[length:var(--arena-size-caption-step,var(--size-md-caption-step))]",
+    "figure": "shrink-0 font-mono tabular-nums text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)] text-[length:var(--arena-size-figure-step,var(--size-md-figure-step))]",
     "action": "shrink-0 flex items-center"
   },
   "kind": {
@@ -34,7 +34,7 @@
   "variants": {
     "current": {
       "true": {
-        "row": "bg-surface-sunken"
+        "row": "bg-[color:var(--data-current-fill-selected,var(--fill-surface-sunken))]"
       },
       "false": {}
     }

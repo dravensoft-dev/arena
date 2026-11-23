@@ -34,7 +34,7 @@
     "tone": {
       "form": "enum",
       "type": "ArenaSeriesTone",
-      "description": "Semantic colour, for a series that IS a state. Mutually exclusive with colorId; passing both warns in development and tone wins."
+      "description": "Semantic colour, for a series that IS a state. With `tone` the series takes the status colour and `colorId` is not read."
     }
   }
 }

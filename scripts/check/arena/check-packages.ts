@@ -1,12 +1,11 @@
-/* Five claims. First, that the CLI shipped inside both packages emits what Style Dictionary
- * emits: a second emitter exists, so something has to hold the two together. Second, that each
- * package is registry-standard: the version comes from plugin.json, every exports target resolves,
- * the entry declaration is advertised at the root, and no peer leaked into dependencies. Third,
- * that the stylesheets resolve and each is named in its layer's stylesheet and install references.
- * Fourth, that the component map reaches every sheet both ways. Fifth is the one the ASSEMBLED CSS
- * is the only honest subject for: supports-blocks.ts states both halves of it. dist/ is
- * git-ignored, so an unassembled tree stops the gate through cannotRun, and --layer=<name> judges
- * and requires that one package, as a publish job that assembles only its own does. */
+/* Five claims. First, that the CLI shipped inside both packages emits what Style Dictionary emits: a second
+ * emitter exists, so something has to hold the two together. Second, that each package is registry-standard:
+ * the version comes from plugin.json, every exports target resolves, the entry declaration is advertised at
+ * the root, and no peer leaked into dependencies. Third, that the stylesheets resolve, each is named in its
+ * layer's stylesheet and install references, and none carries the banner telling a contributor what to
+ * edit. Fourth, that the component map reaches every sheet both ways. Fifth is the one the ASSEMBLED CSS is
+ * the only honest subject for: the three refusals supports-blocks.ts states. dist/ is git-ignored, so an unassembled tree stops the gate through cannotRun,
+ * and --layer=<name> judges and requires that one package, as a publish job that assembles only its own does. */
 
 import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
@@ -28,11 +27,12 @@ import { MAP_FILE } from '../../lib/arena/component-map.ts';
 import { iconManifest, MANIFEST_FILE } from '../../lib/arena/icon-manifest.ts';
 import { shippedNames } from '../../generate/core/arena-cli/icon-css.ts';
 import { AGENT_DIR, BEHAVIOUR, matchesSpec } from '../../lib/arena/agent-payload.ts';
-import { blindFallbacks, repeatedSupports } from '../../lib/tailwind/supports-blocks.ts';
+import { blindFallbacks, pseudoSupports, repeatedSupports } from '../../lib/tailwind/supports-blocks.ts';
 import { SECONDARY_ENTRY_POINTS, RUNTIME_DEPENDENCIES as ANGULAR_RUNTIME_DEPENDENCIES } from '../../build/angular/build-angular-package.ts';
 import { THEME_SOURCES, tailwindThemeSheet, topLevelBlocks } from '../../lib/tailwind/theme-sheet.ts';
 import { compileEntry } from '../../lib/tailwind/tailwind-compile.ts';
 import { REFERENCES, referenceText } from '../../lib/arena/consumer-references.ts';
+import { BUILD_BANNER } from '../../lib/arena/package-assembly.ts';
 
 export const CSS_HOMES = ['stylesheets.md', 'install.md'];
 
@@ -424,6 +424,13 @@ export function directiveProblems(pkg: { layer: string; name: string }, dir: str
   return problems;
 }
 
+export function bannerProblems(pkg: { layer: string; name: string }, dir: string) {
+  return shippedSheets(dir)
+    .filter((path) => new RegExp(BUILD_BANNER.source, 'm').test(readFileSync(path, 'utf8')))
+    .map((path) => `${pkg.name}: ${relPosix(dir, path)} carries a GENERATED banner, which names a file of this `
+      + 'repository and tells an adopter to edit it, in a package that ships neither the file nor the build that reads it');
+}
+
 export const THEME_SHEET = 'css/tailwind-theme.css';
 
 export function themeSheetProblems(pkg: { layer: string; name: string }, dir: string, expected: string) {
@@ -517,6 +524,8 @@ export function unlayeredTokenProblems(pkg: { layer: string; name: string }, dir
         }
         continue;
       }
+      const layered = [...body.matchAll(/(--(?!tw-|arena-)[\w-]+)\s*:/g)].map((m) => m[1] as string);
+      if (!layered.some((name) => selfReferenced.has(name))) continue;
       problems.push(`${pkg.name}: ${from} declares an Arena custom property inside a cascade layer, and the theme's `
         + `self-reference in ${THEME_SHEET} resolves to Arena's value only while the token sheets load unlayered`);
       break;
@@ -549,6 +558,11 @@ export function bundledCssProblems(pkg: { layer: string; name: string }, dir: st
         + `${repeated.selector}, and a bundler is free to keep one of them: bun build keeps the `
         + 'first and discards the rest, so every held-back colour after the first leaves the sheet '
         + 'the consumer ends up with');
+    }
+    for (const nested of pseudoSupports(css)) {
+      problems.push(`${pkg.name}: ${rel} nests ${nested.condition} in ${nested.selector}. Bun's development server `
+        + 'rewrites the nested block into a rule browsers drop, so the placeholder paints the fallback; '
+        + 'a survivor is a sheet emitted before hoistPseudoSupports');
     }
   }
   return problems;
@@ -602,6 +616,7 @@ export function collect(base = root, dirOf = distDir, layers = LAYERS) {
     problems.push(...cssListProblems(pkg, dir, referenceText(base, CSS_HOMES, pkg.layer === 'angular' ? 'angular' : 'react')));
     problems.push(...bundledCssProblems(pkg, dir));
     problems.push(...directiveProblems(pkg, dir));
+    problems.push(...bannerProblems(pkg, dir));
     problems.push(...themeSheetProblems(pkg, dir, tailwindThemeSheet(base)));
     problems.push(...themeCompileProblems(pkg, dir));
     problems.push(...unlayeredTokenProblems(pkg, dir));

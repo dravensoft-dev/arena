@@ -12,6 +12,5 @@
 | `slot-kinds.ts` | The kind an authored manifest declares for each slot in its top-level `kind` map, the roles each kind may spend (`KIND_AIR`), and the air and shapes no kind owns (`KIND_FREE`). `kindProblems()` reports a slot with no kind, an unknown kind and a kind with no slot. Here because the sweep gates read it and `manifest-shapes.ts` only describes the file. `classesManifest()` names the keys it copies, so a `kind` map reaches no class module and no sheet. |
 | `theme-sheet.ts` | Assembles `css/tailwind-theme.css`, the one packaged sheet a consumer's own Tailwind compiles: the preset's `@theme` blocks and its `@utility` rules, cut out of the files `Theme.css` imports. Here because both package assemblers write it and `check:packages` holds each copy to a fresh assembly. |
 
-Every `X.test.ts` beside a module covers that module. `tailwind-vocabulary.test.ts` covers
-the same module from the vocabulary side: which utility families the preset is expected to
-emit at all.
+Every `X.test.ts` beside a module covers that module. `theme-namespaces.test.ts` also holds `Theme.css` to its
+namespaces: every namespaced property in it is attributed to one or listed with a reason.

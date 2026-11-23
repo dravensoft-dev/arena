@@ -129,7 +129,7 @@ export function pluginTokenMaps(dirs: string[], catalogue: TokenCatalogue | null
   dirs.forEach((dir, i) => {
     const at = new Map(i === 0 ? root : out.get(dirs[0] ?? '') ?? root);
     for (const [key, raw] of Object.entries(answersOf(dir))) {
-      const value = pluginValue(raw, catalogue);
+      const value = pluginValue(raw, catalogue, key);
       if (value !== null) at.set(key, value);
     }
     out.set(dir, at);

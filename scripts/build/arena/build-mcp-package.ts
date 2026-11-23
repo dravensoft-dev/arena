@@ -8,7 +8,7 @@
  * it imports from beside itself, and check:mcp reports one that did not, so an import the
  * companion list misses fails the gate rather than the first spawn. */
 
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { relPosix } from '../../utils/posix-path.ts';
@@ -16,8 +16,11 @@ import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { writeVocabularyIndex } from '../../lib/arena/vocabulary-index.ts';
 import {
   collectFiles, reset, write, copy, report, emitCli, pluginIdentity, SHARED_KEYWORDS,
-  copyAgentPayload,
+  copyAgentPayload, DERIVED_SLOTS, derivedSlotsText,
+  levelIndexText, TOKEN_CATALOGUE_READS,
 } from '../../lib/arena/package-assembly.ts';
+import { payloadDir } from '../../lib/arena/agent-payload.ts';
+import { LEVELS_INDEX } from '../../generate/core/arena-cli/audit.ts';
 import { AGENT_DIR, PACKAGES } from '../../generate/core/arena-mcp/payload.ts';
 
 export const NAME = '@dravensoft/arena-mcp';
@@ -55,15 +58,15 @@ export const node = {
   reads: [
     `${SOURCE}/**`, `!${SOURCE}/*.test.ts`, AUDIT_SOURCE, ...AUDIT_COMPANIONS, NPM_PAGE,
     '.claude-plugin/plugin.json', 'LICENSE',
-    'skills/design/SKILL.md', 'skills/design/references/*.md', 'skills/design/references/*/*.md',
+    'skills/design/SKILL.md', 'skills/design/references/**/*.md',
     'frameworks/INDEX.md', 'frameworks/VOCABULARY.md', 'contracts/design/*.json', 'contracts/api/components/*.json', 'contracts/behaviour/*.json',
-    'frameworks/angular/ProjectionMarkers.ts', 'frameworks/angular/forms/*.ts',
+    'contracts/design/*.md', 'frameworks/angular/ProjectionMarkers.ts', 'frameworks/angular/forms/*.ts',
     'frameworks/*/INDEX.md', 'frameworks/*/components/*/INDEX.md',
     'frameworks/*/components/**/*.prompt.md',
     'frameworks/*/components/**/*.behaviour.json',
     'plugin-style-store/default/*', 'plugin-style-store/complete/*', 'plugin-style-store/catalogue/INDEX.md',
     'plugin-style-store/catalogue/*/*', 'arena-from-scratch/identity*.html',
-    'frameworks/tailwind/vocabulary/**', 'frameworks/tailwind/components/**/*.json',
+    'frameworks/tailwind/vocabulary/**', 'frameworks/tailwind/components/**/*.json', ...TOKEN_CATALOGUE_READS,
   ],
   writes: [`${DIST}/**`],
   feeds: ['check:community', 'check:mcp'],
@@ -129,6 +132,8 @@ export function buildMcpPackage(root = repoRoot, dir = join(root, DIST)) {
 
   for (const layer of LAYERS) {
     written.push(...copyAgentPayload(dir, layer, NAME, root));
+    written.push(write(dir, `${payloadDir(layer)}/${DERIVED_SLOTS}`, derivedSlotsText(root)));
+    written.push(write(dir, `${payloadDir(layer)}/${LEVELS_INDEX}`, levelIndexText(root)));
     written.push(writeVocabularyIndex(join(dir, AGENT_DIR, layer), root));
   }
 

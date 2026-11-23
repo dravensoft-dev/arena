@@ -6,7 +6,7 @@ import type { ArenaMenuAlign } from '../../../Api.generated';
 import { sp1 } from '../../../Tokens.generated';
 import { arenaWarnOnce } from '../../../WarnOnce';
 import { ArenaIdGenerator } from '../../../ArenaIds';
-import { ArenaAnchoredOverlay, arenaConnectedPositions, arenaFirstFocusable } from '../../../AnchoredOverlay';
+import { ArenaAnchoredOverlay, arenaFirstFocusable } from '../../../AnchoredOverlay';
 import { arenaPopoverStyles } from './ArenaPopover.variants';
 import manifest from './ArenaPopover.classes.generated';
 import { ArenaSlotAttributes } from '../../../SlotData';
@@ -41,7 +41,7 @@ export class ArenaPopover {
   readonly label = input.required<string>();
   /** Whether the panel is shown. The consumer owns it: the component asks to change it through openChange and never changes it by itself, so content inside the panel can close it, an Apply button included. */
   readonly open = input(false, { transform: booleanAttribute });
-  /** Which edge of the trigger the panel lines up with. */
+  /** Which edge of the trigger the panel lines up with. Start is the edge a line of text begins at and end the opposite one, so both follow the page direction. */
   readonly align = input<ArenaMenuAlign, ArenaMenuAlign | undefined>(
     'start',
     { transform: (value) => value ?? 'start' },
@@ -53,7 +53,7 @@ export class ArenaPopover {
   protected readonly styles = computed(() => arenaPopoverStyles());
   protected readonly labelText = computed(() => {
     const label = this.label();
-    if (!label.trim()) throw new Error('arena-popover: `label` is required, and names the panel for assistive technology');
+    if (!label.trim()) throw new Error('ArenaPopover: `label` is required, and names the panel for assistive technology');
     return label;
   });
 
@@ -71,7 +71,7 @@ export class ArenaPopover {
     anchor: () => this.host.nativeElement,
     trigger: () => this.trigger(),
     panel: () => this.panel(),
-    positions: () => arenaConnectedPositions(this.align(), 'below', sp1 * 1.5),
+    placement: () => ({ align: this.align(), prefer: 'below', offset: sp1 * 1.5 }),
     onDismiss: () => this.openChange.emit(false),
     focusOnOpen: arenaFirstFocusable,
     restoreFocus: true,

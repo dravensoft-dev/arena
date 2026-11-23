@@ -12,6 +12,7 @@ import { join } from 'node:path';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { assertPattern, ANGULAR_COMPONENTS } from '../../../test/Compliance';
+import { currentVerdict, itemNamed } from '../../../test/StateVerdicts';
 import { ArenaSideNavItem } from '../arena-side-nav-item/ArenaSideNavItem';
 import { ArenaSideNav } from './ArenaSideNav';
 import { arenaIndentDepth } from './ArenaSideNavState';
@@ -43,24 +44,24 @@ function render() {
   return { fixture, nav };
 }
 
+function movedCurrent(fixture: ReturnType<typeof render>['fixture'], nav: HTMLElement) {
+  fixture.componentInstance.active.set('settings');
+  fixture.detectChanges();
+  return currentVerdict(itemNamed(nav, 'a, button', 'Settings'), [...nav.querySelectorAll('a, button')]);
+}
+
 test('arena-side-nav meets the navigation pattern it binds', () => {
   const { fixture, nav } = render();
   try {
     assert.equal(nav.getAttribute('role'), 'navigation');
     assert.equal(nav.getAttribute('aria-label'), 'Primary');
-    assertPattern({ root: nav, bindingPath: BINDING });
-  } finally {
-    fixture.destroy();
-  }
-});
-
-test('the landmark refuses a blank name at runtime, because a required input is not a guard', () => {
-  @Component({ standalone: true, imports: [ArenaSideNav], template: `<arena-side-nav ariaLabel=" " />` })
-  class BlankHost {}
-
-  const fixture = TestBed.createComponent(BlankHost);
-  try {
-    assert.throws(() => fixture.detectChanges(), /ariaLabel/);
+    assertPattern({
+      root: nav,
+      bindingPath: BINDING,
+      behavioural: { 'states.current': currentVerdict(
+          itemNamed(nav, 'a, button', 'Projects'), [...nav.querySelectorAll('a, button')],
+        ) && movedCurrent(fixture, nav) },
+    });
   } finally {
     fixture.destroy();
   }

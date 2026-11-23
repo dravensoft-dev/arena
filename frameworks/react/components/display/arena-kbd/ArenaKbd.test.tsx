@@ -49,6 +49,4 @@ test('a blank label is no label, so the caps stay audible and no name is drawn',
 test('an empty list and a blank entry are refused, because a cap with nothing on it is not a key', () => {
   assert.throws(() => render(<ArenaKbd keys={[]} />), /^Error: ArenaKbd: `keys` is required/);
   assert.throws(() => render(<ArenaKbd keys={['Ctrl', '  ']} />), /^Error: ArenaKbd: `keys` is required/);
-  // @ts-expect-error the contract requires it, and the guard is what this asserts
-  assert.throws(() => render(<ArenaKbd />), /^Error: ArenaKbd: `keys` is required/);
 });

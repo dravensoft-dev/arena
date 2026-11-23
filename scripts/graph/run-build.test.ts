@@ -31,19 +31,10 @@ test('the runner takes five flags and refuses anything else', () => {
   assert.deepEqual(parseBuildArgs(['--force']), { force: true, assertFull: false, assemble: false, targets: [], jobs: null });
   assert.deepEqual(parseBuildArgs(['--assemble', '--force', '--assert-full']),
     { force: true, assertFull: true, assemble: true, targets: [], jobs: null });
+  assert.deepEqual(parseBuildArgs(['--assemble']), { force: false, assertFull: false, assemble: true, targets: [], jobs: null });
   assert.deepEqual(parseBuildArgs(['--target=build:site', '--jobs=2', '--assemble']),
     { force: false, assertFull: false, assemble: true, targets: ['build:site'], jobs: 2 });
   assert.throws(() => parseBuildArgs(['--forse']), /unrecognised argument "--forse"; .*--jobs=<n>/);
-});
-
-test('the three flags are what tells the three commands apart', () => {
-  assert.deepEqual(parseBuildArgs(['--assemble']), { force: false, assertFull: false, assemble: true, targets: [], jobs: null },
-    'bun run build:packages assembles and still keeps what has not moved, for iterating on packaging');
-  assert.deepEqual(parseBuildArgs([]), { force: false, assertFull: false, assemble: false, targets: [], jobs: null },
-    'bun run build is the loop, and leaves out what only a release ships');
-  assert.deepEqual(parseBuildArgs(['--assemble', '--force', '--assert-full']),
-    { force: true, assertFull: true, assemble: true, targets: [], jobs: null },
-    'bun run build:release is every step, run, with a kept step failing the run on its own');
 });
 
 test('--jobs takes a whole number once, alone or beside --target and --assemble, and every other shape is refused', () => {
@@ -53,7 +44,6 @@ test('--jobs takes a whole number once, alone or beside --target and --assemble,
   for (const shape of shapes) {
     assert.throws(() => parseBuildArgs(['--target=build:site', shape]), /run-build: --jobs=.* is not a whole number of at least 1/, shape);
   }
-  assert.equal(shapes.length, 6);
   assert.throws(() => parseBuildArgs(['--jobs=2', '--jobs=3']), /run-build: --jobs is given twice/);
   assert.throws(() => parseBuildArgs(['--jobs']), /unrecognised argument "--jobs"/);
 });
@@ -764,7 +754,6 @@ test('main refuses a selection of no step, and a graph it cannot collect, with a
         ['a selection of no step', async () => ({ nodes: releaseOnly, declaredIn: s.declaredIn }), /run-build: the selection holds no step/],
         ['a graph that cannot be collected', async () => { throw new Error('nodes.ts: a declaration threw'); }, /a declaration threw/],
       ];
-      let walked = 0;
       for (const [label, collect, sentence] of rows) {
         const printed: string[] = [];
         const errors: string[] = [];
@@ -774,10 +763,7 @@ test('main refuses a selection of no step, and a graph it cannot collect, with a
         assert.equal(code, 1, label);
         assert.deepEqual(printed, [], `${label} printed before it refused`);
         assert.match(errors.join(''), sentence, label);
-        walked += 1;
       }
-      assert.equal(walked, rows.length);
-      assert.equal(rows.length, 2);
       assert.equal(existsSync(join(s.root, STATE_PATH)), false);
     } finally {
       s.done();

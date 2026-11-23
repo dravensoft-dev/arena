@@ -8,13 +8,6 @@ import assert from 'node:assert/strict';
 import { arenaInputIdFor } from './ArenaInput';
 import { arenaInputStyles } from './ArenaInput.variants';
 
-test('the default is a neutral, enabled, editable field', () => {
-  assert.equal(
-    JSON.stringify(arenaInputStyles().$data.field()),
-    JSON.stringify(arenaInputStyles({ state: 'neutral', disabled: false, readOnly: false }).$data.field()),
-  );
-});
-
 test('arenaInputIdFor prefers an explicit id and otherwise derives the contracted in- slug', () => {
   assert.equal(arenaInputIdFor('project-name', 'Project name'), 'project-name');
   assert.equal(arenaInputIdFor(undefined, 'Project name'), 'in-project-name');

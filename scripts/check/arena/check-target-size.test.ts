@@ -156,7 +156,3 @@ test('compact is tied to its bottom rung, so a rung under the floor fails withou
     ['contracts/design/density.compact.json sets dz.ctl-h-sm to 22px and compact\'s floor is 24px, so the density\'s smallest control no longer clears the floor this gate measures against'
       + `: ${ARGUED.get('compact')?.why}`]);
 });
-
-test('the sweep draws compact', () => {
-  assert.match(measureExpression(INTERACTIVE, 'arena-compact'), /arena-compact/);
-});

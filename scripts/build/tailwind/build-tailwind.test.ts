@@ -15,7 +15,7 @@ import { relPosix, toPosix } from '../../utils/posix-path.ts';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import {
-  CONSUME, PRELUDE, preludeSpecifier, sheetPath, buildVocabularyCss, vocabularyImports, vocabularyTypes, buildClassModules, componentVocabulary,
+  CONSUME, PRELUDE, preludeSpecifier, sheetPath, buildVocabularyCss, vocabularyImports, vocabularyTypes, containerProperties, buildClassModules, componentVocabulary,
 } from './build-tailwind.ts';
 import type { Family } from '../../lib/tailwind/vocabulary.ts';
 
@@ -165,7 +165,7 @@ test('the emitted ArenaButtonClass accepts a list of classes, and refuses a toke
     { family: 'fill', reach: 'box', description: 'd', default: 'arena-fit', variants: { 'arena-fill': '[--arena-fill-width:100%]', 'arena-fit': '[--arena-fill-width:fit-content]' } },
     { family: 'density', reach: 'context', target: 'markup', restates: 'dz', description: 'd', variants: { 'arena-compact': 'x', 'arena-comfortable': 'y' } },
   ] as Family[];
-  const source = vocabularyTypes(families, new Map([['ArenaButton', ['fill']]]), ['ArenaButton'], 'p');
+  const source = vocabularyTypes(families, new Map([['ArenaButton', ['fill']]]), ['ArenaButton'], 'p').split("declare module 'react'")[0];
   const diagnostics = (line: string) => {
     const files = new Map([['/v.ts', source], ['/use.ts', `import type { ArenaButtonClass } from './v.ts';\n${line}\n`]]);
     const options = { noEmit: true, strict: true, allowImportingTsExtensions: true, skipLibCheck: true, types: [] };
@@ -201,4 +201,26 @@ test('each component\'s classes module carries its own vocabulary, and the vocab
   assert.match(react[0]![1], /"vocabulary": \[/);
   const angular = [...modules].filter(([file]) => toPosix(file).includes('/frameworks/angular/') && file.endsWith('ArenaButton.classes.generated.ts'));
   for (const [, body] of angular) assert.doesNotMatch(body, /"vocabulary"/, 'Angular filters nothing at runtime, so its module carries no list');
+});
+
+test('containerProperties names each axis and keys each keyed property', () => {
+  const families = [
+    { family: 'skeleton', reach: 'box', description: 'd', axis: ['--arena-skeleton-width', '--arena-skeleton-height', '--arena-skeleton-radius'], variants: {} },
+    { family: 'dialog', reach: 'box', description: 'd', axis: '--arena-dialog-width', variants: {} },
+    { family: 'grid-min', reach: 'box', description: 'd', axis: '--arena-grid-min', variants: {} },
+    { family: 'column', reach: 'box', description: 'd', channels: ['--arena-column-width'],
+      properties: ['--arena-column-<key>-width', '--arena-column-<key>-align'], variants: {} },
+  ] as unknown as Family[];
+  const { named, keyed } = containerProperties(families);
+  for (const name of ['--arena-skeleton-width', '--arena-skeleton-height', '--arena-skeleton-radius', '--arena-dialog-width', '--arena-grid-min'])
+    assert.ok(named.includes(name), name);
+  assert.ok(!named.includes('--arena-column-width'));
+  assert.deepEqual(keyed, ['--arena-column-${string}-width', '--arena-column-${string}-align']);
+});
+
+test("vocabularyTypes augments React's CSSProperties", () => {
+  const scroller = { family: 'scroller', reach: 'box', description: 'd', axis: '--arena-scroller-item', variants: {} } as unknown as Family;
+  const text = vocabularyTypes([scroller], new Map(), [], 'p');
+  assert.match(text, /declare module 'react'/);
+  assert.ok(text.includes("'--arena-scroller-item'?: string;"));
 });

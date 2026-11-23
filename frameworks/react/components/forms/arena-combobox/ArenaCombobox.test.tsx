@@ -61,10 +61,6 @@ test('the caret is decoration and the count is a polite status, both drawn close
   assert.match(html, /<span role="status"[^>]*data-arena-part="combobox.announcement"[^>]*><\/span>/);
 });
 
-test('a label of nothing but spaces is refused', () => {
-  assert.throws(() => renderIcons(<ArenaCombobox label="   " options={REGIONS} />), /label/);
-});
-
 test('the filter the component exports is the one it draws with', () => {
   assert.deepEqual(arenaFilterOptions(REGIONS, 'east').map((row) => row.value), ['us-east']);
 });

@@ -4,17 +4,17 @@
  * scripts and tests carry one header of at most HEADER_MAX_LINES and every other
  * hand-written source none, the branch boundary, which keeps a contributor path out of a
  * consumer's last stop and, through RULE_OWNERS, a rule off the branch that does not own it,
- * FOREIGN_CODE, which keeps another design system out of the examples a reader copies, and
- * the claim a consumer page makes about what SHIPS: how many components, and a GitHub address
- * for a link into this repository. SIZE_ALLOWANCE names the one document that outgrew the shared
- * limit, and a document falling back inside it fails. */
+ * FOREIGN_CODE, which keeps another design system out of the examples a reader copies, the claim a consumer
+ * page makes about what SHIPS (its component count, a GitHub address for a link into this repository), the
+ * wording it may not carry, a test name free of spec, plan and audit ids, a suite with a test, a locale tag
+ * not the default, outside the two contributor documents that name sort locales, and a custom property no tokens page names. SIZE_ALLOWANCE names the one outgrown document. */
 
 import { readFileSync, existsSync } from 'node:fs';
 import { join, basename } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { readJson } from '../../utils/read-file.ts';
-import { findComments } from '../../lib/arena/comments.ts';
+import { findComments, literalRanges, insideLiteral } from '../../lib/arena/comments.ts';
 import { proseSegments, fencedLines, unfenced } from '../../lib/arena/markdown-prose.ts';
 import { repoRoot as ROOT } from '../../lib/arena/repo-root.ts';
 import { emittedTree } from '../../lib/arena/layers.ts';
@@ -42,11 +42,10 @@ export const PROSE_EXEMPT = {
 
 export const SIZE_ALLOWANCE = new Map<string, { limit: number; reason: string }>([
   ['scripts/check/arena/AGENTS.md', {
-    limit: 62_000,
-    reason: 'the domain table of the arena gates, one row per gate, where a row states the claim and the '
-      + 'failure its gate exists for and the table cell cap keeps each row from becoming a page; the '
-      + 'real-browser gates (target size, contained parts) carry the longest rows because the reason a '
-      + 'unit tier cannot answer them is part of what each one claims',
+    limit: 64_829,
+    reason: 'the domain table of the arena gates, one row per gate, under the table cell cap. '
+      + 'The real-browser gates carry the longest rows, since why a unit tier cannot answer them is part of the claim. '
+      + 'The check-docs row, the check-mcp row with its seven claims and the paragraph under the table add the rest.',
   }],
 ]);
 
@@ -179,9 +178,11 @@ export const CONTRIBUTOR_PATHS = [
     "a layer's own styling recipe, which is compiled away before a package ships"],
   [/\b[\w-]+\.manifest\.json\b/g,
     'a Tailwind manifest, which is a source of the compiled stylesheet rather than a file a consumer has'],
-  [/\b[\w-]+\.generated\b(?!\.html)/g,
-    'a build product, which a consumer reaches by importing the package rather than by name. '
-    + 'A generated demo page is the exception, being the one a by-hand check opens'],
+  [/\b[\w-]+\.generated\b/g,
+    'a build product, which a consumer reaches by importing the package rather than by name'],
+  [/\b[\w-]+\.checks\.md\b/g, 'a contributor checklist, which ships in no package'],
+  [/\bframeworks\/[a-z-]+\/[\w./-]+\.css\b/g,
+    'a stylesheet by its place in a layer\'s source, which a consumer imports from the package as @dravensoft/arena-<layer>/css/<name>.css'],
 ];
 
 export const FOREIGN_CODE = [
@@ -228,6 +229,20 @@ export const RULE_OWNERS = [
     reason:
       'a gate. Nobody consuming a package has the repository that runs one, so citing it as the '
       + 'reason for an API decision explains nothing and names a thing the reader cannot look at.',
+  },
+  {
+    phrase: /\bninth form\b/i,
+    owner: CONTRIBUTOR_BRANCH,
+    reason:
+      "the API contract's own vocabulary: the form ordinal names a place in a rulebook, and a "
+      + 'consumer reads the member type from the prompt table instead.',
+  },
+  {
+    phrase: /\(H\d+\)/,
+    owner: CONTRIBUTOR_BRANCH,
+    reason:
+      'the number of a usability heuristic a component answers, a list the consumer branch hands '
+      + 'nobody, so the page states the behaviour instead.',
   },
 ];
 
@@ -435,6 +450,35 @@ export function consumerBranchProblems(root = ROOT) {
   return { problems, scanned: scanned.length };
 }
 
+export const CONSUMER_WORDING: [RegExp, string][] = [
+  [/\bbun run\b/gi, 'a Bun script invocation, which reads to a consumer as Arena\'s own runner; name the adopter\'s command in its npm and pnpm forms'],
+  [/\bhappy-dom\b/gi, 'the test DOM of this repository\'s suites, which no consumer runs'],
+  [/\bpre-redesign\b/gi, 'what Arena was rather than what it is, which a consumer cannot act on'],
+  [/\bexisting call sites?\b/gi, 'what Arena was rather than what it is, which a consumer cannot act on'],
+  [/\bexists to replace\b/gi, 'what Arena was rather than what it is, which a consumer cannot act on'],
+  [/\b(?:is|are) now\b(?! (?:on|in|at|focused|selected|open|checked|expanded|active)\b)/gi, 'what Arena was rather than what it is, which a consumer cannot act on'],
+  [/\bremoved members?\b/gi, 'what Arena was rather than what it is, which a consumer cannot act on'],
+];
+
+const HTML_COMMENT = /<!--[\s\S]*?-->/g;
+
+export function consumerWordingProblems(root = ROOT) {
+  const scanned = documents(root).filter((p) => isConsumerDocument(relPosix(root, p)));
+  const problems: string[] = [];
+  for (const path of scanned) {
+    const rel = relPosix(root, path);
+    const read = unfenced(readFileSync(path, 'utf8').replace(HTML_COMMENT, blankKeepingLines));
+    read.split('\n').forEach((text, at) => {
+      for (const [pattern, reason] of CONSUMER_WORDING) {
+        for (const hit of text.match(pattern) ?? []) {
+          problems.push(`${rel}:${at + 1}: says "${hit}", ${reason}`);
+        }
+      }
+    });
+  }
+  return { problems, scanned: scanned.length };
+}
+
 export const COMPONENT_COUNT_CLAIM = /\b(\d+) components\b/g;
 
 export function componentCountProblems(root = ROOT) {
@@ -596,6 +640,112 @@ export function hueProblems(root = ROOT) {
   return problems;
 }
 
+export const ID_IN_NAME = /\(\s*(?:D\d+|N\d+|T\d+-P\d+|P\d+)(?:\s*,\s*(?:D\d+|N\d+|P\d+))*\s*\)|\bD\d{1,3}\b|\bReview Focus\b|\(\d{2,3}\)|\bpending-\d|\b(?:plan|spec) \d+\.\d|\bAUDIT \d/;
+
+const TEST_OPENED = /(?<![.\w$])\b(?:test|it)(?:\.\w+)*\(/g;
+const TEST_CALL = /(?<![.\w$])\b(?:test|it|describe)(?:\.\w+)*\(\s*(['"`])/g;
+
+function suites(root: string) {
+  return SCANNED_TREES
+    .map((tree) => join(root, tree))
+    .filter((dir) => existsSync(dir))
+    .flatMap((dir) => walk(dir, (p: string) => SOURCE_EXTENSIONS.some((e) => p.endsWith(e))
+      && basename(p).includes('.test.'), emittedTree(root)));
+}
+
+function nameAt(source: string, from: number, ranges: [number, number][], quote: string) {
+  const first = ranges.find(([start]) => start === from);
+  if (!first) return '';
+  if (quote !== '`') return source.slice(from, first[1]);
+  let end = first[1];
+  while (source[end] !== '`') {
+    const next = ranges.find(([start]) => start >= end);
+    if (!next) break;
+    end = next[1];
+  }
+  return source.slice(from, end);
+}
+
+function testCalls(source: string) {
+  const ranges = literalRanges(source);
+  const calls: { line: number; name: string }[] = [];
+  for (const m of source.matchAll(TEST_CALL)) {
+    if (insideLiteral(ranges, m.index)) continue;
+    const from = m.index + m[0].length;
+    const name = nameAt(source, from, ranges, m[1] ?? '');
+    calls.push({ line: source.slice(0, m.index).split('\n').length, name });
+  }
+  return calls;
+}
+
+export function testNameProblems(root = ROOT) {
+  const problems: string[] = [];
+  for (const path of suites(root)) {
+    const rel = relPosix(root, path);
+    for (const { line, name } of testCalls(readFileSync(path, 'utf8'))) {
+      if (ID_IN_NAME.test(name)) {
+        problems.push(`${rel}:${line}: the test name "${name}" carries a spec, plan or audit id; a name says what is asserted`);
+      }
+    }
+  }
+  return problems;
+}
+
+export function emptySuiteProblems(root = ROOT) {
+  return suites(root)
+    .filter((path) => {
+      const source = readFileSync(path, 'utf8');
+      const ranges = literalRanges(source);
+      return ![...source.matchAll(TEST_OPENED)].some((m) => !insideLiteral(ranges, m.index));
+    })
+    .map((path) => `${relPosix(root, path)}: a suite with no test`);
+}
+
+export const LOCALE_TAG = /\ben-[A-Z]{2}\b/g;
+export const LOCALE_FIELD_TABLE = 'skills/design/references/locale.md';
+export const LOCALE_TAG_UNSCOPED = ['scripts/AGENTS.md', 'scripts/utils/AGENTS.md', DATED_PROCESS_DOCUMENTS];
+
+export function localeTagProblems(rel: string, source: string, tag: string) {
+  if (LOCALE_TAG_UNSCOPED.some((tree) => (tree.endsWith('/') ? rel.startsWith(tree) : rel === tree))) return [];
+  return unfenced(source).split('\n').flatMap((text, index) => {
+    if (rel === LOCALE_FIELD_TABLE && TABLE_ROW.test(text)) return [];
+    return [...text.matchAll(LOCALE_TAG)].filter((hit) => hit[0] !== tag)
+      .map((hit) => `${rel}:${index + 1}: the locale tag ${hit[0]} in prose, and Arena's default is ${tag}`);
+  });
+}
+
+export const LOCALE_CONTRACT = 'contracts/api/types/arena-locale.json';
+
+export const defaultLocaleTag = (root = ROOT): string =>
+  JSON.parse(readFileSync(join(root, LOCALE_CONTRACT), 'utf8')).fields.locale.default;
+
+export function localeTagScan(root = ROOT, tag = defaultLocaleTag(root)) {
+  return documents(root).flatMap((path) =>
+    localeTagProblems(relPosix(root, path), readFileSync(path, 'utf8'), tag));
+}
+
+export const PROPERTY_READ = /\bvar\(\s*(--[a-z0-9]+(?:-[a-z0-9]+)*)/g;
+export const PROPERTY_NAME = /--[a-z0-9]+(?:-[a-z0-9]+)*/g;
+export const PROPERTY_OWNERS = ['skills/design/references/tokens/', CONSUMER_VOCABULARY];
+
+export function unnamedPropertyProblems(sources: { rel: string; source: string }[], named: Set<string>) {
+  const found = new Map<string, string>();
+  for (const { rel, source } of sources) {
+    for (const hit of source.matchAll(PROPERTY_READ)) {
+      if (!named.has(hit[1]!) && !found.has(hit[1]!)) found.set(hit[1]!, rel);
+    }
+  }
+  return [...found].map(([name, rel]) =>
+    `${rel}: reads var(${name}), and no tokens page or the vocabulary page names it`);
+}
+
+export function unnamedPropertyScan(root = ROOT) {
+  const all = documents(root).map((path) => ({ rel: relPosix(root, path), source: readFileSync(path, 'utf8') }));
+  const named = new Set(all.filter(({ rel }) => PROPERTY_OWNERS.some((owner) => rel.startsWith(owner)))
+    .flatMap(({ source }) => source.match(PROPERTY_NAME) ?? []));
+  return unnamedPropertyProblems(all.filter(({ rel }) => isConsumerDocument(rel)), named);
+}
+
 function main() {
   const sizes = documentSizeProblems();
   const punctuation = punctuationProblems();
@@ -609,10 +759,12 @@ function main() {
   const foreign = foreignCodeProblems();
   const counts = componentCountProblems();
   const cells = cellSizeProblems();
+  const wording = consumerWordingProblems();
   const problems = [
     ...empty, ...branchSwitchProblems(), ...sizes.problems, ...cells.problems, ...punctuation.problems,
     ...comments.problems, ...branch.problems, ...ruleOwnerProblems(), ...foreign.problems,
-    ...counts.problems, ...blobLinkProblems(), ...hueProblems(),
+    ...counts.problems, ...wording.problems, ...blobLinkProblems(), ...hueProblems(),
+    ...testNameProblems(), ...emptySuiteProblems(), ...localeTagScan(), ...unnamedPropertyScan(),
   ];
 
   if (problems.length > 0) {
@@ -626,8 +778,8 @@ function main() {
     + `${MAX_CELL_CHARS}, and clear of `
     + `banned punctuation; ${comments.scanned} hand-written source(s) hold to the comment rule; `
     + `${branch.scanned} consumer document(s) cite no contributor path, offer no foreign framework `
-    + `in a fenced example, and neither branch states one of the other's ${RULE_OWNERS.length} `
-    + `registered rules; ${counts.scanned} package page(s) count ${counts.shipped} components`,
+    + `in a fenced example, hold to the wording rules, and neither branch states one of the other's `
+    + `${RULE_OWNERS.length} registered rules; ${counts.scanned} package page(s) count ${counts.shipped} components`,
   );
 }
 

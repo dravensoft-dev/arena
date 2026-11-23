@@ -16,7 +16,7 @@ import {
 } from './check-docs.ts';
 import { skips } from './check-routes.ts';
 import { AXES, EVIDENCE, PEERS, NODE_ENGINE } from '../../lib/arena/support-matrix.ts';
-import { TARGET, TARGETS, emit } from '../../generate/arena/generate-support.ts';
+import { TARGETS, emit } from '../../generate/arena/generate-support.ts';
 
 export const ALSO_CONSUMER_FACING = ['README.md'];
 
@@ -41,8 +41,10 @@ export const RUNNERS = [
 export const ALTERNATIVES = [/\bnpx\b/, /\bpnpm exec\b/, /\byarn dlx\b/, /\bnpm run\b/];
 
 export const RUNNER_EXEMPT = new Map([
-  ['bun run', 'the form a prompt uses to open a demo page, which is a command in this repository '
-    + 'rather than one a consumer runs, and the pages carrying it are generated from the tree'],
+  ['bun run', 'the form the header comment of a generated region uses to name its generator: generated INDEX.md, PACKAGE.md and '
+    + 'VOCABULARY.md pages under frameworks/ and hand-written pages under skills/ that hold a generated region, '
+    + 'each carrying it only inside that HTML comment; this reader takes a page raw, comments included, so the exemption '
+    + 'stays and check-docs refuses the phrase in prose'],
 ]);
 
 export function documents(base = root) {
@@ -80,7 +82,7 @@ export function declaredRanges() {
 export function rangeProblems(rel: string, source: string, ranges = declaredRanges()) {
   const problems = [];
   for (const [name, declared] of ranges) {
-    const stated = new RegExp(`\`${name.replace(/[/@]/g, '\\$&')}\`[^\\n]{0,24}?\`([^\`\\n]*[\\d][^\`\\n]*)\``, 'g');
+    const stated = new RegExp(`\`${name.replace(/[/@]/g, '\\$&')}\`[^\\n\`]{0,24}?\`([^\`\\n]*[\\d][^\`\\n]*)\``, 'g');
     for (const match of source.matchAll(stated)) {
       const written = (match[1] ?? '').replace(/\\\|/g, '|').trim();
       if (declared.has(written)) continue;

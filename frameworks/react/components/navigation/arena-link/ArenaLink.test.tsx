@@ -61,9 +61,6 @@ test('a _blank target is ignored and warned once, because a new tab is external'
   assert.match(said[0] ?? '', /^\[arena\] ArenaLink: target "_blank" is ignored/);
 });
 
-test('a blank address and an empty text are refused, because neither is a link', () => {
-  assert.throws(() => render(<ArenaLink href="   ">notes</ArenaLink>), /^Error: ArenaLink: `href` is required/);
-  assert.throws(() => render(<ArenaLink href="/notes">{'  '}</ArenaLink>), /^Error: ArenaLink: `content` is required/);
-  // @ts-expect-error the contract requires it, and the guard is what this asserts
-  assert.throws(() => render(<ArenaLink>notes</ArenaLink>), /^Error: ArenaLink: `href` is required/);
+test('an empty text is refused, because it is not a link', () => {
+  assert.throws(() => render(<ArenaLink href="/notes">{'  '}</ArenaLink>), /^Error: ArenaLink: `children` is required/);
 });

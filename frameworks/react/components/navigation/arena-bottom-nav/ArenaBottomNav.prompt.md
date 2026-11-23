@@ -36,7 +36,7 @@ one reports.
 
 **The bar is not an `ArenaSideNav` lying down.** A sidebar is a stack of indented rows, with the glyph before the label and arbitrary nesting. The bottom bar is a row of equal columns, with the glyph above the label and no nesting at all. The bar is not `ArenaTabs` either, which mounts every panel at once and announces tablist, tab and tabpanel. Nor is it an `ArenaSegmentedControl`, which is a radio group that chooses rather than navigates.
 
-The bar's geometry is Arena's tokens rather than a number. `--layout-bar` sets the height, `--z-nav` the stacking slot, and `--pad-safe-bottom` clears the home indicator on a device that has one.
+The bar's geometry is Arena's tokens rather than a number. `--layout-bar` sets the height, `--z-nav` the stacking step, and `--pad-safe-bottom` clears the home indicator on a device that has one.
 Reserve the same height at the foot of the page it covers, or the last row of content sits under it.
 
 **`ariaLabel` is required and guarded**, trimmed before it decides. A phone shell usually carries
@@ -52,7 +52,7 @@ own name.
   outside cannot see it, ignores the modifiers and adds a second tab stop.
 - **Don't** exceed five destinations. Every column takes an equal share, and a sixth makes the labels
   truncate before anyone has read them.
-- **Don't** reach for it above a phone width. The bar covers the bottom of the viewport, and a wide screen has a sidebar's room. Put `md:hidden` on an element of your own around the bar and `max-md:hidden` on one around the side nav. A branch on `useArenaViewportBelow('md')` gives the same split in code. A project that compiles none of these utilities writes the same pair as `@media (width < 768px)` and `@media (width >= 768px)` on those two elements.
+- **Don't** reach for it above a phone width. The bar covers the bottom of the viewport, and a wide screen has a sidebar's room. Put `md:hidden` on an element of your own around the bar and `max-md:hidden` on one around the side nav. A branch on `useArenaViewportBelow('md')` gives the same split in code. A project that compiles none of these utilities writes the same pair as `@media (width < 48em)` and `@media (width >= 48em)` on those two elements.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

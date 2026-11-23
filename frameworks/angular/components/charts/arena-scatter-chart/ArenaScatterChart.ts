@@ -1,8 +1,8 @@
 import {
   booleanAttribute, ChangeDetectionStrategy, Component, computed, ElementRef, inject, input, signal, viewChild,
 } from '@angular/core';
-import { arenaContainerWidth } from '../../../ContainerSize';
-import { ARENA_CHART_HEIGHT, ARENA_INK_BODY, ARENA_INK_MUTED, ARENA_SR_ONLY, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals';
+import { arenaContainerWidth, arenaReadTextScale } from '../../../ContainerSize';
+import { ARENA_CHART_HEIGHT, ARENA_INK_BODY, ARENA_INK_MUTED, ARENA_SR_ONLY, arenaTextRoom, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals';
 import {
   arenaLinearScale, arenaScaleValue, arenaNearestPoint, arenaRadiusScale, arenaRadiusAt,
 } from '../ChartScales';
@@ -140,9 +140,9 @@ const MARK_STYLE = {
 })
 export class ArenaScatterChart {
   protected readonly locale = inject(ARENA_LOCALE);
-  /** The plotted series, drawn as one cloud of marks each. Each carries pairs rather than indexed values, because a scatter has no categories to index against. Pairs are what ArenaPointSeries is for, and the reason it is a separate type from ArenaSeries. After the last slot the positional count starts again at the first, so fold a ninth series into "Other" upstream. */
+  /** The plotted series, drawn as one cloud of marks each. Each carries pairs rather than indexed values, because a scatter has no categories to index against. Pairs are what ArenaPointSeries is for, and the reason it is a separate type from ArenaSeries. After the last ramp colour the positional count starts again at the first, so fold a ninth series into "Other" upstream. */
   readonly series = input.required<readonly ArenaPointSeries[]>();
-  /** The ramp slot the first series takes when it names no colour of its own. Each later series takes the next slot, and after the last slot the count starts again at the first. A series' `colorId` keeps the slot it names. Absent, 1. */
+  /** The ramp colour the first series takes when it names no colour of its own. Each later series takes the next ramp colour, and after the last ramp colour the count starts again at the first. A series' `colorId` keeps the ramp colour it names. Absent, 1. */
   readonly colorStart = input<ArenaCatSlot, ArenaCatSlot | undefined>(
     1,
     { transform: (value) => value ?? 1 },
@@ -169,6 +169,7 @@ export class ArenaScatterChart {
     { transform: (value) => value ?? ARENA_CHART_HEIGHT },
   );
 
+  private readonly room = arenaTextRoom(arenaReadTextScale());
   protected readonly parts = manifest.parts;
   protected readonly styles = arenaScatterChartStyles();
   protected readonly arenaSrOnly = ARENA_SR_ONLY;
@@ -204,7 +205,7 @@ export class ArenaScatterChart {
   private readonly rScale = computed(() => arenaRadiusScale(this.sizes().min, this.sizes().max));
   protected readonly showsKey = computed(() => this.sized() && this.sizeLegend());
   private readonly strip = computed(
-    () => arenaLegendStrip(this.height(), this.series().length, this.showsKey()),
+    () => arenaLegendStrip(this.height(), this.series().length, this.showsKey(), this.room),
   );
   protected readonly sizeH = computed(() => this.strip().sizeH);
 
@@ -219,9 +220,9 @@ export class ArenaScatterChart {
   });
   protected readonly plotH = computed(() => this.strip().plotH);
   protected readonly stripH = computed(() => this.strip().stripH);
-  private readonly gutter = computed(() => arenaValueGutter(this.domains().y, this.write()));
+  private readonly gutter = computed(() => arenaValueGutter(this.domains().y, this.write(), this.room));
 
-  private readonly box = computed(() => arenaPlotBox(this.width(), this.strip().plotH, this.gutter()));
+  private readonly box = computed(() => arenaPlotBox(this.width(), this.strip().plotH, this.gutter(), this.room));
   protected readonly plotLeft = computed(() => this.box().x);
   protected readonly plotRight = computed(() => this.box().x + this.box().w);
   protected readonly plotTop = computed(() => this.box().y);
@@ -251,7 +252,7 @@ export class ArenaScatterChart {
   protected readonly zeroY = computed(() => this.yAxis().zeroY);
 
   protected readonly colors = computed(
-    () => this.series().map((one, index) => arenaPointSeriesColor(one, arenaCatRotate(this.colorStart(), index), 'ArenaScatterChart')),
+    () => this.series().map((one, index) => arenaPointSeriesColor(one, arenaCatRotate(this.colorStart(), index))),
   );
 
   protected readonly marks = computed(() => {

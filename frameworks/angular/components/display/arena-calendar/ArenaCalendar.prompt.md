@@ -85,43 +85,15 @@ The boolean is not ceremony. What a component draws may never be derived from wh
 - Preformat every `title` you pass. The calendar does no locale and no truncation of your own text beyond the chip's ellipsis.
 
 **Don't**
-- Don't try to paint an event `--danger` to mean cancelled. You cannot: `colorId` picks a ramp slot and nothing else, and identity and meaning in one palette makes both unreadable. Same rule the charts enforce.
-- Don't reach past `colorId: 8`. There are eight slots and they never cycle; a ninth entity wrapping to slot 1 claims two different things are the same thing.
+- Don't try to paint an event `--danger` to mean cancelled. You cannot: `colorId` picks a ramp colour and nothing else, and identity and meaning in one palette makes both unreadable. Same rule the charts enforce.
+- Don't reach past `colorId: 8`. There are eight ramp colours and they never cycle; a ninth entity wrapping to ramp colour 1 claims two different things are the same thing.
 - Don't feed it multi-day or all-day events. There is no all-day row: an event running past midnight is clamped to the end of the day it started on.
 - Don't project anything but `arena-calendar-event` into the default slot. Anything else lands in the grid as a track of its own.
 - Don't wrap it to add a month view or a mini datepicker and call it Arena. Arena ships no month grid, and the date control is the native one, `type="date"` on `arena-input`. A hand-rolled one in your product is exactly the `fullcalendar-overrides.css` story that put this component here.
 
-## Verifying by hand
-
-happy-dom does no layout, so the geometry below is checked in a real browser and
-nowhere else. `bun run demos`, then open
-`frameworks/angular/components/display/arena-calendar/ArenaCalendar.demo.generated.html`:
-
-1. Tab reaches the schedule ONCE, and one more Tab leaves it. No chip and no
-   kebab is a stop of its own. An OPEN panel is the exception and is meant to be.
-2. From an hour cell, Enter steps into an event chip; Escape steps back out. Walk
-   a chip with a panel as well as one without, since they are different elements.
-3. Arrow keys move by day and hour, and clamp at all four edges.
-4. **Every chip sits inside its own day column**, with an even gutter each side.
-   The placement is the one claim no suite can make. Read a day column's track boundaries and the chip's own `getBoundingClientRect().left`, and confirm. A chip crossing
-   a column border means the tracks are no longer equal.
-5. On a chip carrying a kebab, the title stops before the button and ellipsises
-   there. Check a full-width chip and a half-width one.
-6. A short event, 30 minutes or less, still shows its whole title. That event's chip is at the height floor, and the floor is an outer height under `border-box`.
-7. A chip sharing its slot with an overlap draws no time label; one that has the
-   column to itself does.
-8. On a chip that shares its column and is at least 56px tall, the kebab sits at
-   the BOTTOM-right with the title running the full width above it. Open the
-   panel in that case too: it hangs below the chip and every control is clickable.
-9. The now line is drawn over the chips rather than under them, being the last child of
-   the grid and carries no z-index of its own.
-10. **Enter and Space on a focused day header fire `dateClick`.** The browser's own activation of a `<button>` does that, so no suite can claim it. happy-dom has no such behaviour, and a test for it would pass against a `<div>` too. Tab
-    through the headers, fire both keys, and confirm one more Tab past the last one
-    lands on the grid's single roving cell.
-
 **Words.** `calendarToday`, `calendarPrevious` and `calendarNext` name the toolbar's buttons, and `calendarRegion` and `calendarGrid` name the schedule and its grid, each with the range title in `{range}`. Every date the calendar writes, the range title, the day headers and the day names, is formatted in the locale's `locale`. Hour labels keep a 24-hour clock whatever it says, and the week starts where `weekStartsOn` says, never where the locale would put it.
 
-**What a chip can carry.** A chip draws its title, its time and `details`, a list of short lines the calendar sheds as the chip shrinks. A per-detail icon or tone, a template of your own and a colour beyond the eight ramp slots stay outside what a chip can carry.
+**What a chip can carry.** A chip draws its title, its time and `details`, a list of short lines the calendar sheds as the chip shrinks. A per-detail icon or tone, a template of your own and a colour beyond the eight ramp colours stay outside what a chip can carry.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

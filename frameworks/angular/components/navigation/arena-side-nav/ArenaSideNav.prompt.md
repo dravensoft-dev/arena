@@ -97,10 +97,6 @@ A Home at `/` compared with `startsWith` is active on every route.
 **Read `router.url` through the bridge and never in the template.** Reading the property directly appears to work. Swapping the routed component marks the shell dirty as a side effect of how `RouterOutlet` works. A zoneless `OnPush` shell then re-renders anyway.
 The appearance stops the moment a navigation reuses the component it is already showing, which is what a tab change or a parameter change does. Nothing reports it, and the rail simply keeps the previous destination lit.
 
-**By hand, in real Chromium.** Run `bun run demos` and open `/frameworks/angular/components/navigation/arena-side-nav/ArenaSideNav.demo.generated.html`: - Each level steps in by exactly one `pad-row-indent`. A row's icon stays aligned with its siblings' rather than with its parent's.
-- Switching the active destination moves the ink and the weight, and opens the group holding it.
-- The rail still reads at `.arena-compact`, where every indent shrinks with the token.
-
 ### The active row is filled, and you pass one string
 
 The item whose `id` matches `active` draws its glyph in `ph-fill`, whatever weight the string
@@ -108,10 +104,9 @@ carries. Pass `icon="ph-bold ph-house"` once per destination; do not concatenate
 yourself against a condition, which is Arena's own convention reimplemented in every project
 that adopts it. The swap is idempotent, so passing `ph-fill` yourself changes nothing.
 
-**A misspelled `ph-` name renders an empty box, silently**, because an icon is a class name
-and a class that matches no glyph is not an error. Nothing on your side catches that for you,
-so check a name against the `@phosphor-icons/web` you installed if a wrong one would be
-expensive.
+**A misspelled `ph-` name draws an empty glyph box**, because an icon is a class name and a name that
+matches no glyph is not an error at render. `arena check` reports it as `glyph`, because the
+name is not an icon Phosphor draws at that weight.
 
 **As a rail.** `collapsed` narrows the list to an icon rail and leaves the frame around it to you: the drawer, the button that collapses it and the page column are yours. Every item needs an `icon` while collapsed, and one without is refused. Each label stays the item's accessible name and shows as a tooltip on hover and on focus. A badge becomes a dot, and its count joins the name. Section labels are hidden but still name their groups, and a collapsible lays its items out in the rail with no trigger of its own. Which of the two is on screen is the viewport's question. Put `max-md:hidden` on an element of your own around the rail and `md:hidden` on one around the drawer, or branch on `arenaViewportBelow('md')`.
 

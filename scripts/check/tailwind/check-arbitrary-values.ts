@@ -8,7 +8,7 @@
  * is repo-shaped and ships nowhere. */
 
 import { readFileSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';

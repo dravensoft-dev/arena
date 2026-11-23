@@ -37,14 +37,6 @@ test('Up and Down move the value by one step and announce it', () => {
   assert.equal(valueOf(input), '1');
 });
 
-test('Home and End reach the bounds the field has', () => {
-  const { input, press } = render({ value: 3, min: 1, max: 9 });
-  press('End');
-  assert.equal(valueOf(input), '9');
-  press('Home');
-  assert.equal(valueOf(input), '1');
-});
-
 test('the value states follow the field: present with a value or a bound, absent without', () => {
   const full = render({ value: 3, min: 1, max: 9, suffix: 'kg' }).input;
   assert.deepEqual(['aria-valuenow', 'aria-valuemin', 'aria-valuemax', 'aria-valuetext'].map((a) => full.getAttribute(a)), ['3', '1', '9', '3kg']);

@@ -3,32 +3,16 @@
  * masking pair is asserted both ways round, since the one pass that reads a string and the passes
  * that must not are the shape this gate got wrong first. */
 
-import { test, after } from 'node:test';
+import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
 import {
   BROWSER_GLOBALS, ENVELOPES, FORMS, OPTIONAL_ENTRIES, ROUTER, ROUTER_ONLY_UNDER, SSR_HOSTILE, architectureProblems,
   deferred, envelopeProblems, hostileApiProblems, importsIn, masked, moduleScopeProblems, node,
   optionalPeerProblems, packageOf, rootClosureProblems, shipped, topLevelStatements, withoutComments, zeroScanProblems,
 } from './check-architecture.ts';
+import { scratchTree } from '../../utils/scratch-tree.ts';
 
-const made: string[] = [];
-const track = (dir: string) => { made.push(dir); return dir; };
-after(() => {
-  for (const dir of made) rmSync(dir, { recursive: true, force: true });
-});
-
-function tree(files: Record<string, string>) {
-  const base = track(mkdtempSync(join(tmpdir(), 'arena-architecture-')));
-  for (const [rel, text] of Object.entries(files)) {
-    const path = join(base, rel);
-    mkdirSync(join(path, '..'), { recursive: true });
-    writeFileSync(path, text);
-  }
-  return base;
-}
+const { tree } = scratchTree('arena-architecture');
 
 const react = (body: string) => tree({ 'frameworks/react/A.ts': body });
 

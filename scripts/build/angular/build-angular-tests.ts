@@ -9,7 +9,7 @@
  * content is stale, so a rewrite of the same bytes costs no compile. The package in dist/ is no
  * input: ngc never reads it. An added or deleted input is stale too. `--force` compiles. */
 
-import { join, relative } from 'node:path';
+import { join } from 'node:path';
 import { existsSync, rmSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { isMainModule } from '../../utils/main-module.ts';

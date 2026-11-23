@@ -96,13 +96,63 @@ export class Island {}
 
 **A subtree takes** the component sheets, the project's own Arena Tailwind utilities, the colour aliases and the colour-mix washes, the ink levels, `color-scheme`, `--picker-invert` and the scrim. A style-plugin class and a density class go on any element the same way, and the nearest one wins. A nested plugin keeps the high-contrast widths and the hero fit, and so does a project's own root plugin. Angular overlays take the palette, style plugin and density of their trigger. The overlays are the menu, popover, tooltip, combobox and multiselect, and through them the split button and the side-nav item. React panels stay in the subtree.
 
-**A subtree does not take** the page canvas, which follows the root's palette. A subtree takes no ground either unless something paints one. `ArenaPaletteScope` paints `bg-base-100 text-base-content`, and a bare class paints nothing, so a section wearing only `arena-light` keeps the ground behind it. Surfaces mounted elsewhere, which are dialogs, sheets, the confirm queue, the command palette, onboarding and the toast host, take the palette of where they are mounted. An island that wants its own toasts mounts a toast host inside it.
+**A subtree does not take** the page canvas, which follows the root's palette. A subtree takes no ground either unless something paints one. `ArenaPaletteScope` and `[arenaPalette]` paint the `surfaces` group's page slots, `surfaces-page-fill-rest` and `surfaces-page-ink-rest`, which fall back to `fill-page` and `ink-body` while they are silent, and round the box with `r-surface`. A bare class paints nothing, so a section wearing only `arena-light` keeps the ground behind it. Surfaces mounted elsewhere, which are dialogs, sheets, the confirm queue, the command palette, onboarding and the toast host, take the palette of where they are mounted. An island that wants its own toasts mounts a toast host inside it.
 
 **A bare class is not a scope.** The readers see an `ArenaPaletteScope` and nothing else, so `useArenaPalette()` under a `<section class="arena-light">` answers the page theme. Use the scope when code below the element reads the palette, such as a canvas chart, and the class when markup alone is enough.
 
 ## When does a palette get stored?
 
-Each layer stores a user's choice and, for a runtime palette, a copy of it. React's `setArenaTheme`, `toggleArenaTheme` and the setter `useArenaTheme` returns write the `arena-theme` key, and so do Angular's `set` and `toggle`. Neither `initArenaTheme` nor injecting the service writes it. Until a choice is stored the page follows the system. Remove the `arena-theme` key to follow the system again. In React call `initArenaTheme(themes)` after removing it, and in Angular the next load follows the system. Nothing listens for a change of the system setting while the page is open. The copy lives under `arena-runtime-palette`. A layer writes it when a runtime palette becomes the current one, by setting it or by registering the name that is already current. A layer removes it when a declared palette is chosen, and when the current runtime palette is removed.
+Each layer stores a user's choice and, for a runtime palette, a copy of it. React's `setArenaTheme`, `toggleArenaTheme` and the setter `useArenaTheme` returns write the `arena-theme` key, and so do Angular's `set` and `toggle`. Neither `initArenaTheme` nor injecting the service writes it. Until a choice is stored the page follows the system. Remove the `arena-theme` key to follow the system again. In React call `initArenaTheme(themes)` after removing it, and in Angular the next load follows the system. Nothing listens for a change of the system setting while the page is open. The copy lives under `arena-runtime-palette`. A layer writes it when a runtime palette becomes the current one, by setting it or by registering the name that is already current. A layer removes it when a declared palette is chosen, and when the current runtime palette is removed. At start each layer registers the copy and makes it current. This happens when the stored `arena-theme` names a palette that is neither declared nor registered and the copy holds a valid palette of that name. The app calls `unregisterArenaPalette` in React or `unregister` in Angular when its own store no longer has that palette.
+
+## How do I follow the system setting while the page is open?
+
+Arena listens for no change of the system setting while the page is open. A project that wants the page to follow the system listens itself, and re-applies only while `localStorage` holds no `arena-theme`, so a stored choice always wins.
+
+In React, call `initArenaTheme(themes)` again. With nothing stored it reads the system setting and applies the matching palette.
+
+```tsx
+import { initArenaTheme, type ArenaThemeConfig } from '@dravensoft/arena-react';
+
+const themes: ArenaThemeConfig = {
+  palettes: [
+    { name: 'dark', polarity: 'dark' },
+    { name: 'light', polarity: 'light' },
+  ],
+  default: 'dark',
+};
+
+initArenaTheme(themes);
+
+window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
+  if (localStorage.getItem('arena-theme') === null) initArenaTheme(themes);
+});
+```
+
+`ArenaThemeService` has no method that applies the system choice. In Angular, find the palette whose polarity matches and set the `theme` signal, which applies it and stores nothing. `set()` would store it as a choice.
+
+```ts
+import { Component, DOCUMENT, DestroyRef, inject } from '@angular/core';
+import { ArenaThemeService } from '@dravensoft/arena-angular';
+
+@Component({ selector: 'app-root', template: `<router-outlet />` })
+export class App {
+  private readonly themes = inject(ArenaThemeService);
+
+  constructor() {
+    const view = inject(DOCUMENT).defaultView;
+    if (!view) return;
+    const query = view.matchMedia('(prefers-color-scheme: light)');
+    const follow = () => {
+      if (view.localStorage.getItem('arena-theme') !== null) return;
+      const polarity = query.matches ? 'light' : 'dark';
+      const match = this.themes.palettes.find((palette) => palette.polarity === polarity);
+      if (match) this.themes.theme.set(match.name);
+    };
+    query.addEventListener('change', follow);
+    inject(DestroyRef).onDestroy(() => query.removeEventListener('change', follow));
+  }
+}
+```
 
 ## How do I avoid a flash on first paint?
 
@@ -168,13 +218,23 @@ The default reaches `:root` and also has its class, `.arena-dark` in Arena's own
 
 On a first visit nothing is stored. The theme surface falls back to the first palette whose polarity matches the device. A snippet that reads only storage paints the default first. The app corrects it after boot, and that correction is the flash the snippet exists to prevent.
 
+## What does prefers-contrast change?
+
+Under `prefers-contrast: more`, `css/contrast.css` points three groups of roles at a different step of a scale Arena already carries, and defines no value of its own.
+
+- **Boundaries.** `--bw-surface`, `--bw-surface-head`, `--bw-control`, `--bw-field`, `--bw-separator` and `--bw-marker` all take `--bw-strong`.
+- **Transparency.** `--scrim-blur` takes `--sp-0`, so a scrim stops blurring the page behind it. The scrim's own colour is untouched.
+- **Focus.** `--focus-width` takes `--sp-1`, and `--bw-focus` follows it.
+
+A project that re-values `--bw` or `--bw-strong` gets its own two widths there. A root plugin of the project's own gets the same block after its answers, because `arena build` restates it in `arena.generated.css`. A nested plugin keeps it too.
+
 ## What is a runtime palette?
 
 A runtime palette is a palette nobody declared in `arena.config.json`: a user designs it, and the app applies it while it runs. The checks the build runs on a declared palette run on a runtime palette too. The palette paints what the same colours would paint if the config declared them.
 
 **A runtime palette may change** every colour key and the polarity. The colour keys are the 26 required keys of a declared palette, the eight chart slots `cat-1` to `cat-8` among them. The polarity is `dark` or `light`. The seven optional keys, `error-fill`, `primary-fill` and `heat-1` to `heat-5`, may be given and are derived when absent, as in the config. The polarity picks which of the style plugin's answers apply, plus the native date picker's colour and `color-scheme`.
 
-**A runtime palette may not change** the style plugin and its roles, the fonts, the density, the component sheets or the gradient mark. The build fixes those, and a runtime palette answers to the plugin the app was built with, as a declared palette does.
+**A runtime palette may not change** the style plugin and its roles, the fonts, the density or the component sheets. The build fixes those, and a runtime palette answers to the plugin the app was built with, as a declared palette does.
 
 **The app keeps the rest.** Arena does not store a user's palette, load it at sign-in, draw the editor where the user picks colours, or decide who may change whose palette.
 
@@ -210,7 +270,7 @@ const { palette, reports } = arenaRuntimePalette('ocean', {
 
 `input` is `{ polarity, colors }`. Each colour is a six-digit hex such as `#141010`, and the properties carry it in lower case. The types are `ArenaPolarity`, `ArenaPaletteInput`, `ArenaPaletteReport`, `ArenaRuntimeData` and `ArenaRuntimePalette`.
 
-**A palette that fails a check is returned, not refused.** `reports` holds the rules and messages `arena check` prints for a declared palette. The rules are the ramp and colour-vision simulation, the text pairs, the axis, the ink on a fill, emphasis, the levels and the washes. Whether to apply a palette with reports, warn the user or turn it away is the app's decision. An empty list means the build would have said nothing.
+**A palette that fails a check is returned, not refused.** `reports` holds the rules and messages `arena check` prints for a declared palette. The rules are the ramp and colour-vision simulation, the text pairs, the axis, the ink on a fill, emphasis, the levels, the washes and the colour slots. The slots are measured through the root style plugin, in every state but `disabled` and `selected-disabled`, at 4.5:1 for text and 3:1 for any other pair. A disabled answer that draws the part's rest or selected colours is reported, and [`color-slots/index.md`](./color-slots/index.md#what-arena-check-measures) lists the pairs. Whether to apply a palette with reports, warn the user or turn it away is the app's decision. An empty list means `arena check` would have printed nothing for the palette.
 
 **The functions throw** on input they cannot read. Data that is missing or of another shape throws a message naming `"runtimePalettes": true`. An input that is not an object, or a polarity that is neither `dark` nor `light`, throws too. So does a missing or malformed colour, a colour key Arena does not have, or only some of `heat-1` to `heat-5`. So does a name that is not kebab-case, that the config declares, that is a class the package ships, or that is `polarity-dark` or `polarity-light`. Check a palette with `arenaCheckPalette` on the server before it is saved.
 
@@ -233,7 +293,7 @@ theme.set(palette.name);
 
 In React `arenaPalettes()` and `useArenaPalettes()` list the declared palettes followed by the registered ones, in registration order. `setArenaTheme`, `useArenaTheme` and `toggleArenaTheme` accept a registered name. In Angular `runtimePalettes` is a signal of the registered palettes, `runtimePalette(name)` answers one or `null`, and `set`, `toggle` and `polarityOf` accept a registered name. `toggle` walks the declared palettes and then the registered ones. A name that is neither declared nor registered throws, and the message lists both.
 
-The page paints it with the polarity class on `<html>` and each property set with `style.setProperty`. `ArenaPaletteScope` and `[arenaPalette]` accept a registered name too. An Angular overlay wears the palette in effect at its anchor, a scope's or the page's. **A scope can mount before the palette it names is registered.** Such a scope renders pending in both layers: no palette class and no properties, so its children inherit the page's palette, and a one-time `console.warn` names the missing palette. The scope paints as soon as that name is registered, which serves the flow of booting, fetching the user's palette and registering it. `useArenaPalette()` and `injectArenaPalette()` below a pending scope answer the scope's name. In React the scope judges a name only once `initArenaTheme` has run. Before that it draws `arena-<name>` with no properties, and a name the config declares keeps that class.
+The page paints it with the polarity class on `<html>` and each property set with `style.setProperty`. `ArenaPaletteScope` and `[arenaPalette]` accept a registered name too. An Angular overlay wears the palette in effect at its anchor, a scope's or the page's. **A scope can mount before the palette it names is registered.** Such a scope renders pending in both layers: no palette class and no properties, so its children inherit the page's palette, and a one-time `console.warn` names the missing palette. The scope paints as soon as that name is registered, which serves the flow of booting, fetching the user's palette and registering it. `useArenaPalette()` and `injectArenaPalette()` below a pending scope answer the scope's name. In React the scope judges a name only once `initArenaTheme` has run. Before that a registered name draws its palette and any other name draws `arena-<name>` with no properties, which is the class a declared name keeps.
 
 **Registration throws** in four cases. The config declares the name. The page's `:root` lacks `--arena-runtime-palettes:1`, and the message names `"runtimePalettes": true`. The polarity is neither `dark` nor `light`, or the name is not kebab-case. Or `properties` is wrong. A value is not a string, or a key is none of `--color-*`, `--level-*` and `--arena-palette`. A `--color-*` value is not `#rrggbb`, or a `--level-*` value is not a percentage such as `40%`. Or `--arena-palette` is missing or differs from the name. React accepts a registration before `initArenaTheme`. When the config that `initArenaTheme` then receives declares that name, the registration is dropped and a one-time `console.warn` names it.
 
@@ -256,7 +316,7 @@ The name leaves `arenaPalettes()`, `useArenaPalettes()` and `runtimePalettes`. `
 
 ## How do I keep a runtime palette between visits?
 
-The app keeps the palette; Arena keeps a copy to paint the first frame. When the active palette is a runtime one, the theme surface writes it to `localStorage['arena-runtime-palette']` beside `arena-theme`, and choosing a declared palette removes it. Removing the current runtime palette removes it too. The cache is not the source. The app loads the user's palette from its own store and registers it. Until then the cache stops the page from showing the base palette. The snippet in [How do I avoid a flash on first paint?](#how-do-i-avoid-a-flash-on-first-paint) reads the cache before anything loads.
+The app keeps the palette; Arena keeps a copy to paint the first frame. When the active palette is a runtime one, the theme surface writes it to `localStorage['arena-runtime-palette']` beside `arena-theme`, and choosing a declared palette removes it. Removing the current runtime palette removes it too. The cache is not the source. The app loads the user's palette from its own store and registers it. Until then the cache stops the page from showing the base palette. At start both layers restore it as a registered palette and the current one, when the stored name is neither declared nor registered. The app registers the palette from its own store over the restored one, and reconciles with `unregisterArenaPalette` or `unregister` when that store no longer has it. The snippet in [How do I avoid a flash on first paint?](#how-do-i-avoid-a-flash-on-first-paint) reads the cache before anything loads.
 
 ## What does a runtime palette cost under a content security policy?
 

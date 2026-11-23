@@ -49,7 +49,7 @@ A code typed one character per cell, such as a verification code from a text mes
 - **Keypads.** `characters="numeric"` brings up a phone's number pad. `characters="alphanumeric"` brings up the full keyboard and keeps the case of each letter.
 - **What a form submits.** `name` rides on one hidden input holding the whole code. No cell carries a name.
 - **Names.** The group takes its name from `label`, and a blank `label` throws. Each cell is named by its position through the locale's `pinInputCell` word. A hint or an error describes every cell.
-- **The group role.** The cells bind the `textbox` pattern. The wrapper's `group` role and name are asserted by the component's own suite.
+- **The group role.** The cells bind the `textbox` pattern. The wrapper is a `group` named by the label.
 - **`(valueChange)` carries the code.** Each cell's native `change` reaches the page as a DOM event, and `(valueChange)` hears the code and never an `Event`.
 - **`(blur)` means the group.** Focus moving between cells emits nothing. Focus leaving the group for anything outside emits the code once.
 - **Reactive forms.** With `ArenaPinInputControl` from `@dravensoft/arena-angular/forms`, `formControl`, `formControlName` and `ngModel` bind the code. The control's value is the code as a string, and a `null` empties every cell. `disable()` disables every cell. Leaving the group marks the control touched, and a move between cells does not.
@@ -61,7 +61,7 @@ A code typed one character per cell, such as a verification code from a text mes
 - Don't check, resend or expire the code here. `(complete)` reports, and the host decides.
 - Don't empty `[value]` on each keystroke. Empty it once when the code is wrong, then call `focus()`.
 
-**By hand.** A text message autofill on iOS and on Android fills every cell. The number pad shows for `numeric`. Tab crosses the whole group in one press. Only the focused cell carries the focus ring. Six cells fit a 390px screen.
+Text message autofill on iOS and on Android fills every cell. The number pad shows for `numeric`. Tab crosses the whole group in one press, the focus ring sits on the focused cell only, and six cells fit a 390px screen.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

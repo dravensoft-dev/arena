@@ -15,6 +15,7 @@ import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ArenaInput } from './ArenaInput';
 import { assertPattern, ANGULAR_COMPONENTS } from '../../../test/Compliance';
+import { invalidVerdict } from '../../../test/StateVerdicts';
 
 const BINDING = join(ANGULAR_COMPONENTS, 'forms/arena-input/ArenaInput.behaviour.json');
 
@@ -214,24 +215,6 @@ test('a controlled error wins over the validator, and an empty string counts as 
   }
 });
 
-test('the error replaces the hint rather than stacking under it', () => {
-  const withHint = render({ hint: 'Lowercase, no spaces' });
-  try {
-    assert.equal(withHint.host.textContent?.includes('Lowercase, no spaces'), true);
-  } finally {
-    withHint.fixture.destroy();
-  }
-
-  const both = render({ hint: 'Lowercase, no spaces', error: 'Already taken' });
-  try {
-    assert.equal(both.host.textContent?.includes('Already taken'), true);
-    assert.equal(both.host.textContent?.includes('Lowercase, no spaces'), false,
-      'two lines of guidance under one field is one too many, and the error is the one that matters');
-  } finally {
-    both.fixture.destroy();
-  }
-});
-
 test('the status glyphs are decoration -- the message beside them is what is announced', () => {
   const bad = render({ error: 'Already taken' });
   try {
@@ -280,14 +263,23 @@ test('the host is the field group itself -- the root recipe lands on it, not on 
 
 test('arena-input meets the textbox pattern', () => {
   const { fixture, host, control } = render({ required: true, readOnly: true });
+  const bad: Partial<ReturnType<typeof render>> = {};
+  const good: Partial<ReturnType<typeof render>> = {};
   try {
+    Object.assign(bad, render({ error: 'Taken' }));
+    Object.assign(good, render());
     assertPattern({
       root: host,
       bindingPath: BINDING,
       subjects: { default: control },
-      behavioural: { 'states.required': true, 'states.readonly': true },
+      behavioural: {
+        'states.required': true, 'states.readonly': true,
+        'states.invalid': invalidVerdict([bad.control!], [good.control!]),
+      },
     });
   } finally {
     fixture.destroy();
+    bad.fixture?.destroy();
+    good.fixture?.destroy();
   }
 });

@@ -85,6 +85,13 @@ digit and does not jitter as it counts. `.arena-sr-only` is a label a
 screen reader announces and nothing paints, which is where the name of an icon-only control you
 drew yourself goes.
 
+**Four more classes draw the states of a control you drew yourself.** `.arena-interactive` draws
+its fill and ink in every state, with the disabled fade. `.arena-focus` draws the keyboard focus
+ring. `.arena-invalid` draws a field's edge while `aria-invalid` is true, and
+`.arena-invalid__message` draws the ink of that field's message. The four read only roles and their levels,
+and their sheet is `css/vocabulary/state.css`. [The states page](./tokens/markup/states.md) lists the
+roles each state reads.
+
 ## The air between two components
 
 **Arena draws no outer margin on anything**, so the space between one component and the next is
@@ -170,17 +177,20 @@ Give the wrapper a display. The wrapper is the flex or grid item now, so it is w
 
 ## Density
 
-**`.arena-compact` and `.arena-comfortable` are the density family on the vocabulary page, `frameworks/VOCABULARY.md`.** The first re-densifies the controls. The second grows them to a 48px touch target. A container wearing both gets `.arena-comfortable`, as the vocabulary page states. Each re-answers the control and row sizes and nothing else. Markup of your own follows the class when it takes its sizes from the `--dz-*` properties. [tokens.md](./tokens.md#what-does-each-density-class-change) lists each one, the value each class gives it and the Tailwind utility that reads it. The rhythm above does not re-densify, so the air between two components stays where you spent it.
+**`.arena-compact` and `.arena-comfortable` answer how much a region holds, a question about who is pointing at it.** The first re-densifies the controls, the rows and their text, for an expert view that has to hold more. The second grows the controls to a 48px touch target for a screen a thumb drives, and leaves the text the size it was. A container wearing both gets `.arena-comfortable`. Write one on an element of yours or on a component, and it reaches every component inside until a nearer density answers it again. Each re-answers the control and row sizes and nothing else. Markup of your own follows the class when it takes its sizes from the `--dz-*` properties. [The density page](./tokens/scales/density.md) lists each one, the value each class gives it and the Tailwind utility that reads it. The rhythm above does not re-densify, so the air between two components stays where you spent it.
 
 A row and a control of your own, once in CSS and once in the Tailwind utilities that table names:
 
 ```css
-.my-row { padding: var(--dz-row-py) var(--dz-row-px); }
+.my-row {
+  padding-inline: calc(var(--pad-row-x) * var(--dz-row-scale-x));
+  padding-block: calc(var(--pad-row-y) * var(--dz-row-scale-y));
+}
 .my-control { height: var(--dz-ctl-h); font-size: var(--dz-text); }
 ```
 
 ```html
-<div class="py-row-py px-row-px">
+<div class="px-row-x py-row-y">
   <button class="h-ctl-h text-ctl">Save</button>
 </div>
 ```

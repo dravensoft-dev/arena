@@ -6,7 +6,7 @@ import { dirname, join } from 'node:path';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import {
   ARENA_THEME_NAMED, EXTERNAL_PROPERTIES, MANIFEST_FETCH, staleThemeNamedProblems, THEME_NAMESPACES, collect, keyframeDepths, preludeProblems,
-  propertiesIn, selectorsIn, themeLeaks, defaultsProblems, layerOrderProblems, DEFAULT_SOURCES,
+  propertiesIn, selectorsIn, slotNamed, themeLeaks, defaultsProblems, layerOrderProblems, DEFAULT_SOURCES,
   isFamilyChannel,
 } from './check-component-css.ts';
 import { keyframesIn, sheetPath } from '../../build/tailwind/build-tailwind.ts';
@@ -114,6 +114,9 @@ test('an Arena aspect token is no leak, and an entry no sheet reads is stale', (
   assert.deepEqual(themeLeaks('aspect-ratio: var(--aspect-media)'), []);
   assert.deepEqual(themeLeaks('aspect-ratio: var(--aspect-media)', new Map()), ['aspect-media'], 'without the record the read is the leak');
   assert.deepEqual(themeLeaks('aspect-ratio: var(--aspect-other)'), ['aspect-other'], 'only the five named tokens are Arena\'s');
+  assert.deepEqual(themeLeaks('color: var(--text-body-ink-rest)'), ['text-body-ink-rest'], 'the text group names its slots inside the text namespace');
+  assert.deepEqual(themeLeaks('color: var(--text-body-ink-rest)', slotNamed(['text-body-ink-rest'])), [], 'a colour slot is Arena\'s own name and is read on purpose');
+  assert.deepEqual(themeLeaks('color: var(--text-sm)', slotNamed(['text-body-ink-rest'])), ['text-sm'], 'only the slots are named');
   assert.equal(ARENA_THEME_NAMED.size, 5);
   assert.deepEqual(staleThemeNamedProblems(new Set(ARENA_THEME_NAMED.keys())), []);
   const read = new Set(ARENA_THEME_NAMED.keys());

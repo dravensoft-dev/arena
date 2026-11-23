@@ -1,36 +1,21 @@
 /* The gate reads the real tree, so these drive its pure functions over a temporary one with the
  * shapes a real mistake takes: a stop reaching nothing, a budget broken from either side, a branch
  * that costs nothing, a route opening with an entry nobody declared, a walk that found no
- * document, and a reason carrying the history of its number. ROUTES and ENTRIES are asserted by name, the declared reads are asserted equal to the
- * routers and stops, and the whole cost of every route is asserted to be its entry plus its worst
- * branch, which is the sum a reader actually pays and the one a split model could quietly lose. */
+ * document, and a reason carrying the history of its number. Every route opens with its entry and
+ * carries a unique name, the declared reads are asserted equal to the routers and stops, and the
+ * whole cost of every route is asserted to be its entry plus its worst branch, which is the sum a
+ * reader actually pays and the one a split model could quietly lose. */
 
-import { test, after } from 'node:test';
+import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
 import {
   ROUTES, ENTRIES, BUDGET_SLACK, node, branchesOf, documents, largestReached, measure, measureEntry,
   entryProblems, unreachedProblems, overBudgetProblems, staleBudgetProblems, zeroScanProblems,
   routeProblems, reasonProblems, REASON_MAX_CHARS,
 } from './check-routes.ts';
+import { scratchTree } from '../../utils/scratch-tree.ts';
 
-const made: string[] = [];
-const track = (dir: string) => { made.push(dir); return dir; };
-after(() => {
-  for (const dir of made) rmSync(dir, { recursive: true, force: true });
-});
-
-function tree(files: Record<string, string>) {
-  const base = track(mkdtempSync(join(tmpdir(), 'arena-routes-')));
-  for (const [rel, text] of Object.entries(files)) {
-    const path = join(base, rel);
-    mkdirSync(join(path, '..'), { recursive: true });
-    writeFileSync(path, text);
-  }
-  return base;
-}
+const { tree } = scratchTree('arena-routes');
 
 const route = (over: Partial<typeof ROUTES[number]> = {}) => ({
   name: 'test-route',
@@ -52,13 +37,10 @@ test('every entry names the router it opens and the reason for its budget', () =
 });
 
 test('every route names the reader it is paid by, the entry it opens with, and the reason for its budget', () => {
-  assert.deepEqual(ROUTES.map((r) => r.name), [
-    'consumer-component', 'consumer-install', 'consumer-skin', 'consumer-register', 'consumer-seo',
-    'consumer-surface', 'consumer-stack', 'consumer-bundler', 'consumer-page', 'consumer-coldstart',
-    'contributor-component', 'contributor-authoring', 'contributor-token', 'contributor-gate',
-    'contributor-tailwind', 'contributor-behaviour', 'contributor-release',
-  ]);
+  assert.ok(ROUTES.length > 0, 'a table with no route names no reader');
+  assert.equal(new Set(ROUTES.map((r) => r.name)).size, ROUTES.length, 'a route name is one route');
   for (const one of ROUTES) {
+    assert.ok(one.name.startsWith(`${one.entry}-`), `${one.name} is named after its entry ${one.entry}`);
     assert.ok(ENTRIES.some((entry) => entry.name === one.entry), `${one.name} opens with an entry`);
     assert.ok(branchesOf(one).every((branch) => branch.stops.length > 0),
       `${one.name} has no branch that costs nothing`);
@@ -173,8 +155,6 @@ test('a reason states why its number is right today, never what it was, and stay
     'a small count or a measurement is not a budget figure');
   assert.match(reasonProblems('test-route', 'Raised again when the page grew')[0] ?? '',
     /says "Raised"/);
-  for (const one of [...ENTRIES, ...ROUTES])
-    assert.deepEqual(reasonProblems(one.name, one.reason), [], `${one.name} carries a history`);
 });
 
 test('a route opening with an entry nobody declared is reported rather than charged from its second page', () => {

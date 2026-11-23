@@ -1,7 +1,7 @@
 {
   "component": "ArenaBottomNavItem",
   "description": "One destination in an ArenaBottomNav. The consumer writes one per destination. Which id is currently active and how the item reports through the `nav` event of ArenaBottomNav are settled with its parent. Neither is a member of this contract. The shape and the reason are ArenaSideNavItem's, and the name an ArenaRadioGroup settles with each ArenaRadio is the same arrangement again. The item draws its glyph above its label and takes an equal share of the bar's width, however many destinations there are.",
-  "affordances": ["hover", "focus"],
+  "affordances": ["focus", "hover", "press"],
   "api": {
     "id": { "form": "primitive", "type": "string", "required": true,
             "description": "Identifies the destination. ArenaBottomNav.active names one of these, and the item whose id matches is the one marked aria-current=\"page\". Required, and guarded with a falsy check rather than an absence check: a blank id can never match and is an omission wearing a value." },

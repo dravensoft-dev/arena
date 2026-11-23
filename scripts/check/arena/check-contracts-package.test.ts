@@ -6,9 +6,11 @@ import {
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import {
-  FORBIDDEN_FIELDS, NON_CONTRACT, catalogueProblems, collect, expectedCarried, manifestProblems,
-  payloadProblems, zeroDerivedProblems,
+  FORBIDDEN_FIELDS, NON_CONTRACT, catalogueProblems, collect, derivedProblems, expectedCarried,
+  manifestProblems, payloadProblems, zeroDerivedProblems, groupListProblems, shippedGroups, GROUP_PAGE,
 } from './check-contracts-package.ts';
+import { DERIVED_SLOTS, derivedSlotsText } from '../../lib/arena/package-assembly.ts';
+import { readFileSync } from 'node:fs';
 import { CATALOGUE, NAME, NOT_CARRIED, buildContractsPackage, catalogue, manifest, unmatchedExclusions } from '../../build/arena/build-contracts-package.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { linkDir, platform } from '../../lib/arena/platform.ts';
@@ -101,10 +103,9 @@ test('an exclusion matching nothing in the tree fails, so it cannot outlive what
   const problems = unmatchedExclusions(repoRoot, ghost);
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /outlived what it excluded/);
-  assert.deepEqual(unmatchedExclusions(repoRoot), [], 'every real exclusion still matches the tree');
 });
 
-test('the tree passes its own claim, over more than nothing', () => {
+test('the tree passes its own claim, and the built package carries and lists the derived catalogue', () => {
   const temp = mkdtempSync(join(tmpdir(), 'arena-contracts-tree-'));
   const links: string[] = [];
   try {
@@ -117,12 +118,16 @@ test('the tree passes its own claim, over more than nothing', () => {
       mkdirSync(join(temp, dir));
       copyFileSync(join(repoRoot, dir, file), join(temp, dir, file));
     }
-    buildContractsPackage(temp);
+    const { dir, carried } = buildContractsPackage(temp);
     const { problems, expected, assembled } = collect(temp);
     assert.deepEqual(problems, []);
     assert.ok(expected.length > 0);
     assert.ok(NOT_CARRIED.size > 0, 'a package that excludes nothing is one nobody decided the shape of');
     assert.equal(assembled, true);
+    assert.ok(carried.includes(DERIVED_SLOTS));
+    assert.equal(readFileSync(join(dir, DERIVED_SLOTS), 'utf8'), derivedSlotsText(temp));
+    writeFileSync(join(dir, DERIVED_SLOTS), '{}\n');
+    assert.match(collect(temp).problems.join('\n'), /differs from what readColorSlots derives/);
   } finally {
     for (const link of links) {
       try { if (platform === 'win32') rmdirSync(link); else unlinkSync(link); } catch {  }
@@ -139,4 +144,44 @@ test('the derived set is every contract level and nothing else', () => {
   ]);
   assert.equal(expected.every((p) => p.endsWith('.json')), true,
     'a package carrying anything but JSON is carrying a mechanism rather than a value');
+});
+
+test('a package without the derived slot catalogue gives one line, and a present one is no stray contract', () => {
+  const { dir, put } = fixture();
+  try {
+    put('contracts/design/spacing.json', '{}');
+    for (const rel of NON_CONTRACT) put(rel, '{}');
+    const expected = ['contracts/design/spacing.json'];
+    assert.equal(NON_CONTRACT.includes(DERIVED_SLOTS), false);
+    const lines = [...payloadProblems(dir, expected, dir), ...derivedProblems(dir, repoRoot)];
+    assert.equal(lines.length, 1);
+    assert.match(lines[0] ?? '', /carries no contracts\/design\/color-slots\.derived\.json/);
+    put(DERIVED_SLOTS, derivedSlotsText(repoRoot));
+    assert.deepEqual(payloadProblems(dir, expected, dir), []);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('the derived slot catalogue is held equal to what readColorSlots derives, and absence is a problem', () => {
+  const { dir, put } = fixture();
+  try {
+    assert.match(derivedProblems(dir, repoRoot).join('\n'), /carries no contracts\/design\/color-slots\.derived\.json/);
+    put(DERIVED_SLOTS, '{}\n');
+    assert.match(derivedProblems(dir, repoRoot).join('\n'), /differs from what readColorSlots derives/);
+    put(DERIVED_SLOTS, derivedSlotsText(repoRoot));
+    assert.deepEqual(derivedProblems(dir, repoRoot), []);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('the contracts page names every group the package ships', () => {
+  const shipped = shippedGroups(expectedCarried(repoRoot));
+  assert.ok(shipped.includes('color-slots'), 'the groups read from the tree');
+  assert.ok(shipped.includes('palette.<polarity>') && shipped.includes('density.<name>'), 'the patterned groups');
+  const page = readFileSync(join(repoRoot, GROUP_PAGE), 'utf8');
+  assert.deepEqual(groupListProblems(page, shipped), [], 'the live page');
+  const rows = [
+    { name: 'a group dropped from the page', page: page.replace(/, color-slots \([^)]*\) and/, ' and'), found: 1 },
+    { name: 'a group the package does not ship', page: page.replace('effects,', 'effects, ghost,'), found: 1 },
+    { name: 'a page with no group list', page: 'nothing\n', found: 1 },
+  ];
+  for (const row of rows) assert.equal(groupListProblems(row.page, shipped).length, row.found, row.name);
 });

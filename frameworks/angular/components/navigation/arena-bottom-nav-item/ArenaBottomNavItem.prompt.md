@@ -56,11 +56,6 @@ attribute, so a reader still hears that it exists.
 - **Don't** format the badge yourself. A string would take the two rules away.
 - **Don't** write it outside an `arena-bottom-nav`. The item injects the bar. Without one there is no provider, and Angular throws rather than rendering a destination that can never be current.
 
-**By hand, in real Chromium.** Run `bun run demos` and open `/frameworks/angular/components/navigation/arena-bottom-nav/ArenaBottomNav.demo.generated.html` at 390px: - A destination with a badge of 0 shows none, and one of 4821 shows `99+`. Neither widens its column.
-- Tab reaches every destination once, in source order, and the disabled one announces itself as
-  disabled rather than being skipped.
-- A five-word label truncates with an ellipsis instead of pushing its neighbours out of line.
-
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
 **The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.

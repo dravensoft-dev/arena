@@ -7,9 +7,9 @@ import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
-import { tmpdir } from 'node:os';
-import { join, dirname } from 'node:path';
+import { join } from 'node:path';
 import { relPosix } from '../../utils/posix-path.ts';
+import { scratchTree } from '../../utils/scratch-tree.ts';
 import {
   EXEMPT, ICON_TOKEN, SCANNED_ROOTS, everyGlyph, untrackedRoots, scannedFiles, staleExemptions, tokenProblems,
   weightsFrom, zeroWeightProblems,
@@ -21,18 +21,15 @@ const ARENA_WEIGHTS = new Map([
   ['ph-fill', new Set(['ph-house', 'ph-gear'])],
 ]);
 
+const scratch = scratchTree('arena-icons');
+
 function tree(files: Record<string, string>) {
-  const root = mkdtempSync(join(tmpdir(), 'arena-icons-'));
+  const root = scratch.tree(files);
   const git = (...args: string[]) => {
     const done = spawnSync('git', args, { cwd: root, encoding: 'utf8' });
     assert.equal(done.status, 0, `git ${args.join(' ')}: ${done.stderr}`);
   };
   git('init', '-q');
-  for (const [rel, body] of Object.entries(files) as [string, string][]) {
-    const path = join(root, rel);
-    mkdirSync(dirname(path), { recursive: true });
-    writeFileSync(path, body);
-  }
   git('add', '-A');
   return root;
 }
@@ -91,9 +88,12 @@ test('the token pattern takes a class name and leaves ordinary prose alone', () 
   assert.deepEqual(of('ph-arrow-fat-line-up'), ['ph-arrow-fat-line-up']);
 });
 
-test('a stale exemption fails, the way every reason-carrying map here does', () => {
-  assert.deepEqual(staleExemptions(new Set()), [],
-    'nothing is exempt today, so nothing can be stale');
+test('an EXEMPT entry no scan saw is stale, and one it saw is not', () => {
+  const exempt = new Map([['x.svg', 'why']]);
+  const stale = staleExemptions(new Set(), exempt);
+  assert.equal(stale.length, 1, 'the entry is exempt and nothing saw it');
+  assert.match(stale[0] ?? '', /x\.svg/);
+  assert.deepEqual(staleExemptions(new Set(['x.svg']), exempt), []);
 });
 
 test('the walk skips the directories that hold copies, and takes the roots by name', () => {
@@ -158,7 +158,7 @@ test('a symbol id is not read as the bare glyph weight-name', () => {
 });
 
 test('glyph names resolve against @phosphor-icons/core', () => {
-  const cache = join(repoRoot, '.cache', 'plan-1.29');
+  const cache = join(repoRoot, '.cache', 'test-scratch');
   mkdirSync(cache, { recursive: true });
   const root = mkdtempSync(join(cache, 'icons-core-'));
   const assets = join(root, 'node_modules', '@phosphor-icons', 'core', 'assets');

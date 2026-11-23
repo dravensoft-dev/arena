@@ -52,16 +52,6 @@ How wide the window is comes from the design layer rather than from this compone
   element of your own around it.
 - Don't hide the arrows at the ends. The two are disabled there, which keeps the strip's width from changing as a consumer pages through it.
 
-**By hand, in real Chromium**, at `frameworks/angular/components/navigation/arena-pagination/ArenaPagination.demo.generated.html`, served with `bun run demos`: - Walk the 20-page strip to the middle and watch the window elide on **both** sides. Then walk to each end and watch it elide on one side only.
-- Tab through the strip. Every page and both arrows take focus in reading order, and each shows
-  the browser's own focus ring; this component adds none of its own.
-- At page 1 and at page 20 the outward arrow is dimmed and does not respond to a click, and the
-  strip does not change width.
-- The current page must be tellable from the others with the page desaturated, not by colour
-  alone: it is the only filled surface in the row.
-- With a screen reader, move by landmark: the two strips on the card announce as *Environments*
-  and *Deployments*, never as two identical ones.
-
 **Words.** `paginationPrevious` and `paginationNext` name the arrows. The landmark's name is `ariaLabel` and is always yours.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->

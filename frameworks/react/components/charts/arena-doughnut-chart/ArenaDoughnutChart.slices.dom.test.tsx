@@ -12,29 +12,12 @@ import { ArenaDoughnutChart } from './ArenaDoughnutChart.tsx';
 import { arenaToneColor } from '../../../DataVisuals.ts';
 import { forgetArenaWarnings } from '../../../WarnOnce.ts';
 import type { ArenaChartLegendLayout } from '../../../Api.generated';
+import { narrowWidths as widths } from '../../../test/NarrowWidths.ts';
 
 afterEach(cleanup);
 
 const LABELS = ['Retail', 'Wholesale', 'Consignment', 'Export'];
 const VALUES = [40, 25, 0, 35];
-
-function widths<T>(width: number, body: () => T): T {
-  const saved = globalThis.ResizeObserver;
-  globalThis.ResizeObserver = class {
-    callback: ResizeObserverCallback;
-    constructor(callback: ResizeObserverCallback) { this.callback = callback; }
-    observe(target: Element) {
-      this.callback([{ target, borderBoxSize: [{ inlineSize: width, blockSize: 0 }], contentRect: { width } }] as unknown as ResizeObserverEntry[], this as unknown as ResizeObserver);
-    }
-    unobserve() {}
-    disconnect() {}
-  } as unknown as typeof ResizeObserver;
-  try {
-    return body();
-  } finally {
-    globalThis.ResizeObserver = saved;
-  }
-}
 
 function render(options: { seen?: number[]; legendLayout?: ArenaChartLegendLayout } = {}) {
   return mount(
@@ -169,7 +152,7 @@ test('a toned doughnut is coloured by its tone and warns about nothing it was no
     <ArenaDoughnutChart labels={LABELS} series={[{ label: 'Revenue by channel', values: VALUES, tone: 'success' }]}
       label="Revenue by channel" />,
   ));
-  assert.deepEqual(messages.filter((m) => /mutually exclusive/.test(m)), []);
+  assert.deepEqual(messages, []);
   const tone = arenaToneColor('success');
   const paths = [...root.querySelectorAll('path')];
   assert.equal(paths.length, VALUES.filter((value) => value > 0).length, 'a zero-valued slice paints no path');

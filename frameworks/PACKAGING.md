@@ -83,8 +83,8 @@ It does the two jobs a project always did together, and a failure in the first s
 - **The fonts** write each local `src` cut to Latin-1 and the weights the build paints, as
   `<stem>-<hash>.woff2`, so the name changes exactly when the bytes do.
 
-**A cascade layer is what makes it work.** The package declares its colour and type defaults in
-`arena-defaults`, the first layer the order statement names. The consumer's generated file
+**A cascade layer is what makes it work.** The package declares its colour, type, spacing, density, icon and component-size
+defaults in `arena-defaults`, the first layer the order statement names. The consumer's generated file
 declares into `:root` unlayered, so the consumer's values win whatever order the two sheets load in.
 
 **The Phosphor web font is never bundled.** Arena's single-icon convention is a class name a

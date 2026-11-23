@@ -17,6 +17,7 @@ import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { ArenaIconButton } from './ArenaIconButton';
 import { assertPattern, ANGULAR_COMPONENTS } from '../../../test/Compliance';
+import { commandButtonVerdict, toggleButtonVerdict } from '../../../test/StateVerdicts';
 
 const BINDING = join(ANGULAR_COMPONENTS, 'forms/arena-icon-button/ArenaIconButton.behaviour.json');
 
@@ -25,7 +26,7 @@ const BINDING = join(ANGULAR_COMPONENTS, 'forms/arena-icon-button/ArenaIconButto
   imports: [ArenaIconButton],
   template: `<arena-icon-button icon="ph-bold ph-trash" label="Delete project"
                                 [disabled]="disabled" [showLabel]="showLabel" [pressed]="pressed"
-                                (activate)="clicks = clicks + 1" />`,
+                                (activate)="clicks = clicks + 1; pressed = pressed === undefined ? undefined : !pressed" />`,
 })
 class IconButtonHost {
   disabled = false;
@@ -146,7 +147,10 @@ test('arena-icon-button meets the button pattern', () => {
       root: host,
       bindingPath: BINDING,
       subjects: { default: control },
-      behavioural: { 'states.disabled': true, 'keyboard.Space': true, 'keyboard.Enter': true },
+      behavioural: {
+        'states.disabled': true, 'keyboard.Space': true, 'keyboard.Enter': true,
+        'states.pressed': commandButtonVerdict(control),
+      },
     });
   } finally {
     fixture.destroy();
@@ -158,6 +162,7 @@ test('no pressed member means no aria-pressed at all -- a plain button is not an
   try {
     assert.equal(control.getAttribute('aria-pressed'), null,
       'a control that is not a toggle announced itself as one that is off');
+    assert.equal(control.hasAttribute('data-arena-pressed'), false);
   } finally {
     fixture.destroy();
   }
@@ -167,6 +172,7 @@ test('pressed reflects both of its states, and the name never moves between them
   const on = render({ pressed: true });
   try {
     assert.equal(on.control.getAttribute('aria-pressed'), 'true');
+    assert.equal(on.control.hasAttribute('data-arena-pressed'), true);
     assert.equal(on.control.getAttribute('aria-label'), 'Delete project');
   } finally {
     on.fixture.destroy();
@@ -175,6 +181,7 @@ test('pressed reflects both of its states, and the name never moves between them
   const off = render({ pressed: false });
   try {
     assert.equal(off.control.getAttribute('aria-pressed'), 'false');
+    assert.equal(off.control.hasAttribute('data-arena-pressed'), false);
     assert.equal(off.control.getAttribute('aria-label'), 'Delete project',
       'a toggle that renames itself is announced as another control rather than the same one in another state');
   } finally {
@@ -190,10 +197,61 @@ test('a toggle still meets the button pattern in both of its states', () => {
         root: host,
         bindingPath: BINDING,
         subjects: { default: control },
-        behavioural: { 'states.disabled': true, 'keyboard.Space': true, 'keyboard.Enter': true },
+        behavioural: {
+          'states.disabled': true, 'keyboard.Space': true, 'keyboard.Enter': true,
+          'states.pressed': toggleButtonVerdict(control, pressed),
+        },
       });
     } finally {
       fixture.destroy();
     }
+  }
+});
+
+test('a command button with a stray aria-pressed fails the button pattern', () => {
+  const { fixture, host, control } = render();
+  try {
+    assert.equal(commandButtonVerdict(control), true, 'sanity: a command button carries no aria-pressed');
+    control.setAttribute('aria-pressed', 'false');
+    assert.equal(commandButtonVerdict(control), false, 'the verdict reads the stray attribute');
+    assert.throws(() => assertPattern({
+      root: host,
+      bindingPath: BINDING,
+      subjects: { default: control },
+      behavioural: {
+        'states.disabled': true, 'keyboard.Space': true, 'keyboard.Enter': true,
+        'states.pressed': commandButtonVerdict(control),
+      },
+    }), /states\.pressed/);
+  } finally {
+    fixture.destroy();
+  }
+});
+
+test('aria-pressed flips on click and a command button carries none', () => {
+  const toggle = render({ pressed: false });
+  try {
+    assert.equal(toggle.control.getAttribute('aria-pressed'), 'false', 'a toggle starts off and says so');
+    toggle.control.click();
+    toggle.fixture.detectChanges();
+    assert.equal(toggle.control.getAttribute('aria-pressed'), 'true', 'a click turns the toggle on');
+    toggle.control.click();
+    toggle.fixture.detectChanges();
+    assert.equal(toggle.control.getAttribute('aria-pressed'), 'false', 'a second click turns it off again');
+    assert.equal(toggle.control.getAttribute('aria-label'), 'Delete project', 'the label never changes with the state');
+    assert.equal(commandButtonVerdict(toggle.control), false, 'sanity: the verdict reads false on a toggle');
+  } finally {
+    toggle.fixture.destroy();
+  }
+
+  const command = render();
+  try {
+    command.control.click();
+    command.fixture.detectChanges();
+    assert.equal(command.fixture.componentInstance.clicks, 1, 'sanity: the click reached the host');
+    assert.equal(commandButtonVerdict(command.control), true,
+      'a command button carries no aria-pressed, before or after a click');
+  } finally {
+    command.fixture.destroy();
   }
 });

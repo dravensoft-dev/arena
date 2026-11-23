@@ -52,7 +52,7 @@ export class ArenaToast {
   readonly title = input<string>();
   /** The body. */
   readonly message = input<string>();
-  /** The side bar's colour: neutral reports no outcome, success and danger report one. Whether the toast announces assertively. */
+  /** The side bar's colour: neutral reports no outcome, success and danger report one. A danger toast is an alert, announced assertively. Neutral and success are a status, announced politely. */
   readonly tone = input<ArenaToastTone, ArenaToastTone | undefined>(
     'neutral',
     { transform: (value) => value ?? 'neutral' },

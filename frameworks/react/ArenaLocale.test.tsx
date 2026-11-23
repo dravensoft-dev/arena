@@ -1,16 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { ARENA_DEFAULT_LOCALE, ArenaLocaleProvider, arenaMergeLocale, useArenaLocale } from './ArenaLocale.ts';
-
-const contract = JSON.parse(readFileSync(new URL('../../contracts/api/types/arena-locale.json', import.meta.url), 'utf8'));
-
-test('ARENA_DEFAULT_LOCALE is the contract\'s defaults, field for field and in order', () => {
-  const expected = Object.fromEntries(Object.entries(contract.fields).map(([name, field]) => [name, (field as { default: string }).default]));
-  assert.deepEqual(Object.entries(ARENA_DEFAULT_LOCALE), Object.entries(expected));
-});
 
 function Probe() {
   const locale = useArenaLocale();

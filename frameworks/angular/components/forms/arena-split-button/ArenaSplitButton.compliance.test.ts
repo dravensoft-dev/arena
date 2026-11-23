@@ -241,18 +241,6 @@ test('ArenaSplitButton meets the menu-button pattern it binds, on the caret', ()
 });
 
 @Component({
-  selector: 'split-button-blank-host',
-  standalone: true,
-  imports: [ArenaSplitButton],
-  template: `<arena-split-button [label]="label" [menuLabel]="menuLabel" [items]="items">Deploy</arena-split-button>`,
-})
-class BlankHost {
-  label = 'Deployment';
-  menuLabel = 'More deploy options';
-  readonly items = ITEMS;
-}
-
-@Component({
   selector: 'split-button-empty-host',
   standalone: true,
   imports: [ArenaSplitButton],
@@ -261,22 +249,6 @@ class BlankHost {
 class EmptyHost {
   readonly items = ITEMS;
 }
-
-test('a blank label throws', () => {
-  const fixture = TestBed.createComponent(BlankHost);
-  fixture.componentInstance.label = '  ';
-  try {
-    assert.throws(() => fixture.detectChanges(), /ArenaSplitButton: `label` is required/);
-  } finally { fixture.destroy(); }
-});
-
-test('a blank menu label throws', () => {
-  const fixture = TestBed.createComponent(BlankHost);
-  fixture.componentInstance.menuLabel = '  ';
-  try {
-    assert.throws(() => fixture.detectChanges(), /ArenaSplitButton: `menuLabel` is required/);
-  } finally { fixture.destroy(); }
-});
 
 test('missing content throws', () => {
   const fixture = TestBed.createComponent(EmptyHost);

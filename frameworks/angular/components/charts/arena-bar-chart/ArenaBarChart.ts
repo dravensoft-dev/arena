@@ -1,14 +1,14 @@
 import {
   afterRenderEffect, booleanAttribute, ChangeDetectionStrategy, Component, computed, ElementRef, inject, input, signal, viewChild,
 } from '@angular/core';
-import { arenaContainerWidth } from '../../../ContainerSize';
-import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, ARENA_SR_ONLY, arenaPlotWidth, arenaRailStyle, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals';
+import { arenaContainerWidth, arenaReadTextScale } from '../../../ContainerSize';
+import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, ARENA_SR_ONLY, arenaTextRoom, arenaPlotWidth, arenaRailStyle, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals';
 import {
   arenaLinearScale, arenaBandScale, arenaBandStart, arenaBandCenter, arenaBandIndex, arenaBandMark, arenaBandSubBand,
   arenaScaleValue,
 } from '../ChartScales';
 import { arenaBarPath } from '../ChartMarks';
-import { arenaPlotBox, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY, arenaValueGutter } from '../ChartAxis';
+import { arenaPlotBox, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY, arenaValueGutter, arenaLabelStride } from '../ChartAxis';
 import {
   arenaChartTable, arenaSeriesColors, arenaSwatchChoice, arenaSeriesDomain, arenaSeriesPointCount, arenaStackSegments, arenaStackDomain,
 } from '../ChartSeries';
@@ -77,7 +77,7 @@ const BAR_STYLE = { transition: 'opacity var(--dur-hover) var(--ease-hover)' } a
             fill="transparent" (pointermove)="onPointer($event, 'move')" (pointerdown)="onPointer($event, 'down')"
             (pointerleave)="onPointerLeave($event)" (pointercancel)="hover.set(null)" />
 
-      @for (bar of bars(); track bar.index) {
+      @for (bar of categoryLabels(); track bar.index) {
         <text [attr.x]="bar.midX" [attr.y]="categoryLabelY()" text-anchor="middle"
               [attr.fill]="inkMuted" font-family="var(--font-body)"
               [style]="categoryLabelStyle">{{ bar.label }}</text>
@@ -121,11 +121,11 @@ const BAR_STYLE = { transition: 'opacity var(--dur-hover) var(--ease-hover)' } a
 })
 export class ArenaBarChart {
   protected readonly locale = inject(ARENA_LOCALE);
-  /** One label per category, in the same order as every series' `values`. A category with no value in a series is drawn for the series that do have one. */
+  /** One label per category, in the same order as every series' `values`. A category with no value in a series is drawn for the series that do have one. Every n-th label is drawn when the labels do not fit their band, and the data table carries all of them. */
   readonly labels = input.required<readonly string[]>();
-  /** The plotted series, drawn as one group of bars per category. One series is the common case and draws one bar per category. Two or more share each category's band, so the bars of one category stand side by side and the reader compares within a category before comparing across. After the last slot the positional count starts again at the first, so fold a ninth series into "Other" upstream. */
+  /** The plotted series, drawn as one group of bars per category. One series is the common case and draws one bar per category. Two or more share each category's band, so the bars of one category stand side by side and the reader compares within a category before comparing across. After the last ramp colour the positional count starts again at the first, so fold a ninth series into "Other" upstream. */
   readonly series = input.required<readonly ArenaSeries[]>();
-  /** The ramp slot the first series takes when it names no colour of its own. Each later series takes the next slot, and after the last slot the count starts again at the first. A series' `colorId` or `colorIds` keeps the slot it names. Absent, 1. */
+  /** The ramp colour the first series takes when it names no colour of its own. Each later series takes the next ramp colour, and after the last ramp colour the count starts again at the first. A series' `colorId` or `colorIds` keeps the ramp colour it names. Absent, 1. */
   readonly colorStart = input<ArenaCatSlot, ArenaCatSlot | undefined>(
     1,
     { transform: (value) => value ?? 1 },
@@ -148,6 +148,7 @@ export class ArenaBarChart {
   /** The narrowest gap, in px, the chart draws between two adjacent points. Below it the chart stops compressing and overflows its container horizontally instead, scrolled and anchored to the most recent point. Marker spacing is a legibility constant, not something that yields to the viewport, and thirty days in 390px is unreadable at any font size. Absent, the chart fits whatever width it is given. The rail it scrolls in is the same region the data cursor lives in, and it is keyboard-reachable whether it overflows or not. */
   readonly minPointSpacing = input<number>();
 
+  private readonly room = arenaTextRoom(arenaReadTextScale());
   protected readonly parts = manifest.parts;
   protected readonly styles = arenaBarChartStyles();
   protected readonly arenaSrOnly = ARENA_SR_ONLY;
@@ -169,7 +170,7 @@ export class ArenaBarChart {
   private readonly available = computed(() => this.measured() ?? ASSUMED_WIDTH);
 
   protected readonly width = computed(
-    () => arenaPlotWidth(this.available(), this.points(), this.minPointSpacing()),
+    () => arenaPlotWidth(this.available(), this.points(), this.minPointSpacing(), this.room),
   );
 
   protected readonly scrolls = computed(() => this.width() > this.available());
@@ -189,12 +190,12 @@ export class ArenaBarChart {
     () => (this.stack() ? arenaStackDomain(this.series()) : arenaSeriesDomain(this.series())),
   );
   private readonly points = computed(() => arenaSeriesPointCount(this.series()));
-  private readonly strip = computed(() => arenaLegendStrip(this.height(), this.series().length));
+  private readonly strip = computed(() => arenaLegendStrip(this.height(), this.series().length, false, this.room));
   protected readonly plotH = computed(() => this.strip().plotH);
   protected readonly stripH = computed(() => this.strip().stripH);
-  private readonly gutter = computed(() => arenaValueGutter(this.domain(), this.write()));
+  private readonly gutter = computed(() => arenaValueGutter(this.domain(), this.write(), this.room));
 
-  private readonly box = computed(() => arenaPlotBox(this.width(), this.strip().plotH, this.gutter()));
+  private readonly box = computed(() => arenaPlotBox(this.width(), this.strip().plotH, this.gutter(), this.room));
   protected readonly plotLeft = computed(() => this.box().x);
   protected readonly plotRight = computed(() => this.box().x + this.box().w);
   protected readonly plotTop = computed(() => this.box().y);
@@ -219,6 +220,11 @@ export class ArenaBarChart {
   protected readonly zeroY = computed(() => this.axis().zeroY);
   protected readonly gridLines = computed(() => this.axis().ticks);
 
+  protected readonly categoryLabels = computed(() => {
+    const stride = arenaLabelStride(this.bands().step, this.labels(), this.room);
+    return this.bars().filter((bar) => bar.index % stride === 0);
+  });
+
   protected readonly bars = computed(() => {
     const series = this.series();
     const bands = this.bands();
@@ -242,7 +248,7 @@ export class ArenaBarChart {
             path: arenaBarPath(arenaBandMark(bands, index), bands.band,
               arenaScaleValue(yScale, segment.to), arenaScaleValue(yScale, segment.from),
               segment.outer ? BAR_RADIUS : 0),
-            color: arenaSeriesColors(one, this.points(), arenaCatRotate(this.colorStart(), segment.seriesIndex), 'ArenaBarChart', this.colorStart())[index],
+            color: arenaSeriesColors(one, this.points(), arenaCatRotate(this.colorStart(), segment.seriesIndex), this.colorStart())[index],
             value: write(one.values[index] as number),
           };
         })
@@ -256,7 +262,7 @@ export class ArenaBarChart {
             y,
             name: series.length > 1 ? `${one.label}: ` : '',
             path: arenaBarPath(sub.x, sub.width, y, zeroY, BAR_RADIUS),
-            color: arenaSeriesColors(one, this.points(), arenaCatRotate(this.colorStart(), s), 'ArenaBarChart', this.colorStart())[index],
+            color: arenaSeriesColors(one, this.points(), arenaCatRotate(this.colorStart(), s), this.colorStart())[index],
             value: write(value),
           }];
         }),

@@ -21,13 +21,16 @@ Arena's stylesheet is served by `https://arena.dravensoft.org` and Phosphor's tw
   <style>
     body { margin: 0; background: var(--fill-page); color: var(--ink-body); font-family: var(--font-body); }
     main { max-width: var(--measure-prose); margin: 0 auto; padding: var(--sp-10) var(--sp-6); }
-    h1 { font-family: var(--font-display); font-weight: var(--fw-black); font-size: var(--fs-h2);
+    h1 { font-family: var(--font-display); font-weight: var(--fw-black); font-size: var(--step-title-section);
          color: var(--ink-heading); letter-spacing: var(--ls-tight); margin: 0 0 var(--sp-4); }
     p { color: color-mix(in oklab, var(--ink-muted) var(--level-ink-muted), transparent);
         line-height: var(--lh-body); }
     .card { background: var(--fill-surface); border: var(--bw-surface) solid var(--edge-surface);
             border-radius: var(--r-surface); padding: var(--sp-4); }
     .card i { color: var(--accent-primary-ink); }
+    button { font: inherit; margin-top: var(--sp-4); background: var(--emphasis-primary-fill);
+             color: var(--emphasis-primary-ink); border: var(--bw-control) solid var(--emphasis-primary-edge);
+             border-radius: var(--r-control); padding: var(--pad-control-y) var(--pad-control-x); }
   </style>
 </head>
 <body>
@@ -35,6 +38,7 @@ Arena's stylesheet is served by `https://arena.dravensoft.org` and Phosphor's tw
     <h1><i class="ph-bold ph-rocket-launch"></i> Release review</h1>
     <p>Three changes ship this week.</p>
     <div class="card"><i class="ph-fill ph-star"></i> Pinned by the team</div>
+    <button type="button">Approve release</button>
   </main>
 </body>
 </html>
@@ -62,10 +66,10 @@ A page with no network needs the glyph sheets locally. Install `@phosphor-icons/
 ## What the stylesheet carries
 
 `intro/styles.css` carries tokens, the default style plugin and a reset, and no component class and no
-vocabulary class. The page above uses the roles [`page.md`](./page.md) teaches. The floor is
+vocabulary class. The page above uses the roles of [the markup tree](./tokens/markup/index.md). The floor is
 `--fill-page`, a card is `--fill-surface` with `--edge-surface`, `--bw-surface` and `--r-surface`, and
 the text takes `--ink-heading`, `--ink-body` and `--ink-muted`. `--measure-prose` is the column's width,
-and `--accent-primary-ink` colours the icon. The type roles are `--font-display` and `--font-body`
+and `--accent-primary-ink` colours the icon. The one primary action takes `--emphasis-primary-fill`, `--emphasis-primary-ink` and `--emphasis-primary-edge`, with `--bw-control`, `--r-control`, `--pad-control-x` and `--pad-control-y`. A second action takes the three `--emphasis-secondary-*` roles. The type roles are `--font-display` and `--font-body`
 with `--fs-*`, `--fw-*`, `--ls-*` and `--lh-*`, and the spacing steps are `--sp-*`. The reset makes
 every box `border-box`. A class such as `arena-stack` is an Arena vocabulary class. The package ships
 it in its `css/vocabulary/` sheets and `intro/styles.css` does not import those, so a static page

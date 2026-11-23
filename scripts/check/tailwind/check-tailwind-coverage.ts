@@ -10,10 +10,12 @@ import { readFamilies, VOCABULARY_DIR, FAMILY_SUFFIX } from '../../lib/tailwind/
 import type { Family } from '../../lib/tailwind/vocabulary.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { ROOT_PLUGIN } from '../core/check-style-plugin.ts';
+import { COLOR_SLOTS, readColorSlots } from '../../lib/core/color-slots.ts';
+import { fadeMarkers } from '../../generate/core/arena-cli/slots.ts';
 
 export const node = {
   name: 'check:coverage',
-  reads: [...PRESET, 'contracts/design/colors.css', MANIFESTS, HUES_FILE, ROOT_PLUGIN, `${VOCABULARY_DIR}/**/*${FAMILY_SUFFIX}`],
+  reads: [...PRESET, 'contracts/design/colors.css', MANIFESTS, HUES_FILE, ROOT_PLUGIN, `${VOCABULARY_DIR}/**/*${FAMILY_SUFFIX}`, 'contracts/design/color-slots.json'],
   writes: [],
   feeds: [],
 };
@@ -27,6 +29,10 @@ export const EXCLUDED = new Map([
   ['title-hero-fit', 'a computed size the hero reaches through an arbitrary length, text-[length:var(--title-hero-fit)], '
     + 'restated on every plugin class so a nested plugin keeps it; no utility offers it'],
   ['pad-band-x', 'read inside the band\'s min()'],
+  ['blend-hover', 'the kernel default of the mix-hover role, which no part reads directly; no utility offers a number'],
+  ['blend-pressed', 'the kernel default of the mix-pressed role, which no part reads directly; no utility offers a number'],
+  ['mix-hover', 'a share a part reads inside color-mix(), as var(--mix-hover); no utility offers a number'],
+  ['mix-pressed', 'a share a part reads inside color-mix(), as var(--mix-pressed); no utility offers a number'],
   ['pad-row-indent', 'only the side nav\'s arbitrary inset reads it'],
   ['sp-0', 'p-0 compiles to a literal 0px in v4 regardless of the theme'],
   ['sp-0-5', 'the half step under the grid, which only the kernel default of pad-key-y names; a cap reaches it '
@@ -76,9 +82,15 @@ export const EXCLUDED = new Map([
   ['bw-separator', 'the same, as border-t-[length:var(--bw-separator)] and its per-side siblings, which is the only shape a separator takes'],
   ['bw-surface-head', 'the same, as border-b-[length:var(--bw-surface-head)], which is the only side the rule under a head is drawn on'],
   ['bw-marker', 'the same, as border-[length:var(--bw-marker)]'],
+  ['bw-focus', 'no ring-width namespace takes a role; reached as ring-[length:var(--bw-focus)] or outline-[length:var(--bw-focus)]'],
+  ['gap-focus', 'the same, as ring-offset-[var(--gap-focus)] or outline-offset-[var(--gap-focus)]'],
+  ['fade-disabled', 'v4 has no opacity namespace; reached as opacity-[var(--fade-disabled)]'],
+  ['opacity-disabled', 'the scale behind fade-disabled; markup reads the role'],
   ['lift-control', 'a travel distance rather than a length on the spacing grid, so no @theme namespace owns it; reached as hover:-translate-y-[var(--lift-control)], the shape check:arbitrary accepts for a value with no namespace'],
   ['dur-hover', 'v4 has no duration namespace, the same wall dur-mid meets; reached as duration-[var(--dur-hover)]'],
   ['dur-state', 'the same, as duration-[var(--dur-state)]'],
+  ['dur-enter-deep', 'the same, as duration-[var(--dur-enter-deep)]'],
+  ['dur-enter-floating', 'the same, as duration-[var(--dur-enter-floating)]'],
   ['focus-width', 'no namespace — the focus ring is composed, not a single utility'],
   ['focus-offset', 'no namespace — the focus ring is composed, not a single utility'],
   ['tint-area', 'script-readable: a ratio JS interpolates into a color-mix() string, and v4 has no namespace for one'],
@@ -105,7 +117,9 @@ export const EXCLUDED = new Map([
   ['chart-legend-gap', 'script-readable: subtracted from a measured width to size the plot'],
   ['chart-pad-category', 'script-readable: subtracted from the measured width to size a horizontal chart\'s plot, and the same number places the category label at its right edge'],
   ['chart-tick-char', 'script-readable: multiplied by a tick label\'s length to size the value gutter, which is arithmetic over a string and not a length any element wears'],
+  ['chart-label-char', 'script-readable: multiplied by a radar spoke label\'s length to budget its width against the room beside the ring, arithmetic over a string and not a length any element wears'],
   ['chart-legend-strip', 'script-readable: subtracted from the chart height to size the plot, and the same number is the strip\'s own height, so one utility could carry at most half of it'],
+  ['chart-gauge-reading-descent', 'script-readable: multiplied by the text scale in JS to drop the gauge band word below its reading, an SVG text y and never a utility'],
   ['chart-label-gap', 'script-readable: subtracted from a pad or a height in JS to place an SVG text x/y, never a utility'],
   ['chart-ring-inset', 'script-readable: subtracted from half the plot box in JS to size the doughnut\'s outer radius, never a utility'],
   ['calendar-hour-h', 'script-readable in both layers: JS projects a minute-of-day onto a pixel offset from it, and the chip and the hour cell it sits over must agree to the pixel, which only one shared number gives them'],
@@ -114,9 +128,12 @@ export const EXCLUDED = new Map([
   ['calendar-time-min-h', 'script-readable in both layers: compared in JS against a chip\'s projected pixel height to decide whether its time label fits vertically. Never rendered as a length'],
   ['calendar-time-min-w', 'script-readable in both layers: compared in JS against a chip\'s column share to decide whether its time label fits horizontally. Never rendered as a length'],
   ['calendar-actions-below-min-h', 'script-readable in both layers: compared in JS against a chip\'s projected pixel height to decide whether its kebab can sit below its title instead of beside it. Never rendered as a length'],
+  ['panel-row-floor', 'script-readable in both layers: compared in JS against the room beside an anchored panel\'s anchor to decide the least height its cap leaves. Never rendered as a length, so no utility could carry it'],
   ['onboarding-height-reserve', 'script-readable: subtracted from window.innerHeight in JS to decide how far the coachmark follows its anchor. Unlike onboarding-width it is never rendered as a length either, so no utility could carry it'],
   ['press-scale', 'a transform scale rather than a length, so no @theme namespace owns it -- both layers read it out of the shared ArenaButton manifest as active:scale-[var(--press-scale)]. This gate checks theme keys, and a bracket referencing the custom property directly is the correct shape for a value with no namespace. A role since the motion tier was completed, and the same wall lift-control meets one line up: a role reaches a manifest through whatever shape the property takes, and having a namespace is not one of the things that makes it a role'],
   ['onboarding-width', 'script-readable: compared against window.innerWidth by Math.min/Math.max. Rendered directly as var(--onboarding-width) in both layers — React inline, Angular via the shared manifest\'s w-[var(--onboarding-width)] — never through the @theme spacing scale this gate checks'],
+  ['unauth-card-width', 'read as var(--unauth-card-width) by the card\'s manifest, max-w-[calc(var(--unauth-card-width)+var(--bw-surface)*2)], and never through the @theme spacing scale this gate checks'],
+  ['confirm-dialog-width', 'read as var(--confirm-dialog-width) by the dialog\'s manifest, w-[var(--confirm-dialog-width)], and never through the @theme spacing scale this gate checks'],
   ['delay-open', 'script-readable: a setTimeout argument for pointer intent, never a utility'],
   ['delay-close', 'script-readable: a setTimeout argument for pointer intent, never a utility'],
   ['delay-typeahead', 'script-readable: a setTimeout argument for typed characters, never a utility'],
@@ -131,6 +148,13 @@ export const EXCLUDED = new Map([
   ['color-heat-3', HEAT_KEY_REASON],
   ['color-heat-4', HEAT_KEY_REASON],
   ['color-heat-5', HEAT_KEY_REASON],
+  ...['fill-control', 'fill-control-on', 'fill-knob', 'fill-knob-off', 'ink-knob', 'ink-knob-off'].map((role): [string, string] => [role,
+    'a choices role, the default at the end of a choices slot chain a member reads inline, so no utility is named after it']),
+  ...['fill-tip', 'ink-tip'].map((role): [string, string] => [role,
+    'an overlays role, the default at the end of the overlays tip slot chain the tooltip reads inline, so no utility is named after it']),
+  ['fill-marker', 'a navigation role, the default at the end of the navigation badge slot chain a member reads inline, so no utility is named after it'],
+  ...['fill-mark', 'edge-mark', 'ink-on-mark', 'fill-tile'].map((role): [string, string] => [role,
+    'a marks role, the default at the end of a marks dot or tile slot chain a member reads inline, so no utility is named after it']),
 ]);
 
 for (const [hue, channels] of readHues()) {
@@ -162,7 +186,8 @@ export function optionRoles(roles: Iterable<string>, families: Iterable<Pick<Fam
 }
 
 export function pluginOptionRoles(root = repoRoot) {
-  const roles = Object.keys(readJson(join(root, ROOT_PLUGIN)) as object);
+  const slots = slotTier(root);
+  const roles = Object.keys(readJson(join(root, ROOT_PLUGIN)) as object).filter((name) => !slots.has(name));
   const families = [...readFamilies(root).values()];
   return { roles, excluded: optionRoles(roles, families), families };
 }
@@ -176,11 +201,23 @@ export function presetTokens(css: string) {
   return out;
 }
 
+export function slotTier(root = repoRoot): Set<string> {
+  const catalogue = readColorSlots(root);
+  const names = Object.keys(catalogue.slots);
+  return new Set([...names, ...fadeMarkers(names, catalogue).map(([name]) => name.slice(2))]);
+}
+
 export function checkCoverage(
   tokens: Set<string>, exposed: Set<string>, excluded: Map<string, string>, known: Set<string> = tokens,
+  slots: ReadonlySet<string> = new Set(),
 ) {
   const errs = [];
   for (const t of [...tokens].sort()) {
+    if (slots.has(t)) {
+      if (exposed.has(t)) errs.push(`--${t} is a colour slot or its fade marker, which a part reads inside its own chain, so the preset exposes no utility for it`);
+      if (excluded.has(t)) errs.push(`--${t} is declared by the slot tier in ${COLOR_SLOTS}, so it needs no exclusion`);
+      continue;
+    }
     const isExposed = exposed.has(t);
     const isExcluded = excluded.has(t);
     if (isExposed && isExcluded) errs.push(`--${t} is both exposed and excluded — drop the exclusion`);
@@ -199,13 +236,15 @@ function main() {
   const preset = readFileSync(join(repoRoot, 'frameworks/tailwind/Theme.css'), 'utf8');
   const exposed = presetTokens(preset);
   const excluded = new Map([...EXCLUDED, ...pluginOptionRoles().excluded]);
-  const errs = checkCoverage(tokens, exposed, excluded, arenaTokenNames(repoRoot));
+  const slots = slotTier();
+  const errs = checkCoverage(tokens, exposed, excluded, arenaTokenNames(repoRoot), slots);
   if (errs.length) {
     console.error(`check-tailwind-coverage: ${errs.length} token(s) undeclared\n`);
     for (const e of errs) console.error(`  ${e}`);
     process.exit(1);
   }
-  console.log(`check-tailwind-coverage: ${tokens.size} token(s) — ${exposed.size} exposed, ${excluded.size} excluded on the record`);
+  const tier = [...tokens].filter((t) => slots.has(t)).length;
+  console.log(`check-tailwind-coverage: ${tokens.size} token(s) — ${exposed.size} exposed, ${excluded.size} excluded on the record; ${tier} declared by the slot tier`);
 }
 
 if (isMainModule(import.meta.url)) main();

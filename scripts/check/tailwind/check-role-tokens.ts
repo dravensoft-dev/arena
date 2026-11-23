@@ -1,10 +1,13 @@
-/* Fails on a scale utility standing where a role belongs, on a slot that declares no kind, on a
- * numeric padding, gap or margin step, and on a padding, gap or radius role its kind does not
- * spend. A role says WHICH air or corner is asked about, so a style plugin can answer it; the
- * kind of a slot says which roles it may ask. Scale utilities are banned by utility name, and a
- * border width, a duration and an easing by token name. SCALE_USES records the places that
- * genuinely mean the value, one entry per case with its reason, keyed by component, slot and
- * utility, and an entry no manifest carries any more fails as stale. */
+/* Fails on a scale utility standing where a role belongs, on a slot that declares no kind, on a numeric
+ * padding, gap or margin step, and on a padding, gap or radius role its kind does not spend. A role says
+ * WHICH air or corner is asked about, so a style plugin can answer it; the kind of a slot says which roles
+ * it may ask. Scale utilities are banned by utility name, and a border width, a duration and an easing by
+ * token name. SCALE_USES records the places that genuinely mean the value, keyed by component, slot and
+ * utility, and a stale entry fails. A state is never drawn with a literal either: an opacity step, an
+ * arbitrary literal opacity or a /<digits> or /[literal] alpha, with or without an important mark, on a
+ * state branch or under a state modifier (a group- or peer- form and data-[state=...] included) fails,
+ * since a state role carries the level. STATE_LITERALS ships empty. A palette utility, or a --color-<key>
+ * read in an arbitrary value, fails in every manifest, and no list excuses it. */
 
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
@@ -15,6 +18,7 @@ import { classStringsBySlot } from '../arena/check-manifest-states.ts';
 import type { ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';
 import { KINDS, KIND_AIR, KIND_FREE, kindProblems } from '../../lib/tailwind/slot-kinds.ts';
 import type { SlotKind } from '../../lib/tailwind/slot-kinds.ts';
+import { PALETTE_KEYS } from '../../generate/core/arena-cli/palette-keys.ts';
 import { MANIFESTS } from '../../build/tailwind/build-tailwind.ts';
 
 export const node = {
@@ -35,17 +39,12 @@ export const SCALE_UTILITIES = new Map<string, string>([
   ['shadow-2', 'shadow-surface-floating or shadow-control-raised'],
   ['shadow-3', 'shadow-surface-deep'],
   ['shadow-none', 'nothing at all, when the branch means the depth the slot already paints'],
-  ['bg-base-200', 'bg-surface or bg-surface-floating, when the slot IS the surface'],
-  ['bg-base-300', 'bg-track, when the slot is the ground a value or a segment sits in, or bg-edge-separator when it is a rule drawn as a filled strip'],
   ['p-5', 'p-surface, when the slot is the room a surface gives its own content'],
   ['px-5', 'px-surface, for the same reason'],
   ['font-extrabold', 'font-heading, when the slot IS a heading in the display face'],
   ['tracking-tight', 'tracking-heading, for the same reason'],
   ['leading-body', 'leading-prose, when the slot is text somebody reads'],
   ['ease-out', 'ease-hover or ease-state, whichever duration the same transition names'],
-  ['text-base-content', 'text-ink-heading, text-ink-body or text-ink-muted, whichever text this is'],
-  ['border-base-300', 'an edge role: border-edge-surface, -field, -separator or -control-quiet'],
-  ['border-neutral', 'an edge role: border-edge-surface-floating, -control or -marker'],
   ['uppercase', 'case-eyebrow or case-label, so a style plugin can set the register in sentence case'],
   ['font-mono', 'font-face-eyebrow or font-face-label, when the slot is a register rather than a figure'],
   ['font-display', 'font-face-heading, when the slot is a heading rather than the brand itself'],
@@ -59,15 +58,22 @@ export const SCALE_UTILITIES = new Map<string, string>([
   ['tracking-column-header', 'tracking-label-role, since a column header is the register\'s own text'],
   ['tracking-badge', 'tracking-label-role, when the slot is in the label register rather than a figure'],
   ['tracking-uppercase-status', 'tracking-label-role, when the slot names a thing rather than reports a state'],
-  ['text-neutral', 'an ink role: text-ink-muted, text-ink-body or text-ink-heading, whichever text this is'],
   ['--bw', '--bw-surface, --bw-control, --bw-field, --bw-marker or --bw-separator'],
   ['--dur-fast', '--dur-hover'],
   ['--dur-mid', '--dur-state'],
   ['--ease-out', '--ease-hover or --ease-state, inside an arbitrary [transition:...] property'],
 ]);
 
+export const PALETTE_HINTS = new Map<string, string>([
+  ['bg-base-200', 'bg-surface or bg-surface-floating, when the slot IS the surface'],
+  ['bg-base-300', 'bg-track, when the slot is the ground a value or a segment sits in, or bg-edge-separator when it is a rule drawn as a filled strip'],
+  ['text-base-content', 'text-ink-heading, text-ink-body or text-ink-muted, whichever text this is'],
+  ['border-base-300', 'an edge role: border-edge-surface, -field, -separator or -control-quiet'],
+  ['border-neutral', 'an edge role: border-edge-surface-floating, -control or -marker'],
+  ['text-neutral', 'an ink role: text-ink-muted, text-ink-body or text-ink-heading, whichever text this is'],
+]);
+
 export const SCALE_USES = new Map<string, string>([
-  ['ArenaPaletteScope:root:text-base-content', 'the ink an island paints in its own palette, which is the palette\'s base-content by definition: the island is the one slot that names the palette\'s ink itself, where an ink role is an assignment a style plugin answers for a kind of text'],
   ['ArenaDialog:panel:shadow-none', 'the panel of a dialog filling a narrow screen, which is the screen and has no depth: the literal cancels the deep role the panel paints everywhere else rather than answering a role of its own'],
   ['ArenaSideNav:item:ps-[calc(var(--pad-nav-row-x)*var(--dz-row-scale-x)+var(--pad-row-indent)*var(--arena-side-nav-depth,0))]', 'the inline start of a row that nests, at the row inset plus one indent step per level the component writes: it sizes the nesting depth, not the room around content, so it is this slot\'s own length'],
   ['ArenaSideNav:trigger:ps-[calc(var(--pad-nav-row-x)*var(--dz-row-scale-x)+var(--pad-row-indent)*var(--arena-side-nav-depth,0))]', 'the inline start of the trigger of a collapsible section, at the row inset plus one indent step per level the component writes: it sizes the nesting depth, not the room around content, so it is this slot\'s own length'],
@@ -80,20 +86,9 @@ export const SCALE_USES = new Map<string, string>([
   ['ArenaToast:action:tracking-uppercase-status', 'the same word on a toast'],
   ['ArenaOnboarding:text:tracking-uppercase-status', 'the step a coachmark reports, which is a reading of where somebody is in a sequence'],
   ['ArenaCalendar:hourLabel:tracking-uppercase-status', 'the hour down the side of a day, which is a clock being read rather than a column being named'],
-  ['ArenaAlert:icon:text-neutral', 'one branch of a tone variant whose other branches are the status colours, so the value is the tone the caller asked for rather than a colour this slot chose'],
-  ['ArenaAlert:action:text-neutral', 'the same tone on the word beside that glyph'],
   ['ArenaAvatar:box:rounded-md', 'the team branch of the kind variant, whose person branch is the pill, so the value is the shape that says a team rather than a surface tier'],
   ['ArenaSegmentedControl:segment:shadow-1', 'the lift that tells the selected segment from its track, and the one place a control carries depth at rest rather than under a pointer'],
   ['ArenaCalendar:chip:--bw', 'arithmetic rather than a border: the chip reserves room for the kebab beside it with calc(--dz-ctl-h-sm + --bw*2), so the token is a length being added up and not an edge this slot draws'],
-  ['ArenaTabs:tab:shadow-none', 'cancels the inset rule the selected branch draws under a tab, and the slot paints no depth role for it to override. A tab has no resting depth to restore, so the literal is the whole answer here rather than a value written over a role'],
-  ['ArenaBulkActionBar:action:bg-base-200', 'the hover fill of a control INSIDE a floating surface: a control the user presses rather than a region something is placed inside, which is why it must not follow that surface when a style plugin moves it'],
-  ['ArenaInput:field:bg-base-200', 'the readonly state of a field, which says a control cannot be typed into by matching the surface it sits on. It is a state of a control, not the surface itself, and a style plugin that moved it would be re-answering readonly rather than re-answering grouping'],
-  ['ArenaNumberField:field:bg-base-200', 'the readonly state of a number field, the surface ArenaInput:field:bg-base-200 gives a field that cannot be typed into'],
-  ['ArenaTextarea:field:bg-base-200', 'the same readonly state, for the same reason'],
-  ['ArenaCheckbox:box:bg-base-300', 'the ground of a control that is not set yet, which is the fill of a thing the user presses rather than of a region something is placed inside. It is the reason ArenaButton:root:bg-base-200 carries one step over, and a style plugin re-answering its tracks has said nothing about whether an unchecked box reads as empty'],
-  ['ArenaRadio:ring:bg-base-300', 'the same unset ground, one control over'],
-  ['ArenaSideNav:badge:bg-base-300', 'the same marker ground, on the count beside a navigation row that is not current'],
-  ['ArenaAvatar:box:bg-base-300', 'the ground a monogram or a missing photograph sits on, which is a marker ground for the reason above and is the same slot that keeps font-display and font-extrabold for standing in for a face'],
 
   ['ArenaAvatar:box:font-extrabold', 'a monogram rather than a heading: two letters standing in for a face, weighted to read at 12px inside a circle. A style plugin that lightened its headings has said nothing about initials'],
   ['ArenaAppLogo:name:tracking-tight', 'the wordmark, which is the brand set as artwork rather than a heading in the document outline. It tracks with the mark beside it and follows no style plugin'],
@@ -253,6 +248,7 @@ export const SCALE_USES = new Map<string, string>([
   ['ArenaSelect:field:pl-3', 'the field of a select, at 12px before its value: it sizes the value inset, not the room around content, so it is this slot\'s own length'],
   ['ArenaSelect:field:pl-9', 'the field of a select with a leading icon, at 36px before its value: it sizes the clearance of that icon, not the room around content, so it is this slot\'s own length'],
   ['ArenaSelect:field:pr-9', 'the field of a select, at 36px after its value: it sizes the clearance of its caret, not the room around content, so it is this slot\'s own length'],
+  ['ArenaSelect:field:pr-16', 'the field of a select in its error or valid state, at 64px after its value: it sizes the clearance of the status mark beside the caret, not the room around content, so it is this slot\'s own length'],
   ['ArenaSelect:root:gap-1.5', 'a select, between its label, its field and its hint: 6px of gap inside the component, which no role answers'],
   ['ArenaSideNav:region:gap-1', 'the collapsible region under a side nav trigger, between one item and the next: 4px of gap inside the component, which no role answers'],
   ['ArenaSideNav:root:gap-1', 'a side nav, between one item or section and the next: 4px of gap inside the component, which no role answers'],
@@ -427,7 +423,7 @@ export function evaluateManifest(manifest: ComponentManifest, allowed = SCALE_US
     const slot = /^[^:]+:(\S+) /.exec(problem)?.[1] ?? '';
     findings.push({ component: manifest.component, slot, utility: '', role: problem, kind: 'none', why: 'missing-kind' });
   }
-  for (const [slot, classList] of classStringsBySlot(manifest) as Map<string, string[]>) {
+  for (const [slot, classList] of classStringsBySlot(manifest)) {
     const declared = manifest.kind?.[slot] as string | undefined;
     const kind = declared && (KINDS as readonly string[]).includes(declared) ? declared as SlotKind : undefined;
     const reported = new Set<string>();
@@ -472,15 +468,147 @@ export function zeroManifestProblem(files: string[]) {
     : null;
 }
 
+export const STATE_VARIANTS: ReadonlySet<string> = new Set(['disabled', 'blocked', 'selected', 'current', 'pressed', 'active', 'invalid', 'state', 'checked', 'indeterminate', 'error', 'open', 'readOnly', 'dragging']);
+
+export const STATE_LITERALS = new Map<string, string>([]);
+
+const STATE_MODIFIER = /^(?:hover|active|focus|focus-visible|focus-within|disabled|enabled|checked|invalid|aria-.+)$/;
+const ARBITRARY_STATE = /(?:^|[^\w-])(?:hover|active|focus|focus-visible|focus-within|disabled|enabled|checked|invalid)(?![\w-])/;
+const ALPHA_LEVEL = String.raw`(?:\d+(?:\.\d+)?|\[[^\]]*\])`;
+const COLOUR_ALPHA = new RegExp(String.raw`^(?:bg|text|border|ring|outline|shadow|fill|stroke|decoration|divide)-.+\/(${ALPHA_LEVEL})$`);
+const LINE_HEIGHT = new RegExp(String.raw`^text-(?:xs|sm|base|lg|\d*xl)\/${ALPHA_LEVEL}$`);
+const OPACITY_STEP = /^opacity-(\d+)$/;
+const OPACITY_ARBITRARY = /^opacity-\[([^\]]*)\]$/;
+const VISIBILITY_LEVELS = new Set(['0', '1', '0%', '100%']);
+const GROUP_PEER = /^(?:group|peer)-(.+?)(?:\/[\w-]+)?$/;
+const DATA_STATE = /^(?:group-|peer-)?data-\[state=.+\]$/;
+
+function literalLevel(level: string) {
+  return !level.startsWith('[') || !/var\(|--/.test(level);
+}
+
+function splitModifiers(token: string) {
+  const parts: string[] = [];
+  let depth = 0;
+  let start = 0;
+  for (let i = 0; i < token.length; i++) {
+    const c = token[i];
+    if (c === '[' || c === '(') depth++;
+    else if (c === ']' || c === ')') depth--;
+    else if (c === ':' && depth === 0) {
+      parts.push(token.slice(start, i));
+      start = i + 1;
+    }
+  }
+  parts.push(token.slice(start));
+  return { modifiers: parts.slice(0, -1), utility: (parts.at(-1) ?? '').replace(/^!/, '').replace(/!$/, '') };
+}
+
+function isStateModifier(modifier: string) {
+  if (modifier.startsWith('[')) return ARBITRARY_STATE.test(modifier);
+  if (DATA_STATE.test(modifier)) return true;
+  const named = GROUP_PEER.exec(modifier)?.[1];
+  if (named !== undefined) return isStateModifier(named);
+  return STATE_MODIFIER.test(modifier);
+}
+
+export function stateLiteral(utility: string, inStateBranch: boolean) {
+  const { modifiers, utility: bare } = splitModifiers(utility);
+  const step = OPACITY_STEP.exec(bare) ?? OPACITY_ARBITRARY.exec(bare);
+  const alpha = COLOUR_ALPHA.exec(bare);
+  const isLiteral = step
+    ? !VISIBILITY_LEVELS.has(step[1] ?? '') && step[1] !== '100' && literalLevel(`[${step[1]}]`)
+    : alpha !== null && !LINE_HEIGHT.test(bare) && literalLevel(alpha[1] ?? '');
+  if (!isLiteral) return false;
+  return inStateBranch || modifiers.some(isStateModifier);
+}
+
+export type StateFinding = { component: string; slot: string; branch: string; utility: string };
+
+export function stateLiteralFindings(manifest: ComponentManifest, allowed: ReadonlyMap<string, string> = STATE_LITERALS): StateFinding[] {
+  const findings: StateFinding[] = [];
+  const seen = new Set<string>();
+  const walk = (slot: string, classString: unknown, branch: string, inStateBranch: boolean) => {
+    if (typeof classString !== 'string') return;
+    for (const utility of classString.split(/\s+/).filter(Boolean)) {
+      if (!stateLiteral(utility, inStateBranch)) continue;
+      const id = `${slot}|${branch}|${utility}`;
+      if (seen.has(id) || allowed.has(scaleUseKey(manifest.component, slot, utility))) continue;
+      seen.add(id);
+      findings.push({ component: manifest.component, slot, branch, utility });
+    }
+  };
+  for (const [slot, cls] of Object.entries(manifest.slots ?? {})) walk(slot, cls, 'base', false);
+  for (const [key, group] of Object.entries(manifest.variants ?? {}))
+    for (const [value, branch] of Object.entries(group ?? {}))
+      for (const [slot, cls] of Object.entries(branch ?? {})) walk(slot, cls, `${key}=${value}`, STATE_VARIANTS.has(key));
+  for (const compound of manifest.compoundVariants ?? []) {
+    const { class: classes, ...condition } = compound as { class?: Record<string, string> } & Record<string, unknown>;
+    const keys = Object.keys(condition);
+    const label = `compound[${keys.map((k) => `${k}=${String(condition[k])}`).join(',')}]`;
+    for (const [slot, cls] of Object.entries(classes ?? {})) walk(slot, cls, label, keys.some((k) => STATE_VARIANTS.has(k)));
+  }
+  return findings;
+}
+
+export function staleStateLiterals(seen: Set<string>, allowed: ReadonlyMap<string, string> = STATE_LITERALS) {
+  return [...allowed.keys()]
+    .filter((key) => !seen.has(key))
+    .map((key) => `${key} is excused in STATE_LITERALS but no manifest carries it -- drop the entry`);
+}
+
+export function stateMessage(f: StateFinding) {
+  return `${f.component}:${f.slot} (${f.branch}) draws a state with the literal ${f.utility}; read the state role the skin answers: opacity-[var(--fade-disabled)] for a disabled level, bg-selected/(--level-accent-soft-primary) for a selected wash, ring-edge-focus/(--level-accent-soft-gold) for a focus halo, or a level token`;
+}
+
+const COLOUR_PREFIX = '(?:bg|text-shadow|text|border(?:-[trblxyse])?|inset-shadow|inset-ring|ring-offset|ring|outline|drop-shadow|shadow|fill|stroke|decoration|divide|from|via|to|caret|accent|placeholder)';
+const KEY_ALTERNATION = [...PALETTE_KEYS].sort((a, b) => b.length - a.length).join('|');
+const PALETTE_UTILITY = new RegExp(`^(${COLOUR_PREFIX})-(${KEY_ALTERNATION})(?:/.+)?$`);
+const PALETTE_VAR = new RegExp(`--color-(${KEY_ALTERNATION})(?![a-z0-9-])`);
+
+export type PaletteFinding = { component: string; slot: string; utility: string; hint: string };
+
+export function paletteUtility(token: string) {
+  const { utility } = splitModifiers(token);
+  const m = PALETTE_UTILITY.exec(utility);
+  if (m) return `${m[1]}-${m[2]}`;
+  const read = /[[(]/.test(utility) ? PALETTE_VAR.exec(utility) : null;
+  return read ? `var(--color-${read[1]})` : undefined;
+}
+
+export function paletteFindings(manifest: ComponentManifest): PaletteFinding[] {
+  const findings: PaletteFinding[] = [];
+  for (const [slot, classList] of classStringsBySlot(manifest)) {
+    const reported = new Set<string>();
+    for (const token of classList.flatMap((c) => c.split(/\s+/).filter(Boolean))) {
+      const bare = paletteUtility(token);
+      if (!bare || reported.has(token)) continue;
+      reported.add(token);
+      findings.push({ component: manifest.component, slot, utility: token, hint: PALETTE_HINTS.get(bare) ?? "a slot read of the part's group" });
+    }
+  }
+  return findings;
+}
+
+export function paletteMessage(f: PaletteFinding) {
+  return `${f.component}:${f.slot} reads the palette utility ${f.utility}; use ${f.hint}`;
+}
+
 export function collect(files = manifestFiles(COMPONENTS_DIR)) {
   const findings = [];
+  const states: StateFinding[] = [];
   const seen = new Set<string>();
+  const seenStates = new Set<string>();
+  const palette: PaletteFinding[] = [];
   for (const p of files) {
     const manifest = readJson(p);
     findings.push(...evaluateManifest(manifest));
     for (const key of seenKeys(manifest)) seen.add(key);
+    states.push(...stateLiteralFindings(manifest));
+    palette.push(...paletteFindings(manifest));
+    for (const f of stateLiteralFindings(manifest, new Map())) seenStates.add(scaleUseKey(f.component, f.slot, f.utility));
   }
-  return { findings, stale: staleAllowances(seen) };
+  return { findings, stale: [...staleAllowances(seen), ...staleStateLiterals(seenStates)], states, palette };
 }
 
 function main() {
@@ -495,17 +623,19 @@ function main() {
     console.error(`check-role-tokens: ${zero}`);
     process.exit(1);
   }
-  const { findings, stale } = collect(files);
-  if (findings.length || stale.length) {
-    console.error(`check-role-tokens: ${findings.length} finding(s) in a role position, ${stale.length} stale allowance(s)\n`);
+  const { findings, stale, states, palette } = collect(files);
+  if (findings.length || stale.length || states.length || palette.length) {
+    console.error(`check-role-tokens: ${findings.length} finding(s) in a role position, ${states.length} state(s) drawn with a literal, ${palette.length} palette utility(ies), ${stale.length} stale allowance(s)\n`);
     for (const f of findings) {
       if (f.why === 'missing-kind') console.error(`  ${f.role} -- every slot declares a kind (${f.why})`);
       else console.error(`  ${f.component}:${f.slot} (${f.kind}) carries ${f.utility} where a role belongs (${f.why}) -- use ${f.role}, or record the case in SCALE_USES with the reason it means the length`);
     }
+    for (const f of states) console.error(`  ${stateMessage(f)}`);
+    for (const f of palette) console.error(`  ${paletteMessage(f)}`);
     for (const s of stale) console.error(`  ${s}`);
     process.exit(1);
   }
-  console.log(`check-role-tokens: ${files.length} manifest(s) -- every slot declares a kind, every padding, gap, margin and radius names its kind's role or a recorded use, and every border, depth, duration, easing, ink, edge, face and case decision names a role, ${SCALE_USES.size} recorded scale use(s)`);
+  console.log(`check-role-tokens: ${files.length} manifest(s) -- every slot declares a kind, every padding, gap, margin and radius names its kind's role or a recorded use, and every border, depth, duration, easing, ink, edge, face and case decision names a role, ${SCALE_USES.size} recorded scale use(s), and no palette utility in any manifest`);
 }
 
 if (isMainModule(import.meta.url)) main();

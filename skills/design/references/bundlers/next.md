@@ -16,7 +16,7 @@ Both Turbopack answers are outcomes the run recorded, with no option behind them
 - **Turbopack exists only inside Next.js, and Next.js picks its chunks itself.** No option measured here pins Arena to a chunk under it, and the measured build held no chunk with Arena's modules alone.
 - **The package sheet landed in a file of its own** under `_next/static/chunks/`, without any config. Whether it keeps its name when the app changes was not exercised.
 - **`next build --webpack` runs webpack**, whose recipe is on [the webpack family page](./webpack.md). Next.js brings a webpack config of its own, and how it merges with that recipe was not exercised.
-- **Arena ships no `use client` directive**, so the boundary between server and client components is yours to draw, in one line. [`cold-start.md`](../cold-start.md), node 9, says where it goes and what server rendering with hydration carries.
+- **Arena ships no `use client` directive**, so the boundary between server and client components is yours to draw, in one line. [`cold-start.md`](../cold-start.md), node 10, says where it goes and what server rendering with hydration carries.
 - **The route a navigation reads** comes from `next/navigation`. [`shell.md`](../shell.md) and [`exports.md`](../exports.md) name the hooks for the App Router.
 - **Turbopack refuses a link that points out of its root**, with "Filesystem root used for resolution". A monorepo that links `node_modules` from a parent directory meets it.
 

@@ -20,7 +20,7 @@ Actions menu on a trigger (overflow "⋮", more actions, context). Don't confuse
 |---|---|---|---|---|
 | `trigger*` | slot |  |  | The element that opens the menu. The consumer draws it -- an ArenaIconButton with ph-dots-three-vertical, a secondary ArenaButton -- so it is a slot, and it carries its own accessible name. |
 | `items*` | array | `readonly ArenaMenuItem[]` |  | The entries, in order: activatable rows, dividers and group headers. |
-| `align` | enum | `ArenaMenuAlign` | `"start"` | Which edge of the trigger the panel lines up with. |
+| `align` | enum | `ArenaMenuAlign` | `"start"` | Which edge of the trigger the panel lines up with. Start is the edge a line of text begins at and end the opposite one, so both follow the page direction. |
 | `onSelect` | event | `ArenaMenuItem` |  | An entry was activated; carries the whole item. A disabled entry reports nothing, and a divider or a header cannot be activated at all. |
 
 <!-- @api end -->
@@ -48,11 +48,11 @@ the whole item, not a key into the list -- so the handler switches on whatever
 field it finds useful, usually `label`. There is deliberately no `id`. `{ divider:true }` and `{ header:'Text' }` are legitimate entries carrying neither a label nor anything to identify. A required `id` would force a meaningless one onto every rule and every group heading. A `disabled` entry reports nothing,
 and a divider or a header cannot be activated at all.
 
-`icon` is a **Phosphor class-name string**, never markup: Arena draws the `<i>`
+`icon` is a **Phosphor class-name string**, never markup: Arena draws an `<svg>` of the sprite, hidden from assistive technology,
 and the caller names the glyph. What that costs is the general price of the single-icon convention. An entry carries no markup of a consumer's own, so a row with an avatar, a coloured dot or a two-line body has no expression here. `items` is required and throws when absent; an empty array is a caller
 saying "no entries right now" and renders.
 
-**The panel opens in the top layer**, so an `overflow: hidden` or transformed ancestor does not clip it. The panel flips above its trigger near the bottom of the window and follows the trigger on scroll. Tab from any row closes the menu and returns focus to the trigger, as Escape does. Escape closes the topmost open panel, so a menu inside a popover or a dialog closes alone.
+**The panel opens in the top layer**, so an `overflow: hidden` or transformed ancestor does not clip it. The panel flips above its trigger near the bottom of the window and follows the trigger on scroll. Tab from any row closes the menu and returns focus to the trigger, as Escape does. Escape closes the topmost open panel, so a menu inside a popover or a dialog closes alone. The panel stays inside the visible part of the screen when a soft keyboard covers the rest.
 
 **Focus moves by key inside the open menu.** The arrows move between enabled rows and wrap, and Home and End go to the first and the last row. Typing a character moves to the next row whose label starts with it. A space typed inside a run of characters belongs to the run, so it never activates the row. A disabled row is skipped. A header names the rows under it, so a reader hears the group before its first row.
 

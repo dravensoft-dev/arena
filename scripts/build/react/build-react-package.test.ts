@@ -16,40 +16,83 @@ import { CLI_DEPENDENCIES } from '../../lib/arena/support-matrix.ts';
 import { version, CLI_BINS, PALETTE_ENTRY } from '../../lib/arena/package-assembly.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 
-test('a relative source specifier becomes .js, because the package holds no JSX and no TypeScript', () => {
-  assert.equal(
-    rewriteSourceSpecifiers("import { ArenaButton } from '../../forms/arena-button/ArenaButton.jsx';"),
-    "import { ArenaButton } from '../../forms/arena-button/ArenaButton.js';",
-  );
-  assert.equal(
-    rewriteSourceSpecifiers("export * from './components/display/arena-tag/ArenaTag.jsx';"),
-    "export * from './components/display/arena-tag/ArenaTag.js';",
-  );
-});
+const REWRITES: { name: string; input: string; expected: string; why?: string }[] = [
+  {
+    name: 'a relative source specifier becomes .js, because the package holds no JSX and no TypeScript',
+    input: "import { ArenaButton } from '../../forms/arena-button/ArenaButton.jsx';",
+    expected: "import { ArenaButton } from '../../forms/arena-button/ArenaButton.js';",
+  },
+  {
+    name: 'a relative source specifier becomes .js, because the package holds no JSX and no TypeScript (export)',
+    input: "export * from './components/display/arena-tag/ArenaTag.jsx';",
+    expected: "export * from './components/display/arena-tag/ArenaTag.js';",
+  },
+  {
+    name: 'a bare specifier is untouched, so react stays react',
+    input: "import React from 'react';\nimport { render } from 'react-dom/client';",
+    expected: "import React from 'react';\nimport { render } from 'react-dom/client';",
+  },
+  {
+    name: 'a .js specifier is already right and is left alone',
+    input: "import { arenaCatColor } from '../../../DataVisuals.js';",
+    expected: "import { arenaCatColor } from '../../../DataVisuals.js';",
+  },
+  {
+    name: 'the word jsx inside a path is not an extension',
+    input: "import x from './jsx-loader.js';",
+    expected: "import x from './jsx-loader.js';",
+  },
+  { name: 'a .ts specifier reaches the tarball as .js, because dist holds no TypeScript', input: "from './UseDialogModal.ts'", expected: "from './UseDialogModal.js'" },
+  { name: 'a .ts specifier reaches the tarball as .js (a deeper path)', input: "from '../../../DataVisuals.ts'", expected: "from '../../../DataVisuals.js'" },
+  { name: 'a .tsx specifier reaches the tarball as .js', input: "from './ArenaButton.tsx'", expected: "from './ArenaButton.js'" },
+  {
+    name: 'a .js specifier is a no-op',
+    input: "from './Tokens.generated.js'",
+    expected: "from './Tokens.generated.js'",
+    why: 'already .js, so the rewrite is a no-op rather than a doubling',
+  },
+  {
+    name: 'a bare specifier stays',
+    input: "from 'react'",
+    expected: "from 'react'",
+    why: "a bare specifier is the consumer's peer dependency and is never touched",
+  },
+  {
+    name: 'a relative .tsx specifier becomes .js too, so both extensions land on one package layout',
+    input: "import { ArenaBadge } from '../../display/arena-badge/ArenaBadge.tsx';",
+    expected: "import { ArenaBadge } from '../../display/arena-badge/ArenaBadge.js';",
+  },
+  {
+    name: 'a relative .js specifier stays beside a .tsx one',
+    input: "import { sp1 } from '../../../Tokens.generated.js';",
+    expected: "import { sp1 } from '../../../Tokens.generated.js';",
+  },
+  {
+    name: 'an extensionless specifier gains .js, because node16 infers no extension from a declaration',
+    input: "import type { ArenaTone } from '../../../Api.generated';",
+    expected: "import type { ArenaTone } from '../../../Api.generated.js';",
+  },
+  {
+    name: 'an extensionless specifier gains .js (a sibling)',
+    input: "import type { ArenaCatSlot } from './Api.generated';",
+    expected: "import type { ArenaCatSlot } from './Api.generated.js';",
+  },
+  {
+    name: 'a dotted stem is not an extension',
+    input: "from './Api.generated.js'",
+    expected: "from './Api.generated.js'",
+    why: 'a dotted stem is not an extension, so the rewrite is idempotent rather than a doubling',
+  },
+  {
+    name: 'a type-position dynamic import is a specifier too, and tsc writes them into declarations',
+    input: "declare const x: import('./Api.generated').ArenaTone;",
+    expected: "declare const x: import('./Api.generated.js').ArenaTone;",
+  },
+];
 
-test('a bare specifier is untouched, so react stays react', () => {
-  const source = "import React from 'react';\nimport { render } from 'react-dom/client';";
-  assert.equal(rewriteSourceSpecifiers(source), source);
-});
-
-test('a .js specifier is already right and is left alone', () => {
-  const source = "import { arenaCatColor } from '../../../DataVisuals.js';";
-  assert.equal(rewriteSourceSpecifiers(source), source);
-});
-
-test('the word jsx inside a path is not an extension', () => {
-  const source = "import x from './jsx-loader.js';";
-  assert.equal(rewriteSourceSpecifiers(source), source);
-});
-
-test('a .ts specifier reaches the tarball as .js, because dist holds no TypeScript', () => {
-  assert.equal(rewriteSourceSpecifiers("from './UseDialogModal.ts'"), "from './UseDialogModal.js'");
-  assert.equal(rewriteSourceSpecifiers("from '../../../DataVisuals.ts'"), "from '../../../DataVisuals.js'");
-  assert.equal(rewriteSourceSpecifiers("from './ArenaButton.tsx'"), "from './ArenaButton.js'");
-  assert.equal(rewriteSourceSpecifiers("from './Tokens.generated.js'"), "from './Tokens.generated.js'",
-    'already .js, so the rewrite is a no-op rather than a doubling');
-  assert.equal(rewriteSourceSpecifiers("from 'react'"), "from 'react'",
-    'a bare specifier is the consumer\'s peer dependency and is never touched');
+test('rewriteSourceSpecifiers writes every relative specifier as the .js the package ships', () => {
+  assert.ok(REWRITES.length > 0, 'the table has rows');
+  for (const row of REWRITES) assert.equal(rewriteSourceSpecifiers(row.input), row.expected, row.why ? `${row.name}: ${row.why}` : row.name);
 });
 
 test('the manifest names the package, its entry and its types', () => {
@@ -105,17 +148,6 @@ test('every layer-root module the package needs is named, and Tokens is among th
   assert.equal(LAYER, 'frameworks/react');
 });
 
-test('a relative .tsx specifier becomes .js too, so both extensions land on one package layout', () => {
-  assert.equal(
-    rewriteSourceSpecifiers("import { ArenaBadge } from '../../display/arena-badge/ArenaBadge.tsx';"),
-    "import { ArenaBadge } from '../../display/arena-badge/ArenaBadge.js';",
-  );
-  assert.equal(
-    rewriteSourceSpecifiers("import { sp1 } from '../../../Tokens.generated.js';"),
-    "import { sp1 } from '../../../Tokens.generated.js';",
-  );
-});
-
 test('a compiled module with no declaration beside it never ships', () => {
   const dir = mkdtempSync(join(tmpdir(), 'arena-untyped-'));
   try {
@@ -131,24 +163,7 @@ test('a compiled module with no declaration beside it never ships', () => {
   }
 });
 
-test('an extensionless specifier gains .js, because node16 infers no extension from a declaration', () => {
-  assert.equal(
-    rewriteSourceSpecifiers("import type { ArenaTone } from '../../../Api.generated';"),
-    "import type { ArenaTone } from '../../../Api.generated.js';",
-  );
-  assert.equal(
-    rewriteSourceSpecifiers("import type { ArenaCatSlot } from './Api.generated';"),
-    "import type { ArenaCatSlot } from './Api.generated.js';",
-  );
-  assert.equal(rewriteSourceSpecifiers("from './Api.generated.js'"), "from './Api.generated.js'",
-    'a dotted stem is not an extension, so the rewrite is idempotent rather than a doubling');
-});
-
-test('a type-position dynamic import is a specifier too, and tsc writes them into declarations', () => {
-  assert.equal(
-    rewriteSourceSpecifiers("declare const x: import('./Api.generated').ArenaTone;"),
-    "declare const x: import('./Api.generated.js').ArenaTone;",
-  );
+test('a type-position dynamic import is a specifier the scan reads', () => {
   assert.deepEqual(relativeSpecifiers("import('./A.js');\nexport * from './B.js';\nimport 'react';"),
     ['./A.js', './B.js']);
 });

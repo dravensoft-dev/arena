@@ -4,6 +4,8 @@ Arena's component list is the furniture of an application somebody works in. A p
 ring, a feed of posts, a slideshow, a document editor and a game map are outside that list. The
 router says so before it says anything else. This page is what that sentence owes you.
 
+**No rule of the router bends here.** Each one binds the markup you write, and this page says how each reads on a media surface.
+
 **The answer is not that Arena is the wrong choice.** The skin travels either way: a style plugin's
 answers hold whatever the product is, and one of the products measured on this kernel is a
 photo feed. What changes is that you write the markup and Arena hands you the parts. The
@@ -98,7 +100,7 @@ is not a component. The vocabulary page lists `.arena-stack` for the vertical st
 
 **The frame around a picture is a component, and the grid around the frames usually is not.**
 `ArenaFigure` is the cell. That component's frame is `arena-ratio-media` unless a step class or `--arena-ratio` says
-otherwise, and `arena-ratio-media` reads the `aspect-media` role. The figure's overlay slot paints
+otherwise, and `arena-ratio-media` reads the `aspect-media` role. The figure's overlay part paints
 `overlay-media`, so the two roles below are answered for every picture at once. A wall then
 reads as a wall rather than as whatever sizes the images happened to be. Use it for a post's image
 and for a wall's cell alike.
@@ -174,17 +176,11 @@ it needs is already a token, so the only thing you are inventing is the box:
   control that opened it carries the same defect in your markup. The contract exists to stop that
   defect in Arena's.
 
-## One rule bends here, and only one
+## A feed repeats its actions
 
-**One primary accent per view** is written for a screen. A feed is not a screen in that sense. A follow
-action on each of twenty posts is not twenty primary accents. One repeated element is what it is, and the rule is about the eye having one place to land rather
-than about a count of buttons. Give
-the repeated action a secondary or a ghost weight and keep the single primary for what the screen
-as a whole is for. Nothing checks this either way, so it is yours to hold.
-
-Every other rule the router states holds unchanged. Two of them get harder rather than easier in
-this register: no gradients on a surface, and a chart carries identity or meaning and never
-both. A media product is where both are most tempting.
+A follow action on each of twenty posts is one repeated element and not twenty actions of their own.
+Give the repeated action a secondary or a ghost weight and keep the primary emphasis for what the
+screen as a whole is for. Every rule the router states holds unchanged.
 
 ## What Arena still gives you
 
@@ -193,3 +189,5 @@ The banner, the navigation, the states around empty and failed, every field and 
 furniture whatever the product is. Reaching for them is what keeps a product built this way from
 reading as two. Your layer's `INDEX.md` is the directory; work out from your own element
 rather than in from a page layout.
+
+[`tokens/markup/states.md`](./tokens/markup/states.md) says which role each state of your own element reads and which selector shows it.

@@ -2,9 +2,9 @@
   "component": "ArenaSparkline",
   "slots": {
     "frame": "relative w-full",
-    "tooltip": "absolute translate-x-[calc(var(--arena-sparkline-shift,0)*-100%)] -translate-y-full pointer-events-none whitespace-nowrap bg-surface-raised border-[length:var(--bw-surface)] border-edge-surface-floating rounded-control shadow-surface-floating px-2.5 py-1.5",
-    "tooltipLabel": "font-body text-ctl-xs text-ink-muted/(--level-ink-muted)",
-    "tooltipValue": "font-mono text-ctl-md text-ink-body"
+    "tooltip": "absolute translate-x-[calc(var(--arena-sparkline-shift,0)*-100%)] -translate-y-full pointer-events-none whitespace-nowrap bg-[color:var(--overlays-readout-fill-rest,var(--fill-surface-raised))] border-[length:var(--bw-surface)] border-[color:var(--overlays-readout-edge-rest,var(--edge-surface-floating))] rounded-control shadow-surface-floating px-2.5 py-1.5",
+    "tooltipLabel": "font-body text-ctl-xs text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",
+    "tooltipValue": "font-mono text-ctl-md text-[color:color-mix(in_oklab,var(--text-figure-ink-rest,var(--ink-figure))_var(--level-ink-full),transparent)]"
   },
   "kind": {
     "frame": "none",

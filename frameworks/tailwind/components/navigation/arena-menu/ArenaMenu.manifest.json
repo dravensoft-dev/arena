@@ -8,14 +8,14 @@
   ],
   "slots": {
     "root": "inline-flex w-[var(--arena-fill-width,fit-content)]",
-    "panel": "arena-menu z-dropdown min-w-50 p-1.5 text-ink-body/(--level-ink-body) bg-surface-floating border-[length:var(--bw-surface)] border-edge-surface-floating rounded-surface-floating shadow-surface-floating",
-    "item": "flex items-center gap-row-floating w-full min-h-row-min text-left px-row-floating-x py-row-floating-y border-none rounded-control bg-transparent font-body text-md shadow-control-rest active:scale-[var(--press-scale)] motion-reduce:active:scale-100",
+    "panel": "arena-menu z-dropdown min-w-50 p-1.5 text-[color:color-mix(in_oklab,var(--overlays-panel-ink-rest,var(--ink-body))_var(--level-ink-body),transparent)] bg-[color:var(--overlays-panel-fill-rest,var(--fill-surface-floating))] border-[length:var(--bw-surface)] border-[color:var(--overlays-panel-edge-rest,var(--edge-surface-floating))] rounded-surface-floating shadow-surface-floating",
+    "item": "flex items-center gap-row-floating w-full min-h-row-min text-left px-row-floating-x py-row-floating-y border-none rounded-control font-body text-md shadow-control-rest active:scale-[var(--press-scale)] motion-reduce:active:scale-100 focus-visible:outline-hidden focus-visible:shadow-[inset_0_0_0_var(--bw-focus)_var(--edge-focus)]",
     "group": "block",
     "icon": "inline-flex text-[length:var(--icon-md)]",
     "label": "flex-1",
-    "shortcut": "font-face-key text-ctl-xs text-ink-key/(--level-ink-muted)",
-    "divider": "h-px my-1 bg-edge-separator",
-    "header": "font-face-label text-label tracking-label-role case-label text-ink-muted/(--level-ink-muted) px-row-floating-x pt-[calc(var(--sp-1)*2*var(--dz-row-scale-y))] pb-[calc(var(--sp-1)*var(--dz-row-scale-y))]"
+    "shortcut": "font-face-key text-ctl-xs text-[color:color-mix(in_oklab,var(--text-key-ink-rest,var(--ink-key))_var(--level-ink-muted),transparent)]",
+    "divider": "h-px my-1 bg-[color:var(--surfaces-separator-edge-rest,var(--edge-separator))]",
+    "header": "font-face-label text-label tracking-label-role case-label text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)] px-row-floating-x pt-[calc(var(--sp-1)*2*var(--dz-row-scale-y))] pb-[calc(var(--sp-1)*var(--dz-row-scale-y))]"
   },
   "kind": {
     "root": "none",
@@ -37,40 +37,46 @@
       "false": {}
     },
     "destructive": {
-      "true": {},
-      "false": {}
+      "true": {
+        "item": "hover:bg-[color:var(--menus-destructive-item-fill-hover,var(--fill-hover))] active:bg-[color:var(--menus-destructive-item-fill-pressed,color-mix(in_oklab,var(--menus-destructive-item-fill-rest,transparent),var(--menus-destructive-item-ink-rest,var(--hue-danger-ink))_calc(var(--mix-pressed)*100%)))] bg-[color:var(--menus-destructive-item-fill-rest,transparent)] hover:[--arena-icon-ink:var(--menus-destructive-item-icon-hover,var(--menus-destructive-item-ink-hover,var(--menus-destructive-item-ink-rest,var(--hue-danger-ink))))] active:[--arena-icon-ink:var(--menus-destructive-item-icon-pressed,var(--menus-destructive-item-ink-pressed,var(--menus-destructive-item-ink-rest,var(--hue-danger-ink))))] [--arena-icon-ink:var(--menus-destructive-item-icon-rest,var(--menus-destructive-item-ink-rest,var(--hue-danger-ink)))] hover:text-[color:var(--menus-destructive-item-ink-hover,var(--menus-destructive-item-ink-rest,var(--hue-danger-ink)))] active:text-[color:var(--menus-destructive-item-ink-pressed,var(--menus-destructive-item-ink-rest,var(--hue-danger-ink)))] text-[color:var(--menus-destructive-item-ink-rest,var(--hue-danger-ink))]"
+      },
+      "false": {
+        "item": "hover:bg-[color:var(--menus-plain-item-fill-hover,var(--fill-hover))] active:bg-[color:var(--menus-plain-item-fill-pressed,color-mix(in_oklab,var(--menus-plain-item-fill-rest,transparent),color-mix(in_oklab,var(--menus-plain-item-ink-rest,var(--ink-body))_var(--level-ink-body),transparent)_calc(var(--mix-pressed)*100%)))] bg-[color:var(--menus-plain-item-fill-rest,transparent)] hover:[--arena-icon-ink:var(--menus-plain-item-icon-hover,var(--menus-plain-item-ink-hover,color-mix(in_oklab,var(--menus-plain-item-ink-rest,var(--ink-body))_var(--level-ink-body),transparent)))] active:[--arena-icon-ink:var(--menus-plain-item-icon-pressed,var(--menus-plain-item-ink-pressed,color-mix(in_oklab,var(--menus-plain-item-ink-rest,var(--ink-body))_var(--level-ink-body),transparent)))] [--arena-icon-ink:color-mix(in_oklab,var(--menus-plain-item-icon-rest,var(--menus-plain-item-ink-rest,var(--ink-body)))_var(--level-ink-body),transparent)] hover:text-[color:var(--menus-plain-item-ink-hover,color-mix(in_oklab,var(--menus-plain-item-ink-rest,var(--ink-body))_var(--level-ink-body),transparent))] active:text-[color:var(--menus-plain-item-ink-pressed,color-mix(in_oklab,var(--menus-plain-item-ink-rest,var(--ink-body))_var(--level-ink-body),transparent))] text-[color:color-mix(in_oklab,var(--menus-plain-item-ink-rest,var(--ink-body))_var(--level-ink-body),transparent)]"
+      }
     }
   },
   "compoundVariants": [
     {
       "disabled": true,
+      "destructive": false,
       "class": {
-        "item": "text-ink-muted/(--level-ink-muted) opacity-60 cursor-not-allowed"
+        "item": "cursor-not-allowed opacity-[var(--menus-plain-item-fade-disabled,var(--fade-disabled))] bg-[color:var(--menus-plain-item-fill-disabled,var(--menus-plain-item-fill-rest,transparent))] [--arena-icon-ink:var(--menus-plain-item-icon-disabled,var(--menus-plain-item-ink-disabled,color-mix(in_oklab,var(--menus-plain-item-ink-rest,var(--ink-body))_var(--level-ink-body),transparent)))] text-[color:var(--menus-plain-item-ink-disabled,color-mix(in_oklab,var(--menus-plain-item-ink-rest,var(--ink-body))_var(--level-ink-body),transparent))] hover:bg-[color:var(--menus-plain-item-fill-disabled,var(--menus-plain-item-fill-rest,transparent))] hover:[--arena-icon-ink:var(--menus-plain-item-icon-disabled,var(--menus-plain-item-ink-disabled,color-mix(in_oklab,var(--menus-plain-item-ink-rest,var(--ink-body))_var(--level-ink-body),transparent)))] hover:text-[color:var(--menus-plain-item-ink-disabled,color-mix(in_oklab,var(--menus-plain-item-ink-rest,var(--ink-body))_var(--level-ink-body),transparent))] active:bg-[color:var(--menus-plain-item-fill-disabled,var(--menus-plain-item-fill-rest,transparent))] active:[--arena-icon-ink:var(--menus-plain-item-icon-disabled,var(--menus-plain-item-ink-disabled,color-mix(in_oklab,var(--menus-plain-item-ink-rest,var(--ink-body))_var(--level-ink-body),transparent)))] active:text-[color:var(--menus-plain-item-ink-disabled,color-mix(in_oklab,var(--menus-plain-item-ink-rest,var(--ink-body))_var(--level-ink-body),transparent))]"
       }
     },
     {
-      "disabled": false,
+      "disabled": true,
       "destructive": true,
       "class": {
-        "item": "cursor-pointer text-[color:var(--arena-hue-ink)] hover:bg-hover"
+        "item": "cursor-not-allowed opacity-[var(--menus-destructive-item-fade-disabled,var(--fade-disabled))] bg-[color:var(--menus-destructive-item-fill-disabled,var(--menus-destructive-item-fill-rest,transparent))] [--arena-icon-ink:var(--menus-destructive-item-icon-disabled,var(--menus-destructive-item-ink-disabled,var(--menus-destructive-item-ink-rest,var(--hue-danger-ink))))] text-[color:var(--menus-destructive-item-ink-disabled,var(--menus-destructive-item-ink-rest,var(--hue-danger-ink)))] hover:bg-[color:var(--menus-destructive-item-fill-disabled,var(--menus-destructive-item-fill-rest,transparent))] hover:[--arena-icon-ink:var(--menus-destructive-item-icon-disabled,var(--menus-destructive-item-ink-disabled,var(--menus-destructive-item-ink-rest,var(--hue-danger-ink))))] hover:text-[color:var(--menus-destructive-item-ink-disabled,var(--menus-destructive-item-ink-rest,var(--hue-danger-ink)))] active:bg-[color:var(--menus-destructive-item-fill-disabled,var(--menus-destructive-item-fill-rest,transparent))] active:[--arena-icon-ink:var(--menus-destructive-item-icon-disabled,var(--menus-destructive-item-ink-disabled,var(--menus-destructive-item-ink-rest,var(--hue-danger-ink))))] active:text-[color:var(--menus-destructive-item-ink-disabled,var(--menus-destructive-item-ink-rest,var(--hue-danger-ink)))]"
       }
     },
     {
       "disabled": false,
       "destructive": false,
       "class": {
-        "item": "cursor-pointer text-ink-body/(--level-ink-body) hover:bg-primary/14"
+        "item": "cursor-pointer"
+      }
+    },
+    {
+      "disabled": false,
+      "destructive": true,
+      "class": {
+        "item": "cursor-pointer"
       }
     }
   ],
   "defaultVariants": {
     "disabled": false,
     "destructive": false
-  },
-  "hues": {
-    "destructive": {
-      "true": "danger",
-      "false": null
-    }
   }
 }

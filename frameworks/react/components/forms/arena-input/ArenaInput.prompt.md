@@ -1,9 +1,9 @@
-Text field with validation (H5). Focus = the focus ring, error = the danger tone with icon, valid = the success tone with check. Requires the Phosphor sheets loaded for the state icons.
+Text field with validation. Focus = the focus ring, error = the danger tone with icon, valid = the success tone with check. The state icons come from the sprite handed to `ArenaIconsProvider`.
 
 ```tsx
 <ArenaInput label="Repository" required prefix="git@" placeholder="org/project" />
 <ArenaInput label="Email" validateOn="change" value={email} onValueChange={setEmail}
-  validate={(v) => /.+@.+\..+/.test(v) ? null : 'Invalid email format'} />
+  validate={(v) => /.+@.+\..+/.test(v) ? '' : 'Invalid email format'} />
 <ArenaInput label="Slug" valid value={slug} onValueChange={setSlug} hint="Available" />
 ```
 
@@ -52,11 +52,11 @@ Text field with validation (H5). Focus = the focus ring, error = the danger tone
 
 Rules: validates on `blur` by default; use `validateOn="change"` only for live feedback (passwords, availability). Mark required fields with `required`.
 
-`validate` is the **ninth form**, a `functionInput`: the consumer hands Arena a function it calls on the field's value and whose result it uses. The function takes the value as a string, and returns the error message or nothing when the value is valid. The function is the only inbound one in the library, and it is legal only because `ArenaInput` is a data-entry control.
+**`validate` is the one member that takes a function.** You hand Arena a function it calls on the field's value and whose result it uses. The function takes the value as a string and returns the error message, or an empty string when the value is valid. The `validate` of `ArenaInput` and of `ArenaNumberField` are the only function members Arena takes, and they are legal because both are data-entry controls.
 
 `onValueChange` and `onBlur` carry the **value as a string** rather than the `ChangeEvent` or `FocusEvent`. A platform's own event type never travels in a payload, so the event does not reach you. Read the value directly (`onValueChange={setEmail}`); there is no `e.target` and no `preventDefault()`.
 
-`icon` is a **Phosphor class name Arena draws** (`icon="ph-bold ph-magnifying-glass"`), not a node you pass in; Arena renders the `<i>` and hides it from assistive tech. `prefix` is likewise **static text Arena draws** before the value (`prefix="git@"`).
+`icon` is a **Phosphor class name Arena draws** (`icon="ph-bold ph-magnifying-glass"`), not a node you pass in; Arena draws it as an `<svg>` of the sprite and hides it from assistive technology. `prefix` is likewise **static text Arena draws** before the value (`prefix="git@"`).
 
 The members are `label`, `id`, `hint`, `error`, `valid`, `required`, `validate`, `validateOn`, `type`, `icon`, `prefix`, `value`, `disabled`, `readOnly`, `placeholder`, `name`, `autoComplete`, `min`, `max`, `step`, `maxLength` and `pattern`, plus `onValueChange` and `onBlur`. The members above are the whole API. There is no `InputHTMLAttributes` heritage clause and no `{...rest}` spread. Global attributes do not reach the `<input>`, which covers `className`, `dir`, `tabIndex`, ARIA and `data-*`, and neither does a consumer `style` object. **There is no `defaultValue` either**: the contract is about a controlled value, so give the field `value` and an `onValueChange`.
 

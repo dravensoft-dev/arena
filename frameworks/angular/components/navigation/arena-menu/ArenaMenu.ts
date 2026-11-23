@@ -3,13 +3,12 @@ import {
   ChangeDetectionStrategy, Component, DestroyRef, ElementRef, Injector, TemplateRef,
   afterNextRender, afterRenderEffect, computed, inject, input, output, untracked, viewChild,
 } from '@angular/core';
-import type { ConnectedPosition } from '@angular/cdk/overlay';
 import type { ArenaMenuAlign, ArenaMenuItem } from '../../../Api.generated';
 import { delayTypeahead, sp1 } from '../../../Tokens.generated';
 import { ArenaIdGenerator } from '../../../ArenaIds';
 import { arenaTypeAheadBuffer, arenaTypeAheadNext } from '../../../TypeAhead';
 import { arenaWarnOnce } from '../../../WarnOnce';
-import { ArenaAnchoredOverlay, arenaConnectedPositions } from '../../../AnchoredOverlay';
+import { ArenaAnchoredOverlay, type ArenaAnchoredPlacement } from '../../../AnchoredOverlay';
 import { arenaMenuStyles } from './ArenaMenu.variants';
 import manifest from './ArenaMenu.classes.generated';
 import { ArenaSlotAttributes } from '../../../SlotData';
@@ -19,9 +18,9 @@ import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
 const TRIGGER_SELECTOR =
   'button:not([tabindex="-1"]), a[href]:not([tabindex="-1"]), [role="button"]:not([tabindex="-1"]), [tabindex]:not([tabindex="-1"])';
 
-export const ARENA_MENU_POSITIONS: Record<ArenaMenuAlign, ConnectedPosition[]> = {
-  start: arenaConnectedPositions('start', 'below', sp1 * 1.5),
-  end: arenaConnectedPositions('end', 'below', sp1 * 1.5),
+export const ARENA_MENU_PLACEMENT: Record<ArenaMenuAlign, ArenaAnchoredPlacement> = {
+  start: { align: 'start', prefer: 'below', offset: sp1 * 1.5 },
+  end: { align: 'end', prefer: 'below', offset: sp1 * 1.5 },
 };
 
 export type ArenaMenuBlock =
@@ -114,7 +113,7 @@ export class ArenaMenu {
 
   /** The entries, in order: activatable rows, dividers and group headers. */
   readonly items = input.required<readonly ArenaMenuItem[]>();
-  /** Which edge of the trigger the panel lines up with. */
+  /** Which edge of the trigger the panel lines up with. Start is the edge a line of text begins at and end the opposite one, so both follow the page direction. */
   readonly align = input<ArenaMenuAlign, ArenaMenuAlign | undefined>(
     'start',
     { transform: (value) => value ?? 'start' },
@@ -140,7 +139,7 @@ export class ArenaMenu {
     anchor: () => (this.composed ? this.composed() : this.host.nativeElement),
     trigger: () => this.trigger(),
     panel: () => this.panel(),
-    positions: () => ARENA_MENU_POSITIONS[this.align()],
+    placement: () => ARENA_MENU_PLACEMENT[this.align()],
     onDismiss: () => this.overlay.close(),
     focusOnOpen: (panel) => panel.querySelector<HTMLElement>('[role="menuitem"]:not([disabled])'),
     restoreFocus: true,

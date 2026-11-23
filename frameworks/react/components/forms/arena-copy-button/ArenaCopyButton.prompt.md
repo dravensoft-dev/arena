@@ -76,13 +76,7 @@ A button that copies a string and confirms in place. Arena draws an `ArenaIconBu
 - Don't route the confirmation through `ArenaToast`. A toast speaks far from the button, while the region speaks where the press happened.
 - Don't put rich content, markup or an image in `text`. The clipboard receives plain text and nothing else.
 
-**By hand, in real Chromium**: run `bun run demos` and open
-`/frameworks/react/components/forms/arena-copy-button/ArenaCopyButton.demo.generated.html`:
-- Press it on `localhost` and paste somewhere. The check shows, then the copy glyph returns on its own.
-- Serve the demo over plain HTTP from another host and press it. The warning and the failure word show.
-- With a screen reader, press it once. "Copied" is announced once, and the button keeps its name.
-- Press it twice inside the window. The check stays the full window after the second press.
-- Put it inside an `arena-fill` container. The button keeps the width of its glyph, because the wrapper does not answer that family.
+Pressed on `localhost` or over HTTPS, the button copies, shows the check, and the copy glyph returns on its own. Where the clipboard is unavailable, such as a page served over plain HTTP from another host, the warning and the failure word show. A screen reader announces `copyButtonCopied` once, and the button keeps its name. A second press inside the window keeps the check for the full window after that press. Inside an `arena-fill` container the button keeps the width of its glyph, because the wrapper does not answer that family.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

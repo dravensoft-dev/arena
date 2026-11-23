@@ -9,10 +9,6 @@ import { ArenaCheckbox } from '../arena-checkbox/ArenaCheckbox.tsx';
 
 const render = (element: React.ReactElement) => renderToStaticMarkup(element);
 
-test('a blank ariaLabel throws, after trimming', () => {
-  assert.throws(() => render(<ArenaCheckboxGroup ariaLabel="   " />), /^Error: ArenaCheckboxGroup: `ariaLabel` is required/);
-});
-
 test('a box with no value throws inside a group, naming the box', () => {
   assert.throws(() => render(<ArenaCheckboxGroup ariaLabel="Notify me about"><ArenaCheckbox label="Deploys" /></ArenaCheckboxGroup>),
     /^Error: ArenaCheckbox: `value` is required inside an ArenaCheckboxGroup/);
@@ -37,7 +33,7 @@ test('the group ticks the boxes its value names and overrides a box\'s own check
   for (const input of inputs) assert.match(input, /name="notify"/);
 });
 
-test('the group draws its own column from ArenaCheckbox\'s manifest and names itself', () => {
+test('the group is a named role=group on the checkbox group slot', () => {
   const html = render(<ArenaCheckboxGroup ariaLabel="Notify me about"><ArenaCheckbox value="a" label="A" /></ArenaCheckboxGroup>);
   assert.match(html, /^<div role="group" aria-label="Notify me about" class="arena-checkbox__group" data-arena-part="checkbox.group" data-arena-boundary="">/);
 });

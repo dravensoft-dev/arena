@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { readFileSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { readJson } from '../../utils/read-file.ts';
@@ -13,6 +13,7 @@ import {
   zeroScanProblems,
 } from './check-catalogue.ts';
 import { tokenCatalogue } from '../../lib/arena/package-assembly.ts';
+import { COLOR_SLOTS } from '../../lib/core/color-slots.ts';
 
 const ARENA_EXT = 'com.dravensoft.arena';
 
@@ -33,6 +34,8 @@ function anyAnswer(role: string, shape: Role) {
 function fixture(build: (dir: string) => void) {
   const base = mkdtempSync(join(tmpdir(), 'arena-catalogue-'));
   mkdirSync(join(base, CATALOGUE, 'a-register'), { recursive: true });
+  mkdirSync(join(base, 'contracts/design'), { recursive: true });
+  writeFileSync(join(base, COLOR_SLOTS), readFileSync(join(repoRoot, COLOR_SLOTS)));
   build(join(base, CATALOGUE, 'a-register'));
   return { base, clean: () => rmSync(base, { recursive: true, force: true }) };
 }
@@ -219,30 +222,42 @@ test('an entry answering a floor through a scale alias is measured at the value 
   } finally { clean(); }
 });
 
-test('an entry answering the danger fill with a colour is refused in both polarities', () => {
-  const { base, clean } = fixture((dir) => {
-    wholeEntry(dir);
-    const answers = readJson(join(dir, TOKENS)) as Record<string, { $type: string; $value: unknown }>;
-    answers['hue-danger-fill-strong'] = { $type: 'color', $value: '{color.error}' };
-    writeFileSync(join(dir, TOKENS), JSON.stringify(answers));
-  });
-  try {
-    const problems = readingFloorProblems('a-register', tokenCatalogue(), base);
-    for (const polarity of POLARITIES)
-      assert.ok(problems.some((one) => one.includes(`--hue-danger-fill-strong is var(--color-error) in ${polarity}`)),
-        polarity);
-    assert.ok(tokenProblems('a-register', roles, base).some((one) => /hue-danger-fill-strong/.test(one)));
-  } finally { clean(); }
-});
-
-test('an entry answering the danger fill with transparent clears the floor', () => {
-  const { base, clean } = fixture((dir) => wholeEntry(dir));
-  try {
-    assert.deepEqual(readingFloorProblems('a-register', tokenCatalogue(), base), []);
-  } finally { clean(); }
-});
-
 test('an empty catalogue is a failure rather than a clean pass', () => {
   assert.equal(zeroScanProblems([]).length, 1);
   assert.deepEqual(zeroScanProblems(['a-register']), []);
+});
+
+test('document-workspace paints no tab state in plugin.css', () => {
+  const css = readFileSync(join(repoRoot, CATALOGUE, 'document-workspace', 'plugin.css'), 'utf8');
+  assert.doesNotMatch(css, /aria-selected/);
+});
+
+test('an entry answering a slot with a palette alias is refused', () => {
+  const { base, clean } = fixture((dir) => {
+    wholeEntry(dir);
+    const answers = readJson(join(dir, TOKENS)) as Record<string, unknown>;
+    answers['actions-primary-root-fill-rest'] = { $type: 'color', $value: '{color.primary}' };
+    writeFileSync(join(dir, TOKENS), JSON.stringify(answers));
+  });
+  try {
+    const problems = tokenProblems('a-register', roles, base);
+    assert.equal(problems.length, 1, problems.join('\n'));
+    assert.match(problems[0] as string, /actions-primary-root-fill-rest/);
+  } finally { clean(); }
+});
+
+test('an entry is read against the slot contract of the root it is given', () => {
+  const { base, clean } = fixture((dir) => {
+    wholeEntry(dir);
+    const answers = readJson(join(dir, TOKENS)) as Record<string, unknown>;
+    answers['actions-primary-root-fill-rest'] = { $type: 'color', $value: '{fill-surface}' };
+    writeFileSync(join(dir, TOKENS), JSON.stringify(answers));
+  });
+  try {
+    assert.deepEqual(tokenProblems('a-register', roles, base), []);
+    const contract = readJson(join(base, COLOR_SLOTS)) as { groups: Record<string, { parts: Record<string, { options: Record<string, unknown> }> }> };
+    delete contract.groups.actions!.parts.root!.options.primary;
+    writeFileSync(join(base, COLOR_SLOTS), JSON.stringify(contract));
+    assert.notDeepEqual(tokenProblems('a-register', roles, base), []);
+  } finally { clean(); }
 });

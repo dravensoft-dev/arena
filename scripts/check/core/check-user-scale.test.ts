@@ -1,7 +1,11 @@
 import test from 'node:test';
+import { cpSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import assert from 'node:assert/strict';
 import {
-  AXES, KEY, classify, collect, declaredAxis, unusedAxisProblems, zeroClassifiedProblems,
+  AXES, KEY, PLUGIN_ANSWERS, answerAxisProblems, classify, collect, collectAnswers, declaredAxis,
+  tokenAxes, unusedAxisProblems, zeroClassifiedProblems, zeroJudgedProblems,
 } from './check-user-scale.ts';
 
 const ext = (axis: string) => ({ $extensions: { 'com.dravensoft.arena': { [KEY]: axis } } });
@@ -96,4 +100,89 @@ test('the text ladders scale and the grid they sit on does not', () => {
   assert.equal(axisOf('spacing.json:dz.ctl-h'), 'fixed');
   assert.equal(axisOf('spacing.json:dz.lh'), 'follows');
   assert.equal(axisOf('chart.json:chart.tick-char'), 'fixed');
+});
+
+const dim = (axis: string) => ({ $type: 'dimension', ...ext(axis) });
+const roles = { 'r-surface': dim('fixed'), 'step-label': dim('scales'), 'pad-x': dim('fixed'), 'ink-body': { $type: 'color' } } as never;
+const axes = new Map([['r.lg', 'fixed'], ['dz.text-2xs', 'scales']]);
+const answer = (tokens: Record<string, unknown>) => [{ name: 'default', tokens: tokens as never }];
+const alias = (to: string) => ({ $type: 'dimension', $value: `{${to}}` });
+
+test('an alias answer on its role\'s axis holds, and one on another axis is refused', () => {
+  assert.deepEqual(answerAxisProblems(roles, axes, answer({ 'r-surface': alias('r.lg') })),
+    { judged: 1, problems: [] });
+  const { problems } = answerAxisProblems(roles, axes, answer({ 'r-surface': alias('dz.text-2xs') }));
+  assert.equal(problems.length, 1);
+  for (const word of ['default', 'r-surface', '{dz.text-2xs}', 'scales', 'fixed']) {
+    assert.match(problems[0] ?? '', new RegExp(word.replace(/[{}.]/g, '\\$&')));
+  }
+});
+
+test('an answer aliasing a role is judged by that role\'s declared axis', () => {
+  assert.equal(answerAxisProblems(roles, axes, answer({ 'pad-x': alias('step-label') })).problems.length, 1);
+  assert.deepEqual(answerAxisProblems(roles, axes, answer({ 'pad-x': alias('r-surface') })).problems, []);
+});
+
+test('a role of another type that declares an axis is judged like a dimension', () => {
+  const numbers = { 'lh-tight': { $type: 'number', ...ext('follows') } } as never;
+  const withFollows = new Map([...axes, ['dz.lh', 'follows']]);
+  const onScales = answerAxisProblems(numbers, withFollows, answer({ 'lh-tight': { $type: 'number', $value: '{dz.text-2xs}' } }));
+  assert.equal(onScales.judged, 1);
+  assert.equal(onScales.problems.length, 1);
+  assert.deepEqual(answerAxisProblems(numbers, withFollows, answer({ 'lh-tight': { $type: 'number', $value: '{dz.lh}' } })),
+    { judged: 1, problems: [] });
+});
+
+test('a literal answer is not judged here, rem included', () => {
+  const result = answerAxisProblems(roles, axes,
+    answer({ 'r-surface': { $type: 'dimension', $value: { value: 30, unit: 'rem' } } }));
+  assert.deepEqual(result, { judged: 0, problems: [] });
+});
+
+test('an alias naming nothing and a key that is not a role are left to other gates', () => {
+  const result = answerAxisProblems(roles, axes,
+    answer({ 'r-surface': alias('r.nope'), 'not-a-role': alias('r.lg'), $description: 'x', 'ink-body': alias('r.lg') }));
+  assert.deepEqual(result, { judged: 0, problems: [] });
+});
+
+test('tokenAxes maps dotted paths to axes', () => {
+  const map = tokenAxes();
+  assert.equal(map.get('r.lg'), 'fixed');
+  assert.equal(map.get('dz.text-sm'), 'scales');
+});
+
+test('the real tree holds: every alias answer in default, complete and the catalogue is on its role\'s axis', () => {
+  const { problems, judged, walked } = collectAnswers();
+  assert.deepEqual(problems, []);
+  assert.ok(judged > 0);
+  assert.ok(walked.includes('default') && walked.includes('complete'));
+  assert.equal(walked.filter((w) => w.startsWith('catalogue/')).length, 8);
+  assert.equal(PLUGIN_ANSWERS.length, 3);
+  assert.deepEqual(walked, ['default', 'complete', ...readdirSync(join(process.cwd(), 'plugin-style-store/catalogue'), { withFileTypes: true })
+    .filter((e) => e.isDirectory()).map((e) => e.name).sort().map((e) => `catalogue/${e}`)]);
+});
+
+test('a walk that judges no answer fails, and one that judges some does not', () => {
+  assert.deepEqual(zeroJudgedProblems(1), []);
+  assert.equal(zeroJudgedProblems(0).length, 1);
+  assert.match(zeroJudgedProblems(0)[0] ?? '', /judged 0 plugin answers/);
+});
+
+test('an unparsable or missing answer file is a problem naming it, not a throw', () => {
+  const base = mkdtempSync(join(tmpdir(), 'user-scale-'));
+  try {
+    cpSync(join(process.cwd(), 'contracts/design'), join(base, 'contracts/design'), { recursive: true });
+    cpSync(join(process.cwd(), 'plugin-style-store'), join(base, 'plugin-style-store'), { recursive: true });
+    writeFileSync(join(base, 'plugin-style-store/default/plugin.tokens.json'), '{ not json');
+    rmSync(join(base, 'plugin-style-store/complete/plugin.tokens.json'));
+    const { problems } = collectAnswers(base);
+    assert.equal(problems.filter((p) => /default\/plugin\.tokens\.json cannot be read/.test(p)).length, 1);
+    assert.equal(problems.filter((p) => /complete\/plugin\.tokens\.json cannot be read/.test(p)).length, 1);
+    writeFileSync(join(base, 'contracts/design/roles.json'), '{ not json');
+    const roleProblems = collectAnswers(base).problems.filter((p) => /roles\.json/.test(p));
+    assert.equal(roleProblems.length, 1);
+    assert.match(roleProblems[0] ?? '', /cannot be read as the role file/);
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
 });

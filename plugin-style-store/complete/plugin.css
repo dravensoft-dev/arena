@@ -1,8 +1,8 @@
 /* complete is authored, and it is authored to be exhaustive rather than coherent. One rule per
    part hook every manifest emits, each visibly different from what the component draws without
    it, so check:style-plugin-coverage can ask whether the surface the kernel advertises is the
-   surface it exposes. The gradient is deliberate: it is the floor that became a report, and this
-   is where that is demonstrated rather than described. Every other value is a token, because a
+   surface it exposes. The gradient is deliberate: a plugin may paint one from its own stylesheet, and
+   this is where that is demonstrated. Every other value is a token, because a
    plugin re-answers Arena and does not leave it.
 
    Every selector carries .arena-complete, which a root plugin's would not. No package assembles
@@ -1777,6 +1777,10 @@
 .arena-complete [data-arena-part="select.label"] {
   letter-spacing: var(--track-eyebrow);
   text-wrap: balance;
+}
+.arena-complete [data-arena-part="select.status-icon"] {
+  opacity: 0.72;
+  transform: rotate(-4deg);
 }
 .arena-complete [data-arena-part="select.wrap"] {
   outline: var(--bw-marker) dotted var(--edge-marker);

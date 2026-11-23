@@ -13,6 +13,7 @@ import { assertNoNode } from '../../../test/NodeAssert';
 import { ArenaAction } from '../../../ProjectionMarkers';
 import { ArenaCard } from './ArenaCard';
 import { assertPatternCases, isFocusable, ANGULAR_COMPONENTS } from '../../../test/Compliance';
+import { commandButtonVerdict } from '../../../test/StateVerdicts';
 
 const BINDING = join(ANGULAR_COMPONENTS, 'display/arena-card/ArenaCard.behaviour.json');
 
@@ -132,7 +133,10 @@ test('arena-card meets both of its declared shapes', () => {
           return {
             root: el,
             subjects: { default: el },
-            behavioural: { 'keyboard.Enter': true, 'keyboard.Space': true, 'states.disabled': true },
+            behavioural: {
+              'keyboard.Enter': true, 'keyboard.Space': true, 'states.disabled': true,
+              'states.pressed': commandButtonVerdict(el),
+            },
           };
         },
       },

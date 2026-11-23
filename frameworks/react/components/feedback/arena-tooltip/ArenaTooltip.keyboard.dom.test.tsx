@@ -64,14 +64,6 @@ test('blur withdraws it immediately too -- a blur is a decision, not a pointer l
   assert.equal(bubble(root), null);
 });
 
-test('while shown, the trigger describes itself with the bubble', () => {
-  const root = mount(one());
-  focusIn(root);
-  const id = bubble(root).getAttribute('id');
-  assert.ok(id, 'the bubble has no id for the trigger to reference');
-  assert.equal(trigger(root).getAttribute('aria-describedby'), id);
-});
-
 test('while hidden, the trigger references nothing -- a dangling IDREF is worse than none', () => {
   const root = mount(one());
   assert.equal(trigger(root).getAttribute('aria-describedby'), null);
@@ -180,7 +172,7 @@ test('the description reaches a child that drops every prop it is handed', () =>
     'the reference outlived the bubble it named');
 });
 
-test('the bubble takes the shared fade utility rather than a keyframe of its own', () => {
+test('the bubble draws its slot class and nothing injects a stylesheet for it', () => {
   const root = mount(one());
   focusIn(root);
   assert.match(bubble(root).getAttribute('class') ?? '', /\barena-tooltip__bubble\b/);

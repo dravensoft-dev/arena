@@ -30,7 +30,7 @@ export class ArenaIcon {
   protected readonly parts = manifest.parts;
   private readonly sprite = inject(ARENA_ICONS);
 
-  /** Phosphor class names, a weight and a glyph such as ph-bold ph-plus. The weight defaults to regular. */
+  /** Phosphor class names, a weight and a glyph such as ph-bold ph-plus. A string with no weight class draws the regular weight. Arena's own screens write ph-bold, and ph-fill for an active or selected state. */
   readonly icon = input.required<string>();
 
   protected readonly symbol = computed(() => {

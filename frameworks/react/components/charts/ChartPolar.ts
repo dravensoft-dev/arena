@@ -1,4 +1,6 @@
-import { chartLabelGap, chartPadBottom, chartPadLeft } from '../../Tokens.generated.js';
+import { ARENA_TEXT_ROOM } from '../../DataVisuals.ts';
+import type { ArenaTextRoom } from '../../DataVisuals.ts';
+import { chartGaugeReadingDescent, chartLabelChar, chartLabelGap } from '../../Tokens.generated.js';
 import type { ArenaDomain, ArenaLinePoint } from './ChartScales.ts';
 
 export function arenaPolarAngle(index: number, count: number): number {
@@ -31,12 +33,32 @@ export function arenaPolarAnchor(index: number, count: number): 'start' | 'middl
   return across > 0 ? 'start' : 'end';
 }
 
-export function arenaRadarRadius(plotWidth: number, height: number): number {
-  return Math.max(1, Math.min(plotWidth, height) / 2 - chartPadBottom);
+export function arenaRadarRadius(plotWidth: number, height: number, room: ArenaTextRoom = ARENA_TEXT_ROOM): number {
+  return Math.max(1, Math.min(plotWidth, height) / 2 - room.padBottom);
 }
 
-export function arenaRadarLabelRadius(plotWidth: number, height: number): number {
-  return arenaRadarRadius(plotWidth, height) + chartLabelGap;
+export function arenaRadarLabelRadius(plotWidth: number, height: number, room: ArenaTextRoom = ARENA_TEXT_ROOM): number {
+  return arenaRadarRadius(plotWidth, height, room) + chartLabelGap;
+}
+
+export function arenaRadarLabelRoom(x: number, width: number, anchor: 'start' | 'middle' | 'end'): number {
+  if (anchor === 'start') return Math.max(0, width - x);
+  if (anchor === 'end') return Math.max(0, x);
+  return Math.max(0, 2 * Math.min(x, width - x));
+}
+
+export function arenaRadarLabelChar(room: ArenaTextRoom = ARENA_TEXT_ROOM): number {
+  return room.labelChar;
+}
+
+export function arenaRadarFitLabel(label: string, available: number, room: ArenaTextRoom = ARENA_TEXT_ROOM): string {
+  return arenaFitLabel(label, Math.max(available, Math.ceil(label.length * chartLabelChar)), arenaRadarLabelChar(room));
+}
+
+export function arenaFitLabel(label: string, available: number, charWidth: number): string {
+  if (Math.ceil(label.length * charWidth) <= available) return label;
+  const keep = Math.max(0, Math.floor(available / charWidth) - 1);
+  return keep === 0 ? '\u2026' : `${label.slice(0, keep).trimEnd()}\u2026`;
 }
 
 const GAUGE_START = (Math.PI * 5) / 4;
@@ -64,9 +86,13 @@ export function arenaGaugeAnchor(fraction: number): 'start' | 'middle' | 'end' {
   return across > 0 ? 'start' : 'end';
 }
 
-export function arenaGaugeRadii(width: number, height: number): ArenaGaugeRadii {
+export function arenaGaugeWordY(cy: number, room: ArenaTextRoom = ARENA_TEXT_ROOM): number {
+  return cy + chartLabelGap + chartGaugeReadingDescent * (room.scale - 1);
+}
+
+export function arenaGaugeRadii(width: number, height: number, room: ArenaTextRoom = ARENA_TEXT_ROOM): ArenaGaugeRadii {
   const tall = 1 + Math.SQRT1_2;
-  const r = Math.max(1, Math.min(width / 2 - chartPadLeft, (height - chartPadBottom * 2) / tall));
+  const r = Math.max(1, Math.min(width / 2 - room.padLeft, (height - room.padBottom * 2) / tall));
   return {
     cy: height / 2 + (r * (2 - tall)) / 2,
     band: { outer: r, inner: r * 0.94 },

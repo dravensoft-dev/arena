@@ -3,8 +3,7 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { readFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import * as docs from './check-docs.ts';
 import {
@@ -17,18 +16,14 @@ import {
   RULE_OWNERS, CONTRIBUTOR_BRANCH, ruleOwnerProblems, statesRule, CONSUMER_OWN_OUTPUT,
   FOREIGN_CODE, foreignCodeProblems, componentCountProblems,
   blobLinkProblems, COMMENT_RULE_SKIPS, SOURCE_EXTENSIONS, MAX_CELL_CHARS, cellSizeProblems,
-  hueProblems,
+  hueProblems, CONSUMER_WORDING, consumerWordingProblems,
+  testNameProblems, emptySuiteProblems, localeTagProblems, LOCALE_FIELD_TABLE, defaultLocaleTag,
+  unnamedPropertyProblems, unnamedPropertyScan,
 } from './check-docs.ts';
+import { repoRoot } from '../../lib/arena/repo-root.ts';
+import { scratchTree } from '../../utils/scratch-tree.ts';
 
-function tree(files: Record<string, string>) {
-  const root = mkdtempSync(join(tmpdir(), 'arena-docs-'));
-  for (const [path, body] of Object.entries(files) as [string, string][]) {
-    const full = join(root, path);
-    mkdirSync(join(full, '..'), { recursive: true });
-    writeFileSync(full, body);
-  }
-  return root;
-}
+const { tree } = scratchTree('arena-docs');
 
 const NO_ALLOWANCE = new Map();
 
@@ -83,9 +78,9 @@ test('a table cell over its limit is reported by line, and a fenced table or a l
   rmSync(root, { recursive: true });
 });
 
-test('SIZE_ALLOWANCE names the arena gate table alone, and every other document holds the shared limit', () => {
-  assert.deepEqual([...SIZE_ALLOWANCE.keys()], ['scripts/check/arena/AGENTS.md']);
-  assert.ok((SIZE_ALLOWANCE.get('scripts/check/arena/AGENTS.md')?.reason ?? '').length > 40);
+test('every SIZE_ALLOWANCE entry states its reason, and every other document holds the shared limit', () => {
+  assert.ok(SIZE_ALLOWANCE.size > 0, 'a table with no entry holds no reason');
+  for (const [name, allowance] of SIZE_ALLOWANCE) assert.ok(allowance.reason.length > 40, `${name} states its reason`);
   assert.equal(limitFor('AGENTS.md'), MAX_DOCUMENT_CHARS);
   assert.equal(limitFor('scripts/AGENTS.md'), MAX_DOCUMENT_CHARS);
 });
@@ -295,15 +290,10 @@ test('isGenerated reads the name and nothing else', () => {
   assert.equal(isGenerated('a/B.card.entry.generated.js'), true);
   assert.equal(isGenerated('a/B.ts'), false);
   assert.equal(isGenerated('a/B.manifest.ts'), false);
-});
-
-test('a generator is not its own output, and content never overrides the name', () => {
+  assert.equal(isGenerated('scripts/x.mjs'), false);
   assert.equal(isGenerated.length, 1,
     'it reads the name and nothing else: a second parameter would be the door content needs '
     + 'to override the name, which is the defect this test is named after');
-  assert.equal(isGenerated('scripts/x.mjs'), false);
-  assert.equal(isGenerated('a/B.ts'), false);
-  assert.equal(isGenerated('a/B.generated.ts'), true);
 });
 
 test('allowsHeader covers scripts, a .test. infix and a test/ directory', () => {
@@ -361,12 +351,41 @@ test('a repository artefact is a contributor path too, wherever in the tree it s
   rmSync(root, { recursive: true });
 });
 
-test('a generated demo page is the one build product a prompt may name, being what a by-hand check opens', () => {
+test('a prompt citing a demo page fails, a generated demo page being a build product like the rest', () => {
   const root = tree({
     'frameworks/react/components/a/A.prompt.md': 'Open `A.demo.generated.html` and check the focus ring.\n',
   });
-  assert.deepEqual(consumerBranchProblems(root).problems, []);
+  const { problems } = consumerBranchProblems(root);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? "", /demo\.generated/);
   rmSync(root, { recursive: true });
+});
+
+test('a prompt citing a contributor checklist fails, the file shipping in no package', () => {
+  const root = tree({
+    'frameworks/react/components/a/A.prompt.md': 'The by-hand steps are in `A.checks.md`.\n',
+  });
+  const { problems } = consumerBranchProblems(root);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /A\.checks\.md.*ships in no package/);
+  rmSync(root, { recursive: true });
+});
+
+const STYLESHEET_ROWS: [string, string, number][] = [
+  ['a layer source stylesheet path', 'Import `frameworks/angular/theme/arena-cdk.css` once.', 1],
+  ['the package stylesheet path', 'Import `@dravensoft/arena-angular/css/arena-cdk.css` once.', 0],
+  ['a stylesheet path inside a package', 'See `css/vocabulary/state.css`.', 0],
+  ['a prompt path of another layer', 'See `frameworks/react/components/navigation/arena-side-nav/ArenaSideNav.prompt.md`.', 0],
+];
+
+test('a stylesheet named by its place in a layer source is a problem, and its package path is not', () => {
+  for (const [name, text, expected] of STYLESHEET_ROWS) {
+    const root = tree({ 'frameworks/angular/components/a/A.prompt.md': `${text}\n` });
+    const { problems } = consumerBranchProblems(root);
+    assert.equal(problems.length, expected, `${name}: ${JSON.stringify(problems)}`);
+    if (expected) assert.ok(problems[0]?.includes('frameworks/angular/theme/arena-cdk.css'), `${name}: names the path`);
+    rmSync(root, { recursive: true });
+  }
 });
 
 test('the rule reaches prompts alone, and a sibling of the component is not a contributor path', () => {
@@ -391,7 +410,12 @@ test('an index under frameworks/ is a consumer document, and the root router is 
     'a reference the skill reaches is a consumer document, and the branch rules are what keep it '
     + 'from sending a reader somewhere the router promised they would not have to go');
   assert.equal(isConsumerDocument('frameworks/react/README.md'), false);
+  assert.equal(isConsumerDocument('frameworks/react/AGENTS.md'), false);
   assert.equal(isConsumerDocument('docs/SKILL.md'), false, 'the tree decides, not the name alone');
+});
+
+test('a checks file beside a prompt is a contributor document', () => {
+  assert.equal(isConsumerDocument('frameworks/react/components/forms/arena-slider/ArenaSlider.checks.md'), false);
 });
 
 test('an index citing a contributor path fails the same way a prompt does', () => {
@@ -428,7 +452,7 @@ test('the boundary reads two file names and a reason-carrying list, all by name'
   assert.equal(CONSUMER_INDEX, 'INDEX.md');
   assert.deepEqual(Object.keys(BRANCH_SWITCH), ['skills/design/SKILL.md']);
   for (const reason of Object.values(BRANCH_SWITCH)) assert.match(reason, /\w/);
-  assert.equal(CONTRIBUTOR_PATHS.length, 9);
+  assert.equal(CONTRIBUTOR_PATHS.length, 11);
   for (const [pattern, reason] of CONTRIBUTOR_PATHS as [RegExp, string][]) {
     assert.ok(pattern.global, 'a non-global pattern reports only the first hit on a page');
     assert.match(reason, /\w/);
@@ -493,7 +517,8 @@ test('a rule may be registered as a family, not only as one phrase', () => {
 
 test('RULE_OWNERS names each rule, its branch and why, and every entry is contributor-owned today', () => {
   assert.deepEqual(RULE_OWNERS.map((r) => String(r.phrase)),
-    ['the nine forms', 'binding table', '/\\bR[1-6]\\b/', '/\\bcheck:[a-z-]+/']);
+    ['the nine forms', 'binding table', '/\\bR[1-6]\\b/', '/\\bcheck:[a-z-]+/',
+      '/\\bninth form\\b/i', '/\\(H\\d+\\)/']);
   for (const { owner, reason } of RULE_OWNERS) {
     assert.equal(owner, CONTRIBUTOR_BRANCH);
     assert.ok(reason.length > 60, 'an entry states its reason');
@@ -720,4 +745,176 @@ test('an unpaired backtick hides no hue on the lines after it', () => {
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /ArenaX\.prompt\.md:2: .*"gold"/);
   rmSync(root, { recursive: true });
+});
+
+const PAGE = 'frameworks/react/components/a/A.prompt.md';
+
+function wording(files: Record<string, string>) {
+  const root = tree(files);
+  const { problems } = consumerWordingProblems(root);
+  rmSync(root, { recursive: true });
+  return problems;
+}
+
+test('a consumer page that names a repository command fails', () => {
+  const problems = wording({ [PAGE]: 'Intro.\nRun `bun run demos` to see it.\n' });
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /A\.prompt\.md:2: says "bun run", /);
+});
+
+test('happy-dom on a prompt fails', () => {
+  const problems = wording({ [PAGE]: 'The suites run in happy-dom.\n' });
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /says "happy-dom"/);
+});
+
+test('each past-tense phrase fails', () => {
+  const lines = [
+    'The pre-redesign menu.', 'Existing call sites keep working.', 'It exists to replace the old one.',
+    'The tone is now a slot.', 'Props are now typed.', 'The removed members are listed.',
+  ];
+  const problems = wording({ [PAGE]: `${lines.join('\n')}\n` });
+  assert.equal(problems.length, lines.length);
+  lines.forEach((_, i) => assert.match(problems[i] ?? '', new RegExp(`A\\.prompt\\.md:${i + 1}: says `)));
+});
+
+test('a GENERATED comment that names a repository command passes', () => {
+  assert.deepEqual(wording({
+    [PAGE]: '<!-- GENERATED by bun run build\n     do not edit -->\nText.\n',
+  }), []);
+});
+
+test('a fenced repository command passes', () => {
+  assert.deepEqual(wording({ [PAGE]: '```sh\nbun run demos\n```\n' }), []);
+});
+
+test('focus is now on the trigger passes', () => {
+  assert.deepEqual(wording({ [PAGE]: 'After Escape, focus is now on the trigger.\nThe row is now selected.\n' }), []);
+});
+
+test('(H5) on a prompt fails', () => {
+  const root = tree({
+    'contracts/design/Scales.md': 'A scale answers (H5).\n',
+    [PAGE]: 'The field answers (H5).\n',
+  });
+  const problems = ruleOwnerProblems(root, RULE_OWNERS.filter((r) => String(r.phrase) === String(/\(H\d+\)/)));
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /A\.prompt\.md: states .*, a contributor rule, on the consumer branch/);
+  rmSync(root, { recursive: true });
+});
+
+test('ninth form on a prompt fails', () => {
+  const root = tree({
+    'contracts/api/MemberForms.md': 'The Ninth Form is a slot.\n',
+    [PAGE]: 'This is the ninth form.\n',
+  });
+  const problems = ruleOwnerProblems(root, RULE_OWNERS.filter((r) => /ninth/.test(String(r.phrase))));
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /A\.prompt\.md: states /);
+  rmSync(root, { recursive: true });
+});
+
+test('CONSUMER_WORDING gives each pattern a reason', () => {
+  assert.equal(CONSUMER_WORDING.length, 7);
+  for (const [pattern, reason] of CONSUMER_WORDING) {
+    assert.equal(pattern.flags, 'gi');
+    assert.ok(reason.length > 40);
+  }
+});
+
+const REFUSED_NAMES = ['x (D96)', 'y (N1)', 'z (T6-P1)', 'Review Focus 1', 'w (49)', 'v ${1} (D96)'];
+const KEPT_NAMES = [
+  'an h1 heading', 'WCAG 1.4.11', 'arena audit reports a stale file', 'R3 slots', '(H5) on a prompt fails',
+];
+
+test('a test named after a spec, plan or audit id fails naming its line, and a behaviour name passes', () => {
+  assert.ok(REFUSED_NAMES.length > 0 && KEPT_NAMES.length > 0);
+  for (const name of REFUSED_NAMES) {
+    const root = tree({ 'scripts/a.test.ts': `import test from 'node:test';\n\ntest('${name}', () => {});\n` });
+    const problems = testNameProblems(root);
+    assert.equal(problems.length, 1, `${name}: one problem`);
+    assert.match(problems[0] ?? '', /scripts\/a\.test\.ts:3: /, `${name}: names its line`);
+  }
+  for (const name of KEPT_NAMES) {
+    const root = tree({ 'scripts/a.test.ts': `import test from 'node:test';\n\ntest('${name}', () => {});\n` });
+    assert.deepEqual(testNameProblems(root), [], `${name}: passes`);
+  }
+});
+
+test('a name inside a comment is not read, a backtick name is, and an emitted tree is skipped', () => {
+  const root = tree({
+    'scripts/a.test.ts': "// test('x (D96)', () => {})\n/* test('y (D96)', () => {}) */\ntest(`z ${1} (D96)`, () => {});\n",
+    'frameworks/angular/build/b.test.ts': "test('built (D96)', () => {});\n",
+  });
+  const problems = testNameProblems(root);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /^scripts\/a\.test\.ts:3: /);
+});
+
+test('describe and it names are read, a name inside a string is not, and an emitted tree is skipped', () => {
+  const root = tree({
+    'frameworks/react/a.test.tsx': "describe('group (D3)', () => { it('case (N2)', () => {}); });\n",
+    'frameworks/react/b.test.ts': "const s = \"test('x (D96)', () => {})\";\ntest('fine', () => {});\n",
+    'frameworks/react/dist/c.test.ts': "test('built (D96)', () => {});\n",
+  });
+  const problems = testNameProblems(root);
+  assert.equal(problems.length, 2);
+  assert.ok(problems.every((p) => p.startsWith('frameworks/react/a.test.tsx:')));
+});
+
+test('a suite with no test fails, and one with a test passes', () => {
+  const empty = tree({ 'scripts/a.test.ts': "import test from 'node:test';\nconst x = 1;\n" });
+  const problems = emptySuiteProblems(empty);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /scripts\/a\.test\.ts: .*no test/);
+  const full = tree({ 'scripts/a.test.ts': "test('does a thing', () => {});\n", 'scripts/helper.ts': 'export const a = 1;\n' });
+  assert.deepEqual(emptySuiteProblems(full), []);
+});
+
+test('no test name in the tree carries a spec, plan or audit id', () => {
+  assert.deepEqual(testNameProblems(repoRoot), []);
+});
+
+test('every suite in the tree holds a test', () => {
+  assert.deepEqual(emptySuiteProblems(repoRoot), []);
+});
+
+test('a locale tag in prose is the default locale', () => {
+  const tag = defaultLocaleTag();
+  const rows = [
+    { name: 'en-US in prose', rel: 'a.md', source: 'English (en-US neutral).\n', found: 1 },
+    { name: 'en-GB in prose', rel: 'a.md', source: `English (${tag}).\n`, found: 0 },
+    { name: 'en-US in a code fence', rel: 'a.md', source: '```\nen-US\n```\n', found: 0 },
+    { name: 'en-US in the field table of locale.md', rel: LOCALE_FIELD_TABLE,
+      source: '| `locale` | `en-US` | A tag. |\n', found: 0 },
+    { name: 'en-US in a table of another page', rel: 'a.md', source: '| `locale` | `en-US` |\n', found: 1 },
+    { name: 'en-US in prose of locale.md', rel: LOCALE_FIELD_TABLE, source: 'It is en-US.\n', found: 1 },
+    { name: 'en-US in the contributor document of scripts', rel: 'scripts/AGENTS.md', source: 'Sorts with en-US.\n', found: 0 },
+    { name: 'en-US in the contributor document of utils', rel: 'scripts/utils/AGENTS.md', source: 'Sorts with en-US.\n', found: 0 },
+    { name: 'en-US in another document under scripts', rel: 'scripts/check/NOTES.md', source: 'Sorts with en-US.\n', found: 1 },
+  ];
+  for (const row of rows) {
+    assert.equal(localeTagProblems(row.rel, row.source, tag).length, row.found, row.name);
+  }
+  const live = readFileSync(join(repoRoot, 'contracts/design/AGENTS.md'), 'utf8');
+  assert.deepEqual(localeTagProblems('contracts/design/AGENTS.md', live, tag), [], 'the live contracts page');
+  const old = live.replace('English (en-GB)', 'English (en-US neutral)');
+  assert.equal(localeTagProblems('contracts/design/AGENTS.md', old, tag).length, 1, 'the live page with the old tag');
+});
+
+test('every custom property the consumer branch reads is named on a tokens page', () => {
+  const named = new Set(['--sp-4', '--gold-soft']);
+  const read = (source: string) => [{ rel: 'skills/design/references/a.md', source }];
+  const rows = [
+    { name: 'a property no tokens page names', source: 'color: var(--gold-soft);', names: new Set<string>(), found: 1 },
+    { name: 'the same property a tokens page names', source: 'color: var(--gold-soft);', names: named, found: 0 },
+    { name: 'a fallback after the name', source: 'gap: var(--sp-4, 0);', names: named, found: 0 },
+    { name: 'a family property the vocabulary page names', source: 'gap: var(--arena-grid-gap);', names: new Set(['--arena-grid-gap']), found: 0 },
+    { name: 'a name that only starts like a named one', source: 'gap: var(--sp-40);', names: named, found: 1 },
+    { name: 'two reads of one unnamed property', source: 'var(--x-y) var(--x-y)', names: named, found: 1 },
+  ];
+  for (const row of rows) {
+    assert.equal(unnamedPropertyProblems(read(row.source), row.names).length, row.found, row.name);
+  }
+  assert.deepEqual(unnamedPropertyScan(repoRoot), [], 'the live consumer branch');
 });

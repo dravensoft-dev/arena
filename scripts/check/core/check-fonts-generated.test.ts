@@ -3,39 +3,33 @@ import assert from 'node:assert/strict';
 import { facesIn, checkFonts, askGoogle, urlProblems, exampleProblems, remoteFonts } from './check-fonts-generated.ts';
 import { licenceFile, licenceUrl, recordProblems } from '../../generate/core/fetch-fonts.ts';
 
-test('facesIn reads every font-family named inside an @font-face block', () => {
-  const css = `@font-face {\n  font-family: 'Archivo';\n  font-weight: 400;\n}\n\n@font-face {\n  font-family: 'Archivo';\n  font-weight: 700;\n}\n`;
-  assert.deepEqual([...facesIn(css)], ['Archivo']);
+const FACES_ROWS: [name: string, css: string, expected: string[]][] = [
+  ['facesIn reads every font-family named inside an @font-face block', `@font-face {\n  font-family: 'Archivo';\n  font-weight: 400;\n}\n\n@font-face {\n  font-family: 'Archivo';\n  font-weight: 700;\n}\n`, ['Archivo']],
+  ['facesIn reads double-quoted family names too', `@font-face {\n  font-family: "Spline Sans Mono";\n  font-weight: 400;\n}\n`, ['Spline Sans Mono']],
+];
+
+test('facesIn reads the family named inside an @font-face block, single-quoted or double-quoted, once', () => {
+  for (const [name, css, expected] of FACES_ROWS) assert.deepEqual([...facesIn(css)], expected, name);
 });
 
-test('facesIn reads double-quoted family names too', () => {
-  const css = `@font-face {\n  font-family: "Spline Sans Mono";\n  font-weight: 400;\n}\n`;
-  assert.deepEqual([...facesIn(css)], ['Spline Sans Mono']);
-});
+const FONT_ROWS: { name: string; declared: string[]; faces: string[]; count: number; patterns?: RegExp[] }[] = [
+  { name: 'a declared family with a face passes', declared: ['Archivo', 'Familjen Grotesk'], faces: ['Archivo', 'Familjen Grotesk'], count: 0 },
+  {
+    name: 'a declared family with no face fails, naming the family and the fix',
+    declared: ['Archivo', 'Inter'],
+    faces: ['Archivo'],
+    count: 1,
+    patterns: [/"Inter"/, /no @font-face/, /bun scripts\/generate\/core\/fetch-fonts\.ts/],
+  },
+  { name: 'multiple missing families each get their own message', declared: ['Archivo', 'Inter', 'Comic Sans'], faces: [], count: 3 },
+];
 
-test('a declared family with a face passes', () => {
-  const faces = new Set(['Archivo', 'Familjen Grotesk']);
-  assert.deepEqual(checkFonts(['Archivo', 'Familjen Grotesk'], faces), []);
-});
-
-test('a declared family with no face fails, naming the family and the fix', () => {
-  const faces = new Set(['Archivo']);
-  const errs = checkFonts(['Archivo', 'Inter'], faces);
-  assert.equal(errs.length, 1);
-  assert.match(errs[0] ?? '', /"Inter"/);
-  assert.match(errs[0] ?? '', /no @font-face/);
-  assert.match(errs[0] ?? '', /bun scripts\/generate\/core\/fetch-fonts\.ts/);
-});
-
-test('a generic fallback like system-ui is never in the declared list, so it is never required to have a face', () => {
-
-  const faces = new Set(['Archivo']);
-  assert.deepEqual(checkFonts(['Archivo'], faces), []);
-});
-
-test('multiple missing families each get their own message', () => {
-  const errs = checkFonts(['Archivo', 'Inter', 'Comic Sans'], new Set());
-  assert.equal(errs.length, 3);
+test('checkFonts passes a declared family with a face and reports each one without, naming the family and the fix', () => {
+  for (const row of FONT_ROWS) {
+    const errs = checkFonts(row.declared, new Set(row.faces));
+    assert.equal(errs.length, row.count, row.name);
+    for (const pattern of row.patterns ?? []) assert.match(errs[0] ?? '', pattern, row.name);
+  }
 });
 
 const FONTS = {

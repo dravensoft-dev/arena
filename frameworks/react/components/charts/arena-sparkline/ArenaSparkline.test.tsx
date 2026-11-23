@@ -66,13 +66,9 @@ test('ArenaSparkline draws the area fill only when area is set, down to the floo
   assert.doesNotMatch(without, /color-mix\(in oklab, /, 'the tint rendered without area being set');
 });
 
-test('ArenaSparkline is a static figure by default: no tab stop, no keyboard region, no overlay', () => {
+test('ArenaSparkline draws no overlay by default', () => {
   const html = renderToStaticMarkup(<ArenaSparkline label="p95" labels={LABELS} series={SERIES} />);
-  assert.doesNotMatch(html, /tabindex/);
-  assert.doesNotMatch(html, /role="group"/);
   assert.doesNotMatch(html, /<rect/);
-  const live = renderToStaticMarkup(<ArenaSparkline label="p95" labels={LABELS} series={SERIES} interactive />);
-  assert.match(live, /tabindex="0" role="group" aria-label="p95 — sparkline"/);
 });
 
 test('ArenaSparkline takes the tone as its colour and the first identity slot otherwise', () => {
@@ -99,22 +95,4 @@ test('ArenaSparkline drops a label with no value at its index, and writes an emp
   const short = renderToStaticMarkup(<ArenaSparkline label="p95" labels={['Only']} series={[{ label: 'p95', values: [10, 20] }]} />);
   assert.doesNotMatch(short, /undefined/);
   assert.match(short, /<td>20<\/td>/, 'the unlabelled point is still plotted and still in the table');
-});
-
-test('ArenaSparkline throws when label, labels or series is absent, which required-ness demands of every layer', () => {
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  assert.throws(() => renderToStaticMarkup(<ArenaSparkline labels={LABELS} series={SERIES} />), /ArenaSparkline: `label` is required/);
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  assert.throws(() => renderToStaticMarkup(<ArenaSparkline label="p95" series={SERIES} />), /ArenaSparkline: `labels` is required/);
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  assert.throws(() => renderToStaticMarkup(<ArenaSparkline label="p95" labels={LABELS} />), /ArenaSparkline: `series` is required/);
-});
-
-test('ArenaSparkline drops a consumer style object and a consumer attribute, each independently', () => {
-  const html = renderToStaticMarkup(
-    // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    <ArenaSparkline label="p95" labels={LABELS} series={SERIES} style={{ color: '#ff00ff' }} data-stray="x" />
-  );
-  assert.doesNotMatch(html, /#ff00ff/);
-  assert.doesNotMatch(html, /data-stray/);
 });

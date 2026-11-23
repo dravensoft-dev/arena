@@ -1,7 +1,7 @@
 {
   "component": "ArenaCalendar",
   "description": "Week or day schedule on a time grid. Colour is identity, never state.",
-  "affordances": ["focus"],
+  "affordances": ["focus", "hover", "press"],
   "api": {
     "content": { "form": "slot",
                  "description": "One ArenaCalendarEvent per event. ArenaCalendar reads each one's start, end and colorId and settles where the chip goes, what colour it takes and how the keyboard reaches it; the chip itself is ArenaCalendarEvent's." },

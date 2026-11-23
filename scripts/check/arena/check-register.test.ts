@@ -1,14 +1,15 @@
 import test, { after } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
   collect, sentenceProblems, sentencesIn, blocks, plain, clauseCount, unnamedSubject, inScope,
-  blanked, unregioned, descriptionsIn, descriptionProblems, contractScan,
+  blanked, unregioned, descriptionsIn, descriptionProblems, contractScan, roleQuestionScan,
   excusedBy, scoped, zeroScanProblems, staleSpecProblems, staleExemptProblems,
   NOT_YET_REWRITTEN, MAX_WORDS, MAX_CLAUSES,
 } from './check-register.ts';
+import { repoRoot } from '../../lib/arena/repo-root.ts';
 
 const long = `A sentence written to run past the limit this gate holds, carrying one claim and `
   + 'then a second one about something else entirely, and a third about a fourth thing nobody '
@@ -112,10 +113,17 @@ test('an allowance whose every document already reads in this register fails as 
   assert.match(staleSpecProblems(new Map(), entries)[0] ?? '', /matches no document/);
 });
 
-test('an empty scan and a stale exemption are failures rather than a quiet pass', () => {
+test('an empty scan is a failure rather than a quiet pass', () => {
   assert.deepEqual(zeroScanProblems(['a.md']), []);
   assert.match(zeroScanProblems([])[0] ?? '', /passed over nothing/);
-  assert.deepEqual(staleExemptProblems(['a.md']), []);
+});
+
+test('an EXEMPT doc no scan read is stale, and a read one is not', () => {
+  const exempt = new Map([['a.md', 'why']]);
+  const stale = staleExemptProblems([], exempt);
+  assert.equal(stale.length, 1, 'the doc is exempt and no scan read it');
+  assert.match(stale[0] ?? '', /a\.md/);
+  assert.deepEqual(staleExemptProblems(['a.md'], exempt), []);
 });
 
 test('the two limits are the ones the reports name, so a message cannot drift from the rule', () => {
@@ -153,6 +161,9 @@ function contractTree(descriptions: Record<string, unknown>) {
   const base = mkdtempSync(join(tmpdir(), 'arena-register-'));
   made.push(base);
   mkdirSync(join(base, 'contracts/api/components'), { recursive: true });
+  mkdirSync(join(base, 'contracts/design'), { recursive: true });
+  writeFileSync(join(base, 'contracts/design/roles.json'), JSON.stringify({
+    'r-0': { $extensions: { 'com.dravensoft.arena': { question: 'How wide is the gap?' } } } }));
   for (const [name, body] of Object.entries(descriptions))
     writeFileSync(join(base, 'contracts/api/components', name), JSON.stringify(body));
   return base;
@@ -181,4 +192,41 @@ test('a contract whose descriptions read in the register passes, and the root me
 test('a contract tree with no description to read is a problem rather than a pass over nothing', () => {
   const base = contractTree({ 'ArenaX.json': { name: 'ArenaX' } });
   assert.match(contractScan(base)[0] ?? '', /no contract description was read/);
+});
+
+test('a role question is held to the register', () => {
+  const base = mkdtempSync(join(tmpdir(), 'arena-register-roles-'));
+  after(() => rmSync(base, { recursive: true, force: true }));
+  mkdirSync(join(base, 'contracts/design'), { recursive: true });
+  const write = (...questions: string[]) => writeFileSync(join(base, 'contracts/design/roles.json'),
+    JSON.stringify(Object.fromEntries(questions.map((q, i) => [`r-${i}`,
+      { $type: 'dimension', $extensions: { 'com.dravensoft.arena': { question: q } } }]))));
+  write('It sets the gap?', `${thirtyOne}?`, 'What gap sits between rows, which the screen sets, so the list reads?');
+  const found = roleQuestionScan(base);
+  assert.ok(found.some((one) => /^contracts\/design\/roles\.json:r-0: a sentence opening/.test(one)), found.join('\n'));
+  assert.ok(found.some((one) => /^contracts\/design\/roles\.json:r-1: .*31 words, over 30/.test(one)), found.join('\n'));
+  assert.ok(found.some((one) => /^contracts\/design\/roles\.json:r-2: .*(subordinate|clause)/.test(one)), found.join('\n'));
+  write('How wide is the gap between rows?');
+  assert.deepEqual(roleQuestionScan(base), []);
+  write();
+  assert.match(roleQuestionScan(base)[0] ?? '', /no role question was read/);
+});
+
+test('a description opens on Whether or not at all', () => {
+  const rows = [
+    { name: 'Whether opens the first sentence', text: 'Whether the bar stays.', found: 0 },
+    { name: 'Whether opens a later sentence', text: "The side bar's colour. Whether the toast announces assertively.", found: 1 },
+    { name: 'the old stepper sentence', text: 'One step of an ArenaStepper. Whether it is complete, current or upcoming is not a field.', found: 1 },
+    { name: 'whether inside a sentence', text: 'Say whether the bar stays. Then close it.', found: 0 },
+  ];
+  for (const row of rows) {
+    const found = descriptionProblems('c.json', 'api.x', row.text).filter((one) => /Whether/.test(one));
+    assert.equal(found.length, row.found, row.name);
+  }
+  const toast = JSON.parse(readFileSync(join(repoRoot, 'contracts/api/components/ArenaToast.json'), 'utf8'));
+  const tone = descriptionsIn(toast).filter((one) => one.member === 'api.tone');
+  assert.equal(tone.length, 1, 'the live toast tone description');
+  assert.deepEqual(descriptionProblems('ArenaToast.json', 'api.tone', tone[0]?.text ?? '')
+    .filter((one) => /Whether/.test(one)), [], 'the live toast tone');
+  assert.deepEqual(contractScan().filter((one) => /Whether/.test(one)), [], 'the live contracts');
 });

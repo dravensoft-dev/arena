@@ -14,6 +14,7 @@ import type { ArenaMenuAlign, ArenaMenuItem } from '../../../Api.generated';
 import { ArenaSplitButton } from './ArenaSplitButton';
 import { assertNoNode, assertSameNode } from '../../../test/NodeAssert';
 import { disposeOverlays } from '../../../test/Overlays';
+import { sp1 } from '../../../Tokens.generated';
 
 const ITEMS: ArenaMenuItem[] = [{ label: 'Deploy to staging' }, { divider: true }, { label: 'Roll back', destructive: true }];
 
@@ -156,9 +157,9 @@ function placed(align?: ArenaMenuAlign): { watched: Element[]; edge: string } {
   const { fixture, open } = render(align ? { align } : {});
   try {
     open();
-    const bounding = panel()!.closest<HTMLElement>('.cdk-overlay-connected-position-bounding-box')!;
-    const { left, right, top } = bounding.style;
-    return { watched: watched.filter((element) => !element.classList.contains('cdk-overlay-pane')), edge: `${left} ${right} ${top}` };
+    const pane = panel()!.closest<HTMLElement>('.cdk-overlay-pane')!;
+    const { marginLeft, marginTop } = pane.style;
+    return { watched: watched.filter((element) => !element.classList.contains('cdk-overlay-pane')), edge: `${marginLeft} ${marginTop}` };
   } finally {
     Element.prototype.getBoundingClientRect = rect;
     delete (page as { clientWidth?: number }).clientWidth;
@@ -176,11 +177,11 @@ test('the panel is placed against the whole split, never the caret', () => {
 });
 
 test('align start lines the panel up with the start edge of the whole split', () => {
-  assert.equal(placed('start').edge, '100px auto 90px', 'the panel was measured from the caret, not from the split');
+  assert.equal(placed('start').edge, `100px ${90 + sp1 * 1.5}px`, 'the panel was measured from the caret, not from the split');
 });
 
 test('align end lines the panel up with the end edge of the whole split', () => {
-  assert.equal(placed('end').edge, 'auto 624px 90px', 'the panel was measured from the caret, not from the split');
+  assert.equal(placed('end').edge, `280px ${90 + sp1 * 1.5}px`, 'the panel was measured from the caret, not from the split');
 });
 
 test('align defaults to the end edge', () => {

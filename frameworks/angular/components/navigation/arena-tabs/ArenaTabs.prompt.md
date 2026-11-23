@@ -56,33 +56,20 @@ is expensive, guard it inside the view rather than expecting the tab to defer it
 - `valueChange` fires only when a **different** tab is chosen. Re-selecting the active tab reports
   nothing.
 - **The panels sit outside the tablist**, which is why `arena-tab` renders its content into its own
-  host rather than into the row. A tabpanel inside a tablist is invalid, and the compliance suite
-  asserts it by containment.
+  host rather than into the row. A tabpanel inside a tablist is invalid.
 - **The host takes itself out of layout** with `display: contents`, so the tablist and the panels
   stack in the consumer's own flow instead of inside a box `arena-tabs` adds.
 - **The roving tab stop and the arrow keys are Arena's**, through `@angular/cdk/a11y`'s
   `FocusKeyManager`: one tab stop into the strip, Left/Right walk and wrap, and the selection
   follows the focus. Up/Down do nothing on purpose, so a horizontal strip does not fight a vertical
-  list nested near it.
+  list nested near it. Tab from a tab reaches the panel rather than the next tab.
 - **The CDK reads the deprecated `event.keyCode`, not `event.key`.** A browser fills it in, so this
-  works in Chromium; a synthetic event that omits it is ignored entirely. Any suite dispatching a
-  key at this component must set `keyCode`; happy-dom leaves it `0`, so a suite that sets only
-  `key` asserts nothing and passes.
+  works in Chromium; a synthetic key event that omits it is ignored entirely.
 - With no tabs at all it draws an **empty tablist and no tabpanel**, and guards nothing. A root
   promises nothing an empty render would break, but it must not ship an invalid one.
 - Don't use it for steps in a sequence, or for anything a person should be able to open in a new
   window. Destinations are `arena-side-nav` items or links rather than tabs.
-- Don't fill the selected tab. The selected tab is marked by its selected rule and by weight. A filled tab spends the view's primary accent on navigation.
-
-**By hand, in real Chromium**: the keyboard is asserted for real, but the ink and the ring are not.
-Run `bun run demos` and open
-`/frameworks/angular/components/navigation/arena-tabs/ArenaTabs.demo.generated.html`:
-- Tab into the strip **once**: the ring lands on the selected tab, and Tab again leaves the strip
-  rather than walking the tabs.
-- Left and Right walk the strip and wrap at both ends, and the panel below changes with them.
-- The selected rule sits flush on the strip's own hairline rule rather than floating above it.
-- The panel's top gap does not change when switching tabs, the layout must not shift.
-- Two strips on the page switch independently, which is the generated id base working.
+- Don't fill the selected tab. The selected tab is marked by its selected rule and by weight. A filled tab would draw the accent on navigation.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

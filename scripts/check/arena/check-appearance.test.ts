@@ -7,7 +7,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  EXEMPT, adoptionProblems, angularRendersManifest, chartAliasProblems, chartSources, collect, literalStyleProblems,
+  EXEMPT, angularRendersManifest, chartAliasProblems, chartSources, collect, literalStyleProblems,
   reactRendersManifest, styleObjectBodies, valueIsLiteral, zeroProblems,
 } from './check-appearance.ts';
 
@@ -90,11 +90,6 @@ test('EXEMPT is empty, and that is a claim: every literal left standing is a com
   assert.equal(EXEMPT.size, 0);
 });
 
-test('adoption reads the manifest a component has to render, its own or its parent\'s', () => {
-  assert.deepEqual(adoptionProblems('ArenaTag'), [], 'ArenaTag renders its own manifest in both layers');
-  assert.deepEqual(adoptionProblems('ArenaTableCell'), [], 'ArenaTableCell renders ArenaTable\'s');
-});
-
 test('a source that renders no manifest is what the adoption half reads for', () => {
   const drawn = "import { arenaStyles } from '../../../ArenaStyles.generated.ts';\nimport m from './ArenaBadge.classes.generated.ts';";
   assert.equal(reactRendersManifest(drawn, 'ArenaBadge'), true);
@@ -105,23 +100,19 @@ test('a source that renders no manifest is what the adoption half reads for', ()
   assert.equal(angularRendersManifest("import { Component } from '@angular/core';"), false);
 });
 
-test('a hand-drawn component that owns a manifest is held to rendering it, layer by layer', () => {
-  const problems = adoptionProblems('ArenaBarChart');
-  assert.ok(problems.every((p) => p.startsWith('ArenaBarChart')));
-  assert.ok(problems.every((p) => !p.includes('HAND_DRAWN')), 'it has a manifest, so it is not named as one with nothing to render');
-});
-
-test('every component in scope renders its manifest and writes no appearance by hand', () => {
-  const { adoption, literals, walked, scanned } = collect();
+test('every component renders its manifest, writes no appearance by hand, and the chart half reads every chart, never dist/', () => {
+  const { adoption, literals, walked, scanned, files, chartFiles, chartAliases } = collect();
   assert.ok(walked >= 55, 'the literal half walked almost nothing, so it proves almost nothing');
   assert.ok(scanned > 0, 'every file excused would leave this half reading nothing at all');
+  assert.equal(files.some((f) => f.split('/').includes('dist')), false, 'dist/ holds a copy of each layer');
   assert.deepEqual(adoption, []);
   assert.deepEqual(literals, []);
-});
-
-test('the literal half never walks dist/, which holds a copy of each layer', () => {
-  const { files } = collect();
-  assert.equal(files.some((f) => f.split('/').includes('dist')), false);
+  assert.deepEqual(chartAliases, []);
+  assert.ok(chartFiles.includes('frameworks/react/DataVisuals.ts'));
+  assert.ok(chartFiles.includes('frameworks/angular/DataVisuals.ts'));
+  assert.ok(chartFiles.some((f) => f.startsWith('frameworks/react/components/charts/')));
+  assert.ok(chartFiles.some((f) => f.startsWith('frameworks/angular/components/charts/')));
+  assert.ok(chartSources().length >= 16);
 });
 
 test('a chart source reads roles, and a compatibility alias in it fails', () => {
@@ -130,16 +121,6 @@ test('a chart source reads roles, and a compatibility alias in it fails', () => 
   assert.equal(chartAliasProblems("const a = '1px solid var(--border)';", at).length, 1);
   assert.equal(chartAliasProblems("const a = 'var(--border-strong, red)';", at).length, 1);
   assert.deepEqual(chartAliasProblems("const a = 'var(--danger)';", at), [], 'a status tone is read on purpose');
-});
-
-test('the chart half reads every hand-drawn chart in both layers and the two DataVisuals files', () => {
-  const { chartFiles, chartAliases } = collect();
-  assert.deepEqual(chartAliases, []);
-  assert.ok(chartFiles.includes('frameworks/react/DataVisuals.ts'));
-  assert.ok(chartFiles.includes('frameworks/angular/DataVisuals.ts'));
-  assert.ok(chartFiles.some((f) => f.startsWith('frameworks/react/components/charts/')));
-  assert.ok(chartFiles.some((f) => f.startsWith('frameworks/angular/components/charts/')));
-  assert.ok(chartSources().length >= 16);
 });
 
 test('a chart half that scanned nothing is a failure', () => {

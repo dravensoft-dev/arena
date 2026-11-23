@@ -36,13 +36,13 @@ The package needs no CSS toolchain. Every component's CSS ships compiled against
 
 ## What comes down with the Angular package?
 
-The required peers are `@angular/core`, `@angular/common` and `@angular/platform-browser`, which the project already has. `@angular/cdk` is required as well. A primitive that anchors a surface to a trigger uses its overlay, and `arena-tabs` uses its roving-focus key manager. The CDK supplies position only. The roles, the keys and the focus are Arena's own.
+The required peers are `@angular/core`, `@angular/common` and `@angular/platform-browser`, which the project already has. `@angular/cdk` is required as well. A primitive that anchors a surface to a trigger uses its overlay, and `arena-tabs` uses its roving-focus key manager. The CDK supplies the overlay pane on `document.body`, so an `overflow: hidden` ancestor does not clip it. The placement, the roles, the keys and the focus are Arena's own.
 
 `@angular/router` and `@angular/forms` are optional peers, which no manager installs for you. Add them when you reach `@dravensoft/arena-angular/metadata` or `@dravensoft/arena-angular/forms`. `@phosphor-icons/web` is no peer. The package declares `tslib` and the same three `dependencies` as the React package (`@phosphor-icons/core`, `harfbuzzjs` and `wawoff2`), which only the `arena` command reads, at build.
 
 Angular's own Node floor is the stricter of the two, so Angular decides which Node the project runs. Arena never refuses a Node that the framework accepts.
 
-You do not need to run Tailwind. Every component's CSS ships compiled, and one `@import` is enough. A `--spacing` of your own moves nothing in Arena.
+You do not need to run Tailwind. Every component's CSS ships compiled. A `--spacing` of your own moves nothing in Arena.
 
 ## What is an icon in Arena?
 
@@ -95,7 +95,7 @@ Every other toolchain has a recipe on its page of [the bundler index](./bundlers
 
 ## How do I import the stylesheets in React?
 
-Run `arena build` first. The command writes the package sheet, the theme sheet, the icon sprite with its module, and a plugin sheet when a style plugin of yours carries CSS. Import the generated files before your own rules, in your entry file. `arena.package.generated.css` comes first and `arena.generated.css` after it. Under `--no-import` the package sheet is not written, and the sheets you import by hand take its place, before `arena.generated.css`. The package declares its colour and type defaults in the `arena-defaults` layer, which every order statement names first. `arena.generated.css` is unlayered, so it beats them in whatever order a bundler or dev server emits the two.
+Write `arena.config.json`, or run `arena init` to copy the example, before `arena build`: a build with no config exits 2 naming the file it cannot read. The command writes the package sheet, the theme sheet, the icon sprite with its module, and a plugin sheet when a style plugin of yours carries CSS. Import the generated files before your own rules, in your entry file. `arena.package.generated.css` comes first and `arena.generated.css` after it. Under `--no-import` the package sheet is not written, and the sheets you import by hand take its place, before `arena.generated.css`. The package declares its colour, type, spacing, density, icon and component-size defaults in the `arena-defaults` layer, which every order statement names first. `arena.generated.css` is unlayered, so it beats them in whatever order a bundler or dev server emits the two.
 
 ```js
 import './arena.package.generated.css';
@@ -107,7 +107,7 @@ The import happens in JavaScript. A bundler resolves each specifier as a stylesh
 
 ## How do I import the stylesheets in Angular?
 
-Import the generated files from `src/styles.css`. Import the generated files before your own rules. `arena.package.generated.css` comes first and `arena.generated.css` after it. Under `--no-import` the package sheet is not written, and the sheets you import by hand take its place, before `arena.generated.css`. The package declares its colour and type defaults in the `arena-defaults` layer, which every order statement names first. `arena.generated.css` is unlayered, so it beats them in whatever order a bundler or dev server emits the two.
+Import the generated files from `src/styles.css`. Import the generated files before your own rules. `arena.package.generated.css` comes first and `arena.generated.css` after it. Under `--no-import` the package sheet is not written, and the sheets you import by hand take its place, before `arena.generated.css`. The package declares its colour, type, spacing, density, icon and component-size defaults in the `arena-defaults` layer, which every order statement names first. `arena.generated.css` is unlayered, so it beats them in whatever order a bundler or dev server emits the two.
 
 ```css
 @import './arena.package.generated.css';
@@ -117,7 +117,7 @@ Import the generated files from `src/styles.css`. Import the generated files bef
 
 The CDK overlay sheet comes with them: `arena.package.generated.css` carries the rules of `css/arena-cdk.css`, and `arena.css` imports it. That sheet carries the CDK overlay's rules as text.
 
-That sheet re-bases the CDK overlay onto Arena's `--z-*` scale. Without it a dialog's menu paints behind the dialog. Write the import yourself only under `--no-import`, which writes no package sheet. Import `arena.generated.css` as well, because it alone holds the colours: `arena.css` by itself paints with no colour.
+The five anchored panels open in the top layer above every `--z-*` step, as [`layers.md`](./tokens/markup/layers.md) says. Write the import yourself only under `--no-import`, which writes no package sheet. Import `arena.generated.css` as well, because it alone holds the colours: `arena.css` by itself paints with no colour.
 
 ## How do I combine the sheets with Tailwind v4?
 
@@ -190,3 +190,19 @@ An optional value binds straight through. Every input that carries a default res
 A component renders `.arena-button__root`, spelt from the component's own name. A rule of yours written against that class is a rule about that component and nothing else.
 
 Every sheet is named the same way. `css/components/arena-button.css` is the file, and `arena-button` is what you write in a `stylesheet` list. [`config.md`](./config.md) covers that list.
+
+## How do I confirm the install works?
+
+Run the three commands from the project, through the runner of your manager.
+
+```bash
+npx --no-install arena doctor     # or: pnpm exec arena doctor
+npx --no-install arena build      # or: pnpm exec arena build
+npx --no-install arena check      # or: pnpm exec arena check
+```
+
+A clean `arena doctor` prints `package` with its name and version, `node` with its version, `config` as valid, and each sheet as `is current`, then exits 0 and writes nothing. On a fresh project the sheets are missing, so `doctor` exits 1 and says `arena build writes` each one. A failing `doctor` names what is missing: a sheet or a config that does not parse. A node outside `engines.node` is an `environment` report, which fails `doctor` only under `--strict`, as [`cli.md`](./cli.md) says.
+
+`arena build` prints `wrote` and the path for each sheet it writes, or `no sheet changed` when the sheets are already current. Run `doctor` again and it exits 0.
+
+A clean `arena check` prints `no report(s)` and exits 0. [`cli.md`](./cli.md) covers every command and flag.

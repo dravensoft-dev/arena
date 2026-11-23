@@ -7,7 +7,7 @@
  * nothing. The configs are parsed as strict JSON: tsconfig permits comments, these carry
  * none, and one added later throws here rather than resolving to a different tree. */
 
-import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
+import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { readJson } from '../../utils/read-file.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 

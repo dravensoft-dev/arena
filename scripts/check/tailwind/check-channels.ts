@@ -2,12 +2,12 @@
  * channels and the vocabulary's disjoint by construction rather than by a precedence rule. A
  * family writes --arena-<family>-* or the contract group it restates, which the token sheet may
  * also write, a token sheet writes values and roles, a hue sheet writes the hue channels and
- * nothing else, and a component sheet writes nothing but Tailwind's own --tw-* plumbing: a manifest
- * declaring anything else is a component choosing a channel. A component sheet reads a hue channel
- * only under a selector its hue sheet writes it on with a value other than initial, so the element
- * reading it is the element given it and an ancestor's hue is never the one read. A plugin.css reads
- * a channel and never writes one, nor the danger hue's strong fill role, since either write would bypass the
- * danger floor. A sweep finding no family, component, hue or plugin sheet fails. */
+ * nothing else, and a component sheet writes nothing but Tailwind's own --tw-* plumbing and the ink
+ * a button hands its icon: a manifest declaring anything else is a component choosing a channel. A
+ * component sheet reads a hue channel only under a selector its hue sheet writes it on with a value
+ * other than initial, so an ancestor's hue is never the one read. A plugin.css reads a channel and
+ * never writes one.
+ * A sweep finding no family, component, hue or plugin sheet fails. */
 
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
@@ -22,6 +22,7 @@ import type { CssBlock } from '../../generate/core/arena-cli/css-blocks.ts';
 
 export const COMPONENT_SHEETS = 'frameworks/tailwind/consume/components';
 export const PLUGIN_STORE = 'plugin-style-store';
+export const HANDED_DOWN = new Map([['--arena-icon-ink', 'the ink a button hands the icon it draws, which ArenaIcon reads']]);
 export const TOKEN_SHEETS = ['contracts/design-generated', 'contracts/design'];
 
 export const node = {
@@ -41,7 +42,6 @@ export function declared(css: string) {
   return [...new Set([...css.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(DECLARATION)].map((m) => m[1] ?? ''))];
 }
 
-const DANGER_STRONG_ROLE = '--hue-danger-fill-strong';
 const HUE_READ = /var\(\s*(--arena-hue-[a-z-]+)/g;
 const CONDITION = /:not\(\[[^\]]+\]\)|\[[^\]]+\]/g;
 const sheetKey = (rel: string) => rel.replace(/^.*\/(?:components|hues)\//, '').replace(/\.(?:styles|hues)\.generated\.css$/, '');
@@ -98,13 +98,11 @@ export function channelProblems(sheets: Sheet[]) {
   for (const sheet of sheets) {
     for (const property of declared(sheet.css)) {
       const isHue = (HUE_CHANNELS as readonly string[]).includes(property);
-      if (sheet.kind === 'component' && !property.startsWith('--tw-'))
+      if (sheet.kind === 'component' && !property.startsWith('--tw-') && !HANDED_DOWN.has(property))
         problems.push(`${sheet.rel} declares ${property}. A manifest reads a channel or a role and declares neither`);
       else if (sheet.kind !== 'hue' && sheet.kind !== 'component' && isHue)
         problems.push(`${sheet.rel} declares ${property}, which only a hue sheet writes`
-          + (sheet.kind === 'plugin' ? '; a plugin reads a channel and meaning owns it, so a plugin write bypasses the danger floor' : ''));
-      if (sheet.kind === 'plugin' && property === DANGER_STRONG_ROLE)
-        problems.push(`${sheet.rel} declares ${property}, the role a destructive control's fill resolves to, which a plugin answers only through its role answers`);
+          + (sheet.kind === 'plugin' ? '; a plugin reads a channel and meaning owns it' : ''));
       if (sheet.kind === 'plugin') continue;
       if (sheet.kind === 'hue' && !isHue)
         problems.push(`${sheet.rel} declares ${property}, and a hue sheet writes only ${HUE_CHANNELS.join(', ')}`);

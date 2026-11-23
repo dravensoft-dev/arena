@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { useArenaContainerWidth } from '../../../UseArenaContainerWidth.ts';
-import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, arenaSrOnly, arenaAreaFill, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals.ts';
+import { useArenaContainerWidth, useArenaTextScale } from '../../../UseArenaContainerWidth.ts';
+import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, arenaSrOnly, arenaTextRoom, arenaAreaFill, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals.ts';
 import { arenaLinearScale, arenaScaleValue } from '../ChartScales.ts';
 import { arenaLinePoints } from '../ChartMarks.ts';
 import {
-  arenaPolarPoint, arenaPolarIndex, arenaPolarAnchor, arenaRadarRings, arenaRadarRadius, arenaRadarLabelRadius,
+  arenaPolarPoint, arenaPolarIndex, arenaPolarAnchor, arenaRadarRings, arenaRadarRadius, arenaRadarLabelRadius, arenaRadarLabelRoom, arenaRadarFitLabel,
 } from '../ChartPolar.ts';
 import {
   arenaChartTable, arenaSeriesColors, arenaSwatchHue, arenaSeriesPointCount, arenaRadarDomain,
@@ -26,13 +26,13 @@ export interface ArenaRadarChartProps {
   className?: ArenaRadarChartClass;
 
 
-  /** One label per axis, in the same order as every series' `values`, running clockwise from 12 o'clock. Keep the count small: past eight or so the labels collide and the shape stops being readable, which is a limit of the form rather than of the drawing. */
+  /** One label per axis, in the same order as every series' `values`, running clockwise from 12 o'clock. Keep the count small: past eight or so the labels collide and the shape stops being readable, which is a limit of the form rather than of the drawing. At a larger browser text size a label that grows past the room beside the ring is cut with an ellipsis, and never below its width at the default. The full name of a cut label stays in a title on it and in the data table. The room is read when the chart is created. */
   labels: readonly string[];
 
-  /** The plotted series, drawn as one closed polygon each over the same axes. The shape is the reading, so two or three series is the useful case and more is a tangle. After the last slot the positional count starts again at the first, so fold a ninth series into "Other" upstream. */
+  /** The plotted series, drawn as one closed polygon each over the same axes. The shape is the reading, so two or three series is the useful case and more is a tangle. After the last ramp colour the positional count starts again at the first, so fold a ninth series into "Other" upstream. */
   series: readonly ArenaSeries[];
 
-  /** The ramp slot the first series takes when it names no colour of its own. Each later series takes the next slot, and after the last slot the count starts again at the first. A series' `colorId` or `colorIds` keeps the slot it names. Absent, 1. */
+  /** The ramp colour the first series takes when it names no colour of its own. Each later series takes the next ramp colour, and after the last ramp colour the count starts again at the first. A series' `colorId` or `colorIds` keeps the ramp colour it names. Absent, 1. */
   colorStart?: ArenaCatSlot;
 
   /** Names the chart for its accessible name and for the caption of its data table. The CHART's name is wanted here, not a series': a series names itself. Required and guarded rather than defaulted, because a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing. */
@@ -67,6 +67,7 @@ export function ArenaRadarChart({ className,
   if (!labels) throw new Error('ArenaRadarChart: `labels` is required');
   if (!series) throw new Error('ArenaRadarChart: `series` is required');
   const [ref, measured] = useArenaContainerWidth();
+  const room = arenaTextRoom(useArenaTextScale());
   const [hover, setHover] = useState<number | null>(null);
 
   const width = measured ?? 600;
@@ -74,15 +75,15 @@ export function ArenaRadarChart({ className,
   const fmt = arenaValueWriter({ prefix: valuePrefix, suffix: valueSuffix, format: valueFormat });
 
   const domain = arenaRadarDomain(series);
-  const strip = arenaLegendStrip(height, series.length);
+  const strip = arenaLegendStrip(height, series.length, false, room);
   const cx = width / 2;
   const cy = strip.plotH / 2;
-  const outer = arenaRadarRadius(width, strip.plotH);
-  const labelR = arenaRadarLabelRadius(width, strip.plotH);
+  const outer = arenaRadarRadius(width, strip.plotH, room);
+  const labelR = arenaRadarLabelRadius(width, strip.plotH, room);
   const radial = arenaLinearScale(domain.min, domain.max, 0, outer);
   const reach = (value: number) => Math.max(0, arenaScaleValue(radial, value));
 
-  const colors = series.map((one, s) => arenaSeriesColors(one, 1, arenaCatRotate(colorStart, s), 'ArenaRadarChart', colorStart)[0] as string);
+  const colors = series.map((one, s) => arenaSeriesColors(one, 1, arenaCatRotate(colorStart, s), colorStart)[0] as string);
   const table = arenaChartTable(locale.chartTableAxis, series, labels, fmt);
   const rings = arenaRadarRings(domain);
 
@@ -146,9 +147,15 @@ export function ArenaRadarChart({ className,
 
         {Array.from({ length: n }, (_, i) => {
           const at = arenaPolarPoint(cx, cy, labelR, i, n);
+          const anchor = arenaPolarAnchor(i, n);
+          const full = labels[i] ?? '';
+          const shown = arenaRadarFitLabel(full, arenaRadarLabelRoom(at.x, width, anchor), room);
           return (
-            <text key={i} x={at.x} y={at.y} textAnchor={arenaPolarAnchor(i, n)} dominantBaseline="middle"
-              fill={ARENA_INK_MUTED} fontFamily="var(--font-body)" style={{ fontSize: 'var(--dz-text-xs)' }}>{labels[i] ?? ''}</text>
+            <text key={i} x={at.x} y={at.y} textAnchor={anchor} dominantBaseline="middle"
+              fill={ARENA_INK_MUTED} fontFamily="var(--font-body)" style={{ fontSize: 'var(--dz-text-xs)' }}>
+              {shown}
+              {shown !== full && <title>{full}</title>}
+            </text>
           );
         })}
 

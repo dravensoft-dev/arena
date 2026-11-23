@@ -1,5 +1,4 @@
 import { readFileSync } from 'node:fs';
-import { relative } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import {
   buildTailwind, buildManifestModules, buildComponentCss, buildClassModules,
@@ -8,6 +7,7 @@ import {
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 import { deadline, type Deadline } from '../../lib/arena/deadline.ts';
+import { COLOR_SLOTS } from '../../lib/core/color-slots.ts';
 
 export const COMPILE: Deadline = deadline('tailwind:compile', 30_000,
   'compiling the utility sheet measured 3770ms warm on a machine with nothing else on it, and '
@@ -20,7 +20,7 @@ export const node = {
   reads: [
     ...tailwindNode.reads, ...tailwindNode.writes,
     'frameworks/tailwind/components/**/*.generated.ts',
-    'frameworks/angular/ArenaStyles.generated.ts', 'contracts/design/density.*.json',
+    'frameworks/angular/ArenaStyles.generated.ts', 'contracts/design/density.*.json', COLOR_SLOTS,
   ],
   writes: [],
   feeds: [],

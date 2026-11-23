@@ -52,8 +52,8 @@
    ============================================================ */
 :root,.arena-dark,.arena-light{
   --level-ink-body:82%;    /* body copy */
-  --level-ink-quiet:70%;   /* a neutral tag's label, quieter than body and above muted */
-  --level-ink-muted:62%;   /* captions, meta, the held-back register */
+  --level-ink-quiet:72%;   /* a neutral tag's label, quieter than body and 8 points above muted */
+  --level-ink-muted:64%;   /* captions, meta, the held-back register; the floor a muted ink keeps 4.5:1 over the 16 % press wash of itself */
   --level-ink-full:100%;   /* a figure, a code, a text action: not held back, and measured like any level */
   --level-presence:52%;    /* ArenaAvatar's offline dot: a graphical object, 3:1 */
   --level-hue-soft-danger:14%;   /* the danger hue's wash */
@@ -62,6 +62,8 @@
   --level-hue-soft-info:16%;     /* the info hue's wash */
   --level-accent-soft-primary:14%;  /* the primary accent's wash */
   --level-accent-soft-gold:16%;     /* the gold accent's wash */
+  --level-media:72%;                /* the wash under a caption laid over a figure */
+  --level-scrim:60%;                /* the wash a modal lays over the page */
 
   /* raw neutrals */
   --ink:var(--color-base-100);
@@ -96,13 +98,15 @@
   --danger:var(--color-error);
   --danger-strong:var(--color-error);
   --danger-soft:color-mix(in oklab,var(--color-error) var(--level-hue-soft-danger),transparent);
-  /* The only filled danger surface in Arena (ArenaConfirmDialog's final
-     confirmation). Never a border or text color — --danger is that.
+  /* The danger fill: the ground a filled danger carries --color-error-content
+     on. Never a border or text color: --danger is that. ArenaConfirmDialog's
+     final confirmation reads the actions group's destructive option.
      A skin MAY pin --color-error-fill for an exact value (the Dravensoft skin
      does: #ce3838). A skin that doesn't gets one derived from --color-error,
-     emitted into the palette by arena build rather than composed here: the
-     compiled confirm button reads var(--color-error-fill) with no fallback of
-     its own, so a fallback living only in this alias is one nothing reads. */
+     emitted into the palette by arena build rather than composed here: a role
+     answered with color.error-fill compiles to var(--color-error-fill) with
+     no fallback of its own, so a fallback living only in this alias is one
+     nothing reads. */
   --danger-fill:var(--color-error-fill);
   --info:var(--color-info);
   --info-soft:color-mix(in oklab,var(--color-info) var(--level-hue-soft-info),transparent);
@@ -120,10 +124,10 @@
   --accent:var(--color-primary);
   --accent-press:var(--color-primary);
   --accent-soft:var(--crimson-soft);
-  --focus-ring:var(--color-secondary);
+  --focus-ring:var(--edge-focus);
   --on-accent:var(--color-primary-content);
 
   /* the cover behind anything that covers the app: the palette's own floor, held back */
-  --scrim:color-mix(in oklab,var(--color-base-100) 60%,transparent);
+  --scrim:color-mix(in oklab,var(--overlay-scrim) var(--level-scrim),transparent);
 }
 }

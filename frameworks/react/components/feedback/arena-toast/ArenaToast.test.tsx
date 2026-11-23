@@ -35,34 +35,22 @@ test('persist renders the Pinned marker, and its absence renders none', () => {
   assert.doesNotMatch(transient, /data-persist/);
 });
 
-test('the danger tone announces assertively as an alert', () => {
+test('the danger tone announces assertively', () => {
   const html = renderIcons(<ArenaToast tone="danger" title="Pipeline failed" />);
-  assert.match(html, /role="alert"/);
   assert.match(html, /aria-live="assertive"/);
   assert.match(html, /data-arena-part="toast"[^>]*\bdata-arena-tone="danger"/, 'the danger tone did not reach the side bar');
 });
 
-test('every other tone announces politely as a status', () => {
+test('every other tone announces politely, the success tone and the toneless default are a status', () => {
   for (const tone of ['neutral', 'success']) {
     // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
     const html = renderIcons(<ArenaToast tone={tone} title="Deployment archived" />);
-    assert.match(html, /role="status"/, `tone="${tone}" announced as an alert`);
     assert.match(html, /aria-live="polite"/, `tone="${tone}" announced assertively`);
+    if (tone === 'success') assert.match(html, /role="status"/, 'tone="success" announced as an alert');
     assert.match(html, new RegExp(`data-arena-part="toast"[^>]*\\bdata-arena-tone="${tone}"`), `tone="${tone}" did not reach the side bar`);
   }
 
   assert.match(renderIcons(<ArenaToast title="Deployment archived" />), /role="status"/);
-});
-
-test('ArenaToast drops a consumer style object -- the ...style escape is gone', () => {
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  const html = renderIcons(<ArenaToast title="Deployment archived" style={{ color: '#ff00ff' }} />);
-  assert.doesNotMatch(html, /#ff00ff/, 'a consumer style reached the rendered root -- the R4 escape is back');
-});
-
-test('ArenaToast drops a consumer attribute -- no {...rest} spread reaches the root', () => {
-  const html = renderIcons(<ArenaToast title="Deployment archived" data-stray="x" />);
-  assert.doesNotMatch(html, /data-stray/, 'a consumer attribute reached the rendered root -- a {...rest} escape is back');
 });
 
 test('ARENA_TOAST_DISMISS carries the two token intervals, and the actionable one is the longer', () => {

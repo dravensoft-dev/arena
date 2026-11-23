@@ -44,9 +44,14 @@ export const INTERNAL = new Map<string, string>([
   ['forgetArenaWarnings', 'the test seam that clears what arenaWarnOnce has already said, so a '
     + 'suite can assert the same warning twice. It exists for Arena\'s own suites'],
   ['forgetArenaBreakpoints', 'the same shape for the breakpoint cache, and the same reason'],
-  ['arenaReadBreakpoint', 'reads one breakpoint out of the compiled sheet for the hooks above it. '
-    + 'A consumer asks the hook rather than the sheet'],
   ['ARENA_PAD', CHART_GEOMETRY],
+  ['arenaPad', CHART_GEOMETRY],
+  ['ARENA_TEXT_ROOM', CHART_GEOMETRY],
+  ['arenaTextRoom', CHART_GEOMETRY],
+  ['useArenaTextScale', 'the reader\'s text scale, root font size over 16, that Arena\'s chart components '
+    + 'multiply their label room by. A consumer draws no chart geometry through it'],
+  ['arenaReadTextScale', 'the same reading for the Angular chart components, called in their injection '
+    + 'context. A consumer draws no chart geometry through it'],
   ['ARENA_CHART_HEIGHT', CHART_GEOMETRY],
   ['ARENA_INK_BODY', CHART_GEOMETRY],
   ['ARENA_INK_MUTED', CHART_GEOMETRY],
@@ -61,7 +66,6 @@ export const INTERNAL = new Map<string, string>([
     + 'a control inside an activation target keeps to that control. The rule is what a consumer '
     + 'holds; this is how Arena finds the descendants, and a consumer matching on it by hand is '
     + 'writing against a list that moves'],
-  ['arenaThemeClass', THE_DOCUMENTED_SURFACE_IS_ABOVE_IT],
   ['ARENA_DEFAULT_THEMES', THE_DOCUMENTED_SURFACE_IS_ABOVE_IT],
   ['RUNTIME_CACHE_KEY', 'the localStorage key the theme surface writes the active runtime palette\'s '
     + 'cache under. theme.md names the key as the string `arena-runtime-palette`, which is what the '

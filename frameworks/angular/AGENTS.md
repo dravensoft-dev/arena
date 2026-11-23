@@ -45,12 +45,11 @@ change touches how a component reaches the document.
   fonts declared in `contracts/design-generated/fonts.generated.css`, binaries in `assets/fonts/`)
   plus the shared `frameworks/tailwind/Theme.css` `@theme` preset into scope. It reaches those
   through repository paths, so its readers are here and not in a consuming project.
-- `theme/arena-cdk.css`: the `@angular/cdk` overlay's structural stylesheet, re-based onto
-  Arena's `--z-*` scale, needed once the app uses a primitive that positions itself with
-  `@angular/cdk/overlay`. The file states why the container's z-index is overridden and why
-  the four other hardcoded ones are left alone. **It is verified against the installed
-  `@angular/cdk`; read [CDK bridge](#cdk-bridge-supported-and-verified) for what that
-  means and what it does not.**
+- `theme/arena-cdk.css`: the `@angular/cdk` overlay's structural stylesheet and no rule of Arena's, needed
+  once the app uses a primitive that positions itself with `@angular/cdk/overlay`. The file states why it
+  overrides no z-index: the pinned CDK opens every pane in the top layer, where no z-index reaches.
+  **`check:cdk` verifies the file against the installed `@angular/cdk`; read
+  [CDK bridge](#cdk-bridge-supported-and-verified) for what that means and what it does not.**
 
 **The files under `theme/` keep their lowercase names, and they do not share one reason.**
 `arena-cdk.css` is named **inside an adopter's own source, verbatim**, as
@@ -148,8 +147,9 @@ was cached for the two callers that need it, a document that swapped its stylesh
 and a suite whose subject is the cache, and `arenaViewportBelow`, below),
 `AnchorActivation.ts` (the predicate behind the anchor convention: an anchor Arena draws cancels
 a primary click with no modifier and reports through its own navigation event, and everything
-else is the browser's, which `ArenaCard`, `ArenaBreadcrumbs`, `ArenaSideNavItem` and `ArenaCommandPalette` all read
-and `test/AnchorActivation.test.ts` holds one activation at a time),
+else is the browser's, which `ArenaCard`, `ArenaBreadcrumbs`, `ArenaSideNavItem`, `ArenaCommandPalette`, `ArenaLink`,
+`ArenaBottomNavItem` and `ArenaTableCell` all read, and `test/AnchorActivation.test.ts` holds them in one table, a row
+for each file that reads the predicate),
 `FocusTrap.ts` (the shared overlay focus trap, generalized out of `confirm-dialog` and
 used by it, `command-palette` and `onboarding`) and `ProjectionMarkers.ts` (the `[action]`,
 `[actions]`, `[brand]` and `[footer]` marker directives that let a component
@@ -250,7 +250,7 @@ Standalone (no `NgModule`), `OnPush`, `input()`/`output()`/`model()`, `inject()`
 for DI, capital-initial filenames with no type suffix, `arena-` selector prefix, no
 component `styles` (recipe owns styling), no comments beyond one JSDoc line,
 barrels with no `../` imports inside the layer. Dark-first (`.arena-light` for
-light). Danger is outline. Icons are Phosphor (Bold default). No gradients, no emoji.
+light). Icons are Phosphor (Bold default). No emoji.
 
 ## A component writes an inner component's appearance as a class, and hands it a face by injection
 
@@ -298,10 +298,12 @@ A styled **native** control does not either: `arena-select` is a real `<select>`
 its keyboard and its type-ahead are the user agent's.
 
 **An anchored panel is attached through `AnchoredOverlay.ts:ArenaAnchoredOverlay`**, which a component
-constructs in its own injection context. It attaches the panel's template to a CDK pane placed by
-the connected positions `arenaConnectedPositions(align, prefer, offset)` returns. They try the
-preferred side at the alignment, then at the opposite alignment, then the other side the same way;
-when none fits, the pane is pushed inside the viewport at the alignment that overflows least. The
+constructs in its own injection context. It attaches the panel's template to a CDK pane that a global
+position strategy places at the left and top `arenaPlacePanel(anchor, pane, arenaViewportBox(window), align, offset, prefer)`
+computes. The pane takes the preferred side, flips to the other
+when the room there is too small and the other is larger, and is held inside the visual viewport, so
+a soft keyboard never covers it. It is placed again on scroll, on a window or visual viewport resize
+and when the pane or its anchor changes size. The
 overlay also keeps the stack Escape and an outside press consult. Focus on open, focus restore
 and Tab-out are options it takes. The pane wears the palette, plugin and density classes the anchor resolves: it reads
 `arenaScopeDress(anchor, theme)` on each open and again whenever `ArenaThemeService.theme` changes or a runtime palette is registered while it is open. A runtime palette gives the pane its polarity hook in place of `arena-<name>`, and its properties through `style.setProperty`. `ArenaMenu`,
@@ -329,20 +331,14 @@ trusting this, with `grep -rho "from '@[a-z@/-]*'" --include='*.ts' --exclude='*
 positions an overlay imports it, so it is pinned in the root `package.json` at an exact
 version, and the app must import `theme/arena-cdk.css` once.
 
-**The bridge is verified, not rendered.** `bun run check:cdk` reads the bridge with
-`scripts/lib/arena/css-decls.ts` and asserts that every Arena token it references exists and that
-every `cdk-*` class it overrides is one the installed `@angular/cdk` really defines. It
-checks the **selectors** as well as the values, which it can because
-`@angular/cdk/overlay-prebuilt.css` ships installed and is the oracle: a class renamed
-upstream leaves the override matching nothing, and that is decidable against the sheet. It
-also carries four zero-result guards (no rule, no `cdk-*` class, no `var()`, no `@import`)
-so a bridge that has stopped being a bridge cannot pass by having nothing left to check.
+**The bridge is verified, not rendered.** `bun run check:cdk` asserts that the bridge imports the
+installed `@angular/cdk/overlay-prebuilt.css` and declares no rule of its own. The published copy must be
+the bridge with that sheet inlined byte for byte, under the version the root `package.json` pins. A rule
+in the bridge fails, because the pinned CDK opens every pane in the top layer and no z-index reaches there.
 
-**What the gate does not cover** is whether an override's *value* is the right one for the
-class it lands on: the gate reads names and selectors, never paint, so only a real render
-catches that. `ArenaTooltip.demo.generated.html`, `ArenaMenu.demo.generated.html` and `ArenaPopover.demo.generated.html` are that render: each opens a real CDK
-overlay in a real browser, which is where a z-index that stacks wrongly is visible at all.
-`check:cdk` fails the moment the bridge and the installed package disagree.
+**What the gate does not cover** is how a pane paints. The demo pages of `ArenaTooltip`, `ArenaMenu` and
+`ArenaPopover` open a real CDK overlay in a real browser, where a pane drawn under its own surface is
+visible. `check:cdk` fails the moment the bridge and the installed package disagree.
 
 ## Verifying the layer
 
@@ -384,7 +380,7 @@ proves a page exists, loads its own bundle and mounts a zoneless app, never that
 is right. What the pages catch is what a suite cannot. A carve-out host that blockifies as a flex item
 leaves an inner button's `w-full` measuring the shrunk host rather than the row, so a fill
 class renders as nothing at all, and happy-dom has no layout to see it.
-**A checklist line a real browser can decide belongs in a gate rather than in a checklist**,
+**A checklist line a real browser can decide belongs in a gate rather than in a `<Name>.checks.md` checklist**,
 which is what `check:focus-trap` took over for the one it covers. What is left for a
 person is what needs their **judgement**: whether a name is a good name, whether motion reads as
 intended, whether a colour carries the meaning it should. A green `bun run check` says nothing

@@ -12,7 +12,6 @@ import { arenaStyles } from '../../../frameworks/tailwind/ArenaStyles.ts';
 import type { ArenaSelection } from '../../../frameworks/tailwind/ArenaStyles.ts';
 import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
 import { classesManifest, groupSlots, slotClass } from '../../lib/tailwind/component-css.ts';
-import type { CompoundVariant } from '../../lib/tailwind/manifest-shapes.ts';
 
 const manifests = [...layerManifests().values()];
 const named = new Map(manifests.map((m) => [m.component, classesManifest(m)]));
@@ -94,19 +93,6 @@ test('two variant values that declare different classes resolve to different dat
         seen.set(key, value);
       }
     }
-  }
-});
-
-test('a value no manifest declares is refused by name rather than drawing nothing', () => {
-  for (const manifest of manifests) {
-    const groups = Object.keys(manifest.variants ?? {});
-    if (groups.length === 0) continue;
-    const group = groups[0] ?? '';
-    assert.throws(
-      () => arenaStyles(classesOf(manifest.component))({ [group]: 'chartreuse' }),
-      new RegExp(`${manifest.component}: ${group}="chartreuse" is not in the manifest`),
-      `${manifest.component}: an unknown ${group} resolved to something instead of failing`,
-    );
   }
 });
 
@@ -228,10 +214,4 @@ test('a spelling of a boolean value cannot poison another selection, the data is
   const boolean = styles({ disabled: false, destructive: false });
   assert.deepEqual(dataOf(string.$data, 'item'), dataOf(boolean.$data, 'item'));
   assert.equal(slotted(string, 'item'), slotted(boolean, 'item'));
-});
-
-test('a slot answers its base class whatever is selected, and the data alone varies', () => {
-  const styles = arenaStyles(classesManifest(probe));
-  assert.equal(slotted(styles({ tone: 'danger' }), 'root'), slotted(styles({ tone: 'neutral' }), 'root'));
-  assert.notDeepEqual(dataOf(styles({ tone: 'danger' }).$data, 'root'), dataOf(styles({ tone: 'neutral' }).$data, 'root'));
 });

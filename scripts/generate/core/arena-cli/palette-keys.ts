@@ -6,7 +6,7 @@
  * are here rather than in the gate for the same reason: check:text-contrast holds them
  * over Arena's own skin and the shipped command holds them over the consumer's, and a
  * pair listed in one place only is the half nobody measures. FILL_PAIRS pairs neither
- * error nor primary with its content: danger is an outline, and both contents sit on a fill. */
+ * error nor primary with its content: both contents sit on a fill. */
 
 export const PALETTE_KEYS = [
   'base-100', 'base-200', 'base-300', 'base-content',

@@ -41,7 +41,7 @@ const barStyles = arenaStyles(manifest);
 export function ArenaFilterBar({ className, label, children, applied = [], clearable = true, onRemove, onClear }: ArenaFilterBarProps) {
   if (!label?.trim()) throw new Error('ArenaFilterBar: `label` is required, and names the group of filters');
   if (React.Children.toArray(children).length === 0) {
-    throw new Error('ArenaFilterBar: a filter bar with no controls is not a legal shape, because it would filter nothing');
+    throw new Error('ArenaFilterBar: `children` is required, and a filter bar with no controls is not a legal shape, because it would filter nothing');
   }
   const locale = useArenaLocale();
   const [barRef, width] = useArenaContainerWidth<HTMLDivElement>();

@@ -1,7 +1,7 @@
 Arena toast host, the fixed box a stack of notices lives in. Standalone, `OnPush`, signal I/O.
 The host **is** the box, so `<arena-toast-host>` is the element you place.
 
-The host exists because `arena-toast` carries `--z-toast` and no `position` of its own. A statically-positioned element ignores `z-index`, so the one thing that must float above every overlay in the system stops floating unless something places it.
+The host exists because `arena-toast` carries `--z-toast` and no `position` of its own. A statically-positioned element ignores `z-index`, so the one thing that must top the `--z-*` stack stops floating unless something places it.
 
 ```html
 <arena-toast-host class="arena-placement-bottom-end">
@@ -48,15 +48,7 @@ under it, and nothing about the device's own geometry is retyped.
 - **Don't** give it a `role` or an `aria-live` of its own. Each `arena-toast` already announces,
   `alert` for danger and `status` for the rest, and a second live region around them announces the
   same notice twice.
-- **Don't** put anything but notices in it. The host is one positioned box above every overlay in the system, the CDK layer included. Anything else parked there covers the whole app.
-
-**By hand, in real Chromium**: run `bun run demos` and open
-`/frameworks/angular/components/feedback/arena-toast-host/ArenaToastHost.demo.generated.html`:
-- Each of the four corners pins where it says, and the stack grows away from its own edge.
-- The gap between two notices is the same in all four, and the standoff from the edges is too.
-- With the browser emulating a device that reports a bottom inset, the bottom stack moves up by it
-  and the top one does not move at all.
-- A notice raised while a dialog is open paints over the dialog.
+- **Don't** put anything but notices in it. The host is one positioned box at the top of the `--z-*` stack, above every overlay drawn in the page. Anything else parked there covers the whole app.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

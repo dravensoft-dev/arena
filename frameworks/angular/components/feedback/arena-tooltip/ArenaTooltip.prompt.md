@@ -2,9 +2,8 @@ Arena tooltip, a short label revealed on pointer intent, the page's ink as its g
 signal I/O. Wrap the element the tooltip describes; Arena draws the bubble and names it
 from `label`.
 
-The bubble is positioned by `@angular/cdk/overlay`, not by the wrapper, so it escapes an
-`overflow: hidden` ancestor and stays anchored while the page scrolls. Positioning is the one thing Arena does not hand-roll here. Focus and roles stay Arena's. The app must import
-`frameworks/angular/theme/arena-cdk.css` once, or the bubble renders unpositioned.
+The bubble sits in an `@angular/cdk/overlay` pane on `document.body`, not in the wrapper, so it escapes an
+`overflow: hidden` ancestor. Arena places that pane against the anchor and re-places it while the page scrolls. Placement, focus and roles are Arena's. The package sheet `arena.package.generated.css` carries the CDK overlay rules, so a project that runs `arena build` imports nothing more. A project under `--no-import` imports `@dravensoft/arena-angular/css/arena-cdk.css` once.
 
 ```html
 <arena-tooltip label="Everything shipped in the last 30 days">
@@ -58,13 +57,6 @@ The bubble is positioned by `@angular/cdk/overlay`, not by the wrapper, so it es
 - Don't use a tooltip to carry information the user needs to complete a task. A tooltip is supplementary by definition. A field's own `hint` is where a requirement belongs.
 - Don't set `label` to the trigger's own text. `aria-describedby` is read **in addition** to the
   name, so a bubble repeating the label just says everything twice.
-
-**By hand, in real Chromium**: none of these is provable in happy-dom. Run `bun run demos` and open `/frameworks/angular/components/feedback/arena-tooltip/ArenaTooltip.demo.generated.html`, which lays out one section per item below. - The bubble sits centred above the trigger with a `--sp-2` gap. The bubble **flips below** when the trigger is near the top of the viewport.
-- The bubble escapes a scrolling `overflow: hidden` container and stays anchored while that container scrolls, which is the whole reason for the overlay.
-- The reveal genuinely waits on pointer rest and is instant on Tab; travelling from the trigger
-  onto the bubble does not dismiss it.
-- Layering: a tooltip on an `arena-menu` item, and one inside an open dialog, both land above
-  what they annotate.
 
 **When the label repeats the name.** A trigger whose accessible name already says the label, such as an icon button named by that word, still references the tooltip. The bubble draws the same text and contributes no description, so a screen reader does not announce the word twice.
 

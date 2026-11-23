@@ -53,8 +53,6 @@ Arena checkbox group, a set of independent choices reported as one value. Standa
 
 **With reactive forms.** `ArenaCheckboxGroupControl` from `@dravensoft/arena-angular/forms` goes on the group rather than on a box, and the form control holds a `string[]`. A `null` or a value that is not an array draws nothing ticked, and every toggle reports a fresh array. Disabling the form control disables the group, and with it every box inside. Binding `value` as well as the form is a caller bug, and the layer warns about it once.
 
-**By hand.** Tab visits each box once and Space toggles it. A native form submits every ticked value under the one `name`. A screen reader announces the group by its name on entering it.
-
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
 **The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.

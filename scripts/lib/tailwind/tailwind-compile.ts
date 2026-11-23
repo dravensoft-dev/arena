@@ -13,7 +13,7 @@ import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { basename, dirname, join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../arena/repo-root.ts';

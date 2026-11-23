@@ -9,7 +9,7 @@ import assert from 'node:assert/strict';
 import React, { useState } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { mount, cleanup, act } from './Harness.tsx';
-import { forgetArenaBreakpoints, useArenaViewportBelow } from '../UseArenaContainerWidth.ts';
+import { arenaReadBreakpoint, forgetArenaBreakpoints, useArenaViewportBelow } from '../UseArenaContainerWidth.ts';
 
 afterEach(cleanup);
 after(forgetArenaBreakpoints);
@@ -120,4 +120,44 @@ test('one threshold is one media query, however often the hook renders', () => {
     window.matchMedia = original;
   }
   assert.equal(asked, 1, 'every render asked matchMedia again, and development asks twice more for the consistency check');
+});
+
+test('a rem breakpoint follows the root font size and queries in em', () => {
+  const style = document.documentElement.style;
+  const savedBreakpoint = style.getPropertyValue('--bp-md');
+  const savedSize = style.fontSize;
+  const original = window.matchMedia;
+  const asked: string[] = [];
+  window.matchMedia = ((query: string) => { asked.push(query); return original.call(window, query); }) as typeof window.matchMedia;
+  forgetArenaBreakpoints();
+  style.setProperty('--bp-md', '48rem');
+  style.fontSize = '32px';
+  try {
+    assert.equal(arenaReadBreakpoint('md'), 1536);
+    mount(<Probe name="md" />);
+    assert.deepEqual(asked, ['not all and (min-width: 48em)']);
+  } finally {
+    window.matchMedia = original;
+    style.setProperty('--bp-md', savedBreakpoint);
+    style.fontSize = savedSize;
+    forgetArenaBreakpoints();
+  }
+});
+
+test('a changed root font size changes the read without forgetting the breakpoints', () => {
+  const style = document.documentElement.style;
+  const savedBreakpoint = style.getPropertyValue('--bp-md');
+  const savedSize = style.fontSize;
+  forgetArenaBreakpoints();
+  style.setProperty('--bp-md', '48rem');
+  try {
+    style.fontSize = '16px';
+    assert.equal(arenaReadBreakpoint('md'), 768);
+    style.fontSize = '32px';
+    assert.equal(arenaReadBreakpoint('md'), 1536);
+  } finally {
+    style.setProperty('--bp-md', savedBreakpoint);
+    style.fontSize = savedSize;
+    forgetArenaBreakpoints();
+  }
 });

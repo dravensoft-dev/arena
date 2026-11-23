@@ -20,10 +20,10 @@ editor or a game map is markup you write yourself. The skin travels either way, 
 plugin's answers hold whatever the product is. **When that is your product**, or one screen of
 it, read [`references/media-register.md`](./references/media-register.md). That page is what Arena
 hands you instead of a component: the pattern your markup binds, the parts the package already
-ships for it, and the one rule that bends.
+ships for it, and how the rules read there.
 
 **This file routes. Read only what your task needs.** The rules below bind the code you write.
-The table under them routes. Read the rules once per project rather than once per screen.
+The table under them routes. Read the rules once per project, not once per screen.
 
 ## Which job is this?
 
@@ -49,18 +49,17 @@ are the exceptions.
 plugin, and so does the corpus `@dravensoft/arena-mcp` serves. Read the path on the repository
 above when you have none of the three.
 
-**Everything here is one component at a time.**
-
 ## In this order
 
 **Settle what this product is and what it looks like before the first screen**, once per project
 rather than once per screen. A screen written ahead of those decisions is written against
 decisions nobody made. [`references/cold-start.md`](./references/cold-start.md) is where that
 happens, and that page is a tree rather than a list. The tree's branches reach the four decisions
-a project settles once. Three more branches reach past them. One is the interview that comes
+a project settles once. Four more branches reach past them. One is the interview that comes
 first when there is no appearance to read. One is the catalogue of measured style plugins a
 project can start from instead. One is the identity document every branch converges on before a
-file is written. Two questions on the
+file is written. One is the [node for the decisions every screen inherits](./references/cold-start.md#7-the-decisions-every-screen-inherits):
+colour slots, density, language, theme switching and the page skeleton. Two questions on the
 tree decide an install rather than a screen: how much of the product has to be found from outside
 it, and what it is assembled on. The tree's last node derives the dependency list from those two
 answers, so nothing has to be guessed at install time.
@@ -102,33 +101,28 @@ source text cannot show, is `arena://rules` on the MCP server.
   a class, as `p-[13px]`, is the same raw value. A bracket may hold a `var()` of a token, a
   `calc()`, `min()`, `max()` or `clamp()` over tokens, or one value in a unit no token models,
   such as `%`, `ch` or `vw`. **`arena audit` reports this one, as `raw-value`.**
+- **A role that names a level is read with that level.** Under the default skin `--ink-muted` and
+  `--ink-body` are one colour, and the level is what holds a caption back. Write
+  `text-ink-muted/(--level-ink-muted)` in a class, and `color-mix(in oklab, var(--ink-muted)
+  var(--level-ink-muted), transparent)` in a stylesheet. A literal share, as `/62`, cannot follow
+  a level `arena build` raises. The combines-with column of the token tree names the level of each
+  role. **`arena audit` reports this one, as `missing-level`.**
 - **Only a class of the vocabulary goes on an Arena component.** Write it as a literal on the
   component, or on a container whose components all take it. Write no rule targeting a component:
-  its `arena-<component>__<slot>` classes are compiler output no contract names, and a slot may be
+  its `arena-<component>__<part>` classes are compiler output no contract names, and a part may be
   renamed. Every class you may write is on the vocabulary page; your own content uses the same
   tokens. React checks the class at compile time, Angular through the audit. **`arena audit`
   reports this one, as `own-class`.**
 - **Appearance is a class of the vocabulary, never a member.** How wide, how large or how quiet a
   component is, is decided by a class, as `arena-fill`.
-- **Danger is outline, never filled.** The background stays transparent, and the border and the
-  content read `--danger`. Arena draws one filled danger surface, the final irreversible
-  confirmation inside `ArenaConfirmDialog`. A surface of your own may carry the `--danger-soft`
-  tint. **`arena audit` reports this one, as `danger-fill`.**
-- **One primary accent per view.** The primary emphasis is the voice: one `arena-emphasis-primary`
-  action at most stands on a screen, and a button with no emphasis class is it. Gold is
-  distinction and focus, not a second primary. **`arena audit` reports this one, as
-  `one-primary`.**
-- **No gradients, on any surface.** Depth comes from the `base-100`, `base-200`, `base-300`
-  surface scale, the hairline border and the shadow roles. `ArenaSkeleton`'s neutral shimmer is
-  the one exception. A brand whose mark is a gradient sets `gradientMark` in `arena.config.json`.
-  **`arena audit` reports this one, as `raw-value`.**
 - **No emoji, in product or in copy.** **`arena audit` reports this one, as `emoji`.**
 - **Icons are Phosphor class-name strings, drawn by Arena's components or by ArenaIcon; a raw ph-*
-  element paints nothing.** Write `icon="ph-bold ph-plus"`. Arena draws each glyph from the sprite
+  element paints nothing.** Write `icon="ph-bold ph-plus"`. An element passed to `icon` or
+  `iconRight` in braces is reported as `icon-element`. Arena draws each glyph from the sprite
   `arena build` writes, and a raw `ph-*` element needs the project's own `@phosphor-icons/web`,
   which Arena never bundles. A static page has no build, so it links the weight sheets for its raw
   `ph-*` elements, as `references/artifact.md` shows. **`arena audit` reports this one, as
-  `icon-element`.**
+  `raw-glyph`.**
 - **Never wrap an Arena component in your router's own link.** That nests an anchor inside an
   anchor, and in Angular it does not bind at all. Pass the href to the component and route from
   the event it reports. An `ArenaLink` inside a link of your own is reported as `wrapped-link`.
@@ -144,13 +138,12 @@ source text cannot show, is `arena://rules` on the MCP server.
   button, a link or a field inside that target runs the control and nothing else. A press
   elsewhere on the surface activates it. So a card or a row may hold controls of your own, or hand
   the press over entirely by not being interactive.
-- **Two themes, dark first.** Dark is `:root` and `.arena-dark`, light is `.arena-light`, and
-  either class goes on any element. Components never rewrite per theme; they read tokens.
-  `.arena-compact` and `.arena-comfortable` are the density family on the vocabulary page,
-  `frameworks/VOCABULARY.md`: the first re-densifies the controls, the second grows them to a 48px
-  touch target, and the two are exclusive.
-- **A chart carries identity or meaning, never both.** The `--color-cat-*` ramp in fixed order is
-  identity. The status colours are meaning. A status colour is never a series colour.
+- **Two themes, dark first.** Arena's own palettes are dark on `:root` and `.arena-dark`, and
+  light on `.arena-light`. A project's palettes are the `.arena-<name>` classes its config
+  declares, its default on `:root`, and each class goes on any element. Components never rewrite
+  per theme; they read tokens. `.arena-compact` and `.arena-comfortable` are the density family on
+  the vocabulary page, `frameworks/VOCABULARY.md`: the first re-densifies the controls, the second
+  grows them to a 48px touch target, and the two are exclusive.
 - **Copy is formal and direct, in the product's language.** Concrete verbs, no boasting; an error
   is blame-free and says what to do next. Arena's words follow the locale.
 - **A required member absent is a caller bug.** It is not a state to render. Every layer fails
@@ -172,9 +165,10 @@ source text cannot show, is `arena://rules` on the MCP server.
 | What do I write in my bundler's config, and what does my bundler do differently from the others? | [`references/bundlers/index.md`](./references/bundlers/index.md): one row per bundler saying whether Arena's JS and its package sheet can sit in files of their own. Then the one page of that bundler's family, with its config and what it does differently. Read that page and no other |
 | Which bundlers, and which Angular builder, was Arena tested on, with what figures? | [`references/environments.md`](./references/environments.md): one row per bundler with its version, what was measured, the date and the Arena version, and the ones that cannot keep Arena in a chunk of its own. A record, not a recommendation |
 | How do I make Arena look like my own product? | [`references/style-kernel.md`](./references/style-kernel.md), once per project and before the first screen |
-| Which of those answers actually change how it looks? | the table in [`references/style-kernel.md`](./references/style-kernel.md), measured over eight products built on this kernel |
+| What changes the look? | [`references/style-kernel.md`](./references/style-kernel.md#the-three-files-you-write): the three files you write, and what each one moves |
+| What colours a group of components? | [`references/color-slots/index.md`](./references/color-slots/index.md), which links the page of each group |
 | Does what I am building have to be found from outside it? | [`references/seo.md`](./references/seo.md), once per project: what Arena writes into the `<head>`, and which layer writes it |
-| What questions does the kernel ask? | [`contracts/design/roles.json`](../../contracts/design/roles.json), one entry per role, with a type and a description and no value |
+| What is a role or a token called, what does it ask, and what is its value? | [`references/tokens/index.md`](./references/tokens/index.md), by who you are. `contracts/design/roles.json` has one entry per role with no value, and the DTCG JSON for each group in `contracts/design/` is the machine-readable form. `contracts/design/colors.css` and `contracts/design/environment.css` hold what DTCG cannot |
 | Does a component like this exist at all, and what if it does not? | [`frameworks/INDEX.md`](../../frameworks/INDEX.md), which also says which layers ship it. A no is one of three. Your product is a different register and the markup is yours: [`references/media-register.md`](./references/media-register.md). Arena ships none on purpose: the last section of [`references/surface.md`](./references/surface.md) states that with the reason. Or nobody has added one, which is the other branch, named at the top of this page |
 | Which category holds the component I am reaching for? | `frameworks/<layer>/INDEX.md`, which names every one of them and describes none |
 | What is it called in my framework, what does it take, and where is its prompt? | `frameworks/<layer>/components/<category>/INDEX.md` |
@@ -183,14 +177,15 @@ source text cannot show, is `arena://rules` on the MCP server.
 | Where is each style decision made, and which of them are mine? | [`references/style.md`](./references/style.md): the five places, and the two you write in |
 | What exactly does this member take? | the members table in that same prompt |
 | Why does this member exist at all? | `contracts/api/components/<Name>.json` |
-| What else is exported: density by breakpoint, a focus trap, toast and confirmation queues, router predicates, tabular figures, hidden labels, and chart colours (categorical ramp, tones, heat ladder)? How do I size a layout or a panel? | [exports](./references/exports.md), then [shell](./references/shell.md) for a frame. Switching palettes is [theme](./references/theme.md) and Arena's words are [locale](./references/locale.md) |
-| What do I paint my page and my own markup with? | [`references/page.md`](./references/page.md): the floor, the colour roles, and why a role follows the skin where an alias follows the palette. **Arena paints no page of yours** |
+| What else is exported: what each export promises; confirmations and toasts raised from code; a focus trap and roving focus; hidden labels and tabular figures? How do I colour a legend, a chip or a chart library, route an activation of your own, or change density below a breakpoint? How do I window a long table, or take Angular projection markers, reactive forms and the file input? How do I size a layout or a panel? | [exports](./references/exports.md), then [shell](./references/shell.md) for a frame. Switching palettes is [theme](./references/theme.md) and Arena's words are [locale](./references/locale.md) |
+| What do I paint the floor of my page with? | [`references/page.md`](./references/page.md): the floor, the face and the canvas that Arena leaves to you. **Arena paints no page of yours** |
+| What do I paint my own markup with? | [`references/tokens/markup/index.md`](./references/tokens/markup/index.md): one page per task, each giving the roles that task reads, and why a role follows the skin where an alias follows the palette |
 | How much air goes between two components, and what column does the page sit in? | [`references/style.md`](./references/style.md): the four classes the column is made of, and the stack and row steps as classes and as tokens. That page also draws the cut between air you place and air the kernel answers |
+| How much does a region hold, and what do compact and comfortable change? | [`references/style.md`](./references/style.md#density): the two classes, what each re-answers and where to write one. The value each gives is on [the density page](./references/tokens/scales/density.md) |
 | How do I assemble a page: skip link, landmarks, side nav beside content? | [shell](./references/shell.md): the skeleton in each layer, which landmark each piece is, how wide the rail is and how the title follows the route |
 | What does Arena ship at all, and how much of it do I have to take? | [`references/surface.md`](./references/surface.md): every part in one table with the document that owns it, and three steps a project can stop at |
 | Where does Arena stop? | the last section of [`references/surface.md`](./references/surface.md), which is a list of decisions rather than gaps waiting to close |
-| What is the value of a token? | the DTCG JSON for its group in `contracts/design/` (`ls contracts/design/*.json`), which is the machine-readable form and is cheaper than the specification below. Two files hold what DTCG cannot: `contracts/design/colors.css` and `contracts/design/environment.css`, both of which [`references/page.md`](./references/page.md) reads for you. The values of spacing, radius, border, shadow, motion, layer and breakpoint are tabled in [`references/tokens.md`](./references/tokens.md) |
-| What does a value mean, and why is it that? | [`contracts/design/AGENTS.md`](../../contracts/design/AGENTS.md), the normative design specification |
+| What does a value mean, and why is it that? | [`contracts/design/Scales.md`](../../contracts/design/Scales.md), the tables half of the design specification |
 | What must this kind of component do to be accessible, and what does an Arena one promise? | `contracts/behaviour/<pattern>.json`, one file per pattern and shipped inside your package. The page handing you the markup names the file it binds: [`references/media-register.md`](./references/media-register.md) for a feed, a lightbox or a viewer, [`references/seo.md`](./references/seo.md) for structured data. What one of Arena's own components does is its `.prompt.md`; the file recording which pattern it binds is what Arena is held to, not a document you read |
 | I want a static mock or a throwaway prototype with no build step. What do I link? | [`references/artifact.md`](./references/artifact.md) |
 | How do I install Arena in my app? | [install](./references/install.md), then [config](./references/config.md) for `arena.config.json`, [cli](./references/cli.md) for the `arena` command and [stylesheets](./references/stylesheets.md) for the import depth |

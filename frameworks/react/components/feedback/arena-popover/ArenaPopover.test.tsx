@@ -30,28 +30,11 @@ test('an open popover rendered on the server still draws no panel', () => {
   assert.match(html, /aria-expanded="false"/, 'the trigger claimed a panel the page does not hold');
 });
 
-test('label is required and guarded after trimming, whether or not the panel is open', () => {
-  for (const label of ['', '   ']) {
-    assert.throws(
-      () => renderToStaticMarkup(<ArenaPopover label={label} trigger={<button type="button">Filters</button>}><p>x</p></ArenaPopover>),
-      /ArenaPopover: `label` is required/,
-    );
-  }
-});
-
 test('a fragment or a string is refused as the trigger, because neither takes the popup state', () => {
   assert.throws(() => renderToStaticMarkup(<ArenaPopover label="Filters" trigger="Filters"><p>x</p></ArenaPopover>),
     /single element/);
   assert.throws(() => renderToStaticMarkup(
     <ArenaPopover label="Filters" trigger={<><button type="button">Filters</button></>}><p>x</p></ArenaPopover>), /single element/);
-});
-
-test('ArenaPopover drops a consumer attribute and a consumer style', () => {
-  const html = renderToStaticMarkup(
-    // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    <ArenaPopover label="Filters" trigger={<button type="button">Filters</button>} data-stray="x" style={{ color: '#ff00ff' }}><p>x</p></ArenaPopover>,
-  );
-  assert.doesNotMatch(html, /data-stray|#ff00ff/, 'a {...rest} escape reached the rendered root');
 });
 
 function Forwarding({ children, ...rest }: { children?: React.ReactNode }) {

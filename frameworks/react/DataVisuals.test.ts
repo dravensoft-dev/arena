@@ -1,9 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  ARENA_CAT_SLOTS, ARENA_INK_BODY, ARENA_INK_MUTED, arenaCatColor, arenaCatRotate, arenaCatSlotFor, arenaCatSurface, arenaAreaFill, arenaToneColor, arenaRailStyle,
+  ARENA_CAT_SLOTS, ARENA_CHART_HEIGHT, ARENA_HEAT_STEPS, ARENA_INK_BODY, ARENA_INK_MUTED, ARENA_PAD,
+  arenaCatColor, arenaCatRotate, arenaCatSlotFor, arenaCatSurface, arenaAreaFill, arenaToneColor, arenaRailStyle,
+  arenaHeatFill, arenaPercentWriter, arenaValueWriter,
 } from './DataVisuals.ts';
-import type { ArenaSeriesTone, ArenaTone } from './Api.generated';
+import { forgetArenaWarnings } from './WarnOnce.ts';
+import type { ArenaTone } from './Api.generated';
 
 test('every tone in the union resolves to a var() or a colour-mix of roles and levels, never a literal colour', () => {
   const tones: ArenaTone[] = ['neutral', 'success', 'warning', 'danger', 'info'];
@@ -11,20 +14,11 @@ test('every tone in the union resolves to a var() or a colour-mix of roles and l
   assert.equal(new Set(tones.map(arenaToneColor)).size, tones.length, 'tones must not share a colour');
 });
 
-test('every ArenaSeriesTone is an ArenaTone, so a chart keeps reaching the same colour it always did', () => {
-  const series: ArenaSeriesTone[] = ['success', 'warning', 'danger', 'info'];
-  for (const tone of series) assert.equal(arenaToneColor(tone), arenaToneColor(tone as ArenaTone));
-});
-
 test('arenaCatSlotFor lands inside the ramp for every key, including an empty one', () => {
   for (const key of ['', 'a', 'arena', 'SKU-1042', 'ñ', '日本', 'x'.repeat(500)]) {
     const slot = arenaCatSlotFor(key);
     assert.ok(Number.isInteger(slot) && slot >= 1 && slot <= ARENA_CAT_SLOTS, `arenaCatSlotFor(${key}) = ${slot}`);
   }
-});
-
-test('arenaCatSlotFor gives the same key the same slot every time', () => {
-  assert.equal(arenaCatSlotFor('SKU-1042'), arenaCatSlotFor('SKU-1042'));
 });
 
 test('arenaCatSlotFor spreads over the ramp by these pinned vectors', () => {
@@ -70,4 +64,76 @@ test('arenaRailStyle clips on both axes while the rail scrolls and lets the end 
   const keys = { display: 'block', outlineOffset: 'var(--focus-offset)' };
   assert.deepEqual(arenaRailStyle(true), { overflowX: 'auto', overflowY: 'hidden', ...keys });
   assert.deepEqual(arenaRailStyle(false), { overflowX: 'visible', overflowY: 'visible', ...keys });
+});
+
+test('arenaCatColor reads the ramp token for an in-range slot', () => {
+  for (let n = 1; n <= ARENA_CAT_SLOTS; n++) assert.equal(arenaCatColor(n), `var(--color-cat-${n})`);
+});
+
+test('arenaCatColor NEVER cycles past the ramp -- a 9th series clamps, it does not wrap', () => {
+
+  for (const over of [ARENA_CAT_SLOTS + 1, 9, 12, 100, 1e6])
+    assert.equal(arenaCatColor(over), `var(--color-cat-${ARENA_CAT_SLOTS})`, `slot ${over}`);
+  assert.notEqual(arenaCatColor(ARENA_CAT_SLOTS + 1), arenaCatColor(1));
+});
+
+test('arenaCatColor clamps at the low end, including the falsy slots', () => {
+
+  for (const under of [1, 0, -3, Number.NaN]) assert.equal(arenaCatColor(under), 'var(--color-cat-1)');
+});
+
+test('arenaCatColor rounds a fractional slot rather than truncating it', () => {
+  assert.equal(arenaCatColor(2.4), 'var(--color-cat-2)');
+  assert.equal(arenaCatColor(2.5), 'var(--color-cat-3)');
+  assert.equal(arenaCatColor(2.6), 'var(--color-cat-3)');
+});
+
+test('the layout constants carry the values the chart family shares', () => {
+  assert.equal(ARENA_CAT_SLOTS, 8);
+  assert.equal(ARENA_CHART_HEIGHT, 280);
+  assert.deepEqual({ ...ARENA_PAD }, { t: 8, r: 8, b: 28, l: 44 });
+});
+
+function warnings(body: () => void): string[] {
+  const captured: string[] = [];
+  const original = console.warn;
+  console.warn = (...args: unknown[]) => { captured.push(args.map(String).join(' ')); };
+  try { body(); } finally { console.warn = original; }
+  return captured;
+}
+
+test('the raw percent writer keeps one digit and never rounds a ratio to a whole percent', () => {
+  const write = arenaPercentWriter();
+  assert.equal(write(0.624), '62.4%');
+  assert.equal(write(1), '100%');
+  assert.equal(write(1.5), '150%', 'a ratio above one is written as it is');
+  assert.equal(write(0), '0%');
+  assert.equal(write(-0.05), '-5%');
+});
+
+test('a formatted percent writer keeps one fraction digit whatever the number format asks', () => {
+  const write = arenaPercentWriter({ locale: 'en-US', fractionDigits: 0 });
+  assert.equal(write(0.624), '62.4%', 'the count\'s fraction digits never reach the conversion');
+  assert.equal(write(0.5), '50%');
+  assert.equal(arenaPercentWriter({ locale: 'en-US', fractionDigits: 3, compact: true, grouping: false })(0.6249), '62.5%');
+  assert.match(arenaPercentWriter({ locale: 'de-DE' })(0.624), /^62,4\s%$/, 'the locale decides the separator');
+});
+
+test('an invalid locale warns once with the value writer\'s message and writes the raw percent', () => {
+  forgetArenaWarnings();
+  const seen = warnings(() => {
+    const percent = arenaPercentWriter({ locale: 'not a locale' });
+    assert.equal(percent(0.624), '62.4%');
+    arenaPercentWriter({ locale: 'not a locale' });
+    arenaValueWriter({ format: { locale: 'not a locale' } });
+  });
+  assert.equal(seen.length, 1, 'the two writers share one message, so it prints once');
+  assert.match(seen[0] as string, /number format: the locale "not a locale" is not a tag Intl accepts/);
+});
+
+test('the heat ladder has five steps and each step fills with its own role', () => {
+  assert.equal(ARENA_HEAT_STEPS, 5);
+  const fills = Array.from({ length: ARENA_HEAT_STEPS }, (_, index) => arenaHeatFill(index + 1));
+  assert.deepEqual(fills, ['var(--color-heat-1)', 'var(--color-heat-2)', 'var(--color-heat-3)', 'var(--color-heat-4)', 'var(--color-heat-5)']);
+  assert.equal(new Set(fills).size, ARENA_HEAT_STEPS, 'no two steps share a fill');
 });

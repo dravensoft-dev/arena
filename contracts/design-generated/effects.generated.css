@@ -16,7 +16,7 @@
   --shadow-2:0px 12px 28px -12px rgba(0,0,0,.6);
   --shadow-3:0px 30px 60px -20px rgba(0,0,0,.7);
   /*
-     The blur behind an overlay scrim (the scrim's colour is --scrim in colors.css, the palette's base-100 at 60%). The blur is what separates a
+     The blur behind an overlay scrim (the scrim's colour is --scrim in colors.css, the overlay-scrim role held at level-scrim). The blur is what separates a
      modal from a coachmark: ArenaDialog/ArenaConfirmDialog/ArenaCommandPalette pair the scrim
      with --scrim-blur, ArenaOnboarding uses the scrim alone, because a tour that
      blurs the product it is touring defeats itself.
@@ -26,6 +26,13 @@
   /* Focus */
   --focus-width:2px;
   --focus-offset:2px;
+
+  /* Opacity */
+  --opacity-disabled:0.45; /* The share of its opacity a disabled control keeps. A disabled control is exempt from contrast under WCAG 1.4.3 and 1.4.11, so the share is a fade and never a colour. */
+
+  /* How far a part's fill moves toward the ink it draws, as a fraction of that ink. Read through the mix-hover and mix-pressed roles, so a style plugin answers each state's share. */
+  --blend-hover:0.08; /* The share a fill moves toward its ink under the pointer. */
+  --blend-pressed:0.16; /* The share a fill moves toward its ink while pressed: twice the hover share, so a press reads firmer than a hover. */
 
   /* Motion */
   --dur-fast:120ms;
@@ -82,16 +89,16 @@
      to most interruptible: nav < skip < sheet < dropdown < tooltip < modal <
      modal-nested < palette < onboarding < toast.
    */
-  --z-nav:800; /* Fixed page navigation: a bottom bar, a sticky top bar. Arena draws one of these, ArenaBottomNav, and the slot is not there for it: it is there because the invariant is system-wide and a consumer's own shell is part of the system, so a host's sticky header and Arena's bar interleave with Arena's overlays by design rather than by DOM order. The slot is the system's, whether or not a component stands on it. Below dropdown, so an ArenaMenu opened from the bar covers it rather than resolving by DOM order, which is the failure this family was created to end. Anything drawn against this slot also reads --pad-safe-bottom, in contracts/design/environment.css, and --layout-bar for its own height */
-  --z-skip:820; /* The skip link, while it holds focus. It is the one thing on the page that must cover the furniture it exists to bypass: a link that lands under a sticky header is a link nobody can read, and equal numbers resolve by DOM order, which puts the header on top because the skip link is deliberately first in the document. So it is above nav and no higher: everything from sheet upward is a surface that has taken the interaction, and a skip link floating over a modal is a route out of a trap that is meant to hold */
-  --z-sheet:850; /* A non-modal panel anchored to an edge: a cart, a filter drawer, a detail pane that leaves the page usable behind it. Arena draws one of these, ArenaSheet, and the slot exists for the same reason nav does: a host's own edge panel stands beside it on the same step. Above nav, because a sheet that slides over a fixed bar and lands under it is the failure; below dropdown, because an ArenaMenu opened from inside the sheet belongs over it. It is NOT modal: a panel that takes the whole interaction is an ArenaDialog, which is two slots higher and has a scrim to say so */
-  --z-dropdown:900; /* A panel anchored to its trigger: ArenaMenu's and ArenaPopover's, and a calendar event's on the same step. The step orders such a panel only where it is in the page; a panel shown in the top layer stacks by the order it was shown, above every step here, a dialog and the toast stack included, and a panel in an overlay pane stacks just under the toast step */
+  --z-nav:800; /* Fixed page navigation: a bottom bar, a sticky top bar. Arena draws one of these, ArenaBottomNav, and the step is not there for it: it is there because the invariant is system-wide and a consumer's own shell is part of the system, so a host's sticky header and Arena's bar interleave with Arena's overlays by design rather than by DOM order. The step is the system's, whether or not a component stands on it. Below dropdown, so an ArenaMenu opened from the bar covers it rather than resolving by DOM order, which is the failure this family exists to end. Anything drawn against this step also reads --pad-safe-bottom, the device's bottom inset, and --layout-bar for its own height. */
+  --z-skip:820; /* The skip link, while it holds focus. It is the one thing on the page that must cover the furniture it exists to bypass: a link that lands under a sticky header is a link nobody can read, and equal numbers resolve by DOM order, which puts the header on top because the skip link is deliberately first in the document. So it is above nav and no higher: everything from sheet upward is a surface that has taken the interaction, and a skip link floating over a modal is a route out of a trap that is meant to hold. */
+  --z-sheet:850; /* A non-modal panel anchored to an edge: a cart, a filter drawer, a detail pane that leaves the page usable behind it. Arena draws one of these, ArenaSheet, and the step exists for the same reason nav does: a host's own edge panel stands beside it on the same step. Above nav, because a sheet that slides over a fixed bar and lands under it is the failure; below dropdown, because an ArenaMenu opened from inside the sheet belongs over it. It is NOT modal: a panel that takes the whole interaction is an ArenaDialog, which sits above dropdown and tooltip and has a scrim to say so. */
+  --z-dropdown:900; /* A panel anchored to its trigger: ArenaMenu's and ArenaPopover's, and a calendar event's on the same step. The step orders such a panel only where it is in the page. A panel shown in the top layer stacks by the order it was shown, above every step here, a dialog and the toast stack included. */
   --z-tooltip:950; /* above dropdown, so a tooltip on a menu item wins */
   --z-modal:1000; /* ArenaDialog */
   --z-modal-nested:1050; /* ArenaConfirmDialog, which opens from an ArenaDialog */
   --z-palette:1100; /* ArenaCommandPalette */
-  --z-onboarding:1200; /* the coachmark and the scrim beneath it: one slot, two uses. The scrim takes the slot and the coachmark is drawn inside it, so the two are separated by containment rather than by a second number; nothing else on the page may sit between them, which is what a single slot means here */
-  --z-toast:1300; /* floats above everything, including onboarding: a transient notice raised by an action taken inside a dialog must stay visible */
+  --z-onboarding:1200; /* the coachmark and the scrim beneath it: one step, two uses. The scrim takes the step and the coachmark is drawn inside it, so the two are separated by containment rather than by a second number; nothing else on the page may sit between them, which is what a single step means here. */
+  --z-toast:1300; /* floats above every other step, including onboarding: a transient notice raised by an action taken inside a dialog must stay visible */
 }
 :root{
   /*
@@ -113,8 +120,8 @@
   --chart-sparkline-height:20px;
   --chart-gauge-height:200px; /* A gauge's dial height. A chosen dimension: a 270 degree dial with its end labels and its centre reading fits a tile at 200px, where chart.height would spend a whole one on a single number. The dial's radius is derived from it, so the band ring, the track and the centre reading move together when it does. */
   --chart-heatmap-row-h:28px; /* A heatmap row's pitch. A CONSEQUENCE of the type scale, the way pad-bottom is: one line at --dz-text-xs with room above and below it, so a row name stays legible beside its cells. An absent height is computed from the row count times this pitch, plus the pads and the legend strip. If the type scale moves, revisit it; it will not fail loudly. */
-  --chart-pad-top:8px; /* The plot's top padding, one step of the base grid. */
-  --chart-pad-right:8px; /* The plot's right padding, one step of the base grid. */
+  --chart-pad-top:8px; /* The plot's top padding, one step of the base grid at the default text size. It holds half of the top tick label, so a chart multiplies it by the reader's text scale. */
+  --chart-pad-right:8px; /* The plot's right padding, one step of the base grid at the default text size. It holds half of the last tick label, so a chart multiplies it by the reader's text scale. */
   /*
      Holds the category labels. This is a CONSEQUENCE of the type scale, not a
      chosen dimension: it is enough room for a label at --dz-text-xs, which is the step a
@@ -157,6 +164,7 @@
      its glyphs' business and no arithmetic can answer it.
    */
   --chart-tick-char:6px;
+  --chart-label-char:6.6px; /* The advance one character of a radar spoke label is budgeted at, so the label can be cut to the room beside its ring without a DOM to ask. A CONSEQUENCE of two decisions rather than a chosen dimension: a spoke label is written in the body face at --dz-text-xs, which is 11px. Measured in the browser, the body face advances 5.2px to 5.9px a character over words such as Latency, Throughput and Engagement, which is up to 0.54em, and 6.6px is 0.6em of 11px, a margin of about an eighth over the widest of those. It is an estimate and not a measurement, because a proportional face makes a label's width its glyphs' business: a run of wide capitals such as W or M still outruns it, and the label then keeps its full name in a title and in the data table. If the label's size or face moves, revisit it; it will not fail loudly. */
   /*
      Breathing room between the doughnut's outer radius and its box, so a slice's
      stroke is not clipped. Not a multiplier deriving one dimension from another --
@@ -225,6 +233,7 @@
      the ring rather than from the caller.
    */
   --chart-legend-strip:26px;
+  --chart-gauge-reading-descent:6.4px; /* How far the gauge's centre reading reaches below its baseline at the default text size, 0.4 of the 16px line the reading is set in. A CONSEQUENCE of the type scale, the way pad-bottom is: the band word beneath it keeps --chart-label-gap at the default size and drops by this much for every default size the reading has grown past, so a larger text setting never lets the reading's descent touch the word. If the reading's step moves, revisit it; it will not fail loudly. */
 }
 :root{
   /*

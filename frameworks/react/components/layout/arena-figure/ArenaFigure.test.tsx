@@ -57,11 +57,3 @@ test('the overlay is inside the frame and the caption is under it', () => {
   assert.match(html, /id="mark"[\s\S]*<\/div><figcaption/,
     'the overlay belongs in the frame and the caption under it, which is the whole difference');
 });
-
-test('ArenaFigure drops a consumer style object and a consumer attribute', () => {
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  const styled = render(<ArenaFigure style={{ color: '#ff00ff' }} />);
-  assert.doesNotMatch(styled, /#ff00ff/, 'a consumer style reached the rendered root');
-  const spread = render(<ArenaFigure data-stray="x" />);
-  assert.doesNotMatch(spread, /data-stray/, 'a consumer attribute reached the rendered root');
-});

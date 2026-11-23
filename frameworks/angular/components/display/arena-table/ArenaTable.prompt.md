@@ -45,7 +45,7 @@ Cells are **positional**: the nth cell takes the nth column.
 | `pageChange` | event | `number` |  | A page was chosen, carrying the new 1-based page. The event also fires with 1 when the current page has gone PAST THE END, which is the only reset ArenaTable performs. A filter that leaves the page in range is silent, so returning the reader to page one on a change of criterion stays the consumer's, beside the criterion they hold. |
 | `rowRequest` | event | `number` |  | The keyboard asked for a row that is not in the projected window, carrying its 0-based index in the whole list, counted as `ArenaTableSlice.offset` counts. The consumer scrolls so that row is projected, and the table focuses it when it arrives. The event never fires for a row already projected, and never fires without `slice.view`. |
 | `pageControl` | enum | `ArenaTablePageControl` | `"auto"` | Whether ArenaTable draws the pager below the grid. 'auto' draws it whenever `page` is bound, which is what a table showing one list of its own wants. 'none' draws nothing and leaves the consumer to place an ArenaPagination themselves, over this table or over two of them at once. The member is separate from `page` because the two are separate facts. `page` is what the table KNOWS about a longer list, and this member is what it DRAWS about it. Bound together, a consumer who wants the control elsewhere would have to withhold `page` and leave the table knowing nothing about paging at all. The result is a member deliberately unbound and a comment explaining why. `sort` and `sortControl` make the same split, with the same reasoning. |
-| `sortControl` | enum | `ArenaTableSortControl` | `"auto"` | How the sort affordance is reached in CARD MODE, where there is no header row to activate. A `sortable` column therefore has no control under it at all. 'auto' draws one compact select above the cards, listing every sortable column in each direction, which is the shape a phone has room for. 'none' leaves card mode unsorted by hand, for a table whose order is the document's rather than the reader's. Above --bp-md the header row is the control and this member draws nothing. The header row does NOT come back below the breakpoint, because card mode exists for the one reason a grid does not fit. The control is a member rather than something a consumer draws for themselves, because the state it edits, ArenaTableSort, is Arena's. Left to each consumer, the label, the option order and the way a direction is worded are invented once per project over a model they did not define. |
+| `sortControl` | enum | `ArenaTableSortControl` | `"auto"` | How the sort affordance is reached in CARD MODE, where there is no header row to activate. A `sortable` column therefore has no control under it at all. 'auto' draws one compact select above the cards, listing every sortable column in each direction, which is the shape a phone has room for. 'none' leaves card mode unsorted, for a table whose order is the document's rather than the reader's. Above --bp-md the header row is the control and this member draws nothing. The header row does NOT come back below the breakpoint, because card mode exists for the one reason a grid does not fit. The control is a member rather than something a consumer draws for themselves, because the state it edits, ArenaTableSort, is Arena's. Left to each consumer, the label, the option order and the way a direction is worded are invented once per project over a model they did not define. |
 | `responsive` | primitive | `boolean` | `true` | ArenaCard mode below --bp-md. Set false only when the columns are meaningless apart. |
 
 <!-- @api end -->
@@ -70,8 +70,7 @@ Cells are **positional**: the nth cell takes the nth column.
 <!-- @keys end -->
 
 **Do / Don't** - **A grid showing part of a list owes its true size.** `page` pays that on its own. Bind `slice` when the rows in the DOM are a window rather than a page, and count `offset` from 0. A windowed grid that states neither tells a reader the list is as long as the rows it happens to have rendered.
-- **`page` is what the table knows and `pageControl` is what it draws.** Bind `[page]` whenever the list is longer than the screen, so the table sizes and resets it. Pass `pageControl="none"` when you want the `arena-pagination` somewhere else, or want one control over two tables. Withholding `[page]` to move the control is the shape this member
-  exists to replace: it left the table knowing nothing about paging at all.
+- **`page` is what the table knows and `pageControl` is what it draws.** Bind `[page]` whenever the list is longer than the screen, so the table sizes and resets it. Pass `pageControl="none"` when you want the `arena-pagination` somewhere else, or want one control over two tables. Withholding `[page]` to move the control leaves the table knowing nothing about paging at all.
 - `label` is required and names the grid for a screen reader. Say what the rows *are*, as
   in "Recent deployments" or "Team members", and never "Table". Nothing can derive it, which is why it **throws** rather than falling back. `input.required` alone is not the guard: it only proves something was bound, and `[label]="row.title"` with an empty title satisfies it.
 - Put your own components in a cell: an `arena-badge` for a status, an `arena-button` for
@@ -98,8 +97,8 @@ measured the wide shape renders, so the card shape never flashes on first paint.
 
 ### Keyboard
 
-The wide shape is a `role="grid"` with **one** tab stop. Tab reaches the grid. The header row is row 0 and is navigable, as APG prescribes. `Enter` activates the cursor's row by emitting that row's `click`. There is no step-in: a control you drew inside a cell keeps its
-own place in the page Tab sequence, so nothing you own is silenced.
+The wide shape is a `role="grid"` with **one** tab stop. Tab reaches the grid. The header row is row 0 and is navigable, as APG prescribes. `Enter` activates the cursor's row by emitting that row's `click`. There is no step-in. A control you drew inside a cell keeps its
+own place in the page Tab sequence, so nothing you own is silenced. Reaching it from a cell costs one Tab press.
 
 The grid is **not assumed rectangular**. A row may carry fewer or more cells than there are
 columns, and the cursor is clamped against the row it is actually in.
@@ -122,21 +121,6 @@ roving tab stop is the difference. Nothing under it is. A `<tr>` is a row, a `<t
 
 The empty state is still a block **beside** the table rather than a cell spanning it, and the table
 left behind is presentational. One measured cost stands. The `<table>` sits inside the bordered frame, so the measured `contentRect` excludes that border and the narrow threshold trips a couple of pixels earlier than the declared breakpoint. The host itself is a plain block.
-
-**By hand, in a real browser** (`bun run demos`, then
-`frameworks/angular/components/display/arena-table/ArenaTable.demo.generated.html`). Steps 1 to 5 are checked in real Chromium. One Tab in, then the focus ring's inset on the focused cell. Then the arrow walk, `Home` and `End` inside the row, `Enter` on a data row, and one Tab out onto the actions button. And zero grid roles and zero tab stops in the squeezed card shape. Step 6 and every judgement about how
-it *looks* were not, and are why this list stays:
-1. Tab reaches the grid ONCE, and one more Tab leaves it. No cell is a stop of its own.
-2. From a cell, Tab reaches a control inside a cell in **one** press, not two. Two means the
-   grid pulled focus back onto the cell, since `focusin` bubbles and only a real browser shows it.
-3. Arrows clamp at all four edges and focus never leaves the grid. Walk a middle row for
-   `Home` and `End`, not only the first: they never leave the row.
-4. `Enter` activates a row with `(activate)` and does nothing on the header row or on the
-   disabled row; the page logs what was activated.
-5. The squeezed container is already in card mode on load. Confirm nothing there took a
-   role, a tabindex or a key handler by accident.
-6. The measured width does not oscillate between the two shapes. Narrow the window slowly
-   across the threshold and watch it settle rather than flicker.
 
 ### Sorting and paging
 

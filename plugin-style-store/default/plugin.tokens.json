@@ -39,6 +39,10 @@
     "$type": "color",
     "$value": "{color.base-100}"
   },
+  "overlay-scrim": {
+    "$type": "color",
+    "$value": "{color.base-100}"
+  },
   "fw-heading": {
     "$type": "fontWeight",
     "$value": "{fw.extrabold}"
@@ -471,6 +475,38 @@
     "$type": "color",
     "$value": "{color.base-300}"
   },
+  "fill-marker": {
+    "$type": "color",
+    "$value": "{color.base-300}"
+  },
+  "fill-mark": {
+    "$type": "color",
+    "$value": "{color.base-content}"
+  },
+  "fill-tile": {
+    "$type": "color",
+    "$value": "{color.base-300}"
+  },
+  "fill-tip": {
+    "$type": "color",
+    "$value": "{color.base-content}"
+  },
+  "fill-control": {
+    "$type": "color",
+    "$value": "{color.neutral}"
+  },
+  "fill-control-on": {
+    "$type": "color",
+    "$value": "{color.primary}"
+  },
+  "fill-knob": {
+    "$type": "color",
+    "$value": "{color.primary-content}"
+  },
+  "fill-knob-off": {
+    "$type": "color",
+    "$value": "{color.neutral-content}"
+  },
   "ink-heading": {
     "$type": "color",
     "$value": "{color.base-content}"
@@ -503,6 +539,14 @@
     "$type": "color",
     "$value": "{color.base-content}"
   },
+  "ink-knob": {
+    "$type": "color",
+    "$value": "{color.primary}"
+  },
+  "ink-knob-off": {
+    "$type": "color",
+    "$value": "{color.neutral}"
+  },
   "edge-surface": {
     "$type": "color",
     "$value": "{color.base-300}"
@@ -518,6 +562,10 @@
   "edge-marker": {
     "$type": "color",
     "$value": "{color.neutral}"
+  },
+  "edge-mark": {
+    "$type": "color",
+    "$value": "{color.base-content}"
   },
   "edge-control": {
     "$type": "color",
@@ -538,6 +586,58 @@
   "edge-tab-selected": {
     "$type": "color",
     "$value": "{color.primary}"
+  },
+  "edge-focus": {
+    "$type": "color",
+    "$value": "{color.secondary}"
+  },
+  "bw-focus": {
+    "$type": "dimension",
+    "$value": "{focus.width}"
+  },
+  "gap-focus": {
+    "$type": "dimension",
+    "$value": "{focus.offset}"
+  },
+  "fill-selected": {
+    "$type": "color",
+    "$value": "{color.primary}"
+  },
+  "ink-selected": {
+    "$type": "color",
+    "$value": "{color.base-content}"
+  },
+  "edge-selected": {
+    "$type": "color",
+    "$value": "{color.base-content}"
+  },
+  "fade-disabled": {
+    "$type": "number",
+    "$value": "{opacity.disabled}"
+  },
+  "mix-hover": {
+    "$type": "number",
+    "$value": "{blend.hover}"
+  },
+  "mix-pressed": {
+    "$type": "number",
+    "$value": "{blend.pressed}"
+  },
+  "edge-invalid": {
+    "$type": "color",
+    "$value": "{color.error}"
+  },
+  "ink-invalid": {
+    "$type": "color",
+    "$value": "{color.error}"
+  },
+  "ink-on-mark": {
+    "$type": "color",
+    "$value": "{color.base-200}"
+  },
+  "ink-tip": {
+    "$type": "color",
+    "$value": "{color.base-100}"
   },
   "bw-surface": {
     "$type": "dimension",
@@ -661,6 +761,22 @@
     "$type": "cubicBezier",
     "$value": "{ease.out}"
   },
+  "dur-enter-deep": {
+    "$type": "duration",
+    "$value": "{dur.mid}"
+  },
+  "ease-enter-deep": {
+    "$type": "cubicBezier",
+    "$value": "{ease.emphatic}"
+  },
+  "dur-enter-floating": {
+    "$type": "duration",
+    "$value": "{dur.fast}"
+  },
+  "ease-enter-floating": {
+    "$type": "cubicBezier",
+    "$value": "{ease.out}"
+  },
   "press-scale": {
     "$type": "number",
     "$value": 0.98
@@ -678,7 +794,7 @@
     "$value": "{color.error}"
   },
   "hue-danger-fill-strong": {
-    "$type": "keyword",
+    "$type": "color",
     "$value": "transparent"
   },
   "hue-danger-fill-soft": {
@@ -744,14 +860,6 @@
   "hue-info-fill-soft": {
     "$type": "color",
     "$value": "{color.info}"
-  },
-  "fill-confirm-final": {
-    "$type": "color",
-    "$value": "{color.error-fill}"
-  },
-  "ink-confirm-final": {
-    "$type": "color",
-    "$value": "{color.error-content}"
   },
   "size-sm-control-h": {
     "$type": "dimension",
@@ -1359,5 +1467,15 @@
   "elevation-floating-shadow": {
     "$type": "shadow",
     "$value": "{shadow.2}"
+  },
+  "light": {
+    "edge-focus": {
+      "$type": "color",
+      "$value": "{color.base-content}"
+    },
+    "edge-selected": {
+      "$type": "color",
+      "$value": "{color.primary}"
+    }
   }
 }

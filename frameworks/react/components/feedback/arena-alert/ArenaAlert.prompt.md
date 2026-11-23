@@ -40,7 +40,7 @@ Persistent message on the page (status notice, system condition, context). Stays
 
 **Do / Don't**
 - ArenaAlert = persistent and inline; ArenaToast = ephemeral and floating. Don't swap them.
-- If dismissible, the close is the standard `ph-x` icon (H4). `dismissible` gates the
+- If dismissible, the close is the standard `ph-x` icon. `dismissible` gates the
   ×, pass it explicitly; `onClose` alone (with `dismissible` absent) renders no ×.
 - Reserve `danger` for blocking conditions; for full-page errors use `ArenaErrorState`.
 

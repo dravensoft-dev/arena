@@ -86,6 +86,7 @@ export const UNTRACKED = {
   'frameworks/react/AnchoredPanel.generated.js': 'the same, for the rules every anchored panel follows.',
   'frameworks/react/UseAnchoredPanel.generated.js': 'the same, for the hook that places an anchored panel and dismisses it.',
   'frameworks/react/Thresholds.generated.js': 'the same, for the rule that a region keeps its lower edge.',
+  'frameworks/react/RootScale.generated.js': 'the same, for the root font size a breakpoint and the text scale are read against.',
   'frameworks/react/TypeAhead.generated.js': 'the same, for the prefix a list matches as characters are typed.',
   'frameworks/react/RowWindowMeasure.generated.js': 'the same, for the measuring of the rows a windowed list draws.',
   'frameworks/react/VocabularyClass.generated.js': 'the same, for the filter that keeps a className to its vocabulary.',
@@ -141,7 +142,7 @@ export const UNTRACKED = {
     + 'the manifest it came from.',
   'frameworks/tailwind/consume/hues/**/*.hues.generated.css':
     'the hue sheet of one component: one rule per slot and value of every group the manifest maps to '
-    + 'a hue, and one per slot its hues.always fixes, writing the hue channels on the element that reads them, compiled from the '
+    + 'a hue, writing the hue channels on the element that reads them, compiled from the '
     + 'manifest and Hues.json. The component sheet imports it after the prelude, and the package '
     + 'build collects these into css/hues/.',
   'frameworks/tailwind/consume/Components.generated.css':

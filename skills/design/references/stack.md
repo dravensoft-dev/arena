@@ -112,7 +112,7 @@ sprite `arena build` writes, so no package asks for `@phosphor-icons/web`. A pro
 `ArenaIcon` no sprite URL gets a warning, once. Both layers render nothing where the icon goes;
 [`install.md`](./install.md) says how the URL is handed over.
 
-**Two peers are optional.** `@angular/router` and `@angular/forms` are declared in `peerDependenciesMeta` as optional, so no manager installs them for you. The router is needed once a project reaches the entry point that writes the document head, and the forms package once it reaches the forms entry point. A project that never reaches either never installs what it does not use. [`seo.md`](./seo.md) is where the router decision is made, and node 8 of [`cold-start.md`](./cold-start.md) is where it is reached. [`install.md`](./install.md) gives the install command per layer, optional peers included.
+**Two peers are optional.** `@angular/router` and `@angular/forms` are declared in `peerDependenciesMeta` as optional, so no manager installs them for you. The router is needed once a project reaches the entry point that writes the document head, and the forms package once it reaches the forms entry point. A project that never reaches either never installs what it does not use. [`seo.md`](./seo.md) is where the router decision is made, and node 9 of [`cold-start.md`](./cold-start.md) is where it is reached. [`install.md`](./install.md) gives the install command per layer, optional peers included.
 
 **The framework is the project's.** A peer named with a range on the command line is an explicit install. So [`install.md`](./install.md) names the package and the add-on a project lacks: `@angular/cdk` at your Angular major.
 
@@ -163,4 +163,4 @@ the same style plugin travels whatever installs it and whatever assembles it.
   above it, so a version past the exercised one resolves and is untested: that is a permission, not
   a promise.
 - **Nothing runs your project.** No gate here opens your application, so no support row is
-  evidence about it. The closest thing is `arena audit`, which reads each source file for what a source text can show, a second primary action and a filled danger surface among them. Nothing reads the rendered view, the application as a whole, or the rules about meaning.
+  evidence about it. The closest thing is `arena audit`, which reads each source file for what a source text can show. A class of your own on a component and a raw value where a token belongs are two of those. Nothing reads the rendered view, the application as a whole, or the rules about meaning.

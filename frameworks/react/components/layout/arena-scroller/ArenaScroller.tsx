@@ -16,7 +16,7 @@ export interface ArenaScrollerProps {
   /** The items in the row, one per child. Nothing is wrapped: a child is laid out exactly as it was written. An ArenaScrollerItem is laid out at the width the scroller-item family names, and a bare child at its own. Required, and guarded at runtime: an empty row is a tab stop over nothing, which is the dead stop a component with a group role must not ship. */
   children: React.ReactNode;
 
-  /** Whether the row settles on an item or wherever it was left. Snap by default, because a rail of equal-width cards left halfway across one is a card the reader has to finish scrolling by hand. Nothing moves on its own under either value, so neither answers prefers-reduced-motion and no pause control is owed. */
+  /** Whether the row settles on an item or wherever it was left. Snap by default, because a rail of equal-width cards left halfway across one is a card the reader has to finish scrolling. Nothing moves on its own under either value, so neither answers prefers-reduced-motion and no pause control is owed. */
   behaviour?: ArenaScrollerBehaviour;
 }
 
@@ -32,7 +32,7 @@ export function ArenaScroller({ className,
     throw new Error('ArenaScroller: `label` is required, and names the row a reader lands on');
   }
   if (React.Children.toArray(children).length === 0) {
-    throw new Error('ArenaScroller: a row with no children is a tab stop over nothing');
+    throw new Error('ArenaScroller: `children` is required, and a row with no children is a tab stop over nothing');
   }
 
   return (

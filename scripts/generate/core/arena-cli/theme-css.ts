@@ -1,13 +1,13 @@
 /* Turns a consumer's arena.config.json into the stylesheet Arena cannot ship: the palette
  * blocks and the @font-face rules (themeCss), and the package sheet (packageSheet). Everything
- * else about a token travels inside the package. It runs in the repository, where
- * check-packages.ts holds its output equivalent to Style Dictionary's, and inside both npm
- * packages, where it is the only emitter there is. It reads no file and touches no network, so a
+ * else about a token travels inside the package. It runs in the repository, where check-packages.ts
+ * holds its output equivalent to Style Dictionary's, and inside both npm packages, where it is the only emitter there is. It reads no file and touches no network, so a
  * path in the config is emitted rather than resolved and a style plugin arrives already read.
+ * State pairs use the default wash level, as a project's own is not readable here.
  * Every field of an ArenaConfig is optional because a CONSUMER writes it: an invalid one must
  * reach configProblems rather than be refused by a type nobody there can read. A style plugin is
- * checked here and not only shaped, through the same style-plugin-rules.ts Arena's own gate runs,
- * so what a consumer writes is held to the same floors in the PROJECT's build. */
+ * checked here, through the same style-plugin-rules.ts Arena's own gate runs, so what a consumer
+ * writes is held to the same floors in the PROJECT's build. */
 
 import {
   PALETTE_KEYS, POLARITIES, pickerInvert, FONT_ROLES, GENERIC_FAMILIES, SOURCE_FORMATS,
@@ -15,27 +15,34 @@ import {
 } from './palette-keys.ts';
 import { validate, contrast } from './validate-palette.mjs';
 import {
-  FS_STEP, RHYTHM_STEP, aliasName, colourAnswer, keywordAnswer, type KnownAnswers, floorProblems, highContrastFor, nameProblems, reservedProblems, rootOnlyFor, scopeOn, totalityProblems, withDefaults,
+  FS_STEP, RHYTHM_STEP, aliasName, colourAnswer, fixedRemProblems, keywordAnswer, type KnownAnswers, floorProblems, highContrastFor, nameProblems, reservedProblems, rootOnlyFor, scopeOn, totalityProblems, typeProblem, withDefaults,
 } from './style-plugin-rules.ts';
-import { serialize } from './serialize-token.ts';
+import { scaledLiteral, serialize } from './serialize-token.ts';
 import { HEAT_MIN_DL, errorFill, heatCramped, heatLadder, toOklab } from './oklab.ts';
-import { axisReports, derivedLevels, emphasisReports, levelReports, onInkReports, raisedReports, washReports } from './levels.ts';
+import { axisReports, derivedLevels, levelReports, onInkReports, raisedReports, stateReports, washReports } from './levels.ts';
 import type { Level, Wash } from './levels.ts';
 import { unicodeRange } from './font-cut.ts';
 import { report } from './report.ts';
 import type { Report } from './report.ts';
 import type { SerializableToken } from './serialize-token.ts';
+import { colourNamesOf, fadeMarkers, measuredSlots, slotAnswer, slotProblem } from './slots.ts';
+import type { MeasuredSlots, SlotCatalogue } from './slots.ts';
+import { disabledReports, slotReports } from './slot-contrast.ts';
 
 export type TokenCatalogue = {
   tokens: Record<string, string>;
-  roles: Record<string, { type?: string; values?: string[]; default?: string }>;
+  light?: Record<string, string>;
+  roles: Record<string, { type?: string; values?: string[]; default?: string; audience?: string; task?: string; userScale?: string;
+    question?: string; combines?: { with: string; as: string }[]; keys?: string[] }>;
   aliases?: Record<string, string>;
   channels?: string[];
+  slots: SlotCatalogue;
 };
 
 export type CheckedSheets = {
   layers: string[];
   components: string[];
+  parts?: Record<string, string[]>;
   levels?: Level[];
   washes?: Wash[];
   scopes?: string[];
@@ -54,6 +61,9 @@ export type ArenaPalette = {
   colors?: Record<string, string>;
 };
 
+const PALETTE_KEY_TABLE: Record<keyof ArenaPalette, true> = { name: true, default: true, polarity: true, colors: true };
+export const PALETTE_OBJECT_KEYS: readonly (keyof ArenaPalette)[] = Object.keys(PALETTE_KEY_TABLE) as (keyof ArenaPalette)[];
+
 export type ArenaFont = {
   family?: string;
   src?: string;
@@ -67,7 +77,6 @@ export type ArenaStylesheet = { preflight?: boolean; components?: unknown };
 
 export type ArenaConfig = {
   stylePlugins?: unknown;
-  gradientMark?: unknown;
   runtimePalettes?: unknown;
   palettes?: ArenaPalette[];
   fonts?: Record<string, ArenaFont>;
@@ -75,7 +84,7 @@ export type ArenaConfig = {
   components?: string | string[];
 };
 
-export const ARENA_CONFIG_KEYS: readonly (keyof ArenaConfig)[] = ['palettes', 'fonts', 'stylePlugins', 'stylesheet', 'gradientMark', 'runtimePalettes'];
+export const ARENA_CONFIG_KEYS: readonly (keyof ArenaConfig)[] = ['palettes', 'fonts', 'stylePlugins', 'stylesheet', 'runtimePalettes'];
 export const ARENA_FONT_KEYS: readonly (keyof ArenaFont)[] = ['family', 'src', 'fallback', 'style', 'weight', 'display'];
 
 export type CheckedPalette = ArenaPalette & {
@@ -145,6 +154,12 @@ function paletteProblems(
   const at = `palettes[${index}]`;
   const problems = [];
   if (!isObject(palette)) return [`${at}: not an object`];
+
+  for (const key of Object.keys(palette)) {
+    if (!(PALETTE_OBJECT_KEYS as readonly string[]).includes(key)) {
+      problems.push(`${at}.${key}: not a key of a palette. The keys are ${PALETTE_OBJECT_KEYS.join(', ')}`);
+    }
+  }
 
   if (typeof palette.name !== 'string' || !KEBAB.test(palette.name)) {
     problems.push(`${at}.name: ${JSON.stringify(palette.name)} is not a kebab-case name`);
@@ -235,6 +250,8 @@ export type StylePlugin = {
   name: string;
   tokens: Record<string, unknown>;
   light: Record<string, unknown>;
+  types?: Record<string, unknown>;
+  lightTypes?: Record<string, unknown>;
 };
 
 export type ResolvedPlugins = (StylePlugin | null)[] | null;
@@ -259,15 +276,16 @@ export function rootIsDefault(config: ArenaConfig) {
 
 const ALIAS = /^\{([a-z][\w-]*(?:\.[\w-]+)*)\}$/;
 
-const COLOUR_ALIAS = /^color\.[a-z0-9-]+$/;
+export const SKIN_ALIAS = /^(?:color|font|focus)\.[a-z0-9-]+$/;
 
-export const SKIN_ALIAS = /^(?:color|font)\.[a-z0-9-]+$/;
-
-export function pluginValue(raw: unknown, catalogue: TokenCatalogue | null) {
+export function pluginValue(raw: unknown, catalogue: TokenCatalogue | null, key?: string) {
   if (typeof raw !== 'string' || !raw.trim()) return null;
   const value = raw.trim();
   const alias = ALIAS.exec(value)?.[1];
-  if (!alias) return value;
+  if (!alias) {
+    const axis = key === undefined ? undefined : catalogue?.roles?.[key]?.userScale;
+    return scaledLiteral(value, { axis });
+  }
   const flat = alias.replace(/\./g, '-');
   if (catalogue?.roles?.[flat]?.type === 'color') return `var(--${flat})`;
   if (catalogue?.tokens?.[flat] === undefined) return null;
@@ -288,19 +306,27 @@ export function dtcgValue(node: unknown) {
 export function readPlugin(name: string, source: unknown): StylePlugin {
   const tokens: Record<string, unknown> = {};
   const light: Record<string, unknown> = {};
+  const types: Record<string, unknown> = {};
+  const lightTypes: Record<string, unknown> = {};
+  const typeOf = (node: unknown) => (isObject(node) ? node.$type : undefined);
   for (const [key, node] of Object.entries(isObject(source) ? source : {})) {
     if (key.startsWith('$')) continue;
     if (key === THEME_GROUP && isObject(node) && !('$value' in node)) {
-      for (const [role, token] of Object.entries(node)) light[role] = dtcgValue(token);
+      for (const [role, token] of Object.entries(node)) {
+        if (role.startsWith('$')) continue;
+        light[role] = dtcgValue(token);
+        lightTypes[role] = typeOf(token);
+      }
       continue;
     }
     tokens[key] = dtcgValue(node);
+    types[key] = typeOf(node);
   }
-  return { name, tokens, light };
+  return { name, tokens, light, types, lightTypes };
 }
 
 function declarationsOf(tokens: Record<string, unknown>, catalogue: TokenCatalogue | null) {
-  return Object.entries(tokens).map(([key, raw]) => `--${key}:${pluginValue(raw, catalogue)};`);
+  return Object.entries(tokens).map(([key, raw]) => `--${key}:${pluginValue(raw, catalogue, key)};`);
 }
 
 export function resolvedPlugin(
@@ -308,18 +334,24 @@ export function resolvedPlugin(
 ) {
   const at = new Map<string, string>(Object.entries(catalogue?.tokens ?? {}));
   for (const [key, raw] of Object.entries(plugin.tokens)) {
-    const value = pluginValue(raw, catalogue);
+    const value = pluginValue(raw, catalogue, key);
     if (value !== null) at.set(key, value);
   }
   if (polarity !== 'dark') {
     for (const [key, raw] of Object.entries(plugin.light)) {
-      const value = pluginValue(raw, catalogue);
+      const value = pluginValue(raw, catalogue, key);
       if (value !== null) at.set(key, value);
     }
   }
+  followColourChains(at, catalogue, at.keys());
+  return at;
+}
+
+function followColourChains(at: Map<string, string>, catalogue: TokenCatalogue | null, keys: Iterable<string>) {
   const roles = catalogue?.roles ?? {};
   const bound = Object.keys(roles).length;
-  for (const [key, first] of at) {
+  for (const key of [...keys]) {
+    const first = at.get(key) as string;
     let value = first;
     for (let hop = 0; hop < bound; hop += 1) {
       const name = /^var\(--([\w-]+)\)$/.exec(value)?.[1];
@@ -328,12 +360,13 @@ export function resolvedPlugin(
     }
     if (value !== first) at.set(key, value);
   }
-  return at;
 }
 
 function knownOf(catalogue: TokenCatalogue): KnownAnswers {
   return {
     colourRoles: (name) => catalogue.roles?.[name]?.type === 'color',
+    colourNames: colourNamesOf(catalogue.roles ?? {}, 'type'),
+    slots: catalogue.slots,
     resolve: (flat) => catalogue.tokens?.[flat],
   };
 }
@@ -379,42 +412,56 @@ export function ringsOf(tokens: Record<string, unknown>, catalogue: TokenCatalog
 export function pluginBlocks(
   plugin: StylePlugin, catalogue: TokenCatalogue | null, polarity: string,
 ) {
+  const answered = polarity === 'light' ? [...Object.keys(plugin.tokens), ...Object.keys(plugin.light)] : Object.keys(plugin.tokens);
   return [
     ...declarationsOf(plugin.tokens, catalogue),
     ...(polarity === 'light' ? declarationsOf(plugin.light, catalogue) : []),
+    ...(catalogue?.slots ? fadeMarkers(answered, catalogue.slots).map(([name, value]) => `${name}:${value};`) : []),
   ];
 }
 
 export function pluginTokenProblems(
-  group: string, tokens: Record<string, unknown>, catalogue: TokenCatalogue,
+  group: string, tokens: Record<string, unknown>, catalogue: TokenCatalogue, types?: Record<string, unknown>,
 ) {
   const problems = [];
   const known = knownOf(catalogue);
   for (const [key, raw] of Object.entries(tokens)) {
     const where = `stylePlugins.${group}`;
     const role = catalogue.roles?.[key];
+    if (types && Object.hasOwn(types, key)) {
+      const wrong = typeProblem(where, key, types[key], role ? { $type: role.type } : undefined, catalogue.slots);
+      if (wrong) problems.push(wrong);
+    }
+    if (!role && catalogue.slots?.slots[key]) {
+      if (typeof raw !== 'string' || !slotAnswer(raw, key, catalogue.slots, known.colourNames ?? new Set()))
+        problems.push(slotProblem(where, key, String(raw), catalogue.slots));
+      continue;
+    }
     if (!role && !FS_STEP.test(key) && !RHYTHM_STEP.test(key)) {
       problems.push(`${where}: "${key}" is neither a role this package ships nor an fs or rhythm step. `
         + 'A style plugin re-values those only: a scale, a colour or a spacing step is shared by every '
         + 'use that wants that value, so moving one is not a style plugin but a different Arena.');
       continue;
     }
-    if (pluginValue(raw, catalogue) === null) {
+    if (pluginValue(raw, catalogue, key) === null) {
       problems.push(`${where}: "${key}" is ${JSON.stringify(raw)}, which resolves to nothing this package `
         + 'ships. Write a value outright, or an alias like {fs.h3} or {color.base-200} naming a token '
-        + 'Arena emits.');
+        + 'Arena emits.'
+        + (aliasName(String(raw)) === 'transparent'
+          ? ' transparent is a colour answer of its own: write transparent without braces.' : ''));
       continue;
     }
     if (role?.type === 'color' && !colourAnswer(String(raw), key, known)) {
       const selfNamed = aliasName(String(raw)) === key;
       if (!selfNamed)
-        problems.push(`${where}: "${key}" is ${JSON.stringify(raw)}, and a colour role takes a {color.*} alias `
-          + 'or another colour role. A style plugin assigns one of your colours to a role and never authors one '
+        problems.push(`${where}: "${key}" is ${JSON.stringify(raw)}, and a colour role takes a {color.*} alias`
+          + ', another colour role or transparent. A style plugin assigns one of your colours to a role and never authors one '
           + 'of its own.');
     }
     if (role?.type === 'keyword' && Array.isArray(role.values) && !keywordAnswer(String(raw).trim(), role.values, known))
       problems.push(`${where}: "${key}" is ${JSON.stringify(raw)}, not one of ${role.values.join(', ')}.`);
   }
+  problems.push(...fixedRemProblems(`stylePlugins.${group}`, tokens, catalogue.roles ?? {}));
   for (const { message } of ringsOf(tokens, catalogue)) problems.push(`stylePlugins.${group}: ${message}.`);
   return problems;
 }
@@ -456,7 +503,7 @@ function resolvedProblems(
   const isRoot = plugin === root;
   const catalogue = sheets?.catalogue;
   const problems = [];
-  if (Object.keys(plugin.tokens).length === 0) {
+  if (Object.keys(plugin.tokens).length + Object.keys(plugin.light).length === 0) {
     problems.push(`${at}: a style plugin answers at least one role, or it is a class nobody can tell `
       + 'from its absence');
   }
@@ -466,8 +513,9 @@ function resolvedProblems(
   }
 
   const { plugin: whole, defaulted } = withDefaults(plugin, catalogue.roles ?? {}, isRoot ? undefined : { root });
-  problems.push(...pluginTokenProblems(plugin.name, plugin.tokens, catalogue));
-  problems.push(...pluginTokenProblems(`${plugin.name}.${THEME_GROUP}`, plugin.light, catalogue));
+  problems.push(...pluginTokenProblems(plugin.name, plugin.tokens, catalogue, plugin.types));
+  problems.push(...pluginTokenProblems(`${plugin.name}.${THEME_GROUP}`, plugin.light, catalogue, plugin.lightTypes));
+  problems.push(...lightGroupProblems(plugin, catalogue));
   if (isRoot) {
     problems.push(...totalityProblems(Object.keys(catalogue.roles ?? {}), Object.keys(whole.tokens))
       .map((problem) => `${at}: ${problem}`));
@@ -539,14 +587,6 @@ export function rootWithDefaults(plugins: ResolvedPlugins, catalogue: TokenCatal
 export const defaultedNote = (roles: string[]) =>
   `${roles.length} role(s) your root style plugin leaves unanswered take Arena's default: ${roles.join(', ')}`;
 
-export function gradientMarkProblems(config: ArenaConfig) {
-  const declared = config.gradientMark;
-  if (declared === undefined || typeof declared === 'boolean') return [];
-  return [`gradientMark: declare true or false, not ${typeof declared}. It says the mark this `
-    + 'project is drawn with is a gradient, so the audit stops reporting one in your own sources, '
-    + 'and a value that is not a boolean would read as true while meaning nothing'];
-}
-
 export function runtimePalettesProblems(config: ArenaConfig) {
   const declared = config.runtimePalettes;
   if (declared === undefined || typeof declared === 'boolean') return [];
@@ -561,6 +601,9 @@ export function configProblems(
   if (!isObject(config)) return ['the configuration is not an object'];
   const problems = [];
 
+  for (const key of Object.keys(config).filter((one) => one !== 'extension' && !(ARENA_CONFIG_KEYS as readonly string[]).includes(one)))
+    problems.push(`${key}: not a key of arena.config.json. The keys are ${ARENA_CONFIG_KEYS.join(', ')}`);
+
   if (!Array.isArray(config.palettes) || config.palettes.length === 0) {
     problems.push('palettes: declare at least one palette');
   } else {
@@ -573,7 +616,6 @@ export function configProblems(
     }
   }
 
-  problems.push(...gradientMarkProblems(config));
   problems.push(...runtimePalettesProblems(config));
   problems.push(...stylePluginProblems(config, sheets, plugins));
   problems.push(...fontProblems(config.fonts));
@@ -616,7 +658,26 @@ export function heatOrderReports(steps: readonly string[], surface: string): Rep
 export function rolesFor(root: StylePlugin | null, catalogue: TokenCatalogue | null, polarity: string) {
   return root
     ? resolvedPlugin(root, catalogue, polarity)
-    : new Map<string, string>(Object.entries(catalogue?.tokens ?? {}));
+    : new Map<string, string>(Object.entries({
+      ...catalogue?.tokens, ...(polarity === 'light' ? catalogue?.light : {}),
+    }));
+}
+
+export function nestedRolesFor(
+  root: StylePlugin | null, plugin: StylePlugin, catalogue: TokenCatalogue | null, polarity: string,
+) {
+  const at = rolesFor(root, catalogue, polarity);
+  const set = new Set<string>();
+  for (const group of polarity !== 'dark' ? [plugin.tokens, plugin.light] : [plugin.tokens]) {
+    for (const [key, raw] of Object.entries(group)) {
+      const value = pluginValue(raw, catalogue, key);
+      if (value === null) continue;
+      at.set(key, value);
+      set.add(key);
+    }
+  }
+  followColourChains(at, catalogue, set);
+  return at;
 }
 
 export function polarityReports(polarity: string, ground: string | undefined): Report[] {
@@ -625,9 +686,18 @@ export function polarityReports(polarity: string, ground: string | undefined): R
   return reads === polarity ? [] : [report('contrast', `polarity, base-100 ${ground} reads as ${reads}, and the palette declares ${polarity}`)];
 }
 
+export function slotMessages(
+  slots: { catalogue: MeasuredSlots; levels?: Record<string, number> }, roles: Map<string, string>,
+  colors: Record<string, string>, theme: string, levels: Level[],
+) {
+  const answers = new Map([...roles].filter(([name]) => Object.hasOwn(slots.catalogue.slots, name)));
+  const percents = { ...Object.fromEntries(levels.filter((one) => one.level !== null).map((one) => [one.level as string, one.percent])), ...slots.levels };
+  return [...slotReports(slots.catalogue, answers, roles, colors, theme, percents), ...disabledReports(slots.catalogue, answers, roles, colors, theme, percents)];
+}
+
 export function paletteMessages(
   palette: { polarity: string; colors: Record<string, string> }, roles: Map<string, string>,
-  levels: Level[], washes: Wash[],
+  levels: Level[], washes: Wash[], slots: { catalogue: MeasuredSlots; levels?: Record<string, number> } | null = null,
 ) {
   const mode = palette.polarity;
   const colors = derivedColours(palette.colors, mode);
@@ -657,11 +727,13 @@ export function paletteMessages(
     const ratio = contrast(fg, bg);
     if (ratio < TEXT_MIN) {
       messages.push(report('contrast',
-        `text, ${what}: ${ratio.toFixed(2)}:1, under the ${TEXT_MIN}:1 Arena holds itself to`));
+        `text, ${what}: ${ratio.toFixed(2)}:1, under the ${TEXT_MIN}:1 of WCAG AA. `
+        + 'Arena measures every palette and reports what falls short, and the build goes on'));
     }
   }
 
-  messages.push(...axisReports(roles, colors, mode), ...onInkReports(roles, colors, mode), ...emphasisReports(roles, colors, mode));
+  messages.push(...axisReports(roles, colors, mode), ...onInkReports(roles, colors, mode), ...stateReports(roles, colors, mode));
+  if (slots) messages.push(...slotMessages(slots, roles, colors, mode, levels));
 
   const derived = derivedLevels(levels, roles, colors);
   messages.push(...levelReports(levels, roles, colors, derived));
@@ -674,11 +746,19 @@ export function paletteReports(
   config: CheckedConfig, catalogue: TokenCatalogue | null = null, plugins: ResolvedPlugins = null,
   levels: Level[] = [], washes: Wash[] = [],
 ) {
-  const root = (plugins ?? [])[0] ?? null;
+  const [root = null, ...nested] = plugins ?? [];
+  const slots = catalogue?.slots ? { catalogue: catalogue.slots } : null;
   const out = [];
   for (const palette of config.palettes) {
-    const messages = paletteMessages(palette, rolesFor(root, catalogue, palette.polarity), levels, washes);
+    const messages = paletteMessages(palette, rolesFor(root, catalogue, palette.polarity), levels, washes, slots);
     if (messages.length) out.push({ palette: palette.name, messages });
+    const held = new Set(messages.map((m) => m.message));
+    for (const plugin of nested) {
+      if (!plugin) continue;
+      const own = paletteMessages(palette, nestedRolesFor(root, plugin, catalogue, palette.polarity), levels, washes, slots)
+        .filter((m) => !held.has(m.message));
+      if (own.length) out.push({ palette: `${palette.name}, style plugin ${plugin.name}`, messages: own });
+    }
   }
   return out;
 }
@@ -826,9 +906,22 @@ export function paletteDeclarations(
   return [...declared, ...stepped];
 }
 
+export function restates(declaration: string, catalogue: TokenCatalogue | null) {
+  const namesColourRole = catalogue?.roles?.[/:var\(--([\w-]+)\);$/.exec(declaration)?.[1] ?? '']?.type === 'color';
+  return declaration.includes('var(--color-') || namesColourRole;
+}
+
 export function restatedBy(plugin: StylePlugin, catalogue: TokenCatalogue | null, polarity: string) {
-  const namesColourRole = (d: string) => catalogue?.roles?.[/:var\(--([\w-]+)\);$/.exec(d)?.[1] ?? '']?.type === 'color';
-  return pluginBlocks(plugin, catalogue, polarity).filter((d) => d.includes('var(--color-') || namesColourRole(d));
+  return pluginBlocks(plugin, catalogue, polarity).filter((d) => restates(d, catalogue));
+}
+
+export function lightGroupProblems(plugin: StylePlugin, catalogue: TokenCatalogue) {
+  return Object.entries(plugin.light)
+    .filter(([key, raw]) => pluginValue(raw, catalogue, key) !== null
+      && !restates(`--${key}:${pluginValue(raw, catalogue, key)};`, catalogue))
+    .map(([key, raw]) => `stylePlugins.${plugin.name}.${THEME_GROUP}: "${key}" is ${JSON.stringify(raw)}. The ${THEME_GROUP} group takes colour answers `
+      + 'only, a {color.*} alias or another colour role, never `transparent`, because it lays over the plain answers in a light palette and only an answer that reads a palette colour is restated there'
+      + `${/^transparent$/i.test(pluginValue(raw, catalogue, key) ?? '') ? '; `transparent` reads none, so it is not restated under a palette\'s polarity' : ''}.`);
 }
 
 export type PolarityContext = {
@@ -857,6 +950,12 @@ export function scopedImports(
       for (const name of stylesheet.components as string[]) lines.push(`@import '${packageName}/css/components/${name}.css';`);
       continue;
     }
+    const parts = sheets.parts?.[layer];
+    if (parts !== undefined && !parts.every((name) => (stylesheet.components as string[]).includes(name))) {
+      for (const name of parts.filter((one) => (stylesheet.components as string[]).includes(one)))
+        lines.push(`@import '${packageName}/${layer.replace(/\.css$/, '')}/${name}.css';`);
+      continue;
+    }
     lines.push(`@import '${packageName}/${layer}';`);
   }
   return lines;
@@ -872,6 +971,7 @@ export type ArenaRuntimeDataShape = {
   levels: Level[];
   washes: Wash[];
   roles: { dark: Record<string, string>; light: Record<string, string> };
+  slots: MeasuredSlots | null;
 };
 
 export function runtimeData(config: CheckedConfig, sheets: PackageSheets, plugins: ResolvedPlugins): ArenaRuntimeDataShape {
@@ -885,6 +985,7 @@ export function runtimeData(config: CheckedConfig, sheets: PackageSheets, plugin
     levels: sheets?.levels ?? [],
     washes: sheets?.washes ?? [],
     roles: { dark: rolesIn('dark'), light: rolesIn('light') },
+    slots: catalogue?.slots ? measuredSlots(catalogue.slots) : null,
   };
 }
 

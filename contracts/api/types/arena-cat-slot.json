@@ -1,6 +1,6 @@
 {
   "name": "ArenaCatSlot",
   "kind": "enum",
-  "description": "Which slot of the categorical ramp a thing takes, taken in fixed order. Colour here means which thing, never what state. Slot n is the colour `--color-cat-n`, a property `arena build` writes from the palette, and the bound is the number of those slots the build emits. arenaCatColor(slot) returns that colour as a CSS value, and arenaCatSurface(slot) returns a matching tinted `fill` and `border`. Both clamp a slot past the ramp to its last one instead of wrapping to the first. The chart components take a series colour as a plain number and apply the same clamp. A chart counts a series that names no slot from its `colorStart` and wraps after the last slot.",
+  "description": "Which colour of the categorical ramp a thing takes, taken in fixed order. Colour here means which thing, never what state. Ramp colour n is `--color-cat-n`, a property `arena build` writes from the palette, and the bound is the number of ramp colours the build emits. arenaCatColor(slot) returns that colour as a CSS value, and arenaCatSurface(slot) returns a matching tinted `fill` and `border`. Both clamp a number past the ramp to its last colour instead of wrapping to the first. The chart components take a series colour as a plain number and apply the same clamp. A chart counts a series that names no ramp colour from its `colorStart` and wraps after the last ramp colour.",
   "values": [1, 2, 3, 4, 5, 6, 7, 8]
 }

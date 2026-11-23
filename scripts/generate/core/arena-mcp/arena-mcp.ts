@@ -16,7 +16,9 @@ import {
   resolvePayload, manifestIn, disagreement, LAYERS, type Manifest, type Installed,
 } from './payload.ts';
 import { catalogue, search, textOf, ROUTER_URI, SCHEME, COMPONENT_PREFIX, type Entry } from './catalogue.ts';
-import { auditText, loadVocabulary, type VocabularyIndex } from '../arena-cli/audit.ts';
+import {
+  auditText, loadVocabulary, loadLevels, catalogueLevels, NO_LEVELS, type VocabularyIndex, type LevelledRoles,
+} from '../arena-cli/audit.ts';
 
 export const NAME = 'arena';
 
@@ -28,8 +30,9 @@ export const CHECK_SCOPE = 'Read as an application source, so a style plugin of 
 
 export function checked(
   source: string, path: string = CHECKED_AS, vocabulary: VocabularyIndex | null = null,
+  levels: LevelledRoles = NO_LEVELS,
 ) {
-  const found = auditText(path, source, 'app', false, vocabulary);
+  const found = auditText(path, source, 'app', vocabulary, levels);
   return found.length === 0
     ? `No finding. ${CHECK_SCOPE}`
     : `${found.length} finding(s):\n${found.join('\n')}\n\n${CHECK_SCOPE}`;
@@ -87,8 +90,13 @@ export function vocabularyOf(payload: string, installed: Installed | null = null
   return loadVocabulary(payload) ?? (installed === null ? null : loadVocabulary(installed.dir));
 }
 
+export function levelsOf(payload: string, installed: Installed | null = null): LevelledRoles | null {
+  return loadLevels(payload) ?? (installed === null ? null : catalogueLevels(installed.dir));
+}
+
 export function build(payload: string, manifest: Manifest, installed: Installed | null = null) {
   const vocabulary = vocabularyOf(payload, installed);
+  const levels = levelsOf(payload, installed) ?? NO_LEVELS;
   const { entries, byUri, byRel } = catalogue(payload, manifest);
   const server = new McpServer({ name: NAME, version: manifest.version });
 
@@ -149,17 +157,18 @@ export function build(payload: string, manifest: Manifest, installed: Installed 
   server.registerTool('arena_check', {
     description: 'Check code you just wrote against the rules of the Arena language, before you '
       + 'save it. Pass the source text. Reports a class of your own on a component, a raw value '
-      + 'where a token belongs, a gradient, a filled danger surface, a second primary action, an '
+      + 'where a token belongs, a role read without its level, an '
       + 'icon as an element, an emoji, a component wrapped in a link of your own, and a heading '
       + 'outline with a rung missing. Returns one line per finding, or says it found none. Every '
-      + `rule it can report is in ${SCHEME}://rules, with the ones it cannot.`,
+      + `rule it can report is in ${SCHEME}://rules, with the ones it cannot.`
+      + ' It does not compile classes: `arena audit` reports a Tailwind utility that emits nothing under Arena\'s theme, with your project\'s `tailwindcss`.',
     inputSchema: z.object({
       source: z.string().describe('the code to check, as text'),
       path: z.string().optional().describe('the file name it will be saved as, which decides '
         + `whether it is read as a stylesheet or as markup. Defaults to ${CHECKED_AS}`),
     }),
   }, async ({ source, path }) => ({
-    content: [{ type: 'text' as const, text: checked(source, path ?? CHECKED_AS, vocabulary) }],
+    content: [{ type: 'text' as const, text: checked(source, path ?? CHECKED_AS, vocabulary, levels) }],
   }));
 
   return { server, entries };

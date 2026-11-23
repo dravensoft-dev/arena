@@ -5,64 +5,152 @@ import {
   angularImplementation, inputInitialValue,
 } from './api-surface.ts';
 
-test('the three primitives classify as primitives', () => {
-  for (const t of ['string', 'number', 'boolean']) {
-    assert.deepEqual(classify(t), { form: 'primitive', type: t });
-  }
-});
+const CLASSIFY: {
+  name: string;
+  reads?: [string, unknown][];
+  forms?: [string, string][];
+  refuses?: { annotation: string; matches?: RegExp[] }[];
+}[] = [
+  {
+    name: 'the three primitives classify as primitives',
+    reads: ['string', 'number', 'boolean'].map((t) => [t, { form: 'primitive', type: t }]),
+  },
+  {
+    name: 'a closed literal union is an enum, and its values come out in order',
+    reads: [["'sm' | 'md' | 'lg'", { form: 'enum', values: ['sm', 'md', 'lg'] }]],
+  },
+  {
+    name: 'a node type is a slot',
+    reads: [['React.ReactNode', { form: 'slot' }], ['ReactNode', { form: 'slot' }]],
+  },
+  {
+    name: 'a function type is an event, and its single parameter is the payload',
+    reads: [
+      ['(crumb: ArenaCrumb) => void', { form: 'event', payload: 'ArenaCrumb' }],
+      ['() => void', { form: 'event', payload: null }],
+    ],
+  },
+  {
+    name: 'an inbound function that RETURNS a value is the ninth form -- the refusal now holds only outside an input control',
+    reads: [
+      ['(value: number) => string', { form: 'functionInput', params: { value: 'number' }, returns: 'string' }],
+      ['(isDark: boolean) => string', { form: 'functionInput', params: { isDark: 'boolean' }, returns: 'string' }],
+      ['() => string', { form: 'functionInput', params: {}, returns: 'string' }],
+    ],
+  },
+  {
+    name: 'an array is one form discriminated by what it holds',
+    reads: [
+      ['ArenaCrumb[]', { form: 'array', of: 'ArenaCrumb' }],
+      ['string[]', { form: 'array', of: 'string' }],
+      ['Array<ArenaCrumb>', { form: 'array', of: 'ArenaCrumb' }],
+    ],
+  },
+  {
+    name: 'every platform type R4 names is recognised and reported, never thrown',
+    forms: ['React.CSSProperties', 'React.Key', 'React.MouseEvent', 'DOMRect', 'React.HTMLInputTypeAttribute', 'Record<string, Widget>'].map((t) => [t, 'platform']),
+  },
+  {
+    name: 'a union between forms is a union, not a coin-flip between them -- R5',
+    forms: [['(string | TabItem)[]', 'union']],
+  },
+  {
+    name: 'an unreadable annotation throws rather than reporting no member',
+    refuses: [{ annotation: '{ [k: string]: unknown }' }, { annotation: '(a: string, b: string) => void' }],
+  },
+  {
+    name: 'classify strips a leading readonly modifier before the array check -- Angular\'s input<readonly T[]>',
+    reads: [['readonly ArenaActivityItem[]', { form: 'array', of: 'ArenaActivityItem' }]],
+  },
+  {
+    name: 'classify reads Record<string, unknown> as consumer data rather than as a platform type',
+    reads: [['Record<string, unknown>', { form: 'consumerData' }]],
+  },
+  {
+    name: 'classify reads an array of consumer data, which is how a row list is spelled',
+    reads: [
+      ['Record<string, unknown>[]', { form: 'array', of: 'consumerData' }],
+      ['Array<Record<string, unknown>>', { form: 'array', of: 'consumerData' }],
+    ],
+  },
+  {
+    name: 'classify still refuses a record of a known type rather than calling it consumer data',
+    reads: [['Record<string, Widget>', { form: 'platform', type: 'Record<string, Widget>' }]],
+    refuses: [{ annotation: 'ArenaTableColumn<T>', matches: [/unreadable type annotation/] }],
+  },
+  {
+    name: 'an event payload may be consumer data in the React spelling',
+    reads: [['(row: Record<string, unknown>) => void', { form: 'event', payload: 'consumerData' }]],
+  },
+  {
+    name: 'a genuine second event parameter is still refused after the generic-comma fix',
+    refuses: [
+      { annotation: '(id: string, event: React.MouseEvent) => void', matches: [/more than one parameter/] },
+      { annotation: '(a: string, b: string) => void', matches: [/more than one parameter/] },
+    ],
+  },
+  {
+    name: 'classify keeps a nullable return, so a layer returning null differs from a contract returning string',
+    reads: [['(value: string) => string | null | undefined', { form: 'functionInput', params: { value: 'string' }, returns: 'string | null | undefined' }]],
+  },
+  {
+    name: 'an arrow returning void or undefined is still an event',
+    reads: [
+      ['(crumb: ArenaCrumb) => void | undefined', { form: 'event', payload: 'ArenaCrumb' }],
+      ['() => void | null', { form: 'event', payload: null }],
+    ],
+  },
+  {
+    name: 'classify surfaces a functionInput whose return is a platform type as platform, not as the ninth form',
+    reads: [['(value: string) => React.MouseEvent', { form: 'platform', type: 'React.MouseEvent' }]],
+  },
+  {
+    name: 'classify throws on a function returning a node -- that is a parameterised slot (R3), not a functionInput',
+    refuses: [{ annotation: '(item: string) => React.ReactNode', matches: [/parameterised slot/i, /R3/, /renderItem|ngTemplateOutlet/] }],
+  },
+  {
+    name: 'classify reads every parameter of a functionInput, and a generic\'s comma is not a separator',
+    reads: [
+      ['(value: string, other: number) => boolean', { form: 'functionInput', params: { value: 'string', other: 'number' }, returns: 'boolean' }],
+      ['(row: Record<string, unknown>) => string', { form: 'functionInput', params: { row: 'consumerData' }, returns: 'string' }],
+    ],
+  },
+  {
+    name: 'a nullable arrow annotation reads as the arrow it wraps',
+    reads: [
+      ['((value: string) => string) | undefined', { form: 'functionInput', params: { value: 'string' }, returns: 'string' }],
+      ['((v: string) => void) | null', { form: 'event', payload: 'string' }],
+    ],
+  },
+  {
+    name: 'stripping null/undefined does not collapse a genuine union',
+    forms: [['string | TabItem', 'union'], ['string | TabItem | undefined', 'union']],
+  },
+  { name: 'a nullable primitive still reads as the primitive', reads: [['string | undefined', { form: 'primitive', type: 'string' }]] },
+  {
+    name: 'an inline enum with a nullable arm is still that enum, with every value it declares',
+    reads: [["'sm' | 'md' | undefined", { form: 'enum', values: ['sm', 'md'] }]],
+  },
+  {
+    name: 'a union of two parenthesised arms is not mistaken for one wrapped annotation',
+    reads: [['(DOMRect) | (HTMLElement)', { form: 'union', parts: ['(DOMRect)', '(HTMLElement)'] }]],
+  },
+];
 
-test('a closed literal union is an enum, and its values come out in order', () => {
-  assert.deepEqual(classify("'sm' | 'md' | 'lg'"), { form: 'enum', values: ['sm', 'md', 'lg'] });
-});
-
-test('a node type is a slot', () => {
-  assert.deepEqual(classify('React.ReactNode'), { form: 'slot' });
-  assert.deepEqual(classify('ReactNode'), { form: 'slot' });
-});
-
-test('a function type is an event, and its single parameter is the payload', () => {
-  assert.deepEqual(classify('(crumb: ArenaCrumb) => void'), { form: 'event', payload: 'ArenaCrumb' });
-  assert.deepEqual(classify('() => void'), { form: 'event', payload: null });
-});
-
-test('an inbound function that RETURNS a value is the ninth form -- the refusal now holds only outside an input control', () => {
-
-  assert.deepEqual(classify('(value: number) => string'),
-    { form: 'functionInput', params: { value: 'number' }, returns: 'string' });
-  assert.deepEqual(classify('(isDark: boolean) => string'),
-    { form: 'functionInput', params: { isDark: 'boolean' }, returns: 'string' });
-
-  assert.deepEqual(classify('() => string'),
-    { form: 'functionInput', params: {}, returns: 'string' });
-});
-
-test('an event still reads as an event -- the rule is the return type, not the arrow', () => {
-  assert.deepEqual(classify('(crumb: ArenaCrumb) => void'), { form: 'event', payload: 'ArenaCrumb' });
-  assert.deepEqual(classify('() => void'), { form: 'event', payload: null });
-});
-
-test('an array is one form discriminated by what it holds', () => {
-  assert.deepEqual(classify('ArenaCrumb[]'), { form: 'array', of: 'ArenaCrumb' });
-  assert.deepEqual(classify('string[]'), { form: 'array', of: 'string' });
-  assert.deepEqual(classify('Array<ArenaCrumb>'), { form: 'array', of: 'ArenaCrumb' });
-});
-
-test('every platform type R4 names is recognised and reported, never thrown', () => {
-  for (const t of ['React.CSSProperties', 'React.Key', 'React.MouseEvent', 'DOMRect',
-    'React.HTMLInputTypeAttribute', 'Record<string, Widget>']) {
-    assert.equal(classify(t).form, 'platform', t);
+test('classify reads each annotation', () => {
+  assert.ok(CLASSIFY.length > 0, 'the table has rows');
+  for (const row of CLASSIFY) {
+    for (const [annotation, expected] of row.reads ?? []) assert.deepEqual(classify(annotation), expected, `${row.name}: ${annotation}`);
+    for (const [annotation, form] of row.forms ?? []) assert.equal(classify(annotation).form, form, `${row.name}: ${annotation}`);
+    for (const { annotation, matches } of row.refuses ?? []) {
+      assert.throws(() => classify(annotation), (err) => {
+        assert.ok(err instanceof UnrecognisedShape, `${row.name}: ${annotation} throws UnrecognisedShape`);
+        for (const m of matches ?? []) assert.match((err as Error).message, m, `${row.name}: ${annotation}`);
+        return true;
+      }, `${row.name}: ${annotation}`);
+    }
   }
   assert.ok(PLATFORM_TYPES.includes('React.CSSProperties'));
-});
-
-test('a union between forms is a union, not a coin-flip between them -- R5', () => {
-  const out = classify('(string | TabItem)[]');
-  assert.equal(out.form, 'union');
-});
-
-test('an unreadable annotation throws rather than reporting no member', () => {
-  assert.throws(() => classify('{ [k: string]: unknown }'), UnrecognisedShape);
-  assert.throws(() => classify('(a: string, b: string) => void'), UnrecognisedShape);
 });
 
 test('braceBody returns the balanced interior, not the first closing brace it meets', () => {
@@ -159,10 +247,6 @@ test('angularSurface reads the input(default, {transform}) idiom, classifying fr
 test('a bare input() with no argument at all still throws -- no generic and no default is no declared type', () => {
   const src = `export class X { readonly a = input(); }`;
   assert.throws(() => angularSurface(src, 'X'), UnrecognisedShape);
-});
-
-test('classify strips a leading readonly modifier before the array check -- Angular\'s input<readonly T[]>', () => {
-  assert.deepEqual(classify('readonly ArenaActivityItem[]'), { form: 'array', of: 'ArenaActivityItem' });
 });
 
 test('a bare ng-content is the default slot, named content; an attribute selector names its own', () => {
@@ -374,106 +458,12 @@ test('a class with no template literal at all (templateUrl, or no @Component) ha
   assert.deepEqual(angularSurface(withNoDecoratorAtAll, 'X').members.map((m) => m.name), ['label']);
 });
 
-test('classify reads Record<string, unknown> as consumer data rather than as a platform type', () => {
-  assert.deepEqual(classify('Record<string, unknown>'), { form: 'consumerData' });
-});
-
-test('classify reads an array of consumer data, which is how a row list is spelled', () => {
-  assert.deepEqual(classify('Record<string, unknown>[]'), { form: 'array', of: 'consumerData' });
-  assert.deepEqual(classify('Array<Record<string, unknown>>'), { form: 'array', of: 'consumerData' });
-});
-
-test('classify still refuses a record of a known type rather than calling it consumer data', () => {
-  assert.deepEqual(classify('Record<string, Widget>'), { form: 'platform', type: 'Record<string, Widget>' });
-  assert.throws(() => classify('ArenaTableColumn<T>'), /unreadable type annotation/);
-});
-
-test('an event payload may be consumer data, in either layer\'s spelling', () => {
-  assert.deepEqual(
-    classify('(row: Record<string, unknown>) => void'),
-    { form: 'event', payload: 'consumerData' },
-  );
+test('an event payload may be consumer data in the Angular spelling', () => {
   const { members } = angularSurface(
     'export class X {\n  readonly select = output<Record<string, unknown>>();\n}',
     'X',
   );
   assert.deepEqual(members, [{ name: 'select', form: 'event', required: false, payload: 'consumerData' }]);
-});
-
-test('a genuine second event parameter is still refused after the generic-comma fix', () => {
-  assert.throws(
-    () => classify('(id: string, event: React.MouseEvent) => void'),
-    /more than one parameter/,
-  );
-  assert.throws(() => classify('(a: string, b: string) => void'), /more than one parameter/);
-});
-
-test('classify reads an inbound function that returns a value as a functionInput', () => {
-  assert.deepEqual(classify('(value: string) => string'),
-    { form: 'functionInput', params: { value: 'string' }, returns: 'string' });
-});
-
-test('classify keeps a nullable return, so a layer returning null differs from a contract returning string', () => {
-  assert.deepEqual(classify('(value: string) => string | null | undefined'),
-    { form: 'functionInput', params: { value: 'string' }, returns: 'string | null | undefined' });
-});
-
-test('an arrow returning void or undefined is still an event', () => {
-  assert.deepEqual(classify('(crumb: ArenaCrumb) => void | undefined'), { form: 'event', payload: 'ArenaCrumb' });
-  assert.deepEqual(classify('() => void | null'), { form: 'event', payload: null });
-});
-
-test('classify surfaces a functionInput whose return is a platform type as platform, not as the ninth form', () => {
-  assert.deepEqual(classify('(value: string) => React.MouseEvent'),
-    { form: 'platform', type: 'React.MouseEvent' });
-});
-
-test('classify throws on a function returning a node -- that is a parameterised slot (R3), not a functionInput', () => {
-  assert.throws(() => classify('(item: string) => React.ReactNode'), (err) => {
-    assert.ok(err instanceof UnrecognisedShape);
-    assert.match(err.message, /parameterised slot/i);
-    assert.match(err.message, /R3/);
-
-    assert.match(err.message, /renderItem|ngTemplateOutlet/);
-    return true;
-  });
-});
-
-test('a void arrow is still an event, not a functionInput', () => {
-  assert.deepEqual(classify('(v: string) => void'), { form: 'event', payload: 'string' });
-});
-
-test('classify reads every parameter of a functionInput, and a generic\'s comma is not a separator', () => {
-  assert.deepEqual(classify('(value: string, other: number) => boolean'),
-    { form: 'functionInput', params: { value: 'string', other: 'number' }, returns: 'boolean' });
-  assert.deepEqual(classify('(row: Record<string, unknown>) => string'),
-    { form: 'functionInput', params: { row: 'consumerData' }, returns: 'string' });
-});
-
-test('a nullable arrow annotation reads as the arrow it wraps', () => {
-  assert.deepEqual(classify('((value: string) => string) | undefined'),
-    { form: 'functionInput', params: { value: 'string' }, returns: 'string' });
-  assert.deepEqual(classify('((v: string) => void) | null'),
-    { form: 'event', payload: 'string' });
-});
-
-test('stripping null/undefined does not collapse a genuine union', () => {
-  assert.equal(classify('string | TabItem').form, 'union');
-  assert.equal(classify('string | TabItem | undefined').form, 'union');
-});
-
-test('a nullable primitive still reads as the primitive', () => {
-  assert.deepEqual(classify('string | undefined'), { form: 'primitive', type: 'string' });
-});
-
-test('an inline enum with a nullable arm is still that enum, with every value it declares', () => {
-  assert.deepEqual(classify("'sm' | 'md' | undefined"),
-    { form: 'enum', values: ['sm', 'md'] });
-});
-
-test('a union of two parenthesised arms is not mistaken for one wrapped annotation', () => {
-  assert.deepEqual(classify('(DOMRect) | (HTMLElement)'),
-    { form: 'union', parts: ['(DOMRect)', '(HTMLElement)'] });
 });
 
 test('reactImplementation reads a plain exported component and its destructuring defaults', () => {

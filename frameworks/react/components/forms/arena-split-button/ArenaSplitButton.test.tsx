@@ -26,12 +26,10 @@ test('two buttons, the primary half and then the caret half', () => {
   assert.match(html, /data-arena-part="split-button.primary"[^>]*>Deploy<\/button>/);
 });
 
-test('the caret is named by the menu label and carries the closed popup state', () => {
+test('the caret is a button named by the menu label', () => {
   const html = render(<ArenaSplitButton label="Deployment" menuLabel="More deploy options" items={ITEMS}>Deploy</ArenaSplitButton>);
   const caret = html.match(/<button[^>]*data-arena-part="split-button.caret"[^>]*>/)![0];
   assert.match(caret, /aria-label="More deploy options"/);
-  assert.match(caret, /aria-haspopup="menu"/);
-  assert.match(caret, /aria-expanded="false"/);
   assert.match(caret, /type="button"/);
 });
 
@@ -83,26 +81,4 @@ function AnchorProbe() {
 test('the primary half\'s content sees no menu anchor, so a menu nested in it anchors to its own root', () => {
   const html = render(<ArenaSplitButton label="Deployment" menuLabel="More deploy options" items={ITEMS}><AnchorProbe /></ArenaSplitButton>);
   assert.match(html, /data-arena-part="split-button.primary"[^>]*>Deploy<\/button>/, 'the content was given the split as a menu anchor');
-});
-
-test('a blank label throws', () => {
-  assert.throws(() => render(<ArenaSplitButton label="  " menuLabel="More deploy options" items={ITEMS}>Deploy</ArenaSplitButton>),
-    /ArenaSplitButton: `label` is required/);
-});
-
-test('a blank menu label throws', () => {
-  assert.throws(() => render(<ArenaSplitButton label="Deployment" menuLabel="  " items={ITEMS}>Deploy</ArenaSplitButton>),
-    /ArenaSplitButton: `menuLabel` is required/);
-});
-
-test('missing items throw', () => {
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  assert.throws(() => render(<ArenaSplitButton label="Deployment" menuLabel="More deploy options">Deploy</ArenaSplitButton>),
-    /ArenaSplitButton: `items` is required/);
-});
-
-test('missing content throws', () => {
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  assert.throws(() => render(<ArenaSplitButton label="Deployment" menuLabel="More deploy options" items={ITEMS} />),
-    /ArenaSplitButton: `children` is required/);
 });

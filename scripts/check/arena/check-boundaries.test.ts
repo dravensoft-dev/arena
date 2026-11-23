@@ -4,7 +4,10 @@
  * places where is the suites' to assert; boundary-cases.test.ts holds the verdict. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { suiteProblems, transparentProblems, itemSlotProblems, SUITES } from './check-boundaries.ts';
+import { mkdirSync, mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { collect, suiteProblems, transparentProblems, itemSlotProblems, SUITES } from './check-boundaries.ts';
 
 const SUITE = "boundaryCases(); siteProblems(kase, readSites(root, kase), 'react'); staleTransparentProblems(";
 
@@ -25,4 +28,14 @@ test('an ITEM_SLOTS entry naming no contracted slot or no contracted item fails'
   assert.deepEqual(itemSlotProblems(new Map([['ArenaTable.content', { item: 'ArenaTableRow', part: 'table.row', why: 'w' }]]), contracts), []);
   assert.match(itemSlotProblems(new Map([['ArenaTable.footer', { item: 'ArenaTableRow', part: 'table.row', why: 'w' }]]), contracts).join('\n'), /ArenaTable\.footer is no contracted slot/);
   assert.match(itemSlotProblems(new Map([['ArenaTable.content', { item: 'ArenaGone', part: 'gone', why: 'w' }]]), contracts).join('\n'), /ArenaGone is no contracted component/);
+});
+
+test('an empty sweep is a failure, not a clean pass', () => {
+  const root = mkdtempSync(join(tmpdir(), 'arena-boundaries-empty-'));
+  try {
+    for (const dir of ['contracts/api/components', 'frameworks/tailwind/components']) mkdirSync(join(root, dir), { recursive: true });
+    const { slotted, problems } = collect(root);
+    assert.equal(slotted, 0);
+    assert.match(problems.join('\n'), /found 0 contracted slots/);
+  } finally { rmSync(root, { recursive: true, force: true }); }
 });

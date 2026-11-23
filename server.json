@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.dravensoft-dev/arena",
   "description": "Arena by Dravensoft over MCP: the router, the references and every component document.",
-  "version": "13.0.0",
+  "version": "14.0.0",
   "repository": {
     "url": "https://github.com/dravensoft-dev/arena",
     "source": "github"
@@ -12,7 +12,7 @@
     {
       "registryType": "npm",
       "identifier": "@dravensoft/arena-mcp",
-      "version": "13.0.0",
+      "version": "14.0.0",
       "transport": {
         "type": "stdio"
       },
@@ -23,6 +23,12 @@
           "description": "Which half of the corpus to serve. Defaults to the framework package installed beside it.",
           "isRequired": false,
           "choices": ["react", "angular"]
+        },
+        {
+          "type": "named",
+          "name": "--payload",
+          "description": "A corpus directory to serve in place of the ones the package carries, for a build of Arena that is not installed.",
+          "isRequired": false
         }
       ]
     }

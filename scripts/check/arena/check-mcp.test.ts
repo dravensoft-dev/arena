@@ -1,51 +1,72 @@
-import test, { after } from 'node:test';
+import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { mkdirSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
 import {
-  collect, unassembled, dependencyProblems, importedPackages, binProblems, corpusProblems, catalogueProblems,
+  collect, unassembled, dependencyProblems, importedPackages, binProblems, corpusProblems,
   unresolvedTarget, targetsIn, registryProblems, SITE_BASE, REGISTRY_SCHEMA,
   REGISTRY_DESCRIPTION_LIMIT, flatProblems, ESCAPING_SPECIFIER, vocabularyProblems,
-  styleStoreProblems, identityProblems,
+  styleStoreProblems, identityProblems, derivedSlotsProblems, levelsProblems, writtenUriProblems,
+  registryArgumentProblems, failureClaimProblems, flagsOf, exitCodesOf, errorPathsOf, MCP_SERVER_SOURCE,
 } from './check-mcp.ts';
+import { USAGE } from '../../generate/core/arena-mcp/arena-mcp.ts';
+import { readJson } from '../../utils/read-file.ts';
+import { DERIVED_SLOTS, derivedSlotsText, levelIndexText } from '../../lib/arena/package-assembly.ts';
 import {
   RUNTIME_DEPENDENCIES, ENTRY, NAME, LAYERS, DIST, REGISTRY_NAME, manifest, buildMcpPackage,
 } from '../../build/arena/build-mcp-package.ts';
+import { LEVELS_INDEX } from '../../generate/core/arena-cli/audit.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { IDENTITY_DIR as PAYLOAD_IDENTITY_DIR } from '../../lib/arena/agent-payload.ts';
-import { IDENTITY_DIR } from '../../generate/core/arena-mcp/catalogue.ts';
+import { IDENTITY_DIR, catalogue } from '../../generate/core/arena-mcp/catalogue.ts';
+import { scratchTree } from '../../utils/scratch-tree.ts';
 
-const made: string[] = [];
-const track = (dir: string) => { made.push(dir); return dir; };
-after(() => {
-  for (const dir of made) rmSync(dir, { recursive: true, force: true });
-});
+const scratch = scratchTree('arena-mcp');
 
 const MANIFEST = JSON.stringify({
   name: 'arena', description: 'd', homepage: 'h', version: '0.0.0',
   package: NAME, layer: 'react', router: 'skills/design/ROUTER.md',
 });
 
-function corpus(files: Record<string, string>) {
-  const dir = track(mkdtempSync(join(tmpdir(), 'arena-mcp-pkg-')));
-  for (const [path, body] of Object.entries(files)) {
-    const full = join(dir, path);
-    mkdirSync(join(full, '..'), { recursive: true });
-    writeFileSync(full, body);
-  }
-  return dir;
-}
+const corpus = scratch.tree;
 
-const assembly = track(mkdtempSync(join(tmpdir(), 'arena-mcp-asm-')));
+const assembly = scratch.tree({});
 buildMcpPackage(root, assembly);
 
 test('the tree passes its own claims, and an empty assembly does not', () => {
   assert.deepEqual(collect(root, assembly).problems, []);
+  assert.ok(importedPackages().size > 0, 'no bare import was found, so a clean dependency pass says nothing');
   const empty = corpus({});
   assert.ok(collect(root, empty).problems.length > 0, 'an assembly holding no file cannot pass in vacuum');
+});
+
+const putAs = (file: string) => (body: string | null) => corpus(Object.fromEntries(LAYERS.flatMap((layer) => (body === null ? [] : [
+  [`agent/${layer}/${file}`, body],
+]))));
+
+test('each corpus carries the slot catalogue readColorSlots derives, and a stale or missing one is reported', () => {
+  const put = putAs(DERIVED_SLOTS);
+  assert.match(derivedSlotsProblems(put('{}\n'), root).join('\n'), /differs from what readColorSlots derives/);
+  assert.match(derivedSlotsProblems(put(null), root).join('\n'), /carries no contracts\/design\/color-slots\.derived\.json/);
+  assert.deepEqual(derivedSlotsProblems(put(derivedSlotsText(root)), root), []);
+  const served = catalogue(join(assembly, 'agent', 'react'), JSON.parse(MANIFEST));
+  assert.ok(served.entries.some((one: { uri: string }) => one.uri.endsWith('tokens/color-slots.derived')));
+});
+
+test('each corpus carries the levels table arena_check reads, and a stale or missing one is reported', () => {
+  const put = putAs(LEVELS_INDEX);
+  const ROWS: [string, string | null, RegExp | null][] = [
+    ['a stale table', '{}\n', /arena\.levels\.json in the .* corpus differs/],
+    ['no table', null, /carries no arena\.levels\.json/],
+    ['the exact table', levelIndexText(root), null],
+  ];
+  for (const [name, body, expected] of ROWS) {
+    const found = levelsProblems(put(body), root);
+    if (expected === null) assert.deepEqual(found, [], `${name}: problems`);
+    else assert.match(found.join('\n'), expected, `${name}: problems`);
+  }
 });
 
 const refusal = (base: string, strict: string) => spawnSync(process.execPath, ['-e', [
@@ -56,21 +77,14 @@ const refusal = (base: string, strict: string) => spawnSync(process.execPath, ['
 
 test('check:mcp refuses a tree with no dist/mcp and names the step that assembles it', () => {
   assert.match(unassembled('/nowhere-at-all') ?? '', new RegExp(`${DIST} is not assembled.*run bun run build:packages first`));
-  const soft = refusal('/nowhere-at-all', '0');
-  assert.equal(soft.status, 2, soft.stderr);
-  assert.match(soft.stderr, /check:mcp: SKIPPED/);
-  assert.doesNotMatch(soft.stdout, /went on/);
-  assert.equal(refusal('/nowhere-at-all', '1').status, 1);
-  const base = track(mkdtempSync(join(tmpdir(), 'check-mcp-assembled-')));
+  const strict = refusal('/nowhere-at-all', '1');
+  assert.equal(strict.status, 1, strict.stderr);
+  assert.match(strict.stderr, /check:mcp/);
+  assert.match(strict.stderr, /bun run build:packages first/);
+  assert.doesNotMatch(strict.stdout, /went on/);
+  const base = scratch.tree({});
   mkdirSync(join(base, ...DIST.split('/')), { recursive: true });
   assert.equal(unassembled(base), null);
-  assert.match(refusal(base, '1').stdout, /went on/);
-});
-
-test('the gate read a real result set rather than an empty one', () => {
-  const imported = importedPackages();
-  assert.ok(imported.size > 0, 'no bare import was found, so a clean pass says nothing');
-  assert.deepEqual([...imported].sort(), Object.keys(RUNTIME_DEPENDENCIES).sort());
 });
 
 test('an import with no dependency behind it is a server that throws at spawn', () => {
@@ -84,7 +98,7 @@ test('a dependency nothing imports is one every consumer installs for nothing', 
 });
 
 test('a bin the package declares and does not carry is a command an editor cannot spawn', () => {
-  const dir = track(mkdtempSync(join(tmpdir(), 'arena-mcp-pkg-')));
+  const dir = scratch.tree({});
   assert.match(binProblems(dir)[0] ?? '', /is declared as the bin and is not there/);
   mkdirSync(join(dir, 'bin'), { recursive: true });
   writeFileSync(join(dir, ...ENTRY.split('/')), '');
@@ -137,7 +151,8 @@ test('a target inside the corpus is judged by whether it is there', () => {
   });
   const payload = join(dir, 'agent', 'react');
   assert.equal(unresolvedTarget('./references/page.md', 'skills/design/ROUTER.md', payload, new Set()), null);
-  assert.match(unresolvedTarget('./references/gone.md', 'skills/design/ROUTER.md', payload, new Set()) ?? '',
+  assert.equal(unresolvedTarget('./references/page.md#a-heading', 'skills/design/ROUTER.md', payload, new Set()), null);
+  assert.match(unresolvedTarget('./references/gone.md#a-heading', 'skills/design/ROUTER.md', payload, new Set()) ?? '',
     /resolves to nothing a consumer installs/);
   rmSync(dir, { recursive: true });
 });
@@ -165,11 +180,6 @@ test('a link, a relative inline path and an absolute one are all targets; prose 
   assert.deepEqual(found, ['./b.md', '../c.md', 'https://d/e']);
 });
 
-test('the catalogue claim is measured against what the tree declares, and it names the package', () => {
-  assert.deepEqual(catalogueProblems(assembly), []);
-  assert.equal(NAME, '@dravensoft/arena-mcp');
-});
-
 const PLUGIN = (version: string, repository = 'https://github.com/dravensoft-dev/arena') =>
   `${JSON.stringify({
     name: 'arena', version, license: 'MIT', homepage: 'https://arena.dravensoft.org',
@@ -194,12 +204,9 @@ const TREE = (server: string, version = '11.0.0', repository?: string) => corpus
   '.claude-plugin/plugin.json': PLUGIN(version, repository),
 });
 
-test('this tree states one server name and one version in both files that carry them', () => {
-  assert.deepEqual(registryProblems(), []);
-});
-
-test('the manifest stamps the name the registry reads out of the published package', () => {
+test('the manifest stamps the registry name, and the package is named @dravensoft/arena-mcp', () => {
   assert.equal(manifest().mcpName, REGISTRY_NAME);
+  assert.equal(NAME, '@dravensoft/arena-mcp');
 });
 
 test('no server.json at all is a package that publishes to npm and appears in no index', () => {
@@ -258,7 +265,7 @@ test('a schema that is not the one this tree is written against is refused by th
 
 
 test('a specifier that escapes the flat bin is reported, since bin/ has no directory above it', () => {
-  const dir = track(mkdtempSync(join(tmpdir(), 'arena-mcp-flat-')));
+  const dir = scratch.tree({});
   try {
     mkdirSync(join(dir, 'bin'), { recursive: true });
     writeFileSync(join(dir, 'bin', 'audit.mjs'), 'export const x = 1;\n');
@@ -276,7 +283,7 @@ test('a specifier that escapes the flat bin is reported, since bin/ has no direc
 });
 
 test('a specifier beside the module that names no file in bin is reported, since it throws at spawn', () => {
-  const dir = track(mkdtempSync(join(tmpdir(), 'arena-mcp-beside-')));
+  const dir = scratch.tree({});
   try {
     mkdirSync(join(dir, 'bin'), { recursive: true });
     writeFileSync(join(dir, 'bin', 'audit.mjs'), "import { scan } from './icon-css.mjs';\n");
@@ -366,4 +373,71 @@ test('the identity directory the payload list names is the one the served catalo
 test('a pattern in a code span is not a target, and a link beside it is', () => {
   const span = '`' + String.raw`/node_modules[\\/](a|b)[\\/]/` + '`';
   assert.deepEqual(targetsIn(`${span} [x](./b.md)`), ['./b.md']);
+});
+
+test('a URI a served document writes resolves as arena_read would answer it', () => {
+  const served = new Set([
+    'arena://rules', 'arena://reference/tokens/components', 'arena://component/ArenaButton',
+    'arena://style/complete/plugin.css',
+  ]);
+  const ROWS: [string, string, number, RegExp | null][] = [
+    ['a URI in a code span', 'Read `arena://rules`.', 0, null],
+    ['a URI ending a sentence', 'Read arena://rules.', 0, null],
+    ['a trap below a served URI', '`arena://reference/tokens/components/index`', 1,
+      /doc\.md writes arena:\/\/reference\/tokens\/components\/index/],
+    ['a template one URI matches', '`arena://component/<Name>`', 0, null],
+    ['a template no URI matches', '`arena://widget/<Name>`', 1, /arena:\/\/widget\/<Name>/],
+    ['a directory a URI starts with', '`arena://style/complete/`', 0, null],
+    ['a directory no URI starts with', '`arena://style/missing/`', 1, /arena:\/\/style\/missing\//],
+    ['the bare scheme alone', 'Which arena:// resources', 1, /no document of the react corpus writes an arena:\/\/ URI/],
+  ];
+  for (const [name, text, count, naming] of ROWS) {
+    const found = writtenUriProblems('react', [{ rel: 'doc.md', text }], served);
+    assert.equal(found.length, count, `${name}: ${found.join(' | ')}`);
+    if (naming) assert.match(found.join('\n'), naming, name);
+  }
+});
+
+const SERVER_WITH = (names: string[]) => ({
+  packages: [{ packageArguments: names.map((name) => ({ type: 'named', name, isRequired: false })) }],
+});
+
+test('server.json declares exactly the flags the server parses', () => {
+  assert.deepEqual(flagsOf(USAGE), ['--layer', '--payload'], 'the reader finds both flags of USAGE');
+  const flags = flagsOf(USAGE);
+  const ROWS: [string, unknown, RegExp | null][] = [
+    ['the live server.json', readJson(join(root, 'server.json')), null],
+    ['a server.json missing --payload', SERVER_WITH(['--layer']), /--payload.*server\.json declares no such argument/],
+    ['a server.json with both', SERVER_WITH(['--layer', '--payload']), null],
+    ['a server.json with an extra --debug', SERVER_WITH(['--layer', '--payload', '--debug']), /--debug.*server does not parse/],
+  ];
+  for (const [name, server, expected] of ROWS) {
+    const found = registryArgumentProblems(server as never, flags).join('\n');
+    if (expected === null) assert.equal(found, '', `${name}: problems`);
+    else assert.match(found, expected, `${name}: problems`);
+  }
+});
+
+test('the MCP page names every exit code and error the server returns', () => {
+  const source = readFileSync(join(root, ...MCP_SERVER_SOURCE.split('/')), 'utf8');
+  const codes = exitCodesOf(source);
+  const errors = errorPathsOf(source);
+  assert.deepEqual(codes, [0, 2], 'the reader finds exit 0 and exit 2 in main');
+  assert.equal(errors.length, 2, 'the reader finds both isError paths');
+  const live = readFileSync(join(root, 'skills', 'design', 'references', 'mcp.md'), 'utf8');
+  const BOTH = '--help exits 0. A bad argument exits 2. `isError: true` marks a read of a URI that is not one the payload carries or when the payload names a file and lacks it.\n';
+  const ROWS: [string, string, string[], RegExp | null][] = [
+    ['the live page', live, errors, null],
+    ['a page naming nothing', 'The server serves documents.\n', errors, /exits 0.*exits 2.*isError/s],
+    ['a page naming both exits and both causes', BOTH, errors, null],
+    ['a page without exit 2', BOTH.replace('A bad argument exits 2. ', ''), errors, /exits 2/],
+    ['a page without isError', '--help exits 0. A bad argument exits 2.\n', errors, /isError/],
+    ['a page naming isError and one cause', BOTH.replace(' or when the payload names a file and lacks it', ''), errors, /a file the payload names and lacks/],
+    ['a third isError path the page does not name', BOTH, [...errors, '${uri} cannot be read'], /cannot be read/],
+  ];
+  for (const [name, page, paths, expected] of ROWS) {
+    const found = failureClaimProblems(page, codes, paths).join('\n');
+    if (expected === null) assert.equal(found, '', `${name}: problems`);
+    else assert.match(found, expected, `${name}: problems`);
+  }
 });

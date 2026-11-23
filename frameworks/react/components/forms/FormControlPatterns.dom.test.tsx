@@ -10,6 +10,7 @@ import { join } from 'node:path';
 import React from 'react';
 import { mount, cleanup, act } from '../../test/Harness.tsx';
 import { assertPattern, REACT_COMPONENTS } from '../../test/AssertPattern.tsx';
+import { commandButtonVerdict } from '../../test/StateVerdicts.ts';
 import { ArenaButton } from './arena-button/ArenaButton.tsx';
 import { ArenaIconButton } from './arena-icon-button/ArenaIconButton.tsx';
 import { ArenaCheckbox } from './arena-checkbox/ArenaCheckbox.tsx';
@@ -37,7 +38,10 @@ test('ArenaButton is a real button that names itself by its own text', () => {
     root,
     bindingPath: join(REACT_COMPONENTS, 'forms/arena-button/ArenaButton.behaviour.json'),
     subjects: { default: el },
-    behavioural: { 'keyboard.Enter': true, 'keyboard.Space': true, 'states.disabled': true },
+    behavioural: {
+      'keyboard.Enter': true, 'keyboard.Space': true, 'states.disabled': true,
+      'states.pressed': commandButtonVerdict(el!),
+    },
   });
 });
 
@@ -60,8 +64,47 @@ test('ArenaIconButton is named by aria-label, since it draws no text', () => {
     root,
     bindingPath: join(REACT_COMPONENTS, 'forms/arena-icon-button/ArenaIconButton.behaviour.json'),
     subjects: { default: el },
-    behavioural: { 'keyboard.Enter': true, 'keyboard.Space': true, 'states.disabled': true },
+    behavioural: {
+      'keyboard.Enter': true, 'keyboard.Space': true, 'states.disabled': true,
+      'states.pressed': commandButtonVerdict(el!),
+    },
   });
+});
+
+function PinToggle() {
+  const [on, setOn] = React.useState(false);
+  return <ArenaIconButton icon="ph-bold ph-push-pin" label="Pin this view" pressed={on} onActivate={() => setOn(!on)} />;
+}
+
+test('aria-pressed flips on click and a command button carries none', () => {
+  const toggle = mount(<PinToggle />).querySelector<HTMLElement>('button')!;
+  assert.equal(toggle.getAttribute('aria-pressed'), 'false', 'a toggle starts off and says so');
+  act(() => { toggle.click(); });
+  assert.equal(toggle.getAttribute('aria-pressed'), 'true', 'a click turns the toggle on');
+  act(() => { toggle.click(); });
+  assert.equal(toggle.getAttribute('aria-pressed'), 'false', 'a second click turns it off again');
+  assert.equal(toggle.getAttribute('aria-label'), 'Pin this view', 'the label never changes with the state');
+
+  const command = mount(<ArenaIconButton icon="ph-bold ph-plus" label="New project" onActivate={() => {}} />)
+    .querySelector<HTMLElement>('button')!;
+  act(() => { command.click(); });
+  assert.equal(commandButtonVerdict(command), true, 'a command button carries no aria-pressed, before or after a click');
+  assert.equal(commandButtonVerdict(toggle), false, 'sanity: the verdict reads false on a toggle');
+});
+
+test('a command button with a stray aria-pressed fails the button pattern', () => {
+  const root = mount(<button type="button" aria-pressed="false">Deploy</button>);
+  const el = root.querySelector<HTMLElement>('button')!;
+  assert.equal(commandButtonVerdict(el), false, 'the verdict reads the stray attribute');
+  assert.throws(() => assertPattern({
+    root,
+    bindingPath: join(REACT_COMPONENTS, 'forms/arena-button/ArenaButton.behaviour.json'),
+    subjects: { default: el },
+    behavioural: {
+      'keyboard.Enter': true, 'keyboard.Space': true, 'states.disabled': true,
+      'states.pressed': commandButtonVerdict(el),
+    },
+  }), /states\.pressed/);
 });
 
 test('ArenaCheckbox is a native checkbox whose checked state is the platform’s', () => {

@@ -6,8 +6,8 @@
     "legendRow": "flex items-center gap-2 cursor-pointer w-full p-0 m-0 bg-transparent border-0 text-left min-h-row-min",
     "legendSwatch": "size-2.5 rounded-marker shrink-0",
     "legendText": "flex flex-1 min-w-0",
-    "legendLabel": "flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap font-body text-ctl-sm text-ink-body/(--level-ink-body)",
-    "legendValue": "font-mono text-ctl-sm text-ink-muted/(--level-ink-muted)"
+    "legendLabel": "flex-auto min-w-0 overflow-hidden text-ellipsis whitespace-nowrap font-body text-ctl-sm text-[color:color-mix(in_oklab,var(--text-body-ink-rest,var(--ink-body))_var(--level-ink-body),transparent)]",
+    "legendValue": "font-mono text-ctl-sm text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]"
   },
   "kind": {
     "frame": "none",
@@ -24,7 +24,7 @@
   "variants": {
     "stacked": {
       "false": {
-        "legendText": "items-baseline justify-between gap-2"
+        "legendText": "flex-wrap items-baseline justify-between gap-2"
       },
       "true": {
         "legendText": "flex-col items-stretch"

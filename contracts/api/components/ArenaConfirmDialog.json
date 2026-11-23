@@ -13,7 +13,7 @@
     "confirmLabel": { "form": "primitive", "type": "string", "description": "The confirm button's label. Absent, the provided locale's confirmDialogConfirm answers it." },
     "cancelLabel": { "form": "primitive", "type": "string", "description": "The cancel button's label. Absent, the provided locale's confirmDialogCancel answers it." },
     "destructive": { "form": "primitive", "type": "boolean", "default": false,
-                     "description": "Gives the confirm button Arena's only filled danger surface." },
+                     "description": "Draws the confirm button as the destructive option of the actions group." },
     "requireText": { "form": "primitive", "type": "string",
                      "description": "Locks the confirm button until this exact word is typed." },
     "cancel": { "form": "event",

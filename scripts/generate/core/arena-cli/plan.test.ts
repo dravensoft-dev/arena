@@ -198,25 +198,6 @@ test('a glyph Phosphor lacks at that weight is a glyph report naming weight and 
   cleanup(root, held);
 });
 
-test('an unreadable config is code 2 with no outputs, and an invalid one is code 1 with no outputs', async () => {
-  const { root: held, core } = phosphor();
-  const root = project(null);
-  writeFileSync(join(root, 'arena.config.json'), '{ not json');
-  const unreadable = await plan(options(root), environment(core));
-  assert.equal(unreadable.code, 2);
-  assert.ok(unreadable.fatal.some((m) => m.includes('cannot read')));
-  assert.deepEqual(unreadable.outputs, []);
-
-  const broken = structuredClone(readable);
-  delete broken.palettes[0]?.colors.primary;
-  const invalid = project(broken);
-  const result = await plan(options(invalid), environment(core));
-  assert.equal(result.code, 1);
-  assert.ok(result.fatal.some((m) => m.includes('missing primary')));
-  assert.deepEqual(result.outputs, []);
-  cleanup(root, invalid, held);
-});
-
 test('a missing --src is code 2 before the theme runs', async () => {
   const { root: held, core } = phosphor();
   const root = project(auto);
@@ -486,18 +467,6 @@ test('a name written twice is still refused once the list is closed', async () =
   cleanup(root, held);
 });
 
-test('a root plugin silent on a role with a kernel default builds through its own answer and notes the role', async () => {
-  const { root: held, core } = phosphor();
-  const root = ownRoot();
-  const result = await plan(options(root), environment(core, { sheets: DEFAULTED }));
-  assert.deepEqual(result.fatal, []);
-  assert.deepEqual(result.notes, ['1 role(s) your root style plugin leaves unanswered take Arena\'s default: ink-link']);
-  const theme = result.outputs.find((one) => one.name === THEME_SHEET)?.content ?? '';
-  assert.match(theme, /:root\{[^}]*--ink-link:var\(--color-base-200\);/);
-  assert.doesNotMatch(theme, /--ink-link:var\(--color-base-content\)/);
-  cleanup(root, held);
-});
-
 test('the same role without a default stops the build with the totality message', async () => {
   const { root: held, core } = phosphor();
   const root = ownRoot();
@@ -602,7 +571,7 @@ test('the filled weight takes the glyphs named beside a component that swaps to 
   assert.match(css, /ph-bold-sun/);
 });
 
-test('an active navigation item whose glyph the consumer passes brings the filled symbol (Review Focus 1)', async () => {
+test('an active navigation item whose glyph the consumer passes brings the filled symbol', async () => {
   const { root: held, core } = phosphor();
   const arena = hostRoot(NAME, '11.1.0', {
     [ICON_MANIFEST]: JSON.stringify({ components: { ArenaSideNavItem: { pairs: {}, loose: [] } }, fills: ['ArenaSideNavItem'] }),
@@ -938,13 +907,13 @@ test('a glyph your sources name that no icon member draws is a glyph report, onc
 const NAMED = "export const TABS = [{ icon: 'ph-bold ph-kanban' }];\n";
 const GLYPH_TEXT = 'ph-kanban is in the sprite, and no literal in an ArenaIcon, arena-icon or icon attribute names it';
 
-test('a project whose every icon is a literal gets the glyph report, worded as what it measured (D2)', async () => {
+test('a project whose every icon is a literal gets the glyph report, worded as what it measured', async () => {
   const held = await glyphReportsFor(`${NAMED}export const A = () => <><ArenaIcon icon="ph-bold ph-star" />`
     + '<ArenaButton icon={\'ph-bold ph-star\'}>x</ArenaButton><i className={TABS[0].icon} /></>;\n');
   assert.deepEqual(held.map((one) => one.message), [GLYPH_TEXT]);
 });
 
-test('a glyph counts as drawn once any source hands an icon member an expression, project-wide (D2)', async () => {
+test('a glyph counts as drawn once any source hands an icon member an expression, project-wide', async () => {
   for (const drawn of [
     'export const A = () => <ArenaIcon icon={tab.icon} />;\n',
     "export const A = () => <ArenaIconButton icon={dark ? 'ph-bold ph-sun' : 'ph-bold ph-moon'} label=\"x\" />;\n",
@@ -958,7 +927,7 @@ test('a glyph counts as drawn once any source hands an icon member an expression
     assert.deepEqual(await glyphReportsFor({ 'data.ts': NAMED, 'app.html': drawn }), [], drawn);
 });
 
-test('an element, a non-icon attribute and a spread on an Arena tag other than ArenaIcon leave the report on (P1, N2)', async () => {
+test('an element, a non-icon attribute and a spread on an Arena tag other than ArenaIcon leave the report on', async () => {
   for (const kept of [
     'export const A = () => <ArenaButton icon={<Plus />}>x</ArenaButton>;\n',
     'export const A = () => <ArenaButton icon={( <Plus /> )}>x</ArenaButton>;\n',

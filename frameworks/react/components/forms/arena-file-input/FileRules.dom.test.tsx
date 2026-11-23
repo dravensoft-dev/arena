@@ -2,7 +2,7 @@
  * a file input's files, so native submission carries exactly the files shown. happy-dom stores what
  * is assigned without checking it and hands back a plain array from DataTransfer.files, so this
  * holds what the component relies on (the length, each name, FormData, no event fired) and never
- * the list's class. A real browser is the by-hand list's. */
+ * the list's class. A real browser is the by-hand list's in ArenaFileInput.checks.md. */
 import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { arenaWriteInputFiles } from './FileRules.ts';

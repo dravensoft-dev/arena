@@ -4,7 +4,7 @@ import { existsSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import {
   validatePattern, loadPatterns, validateBinding, reactComponents, angularPrimitives,
-  angularBindingPath, reactBindingPath, crossLayerAgrees, loadBinding, bindingCases, bindingAlso,
+  angularBindingPath, reactBindingPath, crossLayerAgrees, loadBinding, bindingCases, bindingAlso, caseSetRefusal,
 } from './behaviour-contracts.ts';
 import { layerBindings } from './vocabulary-index.ts';
 import { pascal } from '../../utils/case.ts';
@@ -17,59 +17,93 @@ const ok = {
   element: 'dialog',
   requires: { 'roles.element': 'dialog', 'focus.trap': true },
 };
+type PatternRow = { name: string; stem: string; pattern: unknown; expected: RegExp | null; joined?: boolean; why?: string };
+const { element: _element, ...OK_NO_ELEMENT } = ok;
+const { source: _source, ...OK_NO_SOURCE } = ok;
 
-test('a pattern requiring roles.element and naming no element is a problem', () => {
-  const { element, ...bare } = ok;
-  assert.match(validatePattern('dialog-modal', bare)[0] ?? '', /declares no "element"/);
-});
+const PATTERN_PROBLEMS: PatternRow[] = [
+  { name: 'a pattern requiring roles.element and naming no element is a problem', stem: 'dialog-modal', pattern: OK_NO_ELEMENT, expected: /declares no "element"/ },
+  {
+    name: 'an element nobody required is a problem',
+    stem: 'dialog-modal',
+    pattern: { ...ok, requires: { 'focus.trap': true } },
+    expected: /requires no roles.element/,
+  },
+  {
+    name: 'an element the prose does not name is a problem',
+    stem: 'dialog-modal',
+    pattern: { ...ok, element: 'alertdialog' },
+    expected: /which its roles.element does not name/,
+  },
+  { name: 'a well-formed pattern has no problems', stem: 'dialog-modal', pattern: ok, expected: null },
+  { name: 'a pattern whose name disagrees with its filename is a problem', stem: 'modal', pattern: ok, expected: /name "dialog-modal" does not match/ },
+  { name: 'a pattern with no source is a problem', stem: 'dialog-modal', pattern: OK_NO_SOURCE, expected: /source/ },
+  { name: 'a pattern with an empty requires map is a problem', stem: 'dialog-modal', pattern: { ...ok, requires: {} }, expected: /at least one requirement/ },
+  {
+    name: 'a pattern description naming a component is a problem',
+    stem: 'dialog-modal',
+    pattern: { ...ok, description: 'Shared by ArenaDialog and ArenaOnboarding.' },
+    expected: /names ArenaDialog, ArenaOnboarding/,
+  },
+  {
+    name: 'a pattern description carrying no component name is not a problem',
+    stem: 'dialog-modal',
+    pattern: { ...ok, description: 'A window that takes the whole interaction until dismissed.' },
+    expected: null,
+  },
+  {
+    name: 'a requirement key must be dotted, so an exception can name exactly one leaf',
+    stem: 'dialog-modal',
+    pattern: { ...ok, requires: { trap: true } },
+    expected: /"trap" must be dotted/,
+  },
+  {
+    name: 'the none pattern is one of the two allowed to have no requirements',
+    stem: 'none',
+    pattern: { name: 'none', source: 'n/a', requires: {} },
+    expected: null,
+  },
+  {
+    name: 'the absent pattern is the other one allowed to have no requirements',
+    stem: 'absent',
+    pattern: { name: 'absent', source: 'n/a', requires: {} },
+    expected: null,
+  },
+  {
+    name: 'an additive pattern may require nothing in the roles family',
+    stem: 'bad',
+    pattern: { name: 'bad', source: 'x', additive: true, description: 'x', requires: { 'roles.element': 'main' } },
+    expected: /may require nothing in the roles family/,
+    joined: true,
+    why: 'which element a component renders is answered once, by the pattern it binds; a second pattern '
+      + 'answering it again is a contradiction with no way to report which of the two was broken',
+  },
+  {
+    name: 'additive is true or it is absent',
+    stem: 'bad',
+    pattern: { name: 'bad', source: 'x', additive: false, requires: { 'focus.trap': true } },
+    expected: /is present and not true/,
+    joined: true,
+  },
+  {
+    name: 'an additive pattern must say why a component owes it as well',
+    stem: 'bad',
+    pattern: { name: 'bad', source: 'x', additive: true, requires: { 'alternative.jsonLd': 'a block' } },
+    expected: /must carry a description/,
+    joined: true,
+    why: 'it is bound alongside another pattern rather than instead of one, so nothing else on the page '
+      + 'says why a component owes both',
+  },
+];
 
-test('an element nobody required, and one the prose does not name, are both problems', () => {
-  const unasked = { ...ok, requires: { 'focus.trap': true } };
-  assert.match(validatePattern('dialog-modal', unasked)[0] ?? '', /requires no roles.element/);
-  const wrong = { ...ok, element: 'alertdialog' };
-  assert.match(validatePattern('dialog-modal', wrong)[0] ?? '', /which its roles.element does not name/);
-});
-
-test('a well-formed pattern has no problems', () => {
-  assert.deepEqual(validatePattern('dialog-modal', ok), []);
-});
-
-test('a pattern whose name disagrees with its filename is a problem', () => {
-  assert.match(validatePattern('modal', ok)[0] ?? '', /name "dialog-modal" does not match/);
-});
-
-test('a pattern with no source is a problem', () => {
-  const { source, ...noSource } = ok;
-  assert.match(validatePattern('dialog-modal', noSource)[0] ?? '', /source/);
-});
-
-test('a pattern with an empty requires map is a problem', () => {
-  assert.match(validatePattern('dialog-modal', { ...ok, requires: {} })[0] ?? '', /at least one requirement/);
-});
-
-test('a pattern description naming a component is a problem', () => {
-  const listed = { ...ok, description: 'Shared by ArenaDialog and ArenaOnboarding.' };
-  assert.match(validatePattern('dialog-modal', listed)[0] ?? '', /names ArenaDialog, ArenaOnboarding/);
-});
-
-test('a pattern description carrying no component name is not a problem', () => {
-  const clean = { ...ok, description: 'A window that takes the whole interaction until dismissed.' };
-  assert.deepEqual(validatePattern('dialog-modal', clean), []);
-});
-
-test('a requirement key must be dotted, so an exception can name exactly one leaf', () => {
-  const flat = { ...ok, requires: { trap: true } };
-  assert.match(validatePattern('dialog-modal', flat)[0] ?? '', /"trap" must be dotted/);
-});
-
-test('the none pattern is one of the two allowed to have no requirements', () => {
-  const none = { name: 'none', source: 'n/a', requires: {} };
-  assert.deepEqual(validatePattern('none', none), []);
-});
-
-test('the absent pattern is the other one allowed to have no requirements', () => {
-  const absent = { name: 'absent', source: 'n/a', requires: {} };
-  assert.deepEqual(validatePattern('absent', absent), []);
+test('validatePattern names what is wrong with a pattern, and nothing with a sound one', () => {
+  assert.ok(PATTERN_PROBLEMS.length > 0, 'the table has rows');
+  for (const row of PATTERN_PROBLEMS) {
+    const problems = validatePattern(row.stem, row.pattern as Parameters<typeof validatePattern>[1]);
+    const message = row.why ? `${row.name}: ${row.why}` : row.name;
+    if (row.expected === null) assert.deepEqual(problems, [], message);
+    else assert.match(row.joined ? problems.join('\n') : (problems[0] ?? ''), row.expected, message);
+  }
 });
 
 test('every pattern on disk is valid', () => {
@@ -100,101 +134,177 @@ const patterns = new Map([
   ['machine-readable', { name: 'machine-readable', source: 'x', additive: true, description: 'x', requires: { 'alternative.jsonLd': 'a block' } }],
 ]);
 
-test('a binding naming a real pattern with no exceptions is valid', () => {
-  assert.deepEqual(validateBinding('ArenaDialog', 'react', { pattern: 'dialog-modal' }, patterns), []);
-});
+type BindingRow = {
+  name: string;
+  component: string;
+  layer: string;
+  binding: unknown;
+  expected: [] | RegExp | number;
+  joined?: boolean;
+  why?: string;
+};
+const ALSO_MACHINE_READABLE = [{ pattern: 'machine-readable' }];
 
-test('a binding naming a pattern that does not exist is a problem', () => {
-  assert.match(validateBinding('ArenaDialog', 'react', { pattern: 'modal' }, patterns)[0] ?? '', /unknown pattern "modal"/);
-});
+const BINDING_PROBLEMS: BindingRow[] = [
+  { name: 'a binding naming a real pattern with no exceptions is valid', component: 'ArenaDialog', layer: 'react', binding: { pattern: 'dialog-modal' }, expected: [] },
+  { name: 'a binding naming a pattern that does not exist is a problem', component: 'ArenaDialog', layer: 'react', binding: { pattern: 'modal' }, expected: /unknown pattern "modal"/ },
+  { name: 'binding none without a reason is a problem', component: 'ArenaCard', layer: 'react', binding: { pattern: 'none' }, expected: /requires a reason/ },
+  { name: 'binding none with a reason is valid', component: 'ArenaCard', layer: 'react', binding: { pattern: 'none', reason: 'a surface' }, expected: [] },
+  { name: 'binding absent without a reason is a problem', component: 'ArenaCalendar', layer: 'angular-delegated', binding: { pattern: 'absent' }, expected: /binding absent requires a reason/ },
+  {
+    name: 'binding absent with a reason is valid',
+    component: 'ArenaCalendar',
+    layer: 'angular-delegated',
+    binding: { pattern: 'absent', reason: 'no such component' },
+    expected: [],
+  },
+  {
+    name: 'an exception naming a requirement the pattern does not have is a problem',
+    component: 'ArenaDialog',
+    layer: 'react',
+    binding: { pattern: 'dialog-modal', exceptions: [{ requirement: 'focus.restore', reason: 'x' }] },
+    expected: /excepts "focus.restore", which pattern "dialog-modal" does not require/,
+  },
+  {
+    name: 'an exception without a reason is a problem',
+    component: 'ArenaDialog',
+    layer: 'react',
+    binding: { pattern: 'dialog-modal', exceptions: [{ requirement: 'focus.trap' }] },
+    expected: /reason/,
+  },
+  {
+    name: 'a cases entry that does not name itself is rejected, and does not clear the gate',
+    component: 'ArenaDialog',
+    layer: 'react',
+    binding: { cases: [{ pattern: 'none', reason: 'a label' }] },
+    expected: /cases\[0\] declares no "name"/,
+  },
+  {
+    name: 'a nameless case skips the when rule too, so the name check must not depend on it',
+    component: 'ArenaDialog',
+    layer: 'react',
+    binding: { cases: [{ pattern: 'dialog-modal', when: 'open' }] },
+    expected: 1,
+  },
+  {
+    name: 'a named case that omits when must say WHEN it is produced',
+    component: 'ArenaDialog',
+    layer: 'react',
+    binding: { cases: [{ name: 'open', pattern: 'dialog-modal' }] },
+    expected: /must say WHEN it is produced/,
+  },
+  {
+    name: 'a duplicate case name is rejected, because crossLayerAgrees would compare only the last one',
+    component: 'ArenaDialog',
+    layer: 'react',
+    binding: {
+      cases: [
+        { name: 'open', when: 'open is true', pattern: 'dialog-modal' },
+        { name: 'open', when: 'open is true and inert', pattern: 'none', reason: 'inert' },
+      ],
+    },
+    expected: /declares the case name "open" more than once/,
+  },
+  {
+    name: 'distinct names on a well-formed cased binding are no problem',
+    component: 'ArenaDialog',
+    layer: 'react',
+    binding: {
+      cases: [
+        { name: 'closed', when: 'open is false', pattern: 'none', reason: 'nothing renders' },
+        { name: 'open', when: 'open is true', pattern: 'dialog-modal' },
+      ],
+    },
+    expected: [],
+  },
+  {
+    name: 'a delegated binding must name what provides the behaviour',
+    component: 'ArenaDialog',
+    layer: 'angular',
+    binding: { pattern: 'dialog-modal', delegatedTo: '' },
+    expected: /delegatedTo/,
+  },
+  { name: 'an angular binding must name its React counterpart', component: 'stat-card', layer: 'angular', binding: { pattern: 'dialog-modal' }, expected: /must declare "component"/ },
+  {
+    name: 'an angular binding that names its counterpart is valid',
+    component: 'stat-card',
+    layer: 'angular',
+    binding: { pattern: 'dialog-modal', component: 'ArenaStatCard' },
+    expected: [],
+  },
+  {
+    name: 'a component may add an additive pattern to the one it binds',
+    component: 'ArenaBreadcrumbs',
+    layer: 'react',
+    binding: { pattern: 'dialog-modal', also: ALSO_MACHINE_READABLE },
+    expected: [],
+    why: 'this is the whole reason "also" exists: a pattern that says what a component owes BESIDES its '
+      + 'own has nowhere to go in a schema where a binding declares one pattern or a set of cases, '
+      + 'and cases are alternative renders rather than a second thing true of the same one',
+  },
+  {
+    name: 'an ordinary pattern cannot be added to another',
+    component: 'ArenaBreadcrumbs',
+    layer: 'react',
+    binding: { pattern: 'machine-readable', also: [{ pattern: 'dialog-modal' }] },
+    expected: /is not additive/,
+    joined: true,
+    why: 'a pattern answering roles, keys or focus belongs where a layer can be held to exactly one',
+  },
+  {
+    name: 'an additive pattern cannot be bound on its own',
+    component: 'ArenaBreadcrumbs',
+    layer: 'react',
+    binding: { pattern: 'machine-readable' },
+    expected: /that one is additive/,
+    joined: true,
+    why: 'alone it would leave the roles, the keys and the focus unanswered rather than answered as none',
+  },
+  {
+    name: 'adding the same pattern twice is a problem',
+    component: 'ArenaBreadcrumbs',
+    layer: 'react',
+    binding: { pattern: 'dialog-modal', also: [...ALSO_MACHINE_READABLE, ...ALSO_MACHINE_READABLE] },
+    expected: /adds "machine-readable" twice/,
+    joined: true,
+    why: 'one of the two would govern nothing, and an exception written on the wrong one would be '
+      + 'silently ignored rather than reported',
+  },
+  {
+    name: 'an exception against an additive pattern is held to that pattern',
+    component: 'ArenaBreadcrumbs',
+    layer: 'react',
+    binding: {
+      pattern: 'dialog-modal',
+      also: [{ pattern: 'machine-readable', exceptions: [{ requirement: 'focus.trap', reason: 'x' }] }],
+    },
+    expected: /excepts "focus.trap", which pattern "machine-readable" does not require/,
+    joined: true,
+    why: 'the primary pattern requires it and the additive one does not, so naming it here excepts '
+      + 'nothing while reading as though it excepted something',
+  },
+  {
+    name: 'an exception against an additive pattern still needs its reason',
+    component: 'ArenaBreadcrumbs',
+    layer: 'react',
+    binding: {
+      pattern: 'dialog-modal',
+      also: [{ pattern: 'machine-readable', exceptions: [{ requirement: 'alternative.jsonLd' }] }],
+    },
+    expected: /has no reason/,
+    joined: true,
+  },
+];
 
-test('binding none without a reason is a problem', () => {
-  assert.match(validateBinding('ArenaCard', 'react', { pattern: 'none' }, patterns)[0] ?? '', /requires a reason/);
-});
-
-test('binding none with a reason is valid', () => {
-  assert.deepEqual(validateBinding('ArenaCard', 'react', { pattern: 'none', reason: 'a surface' }, patterns), []);
-});
-
-test('binding absent without a reason is a problem', () => {
-  assert.match(
-    validateBinding('ArenaCalendar', 'angular-delegated', { pattern: 'absent' }, patterns)[0] ?? '',
-    /binding absent requires a reason/,
-  );
-});
-
-test('binding absent with a reason is valid', () => {
-  assert.deepEqual(
-    validateBinding('ArenaCalendar', 'angular-delegated', { pattern: 'absent', reason: 'no such component' }, patterns),
-    [],
-  );
-});
-
-test('none and absent are distinct patterns, not the same fact spelled two ways', () => {
-  const renders = { pattern: 'none', reason: 'a presentational surface that renders' };
-  const doesNotExist = { pattern: 'absent', reason: 'no such component exists in this layer' };
-  assert.notEqual(renders.pattern, doesNotExist.pattern);
-  assert.deepEqual(validateBinding('ArenaCard', 'angular-delegated', renders, patterns), []);
-  assert.deepEqual(validateBinding('ArenaCalendar', 'angular-delegated', doesNotExist, patterns), []);
-});
-
-test('an exception naming a requirement the pattern does not have is a problem', () => {
-  const b = { pattern: 'dialog-modal', exceptions: [{ requirement: 'focus.restore', reason: 'x' }] };
-  assert.match(validateBinding('ArenaDialog', 'react', b, patterns)[0] ?? '', /excepts "focus.restore", which pattern "dialog-modal" does not require/);
-});
-
-test('an exception without a reason is a problem', () => {
-  const b = { pattern: 'dialog-modal', exceptions: [{ requirement: 'focus.trap' }] };
-  assert.match(validateBinding('ArenaDialog', 'react', b, patterns)[0] ?? '', /reason/);
-});
-
-test('a cases entry that does not name itself is rejected, and does not clear the gate', () => {
-  const b = { cases: [{ pattern: 'none', reason: 'a label' }] };
-  const problems = validateBinding('ArenaDialog', 'react', b, patterns);
-  assert.match(problems[0] ?? '', /cases\[0\] declares no "name"/);
-});
-
-test('a nameless case skips the when rule too, so the name check must not depend on it', () => {
-  const nameless = { cases: [{ pattern: 'dialog-modal', when: 'open' }] };
-  assert.equal(validateBinding('ArenaDialog', 'react', nameless, patterns).length, 1);
-
-  const named = { cases: [{ name: 'open', pattern: 'dialog-modal' }] };
-  assert.match(validateBinding('ArenaDialog', 'react', named, patterns)[0] ?? '', /must say WHEN it is produced/);
-});
-
-test('a duplicate case name is rejected, because crossLayerAgrees would compare only the last one', () => {
-  const b = {
-    cases: [
-      { name: 'open', when: 'open is true', pattern: 'dialog-modal' },
-      { name: 'open', when: 'open is true and inert', pattern: 'none', reason: 'inert' },
-    ],
-  };
-  assert.match(validateBinding('ArenaDialog', 'react', b, patterns)[0] ?? '', /declares the case name "open" more than once/);
-});
-
-test('distinct names on a well-formed cased binding are no problem', () => {
-  const b = {
-    cases: [
-      { name: 'closed', when: 'open is false', pattern: 'none', reason: 'nothing renders' },
-      { name: 'open', when: 'open is true', pattern: 'dialog-modal' },
-    ],
-  };
-  assert.deepEqual(validateBinding('ArenaDialog', 'react', b, patterns), []);
-});
-
-test('a delegated binding must name what provides the behaviour', () => {
-  const b = { pattern: 'dialog-modal', delegatedTo: '' };
-  assert.match(validateBinding('ArenaDialog', 'angular', b, patterns)[0] ?? '', /delegatedTo/);
-});
-
-test('an angular binding must name its React counterpart', () => {
-  const b = { pattern: 'dialog-modal' };
-  assert.match(validateBinding('stat-card', 'angular', b, patterns)[0] ?? '', /must declare "component"/);
-});
-
-test('an angular binding that names its counterpart is valid', () => {
-  const b = { pattern: 'dialog-modal', component: 'ArenaStatCard' };
-  assert.deepEqual(validateBinding('stat-card', 'angular', b, patterns), []);
+test('validateBinding names what is wrong with a binding, and nothing with a sound one', () => {
+  assert.ok(BINDING_PROBLEMS.length > 0, 'the table has rows');
+  for (const row of BINDING_PROBLEMS) {
+    const problems = validateBinding(row.component, row.layer, row.binding as Parameters<typeof validateBinding>[2], patterns);
+    const message = row.why ? `${row.name}: ${row.why}` : row.name;
+    if (Array.isArray(row.expected)) assert.deepEqual(problems, row.expected, message);
+    else if (typeof row.expected === 'number') assert.equal(problems.length, row.expected, message);
+    else assert.match(row.joined ? problems.join('\n') : (problems[0] ?? ''), row.expected, message);
+  }
 });
 
 test('the React inventory finds every component, no category and no loose file', () => {
@@ -271,39 +381,73 @@ test('a component bound in both layers now spells the same tail on both sides', 
   assert.equal(reactBindingPath('.', 'arena-tag')?.tail, 'display/arena-tag/ArenaTag.behaviour.json');
 });
 
-test('two bindings naming the same pattern agree', () => {
-  assert.equal(crossLayerAgrees({ pattern: 'grid' }, { pattern: 'grid' }), true);
-});
+const caseOf = (name: string, when: string, pattern: string) => ({ name, when, pattern, exceptions: [] });
+const DANGER = 'tone is "danger"';
+const ANY_OTHER = 'any other tone';
+const ALERT_STATUS: BehaviourBinding = { cases: [caseOf('danger', DANGER, 'alert'), caseOf('advisory', ANY_OTHER, 'status')] };
+const STATUS_STATUS: BehaviourBinding = { cases: [caseOf('danger', DANGER, 'status'), caseOf('advisory', ANY_OTHER, 'status')] };
+const ALERT_STATUS_REVERSED: BehaviourBinding = { cases: [caseOf('advisory', ANY_OTHER, 'status'), caseOf('danger', DANGER, 'alert')] };
+const ROW_CARD: BehaviourBinding = { cases: [
+  { name: 'row', when: 'wide', pattern: 'none', exceptions: [] },
+  { name: 'card', when: 'narrow', pattern: 'button', exceptions: [] },
+] };
+const ABSENT = { pattern: 'absent', reason: 'Angular has no such component at all.' };
+const ALERT_FLAT = { pattern: 'alert', delegatedTo: 'Angular Material MatSnackBar' };
+const ALERT_DIVERGES: BehaviourBinding = { divergesFrom: 'alert', cases: ALERT_STATUS.cases };
 
-test('a declared divergesFrom on either side is accepted', () => {
-  assert.equal(crossLayerAgrees({ pattern: 'grid' }, { pattern: 'none', divergesFrom: 'grid' }), true);
-  assert.equal(crossLayerAgrees({ pattern: 'grid', divergesFrom: 'none' }, { pattern: 'none' }), true);
-});
+const AGREEMENTS: { name: string; checks: [a: BehaviourBinding, b: BehaviourBinding, expected: boolean, why?: string][] }[] = [
+  { name: 'two bindings naming the same pattern agree', checks: [[{ pattern: 'grid' }, { pattern: 'grid' }, true]] },
+  {
+    name: 'a declared divergesFrom on either side is accepted',
+    checks: [
+      [{ pattern: 'grid' }, { pattern: 'none', divergesFrom: 'grid' }, true],
+      [{ pattern: 'grid', divergesFrom: 'none' }, { pattern: 'none' }, true],
+    ],
+  },
+  { name: 'a real mismatch with no divergesFrom on either side disagrees', checks: [[{ pattern: 'grid' }, { pattern: 'none' }, false]] },
+  {
+    name: 'divergesFrom can name a pattern the other side binds in ONE of its cases',
+    checks: [
+      [ROW_CARD, { pattern: 'none', divergesFrom: 'button' }, true, 'a flat layer may diverge from a render only the cased layer has'],
+      [{ pattern: 'none', divergesFrom: 'button' }, ROW_CARD, true, 'and in the other direction'],
+      [ROW_CARD, { pattern: 'none', divergesFrom: 'grid' }, false, 'naming a pattern the other side binds nowhere is not a divergence, it is a typo'],
+      [ROW_CARD, { pattern: 'none' }, false, 'without divergesFrom the case names still have to match'],
+    ],
+  },
+  {
+    name: 'absent on either side is skipped even with no divergesFrom declared',
+    checks: [
+      [{ pattern: 'grid' }, { pattern: 'absent' }, true],
+      [{ pattern: 'absent' }, { pattern: 'grid' }, true],
+    ],
+  },
+  {
+    name: 'two cased bindings whose case names match but a case pattern disagrees do not agree',
+    checks: [[ALERT_STATUS, STATUS_STATUS, false]],
+  },
+  {
+    name: 'two cased bindings whose case names and per-case patterns all match agree',
+    checks: [[ALERT_STATUS, ALERT_STATUS_REVERSED, true]],
+  },
+  {
+    name: 'a cased binding against an absent binding agrees, both directions',
+    checks: [[ALERT_STATUS, ABSENT, true], [ABSENT, ALERT_STATUS, true]],
+  },
+  {
+    name: 'a cased binding whose divergesFrom names the other, flat side agrees',
+    checks: [[ALERT_DIVERGES, ALERT_FLAT, true], [ALERT_FLAT, ALERT_DIVERGES, true]],
+  },
+  {
+    name: 'two cased bindings with mismatched case patterns and no divergesFrom still disagree',
+    checks: [[ALERT_STATUS, STATUS_STATUS, false]],
+  },
+];
 
-test('a real mismatch with no divergesFrom on either side disagrees', () => {
-  assert.equal(crossLayerAgrees({ pattern: 'grid' }, { pattern: 'none' }), false);
-});
-
-test('divergesFrom can name a pattern the other side binds in ONE of its cases', () => {
-  const cased: BehaviourBinding = { cases: [
-    { name: 'row', when: 'wide', pattern: 'none', exceptions: [] },
-    { name: 'card', when: 'narrow', pattern: 'button', exceptions: [] },
-  ] };
-
-  assert.equal(crossLayerAgrees(cased, { pattern: 'none', divergesFrom: 'button' }), true,
-    'a flat layer may diverge from a render only the cased layer has');
-  assert.equal(crossLayerAgrees({ pattern: 'none', divergesFrom: 'button' }, cased), true,
-    'and in the other direction');
-
-  assert.equal(crossLayerAgrees(cased, { pattern: 'none', divergesFrom: 'grid' }), false,
-    'naming a pattern the other side binds nowhere is not a divergence, it is a typo');
-  assert.equal(crossLayerAgrees(cased, { pattern: 'none' }), false,
-    'without divergesFrom the case names still have to match');
-});
-
-test('absent on either side is skipped even with no divergesFrom declared', () => {
-  assert.equal(crossLayerAgrees({ pattern: 'grid' }, { pattern: 'absent' }), true);
-  assert.equal(crossLayerAgrees({ pattern: 'absent' }, { pattern: 'grid' }), true);
+test('crossLayerAgrees compares two layers\' bindings by pattern, case and declared divergence', () => {
+  assert.ok(AGREEMENTS.length > 0, 'the table has rows');
+  for (const row of AGREEMENTS) {
+    for (const [a, b, expected, why] of row.checks) assert.equal(crossLayerAgrees(a, b), expected, why ? `${row.name}: ${why}` : row.name);
+  }
 });
 
 test('loadBinding reads a real binding from disk', () => {
@@ -359,112 +503,6 @@ test('a binding declaring both pattern and cases is rejected by validateBinding'
   assert.ok(problems.some((p) => /both .*pattern.* and .*cases/i.test(p)), problems.join('\n'));
 });
 
-test('two cased bindings whose case names match but a case pattern disagrees do not agree', () => {
-  const react: BehaviourBinding = { cases: [
-    { name: 'danger', when: 'tone is "danger"', pattern: 'alert', exceptions: [] },
-    { name: 'advisory', when: 'any other tone', pattern: 'status', exceptions: [] },
-  ] };
-  const angular: BehaviourBinding = { cases: [
-    { name: 'danger', when: 'tone is "danger"', pattern: 'status', exceptions: [] },
-    { name: 'advisory', when: 'any other tone', pattern: 'status', exceptions: [] },
-  ] };
-  assert.equal(crossLayerAgrees(react, angular), false);
-});
-
-test('two cased bindings whose case names and per-case patterns all match agree', () => {
-  const react: BehaviourBinding = { cases: [
-    { name: 'danger', when: 'tone is "danger"', pattern: 'alert', exceptions: [] },
-    { name: 'advisory', when: 'any other tone', pattern: 'status', exceptions: [] },
-  ] };
-  const angular: BehaviourBinding = { cases: [
-    { name: 'advisory', when: 'any other tone', pattern: 'status', exceptions: [] },
-    { name: 'danger', when: 'tone is "danger"', pattern: 'alert', exceptions: [] },
-  ] };
-  assert.equal(crossLayerAgrees(react, angular), true);
-});
-
-test('a cased binding against an absent binding agrees, both directions', () => {
-  const cased: BehaviourBinding = { cases: [
-    { name: 'danger', when: 'tone is "danger"', pattern: 'alert', exceptions: [] },
-    { name: 'advisory', when: 'any other tone', pattern: 'status', exceptions: [] },
-  ] };
-  const absent = { pattern: 'absent', reason: 'Angular has no such component at all.' };
-  assert.equal(crossLayerAgrees(cased, absent), true);
-  assert.equal(crossLayerAgrees(absent, cased), true);
-});
-
-test('a cased binding whose divergesFrom names the other, flat side agrees', () => {
-  const cased: BehaviourBinding = { divergesFrom: 'alert', cases: [
-    { name: 'danger', when: 'tone is "danger"', pattern: 'alert', exceptions: [] },
-    { name: 'advisory', when: 'any other tone', pattern: 'status', exceptions: [] },
-  ] };
-  const flat = { pattern: 'alert', delegatedTo: 'Angular Material MatSnackBar' };
-  assert.equal(crossLayerAgrees(cased, flat), true);
-  assert.equal(crossLayerAgrees(flat, cased), true);
-});
-
-test('two cased bindings with mismatched case patterns and no divergesFrom still disagree', () => {
-  const react: BehaviourBinding = { cases: [
-    { name: 'danger', when: 'tone is "danger"', pattern: 'alert', exceptions: [] },
-    { name: 'advisory', when: 'any other tone', pattern: 'status', exceptions: [] },
-  ] };
-  const angular: BehaviourBinding = { cases: [
-    { name: 'danger', when: 'tone is "danger"', pattern: 'status', exceptions: [] },
-    { name: 'advisory', when: 'any other tone', pattern: 'status', exceptions: [] },
-  ] };
-  assert.equal(crossLayerAgrees(react, angular), false);
-});
-
-test('a component may add an additive pattern to the one it binds', () => {
-  assert.deepEqual(validateBinding('ArenaBreadcrumbs', 'react', {
-    pattern: 'dialog-modal',
-    also: [{ pattern: 'machine-readable' }],
-  }, patterns), [],
-  'this is the whole reason "also" exists: a pattern that says what a component owes BESIDES its '
-  + 'own has nowhere to go in a schema where a binding declares one pattern or a set of cases, '
-  + 'and cases are alternative renders rather than a second thing true of the same one');
-});
-
-test('an ordinary pattern cannot be added to another', () => {
-  assert.match(validateBinding('ArenaBreadcrumbs', 'react', {
-    pattern: 'machine-readable',
-    also: [{ pattern: 'dialog-modal' }],
-  }, patterns).join('\n'), /is not additive/,
-  'a pattern answering roles, keys or focus belongs where a layer can be held to exactly one');
-});
-
-test('an additive pattern cannot be bound on its own', () => {
-  assert.match(validateBinding('ArenaBreadcrumbs', 'react', { pattern: 'machine-readable' }, patterns).join('\n'),
-    /that one is additive/,
-    'alone it would leave the roles, the keys and the focus unanswered rather than answered as none');
-});
-
-test('adding the same pattern twice is a problem', () => {
-  assert.match(validateBinding('ArenaBreadcrumbs', 'react', {
-    pattern: 'dialog-modal',
-    also: [{ pattern: 'machine-readable' }, { pattern: 'machine-readable' }],
-  }, patterns).join('\n'), /adds "machine-readable" twice/,
-  'one of the two would govern nothing, and an exception written on the wrong one would be '
-  + 'silently ignored rather than reported');
-});
-
-test('an exception against an additive pattern is held to that pattern', () => {
-  const problems = validateBinding('ArenaBreadcrumbs', 'react', {
-    pattern: 'dialog-modal',
-    also: [{ pattern: 'machine-readable', exceptions: [{ requirement: 'focus.trap', reason: 'x' }] }],
-  }, patterns);
-  assert.match(problems.join('\n'), /excepts "focus.trap", which pattern "machine-readable" does not require/,
-    'the primary pattern requires it and the additive one does not, so naming it here excepts '
-    + 'nothing while reading as though it excepted something');
-});
-
-test('an exception against an additive pattern still needs its reason', () => {
-  assert.match(validateBinding('ArenaBreadcrumbs', 'react', {
-    pattern: 'dialog-modal',
-    also: [{ pattern: 'machine-readable', exceptions: [{ requirement: 'alternative.jsonLd' }] }],
-  }, patterns).join('\n'), /has no reason/);
-});
-
 test('two layers must add the same patterns, or they are not one component', () => {
   const withIt = { pattern: 'dialog-modal', also: [{ pattern: 'machine-readable' }] };
   const without = { pattern: 'dialog-modal' };
@@ -472,29 +510,6 @@ test('two layers must add the same patterns, or they are not one component', () 
     'an additive pattern one layer ships and the other does not is exactly the divergence this '
     + 'branch exists to catch: a crawler would be told about the React page and not the Angular one');
   assert.equal(crossLayerAgrees(withIt, { ...withIt }), true);
-});
-
-test('an additive pattern may require nothing in the roles family', () => {
-  assert.match(validatePattern('bad', {
-    name: 'bad', source: 'x', additive: true, description: 'x',
-    requires: { 'roles.element': 'main' },
-  }).join('\n'), /may require nothing in the roles family/,
-  'which element a component renders is answered once, by the pattern it binds; a second pattern '
-  + 'answering it again is a contradiction with no way to report which of the two was broken');
-});
-
-test('additive is true or it is absent', () => {
-  assert.match(validatePattern('bad', {
-    name: 'bad', source: 'x', additive: false, requires: { 'focus.trap': true },
-  }).join('\n'), /is present and not true/);
-});
-
-test('an additive pattern must say why a component owes it as well', () => {
-  assert.match(validatePattern('bad', {
-    name: 'bad', source: 'x', additive: true, requires: { 'alternative.jsonLd': 'a block' },
-  }).join('\n'), /must carry a description/,
-  'it is bound alongside another pattern rather than instead of one, so nothing else on the page '
-  + 'says why a component owes both');
 });
 
 test('every binding of dialog-modal or alertdialog adds modal-focus', () => {
@@ -505,4 +520,47 @@ test('every binding of dialog-modal or alertdialog adds modal-focus', () => {
   assert.deepEqual(offenders, [],
     'focus and Escape are written once, in modal-focus, and a dialog owes them under its own role: '
     + 'a binding that names the role and not the focus is a dialog nobody checked the focus of');
+});
+
+const CASES_PATH = '/x/Alert.behaviour.json';
+const twoCases = bindingCases({
+  cases: [
+    { name: 'danger', when: 'tone is "danger"', pattern: 'alert', exceptions: [] },
+    { name: 'advisory', when: 'any other tone', pattern: 'status', exceptions: [] },
+  ],
+});
+
+test('caseSetRefusal refuses a flat binding', () => {
+  const flat = bindingCases({ pattern: 'status', exceptions: [] });
+  const refusal = caseSetRefusal(CASES_PATH, flat, ['only']) ?? '';
+  assert.match(refusal, /declares no cases/);
+  assert.ok(refusal.startsWith(CASES_PATH));
+});
+
+test('caseSetRefusal names the declared case a suite never rendered', () => {
+  const refusal = caseSetRefusal(CASES_PATH, twoCases, ['danger']) ?? '';
+  assert.match(refusal, /never rendered: advisory/);
+  assert.ok(refusal.startsWith(CASES_PATH));
+});
+
+test('caseSetRefusal names a rendered case the binding does not declare', () => {
+  const refusal = caseSetRefusal(CASES_PATH, twoCases, ['danger', 'advisory', 'typo']) ?? '';
+  assert.match(refusal, /not declared in the binding: typo/);
+  assert.ok(refusal.startsWith(CASES_PATH));
+});
+
+test('caseSetRefusal refuses a case name declared twice', () => {
+  const twice = bindingCases({
+    cases: [
+      { name: 'danger', when: 'tone is "danger"', pattern: 'alert', exceptions: [] },
+      { name: 'danger', when: 'tone is still "danger"', pattern: 'status', exceptions: [] },
+    ],
+  });
+  const refusal = caseSetRefusal(CASES_PATH, twice, ['danger']) ?? '';
+  assert.match(refusal, /declares the same case name more than once: danger/);
+  assert.ok(refusal.startsWith(CASES_PATH));
+});
+
+test('caseSetRefusal is null when the rendered set is the declared set', () => {
+  assert.equal(caseSetRefusal(CASES_PATH, twoCases, ['advisory', 'danger']), null);
 });

@@ -1,8 +1,9 @@
 import { afterNextRender, DestroyRef, DOCUMENT, ElementRef, inject, signal, Signal } from '@angular/core';
+import { arenaBelowQuery, arenaBreakpointPx, arenaTextScaleOf } from './RootScale';
 
 export type ArenaBreakpointName = 'sm' | 'md' | 'lg';
 
-const breakpoints = new Map<string, number>();
+const breakpoints = new Map<string, string>();
 
 export type WidthTarget = ElementRef<HTMLElement> | (() => HTMLElement | null | undefined);
 
@@ -70,8 +71,10 @@ export function arenaViewportBelow(name: ArenaBreakpointName): Signal<boolean> {
   const destroyRef = inject(DestroyRef);
   const width = arenaReadBreakpoint(name);
   const view = doc.defaultView;
-  if (!view?.matchMedia || !Number.isFinite(width)) return signal(false).asReadonly();
-  const query = view.matchMedia(`not all and (min-width: ${width}px)`);
+  const raw = breakpoints.get(name);
+  const text = Number.isFinite(width) && raw !== undefined ? arenaBelowQuery(raw) : null;
+  if (!view?.matchMedia || text === null) return signal(false).asReadonly();
+  const query = view.matchMedia(text);
   const below = signal(query.matches);
   const onChange = (event: MediaQueryListEvent) => below.set(event.matches);
   query.addEventListener('change', onChange);
@@ -79,16 +82,25 @@ export function arenaViewportBelow(name: ArenaBreakpointName): Signal<boolean> {
   return below.asReadonly();
 }
 
+const rootFontSize = (doc: Document) => doc.defaultView?.getComputedStyle(doc.documentElement).fontSize;
+
+const rawBreakpoint = (doc: Document, name: ArenaBreakpointName) =>
+  doc.defaultView?.getComputedStyle(doc.documentElement).getPropertyValue(`--bp-${name}`) ?? '';
+
 export function arenaReadBreakpoint(name: ArenaBreakpointName): number {
   const doc = inject(DOCUMENT);
-  const cached = breakpoints.get(name);
-  if (cached !== undefined) return cached;
-  const raw = doc.defaultView?.getComputedStyle(doc.documentElement).getPropertyValue(`--bp-${name}`);
-  const value = Number.parseFloat(raw ?? '');
-  if (!Number.isFinite(value)) {
-    warnAfterTheFirstRender(name);
-    return Number.NaN;
+  let raw = breakpoints.get(name);
+  if (raw === undefined) {
+    raw = rawBreakpoint(doc, name).trim();
+    if (!Number.isFinite(arenaBreakpointPx(raw, undefined))) {
+      warnAfterTheFirstRender(name);
+      return Number.NaN;
+    }
+    breakpoints.set(name, raw);
   }
-  breakpoints.set(name, value);
-  return value;
+  return arenaBreakpointPx(raw, rootFontSize(doc));
+}
+
+export function arenaReadTextScale(): number {
+  return arenaTextScaleOf(rootFontSize(inject(DOCUMENT)));
 }

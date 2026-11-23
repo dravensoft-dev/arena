@@ -9,6 +9,7 @@ import React from 'react';
 import { mount, cleanup } from '../../../test/Harness.tsx';
 import { ArenaBulkActionBar } from './ArenaBulkActionBar.tsx';
 import type { ArenaBulkAction, ArenaBulkActionBarLayout } from '../../../Api.generated';
+import { narrowWidths } from '../../../test/NarrowWidths.ts';
 
 afterEach(cleanup);
 
@@ -19,24 +20,6 @@ const ACTIONS: ArenaBulkAction[] = [
   { id: 'archive', label: 'Archive' },
   { id: 'delete', label: 'Delete', destructive: true },
 ];
-
-function narrowWidths<T>(width: number, body: () => T): T {
-  const saved = globalThis.ResizeObserver;
-  globalThis.ResizeObserver = class {
-    callback: ResizeObserverCallback;
-    constructor(callback: ResizeObserverCallback) { this.callback = callback; }
-    observe(target: Element) {
-      this.callback([{ target, borderBoxSize: [{ inlineSize: width, blockSize: 0 }], contentRect: { width } }] as unknown as ResizeObserverEntry[], this as unknown as ResizeObserver);
-    }
-    unobserve() {}
-    disconnect() {}
-  } as unknown as typeof ResizeObserver;
-  try {
-    return body();
-  } finally {
-    globalThis.ResizeObserver = saved;
-  }
-}
 
 function render(layout?: ArenaBulkActionBarLayout) {
   return mount(<ArenaBulkActionBar count={3} noun="sales" actions={ACTIONS} layout={layout} />);

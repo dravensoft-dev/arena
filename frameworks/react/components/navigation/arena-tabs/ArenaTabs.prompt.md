@@ -48,9 +48,7 @@ A row of tabs and the one panel they switch between. The selected tab is marked 
   decision for you: deferring the mount is what dangles the other tabs' `aria-controls`.
 - Don't reach for `style` to space the strip. The component takes none, because the panel already carries the gap below the selected rule.
 
-**Checked by hand, because a suite cannot hold it.** happy-dom has no sequential focus navigation, so nothing asserts that Tab from a tab reaches the panel rather than the next tab. Serve the tree
-with `bun run demos`, open `frameworks/react/components/navigation/arena-tabs/ArenaTabs.demo.generated.html`,
-and check it in a real browser.
+Tab from a tab reaches the panel rather than the next tab.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

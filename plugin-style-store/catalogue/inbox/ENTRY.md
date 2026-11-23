@@ -14,9 +14,9 @@ Take this entry when the screen is a list against a reading column, and the read
 | Which face small text takes | `ff-eyebrow`, `ff-label` | the mono face for both, in capitals with the navigation tracking | a client driven by keys already speaks in keys, and a field label in mono is the register saying so before any shortcut is pressed |
 | How loud type is | `fw-heading`, `fw-eyebrow`, `fw-control` | semibold for a heading, medium for the other two | weight is what separates an unread row from a read one, so it is spent there rather than on the furniture |
 | How big anything is | `step-title-*`, `step-eyebrow` | every register pitched down a step, the page title at the third heading size and the hero at the first | a title bigger than a subject line would be a page announcing itself to a reader who is already inside it |
-| How tight it is to the hand | `pad-control-*`, `gap-*`, `pad-surface` | the tightest of the entries, a single step of vertical control padding | the whole register is how many conversations fit above the fold |
+| How tight it is to the hand | `pad-control-*`, `gap-*`, `pad-surface` | the tightest surface padding and control gap of the entries, shared with the observability console, and a single step of vertical control padding | the whole register is how many conversations fit above the fold |
 | Which density it assumes | the compact class rather than a role | `.arena-compact` on the document, as the default rather than the desk option | the compact class is the product here, and the comfortable one is what a touch build would opt into |
-| How wide it breathes | `container-max`, `grid-min`, `gutter`, `measure-prose` | a very wide container, the narrowest gutter of the entries, and the widest prose measure | the panes fill the window and the reading column is the only thing that stops, so the measure is the one length that matters |
+| How wide it breathes | `container-max`, `grid-min`, `gutter`, `measure-prose` | a very wide container, a narrow gutter and a wide prose measure | the panes fill the window and the reading column is the only thing that stops, so the measure is the one length that matters |
 | Whether depth is real | `shadow-*`, `lift-control` | nothing anywhere, except the floating and deep surfaces the palette and the command palette stand on | nothing on this screen is an object: it is a list of text, and a shadow under a row would be a claim that it could be picked up |
 | How it answers a hand | `press-scale`, `dur-*`, `ease-*` | no shrink at all, the fast duration on both, an out curve | a control that shrinks under a pointer is answering the wrong input device; the answer here is that the next row is already selected |
 | What shape a picture is | `aspect-media`, `fit-media`, `overlay-media` | landscape at three by two, filled, the wash on the page surface | media in this register is an attachment preview and never the content, so the shape is a document's rather than a photograph's |
@@ -57,6 +57,6 @@ which and why.
 
 ## What it does not bring
 
-The palette and the fonts are the consumer's. This register leans on the mono face harder than the others. A config that answers all three font slots with one family loses most of what separates it from a console.
+The palette and the fonts are the consumer's. This register leans on the mono face, as the observability console does. A config that answers all three font slots with one family loses most of what separates it from a console.
 
 The copy, the brand mark, the shortcut map and the question of being found from outside are still open. A client behind a login answers the last of those no.

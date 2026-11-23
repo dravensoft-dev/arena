@@ -1,4 +1,4 @@
-Power-user accelerator (H7). Open it with Cmd/Ctrl+K from the host and pass it the list of
+Power-user accelerator. Open it with Cmd/Ctrl+K from the host and pass it the list of
 commands. `open` and `commands` are both required; the component throws from its render if
 either is absent. Each command's `icon` is a Phosphor class name Arena draws, not a node.
 Activating a command emits `onRun` with the command that ran, after `onClose` has already fired. The host discriminates which command ran by switching on `id`, which is required on every `ArenaCommand`.

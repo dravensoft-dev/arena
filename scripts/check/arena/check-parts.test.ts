@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   MANIFESTS, angularPartProblems, classSites, collect, gateProblems, partProblems, partProblemsOf, partsOf, reachedParts, reactPartProblems,
-  symmetryProblems, unreachedProblems, zeroPartProblems, zeroReachedProblems,
+  symmetryProblems, unreachedProblems, zeroPartProblems,
 } from './check-parts.ts';
 
 const CARD = { root: 'card', body: 'card.body' };
@@ -89,11 +89,6 @@ test('the gate carries the zero guards and the component problems', () => {
   assert.deepEqual(gateProblems(collect()), []);
 });
 
-test('the whole tree holds', () => {
-  const { problems } = collect();
-  assert.deepEqual(problems, []);
-});
-
 test('a zero walk is a failure and not a clean pass', () => {
   assert.equal(zeroPartProblems(0).length, 1);
   assert.deepEqual(zeroPartProblems(MANIFESTS().length), []);
@@ -109,9 +104,4 @@ test('a part one layer reaches and the other does not is not one contract', () =
 test('a manifest no layer implements reports every declared part it names', () => {
   const parts = { root: 'card', body: 'card.body' };
   assert.equal(unreachedProblems('ArenaCard', parts, new Set(), new Set()).length, 2);
-});
-
-test('a sweep reaching no part is a failure and not a clean pass', () => {
-  assert.equal(zeroReachedProblems(0).length, 1);
-  assert.deepEqual(zeroReachedProblems(collect().reached), []);
 });

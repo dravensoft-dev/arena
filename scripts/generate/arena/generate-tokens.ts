@@ -5,22 +5,27 @@
  * writes a Windows drive as //?/D:/ and therefore equals nothing any join produces. Comparing two
  * spellings of one file is the defect both halves of that caused, and a name has only one.
  * An alias resolves to its value EXCEPT where that value is the SKIN's, which LATE_BOUND names:
- * the palette and the faces belong to the consuming project and the density axis to another
- * scope, so a role resolved at build time freezes one answer and inherits it everywhere.
- * REDECLARED_GROUPS restates some of those per scope, and check:proximity's step-* cases hold it. */
+ * the palette and the faces belong to the consuming project, the density axis to another scope and
+ * the focus widths to contrast.css, which re-points them under prefers-contrast, so a role resolved
+ * at build time freezes one answer. REDECLARED_GROUPS restates some per scope (check:proximity). */
 
 import StyleDictionary from 'style-dictionary';
 import { readFileSync, writeFileSync } from 'node:fs';
 import nodePath, { join } from 'node:path';
+import { readJson } from '../../utils/read-file.ts';
 import { toPosix } from '../../utils/posix-path.ts';
 import type { PathModule } from '../../utils/posix-path.ts';
 import { camel } from '../../utils/case.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { serialize } from '../core/arena-cli/serialize-token.ts';
 import { rootOnlyFor, scopeOn } from '../core/arena-cli/style-plugin-rules.ts';
+import { fadeMarkers } from '../core/arena-cli/slots.ts';
+import type { SlotCatalogue } from '../core/arena-cli/slots.ts';
+import { COLOR_SLOTS, readColorSlots } from '../../lib/core/color-slots.ts';
 import { DEFAULTS_LAYER, LAYER_ORDER } from '../../lib/tailwind/component-sheets.ts';
 import { serializeScript } from '../../lib/core/serialize-script.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
+import { tokenAxes, declaredAxis } from '../../lib/core/user-scale.ts';
 import { ARENA_EXT, childEntries, isStamped, isToken } from '../../lib/core/dtcg-shapes.ts';
 import type { DtcgNode, DtcgToken, StampedToken } from '../../lib/core/dtcg-shapes.ts';
 
@@ -39,7 +44,7 @@ export const FILES = [
   { out: 'typography.generated.css', layer: DEFAULTS_LAYER, blocks: [
     { selector: ':root', source: 'typography.json' },
   ] },
-  { out: 'spacing.generated.css', blocks: [
+  { out: 'spacing.generated.css', layer: DEFAULTS_LAYER, blocks: [
     { selector: ':root', source: 'spacing.json' },
     { selector: ':root', source: 'icon.json' },
     { selector: ':root', source: 'component.json' },
@@ -79,7 +84,7 @@ export const REDECLARED_GROUPS = new Map<string, string[]>([
   ['dz', ['compact', 'comfortable']],
 ]);
 
-export const LATE_BOUND = new Set([...REDECLARED_GROUPS.keys(), 'font']);
+export const LATE_BOUND = new Set([...REDECLARED_GROUPS.keys(), 'font', 'focus']);
 
 export const themeOf = (token: { path?: string[] }) => {
   const first = token.path?.[0] ?? '';
@@ -97,9 +102,13 @@ export function aliasOf(token: DtcgToken) {
   return ALIAS.exec(authored.trim())?.[1]?.trim() ?? null;
 }
 
+const answersColourRole = (token: DtcgToken, alias: string) => colorSlotsOnce().slots[emittedName(token as StampedToken)] !== undefined
+  && !alias.includes('.') && (axisSourcesOnce().roles[alias] as DtcgNode | undefined)?.$type === 'color';
+
 export function scopesRedeclaring(token: DtcgToken) {
   const alias = aliasOf(token);
   if (!alias) return [];
+  if (answersColourRole(token, alias)) return REDECLARED_GROUPS.get('color') ?? [];
   return REDECLARED_GROUPS.get(alias.split('.')[0] ?? '') ?? [];
 }
 
@@ -129,6 +138,9 @@ export const node = {
     ...SOURCES,
     ...Object.values(RESOLVES_AGAINST).flat().map((source) => `${DESIGN_DIR}/${source}`),
     ...ROOT_ONLY_SOURCES,
+    `${DESIGN_DIR}/roles.json`,
+    `${DESIGN_DIR}/*.json`,
+    COLOR_SLOTS,
   ])],
   writes: [...CSS_TARGETS, ...SCRIPT_TARGETS, BREAKPOINT_TARGET],
   feeds: [
@@ -139,11 +151,11 @@ export const node = {
     'build:angular-tests',
     'build:react-package',
     'build:tailwind',
+    'build:mcp-package', 'check:mcp',
     'check:arbitrary',
     'check:boundary-contrast',
     'check:classes',
     'check:catalogue',
-    'check:cdk',
     'check:component-css',
     'check:contracts',
     'check:coverage',
@@ -156,7 +168,7 @@ export const node = {
     'check:icons',
     'check:layer-independence',
     'check:packages',
-    'check:target-size', 'check:contained-parts', 'check:pixel-parity', 'check:palette-islands',
+    'check:target-size', 'check:text-scale', 'check:contained-parts', 'check:pixel-parity', 'check:palette-islands',
     'check:ramp',
     'check:script-tokens',
     'check:shared-arithmetic',
@@ -185,7 +197,7 @@ export async function buildBreakpointTheme() {
   const lines = [];
   for (const item of walk(await load('spacing.json'))) {
     if (!isTokenItem(item) || !/^bp-/.test(item.token.name)) continue;
-    lines.push(`  --breakpoint-${item.token.name.slice(3)}:${serialize(item.token)};`);
+    lines.push(`  --breakpoint-${item.token.name.slice(3)}:${serialize(item.token, { axis: 'scales', relative: 'em' })};`);
   }
   return `${BREAKPOINT_HEADER}\n@theme {\n  --breakpoint-*: initial;\n${lines.join('\n')}\n}\n`;
 }
@@ -293,8 +305,33 @@ function comment(d: string) {
   return ['  /*', ...d.split('\n').map((l: string) => `     ${l}`), '   */'].join('\n');
 }
 
+export function axisOf(token: { name: string; path?: string[] }, roles: Record<string, unknown>,
+                       axes: ReadonlyMap<string, string>) {
+  const role = Object.hasOwn(roles, token.name) ? declaredAxis(roles[token.name] as DtcgNode) : undefined;
+  return role ?? axes.get((token.path ?? []).join('.'));
+}
+
+let colorSlots: SlotCatalogue | undefined;
+
+const colorSlotsOnce = () => (colorSlots ??= readColorSlots(root));
+
+let axisSources: { roles: Record<string, unknown>; axes: ReadonlyMap<string, string> } | undefined;
+
+function axisSourcesOnce() {
+  axisSources ??= {
+    roles: readJson(join(root, DESIGN_DIR, 'roles.json')) as Record<string, unknown>,
+    axes: tokenAxes(join(root, DESIGN_DIR)),
+  };
+  return axisSources;
+}
+
 function render(token: StampedToken) {
-  const decl = `  --${emittedName(token)}:${referenceOf(token) ?? serialize(token)};`;
+  const { roles, axes } = axisSourcesOnce();
+  const axis = axisOf(token, roles, axes);
+  const name = emittedName(token);
+  const answered = aliasOf(token);
+  const roleOf = answered !== null && answersColourRole(token, answered) ? `var(--${answered})` : null;
+  const decl = `  --${name}:${roleOf ?? referenceOf(token) ?? serialize(token, { axis })};`;
   const d = token.$description;
   if (!d) return decl;
   if (!d.includes('\n')) return `${decl} /* ${d} */`;
@@ -328,14 +365,19 @@ function* walk({ tokens, from }: { tokens: any; from: string },
   }
 }
 
-function renderLines(items: Emitted[]) {
+function renderLines(items: Emitted[], marked: string[] = []) {
   const lines = [];
   for (const item of items) {
     if (isTokenItem(item)) { lines.push(render(item.token)); continue; }
     if (lines.length) lines.push('');
     lines.push(comment(item.description));
   }
-  return lines;
+  return [...lines, ...marked];
+}
+
+function markersFor(items: Emitted[], seen: ReadonlySet<string> = new Set()) {
+  const names = items.filter(isTokenItem).map((item) => emittedName(item.token));
+  return fadeMarkers(names, colorSlotsOnce()).map(([name, value]) => `  ${name}:${value};`).filter((line) => !seen.has(line));
 }
 
 export async function block({ selector, source, dir = DESIGN_DIR, plugin }:
@@ -349,7 +391,8 @@ export async function block({ selector, source, dir = DESIGN_DIR, plugin }:
   const restatedIn = (name: string) => base.filter((item) =>
     isTokenItem(item) && scopesRedeclaring(item.token).includes(name));
   const named = plugin === undefined ? [] : [`  --arena-plugin:${plugin};`];
-  const out = base.length ? [`${selector}{\n${[...named, ...renderLines(base)].join('\n')}\n}`] : [];
+  const baseMarks = markersFor(base);
+  const out = base.length ? [`${selector}{\n${[...named, ...renderLines(base, baseMarks)].join('\n')}\n}`] : [];
 
   for (const [theme, scope] of THEME_SCOPES) {
     const references = restatedIn(theme);
@@ -357,7 +400,7 @@ export async function block({ selector, source, dir = DESIGN_DIR, plugin }:
       ? [scope(selector, `\n${renderLines(references).join('\n')}\n`)] : [];
     const themed = buckets.get(theme) ?? [];
     const overrides = themed.length
-      ? [scope(selector, `\n${renderLines(themed).join('\n')}\n`)] : [];
+      ? [scope(selector, `\n${renderLines(themed, markersFor(themed, new Set(baseMarks))).join('\n')}\n`)] : [];
     out.push(...restated, ...overrides);
   }
 

@@ -1,4 +1,4 @@
-Icon-only button for toolbars and rows. Always pass `label` (accessible name in all states). Where there's room, use `showLabel` so you don't rely only on the hover tooltip (H6).
+Icon-only button for toolbars and rows. Always pass `label` (accessible name in all states). Where there's room, use `showLabel` so you don't rely only on the hover tooltip.
 
 ```tsx
 <ArenaIconButton label="More options" icon="ph-bold ph-dots-three-vertical" />
@@ -14,7 +14,7 @@ Icon-only button for toolbars and rows. Always pass `label` (accessible name in 
 |---|---|---|---|---|
 | `icon*` | primitive | `string` |  | Phosphor class name, e.g. 'ph-bold ph-plus'. ArenaIcon draws the glyph and hides it from assistive technology; `label` is the accessible name. |
 | `label*` | primitive | `string` |  | The accessible name, present in every state. Also the visible text when showLabel is set, and the title attribute when it is not. |
-| `showLabel` | primitive | `boolean` | `false` | Shows the label as text beside the icon (H6). Don't rely on the title alone on touch or keyboard surfaces. |
+| `showLabel` | primitive | `boolean` | `false` | Shows the label as text beside the icon. Don't rely on the title alone on touch or keyboard surfaces. |
 | `pressed` | primitive | `boolean` |  | Whether this control is a toggle, and whether it is currently on. Present, Arena writes aria-pressed and draws the on state with the same accent tint a current ArenaSideNav item takes, so "this one is on" is one statement across the library. Absent, the control is not a toggle at all. The tri-state is the point and a default of false would destroy it. aria-pressed="false" on a plain button announces a toggle that is off rather than a button, so every ArenaIconButton in the system would announce as an unpressed toggle. The label does NOT change with the state, which is what the button pattern means by a toggle. A control that renames itself is announced as a different control rather than as the same one in another state. |
 | `disabled` | primitive | `boolean` | `false` | Blocks activation and dims the control. |
 | `type` | enum | `ArenaButtonType` | `"button"` | Native button behaviour. Defaults to 'button' so an icon button inside a form does not submit it by accident. |
@@ -45,7 +45,7 @@ Icon-only button for toolbars and rows. Always pass `label` (accessible name in 
 
 - **`pressed` is what makes it a toggle, and leaving it off is a state of its own.** Passed, Arena writes `aria-pressed`. Arena draws the on state with the accent tint a current `ArenaSideNav` item takes. Omitted, the control is not a toggle at all. Never default it to `false`. On a plain button, `aria-pressed="false"` announces a toggle that is off rather than a button, so every icon button in the app would read as an unpressed toggle.
 - **A toggle keeps its `label` in both states.** Changing the name to carry the state is the workaround `pressed` exists to end. A screen reader then announces a different control instead of the same one in another state. Name what it does, not what pressing it will do next.
-- Pass `icon` as a Phosphor class name: `icon="ph-bold ph-plus"`. Arena draws the `<i>` and hides it; `label` is what a screen reader announces.
+- Pass `icon` as a Phosphor class name: `icon="ph-bold ph-plus"`. Arena draws it as an `<svg>` of the sprite, hidden from assistive technology; `label` is what a screen reader announces.
 - Don't pass an element as the icon. A single icon is a class name in Arena, which keeps the glyph inside Arena's own iconography and inside the markup Arena is answerable for.
 
 **Four ARIA props pass through, for Arena's popover, menu and tooltip.** `aria-haspopup`, `aria-expanded`, `aria-controls` and `aria-describedby` reach the `<button>`. Every other `aria-*` prop is dropped.

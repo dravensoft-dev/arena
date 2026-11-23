@@ -35,7 +35,7 @@ const numberOrUndefined = (value: number | null | undefined): number | undefined
   },
   template: `
     @if (showLabel()) {
-      <label [id]="ids().label" [attr.for]="ids().control" [class]="styles().label()" [attr.data-arena-part]="parts.label">{{ label() }}@if (required()) {
+      <label [id]="ids().label" [attr.for]="ids().control" [class]="styles().label()" [arenaSlotData]="styles().$data.label()" [attr.data-arena-part]="parts.label">{{ label() }}@if (required()) {
         <span [class]="styles().required()" [attr.data-arena-part]="parts.required" aria-hidden="true">*</span>
       }</label>
     }
@@ -77,9 +77,9 @@ const numberOrUndefined = (value: number | null | undefined): number | undefined
       <input type="hidden" [attr.name]="field" [value]="canonical()" [disabled]="off()" />
     }
     @if (shownError(); as message) {
-      <span [id]="ids().note" [class]="styles().error()" [attr.data-arena-part]="parts.error">{{ message }}</span>
+      <span [id]="ids().note" [class]="styles().error()" [arenaSlotData]="styles().$data.error()" [attr.data-arena-part]="parts.error">{{ message }}</span>
     } @else if (hint(); as text) {
-      <span [id]="ids().note" [class]="styles().hint()" [attr.data-arena-part]="parts.hint">{{ text }}</span>
+      <span [id]="ids().note" [class]="styles().hint()" [arenaSlotData]="styles().$data.hint()" [attr.data-arena-part]="parts.hint">{{ text }}</span>
     }
   `,
 })

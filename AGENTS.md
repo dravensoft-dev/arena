@@ -257,8 +257,8 @@ is the one no gate holds**, because nothing mechanical can judge it.
   drop the suffix when the plan lands. **They are deleted once executed**, which is why debt filed
   in one dies with it, and why a document citing one is a citation that was condemned when it was
   written.
-- **The design rules themselves are not here.** No gradients, no emoji, danger as an outline, one
-  primary accent, a chart carrying identity or meaning: every one of them is decided in
+- **The design rules themselves are not here.** No emoji, and the rest of the language the
+  builder follows: every one of them is decided in
   [`contracts/design/AGENTS.md`](./contracts/design/AGENTS.md) and handed to a builder by
   [`skills/design/SKILL.md`](./skills/design/SKILL.md). A third copy on this page is the one with
   no owner, and it is the copy that goes stale: the two that are left each fail something, the contract through

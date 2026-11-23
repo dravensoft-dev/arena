@@ -4,7 +4,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { arenaConfig, fontEntries, fontWeights, googleFontsUrl, GOOGLE_FONTS } from './arena-config.ts';
+import { arenaConfig, fontWeights, googleFontsUrl, GOOGLE_FONTS } from './arena-config.ts';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { readJson } from '../../utils/read-file.ts';

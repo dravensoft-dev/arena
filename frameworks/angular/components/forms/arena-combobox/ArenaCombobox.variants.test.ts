@@ -2,14 +2,14 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { arenaComboboxStyles } from './ArenaCombobox.variants';
 
-test('only the root and the input vary with disabled; the field keeps its box', () => {
+test('the label, the hint, the error and the input vary with disabled, and the root carries no fade', () => {
   const enabled = arenaComboboxStyles({ disabled: false });
   const off = arenaComboboxStyles({ disabled: true });
-  for (const slot of ['label', 'field', 'caret', 'panel', 'option'] as const) {
+  for (const slot of ['caret', 'panel', 'option'] as const) {
     assert.equal(JSON.stringify(enabled.$data[slot]()), JSON.stringify(off.$data[slot]()), `${slot} must not vary with disabled`);
   }
-  assert.equal(JSON.stringify(off.$data.root()), JSON.stringify({ 'data-arena-disabled': '' }));
-  assert.equal(JSON.stringify(off.$data.input()), JSON.stringify({ 'data-arena-disabled': '' }));
+  assert.equal(JSON.stringify(off.$data.root()), JSON.stringify({}));
+  for (const slot of ['label', 'hint', 'error', 'input'] as const) assert.equal(JSON.stringify(off.$data[slot]()), JSON.stringify({ 'data-arena-disabled': '' }), slot);
 });
 
 test('the cursor row and the chosen row are two groups, each on its own slot', () => {

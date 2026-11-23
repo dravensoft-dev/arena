@@ -1,5 +1,5 @@
 Controlled on/off switch showing an icon per state (`iconOn`/`iconOff`, Phosphor class
-strings, Arena draws the `<i>`). `state` is the CURRENT value; the host owns it and
+strings, Arena draws each as an `<svg>` of the sprite). `state` is the CURRENT value; the host owns it and
 pushes it back on every render.
 
 ```tsx
@@ -44,7 +44,7 @@ const [dark, setDark] = useState(false);
 once, for the direction the activation moved. There is no `onChange`: read the direction
 from which handler fired, not from an event argument.
 
-For **high-impact** toggles (H5) add `confirm`. An activate fires neither `onFuncOn` nor `onFuncOff`, and calls `onRequestChange()` instead. That call is payload-less too, since the requested value is always `!state`. The host can then open an ArenaConfirmDialog and push `state` itself once the user confirms. **`confirm` alone is what diverts the activation**,
+For **high-impact** toggles add `confirm`. An activate fires neither `onFuncOn` nor `onFuncOff`, and calls `onRequestChange()` instead. That call is payload-less too, since the requested value is always `!state`. The host can then open an ArenaConfirmDialog and push `state` itself once the user confirms. **`confirm` alone is what diverts the activation**,
 never whether a handler was passed: `confirm` set with no `onRequestChange` is a switch that
 does nothing at all. The cost is the accepted one of the rule that no render or behaviour follows from whether a listener is bound. The cost is worth paying, because a fallback on a bound listener applies a guarded change silently. **No runtime guard can catch it**: "is anything listening?"
 is precisely the question a component may not ask. The behaviour is pinned, so the fallback
@@ -64,9 +64,7 @@ const [pending, setPending] = useState(false);
 </ArenaConfirmDialog>
 ```
 
-`arena-orientation-vertical` lays the track along the other axis, and `arena-orientation-horizontal` is the default. Reach for the vertical class only where the surrounding layout is itself vertical, such as a narrow settings rail, and never as decoration. The `arena-size-*` classes, `sm` to `2xl`, scale the track and knob together. `arena-size-md` is the default and matches the pre-redesign
-component's only size exactly, so an existing call site that names no size class renders
-unchanged.
+`arena-orientation-vertical` lays the track along the other axis, and `arena-orientation-horizontal` is the default. Reach for the vertical class only where the surrounding layout is itself vertical, such as a narrow settings rail, and never as decoration. The `arena-size-*` classes, `sm` to `2xl`, scale the track and knob together. `arena-size-md` is the default, so a switch that names no size class draws at `md`.
 
 **Do** own `state` in the parent and push it back from `onFuncOn`/`onFuncOff` (or from
 `ArenaConfirmDialog`'s `onConfirm` when `confirm` is set), ArenaSwitch never changes its own value.

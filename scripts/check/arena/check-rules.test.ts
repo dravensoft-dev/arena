@@ -4,7 +4,7 @@ import {
   collect, heldProblems, shapeProblems, zeroScanProblems, emitProblems, ID,
 } from './check-rules.ts';
 import { RULES, reportedMark, type LanguageRule } from '../../lib/arena/language-rules.ts';
-import { RULE_TAGS, RULE_DESCRIPTIONS } from '../../generate/core/arena-cli/audit.ts';
+import { RULE_DESCRIPTIONS } from '../../generate/core/arena-cli/audit.ts';
 import { TARGETS, MARKED, CONTEXT7 } from '../../generate/arena/generate-rules.ts';
 
 const rule = (over: Partial<LanguageRule> = {}): LanguageRule => ({
@@ -13,38 +13,22 @@ const rule = (over: Partial<LanguageRule> = {}): LanguageRule => ({
 
 test('this tree states the rules of the language once and claims nothing false about them', () => {
   assert.deepEqual(collect(), []);
+  assert.ok(RULES.some((one) => one.held !== null), 'no rule claims a tag, so the held check above saw nothing');
 });
 
-test('a rule naming a tag the shipped module does not emit is refused', () => {
-  assert.deepEqual(heldProblems([rule({ held: 'own-class', unheld: null })]), []);
-  const problems = heldProblems([rule({ held: 'invented-tag', unheld: null })]);
-  assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /emits no such tag/);
-});
-
-test('a rule is held or explained, and never both and never neither', () => {
-  assert.match(heldProblems([rule({ held: 'emoji', unheld: 'and also this' })])[0] ?? '',
-    /is one or the other/);
-  assert.match(heldProblems([rule({ held: null, unheld: null })])[0] ?? '',
-    /says nothing about why/);
-  assert.match(heldProblems([rule({ held: null, unheld: '' })])[0] ?? '',
-    /says nothing about why/);
-});
-
-test('every rule this tree declares carries one of the two, so the page never guesses', () => {
-  for (const one of RULES) {
-    assert.equal(one.held === null, one.unheld !== null,
-      `${one.id} carries neither shape or both, and the router prints the mark from this field`);
+test('a rule naming a tag the shipped module does not emit is refused, and a rule is held or explained, never both and never neither', () => {
+  const rows: { name: string; rules: LanguageRule[]; count?: number; pattern?: RegExp }[] = [
+    { name: 'a rule naming a tag the shipped module emits is accepted', rules: [rule({ held: 'own-class', unheld: null })], count: 0 },
+    { name: 'a rule naming a tag the shipped module does not emit is refused', rules: [rule({ held: 'invented-tag', unheld: null })], count: 1, pattern: /emits no such tag/ },
+    { name: 'a rule that is held and explained is refused', rules: [rule({ held: 'emoji', unheld: 'and also this' })], pattern: /is one or the other/ },
+    { name: 'a rule that is neither held nor explained is refused', rules: [rule({ held: null, unheld: null })], pattern: /says nothing about why/ },
+    { name: 'a rule with an empty explanation is refused', rules: [rule({ held: null, unheld: '' })], pattern: /says nothing about why/ },
+  ];
+  for (const row of rows) {
+    const problems = heldProblems(row.rules);
+    if (row.count !== undefined) assert.equal(problems.length, row.count, `${row.name}: finding count`);
+    if (row.pattern) assert.match(problems[0] ?? '', row.pattern, row.name);
   }
-});
-
-test('every tag the shipped module emits is one some rule could name', () => {
-  const claimed = new Set(RULES.map((one) => one.held).filter((one) => one !== null));
-  for (const tag of claimed) {
-    assert.ok((RULE_TAGS as readonly string[]).includes(tag),
-      `${tag} is claimed by a rule and the module does not emit it`);
-  }
-  assert.ok(claimed.size > 0, 'no rule claims a tag, so this checked nothing');
 });
 
 test('an identifier is kebab and unique, and a short half stands as a sentence by itself', () => {
@@ -52,12 +36,20 @@ test('an identifier is kebab and unique, and a short half stands as a sentence b
   assert.match(shapeProblems([rule({ id: 'Not Kebab' })])[0] ?? '', /kebab-case/);
   assert.match(shapeProblems([rule(), rule()])[0] ?? '', /declared twice/);
   assert.match(shapeProblems([rule({ short: 'No full stop' })])[0] ?? '', /full stop/);
-  assert.equal(ID.test('one-primary'), true);
+  assert.equal(ID.test('tokens-only'), true);
   assert.equal(ID.test('one_primary'), false);
 });
 
-test('the short half of every rule is a sentence Context7 can carry alone', () => {
-  for (const one of RULES) assert.match(one.short, /\.$/);
+test('the colour choices are the adopter\'s, so no rule states them', () => {
+  const ids = RULES.map((one) => one.id);
+  for (const gone of ['danger-outline', 'one-primary', 'no-gradients', 'chart-identity']) {
+    assert.ok(!ids.includes(gone), `${gone} is a colour choice and stays out of the rules`);
+  }
+  for (const one of RULES) {
+    for (const tag of [one.held, ...(one.alsoHeld ?? [])]) {
+      assert.ok(tag !== 'danger-fill' && tag !== 'one-primary', `${one.id} names ${tag}`);
+    }
+  }
 });
 
 test('an empty declaration and an empty target list are failures rather than a quiet pass', () => {
@@ -72,28 +64,40 @@ test('the surfaces are the router, the repository page and the Context7 index', 
   assert.deepEqual(emitProblems(), [], 'every surface equals a fresh emit on this tree');
 });
 
-test('the copy rule is about the product\'s language, and Arena\'s words answer to the locale', () => {
-  const copy = RULES.find((one) => one.id === 'copy-is-direct');
-  assert.ok(copy, 'copy-is-direct is declared');
-  assert.equal(copy.short, 'Copy is formal and direct, in the product\'s language.');
-  assert.match(copy.body, /Arena's words follow the locale\./);
-  assert.equal(RULES.some((one) => one.id === 'copy-is-english'), false);
-});
-
-test('the rules say a class of the vocabulary is the only thing on a component, and appearance is one', () => {
-  const own = RULES.find((one) => one.id === 'own-class');
-  assert.ok(own, 'own-class is declared');
-  assert.equal(own.short, 'Only a class of the vocabulary goes on an Arena component.');
-  assert.match(own.body, /Every class you may write is on the vocabulary page[;.]/);
-  assert.equal(own.held, 'own-class');
-  const appearance = RULES.find((one) => one.id === 'appearance-is-a-class');
-  assert.ok(appearance, 'appearance-is-a-class is declared');
-  assert.equal(appearance.short, 'Appearance is a class of the vocabulary, never a member.');
-  assert.equal(appearance.held, null);
-  assert.match(appearance.unheld ?? '', /type error in React and a template compile error in Angular/);
-  assert.doesNotMatch(appearance.body, /reported/);
+test('the prose of the rules says what the doc says it does, one row per rule', () => {
+  const rows: {
+    name: string; id: string; short?: string; held?: string | null; alsoHeld?: string[]; unheldMatch?: RegExp; bodyMatch?: RegExp[]; bodyNot?: RegExp[];
+  }[] = [
+    { name: 'the copy rule is about the product\'s language, and Arena\'s words answer to the locale', id: 'copy-is-direct',
+      short: 'Copy is formal and direct, in the product\'s language.', bodyMatch: [/Arena's words follow the locale\./] },
+    { name: 'the rules say a class of the vocabulary is the only thing on a component, and the own-class rule names the part classes and no slot', id: 'own-class',
+      short: 'Only a class of the vocabulary goes on an Arena component.', held: 'own-class',
+      bodyMatch: [/Every class you may write is on the vocabulary page[;.]/, /arena-<component>__<part>/], bodyNot: [/slot/] },
+    { name: 'appearance is a class of the vocabulary, never a member', id: 'appearance-is-a-class',
+      short: 'Appearance is a class of the vocabulary, never a member.', held: null,
+      unheldMatch: /type error in React and a template compile error in Angular/, bodyNot: [/reported/] },
+    { name: 'the icon rule sends a static page to the weight sheets and a build to the package, and names the tag each case is reported as', id: 'icons-are-strings',
+      held: 'raw-glyph', alsoHeld: ['icon-element'],
+      bodyMatch: [
+        /a raw `ph-\*` element needs the project's own `@phosphor-icons\/web`/,
+        /static page has no build[^.]*weight sheets[^.]*references\/artifact\.md/,
+        /passed to `icon` or `iconRight`[^.]*`icon-element`/,
+      ] },
+    { name: 'the theme rule names Arena\'s own palettes and the project\'s', id: 'two-themes', bodyMatch: [/Arena's own/, /\.arena-<name>/] },
+  ];
+  for (const row of rows) {
+    const found = RULES.find((one) => one.id === row.id);
+    assert.ok(found, `${row.name}: ${row.id} is declared`);
+    if (row.short !== undefined) assert.equal(found.short, row.short, `${row.name}: short`);
+    if (row.held !== undefined) assert.equal(found.held, row.held, `${row.name}: held`);
+    if (row.alsoHeld !== undefined) assert.deepEqual(found.alsoHeld, row.alsoHeld, `${row.name}: alsoHeld`);
+    if (row.unheldMatch) assert.match(found.unheld ?? '', row.unheldMatch, `${row.name}: unheld`);
+    for (const pattern of row.bodyMatch ?? []) assert.match(found.body, pattern, `${row.name}: body ${pattern}`);
+    for (const pattern of row.bodyNot ?? []) assert.doesNotMatch(found.body, pattern, `${row.name}: body ${pattern}`);
+  }
+  assert.equal(RULES.some((one) => one.id === 'copy-is-english'), false, 'no rule is copy-is-english; the copy rule is copy-is-direct');
   const ids = RULES.map((one) => one.id);
-  assert.equal(ids.indexOf('appearance-is-a-class'), ids.indexOf('own-class') + 1);
+  assert.equal(ids.indexOf('appearance-is-a-class'), ids.indexOf('own-class') + 1, 'appearance follows own-class');
 });
 
 test('the mark names the tag that holds the rule, and a rule no tag holds has none to render', () => {
@@ -116,11 +120,4 @@ test('the router-link rule names every component audit.ts holds', () => {
     const component = `Arena${role.split(' ').map((word) => word[0]!.toUpperCase() + word.slice(1)).join('')}`;
     assert.ok(named.has(component), `the router-link body names ${component}`);
   }
-});
-
-test('the icon rule sends a static page to the weight sheets and a build to the package', () => {
-  const icons = RULES.find((one) => one.id === 'icons-are-strings');
-  assert.ok(icons, 'icons-are-strings is declared');
-  assert.match(icons.body, /a raw `ph-\*` element needs the project's own `@phosphor-icons\/web`/);
-  assert.match(icons.body, /static page has no build[^.]*weight sheets[^.]*references\/artifact\.md/);
 });

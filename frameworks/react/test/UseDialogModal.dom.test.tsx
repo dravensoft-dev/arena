@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import React, { StrictMode, createRef, useState } from 'react';
+import React, { StrictMode, createRef, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { mount, cleanup, act } from './Harness.tsx';
 import { arenaFocusableElements, arenaFocusFirstFocusable, arenaReclaimFocus, arenaRestoreOnTeardown, arenaTabStopOf, arenaTrapTabKey, useArenaDialogModal } from '../UseDialogModal.ts';
 
@@ -201,4 +202,31 @@ test('arenaRestoreOnTeardown restores only from inside the panel or nowhere, and
   assert.equal(arenaRestoreOnTeardown(null, p, null), false, 'no invoker restores nothing');
   outside.remove();
   p.remove();
+});
+
+test('Escape closes the innermost overlay of your own and no other', () => {
+  const dismissed: string[] = [];
+  function Overlay({ name, children }: { name: string; children?: React.ReactNode }) {
+    const panelRef = useRef<HTMLDivElement>(null);
+    const onKeyDown = useArenaDialogModal({ open: true, panelRef, onDismiss: () => { dismissed.push(name); } });
+    return (
+      <div onKeyDown={onKeyDown}>
+        <div ref={panelRef} role="dialog" aria-modal="true" aria-label={name} tabIndex={-1}>
+          <button type="button" id={`${name}-button`}>{name}</button>
+          {children}
+        </div>
+      </div>
+    );
+  }
+  mount(<Overlay name="outer">{createPortal(<Overlay name="inner" />, document.body)}</Overlay>);
+  const press = (id: string) => {
+    const target = document.getElementById(id)!;
+    target.focus();
+    act(() => { target.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })); });
+  };
+  press('inner-button');
+  assert.deepEqual(dismissed, ['inner'], 'Escape in the inner panel must close the inner overlay and not the outer one');
+  press('outer-button');
+  assert.deepEqual(dismissed, ['inner', 'outer'], 'a second Escape, in the outer panel, closes the outer overlay');
+  cleanup();
 });

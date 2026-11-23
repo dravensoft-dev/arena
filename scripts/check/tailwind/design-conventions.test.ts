@@ -1,10 +1,7 @@
-/* Danger is outline: the error token is ink, a border and a tint, never a full-strength
- * background. The one filled danger surface in the system is the final irreversible
- * confirmation inside ArenaConfirmDialog, and it says so by reading roles of its own, through
- * bg-confirm-final, rather than --error at full strength. Both halves are asserted once over the authored manifests,
- * because a component renders its own class names and a resolved class string is not there to read.
- * Primary is two colours for the same reason: a solid primary ground reads primary-fill, the colour
- * primary-content is measured on, and only a wash at a fraction stays on the accent itself. */
+/* A manifest's colour is a token or it is not Arena, and a solid primary ground reads primary-fill,
+ * the colour primary-content is measured on, while only a wash at a fraction stays on the accent
+ * itself. Both are asserted once over the authored manifests, because a component renders its own
+ * class names and a resolved class string is not there to read. */
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -29,22 +26,6 @@ test('every manifest is read, or these conventions are asserted over nothing', (
   assert.ok(manifests.size > 0);
 });
 
-const fillsAtFullStrength = (manifest: ComponentManifest) => everyClassString(manifest)
-  .flatMap(({ where, classes }) => classes.filter((cls: string) => /^bg-(error|danger)$/.test(cls)).map((cls: string) => `${where}: ${cls}`));
-
-test('danger is outline: no manifest paints a full-strength error background', () => {
-  const offenders = [...manifests.values()].flatMap(fillsAtFullStrength);
-  assert.deepEqual(offenders, [], offenders.join('\n'));
-});
-
-test('the one filled danger surface reads bg-confirm-final, and it is the only one that does', () => {
-  const filled = [...manifests.values()]
-    .filter((manifest) => everyClassString(manifest).some(({ classes }) => classes.some((c) => /^bg-confirm-final$|error-fill/.test(c))))
-    .map((manifest) => manifest.component);
-  assert.deepEqual(filled, ['ArenaConfirmDialog'],
-    'the final irreversible confirmation is the one filled danger surface in the system');
-});
-
 test('no manifest introduces a raw hex, because a colour is a token or it is not Arena', () => {
   const offenders = [];
   for (const manifest of manifests.values()) {
@@ -55,18 +36,6 @@ test('no manifest introduces a raw hex, because a colour is a token or it is not
     }
   }
   assert.deepEqual(offenders, [], offenders.join('\n'));
-});
-
-test('no manifest draws a gradient, the sole exception being ArenaSkeleton\'s neutral shimmer', () => {
-  const offenders = [];
-  for (const manifest of manifests.values()) {
-    for (const { where, classes } of everyClassString(manifest)) {
-      for (const cls of classes) {
-        if (/gradient/.test(cls)) offenders.push(`${where}: ${cls}`);
-      }
-    }
-  }
-  assert.deepEqual(offenders, [], `${offenders.join('\n')}\n(ArenaSkeleton's shimmer is an @utility in Animations.css, not a manifest class)`);
 });
 
 test('a solid primary ground or its edge reads primary-fill, and only a wash reads primary', () => {

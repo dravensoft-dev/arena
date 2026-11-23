@@ -35,8 +35,7 @@ One cell of an `arena-table-row`. The cell is an **attribute on a real `<td>`**,
 - Don't add a `role` or a `tabindex`. A `<td>` inside the grid already maps to a gridcell. The roving tab stop belongs to the enclosing grid and is read from the shared state. Adding your own would put a second tab stop inside a composite that must have exactly one.
 - A control you put in a cell **is** a page-level tab stop, and that is deliberate. Arena
   cannot silence markup it does not own, and silencing it would take away a route a keyboard
-  user has. Reaching it must cost exactly one Tab; step 2 of the by-hand checklist in
-  `ArenaTable.prompt.md` is the standing check.
+  user has. Reaching it costs exactly one Tab press.
 - Don't use it outside an `arena-table-row`. The cell injects that row's state. Outside one it is a DI error, rather than a cell that quietly renders wrong.
 
 ### `href` makes the cell a real destination, and the row keeps its own

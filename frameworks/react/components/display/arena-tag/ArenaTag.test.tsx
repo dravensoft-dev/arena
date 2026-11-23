@@ -9,10 +9,8 @@ test('a tone renders its dot and the tone colour; default is neutral', () => {
   const html = renderToStaticMarkup(<ArenaTag tone="success">Shipped</ArenaTag>);
   assert.match(html, /Shipped/);
   assert.match(html, /data-arena-part="tag"[^>]*\bdata-arena-tone="success"/);
-  assert.match(html, /data-arena-part="tag"[^>]*\bdata-arena-tone="success"/);
   assert.match(html, /\barena-tag__dot\b/, 'the dot takes the tone from the text colour and draws nothing of its own');
   const neutral = renderToStaticMarkup(<ArenaTag>Draft</ArenaTag>);
-  assert.match(neutral, /data-arena-part="tag"[^>]*\bdata-arena-tone="neutral"/);
   assert.match(neutral, /data-arena-part="tag"[^>]*\bdata-arena-tone="neutral"/);
 });
 

@@ -38,7 +38,7 @@ Styled native dropdown selector. `options` is an array of `{value, label}` objec
 **Keys:** none (`select`).
 <!-- @keys end -->
 
-`options` takes **only** `ArenaSelectOption` objects. The bare-string form, `options={['Production','Staging']}`, is gone. `(string | ArenaSelectOption)[]` is a union between two shapes, which a member never is. The object form carries strictly more, because a stable `value` with a translatable `label` cannot be said in the string form at all.
+`options` takes **only** `ArenaSelectOption` objects. A bare string is not an option, so `options={['Production','Staging']}` does not type-check. A list of strings or objects would be a union between two shapes, which a member never is. The object form carries strictly more, because a stable `value` with a translatable `label` cannot be said in the string form at all.
 Where value and label are the same, write it: `{value:'QA', label:'QA'}`.
 
 `onValueChange` carries the **chosen option's value as a string** rather than the `ChangeEvent`. A platform's own event type never travels in a payload, so the event does not reach you.
@@ -49,10 +49,10 @@ The members are `label`, `placeholder`, `options`, `value`, `disabled`, `require
 `error`, `valid`, `icon` and `name`, plus `onValueChange`. There is no `multiple`. A multi-selection is a *set* of values and `onValueChange` carries one `string`, so the attribute could reach the element while the event reported only the first selected option. A native multi-select is a list box shown open, which is a different
 control from the styled dropdown this component is. The members above are the whole API. There is no `SelectHTMLAttributes` heritage clause and no `{...rest}` spread. Global attributes do not reach the `<select>`, which covers `id`, `className`, `dir`, `tabIndex`, ARIA and `data-*`, and neither does a consumer `style` object.
 
-**Validation is the same vocabulary `ArenaInput` carries, deliberately.** A form that mixes the two is a form whose fields must report a failure the same way. Otherwise it gets validated by hand or not at all. `hint` is a line of help, `error` is the controlled message, and `valid` forces the success state. The state order is the same normative one: **error, then focus, then valid, then neutral**. An errored field stays in the danger tone while it has focus. Arena names the note to the control with
+**Validation is the same vocabulary `ArenaInput` carries, deliberately.** A form that mixes the two is a form whose fields must report a failure the same way. Otherwise it gets validated ad hoc or not at all. `hint` is a line of help, `error` is the controlled message, and `valid` forces the success state. The state order is the same normative one: **error, then focus, then valid, then neutral**. An errored field stays in the danger tone while it has focus. Arena names the note to the control with
 `aria-describedby` and marks the control `aria-invalid`, so the failure is announced rather than
 only drawn. `error` replaces `hint` rather than joining it: a field that still shows its advice
-buries the failure under it.
+buries the failure under it. The field draws a warning mark with an error and a check mark with `valid`, before the caret, as `ArenaInput` does. Each is an `ArenaIcon` from the sprite handed to `ArenaIconsProvider`, hidden from assistive technology. An error is announced by its message, not by the mark, and the field's right padding grows to hold the mark beside the caret.
 
 **There is no `validate`, and that is not an omission.** `ArenaInput` takes one because a text field holds a value the consumer must parse. A native select offers a closed list, so there is nothing to reject that the options did not already prevent. Where the rule depends on something else on
 the screen, hold `error` in your own state and pass it in, which is what a controlled message is

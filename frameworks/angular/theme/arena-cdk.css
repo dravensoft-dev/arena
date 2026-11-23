@@ -1,33 +1,16 @@
-/* frameworks/angular/theme/arena-cdk.css: the CDK overlay's structural CSS, on Arena's z scale.
-   Import this ONCE from the app's global stylesheet, alongside arena-tailwind.css, whenever the
-   app uses an Arena primitive that positions itself with @angular/cdk/overlay: ArenaTooltip, ArenaMenu, ArenaPopover.
-   Arena uses the CDK for POSITION only: focus and roles stay Arena's, in
-   frameworks/angular/FocusTrap.ts.
+/* @dravensoft/arena-angular/css/arena-cdk.css: the structural CSS of the @angular/cdk overlay, and
+   no rule of Arena's. ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCombobox and ArenaMultiSelect
+   anchor their panel on that overlay: the CDK supplies the container and the pane on the body, and
+   Arena places the pane and keeps its focus and roles.
 
-   One override, on one selector, and the value is the whole argument. overlay-prebuilt.css
-   hardcodes z-index: 1000 on the container, which TIES with --z-modal and sits below
-   --z-modal-nested, --z-palette and --z-onboarding; since the container establishes the stacking
-   context, a z-* utility on a pane inside it can never lift that pane past Arena's in-flow
-   overlays. So a menu or a tooltip opened from a trigger inside a dialog paints behind the very
-   surface it belongs to: against a modal by accident of mount order, and against the three
-   higher slots outright. A CDK overlay is always anchored to a trigger that already sits inside
-   whatever is on top, so it belongs ABOVE every in-flow overlay and below --z-toast, which floats
-   above everything. Derived at the point of use, the way --z-onboarding's scrim is.
+   arena.package.generated.css, which arena build writes, already carries these rules, and the
+   package's arena.css imports this sheet. A project imports it once, from its global stylesheet,
+   only when it builds under --no-import.
 
-   The four other 1000s in that sheet (wrapper, pane, backdrop, and the global wrapper's pane)
-   are equal to each other on purpose, so inside the container the CDK layers by DOM order and the
-   backdrop stays under its own pane. Do not rewrite them: they are internally consistent, and
-   lowering one relative to its siblings is how a backdrop ends up over the panel it dims.
+   The CDK this sheet is built from opens every pane in the top layer, as a host wearing
+   popover="manual". A pane there stacks in the order it was shown, above every --z-* step,
+   ArenaDialog and the toast included. No z-index reaches the top layer, so this sheet overrides
+   none of the z-index values the CDK declares.
 
-   Two consequences. Every CDK overlay shares one z slot, so a tooltip
-   over a menu item wins by being appended later rather than by --z-tooltip being 950, the
-   outcome --z-tooltip exists for, reached by a different mechanism. And a toast outranks every CDK
-   overlay, which is the order --z-toast declares rather than a cost: arena-toast is an in-flow
-   card the host places, so it never enters this layer at all.
-
-   The package's css/arena-cdk.css carries the CDK's own rules in place of the import below. */
+   What follows this comment is the CDK's own overlay-prebuilt.css. */
 @import '@angular/cdk/overlay-prebuilt.css';
-
-.cdk-overlay-container {
-  z-index: calc(var(--z-toast) - 10);
-}

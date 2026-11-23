@@ -35,7 +35,7 @@ export const node = {
     'check:focus-trap',
     'check:anchoring',
     'check:pixel-parity', 'check:palette-islands',
-    'check:target-size', 'check:contained-parts',
+    'check:target-size', 'check:text-scale', 'check:contained-parts',
     'check:playgrounds',
     'build:site',
     'check:site',

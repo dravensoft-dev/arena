@@ -56,7 +56,7 @@ A labelled row of filter controls above what they narrow, such as a table. The f
 - Don't colour a chip, or give one its own menu.
 - Don't reach for `clearable={false}` casually: a long list of filters nobody can empty at once is a trap.
 
-**By hand.** The wrap and the one-column shape at phone width, with a real select, input and segmented control inside. The controls' baselines line up when one has no label. After a keyboard removal, focus lands on the next chip. A screen reader announces the group name and the list name.
+The bar wraps and takes one column at phone width, with a real select, input and segmented control inside. The controls line up along their bottom edge, so a control with no label sits level with the labelled ones beside it. After a keyboard removal, focus lands on the next chip. A screen reader announces the group name and the list name.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

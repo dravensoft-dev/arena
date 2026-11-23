@@ -1,7 +1,7 @@
 {
   "name": "ArenaTimelineItem",
   "kind": "object",
-  "description": "One milestone of an ArenaTimeline: a stage one thing passes through. Whether it is complete, current or upcoming is not a field: the timeline derives it from its `index`. Arena draws every field, and a consumer places no markup inside a row.",
+  "description": "One milestone of an ArenaTimeline: a stage one thing passes through. The item's state, complete, current or upcoming, is not a field: the timeline derives it from its `index`. Arena draws every field, and a consumer places no markup inside a row.",
   "fields": {
     "id": { "form": "primitive", "type": "string",
             "description": "A stable identity for the row, so a list that changes does not re-key by position." },

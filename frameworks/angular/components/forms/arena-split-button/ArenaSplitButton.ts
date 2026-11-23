@@ -50,7 +50,7 @@ export class ArenaSplitButton {
 
   /** Phosphor class name drawn before the label through ArenaIcon. Replaced by the spinner while loading. */
   readonly icon = input<string>();
-  /** Whether the primary action destroys or removes something. Both halves draw the danger outline whatever emphasis the split is given: danger is never filled. */
+  /** Whether the primary action destroys or removes something. Both halves draw their border and label in the danger hue and fill with hue-danger-fill-strong, transparent by default, whatever emphasis the split is given. */
   readonly destructive = input(false, { transform: booleanAttribute });
   /** Replaces the leading icon with a spinner and blocks the primary half. The caret stays usable, so another action can start while this one runs. */
   readonly loading = input(false, { transform: booleanAttribute });
@@ -67,7 +67,7 @@ export class ArenaSplitButton {
   readonly menuLabel = input.required<string>();
   /** The menu's entries, in order: activatable rows, dividers and group headers. */
   readonly items = input.required<readonly ArenaMenuItem[]>();
-  /** Which edge of the whole split the panel lines up with: start is the primary half's outer edge, end the caret's outer edge. */
+  /** Which edge of the whole split the panel lines up with: start is the primary half's outer edge, end the caret's outer edge, in either page direction. */
   readonly align = input<ArenaMenuAlign, ArenaMenuAlign | undefined>(
     'end',
     { transform: (value) => value ?? 'end' },

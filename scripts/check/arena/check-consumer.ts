@@ -6,18 +6,18 @@
  * which IS the package. Beside the sheets it checks what each subcommand leaves behind: the
  * read-only ones change no byte, init and clean touch only what they name, and the exit codes hold.
  * A missing dist/ stops it through cannotRun: a gate that built what it judges would race every
- * gate running beside it. */
+ * gate running beside it. The classes and blocks the markup pages teach are audited as a project. */
 
 import { spawnSync } from 'node:child_process';
 import {
   mkdtempSync, mkdirSync, writeFileSync, readFileSync, copyFileSync, existsSync, readdirSync, rmSync,
-  statSync, symlinkSync, cpSync,
+  statSync, cpSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { readJson, readIfExists } from '../../utils/read-file.ts';
-import { arenaEnv, cannotRun } from '../../lib/arena/arena-scripts-vars.ts';
+import { arenaEnv } from '../../lib/arena/arena-scripts-vars.ts';
 import { hostBinary } from '../../lib/arena/host-binary.ts';
 import { linkDir } from '../../lib/arena/platform.ts';
 import { isForeignTree } from '../../lib/arena/foreign-trees.ts';
@@ -31,6 +31,8 @@ import { RETIRED_ICONS_SHEET, spriteFilesIn } from '../../generate/core/arena-cl
 import { DEFAULT_PLUGIN, PLUGIN_TOKENS, pluginName } from '../../generate/core/arena-cli/theme-css.ts';
 import { ROOT_PLUGIN } from '../core/check-style-plugin.ts';
 import { RULE_TAGS } from '../../generate/core/arena-cli/audit.ts';
+import { PALETTE_KEYS } from '../../generate/core/arena-cli/palette-keys.ts';
+import { NOT_READ, NO_TAILWIND } from '../../generate/core/arena-cli/dead-utilities.ts';
 import { captured } from '../../utils/captures.ts';
 import { parseDecls } from '../../lib/arena/css-decls.ts';
 import { browserOrExit, launchChromium } from '../../lib/arena/chromium.ts';
@@ -38,9 +40,12 @@ import { connect, type Cdp } from '../../lib/arena/cdp.ts';
 import { networkChangedProblem } from '../../lib/arena/page-load.ts';
 import { contrastProblems, readContrast } from '../../lib/arena/consumer-contrast.ts';
 
+export const MARKUP_PAGES = 'skills/design/references/tokens/markup';
+
 export const node = {
   name: 'check:consumer',
-  reads: ['frameworks/react/dist/**', 'frameworks/angular/dist/**', 'skills/design/references/config.md'],
+  reads: ['frameworks/react/dist/**', 'frameworks/angular/dist/**', 'skills/design/references/config.md',
+    `${MARKUP_PAGES}/*.md`],
   writes: [],
   feeds: [],
 };
@@ -53,16 +58,20 @@ export const GLYPH_SYMBOL = 'ph-bold-bell';
 export const NAV_SYMBOL = 'ph-fill-house';
 export const REGULAR_SYMBOL = 'ph-regular-star';
 
+export const STATE_SHEET = 'css/vocabulary/state.css';
+
 export const SOURCES: Record<string, Record<string, string>> = {
   react: {
     'src/App.tsx': "import { ArenaButton, ArenaTable } from '@dravensoft/arena-react';\n"
       + "export const App = () => <><ArenaButton icon=\"ph-bold ph-bell\">Go</ArenaButton><ArenaButton className=\"arena-emphasis-secondary\" icon=\"ph ph-star\">Star</ArenaButton></>;\n",
     'src/Nav.tsx': "import { ArenaSideNavItem } from '@dravensoft/arena-react';\n"
       + "export const Nav = () => <ArenaSideNavItem icon=\"ph-bold ph-house\" active />;\n",
+    'src/Toggle.tsx': 'export const Toggle = () => <button type="button" aria-pressed="false" className="arena-interactive arena-focus">Notify</button>;\n',
     'src/Old.txt': 'not a source extension, so the walk never reads it\n',
   },
   angular: {
     'src/app.html': '<arena-button icon="ph-bold ph-bell">Go</arena-button>\n<arena-button class="arena-emphasis-secondary" icon="ph ph-star">Star</arena-button>\n<arena-table></arena-table>\n',
+    'src/toggle.html': '<button type="button" aria-pressed="false" class="arena-interactive arena-focus">Notify</button>\n',
     'src/nav.html': '<arena-side-nav-item icon="ph-bold ph-house" [active]="true"></arena-side-nav-item>\n',
   },
 };
@@ -97,16 +106,15 @@ export const BREAKING: Record<string, { files: Record<string, string>; rules: st
         + '    Go \u{1F680}\n'
         + '  </ArenaButton>\n'
         + '  <i className="ph-bold ph-x" />\n'
-        + '  <ArenaButton className="arena-emphasis-primary">Publish</ArenaButton>\n'
         + '  <Link to="/x">\n'
         + '    <ArenaCard>c</ArenaCard>\n'
         + '  </Link>\n'
+        + '  <li className="bg-selected">c</li>\n'
+        + '  <p className="shadow-md">c</p>\n'
         + '</div>);\n',
-      'src/app.css': '.arena-button__label { color: #fff; }\n'
-        + '.mine { background: var(--danger); }\n',
+      'src/app.css': '.arena-button__label { color: #fff; }\n',
     },
-    rules: ['own-class', 'router-link', 'raw-value', 'icon-element', 'raw-glyph', 'emoji', 'one-primary',
-      'danger-fill'],
+    rules: ['own-class', 'router-link', 'raw-value', 'icon-element', 'raw-glyph', 'emoji', 'missing-level', 'dead-utility'],
   },
   angular: {
     files: {
@@ -115,16 +123,16 @@ export const BREAKING: Record<string, { files: Record<string, string>; rules: st
         + '  icon="ph-bold ph-bell"\n'
         + '>Go \u{1F680}</arena-button>\n'
         + '<i class="ph-bold ph-x"></i>\n'
-        + '<arena-button class="arena-emphasis-primary">Publish</arena-button>\n'
         + '<a\n'
         + '  routerLink="/x"\n'
         + '>\n'
         + '  <arena-card></arena-card>\n'
-        + '</a>\n',
-      'src/app.css': '.arena-card__body { color: #fff; padding: 16px; }\n'
-        + '.mine { background: var(--color-error-fill); }\n',
+        + '</a>\n'
+        + '<p class="text-ink-muted">c</p>\n'
+        + '<p class="xl:flex">c</p>\n',
+      'src/app.css': '.arena-card__body { color: #fff; padding: 16px; }\n',
     },
-    rules: ['own-class', 'router-link', 'raw-value', 'raw-glyph', 'emoji', 'one-primary', 'danger-fill'],
+    rules: ['own-class', 'router-link', 'raw-value', 'raw-glyph', 'emoji', 'missing-level', 'dead-utility'],
   },
 };
 
@@ -167,7 +175,7 @@ export const PLUGINS = { total: './design/console', partial: './design/marketing
 
 export const PARTIAL_ANSWERS = {
   'r-surface': { $type: 'dimension', $value: '{r.xs}' },
-  'fill-surface': { $type: 'color', $value: '{color.base-300}' },
+  'fill-surface': { $type: 'color', $value: '{color.base-100}' },
 };
 
 export const PAINTED = 'card.body';
@@ -268,11 +276,6 @@ export function scopeProblems(layer: string, audited: CliRun, used: CliRun) {
   if (!reported.some((line) => line.includes(REACHING_IN))) {
     problems.push(`${layer}: the same rule in ${REACHING_IN} was not reported, so the audit does not say `
       + 'where a project\'s appearance lives, which is half of what it reports');
-  }
-  if (audited.stderr.split('\n').some((line) => line.includes(PLUGIN_CSS) && line.includes('gradient'))) {
-    problems.push(`${layer}: arena audit reported a gradient inside a style plugin. A plugin paints one from its `
-      + 'own stylesheet whatever the token tier says, so the norm records it as a report rather than a '
-      + 'floor and --strict may not refuse what the norm permits');
   }
   if (!used.stdout.includes(`paint no part(s). 2 rule(s) reach nothing this project draws: ${PAINTED}, ${RESTATED}`)) {
     problems.push(`${layer}: arena usage does not name the plugin's rules for a component the project never draws `
@@ -653,6 +656,21 @@ export function auditProblems(layer: string, reported: CliRun, strict: CliRun, r
   return problems;
 }
 
+export function withTailwind(dir: string, base = root) {
+  const at = join(dir, 'node_modules', 'tailwindcss');
+  mkdirSync(join(at, '..'), { recursive: true });
+  if (!existsSync(at)) linkDir(join(base, 'node_modules', 'tailwindcss'), at);
+  return dir;
+}
+
+export function deadNoteProblems(layer: string, run: CliRun) {
+  const notes = run.stdout.split('\n').filter((line) => line.includes(`${NOT_READ}${NO_TAILWIND}`));
+  return notes.length === 1
+    ? []
+    : [`${layer}: arena audit printed ${notes.length} notes that no tailwindcss resolves from a project without it, `
+      + 'and a project that cannot be compiled against is told so exactly once'];
+}
+
 export function cleanAuditProblems(layer: string, clean: CliRun) {
   const tagged = new RegExp(`\\((${RULE_TAGS.join('|')})\\)`);
   const found = clean.stderr.split('\n').filter((line) => tagged.test(line));
@@ -747,6 +765,9 @@ export function packageSheetProblems(layer: string, run: CliRun, edited: CliRun,
   }
   if (!run.pkg.includes(`/* ${packageName}/css/vocabulary/`)) {
     problems.push(`${layer}: ${PACKAGE_SHEET} carries no vocabulary sheet`);
+  }
+  if (!run.pkg.includes(`/* ${packageName}/${STATE_SHEET} */`)) {
+    problems.push(`${layer}: ${PACKAGE_SHEET} carries no ${packageName}/${STATE_SHEET}, so the state classes of own markup draw nothing`);
   }
   if (/@import\b/.test(run.pkg)) {
     problems.push(`${layer}: ${PACKAGE_SHEET} holds an @import, so a page that links it would request a package specifier relative to itself`);
@@ -885,6 +906,37 @@ export function defaultListProblems(layer: string, result: CliRun) {
 
 const AUTO = { components: 'auto', preflight: false };
 
+const TREE_REGION = /<!-- @tree GENERATED[\s\S]*?<!-- @tree end -->/g;
+const FENCE = /```(html|css)\n([\s\S]*?)```/g;
+const ANY_FENCE = /```[^\n]*\n[\s\S]*?```/g;
+const SPAN = /`([^`\n]+)`/g;
+
+const CSS_PROPERTIES = ['z-index'];
+
+export function utilitySpan(span: string) {
+  if ([...RULE_TAGS, ...PALETTE_KEYS, ...CSS_PROPERTIES].includes(span)) return false;
+  if (!span.includes('-') || /\s/.test(span)) return false;
+  if (/^(--|@|aria-|var\()/.test(span) || span.endsWith(':')) return false;
+  return !/\.(css|json|md|ts)$/.test(span);
+}
+
+export function pageSources(base: string) {
+  const dir = join(base, ...MARKUP_PAGES.split('/'));
+  const files: Record<string, string> = {};
+  for (const name of readdirSync(dir).filter((one) => one.endsWith('.md')).sort()) {
+    const page = name.slice(0, -3);
+    const text = readFileSync(join(dir, name), 'utf8').replace(TREE_REGION, '');
+    const counts: Record<string, number> = { html: 0, css: 0 };
+    for (const [, kind = '', body = ''] of text.matchAll(FENCE)) {
+      counts[kind] = (counts[kind] ?? 0) + 1;
+      files[`src/pages/${page}-${counts[kind]}.${kind}`] = body;
+    }
+    const spans = [...text.replace(ANY_FENCE, '').matchAll(SPAN)].map((one) => captured(one)).filter(utilitySpan);
+    if (spans.length) files[`src/pages/${page}-prose.html`] = spans.map((one) => `<div class="${one}"></div>\n`).join('');
+  }
+  return files;
+}
+
 export const CONFIG_REFERENCE = 'skills/design/references/config.md';
 
 export const DOCUMENTED_LIST = /"components":\s*\[([^\]]*)\]/g;
@@ -910,7 +962,7 @@ export async function collect(base = root) {
   try {
     for (const { layer } of PACKAGES) {
       const sources = SOURCES[layer] ?? {};
-      const auto = fixture(layer, sources, AUTO, base);
+      const auto = withTailwind(fixture(layer, sources, AUTO, base), base);
       const unexported = fixture(layer, UNKNOWN[layer] ?? {}, AUTO, base);
       if (!list) {
         problems.push(`${layer}: ${CONFIG_REFERENCE} spells ${lists} stylesheet.components lists rather than one, `
@@ -924,13 +976,15 @@ export async function collect(base = root) {
       const strange = UNPLACED[layer];
       const unplaced = fixture(layer, strange?.files ?? {}, AUTO, base);
       const breaking = BREAKING[layer];
-      const broken = fixture(layer, breaking?.files ?? {}, AUTO, base);
+      const broken = withTailwind(fixture(layer, breaking?.files ?? {}, AUTO, base), base);
+      const bare = fixture(layer, breaking?.files ?? {}, AUTO, base);
       const plugged = pluginFixture(layer, [PLUGINS.total, PLUGINS.partial], base);
       const partialRoot = pluginFixture(layer, [PLUGINS.partial], base);
+      const pages = withTailwind(fixture(layer, pageSources(base), AUTO, base), base);
       const edited = fixture(layer, appOnlyEdit(layer, sources), AUTO, base);
       const palettes = palettesFixture(layer, base);
       const runtime = runtimeFixture(layer, base);
-      dirs.push(auto, edited, unexported, unnamed, named, closed, unknown, unplaced, broken, plugged, partialRoot, palettes, runtime);
+      dirs.push(auto, pages, edited, unexported, unnamed, named, closed, unknown, unplaced, broken, bare, plugged, partialRoot, palettes, runtime);
 
       const result = runCli(layer, auto, base);
       problems.push(...mergeProblems(layer, result, base));
@@ -941,6 +995,7 @@ export async function collect(base = root) {
       problems.push(...listProblems(layer, runCli(layer, named, base), runCli(layer, unknown, base), list));
       problems.push(...closedListProblems(layer, runCli(layer, closed, base)));
       problems.push(...defaultListProblems(layer, runCli(layer, unnamed, base)));
+      problems.push(...deadNoteProblems(layer, runCli(layer, bare, base, ['audit'])));
       problems.push(...unplacedProblems(layer, runCli(layer, unplaced, base, ['check']), strange?.name ?? ''));
       problems.push(...auditProblems(
         layer,
@@ -949,6 +1004,7 @@ export async function collect(base = root) {
         breaking?.rules ?? [],
       ));
       problems.push(...cleanAuditProblems(layer, runCli(layer, auto, base, ['audit'])));
+      problems.push(...cleanAuditProblems(layer, runCli(layer, pages, base, ['audit'])));
       const valid = runCli(layer, plugged, base);
       problems.push(...stylePluginProblems(layer, valid, runCli(layer, partialRoot, base)));
       problems.push(...layerProblems(layer, valid));
@@ -987,7 +1043,7 @@ async function main() {
     + `scope a style plugin of the project's own, widen the boundaries of a card under Increase Contrast `
     + `in Chromium, emit a block carrying `
     + `its own polarity for each of three palettes, hold a runtime palette from the shipped module equal to `
-    + `the class the CLI builds, and every subcommand leaves the tree and the exit code `
+    + `the class the CLI builds, audit the classes and blocks the markup pages teach clean in both layers, and every subcommand leaves the tree and the exit code `
     + `it promises`);
 }
 

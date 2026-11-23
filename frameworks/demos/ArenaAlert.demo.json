@@ -13,5 +13,5 @@
       }
     ]
   },
-  "note": "A persistent inline message. Danger is outline here, never filled."
+  "note": "A persistent inline message. The danger tone draws its border and ink in the danger hue."
 }

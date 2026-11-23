@@ -1,21 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync, readdirSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join, dirname } from 'node:path';
+import { rmSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import {
   INSTALL, bareSpecifiers, entryScripts, jobProblems, workflowScriptProblems,
 } from './check-workflow-scripts.ts';
+import { scratchTree } from '../../utils/scratch-tree.ts';
 
-function tree(files: Record<string, string>) {
-  const base = mkdtempSync(join(tmpdir(), 'workflow-scripts-'));
-  for (const [rel, body] of Object.entries(files)) {
-    mkdirSync(dirname(join(base, rel)), { recursive: true });
-    writeFileSync(join(base, rel), body);
-  }
-  return base;
-}
+const { tree } = scratchTree('workflow-scripts');
 
 test('a bare specifier is one the registry answers, and node: and a path are not', () => {
   const source = [

@@ -1,4 +1,4 @@
-Loading placeholder for asynchronous data (H1). Use it in tables and dashboards while the response arrives; respect `prefers-reduced-motion`. With `lines` absent it is one box in the shape its class names: `arena-skeleton-block` (the default), `arena-skeleton-line` or `arena-skeleton-circle`. With `lines` given it is a stack of that many text lines whatever its class, the last running short when there is more than one. The size is the properties `--arena-skeleton-width`, `--arena-skeleton-height` and `--arena-skeleton-radius`, set on a container of yours.
+Loading placeholder for asynchronous data. Use it in tables and dashboards while the response arrives; respect `prefers-reduced-motion`. With `lines` absent it is one box in the shape its class names: `arena-skeleton-block` (the default), `arena-skeleton-line` or `arena-skeleton-circle`. With `lines` given it is a stack of that many text lines whatever its class, the last running short when there is more than one. The size is the properties `--arena-skeleton-width`, `--arena-skeleton-height` and `--arena-skeleton-radius`, set on a container of yours.
 
 ```tsx
 {loading

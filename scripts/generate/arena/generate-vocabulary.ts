@@ -122,8 +122,8 @@ export function renderVocabulary(root = repoRoot) {
       + 'your stylesheets load in. A markup family\'s box class goes on an element you wrote, never on a component. '
       + (context.length ? `A markup family's context class, ${context.join(' and ')}, goes on an element you wrote or on a component. ` : '')
       + (written.length ? `The families you write on markup of your own are ${written.slice(0, -1).join(', ')} and ${written.at(-1)}. ` : '')
-      + 'A markup class beats a rule of yours of equal specificity, whatever order the sheets load in. '
-      + 'Write yours more specific to override it. '
+      + 'A rule of yours, a utility of yours and your plugin sheet beat a markup class, because the classes sit in the `components` layer. '
+      + 'To override one, write your rule. '
       + 'Palette and style-plugin classes are not vocabulary: they go on any element, and theme.md says what a subtree takes. '
       + 'A class that is not on this page does nothing on an Arena component, and the audit reports it. '
       + 'A project compiling Tailwind through `css/tailwind-theme.css` also has utilities such as `arena-spinner` and `arena-fade`. '

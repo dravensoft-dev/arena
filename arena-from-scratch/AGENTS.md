@@ -14,9 +14,10 @@ reference is what sends a reader here, and that reference is the page that expla
 
 A palette described in prose is a palette nobody can approve. The template draws every swatch, sets
 both specimen faces and shows the radius ladder, so the decision being approved is the one on
-screen rather than the one in the sentence. A local stylesheet loads whether the page is
-opened as a file or served over HTTP, and only the web fonts it names need HTTP, so a page shown to
-a user is served.
+screen rather than the one in the sentence. Both polarities are drawn side by side, each in a panel
+wearing its own palette class, because a decision approved in one polarity is unseen in the other.
+A local stylesheet loads whether the page is opened as a file or served over HTTP, and only the web
+fonts it names need HTTP, so a page shown to a user is served.
 
 ## What keeps it honest
 
@@ -29,7 +30,11 @@ reached for a palette alias would show Arena's own colours whatever the project'
 stop being made twice: a document that paints its body copy with it renders white on white in the
 light theme, silently, with nothing to report it.
 
-**The polarity is a class on `<html>` and not a palette.** The example declares a light palette, so
+**Two markers carry what is open.** `data-identity-section` names each section and
+`data-arena-unfilled` marks each block still waiting for an answer. `arena check` reads both, so a
+filled page drops the second and a section is never deleted.
+
+**The polarity is a class on `<html>` and not a palette.** The example's leading palette is light, so
 it carries `arena-light`; a page whose palette is light and whose root carries no class reads the
 dark theme's ink over the light theme's paper.
 
@@ -53,7 +58,11 @@ two carry none, render nowhere, and are copied instead. Borrow the shape and do 
 ## When the template gains a section
 
 A section is added when the kernel gains a decision a project has to make before its first screen,
-never when a role moves. The list of decisions the template asks about is the one
-[`../skills/design/references/style-kernel.md`](../skills/design/references/style-kernel.md)
-measured as the ones that separate one product from another, and a section here that no product
-would answer differently is a question that wastes the one round of attention this document gets.
+or when the cold-start node gains a row for a decision every screen inherits. A role that moves
+adds none. The decisions the kernel measured are the ones in
+[`../skills/design/references/style-kernel.md`](../skills/design/references/style-kernel.md), and a
+section here that no product would answer differently is a question that wastes the one round of
+attention this document gets.
+
+`IDENTITY_SECTIONS` in `scripts/generate/core/arena-cli/identity.ts` is the list both pages and
+`arena check` share. A section is added there and to both pages in the same change.

@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { comparePatterns } from '../../../scripts/lib/core/behaviour-compliance.ts';
-import { loadBinding, loadPatterns, bindingCases, bindingAlso } from '../../../scripts/lib/arena/behaviour-contracts.ts';
+import { loadBinding, loadPatterns, bindingCases, bindingAlso, caseSetRefusal } from '../../../scripts/lib/arena/behaviour-contracts.ts';
 
 const here = dirname(fileURLToPath(import.meta.url));
 
@@ -139,31 +139,8 @@ export function assertPattern({ root, bindingPath, subjects = {}, behavioural = 
 export function assertPatternCases({ bindingPath, cases }: AssertPatternCasesOptions): void {
   const binding = loadBinding(bindingPath);
   const declared = bindingCasesFn(binding);
-  if (declared.length === 1 && declared[0]?.name === null) {
-    throw new Error(`${bindingPath}\n  declares no cases — assert it with assertPattern instead.`);
-  }
-
-  const want = declared.map((c) => c.name).filter((n): n is string => n !== null);
-  const seen = new Set<string>();
-  const dupes = new Set<string>();
-  for (const n of want) {
-    if (seen.has(n)) dupes.add(n);
-    seen.add(n);
-  }
-  if (dupes.size) {
-    throw new Error(`${bindingPath}\n  declares the same case name more than once: ${[...dupes].join(', ')}`);
-  }
-  const got = Object.keys(cases);
-  const missing = want.filter((n) => !got.includes(n));
-  const unknown = got.filter((n) => !want.includes(n));
-  if (missing.length || unknown.length) {
-    throw new Error(
-      `${bindingPath}\n  the suite must render every declared case, and only those.\n` +
-      (missing.length ? `  - never rendered: ${missing.join(', ')}\n` : '') +
-      (unknown.length ? `  - not declared in the binding: ${unknown.join(', ')}\n` : '') +
-      `  declared: ${want.join(', ')}`,
-    );
-  }
+  const refusal = caseSetRefusal(bindingPath, declared, Object.keys(cases));
+  if (refusal) throw new Error(refusal);
 
   patternCache ??= loadPatternsFn(REPO);
   const problems: string[] = [];

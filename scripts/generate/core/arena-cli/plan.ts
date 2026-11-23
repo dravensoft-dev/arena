@@ -35,7 +35,7 @@ import type { CheckedConfig } from './theme-css.ts';
 import type { resolveEnvironment } from './host.ts';
 
 export type PlanOptions = Pick<Options, 'config' | 'paths' | 'out' | 'importHeader'>;
-export type PlanEnvironment = Omit<ReturnType<typeof resolveEnvironment>, 'fontTools'> & { fontTools?: FontToolRoots };
+export type PlanEnvironment = Omit<ReturnType<typeof resolveEnvironment>, 'fontTools' | 'tailwind'> & { fontTools?: FontToolRoots; tailwind?: string | null };
 export type ThemeEnvironment = { packageName: string; sheets: PackageSheets; map?: ComponentMap | null; arena?: string | null };
 export type SheetOutput = { name: string; path: string; content: string; summary: string };
 export type BinaryOutput = { name: string; path: string; content: Uint8Array; summary: string };

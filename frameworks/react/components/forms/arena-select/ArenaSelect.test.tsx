@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { renderIcons, symbols } from '../../../test/IconsHarness.tsx';
 import React from 'react';
 import { ArenaSelect } from './ArenaSelect.tsx';
+import tailwind from './ArenaSelect.manifest.generated.ts';
 
 test('an option draws its label as the text and its value as the attribute, and the two differ', () => {
   const html = renderIcons(
@@ -33,17 +34,6 @@ test('value marks the matching option selected and disabled reaches the native s
 test('label renders its text above the control', () => {
   const html = renderIcons(<ArenaSelect label="Environment" options={[]} />);
   assert.match(html, /<label[^>]*>Environment<\/label>/);
-});
-
-test('ArenaSelect drops a consumer style object -- the ...style escape is gone', () => {
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  const html = renderIcons(<ArenaSelect label="A" style={{ color: '#ff00ff' }} />);
-  assert.doesNotMatch(html, /#ff00ff/, 'a consumer style reached the rendered root -- the R4 escape is back');
-});
-
-test('ArenaSelect drops a consumer attribute -- the {...rest} escape is gone', () => {
-  const html = renderIcons(<ArenaSelect label="A" data-stray="x" />);
-  assert.doesNotMatch(html, /data-stray/, 'a consumer attribute reached the rendered select -- the {...rest} escape is back');
 });
 
 test('error takes the crimson state and names itself to the control, so the failure is announced', () => {
@@ -96,6 +86,32 @@ test('an icon shifts the field padding through a variant rather than a computed 
   assert.match(renderIcons(<ArenaSelect label="A" options={[]} icon="ph-bold ph-globe" />), /data-arena-part="select.field"[^>]*\bdata-arena-has-icon=""/);
 });
 
-test('focus is a modifier the control answers, so nothing reports it to a state', () => {
+test('the field draws its slot class', () => {
   assert.match(renderIcons(<ArenaSelect label="A" options={[]} />), /arena-select__field/);
+});
+
+test('an error draws the warning mark', () => {
+  const html = renderIcons(<ArenaSelect label="A" options={[]} error="No" />);
+  assert.deepEqual(symbols(html), ['fill-warning-circle']);
+  assert.match(html, /data-arena-part="select.status-icon"[^>]*aria-hidden="true"[^>]*><svg/, 'the mark is hidden and sits in the statusIcon slot');
+  assert.ok(html.indexOf('select.status-icon') > html.indexOf('</select>') && html.indexOf('select.status-icon') < html.indexOf('select.caret'), 'the mark follows the select and precedes the caret');
+});
+
+test('valid draws the check mark', () => {
+  assert.deepEqual(symbols(renderIcons(<ArenaSelect label="A" options={[]} valid />)), ['fill-check-circle']);
+  assert.deepEqual(symbols(renderIcons(<ArenaSelect label="A" options={[]} valid error="No" />)), ['fill-warning-circle']);
+});
+
+test('a neutral select draws no mark', () => {
+  const html = renderIcons(<ArenaSelect label="A" options={[]} />);
+  assert.doesNotMatch(html, /select\.status-icon/);
+  assert.deepEqual(symbols(html), []);
+});
+
+test('the field makes room for the mark', () => {
+  const padded = (state: 'neutral' | 'error' | 'valid') => tailwind.variants.state[state].field.split(/\s+/).includes('pr-16');
+  assert.equal(padded('error'), true);
+  assert.equal(padded('valid'), true);
+  assert.equal(padded('neutral'), false);
+  assert.match(renderIcons(<ArenaSelect label="A" options={[]} error="No" />), /data-arena-part="select.field"[^>]*\bdata-arena-state="error"/);
 });

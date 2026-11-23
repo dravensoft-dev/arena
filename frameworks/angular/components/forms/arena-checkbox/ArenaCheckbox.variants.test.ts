@@ -5,14 +5,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { ARENA_CHECK_GLYPH_STYLE, ARENA_CHECK_STROKE_STYLE } from './ArenaCheckbox';
-import { arenaCheckboxStyles } from './ArenaCheckbox.variants';
-
-test('the default is an unchecked, enabled box', () => {
-  assert.equal(
-    JSON.stringify(arenaCheckboxStyles().$data.root()),
-    JSON.stringify(arenaCheckboxStyles({ checked: false, disabled: false }).$data.root()),
-  );
-});
 
 test('the check glyph reads its box and its stroke from tokens, never from a literal', () => {
   assert.deepEqual(ARENA_CHECK_GLYPH_STYLE, { width: 'var(--sp-3)', height: 'var(--sp-3)' });

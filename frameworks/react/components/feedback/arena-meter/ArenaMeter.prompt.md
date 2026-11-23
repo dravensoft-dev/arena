@@ -56,11 +56,7 @@ A measurement inside a known range: disk used, a quota, a score against a target
 - Don't animate the fill or announce a change. A meter is a static reading.
 - Don't make it focusable. A value a reader drags is a slider, and this one is only read.
 
-**By hand, in real Chromium**: run `bun run demos` and open
-`/frameworks/react/components/feedback/arena-meter/ArenaMeter.demo.generated.html`:
-- The fill length matches the reading against the track at `arena-size-sm`, `md` and `lg`.
-- Good, Fair and Poor read in light and in dark, and the word sits beside the reading.
-- A screen reader says the name, the reading and the standing once, and says nothing when the page loads.
+The fill length matches the reading against the track at `arena-size-sm`, `md` and `lg`. Good, Fair and Poor read in light and in dark, and the word sits beside the reading. A screen reader says the name, the reading and the standing once, and says nothing when the page loads.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

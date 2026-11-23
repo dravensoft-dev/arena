@@ -120,20 +120,13 @@ test('leaving the field closes the list without choosing and puts the label back
   assert.deepEqual(log.changes, []);
 });
 
-test('an emptied field committed clears an optional value with the empty string', () => {
-  const { input, log } = render();
-  type(input, '');
-  key(input, 'Enter');
-  assert.deepEqual(log.changes, ['']);
-  assert.equal(input.value, '');
-});
-
 test('text typed and then deleted is an emptied field: an optional control clears, a required one restores', () => {
   const optional = render();
   type(optional.input, 'us');
   type(optional.input, '');
   key(optional.input, 'Enter');
   assert.deepEqual(optional.log.changes, ['']);
+  assert.equal(optional.input.value, '');
   cleanup();
   const required = render({ required: true });
   type(required.input, 'us');

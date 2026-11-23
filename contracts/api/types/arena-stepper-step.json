@@ -1,7 +1,7 @@
 {
   "name": "ArenaStepperStep",
   "kind": "object",
-  "description": "One step of an ArenaStepper. Whether it is complete, current or upcoming is not a field: the stepper derives it from its `index`, so two current steps cannot be written.",
+  "description": "One step of an ArenaStepper. The step's state, complete, current or upcoming, is not a field: the stepper derives it from its `index`, so two current steps cannot be written.",
   "fields": {
     "label": { "form": "primitive", "type": "string", "required": true,
                "description": "What the step is called." },

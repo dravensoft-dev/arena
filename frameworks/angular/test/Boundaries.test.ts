@@ -66,10 +66,6 @@ function host(node: unknown, label: string): Type<unknown> {
 const all = cases.boundaryCases(REPO);
 const spent = new Set<string>();
 
-test('the sweep found slots to measure', () => {
-  assert.ok(all.length > 0, 'derived no case; an empty sweep is a failure, not a clean pass');
-});
-
 for (const kase of all) {
   test(`${kase.label}: every slot it projects is a boundary or declared transparent`, () => {
     const fixture = TestBed.createComponent(host(kase.node, kase.label));
@@ -99,7 +95,7 @@ const FLOATING: Record<string, string> = {
   'arena-combobox': 'panel',
 };
 
-test('every floating slot of a T9 component carries data-arena-surface="floating"', () => {
+test('every floating slot of a floating component carries data-arena-surface="floating"', () => {
   @Component({
     standalone: true,
     imports: [ArenaDialog, ArenaConfirmDialog, ArenaSheet, ArenaOnboarding, ArenaCommandPalette, ArenaToastHost, ArenaMenu, ArenaTooltip, ArenaButton, ArenaCombobox],

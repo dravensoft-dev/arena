@@ -12,6 +12,7 @@ import { join } from 'node:path';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { assertPattern, ANGULAR_COMPONENTS } from '../../../test/Compliance';
+import { assertSameNode } from '../../../test/NodeAssert';
 import type { ArenaSelectOption } from '../../../Api.generated';
 import { ArenaSelect } from './ArenaSelect';
 
@@ -212,6 +213,57 @@ test('icon is drawn hidden and pushes the text clear of it', () => {
     assert.deepEqual(glyphIds(host).slice(0, 1), [symbol('bold', 'user')]);
     assert.equal(glyph.getAttribute('aria-hidden'), 'true');
     assert.equal(field.getAttribute('data-arena-has-icon'), '', 'the text runs under the glyph');
+  } finally {
+    fixture.destroy();
+  }
+});
+
+function drawn(inputs: Record<string, unknown>) {
+  const fixture = TestBed.createComponent(ArenaSelect);
+  fixture.componentRef.setInput('label', 'Plan');
+  for (const [name, value] of Object.entries(inputs)) fixture.componentRef.setInput(name, value);
+  fixture.detectChanges();
+  const host = fixture.nativeElement as HTMLElement;
+  return { fixture, host, mark: host.querySelector('[data-arena-part="select.status-icon"]') };
+}
+
+test('an error draws the warning mark, hidden, between the select and the caret', () => {
+  const { fixture, host, mark } = drawn({ error: 'No' });
+  try {
+    assert.ok(mark, 'an error drew no status mark');
+    assert.equal(mark.getAttribute('aria-hidden'), 'true');
+    assert.deepEqual(glyphIds(mark as HTMLElement), [symbol('fill', 'warning-circle')]);
+    assertSameNode(host.querySelector('select')!.nextElementSibling, mark);
+    assertSameNode(mark.nextElementSibling, host.querySelector('[data-arena-part="select.caret"]'));
+  } finally {
+    fixture.destroy();
+  }
+});
+
+test('valid draws the check mark', () => {
+  const { fixture, mark } = drawn({ valid: true });
+  try {
+    assert.ok(mark, 'valid drew no status mark');
+    assert.deepEqual(glyphIds(mark as HTMLElement), [symbol('fill', 'check-circle')]);
+  } finally {
+    fixture.destroy();
+  }
+});
+
+test('a neutral select draws no mark', () => {
+  const { fixture, mark } = drawn({});
+  try {
+    assert.equal(mark, null);
+  } finally {
+    fixture.destroy();
+  }
+});
+
+test('error wins over valid: both set draws only the warning mark', () => {
+  const { fixture, host } = drawn({ error: 'No', valid: true });
+  try {
+    assert.equal(host.querySelectorAll('[data-arena-part="select.status-icon"]').length, 1);
+    assert.deepEqual(glyphIds(host), [symbol('fill', 'warning-circle')]);
   } finally {
     fixture.destroy();
   }

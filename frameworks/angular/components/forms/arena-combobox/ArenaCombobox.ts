@@ -7,7 +7,7 @@ import { sp1 } from '../../../Tokens.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
 import { arenaPhrase } from '../../../Phrase';
 import { ArenaIdGenerator } from '../../../ArenaIds';
-import { ArenaAnchoredOverlay, arenaConnectedPositions } from '../../../AnchoredOverlay';
+import { ArenaAnchoredOverlay, type ArenaAnchoredPlacement } from '../../../AnchoredOverlay';
 import { ArenaControlBinding, arenaWarnDoubleBinding } from '../../../ControlBinding';
 import { ArenaSlotAttributes } from '../../../SlotData';
 import {
@@ -20,7 +20,7 @@ import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
 
 export { arenaFilterOptions } from './ComboboxRules';
 
-export const ARENA_COMBOBOX_POSITIONS = arenaConnectedPositions('start', 'below', sp1 * 1.5);
+export const ARENA_COMBOBOX_PLACEMENT: ArenaAnchoredPlacement = { align: 'start', prefer: 'below', offset: sp1 * 1.5 };
 
 @Component({
   selector: 'arena-combobox',
@@ -36,7 +36,7 @@ export const ARENA_COMBOBOX_POSITIONS = arenaConnectedPositions('start', 'below'
   },
   template: `
     @if (showLabel()) {
-      <label [class]="styles().label()" [attr.data-arena-part]="parts.label" [attr.for]="uid">{{ labelText() }}</label>
+      <label [class]="styles().label()" [arenaSlotData]="styles().$data.label()" [attr.data-arena-part]="parts.label" [attr.for]="uid">{{ labelText() }}</label>
     }
     <div #field (mousedown)="onFieldPress($event)" [class]="styles().field()" [arenaSlotData]="styles().$data.field()" [attr.data-arena-part]="parts.field">
       @if (icon(); as glyph) {
@@ -62,9 +62,9 @@ export const ARENA_COMBOBOX_POSITIONS = arenaConnectedPositions('start', 'below'
     }
     <span role="status" [class]="styles().announcement()" [attr.data-arena-part]="parts.announcement">{{ announcement() }}</span>
     @if (error(); as message) {
-      <span [class]="styles().error()" [attr.data-arena-part]="parts.error" [attr.id]="noteId">{{ message }}</span>
+      <span [class]="styles().error()" [arenaSlotData]="styles().$data.error()" [attr.data-arena-part]="parts.error" [attr.id]="noteId">{{ message }}</span>
     } @else if (hint(); as text) {
-      <span [class]="styles().hint()" [attr.data-arena-part]="parts.hint" [attr.id]="noteId">{{ text }}</span>
+      <span [class]="styles().hint()" [arenaSlotData]="styles().$data.hint()" [attr.data-arena-part]="parts.hint" [attr.id]="noteId">{{ text }}</span>
     }
     <ng-template #panel>
       <div [class]="styles().panel()" [attr.data-arena-surface]="'floating'" [attr.data-arena-part]="parts.panel"
@@ -155,7 +155,7 @@ export class ArenaCombobox {
     anchor: () => this.fieldRef().nativeElement,
     trigger: () => this.inputRef().nativeElement,
     panel: () => this.panel(),
-    positions: () => ARENA_COMBOBOX_POSITIONS,
+    placement: () => ARENA_COMBOBOX_PLACEMENT,
     matchAnchorWidth: true,
     onDismiss: (reason) => { if (reason === 'escape') this.restore(); else this.commit(); },
   });
@@ -167,7 +167,7 @@ export class ArenaCombobox {
   protected readonly describedBy = computed(() => (this.error() || this.hint() ? this.noteId : null));
   protected readonly labelText = computed(() => {
     const label = this.label();
-    if (!label.trim()) throw new Error('arena-combobox: `label` is required, and names the field');
+    if (!label.trim()) throw new Error('ArenaCombobox: `label` is required, and names the field');
     return label;
   });
   protected readonly rows = computed(() => {

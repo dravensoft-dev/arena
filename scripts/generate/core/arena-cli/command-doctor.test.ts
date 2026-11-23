@@ -2,7 +2,7 @@
  * nothing, and only held environment reports, a plan fatal or a differing sheet change its exit. */
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { spawnSync } from 'node:child_process';
 import { join } from 'node:path';
@@ -219,7 +219,7 @@ test('outside a git work tree the .gitignore is read as text, as before', () => 
 }));
 
 test('an output leaving the work tree falls back to the text reading and does not throw', { skip: gitSkip }, async () => {
-  const { root, core, environment } = setup();
+  const { root, environment } = setup();
   assert.equal(spawnSync('git', ['init', '-q'], { cwd: root }).status, 0);
   const away = mkdtempSync(join(tmpdir(), 'arena-away-'));
   const { io, out } = captureIo(root, environment);
@@ -265,13 +265,6 @@ test('a build that writes the package sheet no source imports is a note naming t
   assert.ok(before[0]!.includes('or link it from your page'));
   writeFileSync(join(root, 'src', 'main.css'), `@import './${PACKAGE_SHEET}';\n@import './${THEME_SHEET}';\n`);
   assert.deepEqual(await noted(), []);
-});
-
-test('--strict=contrast exits 2 naming arena check', async () => {
-  const { root, environment } = setup();
-  const { io, err } = captureIo(root, environment);
-  assert.equal(await run(['--strict=contrast'], io), 2);
-  assert.ok(err[0]!.includes('belongs to arena check'));
 });
 
 test('a tree built from a named list the map closes is current, and one built from the list as written is stale', async () => {

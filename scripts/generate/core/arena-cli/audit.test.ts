@@ -2,30 +2,30 @@
  * that read a plugin's names are emitted by the audit step. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readdirSync, readFileSync } from 'node:fs';
+import { mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { repoRoot } from '../../../lib/arena/repo-root.ts';
 import {
-  auditText, auditFindings, findings, lineFindings, isLegalBracket, scanText, scanFile, markerAllowlist,
-  paintedParts, sourceScope, outlineGap, kebabTag, HEADING_RUNGS, OWN_CLASS_ATTRIBUTE,
-  LINKABLE_TAGS, WRAPPED_LINK_TAGS, statedRung, fillsWithDanger, namesAnAlias, RULE_TAGS, RULE_DESCRIPTIONS,
-  UNMODELLED_UNITS, styleIdentifiers, styleObjectLines, unknownInputs,
-  iconMemberGlyphs, ownClassFindings, classValues, valueResults, RAW_GLYPH_BOUND_MESSAGE, RAW_COLOUR_MESSAGE, RAW_HEX_MESSAGE, GRADIENT_MESSAGE, primaryMessage, DANGER_FILL_MESSAGE, type VocabularyIndex,
+  auditText, auditFindings, findings, lineFindings, isLegalBracket,
+  paintedParts, sourceScope, outlineGap, kebabTag, HEADING_RUNGS,
+  LINKABLE_TAGS, WRAPPED_LINK_TAGS, statedRung, namesAnAlias, RULE_TAGS, RULE_DESCRIPTIONS,
+  styleIdentifiers, styleObjectLines, unknownInputs,
+  levelledRoles, loadLevels, catalogueLevels, classCandidates, NO_LEVELS, NO_DEAD,
+  iconMemberGlyphs, ownClassFindings, classValues, valueResults, RAW_GLYPH_BOUND_MESSAGE, RAW_COLOUR_MESSAGE, RAW_HEX_MESSAGE, type VocabularyIndex,
 } from './audit.ts';
 import { vocabularyIndex } from '../../../lib/arena/vocabulary-index.ts';
+import { tokenCatalogue } from '../../../lib/arena/package-assembly.ts';
 
 function rules(source: string, path = 'src/App.tsx') {
   return auditText(path, source).join('\n');
-}
-
-function primaries(source: string, path = 'src/App.tsx') {
-  return auditText(path, source).filter((line) => line.includes('one-primary')).join('\n');
 }
 
 test('a class of your own on an Arena component is reported in either layer idiom', () => {
   assert.match(rules('<ArenaButton className="mine">Go</ArenaButton>'), /own-class/);
   assert.match(rules('<arena-button class="mine"></arena-button>', 'src/app.html'), /own-class/);
   assert.match(rules('<arena-card [ngClass]="k"></arena-card>', 'src/app.html'), /own-class/);
+  assert.match(rules('<arena-card [class]="k"></arena-card>', 'src/app.html'), /own-class/);
   assert.equal(rules('<ArenaButton>Go</ArenaButton>'), '');
 });
 
@@ -52,7 +52,6 @@ test('an ArenaLink inside a link of your own is a rule of its own, so a project 
 test('a raw value is reported where it styles something, and not where it is only a string', () => {
   assert.match(rules('<div style={{ color: "#b52a20" }} />'), /raw hex/);
   assert.match(rules('<div style={{ padding: "16px" }} />'), /bare pixel/);
-  assert.match(auditText('src/a.css', '.x { background: linear-gradient(a, b); }').join('\n'), /gradient/);
   assert.equal(rules('const id = "#b52a20";'), '');
   assert.equal(rules('const gap = "16px";'), '');
 });
@@ -202,30 +201,11 @@ test('lineFindings decides a stylesheet rule only when it is reading a styleshee
   assert.equal(lineFindings('.arena-tag { color: #fff; }', true).length, 2);
 });
 
-test('the moved bracket rule decides exactly what it decided inside the gate', () => {
-  assert.equal(isLegalBracket('var(--sp-4)'), true);
-  assert.equal(isLegalBracket('#b52a20'), false);
-  assert.equal(isLegalBracket('16px'), false);
-  assert.equal(isLegalBracket('50%'), true);
+test('isLegalBracket accepts a var() whose fallback is a token, keyword or length, and refuses a pixel fallback', () => {
   assert.equal(isLegalBracket('var(--arena-layout-radius,0)'), true);
   assert.equal(isLegalBracket('var(--arena-placement-max-height,80vh)'), true);
   assert.equal(isLegalBracket('var(--arena-x,var(--r-lg))'), true);
   assert.equal(isLegalBracket('var(--arena-x,12px)'), false);
-  assert.equal(isLegalBracket('calc(var(--sp-4)_*_2)'), true);
-  assert.deepEqual(scanText('mt-[var(--sp-4)]'), []);
-  assert.equal(scanText('bg-[#fff]').length, 1);
-});
-
-test('the markdown allowance the gate relies on still reads from this module', () => {
-  const text = '<!-- check-arbitrary-values allow: bg-[#fff] -->\n`bg-[#fff]`\n';
-  assert.deepEqual([...markerAllowlist(text)], ['bg-[#fff]']);
-  assert.deepEqual(scanFile('a.md', text), []);
-  assert.match(scanFile('a.md', '<!-- check-arbitrary-values allow: bg-[#fff] -->\n').join(''), /stale allowance/);
-});
-
-test('the unit list the dimension gate reads is the one stated here', () => {
-  assert.ok(UNMODELLED_UNITS.includes('vh'));
-  assert.ok(!UNMODELLED_UNITS.includes('px'));
 });
 
 test('a part selector is sanctioned in a plugin and reported in the app', () => {
@@ -246,16 +226,30 @@ test('a compiler class is reported in both scopes', () => {
   assert.equal(findings('a.css', rule, 'app').length, 1);
 });
 
-test('a raw value is reported in both scopes and a gradient only in the app', () => {
+test('a raw value is reported in both scopes, and a gradient of tokens in neither', () => {
   assert.equal(findings('p.css', '.x { color: #fff }', 'plugin')[0]?.rule, 'raw-value');
   const ramp = '.x { background: linear-gradient(var(--cat-1), var(--cat-3)) }';
-  assert.deepEqual(findings('p.css', ramp, 'plugin'), [],
-    'a plugin paints a gradient from its own stylesheet whatever the token tier says, so the norm '
-    + 'records it as a report rather than a floor and --strict may not refuse what the norm permits');
-  assert.equal(findings('a.css', ramp, 'app')[0]?.rule, 'raw-value');
+  assert.deepEqual(findings('p.css', ramp, 'plugin'), []);
+  assert.deepEqual(findings('a.css', ramp, 'app'), []);
   assert.equal(findings('p.css', '.x { background: linear-gradient(red, blue) }', 'plugin').length, 1,
-    'the gradient is the plugin\'s to paint and the colours in it are still the skin, which the '
-    + 'plugin assigns rather than authors');
+    'the colours in a gradient are still the skin, which the plugin assigns rather than authors');
+});
+
+test('a danger background is a colour choice and goes unreported', () => {
+  assert.deepEqual(findings('src/app.css', '.mine { background: var(--danger); }'), []);
+});
+
+test('two primary actions on one screen go unreported', () => {
+  const found = auditText('src/App.tsx', '<ArenaButton className="arena-emphasis-primary">Save</ArenaButton>\n'
+    + '<ArenaButton className="arena-emphasis-primary">Publish</ArenaButton>', 'app', vocabularyIndex());
+  assert.deepEqual(found, []);
+});
+
+test('a gradient in an application source goes unreported', () => {
+  assert.deepEqual(findings('src/app.css',
+    '.hero { background: linear-gradient(var(--color-base-100), var(--color-base-200)); }'), []);
+  assert.deepEqual(findings('src/app.css', '.hero { background: linear-gradient(#fff, #000); }').map((one) => one.rule),
+    ['raw-value']);
 });
 
 test('a plugin assigning a colour through one of Arena\'s own aliases is reported', () => {
@@ -271,6 +265,12 @@ test('the alias rule reads the plugin scope only, since an application is the la
   assert.deepEqual(findings('src/app.css', rule, 'app'), [],
     'application CSS reaching into Arena is already what the own-class rule reports, and the '
     + 'aliases ship, so naming one there is not this rule\'s business');
+});
+
+test('a plugin may not read a level', () => {
+  const rule = '.x { background: color-mix(in oklab, var(--fill-selected) var(--level-accent-soft-primary), transparent) }';
+  assert.equal(findings('design/x/plugin.css', rule, 'plugin').filter((one) => one.rule === 'compat-alias').length, 1,
+    'a plugin answers roles, so the level stays refused there');
 });
 
 test('a plugin naming a role or a palette colour is not naming an alias', () => {
@@ -295,31 +295,6 @@ test('an alias inside a fallback is still an assignment, since the fallback is w
     .filter((one) => one.rule === 'compat-alias').length, 1);
 });
 
-test('a project whose mark is a gradient is not told about one, and only about that', () => {
-  const rule = '.story__ring { background: conic-gradient(var(--color-cat-1), var(--color-cat-4)); }';
-  assert.match(auditText('src/a.css', rule, 'app').join('\n'), /gradient/,
-    'a gradient in an application source is the report the norm keeps');
-  assert.equal(auditText('src/a.css', rule, 'app', true).join('\n').includes('gradient'), false,
-    'a product whose mark IS a gradient draws that element itself, because Arena has none, so the '
-    + 'scope that reads the directory a line sits in asks the wrong question about a brand');
-});
-
-test('declaring the mark silences the gradient and nothing else on the line', () => {
-  const found = auditText('src/a.css', '.x { background: linear-gradient(red, blue); padding: 16px; }',
-    'app', true);
-  assert.match(found.join('\n'), /bare pixel length/,
-    'an allowance suppresses the whole line, which is what declaring the mark replaces');
-  assert.match(found.join('\n'), /raw colour/,
-    'the colours in the gradient are still the skin, which a project assigns rather than authors');
-});
-
-test('the declaration is not a way into the plugin scope, which already permits a gradient', () => {
-  const rule = '[data-arena-part="avatar.box"] { background: linear-gradient(var(--color-cat-1), var(--color-cat-4)); }';
-  assert.deepEqual(findings('design/x/plugin.css', rule, 'plugin'), [],
-    'a plugin paints one from its own stylesheet whatever the token tier says, declared or not');
-  assert.deepEqual(findings('design/x/plugin.css', rule, 'plugin', true), []);
-});
-
 test('the scope defaults to the application, so no caller changes meaning by accident', () => {
   assert.equal(findings('a.css', '[data-arena-part="card"] { color: red }').length,
     findings('a.css', '[data-arena-part="card"] { color: red }', 'app').length);
@@ -340,11 +315,6 @@ test('the audit reports which parts a plugin paints', () => {
     ['card.body', 'hero.title']);
   assert.deepEqual(paintedParts('[data-arena-part="card"]{}[data-arena-part="card"]{}'), ['card'],
     'it answers which parts rather than how many rules, because it is what the role tier grows by');
-});
-
-test('the own-class attribute pattern is exported, so its suite can assert on it', () => {
-  assert.ok(OWN_CLASS_ATTRIBUTE.test(' className='));
-  assert.ok(OWN_CLASS_ATTRIBUTE.test(' [class]='));
 });
 
 test('a screen drawing a page head and a card, with no section between, is reported', () => {
@@ -430,95 +400,13 @@ test('the components a link may wrap are the ones whose contract takes an href, 
     + 'cannot take that advice, and the app bar documents wrapping its brand in a link of your own');
 });
 
-
-test('a second primary action on one screen is reported, and the first one is not', () => {
-  assert.equal(primaries('<ArenaButton className="arena-emphasis-primary">Save</ArenaButton>'), '');
-  const two = primaries('<ArenaButton className="arena-emphasis-primary">Save</ArenaButton>\n'
-    + '<ArenaButton className="arena-emphasis-primary">Publish</ArenaButton>');
-  assert.match(two, /one-primary/);
-  assert.match(two, /at most one arena-emphasis-primary action stands in a view/);
-  assert.equal(two.split('\n').length, 1, 'the first primary is the one the screen is for, so only '
-    + 'the ones after it are findings');
-  assert.match(two, /line 1/);
-});
-
-test('a primary emphasis class is read in either layer idiom, and an expression is not read at all', () => {
-  assert.equal(primaries('<arena-button class="arena-emphasis-primary"></arena-button>', 'src/app.html'), '');
-  assert.match(primaries('<arena-button class="arena-emphasis-primary"></arena-button>\n'
-    + '<arena-button class="a arena-emphasis-primary"></arena-button>', 'src/app.html'), /one-primary/);
-  assert.match(primaries('<arena-button [class]="\'arena-emphasis-primary\'"></arena-button>\n'
-    + '<arena-button [class]="\'arena-emphasis-primary\'"></arena-button>', 'src/app.html'), /one-primary/);
-  assert.equal(primaries('<ArenaButton className={kind}>a</ArenaButton>\n'
-    + '<ArenaButton className={kind}>b</ArenaButton>'), '',
-    'a class an expression decides is not a class this file states, and reporting it would '
-    + 'report the one screen that cannot be read');
-  assert.equal(primaries('<ArenaButton className="arena-emphasis-primary-x">a</ArenaButton>\n'
-    + '<ArenaButton className="arena-emphasis-primary-x">b</ArenaButton>'), '');
-  assert.equal(primaries('<ArenaButton variant="primary">a</ArenaButton>\n'
-    + '<ArenaButton variant="primary">b</ArenaButton>').includes('one-primary'), false,
-    'the rule does not read variant="primary"');
-});
-
-
-test('a variant of your own that happens to be primary on a tag Arena does not draw is not counted', () => {
-  assert.equal(rules('<MyButton variant="primary">a</MyButton>\n'
-    + '<MyButton variant="primary">b</MyButton>'), '');
-});
-
-test('a filled danger surface is reported, and the tint and the outline are not', () => {
-  assert.match(auditText('src/a.css', '.mine { background: var(--danger); }').join('\n'),
-    /danger-fill/);
-  assert.match(auditText('src/a.css', '.mine { background-color: var(--color-error-fill); }').join('\n'),
-    /danger-fill/);
-  assert.equal(auditText('src/a.css', '.mine { background: var(--danger-soft); }').join('\n'), '',
-    'a soft tint is the surface a project of your own may carry');
-  assert.equal(auditText('src/a.css', '.mine { border-color: var(--danger); color: var(--danger); }').join('\n'), '',
-    'the border and the content in danger are what the rule asks for');
-});
-
-test('a filled danger surface is read in an inline style, and only in an application source', () => {
-  assert.match(rules('<div style={{ backgroundColor: \'var(--danger)\' }} />'), /danger-fill/);
-  assert.equal(auditText('plugin/skin.css', '.confirm { background: var(--danger-fill); }',
-    'plugin').join('\n').includes('danger-fill'), false,
-    'the one filled danger surface in the system is a part a style plugin paints, so the scope '
-    + 'that owns it is the scope that may draw it');
-});
-
-test('a danger tint is not a fill, in either operand order, and a full mix or a mix with a colour is', () => {
-  assert.equal(fillsWithDanger('.x { background: color-mix(in oklab, var(--color-error) 16%, transparent) }'), false);
-  assert.equal(fillsWithDanger('.x { background: color-mix(in oklab, transparent 84%, var(--danger)) }'), false);
-  assert.equal(fillsWithDanger('.x { background: color-mix(in srgb, var(--danger) 100%, transparent) }'), true);
-  assert.equal(fillsWithDanger('.x { background: color-mix(in oklab, var(--danger) 40%, white) }'), true);
-  assert.equal(fillsWithDanger('.x { background: color-mix(in oklab, var(--danger), transparent) }'), false);
-  assert.equal(fillsWithDanger('.x { background: var(--danger) }'), true);
-  assert.equal(fillsWithDanger('.x { background: color-mix(in oklab, transparent, var(--danger) 30%) }'), false);
-  assert.equal(fillsWithDanger('.x { background: color-mix(in oklab, transparent, var(--danger) 100%) }'), true);
-  assert.equal(fillsWithDanger('.x { background: color-mix(in oklab, transparent 0%, var(--danger)) }'), true);
-  assert.equal(fillsWithDanger('.x { background: color-mix(in oklab, transparent 100%, var(--danger)) }'), false);
-  assert.equal(fillsWithDanger('.x { background: color-mix(in oklab, var(--danger, red) 16%, transparent) }'), false);
-  assert.equal(fillsWithDanger('.x { background: color-mix(in oklch longer hue, var(--danger) 16%, transparent) }'), false);
-  assert.equal(fillsWithDanger('.x { background: color-mix(in oklch shorter hue, transparent, var(--danger, red) 100%) }'), true);
-});
-
-test('whitespace inside var() does not hide a danger fill or an alias reference', () => {
-  assert.equal(fillsWithDanger('.x { background: var( --danger ) }'), true);
+test('whitespace inside var() does not hide an alias reference', () => {
   assert.equal(namesAnAlias('.x { color: var( --level-presence ) }'), true);
 });
 
-test('the danger fill message names the filled status mark a screen writes instead', () => {
-  assert.match(DANGER_FILL_MESSAGE, /arena-mark-solid/);
-});
-
 test('no audit message names a palette colour', () => {
-  for (const message of [RAW_COLOUR_MESSAGE, primaryMessage(1), DANGER_FILL_MESSAGE, RAW_HEX_MESSAGE, GRADIENT_MESSAGE])
+  for (const message of [RAW_COLOUR_MESSAGE, RAW_HEX_MESSAGE])
     assert.doesNotMatch(message, /crimson|warm shadow/i);
-});
-
-test('a fill and a token are read as one pair, so a danger token elsewhere on the line is not a fill', () => {
-  assert.equal(fillsWithDanger('  border: 1px solid var(--danger);'), false);
-  assert.equal(fillsWithDanger('  background: var(--danger);'), true);
-  assert.equal(fillsWithDanger('  background: var(--danger-soft);'), false);
-  assert.equal(fillsWithDanger('  background: var(--surface-card);'), false);
 });
 
 test('every rule tag the audit can emit is declared, and every declared tag is one it emits', () => {
@@ -537,7 +425,7 @@ test('every rule tag the audit can emit is declared, and every declared tag is o
 test('a style hoisted into a constant is styling, so the raw-value rules read it there too', () => {
   const hoisted = ['const zone = {', "  background: 'var(--danger)',", "  padding: '16px',", '};',
     'export default function A() {', '  return <div style={zone}>x</div>;', '}'].join('\n');
-  assert.deepEqual(findings('src/App.tsx', hoisted).map((one) => one.rule), ['danger-fill', 'raw-value'],
+  assert.deepEqual(findings('src/App.tsx', hoisted).map((one) => one.rule), ['raw-value'],
     'style={{ ... }} and const zone = { ... } are the same declaration written two ways, and '
     + 'hoisting is what React authors do the moment an object outgrows the attribute. A rule that '
     + 'reads only the attribute is a rule any screen escapes by moving three lines up');
@@ -609,7 +497,7 @@ test('without a vocabulary index every class is own-class, which is the audit ru
 });
 
 test('findings carries the vocabulary through to the structural rules', () => {
-  assert.deepEqual(findings('src/a.tsx', '<ArenaButton className="arena-fill">Go</ArenaButton>', 'app', false, VOCABULARY)
+  assert.deepEqual(findings('src/a.tsx', '<ArenaButton className="arena-fill">Go</ArenaButton>', 'app', VOCABULARY)
     .filter((one) => one.rule === 'own-class'), []);
 });
 
@@ -645,7 +533,7 @@ test('a class and an axis of one family on one component are reported as decidin
     '<ArenaGrid className="arena-grid-min-sm" style={{ \'--arena-grid-min\': \'10rem\' }}>x</ArenaGrid>',
     '<arena-grid class="arena-grid-min-sm" style="--arena-grid-min: 10rem">x</arena-grid>',
   ]) {
-    const own = findings('src/a.tsx', source, 'app', false, AXES).filter((one) => one.rule === 'own-class');
+    const own = findings('src/a.tsx', source, 'app', AXES).filter((one) => one.rule === 'own-class');
     assert.deepEqual(own.map((one) => one.message), [message], source);
   }
   for (const source of [
@@ -653,225 +541,15 @@ test('a class and an axis of one family on one component are reported as decidin
     '<ArenaGrid style={{ \'--arena-grid-min\': \'10rem\' }}>x</ArenaGrid>',
     '<ArenaGrid className="arena-grid-min-sm" style={{ \'--arena-grid-min-width\': \'10rem\' }}>x</ArenaGrid>',
   ])
-    assert.deepEqual(findings('src/a.tsx', source, 'app', false, AXES).filter((one) => one.rule === 'own-class'), [], source);
+    assert.deepEqual(findings('src/a.tsx', source, 'app', AXES).filter((one) => one.rule === 'own-class'), [], source);
 });
 
 test('a shape class and the property a family composes with are no conflict, and a class that replaces an axis is, in both binding forms', () => {
   const index = vocabularyIndex(repoRoot);
-  const own = (source: string) => findings('src/a.tsx', source, 'app', false, index).filter((one) => one.rule === 'own-class');
+  const own = (source: string) => findings('src/a.tsx', source, 'app', index).filter((one) => one.rule === 'own-class');
   assert.deepEqual(own('<arena-skeleton class="arena-skeleton-line" style="--arena-skeleton-width: var(--sp-8)"></arena-skeleton>'), []);
   assert.equal(own('<arena-grid class="arena-grid-min-lg" [style.--arena-grid-min]="\'var(--sp-8)\'"></arena-grid>').length, 1);
   assert.equal(own('<arena-grid class="arena-grid-min-lg" style="--arena-grid-min: var(--sp-8)"></arena-grid>').length, 1);
-});
-
-const EMPHASIS_INDEX: VocabularyIndex = {
-  page: 'https://x/p',
-  classes: {
-    'arena-emphasis-primary': { family: 'emphasis', reach: 'context', target: 'component' },
-    'arena-emphasis-secondary': { family: 'emphasis', reach: 'context', target: 'component' },
-    'arena-emphasis-ghost': { family: 'emphasis', reach: 'context', target: 'component' },
-  },
-  answers: { ArenaButton: ['emphasis'], ArenaIconButton: ['emphasis'] },
-  options: {
-    ArenaButton: ['arena-emphasis-ghost', 'arena-emphasis-primary', 'arena-emphasis-secondary'],
-    ArenaIconButton: ['arena-emphasis-ghost'],
-  },
-  defaults: {
-    ArenaButton: { emphasis: 'arena-emphasis-primary' },
-    ArenaIconButton: { emphasis: 'arena-emphasis-ghost' },
-  },
-  modals: ['ArenaDialog'],
-};
-
-function defaultPrimaries(source: string, path = 'src/App.tsx', vocabulary: VocabularyIndex | null = EMPHASIS_INDEX) {
-  return auditText(path, source, 'app', false, vocabulary).filter((line) => line.includes('one-primary'));
-}
-
-test('a button with no emphasis class is the primary, so a second one is reported', () => {
-  const two = defaultPrimaries('<ArenaButton>Save</ArenaButton>\n<ArenaButton>Publish</ArenaButton>');
-  assert.equal(two.length, 1);
-  assert.match(two[0] ?? '', /:2:/);
-  assert.match(two[0] ?? '', /a button with no emphasis class is primary too/i);
-  assert.equal(defaultPrimaries('<arena-button>Save</arena-button>\n<arena-button>Go</arena-button>',
-    'src/app.html').length, 1, 'the Angular tag is read the same way');
-  assert.equal(defaultPrimaries('<ArenaButton className="arena-emphasis-primary">A</ArenaButton>\n'
-    + '<ArenaButton>B</ArenaButton>').length, 1, 'a stated primary and a bare one are two primaries');
-});
-
-test('explicit-others: one bare primary among stated secondaries and ghosts is clean', () => {
-  assert.deepEqual(defaultPrimaries('<ArenaButton>Save</ArenaButton>\n'
-    + '<ArenaButton className="arena-emphasis-secondary">Cancel</ArenaButton>\n'
-    + '<ArenaButton className="arena-emphasis-ghost arena-size-sm">More</ArenaButton>\n'
-    + '<ArenaIconButton className="arena-emphasis-ghost" icon="ph-bold ph-x" label="Close" />'), []);
-});
-
-test('a destructive button and a class an expression decides are not counted as bare', () => {
-  assert.deepEqual(defaultPrimaries('<ArenaButton destructive>Retire</ArenaButton>\n<ArenaButton>Add</ArenaButton>'), []);
-  assert.deepEqual(defaultPrimaries('<arena-button [destructive]="true">Retire</arena-button>\n'
-    + '<arena-button>Add</arena-button>', 'src/app.html'), []);
-  assert.deepEqual(defaultPrimaries('<ArenaButton className={kind}>A</ArenaButton>\n<ArenaButton>B</ArenaButton>'), []);
-  assert.deepEqual(defaultPrimaries('<ArenaButton {...props}>A</ArenaButton>\n<ArenaButton>B</ArenaButton>'), []);
-});
-
-test('container: bare buttons under a container that may carry an emphasis class are not guessed at', () => {
-  assert.deepEqual(defaultPrimaries('<div className="arena-emphasis-secondary">\n'
-    + '<ArenaButton>A</ArenaButton>\n<ArenaButton>B</ArenaButton>\n</div>'), []);
-  assert.equal(defaultPrimaries('<div className="arena-emphasis-secondary">\n'
-    + '<ArenaButton className="arena-emphasis-primary">A</ArenaButton>\n'
-    + '<ArenaButton className="arena-emphasis-primary">B</ArenaButton>\n</div>').length, 1,
-    'stated primaries are still counted');
-});
-
-test('no-vocabulary: with no index nothing new is counted, so the check never fires on a guess', () => {
-  assert.deepEqual(defaultPrimaries('<ArenaButton>Save</ArenaButton>\n<ArenaButton>Publish</ArenaButton>',
-    'src/App.tsx', null), []);
-});
-
-test('the shipped vocabulary makes ArenaButton and ArenaSplitButton default to primary and no other component', () => {
-  const index = vocabularyIndex();
-  const primary = Object.entries(index.defaults ?? {})
-    .filter(([, families]) => families.emphasis === 'arena-emphasis-primary').map(([name]) => name);
-  assert.deepEqual(primary, ['ArenaButton', 'ArenaSplitButton']);
-});
-
-test('Angular interpolation and attr.class in a class attribute are a computed class, not a bare button', () => {
-  assert.deepEqual(defaultPrimaries('<arena-button class="arena-size-sm {{k}}">A</arena-button>\n<arena-button>B</arena-button>',
-    'src/app.html'), []);
-  assert.deepEqual(defaultPrimaries('<arena-button [attr.class]="k">A</arena-button>\n<arena-button>B</arena-button>',
-    'src/app.html'), []);
-});
-
-test('a bare button inside a conditional branch is not guessed at', () => {
-  assert.deepEqual(defaultPrimaries('const a = cond ? <ArenaButton>A</ArenaButton> : <ArenaButton>B</ArenaButton>;'), []);
-  assert.deepEqual(defaultPrimaries('{cond && <ArenaButton>A</ArenaButton>}\n{other && (\n<ArenaButton>B</ArenaButton>)}'), []);
-  assert.deepEqual(defaultPrimaries('@if (a) {\n<arena-button>A</arena-button>\n} @else {\n<arena-button>B</arena-button>\n}',
-    'src/app.html'), []);
-  assert.deepEqual(defaultPrimaries('<arena-button *ngIf="a">A</arena-button>\n<arena-button *ngIf="!a">B</arena-button>',
-    'src/app.html'), []);
-  assert.deepEqual(defaultPrimaries('<div *ngIf="a"><arena-button>A</arena-button></div>\n'
-    + '<div *ngIf="!a"><arena-button>B</arena-button></div>', 'src/app.html'), []);
-  assert.equal(defaultPrimaries('<ArenaButton>A</ArenaButton>\n<ArenaButton className="arena-emphasis-primary">B</ArenaButton>').length, 1,
-    'stated primaries still count');
-  assert.equal(defaultPrimaries('@if (a) {\n<arena-button>A</arena-button>\n}\n<arena-button>B</arena-button>\n<arena-button>C</arena-button>',
-    'src/app.html').length, 2, 'buttons outside the block are still counted');
-  assert.equal(defaultPrimaries('<div *ngIf="a">x</div>\n<arena-button>A</arena-button>\n<arena-button>B</arena-button>',
-    'src/app.html').length, 1, 'a closed element is not an ancestor');
-});
-
-test('a bare primary in a branch counts against a primary the view always draws', () => {
-  const react = defaultPrimaries('<ArenaButton>Compose</ArenaButton>\n{open ? (<ArenaButton>Snooze</ArenaButton>) : null}');
-  assert.equal(react.length, 1);
-  assert.match(react[0] ?? '', /:2:/);
-  assert.match(react[0] ?? '', /line 1/);
-  const template = defaultPrimaries('<arena-button>Compose</arena-button>\n@if (open()) {\n<arena-button>Snooze</arena-button>\n}',
-    'src/app.html');
-  assert.equal(template.length, 1);
-  assert.match(template[0] ?? '', /:3:/);
-  const first = defaultPrimaries('{open && <ArenaButton>Snooze</ArenaButton>}\n<ArenaButton>Compose</ArenaButton>');
-  assert.equal(first.length, 1);
-  assert.match(first[0] ?? '', /:1:/);
-  assert.match(first[0] ?? '', /line 2/);
-});
-
-test('a bare primary under *ngIf counts against a primary the view always draws', () => {
-  const own = defaultPrimaries('<arena-button>Compose</arena-button>\n<arena-button *ngIf="open">Snooze</arena-button>', 'src/app.html');
-  assert.equal(own.length, 1);
-  assert.match(own[0] ?? '', /:2:/);
-  assert.match(own[0] ?? '', /line 1/);
-  const wrapped = defaultPrimaries('<arena-button>Compose</arena-button>\n<div *ngIf="open">\n<arena-button>Snooze</arena-button>\n</div>',
-    'src/app.html');
-  assert.equal(wrapped.length, 1);
-  assert.match(wrapped[0] ?? '', /:3:/);
-});
-
-test('a branch primary inside a modal counts only against what that modal always draws', () => {
-  assert.deepEqual(defaultPrimaries('<ArenaButton>Open</ArenaButton>\n<ArenaDialog open>\n{x && <ArenaButton>Retry</ArenaButton>}\n</ArenaDialog>'), []);
-  const inside = defaultPrimaries('<ArenaButton>Open</ArenaButton>\n<ArenaDialog open>\n{x && <ArenaButton>Retry</ArenaButton>}\n'
-    + '<ArenaButton>Confirm</ArenaButton>\n</ArenaDialog>');
-  assert.equal(inside.length, 1);
-  assert.match(inside[0] ?? '', /:3:/);
-});
-
-test('a statement-level branch is still not guessed at, beside a branch primary', () => {
-  assert.deepEqual(defaultPrimaries('if (e) return <ArenaButton>Retry</ArenaButton>;\n'
-    + 'return <>{a && <ArenaButton>A</ArenaButton>}<ArenaButton>B</ArenaButton></>;'), []);
-});
-
-test('a bare button inside an element a branch operator opens is in the branch', () => {
-  assert.deepEqual(defaultPrimaries('const a = cond ? (<div><ArenaButton>A</ArenaButton></div>) : (<div><ArenaButton>B</ArenaButton></div>);'), []);
-  assert.deepEqual(defaultPrimaries('const a = cond ? (\n<div>\n<ArenaButton>A</ArenaButton>\n</div>\n) : (\n<div>\n<ArenaButton>B</ArenaButton>\n</div>\n);'), []);
-  assert.deepEqual(defaultPrimaries('{a && (\n <div><ArenaButton>A</ArenaButton></div>\n)}\n{b && (\n <div><ArenaButton>B</ArenaButton></div>\n)}'), []);
-  assert.deepEqual(defaultPrimaries('{a && (\n <div><p><ArenaButton>A</ArenaButton></p><i/></div>\n)}\n{b && <><ArenaButton>B</ArenaButton></>}'), []);
-  assert.equal(defaultPrimaries('{a && <div>x</div>}\n<ArenaButton>A</ArenaButton>\n<ArenaButton>B</ArenaButton>').length, 1,
-    'a closed branch element is not an ancestor');
-  assert.equal(defaultPrimaries('<div><ArenaButton>A</ArenaButton></div>\n<div><ArenaButton>B</ArenaButton></div>').length, 1);
-});
-
-test('a brace in a string literal of a source file does not open a block', () => {
-  assert.equal(defaultPrimaries("const t = '@if (a) {';\nconst u = `@else {`;\n"
-    + '<ArenaButton>A</ArenaButton>\n<ArenaButton>B</ArenaButton>').length, 1);
-  assert.deepEqual(defaultPrimaries('@Component({ template: `@if (a) {\n<arena-button>A</arena-button>\n} @else {\n<arena-button>B</arena-button>\n}` })'), []);
-  assert.equal(defaultPrimaries("it's {\n<arena-button>A</arena-button>\n<arena-button>B</arena-button>", 'src/app.html').length, 1);
-});
-
-test('a branch element that has closed is not the ancestor of a later sibling of the same name', () => {
-  assert.equal(defaultPrimaries('{a && (\n<div>\n<p>x</p>\n</div>\n)}\n<div>\n<ArenaButton>A</ArenaButton>\n<ArenaButton>B</ArenaButton>\n</div>').length, 1);
-  assert.deepEqual(defaultPrimaries('{a && (\n<div>\n<div>y</div>\n<ArenaButton>A</ArenaButton>\n</div>\n)}\n{b && (\n<div>\n<ArenaButton>B</ArenaButton>\n</div>\n)}'), []);
-});
-
-test('a comment that names a button declares nothing, in any comment form', () => {
-  const one = '<ArenaButton>Save</ArenaButton>\n';
-  assert.deepEqual(defaultPrimaries(`${one}{/* <ArenaButton>Old</ArenaButton> */}`), []);
-  assert.deepEqual(defaultPrimaries(`${one}// Renders an <ArenaButton> for the old flow`), []);
-  assert.deepEqual(defaultPrimaries('<arena-button>Save</arena-button>\n<!-- <arena-button>Old</arena-button> -->',
-    'src/app.html'), []);
-  assert.equal(defaultPrimaries(`const u = 'https://x.dev';\n${one}<ArenaButton>Go</ArenaButton>`).length, 1,
-    'a URL is not a comment, so the code after it is still read');
-  assert.match(rules('<Link to="/x">\n  {/* <ArenaCard> */}\n  <ArenaCard>c</ArenaCard>\n</Link>'), /router-link/);
-});
-
-test('a type argument is not a tag, so a generic naming a button counts nothing', () => {
-  assert.deepEqual(defaultPrimaries('const r = useRef<ArenaButton>(null);\n<ArenaButton>Save</ArenaButton>'), []);
-  assert.deepEqual(defaultPrimaries('@ViewChildren(B) bs!: QueryList<ArenaButton>;\n<arena-button>Save</arena-button>',
-    'src/app.ts'), []);
-});
-
-test('a bare button in a statement-level branch is not guessed at', () => {
-  assert.deepEqual(defaultPrimaries('if (error) return <ArenaButton>Retry</ArenaButton>;\nreturn <ArenaButton>Save</ArenaButton>;'), []);
-  assert.deepEqual(defaultPrimaries('if (error) {\n  return <ArenaButton>Retry</ArenaButton>;\n}\nreturn <ArenaButton>Save</ArenaButton>;'), []);
-  assert.deepEqual(defaultPrimaries('switch (step) {\n  case 1: return <ArenaButton>Next</ArenaButton>;\n'
-    + '  default: return <ArenaButton>Finish</ArenaButton>;\n}'), []);
-  assert.equal(defaultPrimaries('if (ready) load();\nreturn <><ArenaButton>A</ArenaButton><ArenaButton>B</ArenaButton></>;').length, 1,
-    'a branch holding no button leaves the screen counted');
-});
-
-test('a container class an expression writes is still a container', () => {
-  assert.deepEqual(defaultPrimaries('<div className={`toolbar arena-emphasis-secondary ${x}`}>\n'
-    + '<ArenaButton>A</ArenaButton>\n<ArenaButton>B</ArenaButton>\n</div>'), []);
-});
-
-test('a modal counts its own primary, apart from the page under it', () => {
-  assert.deepEqual(defaultPrimaries('<ArenaButton>Open</ArenaButton>\n<ArenaDialog open>\n<ArenaButton>Confirm</ArenaButton>\n</ArenaDialog>'), []);
-  assert.deepEqual(defaultPrimaries('<arena-button>Open</arena-button>\n<arena-dialog>\n<arena-button>Confirm</arena-button>\n</arena-dialog>',
-    'src/app.html'), []);
-  assert.deepEqual(defaultPrimaries('<ArenaButton>Open</ArenaButton>\n<ArenaDialog open footer={<>\n<ArenaButton>Confirm</ArenaButton>\n</>} />'), []);
-  const two = defaultPrimaries('<ArenaButton className="arena-emphasis-secondary">Open</ArenaButton>\n'
-    + '<ArenaDialog open>\n<ArenaButton>Keep</ArenaButton>\n<ArenaButton>Confirm</ArenaButton>\n</ArenaDialog>');
-  assert.equal(two.length, 1, 'two bare buttons inside one dialog are two primaries of that dialog');
-  assert.match(two[0] ?? '', /:4:.*line 3/);
-  assert.deepEqual(defaultPrimaries('<ArenaButton className="arena-emphasis-primary">Open</ArenaButton>\n'
-    + '<ArenaDialog open>\n<ArenaButton className="arena-emphasis-primary">Confirm</ArenaButton>\n</ArenaDialog>'), []);
-  assert.equal(defaultPrimaries('<ArenaDialog open>\n<ArenaButton>A</ArenaButton>\n</ArenaDialog>\n'
-    + '<ArenaButton>B</ArenaButton>\n<ArenaButton>C</ArenaButton>').length, 1, 'a closed dialog gives the page back its own count');
-  assert.equal(defaultPrimaries('<ArenaButton>Open</ArenaButton>\n<ArenaDialog open>\n<ArenaButton>Confirm</ArenaButton>\n</ArenaDialog>',
-    'src/App.tsx', { ...EMPHASIS_INDEX, modals: undefined }).length, 1, 'with no modals indexed the file is one count, as before');
-});
-
-test('text that only looks like a comment does not carry a modal past its close tag', () => {
-  assert.deepEqual(defaultPrimaries('<>\n<ArenaDialog open><ArenaButton>Confirm</ArenaButton><p>Rate: 5 // month</p></ArenaDialog>\n'
-    + '<ArenaButton>New</ArenaButton>\n</>'), []);
-  assert.deepEqual(defaultPrimaries("<>\n<ArenaDialog open><ArenaButton>Confirm</ArenaButton><p>{'src/**/*.tsx'}</p></ArenaDialog>\n"
-    + '<ArenaButton>New</ArenaButton>\n</>\n/* a note */'), []);
 });
 
 test('every audit line carries its rule, and the line ends in it unless it is the stale allowance', () => {
@@ -896,7 +574,7 @@ test('the stale allowance line reads as it always has', () => {
 const INPUT_INDEX = vocabularyIndex();
 
 function inputRules(source: string, path = 'src/app.html') {
-  return auditText(path, source, 'app', false, INPUT_INDEX).join('\n');
+  return auditText(path, source, 'app', INPUT_INDEX).join('\n');
 }
 
 test('a static attribute an Arena component does not take is reported in a template', () => {
@@ -1035,11 +713,7 @@ const glyphVerdicts = (react: string, angular: string) => [
   verdicts(glyphLines(NAMES_ANGULAR + angular, 'src/a.html')),
 ];
 
-test('the 50 reproduction prints no raw-glyph', () => {
-  assert.deepEqual(glyphLines(`${NAMES_REACT}<ArenaTag className={on ? 'arena-accent-primary' : undefined}>x</ArenaTag>`), []);
-});
-
-test('raw-glyph reads a bound class by its results, alike in both layers (D1, N1)', () => {
+test('raw-glyph reads a bound class by its results, alike in both layers', () => {
   const rows: [string, string, string, string[]][] = [
     ['identifier', '<div className={cls} />', '<div [class]="cls"></div>', ['bound']],
     ['ngClass identifier', '<div className={cls} />', '<div [ngClass]="cls"></div>', ['bound']],
@@ -1049,9 +723,9 @@ test('raw-glyph reads a bound class by its results, alike in both layers (D1, N1
     ['braced string', "<div className={'arena-a'} />", '<div class="arena-a"></div>', []],
     ['template, no substitution', '<div className={`arena-a`} />', "<div [class]=\"'arena-a'\"></div>", []],
     ['and', "<div className={on && 'arena-a'} />", "<div [ngClass]=\"{ 'arena-a': on }\"></div>", []],
-    ['class object, E1', "<div className={on && 'arena-a'} />", "<div [class]=\"{ 'arena-a': on }\"></div>", []],
+    ['class object', "<div className={on && 'arena-a'} />", "<div [class]=\"{ 'arena-a': on }\"></div>", []],
     ['empty results', "<div className={a ? 'arena-a' : b ? null : false} />", "<div [class]=\"a ? 'arena-a' : ''\"></div>", []],
-    ['or, N1', "<div className={cls || 'arena-a'} />", "<div [class]=\"cls ?? 'arena-a'\"></div>", ['bound']],
+    ['or', "<div className={cls || 'arena-a'} />", "<div [class]=\"cls ?? 'arena-a'\"></div>", ['bound']],
     ['Phosphor toggle', "<i className={on ? 'ph-bold ph-star' : 'ph-bold'} />", '<i class="ph-bold" [class.ph-star]="on"></i>', ['literal']],
   ];
   for (const [label, react, angular, expected] of rows)
@@ -1063,7 +737,7 @@ test('an unquoted template attribute reads as HTML does: [class]=cls is bound, c
   assert.equal(glyphLines(`${NAMES_ANGULAR}<div class=arena-a></div>`, 'src/a.html').length, 0);
 });
 
-test('valueResults skips quotes, optional chaining and wrapping parens (Review Focus 1-3)', () => {
+test('valueResults skips quotes, optional chaining and wrapping parens', () => {
   assert.deepEqual(valueResults("{on ? 'a:b' : 'c?d'}"), ['a:b', 'c?d']);
   assert.deepEqual(valueResults("{row?.on ? 'arena-a' : ''}"), ['arena-a']);
   assert.deepEqual(valueResults("{(\n  on ? 'arena-a' : undefined\n)}"), ['arena-a']);
@@ -1073,7 +747,7 @@ test('valueResults skips quotes, optional chaining and wrapping parens (Review F
   assert.equal(valueResults('"{ [key]: on }"', true), null);
 });
 
-test('valueResults reads the right side of &&, every side of || and the key of an object entry whose value is a ternary (N1)', () => {
+test('valueResults reads the right side of &&, every side of || and the key of an object entry whose value is a ternary', () => {
   assert.deepEqual(valueResults("{on && 'arena-a'}"), ['arena-a']);
   assert.deepEqual(valueResults("{a && b && 'arena-a'}"), ['arena-a']);
   assert.equal(valueResults('{on && cls}'), null);
@@ -1082,14 +756,14 @@ test('valueResults reads the right side of &&, every side of || and the key of a
   assert.deepEqual(valueResults("\"{ 'arena-a': on ? x : y, active: a ? b : c }\"", true), ['arena-a', 'active']);
 });
 
-test('iconMemberGlyphs reads an attribute that follows a braced one (49)', () => {
+test('iconMemberGlyphs reads an attribute that follows a braced one', () => {
   assert.deepEqual([...iconMemberGlyphs('<ArenaIcon key={n} icon="ph-bold ph-star" />')], ['ph-star']);
   assert.deepEqual([...iconMemberGlyphs('<ArenaIcon key="k" icon="ph-bold ph-star" />')], ['ph-star']);
   assert.deepEqual([...iconMemberGlyphs('<ArenaButton icon={a} iconRight="ph-bold ph-caret-down" />')], ['ph-caret-down']);
   assert.deepEqual([...iconMemberGlyphs('<ArenaIcon key={n}\n  icon="ph-bold ph-star" />')], ['ph-star']);
 });
 
-test('classValues reads a class attribute that follows a braced one (49)', () => {
+test('classValues reads a class attribute that follows a braced one', () => {
   assert.match(classValues(' class={a} className="ph-bold ph-x"'), /ph-bold ph-x/);
   assert.match(classValues(' class={a} [class]="\'ph-bold ph-x\'"'), /ph-bold ph-x/);
   assert.match(classValues(' class={a} [ngClass]="{ \'ph-bold ph-x\': on }"'), /ph-bold ph-x/);
@@ -1126,4 +800,156 @@ test('iconMemberGlyphs does not count a glyph an icon attribute draws through a 
 test('iconMemberGlyphs reads the literals of an icon expression and not those of an element nested in it', () => {
   assert.deepEqual([...iconMemberGlyphs('<ArenaButton icon={on ? <i className="ph-bold ph-n"/> : \'ph ph-s\'} />')], ['ph-s']);
   assert.deepEqual([...iconMemberGlyphs('<ArenaButton icon={on ? <b><i className="ph-bold ph-n" /></b> : \'ph ph-s\'} />')], ['ph-s']);
+});
+
+const LEVELS = levelledRoles(tokenCatalogue(repoRoot).roles);
+
+test('a role whose combines names a level is reported when it is read without one, with the levelled form in the message', () => {
+  assert.equal(LEVELS.size, 9, 'the catalogue names nine levelled roles');
+  assert.deepEqual(LEVELS.get('ink-muted'), { level: 'level-ink-muted', keys: ['ink-muted'] });
+  assert.deepEqual(LEVELS.get('fill-selected'), { level: 'level-accent-soft-primary', keys: ['selected'] });
+  const MIX = 'color-mix(in oklab, var(--ink-muted) var(--level-ink-muted), transparent)';
+  const ROWS: { name: string; path: string; source: string; want: RegExp | null }[] = [
+    { name: 'bare class', path: 'src/App.tsx', source: '<p className="text-ink-muted">x</p>', want: /`text-ink-muted\/\(--level-ink-muted\)`/ },
+    { name: 'levelled class', path: 'src/App.tsx', source: '<p className="text-ink-muted/(--level-ink-muted)">x</p>', want: null },
+    { name: 'bracket level', path: 'src/App.tsx', source: '<li className="bg-selected/[var(--level-accent-soft-primary)]">x</li>', want: null },
+    { name: 'renamed key', path: 'src/App.tsx', source: '<li className="bg-selected">x</li>', want: /`bg-selected` reads fill-selected .*`bg-selected\/\(--level-accent-soft-primary\)`/ },
+    { name: 'renamed key in a variant', path: 'src/App.tsx', source: '<li className="aria-selected:bg-selected">x</li>', want: /`aria-selected:bg-selected\/\(--level-accent-soft-primary\)`/ },
+    { name: 'another level counts', path: 'src/App.tsx', source: '<p className="text-ink-body/(--level-ink-muted)">x</p>', want: null },
+    { name: 'literal share', path: 'src/App.tsx', source: '<div className="bg-overlay-scrim/60" />', want: /`\/60`.*`bg-overlay-scrim\/\(--level-scrim\)`/ },
+    { name: 'variants kept', path: 'src/App.tsx', source: '<p className="[&>p]:hover:text-ink-muted">x</p>', want: /`\[&>p\]:hover:text-ink-muted\/\(--level-ink-muted\)`/ },
+    { name: 'Angular template', path: 'src/app.html', source: '<span class="text-ink-key">K</span>', want: /text-ink-key\/\(--level-ink-muted\)/ },
+    { name: 'a string label', path: 'src/App.tsx', source: "const label = 'caption on bg-overlay-media';", want: /bg-overlay-media\/\(--level-media\)/ },
+    { name: 'role without a level', path: 'src/App.tsx', source: '<h2 className="text-ink-heading">t</h2>', want: null },
+    { name: 'longer name', path: 'src/App.tsx', source: '<p className="bg-selected-hover text-ink-muted-strong">x</p>', want: null },
+    { name: 'comment', path: 'src/App.tsx', source: '/* text-ink-muted */', want: null },
+    { name: 'allowed', path: 'src/App.tsx', source: '<p className="text-ink-muted">x</p> {/* arena-audit allow */}', want: null },
+    { name: 'bare var', path: 'src/a.css', source: '.cap { color: var(--ink-muted); }', want: /color-mix\(in oklab, var\(--ink-muted\) var\(--level-ink-muted\), transparent\)/ },
+    { name: 'colour key', path: 'src/a.css', source: '.cap { color: var(--color-ink-muted); }', want: /reads var\(--color-ink-muted\) without its level.*var\(--level-ink-muted\)/ },
+    { name: 'renamed colour key', path: 'src/a.css', source: '.row { background: var(--color-selected); }', want: /reads var\(--color-selected\) without its level.*Write color-mix\(in oklab, var\(--color-selected\) var\(--level-accent-soft-primary\), transparent\)/ },
+    { name: 'renamed colour key levelled', path: 'src/a.css', source: '.row { background: color-mix(in oklab, var(--color-selected) var(--level-accent-soft-primary), transparent); }', want: null },
+    { name: 'colour key of the role name', path: 'src/a.css', source: '.cap { color: var(--color-fill-selected); }', want: null },
+    { name: 'levelled mix', path: 'src/a.css', source: `.cap { color: ${MIX}; }`, want: null },
+    { name: 'role in a fallback', path: 'src/a.css', source: '.cap { color: color-mix(in oklab, var(--mine, var(--ink-muted)) var(--level-ink-muted), transparent); }', want: null },
+    { name: 'literal mix', path: 'src/a.css', source: '.cap { color: color-mix(in oklab, var(--ink-muted) 62%, transparent); }', want: /62%/ },
+    { name: 'one of two', path: 'src/a.css', source: '.a { color: color-mix(in oklab, var(--ink-body) var(--level-ink-body), transparent); background: var(--overlay-media); }', want: /--overlay-media/ },
+    { name: 'inline style', path: 'src/App.tsx', source: "<p style={{ color: 'var(--ink-figure)' }}>1</p>", want: /var\(--level-ink-full\)/ },
+    { name: 'bracket var', path: 'src/App.tsx', source: '<p className="text-[var(--ink-link)]">a</p>', want: /Write color-mix\(in_oklab,var\(--ink-link\)_var\(--level-ink-body\),transparent\) \(missing-level\)$/ },
+    { name: 'arbitrary property', path: 'src/App.tsx', source: '<p className="hover:[color:var(--ink-link)]">a</p>', want: /Write color-mix\(in_oklab,var\(--ink-link\)_var\(--level-ink-body\),transparent\) \(missing-level\)$/ },
+    { name: 'a string in an array', path: 'src/App.tsx', source: "const reads = ['var(--ink-link)'];", want: /Write color-mix\(in oklab, var\(--ink-link\) var\(--level-ink-body\), transparent\) \(missing-level\)$/ },
+    { name: 'inline style over two lines', path: 'src/App.tsx', source: '<p style={{ color: `color-mix(in oklab,\n  var(--ink-muted) var(--level-ink-muted), transparent)` }}>x</p>', want: null },
+    { name: 'style attribute over two lines', path: 'src/app.html', source: '<p style="color: color-mix(in oklab, var(--ink-muted)\n  var(--level-ink-muted), transparent)">x</p>', want: null },
+    { name: 'inline share on the next line', path: 'src/App.tsx', source: '<p style={{ color: `color-mix(in oklab,\n  var(--ink-muted) 62%, transparent)` }}>x</p>', want: /^src\/App\.tsx:2: reads ink-muted at a literal share of 62%/ },
+    { name: 'a template slot inside a levelled mix', path: 'src/App.tsx', source: '<p style={{ color: `color-mix(in oklab, ${a}, var(--ink-muted) var(--level-ink-muted))` }}>x</p>', want: null },
+    { name: 'a quoted fallback inside a levelled mix', path: 'src/App.tsx', source: '<p style={{ color: \'color-mix(in oklab, var(--ink-muted, "red") var(--level-ink-muted), transparent)\' }}>x</p>', want: null },
+    { name: 'a template slot inside a bare mix', path: 'src/App.tsx', source: '<p style={{ color: `color-mix(in oklab, var(--ink-muted) ${a}, transparent)` }}>x</p>', want: /reads var\(--ink-muted\) without its level/ },
+    { name: 'a comparison before the read', path: 'src/App.tsx', source: "const tone = x < 3 ? 'var(--ink-muted)' : '';", want: /reads var\(--ink-muted\) without its level/ },
+    { name: 'inline share on one line', path: 'src/App.tsx', source: "<p style={{ color: 'color-mix(in oklab, var(--ink-muted) 62%, transparent)' }}>x</p>", want: /reads ink-muted at a literal share of 62%/ },
+    { name: 'a bracket of another class', path: 'src/App.tsx', source: '<p className="grid-cols-[repeat(2,1fr)] text-[var(--ink-link)]">a</p>', want: /Write color-mix\(in_oklab,var\(--ink-link\)_var\(--level-ink-body\),transparent\) \(missing-level\)$/ },
+    { name: 'an index, not a class', path: 'src/App.tsx', source: '<p data-tone=tones[var(--ink-link)]>a</p>', want: /Write color-mix\(in oklab, var\(--ink-link\) var\(--level-ink-body\), transparent\) \(missing-level\)$/ },
+    { name: 'call on the line above', path: 'src/a.css', source: '.cap {\n  color: color-mix(in oklab,\n    var(--ink-muted) var(--level-ink-muted), transparent);\n}', want: null },
+    { name: 'level on the next line', path: 'src/a.css', source: '.cap {\n  color: color-mix(in oklab, var(--ink-muted)\n    var(--level-ink-muted), transparent);\n}', want: null },
+    { name: 'share on the next line', path: 'src/a.css', source: '.cap {\n  color: color-mix(in oklab,\n    var(--ink-muted) 62%, transparent);\n}', want: /^src\/a\.css:3: reads ink-muted at a literal share of 62%/ },
+    { name: 'gradient stop', path: 'src/a.css', source: '.cap { background: linear-gradient(to bottom, var(--overlay-media) 20%, transparent); }', want: /^src\/a\.css:1: reads var\(--overlay-media\) without its level/ },
+    { name: 'a selector', path: 'src/a.css', source: '.text-ink-muted { color: red; }', want: null },
+    { name: 'applied class', path: 'src/a.css', source: '.cap { @apply text-ink-muted; }', want: /`text-ink-muted\/\(--level-ink-muted\)`/ },
+  ];
+  for (const row of ROWS) {
+    const got = auditText(row.path, row.source, 'app', null, LEVELS).filter((l) => l.endsWith('(missing-level)'));
+    if (row.want === null) assert.equal(got.length, 0, `${row.name}: ${got.join(' | ')}`);
+    else {
+      assert.equal(got.length, 1, `${row.name}: ${got.join(' | ')}`);
+      assert.match(got[0] ?? '', row.want, row.name);
+    }
+  }
+});
+
+test('the level rule is silent where nothing names the levels and in a style plugin', () => {
+  const ROWS: { name: string; found: string[] }[] = [
+    { name: 'no levels argument', found: auditText('src/App.tsx', '<p className="text-ink-muted">x</p>') },
+    { name: 'style plugin', found: findings('design/x/plugin.css', '.x { color: var(--ink-muted); }', 'plugin', null, LEVELS).map((one) => one.rule) },
+  ];
+  for (const row of ROWS) assert.equal(row.found.join(' ').includes('missing-level'), false, row.name);
+});
+
+test('levelledRoles keeps the roles whose combines names a level, and nothing else', () => {
+  type Level = { level: string; keys: string[] };
+  const ROWS: { name: string; roles: Parameters<typeof levelledRoles>[0]; want: [string, Level][] }[] = [
+    { name: 'no roles', roles: undefined, want: [] },
+    { name: 'one level among others', want: [['ink-muted', { level: 'level-ink-muted', keys: ['ink-muted'] }]], roles: {
+      'pad-row-x': { combines: [{ with: 'dz-row-scale-x', as: 'density' }] },
+      'ink-muted': { combines: [{ with: 'level-ink-muted', as: 'level' }], keys: ['ink-muted'] },
+      'ink-heading': {},
+    } },
+    { name: 'a renamed key', want: [['fill-selected', { level: 'level-accent-soft-primary', keys: ['selected'] }]], roles: {
+      'fill-selected': { combines: [{ with: 'level-accent-soft-primary', as: 'level' }], keys: ['selected'] },
+    } },
+    { name: 'no keys', want: [['a', { level: 'level-a', keys: [] }]], roles: { a: { combines: [{ with: 'level-a', as: 'level' }] } } },
+  ];
+  for (const row of ROWS) assert.deepEqual([...levelledRoles(row.roles)], row.want, row.name);
+});
+
+test('the levels a directory carries are read from its table or its catalogue, and nothing from a missing or malformed one', () => {
+  const a = { level: 'level-a', keys: ['a-key'] };
+  const catalogue = JSON.stringify({ roles: { a: { combines: [{ with: 'level-a', as: 'level' }], keys: ['a-key'] } } });
+  const ROWS: [string, string, string | null, typeof loadLevels, [string, typeof a][] | null][] = [
+    ['no table', 'arena.levels.json', null, loadLevels, null],
+    ['a table', 'arena.levels.json', JSON.stringify({ a }), loadLevels, [['a', a]]],
+    ['a table holding an array', 'arena.levels.json', '[1]', loadLevels, null],
+    ['a table without keys', 'arena.levels.json', '{"a":{"level":"level-a"}}', loadLevels, null],
+    ['a table of bare levels', 'arena.levels.json', '{"a":"level-a"}', loadLevels, null],
+    ['no catalogue', 'arena.tokens.json', null, catalogueLevels, null],
+    ['a catalogue', 'arena.tokens.json', catalogue, catalogueLevels, [['a', a]]],
+    ['an unreadable catalogue', 'arena.tokens.json', '{nope', catalogueLevels, null],
+  ];
+  for (const [name, file, body, reader, want] of ROWS) {
+    const dir = mkdtempSync(join(tmpdir(), 'levels-'));
+    try {
+      if (body !== null) writeFileSync(join(dir, file), body);
+      const got = reader(dir);
+      assert.deepEqual(got === null ? null : [...got], want, name);
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  }
+});
+
+test('class candidates are read from the class attributes of own elements and from @apply', () => {
+  const ROWS: { name: string; path: string; source: string; want: [number, string][] }[] = [
+    { name: 'static class', path: 'src/App.tsx', source: '<div className="p-2 shadow-md">x</div>', want: [[1, 'p-2'], [1, 'shadow-md']] },
+    { name: 'Arena element', path: 'src/App.tsx', source: '<ArenaButton className="arena-emphasis-primary" />', want: [] },
+    { name: 'call', path: 'src/App.tsx', source: "<div className={cn('flex', on && 'xl:flex')} />", want: [[1, 'flex'], [1, 'xl:flex']] },
+    { name: 'ternary', path: 'src/App.tsx', source: "<div className={on ? 'ease-in' : 'ease-out'} />", want: [[1, 'ease-in'], [1, 'ease-out']] },
+    { name: 'template', path: 'src/App.tsx', source: '<div className={`gap-2 ${x} rounded-3xl`} />', want: [[1, 'gap-2'], [1, 'rounded-3xl']] },
+    { name: 'template fragment', path: 'src/App.tsx', source: '<div className={`bg-${tone}`} />', want: [] },
+    { name: 'interpolation', path: 'src/app.html', source: '<p class="text-gray-500 {{ extra }}">x</p>', want: [[1, 'text-gray-500']] },
+    { name: 'ngClass keys', path: 'src/app.html', source: `<p [ngClass]="{ 'shadow-md': on }">x</p>`, want: [[1, 'shadow-md']] },
+    { name: 'attr class', path: 'src/app.html', source: `<p [attr.class]="'shadow-md'">x</p>`, want: [[1, 'shadow-md']] },
+    { name: 'class binding ternary', path: 'src/app.html', source: `<p [class]="on ? 'shadow-md' : 'p-2'">x</p>`, want: [[1, 'shadow-md'], [1, 'p-2']] },
+    { name: 'class toggle', path: 'src/app.html', source: '<p [class.shadow-md]="on">x</p>', want: [[1, 'shadow-md']] },
+    { name: 'Angular element', path: 'src/app.html', source: '<arena-card class="arena-fill"></arena-card>', want: [] },
+    { name: 'apply', path: 'src/a.css', source: '.card { @apply p-4 shadow-md; }', want: [[1, 'p-4'], [1, 'shadow-md']] },
+    { name: 'apply over lines', path: 'src/a.css', source: '.c {\n  @apply p-4\n    shadow-md;\n}', want: [[2, 'p-4'], [3, 'shadow-md']] },
+    { name: 'no apply', path: 'src/a.css', source: '.card { box-shadow: var(--shadow-1); }', want: [] },
+    { name: 'comment', path: 'src/App.tsx', source: '{/* <div className="shadow-md" /> */}', want: [] },
+    { name: 'later line', path: 'src/App.tsx', source: '<div\n  className="flex\n    shadow-md"\n/>', want: [[2, 'flex'], [3, 'shadow-md']] },
+    { name: 'a string outside a class', path: 'src/App.tsx', source: "const label = 'shadow-md';", want: [] },
+  ];
+  for (const row of ROWS)
+    assert.deepEqual(classCandidates(row.path, row.source).map((c) => [c.line, c.candidate]), row.want, row.name);
+});
+
+test('a candidate the dead map names is dead-utility at its line, in app scope only', () => {
+  const DEAD = new Map([['shadow-md', 'MSG']]);
+  const ROWS: { name: string; source: string; scope: 'app' | 'plugin'; dead: ReadonlyMap<string, string>; want: string[] }[] = [
+    { name: 'reported', source: '<div className="p-2 shadow-md" />', scope: 'app', dead: DEAD, want: ['src/App.tsx:1: MSG (dead-utility)'] },
+    { name: 'allowed and not stale', source: '<div className="shadow-md" /> {/* arena-audit allow */}', scope: 'app', dead: DEAD, want: [] },
+    { name: 'Arena element', source: '<ArenaCard className="shadow-md" />', scope: 'app', dead: DEAD, want: [] },
+    { name: 'plugin', source: '<div className="shadow-md" />', scope: 'plugin', dead: DEAD, want: [] },
+    { name: 'no map', source: '<div className="shadow-md" />', scope: 'app', dead: NO_DEAD, want: [] },
+    { name: 'twice on a line', source: '<div className="shadow-md shadow-md" />', scope: 'app', dead: DEAD, want: ['src/App.tsx:1: MSG (dead-utility)'] },
+  ];
+  for (const row of ROWS) {
+    const got = auditText('src/App.tsx', row.source, row.scope, null, NO_LEVELS, row.dead)
+      .filter((line) => line.endsWith('(dead-utility)') || line.includes('stale'));
+    assert.deepEqual(got, row.want, row.name);
+  }
 });

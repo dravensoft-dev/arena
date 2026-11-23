@@ -34,7 +34,7 @@ const mirroredAt = (element: Element) => {
     '[attr.name]': 'null',
   },
   template: `
-    <span [id]="labelId" [class]="styles().label()" [attr.data-arena-part]="parts.label">{{ heading() }}@if (required()) {
+    <span [id]="labelId" [class]="styles().label()" [arenaSlotData]="styles().$data.label()" [attr.data-arena-part]="parts.label">{{ heading() }}@if (required()) {
       <span [class]="styles().required()" [attr.data-arena-part]="parts.required" aria-hidden="true">*</span>
     }</span>
     <div role="group" [attr.aria-labelledby]="labelId" [class]="styles().group()" [attr.data-arena-part]="parts.group"
@@ -59,9 +59,9 @@ const mirroredAt = (element: Element) => {
       <input type="hidden" [attr.name]="field" [value]="code()" [disabled]="off()" />
     }
     @if (shownError(); as message) {
-      <span [id]="noteBase" [class]="styles().error()" [attr.data-arena-part]="parts.error">{{ message }}</span>
+      <span [id]="noteBase" [class]="styles().error()" [arenaSlotData]="styles().$data.error()" [attr.data-arena-part]="parts.error">{{ message }}</span>
     } @else if (hint(); as text) {
-      <span [id]="noteBase" [class]="styles().hint()" [attr.data-arena-part]="parts.hint">{{ text }}</span>
+      <span [id]="noteBase" [class]="styles().hint()" [arenaSlotData]="styles().$data.hint()" [attr.data-arena-part]="parts.hint">{{ text }}</span>
     }
   `,
 })

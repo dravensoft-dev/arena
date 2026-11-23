@@ -23,11 +23,11 @@
   ],
   "slots": {
     "root": "inline-flex items-center min-h-ctl-h-sm gap-2.5 w-fit",
-    "track": "relative inline-flex items-center justify-start rounded-pill p-0.5 after:content-[''] after:absolute after:left-1/2 after:top-1/2 after:w-full after:min-w-ctl-h-sm after:h-ctl-h-sm after:-translate-x-1/2 after:-translate-y-1/2 border-none cursor-pointer disabled:cursor-not-allowed transition-[background] duration-[var(--dur-state)] ease-state [flex-direction:var(--arena-orientation-direction,row)] w-[var(--arena-orientation-track-w,var(--arena-size-switch-long,var(--size-md-switch-long)))] h-[var(--arena-orientation-track-h,var(--arena-size-switch-short,var(--size-md-switch-short)))]",
-    "knob": "inline-flex items-center justify-center shrink-0 rounded-pill bg-primary-content transition-[translate] duration-[var(--dur-state)] ease-state motion-reduce:transition-none size-[var(--arena-size-switch-knob,var(--size-md-switch-knob))]",
-    "icon": "text-primary text-[length:var(--arena-size-switch-icon,var(--size-md-switch-icon))]",
-    "label": "inline-flex items-center gap-1.5 font-body text-ctl text-ink-body/(--level-ink-body)",
-    "guard": "text-[length:var(--icon-sm)] text-ink-muted/(--level-ink-muted)"
+    "track": "relative inline-flex items-center justify-start rounded-pill p-0.5 after:content-[''] after:absolute after:left-1/2 after:top-1/2 after:w-full after:min-w-ctl-h-sm after:min-h-ctl-h-sm after:-translate-x-1/2 after:-translate-y-1/2 border-none cursor-pointer disabled:cursor-not-allowed transition-[background] duration-[var(--dur-state)] ease-state [flex-direction:var(--arena-orientation-direction,row)] w-[var(--arena-orientation-track-w,var(--arena-size-switch-long,var(--size-md-switch-long)))] h-[var(--arena-orientation-track-h,var(--arena-size-switch-short,var(--size-md-switch-short)))] focus-visible:outline-[length:var(--bw-focus)] focus-visible:outline-edge-focus focus-visible:outline-offset-[var(--gap-focus)] disabled:border-[color:var(--choices-box-edge-disabled,var(--choices-box-edge-rest,var(--edge-control)))] border-[color:var(--choices-box-edge-rest,var(--edge-control))] disabled:bg-[color:var(--choices-box-fill-disabled,var(--choices-box-fill-rest,var(--fill-control)))] bg-[color:var(--choices-box-fill-rest,var(--fill-control))] disabled:opacity-[var(--choices-box-fade-disabled,var(--fade-disabled))]",
+    "knob": "inline-flex items-center justify-center shrink-0 rounded-pill transition-[translate] duration-[var(--dur-state)] ease-state motion-reduce:transition-none size-[var(--arena-size-switch-knob,var(--size-md-switch-knob))] border-[color:var(--choices-knob-edge-rest,var(--edge-control))] bg-[color:var(--choices-knob-fill-rest,var(--fill-knob-off))] text-[color:var(--choices-knob-ink-rest,var(--ink-knob-off))]",
+    "icon": "text-[length:var(--arena-size-switch-icon,var(--size-md-switch-icon))] text-[color:var(--choices-knob-ink-rest,var(--ink-knob-off))]",
+    "label": "inline-flex items-center gap-1.5 font-body text-ctl text-[color:color-mix(in_oklab,var(--text-body-ink-rest,var(--ink-body))_var(--level-ink-body),transparent)]",
+    "guard": "text-[length:var(--icon-sm)] text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]"
   },
   "kind": {
     "root": "none",
@@ -40,17 +40,18 @@
   "variants": {
     "state": {
       "true": {
-        "track": "bg-primary-fill",
-        "knob": "[translate:var(--arena-orientation-knob-on,100%_0)]"
+        "track": "border-[color:var(--choices-box-edge-selected,transparent)] disabled:border-[color:var(--choices-box-edge-selected-disabled,var(--choices-box-edge-selected,transparent))] bg-[color:var(--choices-box-fill-selected,var(--fill-control-on))] disabled:bg-[color:var(--choices-box-fill-selected-disabled,var(--choices-box-fill-selected,var(--fill-control-on)))] disabled:opacity-[var(--choices-box-fade-selected-disabled,var(--fade-disabled))]",
+        "knob": "[translate:var(--arena-orientation-knob-on,100%_0)] border-[color:var(--choices-knob-edge-selected,var(--edge-control))] bg-[color:var(--choices-knob-fill-selected,var(--fill-knob))] text-[color:var(--choices-knob-ink-selected,var(--ink-knob))]",
+        "icon": "text-[color:var(--choices-knob-ink-selected,var(--ink-knob))]"
       },
       "false": {
-        "track": "bg-neutral",
         "knob": "translate-x-0"
       }
     },
     "disabled": {
       "true": {
-        "root": "opacity-50"
+        "root": "",
+        "label": "opacity-[var(--fade-disabled)]"
       },
       "false": {
         "root": ""

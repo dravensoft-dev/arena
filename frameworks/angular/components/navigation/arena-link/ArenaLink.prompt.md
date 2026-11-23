@@ -41,6 +41,8 @@ Arena's link for running text such as a sentence in an empty state, a help line 
 
 **The underline is the signal, so the colour can stay quiet.** The link takes the link ink, which a style plugin answers, and an underline that never goes away. A reader tells it from the prose by the underline as well as by colour, which is what WCAG 1.4.1 asks.
 
+A link that wraps across two lines underlines both lines.
+
 **A new tab is `external`, and nothing else.** The member writes `target="_blank"` with `noopener` and `noreferrer`, and a reader hears the locale word `linkExternal` after the text. A `target` of `_blank` is ignored with a warning. Add your own link types through `rel`, such as `nofollow` or `ugc`; an `opener` token is dropped.
 
 **Some anchor attributes are deliberately not members.** `hreflang`, `type`, `ping` and `referrerpolicy` are the element's too, and this component does not take them: the claim here is narrower than what an anchor can do. Global and ARIA attributes are not members either.
@@ -55,12 +57,6 @@ Arena's link for running text such as a sentence in an empty state, a help line 
 - Don't ask for a `disabled` link. A link that goes nowhere is text, so render the text.
 - Don't add an icon for `external`. The hidden hint carries it for a reader, and the underline for the eye.
 - Don't expect the DOM event in `navigate`. The output carries nothing, because you wrote the element.
-
-**By hand, in real Chromium**: run `bun run demos` and open
-`/frameworks/angular/components/navigation/arena-link/ArenaLink.demo.generated.html`:
-- A link that wraps across two lines underlines both, and the focus ring follows each line.
-- The link reads in both themes and under forced high contrast.
-- With `external` on, a screen reader says the hint after the text.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

@@ -28,7 +28,7 @@ export interface ArenaConfirmDialogProps {
   confirmLabel?: string;
   /** The cancel button's label. Absent, the provided locale's confirmDialogCancel answers it. */
   cancelLabel?: string;
-  /** Gives the confirm button Arena's only filled danger surface. */
+  /** Draws the confirm button as the destructive option of the actions group. */
   destructive?: boolean;
   /** Locks the confirm button until this exact word is typed. */
   requireText?: string;

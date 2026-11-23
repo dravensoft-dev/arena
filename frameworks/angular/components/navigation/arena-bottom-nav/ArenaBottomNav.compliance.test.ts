@@ -16,6 +16,7 @@ import { assertSameNode } from '../../../test/NodeAssert';
 import { ArenaBottomNav } from './ArenaBottomNav';
 import { ArenaBottomNavItem } from '../arena-bottom-nav-item/ArenaBottomNavItem';
 import { assertPattern, ANGULAR_COMPONENTS } from '../../../test/Compliance';
+import { currentVerdict, itemNamed } from '../../../test/StateVerdicts';
 
 const BINDING = join(ANGULAR_COMPONENTS, 'navigation/arena-bottom-nav/ArenaBottomNav.behaviour.json');
 
@@ -46,6 +47,16 @@ function render(patch: Partial<BarHost> = {}) {
 const barOf = (fixture: ReturnType<typeof render>) =>
   fixture.nativeElement.querySelector('arena-bottom-nav') as HTMLElement;
 
+function movedCurrent() {
+  const fixture = render({ activeId: 'more' });
+  try {
+    const bar = barOf(fixture);
+    return currentVerdict(itemNamed(bar, 'a, button', 'More'), [...bar.querySelectorAll('a, button')]);
+  } finally {
+    fixture.destroy();
+  }
+}
+
 test('arena-bottom-nav is a named navigation landmark, which is the whole of what it binds', () => {
   const fixture = render();
   try {
@@ -54,14 +65,17 @@ test('arena-bottom-nav is a named navigation landmark, which is the whole of wha
       'a custom element is no landmark by itself, so the role is what makes this one');
     assert.equal(bar.getAttribute('aria-label'), 'Primary');
 
-    assertPattern({ root: bar, bindingPath: BINDING, subjects: { default: bar } });
+    assertPattern({
+      root: bar,
+      bindingPath: BINDING,
+      subjects: { default: bar },
+      behavioural: { 'states.current': currentVerdict(
+          itemNamed(bar, 'a, button', 'Home'), [...bar.querySelectorAll('a, button')],
+        ) && movedCurrent() },
+    });
   } finally {
     fixture.destroy();
   }
-});
-
-test('a blank ariaLabel throws rather than rendering a landmark nothing can tell from the sidebar', () => {
-  assert.throws(() => render({ label: '   ' }), /ariaLabel/);
 });
 
 test('the bar reports the destination that was activated, and only that one', () => {

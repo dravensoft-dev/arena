@@ -28,7 +28,7 @@
     }
   ],
   "slots": {
-    "root": "inline-flex items-center gap-marker px-[var(--arena-size-badge-pad-x,calc(var(--sp-1)*2.5))] py-[var(--arena-size-badge-pad-y,var(--pad-marker-y))] rounded-marker font-face-label text-[length:var(--arena-size-badge-step,var(--dz-text-xs))] font-bold tracking-label-role case-label w-fit bg-[color:var(--arena-mark-fill,var(--arena-accent-fill-soft,var(--accent-plain-fill-soft)))] text-[color:var(--arena-mark-ink,color-mix(in_oklab,var(--ink-body)_var(--level-ink-body),transparent))]",
+    "root": "inline-flex items-center gap-marker px-[var(--arena-size-badge-pad-x,calc(var(--sp-1)*2.5))] py-[var(--arena-size-badge-pad-y,var(--pad-marker-y))] rounded-marker font-face-label text-[length:var(--arena-size-badge-step,var(--dz-text-xs))] font-bold tracking-label-role case-label w-fit bg-[color:var(--arena-mark-fill,var(--arena-accent-marks-soft-fill))] text-[color:var(--arena-mark-ink,var(--arena-accent-marks-soft-ink))]",
     "dot": "size-1.5 rounded-pill bg-current"
   },
   "kind": {
@@ -39,16 +39,16 @@
     "tone": {
       "neutral": {},
       "success": {
-        "root": "bg-[color:var(--arena-mark-fill,var(--arena-hue-fill-soft))]"
+        "root": "bg-[color:var(--arena-mark-fill,color-mix(in_oklab,var(--marks-success-soft-fill-rest,var(--hue-success-fill-soft))_var(--level-hue-soft-success),transparent))] text-[color:var(--arena-mark-ink,color-mix(in_oklab,var(--marks-success-soft-ink-rest,var(--ink-body))_var(--level-ink-body),transparent))]"
       },
       "warning": {
-        "root": "bg-[color:var(--arena-mark-fill,var(--arena-hue-fill-soft))]"
+        "root": "bg-[color:var(--arena-mark-fill,color-mix(in_oklab,var(--marks-warning-soft-fill-rest,var(--hue-warning-fill-soft))_var(--level-hue-soft-warning),transparent))] text-[color:var(--arena-mark-ink,color-mix(in_oklab,var(--marks-warning-soft-ink-rest,var(--ink-body))_var(--level-ink-body),transparent))]"
       },
       "danger": {
-        "root": "bg-[color:var(--arena-mark-fill,var(--arena-hue-fill-soft))]"
+        "root": "bg-[color:var(--arena-mark-fill,color-mix(in_oklab,var(--marks-danger-soft-fill-rest,var(--hue-danger-fill-soft))_var(--level-hue-soft-danger),transparent))] text-[color:var(--arena-mark-ink,color-mix(in_oklab,var(--marks-danger-soft-ink-rest,var(--ink-body))_var(--level-ink-body),transparent))]"
       },
       "info": {
-        "root": "bg-[color:var(--arena-mark-fill,var(--arena-hue-fill-soft))]"
+        "root": "bg-[color:var(--arena-mark-fill,color-mix(in_oklab,var(--marks-info-soft-fill-rest,var(--hue-info-fill-soft))_var(--level-hue-soft-info),transparent))] text-[color:var(--arena-mark-ink,color-mix(in_oklab,var(--marks-info-soft-ink-rest,var(--ink-body))_var(--level-ink-body),transparent))]"
       }
     }
   },

@@ -3,33 +3,18 @@
  * asserted by name and in both directions: an entry that stops being needed fails as a stale
  * allowance, which is the property that keeps an exception list from outliving its exception. */
 
-import { test, after } from 'node:test';
+import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join, win32 } from 'node:path';
+import { win32 } from 'node:path';
 import {
   NAMED_BUT_NOT_HERE, README_MEANS, OUT_OF_SCOPE, SKIPPED_UNDER_FRAMEWORKS, KNOWN_EXTENSIONS,
   skips, outOfScope, documents, treeFiles, unfenced, fenced, searchRoots, suffixOf, holds,
   conventionProblems, filenameProblems, commandProblems, readmeProblems, snippetProblems,
   zeroScanProblems, vocabularyProblems, MODELS_A_FAILURE, fixtureProblems,
 } from './check-vocabulary.ts';
+import { scratchTree } from '../../utils/scratch-tree.ts';
 
-const made: string[] = [];
-const track = (dir: string) => { made.push(dir); return dir; };
-after(() => {
-  for (const dir of made) rmSync(dir, { recursive: true, force: true });
-});
-
-function tree(files: Record<string, string>) {
-  const base = track(mkdtempSync(join(tmpdir(), 'arena-vocabulary-')));
-  for (const [rel, text] of Object.entries(files)) {
-    const path = join(base, rel);
-    mkdirSync(join(path, '..'), { recursive: true });
-    writeFileSync(path, text);
-  }
-  return base;
-}
+const { tree } = scratchTree('arena-vocabulary');
 
 const NONE = new Map<string, string>();
 

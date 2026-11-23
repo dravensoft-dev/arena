@@ -1,6 +1,6 @@
 # What a version promises, and why a package's may differ from Arena's
 
-Why is the latest version of `@dravensoft/arena-react` not the latest version of `@dravensoft/arena-angular`? Which version is Arena's? What does a version promise? Can two copies of Arena share an app? Which licence does Arena carry? Read this when you choose a range, install a version, or find two Arena packages at different versions.
+Why is the latest version of `@dravensoft/arena-react` not the latest version of `@dravensoft/arena-angular`? Which version is Arena's? What does a version promise? Can two copies of Arena share an app? Which licence does Arena carry? Read this when you pin a version, or find two Arena packages at different versions.
 
 ## What does a version promise?
 

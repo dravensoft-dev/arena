@@ -1,7 +1,7 @@
 /* The rules both list controls follow, read through the paired module each layer imports: which rows a
  * typed text keeps, where the cursor opens and stops, what committing an emptied field does, how a set
  * grows and stops at its cap, how many chips are drawn, and where focus goes between chips. The other
- * layer's copy carries the same file, and check:shared-arithmetic keeps the bodies equal. */
+ * layer's module is one text with this one, so check:shared-arithmetic holds it to this suite. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {

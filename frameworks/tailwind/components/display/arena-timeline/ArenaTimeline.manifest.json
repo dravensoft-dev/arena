@@ -16,11 +16,11 @@
     "rail": "flex [flex-direction:var(--arena-orientation-direction,column)] items-center self-stretch gap-0 shrink-0 basis-[var(--arena-orientation-rule-w,var(--bw-separator))]",
     "dot": "inline-flex flex-none items-center justify-center size-timeline-dot rounded-pill border-[length:var(--bw-control)]",
     "icon": "inline-flex text-[length:var(--icon-sm)]",
-    "connector": "grow basis-4 w-[var(--arena-orientation-rule-w,var(--bw-separator))] h-[var(--arena-orientation-rule-h,auto)] bg-edge-separator [margin-block-end:calc(var(--gap-items)*-1*var(--arena-orientation-join-block,1))] [margin-inline-end:calc(var(--gap-items)*-1*var(--arena-orientation-join-inline,0))]",
+    "connector": "grow basis-4 w-[var(--arena-orientation-rule-w,var(--bw-separator))] h-[var(--arena-orientation-rule-h,auto)] bg-[color:var(--surfaces-separator-edge-rest,var(--edge-separator))] [margin-block-end:calc(var(--gap-items)*-1*var(--arena-orientation-join-block,1))] [margin-inline-end:calc(var(--gap-items)*-1*var(--arena-orientation-join-inline,0))]",
     "content": "flex flex-col min-w-0 grow basis-[var(--arena-orientation-rule-w,var(--bw-separator))]",
-    "title": "font-body text-ctl font-bold text-ink-heading",
-    "description": "font-body text-ctl-sm text-ink-body/(--level-ink-body)",
-    "time": "font-mono text-ctl-sm text-ink-muted/(--level-ink-muted)",
+    "title": "font-body text-ctl font-bold text-[color:var(--text-heading-ink-rest,var(--ink-heading))]",
+    "description": "font-body text-ctl-sm text-[color:color-mix(in_oklab,var(--text-body-ink-rest,var(--ink-body))_var(--level-ink-body),transparent)]",
+    "time": "font-mono text-ctl-sm text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",
     "name": "sr-only"
   },
   "kind": {
@@ -64,104 +64,110 @@
       "tone": "neutral",
       "state": "complete",
       "class": {
-        "dot": "bg-ink-muted border-ink-muted text-surface"
+        "dot": "bg-[color:var(--marks-neutral-complete-dot-fill-rest,var(--fill-mark))] border-[color:var(--marks-neutral-complete-dot-edge-rest,transparent)] text-[color:var(--marks-neutral-complete-dot-ink-rest,var(--ink-on-mark))]"
       }
     },
     {
       "tone": "neutral",
       "state": "current",
       "class": {
-        "dot": "bg-surface border-ink-body text-ink-body/(--level-ink-body)"
+        "dot": "bg-[color:var(--marks-neutral-current-dot-fill-rest,var(--fill-surface))] border-[color:var(--marks-neutral-current-dot-edge-rest,var(--edge-mark))] text-[color:color-mix(in_oklab,var(--marks-neutral-current-dot-ink-rest,var(--ink-body))_var(--level-ink-body),transparent)]"
       }
     },
     {
       "tone": "neutral",
       "state": "upcoming",
       "class": {
-        "dot": "bg-surface border-edge-control-quiet text-ink-muted/(--level-ink-muted)"
+        "dot": "bg-[color:var(--marks-neutral-upcoming-dot-fill-rest,var(--fill-surface))] border-[color:color-mix(in_oklab,var(--marks-neutral-upcoming-dot-edge-rest,var(--edge-mark))_var(--level-presence),transparent)] text-[color:color-mix(in_oklab,var(--marks-neutral-upcoming-dot-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]"
       }
     },
     {
       "tone": "danger",
+      "state": "complete",
       "class": {
-        "dot": "bg-surface border-[color:var(--arena-hue-edge)] text-[color:var(--arena-hue-ink)]"
+        "dot": "bg-[color:var(--marks-danger-complete-dot-fill-rest,var(--fill-surface))] border-[color:var(--marks-danger-complete-dot-edge-rest,var(--hue-danger-edge))] text-[color:var(--marks-danger-complete-dot-ink-rest,var(--hue-danger-ink))]"
+      }
+    },
+    {
+      "tone": "danger",
+      "state": "current",
+      "class": {
+        "dot": "bg-[color:var(--marks-danger-current-dot-fill-rest,var(--fill-surface))] border-[color:var(--marks-danger-current-dot-edge-rest,var(--hue-danger-edge))] text-[color:var(--marks-danger-current-dot-ink-rest,var(--hue-danger-ink))]"
+      }
+    },
+    {
+      "tone": "danger",
+      "state": "upcoming",
+      "class": {
+        "dot": "bg-[color:var(--marks-danger-upcoming-dot-fill-rest,var(--fill-surface))] border-[color:var(--marks-danger-upcoming-dot-edge-rest,var(--hue-danger-edge))] text-[color:var(--marks-danger-upcoming-dot-ink-rest,var(--hue-danger-ink))]"
       }
     },
     {
       "tone": "success",
       "state": "complete",
       "class": {
-        "dot": "bg-[color:var(--arena-hue-fill-strong)] border-[color:var(--arena-hue-fill-strong)] text-[color:var(--arena-hue-on-ink)]"
+        "dot": "bg-[color:var(--marks-success-complete-dot-fill-rest,var(--hue-success-fill-strong))] border-[color:var(--marks-success-complete-dot-edge-rest,transparent)] text-[color:var(--marks-success-complete-dot-ink-rest,var(--hue-success-on-ink))]"
       }
     },
     {
       "tone": "success",
       "state": "current",
       "class": {
-        "dot": "bg-surface border-[color:var(--arena-hue-edge)] text-[color:var(--arena-hue-ink)]"
+        "dot": "bg-[color:var(--marks-success-current-dot-fill-rest,var(--fill-surface))] border-[color:var(--marks-success-current-dot-edge-rest,var(--hue-success-edge))] text-[color:var(--marks-success-current-dot-ink-rest,var(--hue-success-ink))]"
       }
     },
     {
       "tone": "success",
       "state": "upcoming",
       "class": {
-        "dot": "bg-surface border-[color:var(--arena-hue-edge)] text-[color:var(--arena-hue-ink)]"
+        "dot": "bg-[color:var(--marks-success-upcoming-dot-fill-rest,var(--fill-surface))] border-[color:var(--marks-success-upcoming-dot-edge-rest,var(--hue-success-edge))] text-[color:var(--marks-success-upcoming-dot-ink-rest,var(--hue-success-ink))]"
       }
     },
     {
       "tone": "warning",
       "state": "complete",
       "class": {
-        "dot": "bg-[color:var(--arena-hue-fill-strong)] border-[color:var(--arena-hue-fill-strong)] text-[color:var(--arena-hue-on-ink)]"
+        "dot": "bg-[color:var(--marks-warning-complete-dot-fill-rest,var(--hue-warning-fill-strong))] border-[color:var(--marks-warning-complete-dot-edge-rest,transparent)] text-[color:var(--marks-warning-complete-dot-ink-rest,var(--hue-warning-on-ink))]"
       }
     },
     {
       "tone": "warning",
       "state": "current",
       "class": {
-        "dot": "bg-surface border-[color:var(--arena-hue-edge)] text-[color:var(--arena-hue-ink)]"
+        "dot": "bg-[color:var(--marks-warning-current-dot-fill-rest,var(--fill-surface))] border-[color:var(--marks-warning-current-dot-edge-rest,var(--hue-warning-edge))] text-[color:var(--marks-warning-current-dot-ink-rest,var(--hue-warning-ink))]"
       }
     },
     {
       "tone": "warning",
       "state": "upcoming",
       "class": {
-        "dot": "bg-surface border-[color:var(--arena-hue-edge)] text-[color:var(--arena-hue-ink)]"
+        "dot": "bg-[color:var(--marks-warning-upcoming-dot-fill-rest,var(--fill-surface))] border-[color:var(--marks-warning-upcoming-dot-edge-rest,var(--hue-warning-edge))] text-[color:var(--marks-warning-upcoming-dot-ink-rest,var(--hue-warning-ink))]"
       }
     },
     {
       "tone": "info",
       "state": "complete",
       "class": {
-        "dot": "bg-[color:var(--arena-hue-fill-strong)] border-[color:var(--arena-hue-fill-strong)] text-[color:var(--arena-hue-on-ink)]"
+        "dot": "bg-[color:var(--marks-info-complete-dot-fill-rest,var(--hue-info-fill-strong))] border-[color:var(--marks-info-complete-dot-edge-rest,transparent)] text-[color:var(--marks-info-complete-dot-ink-rest,var(--hue-info-on-ink))]"
       }
     },
     {
       "tone": "info",
       "state": "current",
       "class": {
-        "dot": "bg-surface border-[color:var(--arena-hue-edge)] text-[color:var(--arena-hue-ink)]"
+        "dot": "bg-[color:var(--marks-info-current-dot-fill-rest,var(--fill-surface))] border-[color:var(--marks-info-current-dot-edge-rest,var(--hue-info-edge))] text-[color:var(--marks-info-current-dot-ink-rest,var(--hue-info-ink))]"
       }
     },
     {
       "tone": "info",
       "state": "upcoming",
       "class": {
-        "dot": "bg-surface border-[color:var(--arena-hue-edge)] text-[color:var(--arena-hue-ink)]"
+        "dot": "bg-[color:var(--marks-info-upcoming-dot-fill-rest,var(--fill-surface))] border-[color:var(--marks-info-upcoming-dot-edge-rest,var(--hue-info-edge))] text-[color:var(--marks-info-upcoming-dot-ink-rest,var(--hue-info-ink))]"
       }
     }
   ],
   "defaultVariants": {
     "state": "complete",
     "tone": "neutral"
-  },
-  "hues": {
-    "tone": {
-      "neutral": null,
-      "success": "success",
-      "warning": "warning",
-      "danger": "danger",
-      "info": "info"
-    }
   }
 }

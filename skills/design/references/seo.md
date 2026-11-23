@@ -28,7 +28,7 @@ picked to be found generally offers one already.
 **This node decides one piece rather than the stack.** On Angular, Arena supplies the head. On
 React, your own framework does, so a yes here costs a dependency on one side and a wiring you were
 going to have anyway on the other. How the application is assembled stays the project's answer, in
-the ninth node of [`cold-start.md`](./cold-start.md). That node is also where the asymmetry this
+the tenth node of [`cold-start.md`](./cold-start.md). That node is also where the asymmetry this
 page's reader is most exposed to is written down. A product that has to be found is a product that
 server-renders, and the two layers do not hold that claim with the same kind of evidence. Read
 that node on the day the choice is still cheap.
@@ -110,6 +110,40 @@ export function Orders() {
 
 A project on React 18 uses the head API of its framework instead. The values to decide are the same: a private default, a canonical built from an origin you supply, and a title that composes.
 
+With no framework, a `useEffect` writes the title and the head elements itself. The title composes with a suffix, the canonical comes from an origin the caller supplies, and a page is `noindex` until it says `index`.
+
+```tsx
+import { useEffect } from 'react';
+
+interface PageHead {
+  origin: string;
+  path: string;
+  title: string;
+  suffix: string;
+  index?: boolean;
+}
+
+function headElement<T extends HTMLElement>(selector: string, tag: string, attributes: Record<string, string>): T {
+  let element = document.head.querySelector<T>(selector);
+  if (!element) {
+    element = document.createElement(tag) as T;
+    for (const [name, value] of Object.entries(attributes)) element.setAttribute(name, value);
+    document.head.append(element);
+  }
+  return element;
+}
+
+export function usePageHead({ origin, path, title, suffix, index = false }: PageHead): void {
+  useEffect(() => {
+    document.title = `${title} · ${suffix}`;
+    headElement('meta[name="robots"]', 'meta', { name: 'robots' }).setAttribute('content', index ? 'index,follow' : 'noindex,nofollow');
+    headElement('link[rel="canonical"]', 'link', { rel: 'canonical' }).setAttribute('href', new URL(path, origin).href);
+  }, [origin, path, title, suffix, index]);
+}
+```
+
+Call `usePageHead({ origin: 'https://andina.example', path: '/orders', title: 'Orders', suffix: 'Andina', index: true })` in the screen.
+
 ## What both layers publish
 
 `ArenaBreadcrumbs` describes the trail it draws in `schema.org` terms beside the markup, under both
@@ -159,5 +193,5 @@ A trail of your own that does not use `ArenaBreadcrumbs` takes `arenaBreadcrumbL
 Arena renders no page and lists none. Arena writes the `<head>` of whatever page your application
 renders, and describes the structures it draws. How that page reaches a reader, and what a crawler
 is handed when it asks for one, stay yours to answer. Which architecture produces it,
-and the evidence behind each, is the ninth node of [`cold-start.md`](./cold-start.md). The three
+and the evidence behind each, is the tenth node of [`cold-start.md`](./cold-start.md). The three
 properties above are the part Arena holds, and they are not the whole of the job.

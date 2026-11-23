@@ -31,11 +31,22 @@ export const RULES: LanguageRule[] = [
     unheld: null,
   },
   {
+    id: 'levels',
+    short: 'A role that names a level is read with that level.',
+    body: 'Under the default skin `--ink-muted` and `--ink-body` are one colour, and the level is what holds a '
+      + 'caption back. Write `text-ink-muted/(--level-ink-muted)` in a class, and '
+      + '`color-mix(in oklab, var(--ink-muted) var(--level-ink-muted), transparent)` in a stylesheet. A literal '
+      + 'share, as `/62`, cannot follow a level `arena build` raises. The combines-with column of the token tree '
+      + 'names the level of each role.',
+    held: 'missing-level',
+    unheld: null,
+  },
+  {
     id: 'own-class',
     short: 'Only a class of the vocabulary goes on an Arena component.',
     body: 'Write it as a literal on the component, or on a container whose components all take it. '
-      + 'Write no rule targeting a component: its `arena-<component>__<slot>` classes are compiler output '
-      + 'no contract names, and a slot may be renamed. Every class you may write is on the '
+      + 'Write no rule targeting a component: its `arena-<component>__<part>` classes are compiler output '
+      + 'no contract names, and a part may be renamed. Every class you may write is on the '
       + 'vocabulary page; your own content uses the same tokens. '
       + 'React checks the class at compile time, Angular through the audit.',
     held: 'own-class',
@@ -50,33 +61,6 @@ export const RULES: LanguageRule[] = [
       + 'Angular, so the compilers hold it before any source text is read',
   },
   {
-    id: 'danger-outline',
-    short: 'Danger is outline, never filled.',
-    body: 'The background stays transparent, and the border and the content read `--danger`. '
-      + 'Arena draws one filled danger surface, the final irreversible confirmation '
-      + 'inside `ArenaConfirmDialog`. A surface of your own may carry the `--danger-soft` tint.',
-    held: 'danger-fill',
-    unheld: null,
-  },
-  {
-    id: 'one-primary',
-    short: 'One primary accent per view.',
-    body: 'The primary emphasis is the voice: one `arena-emphasis-primary` action at most stands on a screen, and a '
-      + 'button with no emphasis class is it. '
-      + 'Gold is distinction and focus, not a second primary.',
-    held: 'one-primary',
-    unheld: null,
-  },
-  {
-    id: 'no-gradients',
-    short: 'No gradients, on any surface.',
-    body: 'Depth comes from the `base-100`, `base-200`, `base-300` surface scale, the hairline '
-      + 'border and the shadow roles. `ArenaSkeleton`\'s neutral shimmer is the one exception. '
-      + 'A brand whose mark is a gradient sets `gradientMark` in `arena.config.json`.',
-    held: 'raw-value',
-    unheld: null,
-  },
-  {
     id: 'no-emoji',
     short: 'No emoji, in product or in copy.',
     body: '',
@@ -86,11 +70,11 @@ export const RULES: LanguageRule[] = [
   {
     id: 'icons-are-strings',
     short: 'Icons are Phosphor class-name strings, drawn by Arena\'s components or by ArenaIcon; a raw ph-* element paints nothing.',
-    body: 'Write `icon="ph-bold ph-plus"`. Arena draws each glyph from the sprite `arena build` writes, '
+    body: 'Write `icon="ph-bold ph-plus"`. An element passed to `icon` or `iconRight` in braces is reported as `icon-element`. Arena draws each glyph from the sprite `arena build` writes, '
       + 'and a raw `ph-*` element needs the project\'s own `@phosphor-icons/web`, which Arena never bundles. A static page has no build, so it links the weight sheets for its raw `ph-*` elements, as '
       + '`references/artifact.md` shows.',
-    held: 'icon-element',
-    alsoHeld: ['raw-glyph'],
+    held: 'raw-glyph',
+    alsoHeld: ['icon-element'],
     unheld: null,
   },
   {
@@ -128,22 +112,13 @@ export const RULES: LanguageRule[] = [
   {
     id: 'two-themes',
     short: 'Two themes, dark first.',
-    body: 'Dark is `:root` and `.arena-dark`, light is `.arena-light`, and either class goes on any element. Components never rewrite per theme; they read '
+    body: 'Arena\'s own palettes are dark on `:root` and `.arena-dark`, and light on `.arena-light`. A project\'s palettes are the `.arena-<name>` classes its config declares, its default on `:root`, and each class goes on any element. Components never rewrite per theme; they read '
       + 'tokens. `.arena-compact` and `.arena-comfortable` are the density family on the vocabulary '
       + 'page, `frameworks/VOCABULARY.md`: the first re-densifies the controls, the second grows '
       + 'them to a 48px touch target, and the two are exclusive.',
     held: null,
     unheld: 'a theme is a class on a root element, and a source text shows the class rather than '
       + 'whether a component was rewritten under it',
-  },
-  {
-    id: 'chart-identity',
-    short: 'A chart carries identity or meaning, never both.',
-    body: 'The `--color-cat-*` ramp in fixed order is identity. The status colours are meaning. A '
-      + 'status colour is never a series colour.',
-    held: null,
-    unheld: 'a series is a value your code builds, so the colour it carries is not in the source '
-      + 'text. Passing a slot and a tone together warns in development, and the tone wins',
   },
   {
     id: 'copy-is-direct',

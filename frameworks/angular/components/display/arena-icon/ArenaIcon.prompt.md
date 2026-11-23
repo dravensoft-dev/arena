@@ -15,7 +15,7 @@ bootstrapApplication(App, { providers: [provideArenaIcons('/assets/icons-3f9a2c.
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `icon*` | primitive | `string` |  | Phosphor class names, a weight and a glyph such as ph-bold ph-plus. The weight defaults to regular. |
+| `icon*` | primitive | `string` |  | Phosphor class names, a weight and a glyph such as ph-bold ph-plus. A string with no weight class draws the regular weight. Arena's own screens write ph-bold, and ph-fill for an active or selected state. |
 
 <!-- @api end -->
 
@@ -44,10 +44,6 @@ bootstrapApplication(App, { providers: [provideArenaIcons('/assets/icons-3f9a2c.
 **Don't**
 - Don't build the class list at runtime from pieces. The build scans for whole `ph-*` names.
 - Don't give it a `class`, a size or a tone. The text around it sizes and colours it.
-
-**By hand, in real Chromium**: run `bun run demos` and open
-`/frameworks/angular/components/display/arena-icon/ArenaIcon.demo.generated.html`:
-- The glyph sits on the text baseline and scales with the font size around it.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

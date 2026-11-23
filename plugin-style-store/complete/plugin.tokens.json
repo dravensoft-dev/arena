@@ -170,10 +170,7 @@
   },
   "pad-control-text-y": {
     "$type": "dimension",
-    "$value": {
-      "value": 0.625,
-      "unit": "rem"
-    }
+    "$value": "{sp.3}"
   },
   "gap-control": {
     "$type": "dimension",
@@ -281,8 +278,8 @@
   "dialog-width-md": {
     "$type": "dimension",
     "$value": {
-      "value": 30.0,
-      "unit": "rem"
+      "value": 512,
+      "unit": "px"
     }
   },
   "dialog-width-lg": {
@@ -320,10 +317,7 @@
   },
   "pad-surface-head-top": {
     "$type": "dimension",
-    "$value": {
-      "value": 1.125,
-      "unit": "rem"
-    }
+    "$value": "{sp.5}"
   },
   "pad-floating-x": {
     "$type": "dimension",
@@ -336,8 +330,8 @@
   "pad-floating-edge-x": {
     "$type": "dimension",
     "$value": {
-      "value": 1.25,
-      "unit": "rem"
+      "value": 20,
+      "unit": "px"
     }
   },
   "pad-status-x": {
@@ -383,10 +377,7 @@
   },
   "pad-row-floating-x": {
     "$type": "dimension",
-    "$value": {
-      "value": 0.625,
-      "unit": "rem"
-    }
+    "$value": "{sp.3}"
   },
   "pad-row-floating-y": {
     "$type": "dimension",
@@ -421,17 +412,11 @@
   },
   "gap-row-floating": {
     "$type": "dimension",
-    "$value": {
-      "value": 0.625,
-      "unit": "rem"
-    }
+    "$value": "{sp.3}"
   },
   "gap-actions": {
     "$type": "dimension",
-    "$value": {
-      "value": 0.625,
-      "unit": "rem"
-    }
+    "$value": "{sp.3}"
   },
   "fill-surface": {
     "$type": "color",
@@ -461,9 +446,33 @@
     "$type": "color",
     "$value": "{color.neutral}"
   },
+  "fill-knob": {
+    "$type": "color",
+    "$value": "{color.error-content}"
+  },
+  "fill-knob-off": {
+    "$type": "color",
+    "$value": "{color.error-content}"
+  },
   "fill-track": {
     "$type": "color",
     "$value": "{color.neutral}"
+  },
+  "fill-marker": {
+    "$type": "color",
+    "$value": "{color.base-300}"
+  },
+  "fill-mark": {
+    "$type": "color",
+    "$value": "{color.neutral-content}"
+  },
+  "fill-tile": {
+    "$type": "color",
+    "$value": "{color.base-300}"
+  },
+  "fill-tip": {
+    "$type": "color",
+    "$value": "{color.base-content}"
   },
   "ink-heading": {
     "$type": "color",
@@ -493,6 +502,14 @@
     "$type": "color",
     "$value": "{color.neutral-content}"
   },
+  "ink-knob": {
+    "$type": "color",
+    "$value": "{color.primary-fill}"
+  },
+  "ink-knob-off": {
+    "$type": "color",
+    "$value": "{color.primary}"
+  },
   "ink-link": {
     "$type": "color",
     "$value": "{color.neutral-content}"
@@ -513,6 +530,10 @@
     "$type": "color",
     "$value": "{color.primary}"
   },
+  "edge-mark": {
+    "$type": "color",
+    "$value": "{color.neutral-content}"
+  },
   "edge-control": {
     "$type": "color",
     "$value": "{color.secondary}"
@@ -532,6 +553,58 @@
   "edge-tab-selected": {
     "$type": "color",
     "$value": "{color.secondary}"
+  },
+  "edge-focus": {
+    "$type": "color",
+    "$value": "{color.info}"
+  },
+  "bw-focus": {
+    "$type": "dimension",
+    "$value": "{sp.1}"
+  },
+  "gap-focus": {
+    "$type": "dimension",
+    "$value": "{sp.1}"
+  },
+  "fill-selected": {
+    "$type": "color",
+    "$value": "{color.secondary}"
+  },
+  "ink-selected": {
+    "$type": "color",
+    "$value": "{color.neutral-content}"
+  },
+  "edge-selected": {
+    "$type": "color",
+    "$value": "{color.neutral-content}"
+  },
+  "fade-disabled": {
+    "$type": "number",
+    "$value": 0.38
+  },
+  "mix-hover": {
+    "$type": "number",
+    "$value": 0.12
+  },
+  "mix-pressed": {
+    "$type": "number",
+    "$value": 0.24
+  },
+  "edge-invalid": {
+    "$type": "color",
+    "$value": "{color.base-content}"
+  },
+  "ink-invalid": {
+    "$type": "color",
+    "$value": "{color.base-content}"
+  },
+  "ink-on-mark": {
+    "$type": "color",
+    "$value": "{color.base-100}"
+  },
+  "ink-tip": {
+    "$type": "color",
+    "$value": "{color.base-100}"
   },
   "bw-surface": {
     "$type": "dimension",
@@ -600,6 +673,22 @@
     "$type": "cubicBezier",
     "$value": "{ease.in-out}"
   },
+  "dur-enter-deep": {
+    "$type": "duration",
+    "$value": "{dur.slow}"
+  },
+  "ease-enter-deep": {
+    "$type": "cubicBezier",
+    "$value": "{ease.in-out}"
+  },
+  "dur-enter-floating": {
+    "$type": "duration",
+    "$value": "{dur.mid}"
+  },
+  "ease-enter-floating": {
+    "$type": "cubicBezier",
+    "$value": "{ease.emphatic}"
+  },
   "press-scale": {
     "$type": "number",
     "$value": 0.94
@@ -617,7 +706,7 @@
     "$value": "{color.base-content}"
   },
   "hue-danger-fill-strong": {
-    "$type": "keyword",
+    "$type": "color",
     "$value": "transparent"
   },
   "hue-danger-fill-soft": {
@@ -684,13 +773,13 @@
     "$type": "color",
     "$value": "{color.neutral}"
   },
-  "fill-confirm-final": {
+  "fill-control": {
     "$type": "color",
-    "$value": "{color.primary}"
+    "$value": "{color.neutral}"
   },
-  "ink-confirm-final": {
+  "fill-control-on": {
     "$type": "color",
-    "$value": "{color.primary-content}"
+    "$value": "{color.primary-fill}"
   },
   "size-sm-control-h": {
     "$type": "dimension",
@@ -1302,5 +1391,1706 @@
   "elevation-floating-shadow": {
     "$type": "shadow",
     "$value": "{shadow.3}"
+  },
+  "light": {
+    "edge-focus": {
+      "$type": "color",
+      "$value": "{color.neutral-content}"
+    }
+  },
+  "actions-destructive-root-edge-disabled": {
+    "$type": "color",
+    "$value": "{accent-gold-side-edge}"
+  },
+  "actions-destructive-root-edge-hover": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "actions-destructive-root-edge-pressed": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "actions-destructive-root-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "actions-destructive-root-fill-disabled": {
+    "$type": "color",
+    "$value": "{accent-gold-fill-soft}"
+  },
+  "actions-destructive-root-fill-hover": {
+    "$type": "color",
+    "$value": "{accent-plain-fill-soft}"
+  },
+  "actions-destructive-root-fill-pressed": {
+    "$type": "color",
+    "$value": "transparent"
+  },
+  "actions-destructive-root-fill-rest": {
+    "$type": "color",
+    "$value": "transparent"
+  },
+  "actions-destructive-root-icon-disabled": {
+    "$type": "color",
+    "$value": "{hue-warning-on-ink}",
+    "$description": "complete fills a disabled destructive control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-warning-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own."
+  },
+  "actions-destructive-root-icon-hover": {
+    "$type": "color",
+    "$value": "{hue-info-ink}"
+  },
+  "actions-destructive-root-icon-pressed": {
+    "$type": "color",
+    "$value": "{hue-info-ink}"
+  },
+  "actions-destructive-root-icon-rest": {
+    "$type": "color",
+    "$value": "{hue-info-ink}"
+  },
+  "actions-destructive-root-ink-disabled": {
+    "$type": "color",
+    "$value": "{hue-danger-on-ink}",
+    "$description": "complete fills a disabled destructive control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label."
+  },
+  "actions-destructive-root-ink-hover": {
+    "$type": "color",
+    "$value": "{hue-danger-ink}"
+  },
+  "actions-destructive-root-ink-pressed": {
+    "$type": "color",
+    "$value": "{hue-danger-ink}"
+  },
+  "actions-destructive-root-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "actions-dismiss-fill-disabled": {
+    "$type": "color",
+    "$value": "transparent",
+    "$description": "complete paints a dismiss button transparent in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling."
+  },
+  "actions-dismiss-fill-hover": {
+    "$type": "color",
+    "$value": "transparent",
+    "$description": "complete paints a dismiss button transparent in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling."
+  },
+  "actions-dismiss-fill-pressed": {
+    "$type": "color",
+    "$value": "transparent",
+    "$description": "complete paints a dismiss button transparent in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling."
+  },
+  "actions-dismiss-icon-disabled": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "actions-dismiss-icon-hover": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "actions-dismiss-icon-pressed": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "actions-dismiss-icon-rest": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "actions-dismiss-ink-disabled": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "actions-dismiss-ink-hover": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "actions-dismiss-ink-pressed": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "actions-dismiss-ink-rest": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "actions-ghost-root-edge-disabled": {
+    "$type": "color",
+    "$value": "{accent-gold-side-edge}"
+  },
+  "actions-ghost-root-edge-selected": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "actions-ghost-root-edge-selected-disabled": {
+    "$type": "color",
+    "$value": "{accent-gold-side-edge}"
+  },
+  "actions-ghost-root-edge-selected-hover": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "actions-ghost-root-edge-selected-pressed": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "actions-ghost-root-fill-disabled": {
+    "$type": "color",
+    "$value": "{accent-gold-fill-soft}"
+  },
+  "actions-ghost-root-fill-hover": {
+    "$type": "color",
+    "$value": "{emphasis-secondary-fill}"
+  },
+  "actions-ghost-root-fill-pressed": {
+    "$type": "color",
+    "$value": "transparent"
+  },
+  "actions-ghost-root-fill-rest": {
+    "$type": "color",
+    "$value": "{hue-danger-fill-strong}"
+  },
+  "actions-ghost-root-fill-selected": {
+    "$type": "color",
+    "$value": "{accent-plain-fill-soft}"
+  },
+  "actions-ghost-root-fill-selected-disabled": {
+    "$type": "color",
+    "$value": "{accent-gold-fill-soft}"
+  },
+  "actions-ghost-root-fill-selected-hover": {
+    "$type": "color",
+    "$value": "{accent-plain-fill-soft}"
+  },
+  "actions-ghost-root-fill-selected-pressed": {
+    "$type": "color",
+    "$value": "{accent-plain-fill-soft}"
+  },
+  "actions-ghost-root-icon-disabled": {
+    "$type": "color",
+    "$value": "{hue-success-on-ink}",
+    "$description": "complete fills a disabled ghost control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-success-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own."
+  },
+  "actions-ghost-root-icon-hover": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "actions-ghost-root-icon-pressed": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "actions-ghost-root-icon-rest": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "actions-ghost-root-icon-selected": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "actions-ghost-root-icon-selected-disabled": {
+    "$type": "color",
+    "$value": "{hue-success-on-ink}",
+    "$description": "complete fills a selected disabled ghost control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-success-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own."
+  },
+  "actions-ghost-root-icon-selected-hover": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "actions-ghost-root-icon-selected-pressed": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "actions-ghost-root-ink-disabled": {
+    "$type": "color",
+    "$value": "{hue-info-on-ink}",
+    "$description": "complete fills a disabled ghost control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label."
+  },
+  "actions-ghost-root-ink-hover": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "actions-ghost-root-ink-pressed": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "actions-ghost-root-ink-rest": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "actions-ghost-root-ink-selected": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "actions-ghost-root-ink-selected-disabled": {
+    "$type": "color",
+    "$value": "{hue-info-on-ink}",
+    "$description": "complete fills a selected disabled ghost control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label."
+  },
+  "actions-ghost-root-ink-selected-hover": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "actions-ghost-root-ink-selected-pressed": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "actions-primary-root-edge-disabled": {
+    "$type": "color",
+    "$value": "{accent-gold-side-edge}"
+  },
+  "actions-primary-root-edge-hover": {
+    "$type": "color",
+    "$value": "{accent-primary-edge}"
+  },
+  "actions-primary-root-edge-pressed": {
+    "$type": "color",
+    "$value": "{accent-primary-edge}"
+  },
+  "actions-primary-root-edge-rest": {
+    "$type": "color",
+    "$value": "{accent-primary-edge}"
+  },
+  "actions-primary-root-fill-disabled": {
+    "$type": "color",
+    "$value": "{accent-gold-fill-soft}"
+  },
+  "actions-primary-root-fill-hover": {
+    "$type": "color",
+    "$value": "{accent-primary-fill-soft}"
+  },
+  "actions-primary-root-fill-pressed": {
+    "$type": "color",
+    "$value": "{accent-primary-fill-soft}"
+  },
+  "actions-primary-root-fill-rest": {
+    "$type": "color",
+    "$value": "{accent-primary-fill-soft}"
+  },
+  "actions-primary-root-icon-disabled": {
+    "$type": "color",
+    "$value": "{hue-success-on-ink}",
+    "$description": "complete fills a disabled primary control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-success-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own."
+  },
+  "actions-primary-root-icon-hover": {
+    "$type": "color",
+    "$value": "{emphasis-solid-ink}"
+  },
+  "actions-primary-root-icon-pressed": {
+    "$type": "color",
+    "$value": "{emphasis-solid-ink}"
+  },
+  "actions-primary-root-icon-rest": {
+    "$type": "color",
+    "$value": "{emphasis-primary-ink}"
+  },
+  "actions-primary-root-ink-disabled": {
+    "$type": "color",
+    "$value": "{hue-info-on-ink}",
+    "$description": "complete fills a disabled primary control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label."
+  },
+  "actions-primary-root-ink-hover": {
+    "$type": "color",
+    "$value": "{emphasis-primary-ink}"
+  },
+  "actions-primary-root-ink-pressed": {
+    "$type": "color",
+    "$value": "{emphasis-primary-ink}"
+  },
+  "actions-primary-root-ink-rest": {
+    "$type": "color",
+    "$value": "{emphasis-solid-ink}"
+  },
+  "actions-secondary-root-edge-disabled": {
+    "$type": "color",
+    "$value": "{accent-gold-side-edge}"
+  },
+  "actions-secondary-root-edge-hover": {
+    "$type": "color",
+    "$value": "{accent-primary-edge}"
+  },
+  "actions-secondary-root-edge-pressed": {
+    "$type": "color",
+    "$value": "{accent-primary-edge}"
+  },
+  "actions-secondary-root-edge-rest": {
+    "$type": "color",
+    "$value": "{accent-primary-edge}"
+  },
+  "actions-secondary-root-fill-disabled": {
+    "$type": "color",
+    "$value": "{accent-gold-fill-soft}"
+  },
+  "actions-secondary-root-fill-hover": {
+    "$type": "color",
+    "$value": "{accent-plain-fill-soft}"
+  },
+  "actions-secondary-root-fill-pressed": {
+    "$type": "color",
+    "$value": "{emphasis-ghost-fill-hover}"
+  },
+  "actions-secondary-root-fill-rest": {
+    "$type": "color",
+    "$value": "{emphasis-ghost-fill-hover}"
+  },
+  "actions-secondary-root-icon-disabled": {
+    "$type": "color",
+    "$value": "{hue-success-on-ink}",
+    "$description": "complete fills a disabled secondary control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-success-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own."
+  },
+  "actions-secondary-root-icon-hover": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "actions-secondary-root-icon-pressed": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "actions-secondary-root-icon-rest": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "actions-secondary-root-ink-disabled": {
+    "$type": "color",
+    "$value": "{hue-info-on-ink}",
+    "$description": "complete fills a disabled secondary control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label."
+  },
+  "actions-secondary-root-ink-hover": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "actions-secondary-root-ink-pressed": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "actions-secondary-root-ink-rest": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "actions-solid-root-edge-disabled": {
+    "$type": "color",
+    "$value": "{accent-gold-side-edge}"
+  },
+  "actions-solid-root-edge-hover": {
+    "$type": "color",
+    "$value": "transparent"
+  },
+  "actions-solid-root-edge-pressed": {
+    "$type": "color",
+    "$value": "transparent"
+  },
+  "actions-solid-root-edge-selected": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "actions-solid-root-edge-selected-disabled": {
+    "$type": "color",
+    "$value": "{accent-gold-side-edge}"
+  },
+  "actions-solid-root-edge-selected-hover": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "actions-solid-root-edge-selected-pressed": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "actions-solid-root-fill-disabled": {
+    "$type": "color",
+    "$value": "{accent-gold-fill-soft}"
+  },
+  "actions-solid-root-fill-hover": {
+    "$type": "color",
+    "$value": "{accent-primary-fill-soft}"
+  },
+  "actions-solid-root-fill-pressed": {
+    "$type": "color",
+    "$value": "{accent-primary-fill-soft}"
+  },
+  "actions-solid-root-fill-rest": {
+    "$type": "color",
+    "$value": "{accent-primary-fill-soft}"
+  },
+  "actions-solid-root-fill-selected": {
+    "$type": "color",
+    "$value": "{accent-plain-fill-soft}"
+  },
+  "actions-solid-root-fill-selected-disabled": {
+    "$type": "color",
+    "$value": "{accent-gold-fill-soft}"
+  },
+  "actions-solid-root-fill-selected-hover": {
+    "$type": "color",
+    "$value": "{accent-plain-fill-soft}"
+  },
+  "actions-solid-root-fill-selected-pressed": {
+    "$type": "color",
+    "$value": "{accent-plain-fill-soft}"
+  },
+  "actions-solid-root-icon-disabled": {
+    "$type": "color",
+    "$value": "{hue-success-on-ink}",
+    "$description": "complete fills a disabled solid control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-success-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own."
+  },
+  "actions-solid-root-icon-hover": {
+    "$type": "color",
+    "$value": "{emphasis-solid-ink}"
+  },
+  "actions-solid-root-icon-pressed": {
+    "$type": "color",
+    "$value": "{emphasis-solid-ink}"
+  },
+  "actions-solid-root-icon-rest": {
+    "$type": "color",
+    "$value": "{emphasis-solid-ink}"
+  },
+  "actions-solid-root-icon-selected": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "actions-solid-root-icon-selected-disabled": {
+    "$type": "color",
+    "$value": "{hue-success-on-ink}",
+    "$description": "complete fills a selected disabled solid control with primary through accent-gold-fill-soft, so its glyph reads in the page's own ground colour over that fill, and a locked control keeps a legible glyph. The role hue-success-on-ink names another hue and has nothing to do with the part: it gives the glyph the same ground colour as the label with a spelling other than the ink's, so the witness counts the icon as answered on its own."
+  },
+  "actions-solid-root-icon-selected-hover": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "actions-solid-root-icon-selected-pressed": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "actions-solid-root-ink-disabled": {
+    "$type": "color",
+    "$value": "{hue-info-on-ink}",
+    "$description": "complete fills a disabled solid control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label."
+  },
+  "actions-solid-root-ink-hover": {
+    "$type": "color",
+    "$value": "{emphasis-primary-ink}"
+  },
+  "actions-solid-root-ink-pressed": {
+    "$type": "color",
+    "$value": "{emphasis-primary-ink}"
+  },
+  "actions-solid-root-ink-rest": {
+    "$type": "color",
+    "$value": "{emphasis-primary-ink}"
+  },
+  "actions-solid-root-ink-selected": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "actions-solid-root-ink-selected-disabled": {
+    "$type": "color",
+    "$value": "{hue-info-on-ink}",
+    "$description": "complete fills a selected disabled solid control with primary through accent-gold-fill-soft, so its label reads in the page's own ground colour over that fill, and a locked control keeps a legible label."
+  },
+  "actions-solid-root-ink-selected-hover": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "actions-solid-root-ink-selected-pressed": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "choices-box-edge-disabled": {
+    "$type": "color",
+    "$value": "{accent-primary-edge}"
+  },
+  "choices-box-edge-rest": {
+    "$type": "color",
+    "$value": "{accent-primary-edge}"
+  },
+  "choices-box-edge-selected-disabled": {
+    "$type": "color",
+    "$value": "transparent",
+    "$description": "complete draws a ticked box with no edge, and the literal transparent is the one answer that resolves to that; its selected slot is exempt from the witness for want of a second spelling."
+  },
+  "choices-box-fill-disabled": {
+    "$type": "color",
+    "$value": "{accent-plain-fill-soft}"
+  },
+  "choices-box-fill-rest": {
+    "$type": "color",
+    "$value": "{accent-plain-fill-soft}"
+  },
+  "choices-box-fill-selected-disabled": {
+    "$type": "color",
+    "$value": "{fill-control-on}"
+  },
+  "choices-knob-edge-rest": {
+    "$type": "color",
+    "$value": "{accent-primary-edge}"
+  },
+  "choices-knob-edge-selected": {
+    "$type": "color",
+    "$value": "{accent-primary-edge}"
+  },
+  "choices-knob-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-knob}",
+    "$description": "complete paints the knob white on and off; fill-knob resolves to that white here, and it is a spelling of its own, since the kernel default fill-knob-off is the one the witness refuses."
+  },
+  "choices-knob-fill-selected": {
+    "$type": "color",
+    "$value": "{fill-knob-off}",
+    "$description": "complete paints the knob white on and off; fill-knob-off resolves to that white here, and it is a spelling of its own, since the kernel default fill-knob is the one the witness refuses."
+  },
+  "choices-knob-ink-rest": {
+    "$type": "color",
+    "$value": "{accent-gold-ink}"
+  },
+  "choices-knob-ink-selected": {
+    "$type": "color",
+    "$value": "{accent-gold-ink}"
+  },
+  "choices-segment-fill-hover": {
+    "$type": "color",
+    "$value": "transparent",
+    "$description": "complete paints an unselected segment transparent in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling."
+  },
+  "choices-segment-fill-pressed": {
+    "$type": "color",
+    "$value": "transparent",
+    "$description": "complete paints an unselected segment transparent in every state, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling."
+  },
+  "choices-segment-fill-selected": {
+    "$type": "color",
+    "$value": "{accent-plain-fill-soft}"
+  },
+  "choices-segment-fill-selected-hover": {
+    "$type": "color",
+    "$value": "{accent-plain-fill-soft}"
+  },
+  "choices-segment-fill-selected-pressed": {
+    "$type": "color",
+    "$value": "{accent-plain-fill-soft}"
+  },
+  "choices-segment-ink-hover": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "choices-segment-ink-pressed": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "choices-segment-ink-rest": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "choices-segment-ink-selected": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "choices-segment-ink-selected-hover": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "choices-segment-ink-selected-pressed": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "choices-track-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-field}"
+  },
+  "choices-track-fill-rest": {
+    "$type": "color",
+    "$value": "{accent-plain-fill-soft}"
+  },
+  "data-current-fill-selected": {
+    "$type": "color",
+    "$value": "{fill-marker}"
+  },
+  "data-header-edge-hover": {
+    "$type": "color",
+    "$value": "{edge-control-quiet}"
+  },
+  "data-header-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-control-quiet}"
+  },
+  "data-header-fill-hover": {
+    "$type": "color",
+    "$value": "{fill-surface-raised}"
+  },
+  "data-header-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface-raised}"
+  },
+  "data-header-ink-hover": {
+    "$type": "color",
+    "$value": "{ink-muted}"
+  },
+  "data-header-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-body}"
+  },
+  "data-now-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-control-on}"
+  },
+  "data-row-edge-hover": {
+    "$type": "color",
+    "$value": "{edge-control-quiet}"
+  },
+  "data-row-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-control-quiet}"
+  },
+  "data-row-fill-hover": {
+    "$type": "color",
+    "$value": "{fill-surface-raised}"
+  },
+  "data-today-ink-rest": {
+    "$type": "color",
+    "$value": "{accent-gold-ink}"
+  },
+  "feedback-danger-action-ink-rest": {
+    "$type": "color",
+    "$value": "{hue-danger-ink}"
+  },
+  "feedback-danger-banner-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "feedback-danger-banner-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-track}"
+  },
+  "feedback-danger-icon-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "feedback-gold-banner-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-marker}"
+  },
+  "feedback-info-action-ink-rest": {
+    "$type": "color",
+    "$value": "{hue-info-ink}"
+  },
+  "feedback-info-banner-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "feedback-info-banner-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-track}"
+  },
+  "feedback-info-icon-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "feedback-neutral-action-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-figure}"
+  },
+  "feedback-neutral-banner-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-control}"
+  },
+  "feedback-neutral-banner-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface-floating}"
+  },
+  "feedback-neutral-icon-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-figure}"
+  },
+  "feedback-success-action-ink-rest": {
+    "$type": "color",
+    "$value": "{hue-success-ink}"
+  },
+  "feedback-success-banner-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "feedback-success-banner-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-track}"
+  },
+  "feedback-success-icon-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "feedback-warning-action-ink-rest": {
+    "$type": "color",
+    "$value": "{hue-warning-ink}"
+  },
+  "feedback-warning-banner-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "feedback-warning-banner-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-track}"
+  },
+  "feedback-warning-icon-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "fields-error-field-edge-disabled": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "fields-error-field-edge-hover": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "fields-error-field-edge-rest": {
+    "$type": "color",
+    "$value": "{hue-danger-edge}"
+  },
+  "fields-error-field-fill-disabled": {
+    "$type": "color",
+    "$value": "{fill-field}"
+  },
+  "fields-error-field-fill-hover": {
+    "$type": "color",
+    "$value": "{accent-plain-fill-soft}"
+  },
+  "fields-error-field-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-page}"
+  },
+  "fields-error-ink-rest": {
+    "$type": "color",
+    "$value": "{hue-danger-ink}"
+  },
+  "fields-error-status-ink-rest": {
+    "$type": "color",
+    "$value": "{hue-danger-ink}"
+  },
+  "fields-neutral-counter-ink-rest": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "fields-neutral-field-edge-disabled": {
+    "$type": "color",
+    "$value": "{edge-control-quiet}"
+  },
+  "fields-neutral-field-edge-hover": {
+    "$type": "color",
+    "$value": "{edge-control-quiet}"
+  },
+  "fields-neutral-field-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-control-quiet}"
+  },
+  "fields-neutral-field-fill-disabled": {
+    "$type": "color",
+    "$value": "{fill-field}"
+  },
+  "fields-neutral-field-fill-hover": {
+    "$type": "color",
+    "$value": "{accent-plain-fill-soft}"
+  },
+  "fields-neutral-field-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-page}"
+  },
+  "fields-readonly-field-fill-disabled": {
+    "$type": "color",
+    "$value": "{fill-surface}"
+  },
+  "fields-readonly-field-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface-floating}"
+  },
+  "fields-required-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-eyebrow}"
+  },
+  "fields-stepper-edge-disabled": {
+    "$type": "color",
+    "$value": "{accent-primary-edge}"
+  },
+  "fields-stepper-edge-hover": {
+    "$type": "color",
+    "$value": "{accent-primary-edge}"
+  },
+  "fields-stepper-edge-pressed": {
+    "$type": "color",
+    "$value": "{accent-primary-edge}"
+  },
+  "fields-stepper-edge-rest": {
+    "$type": "color",
+    "$value": "{accent-primary-edge}"
+  },
+  "fields-stepper-fill-disabled": {
+    "$type": "color",
+    "$value": "transparent"
+  },
+  "fields-stepper-fill-hover": {
+    "$type": "color",
+    "$value": "{accent-plain-fill-soft}"
+  },
+  "fields-stepper-fill-pressed": {
+    "$type": "color",
+    "$value": "transparent"
+  },
+  "fields-stepper-ink-disabled": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "fields-stepper-ink-hover": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "fields-stepper-ink-pressed": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "fields-stepper-ink-rest": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "fields-valid-field-edge-disabled": {
+    "$type": "color",
+    "$value": "{edge-invalid}",
+    "$description": "complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses."
+  },
+  "fields-valid-field-edge-hover": {
+    "$type": "color",
+    "$value": "{edge-invalid}",
+    "$description": "complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses."
+  },
+  "fields-valid-field-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-invalid}",
+    "$description": "complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses."
+  },
+  "fields-valid-field-fill-disabled": {
+    "$type": "color",
+    "$value": "{fill-field}"
+  },
+  "fields-valid-field-fill-hover": {
+    "$type": "color",
+    "$value": "{accent-plain-fill-soft}"
+  },
+  "fields-valid-field-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-page}"
+  },
+  "fields-valid-status-ink-rest": {
+    "$type": "color",
+    "$value": "{hue-danger-ink}",
+    "$description": "complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses."
+  },
+  "fields-value-ink-rest": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "fields-warning-counter-ink-rest": {
+    "$type": "color",
+    "$value": "{hue-danger-ink}",
+    "$description": "complete draws this in the same colour as its error counterpart, and the role that resolves to it is the one named; a spelling of its own, since the kernel default is the one the witness refuses."
+  },
+  "marks-danger-complete-dot-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "marks-danger-complete-dot-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface-floating}"
+  },
+  "marks-danger-complete-dot-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "marks-danger-current-dot-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "marks-danger-current-dot-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface-floating}"
+  },
+  "marks-danger-current-dot-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "marks-danger-dot-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "marks-danger-label-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "marks-danger-outline-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "marks-danger-outline-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "marks-danger-soft-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-track}"
+  },
+  "marks-danger-soft-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-figure}"
+  },
+  "marks-danger-upcoming-dot-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "marks-danger-upcoming-dot-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface-floating}"
+  },
+  "marks-danger-upcoming-dot-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "marks-gold-dot-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-knob-off}"
+  },
+  "marks-gold-label-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-knob-off}"
+  },
+  "marks-gold-soft-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-figure}"
+  },
+  "marks-info-complete-dot-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-track}"
+  },
+  "marks-info-complete-dot-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-on-mark}"
+  },
+  "marks-info-current-dot-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "marks-info-current-dot-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface-floating}"
+  },
+  "marks-info-current-dot-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "marks-info-label-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "marks-info-soft-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-track}"
+  },
+  "marks-info-soft-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-figure}"
+  },
+  "marks-info-upcoming-dot-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "marks-info-upcoming-dot-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface-floating}"
+  },
+  "marks-info-upcoming-dot-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "marks-muted-dot-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "marks-neutral-complete-dot-ink-rest": {
+    "$type": "color",
+    "$value": "{hue-info-on-ink}"
+  },
+  "marks-neutral-current-dot-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-selected}"
+  },
+  "marks-neutral-current-dot-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface-floating}"
+  },
+  "marks-neutral-current-dot-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-figure}"
+  },
+  "marks-neutral-dot-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-figure}"
+  },
+  "marks-neutral-label-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-eyebrow}"
+  },
+  "marks-neutral-outline-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-surface}"
+  },
+  "marks-neutral-outline-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-figure}"
+  },
+  "marks-neutral-upcoming-dot-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-field}"
+  },
+  "marks-neutral-upcoming-dot-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface-floating}"
+  },
+  "marks-neutral-upcoming-dot-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-figure}"
+  },
+  "marks-plain-label-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-figure}"
+  },
+  "marks-plain-outline-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-surface}"
+  },
+  "marks-plain-outline-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-figure}"
+  },
+  "marks-plain-soft-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-track}"
+  },
+  "marks-plain-soft-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-figure}"
+  },
+  "marks-primary-dot-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-heading}"
+  },
+  "marks-primary-label-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-heading}"
+  },
+  "marks-primary-outline-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-control}"
+  },
+  "marks-primary-outline-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-heading}"
+  },
+  "marks-primary-soft-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-selected}"
+  },
+  "marks-primary-soft-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-figure}"
+  },
+  "marks-success-complete-dot-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-track}"
+  },
+  "marks-success-complete-dot-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-on-mark}"
+  },
+  "marks-success-current-dot-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "marks-success-current-dot-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface-floating}"
+  },
+  "marks-success-current-dot-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "marks-success-label-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "marks-success-outline-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "marks-success-outline-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "marks-success-soft-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-track}"
+  },
+  "marks-success-soft-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-figure}"
+  },
+  "marks-success-upcoming-dot-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "marks-success-upcoming-dot-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface-floating}"
+  },
+  "marks-success-upcoming-dot-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "marks-tile-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-surface}"
+  },
+  "marks-tile-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-marker}"
+  },
+  "marks-tile-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-figure}"
+  },
+  "marks-warning-complete-dot-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-track}"
+  },
+  "marks-warning-complete-dot-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-on-mark}"
+  },
+  "marks-warning-current-dot-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "marks-warning-current-dot-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface-floating}"
+  },
+  "marks-warning-current-dot-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "marks-warning-label-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "marks-warning-outline-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "marks-warning-outline-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "marks-warning-soft-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-track}"
+  },
+  "marks-warning-soft-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-figure}"
+  },
+  "marks-warning-upcoming-dot-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "marks-warning-upcoming-dot-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface-floating}"
+  },
+  "marks-warning-upcoming-dot-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "menus-destructive-item-fill-hover": {
+    "$type": "color",
+    "$value": "{accent-plain-fill-soft}"
+  },
+  "menus-destructive-item-fill-pressed": {
+    "$type": "color",
+    "$value": "{accent-plain-fill-soft}",
+    "$description": "complete paints a pressed destructive menu row with its hover fill, neutral, and accent-plain-fill-soft is a spelling of its own that resolves to it, so a held row keeps the wash it took on hover."
+  },
+  "menus-destructive-item-icon-hover": {
+    "$type": "color",
+    "$value": "{hue-info-ink}"
+  },
+  "menus-destructive-item-icon-pressed": {
+    "$type": "color",
+    "$value": "{hue-info-ink}"
+  },
+  "menus-destructive-item-icon-rest": {
+    "$type": "color",
+    "$value": "{hue-info-ink}"
+  },
+  "menus-destructive-item-ink-hover": {
+    "$type": "color",
+    "$value": "{hue-danger-ink}"
+  },
+  "menus-destructive-item-ink-pressed": {
+    "$type": "color",
+    "$value": "{hue-danger-ink}"
+  },
+  "menus-destructive-item-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "menus-plain-item-fill-hover": {
+    "$type": "color",
+    "$value": "{accent-plain-fill-soft}"
+  },
+  "menus-plain-item-fill-pressed": {
+    "$type": "color",
+    "$value": "{accent-plain-fill-soft}",
+    "$description": "complete paints a pressed menu row with its hover fill, neutral, and accent-plain-fill-soft is a spelling of its own that resolves to it, so a held row keeps the wash it took on hover."
+  },
+  "menus-plain-item-fill-selected": {
+    "$type": "color",
+    "$value": "{accent-primary-fill-soft}"
+  },
+  "menus-plain-item-icon-hover": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "menus-plain-item-icon-pressed": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "menus-plain-item-icon-rest": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "menus-plain-item-icon-selected": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "menus-plain-item-ink-hover": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "menus-plain-item-ink-pressed": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "menus-plain-item-ink-rest": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "menus-plain-item-ink-selected": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "meters-danger-standing-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "meters-danger-track-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-control}"
+  },
+  "meters-danger-track-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "meters-gold-track-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-control}"
+  },
+  "meters-gold-track-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-knob-off}"
+  },
+  "meters-info-track-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-control}"
+  },
+  "meters-muted-track-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-body}"
+  },
+  "meters-neutral-standing-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-body}"
+  },
+  "meters-primary-track-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-control}"
+  },
+  "meters-primary-track-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-heading}"
+  },
+  "meters-success-standing-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "meters-success-track-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-control}"
+  },
+  "meters-warning-standing-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "meters-warning-track-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-control}"
+  },
+  "navigation-badge-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface-sunken}"
+  },
+  "navigation-badge-fill-selected": {
+    "$type": "color",
+    "$value": "{fill-control-on}"
+  },
+  "navigation-badge-ink-rest": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "navigation-disclosure-fill-disabled": {
+    "$type": "color",
+    "$value": "transparent",
+    "$description": "complete paints a disabled disclosure trigger transparent, as it paints one at rest, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling."
+  },
+  "navigation-disclosure-fill-hover": {
+    "$type": "color",
+    "$value": "{accent-plain-fill-soft}"
+  },
+  "navigation-disclosure-fill-pressed": {
+    "$type": "color",
+    "$value": "{accent-plain-fill-soft}",
+    "$description": "complete paints a pressed disclosure trigger with its hover fill, neutral, and accent-plain-fill-soft is a spelling of its own that resolves to it, so a held row keeps the wash it took on hover. The Sheet trigger follows the Accordion trigger here, and paints the hover and pressed wash the disclosure group answers."
+  },
+  "navigation-disclosure-ink-disabled": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "navigation-disclosure-ink-hover": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "navigation-disclosure-ink-pressed": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "navigation-disclosure-ink-rest": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "navigation-item-edge-hover": {
+    "$type": "color",
+    "$value": "transparent",
+    "$description": "complete draws an unselected navigation row with no edge when hovered, as at rest, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling."
+  },
+  "navigation-item-edge-pressed": {
+    "$type": "color",
+    "$value": "transparent",
+    "$description": "complete draws an unselected navigation row with no edge when pressed, as at rest, and the literal transparent is the one answer that resolves to that; its rest slot is exempt from the witness for want of a second spelling."
+  },
+  "navigation-item-edge-selected": {
+    "$type": "color",
+    "$value": "{accent-primary-edge}"
+  },
+  "navigation-item-edge-selected-hover": {
+    "$type": "color",
+    "$value": "{accent-primary-edge}"
+  },
+  "navigation-item-edge-selected-pressed": {
+    "$type": "color",
+    "$value": "{accent-primary-edge}"
+  },
+  "navigation-item-fill-hover": {
+    "$type": "color",
+    "$value": "{accent-plain-fill-soft}"
+  },
+  "navigation-item-fill-pressed": {
+    "$type": "color",
+    "$value": "{accent-plain-fill-soft}",
+    "$description": "complete paints a pressed unselected navigation row with its hover fill, neutral, and accent-plain-fill-soft is a spelling of its own that resolves to it, so a held row keeps the wash it took on hover."
+  },
+  "navigation-item-fill-selected": {
+    "$type": "color",
+    "$value": "{accent-primary-fill-soft}"
+  },
+  "navigation-item-fill-selected-hover": {
+    "$type": "color",
+    "$value": "{accent-primary-fill-soft}"
+  },
+  "navigation-item-fill-selected-pressed": {
+    "$type": "color",
+    "$value": "{accent-primary-fill-soft}"
+  },
+  "navigation-item-icon-hover": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "navigation-item-icon-pressed": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "navigation-item-icon-rest": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "navigation-item-icon-selected": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "navigation-item-icon-selected-hover": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "navigation-item-icon-selected-pressed": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "navigation-item-ink-hover": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "navigation-item-ink-pressed": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "navigation-item-ink-rest": {
+    "$type": "color",
+    "$value": "{accent-muted-ink}"
+  },
+  "navigation-item-ink-selected": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "navigation-item-ink-selected-hover": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "navigation-item-ink-selected-pressed": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "navigation-plain-link-ink-hover": {
+    "$type": "color",
+    "$value": "{ink-eyebrow}",
+    "$description": "complete draws a hovered link in the heading colour, secondary, and ink-eyebrow is the accepted role that resolves to it, since the kernel default ink-heading is the spelling the witness refuses."
+  },
+  "navigation-plain-link-ink-rest": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "navigation-quiet-link-ink-hover": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "navigation-quiet-link-ink-rest": {
+    "$type": "color",
+    "$value": "{accent-plain-ink}"
+  },
+  "overlays-destructive-eyebrow-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "overlays-panel-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-control}"
+  },
+  "overlays-panel-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface}"
+  },
+  "overlays-panel-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-figure}"
+  },
+  "overlays-plain-eyebrow-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-heading}"
+  },
+  "overlays-readout-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-control}"
+  },
+  "overlays-readout-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-track}"
+  },
+  "overlays-scrim-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface}"
+  },
+  "overlays-section-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface}"
+  },
+  "overlays-tip-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-on-mark}"
+  },
+  "steps-complete-label-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-figure}"
+  },
+  "steps-complete-marker-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-field}"
+  },
+  "steps-complete-marker-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-figure}"
+  },
+  "steps-current-label-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-eyebrow}"
+  },
+  "steps-current-marker-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-control-on}"
+  },
+  "steps-error-marker-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-invalid}"
+  },
+  "steps-error-marker-fill-rest": {
+    "$type": "color",
+    "$value": "{hue-danger-fill-strong}"
+  },
+  "steps-error-marker-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "steps-upcoming-label-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-figure}"
+  },
+  "steps-upcoming-marker-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-separator}"
+  },
+  "steps-upcoming-marker-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-figure}"
+  },
+  "surfaces-floating-bar-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-control}"
+  },
+  "surfaces-floating-bar-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface}"
+  },
+  "surfaces-media-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface-raised}"
+  },
+  "surfaces-media-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-eyebrow}"
+  },
+  "surfaces-media-sunken-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-marker}"
+  },
+  "surfaces-media-sunken-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-marker}"
+  },
+  "surfaces-media-sunken-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-heading}"
+  },
+  "surfaces-page-bar-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-marker}"
+  },
+  "surfaces-page-bar-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface-floating}"
+  },
+  "surfaces-page-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface}"
+  },
+  "surfaces-page-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-invalid}"
+  },
+  "surfaces-plain-card-edge-hover": {
+    "$type": "color",
+    "$value": "{edge-marker}"
+  },
+  "surfaces-plain-card-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-marker}"
+  },
+  "surfaces-plain-card-fill-hover": {
+    "$type": "color",
+    "$value": "{fill-surface-raised}"
+  },
+  "surfaces-plain-card-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface-floating}"
+  },
+  "surfaces-plain-sunken-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-marker}"
+  },
+  "surfaces-plain-sunken-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-body}"
+  },
+  "surfaces-primary-card-edge-hover": {
+    "$type": "color",
+    "$value": "{edge-surface-floating}"
+  },
+  "surfaces-primary-card-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-surface-floating}"
+  },
+  "surfaces-primary-card-fill-hover": {
+    "$type": "color",
+    "$value": "{fill-surface-raised}"
+  },
+  "surfaces-primary-card-fill-rest": {
+    "$type": "color",
+    "$value": "{fill-surface-floating}"
+  },
+  "surfaces-separator-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-control-quiet}"
+  },
+  "text-body-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-muted}"
+  },
+  "text-eyebrow-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-heading}"
+  },
+  "text-figure-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-key}"
+  },
+  "text-heading-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-eyebrow}"
+  },
+  "text-key-edge-rest": {
+    "$type": "color",
+    "$value": "{edge-field}"
+  },
+  "text-key-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-figure}"
+  },
+  "text-muted-ink-rest": {
+    "$type": "color",
+    "$value": "{ink-body}"
   }
 }

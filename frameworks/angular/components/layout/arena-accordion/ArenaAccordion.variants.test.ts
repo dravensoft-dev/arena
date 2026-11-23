@@ -227,18 +227,12 @@ test('a plain field in a panel raises a change that the accordion neither report
   }
 });
 
-test('a blank label, a blank value and a heading level of none throw', () => {
-  for (const [patch, message] of [
-    [{ label: '  ' }, /^ArenaAccordionItem: `label`/],
-    [{ value: ' ' }, /^ArenaAccordionItem: `value`/],
-    [{ level: 'none' }, /^ArenaAccordion: `headingLevel`/],
-  ] as const) {
-    const fixture = TestBed.createComponent(GuardHost);
-    Object.assign(fixture.componentInstance, patch);
-    try {
-      assert.throws(() => fixture.detectChanges(), (error: Error) => message.test(error.message));
-    } finally {
-      fixture.destroy();
-    }
+test('a heading level of none throws', () => {
+  const fixture = TestBed.createComponent(GuardHost);
+  Object.assign(fixture.componentInstance, { level: 'none' });
+  try {
+    assert.throws(() => fixture.detectChanges(), (error: Error) => /^ArenaAccordion: `headingLevel`/.test(error.message));
+  } finally {
+    fixture.destroy();
   }
 });

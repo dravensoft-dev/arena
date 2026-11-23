@@ -138,59 +138,79 @@ test('a non-default --config is appended to every script it writes', () => {
   assert.equal(readFileSync(join(cwd, 'config', 'arena.json'), 'utf8'), EXAMPLE);
 });
 
-test('no package exits 2', () => {
-  const { cwd } = setup();
-  const { io, err } = captureIo(cwd, { arena: null });
-  assert.equal(run([], io), 2);
-  assert.deepEqual(err, ['arena init: arena init copies the example config an Arena package carries, and no Arena package is around this command']);
-});
+type InitCtx = { arena: string | null; cwd: string; io: ReturnType<typeof captureIo>['io']; err: string[] };
+const noConfig = (ctx: InitCtx) => !existsSync(join(ctx.cwd, 'arena.config.json'));
 
-test('an unknown package exits 2 naming it', () => {
-  const { io, err } = setup('@dravensoft/arena-vue');
-  assert.equal(run([], io), 2);
-  assert.deepEqual(err, ['arena init: @dravensoft/arena-vue is not a package arena init knows how to wire']);
-});
+const EXIT_2: {
+  name: string;
+  make: () => InitCtx;
+  expected: (ctx: InitCtx) => string[] | string | RegExp;
+  packageJson?: string;
+  noConfig?: boolean;
+}[] = [
+  {
+    name: 'no package exits 2',
+    make: () => {
+      const { cwd } = setup();
+      const { io, err } = captureIo(cwd, { arena: null });
+      return { arena: null, cwd, io, err };
+    },
+    expected: () => ['arena init: arena init copies the example config an Arena package carries, and no Arena package is around this command'],
+  },
+  {
+    name: 'an unknown package exits 2 naming it',
+    make: () => setup('@dravensoft/arena-vue'),
+    expected: () => ['arena init: @dravensoft/arena-vue is not a package arena init knows how to wire'],
+  },
+  {
+    name: 'no example exits 2',
+    make: () => {
+      const ctx = setup();
+      rmSync(join(ctx.arena, 'arena.config.example.json'));
+      return ctx;
+    },
+    expected: (ctx) => [`arena init: ${join(ctx.arena!, 'arena.config.example.json')} is not there`],
+    noConfig: true,
+  },
+  {
+    name: 'no package.json exits 2',
+    make: () => setup(REACT, null),
+    expected: (ctx) => [`arena init: no package.json in ${ctx.cwd}; arena init adds scripts to the one your project has`],
+    noConfig: true,
+  },
+  {
+    name: 'bad JSON exits 2',
+    make: () => setup(REACT, '{nope'),
+    expected: (ctx) => new RegExp(`^arena init: cannot read ${join(ctx.cwd, 'package.json').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}: `),
+    noConfig: true,
+  },
+  ...['null', '[]', '7', '"x"'].map((body) => ({
+    name: `a package.json that is not a JSON object exits 2 and is untouched (${body})`,
+    make: () => setup(REACT, body),
+    expected: (ctx: InitCtx) => `arena init: cannot read ${join(ctx.cwd, 'package.json')}: it holds ${body === '[]' ? 'an array' : 'no JSON object'}`,
+    packageJson: body,
+    noConfig: true,
+  })),
+  ...['"x"', '["a"]', 'null'].map((scripts) => ({
+    name: `a scripts field that is not an object exits 2 naming it and writes nothing (${scripts})`,
+    make: () => setup(REACT, `{"scripts":${scripts}}`),
+    expected: (ctx: InitCtx) => `arena init: "scripts" in ${join(ctx.cwd, 'package.json')} is not an object, so init cannot add to it`,
+    packageJson: `{"scripts":${scripts}}`,
+    noConfig: true,
+  })),
+];
 
-test('no example exits 2', () => {
-  const { arena, cwd, io, err } = setup();
-  rmSync(join(arena, 'arena.config.example.json'));
-  assert.equal(run([], io), 2);
-  assert.deepEqual(err, [`arena init: ${join(arena, 'arena.config.example.json')} is not there`]);
-  assert.ok(!existsSync(join(cwd, 'arena.config.json')));
-});
-
-test('no package.json exits 2', () => {
-  const { cwd, io, err } = setup(REACT, null);
-  assert.equal(run([], io), 2);
-  assert.deepEqual(err, [`arena init: no package.json in ${cwd}; arena init adds scripts to the one your project has`]);
-  assert.ok(!existsSync(join(cwd, 'arena.config.json')));
-});
-
-test('bad JSON exits 2', () => {
-  const { cwd, io, err } = setup(REACT, '{nope');
-  assert.equal(run([], io), 2);
-  assert.match(err[0] as string, new RegExp(`^arena init: cannot read ${join(cwd, 'package.json').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}: `));
-  assert.ok(!existsSync(join(cwd, 'arena.config.json')));
-});
-
-test('a package.json that is not a JSON object exits 2 and is untouched', () => {
-  for (const body of ['null', '[]', '7', '"x"']) {
-    const { cwd, io, err } = setup(REACT, body);
-    assert.equal(run([], io), 2);
-    assert.equal(err[0], `arena init: cannot read ${join(cwd, 'package.json')}: it holds ${body === '[]' ? 'an array' : 'no JSON object'}`);
-    assert.equal(readFileSync(join(cwd, 'package.json'), 'utf8'), body);
-    assert.ok(!existsSync(join(cwd, 'arena.config.json')));
-  }
-});
-
-test('a scripts field that is not an object exits 2 naming it and writes nothing', () => {
-  for (const scripts of ['"x"', '["a"]', 'null']) {
-    const body = `{"scripts":${scripts}}`;
-    const { cwd, io, err } = setup(REACT, body);
-    assert.equal(run([], io), 2);
-    assert.equal(err[0], `arena init: "scripts" in ${join(cwd, 'package.json')} is not an object, so init cannot add to it`);
-    assert.equal(readFileSync(join(cwd, 'package.json'), 'utf8'), body);
-    assert.ok(!existsSync(join(cwd, 'arena.config.json')));
+test('arena init exits 2 and writes nothing when it cannot wire the project', () => {
+  assert.ok(EXIT_2.length > 0, 'the table has rows');
+  for (const row of EXIT_2) {
+    const ctx = row.make();
+    assert.equal(run([], ctx.io), 2, row.name);
+    const expected = row.expected(ctx);
+    if (Array.isArray(expected)) assert.deepEqual(ctx.err, expected, row.name);
+    else if (typeof expected === 'string') assert.equal(ctx.err[0], expected, row.name);
+    else assert.match(ctx.err[0] as string, expected, row.name);
+    if (row.packageJson !== undefined) assert.equal(readFileSync(join(ctx.cwd, 'package.json'), 'utf8'), row.packageJson, row.name);
+    if (row.noConfig) assert.ok(noConfig(ctx), `${row.name}: no arena.config.json was written`);
   }
 });
 

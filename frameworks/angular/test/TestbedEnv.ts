@@ -1,17 +1,15 @@
-/* Angular derives a component id from the component definition and never from the class name, so two
- * components with the same selector, template and metadata hash to one id and Angular warns NG0912.
- * The guard keeps that warning out of the output and records it instead. A printed warning hides in
- * the noise, and a thrown one at load fails a whole file as an unhandled error between tests, so its
- * cases never run. Recording it lets the afterEach of the file that called useTestEnvironment() fail
- * the one test that defined the colliding component, with the site that defined it.
- * An `[arena]` warning no test captured is recorded the same way and fails the test that provoked it;
- * one a test provokes is captured and asserted. The deduplication of `arenaWarnOnce` and `warnUnresolved`
- * is process-wide, so a beforeEach forgets both. Breakpoints are set by each suite, never here.
- * Every environment serves one sprite at TEST_ICONS_HREF; glyphIds and symbol read and build ph-<weight>-<name>. */
+/* Angular derives a component id from the definition, so two alike components hash to one id and warn
+ * NG0912; that warning and any `[arena]` warning no test captured are recorded, and the afterEach of the
+ * file that called useTestEnvironment() fails the case that caused it, with its site. A beforeEach forgets
+ * the process-wide dedup of `arenaWarnOnce` and `warnUnresolved`; breakpoints are each suite's. Angular's
+ * own teardown hook never runs under bun test, so each such file resets after every case, and
+ * HeldRootRenderer holds its roots by reference: Angular finds them by `[id^=root]`, and a host that
+ * binds `[attr.id]` to null (ArenaFileInput) stripped it, leaving a host whose label-derived ids another
+ * case then found. One sprite is served at TEST_ICONS_HREF; glyphIds and symbol read ph-<weight>-<name>. */
 import { GlobalRegistrator } from '@happy-dom/global-registrator';
 import '@angular/compiler';
 import { afterEach, beforeEach } from 'node:test';
-import { TestBed } from '@angular/core/testing';
+import { TestBed, TestComponentRenderer } from '@angular/core/testing';
 import { NgModule } from '@angular/core';
 import { BrowserTestingModule, platformBrowserTesting } from '@angular/platform-browser/testing';
 import { provideArenaIcons } from '../ArenaIcons';
@@ -64,6 +62,7 @@ function guard(): void {
     forgetArenaWarnings();
     forgetArenaBreakpoints();
   });
+  afterEach(() => TestBed.resetTestingModule());
   afterEach(() => {
     const found = [
       ...takeComponentIdCollisions().map((one) => `component id collision: ${one}`),
@@ -83,7 +82,26 @@ export function symbol(weight: string, name: string): string {
   return ['ph', weight, name].join('-');
 }
 
-@NgModule({ exports: [BrowserTestingModule], providers: [provideArenaIcons(TEST_ICONS_HREF)] })
+const roots: Element[] = [];
+
+class HeldRootRenderer extends TestComponentRenderer {
+  override insertRootElement(rootElId: string, tagName = 'div'): void {
+    this.removeAllRootElements();
+    const root = document.createElement(tagName);
+    root.setAttribute('id', rootElId);
+    document.body.appendChild(root);
+    roots.push(root);
+  }
+
+  override removeAllRootElements(): void {
+    for (const root of roots.splice(0)) root.remove();
+  }
+}
+
+@NgModule({
+  exports: [BrowserTestingModule],
+  providers: [provideArenaIcons(TEST_ICONS_HREF), { provide: TestComponentRenderer, useClass: HeldRootRenderer }],
+})
 class ArenaTestingModule {}
 
 let claimed = false;

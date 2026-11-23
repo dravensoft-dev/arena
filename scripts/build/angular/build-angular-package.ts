@@ -9,8 +9,8 @@
  * SECONDARY_ENTRY_POINTS order, because ng-packagr writes them in the order an async glob
  * finishes. ng-packagr runs through spawnForwarding, so an interrupt of this step ends it too. */
 
-import { readFileSync, existsSync, mkdirSync } from 'node:fs';
-import { join, posix } from 'node:path';
+import { readFileSync, mkdirSync } from 'node:fs';
+import { join } from 'node:path';
 import { relPosix } from '../../utils/posix-path.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { readJson } from '../../utils/read-file.ts';

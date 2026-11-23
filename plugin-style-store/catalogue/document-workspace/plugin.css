@@ -32,7 +32,7 @@
 }
 
 /* A crumb trail sits above the page and reads as chrome. The face, the size and the tracking are
-   roles now; what is left is how far the trail is held back, which is a level rather than a
+   roles; the rule below sets how far the trail is held back, which is a level rather than a
    colour and which no role carries. */
 [data-arena-part="breadcrumbs.crumb"],
 [data-arena-part="breadcrumbs.current"],
@@ -41,12 +41,6 @@
 }
 
 [data-arena-part="breadcrumbs.current"] {
-  color: var(--ink-heading);
-}
-
-/* A tab is marked by weight and a dark rule, never by the accent. */
-[data-arena-part="tabs.tab"][aria-selected="true"] {
-  border-block-end-color: var(--ink-heading);
   color: var(--ink-heading);
 }
 

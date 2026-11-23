@@ -15,7 +15,7 @@ import { compileLayer, compileEntry, layerInputs, layerManifests } from '../../l
 import {
   classBase, classesManifest, entryStylesheet, stripIndirection, stripProblems, themeMapFor,
 } from '../../lib/tailwind/component-css.ts';
-import { dropBlindFallbacks, mergeSupports } from '../../lib/tailwind/supports-blocks.ts';
+import { dropBlindFallbacks, hoistPseudoSupports, mergeSupports } from '../../lib/tailwind/supports-blocks.ts';
 import {
   componentSheet, hueSheet, matchingBrace, preflightSheet, preludeSheet, splitUtilities,
 } from '../../lib/tailwind/component-sheets.ts';
@@ -28,7 +28,7 @@ import type { ArenaAnswer, ComponentManifest } from '../../lib/tailwind/manifest
 import { HUE_SHEETS, hueRules, huePath, readHues } from '../../lib/tailwind/hue-sheet.ts';
 import { readJson } from '../../utils/read-file.ts';
 import {
-  VOCABULARY_DIR, VOCABULARY_SHEETS, answerOf, compileFamily, familyFiles, readFamilies, sheetFamilies, sheetName, targetOf,
+  VOCABULARY_DIR, axesOf, VOCABULARY_SHEETS, answerOf, compileFamily, familyFiles, readFamilies, sheetFamilies, sheetName, targetOf,
   type Family,
 } from '../../lib/tailwind/vocabulary.ts';
 
@@ -95,6 +95,7 @@ export const node = {
     'build:angular-tests',
     'build:demos',
     'build:react-package',
+    'build:mcp-package', 'check:mcp',
     'check:api', 'check:style-plugin-coverage',
     'check:appearance',
     'check:parts',
@@ -115,7 +116,7 @@ export const node = {
     'check:generated',
     'check:icons',
     'check:layer-independence',
-    'check:target-size', 'check:contained-parts', 'check:pixel-parity', 'check:palette-islands',
+    'check:target-size', 'check:text-scale', 'check:contained-parts', 'check:pixel-parity', 'check:palette-islands',
     'check:playgrounds',
     'check:react-types',
     'check:script-tokens',
@@ -177,7 +178,7 @@ export function buildComponentCss(opts: BuildOptions = {}) {
   const byComponent = new Map();
   for (const [file, manifest] of manifests) byComponent.set(classBase(manifest.component), file);
 
-  const settled = mergeSupports(dropBlindFallbacks(stripIndirection(raw, themeMapFor(root))));
+  const settled = mergeSupports(hoistPseudoSupports(dropBlindFallbacks(stripIndirection(raw, themeMapFor(root)))));
   const { shared, components } = splitUtilities(settled, new Set(byComponent.keys()));
   const out = new Map();
   out.set(join(root, PRELUDE), BANNER + preludeSheet(shared, keyframesOf(root)));
@@ -249,6 +250,12 @@ export function componentVocabulary(families: Family[], answers: ReadonlyMap<str
   return [...context, ...takenBy(component, answers, boxes, options).flatMap(({ kept }) => kept)];
 }
 
+export function containerProperties(families: Family[]) {
+  const named = [...new Set(families.flatMap((family) => axesOf(family)))].sort();
+  const keyed = families.flatMap((family) => (family.properties ?? []).map((name) => name.replaceAll('<key>', '${string}')));
+  return { named, keyed };
+}
+
 export function vocabularyTypes(families: Family[], answers: Map<string, readonly ArenaAnswer[]>, components: string[], page: string,
   elementless: ReadonlyMap<string, string> = OWN_ELEMENTLESS) {
   const { options, context, boxes } = boxesOf(families);
@@ -266,6 +273,11 @@ export function vocabularyTypes(families: Family[], answers: Map<string, readonl
     const tokens = ['ArenaContextClass', ...taken.flatMap(({ one, kept, whole }) => (whole ? [typeName(one.family)] : kept.map((option) => `'${option}'`)))];
     lines.push(`export type ${component}Class = ArenaClassList<${tokens.join(' | ')}>;`);
   }
+  const { named, keyed } = containerProperties(families);
+  lines.push("declare module 'react' {", '  interface CSSProperties {',
+    ...named.map((name) => `    '${name}'?: string;`),
+    ...keyed.map((name) => `    [property: \`${name}\`]: string | undefined;`),
+    '  }', '}');
   return `${lines.join('\n')}\n`;
 }
 

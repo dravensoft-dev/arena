@@ -22,7 +22,7 @@
       "form": "enum",
       "type": "ArenaCatSlot",
       "default": 1,
-      "description": "The ramp slot the first slice takes when the series gives no `colorIds`. Each later slice takes the next slot, and after the last slot the count starts again at the first. A slice past the end of `colorIds` takes the slot its position gives, counted the same way. Absent, 1."
+      "description": "The ramp colour the first slice takes when the series gives no `colorIds`. Each later slice takes the next ramp colour, and after the last ramp colour the count starts again at the first. A slice past the end of `colorIds` takes the ramp colour its position gives, counted the same way. Absent, 1."
     },
     "label": {
       "form": "primitive",
@@ -44,7 +44,7 @@
       "form": "enum",
       "type": "ArenaChartShape",
       "default": "doughnut",
-      "description": "Whether the ring keeps its hole or fills to the centre. 'pie' is the same chart with the same slices, the same legend and the same table, drawn solid. The pie costs the centre percentage, which has nowhere to go once the hole is gone. Over a wedge it would put the heading ink on a --color-cat slot, a pair nothing checks for contrast because nothing else draws it. The figure is not lost, it is in the legend row and in the accessible table, which is where every other number the chart writes already is."
+      "description": "Whether the ring keeps its hole or fills to the centre. 'pie' is the same chart with the same slices, the same legend and the same table, drawn solid. The pie costs the centre percentage, which has nowhere to go once the hole is gone. Over a wedge it would put the heading ink on a --color-cat ramp colour, a pair nothing checks for contrast because nothing else draws it. The figure is not lost, it is in the legend row and in the accessible table, which is where every other number the chart writes already is."
     },
     "legendLayout": {
       "form": "enum",

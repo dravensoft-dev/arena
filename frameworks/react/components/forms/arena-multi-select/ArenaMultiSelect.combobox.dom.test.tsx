@@ -51,10 +51,6 @@ function enterAcceptsAndCloses(): boolean {
   return open && accepted && closed;
 }
 
-test('Enter accepts the cursor row and closes the popup, as the pattern says', () => {
-  assert.equal(enterAcceptsAndCloses(), true);
-});
-
 test('ArenaMultiSelect meets the combobox pattern it binds, open', () => {
   const enter = enterAcceptsAndCloses();
   const { root, input } = render();

@@ -20,7 +20,7 @@ const [open, setOpen] = useState(false);
 | `children*` | slot |  |  | What the panel holds: a short form, a pair of fields, a paragraph. The content fills the panel and never replaces it: the surface, its padding and its edge are Arena's. |
 | `label*` | primitive | `string` |  | Names the panel for assistive technology: what it holds, not that it is a panel. Required, and guarded at runtime: a dialog with no accessible name is announced unlabelled, and the trigger's own name says what opens it, never what the panel is for. "Filters", not "Popover". |
 | `open` | primitive | `boolean` | `false` | Whether the panel is shown. The consumer owns it: the component asks to change it through openChange and never changes it by itself, so content inside the panel can close it, an Apply button included. |
-| `align` | enum | `ArenaMenuAlign` | `"start"` | Which edge of the trigger the panel lines up with. |
+| `align` | enum | `ArenaMenuAlign` | `"start"` | Which edge of the trigger the panel lines up with. Start is the edge a line of text begins at and end the opposite one, so both follow the page direction. |
 | `onOpenChange` | event | `boolean` |  | The panel asks to be shown or hidden, carrying the state it asks for. The trigger was pressed, Escape was pressed while it was the topmost panel, a press landed outside it, or Tab left it. The panel moves only when open does. |
 
 <!-- @api end -->
@@ -41,7 +41,7 @@ const [open, setOpen] = useState(false);
 
 **Escape closes the topmost panel and nothing under it.** A menu or a tooltip opened inside the popover closes first, and the next Escape closes the popover. A popover inside an `ArenaDialog` closes alone, and the dialog stays.
 
-**The panel escapes its container.** The panel opens in the top layer, so no `overflow: hidden` or transformed ancestor clips it. The top layer sits above every other layer, an open dialog and the toast stack included. The panel opens below its trigger and flips above when the room below is too small and the room above larger. The panel stays inside the viewport and follows its trigger on scroll. The panel takes its content's width, up to 92% of the viewport.
+**The panel escapes its container.** The panel opens in the top layer, so no `overflow: hidden` or transformed ancestor clips it. The top layer sits above every other layer, an open dialog and the toast stack included. The panel opens below its trigger and flips above when the room below is too small and the room above larger. The panel stays inside the viewport and follows its trigger on scroll. The panel takes its content's width, up to 92% of the viewport. The panel stays inside the visible part of the screen when a soft keyboard covers the rest.
 
 **A server render draws the trigger alone.** The panel is placed by script, so it mounts once the page has hydrated, even when `open` starts true.
 
@@ -53,8 +53,6 @@ const [open, setOpen] = useState(false);
 - Give the panel's action `arena-emphasis-secondary` when the view behind it already holds its primary. The action takes the primary only when it is the view's own action, because a popover is part of the view and not a scope of its own.
 - Don't use it as a menu of actions: that is `ArenaMenu`. Don't open it on hover: a hover-only panel is unreachable from a keyboard, and a description on hover is `ArenaTooltip`.
 - Don't make it modal and don't nest a popover in a popover. A menu or a select inside it is fine.
-
-**Check by hand** what a suite cannot see, having no layout. Scroll the page with the panel open and see the panel follow its trigger. Open one from inside a dialog and see the panel above the dialog.
 
 To fill a row, put `className="arena-fill"` on the popover or on a container above it. The trigger is not a boundary, so the class reaches the control inside and both take the row.
 

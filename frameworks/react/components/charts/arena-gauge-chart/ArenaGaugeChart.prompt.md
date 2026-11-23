@@ -25,9 +25,9 @@ One value against a scale, drawn as a 270 degree dial that opens at the bottom. 
 | `label*` | primitive | `string` |  | Names the gauge for its accessible name and for the caption of its data table. Required and guarded rather than defaulted, because a fallback of the chart type would announce two gauges on one page identically. |
 | `min` | primitive | `number` | `0` | The low end of the scale, where the arc begins. The start of the dial and the table both write it. |
 | `max` | primitive | `number` | `100` | The high end of the scale, where the arc ends and where the last band stops. A `max` not greater than `min` warns once and draws the empty track, because there is no scale to place a value on. |
-| `bands` | array | `readonly ArenaGaugeBand[]` |  | What the scale means. Each band runs from its `from` to the next band's `from`, and the last to `max`, and the arc takes the colour of the band the value is in. A value below the first band is in no band and takes the `colorStart` slot. Absent, the arc is one identity colour and no band is drawn. Data rather than a threshold function, so the dial and the table are cut from the same list. An unsorted list is configuration and not data, so it warns once and is read in order of `from`. A band without a `label` throws, because a status colour never ships without its word. |
-| `colorId` | primitive | `number` |  | The identity slot of the arc when there are no `bands`, clamped to the ramp, `colorStart` when absent. With `bands` it is ignored with a development warning, because a chart carries identity or meaning and never both. |
-| `colorStart` | enum | `ArenaCatSlot` | `1` | The ramp slot the arc takes when there are no `bands` and no `colorId`, and the slot a value below the first band takes. With `bands`, the band's tone wins. Absent, 1. |
+| `bands` | array | `readonly ArenaGaugeBand[]` |  | What the scale means. Each band runs from its `from` to the next band's `from`, and the last to `max`, and the arc takes the colour of the band the value is in. A value below the first band is in no band and takes the `colorStart` ramp colour. Absent, the arc is one identity colour and no band is drawn. Data rather than a threshold function, so the dial and the table are cut from the same list. An unsorted list is configuration and not data, so it warns once and is read in order of `from`. A band without a `label` throws, because a status colour never ships without its word. |
+| `colorId` | primitive | `number` |  | The identity colour of the arc when there are no `bands`, clamped to the ramp, `colorStart` when absent. With `bands`, the band's tone colours the arc and `colorId` is not read. |
+| `colorStart` | enum | `ArenaCatSlot` | `1` | The ramp colour the arc takes when there are no `bands` and no `colorId`, and the ramp colour a value below the first band takes. With `bands`, the band's tone colours the arc. Absent, 1. |
 | `valueSuffix` | primitive | `string` |  | Appended verbatim to every number the gauge writes: the centre reading, the end labels, the band edges and the accessible table. Carries its own leading space if one is wanted. |
 | `valuePrefix` | primitive | `string` |  | Drawn verbatim before every number the gauge writes, as valueSuffix is drawn after it, for a currency that precedes its amount. |
 | `valueFormat` | object | `ArenaNumberFormat` |  | How each number is written before the prefix and suffix are added: which locale, how many fraction digits, whether thousands are grouped, whether large numbers are compacted. Absent, the raw JavaScript number. |
@@ -58,7 +58,7 @@ One value against a scale, drawn as a 270 degree dial that opens at the bottom. 
 - Don't colour the arc from the number alone. Colour is a band, and a band has a word.
 - Don't pass a formatter or a threshold function. `bands` is data, so the dial and the table are cut from the same list.
 - Don't clamp the number before passing it. The drawing clamps and the words do not.
-- Don't pass `colorId` beside `bands`. A chart carries identity or meaning and never both, so the `colorId` is ignored with a development warning.
+- Don't pass `colorId` beside `bands`. The band's tone colours the arc and `colorId` is not read.
 - Don't use the gauge for a task that ends. An upload or a deploy is `ArenaProgressBar`.
 - Don't use the gauge as a form-register indicator in a row. A scale read inline, with a name and a standing, is `ArenaMeter`.
 - Don't omit `label` or give a band an empty one. `ArenaGaugeChart` throws from its render rather than drawing an unnamed dial or a status colour without its word.
@@ -75,13 +75,7 @@ The sweep is 270 degrees clockwise, from the 7:30 position to the 4:30 position.
 
 The gauge fills the width of its container and takes the height of `height`, the `--chart-gauge-height` token by default. The dial's radius is the largest that fits both the width and the height, so the band ring, the track and the centre reading move together.
 
-### Checks to make by hand
-
-The suites run without layout, so four claims are checked in a browser:
-1. The centre reading does not touch the arc at the base, comfortable and compact densities, nor in a container 390px wide.
-2. The band edge numbers do not collide at a narrow dial.
-3. The arc and the band ring are distinguishable in the dark and in the light scope.
-4. A screen reader reads the table's value row with its unit.
+The centre reading stays clear of the arc at the base, comfortable and compact densities and in a container 390px wide. The arc and the band ring read as two things in the dark and in the light scope. A screen reader reads the table's value row with its unit.
 
 **Words.** A gauge is named by the locale's `gaugeChartName`, where `{label}` stands for `label`. The table is headed by `gaugeTableMeasure` and `gaugeTableValue`, its first rows are named by `gaugeTableValue`, `gaugeTableMinimum` and `gaugeTableMaximum`, and a band's range is written through `gaugeTableRange`.
 

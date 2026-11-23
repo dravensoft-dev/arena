@@ -6,7 +6,8 @@
  * `states.disabled` is BEHAVIOURAL, so the verdict below is earned by rendering a disabled item
  * and acting on it rather than declared. The component gained `disabled` because casing it made
  * the gap visible: bound to `none` the requirement never applied.
- * The item pulls ArenaSideNavState from the nearest arena-side-nav, so both cases mount one. */
+ * The item pulls ArenaSideNavState from the nearest arena-side-nav, so every case mounts one.
+ * What the disabled fade draws is proven by check:color-slots; this layer asserts only the attributes the fade selects. */
 
 import { useTestEnvironment } from '../../../test/TestbedEnv';
 useTestEnvironment();
@@ -19,6 +20,7 @@ import { TestBed, type ComponentFixture } from '@angular/core/testing';
 import { ArenaSideNav } from '../arena-side-nav/ArenaSideNav';
 import { ArenaSideNavItem } from './ArenaSideNavItem';
 import { assertPatternCases, ANGULAR_COMPONENTS } from '../../../test/Compliance';
+import { commandButtonVerdict } from '../../../test/StateVerdicts';
 
 const BINDING = join(ANGULAR_COMPONENTS, 'navigation/arena-side-nav-item/ArenaSideNavItem.behaviour.json');
 
@@ -88,6 +90,7 @@ test('arena-side-nav-item meets both of the shapes href chooses between', () => 
               'keyboard.Enter': true,
               'keyboard.Space': true,
               'states.disabled': true,
+              'states.pressed': commandButtonVerdict(el),
             },
           };
         },
@@ -95,5 +98,31 @@ test('arena-side-nav-item meets both of the shapes href chooses between', () => 
     });
   } finally {
     fixture?.destroy();
+  }
+});
+
+@Component({
+  standalone: true,
+  imports: [ArenaSideNav, ArenaSideNavItem],
+  template: `
+    <arena-side-nav ariaLabel="Workspace navigation" active="overview">
+      <arena-side-nav-item id="overview" label="Overview" disabled />
+      <arena-side-nav-item id="billing" label="Billing" disabled />
+    </arena-side-nav>
+  `,
+})
+class DisabledHost {}
+
+test('a disabled item and a disabled current item both reflect aria-disabled, and only the current one is aria-current', () => {
+  const fixture = TestBed.createComponent(DisabledHost);
+  try {
+    fixture.detectChanges();
+    const [current, rest] = [...(fixture.nativeElement as Element).querySelectorAll('.arena-side-nav__item')];
+    assert.equal(current.getAttribute('aria-current'), 'page', 'the overview item is the current one');
+    assert.equal(rest.hasAttribute('aria-current'), false, 'and the other is not');
+    assert.equal(current.getAttribute('aria-disabled'), 'true');
+    assert.equal(rest.getAttribute('aria-disabled'), 'true');
+  } finally {
+    fixture.destroy();
   }
 });

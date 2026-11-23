@@ -34,7 +34,7 @@ export const SUITE_DIRS = [
 export const COVERED = {
   'ArenaDialog:react': 'DialogModal.dom.test.tsx',
   'ArenaConfirmDialog:react': 'DialogModal.dom.test.tsx',
-  'ArenaOnboarding:react': 'ArenaOnboarding.dom.test.tsx',
+  'ArenaOnboarding:react': 'DialogModal.dom.test.tsx',
   'ArenaPopover:react': 'ArenaPopover.dom.test.tsx',
   'ArenaMenu:react': 'ArenaMenu.dom.test.tsx',
   'ArenaBulkActionBar:react': 'ArenaBulkActionBar.toolbar.dom.test.tsx',

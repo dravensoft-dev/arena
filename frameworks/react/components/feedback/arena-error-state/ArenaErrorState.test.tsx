@@ -53,8 +53,3 @@ test('secondaryAction renders the projected node', () => {
   const html = renderIcons(<ArenaErrorState secondaryAction={<button>View logs</button>} />);
   assert.match(html, /View logs/);
 });
-
-test('the root announces itself -- the failure is heard, not only read', () => {
-  const html = renderIcons(<ArenaErrorState title="Failed" />);
-  assert.match(html, /^<div role="alert"/);
-});

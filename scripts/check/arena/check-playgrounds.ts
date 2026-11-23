@@ -8,7 +8,7 @@
  * page that compiles and then throws on its first render is invisible to it; DOUBTS.md carries
  * what that leaves open. */
 
-import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { basename, join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
@@ -497,7 +497,8 @@ export function basenameIndex(base = root) {
 
 export function citingFiles(base = root): string[] {
   return CITING_TREES.flatMap((tree) => scanned(join(base, tree)))
-    .filter((path) => path.endsWith('.prompt.md') || basename(path) === 'AGENTS.md');
+    .filter((path) => path.endsWith('.prompt.md') || path.endsWith('.checks.md')
+      || basename(path) === 'AGENTS.md');
 }
 
 export function citationProblems(

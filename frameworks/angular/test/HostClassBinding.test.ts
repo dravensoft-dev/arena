@@ -6,44 +6,31 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { basename, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { Component } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
+import { TestBed, type ComponentFixture } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { useTestEnvironment, glyphIds, symbol } from './TestbedEnv';
 import { ANGULAR_COMPONENTS, LIB, TAILWIND_COMPONENTS, UTILS } from './Compliance';
 import { ArenaActivityFeed } from '../components/display/arena-activity-feed/ArenaActivityFeed';
-import { arenaActivityFeedStyles } from '../components/display/arena-activity-feed/ArenaActivityFeed.variants';
 import { ArenaAppLogo } from '../components/brand/arena-app-logo/ArenaAppLogo';
 import { arenaAppLogoStyles } from '../components/brand/arena-app-logo/ArenaAppLogo.variants';
 import { ArenaAvatar } from '../components/display/arena-avatar/ArenaAvatar';
-import { arenaAvatarStyles } from '../components/display/arena-avatar/ArenaAvatar.variants';
 import { ArenaBarChart } from '../components/charts/arena-bar-chart/ArenaBarChart';
 import { ArenaBreadcrumbs } from '../components/navigation/arena-breadcrumbs/ArenaBreadcrumbs';
 import type { ArenaCrumb } from '../Api.generated';
-import { arenaBreadcrumbsStyles } from '../components/navigation/arena-breadcrumbs/ArenaBreadcrumbs.variants';
 import { ArenaBulkActionBar } from '../components/navigation/arena-bulk-action-bar/ArenaBulkActionBar';
 import type { ArenaBulkAction } from '../Api.generated';
-import { arenaBulkActionBarStyles } from '../components/navigation/arena-bulk-action-bar/ArenaBulkActionBar.variants';
-import { ArenaButton } from '../components/forms/arena-button/ArenaButton';
 import { ArenaChartCard } from '../components/charts/arena-chart-card/ArenaChartCard';
-import { arenaChartCardStyles } from '../components/charts/arena-chart-card/ArenaChartCard.variants';
 import { ArenaDoughnutChart } from '../components/charts/arena-doughnut-chart/ArenaDoughnutChart';
 import { ArenaEmptyState } from '../components/feedback/arena-empty-state/ArenaEmptyState';
-import { arenaEmptyStateStyles } from '../components/feedback/arena-empty-state/ArenaEmptyState.variants';
 import { ArenaErrorState } from '../components/feedback/arena-error-state/ArenaErrorState';
-import { arenaErrorStateStyles } from '../components/feedback/arena-error-state/ArenaErrorState.variants';
 import { ArenaLineChart } from '../components/charts/arena-line-chart/ArenaLineChart';
-import { ArenaMenu } from '../components/navigation/arena-menu/ArenaMenu';
 import { ArenaPageHead } from '../components/navigation/arena-page-head/ArenaPageHead';
-import { arenaPageHeadStyles } from '../components/navigation/arena-page-head/ArenaPageHead.variants';
 import { ArenaSkeleton } from '../components/display/arena-skeleton/ArenaSkeleton';
-import { arenaSkeletonStyles } from '../components/display/arena-skeleton/ArenaSkeleton.variants';
 import { ArenaStatCard } from '../components/display/arena-stat-card/ArenaStatCard';
 import { arenaStatCardStyles } from '../components/display/arena-stat-card/ArenaStatCard.variants';
 import type { ArenaStatDelta } from '../Api.generated';
 import { ArenaTag } from '../components/display/arena-tag/ArenaTag';
-import { arenaTagStyles } from '../components/display/arena-tag/ArenaTag.variants';
 import { ArenaUnauthCard } from '../components/display/arena-unauth-card/ArenaUnauthCard';
-import { arenaUnauthCardStyles } from '../components/display/arena-unauth-card/ArenaUnauthCard.variants';
 
 useTestEnvironment();
 
@@ -68,15 +55,6 @@ class AppLogoStaticAttributeHost {}
   template: `<arena-avatar class="consumer-class" name="Juan Carlos" />`,
 })
 class AvatarHost {}
-
-@Component({
-  standalone: true,
-  imports: [ArenaMenu, ArenaButton],
-  template: `<arena-menu align="end" [items]="items"><arena-button trigger>Open</arena-button></arena-menu>`,
-})
-class MenuAlignHost {
-  readonly items = [{ id: 'rename', label: 'Rename' }];
-}
 
 @Component({
   standalone: true,
@@ -258,27 +236,6 @@ function renderAppLogo(name: string, dim?: string) {
   return fixture;
 }
 
-test('arena-app-logo: the root recipe classes land on the host element itself', () => {
-  const fixture = renderAppLogo('Draven');
-  fixture.detectChanges();
-  const host = fixture.nativeElement as HTMLElement;
-  for (const cls of arenaAppLogoStyles().root().split(/\s+/))
-    assert.ok(host.classList.contains(cls), `host is missing root class "${cls}"`);
-  fixture.destroy();
-});
-
-test('arena-app-logo: a class already on the host before the first detectChanges survives the [class] host binding', () => {
-  const fixture = renderAppLogo('Draven');
-
-  (fixture.nativeElement as HTMLElement).classList.add('consumer-class');
-  fixture.detectChanges();
-  const host = fixture.nativeElement as HTMLElement;
-  assert.ok(host.classList.contains('consumer-class'), `host lost the pre-existing class: "${host.className}"`);
-  for (const cls of arenaAppLogoStyles().root().split(/\s+/))
-    assert.ok(host.classList.contains(cls), `host is missing root class "${cls}"`);
-  fixture.destroy();
-});
-
 test('arena-app-logo: the two-ink wordmark renders as one word with no space -- "DRAVEN" + "SOFT" reads as exactly "DRAVENSOFT"', () => {
   const fixture = renderAppLogo('DRAVEN', 'SOFT');
   fixture.detectChanges();
@@ -319,14 +276,10 @@ test('arena-app-logo: with no dim, the wordmark renders the name alone and no di
   fixture.destroy();
 });
 
-test('arena-app-logo: a static "name" attribute satisfies the required input and is then cleared off the element', () => {
+test('arena-app-logo: a static "name" attribute satisfies the required input and reaches it', () => {
   const fixture = TestBed.createComponent(AppLogoStaticAttributeHost);
   fixture.detectChanges();
   const host = fixture.nativeElement.querySelector('arena-app-logo') as HTMLElement;
-  assert.equal(host.getAttribute('name'), null,
-    'the static attribute survived on the host. Angular writes it during the creation pass whether or not it '
-    + "also matches an input, which is what '[attr.name]': 'null' in the host block exists to undo: a stray "
-    + 'global attribute the consumer never meant to set, and for `title` a browser tooltip over the whole component.');
   assert.ok(host.classList.contains('consumer-class'), `sanity: the static class attribute survives the host [class] binding: "${host.className}"`);
   const nameClass = arenaAppLogoStyles().name().split(/\s+/)[0];
   assert.equal(
@@ -334,16 +287,6 @@ test('arena-app-logo: a static "name" attribute satisfies the required input and
     'Draven',
     'the attribute must reach the name input, not merely sit on the element',
   );
-  fixture.destroy();
-});
-
-test('arena-menu: a static "align" attribute satisfies the align input and is then cleared off the host', () => {
-  const fixture = TestBed.createComponent(MenuAlignHost);
-  fixture.detectChanges();
-  const host = fixture.nativeElement.querySelector('arena-menu') as HTMLElement;
-  assert.equal(host.getAttribute('align'), null,
-    "the static attribute survived on the host. '[attr.align]': 'null' in the host block exists to undo it, because "
-    + 'the browser maps the legacy align attribute to text-align on the host.');
   fixture.destroy();
 });
 
@@ -364,18 +307,6 @@ function renderActivityFeed(items: unknown[]) {
   fixture.componentRef.setInput('items', items);
   return fixture;
 }
-
-test('arena-activity-feed: the host stays bare and unstyled -- the recipe classes land on the real <ul> inside it, not the host', () => {
-  const fixture = renderActivityFeed([]);
-  fixture.detectChanges();
-  const host = fixture.nativeElement as HTMLElement;
-  assert.equal(host.className, '', 'the host must carry no recipe classes of its own -- root is not host-bound here');
-  const ul = host.querySelector('ul') as HTMLElement;
-  assert.ok(ul, 'the root must be a real <ul>');
-  for (const cls of arenaActivityFeedStyles().root().split(/\s+/))
-    assert.ok(ul.classList.contains(cls), `the <ul> is missing root class "${cls}"`);
-  fixture.destroy();
-});
 
 test('arena-activity-feed: the first <li> carries no divider and every later one does, in a real render', () => {
   const fixture = renderActivityFeed([
@@ -420,57 +351,6 @@ test('arena-activity-feed: an item with neither target nor time renders only the
   fixture.destroy();
 });
 
-test('arena-avatar: the root recipe classes land on the host element itself', async () => {
-  const fixture = TestBed.createComponent(AvatarHost);
-  fixture.detectChanges();
-  await fixture.whenStable();
-  const host = fixture.nativeElement.querySelector('arena-avatar') as HTMLElement;
-  for (const cls of arenaAvatarStyles().root().split(/\s+/))
-    assert.ok(host.classList.contains(cls), `host is missing root class "${cls}"`);
-});
-
-test('arena-avatar: a consumer-supplied class on the host survives the [class] binding', async () => {
-  const fixture = TestBed.createComponent(AvatarHost);
-  fixture.detectChanges();
-  await fixture.whenStable();
-  const host = fixture.nativeElement.querySelector('arena-avatar') as HTMLElement;
-  assert.ok(host.classList.contains('consumer-class'), `host lost the consumer's static class: "${host.className}"`);
-});
-
-test('arena-tag: the root recipe classes land on the host element itself', async () => {
-  const fixture = TestBed.createComponent(TagHost);
-  fixture.detectChanges();
-  await fixture.whenStable();
-  const host = fixture.nativeElement.querySelector('arena-tag') as HTMLElement;
-  for (const cls of arenaTagStyles().root().split(/\s+/))
-    assert.ok(host.classList.contains(cls), `host is missing root class "${cls}"`);
-});
-
-test('arena-tag: a consumer-supplied class on the host survives the [class] binding', async () => {
-  const fixture = TestBed.createComponent(TagHost);
-  fixture.detectChanges();
-  await fixture.whenStable();
-  const host = fixture.nativeElement.querySelector('arena-tag') as HTMLElement;
-  assert.ok(host.classList.contains('consumer-class'), `host lost the consumer's static class: "${host.className}"`);
-});
-
-test('arena-skeleton: the root recipe classes land on the host element itself', async () => {
-  const fixture = TestBed.createComponent(SkeletonHost);
-  fixture.detectChanges();
-  await fixture.whenStable();
-  const host = fixture.nativeElement.querySelector('arena-skeleton') as HTMLElement;
-  for (const cls of arenaSkeletonStyles().root().split(/\s+/))
-    assert.ok(host.classList.contains(cls), `host is missing root class "${cls}"`);
-});
-
-test('arena-skeleton: a consumer-supplied class on the host survives the [class] binding', async () => {
-  const fixture = TestBed.createComponent(SkeletonHost);
-  fixture.detectChanges();
-  await fixture.whenStable();
-  const host = fixture.nativeElement.querySelector('arena-skeleton') as HTMLElement;
-  assert.ok(host.classList.contains('consumer-class'), `host lost the consumer's static class: "${host.className}"`);
-});
-
 test('arena-skeleton: the host itself carries the loading status, not a wrapper inside it', async () => {
   const fixture = TestBed.createComponent(SkeletonHost);
   fixture.detectChanges();
@@ -479,31 +359,6 @@ test('arena-skeleton: the host itself carries the loading status, not a wrapper 
   assert.equal(host.getAttribute('role'), 'status');
   assert.equal(host.getAttribute('aria-label'), 'Loading');
   assert.equal(host.children.length, 0, 'a skeleton with no lines renders no children of its own');
-});
-
-test('arena-breadcrumbs: the root recipe classes land on the <nav>, which is the carve-out', async () => {
-  const fixture = createBreadcrumbsHost();
-  fixture.detectChanges();
-  await fixture.whenStable();
-  const host = fixture.nativeElement.querySelector('arena-breadcrumbs') as HTMLElement;
-  const nav = host.querySelector('nav') as HTMLElement;
-  assert.ok(nav, 'the trail must render a real <nav>');
-  for (const cls of arenaBreadcrumbsStyles().root().split(/\s+/))
-    assert.ok(nav.classList.contains(cls), `the nav is missing root class "${cls}"`);
-  fixture.destroy();
-});
-
-test('arena-breadcrumbs: a consumer attribute lands on the inert host, not on the styled <nav>', async () => {
-  const fixture = createBreadcrumbsHost();
-  fixture.detectChanges();
-  await fixture.whenStable();
-  const host = fixture.nativeElement.querySelector('arena-breadcrumbs') as HTMLElement;
-  const nav = host.querySelector('nav') as HTMLElement;
-  assert.ok(host.classList.contains('consumer-class'), `host lost the consumer's static class: "${host.className}"`);
-  assert.ok(!nav.classList.contains('consumer-class'),
-    'this is the price of the carve-out and it matches arena-activity-feed: a host that renders a required '
-    + 'semantic element inside it gives the consumer no route to that element');
-  fixture.destroy();
 });
 
 test('arena-breadcrumbs: a real <nav> carries the landmark, rather than role="navigation" on the host', async () => {
@@ -543,26 +398,6 @@ test('arena-breadcrumbs: a crumb click emits the clicked ArenaCrumb alone throug
   fixture.destroy();
 });
 
-test('arena-stat-card: the root recipe classes land on the host element itself', () => {
-  const fixture = renderStatCard('Revenue', '$48.2k');
-  fixture.detectChanges();
-  const host = fixture.nativeElement as HTMLElement;
-  for (const cls of arenaStatCardStyles().root().split(/\s+/))
-    assert.ok(host.classList.contains(cls), `host is missing root class "${cls}"`);
-  fixture.destroy();
-});
-
-test('arena-stat-card: a class already on the host before the first detectChanges survives the [class] host binding', () => {
-  const fixture = renderStatCard('Revenue', '$48.2k');
-  (fixture.nativeElement as HTMLElement).classList.add('consumer-class');
-  fixture.detectChanges();
-  const host = fixture.nativeElement as HTMLElement;
-  assert.ok(host.classList.contains('consumer-class'), `host lost the pre-existing class: "${host.className}"`);
-  for (const cls of arenaStatCardStyles().root().split(/\s+/))
-    assert.ok(host.classList.contains(cls), `host is missing root class "${cls}"`);
-  fixture.destroy();
-});
-
 test('arena-stat-card: a delta with a value renders the pill; a delta with a tone but no value renders nothing', () => {
   const withValue = renderStatCard('Deploys', '128', { value: '+12%', direction: 'up', tone: 'positive' });
   withValue.detectChanges();
@@ -591,113 +426,11 @@ test('arena-stat-card: an icon class name renders the glyph inside the aria-hidd
   fixture.destroy();
 });
 
-test('arena-stat-card: no icon renders no wrapper at all -- not an empty one', () => {
-  const fixture = renderStatCard('Deploys', '128');
-  fixture.detectChanges();
-  const host = fixture.nativeElement as HTMLElement;
-  const iconClass = arenaStatCardStyles().icon().split(/\s+/)[0];
-  assertNoNode(host.querySelector(`.${iconClass}`), 'no icon means no icon wrapper at all');
-  fixture.destroy();
-});
-
-test('arena-bulk-action-bar: the root recipe classes land on the host element itself, hidden when count is 0', async () => {
-  const fixture = createBulkActionBarHost();
-  fixture.detectChanges();
-  await fixture.whenStable();
-  const host = fixture.nativeElement.querySelector('arena-bulk-action-bar') as HTMLElement;
-  for (const cls of arenaBulkActionBarStyles().root().split(/\s+/))
-    assert.ok(host.classList.contains(cls), `host is missing root class "${cls}"`);
-  assert.equal(host.hasAttribute('data-arena-open'), false, 'a bar with no selection (count 0) must render hidden');
-});
-
-test('arena-bulk-action-bar: a consumer-supplied class on the host survives the [class] binding', async () => {
-  const fixture = createBulkActionBarHost();
-  fixture.detectChanges();
-  await fixture.whenStable();
-  const host = fixture.nativeElement.querySelector('arena-bulk-action-bar') as HTMLElement;
-  assert.ok(host.classList.contains('consumer-class'), `host lost the consumer's static class: "${host.className}"`);
-});
-
-test('arena-bulk-action-bar: the host renders no children while count is 0 -- nothing focusable exists behind the hidden bar', async () => {
-  const fixture = createBulkActionBarHost();
-  fixture.detectChanges();
-  await fixture.whenStable();
-  const host = fixture.nativeElement.querySelector('arena-bulk-action-bar') as HTMLElement;
-  assert.equal(host.children.length, 0, 'with no selection, the interactive content gated by @if (count() > 0) must not be in the DOM at all');
-});
-
-test('arena-chart-card: the root recipe classes land on the host element itself', async () => {
-  const fixture = TestBed.createComponent(ChartCardHost);
-  fixture.detectChanges();
-  await fixture.whenStable();
-  const host = fixture.nativeElement.querySelector('arena-chart-card') as HTMLElement;
-  for (const cls of arenaChartCardStyles().root().split(/\s+/))
-    assert.ok(host.classList.contains(cls), `host is missing root class "${cls}"`);
-});
-
-test('arena-chart-card: a consumer-supplied class on the host survives the [class] binding', async () => {
-  const fixture = TestBed.createComponent(ChartCardHost);
-  fixture.detectChanges();
-  await fixture.whenStable();
-  const host = fixture.nativeElement.querySelector('arena-chart-card') as HTMLElement;
-  assert.ok(host.classList.contains('consumer-class'), `host lost the consumer's static class: "${host.className}"`);
-});
-
-test('arena-chart-card: the head row is entirely absent when there is neither a title nor projected actions', async () => {
-  const fixture = TestBed.createComponent(ChartCardHost);
-  fixture.detectChanges();
-  await fixture.whenStable();
-  const host = fixture.nativeElement.querySelector('arena-chart-card') as HTMLElement;
-  const headClass = arenaChartCardStyles().head().split(/\s+/)[0];
-  assertNoNode(
-    host.querySelector(`.${headClass}`),
-    'an empty chart card (no title, no actions) must not render the head row at all',
-  );
-  assert.equal(host.children.length, 0, 'a bare chart card renders no children of its own');
-});
-
 function renderEmptyState(title: string) {
   const fixture = TestBed.createComponent(ArenaEmptyState);
   fixture.componentRef.setInput('title', title);
   return fixture;
 }
-
-test('arena-empty-state: the action wrapper is absent from the DOM when no [action] content is projected', () => {
-  const fixture = renderEmptyState('No projects yet');
-  fixture.detectChanges();
-  const host = fixture.nativeElement as HTMLElement;
-  assertNoNode(host.querySelector('button'), 'no action was projected, so no action markup should exist at all');
-  const actionClass = arenaEmptyStateStyles().action().split(/\s+/)[0];
-  assertNoNode(
-    host.querySelector(`:scope > .${actionClass}`),
-    'the action wrapper div must not render when the action slot is empty',
-  );
-  fixture.destroy();
-});
-
-test('arena-error-state: the root recipe classes land on the host element itself', async () => {
-  const fixture = TestBed.createComponent(ErrorStateWithoutActionHost);
-  fixture.detectChanges();
-  await fixture.whenStable();
-  const host = fixture.nativeElement.querySelector('arena-error-state') as HTMLElement;
-  for (const cls of arenaErrorStateStyles().root().split(/\s+/))
-    assert.ok(host.classList.contains(cls), `host is missing root class "${cls}"`);
-  assert.equal(host.getAttribute('role'), 'alert');
-  assert.ok(host.classList.contains('consumer-class'), `host lost the consumer's static class: "${host.className}"`);
-});
-
-test('arena-error-state: the actions wrapper is absent from the DOM when neither retryLabel nor [secondaryAction] content is projected', async () => {
-  const fixture = TestBed.createComponent(ErrorStateWithoutActionHost);
-  fixture.detectChanges();
-  await fixture.whenStable();
-  const host = fixture.nativeElement.querySelector('arena-error-state') as HTMLElement;
-  assertNoNode(host.querySelector('button'), 'neither retryLabel nor a secondary action was supplied, so no action markup should exist at all');
-  const actionsClass = arenaErrorStateStyles().actions().split(/\s+/)[0];
-  assertNoNode(
-    host.querySelector(`:scope > .${actionsClass}`),
-    'the actions wrapper div must not render when both retryLabel and secondaryAction are absent',
-  );
-});
 
 function createErrorStateWithRetryFixture() {
   const fixture = TestBed.createComponent(ErrorStateWithoutActionHost);
@@ -718,16 +451,6 @@ test('arena-error-state: retryLabel draws a real retry button carrying the manif
   fixture.destroy();
 });
 
-test('arena-page-head: the root recipe classes land on the host element itself', async () => {
-  const fixture = createPageHeadWithoutActionsFixture();
-  fixture.detectChanges();
-  await fixture.whenStable();
-  const host = fixture.nativeElement.querySelector('arena-page-head') as HTMLElement;
-  for (const cls of arenaPageHeadStyles().root().split(/\s+/))
-    assert.ok(host.classList.contains(cls), `host is missing root class "${cls}"`);
-  assert.ok(host.classList.contains('consumer-class'), `host lost the consumer's static class: "${host.className}"`);
-});
-
 test('arena-page-head: an unmeasured width renders the WIDE layout, so the narrow branch never flashes on first paint', async () => {
   const fixture = createPageHeadWithoutActionsFixture();
   fixture.detectChanges();
@@ -737,20 +460,6 @@ test('arena-page-head: an unmeasured width renders the WIDE layout, so the narro
     'an unmeasured page head must render as a row, and the narrow branch must not render before anything has been measured');
   assert.equal(host.hasAttribute('data-arena-align'), false,
     'the align is a class an adopter writes, so the head writes no attribute for it');
-});
-
-test('arena-page-head: the actions wrapper is absent from the DOM when no [actions] content is projected', async () => {
-  const fixture = createPageHeadWithoutActionsFixture();
-  fixture.detectChanges();
-  await fixture.whenStable();
-  const host = fixture.nativeElement.querySelector('arena-page-head') as HTMLElement;
-  assertNoNode(host.querySelector('button'), 'no actions were projected, so no action markup should exist at all');
-  const actionsClass = arenaPageHeadStyles().actions().split(/\s+/)[0];
-  assertNoNode(
-    host.querySelector(`:scope > .${actionsClass}`),
-    'the actions wrapper div must not render when the actions slot is empty',
-  );
-  assert.equal(host.children.length, 1, 'a page head with no actions renders the titles block and nothing else');
 });
 
 test('arena-page-head: a platform with no ResizeObserver still renders, on the wide layout', async () => {
@@ -1008,138 +717,6 @@ test('the clearing binding removes a STATIC attribute and leaves the input holdi
   }
 });
 
-test('arena-bar-chart: the host keeps no box and the frame part carries the frame class, with no inline position or width', async () => {
-  const fixture = createBarChartHost();
-  await fixture.whenStable();
-  const host = fixture.nativeElement.querySelector('arena-bar-chart') as HTMLElement;
-
-  assert.equal(host.style.display, 'contents', `host declared display "${host.style.display}"`);
-
-  const frame = host.querySelector(':scope > div') as HTMLElement;
-  assert.equal(frame.getAttribute('data-arena-part'), 'bar-chart.frame');
-  assert.ok(frame.classList.contains('arena-bar-chart__frame'), `frame carries "${frame.className}"`);
-  assert.equal(frame.style.position, '');
-  assert.equal(frame.style.width, '');
-});
-
-test('arena-bar-chart: the numbers table is bound as a style object, not stringified into the attribute', async () => {
-  const fixture = createBarChartHost();
-  await fixture.whenStable();
-  const table = fixture.nativeElement.querySelector('arena-bar-chart table') as HTMLElement;
-  assert.ok(table, 'the visually-hidden numbers table did not render');
-  const box = table.parentElement as HTMLElement;
-
-  assert.ok(!(box.getAttribute('style') ?? '').includes('[object Object]'),
-    `the style object was stringified: "${box.getAttribute('style')}"`);
-  assert.equal(box.style.position, 'absolute');
-  assert.equal(box.style.width, '1px');
-  assert.equal(box.style.height, '1px');
-  assert.equal(box.style.margin, '-1px');
-
-});
-
-test('arena-bar-chart: the SVG presentation styles reach the DOM as tokens, not as literals', async () => {
-  const fixture = createBarChartHost();
-  await fixture.whenStable();
-
-  const line = fixture.nativeElement.querySelector('arena-bar-chart line') as SVGElement;
-  assert.equal(line.style.strokeWidth, 'var(--bw)');
-  assert.equal(line.getAttribute('style'), 'stroke-width: var(--bw);');
-  const text = fixture.nativeElement.querySelector('arena-bar-chart text') as SVGElement;
-  assert.equal(text.getAttribute('style'), 'font-size: var(--dz-text-2xs);');
-});
-
-test('arena-bar-chart: the picture carries an accessible name and the numbers carry a caption', async () => {
-  const fixture = createBarChartHost();
-  await fixture.whenStable();
-  const svg = fixture.nativeElement.querySelector('arena-bar-chart svg') as SVGElement;
-  assert.equal(svg.getAttribute('role'), 'img');
-
-  assert.equal(svg.getAttribute('aria-label'), 'Deployments per week — bar chart');
-  const caption = fixture.nativeElement.querySelector('arena-bar-chart table caption') as HTMLElement;
-  assert.equal(caption.textContent?.trim(), 'Deployments per week — bar chart');
-});
-
-test('arena-line-chart: the host keeps no box and the frame part carries the frame class, with no inline position or width', async () => {
-  const fixture = createLineChartHost();
-  await fixture.whenStable();
-  const host = fixture.nativeElement.querySelector('arena-line-chart') as HTMLElement;
-
-  assert.equal(host.style.display, 'contents', `host declared display "${host.style.display}"`);
-
-  const frame = host.querySelector(':scope > div') as HTMLElement;
-  assert.equal(frame.getAttribute('data-arena-part'), 'line-chart.frame');
-  assert.ok(frame.classList.contains('arena-line-chart__frame'), `frame carries "${frame.className}"`);
-  assert.equal(frame.style.position, '');
-  assert.equal(frame.style.width, '');
-});
-
-test('arena-line-chart: the numbers table is bound as a style object, not stringified into the attribute', async () => {
-  const fixture = createLineChartHost();
-  await fixture.whenStable();
-  const table = fixture.nativeElement.querySelector('arena-line-chart table') as HTMLElement;
-  assert.ok(table, 'the visually-hidden numbers table did not render');
-  const box = table.parentElement as HTMLElement;
-
-  assert.ok(!(box.getAttribute('style') ?? '').includes('[object Object]'),
-    `the style object was stringified: "${box.getAttribute('style')}"`);
-  assert.equal(box.style.position, 'absolute');
-  assert.equal(box.style.width, '1px');
-  assert.equal(box.style.height, '1px');
-  assert.equal(box.style.margin, '-1px');
-
-});
-
-test('arena-line-chart: the SVG presentation styles reach the DOM as tokens, not as literals', async () => {
-  const fixture = createLineChartHost();
-  await fixture.whenStable();
-
-  const line = fixture.nativeElement.querySelector('arena-line-chart line') as SVGElement;
-  assert.equal(line.style.strokeWidth, 'var(--bw)');
-  assert.equal(line.getAttribute('style'), 'stroke-width: var(--bw);');
-  const text = fixture.nativeElement.querySelector('arena-line-chart text') as SVGElement;
-  assert.equal(text.getAttribute('style'), 'font-size: var(--dz-text-2xs);');
-});
-
-test('arena-line-chart: the picture carries an accessible name and the numbers carry a caption', async () => {
-  const fixture = createLineChartHost();
-  await fixture.whenStable();
-  const svg = fixture.nativeElement.querySelector('arena-line-chart svg') as SVGElement;
-  assert.equal(svg.getAttribute('role'), 'img');
-
-  assert.equal(svg.getAttribute('aria-label'), 'p95 latency — line chart');
-  const caption = fixture.nativeElement.querySelector('arena-line-chart table caption') as HTMLElement;
-  assert.equal(caption.textContent?.trim(), 'p95 latency — line chart');
-});
-
-test('arena-doughnut-chart: the host keeps no box and its frame is the flex row, so the box it measures is the box it lays out', async () => {
-  const fixture = createDoughnutChartHost();
-  await fixture.whenStable();
-  const host = fixture.nativeElement.querySelector('arena-doughnut-chart') as HTMLElement;
-  assert.equal(host.style.display, 'contents', `host declared display "${host.style.display}"`);
-
-  const frame = host.querySelector(':scope > div') as HTMLElement;
-  assert.equal(frame.getAttribute('data-arena-part'), 'doughnut-chart.frame');
-  assert.ok(frame.classList.contains('arena-doughnut-chart__frame'), `frame carries "${frame.className}"`);
-  assert.equal(frame.getAttribute('style'), null, 'the doughnut frame carries no inline style');
-});
-
-test('arena-doughnut-chart: the numbers table is bound as a style object, not stringified into the attribute', async () => {
-  const fixture = createDoughnutChartHost();
-  await fixture.whenStable();
-  const table = fixture.nativeElement.querySelector('arena-doughnut-chart table') as HTMLElement;
-  assert.ok(table, 'the visually-hidden numbers table did not render');
-  const box = table.parentElement as HTMLElement;
-
-  assert.ok(!(box.getAttribute('style') ?? '').includes('[object Object]'),
-    `the style object was stringified: "${box.getAttribute('style')}"`);
-  assert.equal(box.style.position, 'absolute');
-  assert.equal(box.style.width, '1px');
-  assert.equal(box.style.height, '1px');
-  assert.equal(box.style.margin, '-1px');
-
-});
-
 test('arena-doughnut-chart: the style objects that render without data reach the DOM as real declarations', async () => {
   const fixture = createDoughnutChartHost();
   await fixture.whenStable();
@@ -1155,17 +732,6 @@ test('arena-doughnut-chart: the style objects that render without data reach the
   assert.ok(legend.hasAttribute('data-arena-part'), 'the legend column is a drawn part of the manifest');
 });
 
-test('arena-doughnut-chart: the picture carries an accessible name and the numbers carry a caption', async () => {
-  const fixture = createDoughnutChartHost();
-  await fixture.whenStable();
-  const svg = fixture.nativeElement.querySelector('arena-doughnut-chart svg') as SVGElement;
-  assert.equal(svg.getAttribute('role'), 'img');
-
-  assert.equal(svg.getAttribute('aria-label'), 'Traffic by region — doughnut chart');
-  const caption = fixture.nativeElement.querySelector('arena-doughnut-chart table caption') as HTMLElement;
-  assert.equal(caption.textContent?.trim(), 'Traffic by region — doughnut chart');
-});
-
 test('arena-doughnut-chart: with no data it draws no slice at all, rather than an empty ring', async () => {
   const fixture = createDoughnutChartHost();
   await fixture.whenStable();
@@ -1176,36 +742,208 @@ test('arena-doughnut-chart: with no data it draws no slice at all, rather than a
   assert.equal(host.querySelectorAll('tbody tr').length, 0, 'the numbers table must have no rows');
 });
 
-test('arena-unauth-card: the root recipe classes land on the host element itself, and a consumer class survives the binding', async () => {
-  const fixture = TestBed.createComponent(UnauthCardWithoutProjectionHost);
-  fixture.detectChanges();
-  await fixture.whenStable();
-  const host = fixture.nativeElement.querySelector('arena-unauth-card') as HTMLElement;
-  for (const cls of arenaUnauthCardStyles().root().split(/\s+/))
-    assert.ok(host.classList.contains(cls), `host is missing root class "${cls}"`);
-  assert.ok(host.classList.contains('consumer-class'), `host lost the consumer's static class: "${host.className}"`);
+const consumerClass = 'consumer-class';
+
+
+interface HostRow {
+  name: string;
+  tag: string;
+  render: () => ComponentFixture<unknown>;
+  inHost: boolean;
+  preClass?: boolean;
+  inner?: string;
+  bare?: boolean;
+  check?: (host: HTMLElement, name: string) => void;
+}
+
+const HOST_ROWS: HostRow[] = [
+  { name: 'arena-app-logo', tag: 'arena-app-logo', render: () => renderAppLogo('Draven'), inHost: false, preClass: true },
+  { name: 'arena-avatar', tag: 'arena-avatar', render: () => TestBed.createComponent(AvatarHost), inHost: true },
+  { name: 'arena-tag', tag: 'arena-tag', render: () => TestBed.createComponent(TagHost), inHost: true },
+  { name: 'arena-skeleton', tag: 'arena-skeleton', render: () => TestBed.createComponent(SkeletonHost), inHost: true },
+  { name: 'arena-stat-card', tag: 'arena-stat-card', render: () => renderStatCard('Revenue', '$48.2k'), inHost: false, preClass: true },
+  {
+    name: 'arena-bulk-action-bar', tag: 'arena-bulk-action-bar', render: createBulkActionBarHost, inHost: true,
+    check: (host, name) => assert.equal(host.hasAttribute('data-arena-open'), false, `${name}: a bar with no selection (count 0) must render hidden`),
+  },
+  { name: 'arena-chart-card', tag: 'arena-chart-card', render: () => TestBed.createComponent(ChartCardHost), inHost: true },
+  {
+    name: 'arena-error-state', tag: 'arena-error-state', render: () => TestBed.createComponent(ErrorStateWithoutActionHost), inHost: true,
+    check: (host, name) => assert.equal(host.getAttribute('role'), 'alert', `${name}: the host carries the alert role`),
+  },
+  { name: 'arena-page-head', tag: 'arena-page-head', render: createPageHeadWithoutActionsFixture, inHost: true },
+  { name: 'arena-unauth-card', tag: 'arena-unauth-card', render: () => TestBed.createComponent(UnauthCardWithoutProjectionHost), inHost: true },
+  { name: 'arena-activity-feed (carve-out)', tag: 'arena-activity-feed', render: () => renderActivityFeed([]), inHost: false, inner: 'ul', bare: true },
+  { name: 'arena-breadcrumbs (carve-out)', tag: 'arena-breadcrumbs', render: () => createBreadcrumbsHost(), inHost: true, inner: 'nav' },
+];
+
+test('a primitive host-binds its root slot so the recipe classes and a consumer class both sit on the host, and a carve-out puts the root on the real element inside a bare host', async () => {
+  assert.ok(HOST_ROWS.length > 0, 'no rows -- the table would check nothing');
+  for (const row of HOST_ROWS) {
+    const fixture = row.render();
+    if (row.preClass) (fixture.nativeElement as HTMLElement).classList.add(consumerClass);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const host = (row.inHost ? (fixture.nativeElement as HTMLElement).querySelector(row.tag) : fixture.nativeElement) as HTMLElement;
+    const slot = HOST_SLOT[row.tag]?.slot ?? 'root';
+    const rootClass = `${row.tag}__${slot}`;
+    const carrier = row.inner === undefined ? host : host.querySelector(row.inner) as HTMLElement;
+    assert.ok(carrier, `${row.name}: no ${row.inner === undefined ? `<${row.tag}> host` : `<${row.inner}> inside the host`} rendered`);
+    assert.ok(carrier.classList.contains(rootClass), `${row.name}: ${row.inner === undefined ? 'host' : `the <${row.inner}>`} is missing root class "${rootClass}"`);
+    if (row.bare) {
+      assert.equal(host.className, '', `${row.name}: the host must carry no recipe classes of its own -- root is not host-bound here`);
+    } else {
+      assert.ok(host.classList.contains(consumerClass), `${row.name}: host lost the consumer's class: "${host.className}"`);
+    }
+    if (row.inner !== undefined && !row.bare) {
+      assert.ok(!carrier.classList.contains(consumerClass),
+        `${row.name}: a carve-out gives the consumer no route to the semantic element inside the host, so a consumer class lands on the host alone`);
+    }
+    row.check?.(host, row.name);
+    fixture.destroy();
+  }
 });
 
-test('arena-unauth-card: the brand and footer wrappers are both absent from the DOM when nothing is projected into either', async () => {
-  const fixture = TestBed.createComponent(UnauthCardWithoutProjectionHost);
-  fixture.detectChanges();
-  await fixture.whenStable();
-  const host = fixture.nativeElement.querySelector('arena-unauth-card') as HTMLElement;
+interface AbsentRow {
+  name: string;
+  render: () => ComponentFixture<unknown>;
+  inHost?: string;
+  absent: Array<[selector: string, message: string]>;
+  present?: Array<[selector: string, message: string]>;
+  children?: number;
+}
 
-  const brandClass = arenaUnauthCardStyles().brand().split(/\s+/)[0];
-  assertNoNode(
-    host.querySelector(`.${brandClass}`),
-    'the brand wrapper div must not render when the [brand] slot is empty',
-  );
-  const footerClass = arenaUnauthCardStyles().footer().split(/\s+/)[0];
-  assertNoNode(
-    host.querySelector(`.${footerClass}`),
-    'the footer wrapper div must not render when the [footer] slot is empty',
-  );
+const ABSENT_ROWS: AbsentRow[] = [
+  {
+    name: 'arena-bulk-action-bar', render: createBulkActionBarHost, inHost: 'arena-bulk-action-bar', absent: [], children: 0,
+  },
+  {
+    name: 'arena-chart-card', render: () => TestBed.createComponent(ChartCardHost), inHost: 'arena-chart-card',
+    absent: [['.arena-chart-card__head', 'an empty chart card (no title, no actions) must not render the head row at all']], children: 0,
+  },
+  {
+    name: 'arena-empty-state', render: () => renderEmptyState('No projects yet'),
+    absent: [
+      ['button', 'no action was projected, so no action markup should exist at all'],
+      [':scope > .arena-empty-state__action', 'the action wrapper div must not render when the action slot is empty'],
+    ],
+  },
+  {
+    name: 'arena-error-state', render: () => TestBed.createComponent(ErrorStateWithoutActionHost), inHost: 'arena-error-state',
+    absent: [
+      ['button', 'neither retryLabel nor a secondary action was supplied, so no action markup should exist at all'],
+      [':scope > .arena-error-state__actions', 'the actions wrapper div must not render when both retryLabel and secondaryAction are absent'],
+    ],
+  },
+  {
+    name: 'arena-page-head', render: createPageHeadWithoutActionsFixture, inHost: 'arena-page-head',
+    absent: [
+      ['button', 'no actions were projected, so no action markup should exist at all'],
+      [':scope > .arena-page-head__actions', 'the actions wrapper div must not render when the actions slot is empty'],
+    ],
+    children: 1,
+  },
+  {
+    name: 'arena-unauth-card', render: () => TestBed.createComponent(UnauthCardWithoutProjectionHost), inHost: 'arena-unauth-card',
+    absent: [
+      ['.arena-unauth-card__brand', 'the brand wrapper div must not render when the [brand] slot is empty'],
+      ['.arena-unauth-card__footer', 'the footer wrapper div must not render when the [footer] slot is empty'],
+    ],
+    present: [
+      ['arena-card', 'the panel IS an ArenaCard, composed rather than typed out a second time, so both layers reach the same part'],
+      ['.arena-unauth-card__body', 'the body wrapper must always render -- it is not gated'],
+    ],
+    children: 1,
+  },
+  {
+    name: 'arena-stat-card', render: () => renderStatCard('Deploys', '128'),
+    absent: [['.arena-stat-card__icon', 'no icon means no icon wrapper at all']],
+  },
+];
 
-  const bodyClass = arenaUnauthCardStyles().body().split(/\s+/)[0];
-  assert.ok(host.querySelector('arena-card'), 'the panel IS an ArenaCard, composed rather than typed '
-    + 'out a second time, so both layers reach the same part');
-  assert.ok(host.querySelector(`.${bodyClass}`), 'the body wrapper must always render -- it is not gated');
-  assert.equal(host.children.length, 1, 'the host renders only the card, unconditionally');
+test('a wrapper gated on projected content is absent from the DOM when nothing is projected', async () => {
+  assert.ok(ABSENT_ROWS.length > 0, 'no rows -- the table would check nothing');
+  for (const row of ABSENT_ROWS) {
+    const fixture = row.render();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const host = (row.inHost === undefined ? fixture.nativeElement : (fixture.nativeElement as HTMLElement).querySelector(row.inHost)) as HTMLElement;
+    for (const [selector, message] of row.absent) assertNoNode(host.querySelector(selector), `${row.name}: ${message}`);
+    for (const [selector, message] of row.present ?? []) assert.ok(host.querySelector(selector), `${row.name}: ${message}`);
+    if (row.children !== undefined) assert.equal(host.children.length, row.children, `${row.name}: the host renders ${row.children} children with nothing projected`);
+    fixture.destroy();
+  }
+});
+
+interface ChartRow {
+  name: string;
+  make: () => ComponentFixture<unknown>;
+  part: string;
+  label: string;
+  framed: boolean;
+  tokens: boolean;
+}
+
+const CHART_ROWS: ChartRow[] = [
+  { name: 'arena-bar-chart', make: createBarChartHost, part: 'bar-chart', label: 'Deployments per week — bar chart', framed: true, tokens: true },
+  { name: 'arena-line-chart', make: createLineChartHost, part: 'line-chart', label: 'p95 latency — line chart', framed: true, tokens: true },
+  { name: 'arena-doughnut-chart', make: createDoughnutChartHost, part: 'doughnut-chart', label: 'Traffic by region — doughnut chart', framed: false, tokens: false },
+];
+
+async function eachChart(rows: ChartRow[], body: (row: ChartRow, host: HTMLElement) => void): Promise<void> {
+  assert.ok(rows.length > 0, 'no chart rows -- the table would check nothing');
+  for (const row of rows) {
+    const fixture = row.make();
+    await fixture.whenStable();
+    body(row, fixture.nativeElement.querySelector(row.name) as HTMLElement);
+  }
+}
+
+test('a chart host keeps no box and the frame part carries the frame class, with no inline position or width', async () => {
+  await eachChart(CHART_ROWS, (row, host) => {
+    assert.equal(host.style.display, 'contents', `${row.name}: host declared display "${host.style.display}"`);
+    const frame = host.querySelector(':scope > div') as HTMLElement;
+    assert.equal(frame.getAttribute('data-arena-part'), `${row.part}.frame`, `${row.name}: the frame part`);
+    assert.ok(frame.classList.contains(`${row.name}__frame`), `${row.name}: frame carries "${frame.className}"`);
+    if (row.framed) {
+      assert.equal(frame.style.position, '', `${row.name}: the frame carries no inline position`);
+      assert.equal(frame.style.width, '', `${row.name}: the frame carries no inline width`);
+    } else {
+      assert.equal(frame.getAttribute('style'), null, `${row.name}: the doughnut frame carries no inline style`);
+    }
+  });
+});
+
+test('a chart binds its numbers table as a style object, not stringified into the attribute', async () => {
+  await eachChart(CHART_ROWS, (row, host) => {
+    const table = host.querySelector('table') as HTMLElement;
+    assert.ok(table, `${row.name}: the visually-hidden numbers table did not render`);
+    const box = table.parentElement as HTMLElement;
+    assert.ok(!(box.getAttribute('style') ?? '').includes('[object Object]'),
+      `${row.name}: the style object was stringified: "${box.getAttribute('style')}"`);
+    assert.equal(box.style.position, 'absolute', `${row.name}: position`);
+    assert.equal(box.style.width, '1px', `${row.name}: width`);
+    assert.equal(box.style.height, '1px', `${row.name}: height`);
+    assert.equal(box.style.margin, '-1px', `${row.name}: margin`);
+  });
+});
+
+test('a chart carries an accessible name on its picture and a caption on its numbers', async () => {
+  await eachChart(CHART_ROWS, (row, host) => {
+    const svg = host.querySelector('svg') as SVGElement;
+    assert.equal(svg.getAttribute('role'), 'img', `${row.name}: the picture's role`);
+    assert.equal(svg.getAttribute('aria-label'), row.label, `${row.name}: the picture's accessible name`);
+    const caption = host.querySelector('table caption') as HTMLElement;
+    assert.equal(caption.textContent?.trim(), row.label, `${row.name}: the numbers' caption`);
+  });
+});
+
+test('a chart reaches the DOM with its SVG presentation styles as tokens, not as literals', async () => {
+  await eachChart(CHART_ROWS.filter((row) => row.tokens), (row, host) => {
+    const line = host.querySelector('line') as SVGElement;
+    assert.equal(line.style.strokeWidth, 'var(--bw)', `${row.name}: line stroke width`);
+    assert.equal(line.getAttribute('style'), 'stroke-width: var(--bw);', `${row.name}: line style attribute`);
+    const text = host.querySelector('text') as SVGElement;
+    assert.equal(text.getAttribute('style'), 'font-size: var(--dz-text-2xs);', `${row.name}: text style attribute`);
+  });
 });

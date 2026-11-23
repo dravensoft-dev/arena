@@ -114,9 +114,21 @@ test('every prompt in the tree is reached, in both layers', () => {
   }
 });
 
-test('a fresh run over the committed tree writes nothing, which is what the gate asserts', () => {
-  const written = writePromptApis({ write: () => { throw new Error('wrote a file'); } });
-  assert.deepEqual(written, []);
+test('writePromptApis rewrites a prompt whose generated region is stale and leaves a current one alone', () => {
+  const { path } = promptPaths().find((p) => p.layer === 'react')!;
+  const real = (file: string) => readFileSync(join(repoRoot, file), 'utf8');
+  const target = join(repoRoot, path);
+  const stale = real(path).replace(/^(<!-- @api GENERATED[^\n]*\n)[\s\S]*?(\n<!-- @api end -->)/m, '$1| stale |$2');
+  assert.notEqual(stale, real(path), 'the stale copy differs from the real file');
+  const writes: Array<[string, string]> = [];
+  const written = writePromptApis({
+    read: ((file: string) => (file === target ? stale : readFileSync(file, 'utf8'))) as typeof readFileSync,
+    write: ((file: string, content: string) => { writes.push([file, content]); }) as never,
+  });
+  assert.deepEqual(written, [path]);
+  assert.equal(writes.length, 1);
+  assert.equal(writes[0]![0], target);
+  assert.equal(writes[0]![1], real(path));
 });
 
 const FILL = {

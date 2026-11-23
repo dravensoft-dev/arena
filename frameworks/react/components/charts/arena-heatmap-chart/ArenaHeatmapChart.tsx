@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useArenaContainerWidth } from '../../../UseArenaContainerWidth.ts';
+import { useArenaContainerWidth, useArenaTextScale } from '../../../UseArenaContainerWidth.ts';
 import {
-  ARENA_HEAT_STEPS, ARENA_INK_MUTED, arenaHeatFill, arenaRailStyle, arenaSrOnly, arenaValueWriter,
+  ARENA_HEAT_STEPS, ARENA_INK_MUTED, arenaHeatFill, arenaRailStyle, arenaSrOnly, arenaTextRoom, arenaValueWriter,
 } from '../../../DataVisuals.ts';
 import { arenaWarnOnce } from '../../../WarnOnce.ts';
 import {
@@ -72,6 +72,7 @@ export function ArenaHeatmapChart({ className,
   if (!labels) throw new Error('ArenaHeatmapChart: `labels` is required');
   if (!series) throw new Error('ArenaHeatmapChart: `series` is required');
   const [ref, measured] = useArenaContainerWidth();
+  const room = arenaTextRoom(useArenaTextScale());
   const rail = useRef<HTMLDivElement>(null);
   const [cursor, setCursor] = useState<ArenaCell | null>(null);
 
@@ -82,18 +83,18 @@ export function ArenaHeatmapChart({ className,
   const available = measured ?? 600;
   const rows = series.length;
   const cols = Math.max(labels.length, arenaSeriesPointCount(series));
-  const total = height ?? arenaHeatmapHeight(rows);
-  const strip = arenaHeatLegendStrip(total);
-  const width = arenaHeatmapWidth(available, cols, minCellWidth);
+  const total = height ?? arenaHeatmapHeight(rows, room);
+  const strip = arenaHeatLegendStrip(total, room);
+  const width = arenaHeatmapWidth(available, cols, minCellWidth, room);
   const scrolls = width > available;
   const [view, syncView] = useArenaRailView(rail, [measured, scrolls, width]);
-  const box = arenaHeatmapBox(width, strip.plotH);
+  const box = arenaHeatmapBox(width, strip.plotH, room);
   const colScale = arenaBandScale(cols, box.x, box.w, chartBarGap);
   const rowScale = arenaBandScale(rows, box.y, box.h, chartBarGap);
   const domain = arenaHeatDomain(series);
   const fmt = arenaValueWriter({ prefix: valuePrefix, suffix: valueSuffix, format: valueFormat });
   const table = arenaHeatmapTable(locale.heatmapTableRow, series, labels, fmt);
-  const stride = arenaLabelStride(colScale.step, labels);
+  const stride = arenaLabelStride(colScale.step, labels, room);
   const name = arenaPhrase(locale.heatmapChartName, { label });
 
   const cellRect = (row: number, col: number) => {
@@ -142,7 +143,7 @@ export function ArenaHeatmapChart({ className,
         }))}
 
         {series.map((one, row) => (
-          <text key={row} x={arenaCategoryLabelX()} y={arenaBandCenter(rowScale, row)} textAnchor="end" dominantBaseline="middle"
+          <text key={row} x={arenaCategoryLabelX(room)} y={arenaBandCenter(rowScale, row)} textAnchor="end" dominantBaseline="middle"
             fill={ARENA_INK_MUTED} fontFamily="var(--font-body)" style={{ fontSize: 'var(--dz-text-xs)' }}>{one.label}</text>
         ))}
 

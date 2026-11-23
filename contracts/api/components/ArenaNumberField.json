@@ -2,7 +2,7 @@
   "component": "ArenaNumberField",
   "kind": "input",
   "description": "A field that holds one number, typed or stepped by a key or by its two stepper buttons. The number is clamped to its bounds and written in a locale's format while it is not being edited. The value is a number and empty is its absence, so no payload is ever text or NaN. A commit happens on blur, on Enter and on every key or stepper step, never per keystroke. Focus is the focus ring on the field, error the danger tone, valid the success tone with a check, in the order ArenaInput states.",
-  "affordances": ["focus", "hover"],
+  "affordances": ["focus", "hover", "press"],
   "api": {
     "label": { "form": "primitive", "type": "string", "required": true,
                "description": "Names the number, such as \"Replicas\", and labels the field. Required, and guarded at runtime: a blank one throws, because nothing can derive what a number counts." },

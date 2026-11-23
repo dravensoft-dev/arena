@@ -27,7 +27,7 @@ import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
         }
       </span>
     </button>
-    <span [class]="styles().label()" [attr.data-arena-part]="parts.label" (click)="activate()">
+    <span [class]="styles().label()" [arenaSlotData]="styles().$data.label()" [attr.data-arena-part]="parts.label" (click)="activate()">
       {{ label() }}
       @if (confirm()) {
         <span [class]="styles().guard()" [attr.data-arena-part]="parts.guard" aria-hidden="true" [title]="locale.switchConfirmHint"><arena-icon icon="ph-bold ph-shield-check" /></span>

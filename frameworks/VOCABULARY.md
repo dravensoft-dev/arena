@@ -2,11 +2,11 @@
 
 # The vocabulary
 
-**Every vocabulary class you write is on this page.** A component family's class goes on the component, or on a container of yours whose components should all take it. The class nearest the component wins, whatever order your stylesheets load in. A markup family's box class goes on an element you wrote, never on a component. A markup family's context class, density, goes on an element you wrote or on a component. The families you write on markup of your own are `band`, `num`, `prose`, `row`, `shell`, `sr-only`, `stack` and the `density` context. A markup class beats a rule of yours of equal specificity, whatever order the sheets load in. Write yours more specific to override it. Palette and style-plugin classes are not vocabulary: they go on any element, and theme.md says what a subtree takes. A class that is not on this page does nothing on an Arena component, and the audit reports it. A project compiling Tailwind through `css/tailwind-theme.css` also has utilities such as `arena-spinner` and `arena-fade`. Those utilities are Tailwind utilities that a manifest names, and not vocabulary classes.
+**Every vocabulary class you write is on this page.** A component family's class goes on the component, or on a container of yours whose components should all take it. The class nearest the component wins, whatever order your stylesheets load in. A markup family's box class goes on an element you wrote, never on a component. A markup family's context class, density, goes on an element you wrote or on a component. The families you write on markup of your own are `band`, `num`, `prose`, `row`, `shell`, `sr-only`, `stack`, `state` and the `density` context. A rule of yours, a utility of yours and your plugin sheet beat a markup class, because the classes sit in the `components` layer. To override one, write your rule. Palette and style-plugin classes are not vocabulary: they go on any element, and theme.md says what a subtree takes. A class that is not on this page does nothing on an Arena component, and the audit reports it. A project compiling Tailwind through `css/tailwind-theme.css` also has utilities such as `arena-spinner` and `arena-fade`. Those utilities are Tailwind utilities that a manifest names, and not vocabulary classes.
 
 | Family | Reach | Options | Property | Answered by |
 |---|---|---|---|---|
-| [`accent`](#accent) | box | `arena-accent-gold`, `arena-accent-ink`, `arena-accent-muted`, `arena-accent-plain` (default), `arena-accent-primary` |  | ArenaActivityFeed, ArenaBadge, ArenaCard, ArenaMeter, ArenaProgressBar, ArenaSlider, ArenaSpinner, ArenaStatCard, ArenaTag, ArenaToast; [the options each answers](#accent) |
+| [`accent`](#accent) | box | `arena-accent-gold`, `arena-accent-ink`, `arena-accent-muted`, `arena-accent-plain` (default), `arena-accent-primary` |  | ArenaActivityFeed, ArenaMeter and ArenaProgressBar (`arena-accent-gold`, `arena-accent-primary`; default `arena-accent-primary`), ArenaBadge and ArenaStatCard (`arena-accent-gold`, `arena-accent-plain`, `arena-accent-primary`), ArenaCard and ArenaTag (`arena-accent-plain`, `arena-accent-primary`), ArenaSpinner (`arena-accent-gold`, `arena-accent-ink`, `arena-accent-muted`, `arena-accent-primary`; default `arena-accent-primary`), ArenaToast (`arena-accent-gold`, `arena-accent-plain`) |
 | [`align`](#align) | box | `arena-align-center`, `arena-align-start` (default) |  | ArenaHero ([React](./react/components/layout/arena-hero/ArenaHero.prompt.md), [Angular](./angular/components/layout/arena-hero/ArenaHero.prompt.md)), ArenaPageHead ([React](./react/components/navigation/arena-page-head/ArenaPageHead.prompt.md), [Angular](./angular/components/navigation/arena-page-head/ArenaPageHead.prompt.md)) |
 | [`band`](#band) | box | `arena-band` |  | markup you write |
 | [`board-column`](#board-column) | box | `arena-board-column-lg`, `arena-board-column-md` (default), `arena-board-column-sm` | `--arena-board-column` | ArenaBoard ([React](./react/components/layout/arena-board/ArenaBoard.prompt.md), [Angular](./angular/components/layout/arena-board/ArenaBoard.prompt.md)) |
@@ -34,6 +34,7 @@
 | [`skeleton`](#skeleton) | box | `arena-skeleton-block` (default), `arena-skeleton-circle`, `arena-skeleton-line` | `--arena-skeleton-width`, `--arena-skeleton-height`, `--arena-skeleton-radius` | ArenaSkeleton ([React](./react/components/display/arena-skeleton/ArenaSkeleton.prompt.md), [Angular](./angular/components/display/arena-skeleton/ArenaSkeleton.prompt.md)) |
 | [`sr-only`](#sr-only) | box | `arena-sr-only` |  | markup you write |
 | [`stack`](#stack) | box | `arena-stack`, `arena-stack--end`, `arena-stack--group`, `arena-stack--section`, `arena-stack--start` |  | markup you write |
+| [`state`](#state) | box | `arena-focus`, `arena-interactive`, `arena-invalid`, `arena-invalid__message` |  | markup you write |
 | [`sticky`](#sticky) | box | `arena-sticky-head`, `arena-sticky-none` (default) |  | ArenaTable ([React](./react/components/display/arena-table/ArenaTable.prompt.md), [Angular](./angular/components/display/arena-table/ArenaTable.prompt.md)) |
 
 ## accent
@@ -46,7 +47,6 @@ Which editorial colour a component wears when nothing it says calls for a hue. A
   - ArenaActivityFeed ([React](./react/components/display/arena-activity-feed/ArenaActivityFeed.prompt.md), [Angular](./angular/components/display/arena-activity-feed/ArenaActivityFeed.prompt.md)), ArenaMeter ([React](./react/components/feedback/arena-meter/ArenaMeter.prompt.md), [Angular](./angular/components/feedback/arena-meter/ArenaMeter.prompt.md)) and ArenaProgressBar ([React](./react/components/feedback/arena-progress-bar/ArenaProgressBar.prompt.md), [Angular](./angular/components/feedback/arena-progress-bar/ArenaProgressBar.prompt.md)) (`arena-accent-gold`, `arena-accent-primary`; default `arena-accent-primary`).
   - ArenaBadge ([React](./react/components/display/arena-badge/ArenaBadge.prompt.md), [Angular](./angular/components/display/arena-badge/ArenaBadge.prompt.md)) and ArenaStatCard ([React](./react/components/display/arena-stat-card/ArenaStatCard.prompt.md), [Angular](./angular/components/display/arena-stat-card/ArenaStatCard.prompt.md)) (`arena-accent-gold`, `arena-accent-plain`, `arena-accent-primary`).
   - ArenaCard ([React](./react/components/display/arena-card/ArenaCard.prompt.md), [Angular](./angular/components/display/arena-card/ArenaCard.prompt.md)) and ArenaTag ([React](./react/components/display/arena-tag/ArenaTag.prompt.md), [Angular](./angular/components/display/arena-tag/ArenaTag.prompt.md)) (`arena-accent-plain`, `arena-accent-primary`).
-  - ArenaSlider ([React](./react/components/forms/arena-slider/ArenaSlider.prompt.md), [Angular](./angular/components/forms/arena-slider/ArenaSlider.prompt.md)) (`arena-accent-plain`, `arena-accent-primary`; default `arena-accent-primary`).
   - ArenaSpinner ([React](./react/components/feedback/arena-spinner/ArenaSpinner.prompt.md), [Angular](./angular/components/feedback/arena-spinner/ArenaSpinner.prompt.md)) (`arena-accent-gold`, `arena-accent-ink`, `arena-accent-muted`, `arena-accent-primary`; default `arena-accent-primary`).
   - ArenaToast ([React](./react/components/feedback/arena-toast/ArenaToast.prompt.md), [Angular](./angular/components/feedback/arena-toast/ArenaToast.prompt.md)) (`arena-accent-gold`, `arena-accent-plain`).
 
@@ -89,7 +89,7 @@ How wide a column of a table is and how its cells align, which is the adopter's 
 
 ## density
 
-How much a region holds, which is a question about who is pointing at it rather than about the register the product speaks in. arena-compact re-densifies the controls, the rows and their text, for an expert view that has to hold more. arena-comfortable grows the controls to a 48px touch target for a screen a thumb drives, and leaves the text the size it was. The two are exclusive: a container wearing both gets arena-comfortable. Write it on an element of yours or on a component, and it reaches every component inside until a nearer density answers it again. The air between components does not re-densify.
+How much a region holds, which is a question about who is pointing at it rather than about the register the product speaks in. The class to write and what each one re-answers are on [the density section of the style page](../skills/design/references/style.md#density).
 
 - **Options:** `arena-comfortable`, `arena-compact`.
 - **Reach:** context: it goes on an element you wrote or on a component, and reaches every component inside until a nearer class answers it again.
@@ -117,7 +117,7 @@ Whether a surface rests on the page or lifts off it. Depth comes from the shadow
 
 ## emphasis
 
-How loudly an action speaks: filled in the accent, a quiet surface, or no surface at all. Emphasis is the treatment channel, and meaning composes with it: a destructive action keeps whichever emphasis it is given and draws it in danger. At most one primary stands in a view.
+How loudly an action speaks: filled in the accent, a quiet surface, or no surface at all. A destructive action is not an emphasis. The `destructive` prop draws the border and label in the danger hue and fills with `hue-danger-fill-strong`, transparent by default, whatever emphasis the action is given.
 
 - **Options:** `arena-emphasis-ghost`, `arena-emphasis-primary` (default), `arena-emphasis-secondary`, `arena-emphasis-solid`.
 - **Reach:** context: it reaches every component inside, until a nearer class answers it again.
@@ -312,6 +312,14 @@ A label a screen reader announces and nothing paints, such as the name of an ico
 The air between peers in a column of yours, as three named steps rather than a number you pick. Arena draws no outer margin on anything. The space between one component and the next is always yours to place, and this class applies the rhythm tokens to it. arena-stack is the step between peers, arena-stack--group the step inside one unit, and arena-stack--section the step between two sections. arena-stack--start and arena-stack--end line the items up and carry no length, because where items line up is a question about your content. Write it on an element of yours: a component's own element may carry no box.
 
 - **Options:** `arena-stack`, `arena-stack--end`, `arena-stack--group`, `arena-stack--section`, `arena-stack--start`.
+- **Reach:** box: it goes on an element you wrote, and it decides that element alone.
+- **Written on:** an element you wrote, never a component.
+
+## state
+
+The states of a control you drew yourself, composed from roles and their levels alone as Arena's navigation rows and buttons compose them. arena-interactive draws the fill and ink at rest, under the pointer, when pressed and when selected, pressed or current, and the disabled fade. arena-focus draws the keyboard focus ring. arena-invalid draws the edge of a field while aria-invalid is true, and arena-invalid__message draws the ink of its message. A colour slot answer moves Arena's components and not these classes. Write them on an element of yours: a component draws its own states.
+
+- **Options:** `arena-focus`, `arena-interactive`, `arena-invalid`, `arena-invalid__message`.
 - **Reach:** box: it goes on an element you wrote, and it decides that element alone.
 - **Written on:** an element you wrote, never a component.
 

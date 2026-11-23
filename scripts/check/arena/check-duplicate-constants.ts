@@ -7,7 +7,7 @@
  * its single source is the one that would notice if it did. */
 
 import { readFileSync, existsSync } from 'node:fs';
-import { join, basename, extname, relative } from 'node:path';
+import { join, basename, extname } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
@@ -35,6 +35,12 @@ const EXEMPT = new Map([
    + 'number nobody chose into the Overview beside values that were chosen. ArenaOnboarding is the one '
    + 'component that compares against viewport HEIGHT; the reserve it subtracts IS a token '
    + '(--onboarding-height-reserve).'],
+  ['AUTHORED_ROOT_PX',
+   'The px of the root font size the sources are authored against: CSS Fonts 4 `medium`, the initial '
+   + 'value of font-size. It is the divisor of the token serializer, which owns the figure for the '
+   + 'generated rem, and these two RootScale modules read the user\'s root against the same 16. '
+   + 'The layers cannot import a build script, so each carries it, and check:shared-arithmetic holds '
+   + 'the two modules equal.'],
   ['NARROW_WIDTH',
    'A test fixture width, and only ever that: it is the container size a suite reports through a '
    + 'stubbed ResizeObserver so a responsive branch can be reached at all, since happy-dom has one '

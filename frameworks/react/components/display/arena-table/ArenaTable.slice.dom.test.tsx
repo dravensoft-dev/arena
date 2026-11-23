@@ -10,6 +10,7 @@ import { ArenaTable } from './ArenaTable.tsx';
 import { ArenaTableRow } from '../arena-table-row/ArenaTableRow.tsx';
 import { ArenaTableCell } from '../arena-table-cell/ArenaTableCell.tsx';
 import type { ArenaTableColumn } from '../../../Api.generated';
+import { narrowWidths } from '../../../test/NarrowWidths.ts';
 
 afterEach(cleanup);
 
@@ -74,7 +75,7 @@ test('a list of unknown length passes the sentinel through rather than inventing
   assert.deepEqual(dataRows(root).map((r) => r.getAttribute('aria-rowindex')), ['2', '3']);
 });
 
-test('card mode carries neither, because that shape draws no grid for them to describe', () => {
+test('the empty shape carries neither, because that shape draws no grid for them to describe', () => {
   const root = mount(
     <ArenaTable label={LABEL} columns={COLUMNS} responsive={false} slice={{ total: 500, offset: 40 }}>
       {rows(0)}
@@ -83,4 +84,19 @@ test('card mode carries neither, because that shape draws no grid for them to de
   assert.equal(grid(root)?.getAttribute('aria-rowcount'), null,
     'the empty shape strips the grid role, and an attribute describing a grid that is not there '
     + 'is a size claim over nothing');
+});
+
+test('card mode carries neither, because that shape draws no grid for them to describe', () => {
+  narrowWidths(400, () => {
+    const root = mount(
+      <ArenaTable label={LABEL} columns={COLUMNS} slice={{ total: 500, offset: 40 }}>
+        {rows(2)}
+      </ArenaTable>,
+    );
+    assert.equal(grid(root)?.getAttribute('role'), 'presentation', 'sanity: below --bp-md the table is in card mode');
+    assert.equal(grid(root)?.getAttribute('aria-rowcount'), null);
+    const data = dataRows(root);
+    assert.equal(data.length, 2, 'sanity: the card shape still has its two rows');
+    assert.deepEqual(data.map((r) => r.getAttribute('aria-rowindex')), [null, null]);
+  });
 });

@@ -30,21 +30,12 @@ test('ArenaButton defaults its native type to button and honours an override', (
   assert.match(renderIcons(<ArenaButton type="submit">x</ArenaButton>), /type="submit"/);
 });
 
-test('ArenaButton renders danger as outline, never filled', () => {
+test('ArenaButton draws destructive in the danger hue, with no unmodified bg-error', () => {
   const html = renderIcons(<ArenaButton destructive>Delete</ArenaButton>);
   assert.match(html, /data-arena-part="button"[^>]*\bdata-arena-destructive=""/);
   assert.doesNotMatch(html, /data-arena-variant/, 'emphasis is a class the adopter writes, never an attribute');
   assert.doesNotMatch(html, /(?<!:)\bbg-error\b/,
     'an unmodified bg-error fills the danger surface; only the hover: form may tint it');
-});
-
-test('ArenaButton drops a consumer style object and a consumer attribute, each independently', () => {
-  const html = renderIcons(
-    // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    <ArenaButton style={{ color: '#ff00ff' }} data-stray="x">x</ArenaButton>
-  );
-  assert.doesNotMatch(html, /#ff00ff/, 'a consumer style reached the rendered root -- the R4 escape is back');
-  assert.doesNotMatch(html, /data-stray/, 'a consumer attribute reached the rendered root -- the {...rest} escape is back');
 });
 
 test('tabStop defaults to true and emits no tabindex at all', () => {

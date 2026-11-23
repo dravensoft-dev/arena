@@ -1,13 +1,13 @@
 /* The vocabulary: what an adopter writes on a component to decide how it looks, as families of
  * classes declared under frameworks/tailwind/vocabulary/. An option writes channels and nothing
- * else, and a channel is read by a manifest with today's value as its fallback, so no option is
- * in effect until somebody writes it. A family compiles to one @scope block per option, selecting
- * the parts that read its channel, so nearness comes from scope proximity rather than source
- * order; a box family registers its channels as not inherited, or a reached part would hand its
- * value down past the boundary the rule stops at. The box limit is inclusive: the boundary is usually
- * the component's own root, which an exclusive limit would drop, and Chromium matches a limit among
- * the root's descendants only. A markup family writes declarations on the element its class is on,
- * unlayered, in the order its file writes them. */
+ * else, and a manifest reads a channel with today's value as its fallback, so no option is in
+ * effect until somebody writes it. A family compiles to one @scope block per option over the parts
+ * that read it, so nearness comes from scope proximity; a box family registers its channels as not
+ * inherited, or a reached part would hand its value down past the boundary the rule stops at, and
+ * its limit is inclusive, since the boundary is usually the component's own root. An option
+ * block writes its family's group chains over every answering part at once, a member part with
+ * channels or defaults adds its member chains, and each member part takes a zero-specificity default
+ * block, so its reads take no fallback. A markup family writes inside @layer components, and an option may carry states. */
 
 import { existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
@@ -15,6 +15,13 @@ import { readJson } from '../../utils/read-file.ts';
 import { pascal } from '../../utils/case.ts';
 import { captured } from '../../utils/captures.ts';
 import { repoRoot } from '../arena/repo-root.ts';
+import { declaredAxis } from '../core/user-scale.ts';
+import { emittedLength } from '../../generate/core/arena-cli/serialize-token.ts';
+import { channelValue, memberChannel, memberValue } from '../../generate/core/arena-cli/slots.ts';
+import type { ColorSlot, MemberPart, SlotCatalogue } from '../../generate/core/arena-cli/slots.ts';
+import { STATE_SELECTORS } from '../../check/core/check-role-contract.ts';
+import { COLOR_SLOTS, readColorSlots } from '../core/color-slots.ts';
+import type { DtcgNode } from '../core/dtcg-shapes.ts';
 import { classesManifest } from './component-css.ts';
 import { LAYER_ORDER } from './component-sheets.ts';
 import type { ArenaAnswer, ComponentManifest } from './manifest-shapes.ts';
@@ -76,24 +83,73 @@ export function declarations(classes: string): [string, string][] {
   });
 }
 
-export function markupDeclarations(classes: string): [string, string][] {
+export const MARKUP_STATES = ['hover', 'pressed', 'selected', 'focus', 'disabled', 'invalid'] as const;
+export type MarkupState = typeof MARKUP_STATES[number];
+
+const stateSelectorOf = (key: string) => STATE_SELECTORS[key] as string;
+
+export const MARKUP_STATE_SELECTORS: Readonly<Record<MarkupState, readonly string[]>> = {
+  hover: [stateSelectorOf('hover')],
+  pressed: [stateSelectorOf('active')],
+  selected: [stateSelectorOf('aria-selected'), stateSelectorOf('aria-current'), stateSelectorOf('aria-pressed')],
+  focus: [stateSelectorOf('focus-visible')],
+  disabled: [stateSelectorOf('disabled'), stateSelectorOf('aria-disabled')],
+  invalid: [stateSelectorOf('aria-invalid')],
+};
+
+export type StatedDeclaration = { states: MarkupState[]; property: string; value: string };
+
+const isMarkupState = (name: string): name is MarkupState => (MARKUP_STATES as readonly string[]).includes(name);
+
+export function statedDeclarations(classes: string): StatedDeclaration[] {
   return classes.split(/\s+/).filter(Boolean).map((token) => {
-    const match = MARKUP_PROPERTY.exec(token);
-    if (!match) {
+    const at = token.indexOf('[');
+    const prefix = at < 0 ? token : token.slice(0, at);
+    const match = MARKUP_PROPERTY.exec(at < 0 ? token : token.slice(at));
+    if (!match || (prefix !== '' && !/^([a-z-]+:)+$/.test(prefix))) {
       throw new Error(`vocabulary: ${JSON.stringify(token)} is not an arbitrary CSS property. A markup family `
         + 'writes the declarations of the element its class is on, as [display:flex]');
     }
-    return [captured(match), captured(match, 2).replaceAll('_', ' ')];
+    const named = prefix === '' ? [] : prefix.slice(0, -1).split(':');
+    for (const name of named) {
+      if (!isMarkupState(name)) {
+        throw new Error(`vocabulary: ${JSON.stringify(token)} names the state ${JSON.stringify(name)}, `
+          + `and a markup state is one of ${MARKUP_STATES.join(', ')}`);
+      }
+    }
+    const repeated = named.find((name, index) => named.indexOf(name) !== index);
+    if (repeated !== undefined) throw new Error(`vocabulary: ${JSON.stringify(token)} names ${repeated} twice`);
+    return {
+      states: MARKUP_STATES.filter((state) => named.includes(state)),
+      property: captured(match),
+      value: captured(match, 2).replaceAll('_', ' '),
+    };
   });
+}
+
+export function stateSelector(states: readonly MarkupState[]): string {
+  const chain = MARKUP_STATES.filter((state) => states.includes(state)).map((state) => {
+    const selectors = MARKUP_STATE_SELECTORS[state];
+    return selectors.length === 1 ? selectors[0] : `:is(${selectors.join(', ')})`;
+  });
+  const pointer = (states.includes('hover') || states.includes('pressed')) && !states.includes('disabled');
+  const stop = pointer ? `:not(${MARKUP_STATE_SELECTORS.disabled.join(', ')})` : '';
+  return `:scope${chain.join('')}${stop}`;
+}
+
+export function markupDeclarations(classes: string): [string, string][] {
+  return statedDeclarations(classes).map((one) => [one.property, one.value]);
 }
 
 export function restatedDeclarations(rel: string, group: string, root = repoRoot): [string, string][] {
   const tokens = (readJson(join(root, rel)) as Record<string, Record<string, unknown>>)[group];
   if (!tokens) throw new Error(`vocabulary: ${rel} has no ${group} group to restate`);
+  const groupAxis = declaredAxis(tokens as DtcgNode);
   return Object.entries(tokens).filter(([key]) => !key.startsWith('$')).map(([key, token]) => {
     const value = (token as { $value?: unknown }).$value;
     if (value && typeof value === 'object' && 'value' in value && 'unit' in value)
-      return [`--${group}-${key}`, `${(value as { value: number }).value}${(value as { unit: string }).unit}`];
+      return [`--${group}-${key}`, emittedLength(value as { value: number; unit: string },
+        { axis: declaredAxis(token as DtcgNode) ?? groupAxis })];
     if (typeof value === 'number' || (typeof value === 'string' && !value.trim().startsWith('{')))
       return [`--${group}-${key}`, String(value)];
     throw new Error(`vocabulary: ${rel} ${group}.${key} is not a literal value, and a family restates values rather than aliases`);
@@ -155,11 +211,15 @@ export function answerOf(manifest: ComponentManifest, family: Family): { options
   return { options: answer.options, default: answer.default };
 }
 
-export function channelReads(classes: string): { channel: string; fallback: string | null }[] {
-  const reads: { channel: string; fallback: string | null }[] = [];
+export type ChannelRead = { channel: string; fallback: string | null; nested?: boolean };
+
+export function channelReads(classes: string, nesting = false): ChannelRead[] {
+  const reads: ChannelRead[] = [];
+  let inside = 0;
   for (const match of classes.matchAll(/var\(\s*(--arena-[a-z0-9-]+)\s*([,)])/g)) {
     const channel = captured(match);
-    if (match[2] === ')') { reads.push({ channel, fallback: null }); continue; }
+    const nested = nesting ? { nested: match.index < inside } : {};
+    if (match[2] === ')') { reads.push({ channel, fallback: null, ...nested }); continue; }
     let depth = 1;
     const from = match.index + match[0].length;
     let at = from;
@@ -167,7 +227,8 @@ export function channelReads(classes: string): { channel: string; fallback: stri
       if (classes[at] === '(') depth += 1;
       else if (classes[at] === ')') depth -= 1;
     }
-    reads.push({ channel, fallback: classes.slice(from, depth === 0 ? at - 1 : at).trim() });
+    inside = Math.max(inside, at);
+    reads.push({ channel, fallback: classes.slice(from, depth === 0 ? at - 1 : at).trim(), ...nested });
   }
   return reads;
 }
@@ -196,7 +257,75 @@ export function answeringParts(
 
 const byOption = ([a]: [string, string], [b]: [string, string]) => (a < b ? -1 : a > b ? 1 : 0);
 
-export function compileFamily(family: Family, manifests: Iterable<ComponentManifest>, root = repoRoot): string {
+type Owner = { manifest: ComponentManifest; slot: string; part: string; default: string; options: readonly string[] };
+
+function ownersOf(family: Family, manifests: ComponentManifest[]): Owner[] {
+  const out: Owner[] = [];
+  for (const manifest of manifests) {
+    const answer = answerOf(manifest, family);
+    if (answer === null) continue;
+    for (const [slot, part] of Object.entries(classesManifest(manifest).parts ?? {}))
+      out.push({ manifest, slot, part, default: answer.default, options: answer.options });
+  }
+  return out;
+}
+
+const shortOption = (family: Family, option: string) => option.replace(`arena-${family.family}-`, '');
+
+const memberKey = (owner: Owner) => `${owner.manifest.component}.${owner.slot}`;
+
+function memberSlots(catalogue: SlotCatalogue, family: Family, owner: Owner, option: string): [string, ColorSlot][] {
+  const m = catalogue.members[memberKey(owner)];
+  if (m === undefined) return [];
+  const prefix = channelPrefix(family.family);
+  const [group, part] = m.to.split('.');
+  return Object.entries(catalogue.slots).filter(([, s]) => s.group === group && s.part === part && s.option === shortOption(family, option)
+    && m.options.includes(s.option ?? '') && m.states.includes(s.state) && s.channel !== undefined && s.channel.startsWith(prefix));
+}
+
+const NO_SLOTS: SlotCatalogue = { accepts: { fill: [], ink: [], edge: [], icon: [] }, refused: [], states: [], groups: {}, members: {}, rings: {}, slots: {} };
+
+const catalogueOf = (root: string): SlotCatalogue => (existsSync(join(root, COLOR_SLOTS)) ? readColorSlots(root) : NO_SLOTS);
+
+const ownChannel = (m: MemberPart, slot: ColorSlot) => memberChannel(m, slot) as string;
+
+export function memberChannels(family: Family, root = repoRoot): Set<string> {
+  const catalogue = catalogueOf(root);
+  const prefix = channelPrefix(family.family);
+  const out = new Set<string>();
+  for (const m of Object.values(catalogue.members)) {
+    if (m.inline) continue;
+    const [group, part] = m.to.split('.');
+    for (const s of Object.values(catalogue.slots)) {
+      if (s.group !== group || s.part !== part || s.channel === undefined || !s.channel.startsWith(prefix)) continue;
+      if (m.options.includes(s.option ?? '') && m.states.includes(s.state)) out.add(ownChannel(m, s));
+    }
+  }
+  return out;
+}
+
+type Compiler = { family: Family; catalogue: SlotCatalogue; owners: Owner[] };
+
+function memberWrites(k: Compiler, option: string, owner: Owner): Map<string, string> {
+  const writes = new Map<string, string>();
+  const m = k.catalogue.members[memberKey(owner)];
+  if (m === undefined || (m.channels === undefined && m.defaults === undefined)) return writes;
+  for (const [name, slot] of memberSlots(k.catalogue, k.family, owner, option)) {
+    const value = memberValue(k.catalogue, memberKey(owner), name, 'tailwind');
+    const channel = ownChannel(m, slot);
+    if (channel !== slot.channel || value !== channelValue(k.catalogue, name, 'tailwind')) writes.set(channel, value);
+  }
+  return writes;
+}
+
+const rule = (selector: string, writes: Map<string, string>, indent: string) =>
+  `${indent}${selector} {\n${[...writes].map(([name, value]) => `${indent}  ${name}: ${value.replaceAll('_', ' ')};`).join('\n')}\n${indent}}`;
+
+const partSelector = (part: string) => `:scope[data-arena-part="${part}"], [data-arena-part="${part}"]`;
+
+const byPart = (a: Owner, b: Owner) => (a.part < b.part ? -1 : a.part > b.part ? 1 : 0);
+
+export function compileFamily(family: Family, manifests: Iterable<ComponentManifest>, root = repoRoot, only?: string): string {
   if (targetOf(family) === 'keyed')
     throw new Error(`vocabulary: ${family.family} is a keyed family, and a keyed family compiles to no sheet`);
   const all = [...manifests];
@@ -207,26 +336,55 @@ export function compileFamily(family: Family, manifests: Iterable<ComponentManif
         + 'a markup family applies to the element its class is written on, so no manifest answers it');
     }
     const blocks = Object.keys(family.variants).map((option) => {
-      const named: [string, string][] = family.reach === 'context'
-        ? [[`--arena-${family.family}`, option.replace(/^arena-/, '')]] : [];
-      const body = [...named, ...optionDeclarations(family, option, root)]
-        .map(([name, value]) => `    ${name}: ${value};`).join('\n');
-      return `@scope (.${option}) {\n  :scope {\n${body}\n  }\n}`;
+      const named: StatedDeclaration[] = family.reach === 'context'
+        ? [{ states: [], property: `--arena-${family.family}`, value: option.replace(/^arena-/, '') }] : [];
+      const written: StatedDeclaration[] = family.restates
+        ? optionDeclarations(family, option, root).map(([property, value]) => ({ states: [], property, value }))
+        : statedDeclarations(family.variants[option] ?? '');
+      const chains = new Map<string, { states: MarkupState[]; writes: Map<string, string> }>();
+      for (const one of [...named, ...written]) {
+        const key = one.states.join(':');
+        const chain = chains.get(key) ?? { states: one.states, writes: new Map<string, string>() };
+        if (chain.writes.has(one.property))
+          throw new Error(`vocabulary: ${option} writes ${one.property} twice${key ? ` under ${key}` : ''}, and one state chain writes a property once`);
+        chain.writes.set(one.property, one.value);
+        chains.set(key, chain);
+      }
+      const rules = [...chains.values()].map(({ states, writes }) => (states.includes('hover')
+        ? `  @media (hover: hover) {\n${rule(stateSelector(states), writes, '    ')}\n  }`
+        : rule(stateSelector(states), writes, '  ')));
+      return `@scope (.${option}) {\n${rules.join('\n')}\n}`;
     });
-    return `${LAYER_ORDER}${blocks.join('\n')}\n`;
+    const inLayer = blocks.map((block) => block.split('\n').map((line) => `  ${line}`).join('\n'));
+    return `${LAYER_ORDER}@layer components {\n${inLayer.join('\n')}\n}\n`;
   }
   if (parts.length === 0) {
     throw new Error(`vocabulary: no manifest answers ${family.family} and reads its channels, so every `
       + 'option would compile to a rule that selects nothing');
   }
+  const k: Compiler = { family, catalogue: catalogueOf(root), owners: ownersOf(family, all) };
+  const mine = (owner: Owner) => only === undefined || owner.manifest.component === only;
+  const members = (option: string) => k.owners.filter((one) => one.options.includes(option) && mine(one)
+    && memberSlots(k.catalogue, family, one, option).length > 0).sort(byPart);
+  const scoped = only === undefined ? all : all.filter((one) => one.component === only);
   const blocks: string[] = [];
   for (const [option, classes] of Object.entries(family.variants).sort(byOption)) {
-    const own = answeringParts(family, all, option);
+    const own = answeringParts(family, scoped, option);
     if (own.length === 0) continue;
-    const selector = own.map((part) => `:scope[data-arena-part="${part}"], [data-arena-part="${part}"]`).join(',\n    ');
     const head = family.reach === 'box' ? `@scope (.${option}) to (${LIMIT})` : `@scope (.${option}) to (${FLOATING_LIMIT})`;
     const body = declarations(classes).map(([name, value]) => `      ${name}: ${value};`).join('\n');
-    blocks.push(`  ${head} {\n    ${selector} {\n${body}\n    }\n  }`);
+    const parts = [...new Set([...own, ...members(option).map((one) => one.part)])].sort();
+    const inner = [`    ${parts.map(partSelector).join(',\n    ')} {\n${body}\n    }`];
+    for (const owner of members(option)) {
+      const writes = memberWrites(k, option, owner);
+      if (writes.size) inner.push(rule(partSelector(owner.part), writes, '    '));
+    }
+    blocks.push(`  ${head} {\n${inner.join('\n')}\n  }`);
+  }
+  const atDefault = k.owners.filter((one) => mine(one) && memberSlots(k.catalogue, family, one, one.default).length > 0).sort(byPart);
+  for (const owner of atDefault) {
+    const writes = new Map([...declarations(family.variants[owner.default] ?? '') as [string, string][], ...memberWrites(k, owner.default, owner)]);
+    blocks.push(rule(`:where([data-arena-part="${owner.part}"])`, writes, '  '));
   }
   if (family.reach === 'box')
     for (const axis of axesOf(family)) blocks.push(`  [${BOUNDARY}] > * {\n    ${axis}: initial;\n  }`);
@@ -236,6 +394,33 @@ export function compileFamily(family: Family, manifests: Iterable<ComponentManif
   const registered = channels.map((name) => `@property ${name} {\n  syntax: '*';\n  inherits: false;\n}\n`).join('');
   return `${LAYER_ORDER}${registered}@layer utilities {\n${blocks.join('\n')}\n}\n`;
 }
+
+export function defaultBlockChannels(family: Family, manifests: Iterable<ComponentManifest>, root = repoRoot): Map<string, Set<string>> {
+  const out = new Map<string, Set<string>>();
+  if (targetOf(family) !== 'component') return out;
+  const all = [...manifests];
+  const k: Compiler = { family, catalogue: catalogueOf(root), owners: ownersOf(family, all) };
+  for (const owner of k.owners) {
+    if (memberSlots(k.catalogue, family, owner, owner.default).length === 0) continue;
+    const written = declarations(family.variants[owner.default] ?? '').map(([name]) => name);
+    out.set(memberKey(owner), new Set([...written, ...memberWrites(k, owner.default, owner).keys()]));
+  }
+  return out;
+}
+
+const kebab = (component: string) => component.replace(/^Arena/, '').replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
+
+export const partSheetStem = (component: string) => `arena-${kebab(component)}`;
+
+export function partSheetOwners(family: Family, manifests: Iterable<ComponentManifest>, root = repoRoot): string[] {
+  if (targetOf(family) !== 'component') return [];
+  const catalogue = catalogueOf(root);
+  const owners = ownersOf(family, [...manifests]);
+  const slotted = (owner: Owner) => owner.options.some((option) => memberSlots(catalogue, family, owner, option).length > 0);
+  return owners.some(slotted) ? [...new Set(owners.map((owner) => owner.manifest.component))].sort() : [];
+}
+
+export const packagePartSheetName = (family: string, component: string) => `css/vocabulary/${family}/${partSheetStem(component)}.css`;
 
 export const sheetName = (family: string) => `${pascal(family)}.generated.css`;
 

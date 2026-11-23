@@ -44,7 +44,7 @@ Two elements are also why the binding is `none` rather than `button`. No single 
 the platform and from `ArenaSideNav`'s own `navigation` binding.
 
 `id` and `label` are both **required and guarded at runtime**. `icon` is a Phosphor class name that
-Arena draws as an `aria-hidden` `<i>`, the single-icon convention, never a projected node.
+Arena draws as an `<svg>` of the sprite, hidden from assistive technology, the single-icon convention, never a projected node.
 
 `aria-current="page"` is present on the active row and **absent** on the rest, never `false`.
 
@@ -61,7 +61,7 @@ Arena draws as an `aria-hidden` `<i>`, the single-icon convention, never a proje
   still a change to the contract rather than to a caller.
 
 - **`disabled` draws the destination and refuses it.** The member reflects through `aria-disabled` rather than by not rendering the item. An unavailable destination a user can see, and hear announced as unavailable, is what tells them it exists. The anchor keeps its `href`, so the shape does not
-  change; what changes is that the click is prevented and the nav is never told to activate.
+  change; what changes is that the click is prevented and the nav is never told to activate. The item fades by `fade-disabled`, and a plugin that answers the `navigation-item-*-disabled` or `*-selected-disabled` slots replaces that fade, as on ArenaBottomNav; it does not scale when pressed.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

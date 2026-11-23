@@ -3,7 +3,7 @@
  * different places. A gauge keeps that origin and direction and adds an offset: a
  * scale has two ends, so its dial opens at the bottom, from 7:30 to 4:30 clockwise.
  * What this suite cannot see is whether the axes are legible at the count given: past
- * eight or so the labels collide, and that is on the by-hand list. */
+ * eight or so the labels collide, and that is left to a real browser. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {

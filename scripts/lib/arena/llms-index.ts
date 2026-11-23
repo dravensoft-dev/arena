@@ -22,7 +22,7 @@ export const PROMPT_SUFFIX = '.prompt.md';
 export const ROUTER = 'skills/design/SKILL.md';
 export const INDEX = 'INDEX.md';
 export const REFERENCE_DIR = 'skills/design/references';
-export const REFERENCE_LINK = /\.\/references\/((?:[A-Za-z0-9-]+\/)?[A-Za-z0-9-]+\.md)/g;
+export const REFERENCE_LINK = /\.\/references\/((?:[A-Za-z0-9-]+\/){0,2}[A-Za-z0-9-]+\.md)/g;
 export const SECTION_INDEX = 'index.md';
 export const HEADLINE = /^#\s+(.+)$/m;
 export const OPENING = /^#\s+.+\n+([\s\S]*?)(?:\n\n|$)/;
@@ -82,18 +82,28 @@ export function layerDocs(layer: string, base = root) {
   ].filter((rel) => existsSync(join(base, rel)));
 }
 
-export function sectionPages(rel: string, base = root) {
+export function sectionPages(rel: string, base = root): string[] {
   const dir = posix.dirname(rel);
   if (basename(rel) !== SECTION_INDEX || dir === REFERENCE_DIR) return [rel];
-  const pages = readdirSync(join(base, dir)).filter((name) => name.endsWith('.md') && name !== SECTION_INDEX).sort();
-  return [rel, ...pages.map((name) => `${dir}/${name}`)];
+  const entries = readdirSync(join(base, dir), { withFileTypes: true });
+  const leaves = entries
+    .filter((entry) => entry.isFile() && entry.name.endsWith('.md') && entry.name !== SECTION_INDEX)
+    .map((entry) => entry.name).sort();
+  const subs = entries
+    .filter((entry) => entry.isDirectory() && existsSync(join(base, dir, entry.name, SECTION_INDEX)))
+    .map((entry) => entry.name);
+  const text = readFileSync(join(base, rel), 'utf8');
+  const at = (sub: string) => { const i = text.search(new RegExp(`(?<!\\.)\\./${sub}/${SECTION_INDEX.replace('.', '\\.')}`)); return i < 0 ? Infinity : i; };
+  const ordered = [...subs].sort((x, y) => (at(x) - at(y)) || (x < y ? -1 : x > y ? 1 : 0));
+  return [rel, ...leaves.map((name) => `${dir}/${name}`), ...ordered.flatMap((sub) => sectionPages(`${dir}/${sub}/${SECTION_INDEX}`, base))];
 }
 
 export function references(base = root) {
   const linked = readFileSync(join(base, ROUTER), 'utf8').matchAll(REFERENCE_LINK);
   return [...new Set([...linked].map((hit) => `${REFERENCE_DIR}/${hit[1]}`))]
     .filter((rel) => existsSync(join(base, rel)))
-    .flatMap((rel) => sectionPages(rel, base));
+    .flatMap((rel) => sectionPages(rel, base))
+    .filter((rel, i, all) => all.indexOf(rel) === i);
 }
 
 export function headline(rel: string, base = root) {

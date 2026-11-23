@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -40,7 +40,7 @@ const PAST_DEFAULT: Deadline = deadline('check-all-test:past-default', 5_500,
 const BUDGET = budgetFor(COLLECTION, INTERRUPTED, TERM_GRACE, ABORT_GRACE, PAST_DEFAULT, TEST_CASE);
 
 const MEASURED_HEAVY = new Map([
-  ['check:pixel-parity', 'browser'], ['check:target-size', 'browser'], ['check:contained-parts', 'browser'], ['check:proximity', 'browser'],
+  ['check:pixel-parity', 'browser'], ['check:target-size', 'browser'], ['check:contained-parts', 'browser'], ['check:text-scale', 'browser'], ['check:proximity', 'browser'],
   ['check:palette-islands', 'browser'],
   ['check:focus-trap', 'browser'], ['check:anchoring', 'browser'], ['check:script-types', 'compiler'],
   ['check:react-types', 'compiler'], ['check:consumer', 'browser'],
@@ -48,7 +48,7 @@ const MEASURED_HEAVY = new Map([
 
 const MEASURED_COST = new Map([
   ['check:pixel-parity', 52], ['check:script-types', 13.5], ['check:react-types', 12.7],
-  ['check:target-size', 20.3], ['check:contained-parts', 12.6], ['check:proximity', 10.2], ['check:palette-islands', 4.7], ['check:focus-trap', 4.1], ['check:anchoring', 6.3],
+  ['check:target-size', 20.3], ['check:contained-parts', 12.6], ['check:text-scale', 58], ['check:proximity', 10.2], ['check:palette-islands', 4.7], ['check:focus-trap', 4.1], ['check:anchoring', 6.3],
   ['check:consumer', 15.3],
 ]);
 
@@ -60,12 +60,23 @@ const TEST_COST = new Map([
 const SPLIT_TESTS = ['build (ngc emit of the Angular layer)', 'test (scripts)', 'test (react)',
   'test (react-dom)', 'test (angular)'];
 
-test('GATES lists every check gate', () => {
-  assert.equal(GATES.length, 95);
-  assert.deepEqual(
-    GATES.map((g) => g.name),
-    ['check:docs', 'check:graph', 'check:portability', 'check:workflow-scripts', 'check:generated', 'check:skill-spec', 'check:skills', 'check:support', 'check:prompts', 'check:rules', 'check:register', 'check:routes', 'check:vocabulary', 'check:families', 'check:architecture', 'check:duplication', 'check:dtcg', 'check:user-scale', 'check:catalogue', 'check:style-plugin', 'check:style-plugin-coverage', 'check:plugin-css', 'check:role-contract', 'check:compat-aliases', 'check:polarity', 'check:tokens', 'check:token-collisions', 'check:script-tokens', 'check:duplicate-constants', 'check:deadlines', 'check:ramp', 'check:boundary-contrast', 'check:text-contrast', 'check:tailwind', 'check:tailwind-generated', 'check:coverage', 'check:radius', 'check:roles', 'check:arbitrary', 'check:safe-area', 'check:hidden-parts', 'check:component-css', 'check:channels', 'check:dimensions', 'check:states', 'check:measured-box', 'check:intrinsic-width', 'check:appearance', 'check:parts', 'check:boundaries', 'check:layer-independence', 'check:structure', 'check:contracts', 'check:contracts-package', 'check:mcp', 'check:contracts-neutrality', 'check:contracts-resolve', 'check:behaviour', 'check:compliance', 'check:api', 'check:playgrounds', 'check:kitchen-sink', 'check:citations', 'check:agents', 'check:agents-spec', 'check:community', 'check:site', 'check:icons', 'check:fonts', 'check:intro', 'check:vendor', 'check:demos', 'check:react-barrel', 'check:react-types', 'check:text-runs', 'check:script-types', 'check:script-reach', 'check:focus-trap', 'check:anchoring', 'check:target-size', 'check:contained-parts', 'check:pixel-parity', 'check:proximity', 'check:palette-islands', 'check:shared-arithmetic', 'check:packages', 'check:consumer', 'check:weight', 'check:exports', 'check:classes', 'check:angular-demos', 'check:assertions', 'check:cdk', 'check:boolean-inputs', 'check:optional-inputs'],
-  );
+test('every check-*.ts under check/ is a gate in GATES, and every GATES file exists', () => {
+  const NOT_GATES = new Map([
+    ['arena/check-all.ts', 'the runner that plans and runs every gate, so it is the one that registers them and no gate of its own'],
+    ['arena/check-release.ts', 'run by path before publishing, because it asserts what the tag hands out and nothing exists to assert until one does'],
+  ]);
+  const checkRoot = join(repoRoot, 'scripts', 'check');
+  const onDisk = readdirSync(checkRoot, { withFileTypes: true }).filter((entry) => entry.isDirectory())
+    .flatMap((dir) => readdirSync(join(checkRoot, dir.name))
+      .filter((file) => /^check-.+\.ts$/.test(file) && !file.endsWith('.test.ts')).map((file) => `${dir.name}/${file}`)).sort();
+  assert.ok(onDisk.length > 0, 'the scan found no check-*.ts, so it would pass over nothing');
+  for (const [file, reason] of NOT_GATES) {
+    assert.ok(onDisk.includes(file), `NOT_GATES names ${file}, which is not a check-*.ts under check/`);
+    assert.ok(reason.length > 20, `${file} is not a gate with no reason on the record`);
+  }
+  assert.deepEqual(GATES.map((g) => g.file).sort(), onDisk.filter((file) => !NOT_GATES.has(file)),
+    'a check-*.ts that is not in GATES runs in no job, and a GATES file that is not on disk runs nothing');
+  for (const { name, file } of GATES) assert.ok(existsSync(join(checkRoot, file)), `${name} names ${file}, which does not exist`);
 });
 
 test('the domain table in scripts/check/AGENTS.md counts what GATES holds, or it goes quietly stale', () => {
@@ -246,19 +257,28 @@ test('a suite is TypeScript, so a .test.mjs is not one and would run in neither 
   }
 });
 
-test('the node step names how many suites it found, because a narrowed run and a full one read alike', () => {
-  const step = testStep({ isBun: false, testFiles: ['/repo/scripts/a.test.mjs'] });
-  assert.match(step[0]?.name ?? '', /1 found/);
+test('testStep under node names how many suites it found and runs `node --test` over the discovered files', () => {
+  const rows: { name: string; files: string[]; namePattern?: RegExp; args?: string[][] }[] = [
+    { name: 'the node step names how many suites it found, because a narrowed run and a full one read alike',
+      files: ['/repo/scripts/a.test.mjs'], namePattern: /1 found/ },
+    { name: 'testStep runs `node --test` over the discovered files under node',
+      files: ['/repo/scripts/a.test.mjs', '/repo/scripts/b.test.mjs'], args: [['--test', '/repo/scripts/a.test.mjs', '/repo/scripts/b.test.mjs']] },
+  ];
+  for (const row of rows) {
+    const steps = testStep({ isBun: false, testFiles: row.files });
+    if (row.namePattern) assert.match(steps[0]?.name ?? '', row.namePattern, row.name);
+    if (row.args) assert.deepEqual(steps.map((s) => s.args), row.args, row.name);
+  }
 });
 
 test('testStep runs the emit and each suite in its own process, the Angular suites after the emit they read', () => {
   const steps = testStep({ isBun: true, testFiles: ['a.test.mjs', 'b.test.mjs'] });
   assert.deepEqual(steps, [
-    { name: 'build (ngc emit of the Angular layer)', args: ['run', 'build:angular-tests'], pool: 'compiler', cost: 21.2 },
-    { name: 'test (scripts)', args: ['test', 'scripts', `--timeout=${TEST_CASE.ms}`], pool: 'compiler', cost: 38.1 },
-    { name: 'test (react)', args: ['test', 'frameworks/react', '--path-ignore-patterns=**/*.dom.test.*', `--timeout=${TEST_CASE.ms}`], pool: 'compiler', cost: 0.7 },
-    { name: 'test (react-dom)', args: ['test', '--preload', './frameworks/react/test/Preload.js', '.dom.test.', `--timeout=${TEST_CASE.ms}`], pool: 'compiler', cost: 6.9 },
-    { name: 'test (angular)', args: ['test', 'frameworks/angular/build/test', `--timeout=${TEST_CASE.ms}`], pool: 'compiler', cost: 5.4,
+    { name: 'build (ngc emit of the Angular layer)', args: ['run', 'build:angular-tests'], pool: 'compiler', cost: TEST_COST.get('build (ngc emit of the Angular layer)') },
+    { name: 'test (scripts)', args: ['test', 'scripts', `--timeout=${TEST_CASE.ms}`], pool: 'compiler', cost: TEST_COST.get('test (scripts)') },
+    { name: 'test (react)', args: ['test', 'frameworks/react', '--path-ignore-patterns=**/*.dom.test.*', `--timeout=${TEST_CASE.ms}`], pool: 'compiler', cost: TEST_COST.get('test (react)') },
+    { name: 'test (react-dom)', args: ['test', '--preload', './frameworks/react/test/Preload.js', '.dom.test.', `--timeout=${TEST_CASE.ms}`], pool: 'compiler', cost: TEST_COST.get('test (react-dom)') },
+    { name: 'test (angular)', args: ['test', 'frameworks/angular/build/test', `--timeout=${TEST_CASE.ms}`], pool: 'compiler', cost: TEST_COST.get('test (angular)'),
       after: ['build (ngc emit of the Angular layer)'] },
   ]);
   assert.equal(steps[0], ANGULAR_EMIT);
@@ -303,11 +323,6 @@ test('a run without the suites still compiles the Angular layer when it selects 
   assert.deepEqual(typeSteps(DOMAINS), [ANGULAR_EMIT]);
 });
 
-test('testStep runs `node --test` over the discovered files under node', () => {
-  const steps = testStep({ isBun: false, testFiles: ['/repo/scripts/a.test.mjs', '/repo/scripts/b.test.mjs'] });
-  assert.deepEqual(steps.map((s) => s.args), [['--test', '/repo/scripts/a.test.mjs', '/repo/scripts/b.test.mjs']]);
-});
-
 test('stepStatus maps exit 2 to a skip, and everything else to pass or fail', () => {
   assert.equal(stepStatus(0), 'pass');
   assert.equal(stepStatus(1), 'fail');
@@ -315,29 +330,26 @@ test('stepStatus maps exit 2 to a skip, and everything else to pass or fail', ()
   assert.equal(stepStatus(null), 'fail');
 });
 
-test('summarize lists every step and reports overall success', () => {
-  const out = summarize([{ name: 'a', status: 'pass', ms: 500 }, { name: 'b', status: 'pass', ms: 500 }]);
-  assert.match(out, /PASS {2}a/);
-  assert.match(out, /PASS {2}b/);
-  assert.match(out, /all 2 step\(s\) passed/);
-});
-
-test('summarize reports which steps failed', () => {
-  const out = summarize([{ name: 'a', status: 'pass', ms: 500 }, { name: 'b', status: 'fail', ms: 500 }]);
-  assert.match(out, /FAIL {2}b/);
-  assert.match(out, /1\/2 step\(s\) failed/);
-});
-
-test('a skipped step is never a green run — the summary says INCOMPLETE', () => {
-  const out = summarize([{ name: 'a', status: 'pass', ms: 500 }, { name: 'check:focus-trap', status: 'skip', ms: 500 }]);
-  assert.match(out, /SKIP {2}check:focus-trap/);
-  assert.match(out, /INCOMPLETE/);
-  assert.doesNotMatch(out, /all 2 step\(s\) passed/);
-});
-
-test('a failure outranks a skip in the tail', () => {
-  const out = summarize([{ name: 'a', status: 'fail', ms: 500 }, { name: 'b', status: 'skip', ms: 500 }]);
-  assert.match(out, /1\/2 step\(s\) failed/);
+test('summarize lists every step, reports success, failures and skips, and a failure outranks a skip', () => {
+  const rows: { name: string; steps: { name: string; status: 'pass' | 'fail' | 'skip'; ms: number }[]; patterns: RegExp[]; notPatterns?: RegExp[] }[] = [
+    { name: 'summarize lists every step and reports overall success',
+      steps: [{ name: 'a', status: 'pass', ms: 500 }, { name: 'b', status: 'pass', ms: 500 }],
+      patterns: [/PASS {2}a/, /PASS {2}b/, /all 2 step\(s\) passed/] },
+    { name: 'summarize reports which steps failed',
+      steps: [{ name: 'a', status: 'pass', ms: 500 }, { name: 'b', status: 'fail', ms: 500 }],
+      patterns: [/FAIL {2}b/, /1\/2 step\(s\) failed/] },
+    { name: 'a skipped step is never a green run — the summary says INCOMPLETE',
+      steps: [{ name: 'a', status: 'pass', ms: 500 }, { name: 'check:focus-trap', status: 'skip', ms: 500 }],
+      patterns: [/SKIP {2}check:focus-trap/, /INCOMPLETE/], notPatterns: [/all 2 step\(s\) passed/] },
+    { name: 'a failure outranks a skip in the tail',
+      steps: [{ name: 'a', status: 'fail', ms: 500 }, { name: 'b', status: 'skip', ms: 500 }],
+      patterns: [/1\/2 step\(s\) failed/] },
+  ];
+  for (const row of rows) {
+    const out = summarize(row.steps);
+    for (const pattern of row.patterns) assert.match(out, pattern, `${row.name}: ${pattern}`);
+    for (const pattern of row.notPatterns ?? []) assert.doesNotMatch(out, pattern, `${row.name}: ${pattern}`);
+  }
 });
 
 test('a gate that failed while the graph would have kept it is a defect in the graph', () => {
@@ -358,7 +370,7 @@ test('a failure the graph would have run anyway is the gate\'s own, and says not
 });
 
 test('every gate measured as a browser or a compiler declares that pool, and no other gate declares one', () => {
-  assert.equal(MEASURED_HEAVY.size, 10);
+  assert.equal(MEASURED_HEAVY.size, 11);
   const declared = new Map(GATES.filter((g) => g.pool !== undefined).map((g) => [g.name, g.pool]));
   for (const name of MEASURED_HEAVY.keys()) assert.ok(GATES.some((g) => g.name === name), `${name} is not in GATES`);
   assert.deepEqual([...declared].sort(), [...MEASURED_HEAVY].sort(),
@@ -449,7 +461,6 @@ test('the slots line names what bounded each figure, so a flag the cores capped 
   for (const [jobs, cores, free, line] of rows) {
     assert.equal(slotsLine(jobs, cores, free), `check-all: ${line}`);
   }
-  assert.equal(rows.length, 3);
 });
 
 test('the plan holds every gate once and every suite step once, and a kept gate spawns nothing', () => {
@@ -461,7 +472,7 @@ test('the plan holds every gate once and every suite step once, and a kept gate 
   assert.deepEqual(all.kept, []);
   const pixel = all.planned.find((one) => one.name === 'check:pixel-parity');
   assert.equal(pixel?.pool, 'browser');
-  assert.equal(pixel?.cost, 52);
+  assert.equal(pixel?.cost, MEASURED_COST.get('check:pixel-parity'));
   assert.equal(pixel?.command, '/bin/bun');
   assert.match(pixel?.args[0] ?? '', /check-pixel-parity\.ts$/);
 

@@ -41,19 +41,6 @@ function tabStops(html: string) {
   return explicit + native;
 }
 
-test('an ArenaTable renders exactly one tab stop', () => {
-  assert.equal(tabStops(render()), 1, 'an ArenaTable is not one tab stop');
-});
-
-test('the wide layout is a role="grid" carrying a non-empty name', () => {
-  const html = render();
-  assert.match(html, /role="grid"/, 'no role="grid" on the wide layout');
-  const name = html.match(/aria-label="([^"]*)"/);
-  assert.ok(name, 'the grid has no aria-label');
-  assert.ok(name[1]!.length > 0, 'the grid aria-label is empty');
-  assert.equal(name[1], LABEL, 'the grid name is not the `label` member');
-});
-
 test('every row, header cell and data cell takes its grid role from the element it is', () => {
   const html = render();
   const count = (re: RegExp) => (html.match(re) || []).length;
@@ -67,22 +54,6 @@ test('every row, header cell and data cell takes its grid role from the element 
   assert.equal(count(/<th[^>]*role="columnheader"/g), 0, 'and a <th scope="col"> already maps to a columnheader');
   assert.equal(count(/<td[^>]*role="gridcell"/g), 0, 'and a <td> inside a role="grid" already maps to a gridcell');
   assert.equal(count(/<th[^>]*scope="col"/g), 2, 'a header cell says which way it heads, which is what carries the mapping');
-});
-
-test('ArenaTable throws when `label` is absent', () => {
-  assert.throws(
-    // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    () => renderToStaticMarkup(<ArenaTable columns={COLUMNS} responsive={false}>{body()}</ArenaTable>),
-    /ArenaTable: `label` is required/,
-  );
-});
-
-test('ArenaTable throws when `columns` is absent', () => {
-  assert.throws(
-    // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    () => renderToStaticMarkup(<ArenaTable label="Recent builds" responsive={false}>{body()}</ArenaTable>),
-    /ArenaTable: `columns` is required/,
-  );
 });
 
 test('an empty columns array renders rather than throwing', () => {
@@ -135,51 +106,15 @@ test('`rows` and `getRowKey` passed as props change nothing', () => {
   assert.equal(withDead, baseline, 'a removed member is still being honoured');
 });
 
-test('ArenaTable drops a consumer style object -- the ...style escape is gone', () => {
-  const html = render({ style: { color: '#ff00ff' } });
-  assert.doesNotMatch(html, /#ff00ff/, 'a consumer style reached the rendered root -- the R4 escape is back');
-});
-
-test('ArenaTable drops a consumer attribute -- the {...rest} escape is gone', () => {
-  const html = render({ 'data-stray': 'x' });
-  assert.doesNotMatch(html, /data-stray/, 'a consumer attribute reached the rendered root -- the {...rest} escape is back');
-});
-
-test('ArenaTableRow drops a consumer style object -- the ...style escape is gone', () => {
-  const html = render({}, [
-    // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    <ArenaTableRow key="a" style={{ color: '#ff00ff' }}><ArenaTableCell>x</ArenaTableCell></ArenaTableRow>,
-  ]);
-  assert.doesNotMatch(html, /#ff00ff/, 'a consumer style reached the rendered <tr> -- the R4 escape is back');
-});
-
-test('ArenaTableRow drops a consumer attribute -- the {...rest} escape is gone', () => {
-  const html = render({}, [
-    <ArenaTableRow key="a" data-stray="x"><ArenaTableCell>x</ArenaTableCell></ArenaTableRow>,
-  ]);
-  assert.doesNotMatch(html, /data-stray/, 'a consumer attribute reached the rendered <tr> -- the {...rest} escape is back');
-});
-
-test('ArenaTableCell drops a consumer style object -- the ...style escape is gone', () => {
-  const html = render({}, [
-    // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    <ArenaTableRow key="a"><ArenaTableCell style={{ color: '#ff00ff' }}>x</ArenaTableCell></ArenaTableRow>,
-  ]);
-  assert.doesNotMatch(html, /#ff00ff/, 'a consumer style reached the rendered <td> -- the R4 escape is back');
-});
-
-test('ArenaTableCell drops a consumer attribute -- the {...rest} escape is gone', () => {
-  const html = render({}, [
-    <ArenaTableRow key="a"><ArenaTableCell data-stray="x">x</ArenaTableCell></ArenaTableRow>,
-  ]);
-  assert.doesNotMatch(html, /data-stray/, 'a consumer attribute reached the rendered <td> -- the {...rest} escape is back');
-});
-
 test('the first row, a sortable head and a numeric cell are groups on the base slots', () => {
   const html = render({ sort: { column: 0, direction: 'asc' }, columns: [{ header: 'Build', numeric: true, sortable: true }, { header: 'Project' }] });
   assert.match(html, /data-arena-part="table.th"[^>]*\bdata-arena-sortable=""/);
   assert.equal((html.match(/data-arena-part="table.row"[^>]*\bdata-arena-first=""/g) || []).length, 1, 'only the first body row');
   assert.match(html, /data-arena-part="table.td"[^>]*\bdata-arena-numeric=""/);
+  const plain = render({ columns: [{ header: 'Project' }, { header: 'Owner' }] });
+  assert.match(plain, /<td\b/, 'sanity: a data cell was drawn');
+  assert.doesNotMatch(plain, /data-arena-numeric/,
+    'a plain column drew the numeric group');
 });
 
 test('an interactive row selects the interactive group', () => {

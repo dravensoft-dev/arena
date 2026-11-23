@@ -25,7 +25,7 @@ taken away on a timer.
 |---|---|---|---|---|
 | `title` | primitive | `string` |  | The bold lead line. |
 | `message` | primitive | `string` |  | The body. |
-| `tone` | enum | `ArenaToastTone` | `"neutral"` | The side bar's colour: neutral reports no outcome, success and danger report one. Whether the toast announces assertively. |
+| `tone` | enum | `ArenaToastTone` | `"neutral"` | The side bar's colour: neutral reports no outcome, success and danger report one. A danger toast is an alert, announced assertively. Neutral and success are a status, announced politely. |
 | `actionLabel` | primitive | `string` |  | The label of the single inline action: Undo, Retry, View logs. Absent renders no action. |
 | `action` | event |  |  | The inline action was activated. |
 | `persist` | primitive | `boolean` | `false` | Disables the host's auto-dismiss and shows the Pinned marker. **Implied by `tone: "danger"`, which ignores `false`.** A critical message that vanishes on a timer is one a user can miss entirely. An error state therefore makes the pin mandatory, and the layers enforce it rather than leave it to documentation. Set it explicitly for any other tone that must not disappear on its own. |
@@ -57,18 +57,7 @@ taken away on a timer.
   View logs. A notice with two choices is a dialog.
 - **Don't** reach for `tone="danger"` for anything a user can ignore. Assertive announcement cuts
   a screen reader off mid-sentence, and a tone that always interrupts stops meaning anything.
-- **Don't** give it a `position` of its own. The notice carries `--z-toast`, the one slot above every other overlay including the CDK layer. A statically-positioned element ignores `z-index`, so the stack's own container is what places it.
-
-**By hand, in real Chromium**: the announcement is a screen reader's, not a browser's, so what
-this page shows is the rest. Run `bun run demos` and open
-`/frameworks/angular/components/feedback/arena-toast/ArenaToast.demo.generated.html`:
-- Each tone's left bar takes its own colour and the card surface never does; danger is
-  **outline**, never a panel in the danger fill.
-- A danger toast shows `Pinned` even when the host passed `persist="false"`, and the demo's
-  clock leaves it alone while every other toast expires.
-- The action and the × are two separate controls, both reachable by Tab, and the × sits outside
-  the body column rather than inside it.
-- Stacked against an open dialog, a toast paints above it.
+- **Don't** give it a `position` of its own. The notice carries `--z-toast`, the top step of the `--z-*` stack, above every overlay drawn in the page. A statically-positioned element ignores `z-index`, so the stack's own container is what places it.
 
 **Words.** `toastClose` names the close button; `toastPinned` is the mark a toast that does not dismiss itself carries, and `toastPinnedHint` its title.
 

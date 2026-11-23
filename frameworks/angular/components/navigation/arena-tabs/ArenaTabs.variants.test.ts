@@ -8,8 +8,6 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { TAILWIND_COMPONENTS } from '../../../test/Compliance';
-import { arenaTabsStyles } from './ArenaTabs.variants';
-import { arenaTabStyles } from '../arena-tab/ArenaTab.variants';
 
 
 test('the selected tab draws its rule from the role edge-tab-selected and never from the crimson alias', () => {

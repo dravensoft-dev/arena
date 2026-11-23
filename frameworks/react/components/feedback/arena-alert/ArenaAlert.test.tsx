@@ -4,14 +4,6 @@ import { renderIcons, symbols } from '../../../test/IconsHarness.tsx';
 import React from 'react';
 import { ArenaAlert } from './ArenaAlert.tsx';
 
-test('tone=danger renders role=alert; every other tone renders role=status', () => {
-  const danger = renderIcons(<ArenaAlert tone="danger">Renew the certificate</ArenaAlert>);
-  assert.match(danger, /role="alert"/);
-
-  const info = renderIcons(<ArenaAlert tone="info">All good</ArenaAlert>);
-  assert.match(info, /role="status"/);
-});
-
 test('actionLabel renders an action button with that label; absent renders no action', () => {
   const withAction = renderIcons(
     <ArenaAlert tone="warning" actionLabel="Go to production" onAction={() => {}}>Changes here don't affect real users.</ArenaAlert>

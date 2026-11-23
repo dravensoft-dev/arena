@@ -10,14 +10,14 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSyn
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { NOT_READ, NO_TAILWIND } from '../../generate/core/arena-cli/dead-utilities.ts';
 import { CLI_BINS } from '../../lib/arena/package-assembly.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import {
   importedSheets, packageSheetProblems, REGULAR_SYMBOL, unknownSymbolProblems, listProblems, closedListProblems, spriteProblems, documented, CONFIG_REFERENCE,
-  palettesProblems, defaultListProblems, fontCutProblems, runtimeProblems, installedPalette, SOURCES, UNKNOWN, GLYPH, NAV_SYMBOL, GLYPH_SYMBOL, THIRD_PALETTE, CLI, snapshot, treeChanges, exitProblem, binProblems, unplacedProblems, PROVIDER,
+  MARKUP_PAGES, utilitySpan, pageSources, palettesProblems, defaultListProblems, fontCutProblems, runtimeProblems, installedPalette, SOURCES, UNKNOWN, NAV_SYMBOL, GLYPH_SYMBOL, THIRD_PALETTE, CLI, snapshot, treeChanges, exitProblem, binProblems, unplacedProblems, PROVIDER, deadNoteProblems, withTailwind,
 } from './check-consumer.ts';
 import type { CliRun, Shipped } from './check-consumer.ts';
-import { distDir, unassembled, assembled } from './check-packages.ts';
 
 const ok: CliRun = { status: 0, stdout: '', stderr: '', theme: null, pkg: null, sprites: {}, module: null, retired: false, plugin: null, runtime: null, fonts: {} };
 
@@ -68,9 +68,6 @@ const written = (sprites: Record<string, string>, module: string | null = `expor
 test('the sprite must carry the button glyph bold and the nav glyph filled, and its module must name the file', () => {
   const good = written({ [NAME]: sprite(GLYPH_SYMBOL, NAV_SYMBOL, REGULAR_SYMBOL, 'ph-bold-house') });
   assert.deepEqual(spriteProblems('angular', good), []);
-  assert.equal(GLYPH, 'ph-bell');
-  assert.equal(GLYPH_SYMBOL, 'ph-bold-bell');
-  assert.equal(NAV_SYMBOL, 'ph-fill-house');
 
   const boldAlone = spriteProblems('angular', written({ [NAME]: sprite(GLYPH_SYMBOL, REGULAR_SYMBOL, 'ph-bold-house') }));
   assert.equal(boldAlone.length, 1);
@@ -106,10 +103,6 @@ test('a leftover icons.generated.css, a second sprite and a module naming anothe
   const noModule = spriteProblems('react', written({ [NAME]: sprite(GLYPH_SYMBOL, NAV_SYMBOL, REGULAR_SYMBOL) }, null));
   assert.equal(noModule.length, 1);
   assert.match(noModule[0] ?? '', /arena\.icons\.generated\.js/);
-});
-
-test('assembly is judged by the package manifest, so a half-written dist is not mistaken for one', () => {
-  assert.equal(assembled('react', '/nowhere-at-all'), false);
 });
 
 test('the React fixture names the package, because the symbol scan reads the import as well as the tag', () => {
@@ -365,45 +358,18 @@ test('a config naming no stylesheet is worked out like auto, so it imports the d
   assert.match(refused[0] ?? '', /^angular: .* exited 1/);
 });
 
-test('an unassembled package names both packages it lacks and the step that assembles them', () => {
-  const reason = unassembled('/nowhere-at-all') ?? '';
-  assert.match(reason, /react and angular is not assembled/);
-  assert.match(reason, /run bun run build:packages first/);
-});
-
 const refusal = (base: string, strict: string) => spawnSync(process.execPath, ['-e', [
   `const { refuseUnassembled } = await import(${JSON.stringify(pathToFileURL(join(root, 'scripts', 'check', 'arena', 'check-consumer.ts')).href)});`,
   `refuseUnassembled(${JSON.stringify(base)}, { ARENA_CHECK_STRICT: ${JSON.stringify(strict)} });`,
   "console.log('went on');",
 ].join('\n')], { encoding: 'utf8' });
 
-test('a missing dist/ stops the gate before it runs anything: a SKIP', () => {
-  const soft = refusal('/nowhere-at-all', '0');
-  assert.equal(soft.status, 2, soft.stderr);
-  assert.match(soft.stderr, /check:consumer: SKIPPED/);
-  assert.match(soft.stderr, /bun run build:packages first/);
-  assert.doesNotMatch(soft.stdout, /went on/);
-});
-
-test('a strict run turns the SKIP of a missing dist/ into a failure', () => {
+test('a strict run on a tree with no dist/ exits 1 naming check:consumer and the step that assembles it', () => {
   const strict = refusal('/nowhere-at-all', '1');
   assert.equal(strict.status, 1, strict.stderr);
-  assert.match(strict.stderr, /FAILED \(strict\)/);
-});
-
-test('two assembled packages let a strict run go on', () => {
-  const base = mkdtempSync(join(tmpdir(), 'check-consumer-assembled-'));
-  try {
-    for (const layer of ['react', 'angular']) {
-      mkdirSync(distDir(layer, base), { recursive: true });
-      writeFileSync(join(distDir(layer, base), 'package.json'), '{}\n');
-    }
-    const assembled = refusal(base, '1');
-    assert.equal(assembled.status, 0, assembled.stderr);
-    assert.match(assembled.stdout, /went on/, 'two assembled packages are the case that lets the gate go on');
-  } finally {
-    rmSync(base, { recursive: true, force: true });
-  }
+  assert.match(strict.stderr, /check:consumer/);
+  assert.match(strict.stderr, /bun run build:packages first/);
+  assert.doesNotMatch(strict.stdout, /went on/);
 });
 
 const FONT_BASE = (() => {
@@ -460,7 +426,8 @@ test('the default fixture\'s build writes a content-hashed woff2 per font, each 
 const HEAD = "/* GENERATED by arena build. */\n";
 const PKG_NAME = '@dravensoft/arena-react';
 const closedSheet = [HEAD, ...['colors', 'prelude', 'style-plugin-default'].map((n) => `/* ${PKG_NAME}/css/${n}.css */\n.${n}{}`),
-  `/* ${PKG_NAME}/css/vocabulary/stack.css */\n.stack{}`].join('\n');
+  `/* ${PKG_NAME}/css/vocabulary/stack.css */\n.stack{}`,
+  `/* ${PKG_NAME}/css/vocabulary/state.css */\n.arena-interactive{}`].join('\n');
 
 test('the package sheet holds the closed list, the theme sheet imports none of it, and an app-only edit leaves its bytes', () => {
   const built: CliRun = { ...ok, pkg: closedSheet, theme: ':root{--arena-palette:dark;}\n' };
@@ -471,6 +438,9 @@ test('the package sheet holds the closed list, the theme sheet imports none of i
 
   const short = packageSheetProblems('react', { ...built, pkg: closedSheet.replace(/.*css\/colors\.css.*\n/, '') }, built, PKG_NAME);
   assert.match(short.join('\n'), /carries no .*css\/colors\.css/);
+
+  const stateless = packageSheetProblems('react', { ...built, pkg: closedSheet.replace(/.*vocabulary\/state\.css.*\n.*/, '') }, built, PKG_NAME);
+  assert.match(stateless.join('\n'), /carries no @dravensoft\/arena-react\/css\/vocabulary\/state\.css, so the state classes of own markup draw nothing/);
 
   const importing = packageSheetProblems('react', { ...built, pkg: `${closedSheet}\n@import './x.css';` }, built, PKG_NAME);
   assert.match(importing.join('\n'), /holds an @import, so a page that links it would request a package specifier relative to itself/);
@@ -496,4 +466,109 @@ test('a provider the run reports as a component it does not ship is a problem, a
   assert.equal(provider.length, 1);
   assert.match(provider[0] ?? '', new RegExp(`${PROVIDER} is a provider this package exports`));
   assert.equal(unplacedProblems('react', ok, 'ArenaWidget').length, 1, 'silence about a typo is still a problem');
+});
+
+const NOTE = `${NOT_READ}${NO_TAILWIND}`;
+
+const NOTE_ROWS: { name: string; stdout: string; want: number }[] = [
+  { name: 'one note line', stdout: `arena audit: ${NOTE}\narena audit: audited 2 file(s)\n`, want: 0 },
+  { name: 'no note line', stdout: 'audit: 3 findings\n', want: 1 },
+  { name: 'two note lines', stdout: `arena audit: ${NOTE}\narena audit: ${NOTE}\n`, want: 1 },
+];
+
+test('a project without tailwindcss is told once that dead utilities were not read', () => {
+  for (const row of NOTE_ROWS) {
+    const problems = deadNoteProblems('react', { ...ok, stdout: row.stdout });
+    assert.equal(problems.length, row.want, `${row.name}: ${JSON.stringify(problems)}`);
+    for (const one of problems) assert.ok(one.startsWith('react:'), `${row.name}: ${one}`);
+  }
+});
+
+const LINKS = [
+  { name: 'absent', present: false },
+  { name: 'present', present: true },
+];
+
+test('withTailwind links the compiler into a project once and leaves one already there', () => {
+  for (const row of LINKS) {
+    const base = mkdtempSync(join(tmpdir(), 'with-tw-base-'));
+    const dir = mkdtempSync(join(tmpdir(), 'with-tw-dir-'));
+    try {
+      mkdirSync(join(base, 'node_modules', 'tailwindcss'), { recursive: true });
+      writeFileSync(join(base, 'node_modules', 'tailwindcss', 'marker.txt'), 'linked');
+      if (row.present) {
+        mkdirSync(join(dir, 'node_modules', 'tailwindcss'), { recursive: true });
+        writeFileSync(join(dir, 'node_modules', 'tailwindcss', 'marker.txt'), 'own');
+      }
+      assert.equal(withTailwind(dir, base), dir, `${row.name}: returns the project`);
+      assert.equal(readFileSync(join(dir, 'node_modules', 'tailwindcss', 'marker.txt'), 'utf8'), row.present ? 'own' : 'linked', row.name);
+    } finally {
+      rmSync(base, { recursive: true, force: true });
+      rmSync(dir, { recursive: true, force: true });
+    }
+  }
+});
+
+const SPAN_ROWS: { span: string; want: boolean }[] = [
+  { span: 'bg-selected/(--level-accent-soft-primary)', want: true },
+  { span: 'border-edge-field', want: true },
+  { span: 'outline-[length:var(--bw-focus)]', want: true },
+  { span: 'gap-1.5', want: true },
+  { span: 'px-row-x', want: true },
+  { span: '--fill-hover', want: false },
+  { span: 'md:', want: false },
+  { span: 'aria-pressed', want: false },
+  { span: 'var(--ink-muted)', want: false },
+  { span: 'contracts/design/colors.css', want: false },
+  { span: '@dravensoft/arena-react', want: false },
+  { span: 'calc', want: false },
+  { span: 'z index', want: false },
+  { span: 'z-index', want: false },
+  { span: 'missing-level', want: false },
+  { span: 'base-100', want: false },
+];
+
+test('an inline span is a utility only when it is one hyphenated token that is no variable, scope, path or attribute', () => {
+  for (const row of SPAN_ROWS) assert.equal(utilitySpan(row.span), row.want, row.span);
+});
+
+const FENCE = '```';
+
+const PAGE_ROWS: { name: string; pages: Record<string, string>; want: Record<string, string> }[] = [
+  {
+    name: 'an html fence and prose naming a utility',
+    pages: { 'one.md': `Use \`bg-selected\` here.\n\n${FENCE}html\n<div class="a-b"></div>\n${FENCE}\n` },
+    want: {
+      'src/pages/one-1.html': '<div class="a-b"></div>\n',
+      'src/pages/one-prose.html': '<div class="bg-selected"></div>\n',
+    },
+  },
+  {
+    name: 'a utility only inside a generated region',
+    pages: { 'two.md': '<!-- @tree GENERATED by x -->\n`bg-selected`\n<!-- @tree end -->\n' },
+    want: {},
+  },
+  {
+    name: 'a css fence',
+    pages: { 'three.md': `${FENCE}css\n.a { color: red; }\n${FENCE}\n` },
+    want: { 'src/pages/three-1.css': '.a { color: red; }\n' },
+  },
+  {
+    name: 'a utility span inside a fence of another language',
+    pages: { 'four.md': `${FENCE}ts\nconst a = \`bg-selected\`;\n${FENCE}\n` },
+    want: {},
+  },
+];
+
+test('the markup pages become one source per fence and one prose file of their utility spans, minus generated regions', () => {
+  for (const row of PAGE_ROWS) {
+    const base = mkdtempSync(join(tmpdir(), 'page-sources-'));
+    try {
+      mkdirSync(join(base, ...MARKUP_PAGES.split('/')), { recursive: true });
+      for (const [name, text] of Object.entries(row.pages)) writeFileSync(join(base, ...MARKUP_PAGES.split('/'), name), text);
+      assert.deepEqual(pageSources(base), row.want, row.name);
+    } finally {
+      rmSync(base, { recursive: true, force: true });
+    }
+  }
 });

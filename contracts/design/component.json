@@ -34,6 +34,16 @@
       "$extensions": { "com.dravensoft.arena": { "script": true } }
     }
   },
+  "panel": {
+    "$type": "dimension",
+    "$extensions": { "com.dravensoft.arena": { "userScale": "fixed" } },
+    "$description": "An anchored panel: a menu, a popover, a combobox or multi-select list.",
+    "row-floor": {
+      "$value": { "value": 44, "unit": "px" },
+      "$description": "The least height an anchored panel is capped to when the room beside its\nanchor is short: one row at the comfortable density's 44px target, the largest\nrow floor a panel's rows are held to. Below it the panel takes the larger side\nand stays inside the viewport. Script-readable because it is compared against\nthe measured room in both layers' placement arithmetic.",
+      "$extensions": { "com.dravensoft.arena": { "script": true } }
+    }
+  },
   "onboarding": {
     "$type": "dimension",
     "$extensions": { "com.dravensoft.arena": { "userScale": "fixed" } },
@@ -47,6 +57,24 @@
       "$value": { "value": 220, "unit": "px" },
       "$description": "How much room the popover keeps below its anchor before it stops following it\ndown the viewport. Script-readable for the same reason width is: it is compared\nagainst window.innerHeight in JS. It sat inline in both layers as a bare 220\nbeside a bare 900, and only one of the two is a design value -- 900 is an\nSSR fallback for a viewport height nobody chose.",
       "$extensions": { "com.dravensoft.arena": { "script": true } }
+    }
+  },
+  "unauth-card": {
+    "$type": "dimension",
+    "$extensions": { "com.dravensoft.arena": { "userScale": "scales" } },
+    "$description": "ArenaUnauthCard.",
+    "width": {
+      "$value": { "value": 452, "unit": "px" },
+      "$description": "The widest the card's content may be, 113 steps of the 4px grid: the card is a column of text, so it grows with the reader's text size and is capped by its container. The two borders are added by the component."
+    }
+  },
+  "confirm-dialog": {
+    "$type": "dimension",
+    "$extensions": { "com.dravensoft.arena": { "userScale": "scales" } },
+    "$description": "ArenaConfirmDialog.",
+    "width": {
+      "$value": { "value": 460, "unit": "px" },
+      "$description": "The panel's width, 115 steps of the 4px grid: the panel is a column of text, so it grows with the reader's text size and is capped at 92vw by the viewport."
     }
   }
 }

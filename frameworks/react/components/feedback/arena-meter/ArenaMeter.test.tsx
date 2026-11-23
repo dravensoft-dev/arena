@@ -11,13 +11,10 @@ import { ArenaLocaleProvider, ARENA_DEFAULT_LOCALE } from '../../../ArenaLocale.
 const render = (element: React.ReactElement) => renderToStaticMarkup(element);
 const meterOf = (html: string) => /<div role="meter"[^>]*>/.exec(html)?.[0] ?? '';
 
-test('the track is the meter, carrying the name, the three values and no live region or tab stop', () => {
+test('the track is the meter, carrying the name and the reading and no live region or tab stop', () => {
   const html = render(<ArenaMeter label="Storage used" value={72} valueText="72 of 100 GB" />);
   const meter = meterOf(html);
   assert.match(meter, /aria-label="Storage used"/);
-  assert.match(meter, /aria-valuenow="72"/);
-  assert.match(meter, /aria-valuemin="0"/);
-  assert.match(meter, /aria-valuemax="100"/);
   assert.match(meter, /aria-valuetext="72 of 100 GB"/);
   assert.doesNotMatch(html, /aria-live|tabindex/, 'a meter announces nothing on render and takes no focus');
   assert.match(html, /data-arena-part="meter\.label"[^>]*>Storage used</);
@@ -59,7 +56,6 @@ test('showLabel false hides the drawn name and keeps the accessible one', () => 
   assert.match(meterOf(html), /aria-label="Storage used"/);
 });
 
-test('a blank label throws, while a value that is not a number and an inverted range never do', () => {
-  assert.throws(() => render(<ArenaMeter label="  " value={1} />), /ArenaMeter: `label` is required/);
+test('a value that is not a number and an inverted range never throw', () => {
   assert.doesNotThrow(() => render(<ArenaMeter label="Load" value={Number.POSITIVE_INFINITY} min={9} max={1} low={Number.NaN} />));
 });

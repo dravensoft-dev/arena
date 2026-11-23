@@ -3,8 +3,7 @@ The chart takes series, one polyline each over the same sequence, and a series n
 optional 18% area tint sits under the line, for one series only. The crosshair snaps to the
 nearest point rather than drifting between them, and the numbers are also a real table for
 anyone who cannot see the line. Identity comes from a series' `colorId`, meaning from its
-`tone`; passing both warns and `tone` wins, because a chart carries identity or meaning,
-never both.
+`tone`; with a `tone` the series takes the status colour and `colorId` is not read.
 
 ```ts
 readonly p95 = computed<ArenaSeries[]>(() => [{ label: 'p95 latency', values: this.latency(), colorId: 3 }]);
@@ -27,9 +26,9 @@ readonly errors = computed<ArenaSeries[]>(() => [{ label: 'Error rate', values: 
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `labels*` | array | `readonly string[]` |  | One label per point, in the same order as every series' `values`. A label with no value in a series ends that series' line there rather than dropping to zero. |
+| `labels*` | array | `readonly string[]` |  | One label per point, in the same order as every series' `values`. A label with no value in a series ends that series' line there rather than dropping to zero. Every n-th label is drawn when the labels do not fit their band, and the data table carries all of them. |
 | `series*` | array | `readonly ArenaSeries[]` |  | The plotted series, drawn as one polyline each over the same ordered sequence. One series is the common case and draws exactly what it drew before. The area fill is refused past one series, because two fills occlude each other and the reader cannot tell which value either edge belongs to. |
-| `colorStart` | enum | `ArenaCatSlot` | `1` | The ramp slot the first series takes when it names no colour of its own. Each later series takes the next slot, and after the last slot the count starts again at the first. A series' `colorId` or `colorIds` keeps the slot it names. Absent, 1. |
+| `colorStart` | enum | `ArenaCatSlot` | `1` | The ramp colour the first series takes when it names no colour of its own. Each later series takes the next ramp colour, and after the last ramp colour the count starts again at the first. A series' `colorId` or `colorIds` keeps the ramp colour it names. Absent, 1. |
 | `label*` | primitive | `string` |  | Names the chart for its accessible name and for the caption of its data table. The name is the CHART's, not a series': a series names itself. Required and guarded rather than defaulted, because a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing. Two charts on one page would announce identically. |
 | `area` | primitive | `boolean` | `false` | Fill under the line at 18% of the series colour: a tint, never a gradient. For a single series; two fills occlude each other. |
 | `curve` | primitive | `boolean` | `false` | Draw the series as a smooth curve rather than straight segments between points. The interpolation is monotone cubic, not Catmull-Rom, and that is the whole of the decision. A Catmull-Rom curve overshoots, so between two measured points it draws a peak or a trough nobody measured. A chart that draws data which does not exist is the one thing a chart may not do. A monotone curve stays inside the band its own two points define, keeps a flat tangent at a turning point, and never crosses zero unless the values do. The curve changes the path string and nothing else: the points, the crosshair, the tooltip and the data cursor read the same numbers at the same places. |

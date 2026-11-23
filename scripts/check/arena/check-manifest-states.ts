@@ -70,12 +70,13 @@ export function sourceImplements(sourceText: string): Record<string, boolean> {
   };
 }
 
-export function classStringsBySlot(manifest: ManifestClassSource) {
-  const bySlot = new Map();
+export function classStringsBySlot(manifest: ManifestClassSource): Map<string, string[]> {
+  const bySlot = new Map<string, string[]>();
   const add = (slot: string, cls: string) => {
     if (typeof cls !== 'string') return;
-    if (!bySlot.has(slot)) bySlot.set(slot, []);
-    bySlot.get(slot).push(cls);
+    const list = bySlot.get(slot) ?? [];
+    bySlot.set(slot, list);
+    list.push(cls);
   };
   for (const [slot, cls] of Object.entries(manifest.slots || {}) as [string, string][]) add(slot, cls);
   for (const variantGroup of Object.values(manifest.variants || {}))
@@ -142,8 +143,8 @@ export function manifestProblems(manifest: ComponentManifest, declared: Set<stri
 
 export const SOURCE_EXTENSIONS = ['.tsx', '.jsx'];
 
-export function reactSourceFor(name: string, category: string) {
-  const dir = join(REACT_COMPONENTS_DIR, category, kebab(name));
+export function reactSourceFor(name: string, category: string, root: string = REACT_COMPONENTS_DIR) {
+  const dir = join(root, category, kebab(name));
   for (const ext of SOURCE_EXTENSIONS) {
     const path = join(dir, `${name}${ext}`);
     if (existsSync(path)) return path;
@@ -151,9 +152,9 @@ export function reactSourceFor(name: string, category: string) {
   return null;
 }
 
-export function missingReactSource(name: string, category: string) {
-  const dir = join(REACT_COMPONENTS_DIR, category, kebab(name));
-  if (!existsSync(dir) || reactSourceFor(name, category)) return null;
+export function missingReactSource(name: string, category: string, root: string = REACT_COMPONENTS_DIR) {
+  const dir = join(root, category, kebab(name));
+  if (!existsSync(dir) || reactSourceFor(name, category, root)) return null;
   return `${name}: frameworks/react/components/${category}/${kebab(name)}/ holds no ${name}.tsx and `
     + `no ${name}.jsx, so its affordances were never read and this half reported clean over nothing`;
 }
@@ -177,13 +178,20 @@ export function unaskedHandDrawn(asked: Iterable<string>, handDrawn = HAND_DRAWN
   return problems;
 }
 
-export function reactProblems(name: string, category: string) {
+function readReact(name: string, category: string) {
   const path = reactSourceFor(name, category);
-  if (!path) return { findings: [], sites: 0 };
+  if (!path) return null;
   const contract = readContract(name);
-  if (!contract) return { findings: [], sites: 0 };
-  const declared = declaredAffordances(contract, `contracts/api/components/${name}.json`);
-  const capability = sourceImplements(readFileSync(path, 'utf8'));
+  if (!contract) return null;
+  return { contract, source: readFileSync(path, 'utf8') };
+}
+
+export function reactProblems(
+  name: string, category: string, read: { contract: ContractCandidate; source: string } | null = readReact(name, category),
+) {
+  if (!read) return { findings: [], sites: 0 };
+  const declared = declaredAffordances(read.contract, `contracts/api/components/${name}.json`);
+  const capability = sourceImplements(read.source);
   const findings: StateFinding[] = [];
   let sites = 0;
   for (const family of FAMILIES) {
@@ -238,9 +246,9 @@ export function collect() {
   };
 }
 
-export function staleExemptions(matchedKeys: string[]) {
+export function staleExemptions(matchedKeys: string[], exempt: Map<string, string> = EXEMPT) {
   const matched = new Set(matchedKeys);
-  return [...EXEMPT.keys()].filter((k) => !matched.has(k));
+  return [...exempt.keys()].filter((k) => !matched.has(k));
 }
 
 export function staleCovers() {

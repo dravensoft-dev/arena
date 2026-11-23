@@ -36,8 +36,8 @@ One destination in an `ArenaSideNav`. Write one per destination, as a direct chi
 
 `href` decides which element the item renders, so it is the field to read first:
 present ⇒ an `<a>`, absent ⇒ a `<button>`. The active item, the one whose `id`
-matches `ArenaSideNav.active`, takes `aria-current="page"`, a primary wash behind
-the body ink at the control weight; the rest are transparent, in the muted ink. `ArenaSideNav` injects everything about *where* the item sits. That covers its nesting depth, which id is active, the indent and the handler that reports `onNav`, and none of it is part of this component's API. You never write those.
+matches `ArenaSideNav.active`, takes `aria-current="page"`, the selected wash in
+the selected ink at the control weight; the rest are transparent, in the muted ink. `ArenaSideNav` injects everything about *where* the item sits. That covers its nesting depth, which id is active, the indent and the handler that reports `onNav`, and none of it is part of this component's API. You never write those.
 
 ## Do / Don't
 
@@ -45,7 +45,7 @@ the body ink at the control weight; the rest are transparent, in the muted ink. 
 - **Do** give it an `href` when it navigates, even in a single-page app. The `href` is what lets the destination be opened in a new tab, copied, and announced as a link. An
   item that only changes local state is correctly a `<button>`.
 - **Do** name the glyph, not the markup. `icon` is a Phosphor class name and Arena
-  draws the `<i>`.
+  draws it as an `<svg>` of the sprite.
 - **Do** pass a count as `badge`, a number rather than a string. Arena draws it at the
   trailing edge, draws nothing at zero, and reads `99+` above ninety-nine; a value you
   have already formatted takes both rules away.
@@ -57,7 +57,7 @@ the body ink at the control weight; the rest are transparent, in the muted ink. 
 - **Don't** render one outside an `ArenaSideNav`. The item renders, and nothing injects the active id or the handler. The item is a link that reports nothing and never marks itself current.
 
 - **`disabled` draws the destination and refuses it.** The member reflects through `aria-disabled` rather than by not rendering the item. An unavailable destination a user can see, and hear announced as unavailable, is what tells them it exists. A feature behind a plan they do not have is worth showing. The anchor keeps its `href`, so the shape does not change; what changes is that the
-  click is prevented and the parent's `onNav` reports nothing.
+  click is prevented and the parent's `onNav` reports nothing. The item fades by `fade-disabled`, and a plugin that answers the `navigation-item-*-disabled` or `*-selected-disabled` slots replaces that fade, as on ArenaBottomNav; it does not scale when pressed.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

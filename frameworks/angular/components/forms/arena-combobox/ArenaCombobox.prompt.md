@@ -64,7 +64,7 @@ Arena combobox, a text field that filters a list of options as the user types, f
 - **Do** set `[showLabel]="false"` only where the row has no room for a label. The label still names the field.
 - **Do** keep `label` a name for the value, never an instruction. Put the instruction in `placeholder`.
 
-**By hand, in real Chromium.** Open the playground page and check that the list escapes an `overflow: hidden` card. The list flips above the field near the bottom of the screen and is as wide as the field. The cursor row scrolls into view. A screen reader announces the count after typing. On a phone, the soft keyboard leaves the list in view.
+The list escapes an `overflow: hidden` card, flips above the field near the bottom of the screen and is at least as wide as the field. The cursor row scrolls into view, and a screen reader announces the count after typing. The list stays inside the visible part of the screen when a soft keyboard covers the rest.
 
 **With reactive forms.** `ArenaComboboxControl` from `@dravensoft/arena-angular/forms` binds the field to a form control holding the chosen option's `value`. A form value that matches no option draws an empty field. Binding the member the form replaces as well is a caller bug, and the layer warns about it once.
 

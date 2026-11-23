@@ -42,12 +42,7 @@ The steps of one process and where it stands: a numbered list whose markers say 
 - Don't add a per-step state, and don't colour a marker yourself. The stepper derives both.
 - Don't let a user jump ahead. A step ahead is never a button.
 
-**By hand, in real Chromium**: run `bun run demos` and open
-`/frameworks/react/components/navigation/arena-stepper/ArenaStepper.demo.generated.html`:
-- At 390px, four steps across keep their markers on one line and wrap their labels under them.
-- The vertical connector runs from each marker's centre to the next marker.
-- Under `arena-comfortable`, a step you can go back to is at least 44px tall.
-- A screen reader reads the list's name, then each step's state word before its label.
+At 390px four steps across keep their markers on one line and wrap their labels under them. Down the side, each connector runs on the marker's centre line from its marker and stops short of the next. Under `arena-comfortable`, a step you can go back to is at least 44px tall. A screen reader reads the list's name, then each step's state word before its label.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

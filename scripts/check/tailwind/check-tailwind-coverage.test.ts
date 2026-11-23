@@ -1,6 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { presetTokens, checkCoverage, optionRoles, optionPrefixes, OPTION_ROLE_REASON, pluginOptionRoles } from './check-tailwind-coverage.ts';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { EXCLUDED, presetTokens, checkCoverage, optionRoles, optionPrefixes, OPTION_ROLE_REASON, pluginOptionRoles, slotTier } from './check-tailwind-coverage.ts';
+import { arenaTokenNames, arenaTokens } from '../../lib/core/arena-tokens.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 
 test('reads the Arena tokens a preset references', () => {
@@ -104,4 +107,34 @@ test('every role of the real plugin that an option of a family names is excluded
   for (const role of roles)
     if ([...prefixes].some((prefix) => role.startsWith(prefix)))
       assert.equal(excluded.get(role), OPTION_ROLE_REASON, `${role} is an option role`);
+});
+
+test('the shipped theme and exclusions leave none of the nine state roles unreached', () => {
+  const css = readFileSync(join(repoRoot, 'frameworks/tailwind/Theme.css'), 'utf8');
+  const exposed = presetTokens(css);
+  const excluded = new Map([...EXCLUDED, ...pluginOptionRoles(repoRoot).excluded]);
+  const nine = ['edge-focus', 'bw-focus', 'gap-focus', 'fill-selected', 'ink-selected', 'edge-selected', 'fade-disabled', 'edge-invalid', 'ink-invalid'];
+  for (const role of nine)
+    assert.ok(exposed.has(role) !== excluded.has(role), `${role} is exposed or excluded, never both nor neither`);
+  const errs = checkCoverage(arenaTokens(), exposed, excluded, arenaTokenNames(repoRoot));
+  assert.deepEqual(errs.filter((err) => nine.some((role) => err.startsWith(`--${role} `) || err.includes(`--${role} `))), []);
+});
+
+test('a colour slot and its fade marker are declared by the slot tier, never exposed and never excluded', () => {
+  const slots = slotTier(repoRoot);
+  assert.ok(slots.has('actions-primary-root-fill-rest'));
+  assert.ok(slots.has('actions-primary-root-fade-disabled'));
+  assert.ok(slots.has('actions-ghost-root-fade-selected-disabled'));
+  assert.equal(slots.has('fill-surface'), false, 'a role is not a slot');
+  const tokens = new Set(['fill-surface', 'actions-primary-root-fill-rest', 'actions-primary-root-fade-disabled']);
+  assert.deepEqual(checkCoverage(tokens, new Set(['fill-surface']), new Map(), tokens, slots), []);
+  assert.deepEqual(checkCoverage(tokens, new Set(['fill-surface']), new Map(), tokens), [
+    '--actions-primary-root-fade-disabled reaches no Tailwind utility — expose it in frameworks/tailwind/Theme.css or add it to EXCLUDED with a reason',
+    '--actions-primary-root-fill-rest reaches no Tailwind utility — expose it in frameworks/tailwind/Theme.css or add it to EXCLUDED with a reason']);
+  const wrong = checkCoverage(tokens, new Set(['fill-surface', 'actions-primary-root-fill-rest']),
+    new Map([['actions-primary-root-fade-disabled', 'a reason']]), tokens, slots);
+  assert.equal(wrong.length, 2);
+  assert.match(wrong[0] ?? '', /--actions-primary-root-fade-disabled is declared by the slot tier/);
+  assert.match(wrong[1] ?? '', /--actions-primary-root-fill-rest is a colour slot or its fade marker/);
+  assert.equal(pluginOptionRoles(repoRoot).roles.some((name) => slots.has(name)), false, 'a slot the default plugin answers is no option role');
 });

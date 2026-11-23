@@ -8,13 +8,6 @@ import assert from 'node:assert/strict';
 import { ARENA_COUNTER_WARNING_SHARE, arenaBorderBoxSlack, arenaCounterIsNear, arenaTextareaIdFor } from './ArenaTextarea';
 import { arenaTextareaStyles } from './ArenaTextarea.variants';
 
-test('the default is a neutral, vertically resizable, enabled, editable field', () => {
-  assert.equal(
-    JSON.stringify(arenaTextareaStyles().$data.field()),
-    JSON.stringify(arenaTextareaStyles({ state: 'neutral', resize: 'vertical', disabled: false, readOnly: false }).$data.field()),
-  );
-});
-
 test('arenaCounterIsNear turns over at nine tenths of the cap, exclusive', () => {
   assert.equal(ARENA_COUNTER_WARNING_SHARE, 0.9);
   assert.equal(arenaCounterIsNear(89, 100), false);

@@ -1,7 +1,7 @@
 {
   "component": "ArenaTextarea",
   "description": "Multi-line text field with validation and an optional counter.",
-  "affordances": ["focus"],
+  "affordances": ["focus", "hover"],
   "api": {
     "label": { "form": "primitive", "type": "string", "description": "Field label; the counter and error sit under the field." },
     "id": { "form": "primitive", "type": "string",

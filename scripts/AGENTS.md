@@ -164,6 +164,14 @@ carries the two rules that make that true.
 **A test lives beside what it tests**, in the same directory, which for a `lib/` module means
 the same domain, not merely somewhere under `lib/`.
 
+**A branch is tested once, at its unit.** A gate suite keeps one real-tree test where it is the
+only caller of `collect()`; a generator leaves its gate's checks to the gate; a command has one
+wiring test, and a refusing gate one subprocess test. A literal pin goes when a gate or a
+structural test catches its drift, and stays only with a reason; no test asserts a stale
+exemption over an empty map. The inputs of one function are one table, a `const ROWS`, one
+`test()` and a loop whose every assert message names its row. A test name names behaviour, never
+a spec, plan or audit id, and `check:docs` refuses one that does, and a suite with no test.
+
 **A file here may carry one header comment, at most ten lines**, the exception `check:docs`
 grants `scripts/` and test files. Anything that will not fit goes in the gate's own reason
 strings, which its paired suite already asserts by name.

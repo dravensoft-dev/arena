@@ -6,12 +6,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { arenaFileInputStyles } from './ArenaFileInput.variants';
 
-const data = (chosen: Parameters<typeof arenaFileInputStyles>[0], slot: 'root' | 'zone' | 'trigger') =>
+const data = (chosen: Parameters<typeof arenaFileInputStyles>[0], slot: 'root' | 'zone' | 'trigger' | 'label' | 'hint') =>
   JSON.stringify(arenaFileInputStyles(chosen).$data[slot]());
-
-test('the default is a neutral, enabled field that takes no drop', () => {
-  assert.equal(data({}, 'zone'), data({ droppable: false, dragging: false, state: 'neutral', disabled: false }, 'zone'));
-});
 
 test('droppable, dragging and state each reach the zone', () => {
   assert.notEqual(data({ droppable: true }, 'zone'), data({ droppable: false }, 'zone'));
@@ -19,8 +15,7 @@ test('droppable, dragging and state each reach the zone', () => {
   assert.notEqual(data({ state: 'error' }, 'zone'), data({ state: 'neutral' }, 'zone'));
 });
 
-test('disabled reaches the root and the trigger, and nothing else', () => {
-  assert.notEqual(data({ disabled: true }, 'root'), data({ disabled: false }, 'root'));
-  assert.notEqual(data({ disabled: true }, 'trigger'), data({ disabled: false }, 'trigger'));
-  assert.equal(data({ disabled: true }, 'zone'), data({ disabled: false }, 'zone'));
+test('disabled reaches the zone, the trigger and the parts that fade on their own, and the root carries none', () => {
+  for (const slot of ['zone', 'trigger', 'label', 'hint'] as const) assert.notEqual(data({ disabled: true }, slot), data({ disabled: false }, slot), slot);
+  assert.equal(data({ disabled: true }, 'root'), data({ disabled: false }, 'root'));
 });

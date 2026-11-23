@@ -409,7 +409,7 @@ Declared once, in `contracts/api/types/`, one file per type:
 **A closed set of values is not always an enum.** An enum is right when the closed set is
 authored in the contract and owned by it, as `ArenaTone` above is, and it is not automatically right
 when the set merely restates a value the token layer already derives. The charts' categorical
-ramp slot is the case the rule is written from. It is a bounded 1..N whose
+ramp colour is the case the rule is written from. It is a bounded 1..N whose
 bound lives in exactly one authoritative place, `contracts/design/palette.dark.json`'s
 `--color-cat-*` ramp, reaching the components as the derived `catSlots` constant in
 `Tokens.generated.*`, where `arenaCatIndex()`'s `Math.min(ARENA_CAT_SLOTS, …)` clamp enforces it at

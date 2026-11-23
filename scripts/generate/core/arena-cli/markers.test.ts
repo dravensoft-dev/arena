@@ -72,6 +72,10 @@ test('a slot no host queries is nobody\'s business, so plain markup passes', () 
     path: 'app/a.ts',
     source: '@Component({ imports: [ArenaCard], template: `<arena-card><div footer>x</div></arena-card>` })',
   }], MARKERS), [], 'arena-card queries no footer, so writing one there is not this rule');
+  assert.deepEqual(markerProblems([{
+    path: 'app/a.ts',
+    source: '@Component({ imports: [ArenaCalendarEvent], template: `<arena-calendar-event><button actions>Delete</button></arena-calendar-event>` })',
+  }], MARKERS), [], 'arena-calendar-event gates `actions` by an input, so it is not in the map');
 });
 
 test('a package carrying no markers at all reports nothing, which is what the React map is', () => {

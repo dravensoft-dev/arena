@@ -4,10 +4,10 @@
  * alias the layer gains and the rule does not name is a step of Arena's ramp a style plugin can
  * assign with nothing reporting it; one the rule names and the layer has dropped is a report about
  * a property nothing declares. Comments are stripped before the parse, because a name written in
- * prose above a block is not a definition. The same alias list also holds the manifests to the role
- * tier: a slot, a variant or a compound variant that reads a colour alias paints out of every
- * plugin's reach. The focus ring and the picker's inverse are left out because no role answers
- * them, and a level-* alias holds a percentage and not a colour. */
+ * prose above a block is not a definition. The same list holds the manifests to the role tier: a
+ * slot, variant or compound variant reading a colour alias paints out of every plugin's reach.
+ * The picker's inverse is left out, no role answers it; so is the focus ring, which reads
+ * edge-focus. A level-* alias holds a percentage and not a colour. */
 
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';

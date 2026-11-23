@@ -13,8 +13,8 @@ has to hold more than it comfortably fits.
 | Whether an edge is drawn | every `bw-*` | a hairline throughout | a console separates by line rather than by air, because air is the thing it does not have |
 | How loud type is | `fw-heading`, `fw-eyebrow`, `fw-control` | bold, bold, semibold | the head of a widget has to win against the figure inside it |
 | Whether small text shouts | `tt-label`, `tt-eyebrow`, `track-label`, `track-eyebrow` | uppercase, with the standard uppercase tracking | a status and a column head are labels rather than words, and capitals is how this register says so |
-| How tight it is to the hand | `pad-control-*`, `gap-*` | the low steps of the spacing scale throughout | every pixel of padding is a row the screen stops holding |
-| How wide it breathes | `container-max`, `measure-prose`, `grid-min`, `gutter` | the widest container of the four registers, a moderate prose measure, a mid grid cell | a board is read across, so the column runs to the window |
+| How tight it is to the hand | `pad-control-*`, `gap-*` | eight pixels of vertical control padding and of the inline, control, item and row gaps, twelve across a control | every pixel of padding is a row the screen stops holding |
+| How wide it breathes | `container-max`, `measure-prose`, `grid-min`, `gutter` | a wide container, as wide as the inbox entry's and narrower only than the observability console's, a mid prose measure, an upper-middle grid cell | a board is read across, so the column runs to the window |
 | Whether depth is real | `elevation-floating-shadow`, `emphasis-primary-shadow-hover` | a soft near shadow on both, and no shadow at rest | a menu and a pressed control lift off the page, and nothing else does |
 | How it answers a hand | `press-scale`, `lift-control`, `dur-state`, `ease-state` | a slight shrink, a one pixel rise, a middle duration on an out curve | the feedback is confirmation and never celebration |
 | What shape a picture is | `aspect-media`, `fit-media` | a landscape crop, filled | an attachment thumbnail is a preview of a document rather than a picture somebody chose |
@@ -33,7 +33,7 @@ the pieces are shipped and the shape is not. Air between two components comes fr
 
 ## The components it leans on
 
-Almost the whole product register, which is why this is the entry that reaches furthest into Arena. The entry takes the side navigation family, the board, the table, and the chart and stat cards. The entry also takes the command palette, the tag, the bulk action bar and the activity feed. `frameworks/react/INDEX.md` names
+Almost the whole product register. The entry takes the side navigation family, the board, the table, and the chart and stat cards. The entry also takes the command palette, the tag, the bulk action bar and the activity feed. `frameworks/react/INDEX.md` names
 each under the category it is filed under.
 
 Nothing in this register falls outside Arena's component list, so no part of this screen is markup

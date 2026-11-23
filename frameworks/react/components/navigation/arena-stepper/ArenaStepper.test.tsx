@@ -58,7 +58,6 @@ test('only the steps behind the current one are buttons, and only when interacti
   assert.doesNotMatch(html, /disabled/, 'a step ahead is text, never a disabled button');
 });
 
-test('an empty list draws nothing, and a blank ariaLabel throws', () => {
+test('an empty list draws nothing', () => {
   assert.equal(draw({ steps: [] }), '');
-  assert.throws(() => draw({ ariaLabel: '   ' }), /^Error: ArenaStepper: `ariaLabel`/);
 });

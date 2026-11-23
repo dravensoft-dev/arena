@@ -12,7 +12,7 @@
     "end": { "form": "primitive", "type": "string", "required": true,
              "description": "ISO datetime the event ends." },
     "colorId": { "form": "enum", "type": "ArenaCatSlot",
-                 "description": "Identity colour. Give the same entity the same slot everywhere and it keeps its colour across views." },
+                 "description": "Identity colour. Give the same entity the same ramp colour everywhere and it keeps its colour across views." },
     "details": { "form": "array", "of": "string", "default": [],
                  "description": "Lines drawn under the time label, one per entry, each truncated to a single line: the people involved, a room, a capacity. Arena decides how many fit, shedding the last first and then the time label, and every entry reaches what the chip announces whether it is drawn or shed." },
     "interactive": { "form": "primitive", "type": "boolean", "default": false,

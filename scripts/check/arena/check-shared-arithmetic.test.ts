@@ -4,10 +4,11 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
-  DIVERGENT, PAIRED, collect, exportedFunctions, normalise, pairProblems, staleEntries,
+  BODIES_ONLY, DIVERGENT, PAIRED, collect, exportedFunctions, fileProblems, normalise,
+  normaliseSpecifiers, pairProblems, staleBodiesOnly, staleEntries,
 } from './check-shared-arithmetic.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 
@@ -61,23 +62,71 @@ test('an entry naming a function no pair exports is stale', () => {
     /DIVERGENT names X\.ts:gone, and no pair exports a function under that name/);
 });
 
-test('every PAIRED module exists in both layers, so none of them is a moved path', () => {
-  for (const rel of PAIRED) {
-    for (const layer of ['react', 'angular']) {
-      assert.ok(existsSync(join(repoRoot, 'frameworks', layer, rel)),
-        `${rel} is named by PAIRED and is not in the ${layer} layer`);
-    }
-  }
+test('normaliseSpecifiers drops the extension of a relative specifier and nothing else', () => {
+  const dropped: [string, string][] = [
+    ["import { a } from './A.ts';", "import { a } from './A';"],
+    ["import { b } from '../B.js';", "import { b } from '../B';"],
+    ['import { c } from "./C.tsx";', 'import { c } from "./C";'],
+    ["export { x } from './D.ts';", "export { x } from './D';"],
+    ["import './E.js';", "import './E';"],
+    ["const m = import('./F.ts');", "const m = import('./F');"],
+    ["import {\n  a,\n  b,\n} from './M.ts';", "import {\n  a,\n  b,\n} from './M';"],
+    ["export * from './N.js';", "export * from './N';"],
+  ];
+  for (const [before, after] of dropped) assert.equal(normaliseSpecifiers(before), after);
+  const kept = [
+    "import { r } from 'react';", "import { c } from '@angular/core';",
+    "import g from './G.json';", "import h from './H.tsx.d';",
+    "const s = './I.ts';", "import x from 'pkg/x.ts';", "// see from './C.ts'",
+    "const t = 'taken from \"./D.ts\"';", 'export const n = 1;\n  return n;',
+  ];
+  for (const line of kept) assert.equal(normaliseSpecifiers(line), line);
 });
 
-test('the real trees hold: every shared function agrees or is declared', () => {
-  const { problems, claimed, compared } = collect(repoRoot);
-  assert.deepEqual([...problems, ...staleEntries(claimed)], []);
+const withExt = "import { a } from './A.ts';\nexport const b = a;\n";
+const withoutExt = "import { a } from './A';\nexport const b = a;\n";
+
+test('two copies that differ only in a relative specifier\'s extension are one text', () => {
+  assert.deepEqual(fileProblems('X.ts', withExt, withoutExt, new Map()), []);
+});
+
+test('two copies that differ in a specifier\'s path, or outside a specifier, are a problem naming the line', () => {
+  const path = fileProblems('X.ts', withExt, "import { a } from './B';\nexport const b = a;\n", new Map());
+  assert.equal(path.length, 1);
+  assert.match(path[0] ?? '', /X\.ts/);
+  assert.match(path[0] ?? '', /line 1\b/);
+  const value = fileProblems('X.ts', "import { a } from './A.ts';\nexport const b = 1;\n",
+    "import { a } from './A';\nexport const b = 2;\n", new Map());
+  assert.equal(value.length, 1);
+  assert.match(value[0] ?? '', /X\.ts/);
+  assert.match(value[0] ?? '', /line 2\b/);
+});
+
+test('a BODIES_ONLY entry whose copies are one text now is stale', () => {
+  const problems = fileProblems('X.ts', withExt, withoutExt, new Map([['X.ts', 'why']]));
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /BODIES_ONLY names it/);
+  assert.deepEqual(fileProblems('X.ts', withExt, withExt.replace('a;', 'a + 1;'), new Map([['X.ts', 'why']])), []);
+});
+
+test('a BODIES_ONLY key PAIRED does not hold is stale', () => {
+  const problems = staleBodiesOnly(['A.ts'], new Map([['B.ts', 'why']]));
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /B\.ts/);
+  assert.deepEqual(staleBodiesOnly(['B.ts'], new Map([['B.ts', 'why']])), []);
+});
+
+test('the real trees hold: every paired module is one text or declared, and every shared function agrees or is declared', () => {
+  const { problems, claimed, compared, oneText } = collect(repoRoot);
+  assert.deepEqual([...problems, ...staleEntries(claimed), ...staleBodiesOnly()], []);
   assert.equal(compared, PAIRED.length);
+  assert.equal(oneText, PAIRED.length - BODIES_ONLY.size);
+  assert.equal(BODIES_ONLY.size, 5,
+    'a sixth BODIES_ONLY entry is a module whose single suite no longer tests the other layer');
 });
 
-test('every DIVERGENT entry carries a reason worth reading, not a placeholder', () => {
-  for (const [key, reason] of DIVERGENT) {
+test('every DIVERGENT and BODIES_ONLY entry carries a reason worth reading, not a placeholder', () => {
+  for (const [key, reason] of [...DIVERGENT, ...BODIES_ONLY]) {
     assert.ok(reason.length > 60, `${key} carries a reason too short to say why the two differ`);
   }
 });

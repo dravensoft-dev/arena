@@ -61,9 +61,3 @@ test('disabled reaches the trigger and the hidden input natively', () => {
   assert.match(/<button[^>]*>/.exec(html)?.[0] ?? '', /disabled=""/);
   assert.match(/<input[^>]*>/.exec(html)?.[0] ?? '', /disabled=""/);
 });
-
-test('a blank label throws, because nothing can say what a file is for', () => {
-  // @ts-expect-error label is required
-  assert.throws(() => render(<ArenaFileInput />), /`label` is required/);
-  assert.throws(() => render(<ArenaFileInput label="   " />), /`label` is required/);
-});

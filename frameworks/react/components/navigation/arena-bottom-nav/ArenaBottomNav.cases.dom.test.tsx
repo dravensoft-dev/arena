@@ -7,10 +7,12 @@ import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
 import { join } from 'node:path';
+import { readFileSync } from 'node:fs';
 
 import { mount, cleanup, act } from '../../../test/Harness.tsx';
 import { withIcons, domSymbols } from '../../../test/IconsHarness.tsx';
 import { assertPattern, assertPatternCases, REACT_COMPONENTS } from '../../../test/AssertPattern.tsx';
+import { commandButtonVerdict, currentVerdict, itemNamed } from '../../../test/StateVerdicts.ts';
 import { ArenaBottomNav } from './ArenaBottomNav.tsx';
 import { ArenaBottomNavItem } from '../arena-bottom-nav-item/ArenaBottomNavItem.tsx';
 
@@ -32,7 +34,17 @@ test('ArenaBottomNav is a named navigation landmark, which is the whole of what 
   const nav = root.querySelector('nav')!;
   assert.equal(nav.getAttribute('aria-label'), 'Primary');
   assert.equal(nav.getAttribute('tabindex'), null, 'the landmark must not be a tab stop');
-  assertPattern({ root, bindingPath: BAR_BINDING, subjects: { default: nav } });
+  const links = [...nav.querySelectorAll('a, button')];
+  const movedNav = mount(bar(undefined, 'more')).querySelector('nav')!;
+  assertPattern({
+    root,
+    bindingPath: BAR_BINDING,
+    subjects: { default: nav },
+    behavioural: {
+      'states.current': currentVerdict(itemNamed(nav, 'a', 'Home'), links)
+        && currentVerdict(itemNamed(movedNav, 'button, a', 'More'), [...movedNav.querySelectorAll('a, button')]),
+    },
+  });
 });
 
 test('ArenaBottomNavItem meets both of the shapes href chooses between', () => {
@@ -71,7 +83,10 @@ test('ArenaBottomNavItem meets both of the shapes href chooses between', () => {
         return {
           root: el,
           subjects: { default: el },
-          behavioural: { 'keyboard.Enter': true, 'keyboard.Space': true, 'states.disabled': true },
+          behavioural: {
+            'keyboard.Enter': true, 'keyboard.Space': true, 'states.disabled': true,
+            'states.pressed': commandButtonVerdict(el),
+          },
         };
       },
     },
@@ -87,31 +102,6 @@ test('the active destination is filled and it is the only one, whatever weight t
     'the active glyph swaps the weight it was given rather than adding a second one, and an '
     + 'inactive destination keeps the weight it was given');
   assert.equal(root.querySelectorAll('[aria-current="page"]').length, 1);
-});
-
-test('a primary click reports once and cancels the anchor; a modified or middle click reports nothing', () => {
-  const reported: string[] = [];
-  const root = mount(bar((id) => reported.push(id)));
-  const anchor = root.querySelector('a')!;
-
-  const fire = (init: MouseEventInit) => {
-    const event = new MouseEvent('click', { bubbles: true, cancelable: true, ...init });
-    act(() => { anchor.dispatchEvent(event); });
-    return event;
-  };
-
-  assert.equal(fire({ button: 0 }).defaultPrevented, true,
-    'a primary click must cancel the anchor, or the router competes with a page load');
-  assert.deepEqual(reported, ['home'], 'and must report exactly once');
-
-  for (const modifier of ['metaKey', 'ctrlKey', 'shiftKey', 'altKey'] as const) {
-    assert.equal(fire({ button: 0, [modifier]: true }).defaultPrevented, false,
-      `${modifier}+click must stay the browser's`);
-  }
-  assert.equal(fire({ button: 1 }).defaultPrevented, false, 'a middle click must stay the browser\'s');
-
-  assert.deepEqual(reported, ['home'],
-    'a reader who asked for a new tab or for the address must get that, and no in-app route');
 });
 
 test('the badge draws nothing at zero, caps at 99+, and is announced rather than hidden', () => {
@@ -130,8 +120,7 @@ test('the badge draws nothing at zero, caps at 99+, and is announced rather than
   }
 });
 
-test('the bar and its destinations refuse a blank required name rather than drawing one', () => {
-  assert.throws(() => mount(<ArenaBottomNav ariaLabel="   " />), /ariaLabel/);
+test('its destinations refuse a blank required name rather than drawing one', () => {
   const blanks: [string, React.ReactElement][] = [
     ['id', <ArenaBottomNavItem id="" icon="ph-bold ph-house" label="Home" />],
     ['label', <ArenaBottomNavItem id="home" icon="ph-bold ph-house" label="" />],
@@ -144,18 +133,14 @@ test('the bar and its destinations refuse a blank required name rather than draw
   }
 });
 
-test('the bar adds the safe-area inset to its height rather than eating into it', () => {
+test('the bar draws its own root slot class', () => {
   const root = mount(
     <ArenaBottomNav ariaLabel="Sections" active="home">
       <ArenaBottomNavItem id="home" label="Home" icon="ph-bold ph-house" />
     </ArenaBottomNav>,
   );
   const bar = root.querySelector('nav')!.getAttribute('class') ?? '';
-  assert.match(bar, /\barena-bottom-nav__root\b/);
-  assert.match(bar, /arena-bottom-nav__root/);
-  assert.match(bar, /\barena-bottom-nav__root\b/,
-    'under border-box the device inset would come out of the row rather than below it, '
-    + 'so the bar would stand shorter on a phone than on a desktop');
+  assert.match(bar, /\barena-bottom-nav__root\b/, 'the bar did not draw its root slot class');
 });
 
 test('the active column takes the accent from the variant, and its badge from the same recipe', () => {
@@ -170,4 +155,11 @@ test('the active column takes the accent from the variant, and its badge from th
     'exactly the current column is accented');
   assert.match(columns[0]!.getAttribute('class') ?? '', /arena-bottom-nav__item/, 'and every column lifts through a modifier');
   assert.match(root.querySelector('nav')!.innerHTML, /\barena-bottom-nav__badge\b/, 'the badge is the accent chip');
+});
+
+test('a disabled item that is not current paints its disabled slots under hover and press, at a higher specificity than the rules that would lift it', () => {
+  const css = readFileSync(new URL('../../../../tailwind/consume/components/navigation/arena-bottom-nav/ArenaBottomNav.styles.generated.css', import.meta.url), 'utf8');
+  for (const state of ['hover', 'active'])
+    for (const paint of ['border-color: var(--navigation-item-edge-disabled', 'background-color: var(--navigation-item-fill-disabled', ' color: var(--navigation-item-ink-disabled', '--arena-icon-ink: var(--navigation-item-icon-disabled'])
+      assert.match(css, new RegExp(`:where\\(:not\\(\\[data-arena-current\\]\\)\\)\\[aria-disabled="true"\\]:${state} \\{[^}]*${paint.replace(/[()]/g, '\\$&')}`), `a disabled item under ${state} does not paint ${paint}`);
 });

@@ -71,14 +71,6 @@ to.
 - **Don't** reach for `bleed` over a photograph with detail where the words go. The wash keeps
   text readable; it does not make a busy picture quiet.
 
-**By hand, in real Chromium**: run `bun run demos` and open
-`/frameworks/angular/components/layout/arena-hero/ArenaHero.demo.generated.html`:
-- Narrow the window from wide: the split falls to one column at one step and never overflows.
-- Under `bleed`, the words stay readable over the wash in both themes.
-- Under `arena-align-center` the whole column centres, including the actions row.
-- With a screen reader running, the title is announced as a level one and the hero announces no
-  landmark of its own.
-
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
 **The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.

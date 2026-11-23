@@ -1,12 +1,12 @@
 import {
   booleanAttribute, ChangeDetectionStrategy, Component, computed, ElementRef, inject, input, signal, viewChild,
 } from '@angular/core';
-import { arenaContainerWidth } from '../../../ContainerSize';
-import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, ARENA_SR_ONLY, arenaAreaFill, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals';
+import { arenaContainerWidth, arenaReadTextScale } from '../../../ContainerSize';
+import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, ARENA_SR_ONLY, arenaTextRoom, arenaAreaFill, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals';
 import { arenaLinearScale, arenaScaleValue } from '../ChartScales';
 import { arenaLinePoints } from '../ChartMarks';
 import {
-  arenaPolarPoint, arenaPolarIndex, arenaPolarAnchor, arenaRadarRings, arenaRadarRadius, arenaRadarLabelRadius,
+  arenaPolarPoint, arenaPolarIndex, arenaPolarAnchor, arenaRadarRings, arenaRadarRadius, arenaRadarLabelRadius, arenaRadarLabelRoom, arenaRadarFitLabel,
 } from '../ChartPolar';
 import {
   arenaChartTable, arenaSeriesColors, arenaSwatchChoice, arenaSeriesPointCount, arenaRadarDomain,
@@ -78,7 +78,7 @@ const SERIES_STROKE_STYLE = { strokeWidth: 'var(--bw-strong)' } as const satisfi
         <text [attr.x]="spoke.labelX" [attr.y]="spoke.labelY" [attr.text-anchor]="spoke.anchor"
               dominant-baseline="middle"
               [attr.fill]="inkMuted" font-family="var(--font-body)"
-              [style]="categoryLabelStyle">{{ spoke.label }}</text>
+              [style]="categoryLabelStyle">{{ spoke.shown }}@if (spoke.shown !== spoke.label) {<title>{{ spoke.label }}</title>}</text>
       }
 
       <rect x="0" y="0" width="100%" [attr.height]="plotH()" fill="transparent"
@@ -123,11 +123,11 @@ const SERIES_STROKE_STYLE = { strokeWidth: 'var(--bw-strong)' } as const satisfi
 })
 export class ArenaRadarChart {
   protected readonly locale = inject(ARENA_LOCALE);
-  /** One label per axis, in the same order as every series' `values`, running clockwise from 12 o'clock. Keep the count small: past eight or so the labels collide and the shape stops being readable, which is a limit of the form rather than of the drawing. */
+  /** One label per axis, in the same order as every series' `values`, running clockwise from 12 o'clock. Keep the count small: past eight or so the labels collide and the shape stops being readable, which is a limit of the form rather than of the drawing. At a larger browser text size a label that grows past the room beside the ring is cut with an ellipsis, and never below its width at the default. The full name of a cut label stays in a title on it and in the data table. The room is read when the chart is created. */
   readonly labels = input.required<readonly string[]>();
-  /** The plotted series, drawn as one closed polygon each over the same axes. The shape is the reading, so two or three series is the useful case and more is a tangle. After the last slot the positional count starts again at the first, so fold a ninth series into "Other" upstream. */
+  /** The plotted series, drawn as one closed polygon each over the same axes. The shape is the reading, so two or three series is the useful case and more is a tangle. After the last ramp colour the positional count starts again at the first, so fold a ninth series into "Other" upstream. */
   readonly series = input.required<readonly ArenaSeries[]>();
-  /** The ramp slot the first series takes when it names no colour of its own. Each later series takes the next slot, and after the last slot the count starts again at the first. A series' `colorId` or `colorIds` keeps the slot it names. Absent, 1. */
+  /** The ramp colour the first series takes when it names no colour of its own. Each later series takes the next ramp colour, and after the last ramp colour the count starts again at the first. A series' `colorId` or `colorIds` keeps the ramp colour it names. Absent, 1. */
   readonly colorStart = input<ArenaCatSlot, ArenaCatSlot | undefined>(
     1,
     { transform: (value) => value ?? 1 },
@@ -148,6 +148,7 @@ export class ArenaRadarChart {
     { transform: (value) => value ?? ARENA_CHART_HEIGHT },
   );
 
+  private readonly room = arenaTextRoom(arenaReadTextScale());
   protected readonly parts = manifest.parts;
   protected readonly styles = arenaRadarChartStyles();
   protected readonly arenaSrOnly = ARENA_SR_ONLY;
@@ -177,13 +178,13 @@ export class ArenaRadarChart {
 
   private readonly axes = computed(() => arenaSeriesPointCount(this.series()));
   private readonly domain = computed(() => arenaRadarDomain(this.series()));
-  private readonly strip = computed(() => arenaLegendStrip(this.height(), this.series().length));
+  private readonly strip = computed(() => arenaLegendStrip(this.height(), this.series().length, false, this.room));
   protected readonly plotH = computed(() => this.strip().plotH);
   protected readonly stripH = computed(() => this.strip().stripH);
   protected readonly centreX = computed(() => this.width() / 2);
   protected readonly centreY = computed(() => this.strip().plotH / 2);
-  private readonly outer = computed(() => arenaRadarRadius(this.width(), this.strip().plotH));
-  private readonly labelR = computed(() => arenaRadarLabelRadius(this.width(), this.strip().plotH));
+  private readonly outer = computed(() => arenaRadarRadius(this.width(), this.strip().plotH, this.room));
+  private readonly labelR = computed(() => arenaRadarLabelRadius(this.width(), this.strip().plotH, this.room));
 
   private readonly radial = computed(() => arenaLinearScale(this.domain().min, this.domain().max, 0, this.outer()));
 
@@ -193,7 +194,7 @@ export class ArenaRadarChart {
   });
 
   protected readonly colors = computed(
-    () => this.series().map((one, index) => arenaSeriesColors(one, 1, arenaCatRotate(this.colorStart(), index), 'ArenaRadarChart', this.colorStart())[0] as string),
+    () => this.series().map((one, index) => arenaSeriesColors(one, 1, arenaCatRotate(this.colorStart(), index), this.colorStart())[0] as string),
   );
 
   protected readonly rings = computed(() => {
@@ -214,12 +215,16 @@ export class ArenaRadarChart {
     const outer = this.outer();
     const labels = this.labels();
     const labelR = this.labelR();
+    const width = this.width();
     return Array.from({ length: count }, (_, index) => {
       const tip = arenaPolarPoint(cx, cy, outer, index, count);
       const at = arenaPolarPoint(cx, cy, labelR, index, count);
+      const anchor = arenaPolarAnchor(index, count);
+      const label = labels[index] ?? '';
       return {
-        index, x: tip.x, y: tip.y, label: labels[index] ?? '',
-        labelX: at.x, labelY: at.y, anchor: arenaPolarAnchor(index, count),
+        index, x: tip.x, y: tip.y, label,
+        shown: arenaRadarFitLabel(label, arenaRadarLabelRoom(at.x, width, anchor), this.room),
+        labelX: at.x, labelY: at.y, anchor,
       };
     });
   });

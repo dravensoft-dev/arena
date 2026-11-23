@@ -7,7 +7,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   CLONE_ROOT_BUDGET, EVERY_RULES, MATRIX_WORKFLOW, MAX_PATH, PR_WORKFLOW, REQUIRED_JOB, RULES, SUITE_RULES,
-  WORKFLOWS, browserNamingProblems, browserPathProblems, browserWorkflows, checkoutProblems, declaredNeeds, gateProblems,
+  WORKFLOWS, browserNamingProblems, browserWorkflows, checkoutProblems, declaredNeeds,
   inScope, inSuiteScope, jobBlocks, jobShapeProblems, matrixLegs, matrixProblems, needsProblems,
   portabilityProblems, setupProblems, staleOwners, timeoutProblems, trackedPaths, violations, workflowFiles,
 } from './check-portability.ts';
@@ -109,36 +109,28 @@ test('the separator rules read a suite as well, and the rest still leave one alo
     + 'the assertion then passes on the machine that wrote it and nowhere else');
 });
 
-test('file-url-pathname fires on any file URL, not only import.meta.url', () => {
-  const found = violations('scripts/build/arena/made-up.ts', 'const p = pathToFileURL(x).pathname;\n');
-  assert.equal(found.length, 1);
-  assert.equal(found[0]?.line, 1);
-});
-
-test('file-url-pathname leaves location.pathname alone', () => {
-  assert.deepEqual(violations('frameworks/react/made-up.ts',
-    "history.replaceState(null, '', window.location.pathname);\n"), []);
-});
-
-test('file-url-pathname leaves an optional-chained location.pathname alone', () => {
-  assert.deepEqual(violations('frameworks/react/made-up.ts',
-    'const here = window.location?.pathname;\n'), []);
-});
-
-test('file-url-pathname exempts the static server, whose URL is an http request', () => {
-  const source = 'const path = new URL(request.url).pathname;\n';
-  assert.deepEqual(violations('scripts/lib/arena/static-server.ts', source), []);
-  assert.equal(violations('scripts/lib/arena/other-server.ts', source).length, 1);
-});
-
-test('file-url-pathname leaves fileURLToPath alone', () => {
-  assert.deepEqual(violations('scripts/build/arena/made-up.ts',
-    "const p = fileURLToPath(new URL('./x', import.meta.url));\n"), []);
-});
-
-test('file-url-pathname skips a template literal', () => {
-  assert.deepEqual(violations('scripts/build/arena/made-up.ts',
-    'const doc = `new URL(r.name).pathname`;\n'), []);
+test('file-url-pathname fires on any file URL, and leaves location.pathname, fileURLToPath, a template literal and the static server alone', () => {
+  const rows: { name: string; file: string; source: string; hits: number; line?: number }[] = [
+    { name: 'it fires on any file URL, not only import.meta.url', file: 'scripts/build/arena/made-up.ts',
+      source: 'const p = pathToFileURL(x).pathname;\n', hits: 1, line: 1 },
+    { name: 'it leaves location.pathname alone', file: 'frameworks/react/made-up.ts',
+      source: "history.replaceState(null, '', window.location.pathname);\n", hits: 0 },
+    { name: 'it leaves an optional-chained location.pathname alone', file: 'frameworks/react/made-up.ts',
+      source: 'const here = window.location?.pathname;\n', hits: 0 },
+    { name: 'it exempts the static server, whose URL is an http request', file: 'scripts/lib/arena/static-server.ts',
+      source: 'const path = new URL(request.url).pathname;\n', hits: 0 },
+    { name: 'it does not exempt any other server', file: 'scripts/lib/arena/other-server.ts',
+      source: 'const path = new URL(request.url).pathname;\n', hits: 1 },
+    { name: 'it leaves fileURLToPath alone', file: 'scripts/build/arena/made-up.ts',
+      source: "const p = fileURLToPath(new URL('./x', import.meta.url));\n", hits: 0 },
+    { name: 'it skips a template literal', file: 'scripts/build/arena/made-up.ts',
+      source: 'const doc = `new URL(r.name).pathname`;\n', hits: 0 },
+  ];
+  for (const row of rows) {
+    const found = violations(row.file, row.source);
+    assert.equal(found.length, row.hits, `file-url-pathname ${row.name}: hit count`);
+    if (row.line !== undefined) assert.equal(found[0]?.line, row.line, `file-url-pathname ${row.name}: line`);
+  }
 });
 
 test('file-url-pathname reaches the framework layers, suites and scripts', () => {
@@ -163,11 +155,18 @@ test('file-url-pathname reaches the framework layers, suites and scripts', () =>
   }
 });
 
+const realWorkflows = () => readdirSync(join(repoRoot, WORKFLOWS)).filter((file) => file.endsWith('.yml')).sort();
+
 test('the tree itself is clean, and the gate scanned enough of it to mean something', () => {
-  const { problems, scanned, rules } = portabilityProblems();
+  const { problems, scanned, rules, workflows, jobs } = portabilityProblems();
   assert.deepEqual(problems, []);
   assert.ok(scanned > 100, `scanned ${scanned} script(s), which is too few to have walked the tree`);
   assert.equal(rules, RULES.length);
+  const tracked = trackedPaths();
+  assert.ok(tracked.length > 1000, `git listed ${tracked.length} tracked path(s), which is too few`);
+  assert.ok(workflows > 1 && jobs > workflows);
+  assert.deepEqual(workflowFiles().map((file) => basename(file)).sort(), realWorkflows());
+  assert.deepEqual(browserWorkflows().map((one) => one.file.split('/').pop()).sort(), realWorkflows());
 });
 
 test('a prerequisite the setup document does not name is a problem, since a contributor is sent there', () => {
@@ -176,12 +175,6 @@ test('a prerequisite the setup document does not name is a problem, since a cont
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /gfortran --version/);
   assert.match(problems[0] ?? '', /goes stale/);
-});
-
-test('the real declaration is named in full, which is the claim the gate makes', () => {
-  assert.deepEqual(setupProblems(), [],
-    'the list was never in one place before: bun came from packageManager, git and node from '
-    + 'whichever gate spawned them, and a contributor found each by hitting it');
 });
 
 test('a reserved device name is refused, whatever its extension or case', () => {
@@ -224,12 +217,6 @@ test('a path past what a Windows checkout allows is refused, budget and all', ()
   const problems = checkoutProblems([`a/${'x'.repeat(room)}`]);
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /core\.longpaths/);
-});
-
-test('the real tree is inside every one of those, and there is a real tree to be inside them', () => {
-  const paths = trackedPaths();
-  assert.ok(paths.length > 1000, `git listed ${paths.length} tracked path(s), which is too few`);
-  assert.deepEqual(checkoutProblems(paths), []);
 });
 
 const WORKFLOW = `name: Arena PR
@@ -289,8 +276,7 @@ test('a workflow with no gate at all fails rather than passing for lack of anyth
   assert.match(problems[0] ?? '', /declares no pr-gate/);
 });
 
-test('the real pr.yml holds, and the matrix is deliberately not a name it waits for', () => {
-  assert.deepEqual(gateProblems(), []);
+test('the real pr-gate does not wait for the matrix, which lives in another workflow', () => {
   const gate = jobBlocks(readFileSync(join(repoRoot, WORKFLOWS, PR_WORKFLOW), 'utf8'))
     .get(REQUIRED_JOB) ?? '';
   assert.ok(!(declaredNeeds(gate) ?? []).includes('portable'),
@@ -308,7 +294,6 @@ test('a matrix that disagrees with the declaration fails, whichever way it disag
   const absent = { solaris: { blocking: true, why: 'no runner offers it' } };
   assert.match(matrixProblems(repoRoot, absent).join('\n'), /the matrix does not run it/);
 });
-
 
 const CALLER = `name: Arena PR
 
@@ -378,18 +363,6 @@ test('a job layout the gate cannot read is a problem naming the line, and never 
     'a comment after jobs: is still the jobs line');
 });
 
-const realWorkflows = () => readdirSync(join(repoRoot, WORKFLOWS)).filter((file) => file.endsWith('.yml')).sort();
-
-test('the real pr.yml reads whole, and so does every workflow the gate opens', () => {
-  const files = realWorkflows();
-  assert.ok(files.length > 1);
-  for (const file of files) {
-    const text = readFileSync(join(repoRoot, WORKFLOWS, file), 'utf8');
-    assert.deepEqual(jobShapeProblems(file, text), [], file);
-    assert.ok(jobBlocks(text).size > 0, `${file} reads as no job at all`);
-  }
-});
-
 const named = (file: string, line: string) => ({ file, text: `name: x\nenv:\n${line}\njobs:\n  a:\n    runs-on: x\n` });
 
 const CONDUIT_LINE = '      - run: echo "CHROME_PATH=${{ steps.chrome.outputs.chrome-path }}" >> "$GITHUB_ENV"';
@@ -447,11 +420,6 @@ test('a browser named by an input default, or in a shape the gate cannot read, i
     named('pr.yml', '  # CHROME_PATH is not exported here\n      - name: a browser, and CHROME_PATH is deliberately not exported')]), []);
 });
 
-test('the real workflows name one browser between them, and the gate read every one of them', () => {
-  assert.deepEqual(browserPathProblems(), []);
-  assert.deepEqual(browserWorkflows().map((one) => one.file.split('/').pop()).sort(), realWorkflows());
-});
-
 const job = (body: string) => `name: x\njobs:\n  a:\n${body}`;
 const STEPS = '    steps:\n      - run: true\n';
 
@@ -481,19 +449,6 @@ test('a reusable-workflow caller is exempt, and a sibling job is still read', ()
   const problems = timeoutProblems('w.yml', text);
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /job gate does not declare/);
-});
-
-test('every real workflow job declares its time limit, and the sweep read each file', () => {
-  const files = realWorkflows();
-  assert.ok(files.length > 1);
-  let jobs = 0;
-  for (const file of files) {
-    const text = readFileSync(join(repoRoot, WORKFLOWS, file), 'utf8');
-    jobs += jobBlocks(text).size;
-    assert.deepEqual(timeoutProblems(file, text), [], file);
-  }
-  assert.ok(jobs > files.length);
-  assert.deepEqual(workflowFiles().map((file) => basename(file)).sort(), files);
 });
 
 test('portabilityProblems reports a workflow with no time limit, read off a temporary root', () => {
@@ -570,14 +525,6 @@ test('the gate exits 1 on a job with no time limit, and names the file on stderr
   } finally {
     rmSync(base, { recursive: true, force: true });
   }
-});
-
-test('the gate exits 0 on the tree and its success line says how many workflows and jobs it read', () => {
-  const run = spawnSync(process.execPath, [GATE], { encoding: 'utf8' });
-  assert.equal(run.status, 0, run.stdout + run.stderr);
-  const { workflows, jobs } = portabilityProblems();
-  assert.ok(workflows > 1 && jobs > workflows);
-  assert.ok(run.stdout.includes(`${workflows} workflow(s) and their ${jobs} job(s) were read for a time limit`), run.stdout);
 });
 
 test('pr.yml with a layout the reader cannot read is reported once, not once per rule', () => {

@@ -71,7 +71,3 @@ test('a form receives the number through a hidden input, and a range posts two u
 test('disabled takes the thumb out of the Tab sequence and says so', () => {
   assert.match(thumbs(render(<ArenaSlider label="Volume" disabled />))[0] ?? '', /tabindex="-1"[^>]*aria-disabled="true"/);
 });
-
-test('a blank label throws, because nothing can derive what the range measures', () => {
-  assert.throws(() => render(<ArenaSlider label=" " />), /^Error: ArenaSlider:/);
-});

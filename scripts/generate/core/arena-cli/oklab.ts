@@ -75,11 +75,14 @@ export const HEAT_FLOOR = 2.1;
 
 export const HEAT_REACH = 0.85;
 
-const mixOklab = (hex: string, keep: number, over: string) => {
+const keepOver = (hex: string, keep: number, over: string) => {
   const one = toOklab(hex);
   const two = toOklab(over);
   return oklabToHex([0, 1, 2].map((i) => one[i]! * keep + two[i]! * (1 - keep)) as Triple);
 };
+
+export const mixOklab = (a: string, b: string, share: number) =>
+  (share <= 0 ? a : share >= 1 ? b : keepOver(b, share, a));
 
 const bisect = (from: number, reached: (t: number) => boolean) => {
   let [lo, hi] = [from, 2];
@@ -92,7 +95,7 @@ const bisect = (from: number, reached: (t: number) => boolean) => {
 };
 
 export function heatLadder(slot: string, surface: string, ink: string, _polarity: string): string[] {
-  const at = (t: number) => (t <= 1 ? mixOklab(slot, t, surface) : mixOklab(slot, 2 - t, ink));
+  const at = (t: number) => (t <= 1 ? keepOver(slot, t, surface) : keepOver(slot, 2 - t, ink));
   const lightness = (t: number) => toOklab(at(t))[0];
   const toward = Math.sign(toOklab(ink)[0] - toOklab(surface)[0]);
   const first = bisect(0, (t) => contrast(at(t), surface) >= HEAT_FLOOR);

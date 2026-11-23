@@ -1,4 +1,4 @@
-Ephemeral notification. Use `actionLabel` + `onAction` to give the user an out: **Undo** after an action (H3) or **Retry / View logs** after an error (H9). Error/critical toasts carry **`persist`** so the host does NOT auto-dismiss them (H1); they only close via the × or an action.
+Ephemeral notification. Use `actionLabel` + `onAction` to give the user an out: **Undo** after an action or **Retry / View logs** after an error. Error/critical toasts carry **`persist`** so the host does NOT auto-dismiss them; they only close via the × or an action.
 
 ```tsx
 <ArenaToast tone="neutral" title="Deployment archived" actionLabel="Undo" onAction={undo} dismissible onClose={dismiss} />
@@ -13,7 +13,7 @@ Ephemeral notification. Use `actionLabel` + `onAction` to give the user an out: 
 |---|---|---|---|---|
 | `title` | primitive | `string` |  | The bold lead line. |
 | `message` | primitive | `string` |  | The body. |
-| `tone` | enum | `ArenaToastTone` | `"neutral"` | The side bar's colour: neutral reports no outcome, success and danger report one. Whether the toast announces assertively. |
+| `tone` | enum | `ArenaToastTone` | `"neutral"` | The side bar's colour: neutral reports no outcome, success and danger report one. A danger toast is an alert, announced assertively. Neutral and success are a status, announced politely. |
 | `actionLabel` | primitive | `string` |  | The label of the single inline action: Undo, Retry, View logs. Absent renders no action. |
 | `onAction` | event |  |  | The inline action was activated. |
 | `persist` | primitive | `boolean` | `false` | Disables the host's auto-dismiss and shows the Pinned marker. **Implied by `tone: "danger"`, which ignores `false`.** A critical message that vanishes on a timer is one a user can miss entirely. An error state therefore makes the pin mandatory, and the layers enforce it rather than leave it to documentation. Set it explicitly for any other tone that must not disappear on its own. |
@@ -51,9 +51,9 @@ Writing the clock yourself is still fine, and then it is three branches rather t
 and answers `null` for a notice that must not be taken away. The two are tokens, so a host that reads them stays in step with a release that moves one. A host that retypes 4200 does not.
 
 **Do / Don't**
-- `persist` on every error/critical toast; the close uses the standard `ph-x` icon (H4).
+- `persist` on every error/critical toast; the close uses the standard `ph-x` icon.
 - Don't cram long messages into all caps, and don't use the ArenaToast for destructive confirmations (that's `ArenaConfirmDialog`).
-- Don't render `<ArenaToast>` straight into a statically-positioned parent. ArenaToast carries `zIndex: var(--z-toast)` and no `position` of its own. CSS only honors `z-index` on a positioned box or a flex or grid item. On plain static flow the token does nothing, and the one thing that must float above everything quietly stops floating. Put it in a `<ArenaToastHost>`, which is the fixed, `display:flex` container that makes each `<ArenaToast>` a flex item and lets `--z-toast` take effect.
+- Don't render `<ArenaToast>` straight into a statically-positioned parent. ArenaToast carries `zIndex: var(--z-toast)` and no `position` of its own. CSS only honors `z-index` on a positioned box or a flex or grid item. On plain static flow the token does nothing, and the top step of the `--z-*` stack quietly stops floating. Put it in a `<ArenaToastHost>`, which is the fixed, `display:flex` container that makes each `<ArenaToast>` a flex item and lets `--z-toast` take effect.
 
 **Words.** `toastClose` names the close button; `toastPinned` is the mark a toast that does not dismiss itself carries, and `toastPinnedHint` its title.
 

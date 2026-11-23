@@ -3,8 +3,8 @@
   "slots": {
     "root": "flex flex-col gap-1",
     "rows": "flex flex-col gap-1",
-    "item": "flex items-center gap-row min-h-ctl-h px-row-x py-row-y rounded-control cursor-pointer font-body text-ctl outline-none focus:shadow-[inset_0_0_0_var(--focus-width)_var(--focus-ring)] transition-[background] duration-[var(--dur-hover)] ease-hover ps-[calc(var(--pad-row-x)*var(--dz-row-scale-x)+var(--pad-row-indent)*var(--arena-tree-depth,0))]",
-    "caret": "inline-flex items-center justify-center size-ctl-h-sm -my-row-y shrink-0 text-[length:var(--icon-md)]",
+    "item": "flex items-center gap-row min-h-ctl-h px-row-x py-row-y rounded-control cursor-pointer font-body text-ctl focus:outline-hidden focus:-outline-offset-2 focus:shadow-[inset_0_0_0_var(--bw-focus)_var(--edge-focus)] transition-[background] duration-[var(--dur-hover)] ease-hover ps-[calc(var(--pad-row-x)*var(--dz-row-scale-x)+var(--pad-row-indent)*var(--arena-tree-depth,0))] border-[color:var(--navigation-item-edge-rest,transparent)] bg-[color:var(--navigation-item-fill-rest,transparent)] [--arena-icon-ink:color-mix(in_oklab,var(--navigation-item-icon-rest,var(--navigation-item-ink-rest,var(--ink-muted)))_var(--level-ink-muted),transparent)] text-[color:color-mix(in_oklab,var(--navigation-item-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]",
+    "caret": "inline-flex items-center justify-center w-ctl-h-sm min-h-ctl-h-sm -my-row-y shrink-0 text-[length:var(--icon-md)]",
     "icon": "inline-flex shrink-0 text-[length:var(--icon-lg)]",
     "label": "min-w-0 truncate"
   },
@@ -22,10 +22,10 @@
   "variants": {
     "selected": {
       "true": {
-        "item": "bg-primary/14 text-ink-body/(--level-ink-body) font-control"
+        "item": "font-control border-[color:var(--navigation-item-edge-selected,var(--edge-tab-selected))] hover:border-[color:var(--navigation-item-edge-selected-hover,color-mix(in_oklab,var(--navigation-item-edge-selected,var(--edge-tab-selected)),var(--navigation-item-ink-selected,var(--ink-selected))_calc(var(--mix-hover)*100%)))] active:border-[color:var(--navigation-item-edge-selected-pressed,color-mix(in_oklab,var(--navigation-item-edge-selected,var(--edge-tab-selected)),var(--navigation-item-ink-selected,var(--ink-selected))_calc(var(--mix-pressed)*100%)))] bg-[color:color-mix(in_oklab,var(--navigation-item-fill-selected,var(--fill-selected))_var(--level-accent-soft-primary),transparent)] hover:bg-[color:var(--navigation-item-fill-selected-hover,color-mix(in_oklab,color-mix(in_oklab,var(--navigation-item-fill-selected,var(--fill-selected))_var(--level-accent-soft-primary),transparent),var(--navigation-item-ink-selected,var(--ink-selected))_calc(var(--mix-hover)*100%)))] active:bg-[color:var(--navigation-item-fill-selected-pressed,color-mix(in_oklab,color-mix(in_oklab,var(--navigation-item-fill-selected,var(--fill-selected))_var(--level-accent-soft-primary),transparent),var(--navigation-item-ink-selected,var(--ink-selected))_calc(var(--mix-pressed)*100%)))] [--arena-icon-ink:var(--navigation-item-icon-selected,var(--navigation-item-ink-selected,var(--ink-selected)))] hover:[--arena-icon-ink:var(--navigation-item-icon-selected-hover,var(--navigation-item-ink-selected-hover,var(--navigation-item-ink-selected,var(--ink-selected))))] active:[--arena-icon-ink:var(--navigation-item-icon-selected-pressed,var(--navigation-item-ink-selected-pressed,var(--navigation-item-ink-selected,var(--ink-selected))))] text-[color:var(--navigation-item-ink-selected,var(--ink-selected))] hover:text-[color:var(--navigation-item-ink-selected-hover,var(--navigation-item-ink-selected,var(--ink-selected)))] active:text-[color:var(--navigation-item-ink-selected-pressed,var(--navigation-item-ink-selected,var(--ink-selected)))]"
       },
       "false": {
-        "item": "bg-transparent text-ink-muted/(--level-ink-muted) font-medium hover:bg-hover"
+        "item": "font-medium hover:border-[color:var(--navigation-item-edge-hover,var(--navigation-item-edge-rest,transparent))] active:border-[color:var(--navigation-item-edge-pressed,var(--navigation-item-edge-rest,transparent))] hover:bg-[color:var(--navigation-item-fill-hover,var(--fill-hover))] active:bg-[color:var(--navigation-item-fill-pressed,color-mix(in_oklab,var(--navigation-item-fill-rest,transparent),color-mix(in_oklab,var(--navigation-item-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)_calc(var(--mix-pressed)*100%)))] hover:[--arena-icon-ink:color-mix(in_oklab,var(--navigation-item-icon-hover,var(--navigation-item-ink-hover,var(--ink-body)))_var(--level-ink-body),transparent)] active:[--arena-icon-ink:var(--navigation-item-icon-pressed,var(--navigation-item-ink-pressed,color-mix(in_oklab,var(--navigation-item-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)))] hover:text-[color:color-mix(in_oklab,var(--navigation-item-ink-hover,var(--ink-body))_var(--level-ink-body),transparent)] active:text-[color:var(--navigation-item-ink-pressed,color-mix(in_oklab,var(--navigation-item-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent))]"
       }
     },
     "windowed": {
@@ -36,7 +36,7 @@
     },
     "disabled": {
       "true": {
-        "item": "cursor-not-allowed text-ink-muted/40"
+        "item": "cursor-not-allowed opacity-[var(--navigation-item-fade-disabled,var(--fade-disabled))] border-[color:var(--navigation-item-edge-disabled,var(--navigation-item-edge-rest,transparent))] bg-[color:var(--navigation-item-fill-disabled,var(--navigation-item-fill-rest,transparent))] [--arena-icon-ink:var(--navigation-item-icon-disabled,var(--navigation-item-ink-disabled,color-mix(in_oklab,var(--navigation-item-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)))] text-[color:var(--navigation-item-ink-disabled,color-mix(in_oklab,var(--navigation-item-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent))] hover:border-[color:var(--navigation-item-edge-disabled,var(--navigation-item-edge-rest,transparent))] hover:bg-[color:var(--navigation-item-fill-disabled,var(--navigation-item-fill-rest,transparent))] hover:[--arena-icon-ink:var(--navigation-item-icon-disabled,var(--navigation-item-ink-disabled,color-mix(in_oklab,var(--navigation-item-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)))] hover:text-[color:var(--navigation-item-ink-disabled,color-mix(in_oklab,var(--navigation-item-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent))] active:border-[color:var(--navigation-item-edge-disabled,var(--navigation-item-edge-rest,transparent))] active:bg-[color:var(--navigation-item-fill-disabled,var(--navigation-item-fill-rest,transparent))] active:[--arena-icon-ink:var(--navigation-item-icon-disabled,var(--navigation-item-ink-disabled,color-mix(in_oklab,var(--navigation-item-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)))] active:text-[color:var(--navigation-item-ink-disabled,color-mix(in_oklab,var(--navigation-item-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent))]"
       },
       "false": {}
     }
@@ -45,5 +45,14 @@
     "selected": false,
     "windowed": false,
     "disabled": false
-  }
+  },
+  "compoundVariants": [
+    {
+      "selected": true,
+      "disabled": true,
+      "class": {
+        "item": "opacity-[var(--navigation-item-fade-selected-disabled,var(--fade-disabled))] border-[color:var(--navigation-item-edge-selected-disabled,var(--navigation-item-edge-selected,var(--edge-tab-selected)))] bg-[color:var(--navigation-item-fill-selected-disabled,color-mix(in_oklab,var(--navigation-item-fill-selected,var(--fill-selected))_var(--level-accent-soft-primary),transparent))] [--arena-icon-ink:var(--navigation-item-icon-selected-disabled,var(--navigation-item-ink-selected-disabled,var(--navigation-item-ink-selected,var(--ink-selected))))] text-[color:var(--navigation-item-ink-selected-disabled,var(--navigation-item-ink-selected,var(--ink-selected)))] hover:border-[color:var(--navigation-item-edge-selected-disabled,var(--navigation-item-edge-selected,var(--edge-tab-selected)))] hover:bg-[color:var(--navigation-item-fill-selected-disabled,color-mix(in_oklab,var(--navigation-item-fill-selected,var(--fill-selected))_var(--level-accent-soft-primary),transparent))] hover:[--arena-icon-ink:var(--navigation-item-icon-selected-disabled,var(--navigation-item-ink-selected-disabled,var(--navigation-item-ink-selected,var(--ink-selected))))] hover:text-[color:var(--navigation-item-ink-selected-disabled,var(--navigation-item-ink-selected,var(--ink-selected)))] active:border-[color:var(--navigation-item-edge-selected-disabled,var(--navigation-item-edge-selected,var(--edge-tab-selected)))] active:bg-[color:var(--navigation-item-fill-selected-disabled,color-mix(in_oklab,var(--navigation-item-fill-selected,var(--fill-selected))_var(--level-accent-soft-primary),transparent))] active:[--arena-icon-ink:var(--navigation-item-icon-selected-disabled,var(--navigation-item-ink-selected-disabled,var(--navigation-item-ink-selected,var(--ink-selected))))] active:text-[color:var(--navigation-item-ink-selected-disabled,var(--navigation-item-ink-selected,var(--ink-selected)))]"
+      }
+    }
+  ]
 }

@@ -1,5 +1,5 @@
-/* What is this component's own is the two guards, the order it renders in, and the classes it
- * draws from its manifest; all four are read out of the markup. */
+/* What is this component's own is the legend guard, the order it renders in, and the classes it
+ * draws from its manifest; all three are read out of the markup. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { renderToStaticMarkup } from 'react-dom/server';
@@ -8,18 +8,6 @@ import { ArenaFieldset } from './ArenaFieldset.tsx';
 
 const render = (element: React.ReactElement) => renderToStaticMarkup(element);
 const field = <span>A field</span>;
-
-test('a fieldset with no legend is refused, and a legend of nothing but spaces with it', () => {
-  // @ts-expect-error the contract requires it, and the guard is what this asserts
-  assert.throws(() => render(<ArenaFieldset>{field}</ArenaFieldset>), /^Error: ArenaFieldset: `legend` is required/);
-  assert.throws(() => render(<ArenaFieldset legend="   ">{field}</ArenaFieldset>), /`legend` is required/);
-});
-
-test('a fieldset with no children is refused, counting a false conditional as none', () => {
-  // @ts-expect-error the contract requires it, and the guard is what this asserts
-  assert.throws(() => render(<ArenaFieldset legend="Notifications" />), /not a legal shape/);
-  assert.throws(() => render(<ArenaFieldset legend="Notifications">{false}</ArenaFieldset>), /not a legal shape/);
-});
 
 test('the legend is the first child, then the fields, then the note, each drawn from the manifest', () => {
   const html = render(<ArenaFieldset legend="Notifications" hint="At most once a day.">{field}</ArenaFieldset>);

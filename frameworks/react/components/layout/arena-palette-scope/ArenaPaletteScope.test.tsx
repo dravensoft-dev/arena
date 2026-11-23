@@ -16,6 +16,7 @@ test("paints the island's ground", () => {
   assert.ok(root.includes('arena-light'), `the root carries arena-light: ${html}`);
   assert.ok(root.includes('arena-palette-scope__root'), `the root carries the root slot class: ${html}`);
   assert.match(html, /data-arena-part="palette-scope"/);
+  assert.match(renderToStaticMarkup(<ArenaPaletteScope palette="dark">x</ArenaPaletteScope>), /class="[^"]*\barena-dark\b/);
 });
 
 test("provides the nearest scope's palette", () => {
@@ -41,11 +42,6 @@ test('a server render draws the class of a palette the theme config does not dec
   const html = renderToStaticMarkup(<ArenaPaletteScope palette="sepia">x</ArenaPaletteScope>);
   assert.match(html, /arena-sepia/);
   assert.match(html, /arena-palette-scope__root/);
-});
-
-test('the default palette is an island too', () => {
-  const html = renderToStaticMarkup(<ArenaPaletteScope palette="dark">x</ArenaPaletteScope>);
-  assert.match(html, /class="[^"]*\barena-dark\b/);
 });
 
 test("the scope's ground takes the surface radius and is a surface", () => {

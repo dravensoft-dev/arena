@@ -1,4 +1,4 @@
-Error state with a recovery path (H9). Arena draws the retry button itself from
+Error state with a recovery path. Arena draws the retry button itself from
 `retryLabel` (absent renders no retry); `onRetry` handles the click. `secondaryAction`
 is a slot beside it for a consumer-supplied extra control, and `code` is a diagnostic
 exposed as a mono chip.

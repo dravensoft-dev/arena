@@ -1,9 +1,16 @@
 import test from 'node:test';
+import { Window } from 'happy-dom';
 import assert from 'node:assert/strict';
-import { declarationProblems, defaultProblems, singleAnswerProblems, emittedTypes, emittedWords, rosterProblems, zeroRoleProblems, collect, ROLES } from './check-role-contract.ts';
+import { declarationProblems, defaultProblems, singleAnswerProblems, emittedTypes, emittedWords, rosterProblems, zeroRoleProblems, collect, ROLES, metadataProblems, questionProblems, combineProblems, levelNames, QUESTION_MAX, SIZE_QUESTION_MAX, STATE_SELECTORS } from './check-role-contract.ts';
 import { join } from 'node:path';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
+import { withDefaults } from '../../generate/core/arena-cli/style-plugin-rules.ts';
+import { defaultedNote } from '../../generate/core/arena-cli/theme-css.ts';
+
+const SHIPPED = readJson(join(repoRoot, ROLES)) as Record<string, any>;
 
 const described = { $type: 'dimension', $description: 'x' };
 
@@ -126,7 +133,7 @@ test('the package emits a keyword token and a half spacing step a role can defau
 });
 
 test('the side nav row and app bar band padding roles default to what they read', () => {
-  const roles = readJson(join(repoRoot, ROLES)) as Record<string, { $extensions?: Record<string, { default?: string }> }>;
+  const roles = SHIPPED as Record<string, { $extensions?: Record<string, { default?: string }> }>;
   const defaults = Object.fromEntries(['pad-nav-row-x', 'pad-nav-row-y', 'pad-band-x', 'pad-band-y']
     .map((name) => [name, roles[name]?.$extensions?.[ARENA]?.default]));
   assert.deepEqual(defaults, {
@@ -135,7 +142,7 @@ test('the side nav row and app bar band padding roles default to what they read'
 });
 
 test('a badge at arena-size-sm defaults to a smaller label and tighter padding than at arena-size-md', () => {
-  const roles = readJson(join(repoRoot, ROLES)) as Record<string, { $extensions?: Record<string, { default?: string }> }>;
+  const roles = SHIPPED as Record<string, { $extensions?: Record<string, { default?: string }> }>;
   const defaults = Object.fromEntries(['size-sm-badge-pad-x', 'size-sm-badge-pad-y', 'size-sm-badge-step']
     .map((name) => [name, roles[name]?.$extensions?.[ARENA]?.default]));
   assert.deepEqual(defaults, {
@@ -155,5 +162,293 @@ test('no role has only its default as a valid answer', () => {
     'x-ink': defaulted('color', '{ink-muted}'),
     'x-floor': { ...typed('keyword'), $extensions: { [ARENA]: { values: ['transparent'] } } },
   }), []);
-  assert.deepEqual(singleAnswerProblems(readJson(join(repoRoot, ROLES)) as any), []);
+  assert.deepEqual(singleAnswerProblems(SHIPPED), []);
+});
+
+const meta = (extra: Record<string, unknown> = {}) => ({
+  $type: 'dimension', $description: 'x',
+  $extensions: { 'com.dravensoft.arena': { audience: 'markup', task: 'edges', userScale: 'fixed', ...extra } },
+});
+
+test('a role declares who reads it and which task it serves', () => {
+  const none = meta({ audience: undefined });
+  assert.equal(metadataProblems({ 'r-surface': none }).length, 1);
+  assert.match(metadataProblems({ 'r-surface': none })[0] ?? '', /no audience.*markup, component/);
+  const bad = metadataProblems({ 'r-surface': meta({ audience: 'adopter' }) });
+  assert.equal(bad.length, 1);
+  assert.match(bad[0] ?? '', /"adopter"/);
+  const noTask = metadataProblems({ 'r-surface': meta({ task: undefined }) });
+  assert.equal(noTask.length, 1);
+  assert.match(noTask[0] ?? '', /no task.*surfaces-and-text.*component-size/);
+  const badTask = metadataProblems({ 'r-surface': meta({ task: 'colour' }) });
+  assert.equal(badTask.length, 1);
+  assert.match(badTask[0] ?? '', /"colour"/);
+  assert.deepEqual(metadataProblems({ 'r-surface': meta() }), []);
+});
+
+test('a dimension role declares its user-scale axis and any other role may', () => {
+  const none = metadataProblems({ 'r-surface': meta({ userScale: undefined }) });
+  assert.equal(none.length, 1);
+  assert.match(none[0] ?? '', /no userScale/);
+  const bad = metadataProblems({ 'r-surface': meta({ userScale: 'grows' }) });
+  assert.equal(bad.length, 1);
+  assert.match(bad[0] ?? '', /"grows"/);
+  assert.match(bad[0] ?? '', /scales, follows, fixed/);
+  assert.deepEqual(metadataProblems({ 'n-count': { ...meta({ userScale: 'follows' }), $type: 'number' } }), []);
+  assert.deepEqual(metadataProblems({ 'c-ink': { ...meta({ userScale: undefined }), $type: 'color' } }), []);
+  assert.equal(metadataProblems({ 'c-ink': { ...meta({ userScale: 'grows' }), $type: 'color' } }).length, 1);
+});
+
+test('deleting any metadata key from the real declaration fails the gate', () => {
+  for (const key of ['audience', 'task', 'userScale']) {
+    const copy = structuredClone(SHIPPED);
+    delete copy['r-surface'].$extensions['com.dravensoft.arena'][key];
+    const problems = metadataProblems(copy);
+    assert.equal(problems.length, 1, key);
+    assert.match(problems[0] ?? '', /r-surface/);
+  }
+});
+
+const asking = (question?: unknown, combines?: unknown) => ({
+  $type: 'dimension', $description: 'x',
+  $extensions: { [ARENA]: { ...(question === undefined ? {} : { question }), ...(combines === undefined ? {} : { combines }) } },
+});
+
+test('a role with no question fails, naming it', () => {
+  const problems = questionProblems({ 'r-surface': asking() });
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /^r-surface has no question/);
+  assert.match(questionProblems({ 'r-surface': asking(4) })[0] ?? '', /^r-surface declares a question that is not a string/);
+});
+
+test('a question must end in ? and fit 140 characters', () => {
+  assert.deepEqual(questionProblems({ 'r-surface': asking('How round is the surface?') }), []);
+  assert.match(questionProblems({ 'r-surface': asking('How round is the surface.') })[0] ?? '', /^r-surface: .*end in \?/);
+  assert.match(questionProblems({ 'r-surface': asking('How round?\nIs it?') })[0] ?? '', /^r-surface: .*more than one line/);
+  const long = `${'x'.repeat(QUESTION_MAX)}?`;
+  assert.match(questionProblems({ 'r-surface': asking(long) })[0] ?? '', /^r-surface: .*141 characters, over 140/);
+  assert.deepEqual(questionProblems({ 'r-surface': asking(`${'x'.repeat(QUESTION_MAX - 1)}?`) }), []);
+});
+
+test('a question carries no pipe, backtick or em dash, and a size role keeps to 100', () => {
+  for (const bad of ['How wide | tall?', 'How wide is `x`?', 'How wide \u2014 or tall?'])
+    assert.match(questionProblems({ 'r-surface': asking(bad) })[0] ?? '', /^r-surface: .*pipe, a backtick or an em dash/);
+  const sized = (question: string) => ({ ...asking(question),
+    $extensions: { [ARENA]: { question, task: 'component-size' } } });
+  const over = `${'x'.repeat(SIZE_QUESTION_MAX)}?`;
+  assert.match(questionProblems({ 'size-a': sized(over) })[0] ?? '', /^size-a: .*101 characters, over 100/);
+  assert.deepEqual(questionProblems({ 'size-a': sized(`${'x'.repeat(SIZE_QUESTION_MAX - 1)}?`) }), []);
+  assert.deepEqual(questionProblems({ 'r-surface': asking(over) }), []);
+});
+
+test('two roles cannot ask the same question', () => {
+  const problems = questionProblems({ 'r-a': asking('How round?'), 'r-b': asking('How round?') });
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /^r-b: .*r-a asks/);
+});
+
+test('combines takes a role, an emitted token or a colours level', () => {
+  const roles = { 'bw-surface': asking('A?'), 'edge-surface': asking('B?') };
+  const emitted = new Map([['dz-row-scale-x', 'dimension']]);
+  const levels = new Set(['level-ink-muted']);
+  const check = (...combines: unknown[]) => combineProblems({ ...roles, 'r-x': asking('C?', combines) }, emitted, levels);
+  assert.deepEqual(check({ with: 'bw-surface', as: 'width' }, { with: 'dz-row-scale-x', as: 'density' },
+    { with: 'level-ink-muted', as: 'level' }), []);
+  assert.equal(check({ with: '--level-ink-muted', as: 'level' }).length, 1);
+  assert.equal(check({ with: 'level-ink-nope', as: 'level' }).length, 1);
+  assert.equal(check({ with: 'bw-surface', as: 'state' }).length, 1);
+  assert.equal(check({ with: 'r-x', as: 'width' }).length, 1);
+  assert.equal(check({ with: 'bw-surface', as: 'width' }, { with: 'bw-surface', as: 'width' }).length, 1);
+  assert.equal(check({ with: 'bw-surface', as: 'width', extra: 1 }).length, 1);
+  assert.equal(check({ as: 'width' }).length, 1);
+  assert.equal(combineProblems({ 'r-x': asking('C?', 'bw-surface') }, emitted, levels).length, 1);
+});
+
+test('levelNames reads declarations, not comments', () => {
+  const root = mkdtempSync(join(tmpdir(), 'arena-levels-'));
+  try {
+    mkdirSync(join(root, 'contracts', 'design'), { recursive: true });
+    writeFileSync(join(root, 'contracts', 'design', 'colors.css'),
+      ':root {\n  --level-ink-body:82%;\n  /* --level-x:1% and --level-y:2% */\n  --level-ink-muted: 62%;\n}\n');
+    assert.deepEqual([...levelNames(root)].sort(), ['level-ink-body', 'level-ink-muted']);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+  assert.ok(levelNames().has('level-ink-muted'));
+});
+
+const stated = (task: string, state?: unknown) => ({
+  $type: 'color', $description: 'x',
+  $extensions: { 'com.dravensoft.arena': { audience: 'markup', task, ...(state === undefined ? {} : { state }) } },
+});
+
+test('a states role without state is refused', () => {
+  const problems = metadataProblems({ 'fill-hover': stated('states') });
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /^fill-hover has no state/);
+});
+
+test('a state outside STATE_SELECTORS is refused, and so are an empty list and a repeated key', () => {
+  assert.match(metadataProblems({ 'fill-hover': stated('states', ['hovered']) })[0] ?? '', /fill-hover declares state \["hovered"\]/);
+  assert.equal(metadataProblems({ 'fill-hover': stated('states', []) }).length, 1);
+  assert.match(metadataProblems({ 'fill-hover': stated('states', ['hover', 'hover']) })[0] ?? '', /twice/);
+  assert.deepEqual(metadataProblems({ 'fill-hover': stated('states', ['hover']) }), []);
+});
+
+const STATE_ON_TASK = [
+  { name: 'a component role naming a state is refused', audience: 'component', task: 'meaning-and-identity', want: /fill-surface declares state on a component role/ },
+  { name: 'a markup role of another task may name the state that shows it', audience: 'markup', task: 'surfaces-and-text', want: null },
+];
+
+test('state is named by a markup role of any task and by no component role', () => {
+  for (const { name, audience, task, want } of STATE_ON_TASK) {
+    const role = { $type: 'color', $description: 'x', $extensions: { 'com.dravensoft.arena': { audience, task, state: ['hover'] } } };
+    const problems = metadataProblems({ 'fill-surface': role });
+    if (want === null) assert.deepEqual(problems, [], name);
+    else {
+      assert.equal(problems.length, 1, name);
+      assert.match(problems[0] ?? '', want, name);
+    }
+  }
+});
+
+const UNCHECKED_ROWS = [
+  { name: 'an unchecked ARIA switch is matched', html: '<button role="switch" aria-checked="false"></button>', want: true },
+  { name: 'a checked ARIA switch is not matched', html: '<button role="switch" aria-checked="true"></button>', want: false },
+  { name: 'an unchecked native checkbox is matched', html: '<input type="checkbox">', want: true },
+  { name: 'a checked native checkbox is not matched', html: '<input type="checkbox" checked>', want: false },
+];
+
+test('the unchecked state matches an element at rest and never a checked one', () => {
+  for (const { name, html, want } of UNCHECKED_ROWS) {
+    const window = new Window();
+    window.document.body.innerHTML = html;
+    const element = window.document.body.firstElementChild!;
+    assert.equal(element.matches(STATE_SELECTORS.unchecked!), want, name);
+    window.close();
+  }
+});
+
+test('STATE_SELECTORS is the closed set of states and the selector each one is', () => {
+  assert.deepEqual(STATE_SELECTORS, {
+    hover: ':hover', 'focus-visible': ':focus-visible', 'aria-selected': '[aria-selected="true"]',
+    'aria-current': '[aria-current]:not([aria-current="false"])', 'aria-pressed': '[aria-pressed="true"]',
+    'aria-disabled': '[aria-disabled="true"]', disabled: ':disabled', 'aria-invalid': '[aria-invalid="true"]',
+    active: ':active', 'aria-checked': '[aria-checked="true"]', checked: ':checked',
+    unchecked: ':not(:checked, [aria-checked="true"])',
+  });
+});
+
+test('the shipped roles carry a valid state on every states role', () => {
+  const shipped = SHIPPED;
+  const states = Object.entries(shipped).filter(([, role]) => role.$extensions?.['com.dravensoft.arena']?.task === 'states');
+  assert.equal(states.length, 19);
+  assert.deepEqual(states.map(([name]) => name).sort(), ['bw-focus', 'edge-focus', 'edge-invalid', 'edge-selected',
+    'edge-tab-selected', 'fade-disabled', 'fill-control', 'fill-control-on', 'fill-hover', 'fill-knob',
+    'fill-knob-off', 'fill-selected', 'gap-focus', 'ink-invalid', 'ink-knob', 'ink-knob-off', 'ink-selected',
+    'mix-hover', 'mix-pressed']);
+});
+
+test('a colour role may default to transparent and to nothing else literal', () => {
+  const role = (value: string) => ({ r: { $type: 'color', $description: 'd', $extensions: { 'com.dravensoft.arena': { default: value } } } });
+  assert.deepEqual(defaultProblems(role('transparent'), new Map()), []);
+  assert.equal(defaultProblems(role('#000'), new Map()).length, 1);
+});
+
+test('the mix numbers are states roles shown under hover and active', () => {
+  const shipped = SHIPPED;
+  const ext = (name: string) => shipped[name]?.$extensions?.['com.dravensoft.arena'];
+  for (const [name, state, def] of [['mix-hover', 'hover', '{blend.hover}'], ['mix-pressed', 'active', '{blend.pressed}']] as const) {
+    assert.equal(shipped[name]?.$type, 'number', name);
+    assert.equal(ext(name)?.audience, 'markup', name);
+    assert.equal(ext(name)?.task, 'states', name);
+    assert.deepEqual(ext(name)?.state, [state], name);
+    assert.equal(ext(name)?.default, def, name);
+  }
+});
+
+test('fill-marker is a colour role answering base-300', () => {
+  const shipped = SHIPPED;
+  const role = shipped['fill-marker'];
+  assert.equal(role?.$type, 'color');
+  const ext = role?.$extensions?.['com.dravensoft.arena'];
+  assert.equal(ext?.default, '{color.base-300}');
+  assert.equal(ext?.audience, 'component');
+  assert.match(String(ext?.question), /small count set beside a navigation row/);
+});
+
+test('the mark and tile roles answer their palette keys', () => {
+  const shipped = SHIPPED;
+  const plugin = readJson(join(repoRoot, 'plugin-style-store/default/plugin.tokens.json')) as Record<string, any>;
+  const keys: Record<string, string> = {
+    'fill-mark': '{color.base-content}', 'edge-mark': '{color.base-content}', 'ink-on-mark': '{color.base-200}', 'fill-tile': '{color.base-300}',
+  };
+  for (const [name, key] of Object.entries(keys)) {
+    const role = shipped[name];
+    assert.equal(role?.$type, 'color', name);
+    const ext = role?.$extensions?.['com.dravensoft.arena'];
+    assert.equal(ext?.default, key, name);
+    assert.equal(ext?.audience, 'component', name);
+    assert.ok(String(ext?.question ?? '').endsWith('?'), name);
+    assert.equal(plugin[name]?.$value, key, `${name}: the default plugin answers it as its default says`);
+  }
+});
+
+test('the tip roles answer their palette keys', () => {
+  const shipped = SHIPPED;
+  const plugin = readJson(join(repoRoot, 'plugin-style-store/default/plugin.tokens.json')) as Record<string, any>;
+  const keys: Record<string, string> = { 'fill-tip': '{color.base-content}', 'ink-tip': '{color.base-100}' };
+  for (const [name, key] of Object.entries(keys)) {
+    const role = shipped[name];
+    assert.equal(role?.$type, 'color', name);
+    const ext = role?.$extensions?.['com.dravensoft.arena'];
+    assert.equal(ext?.default, key, name);
+    assert.equal(ext?.audience, 'component', name);
+    assert.ok(String(ext?.question ?? '').endsWith('?'), name);
+    assert.match(String(ext?.question), /names a control under the pointer/, name);
+    assert.equal(plugin[name]?.$value, key, `${name}: the default plugin answers it as its default says`);
+  }
+});
+
+test('no role is named confirm-final', () => {
+  assert.deepEqual(Object.keys(SHIPPED).filter((name) => name.includes('confirm-final')), []);
+});
+
+test('the scrim role answers base-100 and the scrim mixes it at its level', () => {
+  const shipped = SHIPPED;
+  const plugin = readJson(join(repoRoot, 'plugin-style-store/default/plugin.tokens.json')) as Record<string, any>;
+  const role = shipped['overlay-scrim'];
+  assert.equal(role?.$type, 'color');
+  const ext = role?.$extensions?.['com.dravensoft.arena'];
+  assert.equal(ext?.audience, 'markup');
+  assert.ok(String(ext?.question ?? '').endsWith('?'));
+  assert.match(String(ext?.question), /modal/);
+  assert.equal(plugin['overlay-scrim']?.$value, '{color.base-100}', 'the default plugin answers the page floor');
+  const colors = readFileSync(join(repoRoot, 'contracts/design/colors.css'), 'utf8');
+  assert.match(colors, /--level-scrim:60%;/);
+  assert.match(colors, /--scrim:color-mix\(in oklab,var\(--overlay-scrim\) var\(--level-scrim\),transparent\);/);
+});
+
+test('the navigation edge and the hover mix are described by what they paint', () => {
+  const shipped = SHIPPED;
+  const edge = shipped['edge-tab-selected'];
+  assert.equal(edge.$extensions['com.dravensoft.arena'].question, 'What colour is the edge that marks the selected item of a navigation component?');
+  assert.match(edge.$description, /ArenaTabs/);
+  assert.match(edge.$description, /ArenaPagination/);
+  assert.doesNotMatch(edge.$description, /read by no other component/);
+  const mix = shipped['mix-hover'];
+  assert.equal(mix.$extensions['com.dravensoft.arena'].question, "How far toward its ink does a selected part's fill move under the pointer?");
+  assert.match(mix.$description, /selected-hover/);
+  assert.match(mix.$description, /unselected part under the pointer paints its rest answer/);
+});
+
+const ENTRANCE_ROLES = ['dur-enter-deep', 'ease-enter-deep', 'dur-enter-floating', 'ease-enter-floating'];
+
+test('a root plugin silent on the entrance roles builds and is told so', () => {
+  const entrance = Object.fromEntries(ENTRANCE_ROLES.map((name) => [name, SHIPPED[name]]));
+  assert.deepEqual(defaultProblems(entrance, emittedTypes()), []);
+  const roles = Object.fromEntries(ENTRANCE_ROLES.map((name) => [name,
+    { default: SHIPPED[name]?.$extensions?.['com.dravensoft.arena']?.default }]));
+  const { defaulted } = withDefaults({ tokens: {}, light: {} }, roles);
+  assert.deepEqual([...defaulted].sort(), [...ENTRANCE_ROLES].sort());
+  const note = defaultedNote(defaulted);
+  for (const name of ENTRANCE_ROLES) assert.match(note, new RegExp(name), `the note names ${name}`);
 });

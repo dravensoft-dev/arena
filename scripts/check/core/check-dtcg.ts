@@ -20,7 +20,7 @@ export const node = {
   writes: [],
   feeds: [],
 };
-import { ARENA_EXT } from '../../lib/core/dtcg-shapes.ts';
+import { ARENA_EXT, EXCLUDED } from '../../lib/core/dtcg-shapes.ts';
 import type { DtcgNode } from '../../lib/core/dtcg-shapes.ts';
 
 const RESERVED = new Set(['$value', '$type', '$description', '$extensions', '$deprecated']);
@@ -35,6 +35,7 @@ function checkDimension(v: unknown, at: string, errs: string[], unitsAllowed = [
   if (!isObj(v)) return errs.push(`${at}: dimension must be a {value,unit} object, got ${JSON.stringify(v)}`);
   if (!isNum(v.value)) errs.push(`${at}: dimension value must be a number`);
   if (!unitsAllowed.includes(v.unit)) errs.push(`${at}: dimension unit must be one of ${unitsAllowed.join('|')} and is required even at 0`);
+  return undefined;
 }
 
 function checkColor(v: unknown, at: string, errs: string[]) {
@@ -52,6 +53,7 @@ function checkColor(v: unknown, at: string, errs: string[]) {
         errs.push(`${at}: color hex ${v.hex} does not round-trip its components (${from.join(',')} vs ${to.join(',')})`);
     }
   }
+  return undefined;
 }
 
 const KEYWORD = /^-?[a-zA-Z_][\w-]*$/;
@@ -64,6 +66,7 @@ function checkKeyword(v: unknown, values: unknown, at: string, errs: string[]) {
     return errs.push(`${at}: $extensions["${ARENA_EXT}"].values must be a non-empty array of bare CSS words`);
   if (!values.includes(v))
     errs.push(`${at}: keyword "${v}" is not one of ${values.join(', ')} — the set a keyword declares is the whole reason it is not a string`);
+  return undefined;
 }
 
 function checkValue(type: string, v: unknown, at: string, errs: string[], values?: unknown) {
@@ -102,6 +105,7 @@ function checkValue(type: string, v: unknown, at: string, errs: string[], values
     default:
       errs.push(`${at}: unknown $type "${type}" — not a DTCG 2025.10 type, and not Arena's one addition to them, keyword`);
   }
+  return undefined;
 }
 
 export function validateTree(tree: DtcgNode, file: string) {
@@ -132,16 +136,13 @@ export function validateTree(tree: DtcgNode, file: string) {
         errs.push(`${file}:${[...path, k].join('.')}: invalid name — must not start with $ or contain . { }`);
       if (isObj(child)) walk(child, [...path, k], type);
     }
+    return undefined;
   };
   walk(tree, [], undefined);
   return errs;
 }
 
-export const EXCLUDED = new Map([
-  ['roles.json',
-   'it declares the questions the kernel asks and carries no value, so it is not a token file. '
-   + 'A DTCG token without $value is not a DTCG token, and check:role-contract holds it instead.'],
-]);
+export { EXCLUDED };
 
 export function zeroSourceProblems(count: number) {
   if (count > 0) return [];

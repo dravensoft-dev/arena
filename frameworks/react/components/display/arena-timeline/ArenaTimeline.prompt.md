@@ -40,11 +40,7 @@ The stages one thing moves through, in order and joined by a line: an order from
 - Don't colour a dot by position or for decoration. The tone says what the milestone meant.
 - Don't draw a progress fill on the line. The connector is a separator and carries no accent.
 
-**By hand, in real Chromium**: run `bun run demos` and open
-`/frameworks/react/components/display/arena-timeline/ArenaTimeline.demo.generated.html`:
-- A long title wraps without pulling its dot off the first line.
-- The connector joins each dot to the next, edge to edge, at the base density and under `arena-comfortable`, in both orientations.
-- Every toned dot reads in light and dark from its glyph alone.
+A long title wraps without pulling its dot off the first line. The connector joins each dot to the next, edge to edge, at the base density and under `arena-comfortable`, in both orientations. Every toned dot reads in light and dark from its glyph alone.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

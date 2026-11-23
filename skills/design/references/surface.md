@@ -12,8 +12,8 @@ where the part is written down, and that document is where you go once you know 
 
 | what it is | what you get | where it is written down |
 |---|---|---|
-| **The palette and the polarity** | The colours a build carries, declared by you. The set is the base surface scale, the two accents, the four status colours with the colour that goes legibly on top of each, and the eight ramp slots. One palette reaches `:root`, and every palette is a class for `<html>` or for a subtree, so a build carries as many skins as it declares. Each one states whether it is dark or light, and that answer is what a first visit is matched against. | [`config.md`](./config.md), the section about declaring a skin |
-| **The token layer** | Every value the components read, as custom properties you may read too. The spacing scale is `--sp-*`, from `--sp-0` to `--sp-24` with the half step `--sp-0-5`. The type ladder is `--fs-*`, with `--fw-*`, `--lh-*` and `--ls-*` beside it. The rest are the corners `--r-*`, the borders `--bw-*`, the shadows, the scrim blur, the durations `--dur-*` and the curves `--ease-*`. Then the stacking order `--z-*`, the three breakpoints `--bp-*`, the control and row sizes `--dz-*` the density classes re-answer, and the avatar and logo sizes. | the DTCG JSON per group in `contracts/design/`, with [`contracts/design/Scales.md`](../../../contracts/design/Scales.md) for what each step is for |
+| **The palette and the polarity** | The colours a build carries, declared by you. The set holds the base surface scale with its ink, the two accents and `neutral` with `neutral-content`. The set also holds the four status colours with the colour that goes legibly on top of each and the eight `cat-*` ramp colours. The optional entries are `primary-fill`, `error-fill` and five `heat-*` steps. One palette reaches `:root`, and every palette is a class for `<html>` or for a subtree, so a build carries as many skins as it declares. Each one states whether it is dark or light, and that answer is what a first visit is matched against. | [`config.md`](./config.md), the section about declaring a skin |
+| **The token layer** | Every value the components read, as custom properties you may read too. The spacing scale is `--sp-*`, from `--sp-0` to `--sp-24` with the half step `--sp-0-5`. The type ladder is `--fs-*`, with `--fw-*`, `--lh-*` and `--ls-*` beside it. The rest are the corners `--r-*`, the borders `--bw-*`, the shadows, the scrim blur, the durations `--dur-*` and the curves `--ease-*`. Then the stacking order `--z-*`, the three breakpoints `--bp-*`, the control and row sizes `--dz-*` the density classes re-answer, and the avatar and logo sizes. | [`tokens/index.md`](./tokens/index.md), over the DTCG JSON per group in `contracts/design/`, with [`contracts/design/Scales.md`](../../../contracts/design/Scales.md) for what each step is for |
 | **The colour aliases and the ink levels** | Short names over the palette for markup of your own: `--crimson`, `--gold`, `--danger`, `--success`, `--warning`, `--info`, `--bone`, `--mute`, `--bg`, and the soft washes beside each accent. The scrim behind a modal is one too. The percentages the held-back text registers stand at are tokens rather than literals, so a palette moves them, and the aliases read them. | [`contracts/design/colors.css`](../../../contracts/design/colors.css) |
 | **The style kernel** | A question for every decision about shape, space, weight, depth and which colour a surface takes, answered by a style plugin your project writes. The kernel is the part that decides whether the product looks like yours, and the palette is not. | [`style-kernel.md`](./style-kernel.md), over [`contracts/design/roles.json`](../../../contracts/design/roles.json) |
 | **Two themes and two densities** | Dark and light without a component being rewritten, because a component reads roles. `.arena-compact` re-densifies the controls and the rows for a screen that has to hold more; `.arena-comfortable` grows them to a 48px touch target for a screen a thumb drives. The two are exclusive, and either is a class on an ancestor rather than a prop on anything. Density is an axis of its own rather than part of the style plugin. How large a control is answers who is pointing at it, not what register the product speaks in. A shop on a phone and a console on a desk can want the same style plugin and opposite densities. Each density class re-answers the control and row sizes and nothing else, so the rhythm between two components stays where you spent it. A screen that wants one on the desk and the other in the hand swaps the class from the helper in [`exports.md`](./exports.md); a media query adds no class. | the rules section of [`../SKILL.md`](../SKILL.md) |
@@ -22,7 +22,7 @@ where the part is written down, and that document is where you go once you know 
 | **Stylesheets for markup that is not a component** | The air between two of your elements. The column a page sits in, and the measure of a reading column. A figure that does not jitter as it counts, and a label only a screen reader gets. Those five are what you build a page out of, and none of them is a component. | [`page.md`](./page.md) |
 | **Exports that carry a promise** | The focus trap Arena's own dialogs run on. The two activation predicates, the notice queue and its dismissal rule. The chart ramp helpers and the tone-to-colour map. The two measurements, the visually-hidden style, and the id the main landmark writes. Reach for those instead of writing a second copy. What that page names is what carries a compatibility promise, and a symbol found by autocomplete is not. | [`exports.md`](./exports.md) |
 | **The head, in one layer only** | A title that composes with the router's own. A description, a canonical and the `og:*` pair beside it. And a default that keeps a route out of an index until it says otherwise. Angular alone, behind a second entry point. | [`seo.md`](./seo.md) |
-| **The command** | `arena`. `arena build` turns your config into the stylesheet no package can carry and writes the icon sheet for the glyphs your screens draw. `arena audit` reports where your own sources break a rule of the language, and `arena usage` names the components you have not used yet. | [`cli.md`](./cli.md) |
+| **The command** | `arena`. `arena build` writes the package sheet, the theme sheet and, when a style plugin carries CSS, the plugin sheet. The command also writes the icon sprite for the glyphs your screens draw, with its module. `arena audit` reports where your own sources break a rule of the language, and `arena usage` names the components you have not used yet. | [`cli.md`](./cli.md) |
 | **The behaviour contracts** | Each accessibility pattern stated once, normatively, in a form markup of your own can be held to. A file names the roles it carries, the keys it answers, where focus goes and what dismisses it. Plus one that is not an accessibility pattern, for a structure worth handing to a reader rather than only to a person. | `contracts/behaviour/<pattern>.json`, and [`media-register.md`](./media-register.md) for when yours is the markup |
 
 ## How much of it you take
@@ -31,9 +31,9 @@ where the part is written down, and that document is where you go once you know 
 correctly and is not waiting to finish. What the later steps buy is stated here so you can decide
 against them on purpose rather than by not knowing.
 
-**The first step, take the language as it comes.** Install the package, write
-`arena.config.json` with one palette and the three font slots, leave `stylePlugins` out or set
-it to `default`, import the whole stylesheet, and compose with components. Put the air between
+**The first step, take the language as it comes.** Install the package and write
+`arena.config.json` with one palette and the three font slots. Leave `stylePlugins` out or set
+it to `["default"]`, a list. Import the whole stylesheet and compose with components. Put the air between
 them on containers of your own with the classes [`page.md`](./page.md) names, and paint the page
 through its role rather than a palette colour. That route is the shortest honest one, and the right
 one for a first screen, a prototype or a tool nobody outside the team will look at. **What it
@@ -41,7 +41,7 @@ leaves unresolved is the appearance**: the product wears the answers Arena insta
 are Dravensoft's, and every project on this step looks like every other one.
 
 **The second step, make it look like yours.** Write a style plugin, which is a directory holding
-one entry per role, and name it first in `stylePlugins`. Your palettes and your fonts go in the
+one entry per role, and replace the `stylePlugins` list with it, as `["./design/<name>"]`. Your palettes and your fonts go in the
 same config. From here the corners, the weights, the borders, the depth, the internal air and
 which colour each surface takes are the product's own. No component is rewritten to get there. [`style-kernel.md`](./style-kernel.md) is where that decision is made and which answers
 carry the visible difference.
@@ -65,10 +65,10 @@ it instead of waiting for it.
   React project carries its own through whatever its framework offers.
 - **No prerender tooling and no sitemap.** How an application is assembled is the project's
   answer rather than Arena's, and both layers are written for a server render.
-  [`cold-start.md`](./cold-start.md)'s ninth node answers each architecture with the evidence
+  [`cold-start.md`](./cold-start.md)'s tenth node answers each architecture with the evidence
   behind it. What Arena ships no tooling for is producing the pages or listing them, and it
   writes into the head of whatever page your application renders.
-- **Nothing reads your application running.** `arena audit` reads your source files one at a time, for what a source text can show: a second primary action and a filled danger surface among them. What no tool reads is the rendered view, the screen your files compose together, and every rule about meaning. Those hold because you hold them.
+- **Nothing reads your application running.** `arena audit` reads your source files one at a time, for what a source text can show. A class of your own on a component, a raw value where a token belongs and an emoji are among them. What no tool reads is the rendered view, the screen your files compose together, and every rule about meaning. Those hold because you hold them.
 - **The component list ends at the register.** A photo wall, a feed of posts, a slideshow, a
   document editor and a game map are markup you write, and the skin still travels.
   [`media-register.md`](./media-register.md) is what Arena hands you instead of a component.

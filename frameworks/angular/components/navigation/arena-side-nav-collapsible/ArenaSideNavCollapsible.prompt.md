@@ -47,7 +47,7 @@ expansion is Arena's decision, so it reports **nothing** through `toggle`; repor
 lie a consumer persists. A user may then collapse a group holding the active destination and it
 stays collapsed: the state is derived at the seed and owned by the user afterwards.
 
-Enter and Space are **intercepted and prevented**, then toggle. `arena-menu` shares that rule. Leaving them to the platform means the synthesized click fires too, and the group opens twice in a browser while a suite sees it open once.
+Enter and Space are **intercepted and prevented**, then toggle. `arena-menu` shares that rule. Leaving them to the platform means the synthesized click fires too, and the group opens twice in a browser.
 
 `defaultExpanded` seeds the first render only. `toggle` carries the state it moved to.
 

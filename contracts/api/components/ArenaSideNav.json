@@ -1,7 +1,7 @@
 {
   "component": "ArenaSideNav",
   "description": "The sidebar's navigation list, and the list alone rather than the frame around it. A compound component: the consumer writes one ArenaSideNavItem per destination. The coordination that tells each child where it sits, which id is active and how to report `nav` is the parent's. That coordination is a member of no contract, and each layer wires it in its own idiom.",
-  "affordances": [],
+  "affordances": ["focus"],
   "api": {
     "active": { "form": "primitive", "type": "string",
                 "description": "The id of the current destination. The ArenaSideNavItem whose id matches is marked aria-current=\"page\", and no item is marked when it names none of them." },

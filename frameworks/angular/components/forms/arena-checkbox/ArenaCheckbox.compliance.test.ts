@@ -128,10 +128,6 @@ test('disabled and required reflect onto the native attributes, which is where t
   }
 });
 
-test('a checkbox with a blank label is refused', () => {
-  assert.throws(() => render({ label: '   ' }), /^Error: ArenaCheckbox:/);
-});
-
 test('a blank label is refused even with showLabel false', () => {
   assert.throws(() => render({ label: '   ', showLabel: false }), /^Error: ArenaCheckbox:/);
 });

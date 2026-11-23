@@ -36,7 +36,7 @@ const NOTHING: Shown = { files: [], rejection: null };
     '[attr.id]': 'null',
   },
   template: `
-    <label [id]="ids().label" [attr.for]="ids().trigger" [class]="styles().label()" [attr.data-arena-part]="parts.label">{{ label() }}@if (required()) {
+    <label [id]="ids().label" [attr.for]="ids().trigger" [class]="styles().label()" [arenaSlotData]="styles().$data.label()" [attr.data-arena-part]="parts.label">{{ label() }}@if (required()) {
       <span [class]="styles().required()" [attr.data-arena-part]="parts.required" aria-hidden="true">*</span>
     }</label>
     @if (required()) {
@@ -59,7 +59,7 @@ const NOTHING: Shown = { files: [], rejection: null };
              (change)="onNativeChange($event)" (invalid)="focusTrigger()" (focus)="focusTrigger()" />
     </div>
     @if (shown().files.length > 0) {
-      <ul role="list" [class]="styles().files()" [attr.data-arena-part]="parts.files">
+      <ul role="list" [class]="styles().files()" [arenaSlotData]="styles().$data.files()" [attr.data-arena-part]="parts.files">
         @for (file of shown().files; track keyOf(file); let index = $index) {
           <li [class]="styles().file()" [attr.data-arena-part]="parts.file">
             <arena-tag removable [disabled]="off()" (remove)="remove(index)">{{ file.name }}</arena-tag>
@@ -69,7 +69,7 @@ const NOTHING: Shown = { files: [], rejection: null };
       </ul>
     }
     @if (lines().length > 0) {
-      <ul role="list" [class]="styles().rejected()" [attr.data-arena-part]="parts.rejected">
+      <ul role="list" [class]="styles().rejected()" [arenaSlotData]="styles().$data.rejected()" [attr.data-arena-part]="parts.rejected">
         @for (line of lines(); track $index) {
           <li [class]="styles().rejection()" [attr.data-arena-part]="parts.rejection">{{ line }}</li>
         }
@@ -77,9 +77,9 @@ const NOTHING: Shown = { files: [], rejection: null };
     }
     <span role="status" [class]="styles().status()" [attr.data-arena-part]="parts.status">{{ announcement() }}</span>
     @if (error(); as message) {
-      <span [id]="noteId()" [class]="styles().error()" [attr.data-arena-part]="parts.error">{{ message }}</span>
+      <span [id]="noteId()" [class]="styles().error()" [arenaSlotData]="styles().$data.error()" [attr.data-arena-part]="parts.error">{{ message }}</span>
     } @else if (hint(); as text) {
-      <span [id]="noteId()" [class]="styles().hint()" [attr.data-arena-part]="parts.hint">{{ text }}</span>
+      <span [id]="noteId()" [class]="styles().hint()" [arenaSlotData]="styles().$data.hint()" [attr.data-arena-part]="parts.hint">{{ text }}</span>
     }
   `,
 })

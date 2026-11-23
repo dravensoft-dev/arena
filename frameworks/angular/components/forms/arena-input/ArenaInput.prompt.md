@@ -1,7 +1,11 @@
 Arena text field, label above, hint or error below, and a validation state the field wears.
-Standalone, `OnPush`, signal I/O. The host binds the root slot, so `<arena-input>` is itself
+Standalone, `OnPush`, signal I/O. The host binds the root part, so `<arena-input>` is itself
 the column its parent lays out. The control is a real `<input>`, named by a real
-`<label for>`.
+`<label for>`. The state icons come from the sprite handed to `provideArenaIcons`.
+
+```ts
+readonly validEmail = (v: string) => (/.+@.+\..+/.test(v) ? '' : 'Invalid email format');
+```
 
 ```html
 <arena-input label="Project name" [value]="name()" (valueChange)="name.set($event)"
@@ -11,7 +15,7 @@ the column its parent lays out. The control is a real `<input>`, named by a real
              [value]="repo()" (valueChange)="repo.set($event)" />
 
 <arena-input label="Contact email" type="email" [value]="email()" (valueChange)="email.set($event)"
-             [validate]="notEmpty" validateOn="change" />
+             [validate]="validEmail" validateOn="change" />
 
 <arena-input label="Slug" [value]="slug()" [error]="serverError()" (valueChange)="slug.set($event)" />
 <arena-input label="Created" type="date" [value]="created()" readOnly />
@@ -61,7 +65,7 @@ the column its parent lays out. The control is a real `<input>`, named by a real
 <!-- @keys end -->
 
 **`validate` is the one member that takes a function.** You supply it, the component calls it on
-the field's value, and it returns the error message or the empty string. Bind it as a bare
+the field's value, and it returns the error message or the empty string. This member and the `validate` of `ArenaNumberField` are the only function members Arena takes, legal because both fields are data-entry controls. Bind it as a bare
 arrow: the input is optional already, so a `| undefined` arm in the type says a second time what
 leaving it unbound says once.
 
@@ -83,7 +87,7 @@ Return the message, or the empty string when the value is good.
   first keystroke instead; reach for it on a field with a cheap, obvious rule.
 - The valid state (success-tone ring, check) is either `valid` set by the consumer, or a touched field
   whose validator returned nothing. The member is not "the field has a value".
-- The focus ring is the field's, not the control's: the `field` slot carries `focus-within:`,
+- The focus ring is the field's, not the control's: the `field` part carries `focus-within:`,
   so there is no focus signal to keep in sync with the DOM.
 - `id` is derived from `label` as `in-<slug>` when you do not pass one; the derivation
   `ArenaInput.json` states, so the same markup gets the same id in every layer. Pass `id` when two
@@ -91,8 +95,7 @@ Return the message, or the empty string when the value is good.
 - `required` and `readOnly` land on the native attributes rather than on `aria-required` and
   `aria-readonly`. A native control's accessibility tree already reports both. Writing both would be two claims that can disagree.
 - `icon`, `prefix` and the status glyphs are decoration and all four are `aria-hidden`. The error
-  message beside the glyph is what carries the state, so nothing announces a Phosphor
-  ligature beside the message it duplicates.
+  message beside the glyph is what carries the state, so nothing announces a glyph beside the message it duplicates.
 - The error line **replaces** the hint rather than stacking under it. Two lines of guidance under
   one field is one too many.
 - `type` is the `ArenaInputType` enum. `checkbox` and `radio` are not among them: those are
@@ -102,17 +105,6 @@ Return the message, or the empty string when the value is good.
   type here: it keeps the browser's spinner and a string value, and `<arena-number-field>` is a
   number Arena owns.
 - Don't reach for `valueChange` to run an expensive query. The output fires per keystroke by design. Debounce in the consumer, where the interval is a decision about that query rather than about the field.
-
-**By hand, in real Chromium**: none of these is provable in happy-dom. Run `bun run demos` and
-open `/frameworks/angular/components/forms/arena-input/ArenaInput.demo.generated.html`:
-- `type="date"`: the picker indicator is **visible** on the dark field and brightens on hover.
-  Arena's own `[&::-webkit-calendar-picker-indicator]:` styling reads `--picker-invert` for that. Without it the browser draws a black glyph on a dark surface. Toggle
-  `.arena-light` on `<html>` and it must invert with the theme.
-- The focus ring appears on the field group, not on the input, and a valid field keeps its
-  success-tone border while showing that ring.
-- The error border and ring appear at rest, with no focus needed.
-- Typing into the validated field and leaving it produces the message on blur, and the
-  `validateOn="change"` one produces it while typing and clears it again.
 
 ### Taking focus, the one method on the component
 

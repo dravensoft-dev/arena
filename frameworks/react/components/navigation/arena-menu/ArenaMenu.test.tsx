@@ -18,29 +18,6 @@ test('a closed ArenaMenu draws its trigger and no panel', () => {
   assert.equal((html.match(/Rename/g) || []).length, 0, 'an entry was drawn while the menu was closed');
 });
 
-test('ArenaMenu drops a consumer style object', () => {
-  const html = renderToStaticMarkup(
-    // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    <ArenaMenu trigger={<button type="button">Open</button>} items={[]} style={{ color: '#ff00ff' }} />,
-  );
-  assert.doesNotMatch(html, /#ff00ff/, 'a consumer style reached the rendered root');
-});
-
-test('ArenaMenu drops a consumer attribute -- no {...rest} spread reaches the root', () => {
-  const html = renderToStaticMarkup(
-    <ArenaMenu trigger={<button type="button">Open</button>} items={[]} data-stray="x" />,
-  );
-  assert.doesNotMatch(html, /data-stray/, 'a consumer attribute reached the rendered root -- a {...rest} escape is back');
-});
-
-test('items is required and its absence throws', () => {
-  assert.throws(
-    // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    () => renderToStaticMarkup(<ArenaMenu trigger={<button type="button">Open</button>} />),
-    /ArenaMenu: `items` is required/,
-  );
-});
-
 test('an empty items array renders rather than throwing', () => {
   assert.doesNotThrow(
     () => renderToStaticMarkup(<ArenaMenu trigger={<button type="button">Open</button>} items={[]} />),

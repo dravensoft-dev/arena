@@ -1,6 +1,6 @@
 # Arena's own words in your language
 
-How do I translate the words Arena draws itself? Which words are those? What do `ArenaLocaleProvider`, `useArenaLocale`, `provideArenaLocale` and `ARENA_LOCALE` do? Does the locale switch at runtime? Read this when the product ships in a language other than English.
+How do I translate the words Arena draws itself? Which words are those? What do `ArenaLocaleProvider`, `useArenaLocale`, `provideArenaLocale` and `ARENA_LOCALE` do? Does the locale switch at runtime? Which `lang` does the document declare? Read this when the product ships in a language other than English, or sets `<html lang>`.
 
 ## Which words does Arena draw itself?
 
@@ -9,6 +9,14 @@ A component draws a few words of its own. Examples are a close button's name, `T
 The calendar also formats its dates in the `locale` the value carries. The zone is the calendar's own `timeZone` member, which the locale does not carry. Hour labels keep a 24-hour clock whatever the locale says.
 
 A chart's numbers are not words. Those numbers follow the chart's own `valueFormat.locale`.
+
+## Which language does the document declare?
+
+Arena writes no `lang` attribute. Set `<html lang>` to the product's language as a BCP 47 tag, such as `es`. A screen reader, the browser's translation and its hyphenation read it.
+
+In React it goes in the HTML document the bundler or server sends, which is `index.html` under Vite. In Angular it goes in `index.html`.
+
+A product that switches language at runtime sets `document.documentElement.lang` beside the locale it passes. A part of the page in another language carries its own `lang`.
 
 ## In what order does a word resolve?
 
@@ -164,7 +172,9 @@ const spanish = { locale: 'es-ES', calendarToday: 'Hoy', paginationNext: 'Siguie
 </ArenaLocaleProvider>
 ```
 
-`useArenaLocale` reads the value the nearest provider holds. `arenaMergeLocale` is the merge the provider applies. The provider renders on a server and switches language on re-render.
+`useArenaLocale` reads the value the nearest provider holds. `arenaMergeLocale(base: ArenaLocale, value: Partial<ArenaLocale>): ArenaLocale` is the merge the provider applies, and it ignores a key of `value` that is not a string. The provider renders on a server and switches language on re-render.
+
+A `{count}` field takes one form for every count. A language whose plural differs writes a form that reads for any number, such as `Seleccionados: {count}`.
 
 ## How do I set the locale in Angular?
 
@@ -178,7 +188,9 @@ bootstrapApplication(App, {
 });
 ```
 
-Inject `ARENA_LOCALE` to read the value the injector holds. `arenaMergeLocale` is the merge the provider applies. The value is fixed for the life of its injector, as `LOCALE_ID` is. Switching language means re-creating the subtree.
+Inject `ARENA_LOCALE` to read the value the injector holds. `arenaMergeLocale(base: ArenaLocale, value: Partial<ArenaLocale>): ArenaLocale` is the merge the provider applies, and it ignores a key of `value` that is not a string. The value is fixed for the life of its injector, as `LOCALE_ID` is. Switching language means re-creating the subtree.
+
+A `{count}` field takes one form for every count. A language whose plural differs writes a form that reads for any number, such as `Seleccionados: {count}`.
 
 `provideArenaLocale` in a component's `providers` does the same: it merges onto the default, never onto the value of the injector above it. A component that changes one word repeats the outer value, kept as a `const`, and overrides that word.
 
@@ -192,3 +204,268 @@ const spanish = { locale: 'es-ES', paginationNext: 'Siguiente' };
 })
 export class Wizard {}
 ```
+
+## A product written wholly in another language
+
+A product in one language fills every field. A field left out draws English, so one missed word is one word the reader cannot read. `satisfies Required<ArenaLocale>` makes the compiler name each field still missing.
+
+```tsx
+import { ArenaLocaleProvider, type ArenaLocale } from '@dravensoft/arena-react';
+
+const spanish = {
+  locale: 'es-ES',
+  calendarToday: 'Hoy',
+  calendarPrevious: 'Anterior',
+  calendarNext: 'Siguiente',
+  calendarRegion: 'Agenda, {range}',
+  calendarGrid: 'Cuadrícula de la agenda, {range}',
+  calendarEventActions: 'Acciones',
+  paginationPrevious: 'Anterior',
+  paginationNext: 'Siguiente',
+  tableSortBy: 'Ordenar por',
+  tableEmpty: 'Sin datos.',
+  toastClose: 'Cerrar',
+  toastPinned: 'Fijado',
+  toastPinnedHint: 'No se descarta solo',
+  sheetClose: 'Cerrar',
+  alertDismiss: 'Descartar',
+  tagRemove: 'Quitar',
+  skeletonLabel: 'Cargando',
+  spinnerLabel: 'Cargando',
+  switchConfirmHint: 'Pide confirmación',
+  fileInputChoose: 'Elegir archivo',
+  fileInputChooseMultiple: 'Elegir archivos',
+  fileInputDrop: 'o suéltalo aquí',
+  fileInputNone: 'Ningún archivo elegido',
+  fileInputCount: 'Seleccionados: {count}',
+  fileInputTooLarge: '{name} supera {size}',
+  fileInputWrongType: '{name} no es un tipo aceptado',
+  fileInputSurplus: '{name} no se añadió',
+  fileInputRequired: 'obligatorio',
+  bulkActionBarLabel: 'Acciones sobre la selección',
+  bulkActionBarClear: 'Borrar',
+  bulkActionBarClearLabel: 'Borrar la selección',
+  bulkActionBarCount: 'Seleccionados ({noun}): {count}',
+  bulkActionBarNoun: 'elementos',
+  multiSelectEmpty: 'Sin resultados para "{query}".',
+  multiSelectLoading: 'Cargando resultados…',
+  multiSelectCount: 'Opciones disponibles: {count}.',
+  multiSelectClear: 'Borrar la selección',
+  multiSelectMore: '+{count}',
+  multiSelectMoreLabel: 'Más seleccionados: {count}',
+  multiSelectMax: 'Selección máxima: {max}.',
+  commandPaletteDialog: 'Paleta de comandos',
+  commandPaletteSearch: 'Buscar comandos',
+  commandPalettePlaceholder: 'Busca una acción o un proyecto…',
+  commandPaletteList: 'Comandos',
+  commandPaletteEscape: 'ESC',
+  commandPaletteEmpty: 'Sin resultados para "{query}".',
+  comboboxEmpty: 'Sin resultados para "{query}".',
+  comboboxLoading: 'Cargando resultados…',
+  comboboxCount: 'Opciones disponibles: {count}.',
+  linkExternal: '(se abre en una pestaña nueva)',
+  copyButtonLabel: 'Copiar',
+  copyButtonCopied: 'Copiado',
+  copyButtonFailed: 'No se pudo copiar',
+  meterOptimum: 'Bueno',
+  meterFair: 'Aceptable',
+  meterPoor: 'Malo',
+  stepperComplete: 'Completado',
+  stepperCurrent: 'Paso actual',
+  stepperUpcoming: 'Pendiente',
+  stepperError: 'Error',
+  timelineCurrent: 'Actual',
+  timelineUpcoming: 'Pendiente',
+  numberFieldDecrease: 'Disminuir',
+  numberFieldIncrease: 'Aumentar',
+  sliderStart: 'Mínimo',
+  sliderEnd: 'Máximo',
+  sliderRange: '{start} – {end}',
+  pinInputCell: 'Carácter {index} de {total}',
+  filterBarClear: 'Borrar todo',
+  filterBarClearLabel: 'Borrar todos los filtros',
+  filterBarApplied: 'Filtros aplicados',
+  onboardingBack: 'Atrás',
+  onboardingSkip: 'Omitir',
+  onboardingNext: 'Siguiente',
+  onboardingDone: 'Entendido',
+  onboardingStep: 'Paso {current} de {total}',
+  onboardingProgress: 'Progreso: paso {current} de {total}',
+  confirmDialogEyebrow: 'Confirmar',
+  confirmDialogConfirm: 'Confirmar',
+  confirmDialogCancel: 'Cancelar',
+  confirmDialogRequire: 'Escribe "{text}" para confirmar',
+  errorStateTitle: 'Algo salió mal',
+  avatarOnline: 'en línea',
+  avatarBusy: 'ocupado',
+  avatarAway: 'ausente',
+  avatarOffline: 'desconectado',
+  lineChartName: '{label} — gráfico de líneas',
+  barChartName: '{label} — gráfico de barras',
+  horizontalBarChartName: '{label} — gráfico de barras horizontales',
+  pyramidChartName: '{label} — gráfico de barras horizontales',
+  doughnutChartName: '{label} — gráfico de anillo',
+  doughnutChartPieName: '{label} — gráfico circular',
+  radarChartName: '{label} — gráfico de radar',
+  scatterChartName: '{label} — gráfico de dispersión',
+  sparklineChartName: '{label} — minigráfico',
+  gaugeChartName: '{label} — indicador',
+  gaugeTableMeasure: 'Medida',
+  gaugeTableValue: 'Valor',
+  gaugeTableMinimum: 'Mínimo',
+  gaugeTableMaximum: 'Máximo',
+  gaugeTableRange: '{from} – {to}',
+  funnelChartName: '{label} — gráfico de embudo',
+  funnelConversionStep: 'De la etapa anterior',
+  funnelConversionTotal: 'De la primera etapa',
+  heatmapChartName: '{label} — mapa de calor',
+  heatmapTableRow: 'Fila',
+  chartTableCategory: 'Categoría',
+  chartTablePoint: 'Punto',
+  chartTableAxis: 'Eje',
+  chartTableSeries: 'Serie',
+  doughnutChartLegend: 'Leyenda del gráfico de anillo',
+  doughnutChartPieLegend: 'Leyenda del gráfico circular',
+} satisfies Required<ArenaLocale>;
+
+<ArenaLocaleProvider value={spanish}>
+  <App />
+</ArenaLocaleProvider>
+```
+
+The Angular provider takes the same value.
+
+```ts
+import { provideArenaLocale, type ArenaLocale } from '@dravensoft/arena-angular';
+
+const spanish = {
+  locale: 'es-ES',
+  calendarToday: 'Hoy',
+  calendarPrevious: 'Anterior',
+  calendarNext: 'Siguiente',
+  calendarRegion: 'Agenda, {range}',
+  calendarGrid: 'Cuadrícula de la agenda, {range}',
+  calendarEventActions: 'Acciones',
+  paginationPrevious: 'Anterior',
+  paginationNext: 'Siguiente',
+  tableSortBy: 'Ordenar por',
+  tableEmpty: 'Sin datos.',
+  toastClose: 'Cerrar',
+  toastPinned: 'Fijado',
+  toastPinnedHint: 'No se descarta solo',
+  sheetClose: 'Cerrar',
+  alertDismiss: 'Descartar',
+  tagRemove: 'Quitar',
+  skeletonLabel: 'Cargando',
+  spinnerLabel: 'Cargando',
+  switchConfirmHint: 'Pide confirmación',
+  fileInputChoose: 'Elegir archivo',
+  fileInputChooseMultiple: 'Elegir archivos',
+  fileInputDrop: 'o suéltalo aquí',
+  fileInputNone: 'Ningún archivo elegido',
+  fileInputCount: 'Seleccionados: {count}',
+  fileInputTooLarge: '{name} supera {size}',
+  fileInputWrongType: '{name} no es un tipo aceptado',
+  fileInputSurplus: '{name} no se añadió',
+  fileInputRequired: 'obligatorio',
+  bulkActionBarLabel: 'Acciones sobre la selección',
+  bulkActionBarClear: 'Borrar',
+  bulkActionBarClearLabel: 'Borrar la selección',
+  bulkActionBarCount: 'Seleccionados ({noun}): {count}',
+  bulkActionBarNoun: 'elementos',
+  multiSelectEmpty: 'Sin resultados para "{query}".',
+  multiSelectLoading: 'Cargando resultados…',
+  multiSelectCount: 'Opciones disponibles: {count}.',
+  multiSelectClear: 'Borrar la selección',
+  multiSelectMore: '+{count}',
+  multiSelectMoreLabel: 'Más seleccionados: {count}',
+  multiSelectMax: 'Selección máxima: {max}.',
+  commandPaletteDialog: 'Paleta de comandos',
+  commandPaletteSearch: 'Buscar comandos',
+  commandPalettePlaceholder: 'Busca una acción o un proyecto…',
+  commandPaletteList: 'Comandos',
+  commandPaletteEscape: 'ESC',
+  commandPaletteEmpty: 'Sin resultados para "{query}".',
+  comboboxEmpty: 'Sin resultados para "{query}".',
+  comboboxLoading: 'Cargando resultados…',
+  comboboxCount: 'Opciones disponibles: {count}.',
+  linkExternal: '(se abre en una pestaña nueva)',
+  copyButtonLabel: 'Copiar',
+  copyButtonCopied: 'Copiado',
+  copyButtonFailed: 'No se pudo copiar',
+  meterOptimum: 'Bueno',
+  meterFair: 'Aceptable',
+  meterPoor: 'Malo',
+  stepperComplete: 'Completado',
+  stepperCurrent: 'Paso actual',
+  stepperUpcoming: 'Pendiente',
+  stepperError: 'Error',
+  timelineCurrent: 'Actual',
+  timelineUpcoming: 'Pendiente',
+  numberFieldDecrease: 'Disminuir',
+  numberFieldIncrease: 'Aumentar',
+  sliderStart: 'Mínimo',
+  sliderEnd: 'Máximo',
+  sliderRange: '{start} – {end}',
+  pinInputCell: 'Carácter {index} de {total}',
+  filterBarClear: 'Borrar todo',
+  filterBarClearLabel: 'Borrar todos los filtros',
+  filterBarApplied: 'Filtros aplicados',
+  onboardingBack: 'Atrás',
+  onboardingSkip: 'Omitir',
+  onboardingNext: 'Siguiente',
+  onboardingDone: 'Entendido',
+  onboardingStep: 'Paso {current} de {total}',
+  onboardingProgress: 'Progreso: paso {current} de {total}',
+  confirmDialogEyebrow: 'Confirmar',
+  confirmDialogConfirm: 'Confirmar',
+  confirmDialogCancel: 'Cancelar',
+  confirmDialogRequire: 'Escribe "{text}" para confirmar',
+  errorStateTitle: 'Algo salió mal',
+  avatarOnline: 'en línea',
+  avatarBusy: 'ocupado',
+  avatarAway: 'ausente',
+  avatarOffline: 'desconectado',
+  lineChartName: '{label} — gráfico de líneas',
+  barChartName: '{label} — gráfico de barras',
+  horizontalBarChartName: '{label} — gráfico de barras horizontales',
+  pyramidChartName: '{label} — gráfico de barras horizontales',
+  doughnutChartName: '{label} — gráfico de anillo',
+  doughnutChartPieName: '{label} — gráfico circular',
+  radarChartName: '{label} — gráfico de radar',
+  scatterChartName: '{label} — gráfico de dispersión',
+  sparklineChartName: '{label} — minigráfico',
+  gaugeChartName: '{label} — indicador',
+  gaugeTableMeasure: 'Medida',
+  gaugeTableValue: 'Valor',
+  gaugeTableMinimum: 'Mínimo',
+  gaugeTableMaximum: 'Máximo',
+  gaugeTableRange: '{from} – {to}',
+  funnelChartName: '{label} — gráfico de embudo',
+  funnelConversionStep: 'De la etapa anterior',
+  funnelConversionTotal: 'De la primera etapa',
+  heatmapChartName: '{label} — mapa de calor',
+  heatmapTableRow: 'Fila',
+  chartTableCategory: 'Categoría',
+  chartTablePoint: 'Punto',
+  chartTableAxis: 'Eje',
+  chartTableSeries: 'Serie',
+  doughnutChartLegend: 'Leyenda del gráfico de anillo',
+  doughnutChartPieLegend: 'Leyenda del gráfico circular',
+} satisfies Required<ArenaLocale>;
+
+bootstrapApplication(App, { providers: [provideArenaLocale(spanish)] });
+```
+
+## How does Arena read text direction?
+
+Arena writes no `dir`. The project sets `dir` on `<html>`, or on a region whose text runs the other way. Under `dir="rtl"` each row below behaves as the table says, with the evidence level [`stack.md`](./stack.md) names.
+
+| What | Under dir="rtl" | Evidence |
+|---|---|---|
+| `align` `start` and `end` on an anchored panel: tooltip, popover, menu, multi-select, combobox, split button | `start` maps to the physical right and `end` to the left. `center` is unchanged | held by a gate (`check-anchoring`, both layers) |
+| `ArenaSlider` | ArrowLeft raises and ArrowRight lowers a horizontal slider. A pointer measures from the right edge | exercised by Arena's own suites |
+| `ArenaPinInput` | ArrowLeft moves to the next cell and ArrowRight to the previous | exercised by Arena's own suites |
+| tabs, tree view, calendar, calendar event, table, combobox chips, multi-select chips, bulk action bar, chart pointer, and the indeterminate progress keyframe | ArrowLeft stays "previous" in each, and the keyframe moves physically left to right | does not work |
+
+Everything else is allowed by the manifest, not exercised.

@@ -1,11 +1,11 @@
 Filter/technology/status chip. `tone` is `neutral`, `success`, `warning` or `danger`, never
 ArenaBadge's `info`, and colours the chip's border, text and leading dot together. `removable` shows a dismiss
-`×`, which uses the standard Phosphor icon `ph-x` (H4), the same close as
+`×`, which uses the standard Phosphor icon `ph-x`, the same close as
 ArenaToast.
 
 `colorId` is the other colour a tag can take, and it answers a different question: `tone` says
 what state a thing is in, `colorId` says which thing it is. A database label, a workflow status
-and a project name are identities, so they take a ramp slot and keep it everywhere.
+and a project name are identities, so they take a ramp colour and keep it everywhere.
 
 ```tsx
 <ArenaTag>TypeScript</ArenaTag>
@@ -22,8 +22,8 @@ and a project name are identities, so they take a ramp slot and keep it everywhe
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
 | `children` | slot |  |  | The tag's label. |
-| `tone` | enum | `ArenaTagTone` | `"neutral"` | What state the tag reports; neutral reports none. Ignored while `colorId` names a ramp slot, because a tag draws one colour and the two mean different things. |
-| `colorId` | enum | `ArenaCatSlot` |  | An identity colour from the categorical ramp, the ramp the charts and the calendar read, so one entity keeps its colour across a chart, a schedule and a label. Colour here means which thing and never what state, which is why it replaces `tone` rather than joining it. A label reading "Backend" is not a warning, and a tag that could say both at once would say neither. Optional, and its absence is the tone tag. The slot reaches the tag as `data-arena-color-id` and its colour through the hue channels (`--arena-hue-ink`, `--arena-hue-edge`, `--arena-hue-fill-strong`, `--arena-hue-fill-soft`). An appearance that fills the marker rather than outlining it is therefore a style plugin's to write and needs no member here. |
+| `tone` | enum | `ArenaTagTone` | `"neutral"` | What state the tag reports; neutral reports none. Ignored while `colorId` names a ramp colour, because a tag draws one colour and the two mean different things. |
+| `colorId` | enum | `ArenaCatSlot` |  | An identity colour from the categorical ramp, the ramp the charts and the calendar read, so one entity keeps its colour across a chart, a schedule and a label. Colour here means which thing and never what state, which is why it replaces `tone` rather than joining it. A label reading "Backend" is not a warning, and a tag that could say both at once would say neither. Optional, and its absence is the tone tag. The ramp colour reaches the tag as `data-arena-color-id` and its colour through the hue channels (`--arena-hue-ink`, `--arena-hue-edge`, `--arena-hue-fill-strong`, `--arena-hue-fill-soft`). An appearance that fills the marker rather than outlining it is therefore a style plugin's to write and needs no member here. |
 | `removable` | primitive | `boolean` | `false` | Whether the dismiss × is shown. Every layer gates the × on this member and never on whether anything listens for `onRemove`, because Arena never derives what it draws from what a consumer listens for. Removability is a declared input, not something inferred from the event. |
 | `disabled` | primitive | `boolean` | `false` | Whether removal is unavailable while the tag stays visible: a filter a consumer's permissions lock, not a tag that is merely inert. The × carries `aria-disabled` rather than the native `disabled` attribute. A screen-reader user finds it where `tabStop` puts it and is told the action is unavailable. With `removable` false there is no × and nothing to disable. |
 | `tabStop` | primitive | `boolean` | `true` | Whether the remove button is reached from the page's Tab sequence. Set false when the tag lives inside a composite that manages its own focus. A field holding its chosen values as chips, with one tab stop and arrow keys between them, is one such composite. Reaching the button by Tab there would be a second way in. Arena writes tabindex="-1" and the button stays programmatically focusable; a positive tab order is not expressible and never should be. With `removable` false there is no button and nothing to hold out. |
@@ -44,9 +44,9 @@ and a project name are identities, so they take a ramp slot and keep it everywhe
 <!-- @keys end -->
 
 **Do / Don't**
-- Use `tone="danger"` for a blocked/destructive status: border and text render
-  in `--color-error`, never a fill. The outline is the danger convention. The only filled danger surface in Arena is `ArenaConfirmDialog`'s final confirmation.
-- The leading dot is filled with `currentColor`, so it always matches the tone, even for `tone="danger"` where the chip itself is outline. A tone dot is an identity mark rather than a danger surface, in the same family as `ArenaActivityFeed`'s own dot and `ArenaAvatar`'s presence dot.
+- Use `tone="danger"` for a blocked/destructive status: the tag's border and
+  text render in the danger hue's edge and ink, the `marks.outline` danger slots.
+- The leading dot is filled with `currentColor`, so it always matches the tone, even for `tone="danger"`. A tone dot is an identity mark rather than a danger surface, in the same family as `ArenaActivityFeed`'s own dot and `ArenaAvatar`'s presence dot.
 - Use `removable` only when removing the chip is a real user action, such as applied filters, rather than on informational tags. Pass `onRemove` alongside it, or the × renders with nothing to call.
 - Reach for `disabled` when removal is temporarily unavailable and the chip must
   stay on screen, a filter the user's permissions lock. The × stays where
@@ -65,7 +65,7 @@ and a project name are identities, so they take a ramp slot and keep it everywhe
 - Don't pass `tone` and `colorId` together expecting both: `colorId` wins, and a
   chip that carried a state colour and an identity colour at once would read as
   neither.
-- The identity chip outlines, like every other tone. A filled one is an appearance decision. The ramp colour reaches the element as `data-arena-color-id`
+- The identity chip draws its edge, like every other tone. A fill is the style plugin's. The ramp colour reaches the element as `data-arena-color-id`
   and the hue channels (`--arena-hue-ink`, `--arena-hue-edge`, `--arena-hue-fill-strong` and
   `--arena-hue-fill-soft`). A style plugin fills `tag` with it, so no member is needed here.
 - A tag keeps its label whole in a row, and breaks it only when the tag is wider than its container.

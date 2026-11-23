@@ -9,7 +9,7 @@
  * it has read and leave the ones it has not. */
 
 export const STRICT_KINDS = ['components', 'contrast', 'ramp', 'weight', 'font', 'glyph', 'markers',
-  'audit', 'environment', 'restated', 'heat'] as const;
+  'audit', 'environment', 'restated', 'heat', 'identity'] as const;
 
 export const UNHOLDABLE_KINDS = ['wash'] as const;
 

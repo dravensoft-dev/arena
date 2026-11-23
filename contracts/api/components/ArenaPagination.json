@@ -1,7 +1,7 @@
 {
   "component": "ArenaPagination",
   "description": "Page selector for a paged list. Renders a windowed range, never every page.",
-  "affordances": [],
+  "affordances": ["focus", "hover", "press"],
   "api": {
     "page": { "form": "primitive", "type": "number", "required": true,
               "description": "The current page, 1-based." },

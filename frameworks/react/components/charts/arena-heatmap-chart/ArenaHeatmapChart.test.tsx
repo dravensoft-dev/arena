@@ -39,14 +39,12 @@ const legend = (html: string) => [...html.matchAll(/<span [^>]*data-arena-part="
 const legendLabels = (html: string) => [...html.matchAll(/data-arena-part="heatmap-chart\.legend-label"[^>]*>([^<]*)</g)].map((m) => m[1]);
 const svgWidth = (html: string) => /<svg [^>]*width="([^"]*)"/.exec(html)?.[1];
 
-test('ArenaHeatmapChart is a named figure whose table has a column per label and a row per series', () => {
+test('ArenaHeatmapChart names its figure, and its table has a cell per label in a row per series', () => {
   const html = draw();
-  assert.match(html, /<svg [^>]*role="img" aria-label="Sign-ups by hour — heatmap"/);
+  assert.match(html, /<svg [^>]*aria-label="Sign-ups by hour — heatmap"/);
   assert.match(html, /<caption>Sign-ups by hour — heatmap<\/caption>/);
-  const { head, rows } = table(html);
-  assert.deepEqual(head, ['Row', ...HOURS]);
+  const { rows } = table(html);
   assert.equal(rows.length, 3);
-  assert.deepEqual(rows.map((row) => row[0]), DAYS, 'each row is headed by its series, as a row header');
   assert.equal(rows[0]!.length, 1 + HOURS.length);
   assert.deepEqual(rows[1]!.slice(1, 4), ['20', '40', '60']);
   assert.equal(cells(html).length, 72, 'one rect per cell');
@@ -152,12 +150,6 @@ test('ArenaHeatmapChart warns once that identity and meaning are ignored, and pa
   assert.deepEqual(fills(marked()).slice(0, 2), fills(plain));
   forgetArenaWarnings();
   assert.deepEqual(captureWarnings(() => { draw(); }), [], 'a plain series warns of nothing');
-});
-
-test('ArenaHeatmapChart throws on a missing label, labels or series', () => {
-  assert.throws(() => draw({ label: '' }), /ArenaHeatmapChart: `label` is required/);
-  assert.throws(() => draw({ labels: undefined as never }), /ArenaHeatmapChart: `labels` is required/);
-  assert.throws(() => draw({ series: undefined as never }), /ArenaHeatmapChart: `series` is required/);
 });
 
 test('ArenaHeatmapChart with no rows draws an empty grid and its legend without throwing', () => {

@@ -11,19 +11,21 @@ import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
-import { collectFiles } from '../../lib/arena/package-assembly.ts';
+import { collectFiles, DERIVED_SLOTS, derivedSlotsText } from '../../lib/arena/package-assembly.ts';
 import {
   CATALOGUE, DIST, NAME, NOT_CARRIED, carriedFiles, catalogue, manifest, unmatchedExclusions,
   unusedNotShared,
 } from '../../build/arena/build-contracts-package.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 
+export const GROUP_PAGE = 'skills/design/references/contracts.md';
+
 export const node = {
   name: 'check:contracts-package',
   reads: [
     'contracts/design/*.json', 'contracts/api/components/*.json', 'contracts/api/types/*.json',
     'contracts/behaviour/*.json', 'contracts/NPM.md', `${DIST}/**`, '.claude-plugin/plugin.json',
-    'frameworks/Components.json',
+    'frameworks/Components.json', GROUP_PAGE,
   ],
   writes: [],
   feeds: [],
@@ -56,7 +58,7 @@ export function zeroDerivedProblems(count: number) {
 export function payloadProblems(dir: string, expected: string[], repo = root) {
   const problems: string[] = [];
   const present = collectFiles(dir).map((f) => relPosix(dir, f)).sort();
-  const contracts = present.filter((p) => !NON_CONTRACT.includes(p));
+  const contracts = present.filter((p) => !NON_CONTRACT.includes(p) && p !== DERIVED_SLOTS);
 
   for (const rel of expected) {
     if (!contracts.includes(rel)) { problems.push(`${rel} is in the tree and not in the package`); continue; }
@@ -71,6 +73,17 @@ export function payloadProblems(dir: string, expected: string[], repo = root) {
     if (!present.includes(rel)) problems.push(`the package carries no ${rel}`);
   }
   return problems;
+}
+
+export function derivedProblems(dir: string, repo = root) {
+  const at = join(dir, DERIVED_SLOTS);
+  if (!existsSync(at)) {
+    return [`the package carries no ${DERIVED_SLOTS}, so a platform target would read the declarations and have to derive the slots itself`];
+  }
+  if (readFileSync(at, 'utf8') !== derivedSlotsText(repo)) {
+    return [`${DERIVED_SLOTS} in the package differs from what readColorSlots derives from the tree`];
+  }
+  return [];
 }
 
 export function catalogueProblems(dir: string, expected: string[], repo = root) {
@@ -117,6 +130,38 @@ export function manifestProblems(dir: string, repo = root) {
   return problems;
 }
 
+const PATTERNED = new Map([['palette', 'polarity'], ['density', 'name']]);
+
+export function shippedGroups(expected: string[]) {
+  const stems = expected.filter((rel) => /^contracts\/design\/[^/]+\.json$/.test(rel))
+    .map((rel) => rel.slice('contracts/design/'.length, -'.json'.length));
+  return [...new Set(stems.map((stem) => {
+    const [head, rest] = stem.split('.');
+    return rest === undefined ? stem : `${head}.<${PATTERNED.get(head ?? '') ?? rest}>`;
+  }))].sort();
+}
+
+export function groupListProblems(page: string, shipped: string[]) {
+  const lines = page.split('\n');
+  const at = lines.findIndex((line) => line.startsWith('contracts/design/*.json'));
+  if (at < 0) return [`${GROUP_PAGE} has no contracts/design/*.json line, so no group list was read`];
+  const block = [lines[at]?.slice('contracts/design/*.json'.length) ?? ''];
+  for (const line of lines.slice(at + 1)) {
+    if (!/^ {20,}\S/.test(line) || /\.json\s/.test(line)) break;
+    block.push(line);
+  }
+  const named = block.join(' ').replace(/\([^)]*\)/g, '').replace(/^\s*one file per group:/, '')
+    .split(/,|\band\b/).map((one) => one.trim()).filter(Boolean).sort();
+  const problems: string[] = [];
+  for (const group of shipped) {
+    if (!named.includes(group)) problems.push(`${GROUP_PAGE} does not name the group ${group}, which the package ships`);
+  }
+  for (const group of named) {
+    if (!shipped.includes(group)) problems.push(`${GROUP_PAGE} names the group ${group}, which the package does not ship`);
+  }
+  return problems;
+}
+
 export function collect(repo = root) {
   const dir = join(repo, DIST);
   const expected = expectedCarried(repo);
@@ -129,7 +174,8 @@ export function collect(repo = root) {
   if (assembled) {
     problems.push(
       ...payloadProblems(dir, expected, repo),
-      ...catalogueProblems(dir, expected, repo),
+      ...derivedProblems(dir, repo),
+      ...catalogueProblems(dir, [...expected, DERIVED_SLOTS].sort(), repo),
       ...manifestProblems(dir, repo),
     );
   }
@@ -138,6 +184,7 @@ export function collect(repo = root) {
 
 function main() {
   const { problems, expected, assembled } = collect();
+  problems.push(...groupListProblems(readFileSync(join(root, GROUP_PAGE), 'utf8'), shippedGroups(expected)));
   if (problems.length) {
     console.error(`check-contracts-package: ${problems.length} problem(s)\n`);
     for (const p of problems) console.error(`  ${p}`);

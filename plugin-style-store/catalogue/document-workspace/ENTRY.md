@@ -11,12 +11,12 @@ being hard to notice.
 |---|---|---|---|
 | How round it is | `r-control`, `r-field`, `r-media`, `r-surface` | the smallest radius step for every one of them | nearly square, because a rounded corner is a visible object and this register is trying not to have any |
 | Whether an edge is drawn | every `bw-*` | a hairline throughout | the line is there to be found rather than seen |
-| How loud type is | `fw-heading`, `fw-eyebrow`, `fw-control` | bold for a heading, medium for the other two | the quietest of the four, and the only one that leaves a control at a text weight |
+| How loud type is | `fw-heading`, `fw-eyebrow`, `fw-control` | bold for a heading, medium for the other two | the heading is the one place the page raises its voice, and a control stays at a text weight |
 | Whether small text shouts | `tt-label`, `tt-eyebrow`, `track-label`, `track-eyebrow` | no transform, normal tracking | a page name is the user's word and capitalising it would overwrite their intent |
-| How tight it is to the hand | `pad-control-*`, `gap-*` | the tightest padding of the four | a page tree is a long list, and the chrome around the document is trying to disappear |
-| How wide it breathes | `container-max`, `measure-prose`, `grid-min`, `gutter` | a narrow container, the widest prose measure of the four, and by far the largest gutter | the document is a reading column with a lot of margin around it |
+| How tight it is to the hand | `pad-control-*`, `gap-*` | the tightest horizontal control padding and the tightest inline gap of the entries | a page tree is a long list, and the chrome around the document is trying to disappear |
+| How wide it breathes | `container-max`, `measure-prose`, `grid-min`, `gutter` | a narrow container, the widest prose measure of the entries, and the largest gutter | the document is a reading column with a lot of margin around it |
 | Whether depth is real | `elevation-floating-shadow`, `emphasis-primary-shadow-hover` | a soft shadow on a floating surface only, and none at rest or on a control | a menu floats and nothing else does, because a raised control would be an object on a page that has none |
-| How it answers a hand | `press-scale`, `lift-control`, `dur-state`, `ease-state` | no shrink, no rise, the fast duration on an out curve | the least physical of the four, and the quickest, because the interface is trying to keep up with typing |
+| How it answers a hand | `press-scale`, `lift-control`, `dur-state`, `ease-state` | no shrink, no rise, the fast duration on an out curve | nothing moves under the hand, because the interface is trying to keep up with typing |
 | What shape a picture is | `aspect-media`, `fit-media` | a wide landscape, filled | a cover image at the head of a document rather than a picture in a grid |
 
 The widest prose measure and the largest gutter are the pair that carry this register. The two are what turn the same components into a reading surface rather than a console.
@@ -38,6 +38,8 @@ the grid and the figure, the tag, the checkbox and the input.
 `frameworks/react/INDEX.md` names each under its category.
 
 The document itself is markup you write. A paragraph, a heading, a quote, a callout, a toggle, a code block and a figure are the block family of a document editor. `skills/design/references/style-kernel.md` says in as many words that the kernel does not reach them. The skin still travels, so those blocks are written against the same tokens.
+
+A tab and a selected row are marked by weight and the heading ink, never by the accent's ink. The entry answers `ink-selected` and `edge-tab-selected` with `ink-heading`. The selected row's ink and the selected tab's rule follow the heading ink, and the components need no rule of the entry's own. The entry does not answer `fill-selected`, so a selected row keeps the selected wash.
 
 ## What it does not bring
 

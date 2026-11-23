@@ -56,13 +56,6 @@ rows in one list that disagreed about their size would be a defect rather than a
 - **Don't** use it for a feed of events: `arena-activity-feed` is somebody did something to
   something, and its rows are about the event rather than about the person.
 
-**By hand, in real Chromium**: run `bun run demos` and open
-`/frameworks/angular/components/display/arena-people-list/ArenaPeopleList.demo.generated.html`:
-- The three sizes move the face, the name, the figure and the row's own air together.
-- `ordered` swaps the element and nothing else: no marker is drawn in either, because the rank
-  is the row's own column.
-- The reader's own row fills, and reads as one row rather than as a section.
-
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
 **The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.

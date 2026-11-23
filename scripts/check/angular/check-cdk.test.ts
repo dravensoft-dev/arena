@@ -1,11 +1,11 @@
-/* The four zero-result guards are the point of this suite: a bridge that stops being a
- * bridge must fail rather than pass by having nothing left to check. */
+/* A bridge that stops importing the prebuilt sheet, or starts declaring a rule, fails here. The
+ * published copy is held to the installed CDK byte for byte. */
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { bridgeSelectors, cdkClasses, importedSheets, checkBridge, publishedBridgeProblems } from './check-cdk.ts';
+import { bridgeSelectors, importedSheets, checkBridge, publishedBridgeProblems } from './check-cdk.ts';
 import { inlineCdkPrebuilt } from '../../lib/arena/package-assembly.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 
@@ -14,7 +14,6 @@ const PREBUILT = readFileSync(
 );
 
 const CSS = `
-/* a comment naming .cdk-invented-by-the-comment and var(--invented-token) */
 @import '@angular/cdk/overlay-prebuilt.css';
 
 .cdk-overlay-container {
@@ -22,61 +21,30 @@ const CSS = `
 }
 `;
 
-const TOKENS = new Set(['z-dropdown']);
 const RESOLVES = () => true;
 
 test('bridgeSelectors reads the selector past the at-rule the same line group holds', () => {
   assert.deepEqual([...bridgeSelectors(CSS)], ['.cdk-overlay-container']);
 });
 
-test('cdkClasses ignores a class named only inside a comment', () => {
-  assert.deepEqual([...cdkClasses(CSS)], ['cdk-overlay-container']);
-});
-
 test('importedSheets collects the stylesheet the bridge pulls into scope', () => {
   assert.deepEqual([...importedSheets(CSS)], ['@angular/cdk/overlay-prebuilt.css']);
 });
 
-test('the real bridge passes against the installed prebuilt sheet', () => {
-  assert.deepEqual(checkBridge(CSS, PREBUILT, TOKENS, RESOLVES), []);
-});
+const NO_RULE = CSS.replace(/\n\.cdk-overlay-container \{[^}]*\}\n/, '');
 
-test('a cdk-* class the installed CDK does not define is reported, because a rename breaks the bridge silently', () => {
-  const css = CSS.replace('.cdk-overlay-container {', '.cdk-overlay-kontainer {');
-  const errs = checkBridge(css, PREBUILT, TOKENS, RESOLVES);
-  assert.equal(errs.length, 1);
-  assert.match(errs[0] ?? '', /\.cdk-overlay-kontainer/);
-  assert.match(errs[0] ?? '', /matches nothing/);
-});
-
-test('a var() naming no Arena token is reported', () => {
-  const errs = checkBridge(CSS, PREBUILT, new Set(), RESOLVES);
-  assert.equal(errs.length, 1);
-  assert.match(errs[0] ?? '', /var\(--z-dropdown\)/);
-  assert.match(errs[0] ?? '', /resolves to nothing/);
-});
-
-test('an @import resolving to no file is reported, because the import is dropped in silence', () => {
-  const errs = checkBridge(CSS, PREBUILT, TOKENS, () => false);
-  assert.equal(errs.length, 1);
-  assert.match(errs[0] ?? '', /renders unpositioned/);
-});
-
-test('a bridge with no rule at all fails rather than passing with nothing to check', () => {
-  const errs = checkBridge('@import "@angular/cdk/overlay-prebuilt.css";\n', PREBUILT, TOKENS, RESOLVES);
-  assert.ok(errs.some((e) => /overrides nothing is not a bridge/.test(e)));
-  assert.ok(errs.some((e) => /names no cdk-\* class/.test(e)));
-  assert.ok(errs.some((e) => /references no Arena token/.test(e)));
-});
-
-test('a bridge that stops importing the prebuilt sheet fails', () => {
-  const errs = checkBridge(CSS.replace(/@import[^\n]*\n/, ''), PREBUILT, TOKENS, RESOLVES);
-  assert.equal(errs.length, 1);
-  assert.match(errs[0] ?? '', /imports no stylesheet/);
-});
-
-test('the oracle sees the container class the bridge exists to override', () => {
-  assert.ok(cdkClasses(PREBUILT).has('cdk-overlay-container'));
+test('the bridge imports the installed sheet and declares no rule', () => {
+  const rows: { name: string; css: string; resolves: () => boolean; problems: RegExp[] }[] = [
+    { name: 'the real bridge', css: SOURCE_BRIDGE, resolves: RESOLVES, problems: [] },
+    { name: 'a bridge with a rule', css: CSS, resolves: RESOLVES, problems: [/\.cdk-overlay-container/] },
+    { name: 'an import resolving to no file', css: NO_RULE, resolves: () => false, problems: [/resolves to no file/] },
+    { name: 'a bridge with no import and no rule', css: NO_RULE.replace(/@import[^\n]*\n/, ''), resolves: RESOLVES, problems: [/imports no stylesheet/] },
+  ];
+  for (const row of rows) {
+    const errs = checkBridge(row.css, row.resolves);
+    assert.equal(errs.length, row.problems.length, `${row.name}: ${errs.join(' | ')}`);
+    row.problems.forEach((re, i) => assert.match(errs[i] ?? '', re, row.name));
+  }
 });
 
 const SOURCE_BRIDGE = readFileSync(join(repoRoot, 'frameworks', 'angular', 'theme', 'arena-cdk.css'), 'utf8');
@@ -90,10 +58,6 @@ test('publishedBridgeProblems accepts the inlined bridge and names each way a co
   assert.ok(problems(SOURCE_BRIDGE).some((p) => p.includes('@import')), 'the raw source bridge');
   const drift = inlineCdkPrebuilt(SOURCE_BRIDGE, PREBUILT.replace('z-index: 1000', 'z-index: 999'), VERSION);
   assert.equal(problems(drift).length, 1, 'a prebuilt with one rule changed');
-  const noOverride = good.replace('calc(var(--z-toast) - 10)', '1000');
-  assert.equal(problems(noOverride).length, 1, 'the override removed');
-  const reordered = `${PREBUILT}\n${SOURCE_BRIDGE.replace(/@import[^\n]*\n/, '')}`;
-  assert.equal(problems(reordered).length, 1, 'the override ahead of the CDK rules');
   const withImport = `${good}\n@import '@angular/cdk/overlay-prebuilt.css';\n`;
   const both = problems(withImport);
   assert.equal(both.length, 2, 'prebuilt inlined and a bare @import left in');

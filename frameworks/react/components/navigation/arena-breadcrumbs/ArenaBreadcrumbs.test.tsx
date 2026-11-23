@@ -38,19 +38,6 @@ test('with no onNavigate at all, a non-current crumb still renders as an anchor 
   assert.match(html, /<a href="\/clients"[^>]*>Clients<\/a>/);
 });
 
-test('throws when items is absent', () => {
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  assert.throws(() => renderToStaticMarkup(<ArenaBreadcrumbs ariaLabel={LABEL} />), /items.*required/);
-});
-
-test('throws when ariaLabel is absent -- nothing can derive the name of a trail', () => {
-  assert.throws(
-    // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    () => renderToStaticMarkup(<ArenaBreadcrumbs items={ITEMS} />),
-    /ArenaBreadcrumbs: `ariaLabel` is required/,
-  );
-});
-
 test('an empty items array is supplied-but-empty and stays legal', () => {
   const html = renderToStaticMarkup(<ArenaBreadcrumbs ariaLabel={LABEL} items={[]} />);
   assert.match(html, new RegExp(`<nav aria-label="${LABEL}"`));

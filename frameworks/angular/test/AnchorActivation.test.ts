@@ -1,23 +1,36 @@
-/* One rule, four components, and the browser half of it that no test environment has. What is
+/* One rule, seven components, and the browser half of it that no test environment has. What is
  * asserted is defaultPrevented: cancelled means Arena took the activation and the handler owns
  * it, uncancelled means the browser keeps it. The paths are asserted separately because they
  * diverged once, the same command routing twice with the mouse and once with the keyboard. On a
  * real anchor Enter is the platform's own synthesized click, which no test document
- * synthesizes, so that half is the by-hand Chromium check each prompt carries. */
+ * synthesizes, so that half is a Chromium check that no component checklist file holds. */
 
 import { useTestEnvironment } from './TestbedEnv';
 useTestEnvironment();
 
-import test from 'node:test';
+import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
+import { readdirSync, readFileSync } from 'node:fs';
+import { basename, join } from 'node:path';
 import { Component, signal, type Type } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import type { ArenaCommand, ArenaCrumb } from '../Api.generated';
+import { ArenaBottomNav } from '../components/navigation/arena-bottom-nav/ArenaBottomNav';
+import { ArenaBottomNavItem } from '../components/navigation/arena-bottom-nav-item/ArenaBottomNavItem';
+import { ArenaLink } from '../components/navigation/arena-link/ArenaLink';
+import { ArenaTable } from '../components/display/arena-table/ArenaTable';
+import { ArenaTableCell } from '../components/display/arena-table-cell/ArenaTableCell';
+import { ArenaTableRow } from '../components/display/arena-table-row/ArenaTableRow';
+import { ANGULAR_COMPONENTS } from './Compliance';
 import { ArenaCard } from '../components/display/arena-card/ArenaCard';
 import { ArenaBreadcrumbs } from '../components/navigation/arena-breadcrumbs/ArenaBreadcrumbs';
 import { ArenaCommandPalette } from '../components/navigation/arena-command-palette/ArenaCommandPalette';
 import { ArenaSideNav } from '../components/navigation/arena-side-nav/ArenaSideNav';
 import { ArenaSideNavItem } from '../components/navigation/arena-side-nav-item/ArenaSideNavItem';
+
+const root = document.documentElement;
+before(() => { root.style.setProperty('--bp-md', '768px'); });
+after(() => { root.style.removeProperty('--bp-md'); });
 
 const MODIFIERS = ['ctrlKey', 'metaKey', 'shiftKey', 'altKey'] as const;
 
@@ -110,13 +123,6 @@ function render<T>(type: Type<T>) {
   };
 }
 
-test('ArenaCard.href reports the primary click and leaves every other one to the browser', () => {
-  const { host, instance, destroy } = render(CardHost);
-  try {
-    assertConvention('ArenaCard', () => host.querySelector('a')!, () => instance.hits());
-  } finally { destroy(); }
-});
-
 test('an href ArenaCard reports ONCE, and the native click still reaches the page', () => {
   const { host, instance, destroy } = render(CardHost);
   let heard = 0;
@@ -137,28 +143,6 @@ test('a disabled href ArenaCard reports nothing at all', () => {
     const event = click(host.querySelector('a')!);
     assert.equal(instance.hits(), 0, 'a refused activation must not reach the host binding either');
     assert.equal(event.defaultPrevented, true, 'and the anchor must not navigate');
-  } finally { destroy(); }
-});
-
-test('an ArenaCrumb reports the primary click and leaves every other one to the browser', () => {
-  const { host, instance, destroy } = render(CrumbHost);
-  try {
-    assertConvention('ArenaBreadcrumbs', () => host.querySelector('a')!, () => instance.hits());
-  } finally { destroy(); }
-});
-
-test('ArenaSideNavItem with href reports the primary click and leaves every other one alone', () => {
-  const { host, instance, destroy } = render(NavHost);
-  try {
-    assertConvention('ArenaSideNavItem', () => host.querySelector('a')!, () => instance.hits());
-  } finally { destroy(); }
-});
-
-test('an ArenaCommand with route reports the primary click and leaves every other one alone', () => {
-  const { host, instance, destroy } = render(PaletteHost);
-  try {
-    assertConvention('ArenaCommandPalette', () => host.querySelector('a[role="option"]')!,
-      () => instance.hits());
   } finally { destroy(); }
 });
 
@@ -190,4 +174,83 @@ test('an ArenaCommand WITHOUT route still runs on a modified click', () => {
     assert.equal(instance.hits(), 1,
       'a row with no route is a button, and the convention must not reach it');
   } finally { destroy(); }
+});
+
+@Component({
+  standalone: true,
+  imports: [ArenaLink],
+  template: '<arena-link href="/notes" (navigate)="hits.set(hits() + 1)">the release notes</arena-link>',
+})
+class LinkHost { readonly hits = signal(0); }
+
+@Component({
+  standalone: true,
+  imports: [ArenaBottomNav, ArenaBottomNavItem],
+  template: '<arena-bottom-nav ariaLabel="Primary" active="home" (nav)="hits.set(hits() + 1)">'
+    + '<arena-bottom-nav-item id="home" icon="ph-bold ph-house" label="Home" href="/home" />'
+    + '</arena-bottom-nav>',
+})
+class BottomNavHost { readonly hits = signal(0); }
+
+@Component({
+  standalone: true,
+  imports: [ArenaTable, ArenaTableRow, ArenaTableCell],
+  template: `
+    <arena-table label="Recent sales" [columns]="columns" [responsive]="false">
+      <tr arena-table-row [interactive]="true">
+        <td arena-table-cell href="/sales/4f2a1c9" (navigate)="hits.set(hits() + 1)">4f2a1c9</td>
+      </tr>
+    </arena-table>
+  `,
+})
+class CellHost {
+  readonly hits = signal(0);
+  readonly columns = [{ header: 'Sale' }];
+}
+
+interface ConventionRow {
+  component: string;
+  host: Type<{ hits: () => number }>;
+  anchor: string;
+}
+
+const CONVENTION_ROWS: ConventionRow[] = [
+  { component: 'ArenaCard', host: CardHost, anchor: 'a' },
+  { component: 'ArenaBreadcrumbs', host: CrumbHost, anchor: 'a' },
+  { component: 'ArenaSideNavItem', host: NavHost, anchor: 'a' },
+  { component: 'ArenaCommandPalette', host: PaletteHost, anchor: 'a[role="option"]' },
+  { component: 'ArenaLink', host: LinkHost, anchor: 'a' },
+  { component: 'ArenaBottomNavItem', host: BottomNavHost, anchor: 'a' },
+  { component: 'ArenaTableCell', host: CellHost, anchor: 'td[arena-table-cell] a' },
+];
+
+function consumersOfTheConvention(): string[] {
+  const skipped = new Set(['build', 'dist', 'node_modules']);
+  const found: string[] = [];
+  const walk = (dir: string): void => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      if (entry.isDirectory()) {
+        if (!skipped.has(entry.name)) walk(join(dir, entry.name));
+      } else if (entry.name.endsWith('.ts') && !entry.name.endsWith('.d.ts') && !entry.name.endsWith('.test.ts')
+        && entry.name !== 'AnchorActivation.ts' && readFileSync(join(dir, entry.name), 'utf8').includes('isArenaPrimaryActivation')) {
+        found.push(basename(entry.name, '.ts'));
+      }
+    }
+  };
+  walk(join(ANGULAR_COMPONENTS, '..'));
+  return found.sort();
+}
+
+test('every component that reads isArenaPrimaryActivation reports the primary click and leaves every other one to the browser', () => {
+  const consumers = consumersOfTheConvention();
+  assert.ok(consumers.length > 0, 'no consumer of isArenaPrimaryActivation found -- the scan would check nothing');
+  const rows = CONVENTION_ROWS.map((row) => row.component).sort();
+  assert.deepEqual(consumers.filter((name) => !rows.includes(name)), [], 'a consumer of the convention has no row here');
+  assert.deepEqual(rows.filter((name) => !consumers.includes(name)), [], 'a row names a component that no longer reads the convention -- stale');
+  for (const row of CONVENTION_ROWS) {
+    const { host, instance, destroy } = render(row.host);
+    try {
+      assertConvention(row.component, () => host.querySelector(row.anchor)!, () => instance.hits());
+    } finally { destroy(); }
+  }
 });

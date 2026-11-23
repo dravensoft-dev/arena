@@ -42,7 +42,6 @@ test('no reference across layers is authorised, and asking about one answers no'
   assert.deepEqual([...ALLOWED_SPECIFIERS.keys()], [],
     'every page that links the compiled CSS is emitted, and an emitted file is outside what this '
     + 'gate scans, so no pattern authorises the edge');
-  for (const reason of ALLOWED_SPECIFIERS.values()) assert.ok(reason.trim().length > 0, 'a reason is the whole entry');
   assert.equal(isAllowedSpecifier('frameworks/tailwind/consume/Components.generated.css'), false);
   assert.equal(isAllowedSpecifier('frameworks/tailwind/components/display/arena-tag/ArenaTag.manifest.generated'), false);
   assert.equal(isAllowedSpecifier('frameworks/tailwind/Tv'), false);
@@ -64,11 +63,10 @@ test('a stylesheet link is judged by where it lands, so a relative path cannot s
   );
 });
 
-test('ALLOWED_SPECIFIERS is answerable to the real tree: a pattern nothing references is stale', () => {
-  const { allowedHits } = collect();
-  assert.deepEqual(staleSpecifierAllowances(allowedHits), [],
-    'a pattern authorising an edge nobody takes is a stale allowance');
-  assert.equal(staleSpecifierAllowances([]).length, ALLOWED_SPECIFIERS.size);
+test('a specifier allowance no import took is stale, and one taken is not', () => {
+  const allowed = new Map([[/^@x\//, 'why']]);
+  assert.equal(staleSpecifierAllowances([], allowed).length, 1, 'the pattern is allowed and no hit matched it');
+  assert.deepEqual(staleSpecifierAllowances(['@x/y'], allowed), []);
 });
 
 test('a citation of another layer is a hit, and a script name of any layer is not', () => {

@@ -17,17 +17,17 @@
   --fw-black:900;
 
   /* Type scale (px) */
-  --fs-mega:150px; /* largest display step: the brand manual's .big-glyph specimen */
-  --fs-hero:96px; /* extrapolated step between display (64) and mega (150) that keeps the scale's accelerating ratio coherent through its top; added with no consumer today by design: do not delete as dead API */
-  --fs-display:64px; /* large display heading */
-  --fs-h1:44px;
-  --fs-h2:32px;
-  --fs-h3:24px;
-  --fs-h4:19px;
-  --fs-lg:17px;
-  --fs-md:15px; /* body copy */
-  --fs-sm:13px;
-  --fs-xs:11px; /* mono labels / captions */
+  --fs-mega:9.375rem; /* largest display step: the brand manual's .big-glyph specimen */
+  --fs-hero:6rem; /* extrapolated step between display (64) and mega (150) that keeps the scale's accelerating ratio coherent through its top; added with no consumer today by design: do not delete as dead API */
+  --fs-display:4rem; /* large display heading */
+  --fs-h1:2.75rem;
+  --fs-h2:2rem;
+  --fs-h3:1.5rem;
+  --fs-h4:1.1875rem;
+  --fs-lg:1.0625rem;
+  --fs-md:0.9375rem; /* body copy */
+  --fs-sm:0.8125rem;
+  --fs-xs:0.6875rem; /* mono labels / captions */
 
   /* Line heights */
   --lh-root:1.5; /* What every element inherits until something declares otherwise. It is not a role like the three below, which a component picks on purpose; it is the floor, and it exists because a floor that each platform gets from somewhere else is a floor the two do not share. Tailwind's preflight sets exactly this number, so the Angular layer already had it and React, which loads no preflight, inherited the browser's `normal` instead: the same text stood about 7% shorter there, across 94 slots in 32 components, and nothing said so. Arena declares it now, in contracts/design/reset.css, so both layers inherit one value. The number matches what was already shipping rather than being chosen afresh. */

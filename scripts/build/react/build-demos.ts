@@ -4,7 +4,7 @@
  * on the page with every suite still green, because a suite imports the source. */
 
 import { readFileSync, writeFileSync } from 'node:fs';
-import { basename, join, relative } from 'node:path';
+import { basename, join } from 'node:path';
 import { toPosix, relPosix } from '../../utils/posix-path.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
@@ -22,7 +22,7 @@ export const ROOT_MODULES = [
   'frameworks/react/AnchorActivation.ts', 'frameworks/react/DataVisuals.ts',
   'frameworks/react/StructuredData.ts', 'frameworks/react/Theme.ts', 'frameworks/react/ThemeState.ts',
   'frameworks/react/UseArenaContainerWidth.ts', 'frameworks/react/UseDialogModal.ts',
-  'frameworks/react/WarnOnce.ts', 'frameworks/react/VocabularyClass.ts', 'frameworks/react/Vocabulary.generated.ts', 'frameworks/react/Phrase.ts', 'frameworks/react/Thresholds.ts', 'frameworks/react/ArenaLocale.ts', 'frameworks/react/ArenaIcons.ts', 'frameworks/react/LocaleDefaults.generated.ts',
+  'frameworks/react/WarnOnce.ts', 'frameworks/react/VocabularyClass.ts', 'frameworks/react/Vocabulary.generated.ts', 'frameworks/react/Phrase.ts', 'frameworks/react/Thresholds.ts', 'frameworks/react/RootScale.ts', 'frameworks/react/ArenaLocale.ts', 'frameworks/react/ArenaIcons.ts', 'frameworks/react/LocaleDefaults.generated.ts',
   'frameworks/react/ArenaStyles.generated.ts',
   'frameworks/react/AnchoredPanel.ts', 'frameworks/react/UseAnchoredPanel.ts',
   'frameworks/react/TypeAhead.ts', 'frameworks/react/RowWindowMeasure.ts', 'frameworks/react/ToastClock.ts',
@@ -45,7 +45,7 @@ export const node = {
     'check:appearance',
     'check:parts',
     'check:kitchen-sink',
-    'check:target-size', 'check:contained-parts', 'check:pixel-parity', 'check:palette-islands',
+    'check:target-size', 'check:text-scale', 'check:contained-parts', 'check:pixel-parity', 'check:palette-islands',
     'check:behaviour',
     'check:compliance',
     'check:demos',

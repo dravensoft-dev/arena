@@ -8,6 +8,7 @@ import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import React, { useRef } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
+import { createRoot } from 'react-dom/client';
 import { mount, cleanup, act } from './Harness.tsx';
 import {
   ARENA_PANEL_POPOVER, arenaFirstFocusable, useArenaAnchoredPanel, type ArenaPanelDismissal,
@@ -22,14 +23,15 @@ type ProbeProps = {
   focus?: boolean;
   tabOut?: boolean;
   matchAnchorWidth?: boolean;
+  align?: 'start' | 'end';
   children?: React.ReactNode;
 };
 
-function Probe({ name, open, seen, focus = false, tabOut = false, matchAnchorWidth = false, children }: ProbeProps) {
+function Probe({ name, open, seen, align, focus = false, tabOut = false, matchAnchorWidth = false, children }: ProbeProps) {
   const anchor = useRef<HTMLSpanElement | null>(null);
   const panel = useRef<HTMLDivElement | null>(null);
   const present = useArenaAnchoredPanel({
-    open, anchor, panel, offset: 6, matchAnchorWidth, tabOut, restoreFocus: focus,
+    open, anchor, panel, offset: 6, matchAnchorWidth, ...(align ? { align } : {}), tabOut, restoreFocus: focus,
     trigger: () => anchor.current?.querySelector('button') ?? null,
     onDismiss: (reason: ArenaPanelDismissal) => seen.push(`${name}:${reason}`),
     ...(focus ? { focusOnOpen: arenaFirstFocusable } : {}),
@@ -300,5 +302,214 @@ test('a closed panel leaves the stack for good, even if its node is put back in 
     assert.deepEqual(seen, ['lower:escape']);
   } finally {
     node.remove();
+  }
+});
+
+type StubVisual = EventTarget & { offsetTop: number; offsetLeft: number; height: number; width: number };
+
+function visualBox(width: number, height: number, offsetTop: number) {
+  return { offsetTop, offsetLeft: 0, height, width };
+}
+
+function domRect(left: number, top: number, width: number, height: number) {
+  return { x: left, y: top, left, top, right: left + width, bottom: top + height, width, height, toJSON() { return this; } } as DOMRect;
+}
+
+function stubVisualViewport(height: number, offsetTop = 0) {
+  const visual = Object.assign(new EventTarget(), visualBox(1024, height, offsetTop)) as StubVisual;
+  const had = Object.getOwnPropertyDescriptor(window, 'visualViewport');
+  Object.defineProperty(window, 'visualViewport', { configurable: true, value: visual });
+  const restore = () => {
+    if (had) Object.defineProperty(window, 'visualViewport', had); else delete (window as { visualViewport?: unknown }).visualViewport;
+  };
+  return { visual, restore };
+}
+
+function drawn(anchorTop: number, anchorHeight: number, panelHeight: number) {
+  const rect = Element.prototype.getBoundingClientRect;
+  Element.prototype.getBoundingClientRect = function sized(this: Element) {
+    const top = this.hasAttribute('data-probe') ? anchorTop : 0;
+    const height = this.hasAttribute('data-probe') ? anchorHeight : this.hasAttribute('data-panel') ? panelHeight : 0;
+    return domRect(0, top, 100, height);
+  };
+  return () => { Element.prototype.getBoundingClientRect = rect; };
+}
+
+test('a panel below a field that the keyboard covers flips above it', () => {
+  const seen: string[] = [];
+  const stub = stubVisualViewport(300);
+  const undraw = drawn(250, 40, 120);
+  try {
+    mount(<Probe name="p" open seen={seen} />);
+    assert.equal(panelOf('p')!.style.top, `${250 - 6 - 120}px`, 'the panel stayed under the keyboard');
+  } finally {
+    undraw();
+    stub.restore();
+  }
+});
+
+test('a panel is placed inside a visual viewport that is scrolled down', () => {
+  const seen: string[] = [];
+  const stub = stubVisualViewport(300, 200);
+  const undraw = drawn(210, 40, 120);
+  try {
+    mount(<Probe name="p" open seen={seen} />);
+    assert.equal(panelOf('p')!.style.top, '256px', 'the panel left the visible part of the screen');
+  } finally {
+    undraw();
+    stub.restore();
+  }
+});
+
+test('no visual viewport keeps the inner height', () => {
+  const seen: string[] = [];
+  const stub = stubVisualViewport(300);
+  stub.restore();
+  const undraw = drawn(250, 40, 120);
+  try {
+    mount(<Probe name="p" open seen={seen} />);
+    assert.equal(panelOf('p')!.style.top, '296px', 'the placement moved without a visual viewport');
+  } finally {
+    undraw();
+  }
+});
+
+test('a visual viewport resize re-places the panel, and closing removes the listeners', () => {
+  const seen: string[] = [];
+  const stub = stubVisualViewport(800);
+  const undraw = drawn(250, 40, 120);
+  try {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const root = createRoot(host);
+    act(() => { root.render(<Probe name="p" open seen={seen} />); });
+    const panel = panelOf('p')!;
+    assert.equal(panel.style.top, '296px');
+    stub.visual.height = 300;
+    act(() => { stub.visual.dispatchEvent(new Event('resize')); });
+    assert.equal(panel.style.top, '124px', 'a keyboard that opened later did not move the panel');
+    stub.visual.height = 800;
+    act(() => { stub.visual.dispatchEvent(new Event('scroll')); });
+    assert.equal(panel.style.top, '296px', 'a visual viewport scroll did not re-place the panel');
+    act(() => { root.render(<Probe name="p" open={false} seen={seen} />); });
+    stub.visual.height = 300;
+    stub.visual.dispatchEvent(new Event('resize'));
+    assert.equal(panelOf('p'), null);
+    assert.equal(panel.style.top, '296px', 'a closed panel still heard the visual viewport');
+    act(() => { root.unmount(); });
+    host.remove();
+  } finally {
+    undraw();
+    stub.restore();
+  }
+});
+
+function drawnWide(anchor: [left: number, top: number, width: number, height: number], panel: [width: number, height: number]) {
+  const rect = Element.prototype.getBoundingClientRect;
+  Element.prototype.getBoundingClientRect = function sized(this: Element) {
+    if (this.hasAttribute('data-probe')) return domRect(...anchor);
+    if (this.hasAttribute('data-panel')) {
+      const cap = Number.parseFloat((this as HTMLElement).style.maxHeight);
+      return domRect(0, 0, panel[0], Number.isNaN(cap) ? panel[1] : Math.min(panel[1], cap));
+    }
+    return domRect(0, 0, 0, 0);
+  };
+  return () => { Element.prototype.getBoundingClientRect = rect; };
+}
+
+function leftOf(dir: 'ltr' | 'rtl', align: 'start' | 'end') {
+  const seen: string[] = [];
+  const stub = stubVisualViewport(800);
+  const undraw = drawnWide([300, 100, 100, 40], [60, 120]);
+  document.documentElement.setAttribute('dir', dir);
+  document.documentElement.style.direction = dir;
+  try {
+    mount(<Probe name="p" open seen={seen} align={align} />);
+    return panelOf('p')!.style.left;
+  } finally {
+    cleanup();
+    document.documentElement.removeAttribute('dir');
+    document.documentElement.style.direction = '';
+    undraw();
+    stub.restore();
+  }
+}
+
+test('start and end are logical: a right-to-left page lines start up with the anchor\'s right edge', () => {
+  assert.equal(leftOf('ltr', 'start'), '300px');
+  assert.equal(leftOf('ltr', 'end'), '340px');
+  assert.equal(leftOf('rtl', 'start'), '340px', 'start stayed on the anchor\'s left edge in rtl');
+  assert.equal(leftOf('rtl', 'end'), '300px', 'end stayed on the anchor\'s right edge in rtl');
+});
+
+test('a panel taller than the room under its field is capped to that room and scrolls, instead of covering the field', () => {
+  const seen: string[] = [];
+  const stub = stubVisualViewport(360);
+  const undraw = drawnWide([20, 100, 200, 40], [200, 320]);
+  try {
+    mount(<Probe name="p" open seen={seen} />);
+    const panel = panelOf('p')!;
+    assert.equal(panel.style.top, '146px', 'the panel did not stay under the field');
+    assert.equal(panel.style.maxHeight, '214px');
+    assert.equal(panel.style.overflowY, 'auto');
+  } finally {
+    undraw();
+    stub.restore();
+  }
+});
+
+test('a panel that fits writes no max-height', () => {
+  const seen: string[] = [];
+  const undraw = drawn(10, 40, 120);
+  try {
+    mount(<Probe name="p" open seen={seen} />);
+    assert.equal(panelOf('p')!.style.maxHeight, '');
+    assert.equal(panelOf('p')!.style.overflowY, '');
+  } finally {
+    undraw();
+  }
+});
+
+function keepsScroll(panel: HTMLElement, at: number) {
+  const writes: number[] = [];
+  Object.defineProperty(panel, 'scrollTop', { configurable: true, get: () => at, set: (value: number) => { writes.push(value); } });
+  return writes;
+}
+
+test('a scroll inside a capped panel does not place it again, and a scroll elsewhere keeps its scroll position', () => {
+  const seen: string[] = [];
+  const stub = stubVisualViewport(360);
+  const undraw = drawnWide([20, 100, 200, 40], [200, 320]);
+  try {
+    mount(<Probe name="p" open seen={seen}><button type="button">inner</button></Probe>);
+    const panel = panelOf('p')!;
+    const writes = keepsScroll(panel, 30);
+    panel.style.top = '1px';
+    act(() => { panel.dispatchEvent(new Event('scroll')); });
+    act(() => { panel.querySelector('button')!.dispatchEvent(new Event('scroll')); });
+    assert.equal(panel.style.top, '1px', 'a scroll inside the panel placed it again');
+    assert.deepEqual(writes, [], 'a scroll inside the panel rewrote its scroll position');
+    act(() => { document.dispatchEvent(new Event('scroll')); });
+    assert.equal(panel.style.top, '146px', 'a scroll elsewhere did not place the panel');
+    assert.equal(panel.style.maxHeight, '214px');
+    assert.deepEqual(writes, [30], 'the scroll position was not restored after the cap was rewritten');
+  } finally {
+    undraw();
+    stub.restore();
+  }
+});
+
+test('a panel with no room either side keeps one row of height inside the visual viewport', () => {
+  const seen: string[] = [];
+  const stub = stubVisualViewport(100);
+  const undraw = drawnWide([20, 20, 200, 60], [200, 320]);
+  try {
+    mount(<Probe name="p" open seen={seen} />);
+    const panel = panelOf('p')!;
+    assert.equal(panel.style.maxHeight, '44px', 'the cap fell below one row');
+    assert.equal(panel.style.top, '56px', 'the panel was not clamped into the box');
+  } finally {
+    undraw();
+    stub.restore();
   }
 });

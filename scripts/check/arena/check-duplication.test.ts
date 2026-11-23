@@ -4,34 +4,18 @@
  * in made every prompt overlap every other one through the same emitted line, which read as 24
  * findings and was one. */
 
-import { test, after } from 'node:test';
+import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
 import {
   MIN_WORDS, LIMIT, FAMILY_LIMIT, FAMILY_DEBT, ONE_SOURCE_RENDERED_TWICE,
   authored, sentences, sameSubject, sameFamily, familyOf, limitFor,
   documents, duplicationProblems, zeroScanProblems,
 } from './check-duplication.ts';
-
-const made: string[] = [];
-const track = (dir: string) => { made.push(dir); return dir; };
-after(() => {
-  for (const dir of made) rmSync(dir, { recursive: true, force: true });
-});
+import { scratchTree } from '../../utils/scratch-tree.ts';
 
 const long = (word: string) => `${`${word} `.repeat(MIN_WORDS).trim()}.`;
 
-function tree(files: Record<string, string>) {
-  const base = track(mkdtempSync(join(tmpdir(), 'arena-duplication-')));
-  for (const [rel, text] of Object.entries(files)) {
-    const path = join(base, rel);
-    mkdirSync(join(path, '..'), { recursive: true });
-    writeFileSync(path, text);
-  }
-  return base;
-}
+const { tree } = scratchTree('arena-duplication');
 
 test('a sentence is long enough that a heading cannot collide with one by accident', () => {
   assert.equal(sentences('# Title').length, 0);

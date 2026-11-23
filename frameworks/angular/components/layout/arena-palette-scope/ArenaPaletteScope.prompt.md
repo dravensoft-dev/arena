@@ -27,7 +27,7 @@ A palette island: a subtree drawn in one palette while the page keeps another. S
 **Keys:** none.
 <!-- @keys end -->
 
-**The scope paints the ground, and the class alone does not.** A palette class such as `arena-light` sets variables and paints nothing, which is what lets it sit on `<html>` or on a component. The scope adds `base-100` as the ground and `base-content` as the ink, so an island reads as its own palette whatever the page is. Nest one inside another and the inner one wins for everything below it.
+**The scope paints the ground, and the class alone does not.** A palette class such as `arena-light` sets variables and paints nothing, which is what lets it sit on `<html>` or on a component. The scope paints the `surfaces` group's page slots, `surfaces-page-fill-rest` and `surfaces-page-ink-rest`. Those two slots fall back to `fill-page` and `ink-body`. The scope also rounds with `r-surface`, so an island reads as its own palette whatever the page is. Nest one inside another and the inner one wins for everything below it.
 
 **Read the palette with `injectArenaPalette()`.** The function returns a signal of the nearest `[arenaPalette]` above the caller, over the token `ARENA_PALETTE`, and `ArenaThemeService.theme` where there is none. An overlay opened from inside the island takes the island's palette, so a tooltip over a light island is light. `ArenaThemeService` stays page-wide.
 
@@ -45,11 +45,6 @@ A palette island: a subtree drawn in one palette while the page keeps another. S
 - Don't treat the scope as a card. The scope is the ground of a region, and its corners take the surface radius so that a scope around one card shows no corner of the other palette.
 - Don't use it to switch the page's theme. Page themes belong to `setArenaTheme` or `ArenaThemeService`, which write `<html>`.
 - Don't nest one only to repeat the palette the page already has.
-
-**By hand, in real Chromium**: run `bun run demos` and open
-`/frameworks/angular/components/layout/arena-palette-scope/ArenaPaletteScope.demo.generated.html`:
-- The island has its own background and text colour, distinct from the page's when the palette differs.
-- Switching the page theme leaves the island's palette alone.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

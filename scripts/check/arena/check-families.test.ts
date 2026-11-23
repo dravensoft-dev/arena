@@ -7,6 +7,8 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { readFamilies } from '../../lib/tailwind/vocabulary.ts';
+import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
 import { familyProblems, pageDriftProblems, strayClassProblems, utilityProblems, sweptProblems, collect, treeSource } from './check-families.ts';
 import type { Family } from '../../lib/tailwind/vocabulary.ts';
 
@@ -339,4 +341,29 @@ test('a default writing initial stands for the read\'s own fallback, because ini
 test('a component answering mark maps a value only to a status hue or to none, so every solid fill is a measured pair', () => {
   assert.match(runWith(MARK, badge({ neutral: null, cat: 'identity-2' })).join('\n'),
     /ArenaBadge: answers mark and hues\.tone\.cat maps to identity-2/);
+});
+
+test('a channel read inside the fallback of another read of the family needs no fallback of its own', () => {
+  const chained: Family = { family: 'chain', reach: 'context', description: 'A pair of channels, the second falling to the first.', default: 'arena-chain-on',
+    variants: { 'arena-chain-on': '[--arena-chain-a:1px] [--arena-chain-b:var(--arena-chain-a)]' } };
+  const manifest = { component: 'ArenaButton', answers: ['chain'], slots: { root: 'x-[var(--arena-chain-a,1px)] y-[var(--arena-chain-b,var(--arena-chain-a))]' } };
+  assert.deepEqual(runWith(chained, manifest), []);
+  const bare = { ...manifest, slots: { root: 'x-[var(--arena-chain-a)] y-[var(--arena-chain-b,var(--arena-chain-a))]' } };
+  assert.match(runWith(chained, bare).join('\n'), /--arena-chain-a falls back to nothing/);
+});
+
+test('a read of a channel the part\'s default block writes takes no fallback, and one restating the default fails', () => {
+  const manifests = new Map([...layerManifests().values()].map((one) => [one.component, one])) as Map<string, any>;
+  const files = ['frameworks/tailwind/vocabulary/arena-emphasis/Emphasis.family.json'];
+  const emphasis = (map: Map<string, any>) => familyProblems(readFamilies(), files, map).filter((line) => /emphasis/.test(line));
+  assert.deepEqual(emphasis(manifests), []);
+  const button = structuredClone(manifests.get('ArenaButton'));
+  assert.ok(String(button.slots.root).includes('bg-[color:var(--arena-emphasis-fill)]'));
+  button.slots.root = String(button.slots.root).replace('bg-[color:var(--arena-emphasis-fill)]',
+    'bg-[color:var(--arena-emphasis-fill,var(--actions-primary-root-fill-rest,var(--emphasis-primary-fill)))]');
+  const restated = emphasis(new Map([...manifests, ['ArenaButton', button]]));
+  assert.equal(restated.length, 1, restated.join('\n'));
+  assert.match(restated[0] ?? '', /^ArenaButton\.root: --arena-emphasis-fill falls back to .*, and the emphasis default block of this part writes --arena-emphasis-fill on it/);
+  const copy = manifests.get('ArenaCopyButton');
+  assert.ok(Object.values(copy.slots ?? {}).every((classes) => !/var\(--arena-emphasis-[a-z-]+\)/.test(String(classes))), 'a part with no default block keeps its fallbacks');
 });

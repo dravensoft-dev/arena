@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  BROWSER_BOUND, WEB_PROSE, aliasProseProblems, zeroAliasProseProblems, WEB_SHAPED, collect, memberPath, proseProblems, strands,
+  BROWSER_BOUND, aliasProseProblems, zeroAliasProseProblems, collect, memberPath, proseProblems, strands,
   valueProblems, zeroWalkProblems,
 } from './check-contracts-neutrality.ts';
-import { COMPUTED, computedProblems, cssLengthProblems, functionBody, NOT_GEOMETRY, optionShapeProblems } from './check-contracts-neutrality.ts';
+import { computedProblems, cssLengthProblems, functionBody, NOT_GEOMETRY, optionShapeProblems } from './check-contracts-neutrality.ts';
 import type { ContractCandidate, TypeContract } from '../../lib/arena/contract-shapes.ts';
 
 const of = (rel: string, tree: unknown) => strands(rel, tree);
@@ -61,16 +61,7 @@ test('the tree passes its own claim, over more than nothing', () => {
   assert.deepEqual(problems, []);
   assert.ok(files.length > 0);
   assert.ok(all.filter((s) => !s.prose).length > 0, 'a gate reading no value checks no value');
-});
-
-test('every record still names something the payload holds', () => {
-  const { all } = collect();
-  const proseAt = new Set(all.filter((s) => s.prose).map((s) => `${s.rel}:${s.path.split('.').slice(0, -1).join('.') || '(root)'}`));
-  for (const at of WEB_PROSE.keys()) {
-    assert.ok(proseAt.has(at), `WEB_PROSE names ${at} and no description was read there`);
-  }
-  assert.ok(WEB_SHAPED.size > 0);
-  assert.ok(BROWSER_BOUND.size > 0);
+  assert.ok(BROWSER_BOUND.size > 0, 'a gate bound to no construct refuses nothing');
 });
 
 test('a COMPUTED entry fails when its key does not resolve, its file lacks the function, or the map is empty', () => {
@@ -93,7 +84,6 @@ test('a COMPUTED entry fails when its function body does not read the member', (
 
 test('the real COMPUTED holds', () => {
   assert.deepEqual(computedProblems(), []);
-  assert.equal(COMPUTED.size, 17);
 });
 
 const probeContracts = new Map<string, ContractCandidate>([
@@ -166,7 +156,6 @@ test('a description under contracts/api naming a compatibility alias fails', () 
 test('the alias guard fails on a walk that read no description under contracts/api', () => {
   assert.equal(zeroAliasProseProblems([]).length, 1);
   assert.deepEqual(zeroAliasProseProblems(of('contracts/api/types/a.json', { description: 'x' })), []);
-  assert.deepEqual(zeroAliasProseProblems(collect().all), []);
 });
 
 const lengthFamilies = new Map([['dialog', { axis: '--arena-dialog-width' }], ['grid', { axis: ['--arena-grid-min', '--arena-grid-max'] }]]);

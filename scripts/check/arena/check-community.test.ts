@@ -4,10 +4,9 @@
  * document Context7 would index, and a rule that has drifted from the router. The last pair is
  * the reason the file exists: neither failure is visible in a browser or in a build. */
 
-import { test, after } from 'node:test';
+import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { mkdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
   OUTWARD, POLICY, CONTRIBUTING, CONDUCT, CONFIG, CONTEXT7, ROUTER, contributorBasenames,
@@ -16,22 +15,9 @@ import {
   taglineProblems, TAGLINE_SOURCE,
 } from './check-community.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
+import { scratchTree } from '../../utils/scratch-tree.ts';
 
-const made: string[] = [];
-const track = (dir: string) => { made.push(dir); return dir; };
-after(() => {
-  for (const dir of made) rmSync(dir, { recursive: true, force: true });
-});
-
-function tree(files: Record<string, string>) {
-  const base = track(mkdtempSync(join(tmpdir(), 'arena-community-')));
-  for (const [rel, text] of Object.entries(files) as [string, string][]) {
-    const path = join(base, rel);
-    mkdirSync(join(path, '..'), { recursive: true });
-    writeFileSync(path, text);
-  }
-  return base;
-}
+const { tree } = scratchTree('arena-community');
 
 const LINK = (path: string) => `https://github.com/dravensoft-dev/arena/blob/main/${path}`;
 
@@ -128,8 +114,8 @@ test('a contributor document Context7 would index is the failure this gate exist
 
 test('a rule the router does not carry has drifted, and rewrapping the router has not', () => {
   const drifted = tree({
-    [CONTEXT7]: JSON.stringify({ excludeFiles: [], rules: ['Gradients are fine'] }),
-    [ROUTER]: '**No gradients** on any surface.',
+    [CONTEXT7]: JSON.stringify({ excludeFiles: [], rules: ['Emoji are fine'] }),
+    [ROUTER]: '**No emoji** in the interface.',
   });
   assert.equal(context7Problems(drifted).length, 1);
 

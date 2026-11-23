@@ -106,7 +106,10 @@ specificity and source order would decide again. **A read of a channel falls bac
 family's axis**, `var(<channel>,var(<axis>,<default>))`: a class on the component sets the channel
 and wins, the property an adopter sets on a container is read when no class does, and the default
 is read when neither is there. `check:families` compares the fallback with the value the family
-writes, wrapped in its axis or not.
+writes, wrapped in its axis or not. **A part whose family writes a default block reads bare.** A
+part with colour slots gets a `:where([data-arena-part="<part>"])` block that writes every channel of
+its default option, so its slot reads `bg-[color:var(--arena-emphasis-fill)]` with no fallback, and
+`check:families` refuses one that restates the default.
 
 **An `answers` entry is a bare family name or an object.** The object,
 `{ "family": "size", "options": ["arena-size-sm", "arena-size-md", "arena-size-lg"], "default":
@@ -164,7 +167,7 @@ layout included, and a key that cannot name a property warns once.
 **A markup family has no default, no axis, and no answering manifest.** Its options are
 `[property:value]` tokens. A non-restating option writes declarations and never a custom property.
 A `restates` family names a contract file per option instead, and writes only the custom
-properties of that contract group. A markup family compiles unlayered to
+properties of that contract group. A markup family compiles inside `@layer components` to
 `@scope (.option) { :scope {…} }` in the order the file writes its options, because two modifiers
 writing one property are decided by that order. It ships at `css/vocabulary/<family>.css` like
 every family. **A component family is the one that carries a specimen card.** An adopter writes
@@ -300,6 +303,18 @@ every occurrence inside `var(--ease-out)`.
 mean the length: a placeholder faking the shape of what it stands in for, a tooltip whose corner
 follows its label, a `calc()` adding a hairline up rather than drawing one. Each entry names one
 case and says why, and an entry no manifest carries fails the gate as a stale allowance.
+
+**`check:roles` also refuses a state drawn with a literal level.** An `opacity-<n>` (other than 0
+and 100, which are visibility), an opacity or a `/<digits>` alpha written as a bracketed number
+rather than a `var()`, with or without a leading or trailing `!`, on a state branch (a `disabled`,
+`blocked`, `selected`, `current`, `pressed`, `active`, `invalid`, `state`, `checked`,
+`indeterminate`, `error`, `open`, `readOnly` or `dragging` variant, or a compound variant keyed by
+one) or under a state modifier (`hover:`, `focus:`, `disabled:`, `aria-*:`, `data-[state=...]:`, or
+a `group-` or `peer-` form of one, named or not) fails, because
+the state roles carry the level a style plugin can answer: `opacity-[var(--fade-disabled)]`,
+`bg-selected/(--level-accent-soft-primary)`, `ring-edge-focus/(--level-accent-soft-gold)`. A literal
+alpha on a base slot is not a state. `STATE_LITERALS` in the same file records an exception with its
+reason, ships empty, and fails as stale like `SCALE_USES`.
 
 ## A slot paints the expressive properties even when they are neutral
 
@@ -512,9 +527,8 @@ per slot and value on the element given the hue, never on an ancestor, so a badg
 alert reads its own colour. What each hue writes is authored once, in
 [`Hues.json`](./Hues.json), and not as a `:root` rule, since a `var()` resolves where it is
 declared and a root definition would freeze the plugin scope. A slot reads a channel,
-`bg-[color:var(--arena-hue-fill-soft)]`, and declares none. **A slot whose hue no value varies
-names it under `hues.always`**, `{ slot: hue }`, written on the bare slot class ahead of the group
-rules, and no hued group reaches that slot; `check:api` holds both.
+`bg-[color:var(--arena-hue-fill-soft)]`, and declares none. A key of `hues` names a group of the
+manifest, and `check:api` refuses one that does not.
 
 ## What a manifest is compiled into
 
@@ -535,25 +549,47 @@ repository does not have.
 
 ## Invariants the manifests must reproduce
 
-- **Danger is outline:** the danger hue's edge and ink, its strong fill closed to `transparent`, so a
-  presence, feed and progress marks read `--arena-hue-fill-strong` for the other hues and the ink for danger, and a chart legend swatch and the tag's dot read the ink;
-  the one filled danger surface is `ArenaConfirmDialog`'s final confirmation, `fill-confirm-final`.
-- **Focus is a ring, and which ring follows what is being focused.** A CONTROL takes the
-  gold ring, `--focus-ring` at `--focus-width`. A SURFACE an activation is drawn around
-  takes `ring-primary` with `ring-2`. Derive which manifests spend each with
-  `grep -rl 'focus-visible:ring-primary' frameworks/tailwind/components` and
-  `grep -rl 'focus-ring' frameworks/tailwind/components`. **`--gold-soft` is not that ring**:
+- **The danger hue paints through its edge and its ink, and its strong fill is `hue-danger-fill-strong`.**
+  That is a colour role whose kernel default is `transparent`, so a slot reading
+  `--arena-hue-fill-strong` is clear until a plugin answers it. Presence, feed and timeline dots read
+  the `marks.dot` slots, and meter, progress and spinner ranges the `meters.track` slots, whose tone
+  defaults are the hue ink, `{hue-<h>-ink}`, so none of them reads a hue channel. The `--arena-hue-*`
+  channels are read by the badge, the tag, the stat card, the calendar chip and the confirm dialog,
+  and by the series parts, a chart legend swatch and a board column dot, which read the ink.
+  `ArenaConfirmDialog`'s final confirmation reads the destructive slots of the `actions` group.
+- **Focus is a ring, and which ring follows the shape of what is focused.** Every focus ring is
+  the `edge-focus` role at `bw-focus`, so a skin that answers the role moves all of them. A
+  surface an activation is drawn around (card, board, sheet, scroller, accordion, tab, stepper,
+  bottom nav, a dialog's input) takes it as a ring utility,
+  `ring-[length:var(--bw-focus)] ring-edge-focus`. An unfilled row, link or cell takes it as an
+  inset shadow, `focus-visible:shadow-[inset_0_0_0_var(--bw-focus)_var(--edge-focus)]`. **A focus
+  ring never sits on a filled ground**: a control with a fill (a button, a switch track, a current
+  page) draws it outside, `focus-visible:outline-[length:var(--bw-focus)]
+  focus-visible:outline-edge-focus focus-visible:outline-offset-[var(--gap-focus)]`, on the whole
+  slot and never beside an `outline-none`, so it rests on the page surface where the ring is
+  measured. Derive which manifests spend each with
+  `grep -rl --include=*.manifest.json -e 'focus-visible:ring-edge-focus' frameworks/tailwind/components`,
+  `grep -rl --include=*.manifest.json -e 'focus-visible:outline-edge-focus' frameworks/tailwind/components` and
+  `grep -rl --include=*.manifest.json -e 'focus-visible:shadow-\[inset_0_0_0_var(--bw-focus)_var(--edge-focus)' frameworks/tailwind/components`.
+  **`--gold-soft` is not that ring**:
   it is the accent at 16%, and a real browser reads it as a wash rather than an edge.
 - **A ring is composed from several utilities rather than named by one**, which is why
   `check:coverage` excludes the namespace and why nothing fails a manifest painting none,
-  and the composition is two decisions. A slot focused directly also carries `outline-none`,
-  or the browser draws its own ring over Arena's; one focused through a sized-to-nothing
-  input has none to remove. And `shadow-*` writes `--tw-shadow`, REPLACING whatever that
+  and the composition is two decisions. A slot focused directly also carries `outline-hidden`
+  in its own focus variant (`focus:outline-hidden`, `focus-visible:outline-hidden`), never a bare
+  `outline-none` and never a bare `outline-hidden`: it removes the browser's ring over Arena's and
+  keeps a transparent outline the forced palette paints, because forced colours drops the shadow,
+  the ring and the border. `check:tailwind` refuses a bare `outline-none`, one in a focus state, and
+  one under only ambient variants such as a breakpoint, `dark:` or `forced-colors:`. A slot inside a scroll or clip container
+  (NumberField `input` in its `overflow-hidden` field, Table `th` and `td` under the tabular
+  root, TreeView `item` and Calendar `cell` in a scrolling box) also takes `-outline-offset-2` in its focus variant, so
+  the 2px forced-colours outline sits inside the box and no edge is clipped; no pixel moves outside forced colours. A field whose ring
+  sits on a wrapper still writes it on the focused element. And `shadow-*` writes `--tw-shadow`, REPLACING whatever that
   slot held, so a slot whose shadow already means something, the selected tab's underline,
   takes `ring-*`, which writes its own slot and composes. A manifest painting no ring is
   quiet in every gate and loud on the page.
-- No gradient utilities. Uppercase is reserved for micro-labels. Charts carry identity
-  (`--color-cat-*`) or meaning (status), never both.
+- Uppercase is reserved for micro-labels. A chart series carries identity
+  (`--color-cat-*`) or meaning (status), through `colorId` or `tone`.
 
 Authoring a manifest that needs a value no token holds is a spec violation: add
 the token to `contracts/design/` first, then reference it here.
@@ -566,11 +602,11 @@ variant combination and be right without a browser interaction driving it.
 
 The corollary matters just as much: **a state modifier beats a plain variant
 class on the same property, always**, both on specificity, since a pseudo-class adds
-a selector so `focus-within:border-secondary` compiles to `(0,2,0)` against a
+a selector so `focus-within:border-edge-focus` compiles to `(0,2,0)` against a
 variant's plain `border-error` at `(0,1,0)`, and on source order. A state
 modifier left on a slot's **base** string therefore leaks through every variant
 built on that slot, including the ones that must lose to it. The failure is concrete:
-put `focus-within:border-secondary` / `focus-within:ring-secondary/16`
+put `focus-within:border-edge-focus` / `focus-within:ring-edge-focus/(--level-accent-soft-gold)`
 on `ArenaInput`'s base `field` slot and all three `state` values (`neutral`, `error`,
 `valid`) inherit it. `error`'s own `border-error`/`ring-error` are plain classes
 with lower specificity, so focusing an errored field turns it gold and
@@ -588,11 +624,11 @@ slot is only a safe place for a modifier every variant branch is willing to lose
 
 ## Two classes at equal specificity are ordered alphabetically, not by manifest order
 
-Tailwind emits same-specificity utilities sorted by value inside each property bucket, so
-`bg-transparent` always compiles after `bg-primary/14`, whatever order the manifest writes them
-in. When a base slot and a modifier both set one property, the alphabetically-later value wins,
-which is arbitrary with respect to intent. Reordering the class string does nothing, because this
-is the *compiled stylesheet's* order. A property a modifier overrides does not belong on the base
+Tailwind sorts same-specificity utilities by value inside each property bucket, so
+`bg-transparent` compiles after `bg-selected/(--level-accent-soft-primary)`, whatever order the manifest writes them.
+When a base slot and a modifier both set one property, the alphabetically-later value wins,
+which is arbitrary with respect to intent. Reordering the class string does nothing: this is
+the *compiled stylesheet's* order. A property a modifier overrides does not belong on the base
 slot at all: put it in every branch, so the base only carries what no branch touches.
 
 A `variants` block does not carry this risk: `classesFor`
@@ -698,7 +734,7 @@ button: a disabled prev/next arrow, rendered dim and `not-allowed` by design,
 tints on hover anyway.
 
 `ArenaIconButton.manifest.json` gets away with an unguarded `hover:bg-base-200`
-only because its `disabled:opacity-45` mutes *everything* the element renders,
+only because its disabled fade mutes *everything* the element renders,
 tint included. The hover still technically fires, but nothing shows through
 the reduced opacity that a sighted user would read as feedback. A bare
 `hover:bg-*` with no such blanket disabled treatment does not get this for

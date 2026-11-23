@@ -130,8 +130,8 @@ export function scannedFiles(root = ROOT, ignored = untrackedRoots(root)) {
   return found;
 }
 
-export function staleExemptions(seen: Set<string>) {
-  return [...EXEMPT.keys()]
+export function staleExemptions(seen: Set<string>, exempt: Map<string, string> = EXEMPT) {
+  return [...exempt.keys()]
     .filter((token) => !seen.has(token))
     .map((token) => `EXEMPT names "${token}", which the tree no longer carries -- drop the exemption`);
 }

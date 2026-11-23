@@ -16,7 +16,7 @@ import { pathToFileURL } from 'node:url';
 import { iconManifest } from '../../lib/arena/icon-manifest.ts';
 import {
   GENERATED_PALETTE, PACKAGES, collect, unassembled, layersOf, LAYERS, componentMapProblems, componentReachProblems, bundledCssProblems, declaredComponents, distDir, exportProblems, globMatches, manifestProblems, paletteEquivalenceProblems, stripAtStatements, styleProblems,
-  payloadProblems, CARRIED_BY_PACKAGE, iconManifestProblems, fontProblems, entryPointProblems, COMPILED_BY_CONSUMER, cssListProblems, CSS_HOMES, directiveProblems, themeSheetProblems, themeCompileProblems, unlayeredTokenProblems, consumerEntry
+  payloadProblems, CARRIED_BY_PACKAGE, iconManifestProblems, fontProblems, entryPointProblems, COMPILED_BY_CONSUMER, cssListProblems, CSS_HOMES, directiveProblems, bannerProblems, themeSheetProblems, themeCompileProblems, unlayeredTokenProblems, consumerEntry
 } from './check-packages.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { budgetFor, deadline, type Deadline } from '../../lib/arena/deadline.ts';
@@ -42,7 +42,11 @@ const REPOSITORY: Deadline = deadline('check-packages:repository', 20_000,
   'collect() reads the real repository and compiles the theme sheet twice, 3.1 s alone and over '
   + '7 s with every core busy, and the bound only ends a hang');
 
-const BUDGET = budgetFor(REPOSITORY, TERM_GRACE);
+const ICON_RENDERS: Deadline = deadline('check-packages:icon-renders', 40_000,
+  'six rows each render the React icon manifest, a second and a half alone and several under a loaded '
+  + 'sweep, and the bound only ends a hang');
+
+const BUDGET = budgetFor(REPOSITORY, ICON_RENDERS, TERM_GRACE);
 
 const generated = ':root{--color-primary:#b52a20;--color-base-100:#141010;}';
 
@@ -107,18 +111,15 @@ const manifest = (overrides = {}) => ({
   ...overrides,
 });
 
-test('a well-formed manifest reports nothing', () => {
-  assert.deepEqual(manifestProblems(REACT_PACKAGE, manifest(), '4.1.0'), []);
-});
-
-test('a version out of step with plugin.json is reported with both', () => {
-  const problems = manifestProblems(REACT_PACKAGE, manifest({ version: '4.0.0' }), '4.1.0');
-  assert.deepEqual(problems, ['@dravensoft/arena-react: version 4.0.0, and .claude-plugin/plugin.json says 4.1.0']);
-});
-
-test('private is a problem, because a private package can never be published', () => {
-  assert.deepEqual(manifestProblems(REACT_PACKAGE, manifest({ private: true }), '4.1.0'),
-    ['@dravensoft/arena-react: private, so it can never be published']);
+test('manifestProblems reports nothing for a well-formed manifest, and names a version out of step with plugin.json and a private package', () => {
+  const rows: { name: string; overrides: Record<string, unknown>; expected: string[] }[] = [
+    { name: 'a well-formed manifest reports nothing', overrides: {}, expected: [] },
+    { name: 'a version out of step with plugin.json is reported with both', overrides: { version: '4.0.0' },
+      expected: ['@dravensoft/arena-react: version 4.0.0, and .claude-plugin/plugin.json says 4.1.0'] },
+    { name: 'private is a problem, because a private package can never be published', overrides: { private: true },
+      expected: ['@dravensoft/arena-react: private, so it can never be published'] },
+  ];
+  for (const row of rows) assert.deepEqual(manifestProblems(REACT_PACKAGE, manifest(row.overrides), '4.1.0'), row.expected, row.name);
 });
 
 test('an install script is refused, whichever of the three names it takes', () => {
@@ -300,15 +301,13 @@ test('check:packages refuses when either package is missing, naming the layers',
   const reason = unassembled(base) ?? '';
   assert.match(reason, /^angular is not assembled/);
   assert.doesNotMatch(reason, /react/);
-  const soft = refusal(base, '0');
-  assert.equal(soft.status, 2, soft.stderr);
-  assert.match(soft.stderr, /check:packages: SKIPPED/);
-  assert.doesNotMatch(soft.stdout, /went on/);
-  assert.equal(refusal(base, '1').status, 1);
+  const strict = refusal(base, '1');
+  assert.equal(strict.status, 1, strict.stderr);
+  assert.match(strict.stderr, /angular is not assembled/);
+  assert.doesNotMatch(strict.stdout, /went on/);
   mkdirSync(distDir('angular', base), { recursive: true });
   writeFileSync(join(distDir('angular', base), 'package.json'), '{}\n');
   assert.equal(unassembled(base), null);
-  assert.match(refusal(base, '1').stdout, /went on/);
 });
 
 test('check:packages --layer requires and judges the one package it names, whatever the other is', () => {
@@ -317,8 +316,9 @@ test('check:packages --layer requires and judges the one package it names, whate
   writeFileSync(join(distDir('react', base), 'package.json'), '{}\n');
   assert.equal(unassembled(base, ['react']), null);
   assert.match(unassembled(base, ['angular']) ?? '', /^angular is not assembled/);
-  assert.match(refusal(base, '1', ['react']).stdout, /went on/);
-  assert.equal(refusal(base, '1', ['angular']).status, 1);
+  const strict = refusal(base, '1', ['angular']);
+  assert.equal(strict.status, 1, strict.stderr);
+  assert.match(strict.stderr, /angular is not assembled/);
   assert.deepEqual(collect(root, (layer) => distDir(layer, base), ['angular']).assembled, []);
   assert.throws(() => collect(root, (layer) => distDir(layer, base), ['react']),
     (error: Error) => error.message.includes(toPosix(join(distDir('react', base), 'css', 'tailwind-theme.css'))));
@@ -504,6 +504,16 @@ test('a shipped rule stating one condition twice is reported, because a bundler 
   rmSync(dir, { recursive: true });
 });
 
+test('a shipped pseudo-element rule nesting a condition is reported, because the Bun development server drops it', () => {
+  const dir = assembled({
+    'css/a.css': `.a {\n  &::placeholder {\n    color: red;\n    ${CONDITION} {\n      color: blue;\n    }\n  }\n}\n`,
+  });
+  const problems = bundledCssProblems(PKG, dir);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /::placeholder/);
+  rmSync(dir, { recursive: true });
+});
+
 test('a wash of a colour the ink is not, stated once, is what a clean package looks like', () => {
   const dir = assembled({
     'css/a.css': `.a {\n  background-color: var(--fill-surface-sunken);\n  color: var(--ink-muted);\n  ${CONDITION} {\n`
@@ -514,51 +524,27 @@ test('a wash of a colour the ink is not, stated once, is what a clean package lo
   rmSync(dir, { recursive: true });
 });
 
-test('a package with no icons.json cannot tell a consumer what Arena draws for them', () => {
-  const problems = iconManifestProblems(PKG, track(mkdtempSync(join(tmpdir(), 'arena-pkg-'))));
-  assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /no icons\.json/);
-  assert.match(problems[0] ?? '', /reading this package as text/);
-});
-
-test('an icons.json that does not parse says so rather than reading as an empty list', () => {
-  const dir = track(mkdtempSync(join(tmpdir(), 'arena-pkg-')));
-  writeFileSync(join(dir, 'icons.json'), '{ not json');
-  const problems = iconManifestProblems(PKG, dir);
-  assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /does not parse/);
-});
-
-test('an icons.json that outlived its renders fails, which is what keeps the list honest', () => {
-  const dir = track(mkdtempSync(join(tmpdir(), 'arena-pkg-')));
-  writeFileSync(join(dir, 'icons.json'),
-    JSON.stringify({ components: { ArenaGhost: { pairs: { bold: ['ph-ghost'] }, loose: [] } }, fills: [] }));
-  const problems = iconManifestProblems(PKG, dir);
-  assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /is not what the renders say today/);
-});
-
-test('an icons.json that is one list for the whole package is not keyed by component and fails', () => {
-  const dir = track(mkdtempSync(join(tmpdir(), 'arena-pkg-')));
-  writeFileSync(join(dir, 'icons.json'), JSON.stringify({ pairs: { bold: ['ph-bell'] }, loose: [] }));
-  const problems = iconManifestProblems(PKG, dir);
-  assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /not keyed by component/);
-});
-
-test('an icons.json whose filled components drifted from the renders fails', () => {
-  const dir = track(mkdtempSync(join(tmpdir(), 'arena-pkg-')));
-  writeFileSync(join(dir, 'icons.json'), JSON.stringify({ ...iconManifest('react'), fills: [] }));
-  const problems = iconManifestProblems(PKG, dir);
-  assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /is not what the renders say today/);
-});
-
-test('a list assembled from the renders it was derived from is the passing case', () => {
-  const dir = track(mkdtempSync(join(tmpdir(), 'arena-pkg-')));
-  writeFileSync(join(dir, 'icons.json'), `${JSON.stringify(iconManifest('react'), null, 2)}\n`);
-  assert.deepEqual(iconManifestProblems(PKG, dir), []);
-  rmSync(dir, { recursive: true });
+test('iconManifestProblems refuses a package with no icons.json, one that does not parse, one that outlived its renders, one not keyed by component and one whose fills drifted, and passes the list the renders derive', { timeout: BUDGET }, () => {
+  const rows: { name: string; icons?: string; count: number; patterns: RegExp[] }[] = [
+    { name: 'a package with no icons.json cannot tell a consumer what Arena draws for them', count: 1,
+      patterns: [/no icons\.json/, /reading this package as text/] },
+    { name: 'an icons.json that does not parse says so rather than reading as an empty list', icons: '{ not json', count: 1, patterns: [/does not parse/] },
+    { name: 'an icons.json that outlived its renders fails, which is what keeps the list honest', count: 1, patterns: [/is not what the renders say today/],
+      icons: JSON.stringify({ components: { ArenaGhost: { pairs: { bold: ['ph-ghost'] }, loose: [] } }, fills: [] }) },
+    { name: 'an icons.json that is one list for the whole package is not keyed by component and fails', count: 1, patterns: [/not keyed by component/],
+      icons: JSON.stringify({ pairs: { bold: ['ph-bell'] }, loose: [] }) },
+    { name: 'an icons.json whose filled components drifted from the renders fails', count: 1, patterns: [/is not what the renders say today/],
+      icons: JSON.stringify({ ...iconManifest('react'), fills: [] }) },
+    { name: 'a list assembled from the renders it was derived from is the passing case', count: 0, patterns: [],
+      icons: `${JSON.stringify(iconManifest('react'), null, 2)}\n` },
+  ];
+  for (const row of rows) {
+    const dir = track(mkdtempSync(join(tmpdir(), 'arena-pkg-')));
+    if (row.icons !== undefined) writeFileSync(join(dir, 'icons.json'), row.icons);
+    const problems = iconManifestProblems(PKG, dir);
+    assert.equal(problems.length, row.count, `${row.name}: finding count`);
+    for (const pattern of row.patterns) assert.match(problems[0] ?? '', pattern, `${row.name}: ${pattern}`);
+  }
 });
 
 test('every secondary entry point is an exports key of the assembled Angular package', () => {
@@ -585,6 +571,14 @@ test('no packaged sheet but the consumer\'s theme carries a compile-time directi
   assert.match(directiveProblems(REACT_PKG, leaky).join('\n'), /css\/leak\.css.*@apply/);
   const clean = distTree({ 'arena.css': ':root{}', 'css/tailwind-theme.css': '@theme { --a: 1; }' });
   assert.deepEqual(directiveProblems(REACT_PKG, clean), []);
+});
+
+test('a packaged sheet carrying a GENERATED banner fails, and one without passes', () => {
+  const banner = '/* GENERATED by scripts/build/tailwind/build-tailwind.ts — edit frameworks/tailwind/Theme.css, not this file. */\n';
+  const leaky = distTree({ 'arena.css': ':root{}', 'css/components/arena-x.css': `${banner}.x { color: red; }` });
+  assert.match(bannerProblems(REACT_PKG, leaky).join('\n'), /css\/components\/arena-x\.css carries a GENERATED banner/);
+  const clean = distTree({ 'arena.css': ':root{}', 'css/components/arena-x.css': '.x { color: red; }' });
+  assert.deepEqual(bannerProblems(REACT_PKG, clean), []);
 });
 
 test('an allowance for a sheet the package no longer ships fails as stale', () => {
@@ -621,7 +615,7 @@ test('in the Tailwind entry a project compiles, arena-defaults ranks below base,
 
 test('the token sheets arena.css reaches declare their custom properties outside any cascade layer', () => {
   assert.deepEqual(unlayeredTokenProblems(REACT_PKG, distTree({ 'arena.css': "@import './css/colors.css';", 'css/colors.css': ':root{--color-base-100:#141010}' })), []);
-  assert.match(unlayeredTokenProblems(REACT_PKG, distTree({ 'arena.css': "@import './css/colors.css';", 'css/colors.css': '@layer x{:root{--color-base-100:#141010}}' })).join('\n'), /css\/colors\.css/);
+  assert.match(unlayeredTokenProblems(REACT_PKG, distTree({ 'arena.css': "@import './css/colors.css';", 'css/colors.css': '@layer x{:root{--color-base-100:#141010}}', 'css/tailwind-theme.css': selfReferences('--color-base-100') })).join('\n'), /css\/colors\.css/);
 });
 
 const selfReferences = (...names: string[]) => `@theme { ${names.map((n) => `${n}: var(${n});`).join(' ')} }`;
@@ -652,7 +646,18 @@ test('a self-reference in an inline theme block emits no variable, so the defaul
 test('a family channel declared inside a layer is not a token, and a token beside it still is', () => {
   const sheet = '@layer utilities{@scope (.arena-fill){[data-arena-part="button"]{--arena-fill-width:100%}}}';
   assert.deepEqual(unlayeredTokenProblems(REACT_PKG, distTree({ 'arena.css': "@import './css/vocabulary/fill.css';", 'css/vocabulary/fill.css': sheet })), []);
-  assert.match(unlayeredTokenProblems(REACT_PKG, distTree({ 'arena.css': "@import './css/x.css';", 'css/x.css': '@layer x{:root{--arena-fill-width:1px;--sp-1:4px}}' })).join('\n'), /css\/x\.css/);
+  const themed = selfReferences('--sp-1');
+  assert.match(unlayeredTokenProblems(REACT_PKG, distTree({ 'arena.css': "@import './css/x.css';", 'css/x.css': '@layer x{:root{--arena-fill-width:1px;--sp-1:4px}}', 'css/tailwind-theme.css': themed })).join('\n'), /css\/x\.css/);
+});
+
+test('a markup family restating a token the theme never self-references may sit in a layer, and one restating a self-referenced token may not', () => {
+  const family = (name: string) => distTree({
+    'arena.css': "@import './css/vocabulary/density.css';",
+    'css/vocabulary/density.css': `@layer components{@scope (.arena-compact){:scope{${name}:32px}}}`,
+    'css/tailwind-theme.css': selfReferences('--font-body'),
+  });
+  assert.deepEqual(unlayeredTokenProblems(REACT_PKG, family('--dz-ctl-h')), []);
+  assert.match(unlayeredTokenProblems(REACT_PKG, family('--font-body')).join('\n'), /css\/vocabulary\/density\.css/);
 });
 
 test('a shipped css file the page never names fails, and a css path the page names that does not ship fails', () => {
@@ -689,7 +694,7 @@ test('a sheet only the other layer\'s section names does not count, and one nami
   const base = track(mkdtempSync(join(tmpdir(), 'refs-')));
   mkdirSync(join(base, 'skills/design/references'), { recursive: true });
   writeFileSync(join(base, 'skills/design/references/stylesheets.md'),
-    '| `css/base.css` | x |\n\n## Which sheet re-bases the Angular CDK overlay?\n\n`css/arena-cdk.css` ships here.\n');
+    '| `css/base.css` | x |\n\n## Which sheet carries the Angular CDK overlay rules?\n\n`css/arena-cdk.css` ships here.\n');
   const text = (layer: 'react' | 'angular') => referenceText(base, CSS_HOMES, layer);
   const pkg = { layer: 'react', name: '@x/react' };
   assert.deepEqual(cssListProblems(pkg, dir, text('react')), []);

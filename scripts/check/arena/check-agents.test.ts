@@ -2,33 +2,17 @@
  * takes: a level no chain of links reaches, a level reached through a sibling rather than a
  * parent, a README.md back on the branch, and a SURVIVORS entry whose file has gone. */
 
-import { test, after } from 'node:test';
+import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
 import {
   ROUTER, SURVIVORS, SKIPPED_ANYWHERE, SKIPPED_UNDER_FRAMEWORKS, EMITTED, EMITTED_UNDER_FRAMEWORKS,
   skips, emitted, markdownFiles, routers, resolveLink, linkedRouters, reachedFrom, reachProblems,
   survivorProblems, zeroScanProblems,
 } from './check-agents.ts';
 import { trackedPages } from './check-agents-spec.ts';
+import { scratchTree } from '../../utils/scratch-tree.ts';
 
-const made: string[] = [];
-const track = (dir: string) => { made.push(dir); return dir; };
-after(() => {
-  for (const dir of made) rmSync(dir, { recursive: true, force: true });
-});
-
-function tree(files: Record<string, string>) {
-  const base = track(mkdtempSync(join(tmpdir(), 'arena-agents-')));
-  for (const [rel, text] of Object.entries(files) as [string, string][]) {
-    const path = join(base, rel);
-    mkdirSync(join(path, '..'), { recursive: true });
-    writeFileSync(path, text);
-  }
-  return base;
-}
+const { tree } = scratchTree('arena-agents');
 
 const NONE = new Map();
 

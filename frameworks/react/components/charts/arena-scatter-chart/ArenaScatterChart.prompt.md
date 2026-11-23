@@ -15,8 +15,8 @@ Two quantities against each other, one mark per pair. The first chart here whose
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `series*` | array | `readonly ArenaPointSeries[]` |  | The plotted series, drawn as one cloud of marks each. Each carries pairs rather than indexed values, because a scatter has no categories to index against. Pairs are what ArenaPointSeries is for, and the reason it is a separate type from ArenaSeries. After the last slot the positional count starts again at the first, so fold a ninth series into "Other" upstream. |
-| `colorStart` | enum | `ArenaCatSlot` | `1` | The ramp slot the first series takes when it names no colour of its own. Each later series takes the next slot, and after the last slot the count starts again at the first. A series' `colorId` keeps the slot it names. Absent, 1. |
+| `series*` | array | `readonly ArenaPointSeries[]` |  | The plotted series, drawn as one cloud of marks each. Each carries pairs rather than indexed values, because a scatter has no categories to index against. Pairs are what ArenaPointSeries is for, and the reason it is a separate type from ArenaSeries. After the last ramp colour the positional count starts again at the first, so fold a ninth series into "Other" upstream. |
+| `colorStart` | enum | `ArenaCatSlot` | `1` | The ramp colour the first series takes when it names no colour of its own. Each later series takes the next ramp colour, and after the last ramp colour the count starts again at the first. A series' `colorId` keeps the ramp colour it names. Absent, 1. |
 | `label*` | primitive | `string` |  | Names the chart for its accessible name and for the caption of its data table. The name belongs to the CHART and not to a series, because a series names itself. Required and guarded rather than defaulted: a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing. |
 | `xLabel*` | primitive | `string` |  | Names the horizontal quantity, for the accessible table's column. Required, because unlike every other chart here both axes carry a quantity a reader cannot derive. A bar chart's categories name themselves through `labels` and its value axis is the one thing being measured. A scatter measures two things, and a table of bare X and Y columns says which is which to nobody. |
 | `yLabel*` | primitive | `string` |  | Names the vertical quantity, for the accessible table's column. Required for the reason xLabel is. |
@@ -72,8 +72,7 @@ pair does nothing and is not consumed, so the page keeps its own scroll.
 A series that carries `r` turns this into a bubble chart. The member is a third parallel array, paired with `x` and `y` at the same index, for the reason those two are arrays rather than an array of pairs.
 
 **The mapping is by area, not by radius**, and that is the whole of the member. A reader compares the blot, and doubling a radius quadruples the blot. Mapping the value onto the radius directly would show a value four times larger as sixteen times the ink. `arenaRadiusAt` interpolates the
-squared radius instead, so four times the value really is four times the area, and the suite
-asserts that ratio rather than a table of radii.
+squared radius instead, so four times the value really is four times the area.
 
 `sizeLabel` becomes required the moment any series carries `r`. The member is guarded at render rather than declared required in the contract. A scatter with no sizes has no third quantity to name, and a member required only sometimes cannot say so in a contract. A column headed "Size"
 would satisfy the table mechanically and tell a reader nothing, which is the reason `label` is

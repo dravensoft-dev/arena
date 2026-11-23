@@ -25,7 +25,7 @@ export interface ArenaCalendarEventProps {
   /** ISO datetime the event ends. */
   end: string;
 
-  /** Identity colour. Give the same entity the same slot everywhere and it keeps its colour across views. */
+  /** Identity colour. Give the same entity the same ramp colour everywhere and it keeps its colour across views. */
   colorId?: ArenaCatSlot;
 
   /** Whether the chip can be activated. A boolean rather than "is `onActivate` bound?", because Arena never derives what it draws from what a consumer listens for. `ArenaTableRow.interactive` is a member for the same reason. An interactive chip is a <button> a keyboard user reaches with Enter from the hour cell it overlaps. A non-interactive one draws the same chip with no role and no activation, so a read-only schedule announces events rather than a screenful of buttons that do nothing. */

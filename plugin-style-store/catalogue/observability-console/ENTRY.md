@@ -14,19 +14,19 @@ the reader is comparing two panels rather than reading one.
 | Which face small text takes | `ff-eyebrow`, `ff-label`, `tt-*`, `track-label` | the mono face in capitals, tracked at the column-header step | every small string on this screen is a unit, a percentile or a series name, and a proportional face makes two of those the same width by accident |
 | How loud type is | `fw-heading`, `fw-eyebrow`, `fw-control` | semibold for a heading, medium for the other two | the figures are already the loudest thing, and a stat card sets its own weight |
 | How big anything is | `step-title-*` | every register pitched down, the page title at the third heading size | a board title above thirty panels is a label rather than a headline |
-| How tight it is to the hand | `pad-control-*`, `gap-*`, `pad-surface` | tight, a single step of vertical control padding, the small surface padding | every pixel of chrome is a pixel of plot, and this is the register where that trade is most obvious |
+| How tight it is to the hand | `pad-control-*`, `gap-*`, `pad-surface` | tight, a single step of vertical control padding, the small surface padding | every pixel of chrome is a pixel of plot, and that trade is what the register makes |
 | Which density it assumes | the compact class rather than a role | `.arena-compact` on the document | shared with the inbox entry and for the same reason: the screen is read rather than pointed at |
-| How wide it breathes | `container-max`, `grid-min`, `gutter` | the widest container of the entries, a panel minimum wide enough for an axis, the narrowest gutter | a board fills the window, and a panel narrower than its own axis labels is a panel nobody can read |
+| How wide it breathes | `container-max`, `grid-min`, `gutter` | the widest container of the entries, a panel minimum wide enough for an axis, the narrowest gutter, shared with photo-feed | a board fills the window, and a panel narrower than its own axis labels is a panel nobody can read |
 | Whether depth is real | `shadow-*`, `lift-control` | nothing at all, except the floating and deep surfaces a menu and a dialog stand on | a panel that appeared to float would claim it could be moved, and a shadow behind a plot is contrast the data did not ask for |
 | How it answers a hand | `press-scale`, `dur-*`, `ease-*` | no shrink, the fast duration on both, an out curve | nothing here is pressed; a hover on a plot is a crosshair and it has to keep up with a pointer |
-| What shape a picture is | `aspect-media`, `fit-media` | sixteen by nine, **contained rather than filled** | media in this register is a captured panel or a topology diagram, and a diagram that lost a corner to its frame is a diagram nobody can act on. the only entry that answers `fit-media` with anything but a fill |
-| Which colours a surface takes | every `fill-*` | **the panel takes the second surface step and the page takes the first**, which is the reverse of what the other entries do | a board is panels ON a page rather than a page divided into regions, and the whole depth of the register is that one step |
+| What shape a picture is | `aspect-media`, `fit-media` | sixteen by nine, **contained rather than filled** | media in this register is a captured panel or a topology diagram, and a diagram that lost a corner to its frame is a diagram nobody can act on. The language-course entry also answers `fit-media` with anything but a fill |
+| Which colours a surface takes | every `fill-*` | **the panel takes the second surface step and the page takes the first**, which no other entry does, and which booking draws the other way round | a board is panels ON a page rather than a page divided into regions, and the whole depth of the register is that one step |
 
 **The categorical ramp is doing most of the work and the style plugin is doing least**, which is the
 finding this entry exists to record. Seven of the eight charts draw geometry whose coordinates are
 the data, so they carry no part hook at all: a plugin reaches the frame and nothing inside the plot.
 What skins a plot is `cat-1` through `cat-8` in `arena.config.json`, in the order they are declared,
-because a slot means the same thing in every chart on the screen.
+because a ramp colour means the same thing in every chart on the screen.
 
 ## The page it assumes
 
@@ -52,6 +52,6 @@ and a panel title tracked the way every other label is. That sheet says which an
 
 ## What it does not bring
 
-The palette and the fonts are the consumer's, and in this register the palette is most of the appearance. Replacing the eight ramp slots changes this entry more than replacing every other answer in it. The ramp shipped here is measured against the contrast and colour-vision gates on both surfaces. Measure a replacement the same way, or the charts stop being readable for somebody.
+The palette and the fonts are the consumer's, and in this register the palette is most of the appearance. Replacing the eight ramp colours changes this entry more than replacing every other answer in it. The ramp shipped here is measured against the contrast and colour-vision gates on both surfaces. Measure a replacement the same way, or the charts stop being readable for somebody.
 
 The copy, the brand mark, the alert rules and the question of being found from outside are still open. A console behind a login answers the last of those no.

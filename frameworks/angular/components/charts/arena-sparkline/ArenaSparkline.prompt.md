@@ -13,8 +13,8 @@ readonly errors = computed<ArenaSeries[]>(() => [{ label: 'Error rate', values: 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
 | `labels*` | array | `readonly string[]` |  | One label per point, in the order of the series' `values`. A label heads its row of the hidden table and the tooltip. A label with no value ends the line there rather than dropping it to zero. |
-| `series*` | array | `readonly ArenaSeries[]` |  | The series drawn, exactly one. A second warns and is ignored, because a sparkline has no legend to say which line is which. `tone` is the only trend colour; without it the line takes the identity colour of the slot `colorStart` names, which says nothing about whether the trend is good. |
-| `colorStart` | enum | `ArenaCatSlot` | `1` | The ramp slot the line takes when its series names no colour of its own. Absent, 1. |
+| `series*` | array | `readonly ArenaSeries[]` |  | The series drawn, exactly one. A second warns and is ignored, because a sparkline has no legend to say which line is which. `tone` is the only trend colour; without it the line takes the ramp colour `colorStart` names, which says nothing about whether the trend is good. |
+| `colorStart` | enum | `ArenaCatSlot` | `1` | The ramp colour the line takes when its series names no colour of its own. Absent, 1. |
 | `label*` | primitive | `string` |  | Names the sparkline for its accessible name and for the caption of its data table. Required and guarded rather than defaulted: a table cell holding six sparklines needs six distinct names, and a fallback of the chart type would announce all six identically. |
 | `area` | primitive | `boolean` | `false` | Fill under the line at 18% of the series colour: a tint, never a gradient. The fill reaches the floor of the box, which is the lowest value and not zero. The fill therefore shades the shape and measures nothing. |
 | `curve` | primitive | `boolean` | `false` | Draw the series as a smooth curve rather than straight segments between points. The interpolation is monotone cubic, not Catmull-Rom. A Catmull-Rom curve overshoots and draws a peak or a trough nobody measured. A monotone curve stays inside the band its own two points define. The curve changes the path string and nothing else. |
@@ -75,15 +75,6 @@ With `interactive`, the plot is one keyboard region with the sparkline's name. A
 ### Size
 
 The sparkline fills the width of its container, so in a table cell the column decides it. The host is boxless, and the frame inside it carries the box. `height` is the plot's height in px, the `--chart-sparkline-height` token by default. The default is the line box of a compact table row, so a sparkline in a cell leaves the row the height its text gives it. With `interactive`, the keyboard region is never shorter than the density's smallest control height, and the plot sits centred in it.
-
-### Checks to make by hand
-
-The suites run without layout, so five claims are checked in a browser:
-1. A table row at the base, comfortable and compact densities keeps its height when a sparkline is added to one of its cells.
-2. A table column of static sparklines adds no tab stop, so Tab leaves the grid in one press.
-3. A screen reader announces the hidden table inside a grid cell once, and row navigation in the grid still works.
-4. The end dot is not clipped at either edge, at all three densities.
-5. An interactive tooltip near the right edge of a card is not clipped by an ancestor with `overflow: hidden`.
 
 **Words.** A sparkline is named by the locale's `sparklineChartName`, where `{label}` stands for `label`; `chartTablePoint` heads the first column of the table it writes for a screen reader.
 

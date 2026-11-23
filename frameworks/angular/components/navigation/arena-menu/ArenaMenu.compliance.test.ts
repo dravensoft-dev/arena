@@ -116,7 +116,7 @@ function press(el: Element, key: string): KeyboardEvent {
 }
 
 test('arena-menu meets the menu-button pattern it binds', () => {
-  const { fixture, host, trigger } = render();
+  const { fixture, trigger } = render();
   try {
     assert.equal(trigger.getAttribute('aria-haspopup'), 'menu');
     assert.equal(trigger.getAttribute('aria-expanded'), 'false');
@@ -422,7 +422,7 @@ test('a character no row starts with leaves focus where it is, and one character
 });
 
 test('a space inside a run of typed characters belongs to the run, and a space alone is the row\'s own', () => {
-  const clock = captureClock();
+  captureClock();
   const first = opened([{ label: 'Save as' }, { label: 'Save' }, { label: 'Delete' }]);
   try {
     const [saveAs, save] = first.rows as [HTMLElement, HTMLElement, HTMLElement];

@@ -1,14 +1,14 @@
 {
   "component": "ArenaMenu",
   "description": "Dropdown menu of actions on a trigger -- overflow, more actions, context.",
-  "affordances": ["hover", "press"],
+  "affordances": ["focus", "hover", "press"],
   "api": {
     "trigger": { "form": "slot", "required": true,
                  "description": "The element that opens the menu. The consumer draws it -- an ArenaIconButton with ph-dots-three-vertical, a secondary ArenaButton -- so it is a slot, and it carries its own accessible name." },
     "items": { "form": "array", "of": "ArenaMenuItem", "required": true,
                "description": "The entries, in order: activatable rows, dividers and group headers." },
     "align": { "form": "enum", "type": "ArenaMenuAlign", "default": "start",
-               "description": "Which edge of the trigger the panel lines up with." },
+               "description": "Which edge of the trigger the panel lines up with. Start is the edge a line of text begins at and end the opposite one, so both follow the page direction." },
     "select": { "form": "event", "payload": "ArenaMenuItem",
                 "description": "An entry was activated; carries the whole item. A disabled entry reports nothing, and a divider or a header cannot be activated at all." }
   }

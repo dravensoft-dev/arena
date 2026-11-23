@@ -34,7 +34,7 @@ Indeterminate wait indicator, for the waits with no known percentage. Respects `
 - Use `className="arena-accent-ink"` on a surface filled with the primary so the ring stays legible.
 
 **Don't**
-- Don't use a spinner for a process whose progress you know: that degrades visibility (H1).
+- Don't use a spinner for a process whose progress you know: that degrades visibility.
 - Don't expect a `success`, `warning` or `danger` colour: none exists here, on purpose. A wait has no state to report, and a spinner tinted `--danger` would announce a failure that hasn't happened. Report the outcome with an `ArenaToast` or an `ArenaAlert`.
 - Don't stack a spinner on top of an `ArenaSkeleton`. Pick one: the skeleton reserves the layout, the spinner marks an unsized wait.
 - Don't pass `style` or stray DOM attributes. ArenaSpinner declares three members and renders nothing else; wrap it in your own element if you need to position it.

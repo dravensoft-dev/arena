@@ -6,26 +6,9 @@ import { ArenaDialog } from './ArenaDialog.tsx';
 import { forgetArenaWarnings } from '../../../WarnOnce.ts';
 import manifest from './ArenaDialog.manifest.generated.ts';
 import classes from './ArenaDialog.classes.generated.ts';
+import { narrowWidths } from '../../../test/NarrowWidths.ts';
 
 afterEach(() => cleanup());
-
-function narrowWidths<T>(width: number, body: () => T): T {
-  const saved = globalThis.ResizeObserver;
-  globalThis.ResizeObserver = class {
-    callback: ResizeObserverCallback;
-    constructor(callback: ResizeObserverCallback) { this.callback = callback; }
-    observe(target: Element) {
-      this.callback([{ target, borderBoxSize: [{ inlineSize: width, blockSize: 0 }], contentRect: { width } }] as unknown as ResizeObserverEntry[], this as unknown as ResizeObserver);
-    }
-    unobserve() {}
-    disconnect() {}
-  } as unknown as typeof ResizeObserver;
-  try {
-    return body();
-  } finally {
-    globalThis.ResizeObserver = saved;
-  }
-}
 
 test('below its breakpoint the panel takes the fill variant with its full-width group, and above it does not', () => {
   for (const [width, filled] of [[400, true], [900, false]] as const) {

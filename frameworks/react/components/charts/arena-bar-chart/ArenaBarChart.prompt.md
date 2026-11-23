@@ -1,4 +1,4 @@
-Bars for comparing a value across categories. Dependency-free SVG: it reads `var(--color-cat-N)` directly, so it re-themes with the page for free. Hover gives a per-bar tooltip; the numbers are also exposed as a table for screen readers.
+Bars for comparing a value across categories. Dependency-free SVG: it reads the ramp properties `--color-cat-1` to `--color-cat-8` directly, so it re-themes with the page for free. Hover gives a per-bar tooltip; the numbers are also exposed as a table for screen readers.
 
 ```tsx
 {/* identity: the default, one color for the whole series */}
@@ -9,7 +9,7 @@ Bars for comparing a value across categories. Dependency-free SVG: it reads `var
 <ArenaBarChart label="Load by service" labels={['Web','API','Worker']}
   series={[{ label: 'Requests', values: [24,18,7], colorIds: [1,2,3] }]} />
 
-{/* two series: one group of bars per category, each series its own ramp slot */}
+{/* two series: one group of bars per category, each series its own ramp colour */}
 <ArenaBarChart label="Latency by region" labels={['EU','US','APAC']}
   series={[{ label: 'p50', values: [120,138,131] }, { label: 'p95', values: [240,262,255] }]}
   valueSuffix=" ms" />
@@ -26,9 +26,9 @@ Bars for comparing a value across categories. Dependency-free SVG: it reads `var
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `labels*` | array | `readonly string[]` |  | One label per category, in the same order as every series' `values`. A category with no value in a series is drawn for the series that do have one. |
-| `series*` | array | `readonly ArenaSeries[]` |  | The plotted series, drawn as one group of bars per category. One series is the common case and draws one bar per category. Two or more share each category's band, so the bars of one category stand side by side and the reader compares within a category before comparing across. After the last slot the positional count starts again at the first, so fold a ninth series into "Other" upstream. |
-| `colorStart` | enum | `ArenaCatSlot` | `1` | The ramp slot the first series takes when it names no colour of its own. Each later series takes the next slot, and after the last slot the count starts again at the first. A series' `colorId` or `colorIds` keeps the slot it names. Absent, 1. |
+| `labels*` | array | `readonly string[]` |  | One label per category, in the same order as every series' `values`. A category with no value in a series is drawn for the series that do have one. Every n-th label is drawn when the labels do not fit their band, and the data table carries all of them. |
+| `series*` | array | `readonly ArenaSeries[]` |  | The plotted series, drawn as one group of bars per category. One series is the common case and draws one bar per category. Two or more share each category's band, so the bars of one category stand side by side and the reader compares within a category before comparing across. After the last ramp colour the positional count starts again at the first, so fold a ninth series into "Other" upstream. |
+| `colorStart` | enum | `ArenaCatSlot` | `1` | The ramp colour the first series takes when it names no colour of its own. Each later series takes the next ramp colour, and after the last ramp colour the count starts again at the first. A series' `colorId` or `colorIds` keeps the ramp colour it names. Absent, 1. |
 | `label*` | primitive | `string` |  | Names the chart for its accessible name and for the caption of its data table. The label names the CHART, not a series: a series names itself. Required and guarded rather than defaulted, because a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing. Two charts on one page then announce identically. |
 | `stack` | primitive | `boolean` | `false` | Sit each series on the one below it inside a single band per category, rather than standing them side by side. Stack when the series are parts of one total and that total is the thing being read. Leave it off when the comparison is between the series, because a segment that does not start at zero is one a reader cannot measure against its neighbours. Positive and negative values stack on their own runs. A category holding both grows in both directions from the zero line, and the axis is sized from the two sums rather than from the largest single value. A series with no value at a category contributes no segment. The segment above it sits on the one below rather than floating over a gap: a missing number is not a zero here either. Only the outermost segment of each direction is rounded, so the joints inside a bar stay square and read as joints. |
 | `valueSuffix` | primitive | `string` |  | Appended verbatim to every number the chart draws: the axis ticks, the tooltip and the accessible table. Carries its own leading space if one is wanted. |
@@ -64,8 +64,8 @@ Bars for comparing a value across categories. Dependency-free SVG: it reads `var
 - Pass `valueSuffix` for units: the axis, the tooltip and the accessible table all carry it. The suffix is appended verbatim, so write the space yourself: `" ms"`, but `"%"`.
 
 **Don't**
-- Don't pass `tone` together with `colorId`/`colorIds` on one series. A chart carries identity or meaning, never both; it warns in development and `tone` wins.
-- Don't use status colors as series colors by hand. A series painted `--danger` reads as an error, and that is exactly the bug this API exists to prevent.
+- Don't pass `tone` together with `colorId`/`colorIds` on one series. With `tone` the series takes the status colour and `colorId` and `colorIds` are not read.
+- Don't pick status colors as series colors. A series painted `--danger` reads as an error, and that is exactly the bug this API exists to prevent.
 - Don't reach past eight categories, or past eight series. Nine bars in eight slots means two of them lie about being the same.
 - Don't add a second axis. Arena charts have one; a dual axis invents a correlation the data never claimed.
 - Use `valuePrefix` for a currency that goes in front, and `valueFormat` for the number itself: locale, fraction digits, grouping, compaction. Formatting before you pass them is not an option, because what you pass is `ArenaSeries[]` and the writing happens on labels Arena generates afterwards. With no `valueFormat` the raw JavaScript number is drawn, which is what a chart always did.

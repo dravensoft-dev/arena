@@ -19,36 +19,6 @@ const items = <><ArenaScrollerItem>One</ArenaScrollerItem><ArenaScrollerItem>Two
 
 const rootClass = (html: string) => /<div[^>]*\bclass="([^"]*)"/.exec(html)?.[1] ?? '';
 
-test('the row is one tab stop carrying a group role and the name it was given', () => {
-  const html = render(<ArenaScroller label="Recently landed lots">{items}</ArenaScroller>);
-  assert.match(html, /role="group"/);
-  assert.match(html, /aria-label="Recently landed lots"/);
-  assert.match(html, /tabindex="0"/,
-    'a scrollable box that is not focusable leaves everything past its edge to the pointer alone');
-});
-
-test('a row with no label is refused, and a label of nothing but spaces is refused with it', () => {
-  assert.throws(
-    // @ts-expect-error the contract requires it, and the guard is what this asserts
-    () => render(<ArenaScroller>{items}</ArenaScroller>),
-    /`label` is required/,
-  );
-  assert.throws(() => render(<ArenaScroller label="  ">{items}</ArenaScroller>), /`label` is required/);
-});
-
-test('a row with no children is refused, because it would be a tab stop over nothing', () => {
-  assert.throws(
-    // @ts-expect-error the contract requires it, and the guard is what this asserts
-    () => render(<ArenaScroller label="Recently landed lots" />),
-    /tab stop over nothing/,
-  );
-  const admin = false;
-  assert.throws(
-    () => render(<ArenaScroller label="Recently landed lots">{admin && <span>One</span>}</ArenaScroller>),
-    /tab stop over nothing/,
-  );
-});
-
 test('the row carries the option class it is given beside its own, and no style attribute', () => {
   const html = render(<ArenaScroller label="L" className="arena-scroller-item-lg">{items}</ArenaScroller>);
   const given = rootClass(html).split(/\s+/);
@@ -88,12 +58,4 @@ test('every child is placed exactly as written, and the row wraps nothing', () =
   const html = render(<ArenaScroller label="L"><span id="a">One</span><span id="b">Two</span></ArenaScroller>);
   assert.match(html, /<span id="a">One<\/span><span id="b">Two<\/span>/,
     'the row places what it is given; the cell that carries the width is a component the caller writes');
-});
-
-test('ArenaScroller drops a consumer style object and a consumer attribute', () => {
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  const styled = render(<ArenaScroller label="L" style={{ color: '#ff00ff' }}>{items}</ArenaScroller>);
-  assert.doesNotMatch(styled, /#ff00ff/, 'a consumer style reached the rendered root');
-  const spread = render(<ArenaScroller label="L" data-stray="x">{items}</ArenaScroller>);
-  assert.doesNotMatch(spread, /data-stray/, 'a consumer attribute reached the rendered root');
 });

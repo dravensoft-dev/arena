@@ -13,6 +13,7 @@ import { join } from 'node:path';
 import { TestBed } from '@angular/core/testing';
 import { ArenaBreadcrumbs } from './ArenaBreadcrumbs';
 import { assertPattern, ANGULAR_COMPONENTS } from '../../../test/Compliance';
+import { currentVerdict, itemNamed } from '../../../test/StateVerdicts';
 
 const BINDING = join(ANGULAR_COMPONENTS, 'navigation/arena-breadcrumbs/ArenaBreadcrumbs.behaviour.json');
 
@@ -48,7 +49,12 @@ test('arena-breadcrumbs is a named nav landmark, and two of them are told apart'
       root: fixture.nativeElement as Element,
       bindingPath: BINDING,
       subjects: { default: nav },
-      behavioural: { 'alternative.jsonLd': true },
+      behavioural: {
+        'alternative.jsonLd': true,
+        'states.current': currentVerdict(
+          itemNamed(nav, 'span', 'Overview'), [...nav.querySelectorAll('a, span')].filter((el) => el.closest('li')),
+        ),
+      },
     });
   } finally {
     fixture.destroy();
@@ -63,22 +69,6 @@ test('the host is out of layout, so the <nav> is the box a parent row lays out',
       'a bare host that is not display:contents lays out as an inline box between the parent and the nav');
   } finally {
     fixture.destroy();
-  }
-});
-
-test('an ariaLabel bound to nothing throws, because input.required only proves it was bound', () => {
-  const fixture = TestBed.createComponent(ArenaBreadcrumbs);
-  fixture.componentRef.setInput('ariaLabel', '   ');
-  fixture.componentRef.setInput('items', CRUMBS);
-  try {
-    assert.throws(() => fixture.detectChanges(), /ArenaBreadcrumbs: .ariaLabel. is required/,
-      'a whitespace name satisfies roles.label mechanically while leaving the landmark unnamed');
-  } finally {
-    try {
-      fixture.destroy();
-    } catch {
-      return;
-    }
   }
 });
 

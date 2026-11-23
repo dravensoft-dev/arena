@@ -31,12 +31,22 @@ Where two layers answer the same question differently, **the contract is what ma
 comparable**. A cross-layer *gate* under `scripts/check/arena/` reading several layers is that
 mechanism rather than an instance of the coupling, which is why `scripts/` is outside the gate's
 scope. **A fact only recorded as "matching the other layer" is a fact missing from a contract.**
-**An anchored panel is the one surface the layers place by different mechanisms**: React shows it
-as a manual `popover` in the top layer and places it by script, and Angular attaches it to a CDK
-overlay pane. The rules both answer, which side a panel opens on, where it lines up, which panel
+**An anchored panel is the one surface whose host differs between the layers**: both place it with
+the same arithmetic (`arenaPlacePanel` against `arenaViewportBox`), React in a manual `popover` in
+the top layer and Angular in a CDK overlay pane under a global position strategy. The rules both answer, which side a panel opens on, where it lines up, which panel
 Escape reaches and where Tab leaves, are one module written twice and held equal by
-`check:shared-arithmetic`; a manifest carries no positioning for either. Each layer's page states
+`check:shared-arithmetic`; a manifest carries no positioning for either. A module both layers author
+at one path is one text up to the extension of a relative specifier, unless the gate's `BODIES_ONLY`
+names it with its reason; such a module is tested once, in React, and the gate is what holds the
+Angular copy to it. In a module the gate names, a function whose body it holds equal is tested once,
+in React, and what differs is tested in each layer. Each layer's page states
 its own mechanism, and `check:anchoring` opens each one it declares, in both, in real Chromium.
+
+**A suite that derives from a contract, or cuts across components, replaces the per-component
+copies of what it derives**: `GuardedNames`, `RequiredSlots`, `RequiredMembers`,
+`NativeEventsReach`, `ConsumerDrops` and `assertPattern` each read the whole set once. A component
+suite then tests only what is its own, and a branch every component shares is asserted there and
+nowhere else.
 
 This page sits at the `frameworks/` root rather than inside a layer, which is why it may name
 all three. So does `Components.json`, and so do `demos/` and `kitchen-sink/`: each is a fact
@@ -100,6 +110,9 @@ says a component was never opened rather than that a test hard-coded a position.
 Find them all with `bun test scripts` before assuming a count is a count. Verify with the merged
 process, the args array in `testStep()`, because `bun test frameworks/react` never matches
 `scripts/` and reports green over a tree whose run is red.
+
+The literal inventories above stay: each one holds a count or a roster that a new
+component must move on purpose, and none is a copy of what a contract derives.
 
 **The consumer index tree moves too**, `frameworks/INDEX.md` and one `INDEX.md` per layer. It is
 generated, so nothing is written by hand: `bun run generate:skills`, which `bun run build`
@@ -279,8 +292,8 @@ leaving a gate's scope.
 **Editing a component means running `bun run build` in the same tree.** The suites import the
 source directly and stay green with the compiled sibling stale, but a demo page loads the
 sibling, so `bun run demos` shows the pre-fix component while the suites prove the fix, which is
-exactly the by-hand check every `.prompt.md` checklist depends on. How each layer compiles is
-its own document's.
+exactly the by-hand check that each component's `<Name>.checks.md`, beside its prompt in each
+layer, asks for. How each layer compiles is its own document's.
 
 **A demo page is generated, one per component per layer, and never hand-written.** The two
 layers' pages differ in one path segment and take the same query string, so **a difference

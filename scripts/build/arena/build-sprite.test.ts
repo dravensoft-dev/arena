@@ -1,4 +1,4 @@
-/* Covers build-sprite.ts on fixture trees under <repo>/.cache/plan-1.29/. The repo draws icons
+/* Covers build-sprite.ts on fixture trees under <repo>/.cache/test-scratch/. The repo draws icons
  * through a sprite it writes itself, so a glyph named by a component, a demo seed, a specimen or an
  * intro page that is missing from it paints nothing, and says so nowhere. */
 
@@ -13,7 +13,7 @@ import { withoutComments } from '../../lib/arena/icon-manifest.ts';
 import { scan } from '../../generate/core/arena-cli/icon-css.ts';
 import { symbolId } from '../../generate/core/arena-cli/sprite.ts';
 
-const BASE = join(repoRoot, '.cache', 'plan-1.29', 'build-sprite');
+const BASE = join(repoRoot, '.cache', 'test-scratch', 'build-sprite');
 
 function put(root: string, rel: string, text: string) {
   mkdirSync(dirname(join(root, rel)), { recursive: true });

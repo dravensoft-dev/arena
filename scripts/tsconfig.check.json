@@ -8,6 +8,7 @@
     ],
     "strict": true,
     "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
     "erasableSyntaxOnly": true,
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,

@@ -1,5 +1,5 @@
 Arena switch, an on/off setting that takes effect immediately, not a pending form value.
-Standalone, `OnPush`, signal I/O. The host binds the root slot, so `<arena-switch>` is itself
+Standalone, `OnPush`, signal I/O. The host binds the root part, so `<arena-switch>` is itself
 the flex row its parent lays out. The control
 is a real `<button type="button" role="switch">`: the platform supplies activation, the role
 supplies the state.
@@ -61,8 +61,7 @@ supplies the state.
 - **`confirm` alone diverts the activation**, never whether anything is listening.
   `confirm` set with no `(requestChange)` binding is a switch that
   does nothing at all. The cost of that rule is accepted and worth paying. What it replaced applied a guarded change silently. **No runtime guard can catch it**: "is anything
-  subscribed?" is precisely the question Arena never asks, because at least one framework cannot answer it. The behaviour is
-  pinned, so the fallback cannot come back unnoticed.
+  subscribed?" is precisely the question Arena never asks, because at least one framework cannot answer it.
 - `iconOn` and `iconOff` are Phosphor class-name strings drawn inside the knob, and only the
   current state's glyph is in the DOM. The two are decoration. The knob is `aria-hidden`, and `aria-checked` is what carries the state.
 - Use a switch for an immediate effect and `<arena-checkbox>` for a pending form value. A switch
@@ -71,19 +70,7 @@ supplies the state.
 - Don't disable a switch to mean "you may not change this yet". A disabled switch is unreachable
   by Tab and announces no reason; `confirm` is the affordance for a change that needs a gate.
 
-**By hand, in real Chromium**: none of these is provable in happy-dom. Run `bun run demos` and
-open `/frameworks/angular/components/forms/arena-switch/ArenaSwitch.demo.generated.html`:
-- The knob **slides** across the track over `--dur-state`/`--ease-state` rather than jumping, and
-  the track's
-  colour crossfades with it.
-- Under `prefers-reduced-motion: reduce`, forced in DevTools' Rendering pane, **the knob stops
-  travelling and the track colour still crossfades**. The colour is the intended answer for a state change. The travel is decorative and the colour is the report. `motion-reduce:transition-none`
-  on the `knob` slot is what does it.
-- At every size the knob clears the track's padding on both ends, and the vertical transpose
-  travels down rather than across.
-- The glyph is legible inside the knob at `sm`, which is the size that decides whether per-state
-  icons are usable at all.
-- Clicking the label toggles; clicking the label of a disabled switch does not.
+Under `prefers-reduced-motion` the knob stops travelling.
 
 **Words.** `switchConfirmHint` is the title of the guard glyph a switch with `confirm` draws.
 

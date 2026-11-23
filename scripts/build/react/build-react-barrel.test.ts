@@ -117,8 +117,9 @@ test('two components exporting one name is caught, because export * would shadow
 test('Tokens.generated stays out, and ROOT_PRIVATE says why', () => {
   const { files } = buildBarrel(repoRoot);
   for (const content of files.values()) assert.doesNotMatch(content, /Tokens\.generated/);
-  assert.deepEqual([...ROOT_PRIVATE.keys()], ['Tokens.generated']);
-  for (const reason of ROOT_PRIVATE.values()) assert.match(reason, /re-theme/);
+  assert.deepEqual([...ROOT_PRIVATE.keys()], ['Tokens.generated', 'RootScale']);
+  assert.match(ROOT_PRIVATE.get('Tokens.generated') ?? '', /re-theme/);
+  assert.match(ROOT_PRIVATE.get('RootScale') ?? '', /arenaReadBreakpoint/);
 });
 
 test('the repository builds a barrel over every component it has, and no problems', () => {

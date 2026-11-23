@@ -1,8 +1,9 @@
-/* The standing a meter draws, held as one table both layers run. The regions follow the HTML
- * meter algorithm with one recorded departure: a region holds its lower edge, so a value equal to
- * high is in the high region where HTML reads it as the middle. A high edge on max opens no region,
- * so a full meter stays in the middle as HTML reads it. The optimum's region follows the same rule,
- * so an optimum on an edge belongs to the region above it and a value at the optimum reads good. */
+/* The standing a meter draws, held as one table. The other layer's module is one text with this
+ * one, so check:shared-arithmetic holds it to this suite. The regions follow the HTML meter
+ * algorithm with one recorded departure: a region holds its lower edge, so a value equal to high is
+ * in the high region where HTML reads it as the middle. A high edge on max opens no region, so a
+ * full meter stays in the middle as HTML reads it. The optimum's region follows the same rule, so
+ * an optimum on an edge belongs to the region above it and a value at the optimum reads good. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {

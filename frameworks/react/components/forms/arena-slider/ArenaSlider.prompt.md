@@ -40,8 +40,6 @@ A number chosen inside a range by moving a thumb, or a span chosen with two thum
 
 **Answers** [`size`](../../../../VOCABULARY.md#size): `arena-size-lg`, `arena-size-md` (default), `arena-size-sm`. Write one as `className="arena-size-lg"` on the component, or on a container whose components should all take it.
 
-**Answers** [`accent`](../../../../VOCABULARY.md#accent): `arena-accent-plain`, `arena-accent-primary` (default). Write one as `className="arena-accent-plain"` on the component, or on a container whose components should all take it.
-
 <!-- @answers end -->
 
 <!-- @keys GENERATED from the binding. -->
@@ -72,7 +70,7 @@ A number chosen inside a range by moving a thumb, or a span chosen with two thum
 
 **`name` submits the number through a hidden input.** A range posts two values under one name, the start first.
 
-**One primary accent per view.** The fill is the primary accent by default, a state colour like a ticked box. Set `arena-accent-plain` on the container of a settings panel holding several sliders.
+**The fill paints as a ticked box does.** The fill is the `choices` group's box at `selected`, the rail is the box at rest, and the thumb is the knob of a switch that is on.
 
 `ArenaInput` has no `range` type. A native range cannot paint its filled part without a gradient, so the slider is this component.
 
@@ -85,7 +83,7 @@ A number chosen inside a range by moving a thumb, or a span chosen with two thum
 - Don't give the fill the focus ring's colour. The two would meet on the thumb.
 - Don't add tick marks. The readout and the hint carry the scale.
 
-**By hand.** The arrows, Home, End and the page keys. A drag and a press on the rail, with a mouse and with a finger. The focus ring on a focused thumb. The thumb target at `arena-comfortable` and at 390px. A vertical slider in a column of fixed height. A range whose thumbs meet.
+The thumb's hit area is the density's small control height, 44px under `arena-comfortable`.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

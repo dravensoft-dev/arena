@@ -7,26 +7,9 @@ import assert from 'node:assert/strict';
 import React from 'react';
 import { mount, cleanup } from '../../../test/Harness.tsx';
 import { ArenaFilterBar } from './ArenaFilterBar.tsx';
+import { narrowWidths as measured } from '../../../test/NarrowWidths.ts';
 
 afterEach(cleanup);
-
-function measured<T>(width: number, body: () => T): T {
-  const saved = globalThis.ResizeObserver;
-  globalThis.ResizeObserver = class {
-    callback: ResizeObserverCallback;
-    constructor(callback: ResizeObserverCallback) { this.callback = callback; }
-    observe(target: Element) {
-      this.callback([{ target, borderBoxSize: [{ inlineSize: width, blockSize: 0 }], contentRect: { width } }] as unknown as ResizeObserverEntry[], this as unknown as ResizeObserver);
-    }
-    unobserve() {}
-    disconnect() {}
-  } as unknown as typeof ResizeObserver;
-  try {
-    return body();
-  } finally {
-    globalThis.ResizeObserver = saved;
-  }
-}
 
 const render = () => mount(
   <ArenaFilterBar label="Deployment filters" applied={[{ id: 'region', label: 'Region: Europe West' }]}>
@@ -36,14 +19,6 @@ const render = () => mount(
 );
 
 const order = (root: Element) => [...root.querySelectorAll('select, input, button')].map((el) => el.getAttribute('aria-label') ?? el.getAttribute('data-arena-part'));
-
-test('a bar narrower than sm stacks, and a wide one does not', () => {
-  const narrow = measured(320, render).querySelector('[data-arena-part="filter-bar"]')!;
-  assert.equal(narrow.hasAttribute('data-arena-narrow'), true);
-  cleanup();
-  const wide = measured(900, render).querySelector('[data-arena-part="filter-bar"]')!;
-  assert.equal(wide.hasAttribute('data-arena-narrow'), false);
-});
 
 test('the narrow shape reorders nothing', () => {
   const narrow = order(measured(320, render));

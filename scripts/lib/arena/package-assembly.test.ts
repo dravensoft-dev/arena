@@ -6,34 +6,32 @@ import { join } from 'node:path';
 import { relPosix } from '../../utils/posix-path.ts';
 import {
   EXCLUDED_NAMES, EXCLUDED_PATTERNS, CSS_CHAIN, arenaCssHeader, excluded,
-  collectFiles, reset, write, copyTree, copyCli, emitDeclaration, declarationReach, CLI_BINS, PALETTE_ENTRY, CLI_SOURCES, baseManifest, pluginIdentity, version, repositoryBase, agentBases, componentSheets, writeCssChain, arenaCssLayers, ANGULAR_EXTRA, inlineCdkPrebuilt, angularExtra,
+  collectFiles, reset, write, copyTree, copyCli, emitDeclaration, declarationReach, CLI_BINS, PALETTE_ENTRY, CLI_SOURCES, baseManifest, pluginIdentity, version, repositoryBase, agentBases, componentSheets, writeCssChain, arenaCssLayers, ANGULAR_EXTRA, inlineCdkPrebuilt, angularExtra, dropBuildBanners,
   writeComponentMap, copyFonts, FONTS_PACKAGE_DIR, keywords, SHARED_KEYWORDS, tokenCatalogue, shippedChannels, aliasDeclarations, catalogueRole,
 } from './package-assembly.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { MARKERS_FILE, markerAttributes } from './component-map.ts';
 import { MAP_FILE } from './component-map.ts';
 import { repoRoot } from './repo-root.ts';
+import { rolesFor } from '../../generate/core/arena-cli/theme-css.ts';
 import { THEME_SOURCES } from '../tailwind/theme-sheet.ts';
 import { CONSUME } from '../../build/tailwind/build-tailwind.ts';
 import { CLI_DEPENDENCIES } from './support-matrix.ts';
 import { sheetFamilies, packageSheetName } from '../tailwind/vocabulary.ts';
 import { splitCompiledSheet } from '../tailwind/sheet-split.ts';
+import { scratchTree } from '../../utils/scratch-tree.ts';
 
-const made: string[] = [];
-const track = (dir: string) => { made.push(dir); return dir; };
-after(() => {
-  for (const dir of made) rmSync(dir, { recursive: true, force: true });
-});
+const { tree } = scratchTree('arena-assembly');
 
-function tree(files: Record<string, string>) {
-  const root = track(mkdtempSync(join(tmpdir(), 'arena-assembly-')));
-  for (const [path, body] of Object.entries(files) as [string, string][]) {
-    const full = join(root, path);
-    mkdirSync(join(full, '..'), { recursive: true });
-    writeFileSync(full, body);
-  }
-  return root;
-}
+const inCache: string[] = [];
+after(() => { for (const dir of inCache) rmSync(dir, { recursive: true, force: true }); });
+const cacheDir = (prefix: string) => {
+  const cache = join(repoRoot, '.cache');
+  mkdirSync(cache, { recursive: true });
+  const dir = mkdtempSync(join(cache, prefix));
+  inCache.push(dir);
+  return dir;
+};
 
 test('a test never ships, whichever extension it takes', () => {
   for (const name of ['ArenaTag.test.ts', 'ArenaTag.test.tsx', 'ArenaButton.test.jsx', 'ArenaButton.dom.test.jsx', 'theme-css.test.ts']) {
@@ -99,7 +97,7 @@ test('reset empties a directory that already has a previous build in it', () => 
 
 test('copyTree carries a nested tree and drops what is excluded', () => {
   const from = tree({ 'a/b/Keep.ts': 'k', 'a/b/Drop.test.ts': 'd', 'a/test/Also.ts': 'x' });
-  const to = track(mkdtempSync(join(tmpdir(), 'arena-assembly-out-')));
+  const to = tree({});
   const written = copyTree(from, to, 'bin');
   assert.equal(written.length, 1);
   assert.equal(readFileSync(join(to, 'bin', 'a', 'b', 'Keep.ts'), 'utf8'), 'k');
@@ -181,7 +179,7 @@ test('no command ships as TypeScript, because node_modules is where node refuses
 });
 
 test('what copyCli emits is JavaScript, and its specifiers point at what it wrote', () => {
-  const to = track(mkdtempSync(join(tmpdir(), 'arena-assembly-cli-')));
+  const to = tree({});
   const written = copyCli(to, repoRoot);
   for (const one of written) {
     assert.doesNotMatch(one, /\.tsx?$/, `${one} left the assembly as TypeScript`);
@@ -195,7 +193,7 @@ test('what copyCli emits is JavaScript, and its specifiers point at what it wrot
 });
 
 test('every command the manifest declares is copied, flat, and no two of them share a filename', () => {
-  const to = track(mkdtempSync(join(tmpdir(), 'arena-assembly-cli-')));
+  const to = tree({});
   const written = copyCli(to, repoRoot);
   for (const target of Object.values(CLI_BINS)) {
     assert.ok(written.includes(target), `${target} is declared and was not copied`);
@@ -206,7 +204,7 @@ test('every command the manifest declares is copied, flat, and no two of them sh
 });
 
 test('a command name and the directory its source lives in are independent', () => {
-  const to = track(mkdtempSync(join(tmpdir(), 'arena-assembly-cli-')));
+  const to = tree({});
   const written = copyCli(to, repoRoot);
   assert.ok(CLI_SOURCES.length > 0);
   for (const source of CLI_SOURCES) {
@@ -222,7 +220,7 @@ test('a command name and the directory its source lives in are independent', () 
 });
 
 test('what a command ships reaches nothing outside bin/, because scripts/ is not there', () => {
-  const to = track(mkdtempSync(join(tmpdir(), 'arena-assembly-cli-')));
+  const to = tree({});
   copyCli(to, repoRoot);
   const escaping: string[] = [];
   for (const file of collectFiles(to)) {
@@ -242,7 +240,7 @@ test('what a command ships reaches nothing outside bin/, because scripts/ is not
 });
 
 test('each package carries the map its own layer derives, under the one name the command reads', () => {
-  const to = track(mkdtempSync(join(tmpdir(), 'arena-assembly-map-')));
+  const to = tree({});
   const angular = readJson(writeComponentMap(to, 'angular', repoRoot));
   const react = readJson(writeComponentMap(join(to, 'react'), 'react', repoRoot));
   assert.equal(existsSync(join(to, MAP_FILE)), true);
@@ -253,8 +251,8 @@ test('each package carries the map its own layer derives, under the one name the
 });
 
 test('a map that claims no sheet at all is refused, because auto would then unstyle every screen', () => {
-  const to = track(mkdtempSync(join(tmpdir(), 'arena-assembly-map-')));
-  const from = track(mkdtempSync(join(tmpdir(), 'arena-empty-')));
+  const to = tree({});
+  const from = tree({});
   mkdirSync(join(from, 'frameworks', 'angular'), { recursive: true });
   writeFileSync(join(from, MARKERS_FILE),
     "@Directive({ selector: '[action]', standalone: true })\nexport class ArenaAction {}\n");
@@ -266,7 +264,7 @@ test('a map that claims no sheet at all is refused, because auto would then unst
 });
 
 test('a marker declaration nothing can be read out of is refused rather than yielding no markers', () => {
-  const from = track(mkdtempSync(join(tmpdir(), 'arena-nomarkers-')));
+  const from = tree({});
   mkdirSync(join(from, 'frameworks', 'angular'), { recursive: true });
   writeFileSync(join(from, MARKERS_FILE), 'export const nothing = 1;\n');
   assert.throws(() => markerAttributes(from), /declares no projection marker/);
@@ -274,13 +272,13 @@ test('a marker declaration nothing can be read out of is refused rather than yie
 });
 
 test('a command whose directory moved is reported rather than shipped missing', () => {
-  const to = track(mkdtempSync(join(tmpdir(), 'arena-assembly-cli-')));
-  assert.throws(() => copyCli(to, track(mkdtempSync(join(tmpdir(), 'arena-empty-')))), /copied 0 files for arena-cli/);
+  const to = tree({});
+  assert.throws(() => copyCli(to, tree({})), /copied 0 files for arena-cli/);
   rmSync(to, { recursive: true });
 });
 
 test('write creates the directories leading to a file nobody made yet', () => {
-  const root = track(mkdtempSync(join(tmpdir(), 'arena-assembly-')));
+  const root = tree({});
   write(root, 'a/b/c/File.css', 'body{}');
   assert.equal(readFileSync(join(root, 'a', 'b', 'c', 'File.css'), 'utf8'), 'body{}');
   rmSync(root, { recursive: true });
@@ -325,7 +323,7 @@ test('every import the component barrel writes resolves to a sheet the same call
 test('a component sheet is reached through the barrel alone, never named twice in arena.css', () => {
   const root = tailwindTree(['tag']);
   const sheets = componentSheets('', () => ({ base: '' }), root);
-  const dir = track(mkdtempSync(join(tmpdir(), 'arena-assembly-out-')));
+  const dir = tree({});
 
   writeCssChain(dir, '@dravensoft/arena-angular', sheets, repoRoot);
   const links = importsIn(readFileSync(join(dir, 'arena.css'), 'utf8'));
@@ -340,7 +338,7 @@ test('a component sheet is reached through the barrel alone, never named twice i
 });
 
 test('the token catalogue offers roles and no catalogue of appearances', () => {
-  assert.deepEqual(Object.keys(tokenCatalogue()).sort(), ['aliases', 'channels', 'roles', 'tokens'],
+  assert.deepEqual(Object.keys(tokenCatalogue()).sort(), ['aliases', 'channels', 'light', 'roles', 'slots', 'tokens'],
     'a consumer resolves an alias against the tokens and answers a role itself, and a menu of '
     + 'appearances is a decision Arena took for somebody else');
 });
@@ -446,20 +444,51 @@ test('what a published copy leaves behind is read at the release tag and never a
   assert.equal(agentBases().repository, tag);
 });
 
-test('a catalogue role carries its type, its closed set and its kernel default, and nothing else', () => {
+test('a catalogue role carries its type, its closed set, its kernel default and its metadata, and nothing else', () => {
   assert.deepEqual(catalogueRole({
     $type: 'color', $description: 'x', $extensions: { 'com.dravensoft.arena': { default: '{ink-body}' } },
   }), { type: 'color', default: '{ink-body}' });
   assert.deepEqual(catalogueRole({ $type: 'keyword', $extensions: { 'com.dravensoft.arena': { values: ['none'] } } }),
     { type: 'keyword', values: ['none'] });
   assert.deepEqual(catalogueRole({ $type: 'dimension', $description: 'x' }), { type: 'dimension' });
+  assert.deepEqual(catalogueRole({
+    $type: 'dimension', $description: 'x',
+    $extensions: { 'com.dravensoft.arena': { audience: 'markup', task: 'edges', userScale: 'fixed',
+      question: 'How wide is the rule?', combines: [{ with: 'edge-surface', as: 'width' }] } },
+  }), { type: 'dimension', audience: 'markup', task: 'edges', userScale: 'fixed',
+    question: 'How wide is the rule?', combines: [{ with: 'edge-surface', as: 'width' }] });
   assert.deepEqual(Object.keys(catalogueRole({
-    $type: 'keyword', $extensions: { 'com.dravensoft.arena': { default: '{tt-label}', values: ['none'] } },
-  })), ['type', 'values', 'default'], 'type and values keep the order the catalogue file is written in');
+    $type: 'keyword',
+    $extensions: { 'com.dravensoft.arena': {
+      default: '{tt-label}', values: ['none'], cssUnit: 'px', audience: 'markup', task: 'states', userScale: 'follows',
+      question: 'Which case is the label?', combines: [{ with: 'ink-body', as: 'level' }],
+    } },
+  })), ['type', 'values', 'default', 'audience', 'task', 'userScale', 'question', 'combines'],
+  'type, values and default keep the order the catalogue file is written in, then the metadata follows; cssUnit stays out');
+});
+
+test('a catalogue role carries its state, so arena.tokens.json and the MCP see it', () => {
+  assert.deepEqual(catalogueRole({
+    $type: 'color', $description: 'x',
+    $extensions: { 'com.dravensoft.arena': { task: 'states', state: ['aria-invalid'] } },
+  }), { type: 'color', task: 'states', state: ['aria-invalid'] });
+  assert.equal('state' in catalogueRole({ $type: 'color' }), false);
+});
+
+test('a levelled catalogue role carries the colour keys a class reads it by, and no other role does', () => {
+  const level = { $type: 'color', $extensions: { 'com.dravensoft.arena': { combines: [{ with: 'level-x', as: 'level' }] } } };
+  const width = { $type: 'color', $extensions: { 'com.dravensoft.arena': { combines: [{ with: 'bw-x', as: 'width' }] } } };
+  const ROWS: [string, Record<string, any>, string[] | undefined, string[] | undefined][] = [
+    ['a levelled role', level, ['selected'], ['selected']],
+    ['a levelled role with no key', level, undefined, undefined],
+    ['a role combined otherwise', width, ['edge-x'], undefined],
+    ['a role with no combination', { $type: 'color' }, ['x'], undefined],
+  ];
+  for (const [name, role, keys, want] of ROWS) assert.deepEqual(catalogueRole(role, keys).keys, want, name);
 });
 
 test('copyCli writes bin/palette.d.mts with no import', () => {
-  const to = track(mkdtempSync(join(tmpdir(), 'arena-assembly-cli-')));
+  const to = tree({});
   const written = copyCli(to, repoRoot);
   assert.equal(PALETTE_ENTRY.types, './bin/palette.d.mts');
   assert.equal(PALETTE_ENTRY.module, './bin/palette.mjs');
@@ -478,15 +507,13 @@ test('the declaration guard refuses an import line, an inline import type and a 
 });
 
 test('copyCli refuses a palette whose declaration reaches another file, and writes no palette.d.mts', () => {
-  const cache = join(repoRoot, '.cache');
-  mkdirSync(cache, { recursive: true });
-  const root = track(mkdtempSync(join(cache, 'arena-assembly-reach-')));
+  const root = cacheDir('arena-assembly-reach-');
   const cli = join(root, 'scripts', 'generate', 'core', 'arena-cli');
   mkdirSync(cli, { recursive: true });
   writeFileSync(join(cli, 'arena.ts'), 'export const arena = 1;\n');
   writeFileSync(join(cli, 'other.ts'), 'export type Other = string;\n');
   writeFileSync(join(cli, 'palette.ts'), "import type { Other } from './other.ts';\nexport type Held = Other;\n");
-  const to = track(mkdtempSync(join(cache, 'arena-assembly-reach-out-')));
+  const to = cacheDir('arena-assembly-reach-out-');
   assert.throws(() => copyCli(to, root), /palette\.d\.mts reaches \.\/other\.ts/);
   assert.equal(existsSync(join(to, 'bin', 'palette.d.mts')), false);
 });
@@ -500,7 +527,7 @@ test('arenaCssLayers is the list of imports writeCssChain writes into arena.css,
   const root = tailwindTree(['tag']);
   const sheets = componentSheets('', () => ({ base: '' }), root);
   for (const extra of [[], ANGULAR_EXTRA]) {
-    const dir = track(mkdtempSync(join(tmpdir(), 'arena-assembly-layers-')));
+    const dir = tree({});
     writeCssChain(dir, '@dravensoft/arena-x', [...sheets, ...extra], repoRoot);
     const written = importsIn(readFileSync(join(dir, 'arena.css'), 'utf8')).map((one) => one?.slice('./'.length));
     assert.deepEqual(arenaCssLayers(extra, root), written);
@@ -511,7 +538,7 @@ test('arenaCssLayers is the list of imports writeCssChain writes into arena.css,
 });
 
 test('copyFonts carries every font and licence the record holds, byte for byte, under fonts/', () => {
-  const to = track(mkdtempSync(join(tmpdir(), 'arena-fonts-')));
+  const to = tree({});
   const written = copyFonts(to, repoRoot);
   const record = readJson(join(repoRoot, 'assets', 'fonts', 'Fonts.generated.json'));
   assert.deepEqual(written.map((one) => relPosix(to, one)).sort(), Object.keys(record).map((file) => `${FONTS_PACKAGE_DIR}/${file}`).sort());
@@ -523,9 +550,9 @@ test('copyFonts carries every font and licence the record holds, byte for byte, 
 
 test('copyFonts stops when the record names a file that is not there, or a font has no licence', () => {
   const root = tree({ 'assets/fonts/Fonts.generated.json': JSON.stringify({ 'a.woff2': { family: 'A', weights: [400, 700], sha256: 'x' } }) });
-  assert.throws(() => copyFonts(track(mkdtempSync(join(tmpdir(), 'arena-fonts-'))), root), /a\.woff2/);
+  assert.throws(() => copyFonts(tree({}), root), /a\.woff2/);
   writeFileSync(join(root, 'assets', 'fonts', 'a.woff2'), 'x');
-  assert.throws(() => copyFonts(track(mkdtempSync(join(tmpdir(), 'arena-fonts-'))), root), /a\.OFL\.txt/);
+  assert.throws(() => copyFonts(tree({}), root), /a\.OFL\.txt/);
 });
 
 test('inlineCdkPrebuilt puts the CDK sheet where the import was and keeps the override after it', () => {
@@ -543,4 +570,23 @@ test('inlineCdkPrebuilt throws on a bridge with no import, and angularExtra carr
   assert.equal(entry?.to, 'css/arena-cdk.css');
   assert.equal(entry?.from, undefined);
   assert.ok(!entry?.content?.includes('@import'));
+});
+
+test('default light answers reach the measurement', () => {
+  const catalogue = tokenCatalogue();
+  assert.equal(catalogue.light['edge-focus'], 'var(--color-base-content)');
+  assert.equal(catalogue.tokens['edge-focus'], 'var(--color-secondary)');
+  assert.equal(rolesFor(null, catalogue, 'light').get('edge-focus'), 'var(--color-base-content)');
+  assert.equal(rolesFor(null, catalogue, 'dark').get('edge-focus'), 'var(--color-secondary)');
+});
+
+test('the token catalogue carries the slots', () => {
+  assert.ok(Object.keys(tokenCatalogue().slots.slots).length > 0, 'a catalogue with no slot says nothing');
+});
+
+test('dropBuildBanners takes every GENERATED banner line out of a sheet and keeps every other comment', () => {
+  const css = '/* GENERATED by Style Dictionary — edit contracts/design/, not this file. */\n:root{--a:1}\n'
+    + '/* GENERATED by scripts/build/tailwind/build-tailwind.ts — edit a manifest, not this file. */\n'
+    + '/* the radius a control reads */\n.x{}\n';
+  assert.equal(dropBuildBanners(css), ':root{--a:1}\n/* the radius a control reads */\n.x{}\n');
 });

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { serialize } from './serialize-token.ts';
+import { serialize, emittedLength, scaledLiteral } from './serialize-token.ts';
 
 const px = (value: number) => ({ value, unit: 'px' });
 const em = { $extensions: { 'com.dravensoft.arena': { cssUnit: 'em' } } };
@@ -95,4 +95,39 @@ test('a length that is not a value and a unit is a hard error too', () => {
   assert.throws(() => serialize({ $type: 'dimension', $value: { value: 12 } }), /is not a \{value, unit\} length/);
   assert.throws(() => serialize({ $type: 'dimension', $value: { unit: 'px' } }), /is not a \{value, unit\} length/);
   assert.throws(() => serialize({ $type: 'duration', $value: '250ms' }), /duration: .* is not a \{value, unit\} length/);
+});
+
+test('a scales px length is emitted in rem over the browser default', () => {
+  assert.equal(emittedLength(px(13), { axis: 'scales' }), '0.8125rem');
+  assert.equal(emittedLength(px(13.3), { axis: 'scales' }), '0.83125rem');
+  assert.equal(emittedLength(px(150), { axis: 'scales' }), '9.375rem');
+  assert.equal(emittedLength(px(768), { axis: 'scales', relative: 'em' }), '48em');
+  assert.equal(emittedLength(px(13), { axis: 'fixed' }), '13px');
+  assert.equal(emittedLength(px(13)), '13px');
+  assert.equal(emittedLength({ value: 1, unit: 'rem' }, { axis: 'scales' }), '1rem');
+  assert.equal(serialize({ $type: 'dimension', $value: px(13) }, { axis: 'scales' }), '0.8125rem');
+});
+
+test('a shadow stays in px whatever axis is passed', () => {
+  const shadow = { $type: 'shadow', $value: { offsetX: px(0), offsetY: px(4), blur: px(8), spread: px(0),
+    color: { components: [0, 0, 0], alpha: 1, hex: '#000000' } } };
+  assert.equal(serialize(shadow, { axis: 'scales' }), serialize(shadow));
+  assert.match(serialize(shadow, { axis: 'scales' }), /4px 8px/);
+});
+
+test('scaledLiteral converts a written px length and passes anything else', () => {
+  assert.equal(scaledLiteral('18px', { axis: 'scales' }), '1.125rem');
+  assert.equal(scaledLiteral('18px', { axis: 'fixed' }), '18px');
+  assert.equal(scaledLiteral('1.5rem', { axis: 'scales' }), '1.5rem');
+  assert.equal(scaledLiteral('var(--fs-h3)', { axis: 'scales' }), 'var(--fs-h3)');
+  assert.equal(scaledLiteral('calc(1px + 2px)', { axis: 'scales' }), 'calc(1px + 2px)');
+});
+
+test('a colour answered with the keyword transparent serializes as that keyword', () => {
+  assert.equal(serialize({ $type: 'color', $value: 'transparent' } as never), 'transparent');
+});
+
+test('a colour string is only the transparent keyword, and any other string is refused', () => {
+  assert.equal(serialize({ $type: 'color', $value: 'transparent' }), 'transparent');
+  assert.throws(() => serialize({ $type: 'color', $value: 'red' }));
 });

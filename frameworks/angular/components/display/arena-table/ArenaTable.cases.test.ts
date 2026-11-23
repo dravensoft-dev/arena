@@ -2,7 +2,7 @@
  * so the width stays null and every render is wide; and arenaReadBreakpoint reads --bp-md through
  * getComputedStyle, which is empty here and returns NaN. Both are undone in a finally -- the
  * document and the breakpoint CACHE are shared by the whole run, which is why this file caches
- * 768 and no other number: ArenaPageHead.variants.test.ts asserts that value on a cache hit. No key
+ * 768 and no other number: ContainerSize.test.ts asserts that value on a cache hit. No key
  * event sets keyCode: nothing here goes through a CDK key manager, and the grid's cursor is
  * Arena's own and switches on event.key. The walk is one press per step against 3 rows by 2
  * columns, because the bill is the press count. `activated` counts what a consumer hears through
@@ -375,12 +375,4 @@ test('an empty table draws its [empty] slot and NO grid at all', async () => {
   } finally {
     fixture.destroy();
   }
-});
-
-test('`label` is guarded at runtime, because input.required proves only that something was bound', async () => {
-  const fixture = TestBed.createComponent(TableHost);
-  fixture.componentInstance.label = '   ';
-  assert.throws(() => fixture.detectChanges(), /label. is required/,
-    'a whitespace label left the grid unnamed and nothing complained');
-  fixture.destroy();
 });

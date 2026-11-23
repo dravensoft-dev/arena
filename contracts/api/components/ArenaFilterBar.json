@@ -1,7 +1,7 @@
 {
   "component": "ArenaFilterBar",
   "description": "A labelled row of filter controls above what they narrow, with the filters in effect as removable chips and a Clear all control. The bar holds no filter state: the host passes the controls, writes `applied` and answers each removal. Removing a chip keeps focus in the bar. The bar stacks by its own width, never by the viewport's, and stacking reorders nothing.",
-  "affordances": ["focus", "hover"],
+  "affordances": ["focus", "hover", "press"],
   "api": {
     "label": { "form": "primitive", "type": "string", "required": true,
                "description": "Names the group of filters, such as \"Deployment filters\", never \"Filters\". Required, and guarded at runtime after trimming: a group with no name announces only that a group began." },

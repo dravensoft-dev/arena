@@ -46,10 +46,10 @@ So the component binds the `select` pattern rather than `combobox`, and `aria-ex
 **Keys:** none (`select`).
 <!-- @keys end -->
 
-**Validation is the same vocabulary `ArenaInput` carries, deliberately.** A form that mixes the two is a form whose fields must report a failure the same way. Otherwise it gets validated by hand or not at all. `hint` is a line of help, `error` is the controlled message, and `valid` forces the success state. The state order is the same normative one: **error, then focus, then valid, then neutral**. An errored field stays in the danger tone while it has focus. Arena names the note to the control with
+**Validation is the same vocabulary `ArenaInput` carries, deliberately.** A form that mixes the two is a form whose fields must report a failure the same way. Otherwise it gets validated field by field or not at all. `hint` is a line of help, `error` is the controlled message, and `valid` forces the success state. The state order is the same normative one: **error, then focus, then valid, then neutral**. An errored field stays in the danger tone while it has focus. Arena names the note to the control with
 `aria-describedby` and marks the control `aria-invalid`, so the failure is announced rather than
 only drawn. `error` replaces `hint` rather than joining it: a field that still shows its advice
-buries the failure under it.
+buries the failure under it. The field draws a warning mark with an error and a check mark with `valid`, before the caret, as `ArenaInput` does. Each is an `ArenaIcon` from the sprite handed to `provideArenaIcons`, hidden from assistive technology. An error is announced by its message, not by the mark, and the field's right padding grows to hold the mark beside the caret.
 
 **There is no `validate`, and that is not an omission.** `ArenaInput` takes one because a text field holds a value the consumer must parse. A native select offers a closed list, so there is nothing to reject that the options did not already prevent. Where the rule depends on something else on
 the screen, hold `error` in your own state and pass it in, which is what a controlled message is
@@ -68,7 +68,7 @@ protected readonly environments: ArenaSelectOption[] = [
 `label` is what names the control for assistive technology; Arena renders a real `<label for>`
 pointing at the control's own generated id. The member is optional in the contract. A select with no label and no surrounding `<label>` has no accessible name at all, so supply one or name it from outside.
 
-`valueChange` carries the chosen **value**, not the event. The native `change` a `<select>` fires reaches an ancestor as a DOM event, and the output reports the choice once. The behaviour is measured rather than asserted in prose.
+`valueChange` carries the chosen **value**, not the event. The native `change` a `<select>` fires reaches an ancestor as a DOM event, and the output reports the choice once.
 
 **Do / Don't**
 - **Do** give every option a `value` distinct from its `label`. `value` is what submits and what
@@ -80,14 +80,6 @@ pointing at the control's own generated id. The member is optional in the contra
 - **Don't** put more than a handful of options in it. A long list a user searches for a form value
   is `arena-combobox`'s job. A set of three or four mutually exclusive choices already visible on
   the page is `arena-segmented-control`'s. Running an action is `arena-command-palette`'s.
-
-**By hand, in real Chromium**: the popup is the browser's and happy-dom has none, so nothing
-below is provable by a suite. Run `bun run demos` and open `/frameworks/angular/components/forms/arena-select/ArenaSelect.demo.generated.html`: - The popup opens on click and on Space, walks with the arrow keys and type-ahead, and commits on Enter. All of that is the platform's and none of it is Arena's.
-- The caret sits inside the field's right padding and swallows no click: pressing it opens the
-  control beneath it.
-- The focus ring is Arena's `--focus-width` in `--color-secondary`, and the platform outline is
-  gone.
-- Disabled dims the whole column, label included, and the control refuses the pointer.
 
 **With reactive forms.** `ArenaSelectControl` from `@dravensoft/arena-angular/forms` binds the select to a form control holding the chosen option's `value`. A form value that matches no option leaves the placeholder selected. Binding the member the form replaces as well is a caller bug, and the layer warns about it once.
 

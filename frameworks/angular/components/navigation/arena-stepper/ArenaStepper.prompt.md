@@ -35,19 +35,14 @@ Arena stepper, the steps of one process and where it stands. Standalone, `OnPush
 
 **A press can only go back.** Set `interactive` and the steps behind the current one become buttons, each emitting its own index through `valueChange`. Moving forward stays with your own Next button, since the current step and the later ones are plain text.
 
+Across, every marker stays on one line and the labels wrap under them, at 390px as at any width. Under `arena-comfortable`, a step you can go back to is at least 44px tall.
+
 **Do / Don't**
 - Do pass `ariaLabel` naming the process, such as Account setup. A blank value throws, and Steps names nothing.
 - Do write `class="arena-orientation-vertical"` once a phone cannot hold the steps across. The orientation never flips by itself.
 - Don't host the step's form inside the stepper. The content, its checks and the Next button stay in your page.
 - Don't hand the stepper a state per step or a colour per marker. The stepper works out both from `index`.
 - Don't make the later steps reachable. A step ahead never becomes a button.
-
-**By hand, in real Chromium**: run `bun run demos` and open
-`/frameworks/angular/components/navigation/arena-stepper/ArenaStepper.demo.generated.html`:
-- At 390px, four steps across keep their markers in one row while the labels wrap below.
-- Down the side, each connector leaves one marker's centre and stops short of the next.
-- Under `arena-comfortable`, a step you can return to measures 44px or more.
-- A screen reader announces the list name, and then each state word ahead of its label.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

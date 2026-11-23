@@ -9,7 +9,7 @@ import assert from 'node:assert/strict';
 import { join } from 'node:path';
 import React from 'react';
 import { mount, cleanup } from '../../../test/Harness.tsx';
-import { withIcons, domSymbols } from '../../../test/IconsHarness.tsx';
+import { withIcons } from '../../../test/IconsHarness.tsx';
 import { assertPattern, REACT_COMPONENTS } from '../../../test/AssertPattern.tsx';
 import { ArenaFieldset } from './ArenaFieldset.tsx';
 import { ArenaCheckbox } from '../arena-checkbox/ArenaCheckbox.tsx';

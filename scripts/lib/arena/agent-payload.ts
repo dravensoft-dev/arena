@@ -24,18 +24,25 @@ export const LAYER_NEUTRAL_INDEX = 'frameworks/INDEX.md';
 export const ROLES = 'contracts/design/roles.json';
 export const TOKENS = 'contracts/design/*.json';
 export const BEHAVIOUR = 'contracts/behaviour/*.json';
+export const READER_CONTRACTS = [
+  'contracts/design/*.css',
+  'contracts/design/Scales.md',
+  'contracts/design/StylePlugins.md',
+  'contracts/design/ColorSlots.md',
+  'contracts/design/TokenTypes.md',
+];
 
 export const STYLE_STORE = 'plugin-style-store';
 export const IDENTITY_DIR = 'arena-from-scratch';
 export const IDENTITY_PAGES = [`${IDENTITY_DIR}/identity.html`, `${IDENTITY_DIR}/identity.example.html`];
 
 export const CARRIED_SHARED = [
-  `${REFERENCE_DIR}/*.md`,
-  `${REFERENCE_DIR}/*/*.md`,
+  `${REFERENCE_DIR}/**/*.md`,
   LAYER_NEUTRAL_INDEX,
   'frameworks/VOCABULARY.md',
   ROLES,
   TOKENS,
+  ...READER_CONTRACTS,
   BEHAVIOUR,
   `${STYLE_STORE}/default/*`,
   `${STYLE_STORE}/complete/*`,
@@ -157,7 +164,9 @@ export const INLINE = /`([^`\n]+)`/g;
 export function rewrite(text: string, from: string, layer: string, bases: Bases) {
   const linked = replaceOutsideCode(text, LINK, (whole, target = '') => {
     if (/^[a-z]+:/i.test(target) || target.startsWith('#')) return whole;
-    return `](${rewriteTarget(resolvePosix(from, target), from, layer, bases)})`;
+    const [path = '', ...rest] = target.split('#');
+    const fragment = rest.length > 0 ? `#${rest.join('#')}` : '';
+    return `](${rewriteTarget(resolvePosix(from, path), from, layer, bases)}${fragment})`;
   });
   return linked.replace(INLINE, (whole, target: string) => {
     if (target.startsWith('./') || target.startsWith('../')) {

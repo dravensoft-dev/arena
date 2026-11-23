@@ -1,10 +1,10 @@
-/* What a typical Arena screen downloads, held against budgets taken from the start tree (c543cd66, D9). It
+/* What a typical Arena screen downloads, held against budgets taken from the start tree (c543cd66). It
  * bundles the twelve components of the spec's screen from the assembled React dist with Arena in a chunk of its
  * own, runs the dist's `arena build` for the sheets, the sprite and the cut fonts, and reads brotli q11 beside
  * the previous build as dictionary. A figure over its budget, or a total over its ceiling, fails. Budgets are
  * start × 1.05; the maintainer raises one, this gate never does. A missing dist stops it, as check:consumer.
  * The sprite and fonts are measured on a fixture that draws at least the start's glyphs and paints at least its
- * weights (W6, W7), so assertStartInputs fails when the fixture shrinks; growth is held by the budgets. oneLine is the patch: one line of one file, and an error when that line is not there. */
+ * weights, so assertStartInputs fails when the fixture shrinks; growth is held by the budgets. oneLine is the patch: one line of one file, and an error when that line is not there. */
 
 import { rmSync } from 'node:fs';
 import { join } from 'node:path';
@@ -30,13 +30,13 @@ export const BUDGETS: Budget[] = [
   { figure: 'react-js-first-visit-full', kb: 108.8, reason: `103.58 KB at ${START}` },
   { figure: 'react-js-app-release', kb: 0, reason: `0 KB at ${START}` },
   { figure: 'react-js-patch', kb: 0.1, reason: `0.06 KB at ${START}` },
-  { figure: 'css-arena-half', kb: 13.1, reason: `12.42 KB at ${START}` },
-  { figure: 'css-theme', kb: 13.6, reason: `12.90 KB at ${START}` },
+  { figure: 'css-arena-half', kb: 15.3, reason: '14.54 KB at 84b84480, colour slots, × 1.05 rounded up to 0.1 KB' },
+  { figure: 'css-theme', kb: 16.0, reason: '15.18 KB at 84b84480, colour slots, × 1.05 rounded up to 0.1 KB' },
   { figure: 'css-app-release', kb: 0, reason: `0 KB at ${START}` },
   { figure: 'css-patch', kb: 0.1, reason: `0.01 KB at ${START}` },
   { figure: 'sprite', kb: 1.7, reason: `1.55 KB at ${START}` },
-  { figure: 'fonts', kb: 54.3, reason: `51.68 KB at ${START}, harfbuzz and wawoff2 (D22)` },
-  { figure: 'first-visit-total', kb: 127, reason: `120.87 KB at ${START}, D22` },
+  { figure: 'fonts', kb: 54.3, reason: `51.68 KB at ${START}, harfbuzz and wawoff2` },
+  { figure: 'first-visit-total', kb: 127, reason: `120.87 KB at ${START}` },
 ];
 
 export const CEILINGS: Ceiling[] = [

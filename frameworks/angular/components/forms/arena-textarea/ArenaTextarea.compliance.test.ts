@@ -2,7 +2,7 @@
  * states.required and states.readonly are earned by the native attributes on the real
  * <textarea>; states.multiline the evaluator decides for itself from the element. autoResize is
  * NOT asserted here and cannot be: happy-dom has no layout, so scrollHeight is 0 and a growing
- * box and a broken one look identical. It is a by-hand item on the demo page. */
+ * box and a broken one look identical. It is a by-hand item in ArenaTextarea.checks.md. */
 
 import { useTestEnvironment } from '../../../test/TestbedEnv';
 useTestEnvironment();
@@ -14,6 +14,7 @@ import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ArenaTextarea } from './ArenaTextarea';
 import { assertPattern, ANGULAR_COMPONENTS } from '../../../test/Compliance';
+import { invalidVerdict } from '../../../test/StateVerdicts';
 
 const BINDING = join(ANGULAR_COMPONENTS, 'forms/arena-textarea/ArenaTextarea.behaviour.json');
 
@@ -189,14 +190,23 @@ test('the host is the field group itself -- the root recipe lands on it, not on 
 
 test('arena-textarea meets the textbox pattern', () => {
   const { fixture, host, control } = render({ required: true, readOnly: true });
+  const bad: Partial<ReturnType<typeof render>> = {};
+  const good: Partial<ReturnType<typeof render>> = {};
   try {
+    Object.assign(bad, render({ error: 'Too long' }));
+    Object.assign(good, render());
     assertPattern({
       root: host,
       bindingPath: BINDING,
       subjects: { default: control },
-      behavioural: { 'states.required': true, 'states.readonly': true },
+      behavioural: {
+        'states.required': true, 'states.readonly': true,
+        'states.invalid': invalidVerdict([bad.control!], [good.control!]),
+      },
     });
   } finally {
     fixture.destroy();
+    bad.fixture?.destroy();
+    good.fixture?.destroy();
   }
 });

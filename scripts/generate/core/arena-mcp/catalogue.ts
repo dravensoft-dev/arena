@@ -49,6 +49,12 @@ function mimeIn(table: Record<string, string>, rel: string) {
   return dot === -1 ? undefined : table[rel.slice(dot)];
 }
 
+export const CONTRACT_MIME: Record<string, string> = { '.md': 'text/markdown', '.css': 'text/css' };
+
+export function contractMime(rel: string) {
+  return mimeIn(CONTRACT_MIME, rel);
+}
+
 export function styleMime(rel: string) {
   return mimeIn(STYLE_MIME, rel);
 }
@@ -165,6 +171,12 @@ export function entries(payload: string, manifest: Manifest): Entry[] {
         title: `Tokens: ${jsonName(rel)}` });
       continue;
     }
+    const contract = dirPosix(rel) === TOKENS_DIR ? contractMime(rel) : undefined;
+    if (contract !== undefined) {
+      const under = relPosix(TOKENS_DIR, rel);
+      found.push({ uri: `${TOKENS_PREFIX}${under}`, rel, mime: contract, title: `Contract: ${under}` });
+      continue;
+    }
     if (jsonIn(rel, BEHAVIOUR_DIR)) {
       found.push({ uri: `${BEHAVIOUR_PREFIX}${jsonName(rel)}`, rel, mime: 'application/json',
         title: `Behaviour: ${jsonName(rel)}` });
@@ -172,7 +184,7 @@ export function entries(payload: string, manifest: Manifest): Entry[] {
     }
     if (rel.startsWith(`${REFERENCE_DIR}/`) && rel.endsWith('.md')) {
       found.push({ uri: `${REFERENCE_PREFIX}${referenceName(rel)}`, rel, mime: 'text/markdown',
-        title: `Reference: ${referenceName(rel)}` });
+        title: firstHeading(readIn(payload, rel)) ?? `Reference: ${referenceName(rel)}` });
       continue;
     }
     if (rel.endsWith(`/${INDEX}`) && rel.includes('/components/')) {
@@ -186,6 +198,12 @@ export function entries(payload: string, manifest: Manifest): Entry[] {
     }
   }
   return found;
+}
+
+const HEADING = /^# +(.+?) *$/m;
+
+export function firstHeading(text: string | null) {
+  return text === null ? null : HEADING.exec(text)?.[1] ?? null;
 }
 
 export function catalogue(payload: string, manifest: Manifest) {
@@ -269,7 +287,7 @@ export function tokenNames(node: unknown, path: string[] = []): string[] {
 
 export function summaryOf(entry: Entry, text: string) {
   if (entry.uri.startsWith(BEHAVIOUR_PREFIX)) return '';
-  if (!entry.uri.startsWith(TOKENS_PREFIX)) return text.slice(0, 400);
+  if (!entry.uri.startsWith(TOKENS_PREFIX) || entry.mime !== 'application/json') return text.slice(0, 400);
   try {
     const tree = JSON.parse(text);
     return [...Object.keys(tree), ...tokenNames(tree)].join(' ');

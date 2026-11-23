@@ -31,7 +31,7 @@ Status label in mono uppercase. Short text (1–2 words); if it's longer, it's n
 **Keys:** none.
 <!-- @keys end -->
 
-**Tone taxonomy (H4).** Two families, don't mix them:
+**Tone taxonomy.** Two families, don't mix them:
 - **Status**: `success` `warning` `danger` `info`: reflect the actual state of the system (deploy, service, version). The `dot` reinforces "live status".
 - **Emphasis**: `arena-accent-primary` (new/featured) and `arena-accent-gold` (priority/distinction) colour the badge as editorial emphasis, never a status. `neutral` = no semantic weight.
 

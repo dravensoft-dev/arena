@@ -1,13 +1,13 @@
-/* An anchored panel is placed by script in one layer and by the CDK overlay in the other, and happy-
- * dom has no layout and no top layer, so no suite sees where a panel lands. This drives real Chromium
- * over each declared demo page: it pins the playground stage to the viewport edge the panel prefers to
- * open toward, clips it with overflow: hidden and gives it a transform, opens the panel, and reads
- * three facts. The panel is painted at its centre, so no ancestor clipped it; it lies inside the
- * viewport; and it opened on the far side of its trigger, so it flipped. A case naming an edge seeds
- * its align and puts the panel's aligned edge on the named anchor's; a pin puts the trigger against an
- * edge so the panel must flip, and a width leaves neither alignment room. A case naming rows measures
- * the smallest against each density floor check:target-size declares, the panel open. A wait is for a
- * condition with a declared deadline, never a span. */
+/* Panels are placed by script in one layer and by the CDK overlay in the other, and happy-dom has no
+ * layout, so no suite sees where one lands. This drives real Chromium over each demo page: the stage
+ * is pinned to the edge the panel prefers, clipped and transformed, and the open panel must paint,
+ * lie inside the viewport and sit on the far side of its trigger. A case naming an edge seeds its
+ * align and lines the panel up with the named anchor; a pin or a width forces a flip; rows are
+ * measured against each density floor. A right-to-left case with a centred trigger reads start and
+ * end as the logical edges; a keyboard case stubs a shrunk, panned visual viewport and keeps the
+ * panel inside it, on the preferred side when the trigger sits just under the box top, and capped at
+ * one row, scroll kept, when no side has a row of room; each such case must land alike in React and
+ * Angular. A wait is for a condition with a declared deadline, never a span. */
 
 import { withTimeout } from '../../utils/with-timeout.ts';
 import { deadline, type Deadline } from '../../lib/arena/deadline.ts';
@@ -45,13 +45,23 @@ export const OPENED: Deadline = deadline('anchoring:opened', 5_000,
   'the panel is shown and placed after the press, in an effect or an after-render hook, and a '
   + 'transition may run before its box settles');
 
+export const SETTLED: Deadline = deadline('anchoring:settled', 5_000,
+  'a panel is placed again by a resize observer and a visual viewport event after it opens, and its box '
+  + 'is read only once it has not moved across two animation frames, with every finite entrance finished first');
+
 export type Edge = 'below' | 'above';
 
 export type Aligned = { anchor: string; align: 'start' | 'end' };
 
-export type Anchored = { name: string; page: string; trigger: string; panel: string; open: 'click' | 'focus'; prefer: Edge; rows?: string; edge?: Aligned; seed?: string; pin?: Aligned['align']; width?: number };
+export type VisualBox = { top: number; height: number };
+
+export type Anchored = { name: string; page: string; trigger: string; panel: string; open: 'click' | 'focus'; prefer: Edge; rows?: string; edge?: Aligned; seed?: string; pin?: Aligned['align']; width?: number; rtl?: true; centred?: true; visual?: VisualBox; crowd?: 'offset' | 'floor'; alike?: true };
 
 export type EdgeReading = { wanted: number; actual: number };
+
+export type Scrolled = { capped: boolean; kept: boolean; wanted: number; actual: number };
+
+export type PanelRect = { left: number; top: number; width: number; height: number };
 
 export type RowReading = { scope: string; floor: number; count: number; smallest: number };
 
@@ -64,6 +74,18 @@ const MENU = '[aria-haspopup="menu"]';
 
 const FITS_NEITHER = 208;
 
+const KEYBOARD_BOXES: VisualBox[] = [{ top: 0, height: 440 }, { top: 200, height: 440 }];
+
+const CROWDED_BOXES: Record<'offset' | 'floor', VisualBox> = { offset: { top: 200, height: 120 }, floor: { top: 200, height: 80 } };
+
+const SCROLLED_TO = 10;
+
+const PAGE_HEIGHT = 760;
+
+const EDGE_GAP = 8;
+
+const ALIKE_PX = 1;
+
 function flipped(layer: 'react' | 'angular', root: string): Anchored[] {
   const split = `${root}/forms/arena-split-button/ArenaSplitButton.demo.generated.html`;
   const menu = `${root}/navigation/arena-menu/ArenaMenu.demo.generated.html`;
@@ -75,6 +97,33 @@ function flipped(layer: 'react' | 'angular', root: string): Anchored[] {
     { ...shared, name: `ArenaMenu:${layer}:start-at-end`, page: menu, pin: 'end', edge: { anchor: MENU, align: 'end' }, seed: 'align=start' },
     { ...shared, name: `ArenaMenu:${layer}:fits-neither`, page: menu, pin: 'end', width: FITS_NEITHER, edge: { anchor: MENU, align: 'end' }, seed: 'align=start' },
   ];
+}
+
+function logical(layer: 'react' | 'angular', root: string): Anchored[] {
+  const split = `${root}/forms/arena-split-button/ArenaSplitButton.demo.generated.html`;
+  const menu = `${root}/navigation/arena-menu/ArenaMenu.demo.generated.html`;
+  const shared = { trigger: MENU, panel: '[role="menu"]', open: 'click', prefer: 'below', rtl: true, centred: true, alike: true } as const;
+  return (['start', 'end'] as const).flatMap((align) => [
+    { ...shared, name: `ArenaSplitButton:${layer}:rtl-${align}`, page: split, edge: { anchor: SPLIT, align }, seed: `align=${align}` },
+    { ...shared, name: `ArenaMenu:${layer}:rtl-${align}`, page: menu, edge: { anchor: MENU, align }, seed: `align=${align}` },
+  ]);
+}
+
+function keyboard(layer: 'react' | 'angular', root: string): Anchored[] {
+  const menu = `${root}/navigation/arena-menu/ArenaMenu.demo.generated.html`;
+  const popover = `${root}/feedback/arena-popover/ArenaPopover.demo.generated.html`;
+  const kinds = [
+    { page: menu, trigger: MENU, panel: '[role="menu"]', component: 'ArenaMenu' },
+    { page: popover, trigger: '[aria-haspopup="dialog"]', panel: '[role="dialog"]', component: 'ArenaPopover' },
+  ];
+  const sets = [...kinds, { page: `${root}/forms/arena-combobox/ArenaCombobox.demo.generated.html`, trigger: '[role="combobox"]', panel: '.arena-combobox__panel', component: 'ArenaCombobox' }];
+  const plain = kinds.flatMap(({ component, ...rest }) => KEYBOARD_BOXES.map((visual) => ({
+    ...rest, name: `${component}:${layer}:keyboard-${visual.top}`, open: 'click', prefer: 'below', visual, alike: true,
+  } satisfies Anchored)));
+  const crowded = sets.flatMap(({ component, ...rest }) => (['offset', 'floor'] as const).map((crowd) => ({
+    ...rest, name: `${component}:${layer}:keyboard-${crowd}`, open: 'click', prefer: 'below', visual: CROWDED_BOXES[crowd], crowd, alike: true,
+  } satisfies Anchored)));
+  return [...plain, ...crowded];
 }
 
 export const ANCHORED: Anchored[] = [
@@ -92,6 +141,10 @@ export const ANCHORED: Anchored[] = [
   { name: 'ArenaSplitButton:angular', page: `${ANGULAR}/forms/arena-split-button/ArenaSplitButton.demo.generated.html`, trigger: '[aria-haspopup="menu"]', panel: '[role="menu"]', open: 'click', prefer: 'below', edge: { anchor: '[data-arena-part="split-button"]', align: 'start' }, seed: 'align=start' },
   ...flipped('react', REACT),
   ...flipped('angular', ANGULAR),
+  ...logical('react', REACT),
+  ...logical('angular', ANGULAR),
+  ...keyboard('react', REACT),
+  ...keyboard('angular', ANGULAR),
 ];
 
 export type Reading = {
@@ -99,15 +152,42 @@ export type Reading = {
   changed?: Lost[];
   mounted: boolean;
   opened: boolean;
+  unsettled?: boolean;
   painted?: boolean;
   inside?: boolean;
   side?: Edge | 'overlapping';
   rows?: RowReading[];
   edge?: EdgeReading;
+  rect?: PanelRect;
+  scrolled?: Scrolled;
 };
 
 export function caseUrl(origin: string, kase: Anchored) {
   return `${origin}/${kase.page}${kase.seed === undefined ? '' : `?${kase.seed}`}`;
+}
+
+export function directionScript() {
+  return `new MutationObserver((_, watcher) => {
+    if (!document.documentElement) return;
+    document.documentElement.setAttribute('dir', 'rtl');
+    watcher.disconnect();
+  }).observe(document, { childList: true });`;
+}
+
+export function visualViewportScript(box: VisualBox) {
+  return `(() => {
+    const stub = new EventTarget();
+    Object.defineProperties(stub, {
+      offsetTop: { get: () => ${box.top} }, offsetLeft: { get: () => 0 },
+      height: { get: () => ${box.height} }, width: { get: () => document.documentElement.clientWidth },
+      scale: { get: () => 1 }, pageTop: { get: () => ${box.top} + scrollY }, pageLeft: { get: () => scrollX },
+    });
+    Object.defineProperty(window, 'visualViewport', { configurable: true, get: () => stub });
+  })();`;
+}
+
+export function initScripts(kase: Anchored) {
+  return [...(kase.rtl ? [directionScript()] : []), ...(kase.visual ? [visualViewportScript(kase.visual)] : [])];
 }
 
 export function waitExpression(selector: string, bound: Deadline) {
@@ -126,13 +206,17 @@ export function waitExpression(selector: string, bound: Deadline) {
 
 export function confineExpression(kase: Anchored) {
   const edge = kase.prefer === 'below' ? 'bottom' : 'top';
-  const pin = kase.pin === undefined ? '' : `Object.assign(stage.style, { display: 'flex', justifyContent: '${kase.pin === 'start' ? 'flex-start' : 'flex-end'}' });`;
+  const lane = kase.centred ? 'center' : kase.pin === undefined ? null : kase.pin === 'start' ? 'flex-start' : 'flex-end';
+  const pin = lane === null ? '' : `Object.assign(stage.style, { display: 'flex', justifyContent: '${lane}' });`;
+  const visual = kase.visual;
+  const place = visual === undefined ? `${edge}: '${EDGE_GAP}px'`
+    : kase.prefer === 'below' && kase.crowd === undefined ? `top: (${visual.top + visual.height} - tall - ${EDGE_GAP}) + 'px'` : `top: '${visual.top + EDGE_GAP}px'`;
   return `(() => {
     const trigger = document.querySelector(${JSON.stringify(kase.trigger)});
     const stage = trigger && trigger.closest('.pg-stage');
     if (!stage) return false;
     const tall = Math.ceil(trigger.getBoundingClientRect().height) + 2;
-    Object.assign(stage.style, { position: 'fixed', left: '16px', right: '16px', ${edge}: '8px',
+    Object.assign(stage.style, { position: 'fixed', left: '16px', right: '16px', ${place},
       height: tall + 'px', minHeight: '0', padding: '0', overflow: 'hidden', transform: 'translateZ(0)' });
     ${pin}
     return true;
@@ -146,6 +230,34 @@ export function openExpression(kase: Anchored) {
 
 export function smallestRow(heights: number[]) {
   return heights.length ? Math.min(...heights) : 0;
+}
+
+export function scrollExpression(kase: Anchored) {
+  return `(() => {
+    const panel = document.querySelector(${JSON.stringify(kase.panel)});
+    const capped = panel.scrollHeight > panel.clientHeight && getComputedStyle(panel).overflowY === 'auto';
+    panel.scrollTop = ${SCROLLED_TO};
+    const wanted = panel.scrollTop;
+    window.visualViewport.dispatchEvent(new Event('resize'));
+    return { capped, kept: Math.abs(panel.scrollTop - wanted) <= 1 && wanted > 0, wanted, actual: panel.scrollTop };
+  })()`;
+}
+
+export function settleExpression(kase: Anchored, bound: Deadline) {
+  return `new Promise((resolve) => {
+    const until = Date.now() + ${bound.ms};
+    const panel = document.querySelector(${JSON.stringify(kase.panel)});
+    const rest = () => document.getAnimations().forEach((one) => { try { one.finish(); } catch {} });
+    const key = () => { rest(); const b = panel.getBoundingClientRect(); return [b.left, b.top, b.width, b.height].join(); };
+    let last = key();
+    const tick = () => requestAnimationFrame(() => requestAnimationFrame(() => {
+      const now = key();
+      if (now === last) resolve(true);
+      else if (Date.now() >= until) resolve(false);
+      else { last = now; tick(); }
+    }));
+    tick();
+  })`;
 }
 
 export function readExpression(kase: Anchored, scopes: Scope[] = SCOPES) {
@@ -168,16 +280,18 @@ export function readExpression(kase: Anchored, scopes: Scope[] = SCOPES) {
     const t = trigger.getBoundingClientRect();
     const p = panel.getBoundingClientRect();
     const hit = document.elementFromPoint(p.left + p.width / 2, p.top + p.height / 2);
-    const inside = p.left >= 0 && p.top >= 0 && p.right <= innerWidth && p.bottom <= innerHeight;
+    const visual = ${JSON.stringify(kase.visual ?? null)} || { top: 0, height: innerHeight };
+    const inside = p.left >= 0 && p.top >= visual.top && p.right <= innerWidth && p.bottom <= visual.top + visual.height;
     const side = p.top >= t.bottom ? 'below' : p.bottom <= t.top ? 'above' : 'overlapping';
     const aligned = ${JSON.stringify(kase.edge ?? null)};
     const anchor = aligned && document.querySelector(aligned.anchor);
     const a = anchor && anchor.getBoundingClientRect();
     const edge = a ? {
-      wanted: Math.max(0, Math.min(aligned.align === 'start' ? a.left : a.right - p.width, innerWidth - p.width)),
+      wanted: Math.max(0, Math.min((aligned.align === 'start') === ${!kase.rtl} ? a.left : a.right - p.width, innerWidth - p.width)),
       actual: p.left,
     } : undefined;
-    return { painted: Boolean(hit && panel.contains(hit)), inside, side, rows, edge };
+    const rect = { left: p.left, top: p.top, width: p.width, height: p.height };
+    return { painted: Boolean(hit && panel.contains(hit)), inside, side, rows, edge, rect };
   })()`;
 }
 
@@ -194,14 +308,34 @@ export function anchoringProblems(kase: Anchored, reading: Reading) {
     return [`${kase.name}: ${OPENED.name} saw no laid-out ${kase.panel} within ${OPENED.ms}ms after the `
       + `trigger was ${kase.open === 'click' ? 'pressed' : 'focused'}, so the panel never opened with a box`];
   }
+  if (reading.unsettled) {
+    return [`${kase.name}: ${SETTLED.name} saw the panel's box still moving after ${SETTLED.ms}ms, so it was never `
+      + 'placed for good and was not read'];
+  }
   const problems: string[] = [];
   if (!reading.painted) {
     problems.push(`${kase.name}: the panel is not what paints at its own centre, so the clipped, `
       + 'transformed stage around its trigger cut it off or something covers it');
   }
-  if (!reading.inside) problems.push(`${kase.name}: the panel leaves the viewport`);
+  if (!reading.inside) {
+    problems.push(`${kase.name}: the panel leaves the ${kase.visual === undefined ? 'viewport'
+      : `visual viewport (${kase.visual.top}px to ${kase.visual.top + kase.visual.height}px) a soft keyboard leaves`}`);
+  }
   const away: Edge = kase.prefer === 'below' ? 'above' : 'below';
-  if (reading.side !== away) {
+  if (kase.crowd === 'offset') {
+    if (reading.side !== kase.prefer) {
+      problems.push(`${kase.name}: the trigger sits a few px under the top of the visual viewport, so the room over it is `
+        + `counted from that top and the panel stays ${kase.prefer} it, but it opened ${reading.side} it`);
+    }
+  } else if (kase.crowd === 'floor') {
+    if (!reading.scrolled?.capped) {
+      problems.push(`${kase.name}: the visual viewport leaves less than one row on either side of the trigger and the panel `
+        + 'is not capped to scroll inside it');
+    } else if (!reading.scrolled.kept) {
+      problems.push(`${kase.name}: the panel scrolled to ${reading.scrolled.wanted}px and was at ${reading.scrolled.actual}px `
+        + 'once it was placed again, so placing it clears the scroll position');
+    }
+  } else if (reading.side !== away) {
     problems.push(`${kase.name}: the trigger sits at the ${kase.prefer === 'below' ? 'bottom' : 'top'} edge and `
       + `the panel opened ${reading.side} it rather than flipping ${away}`);
   }
@@ -210,7 +344,7 @@ export function anchoringProblems(kase: Anchored, reading: Reading) {
     if (reading.edge === undefined) {
       problems.push(`${kase.name}: no ${anchor} was found to measure the panel's ${align} edge from`);
     } else if (Math.abs(reading.edge.actual - reading.edge.wanted) > 1) {
-      problems.push(`${kase.name}: the panel starts at ${Math.round(reading.edge.actual)}px, and its ${align} edge measured `
+      problems.push(`${kase.name}: the panel starts at ${Math.round(reading.edge.actual)}px, and its ${align} edge${kase.rtl ? ' in a right-to-left page' : ''} measured `
         + `from ${anchor} puts it at ${Math.round(reading.edge.wanted)}px`);
     }
   }
@@ -228,9 +362,28 @@ export function anchoringProblems(kase: Anchored, reading: Reading) {
   return problems;
 }
 
+export function alikeProblems(readings: ReadonlyMap<string, Reading>, cases: readonly Anchored[] = ANCHORED) {
+  const problems: string[] = [];
+  for (const kase of cases.filter((one) => one.alike === true && one.name.includes(':react:'))) {
+    const twin = kase.name.replace(':react:', ':angular:');
+    const [one, other] = [readings.get(kase.name)?.rect, readings.get(twin)?.rect];
+    if (one === undefined || other === undefined) {
+      problems.push(`${kase.name}: no panel rect was read in ${one === undefined ? 'React' : 'Angular'}, so the two layers were not compared`);
+      continue;
+    }
+    const apart = (['left', 'top', 'width', 'height'] as const).filter((key) => Math.abs(one[key] - other[key]) > ALIKE_PX);
+    if (apart.length) {
+      problems.push(`${kase.name}: React and Angular place the panel apart by more than ${ALIKE_PX}px in ${apart.join(', ')} `
+        + `(${apart.map((key) => `${Math.round(one[key])} against ${Math.round(other[key])}`).join('; ')})`);
+    }
+  }
+  return problems;
+}
+
 async function readIn(cdp: Cdp, sessionId: string, url: string, kase: Anchored): Promise<Reading> {
-  await cdp.send('Emulation.setDeviceMetricsOverride', { width: kase.width ?? 1000, height: 760, deviceScaleFactor: 1, mobile: false }, sessionId);
+  await cdp.send('Emulation.setDeviceMetricsOverride', { width: kase.width ?? 1000, height: PAGE_HEIGHT, deviceScaleFactor: 1, mobile: false }, sessionId);
   await cdp.send('Page.enable', {}, sessionId);
+  for (const source of initScripts(kase)) await cdp.send('Page.addScriptToEvaluateOnNewDocument', { source }, sessionId);
   await withTimeout(cdp.send('Page.navigate', { url }, sessionId), NAVIGATE.ms,
     `${url}: navigate timed out after ${NAVIGATE.ms}ms, which is that size because ${NAVIGATE.why}`);
   const ev = (expression: string) => evaluate(cdp, expression, sessionId);
@@ -239,7 +392,10 @@ async function readIn(cdp: Cdp, sessionId: string, url: string, kase: Anchored):
   await ev(openExpression(kase));
   const opened = await ev(waitExpression(kase.panel, OPENED));
   if (!opened) return { mounted: true, opened: false };
-  return { mounted: true, opened: true, ...(await ev(readExpression(kase))) };
+  if (!(await ev(settleExpression(kase, SETTLED)))) return { mounted: true, opened: true, unsettled: true };
+  const scrolled = kase.crowd === 'floor' ? await ev(scrollExpression(kase)) : undefined;
+  if (scrolled !== undefined && !(await ev(settleExpression(kase, SETTLED)))) return { mounted: true, opened: true, unsettled: true };
+  return { mounted: true, opened: true, ...(await ev(readExpression(kase))), ...(scrolled === undefined ? {} : { scrolled }) };
 }
 
 async function readCase(cdp: Cdp, url: string, kase: Anchored): Promise<Reading> {
@@ -262,10 +418,14 @@ async function main() {
   const chrome = await launchChromium(exe);
   const cdp = await connect(chrome.wsUrl);
   const problems: string[] = [];
+  const readings = new Map<string, Reading>();
   try {
     for (const kase of ANCHORED) {
-      problems.push(...anchoringProblems(kase, await readCase(cdp, caseUrl(`http://127.0.0.1:${server.port}`, kase), kase)));
+      const reading = await readCase(cdp, caseUrl(`http://127.0.0.1:${server.port}`, kase), kase);
+      readings.set(kase.name, reading);
+      problems.push(...anchoringProblems(kase, reading));
     }
+    problems.push(...alikeProblems(readings));
   } finally {
     await chrome.kill?.();
     server.close?.();
@@ -277,10 +437,15 @@ async function main() {
   }
   const measured = ANCHORED.filter((kase) => kase.rows !== undefined).length;
   console.log(`check-anchoring: ${ANCHORED.length} panel(s) opened from a trigger pinned to a clipped, `
-    + 'transformed edge, and each painted whole, inside the viewport, on the far side of its trigger; '
+    + 'transformed edge, and each painted whole and inside the viewport, on the far side of its trigger unless no row of room is left on either side; '
     + `${ANCHORED.filter((kase) => kase.edge !== undefined).length} lined up with the edge they name, `
     + `${ANCHORED.filter((kase) => kase.pin !== undefined).length} of them pinned to a horizontal edge so the aligned panel had to flip, `
     + `${ANCHORED.filter((kase) => kase.width !== undefined).length} in a viewport narrower than the panel plus its anchor so it fit neither alignment; `
+    + `${ANCHORED.filter((kase) => kase.rtl !== undefined).length} read right to left from a centred trigger, start and end on the logical edge; `
+    + `${ANCHORED.filter((kase) => kase.visual !== undefined).length} stayed inside a visual viewport a soft keyboard shrinks, `
+    + `${ANCHORED.filter((kase) => kase.crowd === 'offset').length} of them with the trigger under its panned top and `
+    + `${ANCHORED.filter((kase) => kase.crowd === 'floor').length} with no row of room, capped and keeping their scroll; `
+    + `${ANCHORED.filter((kase) => kase.alike !== undefined).length / 2} placed alike by React and Angular within ${ALIKE_PX}px; `
     + `the rows of ${measured} clear the floor of every density scope`);
 }
 

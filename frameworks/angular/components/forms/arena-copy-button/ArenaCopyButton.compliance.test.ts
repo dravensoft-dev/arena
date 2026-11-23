@@ -13,6 +13,7 @@ import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ArenaCopyButton } from './ArenaCopyButton';
 import { assertPattern, ANGULAR_COMPONENTS } from '../../../test/Compliance';
+import { commandButtonVerdict } from '../../../test/StateVerdicts';
 
 const BINDING = join(ANGULAR_COMPONENTS, 'forms/arena-copy-button/ArenaCopyButton.behaviour.json');
 
@@ -43,7 +44,10 @@ test('arena-copy-button meets the button pattern on the button it draws', () => 
       root,
       bindingPath: BINDING,
       subjects: { default: control },
-      behavioural: { 'keyboard.Enter': true, 'keyboard.Space': true, 'states.disabled': true },
+      behavioural: {
+        'keyboard.Enter': true, 'keyboard.Space': true, 'states.disabled': true,
+        'states.pressed': commandButtonVerdict(control),
+      },
     });
   } finally {
     fixture.destroy();

@@ -1,8 +1,9 @@
 import type * as React from 'react';
-import type { ArenaNumberFormat, ArenaSeriesTone, ArenaTone } from './Api.generated';
+import type { ArenaNumberFormat, ArenaTone } from './Api.generated';
 import { arenaWarnOnce } from './WarnOnce.ts';
 import {
-  chartHeight, chartPadTop, chartPadRight, chartPadBottom, chartPadLeft, catSlots, heatSteps,
+  chartHeight, chartPadTop, chartPadRight, chartPadBottom, chartPadLeft, chartTickChar, chartLabelChar, chartPadCategory,
+  chartHeatmapRowH, chartLegendStrip, catSlots, heatSteps,
   tintArea, tintSoft, tintEdge,
 } from './Tokens.generated.js';
 
@@ -11,7 +12,32 @@ export const ARENA_CAT_SLOTS = catSlots;
 export const ARENA_HEAT_STEPS = heatSteps;
 
 export const ARENA_CHART_HEIGHT = chartHeight;
-export const ARENA_PAD = { t: chartPadTop, r: chartPadRight, b: chartPadBottom, l: chartPadLeft };
+export type ArenaTextRoom = {
+  tickChar: number; labelChar: number; padBottom: number; padLeft: number; padCategory: number; heatmapRowH: number; legendStrip: number; padTop: number; padRight: number; scale: number;
+};
+
+export function arenaTextRoom(scale: number): ArenaTextRoom {
+  return {
+    tickChar: chartTickChar * scale,
+    labelChar: chartLabelChar * scale,
+    padBottom: chartPadBottom * scale,
+    padLeft: chartPadLeft * scale,
+    padCategory: chartPadCategory * scale,
+    heatmapRowH: chartHeatmapRowH * scale,
+    legendStrip: chartLegendStrip * scale,
+    padTop: chartPadTop * scale,
+    padRight: chartPadRight * scale,
+    scale,
+  };
+}
+
+export const ARENA_TEXT_ROOM = arenaTextRoom(1);
+
+export function arenaPad(room: ArenaTextRoom = ARENA_TEXT_ROOM): Readonly<{ t: number; r: number; b: number; l: number }> {
+  return { t: room.padTop, r: room.padRight, b: room.padBottom, l: room.padLeft };
+}
+
+export const ARENA_PAD = arenaPad();
 
 export function arenaCatIndex(slot: number): number {
   return Math.min(ARENA_CAT_SLOTS, Math.max(1, Math.round(slot) || 1));
@@ -116,9 +142,11 @@ export function arenaHeatFill(step: number): string {
   return `var(--color-heat-${step})`;
 }
 
-export function arenaPlotWidth(available: number, count: number, minPointSpacing: number | undefined): number {
+export function arenaPlotWidth(
+  available: number, count: number, minPointSpacing: number | undefined, room: ArenaTextRoom = ARENA_TEXT_ROOM,
+): number {
   if (!minPointSpacing || !(minPointSpacing > 0) || count < 2) return available;
-  const needed = ARENA_PAD.l + ARENA_PAD.r + minPointSpacing * (count - 1);
+  const needed = room.padLeft + room.padRight + minPointSpacing * (count - 1);
   return Math.max(available, needed);
 }
 export function arenaRailStyle(scrolls: boolean): React.CSSProperties {

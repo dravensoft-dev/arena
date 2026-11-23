@@ -7,7 +7,7 @@
     "root": "the row sets the width of the items it holds, which each item reads; every item is a boundary of its own, so nothing reaches past one"
   },
   "slots": {
-    "root": "flex gap-component overflow-x-auto pb-3 rounded-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+    "root": "flex gap-component overflow-x-auto pb-3 rounded-surface focus-visible:outline-hidden focus-visible:ring-[length:var(--bw-focus)] focus-visible:ring-edge-focus"
   },
   "kind": {
     "root": "surface"

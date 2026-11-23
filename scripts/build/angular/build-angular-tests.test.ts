@@ -1,27 +1,17 @@
-import { after, test } from 'node:test';
+import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { join, dirname } from 'node:path';
-import { mkdtempSync, mkdirSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { rmSync, utimesSync, writeFileSync } from 'node:fs';
 import { platform } from '../../lib/arena/platform.ts';
 import { budgetFor } from '../../lib/arena/deadline.ts';
 import { TERM_GRACE } from '../../lib/arena/child-output.ts';
 import { PROBE_ENDED, PROBE_IMPORTED, PROBE_SPAWNED, assertCompilerEnded, probeInterrupt } from '../../lib/arena/forwarding-probe.ts';
 import { readJson } from '../../utils/read-file.ts';
+import { scratchTree } from '../../utils/scratch-tree.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { collectInputs, missingEmitProblems, readStamp, recordInputs, stalenessReason } from './build-angular-tests.ts';
 
-const roots: string[] = [];
-function tree(files: Record<string, string>) {
-  const repo = mkdtempSync(join(tmpdir(), 'arena-emit-'));
-  roots.push(repo);
-  for (const [rel, text] of Object.entries(files)) {
-    mkdirSync(dirname(join(repo, rel)), { recursive: true });
-    writeFileSync(join(repo, rel), text);
-  }
-  return repo;
-}
-after(() => { for (const root of roots) rmSync(root, { recursive: true, force: true }); });
+const { tree } = scratchTree('arena-emit');
 
 const FILES = { 'layer/a.ts': 'export const a = 1;', 'layer/b.json': '{}', 'layer/build/skipped.ts': 'x', 'layer/dist/skipped.json': '{}', 'package.json': '{}' };
 const gather = (repo: string) => collectInputs(repo, join(repo, 'layer'), [join(repo, 'layer', 'build'), join(repo, 'layer', 'dist')], [join(repo, 'package.json')]);
@@ -90,20 +80,15 @@ test('no stamp rebuilds, and no input found rebuilds rather than skipping on a w
   assert.match(stalenessReason(repo, [], { inputs: {} }) ?? '', /no input is found/);
 });
 
-test('a stamp in the old shape, paths only, compiles with a sentence', () => {
-  const repo = tree({ ...FILES, 'stamp': JSON.stringify({ at: 'x', paths: ['layer/a.ts'] }) });
-  const read = readStamp(join(repo, 'stamp'));
-  assert.ok(read && 'problem' in read);
-  assert.match(stalenessReason(repo, gather(repo), read) ?? '', /holds no content hashes/);
-});
-
-test('a stamp that is not JSON, or whose rows are not fingerprints, compiles with a sentence', () => {
-  const repo = tree({ ...FILES, 'junk': '{not json', 'rows': JSON.stringify({ inputs: { 'layer/a.ts': 3 } }) });
-  for (const name of ['junk', 'rows']) {
+test('a stamp that is not JSON, whose rows are not fingerprints, or that is in the old shape (paths only), compiles with a sentence', () => {
+  const repo = tree({ ...FILES, 'junk': '{not json', 'rows': JSON.stringify({ inputs: { 'layer/a.ts': 3 } }),
+    'old': JSON.stringify({ at: 'x', paths: ['layer/a.ts'] }) });
+  for (const name of ['junk', 'rows', 'old']) {
     const read = readStamp(join(repo, name));
     assert.ok(read && 'problem' in read, name);
     assert.ok(stalenessReason(repo, gather(repo), read), name);
   }
+  assert.match(stalenessReason(repo, gather(repo), readStamp(join(repo, 'old'))) ?? '', /holds no content hashes/);
   assert.equal(readStamp(join(repo, 'absent')), null);
 });
 
@@ -114,44 +99,30 @@ test('a stamp written from recorded inputs reads back whole', () => {
   assert.deepEqual(readStamp(join(repo, 'stamp')), { inputs });
 });
 
-test('missingEmitProblems reports nothing when every source test has a matching emit', () => {
-  const problems = missingEmitProblems(
-    ['DataVisuals.test.ts', 'components/charts/arena-bar-chart/ArenaBarChart.geometry.test.ts'],
-    ['DataVisuals.test.js', 'components/charts/arena-bar-chart/ArenaBarChart.geometry.test.js'],
-  );
-  assert.deepEqual(problems, []);
-});
+const EMIT_ROWS = [
+  { name: 'every source test has a matching emit',
+    sources: ['DataVisuals.test.ts', 'components/charts/arena-bar-chart/ArenaBarChart.geometry.test.ts'],
+    emitted: ['DataVisuals.test.js', 'components/charts/arena-bar-chart/ArenaBarChart.geometry.test.js'],
+    named: [] as string[], says: undefined as RegExp | undefined },
+  { name: 'a source test with no matching emit is named',
+    sources: ['DataVisuals.test.ts', 'components/charts/arena-bar-chart/ArenaBarChart.geometry.test.ts'],
+    emitted: ['components/charts/arena-bar-chart/ArenaBarChart.geometry.test.js'],
+    named: ['DataVisuals.test.ts'], says: /never runs/ },
+  { name: 'one problem per missing suite, not one for the whole run',
+    sources: ['A.test.ts', 'B.test.ts', 'C.test.ts'], emitted: ['C.test.js'],
+    named: ['A.test.ts', 'B.test.ts'], says: undefined },
+  { name: 'two empty lists: no source tests is not the failure this guards', sources: [], emitted: [], named: [], says: undefined },
+  { name: 'an extra emitted file with no source is not this function\'s problem, pruneOrphans owns that direction',
+    sources: ['A.test.ts'], emitted: ['A.test.js', 'Orphan.test.js'], named: [], says: undefined },
+];
 
-test('missingEmitProblems names a source test with no matching emit', () => {
-  const problems = missingEmitProblems(
-    ['DataVisuals.test.ts', 'components/charts/arena-bar-chart/ArenaBarChart.geometry.test.ts'],
-    ['components/charts/arena-bar-chart/ArenaBarChart.geometry.test.js'],
-  );
-  assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /DataVisuals\.test\.ts/);
-  assert.match(problems[0] ?? '', /never runs/);
-});
-
-test('missingEmitProblems reports one problem per missing suite, not one for the whole run', () => {
-  const problems = missingEmitProblems(
-    ['A.test.ts', 'B.test.ts', 'C.test.ts'],
-    ['C.test.js'],
-  );
-  assert.equal(problems.length, 2);
-  assert.ok(problems.some((p) => p.includes('A.test.ts')));
-  assert.ok(problems.some((p) => p.includes('B.test.ts')));
-});
-
-test('missingEmitProblems is empty for two empty lists -- no source tests is not the failure this guards', () => {
-  assert.deepEqual(missingEmitProblems([], []), []);
-});
-
-test('an extra emitted file with no source is not this function\'s problem -- pruneOrphans owns that direction', () => {
-  const problems = missingEmitProblems(
-    ['A.test.ts'],
-    ['A.test.js', 'Orphan.test.js'],
-  );
-  assert.deepEqual(problems, []);
+test('missingEmitProblems names each source test with no matching emit and nothing else', () => {
+  for (const row of EMIT_ROWS) {
+    const problems = missingEmitProblems(row.sources, row.emitted);
+    assert.equal(problems.length, row.named.length, `${row.name}: one problem per missing suite`);
+    for (const name of row.named) assert.ok(problems.some((p) => p.includes(name)), `${row.name}: ${name} is named`);
+    if (row.says) assert.match(problems[0] ?? '', row.says, `${row.name}: says why`);
+  }
 });
 
 test('an interrupt of the test-surface step ends the ngc it spawned', {

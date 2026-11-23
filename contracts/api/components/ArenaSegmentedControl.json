@@ -1,7 +1,7 @@
 {
   "component": "ArenaSegmentedControl",
   "description": "A compact inline filter over mutually exclusive options. A real radio group, never a tab list, and it carries no accent.",
-  "affordances": ["focus", "hover"],
+  "affordances": ["focus", "hover", "press"],
   "api": {
     "options": { "form": "array", "of": "ArenaSegmentOption", "required": true, "description": "The options, in order. Two to four with one-word labels." },
     "value": { "form": "primitive", "type": "string", "description": "The selected option's value. Omit and pass `defaultValue` to let it govern itself." },

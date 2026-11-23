@@ -1,6 +1,6 @@
 import React, { useId, useState } from 'react';
-import { useArenaContainerWidth } from '../../../UseArenaContainerWidth.ts';
-import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, arenaSrOnly, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals.ts';
+import { useArenaContainerWidth, useArenaTextScale } from '../../../UseArenaContainerWidth.ts';
+import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, arenaSrOnly, arenaTextRoom, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals.ts';
 import {
   arenaLinearScale, arenaBandScale, arenaBandCenter, arenaBandIndex, arenaBandMark, arenaBandSubBand, arenaScaleValue,
 } from '../ChartScales.ts';
@@ -29,10 +29,10 @@ export interface ArenaHorizontalBarChartProps {
   /** One label per category, in the same order as every series' `values`. The labels run down the left edge, in the gutter chart.pad-category holds. A name longer than that gutter is clipped at its edge, and the full name shows on hover and stays in the data table. */
   labels: readonly string[];
 
-  /** The plotted series, drawn as one group of bars per category. One series is the common case. Two or more share each category's band, so the bars of one category stand one above the other and the reader compares within a category before comparing across. After the last slot the positional count starts again at the first, so fold a ninth series into "Other" upstream. */
+  /** The plotted series, drawn as one group of bars per category. One series is the common case. Two or more share each category's band, so the bars of one category stand one above the other and the reader compares within a category before comparing across. After the last ramp colour the positional count starts again at the first, so fold a ninth series into "Other" upstream. */
   series: readonly ArenaSeries[];
 
-  /** The ramp slot the first series takes when it names no colour of its own. Each later series takes the next slot, and after the last slot the count starts again at the first. A series' `colorId` or `colorIds` keeps the slot it names. Absent, 1. */
+  /** The ramp colour the first series takes when it names no colour of its own. Each later series takes the next ramp colour, and after the last ramp colour the count starts again at the first. A series' `colorId` or `colorIds` keeps the ramp colour it names. Absent, 1. */
   colorStart?: ArenaCatSlot;
 
   /** Names the chart for its accessible name and for the caption of its data table. Here the CHART is named and not a series: a series names itself. Required and guarded rather than defaulted, because a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing. Two charts on one page would announce identically. */
@@ -67,6 +67,7 @@ export function ArenaHorizontalBarChart({ className,
   if (!labels) throw new Error('ArenaHorizontalBarChart: `labels` is required');
   if (!series) throw new Error('ArenaHorizontalBarChart: `series` is required');
   const [ref, measured] = useArenaContainerWidth();
+  const room = arenaTextRoom(useArenaTextScale());
   const gutterId = `gutter-${useId().replace(/:/g, '')}`;
   const [hover, setHover] = useState<number | null>(null);
 
@@ -75,15 +76,15 @@ export function ArenaHorizontalBarChart({ className,
   const fmt = arenaValueWriter({ prefix: valuePrefix, suffix: valueSuffix, format: valueFormat });
 
   const domain = stack ? arenaStackDomain(series) : arenaSeriesDomain(series);
-  const strip = arenaLegendStrip(height, series.length);
-  const box = arenaPlotBoxH(width, strip.plotH);
+  const strip = arenaLegendStrip(height, series.length, false, room);
+  const box = arenaPlotBoxH(width, strip.plotH, room);
   const xScale = arenaLinearScale(domain.min, domain.max, box.x, box.x + box.w);
   const bands = arenaBandScale(n, box.y, box.h, chartBarGap);
   const axis = arenaAxisModelX(xScale, domain, fmt);
-  const colors = series.map((one, s) => arenaSeriesColors(one, n, arenaCatRotate(colorStart, s), 'ArenaHorizontalBarChart', colorStart));
+  const colors = series.map((one, s) => arenaSeriesColors(one, n, arenaCatRotate(colorStart, s), colorStart));
   const table = arenaChartTable(locale.chartTableCategory, series, labels, fmt);
 
-  const gutter = arenaCategoryGutter(strip.plotH);
+  const gutter = arenaCategoryGutter(strip.plotH, room);
 
   const name = arenaPhrase(locale.horizontalBarChartName, { label });
 
@@ -148,7 +149,7 @@ export function ArenaHorizontalBarChart({ className,
         </defs>
         <g clipPath={`url(#${gutterId})`}>
           {Array.from({ length: n }, (_, i) => (
-            <text key={i} x={arenaCategoryLabelX()} y={arenaBandCenter(bands, i)} textAnchor="end" dominantBaseline="middle"
+            <text key={i} x={arenaCategoryLabelX(room)} y={arenaBandCenter(bands, i)} textAnchor="end" dominantBaseline="middle"
               fill={ARENA_INK_MUTED} fontFamily="var(--font-body)" style={{ fontSize: 'var(--dz-text-xs)' }}>
               <title>{labels[i] ?? ''}</title>
               {labels[i] ?? ''}

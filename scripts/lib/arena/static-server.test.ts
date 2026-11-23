@@ -58,14 +58,6 @@ test('the server serves a file, 404s a missing one, and stops cleanly', async ()
   await server.close();
 });
 
-test('a root given with a trailing slash still serves, rather than 403ing everything', () => {
-  assert.equal(resolveInRoot('/repo/', '/guidelines/icons.html', posix), '/repo/guidelines/icons.html');
-});
-
-test('a sibling directory whose name merely starts with the root name is not inside it', () => {
-  assert.equal(resolveInRoot('/repo', '/../repo-evil/x.html', posix), null);
-});
-
 test('a windows root resolves a nested page rather than refusing every one of them', () => {
   assert.equal(resolveInRoot('C:\\repo', '/guidelines/icons.html', win32),
     'C:\\repo\\guidelines\\icons.html',

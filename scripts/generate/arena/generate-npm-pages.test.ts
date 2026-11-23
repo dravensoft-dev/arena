@@ -1,30 +1,40 @@
-/* The property that makes this safe to have written at all is that a region is placed by a person
- * and only filled by the script, so these hold both halves: a page with no markers is refused
- * rather than rewritten, and a page with them comes back byte-identical once it is current. The
- * generated text is emitted verbatim, so a page that is current comes back unchanged. */
+/* A region is placed by a person and only filled by the script, so these hold that half: a page
+ * with no markers is refused rather than rewritten, a region replaces only what sits between its
+ * markers, and each target carries exactly the regions mapped to it. That a committed page is
+ * current is held by check:skills. */
 
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { readFileSync, readdirSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
+import { spawnSync } from 'node:child_process';
 import { join } from 'node:path';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { LAYER_TOKENS, FORBIDDEN } from '../../check/arena/check-layer-independence.ts';
 import {
-  TARGETS, noImportSheets, openLine, closeLine, renderRegion, applyRegion, renderTarget, regionsOf,
+  TARGETS, atDefault, noImportSheets, openLine, closeLine, renderRegion, applyRegion, regionsOf,
   ROLE_CONTRACT, BEHAVIOUR_CONTRACT, densityValues, requiredLead, toastIntervals, defaultedRoles, defaultedSentence, defaultsStatement, roleRuns, unansweredCount,
+  SLOT_PAGE, EXAMPLE_SLOT_ANSWERS, brandReaders, quietAnswers, slotGroupPage, slotGroupPages, SLOT_GROUP_DIR, GROUP_PAGES, splitFamilyNames, splitFamilySentence,
 } from './generate-npm-pages.ts';
-import { tokenCatalogue, CSS_CHAIN, ANGULAR_EXTRA } from '../../lib/arena/package-assembly.ts';
+import { readColorSlots, readSlotDeclarations } from '../../lib/core/color-slots.ts';
+import { slotAnswer } from '../core/arena-cli/slots.ts';
+import { slotReports } from '../core/arena-cli/slot-contrast.ts';
+import { levelDefaults } from '../core/arena-cli/levels.ts';
+import { rolesFor } from '../core/arena-cli/theme-css.ts';
+import { tableCells, MAX_CELL_CHARS, CONTRIBUTOR_PATHS, BANNED_PUNCTUATION } from '../../check/arena/check-docs.ts';
+import { tokenCatalogue, CSS_CHAIN, ANGULAR_EXTRA, componentSheets, familyPartSheets } from '../../lib/arena/package-assembly.ts';
 import type { CssChainEntry } from '../../lib/arena/package-assembly.ts';
 import { NPM_PAGES } from '../../lib/arena/npm-questions.ts';
 import { readJson } from '../../utils/read-file.ts';
+import { tailwindThemeSheet } from '../../lib/tailwind/theme-sheet.ts';
+import { resolvePosix } from '../../lib/arena/agent-payload.ts';
 import { packageSheetName, sheetFamilies } from '../../lib/tailwind/vocabulary.ts';
 import { MAX_WORDS, plain, words } from '../../check/arena/check-register.ts';
 import { RULE_TAGS, RULE_DESCRIPTIONS } from '../core/arena-cli/audit.ts';
 import { run } from '../core/arena-cli/command-init.ts';
 import { ARENA_FONT_DEFAULTS, ARENA_FONT_KEYS } from '../core/arena-cli/theme-css.ts';
 import { FONT_ROLES } from '../core/arena-cli/palette-keys.ts';
-import { captureIo, hostRoot, removeFixtures } from '../core/arena-cli/cli-fixtures.ts';
+import { captureIo, hostRoot, removeFixtures, whileHeld } from '../core/arena-cli/cli-fixtures.ts';
 import { RULES } from '../../lib/arena/language-rules.ts';
 
 after(removeFixtures);
@@ -35,7 +45,7 @@ after(() => {
   for (const dir of made) rmSync(dir, { recursive: true, force: true });
 });
 
-const SHARED = ['repository', 'skin', 'defaults', 'sheets', 'toast', 'layout', 'queues'];
+const SHARED = ['repository', 'skin', 'sheets', 'toast', 'layout', 'queues'];
 
 test('a region shared by several pages names no layer, because it is written into each at once', () => {
   const tokens = Object.entries(LAYER_TOKENS)
@@ -53,14 +63,16 @@ test('each target carries exactly the regions mapped to it', () => {
     const text = readFileSync(join(repoRoot, target), 'utf8');
     const carried = [...text.matchAll(/^<!-- @shared (\S+) GENERATED /gm)].map((match) => match[1]);
     assert.deepEqual(carried.sort(), regionsOf(target).sort(), `${target} carries its mapped regions and no other`);
-    for (const key of regionsOf(target))
-      assert.ok(text.includes(renderRegion(key, repoRoot, target)), `${target} carries a fresh ${key} region`);
   }
   assert.deepEqual(regionsOf('frameworks/react/PACKAGE.md'), ['repository', 'questions']);
-  assert.deepEqual(regionsOf('skills/design/references/config.md'), ['skin']);
+  assert.deepEqual(regionsOf('skills/design/references/config.md'), ['splitFamilies', 'skin']);
   assert.deepEqual(regionsOf('skills/design/references/stylesheets.md'), ['sheets']);
-  assert.deepEqual(regionsOf('skills/design/references/tokens.md'), ['tokens', 'density', 'typography']);
-  assert.deepEqual(regionsOf('skills/design/references/style-kernel.md'), ['defaults']);
+  const scales = 'skills/design/references/tokens/scales';
+  assert.deepEqual(regionsOf(`${scales}/spacing-radius-border.md`), ['spacing']);
+  assert.deepEqual(regionsOf(`${scales}/motion-and-layers.md`), ['motion']);
+  assert.deepEqual(regionsOf(`${scales}/density.md`), ['density']);
+  assert.deepEqual(regionsOf(`${scales}/type-scale.md`), ['typography']);
+  assert.deepEqual(regionsOf('skills/design/references/style-kernel.md'), []);
   assert.deepEqual(regionsOf('skills/design/references/style.md'), ['layout']);
   assert.deepEqual(regionsOf('mcp/NPM.md'), ['questions']);
 });
@@ -90,13 +102,6 @@ test('a question table cell stays under 2000 characters', () => {
   for (const page of NPM_PAGES)
     for (const line of renderRegion('questions', repoRoot, page).split('\n'))
       for (const cell of line.split(' | ')) assert.ok(cell.length < 2000, `a cell of ${cell.length} characters`);
-});
-
-test('a page that is current comes back byte-identical, so an emit is never a rewrite', () => {
-  for (const target of TARGETS) {
-    const source = readFileSync(join(repoRoot, target), 'utf8');
-    assert.equal(renderTarget(source, target), source, `${target} matches a fresh emit`);
-  }
 });
 
 test('a page with no markers is refused, because a person decides where a section sits', () => {
@@ -131,7 +136,7 @@ test('the sheets region lists the token layer in CSS_CHAIN order and names where
   const at = CSS_CHAIN.map(({ to }) => paragraph.indexOf(`\`${to}\``));
   assert.ok(at.every((place) => place >= 0), `a CSS_CHAIN entry is missing from the token layer sentence: ${at}`);
   assert.deepEqual([...at].sort((a, b) => a - b), at, 'the token layer sentence is not in CSS_CHAIN order');
-  assert.match(paragraph, /the root plugin's slot/);
+  assert.match(paragraph, /the root plugin's place/);
 });
 
 const sheetNamesIn = (region: string) => {
@@ -161,7 +166,7 @@ test('the sheets region splits a long list into sentences within the register wo
   assert.equal(named.length, 45);
   assert.deepEqual(named, sheetFamilies(base).map((family) => family.family).sort().map(packageSheetName));
   const cell = region.split('\n').find((line) => line.startsWith('| `css/vocabulary/`')) ?? '';
-  const sentences = plain(cell.split('|')[2] ?? '').split(/(?<=\.)\s+/);
+  const sentences = plain(cell.split('|')[3] ?? '').split(/(?<=\.)\s+/);
   assert.ok(sentences.length >= 3, 'more than two chunks');
   for (const sentence of sentences)
     assert.ok(words(sentence).length <= MAX_WORDS, `a sentence of ${words(sentence).length} words: ${sentence.slice(0, 60)}`);
@@ -182,6 +187,16 @@ test('the skin region names which roles carry a default, so an empty set reads a
   assert.match(defaultsStatement(base), /^The 1 roles carrying a default are `gap-row`\. Your root plugin answers the other \d+\./);
   assert.ok(renderRegion('skin').includes(defaultsStatement()),
     'the region on the page says what roles.json carries');
+});
+
+test('a long list of roles carrying a default is named in sentences the register reads', () => {
+  const roles = Array.from({ length: 29 }, (_, i) => `role-${String.fromCharCode(97 + (i % 26))}${i > 25 ? 'x' : ''}`);
+  const sentence = defaultedSentence(roles, 239);
+  for (const one of plain(sentence).split(/(?<=\.)\s+/))
+    assert.ok(words(one).length <= MAX_WORDS, `a sentence of ${words(one).length} words: ${one.slice(0, 60)}`);
+  assert.match(sentence, /^The 29 roles carrying a default include `role-a`/);
+  assert.match(sentence, /Roles carrying a default also include `role-u`.* Your root plugin answers the other 239\.$/);
+  for (const role of roles) assert.ok(sentence.includes(`\`${role}\``), role);
 });
 
 test('the skin region\'s key table names every ArenaFont field with its default', () => {
@@ -223,8 +238,7 @@ test('the defaults statement leads with the fact and cites the roles the roles-w
   const mechanism = statement.indexOf('A minor release may add a role');
   assert.ok(mechanism > 0, 'the mechanism sentence is present');
   assert.ok(statement.indexOf(fact) + fact.length <= mechanism, 'the fact sentence ends before the mechanism sentence begins');
-  for (const target of ['skills/design/references/config.md', 'skills/design/references/style-kernel.md'])
-    assert.ok(readFileSync(join(repoRoot, target), 'utf8').includes(statement), `${target} carries the statement`);
+  assert.ok(readFileSync(join(repoRoot, 'skills/design/references/config.md'), 'utf8').includes(statement), 'config.md carries the statement');
 });
 
 test('the toast region writes the intervals the behaviour contract holds, and no number is typed by hand', () => {
@@ -300,15 +314,17 @@ test('a density value of a shape the table cannot show is refused, naming the fi
   }
 });
 
-test('the tokens region tables every value of its nine groups that no role answers, and no role at all', () => {
+const joined = () => `${renderRegion('spacing')}\n${renderRegion('motion')}`;
+
+test('the scale regions table every value of its nine groups that no role answers, and no role at all', () => {
   const { tokens } = tokenCatalogue(repoRoot);
   const roles = new Set(Object.keys(readJson(join(repoRoot, ROLE_CONTRACT)) as Record<string, unknown>));
-  const region = renderRegion('tokens');
+  const region = joined();
   for (const group of ['sp', 'r', 'bw', 'shadow', 'dur', 'loop', 'ease', 'z', 'bp']) {
     const names = Object.keys(tokens).filter((name) => (name === group || name.startsWith(`${group}-`)) && !roles.has(name));
     assert.ok(names.length > 0, `the catalogue holds the ${group} group`);
     for (const name of names)
-      assert.ok(region.includes(`| \`--${name}\` | \`${tokens[name]}\` |`), `--${name} is a row with its value`);
+      assert.ok(region.includes(`| \`--${name}\` | ${atDefault(String(tokens[name]))} |`), `--${name} is a row with its value`);
   }
   for (const role of roles) assert.ok(!region.includes(`| \`--${role}\` |`), `--${role} is a role a style plugin answers`);
   assert.ok(roles.has('r-surface') && region.includes('--r-xs'), 'the scale stays and the role goes');
@@ -316,7 +332,7 @@ test('the tokens region tables every value of its nine groups that no role answe
 });
 
 test('the tokens table carries a Tailwind column read from Theme.css', () => {
-  const rows = renderRegion('tokens').split('\n').filter((line) => line.startsWith('| `--'));
+  const rows = joined().split('\n').filter((line) => line.startsWith('| `--'));
   const rowOf = (name: string) => rows.find((row) => row.startsWith(`| \`--${name}\` |`))!.split('|').map((cell) => cell.trim());
   assert.equal(rowOf('r-lg')[3], '`rounded-lg`');
   assert.equal(rowOf('shadow-1')[3], '`shadow-1`');
@@ -326,7 +342,7 @@ test('the tokens table carries a Tailwind column read from Theme.css', () => {
   assert.equal(rowOf('z-modal')[3], '`z-modal`');
   assert.equal(rowOf('bp-md')[3], '`md:`');
   assert.equal(rowOf('loop-spin')[3], 'none');
-  assert.match(renderRegion('tokens'), /\| custom property \| value \| Tailwind \|/);
+  assert.match(renderRegion('spacing'), /\| custom property \| value \| Tailwind \|/);
 });
 
 test('the density table says what each property sizes, from its $description', () => {
@@ -355,7 +371,7 @@ test('the density region tables every --dz property once, with the value each cl
   assert.deepEqual(rows.map((row) => row.split('|')[1]!.trim()), names.map((name) => `\`--${name}\``));
   const rowOf = (name: string) => rows.find((row) => row.startsWith(`| \`--${name}\` |`))!.split('|').map((cell) => cell.trim());
   const ctl = rowOf('dz-ctl-h');
-  assert.equal(ctl[3], `\`${compact['ctl-h']!.$value.value}${compact['ctl-h']!.$value.unit}\``);
+  assert.equal(ctl[3], atDefault(`${compact['ctl-h']!.$value.value}${compact['ctl-h']!.$value.unit}`));
   assert.equal(ctl[5], '`*-ctl-h`');
   assert.equal(rowOf('dz-text-lg')[4], 'base');
   assert.equal(rowOf('dz-row-scale-x')[5], '`*-row-x`, `*-nav-row-x`, `*-row-floating-x`');
@@ -393,9 +409,7 @@ test('the audit region has one row per tag in RULE_TAGS order, with the rules th
     assert.equal(cells[2], `${RULE_DESCRIPTIONS[tag]} |`, tag);
   });
   assert.ok(rows[RULE_TAGS.indexOf('raw-glyph')]!.includes('a raw ph-* element paints nothing'), 'raw-glyph names the rule it enforces');
-  assert.deepEqual(RULES.filter((rule) => rule.held === 'raw-value').length, 2, 'two rules hold raw-value');
-  assert.ok(rows[RULE_TAGS.indexOf('raw-value')]!.includes('Tokens are the only styling layer.')
-    && rows[RULE_TAGS.indexOf('raw-value')]!.includes('No gradients, on any surface.'));
+  assert.ok(rows[RULE_TAGS.indexOf('raw-value')]!.includes('Tokens are the only styling layer.'));
 });
 
 test('each fenced arena:audit script is what arena init writes for that layer', () => {
@@ -430,6 +444,418 @@ test('the noImport region lists what each package arena.css imports less the def
   const region = renderRegion('noImport', repoRoot, CLI_PAGE);
   assert.ok(!region.includes("@import './arena.generated.css'"));
   assert.match(region, /`arena\.generated\.css` goes in a stylesheet of its own, imported after the list/);
-  assert.match(region, /The `"default"` root adds `css\/style-plugin-default\.css` in its slot/);
+  assert.match(region, /The `"default"` root adds `css\/style-plugin-default\.css` in its place/);
   assert.doesNotMatch(region, /every component sheet when the config names none/);
+});
+
+const JOINED_TOKEN_ROWS = [
+  '| `--sp-0` | `0px` | `*-0` |',
+  '| `--sp-1` | `4px` | `*-1` |',
+  '| `--sp-2` | `8px` | `*-2` |',
+  '| `--sp-3` | `12px` | `*-3` |',
+  '| `--sp-4` | `16px` | `*-4` |',
+  '| `--sp-5` | `20px` | `*-5` |',
+  '| `--sp-6` | `24px` | `*-6` |',
+  '| `--sp-8` | `32px` | `*-8` |',
+  '| `--sp-10` | `40px` | `*-10` |',
+  '| `--sp-12` | `48px` | `*-12` |',
+  '| `--sp-16` | `64px` | `*-16` |',
+  '| `--sp-20` | `80px` | `*-20` |',
+  '| `--sp-24` | `96px` | `*-24` |',
+  '| `--sp-0-5` | `2px` | `*-0.5` |',
+  '| `--rhythm-group` | `12px` | `gap-group` |',
+  '| `--rhythm-component` | `16px` | `gap-component` |',
+  '| `--rhythm-section` | `24px` | `gap-section` |',
+  '| `--r-xs` | `4px` | `rounded-xs` |',
+  '| `--r-sm` | `6px` | `rounded-sm` |',
+  '| `--r-md` | `10px` | `rounded-md` |',
+  '| `--r-lg` | `14px` | `rounded-lg` |',
+  '| `--r-xl` | `22px` | `rounded-xl` |',
+  '| `--r-2xl` | `34px` | `rounded-2xl` |',
+  '| `--r-pill` | `999px` | `rounded-pill` |',
+  '| `--bw` | `1px` | none |',
+  '| `--bw-strong` | `2px` | none |',
+  '| `--shadow-1` | `0px 2px 6px -2px rgba(0,0,0,.5)` | `shadow-1` |',
+  '| `--shadow-2` | `0px 12px 28px -12px rgba(0,0,0,.6)` | `shadow-2` |',
+  '| `--shadow-3` | `0px 30px 60px -20px rgba(0,0,0,.7)` | `shadow-3` |',
+  '| `--dur-fast` | `120ms` | none |',
+  '| `--dur-mid` | `220ms` | none |',
+  '| `--dur-slow` | `420ms` | none |',
+  '| `--loop-spin` | `700ms` | none |',
+  '| `--loop-sweep` | `1150ms` | none |',
+  '| `--loop-shimmer` | `1400ms` | none |',
+  '| `--loop-brand` | `8000ms` | none |',
+  '| `--loop-reduced` | `2400ms` | none |',
+  '| `--loop-brand-reduced` | `24000ms` | none |',
+  '| `--ease-out` | `cubic-bezier(.2,.7,.3,1)` | `ease-out` |',
+  '| `--ease-in-out` | `cubic-bezier(.4,0,.2,1)` | `ease-in-out` |',
+  '| `--ease-emphatic` | `cubic-bezier(.2,.9,.1,1)` | `ease-emphatic` |',
+  '| `--z-nav` | `800` | `z-nav` |',
+  '| `--z-skip` | `820` | `z-skip` |',
+  '| `--z-sheet` | `850` | `z-sheet` |',
+  '| `--z-dropdown` | `900` | `z-dropdown` |',
+  '| `--z-tooltip` | `950` | `z-tooltip` |',
+  '| `--z-modal` | `1000` | `z-modal` |',
+  '| `--z-modal-nested` | `1050` | `z-modal-nested` |',
+  '| `--z-palette` | `1100` | `z-palette` |',
+  '| `--z-onboarding` | `1200` | `z-onboarding` |',
+  '| `--z-toast` | `1300` | `z-toast` |',
+  '| `--bp-sm` | `30rem` = 480px at the browser default | `sm:` |',
+  '| `--bp-md` | `48rem` = 768px at the browser default | `md:` |',
+  '| `--bp-lg` | `64rem` = 1024px at the browser default | `lg:` |',
+];
+
+test('a rem value shows its pixel at the browser default', () => {
+  assert.equal(atDefault('0.8125rem'), '`0.8125rem` = 13px at the browser default');
+  assert.equal(atDefault('48rem'), '`48rem` = 768px at the browser default');
+  assert.equal(atDefault('13px'), '`13px`');
+  assert.equal(atDefault('700ms'), '`700ms`');
+  assert.equal(atDefault('1.5'), '`1.5`');
+});
+
+const ROW_FORMATS: { name: string; region: string; prefix: string; cell3?: string; includes?: string; endsWith?: string }[] = [
+  {
+    name: 'the compact column shows a text size in rem with its pixel',
+    region: 'density',
+    prefix: '| `--dz-text` |',
+    cell3: '`0.8125rem` = 13px at the browser default',
+  },
+  {
+    name: 'the type table shows fs in rem with its pixel',
+    region: 'typography',
+    prefix: '| `--fs-h1` |',
+    includes: '`2.75rem` = 44px at the browser default',
+  },
+  {
+    name: 'breakpoint rows keep their variant',
+    region: 'spacing',
+    prefix: '| `--bp-md` |',
+    includes: '`48rem` = 768px at the browser default',
+    endsWith: '`md:` |',
+  },
+  { name: 'a spacing step keeps its multiple', region: 'spacing', prefix: '| `--sp-4` |', includes: '| `16px` |', endsWith: '`*-4` |' },
+];
+
+test('a token row shows its value, its pixel and its variant as the page writes them', () => {
+  assert.ok(ROW_FORMATS.length > 0, 'the table has rows');
+  for (const row of ROW_FORMATS) {
+    const line = renderRegion(row.region).split('\n').find((l) => l.startsWith(row.prefix));
+    assert.ok(line, `${row.name}: the region has a row starting ${row.prefix}`);
+    if (row.cell3 !== undefined) assert.equal(line.split('|')[3]!.trim(), row.cell3, row.name);
+    if (row.includes !== undefined) assert.ok(line.includes(row.includes), `${row.name}: ${line}`);
+    if (row.endsWith !== undefined) assert.ok(line.endsWith(row.endsWith), `${row.name}: ${line}`);
+  }
+});
+
+const rowsOf = (region: string) => region.split('\n').filter((line) => line.startsWith('| `--'));
+
+test('the scale regions keep every row of the joined table', () => {
+  const rows = [...rowsOf(renderRegion('spacing')), ...rowsOf(renderRegion('motion'))];
+  assert.deepEqual(rows.sort(), [...JOINED_TOKEN_ROWS].sort());
+});
+
+test('a scale region says only what its groups need', () => {
+  const spacing = renderRegion('spacing');
+  const motion = renderRegion('motion');
+  assert.ok(spacing.includes('The sheet sets the spacing base') && !motion.includes('The sheet sets the spacing base'));
+  assert.ok(spacing.includes('(radius and shadow)') && motion.includes('(ease)'));
+  assert.ok(spacing.includes('A breakpoint row names') && !motion.includes('A breakpoint row names'));
+});
+
+const decl = readSlotDeclarations(repoRoot);
+const cat = readColorSlots(repoRoot);
+const groupText = () => Object.keys(decl.groups!).map((group) => slotGroupPage(group, decl, cat)).join('\n');
+const slotRegions = () => [...['slotExample', 'slotQuiet', 'slotAccepts', 'slotGroups'].map((key) => renderRegion(key)), groupText()].join('\n');
+
+test('the slot page carries the four slot regions', () => {
+  assert.deepEqual(regionsOf(SLOT_PAGE).sort(), ['slotAccepts', 'slotExample', 'slotGroups', 'slotQuiet']);
+});
+
+test('every declared group has a page, in declaration order', () => {
+  const headings = [...groupText().matchAll(/^# Colouring the `([a-z]+)` group$/gm)].map((m) => m[1]);
+  assert.deepEqual(headings, Object.keys(decl.groups!));
+});
+
+test('every derived slot has the row of its part and option', () => {
+  const text = groupText();
+  for (const s of Object.values(cat.slots))
+    assert.ok(text.includes(`| \`${s.part}\` | ${s.option === undefined ? '' : `\`${s.option}\``} |`), `${s.group}.${s.part} ${s.option ?? ''}`);
+});
+
+test('a row names the rest default of its part', () => {
+  const text = groupText();
+  assert.match(text, /\| `box` \|  \| fill, edge \|[^\n]*fill `\{fill-control\}`, edge `\{edge-control\}`/);
+  assert.match(text, /\| `field` \| `error` \|[^\n]*edge `\{edge-invalid\}`/);
+  assert.match(text, /\| `body` \|  \|[^\n]*ink `\{ink-body\}` at `level-ink-body`/);
+});
+
+test('a part with no rest shows its selected answer', () => {
+  assert.match(groupText(), /\| `mark` \|  \| ink \| selected \|[^\n]*ink `\{emphasis-primary-ink\}`/);
+});
+
+test('a part that derives no slot says Arena paints it', () => {
+  const text = groupText();
+  for (const part of ['solid', 'skeleton'])
+    assert.match(text, new RegExp(`\\| \`${part}\` \\|[^\\n]*Arena paints it, and no slot answers it`));
+});
+
+test('every hover with a role of its own is listed under its group', () => {
+  const text = groupText();
+  for (const [name, s] of Object.entries(cat.slots))
+    if (!['rest', 'selected'].includes(s.state) && s.property !== 'icon' && s.default !== undefined && s.derive === undefined)
+      assert.ok(text.includes(`\`${name}\` reads \`${s.default}\``), name);
+});
+
+test('the slot regions print no decision, no gate and no contributor path', () => {
+  const text = slotRegions();
+  assert.doesNotMatch(text, /\b[DR]\d+\b/);
+  assert.doesNotMatch(text, /\bcheck:[a-z-]+/);
+  for (const [pattern] of CONTRIBUTOR_PATHS) assert.doesNotMatch(text, new RegExp((pattern as RegExp).source));
+  for (const [character] of BANNED_PUNCTUATION) assert.ok(!text.includes(character!));
+});
+
+test('no slot table cell passes the cell cap', () => {
+  for (const { line, chars } of tableCells(slotRegions())) assert.ok(chars <= MAX_CELL_CHARS, `line ${line}: ${chars}`);
+});
+
+test('the example answers are slots that accept them', () => {
+  const roles = readJson(join(repoRoot, ROLE_CONTRACT)) as Record<string, { $type: string }>;
+  const colour = new Set(Object.keys(roles).filter((name) => roles[name]!.$type === 'color'));
+  for (const [name, value] of Object.entries(EXAMPLE_SLOT_ANSWERS))
+    assert.ok(slotAnswer(value, name, cat, colour), `${name}: ${value}`);
+});
+
+test('the example answers clear their floors over the default plugin', () => {
+  const catalogue = tokenCatalogue();
+  const levels = levelDefaults(readFileSync(join(repoRoot, 'contracts/design/colors.css'), 'utf8'));
+  for (const theme of ['dark', 'light']) {
+    const palette = readJson(join(repoRoot, `contracts/design/palette.${theme}.json`)) as { color: Record<string, { $value?: { hex?: string } }> };
+    const colours = Object.fromEntries(Object.entries(palette.color).filter(([, t]) => t.$value?.hex).map(([k, t]) => [k, t.$value!.hex!]));
+    const roles = rolesFor(null, catalogue, theme);
+    const answers = new Map(Object.entries(EXAMPLE_SLOT_ANSWERS).map(([name, value]) => [name, roles.get(value.slice(1, -1)) as string]));
+    const lines = slotReports(catalogue.slots, answers, roles, colours, theme, levels).map((one) => one.message)
+      .filter((line) => /^--(choices-(box|mark|knob)|navigation-(item|badge))-/.test(line));
+    assert.deepEqual(lines, [], theme);
+  }
+});
+
+const NOWHERE_ELSE = [
+  { name: 'every role whose silent answer reads the brand outside the primary action is in the nowhere-else list', entry: 'ink-eyebrow', answer: '{ink-body}' },
+  { name: 'a toggled button and a selected option are quieted through the selected fill role', entry: 'fill-selected', answer: '{fill-marker}' },
+  { name: 'a solid icon button is quieted the way the secondary emphasis is answered', entry: 'emphasis-solid-fill', answer: '{emphasis-secondary-fill}' },
+  { name: 'the current step is quieted in its own slots', entry: 'steps-current-marker-fill-rest', answer: '{fill-mark}' },
+  { name: 'the now marker of a calendar is quieted in its own slots', entry: 'data-now-edge-rest', answer: '{edge-mark}' },
+];
+
+test('the nowhere-else list answers every silent reader of the brand outside the primary action', () => {
+  const answers = quietAnswers();
+  for (const row of NOWHERE_ELSE) assert.equal(answers[row.entry], row.answer, row.name);
+  const { roles, slots } = brandReaders();
+  assert.deepEqual(Object.keys(answers).sort(), [...roles, ...slots].sort());
+  for (const name of Object.keys(answers)) {
+    assert.ok(!name.startsWith('actions-primary-') && !name.startsWith('emphasis-primary-'), name);
+    assert.ok(!(name in EXAMPLE_SLOT_ANSWERS), name);
+  }
+});
+
+const BRAND_ROLES = ['fill-control-on', 'fill-knob', 'ink-knob', 'edge-tab-selected', 'edge-selected'];
+
+test('the nowhere-else list answers every role the default plugin points at the brand, markup of yours included', () => {
+  type Entry = { $value?: unknown };
+  const tokens = readJson(join(repoRoot, 'plugin-style-store/default/plugin.tokens.json')) as Record<string, Record<string, Entry> | Entry>;
+  const own = (block: Record<string, unknown>) => Object.entries(block).filter(([name, entry]) => !name.startsWith('$') && typeof entry === 'object' && entry !== null && '$type' in entry);
+  const pointed = new Set<string>();
+  for (const polarity of ['dark', 'light']) {
+    const at = new Map<string, string>([...own(tokens), ...own((tokens[polarity] ?? {}) as Record<string, unknown>)].map(([name, entry]) => [name, JSON.stringify(entry)]));
+    const reads = (name: string, seen: string[]): boolean => {
+      const text = at.get(name) ?? '';
+      return /\{color\.primary[-}]/.test(text) || [...text.matchAll(/\{([a-z][a-z0-9-]*)\}/g)].some(([, next]) => !seen.includes(next!) && reads(next!, [...seen, next!]));
+    };
+    for (const name of at.keys()) if (!name.startsWith('emphasis-primary-') && reads(name, [name])) pointed.add(name);
+  }
+  const answers = quietAnswers();
+  for (const role of pointed) assert.ok(role in answers, role);
+  for (const role of BRAND_ROLES) assert.ok(pointed.has(role) && role in answers, role);
+});
+
+test('the nowhere-else answers leave no slot reading the brand under the default plugin', () => {
+  const catalogue = tokenCatalogue();
+  const answers = quietAnswers();
+  const bare = (value: string) => value.slice(1, -1);
+  for (const theme of ['dark', 'light']) {
+    const roles = rolesFor(null, catalogue, theme);
+    for (const [name, slot] of Object.entries(catalogue.slots.slots)) {
+      if (slot.default === undefined || (slot.group === 'actions' && slot.option === 'primary')) continue;
+      const answered = EXAMPLE_SLOT_ANSWERS[name] ?? answers[name] ?? answers[bare(slot.default)] ?? slot.default;
+      assert.ok(!/--color-primary\b/.test(roles.get(bare(answered)) as string), `${theme} ${name}`);
+    }
+  }
+});
+
+test('the example quiets the navigation selection in both polarities', () => {
+  const catalogue = tokenCatalogue();
+  const names = ['navigation-item-fill-selected', 'navigation-item-edge-selected', 'navigation-badge-fill-selected', 'navigation-badge-ink-selected'];
+  for (const name of names) assert.ok(name in EXAMPLE_SLOT_ANSWERS, name);
+  for (const theme of ['dark', 'light']) {
+    const roles = rolesFor(null, catalogue, theme);
+    for (const name of names) {
+      const value = roles.get((EXAMPLE_SLOT_ANSWERS[name] as string).slice(1, -1)) as string;
+      assert.ok(value, `${theme} ${name}`);
+      assert.ok(!value.includes('--color-primary'), `${theme} ${name}`);
+    }
+  }
+});
+
+test('a member default is named under the group whose slot it stands in for', () => {
+  const text = groupText();
+  for (const [key, member] of Object.entries(cat.members))
+    for (const [slot, value] of Object.entries(member.defaults ?? {}))
+      assert.ok(text.includes(`\`${key}\` paints \`${slot}\` with \`${value}\``), `${key} ${slot}`);
+  assert.match(text, /`ArenaIconButton\.root` paints `actions-ghost-root-edge-rest` with `\{emphasis-ghost-icon-edge\}`/);
+});
+
+test('the skin refuses a shipped name and promises no future one', async () => {
+  const skin = renderRegion('skin');
+  assert.ok(skin.includes('The command refuses a palette or style plugin named after a class Arena ships.'));
+  assert.ok(!skin.includes('going to ship') && !skin.includes('held ahead'));
+  const held = await whileHeld('held-name', () => renderRegion('skin'));
+  assert.ok(held.includes('held-name') && held.includes('ArenaHeld'));
+});
+
+test('the skin links theme.md where it says what a subtree takes', () => {
+  assert.ok(renderRegion('skin').includes('[`theme.md`](./theme.md#how-do-i-put-a-palette-on-part-of-a-page)'));
+});
+
+test('the split families are the ones the build splits', () => {
+  assert.deepEqual(splitFamilyNames(), ['accent', 'emphasis']);
+  for (const key of ['noImport', 'sheets', 'splitFamilies']) {
+    const text = renderRegion(key);
+    for (const name of splitFamilyNames()) assert.ok(text.includes(`\`${name}\``), `${key} names ${name}`);
+    assert.ok(!text.includes('whose components carry colour slots'), key);
+  }
+});
+
+test('the split family sentence reads true for one family and for none', () => {
+  const dir = track(mkdtempSync(join(tmpdir(), 'arena-split-')));
+  assert.equal(splitFamilyNames(dir).length, 0);
+  assert.equal(splitFamilySentence(dir), 'No family enters as a sheet per component.');
+  const full = splitFamilySentence();
+  assert.match(full, /The families `accent` and `emphasis` are the ones/);
+  assert.ok(!full.includes('read the colour slots'));
+});
+
+type SlotGroupJson = { parts?: Record<string, { options?: string[] | Record<string, unknown> }> };
+
+const rowPrefixesOf = (group: SlotGroupJson) => Object.entries(group.parts ?? {}).flatMap(([part, one]) => {
+  const options = one.options === undefined ? [undefined] : Array.isArray(one.options) ? one.options : Object.keys(one.options);
+  return options.map((option) => (option === undefined ? `| \`${part}\` | ` : `| \`${part}\` | \`${option}\` | `));
+});
+
+const markdownLinks = (text: string) => [...text.replace(/```[\s\S]*?```/g, '').matchAll(/\]\(([^)\s]+)\)/g)].map((match) => match[1] ?? '');
+
+const SLOT_INDEX = `${SLOT_GROUP_DIR}/index.md`;
+
+test('every group page is linked from the slot page, and no link names a group anchor there', () => {
+  const declared = (readJson(join(repoRoot, 'contracts/design/color-slots.json')) as { groups: Record<string, SlotGroupJson> }).groups;
+  const groups = Object.keys(declared);
+  assert.equal(groups.length, 13);
+  const slotPage = readFileSync(join(repoRoot, SLOT_PAGE), 'utf8');
+  for (const group of groups) {
+    const page = readFileSync(join(repoRoot, SLOT_GROUP_DIR, `${group}.md`), 'utf8');
+    assert.ok(page.startsWith('# '), `${group}: opens with a heading`);
+    assert.match(page, /\nRead this /, `${group}: Read this sentence`);
+    const prefixes = rowPrefixesOf(declared[group]!);
+    assert.ok(prefixes.length > 0, `${group}: declared rows`);
+    for (const prefix of prefixes) assert.ok(page.includes(`\n${prefix}`), `${group}: a row opens ${prefix}`);
+    assert.ok(page.includes('](./index.md)'), `${group}: links back`);
+    assert.ok(slotPage.includes(`](./${group}.md)`), `${group}: linked from the slot page`);
+    const hits = spawnSync('git', ['grep', '-l', `color-slots/index.md#${group}`, '--', ':!.superpowers', ':!docs', ':!scripts/generate/arena/generate-npm-pages.test.ts'], { cwd: repoRoot, encoding: 'utf8' });
+    assert.equal(hits.stdout, '', `${group}: anchor links`);
+  }
+  assert.deepEqual(GROUP_PAGES, groups.map((group) => `${SLOT_GROUP_DIR}/${group}.md`));
+  assert.equal(slotGroupPages().length, groups.length);
+});
+
+const WALKED = spawnSync('git', ['ls-files', '*.md', ':!:.superpowers', ':!:docs'], { cwd: repoRoot, encoding: 'utf8' }).stdout.split('\n').filter(Boolean);
+
+const groupFragmentLinks = (from: string, text: string, groups: string[]) => markdownLinks(text).filter((target) => {
+  const [path = '', fragment = ''] = target.split('#');
+  if (/^[a-z]+:/i.test(path)) return false;
+  const resolved = path === '' ? from : resolvePosix(from, path);
+  return resolved === SLOT_INDEX && groups.includes(fragment);
+});
+
+const ANCHOR_ROWS = [
+  { name: 'an absolute-from-root path with a group fragment', from: 'skills/design/SKILL.md', text: '[x](./references/color-slots/index.md#actions)', want: 1 },
+  { name: 'a relative anchor from a group page', from: `${SLOT_GROUP_DIR}/menus.md`, text: '[x](./index.md#actions)', want: 1 },
+  { name: 'a bare file name from the index', from: SLOT_INDEX, text: '[x](index.md#actions)', want: 1 },
+  { name: 'a bare fragment inside the index', from: SLOT_INDEX, text: '[x](#actions)', want: 1 },
+  { name: 'a link to the index with no fragment', from: 'skills/design/SKILL.md', text: '[x](./references/color-slots/index.md)', want: 0 },
+  { name: 'a link to the index with a heading that is no group', from: 'skills/design/SKILL.md', text: '[x](./references/color-slots/index.md#the-groups)', want: 0 },
+  { name: 'a link to a group page', from: `${SLOT_GROUP_DIR}/index.md`, text: '[x](./actions.md)', want: 0 },
+  { name: 'a site URL', from: 'skills/design/SKILL.md', text: '[x](https://example.org/color-slots/index.md#actions)', want: 0 },
+];
+
+test('a link to a group anchor of the slot index is found however it is written', () => {
+  for (const { name, from, text, want } of ANCHOR_ROWS) assert.equal(groupFragmentLinks(from, text, ['actions', 'menus']).length, want, name);
+});
+
+test('no Markdown link of the corpus resolves to the slot index with a group fragment', () => {
+  const groups = Object.keys((readJson(join(repoRoot, 'contracts/design/color-slots.json')) as { groups: Record<string, unknown> }).groups);
+  assert.ok(WALKED.includes(SLOT_INDEX), 'the walk reaches the slot index');
+  const found = WALKED.flatMap((from) => groupFragmentLinks(from, readFileSync(join(repoRoot, from), 'utf8'), groups).map((target) => `${from} -> ${target}`));
+  assert.deepEqual(found, [], 'a link to a group goes to its group page');
+});
+
+test('the spacing table carries the rhythm steps', () => {
+  type Step = { $value: string };
+  const spacing = readJson(join(repoRoot, 'contracts/design/spacing.json')) as {
+    sp: Record<string, { $value: { value: number; unit: string } }>;
+    rhythm: Record<string, Step | string>;
+  };
+  const region = renderRegion('spacing');
+  const steps = Object.entries(spacing.rhythm).filter(([, step]) => typeof step === 'object' && '$value' in step);
+  assert.equal(steps.length, 3, 'the contract holds three rhythm steps');
+  for (const [name, step] of steps) {
+    const alias = /^\{sp\.([^}]+)\}$/.exec((step as Step).$value)?.[1] ?? '';
+    const size = spacing.sp[alias]!.$value;
+    assert.ok(region.includes(`| \`--rhythm-${name}\` | \`${size.value}${size.unit}\` | \`gap-${name}\` |`), `rhythm ${name} is a row with its px and its utility`);
+  }
+  assert.ok(region.includes('style.md#the-air-between-two-components'), 'the table says where the classes are');
+});
+
+test('the sheet table names each sheet\'s layer', () => {
+  const dir = (path: string) => readdirSync(join(repoRoot, path), { recursive: true, withFileTypes: true })
+    .filter((one) => one.isFile() && one.name.endsWith('.css')).map((one) => readFileSync(join(one.parentPath, one.name), 'utf8'));
+  const opens = (css: string) => /^\s*@layer\s+([\w-]+)\s*\{/m.exec(css)?.[1] ?? 'unlayered';
+  const layersOf = (sheets: string[]) => [...new Set(sheets.map(opens))].sort();
+  const consume = 'frameworks/tailwind/consume';
+  const parts = familyPartSheets(repoRoot);
+  const shipped = componentSheets('', () => ({ base: '' }), repoRoot);
+  const barrel = shipped.find((one) => one.to === 'css/components.css')!.content;
+  const imported = [...barrel.matchAll(/@import '\.\/components\/([^']+)';/g)].map((one) => shipped.find((sheet) => sheet.to === `css/components/${one[1]}`)!.content);
+  assert.ok(imported.length > 0, 'the barrel imports component sheets');
+  const compiled = (css: string) => [...(/^\s*@theme\b/m.test(css) ? ['theme'] : []), ...(/^\s*@utility\b/m.test(css) ? ['utilities'] : [])];
+  const sources: Record<string, string[]> = {
+    '`css/base.css`': [readFileSync(join(repoRoot, consume, 'Preflight.generated.css'), 'utf8')],
+    '`css/components.css`': imported,
+    '`css/components/<name>.css`': dir(`${consume}/components`),
+    '`css/hues/<name>.css`': dir(`${consume}/hues`),
+    '`css/vocabulary/`': readdirSync(join(repoRoot, consume, 'vocabulary')).filter((name) => name.endsWith('.css'))
+      .map((name) => readFileSync(join(repoRoot, consume, 'vocabulary', name), 'utf8')),
+    '`css/tailwind-theme.css`': [tailwindThemeSheet(repoRoot)],
+  };
+  for (const family of new Set(parts.map((one) => one.family)))
+    sources[`\`${packageSheetName(family).replace(/\.css$/, '/')}\``] = parts.filter((one) => one.family === family).map((one) => one.content);
+  const region = renderRegion('sheets');
+  assert.ok(region.includes('| stylesheet | layer | what it is |'), 'the table has a layer column');
+  const table = region.split('\n').filter((line) => line.startsWith('| `css/'));
+  assert.deepEqual(table.map((line) => line.split(' | ')[0]!.slice(2)).sort(), Object.keys(sources).sort(), 'every sheet row has a source');
+  for (const line of table) {
+    const sheet = line.split(' | ')[0]!.slice(2);
+    const cell = line.split(/(?<!\\)\|/)[2] ?? '';
+    const named = [...cell.matchAll(/`([\w-]+)`/g)].map((one) => one[1]!).concat(/unlayered/.test(cell) ? ['unlayered'] : []);
+    const expected = sheet === '`css/tailwind-theme.css`' ? compiled(sources[sheet]![0]!).sort() : layersOf(sources[sheet]!);
+    assert.deepEqual([...new Set(named)].sort(), expected, `${sheet} names the layers its sheets open`);
+  }
 });

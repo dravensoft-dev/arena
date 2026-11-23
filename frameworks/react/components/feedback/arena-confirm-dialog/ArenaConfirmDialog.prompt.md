@@ -20,7 +20,7 @@ Protects irreversible actions (H3, H5). Does not close on click-outside. For the
 | `children` | slot |  |  | The dialog body: the question and any detail. |
 | `confirmLabel` | primitive | `string` |  | The confirm button's label. Absent, the provided locale's confirmDialogConfirm answers it. |
 | `cancelLabel` | primitive | `string` |  | The cancel button's label. Absent, the provided locale's confirmDialogCancel answers it. |
-| `destructive` | primitive | `boolean` | `false` | Gives the confirm button Arena's only filled danger surface. |
+| `destructive` | primitive | `boolean` | `false` | Draws the confirm button as the destructive option of the actions group. |
 | `requireText` | primitive | `string` |  | Locks the confirm button until this exact word is typed. |
 | `onCancel` | event |  |  | The dialog was dismissed -- by the Cancel action or by the Escape key, in both layers. A scrim click is deliberately NOT one of them: this component never closes on click-outside. No payload. |
 | `onConfirm` | event |  |  | The action was confirmed. |
@@ -38,7 +38,7 @@ Protects irreversible actions (H3, H5). Does not close on click-outside. For the
 - `Escape`: close.
 <!-- @keys end -->
 
-`destructive` fills the confirm button with `--danger-fill`, and this is the only place in Arena where danger is filled. Everywhere else danger is an outline.
+`destructive` draws the confirm button as the destructive option of the `actions` group: the danger edge and ink over `hue-danger-fill-strong`, the way a destructive `ArenaButton` is drawn.
 
 `title` is **required** and throws when missing. The title is what names the dialog for assistive technology, and the panel's `aria-labelledby` points at it. Nothing can derive a name for a confirmation, because its subject is editorial.
 
@@ -54,42 +54,20 @@ edges rather than walking out into the page behind the scrim.
 
 ### Do / Don't
 
-- **Do** let `destructive` paint the button. The fill is `--danger-fill` over `--color-error-content`, and it is the only surface entitled to it.
-- **Don't** rebuild the filled button yourself with `--danger`. That token is tuned to be read *as text* on the base surfaces, so it is too light to carry white. The measurement is 3.67:1 in the dark theme, under WCAG AA. `--danger-fill` exists precisely for this.
-- **Don't** reach for `destructive` on a merely important action. The danger fill competes with the primary button; if it is not a point of no return, an ordinary `<ArenaButton destructive>` outline is the right shape.
+- **Do** let `destructive` paint the button. The button reads the destructive option of the `actions` group, `actions-destructive-root-*`, so the answer that moves a destructive `ArenaButton` moves it.
+- **Don't** rebuild the filled button yourself with `--danger`. That token is tuned to be read *as text* on the base surfaces, so it is too light to carry white. The measurement is 3.15:1 in the dark theme, under WCAG AA. `--danger-fill` exists precisely for this.
+- **Don't** reach for `destructive` on a merely important action. The danger look competes with the primary button; if it is not a point of no return, an ordinary `<ArenaButton destructive>` is the right shape.
 - **Do** add `requireText` when the action destroys data that cannot be rebuilt.
 - **Do** give every confirmation a `title` that says what is about to happen, not what the component is ("Delete project", never "Confirm").
 - **Don't** render it with an empty `title` while it is closed. `title` is required whatever `open` is. A screen that mounts one confirmation and feeds it a subject per row fails on the first render, so mount it when a subject exists instead. Keep the subject after a cancel and toggle only `open`, or focus never returns to the control that opened it.
 - **Don't** put a `tabIndex={-1}` on a control the user has to reach. The Tab order is how the trap decides what is focusable, so a control held out of it is one the wrap skips over.
-## Verifying the focus trap by hand
+## Focus in the panel
 
-A suite proves the boundary wrap: Arena's own `.focus()` call, which happy-dom
-honours. A suite cannot prove the **interior**, meaning that Tab from a middle control reaches the next one. The interior is the browser's native sequential focus navigation. A
-browser-driven gate stays refused, so the interior is a person's job.
-
-Serve the tree with `bun run demos` and open
-`frameworks/react/components/feedback/arena-confirm-dialog/ArenaConfirmDialog.demo.generated.html`.
-
-**Start by pressing Escape.** That card renders with `open` already `true`, because a
-specimen has to show something. Pressing the trigger while the dialog is already open is correctly a no-op, because the hook keys its effect on `open` changing. The key is precisely so a re-render never steals focus back from a field the user is typing in. A check that skips this step measures nothing and looks like a defect.
-
-Then, with the dialog closed:
-
-1. **Tab to "Delete project…" and press Enter.** Focus must land on the require-text
-   **input**, the first focusable in the panel.
-2. **Tab once.** Focus moves to **Cancel**. Native navigation, not Arena's.
-3. **Tab again.** Focus wraps back to the input. Note that Cancel is the *last* focusable rather than "Delete permanently". The confirm button is `disabled` until the word is typed, and the trap recomputes what is focusable on every key rather than caching it. Type `DELETE` and repeat: the wrap must now pass through the confirm
-   button.
-4. **Shift+Tab from the input.** Focus wraps to the last focusable.
-5. **Escape.** The dialog closes and focus returns to the trigger. The scrim stays
-   inert on purpose: clicking outside must NOT close a destructive confirmation.
-
-Driving this through CDP: Enter must be `keyDown` with `text: '\r'`; a `rawKeyDown`
-does not activate a button.
+With `requireText` the open dialog lands focus on the require-text input, the first focusable in the panel. Tab moves through the panel in the browser's own order and wraps at the ends. From the input Tab reaches Cancel. Cancel is the last focusable while the confirm button is `disabled` until the word is typed, so Tab from Cancel wraps back to the input. Once the word is typed the wrap passes through the confirm button. Shift+Tab from the input wraps to the last focusable. Escape closes the dialog and returns focus to the control that opened it, and a click on the scrim does not close a destructive confirmation.
 
 **Words.** `eyebrow`, `confirmLabel` and `cancelLabel` answer first; when one is absent, the locale's `confirmDialogEyebrow`, `confirmDialogConfirm` or `confirmDialogCancel` does. `confirmDialogRequire` is the prompt above the field `requireText` asks for, with that text in `{text}`.
 
-**Asked from code.** A handler that needs a yes or a no before it goes on asks `useArenaConfirm()` rather than holding an `open` state of its own. `ask` returns the answer as a promise ([the wiring](../../../../../skills/design/references/exports.md#how-do-i-raise-a-confirmation-from-code-in-react)), and the one open request is rendered once, near the root, with this dialog. The dialog is still what draws the confirmation, its focus trap and its one filled danger surface included.
+**Asked from code.** A handler that needs a yes or a no before it goes on asks `useArenaConfirm()` rather than holding an `open` state of its own. `ask` returns the answer as a promise ([the wiring](../../../../../skills/design/references/exports.md#how-do-i-raise-a-confirmation-from-code-in-react)), and the one open request is rendered once, near the root, with this dialog. The dialog is still what draws the confirmation, its focus trap and its final confirmation, which reads the destructive option of the `actions` group, included.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

@@ -4,7 +4,7 @@
  * that merely re-exports a token is told from one that shadows it. */
 
 import { readFileSync, readdirSync } from 'node:fs';
-import { join, basename, extname, relative } from 'node:path';
+import { join, basename, extname } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { readJson } from '../../utils/read-file.ts';
@@ -100,10 +100,10 @@ export function shadowedTokenProblems(
   return problems;
 }
 
-export function staleShadowExemptions(layers: LayerConstants[]) {
+export function staleShadowExemptions(layers: LayerConstants[], exempt: Map<string, string> = SHADOW_EXEMPT) {
   const declared = new Set(layers.flatMap(({ layer, constants }) =>
     constants.map((c) => `${layer}:${c.name}`)));
-  return [...SHADOW_EXEMPT.keys()]
+  return [...exempt.keys()]
     .filter((key) => !declared.has(key))
     .map((key) => `SHADOW_EXEMPT names "${key}", which declares no module-level numeric constant. Delete the entry.`);
 }

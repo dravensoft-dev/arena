@@ -5,6 +5,7 @@
  * declaration file emitted for this module imports nothing. A palette that fails a check is
  * returned with its reports and still declared; the checks tell, they do not refuse. */
 
+import type { MeasuredSlots } from './slots.ts';
 import { HEX, KEBAB, paletteDeclarations, paletteInputProblems, paletteMessages } from './theme-css.ts';
 import { reservedProblems } from './style-plugin-rules.ts';
 
@@ -20,6 +21,7 @@ type Held = {
   levels: Parameters<typeof paletteDeclarations>[2];
   washes: Parameters<typeof paletteMessages>[3];
   roles: Record<ArenaPolarity, Record<string, string>>;
+  slots?: MeasuredSlots | null;
 };
 
 const isRecord = (v: unknown): v is Record<string, unknown> => v !== null && typeof v === 'object' && !Array.isArray(v);
@@ -59,7 +61,7 @@ function rolesOf(data: Held, polarity: ArenaPolarity): Map<string, string> {
 }
 
 function reportsOf(palette: ArenaPaletteInput, known: Held): ArenaPaletteReport[] {
-  return paletteMessages(palette, rolesOf(known, palette.polarity), known.levels, known.washes);
+  return paletteMessages(palette, rolesOf(known, palette.polarity), known.levels, known.washes, known.slots ? { catalogue: known.slots } : null);
 }
 
 function declarationsOf(palette: ArenaPaletteInput, known: Held): Record<string, string> {

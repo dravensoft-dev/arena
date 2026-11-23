@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useArenaContainerWidth } from '../../../UseArenaContainerWidth.ts';
-import { ARENA_CHART_HEIGHT, ARENA_INK_BODY, ARENA_INK_MUTED, arenaSrOnly, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals.ts';
+import { useArenaContainerWidth, useArenaTextScale } from '../../../UseArenaContainerWidth.ts';
+import { ARENA_CHART_HEIGHT, ARENA_INK_BODY, ARENA_INK_MUTED, arenaSrOnly, arenaTextRoom, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals.ts';
 import {
   arenaLinearScale, arenaScaleValue, arenaNearestPoint, arenaRadiusScale, arenaRadiusAt,
 } from '../ChartScales.ts';
@@ -27,10 +27,10 @@ export interface ArenaScatterChartProps {
   className?: ArenaScatterChartClass;
 
 
-  /** The plotted series, drawn as one cloud of marks each. Each carries pairs rather than indexed values, because a scatter has no categories to index against. Pairs are what ArenaPointSeries is for, and the reason it is a separate type from ArenaSeries. After the last slot the positional count starts again at the first, so fold a ninth series into "Other" upstream. */
+  /** The plotted series, drawn as one cloud of marks each. Each carries pairs rather than indexed values, because a scatter has no categories to index against. Pairs are what ArenaPointSeries is for, and the reason it is a separate type from ArenaSeries. After the last ramp colour the positional count starts again at the first, so fold a ninth series into "Other" upstream. */
   series: readonly ArenaPointSeries[];
 
-  /** The ramp slot the first series takes when it names no colour of its own. Each later series takes the next slot, and after the last slot the count starts again at the first. A series' `colorId` keeps the slot it names. Absent, 1. */
+  /** The ramp colour the first series takes when it names no colour of its own. Each later series takes the next ramp colour, and after the last ramp colour the count starts again at the first. A series' `colorId` keeps the ramp colour it names. Absent, 1. */
   colorStart?: ArenaCatSlot;
 
   /** Names the chart for its accessible name and for the caption of its data table. The name belongs to the CHART and not to a series, because a series names itself. Required and guarded rather than defaulted: a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing. */
@@ -78,6 +78,7 @@ export function ArenaScatterChart({ className,
     throw new Error('ArenaScatterChart: `sizeLabel` is required once a series carries `r` (a column headed "Size" names the quantity to nobody)');
   }
   const [ref, measured] = useArenaContainerWidth();
+  const room = arenaTextRoom(useArenaTextScale());
   const [hover, setHover] = useState<number | null>(null);
 
   const width = measured ?? 600;
@@ -88,15 +89,15 @@ export function ArenaScatterChart({ className,
   const sizes = arenaPointSizeRange(series);
   const rScale = arenaRadiusScale(sizes.min, sizes.max);
   const showsKey = sized && sizeLegend;
-  const strip = arenaLegendStrip(height, series.length, showsKey);
-  const gutter = arenaValueGutter(domains.y, fmt);
-  const box = arenaPlotBox(width, strip.plotH, gutter);
+  const strip = arenaLegendStrip(height, series.length, showsKey, room);
+  const gutter = arenaValueGutter(domains.y, fmt, room);
+  const box = arenaPlotBox(width, strip.plotH, gutter, room);
   const xScale = arenaLinearScale(domains.x.min, domains.x.max, box.x, box.x + box.w);
   const yScale = arenaLinearScale(domains.y.min, domains.y.max, box.y + box.h, box.y);
   const xAxis = arenaAxisModelX(xScale, domains.x, fmt);
   const yAxis = arenaAxisModel(yScale, domains.y, fmt);
 
-  const colors = series.map((one, s) => arenaPointSeriesColor(one, arenaCatRotate(colorStart, s), 'ArenaScatterChart'));
+  const colors = series.map((one, s) => arenaPointSeriesColor(one, arenaCatRotate(colorStart, s)));
   const table = arenaPointTable(locale.chartTableSeries, series, xLabel, yLabel, sizeLabel ?? '', fmt);
   const n = arenaPointCount(series);
 

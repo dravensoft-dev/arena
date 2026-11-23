@@ -11,7 +11,7 @@ One column of an `ArenaBoard`. The column is a named head with a count and a con
 `count` is passed rather than counted. Arena never decides what it draws from what you projected,
 because one of those children may be a placeholder and none of them is Arena's to read.
 
-`colorId` takes the same ramp slot `ArenaTag` and the charts take, so a status keeps its colour
+`colorId` takes the same ramp colour `ArenaTag` and the charts take, so a status keeps its colour
 between a board, a table and a chart. The member inks the head's mark. The colour also reaches the column as `data-arena-color-id` and the hue channels (`--arena-hue-ink`, `--arena-hue-edge`, `--arena-hue-fill-strong` and `--arena-hue-fill-soft`), so a style plugin can fill the whole head with it.
 
 <!-- @api GENERATED from contracts/api/components/ArenaBoardColumn.json. Edit the contract, not this table. -->

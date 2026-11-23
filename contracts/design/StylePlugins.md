@@ -11,15 +11,15 @@ Not one value of appearance.
 
 | Surface | What it is |
 |---|---|
-| The floors | WCAG contrast, the 3:1 a control's boundary and the focus ring carry, target size, the reduced-motion policy, prose leading that never closes below 1.5, danger as an outline: the danger hue's strong fill is `transparent` |
+| The floors | WCAG contrast, the 3:1 a control's boundary and the focus ring carry, target size, the reduced-motion policy, prose leading that never closes below 1.5 |
 | The role declaration | every role's name, `$type`, `$description` and, for a keyword, its closed set, in [`roles.json`](./roles.json), and a kernel `default` where one is declared, which is an alias to another role or to a token the package emits. No value |
 | The value repertoire | the scales: the spacing grid, the radius, border, shadow, motion, weight, tracking, leading and type ladders, density, layering, chart and behaviour timing, all of them in this directory and catalogued in [`Scales.md`](./Scales.md) |
-| The part hooks | `data-arena-part="<component>.<slot>"` on every element drawing a slot of every manifest |
+| The part hooks | `data-arena-part="<component>.<part>"` on every element drawing a part of every manifest |
 | The cascade | `arena-plugin`, a layer declared after `utilities` |
 
 **A part hook belongs to a manifest, so the plot of a chart has none.** A chart draws geometry
-whose coordinates are the data, and a plot with no slot has no hook: a plugin reaches
-`ArenaChartCard`, the `frame` slot every chart draws inside, and the legend and tooltip each
+whose coordinates are the data, and a plot with no part has no hook: a plugin reaches
+`ArenaChartCard`, the `frame` part every chart draws inside, and the legend and tooltip each
 chart's own manifest carries, and nothing inside the plot. What carries the skin there instead is
 the token tier, since every value a chart paints is one the palette moves, and `edge-axis` is the
 role that draws the axis lines, the zero line and the crosshair, heavier than the grid rules
@@ -39,6 +39,15 @@ an alias naming nothing, a type that disagrees, a keyword whose target can take 
 set, a keyword token whose word the role refuses, and a chain that leads back to itself. **The
 question belongs to the kernel and the answer never does.**
 
+A role is born with `audience`, `task`, a `question` and, for a dimension, `userScale`, and
+`scripts/check/core/check-role-contract.ts` refuses one that lacks them. Pick `audience` by the part the role answers:
+`markup` when it answers a part your markup also draws, `component` when it answers a part only Arena's components draw. Pick `task` by what the role draws, one of the eight words listed under
+`Role metadata` in [`TokenTypes.md`](./TokenTypes.md). Pick `userScale` by what the role answers: `scales`
+when it grows with the reader's text setting, as a font size does (the font size steps are the example),
+`follows` when it is a multiplier of a size that scales and so needs no transform of its own, `fixed` when
+it stays put while the box around it grows. Pick `question` as what the style plugin answers for the role, in the reader's words, and add `combines` where the role is read with another value. A plugin alias must land on a token of the same axis, which
+`check:user-scale` holds.
+
 The scales stay, and they stay with values, because a manifest never names one. They reach a page
 only through a role, so what they are is a shared repertoire a plugin picks from. A plugin answers
 a role with a scale alias or with a literal where the scale has nothing it wants.
@@ -52,6 +61,8 @@ A directory holding two files, described in
 reach a page through classes a consumer applies rather than through any role. `plugin.css` is CSS
 of the plugin's own, written against the part hooks; the build wraps it in the reserved layer, so
 its author never spells `@layer arena-plugin`.
+
+A plugin may also answer a colour slot the catalogue derives from `color-slots.json` with a role from that slot's accepts set. A colour slot belongs to a group of components, so an answer moves every member part that reads it. An unanswered colour slot reads the kernel's chain, and a member keeps its own default there where a decision grants one. [`color-slots/index.md`](../../skills/design/references/color-slots/index.md) lists the colour slots by group for an adopter. On this page "slot" alone is a manifest slot, the entry of a manifest's `slots` key that names a part; a colour slot is always written in full.
 
 **Colour stays an assignment and never an authorship.** A colour role takes one of the consumer's
 palette colours as a `{color.*}` alias, or follows another colour role as `{ink-muted}`, and a plugin
@@ -71,7 +82,7 @@ an application, which is the last word and is already reported for reaching in.
 the rule ships beside the CLI and cannot read that file.
 
 **Where no palette entry holds the shade a plugin wants, it composes one.**
-`color-mix(in oklab, var(--color-base-content) 62%, transparent)` is a colour built out of the
+`color-mix(in oklab, var(--color-base-content) 64%, transparent)` is a colour built out of the
 consumer's own palette rather than a name borrowed from Arena's internals, and it is the same
 instruction the audit gives a consumer who writes a raw colour. That is the route for a decision no
 role carries, and holding a level is the clearest case: a role names which colour and the opacity
@@ -225,10 +236,14 @@ manifest maps a member's value to a hue (`danger`, `success`, `warning`, `info`,
 renders the group as `data-arena-<group>`, and the hue sheet writes its channels on the slots that
 carry it: `--arena-hue-ink`, `--arena-hue-edge`, `--arena-hue-fill-strong`, `--arena-hue-fill-soft`
 and `--arena-hue-on-ink`. A slot reads the channel it needs and never a status colour by name, so a
-plugin that moves one role moves every surface wearing that hue. A slot whose hue no value varies,
-a field's error message, names it under `hues.always`. A solid status mark (a presence or feed dot,
-a progress fill) reads the strong fill, and danger's marks the ink, its strong fill being closed;
-a chart legend swatch and the tag's dot read the ink, following series painted from the palette.
+plugin that moves one role moves every surface wearing that hue. An error state's root and icon read the danger banner and icon colour slots
+of the `feedback` group. A field's error message and edge, a status icon, FileInput's
+rejection and ConfirmDialog's invalid input read the `ink-invalid` and `edge-invalid` roles instead. A status mark (a presence, feed or timeline dot,
+a soft badge, a tag, a stat card's value and delta, a meter, progress or spinner range) reads its group's colour slots, `marks.dot`, `marks.soft`,
+`marks.outline`, `marks.label` or `meters.track`, whose tone defaults are the hue roles, `{hue-<h>-ink}` and its edge and wash,
+so a plugin moves those marks through the hue roles or the colour slots and never through a hue channel. The channels are read by a badge
+written `arena-mark-solid` and the calendar chip, and by the series parts: a chart legend swatch, a board column's dot and
+title and a tag that names a `colorId` read them, following series painted from the palette.
 A badge written with `arena-mark-solid` fills with the ink and sets its label in the on-ink, which
 defaults to the hue's `{color.<hue>-content}` and, for danger, to the page colour
 `{color.base-100}`, because the danger ink is tuned as text and too light to carry white. The roles are in
@@ -236,7 +251,7 @@ defaults to the hue's `{color.<hue>-content}` and, for danger, to the page colou
 
 | Hue | Ink | Edge | Fill, strong | Fill, soft | On ink |
 |---|---|---|---|---|---|
-| danger | `hue-danger-ink` | `hue-danger-edge` | `hue-danger-fill-strong`, closed to `transparent` | `hue-danger-fill-soft` | `hue-danger-on-ink` |
+| danger | `hue-danger-ink` | `hue-danger-edge` | `hue-danger-fill-strong`, a colour role whose kernel default is `transparent` | `hue-danger-fill-soft` | `hue-danger-on-ink` |
 | success | `hue-success-ink` | `hue-success-edge` | `hue-success-fill-strong` | `hue-success-fill-soft` | `hue-success-on-ink` |
 | warning | `hue-warning-ink` | `hue-warning-edge` | `hue-warning-fill-strong` | `hue-warning-fill-soft` | `hue-warning-on-ink` |
 | info | `hue-info-ink` | `hue-info-edge` | `hue-info-fill-strong` | `hue-info-fill-soft` | `hue-info-on-ink` |
@@ -254,49 +269,31 @@ plugin moves identity by moving the ramp in the palette. **Neutral is the
 absence of a hue**: its value writes every channel to `initial` and the slot keeps its own
 classes, so the matrix has no neutral row.
 
-**The final confirmation of `ArenaConfirmDialog` reads two roles of its own**, `fill-confirm-final`
-and `ink-confirm-final`, which a plugin answers as a pair. It is the one filled danger surface, which
-is why it is not `hue-danger-fill-strong`.
+**The final confirmation of `ArenaConfirmDialog` reads the destructive option of the `actions` group**, so a plugin
+moves it with the answers that move a destructive Button.
 
 ## Which floors a gate still holds, and which became reports
 
 This is the half that has to be written down rather than discovered.
 
 **A floor expressed as a token value is a floor over the token half only.** With plugin CSS open,
-the prohibition on gradients is the clear case: it is a floor because a fill whose colour is a
-range turns contrast into a range, and **a plugin paints the gradient from its own stylesheet
-whatever the token tier says**. It stops being a floor and becomes a report. `arena audit` names it in
-an application source and says nothing about it inside a declared plugin directory, because
-`--strict` may not refuse what this document permits.
+a plugin paints from its own stylesheet whatever the token tier says, so a floor holds where a gate
+measures the resolved value. `arena audit` names what a source text can show in an application
+source and says nothing about it inside a declared plugin directory, because `--strict` may not
+refuse what this document permits.
 
 | Claim | Held by | Over |
 |---|---|---|
 | prose leading, heading leading, prose measure | `check:style-plugin` | the root plugin, in the base scope and in every theme scope |
 | the same three floors | `check:catalogue` | every entry under `plugin-style-store/catalogue/`, in both polarities, resolved in memory because no entry is compiled |
-| the danger hue's strong fill, `hue-danger-fill-strong`, answered `transparent` | `check:style-plugin` | the root plugin and every scoped plugin, in both polarities |
-| the same floor | `check:catalogue` | every entry under `plugin-style-store/catalogue/`, in both polarities |
-| no `plugin.css` writes a `--arena-hue-*` channel or `--hue-danger-fill-strong` (reading a channel is allowed); a direct declaration on a part is not gated | `check:channels` | every `plugin.css` under `plugin-style-store/` and `plugin-style-store/catalogue/` |
-| a control's boundary at 3:1 where its border goes to zero | `check:boundary-contrast` | the root plugin, in both themes |
-| text contrast against the surfaces a plugin names | `check:text-contrast` | the root plugin and every scoped plugin this build emits |
+| no `plugin.css` writes a `--arena-hue-*` channel (reading a channel is allowed); a direct declaration on a part is not gated | `check:channels` | every `plugin.css` under `plugin-style-store/` and `plugin-style-store/catalogue/` |
+| a control's boundary at 3:1 where its border goes to zero | `check:boundary-contrast` | the `default` plugin, in both themes; `complete` and the catalogue are measured and reported |
+| text contrast against the surfaces a plugin names | `check:text-contrast` | the `default` plugin, in both themes; `complete` and the catalogue are measured and reported |
 | the two layers draw one appearance identically | `check:pixel-parity` | every sink, exactly, with no allowance declared for any of them |
 | the compiled `arena-` class name is output rather than contract | `arena audit`, in both scopes | a consumer's sources |
 | a raw colour or a bare pixel length where a token belongs | `arena audit`, in both scopes | a consumer's sources |
-| no gradient | `arena audit`, in the application scope, unless the project declares its mark is one | a consumer's sources |
 | a colour assigned through one of Arena's own aliases rather than a role | `arena audit`, in the plugin scope only | a consumer's style plugins |
 | a declaration restating what the part's slot already paints | `arena audit`, in the plugin scope only | a consumer's style plugins, and `complete` through `check:style-plugin-coverage` |
-
-**A brand whose mark IS a gradient is the case that split does not cover.** The scope reads the
-directory a line sits in, which is the right question for a part hook and the wrong one for a
-brand: a product whose mark is a gradient draws that element itself, because Arena has none, so
-the gradient lands in application CSS where the rule always reports it and `--strict=audit` would
-fail the build over the most recognisable thing about the product. `gradientMark` in
-`arena.config.json` is where a project says so, once, beside the rest of what it owns.
-
-What that replaces is an allowance per line. A marker suppresses every rule on its line rather
-than the gradient on it, so a line carrying a gradient and a bare pixel length would report
-neither, and the marker has to be repeated wherever the mark is drawn. The declaration silences
-the one rule it is about: the colours inside the gradient are still the skin, which a project
-assigns rather than authors, and they are still reported.
 
 A floor nothing measures is a sentence, and a sentence that reads like a guarantee is worse than
 an admitted limit.
@@ -343,12 +340,12 @@ role outside it that declares no default, so a minor adding a role stops no buil
 plugin is its own. A role on the list takes no default, because a default there would only loosen
 totality for plugins that already answer it.
 
-**A plugin selects by part and never by the value of a variant, and that decides which asks can
+**A plugin's CSS selects by part and never by the value of a variant, and that decides which asks can
 become members at all.** A product whose avatar ring is a gradient in one state and a grey in the
 other cannot be served by a `ring` member taking a tone: the component would render one part in
 both states, the plugin would paint it once, and the mark that product is recognised by is the
 difference between the two. An ask whose whole content is a difference the cascade cannot see is
-markup its own product writes, and no member Arena could add would carry it.
+markup its own product writes, and no member Arena could add would carry it. A colour is the one such difference a plugin answers without a selector. A colour slot names a group part per option and state, so the plugin answers it in `plugin.tokens.json`.
 
 **A role that does two jobs is a split waiting for its second product, not a name to be argued
 with.** `edge-marker` is the current case: two products moved it, for two different
@@ -369,7 +366,7 @@ A colour role names WHICH of the consumer's colours and never how held back it i
 and the count was two plugins reaching for one alias rather than two plugins asking one question.
 
 **What a plugin does instead is compose the colour**, `color-mix(in oklab, var(--color-base-content)
-62%, transparent)`, which is the instruction the audit already gives a consumer who writes a raw
+64%, transparent)`, which is the instruction the audit already gives a consumer who writes a raw
 one. The limit behind it is worth stating in the same breath: a slot carrying no opacity modifier
 cannot be held back by any token, because the modifier lives in the manifest and a role cannot add
 a declaration a slot never makes. Most text carries none, since full strength is the ordinary case
@@ -377,8 +374,8 @@ and the held-back register is the one that spells its level. Moving a slot from 
 other is a decision about one product's appearance, so it belongs to a rule through the part, which
 is what the escape hatch is and why the audit permits it inside a plugin directory.
 
-This is how the current tier was derived, by counting the slots that named a palette step, a face
-or a case directly. What changes is that the count now has a source that keeps producing: the
+The current tier is derived by counting the slots that name a palette step, a face
+or a case directly, and the count has a source that keeps producing: the
 audit reports which parts a plugin paints, and that note is where the evidence for promoting one
 comes from. **A count is evidence only once each part in it is remeasured against the sheet the
 slot compiles to**, because a plugin declaration restating what the slot already paints raises the

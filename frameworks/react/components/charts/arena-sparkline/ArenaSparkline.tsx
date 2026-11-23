@@ -24,10 +24,10 @@ export interface ArenaSparklineProps {
   /** One label per point, in the order of the series' `values`. A label heads its row of the hidden table and the tooltip. A label with no value ends the line there rather than dropping it to zero. */
   labels: readonly string[];
 
-  /** The series drawn, exactly one. A second warns and is ignored, because a sparkline has no legend to say which line is which. `tone` is the only trend colour; without it the line takes the identity colour of the slot `colorStart` names, which says nothing about whether the trend is good. */
+  /** The series drawn, exactly one. A second warns and is ignored, because a sparkline has no legend to say which line is which. `tone` is the only trend colour; without it the line takes the ramp colour `colorStart` names, which says nothing about whether the trend is good. */
   series: readonly ArenaSeries[];
 
-  /** The ramp slot the line takes when its series names no colour of its own. Absent, 1. */
+  /** The ramp colour the line takes when its series names no colour of its own. Absent, 1. */
   colorStart?: ArenaCatSlot;
 
   /** Names the sparkline for its accessible name and for the caption of its data table. Required and guarded rather than defaulted: a table cell holding six sparklines needs six distinct names, and a fallback of the chart type would announce all six identically. */
@@ -86,7 +86,7 @@ export function ArenaSparkline({ className,
   const floor = box.y + box.h;
   const yScale = arenaLinearScale(domain.min, domain.max, floor, box.y);
   const xScale = arenaPointScale(n, box.x, box.w);
-  const color = arenaSeriesColors(one, 1, arenaCatRotate(colorStart, 0), 'ArenaSparkline', colorStart)[0] as string;
+  const color = arenaSeriesColors(one, 1, arenaCatRotate(colorStart, 0), colorStart)[0] as string;
   const table = arenaChartTable(locale.chartTablePoint, [one], labels, fmt);
   const points = one.values.map((value, i) => ({ x: arenaPointAt(xScale, i), y: arenaScaleValue(yScale, value) }));
   const last = points[n - 1];

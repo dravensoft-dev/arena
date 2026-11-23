@@ -81,7 +81,7 @@ test('every entry carries a reason', () => {
 });
 
 test('a layer no package is assembled from is refused rather than answered with nothing', () => {
-  assert.throws(() => pathspecs('tailwind'), /no package is assembled/);
+  assert.throws(() => pathspecs('tailwind'), /no package is assembled under the name "tailwind"/);
 });
 
 test('the assembler decides what a directory spec carries, so a rule it grows narrows the guard too', () => {
@@ -167,10 +167,6 @@ test('a contract moving is what publishes it', () => {
     ['contracts/design/spacing.json', 'contracts/behaviour/button.json',
       'contracts/api/components/ArenaButton.json', 'contracts/NPM.md'],
   );
-});
-
-test('the throw names a package rather than a layer, because the third is not one', () => {
-  assert.throws(() => pathspecs('mobile'), /no package is assembled under the name "mobile"/);
 });
 
 test('server.json reaches the mcp guard, or the registry entry never moves again', () => {

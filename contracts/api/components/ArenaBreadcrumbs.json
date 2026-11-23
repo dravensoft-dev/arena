@@ -1,7 +1,7 @@
 {
   "component": "ArenaBreadcrumbs",
   "description": "A trail of ancestor locations ending at the current one. An explicit return path for hierarchies deeper than tabs.",
-  "affordances": ["hover", "press"],
+  "affordances": ["focus", "hover", "press"],
   "api": {
     "ariaLabel": { "form": "primitive", "type": "string", "required": true,
                    "description": "Names this navigation landmark. Required, and guarded at runtime: nothing can derive it, and a constant such as \"Breadcrumb\" makes two trails on one page indistinguishable as landmarks while satisfying the requirement mechanically. Say which hierarchy this is a trail through: \"Project navigation\", never \"Breadcrumb\"." },

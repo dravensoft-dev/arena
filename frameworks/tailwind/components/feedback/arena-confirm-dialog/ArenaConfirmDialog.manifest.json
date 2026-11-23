@@ -1,17 +1,17 @@
 {
   "component": "ArenaConfirmDialog",
   "slots": {
-    "root": "fixed inset-0 z-modal-nested flex items-center justify-center bg-scrim backdrop-blur-scrim",
-    "panel": "w-115 max-w-[92vw] bg-surface-floating border-[length:var(--bw-surface)] border-edge-surface-floating rounded-surface shadow-surface-deep overflow-hidden",
+    "root": "fixed inset-0 z-modal-nested flex items-center justify-center bg-[color:color-mix(in_oklab,var(--overlays-scrim-fill-rest,var(--overlay-scrim))_var(--level-scrim),transparent)] backdrop-blur-scrim",
+    "panel": "w-[var(--confirm-dialog-width)] max-w-[92vw] bg-[color:var(--overlays-panel-fill-rest,var(--fill-surface-floating))] border-[length:var(--bw-surface)] border-[color:var(--overlays-panel-edge-rest,var(--edge-surface-floating))] rounded-surface shadow-surface-deep overflow-hidden",
     "head": "px-floating-x pt-5.5",
     "eyebrow": "font-face-eyebrow text-eyebrow tracking-eyebrow case-eyebrow mb-2 font-eyebrow",
-    "title": "font-face-heading font-heading text-title-section text-ink-heading tracking-heading leading-heading",
-    "body": "px-floating-x py-floating-y font-body text-md leading-prose text-ink-body/(--level-ink-body)",
+    "title": "font-face-heading font-heading text-title-section text-[color:var(--text-heading-ink-rest,var(--ink-heading))] tracking-heading leading-heading",
+    "body": "px-floating-x py-floating-y font-body text-md leading-prose text-[color:color-mix(in_oklab,var(--text-body-ink-rest,var(--ink-body))_var(--level-ink-body),transparent)]",
     "requireBlock": "mt-3.5",
-    "requireLabel": "font-face-label text-ctl-xs tracking-label-role case-label text-ink-muted/(--level-ink-muted) mb-1.5",
-    "input": "w-full h-ctl-h px-control-x bg-field border-[length:var(--bw-field)] rounded-field text-ink-body font-mono text-ctl outline-none focus-visible:ring-[length:var(--focus-width)] focus-visible:ring-[color:var(--arena-hue-edge)]",
+    "requireLabel": "font-face-label text-ctl-xs tracking-label-role case-label text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)] mb-1.5",
+    "input": "w-full min-h-ctl-h px-control-x border-[length:var(--bw-field)] rounded-field font-mono text-ctl focus-visible:outline-hidden focus-visible:ring-[length:var(--bw-focus)] focus-visible:ring-edge-focus text-[color:var(--fields-value-ink-rest,var(--ink-body))]",
     "foot": "flex flex-wrap justify-end gap-actions px-floating-x pb-5.5",
-    "confirm": "inline-flex items-center justify-center h-ctl-h px-4.5 rounded-control border-[length:var(--bw-control)] border-transparent font-body font-control text-ctl cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed gap-control transition-[background,box-shadow] duration-[var(--dur-hover)] ease-hover hover:shadow-control-raised shadow-control-rest outline-none focus-visible:shadow-[inset_0_0_0_var(--focus-width)_var(--focus-ring)]"
+    "confirm": "inline-flex items-center justify-center self-start min-h-ctl-h px-4.5 rounded-control border-[length:var(--bw-control)] font-body font-control text-ctl cursor-pointer disabled:cursor-not-allowed gap-control transition-[background,box-shadow] duration-[var(--dur-hover)] ease-hover hover:shadow-control-raised shadow-control-rest focus-visible:outline-[length:var(--bw-focus)] focus-visible:outline-edge-focus focus-visible:outline-offset-[var(--gap-focus)]"
   },
   "kind": {
     "root": "none",
@@ -35,20 +35,20 @@
   "variants": {
     "destructive": {
       "true": {
-        "eyebrow": "text-[color:var(--arena-hue-ink)]",
-        "confirm": "bg-confirm-final text-ink-confirm-final"
+        "eyebrow": "text-[color:var(--overlays-destructive-eyebrow-ink-rest,var(--hue-danger-ink))]",
+        "confirm": "border-[color:var(--actions-destructive-root-edge-rest,var(--hue-danger-edge))] bg-[color:var(--actions-destructive-root-fill-rest,var(--hue-danger-fill-strong))] [--arena-icon-ink:var(--actions-destructive-root-icon-rest,var(--actions-destructive-root-ink-rest,var(--hue-danger-ink)))] text-[color:var(--actions-destructive-root-ink-rest,var(--hue-danger-ink))] hover:border-[color:var(--actions-destructive-root-edge-hover,var(--actions-destructive-root-edge-rest,var(--hue-danger-edge)))] hover:bg-[color:var(--actions-destructive-root-fill-hover,var(--fill-hover))] hover:[--arena-icon-ink:var(--actions-destructive-root-icon-hover,var(--actions-destructive-root-ink-hover,var(--actions-destructive-root-ink-rest,var(--hue-danger-ink))))] hover:text-[color:var(--actions-destructive-root-ink-hover,var(--actions-destructive-root-ink-rest,var(--hue-danger-ink)))] active:border-[color:var(--actions-destructive-root-edge-pressed,var(--actions-destructive-root-edge-rest,var(--hue-danger-edge)))] active:bg-[color:var(--actions-destructive-root-fill-pressed,color-mix(in_oklab,var(--actions-destructive-root-fill-rest,var(--hue-danger-fill-strong)),var(--actions-destructive-root-ink-rest,var(--hue-danger-ink))_calc(var(--mix-pressed)*100%)))] active:[--arena-icon-ink:var(--actions-destructive-root-icon-pressed,var(--actions-destructive-root-ink-pressed,var(--actions-destructive-root-ink-rest,var(--hue-danger-ink))))] active:text-[color:var(--actions-destructive-root-ink-pressed,var(--actions-destructive-root-ink-rest,var(--hue-danger-ink)))] disabled:border-[color:var(--actions-destructive-root-edge-disabled,var(--actions-destructive-root-edge-rest,var(--hue-danger-edge)))] disabled:bg-[color:var(--actions-destructive-root-fill-disabled,var(--actions-destructive-root-fill-rest,var(--hue-danger-fill-strong)))] disabled:[--arena-icon-ink:var(--actions-destructive-root-icon-disabled,var(--actions-destructive-root-ink-disabled,var(--actions-destructive-root-ink-rest,var(--hue-danger-ink))))] disabled:text-[color:var(--actions-destructive-root-ink-disabled,var(--actions-destructive-root-ink-rest,var(--hue-danger-ink)))] disabled:opacity-[var(--actions-destructive-root-fade-disabled,var(--fade-disabled))]"
       },
       "false": {
-        "eyebrow": "text-ink-eyebrow",
-        "confirm": "bg-primary-fill text-primary-content"
+        "eyebrow": "text-[color:var(--overlays-plain-eyebrow-ink-rest,var(--ink-eyebrow))]",
+        "confirm": "border-[color:var(--actions-primary-root-edge-rest,var(--emphasis-primary-edge))] bg-[color:var(--actions-primary-root-fill-rest,var(--emphasis-primary-fill))] [--arena-icon-ink:var(--actions-primary-root-icon-rest,var(--actions-primary-root-ink-rest,var(--emphasis-primary-ink)))] text-[color:var(--actions-primary-root-ink-rest,var(--emphasis-primary-ink))] hover:border-[color:var(--actions-primary-root-edge-hover,var(--actions-primary-root-edge-rest,var(--emphasis-primary-edge)))] hover:bg-[color:var(--actions-primary-root-fill-hover,var(--actions-primary-root-fill-rest,var(--emphasis-primary-fill)))] hover:[--arena-icon-ink:var(--actions-primary-root-icon-hover,var(--actions-primary-root-ink-hover,var(--actions-primary-root-ink-rest,var(--emphasis-primary-ink))))] hover:text-[color:var(--actions-primary-root-ink-hover,var(--actions-primary-root-ink-rest,var(--emphasis-primary-ink)))] active:border-[color:var(--actions-primary-root-edge-pressed,var(--actions-primary-root-edge-rest,var(--emphasis-primary-edge)))] active:bg-[color:var(--actions-primary-root-fill-pressed,color-mix(in_oklab,var(--actions-primary-root-fill-rest,var(--emphasis-primary-fill)),var(--actions-primary-root-ink-rest,var(--emphasis-primary-ink))_calc(var(--mix-pressed)*100%)))] active:[--arena-icon-ink:var(--actions-primary-root-icon-pressed,var(--actions-primary-root-ink-pressed,var(--actions-primary-root-ink-rest,var(--emphasis-primary-ink))))] active:text-[color:var(--actions-primary-root-ink-pressed,var(--actions-primary-root-ink-rest,var(--emphasis-primary-ink)))] disabled:border-[color:var(--actions-primary-root-edge-disabled,var(--actions-primary-root-edge-rest,var(--emphasis-primary-edge)))] disabled:bg-[color:var(--actions-primary-root-fill-disabled,var(--actions-primary-root-fill-rest,var(--emphasis-primary-fill)))] disabled:[--arena-icon-ink:var(--actions-primary-root-icon-disabled,var(--actions-primary-root-ink-disabled,var(--actions-primary-root-ink-rest,var(--emphasis-primary-ink))))] disabled:text-[color:var(--actions-primary-root-ink-disabled,var(--actions-primary-root-ink-rest,var(--emphasis-primary-ink)))] disabled:opacity-[var(--actions-primary-root-fade-disabled,var(--fade-disabled))]"
       }
     },
     "invalid": {
       "true": {
-        "input": "border-[color:var(--arena-hue-edge)]"
+        "input": "hover:border-[color:var(--fields-error-field-edge-hover,var(--fields-error-field-edge-rest,var(--edge-invalid)))] border-[color:var(--fields-error-field-edge-rest,var(--edge-invalid))] hover:bg-[color:var(--fields-error-field-fill-hover,var(--fill-hover))] bg-[color:var(--fields-error-field-fill-rest,var(--fill-field))]"
       },
       "false": {
-        "input": "border-edge-field"
+        "input": "hover:border-[color:var(--fields-neutral-field-edge-hover,var(--fields-neutral-field-edge-rest,var(--edge-field)))] border-[color:var(--fields-neutral-field-edge-rest,var(--edge-field))] hover:bg-[color:var(--fields-neutral-field-fill-hover,var(--fill-hover))] bg-[color:var(--fields-neutral-field-fill-rest,var(--fill-field))]"
       }
     },
     "open": {
@@ -62,14 +62,5 @@
     "destructive": false,
     "invalid": false,
     "open": false
-  },
-  "hues": {
-    "always": {
-      "input": "danger"
-    },
-    "destructive": {
-      "true": "danger",
-      "false": null
-    }
   }
 }

@@ -50,9 +50,9 @@ nowhere to put the second. Its label is not decoration: it heads that series' ow
 so a reader of the table never has to work out which number belongs to which line. The
 component's own `label` is the chart's name and a different thing, and both are required and
 guarded for the reason `contracts/api/MemberForms.md` gives. A series with no identity of its
-own takes the ramp slot its POSITION gives it, counted from the chart's `colorStart` (slot 1 by
+own takes the ramp colour its POSITION gives it, counted from the chart's `colorStart` (ramp colour 1 by
 default) through `arenaCatRotate(start, position)`, so two series are never the same colour by
-accident. After the last slot the count starts again, and an explicit slot still clamps through
+accident. After the last ramp colour the count starts again, and an explicit ramp colour still clamps through
 `arenaCatIndex(slot)`. **A missing number is not a zero**: a
 series shorter than the others stops there, leaves an empty cell in the table, and draws no
 mark, because inventing the difference is the one thing a chart may not do.
@@ -280,7 +280,7 @@ passed, so 130 on a scale of 0 to 100 draws a full arc and says 130, and a value
 finite draws the empty track and writes nothing. The band a value is in is
 `arenaGaugeBand(bands, value)`, a lookup over the threshold primitive of `Thresholds.ts`, so a
 band includes its lower edge exactly as a meter's region does, and the tone and the label are the
-only layer the gauge adds. The arc takes that band's tone colour, the `colorStart` slot
+only layer the gauge adds. The arc takes that band's tone colour, the `colorStart` ramp colour
 below the first band, or `colorId`, then `colorStart`, when there are no bands. The gauge reads no cursor
 and takes no tab stop, because the value, both ends and every band edge are drawn as text and are
 all in the table. The radius derives from `--chart-gauge-height` and the width through

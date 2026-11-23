@@ -37,11 +37,3 @@ test('the note is drawn only when given, and no columns are drawn without childr
   assert.doesNotMatch(bare, /grid-template-columns/);
   assert.match(render(<ArenaSiteFooter note="Roasted in Bilbao." />), /Roasted in Bilbao\./);
 });
-
-test('ArenaSiteFooter drops a consumer style object and a consumer attribute', () => {
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  const styled = render(<ArenaSiteFooter style={{ color: '#ff00ff' }} />);
-  assert.doesNotMatch(styled, /#ff00ff/, 'a consumer style reached the rendered root');
-  const spread = render(<ArenaSiteFooter data-stray="x" />);
-  assert.doesNotMatch(spread, /data-stray/, 'a consumer attribute reached the rendered root');
-});

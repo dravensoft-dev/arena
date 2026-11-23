@@ -24,7 +24,7 @@ export class ArenaScroller {
 
   /** Names the row to assistive technology, and nothing else supplies it: a group announced as a group tells a reader that focus moved and nothing about where it landed. Required, and guarded at runtime after trimming, the shape ArenaTable.label carries for the same reason, since the value the guard exists to catch is a present and useless one. */
   readonly label = input.required<string>();
-  /** Whether the row settles on an item or wherever it was left. Snap by default, because a rail of equal-width cards left halfway across one is a card the reader has to finish scrolling by hand. Nothing moves on its own under either value, so neither answers prefers-reduced-motion and no pause control is owed. */
+  /** Whether the row settles on an item or wherever it was left. Snap by default, because a rail of equal-width cards left halfway across one is a card the reader has to finish scrolling. Nothing moves on its own under either value, so neither answers prefers-reduced-motion and no pause control is owed. */
   readonly behaviour = input<ArenaScrollerBehaviour, ArenaScrollerBehaviour | undefined>(
     'snap', { transform: (value) => value ?? 'snap' },
   );

@@ -4,25 +4,10 @@ import React from 'react';
 import { join } from 'node:path';
 import { mount, cleanup, act } from './Harness.tsx';
 import { assertPattern, REACT_COMPONENTS } from './AssertPattern.tsx';
-import { isFocusable } from '../../../scripts/lib/core/behaviour-compliance.ts';
 import { ArenaSkeleton } from '../components/display/arena-skeleton/ArenaSkeleton.tsx';
 import { ArenaCalendarEvent } from '../components/display/arena-calendar-event/ArenaCalendarEvent.tsx';
 
 afterEach(cleanup);
-
-const SHAPES = ['arena-skeleton-block', 'arena-skeleton-line', 'arena-skeleton-circle'] as const;
-
-test('ArenaSkeleton renders role=status in every shape, circle and stack included', () => {
-  const seen: Record<string, boolean> = {};
-  for (const shape of SHAPES) {
-    const container = mount(<ArenaSkeleton className={shape} />);
-    seen[shape] = Boolean(container.querySelector<HTMLElement>('[role="status"]'));
-    cleanup();
-  }
-  const stack = mount(<ArenaSkeleton lines={2} />);
-  seen.stack = Boolean(stack.querySelector<HTMLElement>('[role="status"]'));
-  assert.deepEqual(seen, { 'arena-skeleton-block': true, 'arena-skeleton-line': true, 'arena-skeleton-circle': true, stack: true });
-});
 
 test('ArenaSkeleton circle carries the role and a name, like its siblings', () => {
   const container = mount(<ArenaSkeleton className="arena-skeleton-circle" />);

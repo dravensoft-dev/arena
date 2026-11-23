@@ -56,11 +56,7 @@ A stack of sections under headings. Each heading is a button that shows and hide
 - Don't use it to switch between views. One view shown at a time under a strip of names is `ArenaTabs`.
 - Don't nest it as a tree, and don't animate the panel's height.
 
-**By hand, in real Chromium**: run `bun run demos` and open
-`/frameworks/react/components/layout/arena-accordion/ArenaAccordion.demo.generated.html`:
-- Tab reaches every header in order, and Enter and Space toggle the one in focus.
-- Down, Up, Home and End move focus without toggling, and a field in a panel keeps its arrows.
-- A screen reader reads the heading level, the expanded state and the panel's name.
+Tab reaches every header in order, and Enter and Space toggle the one in focus. Down, Up, Home and End move focus without toggling, and a field in a panel keeps its arrows. A screen reader reads the heading level, the expanded state and the panel's name.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

@@ -66,7 +66,7 @@ async function upload() {
 - Don't make the zone the keyboard route or add a paste route. The trigger is the keyboard path, and the zone takes a drop only with `droppable`.
 - Don't preview, crop or upload inside it. A preview is markup you write from `files()`, and an `ArenaProgressBar` beside it is yours to compose.
 
-**By hand.** happy-dom opens no picker and drops no real file, so a browser checks six things. The picker opens from Enter and from Space on the trigger. A real drop on the zone holds the file. A drop on a field without `droppable` does what the browser does. A native submission carries the shown files and no others. An empty `required` field refused by the browser shows its message at the trigger. A long file name in a chip at 390px wraps inside the chip without overflowing the field.
+The picker opens from Enter and from Space on the trigger. With `droppable`, a drop on the zone holds the file; without it, a drop does what the browser does. A native submission carries the shown files and no others. An empty `required` field refused by the browser shows its message at the trigger.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

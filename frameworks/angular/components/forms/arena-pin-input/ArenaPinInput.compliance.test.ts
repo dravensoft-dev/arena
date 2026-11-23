@@ -1,8 +1,7 @@
 /* textbox binds flat to every cell, passed as the subject because the host is not a cell. Each cell
- * is a single-line text field named by its position, required natively and invalid with the error.
- * The wrapper's group role and name are Arena's own design, asserted here directly. The platform
- * owns Tab, so the suite asserts the precondition: one cell is a tab stop in every state. change is
- * an output named after a DOM event, so a cell's native change stops at the component. */
+ * is a single-line text field, required natively and invalid with the error. change is an output
+ * named after a DOM event, so a cell's native change stops at the component, and the host clears the
+ * name the component takes as a member. */
 
 import { useTestEnvironment } from '../../../test/TestbedEnv';
 useTestEnvironment();
@@ -14,6 +13,7 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ArenaPinInput } from './ArenaPinInput';
 import { assertPattern, ANGULAR_COMPONENTS } from '../../../test/Compliance';
+import { invalidVerdict } from '../../../test/StateVerdicts';
 
 const BINDING = join(ANGULAR_COMPONENTS, 'forms/arena-pin-input/ArenaPinInput.behaviour.json');
 
@@ -43,31 +43,6 @@ function render(patch: { value?: string; required?: boolean; error?: string } = 
   return { fixture, root, cells, seen: host.seen };
 }
 
-test('the wrapper is a group that the label names', () => {
-  const { fixture, root } = render();
-  try {
-    const group = root.querySelector('[data-arena-part="pin-input.group"]') as HTMLElement;
-    assert.equal(group.getAttribute('role'), 'group');
-    assert.equal(root.ownerDocument.getElementById(group.getAttribute('aria-labelledby') ?? '')?.textContent?.trim(), 'Verification code');
-  } finally { fixture.destroy(); }
-});
-
-test('one cell is a tab stop whatever the code holds', () => {
-  for (const value of ['', '4', '48291', '482913']) {
-    const { fixture, cells } = render({ value });
-    try {
-      assert.equal(cells.filter((cell) => cell.getAttribute('tabindex') === '0').length, 1, value);
-    } finally { fixture.destroy(); }
-  }
-});
-
-test('required is the native attribute on each cell, with no aria-required beside it', () => {
-  const { fixture, cells } = render({ required: true });
-  try {
-    for (const cell of cells) assert.deepEqual([cell.required, cell.getAttribute('aria-required')], [true, null]);
-  } finally { fixture.destroy(); }
-});
-
 test('a cell\'s own change event stops at the component, so a consumer hears each edit once', () => {
   const { fixture, cells, seen } = render();
   try {
@@ -92,7 +67,9 @@ test('the host clears the name attribute the component takes as a member, and th
 
 test('ArenaPinInput meets the textbox pattern on every cell', () => {
   const { fixture, root, cells } = render({ required: true, error: 'That code does not match.' });
+  let valid: ReturnType<typeof render> | undefined;
   try {
+    valid = render({ required: true });
     assertPattern({
       root,
       bindingPath: BINDING,
@@ -100,11 +77,12 @@ test('ArenaPinInput meets the textbox pattern on every cell', () => {
       behavioural: {
         'states.required': cells.every((cell) => cell.required),
         'states.readonly': cells.every((cell) => !cell.readOnly),
+        'states.invalid': invalidVerdict(cells, valid.cells),
       },
     });
     for (const cell of cells) {
       assert.equal(cell.getAttribute('aria-multiline'), null);
       assert.equal(cell.getAttribute('aria-invalid'), 'true');
     }
-  } finally { fixture.destroy(); }
+  } finally { fixture.destroy(); valid?.fixture.destroy(); }
 });

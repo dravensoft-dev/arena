@@ -19,7 +19,7 @@ One event on an `ArenaCalendar`'s schedule. The chip is a child of `ArenaCalenda
 | `title*` | primitive | `string` |  | What the chip reads. |
 | `start*` | primitive | `string` |  | ISO datetime the event begins. |
 | `end*` | primitive | `string` |  | ISO datetime the event ends. |
-| `colorId` | enum | `ArenaCatSlot` |  | Identity colour. Give the same entity the same slot everywhere and it keeps its colour across views. |
+| `colorId` | enum | `ArenaCatSlot` |  | Identity colour. Give the same entity the same ramp colour everywhere and it keeps its colour across views. |
 | `details` | array | `readonly string[]` | `[]` | Lines drawn under the time label, one per entry, each truncated to a single line: the people involved, a room, a capacity. Arena decides how many fit, shedding the last first and then the time label, and every entry reaches what the chip announces whether it is drawn or shed. |
 | `interactive` | primitive | `boolean` | `false` | Whether the chip can be activated. A boolean rather than "is `onActivate` bound?", because Arena never derives what it draws from what a consumer listens for. `ArenaTableRow.interactive` is a member for the same reason. An interactive chip is a <button> a keyboard user reaches with Enter from the hour cell it overlaps. A non-interactive one draws the same chip with no role and no activation, so a read-only schedule announces events rather than a screenful of buttons that do nothing. |
 | `actionsEnabled` | primitive | `boolean` | `false` | Whether the chip shows its action button. A boolean rather than "is the actions slot filled?": Arena never derives what it draws from what a consumer listens for. Projected content is not inspectable in at least one platform, so gating the drawing on it is a divergence waiting to happen. |
@@ -73,7 +73,7 @@ What "into the chip" means depends on the shape. A chip with no action panel *is
 **The panel's content is in the tree only while the panel is open.** Unmounting is what keeps the grid at one tab stop. Your buttons are yours and Arena cannot silence them. A permanently rendered row of them would be a permanent set of tab stops inside a grid that is supposed to have one. The panel is therefore not a place to keep state, because it is unmounted and remounted with every open.
 
 **Do**
-- Give the same entity the same `colorId` everywhere it appears. One slot per entity is what makes the ramp identity rather than decoration.
+- Give the same entity the same `colorId` everywhere it appears. One ramp colour per entity is what makes the ramp identity rather than decoration.
 - Preformat the `title`. Arena does no locale formatting and no truncation of your text beyond the chip's own ellipsis.
 - Let the chip be inert when nothing happens on activation. An interactive-looking chip that does nothing is worse than a plain one.
 - Keep the panel to a couple of controls. The panel opens over the schedule at the chip's own width. A panel wider than the day column it hangs from covers the events beside it.
@@ -84,40 +84,13 @@ What "into the chip" means depends on the shape. A chip with no action panel *is
 - Don't put children inside it. The chip takes none. The title and the time line are the chip body, and Arena draws both.
 - Don't render one outside an `ArenaCalendar`. The chip has no position of its own, and no useful meaning without the grid around it.
 - Don't use `disabled` to make a chip inert. Leave `interactive` off for that: an inert chip is a `<div>` with nothing to press, where a disabled one is a button that announces it cannot be pressed right now. The two read differently to a screen reader on purpose.
-- Don't reach past `colorId: 8`. There are eight ramp slots and they never cycle; a ninth entity wrapping to slot 1 claims two different things are the same thing.
+- Don't reach past `colorId: 8`. There are eight ramp colours and they never cycle; a ninth entity wrapping to ramp colour 1 claims two different things are the same thing.
 - Don't reach for `style` or `className`. The component takes neither, the same as every other Arena component under the API contract.
 - Don't write `defaultPanelOpen`. The prop is reachable and it is not API. The prop exists so a static render can assert the open branch, since `renderToStaticMarkup` cannot click. The prop is in no contract and in no exported interface, and it can be removed without a major.
 
-## Verifying the panel by hand
+## What the chip does in the grid
 
-`ArenaCalendar` has a render suite that walks its grid, and everything below is what
-that suite cannot reach: layout, motion and focus rings, which happy-dom does not
-implement. Serve the tree with `bun run demos`, open
-`frameworks/react/components/display/arena-calendar/ArenaCalendar.demo.generated.html`, and check all of:
-
-1. Tab reaches the schedule ONCE, and one more Tab leaves it. No chip and no
-   kebab is a stop of its own. An OPEN panel is the exception and is meant to be. The controls in it are yours and Arena cannot silence markup it does not own, and they exist in the tree only while the panel is open.
-2. From an hour cell, Enter steps into an event chip; Escape steps back out.
-   Walk a chip with a panel as well as one without: they are different elements
-   and only the browser tells them apart.
-3. On a chip with a panel, clicking the kebab opens the panel below the chip,
-   and every control in it is clickable. Check a SHORT event, 30 minutes or
-   less, not only a long one. The geometry is what this step is for. The keyboard route beside it is pinned by a render suite instead, because `ArenaCalendarEvent` binds `button` rather than `grid`. A chip mounted alone costs none of the RAM the grid rule exists to avoid.
-4. Escape with the panel open CLOSES the panel and puts focus back on the kebab rather than on the document. Focus would fall to the document if nothing caught the control being unmounted under it. A second Escape returns focus to the
-   hour cell.
-5. Arrow keys still move by day and hour from an hour cell, and clamp at all
-   four edges: the first day, the last day, the first hour and the last.
-6. Every chip sits inside its own day column, with an even gutter each side. Check the full-width ones especially, since a chip whose event overlaps nothing is the case that overruns. The chip is `box-sizing: border-box`, so the width `ArenaCalendar` injects is its outer edge. If you ever see a chip cross a column border, that property is the first thing to check.
-7. On a chip carrying a kebab, the title stops before the button and ellipsises
-   there rather than running underneath it. Check a full-width chip and a
-   half-width one: the half-width case has very little title left once the
-   kebab's band is reserved, and it is the one worth an opinion.
-8. A short event, 30 minutes or less, still shows its whole title. That event's chip is at the height floor, and under `border-box` the floor is the chip's outer height. A floor set too low clips the title with nothing failing.
-9. A chip sharing its slot with an overlap draws no time label, and a chip that
-   has the column to itself does. The label is redundant with the chip's own position on an hour grid, so it is the first thing to go when the chip is too small for it. The component already makes the same call on height.
-10. Take a chip that shares its column and is tall enough, such as a 90-minute event beside an overlap. The kebab sits at the BOTTOM-right, and the title runs the full width above it. On a short one it stays top-right with the title stopping
-    before it. Open the panel in the stacked case too: it hangs below the chip
-    rather than over its own body, and every control in it is clickable.
+Escape with the panel open closes the panel and puts focus back on the kebab, and a second Escape returns focus to the hour cell. Every chip sits inside its own day column with an even gutter each side, a full-width chip included. The chip is `box-sizing: border-box` and the width `ArenaCalendar` injects is its outer edge. On a chip carrying a kebab the title stops before the button and ellipsises there rather than running underneath it. A short event, 30 minutes or less, still shows its whole title, because the chip's height floor is its outer height. A chip draws its time label when it is at least 32px high and its slot is at least 100px wide. A chip sharing its slot with an overlap usually draws none. A chip that has the column to itself draws one once it is 32px high. A chip at least 56px high that draws no time label, such as a 90-minute event beside an overlap, puts the kebab at the bottom right. The title runs the full width above it. A short chip keeps the kebab top right with the title stopping before it. In the stacked case the panel hangs below the chip rather than over its own body.
 
 **One accepted limit, measured.** A **short, narrow** chip with actions has almost no title left.
 Reserving the kebab's 34px band is what stops the title being drawn underneath it, and on a full-width chip it costs nothing. On a chip sharing its slot (`cols: 2`, about 78px outer) it leaves a **36.58px** content box. A title like `Client review, Northwind` then renders as `Clien…`. **A tall one does not meet it.** At 56px or more the kebab moves to the chip's bottom-right, the reserve is dropped, and the title gets the whole **64.6px**. Truncation measured falls from 74% to 54% rather than to the 18% its kebab-less neighbours show, because that figure belongs to their shorter titles. 56px is the sum that makes title and kebab fit without overlap, so it reaches

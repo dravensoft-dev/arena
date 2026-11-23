@@ -15,14 +15,14 @@ One action with a menu of its alternatives, drawn as one control. The primary ha
 |---|---|---|---|---|
 | `content*` | slot |  |  | The primary half's label, such as "Deploy". Required, and guarded at runtime: a primary half with no label names no action. |
 | `icon` | primitive | `string` |  | Phosphor class name drawn before the label through ArenaIcon. Replaced by the spinner while loading. |
-| `destructive` | primitive | `boolean` | `false` | Whether the primary action destroys or removes something. Both halves draw the danger outline whatever emphasis the split is given: danger is never filled. |
+| `destructive` | primitive | `boolean` | `false` | Whether the primary action destroys or removes something. Both halves draw their border and label in the danger hue and fill with hue-danger-fill-strong, transparent by default, whatever emphasis the split is given. |
 | `loading` | primitive | `boolean` | `false` | Replaces the leading icon with a spinner and blocks the primary half. The caret stays usable, so another action can start while this one runs. |
 | `disabled` | primitive | `boolean` | `false` | Blocks both halves and dims the control. |
 | `type` | enum | `ArenaButtonType` | `"button"` | The primary half's native button behaviour. Defaults to 'button' so a split inside a form does not submit it by accident. |
 | `label*` | primitive | `string` |  | Names the group of both halves, such as "Deployment". Required, and guarded at runtime after trimming: a group with no name announces only that a group began. |
 | `menuLabel*` | primitive | `string` |  | Names the caret half, such as "More deploy options". Required, and guarded at runtime after trimming: a caret is a glyph, so this name is all a screen reader hears. |
 | `items*` | array | `readonly ArenaMenuItem[]` |  | The menu's entries, in order: activatable rows, dividers and group headers. |
-| `align` | enum | `ArenaMenuAlign` | `"end"` | Which edge of the whole split the panel lines up with: start is the primary half's outer edge, end the caret's outer edge. |
+| `align` | enum | `ArenaMenuAlign` | `"end"` | Which edge of the whole split the panel lines up with: start is the primary half's outer edge, end the caret's outer edge, in either page direction. |
 | `activate` | event |  |  | The primary half was activated, by pointer or by keyboard. Never reported while loading or disabled. The native click is never stopped, so a listener on the document hears every click inside the primary half; this event reports only the activation. |
 | `select` | event | `ArenaMenuItem` |  | A menu entry was activated; carries the whole item. A disabled entry reports nothing, and a divider or a header cannot be activated at all. |
 
@@ -50,7 +50,7 @@ One action with a menu of its alternatives, drawn as one control. The primary ha
 - `TypeAhead`: typing a character moves focus to the next enabled row whose label starts with it; characters typed in rapid succession match on the accumulated string.
 <!-- @keys end -->
 
-**The split is the view's one primary action.** The default emphasis is `arena-emphasis-primary`, and a view holds one. Write `class="arena-emphasis-secondary"` or `class="arena-emphasis-ghost"` on any other split.
+**The split's default emphasis is `arena-emphasis-primary`.** Write `class="arena-emphasis-secondary"` or `class="arena-emphasis-ghost"` on a split that should sit quieter.
 
 **Two names, both required.** `label` names the group of both halves, and `menuLabel` names the caret. A blank one throws. The primary half is named by its content.
 
@@ -62,11 +62,11 @@ One action with a menu of its alternatives, drawn as one control. The primary ha
 
 **`select` carries the whole item.** A disabled entry reports nothing, and a divider or a header cannot be activated.
 
-**`destructive` draws the danger outline on both halves.** Danger is never filled.
+**`destructive` draws both halves in the danger hue.** The border and label take the hue, and the fill is `hue-danger-fill-strong`, transparent by default.
 
 **Don't**
 - Don't wrap an `arena-button` and an `arena-menu` to get this look, because the joint is not reachable from a class.
-- Don't add a second primary split to a view, or ask for a filled danger half.
+- Don't ask for a danger half in a fill of its own: the fill is the role `hue-danger-fill-strong`.
 - Don't pass a node as the caret or as a name. The glyph is Arena's, and the names are strings.
 - Don't put submenus, forms or focusable content in the menu. `arena-menu` refuses them.
 - Don't make it a toolbar, or add a roving tab stop between the halves.

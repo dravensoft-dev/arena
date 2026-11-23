@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useArenaContainerWidth } from '../../../UseArenaContainerWidth.ts';
-import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, arenaSrOnly, arenaAreaFill, arenaPlotWidth, arenaRailStyle, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals.ts';
+import { useArenaContainerWidth, useArenaTextScale } from '../../../UseArenaContainerWidth.ts';
+import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, arenaSrOnly, arenaTextRoom, arenaAreaFill, arenaPlotWidth, arenaRailStyle, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals.ts';
 import { arenaWarnOnce } from '../../../WarnOnce.ts';
 import {
   arenaLinearScale, arenaPointScale, arenaPointAt, arenaScaleValue, arenaNearestPointIndex,
 } from '../ChartScales.ts';
 import { arenaLinePoints, arenaLineAreaPath, arenaCurvePath, arenaCurveAreaPath } from '../ChartMarks.ts';
-import { arenaPlotBox, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY, arenaValueGutter } from '../ChartAxis.ts';
+import { arenaPlotBox, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY, arenaValueGutter, arenaLabelStride } from '../ChartAxis.ts';
 import { arenaChartTable, arenaSeriesColors, arenaSwatchHue, arenaSeriesDomain, arenaSeriesPointCount } from '../ChartSeries.ts';
 import { arenaLegendStrip } from '../ChartLegend.ts';
 import { arenaRailAnchorX, arenaTooltipAnchor } from '../ChartTooltip.ts';
@@ -26,13 +26,13 @@ export interface ArenaLineChartProps {
   className?: ArenaLineChartClass;
 
 
-  /** One label per point, in the same order as every series' `values`. A label with no value in a series ends that series' line there rather than dropping to zero. */
+  /** One label per point, in the same order as every series' `values`. A label with no value in a series ends that series' line there rather than dropping to zero. Every n-th label is drawn when the labels do not fit their band, and the data table carries all of them. */
   labels: readonly string[];
 
   /** The plotted series, drawn as one polyline each over the same ordered sequence. One series is the common case and draws exactly what it drew before. The area fill is refused past one series, because two fills occlude each other and the reader cannot tell which value either edge belongs to. */
   series: readonly ArenaSeries[];
 
-  /** The ramp slot the first series takes when it names no colour of its own. Each later series takes the next slot, and after the last slot the count starts again at the first. A series' `colorId` or `colorIds` keeps the slot it names. Absent, 1. */
+  /** The ramp colour the first series takes when it names no colour of its own. Each later series takes the next ramp colour, and after the last ramp colour the count starts again at the first. A series' `colorId` or `colorIds` keeps the ramp colour it names. Absent, 1. */
   colorStart?: ArenaCatSlot;
 
   /** Names the chart for its accessible name and for the caption of its data table. The name is the CHART's, not a series': a series names itself. Required and guarded rather than defaulted, because a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing. Two charts on one page would announce identically. */
@@ -73,12 +73,13 @@ export function ArenaLineChart({ className,
   if (!labels) throw new Error('ArenaLineChart: `labels` is required');
   if (!series) throw new Error('ArenaLineChart: `series` is required');
   const [ref, measured] = useArenaContainerWidth();
+  const room = arenaTextRoom(useArenaTextScale());
   const rail = useRef<HTMLDivElement>(null);
   const [hover, setHover] = useState<number | null>(null);
 
   const available = measured ?? 600;
   const n = arenaSeriesPointCount(series);
-  const width = arenaPlotWidth(available, n, minPointSpacing);
+  const width = arenaPlotWidth(available, n, minPointSpacing, room);
   const scrolls = width > available;
   const [view, syncView] = useArenaRailView(rail, [measured, scrolls, width]);
   const fmt = arenaValueWriter({ prefix: valuePrefix, suffix: valueSuffix, format: valueFormat });
@@ -96,11 +97,12 @@ export function ArenaLineChart({ className,
   const fills = area && series.length === 1;
 
   const domain = arenaSeriesDomain(series);
-  const strip = arenaLegendStrip(height, series.length);
-  const gutter = arenaValueGutter(domain, fmt);
-  const box = arenaPlotBox(width, strip.plotH, gutter);
+  const strip = arenaLegendStrip(height, series.length, false, room);
+  const gutter = arenaValueGutter(domain, fmt, room);
+  const box = arenaPlotBox(width, strip.plotH, gutter, room);
   const yScale = arenaLinearScale(domain.min, domain.max, box.y + box.h, box.y);
   const xScale = arenaPointScale(n, box.x, box.w);
+  const stride = arenaLabelStride(xScale.step, labels, room);
 
   useEffect(() => {
     const region = rail.current;
@@ -111,7 +113,7 @@ export function ArenaLineChart({ className,
     syncView();
   }, [hover, scrolls, xScale.step, measured]);
   const axis = arenaAxisModel(yScale, domain, fmt);
-  const colors = series.map((one, s) => arenaSeriesColors(one, 1, arenaCatRotate(colorStart, s), 'ArenaLineChart', colorStart)[0] as string);
+  const colors = series.map((one, s) => arenaSeriesColors(one, 1, arenaCatRotate(colorStart, s), colorStart)[0] as string);
   const table = arenaChartTable(locale.chartTablePoint, series, labels, fmt);
 
   const plotted = series.map(
@@ -175,7 +177,7 @@ export function ArenaLineChart({ className,
         {
 
 }
-        {Array.from({ length: n }, (_, i) => (
+        {Array.from({ length: n }, (_, i) => i % stride === 0 && (
           <text key={i} x={arenaPointAt(xScale, i)} y={arenaCategoryLabelY(strip.plotH)} textAnchor="middle"
             fill={ARENA_INK_MUTED} fontFamily="var(--font-body)" style={{ fontSize: 'var(--dz-text-xs)' }}>{labels[i] ?? ''}</text>
         ))}

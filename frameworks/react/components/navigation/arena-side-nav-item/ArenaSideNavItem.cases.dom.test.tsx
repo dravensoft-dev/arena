@@ -7,13 +7,16 @@
  * `states.disabled` is BEHAVIOURAL, so the verdict below is earned by rendering a disabled item
  * and acting on it rather than declared. The component gained `disabled` because casing it made
  * the gap visible: bound to `none` the requirement never applied, and a real <button> with no
- * disabled concept read as having no interactive pattern at all. */
+ * disabled concept read as having no interactive pattern at all. The last case reads the generated sheet for the fade's slots. */
 import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import React from 'react';
 import { mount, cleanup, act } from '../../../test/Harness.tsx';
 import { assertPatternCases, REACT_COMPONENTS } from '../../../test/AssertPattern.tsx';
+import { commandButtonVerdict } from '../../../test/StateVerdicts.ts';
+import { ArenaSideNav } from '../arena-side-nav/ArenaSideNav.tsx';
 import { ArenaSideNavItem } from './ArenaSideNavItem.tsx';
 
 afterEach(cleanup);
@@ -81,6 +84,7 @@ test('ArenaSideNavItem meets both of the shapes href chooses between', () => {
             'keyboard.Enter': true,
             'keyboard.Space': true,
             'states.disabled': true,
+            'states.pressed': commandButtonVerdict(el!),
           },
         };
       },
@@ -101,4 +105,25 @@ test('a native button answers Enter and Space without the component handling eit
   assert.equal(activated, 0,
     'a dispatched keydown is not a platform activation; happy-dom does not synthesise the click a real browser would, '
     + 'which is exactly why keyboard.Enter and keyboard.Space are BEHAVIOURAL and declared rather than measured here');
+});
+
+const SIDE_NAV_SHEET = new URL('../../../../tailwind/consume/components/navigation/arena-side-nav/ArenaSideNav.styles.generated.css', import.meta.url);
+
+test('a disabled item fades through its own slot, and a current one through the selected-disabled slot', () => {
+  const root = mount(
+    <ArenaSideNav ariaLabel="Workspace navigation" active="overview">
+      <ArenaSideNavItem id="overview" label="Overview" disabled />
+      <ArenaSideNavItem id="billing" label="Billing" disabled />
+    </ArenaSideNav>,
+  );
+  const [current, rest] = [...root.querySelectorAll('.arena-side-nav__item')] as [Element, Element];
+  assert.ok(current && rest, 'both items render');
+  assert.equal(current.getAttribute('aria-current'), 'page', 'the overview item is the current one');
+  assert.equal(rest.hasAttribute('aria-current'), false, 'and the other is not');
+  assert.equal(current.getAttribute('aria-disabled'), 'true');
+  assert.equal(rest.getAttribute('aria-disabled'), 'true');
+  const css = readFileSync(SIDE_NAV_SHEET, 'utf8');
+  assert.match(css, /opacity:\s*var\(--navigation-item-fade-disabled,/);
+  assert.match(css, /opacity:\s*var\(--navigation-item-fade-selected-disabled,/);
+  assert.match(css, /\[aria-disabled="true"\]\s*\{\s*&:active\s*\{\s*--tw-scale-x: 100%/, 'a refused item does not press');
 });

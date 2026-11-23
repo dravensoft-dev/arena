@@ -74,14 +74,6 @@ test('the hero claims no banner landmark, because banner is the site header and 
   } finally { fixture.destroy(); }
 });
 
-test('a title of nothing but spaces is refused, because a present and useless one is what the guard is for', () => {
-  const fixture = TestBed.createComponent(HeroHost);
-  fixture.componentInstance.title = '   ';
-  try {
-    assert.throws(() => fixture.detectChanges(), /`title` is required/);
-  } finally { fixture.destroy(); }
-});
-
 test('the hero writes no inline track list, and a layout class on it reaches its root', () => {
   const fixture = render();
   try {

@@ -1,7 +1,7 @@
 {
   "component": "ArenaAlert",
   "description": "A tone-coloured message with an optional icon, a single action, and optional dismissal.",
-  "affordances": [],
+  "affordances": ["hover", "press"],
   "api": {
     "tone": { "form": "enum", "type": "ArenaAlertTone", "default": "info",
               "description": "The severity: colour, default icon, and (for danger) the alert role." },

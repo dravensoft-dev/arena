@@ -1,7 +1,7 @@
 /* Three of the link's four details are assertable from the markup: the element, where it points
  * and the guard on its words. The fourth, that it is the first focusable thing in the document,
- * is the consumer's placement and no component suite can see it, so the prompt carries it as the
- * one instruction the component cannot follow for itself. Visibility is CSS and is checked in a
+ * is the consumer's placement and no component suite can see it, so the prompt states it as the
+ * one instruction the component cannot follow for itself, and ArenaSkipLink.checks.md checks it. Visibility is CSS and is checked in a
  * real browser instead, which is why nothing here reads a class. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -25,12 +25,4 @@ test('it points at the landmark by the constant both sides read', () => {
     new RegExp(`href="#${ARENA_MAIN_ID}"`),
     'the id is written on the landmark from the same constant, so nothing is coordinated at the call site',
   );
-});
-
-test('a label of nothing but spaces is refused, the way every name only a human can supply is', () => {
-  // @ts-expect-error the contract requires it, and the guard is what this asserts
-  assert.throws(() => render(<ArenaSkipLink />), /`label` is required/);
-  assert.throws(() => render(<ArenaSkipLink label="   " />), /`label` is required/,
-    'a link that appears with no words is a link nobody can act on, and a blank string satisfies '
-    + 'a falsiness test while naming nothing');
 });

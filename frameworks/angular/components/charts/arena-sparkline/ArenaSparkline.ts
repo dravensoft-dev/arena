@@ -101,10 +101,10 @@ export class ArenaSparkline {
   protected readonly locale = inject(ARENA_LOCALE);
   /** One label per point, in the order of the series' `values`. A label heads its row of the hidden table and the tooltip. A label with no value ends the line there rather than dropping it to zero. */
   readonly labels = input.required<readonly string[]>();
-  /** The series drawn, exactly one. A second warns and is ignored, because a sparkline has no legend to say which line is which. `tone` is the only trend colour; without it the line takes the identity colour of the slot `colorStart` names, which says nothing about whether the trend is good. */
+  /** The series drawn, exactly one. A second warns and is ignored, because a sparkline has no legend to say which line is which. `tone` is the only trend colour; without it the line takes the ramp colour `colorStart` names, which says nothing about whether the trend is good. */
   readonly series = input.required<readonly ArenaSeries[]>();
 
-  /** The ramp slot the line takes when its series names no colour of its own. Absent, 1. */
+  /** The ramp colour the line takes when its series names no colour of its own. Absent, 1. */
   readonly colorStart = input<ArenaCatSlot, ArenaCatSlot | undefined>(
     1,
     { transform: (value) => value ?? 1 },
@@ -157,7 +157,7 @@ export class ArenaSparkline {
     if (!label) throw new Error('ArenaSparkline: `label` is required (it names the sparkline for the accessible name, and nothing can derive that)');
     return arenaPhrase(this.locale.sparklineChartName, { label });
   });
-  protected readonly color = computed(() => arenaSeriesColors(this.one(), 1, arenaCatRotate(this.colorStart(), 0), 'ArenaSparkline', this.colorStart())[0] as string);
+  protected readonly color = computed(() => arenaSeriesColors(this.one(), 1, arenaCatRotate(this.colorStart(), 0), this.colorStart())[0] as string);
   protected readonly areaFill = computed(() => arenaAreaFill(this.color()));
 
   private readonly box = computed(() => arenaSparkBox(this.width(), this.height()));

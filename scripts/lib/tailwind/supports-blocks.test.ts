@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  blindFallbacks, dropBlindFallbacks, inkOf, mergeSupports, parseBlocks, repeatedSupports,
+  blindFallbacks, dropBlindFallbacks, hoistPseudoSupports, inkOf, mergeSupports, parseBlocks, pseudoSupports, repeatedSupports,
 } from './supports-blocks.ts';
 
 const SUPPORTS = '@supports (color: color-mix(in lab, red, red))';
@@ -109,4 +109,115 @@ test('a merge a plain declaration of the same property would win is refused rath
 `;
   assert.equal(mergeSupports(risky), risky);
   assert.equal(repeatedSupports(risky).length, 1);
+});
+
+test('two blocks that each wrap one rule of the same selector merge into the last, and a plain declaration of the same property between them refuses it', () => {
+  const rule = (body: string) => `    .a:hover {\n      ${body}\n    }`;
+  const wrapped = (head: string) => `@layer utilities {
+  @media (hover: hover) {
+${rule('color: var(--ink-body);')}
+    ${SUPPORTS} {
+${rule('color: color-mix(in oklab, var(--ink-body) 82%, transparent);')}
+    }
+${rule(head)}
+    ${SUPPORTS} {
+${rule('--arena-icon-ink: color-mix(in oklab, var(--ink-body) 82%, transparent);')}
+    }
+  }
+}
+`;
+  const merged = mergeSupports(wrapped('--arena-icon-ink: var(--ink-body);'));
+  assert.equal(repeatedSupports(merged).length, 0);
+  const mix = merged.indexOf('color: color-mix(in oklab, var(--ink-body) 82%');
+  assert.ok(mix > merged.indexOf('--arena-icon-ink: var(--ink-body);'), 'the moved mix lands in the last block, after the plain declarations it held back');
+  assert.ok(merged.includes('--arena-icon-ink: color-mix(in oklab, var(--ink-body) 82%, transparent);'));
+  const risky = wrapped('color: var(--ink-muted);');
+  assert.equal(mergeSupports(risky), risky);
+});
+
+test('a wrapped block is not moved into a last block that already holds its property', () => {
+  const rule = (body: string) => `    .a:hover {\n      ${body}\n    }`;
+  const held = `@layer utilities {
+  @media (hover: hover) {
+${rule('color: var(--ink-body);')}
+    ${SUPPORTS} {
+${rule('color: color-mix(in oklab, var(--ink-body) 82%, transparent);')}
+    }
+    ${SUPPORTS} {
+${rule('color: color-mix(in oklab, var(--ink-muted) 64%, transparent);')}
+    }
+  }
+}
+`;
+  assert.equal(mergeSupports(held), held);
+  assert.equal(repeatedSupports(held).length, 1);
+});
+
+const MIX = 'color-mix(in oklab, currentcolor 50%, transparent)';
+const PSEUDO_ROWS = [
+  {
+    name: 'the emitted form nests the block in `&::placeholder`',
+    css: `.arena-input__input {\n    &::placeholder {\n      color: A;\n      ${SUPPORTS} {\n        color: B;\n      }\n    }\n}\n`,
+    want: `.arena-input__input {\n    &::placeholder {\n      color: A;\n    }\n    ${SUPPORTS} {\n      &::placeholder {\n        color: B;\n      }\n    }\n}\n`,
+    found: 1,
+  },
+  {
+    name: 'the preflight form nests the block in `::placeholder` inside an outer condition',
+    css: `@supports (a: b) {\n  ::placeholder {\n    color: currentcolor;\n    ${SUPPORTS} {\n      color: ${MIX};\n    }\n  }\n}\n`,
+    want: `@supports (a: b) {\n  ::placeholder {\n    color: currentcolor;\n  }\n  ${SUPPORTS} {\n    ::placeholder {\n      color: ${MIX};\n    }\n  }\n}\n`,
+    found: 1,
+  },
+  {
+    name: 'a block inside a pseudo-class rule stays',
+    css: `.a {\n  &:focus {\n    color: A;\n    ${SUPPORTS} {\n      color: B;\n    }\n  }\n}\n`,
+    want: `.a {\n  &:focus {\n    color: A;\n    ${SUPPORTS} {\n      color: B;\n    }\n  }\n}\n`,
+    found: 0,
+  },
+  {
+    name: 'a last declaration without a semicolon keeps the block in place',
+    css: `.a {\n  &::placeholder {\n    color: A;\n    ${SUPPORTS} {\n      color: B;\n      opacity: 1\n    }\n  }\n}\n`,
+    want: `.a {\n  &::placeholder {\n    color: A;\n    ${SUPPORTS} {\n      color: B;\n      opacity: 1\n    }\n  }\n}\n`,
+    found: 1,
+    left: 1,
+  },
+  {
+    name: 'a later declaration of the same property keeps the block in place',
+    css: `.a {\n  &::placeholder {\n    ${SUPPORTS} {\n      color: B;\n    }\n    color: A;\n  }\n}\n`,
+    want: `.a {\n  &::placeholder {\n    ${SUPPORTS} {\n      color: B;\n    }\n    color: A;\n  }\n}\n`,
+    found: 1,
+    left: 1,
+  },
+  {
+    name: 'a later declaration of another property lets the block move',
+    css: `.a {\n  &::placeholder {\n    ${SUPPORTS} {\n      color: B;\n    }\n    opacity: 1;\n  }\n}\n`,
+    want: `.a {\n  &::placeholder {\n    opacity: 1;\n  }\n  ${SUPPORTS} {\n    &::placeholder {\n      color: B;\n    }\n  }\n}\n`,
+    found: 1,
+  },
+  {
+    name: 'two pseudo-element rules in one parent each move after their own rule',
+    css: `.a {\n  &::before {\n    color: A;\n    ${SUPPORTS} {\n      color: B;\n    }\n  }\n  &::after {\n    color: C;\n    ${SUPPORTS} {\n      color: D;\n    }\n  }\n}\n`,
+    want: `.a {\n  &::before {\n    color: A;\n  }\n  ${SUPPORTS} {\n    &::before {\n      color: B;\n    }\n  }\n  &::after {\n    color: C;\n  }\n  ${SUPPORTS} {\n    &::after {\n      color: D;\n    }\n  }\n}\n`,
+    found: 2,
+  },
+  {
+    name: 'a comma list of pseudo-elements moves whole',
+    css: `.a {\n  &::placeholder, &::-webkit-input-placeholder {\n    color: A;\n    ${SUPPORTS} {\n      color: B;\n    }\n  }\n}\n`,
+    want: `.a {\n  &::placeholder, &::-webkit-input-placeholder {\n    color: A;\n  }\n  ${SUPPORTS} {\n    &::placeholder, &::-webkit-input-placeholder {\n      color: B;\n    }\n  }\n}\n`,
+    found: 1,
+  },
+  {
+    name: 'a top-level pseudo-element rule moves its block after itself',
+    css: `::placeholder {\n  color: A;\n  ${SUPPORTS} {\n    color: B;\n  }\n}\n`,
+    want: `::placeholder {\n  color: A;\n}\n${SUPPORTS} {\n  ::placeholder {\n    color: B;\n  }\n}\n`,
+    found: 1,
+  },
+];
+
+test('a block nested in a pseudo-element rule moves after the rule, and one in a pseudo-class rule stays', () => {
+  for (const row of PSEUDO_ROWS) {
+    const out = hoistPseudoSupports(row.css);
+    assert.equal(out, row.want, `${row.name}: the hoisted sheet`);
+    assert.equal(pseudoSupports(row.css).length, row.found, `${row.name}: survivors before`);
+    assert.equal(pseudoSupports(out).length, row.left ?? 0, `${row.name}: survivors after`);
+  }
 });

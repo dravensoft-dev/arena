@@ -124,6 +124,29 @@ export function bindingCases(binding: BehaviourBinding): BindingCase[] {
   }));
 }
 
+export function caseSetRefusal(bindingPath: string, declared: Pick<BindingCase, 'name'>[], rendered: string[]): string | null {
+  if (declared.length === 1 && declared[0]?.name === null) {
+    return `${bindingPath}\n  declares no cases — assert it with assertPattern instead.`;
+  }
+  const want = declared.map((c) => c.name).filter((n): n is string => n !== null);
+  const seen = new Set<string>();
+  const dupes = new Set<string>();
+  for (const n of want) {
+    if (seen.has(n)) dupes.add(n);
+    seen.add(n);
+  }
+  if (dupes.size) {
+    return `${bindingPath}\n  declares the same case name more than once: ${[...dupes].join(', ')}`;
+  }
+  const missing = want.filter((n) => !rendered.includes(n));
+  const unknown = rendered.filter((n) => !want.includes(n));
+  if (!missing.length && !unknown.length) return null;
+  return `${bindingPath}\n  the suite must render every declared case, and only those.\n` +
+    (missing.length ? `  - never rendered: ${missing.join(', ')}\n` : '') +
+    (unknown.length ? `  - not declared in the binding: ${unknown.join(', ')}\n` : '') +
+    `  declared: ${want.join(', ')}`;
+}
+
 export function validateBinding(component: string, layer: string, binding: BehaviourBinding, patterns: any) {
   const problems = [];
   const where = `${layer}/${component}`;

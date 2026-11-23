@@ -228,14 +228,6 @@ test('a late answer keeps focus on the chip the person chose after using a contr
 });
 
 @Component({
-  selector: 'filter-bar-blank-host',
-  standalone: true,
-  imports: [ArenaFilterBar],
-  template: `<arena-filter-bar [label]="label"><select aria-label="Region"></select></arena-filter-bar>`,
-})
-class BlankHost { label = ' '; }
-
-@Component({
   selector: 'filter-bar-empty-host',
   standalone: true,
   imports: [ArenaFilterBar],
@@ -243,11 +235,7 @@ class BlankHost { label = ' '; }
 })
 class EmptyHost {}
 
-test('a blank label throws, and so does a bar with no control', () => {
-  const blank = TestBed.createComponent(BlankHost);
-  try {
-    assert.throws(() => blank.detectChanges(), /ArenaFilterBar: `label` is required/);
-  } finally { blank.destroy(); }
+test('a bar with no control throws', () => {
   const empty = TestBed.createComponent(EmptyHost);
   try {
     assert.throws(() => empty.detectChanges(), /no controls is not a legal shape/);

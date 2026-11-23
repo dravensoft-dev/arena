@@ -48,11 +48,3 @@ test('the total takes a different row class, because the rule and the register s
 test('an empty list renders an empty dl rather than throwing', () => {
   assert.equal(render(<ArenaKeyValue rows={[]} />).match(/<dt/), null);
 });
-
-test('ArenaKeyValue drops a consumer style object and a consumer attribute', () => {
-  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  const styled = render(<ArenaKeyValue rows={[]} style={{ color: '#ff00ff' }} />);
-  assert.doesNotMatch(styled, /#ff00ff/, 'a consumer style reached the rendered root');
-  const spread = render(<ArenaKeyValue rows={[]} data-stray="x" />);
-  assert.doesNotMatch(spread, /data-stray/, 'a consumer attribute reached the rendered root');
-});

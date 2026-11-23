@@ -2,9 +2,9 @@
   "component": "ArenaBreadcrumbs",
   "slots": {
     "root": "flex items-center flex-wrap gap-inline",
-    "crumb": "inline-flex items-center justify-center min-h-ctl-h-sm min-w-ctl-h-sm font-face-label text-trail tracking-trail text-ink-muted/(--level-ink-muted) no-underline active:scale-[var(--press-scale)] motion-reduce:active:scale-100",
-    "current": "font-face-label text-trail tracking-trail text-ink-body font-bold",
-    "separator": "font-face-label text-trail tracking-trail text-ink-muted/(--level-ink-muted)"
+    "crumb": "inline-flex items-center justify-center min-h-ctl-h-sm min-w-ctl-h-sm font-face-label text-trail tracking-trail no-underline text-[color:color-mix(in_oklab,var(--navigation-quiet-link-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)] active:scale-[var(--press-scale)] motion-reduce:active:scale-100 focus-visible:outline-hidden focus-visible:shadow-[inset_0_0_0_var(--bw-focus)_var(--edge-focus)]",
+    "current": "font-face-label text-trail tracking-trail text-[color:color-mix(in_oklab,var(--text-body-ink-rest,var(--ink-body))_var(--level-ink-body),transparent)] font-bold",
+    "separator": "font-face-label text-trail tracking-trail text-[color:color-mix(in_oklab,var(--text-muted-ink-rest,var(--ink-muted))_var(--level-ink-muted),transparent)]"
   },
   "kind": {
     "root": "none",
@@ -18,7 +18,7 @@
   "variants": {
     "linked": {
       "true": {
-        "crumb": "cursor-pointer transition-[color] duration-[var(--dur-hover)] ease-hover hover:text-ink-body/(--level-ink-body)"
+        "crumb": "cursor-pointer transition-[color] duration-[var(--dur-hover)] ease-hover hover:text-[color:color-mix(in_oklab,var(--navigation-quiet-link-ink-hover,var(--ink-body))_var(--level-ink-body),transparent)]"
       },
       "false": {}
     }

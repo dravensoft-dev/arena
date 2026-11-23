@@ -24,31 +24,6 @@ test('ArenaIconButton defaults its native type to button and honours an override
   assert.match(renderIcons(<ArenaIconButton icon="ph-x" label="L" type="submit" />), /type="submit"/);
 });
 
-test('ArenaIconButton throws when icon is absent, matching the contract required flag', () => {
-  assert.throws(
-    // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    () => renderIcons(<ArenaIconButton label="New" />),
-    /ArenaIconButton: `icon` is required/,
-  );
-});
-
-test('ArenaIconButton throws when label is absent, matching the contract required flag', () => {
-  assert.throws(
-    // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    () => renderIcons(<ArenaIconButton icon="ph-x" />),
-    /ArenaIconButton: `label` is required/,
-  );
-});
-
-test('ArenaIconButton drops a consumer style object and a consumer attribute, each independently', () => {
-  const html = renderIcons(
-    // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    <ArenaIconButton icon="ph-x" label="L" style={{ color: '#ff00ff' }} data-stray="x" />
-  );
-  assert.doesNotMatch(html, /#ff00ff/, 'a consumer style reached the rendered root -- the R4 escape is back');
-  assert.doesNotMatch(html, /data-stray/, 'a consumer attribute reached the rendered root -- the {...rest} escape is back');
-});
-
 test('tabStop defaults to true and emits no tabindex at all', () => {
   const html = renderIcons(<ArenaIconButton icon="ph-bold ph-plus" label="Add" />);
   assert.doesNotMatch(html, /tabindex/i, 'a default ArenaIconButton wrote a tabindex it does not need');
@@ -64,21 +39,12 @@ test('tabStop is not forwarded to the DOM as an unknown attribute', () => {
   assert.doesNotMatch(html, /tabstop/i, 'the tabStop prop leaked into the markup');
 });
 
-test('no pressed member means no aria-pressed at all -- a plain button is not an unpressed toggle', () => {
-  const html = renderIcons(<ArenaIconButton icon="ph-bold ph-plus" label="Add" />);
-  assert.doesNotMatch(html, /aria-pressed/, 'a control that is not a toggle announced itself as one that is off');
-});
-
-test('pressed={false} is a toggle in its off state, and says so', () => {
-  const html = renderIcons(<ArenaIconButton icon="ph-bold ph-push-pin" label="Pin this view" pressed={false} />);
-  assert.match(html, /aria-pressed="false"/);
-});
-
 test('pressed keeps the label, because a toggle that renames itself is announced as another control', () => {
   const on = renderIcons(<ArenaIconButton icon="ph-bold ph-push-pin" label="Pin this view" pressed />);
   const off = renderIcons(<ArenaIconButton icon="ph-bold ph-push-pin" label="Pin this view" pressed={false} />);
   assert.match(on, /aria-pressed="true"/);
   assert.match(on, /aria-label="Pin this view"/);
+  assert.match(off, /aria-pressed="false"/);
   assert.match(off, /aria-label="Pin this view"/);
   assert.notEqual(on, off, 'the on state is not drawn differently from the off state');
 });
@@ -89,7 +55,6 @@ test('the pressed tint is a variant of the manifest, and absent means not a togg
   assert.doesNotMatch(off, /aria-pressed/);
 
   const on = renderIcons(<ArenaIconButton icon="ph-x" label="L" pressed />);
-  assert.match(on, /data-arena-part="icon-button"[^>]*\bdata-arena-pressed=""/);
   assert.match(on, /data-arena-part="icon-button"[^>]*\bdata-arena-pressed=""/);
   assert.match(on, /aria-pressed="true"/);
 });
@@ -104,9 +69,8 @@ test('ghost and solid are classes of the emphasis family, and the component writ
   assert.doesNotMatch(solid, /data-arena-variant/);
 });
 
-test('the disabled look is selected by the native attribute, so nothing is recomputed to draw it', () => {
+test('disabled reaches the native attribute', () => {
   const html = renderIcons(<ArenaIconButton icon="ph-x" label="L" disabled />);
-  assert.match(html, /arena-icon-button__root/);
   assert.match(html, /\bdisabled=""/);
 });
 

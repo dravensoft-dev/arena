@@ -4,10 +4,6 @@ import { arenaToastStyles } from './ArenaToast.variants';
 import { ARENA_TOAST_DISMISS } from './ArenaToast';
 import { dismissDefault, dismissActionable } from '../../../Tokens.generated';
 
-function tokens(classString: string): string[] {
-  return classString.split(/\s+/).filter(Boolean);
-}
-
 test('only root and action vary with tone -- the body, title, pinned marker, message and close are constant', () => {
   const neutral = arenaToastStyles({ tone: 'neutral' });
   const danger = arenaToastStyles({ tone: 'danger' });

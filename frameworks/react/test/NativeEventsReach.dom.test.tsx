@@ -74,14 +74,14 @@ test('ArenaCard: a disabled interactive card hears the click and activates nothi
   assert.equal(n, 0);
 });
 
-test('ArenaCard: Enter on an interactive card reaches the document as a keydown (N3)', () => {
+test('ArenaCard: Enter on an interactive card reaches the document as a keydown', () => {
   let n = 0;
   const root = mount(<ArenaCard title="Card" interactive onActivate={() => { n += 1; }}>Body</ArenaCard>);
   assert.equal(heardByDocument(root.firstElementChild!, enter()), 1);
   assert.equal(n, 1);
 });
 
-test('ArenaCard: Space in a field inside an interactive card types into the field and activates nothing (N3)', () => {
+test('ArenaCard: Space in a field inside an interactive card types into the field and activates nothing', () => {
   let n = 0;
   const root = mount(<ArenaCard title="Form" interactive onActivate={() => { n += 1; }}><input aria-label="Note" /></ArenaCard>);
   const key = space();
@@ -162,7 +162,7 @@ test('ArenaTableRow: a click on a disabled interactive row reaches the document 
   assert.equal(n, 0);
 });
 
-test('ArenaTableRow: Enter on an interactive card-layout row reaches the document as a keydown (N3)', () => {
+test('ArenaTableRow: Enter on an interactive card-layout row reaches the document as a keydown', () => {
   let n = 0;
   const root = mount(
     <table role="presentation"><tbody role="presentation">
@@ -175,7 +175,7 @@ test('ArenaTableRow: Enter on an interactive card-layout row reaches the documen
   assert.equal(n, 1);
 });
 
-test('ArenaTableRow: Space in a field inside an interactive card-layout row types into the field and activates nothing (N3)', () => {
+test('ArenaTableRow: Space in a field inside an interactive card-layout row types into the field and activates nothing', () => {
   let n = 0;
   const root = mount(
     <table role="presentation"><tbody role="presentation">
@@ -198,21 +198,21 @@ const chip = (onActivate: () => void, extra: Record<string, unknown> = {}) => (
 const buttonNamed = (root: ParentNode, name: RegExp) =>
   [...root.querySelectorAll<HTMLElement>('button')].find((b) => name.test(b.getAttribute('aria-label') ?? ''))!;
 
-test('ArenaCalendarEvent: a click on the chip stops at the chip, alike in both layers (D2)', () => {
+test('ArenaCalendarEvent: a click on the chip stops at the chip, alike in both layers', () => {
   let n = 0;
   const root = mount(chip(() => { n += 1; }));
   assert.equal(heardByDocument(buttonNamed(root, /^Standup,/), click()), 0);
   assert.equal(n, 1);
 });
 
-test('ArenaCalendarEvent: a click on the body of a chip with a panel stops at the chip, alike in both layers (D2)', () => {
+test('ArenaCalendarEvent: a click on the body of a chip with a panel stops at the chip, alike in both layers', () => {
   let n = 0;
   const root = mount(chip(() => { n += 1; }, { actionsEnabled: true, actions: <button type="button">Delete</button> }));
   assert.equal(heardByDocument(buttonNamed(root, /^Standup,/), click()), 0);
   assert.equal(n, 1);
 });
 
-test('ArenaCalendarEvent: a click on a non-interactive chip stops at the chip and activates nothing (D2)', () => {
+test('ArenaCalendarEvent: a click on a non-interactive chip stops at the chip and activates nothing', () => {
   let n = 0;
   const root = mount(chip(() => { n += 1; }, { interactive: false }));
   assert.equal(heardByDocument(part(root, 'calendar.chip'), click()), 0);
@@ -257,7 +257,7 @@ test("ArenaCheckbox: a toggle's change reaches the document and valueChange carr
   assert.equal(typeof seen[0], 'boolean');
 });
 
-test("ArenaCheckboxGroup: a box's change reaches the document and the group's valueChange runs once (N1)", () => {
+test("ArenaCheckboxGroup: a box's change reaches the document and the group's valueChange runs once", () => {
   const sets: { values: readonly string[] }[] = [];
   const root = mount(
     <ArenaCheckboxGroup ariaLabel="Days" value={[]} onValueChange={(s) => sets.push(s)}>
@@ -270,7 +270,7 @@ test("ArenaCheckboxGroup: a box's change reaches the document and the group's va
   assert.ok(Array.isArray(sets[0]!.values));
 });
 
-test("ArenaRadioGroup: a radio's change reaches the document and the group's valueChange runs once (N1)", () => {
+test("ArenaRadioGroup: a radio's change reaches the document and the group's valueChange runs once", () => {
   const seen: unknown[] = [];
   const root = mount(
     <ArenaRadioGroup ariaLabel="Target" value="prod" name="env" onValueChange={(v) => seen.push(v)}>
@@ -374,7 +374,7 @@ test("ArenaSegmentedControl: an option's change reaches the document", () => {
   assert.equal(typeof seen[0], 'string');
 });
 
-test('ArenaPagination: valueChange reports a move and no native change exists to stop (N2)', () => {
+test('ArenaPagination: valueChange reports a move and no native change exists to stop', () => {
   const seen: unknown[] = [];
   const root = mount(<ArenaPagination page={3} pageCount={12} ariaLabel="Deployments" onValueChange={(p) => seen.push(p)} />);
   const next = [...root.querySelectorAll<HTMLButtonElement>('button')].find((b) => b.textContent === '4')!;
@@ -383,7 +383,7 @@ test('ArenaPagination: valueChange reports a move and no native change exists to
   assert.equal(typeof seen[0], 'number');
 });
 
-test('ArenaStepper: valueChange reports a move and no native change exists to stop (N2)', () => {
+test('ArenaStepper: valueChange reports a move and no native change exists to stop', () => {
   const seen: unknown[] = [];
   const steps = [{ label: 'Account' }, { label: 'Shipping' }, { label: 'Payment' }, { label: 'Review' }];
   const root = mount(<ArenaStepper ariaLabel="Checkout" steps={steps} index={2} interactive onValueChange={(i) => seen.push(i)} />);
@@ -393,7 +393,7 @@ test('ArenaStepper: valueChange reports a move and no native change exists to st
   assert.equal(typeof seen[0], 'number');
 });
 
-test('ArenaSlider: valueChange reports a move and no native change exists to stop (N2)', () => {
+test('ArenaSlider: valueChange reports a move and no native change exists to stop', () => {
   const seen: unknown[] = [];
   const root = mount(<ArenaSlider label="Volume" value={40} onValueChange={(v) => seen.push(v)} />);
   const thumb = root.querySelector<HTMLElement>('[role="slider"]')!;
@@ -403,7 +403,7 @@ test('ArenaSlider: valueChange reports a move and no native change exists to sto
   assert.equal(typeof seen[0], 'number');
 });
 
-test('ArenaCheckboxGroup: a box keeps its own onValueChange and the group reports the set (N1)', () => {
+test('ArenaCheckboxGroup: a box keeps its own onValueChange and the group reports the set', () => {
   const own: boolean[] = []; const sets: string[][] = [];
   const host = mount(<ArenaCheckboxGroup ariaLabel="Days" value={[]} onValueChange={(s) => sets.push([...s.values])}>
     <ArenaCheckbox value="mon" label="Mon" onValueChange={(c) => own.push(c)} /></ArenaCheckboxGroup>);

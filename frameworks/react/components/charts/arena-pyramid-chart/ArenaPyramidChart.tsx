@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useArenaContainerWidth } from '../../../UseArenaContainerWidth.ts';
-import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, arenaSrOnly, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals.ts';
+import { useArenaContainerWidth, useArenaTextScale } from '../../../UseArenaContainerWidth.ts';
+import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, arenaSrOnly, arenaTextRoom, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals.ts';
 import {
   arenaLinearScale, arenaBandScale, arenaBandCenter, arenaBandIndex, arenaBandMark, arenaScaleValue,
 } from '../ChartScales.ts';
@@ -32,7 +32,7 @@ export interface ArenaPyramidChartProps {
   /** Exactly two series, one for each side of the centre line, in order: the first is drawn to the left and the second to the right. Both carry counts rather than signed values, and the chart negates the first when it draws it. The accessible table therefore reads the numbers that were passed, and the picture reads the shape they make. A third series has nowhere to go and warns; a single one is a horizontal bar chart and should be one. */
   series: readonly ArenaSeries[];
 
-  /** The ramp slot the first series takes when it names no colour of its own. Each later series takes the next slot, and after the last slot the count starts again at the first. A series' `colorId` or `colorIds` keeps the slot it names. Absent, 1. */
+  /** The ramp colour the first series takes when it names no colour of its own. Each later series takes the next ramp colour, and after the last ramp colour the count starts again at the first. A series' `colorId` or `colorIds` keeps the ramp colour it names. Absent, 1. */
   colorStart?: ArenaCatSlot;
 
   /** Names the chart for its accessible name and for the caption of its data table. The CHART gets the name, and a series names itself. Required and guarded rather than defaulted, because a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing. Two charts on one page would announce identically. */
@@ -64,6 +64,7 @@ export function ArenaPyramidChart({ className,
   if (!labels) throw new Error('ArenaPyramidChart: `labels` is required');
   if (!series) throw new Error('ArenaPyramidChart: `series` is required');
   const [ref, measured] = useArenaContainerWidth();
+  const room = arenaTextRoom(useArenaTextScale());
   const [hover, setHover] = useState<number | null>(null);
 
   const width = measured ?? 600;
@@ -73,12 +74,12 @@ export function ArenaPyramidChart({ className,
   const away = (value: number) => fmt(Math.abs(value));
 
   const domain = arenaMirrorDomain(sides);
-  const strip = arenaLegendStrip(height, sides.length);
-  const box = arenaPlotBoxH(width, strip.plotH);
+  const strip = arenaLegendStrip(height, sides.length, false, room);
+  const box = arenaPlotBoxH(width, strip.plotH, room);
   const xScale = arenaLinearScale(domain.min, domain.max, box.x, box.x + box.w);
   const bands = arenaBandScale(n, box.y, box.h, chartBarGap);
   const axis = arenaAxisModelX(xScale, domain, away);
-  const colors = sides.map((one, s) => arenaSeriesColors(one, n, arenaCatRotate(colorStart, s), 'ArenaPyramidChart', colorStart));
+  const colors = sides.map((one, s) => arenaSeriesColors(one, n, arenaCatRotate(colorStart, s), colorStart));
   const table = arenaChartTable(locale.chartTableCategory, sides, labels, fmt);
 
   const name = arenaPhrase(locale.pyramidChartName, { label });
@@ -131,7 +132,7 @@ export function ArenaPyramidChart({ className,
         ))}
 
         {Array.from({ length: n }, (_, i) => (
-          <text key={i} x={arenaCategoryLabelX()} y={arenaBandCenter(bands, i)} textAnchor="end" dominantBaseline="middle"
+          <text key={i} x={arenaCategoryLabelX(room)} y={arenaBandCenter(bands, i)} textAnchor="end" dominantBaseline="middle"
             fill={ARENA_INK_MUTED} fontFamily="var(--font-body)" style={{ fontSize: 'var(--dz-text-xs)' }}>{labels[i] ?? ''}</text>
         ))}
 

@@ -88,21 +88,6 @@ render, the card is a plain surface.
 - Don't nest a card inside a card. The surface scale has three steps and a card is
   one of them; a card on a card reads as a mistake rather than as depth.
 
-**By hand, in a real browser** (`bun run demos`, then
-`frameworks/angular/components/display/arena-card/ArenaCard.demo.generated.html`):
-- An interactive card takes the hover surface, and one Tab reaches it and shows the focus ring.
-  Enter and Space both open it, and Space does not scroll the page underneath.
-- The disabled card is still reached by Tab and still announces itself, and neither key nor
-  pointer activates it.
-- On the card holding a field, typing Enter in the field does not open the card, and the badge
-  and the field keep their own presses.
-- `arena-elevation-floating` casts the floating shadow and the default flat card does not, with no
-  gradient on either.
-- A long body wraps inside the padding rather than escaping the radius: the root
-  clips with `overflow-hidden`, so a wide child is cropped rather than overflowing.
-- With only an `action` and no title or eyebrow, the header still renders and the
-  action sits right-aligned against an empty title block.
-
 ### A card that navigates
 
 `href` makes the whole card a real `<a>`: openable in a new tab, address copyable, announced

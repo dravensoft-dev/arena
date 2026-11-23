@@ -54,14 +54,38 @@ With these configs React stays with the app. An app release then downloads React
 
 ## How do I keep the package sheet in a file of its own?
 
-**Vite 7 and Vite 8** keep React apart as well, and match Arena's JS and the sheet with one test that names neither layer. Vite 7:
+**Vite 7 and Vite 8** keep React apart as well, and match Arena's JS and the sheet with one test that names neither layer. The shape depends on where the page's styles come from.
+
+A React project whose entry imports the sheets needs no plugin: the CSS import is the package sheet's own, and the chunk test keeps it apart. Vite 7:
 
 ```js
 export default {
   root: 'src',
   base: './',
   publicDir: false,
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: (id) => (/node_modules[\\/](react|react-dom|scheduler)[\\/]/.test(id) ? 'react'
+          : /node_modules[\\/]@dravensoft[\\/]arena-|arena\.package\.generated\.css/.test(id) ? 'arena' : undefined),
+      },
+    },
+    outDir: '../dist',
+    emptyOutDir: true,
+  },
+};
+```
+
+An Angular project has no `root`: its `index.html` sits at the project root and links `/src/styles.css`, which imports the package sheet. The `arena-sheet` plugin takes that import out and links the sheet from the page's head. Vite 7:
+
+```js
+import angular from '@analogjs/vite-plugin-angular';
+
+export default {
+  base: './',
+  publicDir: false,
   plugins: [
+    angular({ tsconfig: './tsconfig.json' }),
     {
       name: 'arena-sheet',
       enforce: 'pre',
@@ -70,20 +94,23 @@ export default {
       transformIndexHtml: { order: 'pre', handler: (html) => (/styles\.css/.test(html)
         ? [{ tag: 'link', attrs: { rel: 'stylesheet', href: '/src/arena.package.generated.css' }, injectTo: 'head-prepend' }]
         : []) },
-    },
+    }
   ],
   build: {
-    rollupOptions: { output: {
-      manualChunks: (id) => (/node_modules[\\/](react|react-dom|scheduler)[\\/]/.test(id) ? 'react'
-        : /node_modules[\\/]@dravensoft[\\/]arena-|arena\.package\.generated\.css/.test(id) ? 'arena' : undefined),
-    } },
-    outDir: '../dist',
+    rollupOptions: {
+      output: {
+        manualChunks: (id) => (/node_modules[\\/](react|react-dom|scheduler)[\\/]/.test(id) ? 'react'
+          : /node_modules[\\/]@dravensoft[\\/]arena-|arena\.package\.generated\.css/.test(id) ? 'arena' : undefined),
+      },
+    },
+    outDir: 'dist',
     emptyOutDir: true,
+    target: 'es2022',
   },
 };
 ```
 
-Vite 8 keeps `root`, `base`, `publicDir` and the `arena-sheet` plugin, and replaces the `manualChunks` function with groups:
+In the Angular block the `react` clause of `manualChunks` matches nothing and can stay or go. Vite 8 keeps everything in each of them except the `manualChunks` function, which it replaces with groups under `output`:
 
 ```js
 codeSplitting: { groups: [
@@ -94,9 +121,9 @@ codeSplitting: { groups: [
 
 With either config, the Arena CSS file keeps its bytes and its name when the app changes. Measured on 2026-10-25, on React and on Angular, by changing the app's text and its own sheet.
 
-The `arena-sheet` plugin serves a page that links `styles.css` itself, as an Angular project's `index.html` does. The plugin takes the package sheet's import out of that file and links the sheet from the page's head, so Vite emits it on its own. The `href` it writes is root-relative: `/src/arena.package.generated.css` names the file under the project root, where `index.html` sits. A React project whose entry imports the sheets needs only the chunk test.
+The `arena-sheet` plugin serves a page that links `styles.css` itself, as an Angular project's `index.html` does. The `href` it writes is root-relative to the project root, which is Vite's root when the config sets none. `/src/arena.package.generated.css` names the file under `src/`, beside the `styles.css` the plugin takes the import out of. A config with `root: 'src'` makes that root `src`, so a React project imports the sheets from its entry instead and needs only the chunk test.
 
-**rollup and rolldown** import no CSS, and stop the build on a CSS import. Map every `.css` import to an empty module, and link the four sheets `arena build` writes from your page, in the order [`install.md`](../install.md) gives. The module id must end in `.js`, because rolldown refuses a `.css` id before `load` runs:
+**rollup and rolldown** import no CSS, and stop the build on a CSS import. Map every `.css` import to an empty module, and link the sheets `arena build` writes from your page, in the order [`install.md`](../install.md) gives. The module id must end in `.js`, because rolldown refuses a `.css` id before `load` runs:
 
 ```js
 function emptyCss() {
@@ -114,7 +141,7 @@ function emptyCss() {
 }
 ```
 
-The package sheet holds no `@import` of a package specifier, so the page links it as written, measured on 2026-10-25. Copy the four sheets next to the page with a step of your own, as the sprite section says. What a CSS plugin of your own would do with the sheet was not exercised.
+The package sheet holds no `@import` of a package specifier, so the page links it as written, measured on 2026-10-25. Copy the sheets next to the page with a step of your own, as the sprite section says. What a CSS plugin of your own would do with the sheet was not exercised.
 
 **rolldown** stops with "Bundling CSS is no longer supported (experimental support has been removed)", the message of rolldown 1.2.15, measured on 2026-10-25.
 

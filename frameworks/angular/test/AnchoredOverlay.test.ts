@@ -2,7 +2,8 @@
  * renders a trigger and a panel template the way a component does. The pane sits on the body, so
  * every query starts there. What is held here is the stack: Escape reaches the topmost panel alone
  * and stops there, a press inside a panel above is inside, and focus moves only where an option
- * asks it to. Placement is the CDK's, and check:anchoring measures it in a real browser. */
+ * asks it to. Placement is arenaPlacePanel's against the visual viewport, handed to the CDK's global position
+ * strategy as left and top; the cases at the end hold it, and check:anchoring measures it in a real browser. */
 import { useTestEnvironment } from './TestbedEnv';
 useTestEnvironment();
 
@@ -10,8 +11,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Component, ElementRef, TemplateRef, input, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { Directionality } from '@angular/cdk/bidi';
+import { Subject } from 'rxjs';
 import {
-  ArenaAnchoredOverlay, arenaConnectedPositions, arenaFirstFocusable, arenaPhysicalPositions, arenaScopeDress,
+  ArenaAnchoredOverlay, arenaFirstFocusable, arenaScopeDress,
 } from '../AnchoredOverlay';
 import type { ArenaAnchoredOverlayOptions, ArenaPanelDismissal } from '../AnchoredOverlay';
 import { assertNotSameNode, assertSameNode } from './NodeAssert';
@@ -46,6 +49,7 @@ class Probe {
   readonly modal = input(false);
   readonly wide = input(false);
   anchorAnswers: number | null = null;
+  align: 'start' | 'end' = 'start';
   readonly seen: string[] = [];
   readonly anchorRef = viewChild.required<ElementRef<HTMLElement>>('anchor');
   readonly panelRef = viewChild.required<TemplateRef<unknown>>('panel');
@@ -58,7 +62,7 @@ class Probe {
     },
     trigger: () => probe.anchorRef().nativeElement.querySelector('button'),
     panel: () => probe.panelRef(),
-    positions: () => arenaConnectedPositions('start', 'below', 6),
+    placement: () => ({ align: probe.align, prefer: 'below', offset: 6 }),
     onDismiss: (reason: ArenaPanelDismissal) => {
       probe.seen.push(`${probe.name()}:${reason}`);
       probe.overlay.close();
@@ -416,29 +420,6 @@ test('an anchor gone by the time the overlay listens leaves the pane observed, a
   }
 });
 
-const corner = (position: { originX: string; originY: string }) => `${position.originY}:${position.originX}`;
-
-test('an aligned panel tries its preferred side at both alignments before the other side', () => {
-  const list = (align: 'start' | 'end', prefer: 'below' | 'above') => arenaConnectedPositions(align, prefer, 6).map(corner);
-  assert.deepEqual(list('end', 'below'), ['bottom:end', 'bottom:start', 'top:end', 'top:start']);
-  assert.deepEqual(list('start', 'below'), ['bottom:start', 'bottom:end', 'top:start', 'top:end']);
-  assert.deepEqual(list('end', 'above'), ['top:end', 'top:start', 'bottom:end', 'bottom:start']);
-  assert.deepEqual(list('start', 'above'), ['top:start', 'top:end', 'bottom:start', 'bottom:end']);
-});
-
-test('a centred panel keeps its two positions, one per side', () => {
-  assert.deepEqual(arenaConnectedPositions('center', 'above', 6).map(corner), ['top:center', 'bottom:center']);
-});
-
-test('start and end are the physical left and right, whatever the writing direction', () => {
-  const sides = (rtl: boolean) => arenaPhysicalPositions(arenaConnectedPositions('end', 'below', 6), rtl)
-    .map((position) => [position.originX, position.overlayX]);
-  assert.deepEqual(sides(false), [['end', 'end'], ['start', 'start'], ['end', 'end'], ['start', 'start']]);
-  assert.deepEqual(sides(true), [['start', 'start'], ['end', 'end'], ['start', 'start'], ['end', 'end']],
-    'in a right-to-left page the CDK reads end as the left edge');
-  assert.deepEqual(arenaPhysicalPositions(arenaConnectedPositions('center', 'above', 6), true).map((p) => p.originX), ['center', 'center']);
-});
-
 test('arenaScopeDress names the palette, plugin and density the anchor carries, and nothing when it carries none', () => {
   const anchor = document.createElement('span');
   document.body.append(anchor);
@@ -584,6 +565,262 @@ test('a pane open while the runtime palette is re-registered follows it', () => 
     unmark();
     window.localStorage?.removeItem('arena-theme');
     window.localStorage?.removeItem('arena-runtime-palette');
+    fixture.destroy();
+    disposeOverlays();
+  }
+});
+
+type StubVisual = EventTarget & { offsetTop: number; offsetLeft: number; height: number; width: number };
+
+function visualBox(width: number, height: number, offsetTop: number) {
+  return { offsetTop, offsetLeft: 0, height, width };
+}
+
+function domRect(left: number, top: number, width: number, height: number) {
+  return { x: left, y: top, left, top, right: left + width, bottom: top + height, width, height, toJSON() { return this; } } as DOMRect;
+}
+
+function stubVisualViewport(height: number, offsetTop = 0) {
+  const visual = Object.assign(new EventTarget(), visualBox(1024, height, offsetTop)) as StubVisual;
+  const had = Object.getOwnPropertyDescriptor(window, 'visualViewport');
+  Object.defineProperty(window, 'visualViewport', { configurable: true, value: visual });
+  const restore = () => {
+    if (had) Object.defineProperty(window, 'visualViewport', had); else delete (window as { visualViewport?: unknown }).visualViewport;
+  };
+  return { visual, restore };
+}
+
+function drawn(anchorTop: number, anchorHeight: number, paneHeight: number, layoutHeight: number) {
+  const rect = Element.prototype.getBoundingClientRect;
+  const height = Object.getOwnPropertyDescriptor(document.documentElement, 'clientHeight');
+  const width = Object.getOwnPropertyDescriptor(document.documentElement, 'clientWidth');
+  Object.defineProperty(document.documentElement, 'clientHeight', { configurable: true, value: layoutHeight });
+  Object.defineProperty(document.documentElement, 'clientWidth', { configurable: true, value: 1024 });
+  Element.prototype.getBoundingClientRect = function sized(this: Element) {
+    const isAnchor = this.hasAttribute('data-anchor');
+    const tall = this.classList.contains('cdk-overlay-pane') ? paneHeight : isAnchor ? anchorHeight : 0;
+    const top = isAnchor ? anchorTop : 0;
+    return domRect(0, top, 100, tall);
+  };
+  return () => {
+    Element.prototype.getBoundingClientRect = rect;
+    for (const [name, had] of [['clientHeight', height], ['clientWidth', width]] as const) {
+      if (had) Object.defineProperty(document.documentElement, name, had); else delete (document.documentElement as unknown as Record<string, unknown>)[name];
+    }
+  };
+}
+
+function placedTop(visual: [height: number, offsetTop: number] | null, field: [number, number]): string {
+  const stub = visual ? stubVisualViewport(visual[0], visual[1]) : null;
+  const undraw = drawn(field[0], field[1], 120, 800);
+  const { fixture, solo } = renderSolo({ plain: true });
+  solo.anchorRef().nativeElement.setAttribute('data-anchor', '');
+  try {
+    solo.overlay.open();
+    fixture.detectChanges();
+    return panelOf('solo')!.closest<HTMLElement>('.cdk-overlay-pane')!.style.marginTop;
+  } finally {
+    undraw();
+    stub?.restore();
+    fixture.destroy();
+    disposeOverlays();
+  }
+}
+
+test('a panel below a field that the keyboard covers flips above it', () => {
+  assert.equal(placedTop([300, 0], [250, 40]), `${250 - 6 - 120}px`, 'the pane stayed under the keyboard');
+});
+
+test('a pane is placed inside a visual viewport that is scrolled down', () => {
+  assert.equal(placedTop([300, 200], [210, 40]), '256px', 'the pane left the visible part of the screen');
+});
+
+test('no visual viewport keeps the inner height', () => {
+  assert.equal(placedTop(null, [250, 40]), '296px', 'the placement moved without a visual viewport');
+});
+
+test('a visual viewport resize or scroll re-places the pane, and closing removes the listeners', () => {
+  const stub = stubVisualViewport(800);
+  const undraw = drawn(250, 40, 120, 800);
+  const { fixture, solo } = renderSolo({ plain: true });
+  solo.anchorRef().nativeElement.setAttribute('data-anchor', '');
+  try {
+    solo.overlay.open();
+    fixture.detectChanges();
+    const pane = panelOf('solo')!.closest<HTMLElement>('.cdk-overlay-pane')!;
+    assert.equal(pane.style.marginTop, '296px');
+    stub.visual.height = 300;
+    stub.visual.dispatchEvent(new Event('resize'));
+    assert.equal(pane.style.marginTop, '124px', 'a keyboard that opened later did not move the pane');
+    stub.visual.height = 800;
+    stub.visual.dispatchEvent(new Event('scroll'));
+    assert.equal(pane.style.marginTop, '296px', 'a visual viewport scroll did not re-place the pane');
+    const ref = (solo.overlay as unknown as { ref: { updatePosition(): void } }).ref;
+    let placed = 0;
+    const original = ref.updatePosition.bind(ref);
+    ref.updatePosition = () => { placed += 1; original(); };
+    solo.overlay.close();
+    placed = 0;
+    stub.visual.height = 300;
+    stub.visual.dispatchEvent(new Event('resize'));
+    stub.visual.dispatchEvent(new Event('scroll'));
+    assert.equal(placed, 0, 'a closed pane still heard the visual viewport');
+  } finally {
+    undraw();
+    stub.restore();
+    fixture.destroy();
+    disposeOverlays();
+  }
+});
+
+test('a scroll anywhere on the page re-places the pane', () => {
+  const undraw = drawn(250, 40, 120, 800);
+  const { fixture, solo } = renderSolo({ plain: true });
+  const anchor = solo.anchorRef().nativeElement;
+  anchor.setAttribute('data-anchor', '');
+  try {
+    solo.overlay.open();
+    fixture.detectChanges();
+    const pane = panelOf('solo')!.closest<HTMLElement>('.cdk-overlay-pane')!;
+    undraw();
+    const again = drawn(100, 40, 120, 800);
+    try {
+      document.dispatchEvent(new Event('scroll'));
+      assert.equal(pane.style.marginTop, '146px', 'the pane did not follow its anchor on scroll');
+    } finally { again(); }
+  } finally {
+    fixture.destroy();
+    disposeOverlays();
+  }
+});
+
+function placedLeft(rtl: boolean, align: 'start' | 'end') {
+  if (rtl) {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [{ provide: Directionality, useValue: { value: 'rtl', change: new Subject() } }] });
+  }
+  const rect = Element.prototype.getBoundingClientRect;
+  const width = Object.getOwnPropertyDescriptor(document.documentElement, 'clientWidth');
+  const height = Object.getOwnPropertyDescriptor(document.documentElement, 'clientHeight');
+  Object.defineProperty(document.documentElement, 'clientWidth', { configurable: true, value: 1024 });
+  Object.defineProperty(document.documentElement, 'clientHeight', { configurable: true, value: 800 });
+  Element.prototype.getBoundingClientRect = function sized(this: Element) {
+    const isAnchor = this.hasAttribute('data-anchor');
+    const isPane = this.classList.contains('cdk-overlay-pane');
+    const left = isAnchor ? 300 : 0;
+    const wide = isAnchor ? 100 : isPane ? 60 : 0;
+    const tall = isAnchor ? 40 : isPane ? 120 : 0;
+    return domRect(left, 100, wide, tall);
+  };
+  const { fixture, solo } = renderSolo({ plain: true });
+  solo.anchorRef().nativeElement.setAttribute('data-anchor', '');
+  solo.align = align;
+  document.documentElement.style.direction = rtl ? 'rtl' : '';
+  try {
+    solo.overlay.open();
+    fixture.detectChanges();
+    const pane = panelOf('solo')!.closest<HTMLElement>('.cdk-overlay-pane')!;
+    const host = pane.parentElement!;
+    return { marginLeft: pane.style.marginLeft, dir: host.getAttribute('dir'), justifyContent: host.style.justifyContent };
+  } finally {
+    document.documentElement.style.direction = '';
+    Element.prototype.getBoundingClientRect = rect;
+    for (const [name, had] of [['clientHeight', height], ['clientWidth', width]] as const) {
+      if (had) Object.defineProperty(document.documentElement, name, had); else delete (document.documentElement as unknown as Record<string, unknown>)[name];
+    }
+    fixture.destroy();
+    disposeOverlays();
+  }
+}
+
+test('start and end are the physical left and right in a left-to-right page', () => {
+  assert.equal(placedLeft(false, 'start').marginLeft, '300px', 'start did not meet the anchor left edge');
+  assert.equal(placedLeft(false, 'end').marginLeft, '340px', 'end did not meet the anchor right edge');
+});
+
+test('start and end are logical: in a right-to-left page start lines up with the anchor right edge and end with its left', () => {
+  const start = placedLeft(true, 'start');
+  assert.equal(start.marginLeft, '340px', 'start stayed on the anchor left edge under dir rtl');
+  assert.equal(start.dir, 'rtl');
+  assert.equal(start.justifyContent, 'flex-end', 'the row did not run from the left under dir rtl');
+  assert.equal(placedLeft(true, 'end').marginLeft, '300px', 'end stayed on the anchor right edge under dir rtl');
+});
+
+test('a pane taller than the room under its field is capped to that room and scrolls, instead of covering the field', () => {
+  const stub = stubVisualViewport(360, 0);
+  const undraw = drawn(100, 40, 320, 800);
+  const { fixture, solo } = renderSolo({ plain: true });
+  solo.anchorRef().nativeElement.setAttribute('data-anchor', '');
+  try {
+    solo.overlay.open();
+    fixture.detectChanges();
+    const panel = panelOf('solo')!;
+    assert.equal(panel.closest<HTMLElement>('.cdk-overlay-pane')!.style.marginTop, '146px', 'the pane did not stay under the field');
+    assert.equal(panel.style.maxHeight, '214px');
+    assert.equal(panel.style.overflowY, 'auto');
+  } finally {
+    undraw();
+    stub.restore();
+    fixture.destroy();
+    disposeOverlays();
+  }
+});
+
+test('a pane that fits writes no max-height', () => {
+  const undraw = drawn(10, 40, 120, 800);
+  const { fixture, solo } = renderSolo({ plain: true });
+  solo.anchorRef().nativeElement.setAttribute('data-anchor', '');
+  try {
+    solo.overlay.open();
+    fixture.detectChanges();
+    assert.equal(panelOf('solo')!.style.maxHeight, '');
+  } finally {
+    undraw();
+    fixture.destroy();
+    disposeOverlays();
+  }
+});
+
+test('a scroll inside a capped pane does not place it again, and a scroll elsewhere keeps its scroll position', () => {
+  const stub = stubVisualViewport(360, 0);
+  const undraw = drawn(100, 40, 320, 800);
+  const { fixture, solo } = renderSolo({ plain: true });
+  solo.anchorRef().nativeElement.setAttribute('data-anchor', '');
+  try {
+    solo.overlay.open();
+    fixture.detectChanges();
+    const panel = panelOf('solo')!;
+    const pane = panel.closest<HTMLElement>('.cdk-overlay-pane')!;
+    const writes: number[] = [];
+    Object.defineProperty(panel, 'scrollTop', { configurable: true, get: () => 30, set: (value: number) => { writes.push(value); } });
+    pane.style.marginTop = '1px';
+    panel.dispatchEvent(new Event('scroll'));
+    assert.equal(pane.style.marginTop, '1px', 'a scroll inside the pane placed it again');
+    assert.deepEqual(writes, [], 'a scroll inside the pane rewrote its scroll position');
+    document.dispatchEvent(new Event('scroll'));
+    assert.equal(pane.style.marginTop, '146px', 'a scroll elsewhere did not place the pane');
+    assert.deepEqual(writes, [30], 'the scroll position was not restored after the cap was rewritten');
+  } finally {
+    undraw();
+    stub.restore();
+    fixture.destroy();
+    disposeOverlays();
+  }
+});
+
+test('a pane with no room either side keeps one row of height inside the visual viewport', () => {
+  const stub = stubVisualViewport(100, 0);
+  const undraw = drawn(20, 60, 320, 800);
+  const { fixture, solo } = renderSolo({ plain: true });
+  solo.anchorRef().nativeElement.setAttribute('data-anchor', '');
+  try {
+    solo.overlay.open();
+    fixture.detectChanges();
+    assert.equal(panelOf('solo')!.style.maxHeight, '44px', 'the cap fell below one row');
+    assert.equal(panelOf('solo')!.closest<HTMLElement>('.cdk-overlay-pane')!.style.marginTop, '56px', 'the pane was not clamped into the box');
+  } finally {
+    undraw();
+    stub.restore();
     fixture.destroy();
     disposeOverlays();
   }

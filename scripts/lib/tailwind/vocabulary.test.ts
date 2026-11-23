@@ -8,9 +8,10 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
-  declarations, compileFamily, readFamilies, channelReads, answerOf, answeredFamilies, markupDeclarations, restatedDeclarations, answeringParts, axisWrapped, LIMIT, sheetName, packageSheetName, type Family,
+  declarations, compileFamily, partSheetOwners, readFamilies, channelReads, answerOf, answeredFamilies, markupDeclarations, statedDeclarations, stateSelector, restatedDeclarations, answeringParts, axisWrapped, LIMIT, sheetName, packageSheetName, type Family, type MarkupState,
 } from './vocabulary.ts';
 import { LAYER_ORDER } from './component-sheets.ts';
+import { familyRules } from './vocabulary-rules.ts';
 import { layerManifests } from './tailwind-compile.ts';
 import type { ComponentManifest } from './manifest-shapes.ts';
 
@@ -113,25 +114,31 @@ const STACK: Family = {
   },
 };
 
-test('a markup family compiles unlayered, one scope per option over its own root, in the order the file writes them', () => {
-  assert.equal(compileFamily(STACK, []), `${LAYER_ORDER}@scope (.arena-stack) {
-  :scope {
-    display: flex;
-    flex-direction: column;
-    gap: var(--rhythm-component);
+test('a markup family compiles inside @layer components, one scope per option over its own root, in the order the file writes them', () => {
+  assert.equal(compileFamily(STACK, []), `${LAYER_ORDER}@layer components {
+  @scope (.arena-stack) {
+    :scope {
+      display: flex;
+      flex-direction: column;
+      gap: var(--rhythm-component);
+    }
   }
-}
-@scope (.arena-stack--start) {
-  :scope {
-    align-items: flex-start;
+  @scope (.arena-stack--start) {
+    :scope {
+      align-items: flex-start;
+    }
   }
-}
-@scope (.arena-stack--end) {
-  :scope {
-    align-items: flex-end;
+  @scope (.arena-stack--end) {
+    :scope {
+      align-items: flex-end;
+    }
   }
 }
 `);
+  for (const [name, family] of readFamilies()) {
+    if (family.target !== 'markup') continue;
+    assert.ok(compileFamily(family, []).startsWith(LAYER_ORDER), `${name}: the sheet opens on the layer order`);
+  }
 });
 
 test('no manifest answers a markup family', () => {
@@ -154,14 +161,31 @@ test('a restating option writes the literal values of the contract file it names
   assert.throws(() => restatedDeclarations('contracts/design/y.json', 'dz', root), /not a literal value/);
   const density: Family = { family: 'density', reach: 'context', target: 'markup', restates: 'dz', description: 'd',
     variants: { 'arena-compact': 'contracts/design/x.json' } };
-  assert.equal(compileFamily(density, [], root), `${LAYER_ORDER}@scope (.arena-compact) {
-  :scope {
-    --arena-density: compact;
-    --dz-ctl-h: 32px;
-    --dz-lh: 1;
+  assert.equal(compileFamily(density, [], root), `${LAYER_ORDER}@layer components {
+  @scope (.arena-compact) {
+    :scope {
+      --arena-density: compact;
+      --dz-ctl-h: 32px;
+      --dz-lh: 1;
+    }
   }
 }
 `);
+});
+
+test('a restated density emits its text in rem and its boxes in px', () => {
+  const root = track(mkdtempSync(join(tmpdir(), 'vocabulary-')));
+  mkdirSync(join(root, 'contracts/design'), { recursive: true });
+  const ext = (axis: string) => ({ 'com.dravensoft.arena': { userScale: axis } });
+  writeFileSync(join(root, 'contracts/design/z.json'), JSON.stringify({ dz: {
+    $type: 'dimension', $extensions: ext('fixed'),
+    'ctl-h': { $value: { value: 32, unit: 'px' } },
+    text: { $value: { value: 13, unit: 'px' }, $extensions: ext('scales') } } }));
+  assert.deepEqual(restatedDeclarations('contracts/design/z.json', 'dz', root),
+    [['--dz-ctl-h', '32px'], ['--dz-text', '0.8125rem']]);
+  const real = Object.fromEntries(restatedDeclarations('contracts/design/density.compact.json', 'dz'));
+  assert.equal(real['--dz-text'], '0.8125rem');
+  assert.equal(real['--dz-ctl-h'], '32px');
 });
 
 const size: Family = { family: 'probe', reach: 'context', description: 'x', default: 'arena-probe-md',
@@ -246,4 +270,152 @@ test('arena-mark-solid fills a badge with its hue\'s ink and writes on-ink over 
   const soft = css.split('@scope (.arena-mark-soft)')[1]?.split('@scope')[0] ?? '';
   assert.match(soft, /--arena-mark-fill: initial;\n\s+--arena-mark-ink: initial;/,
     'initial is the guaranteed-invalid value of a registered channel, so the badge reads its fallbacks under a container written solid');
+});
+
+const emphasisSheet = () => compileFamily(readFamilies().get('emphasis') as Family, [...layerManifests().values()]);
+
+test('the emphasis sheet writes a default block per member part', () => {
+  const css = emphasisSheet();
+  const block = /^  :where\(\[data-arena-part="button"\]\) \{\n([^}]*)\}/m.exec(css)?.[1] ?? '';
+  assert.match(block, /--arena-emphasis-fill: var\(--actions-primary-root-fill-rest,var\(--emphasis-primary-fill\)\);/);
+  assert.ok(css.indexOf(':where([data-arena-part="button"]) {') > css.lastIndexOf('@scope'), 'the default blocks come after the option scopes');
+  assert.match(css, /:where\(\[data-arena-part="icon-button"\]\) \{[^}]*--arena-emphasis-fill: var\(--actions-ghost-root-fill-rest,/);
+  assert.match(css, /:where\(\[data-arena-part="split-button\.caret"\]\) \{/);
+  assert.match(css, /:where\(\[data-arena-part="file-input\.trigger"\]\) \{[^}]*--arena-emphasis-fill: var\(--actions-secondary-root-fill-rest,/);
+  assert.doesNotMatch(css, /:where\(\[data-arena-part="copy-button"\]/, 'a copy button is no member part, so it takes no block of its own');
+});
+
+test('an option block writes the group chains over every answering part in one selector list, and a member with a channel of its own adds its block', () => {
+  const css = emphasisSheet();
+  const ghost = css.split('@scope (.arena-emphasis-ghost)')[1]!.split('@scope (')[0]!;
+  const lists = [...ghost.matchAll(/((?:    :scope\[[^\n]*,\n)*    :scope\[[^\n]*) \{\n/g)].map((m) => m[1]!);
+  assert.equal(lists.length, 2, ghost);
+  for (const part of ['button', 'copy-button', 'icon-button', 'split-button.caret', 'split-button.primary', 'file-input.trigger']) {
+    assert.ok(lists[0]!.includes(`[data-arena-part="${part}"]`), part);
+  }
+  assert.equal(lists[1], '    :scope[data-arena-part="icon-button"], [data-arena-part="icon-button"]');
+  assert.match(ghost, /--arena-emphasis-icon-edge: var\(--actions-ghost-root-edge-rest,var\(--emphasis-ghost-icon-edge\)\);/);
+  assert.match(ghost, /--arena-emphasis-icon-edge-hover: var\(--actions-ghost-root-edge-hover,var\(--actions-ghost-root-edge-rest,var\(--emphasis-ghost-icon-edge\)\)\);/);
+  assert.doesNotMatch(css, /--(button|icon-button|copy-button|split-button|file-input)-(primary|secondary|ghost|solid|destructive)-/);
+});
+
+test('a group option writes its own fade marker around the family fade', () => {
+  const css = emphasisSheet();
+  assert.match(css, /--arena-emphasis-fade-disabled: var\(--actions-primary-root-fade-disabled,var\(--fade-disabled\)\);/);
+  assert.match(css, /--arena-emphasis-fade-selected-disabled: var\(--actions-ghost-root-fade-selected-disabled,var\(--fade-disabled\)\);/);
+});
+
+test('channelReads marks a read that sits inside the fallback of another when asked', () => {
+  const classes = 'a-[var(--arena-x-a,var(--arena-x-b))] b-[var(--arena-x-b)]';
+  assert.deepEqual(channelReads(classes), [
+    { channel: '--arena-x-a', fallback: 'var(--arena-x-b)' }, { channel: '--arena-x-b', fallback: null }, { channel: '--arena-x-b', fallback: null }]);
+  assert.deepEqual(channelReads(classes, true).map((one) => one.nested), [false, true, false]);
+});
+
+test('the levelled rest icon channel wraps the icon and ink slots inside the ink level', () => {
+  const css = emphasisSheet();
+  const inside = 'var(--actions-ghost-root-icon-rest,var(--actions-ghost-root-ink-rest,var(--emphasis-ghost-ink)))';
+  assert.ok(css.includes(`--arena-emphasis-icon: color-mix(in oklab,${inside} var(--level-ink-body),transparent);`), 'the ghost icon');
+  assert.ok(css.includes('--arena-emphasis-icon: var(--actions-primary-root-icon-rest,var(--arena-emphasis-ink));'), 'an unlevelled state ends in the resolved ink channel');
+  assert.ok(css.includes('--arena-emphasis-icon-disabled: var(--actions-primary-root-icon-disabled,var(--arena-emphasis-ink-disabled));'));
+  assert.ok(css.includes('--arena-emphasis-ink-selected-disabled: var(--actions-ghost-root-ink-selected-disabled,var(--arena-emphasis-ink-selected));'));
+});
+
+test('a family with colour slots compiles per component, each sheet importing nothing, and the parts carry the rules of the whole sheet', () => {
+  const family = readFamilies().get('emphasis') as Family;
+  const manifests = [...layerManifests().values()];
+  const owners = partSheetOwners(family, manifests);
+  assert.deepEqual(owners, ['ArenaButton', 'ArenaCopyButton', 'ArenaFileInput', 'ArenaIconButton', 'ArenaSplitButton']);
+  assert.deepEqual(partSheetOwners(readFamilies().get('fill') as Family, manifests), []);
+  const button = compileFamily(family, manifests, undefined, 'ArenaButton');
+  assert.ok(button.startsWith(LAYER_ORDER));
+  assert.doesNotMatch(button, /icon-button|split-button|file-input|copy-button/);
+  assert.match(button, /:where\(\[data-arena-part="button"\]\) \{/);
+  const copy = compileFamily(family, manifests, undefined, 'ArenaCopyButton');
+  assert.ok(copy.startsWith(`${LAYER_ORDER}@layer utilities {`), 'a part sheet imports nothing, so a bundler reads each once');
+  assert.match(copy, /\[data-arena-part="copy-button"\]/);
+  assert.doesNotMatch(copy, /icon-button/, 'a copy button draws an icon button, whose own sheet answers it');
+  const whole = emphasisSheet();
+  const parts = owners.map((one) => compileFamily(family, manifests, undefined, one)).join('\n');
+  assert.ok(familyRules(whole).size > 20);
+  assert.deepEqual([...familyRules(parts)].sort(), [...familyRules(whole)].sort());
+});
+
+const STATED_ROWS: { name: string; classes: string; want: unknown }[] = [
+  { name: 'rest', classes: '[color:red]', want: [{ states: [], property: 'color', value: 'red' }] },
+  { name: 'one state', classes: 'hover:[background-color:var(--fill-hover)]',
+    want: [{ states: ['hover'], property: 'background-color', value: 'var(--fill-hover)' }] },
+  { name: 'chain in any order', classes: 'hover:selected:[color:x]', want: [{ states: ['hover', 'selected'], property: 'color', value: 'x' }] },
+  { name: 'underscore is a space', classes: 'pressed:[color:color-mix(in_oklab,a,b)]',
+    want: [{ states: ['pressed'], property: 'color', value: 'color-mix(in oklab,a,b)' }] },
+  { name: 'unknown state', classes: 'wobble:[color:red]',
+    want: /names the state "wobble", and a markup state is one of hover, pressed, selected, focus, disabled, invalid/ },
+  { name: 'repeated state', classes: 'hover:hover:[color:red]', want: /names hover twice/ },
+  { name: 'a utility', classes: 'hover:flex', want: /not an arbitrary CSS property/ },
+];
+
+test('a markup declaration names its states, and an unknown or repeated state is refused', () => {
+  for (const row of STATED_ROWS) {
+    if (row.want instanceof RegExp) assert.throws(() => statedDeclarations(row.classes), row.want, row.name);
+    else assert.deepEqual(statedDeclarations(row.classes), row.want, row.name);
+  }
+});
+
+const SELECTED = '[aria-selected="true"], [aria-current]:not([aria-current="false"]), [aria-pressed="true"]';
+const NOT_DISABLED = ':not(:disabled, [aria-disabled="true"])';
+
+const SELECTOR_ROWS: { name: string; states: MarkupState[]; want: string }[] = [
+  { name: 'rest', states: [], want: ':scope' },
+  { name: 'hover', states: ['hover'], want: `:scope:hover${NOT_DISABLED}` },
+  { name: 'pressed', states: ['pressed'], want: `:scope:active${NOT_DISABLED}` },
+  { name: 'selected', states: ['selected'], want: `:scope:is(${SELECTED})` },
+  { name: 'selected hover', states: ['hover', 'selected'], want: `:scope:hover:is(${SELECTED})${NOT_DISABLED}` },
+  { name: 'focus', states: ['focus'], want: ':scope:focus-visible' },
+  { name: 'disabled', states: ['disabled'], want: ':scope:is(:disabled, [aria-disabled="true"])' },
+  { name: 'invalid', states: ['invalid'], want: ':scope[aria-invalid="true"]' },
+];
+
+test('a state chain selects its attributes, and the pointer and a press stop on a disabled control', () => {
+  for (const row of SELECTOR_ROWS) assert.equal(stateSelector(row.states), row.want, row.name);
+});
+
+test('a markup family writes a rule per state chain, the pointer under (hover: hover)', () => {
+  const probe: Family = {
+    family: 'probe', reach: 'box', target: 'markup', description: 'x',
+    variants: {
+      'arena-probe': '[color:red] hover:[color:blue] selected:hover:[color:green] pressed:[color:gray]',
+      'arena-probe-focus': 'focus:[outline-color:var(--edge-focus)]',
+    },
+  };
+  assert.equal(compileFamily(probe, []), `${LAYER_ORDER}@layer components {
+  @scope (.arena-probe) {
+    :scope {
+      color: red;
+    }
+    @media (hover: hover) {
+      :scope:hover${NOT_DISABLED} {
+        color: blue;
+      }
+    }
+    @media (hover: hover) {
+      :scope:hover:is(${SELECTED})${NOT_DISABLED} {
+        color: green;
+      }
+    }
+    :scope:active${NOT_DISABLED} {
+      color: gray;
+    }
+  }
+  @scope (.arena-probe-focus) {
+    :scope:focus-visible {
+      outline-color: var(--edge-focus);
+    }
+  }
+}
+`);
+});
+
+test('a state chain writes a property once, and a second write is refused', () => {
+  const probe: Family = { family: 'probe', reach: 'box', target: 'markup', description: 'x', variants: { 'arena-probe': 'hover:[color:red] hover:[color:blue]' } };
+  assert.throws(() => compileFamily(probe, []), /arena-probe writes color twice under hover/);
 });

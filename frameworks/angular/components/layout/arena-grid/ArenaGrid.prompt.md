@@ -35,7 +35,7 @@ page is as wide as one on a full page.
 **Keys:** none.
 <!-- @keys end -->
 
-**The component replaces a hand-written column list, not a `minmax(0, 1fr)` in one.** A fixed column count needs a threshold, and a threshold is a number somebody invented. Six filter bars written by hand end up with three different ones, and none of them matches `--bp-*`. Here the floor is the `arena-grid-min` class, `sm`, `md` or `lg`. `--arena-grid-min` on a container takes a width no step names. The floor
+**The component replaces a hand-written column list, not a `minmax(0, 1fr)` in one.** A fixed column count needs a threshold, and a threshold is a number somebody invented. Six hand-written filter bars end up with three different ones, and none of them matches `--bp-*`. Here the floor is the `arena-grid-min` class, `sm`, `md` or `lg`. `--arena-grid-min` on a container takes a width no step names. The floor
 is clamped to the container's own width, so a minimum wider than the container gives one full-width
 column rather than an overflow. **The component is also the answer to a media query in a `styles:` block.** Such a query cannot read a `var()`. The query has to restate a threshold Arena already holds.
 
@@ -56,13 +56,6 @@ is the page's own reading width. A class on the grid wins over a property on its
   and the cells stop lining up; give the outer one the cells it actually has.
 - **Don't** wait for a fixed column count. A photo wall three across and a pair of lesson choices are both `grid-template-columns: repeat(N, 1fr)` on an element of your own, one line each. A count Arena took would contradict what this component is: the number comes from the room rather than from a breakpoint somebody picked. Two products measured wanting one, and neither would
   have written less than the line they wrote.
-
-**By hand, in real Chromium**: run `bun run demos` and open
-`/frameworks/angular/components/layout/arena-grid/ArenaGrid.demo.generated.html`:
-- Narrow the window from wide to 390px: the count falls one step at a time and never overflows.
-- At the narrowest, one column fills the width; the minimum is clamped rather than honoured.
-- Each gap is a visibly different step, and both axes get the same one.
-- With an `arena-grid-max` class written, the grid centres and stops growing; without one, it fills.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

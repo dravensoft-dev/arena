@@ -1,6 +1,6 @@
 A working surface anchored to one edge of the page, kept open beside the page rather than over it:
 a cart, a filter drawer, a detail pane. The sheet carries no scrim, traps no focus and takes nothing away from what is behind it. **When a panel is meant to take the whole interaction until it is answered,
-that is an `ArenaDialog`**, two stacking slots higher, and the scrim is how it says so.
+that is an `ArenaDialog`**, three stacking steps higher, and the scrim is how it says so.
 
 ```tsx
 <ArenaSheet open={cartOpen} className="arena-placement-end" title="Cart"
@@ -50,9 +50,9 @@ that is an `ArenaDialog`**, two stacking slots higher, and the scrim is how it s
 - **Do** own both booleans. Neither folds nor closes itself, so a handler that ignores
   `onCollapsedChange` gets a caret that turns and a body that does not move.
 - **Do** put the one action the panel exists for in `footer`. The footer sits outside the folding body, so a folded panel still carries it.
-- **Do** pair it with a rail when it is the navigation drawer on a phone. Put `md:hidden` on an element of your own around the sheet and `max-md:hidden` on one around the rail. A branch on `useArenaViewportBelow('md')` gives the same split in code. A project that compiles none of these utilities writes the same pair as `@media (width < 768px)` and `@media (width >= 768px)` on those two elements.
+- **Do** pair it with a rail when it is the navigation drawer on a phone. Put `md:hidden` on an element of your own around the sheet and `max-md:hidden` on one around the rail. A branch on `useArenaViewportBelow('md')` gives the same split in code. A project that compiles none of these utilities writes the same pair as `@media (width < 48em)` and `@media (width >= 48em)` on those two elements.
 - **Don't** reach for it as a menu or a popover. The sheet spans a whole edge and stays. `ArenaMenu` is the transient list that hangs off a trigger.
-- **Don't** open two at once on the same edge. The two share a stacking slot and one lands on the other. A second surface at the same time is a sign the first should have been an `ArenaDialog`.
+- **Don't** open two at once on the same edge. The two share a stacking step and one lands on the other. A second surface at the same time is a sign the first should have been an `ArenaDialog`.
 - **Don't** put a form a reader must finish in it. Nothing stops them clicking away mid-way, which
   is the whole point of a non-modal panel and the whole reason a confirmation is not one.
 

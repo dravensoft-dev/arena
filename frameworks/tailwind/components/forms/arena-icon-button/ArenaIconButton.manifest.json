@@ -21,7 +21,7 @@
     }
   ],
   "slots": {
-    "root": "inline-flex items-center justify-center rounded-control cursor-pointer transition-[background] duration-[var(--dur-hover)] ease-hover disabled:opacity-45 disabled:cursor-not-allowed shadow-control-rest active:scale-[var(--press-scale)] motion-reduce:active:scale-100 w-[var(--arena-fill-width,fit-content)] h-[var(--arena-size-control-h,var(--size-md-control-h))] min-w-[var(--arena-size-control-h,var(--size-md-control-h))] bg-[color:var(--arena-emphasis-fill,transparent)] text-[color:var(--arena-emphasis-ink,color-mix(in_oklab,var(--emphasis-ghost-ink)_var(--level-ink-body),transparent))] border-[length:var(--bw-control)] border-[color:var(--arena-emphasis-icon-edge,var(--emphasis-ghost-icon-edge))] [border-style:var(--arena-emphasis-edge-style,solid)]",
+    "root": "inline-flex items-center justify-center rounded-control cursor-pointer transition-[background] duration-[var(--dur-hover)] ease-hover disabled:cursor-not-allowed shadow-control-rest active:scale-[var(--press-scale)] motion-reduce:active:scale-100 w-[var(--arena-fill-width,fit-content)] min-h-[var(--arena-size-control-h,var(--size-md-control-h))] min-w-[var(--arena-size-control-h,var(--size-md-control-h))] bg-[color:var(--arena-emphasis-fill)] text-[color:var(--arena-emphasis-ink)] [--arena-icon-ink:var(--arena-emphasis-icon)] border-[length:var(--bw-control)] border-[color:var(--arena-emphasis-icon-edge)] [border-style:var(--arena-emphasis-edge-style)] focus-visible:outline-[length:var(--bw-focus)] focus-visible:outline-edge-focus focus-visible:outline-offset-[var(--gap-focus)]",
     "label": "font-body font-control text-ctl leading-ctl"
   },
   "kind": {
@@ -39,10 +39,10 @@
     },
     "pressed": {
       "true": {
-        "root": "bg-primary/14 text-ink-body/(--level-ink-body) border-primary/38 hover:bg-primary/22"
+        "root": "bg-[color:var(--arena-emphasis-fill-selected)] text-[color:var(--arena-emphasis-ink-selected)] border-[color:var(--arena-emphasis-icon-edge-selected)] [--arena-icon-ink:var(--arena-emphasis-icon-selected)] hover:bg-[color:var(--arena-emphasis-fill-selected-hover)] hover:text-[color:var(--arena-emphasis-ink-selected-hover)] hover:border-[color:var(--arena-emphasis-icon-edge-selected-hover)] hover:[--arena-icon-ink:var(--arena-emphasis-icon-selected-hover)] active:bg-[color:var(--arena-emphasis-fill-selected-pressed)] active:text-[color:var(--arena-emphasis-ink-selected-pressed)] active:border-[color:var(--arena-emphasis-icon-edge-selected-pressed)] active:[--arena-icon-ink:var(--arena-emphasis-icon-selected-pressed)] disabled:bg-[color:var(--arena-emphasis-fill-selected-disabled)] disabled:text-[color:var(--arena-emphasis-ink-selected-disabled)] disabled:border-[color:var(--arena-emphasis-icon-edge-selected-disabled)] disabled:[--arena-icon-ink:var(--arena-emphasis-icon-selected-disabled)] disabled:opacity-[var(--arena-emphasis-fade-selected-disabled)]"
       },
       "false": {
-        "root": "hover:bg-[color:var(--arena-emphasis-fill-hover,var(--emphasis-ghost-fill-hover))]"
+        "root": "hover:bg-[color:var(--arena-emphasis-fill-hover)] hover:text-[color:var(--arena-emphasis-ink-hover)] hover:border-[color:var(--arena-emphasis-icon-edge-hover)] hover:[--arena-icon-ink:var(--arena-emphasis-icon-hover)] active:bg-[color:var(--arena-emphasis-fill-pressed)] active:text-[color:var(--arena-emphasis-ink-pressed)] active:border-[color:var(--arena-emphasis-icon-edge-pressed)] active:[--arena-icon-ink:var(--arena-emphasis-icon-pressed)] disabled:bg-[color:var(--arena-emphasis-fill-disabled)] disabled:text-[color:var(--arena-emphasis-ink-disabled)] disabled:border-[color:var(--arena-emphasis-icon-edge-disabled)] disabled:[--arena-icon-ink:var(--arena-emphasis-icon-disabled)] disabled:opacity-[var(--arena-emphasis-fade-disabled)]"
       }
     }
   },

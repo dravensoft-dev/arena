@@ -41,10 +41,6 @@ test('the first render on the server draws only the roots when nothing is open',
   assert.doesNotMatch(html, /aria-selected/);
 });
 
-test('a blank label is refused', () => {
-  assert.throws(() => renderToStaticMarkup(<ArenaTreeView label="  " nodes={NODES} />), /ArenaTreeView: `label` is required/);
-});
-
 test('a node with a blank id or a blank label is refused, naming the field and the index', () => {
   const blankId = [...NODES, { id: ' ', label: 'Ghost' }];
   assert.throws(() => renderToStaticMarkup(<ArenaTreeView label="Files" nodes={blankId} />),

@@ -41,7 +41,7 @@ export function ArenaSection({ className,
     throw new Error('ArenaSection: `headingLevel` cannot be none, because `title` is required and names the region its heading introduces');
   }
   if (React.Children.toArray(children).length === 0) {
-    throw new Error('ArenaSection: a section with no children is not a legal shape, because its heading would name nothing');
+    throw new Error('ArenaSection: `children` is required, and a section with no children is not a legal shape, because its heading would name nothing');
   }
   const styles = arenaSectionStyles({});
   const Heading = headingLevel;

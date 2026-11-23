@@ -78,6 +78,9 @@ export function ArenaSelect({ className,
           {placeholder && <option value="" disabled>{placeholder}</option>}
           {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>
+        {hasError
+          ? <span className={styles.statusIcon()} data-arena-part={manifest.parts.statusIcon} {...styles.$data.statusIcon()} aria-hidden="true"><ArenaIcon icon="ph-fill ph-warning-circle" /></span>
+          : valid && <span className={styles.statusIcon()} data-arena-part={manifest.parts.statusIcon} {...styles.$data.statusIcon()} aria-hidden="true"><ArenaIcon icon="ph-fill ph-check-circle" /></span>}
         <span className={styles.caret()} data-arena-part={manifest.parts.caret} {...styles.$data.caret()} aria-hidden="true">▾</span>
       </div>
       {error

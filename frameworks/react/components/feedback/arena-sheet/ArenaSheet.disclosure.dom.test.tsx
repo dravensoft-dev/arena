@@ -48,12 +48,20 @@ test('ArenaSheet meets the disclosure pattern it binds, and its two keys are pre
   });
 });
 
-test('Enter and Space reach a native button as a click, so the platform activates it and Arena reports', () => {
+test('Enter and Space are left to the native button: Arena neither intercepts nor reports them itself', () => {
   for (const key of ['Enter', ' ']) {
     const seen: boolean[] = [];
-    const root = mount(one({ onCollapsedChange: (v) => seen.push(v) }));
-    act(() => { triggerIn(root).click(); });
-    assert.deepEqual(seen, [true], `${key}: a press must report exactly one boolean, the state moved to`);
+    let closes = 0;
+    const root = mount(one({ dismissible: true, onClose: () => { closes += 1; }, onCollapsedChange: (v) => seen.push(v) }));
+    const live = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true });
+    act(() => { triggerIn(root).dispatchEvent(live); });
+    assert.equal(live.defaultPrevented, true, 'sanity: the keydown handler is live on this trigger');
+    assert.equal(closes, 1, 'sanity: Escape reached onClose');
+    const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+    act(() => { triggerIn(root).dispatchEvent(event); });
+    assert.equal(event.defaultPrevented, false, `${JSON.stringify(key)}: Arena must not swallow the key the platform activates with`);
+    assert.equal(closes, 1, `${JSON.stringify(key)}: only Escape closes`);
+    assert.deepEqual(seen, [], `${JSON.stringify(key)}: the keydown alone reports nothing; the platform's click does`);
     cleanup();
   }
 });
@@ -123,6 +131,3 @@ test('closed renders nothing at all, which is what makes it a different state fr
   assert.equal(root.textContent?.trim(), '', 'a closed panel must render nothing');
 });
 
-test('a blank title throws rather than rendering a panel nothing can name', () => {
-  assert.throws(() => mount(<ArenaSheet open title="">body</ArenaSheet>), /title/);
-});

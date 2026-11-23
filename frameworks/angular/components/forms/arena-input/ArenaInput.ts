@@ -29,7 +29,7 @@ export function arenaInputIdFor(id: string | undefined, label: string | undefine
   },
   template: `
     @if (label(); as text) {
-      <label [class]="styles().label()" [attr.data-arena-part]="parts.label" [attr.for]="controlId()">{{ text }}@if (required()) {
+      <label [class]="styles().label()" [arenaSlotData]="styles().$data.label()" [attr.data-arena-part]="parts.label" [attr.for]="controlId()">{{ text }}@if (required()) {
         <span [class]="styles().required()" [attr.data-arena-part]="parts.required">*</span>
       }</label>
     }
@@ -54,9 +54,9 @@ export function arenaInputIdFor(id: string | undefined, label: string | undefine
       }
     </div>
     @if (shownError(); as message) {
-      <span [attr.id]="noteId()" [class]="styles().error()" [attr.data-arena-part]="parts.error">{{ message }}</span>
+      <span [attr.id]="noteId()" [class]="styles().error()" [arenaSlotData]="styles().$data.error()" [attr.data-arena-part]="parts.error">{{ message }}</span>
     } @else if (hint(); as text) {
-      <span [attr.id]="noteId()" [class]="styles().hint()" [attr.data-arena-part]="parts.hint">{{ text }}</span>
+      <span [attr.id]="noteId()" [class]="styles().hint()" [arenaSlotData]="styles().$data.hint()" [attr.data-arena-part]="parts.hint">{{ text }}</span>
     }
   `,
 })
