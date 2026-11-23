@@ -7,7 +7,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   ANCHORED, MOUNTED, OPENED, alikeProblems, anchoringProblems, caseUrl, confineExpression, directionScript, initScripts, readExpression, scrollExpression,
-  smallestRow, visualViewportScript, type Anchored, type Reading,
+  settleExpression, SETTLED, smallestRow, visualViewportScript, type Anchored, type Reading,
 } from './check-anchoring.ts';
 import { SCOPES } from './check-target-size.ts';
 
@@ -275,4 +275,16 @@ test('a list is held to the floor of every scope: a short row fails in that scop
     if (row.pattern) assert.match(problems[0] ?? '', row.pattern, row.name);
     if (row.includes !== undefined) assert.ok(problems[0]?.includes(row.includes), `${row.name}: names ${row.includes}`);
   }
+});
+
+test('a panel frozen mid-entrance is read at rest, because the settle finishes every animation before it reads a box', async () => {
+  let finished = false;
+  const panel = { getBoundingClientRect: () => ({ left: 0, top: finished ? 562 : 558, width: 200, height: 120 }) };
+  const page = {
+    document: { querySelector: () => panel, getAnimations: () => [{ finish: () => { finished = true; } }] },
+    requestAnimationFrame: (step: () => void) => { queueMicrotask(step); },
+  };
+  const settle = new Function('document', 'requestAnimationFrame', `return ${settleExpression(below, SETTLED)};`);
+  assert.equal(await settle(page.document, page.requestAnimationFrame), true);
+  assert.equal(finished, true, 'an entrance that never advances between two frames has to be finished, never waited out');
 });

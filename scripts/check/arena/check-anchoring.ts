@@ -47,7 +47,7 @@ export const OPENED: Deadline = deadline('anchoring:opened', 5_000,
 
 export const SETTLED: Deadline = deadline('anchoring:settled', 5_000,
   'a panel is placed again by a resize observer and a visual viewport event after it opens, and its box '
-  + 'is read only once it has not moved across two animation frames');
+  + 'is read only once it has not moved across two animation frames, with every finite entrance finished first');
 
 export type Edge = 'below' | 'above';
 
@@ -247,7 +247,8 @@ export function settleExpression(kase: Anchored, bound: Deadline) {
   return `new Promise((resolve) => {
     const until = Date.now() + ${bound.ms};
     const panel = document.querySelector(${JSON.stringify(kase.panel)});
-    const key = () => { const b = panel.getBoundingClientRect(); return [b.left, b.top, b.width, b.height].join(); };
+    const rest = () => document.getAnimations().forEach((one) => { try { one.finish(); } catch {} });
+    const key = () => { rest(); const b = panel.getBoundingClientRect(); return [b.left, b.top, b.width, b.height].join(); };
     let last = key();
     const tick = () => requestAnimationFrame(() => requestAnimationFrame(() => {
       const now = key();
